@@ -15,6 +15,17 @@
 > owns the current task lifecycle; this document does not restate it. A passing characterization
 > does not turn a known defect into intended behavior.
 
+## Before adding order
+
+1. Start with no new ordering mechanism. Pending work is a choice pool, not a procedural stack.
+2. Name the illegal committed result the proposed order prevents. A recoverable dead end is not one.
+3. Remember that `A THEN B` waits only for A's task; B gains neither priority nor transitive
+   completion semantics.
+4. Use `::` only for a choice-free consequence whose absence would expose an incoherent World.
+5. Treat stable iteration order as diagnostics only. Never turn it into a rule or test expectation.
+6. If the proposed fix is a `TfmGameplay` bridge based on rendered instruction or cause, stop: that
+   is evidence of missing authored or engine semantics.
+
 ## Read only what you need
 
 | Question | Read |
@@ -137,7 +148,7 @@ The substitutes in use, and where each fails:
 | Player queue drain | One Actor has nothing left | Combines unrelated work; queue cardinality has no gameplay meaning. |
 | Client bridge (`TfmGameplay`) | A string match on instruction text or `cause.context` | Not a rule at all. |
 
-The strongest evidence that the concept is missing is the last row. `TfmGameplay` still identifies
+The clearest sign that the concept is missing is the last row. `TfmGameplay` still identifies
 some payment tasks by instruction shape. A public convenience API is reconstructing operation scope
 because the engine will not tell it. `UseAction` is the clearest case: it is a `Signal`, an instant,
 so nothing at all represents the action that is under way.
@@ -214,8 +225,8 @@ legal completion reachable and lets no illegal result commit.
 Two notes on rung 3. `THEN` waits for the A *task*, not A's transitive consequences, and B receives
 no priority over unrelated work — `A1, A2, B1, B2` is a legal order for two chains. `THEN` also
 opens one implicit Type-variable scope, which is often the real reason to use it: Mining Rights and
-Capital carry a chosen area or tile forward. That is a shared-variable constraint, not evidence that
-the later work deserves precedence. When auditing one, check both that A genuinely owns the choice
+Capital carry a chosen area or tile forward. That is a shared-variable constraint, not a reason to
+give the later work precedence. When auditing one, check both that A genuinely owns the choice
 and that the artificial order buys a readable variable relationship rather than hiding an unordered
 model.
 
@@ -256,7 +267,7 @@ For precursor P and result A:
 - create P only after the Player has selected the operation that entails A;
 - make every producer of P force A before the operation can commit;
 - preserve the owner, Type, and multiplicity needed to relate P to A;
-- put on P only the effects that must act before A exists — ordinary reactions still subscribe to A;
+- put on P only the effects that must act before A exists — reactions still subscribe to A;
 - establish P-before-A with the ladder above. Being a `Signal` provides no sequencing by itself.
 
 The P/A distinction is permanent conceptual cost, justified only when A is genuinely too late or
@@ -320,7 +331,7 @@ Union is the model.
 
 A queued Player task should exist because the Player can make a real choice: whether to act, which
 alternative to take, how to narrow it, or when to perform one of several reorderable effects. Do not
-expose a Player task merely because the implementation wants a pulse or a cleanup step. This is the
+expose a Player task just because the implementation wants a pulse or a cleanup step. This is the
 rule that stops new client bridges from appearing.
 
 Place choice-free work according to what it means:
@@ -360,7 +371,7 @@ sweep as one policy for satisfying the invariant rather than as a second, opposi
 
 `MustCleanUp` components represent mandatory unfinished state, and each needs an honest completion
 event: debt reaching zero, the end of an action, or another rule-specific fact. A generic Player
-queue drain must not consume unrelated temporary state merely because it is pending for the same
+queue drain must not consume unrelated temporary state simply because it is pending for the same
 Player.
 
 ### Current behavior: whole-World idle cleanup
@@ -368,7 +379,7 @@ Player.
 `Temporary` is a narrow component-lifetime contract. Whenever every task queue is empty, the
 outermost atomic scope removes every live instance of that class before notifying workflow that the
 operation completed. Removal effects may create more components or tasks, so the engine runs
-ordinary automatic work again and repeats cleanup until an idle pass finds nothing left to remove.
+automatic work again and repeats cleanup until an idle pass finds nothing left to remove.
 Only that empty pass allows the workflow callback. Work the callback starts synchronously is
 coalesced into one automatic follow-up step, and the same cleanup loop runs again before the
 resulting position is recorded. Every pass happens inside an atomic transaction. See
@@ -417,7 +428,7 @@ Both proposals target the weak rows in The promises. Neither needs new engine co
   choose legally among pending tasks in a different order and compare committed state at the next
   stable point. Start with one recorded game and one seed.
 
-Presentation order remains load-bearing only in unsafe automatic execution, where `autoExecNext`
+Presentation order is load-bearing only in unsafe automatic execution, where `autoExecNext`
 falls back to `eligible.first()`. Explicit clients match on instruction or stable task id, and
 Terraforming Mars helpers match semantic task data before using that id.
 
@@ -431,7 +442,7 @@ Ordered. Stop and report rather than growing any of these into cross-module voca
 3. Make `Temporary` a `MustCleanUp` and collapse the two idle sweeps into one invariant with one
    check.
 4. **Head Start** — its sibling tasks currently let its two actions interleave. Prefer using the
-   current Prelude turn for the first action and granting a second ordinary action turn after normal
+   current Prelude turn for the first action and granting a second action turn after normal
    settlement. If authoritative evidence demands one indivisible operation, record the simpler timing
    as a deliberate house rule rather than disguising it as exact fidelity.
 5. **Mars University** — incremental `THEN` permits two discards before either draw when two
@@ -447,7 +458,7 @@ unavailable.
 
 These encodings are considered principled and need no re-litigation: global-parameter change before
 TR and threshold reactions; tile placement before adjacency and bonuses, with the reactions as
-siblings; `UseCardAction` placing the `ActionUsedMarker` before `UseAction`; trade income and
+siblings; `UseActionOnCardAction` placing the `ActionUsedMarker` before `UseAction`; trade income and
 individual colony bonuses as reorderable siblings; and card-resource `THEN` chains carrying X into an
 `Owed` reduction.
 

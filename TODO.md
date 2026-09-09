@@ -6,6 +6,27 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Rewrite the agent documents that have outgrown their intended teaching or orientation role:
+  - make `ENGINE.md` only a quick tour of the runtime's major pieces;
+  - make `GAMEWORLD.md` a quick orientation to the intended `state`/`engine` split;
+  - reduce `API.md` to its important core principles and decisions;
+  - make `RESPONSIBILITIES.md` tight and focused;
+  - make `SEQUENCING.md` an overview of intra-turn ordering mechanisms and ideas for improving them;
+  - rewrite `IDENTITY.md` as a teaching document about the runtime roles and their uses;
+  - make `QUANTIFIERS.md` a focused educational reference;
+  - reduce `EACH.md` to a terse feature reference;
+  - let `AUTOEXEC.md` broadly survey the ideas for improving autoexecution;
+  - make `PROPERTIES.md` a focused feature reference followed by the possible future design for
+    instruction-valued properties;
+  - replace `OPTIONS.md` with a focused educational explanation of the features;
+  - reduce `TESTING.md` to the important repository-specific guidance; and
+  - rewrite `JVM_TEST_PERFORMANCE.md` holistically, incorporating the work on `perf` and keeping the
+    document identical on `perf` and `main`.
+- Revisit the tested `GenerationScope` lifetime model preserved in stash commit `d8a94cc1c`.
+- Revisit the cleanup-vocabulary draft that removes broad `Barrier` waits, preserved in stash commit
+  `db9302652`.
+- Review the committed `OverlayWorld` and query-performance work on branch `perf` before integrating
+  selected changes into `main`.
 - Do not let `Engine.newGame` exit bootstrap until it has validated every invariant against the
   completed World, including positive lower bounds and correctly scoped dependent-component
   invariants.
@@ -19,6 +40,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   names are concrete Catalog Classes and require no Vocabulary mechanism.
 - Revisit causal ownership inside `BootstrapPhase`, moving initialization work under ordinary
   phase-caused tasks as soon as the required runtime state can express them.
+- Let refinements reference their candidate explicitly, so a selector can relate a nested
+  dependency to that candidate without repeating its complete expression.
+- Decouple cleanup lifetime from log visibility so player-meaningful signals such as `Pay` and
+  `PayFromCard` need not inherit `Hidden` through `MustCleanUp`.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
 - Discard the uncommitted typed custom-metric/code-generation experiment; it was evaluated and
@@ -55,13 +80,14 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Investigate whether the three self-handling signals `CimmeriaPlacementBonus`,
   `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
   requiring authored references to generated names. Preserve Cimmeria map generation,
-  `PlaceNeutralTiles`'s system-only ownership, and SRR's explicit berth selection.
+  `PlaceNeutralTiles`'s system-only ownership, and SRR's explicit card-Class selection.
 - Have the payment lowering in `Transforming.actionToEffects` receive its standard-resource Class
   names from `tfm-canon` instead of the hardcoded `standardResourceClasses` set in `pets`; that set is
   Terraforming Mars data sitting in the language core, and it is the only reason generic Action
   lowering knows any game's vocabulary.
 - **Better Task Disambiguation:** let callers state the intended task without searching the task
-  pool; use extra identity only when distinct tasks accept the same narrowing. Current use cases:
+  pool; use extra identity only when distinct tasks accept the same narrowing. Prior partial work is
+  in commits `fc84e1490` and `a76bb9949`. Current use cases:
   - `TfmTest` and `RecordedGame` search tasks for tile placement, card-resource placement, qualified
     declines, and wild-tag assignment.
   - `TfmGameplay` searches for project-card offers/discards, the second-action offer, wild-tag
@@ -95,9 +121,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   areas and add placement rules.
 - Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
   with the canonical card.
-- Reduce recorded-game viewer loading allocation, starting with repeated `DependencySet`
-  iteration/lookups and abstract `ComponentGraph` count queries; validate changes with
-  `SavedGameReplayBenchmark`.
 - Serve copied Canon resources from the game-viewer Karma configuration; the resources reach the
   test package, but `:game-viewer:jsBrowserTest` currently gets a 404 for
   `canon/resource-index.txt`.

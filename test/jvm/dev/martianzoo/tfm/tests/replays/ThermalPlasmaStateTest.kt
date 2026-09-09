@@ -288,7 +288,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
           .expect("1 M")
       playProject(TowingAComet, 5, titanium = 6) { placeTile(4, 6) }.expect("0 M")
       playProject(LavaFlows, 18) { placeTile(3, 1) }.expect("-15 M")
-      stdProject("AsteroidSP") { placeTile(4, 7) }.expect("-10 M")
+      stdProject("AsteroidProject") { placeTile(4, 7) }.expect("-10 M")
       convertPlants { placeTile(5, 7) }.expect("4 M")
       cardAction1(BusinessNetwork) { buyCards(NuclearPower) }
       cardAction2(ForcedPrecipitation)
@@ -354,15 +354,15 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       cardAction2(SulphurEatingBacteria) { doTask("-19 Microbe<$SulphurEatingBacteria> THEN 57 M") }
           .expect("57 M")
       playProject(ReleaseOfInertGases, 14).expect("-11 M")
-      stdProject("AquiferSP") { placeTile(2, 5) }.expect("-14 M")
+      stdProject("AquiferProject") { placeTile(2, 5) }.expect("-14 M")
       playProject(Mangrove, 12) { placeTile(3, 5) }.expect("-4 M")
-      stdProject("CitySP") { placeTile(4, 5) }.expect("-21 M")
+      stdProject("CityProject") { placeTile(4, 5) }.expect("-21 M")
       playProject(Algae, 10)
       stdAction("TradeAction", 2) { doTask("Trade<Ganymede>") }
-      stdProject("AquiferSP") { placeTile(5, 4) }.expect("-16 M")
+      stdProject("AquiferProject") { placeTile(5, 4) }.expect("-16 M")
       convertPlants { placeTile(5, 5) }.expect("4 M")
       convertPlants { placeTile(3, 4) }.expect("4 M")
-      stdProject("AsteroidSP")
+      stdProject("AsteroidProject")
       assertCounts(3 to "M")
       pass()
       // Decline the final greenery placement.

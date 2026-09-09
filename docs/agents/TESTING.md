@@ -17,7 +17,9 @@
 | --- | --- |
 | Choose commands or suite scope | Standard verification |
 | Change Gradle/dependencies/source sets | Build configuration |
-| Write or move a test | Test design through the relevant test category |
+| Write or move a card/rule test or gameplay helper | Test design through the relevant test category |
+| Use `TaskResult.expect()` | Expectations |
+| Preserve known incorrect behavior | Known-defect tests |
 | Reconstruct a whole game | Game replay tests and Direct state reconciliation, then the routed replay guide |
 | Change shared multiplatform tests | Multiplatform tests |
 
@@ -129,13 +131,18 @@ spell out `public` and their public types; declarations used only within one mod
 
 ## Test design
 
+> **Recurring failure warning:** Card and rule tests operate through player-facing gameplay and
+> assert observable results. They do not inspect rendered task text, causes, incidental queue order,
+> or mirrored Canon data. A test-support helper must express a recurring component-independent
+> operation, never one card's rule or missing engine semantics.
+
 Terraforming Mars integration tests live under `dev.martianzoo.tfm.tests`: `cards` contains
 component-focused behavior, `rules` contains game-wide and cross-component behavior, and `replays`
-contains whole-game chronologies. Shared integrated-test support remains directly in the parent
+contains whole-game chronologies. Shared integrated-test support lives directly in the parent
 package. Test placement follows purpose: a test of engine behavior belongs with engine even when it
 uses Terraforming Mars declarations to construct its scenario, while a test of Terraforming Mars
 rules or content belongs in the Terraforming Mars suites. Test-only dependencies may cross that
-direction; production dependencies may not. Small generic declarations remain preferable when they
+direction; production dependencies may not. Small generic declarations are preferable when they
 make a test clearer, but replacing domain examples is independent cleanup rather than a prerequisite
 for correct ownership.
 
@@ -148,26 +155,26 @@ clear coverage of these contracts matters more than preserving every current tes
    exercised without Terraforming Mars content.
 2. **Pure Pets type-system tests.** Class loading, type relationships, metrics, requirements, and
    related semantics, using small declarations owned by the test rather than Canon.
-3. **Game World and engine-coordination tests.** Pure `:gameworld` scenarios prove that exact
+3. **Game World and engine-coordination tests.** Pure `:gameworld` scenarios verify that exact
    component/task events, materialized projections, history, completed recording positions, and
    independent playback views remain coherent without firing effects. Cross-module engine
-   scenarios prove consequence calculation and failure atomicity: a failed operation must restore
+   scenarios cover consequence calculation and failure atomicity: a failed operation must restore
    present components, pending work, and recorded history together while retaining a fresh revision
    identity. [GAMEWORLD.md](GAMEWORLD.md) owns the detailed split.
 4. **Player-level card and game-rule tests.** `CardTest` scenarios count when they use actions and
    observations available to a player rather than internal state or implementation details.
    `CoreRulesTest` documents game-wide rules in this same style.
-5. **Whole-game tests.** Long scenarios that prove the workflow and many rules operate together,
+5. **Whole-game tests.** Long scenarios that show the workflow and many rules operate together,
    especially when reconstructed from independent game records. Designated JVM replays are also
    the sole authored source of deterministic checked-in game-viewer exports.
-6. **Canon admissibility tests.** A compact gate proving that the complete authority loads and that
-   representative supported configurations compose into usable projected class tables and worlds.
-   This is not a demand to restate the contents of every card or bundle in assertions.
+6. **Canon admissibility tests.** A compact gate confirming that the complete authority loads and
+   that representative supported configurations compose into usable projected class tables and
+   worlds. This is not a demand to restate the contents of every card or bundle in assertions.
 7. **Known-defect scenarios.** Focused passing characterizations of important behavior known to be
    wrong, visibly quarantined in `BugsTest` until the behavior is corrected.
 8. **Script-command contract tests.** Terraforming-independent checks of each command's public
    contract. These are useful interface coverage even though they are not a development priority.
-9. **Cross-runtime packaging smoke coverage.** One representative browser game proving that the
+9. **Cross-runtime packaging smoke coverage.** One representative browser game showing that the
    JavaScript artifact, generated Canon data, and engine work together outside the JVM.
 
 This list does not itself decide which current tests should be retained. Test-deletion proposals
@@ -185,7 +192,7 @@ which Player can select or narrow, whether competing gameplay is blocked, the re
 when necessary, an authored `BY` reaction that makes attribution observable. Do not locate card
 reactions by exact rendered instruction, `Task.cause`, `Task.actor`, or raw Event Log inspection.
 
-Keep trigger matching separate from queue routing. A `BY` characterization should prove which
+Keep trigger matching separate from queue routing. A `BY` characterization should show which
 triggers fire and how Actor variables bind through observable changes. Do not make its continued
 success depend on an incidental assignee unless that test is explicitly about delegation.
 
@@ -194,7 +201,9 @@ one card, corporation, Prelude, or other component. Use existing gameplay helper
 operation scopes fit. When component-specific steps must stay inside an outer operation, express
 them through existing `OperationBody` primitives so any sibling task may remain pending. Add a
 shared helper only for a recurring, component-independent concept that materially simplifies
-several call sites.
+several call sites. `TfmGameplay` must not repair the game model by creating or relocating rule
+components, imposing order absent from Pets or the engine, or identifying work by rendered text or
+cause.
 
 Do not inspect Canon declarations or definitions and assert their exact Pets trees or rendered
 strings. Do not assert card totals by bundle, deck, expansion, or other content group. Canon
@@ -226,6 +235,8 @@ entry, so these literals do not need `trimIndent()`. Solo tests conventionally g
 `Player1` the vocabulary alias `Me` and use `Player.PLAYER1` in Kotlin. The raw-configuration
 overload in `CardTest` uses the same resolution path.
 
+### Expectations
+
 `CardTest` and the full-game tests provide `TaskResult.expect()`. Expectations are partial net
 deltas: name only changes that matter to the behavior under test. Unqualified owned Types are scoped
 to the Player inferred from the result's ordered change events; qualify an Owner explicitly when
@@ -241,9 +252,11 @@ the happy path. A filtering or Type-variable test should include several temptin
 match. Preserve this coverage during refactoring.
 
 Assert a particular exception subclass only when callers or game semantics depend on that
-classification. Otherwise prove that the command is rejected, state and history remain atomic, and
+classification. Otherwise assert that the command is rejected, state and history remain atomic, and
 the diagnostic identifies the problem. The current distinction among task, abstractness, and
 narrowing exceptions is provisional and should not make an otherwise behavioral test brittle.
+
+### Known-defect tests
 
 `BugsTest` is different: its passing tests characterize known incorrect behavior, and their names
 say what currently happens incorrectly. Prefer such a characterization over a disproportionate
@@ -251,7 +264,7 @@ workaround. Once the bug is fixed, move the useful scenario to its proper behavi
 
 ## Game replay tests
 
-Whole-game tests are high-value integration evidence. When translating a supplied game log:
+Whole-game tests are high-value integration coverage. When translating a supplied game log:
 
 - `CardTrackingFullGameTest` is an opt-in full-game base for source archives that identify project
   cards. `expectProjectCards()` assigns sourced identities to an otherwise anonymous selection;
@@ -262,7 +275,7 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   selection or introduce the rejected names directly; inside an operation it also resolves an
   already-open anonymous selection-removal task.
   Research archives that used drafting may assign each recovered post-draft four-card set as that
-  player's ordinary deal when the tested engine does not support drafting. Express an ordinary
+  player's ordinary deal when the tested engine does not support drafting. Express an
   research deal directly by partitioning its cards between `buyCards()` and
   `discardUnselectedProjectCards()`; do not declare the same offer first.
   `AbstractSoloTest` inherits this capability, but a solo test opts into tracking only by using
@@ -276,7 +289,8 @@ Whole-game tests are high-value integration evidence. When translating a supplie
   not game facts: establish all setup, chronology, values, and reconciliations from original sources.
 - For a herokuapp archive, read `docs/agents/HEROKUAPP_GAME_LOGS.md` before implementation. Its API,
   payment-reconstruction, screenshot, counterfactual, and endgame rules supplement this section.
-- For a recorded physical game, read `docs/agents/OTB_GAME_RECORDS.md` before implementation. Its
+- For a recorded physical game, read [`_local/OTB_GAME_RECORDS.md`](../../_local/OTB_GAME_RECORDS.md)
+  before implementation. Its
   source-preservation, mixed-evidence, photograph, reconciliation, and endgame rules supplement this
   section.
 - Do not inspect an existing dated test, Git history, or previous agent summary to learn what

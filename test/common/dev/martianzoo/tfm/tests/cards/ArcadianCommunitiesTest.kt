@@ -16,7 +16,7 @@ internal class ArcadianCommunitiesTest : CardTest() {
     playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
         .expect("40 MC, 10 Steel, RequiredAction")
     admin.phase("Action")
-    p1.stdAction("DoRequiredActions") { doTask("Community<Tharsis_4_2>") }
+    p1.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_4_2>") }
 
     p1.assertCounts(40 to "MC", 10 to "Steel", 1 to "Community<Tharsis_4_2>")
   }
@@ -29,7 +29,7 @@ internal class ArcadianCommunitiesTest : CardTest() {
     playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
     admin.phase("Action")
 
-    p1.stdAction("DoRequiredActions") {
+    p1.stdAction("DoRequiredActionsAction") {
       shouldThrow<NarrowingException> { doTask("Community<Tharsis_1_1>") }
       shouldThrow<NarrowingException> { doTask("Community<Tharsis_1_3>") }
       doTask("Community<Tharsis_9_7>")
@@ -44,7 +44,7 @@ internal class ArcadianCommunitiesTest : CardTest() {
     playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
     p1.manual("CityTile<Tharsis_1_1>")
     admin.phase("Action")
-    p1.stdAction("DoRequiredActions") { doTask("Community<Tharsis_9_7>") }
+    p1.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_9_7>") }
 
     p1.cardAction1(ArcadianCommunities) {
       shouldThrow<NarrowingException> { doTask("Community<Tharsis_4_2>") }
@@ -59,7 +59,7 @@ internal class ArcadianCommunitiesTest : CardTest() {
     newGame(PromoCardPack)
     playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
     admin.phase("Action")
-    p1.stdAction("DoRequiredActions") { doTask("Community<Tharsis_4_2>") }
+    p1.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_4_2>") }
 
     p1.cardAction1(ArcadianCommunities) { doTask("Community<Tharsis_4_3>") }
 
@@ -74,7 +74,7 @@ internal class ArcadianCommunitiesTest : CardTest() {
     p2.manual("CityTile<Tharsis_1_1>")
     p2.manual("Community<Tharsis_4_2>")
     admin.phase("Action")
-    p1.stdAction("DoRequiredActions") { doTask("Community<Tharsis_9_7>") }
+    p1.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_9_7>") }
 
     p1.cardAction1(ArcadianCommunities) {
       shouldThrow<NarrowingException> { doTask("Community<Tharsis_2_1>") }

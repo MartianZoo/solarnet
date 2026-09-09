@@ -29,11 +29,11 @@ internal class AwardsTest : TfmTest() {
         .allSubclasses()
         .filter { !it.abstract && game.classTable.isActive(it.className) }
         .shouldBeEmpty()
-    game.classTable.isActive(cn("ClaimMilestone")) shouldBe false
-    game.classTable.isActive(cn("FundAward")) shouldBe false
+    game.classTable.isActive(cn("ClaimMilestoneAction")) shouldBe false
+    game.classTable.isActive(cn("FundAwardAction")) shouldBe false
     admin.assertCounts(
-        1 to "PlayCardFromHand",
-        1 to "AquiferSP",
+        1 to "PlayCardFromHandAction",
+        1 to "AquiferProject",
     )
   }
 
@@ -54,8 +54,14 @@ internal class AwardsTest : TfmTest() {
 
     admin.manual("End FROM Phase")
 
-    p1.assertCounts(0 to "FirstPlace<Player1, Incorporator>")
-    p2.assertCounts(1 to "FirstPlace<Player2, Incorporator>")
+    p1.assertCounts(
+        0 to "FirstPlace<Player1, Incorporator>",
+        0 to "SecondPlace<Player1, Incorporator>",
+    )
+    p2.assertCounts(
+        1 to "FirstPlace<Player2, Incorporator>",
+        0 to "SecondPlace<Player2, Incorporator>",
+    )
   }
 
   @Test
@@ -91,7 +97,7 @@ internal class AwardsTest : TfmTest() {
     p1.sneak("100 MC")
 
     val first =
-        p1.manual("UseAction<FundAward, Action1>") {
+        p1.manual("UseAction<FundAwardAction, Action1>") {
           doTask("Pay<Class<MC>> FROM MC / Owed<>")
           doTask("Landlord")
         }
@@ -99,7 +105,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(92 to "MC", 1 to "Landlord")
 
     shouldThrow<RequirementException> {
-      p1.manual("UseAction<FundAward, Action1>") {
+      p1.manual("UseAction<FundAwardAction, Action1>") {
         doTask("Pay<Class<MC>> FROM MC / Owed<>")
         doTask("Landlord")
       }
@@ -107,7 +113,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(92 to "MC", 1 to "Landlord")
 
     val second =
-        p1.manual("UseAction<FundAward, Action2>") {
+        p1.manual("UseAction<FundAwardAction, Action2>") {
           doTask("Pay<Class<MC>> FROM MC / Owed<>")
           doTask("Scientist")
         }
@@ -115,7 +121,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(78 to "MC", 1 to "Scientist")
 
     val third =
-        p1.manual("UseAction<FundAward, Action3>") {
+        p1.manual("UseAction<FundAwardAction, Action3>") {
           doTask("Pay<Class<MC>> FROM MC / Owed<>")
           doTask("Thermalist")
         }
@@ -123,7 +129,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(58 to "MC", 1 to "Thermalist", 3 to "Award")
 
     shouldThrow<RequirementException> {
-      p1.manual("UseAction<FundAward, Action3>") {
+      p1.manual("UseAction<FundAwardAction, Action3>") {
         doTask("Pay<Class<MC>> FROM MC / Owed<>")
         doTask("Miner")
       }

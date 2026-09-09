@@ -255,7 +255,7 @@ internal class Game20260619Test : AbstractFullGameTest() {
     // KB used Power Plant:SP standard project
     // KB ended turn
     KB.turn {
-      stdProject("PowerPlantSP")
+      stdProject("PowerPlantProject")
     }
 
     // ER played Business Contacts
@@ -389,7 +389,7 @@ internal class Game20260619Test : AbstractFullGameTest() {
     // ER claimed Planner milestone
     // ER ended turn
     ER.turn {
-      stdAction("ClaimMilestone") { doTask("Planner") }
+      stdAction("ClaimMilestoneAction") { doTask("Planner") }
     }
 
     // KB used Convert Heat standard action

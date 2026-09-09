@@ -1,11 +1,11 @@
 CLASS VenusNextExpansion : Module {
-  This: AirScrappingSP
+  This: AirScrappingProject
 
   ModulesReady IF MAX 0 ExtendedGlobalParametersRule: StandardVenusTrackRules
   ModulesReady IF ExtendedGlobalParametersRule: ExtendedVenusTrackRules
 }
 
-CLASS AirScrappingSP : StandardProject {
+CLASS AirScrappingProject : StandardProject {
   cost = 15
   1 MC / cost -> VenusStep
 }

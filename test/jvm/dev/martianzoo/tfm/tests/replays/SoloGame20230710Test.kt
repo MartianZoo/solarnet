@@ -35,11 +35,11 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       }
 
       playPrelude(FakeHeadStart) {
-        doTask("UseAction<PlayCardFromHand, Action1>")
+        doTask("UseAction<PlayCardFromHandAction, Action1>")
         doTask("PlayCard<Class<ProjectCard>, Class<$OlympusConference>, Hand>")
         pay(4, steel = 3)
 
-        doTask("UseAction<PlayCardFromHand, Action1>")
+        doTask("UseAction<PlayCardFromHandAction, Action1>")
         doTask("PlayCard<Class<ProjectCard>, Class<$StandardTechnology>, Hand>")
         pay(6)
         doTask("ProjectCard FROM Science<$OlympusConference>")
@@ -94,7 +94,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
       convertHeat()
       convertHeat()
-      stdProject("BuildColonySP") { doTask("Colony<Luna>") }
+      stdProject("BuildColonyProject") { doTask("Colony<Luna>") }
       stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("-3 E, 15 MC")
       playProject(GiantSolarShade, 27).expect("Card")
       playProject(GeothermalPower, 2, steel = 3)
@@ -157,7 +157,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
         doTask("Colony<Ganymede>")
         placeTile(2, 6)
       }
-      stdProject("AirScrappingSP").expect("-12 MC")
+      stdProject("AirScrappingProject").expect("-12 MC")
       cardAction1(AsteroidRights) { addCardResources(AsteroidRights) }
       stdAction("TradeAction", 2) { doTask("Trade<Ganymede>") }
       sellPatents(3)
@@ -209,18 +209,18 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
       stdAction("TradeAction", 2) { doTask("Trade<Luna>") }
       playProject(TransNeptuneProbe, 3) { doTask("ProjectCard FROM Science<$OlympusConference>") }
-      stdProject("CitySP") { placeTile(6, 5) }
+      stdProject("CityProject") { placeTile(6, 5) }
       playProject(UrbanizedArea, steel = 3) { placeTile(7, 5) }
       convertPlants { placeTile(8, 5) }
       cardAction1(SubZeroSaltFish)
       cardAction1(GhgProducingBacteria)
       cardAction1(AsteroidRights) { addCardResources(AsteroidRights) }
-      stdProject("GreenerySP") { placeTile(8, 4) }
+      stdProject("GreeneryProject") { placeTile(8, 4) }
       playProject(JovianEmbassy, 4, steel = 3)
       convertHeat()
       sellPatents(2)
       playProject(DawnCity, 8, titanium = 1)
-      stdProject("AirScrappingSP")
+      stdProject("AirScrappingProject")
 
       nextRound("VenusStep", 2)
 
@@ -238,16 +238,16 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       cardAction1(RefugeeCamps)
       cardAction1(GhgProducingBacteria) // uselessly
       playProject(MagneticFieldDome, 1, steel = 1)
-      stdProject("GreenerySP") { placeTile(9, 6) }
+      stdProject("GreeneryProject") { placeTile(9, 6) }
       playProject(InterstellarColonyShip, 1, titanium = 5)
       stdAction("TradeAction", 2) { doTask("Trade<Luna>") }
-      stdProject("CitySP") { placeTile(9, 5) }
+      stdProject("CityProject") { placeTile(9, 5) }
       playProject(SpacePort, 3, steel = 6) { placeTile(6, 2) }
       sellPatents(1)
       stdAction("TradeAction", 2) { doTask("Trade<Ganymede>") }
       convertPlants { placeTile(7, 6) }
-      stdProject("GreenerySP") { placeTile(7, 3) }
-      stdProject("AirScrappingSP")
+      stdProject("GreeneryProject") { placeTile(7, 3) }
+      stdProject("AirScrappingProject")
 
       pass()
       has("Victory") shouldBe true

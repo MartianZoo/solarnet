@@ -130,6 +130,35 @@ internal class CatalogTest {
   }
 
   @Test
+  internal fun printedCardClassSelectionLowersToUnfilteredFollowModeSelection() {
+    val source =
+        parseClasses(
+                """
+                ABSTRACT CLASS Stager {
+                  -> CARDS[Stage<Class<CardFront>(HAS PrintedTag<Class<BuildingTag>> OR PrintedTag<Class<SpaceTag>>)>]
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+    val expected =
+        parseClasses(
+                """
+                ABSTRACT CLASS Stager {
+                  -> Stage<Class<CardFront>>
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+
+    val loaded = catalog(source).allClassDeclarations.getValue(cn("Stager"))
+
+    loaded.effects shouldBe expected.effects
+    loaded.authoredActions shouldBe source.authoredActions
+  }
+
+  @Test
   internal fun filteredRetentionDelegatesThePrintedPredicateInFollowMode() {
     val source =
         parseClasses(

@@ -145,9 +145,10 @@ Do not reopen these without new evidence:
 - `SystemDeclarations.kt` owns the generic runtime vocabulary. In the target model that includes a
   concrete `Admin : Actor` Class and Component, while Kotlin `Engine` names only the passive
   mutation-processing mechanism.
-- The Terraforming Mars Module creates `BootstrapPhase`; workflow replaces it with `SetupPhase`.
+- Admin creates `BootstrapPhase` before the generated `Premise`; workflow replaces it with
+  `SetupPhase`.
   Bootstrap should reach ordinary Admin task execution as early as the state model honestly
-  permits; the exact pre-task seed state remains to be selected.
+  permits; these three components are the direct pre-task seed.
 - Class reachability roots are chosen outside `ClassLoader`; the loader only follows generic
   structural reachability.
 - Runtime players use the configured concrete Player Class identities supplied by Catalog

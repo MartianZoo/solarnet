@@ -33,8 +33,8 @@ The required primitives already exist:
 
 - [`Engine.newGame`](../../src/common/dev/martianzoo/engine/Engine.kt) completes and commits
   bootstrap before returning.
-- The Terraforming Mars Module creates `BootstrapPhase`; bootstrap begins and ends with that same
-  Phase.
+- Admin creates `BootstrapPhase` before the generated `Premise`; bootstrap begins and ends with
+  that same Phase.
 - [`Phase`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets) is legitimate
   Game World state, with exactly one Phase present.
 - Pets Type arguments are component dependencies. Removing a dependency cascades through its
@@ -52,7 +52,7 @@ engine primitives above.
 
 ## Runtime model
 
-A Phase remains the visible statement of where the game is. A `PhaseScope` is the lifetime anchor
+A Phase is the visible statement of where the game is. A `PhaseScope` is the lifetime anchor
 for work belonging to that occurrence of the Phase. A simple continuation scope can be expressed
 approximately as follows; the final declaration syntax may differ:
 
@@ -88,7 +88,7 @@ The resulting lifecycle is entirely ordinary engine behavior:
 3. When that work and all inner cleanup finish, idle cleanup removes the scope.
 4. Scope-dependent components are removed first by the existing dependency rule.
 5. `-This:` queues `ActionPhase FROM PreludePhase` while `PreludePhase` still exists.
-6. Admin autoexecution performs that ordinary task.
+6. Admin autoexecution performs that task.
 7. Entering `ActionPhase` creates its own scope and work.
 
 The queued transmutation preserves the exactly-one-Phase rule. `End` is terminal and creates no
@@ -101,7 +101,7 @@ the Phase scope from becoming eligible.
 ## Bootstrap and the one explicit start
 
 Bootstrap must remain quiescent after initialization. It therefore does not create a temporary
-phase scope merely by existing. Starting a configured workflow is one explicit Pets operation that
+phase scope just by existing. Starting a configured workflow is one explicit Pets operation that
 creates the Bootstrap continuation, conceptually:
 
 ```pets
@@ -110,7 +110,7 @@ CLASS StartWorkflow : Signal, System {
 }
 ```
 
-Without `StartWorkflow`, `Engine.newGame` ends at the committed `BootstrapPhase`. With it, ordinary
+Without `StartWorkflow`, `Engine.newGame` ends at the committed `BootstrapPhase`. With it,
 cleanup removes the new scope and queues `SetupPhase FROM BootstrapPhase`. From that point onward,
 the generated scopes sustain phase progression themselves. An application API may provide a typed
 convenience for issuing `StartWorkflow`, but it owns no continuing runner.
@@ -167,7 +167,7 @@ same, and Kotlin must not retain a second topology registry.
 ## Dynamic paths remain Pets behavior
 
 Static ordering and a game-state-dependent branch are different problems. The topology compiler
-orders phases that exist; ordinary Pets requirements select a path whose answer depends on current
+orders phases that exist; Pets requirements select a path whose answer depends on current
 World state.
 
 For example, the scope completing Production may have generated removal effects shaped like:
@@ -194,8 +194,8 @@ GameScope
             └── ActionScope
 ```
 
-Each child depends on its parent, and the Phase scope also depends on the current Phase. Ordinary
-state depends on the narrowest scope matching its true lifetime: an action-local invoice belongs to
+Each child depends on its parent, and the Phase scope also depends on the current Phase.
+State depends on the narrowest scope matching its true lifetime: an action-local invoice belongs to
 the Action scope; a passed marker belongs to the Generation scope; phase-local control belongs to
 the Phase scope.
 
@@ -220,7 +220,7 @@ expansion rules, or scoring. Entering a Phase must create either all of that Pha
 first inner scope. A Phase is complete only when its Phase scope becomes the innermost removable
 Temporary.
 
-The intended coarse Terraforming Mars shape remains:
+The intended coarse Terraforming Mars shape is:
 
 ```text
 Bootstrap -> Setup -> Corporation -> [Prelude] -> Action
@@ -249,9 +249,9 @@ The phase workflow is successful only when all of these hold:
 - Phase-internal turn design can be added through nested scopes without changing these phase-level
   rules.
 
-## First proof
+## First demonstration
 
-Prove the model narrowly before migrating the whole game:
+Demonstrate the model narrowly before migrating the whole game:
 
 1. Characterize dependency-ordered Temporary cleanup with two nested test scopes.
 2. Add a tiny Pets-only chain covering committed Bootstrap, explicit start, Setup, and Corporation.
@@ -260,6 +260,6 @@ Prove the model narrowly before migrating the whole game:
 5. Compile the Solar constraints and verify every combination of base, Venus, and Colonies phases.
 6. Add one requirement-gated branch at scope removal.
 
-Do not design Action-turn rotation as part of this proof. If the narrow model needs phase-specific
-Kotlin or a second representation of the next phase, stop and reconsider it rather than expanding
-the machinery.
+Do not design Action-turn rotation as part of this demonstration. If the narrow model needs
+phase-specific Kotlin or a second representation of the next phase, stop and reconsider it rather
+than expanding the machinery.

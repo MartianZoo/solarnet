@@ -44,14 +44,17 @@ As for tile subtypes, we mentioned `OceanTile`, but will get to the rest in the 
 
 ### Actions
 
-Any component that makes actions available for possible selection extends the supertype `HasActions`; these includes the abstract classes `StandardAction`, `StandardProject`, and `ActionCard`.
+Any component that makes actions available for possible selection extends the supertype `HasActions`; these include the abstract classes `StandardAction`, `StandardProject`, and `ActionCard`.
 
-The Module that contributes a standard action creates it directly. Therefore the base `TerraformingMars` Module creates `AquiferSP`, while an expansion owns and creates any action it adds. If the user signals `UseAction<AquiferSP>` it can respond, bill the user 18 money, and put an `OceanTile` instruction on the user's task queue.
+The Module that contributes a standard project creates it directly. The player first uses the
+`UseStandardProjectAction` doorway and then selects that project. Therefore the base
+`TerraformingMars` Module creates `AquiferProject`; `UseAction<AquiferProject>` bills the player 18
+money and puts an `OceanTile` instruction on the player's task queue.
 
 ### Phases
 
-Once the Terraforming Mars Module is created, exactly one Phase instance exists at all times. It
-begins as `BootstrapPhase`, becomes `SetupPhase` when effectful setup starts, and continues through
+After Admin creates `BootstrapPhase`, exactly one Phase instance exists at all times. It becomes
+`SetupPhase` when effectful setup starts and continues through
 `CorporationPhase`, `ResearchPhase`, `ProductionPhase`, and the other ordinary phases. A signal
 called `End` triggers victory point payouts (it has such a short name because it has to be written
 on MANY cards!).

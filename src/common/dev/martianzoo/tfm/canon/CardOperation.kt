@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -20,10 +21,18 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.tfm.canon.TfmClasses.CARD_FRONT
 import dev.martianzoo.tfm.canon.TfmClasses.PROJECT_CARD
 
 /** A validated semantic view of one canonical `CARDS[...]` instruction. */
 public sealed interface CardOperation {
+  /** Select a card's represented front Class using immutable printed metadata. */
+  public data class SelectCardClass(
+      public val selection: Gain,
+      public val filteredClass: Expression,
+      public val filter: Requirement,
+  ) : CardOperation
+
   /** Reveal cards until the requested matching cards have been found. */
   public data class Search(public val cards: Gain, public val filter: Requirement) : CardOperation
 
@@ -47,11 +56,28 @@ public sealed interface CardOperation {
     /** Interprets a validated canonical card operation after its marker has been removed. */
     public fun decode(source: InstructionTree): CardOperation =
         when (source) {
-          is Gain -> decodeSearch(source)
+          is Gain ->
+              if (source.gaining.className == SEARCH_FOR_CARD) decodeSearch(source)
+              else decodeCardClassSelection(source)
           is InstructionGroup -> decodeRevealAndPurchase(source)
           is Then -> decodeRevealAndTest(source)
           else -> malformed(source)
         }
+
+    private fun decodeCardClassSelection(source: Gain): SelectCardClass {
+      if (!source.mandatory) malformed(source)
+      val filteredClass =
+          source.gaining.descendantsOfType<Expression>().singleOrNull { expression ->
+            expression.className == CLASS &&
+                expression.arguments.singleOrNull()?.className == CARD_FRONT &&
+                expression.refinement is Has
+          } ?: malformed(source)
+      return SelectCardClass(
+          selection = source,
+          filteredClass = filteredClass,
+          filter = (filteredClass.refinement as Has).requirement,
+      )
+    }
 
     private fun decodeSearch(source: Gain): Search {
       if (

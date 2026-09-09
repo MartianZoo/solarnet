@@ -53,7 +53,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       playPrelude(FakeHeadStart) {
         // The first immediate action reuses Focused Organization: discard Red Ships and 1 M€,
         // then draw a card and take titanium.
-        doTask("UseAction<UseCardAction, Action1>")
+        doTask("UseAction<UseActionOnCardAction, Action1>")
         doTask("ActionUsedMarker<$FocusedOrganization>")
         cardAction1(FocusedOrganization) {
           doTask("-MC")
@@ -61,7 +61,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
         }
 
         // "For the other one. Advertising for 4."
-        doTask("UseAction<PlayCardFromHand, Action1>")
+        doTask("UseAction<PlayCardFromHandAction, Action1>")
         doTask("PlayCard<Class<ProjectCard>, Class<$Advertising>, Hand>")
         pay(4)
       }
@@ -227,7 +227,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     green.turn {
       // "This is probably not the move, but I just can't resist it. City!" Green pays for a city at
       // 8,8, gaining two plants, two ocean-adjacency M€, and two M€ from Rover Construction.
-      stdProject("CitySP") { placeTile(8, 8) }
+      stdProject("CityProject") { placeTile(8, 8) }
     }
     yellow.turn {
       // Viron repeats Aquifer Pumping at 8,9; Yellow again pays 5 M€ for energy production and a
@@ -651,7 +651,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     yellow.turn {
       // The city at 6,3 triggers Green's Pets, Meat Industry, and Rover Construction. The greenery
       // at 6,2 takes the two-card placement bonus and raises oxygen to 9%.
-      stdProject("CitySP") { placeTile(6, 3) }
+      stdProject("CityProject") { placeTile(6, 3) }
       convertPlants { placeTile(6, 2) }
           .expect("-8 Plant, 2 ProjectCard, OxygenStep, TerraformRating, 2 MC")
     }
@@ -801,7 +801,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
 
     yellow.turn {
       // "Pay 25 for a city standard project. It'll go right here in 6,6."
-      stdProject("CitySP") { placeTile(6, 6) }
+      stdProject("CityProject") { placeTile(6, 6) }
           .expect("Titanium<Yellow>, PROD[MC<Green>], 4 MC<Green>, Animal<Green, $Pets<Green>>")
       // "Second will be to ore process. Spend four energy, gain titanium, oxygen raise, TR, two
       // money." Oxygen reaches 12%.
@@ -820,7 +820,8 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     yellow.turn {
       // "I will greenery standard project. And I will put the first one here for ... wait, no,
       // four money and two plants. Seven, three."
-      stdProject("GreenerySP") { placeTile(7, 3) }.expect("2 Plant, OxygenStep, TerraformRating")
+      stdProject("GreeneryProject") { placeTile(7, 3) }
+          .expect("2 Plant, OxygenStep, TerraformRating")
       // "I'll go 6,7. Yes, two steel. Placing a greenery by converting plants."
       convertPlants { placeTile(6, 7) }.expect("2 Steel, OxygenStep, TerraformRating, 2 MC")
     }
@@ -930,7 +931,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     yellow.turn {
       // "I'll put it right here. Five, seven." "Are you standard project king or are you playing a
       // card?" "Yes, standard project." Green's three city effects then trigger.
-      stdProject("CitySP") { placeTile(5, 7) }
+      stdProject("CityProject") { placeTile(5, 7) }
           .expect("PROD[MC<Green>], 4 MC<Green>, Animal<Green, $Pets<Green>>, -25 MC")
       // "Greenery to Apollinaris Mons for two titaniums." Yellow converts plants at 4,7.
       convertPlants { placeTile(4, 7) }.expect("2 Titanium")
@@ -1162,7 +1163,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     }
     green.turn {
       // "I'm going to spend 14 to raise the temp."
-      stdProject("AsteroidSP")
+      stdProject("AsteroidProject")
     }
     // It appears that Yellow gave herself a TR for Green's temp raise (entry 376)
     yellow.exMachina("TerraformRating")
@@ -1170,7 +1171,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     // "I guess I just gotta take that last temp raise. And I gain five moolahs. Temp is maxed."
     yellow.turn {
       assertCounts(1 to "GameEndBarrier")
-      stdProject("AsteroidSP").expect("-9 MC")
+      stdProject("AsteroidProject").expect("-9 MC")
       assertCounts(0 to "GameEndBarrier")
     }
     green.turn {
@@ -1256,7 +1257,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     }
     yellow.turn {
       // "Standard greenery. Way up at one four for two money and a plant."
-      stdProject("GreenerySP") { placeTile(1, 4) }
+      stdProject("GreeneryProject") { placeTile(1, 4) }
     }
     green.turn {
       // "Wait a minute! We're fish. You lose a plant production. I pay seven. But I receive one

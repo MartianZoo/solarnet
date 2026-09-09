@@ -102,7 +102,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     blue.turn {
       // "I had a plan; it's gone now." "Your first action should be to draw this stuff."
       // "There's one: Jet Stream Microscrappers. And Floater Technology. Very cool."
-      stdAction("DoRequiredActions").expect("2 ProjectCard")
+      stdAction("DoRequiredActionsAction").expect("2 ProjectCard")
       // "Now I'm gonna play Local Shading. Pay four for it. And I guess that's my two actions."
       playProject(LocalShading, 4)
     }
@@ -1760,8 +1760,8 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     yellow.turn {
       // Yellow's applog records two 23-M€ greenery standard projects. "Oxygen to 13 ... 7-3 ...
       // and 7-4 for a titanium."
-      stdProject("GreenerySP") { placeTile(7, 3) }
-      stdProject("GreenerySP") { placeTile(7, 4) }
+      stdProject("GreeneryProject") { placeTile(7, 3) }
+      stdProject("GreeneryProject") { placeTile(7, 4) }
     }
     green.turn {
       // "Use Water Splitting Plant to use up three energy and take the last oxygen ... I give
@@ -1774,10 +1774,10 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     }
     blue.turn {
       // "Take the city standard project ... this is 8-5."
-      stdProject("CitySP") { placeTile(8, 5) }
+      stdProject("CityProject") { placeTile(8, 5) }
       assertCounts(36 to "MC")
       // "Place a city for 25 more money ... 6-8." [sic]
-      stdProject("CitySP") { placeTile(7, 8) }
+      stdProject("CityProject") { placeTile(7, 8) }
     }
     yellow.turn {
       // "Play Kaguya Tech for 10 ... 7-3 ... flipping the tile ... becoming a city."
@@ -1910,7 +1910,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     }
     green.turn {
       // "Plant forest ... here for a card and two money." The final board identifies 8-7.
-      stdProject("GreenerySP") { placeTile(8, 7) }
+      stdProject("GreeneryProject") { placeTile(8, 7) }
     }
     blue.turn {
       // "Use my Floater Technology action to add a floater to Celestic."

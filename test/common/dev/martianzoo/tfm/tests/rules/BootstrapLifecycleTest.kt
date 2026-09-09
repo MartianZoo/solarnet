@@ -59,22 +59,25 @@ internal class BootstrapLifecycleTest {
       it.change.gaining?.className == cn("StandardGpTrackRules")
     }
     val bootstrap = changes.single { it.change.gaining?.className == cn("BootstrapPhase") }
-    changes.drop(1).first() shouldBe premise
-    premise.cause shouldBe Cause(cn("Admin").expression, adminCreation.ordinal)
-    terraform.cause shouldBe Cause(cn("Premise").expression, premise.ordinal)
-    modulesReady.cause shouldBe Cause(cn("Premise").expression, premise.ordinal)
+    val bootstrapCause = Cause(cn("BootstrapPhase").expression, bootstrap.ordinal)
+    val premiseCause = Cause(cn("Premise").expression, premise.ordinal)
+    changes.drop(1).first() shouldBe bootstrap
+    bootstrap.cause shouldBe Cause(cn("Admin").expression, adminCreation.ordinal)
+    premise.cause shouldBe bootstrapCause
+    terraform.cause shouldBe premiseCause
+    modulesReady.cause shouldBe premiseCause
     standardTracks.cause shouldBe Cause(cn("TerraformingMars").expression, modulesReady.ordinal)
-    bootstrap.cause shouldBe Cause(cn("TerraformingMars").expression, terraform.ordinal)
     resolvedPremise.modules.forEach { moduleName ->
       changes
           .single { it.change.gaining?.className == moduleName }
           .also { module ->
-            module.cause shouldBe Cause(cn("Premise").expression, premise.ordinal)
+            module.cause shouldBe premiseCause
             (module.ordinal < modulesReady.ordinal) shouldBe true
           }
     }
     resolvedPremise.playerNames.forEach { playerName ->
       val player = changes.single { it.change.gaining?.className == playerName }
+      player.cause shouldBe premiseCause
       (player.ordinal < modulesReady.ordinal) shouldBe true
     }
 
@@ -124,7 +127,7 @@ internal class BootstrapLifecycleTest {
     val map = changes.single { it.change.gaining?.className == cn("TharsisMap") }
     val area = changes.single { it.change.gaining?.className == cn("Tharsis_1_1") }
 
-    changes.drop(1).first() shouldBe premise
+    changes.drop(2).first() shouldBe premise
     terraform.cause shouldBe Cause(cn("Premise").expression, premise.ordinal)
     map.cause shouldBe Cause(cn("Premise").expression, premise.ordinal)
     area.cause shouldBe Cause(cn("TharsisMap").expression, map.ordinal)

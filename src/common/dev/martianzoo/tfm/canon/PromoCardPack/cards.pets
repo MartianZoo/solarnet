@@ -93,7 +93,7 @@ CLASS KuiperCooperative : ActionCard, ResourceCard<Class<Asteroid>, Class<Corpor
 
   This:: 2 SpaceTag<This>
   This: 33 MC, PROD[Titanium]
-  UseAction<AsteroidSP> OR UseAction<AquiferSP>:: AcceptingFromCard<This>
+  UseAction<AsteroidProject> OR UseAction<AquiferProject>:: AcceptingFromCard<This>
   PayFromCard<This>:: -Owed<>
 
   -> Asteroid<This> / SpaceTag

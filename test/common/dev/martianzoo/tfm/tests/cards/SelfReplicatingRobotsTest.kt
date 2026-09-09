@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -19,84 +19,81 @@ internal class SelfReplicatingRobotsTest : CardTest() {
   internal fun `Action can be used only once per generation`() {
     initialize(2)
 
-    stage(1)
-    shouldThrow<LimitsException> { stage(2) }
+    stage(Mine)
+    shouldThrow<LimitsException> { stage(TitaniumMine) }
 
     nextGeneration()
-    stage(2)
+    stage(TitaniumMine)
   }
 
   @Test
-  internal fun `Action can stage a card with two resources or double an occupied berth`() {
+  internal fun `Action can stage a card with two resources or double its resources`() {
     initialize(1)
 
-    stage(1)
-    p1.assertCounts(2 to "RobotUnit<SelfReplicatingRobotsBerth1>")
+    stage(Mine)
+    p1.assertCounts(2 to "RobotUnit<Class<$Mine>>")
 
     nextGeneration()
-    replicate(1)
-    p1.assertCounts(4 to "RobotUnit<SelfReplicatingRobotsBerth1>")
+    replicate(Mine)
+    p1.assertCounts(4 to "RobotUnit<Class<$Mine>>")
   }
 
   @Test
-  internal fun `Five cards can occupy independent berths with their own resources`() {
-    initialize(5)
+  internal fun `Staged cards retain independent robot unit counts`() {
+    val cards = stagedCards.take(5)
+    initialize(cards.size)
 
-    (1..5).forEach { number ->
-      stage(number)
-      if (number != 5) nextGeneration()
+    cards.forEachIndexed { index, card ->
+      stage(card)
+      if (index != cards.lastIndex) nextGeneration()
     }
 
-    p1.assertCounts(
-        5 to "ProjectCard<StagedProject>",
-        10 to "RobotUnit<StagedProject>",
-    )
-    (1..5).forEach { number ->
-      p1.count("RobotUnit<SelfReplicatingRobotsBerth$number>") shouldBe 2
+    p1.assertCounts(0 to "ProjectCard<Hand>", 10 to "RobotUnit")
+    cards.forEach { card ->
+      p1.count("RobotUnit<Class<$card>>") shouldBe 2
     }
   }
 
   @Test
   internal fun `Doubling chooses one card rather than every card`() {
     initialize(2)
-    stage(1)
+    stage(Mine)
     nextGeneration()
-    stage(2)
+    stage(TitaniumMine)
     nextGeneration()
 
-    replicate(1)
+    replicate(Mine, select = true)
 
     p1.assertCounts(
-        4 to "RobotUnit<SelfReplicatingRobotsBerth1>",
-        2 to "RobotUnit<SelfReplicatingRobotsBerth2>",
+        4 to "RobotUnit<Class<$Mine>>",
+        2 to "RobotUnit<Class<$TitaniumMine>>",
     )
   }
 
   @Test
-  internal fun `Five named berths cap the number of staged cards`() {
-    initialize(6)
-    (1..5).forEach { number ->
-      stage(number)
-      nextGeneration()
+  internal fun `More than five cards can be staged`() {
+    initialize(stagedCards.size)
+    stagedCards.forEachIndexed { index, card ->
+      stage(card)
+      if (index != stagedCards.lastIndex) nextGeneration()
     }
 
-    p1.count("ProjectCard<Hand>") shouldBe 1
-    shouldThrow<AbstractException> { p1.cardAction1(FakeSelfReplicatingRobots) }
+    p1.assertCounts(0 to "ProjectCard<Hand>", 12 to "RobotUnit")
   }
 
   @Test
-  internal fun `Berthed cards remain outside hand for Planner`() {
+  internal fun `Staged cards remain outside hand for Planner`() {
     newGame(PromoCardPack, FakeStuffBundle)
     admin.phase("Action")
     p1.manual("8 MC, $FakeSelfReplicatingRobots, 16 ProjectCard")
-    stage(1)
+    stage(Mine)
 
     p1.count("ProjectCard<Hand>") shouldBe 15
     shouldThrow<RequirementException> { p1.claimMilestone(cn("Planner")) }
   }
 
   @Test
-  internal fun `Berthed cards remain outside hand for Visionary`() {
+  internal fun `Staged cards remain outside hand for Visionary`() {
     newGame(
         GameConfig(
             "PromoCardPack, FakeStuffBundle, Visionary, Landlord, Banker",
@@ -108,7 +105,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     admin.phase("Action")
     p1.manual("8 MC, $FakeSelfReplicatingRobots, 2 ProjectCard")
     p2.manual("2 ProjectCard")
-    stage(1)
+    stage(Mine)
 
     p1.fundAward(cn("Visionary"), 8)
     admin.manual("End FROM Phase")
@@ -120,35 +117,35 @@ internal class SelfReplicatingRobotsTest : CardTest() {
   @Test
   internal fun `Scientific Community counts only cards actually in hand`() {
     initialize(2)
-    stage(1)
+    stage(Mine)
 
     p1.manual("MC / ProjectCard<Hand>")
 
     p1.count("MC") shouldBe 1
-    p1.count("ProjectCard<SelfReplicatingRobotsBerth1>") shouldBe 1
+    p1.count("RobotUnit<Class<$Mine>>") shouldBe 2
   }
 
   @Test
   internal fun `Paradigm Breakdown discards only cards actually in hand`() {
     initialize(3)
-    stage(1)
+    stage(Mine)
 
     p1.manual("-2 ProjectCard<Hand>.")
 
     p1.count("ProjectCard<Hand>") shouldBe 0
-    p1.count("ProjectCard<SelfReplicatingRobotsBerth1>") shouldBe 1
+    p1.count("RobotUnit<Class<$Mine>>") shouldBe 2
   }
 
   @Test
-  internal fun `Sell Patents cannot sell a berthed card`() {
+  internal fun `Sell Patents cannot sell a staged card`() {
     initialize(2)
-    stage(1)
+    stage(Mine)
 
     p1.sellPatents(1)
 
     p1.count("MC") shouldBe 1
     p1.count("ProjectCard<Hand>") shouldBe 0
-    p1.count("ProjectCard<SelfReplicatingRobotsBerth1>") shouldBe 1
+    p1.count("RobotUnit<Class<$Mine>>") shouldBe 2
   }
 
   @Test
@@ -158,7 +155,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     admin.phase("Action")
     p1.manual("8 MC, $FakeSelfReplicatingRobots, ProjectCard")
     p2.manual("$SearchForLife, Science<$SearchForLife>")
-    stage(1)
+    stage(Mine)
 
     p1.fundAward(cn("Excentric"), 8)
     admin.manual("End FROM Phase")
@@ -168,20 +165,13 @@ internal class SelfReplicatingRobotsTest : CardTest() {
   }
 
   @Test
-  internal fun `A card may be berthed before its play requirement is met`() {
+  internal fun `A card may be staged before its play requirement is met`() {
     initialize(1)
-    stage(1)
+    stage(DiversitySupport)
 
-    shouldThrow<RequirementException> {
-      p1.manual(
-          "PlayCard<Class<ProjectCard>, Class<$DiversitySupport>, " + "SelfReplicatingRobotsBerth1>"
-      )
-    }
+    shouldThrow<RequirementException> { p1.playProject(DiversitySupport, 0) }
 
-    p1.assertCounts(
-        1 to "ProjectCard<SelfReplicatingRobotsBerth1>",
-        2 to "RobotUnit<SelfReplicatingRobotsBerth1>",
-    )
+    p1.assertCounts(0 to "$DiversitySupport", 2 to "RobotUnit<Class<$DiversitySupport>>")
   }
 
   @Test
@@ -189,18 +179,16 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     newGame(PromoCardPack, FakeStuffBundle)
     admin.phase("Action")
     p1.manual("$FakeSelfReplicatingRobots, ProjectCard, PROD[2 MC, Energy]")
-    stage(1)
+    stage(ImmigrantCity)
     repeat(3) {
       nextGeneration()
-      replicate(1)
+      replicate(ImmigrantCity)
     }
 
     p1.assertProds(2 to "MC", 1 to "Energy")
     p1.count("CityTile") shouldBe 0
 
-    p1.manual(
-        "PlayCard<Class<ProjectCard>, Class<$ImmigrantCity>, " + "SelfReplicatingRobotsBerth1>"
-    ) {
+    p1.playProject(ImmigrantCity, 0) {
       placeTile(7, 4)
     }
 
@@ -209,54 +197,50 @@ internal class SelfReplicatingRobotsTest : CardTest() {
   }
 
   @Test
-  internal fun `Resources reduce a berthed cards play cost one MC each`() {
+  internal fun `Resources reduce a staged cards play cost one MC each`() {
     initialize(1)
     p1.manual("2 MC")
-    stage(1)
+    stage(Mine)
 
-    p1.manual("PlayCard<Class<ProjectCard>, Class<$Mine>, SelfReplicatingRobotsBerth1>") {
-      doTask("2 Pay<Class<MC>> FROM MC")
-      doTask("Ok")
-    }
+    p1.playProject(Mine, 2)
 
-    p1.assertCounts(0 to "MC", 1 to "$Mine")
+    p1.assertCounts(0 to "MC", 0 to "ProjectCard<Hand>", 1 to "$Mine")
   }
 
   @Test
-  internal fun `A berth discount cannot reduce a card cost below zero`() {
+  internal fun `A staged card discount cannot reduce its cost below zero`() {
     initialize(1)
-    stage(1)
+    stage(Mine)
     nextGeneration()
-    replicate(1)
+    replicate(Mine)
     nextGeneration()
-    replicate(1)
+    replicate(Mine)
 
-    p1.manual("PlayCard<Class<ProjectCard>, Class<$Mine>, SelfReplicatingRobotsBerth1>")
+    p1.playProject(Mine, 0)
 
     p1.assertCounts(
         0 to "MC",
         1 to "$Mine",
-        0 to "RobotUnit<SelfReplicatingRobotsBerth1>",
+        0 to "RobotUnit<Class<$Mine>>",
     )
   }
 
   @Test
-  internal fun `Playing one berthed card discards only that cards resources`() {
+  internal fun `Playing one staged card discards only that cards resources`() {
     initialize(2)
-    stage(1)
+    stage(Mine)
     nextGeneration()
-    stage(2)
+    stage(TitaniumMine)
     nextGeneration()
-    replicate(1)
+    replicate(Mine, select = true)
 
-    p1.manual("PlayCard<Class<ProjectCard>, Class<$Mine>, SelfReplicatingRobotsBerth1>")
+    p1.playProject(Mine, 0)
 
     p1.assertCounts(
         1 to "$Mine",
-        0 to "ProjectCard<SelfReplicatingRobotsBerth1>",
-        0 to "RobotUnit<SelfReplicatingRobotsBerth1>",
-        1 to "ProjectCard<SelfReplicatingRobotsBerth2>",
-        2 to "RobotUnit<SelfReplicatingRobotsBerth2>",
+        0 to "ProjectCard<Hand>",
+        0 to "RobotUnit<Class<$Mine>>",
+        2 to "RobotUnit<Class<$TitaniumMine>>",
     )
   }
 
@@ -264,18 +248,17 @@ internal class SelfReplicatingRobotsTest : CardTest() {
   internal fun `Viron can stage a second card in the same generation`() {
     initialize(2, VenusNextExpansion)
     p1.manual("$Viron")
-    stage(1)
+    stage(Mine)
 
     p1.cardAction1(Viron) {
       doTask("UseAction<$FakeSelfReplicatingRobots, Action1>")
-      doTask("StageForReplicatedProject<SelfReplicatingRobotsBerth2>")
-      doTask("ProjectCard<SelfReplicatingRobotsBerth2 FROM Hand>")
+      doTask("StageForReplicatedProject<Class<$TitaniumMine>>")
     }
 
     p1.assertCounts(
-        2 to "ProjectCard<StagedProject>",
-        2 to "RobotUnit<SelfReplicatingRobotsBerth1>",
-        2 to "RobotUnit<SelfReplicatingRobotsBerth2>",
+        0 to "ProjectCard<Hand>",
+        2 to "RobotUnit<Class<$Mine>>",
+        2 to "RobotUnit<Class<$TitaniumMine>>",
     )
   }
 
@@ -283,50 +266,48 @@ internal class SelfReplicatingRobotsTest : CardTest() {
   internal fun `Viron can stage and then double that card in the same generation`() {
     initialize(1, VenusNextExpansion)
     p1.manual("$Viron")
-    stage(1)
+    stage(Mine)
 
     p1.cardAction1(Viron) {
       doTask("UseAction<$FakeSelfReplicatingRobots, Action2>")
-      doTask("ReplicateForStagedProject<ProjectCard<SelfReplicatingRobotsBerth1>>")
     }
 
-    p1.count("RobotUnit<SelfReplicatingRobotsBerth1>") shouldBe 4
+    p1.count("RobotUnit<Class<$Mine>>") shouldBe 4
   }
 
   @Test
-  internal fun `Viron can double a berthed card twice in one generation`() {
+  internal fun `Viron can double a staged card twice in one generation`() {
     initialize(1, VenusNextExpansion)
     p1.manual("$Viron")
-    stage(1)
+    stage(Mine)
     nextGeneration()
 
-    replicate(1)
+    replicate(Mine)
     p1.cardAction1(Viron) {
       doTask("UseAction<$FakeSelfReplicatingRobots, Action2>")
-      doTask("ReplicateForStagedProject<ProjectCard<SelfReplicatingRobotsBerth1>>")
     }
 
-    p1.count("RobotUnit<SelfReplicatingRobotsBerth1>") shouldBe 8
+    p1.count("RobotUnit<Class<$Mine>>") shouldBe 8
   }
 
   @Test
-  internal fun `Viron can double two different berthed cards`() {
+  internal fun `Viron can double two different staged cards`() {
     initialize(2, VenusNextExpansion)
     p1.manual("$Viron")
-    stage(1)
+    stage(Mine)
     nextGeneration()
-    stage(2)
+    stage(TitaniumMine)
     nextGeneration()
 
-    replicate(1)
+    replicate(Mine, select = true)
     p1.cardAction1(Viron) {
       doTask("UseAction<$FakeSelfReplicatingRobots, Action2>")
-      doTask("ReplicateForStagedProject<ProjectCard<SelfReplicatingRobotsBerth2>>")
+      doTask("ReplicateForStagedProject<Class<$TitaniumMine>>")
     }
 
     p1.assertCounts(
-        4 to "RobotUnit<SelfReplicatingRobotsBerth1>",
-        4 to "RobotUnit<SelfReplicatingRobotsBerth2>",
+        4 to "RobotUnit<Class<$Mine>>",
+        4 to "RobotUnit<Class<$TitaniumMine>>",
     )
   }
 
@@ -336,18 +317,20 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     p1.manual("$FakeSelfReplicatingRobots, $cards ProjectCard")
   }
 
-  private fun stage(number: Int) {
+  private fun stage(card: ClassName) {
     p1.cardAction1(FakeSelfReplicatingRobots) {
-      doTask("StageForReplicatedProject<SelfReplicatingRobotsBerth$number>")
-      doTask("ProjectCard<SelfReplicatingRobotsBerth$number FROM Hand>")
+      doTask("StageForReplicatedProject<Class<$card>>")
     }
   }
 
-  private fun replicate(number: Int) {
+  private fun replicate(card: ClassName, select: Boolean = false) {
     p1.cardAction2(FakeSelfReplicatingRobots) {
-      doTask("ReplicateForStagedProject<ProjectCard<SelfReplicatingRobotsBerth$number>>")
+      if (select) doTask("ReplicateForStagedProject<Class<$card>>")
     }
   }
 
   private fun nextGeneration() = admin.manual("Generation")
+
+  private val stagedCards =
+      listOf(Mine, TitaniumMine, MartianRails, SpaceStation, PowerPlant, VestaShipyard)
 }

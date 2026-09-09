@@ -150,7 +150,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
             placeTile(7, 8)
           }
           .expect("4 Steel, Plant")
-      stdProject("PowerPlantSP")
+      stdProject("PowerPlantProject")
 
       pass()
       wgt("VenusStep")
@@ -190,7 +190,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
           .expect("PROD[10 MC]")
       playProject(ForcedPrecipitation, 8)
       cardAction1(ForcedPrecipitation)
-      stdProject("AirScrappingSP")
+      stdProject("AirScrappingProject")
 
       pass()
       wgt("OceanTile<Tharsis_1_5>")
@@ -348,8 +348,8 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
         cardAction1(ElectroCatapult)
       }
       playProject(MediaArchives, 8)
-      stdProject("CitySP") { placeTile(4, 4) }
-      stdProject("GreenerySP") { placeTile(4, 5) }
+      stdProject("CityProject") { placeTile(4, 4) }
+      stdProject("GreeneryProject") { placeTile(4, 5) }
       convertPlants {
         placeTile(3, 4)
       }

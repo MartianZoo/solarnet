@@ -16,6 +16,27 @@ current task, read its “Read when” note and named sections, then inspect the
 - **Research:** preserved evidence and conclusions, not product behavior.
 - **Procedure:** steps to follow for a particular kind of work.
 
+## Repeated-failure alerts
+
+These are routing alarms, not substitutes for the owning documents. If the tempting next step
+matches a row, read the linked section before editing.
+
+| Tempting next step | Required response | Read |
+| --- | --- | --- |
+| Broaden a narrow request, add a second representation, or introduce vocabulary across modules | Stop and report the design pressure and smallest promising direction. | [`AGENTS.md`](../../AGENTS.md#try-the-simpler-approach-first), [`VALUES.md`](VALUES.md#keep-concepts-few-and-ownership-precise) |
+| Add custom Kotlin, a custom instruction, or component-specific machinery to implement one card or rule | First try removal and composition of ordinary Pets. Custom code is evidence of a missing general capability, not the normal fallback. | [`VALUES.md`](VALUES.md#keep-pets-central), [`REDUCE_CUSTOM.md`](REDUCE_CUSTOM.md) |
+| Add a `TfmGameplay` operation or make one repair state, ordering, or task identity | Keep helpers as recurring player-facing syntax; repair the owning Pets or engine rule instead. | [`TESTING.md`](TESTING.md#test-design), [`SEQUENCING.md`](SEQUENCING.md#the-missing-rule-when-an-operation-is-over) |
+| Make a card or rule test inspect task text, causes, queue order, or mirrored Canon data | Exercise player-facing actions and assert observable results. | [`TESTING.md`](TESTING.md#test-design) |
+| Replace a result expectation with broad absolute-state assertions around an action | Use `.expect()` for the action's interesting partial net delta; reserve absolute assertions for sourced checkpoints. | [`TESTING.md`](TESTING.md#expectations) |
+| Use `FIRST` or another autoexecution mode to make a test or replay proceed | Treat `FIRST` as a strategic choice, not settlement or test infrastructure. | [`AUTOEXEC.md`](AUTOEXEC.md#choice-safety-check) |
+| Add `THEN`, `::`, a latch, priority, or pre-pruning | Begin with no extra ordering and identify the illegal committed result the new order prevents. | [`SEQUENCING.md`](SEQUENCING.md#before-adding-order) |
+| Infer control, assignment, narrowing, attribution, or `Owner` from another identity role | Name all six roles independently. | [`IDENTITY.md`](IDENTITY.md#six-identities) |
+| Give `Class` or `Type` a path to game-specific enumeration, or reconstruct Classes in a projection | Pass the game view explicitly and preserve the Catalog's one master universe. | [`CLASS_TABLES.md`](CLASS_TABLES.md#fast-rejection-checks) |
+| Add an explicit quantifier because a repeated effect changed the wrong count | Inspect the changed Class's defaults and the number of matching effect activations first. | [`QUANTIFIERS.md`](QUANTIFIERS.md#before-writing-an-explicit-quantifier) |
+| Characterize behavior known to be wrong as an ordinary rule or accepted hack | Put a passing observable characterization in `BugsTest`; move it when fixed. | [`TESTING.md`](TESTING.md#known-defect-tests) |
+| Add replay assertions, corrections, transcript prose, or gameviewer source | Return to original evidence; keep corrections visible and viewer recordings compact. | [`TESTING.md`](TESTING.md#game-replay-tests), the routed replay guide |
+| Record migration history or agent reasoning in evergreen documentation | State the stable current model in the smallest owning document. | [Maintain this collection](#maintain-this-collection) |
+
 ## Choose a route
 
 ### Change game behavior or engine semantics
@@ -47,7 +68,6 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Catalogs, Modules, Bundles, configuration, premise resolution, or projection policy | The matching section of [`OPTIONS.md`](OPTIONS.md) | Current model and working direction |
 | Master Class identity versus game-filtered enumeration | [`CLASS_TABLES.md`](CLASS_TABLES.md) | Current model |
 | Generic component fanout (`EACH`) | [`EACH.md`](EACH.md) | Current model |
-| Eliminating a custom instruction | [`REDUCE_CUSTOM.md`](REDUCE_CUSTOM.md) | Audit |
 
 ### Change content, names, or human rendering
 
@@ -72,12 +92,20 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 Read [`TESTING.md`](TESTING.md). Read [`JVM_TEST_PERFORMANCE.md`](JVM_TEST_PERFORMANCE.md) only when
 measuring or changing JVM test throughput; its measurements are a dated baseline, not routine setup.
 
+### Review or finish a change
+
+Before reporting an implementation complete or staging it for commit, apply
+[`REVIEW_CRITERIA.md`](REVIEW_CRITERIA.md) to the entire final diff. This review is mandatory even
+when the relevant design and testing routes were followed earlier.
+
 ### Reconstruct a game
 
 - For a herokuapp archive, read [`HEROKUAPP_GAME_LOGS.md`](HEROKUAPP_GAME_LOGS.md).
-- For a physical game record, read [`OTB_GAME_RECORDS.md`](OTB_GAME_RECORDS.md).
+- For a physical game record, read [`OTB_GAME_RECORDS.md`](../../_local/OTB_GAME_RECORDS.md).
 - For either, also read only “Game replay tests” and “Direct state reconciliation” in
   [`TESTING.md`](TESTING.md).
+- The replay test owns source evidence, commentary, and assertions. Keep any derived gameviewer
+  recording compact.
 
 ### Research optimal solo play
 

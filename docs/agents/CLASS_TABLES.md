@@ -23,6 +23,15 @@
 - [`ClassTableProjectionTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/ClassTableProjectionTest.kt)
   — read when changing inhabitation or Catalog/Class identity invariants.
 
+## Fast rejection checks
+
+Reject a design before implementation if it would:
+
+- give `Class`, `Type`, or a dependency a path back to a game-specific view;
+- reconstruct `Class` or `Type` identities while forming a game projection;
+- make a structural operation depend on inhabitation without accepting game context explicitly; or
+- mutate canonical vocabulary to represent one game's configured players or options.
+
 ## Ownership model
 
 A Catalog owns one immutable master type universe. Within that universe there is exactly one
@@ -68,15 +77,15 @@ it by reverse navigation.
 
 ## Identity and integrity
 
-Classes and Types from different master universes remain incomparable. Values from two games using
+Classes and Types from different master universes are incomparable. Values from two games using
 the same master universe are structurally comparable, even when their inhabited domains differ.
 
 World mutation therefore validates both that an incoming Type belongs to the World's master
 universe and that the Type is inhabited in that World's view. Projection identity must not stand in
 for either check.
 
-Unknown and uninhabited remain distinct. A Catalog-known uninhabited Class resolves and keeps its
-nominal relationships, but the game view gives it an empty domain. An unknown Class Name remains an
+Unknown and uninhabited are distinct. A Catalog-known uninhabited Class resolves and keeps its
+nominal relationships, but the game view gives it an empty domain. An unknown Class Name is an
 error.
 
 ## Projection shape

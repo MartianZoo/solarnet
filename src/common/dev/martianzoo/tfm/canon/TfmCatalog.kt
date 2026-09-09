@@ -13,6 +13,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
@@ -210,7 +211,8 @@ public open class TfmCatalog : Catalog {
    * selects the exact configured pool for that category. A playable Terraforming Mars Catalog
    * requires at least one player name in seat order. Missing names are composed into the Catalog as
    * concrete `Player` subclasses before the premise is resolved. The returned Catalog also contains
-   * one generated concrete `Premise` Class whose immediate effects create the resolved Modules.
+   * one generated concrete `Premise` Class whose immediate effects create the resolved Modules,
+   * Players, and exact starting Components.
    */
   public open fun gamePremise(config: GameConfig): GamePremise {
     val configuredPlayerNames = config.playerNames
@@ -351,14 +353,31 @@ public open class TfmCatalog : Catalog {
     require(individualNames.intersect(colonyNames).all { it in selectedByModules }) {
       "selected ColonyTiles must be provided by a selected Module"
     }
-    val premiseCatalog = if (moduleNames.isEmpty()) this else withPremiseDeclaration()
+    val premiseCatalog =
+        if (moduleNames.isEmpty()) {
+          this
+        } else {
+          val baseGameModule = universe.findClass(BASE_GAME_MODULE)
+          val orderedModuleNames =
+              if (baseGameModule == null) {
+                moduleNames.toList()
+              } else {
+                moduleNames.filter { universe.getClass(it).isSubtypeOf(baseGameModule) } +
+                    moduleNames.filterNot { universe.getClass(it).isSubtypeOf(baseGameModule) }
+              }
+          withPremiseDeclaration(orderedModuleNames, configuredPlayerNames, initialTypes)
+        }
     return GamePremise(
-        premiseCatalog,
-        moduleNames,
-        classSelections,
-        initialTypes,
-        configuredPlayerNames,
-        premiseDeclaration.className.takeIf { moduleNames.isNotEmpty() },
+        catalog = premiseCatalog,
+        modules = moduleNames,
+        classSelections = classSelections,
+        initialComponentTypes = initialTypes,
+        playerNames = configuredPlayerNames,
+        bootstrapClassName =
+            BOOTSTRAP_PHASE.takeIf {
+              moduleNames.isNotEmpty() && it in premiseCatalog.allClassNames
+            },
+        premiseClassName = PREMISE_CLASS.takeIf { moduleNames.isNotEmpty() },
     )
   }
 
@@ -523,18 +542,47 @@ public open class TfmCatalog : Catalog {
     )
   }
 
-  private val catalogWithPremise: TfmCatalog by lazy {
-    require(premiseDeclaration.className !in allClassNames) {
-      "${premiseDeclaration.className} is reserved for the resolved game configuration"
+  private fun withPremiseDeclaration(
+      moduleNames: List<ClassName>,
+      playerNames: List<ClassName>,
+      initialComponentTypes: Set<Expression>,
+  ): TfmCatalog {
+    val declaration = generatedPremiseDeclaration(moduleNames, playerNames, initialComponentTypes)
+    require(declaration.className !in allClassNames) {
+      "${declaration.className} is reserved for the resolved game configuration"
     }
-    withDeclarations(setOf(premiseDeclaration))
+    return withDeclarations(setOf(declaration))
   }
 
-  private val premiseDeclaration: ClassDeclaration by lazy {
-    modulePremiseDeclaration(allClassNames)
+  private fun generatedPremiseDeclaration(
+      moduleNames: List<ClassName>,
+      playerNames: List<ClassName>,
+      initialComponentTypes: Set<Expression>,
+  ): ClassDeclaration {
+    val effects = buildList {
+      if (moduleNames.isNotEmpty()) add("This:: ${moduleNames.joinToString()}")
+      if (PLAYER in allClassNames && playerNames.isNotEmpty()) {
+        add("This:: ${playerNames.joinToString(" THEN ")}")
+      }
+      if (initialComponentTypes.isNotEmpty()) {
+        add("This:: ${initialComponentTypes.joinToString()}")
+      }
+      if (BASE_GAME_MODULE in allClassNames && MODULES_READY in allClassNames) {
+        add("This: ModulesReady")
+      }
+    }
+    return parseClasses(
+            """
+            "The resolved game configuration that initializes this game"
+            CLASS Premise : System {
+              HAS =1 This
+              ${effects.joinToString("\n")}
+            }
+            """
+                .trimIndent()
+        )
+        .single()
   }
-
-  private fun withPremiseDeclaration(): TfmCatalog = catalogWithPremise
 
   private fun addExactGoalSelections(
       selections: MutableMap<ClassName, Boolean>,
@@ -863,7 +911,11 @@ public open class TfmCatalog : Catalog {
     /** Returns one Catalog containing the unique contributions from [catalogs]. */
     public fun compose(vararg catalogs: TfmCatalog): TfmCatalog = Composite(*catalogs)
 
+    private val BOOTSTRAP_PHASE = cn("BootstrapPhase")
+    private val BASE_GAME_MODULE = cn("BaseGameModule")
     private val MODULE_CLASS = cn("Module")
+    private val MODULES_READY = cn("ModulesReady")
+    private val PREMISE_CLASS = cn("Premise")
     private val MULTIPLAYER_MODE = cn("MultiplayerMode")
     private val TAG_CLASS = cn("Tag")
     private val COLONY_TILE = cn("ColonyTile")

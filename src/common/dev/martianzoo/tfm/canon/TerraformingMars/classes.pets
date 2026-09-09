@@ -6,9 +6,9 @@ CLASS TerraformingMars : BaseGameModule {
   HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
-  This:: BootstrapPhase
-  This: SellPatentsSP, PowerPlantSP, AsteroidSP, AquiferSP, GreenerySP, CitySP
-  This: PlayCardFromHand, UseCardAction, ConvertPlants, ConvertHeat, DoRequiredActions
+  This: SellPatentsProject, PowerPlantProject, AsteroidProject, AquiferProject, GreeneryProject, CityProject
+  This: PlayCardFromHandAction, UseStandardProjectAction, UseActionOnCardAction, ConvertPlantsAction, ConvertHeatAction
+  This: DoRequiredActionsAction
   This: Action1, Action2, Action3, CardPurchase, CardPlay
   This: Hand, Selecting, Revealed
   This: EACH Class<GlobalParameter> { GpIncomplete<Class<GlobalParameter>> }
@@ -36,6 +36,7 @@ CLASS QuickStartVariant : Module {
 "One of the actual people or bots playing Terraforming Mars"
 ABSTRACT CLASS Player : Owner, Actor {
   HAS =1 This
+  HAS MAX 1 AfterMe<This, Anyone>, MAX 1 AfterMe<Anyone, This>
 
   // Queued `This` work gives every Player its support after the complete seat layer exists.
   This: 5 ProdOffset<This, Class<MC>> BY Admin
@@ -393,35 +394,38 @@ ABSTRACT CLASS StandardAction : HasActions {
   HAS =1 This
 
   "Play a project card from hand"
-  CLASS PlayCardFromHand { -> PlayCard<Class<ProjectCard>, Hand> }
+  CLASS PlayCardFromHandAction { -> PlayCard<Class<ProjectCard>, Hand> }
+
+  "Use a standard project"
+  CLASS UseStandardProjectAction { -> UseAction<StandardProject> }
+
+  "Use an action on a card"
+  CLASS UseActionOnCardAction { -> ActionUsedMarker<ActionCard> THEN UseAction<ActionCard> }
+
+  "Convert plants into a greenery tile"
+  CLASS ConvertPlantsAction { 8 Plant -> GreeneryTile<> }
+
+  "Convert heat into a temperature increase"
+  CLASS ConvertHeatAction { 8 Heat -> TemperatureStep }
 
   "Claim an available milestone"
-  CLASS ClaimMilestone { 8 MC -> Milestone }
+  CLASS ClaimMilestoneAction { 8 MC -> Milestone }
 
   "Fund an available award"
-  CLASS FundAward {
+  CLASS FundAwardAction {
     8 MC -> (=0 Award: Award)
     14 MC -> (=1 Award: Award)
     20 MC -> (=2 Award: Award)
   }
 
-  "Use an action on a card"
-  CLASS UseCardAction { -> ActionUsedMarker<ActionCard> THEN UseAction<ActionCard> }
-
-  "Convert plants into a greenery tile"
-  CLASS ConvertPlants { 8 Plant -> GreeneryTile<> }
-
-  "Convert heat into a temperature increase"
-  CLASS ConvertHeat { 8 Heat -> TemperatureStep }
-
   "Perform a required action before taking another standard action"
-  CLASS DoRequiredActions { -> RequiredAction: RequiredActionsSignal }
+  CLASS DoRequiredActionsAction { -> RequiredAction: RequiredActionsSignal }
 }
 
 "The persistent operation that owns research-phase and corporation-setup card purchases"
 CLASS CardPurchase : HasActions {
   HAS =1 This
-  -Invoice<This, Action1>:: ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>
+  -Invoice<This>:: ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>
 }
 
 // TODO: Replace this stable invoice host with a live late-stage card-play operation.
@@ -429,44 +433,40 @@ CLASS CardPurchase : HasActions {
 CLASS CardPlay : HasActions { HAS =1 This }
 
 "A standard project, as the game defines it"
-ABSTRACT CLASS StandardProject : StandardAction {
+ABSTRACT CLASS StandardProject : HasActions {
+  HAS =1 This
   cost = Number
-}
 
-"Sell any number of patents"
-CLASS SellPatentsSP : StandardProject {
-  cost = 0
-  1 MC / cost -> X MC FROM ProjectCard<Hand>
-}
+  "Sell any number of patents"
+  CLASS SellPatentsProject {
+    cost = 0
+    1 MC / cost -> X MC FROM ProjectCard<Hand>
+  }
 
-CLASS PowerPlantSP : StandardProject {
-  cost = 11
-  1 MC / cost -> PROD[Energy]
-}
+  CLASS PowerPlantProject {
+    cost = 11
+    1 MC / cost -> PROD[Energy]
+  }
 
-CLASS AsteroidSP : StandardProject {
-  cost = 14
-  1 MC / cost -> TemperatureStep
-}
+  CLASS AsteroidProject {
+    cost = 14
+    1 MC / cost -> TemperatureStep
+  }
 
-CLASS BufferGasSP : StandardProject {
-  cost = 16
-  1 MC / cost -> TerraformRating
-}
+  CLASS AquiferProject {
+    cost = 18
+    1 MC / cost -> OceanTile<>
+  }
 
-CLASS AquiferSP : StandardProject {
-  cost = 18
-  1 MC / cost -> OceanTile<>
-}
+  CLASS GreeneryProject {
+    cost = 23
+    1 MC / cost -> GreeneryTile<>
+  }
 
-CLASS GreenerySP : StandardProject {
-  cost = 23
-  1 MC / cost -> GreeneryTile<>
-}
-
-CLASS CitySP : StandardProject {
-  cost = 25
-  1 MC / cost -> CityTile<>, PROD[1 MC]
+  CLASS CityProject {
+    cost = 25
+    1 MC / cost -> CityTile<>, PROD[1 MC]
+  }
 }
 
 // PAY AND PLAY
@@ -556,7 +556,7 @@ ABSTRACT CLASS Phase : System {
   CLASS ProductionPhase
   CLASS SolarPhase
   CLASS FinalGreeneryPhase {
-    NewTurn: UseAction<ConvertPlants, Action1>?
+    NewTurn: UseAction<ConvertPlantsAction, Action1>?
   }
 }
 
@@ -621,10 +621,10 @@ CLASS StartToken : Owned<Player> {
   HAS =1 StartToken
 }
 
-"Identifies the Player immediately after its owner in seat order"
-CLASS AfterMe<Player> : Owned<Owner>, System {
+"Identifies the Player immediately after another Player in seat order"
+CLASS AfterMe<Owner, Player> : System {
   HAS MAX 1 This
-  ResearchPhase IF StartToken: StartToken<Player> FROM StartToken.
+  ResearchPhase IF StartToken<Owner>: StartToken<Player> FROM StartToken<Owner>.
 }
 
 // GAME CONFIGURATION
@@ -653,17 +653,11 @@ ABSTRACT CLASS GameMode : Module {
     HAS 2 Player
     autoSelectWhen = HAS "2 Player"
 
-    This: ClaimMilestone, FundAward
+    This: ClaimMilestoneAction, FundAwardAction
     This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
     SetupPhase: EACH Player { 20 TerraformRating }
     -FinalScoringPending: EACH Player(HAS =1 (RANK Player { VictoryPoint, MC })) { Victory }
   }
-}
-
-"Enables second-place award scoring when at least three players are seated"
-CLASS SecondPlaceRule : Module {
-  autoSelectWhen = HAS "3 Player"
-  HAS Class<SecondPlace>
 }
 
 // SOLO MODE
@@ -681,6 +675,12 @@ CLASS SoloMode : GameMode {
   Generation: -SoloGenerationsLeft.
 }
 
+"Raises terraform rating in the TR63 solo objective"
+CLASS BufferGasProject : StandardProject {
+  cost = 16
+  1 MC / cost -> TerraformRating
+}
+
 "Exactly one solo objective Module active in a solo game"
 ABSTRACT CLASS SoloObjective : Module {
   HAS MAX 1 SoloObjective, =1 SoloMode
@@ -694,7 +694,7 @@ ABSTRACT CLASS SoloObjective : Module {
 
   "The solo objective is 63 terraform rating instead of completed global parameters"
   CLASS Tr63SoloObjective {
-    This: BufferGasSP
+    This: BufferGasProject
 
     CheckGameEnd IF 63 TerraformRating<Player>: Victory<Player>
   }
@@ -738,7 +738,7 @@ CLASS SoloCardResourceReserve : ResourceHolder<Class<CardResource>>, Owned<SoloO
 }
 
 // When Tile B is placed next to existing Tile A, a ForwardAdj<A, B> and BackwardAdj<B, A> are created
-ABSTRACT CLASS Adjacency<Tile<Area>, Tile<Area>> {
+ABSTRACT CLASS Adjacency<Tile<Area>, Tile<Area>> : Hidden {
   CLASS ForwardAdjacency, BackwardAdjacency
 }
 
@@ -770,5 +770,5 @@ CLASS Neighbor<AreaPiece, MarsArea> : Hidden, Custom
 
 CLASS MeasureAward<Award> : Temporary, System {
   -This:: EACH Player(HAS =1 (RANK Player { EVAL Award.metric })) { FirstPlace<Award> }
-  -This IF Class<SecondPlace>:: EACH Player(HAS =2 (RANK Player { EVAL Award.metric })) { SecondPlace<Award> }
+  -This IF 3 Player:: EACH Player(HAS =2 (RANK Player { EVAL Award.metric })) { SecondPlace<Award> }
 }

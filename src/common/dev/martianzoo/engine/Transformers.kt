@@ -22,6 +22,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement.Has
 import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -464,30 +465,16 @@ public class Transformers(public val classTable: ClassTable) {
 
   public fun insertExpressionDefaults(context: Expression): PetTransformer {
     var refinementDepth = 0
-    // An EACH selector refinement is specialized against that selector's candidate. A nested RANK
-    // establishes a separate candidate scope and therefore keeps its ordinary defaults.
-    var eachSelectorDepth = 0
-    var eachSelectorRefinementDepth = 0
+    val refinementCandidates = mutableListOf<Pair<Expression, Int>>()
+    // A nested RANK establishes a separate candidate scope and therefore keeps ordinary defaults.
     var rankDepth = 0
     return object : PetTransformer() {
       override fun transformNode(node: PetNode): PetNode {
-        if (node is Each) {
-          eachSelectorDepth++
-          val selector =
-              try {
-                transformExpression(node.selector)
-              } finally {
-                eachSelectorDepth--
-              }
-          return Each(selector, transformInstructionTree(node.body))
-        }
         if (node is Expression.Refinement) {
           refinementDepth++
-          if (eachSelectorDepth > 0) eachSelectorRefinementDepth++
           try {
             return transformChildren(node)
           } finally {
-            if (eachSelectorDepth > 0) eachSelectorRefinementDepth--
             refinementDepth--
           }
         }
@@ -502,20 +489,33 @@ public class Transformers(public val classTable: ClassTable) {
         if (node !is Expression) return transformChildren(node)
         if (leaveItAlone(node)) return node
 
-        val klass = classTable.getClass(node.className)
+        val shell = transformChildren(node.copy(refinement = null)) as Expression
+        val klass = classTable.getClass(shell.className)
         val defaultDeps = klass.defaults.allUsages.dependencies
         rejectEmptyArgumentsWithoutDefaults(node, klass.defaults.allUsages, "all-use")
-        val result =
+        val refinementCandidate =
+            refinementCandidates.lastOrNull()?.takeIf { (_, depth) -> depth == rankDepth }?.first
+        val defaulted =
             insertDefaultsIntoExpr(
-                transformChildren(node) as Expression,
+                shell,
                 defaultDeps,
                 context,
                 classTable,
                 deferVariableDefaults = refinementDepth > 0 && !node.argumentsSpecified,
-                deferContextualOwnerDefault =
-                    eachSelectorRefinementDepth > 0 && rankDepth == 0 && !node.argumentsSpecified,
+                refinementCandidate = refinementCandidate,
             )
-        return result
+        val refinement =
+            node.refinement?.let {
+              if (it is Has) {
+                refinementCandidates += defaulted.copy(refinement = null) to rankDepth
+              }
+              try {
+                transformRefinement(it)
+              } finally {
+                if (it is Has) refinementCandidates.removeLast()
+              }
+            }
+        return defaulted.copy(refinement = refinement)
       }
     }
   }
@@ -529,7 +529,7 @@ public class Transformers(public val classTable: ClassTable) {
       contextCpt: Expression,
       classTable: ClassTable,
       deferVariableDefaults: Boolean = false,
-      deferContextualOwnerDefault: Boolean = false,
+      refinementCandidate: Expression? = null,
   ): Expression {
 
     val klass: Class = classTable.getClass(original.className)
@@ -537,12 +537,24 @@ public class Transformers(public val classTable: ClassTable) {
     val match: DependencySet = klass.dependencies.matchPartial(dethissed.arguments)
 
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
+    val refinementBoundKey =
+        if (refinementCandidate == null || original.argumentsSpecified) {
+          null
+        } else {
+          val candidate =
+              replaceThisExpressionsWith(contextCpt).transformExpression(refinementCandidate)
+          try {
+            klass.matchDependencyKeys(listOf(candidate)).single()
+          } catch (_: ExpressionException) {
+            null
+          }
+        }
     val fallbacks: Map<Key, Expression> =
         defaultDeps
             .typeDependencies()
             .filterNot {
               (deferVariableDefaults && klass.isEqualityConstrainedDependency(it.key)) ||
-                  (deferContextualOwnerDefault && it.expression == OWNER.expression)
+                  it.key == refinementBoundKey
             }
             .associate {
               it.key to it.expression

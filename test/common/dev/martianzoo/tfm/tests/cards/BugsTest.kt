@@ -63,9 +63,10 @@ internal class BugsTest : CardTest() {
 
     p1.playPrelude(FakeHeadStart) {
       p1.assertCounts(2 to "Steel", 24 to "MC")
-      doTask("UseAction<ConvertHeat, Action1>")
+      doTask("UseAction<ConvertHeatAction, Action1>")
       doTask("8 Pay<Class<Heat>> FROM Heat")
-      doTask("UseAction<AquiferSP, Action1>")
+      doTask("UseAction<UseStandardProjectAction, Action1>")
+      doTask("UseAction<AquiferProject, Action1>")
       doTask("18 Pay<Class<MC>> FROM MC")
       placeTile(5, 5)
     }
@@ -93,7 +94,7 @@ internal class BugsTest : CardTest() {
     p1.manual("10 Steel, 10 Titanium, ProjectCard")
 
     p1.inTurn {
-      doTask("UseAction<PlayCardFromHand, Action1>")
+      doTask("UseAction<PlayCardFromHandAction, Action1>")
       doTask("PlayCard<Class<ProjectCard>, Class<$SpaceElevator>, Hand>")
       doTask("7 Pay<Class<Steel>> FROM Steel")
       doTask("5 Pay<Class<Titanium>> FROM Titanium")
@@ -130,13 +131,9 @@ internal class BugsTest : CardTest() {
     p1.manual("$FakeSelfReplicatingRobots, ProjectCard")
 
     p1.cardAction1(FakeSelfReplicatingRobots) {
-      doTask("StageForReplicatedProject<SelfReplicatingRobotsBerth1>")
-      doTask("ProjectCard<SelfReplicatingRobotsBerth1 FROM Hand>")
+      doTask("StageForReplicatedProject<Class<$CeosFavoriteProject>>")
     }
-    p1.manual(
-        "PlayCard<Class<ProjectCard>, Class<$CeosFavoriteProject>, " +
-            "SelfReplicatingRobotsBerth1>"
-    )
+    p1.playProject(CeosFavoriteProject, 0)
 
     p1.assertCounts(1 to "PlayedEvent<Class<$CeosFavoriteProject>>")
   }
@@ -147,16 +144,14 @@ internal class BugsTest : CardTest() {
     admin.phase("Action")
     p1.manual("$FakeSelfReplicatingRobots, ProjectCard")
     p1.cardAction1(FakeSelfReplicatingRobots) {
-      doTask("StageForReplicatedProject<SelfReplicatingRobotsBerth1>")
-      doTask("ProjectCard<SelfReplicatingRobotsBerth1 FROM Hand>")
+      doTask("StageForReplicatedProject<Class<$VenusWaystation>>")
     }
 
-    // The follow-mode client supplies this staged generic back as a Venus card.
     p1.manual("$CorroderSuits")
 
     p1.assertCounts(
         1 to "$CorroderSuits",
-        2 to "RobotUnit<SelfReplicatingRobotsBerth1>",
+        2 to "RobotUnit<Class<$VenusWaystation>>",
     )
   }
 
@@ -176,8 +171,7 @@ internal class BugsTest : CardTest() {
     )
 
     p1.cardAction1(FakeSelfReplicatingRobots) {
-      doTask("StageForReplicatedProject<SelfReplicatingRobotsBerth1>")
-      doTask("ProjectCard<SelfReplicatingRobotsBerth1 FROM Hand>")
+      doTask("StageForReplicatedProject<Class<$AerialMappers>>")
     }
     p1.playProject(DiversitySupport, 1).expect("TerraformRating")
     p1.fundAward(cn("Collector"), 8)

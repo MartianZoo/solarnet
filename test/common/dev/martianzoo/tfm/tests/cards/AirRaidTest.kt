@@ -45,7 +45,7 @@ internal class AirRaidTest : CardTest() {
   internal fun `Cannot be played when no player has five mc`() {
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
-    p2.turn { stdProject("PowerPlantSP") }
+    p2.turn { stdProject("PowerPlantProject") }
     p3.turn { playProject(Tardigrades, 4) }
 
     shouldThrow<LimitsException> {

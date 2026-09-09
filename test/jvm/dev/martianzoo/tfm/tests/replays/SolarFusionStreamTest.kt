@@ -92,9 +92,11 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
       // Unsupported component: Fake Established Methods models the archived card's two standard
       // projects, but not its unused unaffordable-second-project fallback.
       playPrelude(FakeEstablishedMethods) {
-            doTask("UseAction<PowerPlantSP, Action1>")
+            doTask("UseAction<UseStandardProjectAction, Action1>")
+            doTask("UseAction<PowerPlantProject, Action1>")
             pay(11)
-            doTask("UseAction<PowerPlantSP, Action1>")
+            doTask("UseAction<UseStandardProjectAction, Action1>")
+            doTask("UseAction<PowerPlantProject, Action1>")
             pay(11)
           }
           .expect("8 MC")
@@ -107,7 +109,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
       playPrelude(AquiferTurbines) { placeTile(4, 7) }.expect("PROD[2 Energy], Plant")
     }
 
-    JR.stdAction("DoRequiredActions") { placeTile(5, 6) }.expect("3 Plant, 3 MC, PROD[1 MC]")
+    JR.stdAction("DoRequiredActionsAction") { placeTile(5, 6) }.expect("3 Plant, 3 MC, PROD[1 MC]")
     JR.playProject(MethaneFromTitan, 28)
     KB.playProject(ResearchOutpost, 18) { placeTile(5, 3) }.expect("PROD[1 MC<JR>]")
     KB.playProject(AcquiredCompany, 9)
@@ -142,7 +144,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     JR.playProject(Pets, 10)
     KB.exMachina(fakeWildTags("BuildingTag"))
     KB.playProject(StaticHarvesting, 4).expect("-1 MC")
-    KB.stdAction("ClaimMilestone") { doTask("Energizer") }
+    KB.stdAction("ClaimMilestoneAction") { doTask("Energizer") }
     ER.cardAction1(IndustrialCenter)
     ER.declineSecondAction()
     JR.playProject(SterlingVents, 5)
@@ -161,7 +163,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.cardAction1(TychoMagnetics, x = 2) { ER.draw(LightningHarvest) }
     ER.cardAction1(IndustrialCenter)
     JR.playProject(NaturalPreserve, 9) { placeTile(8, 4) }
-    JR.stdAction("ClaimMilestone") { doTask("Builder") }
+    JR.stdAction("ClaimMilestoneAction") { doTask("Builder") }
     KB.cardAction1(RestrictedArea) { KB.draw(MartianLumberCorp) }
     KB.playProject(OlympusConference, 9, steel = 0)
     ER.pass()
@@ -230,7 +232,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.cardAction1(InventorsGuild) { /* Decline buying the revealed card. */
       ER.buyCards(0)
     }
-    JR.stdAction("ClaimMilestone") { doTask("Philantropist") }
+    JR.stdAction("ClaimMilestoneAction") { doTask("Philantropist") }
     JR.playProject(SpaceElevator, 27)
     KB.playProject(HiredRaiders, 0) { doTask("2 Steel<KB> FROM Steel<ER>") }
         .expect("-3 MC<KB>, 3 MC<ER>")
@@ -319,7 +321,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.buyCards(BigAsteroid, Research)
 
     JR.cardAction1(SpaceMirrors)
-    JR.stdAction("FundAward") { doTask("Banker") }
+    JR.stdAction("FundAwardAction") { doTask("Banker") }
     KB.convertPlants { placeTile(5, 2) }
     KB.cardAction1(RestrictedArea) { KB.draw(Potatoes) }
     ER.cardAction1(TychoMagnetics, x = 1) { ER.draw(DeimosDownPromo) }
@@ -416,7 +418,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
       doTask("CopyProductionBox<$GhgFactories>")
     }
     JR.playProject(PhobosSpaceHaven, 22, titanium = 1)
-    JR.stdAction("FundAward", which = 2) { doTask("Founder") }
+    JR.stdAction("FundAwardAction", which = 2) { doTask("Founder") }
     KB.sellPatents(DomedCrater)
     KB.playProject(Tardigrades, 1)
     ER.playProject(GeneRepair, 12) {
@@ -451,8 +453,8 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.cardAction1(RestrictedArea) { KB.draw(KelpFarming) }
     ER.cardAction1(InventorsGuild) { ER.buyCards(MagneticFieldDome) }
     ER.playProject(SmallAnimals, 6) { doTask("PROD[-Plant<KB>]") }
-    JR.stdProject("GreenerySP") { placeTile(6, 6) }
-    JR.stdProject("GreenerySP") { placeTile(3, 2) }
+    JR.stdProject("GreeneryProject") { placeTile(6, 6) }
+    JR.stdProject("GreeneryProject") { placeTile(3, 2) }
     KB.playProject(Research, 8) {
       KB.draw(PublicPlans, InventionContest, RegoPlastics)
       doTask("ProjectCard FROM Science<$OlympusConference>")
@@ -460,7 +462,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.cardAction1(EquatorialMagnetizer)
     ER.playProject(BioPrintingFacility, 1, steel = 2)
     ER.cardAction1(BioPrintingFacility) { addCardResources(SmallAnimals) }
-    JR.stdProject("GreenerySP") { placeTile(4, 2) }
+    JR.stdProject("GreeneryProject") { placeTile(4, 2) }
     JR.declineSecondAction()
     KB.playProject(InventionContest, mc = 0) {
       KB.draw(MartianRails, ImportedNutrients)
@@ -481,7 +483,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.cardAction1(RedShips)
     ER.playProject(PublicBaths, mc = 0, steel = 2)
     KB.cardAction1(Ants)
-    KB.stdAction("FundAward", which = 3) { doTask("Benefactor") }
+    KB.stdAction("FundAwardAction", which = 3) { doTask("Benefactor") }
     ER.sellPatents(SpecialDesign)
     ER.sellPatents(Trees)
     KB.exMachina(fakeWildTags("ScienceTag"))
@@ -496,7 +498,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.sellPatents(RegolithEaters)
     ER.sellPatents(BiomassCombustors)
     // Consequence reconstruction: ER gained one money production.
-    ER.stdProject("CitySP") { placeTile(6, 2) }
+    ER.stdProject("CityProject") { placeTile(6, 2) }
     KB.exMachina(fakeWildTags("MicrobeTag"))
     KB.playProject(Worms, 5)
     KB.playProject(ImportedNutrients, 1, titanium = 1) {

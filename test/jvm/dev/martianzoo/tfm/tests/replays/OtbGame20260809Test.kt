@@ -106,7 +106,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "For my first action, I flip cards until I get 3 Venus tags. Let's see how this goes."
     // "I draw Venusian Insects, Air-Scrapping Expedition, and Atalanta Planitia Lab."
-    green.turn { stdAction("DoRequiredActions").expect("3 ProjectCard") }
+    green.turn { stdAction("DoRequiredActionsAction").expect("3 ProjectCard") }
 
     // (11:33 am) "I pitch a card for money, and I spend all my nine money on Robotic Workforce."
     yellow.turn {
@@ -405,7 +405,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I'm going to use the Power Plant standard project."
     // "That brings me up to three energy production."
-    green.turn { stdProject("PowerPlantSP").expect("PROD[E]") }
+    green.turn { stdProject("PowerPlantProject").expect("PROD[E]") }
     green.assertCounts(14 to "M") // ledger entry 69
 
     // (12:40 pm) "I will convert eight plants to a greenery."
@@ -670,7 +670,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
           .expect("-8 MC, P, Miranda, 2 Animal")
 
       // "Landshaper." "I was just gonna get that. I hate you."
-      stdAction("ClaimMilestone") { doTask("Landshaper") }
+      stdAction("ClaimMilestoneAction") { doTask("Landshaper") }
 
       // (1:08 pm) "That makes me so sad." "I should also add two animals to EcoZone because of
       // its effect."
@@ -739,7 +739,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     }
 
     // "I... I... I... I am going to spend eight to get Venophile funded."
-    green.turn { stdAction("FundAward") { doTask("Venuphile") } }
+    green.turn { stdAction("FundAwardAction") { doTask("Venuphile") } }
 
     // "I pass."
     yellow.pass()
@@ -818,7 +818,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     yellow.turn {
       // "I think I'm just gonna Standard Project City."
-      stdProject("CitySP") {
+      stdProject("CityProject") {
             // "I put it at row one, column two, for two plants and two money."
             placeTile(1, 2)
             assertCounts(21 to "M") // ledger entry 213
@@ -978,7 +978,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I'm going to use the City standard project."
     yellow.turn {
-      stdProject("CitySP") {
+      stdProject("CityProject") {
             // "I place the city at row three, column five, for two money."
             placeTile(3, 5)
           }
@@ -1015,14 +1015,14 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       admin.assertCounts(14 to "OxygenStep")
 
       // "Before I forget, I'm going to claim Mayor for eight."
-      stdAction("ClaimMilestone") { doTask("Mayor") }
+      stdAction("ClaimMilestoneAction") { doTask("Mayor") }
     }
 
     // "I'm going to spend one on Extremophiles. I have the two science tags it needs."
     green.turn { playProject(Extremophiles, 1) }
 
     // "Before I forget, I'm going to claim Producer for eight. I have all three milestones."
-    yellow.turn { stdAction("ClaimMilestone") { doTask("Producer") } }
+    yellow.turn { stdAction("ClaimMilestoneAction") { doTask("Producer") } }
 
     // "I'm going to use Venusian Insects and add a microbe to Venusian Insects and take the"
     // "money."
@@ -1032,7 +1032,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     }
 
     // (7:59 pm) "I'm going to pay 14 for Botanist. Botanist is funded."
-    yellow.turn { stdAction("FundAward", which = 2) { doTask("Botanist") } }
+    yellow.turn { stdAction("FundAwardAction", which = 2) { doTask("Botanist") } }
 
     // "I am going to play Satellites."
     // "It would cost eight, but I'm spending six worth of titanium and two money."
@@ -1094,7 +1094,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("10 MC")
 
       // "I'm going to use the City standard project on the plant-and-steel space."
-      stdProject("CitySP") { placeTile(1, 4) }.expect("P, S")
+      stdProject("CityProject") { placeTile(1, 4) }.expect("P, S")
       assertCounts(34 to "M") // ledger entry 288
     }
 
@@ -1135,7 +1135,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I'm going to pay 20 to fund the only award that I have a chance at, which is
     // Magnate."
-    green.turn { stdAction("FundAward", which = 3) { doTask("Magnate") } }
+    green.turn { stdAction("FundAwardAction", which = 3) { doTask("Magnate") } }
 
     // "I will pay four titanium for 16 and 12 money for Methane from Titan."
     yellow.turn {
@@ -1243,7 +1243,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
     // "I can pay 25 for a City standard project."
     yellow.turn {
-      stdProject("CitySP") {
+      stdProject("CityProject") {
             // "It'll go at row five, column five, for two money."
             placeTile(5, 5)
           }
@@ -1335,7 +1335,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "I'm going to spend 23 and put a greenery at the only spot next to my city that isn't next"
     // "to one of yours. I get a steel."
     green.turn {
-      stdProject("GreenerySP") { placeTile(4, 3) }.expect("S, 0 TR")
+      stdProject("GreeneryProject") { placeTile(4, 3) }.expect("S, 0 TR")
     }
     yellow.assertCounts(7 to "M") // ledger entry 332
 
@@ -1545,8 +1545,8 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "You bought two standard project Asteroids."
     // "And now temp is maxed, so that is last call. The game will end soon."
     yellow.turn {
-      stdProject("AsteroidSP").expect("TR")
-      stdProject("AsteroidSP").expect("TR")
+      stdProject("AsteroidProject").expect("TR")
+      stdProject("AsteroidProject").expect("TR")
       admin.assertCounts(19 to "TemperatureStep")
     }
 

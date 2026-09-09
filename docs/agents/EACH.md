@@ -54,7 +54,7 @@ describes each candidate: dependencies omitted there remain available for candid
 Thus `Player(HAS StartToken)` tests each concrete Player for their own StartToken without requiring
 `StartToken<Anyone>`. A nested `RANK` establishes its own candidate context instead.
 
-Selector refinements decide participation using ordinary requirement semantics:
+Selector refinements decide participation using requirement semantics:
 
 ```pets
 EACH Player(HAS MAX 0 This<Anyone>) { PROD[-2 MC] BY Owner }
@@ -137,7 +137,7 @@ abstract: two colonies on Titan owe two separate `Floater` requests, placeable o
 cards, not one `2 Floater`. If `EACH` ever honors multiplicity it must emit `n` sibling branches,
 which is the shape it already produces. No current selector would benefit — `Player`,
 `Class<GlobalParameter>`, `CityTile<Player>`, and `Class` literals are unique per Type — so this
-remains unbuilt.
+is unbuilt.
 
 The engine makes the same conflation today, ahead of any fanout: a trigger matching `n` components
 specializes its instruction as `instruction * n` (`Hit.specialize`), so `2 Colony<Titan>` produces
@@ -147,7 +147,7 @@ behavior.
 ## Choosing the mechanism
 
 Use `EACH` when one component owns a one-time rule that acts independently on the components present
-at that moment. Prefer an ordinary Class effect when each recipient owns the rule, especially when
+at that moment. Prefer a Class effect when each recipient owns the rule, especially when
 each player must make a choice. Prefer a persistent listener when the reaction must remain installed
 throughout the game. A fanout triggered before its intended recipients exist silently does nothing.
 During staged bootstrap, however, Premise-created Modules and all seated Players exist before queued
@@ -158,7 +158,7 @@ general host for fanout over all seated Players.
 Per-player task routing is unsupported; it is separate from per-branch class-property evaluation
 and is not implied by `EACH`.
 
-## Implementation and proofs
+## Implementation and tests
 
 - [`Instruction.kt`](../../src/common/dev/martianzoo/pets/ast/Instruction.kt) — syntax and static
   restrictions (`class Each` and `_each`).
