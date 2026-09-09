@@ -28,11 +28,25 @@ internal class TfmWorkflowTest {
     p1.playCorp(InterplanetaryCinematics, 7)
     p2.playCorp(PharmacyUnion, 5)
 
+    admin.assertCounts(1 to "ActionPhase", 1 to "ActionPhaseScope")
+
     p1.turn { sellPatents(1) }
     p2.pass()
     p1.pass()
 
-    admin.assertCounts(2 to "Generation", 1 to "ResearchPhase")
+    admin.assertCounts(
+        2 to "Generation",
+        1 to "ResearchPhase",
+        1 to "ResearchPhaseScope",
+        0 to "ActionPhaseScope",
+        0 to "ProductionPhaseScope",
+        0 to "SolarPhaseScope",
+    )
+
+    p1.buyCards(0)
+    p2.buyCards(0)
+
+    admin.assertCounts(1 to "ActionPhase", 1 to "ActionPhaseScope", 0 to "ResearchPhaseScope")
     workflow.shutdown()
   }
 

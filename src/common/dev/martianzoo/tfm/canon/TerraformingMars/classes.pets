@@ -3,6 +3,7 @@ CLASS TerraformingMars : BaseGameModule {
   HAS =1 GameMode, =1 MarsMap
   HAS Class<Production>
   HAS Class<BootstrapPhase>, Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>, Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>, Class<End>
+  HAS Class<WorkflowStarted>, Class<ActionPhaseScope>, Class<ProductionPhaseScope>, Class<SolarPhaseScope>, Class<ResearchPhaseScope>
   HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
@@ -546,16 +547,47 @@ ABSTRACT CLASS Phase : System {
       (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>), \
       -10 ProjectCard<Selecting>? THEN BuySelectedCards
   }
-  CLASS ResearchPhase { This:: Generation }
+  CLASS ResearchPhase {
+    This IF WorkflowStarted:: ResearchPhaseScope<This>
+    This:: Generation
+  }
   CLASS ActionPhase {
+    This IF WorkflowStarted:: ActionPhaseScope<This>
     NewTurn: UseAction<StandardAction> OR Pass
     SecondAction: UseAction<StandardAction>?
   }
-  CLASS ProductionPhase
-  CLASS SolarPhase
+  CLASS ProductionPhase { This IF WorkflowStarted:: ProductionPhaseScope<This> }
+  CLASS SolarPhase { This IF WorkflowStarted:: SolarPhaseScope<This> }
   CLASS FinalGreeneryPhase {
     NewTurn: UseAction<ConvertPlantsAction, Action1>?
   }
+}
+
+"Records that the phase workflow has been explicitly started"
+CLASS WorkflowStarted : System { HAS MAX 1 This }
+
+"The lifetime anchor for components belonging to one occurrence of a phase"
+ABSTRACT CLASS PhaseScope<Phase> : System { HAS MAX 1 PhaseScope }
+
+"The action phase's lifetime anchor and continuation"
+CLASS ActionPhaseScope<ActionPhase> : PhaseScope<ActionPhase> {
+  -This IF WorkflowStarted:: ProductionPhase FROM ActionPhase
+}
+
+"The production phase's lifetime anchor and continuation"
+CLASS ProductionPhaseScope<ProductionPhase> : PhaseScope<ProductionPhase>, Temporary {
+  -This IF WorkflowStarted, GameEndBarrier:: SolarPhase FROM ProductionPhase
+  -This IF WorkflowStarted, MAX 0 GameEndBarrier:: CheckGameEnd
+}
+
+"The solar phase's lifetime anchor and continuation"
+CLASS SolarPhaseScope<SolarPhase> : PhaseScope<SolarPhase>, Temporary {
+  -This IF WorkflowStarted:: ResearchPhase FROM SolarPhase
+}
+
+"The research phase's lifetime anchor and continuation"
+CLASS ResearchPhaseScope<ResearchPhase> : PhaseScope<ResearchPhase>, Temporary {
+  -This IF WorkflowStarted:: ActionPhase FROM ResearchPhase
 }
 
 // TIME FLOW

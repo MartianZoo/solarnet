@@ -136,19 +136,20 @@ public object TfmWorkflow {
       resumeSignal.cancel()
       shutdownCheckpoint?.let { game.timeline.rollBack(it) }
       shutdownCheckpoint = null
+      if (adminOps.has("WorkflowStarted")) adminOps.sneak("-WorkflowStarted")
     }
 
     /** Orchestrates the complete game from its committed bootstrap state to finish. */
     private suspend fun runGame() {
+      adminOps.manual("WorkflowStarted")
       m.setupPhase()
       awaitTasksDrained()
       corporationPhase()
       if (hasComponent("PreludeExpansion")) preludePhase()
+      m.actionPhase()
       while (true) {
         actionPhase()
-        productionPhase()
-        if (!solarPhase()) break
-        researchPhase()
+        if (!wakeActionPhaseScope()) break
       }
       if (hasComponent("SoloMode")) {
         if (!adminOps.has("Victory<${players.single()}>")) return
@@ -171,21 +172,6 @@ public object TfmWorkflow {
       }
     }
 
-    private suspend fun productionPhase() {
-      adminOps.beginManual("ProductionPhase FROM Phase")
-      letPlayerFinish()
-    }
-
-    private suspend fun solarPhase(): Boolean {
-      if (m.solarPhase() == null) {
-        adminOps.manual("CheckGameEnd")
-        awaitTasksDrained()
-        return false
-      }
-      letPlayerFinish()
-      return true
-    }
-
     private suspend fun finalGreeneryPhase() {
       m.finalGreeneryPhase()
       for (player in rotatedByFirstPlayer()) {
@@ -198,13 +184,7 @@ public object TfmWorkflow {
       }
     }
 
-    private suspend fun researchPhase() {
-      adminOps.beginManual("ResearchPhase FROM Phase")
-      letPlayerFinish()
-    }
-
     private suspend fun actionPhase() {
-      m.actionPhase()
       val active = ArrayDeque(rotatedByFirstPlayer())
       while (active.isNotEmpty()) {
         val player = active.first()
@@ -216,6 +196,22 @@ public object TfmWorkflow {
           active.addLast(active.removeFirst())
         }
       }
+    }
+
+    private suspend fun wakeActionPhaseScope(): Boolean {
+      shutdownCheckpoint = game.timeline.checkpoint()
+      adminOps.beginManual("-ActionPhaseScope")
+      if (!adminOps.has("GameEndBarrier")) {
+        if (!game.tasks.isEmpty()) resumeSignal.receive()
+        if (hasComponent("ProductionPhaseScope")) {
+          adminOps.beginManual("-ProductionPhaseScope")
+        }
+        shutdownCheckpoint = null
+        return false
+      }
+      if (!game.isIdle()) resumeSignal.receive()
+      shutdownCheckpoint = null
+      return hasComponent("ActionPhase")
     }
 
     private fun rotatedByFirstPlayer(): List<Player> {
@@ -251,7 +247,5 @@ public object TfmWorkflow {
       game.timeline.commit()
       if (!game.isIdle()) resumeSignal.receive()
     }
-
-    private suspend fun letPlayerFinish() = awaitTasksDrained()
   }
 }

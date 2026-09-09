@@ -147,6 +147,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     game.onAtomicComplete = {}
     try {
       game.actors.forEach { game.tfm(it).autoExecMode = FIRST }
+      if (admin.has("WorkflowStarted")) admin.sneak("-WorkflowStarted")
       dropPendingTasksForSnapshot()
       admin.phase("Production") { dropPendingTasksForSnapshot() }
       admin.manual("End FROM Phase") { dropPendingTasksForSnapshot() }
