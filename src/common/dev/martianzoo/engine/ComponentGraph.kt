@@ -98,7 +98,7 @@ private constructor(
     requireOwnClassTable(parentType)
     return if (!classTable.isActive(parentType)) {
       0
-    } else if (parentType.className == COMPONENT) {
+    } else if (parentType.className == COMPONENT && parentType.refinement == null) {
       components.size
     } else if (parentType.abstract) {
       components
@@ -139,13 +139,13 @@ private constructor(
    * Returns all component instances having the type [parentType] (or any of its subtypes), as a
    * multiset. The size of the returned collection will be `[count]([parentType])` . An inactive
    * type returns an empty multiset. If [parentType] is `Component` this returns the entire
-   * component multiset.
+   * component multiset. A refined `Component` is filtered like every other abstract Type.
    */
   internal fun getAll(parentType: Type, info: TypeInfo): Multiset<Component> {
     requireOwnClassTable(parentType)
     return if (!classTable.isActive(parentType)) {
       HashMultiset()
-    } else if (parentType.className == COMPONENT) {
+    } else if (parentType.className == COMPONENT && parentType.refinement == null) {
       components.copy()
     } else if (parentType.abstract) {
       components.filter(parentType) { it.hasType(parentType, info) }

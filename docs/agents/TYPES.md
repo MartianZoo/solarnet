@@ -246,6 +246,13 @@ Inside a refinement, an implicit default is deferred when its dependency is a di
 Class-header Type variable; candidate substitution can then bind it through that occurrence.
 Writing `<>` still explicitly accepts the default.
 
+A bare dependent expression in a `HAS` refinement likewise reserves its first dependency position
+that can accept the refined domain. Candidate substitution binds that position before defaults are
+considered, so `Player(HAS StartToken)` tests `StartToken<p>` for each candidate `p` even though
+`StartToken` inherits the contextual `Owned<Owner>` default. The explicit forms remain available:
+`StartToken<Owner>` requests the contextual owner, and `StartToken<>` explicitly accepts the
+default.
+
 A gain or removal that would receive dependency bounds from its use-specific default cannot leave
 its argument list implicit. It must supply at least one argument or write an empty list such as
 `GreeneryTile<>` to explicitly accept those bounds. The gain and removal halves of `A FROM B` are
@@ -279,6 +286,10 @@ MarsArea(HAS PlacementBonus<Class<Metal>>)
 
 If no dependency position accepts the candidate, the refinement fails. Satisfying a `HAS`
 refinement is a state-aware relation, not static nominal subtyping.
+
+This applies even when the written domain is wider than the compatible dependency bound. For
+example, `Component(HAS StartToken)` can match only Player components because `StartToken`'s
+dependency bound is `Player`; every other Component candidate fails substitution.
 
 **Current defect: refinement substitution forgets authored dependency positions.** Resolving an
 expression records the resulting dependency Types but not which dependency keys its written
