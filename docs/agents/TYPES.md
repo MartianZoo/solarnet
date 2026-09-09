@@ -174,14 +174,14 @@ building a game. The Type system itself does not yet encode multiplicity.
 ### Argument matching and forms
 
 Written arguments match remaining dependencies greedily from left to right, using the first bound
-with a non-empty intersection. Unambiguous order therefore resolves alike:
+with a non-empty intersection. Unambiguous order resolves alike:
 
 ```text
 GreeneryTile<Player1, Tharsis_2_3>
 GreeneryTile<Tharsis_2_3, Player1>
 ```
 
-Order remains meaningful when dependency bounds overlap, as in `Adjacency<Tile, Tile>`. An
+Order is meaningful when dependency bounds overlap, as in `Adjacency<Tile, Tile>`. An
 unmatched extra argument is an error.
 
 `Class.matchDependencyKeys()` exposes the key matched by each authored argument when a consumer
@@ -236,7 +236,7 @@ own. It retains the context expected by that default without creating a new shar
 
 Default insertion elaborates an authored Expression; it does not author another Type-variable
 declaration. Existing variables retain their recorded occurrence identity as their expressions gain
-default arguments. Separate inserted expressions do not become one choice merely because their
+default arguments. Separate inserted expressions do not become one choice just because their
 text, resolved Type, declaring default, or in-memory object is shared. Contextual `Owner` is closed
 by the ownership and triggering-Actor rules, not by inventing a Type variable during expansion.
 Authored-variable recognition must not be rerun on the expanded syntax: that would turn elaboration
@@ -282,7 +282,7 @@ refinement is a state-aware relation, not static nominal subtyping.
 
 **Current defect: refinement substitution forgets authored dependency positions.** Resolving an
 expression records the resulting dependency Types but not which dependency keys its written
-arguments filled. Candidate substitution therefore starts greedy matching from the first dependency
+arguments filled. Candidate substitution starts greedy matching from the first dependency
 again and can overwrite an explicitly authored argument when several dependencies accept the same
 Type. The intended behavior is for written arguments to reserve their matched dependency keys and
 for the refinement candidate to specialize only a remaining compatible dependency. For example,
@@ -339,7 +339,7 @@ The excluded Type need not narrow the domain. Subtraction uses their structural 
 `NOT` only when its entire structural domain is disjoint from the exclusion. An abstract `Player`
 therefore does not satisfy `Owner(NOT Player1)`, because it still admits Player1.
 
-Both operands are explicit and the result is an ordinary `GroundType`, so it can stand alone or
+Both operands are explicit and the result is a `GroundType`, so it can stand alone or
 appear in a dependency, count, trigger selector, `EACH` selector, or `RANK` metric. There is no
 separate dependency kind. If later structural narrowing makes the domain disjoint from the
 exclusion, the redundant refinement is removed. A currently empty difference remains representable
@@ -356,7 +356,7 @@ The exclusion must be a refinement-free structural Type, recursively. In particu
 state-independent and prevents negating a World query. No refinement, including `NOT`, is permitted
 in a Class signature; Classes continue to declare structural dependencies and supertypes only.
 
-Two identical `NOT` refinements have an ordinary common narrowing. Different exclusions have no
+Two identical `NOT` refinements have a common narrowing. Different exclusions have no
 single representable common narrowing because Pets has no union Type for their excluded operands.
 `lub` retains a refinement only when both operands carry exactly the same predicate.
 
@@ -433,11 +433,11 @@ occurrences are not independent searches below `StandardResource`.
 
 | Form | Identity | Meaning |
 | --- | --- | --- |
-| `GroundType` | Root Class, dependencies, and optional refinement | An ordinary resolved structural Type. |
+| `GroundType` | Root Class, dependencies, and optional refinement | A resolved structural Type. |
 | `TypeVariable` | Its declaration and lexical scope | One captured Type constrained by its Ground-Type `bound`. |
 
 A variable is therefore not merely an annotation beside its bound. It is a distinct Type with the
-same ordinary operations. Code that only needs narrowing, dependencies, or Class information uses
+same operations. Code that only needs narrowing, dependencies, or Class information uses
 the `Type` API. Code concerned with capture or substitution can inspect whether that Type is a
 `TypeVariable`, then inspect its declaration and uses.
 
@@ -483,7 +483,7 @@ the dependencies supplied by both the occurrence and the concrete Class.
 
 A refined declaration evaluates its Requirement when a candidate is captured. Binding consumes that
 declaration refinement, so every later occurrence reuses the captured Ground Type without evaluating
-the Requirement again. A distinct use-site refinement remains a separate constraint.
+the Requirement again. A distinct use-site refinement is a separate constraint.
 
 Variables are recognized from authored syntax before defaults, marked-syntax lowering, owner
 substitution, and task splitting. These phases preserve existing declaration identity and use paths
@@ -506,14 +506,14 @@ Class dependencies are still dependency edges to components, not conventional ge
 Their resolved targets merely provide durable values for the Class-scoped variables. Each
 comma-separated dependency root is independent even when two roots have identical text. Within a
 root, a dependency path follows stable keys through nesting, so `Neighbor_0.Tile_0` and
-`Neighbor_1` remain distinct. A key combines the Class that first declared it with its zero-based
+`Neighbor_1` are distinct. A key combines the Class that first declared it with its zero-based
 slot, such as `Tile_0` or `Owned_0`; subtypes retain it.
 
 For example, a concrete `Cardbound<CardFront<Player1>>` supplies both the card value and its projected
 `Player1` owner value. The second `Player` in `Owned<Player>` uses that projection because both
 occurrences address the same inherited owner dependency. The same value then specializes a
 `Token<Player>` occurrence in a Class Effect. In contrast, independently declared roots do not
-become one variable merely because their bounds have the same spelling. A body occurrence that
+become one variable because their bounds happen to have the same spelling. A body occurrence that
 could name two such declarations with different values is ambiguous and is rejected.
 
 ### Authored expression identity
@@ -526,7 +526,7 @@ the earliest potential declaration in authored order owns them.
 A local use normally requires exactly the same authored expression. Matching is structural equality of
 the parsed AST, which naturally ignores whitespace and parser-erased grouping but performs no
 resolution, default insertion, or dependency-order canonicalization. Omission, argument order,
-and refinement syntax remain meaningful authored differences:
+and refinement syntax are meaningful authored differences:
 
 ```text
 Tile != Tile<Area>
@@ -549,15 +549,15 @@ identified by stable dependency paths, so projections named by a Class can be us
 whole containing expressions differ.
 
 A proper type dependency explicitly chosen in the first stage of `THEN` and repeated later belongs
-to that queued choice rather than a matching Class variable. Law Suit's `MC<Player>` therefore
-selects its opponent and carries that `Player` through the gate and card movement. Outside such a
-choice, a rule needing a distinct local capture must use a distinct authored expression. For
-example, `ChooseOceanArea` uses `This BY Actor: OceanTile<> BY Actor` so the concrete performing
-Actor is captured independently of the owned signal's owner.
+to that queued choice rather than a matching Class variable. Law Suit's `MC<Player>` selects its
+opponent and carries that `Player` through the gate and card movement. Outside such a choice, a rule
+needing a distinct local capture must use a distinct authored expression. For example,
+`ChooseOceanArea` uses `This BY Actor: OceanTile<> BY Actor` so the concrete performing Actor is
+captured independently of the owned signal's owner.
 
 Second, if `Player` is visible, the excluded operand in `Owner(NOT Player)` is a use of that
 variable. Binding first specializes it to a concrete Actor, then tests the difference. The whole
-`Owner(NOT Player)` expression may simultaneously declare a dependent variable under the ordinary
+`Owner(NOT Player)` expression may simultaneously declare a dependent variable under the
 declaration rules. In
 `-OwnedActorTrigger<Owner(NOT Player)> BY Player: Heat<Owner(NOT Player)>`, the Actor capture `T` is
 bound first; the event capture `U` is then selected under `Owner(NOT T)`; and the result uses `U`.
@@ -599,14 +599,14 @@ Class-header declaration may have uses in several comma-separated Effects.
 - A refined `Class<Tag>` binds the represented candidate Class while testing its Requirement, as
   described in section 6. That represented-Class substitution is not an authored Type variable.
 - `RANK Selector { ... }` owns the candidate-name scope in its Metrics. A surrounding refined
-  `Class<T>` therefore does not rewrite that subtree while specializing its represented Class;
+  `Class<T>` does not rewrite that subtree while specializing its represented Class;
   ranking binds the selected peer later, including inside a `NOT` exclusion.
 
 ### Lifetime and specialization
 
 Class-scoped variables survive inheritance and enumeration. Component specialization substitutes
 only their recorded uses in Effects; an unrelated occurrence of the same Class remains an ordinary
-bound. Effect-local variables remain open while the effect is installed, then a matching event
+bound. Effect-local variables stay open while the effect is installed, then a matching event
 specializes their trigger, condition, Actor selector, and instruction together. This is trigger
 specialization, not global replacement of every occurrence of the same abstract Class.
 
@@ -619,7 +619,7 @@ therefore uses one atomic variable.
 The [`EACH`](EACH.md) fanout makes its selector a declaration whose scope is its body. Each
 enumerated concrete selector Type substitutes through the recorded use paths. Inside the body, an
 Owner selection supplies contextual `Owner`; a non-Owner selection retains the enclosing contextual
-owner. `This` remains the effect-bearing component. The construct rejects a body with no use of the
+owner. `This` is the effect-bearing component. The construct rejects a body with no use of the
 selector.
 
 ### Implementation direction
@@ -645,7 +645,7 @@ A rejected implementation is preserved locally as stash
 `codex/type-variable-linkage-review-2026-09-02` (stash commit
 `8f2c9617401d3d630097fa52209e46a586930194`). Inspect it before revisiting this mechanism. It added
 217 net lines across the expression model, preprocessing, scope analysis, engine resolution, and
-construct-specific lowering without establishing an observable failure. The stash is evidence of
+construct-specific lowering without establishing an observable failure. The stash records the
 cost and explored failure modes, not a design to restore wholesale; because Git stashes are local,
 the evidence gate above remains authoritative when the object is unavailable.
 
@@ -656,7 +656,7 @@ be optional content cleanup.
 ## 11. Uninhabited Classes and Types
 
 The Catalog's master table establishes one nominal universe. A game projection preserves every
-master Class identity in one of two states: active or uninhabited. Unknown names remain errors. An
+master Class identity in one of two states: active or uninhabited. Unknown names are errors. An
 uninhabited Class retains its name, declared hierarchy, and Dependency shape so resolution and
 nominal subtyping remain meaningful, but it contributes no live behavior or inhabitants.
 
@@ -694,7 +694,7 @@ remains dormant. The loader rechecks every active declaration as the closure gro
 Trigger domain can make its constructive body reachable later.
 
 Reachability currently proves exact facts from uninhabited Count domains through `AND` and `OR`
-Requirements. Thus Vitor can remain active in solo while its `Class<Award>`-gated RequiredAction
+Requirements. Vitor can remain active in solo while its `Class<Award>`-gated RequiredAction
 and the entire Award domain remain uninhabited. Anything the analysis cannot prove unreachable remains
 conservatively reachable. Known declarations outside the closure become uninhabited when the
 projection freezes.

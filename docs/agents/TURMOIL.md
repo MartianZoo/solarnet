@@ -276,7 +276,7 @@ Within a Neutral-owned delegate, their contextual Neutral specializations are ou
 bounds. This is more precise than describing the result as generic runtime owner matching.
 
 The free and paid delegate actions create `NormalDelegate`. The action does not appoint a leader;
-party maintenance owns any subsequent promotion. The exact leader and dominance comparisons remain
+party maintenance owns any subsequent promotion. The exact leader and dominance comparisons are
 an open language problem because their tie rules differ.
 
 ### Policies

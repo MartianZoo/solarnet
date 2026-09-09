@@ -69,7 +69,7 @@ instructions, assignment, Actor attribution, continuations, and cause as passive
 retains coordination of live atomic rollback across every Game World event produced by one
 operation.
 
-Task assignment remains an engine-enforced game rule. Preventing a caller from choosing the direct
+Task assignment is an engine-enforced game rule. Preventing a caller from choosing the direct
 engine API is out of scope. The engine is intentionally indifferent to why an Actor or trusted
 caller chose one legal mutation instead of another.
 
@@ -146,7 +146,7 @@ Do not reopen these without new evidence:
   concrete `Admin : Actor` Class and Component, while Kotlin `Engine` names only the passive
   mutation-processing mechanism.
 - The Terraforming Mars Module creates `BootstrapPhase`; workflow replaces it with `SetupPhase`.
-  Bootstrap should reach ordinary Admin task execution as early as the state model honestly
+  Bootstrap should reach Admin task execution as early as the state model honestly
   permits; the exact pre-task seed state remains to be selected.
 - Class reachability roots are chosen outside `ClassLoader`; the loader only follows generic
   structural reachability.

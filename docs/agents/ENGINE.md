@@ -113,7 +113,7 @@ printed-face predicates to the client.
 card back, tags, immediate instructions, actions, effects, cost, requirement, and card-resource type
 from Pets. Concrete `CardFront` subclasses form the card registry, and each card's represented
 `Class<CardBack>` determines its deck. Card resource directories preserve Module-specific card-pool
-grouping and activate unreferenced non-card roots; ordinary Pets references activate the remaining
+grouping and activate unreferenced non-card roots; Pets references activate the remaining
 declarations. Domain components exist only when the premise or an explicit creator produces them.
 Promo Card Pack contributes
 three direct class exclusions for the cards its revised printings supersede; there is no general
@@ -126,9 +126,9 @@ Players in order, and the premise's exact initial components. Its queued `Module
 after that complete layer exists. The initializer then drains the remaining queued work and
 performs a final drain. Completion requires an empty task queue and every premise-required component to exist
 before the initialized state is committed. Structural Class representatives are installed before
-event logging and therefore produce no Change Events. By the time `newGame` returns, the World has
-one Phase, every seated Player, and each Player's five `ProdOffset<Class<MC>>` components; workflow
-later replaces Bootstrap with `SetupPhase` as an ordinary effectful operation.
+event logging and produce no Change Events. By the time `newGame` returns, the World has one Phase,
+every seated Player, and each Player's five `ProdOffset<Class<MC>>` components; workflow later
+replaces Bootstrap with `SetupPhase` as an effectful operation.
 
 This staging is deliberate. The generated declaration is the executable form of the already
 resolved Module selection; live effects do not choose defaults from a partial World. Queued
@@ -142,10 +142,10 @@ areas, and Game Modes create their distinct starting ratings during Setup. This 
 invariants true promptly while preserving what each event means.
 
 Bootstrap tasks must have exactly one possible concrete outcome. Their syntax may begin abstract
-only when ordinary resolution proves a single concrete alternative from the initialized state; no
+only when resolution yields a single concrete alternative from the initialized state; no
 bootstrap task may choose among two or more legal outcomes. Choice-bearing starting state must
 remain an exact premise component and open its choice during `SetupPhase` or later, as selected
-Colonies do. Queued `:` and immediate `::` still have their ordinary semantics; the bootstrap drain
+Colonies do. Queued `:` and immediate `::` still have their usual semantics; the bootstrap drain
 is not permission to replace one with the other mechanically or to discard a change's `?`, `.`, or
 `!` intensity.
 
@@ -157,9 +157,9 @@ ordering separately whenever bootstrap effects can observe one another.
 
 **Forward-looking:** Kotlin `Engine` remains the passive mechanism that calculates responses to
 Actor-attributed mutations. The current administrative Actor and Component become `Admin`.
-Bootstrap should create only the state that cannot yet arise from an ordinary Admin task, then hand
+Bootstrap should create only the state that cannot yet arise from an Admin task, then hand
 control to Admin as soon as possible. Discover that minimum during extraction rather than requiring
-an up-front inventory. Do not prolong special initialization merely because the current
+an up-front inventory. Do not prolong special initialization just because the current
 `Initializer` can create more directly.
 
 Keep three bootstrap layers distinct:
@@ -168,11 +168,11 @@ Keep three bootstrap layers distinct:
    representatives, history, timeline, and passive mutation executor. There is not yet an Actor
    mutation to record.
 2. **Actor bootstrap** establishes the minimum concrete state needed for Admin to exist as an Actor
-   Component and receive ordinary work. Add other directly created premise state only when the
+   Component and receive work. Add other directly created premise state only when the
    ordinary task route proves circular.
 3. **Game initialization** begins at the earliest point where history can honestly say that Admin
    is selecting, narrowing, and executing assigned tasks. Terraforming Mars now names this interval
-   with `BootstrapPhase`; Module activation and Player creation should move under ordinary phase
+   with `BootstrapPhase`; Module activation and Player creation should move under phase
    work wherever the model can express them without circular prerequisites.
 
 The goal is not to call every constructor step an Admin action. It is to make the special prefix as
@@ -181,13 +181,13 @@ handoff.
 
 In Canon, the initializer directly materializes `Admin` and the generated `Premise`. Immediate
 Premise effects create all selected Modules, seated Players, and exact initial component Types;
-direct initialization remains only an idempotent fallback for copied custom premises. Module and
-Player effects create their owned bootstrap state. An exact `HAS =1 This` remains a live
+direct initialization is only an idempotent fallback for copied custom premises. Module and
+Player effects create their owned bootstrap state. An exact `HAS =1 This` is a live
 multiplicity invariant, not an initialization instruction.
 
 ## Component graph
 
-The component graph is only a multiset of concrete Types. Components have no fields or instance
+The component graph is a multiset of concrete Types. Components have no fields or instance
 identity. Equal Types are indistinguishable copies. The Kotlin `Component` type is therefore an
 unboxed value wrapper when its use site permits, not an interned state object.
 
@@ -212,7 +212,7 @@ description of what changed. Recording playback invokes the same passive applica
 engine, so recorded consequences are never calculated twice. [GAMEWORLD.md](GAMEWORLD.md) owns the
 contract.
 
-`sneak` therefore remains an engine cheat, not a state operation. Normal execution and `sneak`
+`sneak` is therefore an engine cheat, not a state operation. Normal execution and `sneak`
 apply the same concrete `GameWorld` mutation; the engine decides whether to process the reported
 change through effects.
 
@@ -304,7 +304,7 @@ starts Player operations directly and waits for whole-world idleness instead.
 
 This is the current task lifecycle.
 
-Actors play through two kinds of ordinary activity:
+Actors play through two kinds of activity:
 
 1. select one pending task, making it the work that must finish next; or
 2. narrow a task by supplying one or more of its remaining choices.
@@ -348,13 +348,13 @@ sub-Specification, retain the Player's choice, resolve again, and then enumerate
 choice. Do not require a client to choose from the Cartesian product of every fully concrete
 Instruction when its parts can be narrowed compositionally.
 
-Once resolution has read state, an abstract task remains selected and must finish before any
+Once resolution has read state, an abstract task stays selected and must finish before any
 competing mutation. A concrete result executes as part of the same command. A Selected Task retains
 its resolved first stage rather than deriving it again; later linked stages resolve when reached,
 against the state produced by earlier stages.
 
 If resolution or narrowing exposes several independent instructions, the selected structural Task
-completes and is replaced by ordinary Pending Tasks. No child inherits selection; choosing which
+completes and is replaced by Pending Tasks. No child inherits selection; choosing which
 sibling comes next is a new Selection.
 
 ### Execution
@@ -523,7 +523,7 @@ Multiple Metrics are compared lexicographically. Each score binds the candidate 
 direction keyword; a known upper cap minus a Metric can express lowest-first scoring.
 
 An abstract custom metric specializes only over dependency targets represented by live components,
-then sums the satisfying concrete implementations. This follows the ordinary dependency rule that
+then sums the satisfying concrete implementations. This follows the dependency rule that
 a dependent value cannot exist without its targets and avoids enumerating the full structural
 cross-product. Kotlin metric invocations always receive concrete dependency arguments.
 
@@ -572,7 +572,7 @@ applicable multiplicity limits.
 
 **Audit:** bootstrap verification checks premise Modules, Players, and exact initial component
 Types, not every positive lower bound or every source-owned support component. Canon's lifecycle
-tests currently prove `StartToken` and track-status initialization; the generic initializer would
+tests currently cover `StartToken` and track-status initialization; the generic initializer would
 not itself detect their accidental omission.
 
 `GpIncomplete` and `GpComplete` are two faces of one status and are the strongest candidate for an
@@ -600,10 +600,10 @@ absent card must not require its dependent tag.
 
 Until that completion rule exists, retain maximum one for lifecycle state and use exact one only
 where the explicit creator and current execution path already make absence non-resting. Do not add
-a second representation or a hidden “repairing” marker merely to permit the transient state.
+a second representation or a hidden “repairing” marker solely to permit the transient state.
 
 **Disposition: at peace with the operator set.** `Metric.Max`, `Metric.Subtract`, and `Metric.Or`
-each have only a handful of authored uses, almost all inside `Award.metric`, so a sweep for
+each have a handful of authored uses, almost all inside `Award.metric`, so a sweep for
 single-client machinery flags them. The measurement is backwards: the algebra is *under*-built, not
 over-built. `Subtract` saturates but there is no `Add`, and
 [TURMOIL.md](TURMOIL.md#open-language-and-modeling-questions) needs one for global events that add
@@ -694,7 +694,7 @@ timeline and graph mutation interfaces.
 
 **Forward-looking:** `:agent` owns the normal Actor-scoped client API. Agent calls the core engine's
 audited mutation families against the Game World's task queue; a separate passive access object is
-not needed. Actor assignment remains engine semantics even though the resulting assignment is Game
+not needed. Actor assignment is engine semantics even though the resulting assignment is Game
 World data. Agent is the sole issuer of ordinary explicit and policy-chosen mutations for one Actor.
 Direct engine primitives remain available for workflows, replay correction, cheats, and tests;
 preventing trusted callers from using them is not a current goal. Public task mutation is already

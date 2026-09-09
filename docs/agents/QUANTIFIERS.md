@@ -95,8 +95,7 @@ quantifiers.
 ## Concrete pure removals
 
 A removal does not require the removed Type's dependency component to exist separately: if no
-matching removable component exists, its footroom is zero. It therefore uses the same limit
-table:
+matching removable component exists, its footroom is zero. It uses the same limit table:
 
 | Limit | mandatory | optional | AMAP |
 | --- | --- | --- | --- |
@@ -123,7 +122,7 @@ following `THEN`; target selection and component movement are separate consequen
 
 ## Abstract pure gains and removals
 
-Resolution first performs ordinary unique-Type narrowing. If the target remains abstract, the
+Resolution first performs unique-Type narrowing. If the target remains abstract, the
 following rules apply.
 
 For mandatory and AMAP, the engine can search whether a pure change's concrete domain can execute.
@@ -136,13 +135,13 @@ change is meaningful; it does not make a target eligible.
   `LimitsException`. Otherwise every candidate that the player selects must execute all `n`.
 - AMAP uses required count one when deciding whether a useful target exists. If no candidate can
   execute one, the whole abstract change becomes `Ok` rather than presenting a meaningless choice.
-  Otherwise ordinary Type narrowing chooses the target. Capacity does not filter that Type domain.
+  Otherwise Type narrowing chooses the target. Capacity does not filter that Type domain.
   After a target is selected, it executes the greatest count for that target, up to `n`, which may
   be zero even when a different eligible target has positive capacity.
 - Optional does not globally filter gain targets by positive capacity. After unique narrowing, an
   abstract optional gain remains a choice unless its authored dependency is absent, in which case
   it becomes `Ok`. Selecting a concrete target then uses the concrete optional rules. An abstract
-  optional removal becomes `Ok` when no matching component exists; otherwise it remains a choice,
+  optional removal becomes `Ok` when no matching component exists; otherwise it stays a choice,
   including when minimum invariants make every matching component currently unremovable.
 
 Target eligibility belongs to the authored Type and its refinements. AMAP does not require selection
@@ -171,7 +170,7 @@ uninhabited target is `Ok` when optional or AMAP and a `DeadEndException` when m
 not auto-narrow, fire triggers, or participate in abstract feasibility.
 
 When a `PER` metric or other scalar calculation makes the requested count zero, resolution returns
-`Ok` before ordinary positive-count quantifier behavior is needed.
+`Ok` before positive-count quantifier behavior is needed.
 
 ## Composition
 

@@ -59,7 +59,7 @@ designing for unusual hypothetical consumers.
 
 There is no predetermined correct module size. If one group of classes can be explained as doing X
 and another as doing Y, consider separate fine-grained Gradle modules. A second consumer is not
-required. Do not split cohesive behavior merely to increase the module count, and remain willing to
+required. Do not split cohesive behavior simply to increase the module count, and remain willing to
 combine modules again when experience shows that a division is artificial. Module structure is a
 design tool, not a ratchet.
 
@@ -76,7 +76,7 @@ more important than forcing every official rule into the current model.
 When exact fidelity would require disproportionate or poorly understood machinery, select the
 clearest coherent variant the model can support and document the difference from the official rule.
 A variant is a deliberate rule, not a new label for accidental behavior. Do not misrepresent it as
-exact, and do not preserve a bad design merely because it happens to cover one more card. Revisit
+exact, and do not preserve a bad design just because it happens to cover one more card. Revisit
 documented variants as the model improves.
 
 Adding cards is valuable primarily because varied and difficult rules test the model. A card may
@@ -101,13 +101,13 @@ Jacob Fryxelius. Do not initiate rule research during routine implementation wor
 - Prefer one source of truth and one systemic rule over wrappers, duplicated representations,
   parallel APIs, and per-component exceptions.
 - A hardcoded narrow fact can cost less than a framework. Repeated implementation-shaped exceptions
-  can instead be evidence that a general concept is missing.
+  can instead indicate that a general concept is missing.
 - Stop when a small request starts creating vocabulary across several modules. Explain the design
   pressure rather than normalizing disproportionate complexity.
 - Evaluate each layer against the contract it owns. Lower layers preserve facts, validate legal
   mutations, and calculate consequences; caller policy and strategy belong above them.
 - Do not push application preferences downward to guarantee a pleasant default, and do not omit a
-  lower-layer invariant merely because an upper layer currently behaves well.
+  lower-layer invariant just because an upper layer currently behaves well.
 
 ## Dispositioned complexity findings
 
@@ -125,7 +125,7 @@ Use one of these dispositions:
 
 An entry records a decision that was made, not a rule that cannot change. Overturn one by showing
 its reasoning wrong — new evidence, a changed constraint, or a second client that shifts the
-balance. Do not overturn one merely by rediscovering the same cost.
+balance. Rediscovering the same cost is not enough to overturn one.
 
 Keep the substantive reasoning in the owning document and keep this table to one line per finding.
 
@@ -172,14 +172,14 @@ Keep the substantive reasoning in the owning document and keep this table to one
 
 Pets should read like the physical game: compact, composable, and precise about ownership, identity,
 timing, and choice. Prefer hand-authored Pets plus general runtime semantics. Every custom class or
-instruction is evidence that Pets cannot yet express part of the game and therefore a design-failure
+instruction shows that Pets cannot yet express part of the game and is therefore a design-failure
 signal, not an ordinary implementation technique. Avoid custom Kotlin whenever a coherent Pets
 formulation exists. When it is unavoidable, keep it minimal and identify the general missing Pets
 capability it exposes; Kotlin-generated Pets is not automatically simpler.
 
 Components have types and multiplicity, not fields or incidental object identity. A Catalog
 supplies coherent data, Modules select ambient rules, and a GamePremise describes one exact game.
-Do not blur these roles or activate optional vocabulary merely by mentioning it in a safe query.
+Do not blur these roles or activate optional vocabulary simply by mentioning it in a safe query.
 
 ## Keep interfaces and evidence honest
 
@@ -187,7 +187,7 @@ Do not blur these roles or activate optional vocabulary merely by mentioning it 
 - Preserve engine invariants even for trusted or rules-bypassing operations.
 - Domain input must fail with domain errors. Programmer-error exceptions indicate invalid Kotlin or
   an impossible engine state.
-- Prefer readable scenario and integration tests that prove observable behavior and library
+- Prefer readable scenario and integration tests that demonstrate observable behavior and library
   composition. Do not duplicate production catalogs or assert incidental task text and ordering.
 - A passing narrow test proves only its assertion. Review the final diff and state what was not
   verified.

@@ -40,7 +40,7 @@
 
 Each time people sit down to play, they create one Game World: a pocket universe with its own
 immutable game context, present components, pending choices, and history. It exists for the whole
-lifetime of that game rather than denoting only one snapshot.
+lifetime of that game rather than denoting one snapshot.
 
 The `:gameworld` module owns that data model. A Game World contains:
 
@@ -145,7 +145,7 @@ queries such as production counts and visible-log filtering must not pull in `Tf
 
 ## Verification responsibilities
 
-Pure `:gameworld` tests should prove:
+Pure `:gameworld` tests should verify:
 
 - exact component and task events advance and reverse all projections together;
 - event replay never fires effects or invents task work;
@@ -156,7 +156,7 @@ Pure `:gameworld` tests should prove:
 - observers see only the completed seek target; and
 - export encoding is deterministic and rejects incompatible schema or Canon fingerprints.
 
-Cross-module engine tests should continue to prove that live failure rollback restores components,
+Cross-module engine tests should continue to confirm that live failure rollback restores components,
 tasks, and history together, and that the engine marks positions only after a coherent outer
 mutation completes.
 
@@ -169,7 +169,7 @@ mutation completes.
 5. Export designated full-game replay tests and switch the viewer to those files.
 6. Remove viewer replay sources and its engine dependencies.
 7. Move remaining runtime data types and rendering helpers to their final owning modules once the
-   dependency seam is proven by the working composition.
+   dependency seam is settled by the working composition.
 
 Do not create an empty module, a parallel display model, or a self-contained serialized Catalog as
 preparatory architecture. Each step must leave one working composition and reduce an actual

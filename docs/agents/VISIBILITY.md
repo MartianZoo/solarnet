@@ -22,11 +22,11 @@
 Every declaration should have the narrowest effective visibility compatible with its real callers.
 Current callers establish a lower bound, not the entire public design: preserve coherent families of
 constructors, factories, structural properties, and paired queries on an intentionally public
-abstraction. Do not leave a public model with arbitrary holes merely because one member currently
+abstraction. Do not leave a public model with arbitrary holes just because one member currently
 lacks a cross-module caller.
 
 - Use `private` when all callers are in the containing declaration or file.
-- Use `internal` when callers cross files but remain in one module.
+- Use `internal` when callers cross files but stay in one module.
 - Use `protected` only for subclass access.
 - Use `public` only for cross-module use, required public overrides, or externally discovered
   entrypoints.

@@ -13,15 +13,15 @@
 >
 > **Status:** long-range proposal with a settled card/state shape and layer ownership. No real-card
 > mode exists: follow mode is the only implemented behavior, and real-card implementation is not
-> expected for many months. Do not retain otherwise-unneeded runtime or source machinery merely for
-> this proposal. Type syntax, the default dealer algorithm, and observation interface remain
+> expected for many months. Do not retain otherwise-unneeded runtime or source machinery for
+> this proposal. Type syntax, the default dealer algorithm, and observation interface are
 > unproved.
 
 ## Read only the relevant gate
 
 | Task | Read |
 | --- | --- |
-| Component/location representation | State model through Ordinary transitions |
+| Component/location representation | State model through Normal transitions |
 | Defaults, counted cards, or delegated face choice | Defaults and atomization; Selection-time delegation |
 | Shuffle, replay, rollback, or forks | Deterministic dealer projection |
 | Reveal, search, or card predicates | Reveals, searches, and printed predicates |
@@ -113,7 +113,7 @@ CLASS CorporationCard : CardBack<Class<CorporationFront>>, Atomized
 CLASS PlayedEvent<Class<EventCard>> : Card
 ```
 
-The rendered argument order may differ after dependency inheritance is proved. Semantically, an
+The rendered argument order may differ after dependency inheritance is settled. Semantically, an
 exact card includes:
 
 ```text
@@ -162,7 +162,7 @@ Deck and discard are absent from this table because they are not Components or P
 
 ## Normal transitions
 
-Once an exact card is in the World, location and face changes remain ordinary atomic
+Once an exact card is in the World, location and face changes remain atomic
 transmutations:
 
 | Operation | State change |
@@ -234,7 +234,7 @@ Atomization follows from physical exactness. Two different faces are two differe
 so one counted concrete change cannot honestly select them together. This is the same reason a
 counted OceanTile placement must split before choosing different areas.
 
-The familiar forms remain meaningful:
+The familiar forms are still meaningful:
 
 ```text
 ProjectCard<Player1>     // default location Hand; exact face still unresolved
@@ -252,7 +252,7 @@ An abstract card gain contains two decisions owned by different parties:
 - Admin determines which exact face is supplied. The normal Admin policy consults the deterministic
   dealer projection.
 
-The abstract task must initially remain under its controller. The Player may select other eligible
+The abstract task must initially stay under its controller. The Player may select other eligible
 sibling work first. When the Player selects the card gain:
 
 1. resolution recognizes that its remaining face variable is Admin-narrowed;
@@ -284,8 +284,8 @@ Philares establishes the current controller/delegation timing semantics:
    Player.
 
 Current code implements this precedent with the general delegation mechanism specified in
-[IDENTITY.md](IDENTITY.md). `TaskDelegationTest` proves the mechanism directly, while
-`PhilaresTest` proves controller ordering, owner-only narrowing, and blocking through Player-level
+[IDENTITY.md](IDENTITY.md). `TaskDelegationTest` exercises the mechanism directly, while
+`PhilaresTest` covers controller ordering, owner-only narrowing, and blocking through Player-level
 gameplay.
 
 ## Default deterministic dealer policy
@@ -458,7 +458,7 @@ action authors its Building-or-Space restriction as a `CARDS[...]` represented-f
 follow mode delegates that printed predicate to the client. Replication selects only Classes with
 matching robot units.
 
-The ordinary `PlayCardFromHand` action plays a staged card. When its `PlayCard` signal names a Class
+The `PlayCardFromHand` action plays a staged card. When its `PlayCard` signal names a Class
 with matching robot units, Self-Replicating Robots supplies the one generic `ProjectCard<Hand>` that
 the operation will consume. Each unit reduces that exact card's debt by 1 M€ and removes itself.
 Requirements, payment, tags, and creation of the final front remain entirely in `PlayCard`.
@@ -501,8 +501,8 @@ The remaining card gains and removals still use the follow-mode shorthand direct
 do not preserve deck or hand-location procedure yet.
 
 Astra Mechanica, Media Archives, Legend, Promoter, Event cleanup, Pharmacy Union, and Law Suit use
-ordinary `PlayedEvent` instructions, requirements, or metrics and therefore are not card-operation
-families in this inventory.
+ordinary `PlayedEvent` instructions, requirements, or metrics and are not card-operation families in
+this inventory.
 
 ## Conservation
 
@@ -521,8 +521,8 @@ does not need an invariant spanning hidden Deck and Discard Components because t
 longer exist.
 
 Every normal transition preserves the face and back family. Entry and discard move into or out of the
-World but remain exact logged events. Setup proves that every selected face begins in the derived
-deck exactly once.
+World but remain exact logged events. Setup guarantees that every selected face begins in the
+derived deck exactly once.
 
 ## Information hiding is deferred, not contradicted
 
@@ -602,7 +602,7 @@ Directions to try, cheapest first:
    neither stores a rewritten copy.
 3. **Give the operation a component.** If the card-operation families become declared classes
    rather than a marker plus a recognizer, most of what `FollowModeNeutralizer` rewrites becomes
-   ordinary mode-specific effects on mode-specific classes, and there is nothing left to shadow.
+   mode-specific effects on mode-specific classes, and there is nothing left to shadow.
 
 Any of these is acceptable. Storing both forms is not, once there is a third consumer.
 
@@ -627,23 +627,23 @@ Any of these is acceptable. Storing both forms is not, once there is a third con
 
 ## Implementation gates
 
-1. **Types and defaults:** prove the mutual Class-literal dependencies, singleton locations, direct
+1. **Types and defaults:** settle the mutual Class-literal dependencies, singleton locations, direct
    ownership, gain/removal defaults, atomization order, and linked play/Event transitions in a
    synthetic Class Table.
 2. **Admin narrowing:** extend the current selected-task delegation model so real-card resolution
-   names Admin as the narrower; prove with a synthetic card face that controller timing and the
+   names Admin as the narrower; confirm with a synthetic card face that controller timing and the
    task's future Actor remain unchanged.
 3. **Dealer projection:** derive a tiny three-face deck and discard set from premise plus events;
-   prove independent family streams, exhaustion, reshuffle epochs, cache deletion, rollback, replay,
-   and forks on JVM and JavaScript.
-4. **Card lifecycle:** move exact cards through every location, front, and back state and prove the
+   exercise independent family streams, exhaustion, reshuffle epochs, cache deletion, rollback,
+   replay, and forks on JVM and JavaScript.
+4. **Card lifecycle:** move exact cards through every location, front, and back state and verify the
    conservation partition.
 5. **Operation families:** migrate one draw, reveal, choice, search, draft, play/Event, and recovery
    rule without card-specific engine branches.
 6. **Observation:** project every component, query, task, result, and history path before exposing
    real mode to clients.
 
-Keep follow mode green and default throughout. Stop if the type proof or delegation requires global
+Keep follow mode green and default throughout. Stop if the type gate or delegation requires global
 exceptions specific to ProjectCard.
 
 ## Acceptance properties
