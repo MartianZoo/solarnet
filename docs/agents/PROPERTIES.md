@@ -129,9 +129,9 @@ Declaring-class count is therefore the wrong measure for this mechanism. The rig
 whether a property kind expresses a printed fact honestly and whether reading it composes with
 ordinary Pets. Both hold today.
 
-Growth is expected rather than suspicious: [TURMOIL.md](TURMOIL.md#open-language-and-modeling-questions)
-wants instruction-valued properties for party ruling bonuses. Judge a proposed new kind by
-“Design constraints for future extensions” below, not by how many classes will declare it.
+Growth is expected rather than suspicious: party ruling bonuses are a prospective use for
+instruction-valued properties. Judge a proposed new kind by “Design constraints for future
+extensions” below, not by how many classes will declare it.
 
 ## Applicability is primarily structural
 
