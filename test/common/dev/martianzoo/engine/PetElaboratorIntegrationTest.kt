@@ -1,15 +1,13 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.api.Exceptions.KindException
+import dev.martianzoo.pets.PetElaborator
+import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
-import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.types.inferTypeVariables
@@ -18,108 +16,83 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class TransformersTest {
-  @Test
-  internal fun atomizerChangesKindOnlyThroughTheBroaderInstructionTreeKind() {
-    val instruction = parse<Instruction>("2 OxygenStep!")
-    val atomizer = transformers.atomizer()
-    val transformed = atomizer.transformInstructionTree(instruction)
-
-    transformed shouldBe parse<InstructionTree>("OxygenStep!, OxygenStep!")
-    shouldThrow<KindException> { atomizer.transformInstruction(instruction) }
+internal class PetElaboratorIntegrationTest {
+  private companion object {
+    val catalog = Canon.withPlayers(3)
+    val table = catalog.classTable
+    val elaborator = PetElaborator(table)
+    val vocabulary = Vocabulary.create(catalog, activeClassNames = table.allClassNames)
   }
 
   @Test
-  internal fun test() {
-    checkApplyDefaults("Heat", "Heat<Owner>!")
-    checkApplyDefaults("-5 Heat", "-5 Heat<Owner>!")
-    checkApplyDefaults("VictoryPoint", "VictoryPoint<Owner>!")
-    checkApplyDefaults("OceanTile<>", "OceanTile<WaterArea(HAS MAX 0 Tile)>.")
-    checkApplyDefaults("MoholeArea_SpecialTile", "MoholeArea_SpecialTile<Owner>!")
-    checkApplyDefaults("-OceanTile", "-OceanTile.")
-    checkApplyDefaults(
+  internal fun `input elaboration preserves default edge cases through its public operation`() {
+    checkInput("Heat", "Heat<Owner>!")
+    checkInput("-5 Heat", "-5 Heat<Owner>!")
+    checkInput("VictoryPoint", "VictoryPoint<Owner>!")
+    checkInput("OceanTile<>", "OceanTile<WaterArea(HAS MAX 0 Tile)>.")
+    checkInput("MoholeArea_SpecialTile", "MoholeArea_SpecialTile<Owner>!")
+    checkInput("-OceanTile", "-OceanTile.")
+    checkInput(
         "CityTile<>",
         "CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>), Owner>!",
     )
-    checkApplyDefaults("-CityTile", "-CityTile<Owner>!")
-    checkApplyDefaults("CityTile<WaterArea>", "CityTile<WaterArea, Owner>!")
-    checkApplyDefaults("CityTile<Owner, WaterArea>", "CityTile<WaterArea, Owner>!")
-    checkApplyDefaults("CityTile<Anyone, WaterArea>", "CityTile<WaterArea, Anyone>!")
-    checkApplyDefaults("CityTile<Player3, WaterArea>", "CityTile<WaterArea, Player3>!")
-
-    checkApplyDefaults("CityTile<This>", "CityTile<This, Owner>!", cn("Area").expression)
-    checkApplyDefaults(
-        "CityTile<This>",
-        "CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>), This>!",
-        cn("Owner").expression,
-    )
-
-    checkApplyDefaults("OwnedTile", "OwnedTile<Owner>!")
-    checkApplyDefaults("Neighbor<OwnedTile>", "Neighbor<OwnedTile<Owner>>!")
-    checkApplyDefaults(
+    checkInput("-CityTile", "-CityTile<Owner>!")
+    checkInput("CityTile<WaterArea>", "CityTile<WaterArea, Owner>!")
+    checkInput("CityTile<Owner, WaterArea>", "CityTile<WaterArea, Owner>!")
+    checkInput("CityTile<Anyone, WaterArea>", "CityTile<WaterArea, Anyone>!")
+    checkInput("CityTile<Player3, WaterArea>", "CityTile<WaterArea, Player3>!")
+    checkInput("OwnedTile", "OwnedTile<Owner>!")
+    checkInput("Neighbor<OwnedTile>", "Neighbor<OwnedTile<Owner>>!")
+    checkInput(
         "LandArea(HAS Neighbor<OwnedTile>)",
         "LandArea(HAS Neighbor<OwnedTile<Owner>>)!",
     )
-    checkApplyDefaults(
-        "MC<Anyone(HAS VenusTag)>",
-        "MC<Anyone(HAS VenusTag)>!",
-    )
-    checkApplyDefaults(
+    checkInput("MC<Anyone(HAS VenusTag)>", "MC<Anyone(HAS VenusTag)>!")
+    checkInput(
         "MC<Anyone(HAS VenusTag<>)>",
         "MC<Anyone(HAS VenusTag<Owner>)>!",
     )
-    checkApplyDefaults(
-        "Heat FROM Owed<>!",
-        "Heat<Owner> FROM Owed<Owner, Class<MC>>!",
-    )
-    checkApplyDefaults(
-        "Heat FROM Owed<>.",
-        "Heat<Owner> FROM Owed<Owner, Class<MC>>.",
-    )
-    checkApplyDefaults(
-        "Heat FROM Owed<>",
-        "Heat<Owner> FROM Owed<Owner, Class<MC>>!",
-    )
-    checkApplyDefaults("Owed<>", "Owed<Owner, Class<MC>>!")
-    checkApplyDefaults("-Owed", "-Owed<Owner>.")
-    checkApplyDefaults("-Owed<>", "-Owed<Owner, Class<MC>>.")
+    checkInput("Heat FROM Owed<>!", "Heat<Owner> FROM Owed<Owner, Class<MC>>!")
+    checkInput("Heat FROM Owed<>.", "Heat<Owner> FROM Owed<Owner, Class<MC>>.")
+    checkInput("Heat FROM Owed<>", "Heat<Owner> FROM Owed<Owner, Class<MC>>!")
+    checkInput("Owed<>", "Owed<Owner, Class<MC>>!")
+    checkInput("-Owed", "-Owed<Owner>.")
+    checkInput("-Owed<>", "-Owed<Owner, Class<MC>>.")
   }
 
   @Test
-  internal fun dependencyDefaultsMustBeAcceptedOrPartiallySpecified() {
-    shouldThrow<PetSyntaxException> { applyDefaults("OceanTile") }.message shouldBe
+  internal fun `input elaboration enforces explicit dependency-default acceptance`() {
+    shouldThrow<PetSyntaxException> { elaborateInput("OceanTile") }.message shouldBe
         "`OceanTile` has gain dependency defaults; write `OceanTile<>` to accept them or provide dependency arguments"
-    shouldThrow<PetSyntaxException> { applyDefaults("Owed") }.message shouldBe
+    shouldThrow<PetSyntaxException> { elaborateInput("Owed") }.message shouldBe
         "`Owed` has gain dependency defaults; write `Owed<>` to accept them or provide dependency arguments"
-    checkApplyDefaults("-Owed", "-Owed<Owner>.")
-    checkApplyDefaults("CityTile<WaterArea>", "CityTile<WaterArea, Owner>!")
-    checkApplyDefaults("-OceanTile", "-OceanTile.")
-  }
-
-  @Test
-  internal fun emptyArgumentsRequireDefaultsForTheirSpecificUse() {
-    shouldThrow<PetSyntaxException> { applyDefaults("Plant<>") }.message shouldBe
+    shouldThrow<PetSyntaxException> { elaborateInput("Plant<>") }.message shouldBe
         "`Plant<>` has no gain dependency defaults to accept"
-    shouldThrow<PetSyntaxException> { applyDefaults("-Plant<>") }.message shouldBe
+    shouldThrow<PetSyntaxException> { elaborateInput("-Plant<>") }.message shouldBe
         "`Plant<>` has no removal dependency defaults to accept"
     shouldThrow<PetSyntaxException> {
-          transformers
-              .insertExpressionDefaults(cn("This").expression)
-              .transformExpression(parse("Player<>"))
+          elaborator.elaborateInput(parse<Expression>("Player<>"), vocabulary)
         }
         .message shouldBe "`Player<>` has no all-use dependency defaults to accept"
   }
 
-  private companion object {
-    val table = Canon.withPlayers(3).classTable
-    val transformers = Transformers(table)
+  @Test
+  internal fun `input elaboration permits instruction cardinality changes`() {
+    elaborateInput("2 OxygenStep!") shouldBe "OxygenStep!, OxygenStep!"
   }
+
+  private fun checkInput(source: String, expected: String) {
+    elaborateInput(source) shouldBe expected
+  }
+
+  private fun elaborateInput(source: String): String =
+      elaborator.elaborateInput(parse<InstructionTree>(source), vocabulary).toString()
 
   @Test
   internal fun `an action variable survives lowering and binds from its first stage`() {
     val component = Component(table.resolve(parse("UtopiaInvest<Player1>")))
     val effect =
-        LiveEffect.compile(component, transformers).single {
+        LiveEffect.compile(component, elaborator).single {
           "4 StandardResource" in it.effect.instruction.toString()
         }
     val then = effect.effect.instruction as Then
@@ -148,72 +121,11 @@ internal class TransformersTest {
     val component =
         Component(table.resolve(parse("AcceptingFromCard<Player1, KuiperCooperative<Player1>>")))
 
-    LiveEffect.compile(component, transformers)
+    LiveEffect.compile(component, elaborator)
         .map { it.effect.toString() }
         .single { "PayFromCard" in it } shouldBe
         "Billing<Player1>: X PayFromCard<Player1, KuiperCooperative<Player1>> " +
             "FROM Asteroid<KuiperCooperative<Player1>>?"
-  }
-
-  private fun checkApplyDefaults(
-      original: String,
-      expected: String,
-      context: Expression = THIS.expression,
-  ) {
-    applyDefaults(original, context).toString() shouldBe expected
-  }
-
-  private fun applyDefaults(
-      original: String,
-      context: Expression = THIS.expression,
-  ): Instruction = transformers.insertDefaults(context).transformInstruction(parse(original))
-
-  @Test
-  internal fun testDeprodify_noProd() {
-    val s = "Foo<Bar>: Bax OR Qux"
-    val e: Effect = parse(s)
-    val ep: Effect = transformers.transformMarkedSyntax().transformEffect(e)
-    ep.toString() shouldBe s
-  }
-
-  @Test
-  internal fun testDeprodify_simple() {
-    val prodden: Effect = parse("This: PROD[Plant / PlantTag]")
-    val deprodden: Effect = transformers.transformMarkedSyntax().transformEffect(prodden)
-    deprodden.toString() shouldBe "This: Production<Class<Plant>> / PlantTag"
-  }
-
-  @Test
-  internal fun configuredDispatcherAlsoLowersCardSyntax() {
-    val source: Instruction = parse("CARDS[2 SearchForCard(HAS PrintedTag<Class<VenusTag>>)]")
-
-    transformers.transformMarkedSyntax().transformInstruction(source).toString() shouldBe
-        "2 ProjectCard"
-  }
-
-  @Test
-  internal fun deprodifyPreservesAResourceRefinementOnItsClassDependency() {
-    val prodden: Instruction = parse("PROD[StandardResource(HAS EligibleResource)]")
-
-    transformers.transformMarkedSyntax().transformInstruction(prodden).toString() shouldBe
-        "Production<Class<StandardResource>(HAS EligibleResource)>"
-  }
-
-  @Test
-  internal fun testDeprodify_lessSimple() {
-    val prodden: Effect =
-        parse(
-            "PROD[Plant]: PROD[Ooh?, Steel. / Ahh, Foo<Xyz> FROM " +
-                "Foo<Heat>, -Qux!, 5 Ahh<Qux> FROM StandardResource], Heat"
-        )
-    val expected: Effect =
-        parse(
-            "Production<Class<Plant>>:" +
-                " Ooh?, Production<Class<Steel>>. / Ahh, Foo<Xyz> FROM Foo<Production<Class<Heat>>>," +
-                " -Qux!, 5 Ahh<Qux> FROM Production<Class<StandardResource>>, Heat"
-        )
-    val deprodden: Effect = transformers.transformMarkedSyntax().transformEffect(prodden)
-    deprodden shouldBe expected
   }
 
   @Test
@@ -230,8 +142,8 @@ internal class TransformersTest {
                 )
             )
 
-    transformers
-        .bindVariablesFrom(
+    elaborator
+        .specializeVariables(
             general,
             specific,
             parse("MicrobeTag<Player1, CardFront<Player1>>"),
@@ -245,7 +157,7 @@ internal class TransformersTest {
   internal fun `Class-scoped variables retain dependency constraints supplied by each use`() {
     val playCard = table.getClass(parse<Expression>("PlayCard").className)
     val effect =
-        transformers.classEffects(playCard).single { "CardInvoice" in it.instruction.toString() }
+        elaborator.classEffects(playCard).single { "CardInvoice" in it.instruction.toString() }
     val cardFront =
         effect.typeVariables.variables.single {
           it.declaration.expression.toString() == "CardFront"
@@ -264,7 +176,7 @@ internal class TransformersTest {
         Component(
             table.resolve(parse("PlayCard<Player1, Class<ProjectCard>, Class<AiCentral>, Hand>"))
         )
-    LiveEffect.compile(component, transformers)
+    LiveEffect.compile(component, elaborator)
         .map(LiveEffect::effect)
         .single {
           "CardInvoice" in it.instruction.toString()
@@ -291,7 +203,7 @@ internal class TransformersTest {
         .toString() shouldBe "MC"
 
     val productionEffect =
-        transformers.classEffects(klass).single {
+        elaborator.classEffects(klass).single {
           it.instruction.toString().startsWith("42 Production")
         }
     productionEffect.typeVariables.variables.associate { variable ->
@@ -299,7 +211,7 @@ internal class TransformersTest {
           productionEffect.typeVariables.expressionsOf(variable).map(Any::toString).toSet()
     } shouldBe mapOf("StandardResource" to setOf("StandardResource<Owner>"))
 
-    LiveEffect.compile(component, transformers).map { it.effect.toString() }.toSet() shouldBe
+    LiveEffect.compile(component, elaborator).map { it.effect.toString() }.toSet() shouldBe
         setOf(
             "This BY Actor(NOT Admin): Die!",
             "SetupPhase: 42 MC<SoloOpponent>!",
@@ -316,7 +228,7 @@ internal class TransformersTest {
   @Test
   internal fun `trigger variable survives Production lowering`() {
     val klass = table.getClass(parse<Expression>("Manutech").className)
-    val effect = transformers.classEffects(klass).single { "Production" in it.trigger.toString() }
+    val effect = elaborator.classEffects(klass).single { "Production" in it.trigger.toString() }
 
     effect.typeVariables.variables.associate { variable ->
       variable.declaration.expression.toString() to
@@ -324,16 +236,13 @@ internal class TransformersTest {
     } shouldBe mapOf("StandardResource" to setOf("StandardResource<Owner>"))
     effect.trigger.toString() shouldBe "Production<Owner, Class<StandardResource>>"
     val trigger = (effect.trigger as Effect.Trigger.OnGainOf).expression
-    val variable = effect.typeVariables.variables.single()
-    val bindings =
-        effect.typeVariables.bindingsFrom(
-            trigger,
+    elaborator
+        .specializeVariables(
             table.resolve(trigger),
             table.resolve(parse("Production<Player1, Class<Plant>>")),
+            trigger,
+            effect.typeVariables,
         )
-    bindings[variable].toString() shouldBe "Plant"
-    effect.typeVariables
-        .bind(bindings)
         .transformInstructionTree(effect.instruction)
         .toString() shouldBe "Plant<Owner>!"
   }

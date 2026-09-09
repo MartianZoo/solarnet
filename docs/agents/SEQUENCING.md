@@ -488,7 +488,7 @@ constraint, a real case — not by rediscovering the cost.
   components remove the same saturating `Owed`, so order decides who is credited with the last
   units. Reconstructed games still reach the same paid state. The repair is the payment direction in
   [PAYMENTS.md](PAYMENTS.md), not sibling precedence.
-- **The `Die` produce/consume pipeline — at peace.** `Transformers.invalidChangesToDie` emits the
+- **The `Die` produce/consume pipeline — at peace.** `PetElaborator.invalidChangesToDie` emits the
   marker and `Task.normalizeForTask` eliminates it: a bottom value plus its normalization, not a
   duplicated fact. `PremiseViability` runs the same reasoning statically and earns its place by
   failing a bad premise at setup. Only the three-valued interpreter it copies from `ClassLoader` is

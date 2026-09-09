@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.Expression
 import io.kotest.assertions.throwables.shouldThrow
@@ -30,13 +31,13 @@ internal class DependencyVariableTest {
           """
               .trimIndent()
       )
-  private val transformers = Transformers(table)
+  private val elaborator = PetElaborator(table)
 
   @Test
   internal fun `header variable specialization also specializes effects`() {
     val component = Component(table.resolve(te("InheritedLink<Player1, Card>")))
 
-    LiveEffect.compile(component, transformers)
+    LiveEffect.compile(component, elaborator)
         .map(LiveEffect::effect)
         .map(Any::toString)
         .shouldContainExactly("This: Token<Player1>!")
@@ -46,7 +47,7 @@ internal class DependencyVariableTest {
   internal fun `an independent nested owner does not capture contextual Owner in effects`() {
     val component = Component(table.resolve(te("Independent<Player1, Card<Player2>>")))
 
-    LiveEffect.compile(component, transformers)
+    LiveEffect.compile(component, elaborator)
         .map(LiveEffect::effect)
         .map(Any::toString)
         .shouldContainExactly("This: Token<Player1>!")

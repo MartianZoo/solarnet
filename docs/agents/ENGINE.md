@@ -43,7 +43,7 @@
   for history, atomicity, rollback, or revisions.
  - [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt) — search for
    `public interface Agent` before changing caller-facing operations.
- - [`Transformers.kt`](../../src/common/dev/martianzoo/engine/Transformers.kt),
+ - [`PetElaborator.kt`](../../src/common/dev/martianzoo/pets/PetElaborator.kt),
    [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt), and
    [`ApiTranslation.kt`](../../src/common/dev/martianzoo/engine/ApiTranslation.kt) — inspect together
    for authored elaboration, class/component specialization, and Player-scoped input.
@@ -420,7 +420,7 @@ onto the progression as follows:
 
 - A declaration retains `authoredEffects` and `authoredActions`. Its executable `effects` also
   include actions converted to effects and may contain Catalog-specific source compilation.
-- `Transformers.classEffects` collects inherited effects for an active Class, inserts defaults,
+- `PetElaborator.classEffects` collects inherited effects for an active Class, inserts defaults,
   atomizes, lowers marked syntax, and evaluates properties as far as the Class context permits. A
   class effect may still contain context-relative or event-relative values.
 - `LiveEffect.compile` specializes a class effect to one exact component Type. Apart from the
@@ -475,12 +475,12 @@ reflection-like: ordinary execution moves forward through the lifecycle, while s
 explicitly reaches into preserved directives as data. Re-submitted data must re-enter through the
 same elaboration path as any other authored Pets.
 
-There is no single elaboration entry point today. `ApiTranslation`, `Transformers.classEffects`,
-property evaluation, and `CustomClassRuntime` assemble overlapping transformer chains, while
-`Instructor` applies marked-syntax handling after custom translation. Their shared intended
-contract is one authored-to-elaborated operation, parameterized by the active Class Table, Catalog
-handlers, and the contextual bindings available at that stage. Reflection-like re-entry should call
-that same operation rather than reconstructing a private subset of the pipeline.
+`PetElaborator` owns the shared authored-to-elaborated packages for session input, Metric input,
+Class Effects, and source-shaped custom-instruction output. Its private transformers supply one
+meaning for defaults, atomization, marked syntax, and property expansion. The engine chooses which
+public elaboration operation applies and supplies live component, Owner, trigger, or fanout context;
+it does not reconstruct those transformation chains. Reflection-like re-entry likewise returns
+through the matching elaboration operation.
 
 The `Effector` indexes live component-effect pairs with their component multiplicity.
 
@@ -675,9 +675,9 @@ an earlier compilation stage can handle only the syntax it owns. Terraforming Ma
 `PROD` lowering and follow-mode `CARDS` lowering. Card-source compilation invokes the same
 dispatcher with only `CARDS`, leaving `PROD` for the active-table stage.
 
-AST values created inside the engine skip parsing but may use relevant transforms explicitly.
-Transform entry points preserve their declared AST `kind`; a cardinality-changing caller must
-request `InstructionTree`, not `Instruction`.
+Source-shaped AST returned by custom implementations enters through
+`PetElaborator.elaborateCustomInstruction`. Public elaboration entry points preserve their declared
+AST family; instruction entry points use `InstructionTree` where cardinality may change.
 
 ## Current Agent surface
 

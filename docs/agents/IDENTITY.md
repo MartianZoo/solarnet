@@ -24,7 +24,7 @@
   `assignee`, `actor`, and selection state before changing queued work.
 - [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt) — search
   for `taskController` to see trigger-time routing.
-- [`Transformers.kt`](../../src/common/dev/martianzoo/engine/Transformers.kt) — search for
+- [`PetElaborator.kt`](../../src/common/dev/martianzoo/pets/PetElaborator.kt) — search for
   `fixEffectForUnownedContext` to see ownerless Effects acquire their event-Actor filter.
 - [`Defaults.kt`](../../src/common/dev/martianzoo/pets/types/Defaults.kt) — search for
   `Owner also acts as a contextual variable` before changing how `Owner` resolves in defaults.

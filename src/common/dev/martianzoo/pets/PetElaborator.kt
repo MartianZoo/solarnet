@@ -1,12 +1,9 @@
-package dev.martianzoo.engine
+package dev.martianzoo.pets
 
-import dev.martianzoo.pets.HasClassName
-import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.PetTransformer.Companion.noOp
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
-import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
@@ -37,6 +34,7 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
@@ -58,24 +56,82 @@ import dev.martianzoo.pets.types.TypeVariableScope
 import dev.martianzoo.pets.types.inferTypeVariables
 import dev.martianzoo.pets.util.invoke
 
-public class Transformers(public val classTable: ClassTable) {
+/**
+ * Applies Class-table-dependent elaboration packages to authored Pets. Runtime binding operations
+ * return [PetTransformer] only where the engine must retain one deferred binding across several AST
+ * families.
+ */
+public class PetElaborator(public val classTable: ClassTable) {
   private val effectsByClass = mutableMapOf<Class, List<Effect>>()
   private val transformDispatcher: Lazy<PetTransformer> = lazy {
     classTable.transformDispatcher()
   }
 
-  /** Expands the marked Pets syntax configured by this game's Catalog. */
-  public fun transformMarkedSyntax(): PetTransformer = transformDispatcher()
+  /**
+   * Elaborates one dynamically typed, session-authored Pets element for execution in [owner]'s
+   * context. An Instruction is treated as the broader InstructionTree family, so its cardinality
+   * may change. Property evaluation is rejected because ordinary mutation input cannot quote and
+   * execute Class-property syntax.
+   */
+  public fun elaborateInput(
+      input: PetElement,
+      vocabulary: Vocabulary,
+      owner: HasClassName? = null,
+  ): PetElement = inputElaborator(vocabulary, owner).transformElement(input)
 
-  /** Rewrites session-localized input names to their canonical engine names. */
-  public fun canonicalize(vocabulary: Vocabulary): PetTransformer =
-      object : PetTransformer() {
-        override fun transformNode(node: PetNode): PetNode =
-            if (node is ClassName) vocabulary.canonicalName(node) else transformChildren(node)
-      }
+  /**
+   * The statically typed [InstructionTree] form of [elaborateInput], with the same elaboration and
+   * cardinality-changing behavior.
+   */
+  public fun elaborateInput(
+      input: InstructionTree,
+      vocabulary: Vocabulary,
+      owner: HasClassName? = null,
+  ): InstructionTree = inputElaborator(vocabulary, owner).transformInstructionTree(input)
+
+  /** Elaborates a session-authored Metric, including explicit Class-property evaluation. */
+  public fun elaborateMetricInput(
+      input: Metric,
+      vocabulary: Vocabulary,
+      context: Expression,
+      owner: HasClassName? = null,
+  ): Metric =
+      chain(
+              normalizeInput(vocabulary),
+              propertyEvaluator(context, owner),
+              finishAuthoredSyntax(context, owner),
+          )
+          .transformMetric(input)
+
+  /** Elaborates source-shaped Pets returned by one custom instruction implementation. */
+  public fun elaborateCustomInstruction(
+      input: InstructionTree,
+      owner: HasClassName? = null,
+  ): InstructionTree = finishAuthoredSyntax(THIS.expression, owner).transformInstructionTree(input)
+
+  private fun inputElaborator(vocabulary: Vocabulary, owner: HasClassName?): PetTransformer =
+      chain(
+          rejectPropertyEvaluations(),
+          normalizeInput(vocabulary),
+          finishAuthoredSyntax(THIS.expression, owner),
+      )
+
+  private fun normalizeInput(vocabulary: Vocabulary): PetTransformer =
+      chain(vocabulary.inputCanonicalizer(), useFullNames(), classTable.inferTypeVariables())
+
+  private fun finishAuthoredSyntax(
+      context: Expression,
+      owner: HasClassName?,
+  ): PetTransformer =
+      chain(
+          atomizer(),
+          insertDefaults(context),
+          owner?.let(::contextualOwnerBinding),
+          transformDispatcher(),
+      )
 
   /** Effects inherited by [klass], processed as far as possible without a concrete component. */
-  internal fun classEffects(klass: Class): List<Effect> {
+  public fun classEffects(klass: Class): List<Effect> {
     require(classTable.isActive(klass)) { "$klass is not active in this game" }
     return effectsByClass.getOrPut(klass) {
       fun directClassEffects(source: Class) =
@@ -84,7 +140,7 @@ public class Transformers(public val classTable: ClassTable) {
               .map(attachToClassTransformer(source)::transformEffect)
 
       val evaluator =
-          evaluateProperties(
+          propertyEvaluator(
               context = klass.defaultType.expressionFull,
               deferAbstract = true,
           )
@@ -93,7 +149,7 @@ public class Transformers(public val classTable: ClassTable) {
   }
 
   /** Rejects property evaluation syntax outside a class effect. */
-  internal fun rejectPropertyEvaluations(): PetTransformer =
+  private fun rejectPropertyEvaluations(): PetTransformer =
       object : PetTransformer() {
         override fun transformNode(node: PetNode): PetNode =
             when (node) {
@@ -104,11 +160,25 @@ public class Transformers(public val classTable: ClassTable) {
             }
       }
 
+  /** Expands Class-property evaluations that are concrete in the supplied instruction context. */
+  public fun evaluateProperties(
+      input: InstructionTree,
+      context: Expression,
+      owner: HasClassName? = null,
+  ): InstructionTree = propertyEvaluator(context, owner).transformInstructionTree(input)
+
+  /** Expands Class-property evaluations that are concrete in the supplied Metric context. */
+  public fun evaluateProperties(
+      input: Metric,
+      context: Expression,
+      owner: HasClassName? = null,
+  ): Metric = propertyEvaluator(context, owner).transformMetric(input)
+
   /**
    * Expands explicit property evaluations after their receivers have become concrete, deferring
    * fanout bodies until their selected component has been bound.
    */
-  internal fun evaluateProperties(
+  private fun propertyEvaluator(
       context: Expression,
       owner: HasClassName? = null,
       deferAbstract: Boolean = false,
@@ -117,7 +187,7 @@ public class Transformers(public val classTable: ClassTable) {
     val contextualizer =
         chain(
             replaceThisExpressionsWith(context),
-            owner?.let(::bindContextualOwner),
+            owner?.let(::contextualOwnerBinding),
         )
     return object : PetTransformer() {
       override fun transformNode(node: PetNode): PetNode {
@@ -193,7 +263,7 @@ public class Transformers(public val classTable: ClassTable) {
               val transformer =
                   chain(
                       replaceThisExpressionsWith(propertyType.expressionFull),
-                      owner?.let(::bindContextualOwner),
+                      owner?.let(::contextualOwnerBinding),
                   )
               when (syntax) {
                 is Metric -> transformMetric(transformer.transformMetric(syntax))
@@ -207,7 +277,7 @@ public class Transformers(public val classTable: ClassTable) {
             chain(
                 atomizer(),
                 insertDefaults(context),
-                owner?.let(::bindContextualOwner),
+                owner?.let(::contextualOwnerBinding),
                 transformDispatcher(),
             )
         return when (expanded) {
@@ -220,18 +290,20 @@ public class Transformers(public val classTable: ClassTable) {
   }
 
   /**
-   * Binds the contextual `Owner` placeholder to [owner] everywhere except inside the body of an
-   * Owner-selecting fanout, where the selection supplies it instead.
+   * Returns a deferred binding for the contextual `Owner` placeholder. It binds everywhere except
+   * inside the body of an Owner-selecting fanout, where the selection supplies the Owner instead.
+   * This raw-transformer seam lets runtime matching accumulate one binding before its eventual AST
+   * family is known.
    */
-  internal fun bindContextualOwner(owner: HasClassName): PetTransformer =
+  public fun contextualOwnerBinding(owner: HasClassName): PetTransformer =
       replaceOwnerWith(owner, ::shieldsContextualOwner)
 
   /** Whether [node] is a fanout whose Owner selection supplies its body's contextual owner. */
-  internal fun shieldsContextualOwner(node: PetNode): Boolean =
-      node is Each && selectionIsOwner(node.selector)
+  private fun shieldsContextualOwner(node: PetNode): Boolean =
+      node is Each && selectionSuppliesOwner(node.selector)
 
   /** Whether an `EACH` selector's matches are themselves Owners. */
-  internal fun selectionIsOwner(selector: Expression): Boolean {
+  public fun selectionSuppliesOwner(selector: Expression): Boolean {
     val klass = classTable.findClass(selector.className) ?: return false
     return classTable.findClass(OWNER)?.let(klass::isSubtypeOf) == true
   }
@@ -254,10 +326,10 @@ public class Transformers(public val classTable: ClassTable) {
       return when (node) {
         is Each ->
             needsContext(node.selector) ||
-                (!selectionIsOwner(node.selector) && needsContext(node.body))
+                (!selectionSuppliesOwner(node.selector) && needsContext(node.body))
         is Metric.Rank ->
             needsContext(node.selector) ||
-                (!selectionIsOwner(node.selector) && node.metrics.any(::needsContext))
+                (!selectionSuppliesOwner(node.selector) && node.metrics.any(::needsContext))
         else -> node.immediateChildren().any(::needsContext)
       }
     }
@@ -281,7 +353,7 @@ public class Transformers(public val classTable: ClassTable) {
     }
   }
 
-  public fun useFullNames(): PetTransformer =
+  private fun useFullNames(): PetTransformer =
       object : PetTransformer() {
         override fun transformNode(node: PetNode): PetNode {
           return if (node is ClassName) {
@@ -292,7 +364,7 @@ public class Transformers(public val classTable: ClassTable) {
         }
       }
 
-  internal fun atomizer(): PetTransformer {
+  private fun atomizer(): PetTransformer {
     val atomized = classTable.findClass(ATOMIZED) ?: return noOp()
 
     return object : PetTransformer() {
@@ -315,9 +387,7 @@ public class Transformers(public val classTable: ClassTable) {
     }
   }
 
-  internal fun insertDefaults(): PetTransformer = insertDefaults(THIS.expression)
-
-  internal fun insertDefaults(context: Expression): PetTransformer =
+  private fun insertDefaults(context: Expression): PetTransformer =
       chain(insertGainRemoveDefaults(context), insertExpressionDefaults(context))
 
   private fun insertGainRemoveDefaults(context: Expression): PetTransformer {
@@ -463,7 +533,7 @@ public class Transformers(public val classTable: ClassTable) {
           expression.arguments.isEmpty() &&
           !expression.argumentsSpecified
 
-  public fun insertExpressionDefaults(context: Expression): PetTransformer {
+  private fun insertExpressionDefaults(context: Expression): PetTransformer {
     var refinementDepth = 0
     val refinementCandidates = mutableListOf<Pair<Expression, Int>>()
     // A nested RANK establishes a separate candidate scope and therefore keeps ordinary defaults.
@@ -578,35 +648,46 @@ public class Transformers(public val classTable: ClassTable) {
         }
   }
 
-  /** Specializes the Class-header variables used by an effect. */
-  internal fun bindEffectVariables(
+  /**
+   * Closes one Class Effect over its exact component Type, `This` context, and contextual owner.
+   */
+  public fun specializeEffect(
       general: Type,
       specific: Type,
       effect: Effect,
-      vararg beforeBinding: PetTransformer?,
-  ): PetTransformer {
+      context: Expression,
+      owner: HasClassName? = null,
+  ): Effect {
+    val contextualizer =
+        chain(
+            owner?.let(::contextualOwnerBinding),
+            replaceThisExpressionsWith(context),
+        )
     val scope = effect.typeVariables
     val bindings = specific.variableBindingsFrom(general, scope.variables)
-    val contextualizer = chain(beforeBinding.toList())
     val contextualScope = scope.transformedBy(contextualizer)
     return chain(
-        contextualizer,
-        contextualScope.bind(bindings),
-        invalidChangesToDie(),
-    )
+            contextualizer,
+            contextualScope.bind(bindings),
+            invalidChangesToDie(),
+        )
+        .transformEffect(effect)
   }
 
-  /** Applies trigger narrowing only to declared Type-variable expressions. */
-  internal fun bindVariablesFrom(
+  /**
+   * Returns the deferred binding introduced by narrowing one authored variable scope. Runtime
+   * matching applies it later to whichever AST family contains the declared variable occurrences.
+   */
+  public fun specializeVariables(
       general: Type,
       specific: Type,
       authoredGeneral: Expression,
       typeVariables: TypeVariableScope,
-      vararg beforeBinding: PetTransformer?,
+      owner: HasClassName? = null,
   ): PetTransformer {
     val bindings =
         typeVariables.bindingsFrom(authoredGeneral, general.groundType, specific.groundType)
-    val contextualizer = chain(beforeBinding.toList())
+    val contextualizer = chain(owner?.let(::contextualOwnerBinding))
     val contextualScope = typeVariables.transformedBy(contextualizer)
     return chain(
         contextualizer,
