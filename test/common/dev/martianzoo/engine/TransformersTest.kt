@@ -69,11 +69,6 @@ internal class TransformersTest {
         "MC<Anyone(HAS VenusTag<Owner>)>!",
     )
     checkApplyDefaults(
-        "GreeneryTile<>",
-        "GreeneryTile<LandArea(HAS? Neighbor<OwnedTile<Owner>>, MAX 0 Tile), Owner>!",
-    )
-
-    checkApplyDefaults(
         "Heat FROM Owed<>!",
         "Heat<Owner> FROM Owed<Owner, Class<MC>>!",
     )

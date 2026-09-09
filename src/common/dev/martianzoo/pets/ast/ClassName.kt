@@ -70,8 +70,7 @@ public class ClassName private constructor(public val asString: String) :
    * example, if `bt` is the requirement `2 BuildingTag`, then `cn("CardFront").has(bt)` is the
    * expression `CardFront(HAS 2 BuildingTag)`.
    */
-  public fun has(refinement: Requirement?, forgiving: Boolean = false): Expression =
-      expression.has(refinement, forgiving)
+  public fun has(refinement: Requirement?): Expression = expression.has(refinement)
 
   /** For the class name `Foo`, returns the expression `Class<Foo>`. */
   public fun classExpression(): Expression = CLASS.of(this)

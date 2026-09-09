@@ -1823,6 +1823,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player1's mc amount increased by 3
       stdProject("GreeneryProject") {
         // Player1 placed greenery tile on row 5 position 7
+        doTask("DefaultGreeneryTile")
         placeTile(5, 7)
         // Player1's plants amount increased by 2
         doTask("3 MC")

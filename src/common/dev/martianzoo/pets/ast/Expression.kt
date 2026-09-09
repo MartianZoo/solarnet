@@ -113,10 +113,9 @@ public data class Expression(
     return if (refinement == null) this else copy(refinement = refinement)
   }
 
-  internal fun has(refinement: Requirement?, forgiving: Boolean): Expression {
+  internal fun has(refinement: Requirement?): Expression {
     require(this.refinement == null)
-    return if (refinement != null) copy(refinement = Refinement.Has(refinement, forgiving))
-    else this
+    return if (refinement != null) copy(refinement = Refinement.Has(refinement)) else this
   }
 
   override val kind: KClass<out PetNode> = Expression::class
@@ -124,13 +123,10 @@ public data class Expression(
   public sealed class Refinement : PetNode() {
     override val kind: KClass<out PetNode> = Refinement::class
 
-    public data class Has(
-        val requirement: Requirement,
-        val forgiving: Boolean,
-    ) : Refinement() {
+    public data class Has(val requirement: Requirement) : Refinement() {
       override fun visitChildren(visitor: Visitor): Unit = visitor.visit(requirement)
 
-      override fun toString(): String = if (forgiving) "HAS? $requirement" else "HAS $requirement"
+      override fun toString(): String = "HAS $requirement"
     }
 
     /** Excludes every Type overlapping [excluded] from the explicitly written outer domain. */
@@ -141,28 +137,18 @@ public data class Expression(
     }
 
     internal companion object {
-      /**
-       * The one predicate meaning "both", or null when there is none. A strict conjunction implies
-       * each of its conjuncts, and implies a forgiving predicate too, so it serves whenever either
-       * operand is strict. Two *different* forgiving predicates have no single conjunction: each
-       * escape clause is relative to its own whole requirement.
-       */
+      /** The one predicate meaning "both", or null when there is none. */
       internal fun join(ref1: Refinement, ref2: Refinement): Refinement? {
         if (ref1 == ref2) return ref1
         if (ref1 !is Has || ref2 !is Has) return null
-        if (ref1.forgiving && ref2.forgiving) return null
-        return Has(Requirement.join(ref1.requirement, ref2.requirement)!!, forgiving = false)
+        return Has(Requirement.join(ref1.requirement, ref2.requirement)!!)
       }
     }
   }
 
   internal companion object : PetTokenizer() {
     internal fun refinementParser(): Parser<Refinement> {
-      val has =
-          (skip(_has) and isPresent(char('?')) and Requirement.parser()) map
-              { (forgiving, requirement) ->
-                Refinement.Has(requirement, forgiving)
-              }
+      val has = (skip(_has) and Requirement.parser()) map { Refinement.Has(it) }
       val not = (skip(_not) and parser(allowDerivedClass = false)) map { Refinement.Not(it) }
       return group(has or not)
     }

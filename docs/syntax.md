@@ -10,7 +10,7 @@ typeExpression    := dependentTypeExpr | classLiteral
 dependentTypeExpr := className [dependencyBounds] [hasRefinement]
 dependencyBounds  := '<' [dependencyBound (',' dependencyBound)*] '>'
 dependencyBound   := ['!'] typeExpression
-hasRefinement     := '(' ('HAS' | 'HAS?') requirement ')'
+hasRefinement     := '(' 'HAS' requirement ')'
 classLiteral      := 'Class' '<' className '>' [hasRefinement]
 className         := upperCamelRE
 ```
@@ -28,8 +28,8 @@ refinement. Of course, each listed bound is an entire type expression itself.
 These expressions are a way of identifying a type, and types are explained in the [type system](type-system.md) article.
 
 Empty angle brackets explicitly accept any dependency bounds defaulted for that gain or removal.
-For example, if `GreeneryTile` has a gain dependency default, a gain must say either
-`GreeneryTile<>` or provide at least one dependency argument. Gain and removal defaults are
+For example, because `OceanTile` has a gain dependency default, a gain must say either
+`OceanTile<>` or provide at least one dependency argument. Gain and removal defaults are
 independent, including on the two sides of `FROM`.
 
 `Domain(NOT Excluded)` is a difference refinement. It denotes the part of `Domain` that does not
@@ -202,4 +202,4 @@ Triggers can be joined with `OR` and restricted with `BY` or `IF`.
 
 ## TODO
 
-* Document `HAS?`, difference refinements, and refinements on class literals.
+* Document difference refinements and refinements on class literals.

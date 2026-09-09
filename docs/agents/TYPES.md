@@ -83,7 +83,7 @@ default.
 
 A gain or removal that would receive dependency bounds from its use-specific default cannot leave
 its argument list implicit. It must supply at least one argument or write an empty list such as
-`GreeneryTile<>` to explicitly accept those bounds. The gain and removal halves of `A FROM B` are
+`OceanTile<>` to explicitly accept those bounds. The gain and removal halves of `A FROM B` are
 checked independently. This rule does not apply to all-use dependency defaults or to Quantifier
 defaults. An explicit empty list is invalid when the dependency-default set for that use is empty;
 it cannot serve only to give an expression a different authored spelling.

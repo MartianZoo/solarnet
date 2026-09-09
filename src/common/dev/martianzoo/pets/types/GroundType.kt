@@ -21,9 +21,6 @@ import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Companion.split
-import dev.martianzoo.pets.ast.Requirement.Max
-import dev.martianzoo.pets.ast.Requirement.Or
-import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 
 /**
  * The translation of a [Expression] into a "live" type, referencing actual [Class]es loaded by a
@@ -313,19 +310,9 @@ public data class GroundType(
   private fun readsPredicatesAlike(that: GroundType): Boolean =
       representedClass == null || representedClass == that.representedClass
 
-  /**
-   * Whether our own refinement already guarantees [target] for any candidate, without asking a
-   * world. A strict refinement does when it conjoins at least the same requirements, and it also
-   * guarantees the forgiving version of them, since forgiving only adds an escape clause.
-   *
-   * A *forgiving* refinement guarantees nothing but itself, which the caller has already checked.
-   * Its escape clause is relative to its own whole requirement: with `R` met by somebody and `S`
-   * met by nobody, every candidate satisfies `HAS? R, S` through the escape while only some satisfy
-   * `HAS? R`.
-   */
+  /** Whether our own refinement conjoins at least all of [target]'s requirements. */
   private fun alreadyGuarantees(target: Has): Boolean {
     val own = refinement as? Has ?: return false
-    if (own.forgiving) return false
     return split(own.requirement).containsAll(split(target.requirement))
   }
 
@@ -405,11 +392,7 @@ public data class GroundType(
     val transformed =
         refinementMangler(narrow, ignoreUnmatched = wide.className == CLASS)
             .transformRequirement(specializedRequirement)
-    return if (refin.forgiving) {
-      Or(transformed, Max(scaledEx(wide.copy(refinement = refin.copy(forgiving = false)), 0)))
-    } else {
-      transformed
-    }
+    return transformed
   }
 
   override fun toString(): String = "$expression"

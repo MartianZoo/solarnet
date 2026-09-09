@@ -424,7 +424,7 @@ Narrowing is the central relation: "every component of type A is also of type B"
 **6-1. Two spellings of one test.** `narrows(that, info)` returns a boolean;
 `ensureNarrows(that, info)` throws `NarrowingException` with a reason. `isSubtypeOf` /
 `isSupertypeOf` are the world-free spellings; they pass a sentinel world that raises
-`IllegalStateException` if the comparison actually turns out to need one (8-9).
+`IllegalStateException` if the comparison actually turns out to need one (8-8).
 
 **6-2. The structural rule.** A narrows B when
 
@@ -464,7 +464,7 @@ cannot meet the domain at all simply answers false.
 
 **7-1. Greatest lower bound (`⊓`, `glb`).** The most general type below both operands, or **absent**
 when there is none. It is computed componentwise: the root classes by 2-8, each shared dependency key
-by `⊓` again, and refinements by 8-10.
+by `⊓` again, and refinements by 8-9.
 
 ```text
 Tile<Tharsis_2_2>  ⊓  Owned<Player1>       =  OwnedTile<Tharsis_2_2, Player1>
@@ -493,7 +493,7 @@ the result *means*:
 
 - when several minimal common superclasses tie, 2-9 breaks the tie by the order each operand happens
   to list its supertypes, so `A ⊔ B` and `B ⊔ A` can name different classes;
-- a joined `HAS` requirement (8-10) is written in operand order, so `A ⊓ B` and `B ⊓ A` can carry
+- a joined `HAS` requirement (8-9) is written in operand order, so `A ⊓ B` and `B ⊓ A` can carry
   the same conjuncts in the other order, and are then not `==`.
 
 **7-4. Cross-universe bounds are rejected**, per 1-2.
@@ -505,7 +505,7 @@ the result *means*:
 A refinement turns a type into a filtered version of itself: `LandArea(HAS MAX 0 Tile)` is "an empty
 land area". There are two kinds, and they behave very differently.
 
-- `HAS R` (and its forgiving variant `HAS? R`) asks a **world** whether requirement `R` holds of the
+- `HAS R` asks a **world** whether requirement `R` holds of the
   candidate. This is the only place in the type system that consults game state.
 - `NOT X` performs a **structural** exclusion, decided entirely from the class hierarchy.
 
@@ -539,15 +539,7 @@ argument.
 > `BugsTest`. Reserving written keys is *not* the fix: real cards, including Viron and Mons
 > Insurance, depend on the merging behavior above.
 
-**8-4. `HAS?` is forgiving.** It is satisfied when its requirement holds, *or* when no candidate
-anywhere satisfies the strict version. The requirement actually asked is
-`R OR MAX 0 D(HAS R)`. Greenery placement uses this: next to one of your own tiles if any such area
-exists, otherwise anywhere.
-
-The escape clause covers the whole requirement, so anything that should not enable the fallback —
-occupancy, for instance — belongs inside it.
-
-**8-5. `NOT` is a structural difference.** `D(NOT X)` is the part of `D` that cannot overlap `X`. A
+**8-4. `NOT` is a structural difference.** `D(NOT X)` is the part of `D` that cannot overlap `X`. A
 candidate satisfies it only when its **entire** structural domain avoids `X`:
 
 ```text
@@ -562,59 +554,50 @@ where the two have no unique intersection class (2-8): if two rival classes each
 `Occupant` and `Owned`, `Occupant(NOT Owned)` still excludes them. The test never consults a world,
 and works the same inside a dependency: `Marker<Player(NOT Player1)>`.
 
-**8-6. The excluded operand must be refinement-free, recursively.** Neither
+**8-5. The excluded operand must be refinement-free, recursively.** Neither
 `Owner(NOT Player(HAS Marker))` nor a nested `NOT` is accepted. This keeps the difference decidable
 without a world and prevents negating a world query.
 
-**8-7. A difference that cannot bite is dropped.** If the domain and the exclusion cannot overlap in
+**8-6. A difference that cannot bite is dropped.** If the domain and the exclusion cannot overlap in
 the first place, the refinement disappears: `Player1(NOT Player2)` *is* `Player1`.
 
-**8-8. A difference that excludes everything is still a type.** `Player1(NOT Player1)` keeps its
+**8-7. A difference that excludes everything is still a type.** `Player1(NOT Player1)` keeps its
 refinement, is abstract, and enumerates nothing. It stays representable because an excluded type
 variable may be specialized later, making the difference non-empty again.
 
-**8-9. Refinements in narrowing.** In order:
+**8-8. Refinements in narrowing.** In order:
 
 - A refined type always narrows its own unrefined domain.
 - If the two refinements are *identical*, the narrowing is accepted with no world consulted.
-- If the narrower type's refinement is a **strict** `HAS` whose conjuncts include all of the
-  target's, it already guarantees the target — whether the target is strict or forgiving, since
-  forgiving only adds an escape clause:
-  `LandArea(HAS Neighbor, Occupant) <: LandArea(HAS Neighbor) <: LandArea(HAS? Neighbor)`.
-- A **forgiving** refinement guarantees nothing but itself. Conjoining more to it does not narrow it,
-  because its escape clause is relative to its own whole requirement: where some area has a
-  neighbour but none is occupied, *every* area satisfies `HAS? Neighbor, Occupant` through the
-  escape, while only some satisfy `HAS? Neighbor`.
+- If the narrower type's `HAS` refinement includes all of the target's conjuncts, it already
+  guarantees the target: `LandArea(HAS Neighbor, Occupant) <: LandArea(HAS Neighbor)`.
 - Otherwise a refined type never satisfies an unrelated `HAS` target, and this is decided without a
   world. Different predicates do not imply one another.
 - An *unrefined* type tested against a `HAS` target needs a world; asked with none it raises
   `IllegalStateException` rather than guessing.
-- A `NOT` target always uses the structural test of 8-5, whatever refinement the candidate carries.
+- A `NOT` target always uses the structural test of 8-4, whatever refinement the candidate carries.
 - These comparisons read the two predicates *as written*, which is only meaningful when both types
-  substitute the same candidate into them. Two class literals for different classes do not (8-12),
+  substitute the same candidate into them. Two class literals for different classes do not (8-11),
   so neither shortcut applies to them: `Class<BuildingTag>(HAS Tag)` does not narrow
   `Class<Tag>(HAS Tag)`, because for the target the predicate asks about the candidate's own class.
 
-**8-10. `glb` of refinements.** A refinement the other operand lacks is kept, and two identical
+**8-9. `glb` of refinements.** A refinement the other operand lacks is kept, and two identical
 refinements collapse to one. Otherwise:
 
-- if **either** operand is strict, the result is the strict conjunction of both requirements. By
-  8-9 that really is below both, including below a forgiving operand — so
-  `LandArea(HAS Neighbor) ⊓ LandArea(HAS? Neighbor)` is `LandArea(HAS Neighbor)`.
-- if **both** are forgiving and they differ, there is no single predicate that means "both", since
-  each escape clause is relative to its own whole requirement. `glb` is absent.
+- two different `HAS` refinements produce the conjunction of both requirements. By 8-8 that result
+  is below both operands.
 - a `HAS` against a `NOT`, or two different `NOT`s, likewise have no single writable predicate.
   `glb` is absent.
 
-**8-11. `lub` of refinements.** A refinement survives only when both operands carry exactly the same
+**8-10. `lub` of refinements.** A refinement survives only when both operands carry exactly the same
 one; otherwise the result is the unrefined common domain.
 
-**8-12. Refined class literals.** A refinement on `Class<X>` tests the class the candidate names:
+**8-11. Refined class literals.** A refinement on `Class<X>` tests the class the candidate names:
 references to `X` inside the requirement are rewritten to the candidate's class. Testing
 `Class<BuildingTag>` against `Class<Tag>(HAS Tag<Player1>)` asks `BuildingTag<Player1>` — counting
 tag classes, not tag components.
 
-**8-13. Refinements inside dependencies** behave like any other, and survive rendering and
+**8-12. Refinements inside dependencies** behave like any other, and survive rendering and
 re-resolution.
 
 ---
@@ -752,7 +735,7 @@ where an `OceanTile` class also exists — a concrete class incompatible with th
 not one of the choices); and it reports nothing at all when the requested narrowing is incompatible
 with every concrete class. Both flavours answer alike about the same universe. A
 `HAS` refinement can decide between candidates only where enumeration happens anyway, as with a
-refined class literal (8-12).
+refined class literal (8-11).
 
 **11-5. Caller-supplied targets.** `ClassTable.allConcreteSubtypes(type, dependencyTargets)`
 enumerates using a caller's smaller set of possible dependency targets instead of the full structural
@@ -795,7 +778,7 @@ A type has one meaning, not one per game.
 **12-4. Active types.** A type is active when its root class is active and every dependency bound is.
 A type from another Catalog is not even *known*, let alone active (1-2).
 
-**12-5. Structural meaning stays catalog-wide.** A difference (8-5) is judged in the master universe.
+**12-5. Structural meaning stays catalog-wide.** A difference (8-4) is judged in the master universe.
 If two classes overlap in the Catalog, `Left(NOT Right)` keeps its refinement and keeps rejecting bare
 `Left`, even in a game where the overlapping class is uninhabited. Enumeration under that difference is
 still view-relative, so the game sees only what it can hold. This keeps a written type from meaning
@@ -953,7 +936,7 @@ One behavior contradicts the rules above. It has a passing characterization in
 - **Which minimal common superclass `lub` returns** when several are incomparable (2-9). The result
   is a common superclass and a minimal one; among ties, do not depend on the choice, and note that
   swapping the operands can change it (7-3).
-- **The order of conjuncts in a joined `HAS` requirement** (8-10). The predicate means the same
+- **The order of conjuncts in a joined `HAS` requirement** (8-9). The predicate means the same
   thing either way, but the two spellings are different types by `==` (7-3).
 - **Exception messages.** Rules name exception *types* where the type is part of the contract.
 - **Evaluation order and caching.** Resolution memoizes, and several derived values are computed
