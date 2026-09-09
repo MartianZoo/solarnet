@@ -8,7 +8,9 @@ import dev.martianzoo.pets.types.DependencySet.DependencyPath
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 /** Section 3 of `docs/type-system-spec.md`: dependencies. */
@@ -231,6 +233,15 @@ internal class Spec03DependenciesTest {
 
   // 3-8 Dependency equalities
 
+  private fun equalityCards() =
+      loadTypes(
+          "CLASS Player1 : Owner",
+          "CLASS Player2 : Owner",
+          "CLASS Card : Owned<Owner>",
+          "ABSTRACT CLASS Linked<Card<Owner>> : Owned<Owner>",
+          "CLASS InheritedLink : Linked",
+      )
+
   @Test
   internal fun `3-8 one header variable used twice forces its two positions to agree`() {
     val cards =
@@ -270,16 +281,95 @@ internal class Spec03DependenciesTest {
         te("Adjacency<Tharsis_2_2, Tharsis_2_3>")
   }
 
+  @Test
+  internal fun `3-8 shared variables are narrowed before a difference is tested`() {
+    val cards = equalityCards()
+
+    (cards.resolve(te("Card<Player1>")) glb cards.resolve(te("Card<Player2>"))) shouldBe null
+    (cards.resolve(te("Card<Player1>")) glb cards.resolve(te("Card(NOT Card<Player2>)"))) shouldBe
+        cards.resolve(te("Card<Player1>"))
+    cards.resolve(te("Linked<Player1, Card(NOT Card<Player2>)>")) shouldBe
+        cards.resolve(te("Linked<Player1>"))
+    cards.resolve(te("Linked<Player1, Owned(NOT Card)>")).abstract shouldBe true
+  }
+
+  @Test
+  internal fun `3-8 equality-constrained concrete types are enumerated once`() {
+    val cards = equalityCards()
+
+    cards
+        .getClass(cn("InheritedLink"))
+        .concreteTypes()
+        .map { it.expressionFull.toString() }
+        .toList()
+        .shouldContainExactlyInAnyOrder(
+            "InheritedLink<Player1, Card<Player1>>",
+            "InheritedLink<Player2, Card<Player2>>",
+        )
+  }
+
   // 3-9 Dependency targets must be unique
 
   @Test
   internal fun `3-9 a dependency may only target a type limited to one copy`() {
     val unlimited = loadTypes("CLASS Plant", "CLASS Holder<Plant>")
-    shouldThrow<PetException> { unlimited.componentLimits }
+    shouldThrow<PetException> { unlimited.componentLimits }.message shouldContain "Holder -> Plant"
 
     val limited = loadTypes("CLASS Plant { HAS MAX 1 This }", "CLASS Holder<Plant>")
     limited.componentLimits.limitsFor(limited.resolve(te("Plant"))).map { it.range } shouldBe
         listOf(0..1)
+  }
+
+  @Test
+  internal fun `3-9 exact per-type and stronger aggregate limits make valid dependency targets`() {
+    val table =
+        loadTypes(
+            "CLASS ExactTarget { HAS =1 This }",
+            "CLASS MaxTarget { HAS MAX 1 This }",
+            "ABSTRACT CLASS AggregateTarget { HAS MAX 1 AggregateTarget }",
+            "CLASS AggregateTargetA : AggregateTarget",
+            "CLASS AggregateTargetB : AggregateTarget",
+            "CLASS Dependent<ExactTarget, MaxTarget, AggregateTarget>",
+        )
+
+    table.componentLimits
+  }
+
+  @Test
+  internal fun `3-9 dependency multiplicity validation waits for a concrete dependent class`() {
+    val valid =
+        loadTypes(
+            "ABSTRACT CLASS Target",
+            "CLASS UniqueTarget : Target { HAS MAX 1 This }",
+            "CLASS RepeatableTarget : Target",
+            "ABSTRACT CLASS AbstractDependent<Target>",
+            "CLASS ConcreteDependent : AbstractDependent<UniqueTarget>",
+        )
+    valid.componentLimits
+
+    val invalid =
+        loadTypes(
+            "ABSTRACT CLASS Target",
+            "CLASS UniqueTarget : Target { HAS MAX 1 This }",
+            "CLASS RepeatableTarget : Target",
+            "ABSTRACT CLASS AbstractDependent<Target>",
+            "CLASS ConcreteDependent<Target> : AbstractDependent<Target>",
+        )
+    shouldThrow<PetException> { invalid.componentLimits }.message shouldContain
+        "ConcreteDependent -> RepeatableTarget"
+  }
+
+  @Test
+  internal fun `3-9 class invariants used as limits must count one component expression`() {
+    val table =
+        loadTypes(
+            "CLASS Foo",
+            "CLASS Bar",
+            "CLASS InvalidInvariant { HAS Foo OR Bar }",
+            "CLASS Dependent<InvalidInvariant>",
+        )
+
+    shouldThrow<PetException> { table.componentLimits }
   }
 
   // 3-10 Dependency sets

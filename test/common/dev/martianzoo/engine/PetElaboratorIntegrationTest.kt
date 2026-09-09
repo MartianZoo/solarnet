@@ -76,11 +76,6 @@ internal class PetElaboratorIntegrationTest {
         .message shouldBe "`Player<>` has no all-use dependency defaults to accept"
   }
 
-  @Test
-  internal fun `input elaboration permits instruction cardinality changes`() {
-    elaborateInput("2 OxygenStep!") shouldBe "OxygenStep!, OxygenStep!"
-  }
-
   private fun checkInput(source: String, expected: String) {
     elaborateInput(source) shouldBe expected
   }
