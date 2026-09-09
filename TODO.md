@@ -50,6 +50,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   unrepresentable.
 - [#59: `-This` Quantifier](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether
   self-removal should default to mandatory.
+- Give Admin an installable autoexecution policy for Global Events that pulls exact cards from an
+  ordered list; until then callers explicitly complete reveal tasks.
 - Investigate whether the three self-handling signals `CimmeriaPlacementBonus`,
   `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
   requiring authored references to generated names. Preserve Cimmeria map generation,
@@ -86,6 +88,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- Add canonical Prelude 2 definitions for Corridors of Power, Envoys from Venus, Special Permit,
+  Red Tourism Wave, and Frontier Town, then remove their source-specific replay fixtures.
 - Find a principled way for narrower dependency defaults to retain compatible refinements from
   wider defaults, so `Tile` can own area occupancy once while its subclasses select their kinds of
   areas and add placement rules.

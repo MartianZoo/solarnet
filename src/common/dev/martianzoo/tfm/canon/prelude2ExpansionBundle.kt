@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.canon.BundleContentSelection.Kind.CARDS
 internal val prelude2ExpansionBundle: StandardFormBundle =
     StandardFormBundle(
         "Prelude2Expansion",
+        customClasses = setOf(PlaceColonialEnvoys, RepeatPlacementBonus),
         moduleContentSelections =
             mapOf(
                 cn("Prelude2Expansion") to emptySet(),

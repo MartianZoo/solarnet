@@ -590,3 +590,119 @@ claim, untracked implementation TODO, or new Kotlin extension function.
 `./gradlew spotlessApply build` passes all 231 tasks, including the complete JVM suites, JavaScript
 compilation, formatting and static checks, and the representative browser replay. The Turmoil
 expansion is complete on the `turmoil` branch.
+
+## 2026-09-08 — Stage 18: full-game replay correction
+
+Replaced the Stage 16 political-timeline simulation with a literal replay of all twelve generations
+of Synthetic Plasma Current. The earlier test reproduced the political chronology but substituted a
+recorded tableau and therefore did not meet the established Heroku conversion standard for a full
+game. The corrected test now plays the corporation, preludes, all 71 project and event cards, every
+card action and standard project, every research and triggered draw, exact resource payments, every
+Mars placement, both final greeneries, and every delegate and World Government choice through the
+normal outward gameplay APIs.
+
+The 203 archived database saves provide post-research checkpoints for generations 2 through 12 and
+the final resource state. The rendered log supplies action order, selections, draws, payments, and
+placements. End assertions close card tracking and verify all 74 tableau and completed-event cards,
+the empty hand, resource and production boxes, tag totals, card resources, final political state,
+map-derived scoring, 70 TR, and the recorded 150-point solo victory.
+
+Five unavailable Prelude 2 cards are declared only in the replay catalog. Four use their ordinary
+recorded effects; Frontier Town fixes its final two-plant gain to the archived placement because its
+general adjacency formula is not yet canonical content. Two sourced payment omissions use the
+existing replay audit escape hatch. The archived server's solo Reds bonus at 21 TR remains an
+explicit one-TR correction because FAQ v1.8 limits that bonus to 20 TR or lower.
+
+VALUES and minimality review: the correction changes test code and tracking documentation only. It
+deletes the second tableau representation, uses the existing full-game replay harness, and adds no
+production Kotlin, engine behavior, custom instruction, workflow path, or public API. Code review
+found complete card-accounting closure, exact generation checkpoints, no live-server dependency,
+and no unexplained divergence from the archive. The focused replay passes; broader verification is
+recorded after formatting below.
+
+## 2026-09-08 — Stage 19: replay verification
+
+Formatted the correction with the repository formatter and reran the full build. All 229 scheduled
+tasks pass, including the complete JVM suites, JavaScript compilation and tests, static checks, and
+the focused Synthetic Plasma Current replay. The final diff changes only the replay, this journal,
+and the tracked follow-up to replace the five replay-local Prelude 2 declarations with canonical
+cards when that content is implemented.
+
+## 2026-09-08 — Stage 20: deterministic administrative reveals
+
+The full replay exposed a flaw in the earlier Global Event setup: revealing a card was represented
+as an abstract task assigned to Admin. That made setup and every Changing Times step wait for an API
+call, and it incorrectly treated Admin as a decision-maker over every legal event. An attempted
+engine policy that selected one of those alternatives was rejected and removed in full. No engine
+or `wgt()` implementation change remains.
+
+Replaced the abstract draw with an exact declarative deck. One `GlobalEventDeckTop` names the next
+node and one consumed successor link supplies that node's bound event before advancing to exactly
+one next node. Setup creates the finite event nodes and seeds a reproducible 31-card base order;
+another premise can replace that order. The Synthetic Plasma Current fixture now supplies the exact
+archived sequence in its premise. Its two setup events and all eleven later reveals therefore run
+as automatic consequences of setup and `wgt()` without a single Admin gameplay call.
+
+Removed the shared test helper and every manual event reveal. Each of the replay's eleven `wgt()`
+calls now has an immediate net-change expectation, with a source-oriented comment explaining the
+event, government, and event-track consequences that ran automatically. Focused Turmoil tests also
+assert that neither setup nor repeated Changing Times leaves pending Admin work. The focused event
+and Solar suites and the complete twelve-generation replay pass.
+
+VALUES and minimality review: the rejected approach left no diff. The final implementation is Pets
+only, adds no custom instruction or Kotlin, and makes the configured order the sole source of truth.
+Admin performs only the uniquely determined consequence; it never chooses a card. Code review found
+no task selection hidden in `wgt()`, manual reveal in the replay, second event-order representation,
+or unresolved Admin task. A seeded eligible-event order for normal premise construction remains a
+tracked follow-up to the deliberate reproducible-base-order variant. The next step is repository-wide
+formatting and verification, followed by a final diff review.
+
+## 2026-09-08 — Stage 21: final deterministic-reveal audit
+
+Reduced all eleven post-`wgt()` replay expectations to the public outcomes that explain the source
+game: the chosen World Government change, event payout or penalty, incoming government, event-track
+movement, and newly revealed event or printed delegate. Removed the deck links and other private
+bookkeeping from those assertions. The complete twelve-generation replay still passes.
+
+The repository-wide build found two integration omissions during review. Module selection now
+expects the standard event-order module selected with Turmoil. The standard and replay-specific
+chains now also terminate after their final card, so the final configured event remains revealable;
+setup creates that terminal dependency before constructing the links. Focused setup tests continue
+to prove no Admin work remains after either initial reveals or repeated Changing Times.
+
+Final VALUES and minimality review: event order is one declarative chain selected by the premise,
+every reveal removes one exact top and has one exact consequence, and neither Admin nor `wgt()` owns
+strategy. No engine code, production Kotlin, custom instruction, or special workflow path changed.
+The only general follow-up is seeded construction of the eligible-event order; the current fixed
+base order is documented as a deliberate reproducible variant. `./gradlew spotlessApply build`
+passes all 229 scheduled tasks, including JVM and JavaScript suites, formatting, static checks, the
+representative browser replay, and Synthetic Plasma Current.
+
+## 2026-09-08 — Stage 22: defer Global Event deck policy
+
+Rejected the declarative linked-list deck added in Stages 20 and 21. Although it kept Admin from
+choosing, it introduced permanent event-node, top, link, terminal, and default-order concepts into
+the rules model merely to make the current client proceed automatically. Removed that model in full
+and restored the small abstract reveal tasks. The temporary accepted compromise is explicit
+`admin.doTask(event)` completion by callers that already know the shuffled or recorded next card.
+
+The full Synthetic Plasma Current replay now supplies Riots and Revolution during setup and the
+next sourced event after each of its eleven `wgt()` calls. Each WGT retains its compact expectation
+for Solar, government, and visible event movement; each explicit Admin call separately asserts the
+exact new Distant event. Focused rule tests likewise use explicit events again.
+
+VALUES and minimality review: removing the deck deletes a second representation and restores the
+smaller rules vocabulary. No production Kotlin, engine behavior, custom instruction, or `wgt()`
+body changes. The user-selected later direction is an installable Admin autoexecution policy backed
+by an ordered card list; it is tracked as user-approved future work rather than approximated in
+Turmoil Pets. The next and final step is formatting, focused replay verification, and the complete
+build.
+
+## 2026-09-08 — Stage 23: explicit-draw verification
+
+Formatted the final compromise and reran the focused event, Solar, and complete Synthetic Plasma
+Current replay suites. They pass. The repository-wide build also passes all 229 scheduled tasks,
+including the JVM and JavaScript suites, formatting, static checks, and representative browser
+replay. Final review confirms that every linked-deck declaration and selection was removed, all
+eleven annual replay draws are explicit and source-ordered, and production and engine Kotlin remain
+unchanged.

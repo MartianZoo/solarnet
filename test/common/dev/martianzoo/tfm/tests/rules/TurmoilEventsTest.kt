@@ -4,6 +4,7 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
+import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.CardTest
@@ -362,20 +363,27 @@ internal class TurmoilEventsTest :
   }
 
   @Test
-  internal fun `optional events require their companion expansions`() {
+  internal fun `promo events require the promo pack and their companion expansions`() {
     newGame(TurmoilExpansion)
 
     shouldThrow<DeadEndException> { admin.manual("VenusInfrastructure") }
     shouldThrow<DeadEndException> { admin.manual("JovianTaxRights") }
     shouldThrow<DeadEndException> { admin.manual("CloudSocieties") }
 
-    newGame(TurmoilExpansion, VenusNextExpansion)
+    newGame(TurmoilExpansion, PromoCardPack)
+
+    shouldThrow<DeadEndException> { admin.manual("VenusInfrastructure") }
+    shouldThrow<DeadEndException> { admin.manual("JovianTaxRights") }
+    shouldThrow<DeadEndException> { admin.manual("CloudSocieties") }
+
+    newGame(TurmoilExpansion, PromoCardPack, VenusNextExpansion)
 
     admin.manual("VenusInfrastructure")
     shouldThrow<DeadEndException> { admin.manual("CloudSocieties") }
 
     newGame(
         TurmoilExpansion,
+        PromoCardPack,
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
     )
@@ -385,6 +393,7 @@ internal class TurmoilEventsTest :
 
     newGame(
         TurmoilExpansion,
+        PromoCardPack,
         VenusNextExpansion,
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
@@ -397,6 +406,7 @@ internal class TurmoilEventsTest :
   internal fun `floater events keep every multi floater change on one card`() {
     newGame(
         TurmoilExpansion,
+        PromoCardPack,
         VenusNextExpansion,
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
@@ -426,6 +436,7 @@ internal class TurmoilEventsTest :
 
     newGame(
         TurmoilExpansion,
+        PromoCardPack,
         VenusNextExpansion,
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
@@ -446,6 +457,7 @@ internal class TurmoilEventsTest :
   internal fun `optional tag and colony events use owned counts caps and influence`() {
     newGame(
         TurmoilExpansion,
+        PromoCardPack,
         VenusNextExpansion,
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2, "Luna", "Io"),

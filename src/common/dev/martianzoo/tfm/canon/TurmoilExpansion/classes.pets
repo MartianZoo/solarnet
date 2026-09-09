@@ -16,11 +16,6 @@ CLASS TurmoilExpansion : Module {
   SolarPhase: TurmoilSolarOperation
 }
 
-"Adds the Global Events that require both Venus Next and Colonies"
-CLASS TurmoilVenusColoniesEvents : Module {
-  autoSelectWhen = HAS "TurmoilExpansion, VenusNextExpansion, ColoniesExpansion"
-}
-
 "Runs TR revision and the current event, then changes government and advances the event queue"
 CLASS TurmoilSolarOperation : Temporary, System {
   HAS MAX 1 This

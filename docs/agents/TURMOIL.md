@@ -7,7 +7,7 @@
 > **Read when:** changing Turmoil politics, policies, Solar sequencing, or Global Events. Read only
 > the relevant section and then inspect its named source and tests.
 >
-> **Skip when:** changing only the separate Turmoil promotional card pack.
+> **Skip when:** changing only the separate `TurmoilCardPack` project and corporation content.
 >
 > **Status:** implemented. The linked Pets and functional tests are authoritative; this document
 > records the stable model and source interpretation.
@@ -27,11 +27,13 @@ Owning implementation:
   owns setup, delegates, political state, influence, government, policies, event movement, and the
   Solar operation.
 - [`TurmoilExpansion/cards.pets`](../../src/common/dev/martianzoo/tfm/canon/TurmoilExpansion/cards.pets)
-  owns the 31 base events and the three events requiring only Venus Next or only Colonies.
-- [`TurmoilVenusColoniesEvents/cards.pets`](../../src/common/dev/martianzoo/tfm/canon/TurmoilVenusColoniesEvents/cards.pets)
-  owns the two events that require both companion expansions.
+  owns the 31 base events.
+- [`PromoCardPack/cards.pets`](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.pets)
+  owns the five promotional events associated with Venus Next or Colonies. Their semantic
+  references make premise projection require the promo pack, Turmoil, and the applicable companion
+  expansion without a special module.
 - [`turmoilExpansionBundle.kt`](../../src/common/dev/martianzoo/tfm/canon/turmoilExpansionBundle.kt)
-  only registers those two Pets resource directories. It adds no custom runtime behavior.
+  is a convention-backed bundle with no custom runtime behavior.
 - The separate [`TurmoilCardPack`](../../src/common/dev/martianzoo/tfm/canon/TurmoilCardPack/classes.pets)
   contains the published project cards and is selected automatically with the expansion.
 
@@ -44,7 +46,8 @@ Test ownership:
 - [`TurmoilPoliciesTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/TurmoilPoliciesTest.kt)
   covers every ruling policy and policy lifetime.
 - [`TurmoilEventsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/TurmoilEventsTest.kt)
-  covers all 36 event effects, module projection, FAQ edge cases, ties, and solo formulas.
+  covers all 36 event effects, promo and companion-expansion projection, FAQ edge cases, ties, and
+  solo formulas.
 - [`TurmoilSolarPhaseTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/TurmoilSolarPhaseTest.kt)
   covers ordered Solar integration and unfinished event choices.
 - [`SyntheticPlasmaCurrentTest.kt`](../../test/jvm/dev/martianzoo/tfm/tests/replays/SyntheticPlasmaCurrentTest.kt)
@@ -128,8 +131,10 @@ The ordinary Solar workflow performs World Government Terraforming before the Tu
 The temporary operation is a completion latch for event choices; it is not a new workflow phase.
 `Current`, `Coming`, and `Distant` are typed positions with at most one occupant. A concrete event
 owns its printed delegates and effect while its position component changes. Reveal barriers request
-one concrete catalog event from the content source, just as other card draws request concrete
-content; the rules model does not duplicate deck ordering.
+one concrete catalog event. For now, callers explicitly complete those Admin tasks with the event
+supplied by their shuffled deck or source record. This is a temporary integration compromise, not a
+game decision assigned to Admin. The selected direction is an installable Admin autoexecution
+policy that pulls the next exact event from an ordered list.
 
 Admin-authored global-parameter changes grant no rating or player placement bonuses. If Admin raises
 temperature through 0°C, `AdminOceanPlacement` gives the required ocean-placement choice to the
@@ -147,7 +152,8 @@ Productivity, Red Influence, Revolution, Riots, Sabotage, Scientific Community, 
 Flare, Solarnet Shutdown, Spin-Off Products, Sponsored Projects, Strong Society, Successful
 Organisms, Volcanic Eruptions, and War on Earth.
 
-Companion content is projected only when its observed domains exist:
+Promotional content is selected by `PromoCardPack` and projected only when its observed domains
+exist:
 
 - Venus Next: Venus Infrastructure.
 - Colonies: Jovian Tax Rights and Microgravity Health Problems.

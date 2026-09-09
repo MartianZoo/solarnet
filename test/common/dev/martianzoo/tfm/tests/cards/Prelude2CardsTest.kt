@@ -2,7 +2,9 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.engine.Agent.OperationBody
 import dev.martianzoo.engine.AutoExecMode.SAFE
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
@@ -18,6 +20,7 @@ import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.TestOption.Prelude2Expansion
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
+import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -521,5 +524,190 @@ internal class Prelude2CardsTest : CardTest() {
 
     p1.count("MC") shouldBe startingMoney - 6
     admin.count("VenusStep") shouldBe startingVenus + 1
+  }
+
+  @Test
+  internal fun `Turmoil linked projects are unavailable without Turmoil`() {
+    newGame(Prelude2Expansion)
+    admin.phase("Action")
+    p1.manual("10 MC, ProjectCard")
+
+    shouldThrow<DeadEndException> { p1.playProject(SummitLogistics, 10) }
+  }
+
+  @Test
+  internal fun `party requirements accept two delegates`() {
+    newGame(
+        Prelude2Expansion,
+        TurmoilExpansion,
+        VenusNextExpansion,
+        ColoniesExpansion,
+        colonyTiles = testColonyTiles(2),
+    )
+    admin.phase("Action")
+    p1.manual("10 MC, ProjectCard")
+
+    shouldThrow<RequirementException> { p1.playProject(SummitLogistics, 10) }
+
+    p1.manual(
+        "PartyDelegate<Scientists> FROM ReserveDelegate, " +
+            "PartyDelegate<Scientists> FROM ReserveDelegate"
+    )
+    p1.playProject(SummitLogistics, 10)
+
+    p1.count("ProjectCard") shouldBe 2
+  }
+
+  @Test
+  internal fun `Red Appeasement passes and requires every other player to remain active`() {
+    newGame(Prelude2Expansion, TurmoilExpansion)
+    admin.phase("Action")
+    p1.manual(
+        "ProjectCard, PartyDelegate<Reds> FROM ReserveDelegate, " +
+            "PartyDelegate<Reds> FROM ReserveDelegate"
+    )
+    requireP2().manual("Pass")
+
+    shouldThrow<RequirementException> { p1.playProject(RedAppeasement, 0) }
+
+    newGame(Prelude2Expansion, TurmoilExpansion)
+    admin.phase("Action")
+    p1.manual(
+        "ProjectCard, PartyDelegate<Reds> FROM ReserveDelegate, " +
+            "PartyDelegate<Reds> FROM ReserveDelegate"
+    )
+    val startingProduction = p1.production(cn("MC"))
+
+    p1.playProject(RedAppeasement, 0)
+
+    p1.production(cn("MC")) shouldBe startingProduction + 2
+    p1.count("Pass") shouldBe 1
+  }
+
+  @Test
+  internal fun `political preludes grant their ongoing and delegate benefits`() {
+    newGame(Prelude2Expansion, TurmoilExpansion)
+    val startingTr = p1.count("TerraformRating")
+    val startingMoney = p1.count("MC")
+    val startingProduction = p1.production(cn("MC"))
+
+    p1.manual("$HighCircles") {
+      doTask("PartyDelegate<Unity> FROM ReserveDelegate")
+    }
+    p1.count("ProjectCard") shouldBe 1
+
+    p1.manual("$CorridorsOfPower")
+    p1.manual("PartyLeader<Scientists>")
+    p1.count("ProjectCard") shouldBe 2
+
+    p1.manual("$RiseToPower") {
+      doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+      doTask("PartyDelegate<Reds> FROM ReserveDelegate")
+      doTask("PartyDelegate<Greens> FROM ReserveDelegate")
+    }
+    admin.manual("MeasureInfluence<Player1>")
+
+    p1.count("TerraformRating") shouldBe startingTr + 2
+    p1.count("MC") shouldBe startingMoney + 4
+    p1.count("HighCirclesInfluence") shouldBe 1
+    p1.production(cn("MC")) shouldBe startingProduction + 3
+    p1.assertCounts(
+        2 to "PartyDelegate<Unity>",
+        1 to "PartyDelegate<Scientists>",
+        1 to "PartyDelegate<Reds>",
+        1 to "PartyDelegate<Greens>",
+    )
+  }
+
+  @Test
+  internal fun `Summit Logistics and GHG Shipment count the supported resources`() {
+    newGame(
+        Prelude2Expansion,
+        TurmoilExpansion,
+        CorporateEraExpansion,
+        VenusNextExpansion,
+        ColoniesExpansion,
+        colonyTiles = testColonyTiles(2, "Luna", "Io"),
+    )
+    p1.manual("$EarthOffice, $VestaShipyard, $VenusGovernor, Colony<Luna>, Colony<Io>")
+    val startingMoney = p1.count("MC")
+    val startingCards = p1.count("ProjectCard")
+
+    p1.manual("$SummitLogistics")
+
+    p1.count("MC") shouldBe startingMoney + 6
+    p1.count("ProjectCard") shouldBe startingCards + 2
+
+    p1.manual("$ForcedPrecipitation, 3 Floater<$ForcedPrecipitation>")
+    val startingHeat = p1.count("Heat")
+    val startingHeatProduction = p1.production(cn("Heat"))
+
+    p1.manual("$GhgShipment")
+
+    p1.count("Heat") shouldBe startingHeat + 3
+    p1.production(cn("Heat")) shouldBe startingHeatProduction + 1
+  }
+
+  @Test
+  internal fun `representation and envoys apply colony scaled political benefits`() {
+    newGame(
+        Prelude2Expansion,
+        TurmoilExpansion,
+        ColoniesExpansion,
+        colonyTiles = testColonyTiles(2, "Luna", "Io"),
+    )
+    p1.manual("Colony<Luna>, Colony<Io>")
+    val startingMoney = p1.count("MC")
+
+    p1.manual("$ColonialRepresentation")
+    p1.manual("$ColonialEnvoys") {
+      doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+      doTask("PartyDelegate<Greens> FROM ReserveDelegate")
+    }
+    admin.manual("MeasureInfluence<Player1>")
+
+    p1.count("MC") shouldBe startingMoney + 6
+    p1.count("ColonialRepresentationInfluence") shouldBe 1
+    p1.count("PartyDelegate<Scientists>") shouldBe 1
+    p1.count("PartyDelegate<Greens>") shouldBe 1
+  }
+
+  @Test
+  internal fun `Special Permit steals four plants from one player`() {
+    newGame(Prelude2Expansion, TurmoilExpansion)
+    val p2 = requireP2()
+    p2.manual("4 Plant")
+
+    p1.manual("$SpecialPermit")
+
+    p1.count("Plant") shouldBe 4
+    p2.count("Plant") shouldBe 0
+  }
+
+  @Test
+  internal fun `Frontier Town repeats only its printed placement bonus`() {
+    newGame(Prelude2Expansion, TurmoilExpansion)
+    p1.manual("PROD[Energy]")
+
+    p1.manual("$FrontierTown") { placeTile(4, 2) }
+
+    p1.assertProds(0 to "Energy")
+    p1.count("Plant") shouldBe 3
+  }
+
+  @Test
+  internal fun `WG Project draws three preludes and plays one`() {
+    newGame(Prelude2Expansion, TurmoilExpansion)
+    admin.manual("ReserveDelegate<Neutral> FROM Chairman<Neutral>")
+    p1.manual("Chairman FROM ReserveDelegate, 9 MC, ProjectCard")
+    admin.phase("Action")
+
+    p1.playProject(WgProject, 9) {
+      p1.playPrelude(HighCircles) {
+        doTask("PartyDelegate<Unity> FROM ReserveDelegate")
+      }
+    }
+
+    p1.count("PreludeCard<Selecting>") shouldBe 0
   }
 }

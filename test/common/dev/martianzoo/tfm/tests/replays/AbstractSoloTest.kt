@@ -20,12 +20,15 @@ internal abstract class AbstractSoloTest : CardTrackingFullGameTest() {
 
     me = p1
     workflow = TfmWorkflow.Auto(game).launch()
+    resolveExpansionSetupTasks()
 
     admin.doTask("CityTile<${cityAreas().first}, SoloOpponent>")
     admin.doTask("GreeneryTile<${greeneryAreas().first}, SoloOpponent>")
     admin.doTask("CityTile<${cityAreas().second}, SoloOpponent>")
     admin.doTask("GreeneryTile<${greeneryAreas().second}, SoloOpponent>")
   }
+
+  protected open fun resolveExpansionSetupTasks() {}
 
   protected fun nextRound(worldGovernmentChoice: String, cardsBought: Int) {
     p1.pass()
