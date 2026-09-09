@@ -5,7 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
-import dev.martianzoo.tfm.tests.TestOption.TurmoilCardPack
+import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.LakefrontResorts
 import dev.martianzoo.tfm.tests.cards.cardnames.LandClaim
 import dev.martianzoo.tfm.tests.cards.cardnames.MarsNomads
@@ -111,7 +111,7 @@ internal class MarsNomadsTest : CardTest() {
 
   @Test
   internal fun `Lakefront Resorts increases Nomads ocean bonuses`() {
-    newGame(PromoCardPack, TurmoilCardPack)
+    newGame(PromoCardPack, TurmoilExpansion)
     p1.manual("$LakefrontResorts")
     p1.manual("$MarsNomads") { doTask("NomadsMarker<Tharsis_4_6>") }
     p1.manual("OceanTile<Tharsis_4_8>")

@@ -211,8 +211,8 @@ supertype just to justify a suffix. Three loose families exist today:
 1. **Content and card packs** — published products contributing cards and components use their own
    noun: `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`, `PreludeExpansion`,
    `Prelude2Expansion`. `CardPack` marks a card-only selection that can be included independently
-   from its product's rules: `Prelude1CardPack`, `Prelude2CardPack`, `PromoCardPack`, and
-   `TurmoilCardPack`. The published expansions and their Bundles retain the official
+   from its product's rules: `Prelude1CardPack`, `Prelude2CardPack`, and `PromoCardPack`. The
+   published expansions and their Bundles retain the official
    `PreludeExpansion` and `Prelude2Expansion` names; the card packs use `Prelude1` and `Prelude2`
    to distinguish their contributions to the merged Prelude deck.
 2. **Exclusive choices** — a closed set behind an abstract supertype, exactly one selected. These
@@ -305,7 +305,7 @@ phrase, but the obvious one is taken by the `DoRequiredActions` standard action.
 `Has` is reserved for capabilities (`HasActions`), and `HasRaisedTr` is a record that something
 happened, which the [grammar](#grammar-by-kind-of-thing) says should read as a passive or `My` form.
 The conflict is acknowledged; the name is not yet settled. It is declared identically in
-`TerraformingMars` and `TurmoilCardPack`, so any rename must change both.
+`TerraformingMars` and `TurmoilExpansion`, so any rename must change both.
 
 ### Scope of `en.json5`
 

@@ -220,3 +220,40 @@ CLASS WarOnEarth : GlobalEvent {
   Current<Class<This>>:: PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>.
   ResolveGlobalEvent<Class<This>>:: EACH Player { -TerraformRating. / (4 - Influence) }
 }
+
+CLASS LakefrontResorts : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This:: BuildingTag<This>
+  This: 54 MC
+  OceanTile BY Anyone: PROD[1 MC]
+  Placement<MarsArea>: 1 MC / Neighbor<OceanTile, MarsArea>
+}
+
+CLASS Pristar : ResourceCard<Class<Preservation>, Class<CorporationCard>> {
+  cost = 0
+  HAS Class<TrWatcher>
+
+  This: 53 MC, -2 TerraformRating
+  ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6 MC
+  End: VictoryPoint / Preservation<This>
+}
+
+CLASS TerraLabsResearch : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This:: ScienceTag<This>, EarthTag<This>
+  This: 14 MC, -TerraformRating
+  BuyCard:: -2 Owed<>
+}
+
+CLASS UtopiaInvest : ActionCard<Class<CorporationCard>> {
+  cost = 0
+
+  This: 40 MC, PROD[Steel, Titanium]
+
+  PROD[StandardResource] -> 4 StandardResource
+}
+
+// Supporting declarations contributed by cards in this expansion.
+CLASS Preservation : CardResource<ResourceHolder<Class<Preservation>>>

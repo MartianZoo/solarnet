@@ -9,7 +9,7 @@ internal class TerralabsTest : CardTest() {
 
   @Test
   internal fun `Buys project cards for one mc each`() {
-    newGame(TurmoilCardPack, retainedStartingProjects = 10)
+    newGame(TurmoilExpansion, retainedStartingProjects = 10)
     p1.playCorp(TerraLabsResearch, 10)
     p1.manual("4 ProjectCard<Selecting> THEN BuySelectedCards") {
           p1.pay(mc = 4)
@@ -20,7 +20,7 @@ internal class TerralabsTest : CardTest() {
   @Test
   internal fun `Terralabs and Polyphemos cancel each other's card-purchase modifiers`() {
     newGame(
-        TurmoilCardPack,
+        TurmoilExpansion,
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
     )

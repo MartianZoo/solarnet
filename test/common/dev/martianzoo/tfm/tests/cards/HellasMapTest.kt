@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestOption.Hellas
-import dev.martianzoo.tfm.tests.TestOption.TurmoilCardPack
 import dev.martianzoo.tfm.tests.cards.cardnames.LakefrontResorts
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -26,7 +26,7 @@ internal class HellasMapTest : CardTest() {
 
   @Test
   internal fun `Ocean income from the south pole bonus can fund its payment`() {
-    newGame(Hellas, TurmoilCardPack)
+    newGame(GameConfig("HellasMap, LakefrontResorts", "Player1", "Player2"))
     admin.phase("Action")
     p1.manual("$LakefrontResorts")
     p1.manual("OceanTile<Hellas_4_7>, OceanTile<Hellas_5_6>")

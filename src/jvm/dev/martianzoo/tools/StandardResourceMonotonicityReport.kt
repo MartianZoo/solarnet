@@ -574,7 +574,7 @@ internal object StandardResourceMonotonicityReport {
                           "VenusNextExpansion",
                           "PreludeExpansion",
                           "ColoniesExpansion",
-                          "TurmoilCardPack",
+                          "TurmoilExpansion",
                           "PromoCardPack",
                           "Callisto",
                           "Ceres",

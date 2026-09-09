@@ -9,7 +9,7 @@ import kotlin.test.Test
 internal class PristarTest : CardTest() {
   @Test
   internal fun `Pays its production bonus when TR did not increase`() {
-    newGame(TurmoilCardPack)
+    newGame(TurmoilExpansion)
     admin.count("TrWatcher") shouldBe 1
     p1.manual("$Pristar")
     admin.phase("Production")
@@ -18,7 +18,7 @@ internal class PristarTest : CardTest() {
 
   @Test
   internal fun `An opponent's TR increase does not suppress the bonus`() {
-    newGame(TurmoilCardPack, players = 2)
+    newGame(TurmoilExpansion, players = 2)
     p1.manual("$Pristar")
     requireP2().manual("TerraformRating")
     admin.phase("Production")
@@ -27,7 +27,7 @@ internal class PristarTest : CardTest() {
 
   @Test
   internal fun `Does not pay its production bonus after a TR increase`() {
-    newGame(TurmoilCardPack)
+    newGame(TurmoilExpansion)
     p1.manual("$Pristar, TerraformRating")
     admin.phase("Production")
     p1.assertCounts(0 to "Preservation")

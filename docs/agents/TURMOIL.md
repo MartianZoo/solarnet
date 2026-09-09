@@ -7,8 +7,6 @@
 > **Read when:** changing Turmoil politics, policies, Solar sequencing, or Global Events. Read only
 > the relevant section and then inspect its named source and tests.
 >
-> **Skip when:** changing only the separate `TurmoilCardPack` project and corporation content.
->
 > **Status:** implemented. The linked Pets and functional tests are authoritative; this document
 > records the stable model and source interpretation.
 
@@ -27,15 +25,13 @@ Owning implementation:
   owns setup, delegates, political state, influence, government, policies, event movement, and the
   Solar operation.
 - [`TurmoilExpansion/cards.pets`](../../src/common/dev/martianzoo/tfm/canon/TurmoilExpansion/cards.pets)
-  owns the 31 base events.
+  owns the expansion's supported cards and 31 base events.
 - [`PromoCardPack/cards.pets`](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.pets)
   owns the five promotional events associated with Venus Next or Colonies. Their semantic
   references make premise projection require the promo pack, Turmoil, and the applicable companion
   expansion without a special module.
 - [`turmoilExpansionBundle.kt`](../../src/common/dev/martianzoo/tfm/canon/turmoilExpansionBundle.kt)
   is a convention-backed bundle with no custom runtime behavior.
-- The separate [`TurmoilCardPack`](../../src/common/dev/martianzoo/tfm/canon/TurmoilCardPack/classes.pets)
-  contains the published project cards and is selected automatically with the expansion.
 
 Test ownership:
 

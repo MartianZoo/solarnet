@@ -14,7 +14,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       GameConfig(
           """
           ElysiumMap
-          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TurmoilCardPack, PromoCardPack
+          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TerraLabsResearch, PromoCardPack
           Tr63SoloObjective
           Ganymede, Luna, Miranda, Pluto
           """,

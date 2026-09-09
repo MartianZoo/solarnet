@@ -264,23 +264,13 @@ internal class ModuleSelectionTest {
 
             // INDEPENDENT EXPANSIONS AND BASE-GAME VARIANTS
             Configuration(
-                description = "promotional and Turmoil card packs are independent",
-                config = "TurmoilCardPack, PromoCardPack",
-                selectsExactly =
-                    """
-                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
-                    TharsisMap,
-                    TurmoilCardPack, PromoCardPack
-                    """,
-            ),
-            Configuration(
-                description = "Turmoil rules include their published card pack by default",
+                description = "Turmoil includes its rules and published cards",
                 config = "TurmoilExpansion",
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
                     TharsisMap,
-                    TurmoilExpansion, TurmoilCardPack
+                    TurmoilExpansion
                     """,
             ),
             Configuration(

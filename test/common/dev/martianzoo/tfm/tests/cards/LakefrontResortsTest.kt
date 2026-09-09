@@ -7,7 +7,7 @@ import kotlin.test.Test
 internal class LakefrontResortsTest : CardTest() {
   @Test
   internal fun `Pays when its owner places a tile adjacent to an ocean`() {
-    newGame(TurmoilCardPack)
+    newGame(TurmoilExpansion)
     val p2 = requireP2()
 
     admin.phase("Action")
@@ -20,7 +20,7 @@ internal class LakefrontResortsTest : CardTest() {
 
   @Test
   internal fun `Does not pay when an opponent places a tile adjacent to an ocean`() {
-    newGame(TurmoilCardPack)
+    newGame(TurmoilExpansion)
     val p2 = requireP2()
     admin.phase("Action")
     p2.manual("$LakefrontResorts, 54 MC")
@@ -30,7 +30,7 @@ internal class LakefrontResortsTest : CardTest() {
 
   @Test
   internal fun `Pays once for each ocean adjacency`() {
-    newGame(TurmoilCardPack)
+    newGame(TurmoilExpansion)
     admin.phase("Action")
     p1.manual("$LakefrontResorts, 54 MC")
     p1.manual("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_2_1>")

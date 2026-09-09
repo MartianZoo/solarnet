@@ -95,7 +95,7 @@ internal class MergerTest : CardTest() {
   internal fun `Polyphemos then Merger into TerraLabs still buys cards for three`() {
     newGame(
         ColoniesExpansion,
-        TurmoilCardPack,
+        TurmoilExpansion,
         PreludeExpansion,
         PromoCardPack,
         colonyTiles = testColonyTiles(2),
