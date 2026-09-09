@@ -11,13 +11,14 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 
 /**
- * A structural Type or an authored Type-variable declaration or usage.
+ * A resolved Type or an authored Type-variable declaration or usage. A resolved Type may carry
+ * refinements, including state-dependent refinements; those are part of the Type.
  *
- * Code interested only in structural meaning can use [groundType]. Code interpreting authored
- * syntax can inspect [typeVariable] and the runtime subtype without maintaining a parallel model.
+ * [groundType] forgets variable identity, not refinements. Code interpreting authored syntax can
+ * inspect [typeVariable] and the runtime subtype without maintaining a parallel model.
  */
 public interface Type : HasExpression, HasClassName, Specification<Type> {
-  /** This Type's structural interpretation after forgetting variable identity. */
+  /** This Type's resolved interpretation after forgetting variable identity. */
   public val groundType: GroundType
 
   /** The authored variable represented here, or null for an ordinary Ground Type. */
