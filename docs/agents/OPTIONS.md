@@ -142,9 +142,8 @@ names `Player1` through `PlayerN`; player counts have no fixed upper limit. Indi
 may still be impossible when finite selected content cannot satisfy their player-count rules. The
 `gamePremise(config, playerDeclarations)` overload instead
 derives every player name and its seat order from explicit concrete Player declarations, including
-any per-seat Pets setup rules. The Pets-owned `SecondPlaceRule` Module is automatically selected for
-three or more Players and activates `SecondPlace`, keeping player-count policy out of Kotlin and
-numbered seat classes. Initial state is not an unrestricted Pets script.
+any per-seat Pets setup rules. Award scoring conditions its second-place effect directly on the
+presence of at least three Players. Initial state is not an unrestricted Pets script.
 
 Availability and existence are distinct. With Colonies active, eligible colony classes are active
 so effects can select them, while premise construction creates only the chosen starting selection

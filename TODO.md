@@ -19,6 +19,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   names are concrete Catalog Classes and require no Vocabulary mechanism.
 - Revisit causal ownership inside `BootstrapPhase`, moving initialization work under ordinary
   phase-caused tasks as soon as the required runtime state can express them.
+- Decouple cleanup lifetime from log visibility so player-meaningful signals such as `Pay` and
+  `PayFromCard` need not inherit `Hidden` through `MustCleanUp`.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
 - Discard the uncommitted typed custom-metric/code-generation experiment; it was evaluated and
