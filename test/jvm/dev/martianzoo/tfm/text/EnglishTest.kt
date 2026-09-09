@@ -85,7 +85,7 @@ internal class EnglishTest {
     english.describe(parse<Requirement>("MAX 6 OxygenStep")) shouldBe
         "Requires that oxygen is 6% or lower."
     english.describe(
-        parse<Effect>("Invoice<ConvertPlants, Action1>:: -Owed<Class<Plant>>")
+        parse<Effect>("Invoice<ConvertPlantsAction, Action1>:: -Owed<Class<Plant>>")
     ) shouldBe "When you convert plants to greenery, pay 1 plant less."
     english.describe(parse<Effect>("Billing<CardPlay>:: -2 Owed<>")) shouldBe
         "When you play a card, pay 2 M€ less."

@@ -27,6 +27,7 @@ internal fun renderCardOperation(transform: Transform, describers: Describers): 
         return null
       }
   return when (operation) {
+    is CardOperation.SelectCardClass -> null
     is Search -> renderSearch(operation, describers)?.let(::listOf)
     is RevealAndPurchase -> renderRevealAndPurchase(operation, describers)
     is RevealAndTest -> renderRevealAndTest(operation, describers)

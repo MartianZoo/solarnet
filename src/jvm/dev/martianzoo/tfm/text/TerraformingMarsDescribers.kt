@@ -385,6 +385,8 @@ internal object TerraformingMarsDescribers {
                             )
                     ),
             ),
+        klass("DefaultGreeneryTile") to
+            ComponentDescriber(changeFrame = Frame.Procedure("place", "a greenery tile")),
         klass("CityTile") to
             ComponentDescriber(
                 changeFrame =
@@ -502,7 +504,7 @@ internal object TerraformingMarsDescribers {
                             ),
                     )
             ),
-        klass("ConvertPlants") to
+        klass("ConvertPlantsAction") to
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
@@ -511,7 +513,7 @@ internal object TerraformingMarsDescribers {
                             ComponentDescriber.PaymentDiscount("convert plants to greenery"),
                     )
             ),
-        klass("PowerPlantSP") to
+        klass("PowerPlantProject") to
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
@@ -522,7 +524,7 @@ internal object TerraformingMarsDescribers {
                             ),
                     )
             ),
-        klass("ClaimMilestone") to
+        klass("ClaimMilestoneAction") to
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
@@ -530,7 +532,7 @@ internal object TerraformingMarsDescribers {
                         paymentDiscount = ComponentDescriber.PaymentDiscount("claim a milestone"),
                     )
             ),
-        klass("FundAward") to
+        klass("FundAwardAction") to
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(

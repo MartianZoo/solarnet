@@ -75,8 +75,7 @@ internal fun Describers.cardSelector(expression: Expression): NounPhrase? {
   }
   val resolved = resolveExpression(expression) ?: return null
   if (resolved.sourceDependencies.isNotEmpty()) return null
-  val refinement =
-      (expression.refinement as? Expression.Refinement.Has)?.takeIf { !it.forgiving } ?: return null
+  val refinement = expression.refinement as? Expression.Refinement.Has ?: return null
   val criterion = cardCriterion(refinement.requirement) ?: return null
   return NounPhrase(
       matchingCardNoun(criterion, singular = true, this),

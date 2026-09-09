@@ -234,7 +234,6 @@ internal fun Describers.renderActionUse(expression: Expression): NounPhrase? {
   val use = fact(expression.className, ComponentDescriber::actionUse) ?: return null
   val objectPhrase = NounPhrase.text(use.objectPhrase)
   val refinement = expression.refinement as? Expression.Refinement.Has ?: return objectPhrase
-  if (refinement.forgiving) return null
   val minimum = refinement.requirement as? Requirement.Min ?: return null
   val requiredComponent = (minimum.metric as? Metric.Count)?.expression
   if (minimum.target == 1 && requiredComponent?.simple == true) {
@@ -325,7 +324,6 @@ internal fun Describers.playedCardEvent(expression: Expression): Event? {
   val objectPhrase =
       expression.refinement?.let {
         val refinement = it as? Expression.Refinement.Has ?: return null
-        if (refinement.forgiving) return null
         val counting = refinement.requirement as? Requirement.Counting ?: return null
         when (val metric = counting.metric) {
           is Metric.Count -> {

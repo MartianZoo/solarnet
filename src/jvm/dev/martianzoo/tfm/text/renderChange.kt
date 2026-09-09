@@ -433,7 +433,6 @@ private fun Describers.renderEligiblePlayer(expression: Expression): NounPhrase?
     return null
   }
   val refinement = expression.refinement as? Expression.Refinement.Has ?: return null
-  if (refinement.forgiving) return null
   val minimum = refinement.requirement as? Requirement.Min ?: return null
   if (minimum.target != 1) return null
   val tagExpression = (minimum.metric as? Metric.Count)?.expression ?: return null
@@ -629,8 +628,7 @@ private fun renderSelectedProductionChange(
   ) {
     return null
   }
-  val refinement =
-      (resource.refinement as? Expression.Refinement.Has)?.takeIf { !it.forgiving } ?: return null
+  val refinement = resource.refinement as? Expression.Refinement.Has ?: return null
   val first = refinement.requirement as? Requirement.Exact ?: return null
   if (first.target != 1 || !first.metric.isLowestStandardProductionRank(describers)) return null
   val count = change.count.fixedQuantity() ?: return null
@@ -777,7 +775,6 @@ private fun Describers.renderCardResourceHolder(
   if (resolved.sourceDependencies.isNotEmpty()) return null
   val holder = fact(expression.className, ComponentDescriber::cardResourceHolder) ?: return null
   val refinement = expression.refinement as? Expression.Refinement.Has ?: return null
-  if (refinement.forgiving) return null
   val minimum = refinement.requirement as? Requirement.Min ?: return null
   val metric = minimum.metric as? Metric.Count ?: return null
   if (!metric.expression.simple) return null

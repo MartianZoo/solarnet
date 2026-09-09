@@ -188,8 +188,7 @@ private fun Describers.renderFilteredPlacementCount(
     count: Int?,
     possessorEstablished: Boolean,
 ): NounPhrase? {
-  val refinement =
-      (expression.refinement as? Expression.Refinement.Has)?.takeIf { !it.forgiving } ?: return null
+  val refinement = expression.refinement as? Expression.Refinement.Has ?: return null
   val noun =
       placementCountPhrase(expression.copy(refinement = null), count, possessorEstablished)
           ?: return null
@@ -202,8 +201,7 @@ private fun Describers.renderFilteredComponentCount(
     count: Int?,
     possessorEstablished: Boolean,
 ): NounPhrase? {
-  val refinement =
-      (expression.refinement as? Expression.Refinement.Has)?.takeIf { !it.forgiving } ?: return null
+  val refinement = expression.refinement as? Expression.Refinement.Has ?: return null
   val noun =
       renderComponentCount(expression.copy(refinement = null), count, possessorEstablished)
           ?: return null
@@ -287,8 +285,7 @@ internal fun distinctOwnedKinds(
   val resolvedClass = describers.resolveExpression(expression) ?: return null
   val kind = resolvedClass.sourceDependency(classKey) ?: return null
   if (!resolvedClass.hasOnlySourceDependency(classKey, kind) || !kind.simple) return null
-  val refinement =
-      (expression.refinement as? Expression.Refinement.Has)?.takeIf { !it.forgiving } ?: return null
+  val refinement = expression.refinement as? Expression.Refinement.Has ?: return null
   val minimum = refinement.requirement as? Requirement.Min ?: return null
   if (minimum.target != 1) return null
   val member = (minimum.metric as? Metric.Count)?.expression ?: return null
@@ -337,7 +334,6 @@ private fun Describers.renderZeroMaximumFilter(
   if (resolved.sourceDependencies.isNotEmpty()) return null
   val outer = fact(expression.className, ComponentDescriber::countNoun) ?: return null
   val refinement = expression.refinement as? Expression.Refinement.Has ?: return null
-  if (refinement.forgiving) return null
   val maximum = refinement.requirement as? Requirement.Max ?: return null
   if (maximum.target != 0) return null
   val excluded = (maximum.metric as? Metric.Count)?.expression ?: return null
@@ -459,7 +455,6 @@ private fun Describers.renderPlacementLocation(expression: Expression): Modifier
       }
   val refinement =
       expression.refinement as? Expression.Refinement.Has ?: return Modifier.Relation("on", noun)
-  if (refinement.forgiving) return null
   val modifier = renderSpatialFilter(refinement.requirement) ?: return null
   return Modifier.Relation("on", noun.withModifier(modifier))
 }

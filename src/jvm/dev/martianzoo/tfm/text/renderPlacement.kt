@@ -79,14 +79,12 @@ internal fun renderPlacementSites(
       )
   expression.refinement?.let {
     val refinement = it as? Expression.Refinement.Has ?: return null
-    if (refinement.forgiving) return null
     val authoredRequirements = refinement.requirement.conjuncts()
     val implicitRequirements =
         implicitSites
             .singleOrNull { it.className == expression.className }
             ?.refinement
             ?.let { it as? Expression.Refinement.Has ?: return null }
-            ?.takeUnless { it.forgiving }
             ?.requirement
             ?.conjuncts()
             .orEmpty()
