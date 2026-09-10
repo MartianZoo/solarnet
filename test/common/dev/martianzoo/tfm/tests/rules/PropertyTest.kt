@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.AutoExecMode.NONE
 import dev.martianzoo.engine.*
-import dev.martianzoo.engine.AutoExecMode.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.ExpressionException

@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecMode.NONE
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.BusinessContacts

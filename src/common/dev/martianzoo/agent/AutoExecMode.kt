@@ -1,4 +1,4 @@
-package dev.martianzoo.engine
+package dev.martianzoo.agent
 
 /** Specifies to what extent you want the engine to execute tasks automatically. */
 public enum class AutoExecMode {

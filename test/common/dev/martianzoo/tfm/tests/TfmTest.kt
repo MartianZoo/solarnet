@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests
 
-import dev.martianzoo.engine.Agent.Companion.parse
-import dev.martianzoo.engine.Agent.OperationBody
-import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.agent.Agent.Companion.parse
+import dev.martianzoo.agent.Agent.OperationBody
+import dev.martianzoo.agent.AutoExecMode.NONE
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression

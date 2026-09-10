@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
-import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecMode.NONE
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test

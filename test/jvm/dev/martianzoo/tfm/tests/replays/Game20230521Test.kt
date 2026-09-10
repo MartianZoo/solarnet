@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.engine.AutoExecMode.SAFE
+import dev.martianzoo.agent.AutoExecMode.SAFE
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow

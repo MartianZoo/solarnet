@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.AutoExecMode.FIRST
-import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecMode.FIRST
+import dev.martianzoo.agent.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Expression

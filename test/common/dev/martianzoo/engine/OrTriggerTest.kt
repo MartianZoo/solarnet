@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.testsupport.PLAYER1

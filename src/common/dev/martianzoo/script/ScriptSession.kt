@@ -1,6 +1,6 @@
 package dev.martianzoo.script
 
-import dev.martianzoo.engine.Agent
+import dev.martianzoo.agent.Agent
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.Exceptions.ExpressionException

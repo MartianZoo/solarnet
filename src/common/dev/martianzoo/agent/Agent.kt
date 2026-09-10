@@ -1,6 +1,7 @@
-package dev.martianzoo.engine
+package dev.martianzoo.agent
 
-import dev.martianzoo.engine.Agent.OperationBody
+import dev.martianzoo.agent.Agent.OperationBody
+import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.engine.TimelineImpl.AbortOperationException
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.KindException

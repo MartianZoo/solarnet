@@ -1,6 +1,6 @@
 package dev.martianzoo.script
 
-import dev.martianzoo.engine.Agent
+import dev.martianzoo.agent.Agent
 import dev.martianzoo.pets.data.Task.TaskId
 import dev.martianzoo.pets.data.TaskResult
 

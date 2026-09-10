@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.engine.AutoExecMode.FIRST
-import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecMode.FIRST
+import dev.martianzoo.agent.AutoExecMode.NONE
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*

@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.engine.AutoExecMode.FIRST
+import dev.martianzoo.agent.AutoExecMode.FIRST
+import dev.martianzoo.agent.exMachina
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.exMachina
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn

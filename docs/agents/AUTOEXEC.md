@@ -25,9 +25,9 @@
 
 ## Source map
 
-- [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt),
-  [`AutoExecMode.kt`](../../src/common/dev/martianzoo/engine/AutoExecMode.kt),
-  [`ApiTranslation.kt`](../../src/common/dev/martianzoo/engine/ApiTranslation.kt), and
+- [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt),
+  [`AutoExecMode.kt`](../../src/common/dev/martianzoo/agent/AutoExecMode.kt),
+  [`ApiTranslation.kt`](../../src/common/dev/martianzoo/agent/ApiTranslation.kt), and
   [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt) contain the
   current engine-owned implementation to extract.
 - [API.md](API.md) owns the unique Actor-scoped Agent and its client surface.

@@ -1,8 +1,8 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.engine.AutoExecMode.FIRST
-import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.engine.AutoExecMode.SAFE
+import dev.martianzoo.agent.AutoExecMode.FIRST
+import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecMode.SAFE
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext

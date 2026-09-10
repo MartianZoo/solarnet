@@ -3,7 +3,7 @@ package dev.martianzoo.engine
 import dev.martianzoo.pets.data.TaskResult
 
 /** Executes Agent operations atomically and reports the outermost successful completion. */
-internal class AtomicOperationScope(
+internal class WorldTransaction(
     private val timeline: Timeline,
     private val onComplete: () -> Unit,
     private val recordingPositions: RecordingPositions,

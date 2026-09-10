@@ -1,8 +1,11 @@
-package dev.martianzoo.engine
+package dev.martianzoo.agent
 
-import dev.martianzoo.engine.Agent.Companion.parse
-import dev.martianzoo.engine.Agent.OperationBody
-import dev.martianzoo.engine.AutoExecMode.FIRST
+import dev.martianzoo.agent.Agent.Companion.parse
+import dev.martianzoo.agent.Agent.OperationBody
+import dev.martianzoo.agent.AutoExecMode.FIRST
+import dev.martianzoo.engine.Implementations
+import dev.martianzoo.engine.TaskQueue
+import dev.martianzoo.engine.WorldTransaction
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.GameReader
@@ -35,7 +38,7 @@ internal class ApiTranslation(
     override val tasks: TaskQueue,
     private val classTable: ClassTable,
     private val elaborator: PetElaborator,
-    private val atomicOperationScope: AtomicOperationScope,
+    private val atomicOperationScope: WorldTransaction,
 ) : Agent {
 
   override var autoExecMode: AutoExecMode = FIRST

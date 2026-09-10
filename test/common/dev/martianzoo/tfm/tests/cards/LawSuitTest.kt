@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.engine.BodyLambda
+import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.BodyLambda
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.testsupport.PLAYER3
