@@ -96,19 +96,19 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
     stanley.pass()
     jacopo.pass()
 
-    stanley.assertCounts(2 to "Generation", 23 to "TR", 1 to "OwnedTile")
+    stanley.assertCounts(2 to "Generation", 23 to "TerraformRating", 1 to "OwnedTile")
     stanley.assertProduction(m = 2, s = 0, t = 0, p = 0, e = 1, h = 0)
     stanley.assertResources(m = 34, s = 0, t = 0, p = 1, e = 1, h = 0)
 
-    jacopo.assertCounts(20 to "TR", 1 to "Community")
+    jacopo.assertCounts(20 to "TerraformRating", 1 to "Community")
     jacopo.assertProduction(m = 1, s = 0, t = 0, p = 1, e = 0, h = 3)
     jacopo.assertResources(m = 32, s = 0, t = 0, p = 3, e = 0, h = 6)
 
-    jon.assertCounts(20 to "TR", 1 to "OwnedTile")
+    jon.assertCounts(20 to "TerraformRating", 1 to "OwnedTile")
     jon.assertProduction(m = 0, s = 0, t = 1, p = 2, e = 0, h = 0)
     jon.assertResources(m = 25, s = 2, t = 1, p = 2, e = 0, h = 0)
 
-    charlie.assertCounts(21 to "TR", 0 to "OwnedTile")
+    charlie.assertCounts(21 to "TerraformRating", 0 to "OwnedTile")
     charlie.assertProduction(m = 7, s = 0, t = 0, p = 0, e = 1, h = 4)
     charlie.assertResources(m = 42, s = 0, t = 0, p = 2, e = 1, h = 4)
 
@@ -152,19 +152,19 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
 
     // Engine checkpoint from the currently reconstructed chronology; no readable source ledger is
     // available here yet.
-    stanley.assertCounts(3 to "Generation", 23 to "TR", 1 to "OwnedTile")
+    stanley.assertCounts(3 to "Generation", 23 to "TerraformRating", 1 to "OwnedTile")
     stanley.assertProduction(m = 2, s = 0, t = 0, p = 0, e = 0, h = 0)
     stanley.assertResources(m = 45, s = 0, t = 0, p = 2, e = 0, h = 1)
 
-    jacopo.assertCounts(20 to "TR", 1 to "Community")
+    jacopo.assertCounts(20 to "TerraformRating", 1 to "Community")
     jacopo.assertProduction(m = 1, s = 0, t = 0, p = 2, e = 0, h = 3)
     jacopo.assertResources(m = 33, s = 0, t = 0, p = 5, e = 0, h = 9)
 
-    jon.assertCounts(20 to "TR", 2 to "OwnedTile")
+    jon.assertCounts(20 to "TerraformRating", 2 to "OwnedTile")
     jon.assertProduction(m = 0, s = 1, t = 1, p = 2, e = 1, h = 1)
     jon.assertResources(m = 22, s = 1, t = 2, p = 5, e = 1, h = 1)
 
-    charlie.assertCounts(23 to "TR", 1 to "OwnedTile")
+    charlie.assertCounts(23 to "TerraformRating", 1 to "OwnedTile")
     charlie.assertProduction(m = 10, s = 0, t = 0, p = 0, e = 0, h = 4)
     charlie.assertResources(m = 40, s = 0, t = 0, p = 11, e = 0, h = 9)
 

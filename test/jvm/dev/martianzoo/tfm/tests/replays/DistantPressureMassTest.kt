@@ -30,8 +30,6 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       )
   // Solarnet's Terran is the archive's Terran5 milestone. It was available but never claimed.
 
-  override val inputOnlySynonyms = emptyList<Pair<String, String>>()
-
   private val keen
     get() = p1
 

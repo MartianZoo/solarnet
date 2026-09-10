@@ -12,8 +12,6 @@ import kotlin.test.Test
 
 internal class Game20230521Test : AbstractFullGameTest() {
 
-  override val inputOnlySynonyms = emptyList<Pair<String, String>>()
-
   override val config =
       GameConfig(
           """

@@ -49,7 +49,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       playProject(AdvancedAlloys, 9) {
         doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating")
       }
-      playProject(IndustrialMicrobes, 12).expect("S, E, PROD[S, E]")
+      playProject(IndustrialMicrobes, 12).expect("Steel, Energy, PROD[Steel, Energy]")
 
       nextRound("VenusStep", 2)
 
@@ -74,15 +74,15 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       assertDashRight(events = 1, tagless = 2, cities = 0, colonies = 0)
       assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 0, venus = 4)
 
-      playProject(DeepWellHeating, 4, steel = 3).expect("Energy, TR")
-      convertHeat().expect("TR")
+      playProject(DeepWellHeating, 4, steel = 3).expect("Energy, TerraformRating")
+      convertHeat().expect("TerraformRating")
       playProject(NoctisCity, 18).expect("CityTile<Tharsis_5_3>, 2 Plant")
       playProject(FueledGenerators, 1)
 
       nextRound("VenusStep", 1)
 
       playProject(EnergySaving, 15)
-      stdAction("TradeAction", 2) { doTask("Trade<Callisto>") }.expect("4 E")
+      stdAction("TradeAction", 2) { doTask("Trade<Callisto>") }.expect("4 Energy")
 
       nextRound("OceanTile<Tharsis_5_5>", 1)
 
@@ -96,7 +96,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       convertHeat()
       convertHeat()
       stdProject("BuildColonyProject") { doTask("Colony<Luna>") }
-      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("-3 E, 15 MC")
+      stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("-3 Energy, 15 MC")
       playProject(GiantSolarShade, 27).expect("Card")
       playProject(GeothermalPower, 2, steel = 3)
 
@@ -104,7 +104,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
       convertHeat().expect("PROD[Heat]")
       stdAction("TradeAction", 2) { doTask("Trade<Ganymede>") }
-      convertPlants { placeTile(6, 3) }.expect("-6 Plant, TR")
+      convertPlants { placeTile(6, 3) }.expect("-6 Plant, TerraformRating")
 
       playProject(MineralDeposit, 5)
       playProject(FieldCappedCity, 5, steel = 8) { placeTile(7, 4) }

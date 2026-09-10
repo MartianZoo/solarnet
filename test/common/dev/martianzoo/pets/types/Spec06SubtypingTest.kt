@@ -32,10 +32,10 @@ internal class Spec06SubtypingTest {
 
   private fun narrows(narrow: String, wide: String) = type(narrow).isSubtypeOf(type(wide))
 
-  // 6-1 The two forms of the test
+  // T6-1 The two forms of the test
 
   @Test
-  internal fun `6-1 narrows answers, ensureNarrows explains`() {
+  internal fun `T6-1 narrows answers, ensureNarrows explains`() {
     type("Tharsis_2_2").narrows(type("LandArea"), NoGameState) shouldBe true
     type("Tharsis_2_2").ensureNarrows(type("LandArea"), NoGameState)
 
@@ -46,16 +46,16 @@ internal class Spec06SubtypingTest {
   }
 
   @Test
-  internal fun `6-1 isSubtypeOf and isSupertypeOf are the world-free spellings`() {
+  internal fun `T6-1 isSubtypeOf and isSupertypeOf are the world-free spellings`() {
     type("Tharsis_2_2").isSubtypeOf(type("LandArea")) shouldBe true
     type("LandArea").isSupertypeOf(type("Tharsis_2_2")) shouldBe true
     type("LandArea").isSubtypeOf(type("Tharsis_2_2")) shouldBe false
   }
 
-  // 6-2 The structural rule
+  // T6-2 The structural rule
 
   @Test
-  internal fun `6-2 the root class must be a subclass`() {
+  internal fun `T6-2 the root class must be a subclass`() {
     narrows("GreeneryTile", "Tile") shouldBe true
     narrows("GreeneryTile", "Occupant") shouldBe true
     narrows("GreeneryTile", "Component") shouldBe true
@@ -64,7 +64,7 @@ internal class Spec06SubtypingTest {
   }
 
   @Test
-  internal fun `6-2 every dependency must narrow too`() {
+  internal fun `T6-2 every dependency must narrow too`() {
     narrows("GreeneryTile<Tharsis_2_2, Player1>", "GreeneryTile<LandArea, Player1>") shouldBe true
     narrows("GreeneryTile<Tharsis_2_2, Player1>", "GreeneryTile<Tharsis_2_3, Player1>") shouldBe
         false
@@ -73,29 +73,29 @@ internal class Spec06SubtypingTest {
   }
 
   @Test
-  internal fun `6-2 a dependency the wider type does not have is not checked`() {
+  internal fun `T6-2 a dependency the wider type does not have is not checked`() {
     // `Tile` has no owner dependency, so a greenery tile's owner is irrelevant to the test.
     narrows("GreeneryTile<Tharsis_2_2, Player1>", "Tile<Tharsis_2_2>") shouldBe true
     narrows("GreeneryTile<Tharsis_2_2, Player2>", "Tile<Tharsis_2_2>") shouldBe true
   }
 
-  // 6-3 Covariance
+  // T6-3 Covariance
 
   @Test
-  internal fun `6-3 dependencies are covariant`() {
+  internal fun `T6-3 dependencies are covariant`() {
     narrows("Occupant<Tharsis_2_2>", "Occupant<LandArea>") shouldBe true
     narrows("Occupant<LandArea>", "Occupant<Area>") shouldBe true
     narrows("Occupant<Area>", "Occupant<LandArea>") shouldBe false
   }
 
   @Test
-  internal fun `6-3 narrowing the class and a dependency compose`() {
+  internal fun `T6-3 narrowing the class and a dependency compose`() {
     narrows("GreeneryTile<Tharsis_2_2>", "Tile<MarsArea>") shouldBe true
     narrows("GreeneryTile<Tharsis_2_2>", "Occupant<Area>") shouldBe true
     narrows("Tile<MarsArea>", "GreeneryTile<Tharsis_2_2>") shouldBe false
   }
 
-  // 6-4 The relation's shape
+  // T6-4 The relation's shape
 
   private val sample =
       listOf(
@@ -115,12 +115,12 @@ internal class Spec06SubtypingTest {
       )
 
   @Test
-  internal fun `6-4 the relation is reflexive`() {
+  internal fun `T6-4 the relation is reflexive`() {
     sample.forEach { narrows(it, it) shouldBe true }
   }
 
   @Test
-  internal fun `6-4 the relation is transitive`() {
+  internal fun `T6-4 the relation is transitive`() {
     sample.forEach { a ->
       sample.forEach { b ->
         sample.forEach { c ->
@@ -131,7 +131,7 @@ internal class Spec06SubtypingTest {
   }
 
   @Test
-  internal fun `6-4 two types that narrow each other are the same type`() {
+  internal fun `T6-4 two types that narrow each other are the same type`() {
     sample.forEach { a ->
       sample.forEach { b ->
         if (narrows(a, b) && narrows(b, a)) type(a) shouldBe type(b)
@@ -139,10 +139,10 @@ internal class Spec06SubtypingTest {
     }
   }
 
-  // 6-5 Universe safety
+  // T6-5 Universe safety
 
   @Test
-  internal fun `6-5 narrowing across universes is rejected rather than answered`() {
+  internal fun `T6-5 narrowing across universes is rejected rather than answered`() {
     val other =
         loadTypes(
             "ABSTRACT CLASS Area { CLASS Tharsis_2_2 }",
@@ -152,10 +152,10 @@ internal class Spec06SubtypingTest {
     shouldThrowIae { type("Tharsis_2_2").isSubtypeOf(other.resolve(te("Area"))) }
   }
 
-  // 6-6 Constrained narrowing
+  // T6-6 Constrained narrowing
 
   @Test
-  internal fun `6-6 matchesConstraint reads a constraint inside a domain`() {
+  internal fun `T6-6 matchesConstraint reads a constraint inside a domain`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Player : Owner, Actor { CLASS Player1, Player2 }",
@@ -172,7 +172,7 @@ internal class Spec06SubtypingTest {
   }
 
   @Test
-  internal fun `6-6 a constraint may exclude part of the domain`() {
+  internal fun `T6-6 a constraint may exclude part of the domain`() {
     val table = loadTypes("ABSTRACT CLASS Player : Owner, Actor { CLASS Player1, Player2 }")
     val actor = table.resolve(te("Actor"))
 
@@ -190,7 +190,7 @@ internal class Spec06SubtypingTest {
   }
 
   @Test
-  internal fun `6-6 a constraint that cannot meet the domain simply fails`() {
+  internal fun `T6-6 a constraint that cannot meet the domain simply fails`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Player : Owner, Actor { CLASS Player1 }",

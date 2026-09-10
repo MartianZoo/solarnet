@@ -12,8 +12,8 @@ internal class HasCommand(private val repl: ScriptSession) : ScriptCommand("has"
   override val usage = "has <Requirement>"
   override val help =
       """
-        Evaluates the requirement and tells you true or false. Go see syntax.md on the github page
-        for syntax.
+        Evaluates the requirement and tells you true or false. Go see pets-language-spec.md on the
+        github page for syntax.
       """
   override val isReadOnly = true
 
@@ -22,8 +22,6 @@ internal class HasCommand(private val repl: ScriptSession) : ScriptCommand("has"
 
   override fun withArgs(args: String): List<String> {
     val result = repl.agent.has(args)
-    return listOf(
-        "$result: ${repl.game.vocabulary.renderPets(repl.agent.parse<Requirement>(args))}"
-    )
+    return listOf("$result: ${repl.agent.parse<Requirement>(args)}")
   }
 }

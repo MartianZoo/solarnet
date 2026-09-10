@@ -90,7 +90,7 @@ internal class StinaGameTest : AbstractSoloTest() {
       playProject(TowingAComet, 2, titanium = 3) {
             placeTile(1, 2)
           }
-          .expect("4 MC, 2 Plant, OxygenStep, 3 Heat, 2 TR, OceanTile")
+          .expect("4 MC, 2 Plant, OxygenStep, 3 Heat, 2 TerraformRating, OceanTile")
       playProject(AdaptationTechnology, 9) {
         addCardResources(OlympusConference)
       }
@@ -107,7 +107,7 @@ internal class StinaGameTest : AbstractSoloTest() {
       assertResources(m = 9, s = 0, t = 3, p = 2, e = 0, h = 15)
       assertProduction(m = 2, s = 0, t = 1, p = 1, e = 9, h = 3)
       assertCounts(
-          16 to "TR",
+          16 to "TerraformRating",
           2 to "ProjectCard",
           26 to "CardFront OR PlayedEvent",
           12 to "ActiveCard",

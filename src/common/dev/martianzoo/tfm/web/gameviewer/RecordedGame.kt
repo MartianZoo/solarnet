@@ -55,7 +55,6 @@ public abstract class RecordedGame {
       Canon
     }
   }
-  protected open val inputOnlySynonyms: List<Pair<String, String>> = CLASS_SYNONYMS
 
   public fun record(): GameRecording = record({}, {})
 
@@ -64,7 +63,7 @@ public abstract class RecordedGame {
       onReplayCompleted: () -> Unit,
   ): GameRecording {
     val premise = catalog.gamePremise(config, parseClasses(playerClassPets))
-    game = Engine.newGame(premise, inputOnlySynonyms = inputOnlySynonyms)
+    game = Engine.newGame(premise)
     onGameConstructed()
     play()
     onReplayCompleted()
@@ -189,18 +188,4 @@ public abstract class RecordedGame {
 
   private fun TfmGameplay.pendingTasks(): List<Task> =
       game.tasks.extract { it }.filter { it.assignee == actor }
-
-  private companion object {
-    val CLASS_SYNONYMS =
-        listOf(
-            "M" to "MC",
-            "S" to "Steel",
-            "T" to "Titanium",
-            "P" to "Plant",
-            "E" to "Energy",
-            "H" to "Heat",
-            "TR" to "TerraformRating",
-            "VP" to "VictoryPoint",
-        )
-  }
 }

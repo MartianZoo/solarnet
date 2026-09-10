@@ -1,4 +1,4 @@
-# Class names and vocabulary
+# Class names and display names
 
 > **NOTE:** This document is used by agents to capture information for themselves to read later; a
 > human didn't write it and we don't expect humans to read it. The project owner can't personally
@@ -16,9 +16,9 @@
 - [`ClassName.kt`](../../src/common/dev/martianzoo/pets/ast/ClassName.kt) — inspect syntax and
   canonical identity constraints.
 - [`SystemDeclarations.kt`](../../src/common/dev/martianzoo/pets/SystemDeclarations.kt) — the root
-  vocabulary every Catalog inherits.
-- [`Vocabulary.kt`](../../src/common/dev/martianzoo/pets/Vocabulary.kt) — read when changing display
-  lookup, aliases, or inheritance; `defaultEnglishDisplayName` defines the display default.
+  classes every Catalog inherits.
+- [`displayNames.kt`](../../src/common/dev/martianzoo/pets/displayNames.kt) — stateless localized
+  display lookup; `defaultEnglishDisplayName` defines the display default.
 - [`GamePremise.kt`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt) — search for
   `playerNames` when changing configured Player identities.
 - [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) — read before adding a Module,
@@ -228,18 +228,15 @@ deferred**; nothing here is a violation until we settle one, and no new abstract
 just to supply the word.
 
 A Module whose Class Name equals its bundle name automatically claims that bundle's cards
-and colony tiles. Any other Module needs an explicit `moduleContentSelections` entry. This
-coincidence is load-bearing, not decorative — check [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt)
-before renaming a Module or adding one to an existing bundle. A bundle whose content is claimed by
-map Modules or explicit selections has no self-named Module at all, which is fine.
+and colony tiles. Other Modules do not claim resource content; content needing its own selection
+therefore lives in a separate same-named resource group. This coincidence is load-bearing, not
+decorative — check [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) before
+renaming a Module or moving its content.
 
 ## Display names and localization
 
-Each Game World owns a locale-specific `Vocabulary`:
-
-- `canonicalName` and `canonicalize` resolve localized Pets input and input-only synonyms;
-- `displayName` produces plain UI text; and
-- `petsName` and `renderPets` produce localized, parseable Pets.
+Pets input and rendering use canonical Class Names. Display names are presentation metadata read
+from a Catalog by stateless UI lookup; they are not session or Game World state.
 
 Bundle files at `language/<tag>.json5` map Class Names to display names. Lookup falls back from the
 requested locale to less-specific locales and then English, independently for each entry. Keep
@@ -256,11 +253,6 @@ text is Title Case with **every** word capitalized, including articles and prepo
 including the word after a hyphen: `Import Of Advanced GHG`, `Board Of Directors`,
 `Anti-Desertification Techniques`.
 
-Other locales derive a Pets name from the effective localized display name with the same
-[camel-case conversion][camel-case] used for printed titles. The current implementation accepts
-ASCII display text only. A localized name that collides with another canonical Class Name falls back
-to the canonical name.
-
 **Two classes may share display text, and often must.** Whenever a Class Name was qualified to break
 a collision, the display name drops the qualifier and goes back to the printed title, so the clash
 reappears on purpose: `Trade` and `TradeAction` both display "Trade", `PowerPlant` and `PowerPlantProject`
@@ -268,12 +260,8 @@ both display "Power Plant", `AsteroidCard` and `AsteroidProject` both display "A
 `DeimosDown` and `DeimosDownPromo` both display "Deimos Down". Never invent a parenthetical or other
 disambiguator that no printed component carries.
 
-There are no per-entry Pets-name overrides. Input-only synonyms never become rendering candidates.
-Vocabulary construction rejects collisions among Class Names, localized Pets names, and synonyms.
-Display text is presentation, not identity. UI code must therefore render through the session
-Vocabulary instead of `ClassName.toString()`.
-
-There is no Unicode normalization because non-ASCII display text is currently rejected.
+Display text is presentation, not identity. UI code must therefore call `displayName` with its
+Catalog and locale; Pets-oriented output uses canonical Class Names directly.
 
 ## Pending naming work
 

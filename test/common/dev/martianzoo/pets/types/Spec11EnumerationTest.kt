@@ -30,10 +30,10 @@ internal class Spec11EnumerationTest {
 
   private fun subtypes(s: String) = type(s).allConcreteSubtypes().map { "$it" }.toList()
 
-  // 11-1 Enumerating concrete narrowings
+  // T11-1 Enumerating concrete narrowings
 
   @Test
-  internal fun `11-1 enumeration pairs every concrete subclass with every concrete binding`() {
+  internal fun `T11-1 enumeration pairs every concrete subclass with every concrete binding`() {
     subtypes("Tile") shouldContainExactly
         listOf(
             "GreeneryTile<Tharsis_2_2>",
@@ -44,12 +44,12 @@ internal class Spec11EnumerationTest {
   }
 
   @Test
-  internal fun `11-1 a concrete type enumerates only itself`() {
+  internal fun `T11-1 a concrete type enumerates only itself`() {
     subtypes("GreeneryTile<Tharsis_2_2>") shouldContainExactly listOf("GreeneryTile<Tharsis_2_2>")
   }
 
   @Test
-  internal fun `11-1 a type with no concrete narrowing enumerates nothing`() {
+  internal fun `T11-1 a type with no concrete narrowing enumerates nothing`() {
     val table = loadTypes("ABSTRACT CLASS Award", "ABSTRACT CLASS Area { CLASS Tharsis_2_2 }")
 
     table.resolve(te("Award")).allConcreteSubtypes().toList() shouldBe listOf()
@@ -57,25 +57,25 @@ internal class Spec11EnumerationTest {
     table.resolve(te("Area(NOT Area)")).allConcreteSubtypes().toList() shouldBe listOf()
   }
 
-  // 11-2 Refinements during enumeration
+  // T11-2 Refinements during enumeration
 
   @Test
-  internal fun `11-2 a difference filters the enumerated candidates`() {
+  internal fun `T11-2 a difference filters the enumerated candidates`() {
     subtypes("Area(NOT WaterArea)") shouldContainExactly listOf("Tharsis_2_2", "Tharsis_2_3")
     subtypes("Tile<Area(NOT WaterArea)>") shouldContainExactly
         listOf("GreeneryTile<Tharsis_2_2>", "GreeneryTile<Tharsis_2_3>")
   }
 
   @Test
-  internal fun `11-2 a world-dependent refinement is not applied while enumerating`() {
+  internal fun `T11-2 a world-dependent refinement is not applied while enumerating`() {
     // Enumeration is world-free, so `HAS` is left for the caller to test.
     subtypes("LandArea(HAS Neighbor)") shouldContainExactly listOf("Tharsis_2_2", "Tharsis_2_3")
   }
 
-  // 11-3 Enumeration within one class
+  // T11-3 Enumeration within one class
 
   @Test
-  internal fun `11-3 same-class enumeration keeps the root class fixed`() {
+  internal fun `T11-3 same-class enumeration keeps the root class fixed`() {
     type("GreeneryTile")
         .groundType
         .concreteSubtypesSameClass()
@@ -85,14 +85,14 @@ internal class Spec11EnumerationTest {
   }
 
   @Test
-  internal fun `11-3 same-class enumeration of an abstract class yields nothing`() {
+  internal fun `T11-3 same-class enumeration of an abstract class yields nothing`() {
     type("Tile").groundType.concreteSubtypesSameClass().toList() shouldBe listOf()
   }
 
-  // 11-4 Automatic narrowing
+  // T11-4 Automatic narrowing
 
   @Test
-  internal fun `11-4 a type with exactly one concrete narrowing narrows automatically`() {
+  internal fun `T11-4 a type with exactly one concrete narrowing narrows automatically`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Area { CLASS Tharsis_2_2 }",
@@ -104,7 +104,7 @@ internal class Spec11EnumerationTest {
   }
 
   @Test
-  internal fun `11-4 a choice anywhere blocks automatic narrowing`() {
+  internal fun `T11-4 a choice anywhere blocks automatic narrowing`() {
     // Two possible classes.
     type("Tile<Tharsis_2_2>").singleConcreteSubtype(fullWorld) shouldBe
         type("GreeneryTile<Tharsis_2_2>")
@@ -117,7 +117,7 @@ internal class Spec11EnumerationTest {
   }
 
   @Test
-  internal fun `11-4 the sole candidate must also satisfy the refinement`() {
+  internal fun `T11-4 the sole candidate must also satisfy the refinement`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Area { CLASS Tharsis_2_2 }",
@@ -135,7 +135,7 @@ internal class Spec11EnumerationTest {
   }
 
   @Test
-  internal fun `11-4 a world-dependent refinement can single out one of several candidates`() {
+  internal fun `T11-4 a world-dependent refinement can single out one of several candidates`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Area { CLASS Tharsis_2_2, Tharsis_2_3 }",
@@ -152,7 +152,7 @@ internal class Spec11EnumerationTest {
   }
 
   @Test
-  internal fun `11-4 automatic narrowing sees through a difference`() {
+  internal fun `T11-4 automatic narrowing sees through a difference`() {
     val table =
         loadTypes(
             "CLASS Player1 : Owner",
@@ -165,7 +165,7 @@ internal class Spec11EnumerationTest {
   }
 
   @Test
-  internal fun `11-4 an incompatible narrowing yields no candidate at all`() {
+  internal fun `T11-4 an incompatible narrowing yields no candidate at all`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Area { CLASS LandArea, WaterArea }",
@@ -176,7 +176,7 @@ internal class Spec11EnumerationTest {
   }
 
   @Test
-  internal fun `11-4 a subclass that already fixes the dependency is found`() {
+  internal fun `T11-4 a subclass that already fixes the dependency is found`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Area { CLASS LandArea, WaterArea }",
@@ -197,7 +197,7 @@ internal class Spec11EnumerationTest {
   }
 
   @Test
-  internal fun `11-4 both overloads answer alike about the same universe`() {
+  internal fun `T11-4 both overloads answer alike about the same universe`() {
     listOf(
             "Tile",
             "Tile<Tharsis_2_2>",
@@ -212,10 +212,10 @@ internal class Spec11EnumerationTest {
         }
   }
 
-  // 11-5 Enumerating over a caller-supplied set of targets
+  // T11-5 Enumerating over a caller-supplied set of targets
 
   @Test
-  internal fun `11-5 a caller may supply the dependency targets to consider`() {
+  internal fun `T11-5 a caller may supply the dependency targets to consider`() {
     val onlyOneArea: (Type) -> Sequence<Type> = { bound ->
       sequenceOf(type("Tharsis_2_3")).filter { it.isSubtypeOf(bound) }
     }

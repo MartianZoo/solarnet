@@ -36,7 +36,6 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
       CLASS Player3 : Player
       """
           .trimIndent()
-  override val inputOnlySynonyms = emptyList<Pair<String, String>>()
 
   @Test
   internal fun game20260811() {

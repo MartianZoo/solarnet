@@ -3,7 +3,6 @@ package dev.martianzoo.script.commands
 import dev.martianzoo.engine.Agent.Companion.parse
 import dev.martianzoo.engine.TypeDescription
 import dev.martianzoo.pets.HasExpression.Companion.expressions
-import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.types.Type
@@ -45,7 +44,7 @@ internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("des
           val expression: Expression = repl.agent.parse(args)
           expression to repl.agent.resolve(args)
         }
-    return listOf(TypeToText.describe(expression, type, repl.game.classTable, repl.game.vocabulary))
+    return listOf(TypeToText.describe(expression, type, repl.game.classTable))
   }
 
   private object TypeToText {
@@ -54,38 +53,33 @@ internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("des
         expression: Expression,
         type: Type,
         classTable: dev.martianzoo.pets.types.ClassTable,
-        vocabulary: Vocabulary,
     ): String {
 
       val desc = TypeDescription(classTable, type)
 
       val long = type.className
-      val altName = vocabulary.petsName(long)
 
       val subs = desc.subclassNames - long
       val subclassesDisplay =
           when (subs.size) {
             0 -> "(none)"
-            in 1..7 -> subs.joinToString { vocabulary.petsName(it).toString() }
-            else ->
-                subs.take(6).joinToString { vocabulary.petsName(it).toString() } +
-                    " (${subs.size - 6} others)"
+            in 1..7 -> subs.joinToString()
+            else -> subs.take(6).joinToString() + " (${subs.size - 6} others)"
           }
 
       val classStuff =
           """
           Class `$long`:
-            alt name:    $altName
             docstring:   ${desc.docstring}
             subclasses:  $subclassesDisplay
-            superclasses: ${desc.superclassNames.joinToString { vocabulary.petsName(it).toString() }}
-            invariants:  ${desc.classInvariants.joinToString { vocabulary.renderPets(it) }.ifEmpty { "(none)" }}
-            base type:   ${vocabulary.renderPets(desc.baseType.expressionFull)}
+            superclasses: ${desc.superclassNames.joinToString()}
+            invariants:  ${desc.classInvariants.joinToString().ifEmpty { "(none)" }}
+            base type:   ${desc.baseType.expressionFull}
             cmpt types:  ${desc.concreteTypesForThisClassCount}
             raw fx:      ${desc.rawClassEffects.joinToString("""
-                         """) { vocabulary.renderPets(it) }}
+                         """)}
             class fx:    ${desc.classEffects.joinToString("""
-                         """) { vocabulary.renderPets(it) }}
+                         """)}
 
 
         """
@@ -93,12 +87,12 @@ internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("des
 
       val typeStuff =
           """
-          Expression `${vocabulary.renderPets(expression)}`:
-            std. form:   ${vocabulary.renderPets(type.expression)}
-            long form:   ${vocabulary.renderPets(type.expressionFull)}
-            supertypes:  ${desc.supertypes.joinToString { vocabulary.renderPets(it.expressionFull) }}
+          Expression `$expression`:
+            std. form:   ${type.expression}
+            long form:   ${type.expressionFull}
+            supertypes:  ${desc.supertypes.joinToString { it.expressionFull.toString() }}
             cmpt types:  ${desc.componentTypesCount}
-            variables:   ${desc.variableBindings.entries.joinToString(prefix = "{", postfix = "}") { (variable, value) -> "${vocabulary.renderPets(variable.declaration.expression)}=${vocabulary.renderPets(value.expression)}" }}
+            variables:   ${desc.variableBindings.entries.joinToString(prefix = "{", postfix = "}") { (variable, value) -> "${variable.declaration.expression}=${value.expression}" }}
         """
               .trimIndent()
 
@@ -109,9 +103,9 @@ internal class DescCommand(private val repl: ScriptSession) : ScriptCommand("des
             """
 
 
-            Component `${vocabulary.renderPets(type.expressionFull)}`:
+            Component `${type.expressionFull}`:
               effects:     ${desc.componentEffects.joinToString("""
-                           """) { vocabulary.renderPets(it) }}
+                           """)}
           """
                 .trimIndent()
           }

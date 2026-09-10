@@ -13,32 +13,55 @@ import dev.martianzoo.pets.types.Dependency.TypeDependency
 import dev.martianzoo.pets.types.TypeVariable.Occurrence
 import dev.martianzoo.pets.types.TypeVariable.Site
 
-/** The Type-variable declarations and uses visible within one authored choice scope. */
+/**
+ * The type-variable declarations and uses visible within one authored choice scope. It preserves
+ * occurrence identity through syntax transformations and supports the scoped capture and binding
+ * operations specified by
+ * [rules 13-10 and 13-11](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+ */
 public class TypeVariableScope private constructor(private val entries: List<Entry>) {
   internal data class Entry(
       val variable: TypeVariable,
       val currentExpressions: Map<Occurrence, Expression>,
   )
 
-  /** Variables visible in this scope, in declaration order. */
+  /**
+   * Variables visible in this scope, in the declaration order required by
+   * [rule 13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   */
   public val variables: List<TypeVariable> = entries.map(Entry::variable)
 
-  /** Whether this scope contains no Type variables. */
+  /**
+   * Whether this scope contains no type variables, one of the scope queries specified by
+   * [rule 13-11](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   */
   public val isEmpty: Boolean
     get() = entries.isEmpty()
 
-  /** Current spellings of [variable] after preprocessing this scope. */
+  /**
+   * Returns every current spelling of [variable] after preprocessing, as specified by the scope
+   * queries in
+   * [rule 13-11](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   */
   public fun expressionsOf(variable: TypeVariable): Set<Expression> =
       entries.single { it.variable === variable }.currentExpressions.values.toSet()
 
-  /** The current expression for [occurrence], after preprocessing its owning syntax. */
+  /**
+   * Returns the current expression for [occurrence] after preprocessing its owning syntax, as
+   * specified by
+   * [rule 13-11](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   */
   public fun expressionOf(occurrence: Occurrence): Expression =
       entries
           .single { it.variable === occurrence.typeVariable }
           .currentExpressions
           .getValue(occurrence)
 
-  /** Returns the variable declared by this exact syntax node, if any. */
+  /**
+   * Returns the variable declared by this syntax node, if any; declaration is distinct from usage
+   * under
+   * [rules 13-1 and 13-11](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   */
   public fun variableDeclaredAt(expression: Expression): TypeVariable? {
     fun Entry.declarationExpression(): Expression? =
         currentExpressions.keys
@@ -52,7 +75,11 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
             ?.variable
   }
 
-  /** Returns the visible variable used by this expression, if any. */
+  /**
+   * Returns the visible variable used or declared by [expression], if any, following the occurrence
+   * query of
+   * [rule 13-11](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   */
   public fun variableAt(expression: Expression): TypeVariable? =
       entries
           .firstOrNull { entry ->
@@ -65,7 +92,11 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
               }
               ?.variable
 
-  /** Returns this scope with its expression spellings transformed alongside its owning syntax. */
+  /**
+   * Returns this scope with recorded occurrence spellings transformed alongside their owning
+   * syntax, preserving the scoped identity required by
+   * [rule 13-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   */
   public fun transformedBy(transformer: PetTransformer): TypeVariableScope =
       TypeVariableScope(
           entries
@@ -124,9 +155,11 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
   }
 
   /**
-   * Captures variables occurring in [authored] from the corresponding structural positions in
-   * [specific]. The walk follows dependency keys selected while resolving [authored]; it performs
-   * no Class-name substitution or search for coincidentally similar resolved Types.
+   * Captures variables occurring in [authored] from corresponding structural positions in
+   * [specific], relative to [general]. The walk follows the dependency keys selected while
+   * resolving [authored]; it performs no class-name substitution or search for coincidentally
+   * similar resolved types. This is structural capture from
+   * [rule 13-11](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
   public fun bindingsFrom(
       authored: Expression,
@@ -188,8 +221,10 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
   }
 
   /**
-   * Returns a transformer that applies captured [bindings] only at recorded occurrences. A
-   * declaration refinement was checked while its binding was captured and is consumed here.
+   * Returns a transformer that applies captured [bindings] only at recorded occurrences. Each
+   * occurrence retains its own arguments, and a declaration refinement already checked during
+   * capture is consumed, exactly as specified by
+   * [rule 13-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
   public fun bind(bindings: Map<TypeVariable, GroundType>): PetTransformer {
     val replacements = entries.flatMap { entry ->
@@ -350,11 +385,8 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
 
       fun interpretedGroundType(found: Found): GroundType {
         val expression = found.expression
-        return if (expression.refinement is Not) {
-          classTable.resolve(expression.copy(refinement = null))
-        } else {
-          classTable.resolve(expression)
-        }
+        val nonStructuralRefinement = expression.refinement?.retaining { it !is Not }
+        return classTable.resolve(expression.copy(refinement = nonStructuralRefinement))
       }
 
       val explicitIdentities = explicitDeclarations

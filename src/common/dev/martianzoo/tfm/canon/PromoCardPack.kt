@@ -10,18 +10,7 @@ import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.types.Type
 
-private val promoCardPackCustomClasses: Set<CustomClass> = setOf(PromoCardPack.CopyPrelude)
-
-internal val promoCardPackBundle: StandardFormBundle =
-    StandardFormBundle(
-        "PromoCardPack",
-        promoCardPackCustomClasses,
-        moduleClassExclusions =
-            mapOf(
-                cn("PromoCardPack") to
-                    setOf(cn("DeimosDown"), cn("GreatDam"), cn("MagneticFieldGenerators"))
-            ),
-    )
+internal val promoCardPackCustomClasses: Set<CustomClass> = setOf(PromoCardPack.CopyPrelude)
 
 /** Namespace for the promotional cards' custom Pets implementations. */
 private object PromoCardPack {

@@ -30,7 +30,6 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
           "Pink",
           "Green",
       )
-  override val inputOnlySynonyms = emptyList<Pair<String, String>>()
 
   @Test
   internal fun gameThroughGeneration10() {

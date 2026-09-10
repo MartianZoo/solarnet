@@ -33,10 +33,10 @@ internal class Spec02ClassesTest {
 
   private fun klass(name: String) = mars.getClass(cn(name))
 
-  // 2-1 Declaration
+  // T2-1 Declaration
 
   @Test
-  internal fun `2-1 a declaration introduces a class and its base type`() {
+  internal fun `T2-1 a declaration introduces a class and its base type`() {
     val table = loadTypes("ABSTRACT CLASS Tile", "CLASS GreeneryTile : Tile")
 
     table.getClass(cn("GreeneryTile")).abstract shouldBe false
@@ -45,7 +45,7 @@ internal class Spec02ClassesTest {
   }
 
   @Test
-  internal fun `2-1 a class knows the declaration it was compiled from`() {
+  internal fun `T2-1 a class knows the declaration it was compiled from`() {
     val table = loadTypes("\"A greenery tile\"\nCLASS GreeneryTile")
     val greenery = table.getClass(cn("GreeneryTile"))
 
@@ -53,28 +53,28 @@ internal class Spec02ClassesTest {
     greenery.docstring shouldBe "A greenery tile"
   }
 
-  // 2-2 Direct supertypes
+  // T2-2 Direct supertypes
 
   @Test
-  internal fun `2-2 a class with no declared supertype extends Component`() {
+  internal fun `T2-2 a class with no declared supertype extends Component`() {
     val table = loadTypes("CLASS GreeneryTile")
 
     table.getClass(cn("GreeneryTile")).directSuperclasses shouldBe listOf(table.componentClass)
   }
 
   @Test
-  internal fun `2-2 naming Component as a supertype is an error`() {
+  internal fun `T2-2 naming Component as a supertype is an error`() {
     shouldThrow<PetException> { loadTypes("CLASS GreeneryTile : Component") }
   }
 
   @Test
-  internal fun `2-2 nesting is shorthand for naming the enclosing class as a supertype`() {
+  internal fun `T2-2 nesting is shorthand for naming the enclosing class as a supertype`() {
     klass("LandArea").directSuperclasses shouldBe listOf(klass("MarsArea"))
     klass("Tharsis_2_2").directSuperclasses shouldBe listOf(klass("LandArea"))
   }
 
   @Test
-  internal fun `2-2 a class may have several abstract direct supertypes`() {
+  internal fun `T2-2 a class may have several abstract direct supertypes`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Occupant",
@@ -86,10 +86,10 @@ internal class Spec02ClassesTest {
         listOf("Tile", "Owned")
   }
 
-  // 2-3 Concrete classes are final
+  // T2-3 Concrete classes are final
 
   @Test
-  internal fun `2-3 no class may extend a concrete class`() {
+  internal fun `T2-3 no class may extend a concrete class`() {
     shouldThrow<PetException> {
       loadTypes("CLASS GreeneryTile", "CLASS SpecialTile : GreeneryTile")
     }
@@ -99,20 +99,20 @@ internal class Spec02ClassesTest {
   }
 
   @Test
-  internal fun `2-3 a concrete class has itself as its only subclass`() {
+  internal fun `T2-3 a concrete class has itself as its only subclass`() {
     klass("Tharsis_2_2").allSubclasses() shouldBe setOf(klass("Tharsis_2_2"))
     klass("Tharsis_2_2").directSubclasses().shouldBeEmpty()
   }
 
-  // 2-4 The subclass relation
+  // T2-4 The subclass relation
 
   @Test
-  internal fun `2-4 the subclass relation is reflexive`() {
+  internal fun `T2-4 the subclass relation is reflexive`() {
     mars.allClasses().forEach { it.isSubtypeOf(it) shouldBe true }
   }
 
   @Test
-  internal fun `2-4 the subclass relation is transitive`() {
+  internal fun `T2-4 the subclass relation is transitive`() {
     klass("Tharsis_5_5").isSubtypeOf(klass("VolcanicArea")) shouldBe true
     klass("VolcanicArea").isSubtypeOf(klass("LandArea")) shouldBe true
     klass("Tharsis_5_5").isSubtypeOf(klass("LandArea")) shouldBe true
@@ -120,26 +120,26 @@ internal class Spec02ClassesTest {
   }
 
   @Test
-  internal fun `2-4 unrelated branches are not subclasses of each other`() {
+  internal fun `T2-4 unrelated branches are not subclasses of each other`() {
     klass("LandArea").isSubtypeOf(klass("WaterArea")) shouldBe false
     klass("WaterArea").isSubtypeOf(klass("LandArea")) shouldBe false
     klass("Area").isSubtypeOf(klass("LandArea")) shouldBe false
   }
 
   @Test
-  internal fun `2-4 isSupertypeOf is the converse of isSubtypeOf`() {
+  internal fun `T2-4 isSupertypeOf is the converse of isSubtypeOf`() {
     klass("LandArea").isSupertypeOf(klass("Tharsis_2_2")) shouldBe true
     klass("Tharsis_2_2").isSupertypeOf(klass("LandArea")) shouldBe false
   }
 
   @Test
-  internal fun `2-4 ensureNarrows reports a failed subclass check`() {
+  internal fun `T2-4 ensureNarrows reports a failed subclass check`() {
     shouldThrow<Exception> { klass("LandArea").ensureNarrows(klass("WaterArea"), fullWorld) }
     klass("Tharsis_2_2").ensureNarrows(klass("LandArea"), fullWorld)
   }
 
   @Test
-  internal fun `2-4 the relation survives long chains and wide tables`() {
+  internal fun `T2-4 the relation survives long chains and wide tables`() {
     // Nominal subtyping is compiled into bit masks; this crosses a machine-word boundary.
     val levels =
         (0 until 70).map { index ->
@@ -168,29 +168,29 @@ internal class Spec02ClassesTest {
     leaf.isSubtypeOf(childless) shouldBe false
   }
 
-  // 2-5 Cycles
+  // T2-5 Cycles
 
   @Test
-  internal fun `2-5 a supertype cycle is rejected`() {
+  internal fun `T2-5 a supertype cycle is rejected`() {
     shouldThrow<PetException> {
       loadTypes("CLASS GreeneryTile : CityTile", "CLASS CityTile : GreeneryTile")
     }
     shouldThrow<PetException> { loadTypes("CLASS GreeneryTile : GreeneryTile") }
   }
 
-  // 2-6 Declaration order
+  // T2-6 Declaration order
 
   @Test
-  internal fun `2-6 a supertype may be declared after its subclass`() {
+  internal fun `T2-6 a supertype may be declared after its subclass`() {
     val table = loadTypes("CLASS GreeneryTile : Tile", "ABSTRACT CLASS Tile")
 
     table.getClass(cn("GreeneryTile")).isSubtypeOf(table.getClass(cn("Tile"))) shouldBe true
   }
 
-  // 2-7 Enumerating the hierarchy
+  // T2-7 Enumerating the hierarchy
 
   @Test
-  internal fun `2-7 a class knows its supertypes and subtypes`() {
+  internal fun `T2-7 a class knows its supertypes and subtypes`() {
     klass("LandArea").allSuperclasses().map { "$it" } shouldContainExactly
         listOf("Component", "Area", "MarsArea", "LandArea")
     klass("LandArea").allSubclasses().map { "$it" } shouldContainExactly
@@ -199,17 +199,17 @@ internal class Spec02ClassesTest {
         listOf("Tharsis_2_2", "VolcanicArea")
   }
 
-  // 2-8 Greatest lower bound of two classes
+  // T2-8 Greatest lower bound of two classes
 
   @Test
-  internal fun `2-8 glb of comparable classes is the lower one`() {
+  internal fun `T2-8 glb of comparable classes is the lower one`() {
     (klass("LandArea") glb klass("Area")) shouldBe klass("LandArea")
     (klass("Area") glb klass("LandArea")) shouldBe klass("LandArea")
     (klass("LandArea") glb klass("LandArea")) shouldBe klass("LandArea")
   }
 
   @Test
-  internal fun `2-8 glb of incomparable classes is their unique greatest common subclass`() {
+  internal fun `T2-8 glb of incomparable classes is their unique greatest common subclass`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Tile",
@@ -222,7 +222,7 @@ internal class Spec02ClassesTest {
   }
 
   @Test
-  internal fun `2-8 glb finds an operand inherited only indirectly`() {
+  internal fun `T2-8 glb finds an operand inherited only indirectly`() {
     val table =
         loadTypes(
             """
@@ -241,7 +241,7 @@ internal class Spec02ClassesTest {
   }
 
   @Test
-  internal fun `2-8 glb is absent when no unique greatest common subclass exists`() {
+  internal fun `T2-8 glb is absent when no unique greatest common subclass exists`() {
     val disjoint = klass("LandArea") glb klass("WaterArea")
     disjoint shouldBe null
 
@@ -254,23 +254,23 @@ internal class Spec02ClassesTest {
     (table.getClass(cn("Owned")) glb table.getClass(cn("Tile"))) shouldBe null
   }
 
-  // 2-9 Least upper bound of two classes
+  // T2-9 Least upper bound of two classes
 
   @Test
-  internal fun `2-9 lub of comparable classes is the upper one`() {
+  internal fun `T2-9 lub of comparable classes is the upper one`() {
     (klass("LandArea") lub klass("Area")) shouldBe klass("Area")
     (klass("Area") lub klass("LandArea")) shouldBe klass("Area")
     (klass("LandArea") lub klass("LandArea")) shouldBe klass("LandArea")
   }
 
   @Test
-  internal fun `2-9 lub of siblings is their nearest common superclass`() {
+  internal fun `T2-9 lub of siblings is their nearest common superclass`() {
     (klass("LandArea") lub klass("WaterArea")) shouldBe klass("MarsArea")
     (klass("Tharsis_5_5") lub klass("Tharsis_1_1")) shouldBe klass("MarsArea")
   }
 
   @Test
-  internal fun `2-9 lub falls back to Component`() {
+  internal fun `T2-9 lub falls back to Component`() {
     val table = loadTypes("CLASS GreeneryTile", "CLASS Plant")
 
     (table.getClass(cn("GreeneryTile")) lub table.getClass(cn("Plant"))) shouldBe
@@ -278,7 +278,7 @@ internal class Spec02ClassesTest {
   }
 
   @Test
-  internal fun `2-9 lub prefers a minimal candidate carrying more dependencies`() {
+  internal fun `T2-9 lub prefers a minimal candidate carrying more dependencies`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Area",
@@ -292,10 +292,10 @@ internal class Spec02ClassesTest {
         table.getClass(cn("Tile"))
   }
 
-  // 2-10 Intersection classes
+  // T2-10 Intersection classes
 
   @Test
-  internal fun `2-10 a class is an intersection class when nothing else combines its supertypes`() {
+  internal fun `T2-10 a class is an intersection class when nothing else combines its supertypes`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Tile",
@@ -309,7 +309,7 @@ internal class Spec02ClassesTest {
   }
 
   @Test
-  internal fun `2-10 a rival combination of the same supertypes breaks the intersection`() {
+  internal fun `T2-10 a rival combination of the same supertypes breaks the intersection`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Tile",
@@ -320,10 +320,10 @@ internal class Spec02ClassesTest {
     table.getClass(cn("OwnedTile")).isIntersectionType() shouldBe false
   }
 
-  // 2-11 Custom classes
+  // T2-11 Custom classes
 
   @Test
-  internal fun `2-11 a Custom class must have a Kotlin implementation, and only a Custom class may`() {
+  internal fun `T2-11 a Custom class must have a Kotlin implementation, and only a Custom class may`() {
     val declaration = "CLASS Neighbor : Custom"
 
     ClassLoader(testCatalog(declaration, setOf(object : CustomClass(cn("Neighbor")) {})))
@@ -341,14 +341,14 @@ internal class Spec02ClassesTest {
   }
 
   @Test
-  internal fun `2-11 a root class rejects an unexpected implementation`() {
+  internal fun `T2-11 a root class rejects an unexpected implementation`() {
     shouldThrow<PetException> {
       ClassLoader(testCatalog("", setOf(object : CustomClass(COMPONENT) {})))
     }
   }
 
   @Test
-  internal fun `2-11 a Custom class may not inherit Pets behavior`() {
+  internal fun `T2-11 a Custom class may not inherit Pets behavior`() {
     listOf(
             "ABSTRACT CLASS Behaving { Trigger: Result }\nCLASS Trigger, Result",
             "ABSTRACT CLASS Behaving { HAS MAX 1 This }",
@@ -370,10 +370,10 @@ internal class Spec02ClassesTest {
         }
   }
 
-  // 2-12 Class identity
+  // T2-12 Class identity
 
   @Test
-  internal fun `2-12 a class is identified by its name within its universe`() {
+  internal fun `T2-12 a class is identified by its name within its universe`() {
     val table = loadTypes("CLASS GreeneryTile")
 
     table.getClass(cn("GreeneryTile")) shouldBe table.getClass(cn("GreeneryTile"))

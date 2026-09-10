@@ -189,7 +189,8 @@ public abstract class PetTransformer protected constructor() {
       is ClassName -> node
       is Refinement ->
           when (node) {
-            is Refinement.Has -> Refinement.Has(transformRequirement(node.requirement))
+            is Refinement.And -> Refinement.create(node.refinements.map(::transformRefinement))
+            is Refinement.Has -> Refinement.has(transformRequirement(node.requirement))
             is Refinement.Not -> Refinement.Not(transformExpression(node.excluded))
           }
       is Expression ->

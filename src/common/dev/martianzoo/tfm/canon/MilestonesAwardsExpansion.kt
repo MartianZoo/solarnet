@@ -6,11 +6,8 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.types.Type
 
-internal val milestonesAwardsExpansionBundle: StandardFormBundle =
-    StandardFormBundle(
-        "MilestonesAwardsExpansion",
-        setOf(MilestonesAwardsExpansion.GainsOf),
-    )
+internal val milestonesAwardsCustomClasses: Set<CustomMetric> =
+    setOf(MilestonesAwardsExpansion.GainsOf)
 
 private object MilestonesAwardsExpansion {
   object GainsOf : CustomMetric() {

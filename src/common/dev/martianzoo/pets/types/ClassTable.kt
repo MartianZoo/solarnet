@@ -3,6 +3,7 @@ package dev.martianzoo.pets.types
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.Exceptions
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.TypeInfo
@@ -18,10 +19,24 @@ import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Dependency.TypeDependency
 
-/** One Catalog master class universe or a playable active-class view backed by one. */
+/**
+ * Either the complete immutable class universe compiled from one catalog or a playable view that
+ * marks a subset of that universe active. Identity and structural operations remain master-wide;
+ * enumeration through a view is active-only, as specified by
+ * [sections 1 and 12](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
+ *
+ * @constructor Creates a table implementation for one master universe or one of its views, under
+ *   the identity rules in
+ *   [section 1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+ */
 public abstract class ClassTable {
+  /** Construction operations for class-table views. */
   public companion object {
-    /** Forms and freezes the playable projection selected by [premise]. */
+    /**
+     * Forms and freezes the playable view selected by [premise], reusing its catalog's
+     * master-universe objects as required by
+     * [rules 12-1 through 12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
+     */
     public fun forPremise(premise: GamePremise): ClassTable {
       val masterTable = premise.catalog.classTable
       val initialClassNames =
@@ -104,7 +119,12 @@ public abstract class ClassTable {
   /** The Catalog whose compiled class universe backs this table. */
   internal abstract val catalog: Catalog
 
-  /** Creates a dispatcher for the selected marked syntax configured by this table's Catalog. */
+  /**
+   * Creates a dispatcher for the selected catalog-defined syntax transformations. The table gives
+   * those transformations the single universe required by
+   * [rule 1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity);
+   * transformation semantics are outside the type-system specification.
+   */
   public fun transformDispatcher(
       kinds: Set<String> = catalog.transformHandlerFactories.keys,
   ): PetTransformer {
@@ -120,48 +140,96 @@ public abstract class ClassTable {
 
   /** Immutable component-count limits compiled for the classes active in this table. */
   private val componentLimitsLazy = lazy { ClassLimitTable.create(this) }
+
+  /**
+   * The component-count limits that enforce the single-target dependency invariant in
+   * [rule 3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+   */
   public val componentLimits: ClassLimitTable
     get() = componentLimitsLazy.value
 
-  /** The `Component` class, which is the root of the class hierarchy. */
+  /**
+   * The required `Component` root specified by
+   * [rule 1-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   */
   public abstract val componentClass: Class
 
-  /** The `Class` class, the other class that is required to exist. */
+  /**
+   * The required `Class` class specified by
+   * [rule 1-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   */
   public abstract val classClass: Class
 
-  /** Every class inhabited in this view. A master table contains its complete universe. */
+  /**
+   * Every active class in this view; for a master table, the complete frozen universe ([rules 1-6
+   * and
+   * 12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance)).
+   */
   public abstract fun allClasses(): Set<Class>
 
-  /** Every class name inhabited in this view. */
+  /**
+   * Every active class name in this view, under the three-state model of
+   * [rule 12-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
+   */
   public abstract val allClassNames: Set<ClassName>
 
-  /** Returns the Catalog-known [Class] having this canonical name. */
+  /**
+   * Returns the class currently available by canonical [name], or null when unknown or not yet
+   * loaded. In a frozen table this includes uninhabited catalog classes, under
+   * [rules 1-6, 1-7, and 12-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
+   */
   public abstract fun findClass(name: ClassName): Class?
 
-  /** Returns the [Class] having this canonical name, or throws. */
+  /**
+   * Returns the class currently available by canonical [name], including an uninhabited class in a
+   * frozen table, or reports the unknown-name expression error of
+   * [rules 1-6, 1-7, and 12-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
+   *
+   * @throws ExpressionException if [name] is unknown.
+   */
   public fun getClass(name: ClassName): Class =
       findClass(name) ?: throw Exceptions.classNotFound(name)
 
-  /** Returns the inhabited [Class] having this canonical name; null if unknown or inactive. */
+  /**
+   * Returns the active class with canonical [name], or null when it is unknown or uninhabited
+   * ([rule
+   * 12-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance)).
+   */
   public fun findActiveClass(name: ClassName): Class? = findClass(name)?.takeIf(::isActive)
 
-  /** Whether [name] names a class inhabited in this view. */
+  /**
+   * Whether [name] names an active class in this view ([rule
+   * 12-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance)).
+   */
   public fun isActive(name: ClassName): Boolean = name in allClassNames
 
-  /** Whether [klass] belongs to this Catalog universe and is inhabited in this view. */
+  /**
+   * Whether [klass] belongs to this master universe and is active in this view ([rules 12-2 and
+   * 12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance)).
+   */
   public fun isActive(klass: Class): Boolean =
       klass.classTable === masterTable && klass.className in allClassNames
 
-  /** Whether [type] belongs to the Catalog universe backing this table. */
+  /**
+   * Safely tests whether [type] belongs to the master universe backing this table, before
+   * operations governed by the universe-mismatch rule
+   * [1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   */
   public fun knows(type: Type): Boolean = type.classTable === masterTable
 
-  /** Whether [type] and every structural dependency it binds are inhabited in this view. */
+  /**
+   * Whether [type]'s root and every bound dependency are active in this view, exactly as defined by
+   * [rule 12-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
+   */
   public fun isActive(type: Type): Boolean =
       knows(type) && isActive(type.rootClass) && type.dependencies.activeIn(this)
 
   private val activeSubclassesByClass = mutableMapOf<Class, Set<Class>>()
 
-  /** Active subclasses of [klass], including [klass] itself when it is active. */
+  /**
+   * Active subclasses of [klass], including [klass] when active, under view-relative enumeration in
+   * [rule 12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
+   */
   public fun allSubclasses(klass: Class): Set<Class> {
     require(klass.classTable === masterTable) { "$klass belongs to a different Catalog" }
     if (this === masterTable) return klass.allSubclasses()
@@ -172,7 +240,10 @@ public abstract class ClassTable {
 
   private val activeDirectSubclassesByClass = mutableMapOf<Class, Set<Class>>()
 
-  /** Active subclasses exactly one nominal step below [klass]. */
+  /**
+   * Active subclasses exactly one nominal step below [klass], under view-relative enumeration in
+   * [rule 12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
+   */
   public fun directSubclasses(klass: Class): Set<Class> {
     require(klass.classTable === masterTable) { "$klass belongs to a different Catalog" }
     if (this === masterTable) return klass.directSubclasses()
@@ -181,7 +252,10 @@ public abstract class ClassTable {
     }
   }
 
-  /** Active concrete structural narrowings of [type]. */
+  /**
+   * Enumerates active concrete structural narrowings of [type], combining
+   * [rules 11-1, 11-2, and 12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
+   */
   public fun allConcreteSubtypes(type: Type): Sequence<GroundType> {
     val type = type.groundType
     require(type.classTable === masterTable) { "$type belongs to a different Catalog" }
@@ -194,17 +268,20 @@ public abstract class ClassTable {
             concreteSubtypesSameClass(klass.withAllDependencies(dependencies))
           }
         }
-    return if (type.refinement is Not) {
-      candidates.filter { it.narrows(type, NoGameState) }
+    val structuralRefinement = type.refinement?.retaining { it is Not }
+    return if (structuralRefinement != null) {
+      val structuralType = type.copy(refinement = structuralRefinement)
+      candidates.filter { it.narrows(structuralType, NoGameState) }
     } else {
       candidates
     }
   }
 
   /**
-   * Active concrete structural narrowings of [type], using [dependencyTargets] instead of the full
-   * structural domain when specializing dependencies. Each returned target must be a concrete
-   * narrowing of the requested dependency Type.
+   * Enumerates active concrete structural narrowings of [type], using [dependencyTargets] instead
+   * of the full dependency domains as permitted by
+   * [rule 11-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
+   * Each supplied target must be a concrete narrowing of the requested dependency type.
    */
   public fun allConcreteSubtypes(
       type: Type,
@@ -224,14 +301,19 @@ public abstract class ClassTable {
             )
           }
         }
-    return if (type.refinement is Not) {
-      candidates.filter { it.narrows(type, NoGameState) }
+    val structuralRefinement = type.refinement?.retaining { it is Not }
+    return if (structuralRefinement != null) {
+      val structuralType = type.copy(refinement = structuralRefinement)
+      candidates.filter { it.narrows(structuralType, NoGameState) }
     } else {
       candidates
     }
   }
 
-  /** Active concrete structural narrowings with the same root Class as [type]. */
+  /**
+   * Enumerates active concrete narrowings with the same root class as [type], combining
+   * [rules 11-3 and 12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
+   */
   public fun concreteSubtypesSameClass(type: Type): Sequence<GroundType> {
     val type = type.groundType
     require(type.classTable === masterTable) { "$type belongs to a different Catalog" }
@@ -239,10 +321,17 @@ public abstract class ClassTable {
     return type.dependencies.concreteSubtypesSameClass(type, this).filter(::isActive)
   }
 
-  /** The sole active concrete narrowing of [type] that satisfies [info], if there is one. */
+  /**
+   * Returns the sole active concrete narrowing of [type] when every structural choice is unique and
+   * its refinement accepts [info], combining
+   * [rules 11-4 and 12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
+   */
   public fun singleConcreteSubtype(type: Type, info: TypeInfo): GroundType? {
     val type = type.groundType
-    if ((type.rootClass.className == CLASS && type.refinement != null) || type.refinement is Not) {
+    if (
+        (type.rootClass.className == CLASS && type.refinement != null) ||
+            type.refinement?.conjuncts()?.any { it is Not } == true
+    ) {
       return allConcreteSubtypes(type).filter { it.narrows(type, info) }.take(2).singleOrNull()
     }
     // A concrete subclass incompatible with [type] is not a choice, so it must not count as one.
@@ -258,10 +347,20 @@ public abstract class ClassTable {
     return candidate.takeIf { !it.abstract && it.narrows(type, info) }
   }
 
-  /** Returns the [Type] represented by [expression]. */
+  /**
+   * Resolves [expression] to a universe-scoped ground type under
+   * [rules 1-3 and 1-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   *
+   * @throws ExpressionException if [expression] is invalid in this universe.
+   */
   public abstract fun resolve(expression: Expression): GroundType
 
-  /** Resolves every type expression in [node], throwing if any is invalid. */
+  /**
+   * Resolves every type expression in [node], reporting any expression error defined by
+   * [rules 1-7, 3-5, 4-6, and 8-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   *
+   * @throws ExpressionException if any expression in [node] is invalid in this universe.
+   */
   public fun checkAllTypes(node: PetNode): Unit = node.visitDescendants {
     if (it is Expression) {
       resolve(it).expression
@@ -271,7 +370,11 @@ public abstract class ClassTable {
     }
   }
 
-  /** Tests [candidate] against [constraint] within [domain]. */
+  /**
+   * Tests [candidate] against [constraint] interpreted within [domain] and [info], exactly
+   * implementing constrained narrowing in
+   * [rule 6-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   */
   public fun matchesConstraint(
       candidate: Type,
       constraint: Expression,

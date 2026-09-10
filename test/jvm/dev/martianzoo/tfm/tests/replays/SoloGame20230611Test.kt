@@ -46,9 +46,10 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       playPrelude(Biolab).expect("3 Card")
       playPrelude(NewPartner) { playPrelude(BusinessEmpire) }.expect("PROD[7 MC]")
 
-      stdAction("DoRequiredActionsAction") { playPrelude(GalileanMining) }.expect("PROD[2 T]")
+      stdAction("DoRequiredActionsAction") { playPrelude(GalileanMining) }
+          .expect("PROD[2 Titanium]")
       playProject(IndenturedWorkers, 0)
-      playProject(IndustrialMicrobes, 4).expect("PROD[S, E], MicrobeTag")
+      playProject(IndustrialMicrobes, 4).expect("PROD[Steel, Energy], MicrobeTag")
 
       pass()
       buyCards(2)
@@ -66,7 +67,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       buyCards(2)
 
       playProject(AsteroidCard, 2, titanium = 4) { doTask("-2 Plant<SoloOpponent>") }
-          .expect("TemperatureStep, TR")
+          .expect("TemperatureStep, TerraformRating")
       playProject(PeroxidePower, 3, steel = 2)
       playProject(ForcedPrecipitation, 8)
       cardAction1(ForcedPrecipitation).expect("-2 MC, Floater")
@@ -92,11 +93,13 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       buyCards(2)
 
       cardAction1(SubCrustMeasurements).expect("Card")
-      cardAction2(ForcedPrecipitation).expect("TR")
+      cardAction2(ForcedPrecipitation).expect("TerraformRating")
       cardAction1(RegolithEaters)
-      playProject(SmallAsteroid, 1, titanium = 3) { doTask("-2 Plant<SoloOpponent>") }.expect("TR")
-      stdProject("AsteroidProject").expect("PROD[H]")
-      playProject(MagneticFieldDome, 3, steel = 1).expect("TR, PROD[P, -2 E], AutomatedCard")
+      playProject(SmallAsteroid, 1, titanium = 3) { doTask("-2 Plant<SoloOpponent>") }
+          .expect("TerraformRating")
+      stdProject("AsteroidProject").expect("PROD[Heat]")
+      playProject(MagneticFieldDome, 3, steel = 1)
+          .expect("TerraformRating, PROD[Plant, -2 Energy], AutomatedCard")
 
       pass()
       buyCards(2)
@@ -108,12 +111,13 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       assertDashRight(events = 3, tagless = 2, cities = 0)
       assertSidebar(gen = 6, temp = -24, oxygen = 0, oceans = 0, venus = 2)
 
-      convertHeat().expect("-8 Resource, TR")
+      convertHeat().expect("-8 Resource, TerraformRating")
       cardAction1(SubCrustMeasurements).expect("ProjectCard")
-      cardAction2(RegolithEaters).expect("OxygenStep, TR")
+      cardAction2(RegolithEaters).expect("OxygenStep, TerraformRating")
       playProject(FueledGenerators, 1)
-      playProject(EnergyTapping, 3) { doTask("PROD[-E<SoloOpponent>]") }.expect("PROD[E<Me>]")
-      playProject(MagneticShield, 9, titanium = 5).expect("4 TR")
+      playProject(EnergyTapping, 3) { doTask("PROD[-Energy<SoloOpponent>]") }
+          .expect("PROD[Energy<Me>]")
+      playProject(MagneticShield, 9, titanium = 5).expect("4 TerraformRating")
       cardAction1(ForcedPrecipitation)
 
       pass()
@@ -227,12 +231,12 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       cardAction2(RegolithEaters)
 
       playProject(Greenhouses, 1, steel = 2)
-      playProject(TerraformingGanymede, 18, titanium = 4).expect("4 TR")
+      playProject(TerraformingGanymede, 18, titanium = 4).expect("4 TerraformRating")
       sellPatents(6)
       stdProject("AirScrappingProject")
       stdProject("AirScrappingProject")
       stdProject("AirScrappingProject")
-      stdProject("AirScrappingProject").expect("2 TR")
+      stdProject("AirScrappingProject").expect("2 TerraformRating")
       sellPatents(3)
       playProject(TransNeptuneProbe, 1)
       convertPlants { placeTile(6, 5) }
@@ -252,7 +256,7 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
 
       // Decline the final greenery placement.
       declineTask()
-      assertCounts(78 to "VP") // wow that was not good
+      assertCounts(78 to "VictoryPoint") // wow that was not good
     }
   }
 }

@@ -327,6 +327,7 @@ CLASS RoverConstruction : ActiveCard<Class<ProjectCard>> {
 
 CLASS DeimosDown : EventCard<Class<ProjectCard>> {
   cost = 31
+  autoSelectWhen = HAS "MAX 0 PromoCardPack"
 
   This:: SpaceTag<This>, EventTag<This>
   This: 3 TemperatureStep, 4 Steel, -8 Plant<Anyone>?
@@ -471,7 +472,7 @@ CLASS MiningRights : AutomatedCard<Class<ProjectCard>> {
   cost = 9
 
   This:: BuildingTag<This>
-  This: SpecialTile<> {} THEN PROD[(LandArea(HAS MiningRights_SpecialTile, PlacementBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningRights_SpecialTile, PlacementBonus<Class<Titanium>>): Titanium)]
+  This: SpecialTile<> {} THEN PROD[(LandArea(HAS MiningRights_SpecialTile, HAS PlacementBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningRights_SpecialTile, HAS PlacementBonus<Class<Titanium>>): Titanium)]
 }
 
 CLASS Birds : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Animal>> {
@@ -786,6 +787,7 @@ CLASS AdvancedEcosystems : AutomatedCard<Class<ProjectCard>> {
 CLASS GreatDam : AutomatedCard<Class<ProjectCard>> {
   cost = 12
   requirement = HAS "4 OceanTile"
+  autoSelectWhen = HAS "MAX 0 PromoCardPack"
 
   This:: PowerTag<This>, BuildingTag<This>
   This: PROD[2 Energy]
@@ -948,6 +950,7 @@ CLASS MicroMills : AutomatedCard<Class<ProjectCard>> {
 
 CLASS MagneticFieldGenerators : AutomatedCard<Class<ProjectCard>> {
   cost = 20
+  autoSelectWhen = HAS "MAX 0 PromoCardPack"
 
   This:: BuildingTag<This>
   This: PROD[-4 Energy, 2 Plant], 3 TerraformRating
@@ -1094,7 +1097,7 @@ CLASS Flooding : EventCard<Class<ProjectCard>> {
   cost = 7
 
   This:: EventTag<This>
-  This: OceanTile<> OR (OceanTile<WaterArea(HAS MAX 0 Tile, Neighbor<OwnedTile<Anyone>>)>! THEN -4 MC<Anyone>?)
+  This: OceanTile<> OR (OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<Anyone>>)>! THEN -4 MC<Anyone>?)
   End: -VictoryPoint
 }
 

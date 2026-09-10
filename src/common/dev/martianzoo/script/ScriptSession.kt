@@ -3,7 +3,6 @@ package dev.martianzoo.script
 import dev.martianzoo.engine.Agent
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -49,7 +48,6 @@ import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.isVisibleInLog
-import dev.martianzoo.tfm.script.TFM_SCRIPT_CLASS_SYNONYMS
 import dev.martianzoo.tfm.script.TfmColor
 import dev.martianzoo.tfm.script.TfmColor.ENERGY
 import dev.martianzoo.tfm.script.TfmColor.HEAT
@@ -65,7 +63,6 @@ import dev.martianzoo.tfm.script.commands.TfmSampleCommand
 
 /** @param useAnsiColors whether prompts and command output may contain ANSI escape sequences. */
 public class ScriptSession(
-    private val locale: String = Vocabulary.ENGLISH,
     internal val useAnsiColors: Boolean = false,
     hostCommands: (ScriptSession) -> List<ScriptCommand> = { emptyList() },
 ) {
@@ -84,7 +81,7 @@ public class ScriptSession(
       setup: OptionCodeTranslation.Setup,
       purple: Boolean = false,
   ) {
-    installGame(createGame(setup, locale), setup.optionCodes, setup.players, purple)
+    installGame(createGame(setup), setup.optionCodes, setup.players, purple)
   }
 
   private fun installGame(
@@ -123,12 +120,7 @@ public class ScriptSession(
   ) {
     val premise = Canon.gamePremise(GameConfig(configText, *playerNames.toTypedArray()))
     val options = OptionCodeTranslation.recognizedOptions(premise.modules)
-    val candidateGame =
-        Engine.newGame(
-            premise,
-            locale,
-            inputOnlySynonyms = TFM_SCRIPT_CLASS_SYNONYMS,
-        )
+    val candidateGame = Engine.newGame(premise)
     installGame(
         candidateGame,
         OptionCodeTranslation.optionCodes(options),
@@ -253,7 +245,7 @@ public class ScriptSession(
       with(agent) {
         val phase = list("Phase").singleOrNull() ?: "(no phase)"
         val checkpoint = game.timeline.checkpoint()
-        "$optionCodes $phase ${game.vocabulary.petsName(agent.actor)}/$playerCount @$checkpoint> "
+        "$optionCodes $phase ${agent.actor.className}/$playerCount @$checkpoint> "
       }
 
   private val inputRegex = Regex("""^\s*(\S+)(.*)$""")
@@ -316,10 +308,7 @@ public class ScriptSession(
       }
 
   internal fun describeExecutionResults(result: TaskResult): List<String> {
-    val changes =
-        result.changes
-            .filter { it.isVisibleInLog(game.reader) }
-            .map { event -> game.vocabulary.renderPets(event) }
+    val changes = result.changes.filter { it.isVisibleInLog(game.reader) }.map { it.toString() }
 
     val newTaskLines = taskLines(result.tasksSpawned)
     val taskLines =
@@ -343,7 +332,14 @@ public class ScriptSession(
           .filter { it.assignee == agent.actor && (ids == null || it.id in ids) }
 
   internal fun taskLines(ids: Set<TaskId>? = null): List<String> =
-      selectableTasks(ids).map { task -> game.vocabulary.renderPets(task, displayId = null) }
+      selectableTasks(ids).map(::renderTask)
+
+  private fun renderTask(task: Task): String = buildString {
+    append(if (task.selected) "* " else "")
+    append("[${task.assignee}] ")
+    append(task.instruction)
+    task.then?.let { append(" (THEN $it)") }
+  }
 
   internal fun onlyTask(): Task =
       selectableTasks().singleOrNull()
@@ -393,29 +389,15 @@ public class ScriptSession(
   }
 
   internal fun player(name: String): Player {
-    // In case a configured synonym was used
     val type: Type = agent.resolve(name)
     return game.actors.filterIsInstance<Player>().singleOrNull { it.className == type.className }
         ?: throw UsageException("not a participating Player: $name")
   }
 
-  internal fun canonicalColonyName(name: String): ClassName =
-      colonyInputVocabulary.canonicalName(cn(name))
-
-  private val colonyInputVocabulary: Vocabulary by lazy {
-    Vocabulary.create(
-        Canon,
-        locale,
-        TFM_SCRIPT_CLASS_SYNONYMS,
-        activeClassNames = Canon.colonyTileClassNames,
-    )
-  }
+  internal fun canonicalColonyName(name: String): ClassName = cn(name)
 }
 
-internal fun createGame(
-    setup: OptionCodeTranslation.Setup,
-    locale: String = Vocabulary.ENGLISH,
-): World {
+internal fun createGame(setup: OptionCodeTranslation.Setup): World {
   val config =
       GameConfig.create(
           included = setup.options + setup.selectedColonies,
@@ -424,11 +406,7 @@ internal fun createGame(
               if (setup.players == 1) listOf(cn("Me"))
               else (1..setup.players).map { cn("Player$it") },
       )
-  return Engine.newGame(
-      Canon.gamePremise(config),
-      locale,
-      inputOnlySynonyms = TFM_SCRIPT_CLASS_SYNONYMS,
-  )
+  return Engine.newGame(Canon.gamePremise(config))
 }
 
 public val welcome: String =

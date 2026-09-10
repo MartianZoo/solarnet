@@ -35,9 +35,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   game record so a log identifies, or can later verify, the engine source that produced it.
 - Make tile placement over an owned `Community` an atomic transmutation, then enforce
   `HAS MAX 1 Occupant<This>` on every `Area` and remove card-level empty-area refinements.
-- Remove `Vocabulary`'s input-only Class-name synonym facility after expanding the abbreviated Pets
-  used by the REPL, tests, replays, and recorded games; preserve localization. Configured Player
-  names are concrete Catalog Classes and require no Vocabulary mechanism.
 - Revisit causal ownership inside `BootstrapPhase`, moving initialization work under ordinary
   phase-caused tasks as soon as the required runtime state can express them.
 - Let refinements reference their candidate explicitly, so a selector can relate a nested

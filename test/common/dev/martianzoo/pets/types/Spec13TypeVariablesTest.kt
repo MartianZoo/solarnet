@@ -30,10 +30,10 @@ internal class Spec13TypeVariablesTest {
   private fun names(scope: TypeVariableScope) =
       scope.variables.map { "${it.declaration.expression}" }
 
-  // 13-1 A variable is a kind of type
+  // T13-1 A variable is a kind of type
 
   @Test
-  internal fun `13-1 a variable is a Type whose structural meaning is its bound`() {
+  internal fun `T13-1 a variable is a Type whose structural meaning is its bound`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
@@ -54,7 +54,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-1 every occurrence is a Type view of the same variable`() {
+  internal fun `T13-1 every occurrence is a Type view of the same variable`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
@@ -70,10 +70,10 @@ internal class Spec13TypeVariablesTest {
     variable.occurrences.map { it.ordinal } shouldBe listOf(0, 1)
   }
 
-  // 13-2 Class-header variables
+  // T13-2 Class-header variables
 
   @Test
-  internal fun `13-2 each eligible abstract header expression declares one variable`() {
+  internal fun `T13-2 each eligible abstract header expression declares one variable`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
@@ -86,7 +86,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-2 a concrete or This header expression declares nothing`() {
+  internal fun `T13-2 a concrete or This header expression declares nothing`() {
     val table =
         loadTypes(
             "CLASS Alice",
@@ -100,7 +100,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-2 occurrences that reach one dependency path are one variable`() {
+  internal fun `T13-2 occurrences that reach one dependency path are one variable`() {
     // `Cardbound<CardFront<Player>> : Owned<Player>`: the card's owner is the component's owner.
     val cards =
         loadTypes(
@@ -117,7 +117,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-2 two header roots spelled alike stay independent`() {
+  internal fun `T13-2 two header roots spelled alike stay independent`() {
     val table =
         loadTypes("ABSTRACT CLASS Person { CLASS Alice }", "ABSTRACT CLASS Duo<Person, Person>")
 
@@ -126,10 +126,10 @@ internal class Spec13TypeVariablesTest {
     table.getClass(cn("Duo")).typeVariables.distinct().size shouldBe 2
   }
 
-  // 13-3 Uses in the class body
+  // T13-3 Uses in the class body
 
   @Test
-  internal fun `13-3 header text repeated in the class's own effects is a use`() {
+  internal fun `T13-3 header text repeated in the class's own effects is a use`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
@@ -144,7 +144,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-3 a simple header variable may head an occurrence that adds arguments`() {
+  internal fun `T13-3 a simple header variable may head an occurrence that adds arguments`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
@@ -157,7 +157,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-3 an effect use that could name two header variables is rejected`() {
+  internal fun `T13-3 an effect use that could name two header variables is rejected`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person",
@@ -167,10 +167,10 @@ internal class Spec13TypeVariablesTest {
     shouldThrow<PetException> { table.getClass(cn("Ambiguous")).typeVariables }
   }
 
-  // 13-4 Inheritance
+  // T13-4 Inheritance
 
   @Test
-  internal fun `13-4 a subclass does not redeclare an inherited variable`() {
+  internal fun `T13-4 a subclass does not redeclare an inherited variable`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
@@ -185,10 +185,10 @@ internal class Spec13TypeVariablesTest {
     table.getClass(cn("Leaf")).typeVariables.map { "$it" } shouldContainExactly listOf()
   }
 
-  // 13-5 Capturing values
+  // T13-5 Capturing values
 
   @Test
-  internal fun `13-5 specializing a component type supplies its header variables`() {
+  internal fun `T13-5 specializing a component type supplies its header variables`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
@@ -210,7 +210,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-5 an unchanged abstract value supplies nothing`() {
+  internal fun `T13-5 an unchanged abstract value supplies nothing`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
@@ -224,7 +224,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-5 a subclass that fixes the dependency does supply a value`() {
+  internal fun `T13-5 a subclass that fixes the dependency does supply a value`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
@@ -239,7 +239,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-5 both types must share a root class`() {
+  internal fun `T13-5 both types must share a root class`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
@@ -257,10 +257,10 @@ internal class Spec13TypeVariablesTest {
     }
   }
 
-  // 13-6 Inferred variables
+  // T13-6 Inferred variables
 
   @Test
-  internal fun `13-6 one spelling repeated across two choice regions declares one variable`() {
+  internal fun `T13-6 one spelling repeated across two choice regions declares one variable`() {
     val trade = effect("StandardResource: StandardResource")
     val variable = trade.typeVariables.variables.single()
 
@@ -269,20 +269,20 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-6 an expression appearing in only one region declares nothing`() {
+  internal fun `T13-6 an expression appearing in only one region declares nothing`() {
     effect("StandardResource: Plant").typeVariables.variables shouldBe listOf()
     effect("StandardResource: Ok").typeVariables.variables shouldBe listOf()
   }
 
   @Test
-  internal fun `13-6 all occurrences in one region join the same variable`() {
+  internal fun `T13-6 all occurrences in one region join the same variable`() {
     val many = effect("StandardResource: StandardResource, StandardResource")
 
     many.typeVariables.variables.single().occurrences.size shouldBe 3
   }
 
   @Test
-  internal fun `13-6 the value chosen for a variable reaches every occurrence`() {
+  internal fun `T13-6 the value chosen for a variable reaches every occurrence`() {
     val trade = effect("Production<Class<StandardResource>>: StandardResource")
     val variable = trade.typeVariables.variables.single()
 
@@ -292,16 +292,16 @@ internal class Spec13TypeVariablesTest {
         .toString() shouldBe "Production<Class<Plant>>: Plant"
   }
 
-  // 13-7 Regions
+  // T13-7 Regions
 
   @Test
-  internal fun `13-7 an effect's regions are its trigger and its instruction`() {
+  internal fun `T13-7 an effect's regions are its trigger and its instruction`() {
     names(effect("StandardResource: StandardResource").typeVariables) shouldContainExactly
         listOf("StandardResource")
   }
 
   @Test
-  internal fun `13-7 an action's regions are its cost and its result`() {
+  internal fun `T13-7 an action's regions are its cost and its result`() {
     val action: Action =
         resources
             .inferTypeVariables()
@@ -316,7 +316,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-7 a THEN sequence's regions are its stages`() {
+  internal fun `T13-7 a THEN sequence's regions are its stages`() {
     val instruction: Instruction =
         resources
             .inferTypeVariables()
@@ -326,7 +326,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-7 a transmutation's regions are its two roles, minus the roots themselves`() {
+  internal fun `T13-7 a transmutation's regions are its two roles, minus the roots themselves`() {
     val instruction =
         resources
             .inferTypeVariables()
@@ -341,15 +341,15 @@ internal class Spec13TypeVariablesTest {
     names(transmute.typeVariables) shouldContainExactly listOf("Class<StandardResource>")
   }
 
-  // 13-8 What does not declare a variable
+  // T13-8 What does not declare a variable
 
   @Test
-  internal fun `13-8 occurrences confined to requirements do not declare`() {
+  internal fun `T13-8 occurrences confined to requirements do not declare`() {
     effect("StandardResource IF StandardResource: Ok").typeVariables.variables shouldBe listOf()
   }
 
   @Test
-  internal fun `13-8 the expression a metric counts directly does not declare`() {
+  internal fun `T13-8 the expression a metric counts directly does not declare`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS StandardResource { CLASS Plant }",
@@ -364,7 +364,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-8 recognition prefers the largest repeated expression`() {
+  internal fun `T13-8 recognition prefers the largest repeated expression`() {
     val table =
         loadTypes(
             "CLASS Player1 : Owner",
@@ -382,7 +382,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-8 the authored spelling is the variable's surface name`() {
+  internal fun `T13-8 the authored spelling is the variable's surface name`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Area { CLASS Tharsis_2_2 }",
@@ -399,7 +399,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-8 an EACH selector declares its own variable, never a header one`() {
+  internal fun `T13-8 an EACH selector declares its own variable, never a header one`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS StandardResource { CLASS Plant }",
@@ -411,7 +411,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-8 a first-stage dependency choice outranks a matching class variable`() {
+  internal fun `T13-8 a first-stage dependency choice outranks a matching class variable`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
@@ -434,7 +434,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-8 an earlier gate occurrence belongs to that same first-stage choice`() {
+  internal fun `T13-8 an earlier gate occurrence belongs to that same first-stage choice`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
@@ -460,7 +460,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-8 authored argument order does not make one enclosing variable`() {
+  internal fun `T13-8 authored argument order does not make one enclosing variable`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Area { CLASS Tharsis_2_2 }",
@@ -484,7 +484,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-8 identical nested bounds in sibling header branches stay independent`() {
+  internal fun `T13-8 identical nested bounds in sibling header branches stay independent`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice, Bob }",
@@ -497,7 +497,7 @@ internal class Spec13TypeVariablesTest {
         te("Holder<Pair<Box<Alice>, Box<Bob>>>")
   }
 
-  // 13-9 Actor selectors
+  // T13-9 Actor selectors
 
   private val actors =
       loadTypes(
@@ -510,7 +510,7 @@ internal class Spec13TypeVariablesTest {
       actors.inferTypeVariables().transformEffect(parse<Effect>(source))
 
   @Test
-  internal fun `13-9 a simple abstract actor selector binds even with no repetition`() {
+  internal fun `T13-9 a simple abstract actor selector binds even with no repetition`() {
     val bound = actorEffect("Heat BY Player: Ok")
 
     names(bound.typeVariables) shouldContainExactly listOf("Player")
@@ -518,13 +518,13 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-9 Anyone and a refined selector are filters, not binders`() {
+  internal fun `T13-9 Anyone and a refined selector are filters, not binders`() {
     names(actorEffect("Heat BY Anyone: Ok").typeVariables) shouldContainExactly listOf()
     names(actorEffect("Heat BY Player(NOT Owner): Ok").typeVariables) shouldContainExactly listOf()
   }
 
   @Test
-  internal fun `13-9 an exclusion may use the actor variable, and is tested after binding`() {
+  internal fun `T13-9 an exclusion may use the actor variable, and is tested after binding`() {
     val bound = actorEffect("Notice<Owner(NOT Player)> BY Player: Heat<Owner(NOT Player)>")
     val actor = bound.typeVariables.variables.single { "${it.declaration.expression}" == "Player" }
     val event =
@@ -541,7 +541,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-9 a difference occurrence captures its candidate from its own domain`() {
+  internal fun `T13-9 a difference occurrence captures its candidate from its own domain`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Player : Owner, Actor { CLASS Player1 }",
@@ -577,10 +577,10 @@ internal class Spec13TypeVariablesTest {
         "Resource<Passive> BY Player1: Notice<Passive>"
   }
 
-  // 13-10 Binding
+  // T13-10 Binding
 
   @Test
-  internal fun `13-10 binding replaces only the recorded occurrences`() {
+  internal fun `T13-10 binding replaces only the recorded occurrences`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS StandardResource { CLASS Plant, Steel }",
@@ -599,7 +599,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-10 a refined declaration is evaluated once, while its value is captured`() {
+  internal fun `T13-10 a refined declaration is evaluated once, while its value is captured`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS StandardResource { CLASS Plant }",
@@ -625,10 +625,10 @@ internal class Spec13TypeVariablesTest {
     world.questions.size shouldBe 1
   }
 
-  // 13-11 Scope queries
+  // T13-11 Scope queries
 
   @Test
-  internal fun `13-11 a scope reports the variables and spellings visible in it`() {
+  internal fun `T13-11 a scope reports the variables and spellings visible in it`() {
     val trade = effect("StandardResource: StandardResource")
     val scope = trade.typeVariables
     val variable = scope.variables.single()
@@ -643,7 +643,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-11 a scope can capture values from a specialized expression`() {
+  internal fun `T13-11 a scope can capture values from a specialized expression`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
@@ -665,7 +665,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `13-11 capture follows dependency paths, so a mismatched candidate captures nothing`() {
+  internal fun `T13-11 capture follows dependency paths, so a mismatched candidate captures nothing`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",

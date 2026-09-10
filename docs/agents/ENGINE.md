@@ -438,7 +438,7 @@ still required; context-closed does not mean concrete or resolved.
 meaningful only in declaration syntax that supplies a Class or component context and it disappears
 by the component-effect stage. `Class<This>` retains the root Class identity without dependencies.
 Static Class construction and the current specialized `This<...>` invariant behavior are specified
-in [type-system-spec.md](../type-system-spec.md) (rule 3-2).
+in [type-system-spec.md](../type-system-spec.md) (rule T3-2).
 
 `Owner` currently conflates two roles: a contextual value to bind and the ordinary abstract `Owner`
 Type, whose concrete choices include seated Players and `SoloOpponent`. Consequently, failure to
@@ -652,12 +652,11 @@ and Asteroid Deflection System, remain direct removal triggers. Do not replace t
 
 Current Actor-scoped string input passes through this order:
 
-1. localized Vocabulary canonicalization and input-only synonyms;
-2. Class-Name resolution against the World table;
-3. atomization of counted `Atomized` components;
-4. dependency defaults;
-5. contextual `Owner` replacement for Player scopes; and
-6. marked-syntax handlers registered by the World's Catalog.
+1. Class-Name resolution against the World table;
+2. atomization of counted `Atomized` components;
+3. dependency defaults;
+4. contextual `Owner` replacement for Player scopes; and
+5. marked-syntax handlers registered by the World's Catalog.
 
 In the lifecycle terminology above, this elaborates authored input and closes it over the acting
 Player. It need not yet be concrete or resolved, because the submitted work may deliberately leave

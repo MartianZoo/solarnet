@@ -23,13 +23,11 @@ public interface Catalog {
   public val classAvailabilityModules: Map<ClassName, Set<ClassName>>
     get() = emptyMap()
 
-  /** ASCII display names keyed first by language tag and then by canonical class name. */
+  /**
+   * Natural-language display names keyed first by language tag and then by canonical class name.
+   */
   public val displayNamesByLanguage: Map<String, Map<ClassName, String>>
     get() = emptyMap()
-
-  /** Classes whose localized Pets names are derived from their natural display names. */
-  public val derivedPetsNameClassNames: Set<ClassName>
-    get() = emptySet()
 
   /** The unique declaration for every class in this Catalog's namespace. */
   public val allClassDeclarations: Map<ClassName, ClassDeclaration>

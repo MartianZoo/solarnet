@@ -9,13 +9,11 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
-import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldNotContain
@@ -26,33 +24,7 @@ import kotlin.test.assertFailsWith
 /** Tests for the Canon data set. */
 internal class CanonClassesTest {
   companion object {
-    val table = Canon.classTable
-
     private fun te(source: String): Expression = parse(source)
-  }
-
-  @Test
-  internal fun standardActionsUseDoorwaysForOtherActionFamilies() {
-    val standardAction = table.getClass(cn("StandardAction"))
-    val standardProject = table.getClass(cn("StandardProject"))
-
-    standardAction
-        .allSubclasses()
-        .filterNot { it.abstract }
-        .mapTo(linkedSetOf()) { it.className } shouldBe
-        setOf(
-            cn("PlayCardFromHandAction"),
-            cn("UseStandardProjectAction"),
-            cn("UseActionOnCardAction"),
-            cn("ConvertPlantsAction"),
-            cn("ConvertHeatAction"),
-            cn("ClaimMilestoneAction"),
-            cn("FundAwardAction"),
-            cn("DoRequiredActionsAction"),
-            cn("TradeAction"),
-        )
-    standardProject.isSubtypeOf(standardAction) shouldBe false
-    table.getClass(cn("DoRequiredActionsAction")).isSubtypeOf(standardAction) shouldBe true
   }
 
   @Test
@@ -129,12 +101,7 @@ internal class CanonClassesTest {
         .count(
             "Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
         ) shouldBe 42
-    val soloReserve = game.classTable.getClass(cn("SoloCardResourceReserve"))
-    soloReserve.isSubtypeOf(game.classTable.getClass(cn("CardFront"))) shouldBe false
-    soloReserve.isSubtypeOf(game.classTable.getClass(cn("ActiveCard"))) shouldBe false
-
     val admin = game.tfm(ADMIN)
-    game.tasks.extract { it.assignee } shouldBe listOf(ADMIN, ADMIN)
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
@@ -164,36 +131,6 @@ internal class CanonClassesTest {
     admin.manual("End FROM Phase")
     game.tfm(PLAYER1).count("VictoryPoint<Player1>") shouldBe 14
     game.tasks.isEmpty() shouldBe true
-  }
-
-  @Test
-  internal fun testOwnedTileIsAnIntersectionType() {
-    val owned = table.getClass(cn("Owned"))
-    val tile = table.getClass(cn("Tile"))
-    val ownedTile = table.getClass(cn("OwnedTile"))
-
-    // Nothing can be both Owned and a Tile without being an OwnedTile!
-    owned glb tile shouldBe ownedTile
-    ownedTile.isIntersectionType() shouldBe true
-  }
-
-  @Test
-  internal fun testActionCardIsAnIntersectionType() {
-    val cardFront = table.getClass(cn("CardFront"))
-    val hasActions = table.getClass(cn("HasActions"))
-    val actionCard = table.getClass(cn("ActionCard"))
-
-    // Nothing can be both a CardFront and a HasActions but an ActionCard!
-    cardFront glb hasActions shouldBe actionCard
-    actionCard.isIntersectionType() shouldBe true
-  }
-
-  @Test
-  internal fun cardboundComponentsRequirePlayerOwners() {
-    table.resolve(te("ResourceHolder<SoloOpponent, Class<Animal>>"))
-    assertFailsWith<ExpressionException> {
-      table.resolve(te("Cardbound<SoloOpponent, $Predators<Player1>>"))
-    }
   }
 
   @Test

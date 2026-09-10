@@ -131,8 +131,6 @@ internal class GamePremiseTest {
     Canon.classTable.findClass(blue) shouldBe null
     game.classTable.isActive(blue) shouldBe true
     game.actors.shouldContainExactly(Player(blue), Player(yellow), ADMIN)
-    game.vocabulary.canonicalName(blue) shouldBe blue
-    game.vocabulary.petsName(blue) shouldBe blue
     game.reader.getComponents("Player").map { it.className }.toSet() shouldBe setOf(blue, yellow)
     TfmWorkflow.Manual(game).setupPhase()
     game.tfm(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
@@ -306,8 +304,10 @@ internal class GamePremiseTest {
   @Test
   internal fun initialComponentTypesMustBeConcreteAndInstantiable() {
     val premise =
-        Canon.gamePremise(GameConfig("", "Player1", "Player2"))
-            .copy(initialComponentTypes = setOf(cn("Card").expression))
+        Canon.gamePremise(
+            GameConfig("", "Player1", "Player2"),
+            additionalInitialComponentTypes = setOf(cn("Card").expression),
+        )
 
     shouldThrow<IllegalArgumentException> { Engine.newGame(premise) }
   }

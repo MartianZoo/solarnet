@@ -67,7 +67,7 @@ internal class Game20260619Test : AbstractFullGameTest() {
       // KB placed ocean tile at 13
       // KB drew 2 card(s)
       // You drew Physics Complex,Vesta Shipyard
-      playPrelude(AquiferTurbines) { placeTile(2, 6) }.expect("2 ProjectCard, TR")
+      playPrelude(AquiferTurbines) { placeTile(2, 6) }.expect("2 ProjectCard, TerraformRating")
 
       // KB played Eccentric Sponsor
       // KB played Beam From A Thorium Asteroid
@@ -109,7 +109,7 @@ internal class Game20260619Test : AbstractFullGameTest() {
     // ER placed ocean tile at 28
     // ER gained 2 plants
     ER.turn {
-      playProject(SubterraneanReservoir, 11) { placeTile(4, 8) }.expect("TR, 2 Plant")
+      playProject(SubterraneanReservoir, 11) { placeTile(4, 8) }.expect("TerraformRating, 2 Plant")
 
       // ER passed
       pass()
@@ -181,7 +181,7 @@ internal class Game20260619Test : AbstractFullGameTest() {
     // KB stole 1 energy production from ER
     // KB ended turn
     KB.turn {
-      playProject(PowerSupplyConsortium, 5) { doTask("PROD[-E<Player1>]") }
+      playProject(PowerSupplyConsortium, 5) { doTask("PROD[-Energy<Player1>]") }
     }
 
     // ER passed
