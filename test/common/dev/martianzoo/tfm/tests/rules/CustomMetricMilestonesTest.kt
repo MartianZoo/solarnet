@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -18,7 +18,7 @@ import kotlin.test.Test
 internal class CustomMetricMilestonesTest {
   @Test
   internal fun tycoonCanBeClaimedWithFifteenActiveAndAutomatedCards() {
-    val p1 = Engine.newGame(canonicalPremise(Elysium, players = 2)).tfm(PLAYER1)
+    val p1 = Engine.newGame(canonicalPremise(Elysium, players = 2)).testTfm(PLAYER1)
     p1.sneak(
         "$ColonizerTrainingCamp, $DeepWellHeating, $CloudSeeding, $MartianRails, " +
             "$WaterImportFromEuropa, $EquatorialMagnetizer, $DomedCrater, $NoctisCity, " +
@@ -48,13 +48,13 @@ internal class CustomMetricMilestonesTest {
                 colonyTiles = testColonyTiles(2),
             )
         )
-    val p1 = game.tfm(PLAYER1)
+    val p1 = game.testTfm(PLAYER1)
     p1.runOperation(
         "$Ecoline, $ThorGate, $Phobolog, $InventorsGuild, $EarthOffice, " +
             "$IoMiningIndustries, $Pets, 8 Plant, 6 Steel, 4 Heat, 3 ProjectCard"
     )
     game
-        .tfm(PLAYER2)
+        .testTfm(PLAYER2)
         .runOperation("$EarthCatapult, $Mine, $DeepWellHeating, 9 Plant, 7 Steel, 5 Heat")
 
     p1.count("Class<Tag>(HAS Tag<Player1>)") shouldBe 7
@@ -78,7 +78,7 @@ internal class CustomMetricMilestonesTest {
                     colonyTiles = testColonyTiles(2),
                 )
             )
-            .tfm(PLAYER1)
+            .testTfm(PLAYER1)
     p1.sneak("$ArtificialLake, $Birds, $Algae, $AsteroidMiningConsortium")
 
     p1.count("CardFront(HAS requirement)") shouldBe 4

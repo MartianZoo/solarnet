@@ -2,13 +2,13 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.testsupport.PLAYER3
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
@@ -318,7 +318,7 @@ internal class Prelude2CardsTest : CardTest() {
   internal fun `Recession applies each opponent loss as much as possible`() {
     newGame(Prelude2Expansion, players = 3)
     val p2 = requireP2()
-    val p3 = game.tfm(PLAYER3)
+    val p3 = game.testTfm(PLAYER3)
     p2.runOperation("4 MC, PROD[-4 MC]")
     p3.runOperation("5 MC, PROD[2 MC]")
     admin.phase("Prelude")
@@ -369,7 +369,7 @@ internal class Prelude2CardsTest : CardTest() {
   internal fun `Recession ordering determines which victim receives partial Mons compensation`() {
     newGame(PreludeExpansion, Prelude2Expansion, PromoCardPack, players = 5)
     val playerActors = Player.players(5)
-    val players = playerActors.map { game.tfm(it) }
+    val players = playerActors.map { game.testTfm(it) }
     val mons = players[1]
     val victims = players.drop(2)
     val victimActors = playerActors.drop(2)

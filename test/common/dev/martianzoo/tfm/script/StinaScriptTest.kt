@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.script
 
 import dev.martianzoo.agent.Agent
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -106,7 +106,7 @@ internal class StinaScriptTest {
         .filter(String::isNotEmpty)
         .forEach(repl::command)
 
-    val p1 = repl.game.tfm(repl.game.actors.filterIsInstance<Player>().single())
+    val p1 = repl.game.testTfm(repl.game.actors.filterIsInstance<Player>().single())
     p1.assertResources(m = 9, s = 0, t = 3, p = 2, e = 0, h = 15)
     p1.assertProduction(m = 2, s = 0, t = 1, p = 1, e = 9, h = 3)
     p1.assertCounts(

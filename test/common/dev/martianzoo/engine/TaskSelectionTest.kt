@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.AutoExecPolicy
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
@@ -12,7 +13,7 @@ import kotlin.test.Test
 
 internal class TaskSelectionTest {
   private val game = setUpGame()
-  private val agent = game.agent(PLAYER1).also { it.autoExecPolicy = AutoExecPolicy.NONE }
+  private val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = AutoExecPolicy.NONE }
   private val tasks = agent as Agent
 
   @Test

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.DependencyException
@@ -12,7 +13,6 @@ import dev.martianzoo.pets.util.toSetStrict
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
@@ -46,7 +46,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     game = setUpGame(premise)
   }
 
-  private val p1 = game.tfm(PLAYER1)
+  private val p1 = game.testTfm(PLAYER1)
 
   @BeforeTest
   fun setUp() {
@@ -81,7 +81,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
             players = 4,
             colonyTiles = colonies,
         )
-    val admin = setUpGame(premise).tfm(ADMIN)
+    val admin = setUpGame(premise).testTfm(ADMIN)
     val p1 = admin.asPlayer(PLAYER1)
 
     admin.assertCounts(
@@ -115,8 +115,8 @@ internal class ColoniesBasicRulesTest : TfmTest() {
             colonyTiles = setOf("Callisto", "Luna", "Miranda", "Titan").mapTo(linkedSetOf(), ::cn),
         )
     val game = Engine.newGame(premise)
-    val admin = game.tfm(ADMIN)
-    val p1 = game.tfm(PLAYER1)
+    val admin = game.testTfm(ADMIN)
+    val p1 = game.testTfm(PLAYER1)
 
     admin.assertCounts(0 to "ColonyTile", 4 to "ColonyTileSelection")
     TfmWorkflow.Stepwise(game).setupPhase()
@@ -142,7 +142,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
             players = 4,
             colonyTiles = colonies,
         )
-    val admin = setUpGame(premise).tfm(ADMIN)
+    val admin = setUpGame(premise).testTfm(ADMIN)
     val p1 = admin.asPlayer(PLAYER1)
 
     admin.phase("Action")

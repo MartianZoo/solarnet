@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -9,7 +10,7 @@ internal class WorldRevisionTest {
   @Test
   internal fun rollbackRestoresTheCheckpointWithoutReusingItsRevision() {
     val world = Engine.newGame(testGamePremise()) as WholeWorld
-    val p1 = world.agent(PLAYER1)
+    val p1 = world.testAgent(PLAYER1)
     val checkpoint = world.timeline.checkpoint()
     val originalRevision = world.revision
 

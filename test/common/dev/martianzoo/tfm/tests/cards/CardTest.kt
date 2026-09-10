@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.OperationBlock
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
@@ -14,7 +15,6 @@ import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestOption as Option
 import dev.martianzoo.tfm.tests.TfmTest
@@ -150,7 +150,7 @@ internal abstract class CardTest(
   private fun World.initializeCardTestGame(): World = apply {
     bindPlayers()
     finishSoloSetup()
-    tfm(ADMIN).phase("Corporation")
+    testTfm(ADMIN).phase("Corporation")
   }
 
   private fun finishSoloSetup() {
@@ -175,8 +175,8 @@ internal abstract class CardTest(
   private fun World.bindPlayers(): World = apply {
     game = this
     val players = actors.filterIsInstance<Player>()
-    p1 = tfm(players.first())
-    p2 = players.getOrNull(1)?.let { tfm(it) }
+    p1 = testTfm(players.first())
+    p2 = players.getOrNull(1)?.let { testTfm(it) }
   }
 
   protected fun playUntilPreludePhase(
@@ -194,7 +194,7 @@ internal abstract class CardTest(
   ) {
     playCorporations(corporations.toList())
     if (admin.count("PreludePhase") == 1) {
-      val players = game.actors.filterIsInstance<Player>().map { game.tfm(it) }
+      val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
       players.zip(BORING_PRELUDES).forEach { (player, preludes) ->
         player.turn { preludes.forEach { playPrelude(it) } }
       }
@@ -205,7 +205,7 @@ internal abstract class CardTest(
 
   private fun playCorporations(requested: List<ClassName>) {
     check(admin.count("CorporationPhase") == 1) { "The Corporation phase has already ended" }
-    val players = game.actors.filterIsInstance<Player>().map { game.tfm(it) }
+    val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
     val corporations = if (requested.isEmpty()) BORING_CORPORATIONS else requested
     require(corporations.size >= players.size) { "Provide one corporation per player" }
     players.zip(corporations).forEach { (player, corporation) ->

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.script
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.script.OptionCodeTranslation
@@ -7,7 +8,6 @@ import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.script.createGame
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -20,7 +20,7 @@ internal fun setUpGame(
   val setup = OptionCodeTranslation.setup(optionCodes, players)
   return createGame(setup).apply {
     TfmWorkflow.Stepwise(this).setupPhase()
-    actors.filterIsInstance<Player>().forEach { tfm(it).doTask("-10 ProjectCard<Hand>") }
+    actors.filterIsInstance<Player>().forEach { testTfm(it).doTask("-10 ProjectCard<Hand>") }
   }
 }
 
@@ -42,7 +42,7 @@ internal class BasicTest {
   @Test
   internal fun canonicalClassNamesWorkInScriptInput() {
     val game = setUpGame()
-    val session = game.tfm(PLAYER2)
+    val session = game.testTfm(PLAYER2)
 
     session.runOperation("PROD[5 MC, 4 Energy]")
     session.runOperation("ProjectCard")
@@ -53,13 +53,13 @@ internal class BasicTest {
     assertEquals(5, session.count("PROD[Steel]"))
     assertEquals(3, session.count("PROD[Titanium]"))
 
-    assertTrue(game.tfm(PLAYER1).has("PROD[=1 Energy, =1 Steel]"))
+    assertTrue(game.testTfm(PLAYER1).has("PROD[=1 Energy, =1 Steel]"))
   }
 
   @Test
   internal fun removeAmap() {
     val game = setUpGame()
-    val session = game.tfm(PLAYER1)
+    val session = game.testTfm(PLAYER1)
 
     session.runOperation("3 Heat!")
     session.runOperation("4 Heat.")
@@ -70,7 +70,7 @@ internal class BasicTest {
   @Test
   internal fun rollback() {
     val game = setUpGame()
-    val session = game.tfm(PLAYER1)
+    val session = game.testTfm(PLAYER1)
 
     session.runOperation("3 Heat")
     session.runOperation("4 Heat")
@@ -87,7 +87,7 @@ internal class BasicTest {
   @Test
   internal fun dependencies() {
     val game = setUpGame()
-    val session = game.tfm(PLAYER1)
+    val session = game.testTfm(PLAYER1)
 
     assertTrue(game.tasks.isEmpty())
     assertEquals(0, session.count("Microbe"))
@@ -107,7 +107,7 @@ internal class BasicTest {
   @Test
   internal fun counting() {
     val game = setUpGame()
-    val session = game.tfm(PLAYER1)
+    val session = game.testTfm(PLAYER1)
     session.runOperation("42 Heat")
     assertEquals(42, session.count("Heat"))
     assertEquals(10, session.count("4 Heat"))
@@ -125,7 +125,7 @@ internal class BasicTest {
   @Test
   internal fun tempTrigger() {
     val game = setUpGame()
-    val session = game.tfm(PLAYER1)
+    val session = game.testTfm(PLAYER1)
     assertEquals(20, session.count("TerraformRating"))
 
     session.runOperation("2 TemperatureStep")

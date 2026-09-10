@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -13,12 +14,12 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class PhantomTypeTest {
-  private fun agent() = Engine.newGame(canonicalPremise()).agent(ADMIN)
+  private fun agent() = Engine.newGame(canonicalPremise()).testAgent(ADMIN)
 
   @Test
   internal fun `inactive types and their class literals count zero`() {
     val game = Engine.newGame(canonicalPremise())
-    val agent = game.agent(ADMIN)
+    val agent = game.testAgent(ADMIN)
     val venusTag = agent.resolve("VenusTag")
 
     agent.count("VenusTag") shouldBe 0

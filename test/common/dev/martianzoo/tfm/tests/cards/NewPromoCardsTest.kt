@@ -2,10 +2,10 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.testsupport.PLAYER3
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -19,7 +19,7 @@ internal class NewPromoCardsTest : CardTest() {
   internal fun `Solar Logistics draws for space events played by its owner and either opponent`() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
-    val p3 = game.tfm(PLAYER3)
+    val p3 = game.testTfm(PLAYER3)
     p1.runOperation("$SolarLogistics")
 
     p1.runOperation("$ImportedGhg")
@@ -63,7 +63,7 @@ internal class NewPromoCardsTest : CardTest() {
   @Test
   internal fun `Icy Impactors owner controls when a third-player first player chooses`() {
     newGame(PromoCardPack, players = 3)
-    val p3 = game.tfm(PLAYER3)
+    val p3 = game.testTfm(PLAYER3)
     admin.runOperation("StartToken<Player3> FROM StartToken<Player1>")
     p1.runOperation("$IcyImpactors, Asteroid<$IcyImpactors>")
     admin.phase("Action")

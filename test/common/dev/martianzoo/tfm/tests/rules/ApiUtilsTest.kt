@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.Agent
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName
@@ -21,7 +22,7 @@ internal class ApiUtilsTest {
   @Test
   internal fun componentOwnershipUsesTheOwnerRole() {
     val game = Engine.newGame(canonicalPremise())
-    val plant = game.agent(PLAYER1).resolve("Plant")
+    val plant = game.testAgent(PLAYER1).resolve("Plant")
 
     getOwner(game.reader, plant).className shouldBe PLAYER1.className
     getPlayerOwner(game.reader, plant) shouldBe PLAYER1
@@ -42,7 +43,7 @@ internal class ApiUtilsTest {
             cn("Heat") to 0,
         )
 
-    (game.agent(PLAYER1) as Agent).sneak("PROD[2 Plant]")
+    (game.testAgent(PLAYER1) as Agent).sneak("PROD[2 Plant]")
     val prods2: Map<ClassName, Int> = lookUpProductionLevels(game.reader, PLAYER1.expression)
     prods2
         .map { it.key to it.value }

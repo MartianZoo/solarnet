@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestOption.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -15,7 +15,7 @@ internal class GlobalParameterCompletionTest : TfmTest() {
   @Test
   internal fun atomizedGainStopsWhenTheTrackCompletes() {
     game = setUpGame()
-    val p1 = game.tfm(PLAYER1)
+    val p1 = game.testTfm(PLAYER1)
 
     p1.runOperation("55 OxygenStep")
 
@@ -26,7 +26,7 @@ internal class GlobalParameterCompletionTest : TfmTest() {
   @Test
   internal fun eachTrackRecordsCompletionOnItsFinalStep() {
     game = setUpGame(VenusNextExpansion)
-    val p1 = game.tfm(PLAYER1)
+    val p1 = game.testTfm(PLAYER1)
     val waterAreas = p1.list("WaterArea")
     val landArea = p1.list("LandArea").first()
 

@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.cards.CardTest
@@ -15,7 +15,7 @@ internal class AwardsRulesTest : CardTest() {
   internal fun `Tied players receive the appropriate first and second place award points`() {
     newGame(players = 3)
     val p2 = requireP2()
-    val p3 = game.tfm(PLAYER3)
+    val p3 = game.testTfm(PLAYER3)
     p1.runOperation("Thermalist, Miner, 3 Heat, 3 Steel")
     p2.runOperation("2 Heat, 3 Steel")
     p3.runOperation("2 Heat, 2 Steel")

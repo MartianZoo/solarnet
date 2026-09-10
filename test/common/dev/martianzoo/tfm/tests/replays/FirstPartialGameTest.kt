@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
@@ -27,9 +27,9 @@ internal class FirstPartialGameTest : TfmTest() {
               players = 2,
           )
       val game = Engine.newGame(setup)
-      val admin = game.tfm(ADMIN)
-      val p1 = game.tfm(PLAYER1)
-      val p2 = game.tfm(PLAYER2)
+      val admin = game.testTfm(ADMIN)
+      val p1 = game.testTfm(PLAYER1)
+      val p2 = game.testTfm(PLAYER2)
 
       val workflow = TfmWorkflow.Automatic(game).launch()
       retainStartingProjects(game, 3, 8)

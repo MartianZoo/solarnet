@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.testsupport.PLAYER1
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -12,7 +12,7 @@ internal class VitorTest : CardTest() {
   @Test
   internal fun `Funds an award for free in multiplayer`() {
     val game = newGame(PreludeExpansion, players = 2, retainedStartingProjects = 5)
-    val p1 = game.tfm(PLAYER1)
+    val p1 = game.testTfm(PLAYER1)
 
     p1.playCorp(Vitor, 5).expect("33 MC")
     p1.phase("Action")

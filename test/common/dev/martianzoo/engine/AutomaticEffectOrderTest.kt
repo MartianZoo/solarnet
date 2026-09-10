@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agent
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -9,7 +10,7 @@ internal class AutomaticEffectOrderTest {
   @Test
   internal fun selfEffectsRetainDeclarationOrder() {
     val world = Engine.newGame(selfEffectPremise) as WholeWorld
-    val admin = world.agent(ADMIN)
+    val admin = world.testAgent(ADMIN)
 
     admin.runOperation("Source")
 
@@ -21,7 +22,7 @@ internal class AutomaticEffectOrderTest {
     if (randomAutomaticEffectOrderEnabled) return
 
     val world = Engine.newGame(premise) as WholeWorld
-    val admin = world.agent(ADMIN)
+    val admin = world.testAgent(ADMIN)
     admin.runOperation("Earlier")
     admin.runOperation("Later")
     admin.runOperation("Token")

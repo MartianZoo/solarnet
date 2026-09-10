@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -38,7 +39,7 @@ internal class InitializerTest {
             .copy(initialComponentTypes = setOf(cn("BootstrapProbe").expression))
 
     val game = Engine.newGame(premise)
-    val admin = game.agent(ADMIN)
+    val admin = game.testAgent(ADMIN)
 
     premise.premiseClassName shouldBe null
     admin.count("Player") shouldBe 2

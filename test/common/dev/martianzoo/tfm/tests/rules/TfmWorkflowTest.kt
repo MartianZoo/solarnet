@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.Hellas
@@ -19,9 +19,9 @@ internal class TfmWorkflowTest {
   @Test
   internal fun turnDeclinesAnUnusedSecondAction() {
     val game = Engine.newGame(canonicalPremise(Hellas, PromoCardPack, players = 2))
-    val admin = game.tfm(ADMIN)
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
+    val admin = game.testTfm(ADMIN)
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
     val workflow = TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(game, 7, 5)
 
@@ -39,9 +39,9 @@ internal class TfmWorkflowTest {
   @Test
   internal fun soleRemainingPlayerDoesNotReceiveSecondActions() {
     val game = Engine.newGame(canonicalPremise(Hellas, PromoCardPack, players = 2))
-    val admin = game.tfm(ADMIN)
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
+    val admin = game.testTfm(ADMIN)
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
     val workflow = TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(game, 7, 5)
 
@@ -62,8 +62,8 @@ internal class TfmWorkflowTest {
   @Test
   internal fun aPlayerMayPassWhileItsMandatoryFirstActionRemainsPending() {
     val game = Engine.newGame(canonicalPremise(players = 2))
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
     val workflow = TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(game, 0, 0)
     playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)

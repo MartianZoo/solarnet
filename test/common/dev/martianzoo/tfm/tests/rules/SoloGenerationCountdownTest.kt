@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestOption.*
 import io.kotest.matchers.shouldBe
@@ -16,7 +16,7 @@ internal class SoloGenerationCountdownTest {
   @Test
   internal fun laterGenerationsRemoveOneGenerationLeft() {
     val game = setUpGame(players = 1)
-    val admin = game.tfm(ADMIN)
+    val admin = game.testTfm(ADMIN)
     finishNeutralSetup(admin)
 
     admin.runOperation("Generation")
@@ -27,7 +27,7 @@ internal class SoloGenerationCountdownTest {
   @Test
   internal fun enteringTheFinalSoloGenerationRemovesTheLastGameEndBarrier() {
     val game = setUpGame(players = 1)
-    val admin = game.tfm(ADMIN)
+    val admin = game.testTfm(ADMIN)
     finishNeutralSetup(admin)
     admin.sneak("-12 SoloGenerationsLeft")
 
@@ -40,8 +40,8 @@ internal class SoloGenerationCountdownTest {
   @Test
   internal fun tr63SoloReplacesTheStandardObjectiveAndProvidesBufferGas() {
     val game = setUpGame(Tr63SoloObjective, players = 1)
-    val admin = game.tfm(ADMIN)
-    val player = game.tfm(PLAYER1)
+    val admin = game.testTfm(ADMIN)
+    val player = game.testTfm(PLAYER1)
     finishNeutralSetup(admin)
 
     player.count("Tr63SoloObjective") shouldBe 1

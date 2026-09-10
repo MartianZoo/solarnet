@@ -1,9 +1,10 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER3
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
@@ -16,7 +17,7 @@ internal class MonsInsuranceTest : CardTest() {
   @Test
   internal fun `Starting production loss reaches every opponent but not its owner`() {
     newGame(PromoCardPack, players = 3)
-    val p3 = game.tfm(PLAYER3)
+    val p3 = game.testTfm(PLAYER3)
 
     playCorporationWithoutStartingProjects(p1, MonsInsurance)
         .expect("48 MC, PROD[4 MC<Player1>], PROD[-2 MC<Player2>], PROD[-2 MC<Player3>]")
@@ -53,7 +54,7 @@ internal class MonsInsuranceTest : CardTest() {
   internal fun `Hired Raiders transfer finishes before Mons compensates the victim after each steal`() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
-    val p3 = game.tfm(PLAYER3)
+    val p3 = game.testTfm(PLAYER3)
     admin.phase("Action")
     p1.runOperation("$MonsInsurance, 10 MC")
     p2.runOperation("10 MC, ProjectCard")
@@ -100,7 +101,7 @@ internal class MonsInsuranceTest : CardTest() {
 
     p2.runOperation("-Plant, PROD[-Plant]").expect("-Plant<Player2>, PROD[-Plant<Player2>]")
     game
-        .agent(ADMIN)
+        .testAgent(ADMIN)
         .runOperation("Plant<Player2>, -Plant<Player2>")
         .expect("0 MC<Player1>, 0 MC<Player2>")
   }
@@ -109,7 +110,7 @@ internal class MonsInsuranceTest : CardTest() {
   internal fun `Payment is limited to the Mons owner's available mc`() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
-    val p3 = game.tfm(PLAYER3)
+    val p3 = game.testTfm(PLAYER3)
     p1.runOperation("$MonsInsurance")
     p1.runOperation("-1 MC / 1 MC")
     p1.runOperation("2 MC")

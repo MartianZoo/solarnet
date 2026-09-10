@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
@@ -26,7 +27,7 @@ internal class TaskNarrowingTest {
   // Kinda gross
   private val tasks: TaskQueue = game.tasks
   private val events = game.events
-  private val writer = game.agent(PLAYER1)
+  private val writer = game.testAgent(PLAYER1)
   private val start = game.timeline.checkpoint()
 
   init {
@@ -302,14 +303,14 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `AMAP saturates only the selected target`() {
-    game.agent(PLAYER2).runOperation("3 MC")
+    game.testAgent(PLAYER2).runOperation("3 MC")
     initiate("-5 MC<Player>.")
 
     selectAndNarrow("-5 MC<Player>.", "-5 MC<Player1>.")
 
     tasks.isEmpty() shouldBe true
     writer.count("MC") shouldBe 0
-    game.agent(PLAYER2).count("MC") shouldBe 3
+    game.testAgent(PLAYER2).count("MC") shouldBe 3
   }
 
   @Test
@@ -459,24 +460,24 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `autoexec leaves an AMAP choice that binds a later stage to the player`() {
-    game.agent(PLAYER2).runOperation("3 MC")
+    game.testAgent(PLAYER2).runOperation("3 MC")
     initiate("3 MC FROM MC<Player>. THEN Plant<Player>")
 
     writer.autoExecNow()
 
     tasksAsText().shouldContainExactly("3 MC<Player1> FROM MC<Player>. THEN Plant<Player>!")
-    game.agent(PLAYER2).count("MC") shouldBe 3
+    game.testAgent(PLAYER2).count("MC") shouldBe 3
   }
 
   @Test
   internal fun `autoexec does not infer an abstract AMAP actor from the sole existing component`() {
-    game.agent(PLAYER2).runOperation("3 MC")
+    game.testAgent(PLAYER2).runOperation("3 MC")
     initiate("3 MC FROM MC<Player>.")
 
     writer.autoExecNow()
 
     tasksAsText().shouldContainExactly("3 MC<Player1> FROM MC<Player>.")
-    game.agent(PLAYER2).count("MC") shouldBe 3
+    game.testAgent(PLAYER2).count("MC") shouldBe 3
   }
 
   @Test
@@ -490,12 +491,12 @@ internal class TaskNarrowingTest {
 
     tasksAsText().shouldContainExactly("Plant<Player2>!")
     writer.count("MC") shouldBe 3
-    game.agent(PLAYER2).count("Plant") shouldBe 0
+    game.testAgent(PLAYER2).count("Plant") shouldBe 0
   }
 
   @Test
   internal fun `selecting an AMAP source binds the later stage before resolution`() {
-    game.agent(PLAYER2).runOperation("3 MC")
+    game.testAgent(PLAYER2).runOperation("3 MC")
     writer.autoExecPolicy = NONE
     initiate("3 MC FROM MC<Player>. THEN Plant<Player>")
 
@@ -503,25 +504,25 @@ internal class TaskNarrowingTest {
 
     tasksAsText().shouldContainExactly("Plant<Player2>!")
     writer.count("MC") shouldBe 3
-    game.agent(PLAYER2).count("MC") shouldBe 0
+    game.testAgent(PLAYER2).count("MC") shouldBe 0
   }
 
   @Test
   internal fun `selecting a gated mandatory source binds the later stage before resolution`() {
-    game.agent(PLAYER2).runOperation("Plant, 3 MC")
+    game.testAgent(PLAYER2).runOperation("Plant, 3 MC")
     initiate("(Plant<Player>: 3 MC FROM MC<Player>) THEN Heat<Player>")
 
     writer.doTask("3 MC FROM MC<Player2>")
 
     tasksAsText().shouldContainExactly("Heat<Player2>!")
     writer.count("MC") shouldBe 3
-    game.agent(PLAYER2).count("MC") shouldBe 0
+    game.testAgent(PLAYER2).count("MC") shouldBe 0
   }
 
   @Test
   internal fun `a gated source must satisfy the gate for the selected player`() {
     writer.runOperation("3 MC")
-    game.agent(PLAYER2).runOperation("Plant")
+    game.testAgent(PLAYER2).runOperation("Plant")
     initiate("(Plant<Player>: 3 MC<Player2> FROM MC<Player>) THEN Heat<Player>")
 
     shouldThrow<TaskException> { writer.doTask("3 MC<Player2> FROM MC<Player1>") }

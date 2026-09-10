@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests
 
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.engine.toComponent
@@ -48,7 +49,7 @@ internal fun retainStartingProjects(game: World, vararg retainedCounts: Int) {
   players.zip(retainedCounts.asIterable()).forEach { (player, retained) ->
     require(retained in 0..10) { "cannot retain $retained of 10 starting projects" }
     val discarded = 10 - retained
-    game.agent(player).doTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Hand>")
+    game.testAgent(player).doTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Hand>")
   }
 }
 

@@ -1,5 +1,7 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
@@ -10,7 +12,6 @@ import dev.martianzoo.pets.util.toStrings
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -24,9 +25,9 @@ internal class SimpleAddsRemovesTest {
         Engine.newGame(
             testGamePremise("ABSTRACT CLASS Token { ABSTRACT CLASS Color { CLASS Red, Blue } }")
         )
-    val p1 = game.agent(PLAYER1)
+    val p1 = game.testAgent(PLAYER1)
 
-    p1.manual("Red, Red, Blue")
+    p1.runOperation("Red, Red, Blue")
 
     p1.list("Token").toStrings().shouldContainExactlyInAnyOrder("Red", "Red", "Blue")
   }
@@ -48,7 +49,7 @@ internal class SimpleAddsRemovesTest {
                     .trimIndent()
             )
         )
-    val p1 = game.agent(PLAYER1)
+    val p1 = game.testAgent(PLAYER1)
     p1.runOperation("Card<Player1>")
     val checkpoint = game.timeline.checkpoint()
 
@@ -62,7 +63,7 @@ internal class SimpleAddsRemovesTest {
   @Test
   internal fun manualDefersAnAbstractInitialInstructionForTheBodyToNarrow() {
     val game = Engine.newGame(canonicalPremise())
-    val p2 = game.tfm(PLAYER2)
+    val p2 = game.testTfm(PLAYER2)
 
     p2.runOperation("StandardResource") { doTask("Plant") }
 
@@ -71,7 +72,7 @@ internal class SimpleAddsRemovesTest {
 
   @Test
   internal fun manualStillRejectsAnImpossibleConcreteInitialInstruction() {
-    val p2 = Engine.newGame(canonicalPremise()).tfm(PLAYER2)
+    val p2 = Engine.newGame(canonicalPremise()).testTfm(PLAYER2)
 
     shouldThrow<LimitsException> { p2.runOperation("-Plant") }
   }
@@ -79,7 +80,7 @@ internal class SimpleAddsRemovesTest {
   @Test
   internal fun manualPreservesTasksThatWereAlreadyPending() {
     val game = Engine.newGame(canonicalPremise())
-    val p2 = game.tfm(PLAYER2)
+    val p2 = game.testTfm(PLAYER2)
     val pendingTask = p2.addTasks("StandardResource?").single()
 
     p2.runOperation("Heat")
@@ -91,7 +92,7 @@ internal class SimpleAddsRemovesTest {
   @Test
   internal fun manualRejectsASelectedTask() {
     val game = Engine.newGame(canonicalPremise())
-    val p2 = game.tfm(PLAYER2)
+    val p2 = game.testTfm(PLAYER2)
     val pendingTask = p2.addTasks("StandardResource?").single()
     p2.selectTask(pendingTask)
 
@@ -104,10 +105,10 @@ internal class SimpleAddsRemovesTest {
 
     val checkpoint = game.timeline.checkpoint()
 
-    val admin = game.agent(ADMIN)
+    val admin = game.testAgent(ADMIN)
     admin.count("Heat") shouldBe 0
 
-    val p2 = game.tfm(PLAYER2)
+    val p2 = game.testTfm(PLAYER2)
 
     p2.runOperation("5 Heat<Player2>!")
     p2.runOperation("10 Heat<Player1>!")

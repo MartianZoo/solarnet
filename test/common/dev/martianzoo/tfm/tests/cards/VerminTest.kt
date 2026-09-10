@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.testsupport.PLAYER3
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -27,7 +27,7 @@ internal class VerminTest : CardTest(::attributionProbeDeclarations) {
   internal fun `Ten animals make every player lose one point per owned city`() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
-    val p3 = game.tfm(PLAYER3)
+    val p3 = game.testTfm(PLAYER3)
     p1.runOperation("$Vermin, 10 Animal<$Vermin>, CityTile<Tharsis_2_1>, CityTile<Tharsis_2_3>")
     p2.runOperation("CityTile<Tharsis_3_2>")
     p3.runOperation("CityTile<Tharsis_3_3>")
@@ -42,7 +42,7 @@ internal class VerminTest : CardTest(::attributionProbeDeclarations) {
   @Test
   internal fun `Vermin's owner is credited for every point removed`() {
     newGame(PromoCardPack, players = 3)
-    val p3 = game.tfm(PLAYER3)
+    val p3 = game.testTfm(PLAYER3)
     p1.runOperation("$Vermin, 10 Animal<$Vermin>, CityTile<Tharsis_2_1>, $attributionProbe")
     p3.runOperation("CityTile<Tharsis_3_3>")
 

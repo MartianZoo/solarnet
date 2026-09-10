@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.testsupport.PLAYER3
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.HiredRaiders
@@ -16,7 +16,7 @@ internal class HiredRaidersTest : CardTest() {
     p1.autoExecPolicy = NONE
     p1.runOperation("2 MC, ProjectCard")
     val p2 = requireP2()
-    val p3 = game.tfm(PLAYER3)
+    val p3 = game.testTfm(PLAYER3)
     p2.runOperation("2 Steel")
     p3.runOperation("2 Steel")
 

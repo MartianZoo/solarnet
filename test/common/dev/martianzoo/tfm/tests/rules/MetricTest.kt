@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestOption.*
 import io.kotest.matchers.shouldBe
@@ -13,7 +13,7 @@ import kotlin.test.Test
 internal class MetricTest {
   @Test
   internal fun metricUnitsAndRequirementThresholdsHaveDifferentMeanings() {
-    val p1 = Engine.newGame(canonicalPremise(players = 2)).tfm(PLAYER1)
+    val p1 = Engine.newGame(canonicalPremise(players = 2)).testTfm(PLAYER1)
     p1.runOperation("8 Plant")
 
     p1.runOperation("Heat / 3 Plant")
@@ -25,7 +25,7 @@ internal class MetricTest {
 
   @Test
   internal fun metricSubtractionComposesInCountsRequirementsAndInstructions() {
-    val p1 = Engine.newGame(canonicalPremise(players = 2)).tfm(PLAYER1)
+    val p1 = Engine.newGame(canonicalPremise(players = 2)).testTfm(PLAYER1)
     p1.runOperation("7 Plant, 2 Steel")
 
     p1.count("Plant MAX 5 - Steel") shouldBe 3
@@ -43,7 +43,7 @@ internal class MetricTest {
 
   @Test
   internal fun metricsSupportConstantMinuendsAndDynamicCaps() {
-    val p1 = Engine.newGame(canonicalPremise(players = 2)).tfm(PLAYER1)
+    val p1 = Engine.newGame(canonicalPremise(players = 2)).testTfm(PLAYER1)
     p1.runOperation("7 Plant, 2 Steel")
 
     p1.count("6 - Plant") shouldBe 0
@@ -54,7 +54,7 @@ internal class MetricTest {
 
   @Test
   internal fun orCountsTheUnionOfMatchingComponents() {
-    val p1 = Engine.newGame(canonicalPremise(players = 2)).tfm(PLAYER1)
+    val p1 = Engine.newGame(canonicalPremise(players = 2)).testTfm(PLAYER1)
     p1.runOperation(
         "CityTile<Player1, Tharsis_4_2>, GreeneryTile<Player1, Tharsis_4_3>, " + "Victory<Player1>"
     )
@@ -67,7 +67,7 @@ internal class MetricTest {
 
   @Test
   internal fun neighborsAreDerivedFromLiveTilesAndMapGeometry() {
-    val p1 = Engine.newGame(canonicalPremise(players = 2)).tfm(PLAYER1)
+    val p1 = Engine.newGame(canonicalPremise(players = 2)).testTfm(PLAYER1)
 
     p1.count("Neighbor") shouldBe 0
     p1.runOperation("CityTile<Player1, Tharsis_4_4>")

@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.testsupport.PLAYER1
@@ -13,8 +14,8 @@ internal class WorldTransactionTest {
   @Test
   internal fun nestedOperationsAcrossActorsReportOnlyTheOutermostCompletion() {
     val game = Engine.newGame(testGamePremise(players = 2))
-    val player1 = game.agent(PLAYER1)
-    val player2 = game.agent(PLAYER2)
+    val player1 = game.testAgent(PLAYER1)
+    val player2 = game.testAgent(PLAYER2)
     var completions = 0
     game.onAtomicComplete = { completions++ }
 
@@ -30,8 +31,8 @@ internal class WorldTransactionTest {
   @Test
   internal fun nestedAgentCallsDoNotStartAutomaticAdvancement() {
     val game = Engine.newGame(testGamePremise(players = 2))
-    val player1 = game.agent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val player2 = game.agent(PLAYER2)
+    val player1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val player2 = game.testAgent(PLAYER2)
 
     player2.addTasks("Token")
     player1.runOperation("Ok") { player2.autoExecNow() }
@@ -53,7 +54,7 @@ internal class WorldTransactionTest {
                 """
             )
         )
-    val player = game.agent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val player = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     var workflowPulses = 0
     game.onAtomicComplete = { if (game.tasks.isEmpty()) workflowPulses++ }
 
@@ -89,7 +90,7 @@ internal class WorldTransactionTest {
                 """
             )
         )
-    val player = game.agent(PLAYER1)
+    val player = game.testAgent(PLAYER1)
     var workflowPulses = 0
     game.onAtomicComplete = { if (game.tasks.isEmpty()) workflowPulses++ }
 
@@ -112,7 +113,7 @@ internal class WorldTransactionTest {
                 """
             )
         )
-    val player = game.agent(PLAYER1)
+    val player = game.testAgent(PLAYER1)
     var startFollowUp = true
     game.onAtomicComplete = {
       if (startFollowUp) {
@@ -138,7 +139,7 @@ internal class WorldTransactionTest {
                 """
             )
         )
-    val player = game.agent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val player = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
 
     shouldThrow<TaskException> { player.runOperation("CleanupProbe") }
 
@@ -158,7 +159,7 @@ internal class WorldTransactionTest {
                 """
             )
         )
-    val player = game.agent(PLAYER1)
+    val player = game.testAgent(PLAYER1)
 
     shouldThrow<DeadEndException> { player.runOperation("CleanupProbe") }
 
@@ -176,7 +177,7 @@ internal class WorldTransactionTest {
                 """
             )
         )
-    val player = game.agent(PLAYER1)
+    val player = game.testAgent(PLAYER1)
 
     player.sneak("CleanupProbe")
 
@@ -188,7 +189,7 @@ internal class WorldTransactionTest {
   @Test
   internal fun directAgentMutationsReportAtomicCompletion() {
     val game = Engine.newGame(testGamePremise())
-    val agent = game.agent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     var completions = 0
     game.onAtomicComplete = { completions++ }
 

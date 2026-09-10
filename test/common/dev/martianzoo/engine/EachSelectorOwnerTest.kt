@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
@@ -24,9 +25,9 @@ internal class EachSelectorOwnerTest {
                 players = 2,
             )
         )
-    val admin = game.agent(ADMIN)
-    val p1 = game.agent(PLAYER1)
-    val p2 = game.agent(PLAYER2)
+    val admin = game.testAgent(ADMIN)
+    val p1 = game.testAgent(PLAYER1)
+    val p2 = game.testAgent(PLAYER2)
     admin.runOperation("Provider")
     p1.runOperation("RedToken, BlueToken")
     p2.runOperation("RedToken, BlueToken")

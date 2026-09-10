@@ -2,10 +2,10 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.testsupport.PLAYER3
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -99,7 +99,7 @@ internal class LawSuitTest : CardTest() {
   internal fun `Cannot be played when every responsible player has only two mc`() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
-    val p3 = game.tfm(PLAYER3)
+    val p3 = game.testTfm(PLAYER3)
     admin.phase("Action")
     p1.autoExecPolicy = NONE
     p1.runOperation("3 MC, ProjectCard, PROD[2 Plant]")
@@ -117,7 +117,7 @@ internal class LawSuitTest : CardTest() {
   internal fun `Can choose among multiple responsible players`() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
-    val p3 = game.tfm(PLAYER3)
+    val p3 = game.testTfm(PLAYER3)
     admin.phase("Action")
     p1.autoExecPolicy = NONE
     p1.runOperation("3 MC, ProjectCard, PROD[2 Plant]")
@@ -135,7 +135,7 @@ internal class LawSuitTest : CardTest() {
   internal fun `Cannot charge a funded player who did not attack`() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
-    val p3 = game.tfm(PLAYER3)
+    val p3 = game.testTfm(PLAYER3)
     admin.phase("Action")
     p1.autoExecPolicy = NONE
     p1.runOperation("2 MC, ProjectCard, PROD[Plant]")

@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.script
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -13,7 +13,7 @@ internal class TilePlacingTest {
   @Test
   internal fun citiesRepel() {
     val game = setUpGame()
-    with(game.tfm(PLAYER2)) {
+    with(game.testTfm(PLAYER2)) {
       phase("Action")
       runOperation("CityTile<Tharsis_4_6>, CityTile<Tharsis_4_4>, 25 MC")
       assertFailsWith<NarrowingException> {
@@ -25,7 +25,7 @@ internal class TilePlacingTest {
   @Test
   internal fun cantStack() {
     val game = setUpGame()
-    val p2 = game.tfm(PLAYER2)
+    val p2 = game.testTfm(PLAYER2)
 
     p2.runOperation("CityTile<Tharsis_3_3>")
     assertFailsWith<LimitsException> { p2.runOperation("OceanTile<Tharsis_3_3>!") }
@@ -35,7 +35,7 @@ internal class TilePlacingTest {
   internal fun greeneryCanBePlacedAnywhereWhenOwnedTilesAreSurrounded() {
     val game = setUpGame()
 
-    with(game.tfm(PLAYER1)) {
+    with(game.testTfm(PLAYER1)) {
       sneak("100 MC")
       phase("Action")
       stdProject("GreeneryProject") { doTask("GreeneryTile<Tharsis_4_3>") }
@@ -44,7 +44,7 @@ internal class TilePlacingTest {
       }
       // Yer surrounded!
       game
-          .tfm(PLAYER2)
+          .testTfm(PLAYER2)
           .runOperation(
               "GreeneryTile<Tharsis_3_2>, GreeneryTile<Tharsis_3_3>, " +
                   "GreeneryTile<Tharsis_4_2>, GreeneryTile<Tharsis_4_4>"
@@ -57,8 +57,8 @@ internal class TilePlacingTest {
   @Test
   internal fun greeneryRequirementDoesntCareIfItDeadEndsYourTurn() {
     val game = setUpGame("BH", 2)
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
 
     // Player1 has greenery next to south pole
     p1.runOperation("4 MC, GreeneryTile<Hellas_9_8>")
@@ -95,7 +95,7 @@ internal class TilePlacingTest {
   internal fun greeneryNextToOwned_possible() {
     val game = setUpGame()
 
-    with(game.tfm(PLAYER1)) {
+    with(game.testTfm(PLAYER1)) {
       phase("Action")
 
       runOperation("666 MC, CityTile<Tharsis_8_6>") // shown as [] in comment below

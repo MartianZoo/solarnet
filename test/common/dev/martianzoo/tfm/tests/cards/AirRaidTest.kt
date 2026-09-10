@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.testsupport.PLAYER3
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.AirRaid
@@ -30,7 +30,7 @@ internal class AirRaidTest : CardTest() {
   @Test
   internal fun `Steals all five mc`() {
     val p2 = requireP2()
-    val p3 = game.tfm(PLAYER3)
+    val p3 = game.testTfm(PLAYER3)
     p2.pass()
     p3.turn { playProject(SearchForLife, 3) }
 
@@ -44,7 +44,7 @@ internal class AirRaidTest : CardTest() {
   @Test
   internal fun `Cannot be played when no player has five mc`() {
     val p2 = requireP2()
-    val p3 = game.tfm(PLAYER3)
+    val p3 = game.testTfm(PLAYER3)
     p2.turn { stdProject("PowerPlantProject") }
     p3.turn { playProject(Tardigrades, 4) }
 

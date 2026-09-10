@@ -3,6 +3,8 @@ package dev.martianzoo.tfm.tests
 import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
@@ -19,13 +21,12 @@ import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.canon.cardResourceType
 import dev.martianzoo.tfm.canon.tfmCatalog
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 
 internal abstract class TfmTest {
   protected lateinit var game: World
 
   protected val admin: TfmGameplay
-    get() = game.tfm(ADMIN)
+    get() = game.testTfm(ADMIN)
 
   protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
 
@@ -145,7 +146,7 @@ internal abstract class TfmTest {
       instruction: String,
   ): TaskId {
     val matches = tasks.filter { task ->
-      task.instruction == game.agent(task.assignee).parse<Instruction>(instruction) &&
+      task.instruction == game.testAgent(task.assignee).parse<Instruction>(instruction) &&
           (NoOp.narrows(task.instruction, reader) ||
               task.instruction.descendantsOfType<NoOp>().isNotEmpty())
     }

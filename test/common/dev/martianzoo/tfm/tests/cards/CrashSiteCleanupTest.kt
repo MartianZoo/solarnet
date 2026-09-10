@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.testsupport.PLAYER3
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -51,7 +51,7 @@ internal class CrashSiteCleanupTest : CardTest() {
   @Test
   internal fun `Only the player who removed the plant qualifies`() {
     newGame(PromoCardPack, players = 3)
-    val p3 = game.tfm(PLAYER3)
+    val p3 = game.testTfm(PLAYER3)
     admin.phase("Action")
     p1.runOperation("4 MC, ProjectCard")
     requireP2().runOperation("Plant")

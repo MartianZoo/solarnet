@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agent.Agent.OperationScope
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.ast.ClassName
@@ -10,7 +11,6 @@ import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 
@@ -139,7 +139,8 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   protected fun checkHandSizes() {
     syncCardPlays()
     game.actors.filterIsInstance<Player>().forEach { player ->
-      game.tfm(player).count("ProjectCard<Hand>") shouldBe cards.values.count { it == Hand(player) }
+      game.testTfm(player).count("ProjectCard<Hand>") shouldBe
+          cards.values.count { it == Hand(player) }
     }
   }
 

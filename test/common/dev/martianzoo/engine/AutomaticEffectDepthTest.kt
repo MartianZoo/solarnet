@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -18,7 +19,7 @@ internal class AutomaticEffectDepthTest {
   @Test
   internal fun `automatic effect cycle fails atomically at the depth limit`() {
     val world = Engine.newGame(premise) as WholeWorld
-    val admin = world.agent(ADMIN)
+    val admin = world.testAgent(ADMIN)
     val checkpoint = world.timeline.checkpoint()
 
     val failure = shouldThrow<RunawayEffectChainException> { admin.runOperation("ChainA") }

@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -16,10 +17,10 @@ internal class EffectActorCharacterizationTest {
   @Test
   internal fun playersCannotCreateSystemComponents() {
     val game = Engine.newGame(canonicalPremise())
-    val player = game.agent(PLAYER1)
+    val player = game.testAgent(PLAYER1)
 
     assertFailsWith<DeadEndException> { player.runOperation("Generation") }
-    game.agent(ADMIN).runOperation("Generation")
+    game.testAgent(ADMIN).runOperation("Generation")
 
     player.count("Generation") shouldBe 1
   }
@@ -27,19 +28,19 @@ internal class EffectActorCharacterizationTest {
   @Test
   internal fun noActorCanRemoveModules() {
     val game = Engine.newGame(canonicalPremise())
-    val player = game.agent(PLAYER1)
+    val player = game.testAgent(PLAYER1)
 
     assertFailsWith<LimitsException> { player.runOperation("-TharsisMap") }
     player.count("TharsisMap") shouldBe 1
 
-    assertFailsWith<LimitsException> { game.agent(ADMIN).runOperation("-TharsisMap") }
+    assertFailsWith<LimitsException> { game.testAgent(ADMIN).runOperation("-TharsisMap") }
     player.count("TharsisMap") shouldBe 1
   }
 
   @Test
   internal fun adminPerformedPlacementDoesNotGiveTheChangedComponentOwnerTheAreaBonus() {
     val game = Engine.newGame(canonicalPremise(cn("ElysiumMap"), players = 2))
-    val admin = game.agent(ADMIN).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
     admin.runOperation("Photosynthesis")
     val checkpoint = game.timeline.checkpoint()
 
@@ -58,7 +59,7 @@ internal class EffectActorCharacterizationTest {
   @Test
   internal fun triggeringPlayerIsFallbackActorForDeferredByOwnerEffect() {
     val game = Engine.newGame(canonicalPremise())
-    val p1 = game.agent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val terraformRatingBefore = p1.count("TerraformRating")
 
     p1.beginOperation("OxygenStep!") {
@@ -75,7 +76,7 @@ internal class EffectActorCharacterizationTest {
   @Test
   internal fun byOwnerEffectDoesNotTreatAdminAsAnOwner() {
     val game = Engine.newGame(canonicalPremise())
-    val admin = game.agent(ADMIN).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
     val terraformRatingBefore = admin.count("TerraformRating")
 
     admin.runOperation("OxygenStep!")

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
@@ -63,8 +64,8 @@ internal class GamePremiseTest {
 
     first.classTable shouldBe second.classTable
     TfmWorkflow.Stepwise(first).setupPhase()
-    first.agent(ADMIN).count("SetupPhase") shouldBe 1
-    second.agent(ADMIN).count("SetupPhase") shouldBe 0
+    first.testAgent(ADMIN).count("SetupPhase") shouldBe 1
+    second.testAgent(ADMIN).count("SetupPhase") shouldBe 0
   }
 
   @Test
@@ -132,8 +133,8 @@ internal class GamePremiseTest {
     game.actors.shouldContainExactly(Player(blue), Player(yellow), ADMIN)
     game.reader.getComponents("Player").map { it.className }.toSet() shouldBe setOf(blue, yellow)
     TfmWorkflow.Stepwise(game).setupPhase()
-    game.agent(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
-    game.agent(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
+    game.testAgent(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
+    game.testAgent(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
     getPlayerOwner(game.reader, game.reader.getComponents("StartToken").single()) shouldBe
         Player(blue)
   }
@@ -175,7 +176,7 @@ internal class GamePremiseTest {
     val premise = Canon.gamePremise(GameConfig.create(included = emptyList(), playerNames = names))
 
     premise.playerNames shouldBe names
-    Engine.newGame(premise).agent(ADMIN).count("Player") shouldBe 6
+    Engine.newGame(premise).testAgent(ADMIN).count("Player") shouldBe 6
   }
 
   @Test
