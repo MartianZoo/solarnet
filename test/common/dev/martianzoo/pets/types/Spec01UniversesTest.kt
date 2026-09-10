@@ -5,9 +5,11 @@ import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 /** Section 1 of `docs/type-system-spec.md`: universes and identity. */
@@ -152,5 +154,35 @@ internal class Spec01UniversesTest {
     table.findClass(cn("Greenery")) shouldBe null
     shouldThrow<ExpressionException> { table.getClass(cn("Greenery")) }
     shouldThrow<ExpressionException> { table.resolve(te("Greenery")) }
+  }
+
+  @Test
+  internal fun `T1-7 loading rejects an unknown name wherever a declaration writes it`() {
+    val positions =
+        listOf(
+            "CLASS Foo : Missing",
+            "CLASS Foo<Missing>",
+            "CLASS Foo { This: Missing }",
+            "CLASS Foo { Missing: Ok }",
+            "CLASS Foo { This: Missing<Component FROM Class> }",
+            "CLASS Foo { HAS MAX 1 Missing }",
+            "CLASS Bar\nCLASS Foo { This: Bar(HAS Missing) }",
+            "CLASS Bar<Component>\nCLASS Foo { This: Bar<Missing> }",
+            "CLASS Bar\nCLASS Foo<Bar> { DEFAULT +Foo<Missing> }",
+            "ABSTRACT CLASS Scored { score = Metric }\n" +
+                "CLASS Foo : Scored { score = COUNT \"Missing\" }",
+        )
+    positions.forEach { declaration ->
+      withClue(declaration) {
+        shouldThrow<ExpressionException> { loadTypes(declaration) }.message shouldContain
+            "Foo names `Missing`"
+      }
+    }
+  }
+
+  @Test
+  internal fun `T1-7 loading accepts a declaration whose names are all declared`() {
+    loadTypes("CLASS Bar", "CLASS Foo { This: Bar }").getClass(cn("Foo")).className shouldBe
+        cn("Foo")
   }
 }

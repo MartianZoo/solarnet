@@ -144,7 +144,11 @@ universe — `allClasses`, `allClassNames`, `allSubclasses`, `directSubclasses`,
 > of the completed Catalog instead of declaration order.
 
 **T1-7. Only the exact declared name resolves.** There are no abbreviations, no case folding, no
-nearest-match. An unknown name raises `ExpressionException`.
+nearest-match. An unknown name raises `ExpressionException`. Compiling a Catalog checks every name
+its declarations write and reports the declaration that wrote one no declaration introduces, so an
+author finds a misspelling when the Catalog loads rather than when play reaches it. A name is
+decided against the Catalog being compiled; a declaration therefore may not name a class only a
+later composition supplies, such as a game's player seats.
 
 ---
 

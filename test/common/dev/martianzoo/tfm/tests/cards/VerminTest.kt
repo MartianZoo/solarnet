@@ -8,7 +8,7 @@ import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class VerminTest : CardTest(additionalClassDeclarations = attributionProbeDeclarations) {
+internal class VerminTest : CardTest(::attributionProbeDeclarations) {
   @Test
   internal fun `City placement and both card actions add the appropriate resources`() {
     newGame(PromoCardPack)

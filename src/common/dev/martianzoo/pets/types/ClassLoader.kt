@@ -16,8 +16,6 @@ import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.pets.ast.Metric.Count
-import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
@@ -188,7 +186,7 @@ private constructor(
       return loadedClasses[next] ?: throw PetException("Class-loading cycle involving $next")
     }
     val declaration = knownDeclaration(next)
-    validateClassLiterals(declaration)
+    validateClassNames(declaration)
     validateNoEffectCreatesClass(declaration)
     return construct(declaration)
   }
@@ -204,24 +202,25 @@ private constructor(
     )
   }
 
-  private fun validateClassLiterals(declaration: ClassDeclaration) {
-    fun validateClassLiterals(node: PetNode) {
+  /**
+   * Rejects every name this declaration writes that the catalog never declares, enforcing
+   * [rule 1-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity)
+   * where the declaration that spelled it can still be named. Only the name is decided here;
+   * whether an argument fits its bound depends on classes this one may be loaded ahead of.
+   */
+  private fun validateClassNames(declaration: ClassDeclaration) {
+    declaration.allNodes.forEach { node ->
       node.visitDescendants {
-        if (it is Count && it.expression.className == CLASS) {
-          val argument = it.expression.arguments.singleOrNull()?.takeIf(Expression::simple)
-          argument?.let { expression ->
-            if (expression.className !in knownClassNames) {
-              throw Exceptions.classNotFound(expression.className)
-            }
-          }
-          it.expression.refinement?.let(::validateClassLiterals)
-          false
-        } else {
-          true
+        val name = it as? ClassName
+        if (name != null && name != THIS && name !in knownClassNames) {
+          throw ExpressionException(
+              "${declaration.className} names `$name`, which no declaration introduces " +
+                  "(check bundles, check spelling)"
+          )
         }
+        true
       }
     }
-    declaration.allNodes.forEach(::validateClassLiterals)
   }
 
   /**
