@@ -86,7 +86,7 @@ The `Owned-Owner` dependency is a regular component dependency just like any oth
 
 ### OwnedTile
 
-An abstract class `OwnedTile` extends both `Tile` and `Owned`. Every owned tile kind extends it, giving rules such as Landlord one nominal class to count.
+An abstract class `OwnedTile` extends both `Tile` and `Owned`. Every owned tile kind extends it, giving rules such as Landlord one nominal class to count. A broad combined-game test checks that relationship among its active classes; systematic coverage of every legal configuration remains planned. Pets cannot yet spell that intersection structurally, which is why the nominal class exists.
 
 The three kinds of tiles are `GreeneryTile`, `CityTile`, and `SpecialTile` (the last is abstract as each specific kind of tile extends it).
 

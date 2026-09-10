@@ -204,10 +204,10 @@ internal constructor(
   }
 
   private val expressionLazy = lazy {
-    toExpressionUsingSpecs(canonicalDependencyExpressions())
+    toExpressionUsingSpecs(compactDependencyExpressions())
   }
   /**
-   * The canonical prefix expression specified by
+   * The compact round-tripping expression specified by
    * [rule T5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
    */
   override val expression: Expression
@@ -233,12 +233,49 @@ internal constructor(
   override val narrowedDependencies: DependencySet
     get() = narrowedDependenciesLazy.value
 
-  private fun canonicalDependencyExpressions(): List<Expression> {
-    val lastNarrowed =
-        dependencies.keys.indexOfLast { key ->
-          dependencies.get(key) != rootClass.dependencies.get(key)
+  private fun compactDependencyExpressions(): List<Expression> {
+    val keys = dependencies.keys
+    val expressions = dependencies.expressions()
+    val narrowed = narrowedDependencies.keys.toSet()
+    val write = MutableList(keys.size) { keys[it] in narrowed }
+
+    // A narrowed bound must be written or the narrowing is lost. An unnarrowed one must be written
+    // only to occupy its slot: an omitted argument leaves its slot free, and rule T3-4 hands each
+    // argument to the first free slot that accepts it, which could be an earlier one. Descending
+    // means a slot promoted here is revisited before the loop ends, so one pass reaches a fixpoint.
+    for (later in keys.indices.reversed()) {
+      if (!write[later]) continue
+      // An unwritten slot still holds its declared bound, which is what T3-4 matches against.
+      for (earlier in later - 1 downTo 0) {
+        if (
+            !write[earlier] && dependencies.get(keys[earlier]).intersect(expressions[later]) != null
+        ) {
+          write[earlier] = true
         }
-    return dependencies.expressions().take(lastNarrowed + 1)
+      }
+    }
+    var compact = expressions.filterIndexed { index, _ -> write[index] }
+
+    // Equality propagation can make a written narrowing redundant; for example, the card bound in
+    // Animal<Player1, Pets<Player1>> already determines Player1. Let specialization remain the one
+    // authority on that inference, and discard an argument only when it proves the same Type.
+    var index = 0
+    while (index < compact.size) {
+      val candidate = compact.filterIndexed { candidateIndex, _ -> candidateIndex != index }
+      val resolvesBack =
+          try {
+            classTable.resolve(toExpressionUsingSpecs(candidate)) == this
+          } catch (_: ExpressionException) {
+            false
+          }
+      if (resolvesBack) {
+        compact = candidate
+        index = 0
+      } else {
+        index++
+      }
+    }
+    return compact
   }
 
   private fun toExpressionUsingSpecs(specs: List<Expression>) = className.of(specs).has(refinement)
@@ -450,7 +487,7 @@ internal constructor(
   }
 
   /**
-   * Returns the canonical prefix expression required by
+   * Returns the compact expression required by
    * [rule T5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
    */
   override fun toString(): String = "$expression"

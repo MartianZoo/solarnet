@@ -37,7 +37,6 @@
 - **class name:** A class's sole stable engine identity within a catalog. Classes use semantic English names such as `GreeneryTile`, `EarthCatapult`, and `Terraformer`. Configuration never changes the declaration denoted by a given class name.
 - **class table:** An immutable set of mutually compatible classes that resolves expressions into types. A catalog has one master class table; each game world uses a class-table projection containing active classes plus catalog-known uninhabited classes.
 - **class-table projection:** A game-specific class table derived from a catalog's master class table. Active classes carry behavior and enumerate concrete possibilities, while other catalog-known identities remain resolvable as uninhabited classes.
-- **difference type:** A refinement written `B(NOT C)` that denotes the Types in explicit domain `B` which do not overlap excluded Type `C`.
 - **Component:** One immutable occurrence of a concrete type in a game world. Components have no identity or fields beyond their type, so occurrences of the same type differ only by multiplicity.
 - **component effect:** A class effect specialized for one concrete type by binding inherited dependencies and contextual placeholders. It does not yet include the fact that a corresponding Component currently exists.
 - **component graph:** The logical directed graph whose vertices are Components and whose edges are dependencies. Because a type includes the exact types of its dependency targets, the game world stores the vertices as a multiset of types rather than as separately identified objects and edges.
@@ -57,6 +56,7 @@
 - **dependency path:** An ordered sequence of dependency keys locating a direct or nested dependency within a type. For example, it can identify either a card's Owner dependency or a dependency inside the card type used as a resource holder.
 - **dependent removal:** Automatic removal of Components that depend on a Component being removed, performed first and cascading as necessary.
 - **Die:** A Signal with the invariant `HAS MAX 0 This`; attempting to gain it makes the route dead-end.
+- **difference type:** A refinement written `B(NOT C)` that denotes the Types in explicit domain `B` which do not overlap excluded Type `C`.
 - **display name:** The locale-specific natural-language name used for UI text, such as a printed card title. It need not be a valid or stable Pets identifier.
 - **double-colon effect:** Synonym for automatic effect.
 - **drain:** To become empty. A task queue draining can advance workflow.
@@ -79,7 +79,7 @@
 - **live effect:** A component effect paired with its existing context Component, so that it can respond to change events. It counts according to the multiplicity of that type.
 - **manual:** Initiated by a Solarnet client rather than caused by an effect or workflow. Selecting or narrowing an already pending task is not a new manual action. With fully automatic workflow, a game can contain no manual operations.
 - **metric:** A Pets expression that computes a nonnegative integer from a game world.
-- **canonical prefix form:** A Type expression containing every dependency through the final bound that differs from the root Class's defaults. It round-trips without searching argument subsets or inferring an earlier bound from a later one.
+- **compact form:** A round-tripping Type expression with no individually removable argument. It omits declared bounds except where needed to protect greedy argument matching, then removes redundancies proved by Type resolution, including dependency equalities.
 - **Module:** An affirmative, immutable singleton Component carrying one part of a realized game's ambient behavior. The exact Module set records the game's general behavior choices.
 - **multi-instruction:** An instruction containing two or more comma-separated, unordered child instructions. It is split into separate tasks because one task cannot contain a multi-instruction.
 - **multi-requirement:** A requirement containing two or more child requirements combined as logical “and.”

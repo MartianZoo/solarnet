@@ -197,10 +197,12 @@ written `Foo(HAS Bar)` or `Foo(NOT Bar)` is rejected, because a refined type can
 > generated class extends plain `SpecialTile<LandArea>`; putting the board query in its signature
 > would make a state-dependent predicate part of permanent class identity.
 
-**L1-10. Whitespace and comments.** Horizontal whitespace is insignificant. `//` begins a comment
-that runs to the end of the line. A backslash immediately before a line ending continues the line,
-so one element may span several source lines. Newlines are significant only as separators (L1-1,
-L1-4).
+**L1-10. Whitespace and comments.** Horizontal whitespace separates tokens and carries no other
+meaning: it may appear between any two of them, and no construct depends on how much of it there is.
+It is required only where two tokens would otherwise run together into one, so `2 MC` is a scalar and
+a name while `2MC` is neither. `//` begins a comment that runs to the end of the line. A backslash
+immediately before a line ending continues the line, so one element may span several source lines.
+Newlines are significant only as separators (L1-1, L1-4).
 
 > **Non-normative example — Mars Nomads.** Its action moves a marker and then pays every marked
 > area's placement bonus. A backslash lets that one action span source lines without a newline being
@@ -249,9 +251,10 @@ ASCII letters, digits, and underscores are allowed. Formally:
 Thus `GreeneryTile`, `Tharsis_2_2`, `A_foo`, `L1TradeTerminal`, `MC`, and `TOOLONG` are names, while
 `greenery` and `Terraforming Mars` are not.
 
-> **Non-normative example — coordinates and currencies.** `Tharsis_2_2` must be a legal class name
-> for a board space, while `MC` and `TR` must remain readable abbreviations. The unusual grammar
-> admits both without also accepting arbitrary lowercase identifiers or prose labels.
+> **Non-normative example — coordinates and currencies.** Digits and underscores are admitted for
+> board spaces like `Tharsis_2_2`, and all-caps spellings for abbreviations like `MC` and `TR`.
+> Covering both costs only the requirement that a name begin with a capital, which is what keeps
+> lowercase identifiers and prose labels out.
 
 **L2-2. Keywords are reserved and case-sensitive.** `ABSTRACT`, `BY`, `CLASS`, `COUNT`, `DEFAULT`,
 `EACH`, `EVAL`, `FROM`, `HAS`, `IF`, `MAX`, `NOT`, `OR`, `RANK`, `THEN` and `X`, together with the

@@ -5,10 +5,10 @@ import dev.martianzoo.pets.util.toSetStrict
 
 /** Any object that can be represented in some way as an [Expression]. */
 public interface HasExpression {
-  /** This object as its canonical expression. */
+  /** This object's natural expression; particular implementations may offer stronger forms. */
   public val expression: Expression
 
-  /** This object as a full expression. */
+  /** This object's full expression when it has a distinct full form, otherwise [expression]. */
   public val expressionFull: Expression
     get() = expression
 

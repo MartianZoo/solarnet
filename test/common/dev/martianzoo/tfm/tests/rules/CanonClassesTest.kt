@@ -16,6 +16,7 @@ import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
 import io.kotest.assertions.withClue
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
@@ -42,6 +43,37 @@ internal class CanonClassesTest {
     game.classTable.allClassNames.shouldNotContain(cn("SoloCardResourceReserve"))
     game.classTable.allClassNames.shouldNotContain(cn("PreludeCard"))
     game.classTable.allClassNames.shouldNotContain(cn("PreludePhase"))
+  }
+
+  @Test
+  internal fun activeOwnedTileKindsInBroadCombinedGameExtendOwnedTile() {
+    // Landlord counts `OwnedTile`, so a class that is both a `Tile` and `Owned` but forgets to
+    // extend it would look structurally right and silently escape the award. Pets has no structural
+    // conjunction to state that directly yet (see TODO.md), so this broad active projection checks
+    // the nominal class until every legal configuration family can be covered systematically.
+    val table =
+        Engine.newGame(
+                canonicalPremise(
+                    CorporateEraExpansion,
+                    Cimmeria,
+                    VenusNextExpansion,
+                    Prelude2Expansion,
+                    ColoniesExpansion,
+                    TurmoilCardPack,
+                    PromoCardPack,
+                    colonyTiles = testColonyTiles(players = 2),
+                )
+            )
+            .classTable
+    val tile = table.getClass(cn("Tile"))
+    val owned = table.getClass(cn("Owned"))
+    val ownedTile = table.getClass(cn("OwnedTile"))
+
+    table
+        .allClasses()
+        .filter { it.isSubtypeOf(tile) && it.isSubtypeOf(owned) && !it.isSubtypeOf(ownedTile) }
+        .map { "$it" }
+        .shouldBeEmpty()
   }
 
   @Test

@@ -35,7 +35,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
   private val been
     get() = p2
 
-  private val optionalSearchForLifeScience = "Science<Keen, SearchForLife<Keen>>?"
+  private val optionalSearchForLifeScience = "Science<SearchForLife<Keen>>?"
 
   @Test
   internal fun distantPressureMass() {

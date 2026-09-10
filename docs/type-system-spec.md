@@ -494,19 +494,28 @@ Abstractness is structural and never consults a world.
 `GreeneryTile` of rule T3-2 that is `GreeneryTile<MarsArea, Owner>`; had `Owned` been inherited
 first, the same type would be written `GreeneryTile<Owner, MarsArea>`.
 
-**T5-5. Canonical prefix form.** `expression` — also what `toString` shows — writes the dependency
-prefix ending at the final bound that differs from the root class's base type. Concretely:
+**T5-5. Compact form.** `expression` — also what `toString` shows — writes a round-tripping argument
+list in dependency-key order, whatever order the arguments were supplied in. It first retains an
+argument when one of these holds:
 
-- trailing arguments equal to what the class already declares are omitted;
-- an inherited bound before the final narrowed bound is written even when unchanged;
-- arguments are written in dependency-key order, whatever order they were supplied in;
-- each retained bound uses its own canonical prefix form;
-- arguments are not searched, reordered, or inferred from one another;
-- a refinement is always written.
+- its bound differs from what the class already declares; or
+- omitting it would leave its slot free to swallow a later argument under T3-4.
 
-Thus `Neighbor<Area, Tharsis_2_2>` retains both arguments, while
-`Neighbor<Tharsis_2_2, Area>` omits the trailing `Area`. Even when T3-8 makes an earlier bound
-inferable from a later one, as in `Animal<Player1, Pets<Player1>>`, the prefix form keeps both.
+It then repeatedly omits the first retained argument whose removal still resolves to the same Type,
+including through T3-8 equality propagation. Each retained bound is itself written in compact form,
+and a refinement is always written.
+
+Thus `GreeneryTile<MarsArea, Player1>` is written `GreeneryTile<Player1>`: the area slot rejects
+`Player1`, so leaving it out cannot misdirect the owner. But `Neighbor`'s two slots both accept an
+`Area`, so `Neighbor<Area, Tharsis_2_2>` must keep both arguments while `Neighbor<Tharsis_2_2, Area>`
+drops the second. `Animal<Player1, Pets<Player1>>` becomes `Animal<Pets<Player1>>`, because the
+card-bound owner determines the direct owner through T3-8.
+
+> **Non-normative implementation note — why not search.** The direct pass handles declared bounds
+> and greedy slot capture. A semantic pass then tries individual omissions against ordinary Type
+> resolution, avoiding a second implementation of T3-8. Finding the globally shortest subsequence
+> can require subset search; compact form promises only that no remaining argument can individually
+> be removed while preserving the Type.
 
 **T5-6. Both forms round-trip.** Resolving either form of a type yields that same type.
 

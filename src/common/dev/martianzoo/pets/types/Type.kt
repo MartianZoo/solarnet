@@ -101,8 +101,9 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
     get() = groundType.narrowedDependencies
 
   /**
-   * The canonical prefix expression that resolves to this type ([rule
-   * T5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types)).
+   * This type's natural expression. A ground type uses the compact form of [rule
+   * T5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types); a type
+   * variable retains its authored expression under T13-1.
    */
   override val expression: Expression
     get() = groundType.expression

@@ -32,7 +32,7 @@ internal class SimpleAddsRemovesTest {
   }
 
   @Test
-  internal fun loggedTypesUseCanonicalPrefixesWithoutBreakingSelfEffects() {
+  internal fun loggedTypesUseCompactFormWithoutBreakingSelfEffects() {
     val game =
         Engine.newGame(
             testGamePremise(
@@ -55,7 +55,7 @@ internal class SimpleAddsRemovesTest {
     p1.manual("Holder<Player1, Card<Player1>>")
 
     game.events.changesSince(checkpoint).first().change.gaining shouldBe
-        parse<Expression>("Holder<Player1, Card<Player1>>")
+        parse<Expression>("Holder<Card<Player1>>")
     p1.count("Token") shouldBe 1
   }
 

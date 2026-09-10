@@ -15,7 +15,7 @@ internal class LogCommand(private val repl: ScriptSession) : ScriptCommand("log"
         Shows everything that has happened in the current game (`log full`) or just the more
         interesting bits (i.e., filtering out Task changes, and filtering out changes to Hidden
         components other than phases -- just like the default output after `exec` or `task`
-        does). Component Types are shown in canonical prefix form.
+        does). Component Types are shown in compact form.
       """
   override val isReadOnly = true
 

@@ -39,6 +39,16 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   phase-caused tasks as soon as the required runtime state can express them.
 - Let refinements reference their candidate explicitly, so a selector can relate a nested
   dependency to that candidate without repeating its complete expression.
+- Give Pets a real structural conjunction, spelled something like `Tile(IS Owned)`, and retire the
+  nominal `OwnedTile` class once `Landlord` and the other owned-tile rules can name the intersection
+  directly. Until then a broad active projection checks the nominal relationship; cover every legal
+  configuration family systematically so a mutually exclusive option cannot evade it.
+- Decide whether compact Type expressions must be globally shortest. They currently remove each
+  individually redundant argument, including T3-8 duplicates, without the subset search needed to
+  prove a global minimum; search only equality-related arguments if exact minimality becomes useful.
+- Separate the expression API's three intents: an object's natural available expression, a resolved
+  Type's compact expression, and its full expression. Keep syntax expressions universe-independent;
+  converting an arbitrary expression to either resolved form must take a `ClassTable` explicitly.
 - Decouple cleanup lifetime from log visibility so player-meaningful signals such as `Pay` and
   `PayFromCard` need not inherit `Hidden` through `MustCleanUp`.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
