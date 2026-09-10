@@ -1,6 +1,5 @@
 package dev.martianzoo.pets.types
 
-import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.PetException
@@ -139,42 +138,17 @@ private constructor(
   }
 
   /**
-   * Loads every declaration, freezes the resulting master universe, and validates its statically
-   * decidable declaration types, satisfying the enumeration precondition in
+   * Loads every declaration, freezes the resulting master universe, and constructs every class's
+   * base type, satisfying the enumeration precondition in
    * [rule 1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   public fun loadEverything(): ClassTable {
     knownClassNames.forEach(::loadSingle)
     val completed = freeze()
     knownClassNames.forEach { name ->
-      getClass(name).also {
-        it.baseType
-        validateStaticExpressions(it)
-      }
+      getClass(name).baseType
     }
     return completed
-  }
-
-  private fun validateStaticExpressions(klass: Class) {
-    val contextualizer = replaceThisExpressionsWith(klass.className.expression)
-    val validated = mutableSetOf<Expression>()
-    klass.declaration.allNodes.forEach { node ->
-      node.visitDescendants {
-        if (it !is Expression) return@visitDescendants true
-        if (!it.simple && validated.add(it)) {
-          val expression = contextualizer.transformExpression(it)
-          try {
-            resolve(expression)
-          } catch (e: PetException) {
-            throw invalidPetDefinition(
-                "Invalid declaration `${klass.className}`: can't resolve `$expression`: ${e.message}",
-                e,
-            )
-          }
-        }
-        false
-      }
-    }
   }
 
   private val queue = ArrayDeque<ClassName>()

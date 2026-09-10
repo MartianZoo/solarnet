@@ -5,6 +5,7 @@ import dev.martianzoo.pets.PetTransformer.Companion.noOp
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
@@ -132,9 +133,17 @@ public class PetElaborator(public val classTable: ClassTable) {
     require(classTable.isActive(klass)) { "$klass is not active in this game" }
     return effectsByClass.getOrPut(klass) {
       fun directClassEffects(source: Class) =
-          source.declaration.effects
-              .map(source::interpretTypeVariablesIn)
-              .map(attachToClassTransformer(source)::transformEffect)
+          source.declaration.effects.map { effect ->
+            try {
+              attachToClassTransformer(source)
+                  .transformEffect(source.interpretTypeVariablesIn(effect))
+            } catch (e: PetException) {
+              throw invalidPetDefinition(
+                  "Invalid effect declared by `${source.className}`: `$effect`: ${e.message}",
+                  e,
+              )
+            }
+          }
 
       val evaluator =
           propertyEvaluator(

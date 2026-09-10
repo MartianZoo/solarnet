@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.ClassDeclaration
 import io.kotest.assertions.throwables.shouldThrow
@@ -62,7 +61,7 @@ internal class CardClassTest {
             """
         )
 
-    shouldThrow<PetException> { invalid.classTable }
+    shouldThrow<IllegalArgumentException> { invalid.classTable }
   }
 
   @Test

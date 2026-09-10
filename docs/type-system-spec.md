@@ -138,9 +138,10 @@ freezing. Lookup (`findClass`, `resolve`) works during loading; anything that en
 universe — `allClasses`, `allClassNames`, `allSubclasses`, `directSubclasses`, and therefore
 `glb` between unrelated classes — requires the table to be frozen first.
 
-Before returning the completed table, compilation resolves every statically decidable class shape
-and authored compound type expression. Invalid declarations identify their owning class. Judgments
-that require a world remain deferred.
+Before returning the completed table, compilation resolves every class's structural base type.
+Undeclared names are also rejected while loading. Authored expressions inside effects are resolved
+when that effect is first elaborated, when its class and game context are available; invalid
+expressions fail at that boundary. Judgments that require a world remain deferred.
 
 > **Non-normative example — claiming a milestone.** `ClaimMilestoneAction` asks for a concrete
 > `Milestone`. The answer is not knowable while map modules are still being loaded: Elysium may yet
