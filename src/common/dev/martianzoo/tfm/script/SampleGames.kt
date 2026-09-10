@@ -18,7 +18,7 @@ internal object SampleGames {
     val admin = game.tfm(ADMIN)
     val (p1, p2) = game.actors.filterIsInstance<Player>().map { game.tfm(it) }
 
-    TfmWorkflow.Manual(game).setupPhase()
+    TfmWorkflow.Stepwise(game).setupPhase()
     p1.doTask("-5 ProjectCard<Hand>")
     p2.doTask("-6 ProjectCard<Hand>")
     admin.phase("Corporation")

@@ -32,7 +32,7 @@ public class OtbGame20260904 : RecordedGame() {
           .trimIndent()
 
   protected override fun play() {
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(game).launch()
     val yellow = player(1).requireExplicitUnusedActionCards()
     val rainbow = player(2).requireExplicitUnusedActionCards()
     val blue = player(3).requireExplicitUnusedActionCards()

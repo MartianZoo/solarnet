@@ -40,7 +40,7 @@ internal class AsteroidDeflectionSystemTest : CardTest() {
         .expect("Asteroid<$AsteroidDeflectionSystem>")
 
     shutdownWorkflow()
-    TfmWorkflow.Manual(game).endPhase()
+    TfmWorkflow.Stepwise(game).endPhase()
     p1.count("VictoryPoint") shouldBe 21
   }
 }

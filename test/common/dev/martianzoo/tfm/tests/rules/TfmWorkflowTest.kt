@@ -22,7 +22,7 @@ internal class TfmWorkflowTest {
     val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(game, 7, 5)
 
     p1.playCorp(InterplanetaryCinematics, 7)
@@ -42,7 +42,7 @@ internal class TfmWorkflowTest {
     val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(game, 7, 5)
 
     p1.playCorp(InterplanetaryCinematics, 7)
@@ -64,7 +64,7 @@ internal class TfmWorkflowTest {
     val game = Engine.newGame(canonicalPremise(players = 2))
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(game, 0, 0)
     playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
     playCorporationWithoutStartingProjects(p2, CrediCor)

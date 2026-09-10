@@ -37,7 +37,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
 
   @Test
   internal fun distantPressureMass() {
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(4, 4)
     generation1()
     generation2()

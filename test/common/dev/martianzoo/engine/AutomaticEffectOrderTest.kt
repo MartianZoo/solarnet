@@ -11,7 +11,7 @@ internal class AutomaticEffectOrderTest {
     val world = Engine.newGame(selfEffectPremise) as WholeWorld
     val admin = world.agent(ADMIN)
 
-    admin.manual("Source")
+    admin.runOperation("Source")
 
     admin.count("Observed") shouldBe 1
   }
@@ -22,15 +22,15 @@ internal class AutomaticEffectOrderTest {
 
     val world = Engine.newGame(premise) as WholeWorld
     val admin = world.agent(ADMIN)
-    admin.manual("Earlier")
-    admin.manual("Later")
-    admin.manual("Token")
+    admin.runOperation("Earlier")
+    admin.runOperation("Later")
+    admin.runOperation("Token")
     val baseline = world.timeline.checkpoint()
 
     val firstContext = removalContext(world, admin)
     world.timeline.rollBack(baseline)
 
-    admin.manual("-Earlier")
+    admin.runOperation("-Earlier")
     world.timeline.rollBack(baseline)
 
     removalContext(world, admin) shouldBe firstContext
@@ -38,7 +38,7 @@ internal class AutomaticEffectOrderTest {
 
   private fun removalContext(world: WholeWorld, admin: Agent): String {
     val before = world.timeline.checkpoint()
-    admin.manual("Trigger")
+    admin.runOperation("Trigger")
     val removal =
         world.events.changesSince(before).single { it.change.removing.toString() == "Token" }
     return checkNotNull(removal.cause).context.toString()

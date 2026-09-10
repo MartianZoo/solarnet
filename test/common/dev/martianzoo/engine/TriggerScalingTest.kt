@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.testsupport.PLAYER1
@@ -19,9 +19,9 @@ internal class TriggerScalingTest {
             initialComponentTypes = setOf(cn("TriggerScalingProbe").expression),
         )
     val game = Engine.newGame(premise)
-    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val agent = game.agent(PLAYER1).also { it.autoExecPolicy = NONE }
 
-    agent.beginManual("5 ScalingSignal!") {
+    agent.beginOperation("5 ScalingSignal!") {
       game.tasks
           .extract { it.instruction.toString() }
           .shouldContainExactlyInAnyOrder(

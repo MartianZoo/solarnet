@@ -219,7 +219,7 @@ original paths.
 
 ## Measure before expanding
 
-Changing the default to `SAFE` left 21 of 54 script tests unfinished because independent
+Changing the default to `CONCRETE` left 21 of 54 script tests unfinished because independent
 consequences commonly coexist
 ([SEQUENCING.md](SEQUENCING.md#the-promises)). That establishes
 need, but not which ambitious proof rule will pay for itself.

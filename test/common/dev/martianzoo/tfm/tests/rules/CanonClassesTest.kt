@@ -107,17 +107,21 @@ internal class CanonClassesTest {
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
-    admin.manual("OceanTile<Tharsis_1_2>")
+    admin.runOperation("OceanTile<Tharsis_1_2>")
     game.agent(PLAYER1).count("CityTile<SoloOpponent>") shouldBe 2
     game.agent(PLAYER1).count("GreeneryTile<SoloOpponent>") shouldBe 2
 
     val player = game.agent(PLAYER1)
-    player.manual("-5 Plant<SoloOpponent>")
-    player.manual("PROD[-5 Plant<SoloOpponent>]")
-    player.manual("5 Plant<SoloOpponent>")
-    player.manual("PROD[5 Plant<SoloOpponent>]")
-    player.manual("-5 Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>")
-    player.manual("5 Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>")
+    player.runOperation("-5 Plant<SoloOpponent>")
+    player.runOperation("PROD[-5 Plant<SoloOpponent>]")
+    player.runOperation("5 Plant<SoloOpponent>")
+    player.runOperation("PROD[5 Plant<SoloOpponent>]")
+    player.runOperation(
+        "-5 Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
+    )
+    player.runOperation(
+        "5 Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
+    )
     listOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
       game.agent(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
       game.agent(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
@@ -129,7 +133,7 @@ internal class CanonClassesTest {
             "Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
         ) shouldBe 42
 
-    admin.manual("End FROM Phase")
+    admin.runOperation("End FROM Phase")
     game.agent(PLAYER1).count("VictoryPoint<Player1>") shouldBe 14
     game.tasks.isEmpty() shouldBe true
   }
@@ -146,7 +150,7 @@ internal class CanonClassesTest {
     withVenus.count("Class<VenusStep>") shouldBe 1
     assertFailsWith<ExpressionException> { agent.count("AnyWordHere") }
     assertFailsWith<ExpressionException> { agent.resolve("Class<AnyWordHere>") }
-    assertFailsWith<ExpressionException> { agent.manual("Class<AnyWordHere>!") }
-    assertFailsWith<ExpressionException> { agent.manual("-Class<AnyWordHere>!") }
+    assertFailsWith<ExpressionException> { agent.runOperation("Class<AnyWordHere>!") }
+    assertFailsWith<ExpressionException> { agent.runOperation("-Class<AnyWordHere>!") }
   }
 }

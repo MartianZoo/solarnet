@@ -11,14 +11,14 @@
 > [ENGINE.md](ENGINE.md), [SEQUENCING.md](SEQUENCING.md), and [API.md](API.md).
 >
 > **Status:** selected layer ownership and forward-looking synchronous-settlement contract. Current
-> code still implements autoexecution inside `:engine` through `AutoExecMode`.
+> code still implements autoexecution inside `:engine` through `AutoExecPolicy`.
 
 ## Choice-safety check
 
 - No active policy means no automatic choice.
-- `FIRST` deliberately chooses strategy and may change the outcome. Never add it merely to make a
+- `EAGER` deliberately chooses strategy and may change the outcome. Never add it merely to make a
   card test or faithful replay proceed.
-- `SAFE` may act only when its named proof contract shows that no legitimate continuation is lost;
+- `CONCRETE` may act only when its named proof contract shows that no legitimate continuation is lost;
   a singleton-looking task is not sufficient by itself.
 - Authored `::` consequences are engine semantics, not Agent policy. Do not use autoexecution to
   compensate for missing immediacy, task identity, or completion semantics.
@@ -26,7 +26,7 @@
 ## Source map
 
 - [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt),
-  [`AutoExecMode.kt`](../../src/common/dev/martianzoo/agent/AutoExecMode.kt),
+  [`AutoExecPolicy.kt`](../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt),
   [`ApiTranslation.kt`](../../src/common/dev/martianzoo/agent/ApiTranslation.kt), and
   [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt) contain the
   current engine-owned implementation to extract.
@@ -129,7 +129,7 @@ proof policy is implemented; do not add speculative public APIs ahead of it.
 
 ## Current implementation divergence
 
-Committed code still stores `AutoExecMode` on each `Agent`, defaults it to `FIRST`, and runs the
+Committed code still stores `AutoExecPolicy` on each `Agent`, defaults it to `EAGER`, and runs the
 queue drain from engine-side command and operation completion points. It does not yet provide
 policy attachment or the planned Admin-first policy schedule. As a transitional
 progress rule, a Player using `NONE` still drains only Admin-assigned work from the shared queue.

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.Agent
-import dev.martianzoo.agent.BodyLambda
+import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
@@ -42,7 +42,7 @@ internal abstract class CardTest(
   private var p2: TfmGameplay? = null
     private set
 
-  private var workflow: TfmWorkflow.Auto? = null
+  private var workflow: TfmWorkflow.Automatic? = null
 
   protected fun newGame(
       config: GameConfig,
@@ -141,7 +141,7 @@ internal abstract class CardTest(
     workflow?.shutdown()
     return Engine.newGame(premise).apply {
       bindPlayers()
-      workflow = TfmWorkflow.Auto(this).launch()
+      workflow = TfmWorkflow.Automatic(this).launch()
       retainStartingProjects(this, *IntArray(actors.filterIsInstance<Player>().size))
       finishSoloSetup()
     }
@@ -226,15 +226,15 @@ internal abstract class CardTest(
   }
 
   /** Runs an instruction through the engine while hiding the uninteresting Agent plumbing. */
-  protected fun TfmGameplay.manual(
+  protected fun TfmGameplay.runOperation(
       instruction: String,
-      body: BodyLambda = {},
-  ): TaskResult = manual(instruction, body)
+      body: OperationBlock = {},
+  ): TaskResult = runOperation(instruction, body)
 
-  protected fun Agent.manual(
+  protected fun Agent.runOperation(
       instruction: String,
-      body: BodyLambda = {},
-  ): TaskResult = manual(instruction, body)
+      body: OperationBlock = {},
+  ): TaskResult = runOperation(instruction, body)
 
   private companion object {
     private val BORING_CORPORATIONS =

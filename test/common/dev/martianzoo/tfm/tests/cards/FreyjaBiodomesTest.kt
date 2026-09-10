@@ -10,10 +10,10 @@ internal class FreyjaBiodomesTest : CardTest() {
   @Test
   internal fun `Can be played without another eligible Venus card`() {
     newGame(VenusNextExpansion)
-    p1.manual("PROD[Energy]")
-    p1.manual("$VenusianAnimals")
+    p1.runOperation("PROD[Energy]")
+    p1.runOperation("$VenusianAnimals")
     p1.assertCounts(1 to "Animal<$VenusianAnimals>")
-    p1.manual("$FreyjaBiodomes") {
+    p1.runOperation("$FreyjaBiodomes") {
           // Decline adding animals to Venusian Animals by choosing the unavailable microbe gain.
           declineTask()
         }

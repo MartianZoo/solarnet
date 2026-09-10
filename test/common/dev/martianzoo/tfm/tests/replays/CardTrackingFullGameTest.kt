@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.Agent.OperationBody
+import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.ast.ClassName
@@ -50,7 +50,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   }
 
   /** Resolves and identifies an anonymous in-operation selection discard. */
-  protected fun OperationBody.discardUnselectedProjectCards(vararg cardClasses: ClassName) {
+  protected fun OperationScope.discardUnselectedProjectCards(vararg cardClasses: ClassName) {
     require(cardClasses.isNotEmpty())
     if (
         tasks

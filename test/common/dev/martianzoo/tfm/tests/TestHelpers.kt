@@ -33,7 +33,7 @@ internal fun setUpGame(
     retainedStartingProjects: Int = 0,
 ): World =
     Engine.newGame(premise).apply {
-      TfmWorkflow.Manual(this).setupPhase()
+      TfmWorkflow.Stepwise(this).setupPhase()
       retainStartingProjects(
           this,
           *IntArray(actors.filterIsInstance<Player>().size) { retainedStartingProjects },

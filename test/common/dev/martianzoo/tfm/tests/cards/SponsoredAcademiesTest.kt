@@ -12,14 +12,14 @@ internal class SponsoredAcademiesTest : CardTest() {
   fun initializeGame() {
     newGame(VenusNextExpansion, players = 3)
     admin.phase("Action")
-    admin.manual(
+    admin.runOperation(
         "9 MC<Player1>, ProjectCard<Player1, Hand>, ProjectCard<Player2, Hand>, ProjectCard<Player3, Hand>"
     )
   }
 
   @Test
   internal fun `Owner discards one and draws two while every opponent draws one`() {
-    p1.manual("ProjectCard")
+    p1.runOperation("ProjectCard")
 
     p1.playProject(SponsoredAcademies, 9)
         .expect("ProjectCard<Player1>, ProjectCard<Player2>, ProjectCard<Player3>")

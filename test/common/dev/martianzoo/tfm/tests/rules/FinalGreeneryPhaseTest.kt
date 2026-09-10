@@ -22,7 +22,7 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(canonicalPremise())
     val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(game, 0, 0)
 
     playCorporationWithoutStartingProjects(p1, Ecoline)
@@ -40,12 +40,12 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(canonicalPremise())
     val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
-    val workflow = TfmWorkflow.Manual(game)
+    val workflow = TfmWorkflow.Stepwise(game)
 
     workflow.setupPhase()
     retainStartingProjects(game, 0, 0)
     workflow.corporationPhase()
-    p1.manual("8 Plant")
+    p1.runOperation("8 Plant")
     workflow.finalGreeneryPhase()
     p1.startTurn()
     p1.convertPlants { doTask("GreeneryTile<Tharsis_3_5>") }
@@ -59,7 +59,7 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(setup)
     val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(game, 0)
 
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
@@ -87,7 +87,7 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(setup)
     val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(game, 0)
 
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
@@ -115,7 +115,7 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(setup)
     val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(game, 0)
 
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
@@ -146,7 +146,7 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(game, 0, 0)
 
     playCorporationWithoutStartingProjects(p1, Ecoline)
@@ -167,7 +167,7 @@ internal class FinalGreeneryPhaseTest {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
     val p3 = game.tfm(PLAYER3)
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(game, 0, 0, 0)
 
     playCorporationWithoutStartingProjects(p1, CrediCor)
@@ -207,7 +207,7 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(game, 0, 0)
 
     playCorporationWithoutStartingProjects(p1, CrediCor)
@@ -243,7 +243,7 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(game, 0, 0)
 
     playCorporationWithoutStartingProjects(p1, CrediCor)
@@ -286,7 +286,7 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(game, 0, 0)
 
     playCorporationWithoutStartingProjects(p1, CrediCor)
@@ -328,7 +328,7 @@ internal class FinalGreeneryPhaseTest {
     val game = setUpGame(VenusNextExpansion)
     val admin = game.tfm(ADMIN)
 
-    admin.manual(
+    admin.runOperation(
         "GpComplete<Class<TemperatureStep>>, " +
             "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
     )
@@ -342,14 +342,14 @@ internal class FinalGreeneryPhaseTest {
     val game = setUpGame(VenusNextExpansion, MandatoryVenusVariant)
     val admin = game.tfm(ADMIN)
 
-    admin.manual(
+    admin.runOperation(
         "GpComplete<Class<TemperatureStep>>, " +
             "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
     )
 
     admin.count("GameEndBarrier") shouldBe 1
 
-    admin.manual("GpComplete<Class<VenusStep>>")
+    admin.runOperation("GpComplete<Class<VenusStep>>")
 
     admin.count("GameEndBarrier") shouldBe 0
   }

@@ -90,14 +90,14 @@ internal class QuickStartVariantTest : CardTest() {
         )
     quickStart.classTable.isActive(cn("Generalist")) shouldBe false
     quickStart.classTable.isActive(cn("Generalist2")) shouldBe true
-    p1.manual("8 MC")
+    p1.runOperation("8 MC")
     admin.phase("Action")
 
     shouldThrow<RequirementException> {
       p1.stdAction("ClaimMilestoneAction") { doTask("Generalist2") }
     }
 
-    p1.manual("PROD[1 MC, Steel, Titanium, Plant, Energy, Heat]")
+    p1.runOperation("PROD[1 MC, Steel, Titanium, Plant, Energy, Heat]")
     p1.stdAction("ClaimMilestoneAction") { doTask("Generalist2") }
     p1.count("Milestone") shouldBe 1
 

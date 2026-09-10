@@ -33,7 +33,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
 
   @Test
   internal fun otbGame20260809() {
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(6, 4)
     val yellow = player(1)
     val green = player(2)

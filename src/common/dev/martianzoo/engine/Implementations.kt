@@ -1,9 +1,9 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.AutoExecMode
-import dev.martianzoo.agent.AutoExecMode.FIRST
-import dev.martianzoo.agent.AutoExecMode.NONE
-import dev.martianzoo.agent.AutoExecMode.SAFE
+import dev.martianzoo.agent.AutoExecPolicy
+import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetTransformer
@@ -101,9 +101,9 @@ internal class Implementations(
 
   // OPERATIONS LAYER
 
-  internal fun manual(
+  internal fun runOperation(
       initialInstructions: InstructionGroup,
-      autoExec: AutoExecMode,
+      autoExec: AutoExecPolicy,
       body: () -> Unit,
   ): Set<TaskId> {
     val preexistingTasks = allTasks.ids()
@@ -115,14 +115,14 @@ internal class Implementations(
     return preexistingTasks
   }
 
-  internal fun beginManual(
+  internal fun beginOperation(
       initialInstructions: InstructionGroup,
-      autoExec: AutoExecMode,
+      autoExec: AutoExecPolicy,
       body: () -> Unit,
   ) {
     tasks.requireAllQueuesEmpty()
     addTasks(initialInstructions).forEach(::doInitialTask)
-    continueManual(autoExec, body)
+    continueOperation(autoExec, body)
   }
 
   private fun doInitialTask(taskId: TaskId) {
@@ -133,18 +133,18 @@ internal class Implementations(
     }
   }
 
-  internal fun continueManual(autoExec: AutoExecMode, body: () -> Unit) {
+  internal fun continueOperation(autoExec: AutoExecPolicy, body: () -> Unit) {
     autoExecNow(autoExec)
     body()
     autoExecNow(autoExec)
   }
 
   internal fun complete(
-      autoExec: AutoExecMode,
+      autoExec: AutoExecPolicy,
       allowedPendingTasks: Set<TaskId> = emptySet(),
       body: () -> Unit,
   ) {
-    continueManual(autoExec, body)
+    continueOperation(autoExec, body)
     requireComplete(allowedPendingTasks)
   }
 
@@ -164,17 +164,17 @@ internal class Implementations(
     }
   }
 
-  internal fun autoExecNow(mode: AutoExecMode) {
-    while (autoExecNext(mode)) {}
+  internal fun autoExecNow(policy: AutoExecPolicy) {
+    while (autoExecNext(policy)) {}
   }
 
-  private fun autoExecNext(mode: AutoExecMode): Boolean /* should we continue */ {
+  private fun autoExecNext(policy: AutoExecPolicy): Boolean /* should we continue */ {
     if (allTasks.isEmpty()) return false
 
     // Until Admin has its own scheduled policy, a disabled Player policy still advances
     // deterministic Admin-assigned work without touching any Player task.
     val eligible =
-        if (mode == NONE) {
+        if (policy == NONE) {
           if (actor !is Player) return false
           allTasks.ids().filter { taskId ->
             queueForAnyTask(taskId).getTaskData(taskId).assignee == ADMIN
@@ -186,7 +186,7 @@ internal class Implementations(
 
     val selected = allTasks.selectedTask()
     if (selected != null && selected !in eligible) return false
-    val effectiveMode = if (mode == NONE) FIRST else mode
+    val effectivePolicy = if (policy == NONE) EAGER else policy
 
     val options: List<TaskId> = selected?.let(::listOf) ?: eligible.filter(::canSelectAnyTask)
 
@@ -202,10 +202,10 @@ internal class Implementations(
           throw e.cause ?: e
         }
       }
-      else -> if (effectiveMode == SAFE) return false
+      else -> if (effectivePolicy == CONCRETE) return false
     }
 
-    // We're in unsafe mode. Arbitrarily try tasks in stable iteration order.
+    // We're using an unsafe policy. Arbitrarily try tasks in stable iteration order.
 
     var recoverable = false
 

@@ -25,7 +25,7 @@ public class OtbGame20260818 : RecordedGame() {
       )
 
   protected override fun play() {
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(game).launch()
     val green = player(1)
     val yellow = player(2)
     green.doTask("-3 ProjectCard<Hand>")

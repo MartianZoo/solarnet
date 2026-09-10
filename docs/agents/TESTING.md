@@ -199,7 +199,7 @@ success depend on an incidental assignee unless that test is explicitly about de
 Keep gameplay and test APIs generic. Never add a Kotlin helper or DSL operation solely to represent
 one card, corporation, Prelude, or other component. Use existing gameplay helpers when their
 operation scopes fit. When component-specific steps must stay inside an outer operation, express
-them through existing `OperationBody` primitives so any sibling task may remain pending. Add a
+them through existing `OperationScope` primitives so any sibling task may remain pending. Add a
 shared helper only for a recurring, component-independent concept that materially simplifies
 several call sites. `TfmGameplay` must not repair the game model by creating or relocating rule
 components, imposing order absent from Pets or the engine, or identifying work by rendered text or
@@ -212,7 +212,7 @@ belongs in player-level scenarios.
 
 Keep scenarios minimal and legible. Card tests use the base game and two players by default unless
 the behavior requires something else, add only relevant options and components, and consistently
-name the gameplay objects `p1` and `p2`. Use `manual()` when only the resulting setup matters instead
+name the gameplay objects `p1` and `p2`. Use `runOperation()` when only the resulting setup matters instead
 of replaying an irrelevant play-card sequence. Avoid `sneak`: it can create impossible states.
 Synthetic card scenarios pass their card and supporting `ClassDeclaration`s to the `CardTest`
 constructor; they are composed with Canon and selected in that test's premise.

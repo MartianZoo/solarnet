@@ -15,10 +15,10 @@ internal class LandClaimTest : CardTest() {
     newGame(CorporateEraExpansion)
     val p2 = requireP2()
 
-    p1.manual("$LandClaim") { doTask("Community<Tharsis_1_1>") }
+    p1.runOperation("$LandClaim") { doTask("Community<Tharsis_1_1>") }
 
-    shouldThrow<DeadEndException> { p2.manual("CityTile<Tharsis_1_1>") }
-    p1.manual("GreeneryTile<Tharsis_1_1>")
+    shouldThrow<DeadEndException> { p2.runOperation("CityTile<Tharsis_1_1>") }
+    p1.runOperation("GreeneryTile<Tharsis_1_1>")
     p1.assertCounts(0 to "Community<Tharsis_1_1>")
   }
 
@@ -26,19 +26,19 @@ internal class LandClaimTest : CardTest() {
   internal fun `Artificial Lake respects a claim according to its owner`() {
     newGame(CorporateEraExpansion)
     val p2 = requireP2()
-    p1.manual("$LandClaim") { doTask("Community<Tharsis_1_3>") }
+    p1.runOperation("$LandClaim") { doTask("Community<Tharsis_1_3>") }
 
-    shouldThrow<DeadEndException> { p2.manual("$ArtificialLake") { placeTile(1, 3) } }
-    p1.manual("$ArtificialLake") { placeTile(1, 3) }
+    shouldThrow<DeadEndException> { p2.runOperation("$ArtificialLake") { placeTile(1, 3) } }
+    p1.runOperation("$ArtificialLake") { placeTile(1, 3) }
     p1.assertCounts(1 to "OceanTile<Tharsis_1_3>")
   }
 
   @Test
   internal fun `Placing an unrelated tile does not remove a community`() {
     newGame(CorporateEraExpansion)
-    p1.manual("$LandClaim") { doTask("Community<Tharsis_1_3>") }
+    p1.runOperation("$LandClaim") { doTask("Community<Tharsis_1_3>") }
 
-    p1.manual("CityTile<Tharsis_4_2>")
+    p1.runOperation("CityTile<Tharsis_4_2>")
 
     p1.assertCounts(1 to "Community<Tharsis_1_3>")
   }
@@ -46,13 +46,13 @@ internal class LandClaimTest : CardTest() {
   @Test
   internal fun `A community does not establish greenery placement adjacency`() {
     newGame(CorporateEraExpansion)
-    p1.manual("$LandClaim") { doTask("Community<Tharsis_4_2>") }
-    p1.manual("CityTile<Tharsis_1_1>")
+    p1.runOperation("$LandClaim") { doTask("Community<Tharsis_4_2>") }
+    p1.runOperation("CityTile<Tharsis_1_1>")
 
     shouldThrow<NarrowingException> {
-      p1.manual("DefaultGreeneryTile") { doTask("GreeneryTile<Tharsis_4_3>") }
+      p1.runOperation("DefaultGreeneryTile") { doTask("GreeneryTile<Tharsis_4_3>") }
     }
-    p1.manual("DefaultGreeneryTile") { doTask("GreeneryTile<Tharsis_2_1>") }
+    p1.runOperation("DefaultGreeneryTile") { doTask("GreeneryTile<Tharsis_2_1>") }
 
     p1.assertCounts(1 to "Community<Tharsis_4_2>", 1 to "GreeneryTile<Tharsis_2_1>")
   }
@@ -61,12 +61,12 @@ internal class LandClaimTest : CardTest() {
   internal fun `Another player's claim on the only adjacent area enables greenery fallback`() {
     newGame(CorporateEraExpansion)
     val p2 = requireP2()
-    p1.manual("GreeneryTile<Tharsis_1_1>")
-    p2.manual("CityTile<Tharsis_2_1>")
-    p2.manual("$LandClaim") { doTask("Community<Tharsis_2_2>") }
+    p1.runOperation("GreeneryTile<Tharsis_1_1>")
+    p2.runOperation("CityTile<Tharsis_2_1>")
+    p2.runOperation("$LandClaim") { doTask("Community<Tharsis_2_2>") }
 
-    shouldThrow<DeadEndException> { p1.manual("GreeneryTile<Tharsis_2_2>") }
-    p1.manual("GreeneryTile<Tharsis_9_7>")
+    shouldThrow<DeadEndException> { p1.runOperation("GreeneryTile<Tharsis_2_2>") }
+    p1.runOperation("GreeneryTile<Tharsis_9_7>")
     p1.assertCounts(1 to "GreeneryTile<Tharsis_9_7>")
   }
 
@@ -74,14 +74,14 @@ internal class LandClaimTest : CardTest() {
   internal fun `Cannot claim an occupied or reserved area`() {
     newGame(CorporateEraExpansion)
     val p2 = requireP2()
-    p1.manual("GreeneryTile<Tharsis_1_1>")
+    p1.runOperation("GreeneryTile<Tharsis_1_1>")
 
     shouldThrow<NarrowingException> {
-      p1.manual("$LandClaim") { doTask("Community<Tharsis_1_1>") }
+      p1.runOperation("$LandClaim") { doTask("Community<Tharsis_1_1>") }
     }
-    p1.manual("$LandClaim") { doTask("Community<Tharsis_1_3>") }
+    p1.runOperation("$LandClaim") { doTask("Community<Tharsis_1_3>") }
     shouldThrow<NarrowingException> {
-      p2.manual("$LandClaim") { doTask("Community<Tharsis_1_3>") }
+      p2.runOperation("$LandClaim") { doTask("Community<Tharsis_1_3>") }
     }
   }
 
@@ -89,9 +89,9 @@ internal class LandClaimTest : CardTest() {
   internal fun `A land area intrinsically allows only one community`() {
     newGame(CorporateEraExpansion)
     val p2 = requireP2()
-    p1.manual("Community<Tharsis_1_3>")
+    p1.runOperation("Community<Tharsis_1_3>")
 
-    shouldThrow<LimitsException> { p2.manual("Community<Tharsis_1_3>") }
+    shouldThrow<LimitsException> { p2.runOperation("Community<Tharsis_1_3>") }
 
     p1.assertCounts(1 to "Community<Tharsis_1_3>")
     p2.assertCounts(0 to "Community<Tharsis_1_3>")

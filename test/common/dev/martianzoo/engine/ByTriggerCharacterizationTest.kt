@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.AutoExecMode.FIRST
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.PetElaborator
@@ -30,10 +30,10 @@ internal class ByTriggerCharacterizationTest {
 
   private fun assertByAnyone(actor: Actor) {
     val game = newGame()
-    val agent = game.agent(actor).also { it.autoExecMode = NONE }
+    val agent = game.agent(actor).also { it.autoExecPolicy = NONE }
     agent.sneak("ActorTriggerProbe!")
 
-    agent.beginManual("ActorTriggerSignal!") {
+    agent.beginOperation("ActorTriggerSignal!") {
       game.tasks
           .extract { it.assignee to it.instruction.toString() }
           .shouldContainExactly(actor to "Plant<Player1>!")
@@ -43,10 +43,10 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byPlayerAcceptsPlayer() {
     val game = newGame()
-    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val p1 = game.agent(PLAYER1).also { it.autoExecPolicy = NONE }
     p1.sneak("ActorTriggerProbe!, ActorTriggerSignal!")
 
-    p1.beginManual("-ActorTriggerSignal!") {
+    p1.beginOperation("-ActorTriggerSignal!") {
       game.tasks
           .extract { it.assignee to it.instruction.toString() }
           .shouldContainExactly(PLAYER1 to "Steel<Player1>!")
@@ -56,10 +56,10 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byPlayerBindsTheConcreteActorInTheTriggerAndInstruction() {
     val game = newGame()
-    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
+    val p2 = game.agent(PLAYER2).also { it.autoExecPolicy = NONE }
     p2.sneak("ActorBindingProbe!, OwnedActorTrigger<Player1>!")
 
-    p2.beginManual("-OwnedActorTrigger<Player1>!") {
+    p2.beginOperation("-OwnedActorTrigger<Player1>!") {
       game.tasks
           .extract { it.instruction.toString() }
           .shouldContainExactlyInAnyOrder(
@@ -72,10 +72,10 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byPlayerRejectsAdmin() {
     val game = newGame()
-    val admin = game.agent(ADMIN).also { it.autoExecMode = NONE }
+    val admin = game.agent(ADMIN).also { it.autoExecPolicy = NONE }
     admin.sneak("ActorTriggerProbe!, ActorTriggerSignal!")
 
-    admin.beginManual("-ActorTriggerSignal!")
+    admin.beginOperation("-ActorTriggerSignal!")
 
     game.tasks.isEmpty() shouldBe true
   }
@@ -83,14 +83,14 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byOwnerTestsThePerformerNotTheActorReceivingTheEffect() {
     val game = newGame()
-    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
-    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
+    val p1 = game.agent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val p2 = game.agent(PLAYER2).also { it.autoExecPolicy = NONE }
     p1.sneak("OwnedByProbe<Player2>!")
 
-    p1.manual("ActorTriggerSignal!")
+    p1.runOperation("ActorTriggerSignal!")
     game.tasks.isEmpty() shouldBe true
 
-    p2.beginManual("-ActorTriggerSignal!") {
+    p2.beginOperation("-ActorTriggerSignal!") {
       game.tasks
           .extract { it.assignee to it.instruction.toString() }
           .shouldContainExactly(PLAYER2 to "Heat<Player2>!")
@@ -100,15 +100,15 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun anUnownedTriggerDefaultsToTheEffectOwner() {
     val game = newGame()
-    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
-    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
+    val p1 = game.agent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val p2 = game.agent(PLAYER2).also { it.autoExecPolicy = NONE }
     p1.sneak("RepeatedOwnerProbe<Player2>!")
     val checkpoint = game.timeline.checkpoint()
 
-    p1.manual("ActorTriggerSignal!")
+    p1.runOperation("ActorTriggerSignal!")
     game.tasks.isEmpty() shouldBe true
 
-    p2.beginManual("ActorTriggerSignal!") {
+    p2.beginOperation("ActorTriggerSignal!") {
       game.tasks
           .extract { it.assignee to it.instruction.toString() }
           .shouldContainExactlyInAnyOrder(
@@ -117,7 +117,7 @@ internal class ByTriggerCharacterizationTest {
           )
     }
 
-    p2.autoExecMode = FIRST
+    p2.autoExecPolicy = EAGER
 
     game.tasks.isEmpty() shouldBe true
     p1.count("Plant<Player2>") shouldBe 1
@@ -128,11 +128,11 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun anOwnedTriggerUsesItsAuthoredOwnershipInsteadOfAnImplicitActorFilter() {
     val game = newGame()
-    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
-    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
+    val p1 = game.agent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val p2 = game.agent(PLAYER2).also { it.autoExecPolicy = NONE }
     p1.sneak("OwnedTriggerProbe<Player1>!")
 
-    p2.beginManual("OwnedActorTrigger<Player2>!") {
+    p2.beginOperation("OwnedActorTrigger<Player2>!") {
       game.tasks.extract { it.instruction.toString() }.shouldContainExactly("Plant<Player1>!")
     }
   }
@@ -157,16 +157,16 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun byNotOwnerAcceptsOtherPlayersButRejectsTheOwnerAndAdmin() {
     val game = newGame()
-    val owner = game.agent(PLAYER1).also { it.autoExecMode = NONE }
-    val other = game.agent(PLAYER2).also { it.autoExecMode = NONE }
-    val admin = game.agent(ADMIN).also { it.autoExecMode = NONE }
+    val owner = game.agent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val other = game.agent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val admin = game.agent(ADMIN).also { it.autoExecPolicy = NONE }
     owner.sneak("OpponentByProbe<Player1>!")
 
-    owner.manual("ActorTriggerSignal!")
-    admin.manual("ActorTriggerSignal!")
+    owner.runOperation("ActorTriggerSignal!")
+    admin.runOperation("ActorTriggerSignal!")
     game.tasks.isEmpty() shouldBe true
 
-    other.beginManual("ActorTriggerSignal!") {
+    other.beginOperation("ActorTriggerSignal!") {
       game.tasks.extract { it.instruction.toString() }.shouldContainExactly("Heat<Player1>!")
     }
   }
@@ -174,11 +174,11 @@ internal class ByTriggerCharacterizationTest {
   @Test
   internal fun orTriggerMatchesItsRemovalAlternative() {
     val game = newGame()
-    val owner = game.agent(PLAYER1).also { it.autoExecMode = NONE }
-    val other = game.agent(PLAYER2).also { it.autoExecMode = NONE }
+    val owner = game.agent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val other = game.agent(PLAYER2).also { it.autoExecPolicy = NONE }
     owner.sneak("OpponentByProbe<Player1>!, ActorTriggerSignal!")
 
-    other.beginManual("-ActorTriggerSignal!") {
+    other.beginOperation("-ActorTriggerSignal!") {
       game.tasks.extract { it.instruction.toString() }.shouldContainExactly("Heat<Player1>!")
     }
   }

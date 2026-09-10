@@ -40,7 +40,7 @@ internal class TfmTaskHelpersTest : CardTest() {
   @Test
   internal fun `Card resources reject multiple pending placements`() {
     newGame(VenusNextExpansion)
-    p1.manual("$ForcedPrecipitation")
+    p1.runOperation("$ForcedPrecipitation")
 
     p1.addTasks("Floater?, Floater?")
 

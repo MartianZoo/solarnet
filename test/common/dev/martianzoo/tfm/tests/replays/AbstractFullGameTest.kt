@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecMode.FIRST
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.exMachina
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parseClasses
@@ -154,17 +154,17 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   private fun TfmGameplay.assertVps(expected: Int) {
     val onAtomicComplete = game.onAtomicComplete
     val checkpoint = game.timeline.checkpoint()
-    val autoExecModes = game.actors.associateWith { game.agent(it).autoExecMode }
+    val autoExecPolicys = game.actors.associateWith { game.agent(it).autoExecPolicy }
     game.onAtomicComplete = {}
     try {
-      game.actors.forEach { game.agent(it).autoExecMode = FIRST }
+      game.actors.forEach { game.agent(it).autoExecPolicy = EAGER }
       dropPendingTasksForSnapshot()
       admin.phase("Production") { dropPendingTasksForSnapshot() }
-      admin.manual("End FROM Phase") { dropPendingTasksForSnapshot() }
+      admin.runOperation("End FROM Phase") { dropPendingTasksForSnapshot() }
       assertCounts(expected to "VictoryPoint")
     } finally {
       game.timeline.rollBack(checkpoint)
-      autoExecModes.forEach { (actor, mode) -> game.agent(actor).autoExecMode = mode }
+      autoExecPolicys.forEach { (actor, mode) -> game.agent(actor).autoExecPolicy = mode }
       game.onAtomicComplete = onAtomicComplete
     }
   }

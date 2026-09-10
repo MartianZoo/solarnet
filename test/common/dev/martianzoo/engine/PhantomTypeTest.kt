@@ -42,12 +42,12 @@ internal class PhantomTypeTest {
   internal fun `optional and amap phantom changes do nothing while mandatory changes die`() {
     val agent = agent()
 
-    agent.manual("VenusTag?")
-    agent.manual("VenusTag.")
-    agent.manual("-VenusTag?")
-    agent.manual("-VenusTag.")
-    shouldThrow<DeadEndException> { agent.manual("VenusTag!") }
-    shouldThrow<DeadEndException> { agent.manual("-VenusTag!") }
+    agent.runOperation("VenusTag?")
+    agent.runOperation("VenusTag.")
+    agent.runOperation("-VenusTag?")
+    agent.runOperation("-VenusTag.")
+    shouldThrow<DeadEndException> { agent.runOperation("VenusTag!") }
+    shouldThrow<DeadEndException> { agent.runOperation("-VenusTag!") }
     agent.count("VenusTag") shouldBe 0
   }
 
@@ -55,7 +55,7 @@ internal class PhantomTypeTest {
   internal fun `choices discard mandatory phantom branches`() {
     val agent = agent()
 
-    agent.manual("VenusTag! OR Plant<Player1>!")
+    agent.runOperation("VenusTag! OR Plant<Player1>!")
 
     agent.count("Plant<Player1>") shouldBe 1
   }

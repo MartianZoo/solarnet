@@ -14,13 +14,13 @@ internal class CrashSiteCleanupTest : CardTest() {
   fun initializeGame() {
     newGame(PromoCardPack)
     admin.phase("Action")
-    p1.manual("4 MC, ProjectCard")
-    requireP2().manual("Plant")
+    p1.runOperation("4 MC, ProjectCard")
+    requireP2().runOperation("Plant")
   }
 
   @Test
   internal fun `Can be played after removing an opponent's plant`() {
-    p1.manual("-Plant<Player2>")
+    p1.runOperation("-Plant<Player2>")
     p1.playProject(CrashSiteCleanup, 4) { doTask("Titanium") }.expect("Titanium")
   }
 
@@ -31,20 +31,20 @@ internal class CrashSiteCleanupTest : CardTest() {
 
   @Test
   internal fun `Cannot be played after losing one of its own plants`() {
-    p1.manual("Plant, -Plant")
+    p1.runOperation("Plant, -Plant")
     shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
   }
 
   @Test
   internal fun `Cannot be played after an opponent removes its own plant`() {
-    requireP2().manual("-Plant")
+    requireP2().runOperation("-Plant")
     shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
   }
 
   @Test
   internal fun `Cannot be played if the plant removal was in a previous generation`() {
-    p1.manual("-Plant<Player2>")
-    admin.manual("Generation")
+    p1.runOperation("-Plant<Player2>")
+    admin.runOperation("Generation")
     shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
   }
 
@@ -53,11 +53,11 @@ internal class CrashSiteCleanupTest : CardTest() {
     newGame(PromoCardPack, players = 3)
     val p3 = game.tfm(PLAYER3)
     admin.phase("Action")
-    p1.manual("4 MC, ProjectCard")
-    requireP2().manual("Plant")
-    p3.manual("4 MC, ProjectCard")
+    p1.runOperation("4 MC, ProjectCard")
+    requireP2().runOperation("Plant")
+    p3.runOperation("4 MC, ProjectCard")
 
-    p1.manual("-Plant<Player2>")
+    p1.runOperation("-Plant<Player2>")
 
     shouldThrow<RequirementException> { p3.playProject(CrashSiteCleanup, 4) }
     p1.playProject(CrashSiteCleanup, 4) { doTask("2 Steel") }.expect("2 Steel")

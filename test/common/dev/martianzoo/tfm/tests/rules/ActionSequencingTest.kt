@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
@@ -22,10 +22,10 @@ internal class ActionSequencingTest {
     val game = setUpGame()
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
-    p1.manual("$Steelworks, 4 Energy")
+    p1.runOperation("$Steelworks, 4 Energy")
     game.tfm(ADMIN).phase("Action")
 
-    p1.manual("UseAction<$Steelworks, Action1>") { p1.pay(energy = 4) }
+    p1.runOperation("UseAction<$Steelworks, Action1>") { p1.pay(energy = 4) }
 
     p1.count("Steel") shouldBe 2
     p2.count("Steel") shouldBe 0
@@ -35,15 +35,15 @@ internal class ActionSequencingTest {
   internal fun `card purchase waits for its complete adjusted debt to be paid`() {
     val game = setUpGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     val p1 = game.tfm(PLAYER1)
-    p1.manual("$Polyphemos, 5 MC")
+    p1.runOperation("$Polyphemos, 5 MC")
     val manual = p1
 
-    manual.beginManual("ProjectCard<Selecting> THEN BuySelectedCards")
+    manual.beginOperation("ProjectCard<Selecting> THEN BuySelectedCards")
 
     p1.count("Owed<>") shouldBe 5
     p1.count("ProjectCard<Hand>") shouldBe 0
 
-    manual.autoExecMode = NONE
+    manual.autoExecPolicy = NONE
     manual.doTask("5 Pay<Class<MC>> FROM MC")
 
     p1.count("ProjectCard<Hand>") shouldBe 1
@@ -52,10 +52,10 @@ internal class ActionSequencingTest {
   @Test
   internal fun `use-card action rejects a different card after placing the marker`() {
     val game = setUpGame()
-    val manual = game.tfm(PLAYER1).also { it.autoExecMode = NONE }
-    manual.manual("$SymbioticFungus, $Ants")
+    val manual = game.tfm(PLAYER1).also { it.autoExecPolicy = NONE }
+    manual.runOperation("$SymbioticFungus, $Ants")
 
-    manual.beginManual("UseAction<UseActionOnCardAction, Action1>") {
+    manual.beginOperation("UseAction<UseActionOnCardAction, Action1>") {
       doTask("ActionUsedMarker<$SymbioticFungus>")
       shouldThrow<TaskException> { doTask("UseAction<$Ants>") }
       abort()

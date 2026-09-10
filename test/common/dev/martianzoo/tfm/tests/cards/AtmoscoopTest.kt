@@ -9,9 +9,9 @@ internal class AtmoscoopTest : CardTest() {
   @Test
   internal fun `Can choose Venus when it is already maxed`() {
     newGame(VenusNextExpansion)
-    p1.manual("15 VenusStep, $AerialMappers")
+    p1.runOperation("15 VenusStep, $AerialMappers")
 
-    p1.manual("$Atmoscoop") {
+    p1.runOperation("$Atmoscoop") {
           doTask("2 VenusStep")
           addCardResources(AerialMappers)
         }
@@ -21,9 +21,9 @@ internal class AtmoscoopTest : CardTest() {
   @Test
   internal fun `Can raise Venus once when it is at 28 percent`() {
     newGame(VenusNextExpansion)
-    p1.manual("14 VenusStep, $AerialMappers")
+    p1.runOperation("14 VenusStep, $AerialMappers")
 
-    p1.manual("$Atmoscoop") {
+    p1.runOperation("$Atmoscoop") {
           doTask("2 VenusStep")
           addCardResources(AerialMappers)
         }
@@ -33,9 +33,9 @@ internal class AtmoscoopTest : CardTest() {
   @Test
   internal fun `Can raise Venus two steps`() {
     newGame(VenusNextExpansion)
-    p1.manual("$AerialMappers")
+    p1.runOperation("$AerialMappers")
 
-    p1.manual("$Atmoscoop") {
+    p1.runOperation("$Atmoscoop") {
           doTask("2 VenusStep")
           addCardResources(AerialMappers)
         }

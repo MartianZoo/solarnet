@@ -1,6 +1,6 @@
 package dev.martianzoo.agent
 
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.testsupport.PLAYER1
@@ -11,7 +11,7 @@ internal class AgentTest {
   @Test
   internal fun worldReturnsOneStableAgentWithActorScopedViewsAndTaskCommands() {
     val game = Engine.newGame(testGamePremise())
-    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val agent = game.agent(PLAYER1).also { it.autoExecPolicy = NONE }
 
     (agent === game.agent(PLAYER1)) shouldBe true
     (agent.reader === game.reader) shouldBe true
@@ -29,7 +29,7 @@ internal class AgentTest {
   @Test
   internal fun executionProbeAndTryLeaveAnAbstractTaskUnchanged() {
     val game = Engine.newGame(testGamePremise())
-    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val agent = game.agent(PLAYER1).also { it.autoExecPolicy = NONE }
     val taskId = agent.addTasks("Token?").single()
     val taskBefore = agent.tasks.getTaskData(taskId)
 

@@ -35,10 +35,10 @@ internal class SimpleAddsRemovesTest {
             )
         )
     val p1 = game.agent(PLAYER1)
-    p1.manual("Card<Player1>")
+    p1.runOperation("Card<Player1>")
     val checkpoint = game.timeline.checkpoint()
 
-    p1.manual("Holder<Player1, Card<Player1>>")
+    p1.runOperation("Holder<Player1, Card<Player1>>")
 
     game.events.changesSince(checkpoint).first().change.gaining shouldBe
         parse<Expression>("Holder<Player1>")
@@ -50,7 +50,7 @@ internal class SimpleAddsRemovesTest {
     val game = Engine.newGame(canonicalPremise())
     val p2 = game.tfm(PLAYER2)
 
-    p2.manual("StandardResource") { doTask("Plant") }
+    p2.runOperation("StandardResource") { doTask("Plant") }
 
     p2.count("Plant<Player2>") shouldBe 1
   }
@@ -59,7 +59,7 @@ internal class SimpleAddsRemovesTest {
   internal fun manualStillRejectsAnImpossibleConcreteInitialInstruction() {
     val p2 = Engine.newGame(canonicalPremise()).tfm(PLAYER2)
 
-    shouldThrow<LimitsException> { p2.manual("-Plant") }
+    shouldThrow<LimitsException> { p2.runOperation("-Plant") }
   }
 
   @Test
@@ -68,7 +68,7 @@ internal class SimpleAddsRemovesTest {
     val p2 = game.tfm(PLAYER2)
     val pendingTask = p2.addTasks("StandardResource?").single()
 
-    p2.manual("Heat")
+    p2.runOperation("Heat")
 
     p2.count("Heat") shouldBe 1
     (pendingTask in game.tasks) shouldBe true
@@ -81,7 +81,7 @@ internal class SimpleAddsRemovesTest {
     val pendingTask = p2.addTasks("StandardResource?").single()
     p2.selectTask(pendingTask)
 
-    shouldThrow<TaskException> { p2.manual("Heat") }
+    shouldThrow<TaskException> { p2.runOperation("Heat") }
   }
 
   @Test
@@ -95,12 +95,12 @@ internal class SimpleAddsRemovesTest {
 
     val p2 = game.tfm(PLAYER2)
 
-    p2.manual("5 Heat<Player2>!")
-    p2.manual("10 Heat<Player1>!")
+    p2.runOperation("5 Heat<Player2>!")
+    p2.runOperation("10 Heat<Player1>!")
 
     admin.count("Heat") shouldBe 15
 
-    p2.manual("-4 Heat")
+    p2.runOperation("-4 Heat")
     admin.has("Heat<Player2>") shouldBe true
     admin.has("=1 Heat<Player2>") shouldBe true
     admin.has("MAX 1 Heat<Player2>") shouldBe true
@@ -108,11 +108,11 @@ internal class SimpleAddsRemovesTest {
     admin.count("StandardResource") shouldBe 11
     admin.count("StandardResource<Player1>") shouldBe 10
 
-    p2.manual("3 Steel<Player1> FROM Heat<Player1>!")
+    p2.runOperation("3 Steel<Player1> FROM Heat<Player1>!")
     admin.count("StandardResource<Player1>") shouldBe 10
     admin.count("Steel") shouldBe 3
 
-    p2.manual("2 Heat<Player2> FROM Heat<Player1>!")
+    p2.runOperation("2 Heat<Player2> FROM Heat<Player1>!")
     admin.has("=3 Heat<Player2>") shouldBe true
     admin.has("=5 Heat<Player1>") shouldBe true
 

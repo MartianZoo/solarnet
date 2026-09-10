@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -8,21 +8,21 @@ import kotlin.test.Test
 internal class CryoSleepTest : ColoniesCardTest() {
   @Test
   internal fun `Discounts a mc-funded trade`() {
-    p1.manual("$CryoSleep, 8 MC")
+    p1.runOperation("$CryoSleep, 8 MC")
     p1.stdAction("TradeAction", 1) { doTask("Trade<Io>") }.expect("-8 MC, 3 Heat")
   }
 
   @Test
   internal fun `Can fund a trade with energy`() {
-    p1.manual("$CryoSleep, 2 Energy")
+    p1.runOperation("$CryoSleep, 2 Energy")
     p1.stdAction("TradeAction", 2) { doTask("Trade<Io>") }.expect("-2 Energy, 3 Heat")
   }
 
   @Test
   internal fun `Discount lowers the energy invoice before payment`() {
-    p1.manual("$CryoSleep, 2 Energy")
-    p1.also { it.autoExecMode = NONE }
-        .beginManual("UseAction<TradeAction, Action2>") {
+    p1.runOperation("$CryoSleep, 2 Energy")
+    p1.also { it.autoExecPolicy = NONE }
+        .beginOperation("UseAction<TradeAction, Action2>") {
           doTask("3 Owed<Class<Energy>>")
           doTask("Invoice<TradeAction, Action2, Class<Energy>>")
           p1.count("Energy") shouldBe 2
@@ -33,13 +33,13 @@ internal class CryoSleepTest : ColoniesCardTest() {
 
   @Test
   internal fun `Can fund a trade with titanium`() {
-    p1.manual("$CryoSleep, 2 Titanium")
+    p1.runOperation("$CryoSleep, 2 Titanium")
     p1.stdAction("TradeAction", 3) { doTask("Trade<Io>") }.expect("-2 Titanium, 3 Heat")
   }
 
   @Test
   internal fun `Stacks its trade discount with Rim Freighters`() {
-    p1.manual("$CryoSleep, $RimFreighters, 7 MC")
+    p1.runOperation("$CryoSleep, $RimFreighters, 7 MC")
     p1.stdAction("TradeAction", 1) { doTask("Trade<Io>") }.expect("-7 MC, 3 Heat")
   }
 }

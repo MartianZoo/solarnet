@@ -19,7 +19,7 @@ internal class SoloGenerationCountdownTest {
     val admin = game.tfm(ADMIN)
     finishNeutralSetup(admin)
 
-    admin.manual("Generation")
+    admin.runOperation("Generation")
 
     admin.count("SoloGenerationsLeft") shouldBe 12
   }
@@ -31,7 +31,7 @@ internal class SoloGenerationCountdownTest {
     finishNeutralSetup(admin)
     admin.sneak("-12 SoloGenerationsLeft")
 
-    admin.manual("-SoloGenerationsLeft")
+    admin.runOperation("-SoloGenerationsLeft")
 
     admin.count("SoloGenerationsLeft") shouldBe 0
     admin.count("GameEndBarrier") shouldBe 0
@@ -48,15 +48,15 @@ internal class SoloGenerationCountdownTest {
     player.count("StandardSoloObjective") shouldBe 0
     game.classTable.isActive(cn("BufferGasProject")) shouldBe true
 
-    player.manual("16 MC")
-    player.manual("UseAction<BufferGasProject, Action1>") {
+    player.runOperation("16 MC")
+    player.runOperation("UseAction<BufferGasProject, Action1>") {
       doTask("16 Pay<Class<MC>> FROM MC")
     }
     player.count("MC<Player1>") shouldBe 0
     player.count("TerraformRating<Player1>") shouldBe 15
 
-    player.manual("48 TerraformRating")
-    admin.manual("CheckGameEnd")
+    player.runOperation("48 TerraformRating")
+    admin.runOperation("CheckGameEnd")
 
     player.count("Victory<Player1>") shouldBe 1
   }

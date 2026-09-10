@@ -16,11 +16,11 @@ internal class AwardsRulesTest : CardTest() {
     newGame(players = 3)
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
-    p1.manual("Thermalist, Miner, 3 Heat, 3 Steel")
-    p2.manual("2 Heat, 3 Steel")
-    p3.manual("2 Heat, 2 Steel")
+    p1.runOperation("Thermalist, Miner, 3 Heat, 3 Steel")
+    p2.runOperation("2 Heat, 3 Steel")
+    p3.runOperation("2 Heat, 2 Steel")
 
-    TfmWorkflow.Manual(game).endPhase()
+    TfmWorkflow.Stepwise(game).endPhase()
 
     p1.count("VictoryPoint") shouldBe 30
     p2.count("VictoryPoint") shouldBe 27
@@ -31,9 +31,9 @@ internal class AwardsRulesTest : CardTest() {
   internal fun `A two-player game awards no second-place points`() {
     newGame()
     val p2 = requireP2()
-    p1.manual("Thermalist, Heat")
+    p1.runOperation("Thermalist, Heat")
 
-    TfmWorkflow.Manual(game).endPhase()
+    TfmWorkflow.Stepwise(game).endPhase()
 
     p1.count("VictoryPoint") shouldBe 25
     p2.count("VictoryPoint") shouldBe 20
@@ -43,10 +43,10 @@ internal class AwardsRulesTest : CardTest() {
   internal fun `MC break a multiplayer victory-point tie`() {
     newGame()
     val p2 = requireP2()
-    p1.manual("2 VictoryPoint, 5 MC")
-    p2.manual("2 VictoryPoint, 4 MC")
+    p1.runOperation("2 VictoryPoint, 5 MC")
+    p2.runOperation("2 VictoryPoint, 4 MC")
 
-    TfmWorkflow.Manual(game).endPhase()
+    TfmWorkflow.Stepwise(game).endPhase()
 
     p1.count("Victory") shouldBe 1
     p2.count("Victory") shouldBe 0

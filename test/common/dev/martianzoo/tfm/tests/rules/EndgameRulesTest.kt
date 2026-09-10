@@ -15,12 +15,12 @@ internal class EndgameRulesTest : CardTest() {
   @Test
   internal fun `Final production occurs before players place their final greeneries`() {
     newGame()
-    p1.manual("PROD[Steel], 8 Plant")
-    admin.manual(
+    p1.runOperation("PROD[Steel], 8 Plant")
+    admin.runOperation(
         "GpComplete<Class<TemperatureStep>>, " +
             "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
     )
-    val workflow = TfmWorkflow.Manual(game)
+    val workflow = TfmWorkflow.Stepwise(game)
 
     workflow.productionPhase()
     workflow.solarPhase() shouldBe null
@@ -36,16 +36,16 @@ internal class EndgameRulesTest : CardTest() {
   internal fun `Standard solo victory requires completing all base global parameters`() {
     newGame(players = 1)
     exhaustSoloCountdown()
-    admin.manual("CheckGameEnd")
+    admin.runOperation("CheckGameEnd")
     p1.count("Victory") shouldBe 0
 
     newGame(players = 1)
-    admin.manual(
+    admin.runOperation(
         "GpComplete<Class<TemperatureStep>>, " +
             "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
     )
     exhaustSoloCountdown()
-    admin.manual("CheckGameEnd")
+    admin.runOperation("CheckGameEnd")
 
     p1.count("Victory") shouldBe 1
   }
@@ -53,19 +53,19 @@ internal class EndgameRulesTest : CardTest() {
   @Test
   internal fun `Standard Venus solo also requires completing Venus`() {
     newGame(VenusNextExpansion, players = 1)
-    admin.manual(
+    admin.runOperation(
         "GpComplete<Class<TemperatureStep>>, " +
             "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
     )
-    admin.manual("CheckGameEnd")
+    admin.runOperation("CheckGameEnd")
     p1.count("Victory") shouldBe 0
 
     newGame(VenusNextExpansion, players = 1)
-    admin.manual(
+    admin.runOperation(
         "GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, " +
             "GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>"
     )
-    admin.manual("CheckGameEnd")
+    admin.runOperation("CheckGameEnd")
 
     p1.count("Victory") shouldBe 1
   }
@@ -82,15 +82,15 @@ internal class EndgameRulesTest : CardTest() {
   @Test
   internal fun `TR 63 solo ignores completed parameters below 63 and wins at 63`() {
     newGame(VenusNextExpansion, Tr63SoloObjective, players = 1)
-    p1.manual("48 TerraformRating")
-    admin.manual(
+    p1.runOperation("48 TerraformRating")
+    admin.runOperation(
         "GpComplete<Class<TemperatureStep>>, GpComplete<Class<OxygenStep>>, " +
             "GpComplete<Class<OceanTile>>, GpComplete<Class<VenusStep>>, CheckGameEnd"
     )
     p1.count("Victory") shouldBe 0
 
-    p1.manual("TerraformRating")
-    admin.manual("CheckGameEnd")
+    p1.runOperation("TerraformRating")
+    admin.runOperation("CheckGameEnd")
 
     p1.count("Victory") shouldBe 1
   }
@@ -98,17 +98,17 @@ internal class EndgameRulesTest : CardTest() {
   @Test
   internal fun `TR 63 solo evaluates the current rating rather than past attainment`() {
     newGame(Tr63SoloObjective, players = 1)
-    p1.manual("49 TerraformRating")
-    p1.manual("-TerraformRating")
+    p1.runOperation("49 TerraformRating")
+    p1.runOperation("-TerraformRating")
 
-    admin.manual("CheckGameEnd")
+    admin.runOperation("CheckGameEnd")
 
     p1.count("Victory") shouldBe 0
   }
 
   private fun exhaustSoloCountdown() {
     repeat(admin.count("SoloGenerationsLeft")) {
-      admin.manual("-SoloGenerationsLeft")
+      admin.runOperation("-SoloGenerationsLeft")
     }
   }
 }

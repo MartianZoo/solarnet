@@ -32,14 +32,14 @@ internal class VitorTest : CardTest() {
   @Test
   internal fun `Rebates a card with positive victory points`() {
     initializeVitor()
-    p1.manual("$SearchForLife").expect("3 MC")
+    p1.runOperation("$SearchForLife").expect("3 MC")
   }
 
   @Test
   internal fun `Does not rebate a card without victory points`() {
     initializeVitor()
     p1.count("MC") shouldBe 48
-    p1.manual("$Mine")
+    p1.runOperation("$Mine")
     p1.count("MC") shouldBe 48
   }
 
@@ -47,12 +47,12 @@ internal class VitorTest : CardTest() {
   internal fun `Does not rebate a card with negative victory points`() {
     initializeVitor()
     p1.count("MC") shouldBe 48
-    p1.manual("$BribedCommittee")
+    p1.runOperation("$BribedCommittee")
     p1.count("MC") shouldBe 48
   }
 
   private fun initializeVitor() {
     newGame(PreludeExpansion, players = 1)
-    p1.manual("$Vitor")
+    p1.runOperation("$Vitor")
   }
 }

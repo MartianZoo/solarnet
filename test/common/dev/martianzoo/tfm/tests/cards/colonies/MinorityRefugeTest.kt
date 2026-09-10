@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
-import dev.martianzoo.agent.AutoExecMode.FIRST
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -30,16 +30,16 @@ internal class MinorityRefugeTest : ColoniesCardTest() {
   internal fun `Luna placement can enable Minority Refuge's production decrease`() {
     initializeCard()
     p1.playProject(MinorityRefuge, 5) {
-          p1.autoExecMode = NONE
+          p1.autoExecPolicy = NONE
           doTask("Colony<Luna>")
           doTask("PROD[2 MC]")
           doTask("PROD[-2 MC]")
-          p1.autoExecMode = FIRST
+          p1.autoExecPolicy = EAGER
         }
         .expect("Colony<Luna>, PROD[0 MC]")
   }
 
   private fun initializeCard() {
-    p1.manual("ProjectCard, 5 MC, PROD[-5 MC]")
+    p1.runOperation("ProjectCard, 5 MC, PROD[-5 MC]")
   }
 }

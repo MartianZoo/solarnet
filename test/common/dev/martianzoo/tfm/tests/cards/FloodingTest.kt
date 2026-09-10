@@ -36,8 +36,8 @@ internal class FloodingTest : CardTest() {
     newGame(players = 4)
     val p2 = requireP2()
     admin.phase("Action")
-    p1.manual("7 MC, ProjectCard")
-    p2.manual("10 MC")
+    p1.runOperation("7 MC, ProjectCard")
+    p2.runOperation("10 MC")
 
     p1.playProject(Flooding, 7) {
       shouldThrow<NarrowingException> {
@@ -64,9 +64,9 @@ internal class FloodingTest : CardTest() {
     val p3 = game.tfm(players[2])
     val p4 = game.tfm(players[3])
     admin.phase("Action")
-    p1.manual("7 MC, ProjectCard")
-    p2.manual("10 MC, CityTile<Tharsis_4_3>")
-    p3.manual("10 MC, CityTile<Tharsis_5_3>")
-    p4.manual("10 MC, CityTile<Tharsis_1_1>")
+    p1.runOperation("7 MC, ProjectCard")
+    p2.runOperation("10 MC, CityTile<Tharsis_4_3>")
+    p3.runOperation("10 MC, CityTile<Tharsis_5_3>")
+    p4.runOperation("10 MC, CityTile<Tharsis_1_1>")
   }
 }

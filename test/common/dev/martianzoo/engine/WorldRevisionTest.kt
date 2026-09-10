@@ -13,7 +13,7 @@ internal class WorldRevisionTest {
     val checkpoint = world.timeline.checkpoint()
     val originalRevision = world.revision
 
-    p1.manual("Token")
+    p1.runOperation("Token")
     val changedRevision = world.revision
     changedRevision shouldNotBe originalRevision
 

@@ -24,8 +24,8 @@ internal class ColoniesRulesTest : CardTest() {
         colonyTiles = setOf("Luna", "Ceres", "Triton", "Ganymede", "Enceladus").map(::cn).toSet(),
     )
     val p2 = requireP2()
-    p1.manual("100 MC, 5 ProjectCard")
-    p2.manual("100 MC, 5 ProjectCard")
+    p1.runOperation("100 MC, 5 ProjectCard")
+    p2.runOperation("100 MC, 5 ProjectCard")
     admin.phase("Action")
     p2.playProject(RegolithEaters, 13)
     p1.playProject(NitriteReducingBacteria, 11)
@@ -56,9 +56,9 @@ internal class ColoniesRulesTest : CardTest() {
         colonyTiles = testColonyTiles(players = 2, "Pluto"),
     )
     val p2 = requireP2()
-    p1.manual("Colony<Pluto>")
-    p1.manual("-2 ProjectCard")
-    p2.manual("3 Energy")
+    p1.runOperation("Colony<Pluto>")
+    p1.runOperation("-2 ProjectCard")
+    p2.runOperation("3 Energy")
     admin.phase("Action")
 
     p2.stdAction("TradeAction", 2) { doTask("Trade<Pluto>") }

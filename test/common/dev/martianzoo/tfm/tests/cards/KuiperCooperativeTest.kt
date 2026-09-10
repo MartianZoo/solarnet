@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.Agent.OperationBody
+import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -61,7 +61,7 @@ internal class KuiperCooperativeTest : CardTest() {
 
   @Test
   internal fun `An asteroid on another card cannot make a Kuiper payment`() {
-    p1.manual("$AstroDrill, Asteroid<$AstroDrill>")
+    p1.runOperation("$AstroDrill, Asteroid<$AstroDrill>")
 
     shouldThrow<TaskException> {
       p1.stdProject(
@@ -73,7 +73,7 @@ internal class KuiperCooperativeTest : CardTest() {
     }
   }
 
-  private fun payWithKuiperAsteroids(body: OperationBody) {
+  private fun payWithKuiperAsteroids(body: OperationScope) {
     body.doTask("2 PayFromCard<$KuiperCooperative> FROM Asteroid<$KuiperCooperative>")
     body.doTask("Pay<Class<MC>> FROM MC / Owed<>")
   }

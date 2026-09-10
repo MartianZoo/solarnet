@@ -11,12 +11,12 @@ internal class CyberiaSystemsTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(PromoCardPack)
-    p1.manual("$Mine, $IndustrialMicrobes")
+    p1.runOperation("$Mine, $IndustrialMicrobes")
   }
 
   @Test
   internal fun `Copies production boxes from two different building cards`() {
-    p1.manual("$CyberiaSystems") {
+    p1.runOperation("$CyberiaSystems") {
           doTask("CopyProductionBox<$Mine>")
           doTask("CopyProductionBox<$IndustrialMicrobes>")
         }
@@ -25,7 +25,7 @@ internal class CyberiaSystemsTest : CardTest() {
 
   @Test
   internal fun `Cannot copy the same card twice`() {
-    p1.manual("$CyberiaSystems") {
+    p1.runOperation("$CyberiaSystems") {
       doTask("CopyProductionBox<$Mine>")
       shouldThrow<NarrowingException> { doTask("CopyProductionBox<$Mine>") }
       abort()
@@ -34,7 +34,7 @@ internal class CyberiaSystemsTest : CardTest() {
 
   @Test
   internal fun `Cannot copy itself`() {
-    p1.manual("$CyberiaSystems") {
+    p1.runOperation("$CyberiaSystems") {
       shouldThrow<NarrowingException> { doTask("CopyProductionBox<$CyberiaSystems>") }
       abort()
     }

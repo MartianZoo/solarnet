@@ -33,11 +33,11 @@ internal class CustomMetricTest {
 
     p1.count("BothBehavior") shouldBe 7
     shouldThrow<ExpressionException> { p1.sneak("BothBehavior") }
-    p1.manual("BothBehavior")
+    p1.runOperation("BothBehavior")
     p1.count("Plant") shouldBe 1
 
     p1.count("SplitBehavior") shouldBe 9
-    p1.manual("SplitBehavior")
+    p1.runOperation("SplitBehavior")
     p1.count("Heat") shouldBe 1
     p1.count("Plant") shouldBe 2
   }
@@ -77,7 +77,7 @@ internal class CustomMetricTest {
   internal fun metricOnlyCustomClassesCannotBeUsedAsInstructionsOrComponents() {
     val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
 
-    shouldThrow<ExpressionException> { p1.manual("ConcreteOnlyMetric<Player1>") }
+    shouldThrow<ExpressionException> { p1.runOperation("ConcreteOnlyMetric<Player1>") }
     shouldThrow<ExpressionException> { p1.sneak("ConcreteOnlyMetric<Player1>") }
     shouldThrow<ExpressionException> { p1.sneak("-ConcreteOnlyMetric<Player1>") }
   }
@@ -98,7 +98,7 @@ internal class CustomMetricTest {
     val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
 
     shouldThrow<CustomCodeException> { p1.count("BrokenMetric") }
-    shouldThrow<CustomCodeException> { p1.manual("BrokenInstruction") }
+    shouldThrow<CustomCodeException> { p1.runOperation("BrokenInstruction") }
   }
 }
 

@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -55,13 +55,13 @@ internal class MonsInsuranceTest : CardTest() {
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
     admin.phase("Action")
-    p1.manual("$MonsInsurance, 10 MC")
-    p2.manual("10 MC, ProjectCard")
-    p3.manual("4 Steel")
+    p1.runOperation("$MonsInsurance, 10 MC")
+    p2.runOperation("10 MC, ProjectCard")
+    p3.runOperation("4 Steel")
     val monsMoneyBefore = p1.count("MC")
 
     p2.playProject(HiredRaiders, 1) { doTask("2 Steel<Player2> FROM Steel<Player3>") }
-    p2.manual("2 Steel FROM Steel<Player3>")
+    p2.runOperation("2 Steel FROM Steel<Player3>")
 
     p1.count("MC") shouldBe monsMoneyBefore - 6
     p2.count("Steel") shouldBe 4
@@ -73,21 +73,21 @@ internal class MonsInsuranceTest : CardTest() {
   internal fun `An attack during the Prelude phase requires compensation`() {
     newGame(PromoCardPack, PreludeExpansion)
     val p2 = requireP2()
-    p1.manual("$MonsInsurance, 10 MC")
-    p2.manual("Plant")
+    p1.runOperation("$MonsInsurance, 10 MC")
+    p2.runOperation("Plant")
     admin.phase("Prelude")
 
-    p1.manual("-Plant<Player2>").expect("-Plant<Player2>, -3 MC<Player1>, 3 MC<Player2>")
+    p1.runOperation("-Plant<Player2>").expect("-Plant<Player2>, -3 MC<Player1>, 3 MC<Player2>")
   }
 
   @Test
   internal fun `Mons owner pays the victim once for a multi-step production attack`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.manual("$MonsInsurance, 10 MC")
-    p2.manual("PROD[3 Plant]")
+    p1.runOperation("$MonsInsurance, 10 MC")
+    p2.runOperation("PROD[3 Plant]")
 
-    p1.manual("PROD[-2 Plant<Player2>]")
+    p1.runOperation("PROD[-2 Plant<Player2>]")
         .expect("PROD[-2 Plant<Player2>], -3 MC<Player1>, 3 MC<Player2>")
   }
 
@@ -95,13 +95,13 @@ internal class MonsInsuranceTest : CardTest() {
   internal fun `Self-inflicted losses and Admin-run Global Events cause no payout`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.manual("$MonsInsurance")
-    p2.manual("Plant, PROD[Plant]")
+    p1.runOperation("$MonsInsurance")
+    p2.runOperation("Plant, PROD[Plant]")
 
-    p2.manual("-Plant, PROD[-Plant]").expect("-Plant<Player2>, PROD[-Plant<Player2>]")
+    p2.runOperation("-Plant, PROD[-Plant]").expect("-Plant<Player2>, PROD[-Plant<Player2>]")
     game
         .agent(ADMIN)
-        .manual("Plant<Player2>, -Plant<Player2>")
+        .runOperation("Plant<Player2>, -Plant<Player2>")
         .expect("0 MC<Player1>, 0 MC<Player2>")
   }
 
@@ -110,23 +110,23 @@ internal class MonsInsuranceTest : CardTest() {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
-    p1.manual("$MonsInsurance")
-    p1.manual("-1 MC / 1 MC")
-    p1.manual("2 MC")
-    p3.manual("Plant")
+    p1.runOperation("$MonsInsurance")
+    p1.runOperation("-1 MC / 1 MC")
+    p1.runOperation("2 MC")
+    p3.runOperation("Plant")
 
-    p2.manual("-Plant<Player3>").expect("-Plant<Player3>, -2 MC<Player1>, 2 MC<Player3>")
+    p2.runOperation("-Plant<Player3>").expect("-Plant<Player3>, -2 MC<Player1>, 2 MC<Player3>")
   }
 
   @Test
   internal fun `Zero payout is settled before the Mons owner gains money later in the action`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.manual("$MonsInsurance")
-    p1.manual("-${p1.count("MC")} MC")
-    p2.manual("Plant")
+    p1.runOperation("$MonsInsurance")
+    p1.runOperation("-${p1.count("MC")} MC")
+    p2.runOperation("Plant")
 
-    val manual = p1.also { it.autoExecMode = NONE }
+    val manual = p1.also { it.autoExecPolicy = NONE }
     manual.addTasks("-Plant<Player2>, 2 MC")
     manual.doTask("-Plant<Player2>")
     manual.doTask("Ok")
@@ -140,13 +140,13 @@ internal class MonsInsuranceTest : CardTest() {
   internal fun `Pharmacy Union's own loss does not require compensation from Mons`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.manual("$MonsInsurance, $Decomposers")
-    p2.manual("$PharmacyUnion")
+    p1.runOperation("$MonsInsurance, $Decomposers")
+    p2.runOperation("$PharmacyUnion")
     val monsMoneyBefore = p1.count("MC")
     val pharmacyMoneyBefore = p2.count("MC")
     val checkpoint = game.timeline.checkpoint()
 
-    p1.manual("MicrobeTag<$Decomposers>")
+    p1.runOperation("MicrobeTag<$Decomposers>")
 
     p1.count("MC") shouldBe monsMoneyBefore
     p2.count("MC") shouldBe pharmacyMoneyBefore - 4
@@ -162,10 +162,10 @@ internal class MonsInsuranceTest : CardTest() {
   internal fun `Declining an optional removal avoids compensation`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.manual("$MonsInsurance, 10 MC")
-    p2.manual("Plant")
+    p1.runOperation("$MonsInsurance, 10 MC")
+    p2.runOperation("Plant")
 
-    p1.manual("-Plant<Player2>?") {
+    p1.runOperation("-Plant<Player2>?") {
           // Decline removing Player 2's plant.
           declineTask()
         }
@@ -176,21 +176,21 @@ internal class MonsInsuranceTest : CardTest() {
   internal fun `Solo steals and production attacks make Mons pay the general supply`() {
     newGame(PromoCardPack, players = 1)
     admin.phase("Action")
-    p1.manual("$MonsInsurance, ProjectCard")
+    p1.runOperation("$MonsInsurance, ProjectCard")
 
     p1.playProject(HiredRaiders, 1) {
           doTask("3 MC<Player1> FROM MC<SoloOpponent>")
         }
         .expect("-1 MC<Player1>")
-    p1.manual("PROD[-2 Plant<SoloOpponent>]").expect("-3 MC<Player1>")
+    p1.runOperation("PROD[-2 Plant<SoloOpponent>]").expect("-3 MC<Player1>")
   }
 
   @Test
   internal fun `An attack on the Mons owner requires no transfer`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.manual("$MonsInsurance, Plant, 10 MC")
+    p1.runOperation("$MonsInsurance, Plant, 10 MC")
 
-    p2.manual("-Plant<Player1>").expect("-Plant<Player1>")
+    p2.runOperation("-Plant<Player1>").expect("-Plant<Player1>")
   }
 }

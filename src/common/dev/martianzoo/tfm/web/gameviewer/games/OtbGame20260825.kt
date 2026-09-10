@@ -22,7 +22,7 @@ public class OtbGame20260825 : RecordedGame() {
       )
 
   protected override fun play() {
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(game).launch()
     val green = player(1)
     val yellow = player(2)
     green.doTask("Ok")

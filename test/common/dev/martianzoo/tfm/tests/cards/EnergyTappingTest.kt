@@ -10,8 +10,8 @@ internal class EnergyTappingTest : CardTest() {
   @Test
   internal fun `Can be played when Manutech offsets its production loss`() {
     newGame(VenusNextExpansion)
-    p1.manual("$Manutech")
-    p1.manual("$EnergyTapping").expect("Energy")
+    p1.runOperation("$Manutech")
+    p1.runOperation("$EnergyTapping").expect("Energy")
     p1.assertProds(0 to "Energy")
   }
 }

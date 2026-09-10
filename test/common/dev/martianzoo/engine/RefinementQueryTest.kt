@@ -36,7 +36,7 @@ internal class RefinementQueryTest {
                 players = 2,
             )
         )
-    game.agent(PLAYER1).manual("Token<Player1>")
+    game.agent(PLAYER1).runOperation("Token<Player1>")
     val p2 = game.agent(PLAYER2)
 
     p2.count("Player(HAS Token)") shouldBe 1
@@ -56,9 +56,9 @@ internal class RefinementQueryTest {
             )
         )
     val admin = game.agent(ADMIN)
-    admin.manual("Token<Player1>")
+    admin.runOperation("Token<Player1>")
 
-    admin.manual("EACH Player(HAS =1 (RANK Player { Player(HAS Token) })) { Prize<Player> }")
+    admin.runOperation("EACH Player(HAS =1 (RANK Player { Player(HAS Token) })) { Prize<Player> }")
 
     game.agent(PLAYER1).count("Prize") shouldBe 1
     game.agent(PLAYER2).count("Prize") shouldBe 1

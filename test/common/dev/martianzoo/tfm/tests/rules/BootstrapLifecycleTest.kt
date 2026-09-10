@@ -111,7 +111,7 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun manualWorkflowStartsFullyEffectfulGenerationOneSetup() {
     val game = Engine.newGame(canonicalPremise())
-    TfmWorkflow.Manual(game).setupPhase()
+    TfmWorkflow.Stepwise(game).setupPhase()
 
     val admin = game.agent(ADMIN)
     admin.count("BootstrapPhase") shouldBe 0
@@ -125,7 +125,7 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun soloModeProvidesItsStartingTerraformRatingDirectly() {
     val game = Engine.newGame(canonicalPremise(players = 1))
-    TfmWorkflow.Manual(game).setupPhase()
+    TfmWorkflow.Stepwise(game).setupPhase()
 
     game.agent(ADMIN).count("TerraformRating<Player1>") shouldBe 14
   }
@@ -141,7 +141,7 @@ internal class BootstrapLifecycleTest {
             )
         )
 
-    TfmWorkflow.Manual(game).setupPhase()
+    TfmWorkflow.Stepwise(game).setupPhase()
 
     game.tfm(PLAYER1).production(cn("MC")) shouldBe -2
   }
@@ -149,7 +149,7 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun setupKeepsStartingCardsInHandUntilCorporationTurns() {
     val game = Engine.newGame(canonicalPremise(PreludeExpansion))
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(game).launch()
     val admin = game.agent(ADMIN)
     val p1 = game.tfm(PLAYER1)
 
@@ -171,7 +171,7 @@ internal class BootstrapLifecycleTest {
   internal fun automaticWorkflowWaitsForSoloSetupChoices() {
     val setup = canonicalPremise(players = 1)
     val game = Engine.newGame(setup)
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(game).launch()
 
     val admin = game.agent(ADMIN)
     admin.count("SetupPhase") shouldBe 1

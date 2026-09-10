@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agent
-import dev.martianzoo.agent.AutoExecMode
+import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.data.GameEvent
@@ -23,7 +23,7 @@ internal class TaskResolutionTest {
   private val tasks = game.tasks
   private val events = game.events
   private val start = game.timeline.checkpoint()
-  private val agent = game.agent(PLAYER1).also { it.autoExecMode = AutoExecMode.NONE }
+  private val agent = game.agent(PLAYER1).also { it.autoExecPolicy = AutoExecPolicy.NONE }
 
   @Test
   internal fun `selecting resolves an abstract task and takes the select-lock`() {

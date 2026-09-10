@@ -13,12 +13,12 @@ internal class PsychrophilesTest : CardTest() {
   fun initializeGame() {
     newGame(PreludeExpansion)
     admin.phase("Action")
-    p1.manual("10 MC, ProjectCard")
+    p1.runOperation("10 MC, ProjectCard")
   }
 
   @Test
   internal fun `Can play a plant-tag card without spending microbes`() {
-    p1.manual("$Psychrophiles")
+    p1.runOperation("$Psychrophiles")
     p1.playProject(AdaptedLichen, 9) { /* Decline spending a Psychrophiles microbe. */
           declineTask()
         }
@@ -27,7 +27,7 @@ internal class PsychrophilesTest : CardTest() {
 
   @Test
   internal fun `Can decline to spend a microbe on a plant-tag card`() {
-    p1.manual("$Psychrophiles, Microbe<$Psychrophiles>")
+    p1.runOperation("$Psychrophiles, Microbe<$Psychrophiles>")
 
     p1.playProject(AdaptedLichen, 9) { /* Decline spending a Psychrophiles microbe. */
           declineTask()
@@ -38,13 +38,13 @@ internal class PsychrophilesTest : CardTest() {
 
   @Test
   internal fun `Can add a microbe with its action`() {
-    p1.manual("$Psychrophiles")
+    p1.runOperation("$Psychrophiles")
     p1.cardAction1(Psychrophiles).expect("Microbe<$Psychrophiles>")
   }
 
   @Test
   internal fun `Can spend a microbe toward a plant-tag card`() {
-    p1.manual("$Psychrophiles, Microbe<$Psychrophiles>")
+    p1.runOperation("$Psychrophiles, Microbe<$Psychrophiles>")
     p1.playProject(AdaptedLichen, 7) {
           doTask("PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
         }
@@ -53,7 +53,7 @@ internal class PsychrophilesTest : CardTest() {
 
   @Test
   internal fun `Can spend five microbes toward a nine-cost card`() {
-    p1.manual("$Psychrophiles, 5 Microbe<$Psychrophiles>")
+    p1.runOperation("$Psychrophiles, 5 Microbe<$Psychrophiles>")
     p1.playProject(AdaptedLichen, 0) {
           doTask("5 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
         }
@@ -62,7 +62,7 @@ internal class PsychrophilesTest : CardTest() {
 
   @Test
   internal fun `Cannot be played above its temperature limit`() {
-    p1.manual("6 TemperatureStep")
+    p1.runOperation("6 TemperatureStep")
     shouldThrow<RequirementException> { p1.playProject(Psychrophiles, 2) }
   }
 }

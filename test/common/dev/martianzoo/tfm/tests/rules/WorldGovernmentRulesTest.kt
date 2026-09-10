@@ -19,8 +19,8 @@ internal class WorldGovernmentRulesTest : CardTest() {
   @Test
   internal fun `A completed parameter is not a legal World Government choice`() {
     newGame(VenusNextExpansion)
-    p1.manual("15 VenusStep")
-    TfmWorkflow.Manual(game).solarPhase()
+    p1.runOperation("15 VenusStep")
+    TfmWorkflow.Stepwise(game).solarPhase()
 
     shouldThrow<LimitsException> { p1.doTask("VenusStep! BY Admin") }
     p1.doTask("TemperatureStep! BY Admin")
@@ -29,10 +29,10 @@ internal class WorldGovernmentRulesTest : CardTest() {
   @Test
   internal fun `Admin terraforming triggers Aphrodite without granting terraform rating`() {
     newGame(VenusNextExpansion, PromoCardPack)
-    p1.manual("$Aphrodite")
+    p1.runOperation("$Aphrodite")
     val moneyBefore = p1.count("MC")
     val ratingBefore = p1.count("TerraformRating")
-    TfmWorkflow.Manual(game).solarPhase()
+    TfmWorkflow.Stepwise(game).solarPhase()
 
     p1.doTask("VenusStep! BY Admin")
 
@@ -43,8 +43,8 @@ internal class WorldGovernmentRulesTest : CardTest() {
   @Test
   internal fun `Admin terraforming does not trigger an owner-only effect`() {
     newGame(VenusNextExpansion, PromoCardPack)
-    p1.manual("$HomeostasisBureau")
-    TfmWorkflow.Manual(game).solarPhase()
+    p1.runOperation("$HomeostasisBureau")
+    TfmWorkflow.Stepwise(game).solarPhase()
 
     p1.doTask("TemperatureStep! BY Admin")
 
@@ -54,7 +54,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
   @Test
   internal fun `World Government is absent when unselected or disabled in Venus`() {
     newGame()
-    TfmWorkflow.Manual(game).solarPhase()
+    TfmWorkflow.Stepwise(game).solarPhase()
     game.isIdle() shouldBe true
 
     newGame(
@@ -64,7 +64,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
             "Player2",
         )
     )
-    TfmWorkflow.Manual(game).solarPhase()
+    TfmWorkflow.Stepwise(game).solarPhase()
 
     game.isIdle() shouldBe true
   }
@@ -73,7 +73,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
   internal fun `World Government can be selected without Venus`() {
     newGame(GameConfig("WorldGovernmentRule", "Player1", "Player2"))
 
-    TfmWorkflow.Manual(game).solarPhase()
+    TfmWorkflow.Stepwise(game).solarPhase()
     p1.doTask("TemperatureStep! BY Admin")
 
     p1.count("TemperatureStep") shouldBe 1

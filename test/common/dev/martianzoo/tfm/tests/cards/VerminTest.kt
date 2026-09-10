@@ -12,12 +12,12 @@ internal class VerminTest : CardTest(::attributionProbeDeclarations) {
   @Test
   internal fun `City placement and both card actions add the appropriate resources`() {
     newGame(PromoCardPack)
-    p1.manual("$Vermin, $Decomposers")
+    p1.runOperation("$Vermin, $Decomposers")
     admin.phase("Action")
 
-    requireP2().manual("CityTile<Tharsis_2_1>").expect("Animal<Player1, $Vermin<Player1>>")
+    requireP2().runOperation("CityTile<Tharsis_2_1>").expect("Animal<Player1, $Vermin<Player1>>")
     p1.cardAction1(Vermin) { addCardResources(Vermin) }
-    admin.manual("Generation")
+    admin.runOperation("Generation")
     p1.cardAction1(Vermin) { addCardResources(Decomposers) }
 
     p1.assertCounts(2 to "Animal<$Vermin>", 2 to "Microbe<$Decomposers>")
@@ -28,11 +28,11 @@ internal class VerminTest : CardTest(::attributionProbeDeclarations) {
     newGame(PromoCardPack, players = 3)
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
-    p1.manual("$Vermin, 10 Animal<$Vermin>, CityTile<Tharsis_2_1>, CityTile<Tharsis_2_3>")
-    p2.manual("CityTile<Tharsis_3_2>")
-    p3.manual("CityTile<Tharsis_3_3>")
+    p1.runOperation("$Vermin, 10 Animal<$Vermin>, CityTile<Tharsis_2_1>, CityTile<Tharsis_2_3>")
+    p2.runOperation("CityTile<Tharsis_3_2>")
+    p3.runOperation("CityTile<Tharsis_3_3>")
 
-    admin.manual("End FROM Phase")
+    admin.runOperation("End FROM Phase")
 
     p1.assertCounts(18 to "VictoryPoint")
     p2.assertCounts(19 to "VictoryPoint")
@@ -43,10 +43,10 @@ internal class VerminTest : CardTest(::attributionProbeDeclarations) {
   internal fun `Vermin's owner is credited for every point removed`() {
     newGame(PromoCardPack, players = 3)
     val p3 = game.tfm(PLAYER3)
-    p1.manual("$Vermin, 10 Animal<$Vermin>, CityTile<Tharsis_2_1>, $attributionProbe")
-    p3.manual("CityTile<Tharsis_3_3>")
+    p1.runOperation("$Vermin, 10 Animal<$Vermin>, CityTile<Tharsis_2_1>, $attributionProbe")
+    p3.runOperation("CityTile<Tharsis_3_3>")
 
-    admin.manual("End FROM Phase")
+    admin.runOperation("End FROM Phase")
 
     // The probe reacts to each point loss and records the credited player.
     admin.count("$attribution<Player1>") shouldBe 2
@@ -57,10 +57,10 @@ internal class VerminTest : CardTest(::attributionProbeDeclarations) {
   internal fun `Fewer than ten animals do not impose the city penalty`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.manual("$Vermin, 7 Animal<$Vermin>, CityTile<Tharsis_2_1>")
-    p2.manual("CityTile<Tharsis_3_2>")
+    p1.runOperation("$Vermin, 7 Animal<$Vermin>, CityTile<Tharsis_2_1>")
+    p2.runOperation("CityTile<Tharsis_3_2>")
 
-    admin.manual("End FROM Phase")
+    admin.runOperation("End FROM Phase")
 
     p1.assertCounts(20 to "VictoryPoint")
     p2.assertCounts(20 to "VictoryPoint")

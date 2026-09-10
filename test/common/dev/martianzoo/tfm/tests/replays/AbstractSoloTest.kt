@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecMode
+import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import kotlin.test.BeforeTest
@@ -8,7 +8,7 @@ import kotlin.test.BeforeTest
 /** Follow-along solo tests driven by the engine-owned game workflow. */
 internal abstract class AbstractSoloTest : CardTrackingFullGameTest() {
   protected lateinit var me: TfmGameplay
-  private lateinit var workflow: TfmWorkflow.Auto
+  private lateinit var workflow: TfmWorkflow.Automatic
 
   protected abstract fun cityAreas(): Pair<String, String>
 
@@ -19,7 +19,7 @@ internal abstract class AbstractSoloTest : CardTrackingFullGameTest() {
     super.commonSetup()
 
     me = p1
-    workflow = TfmWorkflow.Auto(game).launch()
+    workflow = TfmWorkflow.Automatic(game).launch()
 
     admin.doTask("CityTile<${cityAreas().first}, SoloOpponent>")
     admin.doTask("GreeneryTile<${greeneryAreas().first}, SoloOpponent>")
@@ -35,17 +35,17 @@ internal abstract class AbstractSoloTest : CardTrackingFullGameTest() {
 
   /** Leaves the following workflow task unselected while [body] makes a log correction. */
   protected fun <T> withAutoExecLoweredAfterOperation(
-      mode: AutoExecMode,
+      mode: AutoExecPolicy,
       operation: (() -> Unit) -> T,
       body: () -> Unit,
   ): T {
-    val previousMode = me.autoExecMode
+    val previousMode = me.autoExecPolicy
     return try {
-      val result = operation { me.autoExecMode = mode }
+      val result = operation { me.autoExecPolicy = mode }
       body()
       result
     } finally {
-      me.autoExecMode = previousMode
+      me.autoExecPolicy = previousMode
     }
   }
 }

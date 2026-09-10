@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -11,8 +11,8 @@ internal class NoctisCityTest : CardTest() {
   @Test
   internal fun `Can be placed anywhere on Hellas`() {
     newGame(Hellas)
-    p1.manual("PROD[Energy]")
-    p1.manual("$NoctisCity") {
+    p1.runOperation("PROD[Energy]")
+    p1.runOperation("$NoctisCity") {
           placeTile(1, 3)
         }
         .expect("PROD[3 MC, -Energy]")
@@ -21,11 +21,11 @@ internal class NoctisCityTest : CardTest() {
   @Test
   internal fun `Must be placed on Noctis on Tharsis`() {
     newGame()
-    p1.manual("PROD[Energy]")
+    p1.runOperation("PROD[Energy]")
 
     // Without this, the sole NoctisArea is selected before the operation body can try a bad space.
-    p1.autoExecMode = NONE
-    p1.manual("$NoctisCity") {
+    p1.autoExecPolicy = NONE
+    p1.runOperation("$NoctisCity") {
       shouldThrow<TaskException> { doTask("CityTile<Tharsis_1_3>") }
       placeTile(5, 3)
       doTask("PROD[-Energy]")

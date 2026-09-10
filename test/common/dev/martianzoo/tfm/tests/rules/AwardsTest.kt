@@ -52,7 +52,7 @@ internal class AwardsTest : TfmTest() {
     p1.sneak("Incorporator, $Ecoline, $InterplanetaryCinematics")
     p2.sneak("$MiningGuild, $Mine")
 
-    admin.manual("End FROM Phase")
+    admin.runOperation("End FROM Phase")
 
     p1.assertCounts(
         0 to "FirstPlace<Player1, Incorporator>",
@@ -76,7 +76,7 @@ internal class AwardsTest : TfmTest() {
     p1.count("CardFront(HAS requirement)") shouldBe 1
     p2.count("CardFront(HAS requirement)") shouldBe 2
 
-    admin.manual("End FROM Phase")
+    admin.runOperation("End FROM Phase")
 
     p1.assertCounts(
         1 to "SecondPlace<Player1, Forecaster>",
@@ -97,7 +97,7 @@ internal class AwardsTest : TfmTest() {
     p1.sneak("100 MC")
 
     val first =
-        p1.manual("UseAction<FundAwardAction, Action1>") {
+        p1.runOperation("UseAction<FundAwardAction, Action1>") {
           doTask("Pay<Class<MC>> FROM MC / Owed<>")
           doTask("Landlord")
         }
@@ -105,7 +105,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(92 to "MC", 1 to "Landlord")
 
     shouldThrow<RequirementException> {
-      p1.manual("UseAction<FundAwardAction, Action1>") {
+      p1.runOperation("UseAction<FundAwardAction, Action1>") {
         doTask("Pay<Class<MC>> FROM MC / Owed<>")
         doTask("Landlord")
       }
@@ -113,7 +113,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(92 to "MC", 1 to "Landlord")
 
     val second =
-        p1.manual("UseAction<FundAwardAction, Action2>") {
+        p1.runOperation("UseAction<FundAwardAction, Action2>") {
           doTask("Pay<Class<MC>> FROM MC / Owed<>")
           doTask("Scientist")
         }
@@ -121,7 +121,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(78 to "MC", 1 to "Scientist")
 
     val third =
-        p1.manual("UseAction<FundAwardAction, Action3>") {
+        p1.runOperation("UseAction<FundAwardAction, Action3>") {
           doTask("Pay<Class<MC>> FROM MC / Owed<>")
           doTask("Thermalist")
         }
@@ -129,7 +129,7 @@ internal class AwardsTest : TfmTest() {
     p1.assertCounts(58 to "MC", 1 to "Thermalist", 3 to "Award")
 
     shouldThrow<RequirementException> {
-      p1.manual("UseAction<FundAwardAction, Action3>") {
+      p1.runOperation("UseAction<FundAwardAction, Action3>") {
         doTask("Pay<Class<MC>> FROM MC / Owed<>")
         doTask("Miner")
       }
@@ -146,7 +146,7 @@ internal class AwardsTest : TfmTest() {
 
     p1.sneak("Thermalist, Miner, Heat")
 
-    admin.manual("End FROM Phase")
+    admin.runOperation("End FROM Phase")
 
     p1.assertCounts(
         1 to "FirstPlace<Player1, Thermalist>",
@@ -182,7 +182,7 @@ internal class AwardsTest : TfmTest() {
     p2.assertProds(-5 to "MC")
     p3.assertProds(-5 to "MC")
 
-    admin.manual("End FROM Phase")
+    admin.runOperation("End FROM Phase")
 
     p1.assertCounts(1 to "FirstPlace<Player1, Banker>", 5 to "VictoryPoint")
     p2.assertCounts(1 to "SecondPlace<Player2, Banker>", 2 to "VictoryPoint")
@@ -194,10 +194,10 @@ internal class AwardsTest : TfmTest() {
     game = Engine.newGame(canonicalPremise())
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
-    p1.manual("3 VictoryPoint, TerraformRating")
-    p2.manual("Banker, PROD[1 MC]")
+    p1.runOperation("3 VictoryPoint, TerraformRating")
+    p2.runOperation("Banker, PROD[1 MC]")
 
-    admin.manual("End FROM Phase")
+    admin.runOperation("End FROM Phase")
 
     p1.assertCounts(4 to "VictoryPoint<Player1>", 0 to "Victory<Player1>")
     p2.assertCounts(5 to "VictoryPoint<Player2>", 1 to "Victory<Player2>")

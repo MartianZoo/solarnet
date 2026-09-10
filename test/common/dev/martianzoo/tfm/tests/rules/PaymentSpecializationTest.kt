@@ -17,16 +17,16 @@ internal class PaymentSpecializationTest {
     val player = setUpGame().tfm(PLAYER1)
 
     shouldThrow<ExpressionException> {
-      player.beginManual("PlayCard<Class<CorporationCard>, Class<$AcquiredCompany>, Hand>")
+      player.beginOperation("PlayCard<Class<CorporationCard>, Class<$AcquiredCompany>, Hand>")
     }
   }
 
   @Test
   internal fun `Accepting pays only with its specialized resource`() {
     val p1 = setUpGame().tfm(PLAYER1)
-    p1.manual("Steel, Titanium")
+    p1.runOperation("Steel, Titanium")
 
-    p1.beginManual("Owed<Class<Steel>> THEN Invoice<CardPurchase, Action1, Class<Steel>>") {
+    p1.beginOperation("Owed<Class<Steel>> THEN Invoice<CardPurchase, Action1, Class<Steel>>") {
       shouldThrow<NarrowingException> { doTask("Pay<Class<Titanium>> FROM Titanium") }
       doTask("Pay<Class<Steel>> FROM Steel")
     }

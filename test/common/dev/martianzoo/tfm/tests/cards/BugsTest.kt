@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -14,7 +14,7 @@ internal class BugsTest : CardTest() {
   internal fun `Ecology Experts incorrectly does not trigger Viral Enhancers with its own tags`() {
     newGame(PreludeExpansion, CorporateEraExpansion)
     admin.phase("Prelude")
-    p1.manual("9 MC, ProjectCard, PreludeCard")
+    p1.runOperation("9 MC, ProjectCard, PreludeCard")
 
     p1.playPrelude(EcologyExperts) { p1.playProject(ViralEnhancers, 9) }
 
@@ -25,7 +25,7 @@ internal class BugsTest : CardTest() {
   internal fun `Ecology Experts incorrectly does not trigger Ecological Zone with its plant tag`() {
     newGame(PreludeExpansion)
     admin.phase("Prelude")
-    p1.manual("12 MC, ProjectCard, PreludeCard, GreeneryTile<Tharsis_4_4>")
+    p1.runOperation("12 MC, ProjectCard, PreludeCard, GreeneryTile<Tharsis_4_4>")
 
     p1.playPrelude(EcologyExperts) { p1.playProject(EcologicalZone, 12) { placeTile(4, 5) } }
 
@@ -35,15 +35,15 @@ internal class BugsTest : CardTest() {
   @Test
   internal fun `Mars University incorrectly allows two discards before either draw`() {
     newGame(CorporateEraExpansion)
-    p1.manual(
+    p1.runOperation(
         "5 ProjectCard, $MarsUniversity"
     ) { /* Decline Mars University's discard-and-draw effect. */
       declineTask()
     }
-    val manual = p1.also { it.autoExecMode = NONE }
+    val manual = p1.also { it.autoExecPolicy = NONE }
 
     manual
-        .manual("$Research") {
+        .runOperation("$Research") {
           doTask("2 ProjectCard")
           doTask("-ProjectCard")
           doTask("-ProjectCard")
@@ -58,7 +58,7 @@ internal class BugsTest : CardTest() {
   internal fun `Head Start incorrectly allows its two actions to interleave`() {
     newGame(PreludeExpansion, TurmoilCardPack, FakeStuffBundle)
     p1.phase("Prelude")
-    p1.manual("4 MC, 10 ProjectCard, PreludeCard, 10 Heat")
+    p1.runOperation("4 MC, 10 ProjectCard, PreludeCard, 10 Heat")
 
     p1.playPrelude(FakeHeadStart) {
       p1.assertCounts(2 to "Steel", 24 to "MC")
@@ -90,7 +90,7 @@ internal class BugsTest : CardTest() {
   internal fun `Space Elevator incorrectly accepts payment that wastes one steel`() {
     newGame()
     admin.phase("Action")
-    p1.manual("10 Steel, 10 Titanium, ProjectCard")
+    p1.runOperation("10 Steel, 10 Titanium, ProjectCard")
 
     p1.inTurn {
       doTask("UseAction<PlayCardFromHandAction, Action1>")
@@ -112,7 +112,7 @@ internal class BugsTest : CardTest() {
   internal fun `Fake SRR incorrectly accepts a card without a Building or Space tag`() {
     newGame(PromoCardPack, FakeStuffBundle)
     admin.phase("Action")
-    p1.manual("$FakeSelfReplicatingRobots, ProjectCard")
+    p1.runOperation("$FakeSelfReplicatingRobots, ProjectCard")
 
     p1.cardAction1(FakeSelfReplicatingRobots) {
       doTask("StageForReplicatedProject<Class<$CeosFavoriteProject>>")
@@ -126,12 +126,12 @@ internal class BugsTest : CardTest() {
   internal fun `Corroder Suits incorrectly ignores a Venus card staged on Fake SRR`() {
     newGame(VenusNextExpansion, PromoCardPack, FakeStuffBundle)
     admin.phase("Action")
-    p1.manual("$FakeSelfReplicatingRobots, ProjectCard")
+    p1.runOperation("$FakeSelfReplicatingRobots, ProjectCard")
     p1.cardAction1(FakeSelfReplicatingRobots) {
       doTask("StageForReplicatedProject<Class<$VenusWaystation>>")
     }
 
-    p1.manual("$CorroderSuits")
+    p1.runOperation("$CorroderSuits")
 
     p1.assertCounts(
         1 to "$CorroderSuits",
@@ -145,11 +145,11 @@ internal class BugsTest : CardTest() {
     val p2 = requireP2()
     admin.phase("Action")
     val standardResources = "MC, Steel, Titanium, Plant, Energy, Heat"
-    p1.manual(
+    p1.runOperation(
         "9 MC, 2 ProjectCard, $FakeSelfReplicatingRobots, $standardResources, " +
             "$Pets, $Decomposers, Animal<$Pets>, Microbe<$Decomposers>"
     )
-    p2.manual(
+    p2.runOperation(
         "$standardResources, $Predators, $RegolithEaters, " +
             "Animal<$Predators>, Microbe<$RegolithEaters>"
     )
@@ -159,7 +159,7 @@ internal class BugsTest : CardTest() {
     }
     p1.playProject(DiversitySupport, 1).expect("TerraformRating")
     p1.fundAward(cn("Collector"), 8)
-    admin.manual("End FROM Phase")
+    admin.runOperation("End FROM Phase")
 
     p1.assertCounts(1 to "FirstPlace<Player1, Collector>")
     p2.assertCounts(0 to "FirstPlace<Player2, Collector>")

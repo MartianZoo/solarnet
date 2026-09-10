@@ -24,6 +24,6 @@ internal class TitanShuttlesTest : ColoniesCardTest() {
   }
 
   private fun initializeCard() {
-    p1.manual("$TitanShuttles, 7 Floater<$TitanShuttles>")
+    p1.runOperation("$TitanShuttles, 7 Floater<$TitanShuttles>")
   }
 }

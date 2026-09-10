@@ -151,8 +151,8 @@ Colonies do. Queued `:` and immediate `::` still have their ordinary semantics; 
 is not permission to replace one with the other mechanically or to discard a change's `?`, `.`, or
 `!` intensity.
 
-`drainBootstrapTasks` currently calls the Admin Agent's normal `FIRST` autoexecution policy.
-`FIRST` may select the stable execution order of several concrete tasks, but it does not invent a
+`drainBootstrapTasks` currently calls the Admin Agent's normal `EAGER` autoexecution policy.
+`EAGER` may select the stable execution order of several concrete tasks, but it does not invent a
 narrowing for an abstract task: unresolved choice remains queued and bootstrap completion fails.
 Preserve that rejection, cover it with a focused multi-alternative bootstrap test, and review task
 ordering separately whenever bootstrap effects can observe one another.
@@ -300,7 +300,7 @@ stored Actor. See [IDENTITY.md](IDENTITY.md).
 
 Selecting an abstract task moves that same selected task to its contextual Actor's queue when
 needed, while retaining its controller. One selected task globally locks selection of competitors.
-Continuations, structural siblings, and triggered work return to the controller. `TfmWorkflow.Auto`
+Continuations, structural siblings, and triggered work return to the controller. `TfmWorkflow.Automatic`
 starts Player operations directly and waits for whole-world idleness instead.
 
 ### Selection, resolution, and narrowing
@@ -687,7 +687,7 @@ rather than changing the engine object's type. Autoexecution policy attachment i
 
 All public Agent mutations share the outer atomic-completion path.
 
-`manual()` seeds a group of new tasks, permits an operation body to finish them, runs configured
+`runOperation()` seeds a group of new tasks, permits an operation body to finish them, runs configured
 auto-exec, preserves previously pending unselected tasks, and fails if newly created Tasks or
 `MustCleanUp` components remain. A pre-existing selected task prevents it from starting.
 `sneak()` applies raw changes without normal instruction resolution or effects, but still uses the
@@ -703,8 +703,8 @@ limited to checked narrowing and explicit single-task removal.
 
 ## Current auto-execution and Terraforming Mars workflow
 
-Autoexecution currently uses `Agent.autoExecMode`: `NONE` does nothing, `SAFE` proceeds only when
-one selectable option exists, and `FIRST` chooses the first selectable task in iteration order.
+Autoexecution currently uses `Agent.autoExecPolicy`: `NONE` does nothing, `CONCRETE` proceeds only when
+one selectable option exists, and `EAGER` chooses the first selectable task in iteration order.
 Scanning is global; assignee selects the queue and stored Actor controls attribution.
 
 **Forward-looking:** core engine contains no autoexecution. An application creates one Agent per
@@ -719,7 +719,7 @@ divergence.
  `Agent`. Treat it as transitional; its test conveniences and player-facing domain actions need not
  remain one production wrapper.
 
-`TfmWorkflow.Auto` runs the Terraforming Mars phase loop in a coroutine. It commits before waiting
+`TfmWorkflow.Automatic` runs the Terraforming Mars phase loop in a coroutine. It commits before waiting
 for tasks to drain and wakes from the shared outermost atomic-completion callback. StartToken
 determines turn order. Canon represents every condition currently preventing game end as a
 `GameEndBarrier`; the workflow checks for those components after Production and reads the solo

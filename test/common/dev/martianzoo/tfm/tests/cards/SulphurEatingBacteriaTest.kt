@@ -15,7 +15,7 @@ internal class SulphurEatingBacteriaTest : CardTest() {
   fun initializeGame() {
     newGame(VenusNextExpansion)
     admin.phase("Action")
-    p1.manual("$SulphurEatingBacteria, 4 Microbe<$SulphurEatingBacteria>")
+    p1.runOperation("$SulphurEatingBacteria, 4 Microbe<$SulphurEatingBacteria>")
   }
 
   @Test

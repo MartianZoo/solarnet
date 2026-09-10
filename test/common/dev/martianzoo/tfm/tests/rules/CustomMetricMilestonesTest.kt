@@ -27,11 +27,11 @@ internal class CustomMetricMilestonesTest {
     )
 
     p1.count("ActiveCard OR AutomatedCard") shouldBe 14
-    shouldThrow<RequirementException> { p1.manual("Tycoon15") }
+    shouldThrow<RequirementException> { p1.runOperation("Tycoon15") }
 
     p1.sneak("$EosChasmaNationalPark")
     p1.count("ActiveCard OR AutomatedCard") shouldBe 15
-    p1.manual("Tycoon15")
+    p1.runOperation("Tycoon15")
     p1.count("Tycoon15") shouldBe 1
   }
 
@@ -49,19 +49,21 @@ internal class CustomMetricMilestonesTest {
             )
         )
     val p1 = game.tfm(PLAYER1)
-    p1.manual(
+    p1.runOperation(
         "$Ecoline, $ThorGate, $Phobolog, $InventorsGuild, $EarthOffice, " +
             "$IoMiningIndustries, $Pets, 8 Plant, 6 Steel, 4 Heat, 3 ProjectCard"
     )
-    game.tfm(PLAYER2).manual("$EarthCatapult, $Mine, $DeepWellHeating, 9 Plant, 7 Steel, 5 Heat")
+    game
+        .tfm(PLAYER2)
+        .runOperation("$EarthCatapult, $Mine, $DeepWellHeating, 9 Plant, 7 Steel, 5 Heat")
 
     p1.count("Class<Tag>(HAS Tag<Player1>)") shouldBe 7
     p1.count("Class<Tag>(HAS Tag<Player2>)") shouldBe 3
-    shouldThrow<RequirementException> { p1.manual("Diversifier") }
+    shouldThrow<RequirementException> { p1.runOperation("Diversifier") }
 
-    p1.manual("$Decomposers")
+    p1.runOperation("$Decomposers")
     p1.count("Class<Tag>(HAS Tag<Player1>)") shouldBe 8
-    p1.manual("Diversifier")
+    p1.runOperation("Diversifier")
     p1.count("Diversifier") shouldBe 1
   }
 
@@ -80,11 +82,11 @@ internal class CustomMetricMilestonesTest {
     p1.sneak("$ArtificialLake, $Birds, $Algae, $AsteroidMiningConsortium")
 
     p1.count("CardFront(HAS requirement)") shouldBe 4
-    shouldThrow<RequirementException> { p1.manual("Tactician5") }
+    shouldThrow<RequirementException> { p1.runOperation("Tactician5") }
 
     p1.sneak("$BreathingFilters")
     p1.count("CardFront(HAS requirement)") shouldBe 5
-    p1.manual("Tactician5")
+    p1.runOperation("Tactician5")
     p1.count("Tactician5") shouldBe 1
   }
 }

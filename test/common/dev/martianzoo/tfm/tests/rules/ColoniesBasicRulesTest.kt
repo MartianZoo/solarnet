@@ -119,7 +119,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     val p1 = game.tfm(PLAYER1)
 
     admin.assertCounts(0 to "ColonyTile", 4 to "ColonyTileSelection")
-    TfmWorkflow.Manual(game).setupPhase()
+    TfmWorkflow.Stepwise(game).setupPhase()
     p1.doTask("-ColonyTileSelection<Class<Luna>>")
     admin.assertCounts(
         1 to "ColonyTile",
@@ -183,10 +183,10 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   // Only 3 colonies total per Colony Tile are allowed - no exceptions!
   @Test
   internal fun `three colonies max`() {
-    admin.manual("Colony<Player1, Luna>")
-    admin.manual("Colony<Player2, Luna>")
-    admin.manual("Colony<Player3, Luna>")
-    shouldThrow<LimitsException> { admin.manual("Colony<Player4, Luna>") }
+    admin.runOperation("Colony<Player1, Luna>")
+    admin.runOperation("Colony<Player2, Luna>")
+    admin.runOperation("Colony<Player3, Luna>")
+    shouldThrow<LimitsException> { admin.runOperation("Colony<Player4, Luna>") }
   }
 
   // Each player may only have one colony per Colony Tile (unless stated otherwise on a card).
@@ -222,13 +222,13 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     p1.assertCounts(2 to "ColonyProduction<Luna>")
 
     // A Colony Tile may only hold 1 trade fleet at a time.
-    shouldThrow<LimitsException> { p1.asPlayer(PLAYER2).manual("Trade<Luna>") }
+    shouldThrow<LimitsException> { p1.asPlayer(PLAYER2).runOperation("Trade<Luna>") }
 
     // When the generation ends, the recorded trades clear and all white markers move 1 step up the
     // Colony track. The players' trade-fleet capacities remain.
     admin.phase("Production")
-    TfmWorkflow.Manual(game).solarPhase()
-    admin.manual("Generation")
+    TfmWorkflow.Stepwise(game).solarPhase()
+    admin.runOperation("Generation")
     admin.assertCounts(
         0 to "Trade",
         4 to "TradeFleet",
@@ -240,8 +240,8 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   internal fun `trade fleet cannot be reused`() {
     p1.stdAction("TradeAction", 1) { doTask("Trade<Luna>") }
 
-    shouldThrow<NotNowException> { p1.manual("Trade<Player1, Triton>") }
-    shouldThrow<NotNowException> { p1.manual("Trade<Triton>, TradeFleet") }
+    shouldThrow<NotNowException> { p1.runOperation("Trade<Player1, Triton>") }
+    shouldThrow<NotNowException> { p1.runOperation("Trade<Triton>, TradeFleet") }
     p1.assertCounts(
         1 to "Trade<Luna>",
         0 to "Trade<Triton>",
@@ -252,8 +252,8 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   @Test
   internal fun `additional trade fleet permits a later trade`() {
     p1.stdAction("TradeAction", 1) { doTask("Trade<Luna>") }
-    p1.manual("TradeFleet")
-    p1.manual("Trade<Triton>")
+    p1.runOperation("TradeFleet")
+    p1.runOperation("Trade<Triton>")
 
     p1.assertCounts(
         1 to "Trade<Luna>",

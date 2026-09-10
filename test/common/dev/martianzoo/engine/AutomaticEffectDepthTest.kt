@@ -21,7 +21,7 @@ internal class AutomaticEffectDepthTest {
     val admin = world.agent(ADMIN)
     val checkpoint = world.timeline.checkpoint()
 
-    val failure = shouldThrow<RunawayEffectChainException> { admin.manual("ChainA") }
+    val failure = shouldThrow<RunawayEffectChainException> { admin.runOperation("ChainA") }
 
     failure.maximumDepth shouldBe 8
     failure.effectChain.map { it.instructions.single() } shouldBe

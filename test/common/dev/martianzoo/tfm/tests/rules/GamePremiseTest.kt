@@ -62,7 +62,7 @@ internal class GamePremiseTest {
     val second = Engine.newGame(premise)
 
     first.classTable shouldBe second.classTable
-    TfmWorkflow.Manual(first).setupPhase()
+    TfmWorkflow.Stepwise(first).setupPhase()
     first.agent(ADMIN).count("SetupPhase") shouldBe 1
     second.agent(ADMIN).count("SetupPhase") shouldBe 0
   }
@@ -131,7 +131,7 @@ internal class GamePremiseTest {
     game.classTable.isActive(blue) shouldBe true
     game.actors.shouldContainExactly(Player(blue), Player(yellow), ADMIN)
     game.reader.getComponents("Player").map { it.className }.toSet() shouldBe setOf(blue, yellow)
-    TfmWorkflow.Manual(game).setupPhase()
+    TfmWorkflow.Stepwise(game).setupPhase()
     game.agent(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
     game.agent(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
     getPlayerOwner(game.reader, game.reader.getComponents("StartToken").single()) shouldBe

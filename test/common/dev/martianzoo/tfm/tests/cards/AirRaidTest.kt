@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -24,7 +24,7 @@ internal class AirRaidTest : CardTest() {
     )
     playUntilFirstActionPhase()
     p1.turn { playProject(AtmoCollectors, 15) { addCardResources(AtmoCollectors) } }
-    p1.autoExecMode = NONE
+    p1.autoExecPolicy = NONE
   }
 
   @Test

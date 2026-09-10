@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.agent.Agent
-import dev.martianzoo.agent.Agent.OperationBody
-import dev.martianzoo.agent.AutoExecMode.NONE
-import dev.martianzoo.agent.AutoExecMode.SAFE
-import dev.martianzoo.agent.BodyLambda
+import dev.martianzoo.agent.Agent.OperationScope
+import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Transforming.bindXTo
@@ -64,7 +64,7 @@ public class TfmGameplay(
     phase("Action")
   }
 
-  public fun playCorp(cardName: ClassName, buyCards: Int, body: BodyLambda = {}): TaskResult {
+  public fun playCorp(cardName: ClassName, buyCards: Int, body: OperationBlock = {}): TaskResult {
     return inTurn {
       doTask("PlayCard<Class<CorporationCard>, Class<$cardName>, Hand>")
       buySelectedCards(buyCards)
@@ -73,9 +73,9 @@ public class TfmGameplay(
   }
 
   /** Buys the selected number of offered project cards and settles their M€ invoice. */
-  public fun buyCards(count: Int): TaskResult = agent.continueManual { buySelectedCards(count) }
+  public fun buyCards(count: Int): TaskResult = agent.continueOperation { buySelectedCards(count) }
 
-  private fun OperationBody.buySelectedCards(count: Int) {
+  private fun OperationScope.buySelectedCards(count: Int) {
     openPendingProjectCardOffer()
     val offered = this@TfmGameplay.count("ProjectCard<Selecting>")
     require(count in 0..offered) { "cannot buy $count of $offered selected project cards" }
@@ -90,7 +90,7 @@ public class TfmGameplay(
    * Selects the pending task that puts project cards on offer. A task that deals them directly is
    * preferred over one that only leads to a deal through its continuation.
    */
-  private fun OperationBody.openPendingProjectCardOffer() {
+  private fun OperationScope.openPendingProjectCardOffer() {
     if (this@TfmGameplay.count("ProjectCard<Selecting>") != 0) return
     val offers = tasks.extract { it }.filter { it.assignee == actor && it.offersProjectCards() }
     if (offers.isEmpty()) return
@@ -188,8 +188,8 @@ public class TfmGameplay(
   public fun stdAction(
       stdAction: String,
       which: Int = 1,
-      payment: BodyLambda = { payInvoiceFromItsResourceIfOffered() },
-      body: BodyLambda = {},
+      payment: OperationBlock = { payInvoiceFromItsResourceIfOffered() },
+      body: OperationBlock = {},
   ): TaskResult {
     // TODO: Reject providers that are not StandardAction; generic HasActions need a distinct API.
     return inTfmTurn {
@@ -207,7 +207,7 @@ public class TfmGameplay(
     return stdAction("FundAwardAction", which, payment = { pay(amountPaid) }) { doTask("$award") }
   }
 
-  private fun OperationBody.payInvoiceFromItsResourceIfOffered() {
+  private fun OperationScope.payInvoiceFromItsResourceIfOffered() {
     val billingCause = openPendingBilling()
     val resource = acceptedResources().singleOrNull()
     if (resource != null) {
@@ -222,20 +222,20 @@ public class TfmGameplay(
         it.expression.arguments.lastOrNull()?.arguments?.singleOrNull()?.className
       }
 
-  public fun convertPlants(body: BodyLambda = {}): TaskResult {
+  public fun convertPlants(body: OperationBlock = {}): TaskResult {
     return stdAction("ConvertPlantsAction", body = body)
   }
 
-  public fun convertHeat(body: BodyLambda = {}): TaskResult {
+  public fun convertHeat(body: OperationBlock = {}): TaskResult {
     return stdAction("ConvertHeatAction", body = body)
   }
 
   public fun stdProject(
       stdProject: String,
-      payment: BodyLambda = {
+      payment: OperationBlock = {
         payAllMc()
       },
-      body: BodyLambda = {},
+      body: OperationBlock = {},
   ): TaskResult {
     return stdAction("UseStandardProjectAction", payment = {}) {
       doTask("UseAction<$stdProject, Action1>")
@@ -244,26 +244,26 @@ public class TfmGameplay(
     }
   }
 
-  public fun playPrelude(cardName: ClassName, body: BodyLambda = {}): TaskResult {
+  public fun playPrelude(cardName: ClassName, body: OperationBlock = {}): TaskResult {
     return inTfmTurn { playPreludeWithinOperation(cardName, body) }
   }
 
-  public fun OperationBody.playPrelude(cardName: ClassName, body: BodyLambda = {}) {
+  public fun OperationScope.playPrelude(cardName: ClassName, body: OperationBlock = {}) {
     playPreludeWithinOperation(cardName, body)
   }
 
-  private fun OperationBody.playPreludeWithinOperation(cardName: ClassName, body: BodyLambda) {
+  private fun OperationScope.playPreludeWithinOperation(cardName: ClassName, body: OperationBlock) {
     playCardWithinOperation(cn("PreludeCard"), cardName, body)
   }
 
-  public fun OperationBody.playCorp(cardName: ClassName, body: BodyLambda = {}) {
+  public fun OperationScope.playCorp(cardName: ClassName, body: OperationBlock = {}) {
     playCardWithinOperation(cn("CorporationCard"), cardName, body)
   }
 
-  private fun OperationBody.playCardWithinOperation(
+  private fun OperationScope.playCardWithinOperation(
       cardBack: ClassName,
       cardName: ClassName,
-      body: BodyLambda,
+      body: OperationBlock,
   ) {
     val location = if (this@TfmGameplay.count("$cardBack<Selecting>") > 0) "Selecting" else "Hand"
     doTask("PlayCard<Class<$cardBack>, Class<$cardName>, $location>")
@@ -272,7 +272,7 @@ public class TfmGameplay(
 
   // In the method after this, all the cost parameters are optional,
   // but you've gotta provide ONE of them.
-  public fun playProject(unused1: ClassName, unused2: BodyLambda = {}): Nothing =
+  public fun playProject(unused1: ClassName, unused2: OperationBlock = {}): Nothing =
       error("you must specify some cost")
 
   public fun playProject(
@@ -283,13 +283,13 @@ public class TfmGameplay(
       plants: Int = 0,
       energy: Int = 0,
       heat: Int = 0,
-      payment: BodyLambda = { pay(mc, steel, titanium, plants, energy, heat) },
-      body: BodyLambda = {},
+      payment: OperationBlock = { pay(mc, steel, titanium, plants, energy, heat) },
+      body: OperationBlock = {},
   ): TaskResult {
     return inTfmTurn { playProjectWithinOperation(cardName, payment, body) }
   }
 
-  public fun OperationBody.playProject(
+  public fun OperationScope.playProject(
       cardName: ClassName,
       mc: Int = 0,
       steel: Int = 0,
@@ -297,16 +297,16 @@ public class TfmGameplay(
       plants: Int = 0,
       energy: Int = 0,
       heat: Int = 0,
-      payment: BodyLambda = { pay(mc, steel, titanium, plants, energy, heat) },
-      body: BodyLambda = {},
+      payment: OperationBlock = { pay(mc, steel, titanium, plants, energy, heat) },
+      body: OperationBlock = {},
   ) {
     playProjectWithinOperation(cardName, payment, body)
   }
 
-  private fun OperationBody.playProjectWithinOperation(
+  private fun OperationScope.playProjectWithinOperation(
       cardName: ClassName,
-      payment: BodyLambda,
-      body: BodyLambda,
+      payment: OperationBlock,
+      body: OperationBlock,
   ) {
     if (tasks.matching { it.instruction.offersAction(cn("StandardAction")) }.any()) {
       doTask("UseAction<PlayCardFromHandAction, Action1>")
@@ -319,7 +319,7 @@ public class TfmGameplay(
     autoExecNow()
   }
 
-  private fun inTfmTurn(body: BodyLambda): TaskResult {
+  private fun inTfmTurn(body: OperationBlock): TaskResult {
     return inTurn {
       val preexistingTasks = game.tasks.extract { it }.associateBy { it.id }
       body()
@@ -355,11 +355,11 @@ public class TfmGameplay(
     val nondefaultPaymentAllowed = allowNondefaultPayment
     allowNondefaultPayment = false
     // Billing effects are queued; safely advance them until the payment choices are available.
-    val previousAutoExecMode = autoExecMode
-    if (autoExecMode != NONE) autoExecMode = SAFE
+    val previousAutoExecPolicy = autoExecPolicy
+    if (autoExecPolicy != NONE) autoExecPolicy = CONCRETE
 
     return try {
-      continueManual {
+      continueOperation {
         val billingCause = openPendingBilling()
         val tender =
             linkedMapOf(
@@ -381,7 +381,7 @@ public class TfmGameplay(
         if (count("Owed") == 0) finishBilling(billingCause)
       }
     } finally {
-      autoExecMode = previousAutoExecMode
+      autoExecPolicy = previousAutoExecPolicy
     }
   }
 
@@ -437,7 +437,7 @@ public class TfmGameplay(
     }
   }
 
-  private fun OperationBody.openPendingBilling(): Cause? {
+  private fun OperationScope.openPendingBilling(): Cause? {
     if (this@TfmGameplay.count("Owed") != 0) return null
     val billing =
         game.tasks
@@ -454,21 +454,21 @@ public class TfmGameplay(
     return billing.cause
   }
 
-  private fun OperationBody.payAllMc() {
+  private fun OperationScope.payAllMc() {
     val billingCause = openPendingBilling()
     val owed = this@TfmGameplay.count("Owed")
     if (owed > 0) doTask("$owed Pay<Class<MC>> FROM MC")
     if (this@TfmGameplay.count("Owed") == 0) finishBilling(billingCause)
   }
 
-  private fun OperationBody.finishBilling(billingCause: Cause?) {
+  private fun OperationScope.finishBilling(billingCause: Cause?) {
     declineUnusedPaymentOffers()
     autoExecNow()
     advanceSingleConcreteTask(billingCause)
   }
 
   /** Declines unused payment offers after their bill has been settled. */
-  private fun OperationBody.declineUnusedPaymentOffers(fromCards: Boolean = false) {
+  private fun OperationScope.declineUnusedPaymentOffers(fromCards: Boolean = false) {
     while (true) {
       val offer = pendingPaymentOffers(fromCards = fromCards).firstOrNull() ?: return
       selectTaskForActor(offer)
@@ -476,7 +476,7 @@ public class TfmGameplay(
     }
   }
 
-  private fun OperationBody.advanceSingleConcreteTask(cause: Cause?) {
+  private fun OperationScope.advanceSingleConcreteTask(cause: Cause?) {
     if (cause == null) return
     while (true) {
       val next =
@@ -518,7 +518,7 @@ public class TfmGameplay(
                 }
           }
 
-  private fun OperationBody.selectTaskForActor(task: Task) {
+  private fun OperationScope.selectTaskForActor(task: Task) {
     if (task.assignee == actor) selectTask(task.id) else asActor(task.assignee).selectTask(task.id)
   }
 
@@ -542,37 +542,37 @@ public class TfmGameplay(
   private fun paymentValue(currency: String): Int =
       count("ResourceValue<Class<$currency>>") + if (count("Owed<Class<$currency>>") > 0) 1 else 0
 
-  public fun cardAction1(cardName: ClassName, body: BodyLambda = {}): TaskResult =
+  public fun cardAction1(cardName: ClassName, body: OperationBlock = {}): TaskResult =
       cardAction(1, cardName, body = body)
 
   public fun cardAction1(
       cardName: ClassName,
       x: Int,
-      body: BodyLambda = {},
+      body: OperationBlock = {},
   ): TaskResult = cardAction(1, cardName, x, body)
 
-  public fun cardAction2(cardName: ClassName, body: BodyLambda = {}): TaskResult =
+  public fun cardAction2(cardName: ClassName, body: OperationBlock = {}): TaskResult =
       cardAction(2, cardName, body = body)
 
   public fun cardAction2(
       cardName: ClassName,
       x: Int,
-      body: BodyLambda = {},
+      body: OperationBlock = {},
   ): TaskResult = cardAction(2, cardName, x, body)
 
-  public fun OperationBody.cardAction1(cardName: ClassName, body: BodyLambda = {}) {
+  public fun OperationScope.cardAction1(cardName: ClassName, body: OperationBlock = {}) {
     useCardAction(1, cardName, body = body)
   }
 
-  public fun OperationBody.cardAction1(cardName: ClassName, x: Int, body: BodyLambda = {}) {
+  public fun OperationScope.cardAction1(cardName: ClassName, x: Int, body: OperationBlock = {}) {
     useCardAction(1, cardName, x, body)
   }
 
-  public fun OperationBody.cardAction2(cardName: ClassName, body: BodyLambda = {}) {
+  public fun OperationScope.cardAction2(cardName: ClassName, body: OperationBlock = {}) {
     useCardAction(2, cardName, body = body)
   }
 
-  public fun OperationBody.cardAction2(cardName: ClassName, x: Int, body: BodyLambda = {}) {
+  public fun OperationScope.cardAction2(cardName: ClassName, x: Int, body: OperationBlock = {}) {
     useCardAction(2, cardName, x, body)
   }
 
@@ -580,7 +580,7 @@ public class TfmGameplay(
       which: Int,
       cardName: ClassName,
       x: Int? = null,
-      body: BodyLambda = {},
+      body: OperationBlock = {},
   ): TaskResult {
     return stdAction("UseActionOnCardAction") {
       doTask("ActionUsedMarker<$cardName>")
@@ -588,11 +588,11 @@ public class TfmGameplay(
     }
   }
 
-  private fun OperationBody.useCardAction(
+  private fun OperationScope.useCardAction(
       which: Int,
       cardName: ClassName,
       x: Int? = null,
-      body: BodyLambda = {},
+      body: OperationBlock = {},
   ) {
     doTask("UseAction<$cardName, ${whichAction(which)}>")
     x?.let { chooseVariableAmount(this, it) }
@@ -600,7 +600,7 @@ public class TfmGameplay(
     body()
   }
 
-  private fun chooseVariableAmount(operation: OperationBody, x: Int) {
+  private fun chooseVariableAmount(operation: OperationScope, x: Int) {
     require(x > 0) { "An action's X must be positive: $x" }
     val variableTasks =
         game.tasks
@@ -628,13 +628,13 @@ public class TfmGameplay(
         doTask("$count MC FROM ProjectCard<Hand>!")
       }
 
-  public fun phase(phase: String, body: BodyLambda = {}) {
+  public fun phase(phase: String, body: OperationBlock = {}) {
     if (count("Phase") != 1) {
       throw NotNowException(
           "No current Phase; start SetupPhase through TfmWorkflow before changing phases"
       )
     }
-    asActor(ADMIN).manual("${phase}Phase FROM Phase", body)
+    asActor(ADMIN).runOperation("${phase}Phase FROM Phase", body)
   }
 
   public fun production(kind: ClassName): Int =

@@ -39,9 +39,9 @@ internal class StartTokenTest {
     admin.nextGeneration(0, 0, 0)
     admin.assertCounts(1 to "StartToken<Player1>", 0 to "StartToken<Player3>")
     admin.assertCounts(1 to "StartToken")
-    shouldThrow<LimitsException> { admin.manual("-StartToken<Player1>") }
-    shouldThrow<LimitsException> { admin.manual("AfterMe<Player1, Player3>") }
-    shouldThrow<LimitsException> { admin.manual("AfterMe<Player3, Player2>") }
+    shouldThrow<LimitsException> { admin.runOperation("-StartToken<Player1>") }
+    shouldThrow<LimitsException> { admin.runOperation("AfterMe<Player1, Player3>") }
+    shouldThrow<LimitsException> { admin.runOperation("AfterMe<Player3, Player2>") }
   }
 
   @Test
@@ -92,7 +92,7 @@ internal class StartTokenTest {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(game, 7, 5)
 
     p1.playCorp(InterplanetaryCinematics, 7)

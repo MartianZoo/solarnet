@@ -17,19 +17,19 @@ internal class RobinsonIndustriesTest : CardTest() {
 
   @Test
   internal fun `Can raise uniquely lowest mc production`() {
-    p1.manual("PROD[Steel, Titanium, Plant, Energy, Heat]")
+    p1.runOperation("PROD[Steel, Titanium, Plant, Energy, Heat]")
     p1.cardAction1(RobinsonIndustries).expect("-4 MC, PROD[1 MC]")
   }
 
   @Test
   internal fun `Can raise mc production from below the production floor`() {
-    p1.manual("PROD[-1 MC]")
+    p1.runOperation("PROD[-1 MC]")
     p1.cardAction1(RobinsonIndustries).expect("-4 MC, PROD[1 MC]")
   }
 
   @Test
   internal fun `Can raise uniquely lowest titanium production`() {
-    p1.manual("PROD[1 MC, Steel, Plant, Energy, Heat]")
+    p1.runOperation("PROD[1 MC, Steel, Plant, Energy, Heat]")
     p1.cardAction1(RobinsonIndustries).expect("-4 MC, PROD[Titanium]")
   }
 
@@ -61,6 +61,6 @@ internal class RobinsonIndustriesTest : CardTest() {
   }
 
   private fun seedProductionTie() {
-    p1.manual("PROD[Steel, Plant, Energy, Heat]")
+    p1.runOperation("PROD[Steel, Plant, Energy, Heat]")
   }
 }

@@ -19,7 +19,7 @@ internal fun setUpGame(
 ): World {
   val setup = OptionCodeTranslation.setup(optionCodes, players)
   return createGame(setup).apply {
-    TfmWorkflow.Manual(this).setupPhase()
+    TfmWorkflow.Stepwise(this).setupPhase()
     actors.filterIsInstance<Player>().forEach { tfm(it).doTask("-10 ProjectCard<Hand>") }
   }
 }
@@ -44,10 +44,10 @@ internal class BasicTest {
     val game = setUpGame()
     val session = game.tfm(PLAYER2)
 
-    session.manual("PROD[5 MC, 4 Energy]")
-    session.manual("ProjectCard")
-    session.manual("StripMine")
-    session.manual("PROD[-2 Energy, 2 Steel, Titanium]")
+    session.runOperation("PROD[5 MC, 4 Energy]")
+    session.runOperation("ProjectCard")
+    session.runOperation("StripMine")
+    session.runOperation("PROD[-2 Energy, 2 Steel, Titanium]")
 
     assertEquals(1, session.count("PROD[Energy]"))
     assertEquals(5, session.count("PROD[Steel]"))
@@ -61,9 +61,9 @@ internal class BasicTest {
     val game = setUpGame()
     val session = game.tfm(PLAYER1)
 
-    session.manual("3 Heat!")
-    session.manual("4 Heat.")
-    session.manual("-9 Heat.")
+    session.runOperation("3 Heat!")
+    session.runOperation("4 Heat.")
+    session.runOperation("-9 Heat.")
     assertEquals(0, session.count("Heat"))
   }
 
@@ -72,12 +72,12 @@ internal class BasicTest {
     val game = setUpGame()
     val session = game.tfm(PLAYER1)
 
-    session.manual("3 Heat")
-    session.manual("4 Heat")
+    session.runOperation("3 Heat")
+    session.runOperation("4 Heat")
     assertEquals(7, session.count("Heat"))
 
     val checkpoint = game.timeline.checkpoint()
-    session.manual("-6 Heat")
+    session.runOperation("-6 Heat")
     assertEquals(1, session.count("Heat"))
 
     game.timeline.rollBack(checkpoint)
@@ -92,15 +92,15 @@ internal class BasicTest {
     assertTrue(game.tasks.isEmpty())
     assertEquals(0, session.count("Microbe"))
 
-    session.manual("4 OxygenStep")
+    session.runOperation("4 OxygenStep")
     assertEquals(4, session.count("OxygenStep"))
-    session.manual("ProjectCard")
-    session.manual("Ants")
+    session.runOperation("ProjectCard")
+    session.runOperation("Ants")
     assertTrue(game.tasks.isEmpty())
     assertEquals(1, session.count("Ants"))
-    session.manual("3 Microbe<Ants>")
+    session.runOperation("3 Microbe<Ants>")
     assertEquals(3, session.count("Microbe"))
-    session.manual("-Ants")
+    session.runOperation("-Ants")
     assertEquals(0, session.count("Microbe"))
   }
 
@@ -108,7 +108,7 @@ internal class BasicTest {
   internal fun counting() {
     val game = setUpGame()
     val session = game.tfm(PLAYER1)
-    session.manual("42 Heat")
+    session.runOperation("42 Heat")
     assertEquals(42, session.count("Heat"))
     assertEquals(10, session.count("4 Heat"))
     assertEquals(1, session.count("42 Heat"))
@@ -128,16 +128,16 @@ internal class BasicTest {
     val session = game.tfm(PLAYER1)
     assertEquals(20, session.count("TerraformRating"))
 
-    session.manual("2 TemperatureStep")
+    session.runOperation("2 TemperatureStep")
     assertEquals(2, session.count("TemperatureStep"))
     assertEquals(22, session.count("TerraformRating"))
     assertEquals(1, session.count("Production<Class<Heat>>"))
 
-    session.manual("2 TemperatureStep")
+    session.runOperation("2 TemperatureStep")
     assertEquals(24, session.count("TerraformRating"))
     assertEquals(2, session.count("Production<Class<Heat>>"))
 
-    session.manual("8 OxygenStep")
+    session.runOperation("8 OxygenStep")
     assertEquals(33, session.count("TerraformRating"))
     assertEquals(3, session.count("Production<Class<Heat>>"))
   }

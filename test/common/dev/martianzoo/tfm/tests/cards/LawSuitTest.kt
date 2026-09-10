@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecMode.NONE
-import dev.martianzoo.agent.BodyLambda
+import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.testsupport.PLAYER3
@@ -18,14 +18,14 @@ internal class LawSuitTest : CardTest() {
   fun initializeGame() {
     newGame(PromoCardPack)
     admin.phase("Action")
-    p1.autoExecMode = NONE
-    p1.manual("3 MC, ProjectCard, PROD[Plant]")
+    p1.autoExecPolicy = NONE
+    p1.runOperation("3 MC, ProjectCard, PROD[Plant]")
   }
 
   @Test
   internal fun `Can be played after an opponent lowers the owner's production`() {
     val p2 = requireP2()
-    p2.manual("5 MC, PROD[-Plant<Player1>]")
+    p2.runOperation("5 MC, PROD[-Plant<Player1>]")
     p2.assertCounts(5 to "MC")
     p1.assertCounts(1 to "MyProductionWasDecreased<Player1, Class<Plant>, Player2>")
 
@@ -35,8 +35,8 @@ internal class LawSuitTest : CardTest() {
   @Test
   internal fun `Can be played after an opponent removes the owner's resources`() {
     val p2 = requireP2()
-    p1.manual("Plant")
-    p2.manual("5 MC, -Plant<Player1>")
+    p1.runOperation("Plant")
+    p2.runOperation("5 MC, -Plant<Player1>")
 
     p1.playProject(LawSuit, 2, body = choosePlayer2).expect("1 MC<Player1>, -3 MC<Player2>")
   }
@@ -45,9 +45,9 @@ internal class LawSuitTest : CardTest() {
   internal fun `Can be played when its owner has only the card cost`() {
     newGame(PromoCardPack)
     admin.phase("Action")
-    p1.autoExecMode = NONE
-    p1.manual("2 MC, ProjectCard, PROD[Plant]")
-    requireP2().manual("5 MC, PROD[-Plant<Player1>]")
+    p1.autoExecPolicy = NONE
+    p1.runOperation("2 MC, ProjectCard, PROD[Plant]")
+    requireP2().runOperation("5 MC, PROD[-Plant<Player1>]")
 
     p1.playProject(LawSuit, 2, body = choosePlayer2).expect("1 MC<Player1>, -3 MC<Player2>")
   }
@@ -55,8 +55,8 @@ internal class LawSuitTest : CardTest() {
   @Test
   internal fun `Law Suit triggers its player's Media Group`() {
     val p2 = requireP2()
-    p1.manual("$MediaGroup")
-    p2.manual("3 MC, PROD[-Plant<Player1>]")
+    p1.runOperation("$MediaGroup")
+    p2.runOperation("3 MC, PROD[-Plant<Player1>]")
 
     p1.playProject(LawSuit, 2) {
           choosePlayer2()
@@ -68,29 +68,29 @@ internal class LawSuitTest : CardTest() {
   @Test
   internal fun `Law Suit does not trigger the attacked player's Media Group`() {
     val p2 = requireP2()
-    p2.manual("$MediaGroup, 3 MC, PROD[-Plant<Player1>]")
+    p2.runOperation("$MediaGroup, 3 MC, PROD[-Plant<Player1>]")
 
     p1.playProject(LawSuit, 2, body = choosePlayer2).expect("1 MC<Player1>, -3 MC<Player2>")
   }
 
   @Test
   internal fun `Cannot be played without an opponent's attack`() {
-    requireP2().manual("3 MC")
+    requireP2().runOperation("3 MC")
     shouldThrow<TaskException> { p1.playProject(LawSuit, 2, body = choosePlayer2) }
   }
 
   @Test
   internal fun `Its player lowering their own production does not qualify`() {
-    p1.manual("PROD[-Plant]")
-    requireP2().manual("3 MC")
+    p1.runOperation("PROD[-Plant]")
+    requireP2().runOperation("3 MC")
 
     shouldThrow<TaskException> { p1.playProject(LawSuit, 2, body = choosePlayer2) }
   }
 
   @Test
   internal fun `Qualification expires at the next generation`() {
-    requireP2().manual("3 MC, PROD[-Plant<Player1>]")
-    admin.manual("Generation")
+    requireP2().runOperation("3 MC, PROD[-Plant<Player1>]")
+    admin.runOperation("Generation")
 
     shouldThrow<TaskException> { p1.playProject(LawSuit, 2, body = choosePlayer2) }
   }
@@ -101,10 +101,10 @@ internal class LawSuitTest : CardTest() {
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
     admin.phase("Action")
-    p1.autoExecMode = NONE
-    p1.manual("3 MC, ProjectCard, PROD[2 Plant]")
-    p2.manual("2 MC, PROD[-Plant<Player1>]")
-    p3.manual("2 MC, PROD[-Plant<Player1>]")
+    p1.autoExecPolicy = NONE
+    p1.runOperation("3 MC, ProjectCard, PROD[2 Plant]")
+    p2.runOperation("2 MC, PROD[-Plant<Player1>]")
+    p3.runOperation("2 MC, PROD[-Plant<Player1>]")
 
     shouldThrow<LimitsException> { p1.playProject(LawSuit, 2, body = choosePlayer2) }
 
@@ -119,10 +119,10 @@ internal class LawSuitTest : CardTest() {
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
     admin.phase("Action")
-    p1.autoExecMode = NONE
-    p1.manual("3 MC, ProjectCard, PROD[2 Plant]")
-    p2.manual("5 MC, PROD[-Plant<Player1>]")
-    p3.manual("5 MC, PROD[-Plant<Player1>]")
+    p1.autoExecPolicy = NONE
+    p1.runOperation("3 MC, ProjectCard, PROD[2 Plant]")
+    p2.runOperation("5 MC, PROD[-Plant<Player1>]")
+    p3.runOperation("5 MC, PROD[-Plant<Player1>]")
 
     p1.playProject(LawSuit, 2, body = choosePlayer2)
 
@@ -137,10 +137,10 @@ internal class LawSuitTest : CardTest() {
     val p2 = requireP2()
     val p3 = game.tfm(PLAYER3)
     admin.phase("Action")
-    p1.autoExecMode = NONE
-    p1.manual("2 MC, ProjectCard, PROD[Plant]")
-    p2.manual("5 MC, PROD[-Plant<Player1>]")
-    p3.manual("5 MC")
+    p1.autoExecPolicy = NONE
+    p1.runOperation("2 MC, ProjectCard, PROD[Plant]")
+    p2.runOperation("5 MC, PROD[-Plant<Player1>]")
+    p3.runOperation("5 MC")
 
     shouldThrow<TaskException> {
       p1.playProject(LawSuit, 2) {
@@ -157,18 +157,18 @@ internal class LawSuitTest : CardTest() {
   @Test
   internal fun `Law Suit costs the responsible player one victory point`() {
     val p2 = requireP2()
-    p2.manual("3 MC, PROD[-Plant<Player1>]")
+    p2.runOperation("3 MC, PROD[-Plant<Player1>]")
     p1.playProject(LawSuit, 2, body = choosePlayer2)
     p1.assertCounts(0 to "PlayedEvent<Class<$LawSuit>>")
     p2.assertCounts(1 to "PlayedEvent<Class<$LawSuit>>")
 
-    admin.manual("End FROM Phase")
+    admin.runOperation("End FROM Phase")
 
     p1.assertCounts(20 to "VictoryPoint")
     p2.assertCounts(19 to "VictoryPoint")
   }
 
-  private val choosePlayer2: BodyLambda = {
+  private val choosePlayer2: OperationBlock = {
     doTask("3 MC<Player1> FROM MC<Player2>")
     doTask("PlayedEvent<Player2, Class<$LawSuit>> FROM $LawSuit<Player1>")
   }

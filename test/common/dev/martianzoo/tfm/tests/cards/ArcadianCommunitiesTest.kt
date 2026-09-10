@@ -24,8 +24,8 @@ internal class ArcadianCommunitiesTest : CardTest() {
   @Test
   internal fun `Initial community requires an empty land area but no adjacency`() {
     newGame(PromoCardPack)
-    p1.manual("CityTile<Tharsis_1_1>")
-    p1.manual("Community<Tharsis_1_3>")
+    p1.runOperation("CityTile<Tharsis_1_1>")
+    p1.runOperation("Community<Tharsis_1_3>")
     playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
     admin.phase("Action")
 
@@ -42,7 +42,7 @@ internal class ArcadianCommunitiesTest : CardTest() {
   internal fun `Action places a community adjacent to an owned tile`() {
     newGame(PromoCardPack)
     playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
-    p1.manual("CityTile<Tharsis_1_1>")
+    p1.runOperation("CityTile<Tharsis_1_1>")
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_9_7>") }
 
@@ -71,8 +71,8 @@ internal class ArcadianCommunitiesTest : CardTest() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
-    p2.manual("CityTile<Tharsis_1_1>")
-    p2.manual("Community<Tharsis_4_2>")
+    p2.runOperation("CityTile<Tharsis_1_1>")
+    p2.runOperation("Community<Tharsis_4_2>")
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_9_7>") }
 
@@ -88,10 +88,10 @@ internal class ArcadianCommunitiesTest : CardTest() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
-    p1.manual("Community<Tharsis_1_1>")
+    p1.runOperation("Community<Tharsis_1_1>")
     p1.sneak("-40 MC")
 
-    p1.manual("GreeneryTile<Tharsis_1_1>").expect("-Community, 3 MC")
+    p1.runOperation("GreeneryTile<Tharsis_1_1>").expect("-Community, 3 MC")
 
     p1.assertCounts(3 to "MC", 0 to "Community<Tharsis_1_1>")
     p2.assertCounts(0 to "MC")
@@ -101,10 +101,10 @@ internal class ArcadianCommunitiesTest : CardTest() {
   internal fun `Developing a Land Claim community pays its Arcadian owner`() {
     newGame(PromoCardPack, CorporateEraExpansion)
     playCorporationWithoutStartingProjects(p1, ArcadianCommunities)
-    p1.manual("$LandClaim") { doTask("Community<Tharsis_1_1>") }
+    p1.runOperation("$LandClaim") { doTask("Community<Tharsis_1_1>") }
     p1.sneak("-40 MC")
 
-    p1.manual("GreeneryTile<Tharsis_1_1>").expect("-Community, 3 MC")
+    p1.runOperation("GreeneryTile<Tharsis_1_1>").expect("-Community, 3 MC")
 
     p1.assertCounts(3 to "MC", 0 to "Community<Tharsis_1_1>")
   }

@@ -27,7 +27,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
 
   @Test
   internal fun hellasPromoGame() {
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(7, 5)
     workflow.isRunning shouldBe true
 
@@ -130,7 +130,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
       assertCounts(0 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
     }
 
-    admin.manual("End FROM Phase")
+    admin.runOperation("End FROM Phase")
 
     val sum = Summarizer(game)
     sum.net("GreeneryTile", "VictoryPoint") shouldBe 0
@@ -154,7 +154,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
     val p1 = game.tfm(PLAYER1)
     val p2 = game.tfm(PLAYER2)
 
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(game).launch()
     dev.martianzoo.tfm.tests.retainStartingProjects(game, 7, 5)
 
     p1.playCorp(InterplanetaryCinematics, 7)

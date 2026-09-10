@@ -24,7 +24,7 @@ internal class GameWorldAtomicityTest {
     world.onAtomicComplete = { successfulCompletions++ }
 
     shouldThrow<IllegalStateException> {
-      admin.manual("Marker") {
+      admin.runOperation("Marker") {
         admin.addTasks("Decision")
         error("fail after changing both present and future")
       }

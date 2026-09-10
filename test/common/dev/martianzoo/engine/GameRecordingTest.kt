@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agent
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.testsupport.PLAYER1
@@ -14,13 +14,13 @@ internal class GameRecordingTest {
   @Test
   internal fun recordingSeeksAcrossCompletedOperationsAndNotifiesComponentListeners() {
     val game = Engine.newGame(canonicalPremise())
-    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val agent = game.agent(PLAYER1).also { it.autoExecPolicy = NONE }
     val tasks = agent as Agent
     val heat = game.reader.resolve(parse<Expression>("Heat<Player1>"))
     val observedCounts = mutableListOf<Int>()
     val subscription = game.components.listenToCount(heat, game.reader, observedCounts::add)
 
-    tasks.beginManual("Heat?")
+    tasks.beginOperation("Heat?")
     agent.doTask("Heat!")
     val recording = game.recording()
 
@@ -53,17 +53,17 @@ internal class GameRecordingTest {
   @Test
   internal fun automaticFollowUpWorkIsOneSeparateRecordedStep() {
     val game = Engine.newGame(canonicalPremise())
-    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val agent = game.agent(PLAYER1).also { it.autoExecPolicy = NONE }
     var addAutomaticResources = true
     game.onAtomicComplete = {
       if (addAutomaticResources) {
         addAutomaticResources = false
-        agent.manual("Plant")
-        agent.manual("Steel")
+        agent.runOperation("Plant")
+        agent.runOperation("Steel")
       }
     }
 
-    agent.manual("Heat")
+    agent.runOperation("Heat")
     val recording = game.recording()
 
     recording.positions.size shouldBe 3

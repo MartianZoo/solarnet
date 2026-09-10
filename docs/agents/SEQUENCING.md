@@ -78,7 +78,7 @@ The third column is what actually holds the promise today, which is not always a
 | **All-or-nothing** | A speculative operation that reaches a dead end leaves no trace. | `Timeline.atomic` and `EventLog.rollBackTo`. Tested. |
 | **Sealed tasks** | No authored game behavior edits, reprioritizes, cancels, or removes another task. | Structural: Pets has no instruction that can name a task. |
 | **No hidden ordering state** | No ordering guarantee depends on runtime state that rollback does not restore. | `AutomaticEffectOrderTest`. |
-| **Scope hygiene** | No `MustCleanUp` component outlives the operation that created it. | `requireComplete`, at the `manual` and `finish` boundaries only. |
+| **Scope hygiene** | No `MustCleanUp` component outlives the operation that created it. | `requireComplete` at `runOperation` and `completeOperation` boundaries. |
 
 Freedom and Snapshot are the two weakest rows, and they are the two that matter most: Freedom is
 most of what "correct sequencing" means here, and Snapshot is the rule every future change to
