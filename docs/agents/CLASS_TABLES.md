@@ -10,7 +10,8 @@
 > **Skip when:** changing parsing or nominal subtyping without projection-dependent
 > enumeration; use [type-system-spec.md](../type-system-spec.md).
 >
-> **Status:** current model.
+> **Status:** current implementation model, followed by the selected replacement direction and its
+> migration plan.
 
 ## Source map
 
@@ -24,6 +25,10 @@
   — read when changing inhabitation or Catalog/Class identity invariants.
 
 ## Fast rejection checks
+
+These checks protect the current implementation while it exists. The selected replacement below
+intentionally revises its identity and resolution model; do not mix half of each model in one
+intermediate state.
 
 Reject a design before implementation if it would:
 
@@ -124,3 +129,122 @@ to use it. That is an API-access gap, not permission for additional callers.
 - all game-relative enumeration and inhabitation checks receive an explicit view or reader;
 - structural operations give the same answer in every game using one master universe;
 - target-World validation prevents an uninhabited Type from entering that World.
+
+## Selected replacement: master tables, premise tables, and class universes
+
+The current projection model above is to be replaced. Its useful observation remains: expensive
+declaration-derived knowledge is common to many premises, while each game changes the type domain
+only around that stable core.
+
+- Canon has one immutable `MasterClassTable`; Canon plus Fakes has a separate immutable
+  `MasterClassTable`. Sharing implementation objects between those two masters is not a goal.
+- A `PremiseClassTable` contains only the generated `Premise`, configured Players, and ad-hoc test
+  or custom-card declarations. It imports from exactly one master; the master cannot import from it,
+  and its names cannot collide with master names.
+- A `ClassUniverse` combines one master and one premise table, applies the premise's exclusions, and
+  is the complete authority for hierarchy, comparison, resolution, and enumeration in one World.
+- A Class cannot report its subclasses: a master can report the subclasses its own closed table
+  knows, while only the combined universe can report every subclass relevant to the game.
+- Classes from unrelated masters remain incomparable. Comparisons involving a premise declaration
+  and its backing master must go through their shared universe.
+
+The reusable boundary must contain supertypes, dependencies, properties, defaults, invariants,
+effects, and every other fact determined solely by the backing declarations. Whether this is a
+refactored master `Class` or a separate compiled definition behind a light universe Class is not yet
+settled. Do not introduce two representations merely to decide whether a nominal Class object is
+available for an unrealized name; the semantic model below does not depend on that choice.
+
+### Realized and unrealized abstract Types
+
+An abstract Class has an abstract Type. In a particular universe, that Type is **unrealized** when
+it has no concrete narrowing there. “Jackalope Type” is only the informal example of this ordinary
+case, not a separate type-system kind.
+
+A master declaration that is concrete in the master can resolve as an unrealized abstract Type in
+a universe that excludes it. Semantically it behaves like an abstract Class with no concrete
+subclasses in that universe, while the backing declaration remains concrete and final. A Type whose
+dependency is unrealized is likewise unrealized. These are structural, premise-fixed facts; a
+realized Type does not become unrealized merely because the live World currently contains zero
+matching Components or has no remaining capacity for another one.
+
+All unrealized abstract Types share these rules:
+
+- they remain distinct from an unknown name, which is an error;
+- concrete enumeration and automatic narrowing produce no candidates;
+- their Components, behavior, and triggered effects cannot occur;
+- their counts, and the counts of their `Class<T>` literals, are zero;
+- optional and AMAP changes to them are `Ok`, while mandatory changes reach `Die`; and
+- nominal information may remain available for validation, subtyping, `glb`, `NOT`, and useful
+  diagnostics even though the game has no concrete realization.
+
+Counting `Class<Unrealized>` as zero establishes that there is no concrete Class representative. It
+does not by itself decide whether the universe retains a nominal `Class` object for lookup and
+structural reasoning. Settle that representation only after the operation inventory shows which
+choice leaves one coherent source of truth.
+
+An authored abstract Class with no realizable concrete specialization is the same unrealized case.
+First verify whether premise closure already prevents such otherwise-unused abstract Classes from
+mattering in current catalogs. If so, cover the invariant with tests instead of adding special
+pruning machinery.
+
+### `Die` and `Ok`
+
+`Die` should be the canonical intentionally unrealized abstract Type. Its current concrete
+declaration with `HAS MAX 0 This` is an implementation technique, not selected semantics. Once the
+universe model supplies the general rule, `Die!` fails because `Die` has no concrete narrowing, and
+nonmandatory `Die` changes follow the ordinary unrealized-Type rule. Every completed universe must
+verify that no premise or catalog declaration gives `Die` a realizable subclass.
+
+`Ok` is the complementary identity instruction: it denotes no change and therefore produces no
+event that an effect could observe. A declaration with an `Ok:` trigger is invalid and must be
+rejected rather than retained as an effect that can never fire. Preserve these paired integrity
+rules together: no realizable subtype of `Die`, and no trigger on `Ok`.
+
+## Migration plan
+
+Do these in order; keep the current implementation and the selected semantics clearly separated
+until the replacement is complete.
+
+1. **Specify the semantic boundary.** Update the type-system specification and glossary to define
+   masters, premise tables, universes, unrealized abstract Types, unknown names, comparison
+   identity, class literals, and the universe-relative meaning of `NOT` and `glb`.
+2. **Pin the new contracts with tests.** Cover master/premise lookup, name collisions, one-way
+   references, cross-master rejection, excluded and dependency-unrealized Types, zero class-literal
+   counts, hierarchy answers that include premise declarations, unrealized `Die`, and forbidden
+   `Ok:` triggers.
+3. **Inventory context-free operations.** Find every `Class` or `Type` operation that currently
+   reaches `classTable`. Move subclass enumeration, unrelated `glb`, structural overlap, concrete
+   narrowing, and their caches behind an explicit universe before changing representation.
+4. **Establish the reusable compilation boundary.** Keep only facts unaffected by premise additions
+   or exclusion in the master. Use the existing `Class` if it can own those facts honestly;
+   otherwise extract one compiled definition without duplicating them. Ensure failed compilation
+   cannot partially populate the reusable result.
+5. **Introduce `ClassUniverse` behavior-preservingly.** Initially build it from today's complete
+   catalog so engine callers can migrate from `ClassTable` without simultaneously changing
+   realization semantics.
+6. **Introduce `PremiseClassTable`.** Compile its small declaration delta against imported master
+   schemas, resolve overlay references through the combined namespace, and prohibit master-to-
+   premise references and duplicate names.
+7. **Switch from activity to realization.** Resolve excluded master-known names as unrealized
+   abstract Types, make all affected enumeration and class-literal behavior follow from that fact,
+   and remove `isActive`, `findActiveClass`, and every API or comment describing an uninhabited
+   Class. Decide at this point, from the simplified call sites, whether unrealized names need nominal
+   Class objects.
+8. **Move premise variation to the delta.** Stop composing new `TfmCatalog`s for Players and the
+   generated `Premise`; remove the conventional-player catalog cache after all callers use premise
+   definitions.
+9. **Make `Die` and `Ok` ordinary consequences.** Replace `Die`'s concrete zero-limit encoding with
+   the selected unrealized abstract semantics, reject a realizable `Die` subtype or an `Ok:` trigger,
+   and remove special runtime branches only where the general rules now give the same result.
+10. **Split expensive derived work.** Precompile master restriction and dependency-validation
+   templates once. Let each universe merge premise deltas, apply its Class set, and perform only the
+   validation whose answer can vary by premise.
+11. **Migrate the runtime.** Build class representatives only for realized concrete Classes, reject
+    unrealized component mutations at the boundary, and bind elaboration, transformations,
+    component limits, and automatic narrowing to the universe.
+12. **Delete the projection model.** Remove master/projection identity aliases, active-name masks,
+    projection loaders, obsolete caches, and the superseded current-model documentation together so
+    only one ontology remains.
+13. **Verify reuse and savings.** Assert that repeated premises share the same master compiled
+    definitions while sharing no mutable universe state. Re-run the focused card setup profiles and
+    full JVM-suite category timings; retain no global cache keyed by premise shape.

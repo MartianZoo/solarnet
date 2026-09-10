@@ -488,11 +488,14 @@ constraint, a real case — not by rediscovering the cost.
   components remove the same saturating `Owed`, so order decides who is credited with the last
   units. Reconstructed games still reach the same paid state. The repair is the payment direction in
   [PAYMENTS.md](PAYMENTS.md), not sibling precedence.
-- **The `Die` produce/consume pipeline — at peace.** `PetElaborator.invalidChangesToDie` emits the
-  marker and `Task.normalizeForTask` eliminates it: a bottom value plus its normalization, not a
-  duplicated fact. `PremiseViability` runs the same reasoning statically and earns its place by
-  failing a bad premise at setup. Only the three-valued interpreter it copies from `ClassLoader` is
-  genuine duplication, and that is in [TODO.md](../../TODO.md).
+- **`Die` and `Ok` are complementary terminal results.** `Die` denotes an impossible branch and
+  `Ok` denotes the identity instruction. The current `PetElaborator.invalidChangesToDie` marker and
+  `Task.normalizeForTask` normalization form a coherent bridge, and `PremiseViability` earns its
+  separate static check by rejecting a bad premise during setup. The selected class-universe model
+  in [CLASS_TABLES.md](CLASS_TABLES.md#die-and-ok) should eventually make `Die` an intentionally
+  unrealized abstract Type and make impossible changes follow that ordinary rule. Whatever the
+  representation, a completed universe must admit no realizable subtype of `Die`, and source must
+  admit no `Ok:` trigger: `Ok` produces no change event for such an effect to observe.
 
 ## Research on file
 
