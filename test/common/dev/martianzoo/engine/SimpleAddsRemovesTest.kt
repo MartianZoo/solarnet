@@ -13,12 +13,26 @@ import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class SimpleAddsRemovesTest {
   @Test
-  internal fun loggedTypesAreMinimalWithoutBreakingSelfEffects() {
+  internal fun listReturnsExactComponentTypesAndMultiplicities() {
+    val game =
+        Engine.newGame(
+            testGamePremise("ABSTRACT CLASS Token { ABSTRACT CLASS Color { CLASS Red, Blue } }")
+        )
+    val p1 = game.agent(PLAYER1)
+
+    p1.manual("Red, Red, Blue")
+
+    p1.list("Token").toStrings().shouldContainExactlyInAnyOrder("Red", "Red", "Blue")
+  }
+
+  @Test
+  internal fun loggedTypesUseCanonicalPrefixesWithoutBreakingSelfEffects() {
     val game =
         Engine.newGame(
             testGamePremise(
@@ -41,7 +55,7 @@ internal class SimpleAddsRemovesTest {
     p1.manual("Holder<Player1, Card<Player1>>")
 
     game.events.changesSince(checkpoint).first().change.gaining shouldBe
-        parse<Expression>("Holder<Player1>")
+        parse<Expression>("Holder<Player1, Card<Player1>>")
     p1.count("Token") shouldBe 1
   }
 

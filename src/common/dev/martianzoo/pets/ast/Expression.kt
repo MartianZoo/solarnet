@@ -153,7 +153,7 @@ public data class Expression(
     }
 
     @ConsistentCopyVisibility
-    public data class And internal constructor(val refinements: List<Refinement>) : Refinement() {
+    public data class And internal constructor(val refinements: Set<Refinement>) : Refinement() {
       init {
         require(refinements.size >= 2)
         require(refinements.none { it is And })
@@ -172,7 +172,7 @@ public data class Expression(
       }
 
       public fun create(refinements: Collection<Refinement>): Refinement {
-        val flattened = refinements.flatMap { it.conjuncts() }
+        val flattened = refinements.flatMapTo(linkedSetOf()) { it.conjuncts() }
         require(flattened.isNotEmpty())
         return if (flattened.size == 1) flattened.single() else And(flattened)
       }
@@ -181,7 +181,7 @@ public data class Expression(
           create(Requirement.split(requirement).map(::Has))
     }
 
-    internal fun conjuncts(): List<Refinement> = if (this is And) refinements else listOf(this)
+    internal fun conjuncts(): Set<Refinement> = if (this is And) refinements else setOf(this)
 
     internal fun retaining(predicate: (Refinement) -> Boolean): Refinement? =
         conjuncts().filter(predicate).takeIf { it.isNotEmpty() }?.let(Companion::create)

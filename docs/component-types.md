@@ -86,7 +86,7 @@ The `Owned-Owner` dependency is a regular component dependency just like any oth
 
 ### OwnedTile
 
-An abstract class `OwnedTile` extends both `Tile` and `Owned`. There are tests that ensure that no component ever extends both `Tile` and `Owned` without also extending `OwnedTile`. This lets us treat the latter as a *de facto* intersection type of the first two, which is useful.
+An abstract class `OwnedTile` extends both `Tile` and `Owned`. Every owned tile kind extends it, giving rules such as Landlord one nominal class to count.
 
 The three kinds of tiles are `GreeneryTile`, `CityTile`, and `SpecialTile` (the last is abstract as each specific kind of tile extends it).
 

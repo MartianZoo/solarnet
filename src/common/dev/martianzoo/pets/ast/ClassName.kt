@@ -8,10 +8,7 @@ import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
-/**
- * A camel-case word used as a class name. Not validated except for its general pattern. Create one
- * using the compactly-named function [cn].
- */
+/** An uppercase-leading identifier used as a class name. Create one using [cn]. */
 public class ClassName private constructor(public val asString: String) :
     PetNode(), HasExpression, Comparable<ClassName> {
   public companion object {
@@ -42,8 +39,7 @@ public class ClassName private constructor(public val asString: String) :
     /** Returns the [ClassName] for the given string. */
     public fun cn(name: String): ClassName = ClassName(name)
 
-    private const val CLASS_NAME_PATTERN =
-        "\\b[A-Z]([a-z_][A-Za-z0-9_]*|[0-9]+[A-Z][a-z_][A-Za-z0-9_]*|[A-Z0-9]{0,5})\\b"
+    private const val CLASS_NAME_PATTERN = "[A-Z][A-Za-z0-9_]*"
     private val classNameRegex = Regex(CLASS_NAME_PATTERN)
 
     internal fun parser(): com.github.h0tk3y.betterParse.parser.Parser<ClassName> =
@@ -97,8 +93,8 @@ public class ClassName private constructor(public val asString: String) :
   override fun compareTo(other: ClassName): Int = asString.compareTo(other.asString)
 
   internal object Parsing : PetTokenizer() {
-    private val classShortName = _allCapsWordRE map { cn(it.text) }
-    private val classFullName = _upperCamelRE map { cn(it.text) }
-    val className = classFullName or classShortName
+    private val mixedCaseName = _mixedCaseClassNameRE map { cn(it.text) }
+    private val allCapsName = _allCapsWordRE map { cn(it.text) }
+    val className = mixedCaseName or allCapsName
   }
 }
