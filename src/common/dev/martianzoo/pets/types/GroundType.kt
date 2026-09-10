@@ -39,7 +39,9 @@ import dev.martianzoo.pets.ast.Requirement.Companion.split
  * @throws IllegalArgumentException if [dependencies] have different keys or belong to another
  *   universe.
  */
-public data class GroundType(
+@ConsistentCopyVisibility
+public data class GroundType
+internal constructor(
     /**
      * The nominal root class specified by
      * [rule 5-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
@@ -180,7 +182,8 @@ public data class GroundType(
           that.refinement == null -> refinement
           else -> Refinement.join(refinement, that.refinement)
         }
-    val unrefined = glbClass.withAllDependencies(glbDeps)
+    val completeDeps = (glbClass.dependencies glb glbDeps) ?: return null
+    val unrefined = glbClass.withAllDependencies(completeDeps)
     return unrefined.refine(glbRefin)
   }
 
@@ -282,22 +285,7 @@ public data class GroundType(
    * refinement is left for a caller with a world to test. The sequence can be very large.
    */
   override fun allConcreteSubtypes(): Sequence<GroundType> {
-    val candidates =
-        concreteSubclasses(rootClass).flatMap {
-          val deps: DependencySet? = dependencies glb it.baseType.dependencies
-          if (deps == null) {
-            emptySequence()
-          } else {
-            it.withAllDependencies(deps).concreteSubtypesSameClass()
-          }
-        }
-    val structuralRefinement = refinement?.retaining { it is Not }
-    return if (structuralRefinement != null) {
-      val structuralType = copy(refinement = structuralRefinement)
-      candidates.filter { it.narrows(structuralType, NoGameState) }
-    } else {
-      candidates
-    }
+    return classTable.allConcreteSubtypes(this)
   }
 
   /**
@@ -306,27 +294,13 @@ public data class GroundType(
    * [rule 11-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
    */
   override fun singleConcreteSubtype(info: TypeInfo): GroundType? {
-    if (
-        (rootClass.className == CLASS && refinement != null) ||
-            refinement?.conjuncts()?.any { it is Not } == true
-    ) {
-      return allConcreteSubtypes().filter { it.narrows(this, info) }.take(2).singleOrNull()
-    }
-    val intersection =
-        concreteSubclasses(rootClass).mapNotNull { klass -> this glb klass.baseType }.singleOrNull()
-            ?: return null
-    val deps = intersection.dependencies.singleConcreteSubtype(info) ?: return null
-    val candidate = intersection.rootClass.withAllDependencies(deps)
-    return candidate.takeIf { !it.abstract && it.narrows(this, info) }
+    return classTable.singleConcreteSubtype(this, info)
   }
 
   /** Returns the subset of [allConcreteSubtypes] having the exact same [rootClass] as ours. */
   // used publicly only by `desc random`
   internal fun concreteSubtypesSameClass(): Sequence<GroundType> =
-      if (rootClass.abstract) emptySequence() else dependencies.concreteSubtypesSameClass(this)
-
-  internal fun concreteSubclasses(baseClass: Class) =
-      baseClass.allSubclasses().asSequence().filter { !it.abstract }
+      classTable.concreteSubtypesSameClass(this)
 
   /**
    * Asserts the contextual narrowing relation with [that], consulting [info] only for a `HAS`

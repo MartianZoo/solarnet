@@ -193,6 +193,20 @@ internal class Spec05TypesTest {
   }
 
   @Test
+  internal fun `T5-7 withAllDependencies enforces the class's declared bounds`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Area { CLASS Land, Water }",
+            "ABSTRACT CLASS Holder<Area>",
+            "ABSTRACT CLASS Narrow : Holder<Land>",
+            "ABSTRACT CLASS Wide : Holder<Area>",
+        )
+
+    val waterDependencies = table.resolve(te("Wide<Water>")).dependencies
+    shouldThrowIae { table.getClass(cn("Narrow")).withAllDependencies(waterDependencies) }
+  }
+
+  @Test
   internal fun `T5-7 specialize applies arguments to the base type`() {
     mars.getClass(cn("GreeneryTile")).specialize(listOf(te("Tharsis_2_2"))) shouldBe
         type("GreeneryTile<Tharsis_2_2>")

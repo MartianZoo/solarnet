@@ -138,6 +138,10 @@ freezing. Lookup (`findClass`, `resolve`) works during loading; anything that en
 universe — `allClasses`, `allClassNames`, `allSubclasses`, `directSubclasses`, and therefore
 `glb` between unrelated classes — requires the table to be frozen first.
 
+Before returning the completed table, compilation resolves every statically decidable class shape
+and authored compound type expression. Invalid declarations identify their owning class. Judgments
+that require a world remain deferred.
+
 > **Non-normative example — claiming a milestone.** `ClaimMilestoneAction` asks for a concrete
 > `Milestone`. The answer is not knowable while map modules are still being loaded: Elysium may yet
 > add `Legend5`, while another map supplies a different set. Freezing makes that menu a result
@@ -533,7 +537,8 @@ arguments that resolves back to the same type. Concretely:
 that class's own keys; a missing one is an error. A bound for a key the class does *not* have is
 ignored, which is exactly what projects a type onto each of its supertypes — a greenery tile's owner
 is not part of what an `Occupant` is. `Class.specialize(arguments)` applies arguments to the base
-type, using the matching rule of T3-5.
+type, using the matching rule of T3-5. Every supplied bound is intersected with the Class's declared
+bound; direct construction cannot create a Type outside the Class declaration.
 
 > **Non-normative example — greenery placement.** A concrete greenery carries both its board area
 > and owner. Projecting it to `Occupant` must retain the area while dropping the unrelated ownership
@@ -607,7 +612,8 @@ cannot meet the domain at all simply answers false.
 
 **T7-1. Greatest lower bound (`⊓`, `glb`).** The most general type below both operands, or **absent**
 when there is none. It is computed componentwise: the root classes by T2-8, each shared dependency key
-by `⊓` again, and refinements by T8-9.
+by `⊓` again, and refinements by T8-9. The selected root Class contributes its complete declared
+dependency set, including keys neither operand had and bounds narrower than either operand stated.
 
 ```text
 Tile<Tharsis_2_2>  ⊓  Owned<Player1>       =  OwnedTile<Tharsis_2_2, Player1>
@@ -872,9 +878,10 @@ area, that a resource belongs to the current player. It changes how an authored 
 it never changes which types exist.
 
 **T10-1. Three separate sets.** Defaults are gathered independently for all uses (`DEFAULT Foo<...>`),
-for gains (`DEFAULT +Foo<...>`) and for removals (`DEFAULT -Foo<...>`). A class's `defaultType` is its
-base type with the all-uses defaults applied; the gain and removal sets are consumed by instructions,
-not by resolution.
+for gains (`DEFAULT +Foo<...>`) and for removals (`DEFAULT -Foo<...>`). A class's
+`defaultExpression` is its authored template with the all-uses defaults applied; its `defaultType`
+is that expression's valid, declared-bound-respecting interpretation. The gain and removal sets are
+consumed by instructions, not by resolution.
 
 ```pets
 ABSTRACT CLASS Tile<Area> : Owned<Owner> {
@@ -919,14 +926,15 @@ that merely restates the declared bound records nothing at all.
 literal `Owner` written in a default is *not* intersected with the class's bound, so it can later be
 replaced by whichever player supplies the context.
 
-The visible consequence is that a class's `defaultType` may sit outside its own base type:
+The visible consequence is that a class's `defaultExpression` may sit outside its own base type:
 
 ```pets
 ABSTRACT CLASS Card : Owned<Player> { DEFAULT Card<Owner> }
 ```
 
-gives base type `Card<Player>` but default type `Card<Owner>`, which is not below it. That is
-intended: the default is a template awaiting a context, not a type any component will have.
+gives base type and default type `Card<Player>`, but default expression `Card<Owner>`. The expression
+is intentionally a template awaiting a context, while every constructed type still respects the
+class's declared bound.
 
 > **Non-normative example — CrediCor.** Its setup effect says simply `57 MC`. The bare resource must
 > retain contextual `Owner` until the corporation's owner is known; normalizing it early to generic

@@ -308,48 +308,19 @@ public class DependencySet private constructor(private val deps: List<Dependency
     return args.map(::matchToDependency)
   }
 
-  internal fun concreteSubtypesSameClass(type: GroundType): Sequence<GroundType> {
-    return if (isForClassType(deps)) {
-      type.concreteSubclasses(getClassForClassType(deps)).map { it.classType }
-    } else {
-      keys.fold(sequenceOf(type)) { types, key ->
-        types.flatMap { type ->
-          val dependency = type.dependencies.get(key)
-          if (!dependency.abstract) return@flatMap sequenceOf(type)
-          (dependency as TypeDependency).allConcreteSpecializations().map { concrete ->
-            type.rootClass.withAllDependencies(
-                type.dependencies.replaceAt(DependencyPath(key), concrete)
-            )
-          }
-        }
-      }
-    }
-  }
-
   internal fun concreteSubtypesSameClass(
       type: GroundType,
       table: ClassTable,
   ): Sequence<GroundType> {
-    return if (isForClassType(deps)) {
-      table.allSubclasses(getClassForClassType(deps)).asSequence().filterNot(Class::abstract).map {
-        it.classType
-      }
-    } else {
-      keys.fold(sequenceOf(type)) { types, key ->
-        types.flatMap { candidate ->
-          val dependency = candidate.dependencies.get(key)
-          if (!dependency.abstract) return@flatMap sequenceOf(candidate)
-          val concreteDependencies =
-              (dependency as TypeDependency).let {
-                table.allConcreteSubtypes(it.boundType).map { type -> it.copy(boundType = type) }
-              }
-          concreteDependencies.map { concrete ->
-            candidate.rootClass.withAllDependencies(
-                candidate.dependencies.replaceAt(DependencyPath(key), concrete)
-            )
-          }
-        }
-      }
+    if (isForClassType(deps)) {
+      return table
+          .allSubclasses(getClassForClassType(deps))
+          .asSequence()
+          .filterNot(Class::abstract)
+          .map { it.classType }
+    }
+    return concreteSubtypesSameClass(type) { dependency ->
+      table.allConcreteSubtypes(dependency)
     }
   }
 
@@ -377,22 +348,6 @@ public class DependencySet private constructor(private val deps: List<Dependency
         }
       }
     }
-  }
-
-  internal fun singleConcreteSubtype(info: TypeInfo): DependencySet? {
-    if (isForClassType(deps)) {
-      val abstractClass = getClassForClassType(deps)
-      val concreteClass = abstractClass.allSubclasses().singleOrNull { !it.abstract }
-      return concreteClass?.let { depsForClassType(it) }
-    }
-
-    return of(
-        deps.map { dependency ->
-          (dependency as TypeDependency).boundType.singleConcreteSubtype(info)?.let {
-            dependency.copy(boundType = it)
-          } ?: return null
-        }
-    )
   }
 
   internal fun singleConcreteSubtype(info: TypeInfo, table: ClassTable): DependencySet? {

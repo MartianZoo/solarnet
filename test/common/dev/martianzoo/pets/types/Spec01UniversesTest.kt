@@ -1,6 +1,7 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -144,7 +145,32 @@ internal class Spec01UniversesTest {
     table.allClassNames shouldBe catalog.allClassNames
   }
 
+  @Test
+  internal fun `T1-6 completed catalogs reject invalid authored type shapes`() {
+    val error =
+        shouldThrow<PetException> {
+          loadTypes("CLASS Foo", "CLASS Bar", "CLASS BrokenArgument { This: Foo<Bar> }")
+        }
+    error.message!!.contains("BrokenArgument") shouldBe true
+    error.message!!.contains("Foo<Bar>") shouldBe true
+  }
+
   // T1-7 Canonical names only
+
+  @Test
+  internal fun `T1-7 catalog compilation rejects every undeclared type name`() {
+    val effectError =
+        shouldThrow<ExpressionException> { loadTypes("CLASS BrokenEffect { This: Missing }") }
+    effectError.message!!.contains("BrokenEffect") shouldBe true
+    effectError.message!!.contains("Missing") shouldBe true
+
+    val propertyError =
+        shouldThrow<ExpressionException> {
+          loadTypes("CLASS BrokenProperty { score = COUNT \"Missing\" }")
+        }
+    propertyError.message!!.contains("BrokenProperty") shouldBe true
+    propertyError.message!!.contains("Missing") shouldBe true
+  }
 
   @Test
   internal fun `T1-7 only the exact declared name resolves`() {

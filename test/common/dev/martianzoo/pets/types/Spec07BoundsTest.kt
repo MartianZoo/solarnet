@@ -105,6 +105,29 @@ internal class Spec07BoundsTest {
     }
   }
 
+  @Test
+  internal fun `T7-1 the selected class contributes all of its declared dependency bounds`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Area",
+            "ABSTRACT CLASS LandArea : Area { CLASS Land1 }",
+            "CLASS Water1 : Area",
+            "CLASS Player1 : Owner",
+            "ABSTRACT CLASS Left<Area>",
+            "ABSTRACT CLASS Right",
+            "CLASS Both<Owner> : Left<LandArea>, Right",
+        )
+
+    val intersection = table.resolve(te("Left")) glb table.resolve(te("Right"))
+    intersection shouldBe table.resolve(te("Both"))
+    table.resolve(intersection!!.expression) shouldBe intersection
+    table.resolve(intersection.expressionFull) shouldBe intersection
+    intersection.isSubtypeOf(table.resolve(te("Left"))) shouldBe true
+    intersection.isSubtypeOf(table.resolve(te("Right"))) shouldBe true
+
+    (table.resolve(te("Left<Water1>")) glb table.resolve(te("Right"))) shouldBe null
+  }
+
   // T7-2 Least upper bound
 
   @Test

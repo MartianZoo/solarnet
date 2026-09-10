@@ -853,8 +853,17 @@ internal constructor(
    * enforcing header-variable equalities as specified by
    * [rules 5-7 and 3-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
    */
-  public fun withAllDependencies(deps: DependencySet): GroundType =
-      GroundType(this, normalizeVariableEqualities(deps.subMapInOrder(dependencies.keys)))
+  public fun withAllDependencies(deps: DependencySet): GroundType {
+    val projected = deps.subMapInOrder(dependencies.keys)
+    require(projected.keys == dependencies.keys) {
+      "expected keys ${dependencies.keys}, got $deps"
+    }
+    val bounded =
+        requireNotNull(dependencies glb projected) {
+          "$deps does not satisfy the declared dependency bounds of $className"
+        }
+    return GroundType(this, normalizeVariableEqualities(bounded))
+  }
 
   private val baseTypeLazy = lazy { withAllDependencies(dependencies) }
 
@@ -865,13 +874,24 @@ internal constructor(
   public val baseType: GroundType
     get() = baseTypeLazy.value
 
-  private val defaultTypeLazy = lazy {
+  private val defaultExpressionLazy = lazy {
     val templateDependencies =
         dependencies.merge(defaults.allUsages.dependencies) { _, default -> default }
-    withAllDependencies(templateDependencies)
+    className.of(templateDependencies.expressionsFull())
   }
+
   /**
-   * The [baseType] with all-usage defaults applied, as specified by
+   * The authored dependency-default template for this class. Unlike a [GroundType], this expression
+   * may retain contextual `Owner` outside the class's declared bound until elaboration supplies its
+   * component context.
+   */
+  internal val defaultExpression: Expression
+    get() = defaultExpressionLazy.value
+
+  private val defaultTypeLazy = lazy { loader.resolve(defaultExpression) }
+
+  /**
+   * The valid resolved interpretation of [defaultExpression], as specified by
    * [rule 10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
    */
   public val defaultType: GroundType

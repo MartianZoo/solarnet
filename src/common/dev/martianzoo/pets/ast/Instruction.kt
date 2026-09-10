@@ -451,7 +451,7 @@ public sealed class Instruction : InstructionTree() {
       for ((wide, narrow) in specialized.instructions.zip(proposed.instructions)) {
         narrow.ensureNarrows(wide, info)
       }
-      if (hasSharedX()) sharedXValue(this, proposed)
+      if (hasSharedX()) sharedXValue(this, proposed, info)
     }
 
     private fun bindTypeVariablesFrom(
@@ -567,7 +567,7 @@ public sealed class Instruction : InstructionTree() {
               info,
               selectionBinding,
           )
-      val selectedX = if (hasSharedX()) sharedXValue(first, proposed) else null
+      val selectedX = if (hasSharedX()) sharedXValue(first, proposed, info) else null
       val fullySpecialized =
           selectedX?.let { bindXTo(it).transformInstruction(specialized) as Then } ?: specialized
       if (requireBinding && fullySpecialized == this) {
@@ -579,29 +579,66 @@ public sealed class Instruction : InstructionTree() {
       )
     }
 
-    private fun sharedXValue(wide: PetNode, narrow: PetNode): Int? {
-      val wideScalars = wide.descendantsOfType<Scalar>()
-      val narrowScalars = narrow.descendantsOfType<Scalar>()
-      if (wideScalars.none { it is XScalar }) return null
-      if (wideScalars.size != narrowScalars.size) {
-        throw NarrowingException("Can't match X occurrences in $narrow")
-      }
-      val xValues =
-          wideScalars.zip(narrowScalars).mapNotNull { (wideScalar, narrowScalar) ->
-            if (wideScalar !is XScalar) return@mapNotNull null
-            narrowScalar as? ActualScalar
-                ?: throw NarrowingException("Can't bind X occurrence in $narrow")
-            if (narrowScalar.value % wideScalar.multiple != 0) {
-              throw NarrowingException(
-                  "${narrowScalar.value} isn't a multiple of ${wideScalar.multiple}"
-              )
+    private fun sharedXValue(
+        wide: InstructionTree,
+        narrow: InstructionTree,
+        info: TypeInfo,
+    ): Int? {
+      val unbound = setOf<Int?>(null)
+
+      fun merge(left: Set<Int?>, right: Set<Int?>): Set<Int?> = buildSet {
+        for (leftValue in left) {
+          for (rightValue in right) {
+            when {
+              leftValue == null -> add(rightValue)
+              rightValue == null || leftValue == rightValue -> add(leftValue)
             }
-            narrowScalar.value / wideScalar.multiple
           }
-      if (xValues.distinct().size > 1) {
-        throw NarrowingException("Can't set different values for X: ${xValues.toSet()}")
+        }
       }
-      return xValues.singleOrNull()
+
+      fun bindings(wideNode: PetNode, narrowNode: PetNode): Set<Int?> {
+        if (wideNode.descendantsOfType<XScalar>().isEmpty()) return unbound
+        if (wideNode is Or) {
+          fun bindingsForArm(narrowArm: InstructionTree): Set<Int?> {
+            return wideNode.instructions
+                .asSequence()
+                .filter { narrowArm.narrows(it, info) }
+                .flatMap { wideArm -> bindings(wideArm, narrowArm) }
+                .toSet()
+          }
+          val narrowArms =
+              if (narrowNode is Or) {
+                narrowNode.instructions
+              } else {
+                listOf(narrowNode as? InstructionTree ?: return emptySet())
+              }
+          return narrowArms.fold(unbound) { result, narrowArm ->
+            merge(result, bindingsForArm(narrowArm))
+          }
+        }
+        if (wideNode is XScalar) {
+          val narrowScalar = narrowNode as? ActualScalar ?: return emptySet()
+          if (narrowScalar.value % wideNode.multiple != 0) return emptySet()
+          return setOf(narrowScalar.value / wideNode.multiple)
+        }
+        if (narrowNode == NoOp) return unbound
+
+        val wideChildren = wideNode.immediateChildren()
+        val narrowChildren = narrowNode.immediateChildren()
+        if (wideChildren.size != narrowChildren.size) return emptySet()
+        return wideChildren.zip(narrowChildren).fold(unbound) { result, (wideChild, narrowChild) ->
+          merge(result, bindings(wideChild, narrowChild))
+        }
+      }
+
+      val xValues = bindings(wide, narrow)
+      if (xValues.isEmpty()) throw NarrowingException("Can't match X occurrences in $narrow")
+      val concreteValues = xValues.filterNotNull()
+      if (concreteValues.size > 1) {
+        throw NarrowingException("Can't set different values for X: $concreteValues")
+      }
+      return concreteValues.singleOrNull()
     }
 
     internal fun keepTogether(isAbstract: ((Expression) -> Boolean)?) =

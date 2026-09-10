@@ -138,7 +138,7 @@ public class PetElaborator(public val classTable: ClassTable) {
 
       val evaluator =
           propertyEvaluator(
-              context = klass.defaultType.expressionFull,
+              context = klass.defaultExpression,
               deferAbstract = true,
           )
       klass.allSuperclasses().flatMap(::directClassEffects).map(evaluator::transformEffect)
