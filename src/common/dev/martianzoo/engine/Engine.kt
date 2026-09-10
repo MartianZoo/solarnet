@@ -44,10 +44,10 @@ public object Engine {
         GameReaderImpl(classTable, components, elaborator, customClasses, premise)
     private val timeline = TimelineImpl(reader, components, events, taskQueues, recordingPositions)
     private val limiter = Limiter(classTable, components)
-    private val atomicOperationScope: WorldTransaction =
+    private val worldTransaction: WorldTransaction =
         WorldTransaction(
             timeline,
-            { world.onAtomicComplete() },
+            { world.onTransactionComplete() },
             recordingPositions,
             ::removeTemporaryComponents,
         )
@@ -175,7 +175,7 @@ public object Engine {
           implementations,
           tasks,
           elaborator,
-          atomicOperationScope,
+          worldTransaction,
       )
     }
   }

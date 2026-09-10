@@ -2,7 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.pets.data.TaskResult
 
-/** Executes Agent operations atomically and reports the outermost successful completion. */
+/** Coordinates nested game mutations as one transaction and reports successful completion. */
 internal class WorldTransaction(
     private val timeline: Timeline,
     private val onComplete: () -> Unit,
@@ -13,8 +13,8 @@ internal class WorldTransaction(
 
   internal fun run(
       block: () -> Unit,
-      afterIdleCleanup: () -> Unit = {},
-      beforeOutermostCompletion: () -> Unit,
+      validateCompletion: () -> Unit = {},
+      settle: () -> Unit,
   ): TaskResult {
     depth++
     return try {
@@ -22,15 +22,15 @@ internal class WorldTransaction(
           .atomic {
             block()
             if (depth == 1) {
-              performIdleCleanup(beforeOutermostCompletion)
-              afterIdleCleanup()
+              settleAndCleanUp(settle)
+              validateCompletion()
             }
           }
           .also {
             if (depth == 1) {
               recordingPositions.record(timeline.checkpoint().ordinal)
               onComplete()
-              timeline.atomic { performIdleCleanup(beforeOutermostCompletion) }
+              timeline.atomic { settleAndCleanUp(settle) }
               recordingPositions.record(timeline.checkpoint().ordinal)
             }
           }
@@ -39,9 +39,9 @@ internal class WorldTransaction(
     }
   }
 
-  private fun performIdleCleanup(beforeOutermostCompletion: () -> Unit) {
+  private fun settleAndCleanUp(settle: () -> Unit) {
     do {
-      beforeOutermostCompletion()
+      settle()
     } while (removeTemporaryComponents())
   }
 }

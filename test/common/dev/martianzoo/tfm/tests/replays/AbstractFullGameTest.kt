@@ -153,10 +153,10 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   }
 
   private fun TfmGameplay.assertVps(expected: Int) {
-    val onAtomicComplete = game.onAtomicComplete
+    val onTransactionComplete = game.onTransactionComplete
     val checkpoint = game.timeline.checkpoint()
     val autoExecPolicys = game.actors.associateWith { game.testAgent(it).autoExecPolicy }
-    game.onAtomicComplete = {}
+    game.onTransactionComplete = {}
     try {
       game.actors.forEach { game.testAgent(it).autoExecPolicy = EAGER }
       dropPendingTasksForSnapshot()
@@ -166,7 +166,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     } finally {
       game.timeline.rollBack(checkpoint)
       autoExecPolicys.forEach { (actor, mode) -> game.testAgent(actor).autoExecPolicy = mode }
-      game.onAtomicComplete = onAtomicComplete
+      game.onTransactionComplete = onTransactionComplete
     }
   }
 

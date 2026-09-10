@@ -56,7 +56,7 @@ internal class GameRecordingTest {
     val game = Engine.newGame(canonicalPremise())
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     var addAutomaticResources = true
-    game.onAtomicComplete = {
+    game.onTransactionComplete = {
       if (addAutomaticResources) {
         addAutomaticResources = false
         agent.runOperation("Plant")

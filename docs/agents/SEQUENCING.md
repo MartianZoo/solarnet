@@ -48,7 +48,7 @@
 - [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt) — `fire` selects the complete
   sibling batch; `stableAutomaticOrder` is diagnostic order only.
 - [`WorldTransaction.kt`](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) —
-  `performIdleCleanup`, and `Engine.removeTemporaryComponents` next to it.
+  `settleAndCleanUp`, and `Engine.removeTemporaryComponents` next to it.
 - [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt) —
   `enforceSelectLock` and `requireComplete`.
 - [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) — the class KDoc lists
@@ -383,7 +383,7 @@ automatic work again and repeats cleanup until an idle pass finds nothing left t
 Only that empty pass allows the workflow callback. Work the callback starts synchronously is
 coalesced into one automatic follow-up step, and the same cleanup loop runs again before the
 resulting position is recorded. Every pass happens inside an atomic transaction. See
-`WorldTransaction.performIdleCleanup` and `Engine.removeTemporaryComponents`.
+`WorldTransaction.settleAndCleanUp` and `Engine.removeTemporaryComponents`.
 
 Three classes use it:
 

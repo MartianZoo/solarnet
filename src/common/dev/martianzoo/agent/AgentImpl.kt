@@ -31,7 +31,7 @@ internal class AgentImpl(
     private val impl: Implementations,
     override val tasks: TaskQueue,
     private val elaborator: PetElaborator,
-    private val atomicOperationScope: WorldTransaction,
+    private val worldTransaction: WorldTransaction,
 ) : Agent {
 
   override var autoExecPolicy: AutoExecPolicy = EAGER
@@ -106,7 +106,7 @@ internal class AgentImpl(
                 Adapter().body()
               }
         },
-        afterIdleCleanup = { impl.requireComplete(allowedPendingTasks) },
+        validateCompletion = { impl.requireComplete(allowedPendingTasks) },
     )
   }
 
@@ -125,7 +125,7 @@ internal class AgentImpl(
   override fun completeOperation(body: OperationBlock): TaskResult {
     return atomic(
         block = { impl.complete(autoExecPolicy) { Adapter().body() } },
-        afterIdleCleanup = { impl.requireComplete() },
+        validateCompletion = { impl.requireComplete() },
     )
   }
 
@@ -162,7 +162,7 @@ internal class AgentImpl(
   override fun autoExecNow() = atomic {}
 
   private fun autoExecAtomically(): TaskResult =
-      atomicOperationScope.run({ impl.autoExecNow(autoExecPolicy) }) {}
+      worldTransaction.run({ impl.autoExecNow(autoExecPolicy) }) {}
 
   // TURNS
 
@@ -243,19 +243,18 @@ internal class AgentImpl(
   // autoExecNow() and cross-Actor Agent calls can re-enter this call site. Its depth is shared
   // by every Actor in the world so only the true outermost operation drains and reports completion.
   private fun atomic(
-      afterIdleCleanup: () -> Unit = {},
+      validateCompletion: () -> Unit = {},
       block: () -> Unit,
   ): TaskResult =
-      atomicOperationScope.run(
+      worldTransaction.run(
           block = block,
-          afterIdleCleanup = afterIdleCleanup,
-          beforeOutermostCompletion = { impl.autoExecNow(autoExecPolicy) },
+          validateCompletion = validateCompletion,
+          settle = { impl.autoExecNow(autoExecPolicy) },
       )
 
   // Direct mutation did not invoke legacy autoexecution before it joined the shared command scope.
   // Policy-driven advancement will replace this distinction in the later scheduler slice.
-  private fun atomicWithoutAutoExec(block: () -> Unit): TaskResult =
-      atomicOperationScope.run(block) {}
+  private fun atomicWithoutAutoExec(block: () -> Unit): TaskResult = worldTransaction.run(block) {}
 
   private data class ParsedTaskNarrowing(
       val instruction: InstructionTree,

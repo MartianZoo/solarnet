@@ -127,5 +127,5 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
 - Separate `Instructor`'s resolution-only capability from execution so `Changer`, `Effector`, and
   the default Actor do not remain nullable solely for `InstructionResolutionTest`.
-- Replace `World.onAtomicComplete`'s mutable single callback with scoped listener registration once
+- Replace `World.onTransactionComplete`'s mutable single callback with scoped listener registration once
   multiple workflow or monitoring observers need to coexist.

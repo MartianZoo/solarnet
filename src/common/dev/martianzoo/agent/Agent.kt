@@ -1,7 +1,7 @@
 package dev.martianzoo.agent
 
+import dev.martianzoo.engine.AbortTransactionException
 import dev.martianzoo.engine.TaskQueue
-import dev.martianzoo.engine.TimelineImpl.AbortOperationException
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.KindException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
@@ -172,7 +172,7 @@ public interface Agent {
 
     public fun autoExecNow()
 
-    public fun abort(): Nothing = throw AbortOperationException()
+    public fun abort(): Nothing = throw AbortTransactionException()
   }
 
   public companion object {

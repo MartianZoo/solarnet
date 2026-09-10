@@ -17,7 +17,7 @@ internal class WorldTransactionTest {
     val player1 = game.testAgent(PLAYER1)
     val player2 = game.testAgent(PLAYER2)
     var completions = 0
-    game.onAtomicComplete = { completions++ }
+    game.onTransactionComplete = { completions++ }
 
     player1.runOperation("Ok") { player2.runOperation("Ok") }
 
@@ -56,7 +56,7 @@ internal class WorldTransactionTest {
         )
     val player = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     var workflowPulses = 0
-    game.onAtomicComplete = { if (game.tasks.isEmpty()) workflowPulses++ }
+    game.onTransactionComplete = { if (game.tasks.isEmpty()) workflowPulses++ }
 
     player.addTasks("Blocker")
     player.runOperation("CleanupProbe")
@@ -92,7 +92,7 @@ internal class WorldTransactionTest {
         )
     val player = game.testAgent(PLAYER1)
     var workflowPulses = 0
-    game.onAtomicComplete = { if (game.tasks.isEmpty()) workflowPulses++ }
+    game.onTransactionComplete = { if (game.tasks.isEmpty()) workflowPulses++ }
 
     player.runOperation("FirstCleanup")
 
@@ -115,7 +115,7 @@ internal class WorldTransactionTest {
         )
     val player = game.testAgent(PLAYER1)
     var startFollowUp = true
-    game.onAtomicComplete = {
+    game.onTransactionComplete = {
       if (startFollowUp) {
         startFollowUp = false
         player.sneak("CleanupProbe")
@@ -191,7 +191,7 @@ internal class WorldTransactionTest {
     val game = Engine.newGame(testGamePremise())
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     var completions = 0
-    game.onAtomicComplete = { completions++ }
+    game.onTransactionComplete = { completions++ }
 
     agent.sneak("Token")
     val taskId = agent.addTasks("-Token?").single()

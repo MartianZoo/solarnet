@@ -241,7 +241,7 @@ part of the capture, and the source may not roll back that captured prefix while
 
 `Timeline` provides event-count checkpoints, atomic blocks, rollback, and a commit floor. An atomic
 failure reverses component state, tasks, event-backed indexes, and events.
-`AbortOperationException` requests rollback without surfacing as a caller error. The commit floor
+`AbortTransactionException` requests rollback without surfacing as a caller error. The commit floor
 prevents rollback into initialization or a workflow stage.
 
 `World.recording()` captures the event sequence and selected positions around successful outermost
@@ -685,7 +685,7 @@ stable object for reads, task commands, manual operations, task insertion/remova
 changes. The old power-interface hierarchy is gone. REPL color modes restrict commands in the script client
 rather than changing the engine object's type. Autoexecution policy attachment is forward-looking.
 
-All public Agent mutations share the outer atomic-completion path.
+All public Agent mutations share the outer transaction-completion path.
 
 `runOperation()` seeds a group of new tasks, permits an operation body to finish them, runs configured
 auto-exec, preserves previously pending unselected tasks, and fails if newly created Tasks or
@@ -720,7 +720,7 @@ divergence.
  remain one production wrapper.
 
 `TfmWorkflow.Automatic` runs the Terraforming Mars phase loop in a coroutine. It commits before waiting
-for tasks to drain and wakes from the shared outermost atomic-completion callback. StartToken
+for tasks to drain and wakes from the shared outermost transaction-completion callback. StartToken
 determines turn order. Canon represents every condition currently preventing game end as a
 `GameEndBarrier`; the workflow checks for those components after Production and reads the solo
 `Victory` result rather than reimplementing its predicate. Exact phase requirements and known gaps are

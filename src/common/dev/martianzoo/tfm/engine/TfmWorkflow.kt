@@ -103,7 +103,7 @@ public object TfmWorkflow {
     private var shutdownCheckpoint: Timeline.Checkpoint? = null
 
     init {
-      game.onAtomicComplete = { if (game.isIdle()) resumeSignal.trySend(Unit) }
+      game.onTransactionComplete = { if (game.isIdle()) resumeSignal.trySend(Unit) }
     }
 
     /**
@@ -120,7 +120,7 @@ public object TfmWorkflow {
             try {
               runGame()
             } finally {
-              game.onAtomicComplete = {}
+              game.onTransactionComplete = {}
             }
           }
       workflowJob!!.start()
@@ -133,7 +133,7 @@ public object TfmWorkflow {
      * back so the queue is empty and the game is ready for a manual phase transition.
      */
     public fun shutdown() {
-      game.onAtomicComplete = {}
+      game.onTransactionComplete = {}
       lifecycleJob.cancel()
       resumeSignal.cancel()
       shutdownCheckpoint?.let { game.timeline.rollBack(it) }

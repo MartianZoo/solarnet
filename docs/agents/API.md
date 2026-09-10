@@ -142,8 +142,8 @@ choose adversarially, or use another legal strategy is not an engine concern.
 
 ## Current implementation divergence
 
-Today `Agent`, parsing, direct mutation powers, `autoExecPolicy`, and atomic completion all live in
-`:engine`. `World.agent(actor)` returns one stable fully permissive object per Actor, including
+Today `Agent`, parsing, direct mutation powers, `autoExecPolicy`, and transaction completion all
+live in `:engine`. `World.agent(actor)` returns one stable fully permissive object per Actor, including
 `Admin`. Public task mutation has been reduced to checked narrowing and explicit
 single-task removal. The extraction should preserve behavior while successively:
 

@@ -22,7 +22,7 @@ internal class GameWorldAtomicityTest {
     val checkpoint = world.timeline.checkpoint()
     val revision = world.revision
     var successfulCompletions = 0
-    world.onAtomicComplete = { successfulCompletions++ }
+    world.onTransactionComplete = { successfulCompletions++ }
 
     shouldThrow<IllegalStateException> {
       admin.runOperation("Marker") {

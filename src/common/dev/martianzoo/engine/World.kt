@@ -50,6 +50,6 @@ public interface World {
 
   public fun agent(actor: Actor): Agent
 
-  /** Called after every outermost atomic operation completes. */
-  public var onAtomicComplete: () -> Unit
+  /** Called after every outermost transaction completes. */
+  public var onTransactionComplete: () -> Unit
 }
