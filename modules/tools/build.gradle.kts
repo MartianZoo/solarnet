@@ -12,13 +12,12 @@ val kotlinFileComplexityAnalyzer by configurations.creating {
 }
 
 val toolsSourceDirectory = rootProject.layout.projectDirectory.dir("src/jvm/dev/martianzoo/tools")
-val localToolsSourceDirectory = rootProject.layout.projectDirectory.dir(".tools")
 val canonSourceDirectory =
     rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/canon")
 
 kotlin {
   sourceSets {
-    main { kotlin.setSrcDirs(listOf(toolsSourceDirectory, localToolsSourceDirectory)) }
+    main { kotlin.setSrcDirs(listOf(toolsSourceDirectory)) }
     test {
       kotlin.setSrcDirs(
           listOf(rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tools"))

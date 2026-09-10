@@ -50,14 +50,10 @@ private fun createGame(playerCount: Int): World {
       agents.getValue(player).doTask("-6 ProjectCard<Hand>")
     }
     if (playerCount == 1) {
-      game
-          .tfm(agents, players.first())
-          .doTask("-ColonyTileSelection<Class<${colonies.first()}>>")
+      game.tfm(agents, players.first()).doTask("-ColonyTileSelection<Class<${colonies.first()}>>")
     }
     TfmWorkflow.Stepwise(agents).corporationPhase()
-    game
-        .tfm(agents, players.first())
-        .playCorp(cn("InterplanetaryCinematics"), buyCards = 4)
+    game.tfm(agents, players.first()).playCorp(cn("InterplanetaryCinematics"), buyCards = 4)
   }
 }
 
@@ -112,8 +108,7 @@ public fun main(args: Array<String>) {
     }
     else ->
         error(
-            "Usage: dumpEventlog <otb-game.tsv> OR " +
-                "dumpEventlog <three-player.tsv> <solo.tsv>"
+            "Usage: dumpEventlog <otb-game.tsv> OR " + "dumpEventlog <three-player.tsv> <solo.tsv>"
         )
   }
 }
