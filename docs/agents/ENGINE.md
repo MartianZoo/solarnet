@@ -41,11 +41,11 @@
 - [`EventLog.kt`](../../src/common/dev/martianzoo/engine/EventLog.kt) and
   [`Timeline.kt`](../../src/common/dev/martianzoo/engine/Timeline.kt) — inspect only
   for history, atomicity, rollback, or revisions.
- - [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt) — search for
+ - [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) — search for
    `public interface Agent` before changing caller-facing operations.
  - [`PetElaborator.kt`](../../src/common/dev/martianzoo/pets/PetElaborator.kt),
    [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt), and
-   [`ApiTranslation.kt`](../../src/common/dev/martianzoo/engine/ApiTranslation.kt) — inspect together
+   [`ApiTranslation.kt`](../../src/common/dev/martianzoo/agent/ApiTranslation.kt) — inspect together
    for authored elaboration, class/component specialization, and Player-scoped input.
  - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — search for `resolve` and
    `doExecuteResolved` for the selected-task resolution and executable-first-stage contract.

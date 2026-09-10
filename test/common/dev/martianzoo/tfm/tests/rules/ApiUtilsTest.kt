@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.Agent
 import dev.martianzoo.engine.*
-import dev.martianzoo.engine.Agent
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn

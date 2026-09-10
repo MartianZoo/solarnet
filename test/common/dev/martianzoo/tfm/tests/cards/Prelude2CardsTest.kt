@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.engine.Agent.OperationBody
-import dev.martianzoo.engine.AutoExecMode.SAFE
+import dev.martianzoo.agent.Agent.OperationBody
+import dev.martianzoo.agent.AutoExecMode.SAFE
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn

@@ -47,7 +47,7 @@
   `MAX_AUTOMATIC_EFFECT_DEPTH` caps runaway chains.
 - [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt) — `fire` selects the complete
   sibling batch; `stableAutomaticOrder` is diagnostic order only.
-- [`AtomicOperationScope.kt`](../../src/common/dev/martianzoo/engine/AtomicOperationScope.kt) —
+- [`WorldTransaction.kt`](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) —
   `performIdleCleanup`, and `Engine.removeTemporaryComponents` next to it.
 - [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt) —
   `enforceSelectLock` and `requireComplete`.
@@ -61,7 +61,7 @@
   — `CLASS Trade<ColonyTile>` for the counted-prerequisite latch.
 - Tests: [`ActionSequencingTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/ActionSequencingTest.kt),
   [`AutomaticEffectOrderTest.kt`](../../test/common/dev/martianzoo/engine/AutomaticEffectOrderTest.kt),
-  [`AtomicOperationScopeTest.kt`](../../test/common/dev/martianzoo/engine/AtomicOperationScopeTest.kt).
+  [`WorldTransactionTest.kt`](../../test/common/dev/martianzoo/engine/WorldTransactionTest.kt).
 
 ## The promises
 
@@ -383,7 +383,7 @@ automatic work again and repeats cleanup until an idle pass finds nothing left t
 Only that empty pass allows the workflow callback. Work the callback starts synchronously is
 coalesced into one automatic follow-up step, and the same cleanup loop runs again before the
 resulting position is recorded. Every pass happens inside an atomic transaction. See
-`AtomicOperationScope.performIdleCleanup` and `Engine.removeTemporaryComponents`.
+`WorldTransaction.performIdleCleanup` and `Engine.removeTemporaryComponents`.
 
 Three classes use it:
 

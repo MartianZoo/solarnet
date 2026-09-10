@@ -4,7 +4,10 @@ kotlin {
   sourceSets {
     commonMain {
       kotlin.setSrcDirs(
-          listOf(rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/engine"))
+          listOf(
+              rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/agent"),
+              rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/engine"),
+          )
       )
       dependencies {
         implementation(libs.kotlinx.coroutines.core)
@@ -14,6 +17,7 @@ kotlin {
     commonTest {
       kotlin.setSrcDirs(
           listOf(
+              rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/agent"),
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/testsupport"),
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/engine"),
           )

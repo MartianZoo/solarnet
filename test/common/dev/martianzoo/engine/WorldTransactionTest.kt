@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecMode.NONE
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.testsupport.PLAYER1
@@ -9,7 +9,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class AtomicOperationScopeTest {
+internal class WorldTransactionTest {
   @Test
   internal fun nestedOperationsAcrossActorsReportOnlyTheOutermostCompletion() {
     val game = Engine.newGame(testGamePremise(players = 2))

@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.engine.AutoExecMode.SAFE
+import dev.martianzoo.agent.AutoExecMode.SAFE
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.cards.cardnames.Factorum

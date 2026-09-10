@@ -26,8 +26,8 @@
   the pets-free authored data library used by generators and presentation tools.
 - [`ScriptSession.kt`](../../src/common/dev/martianzoo/script/ScriptSession.kt) —
   inspect only for the script application layer.
-- [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt) and
-  [`AutoExecMode.kt`](../../src/common/dev/martianzoo/engine/AutoExecMode.kt) — current engine-owned
+- [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) and
+  [`AutoExecMode.kt`](../../src/common/dev/martianzoo/agent/AutoExecMode.kt) — current engine-owned
   APIs that the selected layering direction will extract.
 - [GAMEWORLD.md](GAMEWORLD.md) owns the selected Game World data, playback, and export model.
 

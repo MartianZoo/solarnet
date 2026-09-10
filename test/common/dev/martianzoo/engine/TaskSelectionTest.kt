@@ -1,5 +1,7 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.AutoExecMode
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.engine.Agent
-import dev.martianzoo.engine.BodyLambda
+import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.BodyLambda
 import dev.martianzoo.engine.Timeline
 import dev.martianzoo.engine.World
 import dev.martianzoo.engine.toComponent

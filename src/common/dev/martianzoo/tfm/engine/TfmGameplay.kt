@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.engine
 
-import dev.martianzoo.engine.Agent
-import dev.martianzoo.engine.Agent.OperationBody
-import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.engine.AutoExecMode.SAFE
-import dev.martianzoo.engine.BodyLambda
+import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.Agent.OperationBody
+import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecMode.SAFE
+import dev.martianzoo.agent.BodyLambda
 import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Transforming.bindXTo

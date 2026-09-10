@@ -1,6 +1,6 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.engine.Agent.Companion.parse
+import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptCommand

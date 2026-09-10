@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.engine.AutoExecMode
+import dev.martianzoo.agent.AutoExecMode
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import kotlin.test.BeforeTest

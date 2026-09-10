@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Agent.Companion.parse
+import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException

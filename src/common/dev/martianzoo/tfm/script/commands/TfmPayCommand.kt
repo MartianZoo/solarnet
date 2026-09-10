@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.script.commands
 
-import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName.Companion.cn

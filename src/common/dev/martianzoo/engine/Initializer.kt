@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Agent.Companion.parse
+import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.pets.ast.Instruction

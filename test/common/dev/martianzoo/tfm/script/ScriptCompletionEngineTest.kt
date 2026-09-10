@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.script
 
-import dev.martianzoo.engine.Agent
+import dev.martianzoo.agent.Agent
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionEngine
 import dev.martianzoo.script.ScriptSession

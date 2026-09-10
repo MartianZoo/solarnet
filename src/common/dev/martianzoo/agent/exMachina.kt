@@ -1,7 +1,8 @@
-package dev.martianzoo.engine
+package dev.martianzoo.agent
 
-import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecMode.NONE
 import dev.martianzoo.engine.Timeline.Checkpoint
+import dev.martianzoo.engine.World
 import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.Task.TaskId

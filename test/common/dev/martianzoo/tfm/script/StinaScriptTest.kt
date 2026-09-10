@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.script
 
-import dev.martianzoo.engine.Agent
+import dev.martianzoo.agent.Agent
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.script.ScriptSession

@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agent
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.types.ClassTable

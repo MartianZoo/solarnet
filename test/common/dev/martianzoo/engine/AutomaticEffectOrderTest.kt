@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agent
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test

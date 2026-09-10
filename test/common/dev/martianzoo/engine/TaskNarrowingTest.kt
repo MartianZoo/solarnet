@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecMode
+import dev.martianzoo.agent.AutoExecMode.NONE
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException

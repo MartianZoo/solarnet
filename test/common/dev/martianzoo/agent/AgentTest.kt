@@ -1,6 +1,8 @@
-package dev.martianzoo.engine
+package dev.martianzoo.agent
 
-import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.engine.Engine
+import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test

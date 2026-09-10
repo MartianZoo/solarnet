@@ -39,7 +39,7 @@ The required primitives already exist:
   Game World state, with exactly one Phase present.
 - Pets Type arguments are component dependencies. Removing a dependency cascades through its
   dependents before removing the dependency itself.
-- [`AtomicOperationScope`](../../src/common/dev/martianzoo/engine/AtomicOperationScope.kt) performs
+- [`WorldTransaction`](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) performs
   idle cleanup only after an outer operation and its automatic effects have completed.
 - [`Engine.removeTemporaryComponents`](../../src/common/dev/martianzoo/engine/Engine.kt) removes
   `Temporary` components when every task queue is empty. Their removal effects may create more

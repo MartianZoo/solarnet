@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.AutoExecMode.NONE
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.testsupport.PLAYER1
