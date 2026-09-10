@@ -18,9 +18,6 @@ import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Task.TaskId
 import dev.martianzoo.pets.data.TaskResult
-import dev.martianzoo.pets.types.ClassTable
-import dev.martianzoo.pets.types.Type
-import dev.martianzoo.pets.util.HashMultiset
 import dev.martianzoo.pets.util.Multiset
 import kotlin.reflect.KClass
 
@@ -33,7 +30,6 @@ internal class ApiTranslation(
     override val reader: GameReader,
     private val impl: Implementations,
     override val tasks: TaskQueue,
-    private val classTable: ClassTable,
     private val elaborator: PetElaborator,
     private val atomicOperationScope: AtomicOperationScope,
 ) : Agent {
@@ -59,20 +55,8 @@ internal class ApiTranslation(
           )
       )
 
-  override fun list(type: String): Multiset<Expression> {
-    val typeToList: Type = reader.resolve(parse(type))
-    val allComponents: Multiset<Type> = reader.getComponents(typeToList)
-
-    val result = HashMultiset<Expression>()
-    classTable.directSubclasses(typeToList.rootClass).forEach { sub ->
-      val matches = allComponents.filter { it.isSubtypeOf(sub.baseType) }
-      if (matches.any()) {
-        @Suppress("UNCHECKED_CAST") val types = matches.elements as Set<Type>
-        result.add(types.reduceOrNull(Type::lub)!!.expression, matches.size)
-      }
-    }
-    return result
-  }
+  override fun list(type: String): Multiset<Expression> =
+      reader.getComponents(reader.resolve(parse(type))).map { it.expression }
 
   override fun resolve(expression: String) = reader.resolve(parse(expression))
 

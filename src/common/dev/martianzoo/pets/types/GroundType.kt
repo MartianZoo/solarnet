@@ -187,19 +187,6 @@ internal constructor(
     return unrefined.refine(glbRefin)
   }
 
-  /**
-   * A minimal common supertype with [that], including the refinement rules ([rules 7-2 and
-   * 8-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds)).
-   */
-  override infix fun lub(that: Type): GroundType {
-    val that = that.groundType
-    requireSameClassTable(that)
-    val unrefined: GroundType =
-        (rootClass lub that.rootClass).withAllDependencies(dependencies lub that.dependencies)
-
-    return unrefined.refine(refinement.takeIf { it == that.refinement })
-  }
-
   internal fun specialize(specs: List<Expression>): GroundType =
       rootClass.withAllDependencies(dependencies.specialize(specs)).refine(refinement)
 
@@ -217,10 +204,10 @@ internal constructor(
   }
 
   private val expressionLazy = lazy {
-    toExpressionUsingSpecs(minimalDependencyExpressions())
+    toExpressionUsingSpecs(canonicalDependencyExpressions())
   }
   /**
-   * The minimal round-tripping expression specified by
+   * The canonical prefix expression specified by
    * [rule 5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
    */
   override val expression: Expression
@@ -246,34 +233,12 @@ internal constructor(
   override val narrowedDependencies: DependencySet
     get() = narrowedDependenciesLazy.value
 
-  private fun minimalDependencyExpressions(): List<Expression> {
-    val candidates = dependencies.expressions()
-
-    fun expressionsAt(indices: Collection<Int>) = indices.sorted().map(candidates::get)
-
-    fun resolvesToThis(indices: Collection<Int>): Boolean = runCatching {
-      rootClass.specialize(expressionsAt(indices)).dependencies == dependencies
-    }
-        .getOrDefault(false)
-
-    for (argumentCount in 0..candidates.size) {
-      fun find(start: Int, selected: List<Int>): List<Expression>? {
-        if (selected.size == argumentCount) {
-          return expressionsAt(selected).takeIf { resolvesToThis(selected) }
+  private fun canonicalDependencyExpressions(): List<Expression> {
+    val lastNarrowed =
+        dependencies.keys.indexOfLast { key ->
+          dependencies.get(key) != rootClass.dependencies.get(key)
         }
-        val remaining = argumentCount - selected.size
-        for (index in start..candidates.size - remaining) {
-          find(index + 1, selected + index)?.let {
-            return it
-          }
-        }
-        return null
-      }
-      find(0, emptyList())?.let {
-        return it
-      }
-    }
-    return candidates
+    return dependencies.expressions().take(lastNarrowed + 1)
   }
 
   private fun toExpressionUsingSpecs(specs: List<Expression>) = className.of(specs).has(refinement)
@@ -485,7 +450,7 @@ internal constructor(
   }
 
   /**
-   * Returns the minimal expression required by
+   * Returns the canonical prefix expression required by
    * [rule 5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
    */
   override fun toString(): String = "$expression"

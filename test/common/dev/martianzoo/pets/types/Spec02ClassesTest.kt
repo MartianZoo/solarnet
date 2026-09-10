@@ -254,76 +254,10 @@ internal class Spec02ClassesTest {
     (table.getClass(cn("Owned")) glb table.getClass(cn("Tile"))) shouldBe null
   }
 
-  // T2-9 Least upper bound of two classes
+  // T2-9 Custom classes
 
   @Test
-  internal fun `T2-9 lub of comparable classes is the upper one`() {
-    (klass("LandArea") lub klass("Area")) shouldBe klass("Area")
-    (klass("Area") lub klass("LandArea")) shouldBe klass("Area")
-    (klass("LandArea") lub klass("LandArea")) shouldBe klass("LandArea")
-  }
-
-  @Test
-  internal fun `T2-9 lub of siblings is their nearest common superclass`() {
-    (klass("LandArea") lub klass("WaterArea")) shouldBe klass("MarsArea")
-    (klass("Tharsis_5_5") lub klass("Tharsis_1_1")) shouldBe klass("MarsArea")
-  }
-
-  @Test
-  internal fun `T2-9 lub falls back to Component`() {
-    val table = loadTypes("CLASS GreeneryTile", "CLASS Plant")
-
-    (table.getClass(cn("GreeneryTile")) lub table.getClass(cn("Plant"))) shouldBe
-        table.componentClass
-  }
-
-  @Test
-  internal fun `T2-9 lub prefers a minimal candidate carrying more dependencies`() {
-    val table =
-        loadTypes(
-            "ABSTRACT CLASS Area",
-            "ABSTRACT CLASS Tile<Area>",
-            "ABSTRACT CLASS GlobalParameter",
-            "ABSTRACT CLASS OceanTile : Tile, GlobalParameter",
-            "ABSTRACT CLASS PolarOceanTile : Tile, GlobalParameter",
-        )
-
-    (table.getClass(cn("OceanTile")) lub table.getClass(cn("PolarOceanTile"))) shouldBe
-        table.getClass(cn("Tile"))
-  }
-
-  // T2-10 Intersection classes
-
-  @Test
-  internal fun `T2-10 a class is an intersection class when nothing else combines its supertypes`() {
-    val table =
-        loadTypes(
-            "ABSTRACT CLASS Tile",
-            "ABSTRACT CLASS OwnedTile : Tile, Owned",
-            "CLASS GreeneryTile : OwnedTile",
-        )
-
-    table.getClass(cn("OwnedTile")).isIntersectionType() shouldBe true
-    table.getClass(cn("Tile")).isIntersectionType() shouldBe false
-    table.getClass(cn("GreeneryTile")).isIntersectionType() shouldBe false
-  }
-
-  @Test
-  internal fun `T2-10 a rival combination of the same supertypes breaks the intersection`() {
-    val table =
-        loadTypes(
-            "ABSTRACT CLASS Tile",
-            "ABSTRACT CLASS OwnedTile : Tile, Owned",
-            "CLASS CommercialDistrictTile : Tile, Owned",
-        )
-
-    table.getClass(cn("OwnedTile")).isIntersectionType() shouldBe false
-  }
-
-  // T2-11 Custom classes
-
-  @Test
-  internal fun `T2-11 a Custom class must have a Kotlin implementation, and only a Custom class may`() {
+  internal fun `T2-9 a Custom class must have a Kotlin implementation, and only a Custom class may`() {
     val declaration = "CLASS Neighbor : Custom"
 
     ClassLoader(testCatalog(declaration, setOf(object : CustomClass(cn("Neighbor")) {})))
@@ -341,14 +275,14 @@ internal class Spec02ClassesTest {
   }
 
   @Test
-  internal fun `T2-11 a root class rejects an unexpected implementation`() {
+  internal fun `T2-9 a root class rejects an unexpected implementation`() {
     shouldThrow<PetException> {
       ClassLoader(testCatalog("", setOf(object : CustomClass(COMPONENT) {})))
     }
   }
 
   @Test
-  internal fun `T2-11 a Custom class may not inherit Pets behavior`() {
+  internal fun `T2-9 a Custom class may not inherit Pets behavior`() {
     listOf(
             "ABSTRACT CLASS Behaving { Trigger: Result }\nCLASS Trigger, Result",
             "ABSTRACT CLASS Behaving { HAS MAX 1 This }",
@@ -370,10 +304,10 @@ internal class Spec02ClassesTest {
         }
   }
 
-  // T2-12 Class identity
+  // T2-10 Class identity
 
   @Test
-  internal fun `T2-12 a class is identified by its name within its universe`() {
+  internal fun `T2-10 a class is identified by its name within its universe`() {
     val table = loadTypes("CLASS GreeneryTile")
 
     table.getClass(cn("GreeneryTile")) shouldBe table.getClass(cn("GreeneryTile"))

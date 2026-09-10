@@ -49,7 +49,6 @@ internal class Spec01UniversesTest {
     val rightTile = right.resolve(te("GreeneryTile"))
 
     shouldThrowIae { leftArea.isSubtypeOf(rightArea) }
-    shouldThrowIae { leftArea lub rightArea }
     shouldThrowIae { leftTile.isSubtypeOf(rightTile) }
     shouldThrowIae { leftTile glb rightTile }
     shouldThrowIae { leftTile.narrows(rightTile, NoGameState) }

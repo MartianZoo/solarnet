@@ -79,7 +79,7 @@
 - **live effect:** A component effect paired with its existing context Component, so that it can respond to change events. It counts according to the multiplicity of that type.
 - **manual:** Initiated by a Solarnet client rather than caused by an effect or workflow. Selecting or narrowing an already pending task is not a new manual action. With fully automatic workflow, a game can contain no manual operations.
 - **metric:** A Pets expression that computes a nonnegative integer from a game world.
-- **minimal form:** The shortest canonical expression that reliably resolves back to the same type. It omits inherited bounds that equal the root class's defaults, retaining a bound only when omission would make dependency matching ambiguous.
+- **canonical prefix form:** A Type expression containing every dependency through the final bound that differs from the root Class's defaults. It round-trips without searching argument subsets or inferring an earlier bound from a later one.
 - **Module:** An affirmative, immutable singleton Component carrying one part of a realized game's ambient behavior. The exact Module set records the game's general behavior choices.
 - **multi-instruction:** An instruction containing two or more comma-separated, unordered child instructions. It is split into separate tasks because one task cannot contain a multi-instruction.
 - **multi-requirement:** A requirement containing two or more child requirements combined as logical “and.”

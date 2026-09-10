@@ -44,7 +44,7 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
 
   /**
    * The canonical name of [rootClass], following
-   * [rule 2-12](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+   * [rule 2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
    */
   override val className: ClassName
     get() = rootClass.className
@@ -101,7 +101,7 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
     get() = groundType.narrowedDependencies
 
   /**
-   * The minimal expression that resolves to this type ([rule
+   * The canonical prefix expression that resolves to this type ([rule
    * 5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types)).
    */
   override val expression: Expression
@@ -164,14 +164,6 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
    * @throws IllegalArgumentException if [that] belongs to another universe (rule 1-2).
    */
   public infix fun glb(that: Type): GroundType? = groundType glb that.groundType
-
-  /**
-   * A minimal common supertype of this type and [that], according to
-   * [rules 7-2 and 7-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds).
-   *
-   * @throws IllegalArgumentException if [that] belongs to another universe (rule 1-2).
-   */
-  public infix fun lub(that: Type): GroundType = groundType lub that.groundType
 
   /**
    * Enumerates every concrete narrowing in the master universe, following

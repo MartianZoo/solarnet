@@ -5,7 +5,7 @@ import dev.martianzoo.pets.util.toSetStrict
 
 /** Any object that can be represented in some way as an [Expression]. */
 public interface HasExpression {
-  /** This object as a minimal expression. */
+  /** This object as its canonical expression. */
   public val expression: Expression
 
   /** This object as a full expression. */

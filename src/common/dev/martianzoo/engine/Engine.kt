@@ -172,7 +172,6 @@ public object Engine {
           reader,
           implementations,
           tasks,
-          classTable,
           elaborator,
           atomicOperationScope,
       )

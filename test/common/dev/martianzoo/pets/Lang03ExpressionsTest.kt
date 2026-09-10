@@ -161,7 +161,7 @@ internal class Lang03ExpressionsTest {
   }
 
   @Test
-  internal fun `L3-7 an authored expression is not rewritten into a minimal form`() {
+  internal fun `L3-7 an authored expression is not rewritten into a canonical form`() {
     val bare = parse<Expression>("Tile")
     val explicit = parse<Expression>("Tile<Area>")
 
@@ -181,5 +181,13 @@ internal class Lang03ExpressionsTest {
         parse<Expression>("Marker<Mars1, Player1>")
     langTable.resolve(parse("Marker<Player1, Mars1>")) shouldBe
         langTable.resolve(parse("Marker<Mars1, Player1>"))
+  }
+
+  @Test
+  internal fun `L3-8 refinement clause order and duplication do not affect equality`() {
+    val reorderedWithDuplicate = parse<Expression>("Plant(NOT Heat, HAS Steel, HAS Steel)")
+
+    parse<Expression>("Plant(HAS Steel, NOT Heat)") shouldBe reorderedWithDuplicate
+    "$reorderedWithDuplicate" shouldBe "Plant(NOT Heat, HAS Steel)"
   }
 }

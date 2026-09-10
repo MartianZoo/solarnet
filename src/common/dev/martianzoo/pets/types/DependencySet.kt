@@ -176,19 +176,6 @@ public class DependencySet private constructor(private val deps: List<Dependency
   }
 
   /**
-   * Joins corresponding keys present in both sets, dropping unshared keys as required by
-   * [rule 7-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds).
-   */
-  public infix fun lub(that: DependencySet): DependencySet {
-    requireSameClassTable(that)
-    return of(
-        deps.mapNotNull { dependency ->
-          that.getIfPresent(dependency.key)?.let { dependency lub it }
-        }
-    )
-  }
-
-  /**
    * Asserts componentwise contextual covariance against [that], forwarding [info] to refinements
    * under
    * [rules 6-2 and 8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).

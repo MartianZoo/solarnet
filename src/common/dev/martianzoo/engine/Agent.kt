@@ -43,6 +43,7 @@ public interface Agent {
   /** Counts [metric], allowing explicit `EVAL` of metric properties in this Actor's context. */
   public fun count(metric: String): Int
 
+  /** Returns each matching component's exact type expression, preserving multiplicity. */
   public fun list(type: String): Multiset<Expression>
 
   public fun resolve(expression: String): Type

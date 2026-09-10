@@ -58,12 +58,6 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
   public abstract infix fun glb(that: Dependency): Dependency?
 
   /**
-   * Returns the least upper bound with [that] by joining the two bounds ([rule
-   * 7-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds)).
-   */
-  public abstract infix fun lub(that: Dependency): Dependency
-
-  /**
    * The stable identity of a dependency: the class that introduced it and its zero-based slot in
    * that declaration. Subclasses inherit this key unchanged, as specified by
    * [rules 3-1 and 3-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
@@ -135,7 +129,7 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
 
     /**
      * The canonical name of [boundType]'s root class, following
-     * [rule 2-12](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+     * [rule 2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
      */
     override val className: ClassName
       get() = boundClass.className
@@ -172,12 +166,6 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
       if (that !is TypeDependency) return null
       return (boundType glb boundOf(that))?.let { copy(boundType = it) }
     }
-
-    /**
-     * Joins [boundType] with [that]'s bound, following
-     * [rule 7-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds).
-     */
-    override fun lub(that: Dependency): Dependency = copy(boundType = boundType lub boundOf(that))
 
     internal inline fun map(function: (GroundType) -> GroundType) =
         copy(boundType = function(boundType))
@@ -235,9 +223,6 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
       if (that !is FakeDependency) return null
       return (boundClass glb boundOf(that))?.let(::copy)
     }
-
-    override fun lub(that: Dependency): FakeDependency =
-        FakeDependency(boundClass lub boundOf(that))
 
     override fun ensureNarrows(that: Dependency, info: TypeInfo) =
         boundClass.ensureNarrows(boundOf(that), info)

@@ -67,7 +67,7 @@ internal constructor(
 
   /**
    * The canonical class name that determines identity within [classTable] ([rule
-   * 2-12](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes)).
+   * 2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes)).
    */
   override val className: ClassName = declaration.className.also { require(it != THIS) }
 
@@ -244,24 +244,6 @@ internal constructor(
       }
 
   /**
-   * Returns a minimal common superclass with [that], following the deliberately noncanonical choice
-   * of
-   * [rule 2-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
-   *
-   * @throws IllegalArgumentException if [that] belongs to another universe (rule 1-2).
-   */
-  public infix fun lub(that: Class): Class {
-    requireSameClassTable(that)
-    val commonSupers: Set<Class> = this.allSuperclasses.intersect(that.allSuperclasses)
-    val supersOfSupers: Set<Class> = commonSupers.flatMap { it.properSuperclasses() }.toSet()
-    val candidates: Set<Class> = commonSupers - supersOfSupers
-    // This is a weird and stupid heuristic, but does it really matter which one we pick?
-    return candidates.maxBy {
-      it.dependencies.typeDependencies().size * 100 + it.allSuperclasses.size
-    }
-  }
-
-  /**
    * Asserts the subclass relation with [that], producing a narrowing error on failure as specified
    * by
    * [rule 2-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
@@ -333,20 +315,6 @@ internal constructor(
    */
   public fun directSubclasses(): Set<Class> = loader.directSubclassesOf(this)
 
-  /**
-   * Whether this class is the declared intersection of [directSuperclasses]: every class below all
-   * of them is also below this class. This is the exact condition in
-   * [rule 2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
-   */
-  public fun isIntersectionType(): Boolean = intersectionType()
-
-  private val intersectionType: Lazy<Boolean> = lazy {
-    directSuperclasses.size >= 2 &&
-        loader
-            .allClasses()
-            .filter { klass -> directSuperclasses.all(klass::isSubtypeOf) }
-            .all(::isSupertypeOf)
-  }
   // DEPENDENCIES
 
   /** The dependency positions whose values are bound to the inheriting class. */
@@ -940,20 +908,20 @@ internal constructor(
 
   /**
    * Implements universe-scoped name identity from
-   * [rules 1-1 and 2-12](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   * [rules 1-1 and 2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   override fun equals(other: Any?): Boolean =
       other is Class && other.className == className && other.loader == loader
 
   /**
    * Hashes the universe-scoped name identity defined by
-   * [rules 1-1 and 2-12](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   * [rules 1-1 and 2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   override fun hashCode(): Int = className.hashCode() xor loader.hashCode()
 
   /**
    * Returns the canonical name required by
-   * [rule 2-12](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+   * [rule 2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
    */
   override fun toString(): String = "$className"
 
