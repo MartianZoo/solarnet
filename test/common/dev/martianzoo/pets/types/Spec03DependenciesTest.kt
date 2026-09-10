@@ -41,10 +41,10 @@ internal class Spec03DependenciesTest {
 
   private fun type(s: String) = mars.resolve(te(s))
 
-  // 3-1 Keys
+  // T3-1 Keys
 
   @Test
-  internal fun `3-1 each declared dependency gets a key naming its declaring class and slot`() {
+  internal fun `T3-1 each declared dependency gets a key naming its declaring class and slot`() {
     klass("Occupant").dependencies.keys shouldContainExactly listOf(Key(cn("Occupant"), 0))
     "${Key(cn("Occupant"), 0)}" shouldBe "Occupant_0"
 
@@ -54,28 +54,28 @@ internal class Spec03DependenciesTest {
   }
 
   @Test
-  internal fun `3-1 a class with no dependencies has an empty dependency set`() {
+  internal fun `T3-1 a class with no dependencies has an empty dependency set`() {
     loadTypes("CLASS Plant").getClass(cn("Plant")).dependencies.keys.shouldBeEmpty()
   }
 
-  // 3-2 Inheritance
+  // T3-2 Inheritance
 
   @Test
-  internal fun `3-2 a subclass inherits every dependency under the original key`() {
+  internal fun `T3-2 a subclass inherits every dependency under the original key`() {
     klass("Tile").dependencies.keys shouldContainExactly listOf(Key(cn("Occupant"), 0))
     klass("GreeneryTile").dependencies.keys shouldContainExactly
         listOf(Key(cn("Occupant"), 0), Key(cn("Owned"), 0))
   }
 
   @Test
-  internal fun `3-2 a supertype expression narrows the inherited bound`() {
+  internal fun `T3-2 a supertype expression narrows the inherited bound`() {
     klass("Occupant").baseType.expressionFull shouldBe te("Occupant<Area>")
     klass("GreeneryTile").baseType.expressionFull shouldBe te("GreeneryTile<MarsArea, Owner>")
     klass("OceanTile").baseType.expressionFull shouldBe te("OceanTile<WaterArea>")
   }
 
   @Test
-  internal fun `3-2 newly declared dependencies follow the inherited ones`() {
+  internal fun `T3-2 newly declared dependencies follow the inherited ones`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS CardBack",
@@ -90,10 +90,10 @@ internal class Spec03DependenciesTest {
         te("HeldCard<CardBack, CardLocation>")
   }
 
-  // 3-3 Several supertypes constraining one key
+  // T3-3 Several supertypes constraining one key
 
   @Test
-  internal fun `3-3 bounds inherited for one key are intersected`() {
+  internal fun `T3-3 bounds inherited for one key are intersected`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Area { CLASS Tharsis_2_2 }",
@@ -108,17 +108,17 @@ internal class Spec03DependenciesTest {
     table.getClass(cn("GreeneryTile")).baseType.expressionFull shouldBe te("GreeneryTile<LandArea>")
   }
 
-  // 3-4 Arguments intersect the bound
+  // T3-4 Arguments intersect the bound
 
   @Test
-  internal fun `3-4 an argument intersects the declared bound rather than replacing it`() {
+  internal fun `T3-4 an argument intersects the declared bound rather than replacing it`() {
     type("GreeneryTile<Area>") shouldBe type("GreeneryTile")
     type("GreeneryTile<Area>").expressionFull shouldBe te("GreeneryTile<MarsArea, Owner>")
     type("GreeneryTile<LandArea>").expressionFull shouldBe te("GreeneryTile<LandArea, Owner>")
   }
 
   @Test
-  internal fun `3-4 Anyone names the widest ownership without widening a narrowed bound`() {
+  internal fun `T3-4 Anyone names the widest ownership without widening a narrowed bound`() {
     val table =
         loadTypes(
             "CLASS SoloOpponent : Owner",
@@ -135,22 +135,22 @@ internal class Spec03DependenciesTest {
   }
 
   @Test
-  internal fun `3-4 an argument outside the bound is an error`() {
+  internal fun `T3-4 an argument outside the bound is an error`() {
     shouldThrow<ExpressionException> { type("OceanTile<Tharsis_2_2>") }
     shouldThrow<ExpressionException> { type("Occupant<Player1>") }
   }
 
-  // 3-5 Argument matching
+  // T3-5 Argument matching
 
   @Test
-  internal fun `3-5 arguments match remaining dependencies greedily from left to right`() {
+  internal fun `T3-5 arguments match remaining dependencies greedily from left to right`() {
     type("GreeneryTile<Tharsis_2_2, Player1>") shouldBe type("GreeneryTile<Player1, Tharsis_2_2>")
     type("GreeneryTile<Tharsis_2_2, Player1>").expressionFull shouldBe
         te("GreeneryTile<Tharsis_2_2, Player1>")
   }
 
   @Test
-  internal fun `3-5 order decides when two dependencies accept the same argument`() {
+  internal fun `T3-5 order decides when two dependencies accept the same argument`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Area { CLASS Tharsis_2_2, Tharsis_2_3 }",
@@ -166,25 +166,25 @@ internal class Spec03DependenciesTest {
   }
 
   @Test
-  internal fun `3-5 an argument that matches no remaining dependency is an error`() {
+  internal fun `T3-5 an argument that matches no remaining dependency is an error`() {
     shouldThrow<ExpressionException> { type("GreeneryTile<Tharsis_2_2, Tharsis_2_2>") }
     shouldThrow<ExpressionException> { type("Player1<Tharsis_2_2>") }
   }
 
-  // 3-6 Reporting matched keys
+  // T3-6 Reporting matched keys
 
   @Test
-  internal fun `3-6 matchDependencyKeys reports the key each authored argument filled`() {
+  internal fun `T3-6 matchDependencyKeys reports the key each authored argument filled`() {
     klass("GreeneryTile").matchDependencyKeys(listOf(te("Tharsis_2_2"), te("Player1"))) shouldBe
         listOf(Key(cn("Occupant"), 0), Key(cn("Owned"), 0))
     klass("GreeneryTile").matchDependencyKeys(listOf(te("Player1"), te("Tharsis_2_2"))) shouldBe
         listOf(Key(cn("Owned"), 0), Key(cn("Occupant"), 0))
   }
 
-  // 3-7 `This` in a supertype argument
+  // T3-7 `This` in a supertype argument
 
   @Test
-  internal fun `3-7 This in a supertype argument binds to the inheriting class`() {
+  internal fun `T3-7 This in a supertype argument binds to the inheriting class`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Link<Class<Component>>",
@@ -201,7 +201,7 @@ internal class Spec03DependenciesTest {
   }
 
   @Test
-  internal fun `3-7 a literal class name in a supertype argument is not rebound`() {
+  internal fun `T3-7 a literal class name in a supertype argument is not rebound`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Link<Class<Component>>",
@@ -215,7 +215,7 @@ internal class Spec03DependenciesTest {
   }
 
   @Test
-  internal fun `3-7 only the This positions are rebound, in place`() {
+  internal fun `T3-7 only the This positions are rebound, in place`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS LeftComponent",
@@ -231,7 +231,7 @@ internal class Spec03DependenciesTest {
         te("MixedLeaf<Pair<Class<MixedLeaf>, Class<Mixed>>>")
   }
 
-  // 3-8 Dependency equalities
+  // T3-8 Dependency equalities
 
   private fun equalityCards() =
       loadTypes(
@@ -243,7 +243,7 @@ internal class Spec03DependenciesTest {
       )
 
   @Test
-  internal fun `3-8 one header variable used twice forces its two positions to agree`() {
+  internal fun `T3-8 one header variable used twice forces its two positions to agree`() {
     val cards =
         loadTypes(
             "CLASS Player1 : Owner",
@@ -267,7 +267,7 @@ internal class Spec03DependenciesTest {
   }
 
   @Test
-  internal fun `3-8 independent dependency roots stay independent even when spelled alike`() {
+  internal fun `T3-8 independent dependency roots stay independent even when spelled alike`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Area { CLASS Tharsis_2_2, Tharsis_2_3 }",
@@ -282,7 +282,7 @@ internal class Spec03DependenciesTest {
   }
 
   @Test
-  internal fun `3-8 shared variables are narrowed before a difference is tested`() {
+  internal fun `T3-8 shared variables are narrowed before a difference is tested`() {
     val cards = equalityCards()
 
     (cards.resolve(te("Card<Player1>")) glb cards.resolve(te("Card<Player2>"))) shouldBe null
@@ -294,7 +294,7 @@ internal class Spec03DependenciesTest {
   }
 
   @Test
-  internal fun `3-8 equality-constrained concrete types are enumerated once`() {
+  internal fun `T3-8 equality-constrained concrete types are enumerated once`() {
     val cards = equalityCards()
 
     cards
@@ -308,10 +308,10 @@ internal class Spec03DependenciesTest {
         )
   }
 
-  // 3-9 Dependency targets must be unique
+  // T3-9 Dependency targets must be unique
 
   @Test
-  internal fun `3-9 a dependency may only target a type limited to one copy`() {
+  internal fun `T3-9 a dependency may only target a type limited to one copy`() {
     val unlimited = loadTypes("CLASS Plant", "CLASS Holder<Plant>")
     shouldThrow<PetException> { unlimited.componentLimits }.message shouldContain "Holder -> Plant"
 
@@ -321,7 +321,7 @@ internal class Spec03DependenciesTest {
   }
 
   @Test
-  internal fun `3-9 exact per-type and stronger aggregate limits make valid dependency targets`() {
+  internal fun `T3-9 exact per-type and stronger aggregate limits make valid dependency targets`() {
     val table =
         loadTypes(
             "CLASS ExactTarget { HAS =1 This }",
@@ -336,7 +336,7 @@ internal class Spec03DependenciesTest {
   }
 
   @Test
-  internal fun `3-9 dependency multiplicity validation waits for a concrete dependent class`() {
+  internal fun `T3-9 dependency multiplicity validation waits for a concrete dependent class`() {
     val valid =
         loadTypes(
             "ABSTRACT CLASS Target",
@@ -360,7 +360,7 @@ internal class Spec03DependenciesTest {
   }
 
   @Test
-  internal fun `3-9 class invariants used as limits must count one component expression`() {
+  internal fun `T3-9 class invariants used as limits must count one component expression`() {
     val table =
         loadTypes(
             "CLASS Foo",
@@ -372,10 +372,10 @@ internal class Spec03DependenciesTest {
     shouldThrow<PetException> { table.componentLimits }
   }
 
-  // 3-10 Dependency sets
+  // T3-10 Dependency sets
 
   @Test
-  internal fun `3-10 a dependency set is keyed, and equality ignores order`() {
+  internal fun `T3-10 a dependency set is keyed, and equality ignores order`() {
     val tile = type("GreeneryTile<Tharsis_2_2, Player1>")
 
     tile.dependencies.get(Key(cn("Occupant"), 0)).expressionFull shouldBe te("Tharsis_2_2")
@@ -385,7 +385,7 @@ internal class Spec03DependenciesTest {
   }
 
   @Test
-  internal fun `3-10 flatten walks nested dependency paths`() {
+  internal fun `T3-10 flatten walks nested dependency paths`() {
     val cards =
         loadTypes(
             "CLASS Player1 : Owner",
@@ -409,16 +409,16 @@ internal class Spec03DependenciesTest {
   }
 
   @Test
-  internal fun `3-10 narrowedDependencies reports only what a type narrowed below its class`() {
+  internal fun `T3-10 narrowedDependencies reports only what a type narrowed below its class`() {
     type("GreeneryTile").narrowedDependencies.keys.shouldBeEmpty()
     type("GreeneryTile<Tharsis_2_2>").narrowedDependencies.keys shouldContainExactly
         listOf(Key(cn("Occupant"), 0))
   }
 
-  // 3-11 Cycles
+  // T3-11 Cycles
 
   @Test
-  internal fun `3-11 a dependency cycle between class headers is rejected`() {
+  internal fun `T3-11 a dependency cycle between class headers is rejected`() {
     val mutual = loadTypes("CLASS Foo<Bar>", "CLASS Bar<Foo>")
     shouldThrow<PetException> { mutual.getClass(cn("Foo")).baseType }
 
@@ -427,7 +427,7 @@ internal class Spec03DependenciesTest {
   }
 
   @Test
-  internal fun `3-11 a one-way dependency between two classes is fine`() {
+  internal fun `T3-11 a one-way dependency between two classes is fine`() {
     val table = loadTypes("ABSTRACT CLASS Area", "CLASS Tile<Area>", "CLASS Marker<Tile>")
 
     table.getClass(cn("Marker")).baseType.expressionFull shouldBe te("Marker<Tile<Area>>")

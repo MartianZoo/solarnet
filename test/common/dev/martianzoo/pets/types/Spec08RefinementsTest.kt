@@ -31,10 +31,10 @@ internal class Spec08RefinementsTest {
 
   private fun type(s: String) = mars.resolve(te(s))
 
-  // 8-1 What a refinement is
+  // T8-1 What a refinement is
 
   @Test
-  internal fun `8-1 a refined type is abstract and lies below its unrefined domain`() {
+  internal fun `T8-1 a refined type is abstract and lies below its unrefined domain`() {
     val marked = type("LandArea(HAS Neighbor)")
 
     marked.abstract shouldBe true
@@ -45,15 +45,15 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `8-1 the domain may be narrowed while keeping the same predicate`() {
+  internal fun `T8-1 the domain may be narrowed while keeping the same predicate`() {
     type("Tharsis_2_2(HAS Neighbor)").isSubtypeOf(type("LandArea(HAS Neighbor)")) shouldBe true
     type("LandArea(HAS Neighbor)").isSubtypeOf(type("Tharsis_2_2(HAS Neighbor)")) shouldBe false
   }
 
-  // 8-2, 8-3 Strict `HAS`, and candidate substitution
+  // T8-2, T8-3 Strict `HAS`, and candidate substitution
 
   @Test
-  internal fun `8-2 a candidate satisfies HAS when the world agrees, once it is substituted in`() {
+  internal fun `T8-2 a candidate satisfies HAS when the world agrees, once it is substituted in`() {
     val world = RecordingWorld(answer = true)
 
     type("Tharsis_2_2").narrows(type("LandArea(HAS Neighbor<CityTile>)"), world) shouldBe true
@@ -61,13 +61,13 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `8-2 a world that denies the requirement rejects the candidate`() {
+  internal fun `T8-2 a world that denies the requirement rejects the candidate`() {
     type("Tharsis_2_2").narrows(type("LandArea(HAS Neighbor)"), emptyWorld) shouldBe false
     type("Tharsis_2_2").narrows(type("LandArea(HAS Neighbor)"), fullWorld) shouldBe true
   }
 
   @Test
-  internal fun `8-3 the candidate fills the first dependency of each expression that accepts it`() {
+  internal fun `T8-3 the candidate fills the first dependency of each expression that accepts it`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Player : Owner { CLASS Player1 }",
@@ -88,7 +88,7 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `8-3 a candidate no expression can accept fails the refinement, without a world`() {
+  internal fun `T8-3 a candidate no expression can accept fails the refinement, without a world`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Player : Owner { CLASS Player1 }",
@@ -107,7 +107,7 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `8-3 a written argument constrains the candidate in the slot it occupies`() {
+  internal fun `T8-3 a written argument constrains the candidate in the slot it occupies`() {
     val world = RecordingWorld(answer = true)
 
     type("Tharsis_2_2").narrows(type("LandArea(HAS Neighbor<CityTile<Player1>>)"), world) shouldBe
@@ -116,7 +116,7 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `8-3 a class property may be tested against the candidate`() {
+  internal fun `T8-3 a class property may be tested against the candidate`() {
     val cards =
         loadTypes(
             """
@@ -133,7 +133,7 @@ internal class Spec08RefinementsTest {
     world.questions shouldContainExactly listOf("MAX 9 Ants.cost")
   }
 
-  // 8-4, 8-5, 8-6, 8-7 Difference
+  // T8-4, T8-5, T8-6, T8-7 Difference
 
   private val actors =
       loadTypes(
@@ -145,7 +145,7 @@ internal class Spec08RefinementsTest {
       )
 
   @Test
-  internal fun `8-4 a candidate satisfies NOT only when its whole domain avoids the exclusion`() {
+  internal fun `T8-4 a candidate satisfies NOT only when its whole domain avoids the exclusion`() {
     val notPlayer1 = actors.resolve(te("Owner(NOT Player1)"))
 
     actors.resolve(te("Player2")).isSubtypeOf(notPlayer1) shouldBe true
@@ -155,7 +155,7 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `8-4 the exclusion is subtracted through the structural intersection`() {
+  internal fun `T8-4 the exclusion is subtracted through the structural intersection`() {
     // Players inherit both Actor and Owner, so excluding Owner excludes them; Admin survives.
     val nonOwnerActor = actors.resolve(te("Actor(NOT Owner)"))
 
@@ -164,14 +164,14 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `8-4 the difference test never consults a world`() {
+  internal fun `T8-4 the difference test never consults a world`() {
     actors
         .resolve(te("Player2"))
         .narrows(actors.resolve(te("Owner(NOT Player1)")), NoGameState) shouldBe true
   }
 
   @Test
-  internal fun `8-4 a difference works in a dependency position too`() {
+  internal fun `T8-4 a difference works in a dependency position too`() {
     actors
         .resolve(te("Marker<Player2>"))
         .isSubtypeOf(actors.resolve(te("Marker<Player(NOT Player1)>"))) shouldBe true
@@ -181,7 +181,7 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `8-4 overlap is detected even with no unique intersection class`() {
+  internal fun `T8-4 overlap is detected even with no unique intersection class`() {
     val table =
         loadTypes(
             """
@@ -202,7 +202,7 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `8-5 the excluded operand must be free of refinements, recursively`() {
+  internal fun `T8-5 the excluded operand must be free of refinements, recursively`() {
     shouldThrow<ExpressionException> { actors.resolve(te("Owner(NOT Player(HAS Marker))")) }
     shouldThrow<ExpressionException> { actors.resolve(te("Owner(NOT Player(NOT Player1))")) }
     shouldThrow<ExpressionException> {
@@ -211,13 +211,13 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `8-6 a difference that cannot bite is dropped`() {
+  internal fun `T8-6 a difference that cannot bite is dropped`() {
     actors.resolve(te("Player1(NOT Player2)")) shouldBe actors.resolve(te("Player1"))
     actors.resolve(te("Player1(NOT Player2)")).refinement shouldBe null
   }
 
   @Test
-  internal fun `8-7 a difference that excludes everything is still a type`() {
+  internal fun `T8-7 a difference that excludes everything is still a type`() {
     val empty = actors.resolve(te("Player1(NOT Player1)"))
 
     empty.refinement shouldBe te("Player1(NOT Player1)").refinement
@@ -225,16 +225,16 @@ internal class Spec08RefinementsTest {
     empty.allConcreteSubtypes().toList() shouldContainExactly listOf()
   }
 
-  // 8-8 Refinements and narrowing
+  // T8-8 Refinements and narrowing
 
   @Test
-  internal fun `8-8 a refined type always narrows its unrefined domain`() {
+  internal fun `T8-8 a refined type always narrows its unrefined domain`() {
     type("LandArea(HAS Neighbor)").isSubtypeOf(type("LandArea")) shouldBe true
     type("LandArea(NOT Tharsis_2_2)").isSubtypeOf(type("LandArea")) shouldBe true
   }
 
   @Test
-  internal fun `8-8 asking whether an unrefined type meets a HAS refinement needs a world`() {
+  internal fun `T8-8 asking whether an unrefined type meets a HAS refinement needs a world`() {
     shouldThrow<IllegalStateException> {
       type("Tharsis_2_2").isSubtypeOf(type("LandArea(HAS Neighbor)"))
     }
@@ -242,14 +242,14 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `8-8 an identical refinement is accepted without consulting a world`() {
+  internal fun `T8-8 an identical refinement is accepted without consulting a world`() {
     type("Tharsis_2_2(HAS Neighbor)").isSubtypeOf(type("LandArea(HAS Neighbor)")) shouldBe true
     type("Tharsis_2_2(NOT Tharsis_2_3)").isSubtypeOf(type("LandArea(NOT Tharsis_2_3)")) shouldBe
         true
   }
 
   @Test
-  internal fun `8-8 a refinement that conjoins more already guarantees the weaker one`() {
+  internal fun `T8-8 a refinement that conjoins more already guarantees the weaker one`() {
     type("LandArea(HAS Neighbor, Occupant)").isSubtypeOf(type("LandArea(HAS Neighbor)")) shouldBe
         true
     type("LandArea(HAS Neighbor)").isSubtypeOf(type("LandArea(HAS Neighbor, Occupant)")) shouldBe
@@ -257,7 +257,7 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `8-8 unrelated predicates never imply one another`() {
+  internal fun `T8-8 unrelated predicates never imply one another`() {
     type("LandArea(HAS Neighbor)").isSubtypeOf(type("LandArea(HAS Occupant)")) shouldBe false
     type("LandArea(HAS Neighbor)").narrows(type("LandArea(HAS Occupant)"), fullWorld) shouldBe false
     type("LandArea(NOT Tharsis_2_2)").narrows(type("LandArea(HAS Neighbor)"), fullWorld) shouldBe
@@ -265,14 +265,14 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `8-8 a HAS-refined type may still satisfy a NOT, structurally`() {
+  internal fun `T8-8 a HAS-refined type may still satisfy a NOT, structurally`() {
     type("Tharsis_2_2(HAS Neighbor)").isSubtypeOf(type("LandArea(NOT Tharsis_2_3)")) shouldBe true
   }
 
-  // 8-9 Greatest lower bound
+  // T8-9 Greatest lower bound
 
   @Test
-  internal fun `8-9 glb keeps a refinement the other operand lacks`() {
+  internal fun `T8-9 glb keeps a refinement the other operand lacks`() {
     (type("LandArea(HAS Neighbor)") glb type("Tharsis_2_2")) shouldBe
         type("Tharsis_2_2(HAS Neighbor)")
     (type("Tharsis_2_2") glb type("LandArea(HAS Neighbor)")) shouldBe
@@ -280,7 +280,7 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `8-9 two identical refinements collapse to one`() {
+  internal fun `T8-9 two identical refinements collapse to one`() {
     (type("LandArea(HAS Neighbor)") glb type("LandArea(HAS Neighbor)")) shouldBe
         type("LandArea(HAS Neighbor)")
     (type("LandArea(NOT Tharsis_2_2)") glb type("LandArea(NOT Tharsis_2_2)")) shouldBe
@@ -288,13 +288,13 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `8-9 two HAS refinements combine as a conjunction`() {
+  internal fun `T8-9 two HAS refinements combine as a conjunction`() {
     (type("LandArea(HAS Neighbor)") glb type("LandArea(HAS Occupant)")) shouldBe
         type("LandArea(HAS Neighbor, Occupant)")
   }
 
   @Test
-  internal fun `8-9 the conjunction really is below both operands`() {
+  internal fun `T8-9 the conjunction really is below both operands`() {
     listOf(
             "LandArea(HAS Neighbor)" to "LandArea(HAS Occupant)",
             "LandArea(HAS Neighbor)" to "Tharsis_2_2",
@@ -307,15 +307,15 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `8-9 glb is absent when the two predicates cannot be written as one`() {
+  internal fun `T8-9 glb is absent when the two predicates cannot be written as one`() {
     (type("LandArea(HAS Neighbor)") glb type("LandArea(NOT Tharsis_2_2)")) shouldBe null
     (type("LandArea(NOT Tharsis_2_2)") glb type("LandArea(NOT Tharsis_2_3)")) shouldBe null
   }
 
-  // 8-10 Least upper bound
+  // T8-10 Least upper bound
 
   @Test
-  internal fun `8-10 lub keeps a refinement only when both operands carry the same one`() {
+  internal fun `T8-10 lub keeps a refinement only when both operands carry the same one`() {
     (type("Tharsis_2_2(HAS Neighbor)") lub type("Tharsis_2_3(HAS Neighbor)")) shouldBe
         type("LandArea(HAS Neighbor)")
     (type("Tharsis_2_2(HAS Neighbor)") lub type("Tharsis_2_3(HAS Occupant)")) shouldBe
@@ -323,10 +323,10 @@ internal class Spec08RefinementsTest {
     (type("Tharsis_2_2(HAS Neighbor)") lub type("Tharsis_2_3")) shouldBe type("LandArea")
   }
 
-  // 8-11 Refined class literals
+  // T8-11 Refined class literals
 
   @Test
-  internal fun `8-11 a refined class literal tests the class the candidate names`() {
+  internal fun `T8-11 a refined class literal tests the class the candidate names`() {
     val tags =
         loadTypes(
             "CLASS Player1 : Owner",
@@ -345,7 +345,7 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `8-11 two class literals do not compare their predicates as written`() {
+  internal fun `T8-11 two class literals do not compare their predicates as written`() {
     val tags =
         loadTypes(
             "CLASS Player1 : Owner",
@@ -364,10 +364,10 @@ internal class Spec08RefinementsTest {
         .isSubtypeOf(tags.resolve(te("Class<BuildingTag>(HAS Tag)"))) shouldBe true
   }
 
-  // 8-12 Refinements inside dependencies
+  // T8-12 Refinements inside dependencies
 
   @Test
-  internal fun `8-12 a refinement on a dependency bound behaves like any other`() {
+  internal fun `T8-12 a refinement on a dependency bound behaves like any other`() {
     type("GreeneryTile<LandArea(HAS Neighbor)>").abstract shouldBe true
     type("GreeneryTile<Tharsis_2_2, Player1>")
         .narrows(
@@ -382,7 +382,7 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `8-12 refinements survive rendering`() {
+  internal fun `T8-12 refinements survive rendering`() {
     type("GreeneryTile<LandArea(HAS Neighbor)>").expression shouldBe
         te("GreeneryTile<LandArea(HAS Neighbor)>")
     type("LandArea(NOT Tharsis_2_2)").expression shouldBe te("LandArea(NOT Tharsis_2_2)")

@@ -29,10 +29,10 @@ internal class Spec05TypesTest {
 
   private fun type(s: String) = mars.resolve(te(s))
 
-  // 5-1 What a type is
+  // T5-1 What a type is
 
   @Test
-  internal fun `5-1 a type is a root class plus one bound per dependency key`() {
+  internal fun `T5-1 a type is a root class plus one bound per dependency key`() {
     val greenery = type("GreeneryTile<Tharsis_2_2, Player1>")
 
     greenery.rootClass shouldBe mars.getClass(cn("GreeneryTile"))
@@ -43,36 +43,36 @@ internal class Spec05TypesTest {
   }
 
   @Test
-  internal fun `5-1 a type is identified by its class, bounds and refinement, not its spelling`() {
+  internal fun `T5-1 a type is identified by its class, bounds and refinement, not its spelling`() {
     type("GreeneryTile<Tharsis_2_2, Player1>") shouldBe type("GreeneryTile<Player1, Tharsis_2_2>")
     type("GreeneryTile<Tharsis_2_2, Player1>") shouldBe type("GreeneryTile<Tharsis_2_2, Player1>")
     (type("GreeneryTile<Tharsis_2_2>") == type("GreeneryTile<Tharsis_2_3>")) shouldBe false
   }
 
-  // 5-2 Base type
+  // T5-2 Base type
 
   @Test
-  internal fun `5-2 a bare class name means that class's base type`() {
+  internal fun `T5-2 a bare class name means that class's base type`() {
     type("GreeneryTile") shouldBe mars.getClass(cn("GreeneryTile")).baseType
     type("GreeneryTile").expressionFull shouldBe te("GreeneryTile<MarsArea, Owner>")
     type("GreeneryTile<MarsArea, Owner>") shouldBe type("GreeneryTile")
   }
 
   @Test
-  internal fun `5-2 an explicit empty argument list also means the base type`() {
+  internal fun `T5-2 an explicit empty argument list also means the base type`() {
     type("GreeneryTile<>") shouldBe type("GreeneryTile")
   }
 
-  // 5-3 Abstractness
+  // T5-3 Abstractness
 
   @Test
-  internal fun `5-3 a type is abstract when its class is`() {
+  internal fun `T5-3 a type is abstract when its class is`() {
     type("Occupant<Tharsis_2_2>").abstract shouldBe true
     type("Tile<Tharsis_2_2>").abstract shouldBe true
   }
 
   @Test
-  internal fun `5-3 a type is abstract when any dependency bound is`() {
+  internal fun `T5-3 a type is abstract when any dependency bound is`() {
     type("GreeneryTile").abstract shouldBe true
     type("GreeneryTile<Tharsis_2_2>").abstract shouldBe true
     type("GreeneryTile<Player1>").abstract shouldBe true
@@ -80,43 +80,43 @@ internal class Spec05TypesTest {
   }
 
   @Test
-  internal fun `5-3 a type is abstract when it carries a refinement`() {
+  internal fun `T5-3 a type is abstract when it carries a refinement`() {
     type("GreeneryTile<Tharsis_2_2, Player1>(HAS Neighbor)").abstract shouldBe true
     type("Tharsis_2_2(NOT Tharsis_2_2)").abstract shouldBe true
   }
 
   @Test
-  internal fun `5-3 abstractness is structural and never consults a world`() {
+  internal fun `T5-3 abstractness is structural and never consults a world`() {
     type("GreeneryTile<Tharsis_2_2, Player1>").isAbstract(emptyWorld) shouldBe false
     type("GreeneryTile").isAbstract(fullWorld) shouldBe true
   }
 
-  // 5-4 Full form
+  // T5-4 Full form
 
   @Test
-  internal fun `5-4 the full form states every dependency in key order`() {
+  internal fun `T5-4 the full form states every dependency in key order`() {
     type("GreeneryTile").expressionFull shouldBe te("GreeneryTile<MarsArea, Owner>")
     type("GreeneryTile<Player1>").expressionFull shouldBe te("GreeneryTile<MarsArea, Player1>")
     type("Neighbor<Tharsis_2_2>").expressionFull shouldBe te("Neighbor<Tharsis_2_2, Area>")
   }
 
-  // 5-5 Minimal form
+  // T5-5 Minimal form
 
   @Test
-  internal fun `5-5 the minimal form omits every argument equal to the inherited bound`() {
+  internal fun `T5-5 the minimal form omits every argument equal to the inherited bound`() {
     type("GreeneryTile<MarsArea, Owner>").expression shouldBe te("GreeneryTile")
     type("GreeneryTile<Area>").expression shouldBe te("GreeneryTile")
     type("GreeneryTile<Tharsis_2_2, Owner>").expression shouldBe te("GreeneryTile<Tharsis_2_2>")
   }
 
   @Test
-  internal fun `5-5 the minimal form writes its arguments in dependency order`() {
+  internal fun `T5-5 the minimal form writes its arguments in dependency order`() {
     type("GreeneryTile<Player1, Tharsis_2_2>").expression shouldBe
         te("GreeneryTile<Tharsis_2_2, Player1>")
   }
 
   @Test
-  internal fun `5-5 the minimal form keeps the earliest arguments when sizes tie`() {
+  internal fun `T5-5 the minimal form keeps the earliest arguments when sizes tie`() {
     // Both slots accept `Tharsis_2_2`, so one argument suffices, and it is read left to right.
     type("Neighbor<Tharsis_2_2, Area>").expression shouldBe te("Neighbor<Tharsis_2_2>")
     type("Neighbor<Area, Tharsis_2_2>").expression shouldBe te("Neighbor<Area, Tharsis_2_2>")
@@ -125,7 +125,7 @@ internal class Spec05TypesTest {
   }
 
   @Test
-  internal fun `5-5 the minimal form may omit an argument another one already determines`() {
+  internal fun `T5-5 the minimal form may omit an argument another one already determines`() {
     val cards =
         loadTypes(
             "CLASS Player1 : Owner",
@@ -141,15 +141,15 @@ internal class Spec05TypesTest {
   }
 
   @Test
-  internal fun `5-5 a refinement is always rendered`() {
+  internal fun `T5-5 a refinement is always rendered`() {
     type("GreeneryTile(HAS Neighbor)").expression shouldBe te("GreeneryTile(HAS Neighbor)")
     type("Area(NOT Tharsis_2_2)").expression shouldBe te("Area(NOT Tharsis_2_2)")
   }
 
-  // 5-6 Round-tripping
+  // T5-6 Round-tripping
 
   @Test
-  internal fun `5-6 both forms resolve back to the same type`() {
+  internal fun `T5-6 both forms resolve back to the same type`() {
     listOf(
             "GreeneryTile",
             "GreeneryTile<Tharsis_2_2>",
@@ -166,14 +166,14 @@ internal class Spec05TypesTest {
   }
 
   @Test
-  internal fun `5-6 toString shows the minimal form`() {
+  internal fun `T5-6 toString shows the minimal form`() {
     "${type("GreeneryTile<Player1, Tharsis_2_2>")}" shouldBe "GreeneryTile<Tharsis_2_2, Player1>"
   }
 
-  // 5-7 Building a type directly
+  // T5-7 Building a type directly
 
   @Test
-  internal fun `5-7 withAllDependencies needs every one of the class's own keys`() {
+  internal fun `T5-7 withAllDependencies needs every one of the class's own keys`() {
     val greenery = mars.getClass(cn("GreeneryTile"))
 
     greenery.withAllDependencies(type("GreeneryTile<Tharsis_2_2, Player1>").dependencies) shouldBe
@@ -183,7 +183,7 @@ internal class Spec05TypesTest {
   }
 
   @Test
-  internal fun `5-7 withAllDependencies ignores keys the class does not have`() {
+  internal fun `T5-7 withAllDependencies ignores keys the class does not have`() {
     // This is what projects a type onto each of its supertypes: a greenery tile's owner is simply
     // not part of what an `Occupant` is.
     mars
@@ -193,16 +193,16 @@ internal class Spec05TypesTest {
   }
 
   @Test
-  internal fun `5-7 specialize applies arguments to the base type`() {
+  internal fun `T5-7 specialize applies arguments to the base type`() {
     mars.getClass(cn("GreeneryTile")).specialize(listOf(te("Tharsis_2_2"))) shouldBe
         type("GreeneryTile<Tharsis_2_2>")
     mars.getClass(cn("GreeneryTile")).specialize(listOf()) shouldBe type("GreeneryTile")
   }
 
-  // 5-8 Every type view
+  // T5-8 Every type view
 
   @Test
-  internal fun `5-8 a ground type is its own structural view and has no type variable`() {
+  internal fun `T5-8 a ground type is its own structural view and has no type variable`() {
     val greenery = type("GreeneryTile")
 
     greenery.groundType shouldBe greenery
