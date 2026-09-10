@@ -226,12 +226,13 @@ ABSTRACT CLASS Card : Owned<Player> {
     requirement = Requirement?
     autoSelectWhen = Requirement?
 
-    ABSTRACT CLASS ActiveCard, AutomatedCard
+    ABSTRACT CLASS ActiveCard : CardFront<Class<ProjectCard>>
+    ABSTRACT CLASS AutomatedCard : CardFront<Class<ProjectCard>>
     ABSTRACT CLASS ActionCard : HasActions
     ABSTRACT CLASS ResourceCard : ResourceHolder
 
     "A red *project* card"
-    ABSTRACT CLASS EventCard : Temporary {
+    ABSTRACT CLASS EventCard : CardFront<Class<ProjectCard>>, Temporary {
       HAS =1 EventTag<This>
       -This IF MAX 0 PlayedEvent<Anyone, Class<This>>:: PlayedEvent<Class<This>>
     }
@@ -671,7 +672,7 @@ CLASS SoloMode : GameMode {
   This: SoloOpponent
   This: 14 SoloGenerationsLeft
   SetupPhase: 14 TerraformRating<Player>
-  Generation: -SoloGenerationsLeft.
+  Generation: -SoloGenerationsLeft
 }
 
 "Raises terraform rating in the TR63 solo objective"

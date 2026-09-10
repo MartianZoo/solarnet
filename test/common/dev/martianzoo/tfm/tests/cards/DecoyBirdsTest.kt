@@ -10,7 +10,7 @@ private val decoyAnimalDeclarations =
     parseClasses(
         """
         CLASS DecoyAnimal : Cardbound
-        CLASS DecoyBirds : ActionCard, ActiveCard<Class<ProjectCard>> {
+        CLASS DecoyBirds : ActionCard, ActiveCard {
           cost = 10
           requirement = HAS "13 OxygenStep"
           This:: AnimalTag<This>

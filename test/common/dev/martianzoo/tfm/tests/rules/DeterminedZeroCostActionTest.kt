@@ -18,7 +18,7 @@ internal class DeterminedZeroCostActionTest : TfmTest() {
           override val explicitClassDeclarations =
               parseClasses(
                       """
-                      CLASS DeterminedZeroCostAction : ActionCard, ActiveCard<Class<ProjectCard>> {
+                      CLASS DeterminedZeroCostAction : ActionCard, ActiveCard {
                         HAS MAX 1 This
                         cost = 0
                         UseAction<Owner, This, Action1>: -1 MC<Owner> / CityTile<Anyone> THEN Plant<Owner>

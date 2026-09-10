@@ -11,7 +11,7 @@ internal val attributionProbeDeclarations =
             """
             CLASS Attribution<Player> : Hidden
 
-            CLASS AttributionProbe : ActiveCard<Class<ProjectCard>> {
+            CLASS AttributionProbe : ActiveCard {
               cost = 0
 
               -X VictoryPoint<Anyone> BY Player1: Attribution<Player1>

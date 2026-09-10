@@ -162,9 +162,9 @@ internal class RandomCardGenerator(seed: Int) :
         add(
             parse<Expression>(
                 when {
-                  event -> "EventCard<Class<ProjectCard>>"
-                  active -> "ActiveCard<Class<ProjectCard>>"
-                  else -> "AutomatedCard<Class<ProjectCard>>"
+                  event -> "EventCard"
+                  active -> "ActiveCard"
+                  else -> "AutomatedCard"
                 }
             )
         )

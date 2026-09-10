@@ -195,7 +195,7 @@ CLASS WorldGovernmentAdvisor : ActionCard<Class<PreludeCard>> {
   -> WorldGovernmentTerraforming
 }
 
-CLASS CeresTechMarket : ActionCard, ActiveCard<Class<ProjectCard>> {
+CLASS CeresTechMarket : ActionCard, ActiveCard {
   cost = 12
 
   This:: ScienceTag<This>, SpaceTag<This>
@@ -205,7 +205,7 @@ CLASS CeresTechMarket : ActionCard, ActiveCard<Class<ProjectCard>> {
   X ProjectCard -> 2X MC
 }
 
-CLASS CloudTourism : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
+CLASS CloudTourism : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
   cost = 11
 
   This:: JovianTag<This>, VenusTag<This>
@@ -215,7 +215,7 @@ CLASS CloudTourism : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Cl
   -> Floater<This>
 }
 
-CLASS FloatingRefinery : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
+CLASS FloatingRefinery : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
   cost = 7
 
   This:: VenusTag<This>
@@ -225,7 +225,7 @@ CLASS FloatingRefinery : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCar
   2 Floater -> Titanium, 2 MC
 }
 
-CLASS IshtarExpedition : EventCard<Class<ProjectCard>> {
+CLASS IshtarExpedition : EventCard {
   cost = 6
   requirement = HAS "5 VenusStep"
 
@@ -233,7 +233,7 @@ CLASS IshtarExpedition : EventCard<Class<ProjectCard>> {
   This: 3 Titanium, CARDS[2 SearchForCard(HAS PrintedTag<Class<VenusTag>>)]
 }
 
-CLASS MicrogravityNutrition : AutomatedCard<Class<ProjectCard>> {
+CLASS MicrogravityNutrition : AutomatedCard {
   cost = 11
 
   This:: MicrobeTag<This>, PlantTag<This>
@@ -241,7 +241,7 @@ CLASS MicrogravityNutrition : AutomatedCard<Class<ProjectCard>> {
   End: VictoryPoint
 }
 
-CLASS SoilStudies : EventCard<Class<ProjectCard>> {
+CLASS SoilStudies : EventCard {
   cost = 13
   requirement = HAS "MAX 13 TemperatureStep"
 
@@ -249,7 +249,7 @@ CLASS SoilStudies : EventCard<Class<ProjectCard>> {
   This: Plant / (VenusTag OR PlantTag OR Colony)
 }
 
-CLASS StratosphericExpedition : EventCard<Class<ProjectCard>> {
+CLASS StratosphericExpedition : EventCard {
   cost = 12
 
   This:: VenusTag<This>, SpaceTag<This>, EventTag<This>
@@ -257,14 +257,14 @@ CLASS StratosphericExpedition : EventCard<Class<ProjectCard>> {
   End: VictoryPoint
 }
 
-CLASS UnexpectedApplication : EventCard<Class<ProjectCard>> {
+CLASS UnexpectedApplication : EventCard {
   cost = 4
 
   This:: VenusTag<This>, EventTag<This>
   This: -ProjectCard THEN VenusStep
 }
 
-CLASS VenusAllies : AutomatedCard<Class<ProjectCard>> {
+CLASS VenusAllies : AutomatedCard {
   cost = 30
 
   This:: VenusTag<This>, SpaceTag<This>
@@ -272,7 +272,7 @@ CLASS VenusAllies : AutomatedCard<Class<ProjectCard>> {
   End: 2 VictoryPoint
 }
 
-CLASS VenusOrbitalSurvey : ActionCard, ActiveCard<Class<ProjectCard>> {
+CLASS VenusOrbitalSurvey : ActionCard, ActiveCard {
   cost = 18
 
   This:: VenusTag<This>, SpaceTag<This>
@@ -280,7 +280,7 @@ CLASS VenusOrbitalSurvey : ActionCard, ActiveCard<Class<ProjectCard>> {
   -> CARDS[2 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]
 }
 
-CLASS VenusShuttles : ActionCard, ActiveCard<Class<ProjectCard>> {
+CLASS VenusShuttles : ActionCard, ActiveCard {
   cost = 9
 
   This:: VenusTag<This>
@@ -289,7 +289,7 @@ CLASS VenusShuttles : ActionCard, ActiveCard<Class<ProjectCard>> {
   1 MC / (12 - VenusTag) -> VenusStep
 }
 
-CLASS VenusTradeHub : ActiveCard<Class<ProjectCard>> {
+CLASS VenusTradeHub : ActiveCard {
   cost = 12
   requirement = HAS "2 VenusTag"
 
