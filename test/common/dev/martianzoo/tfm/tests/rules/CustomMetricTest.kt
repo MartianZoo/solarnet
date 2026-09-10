@@ -189,8 +189,9 @@ private object CustomClassDeclarations : TfmCatalog() {
       )
 }
 
+// MetricTriggerObserver names Player1, so the seats have to exist before it is loaded.
 private fun customClassSetup(): GamePremise =
     canonicalPremise(
-        catalog = TfmCatalog.compose(Canon, CustomClassDeclarations),
+        catalog = TfmCatalog.compose(Canon.withPlayers(2), CustomClassDeclarations),
         initialComponentTypes = setOf(cn("MetricTriggerObserver").expression),
     )
