@@ -14,7 +14,7 @@
 
 - [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) is the current fully permissive,
   Actor-scoped engine API.
-- [`ApiTranslation.kt`](../../src/common/dev/martianzoo/agent/ApiTranslation.kt) currently combines
+- [`AgentImpl.kt`](../../src/common/dev/martianzoo/agent/AgentImpl.kt) currently combines
   parsing, atomic mutation entry, input recording, and legacy autoexecution scheduling.
 - [`World.kt`](../../src/common/dev/martianzoo/engine/World.kt) currently returns stable Agents.
 - [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) already stores one global

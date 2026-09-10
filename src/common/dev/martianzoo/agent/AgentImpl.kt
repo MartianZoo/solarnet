@@ -24,11 +24,8 @@ import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.pets.util.Multiset
 import kotlin.reflect.KClass
 
-/**
- * An experiment in having a "generatable" class do the work of both parsing strings to PetElements,
- * adding atomicity, and producing TaskResults.
- */
-internal class ApiTranslation(
+/** Implements Actor-contextual parsing, atomic operation coordination, and autoexecution. */
+internal class AgentImpl(
     override val actor: Actor,
     override val reader: GameReader,
     private val impl: Implementations,
@@ -133,27 +130,27 @@ internal class ApiTranslation(
   }
 
   private inner class Adapter : OperationScope {
-    override val tasks = this@ApiTranslation.tasks
+    override val tasks = this@AgentImpl.tasks
 
-    override val reader = this@ApiTranslation.reader
+    override val reader = this@AgentImpl.reader
 
     override fun doTask(narrowing: String) {
-      this@ApiTranslation.doTask(narrowing)
+      this@AgentImpl.doTask(narrowing)
       impl.autoExecNow(autoExecPolicy)
     }
 
     override fun doTask(narrowing: String, taskId: TaskId) {
-      this@ApiTranslation.doTask(narrowing, taskId)
+      this@AgentImpl.doTask(narrowing, taskId)
       impl.autoExecNow(autoExecPolicy)
     }
 
     override fun tryTask(narrowing: String) {
-      this@ApiTranslation.tryTask(narrowing)
+      this@AgentImpl.tryTask(narrowing)
       impl.autoExecNow(autoExecPolicy)
     }
 
     override fun tryTask(narrowing: String, taskId: TaskId) {
-      this@ApiTranslation.tryTask(narrowing, taskId)
+      this@AgentImpl.tryTask(narrowing, taskId)
       impl.autoExecNow(autoExecPolicy)
     }
 

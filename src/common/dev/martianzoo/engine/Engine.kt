@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agent
-import dev.martianzoo.agent.ApiTranslation
+import dev.martianzoo.agent.AgentImpl
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.TEMPORARY
@@ -169,7 +169,7 @@ public object Engine {
               instructor,
               changer,
           )
-      return ApiTranslation(
+      return AgentImpl(
           actor,
           reader,
           implementations,

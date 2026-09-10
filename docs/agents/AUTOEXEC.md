@@ -27,7 +27,7 @@
 
 - [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt),
   [`AutoExecPolicy.kt`](../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt),
-  [`ApiTranslation.kt`](../../src/common/dev/martianzoo/agent/ApiTranslation.kt), and
+  [`AgentImpl.kt`](../../src/common/dev/martianzoo/agent/AgentImpl.kt), and
   [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt) contain the
   current engine-owned implementation to extract.
 - [API.md](API.md) owns the unique Actor-scoped Agent and its client surface.
