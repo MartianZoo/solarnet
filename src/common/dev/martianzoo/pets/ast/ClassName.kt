@@ -9,8 +9,8 @@ import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
 /**
- * An uppercase-leading identifier used as a class name, matching the grammar of [rule
- * L2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-names).
+ * An uppercase-leading identifier used as a class name, matching the grammar of
+ * [rule L2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-names).
  * After the initial ASCII uppercase letter, letters, digits, and underscores are allowed, so
  * `GreeneryTile`, `Tharsis_2_2`, `MC`, and `TOOLONG` are all names. Reserved keywords are rejected
  * ([rule
