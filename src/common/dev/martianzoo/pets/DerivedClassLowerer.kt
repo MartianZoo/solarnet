@@ -9,12 +9,27 @@ import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.OneDefault
 import dev.martianzoo.pets.util.toSetStrict
 
-/** Lowers parsed owner-local Classes to ordinary, stably named Class declarations. */
+/**
+ * Lowers parsed owner-local Classes to ordinary, stably named Class declarations, as defined by
+ * [section 11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-owner-local-classes).
+ * A card often needs a class of its own — one required action, one special tile, one remote area —
+ * that no other card will ever mention; rather than force a name, the definition declares the class
+ * where it is used ([rule
+ * L11-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-owner-local-classes))
+ * and the name is derived from [owner] ([rule
+ * L11-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-owner-local-classes)).
+ *
+ * This is source-level lowering: it happens while the declaration file is parsed, so the type
+ * system never sees anything but ordinary declarations. Naming a base class with no local body is
+ * still just that base class ([rule
+ * L11-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-owner-local-classes)).
+ */
 // TODO: Contract this temporary tfm-canon seam.
 public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer() {
   private val claimedBases = mutableSetOf<ClassName>()
   private val declarationsByBase = linkedMapOf<ClassName, ClassDeclaration>()
 
+  /** The declarations generated so far, one per base class name claimed by [owner]. */
   public val declarations: List<ClassDeclaration>
     get() = declarationsByBase.values.toList()
 
@@ -25,21 +40,28 @@ public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer(
     if (node !is Expression) return transformChildren(node)
     val body = node.derivedClassBody ?: return transformChildren(node)
 
+    // Rule L11-2: the generated name is the owner's name, an underscore, and the base class name,
+    // so `SpecialTile<> {}` on MiningRights becomes `MiningRights_SpecialTile`.
     val base = node.className
     val generated = cn("${owner}_$base")
     val bodyNodes = body.asDerivedDeclaration(generated, base.expression).allNodes
+    // Rule L11-5: owner-local Classes do not nest, in the body or in an argument of the occurrence.
     if (
         node.immediateChildren().any { it.containsDerivedClass() } ||
             bodyNodes.any { it.containsDerivedClass() }
     ) {
       throw PetSyntaxException("Owner-local Classes cannot contain owner-local Classes")
     }
+    // Rule L11-6: one owner declares at most one unnamed local class per base name, so the derived
+    // name stays stable rather than depending on source order.
     if (!claimedBases.add(base)) {
       throw PetSyntaxException(
           "Owner $owner has more than one unnamed derived $base Class; declare them explicitly"
       )
     }
 
+    // Rule L11-3: arguments specialize both the occurrence and the generated supertype, while
+    // refinements constrain only the occurrence — a refined type cannot be a supertype (L1-9).
     val loweredArguments = node.arguments.map(::transformExpression)
     val loweredRefinement = node.refinement?.let(::transformRefinement)
     val supertype =

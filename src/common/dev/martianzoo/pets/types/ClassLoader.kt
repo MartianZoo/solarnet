@@ -26,7 +26,7 @@ import dev.martianzoo.pets.data.ClassSelection
 
 /**
  * Incrementally compiles a [Catalog] into the single master universe specified by
- * [rules 1-1 and 1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+ * [rules T1-1 and T1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
  *
  * Name lookup and resolution are available while loading. Enumeration is available only after the
  * universe has been completed and frozen by [loadEverything].
@@ -41,8 +41,8 @@ private constructor(
 ) : ClassTable() {
   /**
    * Begins compiling [catalog]'s master universe; call [loadEverything] before enumeration ([rules
-   * 1-1 and
-   * 1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity)).
+   * T1-1 and
+   * T1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity)).
    */
   public constructor(catalog: Catalog) : this(catalog, null)
 
@@ -54,7 +54,7 @@ private constructor(
 
   /**
    * The required `Component` root specified by
-   * [rule 1-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   * [rule T1-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   public override val componentClass: Class =
       masterSource?.componentClass
@@ -66,7 +66,7 @@ private constructor(
 
   /**
    * The required `Class` class specified by
-   * [rule 1-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   * [rule T1-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   public override val classClass: Class =
       masterSource?.classClass
@@ -82,7 +82,7 @@ private constructor(
   /**
    * Returns the already loaded class named [name], or null; exact-name lookup during loading
    * follows
-   * [rules 1-6 and 1-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   * [rules T1-6 and T1-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   override fun findClass(name: ClassName): Class? {
     if (masterSource != null) return masterSource.findClass(name)
@@ -95,7 +95,7 @@ private constructor(
 
   /**
    * Resolves [expression] with stable identity and strict exact names under
-   * [rules 1-3 and 1-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   * [rules T1-3 and T1-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    *
    * @throws ExpressionException if [expression] is invalid in this universe.
    */
@@ -124,7 +124,7 @@ private constructor(
 
   /**
    * Returns every class in the completed universe; calling before freezing violates
-   * [rule 1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   * [rule T1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   override fun allClasses(): Set<Class> {
     require(frozen) { "this class table must be frozen before its classes can be enumerated" }
@@ -142,7 +142,7 @@ private constructor(
   /**
    * Loads every declaration in the catalog and freezes the resulting master universe, satisfying
    * the enumeration precondition in
-   * [rule 1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   * [rule T1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   public fun loadEverything(): ClassTable {
     knownClassNames.forEach(::loadSingle)
@@ -447,7 +447,7 @@ private constructor(
 
   /**
    * Every class name in the completed universe; calling before freezing violates
-   * [rule 1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   * [rule T1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   public override val allClassNames: Set<ClassName>
     get() {
@@ -458,7 +458,7 @@ private constructor(
   /**
    * Returns a diagnostic identity for this universe; semantic identity is the object boundary
    * specified by
-   * [rules 1-1 and 1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   * [rules T1-1 and T1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   override fun toString(): String = "loader$id"
 

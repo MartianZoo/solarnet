@@ -33,11 +33,27 @@ import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.util.ParserGroup
 import kotlin.reflect.KClass
 
-/** Various functions for parsing [PetElement]s or [ClassDeclaration]s from text. */
+/**
+ * Various functions for parsing [PetElement]s or [ClassDeclaration]s from text. The source syntax
+ * is
+ * [section 1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)
+ * of the Pets language specification.
+ */
 public object Parsing {
   /**
-   * Parses a series of Pets class declarations. The syntax is currently not documented (sorry), but
-   * examples can be reviewed in `global.pets` and `player.pets`.
+   * Parses a series of Pets class declarations, returning one [ClassDeclaration] per declared
+   * class, in source order ([rule
+   * L1-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
+   * Nested declarations follow their container, recursively ([rule
+   * L1-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)),
+   * and owner-local classes are lowered to ordinary declarations ([section
+   * 11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-owner-local-classes)).
+   * Examples can be reviewed in `global.pets` and `player.pets`.
+   *
+   * A source containing only whitespace and comments declares nothing. There is no partial success:
+   * an incomplete final declaration is rejected.
+   *
+   * @throws PetSyntaxException if [declarationsSource] is not a complete sequence of declarations
    */
   public fun parseClasses(declarationsSource: String): List<ClassDeclaration> {
     val declarations =
@@ -52,8 +68,14 @@ public object Parsing {
   }
 
   /**
-   * Parses a *single-line* class declaration. If it has a body with multiple elements, they are
-   * semicolon-separated. Syntax examples can be seen in `"components"` fields of `cards.json`.
+   * Parses exactly one class declaration, with an optional semicolon-separated body ([rule
+   * L1-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
+   * This is how a declaration embedded in structured card data is read; syntax examples can be seen
+   * in `"components"` fields of `cards.json`.
+   *
+   * Owner-local class syntax is rejected here, since that syntax is available only where a
+   * declaration file is being read ([rule
+   * L11-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-owner-local-classes)).
    */
   public fun parseOneLinerClass(declarationSource: String): ClassDeclaration =
       rejectOwnerLocalClasses(listOf(parse(Declarations.oneLineDecl, declarationSource))).single()
@@ -76,8 +98,13 @@ public object Parsing {
   /**
    * Parses the Pets element of type [P] from [elementSource], and returns it *not* surrounded by a
    * `RAW` block. [P] can only be one of the published node kinds like [Effect], [Action],
-   * [InstructionTree], [Expression], etc. Owner-local derived Class syntax is fully parsed, then
-   * rejected because this API has no definition owner or mutable Class Table.
+   * [InstructionTree], [Expression], etc.
+   *
+   * Owner-local derived Class syntax is parsed and validated, then rejected with
+   * [NoNewClassDeclarationsException], because a submitted element has no definition owner and a
+   * live game's class table is frozen ([rule
+   * L11-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-owner-local-classes)).
+   * Parsing that far is what keeps the specific error distinct from malformed syntax.
    */
   public inline fun <reified P : PetNode> parse(elementSource: String): P =
       parse(P::class, elementSource)

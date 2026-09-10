@@ -217,7 +217,7 @@ yields an equal declaration.
 
 **L1-12. A declaration can also be parsed on its own.** `Parsing.parseOneLinerClass` accepts exactly
 one declaration, with an optional semicolon-separated body, and rejects owner-local class syntax
-(L11-6). This is how a declaration embedded in structured card data is read.
+(L11-7). This is how a declaration embedded in structured card data is read.
 
 > **Non-normative implementation note — one record, one declaration.** Catalog composition accepts
 > standalone declarations supplied by structured data. Rejecting a grouped second class or a local

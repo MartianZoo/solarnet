@@ -13,7 +13,7 @@ import dev.martianzoo.pets.ast.Expression
  * [dependency set](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
  * The key is the dependency's identity; the bound is covariant and belongs to the same universe as
  * its containing type. Combining dependencies from different universes throws
- * [IllegalArgumentException], implementing the universe-mismatch failure in rule 1-2.
+ * [IllegalArgumentException], implementing the universe-mismatch failure in rule T1-2.
  *
  * @constructor Creates one implementation of the dependency concept in
  *   [section 3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
@@ -21,67 +21,67 @@ import dev.martianzoo.pets.ast.Expression
 public sealed class Dependency : Specification<Dependency>, HasExpression, HasClassName {
   /**
    * The declaring-class-and-slot identity specified by
-   * [rule 3-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+   * [rule T3-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
    */
   public abstract val key: Key
 
   /**
    * Whether the dependency bound admits more than one structural possibility, contributing to type
    * abstractness under
-   * [rule 5-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+   * [rule T5-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
    */
   public abstract val abstract: Boolean
 
   /**
    * Returns [abstract]; dependency abstractness is structural and does not consult [info] ([rule
-   * 5-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types)).
+   * T5-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types)).
    */
   override fun isAbstract(info: TypeInfo): Boolean = abstract
 
   /**
    * Tests covariant narrowing of this dependency's bound against [that], following
-   * [rules 6-2 and 6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rules T6-2 and T6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
    */
   public abstract fun isSubtypeOf(that: Dependency): Boolean
 
   /**
    * Tests the converse of [isSubtypeOf], including equality ([rule
-   * 6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping)).
+   * T6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping)).
    */
   public fun isSupertypeOf(that: Dependency): Boolean = that.isSubtypeOf(this)
 
   /**
    * Returns the greatest lower bound with [that], or null when absent, by componentwise bound
    * intersection ([rule
-   * 7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds)).
+   * T7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds)).
    */
   public abstract infix fun glb(that: Dependency): Dependency?
 
   /**
    * Returns the least upper bound with [that] by joining the two bounds ([rule
-   * 7-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds)).
+   * T7-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds)).
    */
   public abstract infix fun lub(that: Dependency): Dependency
 
   /**
    * The stable identity of a dependency: the class that introduced it and its zero-based slot in
    * that declaration. Subclasses inherit this key unchanged, as specified by
-   * [rules 3-1 and 3-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+   * [rules T3-1 and T3-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
    *
    * @constructor Combines [declaringClass] and [index] into the identity specified by
-   *   [rule 3-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+   *   [rule T3-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
    */
   public data class Key(
       /**
        * The class that originally declared this dependency, not a subclass that merely narrowed it
        * ([rule
-       * 3-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies)).
+       * T3-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies)).
        */
       public val declaringClass: ClassName,
 
       /**
        * The zero-based slot in [declaringClass]'s declared dependency list ([rule
-       * 3-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies)).
+       * T3-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies)).
        */
       public val index: Int,
   ) {
@@ -91,7 +91,7 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
 
     /**
      * Renders this key in the canonical `DeclaringClass_index` form specified by
-     * [rule 3-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+     * [rule T3-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
      */
     override fun toString(): String = "${declaringClass}_$index"
   }
@@ -101,7 +101,7 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
   /**
    * Tests contextual narrowing of this dependency against [that], propagating [info] to a refined
    * bound under
-   * [rules 6-2 and 8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rules T6-2 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
    */
   public abstract override fun narrows(that: Dependency, info: TypeInfo): Boolean
 
@@ -111,7 +111,7 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
    * An ordinary component-targeting dependency whose [boundType] identifies the possible target
    * types. This is the dependency edge defined by
    * [section 3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies),
-   * excluding the represented-class slot of a class literal (rule 4-7).
+   * excluding the represented-class slot of a class literal (rule T4-7).
    *
    * @constructor Associates [key] with its component-targeting [boundType] under
    *   [section 3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
@@ -119,13 +119,13 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
   public data class TypeDependency(
       /**
        * The stable identity inherited under
-       * [rule 3-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+       * [rule T3-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
        */
       override val key: Key,
 
       /**
        * The covariant target bound described by
-       * [rules 3-2 through 3-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+       * [rules T3-2 through T3-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
        */
       val boundType: GroundType,
   ) : Dependency(), HasExpression by boundType {
@@ -135,7 +135,7 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
 
     /**
      * The canonical name of [boundType]'s root class, following
-     * [rule 2-12](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+     * [rule T2-12](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
      */
     override val className: ClassName
       get() = boundClass.className
@@ -144,8 +144,8 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
         boundType.allConcreteSubtypes().map { TypeDependency(key, it) }
 
     /**
-     * The canonical `key=full-bound` rendering of this dependency ([rules 3-1 and
-     * 5-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies)).
+     * The canonical `key=full-bound` rendering of this dependency ([rules T3-1 and
+     * T5-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies)).
      */
     override fun toString(): String = "$key=$expressionFull"
 
@@ -153,20 +153,20 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
 
     /**
      * Whether [boundType] is abstract, contributing to the containing type's abstractness under
-     * [rule 5-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+     * [rule T5-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
      */
     override val abstract: Boolean
       get() = boundType.abstract
 
     /**
      * Tests context-free covariance of [boundType] against [that] ([rule
-     * 6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping)).
+     * T6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping)).
      */
     override fun isSubtypeOf(that: Dependency): Boolean = boundType.isSubtypeOf(boundOf(that))
 
     /**
      * Intersects [boundType] with [that]'s bound, following
-     * [rule 7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds).
+     * [rule T7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds).
      */
     override fun glb(that: Dependency): Dependency? {
       if (that !is TypeDependency) return null
@@ -175,7 +175,7 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
 
     /**
      * Joins [boundType] with [that]'s bound, following
-     * [rule 7-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds).
+     * [rule T7-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds).
      */
     override fun lub(that: Dependency): Dependency = copy(boundType = boundType lub boundOf(that))
 
@@ -188,14 +188,14 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
 
     /**
      * Asserts contextual covariance against [that], forwarding [info] to refinements under
-     * [rules 6-2 and 8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+     * [rules T6-2 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
      */
     override fun ensureNarrows(that: Dependency, info: TypeInfo): Unit =
         boundType.ensureNarrows(boundOf(that), info)
 
     /**
      * Tests contextual covariance against [that], forwarding [info] to refinements under
-     * [rules 6-2 and 8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+     * [rules T6-2 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
      */
     override fun narrows(that: Dependency, info: TypeInfo): Boolean =
         that is TypeDependency && boundType.narrows(boundOf(that), info)
