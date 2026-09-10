@@ -48,9 +48,9 @@ internal abstract class PetTokenizer {
   internal val _x = regex(Regex("""X\b"""), "X")
 
   // class declarations - making these ignore case causes trouble with `Class<...>`
-  internal val _abstract = literal("ABSTRACT")
-  internal val _class = literal("CLASS")
-  internal val _default = literal("DEFAULT")
+  internal val _abstract = word("ABSTRACT")
+  internal val _class = word("CLASS")
+  internal val _default = word("DEFAULT")
   internal val _metric = regex(Regex("""Metric\b"""), "Metric")
   internal val _number = regex(Regex("""Number\b"""), "Number")
   internal val _requirement = regex(Regex("""Requirement\b"""), "Requirement")
