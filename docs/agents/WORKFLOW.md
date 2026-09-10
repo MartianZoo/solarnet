@@ -11,9 +11,11 @@
 > **Skip when:** changing work performed inside one phase without changing how that phase begins or
 > ends.
 >
-> **Status:** working partial proof. Once `WorkflowStarted` exists, phase scopes now carry the
-> Production-to-Solar-to-Research-to-Action cycle. `TfmWorkflow.Auto` still starts and wakes that
-> cycle and still owns setup, corporation, Prelude, final greenery, and all intra-phase sequencing.
+> **Status:** working partial proof. Once `WorkflowStarted` exists, phase scopes carry
+> Bootstrap-to-Setup-to-Corporation, the Production-to-Solar-to-Research-to-Action cycle, and the
+> final transition from Final Greenery to End. `TfmWorkflow.Auto` still wakes Action and Final
+> Greenery scopes after their domain sequencing finishes, enters Prelude or Action after
+> Corporation, and owns all intra-phase sequencing.
 
 ## Purpose and scope
 
@@ -49,15 +51,18 @@ The required primitives already exist:
 - Pets Type arguments are component dependencies. Removing a dependency cascades through its
   dependents before removing the dependency itself.
 - [`AtomicOperationScope`](../../src/common/dev/martianzoo/engine/AtomicOperationScope.kt) performs
-  idle cleanup only after an outer operation and its automatic effects have completed.
+  idle cleanup after an outer operation and its automatic effects have completed. An Agent
+  operation started synchronously by the completion callback also settles its ordinary idle
+  cleanup before returning, while remaining part of the callback's recorded follow-up.
 - [`Engine.removeTemporaryComponents`](../../src/common/dev/martianzoo/engine/Engine.kt) removes
   `Temporary` components when every task queue is empty. Their removal effects may create more
   work, which Admin autoexecution can settle normally.
 
 [`TfmWorkflow.Auto`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt) still listens for
-idle completions and resumes a coroutine. It no longer chooses Production, Solar, or Research:
-concrete phase scopes make those decisions. The selected design removes the remaining phase-level
-control role without replacing the engine primitives above.
+idle completions and resumes a coroutine. It does not choose Setup, Corporation, Production, Solar,
+Research, Final Greenery, or End: concrete phase scopes and mode-owned Pets rules make those
+decisions. The selected design removes the remaining phase-level control role without replacing the
+engine primitives above.
 
 ## Runtime model
 
@@ -138,19 +143,19 @@ chooses when to request removal; dependency ordering chooses what must finish fi
 ## Bootstrap and the one explicit start
 
 Bootstrap must remain quiescent after initialization. It therefore does not create a temporary
-phase scope just by existing. Starting a configured workflow is one explicit Pets operation that
-creates the Bootstrap continuation, conceptually:
+phase scope just by existing. Starting a configured workflow is one explicit Pets operation.
+Creating `WorkflowStarted` creates the Bootstrap continuation:
 
 ```pets
-CLASS StartWorkflow : Signal, System {
+CLASS WorkflowStarted : System {
   This:: BootstrapPhaseScope<BootstrapPhase>
 }
 ```
 
-Without `StartWorkflow`, `Engine.newGame` ends at the committed `BootstrapPhase`. With it,
-cleanup removes the new scope and queues `SetupPhase FROM BootstrapPhase`. From that point onward,
-the generated scopes sustain phase progression themselves. An application API may provide a typed
-convenience for issuing `StartWorkflow`, but it owns no continuing runner.
+Without `WorkflowStarted`, `Engine.newGame` ends at the committed `BootstrapPhase`. With it, cleanup
+removes `BootstrapPhaseScope` and enters Setup. `SetupPhaseScope` then survives until setup work
+drains and enters Corporation. The automatic workflow issues only that explicit start; it does not
+perform either phase transition.
 
 ## Authored topology and compiled Pets
 
@@ -207,17 +212,18 @@ Static ordering and a game-state-dependent branch are different problems. The to
 orders phases that exist; Pets requirements select a path whose answer depends on current
 World state.
 
-For example, the scope completing Production may have generated removal effects shaped like:
+The scope completing Production currently takes one of two Pets paths:
 
 ```pets
--This IF GameEndBarrier: SolarPhase FROM ProductionPhase
--This IF MAX 0 GameEndBarrier: FinalGreeneryPhase FROM ProductionPhase
+-This IF GameEndBarrier:: SolarPhase FROM ProductionPhase
+-This IF MAX 0 GameEndBarrier:: CheckGameEnd
 ```
 
-The actual endgame conditions still need to preserve multiplayer and solo rules, but their home is
-requirement-gated Pets attached to scope completion, not a Terraforming-Mars switch statement in a
-runner. Applicable branches must be exclusive and complete. Terminal outcomes must be explicit;
-silently finding no continuation is not how an active workflow ends.
+In multiplayer, `MultiplayerMode` advances from Production to Final Greenery when it observes
+`CheckGameEnd`. In solo play, the selected objective decides whether `CheckGameEnd` creates
+`Victory`, and `SoloMode` advances only when that Victory exists. A solo loss deliberately remains
+outside final greenery and scoring. These are requirement-gated Pets rules, not a Terraforming Mars
+switch statement in the runner.
 
 ## Scope hierarchy
 
@@ -265,26 +271,13 @@ expansion rules, or scoring. Entering a Phase must create either all of that Pha
 first inner scope. A Phase is complete only when its Phase scope's own wake condition is satisfied
 and no inner work prevents its removal.
 
-## September 8 proof notes
+## Current phase proof
 
-A deliberately small draft tried to move only Action-to-Production out of `TfmWorkflow.Auto`:
+`WorkflowStarted` is the explicit opt-in marker. It creates a temporary Bootstrap scope whose
+removal enters Setup. Setup creates its own temporary scope; starting-project and other setup work
+keeps that scope alive until the World is idle, when its removal enters Corporation.
 
-- entering `ActionPhase` created a scope;
-- the scope's removal effect queued `ProductionPhase FROM ActionPhase`;
-- the final `Pass` removed the scope; and
-- the coroutine no longer explicitly entered Production.
-
-The draft first made the continuation type depend on both source and destination. That was needless:
-the destination can be fixed or conditional behavior on the concrete source scope. A second draft
-used `PhaseScope<Phase>` and `ActionPhaseScope<ActionPhase>`, which is the preferred shape.
-
-The second draft made `Pass` directly depend on `ActionPhaseScope`. Existing bare `Pass` tasks then
-reached `Die` in all four focused workflow tests. Changing the all-players-passed requirement did not
-fix it. That experiment failed; the scope model did not. The proof now leaves Pass and turn rotation
-alone: after the existing Action sequencing observes that every Player has passed, it removes the
-already-present `ActionPhaseScope`. Its automatic removal effect enters Production.
-
-The implemented phase tail is:
+The implemented recurring and terminal paths are:
 
 ```text
 ActionPhaseScope removal -> ProductionPhase
@@ -292,26 +285,26 @@ ProductionPhaseScope removal -> SolarPhase, while a GameEndBarrier exists
 ProductionPhaseScope removal -> CheckGameEnd, otherwise
 SolarPhaseScope removal -> ResearchPhase
 ResearchPhaseScope removal -> ActionPhase
+CheckGameEnd -> FinalGreeneryPhase, when the active GameMode's end condition succeeds
+FinalGreeneryPhaseScope removal -> End
 ```
 
 `ProductionPhaseScope`, `SolarPhaseScope`, and `ResearchPhaseScope` are Temporary. Pending phase
 work keeps cleanup from removing them; when it drains, their automatic removal effects cascade.
-This includes optional Production work such as Supercapacitors. `ActionPhaseScope` is deliberately
-not Temporary because queues drain between turns.
+This includes optional Production work such as Supercapacitors. `ActionPhaseScope` and
+`FinalGreeneryPhaseScope` are deliberately not Temporary because their queues drain between
+players. `TfmWorkflow.Auto` removes them only after the existing player sequencing observes phase
+completion. The resulting phase decisions remain Pets effects: Kotlin neither checks
+`GameEndBarrier` nor directly enters Production, Solar, Research, Final Greenery, or End.
 
-`WorkflowStarted` is the explicit opt-in marker. It makes phase entry create scopes and enables
-their continuations; manual phase operations remain inert without it. Replay VP snapshots
-temporarily remove the marker before constructing a hypothetical Production/End state, then restore
-the live workflow through rollback.
+An Agent operation begun synchronously by the atomic-completion callback now receives its own idle
+cleanup before returning. That generic rule lets task-free terminal Production settle exactly like
+Production with queued work; no workflow-specific wakeup is needed. Rolling back the Action scope
+removal restores the Action phase and scope while removing the entire automatic continuation.
 
-One lifecycle seam remains in Kotlin. `TfmWorkflow.Auto` removes `ActionPhaseScope` when existing
-Action sequencing finishes. At terminal Production it also removes an otherwise task-free
-`ProductionPhaseScope`, because this work can occur reentrantly before the outer operation gets its
-ordinary Temporary-cleanup pass. If Production created player work, that work drains first and
-normal cleanup removes the scope. This is a wakeup-mechanics issue, not a phase decision.
-
-The full JVM suite passes with this proof, including complete replays, rollback-oriented workflow
-tests, optional Production tasks, solo win/loss, and multiplayer final greenery.
+Phase-scope continuations remain inert without `WorkflowStarted`. Replay VP snapshots temporarily
+remove the marker before constructing a hypothetical Production/End state, then restore the live
+workflow through rollback.
 
 The intended coarse Terraforming Mars shape is:
 
@@ -342,17 +335,13 @@ The phase workflow is successful only when all of these hold:
 - Phase-internal turn design can be added through nested scopes without changing these phase-level
   rules.
 
-## First demonstration
+## Remaining demonstrations
 
-Continue the narrow proof before migrating the whole game:
+The next workflow migration is not yet selected. The known candidates are:
 
-1. Characterize and remove the reentrant terminal-Production wakeup seam generically.
-2. Verify rollback of a scope removal together with its automatic phase continuation.
-3. Characterize dependency-ordered drain cleanup with two nested test scopes.
-4. Add a tiny Pets-only chain covering committed Bootstrap, explicit start, Setup, and Corporation.
-5. Compile Prelude's weak ordering contribution and verify both active and inactive cases.
-6. Compile the Solar constraints and verify every combination of base, Venus, and Colonies phases.
-7. Move final greenery and End onto explicit terminal continuations.
+- characterize dependency-ordered drain cleanup with two nested test scopes;
+- compile Prelude's weak ordering contribution and verify both active and inactive cases; and
+- compile the Solar constraints and verify every combination of base, Venus, and Colonies phases.
 
 Do not redesign Action-turn rotation as part of the Action-to-Production proof; that is sequencing.
 If the narrow model needs phase-specific Kotlin, a literal runtime stack, or a second representation

@@ -198,6 +198,9 @@ internal class FinalGreeneryPhaseTest {
     p1.count("GreeneryTile<Player1>") shouldBe 1
     p2.count("GreeneryTile<Player2>") shouldBe 1
     p3.count("GreeneryTile<Player3>") shouldBe 1
+    admin.count("FinalGreeneryPhaseScope") shouldBe 0
+    admin.count("End") shouldBe 1
+    workflow.isRunning shouldBe false
     workflow.shutdown()
   }
 

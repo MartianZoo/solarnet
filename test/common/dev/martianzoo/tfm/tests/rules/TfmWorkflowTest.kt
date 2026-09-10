@@ -17,6 +17,85 @@ import kotlin.test.Test
 
 internal class TfmWorkflowTest {
   @Test
+  internal fun explicitStartCarriesBootstrapThroughSetupToCorporation() {
+    val game = Engine.newGame(canonicalPremise(players = 2))
+    val admin = game.tfm(ADMIN)
+
+    admin.beginManual("WorkflowStarted")
+
+    admin.assertCounts(
+        0 to "BootstrapPhase",
+        0 to "BootstrapPhaseScope",
+        1 to "SetupPhase",
+        1 to "SetupPhaseScope",
+        0 to "CorporationPhase",
+    )
+
+    game.retainStartingProjects(0, 0)
+
+    admin.assertCounts(
+        0 to "SetupPhase",
+        0 to "SetupPhaseScope",
+        1 to "CorporationPhase",
+    )
+  }
+
+  @Test
+  internal fun rollingBackScopeRemovalRestoresItsPhaseAndContinuation() {
+    val game = Engine.newGame(canonicalPremise(players = 2))
+    val admin = game.tfm(ADMIN)
+    admin.beginManual("WorkflowStarted")
+    game.retainStartingProjects(0, 0)
+    admin.manual("ActionPhase FROM Phase")
+    val checkpoint = game.timeline.checkpoint()
+
+    admin.beginManual("-ActionPhaseScope")
+
+    admin.assertCounts(
+        0 to "ActionPhase",
+        0 to "ActionPhaseScope",
+        1 to "ResearchPhase",
+        1 to "ResearchPhaseScope",
+    )
+
+    game.timeline.rollBack(checkpoint)
+
+    admin.assertCounts(
+        1 to "ActionPhase",
+        1 to "ActionPhaseScope",
+        0 to "ProductionPhase",
+        0 to "ProductionPhaseScope",
+        0 to "SolarPhase",
+        0 to "SolarPhaseScope",
+        0 to "ResearchPhase",
+        0 to "ResearchPhaseScope",
+    )
+    game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun finalGreeneryScopeCarriesTheWorkflowToEnd() {
+    val game = Engine.newGame(canonicalPremise(players = 2))
+    val admin = game.tfm(ADMIN)
+    admin.sneak("WorkflowStarted")
+    admin.manual("FinalGreeneryPhase FROM Phase")
+
+    admin.assertCounts(
+        1 to "FinalGreeneryPhase",
+        1 to "FinalGreeneryPhaseScope",
+        0 to "End",
+    )
+
+    admin.manual("-FinalGreeneryPhaseScope")
+
+    admin.assertCounts(
+        0 to "FinalGreeneryPhase",
+        0 to "FinalGreeneryPhaseScope",
+        1 to "End",
+    )
+  }
+
+  @Test
   internal fun turnDeclinesAnUnusedSecondAction() {
     val game = Engine.newGame(canonicalPremise(Hellas, PromoCardPack, players = 2))
     val admin = game.tfm(ADMIN)

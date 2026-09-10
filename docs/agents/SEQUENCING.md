@@ -381,8 +381,9 @@ outermost atomic scope removes every live instance of that class before notifyin
 operation completed. Removal effects may create more components or tasks, so the engine runs
 automatic work again and repeats cleanup until an idle pass finds nothing left to remove.
 Only that empty pass allows the workflow callback. Work the callback starts synchronously is
-coalesced into one automatic follow-up step, and the same cleanup loop runs again before the
-resulting position is recorded. Every pass happens inside an atomic transaction. See
+coalesced into one automatic follow-up step. Each Agent operation begun directly by the callback
+runs the same cleanup loop before returning, and the outer scope runs it once more before recording
+the resulting position. Every pass happens inside an atomic transaction. See
 `AtomicOperationScope.performIdleCleanup` and `Engine.removeTemporaryComponents`.
 
 Three classes use it:

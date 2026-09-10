@@ -3,7 +3,7 @@ CLASS TerraformingMars : BaseGameModule {
   HAS =1 GameMode, =1 MarsMap
   HAS Class<Production>
   HAS Class<BootstrapPhase>, Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>, Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>, Class<End>
-  HAS Class<WorkflowStarted>, Class<ActionPhaseScope>, Class<ProductionPhaseScope>, Class<SolarPhaseScope>, Class<ResearchPhaseScope>
+  HAS Class<WorkflowStarted>, Class<BootstrapPhaseScope>, Class<SetupPhaseScope>, Class<ActionPhaseScope>, Class<ProductionPhaseScope>, Class<SolarPhaseScope>, Class<ResearchPhaseScope>, Class<FinalGreeneryPhaseScope>
   HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
@@ -547,7 +547,10 @@ ABSTRACT CLASS Phase : System {
   HAS =1 Phase
 
   CLASS BootstrapPhase
-  CLASS SetupPhase { This:: Generation }
+  CLASS SetupPhase {
+    This IF WorkflowStarted:: SetupPhaseScope<This>
+    This:: Generation
+  }
   CLASS CorporationPhase {
     NewTurn: PlayCard<Class<CorporationCard>, Hand>, \
       (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>), \
@@ -565,15 +568,29 @@ ABSTRACT CLASS Phase : System {
   CLASS ProductionPhase { This IF WorkflowStarted:: ProductionPhaseScope<This> }
   CLASS SolarPhase { This IF WorkflowStarted:: SolarPhaseScope<This> }
   CLASS FinalGreeneryPhase {
+    This IF WorkflowStarted:: FinalGreeneryPhaseScope<This>
     NewTurn: UseAction<ConvertPlantsAction, Action1>?
   }
 }
 
 "Records that the phase workflow has been explicitly started"
-CLASS WorkflowStarted : System { HAS MAX 1 This }
+CLASS WorkflowStarted : System {
+  HAS MAX 1 This
+  This:: BootstrapPhaseScope<BootstrapPhase>
+}
 
 "The lifetime anchor for components belonging to one occurrence of a phase"
 ABSTRACT CLASS PhaseScope<Phase> : System { HAS MAX 1 PhaseScope }
+
+"The bootstrap phase's lifetime anchor and continuation"
+CLASS BootstrapPhaseScope<BootstrapPhase> : PhaseScope<BootstrapPhase>, Temporary {
+  -This IF WorkflowStarted:: SetupPhase FROM BootstrapPhase
+}
+
+"The setup phase's lifetime anchor and continuation"
+CLASS SetupPhaseScope<SetupPhase> : PhaseScope<SetupPhase>, Temporary {
+  -This IF WorkflowStarted:: CorporationPhase FROM SetupPhase
+}
 
 "The action phase's lifetime anchor and continuation"
 CLASS ActionPhaseScope<ActionPhase> : PhaseScope<ActionPhase> {
@@ -594,6 +611,11 @@ CLASS SolarPhaseScope<SolarPhase> : PhaseScope<SolarPhase>, Temporary {
 "The research phase's lifetime anchor and continuation"
 CLASS ResearchPhaseScope<ResearchPhase> : PhaseScope<ResearchPhase>, Temporary {
   -This IF WorkflowStarted:: ActionPhase FROM ResearchPhase
+}
+
+"The final greenery phase's lifetime anchor and terminal continuation"
+CLASS FinalGreeneryPhaseScope<FinalGreeneryPhase> : PhaseScope<FinalGreeneryPhase> {
+  -This IF WorkflowStarted:: End FROM FinalGreeneryPhase
 }
 
 // TIME FLOW
@@ -687,6 +709,7 @@ ABSTRACT CLASS GameMode : Module {
     This: ClaimMilestoneAction, FundAwardAction
     This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
     SetupPhase: EACH Player { 20 TerraformRating }
+    CheckGameEnd IF WorkflowStarted, ProductionPhase:: FinalGreeneryPhase FROM ProductionPhase
     -FinalScoringPending: EACH Player(HAS =1 (RANK Player { VictoryPoint, MC })) { Victory }
   }
 }
@@ -704,6 +727,7 @@ CLASS SoloMode : GameMode {
   This: 14 SoloGenerationsLeft
   SetupPhase: 14 TerraformRating<Player>
   Generation: -SoloGenerationsLeft.
+  Victory<Player> IF WorkflowStarted, ProductionPhase:: FinalGreeneryPhase FROM ProductionPhase
 }
 
 "Raises terraform rating in the TR63 solo objective"

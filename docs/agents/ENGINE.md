@@ -245,7 +245,9 @@ failure reverses component state, tasks, event-backed indexes, and events.
 prevents rollback into initialization or a workflow stage.
 
 `World.recording()` captures the event sequence and selected positions around successful outermost
-Agent completion. `GameRecording.seek` currently reverses or reapplies those events on the same live
+Agent completion. An Agent operation begun synchronously by the completion callback settles its
+idle cleanup before returning but remains part of that callback's single recorded follow-up
+position. `GameRecording.seek` currently reverses or reapplies those events on the same live
 `World`, and capturing seals its public rollback surface to those positions. This coupling is
 transitional. The selected model exports immutable history and opens an independent scrollable Game
 World view whose public seek targets are only completed positions, never arbitrary event ordinals.
@@ -719,12 +721,13 @@ divergence.
  `Agent`. Treat it as transitional; its test conveniences and player-facing domain actions need not
  remain one production wrapper.
 
-`TfmWorkflow.Auto` runs the Terraforming Mars phase loop in a coroutine. It commits before waiting
-for tasks to drain and wakes from the shared outermost atomic-completion callback. StartToken
-determines turn order. Canon represents every condition currently preventing game end as a
-`GameEndBarrier`; the workflow checks for those components after Production and reads the solo
-`Victory` result rather than reimplementing its predicate. Exact phase requirements and known gaps are
-in [WORKFLOW.md](WORKFLOW.md).
+`TfmWorkflow.Auto` coordinates the remaining player-ordered phase work in a coroutine. It commits
+before waiting for tasks to drain and wakes from the shared outermost atomic-completion callback.
+StartToken determines turn order. Pets phase scopes select Setup, Corporation, Production, Solar,
+Research, Final Greenery, and End; mode-owned effects select the terminal path after Production.
+The workflow still enters Prelude or Action after Corporation and explicitly completes the
+non-Temporary Action and Final Greenery scopes once their player sequencing finishes. Exact phase
+requirements and known gaps are in [WORKFLOW.md](WORKFLOW.md).
 
 ## Wiring details
 

@@ -17,9 +17,9 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 /**
- * Two modes for driving the Terraforming Mars game-phase sequence: [Auto] uses a coroutine to
- * advance phases automatically; [Manual] exposes each phase transition as an explicit public method
- * for tests that need to drive the game step-by-step.
+ * Two ways to coordinate Terraforming Mars phases: [Auto] sequences their remaining player work
+ * while Pets scopes advance the workflow; [Manual] exposes explicit phase transitions for tests
+ * that need to drive the game step-by-step.
  */
 public object TfmWorkflow {
 
@@ -59,8 +59,8 @@ public object TfmWorkflow {
   }
 
   /**
-   * Orchestrates the full Terraforming Mars game flow using a single coroutine, so each phase can
-   * be written as straight-line sequential code.
+   * Coordinates the full Terraforming Mars game flow using a single coroutine, so each phase's
+   * player work can be written as straight-line sequential code. Pets scopes own phase transitions.
    *
    * The coroutine suspends whenever the game has outstanding tasks (choosing cards, placing tiles,
    * etc.), and resumes once the task queue drains. Synchronization uses [resumeSignal], a
@@ -139,27 +139,22 @@ public object TfmWorkflow {
       if (adminOps.has("WorkflowStarted")) adminOps.sneak("-WorkflowStarted")
     }
 
-    /** Orchestrates the complete game from its committed bootstrap state to finish. */
+    /** Coordinates the complete game from its committed bootstrap state to finish. */
     private suspend fun runGame() {
-      adminOps.manual("WorkflowStarted")
-      m.setupPhase()
+      adminOps.beginManual("WorkflowStarted")
       awaitTasksDrained()
       corporationPhase()
       if (hasComponent("PreludeExpansion")) preludePhase()
       m.actionPhase()
       while (true) {
         actionPhase()
-        if (!wakeActionPhaseScope()) break
+        if (!completeActionPhase()) break
       }
-      if (hasComponent("SoloMode")) {
-        if (!adminOps.has("Victory<${players.single()}>")) return
-      }
+      if (!hasComponent("FinalGreeneryPhase")) return
       finalGreeneryPhase()
-      m.endPhase()
     }
 
     private suspend fun corporationPhase() {
-      m.corporationPhase()
       for (player in players) grantFirstActionTo(player)
     }
 
@@ -173,7 +168,6 @@ public object TfmWorkflow {
     }
 
     private suspend fun finalGreeneryPhase() {
-      m.finalGreeneryPhase()
       for (player in rotatedByFirstPlayer()) {
         var placedGreenery: Boolean
         do {
@@ -182,6 +176,7 @@ public object TfmWorkflow {
           placedGreenery = opsFor(player).count("GreeneryTile<$player>") > greeneryCount
         } while (placedGreenery)
       }
+      adminOps.manual("-FinalGreeneryPhaseScope")
     }
 
     private suspend fun actionPhase() {
@@ -198,17 +193,9 @@ public object TfmWorkflow {
       }
     }
 
-    private suspend fun wakeActionPhaseScope(): Boolean {
+    private suspend fun completeActionPhase(): Boolean {
       shutdownCheckpoint = game.timeline.checkpoint()
       adminOps.beginManual("-ActionPhaseScope")
-      if (!adminOps.has("GameEndBarrier")) {
-        if (!game.tasks.isEmpty()) resumeSignal.receive()
-        if (hasComponent("ProductionPhaseScope")) {
-          adminOps.beginManual("-ProductionPhaseScope")
-        }
-        shutdownCheckpoint = null
-        return false
-      }
       if (!game.isIdle()) resumeSignal.receive()
       shutdownCheckpoint = null
       return hasComponent("ActionPhase")

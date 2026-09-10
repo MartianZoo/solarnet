@@ -114,10 +114,13 @@ internal class AtomicOperationScopeTest {
         )
     val player = game.agent(PLAYER1)
     var startFollowUp = true
+    var followUpCompletedBeforeReturning = false
     game.onAtomicComplete = {
       if (startFollowUp) {
         startFollowUp = false
         player.sneak("CleanupProbe")
+        followUpCompletedBeforeReturning =
+            player.count("CleanupProbe") == 0 && player.count("Done") == 1
       }
     }
 
@@ -125,6 +128,7 @@ internal class AtomicOperationScopeTest {
 
     player.count("CleanupProbe") shouldBe 0
     player.count("Done") shouldBe 1
+    followUpCompletedBeforeReturning shouldBe true
   }
 
   @Test
