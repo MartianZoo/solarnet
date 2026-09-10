@@ -12,7 +12,7 @@ internal class LakefrontResortsTest : CardTest() {
 
     admin.phase("Action")
     p1.manual("$LakefrontResorts, 54 MC")
-    p2.manual("OceanTile<Tharsis_1_2>").expect("PROD[M<Player1>]")
+    p2.manual("OceanTile<Tharsis_1_2>").expect("PROD[MC<Player1>]")
 
     // Two is the normal ocean-adjacency bonus; the third is Lakefront Resorts' bonus.
     p1.manual("CityTile<Tharsis_2_2>").expect("3 MC")
@@ -24,7 +24,7 @@ internal class LakefrontResortsTest : CardTest() {
     val p2 = requireP2()
     admin.phase("Action")
     p2.manual("$LakefrontResorts, 54 MC")
-    p1.manual("OceanTile<Tharsis_1_2>").expect("PROD[M<Player2>]")
+    p1.manual("OceanTile<Tharsis_1_2>").expect("PROD[MC<Player2>]")
     p1.manual("CityTile<Tharsis_2_2>").expect("2 MC")
   }
 

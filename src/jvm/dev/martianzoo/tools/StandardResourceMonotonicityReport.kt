@@ -1,6 +1,5 @@
 package dev.martianzoo.tools
 
-import dev.martianzoo.pets.Vocabulary.Companion.defaultEnglishDisplayName
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.SystemClasses.USE_ACTION
@@ -21,6 +20,7 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GamePremise
+import dev.martianzoo.pets.defaultEnglishDisplayName
 import dev.martianzoo.pets.types.Class as PetsClass
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.tfm.canon.Canon

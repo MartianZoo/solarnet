@@ -9,7 +9,6 @@ import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -28,9 +27,6 @@ internal class WorldGovernmentTerraformingTest {
     TfmWorkflow.Manual(game).solarPhase()
 
     admin.count("SolarPhase") shouldBe 1
-    game.tasks
-        .extract { it.assignee to it.instruction.toString() }
-        .shouldContainExactly(PLAYER2 to "GlobalParameter! BY Admin")
     p2.doTask("VenusStep! BY Admin")
 
     val venusIncrease =

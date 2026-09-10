@@ -1,7 +1,6 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.PetElaborator
-import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.TEMPORARY
 import dev.martianzoo.pets.api.SystemClasses.THIS
@@ -21,11 +20,7 @@ import dev.martianzoo.pets.types.ClassTable
 public object Engine {
 
   /** Creates a game at its committed initialization state, ready to be given to a workflow. */
-  public fun newGame(
-      premise: GamePremise,
-      locale: String = Vocabulary.ENGLISH,
-      inputOnlySynonyms: Iterable<Pair<String, String>> = emptyList(),
-  ): World = Wiring(premise, locale, inputOnlySynonyms).createWorld()
+  public fun newGame(premise: GamePremise): World = Wiring(premise).createWorld()
 
   /**
    * Creates a disposable hypothetical world at [backing]'s current revision. The returned world
@@ -42,22 +37,11 @@ public object Engine {
   private class Wiring
   private constructor(
       private val premise: GamePremise,
-      private val vocabulary: Vocabulary,
       private val backing: WholeWorld?,
   ) {
-    internal constructor(
-        premise: GamePremise,
-        locale: String,
-        inputOnlySynonyms: Iterable<Pair<String, String>>,
-    ) : this(
-        premise,
-        premise.createVocabulary(premise.classTable.allClassNames, locale, inputOnlySynonyms),
-        null,
-    )
+    internal constructor(premise: GamePremise) : this(premise, null)
 
-    internal constructor(
-        backing: WholeWorld
-    ) : this(backing.readerImpl.premise, backing.vocabulary, backing)
+    internal constructor(backing: WholeWorld) : this(backing.readerImpl.premise, backing)
 
     private val backingRevision = backing?.revision
     private val classTable = premise.classTable.also { if (backing == null) validatePremise(it) }
@@ -116,7 +100,6 @@ public object Engine {
               timeline,
               reader,
               classTable,
-              vocabulary,
               agentByActor,
               timeline,
               recordingPositions,
@@ -130,7 +113,6 @@ public object Engine {
               timeline,
               reader,
               classTable,
-              vocabulary,
               agentByActor,
           )
         }
@@ -240,7 +222,6 @@ public object Engine {
           tasks,
           classTable,
           elaborator,
-          vocabulary,
           atomicOperationScope,
           backing?.agent(actor)?.autoExecMode ?: AutoExecMode.FIRST,
       )

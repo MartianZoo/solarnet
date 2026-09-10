@@ -605,7 +605,7 @@ public class OtbGame20260809 : RecordedGame() {
       playProject(SubZeroSaltFish, 5) { doTask("PROD[-Plant<Green>]") }
     }
 
-    green.exMachina("3 M<Yellow> FROM M<Green>")
+    green.exMachina("3 MC<Yellow> FROM MC<Green>")
 
     green.turn { cardAction1(RestrictedArea) }
 
@@ -710,7 +710,7 @@ public class OtbGame20260809 : RecordedGame() {
       playProject(Gyropolis, 11, steel = 3) { placeTile(5, 3) }
     }
 
-    yellow.exMachina("PROD[-3 MC, 2 E]")
+    yellow.exMachina("PROD[-3 MC, 2 Energy]")
 
     green.turn {
       cardAction1(VenusianInsects)

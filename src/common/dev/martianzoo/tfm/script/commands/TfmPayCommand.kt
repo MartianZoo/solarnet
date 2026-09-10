@@ -24,10 +24,7 @@ internal class TfmPayCommand(private val repl: ScriptSession) : ScriptCommand("t
 
   override fun withArgs(args: String): List<String> {
     val gains: List<Instruction> =
-        repl.game.vocabulary
-            .canonicalize(Parsing.parse<InstructionTree>(args))
-            .let(InstructionGroup::of)
-            .instructions
+        Parsing.parse<InstructionTree>(args).let(InstructionGroup::of).instructions
 
     val payments: List<Pair<String, String>> = gains.map {
       val sex = (it as Gain).scaledEx

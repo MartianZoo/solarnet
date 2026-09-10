@@ -16,7 +16,6 @@ import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
-import dev.martianzoo.tfm.tests.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.tests.TestOption as Option
 import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalCatalog
@@ -120,7 +119,7 @@ internal abstract class CardTest(
 
   private fun startAutoGame(premise: GamePremise): World {
     workflow?.shutdown()
-    return Engine.newGame(premise, inputOnlySynonyms = TEST_CLASS_SYNONYMS).apply {
+    return Engine.newGame(premise).apply {
       bindPlayers()
       workflow = TfmWorkflow.Auto(this).launch()
       retainStartingProjects(this, *IntArray(actors.filterIsInstance<Player>().size))

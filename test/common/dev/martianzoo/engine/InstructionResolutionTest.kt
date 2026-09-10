@@ -37,7 +37,7 @@ internal class InstructionResolutionTest {
   }
 
   private fun preprocess(instr: InstructionTree): InstructionTree {
-    return elaborator.elaborateInput(instr, game.vocabulary, PLAYER1)
+    return elaborator.elaborateInput(instr, PLAYER1)
   }
 
   private fun preprocessAndResolve(unresolved: String): InstructionTree {
@@ -92,21 +92,21 @@ internal class InstructionResolutionTest {
     checkResolution("Plant / 3 TerraformRating MAX 2", "2 Plant<Player1>!")
     checkResolution("Plant / Steel", "Ok")
     checkResolution("Plant / 21 TerraformRating", "Ok")
-    checkResolution("-Plant. / TR", "-Plant<Player1>!")
-    checkResolution("-Plant? / TR", "-Plant<Player1>?")
+    checkResolution("-Plant. / TerraformRating", "-Plant<Player1>!")
+    checkResolution("-Plant? / TerraformRating", "-Plant<Player1>?")
   }
 
   @Test
   internal fun testResolveGated() {
-    checkResolution("10 TR: Plant", "Plant<Player1>!")
-    checkResolution("10 TR: Plant / TerraformRating", "20 Plant<Player1>!")
+    checkResolution("10 TerraformRating: Plant", "Plant<Player1>!")
+    checkResolution("10 TerraformRating: Plant / TerraformRating", "20 Plant<Player1>!")
     // TODO I'm nervous about the <Anyone> disappearing
-    checkResolution("10 TR: Plant<Anyone> / TerraformRating", "20 Plant!")
+    checkResolution("10 TerraformRating: Plant<Anyone> / TerraformRating", "20 Plant!")
     checkResolution(
-        "10 TR: Titanium OR TerraformRating",
+        "10 TerraformRating: Titanium OR TerraformRating",
         "Titanium<Player1>! OR TerraformRating<Player1>!",
     )
-    shouldThrow<RequirementException> { preprocessAndResolve("30 TR: Plant") }
+    shouldThrow<RequirementException> { preprocessAndResolve("30 TerraformRating: Plant") }
   }
 
   @Test
@@ -174,18 +174,18 @@ internal class InstructionResolutionTest {
   internal fun testResolveOr() {
     checkResolution(
         "-2 Plant OR Plant FROM Heat " +
-            "OR Ok OR 2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TR: Plant)",
+            "OR Ok OR 2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TerraformRating: Plant)",
         "Ok",
     )
     checkResolution(
-        "-2 Plant OR Plant FROM Heat OR (TR: 8 Steel) OR " +
-            "2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TR: Plant)",
+        "-2 Plant OR Plant FROM Heat OR (TerraformRating: 8 Steel) OR " +
+            "2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TerraformRating: Plant)",
         "8 Steel<Player1>!",
     )
 
     checkResolution(
-        "-2 Plant OR Plant FROM Heat OR -Plant. / TR OR 8 Steel OR " +
-            "2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TR: Plant)",
+        "-2 Plant OR Plant FROM Heat OR -Plant. / TerraformRating OR 8 Steel OR " +
+            "2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TerraformRating: Plant)",
         "-Plant<Player1>! OR 8 Steel<Player1>!",
     )
 
@@ -197,7 +197,7 @@ internal class InstructionResolutionTest {
     shouldThrow<NotNowException> {
       preprocessAndResolve(
           "-2 Plant OR Plant FROM Heat OR 2 Heat FROM Plant " +
-              "OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TR: Plant)",
+              "OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TerraformRating: Plant)",
       )
     }
   }
@@ -206,7 +206,7 @@ internal class InstructionResolutionTest {
   internal fun `an unavailable choice preserves requirement failure when every option is gated`() {
     val failure =
         shouldThrow<RequirementException> {
-          preprocessAndResolve("(30 TR: Plant) OR (15 OxygenStep: Steel)")
+          preprocessAndResolve("(30 TerraformRating: Plant) OR (15 OxygenStep: Steel)")
         }
 
     failure.message!!.contains("30 TerraformRating") shouldBe true
@@ -216,7 +216,7 @@ internal class InstructionResolutionTest {
   @Test
   internal fun testResolveGroups() {
     shouldThrow<AbstractException> { preprocessAndResolve("Plant, Heat") }
-    shouldThrow<AbstractException> { preprocessAndResolve("(TR: Plant), Heat") }
-    checkResolution("TR: (Plant, Heat)", "Plant<Player1>!, Heat<Player1>!")
+    shouldThrow<AbstractException> { preprocessAndResolve("(TerraformRating: Plant), Heat") }
+    checkResolution("TerraformRating: (Plant, Heat)", "Plant<Player1>!, Heat<Player1>!")
   }
 }

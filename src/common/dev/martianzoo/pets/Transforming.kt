@@ -41,7 +41,7 @@ public object Transforming {
           replacer(THIS.classExpression(), contextType.className.classExpression()),
           object : PetTransformer() {
             override fun transformNode(node: PetNode): PetNode {
-              if (node == THIS.expression) return contextType
+              if (node is Expression && node.isBare(THIS)) return contextType
               val transformed = transformChildren(node)
               return if (transformed is Expression && transformed.className == THIS) {
                 transformed.copy(className = contextType.className)

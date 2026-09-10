@@ -6,7 +6,6 @@ import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
-import dev.martianzoo.tfm.tests.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -27,7 +26,7 @@ internal class FirstPartialGameTest : TfmTest() {
               TurmoilCardPack,
               players = 2,
           )
-      val game = Engine.newGame(setup, inputOnlySynonyms = TEST_CLASS_SYNONYMS)
+      val game = Engine.newGame(setup)
       val admin = game.tfm(ADMIN)
       val p1 = game.tfm(PLAYER1)
       val p2 = game.tfm(PLAYER2)
@@ -56,7 +55,7 @@ internal class FirstPartialGameTest : TfmTest() {
         cardAction1(SpaceElevator)
         playProject(InventionContest, 2)
         assertCounts(0 to "ProjectCard<Selecting>")
-        playProject(GreatEscarpmentConsortium, 6) { doTask("PROD[-S<Player1>]") }
+        playProject(GreatEscarpmentConsortium, 6) { doTask("PROD[-Steel<Player1>]") }
       }
       p2.pass()
 
@@ -82,7 +81,7 @@ internal class FirstPartialGameTest : TfmTest() {
       p1.turn { playProject(Sponsors, 6) }
 
       p2.turn {
-        playProject(EnergyTapping, 1) { doTask("PROD[-E<Player1>]") }
+        playProject(EnergyTapping, 1) { doTask("PROD[-Energy<Player1>]") }
         playProject(BuildingIndustries, steel = 2)
       }
 
@@ -137,7 +136,7 @@ internal class FirstPartialGameTest : TfmTest() {
           // Decline Mars University's discard-and-draw effect for the science tag.
           declineTask()
         }
-        playProject(Hackers, 1) { doTask("PROD[-2 M<Player1>]") }
+        playProject(Hackers, 1) { doTask("PROD[-2 MC<Player1>]") }
       }
 
       p1.turn { sellPatents(1) }
@@ -156,8 +155,22 @@ internal class FirstPartialGameTest : TfmTest() {
       with(p1) {
         assertCounts(20 to "TerraformRating")
 
-        assertCounts(34 to "M", 2 to "S", 8 to "T", 3 to "P", 1 to "E", 3 to "H")
-        assertProds(2 to "M", 2 to "S", 7 to "T", 0 to "P", 1 to "E", 0 to "H")
+        assertCounts(
+            34 to "MC",
+            2 to "Steel",
+            8 to "Titanium",
+            3 to "Plant",
+            1 to "Energy",
+            3 to "Heat",
+        )
+        assertProds(
+            2 to "MC",
+            2 to "Steel",
+            7 to "Titanium",
+            0 to "Plant",
+            1 to "Energy",
+            0 to "Heat",
+        )
 
         assertCounts(15 to "Card", 5 to "ProjectCard", 10 to "CardFront")
         assertCounts(0 to "ProjectCard<Selecting>", 0 to "ProjectCard<Revealed>")
@@ -171,8 +184,22 @@ internal class FirstPartialGameTest : TfmTest() {
       with(p2) {
         assertCounts(25 to "TerraformRating")
 
-        assertCounts(47 to "M", 6 to "S", 1 to "T", 1 to "P", 2 to "E", 3 to "H")
-        assertProds(8 to "M", 6 to "S", 1 to "T", 0 to "P", 2 to "E", 0 to "H")
+        assertCounts(
+            47 to "MC",
+            6 to "Steel",
+            1 to "Titanium",
+            1 to "Plant",
+            2 to "Energy",
+            3 to "Heat",
+        )
+        assertProds(
+            8 to "MC",
+            6 to "Steel",
+            1 to "Titanium",
+            0 to "Plant",
+            2 to "Energy",
+            0 to "Heat",
+        )
 
         assertCounts(23 to "Card", 3 to "ProjectCard", 17 to "CardFront")
         assertCounts(0 to "ProjectCard<Selecting>", 0 to "ProjectCard<Revealed>")

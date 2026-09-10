@@ -28,7 +28,6 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
           "KB",
           "ER",
       )
-  override val inputOnlySynonyms = emptyList<Pair<String, String>>()
 
   @Test
   internal fun game20260819() {

@@ -13,10 +13,10 @@ import kotlin.test.Test
 /** Section 1 of `docs/type-system-spec.md`: universes and identity. */
 internal class Spec01UniversesTest {
 
-  // 1-1 One universe per Catalog
+  // T1-1 One universe per Catalog
 
   @Test
-  internal fun `1-1 a catalog compiles to one class per declared name`() {
+  internal fun `T1-1 a catalog compiles to one class per declared name`() {
     val table = loadTypes("ABSTRACT CLASS Tile", "CLASS GreeneryTile : Tile")
 
     table.getClass(cn("GreeneryTile")) shouldBe table.getClass(cn("GreeneryTile"))
@@ -24,7 +24,7 @@ internal class Spec01UniversesTest {
   }
 
   @Test
-  internal fun `1-1 two compilations of identical source are different universes`() {
+  internal fun `T1-1 two compilations of identical source are different universes`() {
     fun universe() = loadTypes("ABSTRACT CLASS Tile", "CLASS GreeneryTile : Tile")
 
     val left = universe()
@@ -34,10 +34,10 @@ internal class Spec01UniversesTest {
     left.resolve(te("GreeneryTile")) shouldNotBe right.resolve(te("GreeneryTile"))
   }
 
-  // 1-2 Values are universe-scoped
+  // T1-2 Values are universe-scoped
 
   @Test
-  internal fun `1-2 comparing values from two universes is an error, not a false answer`() {
+  internal fun `T1-2 comparing values from two universes is an error, not a false answer`() {
     fun universe() = loadTypes("ABSTRACT CLASS Area", "CLASS GreeneryTile<Area>")
 
     val left = universe()
@@ -58,7 +58,7 @@ internal class Spec01UniversesTest {
   }
 
   @Test
-  internal fun `1-2 knows reports whether a type belongs to this universe`() {
+  internal fun `T1-2 knows reports whether a type belongs to this universe`() {
     fun universe() = loadTypes("ABSTRACT CLASS Area", "CLASS GreeneryTile<Area>")
 
     val left = universe()
@@ -68,17 +68,17 @@ internal class Spec01UniversesTest {
     left.knows(right.resolve(te("GreeneryTile"))) shouldBe false
   }
 
-  // 1-3 Resolution is a function of the expression
+  // T1-3 Resolution is a function of the expression
 
   @Test
-  internal fun `1-3 one expression always resolves to the identical type object`() {
+  internal fun `T1-3 one expression always resolves to the identical type object`() {
     val table = loadTypes("ABSTRACT CLASS Area", "CLASS GreeneryTile<Area>")
 
     (table.resolve(te("GreeneryTile")) === table.resolve(te("GreeneryTile"))) shouldBe true
   }
 
   @Test
-  internal fun `1-3 different spellings of one type are equal but need not be identical`() {
+  internal fun `T1-3 different spellings of one type are equal but need not be identical`() {
     val table = loadTypes("ABSTRACT CLASS Area", "CLASS GreeneryTile<Area>")
 
     table.resolve(te("GreeneryTile<Area>")) shouldBe table.resolve(te("GreeneryTile"))
@@ -86,7 +86,7 @@ internal class Spec01UniversesTest {
   }
 
   @Test
-  internal fun `1-3 a type's own renderings resolve back to it`() {
+  internal fun `T1-3 a type's own renderings resolve back to it`() {
     val table = loadTypes("ABSTRACT CLASS Area { CLASS Tharsis_2_2 }", "CLASS GreeneryTile<Area>")
     val tile = table.resolve(te("GreeneryTile<Tharsis_2_2>"))
 
@@ -94,10 +94,10 @@ internal class Spec01UniversesTest {
     table.resolve(tile.expressionFull) shouldBe tile
   }
 
-  // 1-4, 1-5 The two required classes
+  // T1-4, T1-5 The two required classes
 
   @Test
-  internal fun `1-4 Component is the abstract root of every universe`() {
+  internal fun `T1-4 Component is the abstract root of every universe`() {
     val table = loadTypes()
     val component = table.componentClass
 
@@ -110,24 +110,24 @@ internal class Spec01UniversesTest {
   }
 
   @Test
-  internal fun `1-4 every class has Component as a supertype`() {
+  internal fun `T1-4 every class has Component as a supertype`() {
     val table = loadTypes("ABSTRACT CLASS Tile", "CLASS GreeneryTile : Tile")
 
     table.allClasses().forEach { it.isSubtypeOf(table.componentClass) shouldBe true }
   }
 
   @Test
-  internal fun `1-5 the Class class exists and is bounded by Component`() {
+  internal fun `T1-5 the Class class exists and is bounded by Component`() {
     val table = loadTypes()
 
     table.classClass.className shouldBe cn("Class")
     table.classClass.baseType.expressionFull shouldBe te("Class<Component>")
   }
 
-  // 1-6 Freezing
+  // T1-6 Freezing
 
   @Test
-  internal fun `1-6 enumeration requires a frozen table but lookup does not`() {
+  internal fun `T1-6 enumeration requires a frozen table but lookup does not`() {
     val catalog = testCatalog("CLASS GreeneryTile")
     val loader = ClassLoader(catalog)
 
@@ -142,10 +142,10 @@ internal class Spec01UniversesTest {
     table.allClassNames shouldBe catalog.allClassNames
   }
 
-  // 1-7 Canonical names only
+  // T1-7 Canonical names only
 
   @Test
-  internal fun `1-7 only the exact declared name resolves`() {
+  internal fun `T1-7 only the exact declared name resolves`() {
     val table = loadTypes("CLASS GreeneryTile")
 
     table.getClass(cn("GreeneryTile")).className shouldBe cn("GreeneryTile")

@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.types.ClassTable
@@ -16,7 +15,6 @@ internal constructor(
     override val timeline: Timeline,
     internal val readerImpl: GameReaderImpl,
     override val classTable: ClassTable,
-    override val vocabulary: Vocabulary,
     private val agentByActor: Map<Actor, Agent>,
 ) : World {
   override val tasks: TaskQueue = taskQueues.all()

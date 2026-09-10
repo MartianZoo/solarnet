@@ -7,9 +7,6 @@ import dev.martianzoo.tfm.web.gameviewer.RecordedGame
 import dev.martianzoo.tfm.web.gameviewer.cardnames.*
 
 public class OtbGame20260825 : RecordedGame() {
-  protected override val inputOnlySynonyms: List<Pair<String, String>> =
-      emptyList<Pair<String, String>>()
-
   protected override val config: GameConfig =
       GameConfig(
           """

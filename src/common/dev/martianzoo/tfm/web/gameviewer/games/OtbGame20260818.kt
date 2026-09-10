@@ -94,7 +94,7 @@ public class OtbGame20260818 : RecordedGame() {
     yellow.turn {
       playProject(MiningRights, 1, steel = 4) { placeTile(3, 6) }
 
-      playProject(EnergyTapping, 3) { doTask("PROD[-E<Green>]") }
+      playProject(EnergyTapping, 3) { doTask("PROD[-Energy<Green>]") }
     }
 
     green.turn {
@@ -219,7 +219,7 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      cardAction2(AsteroidRights) { doTask("2 T") }
+      cardAction2(AsteroidRights) { doTask("2 Titanium") }
     }
 
     yellow.turn {
@@ -296,7 +296,7 @@ public class OtbGame20260818 : RecordedGame() {
 
     yellow.turn { cardAction1(StratosphericBirds) }
 
-    green.turn { cardAction2(AsteroidRights) { doTask("2 T") } }
+    green.turn { cardAction2(AsteroidRights) { doTask("2 Titanium") } }
 
     yellow.turn {
       cardAction1(ForcedPrecipitation)
@@ -344,7 +344,7 @@ public class OtbGame20260818 : RecordedGame() {
       }
     }
 
-    green.exMachina("PROD[-S, -E]")
+    green.exMachina("PROD[-Steel, -Energy]")
 
     yellow.turn {
       cardAction2(ForcedPrecipitation)
@@ -364,7 +364,7 @@ public class OtbGame20260818 : RecordedGame() {
     green.turn {
       sellPatents(1)
 
-      playProject(HiredRaiders, 1) { doTask("3 M<Green> FROM M<Yellow>") }
+      playProject(HiredRaiders, 1) { doTask("3 MC<Green> FROM MC<Yellow>") }
     }
     yellow.turn {
       cardAction2(NitriteReducingBacteria)
@@ -381,7 +381,7 @@ public class OtbGame20260818 : RecordedGame() {
       convertPlants { placeTile(4, 2) }
     }
 
-    green.exMachina("TR")
+    green.exMachina("TerraformRating")
 
     yellow.turn {
       playProject(NoctisCity, 6, steel = 6) { placeTile(3, 2) }
@@ -394,7 +394,7 @@ public class OtbGame20260818 : RecordedGame() {
 
     yellow.wgt("OceanTile<Utopia_6_4>")
 
-    green.exMachina("-TR, -1 MC, PROD[S, E], S, E")
+    green.exMachina("-TerraformRating, -1 MC, PROD[Steel, Energy], Steel, Energy")
 
     green.buyCards(2)
     green.exMachina("6 MC")
@@ -465,7 +465,7 @@ public class OtbGame20260818 : RecordedGame() {
       cardAction2(NitriteReducingBacteria)
     }
 
-    yellow.exMachina("-TR")
+    yellow.exMachina("-TerraformRating")
 
     green.turn {
       cardAction2(AsteroidRights) { doTask("PROD[1 MC]") }
@@ -561,11 +561,11 @@ public class OtbGame20260818 : RecordedGame() {
     yellow.turn { convertHeat() }
 
     green.turn {
-      playProject(HeatTrappers, 2, steel = 2) { doTask("PROD[-2 H<Yellow>]") }
+      playProject(HeatTrappers, 2, steel = 2) { doTask("PROD[-2 Heat<Yellow>]") }
     }
 
     yellow.turn {
-      playProject(PowerSupplyConsortium, 5) { doTask("PROD[-E<Green>]") }
+      playProject(PowerSupplyConsortium, 5) { doTask("PROD[-Energy<Green>]") }
     }
 
     green.turn {
@@ -601,7 +601,7 @@ public class OtbGame20260818 : RecordedGame() {
     yellow.wgt("OxygenStep")
 
     green.exMachina("3 MC, Animal<$MartianZoo>, -ProjectCard")
-    yellow.exMachina("6 MC, TR")
+    yellow.exMachina("6 MC, TerraformRating")
 
     green.buyCards(4)
     yellow.buyCards(4)
@@ -677,7 +677,7 @@ public class OtbGame20260818 : RecordedGame() {
     }
 
     green.turn {
-      cardAction2(AsteroidRights) { doTask("2 T") }
+      cardAction2(AsteroidRights) { doTask("2 Titanium") }
 
       convertPlants { placeTile(5, 2) }
     }
@@ -775,7 +775,7 @@ public class OtbGame20260818 : RecordedGame() {
       playProject(LavaFlows, 18) { placeTile(8, 5) }
     }
 
-    green.exMachina("-2 TR")
+    green.exMachina("-2 TerraformRating")
 
     yellow.turn {
       cardAction1(StratosphericBirds)
@@ -852,7 +852,7 @@ public class OtbGame20260818 : RecordedGame() {
     green.turn {
       stdAction("FundAwardAction", which = 2) { doTask("Mogul") }
 
-      playProject(Sabotage, 1) { doTask("-7 M<Yellow>") }
+      playProject(Sabotage, 1) { doTask("-7 MC<Yellow>") }
     }
 
     yellow.turn {
@@ -878,7 +878,7 @@ public class OtbGame20260818 : RecordedGame() {
       playProject(CommercialDistrict, 16) { placeTile(3, 3) }
     }
 
-    green.exMachina("PROD[-M]")
+    green.exMachina("PROD[-MC]")
 
     yellow.turn { cardAction1(Psychrophiles) }
 
@@ -961,7 +961,7 @@ public class OtbGame20260818 : RecordedGame() {
       playProject(SubZeroSaltFish, 5) { doTask("PROD[-Plant<Yellow>]") }
     }
 
-    green.exMachina("PROD[E]")
+    green.exMachina("PROD[Energy]")
 
     yellow.turn {
       playProject(Predators, 14)
@@ -976,7 +976,7 @@ public class OtbGame20260818 : RecordedGame() {
     green.pass()
     yellow.pass()
 
-    green.exMachina("4 MC, 2 TR, PROD[M, -E], -E, Animal<$Pets>")
+    green.exMachina("4 MC, 2 TerraformRating, PROD[MC, -Energy], -Energy, Animal<$Pets>")
 
     green.convertPlants { placeTile(1, 2) }
     green.convertPlants { placeTile(1, 3) }

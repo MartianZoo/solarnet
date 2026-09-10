@@ -28,8 +28,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
           "Purple",
       )
 
-  override val inputOnlySynonyms = emptyList<Pair<String, String>>()
-
   private val pink
     get() = p1
 

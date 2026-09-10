@@ -39,7 +39,7 @@ CLASS Viron : ActionCard<Class<CorporationCard>> {
   This:: MicrobeTag<This>
   This: 48 MC
 
-  -> UseAction<ActionCard(HAS ActionUsedMarker<ActionCard(NOT Viron)>)>
+  -> UseAction<ActionCard(HAS ActionUsedMarker, NOT Viron)>
 }
 
 CLASS AerialMappers : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {

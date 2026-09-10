@@ -43,7 +43,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me's titanium amount increased by 10
       // me played PhoboLog
       // me kept 4 project cards
-      playCorp(Phobolog, 4).expect("11 MC, 10 T")
+      playCorp(Phobolog, 4).expect("11 MC, 10 Titanium")
 
       // me played Merger
       playPrelude(Merger) {
@@ -106,9 +106,9 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me used Rotator Impacts action
       // me removed 1 resource(s) from me's Rotator Impacts
       // me removed an asteroid resource to increase Venus scale 1 step
-      cardAction2(RotatorImpacts).expect("TR")
+      cardAction2(RotatorImpacts).expect("TerraformRating")
       // me used United Nations Mars Initiative action
-      cardAction1(UnitedNationsMarsInitiative).expect("TR")
+      cardAction1(UnitedNationsMarsInitiative).expect("TerraformRating")
       // me used Atmo Collectors action
       cardAction2(AtmoCollectors) {
         // me removed 1 resource(s) from me's Atmo Collectors
@@ -147,7 +147,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me played Nuclear Power
       // me's mc production decreased by 2
       // me's energy production increased by 3
-      playProject(NuclearPower, 10).expect("PROD[-2 MC, 3E]")
+      playProject(NuclearPower, 10).expect("PROD[-2 MC, 3 Energy]")
 
       // me passed
       // me acted as World Government and increased temperature
@@ -179,7 +179,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me played Deep Well Heating
       // me's energy production increased by 1
       // me's heat production increased by 1
-      playProject(DeepWellHeating, 1, steel = 6).expect("PROD[E, H], TR")
+      playProject(DeepWellHeating, 1, steel = 6).expect("PROD[Energy, Heat], TerraformRating")
       // me played Carbonate Processing
       // me's energy production decreased by 1
       // me's heat production increased by 3
@@ -214,7 +214,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       // me used Extractor Balloons action
       // me removed 2 resource(s) from me's Extractor Balloons
       // me raised the Venus scale 1 step(s)
-      cardAction2(ExtractorBalloons).expect("TR")
+      cardAction2(ExtractorBalloons).expect("TerraformRating")
       // me played Mining Expedition
       // me's steel amount increased by 2
       withAutoExecLoweredAfterOperation(
@@ -238,7 +238,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
                 }
                 .expect("Plant, -3 MC")
           }
-          .expect("2 Steel, TR")
+          .expect("2 Steel, TerraformRating")
 
       // me passed
       // me acted as World Government and increased oxygen level
@@ -281,7 +281,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       playProject(GeothermalPower, 7, steel = 2)
       // me spent 3 energy to trade with Triton
       // me's titanium amount increased by 5
-      stdAction("TradeAction", 2) { doTask("Trade<Triton>") }.expect("5 T")
+      stdAction("TradeAction", 2) { doTask("Trade<Triton>") }.expect("5 Titanium")
 
       // me passed
       // me acted as World Government and increased Venus scale
@@ -427,7 +427,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       }
       // me played Insects
       // me's plants production increased by 1
-      playProject(Insects, 9).expect("PROD[P]")
+      playProject(Insects, 9).expect("PROD[Plant]")
       // me spent 3 energy to trade with Ceres
       // me's steel amount increased by 8
       stdAction("TradeAction", 2) { doTask("Trade<Ceres>") }.expect("8 Steel")
@@ -484,7 +484,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
             // You drew Interstellar Colony Ship
             placeTile(1, 3)
           }
-          .expect("-7 Plant, 8 MC, Card, 3 TR")
+          .expect("-7 Plant, 8 MC, Card, 3 TerraformRating")
       // me used Rotator Impacts action1 2 ***
       // me added 1 asteroid(s) to Rotator Impacts
       cardAction1(RotatorImpacts) { pay(2, titanium = 1) }
@@ -579,7 +579,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
 
       assertProduction(m = 8, s = 0, t = 0, p = 5, e = 7, h = 10)
       assertResources(m = 82, s = 5, t = 0, p = 1, e = 7, h = 13)
-      assertCounts(0 to "ProjectCard", 69 to "TR", 32 to "CardFront OR PlayedEvent")
+      assertCounts(0 to "ProjectCard", 69 to "TerraformRating", 32 to "CardFront OR PlayedEvent")
       assertDashRight(events = 6, tagless = 5, cities = 3, colonies = 2)
       assertSidebar(gen = 12, temp = 4, oxygen = 12, oceans = 8, venus = 30)
 

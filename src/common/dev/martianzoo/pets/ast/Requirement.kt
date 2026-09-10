@@ -46,6 +46,9 @@ public sealed class Requirement : PetElement() {
 
     internal fun parser(): Parser<Requirement> = Parsers.parser()
 
+    /** Parses one top-level disjunction, leaving a following comma to its container. */
+    internal fun disjunctionParser(): Parser<Requirement> = Parsers.disjunctionParser()
+
     internal fun atomParser(): Parser<Requirement> = Parsers.atomParser()
   }
 
@@ -219,16 +222,12 @@ public sealed class Requirement : PetElement() {
   private object Parsers : PetTokenizer() {
     fun parser(): Parser<Requirement> {
       return parser {
-        val orReq =
-            separatedTerms(atomParser(), _or) map
-                {
-                  val set = it.toSet()
-                  Or.create(set)
-                }
-
-        commaSeparated(orReq) map And.Companion::create
+        commaSeparated(disjunctionParser()) map And.Companion::create
       }
     }
+
+    fun disjunctionParser(): Parser<Requirement> =
+        separatedTerms(atomParser(), _or) map { Or.create(it.toSet()) }
 
     /**
      * A requirement suitable for being nested directly in something else. Used by gated

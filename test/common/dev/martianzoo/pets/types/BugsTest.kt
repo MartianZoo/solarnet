@@ -12,14 +12,14 @@ import kotlin.test.Test
 internal class BugsTest {
 
   /**
-   * Rule 8-3 says a candidate substituted into a refinement should fill a dependency the authored
+   * Rule T8-3 says a candidate substituted into a refinement should fill a dependency the authored
    * arguments left open. It instead takes the first dependency that accepts it, which may be one an
-   * argument was already written into. See `docs/type-system-spec.md`, "A known gap" under 8-3.
+   * argument was already written into. See `docs/type-system-spec.md`, "A known gap" under T8-3.
    *
    * Fixing this is not just a matter of reserving the written keys: real cards rely on the current
    * reading, in which a written argument *constrains* the candidate rather than reserving a slot
-   * away from it. `Viron`'s `ActionCard(HAS ActionUsedMarker<ActionCard(NOT Viron)>)` and Mons
-   * Insurance's `Player(HAS MAX 0 This<Anyone>)` both break under the reserving rule.
+   * away from it. Mons Insurance's `Player(HAS MAX 0 This<Anyone>)` breaks under the reserving
+   * rule.
    */
   @Test
   internal fun `a refinement candidate incorrectly displaces an authored argument`() {

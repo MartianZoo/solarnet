@@ -76,9 +76,9 @@ caller chose one legal mutation instead of another.
 **Current divergence:** there is no `:gameworld` or `:agent` module. Current `World` combines Game
 World data with live transaction control and Agent lookup, while `Agent`, `AutoExecMode`, queue
 draining, and client-facing string translation all live in `:engine`. `Task` and `GameEvent` live in
-`:pets`; their runtime-data ownership and the event/task rendering attached to `Vocabulary` must be
-untangled during extraction. `TaskQueues` already stores one task set and creates
-assignee-filtered `TaskQueue` views, so task extraction changes ownership rather than semantics.
+`:pets`; their runtime-data ownership must be untangled during extraction. `TaskQueues` already
+stores one task set and creates assignee-filtered `TaskQueue` views, so task extraction changes
+ownership rather than semantics.
 
 Do not create empty Gradle modules ahead of the extraction. First settle the direct core mutation
 surface, the concrete state-change contract, the sole-issuer Agent lifetime, and the plain shared
@@ -137,6 +137,25 @@ workflow project should extract those mechanics while moving phase topology to t
 
 Hex-to-ANSI color rendering and half-space centering are generic helpers inside Terraforming Mars UI
 classes. They are too small to drive an architecture change. Move them only with nearby work.
+
+### Presentation, assembly, and engine data sit inside `:pets`
+
+`docs/pets-language-spec.md` deliberately stops at the language: source, declarations, expressions,
+requirements, metrics, instructions, narrowing, effects, actions, transform blocks, owner-local
+Classes, and elaboration. Four surfaces in `dev.martianzoo.pets` are outside that line and would
+plausibly belong elsewhere:
+
+- [`displayNames.kt`](../../src/common/dev/martianzoo/pets/displayNames.kt) provides stateless
+  presentation names. It is not part of what a source may mean. [`NAMING.md`](NAMING.md) owns naming.
+- [`Catalog.kt`](../../src/common/dev/martianzoo/pets/data/Catalog.kt),
+  [`GamePremise.kt`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt) and
+  `ClassSelection` are game assembly, owned by [`OPTIONS.md`](OPTIONS.md).
+- [`Task.kt`](../../src/common/dev/martianzoo/pets/data/Task.kt),
+  [`GameEvent.kt`](../../src/common/dev/martianzoo/pets/data/GameEvent.kt) and `TaskResult` are
+  engine data that merely happen to hold Pets.
+
+No move is scheduled. Record here first if one is, and settle whether `:pets` should shrink to the
+language and its types before adding anything else to these files.
 
 ## Already-correct dependencies
 

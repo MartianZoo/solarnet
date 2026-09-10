@@ -25,5 +25,5 @@ private object VastitasMapSupport {
   }
 }
 
-internal val vastitasMapBundle: StandardFormBundle =
-    StandardFormBundle("VastitasMap", setOf(VastitasMapSupport.TileInLargestGroup))
+internal val vastitasMapCustomClasses: Set<CustomMetric> =
+    setOf(VastitasMapSupport.TileInLargestGroup)

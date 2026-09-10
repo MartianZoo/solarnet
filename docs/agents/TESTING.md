@@ -231,8 +231,8 @@ in whole games and should use the standard `TfmGameplay` actions and result expe
 Full-game tests override a `config` property with a `GameConfig`, conventionally built from an
 indented multiline string followed by player-name varargs. Catalog-backed premise resolution adds
 `TerraformingMars` and, when no other map is named, `TharsisMap`; the parser already trims each
-entry, so these literals do not need `trimIndent()`. Solo tests conventionally give canonical
-`Player1` the vocabulary alias `Me` and use `Player.PLAYER1` in Kotlin. The raw-configuration
+entry, so these literals do not need `trimIndent()`. Solo tests conventionally use `Me` as the
+canonical Player Class Name and use `Player.PLAYER1` in Kotlin. The raw-configuration
 overload in `CardTest` uses the same resolution path.
 
 ### Expectations

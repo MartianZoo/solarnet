@@ -95,8 +95,8 @@ internal class TaskResolutionTest {
 
   @Test
   internal fun `selection resolves an OR by pruning impossible options`() {
-    initiate("-TR OR -Plant OR Heat OR Tharsis_5_5!")
-    agent.selectTask("-TR OR -Plant OR Heat OR Tharsis_5_5!")
+    initiate("-TerraformRating OR -Plant OR Heat OR Tharsis_5_5!")
+    agent.selectTask("-TerraformRating OR -Plant OR Heat OR Tharsis_5_5!")
 
     tasksAsText().shouldContainExactlyInAnyOrder("-TerraformRating<Player1>! OR Heat<Player1>!")
   }

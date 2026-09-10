@@ -213,6 +213,7 @@ ABSTRACT CLASS Card : Owned<Player> {
     DEFAULT CardBack<Hand>
     DEFAULT +CardBack
     DEFAULT -CardBack
+    autoSelectWhen = Requirement?
 
     CLASS CorporationCard, ProjectCard
   }
@@ -223,6 +224,7 @@ ABSTRACT CLASS Card : Owned<Player> {
 
     cost = Number
     requirement = Requirement?
+    autoSelectWhen = Requirement?
 
     ABSTRACT CLASS ActiveCard, AutomatedCard
     ABSTRACT CLASS ActionCard : HasActions

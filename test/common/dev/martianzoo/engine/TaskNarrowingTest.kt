@@ -20,7 +20,7 @@ import kotlin.reflect.KClass
 import kotlin.test.Test
 
 internal class TaskNarrowingTest {
-  private val game = Engine.newGame(canonicalPremise(), inputOnlySynonyms = TEST_CLASS_SYNONYMS)
+  private val game = Engine.newGame(canonicalPremise())
 
   // Kinda gross
   private val tasks: TaskQueue = game.tasks
@@ -240,10 +240,10 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `an unmet gate prevents selection before narrowing`() {
-    initiate("10 TR: Plant")
+    initiate("10 TerraformRating: Plant")
 
     shouldThrow<dev.martianzoo.pets.api.Exceptions.RequirementException> {
-      writer.selectTask("10 TR: Plant")
+      writer.selectTask("10 TerraformRating: Plant")
     }
 
     tasksAsText().shouldContainExactly("10 TerraformRating<Player1>: Plant<Player1>!")

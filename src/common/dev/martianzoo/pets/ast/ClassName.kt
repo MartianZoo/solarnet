@@ -30,8 +30,13 @@ public class ClassName private constructor(public val asString: String) :
             "MAX",
             "NOT",
             "OR",
+            "RANK",
             "THEN",
             "X",
+            // Property-value keywords; the tokenizer takes these too.
+            "Metric",
+            "Number",
+            "Requirement",
         )
 
     /** Returns the [ClassName] for the given string. */
