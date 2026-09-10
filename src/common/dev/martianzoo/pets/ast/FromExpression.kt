@@ -12,11 +12,18 @@ import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import kotlin.reflect.KClass
 
-/** The main part of a transmutation instruction, without its scalar or intensity. */
+/**
+ * The main part of a transmutation instruction, without its scalar or intensity — the `Foo FROM
+ * Bar` of
+ * [rule L6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions).
+ */
 public sealed class FromExpression : PetNode() {
   override val kind: KClass<out PetNode> = FromExpression::class
 
+  /** What the components become. */
   public abstract val toExpression: Expression
+
+  /** What the components were. */
   public abstract val fromExpression: Expression
 
   /** An argument retained unchanged by a compact transmutation. */
@@ -42,10 +49,20 @@ public sealed class FromExpression : PetNode() {
     override fun toString(): String = "$toExpression FROM $fromExpression"
   }
 
-  /** A same-Class transmutation with exactly one changed argument. */
+  /**
+   * A same-Class transmutation with exactly one changed argument — the compact spelling of
+   * [rule L6-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions),
+   * where `Foo<Same, Here, To FROM From>` means `Foo<Same, Here, To> FROM Foo<Same, Here, From>`.
+   * The unchanged arguments occupy both roles.
+   */
   public data class Compact(
+      /** The class shared by both sides. */
       public val className: ClassName,
+
+      /** The shared argument list, of which exactly one argument may change. */
       public val arguments: List<FromExpression>,
+
+      /** A refinement carried by [toExpression] only. */
       public val refinement: Expression.Refinement? = null,
   ) : FromExpression() {
     init {

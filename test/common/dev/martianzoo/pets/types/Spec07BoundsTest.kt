@@ -1,11 +1,9 @@
 package dev.martianzoo.pets.types
 
-import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import kotlin.test.Test
 
-/** Section 7 of `docs/type-system-spec.md`: greatest lower and least upper bounds of types. */
+/** Section 7 of `docs/type-system-spec.md`: greatest lower bounds of types. */
 internal class Spec07BoundsTest {
 
   private val mars =
@@ -128,83 +126,26 @@ internal class Spec07BoundsTest {
     (table.resolve(te("Left<Water1>")) glb table.resolve(te("Right"))) shouldBe null
   }
 
-  // T7-2 Least upper bound
+  // T7-2 Algebraic shape
 
   @Test
-  internal fun `T7-2 lub of comparable types is the wider one`() {
-    (type("Tharsis_2_2") lub type("LandArea")) shouldBe type("LandArea")
-    (type("GreeneryTile") lub type("Tile")) shouldBe type("Tile")
-    (type("GreeneryTile") lub type("GreeneryTile")) shouldBe type("GreeneryTile")
-  }
-
-  @Test
-  internal fun `T7-2 lub joins the root classes and the dependencies they share`() {
-    (type("GreeneryTile<Tharsis_2_2, Player1>") lub type("OceanTile<Tharsis_1_1>")) shouldBe
-        type("Tile<MarsArea>")
-    (type("GreeneryTile<Tharsis_2_2, Player1>") lub
-        type("GreeneryTile<Tharsis_2_3, Player1>")) shouldBe type("GreeneryTile<LandArea, Player1>")
-  }
-
-  @Test
-  internal fun `T7-2 lub always exists, falling back to Component`() {
-    (type("Tharsis_2_2") lub type("Player1")) shouldBe type("Component")
-  }
-
-  @Test
-  internal fun `T7-2 lub is an upper bound of both operands`() {
-    sample.forEach { a ->
-      sample.forEach { b ->
-        val bound = type(a) lub type(b)
-        type(a).isSubtypeOf(bound) shouldBe true
-        type(b).isSubtypeOf(bound) shouldBe true
-      }
-    }
-  }
-
-  // T7-3 Algebraic shape
-
-  @Test
-  internal fun `T7-3 both operations are idempotent`() {
+  internal fun `T7-2 glb is idempotent`() {
     sample.forEach { a ->
       (type(a) glb type(a)) shouldBe type(a)
-      (type(a) lub type(a)) shouldBe type(a)
     }
   }
 
   @Test
-  internal fun `T7-3 both operations are commutative on structural types`() {
+  internal fun `T7-2 glb is commutative`() {
     sample.forEach { a ->
       sample.forEach { b ->
         (type(a) glb type(b)) shouldBe (type(b) glb type(a))
-        (type(a) lub type(b)) shouldBe (type(b) lub type(a))
       }
     }
   }
 
   @Test
-  internal fun `T7-3 lub may pick a different tied candidate when the operands swap`() {
-    val table =
-        loadTypes(
-            "ABSTRACT CLASS Tile",
-            "ABSTRACT CLASS GlobalParameter",
-            "ABSTRACT CLASS OceanTile : Tile, GlobalParameter",
-            "ABSTRACT CLASS PolarOceanTile : GlobalParameter, Tile",
-        )
-    val left = table.resolve(te("OceanTile"))
-    val right = table.resolve(te("PolarOceanTile"))
-
-    // Neither `Tile` nor `GlobalParameter` is more minimal than the other, and rule T2-9 breaks the
-    // tie by the order each operand happens to list its supertypes. Which one wins is deliberately
-    // unspecified (appendix B), so this pins only that the two orders can disagree and that each
-    // answer is one of the minimal common supertypes.
-    val candidates = setOf(table.resolve(te("Tile")), table.resolve(te("GlobalParameter")))
-    (left lub right) shouldBeIn candidates
-    (right lub left) shouldBeIn candidates
-    (left lub right) shouldNotBe (right lub left)
-  }
-
-  @Test
-  internal fun `T7-3 glb writes a joined requirement in operand order`() {
+  internal fun `T7-2 glb is commutative for refinement conjunctions`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Area { CLASS Tharsis_2_2 }",
@@ -214,19 +155,17 @@ internal class Spec07BoundsTest {
     val left = table.resolve(te("Area(HAS Neighbor)"))
     val right = table.resolve(te("Area(HAS Marker)"))
 
-    // Equivalent predicates, differently written; the two results are therefore not `==`.
     "${(left glb right)}" shouldBe "Area(HAS Neighbor, HAS Marker)"
     "${(right glb left)}" shouldBe "Area(HAS Marker, HAS Neighbor)"
-    ((left glb right) == (right glb left)) shouldBe false
+    (left glb right) shouldBe (right glb left)
   }
 
-  // T7-4 Universe safety
+  // T7-3 Universe safety
 
   @Test
-  internal fun `T7-4 bounds across universes are rejected rather than answered`() {
+  internal fun `T7-3 bounds across universes are rejected rather than answered`() {
     val other = loadTypes("ABSTRACT CLASS Area { CLASS Tharsis_2_2 }")
 
     shouldThrowIae { type("Tharsis_2_2") glb other.resolve(te("Area")) }
-    shouldThrowIae { type("Tharsis_2_2") lub other.resolve(te("Area")) }
   }
 }

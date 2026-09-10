@@ -88,7 +88,7 @@ We can see that:
 * Every `GreeneryTile` is `Owned`, so it necessarily has the `Player` dependency, and...
 * ... every `GreeneryTile` is also a `Tile`, with the `Area` bound narrowed to `MarsArea` (since greenery tiles on Phobos Space Haven are not a thing)
 
-These classes bring a multitude of types into being. A specific greenery tile might be `GreeneryTile<Player1, Tharsis_5_6>`, which is equivalently specified as `GreeneryTile<Tharsis_5_6, Player1>` (dependencies are generally not positional). When counting *all* of `Player1`'s greenery tiles we would use the type `GreeneryTile<LandArea, Player1>`, or `GreeneryTile<Area, Player1>` (same thing; `Area` is automatically intersected with the dependency's upper bound), or more commonly just `GreeneryTile<Player1>`. We can always omit a written dependency bound when it would be the same as that dependency's upper bound.
+These classes bring a multitude of types into being. A specific greenery tile might be `GreeneryTile<Player1, Tharsis_5_6>`, which is equivalently specified as `GreeneryTile<Tharsis_5_6, Player1>` (dependencies are generally not positional). When counting *all* of `Player1`'s greenery tiles we would use the type `GreeneryTile<LandArea, Player1>`, or `GreeneryTile<Area, Player1>` (same thing; `Area` is automatically intersected with the dependency's upper bound), or more commonly just `GreeneryTile<Player1>`. A Type's canonical rendering omits trailing dependency bounds that equal the Class defaults.
 
 ### Variance
 

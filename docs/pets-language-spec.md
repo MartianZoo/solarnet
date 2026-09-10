@@ -217,7 +217,7 @@ yields an equal declaration.
 
 **L1-12. A declaration can also be parsed on its own.** `Parsing.parseOneLinerClass` accepts exactly
 one declaration, with an optional semicolon-separated body, and rejects owner-local class syntax
-(L11-6). This is how a declaration embedded in structured card data is read.
+(L11-7). This is how a declaration embedded in structured card data is read.
 
 > **Non-normative implementation note — one record, one declaration.** Catalog composition accepts
 > standalone declarations supplied by structured data. Rejecting a grouped second class or a local
@@ -226,7 +226,7 @@ one declaration, with an optional semicolon-separated body, and rejects owner-lo
 **L1-13. Every catalog also receives the system declarations.** `systemClassDeclarations` supplies
 the classes this specification and the type system depend on — `Component` and `Class` (T1-4, T1-5),
 the ownership vocabulary `Anyone`, `Owner` and `Owned`, the actor root `Actor`, and the signals `Ok`
-(L6-4) and `Die` (L12-14) — plus `Atomized` (L12-11) and `Custom` (T2-11). A catalog's own source is
+(L6-4) and `Die` (L12-14) — plus `Atomized` (L12-11) and `Custom` (T2-9). A catalog's own source is
 loaded alongside them. Which of these a *game* then contains is `OPTIONS.md`'s question, not this
 document's.
 
@@ -239,18 +239,15 @@ document's.
 
 ## 2. Names
 
-**L2-1. A class name is UpperCamelCase, or an all-caps abbreviation.** After the first letter,
-digits and underscores are allowed; a leading letter-plus-digits segment must be followed by another
-capital. All-caps names are at most six characters. Formally:
+**L2-1. A class name is an uppercase-leading identifier.** After the first ASCII uppercase letter,
+ASCII letters, digits, and underscores are allowed. Formally:
 
 ```text
-[A-Z]( [a-z_][A-Za-z0-9_]*
-     | [0-9]+[A-Z][a-z_][A-Za-z0-9_]*
-     | [A-Z0-9]{0,5} )
+[A-Z][A-Za-z0-9_]*
 ```
 
-so `GreeneryTile`, `Tharsis_2_2`, `A_foo`, `L1TradeTerminal`, `MC` and `TR` are names, and `greenery`
-and `Terraforming Mars` are not.
+Thus `GreeneryTile`, `Tharsis_2_2`, `A_foo`, `L1TradeTerminal`, `MC`, and `TOOLONG` are names, while
+`greenery` and `Terraforming Mars` are not.
 
 > **Non-normative example — coordinates and currencies.** `Tharsis_2_2` must be a legal class name
 > for a board space, while `MC` and `TR` must remain readable abbreviations. The unusual grammar
@@ -264,7 +261,7 @@ perfectly good class names.
 
 **L2-3. A property name is lowerCamelCase**: a lowercase letter followed by letters and digits.
 
-**L2-4. A transform-kind name is an all-caps word** (section 10).
+**L2-4. A transform-kind name is an all-caps identifier** (section 10).
 
 **L2-5. There is one namespace and no scoping.** A name is not declared, bound or shadowed by any
 construct in this document; it means whatever class the class table says it means (T1-1, T1-7).
@@ -294,10 +291,11 @@ L12-7).
 > latter explicitly accepts the empty-water-area placement default. Erasing the spelling difference
 > would either hide a consequential default or force every harmless type reference to accept it.
 
-**L3-3. A refinement is a non-empty conjunction of clauses.** Each comma-separated clause repeats
+**L3-3. A refinement is a non-empty set of conjoined clauses.** Each comma-separated clause repeats
 its keyword: `(HAS r)` refines by a requirement and `(NOT x)` by a structural difference. A
 top-level comma separates clauses, so a conjunction inside one `HAS` must be grouped, as in
-`(HAS (Foo, Bar) OR Baz, NOT Qux)`. T8-1 through T8-12 say what each clause means.
+`(HAS (Foo, Bar) OR Baz, NOT Qux)`. Duplicate clauses collapse and order does not affect equality.
+T8-1 through T8-11 say what each clause means.
 
 **L3-4. A class literal is written with one bare class name**, `Class<Steel>` (T4-1, T4-6).
 
@@ -322,17 +320,18 @@ context, and elaboration replaces it (L12-3). `Anyone` is an ordinary class and 
 > `Anyone` remains available for genuinely unrestricted theft or payment.
 
 **L3-7. An expression renders as the class name, the argument list if one was written, and the
-refinement.** Whitespace is not preserved, but nothing else is normalized away: an authored
-expression is not rewritten into its type's minimal form, so `Tile` and `Tile<Area>` remain distinct
+refinement.** Whitespace is not preserved and duplicate refinement clauses collapse, but an authored
+expression is not rewritten into its type's canonical form: `Tile` and `Tile<Area>` remain distinct
 expressions even though they resolve to one type (T1-3, T5-5).
 
 > **Non-normative implementation note — spelling drives capture.** Type-variable inference records
-> authored repetition. Normalizing `Tile` and `Tile<Area>` to one minimal type before that pass could
+> authored repetition. Normalizing `Tile` and `Tile<Area>` to one canonical type before that pass could
 > falsely turn two deliberately different spellings into one shared player choice.
 
-**L3-8. Two expressions are equal when their spellings agree.** Argument order is part of the
-spelling, so `Microbe<Player1, Ants>` and `Microbe<Ants, Player1>` are different expressions for one
-type. This is why the type system, not the syntax, is the authority on identity (T5-1).
+**L3-8. Two expressions are equal when their structural spellings agree.** Argument order is part of
+the spelling, while refinement-clause order and duplication are not (L3-3). Thus
+`Microbe<Player1, Ants>` and `Microbe<Ants, Player1>` are different expressions for one type. This is
+why the type system, not the syntax, is the authority on identity (T5-1).
 
 > **Non-normative implementation note — syntax is not component identity.** No card distinguishes
 > `Microbe<Player1, Ants>` from the reversed argument spelling once resolved. Keeping the syntax

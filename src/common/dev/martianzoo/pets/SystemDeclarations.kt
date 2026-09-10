@@ -4,7 +4,15 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.util.toSetStrict
 
-/** Pets runtime declarations that are available to every Catalog. */
+/**
+ * Pets runtime declarations that are available to every Catalog, as required by
+ * [rule L1-13](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations):
+ * the classes this language and the type system depend on, including `Component` and `Class`, the
+ * ownership vocabulary `Anyone`, `Owner` and `Owned`, the actor root `Actor`, the signals `Ok` and
+ * `Die`, and `Atomized` and `Custom`. A catalog's own source is loaded alongside them.
+ *
+ * Which of these a particular *game* then contains is `OPTIONS.md`'s question, not this module's.
+ */
 // TODO: Replace this temporary tfm-canon seam with the generic Catalog contract.
 public val systemClassDeclarations: Set<ClassDeclaration> by lazy {
   parseClasses(systemDeclarationsSource).toSetStrict()

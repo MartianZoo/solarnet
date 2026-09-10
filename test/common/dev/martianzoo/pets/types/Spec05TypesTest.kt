@@ -100,24 +100,23 @@ internal class Spec05TypesTest {
     type("Neighbor<Tharsis_2_2>").expressionFull shouldBe te("Neighbor<Tharsis_2_2, Area>")
   }
 
-  // T5-5 Minimal form
+  // T5-5 Canonical prefix form
 
   @Test
-  internal fun `T5-5 the minimal form omits every argument equal to the inherited bound`() {
+  internal fun `T5-5 the canonical form omits trailing inherited bounds`() {
     type("GreeneryTile<MarsArea, Owner>").expression shouldBe te("GreeneryTile")
     type("GreeneryTile<Area>").expression shouldBe te("GreeneryTile")
     type("GreeneryTile<Tharsis_2_2, Owner>").expression shouldBe te("GreeneryTile<Tharsis_2_2>")
   }
 
   @Test
-  internal fun `T5-5 the minimal form writes its arguments in dependency order`() {
+  internal fun `T5-5 the canonical form writes its arguments in dependency order`() {
     type("GreeneryTile<Player1, Tharsis_2_2>").expression shouldBe
         te("GreeneryTile<Tharsis_2_2, Player1>")
   }
 
   @Test
-  internal fun `T5-5 the minimal form keeps the earliest arguments when sizes tie`() {
-    // Both slots accept `Tharsis_2_2`, so one argument suffices, and it is read left to right.
+  internal fun `T5-5 the canonical form includes the prefix through the final narrowed bound`() {
     type("Neighbor<Tharsis_2_2, Area>").expression shouldBe te("Neighbor<Tharsis_2_2>")
     type("Neighbor<Area, Tharsis_2_2>").expression shouldBe te("Neighbor<Area, Tharsis_2_2>")
     type("Neighbor<Tharsis_2_2, Tharsis_2_3>").expression shouldBe
@@ -125,7 +124,7 @@ internal class Spec05TypesTest {
   }
 
   @Test
-  internal fun `T5-5 the minimal form may omit an argument another one already determines`() {
+  internal fun `T5-5 the canonical form does not infer an earlier bound from a later one`() {
     val cards =
         loadTypes(
             "CLASS Player1 : Owner",
@@ -133,9 +132,8 @@ internal class Spec05TypesTest {
             "ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner> { CLASS Animal }",
         )
 
-    // The owner is implied by the card, because both positions hold one header variable.
     cards.resolve(te("Animal<Player1, Pets<Player1>>")).expression shouldBe
-        te("Animal<Pets<Player1>>")
+        te("Animal<Player1, Pets<Player1>>")
     cards.resolve(te("Animal<Player1, Pets<Player1>>")).expressionFull shouldBe
         te("Animal<Player1, Pets<Player1>>")
   }
@@ -166,7 +164,7 @@ internal class Spec05TypesTest {
   }
 
   @Test
-  internal fun `T5-6 toString shows the minimal form`() {
+  internal fun `T5-6 toString shows the canonical prefix form`() {
     "${type("GreeneryTile<Player1, Tharsis_2_2>")}" shouldBe "GreeneryTile<Tharsis_2_2, Player1>"
   }
 

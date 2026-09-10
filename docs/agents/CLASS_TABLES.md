@@ -57,7 +57,7 @@ Operations whose answers come entirely from authored declarations belong to the 
 
 - nominal subtyping and superclass relationships;
 - dependencies, properties, and defaults;
-- structural `glb` and `lub`; and
+- structural `glb`; and
 - expression-to-Type resolution that does not inspect a live World.
 
 Structural `glb` combines constraints in the Catalog universe. It may return a Type that is

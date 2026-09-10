@@ -17,15 +17,23 @@ internal class Lang02NamesTest {
   // L2-1 The shape of a class name
 
   @Test
-  internal fun `L2-1 upper camel case, all-caps abbreviations, digits and underscores`() {
-    listOf("GreeneryTile", "Tharsis_2_2", "A_foo", "L1TradeTerminal", "MC", "TR", "Ok").forEach {
-      parse<Expression>(it).className shouldBe cn(it)
-    }
+  internal fun `L2-1 an uppercase-leading identifier is a class name`() {
+    listOf(
+            "GreeneryTile",
+            "Tharsis_2_2",
+            "A_foo",
+            "FOO_bar",
+            "L1TradeTerminal",
+            "MC",
+            "TOOLONG",
+            "Ok",
+        )
+        .forEach { parse<Expression>(it).className shouldBe cn(it) }
   }
 
   @Test
   internal fun `L2-1 other shapes are not class names`() {
-    listOf("greenery", "greeneryTile", "_Foo", "9Lives", "TOOLONG").forEach {
+    listOf("greenery", "greeneryTile", "_Foo", "9Lives").forEach {
       shouldThrow<IllegalArgumentException> { cn(it) }
     }
   }
@@ -73,6 +81,14 @@ internal class Lang02NamesTest {
     parse<Expression>("Rank").className shouldBe cn("Rank")
   }
 
+  @Test
+  internal fun `L2-2 declaration keywords do not consume identifier prefixes`() {
+    listOf("CLASSIC", "DEFAULT_VALUE", "ABSTRACTThing").forEach { name ->
+      parse<Expression>(name).className shouldBe cn(name)
+      parseClasses("CLASS $name").single().className shouldBe cn(name)
+    }
+  }
+
   // L2-3 Property names
 
   @Test
@@ -88,6 +104,7 @@ internal class Lang02NamesTest {
   @Test
   internal fun `L2-4 a transform kind is an all-caps word`() {
     parse<Metric>("PROD[Plant]").toString() shouldBe "PROD[Plant]"
+    parse<Metric>("LONG_TRANSFORM[Plant]").toString() shouldBe "LONG_TRANSFORM[Plant]"
     shouldThrow<PetSyntaxException> { parse<Metric>("Prod[Plant]") }
   }
 

@@ -1,5 +1,6 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
@@ -51,7 +52,6 @@ internal class Spec01UniversesTest {
     val rightTile = right.resolve(te("GreeneryTile"))
 
     shouldThrowIae { leftArea.isSubtypeOf(rightArea) }
-    shouldThrowIae { leftArea lub rightArea }
     shouldThrowIae { leftTile.isSubtypeOf(rightTile) }
     shouldThrowIae { leftTile glb rightTile }
     shouldThrowIae { leftTile.narrows(rightTile, NoGameState) }
@@ -146,10 +146,11 @@ internal class Spec01UniversesTest {
   }
 
   @Test
-  internal fun `T1-6 completed catalogs reject invalid authored type shapes`() {
+  internal fun `T1-6 invalid authored effect shapes fail when the effect is elaborated`() {
+    val table = loadTypes("CLASS Foo", "CLASS Bar", "CLASS BrokenArgument { This: Foo<Bar> }")
     val error =
         shouldThrow<PetException> {
-          loadTypes("CLASS Foo", "CLASS Bar", "CLASS BrokenArgument { This: Foo<Bar> }")
+          PetElaborator(table).classEffects(table.getClass(cn("BrokenArgument")))
         }
     error.message!!.contains("BrokenArgument") shouldBe true
     error.message!!.contains("Foo<Bar>") shouldBe true

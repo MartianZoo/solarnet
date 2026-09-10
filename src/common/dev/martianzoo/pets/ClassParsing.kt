@@ -71,6 +71,10 @@ internal object ClassParsing : PetTokenizer() {
               Signature(name, deps, supes)
             }
 
+    // Rule L1-3: one CLASS keyword may introduce several classes, but only when there is no body,
+    // since one shared body would not say which of the generated classes its rules belong to. A
+    // comma inside a supertype list continues that list rather than starting a new signature, so
+    // only the last signature of a group can name supertypes.
     // This should only be included in the bodiless case
     val moreSignatures: Parser<MoreSignatures> =
         zeroOrMore(skipChar(',') and signature) map ClassParsing::MoreSignatures
@@ -141,6 +145,8 @@ internal object ClassParsing : PetTokenizer() {
 
     private val bodyElement = parser { bodyElementExceptNestedClasses or nestedGroup }
 
+    // Rule L1-4: a body is brace-delimited and its elements are separated by newlines or by
+    // semicolons. Only the newline-separated form may contain nested declarations.
     private val multilineBodyInterior: Parser<Body> =
         separatedTerms(bodyElement, oneOrMore(char('\n')), acceptZero = true) map ClassParsing::Body
 
@@ -183,6 +189,8 @@ internal object ClassParsing : PetTokenizer() {
             skipChar('}') map
             ClassParsing::Body
 
+    // Rule L11-4: an owner-local body may contain invariants, properties, effects and actions, but
+    // not DEFAULT clauses or nested declarations; see `derivedClassBodyElement`.
     val derivedClassBody: Parser<Body> by lazy {
       oneLineBodyParser(derivedClassBodyElement, acceptZero = true)
     }
@@ -244,6 +252,8 @@ internal object ClassParsing : PetTokenizer() {
     val defaultses = getAll<DefaultsElement>().map { it.defaults }
     val effects = getAll<EffectElement>().map { it.effect }
     val actions = getAll<ActionElement>().map { it.action }
+    // Rule L1-8: associateStrict rejects a name assigned twice in one body, so declaration order
+    // never becomes an accidental override rule.
     val properties = getAll<PropertyElement>().associateStrict { it.property }
     val nestedGroups = getAll<NestedDeclGroup>().map { it.declGroup }
 
@@ -293,6 +303,8 @@ internal object ClassParsing : PetTokenizer() {
           body: Body,
           docstring: String?,
       ): List<NestableDecl> {
+        // Rule L1-7: DEFAULT clauses name the class that declares them; one naming another class is
+        // rejected, so a later-loaded expansion cannot silently redefine a bare `OceanTile<>`.
         val mergedDefaults = DefaultsDeclaration.merge(body.defaultses)
         require(mergedDefaults.forClass in setOf(null, signature.className))
         val newDecl =
@@ -328,6 +340,8 @@ internal object ClassParsing : PetTokenizer() {
           docstring: String?,
       ) : this(signature.asDeclaration.copy(kind = kind, docstring = docstring))
 
+      // Rule L1-5: a nested declaration becomes a sibling that names its container as a supertype,
+      // so the readable taxonomy survives without Pets needing a namespace.
       // This returns a new NestableDecl that looks like it could be a sibling to containingClass
       // instead of nested inside it
       override fun unnestOneFrom(container: ClassName): NestableDecl {

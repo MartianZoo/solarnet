@@ -70,7 +70,7 @@ internal abstract class CardTest(
     val additional = additionalClassDeclarations(players)
     val premise =
         if (additional.isEmpty()) {
-          cachedSetup(selectedOptions.toSet(), players, colonyTiles)
+          commonSetup(selectedOptions.toSet(), players, colonyTiles)
         } else {
           withAdditionalSelections(
               canonicalPremise(
@@ -255,25 +255,25 @@ internal abstract class CardTest(
             listOf(PowerGeneration, Mohole),
         )
 
-    private data class SetupKey(
-        val selectedOptions: Set<Option>,
-        val players: Int,
-        val colonyTiles: Set<ClassName>,
-    )
+    private val standardTwoPlayerPremise: GamePremise by lazy { canonicalPremise(players = 2) }
+    private val promoTwoPlayerPremise: GamePremise by lazy {
+      canonicalPremise(Option.PromoCardPack, players = 2)
+    }
 
-    private val setupCache = mutableMapOf<SetupKey, GamePremise>()
-
-    private fun cachedSetup(
+    private fun commonSetup(
         selectedOptions: Set<Option>,
         players: Int,
         colonyTiles: Set<ClassName>,
-    ): GamePremise =
-        setupCache.getOrPut(SetupKey(selectedOptions, players, colonyTiles)) {
-          canonicalPremise(
-              *selectedOptions.toTypedArray(),
-              players = players,
-              colonyTiles = colonyTiles,
-          )
-        }
+    ): GamePremise {
+      if (players == 2 && colonyTiles.isEmpty()) {
+        if (selectedOptions.isEmpty()) return standardTwoPlayerPremise
+        if (selectedOptions == setOf(Option.PromoCardPack)) return promoTwoPlayerPremise
+      }
+      return canonicalPremise(
+          *selectedOptions.toTypedArray(),
+          players = players,
+          colonyTiles = colonyTiles,
+      )
+    }
   }
 }

@@ -10,13 +10,28 @@ import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.TransformNode
 
-/** Rewrites the contents of one explicitly marked Pets transform. */
+/**
+ * Rewrites the contents of one explicitly marked Pets transform block, as defined by
+ * [section 10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-transform-blocks).
+ * A handler rewrites only inside its own block, and what it returns must be the same kind of Pets
+ * it was given ([rule
+ * L10-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-transform-blocks)).
+ */
 public fun interface TransformHandler {
-  /** Returns a replacement for the unwrapped [inner] tree, or null to preserve the transform. */
+  /**
+   * Returns a replacement for the unwrapped [inner] tree, or null to preserve the transform. A
+   * block whose kind has no handler at all is likewise preserved verbatim, so a source may carry
+   * marks a later stage will interpret ([rule
+   * L10-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-transform-blocks)).
+   */
   public fun transform(inner: PetNode): PetNode?
 
   public companion object {
-    /** Creates a transformer that dispatches marked syntax to [handlers] by transform kind. */
+    /**
+     * Creates a transformer that dispatches marked syntax to [handlers] by transform kind ([rule
+     * L10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-transform-blocks)).
+     * Kinds absent from [handlers] are left in place.
+     */
     public fun dispatcher(handlers: Map<String, TransformHandler>): PetTransformer =
         Dispatcher(handlers)
   }
@@ -29,6 +44,8 @@ public fun interface TransformHandler {
 
       val kind = node.transformKind
       val handler = handlers[kind] ?: return transformChildren(node)
+      // Rule L10-5: the syntax admits PROD[PROD[...]], but a second mark could only mean what the
+      // first already means, so the handler for that kind rejects it.
       if (!activeKinds.add(kind)) throw PetSyntaxException("$kind transforms cannot be nested")
       return try {
         val inner = transformWithoutKindCheck(node.extract())
