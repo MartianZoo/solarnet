@@ -5,7 +5,10 @@ import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement
+import dev.martianzoo.pets.ast.Expression.Refinement.And
 import dev.martianzoo.pets.ast.Expression.Refinement.Has
+import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
@@ -70,12 +73,13 @@ public sealed interface CardOperation {
           source.gaining.descendantsOfType<Expression>().singleOrNull { expression ->
             expression.className == CLASS &&
                 expression.arguments.singleOrNull()?.className == CARD_FRONT &&
-                expression.refinement is Has
+                expression.refinement.asRequirementOrNull() != null
           } ?: malformed(source)
+      val filter = filteredClass.refinement.asRequirementOrNull() ?: malformed(source)
       return SelectCardClass(
           selection = source,
           filteredClass = filteredClass,
-          filter = (filteredClass.refinement as Has).requirement,
+          filter = filter,
       )
     }
 
@@ -87,7 +91,7 @@ public sealed interface CardOperation {
       ) {
         malformed(source)
       }
-      val filter = (source.gaining.refinement as? Has)?.requirement ?: malformed(source)
+      val filter = source.gaining.refinement.asRequirementOrNull() ?: malformed(source)
       return Search(source, filter)
     }
 
@@ -114,7 +118,7 @@ public sealed interface CardOperation {
       ) {
         malformed(source)
       }
-      val filter = (retained.gaining.refinement as? Has)?.requirement ?: malformed(source)
+      val filter = retained.gaining.refinement.asRequirementOrNull() ?: malformed(source)
       if (offered.count !is ActualScalar) malformed(source)
       return RevealAndPurchase(offered, retained, filter)
     }
@@ -138,7 +142,7 @@ public sealed interface CardOperation {
           } ?: malformed(source)
       val outcome = gated.inner as? Gain ?: malformed(source)
       if (!outcome.mandatory) malformed(source)
-      val filter = (matchingCard.refinement as? Has)?.requirement ?: malformed(source)
+      val filter = matchingCard.refinement.asRequirementOrNull() ?: malformed(source)
       return RevealAndTest(revealed, filter, outcome)
     }
 
@@ -156,6 +160,17 @@ public sealed interface CardOperation {
 
     private fun Expression.isUnfilteredProjectCardAt(area: ClassName): Boolean =
         isProjectCardAt(area) && refinement == null
+
+    private fun Refinement?.asRequirementOrNull(): Requirement? =
+        when (this) {
+          null,
+          is Not -> null
+          is Has -> requirement
+          is And ->
+              refinements
+                  .map { (it as? Has)?.requirement ?: return null }
+                  .let(Requirement.And::create)
+        }
 
     private fun malformed(source: InstructionTree): Nothing =
         throw PetSyntaxException("Unsupported $TRANSFORM_KIND card operation: $source")

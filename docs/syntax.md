@@ -7,11 +7,12 @@ card declarations in the bundle `cards.pets` files.
 
 ```
 typeExpression    := dependentTypeExpr | classLiteral
-dependentTypeExpr := className [dependencyBounds] [hasRefinement]
+dependentTypeExpr := className [dependencyBounds] [refinement]
 dependencyBounds  := '<' [dependencyBound (',' dependencyBound)*] '>'
 dependencyBound   := ['!'] typeExpression
-hasRefinement     := '(' 'HAS' requirement ')'
-classLiteral      := 'Class' '<' className '>' [hasRefinement]
+refinement        := '(' refinementClause (',' refinementClause)* ')'
+refinementClause  := 'HAS' orReqt | 'NOT' typeExpression
+classLiteral      := 'Class' '<' className '>' [refinement]
 className         := upperCamelRE
 ```
 
@@ -32,11 +33,16 @@ For example, because `OceanTile` has a gain dependency default, a gain must say 
 `OceanTile<>` or provide at least one dependency argument. Gain and removal defaults are
 independent, including on the two sides of `FROM`.
 
-`Domain(NOT Excluded)` is a difference refinement. It denotes the part of `Domain` that does not
-overlap `Excluded`; for example, `Owner(NOT Player1)` denotes every owner except Player1. Both
-parts are explicit, so the refined type can stand alone or appear as a dependency argument.
-The excluded expression must be structural: it cannot itself contain `HAS` or `NOT`. Refined types
-are use-site expressions and cannot appear in class dependencies or supertypes.
+A refinement contains one or more comma-separated clauses, all of which must hold. Each clause
+repeats its keyword: `LandArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile>, NOT ReservedArea)`. A
+top-level comma therefore always separates clauses. A conjunction needed inside one `HAS`
+requirement can still be grouped, as in `Foo(HAS (Bar, Qux) OR Zap, NOT Baz)`.
+
+`Domain(NOT Excluded)` is a difference clause. It denotes the part of `Domain` that does not overlap
+`Excluded`; for example, `Owner(NOT Player1)` denotes every owner except Player1. Both parts are
+explicit, so the refined type can stand alone or appear as a dependency argument. The excluded
+expression must be structural: it cannot itself contain `HAS` or `NOT`. Refined types are use-site
+expressions and cannot appear in class dependencies or supertypes.
 
 ### Class literal
 

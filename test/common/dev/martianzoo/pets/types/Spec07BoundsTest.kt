@@ -186,8 +186,8 @@ internal class Spec07BoundsTest {
     val right = table.resolve(te("Area(HAS Marker)"))
 
     // Equivalent predicates, differently written; the two results are therefore not `==`.
-    "${(left glb right)}" shouldBe "Area(HAS Neighbor, Marker)"
-    "${(right glb left)}" shouldBe "Area(HAS Marker, Neighbor)"
+    "${(left glb right)}" shouldBe "Area(HAS Neighbor, HAS Marker)"
+    "${(right glb left)}" shouldBe "Area(HAS Marker, HAS Neighbor)"
     ((left glb right) == (right glb left)) shouldBe false
   }
 

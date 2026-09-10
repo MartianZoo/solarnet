@@ -2,7 +2,9 @@ package dev.martianzoo.tfm.pets.ast
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression.Refinement
+import dev.martianzoo.pets.ast.Expression.Refinement.And
 import dev.martianzoo.pets.ast.Expression.Refinement.Has
+import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
@@ -16,6 +18,8 @@ internal class PublicAstParsingTest {
     parse<FromExpression>("Foo FROM Bar").toExpression.toString() shouldBe "Foo"
     (parse<Refinement>("(HAS Foo)") as Has).requirement.toString() shouldBe "Foo"
     parse<Refinement>("(NOT Foo)").toString() shouldBe "NOT Foo"
+    (parse<Refinement>("(HAS Foo, NOT Bar)") as And).refinements.map { it::class } shouldBe
+        listOf(Has::class, Not::class)
     parse<Property>("Owner.amount").propertyName.value shouldBe "amount"
     parse<Scalar>("2X") shouldBe XScalar(2)
   }

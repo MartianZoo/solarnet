@@ -103,7 +103,7 @@
 - **queue position:**
 - **queued effect:** An effect written with `:`. Its triggered instruction becomes a task instead of executing inline. Antonym: automatic effect.
 - **real-card mode:**
-- **refinement:** A `HAS` requirement attached to an expression to restrict the matching Components that qualify.
+- **refinement:** A conjunction of `HAS` world requirements and `NOT` structural exclusions attached to an expression to restrict the matching Types or Components.
 - **refinement type:** The type denoted by an expression carrying a refinement.
 - **REgo PLastics:** Solarnet's command-line interface for driving the engine.
 - **represented-type variable:** Inside a refined class literal such as `Class<Tag>(HAS Tag<Player1>)`, the represented class argument declares the variable used by matching root-class occurrences in the requirement. Testing `Class<SpaceTag>` therefore tests for `SpaceTag<Player1>` without treating the class token as an owned Component.

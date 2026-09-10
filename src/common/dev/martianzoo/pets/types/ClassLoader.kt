@@ -101,7 +101,7 @@ private constructor(
    */
   override fun resolve(expression: Expression): GroundType {
     if (masterSource != null) return masterSource.resolve(expression)
-    (expression.refinement as? Not)?.let { refinement ->
+    expression.refinement?.conjuncts()?.filterIsInstance<Not>()?.forEach { refinement ->
       fun containsRefinement(candidate: Expression): Boolean =
           candidate.refinement != null || candidate.arguments.any(::containsRefinement)
       if (containsRefinement(refinement.excluded)) {

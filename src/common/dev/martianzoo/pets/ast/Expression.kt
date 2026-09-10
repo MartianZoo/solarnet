@@ -20,9 +20,9 @@ import kotlin.reflect.KClass
 /**
  * A noun expression in Pets language, which is a particular *representation* of a type. An
  * expression might have arguments (as in `Microbe<Player1, Ants>`), where each (like `Ants`) is
- * itself an expression. It also might have a refinement, either a state-aware requirement (as in
- * `Card(HAS VenusTag)`) or a structural difference (as in `Owner(NOT Player1)`). It could have
- * arguments, a refinement, both, or neither.
+ * itself an expression. It also might have a refinement: a conjunction of state-aware requirements
+ * (as in `Card(HAS VenusTag)`) and structural differences (as in `Owner(NOT Player1)`). It could
+ * have arguments, a refinement, both, or neither.
  *
  * Many types can have different representations; for example `Microbe<This, Player1>` and
  * `Microbe<Player1, This>` represent the same actual type, as do `Tile` and `Tile<Area>`. As
@@ -115,7 +115,7 @@ public data class Expression(
 
   internal fun has(refinement: Requirement?): Expression {
     require(this.refinement == null)
-    return if (refinement != null) copy(refinement = Refinement.Has(refinement)) else this
+    return if (refinement != null) copy(refinement = Refinement.has(refinement)) else this
   }
 
   override val kind: KClass<out PetNode> = Expression::class
@@ -124,6 +124,12 @@ public data class Expression(
     override val kind: KClass<out PetNode> = Refinement::class
 
     public data class Has(val requirement: Requirement) : Refinement() {
+      init {
+        require(requirement !is Requirement.And) {
+          "a HAS clause cannot contain a top-level requirement conjunction"
+        }
+      }
+
       override fun visitChildren(visitor: Visitor): Unit = visitor.visit(requirement)
 
       override fun toString(): String = "HAS $requirement"
@@ -136,21 +142,46 @@ public data class Expression(
       override fun toString(): String = "NOT $excluded"
     }
 
-    internal companion object {
-      /** The one predicate meaning "both", or null when there is none. */
-      internal fun join(ref1: Refinement, ref2: Refinement): Refinement? {
-        if (ref1 == ref2) return ref1
-        if (ref1 !is Has || ref2 !is Has) return null
-        return Has(Requirement.join(ref1.requirement, ref2.requirement)!!)
+    @ConsistentCopyVisibility
+    public data class And internal constructor(val refinements: List<Refinement>) : Refinement() {
+      init {
+        require(refinements.size >= 2)
+        require(refinements.none { it is And })
       }
+
+      override fun visitChildren(visitor: Visitor): Unit = visitor.visit(refinements)
+
+      override fun toString(): String = refinements.joinToString()
     }
+
+    public companion object {
+      /** The one refinement meaning "both". */
+      internal fun join(ref1: Refinement, ref2: Refinement): Refinement {
+        if (ref1 == ref2) return ref1
+        return create(ref1.conjuncts() + ref2.conjuncts())
+      }
+
+      public fun create(refinements: Collection<Refinement>): Refinement {
+        val flattened = refinements.flatMap { it.conjuncts() }
+        require(flattened.isNotEmpty())
+        return if (flattened.size == 1) flattened.single() else And(flattened)
+      }
+
+      internal fun has(requirement: Requirement): Refinement =
+          create(Requirement.split(requirement).map(::Has))
+    }
+
+    internal fun conjuncts(): List<Refinement> = if (this is And) refinements else listOf(this)
+
+    internal fun retaining(predicate: (Refinement) -> Boolean): Refinement? =
+        conjuncts().filter(predicate).takeIf { it.isNotEmpty() }?.let(Companion::create)
   }
 
   internal companion object : PetTokenizer() {
     internal fun refinementParser(): Parser<Refinement> {
-      val has = (skip(_has) and Requirement.parser()) map { Refinement.Has(it) }
+      val has = (skip(_has) and Requirement.disjunctionParser()) map Refinement.Companion::has
       val not = (skip(_not) and parser(allowDerivedClass = false)) map { Refinement.Not(it) }
-      return group(has or not)
+      return group(commaSeparated(has or not) map Refinement.Companion::create)
     }
 
     fun parser(allowDerivedClass: Boolean = true): Parser<Expression> {

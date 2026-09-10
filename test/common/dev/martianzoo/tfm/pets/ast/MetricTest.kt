@@ -57,7 +57,7 @@ internal class MetricTest {
       (Bar - (Bar OR Xyz OR Qux<Abc<Foo>>)) MAX 5
       EVAL Xyz<Eep<Xyz>(HAS 2 Qux)>(HAS Abc).score
       Abc<Abc<Abc<Qux>>, Bar>(HAS Bar<Bar>) OR Foo(NOT Ahh)
-      Qux<Eep> OR Eep OR Wau<Qux(HAS Xyz, MC)> OR Wau
+      Qux<Eep> OR Eep OR Wau<Qux(HAS Xyz, HAS MC)> OR Wau
       EVAL Xyz<Eep>(HAS PROD[Abc OR MAX 1 Foo]).score
       Ooh<Abc<Ooh(HAS MAX 0 Foo OR MC), Xyz>, Abc<Ahh>>
       Foo(NOT Bar<Eep<Bar>(HAS MAX 1 Foo)>)

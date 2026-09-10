@@ -178,13 +178,9 @@ public data class GroundType(
         when {
           refinement == null -> that.refinement
           that.refinement == null -> refinement
-          else -> Refinement.join(refinement, that.refinement) ?: return null
+          else -> Refinement.join(refinement, that.refinement)
         }
     val unrefined = glbClass.withAllDependencies(glbDeps)
-    if (glbRefin is Not) {
-      val excluded = classTable.resolve(glbRefin.excluded)
-      if (!unrefined.overlapsStructurally(excluded)) return unrefined
-    }
     return unrefined.refine(glbRefin)
   }
 
@@ -209,13 +205,12 @@ public data class GroundType(
         when {
           refinement == null -> newRef
           newRef == null -> refinement
-          else -> requireNotNull(Refinement.join(refinement, newRef))
+          else -> Refinement.join(refinement, newRef)
         }
-    return if (combined is Not && !overlapsStructurally(classTable.resolve(combined.excluded))) {
-      copy(refinement = null)
-    } else {
-      copy(refinement = combined)
+    val applicable = combined?.retaining {
+      it !is Not || overlapsStructurally(classTable.resolve(it.excluded))
     }
+    return copy(refinement = applicable)
   }
 
   private val expressionLazy = lazy {
@@ -296,8 +291,10 @@ public data class GroundType(
             it.withAllDependencies(deps).concreteSubtypesSameClass()
           }
         }
-    return if (refinement is Not) {
-      candidates.filter { it.narrows(this, NoGameState) }
+    val structuralRefinement = refinement?.retaining { it is Not }
+    return if (structuralRefinement != null) {
+      val structuralType = copy(refinement = structuralRefinement)
+      candidates.filter { it.narrows(structuralType, NoGameState) }
     } else {
       candidates
     }
@@ -309,7 +306,10 @@ public data class GroundType(
    * [rule 11-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
    */
   override fun singleConcreteSubtype(info: TypeInfo): GroundType? {
-    if ((rootClass.className == CLASS && refinement != null) || refinement is Not) {
+    if (
+        (rootClass.className == CLASS && refinement != null) ||
+            refinement?.conjuncts()?.any { it is Not } == true
+    ) {
       return allConcreteSubtypes().filter { it.narrows(this, info) }.take(2).singleOrNull()
     }
     val intersection =
@@ -340,27 +340,28 @@ public data class GroundType(
 
     dependencies.ensureNarrows(that.dependencies, info)
 
-    when (val targetRefinement = that.refinement) {
-      null -> Unit
-      refinement.takeIf { readsPredicatesAlike(that) } -> Unit
-      is Not -> {
-        if (!isDisjointFrom(targetRefinement.excluded)) {
-          throw NarrowingException("$this does not satisfy $targetRefinement")
-        }
-      }
-      is Has -> {
-        if (refinement != null) {
-          if (!alreadyGuarantees(targetRefinement) || !readsPredicatesAlike(that)) {
-            throw NarrowingException("$this does not have refinement $targetRefinement")
+    that.refinement?.conjuncts()?.forEach { targetRefinement ->
+      when (targetRefinement) {
+        is Refinement.And -> error("nested refinement conjunction: $targetRefinement")
+        is Not -> {
+          if (!alreadyGuarantees(targetRefinement) && !isDisjointFrom(targetRefinement.excluded)) {
+            throw NarrowingException("$this does not satisfy $targetRefinement")
           }
-        } else {
-          val requirement =
-              try {
-                formRequirement(expressionFull, that.expressionFull)
-              } catch (e: ExpressionException) {
-                throw NarrowingException("$this does not satisfy $targetRefinement", e)
-              }
-          if (!info.has(requirement)) throw Exceptions.refinementNotMet(requirement)
+        }
+        is Has -> {
+          if (refinement != null) {
+            if (!alreadyGuarantees(targetRefinement) || !readsPredicatesAlike(that)) {
+              throw NarrowingException("$this does not have refinement $targetRefinement")
+            }
+          } else {
+            val requirement =
+                try {
+                  formRequirement(expressionFull, that.expressionFull, targetRefinement)
+                } catch (e: ExpressionException) {
+                  throw NarrowingException("$this does not satisfy $targetRefinement", e)
+                }
+            if (!info.has(requirement)) throw Exceptions.refinementNotMet(requirement)
+          }
         }
       }
     }
@@ -378,23 +379,25 @@ public data class GroundType(
     if (!rootClass.isSubtypeOf(that.rootClass)) return false
     if (!dependencies.narrows(that.dependencies, info)) return false
 
-    return when (val targetRefinement = that.refinement) {
-      null -> true
-      refinement.takeIf { readsPredicatesAlike(that) } -> true
-      is Not -> isDisjointFrom(targetRefinement.excluded)
-      is Has -> {
-        if (refinement != null) {
-          return alreadyGuarantees(targetRefinement) && readsPredicatesAlike(that)
+    return that.refinement?.conjuncts()?.all { targetRefinement ->
+      when (targetRefinement) {
+        is Refinement.And -> error("nested refinement conjunction: $targetRefinement")
+        is Not -> alreadyGuarantees(targetRefinement) || isDisjointFrom(targetRefinement.excluded)
+        is Has -> {
+          if (refinement != null) {
+            alreadyGuarantees(targetRefinement) && readsPredicatesAlike(that)
+          } else {
+            val requirement =
+                try {
+                  formRequirement(expressionFull, that.expressionFull, targetRefinement)
+                } catch (_: ExpressionException) {
+                  return false
+                }
+            info.has(requirement)
+          }
         }
-        val requirement =
-            try {
-              formRequirement(expressionFull, that.expressionFull)
-            } catch (_: ExpressionException) {
-              return false
-            }
-        info.has(requirement)
       }
-    }
+    } ?: true
   }
 
   /**
@@ -408,9 +411,18 @@ public data class GroundType(
 
   /** Whether our own refinement conjoins at least all of [target]'s requirements. */
   private fun alreadyGuarantees(target: Has): Boolean {
-    val own = refinement as? Has ?: return false
-    return split(own.requirement).containsAll(split(target.requirement))
+    val own =
+        refinement
+            ?.conjuncts()
+            ?.filterIsInstance<Has>()
+            ?.flatMap { split(it.requirement) }
+            .orEmpty()
+    return own.containsAll(split(target.requirement))
   }
+
+  /** Whether our own refinement explicitly includes [target]. */
+  private fun alreadyGuarantees(target: Not): Boolean =
+      refinement?.conjuncts()?.contains(target) == true
 
   /** Whether this entire structural domain has no member in common with [excludedExpression]. */
   private fun isDisjointFrom(excludedExpression: Expression): Boolean =
@@ -441,7 +453,11 @@ public data class GroundType(
     return result
   }
 
-  private fun formRequirement(narrow: Expression, wide: Expression): Requirement {
+  private fun formRequirement(
+      narrow: Expression,
+      wide: Expression,
+      refinement: Has,
+  ): Requirement {
 
     fun refinementMangler(
         proposed: Expression,
@@ -487,8 +503,7 @@ public data class GroundType(
           .transformRequirement(requirement)
     }
 
-    val refin = wide.refinement as Has
-    val specializedRequirement = specializeRepresentedClassReferences(refin.requirement)
+    val specializedRequirement = specializeRepresentedClassReferences(refinement.requirement)
     val transformed =
         refinementMangler(narrow, ignoreUnmatched = wide.className == CLASS)
             .transformRequirement(specializedRequirement)

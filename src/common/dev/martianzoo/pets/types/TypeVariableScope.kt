@@ -385,11 +385,8 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
 
       fun interpretedGroundType(found: Found): GroundType {
         val expression = found.expression
-        return if (expression.refinement is Not) {
-          classTable.resolve(expression.copy(refinement = null))
-        } else {
-          classTable.resolve(expression)
-        }
+        val nonStructuralRefinement = expression.refinement?.retaining { it !is Not }
+        return classTable.resolve(expression.copy(refinement = nonStructuralRefinement))
       }
 
       val explicitIdentities = explicitDeclarations

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.pets.ast
 
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -44,12 +45,19 @@ internal class ExpressionTest {
     testRoundTrip("Foo<Bar<Qux>, Baz>")
     testRoundTrip("Foo(HAS Bar)")
     testRoundTrip("Foo(HAS MAX 0 Bar)")
-    testRoundTrip("Foo<Bar>(HAS Baz, 2 Qux)")
+    testRoundTrip("Foo<Bar>(HAS Baz, HAS 2 Qux)")
+    testRoundTrip("Foo(HAS (Bar, Baz) OR Qux, NOT Wibble)")
+    testRoundTrip("Foo(NOT Bar, NOT Baz)")
     testRoundTrip("Class<Foo>(HAS Foo<Bar>)")
     testRoundTrip("Has<By, Max>")
     testRoundTrip("Foo(NOT Bar)")
     testRoundTrip("Foo<Bar(NOT Baz)>")
     testRoundTrip("A_foo")
+  }
+
+  @Test
+  internal fun aTopLevelCommaSeparatesRefinementClauses() {
+    assertFailsWith<PetSyntaxException> { te("Foo(HAS Bar, Baz)") }
   }
 
   @Test

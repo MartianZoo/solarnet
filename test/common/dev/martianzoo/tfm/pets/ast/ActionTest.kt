@@ -58,7 +58,7 @@ internal class ActionTest {
       5 Ooh<Ooh, Bar> -> -2X Foo(HAS =1 MC).
       -> MAX 0 MC: MC THEN MC., PROD[PROD[Bar]]
       -> 5 MC, (MAX 0 Foo OR (MC OR Foo)): X Bar<Qux, Qux>
-      2 Qux<Xyz(HAS MAX 1 MC, MC)> -> X Ahh<Bar>.
+      2 Qux<Xyz(HAS MAX 1 MC, HAS MC)> -> X Ahh<Bar>.
       PROD[Bar] -> -2 Bar<Foo(NOT Bar<Eep, Foo<Bar, Foo>, Abc>)>!
       PROD[PROD[Bar]] -> -Bar<Foo> BY Foo<Xyz<Ooh>> OR Abc.
       2 Wau -> (MC BY Bar, MC) OR (Ooh / 2 Bar) BY Qux<Xyz>, -Abc

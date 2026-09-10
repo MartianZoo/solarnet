@@ -250,10 +250,10 @@ internal class Spec08RefinementsTest {
 
   @Test
   internal fun `8-8 a refinement that conjoins more already guarantees the weaker one`() {
-    type("LandArea(HAS Neighbor, Occupant)").isSubtypeOf(type("LandArea(HAS Neighbor)")) shouldBe
-        true
-    type("LandArea(HAS Neighbor)").isSubtypeOf(type("LandArea(HAS Neighbor, Occupant)")) shouldBe
-        false
+    type("LandArea(HAS Neighbor, HAS Occupant)")
+        .isSubtypeOf(type("LandArea(HAS Neighbor)")) shouldBe true
+    type("LandArea(HAS Neighbor)")
+        .isSubtypeOf(type("LandArea(HAS Neighbor, HAS Occupant)")) shouldBe false
   }
 
   @Test
@@ -267,6 +267,14 @@ internal class Spec08RefinementsTest {
   @Test
   internal fun `8-8 a HAS-refined type may still satisfy a NOT, structurally`() {
     type("Tharsis_2_2(HAS Neighbor)").isSubtypeOf(type("LandArea(NOT Tharsis_2_3)")) shouldBe true
+  }
+
+  @Test
+  internal fun `8-8 HAS and NOT clauses jointly filter a candidate`() {
+    val refined = type("LandArea(HAS Neighbor, NOT Tharsis_2_3)")
+
+    type("Tharsis_2_2").narrows(refined, fullWorld) shouldBe true
+    type("Tharsis_2_3").narrows(refined, fullWorld) shouldBe false
   }
 
   // 8-9 Greatest lower bound
@@ -290,7 +298,7 @@ internal class Spec08RefinementsTest {
   @Test
   internal fun `8-9 two HAS refinements combine as a conjunction`() {
     (type("LandArea(HAS Neighbor)") glb type("LandArea(HAS Occupant)")) shouldBe
-        type("LandArea(HAS Neighbor, Occupant)")
+        type("LandArea(HAS Neighbor, HAS Occupant)")
   }
 
   @Test
@@ -307,9 +315,19 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `8-9 glb is absent when the two predicates cannot be written as one`() {
-    (type("LandArea(HAS Neighbor)") glb type("LandArea(NOT Tharsis_2_2)")) shouldBe null
-    (type("LandArea(NOT Tharsis_2_2)") glb type("LandArea(NOT Tharsis_2_3)")) shouldBe null
+  internal fun `8-9 unlike refinements combine as a conjunction`() {
+    (type("LandArea(HAS Neighbor)") glb type("LandArea(NOT Tharsis_2_2)")) shouldBe
+        type("LandArea(HAS Neighbor, NOT Tharsis_2_2)")
+    (type("Area(NOT Tharsis_2_2)") glb type("Area(NOT WaterArea)")) shouldBe
+        type("Area(NOT Tharsis_2_2, NOT WaterArea)")
+  }
+
+  @Test
+  internal fun `8-9 multiple NOT clauses jointly filter structural enumeration`() {
+    type("Area(NOT Tharsis_2_2, NOT WaterArea)")
+        .allConcreteSubtypes()
+        .map { "$it" }
+        .toList() shouldContainExactly listOf("Tharsis_2_3")
   }
 
   // 8-10 Least upper bound
