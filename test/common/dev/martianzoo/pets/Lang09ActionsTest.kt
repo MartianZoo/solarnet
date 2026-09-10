@@ -161,7 +161,7 @@ internal class Lang09ActionsTest {
         -> MAX 0 MC: MC THEN MC., PROD[PROD[Bar]]
         5 Qux -> PROD[MC], PROD[Qux THEN Foo<Qux>]
         Ooh / 3 Ooh<Bar> MAX 5 -> 11 Abc FROM Ooh?
-        2 Qux<Xyz(HAS MAX 1 MC, MC)> -> X Ahh<Bar>.
+        2 Qux<Xyz(HAS MAX 1 MC, HAS MC)> -> X Ahh<Bar>.
         -> MAX 0 MC: MC THEN MC., PROD[PROD[Widget]]
         MC / EVAL Widget.score - Ore MAX 11 -> -Plant
         2 MC / Qux -> Bar, (Ooh FROM Bar / Foo) BY Foo

@@ -241,7 +241,7 @@ internal class Lang05MetricsTest {
         EVAL Xyz<Eep<Xyz>(HAS 2 Qux)>(HAS Abc).score
         RANK Player { 999 - TerraformRating<Player> }
         EVAL Xyz<Eep>(HAS PROD[Abc OR MAX 1 Foo]).score
-        Qux<Eep> OR Eep OR Wau<Qux(HAS Xyz, MC)> OR Wau
+        Qux<Eep> OR Eep OR Wau<Qux(HAS Xyz, HAS MC)> OR Wau
         (Plant - (Steel OR Heat OR Marker<Mars1>)) MAX 5
         2 (2 (3 Foo MAX 5)) - Bar(NOT Wau<Abc<Ooh>>) - 1
         RANK Player { VictoryPoint<Player>, MC<Player> }

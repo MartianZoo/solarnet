@@ -294,8 +294,10 @@ L12-7).
 > latter explicitly accepts the empty-water-area placement default. Erasing the spelling difference
 > would either hide a consequential default or force every harmless type reference to accept it.
 
-**L3-3. There are two refinements, and an expression carries at most one.** `(HAS r)` refines by a
-requirement and `(NOT x)` by a structural difference; T8-1 through T8-12 say what each means.
+**L3-3. A refinement is a non-empty conjunction of clauses.** Each comma-separated clause repeats
+its keyword: `(HAS r)` refines by a requirement and `(NOT x)` by a structural difference. A
+top-level comma separates clauses, so a conjunction inside one `HAS` must be grouped, as in
+`(HAS (Foo, Bar) OR Baz, NOT Qux)`. T8-1 through T8-12 say what each clause means.
 
 **L3-4. A class literal is written with one bare class name**, `Class<Steel>` (T4-1, T4-6).
 

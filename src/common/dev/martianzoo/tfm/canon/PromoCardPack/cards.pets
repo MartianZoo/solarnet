@@ -4,7 +4,7 @@ CLASS ArcadianCommunities : ActionCard<Class<CorporationCard>> {
 
   This: 40 MC, 10 Steel, RequiredAction { -> Community<LandArea(HAS MAX 0 Occupant)> }
 
-  -> Community<LandArea(HAS MAX 0 Occupant, Neighbor<OwnedOccupant>)>
+  -> Community<LandArea(HAS MAX 0 Occupant, HAS Neighbor<OwnedOccupant>)>
   -Community: 3 MC
 }
 
@@ -13,7 +13,7 @@ CLASS MarsNomads : ActionCard, ActiveCard<Class<ProjectCard>> {
 
   This: NomadsMarker<LandArea(HAS MAX 0 Occupant)>
 
-  -> NomadsMarker<LandArea(HAS MAX 0 Occupant, Neighbor<NomadsMarker<Owner>>)> FROM NomadsMarker<Owner> \
+  -> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>)> FROM NomadsMarker<Owner> \
     THEN EACH LandArea(HAS NomadsMarker) { Placement<LandArea> }
 }
 
@@ -168,7 +168,7 @@ CLASS BoomTown : CardFront<Class<PreludeCard>> {
   This:: BuildingTag<This>, CityTag<This>
   This:: -BaseResourceValue<Class<Titanium>>
   -This:: BaseResourceValue<Class<Titanium>>
-  This: CityTile<LandArea(HAS PlacementBonus<Class<Metal>>, MAX 0 Neighbor<CityTile<Anyone>>)>, PROD[2 Titanium]
+  This: CityTile<LandArea(HAS PlacementBonus<Class<Metal>>, HAS MAX 0 Neighbor<CityTile<Anyone>>)>, PROD[2 Titanium]
 }
 
 CLASS SmallAsteroid : EventCard<Class<ProjectCard>> {
@@ -570,14 +570,14 @@ CLASS CarbonNanosystems : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Gra
 CLASS CyberiaSystems : AutomatedCard<Class<ProjectCard>> {
   cost = 16
 
-  This: PROD[Steel], CopyProductionBox<CardFront(HAS BuildingTag)> THEN CyberiaSystemsFirstChoice<CardFront(HAS BuildingTag)> THEN CopyProductionBox<CardFront(HAS BuildingTag, MAX 0 CyberiaSystemsFirstChoice)> THEN -CyberiaSystemsFirstChoice
+  This: PROD[Steel], CopyProductionBox<CardFront(HAS BuildingTag)> THEN CyberiaSystemsFirstChoice<CardFront(HAS BuildingTag)> THEN CopyProductionBox<CardFront(HAS BuildingTag, HAS MAX 0 CyberiaSystemsFirstChoice)> THEN -CyberiaSystemsFirstChoice
 }
 
 CLASS HermeticOrderOfMars : AutomatedCard<Class<ProjectCard>> {
   cost = 10
   requirement = HAS "MAX 4 OxygenStep"
 
-  This: PROD[2 MC], 1 MC / MarsArea(HAS MAX 0 Tile, Neighbor<OwnedTile>)
+  This: PROD[2 MC], 1 MC / MarsArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile>)
 }
 
 CLASS HomeostasisBureau : ActiveCard<Class<ProjectCard>> {

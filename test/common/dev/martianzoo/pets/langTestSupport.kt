@@ -97,10 +97,6 @@ internal val langTable: ClassTable by lazy { langCatalog.classTable }
 
 internal val langElaborator: PetElaborator by lazy { PetElaborator(langTable) }
 
-internal val langVocabulary: Vocabulary by lazy {
-  Vocabulary.create(langCatalog, activeClassNames = langTable.allClassNames)
-}
-
 internal val player1: Player = Player(parse("Player1"))
 
 /** A world that resolves types in [table] and answers [answer] to every requirement. */
@@ -120,4 +116,4 @@ internal val langWorld: TypeInfo = TableWorld(langTable)
 
 /** Elaborates [source] as one player-submitted instruction tree, in Player1's context. */
 internal fun elaborate(source: String): InstructionTree =
-    langElaborator.elaborateInput(parse<InstructionTree>(source), langVocabulary, player1)
+    langElaborator.elaborateInput(parse<InstructionTree>(source), player1)

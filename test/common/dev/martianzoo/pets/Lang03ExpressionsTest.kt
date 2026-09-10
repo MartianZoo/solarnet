@@ -7,6 +7,7 @@ import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement
+import dev.martianzoo.pets.ast.Expression.Refinement.And
 import dev.martianzoo.pets.ast.Expression.Refinement.Has
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import io.kotest.assertions.throwables.shouldThrow
@@ -58,16 +59,25 @@ internal class Lang03ExpressionsTest {
   // L3-3 Refinements
 
   @Test
-  internal fun `L3-3 there are two refinements`() {
+  internal fun `L3-3 there are two kinds of refinement clause`() {
     (parse<Refinement>("(HAS Plant)") as Has).requirement shouldBe parse("Plant")
     (parse<Refinement>("(NOT Player1)") as Not).excluded shouldBe parse("Player1")
     parse<Expression>("Owner(NOT Player1)").toString() shouldBe "Owner(NOT Player1)"
   }
 
   @Test
-  internal fun `L3-3 an expression carries at most one refinement`() {
+  internal fun `L3-3 a refinement conjoins its clauses`() {
+    val refinement = parse<Refinement>("(HAS Plant, NOT Player1)") as And
+    refinement.refinements.map { it::class } shouldBe listOf(Has::class, Not::class)
+
     shouldThrow<PetSyntaxException> { parse<Expression>("Owner(NOT Player1)(HAS Plant)") }
-    shouldThrow<PetSyntaxException> { parse<Expression>("Owner(HAS Plant, NOT Player1)") }
+  }
+
+  @Test
+  internal fun `L3-3 a top-level comma separates clauses`() {
+    shouldThrow<PetSyntaxException> { parse<Expression>("Owner(HAS Plant, Steel)") }
+    parse<Expression>("Owner(HAS (Plant, Steel) OR Heat, NOT Player1)").toString() shouldBe
+        "Owner(HAS (Plant, Steel) OR Heat, NOT Player1)"
   }
 
   @Test
@@ -126,7 +136,9 @@ internal class Lang03ExpressionsTest {
         Plant<Ants<Player1>, Steel>
         Plant(HAS Steel)
         Plant(HAS MAX 0 Steel)
-        Plant<Player1>(HAS Steel, 2 Heat)
+        Plant<Player1>(HAS Steel, HAS 2 Heat)
+        Plant(HAS (Steel, Heat) OR Microbe, NOT Animal)
+        Plant(NOT Steel, NOT Heat)
         Class<Plant>(HAS Plant<Player1>)
         Has<By, Max>
         Plant(NOT Steel)

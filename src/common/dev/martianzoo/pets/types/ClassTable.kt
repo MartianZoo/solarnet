@@ -268,8 +268,10 @@ public abstract class ClassTable {
             concreteSubtypesSameClass(klass.withAllDependencies(dependencies))
           }
         }
-    return if (type.refinement is Not) {
-      candidates.filter { it.narrows(type, NoGameState) }
+    val structuralRefinement = type.refinement?.retaining { it is Not }
+    return if (structuralRefinement != null) {
+      val structuralType = type.copy(refinement = structuralRefinement)
+      candidates.filter { it.narrows(structuralType, NoGameState) }
     } else {
       candidates
     }
@@ -299,8 +301,10 @@ public abstract class ClassTable {
             )
           }
         }
-    return if (type.refinement is Not) {
-      candidates.filter { it.narrows(type, NoGameState) }
+    val structuralRefinement = type.refinement?.retaining { it is Not }
+    return if (structuralRefinement != null) {
+      val structuralType = type.copy(refinement = structuralRefinement)
+      candidates.filter { it.narrows(structuralType, NoGameState) }
     } else {
       candidates
     }
@@ -324,7 +328,10 @@ public abstract class ClassTable {
    */
   public fun singleConcreteSubtype(type: Type, info: TypeInfo): GroundType? {
     val type = type.groundType
-    if ((type.rootClass.className == CLASS && type.refinement != null) || type.refinement is Not) {
+    if (
+        (type.rootClass.className == CLASS && type.refinement != null) ||
+            type.refinement?.conjuncts()?.any { it is Not } == true
+    ) {
       return allConcreteSubtypes(type).filter { it.narrows(type, info) }.take(2).singleOrNull()
     }
     // A concrete subclass incompatible with [type] is not a choice, so it must not count as one.

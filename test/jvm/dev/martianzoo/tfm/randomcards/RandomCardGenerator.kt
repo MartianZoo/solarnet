@@ -351,10 +351,10 @@ internal class RandomCardGenerator(seed: Int) :
                     {
                       "CardFront<Anyone>(HAS ${scaled(choose(2, 2, 3, 3, 4), firstTag.toString())})"
                     },
-                10 to { "CardFront<Anyone>(HAS $firstTag, $secondTag)" },
+                10 to { "CardFront<Anyone>(HAS $firstTag, HAS $secondTag)" },
                 6 to { "CardFront<Anyone>(HAS $firstTag OR $secondTag)" },
-                5 to { "CardFront(HAS $firstTag, MAX 0 $secondTag)" },
-                4 to { "CardFront<Anyone>(HAS $firstTag, MAX 0 CardResource)" },
+                5 to { "CardFront(HAS $firstTag, HAS MAX 0 $secondTag)" },
+                4 to { "CardFront<Anyone>(HAS $firstTag, HAS MAX 0 CardResource)" },
             )
         )
       }
@@ -369,14 +369,14 @@ internal class RandomCardGenerator(seed: Int) :
         AreaSelector(
             chooseS(
                 30 to { "LandArea(HAS MAX 0 Tile)" },
-                28 to { "LandArea(HAS MAX 0 Tile, Neighbor<$neighbor>)" },
-                20 to { "LandArea(HAS MAX 0 Tile, MAX 0 Neighbor<$neighbor>)" },
+                28 to { "LandArea(HAS MAX 0 Tile, HAS Neighbor<$neighbor>)" },
+                20 to { "LandArea(HAS MAX 0 Tile, HAS MAX 0 Neighbor<$neighbor>)" },
                 14 to
                     {
                       val other = choose("CityTile<Anyone>", "GreeneryTile<Anyone>", "OceanTile")
-                      "LandArea(HAS MAX 0 Tile, Neighbor<$neighbor>, Neighbor<$other>)"
+                      "LandArea(HAS MAX 0 Tile, HAS Neighbor<$neighbor>, HAS Neighbor<$other>)"
                     },
-                8 to { "LandArea(HAS MAX 0 Tile, MAX 0 Neighbor<CityTile<Anyone>>)" },
+                8 to { "LandArea(HAS MAX 0 Tile, HAS MAX 0 Neighbor<CityTile<Anyone>>)" },
             )
         )
       }
@@ -389,7 +389,7 @@ internal class RandomCardGenerator(seed: Int) :
                 18 to
                     {
                       val other = recurse<Tag>().className
-                      "Anyone(HAS $tag, $other)"
+                      "Anyone(HAS $tag, HAS $other)"
                     },
             )
         )

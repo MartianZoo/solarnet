@@ -472,7 +472,7 @@ CLASS MiningRights : AutomatedCard<Class<ProjectCard>> {
   cost = 9
 
   This:: BuildingTag<This>
-  This: SpecialTile<> {} THEN PROD[(LandArea(HAS MiningRights_SpecialTile, PlacementBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningRights_SpecialTile, PlacementBonus<Class<Titanium>>): Titanium)]
+  This: SpecialTile<> {} THEN PROD[(LandArea(HAS MiningRights_SpecialTile, HAS PlacementBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningRights_SpecialTile, HAS PlacementBonus<Class<Titanium>>): Titanium)]
 }
 
 CLASS Birds : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Animal>> {
@@ -1097,7 +1097,7 @@ CLASS Flooding : EventCard<Class<ProjectCard>> {
   cost = 7
 
   This:: EventTag<This>
-  This: OceanTile<> OR (OceanTile<WaterArea(HAS MAX 0 Tile, Neighbor<OwnedTile<Anyone>>)>! THEN -4 MC<Anyone>?)
+  This: OceanTile<> OR (OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<Anyone>>)>! THEN -4 MC<Anyone>?)
   End: -VictoryPoint
 }
 

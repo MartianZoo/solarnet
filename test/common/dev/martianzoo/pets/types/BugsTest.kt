@@ -18,8 +18,8 @@ internal class BugsTest {
    *
    * Fixing this is not just a matter of reserving the written keys: real cards rely on the current
    * reading, in which a written argument *constrains* the candidate rather than reserving a slot
-   * away from it. `Viron`'s `ActionCard(HAS ActionUsedMarker<ActionCard(NOT Viron)>)` and Mons
-   * Insurance's `Player(HAS MAX 0 This<Anyone>)` both break under the reserving rule.
+   * away from it. Mons Insurance's `Player(HAS MAX 0 This<Anyone>)` breaks under the reserving
+   * rule.
    */
   @Test
   internal fun `a refinement candidate incorrectly displaces an authored argument`() {

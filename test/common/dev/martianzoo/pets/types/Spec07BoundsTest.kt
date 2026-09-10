@@ -1,7 +1,5 @@
 package dev.martianzoo.pets.types
 
-import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Requirement
 import io.kotest.matchers.collections.shouldBeIn
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -193,13 +191,9 @@ internal class Spec07BoundsTest {
     val left = table.resolve(te("Area(HAS Neighbor)"))
     val right = table.resolve(te("Area(HAS Marker)"))
 
-    // Equivalent predicates, differently written; the two results are therefore not `==`. Which
-    // order the conjuncts come out in is deliberately unspecified (appendix B), so this pins only
-    // that both conjuncts survive on each side and that the two spellings are different types.
-    fun conjuncts(type: GroundType) =
-        Requirement.split((type.refinement as Expression.Refinement.Has).requirement).toSet()
-
-    conjuncts((left glb right)!!) shouldBe conjuncts((right glb left)!!)
+    // Equivalent predicates, differently written; the two results are therefore not `==`.
+    "${(left glb right)}" shouldBe "Area(HAS Neighbor, HAS Marker)"
+    "${(right glb left)}" shouldBe "Area(HAS Marker, HAS Neighbor)"
     ((left glb right) == (right glb left)) shouldBe false
   }
 

@@ -536,6 +536,26 @@ public class PetElaborator(public val classTable: ClassTable) {
     // A nested RANK establishes a separate candidate scope and therefore keeps ordinary defaults.
     var rankDepth = 0
     return object : PetTransformer() {
+      fun transformRefinementForCandidate(
+          refinement: Expression.Refinement,
+          candidate: Expression,
+      ): Expression.Refinement =
+          when (refinement) {
+            is Expression.Refinement.And ->
+                Expression.Refinement.create(
+                    refinement.refinements.map { transformRefinementForCandidate(it, candidate) }
+                )
+            is Has -> {
+              refinementCandidates += candidate to rankDepth
+              try {
+                transformRefinement(refinement)
+              } finally {
+                refinementCandidates.removeLast()
+              }
+            }
+            is Expression.Refinement.Not -> transformRefinement(refinement)
+          }
+
       override fun transformNode(node: PetNode): PetNode {
         if (node is Expression.Refinement) {
           refinementDepth++
@@ -573,14 +593,7 @@ public class PetElaborator(public val classTable: ClassTable) {
             )
         val refinement =
             node.refinement?.let {
-              if (it is Has) {
-                refinementCandidates += defaulted.copy(refinement = null) to rankDepth
-              }
-              try {
-                transformRefinement(it)
-              } finally {
-                if (it is Has) refinementCandidates.removeLast()
-              }
+              transformRefinementForCandidate(it, defaulted.copy(refinement = null))
             }
         return defaulted.copy(refinement = refinement)
       }

@@ -24,7 +24,7 @@ import kotlin.test.Test
 internal class Lang12ElaborationTest {
 
   private fun metric(source: String, context: String = "This"): Metric =
-      langElaborator.elaborateMetricInput(parse(source), langVocabulary, parse(context), player1)
+      langElaborator.elaborateMetricInput(parse(source), parse(context), player1)
 
   private fun classEffects(className: String): List<Effect> =
       langElaborator.classEffects(langTable.getClass(parse(className)))
@@ -33,22 +33,14 @@ internal class Lang12ElaborationTest {
 
   @Test
   internal fun `L12-1 a submitted element goes through the submitted pipeline's stages`() {
-    val vocabulary =
-        Vocabulary.create(
-            langCatalog,
-            activeClassNames = langTable.allClassNames,
-            inputOnlySynonyms = listOf("Chip" to "ProjectCard"),
-        )
     val submitted =
         langElaborator.elaborateInput(
-            parse<InstructionTree>("2 Chip, UNWRAP[Tile<>]"),
-            vocabulary,
+            parse<InstructionTree>("2 ProjectCard, UNWRAP[Tile<>]"),
             player1,
         )
 
-    // An input-only synonym became the canonical name; the atomized gain split; the gain default
-    // and the all-use owner default were inserted; contextual `Owner` was bound; and the marked
-    // syntax was dispatched away.
+    // The atomized gain split; the gain default and the all-use owner default were inserted;
+    // contextual `Owner` was bound; and the marked syntax was dispatched away.
     submitted shouldBe
         parse<InstructionTree>(
             "ProjectCard<Player1>!, ProjectCard<Player1>!, Tile<Player1, LandArea>!"
@@ -61,8 +53,8 @@ internal class Lang12ElaborationTest {
 
   @Test
   internal fun `L12-1 a class's own effects go through a different set of stages`() {
-    // No session vocabulary and no contextual owner: an ownerless class keeps `Owner` open and
-    // takes it from the event instead (L12-13). Defaults and atomizing still run.
+    // With no contextual owner, an ownerless class keeps `Owner` open and takes it from the event
+    // instead (L12-13). Defaults and atomizing still run.
     classEffects("SimpleRule").single() shouldBe
         parse<Effect>("This BY Owner: ProjectCard<Owner>!, ProjectCard<Owner>!, Plant<Owner>!")
   }

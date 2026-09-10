@@ -640,7 +640,7 @@ the result *means*:
 
 - when several minimal common superclasses tie, T2-9 breaks the tie by the order each operand happens
   to list its supertypes, so `A ⊔ B` and `B ⊔ A` can name different classes;
-- a joined `HAS` requirement (T8-9) is written in operand order, so `A ⊓ B` and `B ⊓ A` can carry
+- joined refinement clauses (T8-9) are written in operand order, so `A ⊓ B` and `B ⊓ A` can carry
   the same conjuncts in the other order, and are then not `==`.
 
 > **Non-normative implementation note — no gameplay dependency.** No canonical effect may depend
@@ -654,7 +654,9 @@ the result *means*:
 ## 8. Refinements
 
 A refinement turns a type into a filtered version of itself: `LandArea(HAS MAX 0 Tile)` is "an empty
-land area". There are two kinds, and they behave very differently.
+land area". It is a non-empty conjunction of comma-separated clauses. Every clause repeats its
+keyword, as in `ActionCard(HAS ActionUsedMarker, NOT Viron)`. There are two kinds of clause, and they
+behave very differently.
 
 - `HAS R` asks a **world** whether requirement `R` holds of the
   candidate. This is the only place in the type system that consults game state.
@@ -684,9 +686,8 @@ player, because that is what a `StartToken` depends on — and testing a rock ag
 false.
 
 A written argument *constrains* the candidate in the slot it occupies rather than reserving that
-slot away from it. `ActionCard(HAS ActionUsedMarker<ActionCard(NOT Viron)>)` means "an action card,
-other than Viron, that has been used" — the candidate merges into the written `ActionCard(NOT Viron)`
-argument.
+slot away from it. In `Player(HAS MAX 0 This<Anyone>)`, the candidate narrows the written `Anyone`
+argument, asking whether that candidate owns `This`.
 
 > **Non-normative examples — CrediCor and Viron.** For CrediCor, substituting a candidate card into
 > bare `cost` reads that card's concrete printed cost. For Viron, the candidate must merge into the
@@ -745,14 +746,16 @@ variable may be specialized later, making the difference non-empty again.
 **T8-8. Refinements in narrowing.** In order:
 
 - A refined type always narrows its own unrefined domain.
-- If the two refinements are *identical*, the narrowing is accepted with no world consulted.
-- If the narrower type's `HAS` refinement includes all of the target's conjuncts, it already
-  guarantees the target: `LandArea(HAS Neighbor, Occupant) <: LandArea(HAS Neighbor)`.
-- Otherwise a refined type never satisfies an unrelated `HAS` target, and this is decided without a
+- Every target clause must be satisfied.
+- If the narrower type includes an identical clause, that clause is accepted with no world
+  consulted.
+- If the narrower type's `HAS` clauses include all of a target clause's requirement conjuncts, it
+  already guarantees that clause: `LandArea(HAS Neighbor, HAS Occupant) <: LandArea(HAS Neighbor)`.
+- Otherwise a refined type never satisfies an unrelated `HAS` clause, and this is decided without a
   world. Different predicates do not imply one another.
 - An *unrefined* type tested against a `HAS` target needs a world; asked with none it raises
   `IllegalStateException` rather than guessing.
-- A `NOT` target always uses the structural test of T8-4, whatever refinement the candidate carries.
+- A `NOT` target is satisfied by an identical source clause or by the structural test of T8-4.
 - These comparisons read the two predicates *as written*, which is only meaningful when both types
   substitute the same candidate into them. Two class literals for different classes do not (T8-11),
   so neither shortcut applies to them: `Class<BuildingTag>(HAS Tag)` does not narrow
@@ -764,17 +767,13 @@ variable may be specialized later, making the difference non-empty again.
 > the first card twice.
 
 **T8-9. `glb` of refinements.** A refinement the other operand lacks is kept, and two identical
-refinements collapse to one. Otherwise:
-
-- two different `HAS` refinements produce the conjunction of both requirements. By T8-8 that result
-  is below both operands.
-- a `HAS` against a `NOT`, or two different `NOT`s, likewise have no single writable predicate.
-  `glb` is absent.
+refinements collapse to one. Otherwise their clauses are conjoined in operand order. Thus both
+`LandArea(HAS Neighbor, NOT Tharsis_2_2)` and
+`Area(NOT Tharsis_2_2, NOT WaterArea)` are writable results below their two operands.
 
 > **Non-normative implementation note — combining independent restrictions.** Two independently
-> inferred constraints can each contribute a `HAS` restriction to one candidate. Their meet must
-> retain both; there is no sound single-predicate result for contradictory structural exclusions,
-> so that case is absent rather than guessed.
+> inferred constraints can each contribute a clause to one candidate. Their meet retains every
+> restriction as a separate clause, producing one writable refinement below both operands.
 
 **T8-10. `lub` of refinements.** A refinement survives only when both operands carry exactly the same
 one; otherwise the result is the unrefined common domain.
@@ -958,9 +957,9 @@ A concrete type enumerates only itself. A type with no concrete narrowing enumer
 > and City as concrete choices. Pairing subclass choice with dependency choice is what generalizes
 > that menu operation to tiles and other dependent components.
 
-**T11-2. Refinements during enumeration.** A `NOT` filters the candidates, since it can be decided
-structurally. A `HAS` is **not** applied: enumeration is world-free, and the caller tests the
-survivors. So `LandArea(HAS Neighbor)` enumerates every concrete land area.
+**T11-2. Refinements during enumeration.** Every `NOT` clause filters the candidates, since it can be
+decided structurally. `HAS` clauses are **not** applied: enumeration is world-free, and the caller
+tests the survivors. So `LandArea(HAS Neighbor)` enumerates every concrete land area.
 
 > **Non-normative example — Red Ships.** Its value depends on tiles in Mars areas adjacent to an
 > ocean. Enumeration must first retain every structurally possible area, then let the live board
@@ -1266,8 +1265,8 @@ One behavior contradicts the rules above. It has a passing characterization in
 - **Which minimal common superclass `lub` returns** when several are incomparable (T2-9). The result
   is a common superclass and a minimal one; among ties, do not depend on the choice, and note that
   swapping the operands can change it (T7-3).
-- **The order of conjuncts in a joined `HAS` requirement** (T8-9). The predicate means the same
-  thing either way, but the two spellings are different types by `==` (T7-3).
+- **The order of joined refinement clauses** (T8-9). The predicate means the same thing either way,
+  but the two spellings are different types by `==` (T7-3).
 - **Exception messages.** Rules name exception *types* where the type is part of the contract.
 - **Evaluation order and caching.** Resolution memoizes, and several derived values are computed
   lazily; neither is observable except through T1-6.
