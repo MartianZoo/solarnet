@@ -81,6 +81,14 @@ internal class Lang02NamesTest {
     parse<Expression>("Rank").className shouldBe cn("Rank")
   }
 
+  @Test
+  internal fun `L2-2 declaration keywords do not consume identifier prefixes`() {
+    listOf("CLASSIC", "DEFAULT_VALUE", "ABSTRACTThing").forEach { name ->
+      parse<Expression>(name).className shouldBe cn(name)
+      parseClasses("CLASS $name").single().className shouldBe cn(name)
+    }
+  }
+
   // L2-3 Property names
 
   @Test
