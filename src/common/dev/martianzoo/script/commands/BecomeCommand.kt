@@ -25,6 +25,6 @@ internal class BecomeCommand(private val repl: ScriptSession) : ScriptCommand("b
 
   override fun withArgs(args: String): List<String> {
     repl.agent = repl.game.agent(repl.actor(args))
-    return listOf("Hi, ${repl.game.vocabulary.petsName(repl.agent.actor)}")
+    return listOf("Hi, ${repl.agent.actor.className}")
   }
 }

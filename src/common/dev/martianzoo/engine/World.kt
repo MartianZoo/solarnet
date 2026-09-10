@@ -1,7 +1,6 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
@@ -43,9 +42,6 @@ public interface World {
 
   /** The immutable classes available to this world. */
   public val classTable: ClassTable
-
-  /** Session-specific localized input and rendering names. */
-  public val vocabulary: Vocabulary
 
   /** Whether no task or temporary component remains from an unfinished operation. */
   public fun isIdle(): Boolean =

@@ -25,8 +25,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "Pink",
       )
 
-  override val inputOnlySynonyms = emptyList<Pair<String, String>>()
-
   private val blue
     get() = p1
 

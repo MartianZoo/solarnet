@@ -13,15 +13,13 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
   fun playerNames(includeAdmin: Boolean = true): List<ScriptCompletion> {
     val players = repl.game.actors.filterIsInstance<Player>()
     val eligiblePlayers = if (includeAdmin) players + ADMIN else players
-    return eligiblePlayers.map {
-      ScriptCompletion(repl.game.vocabulary.petsName(it.className).toString(), "players")
-    }
+    return eligiblePlayers.map { ScriptCompletion(it.className.toString(), "players") }
   }
 
   fun classNames(): List<ScriptCompletion> =
       repl.game.classTable.allClasses().map {
         ScriptCompletion(
-            repl.game.vocabulary.petsName(it.className).toString(),
+            it.className.toString(),
             "classes",
             it.docstring,
         )
@@ -33,14 +31,14 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
         .allClasses()
         .filter { it.className.toString() in standards }
         .map {
-          ScriptCompletion(repl.game.vocabulary.petsName(it.className).toString(), "resources")
+          ScriptCompletion(it.className.toString(), "resources")
         }
   }
 
   fun playableCardNames(): List<ScriptCompletion> =
       repl.game.reader.tfmCatalog.cards.map { card ->
         ScriptCompletion(
-            repl.game.vocabulary.petsName(card.className).toString(),
+            card.className.toString(),
             "cards",
             cardBack(card)?.className?.toString()?.removeSuffix("Card")?.lowercase(),
         )
@@ -51,7 +49,7 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
           .filter { card -> cardActions(card).isNotEmpty() }
           .map { card ->
             ScriptCompletion(
-                repl.game.vocabulary.petsName(card.className).toString(),
+                card.className.toString(),
                 "action cards",
             )
           }

@@ -22,8 +22,6 @@ internal class HasCommand(private val repl: ScriptSession) : ScriptCommand("has"
 
   override fun withArgs(args: String): List<String> {
     val result = repl.agent.has(args)
-    return listOf(
-        "$result: ${repl.game.vocabulary.renderPets(repl.agent.parse<Requirement>(args))}"
-    )
+    return listOf("$result: ${repl.agent.parse<Requirement>(args)}")
   }
 }

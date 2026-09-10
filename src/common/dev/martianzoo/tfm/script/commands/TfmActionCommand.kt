@@ -43,7 +43,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
     val actionArgs = args.substringBefore(',').trim()
     val payment = args.substringAfter(',', missingDelimiterValue = "").trim()
     val match = Regex("""^(.+?)\s+([123])$""").matchEntire(actionArgs) ?: throw UsageException()
-    val cardName = repl.game.vocabulary.canonicalName(cn(match.groupValues[1]))
+    val cardName = cn(match.groupValues[1])
     val actionNumber = match.groupValues[2]
     val whichAction = listOf("Action1", "Action2", "Action3")[actionNumber.toInt() - 1]
     val action =
@@ -166,9 +166,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
   }
 
   private fun paymentGains(payment: String): List<Gain> =
-      repl.game.vocabulary
-          .canonicalize(Parsing.parse<InstructionTree>(payment))
-          .let(InstructionGroup::of)
-          .instructions
-          .map { it as? Gain ?: throw UsageException("payment must contain positive resources") }
+      Parsing.parse<InstructionTree>(payment).let(InstructionGroup::of).instructions.map {
+        it as? Gain ?: throw UsageException("payment must contain positive resources")
+      }
 }

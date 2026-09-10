@@ -114,7 +114,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
             players = 1,
             colonyTiles = setOf("Callisto", "Luna", "Miranda", "Titan").mapTo(linkedSetOf(), ::cn),
         )
-    val game = Engine.newGame(premise, inputOnlySynonyms = TEST_CLASS_SYNONYMS)
+    val game = Engine.newGame(premise)
     val admin = game.tfm(ADMIN)
     val p1 = game.tfm(PLAYER1)
 
@@ -206,7 +206,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   @Test
   internal fun `basic trading`() {
     admin.sneak(
-        "5 ColonyProduction<Luna>, Colony<Player1, Luna>, Colony<Player2, Luna>, 3 E<Player1>"
+        "5 ColonyProduction<Luna>, Colony<Player1, Luna>, Colony<Player2, Luna>, 3 Energy<Player1>"
     )
     p1.assertCounts(6 to "ColonyProduction<Luna>")
     p1.stdAction("TradeAction", 2) {
@@ -214,7 +214,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
           // Then follow the Colony Tile instructions: Check the Colony Tile track to determine your
           // trade income, and give the local colony owners their colony bonus.
         }
-        .expect("19 MC<Player1>, 2 MC<Player2>, -3 E<Player1>")
+        .expect("19 MC<Player1>, 2 MC<Player2>, -3 Energy<Player1>")
 
     // Directly after trading you move the white marker as far left as possible, stopping next to
     // the player colonies, or at the bottom of the track (in the example above the marker is moved

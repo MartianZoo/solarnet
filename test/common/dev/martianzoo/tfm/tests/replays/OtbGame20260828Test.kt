@@ -1025,7 +1025,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "[Green], I'm hiring raiders. Stealing three money from you. Boop. Boop, boop, doot, doot.
       // And
       // pay them one money for it."
-      playProject(HiredRaiders, 1) { doTask("3 M<Yellow> FROM M<Green>") }
+      playProject(HiredRaiders, 1) { doTask("3 MC<Yellow> FROM MC<Green>") }
     }
     green.turn {
       // "That might just possibly screw me up, actually."

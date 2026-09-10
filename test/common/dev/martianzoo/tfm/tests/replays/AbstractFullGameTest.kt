@@ -11,7 +11,6 @@ import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.tests.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmTest
@@ -28,12 +27,11 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   /** Pets declarations for concrete Players with sourced per-seat setup rules. */
   protected open val playerClassPets: String = ""
   protected open val catalog: TfmCatalog by lazy { canonicalCatalog(config) }
-  protected open val inputOnlySynonyms: List<Pair<String, String>> = TEST_CLASS_SYNONYMS
 
   @BeforeTest
   open fun commonSetup() {
     val premise = catalog.gamePremise(config, parseClasses(playerClassPets))
-    game = Engine.newGame(premise, inputOnlySynonyms = inputOnlySynonyms)
+    game = Engine.newGame(premise)
     val players = game.actors.filterIsInstance<Player>()
     p1 = game.tfm(players[0]).requireExplicitPaymentChoices()
     if (players.size > 1) p2 = game.tfm(players[1]).requireExplicitPaymentChoices()

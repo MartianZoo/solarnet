@@ -65,7 +65,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
             )
         )
     game.classTable.isActive(cn("Merchant")) shouldBe true
-    p1.manual("10 M, 2 S, 2 T, 2 P, 2 E, 2 H")
+    p1.manual("10 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat")
     admin.phase("Action")
 
     p1.stdAction("ClaimMilestoneAction") { doTask("Merchant") }
@@ -114,7 +114,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   // you 6 at setup. Both start one short of their threshold after these grants.
   private fun claimProducerOneProductionShortOfThreshold(milestone: String, modules: String) {
     newGame(GameConfig("$milestone, Builder, Engineer$modules", "Player1", "Player2"))
-    p1.manual("8 M")
+    p1.manual("8 MC")
     p1.manual("PROD[5 Steel, 5 Titanium, 5 Plant]")
     admin.phase("Action")
 

@@ -7,7 +7,6 @@ import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.chain
-import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -33,7 +32,7 @@ internal fun setUpGame(
     premise: GamePremise,
     retainedStartingProjects: Int = 0,
 ): World =
-    Engine.newGame(premise, inputOnlySynonyms = TEST_CLASS_SYNONYMS).apply {
+    Engine.newGame(premise).apply {
       TfmWorkflow.Manual(this).setupPhase()
       retainStartingProjects(
           this,
@@ -59,18 +58,6 @@ internal fun playCorporationWithoutStartingProjects(
 ): TaskResult = player.inTurn {
   doTask("PlayCard<Class<CorporationCard>, Class<$corporation>, Hand>")
 }
-
-internal val TEST_CLASS_SYNONYMS: List<Pair<String, String>> =
-    listOf(
-        "M" to "MC",
-        "S" to "Steel",
-        "T" to "Titanium",
-        "P" to "Plant",
-        "E" to "Energy",
-        "H" to "Heat",
-        "TR" to "TerraformRating",
-        "VP" to "VictoryPoint",
-    )
 
 internal fun setUpGame(
     vararg selectedOptions: TestSelection,
@@ -108,9 +95,7 @@ internal fun canonicalPremise(
 ): GamePremise {
   val config =
       GameConfig.create(
-          included =
-              options.map(TestOption::className) +
-                  colonyTiles.map(TEST_ENGLISH_VOCABULARY::canonicalName),
+          included = options.map(TestOption::className) + colonyTiles,
           excluded = excludedOptions.map(TestOption::className),
           playerNames = Player.players(players).map(Player::className),
       )
@@ -155,9 +140,8 @@ object TestHelpers {
   fun testColonyTiles(players: Int, vararg included: String): Set<ClassName> {
     require(players > 0)
     val count = if (players == 1) 4 else if (players == 2) 5 else players + 2
-    val selected = included.mapTo(linkedSetOf()) { TEST_ENGLISH_VOCABULARY.canonicalName(cn(it)) }
-    TEST_COLONY_TILES.map { TEST_ENGLISH_VOCABULARY.canonicalName(cn(it)) }
-        .filterNotTo(selected) { it in selected }
+    val selected = included.mapTo(linkedSetOf(), ::cn)
+    TEST_COLONY_TILES.map(::cn).filterNotTo(selected) { it in selected }
     return selected.take(count).toSet()
   }
 
@@ -184,7 +168,7 @@ object TestHelpers {
             object : PetTransformer() {
               override fun transformNode(node: PetNode): PetNode =
                   if (node is Expression) {
-                    elaborator.elaborateInput(node, game.vocabulary, inferredOwner)
+                    elaborator.elaborateInput(node, inferredOwner)
                   } else {
                     transformChildren(node)
                   }
@@ -262,9 +246,3 @@ object TestHelpers {
   private val TEST_COLONY_TILES =
       listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io", "Europa", "Pluto")
 }
-
-private val TEST_ENGLISH_VOCABULARY =
-    Vocabulary.create(
-        Canon,
-        activeClassNames = Canon.colonyTileClassNames,
-    )

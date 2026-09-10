@@ -10,6 +10,6 @@ internal class AphroditeTest : CardTest() {
     newGameWithAutoWorkflow(VenusNextExpansion)
     playUntilFirstActionPhase(UnitedNationsMarsInitiative, Aphrodite)
 
-    p1.stdProject("AirScrappingProject").expect("2 M<Player2>")
+    p1.stdProject("AirScrappingProject").expect("2 MC<Player2>")
   }
 }

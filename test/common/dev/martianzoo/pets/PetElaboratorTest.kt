@@ -62,18 +62,12 @@ internal class PetElaboratorTest {
   private val table = catalog.classTable
   private val elaborator = PetElaborator(table)
   private val player1 = Player(parse("Player1"))
-  private val vocabulary =
-      Vocabulary.create(
-          catalog,
-          activeClassNames = table.allClassNames,
-          inputOnlySynonyms = listOf("Chip" to "Token"),
-      )
 
   @Test
   internal fun inputElaborationAppliesTheCompleteAuthoredSyntaxPackage() {
-    val source = parse<InstructionTree>("2 Pulse, UNWRAP[Chip]")
+    val source = parse<InstructionTree>("2 Pulse, UNWRAP[Token]")
 
-    elaborator.elaborateInput(source, vocabulary, player1) shouldBe
+    elaborator.elaborateInput(source, player1) shouldBe
         parse<InstructionTree>("Pulse!, Pulse!, Token<Player1>!")
   }
 
@@ -81,8 +75,8 @@ internal class PetElaboratorTest {
   internal fun ordinaryInputRejectsPropertyEvaluationWhileMetricInputExpandsIt() {
     val source = parse<Metric>("EVAL Score.score")
 
-    shouldThrow<PetSyntaxException> { elaborator.elaborateInput(source, vocabulary, player1) }
-    elaborator.elaborateMetricInput(source, vocabulary, player1.expression, player1) shouldBe
+    shouldThrow<PetSyntaxException> { elaborator.elaborateInput(source, player1) }
+    elaborator.elaborateMetricInput(source, player1.expression, player1) shouldBe
         parse<Metric>("Pulse")
   }
 

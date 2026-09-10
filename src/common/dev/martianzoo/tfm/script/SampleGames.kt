@@ -168,7 +168,7 @@ internal object SampleGames {
     p1.cardAction2(cn("DeuteriumExport"))
     p1.playProject(cn("ProjectInspection"), 0) { doTask("UseAction<DevelopmentCenter, Action1>") }
     p2.cardAction1(cn("Factorum"))
-    p2.playProject(cn("PowerSupplyConsortium"), 3) { doTask("PROD[-E<Player1>]") }
+    p2.playProject(cn("PowerSupplyConsortium"), 3) { doTask("PROD[-Energy<Player1>]") }
     p1.playProject(cn("FloatingHabs"), 5)
     p1.cardAction1(cn("FloatingHabs")) { doTask("Floater<DeuteriumExport>") }
     p2.playProject(cn("TitaniumMine"), 5)

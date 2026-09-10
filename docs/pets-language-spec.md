@@ -976,28 +976,25 @@ three separate cards. It changes how a source *reads*; it never changes which ty
 what section 10 of the type system specification means by a default not being a bound.
 
 **L12-1. Elaboration is a fixed set of stages, applied differently depending on where the Pets came
-from.** The stages are: canonicalize a session's input names (which names a session accepts is
-`NAMING.md`'s subject); expand every name to its canonical spelling; infer type variables (T13-6
-through T13-9); split atomized gains (L12-11); insert defaults (L12-4 through L12-10); bind the
-contextual owner (L12-3); dispatch transform blocks (section 10); expand property evaluations
-(L12-12).
+from.** The stages are: infer type variables (T13-6 through T13-9); split atomized gains (L12-11);
+insert defaults (L12-4 through L12-10); bind the contextual owner (L12-3); dispatch transform blocks
+(section 10); expand property evaluations (L12-12).
 
 Two entry points apply different subsets, in different orders:
 
 | | An element a player submits | A class's own effects |
 | --- | --- | --- |
-| Session input names | canonicalized | not applicable — a source writes canonical names |
 | Defaults are inserted against | `This` | the class's own context |
 | Order of defaults and atomizing | atomize, then default | default, then atomize |
 | Contextual owner | bound to the submitting player | left open, and `BY Owner` added where the result needs one (L12-13) |
 | Property evaluations | rejected, except in a metric (L12-12) | expanded once the receiver is concrete |
 
-The shared core — expanding names, inferring variables, atomizing, defaulting and dispatching — is
-the same rewriting in both.
+The shared core — inferring variables, atomizing, defaulting and dispatching — is the same rewriting
+in both.
 
 > **Non-normative example — player setup.** `10 ProjectCard` must become ten independent card gains,
 > each defaulted to the setting-up player. The fixed stage order prevents owner defaulting from
-> happening on one aggregate pseudo-card or a transform from seeing session-only aliases.
+> happening on one aggregate pseudo-card.
 
 **L12-2. `This` is replaced by the context expression.** `Class<This>` becomes the class literal for
 the context's class, and `This<Foo>` keeps its own arguments while adopting the context's class.

@@ -44,7 +44,7 @@ A **Catalog** is one coherent namespace containing everything Solarnet may know 
 
 - authored Class declarations;
 - transitional map records used for generation, selection, and presentation;
-- vocabulary and descriptive metadata;
+- display-name and descriptive metadata;
 - premise defaults and validity rules; and
 - the exceptional custom metrics and instructions that cannot be expressed as data.
 
@@ -310,7 +310,7 @@ map Bundle without a same-named Module uses the disjunction of its map Modules. 
 with neither has no implicit availability rule. This convention covers expansions,
 single-map Bundles without per-Class properties.
 
-Availability is not activation. Selecting `TerraformingMars` makes its ambient vocabulary,
+Availability is not activation. Selecting `TerraformingMars` makes its ambient classes,
 including `MultiplayerMode`, available, while the selected player-count Module still decides which
 mode is active. A nonconstructive gate or Trigger may mention an available but uninhabited Class and
 go silent intentionally. This keeps mode-conditional cards such as Vitor available in Solo;

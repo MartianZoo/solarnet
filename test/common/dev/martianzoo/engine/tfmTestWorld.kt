@@ -34,19 +34,7 @@ internal fun canonicalPremise(
 }
 
 internal fun setUpGame(premise: GamePremise = canonicalPremise()): World =
-    Engine.newGame(premise, inputOnlySynonyms = TEST_CLASS_SYNONYMS).apply {
+    Engine.newGame(premise).apply {
       TfmWorkflow.Manual(this).setupPhase()
       actors.filterIsInstance<Player>().forEach { agent(it).doTask("-10 ProjectCard<Hand>") }
     }
-
-internal val TEST_CLASS_SYNONYMS: List<Pair<String, String>> =
-    listOf(
-        "M" to "MC",
-        "S" to "Steel",
-        "T" to "Titanium",
-        "P" to "Plant",
-        "E" to "Energy",
-        "H" to "Heat",
-        "TR" to "TerraformRating",
-        "VP" to "VictoryPoint",
-    )

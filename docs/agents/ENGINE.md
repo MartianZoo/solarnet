@@ -652,12 +652,11 @@ and Asteroid Deflection System, remain direct removal triggers. Do not replace t
 
 Current Actor-scoped string input passes through this order:
 
-1. localized Vocabulary canonicalization and input-only synonyms;
-2. Class-Name resolution against the World table;
-3. atomization of counted `Atomized` components;
-4. dependency defaults;
-5. contextual `Owner` replacement for Player scopes; and
-6. marked-syntax handlers registered by the World's Catalog.
+1. Class-Name resolution against the World table;
+2. atomization of counted `Atomized` components;
+3. dependency defaults;
+4. contextual `Owner` replacement for Player scopes; and
+5. marked-syntax handlers registered by the World's Catalog.
 
 In the lifecycle terminology above, this elaborates authored input and closes it over the acting
 Player. It need not yet be concrete or resolved, because the submitted work may deliberately leave

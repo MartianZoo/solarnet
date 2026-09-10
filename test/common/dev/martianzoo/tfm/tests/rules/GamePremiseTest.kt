@@ -130,8 +130,6 @@ internal class GamePremiseTest {
     Canon.classTable.findClass(blue) shouldBe null
     game.classTable.isActive(blue) shouldBe true
     game.actors.shouldContainExactly(Player(blue), Player(yellow), ADMIN)
-    game.vocabulary.canonicalName(blue) shouldBe blue
-    game.vocabulary.petsName(blue) shouldBe blue
     game.reader.getComponents("Player").map { it.className }.toSet() shouldBe setOf(blue, yellow)
     TfmWorkflow.Manual(game).setupPhase()
     game.agent(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
