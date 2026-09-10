@@ -1,6 +1,5 @@
 package dev.martianzoo.pets.data
 
-import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
@@ -79,17 +78,4 @@ public data class GamePremise(
   /** The administrative Actor plus the seated Players. */
   public val actors: List<Actor>
     get() = playerNames.map(::Player) + ADMIN
-
-  /** Builds presentation and input translation for this premise's projected class names. */
-  public fun createVocabulary(
-      activeClassNames: Set<ClassName>,
-      locale: String = Vocabulary.ENGLISH,
-      inputOnlySynonyms: Iterable<Pair<String, String>> = emptyList(),
-  ): Vocabulary =
-      Vocabulary.create(
-          catalog,
-          locale,
-          inputOnlySynonyms,
-          activeClassNames,
-      )
 }

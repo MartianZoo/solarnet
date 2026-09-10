@@ -40,20 +40,20 @@ internal class BasicTest {
   }
 
   @Test
-  internal fun configuredInputOnlySynonyms() {
+  internal fun canonicalClassNamesWorkInScriptInput() {
     val game = setUpGame()
     val session = game.tfm(PLAYER2)
 
-    session.manual("PROD[5 MC, 4 E]")
+    session.manual("PROD[5 MC, 4 Energy]")
     session.manual("ProjectCard")
     session.manual("StripMine")
-    session.manual("PROD[-2 E, 2 S, T]")
+    session.manual("PROD[-2 Energy, 2 Steel, Titanium]")
 
-    assertEquals(1, session.count("PROD[E]"))
-    assertEquals(5, session.count("PROD[S]"))
-    assertEquals(3, session.count("PROD[T]"))
+    assertEquals(1, session.count("PROD[Energy]"))
+    assertEquals(5, session.count("PROD[Steel]"))
+    assertEquals(3, session.count("PROD[Titanium]"))
 
-    assertTrue(game.tfm(PLAYER1).has("PROD[=1 E, =1 S]"))
+    assertTrue(game.tfm(PLAYER1).has("PROD[=1 Energy, =1 Steel]"))
   }
 
   @Test

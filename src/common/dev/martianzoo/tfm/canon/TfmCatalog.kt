@@ -130,15 +130,6 @@ public open class TfmCatalog : Catalog {
             }
       }
 
-  final override val derivedPetsNameClassNames: Set<ClassName> by lazy {
-    buildSet {
-      addAll(cardClassNames)
-      addAll(goalClassNames(TfmClasses.MILESTONE))
-      addAll(goalClassNames(TfmClasses.AWARD))
-      addAll(colonyTileClassNames)
-    }
-  }
-
   /** Organizational bundles from which this Catalog is assembled. */
   public open val bundles: List<Bundle> = emptyList()
 
@@ -206,12 +197,12 @@ public open class TfmCatalog : Catalog {
    * Cooks user-facing Module and setup selections into an exact game premise by applying Catalog
    * defaults and selection policies.
    *
-   * Structured inputs may use unambiguous English Pets names. Naming any milestones or awards
-   * selects the exact configured pool for that category. A playable Terraforming Mars Catalog
-   * requires at least one player name in seat order. Missing names are composed into the Catalog as
-   * concrete `Player` subclasses before the premise is resolved. The returned Catalog also contains
-   * one generated concrete `Premise` Class whose immediate effects create the resolved Modules,
-   * Players, and exact starting Components.
+   * Structured inputs use canonical Class Names. Naming any milestones or awards selects the exact
+   * configured pool for that category. A playable Terraforming Mars Catalog requires at least one
+   * player name in seat order. Missing names are composed into the Catalog as concrete `Player`
+   * subclasses before the premise is resolved. The returned Catalog also contains one generated
+   * concrete `Premise` Class whose immediate effects create the resolved Modules, Players, and
+   * exact starting Components.
    */
   public open fun gamePremise(
       config: GameConfig,

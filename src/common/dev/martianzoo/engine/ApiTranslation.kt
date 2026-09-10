@@ -5,7 +5,6 @@ import dev.martianzoo.engine.Agent.OperationBody
 import dev.martianzoo.engine.AutoExecMode.FIRST
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
-import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
@@ -36,7 +35,6 @@ internal class ApiTranslation(
     override val tasks: TaskQueue,
     private val classTable: ClassTable,
     private val elaborator: PetElaborator,
-    private val vocabulary: Vocabulary,
     private val atomicOperationScope: AtomicOperationScope,
 ) : Agent {
 
@@ -56,7 +54,6 @@ internal class ApiTranslation(
       reader.count(
           elaborator.elaborateMetricInput(
               Parsing.parse(metric),
-              vocabulary,
               actor.expression,
               actor as? Player,
           )
@@ -80,12 +77,12 @@ internal class ApiTranslation(
   override fun resolve(expression: String) = reader.resolve(parse(expression))
 
   override fun parseInternal(type: KClass<out PetElement>, text: String): PetElement =
-      elaborator.elaborateInput(Parsing.parse(type, text), vocabulary, actor as? Player)
+      elaborator.elaborateInput(Parsing.parse(type, text), actor as? Player)
 
   private fun parseTaskNarrowing(text: String): ParsedTaskNarrowing {
     val parsed = Parsing.parse<InstructionTree>(text)
     return ParsedTaskNarrowing(
-        elaborator.elaborateInput(parsed, vocabulary, actor as? Player),
+        elaborator.elaborateInput(parsed, actor as? Player),
         intensityOmitted = parsed is Change && parsed.intensity == null,
         submittedAsGroup = parsed is InstructionGroup,
     )

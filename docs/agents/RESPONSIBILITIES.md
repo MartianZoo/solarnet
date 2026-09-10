@@ -76,9 +76,9 @@ caller chose one legal mutation instead of another.
 **Current divergence:** there is no `:gameworld` or `:agent` module. Current `World` combines Game
 World data with live transaction control and Agent lookup, while `Agent`, `AutoExecMode`, queue
 draining, and client-facing string translation all live in `:engine`. `Task` and `GameEvent` live in
-`:pets`; their runtime-data ownership and the event/task rendering attached to `Vocabulary` must be
-untangled during extraction. `TaskQueues` already stores one task set and creates
-assignee-filtered `TaskQueue` views, so task extraction changes ownership rather than semantics.
+`:pets`; their runtime-data ownership must be untangled during extraction. `TaskQueues` already
+stores one task set and creates assignee-filtered `TaskQueue` views, so task extraction changes
+ownership rather than semantics.
 
 Do not create empty Gradle modules ahead of the extraction. First settle the direct core mutation
 surface, the concrete state-change contract, the sole-issuer Agent lifetime, and the plain shared

@@ -22,11 +22,11 @@ internal class LogCommand(private val repl: ScriptSession) : ScriptCommand("log"
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
       context.completions("full", group = "log options")
 
-  override fun noArgs() = repl.game.visibleLogEvents().map(repl.game.vocabulary::renderPets)
+  override fun noArgs() = repl.game.visibleLogEvents().map { it.toString() }
 
   override fun withArgs(args: String): List<String> {
     if (args == "full") {
-      return repl.game.events.entriesSince(Checkpoint(0)).map(repl.game.vocabulary::renderPets)
+      return repl.game.events.entriesSince(Checkpoint(0)).map { it.toString() }
     } else {
       throw UsageException()
     }

@@ -1,8 +1,8 @@
 package dev.martianzoo.tools
 
-import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.displayName
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.MarsMapDefinition
@@ -41,10 +41,10 @@ private class SoloPlacementCalculator(
     require(cards.size == 4) { "exactly four cards are required" }
     cards.forEach {
       require(cardBack(it)?.className == cn("ProjectCard")) {
-        "${soloPlacementVocabulary.displayName(it.className)} is not a project card"
+        "${displayName(soloPlacementCatalog, it.className)} is not a project card"
       }
       require(mode != PlacementMode.COMPATIBILITY || cardCost(it) > 0) {
-        "${soloPlacementVocabulary.displayName(it.className)} has cost 0, which compatibility mode rejects"
+        "${displayName(soloPlacementCatalog, it.className)} has cost 0, which compatibility mode rejects"
       }
     }
 
@@ -97,7 +97,7 @@ private class SoloPlacementCalculator(
   private fun placeCity(card: Class, candidates: List<AreaDefinition>): AreaDefinition {
     val index = index(cardCost(card))
     require(index < candidates.size) {
-      "${soloPlacementVocabulary.displayName(card.className)} costs ${cardCost(card)}, " +
+      "${displayName(soloPlacementCatalog, card.className)} costs ${cardCost(card)}, " +
           "but only ${candidates.size} legal city areas remain"
     }
     return candidates[index].also { tiles[it] = SoloTile.CITY }
@@ -147,7 +147,7 @@ internal fun calculateSoloPlacements(arguments: List<String>): List<Placement> {
   require(namesInOrder.size == 5) {
     "usage: solo-placement [--compatibility] MAP CARD1 CARD2 CARD3 CARD4"
   }
-  val names = namesInOrder.map(::cn).map(soloPlacementVocabulary::canonicalName)
+  val names = namesInOrder.map(::cn)
   val requestedMap = names.first()
   val mapName =
       cn("${requestedMap}Map").takeIf { it in soloPlacementCatalog.allClassNames } ?: requestedMap
@@ -163,7 +163,7 @@ internal fun formatPlacements(placements: List<Placement>): String {
     appendLine("Cards (draw order):")
     drawOrder.forEachIndexed { index, placement ->
       appendLine(
-          "${index + 1}. ${soloPlacementVocabulary.displayName(placement.card.className)}: " +
+          "${index + 1}. ${displayName(soloPlacementCatalog, placement.card.className)}: " +
               cardCost(placement.card)
       )
     }
@@ -172,7 +172,7 @@ internal fun formatPlacements(placements: List<Placement>): String {
       val label = placement.tile.name.lowercase().replaceFirstChar(Char::uppercase)
       appendLine(
           "$label ${placement.ordinal}: ${placement.area.className} " +
-              "(${soloPlacementVocabulary.displayName(placement.card.className)}, ${cardCost(placement.card)})"
+              "(${displayName(soloPlacementCatalog, placement.card.className)}, ${cardCost(placement.card)})"
       )
     }
   }
@@ -180,12 +180,6 @@ internal fun formatPlacements(placements: List<Placement>): String {
 }
 
 private val soloPlacementCatalog: TfmCatalog = Canon
-
-private val soloPlacementVocabulary: Vocabulary =
-    Vocabulary.create(
-        soloPlacementCatalog,
-        activeClassNames = soloPlacementCatalog.allClassNames,
-    )
 
 public fun main(args: Array<String>) {
   try {

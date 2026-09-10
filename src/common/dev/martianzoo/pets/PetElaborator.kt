@@ -75,9 +75,8 @@ public class PetElaborator(public val classTable: ClassTable) {
    */
   public fun elaborateInput(
       input: PetElement,
-      vocabulary: Vocabulary,
       owner: HasClassName? = null,
-  ): PetElement = inputElaborator(vocabulary, owner).transformElement(input)
+  ): PetElement = inputElaborator(owner).transformElement(input)
 
   /**
    * The statically typed [InstructionTree] form of [elaborateInput], with the same elaboration and
@@ -85,19 +84,17 @@ public class PetElaborator(public val classTable: ClassTable) {
    */
   public fun elaborateInput(
       input: InstructionTree,
-      vocabulary: Vocabulary,
       owner: HasClassName? = null,
-  ): InstructionTree = inputElaborator(vocabulary, owner).transformInstructionTree(input)
+  ): InstructionTree = inputElaborator(owner).transformInstructionTree(input)
 
   /** Elaborates a session-authored Metric, including explicit Class-property evaluation. */
   public fun elaborateMetricInput(
       input: Metric,
-      vocabulary: Vocabulary,
       context: Expression,
       owner: HasClassName? = null,
   ): Metric =
       chain(
-              normalizeInput(vocabulary),
+              normalizeInput(),
               propertyEvaluator(context, owner),
               finishAuthoredSyntax(context, owner),
           )
@@ -109,15 +106,15 @@ public class PetElaborator(public val classTable: ClassTable) {
       owner: HasClassName? = null,
   ): InstructionTree = finishAuthoredSyntax(THIS.expression, owner).transformInstructionTree(input)
 
-  private fun inputElaborator(vocabulary: Vocabulary, owner: HasClassName?): PetTransformer =
+  private fun inputElaborator(owner: HasClassName?): PetTransformer =
       chain(
           rejectPropertyEvaluations(),
-          normalizeInput(vocabulary),
+          normalizeInput(),
           finishAuthoredSyntax(THIS.expression, owner),
       )
 
-  private fun normalizeInput(vocabulary: Vocabulary): PetTransformer =
-      chain(vocabulary.inputCanonicalizer(), useFullNames(), classTable.inferTypeVariables())
+  private fun normalizeInput(): PetTransformer =
+      chain(useFullNames(), classTable.inferTypeVariables())
 
   private fun finishAuthoredSyntax(
       context: Expression,
