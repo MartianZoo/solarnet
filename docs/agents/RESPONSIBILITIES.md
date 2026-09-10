@@ -138,6 +138,28 @@ workflow project should extract those mechanics while moving phase topology to t
 Hex-to-ANSI color rendering and half-space centering are generic helpers inside Terraforming Mars UI
 classes. They are too small to drive an architecture change. Move them only with nearby work.
 
+### Session policy and engine data sit inside `:pets`
+
+`docs/pets-language-spec.md` deliberately stops at the language: source, declarations, expressions,
+requirements, metrics, instructions, narrowing, effects, actions, transform blocks, owner-local
+Classes, and elaboration. Four surfaces in `dev.martianzoo.pets` are outside that line and would
+plausibly belong elsewhere:
+
+- [`Vocabulary.kt`](../../src/common/dev/martianzoo/pets/Vocabulary.kt) is one session's
+  input-name and presentation policy — localized Pets names, input-only synonyms such as `TR`, and
+  Pets rendering. It is not part of what a source may mean. [`NAMING.md`](NAMING.md) owns naming.
+- The `renderPets` overloads for `StateChange`, `GameEvent` and `Task` in the same file render
+  engine data. [`GAMEWORLD.md`](GAMEWORLD.md) and [`ENGINE.md`](ENGINE.md) own that data.
+- [`Catalog.kt`](../../src/common/dev/martianzoo/pets/data/Catalog.kt),
+  [`GamePremise.kt`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt) and
+  `ClassSelection` are game assembly, owned by [`OPTIONS.md`](OPTIONS.md).
+- [`Task.kt`](../../src/common/dev/martianzoo/pets/data/Task.kt),
+  [`GameEvent.kt`](../../src/common/dev/martianzoo/pets/data/GameEvent.kt) and `TaskResult` are
+  engine data that merely happen to hold Pets.
+
+No move is scheduled. Record here first if one is, and settle whether `:pets` should shrink to the
+language and its types before adding anything else to these files.
+
 ## Already-correct dependencies
 
 Do not reopen these without new evidence:

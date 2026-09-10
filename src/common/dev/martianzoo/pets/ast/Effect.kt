@@ -99,7 +99,7 @@ public data class Effect(
           if (expression.className == CLASS) {
             throw PetSyntaxException("Class types cannot be used as effect triggers: $expression")
           }
-          return if (expression == THIS.expression) {
+          return if (expression.isBare(THIS)) {
             WhenGain
           } else {
             OnGainOf(expression)
@@ -108,7 +108,7 @@ public data class Effect(
       }
 
       init {
-        require(expression != THIS.expression)
+        require(!expression.isBare(THIS))
       }
 
       override fun visitChildren(visitor: Visitor): Unit = visitor.visit(expression)
@@ -124,7 +124,7 @@ public data class Effect(
           if (expression.className == CLASS) {
             throw PetSyntaxException("Class types cannot be used as effect triggers: -$expression")
           }
-          return if (expression == THIS.expression) {
+          return if (expression.isBare(THIS)) {
             WhenRemove
           } else {
             OnRemoveOf(expression)
@@ -133,7 +133,7 @@ public data class Effect(
       }
 
       init {
-        require(expression != THIS.expression)
+        require(!expression.isBare(THIS))
       }
 
       override fun visitChildren(visitor: Visitor): Unit = visitor.visit(expression)

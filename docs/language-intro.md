@@ -68,4 +68,4 @@ There are several basic elements to the language.
 * ChangeEvents, aka game log entries (`469: +OxygenStep BY Player2 VIA GreeneryTile<Player2, Tharsis_5_5> BECAUSE 448`)
 * Class declarations (`CLASS TerraformRating { ProductionPhase: 1 MC; End: VictoryPoint }`)
 
-See a [syntax reference](syntax.md)
+See the [Pets language specification](pets-language-spec.md).

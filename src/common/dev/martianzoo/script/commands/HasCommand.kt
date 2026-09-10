@@ -12,8 +12,8 @@ internal class HasCommand(private val repl: ScriptSession) : ScriptCommand("has"
   override val usage = "has <Requirement>"
   override val help =
       """
-        Evaluates the requirement and tells you true or false. Go see syntax.md on the github page
-        for syntax.
+        Evaluates the requirement and tells you true or false. Go see pets-language-spec.md on the
+        github page for syntax.
       """
   override val isReadOnly = true
 

@@ -39,10 +39,10 @@ internal class Spec10DefaultsTest {
 
   private fun defaults(name: String) = mars.getClass(cn(name)).defaults
 
-  // 10-1 The three default sets
+  // T10-1 The three default sets
 
   @Test
-  internal fun `10-1 defaults are gathered separately for all uses, gains and removals`() {
+  internal fun `T10-1 defaults are gathered separately for all uses, gains and removals`() {
     val tile = defaults("Tile")
 
     tile.allUsages.dependencies.keys shouldContainExactly listOf(Key(cn("Owned"), 0))
@@ -51,7 +51,7 @@ internal class Spec10DefaultsTest {
   }
 
   @Test
-  internal fun `10-1 an all-uses default supplies a bound wherever the type is written`() {
+  internal fun `T10-1 an all-uses default supplies a bound wherever the type is written`() {
     // The system class `Owned` declares `DEFAULT Owned<Owner>`.
     defaults("Plant").allUsages.dependencies.get(Key(cn("Owned"), 0)).expressionFull shouldBe
         te("Owner")
@@ -59,7 +59,7 @@ internal class Spec10DefaultsTest {
   }
 
   @Test
-  internal fun `10-1 defaultType is the base type with the all-uses defaults applied`() {
+  internal fun `T10-1 defaultType is the base type with the all-uses defaults applied`() {
     // Inherited dependencies come first, so `Owned_0` precedes `Tile_0`.
     mars.getClass(cn("GreeneryTile")).baseType.expressionFull shouldBe
         te("GreeneryTile<Owner, MarsArea>")
@@ -68,16 +68,16 @@ internal class Spec10DefaultsTest {
   }
 
   @Test
-  internal fun `10-1 defaults never change which types exist`() {
+  internal fun `T10-1 defaults never change which types exist`() {
     // The gain default names LandArea, but the type `GreeneryTile` still admits any MarsArea.
     mars.resolve(te("GreeneryTile<Tharsis_1_1>")).expressionFull shouldBe
         te("GreeneryTile<Owner, Tharsis_1_1>")
   }
 
-  // 10-2 Intensities
+  // T10-2 Intensities
 
   @Test
-  internal fun `10-2 gain and removal intensities are inherited independently`() {
+  internal fun `T10-2 gain and removal intensities are inherited independently`() {
     val table =
         loadTypes(
             """
@@ -99,7 +99,7 @@ internal class Spec10DefaultsTest {
   }
 
   @Test
-  internal fun `10-2 supertypes that disagree about an intensity are an error`() {
+  internal fun `T10-2 supertypes that disagree about an intensity are an error`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Eager { DEFAULT +Eager. }",
@@ -110,10 +110,10 @@ internal class Spec10DefaultsTest {
     shouldThrow<PetException> { table.getClass(cn("Both")).defaults }
   }
 
-  // 10-3 A default names its own class
+  // T10-3 A default names its own class
 
   @Test
-  internal fun `10-3 a DEFAULT clause must name the class that declares it`() {
+  internal fun `T10-3 a DEFAULT clause must name the class that declares it`() {
     shouldThrow<PetException> {
       loadTypes(
           "ABSTRACT CLASS Area { CLASS Tharsis_2_2 }",
@@ -122,10 +122,10 @@ internal class Spec10DefaultsTest {
     }
   }
 
-  // 10-4 Inheriting dependency defaults
+  // T10-4 Inheriting dependency defaults
 
   @Test
-  internal fun `10-4 the nearest declaring superclass supplies the default`() {
+  internal fun `T10-4 the nearest declaring superclass supplies the default`() {
     defaults("GreeneryTile").gainOnly.dependencies.get(Key(cn("Tile"), 0)).expressionFull shouldBe
         te("LandArea")
     defaults("OceanTile").gainOnly.dependencies.get(Key(cn("Tile"), 0)).expressionFull shouldBe
@@ -133,7 +133,7 @@ internal class Spec10DefaultsTest {
   }
 
   @Test
-  internal fun `10-4 an inherited default is intersected with the class's own bound`() {
+  internal fun `T10-4 an inherited default is intersected with the class's own bound`() {
     val table =
         loadTypes(
             """
@@ -159,7 +159,7 @@ internal class Spec10DefaultsTest {
   }
 
   @Test
-  internal fun `10-4 a default that merely restates the declared bound records nothing`() {
+  internal fun `T10-4 a default that merely restates the declared bound records nothing`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Area { CLASS Tharsis_2_2 }",
@@ -170,7 +170,7 @@ internal class Spec10DefaultsTest {
   }
 
   @Test
-  internal fun `10-4 supertypes with no common narrowing for one default are an error`() {
+  internal fun `T10-4 supertypes with no common narrowing for one default are an error`() {
     val table =
         loadTypes(
             """
@@ -189,10 +189,10 @@ internal class Spec10DefaultsTest {
     shouldThrow<PetException> { table.getClass(cn("Impossible")).defaults }
   }
 
-  // 10-5 `Owner` stays contextual
+  // T10-5 `Owner` stays contextual
 
   @Test
-  internal fun `10-5 Owner written in a default is kept as written, not resolved to the bound`() {
+  internal fun `T10-5 Owner written in a default is kept as written, not resolved to the bound`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Player : Owner { CLASS Player1 }",
@@ -212,7 +212,7 @@ internal class Spec10DefaultsTest {
   }
 
   @Test
-  internal fun `10-5 a default type may therefore sit outside its own class's base type`() {
+  internal fun `T10-5 a default type may therefore sit outside its own class's base type`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Player : Owner { CLASS Player1 }",

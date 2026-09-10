@@ -60,6 +60,7 @@ public data class Expression(
               className == other.className &&
               arguments == other.arguments &&
               refinement == other.refinement &&
+              argumentsSpecified == other.argumentsSpecified &&
               derivedClassBody == other.derivedClassBody)
 
   override fun hashCode(): Int {
@@ -67,6 +68,7 @@ public data class Expression(
     var result = className.hashCode()
     result = 31 * result + arguments.hashCode()
     result = 31 * result + (refinement?.hashCode() ?: 0)
+    result = 31 * result + argumentsSpecified.hashCode()
     result = 31 * result + (derivedClassBody?.hashCode() ?: 0)
     cachedHashCode = result
     return result
@@ -94,6 +96,14 @@ public data class Expression(
 
   /** Does this expression consist only of a class name, with no arguments and no refinement? */
   val simple: Boolean = arguments.isEmpty() && refinement == null && !argumentsSpecified
+
+  /**
+   * Is this just the name [name], with no arguments and no refinement, however the empty argument
+   * list was written? `This` and `This<>` are both the bare `This` placeholder; they are not equal
+   * as expressions, because they render differently, but neither one carries an argument.
+   */
+  internal fun isBare(name: ClassName): Boolean =
+      className == name && arguments.isEmpty() && refinement == null
 
   public fun appendArguments(moreArgs: List<Expression>): Expression =
       replaceArguments(arguments + moreArgs)

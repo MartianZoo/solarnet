@@ -438,7 +438,7 @@ still required; context-closed does not mean concrete or resolved.
 meaningful only in declaration syntax that supplies a Class or component context and it disappears
 by the component-effect stage. `Class<This>` retains the root Class identity without dependencies.
 Static Class construction and the current specialized `This<...>` invariant behavior are specified
-in [type-system-spec.md](../type-system-spec.md) (rule 3-2).
+in [type-system-spec.md](../type-system-spec.md) (rule T3-2).
 
 `Owner` currently conflates two roles: a contextual value to bind and the ordinary abstract `Owner`
 Type, whose concrete choices include seated Players and `SoloOpponent`. Consequently, failure to
