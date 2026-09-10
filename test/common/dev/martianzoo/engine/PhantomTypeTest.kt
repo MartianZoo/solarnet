@@ -78,9 +78,10 @@ internal class PhantomTypeTest {
                   )
                   .toSet()
         }
+    // The probe names Player1, so the seats have to exist before its declaration is loaded.
     val premise =
         canonicalPremise(
-            catalog = TfmCatalog.Composite(Canon, probeCatalog),
+            catalog = TfmCatalog.Composite(Canon.withPlayers(2), probeCatalog),
             initialComponentTypes = setOf(cn("PhantomEffectProbe").expression),
         )
 

@@ -208,11 +208,12 @@ internal class Spec10DefaultsTest {
         .dependencies
         .get(Key(cn("Owned"), 0))
         .expressionFull shouldBe te("Owner")
-    table.getClass(cn("ProjectCard")).defaultType.expressionFull shouldBe te("ProjectCard<Owner>")
+    table.getClass(cn("ProjectCard")).defaultExpression shouldBe te("ProjectCard<Owner>")
+    table.getClass(cn("ProjectCard")).defaultType.expressionFull shouldBe te("ProjectCard<Player>")
   }
 
   @Test
-  internal fun `T10-5 a default type may therefore sit outside its own class's base type`() {
+  internal fun `T10-5 the default template is not a constructed type outside its class bounds`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Player : Owner { CLASS Player1 }",
@@ -220,6 +221,7 @@ internal class Spec10DefaultsTest {
         )
     val projectCard = table.getClass(cn("ProjectCard"))
 
-    projectCard.defaultType.isSubtypeOf(projectCard.baseType) shouldBe false
+    projectCard.defaultExpression shouldBe te("ProjectCard<Owner>")
+    projectCard.defaultType.isSubtypeOf(projectCard.baseType) shouldBe true
   }
 }

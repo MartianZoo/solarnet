@@ -259,22 +259,7 @@ public abstract class ClassTable {
   public fun allConcreteSubtypes(type: Type): Sequence<GroundType> {
     val type = type.groundType
     require(type.classTable === masterTable) { "$type belongs to a different Catalog" }
-    val candidates =
-        allSubclasses(type.rootClass).asSequence().filterNot(Class::abstract).flatMap { klass ->
-          val dependencies = type.dependencies glb klass.baseType.dependencies
-          if (dependencies == null) {
-            emptySequence()
-          } else {
-            concreteSubtypesSameClass(klass.withAllDependencies(dependencies))
-          }
-        }
-    val structuralRefinement = type.refinement?.retaining { it is Not }
-    return if (structuralRefinement != null) {
-      val structuralType = type.copy(refinement = structuralRefinement)
-      candidates.filter { it.narrows(structuralType, NoGameState) }
-    } else {
-      candidates
-    }
+    return concreteSubtypes(type) { candidate -> concreteSubtypesSameClass(candidate) }
   }
 
   /**
@@ -289,24 +274,38 @@ public abstract class ClassTable {
   ): Sequence<GroundType> {
     val type = type.groundType
     require(type.classTable === masterTable) { "$type belongs to a different Catalog" }
+    return concreteSubtypes(type) { candidate ->
+      candidate.dependencies.concreteSubtypesSameClass(candidate, dependencyTargets)
+    }
+  }
+
+  private fun concreteSubtypes(
+      type: GroundType,
+      concretizeDependencies: (GroundType) -> Sequence<GroundType>,
+  ): Sequence<GroundType> {
+    val unrefined = type.copy(refinement = null)
     val candidates =
         allSubclasses(type.rootClass).asSequence().filterNot(Class::abstract).flatMap { klass ->
-          val dependencies = type.dependencies glb klass.baseType.dependencies
+          val dependencies = unrefined.dependencies glb klass.dependencies
           if (dependencies == null) {
             emptySequence()
           } else {
-            dependencies.concreteSubtypesSameClass(
-                klass.withAllDependencies(dependencies),
-                dependencyTargets,
-            )
+            concretizeDependencies(klass.withAllDependencies(dependencies))
           }
         }
-    val structuralRefinement = type.refinement?.retaining { it is Not }
-    return if (structuralRefinement != null) {
-      val structuralType = type.copy(refinement = structuralRefinement)
-      candidates.filter { it.narrows(structuralType, NoGameState) }
-    } else {
+    return applyStructuralRefinement(type, candidates)
+  }
+
+  private fun applyStructuralRefinement(
+      requested: GroundType,
+      candidates: Sequence<GroundType>,
+  ): Sequence<GroundType> {
+    val structuralRefinement = requested.refinement?.retaining { it is Not }
+    return if (structuralRefinement == null) {
       candidates
+    } else {
+      val structuralType = requested.copy(refinement = structuralRefinement)
+      candidates.filter { it.narrows(structuralType, NoGameState) }
     }
   }
 
@@ -318,7 +317,10 @@ public abstract class ClassTable {
     val type = type.groundType
     require(type.classTable === masterTable) { "$type belongs to a different Catalog" }
     if (type.rootClass.abstract || !isActive(type.rootClass)) return emptySequence()
-    return type.dependencies.concreteSubtypesSameClass(type, this).filter(::isActive)
+    val unrefined = type.copy(refinement = null)
+    val candidates =
+        unrefined.dependencies.concreteSubtypesSameClass(unrefined, this).filter(::isActive)
+    return applyStructuralRefinement(type, candidates)
   }
 
   /**
@@ -328,23 +330,27 @@ public abstract class ClassTable {
    */
   public fun singleConcreteSubtype(type: Type, info: TypeInfo): GroundType? {
     val type = type.groundType
-    if (
-        (type.rootClass.className == CLASS && type.refinement != null) ||
-            type.refinement?.conjuncts()?.any { it is Not } == true
-    ) {
+    if (type.rootClass.className == CLASS && type.refinement != null) {
       return allConcreteSubtypes(type).filter { it.narrows(type, info) }.take(2).singleOrNull()
     }
-    // A concrete subclass incompatible with [type] is not a choice, so it must not count as one.
+
+    val unrefined = type.copy(refinement = null)
+    val structuralRefinement = type.refinement?.retaining { it is Not }
+    if (structuralRefinement != null) {
+      val structuralType = type.copy(refinement = structuralRefinement)
+      val candidate = allConcreteSubtypes(structuralType).take(2).singleOrNull() ?: return null
+      return candidate.takeIf { it.narrows(type, info) }
+    }
     val intersection =
         allSubclasses(type.rootClass)
             .asSequence()
             .filterNot(Class::abstract)
-            .mapNotNull { type glb it.baseType }
+            .mapNotNull { klass -> unrefined glb klass.baseType }
             .take(2)
             .singleOrNull() ?: return null
     val dependencies = intersection.dependencies.singleConcreteSubtype(info, this) ?: return null
     val candidate = intersection.rootClass.withAllDependencies(dependencies)
-    return candidate.takeIf { !it.abstract && it.narrows(type, info) }
+    return candidate.takeIf { it.narrows(type, info) }
   }
 
   /**

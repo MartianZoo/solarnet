@@ -72,6 +72,22 @@ internal class Spec11EnumerationTest {
     subtypes("LandArea(HAS Neighbor)") shouldContainExactly listOf("Tharsis_2_2", "Tharsis_2_3")
   }
 
+  @Test
+  internal fun `T11-2 every enumeration API returns the same unrefined concrete candidates`() {
+    val table = loadTypes("CLASS Flag", "CLASS One")
+    val impossible = table.resolve(te("One(NOT One)"))
+    val querying = table.resolve(te("One(HAS Flag)"))
+    val one = table.resolve(te("One"))
+
+    impossible.allConcreteSubtypes().toList() shouldBe emptyList()
+    impossible.groundType.concreteSubtypesSameClass().toList() shouldBe emptyList()
+    table.concreteSubtypesSameClass(impossible).toList() shouldBe emptyList()
+
+    querying.allConcreteSubtypes().toList() shouldContainExactly listOf(one)
+    querying.groundType.concreteSubtypesSameClass().toList() shouldContainExactly listOf(one)
+    table.concreteSubtypesSameClass(querying).toList() shouldContainExactly listOf(one)
+  }
+
   // T11-3 Enumeration within one class
 
   @Test
@@ -162,6 +178,35 @@ internal class Spec11EnumerationTest {
 
     table.resolve(te("Plant<Owner(NOT Player1)>")).singleConcreteSubtype(fullWorld) shouldBe
         table.resolve(te("Plant<Player2>"))
+  }
+
+  @Test
+  internal fun `T11-4 a difference is applied after dependencies are specialized`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Area { CLASS Land, Water }",
+            "CLASS Holder<Area>",
+        )
+
+    val requested = table.resolve(te("Holder(NOT Holder<Land>)"))
+    requested.allConcreteSubtypes().toList() shouldBe listOf(table.resolve(te("Holder<Water>")))
+    requested.singleConcreteSubtype(fullWorld) shouldBe table.resolve(te("Holder<Water>"))
+  }
+
+  @Test
+  internal fun `T11-4 HAS cannot choose between candidates exposed by NOT`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Choice { CLASS One, Two, Three }",
+            "CLASS Flag<Choice>",
+        )
+    val onlyOneHasFlag = world("Flag<One>")
+
+    table.resolve(te("Choice(HAS Flag, NOT Three)")).singleConcreteSubtype(onlyOneHasFlag) shouldBe
+        null
+    table
+        .resolve(te("Choice(HAS Flag, NOT Two, NOT Three)"))
+        .singleConcreteSubtype(onlyOneHasFlag) shouldBe table.resolve(te("One"))
   }
 
   @Test

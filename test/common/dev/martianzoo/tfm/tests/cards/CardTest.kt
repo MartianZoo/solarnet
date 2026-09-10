@@ -26,8 +26,15 @@ import dev.martianzoo.tfm.tests.setUpGame as setUpTfmGame
 import kotlin.test.AfterTest
 
 internal abstract class CardTest(
-    private val additionalClassDeclarations: Set<ClassDeclaration> = emptySet(),
+    /**
+     * Extra declarations to compose into each game's Catalog, given the seats that game occupies.
+     */
+    private val additionalClassDeclarations: (seats: Int) -> Set<ClassDeclaration> = { emptySet() },
 ) : TfmTest() {
+  internal constructor(
+      additionalClassDeclarations: Set<ClassDeclaration>
+  ) : this({ additionalClassDeclarations })
+
   protected lateinit var p1: TfmGameplay
     private set
 
@@ -59,8 +66,9 @@ internal abstract class CardTest(
       players: Int,
       colonyTiles: Set<ClassName>,
   ): GamePremise {
+    val additional = additionalClassDeclarations(players)
     val premise =
-        if (!hasAdditionalContent) {
+        if (additional.isEmpty()) {
           cachedSetup(selectedOptions.toSet(), players, colonyTiles)
         } else {
           withAdditionalSelections(
@@ -68,37 +76,44 @@ internal abstract class CardTest(
                   *selectedOptions,
                   players = players,
                   colonyTiles = colonyTiles,
-                  catalog = catalog(Option.FakeStuffBundle in selectedOptions),
-              )
+                  catalog =
+                      composeAdditions(
+                          canonicalCatalog(Option.FakeStuffBundle in selectedOptions),
+                          players,
+                          additional,
+                      ),
+              ),
+              additional,
           )
         }
     return premise
   }
 
-  private val additions: TfmCatalog by lazy {
-    object : TfmCatalog() {
-      override val explicitClassDeclarations = additionalClassDeclarations
-    }
-  }
-
-  private fun catalog(includeFakes: Boolean): TfmCatalog {
-    val base = canonicalCatalog(includeFakes)
-    return if (hasAdditionalContent) TfmCatalog.compose(base, additions) else base
-  }
-
-  private val hasAdditionalContent: Boolean
-    get() = additionalClassDeclarations.isNotEmpty()
+  private fun composeAdditions(
+      base: TfmCatalog,
+      players: Int,
+      additional: Set<ClassDeclaration>,
+  ): TfmCatalog =
+      TfmCatalog.compose(
+          base.withPlayers(players),
+          object : TfmCatalog() {
+            override val explicitClassDeclarations = additional
+          },
+      )
 
   private fun premise(config: GameConfig): GamePremise {
+    val additional = additionalClassDeclarations(config.playerNames.size)
     val base = canonicalCatalog(config)
-    val premiseCatalog = if (hasAdditionalContent) TfmCatalog.compose(base, additions) else base
-    val premise = premiseCatalog.gamePremise(config)
-    if (!hasAdditionalContent) return premise
-    return withAdditionalSelections(premise)
+    if (additional.isEmpty()) return base.gamePremise(config)
+    val premiseCatalog = composeAdditions(base, config.playerNames.size, additional)
+    return withAdditionalSelections(premiseCatalog.gamePremise(config), additional)
   }
 
-  private fun withAdditionalSelections(premise: GamePremise): GamePremise {
-    val additionalClassNames = additionalClassDeclarations.map(ClassDeclaration::className)
+  private fun withAdditionalSelections(
+      premise: GamePremise,
+      additional: Set<ClassDeclaration>,
+  ): GamePremise {
+    val additionalClassNames = additional.map(ClassDeclaration::className)
     return premise.copy(
         classSelections = premise.classSelections + additionalClassNames.map(::ClassSelection)
     )

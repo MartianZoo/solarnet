@@ -1,5 +1,6 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.PetException
@@ -16,8 +17,6 @@ import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.pets.ast.Metric.Count
-import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
@@ -140,13 +139,42 @@ private constructor(
   }
 
   /**
-   * Loads every declaration in the catalog and freezes the resulting master universe, satisfying
-   * the enumeration precondition in
+   * Loads every declaration, freezes the resulting master universe, and validates its statically
+   * decidable declaration types, satisfying the enumeration precondition in
    * [rule 1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   public fun loadEverything(): ClassTable {
     knownClassNames.forEach(::loadSingle)
-    return freeze()
+    val completed = freeze()
+    knownClassNames.forEach { name ->
+      getClass(name).also {
+        it.baseType
+        validateStaticExpressions(it)
+      }
+    }
+    return completed
+  }
+
+  private fun validateStaticExpressions(klass: Class) {
+    val contextualizer = replaceThisExpressionsWith(klass.className.expression)
+    val validated = mutableSetOf<Expression>()
+    klass.declaration.allNodes.forEach { node ->
+      node.visitDescendants {
+        if (it !is Expression) return@visitDescendants true
+        if (!it.simple && validated.add(it)) {
+          val expression = contextualizer.transformExpression(it)
+          try {
+            resolve(expression)
+          } catch (e: PetException) {
+            throw invalidPetDefinition(
+                "Invalid declaration `${klass.className}`: can't resolve `$expression`: ${e.message}",
+                e,
+            )
+          }
+        }
+        false
+      }
+    }
   }
 
   private val queue = ArrayDeque<ClassName>()
@@ -188,7 +216,7 @@ private constructor(
       return loadedClasses[next] ?: throw PetException("Class-loading cycle involving $next")
     }
     val declaration = knownDeclaration(next)
-    validateClassLiterals(declaration)
+    validateClassNames(declaration)
     validateNoEffectCreatesClass(declaration)
     return construct(declaration)
   }
@@ -204,24 +232,20 @@ private constructor(
     )
   }
 
-  private fun validateClassLiterals(declaration: ClassDeclaration) {
-    fun validateClassLiterals(node: PetNode) {
+  /** Rejects names this declaration writes that the catalog never declares. */
+  private fun validateClassNames(declaration: ClassDeclaration) {
+    declaration.allNodes.forEach { node ->
       node.visitDescendants {
-        if (it is Count && it.expression.className == CLASS) {
-          val argument = it.expression.arguments.singleOrNull()?.takeIf(Expression::simple)
-          argument?.let { expression ->
-            if (expression.className !in knownClassNames) {
-              throw Exceptions.classNotFound(expression.className)
-            }
-          }
-          it.expression.refinement?.let(::validateClassLiterals)
-          false
-        } else {
-          true
+        val name = (it as? Expression)?.className
+        if (name != null && name != THIS && name !in knownClassNames) {
+          throw ExpressionException(
+              "${declaration.className} names `$name`, which no declaration introduces " +
+                  "(check bundles, check spelling)"
+          )
         }
+        true
       }
     }
-    declaration.allNodes.forEach(::validateClassLiterals)
   }
 
   /**
