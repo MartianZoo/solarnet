@@ -14,6 +14,7 @@ kotlin {
       )
       dependencies {
         implementation(libs.kotest.assertions.core)
+        implementation(project(":agent"))
         implementation(project(":engine"))
         implementation(project(":pets"))
         implementation(project(":script"))

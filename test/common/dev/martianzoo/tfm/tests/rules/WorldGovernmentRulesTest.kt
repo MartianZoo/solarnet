@@ -20,7 +20,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
   internal fun `A completed parameter is not a legal World Government choice`() {
     newGame(VenusNextExpansion)
     p1.runOperation("15 VenusStep")
-    TfmWorkflow.Stepwise(game).solarPhase()
+    TfmWorkflow.Stepwise(agents).solarPhase()
 
     shouldThrow<LimitsException> { p1.doTask("VenusStep! BY Admin") }
     p1.doTask("TemperatureStep! BY Admin")
@@ -32,7 +32,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
     p1.runOperation("$Aphrodite")
     val moneyBefore = p1.count("MC")
     val ratingBefore = p1.count("TerraformRating")
-    TfmWorkflow.Stepwise(game).solarPhase()
+    TfmWorkflow.Stepwise(agents).solarPhase()
 
     p1.doTask("VenusStep! BY Admin")
 
@@ -44,7 +44,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
   internal fun `Admin terraforming does not trigger an owner-only effect`() {
     newGame(VenusNextExpansion, PromoCardPack)
     p1.runOperation("$HomeostasisBureau")
-    TfmWorkflow.Stepwise(game).solarPhase()
+    TfmWorkflow.Stepwise(agents).solarPhase()
 
     p1.doTask("TemperatureStep! BY Admin")
 
@@ -54,7 +54,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
   @Test
   internal fun `World Government is absent when unselected or disabled in Venus`() {
     newGame()
-    TfmWorkflow.Stepwise(game).solarPhase()
+    TfmWorkflow.Stepwise(agents).solarPhase()
     game.isIdle() shouldBe true
 
     newGame(
@@ -64,7 +64,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
             "Player2",
         )
     )
-    TfmWorkflow.Stepwise(game).solarPhase()
+    TfmWorkflow.Stepwise(agents).solarPhase()
 
     game.isIdle() shouldBe true
   }
@@ -73,7 +73,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
   internal fun `World Government can be selected without Venus`() {
     newGame(GameConfig("WorldGovernmentRule", "Player1", "Player2"))
 
-    TfmWorkflow.Stepwise(game).solarPhase()
+    TfmWorkflow.Stepwise(agents).solarPhase()
     p1.doTask("TemperatureStep! BY Admin")
 
     p1.count("TemperatureStep") shouldBe 1

@@ -4,19 +4,23 @@
 > human didn't write it and we don't expect humans to read it. The project owner can't personally
 > vouch for the information here.
 
-> **Read when:** changing the core mutation surface, `Agent`, `World.agent`, task-command
+> **Read when:** changing the core mutation surface, `Agent`, `World.actorEngine`, task-command
 > authority, script access modes, or client-visible state.
 >
-> **Status:** selected layering direction with substantial current implementation divergence. The
-> current flat Agent remains described here only as a migration reference.
+> **Status:** selected layering direction with the Agent/engine dependency reversal implemented.
+> The scoped-reader and policy-system portions remain forward-looking.
 
 ## Source map
 
+- [`ActorEngine.kt`](../../src/common/dev/martianzoo/engine/ActorEngine.kt) is the policy-free,
+  Actor-attributed core mutation API.
 - [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) is the current fully permissive,
-  Actor-scoped engine API.
-- [`AgentImpl.kt`](../../src/common/dev/martianzoo/agent/AgentImpl.kt) currently combines
-  parsing, atomic mutation entry, input recording, and legacy autoexecution scheduling.
-- [`World.kt`](../../src/common/dev/martianzoo/engine/World.kt) currently returns stable Agents.
+  Actor-scoped client API in `:agent`.
+- [`AgentImpl.kt`](../../src/common/dev/martianzoo/agent/AgentImpl.kt) translates string input and
+  coordinates operations over `ActorEngine`; [`AutoExecLoop.kt`](../../src/common/dev/martianzoo/agent/AutoExecLoop.kt)
+  owns the preserved legacy queue drain.
+- [`World.kt`](../../src/common/dev/martianzoo/engine/World.kt) returns stable ActorEngines;
+  [`createAgents.kt`](../../src/common/dev/martianzoo/agent/createAgents.kt) constructs the Agent map.
 - [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) already stores one global
   task set; [`TaskQueue.kt`](../../src/common/dev/martianzoo/engine/TaskQueue.kt) is a filtered view.
 - [`Access.kt`](../../src/common/dev/martianzoo/script/Access.kt) implements current script-only
@@ -142,16 +146,19 @@ choose adversarially, or use another legal strategy is not an engine concern.
 
 ## Current implementation divergence
 
-Today `Agent`, parsing, direct mutation powers, `autoExecPolicy`, and transaction completion all
-live in `:engine`. `World.agent(actor)` returns one stable fully permissive object per Actor, including
-`Admin`. Public task mutation has been reduced to checked narrowing and explicit
-single-task removal. The extraction should preserve behavior while successively:
+`:agent` now depends on `:engine`; engine source has no Agent or autoexecution dependency.
+`World.actorEngine(actor)` returns one stable policy-free engine per Actor, and applications retain
+the single Agent map returned by `createAgents(world)`. Parsing, operation conveniences, policy
+state, and the shared legacy drain live in `:agent`.
 
-1. reduce core entry to the audited direct mutation families;
-2. create `:agent` above `:engine`, with one stable Agent per Actor and an Actor-scoped reader;
-3. replace public many-queue language with one Game World task queue plus Agent-filtered views;
-4. move parsing, policy ownership, and the shared autoexecution loop into `:agent`; and
-5. migrate normal clients to Agent while keeping direct engine cheats and test helpers explicit.
+The current Agent is still fully permissive and exposes an unscoped `GameReader`, operation and
+turn conveniences, and ex-machina mutation. `AutoExecPolicy` is still the legacy three-value
+setting rather than the planned attachable policy system. Remaining extraction work should:
+
+1. add the selected Actor-scoped reader without duplicating World state;
+2. replace public many-queue language with one Game World task queue plus Agent-filtered views;
+3. reduce the normal Agent surface while keeping direct engine cheats explicit; and
+4. replace the legacy global queue drain with the policy-relative shared loop in [AUTOEXEC.md](AUTOEXEC.md).
 
 Do not retain obsolete aliases simply to preserve the current public API. User-visible script
 syntax must be migrated deliberately.

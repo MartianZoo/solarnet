@@ -1,7 +1,10 @@
 package dev.martianzoo.tfm.script
 
+import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.createAgents
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.script.OptionCodeTranslation
@@ -10,15 +13,17 @@ import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 
 internal object SampleGames {
-  internal fun sampleGame(generations: Int): World {
+  internal fun sampleGame(generations: Int): Pair<World, Map<Actor, Agent>> {
     var gens = generations
 
     val setup = OptionCodeTranslation.setup("BRVPXT", 2)
     val game = createGame(setup)
-    val admin = game.tfm(ADMIN)
-    val (p1, p2) = game.actors.filterIsInstance<Player>().map { game.tfm(it) }
+    val agents = createAgents(game)
+    val result = game to agents
+    val admin = game.tfm(agents, ADMIN)
+    val (p1, p2) = game.actors.filterIsInstance<Player>().map { game.tfm(agents, it) }
 
-    TfmWorkflow.Stepwise(game).setupPhase()
+    TfmWorkflow.Stepwise(agents).setupPhase()
     p1.doTask("-5 ProjectCard<Hand>")
     p2.doTask("-6 ProjectCard<Hand>")
     admin.phase("Corporation")
@@ -32,7 +37,7 @@ internal object SampleGames {
     p2.playPrelude(cn("IoResearchOutpost"))
 
     admin.phase("Action")
-    if (gens-- == 0) return game
+    if (gens-- == 0) return result
 
     p1.playProject(cn("InventorsGuild"), 9)
     p2.playProject(cn("ArcticAlgae"), 12)
@@ -45,7 +50,7 @@ internal object SampleGames {
     p2.playProject(cn("CarbonateProcessing"), 6)
     p2.playProject(cn("Archaebacteria"), 6)
 
-    if (gens-- == 0) return game
+    if (gens-- == 0) return result
     admin.nextGeneration(2, 2)
 
     p2.cardAction2(cn("Factorum"))
@@ -60,7 +65,7 @@ internal object SampleGames {
     p1.playProject(cn("DeuteriumExport"), 11)
     p1.cardAction1(cn("DeuteriumExport"))
 
-    if (gens-- == 0) return game
+    if (gens-- == 0) return result
     admin.nextGeneration(2, 2)
 
     p1.cardAction1(cn("DevelopmentCenter"))
@@ -74,7 +79,7 @@ internal object SampleGames {
     p1.cardAction2(cn("DeuteriumExport"))
     p1.playProject(cn("ImportedGhg"), 4)
 
-    if (gens-- == 0) return game
+    if (gens-- == 0) return result
     admin.nextGeneration(1, 2)
 
     p2.cardAction2(cn("Factorum"))
@@ -95,7 +100,7 @@ internal object SampleGames {
     p1.sellPatents(1)
     p1.playProject(cn("SpinInducingAsteroid"), 16)
 
-    if (gens-- == 0) return game
+    if (gens-- == 0) return result
     admin.nextGeneration(3, 3)
 
     p1.convertHeat()
@@ -119,7 +124,7 @@ internal object SampleGames {
       doTask("OceanTile<Tharsis_1_4>")
     }
 
-    if (gens-- == 0) return game
+    if (gens-- == 0) return result
     admin.nextGeneration(4, 2)
 
     p2.convertPlants { doTask("GreeneryTile<Tharsis_8_7>") }
@@ -154,7 +159,7 @@ internal object SampleGames {
     p1.sellPatents(1)
     p1.playProject(cn("Moss"), 4)
 
-    if (gens-- == 0) return game
+    if (gens-- == 0) return result
     admin.nextGeneration(3, 1)
 
     p1.stdAction("ClaimMilestoneAction") { doTask("Builder8") }
@@ -176,7 +181,7 @@ internal object SampleGames {
     p1.playProject(cn("StratosphericBirds"), 12)
     p1.cardAction1(cn("StratosphericBirds"))
 
-    if (gens-- == 0) return game
+    if (gens-- == 0) return result
     admin.nextGeneration(2, 2)
 
     p2.playProject(cn("AdvancedAlloys"), 7) { doTask("-ProjectCard") }
@@ -204,7 +209,7 @@ internal object SampleGames {
     p1.cardAction1(cn("StratosphericBirds"))
     p1.cardAction1(cn("MoholeLake")) { doTask("Animal<StratosphericBirds>") }
 
-    if (gens == 0) return game
+    if (gens == 0) return result
     admin.nextGeneration(3, 2)
 
     p1.cardAction1(cn("DevelopmentCenter"))
@@ -253,6 +258,6 @@ internal object SampleGames {
     p1.playProject(cn("VenusianInsects"), 5)
     p1.cardAction1(cn("VenusianInsects"))
 
-    return game
+    return result
   }
 }

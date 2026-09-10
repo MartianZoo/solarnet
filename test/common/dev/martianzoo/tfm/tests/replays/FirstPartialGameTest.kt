@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
@@ -31,7 +32,7 @@ internal class FirstPartialGameTest : TfmTest() {
       val p1 = game.testTfm(PLAYER1)
       val p2 = game.testTfm(PLAYER2)
 
-      val workflow = TfmWorkflow.Automatic(game).launch()
+      val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
       retainStartingProjects(game, 3, 8)
 
       p1.playCorp(LakefrontResorts, 3)
@@ -147,7 +148,7 @@ internal class FirstPartialGameTest : TfmTest() {
       }
 
       workflow.shutdown()
-      TfmWorkflow.Stepwise(game).productionPhase()
+      TfmWorkflow.Stepwise(game.testAgents()).productionPhase()
 
       admin.assertCounts(4 to "Generation")
       admin.assertCounts(0 to "OceanTile", 0 to "OxygenStep", 0 to "TemperatureStep")

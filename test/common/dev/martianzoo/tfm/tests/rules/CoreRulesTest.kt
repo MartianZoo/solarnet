@@ -184,7 +184,7 @@ internal class CoreRulesTest : CardTest() {
   internal fun `World Government terraforming gives no terraform rating`() {
     newGame(VenusNextExpansion)
 
-    TfmWorkflow.Stepwise(game).solarPhase()
+    TfmWorkflow.Stepwise(agents).solarPhase()
 
     p1.doTask("TemperatureStep! BY Admin").expect("TemperatureStep, 0 TerraformRating")
   }

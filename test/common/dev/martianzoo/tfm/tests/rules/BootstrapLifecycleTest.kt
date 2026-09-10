@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
@@ -112,7 +113,7 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun manualWorkflowStartsFullyEffectfulGenerationOneSetup() {
     val game = Engine.newGame(canonicalPremise())
-    TfmWorkflow.Stepwise(game).setupPhase()
+    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
 
     val admin = game.testAgent(ADMIN)
     admin.count("BootstrapPhase") shouldBe 0
@@ -126,7 +127,7 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun soloModeProvidesItsStartingTerraformRatingDirectly() {
     val game = Engine.newGame(canonicalPremise(players = 1))
-    TfmWorkflow.Stepwise(game).setupPhase()
+    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
 
     game.testAgent(ADMIN).count("TerraformRating<Player1>") shouldBe 14
   }
@@ -142,7 +143,7 @@ internal class BootstrapLifecycleTest {
             )
         )
 
-    TfmWorkflow.Stepwise(game).setupPhase()
+    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
 
     game.testTfm(PLAYER1).production(cn("MC")) shouldBe -2
   }
@@ -150,7 +151,7 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun setupKeepsStartingCardsInHandUntilCorporationTurns() {
     val game = Engine.newGame(canonicalPremise(PreludeExpansion))
-    val workflow = TfmWorkflow.Automatic(game).launch()
+    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
     val admin = game.testAgent(ADMIN)
     val p1 = game.testTfm(PLAYER1)
 
@@ -172,7 +173,7 @@ internal class BootstrapLifecycleTest {
   internal fun automaticWorkflowWaitsForSoloSetupChoices() {
     val setup = canonicalPremise(players = 1)
     val game = Engine.newGame(setup)
-    val workflow = TfmWorkflow.Automatic(game).launch()
+    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
 
     val admin = game.testAgent(ADMIN)
     admin.count("SetupPhase") shouldBe 1

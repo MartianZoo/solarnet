@@ -10,8 +10,8 @@
 > **Skip when:** changing authored `::` effects or explicit task semantics. Those belong in
 > [ENGINE.md](ENGINE.md), [SEQUENCING.md](SEQUENCING.md), and [API.md](API.md).
 >
-> **Status:** selected layer ownership and forward-looking synchronous-settlement contract. Current
-> code still implements autoexecution inside `:engine` through `AutoExecPolicy`.
+> **Status:** selected layer ownership is implemented; the policy-relative synchronous-settlement
+> contract remains forward-looking. Current `:agent` code preserves legacy `AutoExecPolicy` behavior.
 
 ## Choice-safety check
 
@@ -28,8 +28,10 @@
 - [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt),
   [`AutoExecPolicy.kt`](../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt),
   [`AgentImpl.kt`](../../src/common/dev/martianzoo/agent/AgentImpl.kt), and
-  [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt) contain the
-  current engine-owned implementation to extract.
+  [`AutoExecLoop.kt`](../../src/common/dev/martianzoo/agent/AutoExecLoop.kt) contain the current
+  Agent-owned legacy implementation.
+- [`ActorEngine.kt`](../../src/common/dev/martianzoo/engine/ActorEngine.kt) contains the policy-free
+  task commands and probes used by the loop.
 - [API.md](API.md) owns the unique Actor-scoped Agent and its client surface.
 - [SMART_AUTOEXEC.md](SMART_AUTOEXEC.md) owns optional proof guarantees for supplied policies.
 
@@ -129,11 +131,13 @@ proof policy is implemented; do not add speculative public APIs ahead of it.
 
 ## Current implementation divergence
 
-Committed code still stores `AutoExecPolicy` on each `Agent`, defaults it to `EAGER`, and runs the
-queue drain from engine-side command and operation completion points. It does not yet provide
-policy attachment or the planned Admin-first policy schedule. As a transitional
-progress rule, a Player using `NONE` still drains only Admin-assigned work from the shared queue.
-Treat the sections above and below as the extraction contract, not current behavior.
+Committed code stores `AutoExecPolicy` on each `Agent`, defaults every Agent to `EAGER`, and invokes
+one shared loop from Agent-side command and operation completion points. The engine has no policy or
+autoexecution dependency. The loop deliberately preserves the old calling-Agent semantics: a
+non-`NONE` policy scans the whole task queue rather than governing only its Actor's tasks, and a
+Player using `NONE` still drains only Admin-assigned work. It does not yet provide policy attachment,
+per-assignee scheduling, or the planned Admin-first policy schedule. Treat the sections above and
+below as the replacement contract, not current behavior.
 
 Admin's default may execute concrete work, select abstract work, narrow choices, and intelligently
 choose among available Admin tasks. Admin is not inherently deterministic or choice-free. Its legal

@@ -1,10 +1,13 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.Agent
-import dev.martianzoo.agent.Agent.Companion.parse
+import dev.martianzoo.pets.Parsing
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.DependencyException
+import dev.martianzoo.pets.api.Exceptions.KindException
 import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.GamePremise
@@ -14,12 +17,14 @@ import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
 
 internal class Initializer(
-    private val agent: Agent,
+    private val reader: GameReader,
+    private val elaborator: PetElaborator,
     private val instructor: Instructor,
     private val tasks: TaskQueues,
     private val classTable: ClassTable,
     private val timeline: TimelineImpl,
     private val premise: GamePremise,
+    private val actorEngines: (Actor) -> ActorEngine,
 ) {
   // Taking 14% of total solo game time
   internal fun initialize() {
@@ -45,9 +50,11 @@ internal class Initializer(
    * Component must stop initialization rather than become an omitted change.
    */
   private fun execute(instruction: String, cause: Cause?): TaskResult = timeline.atomic {
-    instructor
-        .execute(agent.parse<Instruction>("$instruction!"), cause, ADMIN)
-        .forEach(tasks::addTasks)
+    val parsed = elaborator.elaborateInput(Parsing.parse<Instruction>("$instruction!"))
+    if (parsed !is Instruction) {
+      throw KindException("Preprocessing produced `$parsed`, which is not an Instruction")
+    }
+    instructor.execute(parsed, cause, ADMIN).forEach(tasks::addTasks)
   }
 
   /** Executes a generated premise recipe, or directly creates an uncompiled custom premise. */
@@ -72,8 +79,14 @@ internal class Initializer(
 
   /** Runs choice-free queued initialization work in stable insertion order. */
   private fun drainBootstrapTasks() {
-    agent.autoExecNow()
-    tasks.all().requireAllQueuesEmpty()
+    val allTasks = tasks.all()
+    while (!allTasks.isEmpty()) {
+      if (allTasks.selectedTask() != null) break
+      val taskId = allTasks.ids().first()
+      val assignee = allTasks.getTaskData(taskId).assignee
+      actorEngines(assignee).selectTask(taskId)
+    }
+    allTasks.requireAllQueuesEmpty()
   }
 
   private fun verifyCompletedBootstrap() {
@@ -84,8 +97,7 @@ internal class Initializer(
             premise.modules.map(classTable::getClass).map(Class::baseType) +
             premise.playerNames.map(classTable::getClass).map(Class::baseType) +
             premise.initialComponentTypes.map(classTable::resolve)
-    val invalidCounts =
-        expected.associateWith { agent.count("${it.expression}") }.filterValues { it != 1 }
+    val invalidCounts = expected.associateWith(reader::count).filterValues { it != 1 }
     if (invalidCounts.isNotEmpty()) {
       throw invalidPetDefinition(
           "Bootstrap did not create each required component exactly once: " +
@@ -104,7 +116,7 @@ internal class Initializer(
       var progress = false
       val round = remaining.toList()
       for (type in round) {
-        if (agent.count("${type.expression}") > 0) {
+        if (reader.count(type) > 0) {
           remaining.remove(type)
           missingByType.remove(type)
           progress = true
@@ -142,6 +154,6 @@ internal class Initializer(
       missingByType: Map<Type, Collection<Type>>,
   ): Boolean =
       missingByType.values.flatten().any { dependency ->
-        agent.count("${dependency.expression}") > 0
+        reader.count(dependency) > 0
       }
 }

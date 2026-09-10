@@ -272,7 +272,7 @@ internal class Prelude2CardsTest : CardTest() {
     p1.count("Energy") shouldBe 3
 
     admin.phase("Production")
-    TfmWorkflow.Stepwise(game).solarPhase()
+    TfmWorkflow.Stepwise(agents).solarPhase()
     colonyTiles.forEach { tile ->
       admin.count("ColonyProduction<$tile>") shouldBe if (tile == cn("Luna")) 6 else 4
     }

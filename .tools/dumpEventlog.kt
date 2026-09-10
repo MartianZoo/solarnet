@@ -1,5 +1,6 @@
 package dev.martianzoo.tools
 
+import dev.martianzoo.agent.createAgents
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
@@ -42,16 +43,21 @@ private fun createGame(playerCount: Int): World {
           )
       )
   return Engine.newGame(premise).also { game ->
-    TfmWorkflow.Stepwise(game).setupPhase()
+    val agents = createAgents(game)
+    TfmWorkflow.Stepwise(agents).setupPhase()
     val players = game.actors.filterIsInstance<Player>()
     players.forEach { player ->
-      game.agent(player).doTask("-6 ProjectCard<Hand>")
+      agents.getValue(player).doTask("-6 ProjectCard<Hand>")
     }
     if (playerCount == 1) {
-      game.tfm(players.first()).doTask("-ColonyTileSelection<Class<${colonies.first()}>>")
+      game
+          .tfm(agents, players.first())
+          .doTask("-ColonyTileSelection<Class<${colonies.first()}>>")
     }
-    TfmWorkflow.Stepwise(game).corporationPhase()
-    game.tfm(players.first()).playCorp(cn("InterplanetaryCinematics"), buyCards = 4)
+    TfmWorkflow.Stepwise(agents).corporationPhase()
+    game
+        .tfm(agents, players.first())
+        .playCorp(cn("InterplanetaryCinematics"), buyCards = 4)
   }
 }
 

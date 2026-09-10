@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
@@ -22,7 +23,7 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(canonicalPremise())
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
-    val workflow = TfmWorkflow.Automatic(game).launch()
+    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
     retainStartingProjects(game, 0, 0)
 
     playCorporationWithoutStartingProjects(p1, Ecoline)
@@ -40,7 +41,7 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(canonicalPremise())
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
-    val workflow = TfmWorkflow.Stepwise(game)
+    val workflow = TfmWorkflow.Stepwise(game.testAgents())
 
     workflow.setupPhase()
     retainStartingProjects(game, 0, 0)
@@ -59,7 +60,7 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(setup)
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
-    val workflow = TfmWorkflow.Automatic(game).launch()
+    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
     retainStartingProjects(game, 0)
 
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
@@ -87,7 +88,7 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(setup)
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
-    val workflow = TfmWorkflow.Automatic(game).launch()
+    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
     retainStartingProjects(game, 0)
 
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
@@ -115,7 +116,7 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(setup)
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
-    val workflow = TfmWorkflow.Automatic(game).launch()
+    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
     retainStartingProjects(game, 0)
 
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
@@ -146,7 +147,7 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    val workflow = TfmWorkflow.Automatic(game).launch()
+    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
     retainStartingProjects(game, 0, 0)
 
     playCorporationWithoutStartingProjects(p1, Ecoline)
@@ -167,7 +168,7 @@ internal class FinalGreeneryPhaseTest {
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     val p3 = game.testTfm(PLAYER3)
-    val workflow = TfmWorkflow.Automatic(game).launch()
+    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
     retainStartingProjects(game, 0, 0, 0)
 
     playCorporationWithoutStartingProjects(p1, CrediCor)
@@ -207,7 +208,7 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    val workflow = TfmWorkflow.Automatic(game).launch()
+    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
     retainStartingProjects(game, 0, 0)
 
     playCorporationWithoutStartingProjects(p1, CrediCor)
@@ -243,7 +244,7 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    val workflow = TfmWorkflow.Automatic(game).launch()
+    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
     retainStartingProjects(game, 0, 0)
 
     playCorporationWithoutStartingProjects(p1, CrediCor)
@@ -286,7 +287,7 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    val workflow = TfmWorkflow.Automatic(game).launch()
+    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
     retainStartingProjects(game, 0, 0)
 
     playCorporationWithoutStartingProjects(p1, CrediCor)

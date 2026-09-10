@@ -1,5 +1,7 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -35,6 +37,6 @@ internal fun canonicalPremise(
 
 internal fun setUpGame(premise: GamePremise = canonicalPremise()): World =
     Engine.newGame(premise).apply {
-      TfmWorkflow.Stepwise(this).setupPhase()
-      actors.filterIsInstance<Player>().forEach { agent(it).doTask("-10 ProjectCard<Hand>") }
+      TfmWorkflow.Stepwise(testAgents()).setupPhase()
+      actors.filterIsInstance<Player>().forEach { testAgent(it).doTask("-10 ProjectCard<Hand>") }
     }

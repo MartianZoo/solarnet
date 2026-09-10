@@ -4,6 +4,7 @@ import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
@@ -24,6 +25,9 @@ import dev.martianzoo.tfm.engine.*
 
 internal abstract class TfmTest {
   protected lateinit var game: World
+
+  protected val agents
+    get() = game.testAgents()
 
   protected val admin: TfmGameplay
     get() = game.testTfm(ADMIN)

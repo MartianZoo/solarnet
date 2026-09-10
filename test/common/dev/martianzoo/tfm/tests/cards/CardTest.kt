@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.OperationBlock
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
@@ -141,7 +142,7 @@ internal abstract class CardTest(
     workflow?.shutdown()
     return Engine.newGame(premise).apply {
       bindPlayers()
-      workflow = TfmWorkflow.Automatic(this).launch()
+      workflow = TfmWorkflow.Automatic(this, testAgents()).launch()
       retainStartingProjects(this, *IntArray(actors.filterIsInstance<Player>().size))
       finishSoloSetup()
     }

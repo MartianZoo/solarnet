@@ -1,7 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.Agent
-import dev.martianzoo.agent.AgentImpl
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.TEMPORARY
@@ -54,15 +52,18 @@ public object Engine {
     private val changer = Changer(reader, components, events)
     private val instructor =
         Instructor(reader, limiter, changer, effector, classTable, elaborator, customClasses)
-    private val agentByActor: Map<Actor, Agent> = premise.actors.associateWith(::createAgent)
+    private val actorEngines: Map<Actor, ActorEngine> =
+        premise.actors.associateWith(::createActorEngine)
     private val initializer =
         Initializer(
-            agentByActor.getValue(ADMIN),
+            reader,
+            elaborator,
             instructor,
             taskQueues,
             classTable,
             timeline,
             premise,
+            actorEngines::getValue,
         )
     private val world: WholeWorld =
         WholeWorld(
@@ -72,13 +73,14 @@ public object Engine {
             timeline,
             reader,
             classTable,
-            agentByActor,
+            actorEngines,
             timeline,
             recordingPositions,
         )
 
     internal fun createWorld(): WholeWorld {
       initializer.initialize()
+      recordingPositions.record(timeline.checkpoint().ordinal)
       return world
     }
 
@@ -157,26 +159,16 @@ public object Engine {
       }
     }
 
-    private fun createAgent(actor: Actor): Agent {
-      val tasks = taskQueues[actor]
-      val implementations =
-          Implementations(
-              tasks,
-              taskQueues,
-              reader,
-              timeline,
-              actor,
-              instructor,
-              changer,
-          )
-      return AgentImpl(
-          actor,
-          reader,
-          implementations,
-          tasks,
-          elaborator,
-          worldTransaction,
-      )
-    }
+    private fun createActorEngine(actor: Actor): ActorEngine =
+        ActorEngine(
+            taskQueues[actor],
+            taskQueues,
+            reader,
+            timeline,
+            actor,
+            instructor,
+            changer,
+            worldTransaction,
+        )
   }
 }

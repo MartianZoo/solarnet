@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.Agent
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.types.ClassTable
@@ -14,7 +13,7 @@ internal constructor(
     override val timeline: Timeline,
     override val reader: GameReader,
     override val classTable: ClassTable,
-    private val agentByActor: Map<Actor, Agent>,
+    private val actorEngines: Map<Actor, ActorEngine>,
     private val timelineImpl: TimelineImpl,
     private val recordingPositions: RecordingPositions,
 ) : World {
@@ -22,7 +21,7 @@ internal constructor(
   internal val revision: WorldRevision
     get() = events.revision
 
-  override fun agent(actor: Actor): Agent = agentByActor[actor]!!
+  override fun actorEngine(actor: Actor): ActorEngine = actorEngines.getValue(actor)
 
   override var onTransactionComplete: () -> Unit = {}
 
