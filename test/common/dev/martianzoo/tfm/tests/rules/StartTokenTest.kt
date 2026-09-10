@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
@@ -92,7 +93,7 @@ internal class StartTokenTest {
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
 
-    val workflow = TfmWorkflow.Automatic(game).launch()
+    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
     retainStartingProjects(game, 7, 5)
 
     p1.playCorp(InterplanetaryCinematics, 7)

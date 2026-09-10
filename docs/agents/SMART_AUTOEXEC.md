@@ -22,8 +22,8 @@ promising safety alone. If a later restricted reader omits a fact required by a 
 ## Source map
 
 - **Forward-looking:** `AutoExecPolicies.kt` will contain the conservative policy.
-  [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt) currently owns
-  the selection and execution probes and locking semantics that policy will use.
+  [`ActorEngine.kt`](../../src/common/dev/martianzoo/engine/ActorEngine.kt) owns the selection and
+  execution probes and locking semantics that policy will use.
 - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — search
   for `resolve` and `executeResolved` for state reads, execution, and effect creation.
 - [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt) — search for
@@ -80,7 +80,7 @@ all pending tasks are in P  and  MAX 0 MustCleanUp
 
 Whole-World idleness is the special case `P = ∅`. Let `N(S)` be the set of EGS classes reachable at
 that boundary while resolving the current operation. Queue clear alone is insufficient:
-`Implementations.complete` also rejects surviving `MustCleanUp` components such as `Accepting`.
+`ActorEngine.requireComplete` also rejects surviving `MustCleanUp` components such as `Accepting`.
 If later end-of-turn play depends only on boundary EGS, equality there preserves end-of-turn
 outcomes too.
 

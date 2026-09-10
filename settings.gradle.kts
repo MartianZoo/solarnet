@@ -18,6 +18,7 @@ val modules =
     listOf(
         "pets",
         "engine",
+        "agent",
         "tfm-engine",
         "tfm-tests",
         "script",

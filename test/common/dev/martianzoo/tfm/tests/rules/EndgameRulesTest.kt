@@ -20,7 +20,7 @@ internal class EndgameRulesTest : CardTest() {
         "GpComplete<Class<TemperatureStep>>, " +
             "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
     )
-    val workflow = TfmWorkflow.Stepwise(game)
+    val workflow = TfmWorkflow.Stepwise(agents)
 
     workflow.productionPhase()
     workflow.solarPhase() shouldBe null

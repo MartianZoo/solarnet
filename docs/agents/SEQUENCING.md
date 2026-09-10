@@ -49,7 +49,7 @@
   sibling batch; `stableAutomaticOrder` is diagnostic order only.
 - [`WorldTransaction.kt`](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) —
   `settleAndCleanUp`, and `Engine.removeTemporaryComponents` next to it.
-- [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt) —
+- [`ActorEngine.kt`](../../src/common/dev/martianzoo/engine/ActorEngine.kt) —
   `enforceSelectLock` and `requireComplete`.
 - [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) — the class KDoc lists
   every normalization applied to a task on the way in.

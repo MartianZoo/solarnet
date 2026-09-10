@@ -3,11 +3,12 @@ package dev.martianzoo.agent
 import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
-import dev.martianzoo.engine.Implementations
+import dev.martianzoo.engine.ActorEngine
 import dev.martianzoo.engine.TaskQueue
-import dev.martianzoo.engine.WorldTransaction
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
+import dev.martianzoo.pets.api.Exceptions.AbstractException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
@@ -26,13 +27,22 @@ import kotlin.reflect.KClass
 
 /** Implements Actor-contextual parsing, atomic operation coordination, and autoexecution. */
 internal class AgentImpl(
-    override val actor: Actor,
-    override val reader: GameReader,
-    private val impl: Implementations,
-    override val tasks: TaskQueue,
+    private val engine: ActorEngine,
     private val elaborator: PetElaborator,
-    private val worldTransaction: WorldTransaction,
+    private val autoExecLoop: AutoExecLoop,
 ) : Agent {
+
+  override val actor: Actor
+    get() = engine.actor
+
+  override val reader: GameReader
+    get() = engine.reader
+
+  override val tasks: TaskQueue
+    get() = engine.tasks
+
+  private val allTasks: TaskQueue
+    get() = engine.allTasks
 
   override var autoExecPolicy: AutoExecPolicy = EAGER
     set(newPolicy) {
@@ -78,20 +88,22 @@ internal class AgentImpl(
   // CHANGES
 
   override fun sneak(changes: String, fakeCause: Cause?): TaskResult = atomicWithoutAutoExec {
-    impl.sneak(parseInstructionGroup(changes), fakeCause)
+    engine.sneak(parseInstructionGroup(changes), fakeCause)
   }
 
   // TASKS
 
   override fun addTasks(instruction: String, firstCause: Cause?): List<TaskId> {
     var added = emptyList<TaskId>()
-    atomicWithoutAutoExec { added = impl.addTasks(parseInstructionGroup(instruction), firstCause) }
+    atomicWithoutAutoExec {
+      added = engine.addTasks(parseInstructionGroup(instruction), firstCause)
+    }
     return added
   }
 
   override fun dropTask(taskId: TaskId): TaskRemovedEvent {
     lateinit var removed: TaskRemovedEvent
-    atomicWithoutAutoExec { removed = impl.dropTask(taskId) }
+    atomicWithoutAutoExec { removed = engine.dropTask(taskId) }
     return removed
   }
 
@@ -101,32 +113,58 @@ internal class AgentImpl(
     var allowedPendingTasks = emptySet<TaskId>()
     return atomic(
         block = {
-          allowedPendingTasks =
-              impl.runOperation(parseInstructionGroup(initialInstructions), autoExecPolicy) {
-                Adapter().body()
-              }
+          allowedPendingTasks = allTasks.ids()
+          allTasks.selectedTask()?.let {
+            throw TaskException(
+                "can't start a manual operation while task $it holds the select-lock"
+            )
+          }
+          addInitialTasks(parseInstructionGroup(initialInstructions))
+          continueOperationBody { Adapter().body() }
+          engine.requireComplete(allowedPendingTasks)
         },
-        validateCompletion = { impl.requireComplete(allowedPendingTasks) },
+        validateCompletion = { engine.requireComplete(allowedPendingTasks) },
     )
   }
 
   override fun beginOperation(initialInstructions: String, body: OperationBlock): TaskResult {
     return atomic {
-      impl.beginOperation(parseInstructionGroup(initialInstructions), autoExecPolicy) {
-        Adapter().body()
+      if (!allTasks.isEmpty()) {
+        throw TaskException("pending tasks:\n${allTasks.extract { it }.joinToString("\n")}")
       }
+      addInitialTasks(parseInstructionGroup(initialInstructions))
+      continueOperationBody { Adapter().body() }
     }
   }
 
   override fun continueOperation(body: OperationBlock): TaskResult {
-    return atomic { impl.continueOperation(autoExecPolicy) { Adapter().body() } }
+    return atomic { continueOperationBody { Adapter().body() } }
   }
 
   override fun completeOperation(body: OperationBlock): TaskResult {
     return atomic(
-        block = { impl.complete(autoExecPolicy) { Adapter().body() } },
-        validateCompletion = { impl.requireComplete() },
+        block = {
+          continueOperationBody { Adapter().body() }
+          engine.requireComplete()
+        },
+        validateCompletion = { engine.requireComplete() },
     )
+  }
+
+  private fun addInitialTasks(initialInstructions: InstructionGroup) {
+    engine.addTasks(initialInstructions).forEach { taskId ->
+      try {
+        engine.doTask(taskId)
+      } catch (_: AbstractException) {
+        // Initial abstract work remains pending for the operation body to narrow.
+      }
+    }
+  }
+
+  private inline fun continueOperationBody(body: () -> Unit) {
+    autoExecLoop.run(actor, autoExecPolicy)
+    body()
+    autoExecLoop.run(actor, autoExecPolicy)
   }
 
   private inner class Adapter : OperationScope {
@@ -136,37 +174,39 @@ internal class AgentImpl(
 
     override fun doTask(narrowing: String) {
       this@AgentImpl.doTask(narrowing)
-      impl.autoExecNow(autoExecPolicy)
+      autoExecLoop.run(actor, autoExecPolicy)
     }
 
     override fun doTask(narrowing: String, taskId: TaskId) {
       this@AgentImpl.doTask(narrowing, taskId)
-      impl.autoExecNow(autoExecPolicy)
+      autoExecLoop.run(actor, autoExecPolicy)
     }
 
     override fun tryTask(narrowing: String) {
       this@AgentImpl.tryTask(narrowing)
-      impl.autoExecNow(autoExecPolicy)
+      autoExecLoop.run(actor, autoExecPolicy)
     }
 
     override fun tryTask(narrowing: String, taskId: TaskId) {
       this@AgentImpl.tryTask(narrowing, taskId)
-      impl.autoExecNow(autoExecPolicy)
+      autoExecLoop.run(actor, autoExecPolicy)
     }
 
     override fun autoExecNow() {
-      impl.autoExecNow(autoExecPolicy)
+      autoExecLoop.run(actor, autoExecPolicy)
     }
   }
 
   override fun autoExecNow() = atomic {}
 
   private fun autoExecAtomically(): TaskResult =
-      worldTransaction.run({ impl.autoExecNow(autoExecPolicy) }) {}
+      engine.transact(settle = {}, block = { autoExecLoop.run(actor, autoExecPolicy) })
 
   // TURNS
 
-  override fun startTurn() = atomic { impl.startTurn() }
+  override fun startTurn() = atomic {
+    engine.addTasks(parseInstructionGroup("NewTurn<$actor>!")).forEach(engine::doTask)
+  }
 
   override fun inTurn(body: OperationBlock): TaskResult {
     return if (tasks.isEmpty()) {
@@ -182,27 +222,27 @@ internal class AgentImpl(
 
   override fun narrowTask(narrowing: String) = atomic {
     val parsed = parseTaskNarrowing(narrowing)
-    impl.narrowTask(parsed.instruction, parsed.intensityOmitted)
+    engine.narrowTask(parsed.instruction, parsed.intensityOmitted)
   }
 
   override fun narrowTask(taskId: TaskId, narrowing: String) = atomic {
     val parsed = parseTaskNarrowing(narrowing)
-    impl.narrowTask(taskId, parsed.instruction, parsed.intensityOmitted)
+    engine.narrowTask(taskId, parsed.instruction, parsed.intensityOmitted)
   }
 
-  override fun canSelectTask(taskId: TaskId) = impl.canSelectTask(taskId)
+  override fun canSelectTask(taskId: TaskId) = engine.canSelectTask(taskId)
 
-  override fun canExecuteTask(taskId: TaskId) = impl.canExecuteTask(taskId)
+  override fun canExecuteTask(taskId: TaskId) = engine.canExecuteTask(taskId)
 
-  override fun selectTask(taskId: TaskId) = atomic { impl.selectTask(taskId) }
+  override fun selectTask(taskId: TaskId) = atomic { engine.selectTask(taskId) }
 
   override fun selectTask(instruction: String) = atomic {
-    impl.selectTask(parse<Instruction>(instruction))
+    engine.selectTask(parse<Instruction>(instruction))
   }
 
   override fun doTask(narrowing: String) = atomic {
     val parsed = parseTaskNarrowing(narrowing)
-    impl.doTask(
+    engine.doTask(
         parsed.instruction,
         parsed.intensityOmitted,
         parsed.submittedAsGroup,
@@ -211,7 +251,7 @@ internal class AgentImpl(
 
   override fun doTask(narrowing: String, taskId: TaskId) = atomic {
     val parsed = parseTaskNarrowing(narrowing)
-    impl.doTask(
+    engine.doTask(
         parsed.instruction,
         parsed.intensityOmitted,
         parsed.submittedAsGroup,
@@ -221,7 +261,7 @@ internal class AgentImpl(
 
   override fun tryTask(narrowing: String) = atomic {
     val parsed = parseTaskNarrowing(narrowing)
-    impl.tryTask(
+    engine.tryTask(
         parsed.instruction,
         parsed.intensityOmitted,
         parsed.submittedAsGroup,
@@ -230,7 +270,7 @@ internal class AgentImpl(
 
   override fun tryTask(narrowing: String, taskId: TaskId) = atomic {
     val parsed = parseTaskNarrowing(narrowing)
-    impl.tryTask(
+    engine.tryTask(
         parsed.instruction,
         parsed.intensityOmitted,
         parsed.submittedAsGroup,
@@ -238,7 +278,7 @@ internal class AgentImpl(
     )
   }
 
-  override fun tryTask(taskId: TaskId) = atomic { impl.tryTask(taskId) }
+  override fun tryTask(taskId: TaskId) = atomic { engine.tryTask(taskId) }
 
   // autoExecNow() and cross-Actor Agent calls can re-enter this call site. Its depth is shared
   // by every Actor in the world so only the true outermost operation drains and reports completion.
@@ -246,15 +286,15 @@ internal class AgentImpl(
       validateCompletion: () -> Unit = {},
       block: () -> Unit,
   ): TaskResult =
-      worldTransaction.run(
+      engine.transact(
           block = block,
           validateCompletion = validateCompletion,
-          settle = { impl.autoExecNow(autoExecPolicy) },
+          settle = { autoExecLoop.run(actor, autoExecPolicy) },
       )
 
-  // Direct mutation did not invoke legacy autoexecution before it joined the shared command scope.
-  // Policy-driven advancement will replace this distinction in the later scheduler slice.
-  private fun atomicWithoutAutoExec(block: () -> Unit): TaskResult = worldTransaction.run(block) {}
+  // Direct mutations preserve their legacy behavior of not invoking autoexecution.
+  private fun atomicWithoutAutoExec(block: () -> Unit): TaskResult =
+      engine.transact(settle = {}, block = block)
 
   private data class ParsedTaskNarrowing(
       val instruction: InstructionTree,

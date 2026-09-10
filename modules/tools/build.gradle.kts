@@ -28,6 +28,7 @@ kotlin {
 }
 
 dependencies {
+  implementation(project(":agent"))
   implementation(project(":game-viewer"))
   implementation(project(":tfm-canon"))
   implementation(project(":engine"))

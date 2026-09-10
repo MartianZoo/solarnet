@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.engine.toComponent
@@ -34,7 +35,7 @@ internal fun setUpGame(
     retainedStartingProjects: Int = 0,
 ): World =
     Engine.newGame(premise).apply {
-      TfmWorkflow.Stepwise(this).setupPhase()
+      TfmWorkflow.Stepwise(testAgents()).setupPhase()
       retainStartingProjects(
           this,
           *IntArray(actors.filterIsInstance<Player>().size) { retainedStartingProjects },

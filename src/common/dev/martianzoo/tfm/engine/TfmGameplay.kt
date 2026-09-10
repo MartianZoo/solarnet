@@ -36,9 +36,11 @@ private val MC: ClassName = cn("MC")
  */
 public class TfmGameplay(
     private val game: World,
+    private val agents: Map<Actor, Agent>,
     override val actor: Actor,
-    private val agent: Agent = game.agent(actor),
-) : Agent by agent {
+) : Agent by agents.getValue(actor) {
+  private val agent: Agent = agents.getValue(actor)
+
   override val reader: GameReader
     get() = game.reader
 
@@ -47,7 +49,7 @@ public class TfmGameplay(
   private var allowNondefaultPayment = false
 
   private fun asActor(actor: Actor) =
-      TfmGameplay(game, actor).also {
+      TfmGameplay(game, agents, actor).also {
         if (explicitPaymentChoicesRequired) it.requireExplicitPaymentChoices()
         if (explicitUnusedActionCardsRequired) it.requireExplicitUnusedActionCards()
       }
@@ -650,6 +652,8 @@ public class TfmGameplay(
   }
 
   public companion object {
-    public fun World.tfm(actor: Actor): TfmGameplay = TfmGameplay(this, actor)
+    /** Creates Terraforming Mars conveniences for [actor] using this game's [agents]. */
+    public fun World.tfm(agents: Map<Actor, Agent>, actor: Actor): TfmGameplay =
+        TfmGameplay(this, agents, actor)
   }
 }

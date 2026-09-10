@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
@@ -119,7 +120,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     val p1 = game.testTfm(PLAYER1)
 
     admin.assertCounts(0 to "ColonyTile", 4 to "ColonyTileSelection")
-    TfmWorkflow.Stepwise(game).setupPhase()
+    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
     p1.doTask("-ColonyTileSelection<Class<Luna>>")
     admin.assertCounts(
         1 to "ColonyTile",
@@ -227,7 +228,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     // When the generation ends, the recorded trades clear and all white markers move 1 step up the
     // Colony track. The players' trade-fleet capacities remain.
     admin.phase("Production")
-    TfmWorkflow.Stepwise(game).solarPhase()
+    TfmWorkflow.Stepwise(agents).solarPhase()
     admin.runOperation("Generation")
     admin.assertCounts(
         0 to "Trade",

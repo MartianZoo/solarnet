@@ -1,5 +1,6 @@
 package dev.martianzoo.benchmarks
 
+import dev.martianzoo.agent.createAgents
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
@@ -48,9 +49,10 @@ public open class BusyPreludePhaseBenchmark {
                     )
                 )
         )
-    me = game.tfm(PLAYER1)
-    val admin = game.tfm(ADMIN)
-    workflow = TfmWorkflow.Stepwise(game)
+    val agents = createAgents(game)
+    me = game.tfm(agents, PLAYER1)
+    val admin = game.tfm(agents, ADMIN)
+    workflow = TfmWorkflow.Stepwise(agents)
 
     workflow.setupPhase()
     me.doTask("-ColonyTileSelection<Class<Ceres>>")

@@ -1,8 +1,10 @@
 package dev.martianzoo.tfm.web.gameviewer
 
+import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agent.createAgents
 import dev.martianzoo.agent.exMachina
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.GameRecording
@@ -16,6 +18,7 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Task
@@ -33,16 +36,18 @@ import dev.martianzoo.tfm.fake.FakeCanon
 
 public abstract class RecordedGame {
   protected lateinit var game: World
+  internal lateinit var agents: Map<Actor, Agent>
+    private set
 
   protected val admin: TfmGameplay
-    get() = game.tfm(dev.martianzoo.pets.data.Actor.ADMIN)
+    get() = game.tfm(agents, Actor.ADMIN)
 
   /** Returns gameplay for the Player occupying the one-based [seat]. */
   protected fun player(seat: Int): TfmGameplay {
     require(seat > 0) { "seat numbers begin at 1" }
     val player = game.actors.filterIsInstance<Player>().getOrNull(seat - 1)
     requireNotNull(player) { "no Player occupies seat $seat" }
-    return game.tfm(player)
+    return game.tfm(agents, player)
   }
 
   protected abstract val config: GameConfig
@@ -64,6 +69,7 @@ public abstract class RecordedGame {
   ): GameRecording {
     val premise = catalog.gamePremise(config, parseClasses(playerClassPets))
     game = Engine.newGame(premise)
+    agents = createAgents(game)
     onGameConstructed()
     play()
     onReplayCompleted()
@@ -124,7 +130,7 @@ public abstract class RecordedGame {
   }
 
   protected fun TfmGameplay.exMachina(adjustment: String) {
-    game.exMachina(this, adjustment)
+    game.exMachina(agents, this, adjustment)
   }
 
   private fun tilePlacement(
@@ -178,7 +184,7 @@ public abstract class RecordedGame {
       instruction: String,
   ): TaskId {
     val matches = tasks.filter { task ->
-      task.instruction == game.agent(task.assignee).parse<Instruction>(instruction) &&
+      task.instruction == agents.getValue(task.assignee).parse<Instruction>(instruction) &&
           (NoOp.narrows(task.instruction, reader) ||
               task.instruction.descendantsOfType<NoOp>().isNotEmpty())
     }

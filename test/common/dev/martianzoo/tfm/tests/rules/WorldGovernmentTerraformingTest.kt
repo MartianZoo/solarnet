@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
@@ -24,7 +25,7 @@ internal class WorldGovernmentTerraformingTest {
     admin.runOperation("StartToken<Player2> FROM StartToken<Player1>")
     val checkpoint = game.timeline.checkpoint()
 
-    TfmWorkflow.Stepwise(game).solarPhase()
+    TfmWorkflow.Stepwise(game.testAgents()).solarPhase()
 
     admin.count("SolarPhase") shouldBe 1
     p2.doTask("VenusStep! BY Admin")
@@ -50,7 +51,7 @@ internal class WorldGovernmentTerraformingTest {
     )
     admin.count("GpIncomplete") shouldBe 0
 
-    TfmWorkflow.Stepwise(game).solarPhase()
+    TfmWorkflow.Stepwise(game.testAgents()).solarPhase()
 
     game.tasks.ids() shouldBe emptySet()
   }
@@ -64,7 +65,7 @@ internal class WorldGovernmentTerraformingTest {
             "GpComplete<Class<OxygenStep>>, GpComplete<Class<OceanTile>>"
     )
 
-    TfmWorkflow.Stepwise(game).solarPhase()
+    TfmWorkflow.Stepwise(game.testAgents()).solarPhase()
 
     admin.count("SolarPhase") shouldBe 0
     game.tasks.ids() shouldBe emptySet()

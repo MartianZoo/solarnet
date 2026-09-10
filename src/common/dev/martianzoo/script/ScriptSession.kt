@@ -1,6 +1,7 @@
 package dev.martianzoo.script
 
 import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.createAgents
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -69,6 +70,7 @@ public class ScriptSession(
   internal lateinit var game: World // TODO maybe remove and just have reader/events/...?
 
   internal lateinit var agent: Agent
+  internal lateinit var agents: Map<Actor, Agent>
   internal var optionCodes: String = ""
     private set
 
@@ -90,15 +92,17 @@ public class ScriptSession(
       candidatePlayerCount: Int,
       purple: Boolean,
   ) {
-    val candidateAgent = candidateGame.agent(ADMIN) // default autoexec policy
+    val candidateAgents = createAgents(candidateGame)
+    val candidateAgent = candidateAgents.getValue(ADMIN) // default autoexec policy
     if (purple) {
-      TfmWorkflow.Automatic(candidateGame).launch()
+      TfmWorkflow.Automatic(candidateGame, candidateAgents).launch()
     } else {
-      TfmWorkflow.Stepwise(candidateGame).setupPhase()
+      TfmWorkflow.Stepwise(candidateAgents).setupPhase()
     }
     optionCodes = candidateOptionCodes
     playerCount = candidatePlayerCount
     game = candidateGame
+    agents = candidateAgents
     agent = candidateAgent
     if (purple) mode = PURPLE
   }
@@ -142,7 +146,7 @@ public class ScriptSession(
         playerName?.let(::player)
             ?: game.actors.filterIsInstance<Player>().firstOrNull()
             ?: throw UsageException("the game has no participating Player")
-    val tfm = TfmGameplay(game, player)
+    val tfm = TfmGameplay(game, agents, player)
 
     fun countIfLoaded(type: String): Int =
         try {

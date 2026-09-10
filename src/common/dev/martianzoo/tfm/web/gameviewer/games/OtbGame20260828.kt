@@ -26,7 +26,7 @@ public class OtbGame20260828 : RecordedGame() {
       )
 
   protected override fun play() {
-    TfmWorkflow.Automatic(game).launch()
+    TfmWorkflow.Automatic(game, agents).launch()
     val green = player(1)
     val blue = player(2)
     val yellow = player(3)

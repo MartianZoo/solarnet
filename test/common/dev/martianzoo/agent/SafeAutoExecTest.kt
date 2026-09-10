@@ -2,7 +2,6 @@ package dev.martianzoo.agent
 
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.testsupport.PLAYER1
@@ -15,8 +14,9 @@ internal class SafeAutoExecTest {
   internal fun safeLeavesAChoiceBetweenTasksPendingAcrossActors() {
     val game =
         Engine.newGame(testGamePremise("CLASS Token<Owner>\nCLASS Marker<Owner>", players = 2))
-    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
-    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = createAgents(game)
+    val p1 = agents.getValue(PLAYER1).also { it.autoExecPolicy = NONE }
+    val p2 = agents.getValue(PLAYER2).also { it.autoExecPolicy = NONE }
     val taskIds = p1.addTasks("Token<Player1>") + p2.addTasks("Marker<Player2>")
 
     p1.autoExecPolicy = CONCRETE
@@ -30,7 +30,7 @@ internal class SafeAutoExecTest {
   @Test
   internal fun safeSelectsAnAbstractSingletonWithoutChoosingItsNarrowing() {
     val game = Engine.newGame(testGamePremise("ABSTRACT CLASS Choice { CLASS Left, Right }"))
-    val player = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val player = createAgents(game).getValue(PLAYER1).also { it.autoExecPolicy = NONE }
     val taskId = player.addTasks("Choice").single()
 
     player.autoExecPolicy = CONCRETE

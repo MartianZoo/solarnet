@@ -11,13 +11,15 @@ internal class SavedGamesTest {
   @Test
   internal fun everySavedGameRecordsAndSeeks() {
     SavedGames.all.forEach { savedGame ->
-      val recording = savedGame.create().record()
+      val replay = savedGame.create()
+      val recording = replay.record()
+      val agents = replay.agents
       assertTrue(recording.positions.size > 2, savedGame.name)
       val players = recording.world.actors.filterIsInstance<Player>()
       val finalCards = players.associateWith { playedCards(recording.world, it) }
       val finalCardResources = players.associateWith { player ->
         finalCards.getValue(player).associate { card ->
-          card.className to cardResourceCount(recording.world, player, card)
+          card.className to cardResourceCount(recording.world, agents, player, card)
         }
       }
       players.forEach { player ->
@@ -47,7 +49,7 @@ internal class SavedGamesTest {
             recording.seek(position)
             players.any { player ->
               playedCards(recording.world, player).any { card ->
-                hasActionUsedMarker(recording.world, player, card)
+                hasActionUsedMarker(recording.world, agents, player, card)
               }
             }
           },
@@ -79,7 +81,7 @@ internal class SavedGamesTest {
         assertEquals(
             finalCardResources.getValue(player),
             finalCards.getValue(player).associate { card ->
-              card.className to cardResourceCount(recording.world, player, card)
+              card.className to cardResourceCount(recording.world, agents, player, card)
             },
             "$savedGame ${player.className} card resources",
         )

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.data.GameConfig
@@ -27,7 +28,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
 
   @Test
   internal fun hellasPromoGame() {
-    val workflow = TfmWorkflow.Automatic(game).launch()
+    val workflow = TfmWorkflow.Automatic(game, agents).launch()
     retainStartingProjects(7, 5)
     workflow.isRunning shouldBe true
 
@@ -154,7 +155,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
 
-    TfmWorkflow.Automatic(game).launch()
+    TfmWorkflow.Automatic(game, game.testAgents()).launch()
     dev.martianzoo.tfm.tests.retainStartingProjects(game, 7, 5)
 
     p1.playCorp(InterplanetaryCinematics, 7)

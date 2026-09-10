@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.script
 
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.data.Player
@@ -19,7 +20,7 @@ internal fun setUpGame(
 ): World {
   val setup = OptionCodeTranslation.setup(optionCodes, players)
   return createGame(setup).apply {
-    TfmWorkflow.Stepwise(this).setupPhase()
+    TfmWorkflow.Stepwise(testAgents()).setupPhase()
     actors.filterIsInstance<Player>().forEach { testTfm(it).doTask("-10 ProjectCard<Hand>") }
   }
 }

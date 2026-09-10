@@ -10,6 +10,7 @@ kotlin {
           )
       )
       dependencies {
+        implementation(project(":agent"))
         implementation(project(":pets"))
         implementation(project(":engine"))
         implementation(project(":tfm-canon"))
