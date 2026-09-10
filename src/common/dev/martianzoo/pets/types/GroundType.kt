@@ -25,7 +25,7 @@ import dev.martianzoo.pets.ast.Requirement.Companion.split
 /**
  * An ordinary resolved type, consisting of a [rootClass], one bound for every [dependencies] entry,
  * and an optional [refinement], as defined by
- * [rules 5-1 and 5-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+ * [rules T5-1 and T5-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
  *
  * "Ground" excludes type variables; it does not mean refinement-free. A narrowing judgment
  * involving a state-dependent refinement may need a world.
@@ -35,7 +35,7 @@ import dev.martianzoo.pets.ast.Requirement.Companion.split
  *
  * @constructor Combines a [rootClass], complete [dependencies], and optional [refinement] into one
  *   resolved type under
- *   [rule 5-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+ *   [rule T5-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
  * @throws IllegalArgumentException if [dependencies] have different keys or belong to another
  *   universe.
  */
@@ -44,7 +44,7 @@ public data class GroundType
 internal constructor(
     /**
      * The nominal root class specified by
-     * [rule 5-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+     * [rule T5-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
      */
     override val rootClass: Class,
 
@@ -66,27 +66,27 @@ internal constructor(
 
   /**
    * The universe containing [rootClass], under
-   * [rule 1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   * [rule T1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   override val classTable: ClassTable = rootClass.classTable
 
   /**
    * This value itself, because a ground type is its own resolved interpretation ([rule
-   * 13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables)).
+   * T13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables)).
    */
   override val groundType: GroundType
     get() = this
 
   /**
    * The component-targeting dependencies specified by
-   * [rule 4-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#4-class-literals).
+   * [rule T4-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#4-class-literals).
    */
   override val typeDependencies: List<Dependency.TypeDependency> = dependencies.typeDependencies()
 
   /**
    * The class represented by this `Class<Foo>` type, or null when this is not a class literal
    * ([rule
-   * 4-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#4-class-literals)).
+   * T4-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#4-class-literals)).
    */
   override val representedClass: Class? =
       if (rootClass.className == CLASS) dependencies.representedClass else null
@@ -106,26 +106,26 @@ internal constructor(
 
   /**
    * Structural abstractness according to
-   * [rule 5-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+   * [rule T5-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
    */
   override val abstract: Boolean = rootClass.abstract || dependencies.abstract || refinement != null
 
   /**
    * Returns [abstract]; a ground type's abstractness never consults [info] ([rule
-   * 5-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types)).
+   * T5-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types)).
    */
   override fun isAbstract(info: TypeInfo): Boolean = abstract
 
   /**
    * Returns the concrete numeric value of [propertyName], as specified by
-   * [rule 9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
+   * [rule T9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
    */
   override fun getNumberPropertyValue(propertyName: String): Int =
       (rootClass.properties.getValue(PropertyName(propertyName)) as NumberValue).value
 
   /**
    * Returns the concrete metric value of [propertyName], as specified by
-   * [rule 9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
+   * [rule T9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
    */
   override fun getMetricPropertyValue(propertyName: String): Metric =
       (rootClass.properties.getValue(PropertyName(propertyName)) as MetricValue).value
@@ -133,7 +133,7 @@ internal constructor(
   /**
    * Returns the concrete requirement value of [propertyName], or null for an absent optional, as
    * specified by
-   * [rule 9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
+   * [rule T9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
    */
   override fun getRequirementPropertyValue(propertyName: String): Requirement? =
       when (val value = rootClass.properties.getValue(PropertyName(propertyName))) {
@@ -144,21 +144,21 @@ internal constructor(
 
   /**
    * Performs the context-free subtype test of
-   * [rules 6-1 and 8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rules T6-1 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
    * Comparisons that reach a state-dependent refinement fail; use [narrows] with a world for those.
    */
   override fun isSubtypeOf(that: Type): Boolean = narrows(that, NoGameState)
 
   /**
    * The converse context-free subtype test specified by
-   * [rule 6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rule T6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
    */
   override fun isSupertypeOf(that: Type): Boolean = that.isSubtypeOf(this)
 
   /**
    * Values supplied to selected class-header [variables] when this type specializes [general].
    * Variables unrelated to the header are omitted, following
-   * [rule 13-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   * [rule T13-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
   override fun variableBindingsFrom(
       general: Type,
@@ -167,8 +167,8 @@ internal constructor(
 
   /**
    * The greatest lower bound with [that], including the refinement rules, or null when absent
-   * ([rules 7-1 and
-   * 8-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds)).
+   * ([rules T7-1 and
+   * T8-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds)).
    */
   // TODO allocating 28 MB per solo game
   override infix fun glb(that: Type): GroundType? {
@@ -208,7 +208,7 @@ internal constructor(
   }
   /**
    * The canonical prefix expression specified by
-   * [rule 5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+   * [rule T5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
    */
   override val expression: Expression
     get() = expressionLazy.value
@@ -218,7 +218,7 @@ internal constructor(
   }
   /**
    * The full round-tripping expression specified by
-   * [rule 5-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+   * [rule T5-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
    */
   override val expressionFull: Expression
     get() = expressionFullLazy.value
@@ -228,7 +228,7 @@ internal constructor(
   }
   /**
    * The bounds narrowed below [rootClass]'s base type, as defined by
-   * [rule 3-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+   * [rule T3-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
    */
   override val narrowedDependencies: DependencySet
     get() = narrowedDependenciesLazy.value
@@ -245,7 +245,7 @@ internal constructor(
 
   /**
    * Enumerates every concrete structural candidate below this type's structural domain according to
-   * [rules 11-1 and 11-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
+   * [rules T11-1 and T11-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
    * A `NOT` refinement filters the candidates because it is decided structurally; a `HAS`
    * refinement is left for a caller with a world to test. The sequence can be very large.
    */
@@ -256,7 +256,7 @@ internal constructor(
   /**
    * Returns the sole concrete narrowing in the master universe when every structural choice is
    * unique and its refinement accepts [info], as specified by
-   * [rule 11-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
+   * [rule T11-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
    */
   override fun singleConcreteSubtype(info: TypeInfo): GroundType? {
     return classTable.singleConcreteSubtype(this, info)
@@ -270,7 +270,7 @@ internal constructor(
   /**
    * Asserts the contextual narrowing relation with [that], consulting [info] only for a `HAS`
    * refinement, as specified by
-   * [rules 6-1, 6-2, and 8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rules T6-1, T6-2, and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
    */
   override fun ensureNarrows(that: Type, info: TypeInfo) {
     val that = that.groundType
@@ -310,7 +310,7 @@ internal constructor(
   /**
    * Tests contextual narrowing with [that], consulting [info] only for a `HAS` refinement, as
    * specified by
-   * [rules 6-1, 6-2, and 8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rules T6-1, T6-2, and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
    */
   override fun narrows(that: Type, info: TypeInfo): Boolean {
     val that = that.groundType
@@ -381,7 +381,7 @@ internal constructor(
 
   /**
    * Hashes the root class, dependencies, and refinement that determine identity in
-   * [rule 5-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+   * [rule T5-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
    */
   override fun hashCode(): Int {
     if (cachedHashCode != 0) return cachedHashCode
@@ -451,7 +451,7 @@ internal constructor(
 
   /**
    * Returns the canonical prefix expression required by
-   * [rule 5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+   * [rule T5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
    */
   override fun toString(): String = "$expression"
 }

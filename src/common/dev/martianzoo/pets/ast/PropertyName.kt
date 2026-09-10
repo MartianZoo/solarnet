@@ -4,7 +4,11 @@ import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.pets.PetTokenizer
 
-/** A lower-camel-case name identifying one class property. */
+/**
+ * A lowerCamelCase name identifying one class property: a lowercase letter followed by letters and
+ * digits ([rule
+ * L2-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-names)).
+ */
 public data class PropertyName(public val value: String) : PetNode(), Comparable<PropertyName> {
   internal companion object {
     private val propertyNameRegex = Regex("[a-z][A-Za-z0-9]*")

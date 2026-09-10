@@ -5,7 +5,24 @@ import dev.martianzoo.pets.PetTransformer.Companion.noOp
 import dev.martianzoo.pets.ast.Instruction.Gain
 import kotlin.reflect.KClass
 
-/** An API object that can be represented as PETS source code. */
+/**
+ * An API object that can be represented as Pets source code — any piece of Pets syntax, where a
+ * [PetElement] is one of the six major kinds an author writes.
+ *
+ * Rendering is normalized, never verbatim: whitespace is discarded, each node is written in its own
+ * canonical form, and enough parentheses are inserted that re-parsing the result yields the same
+ * node. "Enough" is not "the fewest" — see [precedence] and [safeToNestIn]. Every rule of
+ * [the language specification](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md)
+ * saying an element *round-trips* means exactly that: rendering then re-parsing is the identity —
+ * [rule L1-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)
+ * for a declaration,
+ * [L4-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-requirements),
+ * [L5-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics),
+ * [L6-13](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)
+ * and
+ * [L8-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)
+ * for the elements.
+ */
 public sealed class PetNode {
   /**
    * This node's primary API kind: the stable abstraction clients should rely on, rather than its
@@ -26,10 +43,11 @@ public sealed class PetNode {
       precedence() > container.precedence()
 
   /**
-   * Returns an arbitrary integer for the sole purpose of determining [safeToNestIn] behavior. For
-   * example, [InstructionGroup] returns a very low number, since *anything* else binds more tightly
-   * than it. [Metric]s return high values, since essentially everything after the `/` of an
-   * instruction is part of the metric.
+   * Returns an arbitrary integer for the sole purpose of determining [safeToNestIn] behavior. These
+   * values rank the language's operators but are not themselves part of the language: only their
+   * relative order matters. For example, [InstructionGroup] returns a very low number, since
+   * *anything* else binds more tightly than it. [Metric]s return high values, since essentially
+   * everything after the `/` of an instruction is part of the metric.
    */
   protected open fun precedence(): Int = Int.MAX_VALUE
 
