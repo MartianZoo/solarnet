@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.testsupport.PLAYER1
@@ -15,9 +16,9 @@ internal class OrTriggerTest {
   @Test
   internal fun simpleSuperclassTriggerFiresForSubclass() {
     val game = newGame()
-    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
 
-    agent.beginManual("ConcreteIndexedSignal!") {
+    agent.beginOperation("ConcreteIndexedSignal!") {
       game.tasks
           .extract { it.instruction.toString() }
           .filter { it == "IndexedReward!" }
@@ -28,9 +29,9 @@ internal class OrTriggerTest {
   @Test
   internal fun indexingPreservesEffectRegistrationOrderAcrossTriggerClasses() {
     val game = newGame()
-    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
 
-    agent.beginManual("ConcreteOrderedSignal!") {
+    agent.beginOperation("ConcreteOrderedSignal!") {
       game.tasks
           .extract { it.instruction.toString() }
           .filter { it.startsWith("OrderedReward") }
@@ -41,9 +42,9 @@ internal class OrTriggerTest {
   @Test
   internal fun firstMatchingArmGovernsSpecialization() {
     val game = newGame()
-    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
 
-    agent.beginManual("BothSpecializedSignals!") {
+    agent.beginOperation("BothSpecializedSignals!") {
       game.tasks
           .extract { it.instruction.toString() }
           .shouldContainExactlyInAnyOrder(

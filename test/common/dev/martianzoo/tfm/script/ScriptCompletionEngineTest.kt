@@ -28,7 +28,7 @@ internal class ScriptCompletionEngineTest {
   @Test
   internal fun completesFixedCommandArguments() {
     assertEquals(listOf("blue"), values("mode b"))
-    assertEquals(listOf("safe"), values("auto s"))
+    assertEquals(listOf("concrete"), values("auto c"))
     assertEquals(listOf("full"), values("log f"))
   }
 

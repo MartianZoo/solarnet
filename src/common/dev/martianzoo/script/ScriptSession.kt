@@ -90,11 +90,11 @@ public class ScriptSession(
       candidatePlayerCount: Int,
       purple: Boolean,
   ) {
-    val candidateAgent = candidateGame.agent(ADMIN) // default autoexec mode
+    val candidateAgent = candidateGame.agent(ADMIN) // default autoexec policy
     if (purple) {
-      TfmWorkflow.Auto(candidateGame).launch()
+      TfmWorkflow.Automatic(candidateGame).launch()
     } else {
-      TfmWorkflow.Manual(candidateGame).setupPhase()
+      TfmWorkflow.Stepwise(candidateGame).setupPhase()
     }
     optionCodes = candidateOptionCodes
     playerCount = candidatePlayerCount

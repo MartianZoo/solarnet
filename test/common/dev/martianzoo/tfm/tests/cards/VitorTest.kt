@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.testsupport.PLAYER1
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -12,7 +12,7 @@ internal class VitorTest : CardTest() {
   @Test
   internal fun `Funds an award for free in multiplayer`() {
     val game = newGame(PreludeExpansion, players = 2, retainedStartingProjects = 5)
-    val p1 = game.tfm(PLAYER1)
+    val p1 = game.testTfm(PLAYER1)
 
     p1.playCorp(Vitor, 5).expect("33 MC")
     p1.phase("Action")
@@ -32,14 +32,14 @@ internal class VitorTest : CardTest() {
   @Test
   internal fun `Rebates a card with positive victory points`() {
     initializeVitor()
-    p1.manual("$SearchForLife").expect("3 MC")
+    p1.runOperation("$SearchForLife").expect("3 MC")
   }
 
   @Test
   internal fun `Does not rebate a card without victory points`() {
     initializeVitor()
     p1.count("MC") shouldBe 48
-    p1.manual("$Mine")
+    p1.runOperation("$Mine")
     p1.count("MC") shouldBe 48
   }
 
@@ -47,12 +47,12 @@ internal class VitorTest : CardTest() {
   internal fun `Does not rebate a card with negative victory points`() {
     initializeVitor()
     p1.count("MC") shouldBe 48
-    p1.manual("$BribedCommittee")
+    p1.runOperation("$BribedCommittee")
     p1.count("MC") shouldBe 48
   }
 
   private fun initializeVitor() {
     newGame(PreludeExpansion, players = 1)
-    p1.manual("$Vitor")
+    p1.runOperation("$Vitor")
   }
 }

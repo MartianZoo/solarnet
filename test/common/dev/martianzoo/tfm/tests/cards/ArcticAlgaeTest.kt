@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecMode.FIRST
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -29,16 +29,16 @@ internal class ArcticAlgaeTest : CardTest() {
     val p2 = requireP2()
 
     p1.playProject(GiantIceAsteroid, 36) {
-          p1.autoExecMode = NONE
-          p2.autoExecMode = NONE
+          p1.autoExecPolicy = NONE
+          p2.autoExecPolicy = NONE
           shouldThrow<TaskException> { p2.doTask("2 Plant") }
           doTask("OceanTile<Tharsis_1_2>")
           doTask("2 Plant<Player2>")
           doTask("OceanTile<Tharsis_1_4>")
           doTask("2 Plant<Player2>")
           doTask("-6 Plant<Player2>")
-          p1.autoExecMode = FIRST
-          p2.autoExecMode = FIRST
+          p1.autoExecPolicy = EAGER
+          p2.autoExecPolicy = EAGER
         }
         .expect("-2 Plant<Player2>")
   }
@@ -51,13 +51,13 @@ internal class ArcticAlgaeTest : CardTest() {
     val p2 = requireP2()
 
     p1.playProject(GiantIceAsteroid, 36) {
-          p1.autoExecMode = NONE
-          p2.autoExecMode = NONE
+          p1.autoExecPolicy = NONE
+          p2.autoExecPolicy = NONE
           doTask("-6 Plant<Player2>")
           doTask("OceanTile<Tharsis_1_2>")
           doTask("OceanTile<Tharsis_1_4>")
-          p1.autoExecMode = FIRST
-          p2.autoExecMode = FIRST
+          p1.autoExecPolicy = EAGER
+          p2.autoExecPolicy = EAGER
         }
         .expect("-2 Plant<Player2>")
   }

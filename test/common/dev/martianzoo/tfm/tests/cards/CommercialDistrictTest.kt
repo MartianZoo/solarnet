@@ -15,11 +15,11 @@ internal class CommercialDistrictTest : CardTest() {
     newGame()
     val p2 = requireP2()
 
-    p1.manual("PROD[Energy], CityTile<Tharsis_3_2>")
-    p1.manual("$CommercialDistrict") { placeTile(3, 3) }
-    p2.manual("CityTile<Tharsis_3_4>")
+    p1.runOperation("PROD[Energy], CityTile<Tharsis_3_2>")
+    p1.runOperation("$CommercialDistrict") { placeTile(3, 3) }
+    p2.runOperation("CityTile<Tharsis_3_4>")
 
-    admin.manual("End FROM Phase")
+    admin.runOperation("End FROM Phase")
     p1.assertCounts(22 to "VictoryPoint")
     p2.assertCounts(20 to "VictoryPoint")
   }
@@ -27,9 +27,9 @@ internal class CommercialDistrictTest : CardTest() {
   @Test
   internal fun `Cannot be placed on a water area`() {
     newGame()
-    p1.manual("PROD[Energy]")
+    p1.runOperation("PROD[Energy]")
 
-    p1.manual("$CommercialDistrict") {
+    p1.runOperation("$CommercialDistrict") {
       shouldThrow<NarrowingException> { placeTile(1, 2) }
       abort()
     }
@@ -40,9 +40,9 @@ internal class CommercialDistrictTest : CardTest() {
   @Test
   internal fun `Cannot be placed in a nonadjacent area`() {
     newGame()
-    p1.manual("PROD[Energy]")
+    p1.runOperation("PROD[Energy]")
 
-    p1.manual("$CommercialDistrict") {
+    p1.runOperation("$CommercialDistrict") {
       shouldThrow<ExpressionException> {
         doTask("CommercialDistrict_SpecialTile<GanymedeColony_RemoteArea>")
       }

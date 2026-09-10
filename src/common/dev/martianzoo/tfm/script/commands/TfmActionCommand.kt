@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.script.commands
 
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.ast.ClassName
@@ -50,7 +50,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
         cardActions(repl.game.reader.tfmCatalog.card(cardName)).getOrNull(actionNumber.toInt() - 1)
             ?: throw UsageException("$cardName has no action $actionNumber")
     val pauseForWrittenCost = payment.isNotEmpty() && action.cost != null
-    val previousAutoExecMode = repl.agent.autoExecMode
+    val previousAutoExecPolicy = repl.agent.autoExecPolicy
     var writtenCostPaused = false
     val result =
         try {
@@ -64,7 +64,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
             }
             TaskCommand(repl).withArgs("ActionUsedMarker<$cardName>")
             if (pauseForWrittenCost) {
-              repl.agent.autoExecMode = NONE
+              repl.agent.autoExecPolicy = NONE
               writtenCostPaused = true
             }
             val taskIdsBeforeAction = repl.game.tasks.ids()
@@ -74,12 +74,12 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
               else TfmPayCommand(repl).withArgs(payment)
             }
             if (pauseForWrittenCost) {
-              repl.agent.autoExecMode = previousAutoExecMode
+              repl.agent.autoExecPolicy = previousAutoExecPolicy
               writtenCostPaused = false
             }
           }
         } finally {
-          if (writtenCostPaused) repl.agent.autoExecMode = previousAutoExecMode
+          if (writtenCostPaused) repl.agent.autoExecPolicy = previousAutoExecPolicy
         }
     return repl.describeExecutionResults(result)
   }

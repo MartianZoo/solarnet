@@ -48,7 +48,7 @@
 - [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt) — `fire` selects the complete
   sibling batch; `stableAutomaticOrder` is diagnostic order only.
 - [`WorldTransaction.kt`](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) —
-  `performIdleCleanup`, and `Engine.removeTemporaryComponents` next to it.
+  `settleAndCleanUp`, and `Engine.removeTemporaryComponents` next to it.
 - [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt) —
   `enforceSelectLock` and `requireComplete`.
 - [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) — the class KDoc lists
@@ -78,7 +78,7 @@ The third column is what actually holds the promise today, which is not always a
 | **All-or-nothing** | A speculative operation that reaches a dead end leaves no trace. | `Timeline.atomic` and `EventLog.rollBackTo`. Tested. |
 | **Sealed tasks** | No authored game behavior edits, reprioritizes, cancels, or removes another task. | Structural: Pets has no instruction that can name a task. |
 | **No hidden ordering state** | No ordering guarantee depends on runtime state that rollback does not restore. | `AutomaticEffectOrderTest`. |
-| **Scope hygiene** | No `MustCleanUp` component outlives the operation that created it. | `requireComplete`, at the `manual` and `finish` boundaries only. |
+| **Scope hygiene** | No `MustCleanUp` component outlives the operation that created it. | `requireComplete` at `runOperation` and `completeOperation` boundaries. |
 
 Freedom and Snapshot are the two weakest rows, and they are the two that matter most: Freedom is
 most of what "correct sequencing" means here, and Snapshot is the rule every future change to
@@ -383,7 +383,7 @@ automatic work again and repeats cleanup until an idle pass finds nothing left t
 Only that empty pass allows the workflow callback. Work the callback starts synchronously is
 coalesced into one automatic follow-up step, and the same cleanup loop runs again before the
 resulting position is recorded. Every pass happens inside an atomic transaction. See
-`WorldTransaction.performIdleCleanup` and `Engine.removeTemporaryComponents`.
+`WorldTransaction.settleAndCleanUp` and `Engine.removeTemporaryComponents`.
 
 Three classes use it:
 

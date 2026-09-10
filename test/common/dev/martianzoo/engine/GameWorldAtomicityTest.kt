@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
@@ -17,14 +18,14 @@ internal class GameWorldAtomicityTest {
   @Test
   internal fun failedOperationRestoresTheWholeWorldTogether() {
     val world = Engine.newGame(premise) as WholeWorld
-    val admin = world.agent(ADMIN)
+    val admin = world.testAgent(ADMIN)
     val checkpoint = world.timeline.checkpoint()
     val revision = world.revision
     var successfulCompletions = 0
-    world.onAtomicComplete = { successfulCompletions++ }
+    world.onTransactionComplete = { successfulCompletions++ }
 
     shouldThrow<IllegalStateException> {
-      admin.manual("Marker") {
+      admin.runOperation("Marker") {
         admin.addTasks("Decision")
         error("fail after changing both present and future")
       }

@@ -11,9 +11,10 @@ internal class ProtectedHabitatsTest : CardTest() {
   @Test
   internal fun `Allows its owner to remove their own protected resources`() {
     newGame()
-    p1.manual("PROD[Plant], $ProtectedHabitats, Plant, $Fish, $Tardigrades")
-    p1.manual("Animal<$Fish>, Microbe<$Tardigrades>")
-    p1.manual("-Plant, -Animal<$Fish>, -Microbe<$Tardigrades>").expect("-Plant, -Animal, -Microbe")
+    p1.runOperation("PROD[Plant], $ProtectedHabitats, Plant, $Fish, $Tardigrades")
+    p1.runOperation("Animal<$Fish>, Microbe<$Tardigrades>")
+    p1.runOperation("-Plant, -Animal<$Fish>, -Microbe<$Tardigrades>")
+        .expect("-Plant, -Animal, -Microbe")
   }
 
   @Test
@@ -21,7 +22,7 @@ internal class ProtectedHabitatsTest : CardTest() {
     newGame()
     val p2 = requireP2()
     seedProtectedP2Resources()
-    shouldThrow<DeadEndException> { p1.manual("-Plant<Player2>") }
+    shouldThrow<DeadEndException> { p1.runOperation("-Plant<Player2>") }
     p2.count("Plant") shouldBe 1
   }
 
@@ -30,7 +31,7 @@ internal class ProtectedHabitatsTest : CardTest() {
     newGame()
     val p2 = requireP2()
     seedProtectedP2Resources()
-    shouldThrow<DeadEndException> { p1.manual("-Animal<Player2, $Fish<Player2>>") }
+    shouldThrow<DeadEndException> { p1.runOperation("-Animal<Player2, $Fish<Player2>>") }
     p2.count("Animal<$Fish>") shouldBe 1
   }
 
@@ -39,13 +40,13 @@ internal class ProtectedHabitatsTest : CardTest() {
     newGame()
     val p2 = requireP2()
     seedProtectedP2Resources()
-    shouldThrow<DeadEndException> { p1.manual("-Microbe<Player2, $Tardigrades<Player2>>") }
+    shouldThrow<DeadEndException> { p1.runOperation("-Microbe<Player2, $Tardigrades<Player2>>") }
     p2.count("Microbe<$Tardigrades>") shouldBe 1
   }
 
   private fun seedProtectedP2Resources() {
     val p2 = requireP2()
-    p2.manual("PROD[Plant], $ProtectedHabitats, Plant, $Fish, $Tardigrades")
-    p2.manual("Animal<$Fish>, Microbe<$Tardigrades>")
+    p2.runOperation("PROD[Plant], $ProtectedHabitats, Plant, $Fish, $Tardigrades")
+    p2.runOperation("Animal<$Fish>, Microbe<$Tardigrades>")
   }
 }

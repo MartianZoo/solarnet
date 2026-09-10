@@ -19,7 +19,7 @@ internal class Game20260619Test : AbstractFullGameTest() {
 
   @Test
   internal fun gameThroughGeneration5() {
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(6, 3)
 
     // Game id: peae6273d6b33
@@ -336,7 +336,7 @@ internal class Game20260619Test : AbstractFullGameTest() {
     // TODO: Specialist is an Elysium milestone, but this setup only loads Tharsis milestones.
     // Stop automatic turn enforcement at this intentionally raw substitute for the logged action.
     workflow.shutdown()
-    KB.manual("-8 MC, 5 VictoryPoint")
+    KB.runOperation("-8 MC, 5 VictoryPoint")
 
     // ER played Mohole Area
     // ER gained 4 heat production

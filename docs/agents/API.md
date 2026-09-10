@@ -14,7 +14,7 @@
 
 - [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) is the current fully permissive,
   Actor-scoped engine API.
-- [`ApiTranslation.kt`](../../src/common/dev/martianzoo/agent/ApiTranslation.kt) currently combines
+- [`AgentImpl.kt`](../../src/common/dev/martianzoo/agent/AgentImpl.kt) currently combines
   parsing, atomic mutation entry, input recording, and legacy autoexecution scheduling.
 - [`World.kt`](../../src/common/dev/martianzoo/engine/World.kt) currently returns stable Agents.
 - [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) already stores one global
@@ -44,7 +44,7 @@ The audited mutation families are:
 
 Timeline commit-floor advancement and the atomic transaction wrapper are engine/workflow lifecycle
 mechanics, not Actor mutations. `doTask` and `tryTask` compose task identification, selection,
-narrowing, and error handling. `manual`, turn, and phase conveniences compose ex-machina task
+narrowing, and error handling. `runOperation`, turn, and phase conveniences compose ex-machina task
 addition with ordinary task action. None justifies a universal request type or
 `engine.submit(actor, request)`.
 
@@ -118,7 +118,7 @@ user-visible contract: call out any needed change before adopting it.
 Direct engine mutation remains deliberately available to callers that choose the lower-level
 module. This is architectural guidance, not an attempt to prevent trusted clients from cheating.
 Ex-machina task addition/removal and concrete state changes belong to that engine API. The current
-`manual`, resumable-operation, turn, and completion conveniences may remain as engine test helpers
+`runOperation`, resumable-operation, turn, and completion conveniences may remain as engine test helpers
 while tests are migrated; they do not define the player-facing Agent contract.
 
 Recording navigation belongs to an independent Game World view and does not belong on the Agent
@@ -142,8 +142,8 @@ choose adversarially, or use another legal strategy is not an engine concern.
 
 ## Current implementation divergence
 
-Today `Agent`, parsing, direct mutation powers, `autoExecMode`, and atomic completion all live in
-`:engine`. `World.agent(actor)` returns one stable fully permissive object per Actor, including
+Today `Agent`, parsing, direct mutation powers, `autoExecPolicy`, and transaction completion all
+live in `:engine`. `World.agent(actor)` returns one stable fully permissive object per Actor, including
 `Admin`. Public task mutation has been reduced to checked narrowing and explicit
 single-task removal. The extraction should preserve behavior while successively:
 

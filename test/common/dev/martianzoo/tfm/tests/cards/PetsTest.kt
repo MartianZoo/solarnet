@@ -16,8 +16,8 @@ internal class PetsTest : CardTest() {
   @Test
   internal fun `Prevents Predators from removing its animal when another target exists`() {
     val p2 = requireP2()
-    p2.manual("$Pets")
-    p1.manual("$Predators, Animal<$Predators>")
+    p2.runOperation("$Pets")
+    p1.runOperation("$Predators, Animal<$Predators>")
 
     p1.cardAction1(Predators) {
       shouldThrow<DeadEndException> { doTask("-Animal<Player2, $Pets<Player2>>") }
@@ -28,8 +28,8 @@ internal class PetsTest : CardTest() {
   @Test
   internal fun `Prevents Predators from acting when its animal is the only target`() {
     val p2 = requireP2()
-    p2.manual("$Pets")
-    p1.manual("$Predators")
+    p2.runOperation("$Pets")
+    p1.runOperation("$Predators")
     shouldThrow<DeadEndException> { p1.cardAction1(Predators) }
   }
 }

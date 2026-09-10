@@ -34,13 +34,13 @@ internal class IndenturedWorkersTest : CardTest() {
   internal fun `Expires at the end of the generation`() {
     initializeGame("35 MC, 2 ProjectCard")
     p1.playProject(IndenturedWorkers, 0)
-    admin.manual("Generation")
+    admin.runOperation("Generation")
     p1.playProject(Soletta, 35).expect("-35 MC")
   }
 
   private fun initializeGame(instruction: String) {
     newGame()
     admin.phase("Action")
-    p1.manual(instruction)
+    p1.runOperation(instruction)
   }
 }

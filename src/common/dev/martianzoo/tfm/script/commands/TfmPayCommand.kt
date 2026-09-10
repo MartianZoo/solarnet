@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.script.commands
 
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -32,10 +32,10 @@ internal class TfmPayCommand(private val repl: ScriptSession) : ScriptCommand("t
       val pay = cn("Pay").of(CLASS.of(currency))
       currency.toString() to Transmute(Full(pay, currency), sex.scalar).toString()
     }
-    val previousAutoExecMode = repl.agent.autoExecMode
+    val previousAutoExecPolicy = repl.agent.autoExecPolicy
     val result =
         repl.game.timeline.atomic {
-          repl.agent.autoExecMode = NONE
+          repl.agent.autoExecPolicy = NONE
           try {
             val selected = repl.game.tasks.selectedTask()
             val ordered = payments.sortedByDescending { (currency) ->
@@ -44,7 +44,7 @@ internal class TfmPayCommand(private val repl: ScriptSession) : ScriptCommand("t
             ordered.forEach { (_, instruction) -> repl.agent.doTask(instruction) }
             dismissUnusedAcceptsWhilePaused()
           } finally {
-            repl.agent.autoExecMode = previousAutoExecMode
+            repl.agent.autoExecPolicy = previousAutoExecPolicy
           }
         }
     return repl.describeExecutionResults(result)

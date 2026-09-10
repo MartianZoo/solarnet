@@ -1,8 +1,10 @@
 package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.agent.Agent.Companion.parse
-import dev.martianzoo.agent.Agent.OperationBody
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.Agent.OperationScope
+import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
@@ -19,46 +21,45 @@ import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.canon.cardResourceType
 import dev.martianzoo.tfm.canon.tfmCatalog
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 
 internal abstract class TfmTest {
   protected lateinit var game: World
 
   protected val admin: TfmGameplay
-    get() = game.tfm(ADMIN)
+    get() = game.testTfm(ADMIN)
 
   protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
 
-  protected fun <T> OperationBody.doWithoutAutoExec(
+  protected fun <T> OperationScope.doWithoutAutoExec(
       agent: TfmGameplay,
-      body: OperationBody.() -> T,
+      body: OperationScope.() -> T,
   ): T {
-    val previousAutoExecMode = agent.autoExecMode
-    agent.autoExecMode = NONE
+    val previousAutoExecPolicy = agent.autoExecPolicy
+    agent.autoExecPolicy = NONE
     return try {
       body()
     } finally {
-      agent.autoExecMode = previousAutoExecMode
+      agent.autoExecPolicy = previousAutoExecPolicy
     }
   }
 
   protected fun TfmGameplay.placeTile(row: Int, column: Int): TaskResult =
       doTask(tilePlacement(reader, pendingTasks(), row, column))
 
-  protected fun OperationBody.placeTile(row: Int, column: Int) {
+  protected fun OperationScope.placeTile(row: Int, column: Int) {
     doTask(tilePlacement(reader, tasks.extract { it }, row, column))
   }
 
   protected fun TfmGameplay.addCardResources(card: ClassName, count: Int? = null): TaskResult =
       doTask(cardResources(reader, pendingTasks(), card, count))
 
-  protected fun OperationBody.addCardResources(card: ClassName, count: Int? = null) {
+  protected fun OperationScope.addCardResources(card: ClassName, count: Int? = null) {
     doTask(cardResources(reader, tasks.extract { it }, card, count))
   }
 
   protected fun TfmGameplay.wgt(choice: String): TaskResult = doTask("$choice! BY Admin")
 
-  protected fun OperationBody.wgt(choice: String) {
+  protected fun OperationScope.wgt(choice: String) {
     doTask("$choice! BY Admin")
   }
 
@@ -71,11 +72,11 @@ internal abstract class TfmTest {
     return doTask("Ok", taskId)
   }
 
-  protected fun OperationBody.declineTask() {
+  protected fun OperationScope.declineTask() {
     doTask("Ok")
   }
 
-  protected fun OperationBody.declineTask(instruction: String) {
+  protected fun OperationScope.declineTask(instruction: String) {
     val taskId = singleDeclinableTaskId(tasks.extract { it }, reader, instruction)
     doTask("Ok", taskId)
   }
@@ -145,7 +146,7 @@ internal abstract class TfmTest {
       instruction: String,
   ): TaskId {
     val matches = tasks.filter { task ->
-      task.instruction == game.agent(task.assignee).parse<Instruction>(instruction) &&
+      task.instruction == game.testAgent(task.assignee).parse<Instruction>(instruction) &&
           (NoOp.narrows(task.instruction, reader) ||
               task.instruction.descendantsOfType<NoOp>().isNotEmpty())
     }

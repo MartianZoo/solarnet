@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.Hellas
@@ -27,7 +27,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
 
   @Test
   internal fun hellasPromoGame() {
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(7, 5)
     workflow.isRunning shouldBe true
 
@@ -130,7 +130,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
       assertCounts(0 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
     }
 
-    admin.manual("End FROM Phase")
+    admin.runOperation("End FROM Phase")
 
     val sum = Summarizer(game)
     sum.net("GreeneryTile", "VictoryPoint") shouldBe 0
@@ -151,10 +151,10 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
   internal fun earlyGameWithNoPrelude() {
     val setup = canonicalPremise(Hellas, PromoCardPack, players = 2)
     val game = Engine.newGame(setup)
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
 
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(game).launch()
     dev.martianzoo.tfm.tests.retainStartingProjects(game, 7, 5)
 
     p1.playCorp(InterplanetaryCinematics, 7)

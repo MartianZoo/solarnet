@@ -1,7 +1,8 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.AutoExecMode.FIRST
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Expression
@@ -27,8 +28,8 @@ internal class TaskAssignmentCharacterizationTest {
   @Test
   internal fun ordinaryActorCanOnlySeeAndExecuteTasksAssignedToIt() {
     val game = game()
-    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
-    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
 
     p2.addTasks("Token<Player2>")
 
@@ -43,12 +44,12 @@ internal class TaskAssignmentCharacterizationTest {
   @Test
   internal fun wholeGameAutoExecutionPreservesAnotherAssigneesActor() {
     val game = game()
-    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
-    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
     val checkpoint = game.timeline.checkpoint()
 
     p2.addTasks("Token<Player2>")
-    p1.autoExecMode = FIRST
+    p1.autoExecPolicy = EAGER
 
     game.tasks.isEmpty() shouldBe true
     p2.count("Token<Player2>") shouldBe 1
@@ -58,9 +59,9 @@ internal class TaskAssignmentCharacterizationTest {
   @Test
   internal fun playerNoneDrainsOnlyAdminWork() {
     val game = game()
-    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
-    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
-    val admin = game.agent(ADMIN).also { it.autoExecMode = NONE }
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
 
     p2.addTasks("Token<Player2>")
     admin.addTasks("AdminToken")
@@ -74,7 +75,7 @@ internal class TaskAssignmentCharacterizationTest {
   @Test
   internal fun assignedPlayerCanCompleteATaskPerformedByAdmin() {
     val game = game()
-    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val checkpoint = game.timeline.checkpoint()
 
     p1.addTasks("Token<Player1> BY Admin")
@@ -89,7 +90,7 @@ internal class TaskAssignmentCharacterizationTest {
   @Test
   internal fun performerOverridePreservesThenTaskSequencing() {
     val game = game()
-    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val checkpoint = game.timeline.checkpoint()
 
     p1.addTasks("(Token<Player1> THEN Marker<Player1>) BY Admin")

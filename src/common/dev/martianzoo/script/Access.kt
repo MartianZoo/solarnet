@@ -12,7 +12,7 @@ internal sealed class Access {
   internal abstract fun phase(phase: String): TaskResult
 
   internal fun doPhase(agent: Agent, phase: String): TaskResult =
-      agent.beginManual("${phase}Phase FROM Phase")
+      agent.beginOperation("${phase}Phase FROM Phase")
 
   internal open fun dropTask(id: TaskId): Unit = error("not allowed in this mode")
 
@@ -42,7 +42,7 @@ internal sealed class Access {
 
     override fun newTurn() = agent.startTurn()
 
-    override fun exec(instruction: String) = agent.beginManual(instruction)
+    override fun exec(instruction: String) = agent.beginOperation(instruction)
   }
 
   // YELLOW: Task integrity: changes have consequences
@@ -52,7 +52,7 @@ internal sealed class Access {
 
     override fun newTurn() = agent.startTurn()
 
-    override fun exec(instruction: String) = agent.beginManual(instruction)
+    override fun exec(instruction: String) = agent.beginOperation(instruction)
 
     override fun dropTask(id: TaskId) {
       agent.dropTask(id)

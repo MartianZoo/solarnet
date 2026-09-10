@@ -12,7 +12,7 @@ internal class ThorgateTest : CardTest() {
   fun initializeGame() {
     newGame(retainedStartingProjects = 10)
     p1.playCorp(ThorGate, 10)
-    p1.manual("-10 MC")
+    p1.runOperation("-10 MC")
     admin.phase("Action")
   }
 
@@ -34,7 +34,7 @@ internal class ThorgateTest : CardTest() {
 
   @Test
   internal fun `Cannot buy power production with only seven mc`() {
-    p1.manual("-1 MC")
+    p1.runOperation("-1 MC")
     shouldThrow<LimitsException> { p1.stdProject("PowerPlantProject") }
   }
 }

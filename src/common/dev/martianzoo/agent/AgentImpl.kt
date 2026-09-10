@@ -1,8 +1,8 @@
 package dev.martianzoo.agent
 
 import dev.martianzoo.agent.Agent.Companion.parse
-import dev.martianzoo.agent.Agent.OperationBody
-import dev.martianzoo.agent.AutoExecMode.FIRST
+import dev.martianzoo.agent.Agent.OperationScope
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.engine.Implementations
 import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.engine.WorldTransaction
@@ -24,23 +24,20 @@ import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.pets.util.Multiset
 import kotlin.reflect.KClass
 
-/**
- * An experiment in having a "generatable" class do the work of both parsing strings to PetElements,
- * adding atomicity, and producing TaskResults.
- */
-internal class ApiTranslation(
+/** Implements Actor-contextual parsing, atomic operation coordination, and autoexecution. */
+internal class AgentImpl(
     override val actor: Actor,
     override val reader: GameReader,
     private val impl: Implementations,
     override val tasks: TaskQueue,
     private val elaborator: PetElaborator,
-    private val atomicOperationScope: WorldTransaction,
+    private val worldTransaction: WorldTransaction,
 ) : Agent {
 
-  override var autoExecMode: AutoExecMode = FIRST
-    set(newMode) {
-      if (newMode != field) {
-        field = newMode
+  override var autoExecPolicy: AutoExecPolicy = EAGER
+    set(newPolicy) {
+      if (newPolicy != field) {
+        field = newPolicy
         autoExecAtomically()
       }
     }
@@ -63,7 +60,7 @@ internal class ApiTranslation(
 
   override fun resolve(expression: String) = reader.resolve(parse(expression))
 
-  override fun parseInternal(type: KClass<out PetElement>, text: String): PetElement =
+  override fun parseAs(type: KClass<out PetElement>, text: String): PetElement =
       elaborator.elaborateInput(Parsing.parse(type, text), actor as? Player)
 
   private fun parseTaskNarrowing(text: String): ParsedTaskNarrowing {
@@ -100,82 +97,82 @@ internal class ApiTranslation(
 
   // OPERATIONS
 
-  override fun manual(initialInstructions: String, body: BodyLambda): TaskResult {
+  override fun runOperation(initialInstructions: String, body: OperationBlock): TaskResult {
     var allowedPendingTasks = emptySet<TaskId>()
     return atomic(
         block = {
           allowedPendingTasks =
-              impl.manual(parseInstructionGroup(initialInstructions), autoExecMode) {
+              impl.runOperation(parseInstructionGroup(initialInstructions), autoExecPolicy) {
                 Adapter().body()
               }
         },
-        afterIdleCleanup = { impl.requireComplete(allowedPendingTasks) },
+        validateCompletion = { impl.requireComplete(allowedPendingTasks) },
     )
   }
 
-  override fun beginManual(initialInstructions: String, body: BodyLambda): TaskResult {
+  override fun beginOperation(initialInstructions: String, body: OperationBlock): TaskResult {
     return atomic {
-      impl.beginManual(parseInstructionGroup(initialInstructions), autoExecMode) {
+      impl.beginOperation(parseInstructionGroup(initialInstructions), autoExecPolicy) {
         Adapter().body()
       }
     }
   }
 
-  override fun continueManual(body: BodyLambda): TaskResult {
-    return atomic { impl.continueManual(autoExecMode) { Adapter().body() } }
+  override fun continueOperation(body: OperationBlock): TaskResult {
+    return atomic { impl.continueOperation(autoExecPolicy) { Adapter().body() } }
   }
 
-  override fun finish(body: BodyLambda): TaskResult {
+  override fun completeOperation(body: OperationBlock): TaskResult {
     return atomic(
-        block = { impl.complete(autoExecMode) { Adapter().body() } },
-        afterIdleCleanup = { impl.requireComplete() },
+        block = { impl.complete(autoExecPolicy) { Adapter().body() } },
+        validateCompletion = { impl.requireComplete() },
     )
   }
 
-  private inner class Adapter : OperationBody {
-    override val tasks = this@ApiTranslation.tasks
+  private inner class Adapter : OperationScope {
+    override val tasks = this@AgentImpl.tasks
 
-    override val reader = this@ApiTranslation.reader
+    override val reader = this@AgentImpl.reader
 
     override fun doTask(narrowing: String) {
-      this@ApiTranslation.doTask(narrowing)
-      impl.autoExecNow(autoExecMode)
+      this@AgentImpl.doTask(narrowing)
+      impl.autoExecNow(autoExecPolicy)
     }
 
     override fun doTask(narrowing: String, taskId: TaskId) {
-      this@ApiTranslation.doTask(narrowing, taskId)
-      impl.autoExecNow(autoExecMode)
+      this@AgentImpl.doTask(narrowing, taskId)
+      impl.autoExecNow(autoExecPolicy)
     }
 
     override fun tryTask(narrowing: String) {
-      this@ApiTranslation.tryTask(narrowing)
-      impl.autoExecNow(autoExecMode)
+      this@AgentImpl.tryTask(narrowing)
+      impl.autoExecNow(autoExecPolicy)
     }
 
     override fun tryTask(narrowing: String, taskId: TaskId) {
-      this@ApiTranslation.tryTask(narrowing, taskId)
-      impl.autoExecNow(autoExecMode)
+      this@AgentImpl.tryTask(narrowing, taskId)
+      impl.autoExecNow(autoExecPolicy)
     }
 
     override fun autoExecNow() {
-      impl.autoExecNow(autoExecMode)
+      impl.autoExecNow(autoExecPolicy)
     }
   }
 
   override fun autoExecNow() = atomic {}
 
   private fun autoExecAtomically(): TaskResult =
-      atomicOperationScope.run({ impl.autoExecNow(autoExecMode) }) {}
+      worldTransaction.run({ impl.autoExecNow(autoExecPolicy) }) {}
 
   // TURNS
 
   override fun startTurn() = atomic { impl.startTurn() }
 
-  override fun inTurn(body: BodyLambda): TaskResult {
+  override fun inTurn(body: OperationBlock): TaskResult {
     return if (tasks.isEmpty()) {
-      manual("NewTurn", body)
+      runOperation("NewTurn", body)
     } else {
-      finish(body)
+      completeOperation(body)
     }
   }
 
@@ -246,19 +243,18 @@ internal class ApiTranslation(
   // autoExecNow() and cross-Actor Agent calls can re-enter this call site. Its depth is shared
   // by every Actor in the world so only the true outermost operation drains and reports completion.
   private fun atomic(
-      afterIdleCleanup: () -> Unit = {},
+      validateCompletion: () -> Unit = {},
       block: () -> Unit,
   ): TaskResult =
-      atomicOperationScope.run(
+      worldTransaction.run(
           block = block,
-          afterIdleCleanup = afterIdleCleanup,
-          beforeOutermostCompletion = { impl.autoExecNow(autoExecMode) },
+          validateCompletion = validateCompletion,
+          settle = { impl.autoExecNow(autoExecPolicy) },
       )
 
   // Direct mutation did not invoke legacy autoexecution before it joined the shared command scope.
   // Policy-driven advancement will replace this distinction in the later scheduler slice.
-  private fun atomicWithoutAutoExec(block: () -> Unit): TaskResult =
-      atomicOperationScope.run(block) {}
+  private fun atomicWithoutAutoExec(block: () -> Unit): TaskResult = worldTransaction.run(block) {}
 
   private data class ParsedTaskNarrowing(
       val instruction: InstructionTree,

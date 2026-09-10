@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -35,14 +35,14 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
 
   @Test
   internal fun wsbg2025() {
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(6, 7, 8, 7)
 
     val stanley = player(1)
     val jacopo = player(2)
     val jon = player(3)
     val charlie =
-        game.tfm(game.actors.filterIsInstance<Player>()[3]).requireExplicitPaymentChoices()
+        game.testTfm(game.actors.filterIsInstance<Player>()[3]).requireExplicitPaymentChoices()
 
     stanley.playCorp(CrediCor, 6)
     jacopo.playCorp(ValleyTrust, 7)

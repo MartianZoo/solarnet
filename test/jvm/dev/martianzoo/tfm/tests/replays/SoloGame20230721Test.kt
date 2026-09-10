@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecMode.FIRST
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -230,11 +230,11 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
             // me played Flooding
             // me placed ocean tile on row 4 position 6
             // me's plants amount increased by 1
-            manual(
+            runOperation(
                     "-7 MC THEN OceanTile<Elysium_4_6>, PlayedEvent<Class<$Conscription>> FROM ProjectCard"
                 ) {
                   placeTile(4, 6)
-                  autoExecMode = FIRST
+                  autoExecPolicy = EAGER
                 }
                 .expect("Plant, -3 MC")
           }

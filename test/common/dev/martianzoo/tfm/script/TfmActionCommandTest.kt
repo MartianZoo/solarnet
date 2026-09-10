@@ -23,9 +23,9 @@ internal class TfmActionCommandTest {
     repl.command("become Player1")
     repl.command("task -10 ProjectCard<Hand>")
     repl.command("as Player2 task -10 ProjectCard<Hand>")
-    repl.agent.manual("PROD[Energy], AiCentral")
+    repl.agent.runOperation("PROD[Energy], AiCentral")
     repl.command("auto none")
-    repl.agent.beginManual("UseAction<UseActionOnCardAction, Action1>")
+    repl.agent.beginOperation("UseAction<UseActionOnCardAction, Action1>")
     repl.command("auto safe")
 
     val output = repl.command("tfm_action AiCentral 1")
@@ -138,9 +138,9 @@ internal class TfmActionCommandTest {
     repl.command("become Player1")
     repl.command("task -10 ProjectCard<Hand>")
     repl.command("as Player2 task -10 ProjectCard<Hand>")
-    repl.agent.manual(contents)
+    repl.agent.runOperation(contents)
     repl.command("phase Action")
-    repl.agent.beginManual("NewTurn")
+    repl.agent.beginOperation("NewTurn")
     return repl
   }
 }

@@ -33,7 +33,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
 
   @Test
   internal fun erraticCarbonCurrent() {
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(6, 4)
     generation1()
     generation2()

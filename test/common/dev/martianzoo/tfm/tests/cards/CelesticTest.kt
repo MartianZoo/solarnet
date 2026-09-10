@@ -12,7 +12,7 @@ internal class CelesticTest : CardTest() {
   fun initializeGame() {
     newGame(VenusNextExpansion, retainedStartingProjects = 5)
     p1.playCorp(Celestic, 5)
-    p1.manual("10 Heat")
+    p1.runOperation("10 Heat")
     admin.phase("Action")
   }
 

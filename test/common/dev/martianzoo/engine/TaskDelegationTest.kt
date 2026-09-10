@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
@@ -13,11 +14,11 @@ internal class TaskDelegationTest {
   @Test
   internal fun `a concrete reaction stays with its controller and credits its owner`() {
     val game = game()
-    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
-    val admin = game.agent(ADMIN)
-    admin.manual("Observer")
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val admin = game.testAgent(ADMIN)
+    admin.runOperation("Observer")
 
-    p1.beginManual("ConcreteReactor<Player2>") {
+    p1.beginOperation("ConcreteReactor<Player2>") {
       val reaction = game.tasks.extract { it }.single()
       reaction.assignee shouldBe PLAYER1
       reaction.controller shouldBe PLAYER1
@@ -39,10 +40,10 @@ internal class TaskDelegationTest {
   @Test
   internal fun `selecting an abstract reaction hands it to its owner and retains control`() {
     val game = game()
-    val p1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
-    val p2 = game.agent(PLAYER2).also { it.autoExecMode = NONE }
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
 
-    p1.beginManual("AbstractReactor<Player2>") {
+    p1.beginOperation("AbstractReactor<Player2>") {
       p1.addTasks("Spare<Player1>?, Later<Player1>?")
       val reward =
           game.tasks.extract { it }.single { it.instruction.toString().startsWith("Reward") }

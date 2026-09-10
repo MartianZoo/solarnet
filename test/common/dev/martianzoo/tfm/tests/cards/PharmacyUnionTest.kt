@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
@@ -14,7 +14,7 @@ internal class PharmacyUnionTest : CardTest() {
   internal fun `Starting money precedes both mandatory microbe-tag losses`() {
     newGame(PromoCardPack)
 
-    p1.manual("$PharmacyUnion").expect("46 MC, ProjectCard, 2 Disease<$PharmacyUnion>")
+    p1.runOperation("$PharmacyUnion").expect("46 MC, ProjectCard, 2 Disease<$PharmacyUnion>")
 
     p1.assertCounts(0 to "RequiredAction")
   }
@@ -22,21 +22,21 @@ internal class PharmacyUnionTest : CardTest() {
   @Test
   internal fun `A science tag must remove one disease and raise TR`() {
     newGame(PromoCardPack)
-    p1.manual("$PharmacyUnion")
+    p1.runOperation("$PharmacyUnion")
 
-    p1.manual("$PhysicsComplex").expect("-Disease<$PharmacyUnion>, TerraformRating")
+    p1.runOperation("$PhysicsComplex").expect("-Disease<$PharmacyUnion>, TerraformRating")
   }
 
   @Test
   internal fun `The microbe tag player orders another player's Pharmacy Union reactions`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.manual("$PharmacyUnion")
-    val manual = p2.also { it.autoExecMode = NONE }
+    p1.runOperation("$PharmacyUnion")
+    val manual = p2.also { it.autoExecPolicy = NONE }
     val diseaseBefore = p1.count("Disease<$PharmacyUnion>")
     val moneyBefore = p1.count("MC")
 
-    manual.manual("$Decomposers") {
+    manual.runOperation("$Decomposers") {
       shouldThrow<TaskException> { p1.doTask("Disease<$PharmacyUnion>") }
       doTask("Disease<$PharmacyUnion<Player1>>!")
       doTask("-4 MC<Player1>")
@@ -50,12 +50,12 @@ internal class PharmacyUnionTest : CardTest() {
   @Test
   internal fun `Two science tags with one disease remove it and then flip Pharmacy Union`() {
     newGame(PromoCardPack)
-    p1.manual("$PharmacyUnion")
-    p1.manual("-Disease<$PharmacyUnion>")
+    p1.runOperation("$PharmacyUnion")
+    p1.runOperation("-Disease<$PharmacyUnion>")
     val trBefore = p1.count("TerraformRating")
-    val manual = p1.also { it.autoExecMode = NONE }
+    val manual = p1.also { it.autoExecPolicy = NONE }
 
-    manual.manual("$Research") {
+    manual.runOperation("$Research") {
       doTask("TerraformRating FROM Disease<$PharmacyUnion>")
       doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
       doTask("3 TerraformRating")
@@ -73,12 +73,12 @@ internal class PharmacyUnionTest : CardTest() {
   @Test
   internal fun `Two science tags can flip Pharmacy Union only once`() {
     newGame(PromoCardPack)
-    p1.manual("$PharmacyUnion")
-    p1.manual("-2 Disease<$PharmacyUnion>")
+    p1.runOperation("$PharmacyUnion")
+    p1.runOperation("-2 Disease<$PharmacyUnion>")
     val trBefore = p1.count("TerraformRating")
-    val manual = p1.also { it.autoExecMode = NONE }
+    val manual = p1.also { it.autoExecPolicy = NONE }
 
-    manual.manual("$Research") {
+    manual.runOperation("$Research") {
       doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
       doTask("3 TerraformRating")
       // Decline the second science tag's attempt to flip Pharmacy Union again.
@@ -93,12 +93,12 @@ internal class PharmacyUnionTest : CardTest() {
   @Test
   internal fun `Flipping Pharmacy Union does not trigger its owner's Media Group`() {
     newGame(PromoCardPack)
-    p1.manual("$PharmacyUnion, $MediaGroup")
-    p1.manual("-2 Disease<$PharmacyUnion>")
+    p1.runOperation("$PharmacyUnion, $MediaGroup")
+    p1.runOperation("-2 Disease<$PharmacyUnion>")
     val moneyBefore = p1.count("MC")
-    val manual = p1.also { it.autoExecMode = NONE }
+    val manual = p1.also { it.autoExecPolicy = NONE }
 
-    manual.manual("$PhysicsComplex") {
+    manual.runOperation("$PhysicsComplex") {
       doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
       doTask("3 TerraformRating")
     }
@@ -112,13 +112,13 @@ internal class PharmacyUnionTest : CardTest() {
   @Test
   internal fun `Pending disease placement becomes its explicit fallback after Pharmacy Union flips`() {
     newGame(PromoCardPack)
-    p1.manual("$PharmacyUnion")
-    p1.manual("-2 Disease<$PharmacyUnion>")
+    p1.runOperation("$PharmacyUnion")
+    p1.runOperation("-2 Disease<$PharmacyUnion>")
     val moneyBefore = p1.count("MC")
     val trBefore = p1.count("TerraformRating")
-    val manual = p1.also { it.autoExecMode = NONE }
+    val manual = p1.also { it.autoExecPolicy = NONE }
 
-    manual.manual("$RegolithEaters") {
+    manual.runOperation("$RegolithEaters") {
       doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
       doTask("3 TerraformRating")
       doTask("-4 MC")

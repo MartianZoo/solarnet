@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parseClasses
@@ -12,7 +13,6 @@ import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestOption.Hellas
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
@@ -25,7 +25,7 @@ internal class PropertyTest {
   @Test
   internal fun numberPropertiesAreReadableWithoutBecomingComponents() {
     val game = Engine.newGame(canonicalPremise(Hellas, VenusNextExpansion, players = 2))
-    val p1 = game.tfm(PLAYER1)
+    val p1 = game.testTfm(PLAYER1)
     val componentCount = p1.count("Component")
 
     p1.count("Hellas_8_4.row") shouldBe 8
@@ -44,7 +44,7 @@ internal class PropertyTest {
   @Test
   internal fun numberPropertiesWorkInsideARefinement() {
     val game = Engine.newGame(canonicalPremise(Hellas, players = 2))
-    val p1 = game.tfm(PLAYER1)
+    val p1 = game.testTfm(PLAYER1)
 
     p1.sneak(
         "CityTile<Player1, Hellas_7_4>, CityTile<Player1, Hellas_8_4>, " +
@@ -54,7 +54,7 @@ internal class PropertyTest {
     p1.count("OwnedTile<MarsArea(HAS 8 row)>") shouldBe 3
     p1.has("3 OwnedTile<MarsArea(HAS 8 row)>") shouldBe true
     p1.has("4 OwnedTile<MarsArea(HAS 8 row)>") shouldBe false
-    p1.manual("PolarExplorer")
+    p1.runOperation("PolarExplorer")
     p1.count("PolarExplorer") shouldBe 1
   }
 
@@ -62,9 +62,9 @@ internal class PropertyTest {
   internal fun metricPropertiesAreEvaluatedExplicitlyInsideEffectsAndReadQueries() {
     val catalog = TfmCatalog.Composite(Canon, MetricPropertyProbeCatalog)
     val game = Engine.newGame(canonicalPremise(catalog = catalog, players = 2))
-    val p1 = game.tfm(PLAYER1)
+    val p1 = game.testTfm(PLAYER1)
 
-    p1.manual("3 TemperatureStep!, MetricPropertyProbe")
+    p1.runOperation("3 TemperatureStep!, MetricPropertyProbe")
 
     p1.count("MetricPropertyResult") shouldBe 3
     p1.count("FixedMetricPropertyResult") shouldBe 8
@@ -77,27 +77,27 @@ internal class PropertyTest {
   internal fun requirementPropertiesAreEvaluatedAfterTheirEffectReceiverBecomesConcrete() {
     val catalog = TfmCatalog.Composite(Canon, RequirementPropertyProbeCatalog)
     val game = Engine.newGame(canonicalPremise(catalog = catalog, players = 2))
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
 
-    p1.manual("RequirementPropertyMarker")
-    p1.manual("OptionalRequirementPropertyProbe") {
+    p1.runOperation("RequirementPropertyMarker")
+    p1.runOperation("OptionalRequirementPropertyProbe") {
       doTask("RequirementPropertyStarted<Player1>")
       doTask("RequirementPropertyPassed<Player1>")
       doTask("RequirementPropertyFinished<Player1>")
     }
-    p1.manual("RequiredRequirementPropertyProbe") {
+    p1.runOperation("RequiredRequirementPropertyProbe") {
       doTask("RequirementPropertyStarted<Player1>")
       doTask("RequirementPropertyPassed<Player1>")
       doTask("RequirementPropertyFinished<Player1>")
     }
-    p2.manual("OptionalRequirementPropertyProbe") {
+    p2.runOperation("OptionalRequirementPropertyProbe") {
       doTask("RequirementPropertyStarted<Player2>")
       doTask("RequirementPropertyPassed<Player2>")
       doTask("RequirementPropertyFinished<Player2>")
     }
-    p2.autoExecMode = NONE
-    p2.manual("RequiredRequirementPropertyProbe") {
+    p2.autoExecPolicy = NONE
+    p2.runOperation("RequiredRequirementPropertyProbe") {
       doTask("RequirementPropertyStarted<Player2>")
       val gatedResult =
           tasks
@@ -116,7 +116,7 @@ internal class PropertyTest {
     p2.count("RequirementPropertyPassed") shouldBe 1
     p2.count("RequirementPropertyFinished") shouldBe 2
 
-    shouldThrow<PetException> { p1.manual("RecursiveRequirementPropertyProbe") }
+    shouldThrow<PetException> { p1.runOperation("RecursiveRequirementPropertyProbe") }
         .message shouldContain "is recursive"
   }
 }

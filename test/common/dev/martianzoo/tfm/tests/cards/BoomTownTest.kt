@@ -19,7 +19,7 @@ internal class BoomTownTest : CardTest() {
     admin.phase("Prelude")
 
     shouldThrow<NarrowingException> { p1.playPrelude(BoomTown) { placeTile(4, 2) } }
-    p1.manual("CityTile<Tharsis_2_1>")
+    p1.runOperation("CityTile<Tharsis_2_1>")
     shouldThrow<NarrowingException> { p1.playPrelude(BoomTown) { placeTile(1, 1) } }
     p1.playPrelude(BoomTown) { placeTile(8, 9) }.expect("Titanium, PROD[2 Titanium]")
   }
@@ -35,8 +35,8 @@ internal class BoomTownTest : CardTest() {
     p2.count("BaseResourceValue<Class<Titanium>>") shouldBe 3
 
     admin.phase("Action")
-    p1.manual("4 MC, 3 Titanium, ProjectCard")
-    p2.manual("7 MC, Titanium, ProjectCard")
+    p1.runOperation("4 MC, 3 Titanium, ProjectCard")
+    p2.runOperation("7 MC, Titanium, ProjectCard")
     p1.playProject(SmallAsteroid, mc = 4, titanium = 3)
     p2.playProject(SpaceStation, mc = 7, titanium = 1)
 
@@ -44,7 +44,7 @@ internal class BoomTownTest : CardTest() {
     p1.count("Titanium") shouldBe 0
     p2.count("MC") shouldBe 0
 
-    p1.manual("-$BoomTown")
+    p1.runOperation("-$BoomTown")
     p1.count("BaseResourceValue<Class<Titanium>>") shouldBe 3
   }
 

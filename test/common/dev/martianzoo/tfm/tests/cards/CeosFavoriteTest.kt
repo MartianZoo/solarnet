@@ -12,8 +12,8 @@ internal class CeosFavoriteTest : CardTest() {
   @Test
   internal fun `Can add a resource to Search for Life`() {
     newGame(VenusNextExpansion)
-    p1.manual("$SearchForLife, Science<$SearchForLife>")
-    p1.manual("$CeosFavoriteProject") { doTask("Science<$SearchForLife>") }
+    p1.runOperation("$SearchForLife, Science<$SearchForLife>")
+    p1.runOperation("$CeosFavoriteProject") { doTask("Science<$SearchForLife>") }
         .expect("Science<$SearchForLife>")
     p1.assertCounts(2 to "Science<$SearchForLife>")
   }
@@ -22,15 +22,15 @@ internal class CeosFavoriteTest : CardTest() {
   @Test
   internal fun `Can be played without a resource-bearing card`() {
     newGame(VenusNextExpansion)
-    p1.manual("$Tardigrades")
-    p1.manual("$CeosFavoriteProject")
+    p1.runOperation("$Tardigrades")
+    p1.runOperation("$CeosFavoriteProject")
     p1.assertCounts(0 to "Microbe<$Tardigrades>")
   }
 
   @Test
   internal fun `Cannot skip its resource choice when an eligible card exists`() {
     newGame(VenusNextExpansion)
-    p1.manual("$SearchForLife, Science<$SearchForLife>")
-    shouldThrow<NarrowingException> { p1.manual("$CeosFavoriteProject") { doTask("Ok") } }
+    p1.runOperation("$SearchForLife, Science<$SearchForLife>")
+    shouldThrow<NarrowingException> { p1.runOperation("$CeosFavoriteProject") { doTask("Ok") } }
   }
 }

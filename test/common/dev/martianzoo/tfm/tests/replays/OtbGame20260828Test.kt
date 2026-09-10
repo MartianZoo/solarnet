@@ -31,7 +31,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
 
   @Test
   internal fun otbGame20260828() {
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(4, 5, 5)
     val green = p1.requireExplicitUnusedActionCards()
     val blue = p2.requireExplicitUnusedActionCards()

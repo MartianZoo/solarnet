@@ -1,8 +1,7 @@
 package dev.martianzoo.agent
 
-import dev.martianzoo.agent.Agent.OperationBody
+import dev.martianzoo.engine.AbortTransactionException
 import dev.martianzoo.engine.TaskQueue
-import dev.martianzoo.engine.TimelineImpl.AbortOperationException
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.KindException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
@@ -37,7 +36,7 @@ public interface Agent {
    * Parses and preprocesses [text]. Preprocessing may change its major kind; callers that require a
    * particular result kind should use [parse].
    */
-  public fun parseInternal(type: KClass<out PetElement>, text: String): PetElement
+  public fun parseAs(type: KClass<out PetElement>, text: String): PetElement
 
   public fun has(requirement: String): Boolean
 
@@ -135,21 +134,21 @@ public interface Agent {
 
   public fun autoExecNow(): TaskResult
 
-  public var autoExecMode: AutoExecMode
+  public var autoExecPolicy: AutoExecPolicy
 
   public fun startTurn(): TaskResult
 
-  public fun inTurn(body: BodyLambda = {}): TaskResult
+  public fun inTurn(body: OperationBlock = {}): TaskResult
 
   /** Starts and completes an operation seeded by one or more independent instructions. */
-  public fun manual(initialInstructions: String, body: BodyLambda = {}): TaskResult
+  public fun runOperation(initialInstructions: String, body: OperationBlock = {}): TaskResult
 
   /** Starts a resumable operation seeded by one or more independent instructions. */
-  public fun beginManual(initialInstructions: String, body: BodyLambda = {}): TaskResult
+  public fun beginOperation(initialInstructions: String, body: OperationBlock = {}): TaskResult
 
-  public fun continueManual(body: BodyLambda = {}): TaskResult
+  public fun continueOperation(body: OperationBlock = {}): TaskResult
 
-  public fun finish(body: BodyLambda = {}): TaskResult
+  public fun completeOperation(body: OperationBlock = {}): TaskResult
 
   /** Adds a manual task for the given [instruction], but does not select or execute it. */
   public fun addTasks(instruction: String, firstCause: Cause? = null): List<TaskId>
@@ -159,7 +158,7 @@ public interface Agent {
 
   public fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
 
-  public interface OperationBody {
+  public interface OperationScope {
     public val tasks: TaskQueue
     public val reader: GameReader
 
@@ -173,12 +172,12 @@ public interface Agent {
 
     public fun autoExecNow()
 
-    public fun abort(): Nothing = throw AbortOperationException()
+    public fun abort(): Nothing = throw AbortTransactionException()
   }
 
   public companion object {
     public inline fun <reified P : PetElement> Agent.parse(text: String): P {
-      val parsed = parseInternal(P::class, text)
+      val parsed = parseAs(P::class, text)
       if (parsed !is P) {
         throw KindException(
             "Preprocessing produced `$parsed`, which is not a ${P::class.simpleName}"
@@ -188,5 +187,3 @@ public interface Agent {
     }
   }
 }
-
-public typealias BodyLambda = OperationBody.() -> Unit

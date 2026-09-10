@@ -11,7 +11,7 @@ internal class PristarTest : CardTest() {
   internal fun `Pays its production bonus when TR did not increase`() {
     newGame(TurmoilCardPack)
     admin.count("TrWatcher") shouldBe 1
-    p1.manual("$Pristar")
+    p1.runOperation("$Pristar")
     admin.phase("Production")
     p1.assertCounts(1 to "Preservation")
   }
@@ -19,8 +19,8 @@ internal class PristarTest : CardTest() {
   @Test
   internal fun `An opponent's TR increase does not suppress the bonus`() {
     newGame(TurmoilCardPack, players = 2)
-    p1.manual("$Pristar")
-    requireP2().manual("TerraformRating")
+    p1.runOperation("$Pristar")
+    requireP2().runOperation("TerraformRating")
     admin.phase("Production")
     p1.assertCounts(1 to "Preservation")
   }
@@ -28,7 +28,7 @@ internal class PristarTest : CardTest() {
   @Test
   internal fun `Does not pay its production bonus after a TR increase`() {
     newGame(TurmoilCardPack)
-    p1.manual("$Pristar, TerraformRating")
+    p1.runOperation("$Pristar, TerraformRating")
     admin.phase("Production")
     p1.assertCounts(0 to "Preservation")
   }

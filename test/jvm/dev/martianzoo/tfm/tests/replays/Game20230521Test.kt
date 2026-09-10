@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecMode.SAFE
+import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -23,7 +23,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
   @Test
   internal fun game20230521() {
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(game).launch()
     retainStartingProjects(5, 4)
 
     // Good luck Player1!
@@ -70,7 +70,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       playPrelude(IoResearchOutpost)
     }
 
-    listOf(p1, p2).forEach { it.autoExecMode = SAFE }
+    listOf(p1, p2).forEach { it.autoExecPolicy = CONCRETE }
 
     // Player1 played Inventors' Guild
     // Player1 ended turn

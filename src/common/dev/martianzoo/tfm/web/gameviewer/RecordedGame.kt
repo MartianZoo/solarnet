@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.web.gameviewer
 
 import dev.martianzoo.agent.Agent.Companion.parse
-import dev.martianzoo.agent.Agent.OperationBody
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.Agent.OperationScope
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.exMachina
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.GameRecording
@@ -72,36 +72,36 @@ public abstract class RecordedGame {
 
   protected abstract fun play()
 
-  protected fun <T> OperationBody.doWithoutAutoExec(
+  protected fun <T> OperationScope.doWithoutAutoExec(
       agent: TfmGameplay,
-      body: OperationBody.() -> T,
+      body: OperationScope.() -> T,
   ): T {
-    val previousAutoExecMode = agent.autoExecMode
-    agent.autoExecMode = NONE
+    val previousAutoExecPolicy = agent.autoExecPolicy
+    agent.autoExecPolicy = NONE
     return try {
       body()
     } finally {
-      agent.autoExecMode = previousAutoExecMode
+      agent.autoExecPolicy = previousAutoExecPolicy
     }
   }
 
   protected fun TfmGameplay.placeTile(row: Int, column: Int): TaskResult =
       doTask(tilePlacement(reader, pendingTasks(), row, column))
 
-  protected fun OperationBody.placeTile(row: Int, column: Int) {
+  protected fun OperationScope.placeTile(row: Int, column: Int) {
     doTask(tilePlacement(reader, tasks.extract { it }, row, column))
   }
 
   protected fun TfmGameplay.addCardResources(card: ClassName, count: Int? = null): TaskResult =
       doTask(cardResources(reader, pendingTasks(), card, count))
 
-  protected fun OperationBody.addCardResources(card: ClassName, count: Int? = null) {
+  protected fun OperationScope.addCardResources(card: ClassName, count: Int? = null) {
     doTask(cardResources(reader, tasks.extract { it }, card, count))
   }
 
   protected fun TfmGameplay.wgt(choice: String): TaskResult = doTask("$choice! BY Admin")
 
-  protected fun OperationBody.wgt(choice: String) {
+  protected fun OperationScope.wgt(choice: String) {
     doTask("$choice! BY Admin")
   }
 
@@ -114,11 +114,11 @@ public abstract class RecordedGame {
     return doTask("Ok", taskId)
   }
 
-  protected fun OperationBody.declineTask() {
+  protected fun OperationScope.declineTask() {
     doTask("Ok")
   }
 
-  protected fun OperationBody.declineTask(instruction: String) {
+  protected fun OperationScope.declineTask(instruction: String) {
     val taskId = singleDeclinableTaskId(tasks.extract { it }, reader, instruction)
     doTask("Ok", taskId)
   }

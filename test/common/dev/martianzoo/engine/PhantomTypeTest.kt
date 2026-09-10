@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -13,12 +14,12 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class PhantomTypeTest {
-  private fun agent() = Engine.newGame(canonicalPremise()).agent(ADMIN)
+  private fun agent() = Engine.newGame(canonicalPremise()).testAgent(ADMIN)
 
   @Test
   internal fun `inactive types and their class literals count zero`() {
     val game = Engine.newGame(canonicalPremise())
-    val agent = game.agent(ADMIN)
+    val agent = game.testAgent(ADMIN)
     val venusTag = agent.resolve("VenusTag")
 
     agent.count("VenusTag") shouldBe 0
@@ -42,12 +43,12 @@ internal class PhantomTypeTest {
   internal fun `optional and amap phantom changes do nothing while mandatory changes die`() {
     val agent = agent()
 
-    agent.manual("VenusTag?")
-    agent.manual("VenusTag.")
-    agent.manual("-VenusTag?")
-    agent.manual("-VenusTag.")
-    shouldThrow<DeadEndException> { agent.manual("VenusTag!") }
-    shouldThrow<DeadEndException> { agent.manual("-VenusTag!") }
+    agent.runOperation("VenusTag?")
+    agent.runOperation("VenusTag.")
+    agent.runOperation("-VenusTag?")
+    agent.runOperation("-VenusTag.")
+    shouldThrow<DeadEndException> { agent.runOperation("VenusTag!") }
+    shouldThrow<DeadEndException> { agent.runOperation("-VenusTag!") }
     agent.count("VenusTag") shouldBe 0
   }
 
@@ -55,7 +56,7 @@ internal class PhantomTypeTest {
   internal fun `choices discard mandatory phantom branches`() {
     val agent = agent()
 
-    agent.manual("VenusTag! OR Plant<Player1>!")
+    agent.runOperation("VenusTag! OR Plant<Player1>!")
 
     agent.count("Plant<Player1>") shouldBe 1
   }

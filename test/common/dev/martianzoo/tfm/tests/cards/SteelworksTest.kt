@@ -9,8 +9,8 @@ internal class SteelworksTest : CardTest() {
   @Test
   internal fun `Can be used when oxygen is already maxed`() {
     newGame()
-    p1.manual("$Steelworks, 4 Energy")
-    admin.manual("14 OxygenStep")
+    p1.runOperation("$Steelworks, 4 Energy")
+    admin.runOperation("14 OxygenStep")
     admin.phase("Action")
     p1.cardAction1(Steelworks).expect("-4 Energy, 2 Steel")
     p1.assertCounts(14 to "OxygenStep", 20 to "TerraformRating")

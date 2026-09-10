@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecMode.SAFE
+import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.cards.cardnames.Factorum
@@ -12,8 +12,8 @@ internal class FactorumTest : CardTest() {
   internal fun `Can raise energy production when it has no energy`() {
     newGame(PromoCardPack)
     admin.phase("Action")
-    p1.manual("$Factorum")
-    p1.autoExecMode = SAFE
+    p1.runOperation("$Factorum")
+    p1.autoExecPolicy = CONCRETE
 
     p1.cardAction1(Factorum).expect("PROD[Energy]")
   }
@@ -22,7 +22,7 @@ internal class FactorumTest : CardTest() {
   internal fun `Cannot raise energy production while it has energy`() {
     newGame(PromoCardPack)
     admin.phase("Action")
-    p1.manual("$Factorum, Energy")
+    p1.runOperation("$Factorum, Energy")
 
     shouldThrow<RequirementException> { p1.cardAction1(Factorum) }
   }

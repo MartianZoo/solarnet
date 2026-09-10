@@ -14,9 +14,9 @@ internal class HellasMapTest : CardTest() {
     newGame(Hellas)
     val p2 = requireP2()
     admin.phase("Action")
-    p1.manual("GreeneryTile<Hellas_9_6>")
-    p2.manual("GreeneryTile<Hellas_8_6>, GreeneryTile<Hellas_8_5>, GreeneryTile<Hellas_9_5>")
-    p1.manual("8 Plant")
+    p1.runOperation("GreeneryTile<Hellas_9_6>")
+    p2.runOperation("GreeneryTile<Hellas_8_6>, GreeneryTile<Hellas_8_5>, GreeneryTile<Hellas_9_5>")
+    p1.runOperation("8 Plant")
 
     p1.stdAction("ConvertPlantsAction") {
       shouldThrow<NarrowingException> { doTask("GreeneryTile<Hellas_1_5>") }
@@ -28,11 +28,11 @@ internal class HellasMapTest : CardTest() {
   internal fun `Ocean income from the south pole bonus can fund its payment`() {
     newGame(Hellas, TurmoilCardPack)
     admin.phase("Action")
-    p1.manual("$LakefrontResorts")
-    p1.manual("OceanTile<Hellas_4_7>, OceanTile<Hellas_5_6>")
-    p1.manual("-54 MC")
+    p1.runOperation("$LakefrontResorts")
+    p1.runOperation("OceanTile<Hellas_4_7>, OceanTile<Hellas_5_6>")
+    p1.runOperation("-54 MC")
 
-    p1.manual("GreeneryTile<Hellas_9_7>") { placeTile(5, 7) }
+    p1.runOperation("GreeneryTile<Hellas_9_7>") { placeTile(5, 7) }
 
     p1.count("MC") shouldBe 0
   }

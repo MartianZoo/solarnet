@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.tests.TestOption.Cimmeria
@@ -12,44 +12,44 @@ internal class MiningAreaTest : CardTest() {
   @Test
   internal fun `Can be placed adjacent to a steel area`() {
     newGame()
-    p1.manual("CityTile<Tharsis_2_1>")
-    p1.manual("$MiningArea") { placeTile(1, 1) }.expect("2 Steel, PROD[Steel]")
+    p1.runOperation("CityTile<Tharsis_2_1>")
+    p1.runOperation("$MiningArea") { placeTile(1, 1) }.expect("2 Steel, PROD[Steel]")
   }
 
   @Test
   internal fun `Can be placed adjacent to a titanium area`() {
     newGame()
-    p1.manual("CityTile<Tharsis_7_9>")
-    p1.manual("$MiningArea") { placeTile(8, 9) }.expect("Titanium, PROD[Titanium]")
+    p1.runOperation("CityTile<Tharsis_7_9>")
+    p1.runOperation("$MiningArea") { placeTile(8, 9) }.expect("Titanium, PROD[Titanium]")
   }
 
   @Test
   internal fun `Robotic Workforce re-evaluates its production box instead of remembering steel`() {
     newGame(Cimmeria)
-    p1.manual("CityTile<Cimmeria_5_4>")
-    p1.manual("$MiningArea") {
+    p1.runOperation("CityTile<Cimmeria_5_4>")
+    p1.runOperation("$MiningArea") {
           placeTile(6, 4)
           doTask("PROD[Steel]")
         }
         .expect("Titanium, 2 Steel, PROD[Steel]")
 
-    val manual = p1.also { it.autoExecMode = NONE }
-    manual.beginManual("$RoboticWorkforce")
+    val manual = p1.also { it.autoExecPolicy = NONE }
+    manual.beginOperation("$RoboticWorkforce")
     manual.selectTask("CopyProductionBox<CardFront(HAS BuildingTag)>")
     manual.narrowTask("CopyProductionBox<$MiningArea>")
-    manual.finish { doTask("PROD[Titanium]") }.expect("PROD[Titanium]")
+    manual.completeOperation { doTask("PROD[Titanium]") }.expect("PROD[Titanium]")
   }
 
   @Test
   internal fun `Cannot be played without an adjacent owned tile`() {
     newGame()
-    shouldThrow<DependencyException> { p1.manual("$MiningArea") { placeTile(1, 1) } }
+    shouldThrow<DependencyException> { p1.runOperation("$MiningArea") { placeTile(1, 1) } }
   }
 
   @Test
   internal fun `Cannot select a card-bonus area`() {
     newGame()
-    p1.manual("CityTile<Tharsis_2_1>")
-    shouldThrow<NotNowException> { p1.manual("$MiningArea") { placeTile(3, 2) } }
+    p1.runOperation("CityTile<Tharsis_2_1>")
+    shouldThrow<NotNowException> { p1.runOperation("$MiningArea") { placeTile(3, 2) } }
   }
 }

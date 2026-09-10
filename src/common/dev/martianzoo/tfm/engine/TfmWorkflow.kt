@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.agent.Agent
-import dev.martianzoo.agent.BodyLambda
+import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.engine.Timeline
 import dev.martianzoo.engine.World
 import dev.martianzoo.engine.toComponent
@@ -17,9 +17,9 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 /**
- * Two modes for driving the Terraforming Mars game-phase sequence: [Auto] uses a coroutine to
- * advance phases automatically; [Manual] exposes each phase transition as an explicit public method
- * for tests that need to drive the game step-by-step.
+ * Two ways to drive the Terraforming Mars game-phase sequence: [Automatic] uses a coroutine to
+ * advance phases automatically; [Stepwise] exposes each phase transition as an explicit public
+ * method for tests that need to drive the game step-by-step.
  */
 public object TfmWorkflow {
 
@@ -31,31 +31,33 @@ public object TfmWorkflow {
    * Player action helpers ([TfmGameplay.playProject] etc.) self-grant turns via [Agent.inTurn] when
    * no task is already pending, so no explicit turn-granting is needed.
    */
-  public class Manual(private val game: World) {
+  public class Stepwise(private val game: World) {
 
     internal val adminOps: Agent = game.agent(ADMIN)
 
     /** Starts fully effectful game setup by replacing the initial bootstrap phase. */
-    public fun setupPhase(): TaskResult = adminOps.beginManual("SetupPhase FROM Phase")
+    public fun setupPhase(): TaskResult = adminOps.beginOperation("SetupPhase FROM Phase")
 
-    public fun corporationPhase(): TaskResult = adminOps.manual("CorporationPhase FROM Phase")
+    public fun corporationPhase(): TaskResult = adminOps.runOperation("CorporationPhase FROM Phase")
 
-    public fun preludePhase(): TaskResult = adminOps.manual("PreludePhase FROM Phase")
+    public fun preludePhase(): TaskResult = adminOps.runOperation("PreludePhase FROM Phase")
 
-    public fun actionPhase(): TaskResult = adminOps.manual("ActionPhase FROM Phase")
+    public fun actionPhase(): TaskResult = adminOps.runOperation("ActionPhase FROM Phase")
 
-    public fun productionPhase(): TaskResult = adminOps.manual("ProductionPhase FROM Phase")
+    public fun productionPhase(): TaskResult = adminOps.runOperation("ProductionPhase FROM Phase")
 
     /** Enters the universal Solar phase unless the game ended after production. */
     public fun solarPhase(): TaskResult? =
-        if (adminOps.has("GameEndBarrier")) adminOps.beginManual("SolarPhase FROM Phase") else null
+        if (adminOps.has("GameEndBarrier")) adminOps.beginOperation("SolarPhase FROM Phase")
+        else null
 
-    public fun finalGreeneryPhase(): TaskResult = adminOps.manual("FinalGreeneryPhase FROM Phase")
+    public fun finalGreeneryPhase(): TaskResult =
+        adminOps.runOperation("FinalGreeneryPhase FROM Phase")
 
-    public fun researchPhase(body: BodyLambda = {}): TaskResult =
-        adminOps.manual("ResearchPhase FROM Phase", body)
+    public fun researchPhase(body: OperationBlock = {}): TaskResult =
+        adminOps.runOperation("ResearchPhase FROM Phase", body)
 
-    public fun endPhase(): TaskResult = adminOps.manual("End FROM Phase")
+    public fun endPhase(): TaskResult = adminOps.runOperation("End FROM Phase")
   }
 
   /**
@@ -68,9 +70,9 @@ public object TfmWorkflow {
    * already waiting, so signals fired during automatic Admin-controlled phases are dropped rather
    * than queued, preventing spurious wakeups.
    */
-  public class Auto(private val game: World) {
+  public class Automatic(private val game: World) {
 
-    private val m = Manual(game)
+    private val m = Stepwise(game)
     private val adminOps: Agent
       get() = m.adminOps
 
@@ -94,31 +96,31 @@ public object TfmWorkflow {
       get() = workflowJob?.isActive == true
 
     /**
-     * Checkpoint saved just before the workflow's most recent [Agent.beginManual] call. Non-null
+     * Checkpoint saved just before the workflow's most recent [Agent.beginOperation] call. Non-null
      * only while the coroutine is suspended waiting for those tasks to drain. [shutdown] rolls back
      * to this point to undo the pending workflow task.
      */
     private var shutdownCheckpoint: Timeline.Checkpoint? = null
 
     init {
-      game.onAtomicComplete = { if (game.isIdle()) resumeSignal.trySend(Unit) }
+      game.onTransactionComplete = { if (game.isIdle()) resumeSignal.trySend(Unit) }
     }
 
     /**
-     * Launches the game-flow coroutine and returns `this` for chaining. An [Auto] instance can be
-     * launched only once.
+     * Launches the game-flow coroutine and returns `this` for chaining. An [Automatic] instance can
+     * be launched only once.
      *
      * [Dispatchers.Unconfined] is used so the coroutine resumes synchronously in whichever thread
      * delivers the next [resumeSignal], avoiding unnecessary thread hops.
      */
-    public fun launch(): Auto {
+    public fun launch(): Automatic {
       check(workflowJob == null) { "Workflow has already been launched" }
       workflowJob =
           workflowScope.launch(start = CoroutineStart.LAZY) {
             try {
               runGame()
             } finally {
-              game.onAtomicComplete = {}
+              game.onTransactionComplete = {}
             }
           }
       workflowJob!!.start()
@@ -131,7 +133,7 @@ public object TfmWorkflow {
      * back so the queue is empty and the game is ready for a manual phase transition.
      */
     public fun shutdown() {
-      game.onAtomicComplete = {}
+      game.onTransactionComplete = {}
       lifecycleJob.cancel()
       resumeSignal.cancel()
       shutdownCheckpoint?.let { game.timeline.rollBack(it) }
@@ -172,13 +174,13 @@ public object TfmWorkflow {
     }
 
     private suspend fun productionPhase() {
-      adminOps.beginManual("ProductionPhase FROM Phase")
+      adminOps.beginOperation("ProductionPhase FROM Phase")
       letPlayerFinish()
     }
 
     private suspend fun solarPhase(): Boolean {
       if (m.solarPhase() == null) {
-        adminOps.manual("CheckGameEnd")
+        adminOps.runOperation("CheckGameEnd")
         awaitTasksDrained()
         return false
       }
@@ -199,7 +201,7 @@ public object TfmWorkflow {
     }
 
     private suspend fun researchPhase() {
-      adminOps.beginManual("ResearchPhase FROM Phase")
+      adminOps.beginOperation("ResearchPhase FROM Phase")
       letPlayerFinish()
     }
 
@@ -235,14 +237,14 @@ public object TfmWorkflow {
 
     private suspend fun grantFirstActionTo(player: Player) {
       shutdownCheckpoint = game.timeline.checkpoint()
-      opsFor(player).beginManual("NewTurn!")
+      opsFor(player).beginOperation("NewTurn!")
       if (!game.isIdle()) resumeSignal.receive()
       shutdownCheckpoint = null
     }
 
     private suspend fun grantSecondActionTo(player: Player) {
       shutdownCheckpoint = game.timeline.checkpoint()
-      opsFor(player).beginManual("SecondAction")
+      opsFor(player).beginOperation("SecondAction")
       if (!game.isIdle()) resumeSignal.receive()
       shutdownCheckpoint = null
     }

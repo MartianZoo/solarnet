@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
@@ -8,7 +10,6 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -23,7 +24,7 @@ internal class BootstrapLifecycleTest {
   internal fun newGameReturnsCommittedBootstrapState() {
     val resolvedPremise = canonicalPremise()
     val game = Engine.newGame(resolvedPremise)
-    val admin = game.agent(ADMIN)
+    val admin = game.testAgent(ADMIN)
 
     admin.count("Premise") shouldBe 1
     admin.count("ModulesReady") shouldBe 0
@@ -81,7 +82,7 @@ internal class BootstrapLifecycleTest {
               colonyTiles = scenario.colonyTiles,
           )
       val game = Engine.newGame(premise)
-      val admin = game.agent(ADMIN)
+      val admin = game.testAgent(ADMIN)
 
       admin.count("Player") shouldBe scenario.players
       admin.count("${scenario.map.className}") shouldBe 1
@@ -100,7 +101,7 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun modulesChooseTheirTrackRulesAfterTheCompleteModuleSetExists() {
     val game = Engine.newGame(canonicalPremise(Amazonis, VenusNextExpansion))
-    val admin = game.agent(ADMIN)
+    val admin = game.testAgent(ADMIN)
 
     admin.count("ExtendedGlobalParametersRule") shouldBe 1
     admin.count("StandardGpTrackRules") shouldBe 0
@@ -111,9 +112,9 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun manualWorkflowStartsFullyEffectfulGenerationOneSetup() {
     val game = Engine.newGame(canonicalPremise())
-    TfmWorkflow.Manual(game).setupPhase()
+    TfmWorkflow.Stepwise(game).setupPhase()
 
-    val admin = game.agent(ADMIN)
+    val admin = game.testAgent(ADMIN)
     admin.count("BootstrapPhase") shouldBe 0
     admin.count("SetupPhase") shouldBe 1
     admin.count("Generation") shouldBe 1
@@ -125,9 +126,9 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun soloModeProvidesItsStartingTerraformRatingDirectly() {
     val game = Engine.newGame(canonicalPremise(players = 1))
-    TfmWorkflow.Manual(game).setupPhase()
+    TfmWorkflow.Stepwise(game).setupPhase()
 
-    game.agent(ADMIN).count("TerraformRating<Player1>") shouldBe 14
+    game.testAgent(ADMIN).count("TerraformRating<Player1>") shouldBe 14
   }
 
   @Test
@@ -141,17 +142,17 @@ internal class BootstrapLifecycleTest {
             )
         )
 
-    TfmWorkflow.Manual(game).setupPhase()
+    TfmWorkflow.Stepwise(game).setupPhase()
 
-    game.tfm(PLAYER1).production(cn("MC")) shouldBe -2
+    game.testTfm(PLAYER1).production(cn("MC")) shouldBe -2
   }
 
   @Test
   internal fun setupKeepsStartingCardsInHandUntilCorporationTurns() {
     val game = Engine.newGame(canonicalPremise(PreludeExpansion))
-    val workflow = TfmWorkflow.Auto(game).launch()
-    val admin = game.agent(ADMIN)
-    val p1 = game.tfm(PLAYER1)
+    val workflow = TfmWorkflow.Automatic(game).launch()
+    val admin = game.testAgent(ADMIN)
+    val p1 = game.testTfm(PLAYER1)
 
     admin.count("SetupPhase") shouldBe 1
     p1.count("CorporationCard<Hand>") shouldBe 1
@@ -171,9 +172,9 @@ internal class BootstrapLifecycleTest {
   internal fun automaticWorkflowWaitsForSoloSetupChoices() {
     val setup = canonicalPremise(players = 1)
     val game = Engine.newGame(setup)
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(game).launch()
 
-    val admin = game.agent(ADMIN)
+    val admin = game.testAgent(ADMIN)
     admin.count("SetupPhase") shouldBe 1
     admin.count("CorporationPhase") shouldBe 0
     admin.count("Generation") shouldBe 1

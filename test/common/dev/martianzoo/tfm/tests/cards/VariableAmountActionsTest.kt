@@ -14,7 +14,7 @@ internal class VariableAmountActionsTest : CardTest() {
   internal fun `Power Infrastructure cannot choose zero energy`() {
     newGame(CorporateEraExpansion)
     admin.phase("Action")
-    p1.manual("$PowerInfrastructure")
+    p1.runOperation("$PowerInfrastructure")
 
     shouldThrow<AbstractException> { p1.cardAction1(PowerInfrastructure) }
   }
@@ -23,7 +23,7 @@ internal class VariableAmountActionsTest : CardTest() {
   internal fun `Hi-Tech Lab cannot choose zero energy`() {
     newGame(PromoCardPack)
     admin.phase("Action")
-    p1.manual("$HiTechLab")
+    p1.runOperation("$HiTechLab")
 
     shouldThrow<AbstractException> { p1.cardAction1(HiTechLab) }
   }

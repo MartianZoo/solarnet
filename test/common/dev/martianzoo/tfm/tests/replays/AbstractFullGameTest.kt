@@ -1,7 +1,9 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agent.AutoExecMode.FIRST
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.exMachina
+import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
@@ -10,7 +12,6 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmTest
@@ -33,9 +34,9 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     val premise = catalog.gamePremise(config, parseClasses(playerClassPets))
     game = Engine.newGame(premise)
     val players = game.actors.filterIsInstance<Player>()
-    p1 = game.tfm(players[0]).requireExplicitPaymentChoices()
-    if (players.size > 1) p2 = game.tfm(players[1]).requireExplicitPaymentChoices()
-    if (players.size > 2) p3 = game.tfm(players[2]).requireExplicitPaymentChoices()
+    p1 = game.testTfm(players[0]).requireExplicitPaymentChoices()
+    if (players.size > 1) p2 = game.testTfm(players[1]).requireExplicitPaymentChoices()
+    if (players.size > 2) p3 = game.testTfm(players[2]).requireExplicitPaymentChoices()
   }
 
   /** Returns fresh gameplay for the Player occupying the one-based [seat]. */
@@ -43,7 +44,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     require(seat > 0) { "seat numbers begin at 1" }
     val player = game.actors.filterIsInstance<Player>().getOrNull(seat - 1)
     requireNotNull(player) { "no Player occupies seat $seat" }
-    return game.tfm(player)
+    return game.testTfm(player)
   }
 
   private fun copyThis() {
@@ -152,20 +153,20 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   }
 
   private fun TfmGameplay.assertVps(expected: Int) {
-    val onAtomicComplete = game.onAtomicComplete
+    val onTransactionComplete = game.onTransactionComplete
     val checkpoint = game.timeline.checkpoint()
-    val autoExecModes = game.actors.associateWith { game.agent(it).autoExecMode }
-    game.onAtomicComplete = {}
+    val autoExecPolicys = game.actors.associateWith { game.testAgent(it).autoExecPolicy }
+    game.onTransactionComplete = {}
     try {
-      game.actors.forEach { game.agent(it).autoExecMode = FIRST }
+      game.actors.forEach { game.testAgent(it).autoExecPolicy = EAGER }
       dropPendingTasksForSnapshot()
       admin.phase("Production") { dropPendingTasksForSnapshot() }
-      admin.manual("End FROM Phase") { dropPendingTasksForSnapshot() }
+      admin.runOperation("End FROM Phase") { dropPendingTasksForSnapshot() }
       assertCounts(expected to "VictoryPoint")
     } finally {
       game.timeline.rollBack(checkpoint)
-      autoExecModes.forEach { (actor, mode) -> game.agent(actor).autoExecMode = mode }
-      game.onAtomicComplete = onAtomicComplete
+      autoExecPolicys.forEach { (actor, mode) -> game.testAgent(actor).autoExecPolicy = mode }
+      game.onTransactionComplete = onTransactionComplete
     }
   }
 
@@ -175,13 +176,13 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   private fun dropPendingTasksForSnapshot() {
     game.actors
         .filterIsInstance<Player>()
-        .map { game.tfm(it) }
+        .map { game.testTfm(it) }
         .filter { it.count("ProjectCard<Selecting>") > 0 }
         .forEach { it.buyCards(0) }
     game.tasks
         .extract { it.id to it.assignee }
         .forEach { (id, assignee) ->
-          game.agent(assignee).dropTask(id)
+          game.testAgent(assignee).dropTask(id)
         }
   }
 }

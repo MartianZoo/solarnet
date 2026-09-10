@@ -45,7 +45,7 @@
    `public interface Agent` before changing caller-facing operations.
  - [`PetElaborator.kt`](../../src/common/dev/martianzoo/pets/PetElaborator.kt),
    [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt), and
-   [`ApiTranslation.kt`](../../src/common/dev/martianzoo/agent/ApiTranslation.kt) — inspect together
+   [`AgentImpl.kt`](../../src/common/dev/martianzoo/agent/AgentImpl.kt) — inspect together
    for authored elaboration, class/component specialization, and Player-scoped input.
  - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — search for `resolve` and
    `doExecuteResolved` for the selected-task resolution and executable-first-stage contract.
@@ -151,8 +151,8 @@ Colonies do. Queued `:` and immediate `::` still have their ordinary semantics; 
 is not permission to replace one with the other mechanically or to discard a change's `?`, `.`, or
 `!` intensity.
 
-`drainBootstrapTasks` currently calls the Admin Agent's normal `FIRST` autoexecution policy.
-`FIRST` may select the stable execution order of several concrete tasks, but it does not invent a
+`drainBootstrapTasks` currently calls the Admin Agent's normal `EAGER` autoexecution policy.
+`EAGER` may select the stable execution order of several concrete tasks, but it does not invent a
 narrowing for an abstract task: unresolved choice remains queued and bootstrap completion fails.
 Preserve that rejection, cover it with a focused multi-alternative bootstrap test, and review task
 ordering separately whenever bootstrap effects can observe one another.
@@ -241,7 +241,7 @@ part of the capture, and the source may not roll back that captured prefix while
 
 `Timeline` provides event-count checkpoints, atomic blocks, rollback, and a commit floor. An atomic
 failure reverses component state, tasks, event-backed indexes, and events.
-`AbortOperationException` requests rollback without surfacing as a caller error. The commit floor
+`AbortTransactionException` requests rollback without surfacing as a caller error. The commit floor
 prevents rollback into initialization or a workflow stage.
 
 `World.recording()` captures the event sequence and selected positions around successful outermost
@@ -300,7 +300,7 @@ stored Actor. See [IDENTITY.md](IDENTITY.md).
 
 Selecting an abstract task moves that same selected task to its contextual Actor's queue when
 needed, while retaining its controller. One selected task globally locks selection of competitors.
-Continuations, structural siblings, and triggered work return to the controller. `TfmWorkflow.Auto`
+Continuations, structural siblings, and triggered work return to the controller. `TfmWorkflow.Automatic`
 starts Player operations directly and waits for whole-world idleness instead.
 
 ### Selection, resolution, and narrowing
@@ -685,9 +685,9 @@ stable object for reads, task commands, manual operations, task insertion/remova
 changes. The old power-interface hierarchy is gone. REPL color modes restrict commands in the script client
 rather than changing the engine object's type. Autoexecution policy attachment is forward-looking.
 
-All public Agent mutations share the outer atomic-completion path.
+All public Agent mutations share the outer transaction-completion path.
 
-`manual()` seeds a group of new tasks, permits an operation body to finish them, runs configured
+`runOperation()` seeds a group of new tasks, permits an operation body to finish them, runs configured
 auto-exec, preserves previously pending unselected tasks, and fails if newly created Tasks or
 `MustCleanUp` components remain. A pre-existing selected task prevents it from starting.
 `sneak()` applies raw changes without normal instruction resolution or effects, but still uses the
@@ -703,8 +703,8 @@ limited to checked narrowing and explicit single-task removal.
 
 ## Current auto-execution and Terraforming Mars workflow
 
-Autoexecution currently uses `Agent.autoExecMode`: `NONE` does nothing, `SAFE` proceeds only when
-one selectable option exists, and `FIRST` chooses the first selectable task in iteration order.
+Autoexecution currently uses `Agent.autoExecPolicy`: `NONE` does nothing, `CONCRETE` proceeds only when
+one selectable option exists, and `EAGER` chooses the first selectable task in iteration order.
 Scanning is global; assignee selects the queue and stored Actor controls attribution.
 
 **Forward-looking:** core engine contains no autoexecution. An application creates one Agent per
@@ -719,8 +719,8 @@ divergence.
  `Agent`. Treat it as transitional; its test conveniences and player-facing domain actions need not
  remain one production wrapper.
 
-`TfmWorkflow.Auto` runs the Terraforming Mars phase loop in a coroutine. It commits before waiting
-for tasks to drain and wakes from the shared outermost atomic-completion callback. StartToken
+`TfmWorkflow.Automatic` runs the Terraforming Mars phase loop in a coroutine. It commits before waiting
+for tasks to drain and wakes from the shared outermost transaction-completion callback. StartToken
 determines turn order. Canon represents every condition currently preventing game end as a
 `GameEndBarrier`; the workflow checks for those components after Production and reads the solo
 `Victory` result rather than reimplementing its predicate. Exact phase requirements and known gaps are
@@ -731,7 +731,7 @@ in [WORKFLOW.md](WORKFLOW.md).
 `Engine.Wiring` is the current manual composition root. Class Table, Event Log, Component Graph,
 Effector, Timeline, `Changer`, `Instructor`, and other World-level services are shared; `Changer` and
 `Instructor` take the acting Actor as a parameter rather than holding one. Each Actor currently
-receives its own `Implementations` and `ApiTranslation` scope.
+receives its own `Implementations` and `AgentImpl` scope.
 
 The target engine composition retains only the behavior and Actor context required to calculate one
 direct mutation. Game World retains Actor identities, assignment, and pending choices as data but

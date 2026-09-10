@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
@@ -19,7 +20,6 @@ import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -29,22 +29,22 @@ internal class CustomMetricTest {
   @Test
   internal fun instructionAndMetricCapabilitiesCanShareOrSplitImplementations() {
     val game = Engine.newGame(customClassSetup())
-    val p1 = game.tfm(PLAYER1)
+    val p1 = game.testTfm(PLAYER1)
 
     p1.count("BothBehavior") shouldBe 7
     shouldThrow<ExpressionException> { p1.sneak("BothBehavior") }
-    p1.manual("BothBehavior")
+    p1.runOperation("BothBehavior")
     p1.count("Plant") shouldBe 1
 
     p1.count("SplitBehavior") shouldBe 9
-    p1.manual("SplitBehavior")
+    p1.runOperation("SplitBehavior")
     p1.count("Heat") shouldBe 1
     p1.count("Plant") shouldBe 2
   }
 
   @Test
   internal fun abstractArgumentsSumTheirConcreteSpecializations() {
-    val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
+    val p1 = Engine.newGame(customClassSetup()).testTfm(PLAYER1)
 
     val invocationsBefore = ConcreteOnlyMetric.invocations
     p1.count("ConcreteOnlyMetric<Player1>") shouldBe 17
@@ -61,7 +61,7 @@ internal class CustomMetricTest {
 
   @Test
   internal fun customMetricsOnlyEvaluateSpecializationsWhoseDependencyTargetsExist() {
-    val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
+    val p1 = Engine.newGame(customClassSetup()).testTfm(PLAYER1)
 
     val invocationsBefore = TileMetric.invocations
     p1.count("TileMetric<CityTile<Player1, Tharsis_4_4>>") shouldBe 0
@@ -75,16 +75,16 @@ internal class CustomMetricTest {
 
   @Test
   internal fun metricOnlyCustomClassesCannotBeUsedAsInstructionsOrComponents() {
-    val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
+    val p1 = Engine.newGame(customClassSetup()).testTfm(PLAYER1)
 
-    shouldThrow<ExpressionException> { p1.manual("ConcreteOnlyMetric<Player1>") }
+    shouldThrow<ExpressionException> { p1.runOperation("ConcreteOnlyMetric<Player1>") }
     shouldThrow<ExpressionException> { p1.sneak("ConcreteOnlyMetric<Player1>") }
     shouldThrow<ExpressionException> { p1.sneak("-ConcreteOnlyMetric<Player1>") }
   }
 
   @Test
   internal fun changingACustomMetricDoesNotProduceAnEventForItsName() {
-    val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
+    val p1 = Engine.newGame(customClassSetup()).testTfm(PLAYER1)
 
     p1.count("MetricTriggerObserver") shouldBe 1
     p1.count("PlantCount<Player1>") shouldBe 0
@@ -95,10 +95,10 @@ internal class CustomMetricTest {
 
   @Test
   internal fun customImplementationRuntimeFailuresHaveTheirOwnDomain() {
-    val p1 = Engine.newGame(customClassSetup()).tfm(PLAYER1)
+    val p1 = Engine.newGame(customClassSetup()).testTfm(PLAYER1)
 
     shouldThrow<CustomCodeException> { p1.count("BrokenMetric") }
-    shouldThrow<CustomCodeException> { p1.manual("BrokenInstruction") }
+    shouldThrow<CustomCodeException> { p1.runOperation("BrokenInstruction") }
   }
 }
 

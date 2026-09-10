@@ -24,7 +24,7 @@ internal constructor(
 
   override fun agent(actor: Actor): Agent = agentByActor[actor]!!
 
-  override var onAtomicComplete: () -> Unit = {}
+  override var onTransactionComplete: () -> Unit = {}
 
   internal fun recording(): GameRecording {
     val entries = events.entriesSince(Timeline.Checkpoint(0))

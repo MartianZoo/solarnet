@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agent.Agent
+import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
@@ -11,7 +13,6 @@ import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -91,7 +92,7 @@ internal class CanonClassesTest {
                   colonyTiles = testColonyTiles(2),
               )
           )
-      val agent = game.tfm(PLAYER1)
+      val agent = game.testTfm(PLAYER1)
 
       withClue(map.name) {
         agent.count("Class<Milestone>") shouldBe 6
@@ -104,10 +105,10 @@ internal class CanonClassesTest {
   internal fun preludeSetupDealsTwoPreludeCardsToEachPlayer() {
     val game = setUpGame(canonicalPremise(PreludeExpansion, players = 2))
 
-    game.tfm(PLAYER1).phase("Prelude")
+    game.testTfm(PLAYER1).phase("Prelude")
 
-    game.tfm(PLAYER1).count("PreludeCard<Player1>") shouldBe 2
-    game.tfm(PLAYER2).count("PreludeCard<Player2>") shouldBe 2
+    game.testTfm(PLAYER1).count("PreludeCard<Player1>") shouldBe 2
+    game.testTfm(PLAYER2).count("PreludeCard<Player2>") shouldBe 2
   }
 
   @Test
@@ -119,66 +120,71 @@ internal class CanonClassesTest {
     game.reader.count(game.reader.resolve(te("SoloMode"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("StandardSoloObjective"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("SoloOpponent"))) shouldBe 1
-    game.agent(PLAYER1).count("TerraformRating<Player1>") shouldBe 14
+    game.testAgent(PLAYER1).count("TerraformRating<Player1>") shouldBe 14
     listOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
-      game.agent(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
-      game.agent(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
+      game.testAgent(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
+      game.testAgent(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
     }
-    game.agent(PLAYER1).count("SoloStandardResourceReserve<SoloOpponent>") shouldBe
-        game.agent(PLAYER1).count("Class<StandardResource>")
-    game.agent(PLAYER1).count("SoloCardResourceReserve<SoloOpponent>") shouldBe
-        game.agent(PLAYER1).count("Class<CardResource>")
-    game.agent(PLAYER1).count("SoloCardResourceReserve<SoloOpponent, Class<Animal>>") shouldBe 1
+    game.testAgent(PLAYER1).count("SoloStandardResourceReserve<SoloOpponent>") shouldBe
+        game.testAgent(PLAYER1).count("Class<StandardResource>")
+    game.testAgent(PLAYER1).count("SoloCardResourceReserve<SoloOpponent>") shouldBe
+        game.testAgent(PLAYER1).count("Class<CardResource>")
+    game.testAgent(PLAYER1).count("SoloCardResourceReserve<SoloOpponent, Class<Animal>>") shouldBe 1
     game
-        .agent(PLAYER1)
+        .testAgent(PLAYER1)
         .count(
             "Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
         ) shouldBe 42
-    val admin = game.agent(ADMIN) as Agent
+    val admin = game.testAgent(ADMIN) as Agent
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
-    admin.manual("OceanTile<Tharsis_1_2>")
-    game.agent(PLAYER1).count("CityTile<SoloOpponent>") shouldBe 2
-    game.agent(PLAYER1).count("GreeneryTile<SoloOpponent>") shouldBe 2
+    admin.runOperation("OceanTile<Tharsis_1_2>")
+    game.testAgent(PLAYER1).count("CityTile<SoloOpponent>") shouldBe 2
+    game.testAgent(PLAYER1).count("GreeneryTile<SoloOpponent>") shouldBe 2
 
-    val player = game.agent(PLAYER1)
-    player.manual("-5 Plant<SoloOpponent>")
-    player.manual("PROD[-5 Plant<SoloOpponent>]")
-    player.manual("5 Plant<SoloOpponent>")
-    player.manual("PROD[5 Plant<SoloOpponent>]")
-    player.manual("-5 Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>")
-    player.manual("5 Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>")
+    val player = game.testAgent(PLAYER1)
+    player.runOperation("-5 Plant<SoloOpponent>")
+    player.runOperation("PROD[-5 Plant<SoloOpponent>]")
+    player.runOperation("5 Plant<SoloOpponent>")
+    player.runOperation("PROD[5 Plant<SoloOpponent>]")
+    player.runOperation(
+        "-5 Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
+    )
+    player.runOperation(
+        "5 Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
+    )
     listOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
-      game.agent(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
-      game.agent(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
-      game.agent(PLAYER1).count("$it<Player1>") shouldBe 0
+      game.testAgent(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
+      game.testAgent(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
+      game.testAgent(PLAYER1).count("$it<Player1>") shouldBe 0
     }
     game
-        .agent(PLAYER1)
+        .testAgent(PLAYER1)
         .count(
             "Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
         ) shouldBe 42
 
-    admin.manual("End FROM Phase")
-    game.agent(PLAYER1).count("VictoryPoint<Player1>") shouldBe 14
+    admin.runOperation("End FROM Phase")
+    game.testAgent(PLAYER1).count("VictoryPoint<Player1>") shouldBe 14
     game.tasks.isEmpty() shouldBe true
   }
 
   @Test
   internal fun inactiveClassLiteralCountsZeroWhileUnknownClassLiteralIsInvalid() {
     val game = Engine.newGame(canonicalPremise())
-    val agent = game.agent(PLAYER1) as Agent
+    val agent = game.testAgent(PLAYER1) as Agent
     val withVenus =
-        Engine.newGame(canonicalPremise(VenusNextExpansion, players = 2)).agent(PLAYER1) as Agent
+        Engine.newGame(canonicalPremise(VenusNextExpansion, players = 2)).testAgent(PLAYER1)
+            as Agent
 
     assertFailsWith<ExpressionException> { agent.count("Class<AnyWordHere>") }
     agent.count("Class<VenusStep>") shouldBe 0
     withVenus.count("Class<VenusStep>") shouldBe 1
     assertFailsWith<ExpressionException> { agent.count("AnyWordHere") }
     assertFailsWith<ExpressionException> { agent.resolve("Class<AnyWordHere>") }
-    assertFailsWith<ExpressionException> { agent.manual("Class<AnyWordHere>!") }
-    assertFailsWith<ExpressionException> { agent.manual("-Class<AnyWordHere>!") }
+    assertFailsWith<ExpressionException> { agent.runOperation("Class<AnyWordHere>!") }
+    assertFailsWith<ExpressionException> { agent.runOperation("-Class<AnyWordHere>!") }
   }
 }

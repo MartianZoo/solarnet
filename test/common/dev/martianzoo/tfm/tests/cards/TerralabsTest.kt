@@ -11,7 +11,7 @@ internal class TerralabsTest : CardTest() {
   internal fun `Buys project cards for one mc each`() {
     newGame(TurmoilCardPack, retainedStartingProjects = 10)
     p1.playCorp(TerraLabsResearch, 10)
-    p1.manual("4 ProjectCard<Selecting> THEN BuySelectedCards") {
+    p1.runOperation("4 ProjectCard<Selecting> THEN BuySelectedCards") {
           p1.pay(mc = 4)
         }
         .expect("4 ProjectCard, -4 MC")
@@ -24,9 +24,9 @@ internal class TerralabsTest : CardTest() {
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
     )
-    p1.manual("$TerraLabsResearch, $Polyphemos")
+    p1.runOperation("$TerraLabsResearch, $Polyphemos")
 
-    p1.manual("ProjectCard<Selecting> THEN BuySelectedCards") {
+    p1.runOperation("ProjectCard<Selecting> THEN BuySelectedCards") {
           p1.pay(mc = 3)
         }
         .expect("ProjectCard, -3 MC")

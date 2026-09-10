@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestOption.Cimmeria
@@ -13,10 +13,10 @@ internal class MiningRightsTest : CardTest() {
   @Test
   internal fun `Links production to its prior area choice without prioritizing it`() {
     newGame()
-    val manual = p1.also { it.autoExecMode = NONE }
+    val manual = p1.also { it.autoExecPolicy = NONE }
 
     manual
-        .manual("$MiningRights") {
+        .runOperation("$MiningRights") {
           shouldThrow<TaskException> { doTask("PROD[Steel]") }
           placeTile(1, 1)
           doTask("2 Steel")
@@ -31,22 +31,22 @@ internal class MiningRightsTest : CardTest() {
     // https://boardgamegeek.com/thread/2663453/rule-opinions-mining-rights-robotic-workforce
     newGame(Cimmeria)
 
-    p1.manual("$MiningRights") {
+    p1.runOperation("$MiningRights") {
           placeTile(6, 4)
           doTask("PROD[Steel]")
         }
         .expect("Titanium, 2 Steel, PROD[Steel]")
 
-    val manual = p1.also { it.autoExecMode = NONE }
-    manual.beginManual("$RoboticWorkforce")
+    val manual = p1.also { it.autoExecPolicy = NONE }
+    manual.beginOperation("$RoboticWorkforce")
     manual.selectTask("CopyProductionBox<CardFront(HAS BuildingTag)>")
     manual.narrowTask("CopyProductionBox<$MiningRights>")
-    manual.finish { doTask("PROD[Titanium]") }.expect("PROD[Titanium]")
+    manual.completeOperation { doTask("PROD[Titanium]") }.expect("PROD[Titanium]")
   }
 
   @Test
   internal fun `Cannot select a card-bonus area`() {
     newGame()
-    shouldThrow<NotNowException> { p1.manual("$MiningRights") { placeTile(2, 1) } }
+    shouldThrow<NotNowException> { p1.runOperation("$MiningRights") { placeTile(2, 1) } }
   }
 }

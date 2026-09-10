@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.Expression
@@ -14,11 +15,11 @@ internal class ComponentGraphIndexTest {
   @Test
   internal fun componentInMultipleTopLevelBranchesIsCountedOnce() {
     val game = Engine.newGame(canonicalPremise(catalog = IndexProbeCatalog))
-    val agent = game.agent(PLAYER1)
+    val agent = game.testAgent(PLAYER1)
     val componentCount = agent.count("Component")
     val checkpoint = game.timeline.checkpoint()
 
-    agent.manual("3 BothBranches!")
+    agent.runOperation("3 BothBranches!")
 
     agent.count("LeftBranch") shouldBe 3
     agent.count("RightBranch") shouldBe 3

@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agent
-import dev.martianzoo.agent.ApiTranslation
+import dev.martianzoo.agent.AgentImpl
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.TEMPORARY
@@ -44,10 +44,10 @@ public object Engine {
         GameReaderImpl(classTable, components, elaborator, customClasses, premise)
     private val timeline = TimelineImpl(reader, components, events, taskQueues, recordingPositions)
     private val limiter = Limiter(classTable, components)
-    private val atomicOperationScope: WorldTransaction =
+    private val worldTransaction: WorldTransaction =
         WorldTransaction(
             timeline,
-            { world.onAtomicComplete() },
+            { world.onTransactionComplete() },
             recordingPositions,
             ::removeTemporaryComponents,
         )
@@ -169,13 +169,13 @@ public object Engine {
               instructor,
               changer,
           )
-      return ApiTranslation(
+      return AgentImpl(
           actor,
           reader,
           implementations,
           tasks,
           elaborator,
-          atomicOperationScope,
+          worldTransaction,
       )
     }
   }

@@ -27,7 +27,7 @@
 - [`ScriptSession.kt`](../../src/common/dev/martianzoo/script/ScriptSession.kt) —
   inspect only for the script application layer.
 - [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) and
-  [`AutoExecMode.kt`](../../src/common/dev/martianzoo/agent/AutoExecMode.kt) — current engine-owned
+  [`AutoExecPolicy.kt`](../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt) — current engine-owned
   APIs that the selected layering direction will extract.
 - [GAMEWORLD.md](GAMEWORLD.md) owns the selected Game World data, playback, and export model.
 
@@ -74,7 +74,7 @@ engine API is out of scope. The engine is intentionally indifferent to why an Ac
 caller chose one legal mutation instead of another.
 
 **Current divergence:** there is no `:gameworld` or `:agent` module. Current `World` combines Game
-World data with live transaction control and Agent lookup, while `Agent`, `AutoExecMode`, queue
+World data with live transaction control and Agent lookup, while `Agent`, `AutoExecPolicy`, queue
 draining, and client-facing string translation all live in `:engine`. `Task` and `GameEvent` live in
 `:pets`; their runtime-data ownership must be untangled during extraction. `TaskQueues` already
 stores one task set and creates assignee-filtered `TaskQueue` views, so task extraction changes

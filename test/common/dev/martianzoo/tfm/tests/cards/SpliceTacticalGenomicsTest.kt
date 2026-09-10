@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -13,10 +13,10 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
   @Test
   internal fun `Splicer depends on Splice`() {
     newGame(PromoCardPack)
-    p1.manual("$SpliceTacticalGenomics")
+    p1.runOperation("$SpliceTacticalGenomics")
     p1.count("Splicer<$SpliceTacticalGenomics>") shouldBe 1
 
-    p1.manual("-$SpliceTacticalGenomics")
+    p1.runOperation("-$SpliceTacticalGenomics")
 
     p1.count("Splicer") shouldBe 0
   }
@@ -35,12 +35,12 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
   internal fun `When another player plays a microbe tag, Splice pays both players`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.manual("$SpliceTacticalGenomics")
-    val manual = p2.also { it.autoExecMode = NONE }
+    p1.runOperation("$SpliceTacticalGenomics")
+    val manual = p2.also { it.autoExecPolicy = NONE }
     val p1MoneyBefore = p1.count("MC")
     val p2MoneyBefore = p2.count("MC")
 
-    manual.manual("$Decomposers") {
+    manual.runOperation("$Decomposers") {
       shouldThrow<TaskException> { p1.doTask("2 MC") }
       doTask("2 MC<Player1>")
       doTask("2 MC")
@@ -55,10 +55,10 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
   internal fun `Pharmacy Union triggers Splice twice`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.manual("$SpliceTacticalGenomics")
+    p1.runOperation("$SpliceTacticalGenomics")
     val before = p1.count("MC")
 
-    p2.manual("$PharmacyUnion")
+    p2.runOperation("$PharmacyUnion")
 
     p1.count("MC") shouldBe before + 4
   }
@@ -67,9 +67,9 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
   internal fun `Can take a microbe instead of mc`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.manual("$SpliceTacticalGenomics")
+    p1.runOperation("$SpliceTacticalGenomics")
 
-    p2.manual("$Decomposers") { addCardResources(Decomposers) }
+    p2.runOperation("$Decomposers") { addCardResources(Decomposers) }
         .expect("2 MC<Player1>, 2 Microbe<$Decomposers>")
   }
 
@@ -77,10 +77,10 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
   internal fun `Must add the microbe to the card just played`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.manual("$SpliceTacticalGenomics")
-    p2.manual("$RegolithEaters") { doTask("2 MC") }.expect("2 MC<Player1>, 2 MC")
+    p1.runOperation("$SpliceTacticalGenomics")
+    p2.runOperation("$RegolithEaters") { doTask("2 MC") }.expect("2 MC<Player1>, 2 MC")
 
-    p2.manual("$Decomposers") {
+    p2.runOperation("$Decomposers") {
           shouldThrow<NarrowingException> { doTask("Microbe<$RegolithEaters>!") }
           addCardResources(Decomposers)
         }

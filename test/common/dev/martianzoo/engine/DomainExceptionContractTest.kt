@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agent.Agent.Companion.parse
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -15,7 +16,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 internal class DomainExceptionContractTest {
-  private fun agent() = Engine.newGame(canonicalPremise()).agent(PLAYER1)
+  private fun agent() = Engine.newGame(canonicalPremise()).testAgent(PLAYER1)
 
   @Test
   internal fun unhandledTransformsAreExpressionFailures() {
@@ -23,8 +24,8 @@ internal class DomainExceptionContractTest {
 
     shouldThrow<ExpressionException> { agent.count("WAT[Plant]") }
     shouldThrow<ExpressionException> { agent.has("WAT[Plant]") }
-    shouldThrow<ExpressionException> { agent.manual("WAT[Plant]") }
-    shouldThrow<PetSyntaxException> { agent.manual("PROD[PROD[Plant]]") }
+    shouldThrow<ExpressionException> { agent.runOperation("WAT[Plant]") }
+    shouldThrow<PetSyntaxException> { agent.runOperation("PROD[PROD[Plant]]") }
   }
 
   @Test
@@ -37,9 +38,9 @@ internal class DomainExceptionContractTest {
     val agent = agent()
 
     shouldThrow<NoNewClassDeclarationsException> {
-      agent.manual("RequiredAction { -> 3 ProjectCard }")
+      agent.runOperation("RequiredAction { -> 3 ProjectCard }")
     }
-    shouldThrow<PetSyntaxException> { agent.manual("RequiredAction { -> }") }
+    shouldThrow<PetSyntaxException> { agent.runOperation("RequiredAction { -> }") }
   }
 
   @Test
