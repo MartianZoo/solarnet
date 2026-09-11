@@ -126,6 +126,29 @@ internal class Spec13TypeVariablesTest {
     table.getClass(cn("Duo")).typeVariables.distinct().size shouldBe 2
   }
 
+  @Test
+  internal fun `T13-2 identical nested bounds in sibling branches stay independent`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person { CLASS Alice, Bob }",
+            "ABSTRACT CLASS Box<Person>",
+            "ABSTRACT CLASS Pair<Box<Person>, Box<Person>>",
+            "ABSTRACT CLASS Holder<Pair<Box<Person>, Box<Person>>>",
+        )
+
+    val pair = table.getClass(cn("Pair"))
+    pair.typeVariables.map { "$it" } shouldContainExactly
+        listOf("Box<Person>", "Person", "Box<Person>", "Person")
+    pair.typeVariables.distinct().size shouldBe 4
+
+    // The two people are free to differ, so no equality propagation (T3-8) forces them together,
+    // at whatever depth the sibling branches sit.
+    table.resolve(te("Pair<Box<Alice>, Box<Bob>>")).expressionFull shouldBe
+        te("Pair<Box<Alice>, Box<Bob>>")
+    table.resolve(te("Holder<Pair<Box<Alice>, Box<Bob>>>")).expressionFull shouldBe
+        te("Holder<Pair<Box<Alice>, Box<Bob>>>")
+  }
+
   // T13-3 Uses in the class body
 
   @Test
@@ -480,20 +503,6 @@ internal class Spec13TypeVariablesTest {
                 .typeVariables
         )
         .toSet() shouldBe setOf("Area", "Person")
-  }
-
-  @Test
-  internal fun `T13-8 identical nested bounds in sibling header branches stay independent`() {
-    val table =
-        loadTypes(
-            "ABSTRACT CLASS Person { CLASS Alice, Bob }",
-            "ABSTRACT CLASS Box<Person>",
-            "ABSTRACT CLASS Pair<Box<Person>, Box<Person>>",
-            "ABSTRACT CLASS Holder<Pair<Box<Person>, Box<Person>>>",
-        )
-
-    table.resolve(te("Holder<Pair<Box<Alice>, Box<Bob>>>")).expressionFull shouldBe
-        te("Holder<Pair<Box<Alice>, Box<Bob>>>")
   }
 
   // T13-9 Actor selectors

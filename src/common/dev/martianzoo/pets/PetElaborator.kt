@@ -27,8 +27,8 @@ import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
-import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.NoOp
+import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
 import dev.martianzoo.pets.ast.Instruction.Transmute
@@ -432,7 +432,7 @@ public class PetElaborator(public val classTable: ClassTable) {
                   sc.value > 1 &&
                   classTable.findClass(scex.expression.className)?.isSubtypeOf(atomized) == true
           ) {
-            val one = gain(scaledEx(scex.expression, ActualScalar(1)), node.intensity) as Gain
+            val one = gain(scaledEx(scex.expression, ActualScalar(1)), node.quantifier) as Gain
             return InstructionGroup(List(sc.value) { one })
           }
           return node
@@ -452,12 +452,12 @@ public class PetElaborator(public val classTable: ClassTable) {
             if (node is Change) {
               when (node) {
                 is Gain ->
-                    handleIt(node, node.gaining, { it.gainOnly }) { fixed, intensity ->
-                      gain(scaledEx(fixed, node.count), intensity)
+                    handleIt(node, node.gaining, { it.gainOnly }) { fixed, quantifier ->
+                      gain(scaledEx(fixed, node.count), quantifier)
                     }
                 is Remove ->
-                    handleIt(node, node.removing, { it.removeOnly }) { fixed, intensity ->
-                      remove(scaledEx(fixed, node.count), intensity)
+                    handleIt(node, node.removing, { it.removeOnly }) { fixed, quantifier ->
+                      remove(scaledEx(fixed, node.count), quantifier)
                     }
                 is Transmute -> handleTransmute(node)
               }
@@ -471,7 +471,7 @@ public class PetElaborator(public val classTable: ClassTable) {
           node: Change,
           original: Expression,
           extractor: (Defaults) -> DefaultSpec,
-          rebuild: (Expression, Instruction.Intensity?) -> Instruction,
+          rebuild: (Expression, Instruction.Quantifier?) -> Instruction,
       ): Instruction {
         return if (leaveItAlone(original)) {
           node // don't descend
@@ -483,8 +483,8 @@ public class PetElaborator(public val classTable: ClassTable) {
           val fixed =
               if (kind == "removal" && hasUnacceptedDependencyDefaults(original, spec)) original
               else insertDefaultsIntoExpr(original, spec.dependencies, context, classTable)
-          val intensity = node.intensity ?: spec.intensity
-          rebuild(fixed, intensity)
+          val quantifier = node.quantifier ?: spec.quantifier
+          rebuild(fixed, quantifier)
         }
       }
 
@@ -493,8 +493,9 @@ public class PetElaborator(public val classTable: ClassTable) {
       private fun handleTransmute(node: Transmute): Transmute {
         val gainDefault = defaultFor(node.gaining, { it.gainOnly }, gain = true)
         val removeDefault = defaultFor(node.removing, { it.removeOnly }, gain = false)
-        val intensity =
-            node.intensity ?: intersectIntensities(gainDefault?.intensity, removeDefault?.intensity)
+        val quantifier =
+            node.quantifier
+                ?: intersectQuantifiers(gainDefault?.quantifier, removeDefault?.quantifier)
 
         return Transmute(
             Full(
@@ -502,7 +503,7 @@ public class PetElaborator(public val classTable: ClassTable) {
                 applyDefault(node.removing, removeDefault, context, gain = false),
             ),
             node.count,
-            intensity,
+            quantifier,
         )
       }
 
@@ -533,19 +534,19 @@ public class PetElaborator(public val classTable: ClassTable) {
           } else insertDefaultsIntoExpr(expression, default.dependencies, context, classTable)
 
       /** The stricter of the two, per rule L12-8: mandatory beats AMAP, which beats optional. */
-      private fun intersectIntensities(
-          gainIntensity: Instruction.Intensity?,
-          removeIntensity: Instruction.Intensity?,
-      ): Instruction.Intensity? =
+      private fun intersectQuantifiers(
+          gainQuantifier: Instruction.Quantifier?,
+          removeQuantifier: Instruction.Quantifier?,
+      ): Instruction.Quantifier? =
           when {
-            gainIntensity == null -> removeIntensity
-            removeIntensity == null -> gainIntensity
-            gainIntensity == Instruction.Intensity.MANDATORY ||
-                removeIntensity == Instruction.Intensity.MANDATORY ->
-                Instruction.Intensity.MANDATORY
-            gainIntensity == Instruction.Intensity.AMAP ||
-                removeIntensity == Instruction.Intensity.AMAP -> Instruction.Intensity.AMAP
-            else -> Instruction.Intensity.OPTIONAL
+            gainQuantifier == null -> removeQuantifier
+            removeQuantifier == null -> gainQuantifier
+            gainQuantifier == Instruction.Quantifier.MANDATORY ||
+                removeQuantifier == Instruction.Quantifier.MANDATORY ->
+                Instruction.Quantifier.MANDATORY
+            gainQuantifier == Instruction.Quantifier.AMAP ||
+                removeQuantifier == Instruction.Quantifier.AMAP -> Instruction.Quantifier.AMAP
+            else -> Instruction.Quantifier.OPTIONAL
           }
     }
   }
@@ -812,7 +813,7 @@ public class PetElaborator(public val classTable: ClassTable) {
                   specialized.removing?.let(classTable::resolve),
               )
           if (types.any { !classTable.isActive(it) }) {
-            return if (specialized.intensity == MANDATORY) {
+            return if (specialized.quantifier == MANDATORY) {
               gain(DIE)
             } else {
               NoOp

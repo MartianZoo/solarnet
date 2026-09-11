@@ -108,6 +108,26 @@ internal class Spec03DependenciesTest {
     table.getClass(cn("GreeneryTile")).baseType.expressionFull shouldBe te("GreeneryTile<LandArea>")
   }
 
+  @Test
+  internal fun `T3-3 bounds for one key with no common narrowing are an error`() {
+    shouldThrow<PetException> {
+          loadTypes(
+              """
+              ABSTRACT CLASS Area
+              CLASS Land : Area
+              CLASS Water : Area
+              ABSTRACT CLASS Tile<Area>
+              ABSTRACT CLASS LandTile : Tile<Land>
+              ABSTRACT CLASS WaterTile : Tile<Water>
+              CLASS Amphibious : LandTile, WaterTile
+              """
+                  .trimIndent()
+          )
+        }
+        .message
+        .shouldContain("Amphibious inherits incompatible bounds for Tile_0")
+  }
+
   // T3-4 Arguments intersect the bound
 
   @Test

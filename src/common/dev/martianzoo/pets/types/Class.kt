@@ -378,7 +378,14 @@ internal constructor(
             }
           }
         }
-    inherited.reduceOrNull { left, right -> (left glb right)!! } ?: DependencySet.of()
+    // Rule T3-3: supertypes constraining one key have their bounds intersected, and bounds with no
+    // common narrowing are an error.
+    inherited.reduceOrNull { left, right ->
+      left.merge(right) { a, b ->
+        (a glb b)
+            ?: throw PetException("$className inherits incompatible bounds for ${a.key}: $a and $b")
+      }
+    } ?: DependencySet.of()
   }
   private val declaredDeps: Lazy<DependencySet> = lazy {
     DependencySet.of(
@@ -413,7 +420,8 @@ internal constructor(
    * The complete keyed dependency set inherited and narrowed according to
    * [section 3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
    *
-   * @throws PetException if the dependency bounds contain the cycle forbidden by rule T3-11.
+   * @throws PetException if two supertypes constrain one key to bounds with no common narrowing
+   *   (rule T3-3), or if the dependency bounds contain the cycle forbidden by rule T3-11.
    */
   public val dependencies: DependencySet
     get() = dependenciesLazy.value

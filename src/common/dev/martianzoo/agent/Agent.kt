@@ -56,8 +56,8 @@ public interface Agent {
    *
    * @param [narrowing] the new instruction tree; may be abstract or a grouped arm selected from an
    *   `OR`; a group replaces this one task with one task per member; if identical to the current
-   *   instruction this method does nothing; an omitted intensity retains a stronger pending
-   *   intensity when the Class default would weaken it
+   *   instruction this method does nothing; an omitted quantifier retains a stronger pending
+   *   quantifier when the Class default would weaken it
    * @throws [TaskException] if this Actor has no selected task
    * @throws [NarrowingException] if [narrowing] does not narrow the selected task's instruction
    */
@@ -112,9 +112,9 @@ public interface Agent {
    * removes the original task from the game's task queue. Throws an exception if any of this fails.
    *
    * A selected task always wins. Otherwise, the narrowing must match exactly one task, except that
-   * fully identical tasks are interchangeable. When the narrowing omits an intensity and its Class
-   * default would weaken the pending task's intensity, the pending intensity is retained; an
-   * explicitly written intensity must narrow normally.
+   * fully identical tasks are interchangeable. When the narrowing omits a quantifier and its Class
+   * default would weaken the pending task's quantifier, the pending quantifier is retained; an
+   * explicitly written quantifier must narrow normally.
    *
    * @throws [AbstractException] if the task is abstract
    * @throws [NotNowException] if the task can't currently be resolved
