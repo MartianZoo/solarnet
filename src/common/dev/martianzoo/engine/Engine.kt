@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.pets.Vocabulary
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.TEMPORARY
 import dev.martianzoo.pets.api.SystemClasses.THIS
@@ -20,59 +20,50 @@ import dev.martianzoo.pets.types.ClassTable
 public object Engine {
 
   /** Creates a game at its committed initialization state, ready to be given to a workflow. */
-  public fun newGame(
-      premise: GamePremise,
-      locale: String = Vocabulary.ENGLISH,
-      inputOnlySynonyms: Iterable<Pair<String, String>> = emptyList(),
-  ): World = Wiring(premise, locale, inputOnlySynonyms).createWorld()
+  public fun newGame(premise: GamePremise): World = Wiring(premise).createWorld()
 
   /** Constructs one engine world and owns the lifetimes of all its collaborators. */
   private class Wiring(
       private val premise: GamePremise,
-      locale: String,
-      inputOnlySynonyms: Iterable<Pair<String, String>>,
   ) {
     private val classTable = premise.classTable.also(::validatePremise)
-    private val vocabulary: Vocabulary =
-        premise.createVocabulary(
-            classTable.allClassNames,
-            locale,
-            inputOnlySynonyms,
-        )
-    private val transformers: Transformers = Transformers(classTable)
-    private val customClasses = CustomClassRuntime(premise.catalog, transformers)
+    private val elaborator: PetElaborator = PetElaborator(classTable)
+    private val customClasses = CustomClassRuntime(premise.catalog, elaborator)
 
     // Reader construction depends on the component graph, whose effector in turn needs the reader.
     // The effector does not read it until components begin changing, after construction is
     // complete.
-    private val effector: Effector = Effector(transformers) { reader }
+    private val effector: Effector = Effector(elaborator) { reader }
     private val components = ComponentGraph(effector, classTable)
     private val events = EventLog()
     private val taskQueues = TaskQueues(events, classTable)
     private val recordingPositions = RecordingPositions()
     private val reader: GameReaderImpl =
-        GameReaderImpl(classTable, components, transformers, customClasses, premise)
+        GameReaderImpl(classTable, components, elaborator, customClasses, premise)
     private val timeline = TimelineImpl(reader, components, events, taskQueues, recordingPositions)
     private val limiter = Limiter(classTable, components)
-    private val atomicOperationScope: AtomicOperationScope =
-        AtomicOperationScope(
+    private val worldTransaction: WorldTransaction =
+        WorldTransaction(
             timeline,
-            { world.onAtomicComplete() },
+            { world.onTransactionComplete() },
             recordingPositions,
             ::removeTemporaryComponents,
         )
     private val changer = Changer(reader, components, events)
     private val instructor =
-        Instructor(reader, limiter, changer, effector, classTable, transformers, customClasses)
-    private val agentByActor: Map<Actor, Agent> = premise.actors.associateWith(::createAgent)
+        Instructor(reader, limiter, changer, effector, classTable, elaborator, customClasses)
+    private val actorEngines: Map<Actor, ActorEngine> =
+        premise.actors.associateWith(::createActorEngine)
     private val initializer =
         Initializer(
-            agentByActor.getValue(ADMIN),
+            reader,
+            elaborator,
             instructor,
             taskQueues,
             classTable,
             timeline,
             premise,
+            actorEngines::getValue,
         )
     private val world: WholeWorld =
         WholeWorld(
@@ -82,14 +73,14 @@ public object Engine {
             timeline,
             reader,
             classTable,
-            vocabulary,
-            agentByActor,
+            actorEngines,
             timeline,
             recordingPositions,
         )
 
     internal fun createWorld(): WholeWorld {
       initializer.initialize()
+      recordingPositions.record(timeline.checkpoint().ordinal)
       return world
     }
 
@@ -168,28 +159,16 @@ public object Engine {
       }
     }
 
-    private fun createAgent(actor: Actor): Agent {
-      val tasks = taskQueues[actor]
-      val implementations =
-          Implementations(
-              tasks,
-              taskQueues,
-              reader,
-              timeline,
-              actor,
-              instructor,
-              changer,
-          )
-      return ApiTranslation(
-          actor,
-          reader,
-          implementations,
-          tasks,
-          classTable,
-          transformers,
-          vocabulary,
-          atomicOperationScope,
-      )
-    }
+    private fun createActorEngine(actor: Actor): ActorEngine =
+        ActorEngine(
+            taskQueues[actor],
+            taskQueues,
+            reader,
+            timeline,
+            actor,
+            instructor,
+            changer,
+            worldTransaction,
+        )
   }
 }

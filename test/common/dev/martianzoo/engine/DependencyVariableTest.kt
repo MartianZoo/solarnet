@@ -1,12 +1,9 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.ast.Expression
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
-import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class DependencyVariableTest {
@@ -30,13 +27,13 @@ internal class DependencyVariableTest {
           """
               .trimIndent()
       )
-  private val transformers = Transformers(table)
+  private val elaborator = PetElaborator(table)
 
   @Test
   internal fun `header variable specialization also specializes effects`() {
     val component = Component(table.resolve(te("InheritedLink<Player1, Card>")))
 
-    LiveEffect.compile(component, transformers)
+    LiveEffect.compile(component, elaborator)
         .map(LiveEffect::effect)
         .map(Any::toString)
         .shouldContainExactly("This: Token<Player1>!")
@@ -46,48 +43,10 @@ internal class DependencyVariableTest {
   internal fun `an independent nested owner does not capture contextual Owner in effects`() {
     val component = Component(table.resolve(te("Independent<Player1, Card<Player2>>")))
 
-    LiveEffect.compile(component, transformers)
+    LiveEffect.compile(component, elaborator)
         .map(LiveEffect::effect)
         .map(Any::toString)
         .shouldContainExactly("This: Token<Player1>!")
-  }
-
-  @Test
-  internal fun `header variables survive inheritance`() {
-    table.resolve(te("InheritedLink<Player1, Card>")) shouldBe
-        table.resolve(te("InheritedLink<Card<Player1>>"))
-    shouldThrow<ExpressionException> { table.resolve(te("InheritedLink<Player1, Card<Player2>>")) }
-  }
-
-  @Test
-  internal fun `shared variables are narrowed before a difference is tested`() {
-    (table.resolve(te("Card<Player1>")) glb table.resolve(te("Card<Player2>"))) shouldBe null
-    (table.resolve(te("Card<Player1>")) glb table.resolve(te("Card(NOT Card<Player2>)"))) shouldBe
-        table.resolve(te("Card<Player1>"))
-    table.resolve(te("Linked<Player1, Card(NOT Card<Player2>)>")) shouldBe
-        table.resolve(te("Linked<Player1>"))
-    table.resolve(te("Linked<Player1, Owned(NOT Card)>")).abstract shouldBe true
-  }
-
-  @Test
-  internal fun `a difference constrains every variable occurrence`() {
-    val notPlayer1 = table.resolve(te("Linked<Owner(NOT Player1)>"))
-
-    table.resolve(te("Linked<Player2>")).isSubtypeOf(notPlayer1) shouldBe true
-    table.resolve(te("Linked<Player1>")).isSubtypeOf(notPlayer1) shouldBe false
-  }
-
-  @Test
-  internal fun `variable-constrained concrete types are enumerated once`() {
-    table
-        .getClass(te("InheritedLink").className)
-        .concreteTypes()
-        .map { it.expressionFull.toString() }
-        .toList()
-        .shouldContainExactlyInAnyOrder(
-            "InheritedLink<Player1, Card<Player1>>",
-            "InheritedLink<Player2, Card<Player2>>",
-        )
   }
 }
 

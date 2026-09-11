@@ -63,7 +63,7 @@ internal class HelpCommand(private val repl: ScriptSession) : ScriptCommand("hel
         task <taskid>       -> performs a task on your to-do list
         turn                -> begins a new turn for current player (necessary only in blue mode)
         phase <name>        -> begins a new game phase (e.g. `as Admin phase Action`)
-        auto <mode>         -> changes the auto-execute mode
+        auto <policy>       -> changes the auto-execute policy
         mode <mode>         -> changes repl modes (more power vs. more game integrity)
       HISTORY
         log [full]          -> shows events that have happened in the current game

@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
@@ -62,9 +64,9 @@ internal class GamePremiseTest {
     val second = Engine.newGame(premise)
 
     first.classTable shouldBe second.classTable
-    TfmWorkflow.Manual(first).setupPhase()
-    first.agent(ADMIN).count("SetupPhase") shouldBe 1
-    second.agent(ADMIN).count("SetupPhase") shouldBe 0
+    TfmWorkflow.Stepwise(first.testAgents()).setupPhase()
+    first.testAgent(ADMIN).count("SetupPhase") shouldBe 1
+    second.testAgent(ADMIN).count("SetupPhase") shouldBe 0
   }
 
   @Test
@@ -130,12 +132,10 @@ internal class GamePremiseTest {
     Canon.classTable.findClass(blue) shouldBe null
     game.classTable.isActive(blue) shouldBe true
     game.actors.shouldContainExactly(Player(blue), Player(yellow), ADMIN)
-    game.vocabulary.canonicalName(blue) shouldBe blue
-    game.vocabulary.petsName(blue) shouldBe blue
     game.reader.getComponents("Player").map { it.className }.toSet() shouldBe setOf(blue, yellow)
-    TfmWorkflow.Manual(game).setupPhase()
-    game.agent(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
-    game.agent(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
+    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    game.testAgent(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
+    game.testAgent(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
     getPlayerOwner(game.reader, game.reader.getComponents("StartToken").single()) shouldBe
         Player(blue)
   }
@@ -177,7 +177,7 @@ internal class GamePremiseTest {
     val premise = Canon.gamePremise(GameConfig.create(included = emptyList(), playerNames = names))
 
     premise.playerNames shouldBe names
-    Engine.newGame(premise).agent(ADMIN).count("Player") shouldBe 6
+    Engine.newGame(premise).testAgent(ADMIN).count("Player") shouldBe 6
   }
 
   @Test
@@ -305,8 +305,10 @@ internal class GamePremiseTest {
   @Test
   internal fun initialComponentTypesMustBeConcreteAndInstantiable() {
     val premise =
-        Canon.gamePremise(GameConfig("", "Player1", "Player2"))
-            .copy(initialComponentTypes = setOf(cn("Card").expression))
+        Canon.gamePremise(
+            GameConfig("", "Player1", "Player2"),
+            additionalInitialComponentTypes = setOf(cn("Card").expression),
+        )
 
     shouldThrow<IllegalArgumentException> { Engine.newGame(premise) }
   }

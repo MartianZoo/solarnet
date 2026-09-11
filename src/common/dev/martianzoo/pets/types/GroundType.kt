@@ -20,31 +20,74 @@ import dev.martianzoo.pets.ast.PropertyValue.MetricValue
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.ast.Requirement.Max
-import dev.martianzoo.pets.ast.Requirement.Or
-import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
+import dev.martianzoo.pets.ast.Requirement.Companion.split
 
 /**
- * The translation of a [Expression] into a "live" type, referencing actual [Class]es loaded by a
- * [ClassTable]. These are usually obtained by [ClassTable.resolve]. These can be abstract. Usages
- * of this type should be fairly unrelated to questions of whether instances exist in a world.
+ * An ordinary resolved type, consisting of a [rootClass], one bound for every [dependencies] entry,
+ * and an optional [refinement], as defined by
+ * [rules T5-1 and T5-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+ *
+ * "Ground" excludes type variables; it does not mean refinement-free. A narrowing judgment
+ * involving a state-dependent refinement may need a world.
+ *
+ * Ground types are universe-scoped immutable values. Obtain one by resolving an [Expression] in a
+ * [ClassTable], or by specializing a [Class].
+ *
+ * @constructor Combines a [rootClass], complete [dependencies], and optional [refinement] into one
+ *   resolved type under
+ *   [rule T5-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+ * @throws IllegalArgumentException if [dependencies] have different keys or belong to another
+ *   universe.
  */
-public data class GroundType(
+@ConsistentCopyVisibility
+public data class GroundType
+internal constructor(
+    /**
+     * The nominal root class specified by
+     * [rule T5-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+     */
     override val rootClass: Class,
+
+    /**
+     * One bound for each dependency key of [rootClass], in the model of
+     * [section 3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+     */
     override val dependencies: DependencySet,
+
+    /**
+     * The optional predicate specified by
+     * [section 8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#8-refinements).
+     */
     override val refinement: Refinement? = null,
 ) : Type {
   // Types are immutable; zero is the uncached sentinel (and a harmless rare recomputation).
   private var cachedHashCode: Int = 0
   private val structuralOverlapCache = mutableMapOf<GroundType, Boolean>()
 
+  /**
+   * The universe containing [rootClass], under
+   * [rule T1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   */
   override val classTable: ClassTable = rootClass.classTable
+
+  /**
+   * This value itself, because a ground type is its own resolved interpretation ([rule
+   * T13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables)).
+   */
   override val groundType: GroundType
     get() = this
 
+  /**
+   * The component-targeting dependencies specified by
+   * [rule T4-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#4-class-literals).
+   */
   override val typeDependencies: List<Dependency.TypeDependency> = dependencies.typeDependencies()
 
-  /** The class represented by this `Class<Foo>` type, or null when this is not a class literal. */
+  /**
+   * The class represented by this `Class<Foo>` type, or null when this is not a class literal
+   * ([rule
+   * T4-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#4-class-literals)).
+   */
   override val representedClass: Class? =
       if (rootClass.className == CLASS) dependencies.representedClass else null
 
@@ -61,19 +104,37 @@ public data class GroundType(
     if (refinement != null) classTable.checkAllTypes(refinement)
   }
 
+  /**
+   * Structural abstractness according to
+   * [rule T5-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+   */
   override val abstract: Boolean = rootClass.abstract || dependencies.abstract || refinement != null
 
+  /**
+   * Returns [abstract]; a ground type's abstractness never consults [info] ([rule
+   * T5-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types)).
+   */
   override fun isAbstract(info: TypeInfo): Boolean = abstract
 
-  /** Returns the concrete numeric value of the class property named [propertyName]. */
+  /**
+   * Returns the concrete numeric value of [propertyName], as specified by
+   * [rule T9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
+   */
   override fun getNumberPropertyValue(propertyName: String): Int =
       (rootClass.properties.getValue(PropertyName(propertyName)) as NumberValue).value
 
-  /** Returns the concrete metric-valued class property named [propertyName]. */
+  /**
+   * Returns the concrete metric value of [propertyName], as specified by
+   * [rule T9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
+   */
   override fun getMetricPropertyValue(propertyName: String): Metric =
       (rootClass.properties.getValue(PropertyName(propertyName)) as MetricValue).value
 
-  /** Returns the concrete requirement-valued class property named [propertyName], if present. */
+  /**
+   * Returns the concrete requirement value of [propertyName], or null for an absent optional, as
+   * specified by
+   * [rule T9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
+   */
   override fun getRequirementPropertyValue(propertyName: String): Requirement? =
       when (val value = rootClass.properties.getValue(PropertyName(propertyName))) {
         AbsentRequirementValue -> null
@@ -82,24 +143,33 @@ public data class GroundType(
       }
 
   /**
-   * Performs a context-free subtype check. Comparisons that reach a state-dependent refinement
-   * throw; use [narrows] in a [TypeInfo] for those.
+   * Performs the context-free subtype test of
+   * [rules T6-1 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * Comparisons that reach a state-dependent refinement fail; use [narrows] with a world for those.
    */
   override fun isSubtypeOf(that: Type): Boolean = narrows(that, NoGameState)
 
-  /** Performs the converse context-free subtype check. */
+  /**
+   * The converse context-free subtype test specified by
+   * [rule T6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   */
   override fun isSupertypeOf(that: Type): Boolean = that.isSubtypeOf(this)
 
   /**
-   * Values supplied to [variables] when this Type specializes [general]. Variables unrelated to the
-   * Class header are omitted.
+   * Values supplied to selected class-header [variables] when this type specializes [general].
+   * Variables unrelated to the header are omitted, following
+   * [rule T13-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
   override fun variableBindingsFrom(
       general: Type,
       variables: Iterable<TypeVariable>,
   ): Map<TypeVariable, GroundType> = rootClass.variableBindings(general.groundType, this, variables)
 
-  // Nearest common subtype
+  /**
+   * The greatest lower bound with [that], including the refinement rules, or null when absent
+   * ([rules T7-1 and
+   * T8-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds)).
+   */
   // TODO allocating 28 MB per solo game
   override infix fun glb(that: Type): GroundType? {
     val that = that.groundType
@@ -110,25 +180,11 @@ public data class GroundType(
         when {
           refinement == null -> that.refinement
           that.refinement == null -> refinement
-          else -> Refinement.join(refinement, that.refinement) ?: return null
+          else -> Refinement.join(refinement, that.refinement)
         }
-    val unrefined = glbClass.withAllDependencies(glbDeps)
-    if (glbRefin is Not) {
-      val excluded = classTable.resolve(glbRefin.excluded)
-      if (!unrefined.overlapsStructurally(excluded)) return unrefined
-    }
+    val completeDeps = (glbClass.dependencies glb glbDeps) ?: return null
+    val unrefined = glbClass.withAllDependencies(completeDeps)
     return unrefined.refine(glbRefin)
-  }
-
-  // Nearest common supertype
-  // Unlike glb, two types always have a least upper bound (if nothing else, Component)
-  override infix fun lub(that: Type): GroundType {
-    val that = that.groundType
-    requireSameClassTable(that)
-    val unrefined: GroundType =
-        (rootClass lub that.rootClass).withAllDependencies(dependencies lub that.dependencies)
-
-    return unrefined.refine(refinement.takeIf { it == that.refinement })
   }
 
   internal fun specialize(specs: List<Expression>): GroundType =
@@ -139,110 +195,120 @@ public data class GroundType(
         when {
           refinement == null -> newRef
           newRef == null -> refinement
-          else -> requireNotNull(Refinement.join(refinement, newRef))
+          else -> Refinement.join(refinement, newRef)
         }
-    return if (combined is Not && !overlapsStructurally(classTable.resolve(combined.excluded))) {
-      copy(refinement = null)
-    } else {
-      copy(refinement = combined)
+    val applicable = combined?.retaining {
+      it !is Not || overlapsStructurally(classTable.resolve(it.excluded))
     }
+    return copy(refinement = applicable)
   }
 
   private val expressionLazy = lazy {
-    toExpressionUsingSpecs(minimalDependencyExpressions())
+    toExpressionUsingSpecs(compactDependencyExpressions())
   }
+  /**
+   * The compact round-tripping expression specified by
+   * [rule T5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+   */
   override val expression: Expression
     get() = expressionLazy.value
 
   private val expressionFullLazy = lazy {
     toExpressionUsingSpecs(dependencies.expressionsFull())
   }
+  /**
+   * The full round-tripping expression specified by
+   * [rule T5-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+   */
   override val expressionFull: Expression
     get() = expressionFullLazy.value
 
   private val narrowedDependenciesLazy = lazy {
     dependencies.minus(rootClass.dependencies)
   }
+  /**
+   * The bounds narrowed below [rootClass]'s base type, as defined by
+   * [rule T3-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+   */
   override val narrowedDependencies: DependencySet
     get() = narrowedDependenciesLazy.value
 
-  private fun minimalDependencyExpressions(): List<Expression> {
-    val candidates = dependencies.expressions()
+  private fun compactDependencyExpressions(): List<Expression> {
+    val keys = dependencies.keys
+    val expressions = dependencies.expressions()
+    val narrowed = narrowedDependencies.keys.toSet()
+    val write = MutableList(keys.size) { keys[it] in narrowed }
 
-    fun expressionsAt(indices: Collection<Int>) = indices.sorted().map(candidates::get)
-
-    fun resolvesToThis(indices: Collection<Int>): Boolean = runCatching {
-      rootClass.specialize(expressionsAt(indices)).dependencies == dependencies
-    }
-        .getOrDefault(false)
-
-    for (argumentCount in 0..candidates.size) {
-      fun find(start: Int, selected: List<Int>): List<Expression>? {
-        if (selected.size == argumentCount) {
-          return expressionsAt(selected).takeIf { resolvesToThis(selected) }
+    // A narrowed bound must be written or the narrowing is lost. An unnarrowed one must be written
+    // only to occupy its slot: an omitted argument leaves its slot free, and rule T3-4 hands each
+    // argument to the first free slot that accepts it, which could be an earlier one. Descending
+    // means a slot promoted here is revisited before the loop ends, so one pass reaches a fixpoint.
+    for (later in keys.indices.reversed()) {
+      if (!write[later]) continue
+      // An unwritten slot still holds its declared bound, which is what T3-4 matches against.
+      for (earlier in later - 1 downTo 0) {
+        if (
+            !write[earlier] && dependencies.get(keys[earlier]).intersect(expressions[later]) != null
+        ) {
+          write[earlier] = true
         }
-        val remaining = argumentCount - selected.size
-        for (index in start..candidates.size - remaining) {
-          find(index + 1, selected + index)?.let {
-            return it
+      }
+    }
+    var compact = expressions.filterIndexed { index, _ -> write[index] }
+
+    // Equality propagation can make a written narrowing redundant; for example, the card bound in
+    // Animal<Player1, Pets<Player1>> already determines Player1. Let specialization remain the one
+    // authority on that inference, and discard an argument only when it proves the same Type.
+    var index = 0
+    while (index < compact.size) {
+      val candidate = compact.filterIndexed { candidateIndex, _ -> candidateIndex != index }
+      val resolvesBack =
+          try {
+            classTable.resolve(toExpressionUsingSpecs(candidate)) == this
+          } catch (_: ExpressionException) {
+            false
           }
-        }
-        return null
-      }
-      find(0, emptyList())?.let {
-        return it
+      if (resolvesBack) {
+        compact = candidate
+        index = 0
+      } else {
+        index++
       }
     }
-    return candidates
+    return compact
   }
 
   private fun toExpressionUsingSpecs(specs: List<Expression>) = className.of(specs).has(refinement)
 
   /**
-   * Returns every possible [Type] `t` such that `!t.abstract && t.isSubtypeOf(this)`. Note that
-   * this sequence can potentially be very large.
+   * Enumerates every concrete structural candidate below this type's structural domain according to
+   * [rules T11-1 and T11-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
+   * A `NOT` refinement filters the candidates because it is decided structurally; a `HAS`
+   * refinement is left for a caller with a world to test. The sequence can be very large.
    */
   override fun allConcreteSubtypes(): Sequence<GroundType> {
-    val candidates =
-        concreteSubclasses(rootClass).flatMap {
-          val deps: DependencySet? = dependencies glb it.baseType.dependencies
-          if (deps == null) {
-            emptySequence()
-          } else {
-            it.withAllDependencies(deps).concreteSubtypesSameClass()
-          }
-        }
-    return if (refinement is Not) {
-      candidates.filter { it.narrows(this, NoGameState) }
-    } else {
-      candidates
-    }
+    return classTable.allConcreteSubtypes(this)
   }
 
   /**
-   * Returns the sole structural concrete narrowing, if one exists and satisfies this type's
-   * state-dependent constraints according to [info].
+   * Returns the sole concrete narrowing in the master universe when every structural choice is
+   * unique and its refinement accepts [info], as specified by
+   * [rule T11-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
    */
   override fun singleConcreteSubtype(info: TypeInfo): GroundType? {
-    if ((rootClass.className == CLASS && refinement != null) || refinement is Not) {
-      return allConcreteSubtypes().filter { it.narrows(this, info) }.take(2).singleOrNull()
-    }
-    val intersection =
-        concreteSubclasses(rootClass).mapNotNull { klass -> this glb klass.baseType }.singleOrNull()
-            ?: return null
-    val deps = intersection.dependencies.singleConcreteSubtype(info) ?: return null
-    val candidate = intersection.rootClass.withAllDependencies(deps)
-    return candidate.takeIf { !it.abstract && it.narrows(this, info) }
+    return classTable.singleConcreteSubtype(this, info)
   }
 
   /** Returns the subset of [allConcreteSubtypes] having the exact same [rootClass] as ours. */
   // used publicly only by `desc random`
   internal fun concreteSubtypesSameClass(): Sequence<GroundType> =
-      if (rootClass.abstract) emptySequence() else dependencies.concreteSubtypesSameClass(this)
+      classTable.concreteSubtypesSameClass(this)
 
-  internal fun concreteSubclasses(baseClass: Class) =
-      baseClass.allSubclasses().asSequence().filter { !it.abstract }
-
+  /**
+   * Asserts the contextual narrowing relation with [that], consulting [info] only for a `HAS`
+   * refinement, as specified by
+   * [rules T6-1, T6-2, and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   */
   override fun ensureNarrows(that: Type, info: TypeInfo) {
     val that = that.groundType
     requireSameClassTable(that)
@@ -250,53 +316,89 @@ public data class GroundType(
 
     dependencies.ensureNarrows(that.dependencies, info)
 
-    when (val targetRefinement = that.refinement) {
-      null -> Unit
-      refinement -> Unit
-      is Not -> {
-        if (!isDisjointFrom(targetRefinement.excluded)) {
-          throw NarrowingException("$this does not satisfy $targetRefinement")
+    that.refinement?.conjuncts()?.forEach { targetRefinement ->
+      when (targetRefinement) {
+        is Refinement.And -> error("nested refinement conjunction: $targetRefinement")
+        is Not -> {
+          if (!alreadyGuarantees(targetRefinement) && !isDisjointFrom(targetRefinement.excluded)) {
+            throw NarrowingException("$this does not satisfy $targetRefinement")
+          }
         }
-      }
-      is Has -> {
-        if (refinement != null) {
-          throw NarrowingException("$this does not have refinement $targetRefinement")
-        }
-        val requirement =
-            try {
-              formRequirement(expressionFull, that.expressionFull)
-            } catch (e: ExpressionException) {
-              throw NarrowingException("$this does not satisfy $targetRefinement", e)
+        is Has -> {
+          if (refinement != null) {
+            if (!alreadyGuarantees(targetRefinement) || !readsPredicatesAlike(that)) {
+              throw NarrowingException("$this does not have refinement $targetRefinement")
             }
-        if (!info.has(requirement)) throw Exceptions.refinementNotMet(requirement)
+          } else {
+            val requirement =
+                try {
+                  formRequirement(expressionFull, that.expressionFull, targetRefinement)
+                } catch (e: ExpressionException) {
+                  throw NarrowingException("$this does not satisfy $targetRefinement", e)
+                }
+            if (!info.has(requirement)) throw Exceptions.refinementNotMet(requirement)
+          }
+        }
       }
     }
   }
 
   // TODO solo game spending 19% of its time in this method, allocating over 10 MB!?
-  /** Performs a state-aware narrowing check using [info]. */
+  /**
+   * Tests contextual narrowing with [that], consulting [info] only for a `HAS` refinement, as
+   * specified by
+   * [rules T6-1, T6-2, and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   */
   override fun narrows(that: Type, info: TypeInfo): Boolean {
     val that = that.groundType
     requireSameClassTable(that)
     if (!rootClass.isSubtypeOf(that.rootClass)) return false
     if (!dependencies.narrows(that.dependencies, info)) return false
 
-    return when (val targetRefinement = that.refinement) {
-      null -> true
-      refinement -> true
-      is Not -> isDisjointFrom(targetRefinement.excluded)
-      is Has -> {
-        if (refinement != null) return false
-        val requirement =
-            try {
-              formRequirement(expressionFull, that.expressionFull)
-            } catch (_: ExpressionException) {
-              return false
-            }
-        info.has(requirement)
+    return that.refinement?.conjuncts()?.all { targetRefinement ->
+      when (targetRefinement) {
+        is Refinement.And -> error("nested refinement conjunction: $targetRefinement")
+        is Not -> alreadyGuarantees(targetRefinement) || isDisjointFrom(targetRefinement.excluded)
+        is Has -> {
+          if (refinement != null) {
+            alreadyGuarantees(targetRefinement) && readsPredicatesAlike(that)
+          } else {
+            val requirement =
+                try {
+                  formRequirement(expressionFull, that.expressionFull, targetRefinement)
+                } catch (_: ExpressionException) {
+                  return false
+                }
+            info.has(requirement)
+          }
+        }
       }
-    }
+    } ?: true
   }
+
+  /**
+   * Whether comparing our predicate with [that]'s as written is meaningful. It is, unless the two
+   * are class literals for different classes: a refined class literal rewrites its own represented
+   * class into its predicate before testing it, so the same words say different things about each
+   * of them.
+   */
+  private fun readsPredicatesAlike(that: GroundType): Boolean =
+      representedClass == null || representedClass == that.representedClass
+
+  /** Whether our own refinement conjoins at least all of [target]'s requirements. */
+  private fun alreadyGuarantees(target: Has): Boolean {
+    val own =
+        refinement
+            ?.conjuncts()
+            ?.filterIsInstance<Has>()
+            ?.flatMap { split(it.requirement) }
+            .orEmpty()
+    return own.containsAll(split(target.requirement))
+  }
+
+  /** Whether our own refinement explicitly includes [target]. */
+  private fun alreadyGuarantees(target: Not): Boolean =
+      refinement?.conjuncts()?.contains(target) == true
 
   /** Whether this entire structural domain has no member in common with [excludedExpression]. */
   private fun isDisjointFrom(excludedExpression: Expression): Boolean =
@@ -314,6 +416,10 @@ public data class GroundType(
     require(classTable === that.classTable) { "$this and $that belong to different class tables" }
   }
 
+  /**
+   * Hashes the root class, dependencies, and refinement that determine identity in
+   * [rule T5-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+   */
   override fun hashCode(): Int {
     if (cachedHashCode != 0) return cachedHashCode
     var result = rootClass.hashCode()
@@ -323,7 +429,11 @@ public data class GroundType(
     return result
   }
 
-  private fun formRequirement(narrow: Expression, wide: Expression): Requirement {
+  private fun formRequirement(
+      narrow: Expression,
+      wide: Expression,
+      refinement: Has,
+  ): Requirement {
 
     fun refinementMangler(
         proposed: Expression,
@@ -369,17 +479,16 @@ public data class GroundType(
           .transformRequirement(requirement)
     }
 
-    val refin = wide.refinement as Has
-    val specializedRequirement = specializeRepresentedClassReferences(refin.requirement)
+    val specializedRequirement = specializeRepresentedClassReferences(refinement.requirement)
     val transformed =
         refinementMangler(narrow, ignoreUnmatched = wide.className == CLASS)
             .transformRequirement(specializedRequirement)
-    return if (refin.forgiving) {
-      Or(transformed, Max(scaledEx(wide.copy(refinement = refin.copy(forgiving = false)), 0)))
-    } else {
-      transformed
-    }
+    return transformed
   }
 
+  /**
+   * Returns the compact expression required by
+   * [rule T5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+   */
   override fun toString(): String = "$expression"
 }

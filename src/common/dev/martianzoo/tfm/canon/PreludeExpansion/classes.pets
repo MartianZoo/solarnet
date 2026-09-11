@@ -7,16 +7,6 @@ CLASS PreludeExpansion : Module {
   SetupPhase:: EACH Player { 4 PreludeCard THEN -2 PreludeCard }
 }
 
-"A selectable pool of Prelude cards"
-ABSTRACT CLASS PreludeCardPack : Module
-
-"The Prelude 1 card pool, selected by default with the Prelude 1 rules"
-CLASS Prelude1CardPack : PreludeCardPack {
-  autoSelectWhen = HAS "PreludeExpansion"
-}
-
 CLASS PreludePhase : Phase {
   NewTurn: PlayCard<Class<PreludeCard>, Hand> OR (-PreludeCard THEN 15 MC)
 }
-
-CLASS PreludeCard : CardBack

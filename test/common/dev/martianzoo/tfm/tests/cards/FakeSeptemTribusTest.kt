@@ -9,8 +9,8 @@ internal class FakeSeptemTribusTest : CardTest() {
   @Test
   internal fun `Action pays once for each party containing an owned delegate`() {
     newGame(TurmoilExpansion, FakeStuffBundle)
-    p1.manual("$FakeSeptemTribus")
-    p1.manual(
+    p1.runOperation("$FakeSeptemTribus")
+    p1.runOperation(
         "PartyDelegate<MarsFirst> FROM ReserveDelegate, " +
             "PartyDelegate<MarsFirst> FROM ReserveDelegate, " +
             "PartyDelegate<Scientists> FROM ReserveDelegate"

@@ -29,11 +29,10 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
           "Pink",
           "Green",
       )
-  override val inputOnlySynonyms = emptyList<Pair<String, String>>()
 
   @Test
   internal fun gameThroughGeneration10() {
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(agents).launch()
     retainStartingProjects(7, 4)
 
     val pink = p1

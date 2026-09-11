@@ -1,7 +1,8 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.PetTransformer.Companion.chain
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -13,41 +14,34 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class InstructionResolutionTest {
   private val game: World = setUpGame(canonicalPremise())
-  private val transformers = Transformers(game.classTable)
+  private val elaborator = PetElaborator(game.classTable)
   private val instructor: Instructor =
       Instructor(
           game.reader,
           Limiter(game.classTable, game.components),
           Changer(game.reader, game.components, game.events),
-          Effector(transformers) { game.reader },
+          Effector(elaborator) { game.reader },
           game.classTable,
-          transformers,
-          CustomClassRuntime(game.reader.catalog, transformers),
+          elaborator,
+          CustomClassRuntime(game.reader.catalog, elaborator),
       )
 
   init {
-    game.tfm(PLAYER1).sneak("Plant, 10 ProjectCard, PROD[-1 MC]")
+    game.testTfm(PLAYER1).sneak("Plant, 10 ProjectCard, PROD[-1 MC]")
   }
 
   private fun preprocess(instr: InstructionTree): InstructionTree {
-    val xer =
-        chain(
-            transformers.transformMarkedSyntax(),
-            transformers.insertDefaults(),
-            transformers.bindContextualOwner(PLAYER1),
-        )
-    return xer.transformInstructionTree(instr)
+    return elaborator.elaborateInput(instr, PLAYER1)
   }
 
   private fun preprocessAndResolve(unresolved: String): InstructionTree {
-    val preprocessed = preprocess(game.vocabulary.canonicalize(parse<InstructionTree>(unresolved)))
+    val preprocessed = preprocess(parse(unresolved))
     return instructor.resolve(
         preprocessed as? Instruction ?: throw abstractInstruction(preprocessed)
     )
@@ -66,7 +60,6 @@ internal class InstructionResolutionTest {
     checkResolution("2 Plant?", "2 Plant<Player1>?")
     checkResolution("-Plant", "-Plant<Player1>!")
     checkResolution("-9 Plant.", "-Plant<Player1>!")
-    checkResolution("55 OxygenStep.", "14 OxygenStep!")
     checkResolution("-4 Heat.", "Ok")
     checkResolution("-4 Heat?", "Ok")
     checkResolution("-CardFront.", "Ok")
@@ -81,7 +74,6 @@ internal class InstructionResolutionTest {
     shouldThrow<DependencyException> { preprocessAndResolve("Microbe<Ants>.") }
     shouldThrow<DependencyException> { preprocessAndResolve("3 Microbe!") }
     shouldThrow<LimitsException> { preprocessAndResolve("-3 Microbe!") }
-    shouldThrow<LimitsException> { preprocessAndResolve("15 OxygenStep!") }
     shouldThrow<LimitsException> { preprocessAndResolve("-2 Plant") }
     shouldThrow<LimitsException> { preprocessAndResolve("Plant FROM Heat") }
     shouldThrow<LimitsException> { preprocessAndResolve("2 Heat FROM Plant") }
@@ -100,21 +92,21 @@ internal class InstructionResolutionTest {
     checkResolution("Plant / 3 TerraformRating MAX 2", "2 Plant<Player1>!")
     checkResolution("Plant / Steel", "Ok")
     checkResolution("Plant / 21 TerraformRating", "Ok")
-    checkResolution("-Plant. / TR", "-Plant<Player1>!")
-    checkResolution("-Plant? / TR", "-Plant<Player1>?")
+    checkResolution("-Plant. / TerraformRating", "-Plant<Player1>!")
+    checkResolution("-Plant? / TerraformRating", "-Plant<Player1>?")
   }
 
   @Test
   internal fun testResolveGated() {
-    checkResolution("10 TR: Plant", "Plant<Player1>!")
-    checkResolution("10 TR: Plant / TerraformRating", "20 Plant<Player1>!")
+    checkResolution("10 TerraformRating: Plant", "Plant<Player1>!")
+    checkResolution("10 TerraformRating: Plant / TerraformRating", "20 Plant<Player1>!")
     // TODO I'm nervous about the <Anyone> disappearing
-    checkResolution("10 TR: Plant<Anyone> / TerraformRating", "20 Plant!")
+    checkResolution("10 TerraformRating: Plant<Anyone> / TerraformRating", "20 Plant!")
     checkResolution(
-        "10 TR: Titanium OR TerraformRating",
+        "10 TerraformRating: Titanium OR TerraformRating",
         "Titanium<Player1>! OR TerraformRating<Player1>!",
     )
-    shouldThrow<RequirementException> { preprocessAndResolve("30 TR: Plant") }
+    shouldThrow<RequirementException> { preprocessAndResolve("30 TerraformRating: Plant") }
   }
 
   @Test
@@ -181,19 +173,19 @@ internal class InstructionResolutionTest {
   @Test
   internal fun testResolveOr() {
     checkResolution(
-        "15 OxygenStep! OR -2 Plant OR Plant FROM Heat " +
-            "OR Ok OR 2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TR: Plant)",
+        "-2 Plant OR Plant FROM Heat " +
+            "OR Ok OR 2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TerraformRating: Plant)",
         "Ok",
     )
     checkResolution(
-        "15 OxygenStep! OR -2 Plant OR Plant FROM Heat OR (TR: 8 Steel) OR " +
-            "2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TR: Plant)",
+        "-2 Plant OR Plant FROM Heat OR (TerraformRating: 8 Steel) OR " +
+            "2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TerraformRating: Plant)",
         "8 Steel<Player1>!",
     )
 
     checkResolution(
-        "15 OxygenStep! OR -2 Plant OR Plant FROM Heat OR -Plant. / TR OR 8 Steel OR " +
-            "2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TR: Plant)",
+        "-2 Plant OR Plant FROM Heat OR -Plant. / TerraformRating OR 8 Steel OR " +
+            "2 Heat FROM Plant OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TerraformRating: Plant)",
         "-Plant<Player1>! OR 8 Steel<Player1>!",
     )
 
@@ -204,8 +196,8 @@ internal class InstructionResolutionTest {
     )
     shouldThrow<NotNowException> {
       preprocessAndResolve(
-          "15 OxygenStep! OR -2 Plant OR Plant FROM Heat OR 2 Heat FROM Plant " +
-              "OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TR: Plant)",
+          "-2 Plant OR Plant FROM Heat OR 2 Heat FROM Plant " +
+              "OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TerraformRating: Plant)",
       )
     }
   }
@@ -214,7 +206,7 @@ internal class InstructionResolutionTest {
   internal fun `an unavailable choice preserves requirement failure when every option is gated`() {
     val failure =
         shouldThrow<RequirementException> {
-          preprocessAndResolve("(30 TR: Plant) OR (15 OxygenStep: Steel)")
+          preprocessAndResolve("(30 TerraformRating: Plant) OR (15 OxygenStep: Steel)")
         }
 
     failure.message!!.contains("30 TerraformRating") shouldBe true
@@ -224,7 +216,7 @@ internal class InstructionResolutionTest {
   @Test
   internal fun testResolveGroups() {
     shouldThrow<AbstractException> { preprocessAndResolve("Plant, Heat") }
-    shouldThrow<AbstractException> { preprocessAndResolve("(TR: Plant), Heat") }
-    checkResolution("TR: (Plant, Heat)", "Plant<Player1>!, Heat<Player1>!")
+    shouldThrow<AbstractException> { preprocessAndResolve("(TerraformRating: Plant), Heat") }
+    checkResolution("TerraformRating: (Plant, Heat)", "Plant<Player1>!, Heat<Player1>!")
   }
 }

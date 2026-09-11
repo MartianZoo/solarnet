@@ -13,12 +13,12 @@ internal class StandardTechnologyTest : CardTest() {
   private fun initializeGame() {
     newGame()
     admin.phase("Action")
-    p1.manual("$StandardTechnology")
+    p1.runOperation("$StandardTechnology")
   }
 
   @Test
   internal fun `Rebate cannot fund the triggering standard project`() {
-    p1.manual("8 MC")
+    p1.runOperation("8 MC")
 
     shouldThrow<LimitsException> { p1.stdProject("PowerPlantProject") }
 
@@ -28,14 +28,14 @@ internal class StandardTechnologyTest : CardTest() {
 
   @Test
   internal fun `Awards the rebate after paying for a standard project`() {
-    p1.manual("11 MC")
+    p1.runOperation("11 MC")
 
     p1.stdProject("PowerPlantProject").expect("-8 MC, PROD[Energy]")
   }
 
   @Test
   internal fun `Does not award the rebate after selling patents`() {
-    p1.manual("ProjectCard<Hand>")
+    p1.runOperation("ProjectCard<Hand>")
 
     p1.sellPatents(1).expect("-ProjectCard, MC")
   }

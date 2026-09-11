@@ -21,18 +21,11 @@ public class StandardFormBundle
 public constructor(
     name: String,
     override val customClasses: Set<CustomClass> = emptySet(),
-    override val moduleContentSelections: Map<ClassName, Set<BundleContentSelection>> = emptyMap(),
-    override val moduleClassExclusions: Map<ClassName, Set<ClassName>> = emptyMap(),
     private val resourceDirectory: String = "$DEFAULT_DIRECTORY/$name",
     private val resourceFilenames: Set<String> = CanonResources.filenames(resourceDirectory),
     private val resourceReader: (String) -> String = CanonResources::read,
-    private val additionalResourceDirectories: Set<String> = emptySet(),
 ) : Bundle(cn(name)) {
-  private val resources =
-      listOf(ResourceSet(resourceDirectory, resourceFilenames)) +
-          additionalResourceDirectories.sorted().map { directory ->
-            ResourceSet(directory, CanonResources.filenames(directory))
-          }
+  private val resources = listOf(ResourceSet(resourceDirectory, resourceFilenames))
 
   init {
     resources.forEach { resourceSet ->

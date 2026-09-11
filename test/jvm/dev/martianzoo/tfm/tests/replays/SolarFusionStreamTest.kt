@@ -28,11 +28,10 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
           "KB",
           "ER",
       )
-  override val inputOnlySynonyms = emptyList<Pair<String, String>>()
 
   @Test
   internal fun game20260819() {
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(agents).launch()
     retainStartingProjects(4, 5, 5)
 
     val JR = p1

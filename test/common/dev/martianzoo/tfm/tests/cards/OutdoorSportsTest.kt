@@ -12,19 +12,19 @@ internal class OutdoorSportsTest : CardTest() {
   fun initializeGame() {
     newGame(PromoCardPack)
     admin.phase("Action")
-    p1.manual("8 MC, ProjectCard")
+    p1.runOperation("8 MC, ProjectCard")
   }
 
   @Test
   internal fun `Can be played with an opponent's city beside an ocean`() {
-    requireP2().manual("CityTile<Tharsis_1_3>, OceanTile<Tharsis_1_2>")
+    requireP2().runOperation("CityTile<Tharsis_1_3>, OceanTile<Tharsis_1_2>")
     p1.playProject(OutdoorSports, 8).expect("PROD[2 MC]")
   }
 
   @Test
   internal fun `Cannot be played without city-ocean adjacency`() {
-    requireP2().manual("CityTile<Tharsis_1_3>")
-    p1.manual("OceanTile<Tharsis_1_5>")
+    requireP2().runOperation("CityTile<Tharsis_1_3>")
+    p1.runOperation("OceanTile<Tharsis_1_5>")
     shouldThrow<RequirementException> { p1.playProject(OutdoorSports, 8) }
   }
 }

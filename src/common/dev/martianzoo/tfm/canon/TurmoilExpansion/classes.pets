@@ -278,7 +278,7 @@ ABSTRACT CLASS AbstractDelegate : Owned<Owner> {
 
 "A delegate currently assigned to one political party"
 CLASS PartyDelegate<Party> : Owned<Owner> {
-  This:: EACH Anyone(HAS MAX 0 PartyLeader<Party, Anyone>, =1 (RANK Anyone { PartyDelegate<Party, Anyone>, PartyLeader<Party, Anyone> })) { \
+  This:: EACH Anyone(HAS MAX 0 PartyLeader<Party, Anyone>, HAS =1 (RANK Anyone { PartyDelegate<Party, Anyone>, PartyLeader<Party, Anyone> })) { \
     PartyLeader<Party, Anyone> \
   }
   This:: RecalculateDominance
@@ -287,7 +287,7 @@ CLASS PartyDelegate<Party> : Owned<Owner> {
 
 "The owner whose delegate occupies one party's leader seat"
 CLASS PartyLeader<Party> : Owned<Owner> {
-  This:: EACH Anyone(HAS PartyLeader<Party, Anyone>, 2 (RANK Anyone { PartyDelegate<Party, Anyone>, PartyLeader<Party, Anyone> })) { \
+  This:: EACH Anyone(HAS PartyLeader<Party, Anyone>, HAS 2 (RANK Anyone { PartyDelegate<Party, Anyone>, PartyLeader<Party, Anyone> })) { \
     -PartyLeader<Party, Anyone> \
   }
   MeasureInfluence IF Dominant<Party>:: PartyLeaderInfluence
@@ -295,7 +295,7 @@ CLASS PartyLeader<Party> : Owned<Owner> {
 }
 
 CLASS RecalculateDominance : Signal {
-  This:: EACH Party(HAS MAX 0 Dominant<Party>, =1 (RANK Party { PartyDelegate<Party, Anyone>, Dominant<Party> })) { \
+  This:: EACH Party(HAS MAX 0 Dominant<Party>, HAS =1 (RANK Party { PartyDelegate<Party, Anyone>, Dominant<Party> })) { \
     (Dominant: Dominant<Party> FROM Dominant) OR \
     (MAX 0 Dominant: Dominant<Party>) \
   }

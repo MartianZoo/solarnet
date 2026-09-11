@@ -1,14 +1,14 @@
 package dev.martianzoo.tfm.tests
 
+import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.Transformers
 import dev.martianzoo.engine.World
 import dev.martianzoo.engine.toComponent
 import dev.martianzoo.pets.Parsing
+import dev.martianzoo.pets.PetElaborator
+import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.chain
-import dev.martianzoo.pets.Transforming.replaceOwnerWith
-import dev.martianzoo.pets.Vocabulary
-import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -16,6 +16,7 @@ import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.ClassSelection
@@ -34,8 +35,8 @@ internal fun setUpGame(
     premise: GamePremise,
     retainedStartingProjects: Int = 0,
 ): World =
-    Engine.newGame(premise, inputOnlySynonyms = TEST_CLASS_SYNONYMS).apply {
-      TfmWorkflow.Manual(this).setupPhase()
+    Engine.newGame(premise).apply {
+      TfmWorkflow.Stepwise(testAgents()).setupPhase()
       revealTurmoilSetupEvents(this)
       retainStartingProjects(
           this,
@@ -44,7 +45,7 @@ internal fun setUpGame(
     }
 
 private fun revealTurmoilSetupEvents(game: World) {
-  val admin = game.agent(ADMIN)
+  val admin = game.testAgent(ADMIN)
   if (admin.count("RevealComingEvent") == 0) return
   admin.doTask("AquiferReleasedByPublicCouncil")
   admin.doTask("DryDeserts")
@@ -58,7 +59,7 @@ internal fun retainStartingProjects(game: World, vararg retainedCounts: Int) {
   players.zip(retainedCounts.asIterable()).forEach { (player, retained) ->
     require(retained in 0..10) { "cannot retain $retained of 10 starting projects" }
     val discarded = 10 - retained
-    game.agent(player).doTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Hand>")
+    game.testAgent(player).doTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Hand>")
   }
 }
 
@@ -68,18 +69,6 @@ internal fun playCorporationWithoutStartingProjects(
 ): TaskResult = player.inTurn {
   doTask("PlayCard<Class<CorporationCard>, Class<$corporation>, Hand>")
 }
-
-internal val TEST_CLASS_SYNONYMS: List<Pair<String, String>> =
-    listOf(
-        "M" to "MC",
-        "S" to "Steel",
-        "T" to "Titanium",
-        "P" to "Plant",
-        "E" to "Energy",
-        "H" to "Heat",
-        "TR" to "TerraformRating",
-        "VP" to "VictoryPoint",
-    )
 
 internal fun setUpGame(
     vararg selectedOptions: TestSelection,
@@ -93,6 +82,7 @@ internal fun canonicalPremise(
     players: Int = 2,
     colonyTiles: Set<ClassName> = emptySet(),
     catalog: TfmCatalog? = null,
+    initialComponentTypes: Set<Expression> = emptySet(),
 ): GamePremise {
   val included = selectedOptions.filterIsInstance<TestOption>()
   val excluded = selectedOptions.filterIsInstance<ExcludedTestOption>().map { it.option }.toSet()
@@ -102,6 +92,7 @@ internal fun canonicalPremise(
       colonyTiles,
       catalog,
       excluded,
+      initialComponentTypes,
   )
 }
 
@@ -111,18 +102,17 @@ internal fun canonicalPremise(
     colonyTiles: Set<ClassName> = emptySet(),
     catalog: TfmCatalog? = null,
     excludedOptions: Set<TestOption> = emptySet(),
+    initialComponentTypes: Set<Expression> = emptySet(),
 ): GamePremise {
   val config =
       GameConfig.create(
-          included =
-              options.map(TestOption::className) +
-                  colonyTiles.map(TEST_ENGLISH_VOCABULARY::canonicalName),
+          included = options.map(TestOption::className) + colonyTiles,
           excluded = excludedOptions.map(TestOption::className),
           playerNames = Player.players(players).map(Player::className),
       )
   val defaultCatalog = canonicalCatalog(config)
   val resolvedCatalog = (catalog ?: defaultCatalog).withPlayers(players)
-  val base = resolvedCatalog.gamePremise(config)
+  val base = resolvedCatalog.gamePremise(config, initialComponentTypes)
   if (catalog == null) return base
   val extensionClassNames =
       catalog.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className } -
@@ -161,9 +151,8 @@ object TestHelpers {
   fun testColonyTiles(players: Int, vararg included: String): Set<ClassName> {
     require(players > 0)
     val count = if (players == 1) 4 else if (players == 2) 5 else players + 2
-    val selected = included.mapTo(linkedSetOf()) { TEST_ENGLISH_VOCABULARY.canonicalName(cn(it)) }
-    TEST_COLONY_TILES.map { TEST_ENGLISH_VOCABULARY.canonicalName(cn(it)) }
-        .filterNotTo(selected) { it in selected }
+    val selected = included.mapTo(linkedSetOf(), ::cn)
+    TEST_COLONY_TILES.map(::cn).filterNotTo(selected) { it in selected }
     return selected.take(count).toSet()
   }
 
@@ -179,16 +168,24 @@ object TestHelpers {
       expectedAsInstructions: String,
   ) {
     val inferredOwner = result.inferredExpectationOwner(game)
+    val elaborator = PetElaborator(game.classTable)
+    // Gain/Remove are only signed-count notation in this assertion DSL. Elaborating the whole
+    // instruction would wrongly apply mutation defaults and atomization, so elaborate each queried
+    // Expression through the public input operation. The final dispatcher handles marked syntax
+    // above Expression level, such as PROD; marked syntax nested within an Expression has already
+    // been consumed or deliberately preserved by its elaboration.
     val preprocessor =
-        with(Transformers(game.classTable)) {
-          chain(
-              canonicalize(game.vocabulary),
-              useFullNames(),
-              insertExpressionDefaults(THIS.expression),
-              transformMarkedSyntax(),
-              inferredOwner?.let(::replaceOwnerWith),
-          )
-        }
+        chain(
+            object : PetTransformer() {
+              override fun transformNode(node: PetNode): PetNode =
+                  if (node is Expression) {
+                    elaborator.elaborateInput(node, inferredOwner)
+                  } else {
+                    transformChildren(node)
+                  }
+            },
+            game.classTable.transformDispatcher(),
+        )
 
     // Zero is not a valid instruction scalar, so preserve its position with a value that can pass
     // through the normal parser and transformers before restoring it as an expected count.
@@ -260,9 +257,3 @@ object TestHelpers {
   private val TEST_COLONY_TILES =
       listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto", "Io", "Europa", "Pluto")
 }
-
-private val TEST_ENGLISH_VOCABULARY =
-    Vocabulary.create(
-        Canon,
-        activeClassNames = Canon.colonyTileClassNames,
-    )

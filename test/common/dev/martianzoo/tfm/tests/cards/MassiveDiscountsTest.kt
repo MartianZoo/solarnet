@@ -11,7 +11,7 @@ internal class MassiveDiscountsTest : CardTest() {
     newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
 
     admin.phase("Action")
-    p1.manual(
+    p1.runOperation(
         "5 MC, 2 ProjectCard, Steel, Titanium, $AntiGravityTechnology, $EarthCatapult, " +
             "$ResearchOutpost, $MassConverter, $QuantumExtractor, $Shuttles, $SpaceStation, " +
             "$AdvancedAlloys, $Phobolog, $MercurianAlloys, $RegoPlastics"

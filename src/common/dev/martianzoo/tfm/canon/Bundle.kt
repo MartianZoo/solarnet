@@ -8,16 +8,6 @@ import dev.martianzoo.pets.ast.ClassName
 public abstract class Bundle(
     public val bundleName: ClassName,
 ) : TfmCatalog() {
-  /**
-   * Exceptional cross-bundle or narrowed content selections. A Module named for its owning bundle
-   * selects that bundle's ordinary cards and colony tiles without an entry here. Its applicable
-   * goals become defaults during premise resolution without an entry here.
-   */
-  public open val moduleContentSelections: Map<ClassName, Set<BundleContentSelection>> = emptyMap()
-
-  /** Class exclusions applied when individual Modules in this bundle are selected. */
-  public open val moduleClassExclusions: Map<ClassName, Set<ClassName>> = emptyMap()
-
   /** Declarations that live in this bundle's card resource, including auxiliary classes. */
   internal open val cardResourceClassNames: Set<ClassName> = emptySet()
 

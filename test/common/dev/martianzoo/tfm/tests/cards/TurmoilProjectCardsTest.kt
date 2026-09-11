@@ -12,13 +12,13 @@ internal class TurmoilProjectCardsTest : CardTest() {
   internal fun `Banned Delegate returns a non-leader delegate to its owner's reserve`() {
     newGame(TurmoilExpansion)
     val p2 = requireP2()
-    p2.manual(
+    p2.runOperation(
         "PartyDelegate<MarsFirst> FROM ReserveDelegate, " +
             "PartyDelegate<MarsFirst> FROM ReserveDelegate"
     )
     val reserveBefore = p2.count("ReserveDelegate")
 
-    p1.manual("$BannedDelegate") {
+    p1.runOperation("$BannedDelegate") {
       doTask("BannedDelegateRemoval<Player1, MarsFirst, Player2>")
       doTask("ReserveDelegate<Player2> FROM PartyDelegate<MarsFirst, Player2>")
     }
@@ -31,13 +31,13 @@ internal class TurmoilProjectCardsTest : CardTest() {
   @Test
   internal fun `Event Analysts contributes exactly one additional influence`() {
     newGame(TurmoilExpansion)
-    p1.manual("$EventAnalysts")
-    p1.manual(
+    p1.runOperation("$EventAnalysts")
+    p1.runOperation(
         "PartyDelegate<Greens> FROM ReserveDelegate, " +
             "PartyDelegate<Greens> FROM ReserveDelegate"
     )
 
-    admin.manual("MeasureInfluence<Player1>")
+    admin.runOperation("MeasureInfluence<Player1>")
 
     p1.count("EventAnalystsInfluence") shouldBe 1
     p1.count("Influence") shouldBe 3
@@ -47,9 +47,9 @@ internal class TurmoilProjectCardsTest : CardTest() {
   internal fun `GMO Contract pays for every matching tag on the played card`() {
     newGame(TurmoilExpansion)
 
-    p1.manual("$GmoContract")
+    p1.runOperation("$GmoContract")
     val moneyAfterContract = p1.count("MC")
-    p1.manual("AnimalTag<$GmoContract>, PlantTag<$GmoContract>")
+    p1.runOperation("AnimalTag<$GmoContract>, PlantTag<$GmoContract>")
 
     moneyAfterContract shouldBe 2
     p1.count("MC") shouldBe moneyAfterContract + 4
@@ -59,11 +59,11 @@ internal class TurmoilProjectCardsTest : CardTest() {
   internal fun `Recruitment exchanges a neutral non-leader for an owned reserve delegate`() {
     newGame(TurmoilExpansion)
     admin.phase("Action")
-    p1.manual("2 MC, ProjectCard")
+    p1.runOperation("2 MC, ProjectCard")
 
     shouldThrow<RequirementException> { p1.playProject(Recruitment, 2) }
 
-    admin.manual("PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>")
+    admin.runOperation("PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>")
     val playerReserveBefore = p1.count("ReserveDelegate")
     val neutralReserveBefore = admin.count("ReserveDelegate<Neutral>")
 
@@ -82,9 +82,9 @@ internal class TurmoilProjectCardsTest : CardTest() {
   @Test
   internal fun `Vote of No Confidence replaces the neutral chairman and raises rating`() {
     newGame(TurmoilExpansion)
-    p1.manual("PartyDelegate<Greens> FROM ReserveDelegate")
+    p1.runOperation("PartyDelegate<Greens> FROM ReserveDelegate")
     admin.phase("Action")
-    p1.manual("5 MC, ProjectCard")
+    p1.runOperation("5 MC, ProjectCard")
     val playerReserveBefore = p1.count("ReserveDelegate")
     val neutralReserveBefore = admin.count("ReserveDelegate<Neutral>")
     val ratingBefore = p1.count("TerraformRating")

@@ -128,8 +128,7 @@ Start each replay with a comment that says whether it is complete or the exact g
 through which it is implemented, followed by the archived title, internal game ID, and end-page URL.
 Name a partial test method for that checkpoint rather than as though it covered the entire game.
 
-Explicitly set `inputOnlySynonyms` to an empty list. Spell out resource, production, rating, and point
-types in test strings.
+Spell out resource, production, rating, and point types in test strings.
 
 Use consistent provenance labels for retained comments: `Player-record evidence`, `Screenshot
 evidence`, `Test inference`, `Payment reconstruction`, `Chronology`, and `Unsupported component`.

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.web.gameviewer
 
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.engine.ComponentGraph.CountSubscription
 import dev.martianzoo.engine.GameRecording
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -7,6 +8,7 @@ import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.displayName
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.MC
@@ -27,6 +29,7 @@ public fun main() {
   val status = checkNotNull(document.getElementById("status"))
   val positionLabel = checkNotNull(document.getElementById("position-label"))
   var recording: GameRecording? = null
+  var agents: Agents? = null
   var recordingName = ""
   var selectedPlayerIndex = 0
   var selectablePositions = emptyList<Int>()
@@ -56,8 +59,9 @@ public fun main() {
         "Position ${displayedIndex + 1} of ${selectablePositions.size} · event ${checkpoint.ordinal}"
     status.textContent = recordingName
     measurePhase("render.player-tabs-update") { updatePlayerTabs(active, selectedPlayerIndex) }
-    measurePhase("render.dashboard") { renderDashboard(active, player) }
-    measurePhase("render.cards") { renderCards(active, player) }
+    val activeAgents = checkNotNull(agents)
+    measurePhase("render.dashboard") { renderDashboard(active, activeAgents, player) }
+    measurePhase("render.cards") { renderCards(active, activeAgents, player) }
     measurePhase("render.log-state") { updateLogState(active) }
     if (scrollLog) measurePhase("render.log-scroll") { scrollActiveLogStop() }
   }
@@ -79,19 +83,19 @@ public fun main() {
             clearBenchmarkEntries()
             mark("load.start")
             mapSubscriptions.forEach(CountSubscription::cancel)
+            val replay = selected.create()
             val active =
-                selected
-                    .create()
-                    .record(
-                        onGameConstructed = {
-                          mark("construction.end")
-                          measure("construction", "load.start", "construction.end")
-                        },
-                        onReplayCompleted = {
-                          mark("replay.end")
-                          measure("authored-replay", "construction.end", "replay.end")
-                        },
-                    )
+                replay.record(
+                    onGameConstructed = {
+                      mark("construction.end")
+                      measure("construction", "load.start", "construction.end")
+                    },
+                    onReplayCompleted = {
+                      mark("replay.end")
+                      measure("authored-replay", "construction.end", "replay.end")
+                    },
+                )
+            agents = replay.agents
             val logEvents = active.world.visibleLogEvents()
             selectablePositions =
                 selectablePositionIndices(active.positions, logEvents.map(ChangeEvent::ordinal))
@@ -206,7 +210,7 @@ private fun renderPlayerTabs(recording: GameRecording, onSelect: (Int) -> Unit) 
   val tabs = checkNotNull(document.getElementById("player-tabs"))
   tabs.innerHTML = ""
   val players = game.actors.filterIsInstance<Player>()
-  val playerNames = players.map { game.vocabulary.displayName(it.className) }
+  val playerNames = players.map { displayName(game.reader.catalog, it.className) }
   val playerColors = assignPlayerColors(playerNames)
   players.forEachIndexed { index, _ ->
     val name = playerNames[index]
@@ -231,16 +235,16 @@ private fun updatePlayerTabs(recording: GameRecording, selectedPlayerIndex: Int)
   }
   val playerNames =
       recording.world.actors.filterIsInstance<Player>().map {
-        recording.world.vocabulary.displayName(it.className)
+        displayName(recording.world.reader.catalog, it.className)
       }
   val playerColors = assignPlayerColors(playerNames)
   document.getElementById("dashboard-panel")?.className =
       "dashboard-panel player-${playerColors[selectedPlayerIndex]}"
 }
 
-private fun renderDashboard(recording: GameRecording, player: Player) {
+private fun renderDashboard(recording: GameRecording, agents: Agents, player: Player) {
   val game = recording.world
-  val tfm = game.tfm(player)
+  val tfm = agents.tfm(player)
 
   fun setValue(name: String, value: Any?) {
     document.querySelector("[data-stat='$name']")?.textContent = value?.toString() ?: "—"
@@ -255,8 +259,11 @@ private fun renderDashboard(recording: GameRecording, player: Player) {
 
   val corporation =
       playedCards(game, player).firstOrNull { cardImageDirectory(it) == "corporations" }
-  setValue("player-name", game.vocabulary.displayName(player.className))
-  setValue("corporation-name", corporation?.let { game.vocabulary.displayName(it.className) })
+  setValue("player-name", displayName(game.reader.catalog, player.className))
+  setValue(
+      "corporation-name",
+      corporation?.let { displayName(game.reader.catalog, it.className) },
+  )
   setValue("phase", tfm.list("Phase").singleOrNull()?.toString()?.removeSuffix("Phase") ?: "—")
   setValue("terraform-rating", countIfLoaded("TerraformRating"))
   setValue("cards", countIfLoaded("ProjectCard"))
@@ -299,14 +306,14 @@ private fun renderDashboard(recording: GameRecording, player: Player) {
       }
 }
 
-private fun renderCards(recording: GameRecording, player: Player) {
+private fun renderCards(recording: GameRecording, agents: Agents, player: Player) {
   val game = recording.world
   val container = checkNotNull(document.getElementById("played-cards"))
   container.innerHTML = ""
   val cards = playedCards(game, player)
   val events = playedEventCards(game, player)
   val players = game.actors.filterIsInstance<Player>()
-  val playerNames = players.map { game.vocabulary.displayName(it.className) }
+  val playerNames = players.map { displayName(game.reader.catalog, it.className) }
   val color = assignPlayerColors(playerNames)[players.indexOf(player)]
   if (cards.isEmpty() && events.isEmpty()) {
     val empty = document.createElement("p")
@@ -325,18 +332,18 @@ private fun renderCards(recording: GameRecording, player: Player) {
     val slot = document.createElement("div")
     slot.className = "played-card-slot $directory-card-slot"
     val image = document.createElement("img")
-    val displayName = game.vocabulary.displayName(cardName)
+    val cardDisplayName = displayName(game.reader.catalog, cardName)
     image.className = "played-card"
     image.setAttribute("src", "images/$cardName.png")
-    image.setAttribute("alt", displayName)
-    image.setAttribute("title", displayName)
+    image.setAttribute("alt", cardDisplayName)
+    image.setAttribute("title", cardDisplayName)
     slot.appendChild(image)
     resourceCount?.let { (resourceType, count) ->
       val counter = document.createElement("div")
       counter.className = "card-resources-counter"
       counter.setAttribute(
           "title",
-          "$count ${game.vocabulary.displayName(resourceType)} on $displayName",
+          "$count ${displayName(game.reader.catalog, resourceType)} on $cardDisplayName",
       )
       val number = document.createElement("span")
       number.className = "card-resources-counter-number"
@@ -365,8 +372,8 @@ private fun renderCards(recording: GameRecording, player: Player) {
     appendCardImage(
         directory,
         card.className,
-        cardResourceCount(game, player, card),
-        hasActionUsedMarker(game, player, card),
+        cardResourceCount(agents, player, card),
+        hasActionUsedMarker(agents, player, card),
     )
   }
   if (events.isNotEmpty()) {
@@ -384,7 +391,6 @@ private fun renderLog(
     selectablePositions: List<Int>,
     onSeek: (Int) -> Unit,
 ) {
-  val game = recording.world
   val log = checkNotNull(document.getElementById("game-log"))
   log.innerHTML = ""
   var selectableIndex = 0
@@ -412,7 +418,7 @@ private fun renderLog(
     val line = document.createElement("div")
     line.className = "log-line"
     line.setAttribute("data-ordinal", event.ordinal.toString())
-    line.textContent = game.vocabulary.renderPets(event)
+    line.textContent = event.toString()
     log.appendChild(line)
   }
   appendStopsThrough(Int.MAX_VALUE)
@@ -483,7 +489,7 @@ private fun renderAreaState(recording: GameRecording, area: AreaDefinition) {
   val tile = reader.getComponents(reader.resolve(TILE.of(area.className))).singleOrNull()
   val players = game.actors.filterIsInstance<Player>()
   val playerClassNames = players.mapTo(hashSetOf(), Player::className)
-  val playerNames = players.map { game.vocabulary.displayName(it.className) }
+  val playerNames = players.map { displayName(game.reader.catalog, it.className) }
   val playerColors = assignPlayerColors(playerNames)
   target.innerHTML =
       if (tile == null) {

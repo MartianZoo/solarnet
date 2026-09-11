@@ -16,8 +16,6 @@ import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.pets.ast.Metric.Count
-import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
@@ -25,8 +23,11 @@ import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.pets.data.ClassSelection
 
 /**
- * Builds a master [ClassTable] from a [Catalog], or internally forms an active-class view over that
- * master. Freezing prevents additional classes from being loaded.
+ * Incrementally compiles a [Catalog] into the single master universe specified by
+ * [rules T1-1 and T1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+ *
+ * Name lookup and resolution are available while loading. Enumeration is available only after the
+ * universe has been completed and frozen by [loadEverything].
  */
 public class ClassLoader
 private constructor(
@@ -36,7 +37,11 @@ private constructor(
     private val configuredModuleNames: Set<ClassName> = emptySet(),
     private val configuredClassSelections: Set<ClassSelection> = emptySet(),
 ) : ClassTable() {
-  /** Compiles the master table that a [Catalog] implementation retains and exposes. */
+  /**
+   * Begins compiling [catalog]'s master universe; call [loadEverything] before enumeration ([rules
+   * T1-1 and
+   * T1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity)).
+   */
   public constructor(catalog: Catalog) : this(catalog, null)
 
   internal override val masterTable: ClassTable = masterSource ?: this
@@ -45,7 +50,10 @@ private constructor(
 
   private val cache = mutableMapOf<Expression, GroundType>()
 
-  /** The `Component` class, which is the root of the class hierarchy. */
+  /**
+   * The required `Component` root specified by
+   * [rule T1-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   */
   public override val componentClass: Class =
       masterSource?.componentClass
           ?: Class(
@@ -54,7 +62,10 @@ private constructor(
               directSuperclasses = emptyList(),
           )
 
-  /** The `Class` class, the other class that is required to exist. */
+  /**
+   * The required `Class` class specified by
+   * [rule T1-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   */
   public override val classClass: Class =
       masterSource?.classClass
           ?: Class(
@@ -66,6 +77,11 @@ private constructor(
   private val loadedClasses =
       mutableMapOf<ClassName, Class?>(COMPONENT to componentClass, CLASS to classClass)
 
+  /**
+   * Returns the already loaded class named [name], or null; exact-name lookup during loading
+   * follows
+   * [rules T1-6 and T1-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   */
   override fun findClass(name: ClassName): Class? {
     if (masterSource != null) return masterSource.findClass(name)
     return if (name in loadedClasses) {
@@ -75,10 +91,15 @@ private constructor(
     }
   }
 
-  /** Returns the [Type] represented by [expression]. */
+  /**
+   * Resolves [expression] with stable identity and strict exact names under
+   * [rules T1-3 and T1-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   *
+   * @throws ExpressionException if [expression] is invalid in this universe.
+   */
   override fun resolve(expression: Expression): GroundType {
     if (masterSource != null) return masterSource.resolve(expression)
-    (expression.refinement as? Not)?.let { refinement ->
+    expression.refinement?.conjuncts()?.filterIsInstance<Not>()?.forEach { refinement ->
       fun containsRefinement(candidate: Expression): Boolean =
           candidate.refinement != null || candidate.arguments.any(::containsRefinement)
       if (containsRefinement(refinement.excluded)) {
@@ -99,9 +120,12 @@ private constructor(
 
   private lateinit var frozenClasses: Set<Class>
 
-  /** All classes loaded by this class loader; can only be accessed after the loader is [frozen]. */
+  /**
+   * Returns every class in the completed universe; calling before freezing violates
+   * [rule T1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   */
   override fun allClasses(): Set<Class> {
-    require(frozen)
+    require(frozen) { "this class table must be frozen before its classes can be enumerated" }
     return frozenClasses
   }
 
@@ -113,10 +137,18 @@ private constructor(
     return getClass(name)
   }
 
-  /** Loads every class known to this class loader's backing [Catalog], and freezes. */
+  /**
+   * Loads every declaration, freezes the resulting master universe, and constructs every class's
+   * base type, satisfying the enumeration precondition in
+   * [rule T1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   */
   public fun loadEverything(): ClassTable {
     knownClassNames.forEach(::loadSingle)
-    return freeze()
+    val completed = freeze()
+    knownClassNames.forEach { name ->
+      getClass(name).baseType
+    }
+    return completed
   }
 
   private val queue = ArrayDeque<ClassName>()
@@ -158,7 +190,7 @@ private constructor(
       return loadedClasses[next] ?: throw PetException("Class-loading cycle involving $next")
     }
     val declaration = knownDeclaration(next)
-    validateClassLiterals(declaration)
+    validateClassNames(declaration)
     validateNoEffectCreatesClass(declaration)
     return construct(declaration)
   }
@@ -174,24 +206,25 @@ private constructor(
     )
   }
 
-  private fun validateClassLiterals(declaration: ClassDeclaration) {
-    fun validateClassLiterals(node: PetNode) {
+  /**
+   * Rejects every name this declaration writes that the catalog never declares, enforcing
+   * [rule T1-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity)
+   * where the declaration that spelled it can still be named. Only the name is decided here;
+   * whether an argument fits its bound depends on classes this one may be loaded ahead of.
+   */
+  private fun validateClassNames(declaration: ClassDeclaration) {
+    declaration.allNodes.forEach { node ->
       node.visitDescendants {
-        if (it is Count && it.expression.className == CLASS) {
-          val argument = it.expression.arguments.singleOrNull()?.takeIf(Expression::simple)
-          argument?.let { expression ->
-            if (expression.className !in knownClassNames) {
-              throw Exceptions.classNotFound(expression.className)
-            }
-          }
-          it.expression.refinement?.let(::validateClassLiterals)
-          false
-        } else {
-          true
+        val name = it as? ClassName
+        if (name != null && name != THIS && name !in knownClassNames) {
+          throw ExpressionException(
+              "${declaration.className} names `$name`, which no declaration introduces " +
+                  "(check bundles, check spelling)"
+          )
         }
+        true
       }
     }
-    declaration.allNodes.forEach(::validateClassLiterals)
   }
 
   /**
@@ -354,12 +387,16 @@ private constructor(
   private var directSubclassesByClass: Map<Class, Set<Class>>? = null
 
   internal fun allSubclassesOf(klass: Class): Set<Class> {
-    require(frozen)
+    require(frozen) {
+      "this class table must be frozen before the subclasses of $klass can be enumerated"
+    }
     return checkNotNull(allSubclassesByClass).getValue(klass)
   }
 
   internal fun directSubclassesOf(klass: Class): Set<Class> {
-    require(frozen)
+    require(frozen) {
+      "this class table must be frozen before the subclasses of $klass can be enumerated"
+    }
     return checkNotNull(directSubclassesByClass)[klass] ?: emptySet()
   }
 
@@ -411,12 +448,21 @@ private constructor(
     return this
   }
 
+  /**
+   * Every class name in the completed universe; calling before freezing violates
+   * [rule T1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   */
   public override val allClassNames: Set<ClassName>
     get() {
-      require(frozen)
+      require(frozen) { "this class table must be frozen before its classes can be enumerated" }
       return loadedClasses.keys
     }
 
+  /**
+   * Returns a diagnostic identity for this universe; semantic identity is the object boundary
+   * specified by
+   * [rules T1-1 and T1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   */
   override fun toString(): String = "loader$id"
 
   private fun knownDeclaration(name: ClassName): ClassDeclaration =

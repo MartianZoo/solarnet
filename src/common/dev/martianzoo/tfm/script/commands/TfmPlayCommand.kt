@@ -23,7 +23,7 @@ internal class TfmPlayCommand(private val repl: ScriptSession) : ScriptCommand("
 
   override fun withArgs(args: String): List<String> {
     val cardText = args.substringBefore(',').trim()
-    val cardName = repl.game.vocabulary.canonicalName(cn(cardText))
+    val cardName = cn(cardText)
     val kind = cardBack(repl.game.reader.tfmCatalog.card(cardName))!!.className
     val location =
         if (repl.game.reader.getComponents("$kind<Selecting>").isNotEmpty()) "Selecting" else "Hand"

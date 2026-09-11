@@ -9,8 +9,8 @@ internal class MaxwellBaseTest : CardTest() {
   internal fun `Can add a floater to another Venus card`() {
     newGame(VenusNextExpansion)
     admin.phase("Action")
-    p1.manual("PROD[Energy], $ForcedPrecipitation")
-    p1.manual("$MaxwellBase").expect("CityTile<MaxwellBase_RemoteArea>, PROD[-Energy]")
+    p1.runOperation("PROD[Energy], $ForcedPrecipitation")
+    p1.runOperation("$MaxwellBase").expect("CityTile<MaxwellBase_RemoteArea>, PROD[-Energy]")
     p1.cardAction1(MaxwellBase) { addCardResources(ForcedPrecipitation) }.expect("Floater")
   }
 }

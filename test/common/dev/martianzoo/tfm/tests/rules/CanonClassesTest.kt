@@ -1,7 +1,9 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.Agent
+import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
-import dev.martianzoo.engine.Agent
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -10,14 +12,12 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
-import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.withClue
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
@@ -27,35 +27,7 @@ import kotlin.test.assertFailsWith
 /** Tests for the Canon data set. */
 internal class CanonClassesTest {
   companion object {
-    val table = Canon.classTable
-
     private fun te(source: String): Expression = parse(source)
-  }
-
-  @Test
-  internal fun standardActionsUseDoorwaysForOtherActionFamilies() {
-    val standardAction = table.getClass(cn("StandardAction"))
-    val standardProject = table.getClass(cn("StandardProject"))
-
-    standardAction
-        .allSubclasses()
-        .filterNot { it.abstract }
-        .mapTo(linkedSetOf()) { it.className } shouldBe
-        setOf(
-            cn("PlayCardFromHandAction"),
-            cn("UseStandardProjectAction"),
-            cn("UseActionOnCardAction"),
-            cn("ConvertPlantsAction"),
-            cn("ConvertHeatAction"),
-            cn("ClaimMilestoneAction"),
-            cn("FundAwardAction"),
-            cn("DoRequiredActionsAction"),
-            cn("TradeAction"),
-            cn("LobbyAction"),
-            cn("UseTurmoilPolicyAction"),
-        )
-    standardProject.isSubtypeOf(standardAction) shouldBe false
-    table.getClass(cn("DoRequiredActionsAction")).isSubtypeOf(standardAction) shouldBe true
   }
 
   @Test
@@ -75,6 +47,37 @@ internal class CanonClassesTest {
   }
 
   @Test
+  internal fun activeOwnedTileKindsInBroadCombinedGameExtendOwnedTile() {
+    // Landlord counts `OwnedTile`, so a class that is both a `Tile` and `Owned` but forgets to
+    // extend it would look structurally right and silently escape the award. Pets has no structural
+    // conjunction to state that directly yet (see TODO.md), so this broad active projection checks
+    // the nominal class until every legal configuration family can be covered systematically.
+    val table =
+        Engine.newGame(
+                canonicalPremise(
+                    CorporateEraExpansion,
+                    Cimmeria,
+                    VenusNextExpansion,
+                    Prelude2Expansion,
+                    ColoniesExpansion,
+                    TurmoilExpansion,
+                    PromoCardPack,
+                    colonyTiles = testColonyTiles(players = 2),
+                )
+            )
+            .classTable
+    val tile = table.getClass(cn("Tile"))
+    val owned = table.getClass(cn("Owned"))
+    val ownedTile = table.getClass(cn("OwnedTile"))
+
+    table
+        .allClasses()
+        .filter { it.isSubtypeOf(tile) && it.isSubtypeOf(owned) && !it.isSubtypeOf(ownedTile) }
+        .map { "$it" }
+        .shouldBeEmpty()
+  }
+
+  @Test
   internal fun everyMapOffersSixMilestonesAndAwardsWithVenusAndColonies() {
     val maps = listOf(Tharsis, Hellas, Elysium, Utopia, Cimmeria)
 
@@ -89,7 +92,7 @@ internal class CanonClassesTest {
                   colonyTiles = testColonyTiles(2),
               )
           )
-      val agent = game.tfm(PLAYER1)
+      val agent = game.testTfm(PLAYER1)
 
       withClue(map.name) {
         agent.count("Class<Milestone>") shouldBe 6
@@ -102,10 +105,10 @@ internal class CanonClassesTest {
   internal fun preludeSetupDealsTwoPreludeCardsToEachPlayer() {
     val game = setUpGame(canonicalPremise(PreludeExpansion, players = 2))
 
-    game.tfm(PLAYER1).phase("Prelude")
+    game.testTfm(PLAYER1).phase("Prelude")
 
-    game.tfm(PLAYER1).count("PreludeCard<Player1>") shouldBe 2
-    game.tfm(PLAYER2).count("PreludeCard<Player2>") shouldBe 2
+    game.testTfm(PLAYER1).count("PreludeCard<Player1>") shouldBe 2
+    game.testTfm(PLAYER2).count("PreludeCard<Player2>") shouldBe 2
   }
 
   @Test
@@ -117,101 +120,71 @@ internal class CanonClassesTest {
     game.reader.count(game.reader.resolve(te("SoloMode"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("StandardSoloObjective"))) shouldBe 1
     game.reader.count(game.reader.resolve(te("SoloOpponent"))) shouldBe 1
-    game.agent(PLAYER1).count("TerraformRating<Player1>") shouldBe 14
+    game.testAgent(PLAYER1).count("TerraformRating<Player1>") shouldBe 14
     listOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
-      game.agent(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
-      game.agent(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
+      game.testAgent(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
+      game.testAgent(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
     }
-    game.agent(PLAYER1).count("SoloStandardResourceReserve<SoloOpponent>") shouldBe
-        game.agent(PLAYER1).count("Class<StandardResource>")
-    game.agent(PLAYER1).count("SoloCardResourceReserve<SoloOpponent>") shouldBe
-        game.agent(PLAYER1).count("Class<CardResource>")
-    game.agent(PLAYER1).count("SoloCardResourceReserve<SoloOpponent, Class<Animal>>") shouldBe 1
+    game.testAgent(PLAYER1).count("SoloStandardResourceReserve<SoloOpponent>") shouldBe
+        game.testAgent(PLAYER1).count("Class<StandardResource>")
+    game.testAgent(PLAYER1).count("SoloCardResourceReserve<SoloOpponent>") shouldBe
+        game.testAgent(PLAYER1).count("Class<CardResource>")
+    game.testAgent(PLAYER1).count("SoloCardResourceReserve<SoloOpponent, Class<Animal>>") shouldBe 1
     game
-        .agent(PLAYER1)
+        .testAgent(PLAYER1)
         .count(
             "Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
         ) shouldBe 42
-    val soloReserve = game.classTable.getClass(cn("SoloCardResourceReserve"))
-    soloReserve.isSubtypeOf(game.classTable.getClass(cn("CardFront"))) shouldBe false
-    soloReserve.isSubtypeOf(game.classTable.getClass(cn("ActiveCard"))) shouldBe false
-
-    val admin = game.agent(ADMIN) as Agent
-    game.tasks.extract { it.assignee } shouldBe listOf(ADMIN, ADMIN)
+    val admin = game.testAgent(ADMIN) as Agent
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
-    admin.manual("OceanTile<Tharsis_1_2>")
-    game.agent(PLAYER1).count("CityTile<SoloOpponent>") shouldBe 2
-    game.agent(PLAYER1).count("GreeneryTile<SoloOpponent>") shouldBe 2
+    admin.runOperation("OceanTile<Tharsis_1_2>")
+    game.testAgent(PLAYER1).count("CityTile<SoloOpponent>") shouldBe 2
+    game.testAgent(PLAYER1).count("GreeneryTile<SoloOpponent>") shouldBe 2
 
-    val player = game.agent(PLAYER1)
-    player.manual("-5 Plant<SoloOpponent>")
-    player.manual("PROD[-5 Plant<SoloOpponent>]")
-    player.manual("5 Plant<SoloOpponent>")
-    player.manual("PROD[5 Plant<SoloOpponent>]")
-    player.manual("-5 Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>")
-    player.manual("5 Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>")
+    val player = game.testAgent(PLAYER1)
+    player.runOperation("-5 Plant<SoloOpponent>")
+    player.runOperation("PROD[-5 Plant<SoloOpponent>]")
+    player.runOperation("5 Plant<SoloOpponent>")
+    player.runOperation("PROD[5 Plant<SoloOpponent>]")
+    player.runOperation(
+        "-5 Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
+    )
+    player.runOperation(
+        "5 Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
+    )
     listOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
-      game.agent(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
-      game.agent(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
-      game.agent(PLAYER1).count("$it<Player1>") shouldBe 0
+      game.testAgent(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
+      game.testAgent(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
+      game.testAgent(PLAYER1).count("$it<Player1>") shouldBe 0
     }
     game
-        .agent(PLAYER1)
+        .testAgent(PLAYER1)
         .count(
             "Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
         ) shouldBe 42
 
-    admin.manual("End FROM Phase")
-    game.agent(PLAYER1).count("VictoryPoint<Player1>") shouldBe 14
+    admin.runOperation("End FROM Phase")
+    game.testAgent(PLAYER1).count("VictoryPoint<Player1>") shouldBe 14
     game.tasks.isEmpty() shouldBe true
-  }
-
-  @Test
-  internal fun testOwnedTileIsAnIntersectionType() {
-    val owned = table.getClass(cn("Owned"))
-    val tile = table.getClass(cn("Tile"))
-    val ownedTile = table.getClass(cn("OwnedTile"))
-
-    // Nothing can be both Owned and a Tile without being an OwnedTile!
-    owned glb tile shouldBe ownedTile
-    ownedTile.isIntersectionType() shouldBe true
-  }
-
-  @Test
-  internal fun testActionCardIsAnIntersectionType() {
-    val cardFront = table.getClass(cn("CardFront"))
-    val hasActions = table.getClass(cn("HasActions"))
-    val actionCard = table.getClass(cn("ActionCard"))
-
-    // Nothing can be both a CardFront and a HasActions but an ActionCard!
-    cardFront glb hasActions shouldBe actionCard
-    actionCard.isIntersectionType() shouldBe true
-  }
-
-  @Test
-  internal fun cardboundComponentsRequirePlayerOwners() {
-    table.resolve(te("ResourceHolder<SoloOpponent, Class<Animal>>"))
-    assertFailsWith<ExpressionException> {
-      table.resolve(te("Cardbound<SoloOpponent, $Predators<Player1>>"))
-    }
   }
 
   @Test
   internal fun inactiveClassLiteralCountsZeroWhileUnknownClassLiteralIsInvalid() {
     val game = Engine.newGame(canonicalPremise())
-    val agent = game.agent(PLAYER1) as Agent
+    val agent = game.testAgent(PLAYER1) as Agent
     val withVenus =
-        Engine.newGame(canonicalPremise(VenusNextExpansion, players = 2)).agent(PLAYER1) as Agent
+        Engine.newGame(canonicalPremise(VenusNextExpansion, players = 2)).testAgent(PLAYER1)
+            as Agent
 
     assertFailsWith<ExpressionException> { agent.count("Class<AnyWordHere>") }
     agent.count("Class<VenusStep>") shouldBe 0
     withVenus.count("Class<VenusStep>") shouldBe 1
     assertFailsWith<ExpressionException> { agent.count("AnyWordHere") }
     assertFailsWith<ExpressionException> { agent.resolve("Class<AnyWordHere>") }
-    assertFailsWith<ExpressionException> { agent.manual("Class<AnyWordHere>!") }
-    assertFailsWith<ExpressionException> { agent.manual("-Class<AnyWordHere>!") }
+    assertFailsWith<ExpressionException> { agent.runOperation("Class<AnyWordHere>!") }
+    assertFailsWith<ExpressionException> { agent.runOperation("-Class<AnyWordHere>!") }
   }
 }

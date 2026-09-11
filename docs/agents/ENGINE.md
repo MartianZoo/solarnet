@@ -7,7 +7,8 @@
 > **Read when:** changing live World construction, components, events, tasks, effects, rollback,
 > recoverable dead ends, input transformation, recordings, or the current `Agent` surface.
 >
-> **Skip when:** a narrower document owns the concern. Use [TYPES.md](TYPES.md) for static types,
+> **Skip when:** a narrower document owns the concern. Use
+> [type-system-spec.md](../type-system-spec.md) for static types,
 > [SEQUENCING.md](SEQUENCING.md) for ordering rules, and [OPTIONS.md](OPTIONS.md) for premise
 > resolution.
 >
@@ -40,11 +41,11 @@
 - [`EventLog.kt`](../../src/common/dev/martianzoo/engine/EventLog.kt) and
   [`Timeline.kt`](../../src/common/dev/martianzoo/engine/Timeline.kt) — inspect only
   for history, atomicity, rollback, or revisions.
- - [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt) — search for
+ - [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) — search for
    `public interface Agent` before changing caller-facing operations.
- - [`Transformers.kt`](../../src/common/dev/martianzoo/engine/Transformers.kt),
+ - [`PetElaborator.kt`](../../src/common/dev/martianzoo/pets/PetElaborator.kt),
    [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt), and
-   [`ApiTranslation.kt`](../../src/common/dev/martianzoo/engine/ApiTranslation.kt) — inspect together
+   [`AgentImpl.kt`](../../src/common/dev/martianzoo/agent/AgentImpl.kt) — inspect together
    for authored elaboration, class/component specialization, and Player-scoped input.
  - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — search for `resolve` and
    `doExecuteResolved` for the selected-task resolution and executable-first-stage contract.
@@ -150,11 +151,11 @@ Colonies do. Queued `:` and immediate `::` still have their ordinary semantics; 
 is not permission to replace one with the other mechanically or to discard a change's `?`, `.`, or
 `!` intensity.
 
-`drainBootstrapTasks` currently calls the Admin Agent's normal `FIRST` autoexecution policy.
-`FIRST` may select the stable execution order of several concrete tasks, but it does not invent a
-narrowing for an abstract task: unresolved choice remains queued and bootstrap completion fails.
-Preserve that rejection, cover it with a focused multi-alternative bootstrap test, and review task
-ordering separately whenever bootstrap effects can observe one another.
+`drainBootstrapTasks` uses the ActorEngine assigned to each task and selects choice-free work in
+stable insertion order. It does not invent a narrowing for an abstract task: unresolved choice
+remains queued and bootstrap completion fails. Preserve that rejection, cover it with a focused
+multi-alternative bootstrap test, and review task ordering separately whenever bootstrap effects
+can observe one another.
 
 **Forward-looking:** Kotlin `Engine` remains the passive mechanism that calculates responses to
 Actor-attributed mutations. The current administrative Actor and Component become `Admin`.
@@ -240,7 +241,7 @@ part of the capture, and the source may not roll back that captured prefix while
 
 `Timeline` provides event-count checkpoints, atomic blocks, rollback, and a commit floor. An atomic
 failure reverses component state, tasks, event-backed indexes, and events.
-`AbortOperationException` requests rollback without surfacing as a caller error. The commit floor
+`AbortTransactionException` requests rollback without surfacing as a caller error. The commit floor
 prevents rollback into initialization or a workflow stage.
 
 `World.recording()` captures the event sequence and selected positions around successful outermost
@@ -299,7 +300,7 @@ stored Actor. See [IDENTITY.md](IDENTITY.md).
 
 Selecting an abstract task moves that same selected task to its contextual Actor's queue when
 needed, while retaining its controller. One selected task globally locks selection of competitors.
-Continuations, structural siblings, and triggered work return to the controller. `TfmWorkflow.Auto`
+Continuations, structural siblings, and triggered work return to the controller. `TfmWorkflow.Automatic`
 starts Player operations directly and waits for whole-world idleness instead.
 
 ### Selection, resolution, and narrowing
@@ -419,7 +420,7 @@ onto the progression as follows:
 
 - A declaration retains `authoredEffects` and `authoredActions`. Its executable `effects` also
   include actions converted to effects and may contain Catalog-specific source compilation.
-- `Transformers.classEffects` collects inherited effects for an active Class, inserts defaults,
+- `PetElaborator.classEffects` collects inherited effects for an active Class, inserts defaults,
   atomizes, lowers marked syntax, and evaluates properties as far as the Class context permits. A
   class effect may still contain context-relative or event-relative values.
 - `LiveEffect.compile` specializes a class effect to one exact component Type. Apart from the
@@ -437,7 +438,7 @@ still required; context-closed does not mean concrete or resolved.
 meaningful only in declaration syntax that supplies a Class or component context and it disappears
 by the component-effect stage. `Class<This>` retains the root Class identity without dependencies.
 Static Class construction and the current specialized `This<...>` invariant behavior are specified
-in [TYPES.md](TYPES.md#inherited-and-narrowed-dependencies).
+in [type-system-spec.md](../type-system-spec.md) (rule T3-2).
 
 `Owner` currently conflates two roles: a contextual value to bind and the ordinary abstract `Owner`
 Type, whose concrete choices include seated Players and `SoloOpponent`. Consequently, failure to
@@ -474,12 +475,12 @@ reflection-like: ordinary execution moves forward through the lifecycle, while s
 explicitly reaches into preserved directives as data. Re-submitted data must re-enter through the
 same elaboration path as any other authored Pets.
 
-There is no single elaboration entry point today. `ApiTranslation`, `Transformers.classEffects`,
-property evaluation, and `CustomClassRuntime` assemble overlapping transformer chains, while
-`Instructor` applies marked-syntax handling after custom translation. Their shared intended
-contract is one authored-to-elaborated operation, parameterized by the active Class Table, Catalog
-handlers, and the contextual bindings available at that stage. Reflection-like re-entry should call
-that same operation rather than reconstructing a private subset of the pipeline.
+`PetElaborator` owns the shared authored-to-elaborated packages for session input, Metric input,
+Class Effects, and source-shaped custom-instruction output. Its private transformers supply one
+meaning for defaults, atomization, marked syntax, and property expansion. The engine chooses which
+public elaboration operation applies and supplies live component, Owner, trigger, or fanout context;
+it does not reconstruct those transformation chains. Reflection-like re-entry likewise returns
+through the matching elaboration operation.
 
 The `Effector` indexes live component-effect pairs with their component multiplicity.
 
@@ -651,12 +652,11 @@ and Asteroid Deflection System, remain direct removal triggers. Do not replace t
 
 Current Actor-scoped string input passes through this order:
 
-1. localized Vocabulary canonicalization and input-only synonyms;
-2. Class-Name resolution against the World table;
-3. atomization of counted `Atomized` components;
-4. dependency defaults;
-5. contextual `Owner` replacement for Player scopes; and
-6. marked-syntax handlers registered by the World's Catalog.
+1. Class-Name resolution against the World table;
+2. atomization of counted `Atomized` components;
+3. dependency defaults;
+4. contextual `Owner` replacement for Player scopes; and
+5. marked-syntax handlers registered by the World's Catalog.
 
 In the lifecycle terminology above, this elaborates authored input and closes it over the acting
 Player. It need not yet be concrete or resolved, because the submitted work may deliberately leave
@@ -674,38 +674,43 @@ an earlier compilation stage can handle only the syntax it owns. Terraforming Ma
 `PROD` lowering and follow-mode `CARDS` lowering. Card-source compilation invokes the same
 dispatcher with only `CARDS`, leaving `PROD` for the active-table stage.
 
-AST values created inside the engine skip parsing but may use relevant transforms explicitly.
-Transform entry points preserve their declared AST `kind`; a cardinality-changing caller must
-request `InstructionTree`, not `Instruction`.
+Source-shaped AST returned by custom implementations enters through
+`PetElaborator.elaborateCustomInstruction`. Public elaboration entry points preserve their declared
+AST family; instruction entry points use `InstructionTree` where cardinality may change.
 
 ## Current Agent surface
 
-Each World retains exactly one fully permissive `Agent` per Actor. `World.agent(actor)` returns that
-stable object for reads, task commands, manual operations, task insertion/removal, and direct
-changes. The old power-interface hierarchy is gone. REPL color modes restrict commands in the script client
-rather than changing the engine object's type. Autoexecution policy attachment is forward-looking.
+Each World retains exactly one policy-free `ActorEngine` per Actor. Applications construct one
+`Agents(world)` and retain it; it holds that World together with one fully permissive Agent per
+Actor, used for reads, task commands, operations, task insertion/removal, and direct changes.
+`Agents` is what downstream APIs take, so an Agent cannot be paired with a World it does not act
+on. The old power-interface hierarchy is gone.
+REPL color modes restrict commands in the script client rather than changing the Agent's type.
+Autoexecution policy attachment is forward-looking.
 
-All public Agent mutations share the outer atomic-completion path.
+All public Agent mutations share the outer transaction-completion path.
 
-`manual()` seeds a group of new tasks, permits an operation body to finish them, runs configured
+`runOperation()` seeds a group of new tasks, permits an operation body to finish them, runs configured
 auto-exec, preserves previously pending unselected tasks, and fails if newly created Tasks or
 `MustCleanUp` components remain. A pre-existing selected task prevents it from starting.
 `sneak()` applies raw changes without normal instruction resolution or effects, but still uses the
 timeline and graph mutation interfaces.
 
-**Forward-looking:** `:agent` owns the normal Actor-scoped client API. Agent calls the core engine's
-audited mutation families against the Game World's task queue; a separate passive access object is
-not needed. Actor assignment remains engine semantics even though the resulting assignment is Game
-World data. Agent is the sole issuer of ordinary explicit and policy-chosen mutations for one Actor.
-Direct engine primitives remain available for workflows, replay correction, cheats, and tests;
-preventing trusted callers from using them is not a current goal. Public task mutation is already
-limited to checked narrowing and explicit single-task removal.
+`:agent` owns the normal Actor-scoped client API. Agent calls the core engine's audited mutation
+families against the Game World's task queue; a separate passive access object is not needed. Actor
+assignment remains engine semantics even though the resulting assignment is Game World data. Agent
+is the normal issuer of ordinary explicit and policy-chosen mutations for one Actor. Direct engine
+primitives remain available for workflows, replay correction, cheats, and tests; preventing trusted
+callers from using them is not a current goal. Public task mutation is limited to checked narrowing
+and explicit single-task removal.
 
 ## Current auto-execution and Terraforming Mars workflow
 
-Autoexecution currently uses `Agent.autoExecMode`: `NONE` does nothing, `SAFE` proceeds only when
-one selectable option exists, and `FIRST` chooses the first selectable task in iteration order.
-Scanning is global; assignee selects the queue and stored Actor controls attribution.
+Autoexecution in `:agent` currently uses `Agent.autoExecPolicy`: `NONE` normally does nothing,
+`CONCRETE` proceeds only when one selectable option exists, and `EAGER` chooses the first selectable
+task in iteration order. Scanning is global; assignee selects the ActorEngine and stored Actor
+controls attribution. The transitional exception remains that a Player using `NONE` drains only
+Admin-assigned work.
 
 **Forward-looking:** core engine contains no autoexecution. An application creates one Agent per
 Actor, and each Agent owns its optional policies. After one engine mutation and its immediate
@@ -719,8 +724,8 @@ divergence.
  `Agent`. Treat it as transitional; its test conveniences and player-facing domain actions need not
  remain one production wrapper.
 
-`TfmWorkflow.Auto` runs the Terraforming Mars phase loop in a coroutine. It commits before waiting
-for tasks to drain and wakes from the shared outermost atomic-completion callback. StartToken
+`TfmWorkflow.Automatic` runs the Terraforming Mars phase loop in a coroutine. It commits before waiting
+for tasks to drain and wakes from the shared outermost transaction-completion callback. StartToken
 determines turn order. Canon represents every condition currently preventing game end as a
 `GameEndBarrier`; the workflow checks for those components after Production and reads the solo
 `Victory` result rather than reimplementing its predicate. Exact phase requirements and known gaps are
@@ -728,15 +733,16 @@ in [WORKFLOW.md](WORKFLOW.md).
 
 ## Wiring details
 
-`Engine.Wiring` is the current manual composition root. Class Table, Event Log, Component Graph,
-Effector, Timeline, `Changer`, `Instructor`, and other World-level services are shared; `Changer` and
-`Instructor` take the acting Actor as a parameter rather than holding one. Each Actor currently
-receives its own `Implementations` and `ApiTranslation` scope.
+`Engine.Wiring` is the engine composition root. Class Table, Event Log, Component Graph, Effector,
+Timeline, `Changer`, `Instructor`, and other World-level services are shared; `Changer` and
+`Instructor` take the acting Actor as a parameter rather than holding one. Each Actor receives one
+stable `ActorEngine`. Application composition creates one corresponding `AgentImpl` per Actor with
+one shared Agent-side autoexecution loop.
 
-The target engine composition retains only the behavior and Actor context required to calculate one
-direct mutation. Game World retains Actor identities, assignment, and pending choices as data but
-contains no decision-making behavior. Actor-filtered reads, unique long-lived Agents, their
-policies, and the shared autoexecution loop belong in `:agent`.
+The engine composition retains only the behavior and Actor context required to calculate one direct
+mutation. Game World retains Actor identities, assignment, and pending choices as data but contains
+no decision-making behavior. Actor-filtered reads and the replacement policy system remain pending;
+unique long-lived Agents, current policy state, and the shared autoexecution loop live in `:agent`.
 
 Kotlin keeps `Actor` and `Owner` distinct. Current Players are both. A passive Pets Owner such as
 `SoloOpponent` has no gameplay scope or task queue.

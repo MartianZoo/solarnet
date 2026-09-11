@@ -90,14 +90,12 @@ internal class TimelineImpl(
     recordedRollbackOrdinals = positions.mapTo(linkedSetOf()) { it.ordinal }
   }
 
-  internal class AbortOperationException : Exception()
-
   @Suppress("TooGenericExceptionCaught", "InstanceOfCheckForException")
   override fun atomic(block: () -> Unit): TaskResult {
     val checkpoint = checkpoint()
     try {
       block()
-    } catch (_: AbortOperationException) {
+    } catch (_: AbortTransactionException) {
       rollBackStateTo(checkpoint.ordinal)
     } catch (e: Exception) {
       rollBackStateTo(checkpoint.ordinal)

@@ -16,16 +16,16 @@ internal class TurmoilGovernmentTest :
     newGame(TurmoilExpansion)
     val p2 = requireP2()
     clearSetupPolitics()
-    p1.manual("RulingBonusProbe, 2 BuildingTag<RulingBonusProbe>")
-    admin.manual("ReserveDelegate<Neutral> FROM Chairman<Neutral>")
-    p2.manual("Chairman FROM ReserveDelegate")
-    p1.manual("PartyDelegate<MarsFirst> FROM LobbyDelegate")
-    p1.manual("PartyDelegate<MarsFirst> FROM ReserveDelegate")
-    p2.manual("PartyDelegate<MarsFirst> FROM LobbyDelegate")
-    admin.manual("PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>")
-    admin.manual("PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>")
+    p1.runOperation("RulingBonusProbe, 2 BuildingTag<RulingBonusProbe>")
+    admin.runOperation("ReserveDelegate<Neutral> FROM Chairman<Neutral>")
+    p2.runOperation("Chairman FROM ReserveDelegate")
+    p1.runOperation("PartyDelegate<MarsFirst> FROM LobbyDelegate")
+    p1.runOperation("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+    p2.runOperation("PartyDelegate<MarsFirst> FROM LobbyDelegate")
+    admin.runOperation("PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>")
+    admin.runOperation("PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>")
 
-    admin.manual("FormGovernment")
+    admin.runOperation("FormGovernment")
 
     admin.count("Ruling<MarsFirst>") shouldBe 1
     p1.count("MC") shouldBe 2
@@ -65,7 +65,7 @@ internal class TurmoilGovernmentTest :
       sendNeutralDelegate(former)
       parties.filterNot { it == former }.forEach(::sendNeutralDelegate)
 
-      admin.manual("FormGovernment")
+      admin.runOperation("FormGovernment")
 
       admin.count("Dominant<$expected>") shouldBe 1
     }
@@ -74,19 +74,19 @@ internal class TurmoilGovernmentTest :
   @Test
   internal fun `four parties pay every player for the matching tag families`() {
     newGame(TurmoilExpansion)
-    p1.manual("RulingBonusProbe")
-    p1.manual("2 BuildingTag<RulingBonusProbe>, 3 ScienceTag<RulingBonusProbe>")
-    p1.manual("2 EarthTag<RulingBonusProbe>, JovianTag<RulingBonusProbe>")
-    p1.manual("PlantTag<RulingBonusProbe>, 2 MicrobeTag<RulingBonusProbe>")
-    p1.manual("3 AnimalTag<RulingBonusProbe>")
+    p1.runOperation("RulingBonusProbe")
+    p1.runOperation("2 BuildingTag<RulingBonusProbe>, 3 ScienceTag<RulingBonusProbe>")
+    p1.runOperation("2 EarthTag<RulingBonusProbe>, JovianTag<RulingBonusProbe>")
+    p1.runOperation("PlantTag<RulingBonusProbe>, 2 MicrobeTag<RulingBonusProbe>")
+    p1.runOperation("3 AnimalTag<RulingBonusProbe>")
 
-    admin.manual("ApplyRulingBonus<MarsFirst>")
+    admin.runOperation("ApplyRulingBonus<MarsFirst>")
     p1.count("MC") shouldBe 2
-    admin.manual("ApplyRulingBonus<Scientists>")
+    admin.runOperation("ApplyRulingBonus<Scientists>")
     p1.count("MC") shouldBe 5
-    admin.manual("ApplyRulingBonus<Unity>")
+    admin.runOperation("ApplyRulingBonus<Unity>")
     p1.count("MC") shouldBe 8
-    admin.manual("ApplyRulingBonus<Greens>")
+    admin.runOperation("ApplyRulingBonus<Greens>")
     p1.count("MC") shouldBe 14
     requireP2().count("MC") shouldBe 0
   }
@@ -94,9 +94,9 @@ internal class TurmoilGovernmentTest :
   @Test
   internal fun `kelvinists pay for heat production`() {
     newGame(TurmoilExpansion)
-    p1.manual("PROD[3 Heat]")
+    p1.runOperation("PROD[3 Heat]")
 
-    admin.manual("ApplyRulingBonus<Kelvinists>")
+    admin.runOperation("ApplyRulingBonus<Kelvinists>")
 
     p1.count("MC") shouldBe 3
     requireP2().count("MC") shouldBe 0
@@ -106,7 +106,7 @@ internal class TurmoilGovernmentTest :
   internal fun `reds raise every tied lowest multiplayer rating`() {
     newGame(TurmoilExpansion)
 
-    admin.manual("ApplyRulingBonus<Reds>")
+    admin.runOperation("ApplyRulingBonus<Reds>")
 
     p1.count("TerraformRating") shouldBe 21
     requireP2().count("TerraformRating") shouldBe 21
@@ -115,9 +115,9 @@ internal class TurmoilGovernmentTest :
   @Test
   internal fun `reds raise only the lowest multiplayer rating`() {
     newGame(TurmoilExpansion)
-    p1.manual("2 TerraformRating")
+    p1.runOperation("2 TerraformRating")
 
-    admin.manual("ApplyRulingBonus<Reds>")
+    admin.runOperation("ApplyRulingBonus<Reds>")
 
     p1.count("TerraformRating") shouldBe 22
     requireP2().count("TerraformRating") shouldBe 21
@@ -126,23 +126,23 @@ internal class TurmoilGovernmentTest :
   @Test
   internal fun `reds solo bonus applies at twenty but not above twenty`() {
     newGame(TurmoilExpansion, players = 1)
-    p1.manual("6 TerraformRating")
+    p1.runOperation("6 TerraformRating")
 
-    admin.manual("ApplyRulingBonus<Reds>")
+    admin.runOperation("ApplyRulingBonus<Reds>")
     p1.count("TerraformRating") shouldBe 21
-    admin.manual("ApplyRulingBonus<Reds>")
+    admin.runOperation("ApplyRulingBonus<Reds>")
     p1.count("TerraformRating") shouldBe 21
   }
 
   private fun sendNeutralDelegate(party: String) {
-    admin.manual("PartyDelegate<$party, Neutral> FROM ReserveDelegate<Neutral>")
+    admin.runOperation("PartyDelegate<$party, Neutral> FROM ReserveDelegate<Neutral>")
   }
 
   private fun clearSetupPolitics() {
     listOf("MarsFirst", "Reds").forEach { party ->
-      admin.manual("ReserveDelegate<Neutral> FROM PartyDelegate<$party, Neutral>")
-      admin.manual("-PartyLeader<$party, Neutral>!")
+      admin.runOperation("ReserveDelegate<Neutral> FROM PartyDelegate<$party, Neutral>")
+      admin.runOperation("-PartyLeader<$party, Neutral>!")
     }
-    admin.manual("-Dominant!")
+    admin.runOperation("-Dominant!")
   }
 }

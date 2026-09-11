@@ -1,12 +1,13 @@
 package dev.martianzoo.tfm.web.gameviewer
 
-import dev.martianzoo.engine.Agent.Companion.parse
-import dev.martianzoo.engine.Agent.OperationBody
-import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.agent.Agent.Companion.parse
+import dev.martianzoo.agent.Agent.OperationScope
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agent.exMachina
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.GameRecording
 import dev.martianzoo.engine.World
-import dev.martianzoo.engine.exMachina
 import dev.martianzoo.engine.recording
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
@@ -16,6 +17,7 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Task
@@ -32,17 +34,21 @@ import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.fake.FakeCanon
 
 public abstract class RecordedGame {
-  protected lateinit var game: World
+  internal lateinit var agents: Agents
+    private set
+
+  protected val game: World
+    get() = agents.world
 
   protected val admin: TfmGameplay
-    get() = game.tfm(dev.martianzoo.pets.data.Actor.ADMIN)
+    get() = agents.tfm(Actor.ADMIN)
 
   /** Returns gameplay for the Player occupying the one-based [seat]. */
   protected fun player(seat: Int): TfmGameplay {
     require(seat > 0) { "seat numbers begin at 1" }
     val player = game.actors.filterIsInstance<Player>().getOrNull(seat - 1)
     requireNotNull(player) { "no Player occupies seat $seat" }
-    return game.tfm(player)
+    return agents.tfm(player)
   }
 
   protected abstract val config: GameConfig
@@ -55,7 +61,6 @@ public abstract class RecordedGame {
       Canon
     }
   }
-  protected open val inputOnlySynonyms: List<Pair<String, String>> = CLASS_SYNONYMS
 
   public fun record(): GameRecording = record({}, {})
 
@@ -64,7 +69,7 @@ public abstract class RecordedGame {
       onReplayCompleted: () -> Unit,
   ): GameRecording {
     val premise = catalog.gamePremise(config, parseClasses(playerClassPets))
-    game = Engine.newGame(premise, inputOnlySynonyms = inputOnlySynonyms)
+    agents = Agents(Engine.newGame(premise))
     onGameConstructed()
     play()
     onReplayCompleted()
@@ -73,36 +78,36 @@ public abstract class RecordedGame {
 
   protected abstract fun play()
 
-  protected fun <T> OperationBody.doWithoutAutoExec(
+  protected fun <T> OperationScope.doWithoutAutoExec(
       agent: TfmGameplay,
-      body: OperationBody.() -> T,
+      body: OperationScope.() -> T,
   ): T {
-    val previousAutoExecMode = agent.autoExecMode
-    agent.autoExecMode = NONE
+    val previousAutoExecPolicy = agent.autoExecPolicy
+    agent.autoExecPolicy = NONE
     return try {
       body()
     } finally {
-      agent.autoExecMode = previousAutoExecMode
+      agent.autoExecPolicy = previousAutoExecPolicy
     }
   }
 
   protected fun TfmGameplay.placeTile(row: Int, column: Int): TaskResult =
       doTask(tilePlacement(reader, pendingTasks(), row, column))
 
-  protected fun OperationBody.placeTile(row: Int, column: Int) {
+  protected fun OperationScope.placeTile(row: Int, column: Int) {
     doTask(tilePlacement(reader, tasks.extract { it }, row, column))
   }
 
   protected fun TfmGameplay.addCardResources(card: ClassName, count: Int? = null): TaskResult =
       doTask(cardResources(reader, pendingTasks(), card, count))
 
-  protected fun OperationBody.addCardResources(card: ClassName, count: Int? = null) {
+  protected fun OperationScope.addCardResources(card: ClassName, count: Int? = null) {
     doTask(cardResources(reader, tasks.extract { it }, card, count))
   }
 
   protected fun TfmGameplay.wgt(choice: String): TaskResult = doTask("$choice! BY Admin")
 
-  protected fun OperationBody.wgt(choice: String) {
+  protected fun OperationScope.wgt(choice: String) {
     doTask("$choice! BY Admin")
   }
 
@@ -115,17 +120,17 @@ public abstract class RecordedGame {
     return doTask("Ok", taskId)
   }
 
-  protected fun OperationBody.declineTask() {
+  protected fun OperationScope.declineTask() {
     doTask("Ok")
   }
 
-  protected fun OperationBody.declineTask(instruction: String) {
+  protected fun OperationScope.declineTask(instruction: String) {
     val taskId = singleDeclinableTaskId(tasks.extract { it }, reader, instruction)
     doTask("Ok", taskId)
   }
 
   protected fun TfmGameplay.exMachina(adjustment: String) {
-    game.exMachina(this, adjustment)
+    agents.exMachina(actor, adjustment)
   }
 
   private fun tilePlacement(
@@ -179,7 +184,7 @@ public abstract class RecordedGame {
       instruction: String,
   ): TaskId {
     val matches = tasks.filter { task ->
-      task.instruction == game.agent(task.assignee).parse<Instruction>(instruction) &&
+      task.instruction == agents[task.assignee].parse<Instruction>(instruction) &&
           (NoOp.narrows(task.instruction, reader) ||
               task.instruction.descendantsOfType<NoOp>().isNotEmpty())
     }
@@ -189,18 +194,4 @@ public abstract class RecordedGame {
 
   private fun TfmGameplay.pendingTasks(): List<Task> =
       game.tasks.extract { it }.filter { it.assignee == actor }
-
-  private companion object {
-    val CLASS_SYNONYMS =
-        listOf(
-            "M" to "MC",
-            "S" to "Steel",
-            "T" to "Titanium",
-            "P" to "Plant",
-            "E" to "Energy",
-            "H" to "Heat",
-            "TR" to "TerraformRating",
-            "VP" to "VictoryPoint",
-        )
-  }
 }

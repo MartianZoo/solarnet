@@ -1,6 +1,6 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.engine.Agent.Companion.parse
+import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptCommand
@@ -23,6 +23,6 @@ internal class CountCommand(private val repl: ScriptSession) : ScriptCommand("co
   override fun withArgs(args: String): List<String> {
     val metric: Metric = repl.agent.parse(args)
     val count = repl.agent.count(args)
-    return listOf("$count ${repl.game.vocabulary.renderPets(metric)}")
+    return listOf("$count $metric")
   }
 }

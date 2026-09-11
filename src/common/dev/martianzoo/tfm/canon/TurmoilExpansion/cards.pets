@@ -95,11 +95,11 @@ CLASS RedInfluence : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
 
 CLASS Revolution : GePartyDistant<Unity>, GePartyCurrent<MarsFirst> {
   ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
-    EACH Player(HAS 1 (EarthTag OR Influence), =1 (RANK Player { EarthTag<Player> OR Influence<Player> })) { \
+    EACH Player(HAS 1 (EarthTag OR Influence), HAS =1 (RANK Player { EarthTag<Player> OR Influence<Player> })) { \
       -2 TerraformRating. \
     }
   ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
-    EACH Player(HAS 1 (EarthTag OR Influence), =2 (RANK Player { EarthTag<Player> OR Influence<Player> })) { \
+    EACH Player(HAS 1 (EarthTag OR Influence), HAS =2 (RANK Player { EarthTag<Player> OR Influence<Player> })) { \
       -TerraformRating. \
     }
   ResolveGlobalEvent<Class<This>> IF SoloMode:: \
@@ -193,7 +193,7 @@ CLASS UtopiaInvest : ActionCard<Class<CorporationCard>> {
   PROD[StandardResource] -> 4 StandardResource
 }
 
-CLASS AerialLenses : AutomatedCard<Class<ProjectCard>> {
+CLASS AerialLenses : AutomatedCard {
   cost = 2
   requirement = HAS "Ruling<Kelvinists> OR 2 PartyDelegate<Kelvinists>"
 
@@ -201,7 +201,7 @@ CLASS AerialLenses : AutomatedCard<Class<ProjectCard>> {
   End: -VictoryPoint
 }
 
-CLASS BannedDelegate : EventCard<Class<ProjectCard>> {
+CLASS BannedDelegate : EventCard {
   cost = 0
   requirement = HAS "Chairman"
 
@@ -210,7 +210,7 @@ CLASS BannedDelegate : EventCard<Class<ProjectCard>> {
     (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1
 }
 
-CLASS CulturalMetropolis : AutomatedCard<Class<ProjectCard>> {
+CLASS CulturalMetropolis : AutomatedCard {
   cost = 20
   requirement = HAS "(Ruling<Unity> OR 2 PartyDelegate<Unity>), 2 ReserveDelegate"
 
@@ -219,7 +219,7 @@ CLASS CulturalMetropolis : AutomatedCard<Class<ProjectCard>> {
     PartyDelegate<Party> FROM ReserveDelegate THEN PartyDelegate<Party> FROM ReserveDelegate
 }
 
-CLASS DiasporaMovement : AutomatedCard<Class<ProjectCard>> {
+CLASS DiasporaMovement : AutomatedCard {
   cost = 7
   requirement = HAS "Ruling<Reds> OR 2 PartyDelegate<Reds>"
 
@@ -228,7 +228,7 @@ CLASS DiasporaMovement : AutomatedCard<Class<ProjectCard>> {
   End: VictoryPoint
 }
 
-CLASS EventAnalysts : ActiveCard<Class<ProjectCard>> {
+CLASS EventAnalysts : ActiveCard {
   cost = 5
   requirement = HAS "Ruling<Scientists> OR 2 PartyDelegate<Scientists>"
 
@@ -236,7 +236,7 @@ CLASS EventAnalysts : ActiveCard<Class<ProjectCard>> {
   MeasureInfluence:: EventAnalystsInfluence
 }
 
-CLASS GmoContract : ActiveCard<Class<ProjectCard>> {
+CLASS GmoContract : ActiveCard {
   cost = 3
   requirement = HAS "Ruling<Greens> OR 2 PartyDelegate<Greens>"
 
@@ -244,7 +244,7 @@ CLASS GmoContract : ActiveCard<Class<ProjectCard>> {
   AnimalTag OR PlantTag OR MicrobeTag: 2 MC
 }
 
-CLASS MartianMediaCenter : ActionCard, ActiveCard<Class<ProjectCard>> {
+CLASS MartianMediaCenter : ActionCard, ActiveCard {
   cost = 7
   requirement = HAS "Ruling<MarsFirst> OR 2 PartyDelegate<MarsFirst>"
 
@@ -253,7 +253,7 @@ CLASS MartianMediaCenter : ActionCard, ActiveCard<Class<ProjectCard>> {
   3 MC -> PartyDelegate<Party> FROM ReserveDelegate
 }
 
-CLASS ParliamentHall : AutomatedCard<Class<ProjectCard>> {
+CLASS ParliamentHall : AutomatedCard {
   cost = 8
   requirement = HAS "Ruling<MarsFirst> OR 2 PartyDelegate<MarsFirst>"
 
@@ -262,7 +262,7 @@ CLASS ParliamentHall : AutomatedCard<Class<ProjectCard>> {
   End: VictoryPoint
 }
 
-CLASS PrOffice : AutomatedCard<Class<ProjectCard>> {
+CLASS PrOffice : AutomatedCard {
   cost = 7
   requirement = HAS "Ruling<Unity> OR 2 PartyDelegate<Unity>"
 
@@ -270,7 +270,7 @@ CLASS PrOffice : AutomatedCard<Class<ProjectCard>> {
   This: TerraformRating, MC / EarthTag
 }
 
-CLASS PublicCelebrations : EventCard<Class<ProjectCard>> {
+CLASS PublicCelebrations : EventCard {
   cost = 8
   requirement = HAS "Chairman"
 
@@ -278,7 +278,7 @@ CLASS PublicCelebrations : EventCard<Class<ProjectCard>> {
   End: 2 VictoryPoint
 }
 
-CLASS Recruitment : EventCard<Class<ProjectCard>> {
+CLASS Recruitment : EventCard {
   cost = 2
   requirement = HAS "ReserveDelegate, 1 (PartyDelegate<Party, Neutral> - PartyLeader<Party, Neutral>)"
 
@@ -287,15 +287,15 @@ CLASS Recruitment : EventCard<Class<ProjectCard>> {
     (PartyDelegate<Party, Neutral> - PartyLeader<Party, Neutral>) MAX 1
 }
 
-CLASS RedTourismWave : EventCard<Class<ProjectCard>> {
+CLASS RedTourismWave : EventCard {
   cost = 3
   requirement = HAS "Ruling<Reds> OR 2 PartyDelegate<Reds>"
 
   This:: EarthTag<This>, EventTag<This>
-  This: MC / MarsArea(HAS MAX 0 Tile, Neighbor<OwnedTile>)
+  This: MC / MarsArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile>)
 }
 
-CLASS SponsoredMohole : AutomatedCard<Class<ProjectCard>> {
+CLASS SponsoredMohole : AutomatedCard {
   cost = 5
   requirement = HAS "Ruling<Kelvinists> OR 2 PartyDelegate<Kelvinists>"
 
@@ -303,7 +303,7 @@ CLASS SponsoredMohole : AutomatedCard<Class<ProjectCard>> {
   This: PROD[2 Heat]
 }
 
-CLASS SupportedResearch : AutomatedCard<Class<ProjectCard>> {
+CLASS SupportedResearch : AutomatedCard {
   cost = 3
   requirement = HAS "Ruling<Scientists> OR 2 PartyDelegate<Scientists>"
 
@@ -311,7 +311,7 @@ CLASS SupportedResearch : AutomatedCard<Class<ProjectCard>> {
   This: 2 ProjectCard
 }
 
-CLASS WildlifeDome : AutomatedCard<Class<ProjectCard>> {
+CLASS WildlifeDome : AutomatedCard {
   cost = 15
   requirement = HAS "Ruling<Greens> OR 2 PartyDelegate<Greens>"
 
@@ -319,7 +319,7 @@ CLASS WildlifeDome : AutomatedCard<Class<ProjectCard>> {
   This: GreeneryTile<>
 }
 
-CLASS VoteOfNoConfidence : EventCard<Class<ProjectCard>> {
+CLASS VoteOfNoConfidence : EventCard {
   cost = 5
   requirement = HAS "PartyLeader, Chairman<Neutral>, ReserveDelegate"
 

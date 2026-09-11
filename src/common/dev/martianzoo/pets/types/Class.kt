@@ -34,27 +34,41 @@ import dev.martianzoo.pets.util.invoke
 import dev.martianzoo.pets.util.toSetStrict
 
 /**
- * A Catalog-scoped class compiled from a [ClassDeclaration]. While a declaration is inert data,
- * this type provides its resolved hierarchy, dependencies, and types. The source [declaration]
- * remains available for non-type-system consumers.
+ * A named node in one catalog-scoped nominal hierarchy, as defined by
+ * [section 2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+ *
+ * This value compiles [declaration] into resolved supertypes, [dependencies], properties, defaults,
+ * and a base type. Class identity is its name within [classTable], not declaration object identity.
  */
 public class Class
 internal constructor(
-    /** The class declaration this class was loaded from. */
+    /**
+     * The source declaration retained under
+     * [rule T2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+     */
     public val declaration: ClassDeclaration,
 
     /** The class loader used while constructing this class. */
     private val loader: ClassLoader,
 
-    /** This class's superclasses that are exactly one step away; empty only for `Component`. */
+    /**
+     * The declared direct supertypes; empty only for the root class, under
+     * [rules T1-4 and T2-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+     */
     public val directSuperclasses: List<Class> = superclasses(declaration, loader),
 ) : HasClassName, Specification<Class> {
 
-  /** The master universe containing this class. */
+  /**
+   * The master universe containing this class, as required by
+   * [rule T1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   */
   // TODO: Contract this temporary tfm-canon seam.
   public val classTable: ClassTable = loader
 
-  /** The name of this class, in UpperCamelCase. */
+  /**
+   * The canonical class name that determines identity within [classTable] ([rule
+   * T2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes)).
+   */
   override val className: ClassName = declaration.className.also { require(it != THIS) }
 
   init {
@@ -66,13 +80,19 @@ internal constructor(
     }
   }
 
-  /** A textual explanation for this class. */
+  /**
+   * The declaration's documentation text, retained under
+   * [rule T2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+   */
   public val docstring: String?
     get() = declaration.docstring
 
   private val resolvedProperties: Map<PropertyName, PropertyFact> = resolveProperties()
 
-  /** Every property bound or value supplied by this class and its supertypes. */
+  /**
+   * The property facts inherited and narrowed according to
+   * [rules T9-1 through T9-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
+   */
   public val properties: Map<PropertyName, PropertyValue> = resolvedProperties.mapValues {
     it.value.value
   }
@@ -162,11 +182,25 @@ internal constructor(
 
   // HIERARCHY
 
+  /**
+   * Whether this class is abstract, as declared under
+   * [rule T2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+   */
   public val abstract: Boolean
     get() = declaration.abstract
 
+  /**
+   * Returns [abstract]; class abstractness does not depend on [info] ([rule
+   * T2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes)).
+   */
   override fun isAbstract(info: TypeInfo): Boolean = abstract
 
+  /**
+   * Tests the reflexive, transitive nominal subclass relation specified by
+   * [rule T2-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+   *
+   * @throws IllegalArgumentException if [that] belongs to another universe (rule T1-2).
+   */
   public fun isSubtypeOf(that: Class): Boolean {
     requireSameClassTable(that)
     val bits = abstractSupertypeBits ?: return that in allSuperclasses()
@@ -193,7 +227,12 @@ internal constructor(
     abstractSupertypeBits = bits
   }
 
-  /** Finds the greatest Class that is a subtype of both operands, when it is unique. */
+  /**
+   * Returns the unique greatest common subclass with [that], or null when absent, following
+   * [rule T2-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+   *
+   * @throws IllegalArgumentException if [that] belongs to another universe (rule T1-2).
+   */
   public infix fun glb(that: Class): Class? =
       when {
         this.isSubtypeOf(that) -> this
@@ -204,23 +243,23 @@ internal constructor(
         }
       }
 
-  public infix fun lub(that: Class): Class {
-    requireSameClassTable(that)
-    val commonSupers: Set<Class> = this.allSuperclasses.intersect(that.allSuperclasses)
-    val supersOfSupers: Set<Class> = commonSupers.flatMap { it.properSuperclasses() }.toSet()
-    val candidates: Set<Class> = commonSupers - supersOfSupers
-    // This is a weird and stupid heuristic, but does it really matter which one we pick?
-    return candidates.maxBy {
-      it.dependencies.typeDependencies().size * 100 + it.allSuperclasses.size
-    }
-  }
-
+  /**
+   * Asserts the subclass relation with [that], producing a narrowing error on failure as specified
+   * by
+   * [rule T2-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+   *
+   * @throws NarrowingException if this class is not a subclass of [that].
+   * @throws IllegalArgumentException if [that] belongs to another universe (rule T1-2).
+   */
   override fun ensureNarrows(that: Class, info: TypeInfo) {
     if (!isSubtypeOf(that))
         throw NarrowingException("${this.className} is not a subclass of ${that.className}")
   }
 
-  /** Returns whether this class is a supertype of [that], including equality. */
+  /**
+   * Tests the converse of [isSubtypeOf], including equality ([rule
+   * T2-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes)).
+   */
   public fun isSupertypeOf(that: Class): Boolean = that.isSubtypeOf(this)
 
   private fun requireSameClassTable(that: Class) {
@@ -245,37 +284,37 @@ internal constructor(
   private val allSuperclasses: Set<Class> =
       (directSuperclasses.flatMap { it.allSuperclasses } + this).toSet()
 
-  /** Every independently enforced invariant inherited by this concrete class. */
+  /**
+   * Every independently enforced invariant inherited by this concrete class; component-count
+   * invariants supply the dependency-target guarantee in
+   * [rule T3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+   */
   public val invariants: Set<Requirement> =
       if (abstract) emptySet()
       else allSuperclasses.flatMap { split(it.declaration.invariants) }.toSet()
 
-  /** Every class `c` for which `c.isSuperclassOf(this)` is true, including this class itself. */
+  /**
+   * Every superclass in the walk specified by
+   * [rule T2-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes),
+   * including this class.
+   */
   public fun allSuperclasses(): Set<Class> = allSuperclasses
 
   internal fun properSuperclasses(): Set<Class> = allSuperclasses() - this
 
-  /** Every class `c` for which `c.isSubclassOf(this)` is true, including this class itself. */
+  /**
+   * Every subclass in the frozen master universe, including this class, as specified by
+   * [rules T1-6 and T2-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+   */
   public fun allSubclasses(): Set<Class> = loader.allSubclassesOf(this)
 
+  /**
+   * The subclasses exactly one nominal step below this class in the frozen master universe ([rules
+   * T1-6 and
+   * T2-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes)).
+   */
   public fun directSubclasses(): Set<Class> = loader.directSubclassesOf(this)
 
-  /**
-   * Whether this class serves as the intersection type of its full set of [directSuperclasses];
-   * that is, no other [Class] in this [ClassTable] is a subclass of all of them unless it is also a
-   * subclass of `this`. An example is `OwnedTile`; since components like the `Landlord` award count
-   * `OwnedTile` components, it would be a bug if a component like `CommercialDistrict_SpecialTile`
-   * (which is both an `Owned` and a `Tile`) forgot to also extend `OwnedTile`.
-   */
-  public fun isIntersectionType(): Boolean = intersectionType()
-
-  private val intersectionType: Lazy<Boolean> = lazy {
-    directSuperclasses.size >= 2 &&
-        loader
-            .allClasses()
-            .filter { klass -> directSuperclasses.all(klass::isSubtypeOf) }
-            .all(::isSupertypeOf)
-  }
   // DEPENDENCIES
 
   /** The dependency positions whose values are bound to the inheriting class. */
@@ -348,16 +387,34 @@ internal constructor(
         }
     )
   }
-  // Laziness enables dependency cycles.
+  private var resolvingDependencies: Boolean = false
+
+  // Laziness lets classes refer to each other; a true cycle has no finite answer, so it is
+  // rejected.
   private val dependenciesLazy = lazy {
-    val result =
-        if (className == CLASS) {
-          depsForClassType(loader.componentClass)
-        } else {
-          inheritedDeps().merge(declaredDeps()) { _, _ -> error("unexpected") }
-        }
-    result
+    if (resolvingDependencies) {
+      throw PetException(
+          "$className has a circular dependency: resolving its dependency bounds requires " +
+              "those same bounds"
+      )
+    }
+    resolvingDependencies = true
+    try {
+      if (className == CLASS) {
+        depsForClassType(loader.componentClass)
+      } else {
+        inheritedDeps().merge(declaredDeps()) { _, _ -> error("unexpected") }
+      }
+    } finally {
+      resolvingDependencies = false
+    }
   }
+  /**
+   * The complete keyed dependency set inherited and narrowed according to
+   * [section 3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+   *
+   * @throws PetException if the dependency bounds contain the cycle forbidden by rule T3-11.
+   */
   public val dependencies: DependencySet
     get() = dependenciesLazy.value
 
@@ -366,7 +423,10 @@ internal constructor(
       val paths: Set<DependencyPath>,
   )
 
-  /** Whether this direct dependency is constrained equal to another header dependency. */
+  /**
+   * Whether [key] participates in the same-header-variable equality of
+   * [rules T3-8 and T13-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   */
   public fun isEqualityConstrainedDependency(key: Key): Boolean =
       dependencyEqualities().any {
         DependencyPath(key) in it.paths
@@ -692,20 +752,31 @@ internal constructor(
     return firstInSupertype != secondInSupertype && firstPath.last() == secondPath.last()
   }
 
-  /** Type variables declared by this Class header. */
   private val typeVariablesLazy = lazy {
     headerVariableBindings().filter(HeaderVariableBinding::lexicallyDeclared).map {
       it.variable
     }
   }
+
+  /**
+   * The eligible type variables declared by this class header under
+   * [rules T13-2 through T13-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   */
   public val typeVariables: List<TypeVariable>
     get() = typeVariablesLazy.value
 
-  /** Returns the Class-variable occurrences visible in [effect]. */
+  /**
+   * Returns the class-header variable occurrences visible in [effect], preserving inherited scope
+   * as required by
+   * [rules T13-3 and T13-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   */
   public fun typeVariablesIn(effect: Effect): TypeVariableScope =
       TypeVariableScope.containing(typeVariables, effect)
 
-  /** Returns [effect] annotated with the Class-header variables it uses. */
+  /**
+   * Annotates [effect] with its visible class-header variable scope, according to
+   * [rules T13-3 and T13-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   */
   public fun interpretTypeVariablesIn(effect: Effect): Effect =
       effect.withTypeVariables(typeVariablesIn(effect))
 
@@ -745,25 +816,66 @@ internal constructor(
 
   // GETTING TYPES
 
-  public fun withAllDependencies(deps: DependencySet): GroundType =
-      GroundType(this, normalizeVariableEqualities(deps.subMapInOrder(dependencies.keys)))
+  /**
+   * Constructs a type from one bound for every dependency key, projecting away unrelated keys and
+   * enforcing header-variable equalities as specified by
+   * [rules T5-7 and T3-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+   */
+  public fun withAllDependencies(deps: DependencySet): GroundType {
+    val projected = deps.subMapInOrder(dependencies.keys)
+    require(projected.keys == dependencies.keys) {
+      "expected keys ${dependencies.keys}, got $deps"
+    }
+    val bounded =
+        requireNotNull(dependencies glb projected) {
+          "$deps does not satisfy the declared dependency bounds of $className"
+        }
+    return GroundType(this, normalizeVariableEqualities(bounded))
+  }
 
-  /** Least upper bound of all types with rootClass==this */
   private val baseTypeLazy = lazy { withAllDependencies(dependencies) }
+
+  /**
+   * The type that supplies every dependency's declared bound, as defined by
+   * [rules T2-1 and T5-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+   */
   public val baseType: GroundType
     get() = baseTypeLazy.value
 
-  private val defaultTypeLazy = lazy {
+  private val defaultExpressionLazy = lazy {
     val templateDependencies =
         dependencies.merge(defaults.allUsages.dependencies) { _, default -> default }
-    withAllDependencies(templateDependencies)
+    className.of(templateDependencies.expressionsFull())
   }
+
+  /**
+   * The authored dependency-default template for this class. Unlike a [GroundType], this expression
+   * may retain contextual `Owner` outside the class's declared bound until elaboration supplies its
+   * component context.
+   */
+  internal val defaultExpression: Expression
+    get() = defaultExpressionLazy.value
+
+  private val defaultTypeLazy = lazy { loader.resolve(defaultExpression) }
+
+  /**
+   * The valid resolved interpretation of [defaultExpression], as specified by
+   * [rule T10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
+   */
   public val defaultType: GroundType
     get() = defaultTypeLazy.value
 
+  /**
+   * Applies authored [specs] to [baseType] using greedy dependency matching ([rules T3-5 and
+   * T5-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies)).
+   */
   public fun specialize(specs: List<Expression>): GroundType = baseType.specialize(specs)
 
-  /** Returns the dependency key matched by each authored specialization, in authored order. */
+  /**
+   * Replays specialization and returns the dependency key matched by each authored argument, in the
+   * authored order required by
+   * [rule T3-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+   */
   public fun matchDependencyKeys(specs: List<Expression>): List<Key> =
       dependencies.matchPartialInOrder(specs).map(Dependency::key)
 
@@ -777,20 +889,40 @@ internal constructor(
   internal val classType: GroundType
     get() = classTypeLazy.value
 
+  /**
+   * Enumerates concrete types whose root is exactly this class, following same-class enumeration in
+   * [rule T11-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
+   */
   public fun concreteTypes(): Sequence<GroundType> = baseType.concreteSubtypesSameClass()
 
   internal val defaultsDecl
     get() = declaration.defaultsDeclaration
 
   private val defaultsLazy = lazy { Defaults.forClass(this) }
+  /**
+   * The inherited all-usage, gain-only, and removal-only defaults defined by
+   * [section 10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
+   */
   public val defaults: Defaults
     get() = defaultsLazy.value
 
+  /**
+   * Implements universe-scoped name identity from
+   * [rules T1-1 and T2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   */
   override fun equals(other: Any?): Boolean =
       other is Class && other.className == className && other.loader == loader
 
+  /**
+   * Hashes the universe-scoped name identity defined by
+   * [rules T1-1 and T2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   */
   override fun hashCode(): Int = className.hashCode() xor loader.hashCode()
 
+  /**
+   * Returns the canonical name required by
+   * [rule T2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+   */
   override fun toString(): String = "$className"
 
   private companion object {
@@ -800,7 +932,14 @@ internal constructor(
     ): List<Class> {
       return declaration.supertypes
           .classNames()
-          .also { require(COMPONENT !in it) }
+          .also {
+            if (COMPONENT in it) {
+              throw PetException(
+                  "${declaration.className} must not name $COMPONENT as a supertype; " +
+                      "every class extends it already"
+              )
+            }
+          }
           .ifEmpty { listOf(COMPONENT) }
           .map { loader.loadRelated(it, active = true) }
     }

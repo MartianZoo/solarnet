@@ -7,7 +7,9 @@ import dev.martianzoo.pets.types.inferTypeVariables
 
 /**
  * A "major" kind of Pets node, like an [Instruction], but not an ancillary type like
- * [FromExpression], [ScaledExpression], or [ClassName].
+ * [FromExpression], [ScaledExpression], or [ClassName]. The Pets language specification calls these
+ * the six *elements* an author writes: [Expression], [Requirement], [Metric], [InstructionTree],
+ * [Effect] and [Action]; every other [PetNode] is just a node.
  */
 public sealed class PetElement : PetNode() {
   private var typeVariablesIn: TypeVariableScope = TypeVariableScope.EMPTY

@@ -25,7 +25,7 @@
 - **Canon:** The catalog implementing the project's nearly published-rules version of Terraforming Mars, assembled from official-data bundles.
 - **card back:** A Component representing a card that is not in play, such as `ProjectCard` or `PreludeCard`. Card backs and card fronts are distinct types that transmute into each other; an Owner may know a back's represented front without making that card front exist in the game world.
 - **card front:** A Component representing one specific identified card, as distinct from the card back that transmutes into it.
-- **catalog:** One coherent rule universe: the class declarations, structured data, vocabulary, premise rules, and exceptional `Custom` implementations available to a game. A game selects exactly one catalog. `Canon` is the catalog for the project's almost-published-rules version of Terraforming Mars; a rebalance would be a different catalog.
+- **catalog:** One coherent rule universe: the class declarations, structured data, display names, premise rules, and exceptional `Custom` implementations available to a game. A game selects exactly one catalog. `Canon` is the catalog for the project's almost-published-rules version of Terraforming Mars; a rebalance would be a different catalog.
 - **cause:** Attribution attached to non-manual tasks and copied to the resulting change events. It pairs the type of the context Component whose effect fired with the ordinal of the triggering change event. Those pointers explain the causal chain but do not uniquely identify which of several matching effects fired, so a cause is attribution rather than a complete derivation proof.
 - **change event:** A game event recording one state change together with its ordinal, performer, and optional cause. Task lifecycle changes are recorded separately as task events.
 - **change instruction:** An instruction requesting a Component gain, removal, or transmutation. Its execution produces one or more state changes.
@@ -35,10 +35,8 @@
 - **class header:** The class name, declared supertypes, and newly introduced dependencies, excluding body elements such as defaults, invariants, and effects.
 - **class literal:** A type such as `Class<Steel>` that denotes the class `Steel` without depending on a `Steel` Component; its angle-bracketed argument is represented data, not a dependency target.
 - **class name:** A class's sole stable engine identity within a catalog. Classes use semantic English names such as `GreeneryTile`, `EarthCatapult`, and `Terraformer`. Configuration never changes the declaration denoted by a given class name.
-- **class synonym:** A configured, input-only convenience spelling such as `TR` for `TerraformRating`. It is never rendered or stored.
 - **class table:** An immutable set of mutually compatible classes that resolves expressions into types. A catalog has one master class table; each game world uses a class-table projection containing active classes plus catalog-known uninhabited classes.
 - **class-table projection:** A game-specific class table derived from a catalog's master class table. Active classes carry behavior and enumerate concrete possibilities, while other catalog-known identities remain resolvable as uninhabited classes.
-- **difference type:** A refinement written `B(NOT C)` that denotes the Types in explicit domain `B` which do not overlap excluded Type `C`.
 - **Component:** One immutable occurrence of a concrete type in a game world. Components have no identity or fields beyond their type, so occurrences of the same type differ only by multiplicity.
 - **component effect:** A class effect specialized for one concrete type by binding inherited dependencies and contextual placeholders. It does not yet include the fact that a corresponding Component currently exists.
 - **component graph:** The logical directed graph whose vertices are Components and whose edges are dependencies. Because a type includes the exact types of its dependency targets, the game world stores the vertices as a multiset of types rather than as separately identified objects and edges.
@@ -58,6 +56,7 @@
 - **dependency path:** An ordered sequence of dependency keys locating a direct or nested dependency within a type. For example, it can identify either a card's Owner dependency or a dependency inside the card type used as a resource holder.
 - **dependent removal:** Automatic removal of Components that depend on a Component being removed, performed first and cascading as necessary.
 - **Die:** A Signal with the invariant `HAS MAX 0 This`; attempting to gain it makes the route dead-end.
+- **difference type:** A refinement written `B(NOT C)` that denotes the Types in explicit domain `B` which do not overlap excluded Type `C`.
 - **display name:** The locale-specific natural-language name used for UI text, such as a printed card title. It need not be a valid or stable Pets identifier.
 - **double-colon effect:** Synonym for automatic effect.
 - **drain:** To become empty. A task queue draining can advance workflow.
@@ -67,10 +66,9 @@
 - **expression:** A Pets source or AST representation of a type, naming it through a class, optional written dependency bounds, and an optional refinement. Distinct expressions may resolve to the same type, and one expression may resolve differently in different contexts.
 - **FakeCanon:** The separate catalog of noncanonical support declarations. Tests, replays, and tools compose it with Canon only when they need fake content.
 - **follow mode:** The mode in which Solarnet calculates the state transitions for a game played elsewhere and trusts client-supplied draws, reveals, discards, and plays.
-- **forgiving refinement:** A refinement ignored when no currently available type can satisfy it.
 - **game config:** Unresolved user intent: the class names to include, the class names to exclude (spelled with a leading `-`), and the Player names in seat order. A catalog applies defaults, selection policies, and validation to produce one exact game premise.
 - **game premise:** The complete immutable facts needed to create equivalent game worlds: one catalog, the Module classes, the included and excluded other classes, and the exact concrete types initialized once.
-- **game world:** The complete live engine state of a game: its component graph, global task queue, event log, timeline, class table, and vocabulary, together with the catalog and immutable premise behind them. ActorAccess, agents, agent drivers, and generic pulse dispatch are configured above that state.
+- **game world:** The complete live engine state of a game: its component graph, global task queue, event log, timeline, and class table, together with the catalog and immutable premise behind them. ActorAccess, agents, agent drivers, and generic pulse dispatch are configured above that state.
 - **game world revision:**
 - **gated instruction:** An instruction guarded by a requirement, such as `HasRaisedTr: -3 THEN TerraformRating`. An unsatisfied gate does not mean “do nothing”; it makes that task uncompletable unless its quantifier or enclosing choice permits another result.
 - **Hidden:** A presentation classification for types normally omitted from user-visible output. It concerns rendering only, not information concealed from Players.
@@ -81,7 +79,7 @@
 - **live effect:** A component effect paired with its existing context Component, so that it can respond to change events. It counts according to the multiplicity of that type.
 - **manual:** Initiated by a Solarnet client rather than caused by an effect or workflow. Selecting or narrowing an already pending task is not a new manual action. With fully automatic workflow, a game can contain no manual operations.
 - **metric:** A Pets expression that computes a nonnegative integer from a game world.
-- **minimal form:** The shortest canonical expression that reliably resolves back to the same type. It omits inherited bounds that equal the root class's defaults, retaining a bound only when omission would make dependency matching ambiguous.
+- **compact form:** A round-tripping Type expression with no individually removable argument. It omits declared bounds except where needed to protect greedy argument matching, then removes redundancies proved by Type resolution, including dependency equalities.
 - **Module:** An affirmative, immutable singleton Component carrying one part of a realized game's ambient behavior. The exact Module set records the game's general behavior choices.
 - **multi-instruction:** An instruction containing two or more comma-separated, unordered child instructions. It is split into separate tasks because one task cannot contain a multi-instruction.
 - **multi-requirement:** A requirement containing two or more child requirements combined as logical “and.”
@@ -95,7 +93,6 @@
 - **per:**
 - **performer:** The Actor credited on an instruction's state changes. Normally this is the task's stored Actor, but an instruction-level `BY` can override the performer without changing the task's assignee.
 - **Pets:** Solarnet's specification language for types, rules, and game world changes.
-- **Pets name:**
 - **Player:** A seated participant that is both an Owner and an Actor.
 - **player-relative observation:**
 - **policy-relative stable point:** A coherent game world revision at which every agent driver has inspected that revision and declined to issue another mutation. It depends on the installed policies and does not imply an empty global task queue.
@@ -104,7 +101,7 @@
 - **queue position:**
 - **queued effect:** An effect written with `:`. Its triggered instruction becomes a task instead of executing inline. Antonym: automatic effect.
 - **real-card mode:**
-- **refinement:** A `HAS` requirement attached to an expression to restrict the matching Components that qualify.
+- **refinement:** A conjunction of `HAS` world requirements and `NOT` structural exclusions attached to an expression to restrict the matching Types or Components.
 - **refinement type:** The type denoted by an expression carrying a refinement.
 - **REgo PLastics:** Solarnet's command-line interface for driving the engine.
 - **represented-type variable:** Inside a refined class literal such as `Class<Tag>(HAS Tag<Player1>)`, the represented class argument declares the variable used by matching root-class occurrences in the requirement. Testing `Class<SpaceTag>` therefore tests for `SpaceTag<Player1>` without treating the class token as an owned Component.
@@ -118,7 +115,6 @@
 - **selection:** The client activity that chooses one pending task to finish next and causes the engine to resolve it. Selection is a promise about ordering, not a timeline commit; commit retains its transactional meaning after execution.
 - **self trigger:**
 - **sequential instruction:**
-- **session vocabulary canonicalization:**
 - **SetupPhase:** The Terraforming Mars phase gained by transmuting BootstrapPhase away with `SetupPhase FROM Phase`. It creates generation 1, grants starting state such as 20 `TerraformRating`, deals starting cards into each Player's `Hand`, and waits for their discards.
 - **Signal:** A Component that triggers its effects and immediately removes itself.
 - **singleton type:** A concrete type constrained to exactly one occurrence by an inherited `HAS =1 This` invariant. The invariant does not create the occurrence.
@@ -146,6 +142,5 @@
 - **unknown class:**
 - **upper bound:**
 - **variable scope:**
-- **vocabulary:** A session's locale-specific mapping among class names, natural display names, parseable Pets names, and input-only class synonyms.
 - **whole-world idleness:**
 - **workflow:** The higher-level driver that orchestrates game phases and waits for the appropriate filtered task view or control scope to drain.

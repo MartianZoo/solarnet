@@ -164,8 +164,8 @@ and is not implied by `EACH`.
   restrictions (`class Each` and `_each`).
 - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — snapshot enumeration,
   refinement filtering, specialization, and branch creation (`resolveEach`).
-- [`Transformers.kt`](../../src/common/dev/martianzoo/engine/Transformers.kt) — Owner-selection body
-  binding and contextual-owner shielding (`selectionIsOwner`).
+- [`PetElaborator.kt`](../../src/common/dev/martianzoo/pets/PetElaborator.kt) — Owner-selection body
+  binding and contextual-owner shielding (`selectionSuppliesOwner`).
 - [`InstructionResolutionTest.kt`](../../test/common/dev/martianzoo/engine/InstructionResolutionTest.kt)
   — runtime semantics (`testFanout`).
 - [`InstructionTest.kt`](../../test/common/dev/martianzoo/tfm/pets/ast/InstructionTest.kt) — parsing

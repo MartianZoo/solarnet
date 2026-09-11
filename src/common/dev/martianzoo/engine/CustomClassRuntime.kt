@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.pets.PetTransformer.Companion.chain
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.CustomCodeException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -12,11 +12,11 @@ import dev.martianzoo.pets.types.Type
 /** Engine runtime for Kotlin-provided instruction and metric behavior of Pets custom classes. */
 internal class CustomClassRuntime(
     private val catalog: Catalog,
-    private val transformers: Transformers,
+    private val elaborator: PetElaborator,
 ) {
   internal fun translateInstruction(component: Component, reader: GameReader): InstructionTree {
     require(component.isCustom)
-    require(transformers.classTable.isActive(component.type))
+    require(elaborator.classTable.isActive(component.type))
 
     val type = component.type
     val implementation = catalog.customClass(type.className)
@@ -48,24 +48,16 @@ internal class CustomClassRuntime(
           throw CustomCodeException("Custom instruction failed for ${type.expressionFull}", e)
         }
 
-    val outputTransformer =
-        with(transformers) {
-          chain(
-              atomizer(),
-              insertDefaults(),
-              component.owner?.let(::bindContextualOwner),
-          )
-        }
-    return outputTransformer.transformInstructionTree(translated)
+    return elaborator.elaborateCustomInstruction(translated, component.owner)
   }
 
   internal fun count(type: Type, reader: GameReaderImpl): Int {
     require(type.rootClass.declaration.custom)
-    require(transformers.classTable.isActive(type))
+    require(elaborator.classTable.isActive(type))
 
     if (type.abstract) {
       val candidates =
-          transformers.classTable.allConcreteSubtypes(type, reader::matchingComponentTypes)
+          elaborator.classTable.allConcreteSubtypes(type, reader::matchingComponentTypes)
       return (if (type.refinement == null) candidates
           else candidates.filter { it.narrows(type, reader) })
           .sumOf { countConcrete(it, reader) }

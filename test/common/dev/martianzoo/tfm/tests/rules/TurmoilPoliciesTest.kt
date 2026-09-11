@@ -15,7 +15,7 @@ internal class TurmoilPoliciesTest : CardTest() {
     admin.phase("Action")
     admin.count("Policy") shouldBe 1
     admin.count("GreensPolicy") shouldBe 1
-    p1.manual("GreeneryTile<Tharsis_3_3>")
+    p1.runOperation("GreeneryTile<Tharsis_3_3>")
     p1.count("MC") shouldBe 4
 
     admin.phase("Production")
@@ -25,10 +25,10 @@ internal class TurmoilPoliciesTest : CardTest() {
   @Test
   internal fun `mars first policy rewards a tile placed on Mars`() {
     newGame(TurmoilExpansion)
-    admin.manual("Ruling<MarsFirst> FROM Ruling")
+    admin.runOperation("Ruling<MarsFirst> FROM Ruling")
     admin.phase("Action")
 
-    p1.manual("CityTile<Tharsis_3_3>")
+    p1.runOperation("CityTile<Tharsis_3_3>")
 
     admin.count("MarsFirstPolicy") shouldBe 1
     p1.count("Steel") shouldBe 1
@@ -37,8 +37,8 @@ internal class TurmoilPoliciesTest : CardTest() {
   @Test
   internal fun `scientists action draws three cards only once per generation`() {
     newGame(TurmoilExpansion)
-    admin.manual("Ruling<Scientists> FROM Ruling")
-    p1.manual("20 MC")
+    admin.runOperation("Ruling<Scientists> FROM Ruling")
+    p1.runOperation("20 MC")
     admin.phase("Action")
 
     p1.turn {
@@ -57,7 +57,7 @@ internal class TurmoilPoliciesTest : CardTest() {
   @Test
   internal fun `unity policy adds one titanium payment value for every player`() {
     newGame(TurmoilExpansion)
-    admin.manual("Ruling<Unity> FROM Ruling")
+    admin.runOperation("Ruling<Unity> FROM Ruling")
 
     admin.phase("Action")
 
@@ -70,18 +70,18 @@ internal class TurmoilPoliciesTest : CardTest() {
   @Test
   internal fun `reds policy charges three mc for each player-attributed tr step`() {
     newGame(TurmoilExpansion)
-    admin.manual("Ruling<Reds> FROM Ruling")
-    p1.manual("9 MC")
+    admin.runOperation("Ruling<Reds> FROM Ruling")
+    p1.runOperation("9 MC")
     admin.phase("Action")
 
-    p1.manual("2 TerraformRating")
+    p1.runOperation("2 TerraformRating")
     p1.count("MC") shouldBe 3
     p1.count("TerraformRating") shouldBe 22
-    p1.manual("TerraformRating")
+    p1.runOperation("TerraformRating")
     p1.count("MC") shouldBe 0
     p1.count("TerraformRating") shouldBe 23
-    p1.manual("2 MC")
-    shouldThrow<NotNowException> { p1.manual("TerraformRating") }
+    p1.runOperation("2 MC")
+    shouldThrow<NotNowException> { p1.runOperation("TerraformRating") }
     p1.count("MC") shouldBe 2
     p1.count("TerraformRating") shouldBe 23
   }
@@ -89,8 +89,8 @@ internal class TurmoilPoliciesTest : CardTest() {
   @Test
   internal fun `kelvinists action raises heat and energy production for ten mc`() {
     newGame(TurmoilExpansion)
-    admin.manual("Ruling<Kelvinists> FROM Ruling")
-    p1.manual("10 MC")
+    admin.runOperation("Ruling<Kelvinists> FROM Ruling")
+    p1.runOperation("10 MC")
     admin.phase("Action")
 
     p1.stdAction("UseTurmoilPolicyAction", 2)

@@ -58,7 +58,7 @@ internal class TurmoilEventsTest :
   internal fun `changing times advances events discards current and reveals the next card`() {
     newGame(TurmoilExpansion)
 
-    admin.manual("ChangingTimes") { doTask("CelebrityLeaders") }
+    admin.runOperation("ChangingTimes") { doTask("CelebrityLeaders") }
 
     admin.count("GlobalEvent") shouldBe 3
     admin.count("Current<Class<AquiferReleasedByPublicCouncil>>") shouldBe 1
@@ -68,7 +68,7 @@ internal class TurmoilEventsTest :
     admin.count("PartyDelegate<Unity, Neutral>") shouldBe 1
     admin.count("ReserveDelegate<Neutral>") shouldBe 9
 
-    admin.manual("ChangingTimes") { doTask("Diversity") }
+    admin.runOperation("ChangingTimes") { doTask("Diversity") }
 
     admin.count("GlobalEvent") shouldBe 3
     admin.count("AquiferReleasedByPublicCouncil") shouldBe 0
@@ -85,9 +85,9 @@ internal class TurmoilEventsTest :
     newGame(TurmoilExpansion)
     makeCurrent("AsteroidMiningGlobalEvent")
     seatPlayerOneAsChairman()
-    p1.manual("GlobalEventProbe, 7 JovianTag<GlobalEventProbe>")
+    p1.runOperation("GlobalEventProbe, 7 JovianTag<GlobalEventProbe>")
 
-    admin.manual("ResolveCurrentGlobalEvent")
+    admin.runOperation("ResolveCurrentGlobalEvent")
 
     p1.count("Influence") shouldBe 1
     p1.count("Titanium") shouldBe 6
@@ -98,11 +98,11 @@ internal class TurmoilEventsTest :
   internal fun `tag payouts cap their printed count before adding influence`() {
     newGame(TurmoilExpansion)
     seatPlayerOneAsChairman()
-    p1.manual(
+    p1.runOperation(
         "GlobalEventProbe, 7 EarthTag<GlobalEventProbe>, 4 SpaceTag<GlobalEventProbe>, " +
             "6 ScienceTag<GlobalEventProbe>"
     )
-    admin.manual("MeasureInfluence<Player1>")
+    admin.runOperation("MeasureInfluence<Player1>")
 
     resolve("HomeworldSupport")
     resolve("InterplanetaryTradeGlobalEvent")
@@ -116,10 +116,10 @@ internal class TurmoilEventsTest :
   internal fun `resource and card payouts use player state plus influence`() {
     newGame(TurmoilExpansion)
     seatPlayerOneAsChairman()
-    p1.manual(
+    p1.runOperation(
         "GlobalEventProbe, 7 JovianTag<GlobalEventProbe>, PROD[7 Steel, 4 Plant], 3 ProjectCard"
     )
-    admin.manual("MeasureInfluence<Player1>")
+    admin.runOperation("MeasureInfluence<Player1>")
 
     resolve("AsteroidMiningGlobalEvent")
     resolve("Productivity")
@@ -138,10 +138,10 @@ internal class TurmoilEventsTest :
   internal fun `played events and owned cities pay only their owner`() {
     newGame(TurmoilExpansion)
     seatPlayerOneAsChairman()
-    p1.manual(
+    p1.runOperation(
         "7 PlayedEvent<Class<PlayedEventProbe>>, " + "CityTile<Tharsis_1_1>, CityTile<Tharsis_1_3>"
     )
-    admin.manual("MeasureInfluence<Player1>")
+    admin.runOperation("MeasureInfluence<Player1>")
 
     resolve("CelebrityLeaders")
     resolve("StrongSociety")
@@ -154,12 +154,12 @@ internal class TurmoilEventsTest :
   internal fun `money penalties cap holdings then subtract influence and available money`() {
     newGame(TurmoilExpansion)
     seatPlayerOneAsChairman()
-    p1.manual(
+    p1.runOperation(
         "100 MC, 5 Heat, GlobalEventProbe, 7 BuildingTag<GlobalEventProbe>, " +
             "2 SpaceTag<GlobalEventProbe>, ActiveEventProbe, " +
             "CityTile<Tharsis_1_1>, CityTile<Tharsis_1_3>, CityTile<Tharsis_2_5>"
     )
-    admin.manual("MeasureInfluence<Player1>")
+    admin.runOperation("MeasureInfluence<Player1>")
 
     resolve("GlobalDustStorm")
     resolve("Pandemic")
@@ -176,11 +176,11 @@ internal class TurmoilEventsTest :
   internal fun `resource production card and rating losses do as much as the player can`() {
     newGame(TurmoilExpansion)
     seatPlayerOneAsChairman()
-    p1.manual(
+    p1.runOperation(
         "10 MC, 10 Plant, 3 Titanium, ProjectCard, GlobalEventProbe, " +
             "7 JovianTag<GlobalEventProbe>, PROD[Steel]"
     )
-    admin.manual("MeasureInfluence<Player1>")
+    admin.runOperation("MeasureInfluence<Player1>")
 
     resolve("EcoSabotage")
     resolve("MinersOnStrike")
@@ -205,9 +205,9 @@ internal class TurmoilEventsTest :
   internal fun `mud slides counts each owned coastal tile once`() {
     newGame(TurmoilExpansion)
     seatPlayerOneAsChairman()
-    p1.manual("50 MC, CityTile<Tharsis_4_4>, GreeneryTile<Tharsis_4_5>")
-    admin.manual("OceanTile<Tharsis_5_4>, OceanTile<Tharsis_5_5>")
-    admin.manual("MeasureInfluence<Player1>")
+    p1.runOperation("50 MC, CityTile<Tharsis_4_4>, GreeneryTile<Tharsis_4_5>")
+    admin.runOperation("OceanTile<Tharsis_5_4>, OceanTile<Tharsis_5_5>")
+    admin.runOperation("MeasureInfluence<Player1>")
 
     p1.count("OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>") shouldBe 2
     resolve("MudSlides")
@@ -219,9 +219,9 @@ internal class TurmoilEventsTest :
   internal fun `public aquifer and dry deserts use neutral ocean changes and player resource choices`() {
     newGame(TurmoilExpansion)
     seatPlayerOneAsChairman()
-    admin.manual("MeasureInfluence<Player1>")
+    admin.runOperation("MeasureInfluence<Player1>")
 
-    admin.manual("ResolveGlobalEvent<Class<AquiferReleasedByPublicCouncil>>") {
+    admin.runOperation("ResolveGlobalEvent<Class<AquiferReleasedByPublicCouncil>>") {
       p1.doTask("OceanTile<Tharsis_1_2> BY Admin")
     }
 
@@ -230,8 +230,8 @@ internal class TurmoilEventsTest :
     p1.count("Plant") shouldBe 1
     p1.count("Steel") shouldBe 1
 
-    p1.manual("PartyLeaderInfluence")
-    admin.manual("ResolveGlobalEvent<Class<DryDeserts>>") {
+    p1.runOperation("PartyLeaderInfluence")
+    admin.runOperation("ResolveGlobalEvent<Class<DryDeserts>>") {
       val resourceChoices = game.tasks.extract { it }
       resourceChoices.size shouldBe 2
       p1.doTask("Heat", resourceChoices[0].id)
@@ -248,13 +248,13 @@ internal class TurmoilEventsTest :
   internal fun `diversity and energy templates combine distinct state with influence`() {
     newGame(TurmoilExpansion)
     seatPlayerOneAsChairman()
-    p1.manual(
+    p1.runOperation(
         "GlobalEventProbe, BuildingTag<GlobalEventProbe>, SpaceTag<GlobalEventProbe>, " +
             "ScienceTag<GlobalEventProbe>, 3 PowerTag<GlobalEventProbe>, " +
             "CityTag<GlobalEventProbe>, PlantTag<GlobalEventProbe>, " +
             "EarthTag<GlobalEventProbe>, JovianTag<GlobalEventProbe>"
     )
-    admin.manual("MeasureInfluence<Player1>")
+    admin.runOperation("MeasureInfluence<Player1>")
 
     resolve("Diversity")
     resolve("ImprovedEnergyTemplates")
@@ -269,8 +269,8 @@ internal class TurmoilEventsTest :
   internal fun `temperature events change an incomplete track but never a completed one`() {
     newGame(TurmoilExpansion)
     seatPlayerOneAsChairman()
-    admin.manual("MeasureInfluence<Player1>")
-    admin.manual("5 TemperatureStep")
+    admin.runOperation("MeasureInfluence<Player1>")
+    admin.runOperation("5 TemperatureStep")
 
     resolve("SnowCover")
     resolve("VolcanicEruptions")
@@ -279,10 +279,10 @@ internal class TurmoilEventsTest :
     p1.count("ProjectCard") shouldBe 1
     p1.count("PROD[Heat]") shouldBe 1
 
-    admin.manual("13 TemperatureStep") { p1.doTask("OceanTile<Tharsis_1_2> BY Admin") }
-    admin.manual("ResolveGlobalEvent<Class<VolcanicEruptions>>")
-    admin.manual("ResolveGlobalEvent<Class<SnowCover>>")
-    admin.manual("ResolveGlobalEvent<Class<VolcanicEruptions>>")
+    admin.runOperation("13 TemperatureStep") { p1.doTask("OceanTile<Tharsis_1_2> BY Admin") }
+    admin.runOperation("ResolveGlobalEvent<Class<VolcanicEruptions>>")
+    admin.runOperation("ResolveGlobalEvent<Class<SnowCover>>")
+    admin.runOperation("ResolveGlobalEvent<Class<VolcanicEruptions>>")
 
     admin.count("TemperatureStep") shouldBe 19
   }
@@ -290,10 +290,10 @@ internal class TurmoilEventsTest :
   @Test
   internal fun `volcanic eruptions lets the first player place its threshold ocean for Admin`() {
     newGame(TurmoilExpansion)
-    admin.manual("13 TemperatureStep")
-    admin.manual("VolcanicEruptions")
+    admin.runOperation("13 TemperatureStep")
+    admin.runOperation("VolcanicEruptions")
 
-    admin.manual("ResolveGlobalEvent<Class<VolcanicEruptions>>") {
+    admin.runOperation("ResolveGlobalEvent<Class<VolcanicEruptions>>") {
       p1.doTask("OceanTile<Tharsis_1_2> BY Admin")
     }
 
@@ -306,8 +306,8 @@ internal class TurmoilEventsTest :
   internal fun `sponsored projects adds to every compatible resource card then draws for influence`() {
     newGame(TurmoilExpansion)
     seatPlayerOneAsChairman()
-    p1.manual("ActiveEventProbe, Animal<ActiveEventProbe>, EmptyResourceProbe")
-    admin.manual("MeasureInfluence<Player1>")
+    p1.runOperation("ActiveEventProbe, Animal<ActiveEventProbe>, EmptyResourceProbe")
+    admin.runOperation("MeasureInfluence<Player1>")
 
     resolve("SponsoredProjects")
 
@@ -320,7 +320,9 @@ internal class TurmoilEventsTest :
   @Test
   internal fun `ranking events award friendly places and protect zero revolution scores`() {
     newGame(TurmoilExpansion)
-    p1.manual("GlobalEventProbe, 2 BuildingTag<GlobalEventProbe>, 2 EarthTag<GlobalEventProbe>")
+    p1.runOperation(
+        "GlobalEventProbe, 2 BuildingTag<GlobalEventProbe>, 2 EarthTag<GlobalEventProbe>"
+    )
 
     resolve("Election")
 
@@ -333,9 +335,9 @@ internal class TurmoilEventsTest :
     requireP2().count("TerraformRating") shouldBe 21
 
     newGame(TurmoilExpansion)
-    p1.manual("GlobalEventProbe, BuildingTag<GlobalEventProbe>, EarthTag<GlobalEventProbe>")
+    p1.runOperation("GlobalEventProbe, BuildingTag<GlobalEventProbe>, EarthTag<GlobalEventProbe>")
     requireP2()
-        .manual("GlobalEventProbe, BuildingTag<GlobalEventProbe>, EarthTag<GlobalEventProbe>")
+        .runOperation("GlobalEventProbe, BuildingTag<GlobalEventProbe>, EarthTag<GlobalEventProbe>")
 
     resolve("Election")
     resolve("Revolution")
@@ -348,7 +350,7 @@ internal class TurmoilEventsTest :
   internal fun `solo ranking events use their printed thresholds`() {
     newGame(TurmoilExpansion, players = 1)
     val startingRating = p1.count("TerraformRating")
-    p1.manual(
+    p1.runOperation(
         "GlobalEventProbe, 9 BuildingTag<GlobalEventProbe>, " +
             "3 EarthTag<GlobalEventProbe>, ChairmanInfluence"
     )
@@ -366,20 +368,20 @@ internal class TurmoilEventsTest :
   internal fun `promo events require the promo pack and their companion expansions`() {
     newGame(TurmoilExpansion)
 
-    shouldThrow<DeadEndException> { admin.manual("VenusInfrastructure") }
-    shouldThrow<DeadEndException> { admin.manual("JovianTaxRights") }
-    shouldThrow<DeadEndException> { admin.manual("CloudSocieties") }
+    shouldThrow<DeadEndException> { admin.runOperation("VenusInfrastructure") }
+    shouldThrow<DeadEndException> { admin.runOperation("JovianTaxRights") }
+    shouldThrow<DeadEndException> { admin.runOperation("CloudSocieties") }
 
     newGame(TurmoilExpansion, PromoCardPack)
 
-    shouldThrow<DeadEndException> { admin.manual("VenusInfrastructure") }
-    shouldThrow<DeadEndException> { admin.manual("JovianTaxRights") }
-    shouldThrow<DeadEndException> { admin.manual("CloudSocieties") }
+    shouldThrow<DeadEndException> { admin.runOperation("VenusInfrastructure") }
+    shouldThrow<DeadEndException> { admin.runOperation("JovianTaxRights") }
+    shouldThrow<DeadEndException> { admin.runOperation("CloudSocieties") }
 
     newGame(TurmoilExpansion, PromoCardPack, VenusNextExpansion)
 
-    admin.manual("VenusInfrastructure")
-    shouldThrow<DeadEndException> { admin.manual("CloudSocieties") }
+    admin.runOperation("VenusInfrastructure")
+    shouldThrow<DeadEndException> { admin.runOperation("CloudSocieties") }
 
     newGame(
         TurmoilExpansion,
@@ -388,8 +390,8 @@ internal class TurmoilEventsTest :
         colonyTiles = testColonyTiles(2),
     )
 
-    admin.manual("JovianTaxRights")
-    shouldThrow<DeadEndException> { admin.manual("CloudSocieties") }
+    admin.runOperation("JovianTaxRights")
+    shouldThrow<DeadEndException> { admin.runOperation("CloudSocieties") }
 
     newGame(
         TurmoilExpansion,
@@ -399,7 +401,7 @@ internal class TurmoilEventsTest :
         colonyTiles = testColonyTiles(2),
     )
 
-    admin.manual("CloudSocieties, CorrosiveRain")
+    admin.runOperation("CloudSocieties, CorrosiveRain")
   }
 
   @Test
@@ -411,21 +413,21 @@ internal class TurmoilEventsTest :
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
     )
-    p1.manual(
+    p1.runOperation(
         "20 MC, FloaterEventProbe, OtherFloaterEventProbe, " +
             "ChairmanInfluence, PartyLeaderInfluence"
     )
 
-    admin.manual("CloudSocieties")
-    admin.manual("ResolveGlobalEvent<Class<CloudSocieties>>") {
+    admin.runOperation("CloudSocieties")
+    admin.runOperation("ResolveGlobalEvent<Class<CloudSocieties>>") {
       p1.doTask("2 Floater<FloaterEventProbe>")
     }
 
     p1.count("Floater<FloaterEventProbe>") shouldBe 3
     p1.count("Floater<OtherFloaterEventProbe>") shouldBe 1
 
-    admin.manual("CorrosiveRain")
-    admin.manual("ResolveGlobalEvent<Class<CorrosiveRain>>") {
+    admin.runOperation("CorrosiveRain")
+    admin.runOperation("ResolveGlobalEvent<Class<CorrosiveRain>>") {
       p1.doTask("-2 Floater<FloaterEventProbe>")
     }
 
@@ -441,7 +443,7 @@ internal class TurmoilEventsTest :
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
     )
-    p1.manual(
+    p1.runOperation(
         "20 MC, FloaterEventProbe, Floater<FloaterEventProbe>, " +
             "OtherFloaterEventProbe, Floater<OtherFloaterEventProbe>"
     )
@@ -462,13 +464,13 @@ internal class TurmoilEventsTest :
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2, "Luna", "Io"),
     )
-    p1.manual(
+    p1.runOperation(
         "20 MC, GlobalEventProbe, 7 VenusTag<GlobalEventProbe>, " +
             "ChairmanInfluence, PartyLeaderInfluence"
     )
     repeat(3) {
-      admin.manual("Colony<Player1, Luna>")
-      admin.manual("Colony<Player1, Io>")
+      admin.runOperation("Colony<Player1, Luna>")
+      admin.runOperation("Colony<Player1, Io>")
     }
     val moneyProduction = p1.count("PROD[MC]")
 
@@ -487,20 +489,20 @@ internal class TurmoilEventsTest :
   }
 
   private fun resolve(event: String) {
-    admin.manual(event)
-    admin.manual("ResolveGlobalEvent<Class<$event>>")
+    admin.runOperation(event)
+    admin.runOperation("ResolveGlobalEvent<Class<$event>>")
   }
 
   private fun makeCurrent(event: String) {
-    admin.manual(
+    admin.runOperation(
         "-Coming<Class<AquiferReleasedByPublicCouncil>>!, -AquiferReleasedByPublicCouncil!"
     )
-    admin.manual(event)
-    admin.manual("Current<Class<$event>>")
+    admin.runOperation(event)
+    admin.runOperation("Current<Class<$event>>")
   }
 
   private fun seatPlayerOneAsChairman() {
-    admin.manual("ReserveDelegate<Neutral> FROM Chairman<Neutral>")
-    p1.manual("Chairman FROM ReserveDelegate")
+    admin.runOperation("ReserveDelegate<Neutral> FROM Chairman<Neutral>")
+    p1.runOperation("Chairman FROM ReserveDelegate")
   }
 }

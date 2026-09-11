@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.bindXTo
@@ -44,7 +45,7 @@ private constructor(
     internal val effect: Effect,
     private val context: Component,
     private val triggerClass: ClassName?,
-    private val transformers: Transformers,
+    private val elaborator: PetElaborator,
 ) {
   // The context is immutable, so its ownership cannot change during this effect's lifetime.
   private val effectOwner: Player? = context.playerOwner
@@ -108,9 +109,11 @@ private constructor(
         ) ?: return null
     val cause = Cause(context.expression, triggerEvent.ordinal)
     val instruction =
-        transformers
-            .evaluateProperties(context.expression, contextualOwner)
-            .transformInstructionTree(hit.specialize(effect.instruction))
+        elaborator.evaluateProperties(
+            hit.specialize(effect.instruction),
+            context.expression,
+            contextualOwner,
+        )
     return PendingTask(
         controller = taskController,
         actor = defaultActor,
@@ -155,41 +158,39 @@ private constructor(
   internal companion object {
     internal fun compile(
         component: Component,
-        transformers: Transformers,
+        elaborator: PetElaborator,
     ): List<LiveEffect> =
-        specialize(component, transformers).map { create(it, component, transformers) }
+        specialize(component, elaborator).map { create(it, component, elaborator) }
 
     private fun create(
         effect: Effect,
         context: Component,
-        transformers: Transformers,
+        elaborator: PetElaborator,
     ): LiveEffect {
       // Lowering can consume the trigger-side occurrence (for example PROD), so prefer the frozen
       // authored origins even when they can no longer be rediscovered from the transformed tree.
       val typeVariables = effect.typeVariables
       val subscription = Subscription.from(effect.trigger, context, typeVariables)
-      val triggerClass =
-          subscription.classToCheck?.let(transformers.classTable::getClass)?.className
-      return LiveEffect(subscription, effect, context, triggerClass, transformers)
+      val triggerClass = subscription.classToCheck?.let(elaborator.classTable::getClass)?.className
+      return LiveEffect(subscription, effect, context, triggerClass, elaborator)
     }
 
-    private fun specialize(component: Component, transformers: Transformers): List<Effect> {
-      val ownerBinding = component.owner?.let(transformers::bindContextualOwner)
+    private fun specialize(component: Component, elaborator: PetElaborator): List<Effect> {
+      val ownerBinding = component.owner?.let(elaborator::contextualOwnerBinding)
       val thisBinding = replaceThisExpressionsWith(component.expression)
 
       return if (component.owner == null || component.playerOwner != null) {
-        transformers.classEffects(component.type.rootClass).map { effect ->
-          val checkedBinding =
-              transformers.bindEffectVariables(
+        elaborator.classEffects(component.type.rootClass).map { effect ->
+          val bound =
+              elaborator.specializeEffect(
                   component.type.rootClass.defaultType,
                   component.type,
                   effect,
-                  ownerBinding,
-                  thisBinding,
+                  component.expression,
+                  component.owner,
               )
-          val bound = checkedBinding.transformEffect(effect)
           try {
-            transformers.classTable.checkAllTypes(bound)
+            elaborator.classTable.checkAllTypes(bound)
             bound
           } catch (e: ExpressionException) {
             throw ExpressionException(
@@ -199,7 +200,7 @@ private constructor(
           }
         }
       } else {
-        transformers.classEffects(component.type.rootClass).mapNotNull { effect ->
+        elaborator.classEffects(component.type.rootClass).mapNotNull { effect ->
           val contextualizer =
               chain(
                   ownerBinding,
@@ -220,7 +221,7 @@ private constructor(
               )
           val bound = uncheckedBinding.transformEffect(effect)
           try {
-            transformers.classTable.checkAllTypes(bound)
+            elaborator.classTable.checkAllTypes(bound)
             bound
           } catch (e: ExpressionException) {
             // An Owner-only component can inherit an effect whose output is Player-bound. The
@@ -229,7 +230,7 @@ private constructor(
             val sourceEffect =
                 replaceThisExpressionsWith(component.type.rootClass.className.expression)
                     .transformEffect(effect)
-            transformers.classTable.checkAllTypes(sourceEffect)
+            elaborator.classTable.checkAllTypes(sourceEffect)
             null
           }
         }
@@ -385,17 +386,14 @@ private constructor(
           // intersects its type to UseAction<Player, Foo, Action1>. Keep the original Owner token's
           // other
           // role as a contextual variable without treating that Owner as the executing Actor.
-          val ownerSubstitution =
-              if (OWNER in match) {
-                contextualOwner?.let(reader.transformers::bindContextualOwner)
-              } else null
+          val ownerForBinding = contextualOwner?.takeIf { OWNER in match }
           val binder =
-              reader.transformers.bindVariablesFrom(
+              reader.elaborator.specializeVariables(
                   matchType,
                   changeType,
                   match,
                   typeVariables,
-                  ownerSubstitution,
+                  ownerForBinding,
               )
           Hit(listOf(binder), change.count)
         } else {
@@ -487,7 +485,7 @@ private constructor(
         // Apply that established contextual rule before evaluating the selector as an Actor type.
         if (specializedSelector == OWNER.expression) {
           val owner = actor as? Player ?: return null
-          hit = hit.then(reader.transformers.bindContextualOwner(owner))
+          hit = hit.then(reader.elaborator.contextualOwnerBinding(owner))
           specializedSelector = hit.specialize(selector)
         }
         val by = specializedSelector.className

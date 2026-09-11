@@ -10,14 +10,14 @@ internal class TurmoilSolarPhaseTest : CardTest() {
   @Test
   internal fun `solar turmoil waits for the current event before government and changing times`() {
     newGame(TurmoilExpansion)
-    admin.manual(
+    admin.runOperation(
         "Current<Class<AquiferReleasedByPublicCouncil>> " +
             "FROM Coming<Class<AquiferReleasedByPublicCouncil>>"
     )
-    admin.manual("Coming<Class<DryDeserts>> FROM Distant<Class<DryDeserts>>")
-    admin.manual("RevealDistantEvent") { doTask("CelebrityLeaders") }
+    admin.runOperation("Coming<Class<DryDeserts>> FROM Distant<Class<DryDeserts>>")
+    admin.runOperation("RevealDistantEvent") { doTask("CelebrityLeaders") }
 
-    TfmWorkflow.Manual(game).solarPhase()
+    TfmWorkflow.Stepwise(agents).solarPhase()
 
     p1.count("TerraformRating") shouldBe 19
     requireP2().count("TerraformRating") shouldBe 19
@@ -40,10 +40,10 @@ internal class TurmoilSolarPhaseTest : CardTest() {
   @Test
   internal fun `terraform rating revision precedes the current global event`() {
     newGame(TurmoilExpansion)
-    p1.manual("10 MC")
-    admin.manual("RedInfluence, Current<Class<RedInfluence>>")
+    p1.runOperation("10 MC")
+    admin.runOperation("RedInfluence, Current<Class<RedInfluence>>")
 
-    TfmWorkflow.Manual(game).solarPhase()
+    TfmWorkflow.Stepwise(agents).solarPhase()
 
     p1.count("TerraformRating") shouldBe 20
     p1.count("MC") shouldBe 7

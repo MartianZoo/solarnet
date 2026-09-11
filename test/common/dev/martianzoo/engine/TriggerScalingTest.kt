@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.testsupport.PLAYER1
@@ -14,12 +15,14 @@ internal class TriggerScalingTest {
   @Test
   internal fun `ordinary triggers scale their result while X triggers produce one result`() {
     val premise =
-        canonicalPremise(catalog = catalog)
-            .copy(initialComponentTypes = setOf(cn("TriggerScalingProbe").expression))
+        canonicalPremise(
+            catalog = catalog,
+            initialComponentTypes = setOf(cn("TriggerScalingProbe").expression),
+        )
     val game = Engine.newGame(premise)
-    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
 
-    agent.beginManual("5 ScalingSignal!") {
+    agent.beginOperation("5 ScalingSignal!") {
       game.tasks
           .extract { it.instruction.toString() }
           .shouldContainExactlyInAnyOrder(

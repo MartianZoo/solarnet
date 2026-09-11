@@ -21,8 +21,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           "Bloo",
       )
 
-  override val inputOnlySynonyms = emptyList<Pair<String, String>>()
-
   override fun cityAreas(): Pair<String, String> = "Tharsis_2_4" to "Tharsis_8_9"
 
   override fun greeneryAreas(): Pair<String, String> = "Tharsis_3_5" to "Tharsis_7_9"

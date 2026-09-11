@@ -9,10 +9,11 @@
 > `Owner`/`Anyone` contextual-variable overload.
 >
 > **Skip when:** changing ownership as a Type dependency without task routing, attribution, or the
-> contextual `Owner` spelling; read the dependency sections of [TYPES.md](TYPES.md).
+> contextual `Owner` spelling; read sections 3 and 10 of
+> [type-system-spec.md](../type-system-spec.md).
 >
 > **Status:** current identity semantics. The
-> interaction between SAFE auto-selection and cross-Player handoff remains open, as does the entry
+> interaction between CONCRETE auto-selection and cross-Player handoff remains open, as does the entry
 > under Open audit.
 
 ## Source map
@@ -23,7 +24,7 @@
   `assignee`, `actor`, and selection state before changing queued work.
 - [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt) — search
   for `taskController` to see trigger-time routing.
-- [`Transformers.kt`](../../src/common/dev/martianzoo/engine/Transformers.kt) — search for
+- [`PetElaborator.kt`](../../src/common/dev/martianzoo/pets/PetElaborator.kt) — search for
   `fixEffectForUnownedContext` to see ownerless Effects acquire their event-Actor filter.
 - [`Defaults.kt`](../../src/common/dev/martianzoo/pets/types/Defaults.kt) — search for
   `Owner also acts as a contextual variable` before changing how `Owner` resolves in defaults.
@@ -197,12 +198,12 @@ coverage.
 
 ## Open policy questions
 
-- **Unique Philares reward under SAFE:** P1 creates an adjacency and, after immediate consequences,
-  the Philares resource choice is the only selectable P1-controlled task. SAFE can currently select
+- **Unique Philares reward under CONCRETE:** P1 creates an adjacency and, after immediate consequences,
+  the Philares resource choice is the only selectable P1-controlled task. CONCRETE can currently select
   that task on P1's behalf, so it is already selected in P2's queue before an explicit P1 command.
   Decide whether that is a legitimate controller auto-selection policy or whether every
   cross-Player handoff requires an explicit controller selection. When multiple sibling tasks are
-  available, SAFE already leaves the ordering to P1.
+  available, CONCRETE already leaves the ordering to P1.
 
 ## Open audit
 

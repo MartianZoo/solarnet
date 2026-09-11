@@ -44,7 +44,7 @@ internal class TurmoilRulesTest : CardTest() {
     p1.count("PartyDelegate<MarsFirst>") shouldBe 1
     p1.count("PartyLeader<MarsFirst>") shouldBe 1
     admin.count("Dominant<MarsFirst>") shouldBe 1
-    admin.manual("MeasureInfluence<Player1>")
+    admin.runOperation("MeasureInfluence<Player1>")
     p1.count("PartyLeaderInfluence") shouldBe 1
     p1.count("DelegateInfluence") shouldBe 0
     p1.count("Influence") shouldBe 1
@@ -54,8 +54,8 @@ internal class TurmoilRulesTest : CardTest() {
   internal fun `paid lobbying preserves a tied incumbent and transfers a strict lead`() {
     newGame(TurmoilExpansion)
     val p2 = requireP2()
-    p1.manual("10 MC")
-    p2.manual("15 MC")
+    p1.runOperation("10 MC")
+    p2.runOperation("15 MC")
     admin.phase("Action")
 
     p1.turn {
@@ -103,7 +103,7 @@ internal class TurmoilRulesTest : CardTest() {
   internal fun `party leadership needs a strict delegate lead`() {
     newGame(TurmoilExpansion)
     val p2 = requireP2()
-    p2.manual("5 MC")
+    p2.runOperation("5 MC")
     admin.phase("Action")
 
     p1.turn {
@@ -130,7 +130,7 @@ internal class TurmoilRulesTest : CardTest() {
   internal fun `all seven delegates are finite and paid lobbying uses only the reserve`() {
     newGame(TurmoilExpansion)
     val p2 = requireP2()
-    p1.manual("35 MC")
+    p1.runOperation("35 MC")
     admin.phase("Action")
 
     p1.turn {
@@ -160,7 +160,7 @@ internal class TurmoilRulesTest : CardTest() {
       }
     }
     p1.count("MC") shouldBe 5
-    admin.manual("RefillLobby")
+    admin.runOperation("RefillLobby")
     p1.count("LobbyDelegate") shouldBe 0
   }
 
@@ -172,7 +172,7 @@ internal class TurmoilRulesTest : CardTest() {
       doTask("PartyDelegate<MarsFirst> FROM LobbyDelegate")
     }
 
-    admin.manual("RefillLobby")
+    admin.runOperation("RefillLobby")
 
     p1.count("LobbyDelegate") shouldBe 1
     p1.count("ReserveDelegate") shouldBe 5
@@ -184,7 +184,7 @@ internal class TurmoilRulesTest : CardTest() {
   internal fun `influence snapshot counts chairman leader and delegate presence once each`() {
     newGame(TurmoilExpansion)
     val p2 = requireP2()
-    p1.manual("5 MC")
+    p1.runOperation("5 MC")
     admin.phase("Action")
 
     p1.turn {
@@ -200,10 +200,10 @@ internal class TurmoilRulesTest : CardTest() {
         doTask("PartyDelegate<MarsFirst> FROM LobbyDelegate")
       }
     }
-    admin.manual("Chairman<Player1> FROM Chairman<Neutral>")
+    admin.runOperation("Chairman<Player1> FROM Chairman<Neutral>")
 
-    admin.manual("MeasureInfluence<Player1>")
-    admin.manual("MeasureInfluence<Player2>")
+    admin.runOperation("MeasureInfluence<Player1>")
+    admin.runOperation("MeasureInfluence<Player2>")
 
     p1.count("ChairmanInfluence") shouldBe 1
     p1.count("PartyLeaderInfluence") shouldBe 1
@@ -214,16 +214,16 @@ internal class TurmoilRulesTest : CardTest() {
     p2.count("DelegateInfluence") shouldBe 1
     p2.count("Influence") shouldBe 1
 
-    admin.manual("End FROM Phase")
+    admin.runOperation("End FROM Phase")
     p1.count("VictoryPoint") shouldBe 22
     p2.count("VictoryPoint") shouldBe 20
   }
 
   private fun clearSetupPolitics() {
     listOf("MarsFirst", "Reds").forEach { party ->
-      admin.manual("ReserveDelegate<Neutral> FROM PartyDelegate<$party, Neutral>")
-      admin.manual("-PartyLeader<$party, Neutral>!")
+      admin.runOperation("ReserveDelegate<Neutral> FROM PartyDelegate<$party, Neutral>")
+      admin.runOperation("-PartyLeader<$party, Neutral>!")
     }
-    admin.manual("-Dominant!")
+    admin.runOperation("-Dominant!")
   }
 }

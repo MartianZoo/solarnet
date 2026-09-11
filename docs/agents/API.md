@@ -4,19 +4,23 @@
 > human didn't write it and we don't expect humans to read it. The project owner can't personally
 > vouch for the information here.
 
-> **Read when:** changing the core mutation surface, `Agent`, `World.agent`, task-command
+> **Read when:** changing the core mutation surface, `Agent`, `World.actorEngine`, task-command
 > authority, script access modes, or client-visible state.
 >
-> **Status:** selected layering direction with substantial current implementation divergence. The
-> current flat Agent remains described here only as a migration reference.
+> **Status:** selected layering direction with the Agent/engine dependency reversal implemented.
+> The scoped-reader and policy-system portions remain forward-looking.
 
 ## Source map
 
-- [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt) is the current fully permissive,
-  Actor-scoped engine API.
-- [`ApiTranslation.kt`](../../src/common/dev/martianzoo/engine/ApiTranslation.kt) currently combines
-  parsing, atomic mutation entry, input recording, and legacy autoexecution scheduling.
-- [`World.kt`](../../src/common/dev/martianzoo/engine/World.kt) currently returns stable Agents.
+- [`ActorEngine.kt`](../../src/common/dev/martianzoo/engine/ActorEngine.kt) is the policy-free,
+  Actor-attributed core mutation API.
+- [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) is the current fully permissive,
+  Actor-scoped client API in `:agent`.
+- [`AgentImpl.kt`](../../src/common/dev/martianzoo/agent/AgentImpl.kt) translates string input and
+  coordinates operations over `ActorEngine`; [`AutoExecLoop.kt`](../../src/common/dev/martianzoo/agent/AutoExecLoop.kt)
+  owns the preserved legacy queue drain.
+- [`World.kt`](../../src/common/dev/martianzoo/engine/World.kt) returns stable ActorEngines;
+  [`Agents.kt`](../../src/common/dev/martianzoo/agent/Agents.kt) pairs one World with its Agents.
 - [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) already stores one global
   task set; [`TaskQueue.kt`](../../src/common/dev/martianzoo/engine/TaskQueue.kt) is a filtered view.
 - [`Access.kt`](../../src/common/dev/martianzoo/script/Access.kt) implements current script-only
@@ -44,7 +48,7 @@ The audited mutation families are:
 
 Timeline commit-floor advancement and the atomic transaction wrapper are engine/workflow lifecycle
 mechanics, not Actor mutations. `doTask` and `tryTask` compose task identification, selection,
-narrowing, and error handling. `manual`, turn, and phase conveniences compose ex-machina task
+narrowing, and error handling. `runOperation`, turn, and phase conveniences compose ex-machina task
 addition with ordinary task action. None justifies a universal request type or
 `engine.submit(actor, request)`.
 
@@ -97,9 +101,10 @@ policy addition/removal belong on Agent. Policy ordering and implementation rema
 a concrete client need requires more control. [AUTOEXEC.md](AUTOEXEC.md) owns the policy and shared
 autoexecution-loop contract.
 
-One factory constructs the complete immutable Actor-to-Agent map for an engine game so all Agents
-share the same autoexecution loop. Applications retain that map or the particular Agents they need;
-the factory does not introduce another public game wrapper.
+`Agents(world)` constructs one Agent per Actor for an engine game, all sharing the same
+autoexecution loop, and holds them alongside the World they act on. Applications retain that one
+object and pass it wherever both a World and its Agents are needed; it carries no gameplay of its
+own, so it is a pairing rather than another public game wrapper.
 
 ## Layer responsibility
 
@@ -118,7 +123,7 @@ user-visible contract: call out any needed change before adopting it.
 Direct engine mutation remains deliberately available to callers that choose the lower-level
 module. This is architectural guidance, not an attempt to prevent trusted clients from cheating.
 Ex-machina task addition/removal and concrete state changes belong to that engine API. The current
-`manual`, resumable-operation, turn, and completion conveniences may remain as engine test helpers
+`runOperation`, resumable-operation, turn, and completion conveniences may remain as engine test helpers
 while tests are migrated; they do not define the player-facing Agent contract.
 
 Recording navigation belongs to an independent Game World view and does not belong on the Agent
@@ -142,16 +147,25 @@ choose adversarially, or use another legal strategy is not an engine concern.
 
 ## Current implementation divergence
 
-Today `Agent`, parsing, direct mutation powers, `autoExecMode`, and atomic completion all live in
-`:engine`. `World.agent(actor)` returns one stable fully permissive object per Actor, including
-`Admin`. Public task mutation has been reduced to checked narrowing and explicit
-single-task removal. The extraction should preserve behavior while successively:
+`:agent` now depends on `:engine`; engine source has no Agent or autoexecution dependency.
+`World.actorEngine(actor)` returns one stable policy-free engine per Actor, and applications retain
+one `Agents(world)`. That type is the unit every client passes: it holds the World and one stable
+Agent per Actor, so no API takes a World and its Agents as separate arguments that could disagree.
+Parsing, operation conveniences, policy state, and the shared legacy drain live in `:agent`.
 
-1. reduce core entry to the audited direct mutation families;
-2. create `:agent` above `:engine`, with one stable Agent per Actor and an Actor-scoped reader;
-3. replace public many-queue language with one Game World task queue plus Agent-filtered views;
-4. move parsing, policy ownership, and the shared autoexecution loop into `:agent`; and
-5. migrate normal clients to Agent while keeping direct engine cheats and test helpers explicit.
+Test fixtures do not yet hold their `Agents`; `testAgents.kt` still caches one process-wide so a
+World's Agent identity survives repeated lookups. Engine tests also still depend upward on `:agent`
+and `:tfm-engine`, because they are integration tests written against the Agent API rather than
+independent engine tests. Both are accepted costs, not the target state.
+
+The current Agent is still fully permissive and exposes an unscoped `GameReader`, operation and
+turn conveniences, and ex-machina mutation. `AutoExecPolicy` is still the legacy three-value
+setting rather than the planned attachable policy system. Remaining extraction work should:
+
+1. add the selected Actor-scoped reader without duplicating World state;
+2. replace public many-queue language with one Game World task queue plus Agent-filtered views;
+3. reduce the normal Agent surface while keeping direct engine cheats explicit; and
+4. replace the legacy global queue drain with the policy-relative shared loop in [AUTOEXEC.md](AUTOEXEC.md).
 
 Do not retain obsolete aliases simply to preserve the current public API. User-visible script
 syntax must be migrated deliberately.

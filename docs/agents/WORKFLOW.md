@@ -11,7 +11,7 @@
 > **Skip when:** changing work performed inside one phase without changing how that phase begins or
 > ends.
 >
-> **Status:** selected design direction, not implemented. Committed `TfmWorkflow.Auto` is still a
+> **Status:** selected design direction, not implemented. Committed `TfmWorkflow.Automatic` is still a
 > Kotlin coroutine that chooses phases and waits for whole-World idleness.
 
 ## Purpose and scope
@@ -39,13 +39,13 @@ The required primitives already exist:
   Game World state, with exactly one Phase present.
 - Pets Type arguments are component dependencies. Removing a dependency cascades through its
   dependents before removing the dependency itself.
-- [`AtomicOperationScope`](../../src/common/dev/martianzoo/engine/AtomicOperationScope.kt) performs
+- [`WorldTransaction`](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) performs
   idle cleanup only after an outer operation and its automatic effects have completed.
 - [`Engine.removeTemporaryComponents`](../../src/common/dev/martianzoo/engine/Engine.kt) removes
   `Temporary` components when every task queue is empty. Their removal effects may create more
   work, which Admin autoexecution can settle normally.
 
-Committed [`TfmWorkflow.Auto`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt) supplies
+Committed [`TfmWorkflow.Automatic`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt) supplies
 the missing phase decisions from Kotlin. It listens for idle completions, resumes a coroutine, and
 calls the next phase operation. The selected design replaces that continuing control role, not the
 engine primitives above.

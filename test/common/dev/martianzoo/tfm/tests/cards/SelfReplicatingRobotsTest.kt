@@ -85,7 +85,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
   internal fun `Staged cards remain outside hand for Planner`() {
     newGame(PromoCardPack, FakeStuffBundle)
     admin.phase("Action")
-    p1.manual("8 MC, $FakeSelfReplicatingRobots, 16 ProjectCard")
+    p1.runOperation("8 MC, $FakeSelfReplicatingRobots, 16 ProjectCard")
     stage(Mine)
 
     p1.count("ProjectCard<Hand>") shouldBe 15
@@ -103,12 +103,12 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     )
     val p2 = requireP2()
     admin.phase("Action")
-    p1.manual("8 MC, $FakeSelfReplicatingRobots, 2 ProjectCard")
-    p2.manual("2 ProjectCard")
+    p1.runOperation("8 MC, $FakeSelfReplicatingRobots, 2 ProjectCard")
+    p2.runOperation("2 ProjectCard")
     stage(Mine)
 
     p1.fundAward(cn("Visionary"), 8)
-    admin.manual("End FROM Phase")
+    admin.runOperation("End FROM Phase")
 
     p1.assertCounts(0 to "FirstPlace<Player1, Visionary>")
     p2.assertCounts(1 to "FirstPlace<Player2, Visionary>")
@@ -119,7 +119,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     initialize(2)
     stage(Mine)
 
-    p1.manual("MC / ProjectCard<Hand>")
+    p1.runOperation("MC / ProjectCard<Hand>")
 
     p1.count("MC") shouldBe 1
     p1.count("RobotUnit<Class<$Mine>>") shouldBe 2
@@ -130,7 +130,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     initialize(3)
     stage(Mine)
 
-    p1.manual("-2 ProjectCard<Hand>.")
+    p1.runOperation("-2 ProjectCard<Hand>.")
 
     p1.count("ProjectCard<Hand>") shouldBe 0
     p1.count("RobotUnit<Class<$Mine>>") shouldBe 2
@@ -153,12 +153,12 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     newGame(Hellas, PromoCardPack, FakeStuffBundle)
     val p2 = requireP2()
     admin.phase("Action")
-    p1.manual("8 MC, $FakeSelfReplicatingRobots, ProjectCard")
-    p2.manual("$SearchForLife, Science<$SearchForLife>")
+    p1.runOperation("8 MC, $FakeSelfReplicatingRobots, ProjectCard")
+    p2.runOperation("$SearchForLife, Science<$SearchForLife>")
     stage(Mine)
 
     p1.fundAward(cn("Excentric"), 8)
-    admin.manual("End FROM Phase")
+    admin.runOperation("End FROM Phase")
 
     p1.assertCounts(0 to "FirstPlace<Player1, Excentric>")
     p2.assertCounts(1 to "FirstPlace<Player2, Excentric>")
@@ -178,7 +178,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
   internal fun `Staging a card does not fire its play effects or triggers`() {
     newGame(PromoCardPack, FakeStuffBundle)
     admin.phase("Action")
-    p1.manual("$FakeSelfReplicatingRobots, ProjectCard, PROD[2 MC, Energy]")
+    p1.runOperation("$FakeSelfReplicatingRobots, ProjectCard, PROD[2 MC, Energy]")
     stage(ImmigrantCity)
     repeat(3) {
       nextGeneration()
@@ -199,7 +199,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
   @Test
   internal fun `Resources reduce a staged cards play cost one MC each`() {
     initialize(1)
-    p1.manual("2 MC")
+    p1.runOperation("2 MC")
     stage(Mine)
 
     p1.playProject(Mine, 2)
@@ -247,7 +247,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
   @Test
   internal fun `Viron can stage a second card in the same generation`() {
     initialize(2, VenusNextExpansion)
-    p1.manual("$Viron")
+    p1.runOperation("$Viron")
     stage(Mine)
 
     p1.cardAction1(Viron) {
@@ -265,7 +265,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
   @Test
   internal fun `Viron can stage and then double that card in the same generation`() {
     initialize(1, VenusNextExpansion)
-    p1.manual("$Viron")
+    p1.runOperation("$Viron")
     stage(Mine)
 
     p1.cardAction1(Viron) {
@@ -278,7 +278,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
   @Test
   internal fun `Viron can double a staged card twice in one generation`() {
     initialize(1, VenusNextExpansion)
-    p1.manual("$Viron")
+    p1.runOperation("$Viron")
     stage(Mine)
     nextGeneration()
 
@@ -293,7 +293,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
   @Test
   internal fun `Viron can double two different staged cards`() {
     initialize(2, VenusNextExpansion)
-    p1.manual("$Viron")
+    p1.runOperation("$Viron")
     stage(Mine)
     nextGeneration()
     stage(TitaniumMine)
@@ -314,7 +314,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
   private fun initialize(cards: Int, vararg options: dev.martianzoo.tfm.tests.TestOption) {
     newGame(PromoCardPack, FakeStuffBundle, *options)
     admin.phase("Action")
-    p1.manual("$FakeSelfReplicatingRobots, $cards ProjectCard")
+    p1.runOperation("$FakeSelfReplicatingRobots, $cards ProjectCard")
   }
 
   private fun stage(card: ClassName) {
@@ -329,7 +329,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     }
   }
 
-  private fun nextGeneration() = admin.manual("Generation")
+  private fun nextGeneration() = admin.runOperation("Generation")
 
   private val stagedCards =
       listOf(Mine, TitaniumMine, MartianRails, SpaceStation, PowerPlant, VestaShipyard)

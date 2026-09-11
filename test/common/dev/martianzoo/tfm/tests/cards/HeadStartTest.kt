@@ -12,7 +12,7 @@ internal class HeadStartTest : CardTest() {
   internal fun `Head Start grants two mandatory actions`() {
     newGame(PreludeExpansion, FakeStuffBundle)
     admin.phase("Prelude")
-    p1.manual("4 MC, 10 ProjectCard, PreludeCard")
+    p1.runOperation("4 MC, 10 ProjectCard, PreludeCard")
     p1.playPrelude(FakeHeadStart) {
       p1.assertCounts(2 to "Steel", 24 to "MC")
 
@@ -33,7 +33,7 @@ internal class HeadStartTest : CardTest() {
     newGame(PreludeExpansion, FakeStuffBundle, retainedStartingProjects = 5)
     p1.playCorp(ValleyTrust, 5)
     admin.phase("Prelude")
-    p1.manual("10 ProjectCard, PreludeCard")
+    p1.runOperation("10 ProjectCard, PreludeCard")
 
     p1.playPrelude(FakeHeadStart) {
       doTask("UseAction<DoRequiredActionsAction, Action1>")

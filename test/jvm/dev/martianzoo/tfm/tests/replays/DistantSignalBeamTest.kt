@@ -28,8 +28,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
           "Purple",
       )
 
-  override val inputOnlySynonyms = emptyList<Pair<String, String>>()
-
   private val pink
     get() = p1
 
@@ -38,7 +36,7 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
 
   @Test
   internal fun distantSignalBeam() {
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(agents).launch()
     retainStartingProjects(7, 10)
     generation1()
     generation2()

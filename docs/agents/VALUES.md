@@ -140,15 +140,14 @@ Keep the substantive reasoning in the owning document and keep this table to one
 - **The metric operator set** — [ENGINE.md](ENGINE.md#metrics-refinements-and-limits). `Max`,
   `Subtract`, and `Or` have few authored uses, but the algebra is under-built rather than
   over-built.
-- **The `Die` produce/consume pipeline** —
-  [SEQUENCING.md](SEQUENCING.md#settled). `Transformers.invalidChangesToDie` emits the
-  marker and `Task.normalizeForTask` eliminates it: a bottom value plus its normalization, not a
-  duplicated fact. `PremiseViability`'s separate static check buys fail-fast at premise time instead
-  of a confusing mid-game `DeadEndException`. Only the interpreter it duplicates from `ClassLoader`
-  is genuine duplication, and that is in [TODO.md](../../TODO.md).
 
 ### Accepted for now
 
+- **Refinements as Types** — [type-system-spec.md](../type-system-spec.md#refinements-are-types).
+  One recursive Type model preserves refinements in dependency positions and Type variables without
+  a parallel resolved-expression representation. A separate structural Type model would be more
+  ontologically precise, but its aggregate complexity is not currently justified. Revisit if
+  world-dependent Type operations cause concrete API or correctness problems.
 - **`BigInt`** — a bespoke immutable bit mask serving one field, `Class.abstractSupertypeBits`.
   Common code has no `java.util.BitSet`, so the alternative is a slower supertype test on a hot
   path. Revisit if a multiplatform bitset becomes available or if the test stops being hot.
@@ -167,6 +166,14 @@ Keep the substantive reasoning in the owning document and keep this table to one
 - **`ActionUsedMarker`, `TradeBarrier`, and the `ActionSlot` pair** —
   [ACTIONS.md](ACTIONS.md#permission). One missing concept, permission, improvised five ways; that
   document owns the collapse and the step order.
+
+### Will be obsolete
+
+- **The concrete zero-limit encoding and inactive-Type adapter for `Die`** —
+  [CLASS_TABLES.md](CLASS_TABLES.md#die-and-ok). The selected class-universe model makes `Die` an
+  intentionally unrealized abstract Type and derives impossible changes from the general
+  unrealized-Type rule. The named terminal result and its task normalization remain; the
+  `HAS MAX 0 This` encoding and inactive-to-`Die` conversion do not.
 
 ## Keep Pets central
 

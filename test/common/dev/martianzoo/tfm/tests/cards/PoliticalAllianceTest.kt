@@ -13,7 +13,7 @@ internal class PoliticalAllianceTest : CardTest() {
   internal fun `requires the Turmoil expansion`() {
     newGame(PromoCardPack)
     admin.phase("Action")
-    p1.manual("4 MC, ProjectCard")
+    p1.runOperation("4 MC, ProjectCard")
 
     shouldThrow<DeadEndException> { p1.playProject(PoliticalAlliance, 4) }
   }
@@ -22,11 +22,11 @@ internal class PoliticalAllianceTest : CardTest() {
   internal fun `requires two party leaders and raises terraform rating`() {
     newGame(TurmoilExpansion, PromoCardPack)
     admin.phase("Action")
-    p1.manual("4 MC, ProjectCard")
+    p1.runOperation("4 MC, ProjectCard")
 
     shouldThrow<RequirementException> { p1.playProject(PoliticalAlliance, 4) }
 
-    p1.manual(
+    p1.runOperation(
         "PartyDelegate<Scientists> FROM ReserveDelegate, " +
             "PartyDelegate<Unity> FROM ReserveDelegate"
     )
