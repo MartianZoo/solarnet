@@ -15,7 +15,7 @@ import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.FromExpression.Unchanged
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.pets.ast.Instruction.Intensity
+import dev.martianzoo.pets.ast.Instruction.Quantifier
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
@@ -119,7 +119,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register { Requirement.Transform(recurse(), productionTransform) }
       register { Requirement.Eval(Property(PropertyName("requirement"), recurse())) }
 
-      fun RandomGenerator<*>.intensity() = choose(3 to null, 1 to randomEnum<Intensity>())
+      fun RandomGenerator<*>.quantifier() = choose(3 to null, 1 to randomEnum<Quantifier>())
 
       val instructionTypes =
           multiset(
@@ -138,12 +138,14 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register(InstructionTree::class) { recurse(choose(instructionTreeTypes)) }
       register(Instruction::class) { recurse(choose(instructionTypes)) }
       register { Instruction.NoOp }
-      register { Instruction.Gain(recurse(), intensity()) }
-      register { Instruction.Remove(recurse(), intensity()) }
+      register { Instruction.Gain(recurse(), quantifier()) }
+      register { Instruction.Remove(recurse(), quantifier()) }
       register { Instruction.Per(recurse(), recurse()) }
       register { Instruction.By(recurse(), recurse()) }
       register { Instruction.Gated(recurse(), recurse()) }
-      register { Instruction.Transmute(recurse(), recurse<ScaledExpression>().scalar, intensity()) }
+      register {
+        Instruction.Transmute(recurse(), recurse<ScaledExpression>().scalar, quantifier())
+      }
       register {
         Instruction.Then(
             listOfSize(choose(1, 1, 1, 2)),

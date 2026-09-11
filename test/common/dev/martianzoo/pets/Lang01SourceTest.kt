@@ -378,7 +378,18 @@ internal class Lang01SourceTest {
     val byName = systemClassDeclarations.associateBy { it.className }
 
     byName.keys shouldContainAll
-        listOf(COMPONENT, CLASS, ANYONE, OWNER, OWNED, OK, ATOMIZED, cn("Actor"), cn("Die"))
+        listOf(
+            COMPONENT,
+            CLASS,
+            ANYONE,
+            OWNER,
+            OWNED,
+            OK,
+            ATOMIZED,
+            cn("Actor"),
+            cn("Die"),
+            cn("Custom"),
+        )
     byName.getValue(COMPONENT).abstract shouldBe true
     byName.getValue(COMPONENT).supertypes.shouldBeEmpty()
     byName.getValue(OWNED).defaultsDeclaration.universal.specs shouldContainExactly

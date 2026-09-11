@@ -86,7 +86,7 @@ internal object ClassParsing : PetTokenizer() {
     private val gainOnlyDefaults: Parser<DefaultsDeclaration> =
         skipChar('+') and
             Expression.parser() and
-            intensity map
+            quantifier map
             { (expr, int) ->
               require(expr.refinement == null)
               DefaultsDeclaration(
@@ -98,7 +98,7 @@ internal object ClassParsing : PetTokenizer() {
     private val removeOnlyDefaults: Parser<DefaultsDeclaration> =
         skipChar('-') and
             Expression.parser() and
-            intensity map
+            quantifier map
             { (expr, int) ->
               require(expr.refinement == null)
               DefaultsDeclaration(

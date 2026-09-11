@@ -215,8 +215,8 @@ absent: Pets does not manufacture a structural conjunction, it only recognizes a
 Pets. A declaration and an implementation must agree: a class declared `Custom` with no
 implementation is rejected, and so is an implementation for a class not declared `Custom` — including
 for a root class. A `Custom` class may also not *inherit* Pets behavior: no supertype of it may
-declare effects, invariants, or instruction-intensity defaults. A load that fails these checks is not
-cached as a success; loading again fails the same way.
+declare effects, invariants, or instruction-quantifier defaults. A load that fails these checks is
+not cached as a success; loading again fails the same way.
 
 > **Non-normative example — Robotic Workforce.** Its `CopyProductionBox` is a custom component:
 > Kotlin copies the selected building card's production box. The agreement checks prevent that
@@ -342,8 +342,8 @@ Two dependency *roots* spelled alike stay independent: `Adjacency<Area, Area>` c
 **T3-9. A dependency may only target a type limited to one copy.** An edge names its target by exact
 type alone, so a type admitting two identical components could not say which one it meant. Every
 concrete type a dependency bound admits must therefore carry an applicable `MAX 1` or `=1` invariant.
-This is checked when a game's component-limit table is built, and it is the only place invariants
-enter this specification.
+This is checked when a game's component-limit table is built, and it is the only place
+component-count invariants enter this specification.
 
 > **Non-normative example — action-used markers.** `ActionUsedMarker<ActionCard>` means the marker on
 > one exact owned action card. If two indistinguishable components of that target type could exist,
@@ -850,14 +850,14 @@ still resolves — a water area — because a default is not a bound.
 > for an empty water area. Merely querying or removing an ocean must not synthesize a future
 > placement target, which is why gain, removal, and ordinary-use defaults cannot be one set.
 
-**T10-2. Intensities.** A gain or removal default may also carry an intensity (`!` mandatory, `.`
+**T10-2. Quantifiers.** A gain or removal default may also carry a quantifier (`!` mandatory, `.`
 as-much-as-possible, `?` optional). `Component` supplies `!` for both, so every class inherits
-something. Gain and removal intensities are inherited independently, and supertypes that disagree
+something. Gain and removal quantifiers are inherited independently, and supertypes that disagree
 about one are an error.
 
 > **Non-normative example — paying `Owed`.** Creating a debt is mandatory, while removing it defaults
 > to as-much-as-possible so mixed payment sources can discharge portions safely. One inherited
-> intensity for both directions would make either debt optional or partial payment illegal.
+> quantifier for both directions would make either debt optional or partial payment illegal.
 
 **T10-3. A `DEFAULT` clause must name the class that declares it.**
 
@@ -1076,8 +1076,9 @@ ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>
 
 The `Owner` inside `CardFront<Owner>` sits at path `Cardbound_0.Owned_0`; the `Owner` of the
 `Owned<Owner>` supertype sits at `Owned_0`. One path ends with the other, so they are one variable,
-and the two dependency positions are forced to agree. Two header *roots* spelled alike stay independent, as do identical nested bounds in
-sibling branches: `Pair<Box<Person>, Box<Person>>` leaves the two people free to differ.
+and the two dependency positions are forced to agree. Two header *roots* spelled alike stay
+independent, as do identical nested bounds in sibling branches: `Pair<Box<Person>, Box<Person>>`
+leaves the two people free to differ.
 
 > **Non-normative example — cardbound resources.** `CardResource<ResourceHolder<..., Owner>>` and
 > `Owned<Owner>` reach the same holder owner by different dependency paths. Recognizing their shared

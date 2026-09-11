@@ -411,7 +411,8 @@ declares no type variable (T13-8).
 > cards. Treating the abstract `CardFront` as a choice would capture one expensive card type and ask
 > for three copies of it instead of observing the player's tableau.
 
-**L4-10. Requirements round-trip.** Grouping is re-inserted wherever re-parsing would otherwise read the tree differently.
+**L4-10. Requirements round-trip.** Grouping is re-inserted wherever re-parsing would otherwise
+read the tree differently.
 
 ---
 
@@ -486,7 +487,8 @@ live field is realized where a world is available, and pinned by `engine/RankMet
 > award's metric, then awards first and—when applicable—second place. Lexicographic metrics and a
 > filtered selector let the same machinery represent ties without baking one award into the engine.
 
-**L5-10. Metrics round-trip.** Grouping is re-inserted wherever re-parsing would otherwise read the tree differently.
+**L5-10. Metrics round-trip.** Grouping is re-inserted wherever re-parsing would otherwise read the
+tree differently.
 
 ---
 
@@ -658,7 +660,7 @@ narrowing; declining `2 Plant!` or `2 Plant.` is not.
 > realization of the selected optional removal. Letting it replace a mandatory or
 > as-much-as-possible loss would turn “may remove” into a universal escape hatch.
 
-**L7-5. A gate, a `PER` metric, a `BY` actor and an `EACH` selector are not choices.** A proposal
+**L7-5. A gate, a `/` metric, a `BY` actor and an `EACH` selector are not choices.** A proposal
 must reproduce each of them exactly; only what they contain may narrow.
 
 > **Non-normative example — Saturn Surfing.** Its payout is scaled by the floaters on that card and
@@ -735,11 +737,10 @@ of components matching it.
 
 **L8-4. A self trigger is not a subscription to its own type.** There is no way to spell one as the
 other: writing the bare `This` placeholder as a subscription target *is* the self trigger, however
-its empty argument list was written (L3-5). The two say
-different things — `This` is about changes to this very component, and scales its instruction by the
-number of copies changed, while a subscription is about changes anywhere that match an expression,
-and is carried once per copy of the effect-bearing component. How many times each actually fires is
-`ENGINE.md`'s subject.
+its empty argument list was written (L3-5). The two say different things — `This` is about changes
+to this very component, and scales its instruction by the number of copies changed, while a
+subscription is about changes anywhere that match an expression, and is carried once per copy of the
+effect-bearing component. How many times each actually fires is `ENGINE.md`'s subject.
 
 > **Non-normative example — played events.** The generic event rule's `-This` follows the removal of
 > that exact face-up event into `PlayedEvent<Class<This>>`. A subscription to the card's type could
@@ -789,8 +790,6 @@ effect's own colon stays unambiguous.
 > effect's trigger separator from a requirement gate inside its result. Without parentheses, parsing
 > the rendered form could attach the gate to the trigger and produce a different rule.
 
-
-
 ---
 
 ## 9. Actions
@@ -838,6 +837,9 @@ now" section becomes an ordinary rule; an immediate `Ok` produces no effect at a
 > **Non-normative example — Protected Valley.** Its immediate production increase and special greenery
 > placement are written `This: ...`, so they happen when that card component enters play. Treating
 > the instruction as free-floating would offer the bonus without playing the card.
+
+**L9-7. Actions round-trip.** The cost keeps its authored form, and the result's grouping is
+L6-13's.
 
 ---
 
@@ -1038,11 +1040,10 @@ on a removal is not an error: it simply does not receive the removal-only depend
 all-use defaults (L12-4) still apply. `-Marker<>` accepts them.
 
 > **Non-normative example — debt removal.** The symmetric rule — a gain *or* removal must opt in —
-> is the
-> tempting one, and it is wrong. Requiring it of removals rejects `-Owed`, written bare in the
-> action payment lowering, and with it `CryoSleepTest`, `AridorTest`, `DistantPressureMassTest`,
-> three whole-game replays and two integration suites. A removal names a component that already
-> exists; there is no placement left to default.
+> is the tempting one, and it is wrong. Requiring it of removals rejects `-Owed`, written bare in
+> the action payment lowering, and with it `CryoSleepTest`, `AridorTest`,
+> `DistantPressureMassTest`, three whole-game replays and two integration suites. A removal names a
+> component that already exists; there is no placement left to default.
 
 **L12-7. `Foo<>` is invalid where that use has no dependency defaults to accept.** An empty list is
 an acceptance, not merely a second spelling of the same expression.

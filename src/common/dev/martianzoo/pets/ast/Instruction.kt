@@ -19,8 +19,8 @@ import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.OK
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.FromExpression.Full
-import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
-import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
+import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
@@ -99,14 +99,14 @@ public sealed class Instruction : InstructionTree() {
           gaining: Expression? = null,
           removing: Expression? = null,
           count: Int = 1,
-          intensity: Intensity? = MANDATORY,
+          quantifier: Quantifier? = MANDATORY,
       ): Instruction {
         require(count >= 0)
         return when {
           count == 0 -> NoOp
-          removing == null -> Gain.gain(gaining!!, count, intensity)
-          gaining == null -> Remove.remove(removing, count, intensity)
-          else -> Transmute(Full(gaining, removing), ActualScalar(count), intensity)
+          removing == null -> Gain.gain(gaining!!, count, quantifier)
+          gaining == null -> Remove.remove(removing, count, quantifier)
+          else -> Transmute(Full(gaining, removing), ActualScalar(count), quantifier)
         }
       }
     }
@@ -132,23 +132,24 @@ public sealed class Instruction : InstructionTree() {
      * default ([rule
      * T10-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults)).
      */
-    // TODO: Rename Intensity to Quantifier throughout.
-    public abstract val intensity: Intensity?
+    public abstract val quantifier: Quantifier?
 
     override fun isAbstract(info: TypeInfo): Boolean {
       return count.isAbstract(info) ||
-          intensity?.isAbstract(info) != false ||
+          quantifier?.isAbstract(info) != false ||
           (gaining?.isAbstract(info) == true) ||
           (removing?.isAbstract(info) == true)
     }
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      if (proposed == NoOp && intensity == OPTIONAL) return
+      if (proposed == NoOp && quantifier == OPTIONAL) return
       proposed as? Change ?: throw NarrowingException("$this  /  $proposed")
-      proposed.intensity!!.ensureNarrows(intensity!!, info)
+      proposed.quantifier!!.ensureNarrows(quantifier!!, info)
       val proposedCount = proposed.count
       val authoredCount = count
-      if (intensity == OPTIONAL && proposedCount is ActualScalar && authoredCount is ActualScalar) {
+      if (
+          quantifier == OPTIONAL && proposedCount is ActualScalar && authoredCount is ActualScalar
+      ) {
         if (proposedCount.value > authoredCount.value) throw NarrowingException("")
       } else {
         proposedCount.ensureNarrows(authoredCount, info)
@@ -165,7 +166,7 @@ public sealed class Instruction : InstructionTree() {
   public data class Gain
   public constructor(
       val scaledEx: ScaledExpression,
-      override val intensity: Intensity?,
+      override val quantifier: Quantifier?,
   ) : Change() {
     public companion object {
       /** Creates and canonicalizes a gain of one copy of [expression]. */
@@ -174,15 +175,16 @@ public sealed class Instruction : InstructionTree() {
       /** Creates a gain of [scaledEx], or [NoOp] when its expression is `Ok`. */
       public fun gain(
           scaledEx: ScaledExpression,
-          intensity: Intensity? = MANDATORY,
-      ): Instruction = if (scaledEx.expression == OK.expression) NoOp else Gain(scaledEx, intensity)
+          quantifier: Quantifier? = MANDATORY,
+      ): Instruction =
+          if (scaledEx.expression == OK.expression) NoOp else Gain(scaledEx, quantifier)
 
       /** Creates and canonicalizes a gain of [count] copies of [expression]. */
       public fun gain(
           expression: HasExpression,
           count: Int = 1,
-          intensity: Intensity? = MANDATORY,
-      ): Instruction = gain(scaledEx(expression, count), intensity)
+          quantifier: Quantifier? = MANDATORY,
+      ): Instruction = gain(scaledEx(expression, count), quantifier)
     }
 
     override val count: Scalar = scaledEx.scalar
@@ -193,7 +195,7 @@ public sealed class Instruction : InstructionTree() {
 
     override fun scale(factor: Int): Instruction = copy(scaledEx = scaledEx * factor)
 
-    override fun toString(): String = "$scaledEx${intensity?.symbol ?: ""}"
+    override fun toString(): String = "$scaledEx${quantifier?.symbol ?: ""}"
 
     init {
       checkNonzero(count)
@@ -208,7 +210,7 @@ public sealed class Instruction : InstructionTree() {
   public data class Remove
   internal constructor(
       val scaledEx: ScaledExpression,
-      override val intensity: Intensity? = MANDATORY,
+      override val quantifier: Quantifier? = MANDATORY,
   ) : Change() {
     public companion object {
       /** Creates and canonicalizes a removal of one copy of [expression]. */
@@ -217,15 +219,15 @@ public sealed class Instruction : InstructionTree() {
       /** Creates and canonicalizes a removal of [scaledEx]. */
       public fun remove(
           scaledEx: ScaledExpression,
-          intensity: Intensity? = MANDATORY,
-      ): Instruction = Remove(scaledEx, intensity)
+          quantifier: Quantifier? = MANDATORY,
+      ): Instruction = Remove(scaledEx, quantifier)
 
       /** Creates and canonicalizes a removal of [count] copies of [expression]. */
       public fun remove(
           expression: HasExpression,
           count: Int = 1,
-          intensity: Intensity? = MANDATORY,
-      ): Instruction = remove(scaledEx(expression, count), intensity)
+          quantifier: Quantifier? = MANDATORY,
+      ): Instruction = remove(scaledEx(expression, count), quantifier)
     }
 
     override val count: Scalar = scaledEx.scalar
@@ -236,7 +238,7 @@ public sealed class Instruction : InstructionTree() {
 
     override fun scale(factor: Int): Instruction = copy(scaledEx = scaledEx * factor)
 
-    override fun toString(): String = "-$scaledEx${intensity?.symbol ?: ""}"
+    override fun toString(): String = "-$scaledEx${quantifier?.symbol ?: ""}"
 
     init {
       checkNonzero(count)
@@ -257,7 +259,7 @@ public sealed class Instruction : InstructionTree() {
   public data class Transmute(
       val fromEx: FromExpression,
       val scalar: Scalar,
-      override val intensity: Intensity? = MANDATORY,
+      override val quantifier: Quantifier? = MANDATORY,
   ) : Change() {
     override val count: Scalar = scalar
     override val gaining: Expression = fromEx.toExpression
@@ -269,7 +271,7 @@ public sealed class Instruction : InstructionTree() {
 
     override fun toString(): String {
       val scalText = if (scalar == ActualScalar(1)) "" else "$scalar "
-      return "$scalText$fromEx${intensity?.symbol ?: ""}"
+      return "$scalText$fromEx${quantifier?.symbol ?: ""}"
     }
 
     init {
@@ -922,8 +924,8 @@ public sealed class Instruction : InstructionTree() {
    * so neither narrows to the other ([rule
    * L7-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
    */
-  public enum class Intensity(public val symbol: String, public val abstract: Boolean = false) :
-      Specification<Intensity> {
+  public enum class Quantifier(public val symbol: String, public val abstract: Boolean = false) :
+      Specification<Quantifier> {
     /** The full amount must be gained/removed/transmuted. */
     MANDATORY("!"),
 
@@ -939,7 +941,7 @@ public sealed class Instruction : InstructionTree() {
 
     override fun isAbstract(info: TypeInfo): Boolean = abstract
 
-    override fun ensureNarrows(that: Intensity, info: TypeInfo) {
+    override fun ensureNarrows(that: Quantifier, info: TypeInfo) {
       if (that != this && that != OPTIONAL) {
         throw NarrowingException("")
       }
@@ -955,7 +957,7 @@ public sealed class Instruction : InstructionTree() {
       return parser {
         val gain: Parser<Instruction> =
             ScaledExpression.parser() and
-                optional(intensity) map
+                optional(quantifier) map
                 { (ste, int) ->
                   Gain.gain(ste, int)
                 }
@@ -963,7 +965,7 @@ public sealed class Instruction : InstructionTree() {
         val remove: Parser<Instruction> =
             skipChar('-') and
                 ScaledExpression.parser() and
-                optional(intensity) map
+                optional(quantifier) map
                 { (ste, int) ->
                   Remove.remove(ste, int)
                 }
@@ -971,7 +973,7 @@ public sealed class Instruction : InstructionTree() {
         val transmute: Parser<Transmute> =
             optional(ScaledExpression.scalar()) and
                 FromExpression.parser() and
-                optional(intensity) map
+                optional(quantifier) map
                 { (scalar, fro, int) ->
                   Transmute(fro, scalar ?: ActualScalar(1), int)
                 }

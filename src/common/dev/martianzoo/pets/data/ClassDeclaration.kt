@@ -7,7 +7,7 @@ import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction.Intensity
+import dev.martianzoo.pets.ast.Instruction.Quantifier
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue
@@ -152,7 +152,7 @@ public data class ClassDeclaration(
   ) {
     public data class OneDefault(
         val specs: List<Expression> = emptyList(),
-        val intensity: Intensity? = null,
+        val quantifier: Quantifier? = null,
     )
 
     internal enum class DefaultKind {
@@ -180,8 +180,8 @@ public data class ClassDeclaration(
 
       private fun merge(ones: Collection<OneDefault>): OneDefault {
         val deps = ones.map { it.specs }.firstOrNull { it.isNotEmpty() }.orEmpty()
-        val intensity = ones.firstNotNullOfOrNull { it.intensity }
-        return OneDefault(deps, intensity)
+        val quantifier = ones.firstNotNullOfOrNull { it.quantifier }
+        return OneDefault(deps, quantifier)
       }
     }
 
@@ -242,11 +242,11 @@ public data class ClassDeclaration(
 
     return buildList {
       if (universal.specs.isNotEmpty()) add("DEFAULT ${universal.expression()}")
-      if (gainOnly.specs.isNotEmpty() || gainOnly.intensity != null) {
-        add("DEFAULT +${gainOnly.expression()}${gainOnly.intensity?.symbol.orEmpty()}")
+      if (gainOnly.specs.isNotEmpty() || gainOnly.quantifier != null) {
+        add("DEFAULT +${gainOnly.expression()}${gainOnly.quantifier?.symbol.orEmpty()}")
       }
-      if (removeOnly.specs.isNotEmpty() || removeOnly.intensity != null) {
-        add("DEFAULT -${removeOnly.expression()}${removeOnly.intensity?.symbol.orEmpty()}")
+      if (removeOnly.specs.isNotEmpty() || removeOnly.quantifier != null) {
+        add("DEFAULT -${removeOnly.expression()}${removeOnly.quantifier?.symbol.orEmpty()}")
       }
       if (isEmpty()) add("DEFAULT $owner")
     }

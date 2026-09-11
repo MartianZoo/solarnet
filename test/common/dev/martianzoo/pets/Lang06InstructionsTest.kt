@@ -11,11 +11,11 @@ import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.Gated
-import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
-import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
-import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
+import dev.martianzoo.pets.ast.Instruction.Quantifier.AMAP
+import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
+import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
 import dev.martianzoo.pets.ast.Instruction.Then
@@ -51,7 +51,7 @@ internal class Lang06InstructionsTest {
     moved.removing shouldBe parse<Expression>("Plant<Player2>")
 
     gain(cn("Plant")) shouldBe parse<Instruction>("Plant!")
-    remove(cn("Plant"), count = 3, intensity = AMAP) shouldBe parse<Instruction>("-3 Plant.")
+    remove(cn("Plant"), count = 3, quantifier = AMAP) shouldBe parse<Instruction>("-3 Plant.")
   }
 
   // L6-2 Counts
@@ -75,10 +75,10 @@ internal class Lang06InstructionsTest {
 
   @Test
   internal fun `L6-3 a quantifier says how much of the count must happen`() {
-    (parse<Instruction>("2 Plant!") as Gain).intensity shouldBe MANDATORY
-    (parse<Instruction>("2 Plant.") as Gain).intensity shouldBe AMAP
-    (parse<Instruction>("2 Plant?") as Gain).intensity shouldBe OPTIONAL
-    (parse<Instruction>("2 Plant") as Gain).intensity shouldBe null
+    (parse<Instruction>("2 Plant!") as Gain).quantifier shouldBe MANDATORY
+    (parse<Instruction>("2 Plant.") as Gain).quantifier shouldBe AMAP
+    (parse<Instruction>("2 Plant?") as Gain).quantifier shouldBe OPTIONAL
+    (parse<Instruction>("2 Plant") as Gain).quantifier shouldBe null
     shouldThrow<PetSyntaxException> { parse<Instruction>("2 Plant!?") }
   }
 

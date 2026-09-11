@@ -2,9 +2,9 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
-import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
-import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.pets.ast.Instruction.Quantifier.AMAP
+import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
+import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
 import dev.martianzoo.pets.types.Dependency.Key
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -74,10 +74,10 @@ internal class Spec10DefaultsTest {
         te("GreeneryTile<Owner, Tharsis_1_1>")
   }
 
-  // T10-2 Intensities
+  // T10-2 Quantifiers
 
   @Test
-  internal fun `T10-2 gain and removal intensities are inherited independently`() {
+  internal fun `T10-2 gain and removal quantifiers are inherited independently`() {
     val table =
         loadTypes(
             """
@@ -90,16 +90,16 @@ internal class Spec10DefaultsTest {
                 .trimIndent()
         )
 
-    table.getClass(cn("GlobalParameter")).defaults.gainOnly.intensity shouldBe AMAP
+    table.getClass(cn("GlobalParameter")).defaults.gainOnly.quantifier shouldBe AMAP
     // `Component` supplies `!` for anything that does not override it.
-    table.getClass(cn("GlobalParameter")).defaults.removeOnly.intensity shouldBe MANDATORY
-    table.getClass(cn("OceanTile")).defaults.gainOnly.intensity shouldBe AMAP
-    table.getClass(cn("OceanTile")).defaults.removeOnly.intensity shouldBe OPTIONAL
-    table.getClass(cn("Fixed")).defaults.gainOnly.intensity shouldBe AMAP
+    table.getClass(cn("GlobalParameter")).defaults.removeOnly.quantifier shouldBe MANDATORY
+    table.getClass(cn("OceanTile")).defaults.gainOnly.quantifier shouldBe AMAP
+    table.getClass(cn("OceanTile")).defaults.removeOnly.quantifier shouldBe OPTIONAL
+    table.getClass(cn("Fixed")).defaults.gainOnly.quantifier shouldBe AMAP
   }
 
   @Test
-  internal fun `T10-2 supertypes that disagree about an intensity are an error`() {
+  internal fun `T10-2 supertypes that disagree about a quantifier are an error`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Eager { DEFAULT +Eager. }",

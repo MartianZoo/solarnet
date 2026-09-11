@@ -353,14 +353,14 @@ private constructor(
     val inheritedEffects = klass.properSuperclasses().filter { it.declaration.effects.isNotEmpty() }
     val inheritedInvariants =
         klass.properSuperclasses().filter { it.declaration.invariants.isNotEmpty() }
-    fun hasInstructionIntensity(defaults: DefaultsDeclaration): Boolean =
-        defaults.universal.intensity != null ||
-            defaults.gainOnly.intensity != null ||
-            defaults.removeOnly.intensity != null
+    fun hasInstructionQuantifier(defaults: DefaultsDeclaration): Boolean =
+        defaults.universal.quantifier != null ||
+            defaults.gainOnly.quantifier != null ||
+            defaults.removeOnly.quantifier != null
 
     val inheritedDefaults =
         klass.properSuperclasses().filter {
-          it.className != COMPONENT && hasInstructionIntensity(it.declaration.defaultsDeclaration)
+          it.className != COMPONENT && hasInstructionQuantifier(it.declaration.defaultsDeclaration)
         }
     val problems = buildList {
       if (inheritedEffects.isNotEmpty()) {

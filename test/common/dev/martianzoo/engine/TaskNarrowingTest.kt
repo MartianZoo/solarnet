@@ -328,7 +328,7 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `an omitted selection intensity preserves a stronger pending intensity`() {
+  internal fun `an omitted selection quantifier preserves a stronger pending quantifier`() {
     initiate("OceanTile<LandArea>!")
 
     shouldThrow<TaskException> { writer.doTask("OceanTile<Tharsis_2_3>.") }
@@ -339,7 +339,7 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `an omitted selection intensity inherits from the selected OR arm`() {
+  internal fun `an omitted selection quantifier inherits from the selected OR arm`() {
     initiate("OceanTile<LandArea>! OR Plant!")
 
     writer.doTask("OceanTile<Tharsis_2_3>")
