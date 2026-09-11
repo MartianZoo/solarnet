@@ -24,10 +24,10 @@ internal class Spec09PropertiesTest {
   private fun property(table: ClassTable, klass: String, name: String) =
       table.getClass(cn(klass)).properties[PropertyName(name)]
 
-  // 9-1 Declaring a property
+  // T9-1 Declaring a property
 
   @Test
-  internal fun `9-1 a property is declared either as a bound or as a value`() {
+  internal fun `T9-1 a property is declared either as a bound or as a value`() {
     val table =
         loadTypes(
             """
@@ -55,7 +55,7 @@ internal class Spec09PropertiesTest {
   }
 
   @Test
-  internal fun `9-1 requirement properties may be required or optional`() {
+  internal fun `T9-1 requirement properties may be required or optional`() {
     val table =
         loadTypes(
             """
@@ -86,10 +86,10 @@ internal class Spec09PropertiesTest {
         RequirementValue(parse<Requirement>("3 Plant"))
   }
 
-  // 9-2 Narrowing through inheritance
+  // T9-2 Narrowing through inheritance
 
   @Test
-  internal fun `9-2 a subclass may narrow an inherited bound`() {
+  internal fun `T9-2 a subclass may narrow an inherited bound`() {
     val table =
         loadTypes(
             """
@@ -109,7 +109,7 @@ internal class Spec09PropertiesTest {
   }
 
   @Test
-  internal fun `9-2 a subclass may not override a value that is already fixed`() {
+  internal fun `T9-2 a subclass may not override a value that is already fixed`() {
     shouldThrow<PetException> {
       loadTypes(
           "ABSTRACT CLASS Area { row = Number }",
@@ -120,7 +120,7 @@ internal class Spec09PropertiesTest {
   }
 
   @Test
-  internal fun `9-2 a subclass may not widen or sidestep an inherited bound`() {
+  internal fun `T9-2 a subclass may not widen or sidestep an inherited bound`() {
     shouldThrow<PetException> {
       loadTypes(
           "ABSTRACT CLASS TemperatureStep",
@@ -137,10 +137,10 @@ internal class Spec09PropertiesTest {
     }
   }
 
-  // 9-3 Concrete classes are complete
+  // T9-3 Concrete classes are complete
 
   @Test
-  internal fun `9-3 a concrete class must fix every property it inherits`() {
+  internal fun `T9-3 a concrete class must fix every property it inherits`() {
     shouldThrow<PetException> {
       loadTypes("ABSTRACT CLASS Area { row = Number }", "CLASS Tharsis_2_2 : Area")
     }
@@ -156,7 +156,7 @@ internal class Spec09PropertiesTest {
   }
 
   @Test
-  internal fun `9-3 an optional requirement is the one bound a concrete class may leave open`() {
+  internal fun `T9-3 an optional requirement is the one bound a concrete class may leave open`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS CardFront { requirement = Requirement? }",
@@ -166,10 +166,10 @@ internal class Spec09PropertiesTest {
     property(table, "Ants", "requirement") shouldBe AbsentRequirementValue
   }
 
-  // 9-4 Inheriting from several supertypes
+  // T9-4 Inheriting from several supertypes
 
   @Test
-  internal fun `9-4 the same inherited fact arriving by two paths is one fact`() {
+  internal fun `T9-4 the same inherited fact arriving by two paths is one fact`() {
     val table =
         loadTypes(
             """
@@ -185,7 +185,7 @@ internal class Spec09PropertiesTest {
   }
 
   @Test
-  internal fun `9-4 a narrower fact wins when the other path merely restates its origin`() {
+  internal fun `T9-4 a narrower fact wins when the other path merely restates its origin`() {
     val table =
         loadTypes(
             """
@@ -203,7 +203,7 @@ internal class Spec09PropertiesTest {
   }
 
   @Test
-  internal fun `9-4 two properties with one name but unrelated origins are an error`() {
+  internal fun `T9-4 two properties with one name but unrelated origins are an error`() {
     shouldThrow<PetException> {
       loadTypes(
           "ABSTRACT CLASS FirstArea { row = 8 }",
@@ -214,7 +214,7 @@ internal class Spec09PropertiesTest {
   }
 
   @Test
-  internal fun `9-4 divergent narrowings of one property are an error`() {
+  internal fun `T9-4 divergent narrowings of one property are an error`() {
     shouldThrow<PetException> {
       loadTypes(
           "ABSTRACT CLASS Area { row = Number }",
@@ -234,10 +234,10 @@ internal class Spec09PropertiesTest {
     }
   }
 
-  // 9-5 Reading a property from a type
+  // T9-5 Reading a property from a type
 
   @Test
-  internal fun `9-5 a type reads the concrete property values of its root class`() {
+  internal fun `T9-5 a type reads the concrete property values of its root class`() {
     val table =
         loadTypes(
             """
@@ -263,7 +263,7 @@ internal class Spec09PropertiesTest {
   }
 
   @Test
-  internal fun `9-5 an absent optional requirement reads as none`() {
+  internal fun `T9-5 an absent optional requirement reads as none`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS CardFront { requirement = Requirement? }",
@@ -274,7 +274,7 @@ internal class Spec09PropertiesTest {
   }
 
   @Test
-  internal fun `9-5 reading a property that is still a bound is a programming error`() {
+  internal fun `T9-5 reading a property that is still a bound is a programming error`() {
     val table = loadTypes("ABSTRACT CLASS Milestone { requirement = Requirement }")
 
     shouldThrow<IllegalStateException> {
@@ -283,10 +283,10 @@ internal class Spec09PropertiesTest {
     shouldThrow<Exception> { table.resolve(te("Milestone")).getNumberPropertyValue("nope") }
   }
 
-  // 9-6 Properties are class facts
+  // T9-6 Properties are class facts
 
   @Test
-  internal fun `9-6 properties take no part in type identity or subtyping`() {
+  internal fun `T9-6 properties take no part in type identity or subtyping`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS CardFront { cost = Number }",

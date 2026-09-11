@@ -13,7 +13,7 @@ internal class SolarProbeTest : CardTest() {
   internal fun `Solar Probe counts its own science tag before entering the played-event pile`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     admin.phase("Action")
-    p1.manual("9 MC, ProjectCard, $TransNeptuneProbe, $PhysicsComplex")
+    p1.runOperation("9 MC, ProjectCard, $TransNeptuneProbe, $PhysicsComplex")
 
     p1.playProject(SolarProbe, 9).expect("-9 MC, 0 ProjectCard")
 

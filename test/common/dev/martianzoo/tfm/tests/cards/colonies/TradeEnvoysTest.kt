@@ -8,9 +8,9 @@ import kotlin.test.Test
 internal class TradeEnvoysTest : ColoniesCardTest() {
   @Test
   internal fun `Raises the track before trade income`() {
-    p1.manual("ProjectCard, 15 MC")
+    p1.runOperation("ProjectCard, 15 MC")
     p1.playProject(TradeEnvoys, 6)
-    admin.manual("3 ColonyProduction<Luna>")
+    admin.runOperation("3 ColonyProduction<Luna>")
 
     p1.stdAction("TradeAction") {
       doTask("Trade<Luna>")
@@ -25,8 +25,10 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
 
   @Test
   internal fun `Raises the track when Titan Floating Launch-Pad trades`() {
-    p1.manual("$TradeEnvoys, $TitanFloatingLaunchPad") { addCardResources(TitanFloatingLaunchPad) }
-    admin.manual("3 ColonyProduction<Luna>")
+    p1.runOperation("$TradeEnvoys, $TitanFloatingLaunchPad") {
+      addCardResources(TitanFloatingLaunchPad)
+    }
+    admin.runOperation("3 ColonyProduction<Luna>")
 
     p1.cardAction2(TitanFloatingLaunchPad) {
       doTask("Trade<Luna>")
@@ -41,8 +43,8 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
 
   @Test
   internal fun `Does not increase a maxed track`() {
-    p1.manual("$TradeEnvoys, 9 MC")
-    admin.manual("5 ColonyProduction<Luna>")
+    p1.runOperation("$TradeEnvoys, 9 MC")
+    admin.runOperation("5 ColonyProduction<Luna>")
     p1.assertCounts(6 to "ColonyProduction<Luna>")
 
     p1.stdAction("TradeAction") { doTask("Trade<Luna>") }
@@ -55,12 +57,12 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
 
   @Test
   internal fun `Trading Colony may decline the shared track increase`() {
-    p1.manual("ProjectCard, 30 MC")
+    p1.runOperation("ProjectCard, 30 MC")
     p1.playProject(TradingColony, 18) {
       doTask("Colony<Europa>")
       placeTile(1, 2)
     }
-    admin.manual("ColonyProduction<Europa>")
+    admin.runOperation("ColonyProduction<Europa>")
 
     p1.stdAction("TradeAction") {
       doTask("Trade<Europa>")
@@ -76,13 +78,13 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
 
   @Test
   internal fun `All track decisions precede the trade when both cards are active`() {
-    p1.manual("2 ProjectCard, 50 MC")
+    p1.runOperation("2 ProjectCard, 50 MC")
     p1.playProject(TradeEnvoys, 6)
     p1.playProject(TradingColony, 18) {
       doTask("Colony<Europa>")
       placeTile(1, 2)
     }
-    admin.manual("3 ColonyProduction<Luna>")
+    admin.runOperation("3 ColonyProduction<Luna>")
 
     p1.stdAction("TradeAction") {
       doTask("Trade<Luna>")

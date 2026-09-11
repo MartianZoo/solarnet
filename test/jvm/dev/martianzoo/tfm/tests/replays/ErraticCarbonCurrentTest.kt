@@ -25,8 +25,6 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           "Pink",
       )
 
-  override val inputOnlySynonyms = emptyList<Pair<String, String>>()
-
   private val blue
     get() = p1
 
@@ -35,7 +33,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
 
   @Test
   internal fun erraticCarbonCurrent() {
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(agents).launch()
     retainStartingProjects(6, 4)
     generation1()
     generation2()

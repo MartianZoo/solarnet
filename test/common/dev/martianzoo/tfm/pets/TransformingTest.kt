@@ -1,15 +1,9 @@
 package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.Transforming.actionListToEffects
-import dev.martianzoo.pets.Transforming.actionToEffect
-import dev.martianzoo.pets.Transforming.immediateToEffect
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
-import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions.KindException
-import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -18,61 +12,19 @@ import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.PropertyValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.tfm.testlib.te
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
-import kotlin.reflect.KClass
 import kotlin.test.Test
 
+/**
+ * The [dev.martianzoo.pets.PetTransformer] contract. What the individual transformations *mean* is
+ * `docs/pets-language-spec.md` (L9-4, L9-6, L12-2).
+ */
 internal class TransformingTest {
-  @Test
-  internal fun testActionToEffect() {
-    fun checkActionToEffect(action: String, index: Int, effect: String) {
-      val parsedA: Action = parse(action)
-      val parsedE: Effect = parse(effect)
-      actionToEffect(parsedA, index) shouldBe parsedE
-    }
-
-    checkActionToEffect("5 MC -> Ok", 1, "UseAction<This, Action1>: -5 MC! THEN Ok")
-    checkActionToEffect("Foo -> Bar, Qux", 3, "UseAction<This, Action3>: -Foo! THEN (Bar, Qux)")
-    checkActionToEffect(
-        "Microbe<Anyone> -> Microbe<This>!",
-        1,
-        "UseAction<This, Action1>: -Microbe<Anyone>! THEN Microbe<This>!",
-    )
-
-    checkActionToEffect("Plant -> Plant", 2, "UseAction<This, Action2>: -Plant! THEN Plant")
-
-    shouldThrow<IllegalArgumentException> { actionToEffect(parse("-> Ok"), 4) }
-  }
-
-  @Test
-  internal fun testActionsToEffects() {
-    val actions: List<Action> = listOf("-> Foo", "Foo -> 5 Bar").map(::parse)
-    actionListToEffects(actions)
-        .shouldContainExactly(
-            parse<Effect>("UseAction<This, Action1>: Foo"),
-            parse<Effect>("UseAction<This, Action2>: -Foo! THEN 5 Bar"),
-        )
-  }
-
-  @Test
-  internal fun testImmediateToEffect() {
-    fun checkImmediateToEffect(immediate: String, effect: String) {
-      val immed: InstructionTree = parse(immediate)
-      val fx: Effect = parse(effect)
-      immediateToEffect(immed) shouldBe fx
-    }
-
-    checkImmediateToEffect("Foo, Bar", "This: Foo, Bar")
-    checkImmediateToEffect("Foo, Bar: Qux", "This: Foo, Bar: Qux")
-    checkImmediateToEffect("Foo: Bar", "This: (Foo: Bar)")
-  }
 
   @Test
   internal fun instructionTransformPreservesTheKindNotTheConcreteType() {
@@ -131,52 +83,5 @@ internal class TransformingTest {
 
     transformer.transformInstructionTree(original) shouldBe expanded
     shouldThrow<KindException> { transformer.transformInstruction(original) }
-  }
-
-  @Test
-  internal fun testResolveSpecialThisType() {
-    checkResolveThis<Instruction>("Foo<This>", cn("Bar").expression, "Foo<Bar>")
-    checkResolveThis<Instruction>("Foo<This>", cn("Bar").expression, "Foo<Bar>")
-
-    // looks like a plain textual replacement but we know what's really happening
-    val petsIn =
-        "-Ooh<Foo<Xyz, This, Qux>>: " +
-            "5 Qux<Ooh, Xyz, Bar> OR 5 This?, =0 This: -Bar, 5 MC: Foo<This>"
-    val petsOut =
-        "-Ooh<Foo<Xyz, It<Worked>, Qux>>: " +
-            "5 Qux<Ooh, Xyz, Bar> OR 5 It<Worked>?, =0 It<Worked>: -Bar, 5 MC: Foo<It<Worked>>"
-    checkResolveThis<Effect>(petsIn, te("It<Worked>"), petsOut)
-
-    checkResolveThis<Instruction>("This<Foo>", cn("Bar").expression, "Bar<Foo>")
-    checkResolveThis<Instruction>("This<Foo>", te("Bar<Qux>"), "Bar<Foo>")
-  }
-
-  private inline fun <reified P : PetNode> checkResolveThis(
-      original: String,
-      thiss: Expression,
-      expected: String,
-  ) {
-    checkResolveThis(P::class, original, thiss, expected)
-  }
-
-  private fun <P : PetNode> checkResolveThis(
-      type: KClass<P>,
-      original: String,
-      thiss: Expression,
-      expected: String,
-  ) {
-    val parsedOriginal = parse(type, original)
-    val parsedExpected = parse(type, expected)
-    val transformer = replaceThisExpressionsWith(thiss)
-    val tx =
-        when (parsedOriginal) {
-          is Effect -> transformer.transformEffect(parsedOriginal)
-          is Instruction -> transformer.transformInstruction(parsedOriginal)
-          else -> error("Test does not handle the ${parsedOriginal.kind} kind")
-        }
-    tx shouldBe parsedExpected
-
-    // more round-trip checking doesn't hurt
-    tx.toString() shouldBe expected
   }
 }

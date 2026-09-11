@@ -14,7 +14,7 @@ import dev.martianzoo.pets.ast.withTypeVariables
  * Returns a transformer that discovers and records inferred type-variable scopes in effects,
  * actions, sequences, and transmutations. It applies the region, exclusion, and actor-selector
  * rules in
- * [rules 13-6 through 13-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+ * [rules T13-6 through T13-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
  */
 public fun ClassTable.inferTypeVariables(): PetTransformer =
     object : PetTransformer() {

@@ -1,11 +1,12 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.GameConfig
@@ -33,7 +34,7 @@ internal class CatalogCompositionTest {
     val game = setUpGame(canonicalPremise(catalog = catalog))
 
     game.classTable.allClassNames.shouldContain(cn("CompositionProbe"))
-    game.agent(PLAYER1).count("TerraformRating<Player1>") shouldBe 20
+    game.testAgent(PLAYER1).count("TerraformRating<Player1>") shouldBe 20
   }
 
   @Test
@@ -53,22 +54,22 @@ internal class CatalogCompositionTest {
     val catalog = TfmCatalog.compose(Canon, extension)
 
     val premise =
-        canonicalPremise(catalog = catalog)
-            .copy(
-                initialComponentTypes =
-                    setOf(
-                        cn("BootstrapDependency").expression,
-                        parse<Expression>("DependentBootstrap<BootstrapDependency>"),
-                    )
-            )
+        canonicalPremise(
+            catalog = catalog,
+            initialComponentTypes =
+                setOf(
+                    cn("BootstrapDependency").expression,
+                    parse<Expression>("DependentBootstrap<BootstrapDependency>"),
+                ),
+        )
     val game = Engine.newGame(premise)
 
-    game.agent(PLAYER1).count("BootstrapDependency") shouldBe 1
-    game.agent(PLAYER1).count("DependentBootstrap<BootstrapDependency>") shouldBe 1
+    game.testAgent(PLAYER1).count("BootstrapDependency") shouldBe 1
+    game.testAgent(PLAYER1).count("DependentBootstrap<BootstrapDependency>") shouldBe 1
   }
 
   @Test
-  internal fun initialComponentDependencyStallHasUsefulDiagnostic() {
+  internal fun generatedInitialComponentReportsMissingDependency() {
     val extension =
         object : TfmCatalog() {
           override val explicitClassDeclarations =
@@ -86,15 +87,14 @@ internal class CatalogCompositionTest {
     val catalog = TfmCatalog.compose(Canon, extension)
 
     val premise =
-        canonicalPremise(catalog = catalog)
-            .copy(
-                initialComponentTypes =
-                    setOf(parse<Expression>("BlockedBootstrap<MissingBootstrapDependency>"))
-            )
-    val failure = shouldThrow<PetException> { Engine.newGame(premise) }
+        canonicalPremise(
+            catalog = catalog,
+            initialComponentTypes =
+                setOf(parse<Expression>("BlockedBootstrap<MissingBootstrapDependency>")),
+        )
+    val failure = shouldThrow<DependencyException> { Engine.newGame(premise) }
 
-    failure.message.orEmpty().shouldInclude("BlockedBootstrap<MissingBootstrapDependency>")
-    failure.message.orEmpty().shouldInclude("requires MissingBootstrapDependency")
+    failure.message.orEmpty().shouldInclude("Missing dependencies: MissingBootstrapDependency")
   }
 
   @Test
@@ -118,6 +118,6 @@ internal class CatalogCompositionTest {
 
     val game = Engine.newGame(premise)
 
-    game.agent(PLAYER1).count("BootstrapTarget") shouldBe 0
+    game.testAgent(PLAYER1).count("BootstrapTarget") shouldBe 0
   }
 }

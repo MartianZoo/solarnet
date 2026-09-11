@@ -35,13 +35,20 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   game record so a log identifies, or can later verify, the engine source that produced it.
 - Make tile placement over an owned `Community` an atomic transmutation, then enforce
   `HAS MAX 1 Occupant<This>` on every `Area` and remove card-level empty-area refinements.
-- Remove `Vocabulary`'s input-only Class-name synonym facility after expanding the abbreviated Pets
-  used by the REPL, tests, replays, and recorded games; preserve localization. Configured Player
-  names are concrete Catalog Classes and require no Vocabulary mechanism.
 - Revisit causal ownership inside `BootstrapPhase`, moving initialization work under ordinary
   phase-caused tasks as soon as the required runtime state can express them.
 - Let refinements reference their candidate explicitly, so a selector can relate a nested
   dependency to that candidate without repeating its complete expression.
+- Give Pets a real structural conjunction, spelled something like `Tile(IS Owned)`, and retire the
+  nominal `OwnedTile` class once `Landlord` and the other owned-tile rules can name the intersection
+  directly. Until then a broad active projection checks the nominal relationship; cover every legal
+  configuration family systematically so a mutually exclusive option cannot evade it.
+- Decide whether compact Type expressions must be globally shortest. They currently remove each
+  individually redundant argument, including T3-8 duplicates, without the subset search needed to
+  prove a global minimum; search only equality-related arguments if exact minimality becomes useful.
+- Separate the expression API's three intents: an object's natural available expression, a resolved
+  Type's compact expression, and its full expression. Keep syntax expressions universe-independent;
+  converting an arbitrary expression to either resolved form must take a `ClassTable` explicitly.
 - Decouple cleanup lifetime from log visibility so player-meaningful signals such as `Pay` and
   `PayFromCard` need not inherit `Hidden` through `MustCleanUp`.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
@@ -95,10 +102,11 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   - `TaskDelegationTest`, `PhilaresTest`, `NewPromoCardsTest`, and `PropertyTest` recover a task by
     scanning ids or instruction text before selecting or dropping it. Keep mechanism assertions
     separate from gameplay calls when designing the replacement.
-  - Functional cross-player handoffs already proceed without explicit selection under `SAFE` when
-    the handoff is the only selectable task. The remaining tests mix it with forced sibling work;
-    `SAFE` stops because it cannot prove an order harmless. Prefer explicit sequencing or a narrow
-    proof of harmless reordering over making `SAFE` execute an arbitrary concrete sibling.
+  - Functional cross-player handoffs already proceed without explicit selection under `CONCRETE`
+    when the handoff is the only selectable task. The remaining tests mix it with forced sibling
+    work; `CONCRETE` stops because it cannot prove an order harmless. Prefer explicit sequencing or
+    a narrow proof of harmless reordering over making `CONCRETE` execute an arbitrary concrete
+    sibling.
   - Compare a context-component `ClassName` selector (for example, Search for Life or Big Asteroid)
     with matching the original pending instruction and with an already-held stable `TaskId`. Keep
     ordinary `doTask(concreteNarrowing)` as the default path.
@@ -119,17 +127,11 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   areas and add placement rules.
 - Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
   with the canonical card.
-- Serve copied Canon resources from the game-viewer Karma configuration; the resources reach the
-  test package, but `:game-viewer:jsBrowserTest` currently gets a 404 for
-  `canon/resource-index.txt`.
-- Investigate the intermittent Kotlin/Karma reporter crash during the unfiltered engine browser
-  suite: targeted browser suites and the normal smoke test pass, but the reporter can lose a
-  successful spec's console result and terminate the full run.
 - Complete the unsupported Milestones & Awards goals: Hydrologist and Thawer's player-attributed
   global-parameter steps, and the Turmoil-dependent Lobbyist and Politician rules.
 - Simplify `LiveEffect` actor binding by threading a binding context through subscription matching
   instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
 - Separate `Instructor`'s resolution-only capability from execution so `Changer`, `Effector`, and
   the default Actor do not remain nullable solely for `InstructionResolutionTest`.
-- Replace `World.onAtomicComplete`'s mutable single callback with scoped listener registration once
+- Replace `World.onTransactionComplete`'s mutable single callback with scoped listener registration once
   multiple workflow or monitoring observers need to coexist.

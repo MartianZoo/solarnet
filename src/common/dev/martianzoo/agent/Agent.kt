@@ -1,0 +1,189 @@
+package dev.martianzoo.agent
+
+import dev.martianzoo.engine.AbortTransactionException
+import dev.martianzoo.engine.TaskQueue
+import dev.martianzoo.pets.api.Exceptions.AbstractException
+import dev.martianzoo.pets.api.Exceptions.KindException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.PetElement
+import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
+import dev.martianzoo.pets.data.Task.TaskId
+import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.Multiset
+import kotlin.reflect.KClass
+
+/** The single, fully permissive mutation authority for one Actor in a World. */
+public interface Agent {
+
+  // READ OPERATIONS
+
+  public val actor: Actor
+
+  /** The current World view used to interpret this Actor's tasks. */
+  public val reader: GameReader
+
+  /** Tasks currently assigned to this Actor. */
+  public val tasks: TaskQueue
+
+  /**
+   * Parses and preprocesses [text]. Preprocessing may change its major kind; callers that require a
+   * particular result kind should use [parse].
+   */
+  public fun parseAs(type: KClass<out PetElement>, text: String): PetElement
+
+  public fun has(requirement: String): Boolean
+
+  /** Counts [metric], allowing explicit `EVAL` of metric properties in this Actor's context. */
+  public fun count(metric: String): Int
+
+  /** Returns each matching component's exact type expression, preserving multiplicity. */
+  public fun list(type: String): Multiset<Expression>
+
+  public fun resolve(expression: String): Type
+
+  // Purple mode (and below)
+
+  /**
+   * Narrows this Actor's selected task and resolves it again. A partial narrowing remains selected;
+   * a concrete result executes before this call returns.
+   *
+   * @param [narrowing] the new instruction tree; may be abstract or a grouped arm selected from an
+   *   `OR`; a group replaces this one task with one task per member; if identical to the current
+   *   instruction this method does nothing; an omitted intensity retains a stronger pending
+   *   intensity when the Class default would weaken it
+   * @throws [TaskException] if this Actor has no selected task
+   * @throws [NarrowingException] if [narrowing] does not narrow the selected task's instruction
+   */
+  public fun narrowTask(narrowing: String): TaskResult
+
+  /**
+   * Narrows this Actor's task identified by [taskId]. An unselected task is replaced only when
+   * [narrowing] discards options using immutable Class and task structure; it remains unselected
+   * and is not resolved or executed. A selected task behaves as in [narrowTask].
+   *
+   * @throws [TaskException] if [taskId] is not assigned to this Actor or another task holds the
+   *   select-lock
+   * @throws [NarrowingException] if [narrowing] does not narrow the task without consulting mutable
+   *   World state
+   */
+  public fun narrowTask(taskId: TaskId, narrowing: String): TaskResult
+
+  /** Tells whether [selectTask] will complete normally. */
+  public fun canSelectTask(taskId: TaskId): Boolean
+
+  /** Tells whether selecting [taskId] would also execute it without further narrowing. */
+  public fun canExecuteTask(taskId: TaskId): Boolean
+
+  /**
+   * Selects one pending task and resolves its instruction against the current World. An abstract
+   * result remains selected for later [narrowTask] calls and may move to its narrower's queue while
+   * retaining its controller. A concrete result executes before this call returns.
+   *
+   * If resolution produces independent instructions, selecting the structural task completes it and
+   * admits those instructions as ordinary pending siblings.
+   *
+   * @throws [TaskException] if no task with id [taskId] exists, or if any other task is already
+   *   selected
+   * @throws [NotNowException] if the selected task cannot execute in the current World
+   */
+  public fun selectTask(taskId: TaskId): TaskResult
+
+  /**
+   * Selects the single pending task whose current instruction is [instruction]. Equivalent tasks
+   * that differ only by id are interchangeable.
+   */
+  public fun selectTask(instruction: String): TaskResult
+
+  /**
+   * Carries out the task matched by the source-level [narrowing] instruction tree. A grouped tree
+   * can select a grouped choice and replace the matched task with independent tasks; preprocessing
+   * can produce the same replacement, for example when atomizing a multi-step global parameter
+   * gain. Explicitly submitted grouped instructions execute as one bundled command; siblings
+   * exposed only by preprocessing or resolution remain ordinary pending tasks. Selects and resolves
+   * the matched task first if necessary. As part of this, executes triggered instructions from
+   * *automatic* effects, enqueues tasks for queued effects and any contents of [Task.then], and
+   * removes the original task from the game's task queue. Throws an exception if any of this fails.
+   *
+   * A selected task always wins. Otherwise, the narrowing must match exactly one task, except that
+   * fully identical tasks are interchangeable. When the narrowing omits an intensity and its Class
+   * default would weaken the pending task's intensity, the pending intensity is retained; an
+   * explicitly written intensity must narrow normally.
+   *
+   * @throws [AbstractException] if the task is abstract
+   * @throws [NotNowException] if the task can't currently be resolved
+   */
+  public fun doTask(narrowing: String): TaskResult
+
+  /** Carries out [narrowing] against the task identified by [taskId]. */
+  public fun doTask(narrowing: String, taskId: TaskId): TaskResult
+
+  public fun tryTask(narrowing: String): TaskResult
+
+  /** Tries [narrowing] against the task identified by [taskId]. */
+  public fun tryTask(narrowing: String, taskId: TaskId): TaskResult
+
+  /** Tries to select and execute [taskId], leaving it pending when it needs a choice. */
+  public fun tryTask(taskId: TaskId): TaskResult
+
+  public fun autoExecNow(): TaskResult
+
+  public var autoExecPolicy: AutoExecPolicy
+
+  public fun startTurn(): TaskResult
+
+  public fun inTurn(body: OperationBlock = {}): TaskResult
+
+  /** Starts and completes an operation seeded by one or more independent instructions. */
+  public fun runOperation(initialInstructions: String, body: OperationBlock = {}): TaskResult
+
+  /** Starts a resumable operation seeded by one or more independent instructions. */
+  public fun beginOperation(initialInstructions: String, body: OperationBlock = {}): TaskResult
+
+  public fun continueOperation(body: OperationBlock = {}): TaskResult
+
+  public fun completeOperation(body: OperationBlock = {}): TaskResult
+
+  /** Adds a manual task for the given [instruction], but does not select or execute it. */
+  public fun addTasks(instruction: String, firstCause: Cause? = null): List<TaskId>
+
+  /** Removes the identified task ex-machina. */
+  public fun dropTask(taskId: TaskId): TaskRemovedEvent
+
+  public fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
+
+  public interface OperationScope {
+    public val tasks: TaskQueue
+    public val reader: GameReader
+
+    public fun doTask(narrowing: String)
+
+    public fun doTask(narrowing: String, taskId: TaskId)
+
+    public fun tryTask(narrowing: String)
+
+    public fun tryTask(narrowing: String, taskId: TaskId)
+
+    public fun autoExecNow()
+
+    public fun abort(): Nothing = throw AbortTransactionException()
+  }
+
+  public companion object {
+    public inline fun <reified P : PetElement> Agent.parse(text: String): P {
+      val parsed = parseAs(P::class, text)
+      if (parsed !is P) {
+        throw KindException(
+            "Preprocessing produced `$parsed`, which is not a ${P::class.simpleName}"
+        )
+      }
+      return parsed
+    }
+  }
+}

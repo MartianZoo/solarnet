@@ -1,7 +1,6 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.Vocabulary
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
@@ -15,8 +14,8 @@ import dev.martianzoo.pets.types.ClassTable
  * (respectively).
  *
  * These are live objects rather than read-only/writable interface pairs. Their engine-internal
- * mutation operations live on the same types, while [agent] remains the public coordinated route
- * for complete world operations.
+ * mutation methods live on the same types. [actorEngine] provides the Actor-attributed mutation
+ * boundary used by higher-level clients.
  *
  * A [GameReader] provides the public component queries, including queries expressed as a Pets
  * [Metric] or [Requirement].
@@ -44,15 +43,13 @@ public interface World {
   /** The immutable classes available to this world. */
   public val classTable: ClassTable
 
-  /** Session-specific localized input and rendering names. */
-  public val vocabulary: Vocabulary
-
   /** Whether no task or temporary component remains from an unfinished operation. */
   public fun isIdle(): Boolean =
       tasks.isEmpty() && reader.has(parse("MAX 0 MustCleanUp, MAX 0 Temporary"))
 
-  public fun agent(actor: Actor): Agent
+  /** Returns the stable mutation engine for [actor]. */
+  public fun actorEngine(actor: Actor): ActorEngine
 
-  /** Called after every outermost atomic operation completes. */
-  public var onAtomicComplete: () -> Unit
+  /** Called after every outermost transaction completes. */
+  public var onTransactionComplete: () -> Unit
 }

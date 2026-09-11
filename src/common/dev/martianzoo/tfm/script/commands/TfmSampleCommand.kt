@@ -31,8 +31,9 @@ internal class TfmSampleCommand(private val repl: ScriptSession) : ScriptCommand
     val (id, gens) = parts
     if (id != "A") throw UsageException("unknown id: $id")
 
-    repl.game = SampleGames.sampleGame(gens.toInt())
-    repl.agent = repl.game.agent(ADMIN) // default autoexec mode
+    val agents = SampleGames.sampleGame(gens.toInt())
+    repl.agents = agents
+    repl.agent = agents[ADMIN] // default autoexec policy
     return listOf("Okay, did that.")
   }
 }

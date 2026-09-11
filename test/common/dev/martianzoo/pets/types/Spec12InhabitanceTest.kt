@@ -34,10 +34,10 @@ internal class Spec12InhabitanceTest {
 
   private val view = gameView(catalog, "Player1", "Gardener", "ClaimMilestoneAction")
 
-  // 12-1 The three states of a name
+  // T12-1 The three states of a name
 
   @Test
-  internal fun `12-1 a name is active, uninhabited, or unknown`() {
+  internal fun `T12-1 a name is active, uninhabited, or unknown`() {
     view.isActive(cn("Gardener")) shouldBe true
     view.isActive(cn("Terraformer")) shouldBe false
     view.findClass(cn("Terraformer")) shouldBe master.getClass(cn("Terraformer"))
@@ -46,7 +46,7 @@ internal class Spec12InhabitanceTest {
   }
 
   @Test
-  internal fun `12-1 an uninhabited class keeps its name, hierarchy and dependencies`() {
+  internal fun `T12-1 an uninhabited class keeps its name, hierarchy and dependencies`() {
     val terraformer = view.getClass(cn("Terraformer"))
 
     view.resolve(te("Terraformer")).expressionFull shouldBe te("Terraformer<Owner>")
@@ -56,26 +56,26 @@ internal class Spec12InhabitanceTest {
     view.resolve(te("Class<Terraformer>")).representedClass shouldBe terraformer
   }
 
-  // 12-2 A view reuses the master universe
+  // T12-2 A view reuses the master universe
 
   @Test
-  internal fun `12-2 a view shares the master's classes and types`() {
+  internal fun `T12-2 a view shares the master's classes and types`() {
     (view.getClass(cn("Gardener")) === master.getClass(cn("Gardener"))) shouldBe true
     (view.resolve(te("Gardener")) === master.resolve(te("Gardener"))) shouldBe true
     view.knows(master.resolve(te("Gardener"))) shouldBe true
   }
 
   @Test
-  internal fun `12-2 resolution and subtyping do not depend on the view`() {
+  internal fun `T12-2 resolution and subtyping do not depend on the view`() {
     view.resolve(te("Terraformer")) shouldBe master.resolve(te("Terraformer"))
     view.resolve(te("Terraformer")).isSubtypeOf(view.resolve(te("Milestone"))) shouldBe
         master.resolve(te("Terraformer")).isSubtypeOf(master.resolve(te("Milestone")))
   }
 
-  // 12-3 What the view does change
+  // T12-3 What the view does change
 
   @Test
-  internal fun `12-3 subclass enumeration is view-relative`() {
+  internal fun `T12-3 subclass enumeration is view-relative`() {
     master.allSubclasses(master.getClass(cn("Milestone"))).map { "$it" } shouldContainExactly
         listOf("Gardener", "Terraformer", "Milestone")
     view.allSubclasses(view.getClass(cn("Milestone"))).map { "$it" } shouldContainExactly
@@ -85,7 +85,7 @@ internal class Spec12InhabitanceTest {
   }
 
   @Test
-  internal fun `12-3 concrete enumeration is view-relative`() {
+  internal fun `T12-3 concrete enumeration is view-relative`() {
     master
         .allConcreteSubtypes(master.resolve(te("Milestone")))
         .map { "$it" }
@@ -101,23 +101,23 @@ internal class Spec12InhabitanceTest {
   }
 
   @Test
-  internal fun `12-3 an uninhabited type enumerates nothing`() {
+  internal fun `T12-3 an uninhabited type enumerates nothing`() {
     view.allConcreteSubtypes(view.resolve(te("Terraformer"))).toList() shouldBe listOf()
     view.allConcreteSubtypes(view.resolve(te("Class<Terraformer>"))).toList() shouldBe listOf()
     view.concreteSubtypesSameClass(view.resolve(te("Terraformer"))).toList() shouldBe listOf()
   }
 
   @Test
-  internal fun `12-3 automatic narrowing can succeed in a view where the master is undecided`() {
+  internal fun `T12-3 automatic narrowing can succeed in a view where the master is undecided`() {
     master.singleConcreteSubtype(master.resolve(te("Milestone")), fullWorld) shouldBe null
     view.singleConcreteSubtype(view.resolve(te("Milestone")), fullWorld) shouldBe
         view.resolve(te("Gardener<Player1>"))
   }
 
-  // 12-4 Active types
+  // T12-4 Active types
 
   @Test
-  internal fun `12-4 a type is active when its class and every dependency bound are`() {
+  internal fun `T12-4 a type is active when its class and every dependency bound are`() {
     view.isActive(view.resolve(te("Gardener<Player1>"))) shouldBe true
     view.isActive(view.resolve(te("Terraformer"))) shouldBe false
     view.isActive(view.resolve(te("ClaimMilestoneAction<Gardener>"))) shouldBe true
@@ -125,17 +125,17 @@ internal class Spec12InhabitanceTest {
   }
 
   @Test
-  internal fun `12-4 a type from another catalog is not known, let alone active`() {
+  internal fun `T12-4 a type from another catalog is not known, let alone active`() {
     val other = testCatalog("ABSTRACT CLASS Milestone { CLASS Gardener }").classTable
 
     view.knows(other.resolve(te("Gardener"))) shouldBe false
     view.isActive(other.resolve(te("Gardener"))) shouldBe false
   }
 
-  // 12-5 Structural meaning is catalog-wide
+  // T12-5 Structural meaning is catalog-wide
 
   @Test
-  internal fun `12-5 a difference is judged in the master universe, not the view`() {
+  internal fun `T12-5 a difference is judged in the master universe, not the view`() {
     val overlaps =
         testCatalog(
             """

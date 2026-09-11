@@ -48,10 +48,10 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   warranted by the scope of the change or explicitly requested.
 - `./gradlew test` runs every repository JVM test suite, including the multiplatform modules whose
   JVM test tasks are named `jvmTest`.
-- `./gradlew :tfm-tests:jsBrowserSmokeTest` runs only the extensive three-player
-  `OtbGame20260828Test` replay.
-- `./gradlew jsBrowserTest` runs every module's browser suite. Terraforming Mars full-game replays
-  other than `OtbGame20260828Test` are JVM-only and cannot be selected by a browser task.
+- `./gradlew :tfm-tests:jsBrowserSmokeTest` runs the only browser test: the extensive three-player
+  `OtbGame20260828Test` replay. Kotlin-generated browser-test tasks in every other module are
+  permanently skipped, and the underlying `:tfm-tests:jsBrowserTest` task is permanently filtered
+  to that replay. No Gradle invocation may run other tests in a browser.
 - `./gradlew :tfm-tests:sampleRandomCards` prints randomly generated project cards as raw Pets.
   Use `-PrandomCardCount=N` and `-PrandomCardSeed=N` to control and reproduce a sample, and add
   `-PrandomCardOutput=PATH` to write it to a text file. The task has no dependency on the language
@@ -204,7 +204,7 @@ success depend on an incidental assignee unless that test is explicitly about de
 Keep gameplay and test APIs generic. Never add a Kotlin helper or DSL operation solely to represent
 one card, corporation, Prelude, or other component. Use existing gameplay helpers when their
 operation scopes fit. When component-specific steps must stay inside an outer operation, express
-them through existing `OperationBody` primitives so any sibling task may remain pending. Add a
+them through existing `OperationScope` primitives so any sibling task may remain pending. Add a
 shared helper only for a recurring, component-independent concept that materially simplifies
 several call sites. `TfmGameplay` must not repair the game model by creating or relocating rule
 components, imposing order absent from Pets or the engine, or identifying work by rendered text or
@@ -217,7 +217,7 @@ belongs in player-level scenarios.
 
 Keep scenarios minimal and legible. Card tests use the base game and two players by default unless
 the behavior requires something else, add only relevant options and components, and consistently
-name the gameplay objects `p1` and `p2`. Use `manual()` when only the resulting setup matters instead
+name the gameplay objects `p1` and `p2`. Use `runOperation()` when only the resulting setup matters instead
 of replaying an irrelevant play-card sequence. Avoid `sneak`: it can create impossible states.
 Synthetic card scenarios pass their card and supporting `ClassDeclaration`s to the `CardTest`
 constructor; they are composed with Canon and selected in that test's premise.
@@ -236,8 +236,8 @@ in whole games and should use the standard `TfmGameplay` actions and result expe
 Full-game tests override a `config` property with a `GameConfig`, conventionally built from an
 indented multiline string followed by player-name varargs. Catalog-backed premise resolution adds
 `TerraformingMars` and, when no other map is named, `TharsisMap`; the parser already trims each
-entry, so these literals do not need `trimIndent()`. Solo tests conventionally give canonical
-`Player1` the vocabulary alias `Me` and use `Player.PLAYER1` in Kotlin. The raw-configuration
+entry, so these literals do not need `trimIndent()`. Solo tests conventionally use `Me` as the
+canonical Player Class Name and use `Player.PLAYER1` in Kotlin. The raw-configuration
 overload in `CardTest` uses the same resolution path.
 
 ### Expectations

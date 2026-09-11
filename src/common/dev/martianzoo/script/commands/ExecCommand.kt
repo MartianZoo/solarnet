@@ -10,7 +10,7 @@ internal class ExecCommand(private val repl: ScriptSession) : ScriptCommand("exe
   override val usage = "exec <Instruction>"
   override val help =
       """
-        Initiates the specified instruction; see syntax.md on github for details on syntax. If
+        Initiates the specified instruction; see pets-language-spec.md on github for syntax. If
         `auto` mode is on, it will also try to execute any tasks that result from this. Otherwise
          use `tasks` to see which tasks are waiting for you.
       """

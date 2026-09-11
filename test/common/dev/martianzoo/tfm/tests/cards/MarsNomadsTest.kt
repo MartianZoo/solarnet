@@ -19,12 +19,12 @@ internal class MarsNomadsTest : CardTest() {
   internal fun `Play places the marker on an empty land area without collecting its bonus`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.manual("CityTile<Tharsis_2_1>")
-    p2.manual("Community<Tharsis_1_3>")
-    p1.manual("OceanTile<Tharsis_1_2>")
-    p1.manual("-2 Steel")
+    p1.runOperation("CityTile<Tharsis_2_1>")
+    p2.runOperation("Community<Tharsis_1_3>")
+    p1.runOperation("OceanTile<Tharsis_1_2>")
+    p1.runOperation("-2 Steel")
 
-    p1.manual("$MarsNomads") {
+    p1.runOperation("$MarsNomads") {
       shouldThrowAny { doTask("NomadsMarker<Tharsis_1_2>") }
       shouldThrow<NarrowingException> { doTask("NomadsMarker<Tharsis_2_1>") }
       shouldThrow<NarrowingException> { doTask("NomadsMarker<Tharsis_1_3>") }
@@ -37,7 +37,7 @@ internal class MarsNomadsTest : CardTest() {
   @Test
   internal fun `Action moves the marker to an adjacent area and collects its placement bonus`() {
     newGame(PromoCardPack)
-    p1.manual("$MarsNomads") { doTask("NomadsMarker<Tharsis_2_1>") }
+    p1.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_2_1>") }
     admin.phase("Action")
 
     p1.cardAction1(MarsNomads) {
@@ -54,8 +54,8 @@ internal class MarsNomadsTest : CardTest() {
   @Test
   internal fun `Action requires an adjacent unoccupied destination`() {
     newGame(PromoCardPack)
-    p1.manual("$MarsNomads") { doTask("NomadsMarker<Tharsis_1_1>") }
-    p1.manual("CityTile<Tharsis_2_1>")
+    p1.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_1_1>") }
+    p1.runOperation("CityTile<Tharsis_2_1>")
     admin.phase("Action")
 
     p1.cardAction1(MarsNomads) {
@@ -78,11 +78,11 @@ internal class MarsNomadsTest : CardTest() {
   internal fun `Marker blocks tiles without reserving its current area`() {
     newGame(PromoCardPack, CorporateEraExpansion)
     val p2 = requireP2()
-    p1.manual("$MarsNomads") { doTask("NomadsMarker<Tharsis_1_1>") }
+    p1.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_1_1>") }
 
-    shouldThrow<DeadEndException> { p1.manual("CityTile<Tharsis_1_1>") }
-    shouldThrow<DeadEndException> { p2.manual("GreeneryTile<Tharsis_1_1>") }
-    p2.manual("$LandClaim") { doTask("Community<Tharsis_1_1>") }
+    shouldThrow<DeadEndException> { p1.runOperation("CityTile<Tharsis_1_1>") }
+    shouldThrow<DeadEndException> { p2.runOperation("GreeneryTile<Tharsis_1_1>") }
+    p2.runOperation("$LandClaim") { doTask("Community<Tharsis_1_1>") }
     p2.assertCounts(
         1 to "Community<Tharsis_1_1>",
         1 to "NomadsMarker<Player1, Tharsis_1_1>",
@@ -92,15 +92,15 @@ internal class MarsNomadsTest : CardTest() {
       doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1>")
     }
 
-    p2.manual("CityTile<Tharsis_1_1>")
-    shouldThrow<DeadEndException> { p2.manual("CityTile<Tharsis_2_2>") }
+    p2.runOperation("CityTile<Tharsis_1_1>")
+    shouldThrow<DeadEndException> { p2.runOperation("CityTile<Tharsis_2_2>") }
   }
 
   @Test
   internal fun `Movement earns the normal bonus for each adjacent ocean`() {
     newGame(PromoCardPack)
-    p1.manual("$MarsNomads") { doTask("NomadsMarker<Tharsis_4_7>") }
-    p1.manual("OceanTile<Tharsis_5_6>, OceanTile<Tharsis_6_7>, OceanTile<Tharsis_6_8>")
+    p1.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_4_7>") }
+    p1.runOperation("OceanTile<Tharsis_5_6>, OceanTile<Tharsis_6_7>, OceanTile<Tharsis_6_8>")
     admin.phase("Action")
 
     p1.cardAction1(MarsNomads) {
@@ -112,10 +112,10 @@ internal class MarsNomadsTest : CardTest() {
   @Test
   internal fun `Lakefront Resorts increases Nomads ocean bonuses`() {
     newGame(PromoCardPack, TurmoilCardPack)
-    p1.manual("$LakefrontResorts")
-    p1.manual("$MarsNomads") { doTask("NomadsMarker<Tharsis_4_6>") }
-    p1.manual("OceanTile<Tharsis_4_8>")
-    p1.manual("-54 MC")
+    p1.runOperation("$LakefrontResorts")
+    p1.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_4_6>") }
+    p1.runOperation("OceanTile<Tharsis_4_8>")
+    p1.runOperation("-54 MC")
     admin.phase("Action")
 
     p1.cardAction1(MarsNomads) {
@@ -128,9 +128,9 @@ internal class MarsNomadsTest : CardTest() {
   @Test
   internal fun `Nomads collect metal without triggering Mining Guild`() {
     newGame(PromoCardPack)
-    p1.manual("$MiningGuild")
-    p1.manual("$MarsNomads") { doTask("NomadsMarker<Tharsis_2_1>") }
-    p1.manual("-5 Steel")
+    p1.runOperation("$MiningGuild")
+    p1.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_2_1>") }
+    p1.runOperation("-5 Steel")
     admin.phase("Action")
 
     p1.cardAction1(MarsNomads) {
@@ -143,9 +143,9 @@ internal class MarsNomadsTest : CardTest() {
   @Test
   internal fun `Action is unavailable when every adjacent area is occupied or reserved`() {
     newGame(PromoCardPack)
-    p1.manual("$MarsNomads") { doTask("NomadsMarker<Tharsis_1_1>") }
-    p1.manual("CityTile<Tharsis_2_1>")
-    p1.manual("GreeneryTile<Tharsis_2_2>")
+    p1.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_1_1>") }
+    p1.runOperation("CityTile<Tharsis_2_1>")
+    p1.runOperation("GreeneryTile<Tharsis_2_2>")
     admin.phase("Action")
 
     shouldThrowAny { p1.cardAction1(MarsNomads) }

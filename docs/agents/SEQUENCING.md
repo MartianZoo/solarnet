@@ -47,9 +47,9 @@
   `MAX_AUTOMATIC_EFFECT_DEPTH` caps runaway chains.
 - [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt) — `fire` selects the complete
   sibling batch; `stableAutomaticOrder` is diagnostic order only.
-- [`AtomicOperationScope.kt`](../../src/common/dev/martianzoo/engine/AtomicOperationScope.kt) —
-  `performIdleCleanup`, and `Engine.removeTemporaryComponents` next to it.
-- [`Implementations.kt`](../../src/common/dev/martianzoo/engine/Implementations.kt) —
+- [`WorldTransaction.kt`](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) —
+  `settleAndCleanUp`, and `Engine.removeTemporaryComponents` next to it.
+- [`ActorEngine.kt`](../../src/common/dev/martianzoo/engine/ActorEngine.kt) —
   `enforceSelectLock` and `requireComplete`.
 - [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) — the class KDoc lists
   every normalization applied to a task on the way in.
@@ -61,7 +61,7 @@
   — `CLASS Trade<ColonyTile>` for the counted-prerequisite latch.
 - Tests: [`ActionSequencingTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/ActionSequencingTest.kt),
   [`AutomaticEffectOrderTest.kt`](../../test/common/dev/martianzoo/engine/AutomaticEffectOrderTest.kt),
-  [`AtomicOperationScopeTest.kt`](../../test/common/dev/martianzoo/engine/AtomicOperationScopeTest.kt).
+  [`WorldTransactionTest.kt`](../../test/common/dev/martianzoo/engine/WorldTransactionTest.kt).
 
 ## The promises
 
@@ -78,7 +78,7 @@ The third column is what actually holds the promise today, which is not always a
 | **All-or-nothing** | A speculative operation that reaches a dead end leaves no trace. | `Timeline.atomic` and `EventLog.rollBackTo`. Tested. |
 | **Sealed tasks** | No authored game behavior edits, reprioritizes, cancels, or removes another task. | Structural: Pets has no instruction that can name a task. |
 | **No hidden ordering state** | No ordering guarantee depends on runtime state that rollback does not restore. | `AutomaticEffectOrderTest`. |
-| **Scope hygiene** | No `MustCleanUp` component outlives the operation that created it. | `requireComplete`, at the `manual` and `finish` boundaries only. |
+| **Scope hygiene** | No `MustCleanUp` component outlives the operation that created it. | `requireComplete` at `runOperation` and `completeOperation` boundaries. |
 
 Freedom and Snapshot are the two weakest rows, and they are the two that matter most: Freedom is
 most of what "correct sequencing" means here, and Snapshot is the rule every future change to
@@ -383,7 +383,7 @@ automatic work again and repeats cleanup until an idle pass finds nothing left t
 Only that empty pass allows the workflow callback. Work the callback starts synchronously is
 coalesced into one automatic follow-up step, and the same cleanup loop runs again before the
 resulting position is recorded. Every pass happens inside an atomic transaction. See
-`AtomicOperationScope.performIdleCleanup` and `Engine.removeTemporaryComponents`.
+`WorldTransaction.settleAndCleanUp` and `Engine.removeTemporaryComponents`.
 
 Three classes use it:
 
@@ -488,11 +488,14 @@ constraint, a real case — not by rediscovering the cost.
   components remove the same saturating `Owed`, so order decides who is credited with the last
   units. Reconstructed games still reach the same paid state. The repair is the payment direction in
   [PAYMENTS.md](PAYMENTS.md), not sibling precedence.
-- **The `Die` produce/consume pipeline — at peace.** `PetElaborator.invalidChangesToDie` emits the
-  marker and `Task.normalizeForTask` eliminates it: a bottom value plus its normalization, not a
-  duplicated fact. `PremiseViability` runs the same reasoning statically and earns its place by
-  failing a bad premise at setup. Only the three-valued interpreter it copies from `ClassLoader` is
-  genuine duplication, and that is in [TODO.md](../../TODO.md).
+- **`Die` and `Ok` are complementary terminal results.** `Die` denotes an impossible branch and
+  `Ok` denotes the identity instruction. The current `PetElaborator.invalidChangesToDie` marker and
+  `Task.normalizeForTask` normalization form a coherent bridge, and `PremiseViability` earns its
+  separate static check by rejecting a bad premise during setup. The selected class-universe model
+  in [CLASS_TABLES.md](CLASS_TABLES.md#die-and-ok) should eventually make `Die` an intentionally
+  unrealized abstract Type and make impossible changes follow that ordinary rule. Whatever the
+  representation, a completed universe must admit no realizable subtype of `Die`, and source must
+  admit no `Ok:` trigger: `Ok` produces no change event for such an effect to observe.
 
 ## Research on file
 

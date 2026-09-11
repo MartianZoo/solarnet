@@ -44,7 +44,7 @@ lifetime of that game rather than denoting one snapshot.
 
 The `:gameworld` module owns that data model. A Game World contains:
 
-- immutable premise-derived context, including its Class Table, Actors, and Vocabulary;
+- immutable premise-derived context, including its Class Table and Actors;
 - the `ComponentGraph`, which materializes the components present at the current position;
 - one unordered queue of exact pending `Task` values;
 - the complete `GameEvent` log; and
@@ -96,8 +96,7 @@ retrying the original removal. Playback merely reapplies those recorded events.
 
 Runtime `Task`, `GameEvent`, and recording-position values belong to `:gameworld` and should move
 there; current source still places `Task` and `GameEvent` in `:pets`. Task construction and
-normalization belong in `:engine`. Event and task rendering currently attached to `Vocabulary` must
-move or become higher-layer extensions so `:pets` does not depend upward on runtime data.
+normalization belong in `:engine`.
 
 ## Live play and recording navigation
 

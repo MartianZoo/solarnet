@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.web.gameviewer
 
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
@@ -42,15 +43,21 @@ internal fun cardImageDirectory(card: Type): String? {
 }
 
 /** This card's configured resource type and live count for [player], when it can hold resources. */
-internal fun cardResourceCount(game: World, player: Player, card: Type): Pair<ClassName, Int>? {
-  val resourceType = cardResourceType(game.reader.tfmCatalog.card(card.className)) ?: return null
-  return resourceType to game.tfm(player).count("$resourceType<${card.className}>")
+internal fun cardResourceCount(
+    agents: Agents,
+    player: Player,
+    card: Type,
+): Pair<ClassName, Int>? {
+  val reader = agents.world.reader
+  val resourceType = cardResourceType(reader.tfmCatalog.card(card.className)) ?: return null
+  return resourceType to agents.tfm(player).count("$resourceType<${card.className}>")
 }
 
 /** Whether this action card has its generational used marker at the current recording position. */
-internal fun hasActionUsedMarker(game: World, player: Player, card: Type): Boolean {
-  if (!card.isSubtypeOf(game.reader.resolve(cn("ActionCard").expression))) return false
-  return game.tfm(player).count("ActionUsedMarker<${card.className}>") > 0
+internal fun hasActionUsedMarker(agents: Agents, player: Player, card: Type): Boolean {
+  val reader = agents.world.reader
+  if (!card.isSubtypeOf(reader.resolve(cn("ActionCard").expression))) return false
+  return agents.tfm(player).count("ActionUsedMarker<${card.className}>") > 0
 }
 
 /** Event cards in this player's played-event pile, retaining their play order. */

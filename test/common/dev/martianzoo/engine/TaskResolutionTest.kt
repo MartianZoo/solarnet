@@ -1,5 +1,8 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.AutoExecPolicy
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.data.GameEvent
@@ -21,7 +24,7 @@ internal class TaskResolutionTest {
   private val tasks = game.tasks
   private val events = game.events
   private val start = game.timeline.checkpoint()
-  private val agent = game.agent(PLAYER1).also { it.autoExecMode = AutoExecMode.NONE }
+  private val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = AutoExecPolicy.NONE }
 
   @Test
   internal fun `selecting resolves an abstract task and takes the select-lock`() {
@@ -95,8 +98,8 @@ internal class TaskResolutionTest {
 
   @Test
   internal fun `selection resolves an OR by pruning impossible options`() {
-    initiate("-TR OR -Plant OR Heat OR Tharsis_5_5!")
-    agent.selectTask("-TR OR -Plant OR Heat OR Tharsis_5_5!")
+    initiate("-TerraformRating OR -Plant OR Heat OR Tharsis_5_5!")
+    agent.selectTask("-TerraformRating OR -Plant OR Heat OR Tharsis_5_5!")
 
     tasksAsText().shouldContainExactlyInAnyOrder("-TerraformRating<Player1>! OR Heat<Player1>!")
   }

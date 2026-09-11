@@ -35,11 +35,10 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
       CLASS Player3 : Player
       """
           .trimIndent()
-  override val inputOnlySynonyms = emptyList<Pair<String, String>>()
 
   @Test
   internal fun game20260811() {
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(agents).launch()
     retainStartingProjects(4, 5, 7)
 
     val purple = p1

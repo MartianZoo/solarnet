@@ -6,9 +6,16 @@ import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.pets.PetTokenizer
 
-/** Reads one numeric property from [receiver], which may be supplied later by refinement. */
+/**
+ * Reads one numeric class property, spelled `receiver.name` ([rule
+ * L5-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics)). A
+ * property with no receiver takes one from the enclosing refinement candidate or context.
+ */
 public data class Property(
+    /** Which property to read. */
     public val propertyName: PropertyName,
+
+    /** Whose property to read, or null to take one from the enclosing candidate or context. */
     public val receiver: Expression? = null,
 ) : Metric() {
   internal companion object {

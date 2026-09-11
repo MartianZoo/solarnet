@@ -10,7 +10,7 @@ internal class SupercapacitorsTest : CardTest() {
   @Test
   internal fun `Can preserve some energy`() {
     newGame(PromoCardPack)
-    p1.manual("PROD[3 Energy, 5 Heat], 3 Energy, 9 Heat, Supercapacitors")
+    p1.runOperation("PROD[3 Energy, 5 Heat], 3 Energy, 9 Heat, Supercapacitors")
 
     admin.phase("Production") { p1.doTask("Energy FROM Heat!") }
 
@@ -20,7 +20,7 @@ internal class SupercapacitorsTest : CardTest() {
   @Test
   internal fun `Can preserve no energy`() {
     newGame(PromoCardPack)
-    p1.manual("PROD[3 Energy, 5 Heat], 3 Energy, 9 Heat, Supercapacitors")
+    p1.runOperation("PROD[3 Energy, 5 Heat], 3 Energy, 9 Heat, Supercapacitors")
 
     admin.phase("Production") {
       // Decline converting energy into heat.
@@ -33,7 +33,7 @@ internal class SupercapacitorsTest : CardTest() {
   @Test
   internal fun `Can preserve all existing energy but not newly produced energy`() {
     newGame(PromoCardPack)
-    p1.manual("PROD[3 Energy, 5 Heat], 3 Energy, 9 Heat, Supercapacitors")
+    p1.runOperation("PROD[3 Energy, 5 Heat], 3 Energy, 9 Heat, Supercapacitors")
 
     admin.phase("Production") {
       shouldThrow<NarrowingException> { p1.doTask("4 Energy FROM Heat!") }

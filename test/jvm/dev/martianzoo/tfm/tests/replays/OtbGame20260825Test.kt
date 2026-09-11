@@ -12,8 +12,6 @@ import kotlin.test.assertEquals
 
 /** Physical game played Tuesday and Wednesday, 2026-08-25–26. */
 internal class OtbGame20260825Test : AbstractFullGameTest() {
-  override val inputOnlySynonyms = emptyList<Pair<String, String>>()
-
   override val config =
       GameConfig(
           """
@@ -30,7 +28,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
 
   @Test
   internal fun otbGame20260825() {
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(agents).launch()
     retainStartingProjects(10, 5)
     val green = player(1)
     val yellow = player(2)

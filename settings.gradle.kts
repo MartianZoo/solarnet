@@ -19,6 +19,7 @@ val modules =
         "pets",
         "tfm-text",
         "engine",
+        "agent",
         "tfm-engine",
         "tfm-tests",
         "script",

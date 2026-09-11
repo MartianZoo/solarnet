@@ -5,12 +5,16 @@ kotlin {
     commonTest {
       kotlin.setSrcDirs(
           listOf(
+              rootProject.layout.projectDirectory.dir(
+                  "test/common/dev/martianzoo/agenttestsupport"
+              ),
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/testsupport"),
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/tests"),
           )
       )
       dependencies {
         implementation(libs.kotest.assertions.core)
+        implementation(project(":agent"))
         implementation(project(":engine"))
         implementation(project(":pets"))
         implementation(project(":script"))
@@ -56,18 +60,12 @@ tasks.register<JavaExec>("sampleRandomCards") {
   }
 }
 
-val browserTestsRequested =
-    gradle.startParameter.taskNames.any { it.substringAfterLast(':') == "jsBrowserTest" }
-
-// A routine build exercises the most extensive shared replay in Chrome. Naming the browser task
-// directly removes this filter and runs every shared Terraforming Mars test. Other full-game
-// replays live in jvmTest so they cannot be selected by a browser task.
+// Browser verification is deliberately limited to one extensive shared replay. Keep this filter
+// unconditional: no Gradle invocation may use the JS target to run any other test.
 tasks.named<org.gradle.api.tasks.testing.AbstractTestTask>("jsBrowserTest") {
-  if (!browserTestsRequested) {
-    filter.includeTestsMatching(
-        "dev.martianzoo.tfm.tests.replays.OtbGame20260828Test.otbGame20260828"
-    )
-  }
+  filter.includeTestsMatching(
+      "dev.martianzoo.tfm.tests.replays.OtbGame20260828Test.otbGame20260828"
+  )
 }
 
 tasks.register("jsBrowserSmokeTest") {
@@ -75,7 +73,3 @@ tasks.register("jsBrowserSmokeTest") {
   description = "Runs one extensive Terraforming Mars game in a browser."
   dependsOn("jsBrowserTest")
 }
-
-// Generated game-specific Catalogs deliberately have distinct class universes. Periodic worker
-// replacement keeps the complete replay suite from retaining all of them in one test JVM.
-tasks.named<Test>("jvmTest") { forkEvery = 50 }

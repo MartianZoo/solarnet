@@ -13,9 +13,9 @@ internal class SpinOffDepartmentTest : CardTest() {
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
     )
-    p1.manual("$SpinOffDepartment")
-    p1.manual("$Mine")
+    p1.runOperation("$SpinOffDepartment")
+    p1.runOperation("$Mine")
     p1.count("ProjectCard") shouldBe 0
-    p1.manual("$EarthCatapult").expect("ProjectCard")
+    p1.runOperation("$EarthCatapult").expect("ProjectCard")
   }
 }

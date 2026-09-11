@@ -10,6 +10,7 @@ kotlin {
           )
       )
       dependencies {
+        implementation(project(":agent"))
         implementation(project(":pets"))
         implementation(project(":engine"))
         implementation(project(":tfm-canon"))
@@ -19,6 +20,9 @@ kotlin {
     commonTest {
       kotlin.setSrcDirs(
           listOf(
+              rootProject.layout.projectDirectory.dir(
+                  "test/common/dev/martianzoo/agenttestsupport"
+              ),
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/testsupport"),
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/script"),
           )

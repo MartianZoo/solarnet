@@ -12,7 +12,7 @@ internal class PublicPlansTest : CardTest() {
   internal fun `Cannot be played without another card to reveal`() {
     newGame(PromoCardPack)
     admin.phase("Action")
-    p1.manual("7 MC, ProjectCard")
+    p1.runOperation("7 MC, ProjectCard")
 
     shouldThrow<AbstractException> { p1.playProject(PublicPlans, 7) }
 
@@ -23,7 +23,7 @@ internal class PublicPlansTest : CardTest() {
   internal fun `Rewards every revealed card and returns it to hand`() {
     newGame(PromoCardPack)
     admin.phase("Action")
-    p1.manual("7 MC, 3 ProjectCard")
+    p1.runOperation("7 MC, 3 ProjectCard")
 
     p1.playProject(PublicPlans, 7) {
           doTask("2 ProjectCard<Revealed FROM Hand>")

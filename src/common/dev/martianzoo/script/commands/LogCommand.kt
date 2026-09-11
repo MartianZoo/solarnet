@@ -15,18 +15,18 @@ internal class LogCommand(private val repl: ScriptSession) : ScriptCommand("log"
         Shows everything that has happened in the current game (`log full`) or just the more
         interesting bits (i.e., filtering out Task changes, and filtering out changes to Hidden
         components other than phases -- just like the default output after `exec` or `task`
-        does). Component Types are shown in minimal form.
+        does). Component Types are shown in compact form.
       """
   override val isReadOnly = true
 
   override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
       context.completions("full", group = "log options")
 
-  override fun noArgs() = repl.game.visibleLogEvents().map(repl.game.vocabulary::renderPets)
+  override fun noArgs() = repl.game.visibleLogEvents().map { it.toString() }
 
   override fun withArgs(args: String): List<String> {
     if (args == "full") {
-      return repl.game.events.entriesSince(Checkpoint(0)).map(repl.game.vocabulary::renderPets)
+      return repl.game.events.entriesSince(Checkpoint(0)).map { it.toString() }
     } else {
       throw UsageException()
     }

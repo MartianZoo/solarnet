@@ -1,0 +1,4 @@
+"The Prelude 1 card pool, selected by default with the Prelude 1 rules"
+CLASS Prelude1CardPack : PreludeCardPack {
+  autoSelectWhen = HAS "PreludeExpansion"
+}

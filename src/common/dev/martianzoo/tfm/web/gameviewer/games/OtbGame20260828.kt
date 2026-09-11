@@ -26,7 +26,7 @@ public class OtbGame20260828 : RecordedGame() {
       )
 
   protected override fun play() {
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(agents).launch()
     val green = player(1)
     val blue = player(2)
     val yellow = player(3)
@@ -342,7 +342,7 @@ public class OtbGame20260828 : RecordedGame() {
       }
     }
     blue.turn { cardAction1(NitriteReducingBacteria) }
-    yellow.turn { playProject(HiredRaiders, 1) { doTask("3 M<Yellow> FROM M<Green>") } }
+    yellow.turn { playProject(HiredRaiders, 1) { doTask("3 MC<Yellow> FROM MC<Green>") } }
     green.turn { cardAction2(TitanShuttles, x = 3) }
     blue.turn { cardAction2(LocalShading) }
     yellow.turn { playProject(CuttingEdgeTechnology, 12) }

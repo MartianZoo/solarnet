@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.script
 
-import dev.martianzoo.engine.Agent
+import dev.martianzoo.agent.Agent
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -106,11 +106,11 @@ internal class StinaScriptTest {
         .filter(String::isNotEmpty)
         .forEach(repl::command)
 
-    val p1 = repl.game.tfm(repl.game.actors.filterIsInstance<Player>().single())
+    val p1 = repl.game.testTfm(repl.game.actors.filterIsInstance<Player>().single())
     p1.assertResources(m = 9, s = 0, t = 3, p = 2, e = 0, h = 15)
     p1.assertProduction(m = 2, s = 0, t = 1, p = 1, e = 9, h = 3)
     p1.assertCounts(
-        16 to "TR",
+        16 to "TerraformRating",
         2 to "ProjectCard",
         26 to "CardFront OR PlayedEvent",
         12 to "ActiveCard",
@@ -137,16 +137,23 @@ internal class StinaScriptTest {
   }
 
   private fun Agent.assertResources(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
-    assertCounts(m to "M", s to "S", t to "T", p to "P", e to "E", h to "H")
+    assertCounts(
+        m to "MC",
+        s to "Steel",
+        t to "Titanium",
+        p to "Plant",
+        e to "Energy",
+        h to "Heat",
+    )
   }
 
   private fun TfmGameplay.assertProduction(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
-    assertEquals(m, production(cn("M")), "M production")
-    assertEquals(s, production(cn("S")), "S production")
-    assertEquals(t, production(cn("T")), "T production")
-    assertEquals(p, production(cn("P")), "P production")
-    assertEquals(e, production(cn("E")), "E production")
-    assertEquals(h, production(cn("H")), "H production")
+    assertEquals(m, production(cn("MC")), "MC production")
+    assertEquals(s, production(cn("Steel")), "Steel production")
+    assertEquals(t, production(cn("Titanium")), "Titanium production")
+    assertEquals(p, production(cn("Plant")), "Plant production")
+    assertEquals(e, production(cn("Energy")), "Energy production")
+    assertEquals(h, production(cn("Heat")), "Heat production")
   }
 
   private fun Agent.assertTags(

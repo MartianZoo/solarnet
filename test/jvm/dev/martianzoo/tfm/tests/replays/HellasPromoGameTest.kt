@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.agenttestsupport.testAgents
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
-import dev.martianzoo.tfm.tests.TEST_CLASS_SYNONYMS
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.Hellas
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
@@ -28,7 +28,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
 
   @Test
   internal fun hellasPromoGame() {
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val workflow = TfmWorkflow.Automatic(agents).launch()
     retainStartingProjects(7, 5)
     workflow.isRunning shouldBe true
 
@@ -48,7 +48,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
 
     p1.turn {
       playProject(MediaGroup, 6)
-      playProject(Sabotage, 1) { doTask("-7 M<Player2>") }
+      playProject(Sabotage, 1) { doTask("-7 MC<Player2>") }
     }
     p2.turn {
       playProject(Research, 11) // 1 VP<Player2>, 2 TR<Player2>
@@ -60,7 +60,9 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
     p1.pass()
     p2.turn {
       playProject(SearchForLife, 3) {
-        doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TR") // 3 TR<Player2>
+        doTask(
+            "PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating"
+        ) // 3 TR<Player2>
       }
       cardAction1(SearchForLife) { /* Decline the science resource. */
         declineTask()
@@ -88,7 +90,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
       }
       playProject(GeothermalPower, 1, steel = 4)
       playProject(MirandaResort, 10) // 1 VP<Player1>
-      playProject(Hackers, 1) { doTask("PROD[-2 M<Player2>]") } // -1 VP<Player1>
+      playProject(Hackers, 1) { doTask("PROD[-2 MC<Player2>]") } // -1 VP<Player1>
       playProject(MicroMills, 1)
     }
     p1.pass()
@@ -129,31 +131,31 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
       assertCounts(0 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
     }
 
-    admin.manual("End FROM Phase")
+    admin.runOperation("End FROM Phase")
 
     val sum = Summarizer(game)
     sum.net("GreeneryTile", "VictoryPoint") shouldBe 0
     sum.net("CityTile", "VictoryPoint") shouldBe 0
 
-    p1.assertCounts(24 to "TR<Player1>")
-    p1.assertCounts(27 to "VP<Player1>")
-    sum.net("Card", "VP<Player1>") shouldBe 3
+    p1.assertCounts(24 to "TerraformRating<Player1>")
+    p1.assertCounts(27 to "VictoryPoint<Player1>")
+    sum.net("Card", "VictoryPoint<Player1>") shouldBe 3
 
-    p2.assertCounts(25 to "TR<Player2>")
-    sum.net("$PharmacyUnion", "TR<Player2>") shouldBe 5
+    p2.assertCounts(25 to "TerraformRating<Player2>")
+    sum.net("$PharmacyUnion", "TerraformRating<Player2>") shouldBe 5
 
     p2.assertCounts(28 to "VictoryPoint")
-    sum.net("Card", "VP<Player2>") shouldBe 3
+    sum.net("Card", "VictoryPoint<Player2>") shouldBe 3
   }
 
   @Test
   internal fun earlyGameWithNoPrelude() {
     val setup = canonicalPremise(Hellas, PromoCardPack, players = 2)
-    val game = Engine.newGame(setup, inputOnlySynonyms = TEST_CLASS_SYNONYMS)
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
+    val game = Engine.newGame(setup)
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
 
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(game.testAgents()).launch()
     dev.martianzoo.tfm.tests.retainStartingProjects(game, 7, 5)
 
     p1.playCorp(InterplanetaryCinematics, 7)
@@ -161,7 +163,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
 
     p1.turn {
       playProject(MediaGroup, 6)
-      playProject(Sabotage, 1) { doTask("-7 M<Player2>") }
+      playProject(Sabotage, 1) { doTask("-7 MC<Player2>") }
     }
 
     p2.turn { playProject(Research, 11) }
