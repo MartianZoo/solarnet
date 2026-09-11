@@ -5,6 +5,10 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Quantifier.AMAP
 import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.CONCRETE
+import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration
+import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.OneDefault
 import dev.martianzoo.pets.types.Dependency.Key
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -119,6 +123,16 @@ internal class Spec10DefaultsTest {
           "ABSTRACT CLASS Area { CLASS Tharsis_2_2 }",
           "CLASS Tile<Area> { DEFAULT Area<Tharsis_2_2> }",
       )
+    }
+    shouldThrow<IllegalArgumentException> {
+      ClassDeclaration(
+          cn("Tile"),
+          CONCRETE,
+          defaultsDeclaration = DefaultsDeclaration(forClass = cn("Other")),
+      )
+    }
+    shouldThrow<IllegalArgumentException> {
+      DefaultsDeclaration(gainOnly = OneDefault(quantifier = OPTIONAL))
     }
   }
 

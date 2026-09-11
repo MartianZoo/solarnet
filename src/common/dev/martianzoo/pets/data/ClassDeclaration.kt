@@ -122,6 +122,9 @@ public data class ClassDeclaration(
   public val custom: Boolean = CUSTOM.expression in supertypes
 
   init {
+    require(defaultsDeclaration.forClass in setOf(null, className)) {
+      "$className cannot declare defaults for ${defaultsDeclaration.forClass}"
+    }
     fun hasRefinement(expression: Expression): Boolean =
         expression.refinement != null || expression.arguments.any(::hasRefinement)
     // Rule L1-9: a refined type cannot be a bound, so signature expressions carry no refinements at
@@ -150,6 +153,14 @@ public data class ClassDeclaration(
       val removeOnly: OneDefault = OneDefault(),
       val forClass: ClassName? = null,
   ) {
+    init {
+      require(
+          forClass != null || listOf(universal, gainOnly, removeOnly).all { it == OneDefault() }
+      ) {
+        "defaults without a declaring class cannot be rendered or applied"
+      }
+    }
+
     public data class OneDefault(
         val specs: List<Expression> = emptyList(),
         val quantifier: Quantifier? = null,
@@ -170,18 +181,31 @@ public data class ClassDeclaration(
 
     internal companion object {
       internal fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
+        val owners = defs.mapNotNull { it.forClass }.distinct()
+        require(owners.size <= 1) {
+          "DEFAULT clauses name different classes: ${owners.joinToString()}"
+        }
         return DefaultsDeclaration(
             universal = merge(defs.map { it.universal }),
             gainOnly = merge(defs.map { it.gainOnly }),
             removeOnly = merge(defs.map { it.removeOnly }),
-            forClass = defs.mapNotNull { it.forClass }.distinct().singleOrNull(),
+            forClass = owners.singleOrNull(),
         )
       }
 
       private fun merge(ones: Collection<OneDefault>): OneDefault {
-        val deps = ones.map { it.specs }.firstOrNull { it.isNotEmpty() }.orEmpty()
-        val quantifier = ones.firstNotNullOfOrNull { it.quantifier }
-        return OneDefault(deps, quantifier)
+        val dependencyCandidates = ones.map(OneDefault::specs).filter { it.isNotEmpty() }.distinct()
+        require(dependencyCandidates.size <= 1) {
+          "conflicting dependency defaults: ${dependencyCandidates.joinToString()}"
+        }
+        val quantifierCandidates = ones.mapNotNull(OneDefault::quantifier).distinct()
+        require(quantifierCandidates.size <= 1) {
+          "conflicting quantifier defaults: ${quantifierCandidates.joinToString()}"
+        }
+        return OneDefault(
+            dependencyCandidates.singleOrNull().orEmpty(),
+            quantifierCandidates.singleOrNull(),
+        )
       }
     }
 

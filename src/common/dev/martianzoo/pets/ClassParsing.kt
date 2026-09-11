@@ -303,10 +303,7 @@ internal object ClassParsing : PetTokenizer() {
           body: Body,
           docstring: String?,
       ): List<NestableDecl> {
-        // Rule L1-7: DEFAULT clauses name the class that declares them; one naming another class is
-        // rejected, so a later-loaded expansion cannot silently redefine a bare `OceanTile<>`.
         val mergedDefaults = DefaultsDeclaration.merge(body.defaultses)
-        require(mergedDefaults.forClass in setOf(null, signature.className))
         val newDecl =
             signature.asDeclaration.copy(
                 kind = kind,

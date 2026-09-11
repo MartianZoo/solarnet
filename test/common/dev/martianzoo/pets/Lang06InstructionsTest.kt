@@ -22,6 +22,7 @@ import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import io.kotest.assertions.throwables.shouldThrow
@@ -126,9 +127,12 @@ internal class Lang06InstructionsTest {
   // L6-7 OR
 
   @Test
-  internal fun `L6-7 duplicate alternatives are rejected rather than collapsed`() {
+  internal fun `L6-7 authored duplicate alternatives are rejected and constructed ones collapse`() {
     parse<Instruction>("Plant OR Heat").toString() shouldBe "Plant OR Heat"
     shouldThrow<PetSyntaxException> { parse<Instruction>("Plant OR Plant") }
+    Or.create(listOf(parse("Plant"), parse("Plant"))) shouldBe parse("Plant")
+    PetNode.replacer(parse<Expression>("Heat"), parse<Expression>("Plant"))
+        .transformInstruction(parse("Plant OR Heat")) shouldBe parse("Plant")
   }
 
   // L6-8 Groups

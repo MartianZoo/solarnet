@@ -120,6 +120,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- Repair the two declared Pets conformance gaps without adding a second representation of type
+  identity: L7-8 lets `Tile<> THEN Tile<>` stages diverge after defaults, and T8-3 can substitute a
+  refinement candidate into the wrong one of several compatible dependency slots while existing
+  cards still require candidate/argument merging.
 - Find a principled way for narrower dependency defaults to retain compatible refinements from
   wider defaults, so `Tile` can own area occupancy once while its subclasses select their kinds of
   areas and add placement rules.

@@ -796,9 +796,9 @@ public class PetElaborator(public val classTable: ClassTable) {
   }
 
   /**
-   * Rule L12-14: a change to a type this game cannot hold becomes `Die` or `Ok`. A mandatory change
-   * naming an inactive type becomes a gain of `Die`, an instruction that can never be carried out,
-   * and an optional one becomes `Ok`, so a rule mentioning absent content cannot silently succeed.
+   * Rule L12-14: a change to a type this game cannot hold becomes `Die` or `Ok`. An invalid
+   * post-specialization type becomes `Die`. A resolved but inactive type becomes `Die` when the
+   * change is mandatory and `Ok` when it permits zero.
    */
   private fun invalidChangesToDie(): PetTransformer {
     return object : PetTransformer() {

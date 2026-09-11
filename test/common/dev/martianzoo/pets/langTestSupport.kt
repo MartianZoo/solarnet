@@ -29,9 +29,14 @@ internal inline fun <reified P : PetNode> roundTripAll(sources: String): Unit =
 
 /** Non-reified form of [roundTripAll]. */
 internal fun <P : PetNode> roundTripAll(type: KClass<P>, sources: String) {
-  val broken = sources.trimIndent().lines().filter { parse(type, it).toString() != it }
+  val broken =
+      sources.trimIndent().lines().filter { source ->
+        val parsed = parse(type, source)
+        val rendered = parsed.toString()
+        rendered != source || parse(type, rendered) != parsed
+      }
   if (broken.any())
-      throw AssertionError("did not render back exactly:\n${broken.joinToString("\n")}")
+      throw AssertionError("did not round-trip exactly:\n${broken.joinToString("\n")}")
 }
 
 /**
