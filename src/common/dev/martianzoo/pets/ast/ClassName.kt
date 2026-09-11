@@ -9,8 +9,18 @@ import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
 /**
- * A camel-case word used as a class name. Not validated except for its general pattern. Create one
- * using the compactly-named function [cn].
+ * An uppercase-leading identifier used as a class name, matching the grammar of
+ * [rule L2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-names).
+ * After the initial ASCII uppercase letter, letters, digits, and underscores are allowed, so
+ * `GreeneryTile`, `Tharsis_2_2`, `MC`, and `TOOLONG` are all names. Reserved keywords are rejected
+ * ([rule
+ * L2-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-names));
+ * because the reserved spellings are exact, `Max` and `Has` are perfectly good class names.
+ *
+ * Beyond that pattern a name is not validated here — there is one namespace and no scoping, and a
+ * name means whatever the class table says it means ([rule
+ * L2-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-names)).
+ * Create one using the compactly-named function [cn].
  */
 public class ClassName private constructor(public val asString: String) :
     PetNode(), HasExpression, Comparable<ClassName> {
@@ -42,8 +52,7 @@ public class ClassName private constructor(public val asString: String) :
     /** Returns the [ClassName] for the given string. */
     public fun cn(name: String): ClassName = ClassName(name)
 
-    private const val CLASS_NAME_PATTERN =
-        "\\b[A-Z]([a-z_][A-Za-z0-9_]*|[0-9]+[A-Z][a-z_][A-Za-z0-9_]*|[A-Z0-9]{0,5})\\b"
+    private const val CLASS_NAME_PATTERN = "[A-Z][A-Za-z0-9_]*"
     private val classNameRegex = Regex(CLASS_NAME_PATTERN)
 
     internal fun parser(): com.github.h0tk3y.betterParse.parser.Parser<ClassName> =
@@ -67,6 +76,7 @@ public class ClassName private constructor(public val asString: String) :
   /** Vararg form of [of]. */
   public fun of(vararg arguments: HasExpression): Expression = of(arguments.toList())
 
+  /** Returns the expression consisting of this class name alone, with no argument list. */
   public fun of(): Expression = expression
 
   /**
@@ -77,7 +87,12 @@ public class ClassName private constructor(public val asString: String) :
    */
   public fun has(refinement: Requirement?): Expression = expression.has(refinement)
 
-  /** For the class name `Foo`, returns the expression `Class<Foo>`. */
+  /**
+   * For the class name `Foo`, returns the class literal `Class<Foo>`. A class literal is written
+   * with one bare class name ([rule
+   * L3-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-expressions),
+   * [rule T4-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#4-class-literals)).
+   */
   public fun classExpression(): Expression = CLASS.of(this)
 
   override val kind: kotlin.reflect.KClass<out PetNode> = ClassName::class
@@ -97,8 +112,8 @@ public class ClassName private constructor(public val asString: String) :
   override fun compareTo(other: ClassName): Int = asString.compareTo(other.asString)
 
   internal object Parsing : PetTokenizer() {
-    private val classShortName = _allCapsWordRE map { cn(it.text) }
-    private val classFullName = _upperCamelRE map { cn(it.text) }
-    val className = classFullName or classShortName
+    private val mixedCaseName = _mixedCaseClassNameRE map { cn(it.text) }
+    private val allCapsName = _allCapsWordRE map { cn(it.text) }
+    val className = mixedCaseName or allCapsName
   }
 }

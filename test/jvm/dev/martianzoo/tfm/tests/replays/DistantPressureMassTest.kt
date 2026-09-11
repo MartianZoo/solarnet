@@ -36,9 +36,11 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
   private val been
     get() = p2
 
+  private val optionalSearchForLifeScience = "Science<SearchForLife<Keen>>?"
+
   @Test
   internal fun distantPressureMass() {
-    TfmWorkflow.Auto(game).launch()
+    TfmWorkflow.Automatic(game, agents).launch()
     game.retainStartingProjects(4, 4)
     generation1()
     generation2()
@@ -145,7 +147,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       cardAction1(SearchForLife) {
             discardProjectCardsFromDeck(EarthElevator)
             // Earth Elevator has no microbe tag.
-            declineTask("Science<$SearchForLife>?")
+            declineTask(optionalSearchForLifeScience)
           }
           .expect("0 Science")
       cardAction1(FakeAppliedScience) { doTask("Titanium") }
@@ -288,7 +290,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       cardAction1(SearchForLife) {
         discardProjectCardsFromDeck(IoSulphurResearch)
         // Io Sulphur Research has no microbe tag.
-        declineTask("Science<$SearchForLife>?")
+        declineTask(optionalSearchForLifeScience)
       }
     }
     been.pass()
@@ -339,7 +341,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       cardAction1(SearchForLife) {
         discardProjectCardsFromDeck(Shuttles)
         // Shuttles has no microbe tag.
-        declineTask("Science<$SearchForLife>?")
+        declineTask(optionalSearchForLifeScience)
       }
       playProject(MethaneFromTitan, 9, titanium = 5)
       pass()
@@ -456,7 +458,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       cardAction1(SearchForLife) {
         discardProjectCardsFromDeck(Herbivores)
         // Herbivores has no microbe tag.
-        declineTask("Science<$SearchForLife>?")
+        declineTask(optionalSearchForLifeScience)
       }
     }
     been.pass()
@@ -568,7 +570,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       cardAction1(SearchForLife) {
         discardProjectCardsFromDeck(BigAsteroid)
         // Big Asteroid has no microbe tag.
-        declineTask("Science<$SearchForLife>?")
+        declineTask(optionalSearchForLifeScience)
       }
       playProject(Hackers, 1) { doTask("PROD[-2 MC<Been>]") }.expect("PROD[2 MC, -Energy], 3 MC")
       playProject(BreathingFilters, 7) {
@@ -675,7 +677,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       cardAction1(SearchForLife) {
         discardProjectCardsFromDeck(GanymedeColony)
         // Ganymede Colony has no microbe tag.
-        declineTask("Science<$SearchForLife>?")
+        declineTask(optionalSearchForLifeScience)
       }
     }
     been.turn { convertHeat() }
@@ -754,7 +756,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       cardAction1(SearchForLife) {
         discardProjectCardsFromDeck(HydrogenToVenus)
         // Hydrogen to Venus has no microbe tag.
-        declineTask("Science<$SearchForLife>?")
+        declineTask(optionalSearchForLifeScience)
       }
       playProject(LuxuryFoods, 4)
       stdProject("AsteroidProject")
@@ -832,7 +834,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       cardAction1(SearchForLife) {
         discardProjectCardsFromDeck(PublicBaths)
         // Public Baths has no microbe tag.
-        declineTask("Science<$SearchForLife>?")
+        declineTask(optionalSearchForLifeScience)
       }
       cardAction1(VenusMagnetizer)
       pass()

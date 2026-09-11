@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agenttestsupport.testAgents
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
@@ -11,7 +13,6 @@ import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestOption as Option
 import dev.martianzoo.tfm.tests.TfmTest
@@ -23,15 +24,23 @@ import dev.martianzoo.tfm.tests.setUpGame as setUpTfmGame
 import kotlin.test.AfterTest
 
 internal abstract class CardTest(
-    private val additionalClassDeclarations: Set<ClassDeclaration> = emptySet(),
+    /**
+     * Extra declarations to compose into each game's Catalog, given the seats that game occupies. A
+     * declaration naming `Player3` may only be produced for a game that seats three.
+     */
+    private val additionalClassDeclarations: (seats: Int) -> Set<ClassDeclaration> = { emptySet() },
 ) : TfmTest() {
+  internal constructor(
+      additionalClassDeclarations: Set<ClassDeclaration>
+  ) : this({ additionalClassDeclarations })
+
   protected lateinit var p1: TfmGameplay
     private set
 
   private var p2: TfmGameplay? = null
     private set
 
-  private var workflow: TfmWorkflow.Auto? = null
+  private var workflow: TfmWorkflow.Automatic? = null
 
   protected fun newGame(
       config: GameConfig,
@@ -56,46 +65,58 @@ internal abstract class CardTest(
       players: Int,
       colonyTiles: Set<ClassName>,
   ): GamePremise {
+    val additional = additionalClassDeclarations(players)
     val premise =
-        if (!hasAdditionalContent) {
-          cachedSetup(selectedOptions.toSet(), players, colonyTiles)
+        if (additional.isEmpty()) {
+          commonSetup(selectedOptions.toSet(), players, colonyTiles)
         } else {
           withAdditionalSelections(
               canonicalPremise(
                   *selectedOptions,
                   players = players,
                   colonyTiles = colonyTiles,
-                  catalog = catalog(Option.FakeStuffBundle in selectedOptions),
-              )
+                  catalog =
+                      composeAdditions(
+                          canonicalCatalog(Option.FakeStuffBundle in selectedOptions),
+                          players,
+                          additional,
+                      ),
+              ),
+              additional,
           )
         }
     return premise
   }
 
-  private val additions: TfmCatalog by lazy {
-    object : TfmCatalog() {
-      override val explicitClassDeclarations = additionalClassDeclarations
-    }
-  }
-
-  private fun catalog(includeFakes: Boolean): TfmCatalog {
-    val base = canonicalCatalog(includeFakes)
-    return if (hasAdditionalContent) TfmCatalog.compose(base, additions) else base
-  }
-
-  private val hasAdditionalContent: Boolean
-    get() = additionalClassDeclarations.isNotEmpty()
+  /**
+   * Composes [additional] onto [base], seating [players] first so that a declaration naming a
+   * specific player resolves when it loads.
+   */
+  private fun composeAdditions(
+      base: TfmCatalog,
+      players: Int,
+      additional: Set<ClassDeclaration>,
+  ): TfmCatalog =
+      TfmCatalog.compose(
+          base.withPlayers(players),
+          object : TfmCatalog() {
+            override val explicitClassDeclarations = additional
+          },
+      )
 
   private fun premise(config: GameConfig): GamePremise {
+    val additional = additionalClassDeclarations(config.playerNames.size)
     val base = canonicalCatalog(config)
-    val premiseCatalog = if (hasAdditionalContent) TfmCatalog.compose(base, additions) else base
-    val premise = premiseCatalog.gamePremise(config)
-    if (!hasAdditionalContent) return premise
-    return withAdditionalSelections(premise)
+    if (additional.isEmpty()) return base.gamePremise(config)
+    val premiseCatalog = composeAdditions(base, config.playerNames.size, additional)
+    return withAdditionalSelections(premiseCatalog.gamePremise(config), additional)
   }
 
-  private fun withAdditionalSelections(premise: GamePremise): GamePremise {
-    val additionalClassNames = additionalClassDeclarations.map(ClassDeclaration::className)
+  private fun withAdditionalSelections(
+      premise: GamePremise,
+      additional: Set<ClassDeclaration>,
+  ): GamePremise {
+    val additionalClassNames = additional.map(ClassDeclaration::className)
     return premise.copy(
         classSelections = premise.classSelections + additionalClassNames.map(::ClassSelection)
     )
@@ -112,7 +133,7 @@ internal abstract class CardTest(
     workflow?.shutdown()
     return Engine.newGame(premise).apply {
       bindPlayers()
-      workflow = TfmWorkflow.Auto(this).launch()
+      workflow = TfmWorkflow.Automatic(this, testAgents()).launch()
       retainStartingProjects(*IntArray(actors.filterIsInstance<Player>().size))
       finishSoloSetup()
     }
@@ -121,7 +142,7 @@ internal abstract class CardTest(
   private fun World.initializeCardTestGame(): World = apply {
     bindPlayers()
     finishSoloSetup()
-    tfm(ADMIN).phase("Corporation")
+    testTfm(ADMIN).phase("Corporation")
   }
 
   private fun finishSoloSetup() {
@@ -146,8 +167,8 @@ internal abstract class CardTest(
   private fun World.bindPlayers(): World = apply {
     game = this
     val players = actors.filterIsInstance<Player>()
-    p1 = tfm(players.first())
-    p2 = players.getOrNull(1)?.let { tfm(it) }
+    p1 = testTfm(players.first())
+    p2 = players.getOrNull(1)?.let { testTfm(it) }
   }
 
   protected fun playUntilPreludePhase(
@@ -165,7 +186,7 @@ internal abstract class CardTest(
   ) {
     playCorporations(corporations.toList())
     if (admin.count("PreludePhase") == 1) {
-      val players = game.actors.filterIsInstance<Player>().map { game.tfm(it) }
+      val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
       players.zip(BORING_PRELUDES).forEach { (player, preludes) ->
         player.turn { preludes.forEach { playPrelude(it) } }
       }
@@ -176,7 +197,7 @@ internal abstract class CardTest(
 
   private fun playCorporations(requested: List<ClassName>) {
     check(admin.count("CorporationPhase") == 1) { "The Corporation phase has already ended" }
-    val players = game.actors.filterIsInstance<Player>().map { game.tfm(it) }
+    val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
     val corporations = if (requested.isEmpty()) BORING_CORPORATIONS else requested
     require(corporations.size >= players.size) { "Provide one corporation per player" }
     players.zip(corporations).forEach { (player, corporation) ->
@@ -215,25 +236,25 @@ internal abstract class CardTest(
             listOf(PowerGeneration, Mohole),
         )
 
-    private data class SetupKey(
-        val selectedOptions: Set<Option>,
-        val players: Int,
-        val colonyTiles: Set<ClassName>,
-    )
+    private val standardTwoPlayerPremise: GamePremise by lazy { canonicalPremise(players = 2) }
+    private val promoTwoPlayerPremise: GamePremise by lazy {
+      canonicalPremise(Option.PromoCardPack, players = 2)
+    }
 
-    private val setupCache = mutableMapOf<SetupKey, GamePremise>()
-
-    private fun cachedSetup(
+    private fun commonSetup(
         selectedOptions: Set<Option>,
         players: Int,
         colonyTiles: Set<ClassName>,
-    ): GamePremise =
-        setupCache.getOrPut(SetupKey(selectedOptions, players, colonyTiles)) {
-          canonicalPremise(
-              *selectedOptions.toTypedArray(),
-              players = players,
-              colonyTiles = colonyTiles,
-          )
-        }
+    ): GamePremise {
+      if (players == 2 && colonyTiles.isEmpty()) {
+        if (selectedOptions.isEmpty()) return standardTwoPlayerPremise
+        if (selectedOptions == setOf(Option.PromoCardPack)) return promoTwoPlayerPremise
+      }
+      return canonicalPremise(
+          *selectedOptions.toTypedArray(),
+          players = players,
+          colonyTiles = colonyTiles,
+      )
+    }
   }
 }

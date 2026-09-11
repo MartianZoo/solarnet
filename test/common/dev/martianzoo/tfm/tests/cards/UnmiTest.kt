@@ -16,7 +16,7 @@ internal class UnmiTest : CardTest() {
   @Test
   internal fun `Can choose UNMI after raising TR earlier in the generation`() {
     newGame()
-    p1.manual("TemperatureStep")
+    p1.runOperation("TemperatureStep")
     p1.playCorp(UnitedNationsMarsInitiative)
     admin.phase("Action")
     p1.cardAction1(UnitedNationsMarsInitiative).expect("-3 MC, TerraformRating")

@@ -13,10 +13,10 @@ internal class HellasElysiumExpansionTest : CardTest() {
   @Test
   internal fun `Specialist uses printed mc production`() {
     newGame(TestOption.Elysium)
-    p1.manual("PROD[9 MC]")
-    shouldThrow<RequirementException> { p1.manual("Specialist") }
+    p1.runOperation("PROD[9 MC]")
+    shouldThrow<RequirementException> { p1.runOperation("Specialist") }
 
-    p1.manual("PROD[1 MC], Specialist")
+    p1.runOperation("PROD[1 MC], Specialist")
     p1.count("Specialist") shouldBe 1
   }
 }

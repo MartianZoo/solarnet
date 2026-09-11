@@ -181,7 +181,7 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `T8-4 overlap is detected even with no unique intersection class`() {
+  internal fun `T8-4 overlap is detected even with no greatest common subclass`() {
     val table =
         loadTypes(
             """
@@ -330,21 +330,10 @@ internal class Spec08RefinementsTest {
         .toList() shouldContainExactly listOf("Tharsis_2_3")
   }
 
-  // T8-10 Least upper bound
+  // T8-10 Refined class literals
 
   @Test
-  internal fun `T8-10 lub keeps a refinement only when both operands carry the same one`() {
-    (type("Tharsis_2_2(HAS Neighbor)") lub type("Tharsis_2_3(HAS Neighbor)")) shouldBe
-        type("LandArea(HAS Neighbor)")
-    (type("Tharsis_2_2(HAS Neighbor)") lub type("Tharsis_2_3(HAS Occupant)")) shouldBe
-        type("LandArea")
-    (type("Tharsis_2_2(HAS Neighbor)") lub type("Tharsis_2_3")) shouldBe type("LandArea")
-  }
-
-  // T8-11 Refined class literals
-
-  @Test
-  internal fun `T8-11 a refined class literal tests the class the candidate names`() {
+  internal fun `T8-10 a refined class literal tests the class the candidate names`() {
     val tags =
         loadTypes(
             "CLASS Player1 : Owner",
@@ -363,7 +352,7 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `T8-11 two class literals do not compare their predicates as written`() {
+  internal fun `T8-10 two class literals do not compare their predicates as written`() {
     val tags =
         loadTypes(
             "CLASS Player1 : Owner",
@@ -382,10 +371,10 @@ internal class Spec08RefinementsTest {
         .isSubtypeOf(tags.resolve(te("Class<BuildingTag>(HAS Tag)"))) shouldBe true
   }
 
-  // T8-12 Refinements inside dependencies
+  // T8-11 Refinements inside dependencies
 
   @Test
-  internal fun `T8-12 a refinement on a dependency bound behaves like any other`() {
+  internal fun `T8-11 a refinement on a dependency bound behaves like any other`() {
     type("GreeneryTile<LandArea(HAS Neighbor)>").abstract shouldBe true
     type("GreeneryTile<Tharsis_2_2, Player1>")
         .narrows(
@@ -400,7 +389,7 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `T8-12 refinements survive rendering`() {
+  internal fun `T8-11 refinements survive rendering`() {
     type("GreeneryTile<LandArea(HAS Neighbor)>").expression shouldBe
         te("GreeneryTile<LandArea(HAS Neighbor)>")
     type("LandArea(NOT Tharsis_2_2)").expression shouldBe te("LandArea(NOT Tharsis_2_2)")

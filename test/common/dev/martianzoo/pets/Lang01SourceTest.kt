@@ -15,6 +15,7 @@ import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.MetricType
@@ -290,6 +291,12 @@ internal class Lang01SourceTest {
     parseClasses("CLASS\tAlpha\r\nCLASS  Beta  // trailing note").map {
       it.className
     } shouldContainExactly listOf(cn("Alpha"), cn("Beta"))
+  }
+
+  @Test
+  internal fun `L1-10 whitespace is required where two tokens would run together`() {
+    parse<Instruction>("2 MC").toString() shouldBe "2 MC"
+    shouldThrow<PetSyntaxException> { parse<Instruction>("2MC") }
   }
 
   @Test

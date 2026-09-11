@@ -13,7 +13,7 @@
 >
 > **Status:** working partial proof. Once `WorkflowStarted` exists, phase scopes carry
 > Bootstrap-to-Setup-to-Corporation, the Production-to-Solar-to-Research-to-Action cycle, and the
-> final transition from Final Greenery to End. `TfmWorkflow.Auto` still wakes Action and Final
+> final transition from Final Greenery to End. `TfmWorkflow.Automatic` still wakes Action and Final
 > Greenery scopes after their domain sequencing finishes, enters Prelude or Action after
 > Corporation, and owns all intra-phase sequencing.
 
@@ -50,7 +50,7 @@ The required primitives already exist:
   Game World state, with exactly one Phase present.
 - Pets Type arguments are component dependencies. Removing a dependency cascades through its
   dependents before removing the dependency itself.
-- [`AtomicOperationScope`](../../src/common/dev/martianzoo/engine/AtomicOperationScope.kt) performs
+- [`WorldTransaction`](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) performs
   idle cleanup after an outer operation and its automatic effects have completed. An Agent
   operation started synchronously by the completion callback also settles its ordinary idle
   cleanup before returning, while remaining part of the callback's recorded follow-up.
@@ -58,7 +58,7 @@ The required primitives already exist:
   `Temporary` components when every task queue is empty. Their removal effects may create more
   work, which Admin autoexecution can settle normally.
 
-[`TfmWorkflow.Auto`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt) still listens for
+[`TfmWorkflow.Automatic`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt) still listens for
 idle completions and resumes a coroutine. It does not choose Setup, Corporation, Production, Solar,
 Research, Final Greenery, or End: concrete phase scopes and mode-owned Pets rules make those
 decisions. The selected design removes the remaining phase-level control role without replacing the
@@ -293,7 +293,7 @@ FinalGreeneryPhaseScope removal -> End
 work keeps cleanup from removing them; when it drains, their automatic removal effects cascade.
 This includes optional Production work such as Supercapacitors. `ActionPhaseScope` and
 `FinalGreeneryPhaseScope` are deliberately not Temporary because their queues drain between
-players. `TfmWorkflow.Auto` removes them only after the existing player sequencing observes phase
+players. `TfmWorkflow.Automatic` removes them only after the existing player sequencing observes phase
 completion. The resulting phase decisions remain Pets effects: Kotlin neither checks
 `GameEndBarrier` nor directly enters Production, Solar, Research, Final Greenery, or End.
 

@@ -12,7 +12,7 @@ internal class InsulationTest : CardTest() {
   fun initializeGame() {
     newGame()
     admin.phase("Action")
-    p1.manual("2 MC, ProjectCard, PROD[-1 MC, 3 Heat]")
+    p1.runOperation("2 MC, ProjectCard, PROD[-1 MC, 3 Heat]")
   }
 
   @Test

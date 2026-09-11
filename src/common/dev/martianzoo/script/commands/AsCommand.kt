@@ -32,7 +32,7 @@ internal class AsCommand(private val repl: ScriptSession) : ScriptCommand("as") 
 
     val saved = repl.agent
     return try {
-      repl.agent = repl.game.agent(repl.actor(player))
+      repl.agent = repl.agents.getValue(repl.actor(player))
       repl.command(rest)
     } finally {
       repl.agent = saved

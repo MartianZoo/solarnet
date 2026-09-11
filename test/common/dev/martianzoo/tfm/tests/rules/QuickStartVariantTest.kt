@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.cards.CardTest
@@ -30,7 +30,7 @@ internal class QuickStartVariantTest : CardTest() {
         )
 
     Player.players(5)
-        .map { game.tfm(it) }
+        .map { game.testTfm(it) }
         .forEach { player ->
           player.assertProds(
               1 to "MC",
@@ -90,14 +90,14 @@ internal class QuickStartVariantTest : CardTest() {
         )
     quickStart.classTable.isActive(cn("Generalist")) shouldBe false
     quickStart.classTable.isActive(cn("Generalist2")) shouldBe true
-    p1.manual("8 MC")
+    p1.runOperation("8 MC")
     admin.phase("Action")
 
     shouldThrow<RequirementException> {
       p1.stdAction("ClaimMilestoneAction") { doTask("Generalist2") }
     }
 
-    p1.manual("PROD[1 MC, Steel, Titanium, Plant, Energy, Heat]")
+    p1.runOperation("PROD[1 MC, Steel, Titanium, Plant, Energy, Heat]")
     p1.stdAction("ClaimMilestoneAction") { doTask("Generalist2") }
     p1.count("Milestone") shouldBe 1
 

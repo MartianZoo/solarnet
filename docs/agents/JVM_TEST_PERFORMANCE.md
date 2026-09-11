@@ -10,9 +10,9 @@
 > **Skip when:** running routine verification; use [TESTING.md](TESTING.md). Do not treat these
 > measurements as current configuration requirements.
 >
-> **Status:** dated research from 2026-08-23 and 2026-09-06 on the development host. Treat absolute
-> times as noisy: other JVM processes were consuming substantial CPU during the baseline. Relative
-> structure and the large parallel-speedup signal are still clear.
+> **Status:** dated research from 2026-08-23, 2026-09-06, and 2026-09-10 on the development host.
+> Treat absolute times as noisy: other JVM processes were consuming substantial CPU during the
+> baseline. Relative structure and the large parallel-speedup signal are still clear.
 
 ## Configuration entry points
 
@@ -167,6 +167,40 @@ The canonical master table is also initialized once per process. Build-time gene
 some canonical-universe startup, but it would not remove configuration-specific projection work or
 support custom catalogs without another representation; measure the remaining startup cost before
 considering that tradeoff.
+
+## 2026-09-10 full-suite distribution and premise-setup profile
+
+A fresh forced JVM run passed 1,463 tests in 4m44s while other JVM work contended for the host. The
+absolute duration is therefore not comparable to the earlier clean runs, but its test-effort
+distribution answers where suite-wide savings remain:
+
+| Area | Share |
+| --- | ---: |
+| Terraforming Mars card tests | 31.66% |
+| Terraforming Mars rule tests | 20.24% |
+| Generic engine tests | 14.25% |
+| Script and REPL tests | 14.14% |
+| Other JVM tests | 10.16% |
+| Replay tests | 4.51% |
+| Pets module tests | 2.76% |
+| Random-card tests | 2.28% |
+
+Card and rule tests together consume 51.9% of observed suite effort. Replays are not the dominant
+cost.
+
+A focused flight recording covered 27 `Prelude2CardsTest` methods and 28 calls to
+`CardTest.newGame`. Application samples attributed 50.2% of CPU and 54.1% of allocation to setup.
+Premise construction used 6.4% of CPU, `Engine.newGame` used 44.1%, and `ClassLimitTable`
+construction alone used 33.2% of CPU and 37.3% of allocation. Setup allocated an estimated 36.42GB
+of the 67.28GB application total. The hottest stacks beneath limit construction repeatedly compiled
+class headers, dependency closures, variable bindings, and dependency equalities from the
+premise-specific master table.
+
+This selects the direction in [CLASS_TABLES.md](CLASS_TABLES.md#selected-replacement-master-tables-premise-tables-and-class-universes):
+compile one immutable master for Canon and one for Canon plus Fakes, then limit each premise to its
+small declaration overlay, realized-Type domain, and genuinely premise-dependent validation. The
+goal is reuse by explicit ownership and bounded lifetimes, not a global cache that grows with every
+premise shape.
 
 ## Browser replay selection result
 

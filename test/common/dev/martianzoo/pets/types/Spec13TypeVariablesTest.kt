@@ -158,13 +158,12 @@ internal class Spec13TypeVariablesTest {
 
   @Test
   internal fun `T13-3 an effect use that could name two header variables is rejected`() {
-    val table =
-        loadTypes(
-            "ABSTRACT CLASS Person",
-            "ABSTRACT CLASS Ambiguous<Person, Person> { This: Person }",
-        )
-
-    shouldThrow<PetException> { table.getClass(cn("Ambiguous")).typeVariables }
+    shouldThrow<PetException> {
+      loadTypes(
+          "ABSTRACT CLASS Person",
+          "ABSTRACT CLASS Ambiguous<Person, Person> { This: Person }",
+      )
+    }
   }
 
   // T13-4 Inheritance

@@ -1,12 +1,13 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testAgents
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.Hellas
@@ -19,9 +20,9 @@ internal class TfmWorkflowTest {
   @Test
   internal fun explicitStartCarriesBootstrapThroughSetupToCorporation() {
     val game = Engine.newGame(canonicalPremise(players = 2))
-    val admin = game.tfm(ADMIN)
+    val admin = game.testTfm(ADMIN)
 
-    admin.beginManual("WorkflowStarted")
+    admin.beginOperation("WorkflowStarted")
 
     admin.assertCounts(
         0 to "BootstrapPhase",
@@ -43,13 +44,13 @@ internal class TfmWorkflowTest {
   @Test
   internal fun rollingBackScopeRemovalRestoresItsPhaseAndContinuation() {
     val game = Engine.newGame(canonicalPremise(players = 2))
-    val admin = game.tfm(ADMIN)
-    admin.beginManual("WorkflowStarted")
+    val admin = game.testTfm(ADMIN)
+    admin.beginOperation("WorkflowStarted")
     game.retainStartingProjects(0, 0)
-    admin.manual("ActionPhase FROM Phase")
+    admin.runOperation("ActionPhase FROM Phase")
     val checkpoint = game.timeline.checkpoint()
 
-    admin.beginManual("-ActionPhaseScope")
+    admin.beginOperation("-ActionPhaseScope")
 
     admin.assertCounts(
         0 to "ActionPhase",
@@ -76,9 +77,9 @@ internal class TfmWorkflowTest {
   @Test
   internal fun finalGreeneryScopeCarriesTheWorkflowToEnd() {
     val game = Engine.newGame(canonicalPremise(players = 2))
-    val admin = game.tfm(ADMIN)
+    val admin = game.testTfm(ADMIN)
     admin.sneak("WorkflowStarted")
-    admin.manual("FinalGreeneryPhase FROM Phase")
+    admin.runOperation("FinalGreeneryPhase FROM Phase")
 
     admin.assertCounts(
         1 to "FinalGreeneryPhase",
@@ -86,7 +87,7 @@ internal class TfmWorkflowTest {
         0 to "End",
     )
 
-    admin.manual("-FinalGreeneryPhaseScope")
+    admin.runOperation("-FinalGreeneryPhaseScope")
 
     admin.assertCounts(
         0 to "FinalGreeneryPhase",
@@ -98,10 +99,10 @@ internal class TfmWorkflowTest {
   @Test
   internal fun turnDeclinesAnUnusedSecondAction() {
     val game = Engine.newGame(canonicalPremise(Hellas, PromoCardPack, players = 2))
-    val admin = game.tfm(ADMIN)
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val admin = game.testTfm(ADMIN)
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
+    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
     game.retainStartingProjects(7, 5)
 
     p1.playCorp(InterplanetaryCinematics, 7)
@@ -132,10 +133,10 @@ internal class TfmWorkflowTest {
   @Test
   internal fun soleRemainingPlayerDoesNotReceiveSecondActions() {
     val game = Engine.newGame(canonicalPremise(Hellas, PromoCardPack, players = 2))
-    val admin = game.tfm(ADMIN)
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val admin = game.testTfm(ADMIN)
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
+    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
     game.retainStartingProjects(7, 5)
 
     p1.playCorp(InterplanetaryCinematics, 7)
@@ -155,9 +156,9 @@ internal class TfmWorkflowTest {
   @Test
   internal fun aPlayerMayPassWhileItsMandatoryFirstActionRemainsPending() {
     val game = Engine.newGame(canonicalPremise(players = 2))
-    val p1 = game.tfm(PLAYER1)
-    val p2 = game.tfm(PLAYER2)
-    val workflow = TfmWorkflow.Auto(game).launch()
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
+    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
     game.retainStartingProjects(0, 0)
     p1.playCorp(UnitedNationsMarsInitiative)
     p2.playCorp(CrediCor)

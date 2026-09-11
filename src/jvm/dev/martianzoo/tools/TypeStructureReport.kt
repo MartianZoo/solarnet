@@ -99,7 +99,6 @@ private object TypeStructureReport {
       table.allSubclasses(klass).count { !it.abstract }
     }
 
-    val intersectionTypes = active.filter(PetsClass::isIntersectionType)
     val multipleInheritance = active.filter { it.directSuperclasses.size > 1 }
     val emptyAbstract = abstract.filter { klass ->
       table.allSubclasses(klass).none { !it.abstract }
@@ -232,7 +231,6 @@ private object TypeStructureReport {
       line("direct inheritance edges", directEdges)
       line("multiple-inheritance classes", multipleInheritance.size)
       line("maximum direct supertypes", active.maxOf { it.directSuperclasses.size })
-      line("nominal intersection classes", intersectionTypes.size)
       line("empty abstract classes", emptyAbstract.size)
       line("inheritance depth", distribution(active.map(::depth)))
       line("ancestor count (including self)", distribution(ancestorCounts))

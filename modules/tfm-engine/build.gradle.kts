@@ -8,6 +8,7 @@ kotlin {
       )
       dependencies {
         implementation(libs.kotlinx.coroutines.core)
+        implementation(project(":agent"))
         implementation(project(":engine"))
         implementation(project(":pets"))
       }

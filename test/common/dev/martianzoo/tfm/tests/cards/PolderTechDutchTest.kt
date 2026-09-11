@@ -35,7 +35,7 @@ internal class PolderTechDutchTest : CardTest() {
       placeTile(1, 3)
     }
 
-    p1.manual("OceanTile<Tharsis_2_3>").expect("Energy")
-    p1.manual("GreeneryTile<Tharsis_2_2>").expect("Plant")
+    p1.runOperation("OceanTile<Tharsis_2_3>").expect("Energy")
+    p1.runOperation("GreeneryTile<Tharsis_2_2>").expect("Plant")
   }
 }

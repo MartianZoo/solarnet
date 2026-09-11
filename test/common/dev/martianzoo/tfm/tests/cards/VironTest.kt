@@ -42,7 +42,7 @@ internal class VironTest : CardTest() {
   @Test
   internal fun `Cannot choose an action card that has not been used`() {
     initializeGame()
-    p1.manual("$ExtractorBalloons")
+    p1.runOperation("$ExtractorBalloons")
     p1.cardAction1(AtmoCollectors)
 
     p1.cardAction1(Viron) {
@@ -60,8 +60,8 @@ internal class VironTest : CardTest() {
     )
     val p2 = requireP2()
     admin.phase("Action")
-    p1.manual("$Viron, $ExtractorBalloons")
-    p2.manual("$AtmoCollectors") { addCardResources(AtmoCollectors) }
+    p1.runOperation("$Viron, $ExtractorBalloons")
+    p2.runOperation("$AtmoCollectors") { addCardResources(AtmoCollectors) }
     p1.cardAction1(ExtractorBalloons)
     p2.cardAction1(AtmoCollectors)
 
@@ -75,7 +75,7 @@ internal class VironTest : CardTest() {
   internal fun `Repeats an action on another corporation`() {
     newGame(VenusNextExpansion)
     admin.phase("Action")
-    p1.manual("$Viron, $Celestic")
+    p1.runOperation("$Viron, $Celestic")
     p1.stdAction("DoRequiredActionsAction").expect("2 ProjectCard")
     p1.cardAction1(Celestic) { addCardResources(Celestic) }
 
@@ -93,6 +93,6 @@ internal class VironTest : CardTest() {
         colonyTiles = testColonyTiles(2),
     )
     admin.phase("Action")
-    p1.manual("$Viron, $AtmoCollectors") { addCardResources(AtmoCollectors) }
+    p1.runOperation("$Viron, $AtmoCollectors") { addCardResources(AtmoCollectors) }
   }
 }

@@ -11,7 +11,15 @@ import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo
 
-/** A value or abstract value type assigned to a class property. */
+/**
+ * A value or abstract value type assigned to a class property by `name = value`. Per
+ * [rule L1-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)
+ * the right-hand side is one of the bound words `Number`, `Metric`, `Requirement` and
+ * `Requirement?`, a literal non-negative number, a metric quoted after `COUNT`, or a requirement
+ * quoted after `HAS`. What these bounds and values mean is
+ * [section 9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties)
+ * of the type system specification.
+ */
 public sealed class PropertyValue : PetNode(), Specification<PropertyValue> {
   internal companion object {
     internal fun parser(): Parser<PropertyValue> = Parsers.parser

@@ -39,6 +39,16 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   phase-caused tasks as soon as the required runtime state can express them.
 - Let refinements reference their candidate explicitly, so a selector can relate a nested
   dependency to that candidate without repeating its complete expression.
+- Give Pets a real structural conjunction, spelled something like `Tile(IS Owned)`, and retire the
+  nominal `OwnedTile` class once `Landlord` and the other owned-tile rules can name the intersection
+  directly. Until then a broad active projection checks the nominal relationship; cover every legal
+  configuration family systematically so a mutually exclusive option cannot evade it.
+- Decide whether compact Type expressions must be globally shortest. They currently remove each
+  individually redundant argument, including T3-8 duplicates, without the subset search needed to
+  prove a global minimum; search only equality-related arguments if exact minimality becomes useful.
+- Separate the expression API's three intents: an object's natural available expression, a resolved
+  Type's compact expression, and its full expression. Keep syntax expressions universe-independent;
+  converting an arbitrary expression to either resolved form must take a `ClassTable` explicitly.
 - Decouple cleanup lifetime from log visibility so player-meaningful signals such as `Pay` and
   `PayFromCard` need not inherit `Hidden` through `MustCleanUp`.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
@@ -92,10 +102,11 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   - `TaskDelegationTest`, `PhilaresTest`, `NewPromoCardsTest`, and `PropertyTest` recover a task by
     scanning ids or instruction text before selecting or dropping it. Keep mechanism assertions
     separate from gameplay calls when designing the replacement.
-  - Functional cross-player handoffs already proceed without explicit selection under `SAFE` when
-    the handoff is the only selectable task. The remaining tests mix it with forced sibling work;
-    `SAFE` stops because it cannot prove an order harmless. Prefer explicit sequencing or a narrow
-    proof of harmless reordering over making `SAFE` execute an arbitrary concrete sibling.
+  - Functional cross-player handoffs already proceed without explicit selection under `CONCRETE`
+    when the handoff is the only selectable task. The remaining tests mix it with forced sibling
+    work; `CONCRETE` stops because it cannot prove an order harmless. Prefer explicit sequencing or
+    a narrow proof of harmless reordering over making `CONCRETE` execute an arbitrary concrete
+    sibling.
   - Compare a context-component `ClassName` selector (for example, Search for Life or Big Asteroid)
     with matching the original pending instruction and with an already-held stable `TaskId`. Keep
     ordinary `doTask(concreteNarrowing)` as the default path.
@@ -126,5 +137,5 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
 - Separate `Instructor`'s resolution-only capability from execution so `Changer`, `Effector`, and
   the default Actor do not remain nullable solely for `InstructionResolutionTest`.
-- Replace `World.onAtomicComplete`'s mutable single callback with scoped listener registration once
+- Replace `World.onTransactionComplete`'s mutable single callback with scoped listener registration once
   multiple workflow or monitoring observers need to coexist.

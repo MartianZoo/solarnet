@@ -140,6 +140,14 @@ internal class Lang07NarrowingTest {
     refuses("2X Plant THEN Heat", "3 Plant THEN Heat")
   }
 
+  @Test
+  internal fun `L7-7 shared X follows the selected OR arm across THEN`() {
+    narrows("(X Plant OR X Heat) THEN X Steel", "3 Plant THEN 3 Steel") shouldBe true
+    narrows("(X Plant OR X Heat) THEN X Steel", "3 Heat THEN 3 Steel") shouldBe true
+    refuses("(X Plant OR X Heat) THEN X Steel", "3 Plant THEN 2 Steel")
+    narrows("(X Plant OR 2X Plant) THEN X Steel", "4 Plant THEN 2 Steel") shouldBe true
+  }
+
   // L7-8 Shared type variables
 
   @Test

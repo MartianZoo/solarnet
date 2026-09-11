@@ -10,7 +10,7 @@ internal class FakeWildTagTest : CardTest() {
   @Test
   internal fun `Fake wild tag stays inert on its card`() {
     newGame(PreludeExpansion, FakeStuffBundle)
-    p1.manual("PreludeCard")
+    p1.runOperation("PreludeCard")
     admin.phase("Prelude")
     p1.startTurn()
 

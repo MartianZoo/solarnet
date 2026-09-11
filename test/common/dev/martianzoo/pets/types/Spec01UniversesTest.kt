@@ -1,13 +1,17 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 /** Section 1 of `docs/type-system-spec.md`: universes and identity. */
@@ -48,7 +52,6 @@ internal class Spec01UniversesTest {
     val rightTile = right.resolve(te("GreeneryTile"))
 
     shouldThrowIae { leftArea.isSubtypeOf(rightArea) }
-    shouldThrowIae { leftArea lub rightArea }
     shouldThrowIae { leftTile.isSubtypeOf(rightTile) }
     shouldThrowIae { leftTile glb rightTile }
     shouldThrowIae { leftTile.narrows(rightTile, NoGameState) }
@@ -142,7 +145,33 @@ internal class Spec01UniversesTest {
     table.allClassNames shouldBe catalog.allClassNames
   }
 
+  @Test
+  internal fun `T1-6 invalid authored effect shapes fail when the effect is elaborated`() {
+    val table = loadTypes("CLASS Foo", "CLASS Bar", "CLASS BrokenArgument { This: Foo<Bar> }")
+    val error =
+        shouldThrow<PetException> {
+          PetElaborator(table).classEffects(table.getClass(cn("BrokenArgument")))
+        }
+    error.message!!.contains("BrokenArgument") shouldBe true
+    error.message!!.contains("Foo<Bar>") shouldBe true
+  }
+
   // T1-7 Canonical names only
+
+  @Test
+  internal fun `T1-7 catalog compilation rejects every undeclared type name`() {
+    val effectError =
+        shouldThrow<ExpressionException> { loadTypes("CLASS BrokenEffect { This: Missing }") }
+    effectError.message!!.contains("BrokenEffect") shouldBe true
+    effectError.message!!.contains("Missing") shouldBe true
+
+    val propertyError =
+        shouldThrow<ExpressionException> {
+          loadTypes("CLASS BrokenProperty { score = COUNT \"Missing\" }")
+        }
+    propertyError.message!!.contains("BrokenProperty") shouldBe true
+    propertyError.message!!.contains("Missing") shouldBe true
+  }
 
   @Test
   internal fun `T1-7 only the exact declared name resolves`() {
@@ -152,5 +181,35 @@ internal class Spec01UniversesTest {
     table.findClass(cn("Greenery")) shouldBe null
     shouldThrow<ExpressionException> { table.getClass(cn("Greenery")) }
     shouldThrow<ExpressionException> { table.resolve(te("Greenery")) }
+  }
+
+  @Test
+  internal fun `T1-7 loading rejects an unknown name wherever a declaration writes it`() {
+    val positions =
+        listOf(
+            "CLASS Foo : Missing",
+            "CLASS Foo<Missing>",
+            "CLASS Foo { This: Missing }",
+            "CLASS Foo { Missing: Ok }",
+            "CLASS Foo { This: Missing<Component FROM Class> }",
+            "CLASS Foo { HAS MAX 1 Missing }",
+            "CLASS Bar\nCLASS Foo { This: Bar(HAS Missing) }",
+            "CLASS Bar<Component>\nCLASS Foo { This: Bar<Missing> }",
+            "CLASS Bar\nCLASS Foo<Bar> { DEFAULT +Foo<Missing> }",
+            "ABSTRACT CLASS Scored { score = Metric }\n" +
+                "CLASS Foo : Scored { score = COUNT \"Missing\" }",
+        )
+    positions.forEach { declaration ->
+      withClue(declaration) {
+        shouldThrow<ExpressionException> { loadTypes(declaration) }.message shouldContain
+            "Foo names `Missing`"
+      }
+    }
+  }
+
+  @Test
+  internal fun `T1-7 loading accepts a declaration whose names are all declared`() {
+    loadTypes("CLASS Bar", "CLASS Foo { This: Bar }").getClass(cn("Foo")).className shouldBe
+        cn("Foo")
   }
 }

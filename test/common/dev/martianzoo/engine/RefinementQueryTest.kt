@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
@@ -11,8 +12,8 @@ internal class RefinementQueryTest {
   @Test
   internal fun bareDependencyRefinesEveryCompatibleDomain() {
     val game = setUpGame()
-    val p1 = game.agent(PLAYER1)
-    val p2 = game.agent(PLAYER2)
+    val p1 = game.testAgent(PLAYER1)
+    val p2 = game.testAgent(PLAYER2)
     p1.count("StartToken") shouldBe 1
     p2.count("StartToken") shouldBe 0
 
@@ -36,8 +37,8 @@ internal class RefinementQueryTest {
                 players = 2,
             )
         )
-    game.agent(PLAYER1).manual("Token<Player1>")
-    val p2 = game.agent(PLAYER2)
+    game.testAgent(PLAYER1).runOperation("Token<Player1>")
+    val p2 = game.testAgent(PLAYER2)
 
     p2.count("Player(HAS Token)") shouldBe 1
     p2.count("Player(HAS Token<>)") shouldBe 0
@@ -55,13 +56,13 @@ internal class RefinementQueryTest {
                 players = 3,
             )
         )
-    val admin = game.agent(ADMIN)
-    admin.manual("Token<Player1>")
+    val admin = game.testAgent(ADMIN)
+    admin.runOperation("Token<Player1>")
 
-    admin.manual("EACH Player(HAS =1 (RANK Player { Player(HAS Token) })) { Prize<Player> }")
+    admin.runOperation("EACH Player(HAS =1 (RANK Player { Player(HAS Token) })) { Prize<Player> }")
 
-    game.agent(PLAYER1).count("Prize") shouldBe 1
-    game.agent(PLAYER2).count("Prize") shouldBe 1
-    game.agent(PLAYER3).count("Prize") shouldBe 1
+    game.testAgent(PLAYER1).count("Prize") shouldBe 1
+    game.testAgent(PLAYER2).count("Prize") shouldBe 1
+    game.testAgent(PLAYER3).count("Prize") shouldBe 1
   }
 }

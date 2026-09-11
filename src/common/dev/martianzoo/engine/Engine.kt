@@ -42,25 +42,28 @@ public object Engine {
         GameReaderImpl(classTable, components, elaborator, customClasses, premise)
     private val timeline = TimelineImpl(reader, components, events, taskQueues, recordingPositions)
     private val limiter = Limiter(classTable, components)
-    private val atomicOperationScope: AtomicOperationScope =
-        AtomicOperationScope(
+    private val worldTransaction: WorldTransaction =
+        WorldTransaction(
             timeline,
-            { world.onAtomicComplete() },
+            { world.onTransactionComplete() },
             recordingPositions,
             ::removeTemporaryComponents,
         )
     private val changer = Changer(reader, components, events)
     private val instructor =
         Instructor(reader, limiter, changer, effector, classTable, elaborator, customClasses)
-    private val agentByActor: Map<Actor, Agent> = premise.actors.associateWith(::createAgent)
+    private val actorEngines: Map<Actor, ActorEngine> =
+        premise.actors.associateWith(::createActorEngine)
     private val initializer =
         Initializer(
-            agentByActor.getValue(ADMIN),
+            reader,
+            elaborator,
             instructor,
             taskQueues,
             classTable,
             timeline,
             premise,
+            actorEngines::getValue,
         )
     private val world: WholeWorld =
         WholeWorld(
@@ -70,13 +73,14 @@ public object Engine {
             timeline,
             reader,
             classTable,
-            agentByActor,
+            actorEngines,
             timeline,
             recordingPositions,
         )
 
     internal fun createWorld(): WholeWorld {
       initializer.initialize()
+      recordingPositions.record(timeline.checkpoint().ordinal)
       return world
     }
 
@@ -155,27 +159,16 @@ public object Engine {
       }
     }
 
-    private fun createAgent(actor: Actor): Agent {
-      val tasks = taskQueues[actor]
-      val implementations =
-          Implementations(
-              tasks,
-              taskQueues,
-              reader,
-              timeline,
-              actor,
-              instructor,
-              changer,
-          )
-      return ApiTranslation(
-          actor,
-          reader,
-          implementations,
-          tasks,
-          classTable,
-          elaborator,
-          atomicOperationScope,
-      )
-    }
+    private fun createActorEngine(actor: Actor): ActorEngine =
+        ActorEngine(
+            taskQueues[actor],
+            taskQueues,
+            reader,
+            timeline,
+            actor,
+            instructor,
+            changer,
+            worldTransaction,
+        )
   }
 }

@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.tests
 
+import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.engine.toComponent
@@ -25,7 +27,6 @@ import dev.martianzoo.pets.types.Type
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.fake.FakeCanon
 import io.kotest.matchers.shouldBe
 
@@ -34,7 +35,7 @@ internal fun setUpGame(
     retainedStartingProjects: Int = 0,
 ): World =
     Engine.newGame(premise).apply {
-      TfmWorkflow.Manual(this).setupPhase()
+      TfmWorkflow.Stepwise(testAgents()).setupPhase()
       retainStartingProjects(
           *IntArray(actors.filterIsInstance<Player>().size) { retainedStartingProjects },
       )
@@ -48,7 +49,7 @@ internal fun World.retainStartingProjects(vararg retainedCounts: Int) {
   players.zip(retainedCounts.asIterable()).forEach { (player, retained) ->
     require(retained in 0..10) { "cannot retain $retained of 10 starting projects" }
     val discarded = 10 - retained
-    tfm(player).doTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Hand>")
+    testAgent(player).doTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Hand>")
   }
 }
 

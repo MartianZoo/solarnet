@@ -9,8 +9,8 @@ internal class NitrogenRichAsteroidTest : CardTest() {
   internal fun `May choose the lesser production branch with three plant tags`() {
     newGame(CorporateEraExpansion)
     admin.phase("Action")
-    p1.manual("$Ecoline, $AdaptedLichen, $Lichen")
-    p1.manual("31 MC, ProjectCard")
+    p1.runOperation("$Ecoline, $AdaptedLichen, $Lichen")
+    p1.runOperation("31 MC, ProjectCard")
 
     p1.playProject(NitrogenRichAsteroid, 31) { doTask("PROD[Plant]") }.expect("PROD[Plant]")
   }

@@ -12,7 +12,7 @@ internal class EcologyExpertsTest : CardTest() {
   internal fun `Plays Decomposers while ignoring its global requirement`() {
     newGame(PreludeExpansion)
     admin.phase("Prelude")
-    p1.manual("10 MC, ProjectCard, PreludeCard")
+    p1.runOperation("10 MC, ProjectCard, PreludeCard")
 
     p1.playPrelude(EcologyExperts) {
       doTask("PlayCard<Class<ProjectCard>, Class<$Decomposers>, Hand>")
@@ -28,9 +28,9 @@ internal class EcologyExpertsTest : CardTest() {
   internal fun `Splice money from Ecology Experts tags can pay for Decomposers`() {
     newGame(PreludeExpansion, PromoCardPack)
     val p2 = requireP2()
-    p2.manual("$SpliceTacticalGenomics")
+    p2.runOperation("$SpliceTacticalGenomics")
     admin.phase("Prelude")
-    p1.manual("4 MC, ProjectCard, PreludeCard")
+    p1.runOperation("4 MC, ProjectCard, PreludeCard")
     val spliceMoney = p2.count("MC")
 
     p1.playPrelude(EcologyExperts) {
@@ -45,7 +45,7 @@ internal class EcologyExpertsTest : CardTest() {
   internal fun `Can play a card without a bio tag`() {
     newGame(PreludeExpansion)
     admin.phase("Prelude")
-    p1.manual("2 MC, ProjectCard, PreludeCard")
+    p1.runOperation("2 MC, ProjectCard, PreludeCard")
 
     p1.playPrelude(EcologyExperts) { p1.playProject(DustSeals, 2) }
 

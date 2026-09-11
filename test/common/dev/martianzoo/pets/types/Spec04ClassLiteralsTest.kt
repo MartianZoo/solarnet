@@ -95,10 +95,8 @@ internal class Spec04ClassLiteralsTest {
   // T4-5 Bounds
 
   @Test
-  internal fun `T4-5 glb and lub of class literals follow the class hierarchy`() {
+  internal fun `T4-5 glb of class literals follows the class hierarchy`() {
     (type("Class<Metal>") glb type("Class<Steel>")) shouldBe type("Class<Steel>")
-    (type("Class<Steel>") lub type("Class<Titanium>")) shouldBe type("Class<Metal>")
-    (type("Class<Steel>") lub type("Class<Plant>")) shouldBe type("Class<StandardResource>")
   }
 
   @Test

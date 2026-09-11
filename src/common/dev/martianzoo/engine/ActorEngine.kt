@@ -1,8 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.AutoExecMode.FIRST
-import dev.martianzoo.engine.AutoExecMode.NONE
-import dev.martianzoo.engine.AutoExecMode.SAFE
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetTransformer
@@ -32,32 +29,44 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.Task.Selection
 import dev.martianzoo.pets.data.Task.TaskId
+import dev.martianzoo.pets.data.TaskResult
 
-internal class Implementations(
-    private val tasks: TaskQueue,
+/** Policy-free task and state mutation mechanics attributed to one [actor]. */
+public class ActorEngine
+internal constructor(
+    /** Tasks currently assigned to [actor]. */
+    public val tasks: TaskQueue,
     taskQueues: TaskQueues,
-    private val reader: GameReader,
+    /** The live game state read by this engine. */
+    public val reader: GameReader,
     private val timeline: Timeline,
-    private val actor: Actor,
+    /** The Actor to which ordinary mutations through this engine are attributed. */
+    public val actor: Actor,
     private val instructor: Instructor,
     private val changer: Changer,
+    private val worldTransaction: WorldTransaction,
 ) {
-  // Auto-exec scans the whole game for compatibility with existing workflows. Selection and
-  // delegated reassignment are also whole-game concerns, so keep global visibility as a queue view
-  // rather than exposing TaskQueues storage.
-  private val allTasks = taskQueues.all()
+  // Selection and delegated reassignment are whole-game concerns, so keep global visibility as a
+  // queue view rather than exposing TaskQueues storage.
+  /** Every pending task in the game, regardless of assignee. */
+  public val allTasks: TaskQueue = taskQueues.all()
 
   private object ProbeSucceeded : RuntimeException()
 
   private val immutableClassFacts = narrowingFacts(requirementsHold = false)
   private val possibleWorldFacts = narrowingFacts(requirementsHold = true)
+
+  /** Runs one engine transaction and returns its net result. */
+  public fun transact(
+      settle: () -> Unit,
+      validateCompletion: () -> Unit = {},
+      block: () -> Unit,
+  ): TaskResult = worldTransaction.run(block, validateCompletion, settle)
 
   private fun narrowingFacts(requirementsHold: Boolean): TypeInfo =
       object : TypeInfo {
@@ -72,7 +81,7 @@ internal class Implementations(
 
   // CHANGES LAYER
 
-  internal fun sneak(changes: InstructionGroup, cause: Cause? = null) {
+  public fun sneak(changes: InstructionGroup, cause: Cause? = null) {
     changes.instructions.forEach {
       if (it is Instruction.Or) throw orWithoutChoice(it)
       val change =
@@ -91,61 +100,18 @@ internal class Implementations(
 
   // TASKS LAYER
 
-  internal fun addTasks(instructions: InstructionGroup, firstCause: Cause? = null): List<TaskId> =
+  public fun addTasks(instructions: InstructionGroup, firstCause: Cause? = null): List<TaskId> =
       tasks.addTasks(instructions, firstCause).map { it.task.id }
 
-  internal fun dropTask(taskId: TaskId): TaskRemovedEvent = tasks.removeTask(taskId)
+  public fun dropTask(taskId: TaskId): TaskRemovedEvent = tasks.removeTask(taskId)
 
-  // OPERATIONS LAYER
-
-  internal fun manual(
-      initialInstructions: InstructionGroup,
-      autoExec: AutoExecMode,
-      body: () -> Unit,
-  ): Set<TaskId> {
-    val preexistingTasks = allTasks.ids()
-    allTasks.selectedTask()?.let {
-      throw TaskException("can't start a manual operation while task $it holds the select-lock")
-    }
-    addTasks(initialInstructions).forEach(::doInitialTask)
-    complete(autoExec, preexistingTasks, body)
-    return preexistingTasks
+  /** Restores prior task data while applying an evidenced replay correction. */
+  public fun restoreTask(task: Task) {
+    tasks.editTask(task)
   }
 
-  internal fun beginManual(
-      initialInstructions: InstructionGroup,
-      autoExec: AutoExecMode,
-      body: () -> Unit,
-  ) {
-    tasks.requireAllQueuesEmpty()
-    addTasks(initialInstructions).forEach(::doInitialTask)
-    continueManual(autoExec, body)
-  }
-
-  private fun doInitialTask(taskId: TaskId) {
-    try {
-      doTask(taskId)
-    } catch (_: AbstractException) {
-      // Initial abstract work remains pending for the operation body to narrow.
-    }
-  }
-
-  internal fun continueManual(autoExec: AutoExecMode, body: () -> Unit) {
-    autoExecNow(autoExec)
-    body()
-    autoExecNow(autoExec)
-  }
-
-  internal fun complete(
-      autoExec: AutoExecMode,
-      allowedPendingTasks: Set<TaskId> = emptySet(),
-      body: () -> Unit,
-  ) {
-    continueManual(autoExec, body)
-    requireComplete(allowedPendingTasks)
-  }
-
-  internal fun requireComplete(allowedPendingTasks: Set<TaskId> = emptySet()) {
+  /** Requires that no new pending task or cleanup component remains. */
+  public fun requireComplete(allowedPendingTasks: Set<TaskId> = emptySet()) {
     val pending = allTasks.extract { it }.filter { it.id !in allowedPendingTasks }
     if (pending.isNotEmpty()) {
       if (pending.any { it.instruction.isAbstract(reader) }) {
@@ -159,70 +125,6 @@ internal class Implementations(
               reader.getComponents("MustCleanUp").elements
       )
     }
-  }
-
-  internal fun autoExecNow(mode: AutoExecMode) {
-    while (autoExecNext(mode)) {}
-  }
-
-  private fun autoExecNext(mode: AutoExecMode): Boolean /* should we continue */ {
-    if (allTasks.isEmpty()) return false
-
-    // Until Admin has its own scheduled policy, a disabled Player policy still advances
-    // deterministic Admin-assigned work without touching any Player task.
-    val eligible =
-        if (mode == NONE) {
-          if (actor !is Player) return false
-          allTasks.ids().filter { taskId ->
-            queueForAnyTask(taskId).getTaskData(taskId).assignee == ADMIN
-          }
-        } else {
-          allTasks.ids()
-        }
-    if (eligible.isEmpty()) return false
-
-    val selected = allTasks.selectedTask()
-    if (selected != null && selected !in eligible) return false
-    val effectiveMode = if (mode == NONE) FIRST else mode
-
-    val options: List<TaskId> = selected?.let(::listOf) ?: eligible.filter(::canSelectAnyTask)
-
-    when (options.size) {
-      0 -> doAnyTask(eligible.first()).also { error("that should've completed") }
-      1 -> {
-        val taskId = options.single()
-        val queue = queueForAnyTask(taskId)
-        selectTask(queue, queue.getTaskData(taskId)) ?: return true
-        try {
-          if (trySelectedAnyTask()) return true // if this fails we should fail too
-        } catch (e: DeadEndException) {
-          throw e.cause ?: e
-        }
-      }
-      else -> if (effectiveMode == SAFE) return false
-    }
-
-    // We're in unsafe mode. Arbitrarily try tasks in stable iteration order.
-
-    var recoverable = false
-
-    for (taskId in options) {
-      try {
-        timeline.atomic { doAnyTask(taskId) }
-        return true
-      } catch (_: AbstractException) {
-        // we're in trouble if ALL of these are NotNowExceptions
-        recoverable = true
-      } catch (_: NotNowException) {
-        val task = queueForAnyTask(taskId).getTaskData(taskId)
-        if (task.instruction.isAbstract(reader)) {
-          recoverable = true
-        }
-      }
-    }
-    if (!recoverable) throw DeadEndException("")
-
-    return false // presumably everything is abstract
   }
 
   /**
@@ -253,14 +155,14 @@ internal class Implementations(
     }
   }
 
-  // GAMES LAYER
+  // TASK COMMANDS
 
-  internal fun narrowTask(narrowing: InstructionTree, intensityOmitted: Boolean = false) {
+  public fun narrowTask(narrowing: InstructionTree, intensityOmitted: Boolean = false) {
     val taskId = tasks.selectedTask() ?: throw TaskException("$actor has no selected task")
     narrowSelectedTask(taskId, narrowing, intensityOmitted)
   }
 
-  internal fun narrowTask(
+  public fun narrowTask(
       taskId: TaskId,
       narrowing: InstructionTree,
       intensityOmitted: Boolean = false,
@@ -331,13 +233,13 @@ internal class Implementations(
     }
   }
 
-  internal fun canSelectTask(taskId: TaskId): Boolean = probe {
+  public fun canSelectTask(taskId: TaskId): Boolean = probe {
     selectAndExecuteIfConcrete(tasks, taskId)
   }
 
-  internal fun canExecuteTask(taskId: TaskId): Boolean = probe { doTask(taskId) }
+  public fun canExecuteTask(taskId: TaskId): Boolean = probe { doTask(taskId) }
 
-  internal fun selectTask(taskId: TaskId) {
+  public fun selectTask(taskId: TaskId) {
     val task = tasks.getTaskData(taskId)
     if (actor != task.assignee) {
       throw TaskException("$actor can't select a task assigned to ${task.assignee}")
@@ -345,12 +247,8 @@ internal class Implementations(
     selectAndExecuteIfConcrete(tasks, taskId)
   }
 
-  internal fun selectTask(instruction: Instruction) = selectTask(taskWithInstruction(instruction))
-
-  private fun canSelectAnyTask(taskId: TaskId): Boolean {
-    val queue = queueForAnyTask(taskId)
-    return probe { selectAndExecuteIfConcrete(queue, taskId) }
-  }
+  public fun selectTask(instruction: Instruction): Unit =
+      selectTask(taskWithInstruction(instruction))
 
   private fun selectAndExecuteIfConcrete(queue: TaskQueue, taskId: TaskId) {
     val selected = selectTask(queue, queue.getTaskData(taskId)) ?: return
@@ -417,7 +315,7 @@ internal class Implementations(
     }
   }
 
-  internal fun doTask(taskId: TaskId) {
+  public fun doTask(taskId: TaskId) {
     doTask(tasks, taskId)
   }
 
@@ -447,9 +345,7 @@ internal class Implementations(
     handleTask(queue, selectedTask)
   }
 
-  private fun doAnyTask(taskId: TaskId): Task = doTask(queueForAnyTask(taskId), taskId)
-
-  internal fun doTask(
+  public fun doTask(
       narrowing: InstructionTree,
       intensityOmitted: Boolean = false,
       executeSubmittedGroup: Boolean = false,
@@ -641,9 +537,10 @@ internal class Implementations(
     }
   }
 
-  internal fun tryTask(id: TaskId) = attempt { doTask(id) }
+  /** Tries [id], leaving it pending when it needs a choice or is unavailable. */
+  public fun tryTask(id: TaskId): Unit = attempt { doTask(id) }
 
-  internal fun tryTask(
+  public fun tryTask(
       narrowing: InstructionTree,
       intensityOmitted: Boolean = false,
       executeSubmittedGroup: Boolean = false,
@@ -656,10 +553,10 @@ internal class Implementations(
   }
 
   // Similar to tryTask, but a NotNowException is unrecoverable once selection holds the lock.
-  private fun trySelectedAnyTask(): Boolean /* did I do stuff? */ {
+  public fun trySelectedTask(): Boolean {
     val taskId = allTasks.selectedTask()!!
     return try {
-      doAnyTask(taskId)
+      doTask(queueForAnyTask(taskId), taskId)
       true
     } catch (e: NotNowException) {
       throw DeadEndException(e)

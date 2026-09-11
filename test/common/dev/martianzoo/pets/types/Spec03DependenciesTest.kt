@@ -419,11 +419,8 @@ internal class Spec03DependenciesTest {
 
   @Test
   internal fun `T3-11 a dependency cycle between class headers is rejected`() {
-    val mutual = loadTypes("CLASS Foo<Bar>", "CLASS Bar<Foo>")
-    shouldThrow<PetException> { mutual.getClass(cn("Foo")).baseType }
-
-    val self = loadTypes("ABSTRACT CLASS Foo<Foo>")
-    shouldThrow<PetException> { self.getClass(cn("Foo")).baseType }
+    shouldThrow<PetException> { loadTypes("CLASS Foo<Bar>", "CLASS Bar<Foo>") }
+    shouldThrow<PetException> { loadTypes("ABSTRACT CLASS Foo<Foo>") }
   }
 
   @Test

@@ -19,17 +19,33 @@ import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.DefaultKind
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.OneDefault
 
 /**
- * A direct representation of the *declaration* of a component class, such as GreeneryTile. Runtime
- * Catalogs normally load these from `*.pets` source; tools and tests may construct them directly.
+ * A direct representation of the *declaration* of a component class, such as GreeneryTile, whose
+ * source form is
+ * [section 1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations).
+ * A declaration is a signature — a name, an optional dependency list, and an optional supertype
+ * list — plus an optional body ([rules L1-2 and
+ * L1-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
+ * Runtime Catalogs normally load these from `*.pets` source; tools and tests may construct them
+ * directly.
  *
  * The information provided here is not very "cooked"; that cooking happens in
  * `dev.martianzoo.pets.types`.
  */
 public data class ClassDeclaration(
-    /** The stable engine-facing name for the class. No other name is part of the declaration. */
+    /**
+     * The stable engine-facing name for the class. No other name is part of the declaration: there
+     * is one namespace and no scoping ([rule
+     * L2-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-names)),
+     * and how a name is displayed to a person is `NAMING.md`'s subject.
+     */
     override val className: ClassName,
 
-    /** Is this class declared to be `ABSTRACT`, `CUSTOM`, or regular? */
+    /**
+     * Is this class declared to be `ABSTRACT`, `CUSTOM`, or regular? `CLASS Foo` declares a
+     * concrete class and `ABSTRACT CLASS Foo` an abstract one ([rule
+     * L1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations),
+     * [rule T2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes)).
+     */
     public val kind: ClassKind,
 
     /** Any "new" dependencies being declared by this class (not inherited from a supertype). */
@@ -38,7 +54,10 @@ public data class ClassDeclaration(
     /** This class's listed direct supertypes, as they were expressed in the source. */
     public val supertypes: Set<Expression> = emptySet(),
 
-    /** Any class invariants declared with `HAS` in the class body. */
+    /**
+     * Any class invariants declared with `HAS` in the class body ([rule
+     * L1-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
+     */
     public val invariants: Set<Requirement> = emptySet(),
 
     /** Effects authored directly in this class body, in declaration order. */
@@ -50,11 +69,30 @@ public data class ClassDeclaration(
     /** An catalog-specific executable form, when it differs from the authored form. */
     internal val executableEffects: List<Effect>? = null,
 
-    /** The merged contents of any `DEFAULT` clauses in the class body. */
+    /**
+     * The merged contents of any `DEFAULT` clauses in the class body. A clause names the class that
+     * declares it — one naming another class is rejected — and clauses are merged into one set per
+     * use kind ([rule
+     * L1-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations),
+     * [rules T10-1 and T10-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults)).
+     */
     public val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
 
-    /** Property bounds or values declared directly by this class. */
+    /**
+     * Property bounds or values declared directly by this class. A name is assigned at most once
+     * per body ([rule
+     * L1-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations));
+     * what the bounds and values mean is
+     * [section 9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties)
+     * of the type system specification.
+     */
     public val properties: Map<PropertyName, PropertyValue> = emptyMap(),
+
+    /**
+     * The quoted string written on the line before `CLASS`, retained here and re-emitted when this
+     * declaration is rendered ([rule
+     * L1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
+     */
     public val docstring: String? = null,
     /**
      * Any additional Pets elements belonging to this class that aren't given for the previous
@@ -62,11 +100,22 @@ public data class ClassDeclaration(
      */
     public val extraNodes: Set<PetNode> = emptySet(),
 ) : HasClassName {
+  /**
+   * This class's authored effects followed by its lowered actions, in that order ([rule
+   * L9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-actions)).
+   * No rule may rely on the ordering to resolve simultaneous gameplay — sequencing owns that — but
+   * it makes introspection deterministic once actions have become ordinary effects.
+   */
   // TODO: Contract temporary tfm-canon declaration-lowering seams.
   public val authoredEffectsWithActions: List<Effect>
     get() = authoredEffects + actionListToEffects(authoredActions)
 
-  /** Effects authored directly or obtained by lowering the authored actions. */
+  /**
+   * The effects this class actually carries: [authoredEffectsWithActions], in the order
+   * [rule L9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-actions)
+   * gives, unless a Catalog supplied its own executable form for this class — in which case that
+   * replaces the whole list.
+   */
   public val effects: List<Effect>
     get() = executableEffects ?: authoredEffectsWithActions
 
@@ -75,6 +124,8 @@ public data class ClassDeclaration(
   init {
     fun hasRefinement(expression: Expression): Boolean =
         expression.refinement != null || expression.arguments.any(::hasRefinement)
+    // Rule L1-9: a refined type cannot be a bound, so signature expressions carry no refinements at
+    // any depth.
     require((dependencies + supertypes).none(::hasRefinement)) {
       "Class signatures cannot contain refined Types"
     }
@@ -150,10 +201,17 @@ public data class ClassDeclaration(
           properties.values +
           extraNodes
 
-  /** Returns this declaration as standalone, parseable Pets source. */
+  /**
+   * Returns this declaration as standalone, parseable Pets source ([rule
+   * L1-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
+   */
   override fun toString(): String = toString(oneLine = false)
 
-  /** Returns this declaration as parseable Pets source, optionally on one line. */
+  /**
+   * Returns this declaration as parseable Pets source, multi-line or (with [oneLine]) semicolon
+   * separated. Parsing either form yields an equal declaration ([rule
+   * L1-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
+   */
   public fun toString(oneLine: Boolean): String = buildString {
     docstring?.let { append('"').append(it).append("\"\n") }
     if (abstract) append("ABSTRACT ")

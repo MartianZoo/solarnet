@@ -1,7 +1,9 @@
-package dev.martianzoo.engine
+package dev.martianzoo.agent
 
-import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Timeline.Checkpoint
+import dev.martianzoo.engine.World
+import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.Task.TaskId
@@ -10,24 +12,28 @@ import dev.martianzoo.pets.data.Task.TaskId
  * Applies an evidenced replay adjustment without leaving a selected task resolved against stale
  * state.
  */
-public fun World.exMachina(adjustingAgent: Agent, adjustment: String) {
+public fun World.exMachina(
+    agents: Map<Actor, Agent>,
+    adjustingAgent: Agent,
+    adjustment: String,
+) {
   val selectedId = tasks.selectedTask()
   if (selectedId == null) {
     adjustingAgent.sneak(adjustment)
     return
   }
 
-  val selectedAgent = agent(tasks.getTaskData(selectedId).assignee)
-  val previousAutoExecMode = selectedAgent.autoExecMode
-  selectedAgent.autoExecMode = NONE
+  val selectedAgent = agents.getValue(tasks.getTaskData(selectedId).assignee)
+  val previousAutoExecPolicy = selectedAgent.autoExecPolicy
+  selectedAgent.autoExecPolicy = NONE
   try {
-    tasks.editTask(taskBeforeSelection(selectedId))
+    actorEngine(selectedAgent.actor).restoreTask(taskBeforeSelection(selectedId))
     adjustingAgent.sneak(adjustment)
     selectedAgent.selectTask(selectedId)
   } finally {
-    selectedAgent.autoExecMode = previousAutoExecMode
+    selectedAgent.autoExecPolicy = previousAutoExecPolicy
   }
-  if (previousAutoExecMode == NONE) selectedAgent.autoExecNow()
+  if (previousAutoExecPolicy == NONE) selectedAgent.autoExecNow()
 }
 
 private fun World.taskBeforeSelection(selectedId: TaskId): Task {

@@ -13,7 +13,7 @@ internal class CardClassTest {
   private val catalog: TfmCatalog by lazy {
     catalogWith(
         """
-        CLASS ClassBackedExample : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Microbe>> {
+        CLASS ClassBackedExample : ActionCard, ActiveCard, ResourceCard<Class<Microbe>> {
           cost = 7
           requirement = HAS "3 OceanTile"
 
@@ -54,7 +54,7 @@ internal class CardClassTest {
     val invalid =
         catalogWith(
             """
-            CLASS Mistagged : AutomatedCard<Class<ProjectCard>> {
+            CLASS Mistagged : AutomatedCard {
               cost = 0
               This:: EventTag<This>
             }
@@ -69,7 +69,7 @@ internal class CardClassTest {
     val invalid =
         catalogWith(
             """
-            CLASS Misclassified : AutomatedCard<Class<ProjectCard>> {
+            CLASS Misclassified : AutomatedCard {
               cost = 0
               Generation: MC
             }
@@ -90,12 +90,12 @@ internal class CardClassTest {
 
             CLASS ConcreteCapability : PersistentCapability
 
-            CLASS ComponentBacked : ActiveCard<Class<ProjectCard>> {
+            CLASS ComponentBacked : ActiveCard {
               cost = 0
               This:: ConcreteCapability<This>
             }
 
-            CLASS OneTimeAutomatic : AutomatedCard<Class<ProjectCard>> {
+            CLASS OneTimeAutomatic : AutomatedCard {
               cost = 0
               This:: 2 MC
             }

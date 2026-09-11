@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
@@ -15,7 +17,6 @@ import dev.martianzoo.tfm.canon.Bundle
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.cards.cardnames.ColonizerTrainingCamp
@@ -63,9 +64,9 @@ internal class GamePremiseTest {
     val second = Engine.newGame(premise)
 
     first.classTable shouldBe second.classTable
-    TfmWorkflow.Manual(first).setupPhase()
-    first.tfm(ADMIN).count("SetupPhase") shouldBe 1
-    second.tfm(ADMIN).count("SetupPhase") shouldBe 0
+    TfmWorkflow.Stepwise(first.testAgents()).setupPhase()
+    first.testAgent(ADMIN).count("SetupPhase") shouldBe 1
+    second.testAgent(ADMIN).count("SetupPhase") shouldBe 0
   }
 
   @Test
@@ -132,9 +133,9 @@ internal class GamePremiseTest {
     game.classTable.isActive(blue) shouldBe true
     game.actors.shouldContainExactly(Player(blue), Player(yellow), ADMIN)
     game.reader.getComponents("Player").map { it.className }.toSet() shouldBe setOf(blue, yellow)
-    TfmWorkflow.Manual(game).setupPhase()
-    game.tfm(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
-    game.tfm(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
+    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    game.testAgent(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
+    game.testAgent(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
     getPlayerOwner(game.reader, game.reader.getComponents("StartToken").single()) shouldBe
         Player(blue)
   }
@@ -176,7 +177,7 @@ internal class GamePremiseTest {
     val premise = Canon.gamePremise(GameConfig.create(included = emptyList(), playerNames = names))
 
     premise.playerNames shouldBe names
-    Engine.newGame(premise).tfm(ADMIN).count("Player") shouldBe 6
+    Engine.newGame(premise).testAgent(ADMIN).count("Player") shouldBe 6
   }
 
   @Test

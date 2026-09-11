@@ -3,10 +3,10 @@ package dev.martianzoo.engine
 import dev.martianzoo.pets.data.TaskResult
 
 /**
- * Executes Agent operations atomically, settles callback-started follow-ups, and reports the
- * outermost successful completion.
+ * Coordinates nested game mutations as one transaction, settles callback-started follow-ups, and
+ * reports successful completion.
  */
-internal class AtomicOperationScope(
+internal class WorldTransaction(
     private val timeline: Timeline,
     private val onComplete: () -> Unit,
     private val recordingPositions: RecordingPositions,
@@ -17,8 +17,8 @@ internal class AtomicOperationScope(
 
   internal fun run(
       block: () -> Unit,
-      afterIdleCleanup: () -> Unit = {},
-      beforeOutermostCompletion: () -> Unit,
+      validateCompletion: () -> Unit = {},
+      settle: () -> Unit,
   ): TaskResult {
     val outermost = depth == 0
     val completionFollowUp = reportingCompletion && depth == 1
@@ -28,8 +28,8 @@ internal class AtomicOperationScope(
           .atomic {
             block()
             if (outermost || completionFollowUp) {
-              performIdleCleanup(beforeOutermostCompletion)
-              afterIdleCleanup()
+              settleAndCleanUp(settle)
+              validateCompletion()
             }
           }
           .also {
@@ -41,7 +41,7 @@ internal class AtomicOperationScope(
               } finally {
                 reportingCompletion = false
               }
-              timeline.atomic { performIdleCleanup(beforeOutermostCompletion) }
+              timeline.atomic { settleAndCleanUp(settle) }
               recordingPositions.record(timeline.checkpoint().ordinal)
             }
           }
@@ -50,9 +50,9 @@ internal class AtomicOperationScope(
     }
   }
 
-  private fun performIdleCleanup(beforeOutermostCompletion: () -> Unit) {
+  private fun settleAndCleanUp(settle: () -> Unit) {
     do {
-      beforeOutermostCompletion()
+      settle()
     } while (removeTemporaryComponents())
   }
 }

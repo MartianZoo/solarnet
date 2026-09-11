@@ -17,7 +17,12 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 
-/** The combination of a positive integer (or `X`) with an [Expression]. */
+/**
+ * The combination of a positive integer (or `X`) with an [Expression], as a gain or removal writes
+ * it ([rule
+ * L6-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+ * A missing count is one.
+ */
 @ConsistentCopyVisibility
 public data class ScaledExpression
 private constructor(
@@ -69,6 +74,12 @@ private constructor(
 
   override val kind: kotlin.reflect.KClass<out PetNode> = ScaledExpression::class
 
+  /**
+   * How many, in a [ScaledExpression]: either a fixed [ActualScalar] or an [XScalar] left open
+   * ([rule
+   * L6-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+   * Zero is rejected wherever a count is required.
+   */
   public sealed class Scalar : PetNode(), Specification<Scalar> {
     override val kind: kotlin.reflect.KClass<out PetNode> = Scalar::class
 
@@ -78,6 +89,7 @@ private constructor(
 
     override fun isAbstract(info: TypeInfo): Boolean = abstract
 
+    /** Whether this scalar leaves the amount open. */
     public abstract val abstract: Boolean
 
     /** Replaces an authored X with [value], retaining its written coefficient. */
@@ -93,6 +105,11 @@ private constructor(
       }
     }
 
+    /**
+     * A fixed amount. It narrows an [XScalar] only when it is a multiple of that scalar's
+     * coefficient ([rule
+     * L7-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+     */
     public data class ActualScalar(val value: Int) : Scalar() {
       init {
         require(value >= 0)
@@ -114,6 +131,14 @@ private constructor(
       override fun toString(): String = "$value"
     }
 
+    /**
+     * An amount left open, carrying the written coefficient [multiple]: `2X Plant` is an even
+     * number of plants ([rule
+     * L6-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+     * Every occurrence of `X` in one instruction takes the same value, each scaled by its own
+     * coefficient ([rule
+     * L7-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+     */
     public data class XScalar public constructor(val multiple: Int) : Scalar() {
       init {
         require(multiple > 0)

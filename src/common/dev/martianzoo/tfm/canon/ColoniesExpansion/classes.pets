@@ -42,7 +42,7 @@ ABSTRACT CLASS ColonyTile {
   This:: ColonyProduction<This>
   Colony<This>:: ColonyProduction<This> / Colony<This> - ColonyProduction<This>
   ResetColonyProduction<This>: -ColonyProduction<This>. / ColonyProduction<This> - Colony<This, Anyone>
-  AdvanceColonyTracks: ColonyProduction<This>.
+  AdvanceColonyTracks: ColonyProduction<This>
   FinishTrade<This>: ResetColonyProduction<This>
 }
 
@@ -213,7 +213,10 @@ CLASS TradeBarrier<ColonyTile> : Owned<Player>, Barrier {
 CLASS FinishTrade<ColonyTile> : Owned<Player>, Signal
 
 "A notch on the production track of a ColonyTile; note a tile has 0 to 6 of these (not 1 to 7)"
-CLASS ColonyProduction<ColonyTile> { HAS MAX 6 This }
+CLASS ColonyProduction<ColonyTile> {
+  HAS MAX 6 This
+  DEFAULT +ColonyProduction.
+}
 
 "An implementation detail used to trigger colony bonuses to be paid out"
 CLASS GainColonyBonus<ColonyTile> : Owned<Player>, Signal
