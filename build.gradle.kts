@@ -9,20 +9,15 @@ plugins {
   alias(libs.plugins.dokka)
 }
 
-val browserTestsRequested =
-    gradle.startParameter.taskNames.any { it.substringAfterLast(':') == "jsBrowserTest" }
-
-// JVM tests provide the exhaustive routine signal. Browser tests are opt-in except for the one
-// representative Terraforming Mars smoke scenario configured in tfm-tests/build.gradle.kts.
+// JVM tests provide the exhaustive signal. Kotlin creates a browser-test task for every JS target,
+// but only tfm-tests may execute one; its build file permanently filters that task to one replay.
 subprojects {
   if (name != "tfm-tests") {
     tasks
         .matching { it.name == "jsBrowserTest" }
         .configureEach {
-          inputs.property("browserTestsRequested", browserTestsRequested)
-          onlyIf("browser tests were explicitly requested") { task ->
-            task.inputs.properties["browserTestsRequested"] == true
-          }
+          description = "Disabled: browser verification is owned by :tfm-tests:jsBrowserSmokeTest."
+          onlyIf("only the Terraforming Mars browser smoke test may run") { false }
         }
   }
 }

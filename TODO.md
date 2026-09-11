@@ -125,12 +125,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   areas and add placement rules.
 - Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
   with the canonical card.
-- Serve copied Canon resources from the game-viewer Karma configuration; the resources reach the
-  test package, but `:game-viewer:jsBrowserTest` currently gets a 404 for
-  `canon/resource-index.txt`.
-- Investigate the intermittent Kotlin/Karma reporter crash during the unfiltered engine browser
-  suite: targeted browser suites and the normal smoke test pass, but the reporter can lose a
-  successful spec's console result and terminate the full run.
 - Complete the unsupported Milestones & Awards goals: Hydrologist and Thawer's player-attributed
   global-parameter steps, and the Turmoil-dependent Lobbyist and Politician rules.
 - Simplify `LiveEffect` actor binding by threading a binding context through subscription matching
