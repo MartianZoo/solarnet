@@ -1,7 +1,7 @@
 package dev.martianzoo.script
 
 import dev.martianzoo.agent.Agent
-import dev.martianzoo.agent.createAgents
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -46,7 +46,7 @@ import dev.martianzoo.script.commands.TurnCommand
 import dev.martianzoo.tfm.canon.ApiUtils
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
-import dev.martianzoo.tfm.engine.TfmGameplay
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.engine.isVisibleInLog
 import dev.martianzoo.tfm.script.TfmColor
@@ -67,10 +67,13 @@ public class ScriptSession(
     internal val useAnsiColors: Boolean = false,
     hostCommands: (ScriptSession) -> List<ScriptCommand> = { emptyList() },
 ) {
-  internal lateinit var game: World // TODO maybe remove and just have reader/events/...?
+  internal lateinit var agents: Agents
+
+  // TODO maybe remove and just have reader/events/...?
+  internal val game: World
+    get() = agents.world
 
   internal lateinit var agent: Agent
-  internal lateinit var agents: Map<Actor, Agent>
   internal var optionCodes: String = ""
     private set
 
@@ -92,16 +95,15 @@ public class ScriptSession(
       candidatePlayerCount: Int,
       purple: Boolean,
   ) {
-    val candidateAgents = createAgents(candidateGame)
-    val candidateAgent = candidateAgents.getValue(ADMIN) // default autoexec policy
+    val candidateAgents = Agents(candidateGame)
+    val candidateAgent = candidateAgents[ADMIN] // default autoexec policy
     if (purple) {
-      TfmWorkflow.Automatic(candidateGame, candidateAgents).launch()
+      TfmWorkflow.Automatic(candidateAgents).launch()
     } else {
       TfmWorkflow.Stepwise(candidateAgents).setupPhase()
     }
     optionCodes = candidateOptionCodes
     playerCount = candidatePlayerCount
-    game = candidateGame
     agents = candidateAgents
     agent = candidateAgent
     if (purple) mode = PURPLE
@@ -146,7 +148,7 @@ public class ScriptSession(
         playerName?.let(::player)
             ?: game.actors.filterIsInstance<Player>().firstOrNull()
             ?: throw UsageException("the game has no participating Player")
-    val tfm = TfmGameplay(game, agents, player)
+    val tfm = agents.tfm(player)
 
     fun countIfLoaded(type: String): Int =
         try {

@@ -51,10 +51,9 @@ internal constructor(
     private val changer: Changer,
     private val worldTransaction: WorldTransaction,
 ) {
-  // Selection and delegated reassignment are whole-game concerns, so keep global visibility as a
-  // queue view rather than exposing TaskQueues storage.
-  /** Every pending task in the game, regardless of assignee. */
-  public val allTasks: TaskQueue = taskQueues.all()
+  // Selection and delegated reassignment are whole-game concerns, so this engine reads the whole
+  // queue as a view rather than reaching into TaskQueues storage. Clients use World.tasks.
+  private val allTasks: TaskQueue = taskQueues.all()
 
   private object SelectionProbeSucceeded : RuntimeException()
 

@@ -10,15 +10,16 @@ import kotlin.test.Test
 
 internal class AgentTest {
   @Test
-  internal fun factoryReturnsOneStableAgentPerActorWithActorScopedViewsAndTaskCommands() {
+  internal fun oneStableAgentPerActorWithActorScopedViewsAndTaskCommands() {
     val game = Engine.newGame(testGamePremise())
-    val agents = createAgents(game)
-    agents.keys.toList() shouldBe game.actors
-    agents.values.map(Agent::autoExecPolicy).toSet() shouldBe setOf(EAGER)
+    val agents = Agents(game)
+    (agents.world === game) shouldBe true
+    game.actors.map { agents[it].actor } shouldBe game.actors
+    game.actors.map { agents[it].autoExecPolicy }.toSet() shouldBe setOf(EAGER)
     (game.actorEngine(PLAYER1) === game.actorEngine(PLAYER1)) shouldBe true
-    val agent = agents.getValue(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agent = agents[PLAYER1].also { it.autoExecPolicy = NONE }
 
-    (agent === agents.getValue(PLAYER1)) shouldBe true
+    (agent === agents[PLAYER1]) shouldBe true
     (agent.reader === game.reader) shouldBe true
 
     val taskId = agent.addTasks("Token").single()
@@ -34,7 +35,7 @@ internal class AgentTest {
   @Test
   internal fun executionProbeAndTryLeaveAnAbstractTaskUnchanged() {
     val game = Engine.newGame(testGamePremise())
-    val agent = createAgents(game).getValue(PLAYER1).also { it.autoExecPolicy = NONE }
+    val agent = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
     val taskId = agent.addTasks("Token?").single()
     val taskBefore = agent.tasks.getTaskData(taskId)
 

@@ -23,7 +23,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
   @Test
   internal fun game20230521() {
-    TfmWorkflow.Automatic(game, agents).launch()
+    TfmWorkflow.Automatic(agents).launch()
     retainStartingProjects(5, 4)
 
     // Good luck Player1!

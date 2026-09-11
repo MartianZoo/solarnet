@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.engine.Timeline
 import dev.martianzoo.engine.World
 import dev.martianzoo.engine.toComponent
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.TaskResult
@@ -32,9 +32,9 @@ public object TfmWorkflow {
    * Player action helpers ([TfmGameplay.playProject] etc.) self-grant turns via [Agent.inTurn] when
    * no task is already pending, so no explicit turn-granting is needed.
    */
-  public class Stepwise(agents: Map<Actor, Agent>) {
+  public class Stepwise(agents: Agents) {
 
-    internal val adminOps: Agent = agents.getValue(ADMIN)
+    internal val adminOps: Agent = agents[ADMIN]
 
     /** Starts fully effectful game setup by replacing the initial bootstrap phase. */
     public fun setupPhase(): TaskResult = adminOps.beginOperation("SetupPhase FROM Phase")
@@ -71,11 +71,9 @@ public object TfmWorkflow {
    * already waiting, so signals fired during automatic Admin-controlled phases are dropped rather
    * than queued, preventing spurious wakeups.
    */
-  public class Automatic(
-      private val game: World,
-      private val agents: Map<Actor, Agent>,
-  ) {
+  public class Automatic(private val agents: Agents) {
 
+    private val game: World = agents.world
     private val m = Stepwise(agents)
     private val adminOps: Agent
       get() = m.adminOps
@@ -232,7 +230,7 @@ public object TfmWorkflow {
       return players.drop(firstPlayerIndex) + players.take(firstPlayerIndex)
     }
 
-    private fun opsFor(player: Player) = agents.getValue(player)
+    private fun opsFor(player: Player) = agents[player]
 
     private fun hasPassed(player: Player) = opsFor(player).has("Pass")
 

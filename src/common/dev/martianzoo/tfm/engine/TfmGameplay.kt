@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.engine
 
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agent.OperationScope
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
@@ -12,7 +13,6 @@ import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -35,21 +35,18 @@ private val MC: ClassName = cn("MC")
  * Mars*.
  */
 public class TfmGameplay(
-    private val game: World,
-    private val agents: Map<Actor, Agent>,
+    private val agents: Agents,
     override val actor: Actor,
-) : Agent by agents.getValue(actor) {
-  private val agent: Agent = agents.getValue(actor)
-
-  override val reader: GameReader
-    get() = game.reader
+) : Agent by agents[actor] {
+  private val agent: Agent = agents[actor]
+  private val game: World = agents.world
 
   private var explicitPaymentChoicesRequired = false
   private var explicitUnusedActionCardsRequired = false
   private var allowNondefaultPayment = false
 
   private fun asActor(actor: Actor) =
-      TfmGameplay(game, agents, actor).also {
+      TfmGameplay(agents, actor).also {
         if (explicitPaymentChoicesRequired) it.requireExplicitPaymentChoices()
         if (explicitUnusedActionCardsRequired) it.requireExplicitUnusedActionCards()
       }
@@ -652,8 +649,7 @@ public class TfmGameplay(
   }
 
   public companion object {
-    /** Creates Terraforming Mars conveniences for [actor] using this game's [agents]. */
-    public fun World.tfm(agents: Map<Actor, Agent>, actor: Actor): TfmGameplay =
-        TfmGameplay(this, agents, actor)
+    /** Creates Terraforming Mars conveniences for this world's [actor]. */
+    public fun Agents.tfm(actor: Actor): TfmGameplay = TfmGameplay(this, actor)
   }
 }

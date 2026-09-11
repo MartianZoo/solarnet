@@ -98,7 +98,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
 
   /** Reproduces an evidenced player mistake without leaving a task selected against stale state. */
   protected fun TfmGameplay.exMachina(adjustment: String) {
-    game.exMachina(agents, this, adjustment)
+    agents.exMachina(actor, adjustment)
   }
 
   protected fun retainStartingProjects(vararg retainedCounts: Int) {

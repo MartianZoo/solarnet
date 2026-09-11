@@ -19,7 +19,7 @@ internal class SavedGamesTest {
       val finalCards = players.associateWith { playedCards(recording.world, it) }
       val finalCardResources = players.associateWith { player ->
         finalCards.getValue(player).associate { card ->
-          card.className to cardResourceCount(recording.world, agents, player, card)
+          card.className to cardResourceCount(agents, player, card)
         }
       }
       players.forEach { player ->
@@ -49,7 +49,7 @@ internal class SavedGamesTest {
             recording.seek(position)
             players.any { player ->
               playedCards(recording.world, player).any { card ->
-                hasActionUsedMarker(recording.world, agents, player, card)
+                hasActionUsedMarker(agents, player, card)
               }
             }
           },
@@ -81,7 +81,7 @@ internal class SavedGamesTest {
         assertEquals(
             finalCardResources.getValue(player),
             finalCards.getValue(player).associate { card ->
-              card.className to cardResourceCount(recording.world, agents, player, card)
+              card.className to cardResourceCount(agents, player, card)
             },
             "$savedGame ${player.className} card resources",
         )

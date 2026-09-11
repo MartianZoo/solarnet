@@ -151,7 +151,7 @@ internal class BootstrapLifecycleTest {
   @Test
   internal fun setupKeepsStartingCardsInHandUntilCorporationTurns() {
     val game = Engine.newGame(canonicalPremise(PreludeExpansion))
-    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     val admin = game.testAgent(ADMIN)
     val p1 = game.testTfm(PLAYER1)
 
@@ -173,7 +173,7 @@ internal class BootstrapLifecycleTest {
   internal fun automaticWorkflowWaitsForSoloSetupChoices() {
     val setup = canonicalPremise(players = 1)
     val game = Engine.newGame(setup)
-    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
 
     val admin = game.testAgent(ADMIN)
     admin.count("SetupPhase") shouldBe 1

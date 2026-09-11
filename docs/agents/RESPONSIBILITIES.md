@@ -55,9 +55,9 @@ The target runtime has three library responsibilities with one-way dependencies:
    wiring repeatedly gives all Agents a chance to act after an engine mutation until none does.
 
 Applications compose those libraries and add game-specific workflow and presentation. Agent
-construction returns an immutable Actor-to-Agent map; its shared loop remains private wiring rather
-than another public game wrapper. A separate passive Actor-access abstraction is not currently
-justified.
+construction returns one `Agents`, pairing a World with its immutable set of Agents; its shared loop
+remains private wiring rather than another public game wrapper. A separate passive Actor-access
+abstraction is not currently justified.
 
 Game World returns a neutral applied-change result after its own data is coherent. It does not call
 back into the engine while applying an event. The engine explicitly reacts to the returned result,
@@ -76,7 +76,7 @@ caller chose one legal mutation instead of another.
 **Current divergence:** there is no `:gameworld` module. `World` still combines Game World data with
 live transaction control, while `Task` and `GameEvent` live in `:pets`; their runtime-data ownership
 must be untangled during extraction. The `:agent` module now depends one-way on `:engine`, applications
-retain the Actor-to-Agent map, and engine source has no Agent or policy dependency. `TaskQueues`
+retain one `Agents`, and engine source has no Agent or policy dependency. `TaskQueues`
 already stores one task set and creates assignee-filtered `TaskQueue` views, so further task
 extraction changes ownership rather than semantics.
 

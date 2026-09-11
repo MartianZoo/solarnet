@@ -19,12 +19,12 @@ internal class BecomeCommand(private val repl: ScriptSession) : ScriptCommand("b
       context.playerNames()
 
   override fun noArgs(): List<String> {
-    repl.agent = repl.agents.getValue(ADMIN)
+    repl.agent = repl.agents[ADMIN]
     return listOf("Okay, you are Admin now")
   }
 
   override fun withArgs(args: String): List<String> {
-    repl.agent = repl.agents.getValue(repl.actor(args))
+    repl.agent = repl.agents[repl.actor(args)]
     return listOf("Hi, ${repl.agent.actor.className}")
   }
 }

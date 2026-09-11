@@ -1,12 +1,11 @@
 package dev.martianzoo.tfm.web.gameviewer
 
-import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.engine.ComponentGraph.CountSubscription
 import dev.martianzoo.engine.GameRecording
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.displayName
@@ -30,7 +29,7 @@ public fun main() {
   val status = checkNotNull(document.getElementById("status"))
   val positionLabel = checkNotNull(document.getElementById("position-label"))
   var recording: GameRecording? = null
-  var agents: Map<Actor, Agent>? = null
+  var agents: Agents? = null
   var recordingName = ""
   var selectedPlayerIndex = 0
   var selectablePositions = emptyList<Int>()
@@ -243,13 +242,9 @@ private fun updatePlayerTabs(recording: GameRecording, selectedPlayerIndex: Int)
       "dashboard-panel player-${playerColors[selectedPlayerIndex]}"
 }
 
-private fun renderDashboard(
-    recording: GameRecording,
-    agents: Map<Actor, Agent>,
-    player: Player,
-) {
+private fun renderDashboard(recording: GameRecording, agents: Agents, player: Player) {
   val game = recording.world
-  val tfm = game.tfm(agents, player)
+  val tfm = agents.tfm(player)
 
   fun setValue(name: String, value: Any?) {
     document.querySelector("[data-stat='$name']")?.textContent = value?.toString() ?: "—"
@@ -311,11 +306,7 @@ private fun renderDashboard(
       }
 }
 
-private fun renderCards(
-    recording: GameRecording,
-    agents: Map<Actor, Agent>,
-    player: Player,
-) {
+private fun renderCards(recording: GameRecording, agents: Agents, player: Player) {
   val game = recording.world
   val container = checkNotNull(document.getElementById("played-cards"))
   container.innerHTML = ""
@@ -381,8 +372,8 @@ private fun renderCards(
     appendCardImage(
         directory,
         card.className,
-        cardResourceCount(game, agents, player, card),
-        hasActionUsedMarker(game, agents, player, card),
+        cardResourceCount(agents, player, card),
+        hasActionUsedMarker(agents, player, card),
     )
   }
   if (events.isNotEmpty()) {

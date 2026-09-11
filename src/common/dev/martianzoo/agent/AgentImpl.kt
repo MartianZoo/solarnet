@@ -5,6 +5,7 @@ import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.engine.ActorEngine
 import dev.martianzoo.engine.TaskQueue
+import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.AbstractException
@@ -27,6 +28,7 @@ import kotlin.reflect.KClass
 
 /** Implements Actor-contextual parsing, atomic operation coordination, and autoexecution. */
 internal class AgentImpl(
+    private val world: World,
     private val engine: ActorEngine,
     private val elaborator: PetElaborator,
     private val autoExecLoop: AutoExecLoop,
@@ -42,7 +44,7 @@ internal class AgentImpl(
     get() = engine.tasks
 
   private val allTasks: TaskQueue
-    get() = engine.allTasks
+    get() = world.tasks
 
   override var autoExecPolicy: AutoExecPolicy = EAGER
     set(newPolicy) {

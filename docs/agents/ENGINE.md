@@ -680,9 +680,11 @@ AST family; instruction entry points use `InstructionTree` where cardinality may
 
 ## Current Agent surface
 
-Each World retains exactly one policy-free `ActorEngine` per Actor. Applications call
-`createAgents(world)` once and retain its map of fully permissive Agents for reads, task commands,
-operations, task insertion/removal, and direct changes. The old power-interface hierarchy is gone.
+Each World retains exactly one policy-free `ActorEngine` per Actor. Applications construct one
+`Agents(world)` and retain it; it holds that World together with one fully permissive Agent per
+Actor, used for reads, task commands, operations, task insertion/removal, and direct changes.
+`Agents` is what downstream APIs take, so an Agent cannot be paired with a World it does not act
+on. The old power-interface hierarchy is gone.
 REPL color modes restrict commands in the script client rather than changing the Agent's type.
 Autoexecution policy attachment is forward-looking.
 
