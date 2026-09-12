@@ -2,10 +2,9 @@ package dev.martianzoo.tfm.tests
 
 import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.agent.Agent.OperationScope
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.agenttestsupport.testAgents
-import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.agenttestsupport.testAgents as retainedTestAgents
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
@@ -13,6 +12,7 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.Task.TaskId
@@ -22,15 +22,28 @@ import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.canon.cardResourceType
 import dev.martianzoo.tfm.canon.tfmCatalog
 import dev.martianzoo.tfm.engine.*
+import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 
 internal abstract class TfmTest {
-  protected lateinit var game: World
+  protected var game: World
+    get() = agents.world
+    set(value) {
+      agents = Agents(value)
+    }
 
-  protected val agents
-    get() = game.testAgents()
+  protected lateinit var agents: Agents
+    private set
+
+  protected fun World.testAgents(): Agents =
+      if (this@TfmTest::agents.isInitialized && this === agents.world) agents
+      else retainedTestAgents()
+
+  protected fun World.testAgent(actor: Actor): dev.martianzoo.agent.Agent = testAgents()[actor]
+
+  protected fun World.testTfm(actor: Actor): TfmGameplay = testAgents().tfm(actor)
 
   protected val admin: TfmGameplay
-    get() = game.testTfm(ADMIN)
+    get() = agents.tfm(ADMIN)
 
   protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
 

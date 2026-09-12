@@ -82,13 +82,6 @@ CLASS FakeL1TradeTerminal : ActiveCard {
   End: 2 VictoryPoint
 }
 
-"Mars Nomads without its moving map marker and placement bonus"
-CLASS FakeMarsNomads : ActionCard, ActiveCard {
-  cost = 13
-
-  -> Ok
-}
-
 "One robot unit stored with a card that reduces its play cost by 1 MC"
 CLASS RobotUnit<Class<CardFront>> : Resource, Owned<Player>, Hidden {
   ReplicateForStagedProject<Class<CardFront>>: This!

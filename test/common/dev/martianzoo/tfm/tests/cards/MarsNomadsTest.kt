@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
@@ -10,6 +11,7 @@ import dev.martianzoo.tfm.tests.cards.cardnames.LakefrontResorts
 import dev.martianzoo.tfm.tests.cards.cardnames.LandClaim
 import dev.martianzoo.tfm.tests.cards.cardnames.MarsNomads
 import dev.martianzoo.tfm.tests.cards.cardnames.MiningGuild
+import dev.martianzoo.tfm.tests.cards.cardnames.Philares
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.throwables.shouldThrowAny
 import kotlin.test.Test
@@ -138,6 +140,40 @@ internal class MarsNomadsTest : CardTest() {
     }
 
     p1.assertCounts(2 to "Steel", 1 to "PROD[Steel]")
+  }
+
+  @Test
+  internal fun `Nomads may return to an area they previously occupied`() {
+    newGame(PromoCardPack)
+    p1.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_1_1>") }
+    admin.phase("Action")
+    p1.cardAction1(MarsNomads) {
+      doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1>")
+    }
+    p1.sneak("-ActionUsedMarker<MarsNomads>")
+
+    p1.cardAction1(MarsNomads) {
+      doTask("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_2>")
+    }
+
+    p1.assertCounts(1 to "NomadsMarker<Tharsis_1_1>")
+  }
+
+  @Test
+  internal fun `Nomads movement does not trigger Philares`() {
+    newGame(PromoCardPack)
+    val p2 = requireP2()
+    p2.runOperation("$Philares, CityTile<Tharsis_1_2>")
+    p2.runOperation("-2 Steel")
+    p1.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_2_1>") }
+    admin.phase("Action")
+
+    p1.cardAction1(MarsNomads) {
+      doTask("NomadsMarker<Tharsis_1_1 FROM Tharsis_2_1>")
+    }
+
+    shouldThrow<TaskException> { p2.doTask("Steel") }
+    p2.assertCounts(0 to "Steel", 0 to "Titanium")
   }
 
   @Test

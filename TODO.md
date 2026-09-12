@@ -59,8 +59,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   considered an unsuccessful direction.
 - Complete `Game20260820Test` beyond its current partial generation-6 checkpoint using the preserved
   log, player data, and eight later screenshots; keep every new checkpoint independently sourced.
-- Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `tfm-canon`,
-  and `script` APIs.
+- Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `agent`,
+  `tfm-canon`, and `script` APIs.
 - Profile and reduce type-system allocation in `Type.glb`, `narrows`, and repeated
   dependency/refinement construction without risking correctness.
 - Let `CustomMetric` optionally provide candidate-selection hooks so `EACH` refinements such as
@@ -131,8 +131,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   areas and add placement rules.
 - Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
   with the canonical card.
-- Complete the unsupported Milestones & Awards goals: Hydrologist and Thawer's player-attributed
-  global-parameter steps, and the Turmoil-dependent Lobbyist and Politician rules.
+- Complete the unsupported Milestones & Awards goals: Thawer's player-attributed temperature
+  steps, and the Turmoil-dependent Lobbyist and Politician rules.
 - Simplify `LiveEffect` actor binding by threading a binding context through subscription matching
   instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
 - Separate `Instructor`'s resolution-only capability from execution so `Changer`, `Effector`, and

@@ -12,7 +12,8 @@ private var retainedAgents: Agents? = null
 /**
  * Retains Agent identity within a test without retaining every World created by a long suite.
  *
- * TODO: Have test fixtures hold the [Agents] they create, and delete this.
+ * TODO: Have the remaining standalone engine test fixtures hold the [Agents] they create, and
+ *   delete this.
  */
 internal fun World.testAgents(): Agents {
   retainedAgents?.let { if (it.world === this) return it }
