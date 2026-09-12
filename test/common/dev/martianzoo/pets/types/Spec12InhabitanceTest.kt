@@ -1,11 +1,17 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.ClassSelection
+import dev.martianzoo.pets.data.GamePremise
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotlin.test.Test
+import kotlin.test.assertSame
 
 /**
  * Section 12 of `docs/type-system-spec.md`: what a game's view of the universe changes, and what it
@@ -72,6 +78,116 @@ internal class Spec12InhabitanceTest {
         master.resolve(te("Terraformer")).isSubtypeOf(master.resolve(te("Milestone")))
   }
 
+  @Test
+  internal fun `T12-2 an interpreting view does not change structural Type equality`() {
+    val catalog = testCatalog("CLASS MasterLeaf")
+    val master = catalog.classTable
+    val view =
+        GamePremise(
+                catalog = catalog,
+                modules = emptySet(),
+                classSelections = emptySet(),
+                initialComponentTypes = emptySet(),
+                premiseClassDeclarations = parseClasses("CLASS LocalLeaf").toSet(),
+            )
+            .classTable
+    val masterType = master.resolve(te("Component(NOT MasterLeaf)"))
+    val viewType = view.resolve(te("Component(NOT MasterLeaf)"))
+
+    masterType shouldBe viewType
+    masterType.hashCode() shouldBe viewType.hashCode()
+    setOf(masterType, viewType).size shouldBe 1
+  }
+
+  @Test
+  internal fun `T12-2 premise classes extend the master without recompiling it`() {
+    val catalog =
+        testCatalog(
+            """
+            ABSTRACT CLASS Feature
+            ABSTRACT CLASS DormantBase
+            CLASS Holder<Feature>
+            """
+                .trimIndent()
+        )
+    val master = catalog.classTable
+    val premise =
+        GamePremise(
+            catalog = catalog,
+            modules = emptySet(),
+            classSelections = setOf(ClassSelection(cn("LocalFeature"))),
+            initialComponentTypes = emptySet(),
+            premiseClassDeclarations =
+                parseClasses(
+                        """
+                        CLASS LocalFeature : Feature
+                        CLASS DormantFeature : DormantBase
+                        CLASS LocalRoot
+                        """
+                            .trimIndent()
+                    )
+                    .toSet(),
+        )
+    val view = premise.classTable
+
+    master.findClass(cn("LocalFeature")) shouldBe null
+    assertSame(master.getClass(cn("Holder")), view.getClass(cn("Holder")))
+    view.getClass(cn("LocalFeature")).isSubtypeOf(master.getClass(cn("Feature"))) shouldBe true
+    view.resolve(te("Holder<LocalFeature>")).classTable shouldBe view
+    view.allSubclasses(master.getClass(cn("Feature"))).map { it.className } shouldContainExactly
+        listOf(cn("Feature"), cn("LocalFeature"))
+    val world = RecordingWorld(answer = true)
+    view
+        .resolve(te("LocalFeature"))
+        .narrows(view.resolve(te("Feature(HAS Holder<Feature>)")), world) shouldBe true
+    world.questions shouldContainExactly listOf("Holder<LocalFeature>")
+
+    view.findClass(cn("DormantFeature")) shouldNotBe null
+    view.isActive(cn("DormantFeature")) shouldBe false
+    view.isActive(cn("DormantBase")) shouldBe false
+    premise.premiseClassTable.isSubtypeOf(cn("LocalRoot"), COMPONENT) shouldBe true
+  }
+
+  @Test
+  internal fun `T12-2 premise class names cannot replace master classes`() {
+    val catalog = testCatalog("CLASS Existing")
+
+    shouldThrowIae {
+      GamePremise(
+          catalog = catalog,
+          modules = emptySet(),
+          classSelections = emptySet(),
+          initialComponentTypes = emptySet(),
+          premiseClassDeclarations = parseClasses("CLASS Existing").toSet(),
+      )
+    }
+  }
+
+  @Test
+  internal fun `T12-2 sibling premise class tables are distinct universes`() {
+    val catalog = testCatalog("ABSTRACT CLASS Feature\nCLASS Holder<Feature>")
+    val declaration = parseClasses("CLASS LocalFeature : Feature").toSet()
+    fun projection(): ClassTable =
+        GamePremise(
+                catalog = catalog,
+                modules = emptySet(),
+                classSelections = setOf(ClassSelection(cn("LocalFeature"))),
+                initialComponentTypes = emptySet(),
+                premiseClassDeclarations = declaration,
+            )
+            .classTable
+    val left = projection()
+    val right = projection()
+
+    left.getClass(cn("LocalFeature")) shouldNotBe right.getClass(cn("LocalFeature"))
+    shouldThrowIae {
+      left.getClass(cn("LocalFeature")).isSubtypeOf(right.getClass(cn("LocalFeature")))
+    }
+    shouldThrowIae {
+      left.resolve(te("Holder<LocalFeature>")) glb right.resolve(te("Holder<LocalFeature>"))
+    }
+  }
+
   // T12-3 What the view does change
 
   @Test
@@ -132,10 +248,77 @@ internal class Spec12InhabitanceTest {
     view.isActive(other.resolve(te("Gardener"))) shouldBe false
   }
 
-  // T12-5 Structural meaning is catalog-wide
+  // T12-5 Structural meaning is universe-wide
 
   @Test
-  internal fun `T12-5 a difference is judged in the master universe, not the view`() {
+  internal fun `T12-5 nested differences see premise-only realizations`() {
+    val catalog = testCatalog("ABSTRACT CLASS Player : Owner\nCLASS Holder<Owner>")
+    val view =
+        GamePremise(
+                catalog = catalog,
+                modules = emptySet(),
+                classSelections = setOf(ClassSelection(cn("Player1"))),
+                initialComponentTypes = emptySet(),
+                playerNames = listOf(cn("Player1")),
+                premiseClassDeclarations = parseClasses("CLASS Player1 : Player").toSet(),
+            )
+            .classTable
+
+    val otherOwner = view.resolve(te("Holder<Owner(NOT Player)>"))
+
+    otherOwner.expressionFull shouldBe te("Holder<Owner(NOT Player)>")
+    otherOwner.classTable shouldBe view
+    view.resolve(te("Holder<Player1>")).isSubtypeOf(otherOwner) shouldBe false
+  }
+
+  @Test
+  internal fun `T12-5 master candidates use the shared universe for premise differences`() {
+    val catalog = testCatalog("ABSTRACT CLASS Player : Owner\nCLASS SoloOpponent : Owner")
+    val master = catalog.classTable
+    val view =
+        GamePremise(
+                catalog = catalog,
+                modules = emptySet(),
+                classSelections = setOf(ClassSelection(cn("Player1"))),
+                initialComponentTypes = emptySet(),
+                playerNames = listOf(cn("Player1")),
+                premiseClassDeclarations = parseClasses("CLASS Player1 : Player").toSet(),
+            )
+            .classTable
+    val otherThanPlayer1 = view.resolve(te("Owner(NOT Player1)"))
+
+    master.resolve(te("SoloOpponent")).isSubtypeOf(otherThanPlayer1) shouldBe true
+    view.resolve(te("Player1")).isSubtypeOf(otherThanPlayer1) shouldBe false
+  }
+
+  @Test
+  internal fun `T12-5 inactive premise classes still determine structural overlap`() {
+    val catalog = testCatalog("ABSTRACT CLASS Left\nABSTRACT CLASS Right")
+    val premise =
+        GamePremise(
+            catalog = catalog,
+            modules = emptySet(),
+            classSelections = setOf(ClassSelection(cn("ActiveLeft"))),
+            initialComponentTypes = emptySet(),
+            premiseClassDeclarations =
+                parseClasses(
+                        """
+                        CLASS ActiveLeft : Left
+                        CLASS DormantOverlap : Left, Right
+                        """
+                            .trimIndent()
+                    )
+                    .toSet(),
+        )
+    val view = premise.classTable
+
+    view.isActive(cn("DormantOverlap")) shouldBe false
+    view.resolve(te("Left(NOT Right)")).refinement shouldBe te("Left(NOT Right)").refinement
+    view.resolve(te("Left")).isSubtypeOf(view.resolve(te("Left(NOT Right)"))) shouldBe false
+  }
+
+  @Test
+  internal fun `T12-5 inactive master classes still determine structural overlap`() {
     val overlaps =
         testCatalog(
             """

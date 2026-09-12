@@ -26,7 +26,7 @@ CLASS SagittaFrontierServices : CardFront<Class<CorporationCard>> {
   CardFront(HAS =1 Tag): 1 MC
 }
 
-CLASS EcoTec : CardFront<Class<CorporationCard>> {
+CLASS Ecotec : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: MicrobeTag<This>, PlantTag<This>

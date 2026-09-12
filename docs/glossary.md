@@ -25,7 +25,7 @@
 - **Canon:** The catalog implementing the project's nearly published-rules version of Terraforming Mars, assembled from official-data bundles.
 - **card back:** A Component representing a card that is not in play, such as `ProjectCard` or `PreludeCard`. Card backs and card fronts are distinct types that transmute into each other; an Owner may know a back's represented front without making that card front exist in the game world.
 - **card front:** A Component representing one specific identified card, as distinct from the card back that transmutes into it.
-- **catalog:** One coherent rule universe: the class declarations, structured data, display names, premise rules, and exceptional `Custom` implementations available to a game. A game selects exactly one catalog. `Canon` is the catalog for the project's almost-published-rules version of Terraforming Mars; a rebalance would be a different catalog.
+- **catalog:** One coherent rule catalog: the reusable class declarations, structured data, display names, premise rules, and exceptional `Custom` implementations available to a game. A game selects exactly one catalog. `Canon` is the catalog for the project's almost-published-rules version of Terraforming Mars; a rebalance would be a different catalog.
 - **cause:** Attribution attached to non-manual tasks and copied to the resulting change events. It pairs the type of the context Component whose effect fired with the ordinal of the triggering change event. Those pointers explain the causal chain but do not uniquely identify which of several matching effects fired, so a cause is attribution rather than a complete derivation proof.
 - **change event:** A game event recording one state change together with its ordinal, performer, and optional cause. Task lifecycle changes are recorded separately as task events.
 - **change instruction:** An instruction requesting a Component gain, removal, or transmutation. Its execution produces one or more state changes.
@@ -34,9 +34,9 @@
 - **class effect:** An effect inherited by and transformed for a loaded class, but not yet specialized for one concrete type.
 - **class header:** The class name, declared supertypes, and newly introduced dependencies, excluding body elements such as defaults, invariants, and effects.
 - **class literal:** A type such as `Class<Steel>` that denotes the class `Steel` without depending on a `Steel` Component; its angle-bracketed argument is represented data, not a dependency target.
-- **class name:** A class's sole stable engine identity within a catalog. Classes use semantic English names such as `GreeneryTile`, `EarthCatapult`, and `Terraformer`. Configuration never changes the declaration denoted by a given class name.
-- **class table:** An immutable set of mutually compatible classes that resolves expressions into types. A catalog has one master class table; each game world uses a class-table projection containing active classes plus catalog-known uninhabited classes.
-- **class-table projection:** A game-specific class table derived from a catalog's master class table. Active classes carry behavior and enumerate concrete possibilities, while other catalog-known identities remain resolvable as uninhabited classes.
+- **class name:** A class's sole stable engine identity within one compatible class table. Classes use semantic English names such as `GreeneryTile`, `EarthCatapult`, and `Terraformer`. A premise-local name cannot replace a master name.
+- **class table:** An immutable set of mutually compatible classes that resolves expressions into types. A catalog has one reusable master class table; each game world combines it with its premise class table and active-class projection.
+- **class-table projection:** A game-specific class table combining one master table, one premise table, and the premise's active-class set. It reuses master classes, constructs only premise classes, and enumerates active possibilities.
 - **Component:** One immutable occurrence of a concrete type in a game world. Components have no identity or fields beyond their type, so occurrences of the same type differ only by multiplicity.
 - **component effect:** A class effect specialized for one concrete type by binding inherited dependencies and contextual placeholders. It does not yet include the fact that a corresponding Component currently exists.
 - **component graph:** The logical directed graph whose vertices are Components and whose edges are dependencies. Because a type includes the exact types of its dependency targets, the game world stores the vertices as a multiset of types rather than as separately identified objects and edges.
@@ -67,7 +67,7 @@
 - **FakeCanon:** The separate catalog of noncanonical support declarations. Tests, replays, and tools compose it with Canon only when they need fake content.
 - **follow mode:** The mode in which Solarnet calculates the state transitions for a game played elsewhere and trusts client-supplied draws, reveals, discards, and plays.
 - **game config:** Unresolved user intent: the class names to include, the class names to exclude (spelled with a leading `-`), and the Player names in seat order. A catalog applies defaults, selection policies, and validation to produce one exact game premise.
-- **game premise:** The complete immutable facts needed to create equivalent game worlds: one catalog, the Module classes, the included and excluded other classes, and the exact concrete types initialized once.
+- **game premise:** The complete immutable facts needed to create equivalent game worlds: one catalog, a small table of generated or ad-hoc class declarations, the Module classes, the included and excluded other classes, and the exact concrete types initialized once.
 - **game world:** The complete live engine state of a game: its component graph, global task queue, event log, timeline, and class table, together with the catalog and immutable premise behind them. ActorAccess, agents, agent drivers, and generic pulse dispatch are configured above that state.
 - **game world revision:**
 - **gated instruction:** An instruction guarded by a requirement, such as `HasRaisedTr: -3 THEN TerraformRating`. An unsatisfied gate does not mean “do nothing”; it makes that task uncompletable unless its quantifier or enclosing choice permits another result.
@@ -78,6 +78,7 @@
 - **limit:** A counting invariant that places a minimum, maximum, or exact bound on matching Components, such as `HAS MAX 1 This`. Applicable limits determine how much of a change instruction is legal.
 - **live effect:** A component effect paired with its existing context Component, so that it can respond to change events. It counts according to the multiplicity of that type.
 - **manual:** Initiated by a Solarnet client rather than caused by an effect or workflow. Selecting or narrowing an already pending task is not a new manual action. With fully automatic workflow, a game can contain no manual operations.
+- **master class table:** The complete immutable class model compiled once from a catalog's reusable declarations. A game reuses its classes and types rather than compiling them again.
 - **metric:** A Pets expression that computes a nonnegative integer from a game world.
 - **compact form:** A round-tripping Type expression with no individually removable argument. It omits declared bounds except where needed to protect greedy argument matching, then removes redundancies proved by Type resolution, including dependency equalities.
 - **Module:** An affirmative, immutable singleton Component carrying one part of a realized game's ambient behavior. The exact Module set records the game's general behavior choices.
@@ -94,6 +95,7 @@
 - **performer:** The Actor credited on an instruction's state changes. Normally this is the task's stored Actor, but an instruction-level `BY` can override the performer without changing the task's assignee.
 - **Pets:** Solarnet's specification language for types, rules, and game world changes.
 - **Player:** A seated participant that is both an Owner and an Actor.
+- **premise class table:** The small declaration delta owned by one game premise, including generated Players, the generated `Premise`, and ad-hoc test declarations. It imports one master class table; the master cannot refer back to it, and its names cannot collide with master names.
 - **player-relative observation:**
 - **policy-relative stable point:** A coherent game world revision at which every agent driver has inspected that revision and declined to issue another mutation. It depends on the installed policies and does not imply an empty global task queue.
 - **production box:** Terraforming Mars-specific `PROD[...]` notation that preprocessing lowers into production-Component operations.
@@ -143,6 +145,7 @@
 - **uninhabited type:** A type whose root class or a dependency bound is uninhabited. It counts zero, cannot satisfy a trigger or participate in automatic narrowing, and remains resolvable so inactive concepts can appear safely in queries. A class literal representing an uninhabited class is itself uninhabited and likewise counts zero.
 - **unknown class:**
 - **upper bound:**
+- **universe:** One game's combined master and premise class tables, within which classes and types can be resolved and compared. Master values are reusable in every universe importing that master; premise values belong only to their own universe.
 - **variable scope:**
 - **whole-world idleness:**
 - **workflow:** The higher-level driver that orchestrates game phases and waits for the appropriate filtered task view or control scope to drain.

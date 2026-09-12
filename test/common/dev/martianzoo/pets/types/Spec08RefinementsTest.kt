@@ -202,6 +202,23 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
+  internal fun `T8-4 an abstract common subclass is not evidence of concrete overlap`() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Left
+            ABSTRACT CLASS Right
+            ABSTRACT CLASS AbstractOverlap : Left, Right
+            CLASS LeftOnly : Left
+            CLASS RightOnly : Right
+            """
+                .trimIndent()
+        )
+
+    table.resolve(te("Left(NOT Right)")) shouldBe table.resolve(te("Left"))
+  }
+
+  @Test
   internal fun `T8-5 the excluded operand must be free of refinements, recursively`() {
     shouldThrow<ExpressionException> { actors.resolve(te("Owner(NOT Player(HAS Marker))")) }
     shouldThrow<ExpressionException> { actors.resolve(te("Owner(NOT Player(NOT Player1))")) }

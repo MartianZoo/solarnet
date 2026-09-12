@@ -4,14 +4,14 @@ import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
-import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.TfmTest
-import dev.martianzoo.tfm.tests.canonicalPremise
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.retainStartingProjects
 import kotlin.test.Test
@@ -21,11 +21,12 @@ internal class FirstPartialGameTest : TfmTest() {
   internal fun fourWholeGenerations() {
     repeat(1) {
       val setup =
-          canonicalPremise(
-              Elysium,
-              PreludeExpansion,
-              TurmoilCardPack,
-              players = 2,
+          Canon.gamePremise(
+              GameConfig(
+                  "ElysiumMap, PreludeExpansion, LakefrontResorts",
+                  "Player1",
+                  "Player2",
+              )
           )
       val game = Engine.newGame(setup)
       val admin = game.testTfm(ADMIN)

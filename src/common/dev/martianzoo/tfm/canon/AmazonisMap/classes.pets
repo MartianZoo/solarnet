@@ -9,7 +9,9 @@ CLASS ExtendedGlobalParametersRule : Module {
   TemperatureStep IF =3 TemperatureStep: PROD[Heat]
   TemperatureStep IF =5 TemperatureStep: PROD[Heat]
   TemperatureStep IF =9 TemperatureStep: PROD[Plant]
-  TemperatureStep IF =15 TemperatureStep: OceanTile<>
+  TemperatureStep BY Player IF =15 TemperatureStep: OceanTile<>
+  TemperatureStep BY Admin IF =15 TemperatureStep:: \
+    EACH Player(HAS StartToken) { AdminOceanPlacement<Player> }
   TemperatureStep IF =22 TemperatureStep:: GpComplete<Class<TemperatureStep>>
 
   OxygenStep IF =7 OxygenStep: ProjectCard

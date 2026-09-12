@@ -10,8 +10,8 @@
 > **Skip when:** changing parsing or nominal subtyping without projection-dependent
 > enumeration; use [type-system-spec.md](../type-system-spec.md).
 >
-> **Status:** current implementation model, followed by the selected replacement direction and its
-> migration plan.
+> **Status:** selected replacement in progress. The reusable master and premise-local declaration
+> delta are implemented; realization semantics and the final API cleanup remain planned.
 
 ## Source map
 
@@ -26,48 +26,42 @@
 
 ## Fast rejection checks
 
-These checks protect the current implementation while it exists. The selected replacement below
-intentionally revises its identity and resolution model; do not mix half of each model in one
-intermediate state.
-
 Reject a design before implementation if it would:
 
-- give `Class`, `Type`, or a dependency a path back to a game-specific view;
-- reconstruct `Class` or `Type` identities while forming a game projection;
-- make a structural operation depend on inhabitation without accepting game context explicitly; or
+- reconstruct master `Class` or `Type` identities while forming a game universe;
+- let the master refer to a premise-local declaration;
+- compare values from two distinct premise universes merely because their names match;
+- make a structural operation depend on active-class selection without accepting game context; or
 - mutate canonical vocabulary to represent one game's configured players or options.
 
 ## Ownership model
 
-A Catalog owns one immutable master type universe. Within that universe there is exactly one
-`Class` instance for each known Class Name. `Type` values are likewise structural values from that
-master universe.
+A Catalog owns one immutable master class table with exactly one `Class` per reusable declaration.
+A `GamePremise` owns a `PremiseClassTable` containing only its generated Players, generated
+`Premise`, and ad-hoc declarations. That table imports exactly one master and rejects name
+collisions; the master is compiled without knowledge of the delta.
 
-A game owns a filtered view of the master universe. The view records which catalog-known Classes
-are inhabited in that game and owns any indexes that enumerate the inhabited domain. It references
-the master Classes; it does not reconstruct them, their Types, their properties, or their nominal
-hierarchy.
+A game's combined `ClassTable` reuses every master `Class` and constructs only the premise delta.
+It also owns the active-name set and indexes used for game-relative enumeration. A master-only
+expression normally delegates resolution to the master. A type mentioning a premise class, or a
+`NOT` whose structural overlap can be affected by premise subclasses, is scoped to the combined
+game table so nested resolution cannot fall back to the wrong namespace.
 
-`Class` and `Type` must not provide a path back to a game-filtered `ClassTable`. They may retain an
-unexposed master-universe identity so operations can reject values from different Catalogs, but
-that identity is not a source of game context. In particular, removing `Class.classTable` must not
-be followed by adding a differently named projection backpointer.
-
-Consequently, inhabitation is not an intrinsic property of a `Class` or `Type`. A game class view
-answers whether a Class or Type is inhabited in that game.
+Activity remains a property of the combined game table, not of a master `Class` or `Type`.
 
 ## Structural operations versus game-domain operations
 
-Operations whose answers come entirely from authored declarations belong to the master universe:
+Operations whose answers come entirely from reusable declarations belong to the master table:
 
 - nominal subtyping and superclass relationships;
 - dependencies, properties, and defaults;
 - structural `glb`; and
 - expression-to-Type resolution that does not inspect a live World.
 
-Structural `glb` combines constraints in the Catalog universe. It may return a Type that is
-uninhabited in a particular game. `null` means that the Catalog defines no compatible Type;
-inhabitation is a separate question asked of the game view.
+Premise declarations participate in nominal relationships and resolution only through their
+combined game table. Structural overlap uses every master and premise class in that table,
+regardless of activation. Current pure-master `glb` remains master-wide; a future realization phase
+will finish moving every universe-relative structural operation behind the combined table.
 
 Operations whose answers depend on the selected game must receive that context explicitly:
 
@@ -82,8 +76,9 @@ it by reverse navigation.
 
 ## Identity and integrity
 
-Classes and Types from different master universes are incomparable. Values from two games using
-the same master universe are structurally comparable, even when their inhabited domains differ.
+Classes and Types from different masters are incomparable. A master value and a premise value are
+comparable through that premise's combined table. Premise values from two sibling games are
+incomparable even when they have the same written declaration.
 
 World mutation therefore validates both that an incoming Type belongs to the World's master
 universe and that the Type is inhabited in that World's view. Projection identity must not stand in
@@ -95,19 +90,19 @@ error.
 
 ## Projection shape
 
-A game projection contains only game-relative information, such as:
+A game projection contains:
 
+- its premise-local Classes and Types;
 - the inhabited Class set;
 - selected Modules and premise validation results; and
 - any filtered indexes whose contents vary with that set.
 
 It does not contain projection-local copies of master `Class` objects. `findClass` and `resolve`
-delegate to the master universe, while `allClasses`, `allClassNames`, and the explicit enumeration
-operations filter through the view's inhabited-name set.
+delegate master-only cases, while combined expressions and enumeration include the premise delta.
 
-The projection computes the premise's monotone activation closure but freezing it performs no Class
-construction or nominal-hierarchy compilation. Master compilation performs those tasks once for the
-Catalog.
+The projection computes the premise's monotone activation closure. Freezing constructs any
+remaining premise Classes without activating them or their supertypes. Master compilation performs
+all reusable construction and hierarchy compilation once for the Catalog.
 
 ## Access interface
 
@@ -124,17 +119,20 @@ to use it. That is an API-access gap, not permission for additional callers.
 
 ## Integrity requirements
 
-- no `Class`, `Type`, or dependency value exposes or retains a game-projection backpointer;
-- creating a game projection constructs no `Class` instances;
+- no master declaration or master compiled value depends on a premise table;
+- creating a game projection constructs only premise-local `Class` instances;
+- a mixed master/premise `Type` retains the combined table needed to interpret it;
+- sibling premise values and unrelated master values are rejected at comparison boundaries;
 - all game-relative enumeration and inhabitation checks receive an explicit view or reader;
-- structural operations give the same answer in every game using one master universe;
+- master-only resolution reuses the identical master objects in every game;
 - target-World validation prevents an uninhabited Type from entering that World.
 
 ## Selected replacement: master tables, premise tables, and class universes
 
-The current projection model above is to be replaced. Its useful observation remains: expensive
-declaration-derived knowledge is common to many premises, while each game changes the type domain
-only around that stable core.
+The reusable master and premise-delta boundary is now present. `ClassTable` still serves both the
+combined-universe and active-view roles while the later realization migration is unfinished.
+Expensive declaration-derived knowledge is common to many premises, while each game changes the
+type domain only around that stable core.
 
 - Canon has one immutable `MasterClassTable`; Canon plus Fakes has a separate immutable
   `MasterClassTable`. Sharing implementation objects between those two masters is not a goal.

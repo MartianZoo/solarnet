@@ -26,7 +26,7 @@ import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.HashMultiset
 
 internal class GameReaderImpl(
-    private val classTable: ClassTable,
+    override val classTable: ClassTable,
     private val components: ComponentGraph,
     internal val elaborator: PetElaborator,
     private val customClasses: CustomClassRuntime,

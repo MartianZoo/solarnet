@@ -14,7 +14,7 @@ internal class MassiveDiscountsTest : CardTest() {
     p1.runOperation(
         "5 MC, 2 ProjectCard, Steel, Titanium, $AntiGravityTechnology, $EarthCatapult, " +
             "$ResearchOutpost, $MassConverter, $QuantumExtractor, $Shuttles, $SpaceStation, " +
-            "$AdvancedAlloys, $Phobolog, $MercurianAlloys, $RegoPlastics"
+            "$AdvancedAlloys, $PhoboLog, $MercurianAlloys, $RegoPlastics"
     ) {
       placeTile(4, 2)
     }

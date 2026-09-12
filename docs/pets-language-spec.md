@@ -693,9 +693,6 @@ by its own coefficient, so `X Plant THEN 2X Heat` may become `3 Plant THEN 6 Hea
 transmutation that repeats an abstract expression must supply one consistent value for it (T13-6,
 T13-7); two different values are rejected.
 
-> **A known gap.** When the repeated expression is written with an empty argument list, the variable
-> is declared but never binds, and the stages may diverge after all. Characterized in `LangBugsTest`.
-
 > **Non-normative example — Utopia Invest.** `PROD[StandardResource] -> 4 StandardResource` means
 > reduce one chosen production track and gain four units of that same resource. Binding the two
 > occurrences independently would allow trading steel production for four plants.

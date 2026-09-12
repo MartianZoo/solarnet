@@ -174,7 +174,9 @@ CLASS StandardGpTrackRules : System {
 
   TemperatureStep IF =3 TemperatureStep: PROD[Heat]
   TemperatureStep IF =5 TemperatureStep: PROD[Heat]
-  TemperatureStep IF =15 TemperatureStep: OceanTile<>
+  TemperatureStep BY Player IF =15 TemperatureStep: OceanTile<>
+  TemperatureStep BY Admin IF =15 TemperatureStep:: \
+    EACH Player(HAS StartToken) { AdminOceanPlacement<Player> }
   TemperatureStep IF =19 TemperatureStep:: GpComplete<Class<TemperatureStep>>
 
   OxygenStep IF =8 OxygenStep: TemperatureStep
@@ -615,6 +617,11 @@ CLASS FinalScoringPending : Temporary, System { HAS MAX 1 This }
 "Asks its owning Player to choose one mandatory global-parameter increase performed by Admin"
 CLASS WorldGovernmentTerraforming : Owned<Player>, Signal {
   This IF GpIncomplete: GlobalParameter! BY Admin
+}
+
+"Asks its owning Player to place an Ocean attributed to Admin"
+CLASS AdminOceanPlacement : Owned<Player>, Signal {
+  This: OceanTile<> BY Admin
 }
 
 "Marks the player who takes the first turn"

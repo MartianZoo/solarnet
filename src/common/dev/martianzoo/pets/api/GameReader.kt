@@ -7,6 +7,7 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Catalog
+import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.Multiset
 
@@ -20,6 +21,9 @@ public interface GameReader : TypeInfo {
 
   /** The Modules selected for this game. */
   public val modules: Set<ClassName>
+
+  /** The complete class universe selected for this game. */
+  public val classTable: ClassTable
 
   /** Returns the type represented by the fully contextualized [expression]. */
   public fun resolve(expression: Expression): Type

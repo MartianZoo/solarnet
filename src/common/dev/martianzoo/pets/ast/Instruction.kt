@@ -15,6 +15,7 @@ import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.OK
 import dev.martianzoo.pets.api.TypeInfo
@@ -295,8 +296,8 @@ public sealed class Instruction : InstructionTree() {
             info.isAbstract(variables.expressionOf(it.declaration))
           }) {
         val bindings =
-            variables.bindings(gaining, proposed.gaining, variable) +
-                variables.bindings(removing, proposed.removing, variable)
+            variables.bindings(gaining, proposed.gaining, variable, info) +
+                variables.bindings(removing, proposed.removing, variable, info)
         if (bindings.distinct().size > 1) {
           throw NarrowingException(
               "Can't set Type variable $variable differently: ${bindings.toSet()}"
@@ -580,7 +581,7 @@ public sealed class Instruction : InstructionTree() {
         val declaration = variables.expressionOf(variable.declaration)
         val bindings =
             variables
-                .bindings(this, proposed, variable)
+                .bindings(this, proposed, variable, info)
                 .filter {
                   it != declaration && narrowsExpression(it, declaration, info)
                 }
@@ -595,9 +596,17 @@ public sealed class Instruction : InstructionTree() {
                     ?.transformExpression(declaration)
                     ?.takeIf { it != declaration }
         binding?.let {
-          val captured = variable.bound.classTable.resolve(binding)
+          val captured =
+              ((info as? GameReader)?.resolve(binding)
+                      ?: variable.bound.classTable.resolve(binding))
+                  .groundType
           val transformed =
-              variables.bind(mapOf(variable to captured)).transformInstruction(specialized)
+              variables
+                  .bind(
+                      mapOf(variable to captured),
+                      (info as? GameReader)?.classTable ?: captured.classTable,
+                  )
+                  .transformInstruction(specialized)
           specialized =
               transformed as? Then ?: error("expression replacement changed THEN into $transformed")
         }
@@ -653,9 +662,13 @@ public sealed class Instruction : InstructionTree() {
                 }
                 val positionalBindings =
                     variables
-                        .bindings(selectableFirst, proposed, variable)
+                        .bindings(selectableFirst, proposed, variable, info)
                         .filter { it != declaration && narrowsExpression(it, declaration, info) }
-                        .map { variable.bound.classTable.resolve(it) }
+                        .map { expression ->
+                          ((info as? GameReader)?.resolve(expression)
+                                  ?: variable.bound.classTable.resolve(expression))
+                              .groundType
+                        }
                         .distinct()
                 val bindings = positionalBindings.ifEmpty {
                   variables.bindingsIn(proposed, variable, info)
@@ -665,7 +678,12 @@ public sealed class Instruction : InstructionTree() {
                       "Can't bind Type variable $variable differently: ${bindings.toSet()}"
                   )
                 }
-                bindings.singleOrNull()?.let { variables.bind(mapOf(variable to it)) }
+                bindings.singleOrNull()?.let { binding ->
+                  variables.bind(
+                      mapOf(variable to binding),
+                      (info as? GameReader)?.classTable ?: binding.classTable,
+                  )
+                }
               }
           )
       val selectionBinding = PetTransformer.chain(loweredBinding, authoredBinding)

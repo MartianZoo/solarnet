@@ -69,28 +69,9 @@ recognition algorithm: they receive values from different events and may cleanly
 policies. Consolidate a policy only when its declaration, scope, and binding rules are actually the
 same.
 
-Stable authored-occurrence paths may eventually replace the current fallbacks to expression
-identity or equality after transformations. That is a possible mechanism, not an accepted next
-step. One focused failure of those fallbacks is now known and characterized in
-`test/common/dev/martianzoo/pets/LangBugsTest.kt`: a repeated abstract expression written with an
-empty argument list declares a `THEN` variable that never binds, because the recorded occurrence
-keeps the spelling it had before use-specific defaults were inserted. No card or normal engine
-operation exercises that spelling, so the case establishes the failure without settling the
-mechanism; the rest of this section still applies.
-
-Do not add occurrence tokens, `Expression.Linkage`, or cross-pipeline provenance propagation from
-this design description alone. First demonstrate a focused failure through normal Pets elaboration
-or game execution. A synthetic test whose only contract is preserving a proposed identity
-representation is not sufficient evidence. Any solution must also show why a smaller correction to
-the affected construct's existing recognition policy cannot preserve the real behavior.
-
-A rejected implementation is preserved locally as stash
-`codex/type-variable-linkage-review-2026-09-02` (stash commit
-`8f2c9617401d3d630097fa52209e46a586930194`). Inspect it before revisiting this mechanism. It added
-217 net lines across the expression model, preprocessing, scope analysis, engine resolution, and
-construct-specific lowering without establishing an observable failure. The stash records the
-cost and explored failure modes, not a design to restore wholesale; because Git stashes are local,
-the evidence gate above remains authoritative when the object is unavailable.
+When use-specific defaults expand a recorded occurrence, narrowing recognizes the expanded form by
+its unchanged dependency-key assignments. This preserves the authored variable through elaboration
+without adding occurrence tokens or provenance to `Expression`.
 
 The card-owned `Splicer<SpliceTacticalGenomics>` component is a working content mechanism, not
 unfinished Type-variable infrastructure. Further changes to its ownership or task assignment would

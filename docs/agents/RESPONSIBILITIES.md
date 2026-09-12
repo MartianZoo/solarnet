@@ -27,8 +27,8 @@
 - [`ScriptSession.kt`](../../src/common/dev/martianzoo/script/ScriptSession.kt) —
   inspect only for the script application layer.
 - [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) and
-  [`AutoExecPolicy.kt`](../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt) — current engine-owned
-  APIs that the selected layering direction will extract.
+  [`AutoExecPolicy.kt`](../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt) — current
+  application-facing APIs owned by the `:agent` module.
 - [GAMEWORLD.md](GAMEWORLD.md) owns the selected Game World data, playback, and export model.
 
 The generic runtime is mostly reusable, but a few interfaces still mix Pets/engine mechanics with
