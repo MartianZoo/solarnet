@@ -20,7 +20,7 @@ internal class Game20260619Test : AbstractFullGameTest() {
 
   @Test
   internal fun gameThroughGeneration5() {
-    val workflow = TfmWorkflow.Automatic(game, agents).launch()
+    val workflow = TfmWorkflow.Automatic(agents).launch()
     game.retainStartingProjects(6, 3)
 
     // Game id: peae6273d6b33

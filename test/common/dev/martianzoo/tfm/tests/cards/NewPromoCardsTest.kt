@@ -103,18 +103,19 @@ internal class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  internal fun `Carbon Nanosystems graphene can pay for a space card`() {
+  internal fun `Carbon Nanosystems can spend multiple graphene on one space card`() {
     newGame(PromoCardPack)
 
     admin.phase("Action")
     p1.runOperation("25 MC, 2 ProjectCard")
 
     p1.playProject(CarbonNanosystems, 14).expect("Graphene<$CarbonNanosystems>")
+    p1.runOperation("Graphene<$CarbonNanosystems>")
 
-    p1.playProject(IcyImpactors, 11) {
-          doTask("PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>")
+    p1.playProject(IcyImpactors, 7) {
+          doTask("2 PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>")
         }
-        .expect("-Graphene<$CarbonNanosystems>")
+        .expect("-2 Graphene<$CarbonNanosystems>")
   }
 
   @Test

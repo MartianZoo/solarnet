@@ -1,6 +1,6 @@
 package dev.martianzoo.benchmarks
 
-import dev.martianzoo.agent.createAgents
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
@@ -49,9 +49,9 @@ public open class BusyPreludePhaseBenchmark {
                     )
                 )
         )
-    val agents = createAgents(game)
-    me = game.tfm(agents, PLAYER1)
-    val admin = game.tfm(agents, ADMIN)
+    val agents = Agents(game)
+    me = agents.tfm(PLAYER1)
+    val admin = agents.tfm(ADMIN)
     workflow = TfmWorkflow.Stepwise(agents)
 
     workflow.setupPhase()

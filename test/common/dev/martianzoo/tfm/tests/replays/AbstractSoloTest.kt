@@ -19,7 +19,7 @@ internal abstract class AbstractSoloTest : CardTrackingFullGameTest() {
     super.commonSetup()
 
     me = p1
-    workflow = TfmWorkflow.Automatic(game, agents).launch()
+    workflow = TfmWorkflow.Automatic(agents).launch()
 
     admin.doTask("CityTile<${cityAreas().first}, SoloOpponent>")
     admin.doTask("GreeneryTile<${greeneryAreas().first}, SoloOpponent>")

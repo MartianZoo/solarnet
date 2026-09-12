@@ -20,7 +20,7 @@
   coordinates operations over `ActorEngine`; [`AutoExecLoop.kt`](../../src/common/dev/martianzoo/agent/AutoExecLoop.kt)
   owns the preserved legacy queue drain.
 - [`World.kt`](../../src/common/dev/martianzoo/engine/World.kt) returns stable ActorEngines;
-  [`createAgents.kt`](../../src/common/dev/martianzoo/agent/createAgents.kt) constructs the Agent map.
+  [`Agents.kt`](../../src/common/dev/martianzoo/agent/Agents.kt) pairs one World with its Agents.
 - [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) already stores one global
   task set; [`TaskQueue.kt`](../../src/common/dev/martianzoo/engine/TaskQueue.kt) is a filtered view.
 - [`Access.kt`](../../src/common/dev/martianzoo/script/Access.kt) implements current script-only
@@ -101,9 +101,10 @@ policy addition/removal belong on Agent. Policy ordering and implementation rema
 a concrete client need requires more control. [AUTOEXEC.md](AUTOEXEC.md) owns the policy and shared
 autoexecution-loop contract.
 
-One factory constructs the complete immutable Actor-to-Agent map for an engine game so all Agents
-share the same autoexecution loop. Applications retain that map or the particular Agents they need;
-the factory does not introduce another public game wrapper.
+`Agents(world)` constructs one Agent per Actor for an engine game, all sharing the same
+autoexecution loop, and holds them alongside the World they act on. Applications retain that one
+object and pass it wherever both a World and its Agents are needed; it carries no gameplay of its
+own, so it is a pairing rather than another public game wrapper.
 
 ## Layer responsibility
 
@@ -148,8 +149,14 @@ choose adversarially, or use another legal strategy is not an engine concern.
 
 `:agent` now depends on `:engine`; engine source has no Agent or autoexecution dependency.
 `World.actorEngine(actor)` returns one stable policy-free engine per Actor, and applications retain
-the single Agent map returned by `createAgents(world)`. Parsing, operation conveniences, policy
-state, and the shared legacy drain live in `:agent`.
+one `Agents(world)`. That type is the unit every client passes: it holds the World and one stable
+Agent per Actor, so no API takes a World and its Agents as separate arguments that could disagree.
+Parsing, operation conveniences, policy state, and the shared legacy drain live in `:agent`.
+
+Test fixtures do not yet hold their `Agents`; `testAgents.kt` still caches one process-wide so a
+World's Agent identity survives repeated lookups. Engine tests also still depend upward on `:agent`
+and `:tfm-engine`, because they are integration tests written against the Agent API rather than
+independent engine tests. Both are accepted costs, not the target state.
 
 The current Agent is still fully permissive and exposes an unscoped `GameReader`, operation and
 turn conveniences, and ex-machina mutation. `AutoExecPolicy` is still the legacy three-value

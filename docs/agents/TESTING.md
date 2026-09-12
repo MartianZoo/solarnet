@@ -48,10 +48,10 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   warranted by the scope of the change or explicitly requested.
 - `./gradlew test` runs every repository JVM test suite, including the multiplatform modules whose
   JVM test tasks are named `jvmTest`.
-- `./gradlew :tfm-tests:jsBrowserSmokeTest` runs only the extensive three-player
-  `OtbGame20260828Test` replay.
-- `./gradlew jsBrowserTest` runs every module's browser suite. Terraforming Mars full-game replays
-  other than `OtbGame20260828Test` are JVM-only and cannot be selected by a browser task.
+- `./gradlew :tfm-tests:jsBrowserSmokeTest` runs the only browser test: the extensive three-player
+  `OtbGame20260828Test` replay. Kotlin-generated browser-test tasks in every other module are
+  permanently skipped, and the underlying `:tfm-tests:jsBrowserTest` task is permanently filtered
+  to that replay. No Gradle invocation may run other tests in a browser.
 - `./gradlew :tfm-tests:sampleRandomCards` prints randomly generated project cards as raw Pets.
   Use `-PrandomCardCount=N` and `-PrandomCardSeed=N` to control and reproduce a sample, and add
   `-PrandomCardOutput=PATH` to write it to a text file. Its weights favor nested selectors,
@@ -97,8 +97,16 @@ signal first, then review static-analysis findings.
 `./gradlew dokkaGenerateHtml` generates the local API site under the root project's isolated
 `build/dokka/html` directory.
 
-JVM test tasks use at most four parallel forks. This keeps the dominant engine suite substantially
-faster while bounding the additional CPU and memory demand from concurrent test processes.
+JVM test tasks use at most two parallel forks with a 1 GiB maximum heap each. The repository's
+`org.gradle.workers.max=2` also bounds test processes across concurrently scheduled modules, keeping
+the aggregate test heap budget at 2 GiB per Gradle invocation. The separate
+`org.gradle.jvmargs=-Xmx4g` setting controls the build daemon, not test workers. Concurrent Gradle
+invocations each have their own budget; avoid overlapping verification runs on the same host.
+
+Scope configuration-matrix fixtures to test instances so their Catalogs can be collected before
+unrelated suites run. Deliberately shared common card-test premises retain their immutable class
+models per worker. Do not use worker recycling or a larger build-daemon heap to hide unintended
+retention.
 
 Normal Gradle access to the user-level cache and configuration under `~/.gradle` is permitted.
 For local wrapper builds, generated project state is isolated by account and worktree under

@@ -3,7 +3,7 @@ package dev.martianzoo.pets.types
 import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction.Intensity
+import dev.martianzoo.pets.ast.Instruction.Quantifier
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.DefaultKind
 import dev.martianzoo.pets.types.Dependency.TypeDependency
 
@@ -24,13 +24,13 @@ public data class Defaults(
     val allUsages: DefaultSpec,
 
     /**
-     * Dependency and intensity defaults applied only to gains under
+     * Dependency and quantifier defaults applied only to gains under
      * [rules T10-1 and T10-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
      */
     val gainOnly: DefaultSpec,
 
     /**
-     * Dependency and intensity defaults applied only to removals under
+     * Dependency and quantifier defaults applied only to removals under
      * [rules T10-1 and T10-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
      */
     val removeOnly: DefaultSpec,
@@ -45,19 +45,19 @@ public data class Defaults(
       val gainDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.GAIN_ONLY)
       val removeDeps: DependencySet = gatherDefaultDeps(klass, DefaultKind.REMOVE_ONLY)
 
-      val gainIntensity =
-          inheritDefault(klass, { it.defaultsDecl.gainOnly.intensity }, onlyOne(klass, "gain"))!!
-      val removeIntensity =
+      val gainQuantifier =
+          inheritDefault(klass, { it.defaultsDecl.gainOnly.quantifier }, onlyOne(klass, "gain"))!!
+      val removeQuantifier =
           inheritDefault(
               klass,
-              { it.defaultsDecl.removeOnly.intensity },
+              { it.defaultsDecl.removeOnly.quantifier },
               onlyOne(klass, "removal"),
           )!!
 
       return Defaults(
           allUsages = DefaultSpec(allUsagesDeps, null),
-          gainOnly = DefaultSpec(gainDeps, gainIntensity),
-          removeOnly = DefaultSpec(removeDeps, removeIntensity),
+          gainOnly = DefaultSpec(gainDeps, gainQuantifier),
+          removeOnly = DefaultSpec(removeDeps, removeQuantifier),
       )
     }
 
@@ -65,7 +65,7 @@ public data class Defaults(
     private fun <T> onlyOne(klass: Class, kind: String): (List<T>) -> T = { candidates ->
       candidates.singleOrNull()
           ?: throw invalidPetDefinition(
-              "${klass.className} inherits conflicting $kind intensity defaults: " +
+              "${klass.className} inherits conflicting $kind quantifier defaults: " +
                   candidates.joinToString()
           )
     }
@@ -136,7 +136,7 @@ public data class Defaults(
    * One inherited default set for a use kind, combined according to
    * [rules T10-2 through T10-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
    *
-   * @constructor Associates narrowed default [dependencies] with the gain or removal [intensity]
+   * @constructor Associates narrowed default [dependencies] with the gain or removal [quantifier]
    *   under
    *   [rules T10-1 and T10-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
    */
@@ -148,10 +148,10 @@ public data class Defaults(
       val dependencies: DependencySet = DependencySet.of(),
 
       /**
-       * The gain or removal intensity inherited independently under
+       * The gain or removal quantifier inherited independently under
        * [rule T10-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults),
        * or null for all-usage defaults.
        */
-      val intensity: Intensity?,
+      val quantifier: Quantifier?,
   )
 }

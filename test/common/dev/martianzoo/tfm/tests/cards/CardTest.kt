@@ -133,7 +133,7 @@ internal abstract class CardTest(
     workflow?.shutdown()
     return Engine.newGame(premise).apply {
       bindPlayers()
-      workflow = TfmWorkflow.Automatic(this, testAgents()).launch()
+      workflow = TfmWorkflow.Automatic(testAgents()).launch()
       retainStartingProjects(*IntArray(actors.filterIsInstance<Player>().size))
       finishSoloSetup()
     }

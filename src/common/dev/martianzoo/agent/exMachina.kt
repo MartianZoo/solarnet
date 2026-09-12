@@ -9,26 +9,22 @@ import dev.martianzoo.pets.data.Task
 import dev.martianzoo.pets.data.Task.TaskId
 
 /**
- * Applies an evidenced replay adjustment without leaving a selected task resolved against stale
- * state.
+ * Applies an evidenced replay adjustment, attributed to [adjustingActor], without leaving a
+ * selected task resolved against stale state.
  */
-public fun World.exMachina(
-    agents: Map<Actor, Agent>,
-    adjustingAgent: Agent,
-    adjustment: String,
-) {
-  val selectedId = tasks.selectedTask()
+public fun Agents.exMachina(adjustingActor: Actor, adjustment: String) {
+  val selectedId = world.tasks.selectedTask()
   if (selectedId == null) {
-    adjustingAgent.sneak(adjustment)
+    this[adjustingActor].sneak(adjustment)
     return
   }
 
-  val selectedAgent = agents.getValue(tasks.getTaskData(selectedId).assignee)
+  val selectedAgent = this[world.tasks.getTaskData(selectedId).assignee]
   val previousAutoExecPolicy = selectedAgent.autoExecPolicy
   selectedAgent.autoExecPolicy = NONE
   try {
-    actorEngine(selectedAgent.actor).restoreTask(taskBeforeSelection(selectedId))
-    adjustingAgent.sneak(adjustment)
+    world.actorEngine(selectedAgent.actor).restoreTask(world.taskBeforeSelection(selectedId))
+    this[adjustingActor].sneak(adjustment)
     selectedAgent.selectTask(selectedId)
   } finally {
     selectedAgent.autoExecPolicy = previousAutoExecPolicy

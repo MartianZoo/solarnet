@@ -14,9 +14,9 @@ internal class SafeAutoExecTest {
   internal fun safeLeavesAChoiceBetweenTasksPendingAcrossActors() {
     val game =
         Engine.newGame(testGamePremise("CLASS Token<Owner>\nCLASS Marker<Owner>", players = 2))
-    val agents = createAgents(game)
-    val p1 = agents.getValue(PLAYER1).also { it.autoExecPolicy = NONE }
-    val p2 = agents.getValue(PLAYER2).also { it.autoExecPolicy = NONE }
+    val agents = Agents(game)
+    val p1 = agents[PLAYER1].also { it.autoExecPolicy = NONE }
+    val p2 = agents[PLAYER2].also { it.autoExecPolicy = NONE }
     val taskIds = p1.addTasks("Token<Player1>") + p2.addTasks("Marker<Player2>")
 
     p1.autoExecPolicy = CONCRETE
@@ -30,7 +30,7 @@ internal class SafeAutoExecTest {
   @Test
   internal fun safeSelectsAnAbstractSingletonWithoutChoosingItsNarrowing() {
     val game = Engine.newGame(testGamePremise("ABSTRACT CLASS Choice { CLASS Left, Right }"))
-    val player = createAgents(game).getValue(PLAYER1).also { it.autoExecPolicy = NONE }
+    val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
     val taskId = player.addTasks("Choice").single()
 
     player.autoExecPolicy = CONCRETE

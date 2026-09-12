@@ -15,11 +15,11 @@
 ## Source map
 
 - [`Instruction.kt`](../../src/common/dev/martianzoo/pets/ast/Instruction.kt) — search
-  for `enum class Intensity` and the change instruction types.
+  for `enum class Quantifier` and the change instruction types.
 - [`Limiter.kt`](../../src/common/dev/martianzoo/engine/Limiter.kt) — inspect for
   concrete limits and invariant headroom.
 - [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — search
-  for `Intensity` and `abstract` to see resolution of quantified changes.
+  for `Quantifier` and `abstract` to see resolution of quantified changes.
 - [`InstructionResolutionTest.kt`](../../test/common/dev/martianzoo/engine/InstructionResolutionTest.kt) and
   [`TaskResolutionTest.kt`](../../test/common/dev/martianzoo/engine/TaskResolutionTest.kt)
   — select scenarios matching the changed resolution phase.

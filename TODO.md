@@ -22,7 +22,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   - reduce `TESTING.md` to the important repository-specific guidance; and
   - rewrite `JVM_TEST_PERFORMANCE.md` holistically, incorporating the work on `perf` and keeping the
     document identical on `perf` and `main`.
-- Revisit the tested `GenerationScope` lifetime model preserved in stash commit `d8a94cc1c`.
 - Revisit the cleanup-vocabulary draft that removes broad `Barrier` waits, preserved in stash commit
   `db9302652`.
 - Review the committed `OverlayWorld` and query-performance work on branch `perf` before integrating
@@ -120,17 +119,15 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- Repair the two declared Pets conformance gaps without adding a second representation of type
+  identity: L7-8 lets `Tile<> THEN Tile<>` stages diverge after defaults, and T8-3 can substitute a
+  refinement candidate into the wrong one of several compatible dependency slots while existing
+  cards still require candidate/argument merging.
 - Find a principled way for narrower dependency defaults to retain compatible refinements from
   wider defaults, so `Tile` can own area occupancy once while its subclasses select their kinds of
   areas and add placement rules.
 - Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
   with the canonical card.
-- Serve copied Canon resources from the game-viewer Karma configuration; the resources reach the
-  test package, but `:game-viewer:jsBrowserTest` currently gets a 404 for
-  `canon/resource-index.txt`.
-- Investigate the intermittent Kotlin/Karma reporter crash during the unfiltered engine browser
-  suite: targeted browser suites and the normal smoke test pass, but the reporter can lose a
-  successful spec's console result and terminate the full run.
 - Complete the unsupported Milestones & Awards goals: Hydrologist and Thawer's player-attributed
   global-parameter steps, and the Turmoil-dependent Lobbyist and Politician rules.
 - Simplify `LiveEffect` actor binding by threading a binding context through subscription matching

@@ -149,7 +149,7 @@ bootstrap task may choose among two or more legal outcomes. Choice-bearing start
 remain an exact premise component and open its choice during `SetupPhase` or later, as selected
 Colonies do. Queued `:` and immediate `::` still have their ordinary semantics; the bootstrap drain
 is not permission to replace one with the other mechanically or to discard a change's `?`, `.`, or
-`!` intensity.
+`!` quantifier.
 
 `drainBootstrapTasks` uses the ActorEngine assigned to each task and selects choice-free work in
 stable insertion order. It does not invent a narrowing for an abstract task: unresolved choice
@@ -368,7 +368,7 @@ Execution accepts a selected Task whose first stage has already been resolved ag
 World. The current executable-first-stage algebra is implicit in `Instructor.doExecuteResolved`:
 
 - `NoOp`;
-- a `Change` with an actual count, mandatory intensity, and concrete component Types;
+- a `Change` with an actual count, mandatory quantifier, and concrete component Types;
 - `By` around executable work, with one concrete participating Actor; or
 - `Then` with an executable first stage and later Pets stages that resolve only when reached.
 
@@ -682,9 +682,11 @@ AST family; instruction entry points use `InstructionTree` where cardinality may
 
 ## Current Agent surface
 
-Each World retains exactly one policy-free `ActorEngine` per Actor. Applications call
-`createAgents(world)` once and retain its map of fully permissive Agents for reads, task commands,
-operations, task insertion/removal, and direct changes. The old power-interface hierarchy is gone.
+Each World retains exactly one policy-free `ActorEngine` per Actor. Applications construct one
+`Agents(world)` and retain it; it holds that World together with one fully permissive Agent per
+Actor, used for reads, task commands, operations, task insertion/removal, and direct changes.
+`Agents` is what downstream APIs take, so an Agent cannot be paired with a World it does not act
+on. The old power-interface hierarchy is gone.
 REPL color modes restrict commands in the script client rather than changing the Agent's type.
 Autoexecution policy attachment is forward-looking.
 

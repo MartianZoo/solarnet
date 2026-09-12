@@ -23,7 +23,7 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(canonicalPremise())
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
-    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     game.retainStartingProjects(0, 0)
 
     p1.playCorp(Ecoline)
@@ -60,7 +60,7 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(setup)
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
-    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     game.retainStartingProjects(0)
 
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
@@ -88,7 +88,7 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(setup)
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
-    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     game.retainStartingProjects(0)
 
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
@@ -116,7 +116,7 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(setup)
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
-    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     game.retainStartingProjects(0)
 
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
@@ -147,7 +147,7 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     game.retainStartingProjects(0, 0)
 
     p1.playCorp(Ecoline)
@@ -168,7 +168,7 @@ internal class FinalGreeneryPhaseTest {
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     val p3 = game.testTfm(PLAYER3)
-    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     game.retainStartingProjects(0, 0, 0)
 
     p1.playCorp(CrediCor)
@@ -211,7 +211,7 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     game.retainStartingProjects(0, 0)
 
     p1.playCorp(CrediCor)
@@ -247,7 +247,7 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     game.retainStartingProjects(0, 0)
 
     p1.playCorp(CrediCor)
@@ -290,7 +290,7 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    val workflow = TfmWorkflow.Automatic(game, game.testAgents()).launch()
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     game.retainStartingProjects(0, 0)
 
     p1.playCorp(CrediCor)

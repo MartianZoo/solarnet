@@ -15,7 +15,8 @@
 > Bootstrap-to-Setup-to-Corporation, the Production-to-Solar-to-Research-to-Action cycle, and the
 > final transition from Final Greenery to End. `TfmWorkflow.Automatic` still wakes Action and Final
 > Greenery scopes after their domain sequencing finishes, enters Prelude or Action after
-> Corporation, and owns all intra-phase sequencing.
+> Corporation, and owns all intra-phase sequencing. `GenerationScope` and dependency-ordered idle
+> cleanup are implemented beneath that proof.
 
 ## Purpose and scope
 
@@ -54,9 +55,12 @@ The required primitives already exist:
   idle cleanup after an outer operation and its automatic effects have completed. An Agent
   operation started synchronously by the completion callback also settles its ordinary idle
   cleanup before returning, while remaining part of the callback's recorded follow-up.
-- [`Engine.removeTemporaryComponents`](../../src/common/dev/martianzoo/engine/Engine.kt) removes
-  `Temporary` components when every task queue is empty. Their removal effects may create more
-  work, which Admin autoexecution can settle normally.
+- [`Engine.removeTemporaryComponent`](../../src/common/dev/martianzoo/engine/Engine.kt) removes
+  one eligible `Temporary` Type at an empty task queue, deferring Types with direct or indirect
+  dependent `MustCleanUp` or `Temporary`. The transaction loop settles removal effects before
+  checking the live queue and dependencies for another removal.
+- `GenerationScope` is a singleton lifetime anchor replaced by each `Generation`; generation-local
+  state depends on it instead of listening independently for the next Generation.
 
 [`TfmWorkflow.Automatic`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt) still listens for
 idle completions and resumes a coroutine. It does not choose Setup, Corporation, Production, Solar,
@@ -227,13 +231,8 @@ switch statement in the runner.
 
 ## Scope hierarchy
 
-The September 6 `GenerationScope` experiment in `work1` provides concrete evidence for this model.
-It replaced `Generational` inheritance with dependencies on a singleton component recreated each
-Generation. Removal cascaded through scoped components, and focused tests plus the complete JVM
-suite verified cleanup, recreation, bootstrap causality, and rollback. It was then deliberately
-parked at the user's request as stash commit `d8a94cc1c`; it was not rejected.
-
-That experiment points toward one compositional family of lifetime anchors:
+The implemented `GenerationScope` and nested-cleanup rule establish the first level of one
+compositional family of lifetime anchors:
 
 ```text
 GameScope
@@ -248,13 +247,14 @@ state depends on the narrowest scope matching its true lifetime: an action-local
 the Action scope; a passed marker belongs to the Action-phase scope; a genuinely per-generation
 marker belongs to the Generation scope; phase-local control belongs to the Phase scope.
 
-This hierarchy exposes one necessary change to current cleanup. Today all `Temporary` components
-are removed in one sweep as soon as all task queues are empty. Making every Phase scope Temporary
-would therefore remove an Action scope between turns and advance far too early. Nested drain-woken
-scopes instead require dependency-ordered cleanup:
+`Signal` is the zero-duration edge of this model. It carries no lifetime-scope dependency, triggers
+its effects, and removes itself immediately. Do not introduce a live `NoScope` sentinel: absence of
+a `Scope` dependency already states that the event owns no interval.
 
-- at an empty queue, remove only Temporary components having no dependent `MustCleanUp`;
-- settle any work their removal creates;
+The engine applies dependency-ordered cleanup needed by this hierarchy:
+
+- at an empty queue, remove one Temporary Type with no direct or indirect dependent `MustCleanUp` or `Temporary`;
+- settle any work its removal creates and recheck the live dependencies;
 - repeat only if the queue remains empty; and
 - never remove an outer scope while a live inner scope or other mandatory cleanup depends on it.
 
@@ -339,7 +339,6 @@ The phase workflow is successful only when all of these hold:
 
 The next workflow migration is not yet selected. The known candidates are:
 
-- characterize dependency-ordered drain cleanup with two nested test scopes;
 - compile Prelude's weak ordering contribution and verify both active and inactive cases; and
 - compile the Solar constraints and verify every combination of base, Venus, and Colonies phases.
 

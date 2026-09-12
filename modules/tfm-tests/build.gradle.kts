@@ -60,18 +60,12 @@ tasks.register<JavaExec>("sampleRandomCards") {
   }
 }
 
-val browserTestsRequested =
-    gradle.startParameter.taskNames.any { it.substringAfterLast(':') == "jsBrowserTest" }
-
-// A routine build exercises the most extensive shared replay in Chrome. Naming the browser task
-// directly removes this filter and runs every shared Terraforming Mars test. Other full-game
-// replays live in jvmTest so they cannot be selected by a browser task.
+// Browser verification is deliberately limited to one extensive shared replay. Keep this filter
+// unconditional: no Gradle invocation may use the JS target to run any other test.
 tasks.named<org.gradle.api.tasks.testing.AbstractTestTask>("jsBrowserTest") {
-  if (!browserTestsRequested) {
-    filter.includeTestsMatching(
-        "dev.martianzoo.tfm.tests.replays.OtbGame20260828Test.otbGame20260828"
-    )
-  }
+  filter.includeTestsMatching(
+      "dev.martianzoo.tfm.tests.replays.OtbGame20260828Test.otbGame20260828"
+  )
 }
 
 tasks.register("jsBrowserSmokeTest") {

@@ -4,6 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.assertions.throwables.shouldThrow
@@ -100,6 +101,53 @@ internal class WorldTransactionTest {
     player.count("SecondCleanup") shouldBe 0
     player.count("Done") shouldBe 1
     workflowPulses shouldBe 1
+  }
+
+  @Test
+  internal fun nestedScopesAndUnscopedSignalFinishFromTheInsideOut() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                CLASS GenerationScope : Scope, System { HAS MAX 1 This }
+                CLASS PhaseScope<GenerationScope> : TemporaryScope<GenerationScope>, System {
+                  -This:: PhaseDone
+                }
+                CLASS ActionScope<PhaseScope> : TemporaryScope<PhaseScope>, System {
+                  -This: FinishAction
+                }
+                CLASS FinishAction : Signal, System
+                CLASS PhaseDone : System
+                CLASS Blocker : System
+                """
+            )
+        )
+    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+
+    admin.addTasks("Blocker")
+    admin.sneak("GenerationScope")
+    admin.sneak("PhaseScope")
+    admin.sneak("ActionScope")
+
+    admin.count("Scope") shouldBe 3
+
+    admin.doTask("Blocker")
+
+    admin.count("Scope") shouldBe 2
+    admin.count("GenerationScope") shouldBe 1
+    admin.count("PhaseScope") shouldBe 1
+    admin.count("ActionScope") shouldBe 0
+    admin.count("FinishAction") shouldBe 0
+    game.tasks.isEmpty() shouldBe false
+
+    admin.doTask("FinishAction")
+
+    admin.count("Scope") shouldBe 1
+    admin.count("GenerationScope") shouldBe 1
+    admin.count("PhaseScope") shouldBe 0
+    admin.count("FinishAction") shouldBe 0
+    admin.count("PhaseDone") shouldBe 1
+    game.tasks.isEmpty() shouldBe true
   }
 
   @Test

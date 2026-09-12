@@ -5,6 +5,7 @@ import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.engine.ActorEngine
 import dev.martianzoo.engine.TaskQueue
+import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.AbstractException
@@ -27,6 +28,7 @@ import kotlin.reflect.KClass
 
 /** Implements Actor-contextual parsing, atomic operation coordination, and autoexecution. */
 internal class AgentImpl(
+    private val world: World,
     private val engine: ActorEngine,
     private val elaborator: PetElaborator,
     private val autoExecLoop: AutoExecLoop,
@@ -42,7 +44,7 @@ internal class AgentImpl(
     get() = engine.tasks
 
   private val allTasks: TaskQueue
-    get() = engine.allTasks
+    get() = world.tasks
 
   override var autoExecPolicy: AutoExecPolicy = EAGER
     set(newPolicy) {
@@ -77,7 +79,7 @@ internal class AgentImpl(
     val parsed = Parsing.parse<InstructionTree>(text)
     return ParsedTaskNarrowing(
         elaborator.elaborateInput(parsed, actor as? Player),
-        intensityOmitted = parsed is Change && parsed.intensity == null,
+        quantifierOmitted = parsed is Change && parsed.quantifier == null,
         submittedAsGroup = parsed is InstructionGroup,
     )
   }
@@ -222,12 +224,12 @@ internal class AgentImpl(
 
   override fun narrowTask(narrowing: String) = atomic {
     val parsed = parseTaskNarrowing(narrowing)
-    engine.narrowTask(parsed.instruction, parsed.intensityOmitted)
+    engine.narrowTask(parsed.instruction, parsed.quantifierOmitted)
   }
 
   override fun narrowTask(taskId: TaskId, narrowing: String) = atomic {
     val parsed = parseTaskNarrowing(narrowing)
-    engine.narrowTask(taskId, parsed.instruction, parsed.intensityOmitted)
+    engine.narrowTask(taskId, parsed.instruction, parsed.quantifierOmitted)
   }
 
   override fun canSelectTask(taskId: TaskId) = engine.canSelectTask(taskId)
@@ -244,7 +246,7 @@ internal class AgentImpl(
     val parsed = parseTaskNarrowing(narrowing)
     engine.doTask(
         parsed.instruction,
-        parsed.intensityOmitted,
+        parsed.quantifierOmitted,
         parsed.submittedAsGroup,
     )
   }
@@ -253,7 +255,7 @@ internal class AgentImpl(
     val parsed = parseTaskNarrowing(narrowing)
     engine.doTask(
         parsed.instruction,
-        parsed.intensityOmitted,
+        parsed.quantifierOmitted,
         parsed.submittedAsGroup,
         taskId,
     )
@@ -263,7 +265,7 @@ internal class AgentImpl(
     val parsed = parseTaskNarrowing(narrowing)
     engine.tryTask(
         parsed.instruction,
-        parsed.intensityOmitted,
+        parsed.quantifierOmitted,
         parsed.submittedAsGroup,
     )
   }
@@ -272,7 +274,7 @@ internal class AgentImpl(
     val parsed = parseTaskNarrowing(narrowing)
     engine.tryTask(
         parsed.instruction,
-        parsed.intensityOmitted,
+        parsed.quantifierOmitted,
         parsed.submittedAsGroup,
         taskId,
     )
@@ -298,7 +300,7 @@ internal class AgentImpl(
 
   private data class ParsedTaskNarrowing(
       val instruction: InstructionTree,
-      val intensityOmitted: Boolean,
+      val quantifierOmitted: Boolean,
       val submittedAsGroup: Boolean,
   )
 }

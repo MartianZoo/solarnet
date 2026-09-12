@@ -10,7 +10,7 @@ internal class WorldTransaction(
     private val timeline: Timeline,
     private val onComplete: () -> Unit,
     private val recordingPositions: RecordingPositions,
-    private val removeTemporaryComponents: () -> Boolean,
+    private val removeTemporaryComponent: () -> Boolean,
 ) {
   private var depth: Int = 0
   private var reportingCompletion: Boolean = false
@@ -53,6 +53,6 @@ internal class WorldTransaction(
   private fun settleAndCleanUp(settle: () -> Unit) {
     do {
       settle()
-    } while (removeTemporaryComponents())
+    } while (removeTemporaryComponent())
   }
 }

@@ -20,7 +20,7 @@ internal class PhaseCommand(private val repl: ScriptSession) : ScriptCommand("ph
     // TODO Better way to do it??
     val saved = repl.agent
     return try {
-      repl.agent = repl.agents.getValue(ADMIN)
+      repl.agent = repl.agents[ADMIN]
       repl.describeExecutionResults(repl.access().phase(args.trim()))
     } finally {
       repl.agent = saved
