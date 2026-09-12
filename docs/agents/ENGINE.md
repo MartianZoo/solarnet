@@ -258,7 +258,7 @@ may still be observable one change at a time.
 
 Task iteration is stable for reproducibility, but order has no game meaning. A task has:
 
-- stable `TaskId`, derived from its original add-event ordinal;
+- stable `TaskId` value wrapper, derived from its original add-event ordinal;
 - one task-shaped `Instruction`;
 - `controller`, which owns the surrounding operation and receives resulting work;
 - `assignee`, who may select and narrow it;
