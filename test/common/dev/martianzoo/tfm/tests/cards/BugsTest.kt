@@ -56,7 +56,7 @@ internal class BugsTest : CardTest() {
   // https://boardgamegeek.com/thread/3361875/questions-about-the-head-start
   @Test
   internal fun `Head Start incorrectly allows its two actions to interleave`() {
-    newGame(PreludeExpansion, TurmoilCardPack, FakeStuffBundle)
+    newGame(PreludeExpansion, FakeStuffBundle)
     p1.phase("Prelude")
     p1.runOperation("4 MC, 10 ProjectCard, PreludeCard, 10 Heat")
 
