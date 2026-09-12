@@ -1,2 +1,12 @@
-"Explicitly selected support for incomplete cards"
-CLASS FakeStuffBundle : Module
+"Explicitly selected support for incomplete game content"
+CLASS FakeStuffBundle : Module {
+  X TemperatureStep BY Player IF Class<FakeThawer>:: X FakeTemperatureCredit<Player>
+}
+
+"Thawer whose temperature credits survive temperature reductions"
+CLASS FakeThawer : Milestone {
+  requirement = HAS "5 FakeTemperatureCredit"
+}
+
+"A temperature increase credited to a player, independent of the current temperature"
+CLASS FakeTemperatureCredit : Owned<Player>

@@ -31,6 +31,20 @@ CLASS FakeNobelPrize : CardFront<Class<PreludeCard>> {
   End: 2 VictoryPoint
 }
 
+"Preservation Program that reverses the first action-phase TR gain instead of preventing it"
+CLASS FakePreservationProgram : CardFront<Class<PreludeCard>> {
+  cost = 0
+
+  This: 5 TerraformRating
+  TerraformRating IF ActionPhase:: FakePreservationTrLost<This>.
+}
+
+"One TR loss per generation; the original gain still triggers effects such as Terraforming Deal"
+CLASS FakePreservationTrLost<GenerationScope> : Cardbound<FakePreservationProgram> {
+  HAS MAX 1 This
+  This: -TerraformRating
+}
+
 "Helion without correct Heat payment allocation"
 CLASS FakeHelion : CardFront<Class<CorporationCard>> {
   cost = 0

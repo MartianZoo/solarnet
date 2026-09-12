@@ -36,10 +36,10 @@ product, including goals reprinted from another product.
 | Prelude 2 | Project | L1 Trade Terminal (`P78`) | Distinct |
 | Prelude 2 | Turmoil-linked cards | 11 projects and 3 preludes | Turmoil |
 | Prelude 2 | Prelude | Applied Science, Nobel Prize | Wild tags |
-| Prelude 2 | Prelude | Preservation Program (`P57`) | Fork |
+| Prelude 2 | Prelude | Preservation Program (`P57`) | `FakePreservationProgram` reverses TR after the gain, so gain-triggered effects still fire |
 | Amazonis & Vastitas | Milestone | Lobbyist | Turmoil support |
 | Automa | Other | entire Automa rules | Wow that's a lot |
-| Milestones & Awards | Milestone | Thawer | Owned global parameters |
+| Milestones & Awards | Milestone | Thawer | `FakeThawer` retains temperature credits when global events reduce temperature |
 | Milestones & Awards | Milestone | Lobbyist | Turmoil support |
 | Milestones & Awards | Award | Politician | Turmoil support |
 | Promos through 2026-08 | Project | New Holland | Hybrid tile |
@@ -48,6 +48,11 @@ product, including goals reprinted from another product.
 | Promos through 2026-08 | Prelude | Established Methods (`X54`) | (investigate) |
 | Promos through 2026-08 | Prelude | Head Start | Immediate-action sequencing |
 | Promos through 2026-08 | Global events | All 5 | Turmoil |
+
+The two Fakes above require FakeCanon and `FakeStuffBundle`; they are not included in the canonical
+support totals or the shared Heroku card settings. `FakePreservationProgram` loses one TR after its
+owner's first TR gain in each generation's action phase. `FakeThawer` counts successful
+player-attributed temperature increases and can be selected explicitly as a milestone.
 
 ## Solarnet's supported variant
 
