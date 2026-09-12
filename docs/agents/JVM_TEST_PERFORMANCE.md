@@ -10,7 +10,7 @@
 > **Skip when:** running routine verification; use [TESTING.md](TESTING.md). Do not treat these
 > measurements as current configuration requirements.
 >
-> **Status:** dated research from 2026-08-23, 2026-09-06, and 2026-09-10 on the development host.
+> **Status:** dated research from 2026-08-23, 2026-09-06, 2026-09-10, and 2026-09-11 on the development host.
 > Treat absolute times as noisy: other JVM processes were consuming substantial CPU during the
 > baseline. Relative structure and the large parallel-speedup signal are still clear.
 
@@ -211,14 +211,39 @@ test. Its Chrome task fell from 5m36.15s to 4m43.65s, a 15.6% reduction. The JVM
 all 21 moved test classes and passed. There is no property or alternate task that adds the JVM-only
 replays back to a browser run.
 
+## 2026-09-11 heap-retention diagnosis
+
+A normal JVM run failed in `:tfm-tests:jvmTest` with `Java heap space`. The two suites absent from
+its XML reports passed alone in a single 512 MiB worker. Running the whole Terraforming Mars suite
+in that worker grew to 504 MiB after full collection; it was stopped after 487 full collections.
+
+The captured heap established this retention path:
+
+`Catalog -> authored Effect -> TypeVariableScope -> TypeVariable.bound -> ClassTable -> Catalog`
+
+`Class.interpretTypeVariablesIn` annotated the shared source Effect in place. Source declarations
+outlived the games that interpreted them and retained those games' compiled universes. It now copies
+the Effect before attaching the resolved scope. The `Spec13TypeVariablesTest` shared-source
+regression fails before the fix because a second Catalog overwrites the first interpretation's
+scope; it also checks that source declarations retain no resolved variables.
+
+`ClassTableProjectionTest` additionally scopes compiled fixtures to test instances. The normal
+worker budget is two 1 GiB heaps, bounded across test tasks by `org.gradle.workers.max=2`; total
+maximum test heap remains 2 GiB per invocation. The build daemon's separate 4 GiB heap is unchanged.
+
+Both complete JVM runs with the new worker budget passed. With the shared-source mutation still
+present, the two Terraforming Mars workers peaked at 744 and 612 MiB immediately after collection.
+After the Effect copy fix, they peaked at 274 and 278 MiB, with no full collections. The final run
+passed all 1,462 tests in the current JVM modules in 4m57s. These are GC-log heap measurements, not
+whole-process resident memory; the timings include compilation and host contention.
+
 ## Priorities suggested by the data
 
 1. Preserve the compiled class-model reuse. It removed over half of measured JVM test time without
    sharing live World state.
-2. Keep the four-fork bound unless memory-constrained CI evidence shows it is too aggressive. It
-   retained a large elapsed-time win after class-model compilation without an unbounded host-based
-   worker count.
+2. Keep the bounded worker and heap policy in [TESTING.md](TESTING.md). Check retained memory as
+   well as elapsed time before increasing parallelism.
 3. Treat isolated slow-test cleanup as secondary. Whole-game scenarios are not the main cost, and
    even deleting the single 15.1s outlier would save under 4% of engine CPU.
-4. Do not prioritize Gradle configuration, compilation, or simply increasing worker heap from this
-   evidence. They are not driving elapsed time, and collection pauses are small.
+4. Trace increasing retained heap to its owners before changing memory limits. Throughput samples
+   from short tests do not establish the memory needs of a long-lived suite worker.

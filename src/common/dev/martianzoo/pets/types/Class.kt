@@ -782,11 +782,12 @@ internal constructor(
       TypeVariableScope.containing(typeVariables, effect)
 
   /**
-   * Annotates [effect] with its visible class-header variable scope, according to
+   * Returns [effect] with its visible class-header variable scope, without annotating the shared
+   * source declaration, according to
    * [rules T13-3 and T13-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
   public fun interpretTypeVariablesIn(effect: Effect): Effect =
-      effect.withTypeVariables(typeVariablesIn(effect))
+      effect.copy().withTypeVariables(typeVariablesIn(effect))
 
   internal fun variableBindings(
       general: GroundType,

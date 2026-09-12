@@ -97,8 +97,16 @@ signal first, then review static-analysis findings.
 `./gradlew dokkaGenerateHtml` generates the local API site under the root project's isolated
 `build/dokka/html` directory.
 
-JVM test tasks use at most four parallel forks. This keeps the dominant engine suite substantially
-faster while bounding the additional CPU and memory demand from concurrent test processes.
+JVM test tasks use at most two parallel forks with a 1 GiB maximum heap each. The repository's
+`org.gradle.workers.max=2` also bounds test processes across concurrently scheduled modules, keeping
+the aggregate test heap budget at 2 GiB per Gradle invocation. The separate
+`org.gradle.jvmargs=-Xmx4g` setting controls the build daemon, not test workers. Concurrent Gradle
+invocations each have their own budget; avoid overlapping verification runs on the same host.
+
+Scope configuration-matrix fixtures to test instances so their Catalogs can be collected before
+unrelated suites run. Deliberately shared common card-test premises retain their immutable class
+models per worker. Do not use worker recycling or a larger build-daemon heap to hide unintended
+retention.
 
 Normal Gradle access to the user-level cache and configuration under `~/.gradle` is permitted.
 For local wrapper builds, generated project state is isolated by account and worktree under

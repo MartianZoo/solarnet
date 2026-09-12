@@ -8,6 +8,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Then
+import dev.martianzoo.pets.data.Catalog
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -150,6 +151,34 @@ internal class Spec13TypeVariablesTest {
   }
 
   // T13-3 Uses in the class body
+
+  @Test
+  internal fun `T13-3 interpreting shared source in another universe preserves earlier scope`() {
+    val firstCatalog =
+        testCatalog(
+            """
+            ABSTRACT CLASS Person { CLASS Alice }
+            ABSTRACT CLASS Token<Person>
+            ABSTRACT CLASS Holder<Person> { This: Token<Person> }
+            """
+        )
+    val secondCatalog =
+        object : Catalog by firstCatalog {
+          override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
+        }
+    val firstTable = firstCatalog.classTable
+    val secondTable = secondCatalog.classTable
+    val firstHolder = firstTable.getClass(cn("Holder"))
+    val secondHolder = secondTable.getClass(cn("Holder"))
+    val source = firstHolder.declaration.effects.single()
+
+    val first = firstHolder.interpretTypeVariablesIn(source)
+    val second = secondHolder.interpretTypeVariablesIn(source)
+
+    first.typeVariables.variables.single().bound shouldBe firstTable.resolve(te("Person"))
+    second.typeVariables.variables.single().bound shouldBe secondTable.resolve(te("Person"))
+    source.typeVariables.isEmpty shouldBe true
+  }
 
   @Test
   internal fun `T13-3 header text repeated in the class's own effects is a use`() {

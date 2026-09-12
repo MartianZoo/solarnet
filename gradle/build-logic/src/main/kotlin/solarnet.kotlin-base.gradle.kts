@@ -77,7 +77,10 @@ dokka {
 
 tasks.withType<Test>().configureEach {
   useJUnitPlatform()
-  maxParallelForks = 4
+  // Share a 2 GiB test heap budget between two workers, with headroom for compiled catalogs
+  // and temporary game state. gradle.properties also bounds workers across test tasks.
+  maxParallelForks = 2
+  maxHeapSize = "1g"
   testLogging {
     exceptionFormat = FULL
     showExceptions = true
