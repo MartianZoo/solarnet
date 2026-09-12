@@ -229,7 +229,8 @@ public sealed class Metric : PetElement() {
    * per
    * [rule L5-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics).
    * The alternatives must be plain [Count]s, because subtraction discards the component identity a
-   * union needs; duplicates are rejected rather than collapsed.
+   * union needs. The parser rejects duplicate authored alternatives; construction and rewriting
+   * collapse alternatives that have become equal.
    *
    * `OR` binds least tightly of all metric operators ([rule
    * L5-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics)),

@@ -3,9 +3,11 @@ package dev.martianzoo.pets
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.PropertyName
 import io.kotest.assertions.throwables.shouldThrow
@@ -123,6 +125,8 @@ internal class Lang05MetricsTest {
             )
         )
         .toString() shouldBe "Plant OR Steel"
+    PetNode.replacer(parse<Expression>("Steel"), parse<Expression>("Plant"))
+        .transformMetric(union) shouldBe parse<Metric>("Plant")
   }
 
   // L5-7 Precedence

@@ -200,6 +200,32 @@ internal class Lang01SourceTest {
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Tile<Area> { DEFAULT Other<LandArea> }") }
   }
 
+  @Test
+  internal fun `L1-7 compatible DEFAULT clauses merge and conflicting clauses are rejected`() {
+    val merged =
+        parseClasses(
+                """
+                CLASS Tile<Area> {
+                  DEFAULT +Tile<LandArea>
+                  DEFAULT +Tile?
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+            .defaultsDeclaration
+
+    merged.gainOnly.specs shouldContainExactly listOf(parse<Expression>("LandArea"))
+    merged.gainOnly.quantifier shouldBe Instruction.Quantifier.OPTIONAL
+
+    listOf(
+            "CLASS Tile { DEFAULT Tile; DEFAULT Other }",
+            "CLASS Tile { DEFAULT +Tile<LandArea>; DEFAULT +Tile<WaterArea> }",
+            "CLASS Tile { DEFAULT +Tile?; DEFAULT +Tile! }",
+        )
+        .forEach { shouldThrow<PetSyntaxException> { parseClasses(it) } }
+  }
+
   // L1-8 Properties
 
   @Test

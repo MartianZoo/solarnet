@@ -796,10 +796,10 @@ public sealed class Instruction : InstructionTree() {
   /**
    * Offers a choice among [instructions] ([rule
    * L6-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
-   * Duplicate alternatives are rejected rather than collapsed, because the choice is the point: two
-   * arms that happen to elaborate alike are still two decisions the card offers.
+   * The parser rejects duplicate authored alternatives. Construction and rewriting collapse arms
+   * that have become equal; a single remaining outcome is returned without an `Or` wrapper.
    *
-   * An `OR` is therefore always abstract ([rule
+   * An `OR` that remains is always abstract ([rule
    * L7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
    * It is also one of only two exceptions to a narrowing preserving node shape — the other being
    * [NoOp] narrowing an optional change: any instruction narrows an `OR` by narrowing one arm,
