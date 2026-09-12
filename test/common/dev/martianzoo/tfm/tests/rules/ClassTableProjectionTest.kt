@@ -115,30 +115,29 @@ internal class ClassTableProjectionTest {
     val classNames by lazy { classTable.allClassNames }
   }
 
-  private companion object {
-    val baseMultiplayer = projection("", "Player1", "Player2")
-    val threePlayerMultiplayer = projection("", "Player1", "Player2", "Player3")
-    val baseSolo = projection("", "Me")
-    val preludeSolo = projection("PreludeExpansion", "Me")
-    val withoutCorporateEra = projection("-CorporateEraExpansion", "Player1", "Player2")
-    val promosUtopiaWithoutCorporateEra =
-        projection(
-            "PromoCardPack, UtopiaMap, -CorporateEraExpansion",
-            "Player1",
-            "Player2",
-        )
-    val promosCimmeriaWithoutCorporateEra =
-        projection(
-            "PromoCardPack, CimmeriaMap, -CorporateEraExpansion",
-            "Player1",
-            "Player2",
-        )
-    val preludeVenusMultiplayer =
-        projection("PreludeExpansion, VenusNextExpansion", "Player1", "Player2")
+  // Compiled projections belong to this test instance, not the test worker's lifetime.
+  private val baseMultiplayer = projection("", "Player1", "Player2")
+  private val threePlayerMultiplayer = projection("", "Player1", "Player2", "Player3")
+  private val baseSolo = projection("", "Me")
+  private val preludeSolo = projection("PreludeExpansion", "Me")
+  private val withoutCorporateEra = projection("-CorporateEraExpansion", "Player1", "Player2")
+  private val promosUtopiaWithoutCorporateEra =
+      projection(
+          "PromoCardPack, UtopiaMap, -CorporateEraExpansion",
+          "Player1",
+          "Player2",
+      )
+  private val promosCimmeriaWithoutCorporateEra =
+      projection(
+          "PromoCardPack, CimmeriaMap, -CorporateEraExpansion",
+          "Player1",
+          "Player2",
+      )
+  private val preludeVenusMultiplayer =
+      projection("PreludeExpansion, VenusNextExpansion", "Player1", "Player2")
 
-    fun projection(config: String, vararg playerNames: String): Projection =
-        Projection(GameConfig(config, *playerNames))
-  }
+  private fun projection(config: String, vararg playerNames: String): Projection =
+      Projection(GameConfig(config, *playerNames))
 
   @Test
   internal fun `SecondPlace incorrectly remains active with only two players`() {

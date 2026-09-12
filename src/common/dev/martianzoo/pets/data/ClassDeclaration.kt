@@ -7,7 +7,7 @@ import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction.Intensity
+import dev.martianzoo.pets.ast.Instruction.Quantifier
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue
@@ -122,6 +122,9 @@ public data class ClassDeclaration(
   public val custom: Boolean = CUSTOM.expression in supertypes
 
   init {
+    require(defaultsDeclaration.forClass in setOf(null, className)) {
+      "$className cannot declare defaults for ${defaultsDeclaration.forClass}"
+    }
     fun hasRefinement(expression: Expression): Boolean =
         expression.refinement != null || expression.arguments.any(::hasRefinement)
     // Rule L1-9: a refined type cannot be a bound, so signature expressions carry no refinements at
@@ -150,9 +153,17 @@ public data class ClassDeclaration(
       val removeOnly: OneDefault = OneDefault(),
       val forClass: ClassName? = null,
   ) {
+    init {
+      require(
+          forClass != null || listOf(universal, gainOnly, removeOnly).all { it == OneDefault() }
+      ) {
+        "defaults without a declaring class cannot be rendered or applied"
+      }
+    }
+
     public data class OneDefault(
         val specs: List<Expression> = emptyList(),
-        val intensity: Intensity? = null,
+        val quantifier: Quantifier? = null,
     )
 
     internal enum class DefaultKind {
@@ -170,18 +181,31 @@ public data class ClassDeclaration(
 
     internal companion object {
       internal fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
+        val owners = defs.mapNotNull { it.forClass }.distinct()
+        require(owners.size <= 1) {
+          "DEFAULT clauses name different classes: ${owners.joinToString()}"
+        }
         return DefaultsDeclaration(
             universal = merge(defs.map { it.universal }),
             gainOnly = merge(defs.map { it.gainOnly }),
             removeOnly = merge(defs.map { it.removeOnly }),
-            forClass = defs.mapNotNull { it.forClass }.distinct().singleOrNull(),
+            forClass = owners.singleOrNull(),
         )
       }
 
       private fun merge(ones: Collection<OneDefault>): OneDefault {
-        val deps = ones.map { it.specs }.firstOrNull { it.isNotEmpty() }.orEmpty()
-        val intensity = ones.firstNotNullOfOrNull { it.intensity }
-        return OneDefault(deps, intensity)
+        val dependencyCandidates = ones.map(OneDefault::specs).filter { it.isNotEmpty() }.distinct()
+        require(dependencyCandidates.size <= 1) {
+          "conflicting dependency defaults: ${dependencyCandidates.joinToString()}"
+        }
+        val quantifierCandidates = ones.mapNotNull(OneDefault::quantifier).distinct()
+        require(quantifierCandidates.size <= 1) {
+          "conflicting quantifier defaults: ${quantifierCandidates.joinToString()}"
+        }
+        return OneDefault(
+            dependencyCandidates.singleOrNull().orEmpty(),
+            quantifierCandidates.singleOrNull(),
+        )
       }
     }
 
@@ -242,11 +266,11 @@ public data class ClassDeclaration(
 
     return buildList {
       if (universal.specs.isNotEmpty()) add("DEFAULT ${universal.expression()}")
-      if (gainOnly.specs.isNotEmpty() || gainOnly.intensity != null) {
-        add("DEFAULT +${gainOnly.expression()}${gainOnly.intensity?.symbol.orEmpty()}")
+      if (gainOnly.specs.isNotEmpty() || gainOnly.quantifier != null) {
+        add("DEFAULT +${gainOnly.expression()}${gainOnly.quantifier?.symbol.orEmpty()}")
       }
-      if (removeOnly.specs.isNotEmpty() || removeOnly.intensity != null) {
-        add("DEFAULT -${removeOnly.expression()}${removeOnly.intensity?.symbol.orEmpty()}")
+      if (removeOnly.specs.isNotEmpty() || removeOnly.quantifier != null) {
+        add("DEFAULT -${removeOnly.expression()}${removeOnly.quantifier?.symbol.orEmpty()}")
       }
       if (isEmpty()) add("DEFAULT $owner")
     }

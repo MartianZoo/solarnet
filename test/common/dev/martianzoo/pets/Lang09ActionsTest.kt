@@ -111,10 +111,10 @@ internal class Lang09ActionsTest {
     immediateToEffect(parse("Widget"), effectIsAutomatic = true)!!.automatic shouldBe true
   }
 
-  // Rendering
+  // L9-7 Rendering
 
   @Test
-  internal fun `L9-1 actions round-trip`() {
+  internal fun `L9-7 actions round-trip`() {
     roundTripAll<Action>(
         """
         -> 2 MC?

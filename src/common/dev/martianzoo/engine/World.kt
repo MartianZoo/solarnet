@@ -43,7 +43,7 @@ public interface World {
   /** The immutable classes available to this world. */
   public val classTable: ClassTable
 
-  /** Whether no task or temporary component remains from an unfinished operation. */
+  /** Whether no task, mandatory cleanup, or temporary component remains unfinished. */
   public fun isIdle(): Boolean =
       tasks.isEmpty() && reader.has(parse("MAX 0 MustCleanUp, MAX 0 Temporary"))
 

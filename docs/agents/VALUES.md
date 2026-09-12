@@ -157,9 +157,10 @@ Keep the substantive reasoning in the owning document and keep this table to one
 
 ### Already being fixed
 
-- **`Temporary` and `MustCleanUp` idle cleanup** —
-  [SEQUENCING.md](SEQUENCING.md#cleanup-vocabulary). One invariant with three satisfaction policies
-  that the declarations do not yet say is one; that document owns the collapse.
+- **Scopes and idle cleanup** — [SEQUENCING.md](SEQUENCING.md#cleanup-vocabulary).
+  `TemporaryScope<Parent>` is the explicit overlap between nested lifetime, idle removal, and
+  mandatory cleanup. Plain whole-World `Temporary` remains distinct while it can legitimately
+  cross a narrower operation boundary.
 - **`CARDS[...]` and the `CardOperation` recognizer** —
   [REAL_CARDS_MODE.md](REAL_CARDS_MODE.md#canonical-card-operation-source). Authored intent is
   discarded and then reconstructed by pattern matching. Known, and owned by that document.
@@ -186,8 +187,13 @@ Pets should read like the physical game: compact, composable, and precise about 
 timing, and choice. Prefer hand-authored Pets plus general runtime semantics. Every custom class or
 instruction shows that Pets cannot yet express part of the game and is therefore a design-failure
 signal, not an ordinary implementation technique. Avoid custom Kotlin whenever a coherent Pets
-formulation exists. When it is unavoidable, keep it minimal and identify the general missing Pets
-capability it exposes; Kotlin-generated Pets is not automatically simpler.
+formulation exists. If custom Kotlin appears unavoidable for a behavior or architecture change,
+stop, identify the general missing Pets capability, and proceed only if the user explicitly selects
+that exception. Keep approved Kotlin minimal; Kotlin-generated Pets is not automatically simpler.
+
+Prototype code is not exempt from these boundaries. If demonstrating a proposed model requires
+mirrored state, a privileged runtime path, Kotlin-generated Pets, or domain-specific engine
+knowledge, stop: that requirement is evidence against the model, not scaffolding to implement.
 
 Components have types and multiplicity, not fields or incidental object identity. A Catalog
 supplies coherent data, Modules select ambient rules, and a GamePremise describes one exact game.

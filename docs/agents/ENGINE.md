@@ -149,7 +149,7 @@ bootstrap task may choose among two or more legal outcomes. Choice-bearing start
 remain an exact premise component and open its choice during `SetupPhase` or later, as selected
 Colonies do. Queued `:` and immediate `::` still have their ordinary semantics; the bootstrap drain
 is not permission to replace one with the other mechanically or to discard a change's `?`, `.`, or
-`!` intensity.
+`!` quantifier.
 
 `drainBootstrapTasks` uses the ActorEngine assigned to each task and selects choice-free work in
 stable insertion order. It does not invent a narrowing for an abstract task: unresolved choice
@@ -366,7 +366,7 @@ Execution accepts a selected Task whose first stage has already been resolved ag
 World. The current executable-first-stage algebra is implicit in `Instructor.doExecuteResolved`:
 
 - `NoOp`;
-- a `Change` with an actual count, mandatory intensity, and concrete component Types;
+- a `Change` with an actual count, mandatory quantifier, and concrete component Types;
 - `By` around executable work, with one concrete participating Actor; or
 - `Then` with an executable first stage and later Pets stages that resolve only when reached.
 

@@ -165,7 +165,9 @@ The container is returned first, then its nested declarations in source order, r
 declaration (T2-1) and re-emitted when the declaration is rendered.
 
 **L1-7. `DEFAULT` clauses name the class that declares them** (T10-3) and are merged into one set
-per use kind (T10-1). A clause naming another class is rejected.
+per use kind (T10-1). Separate compatible clauses may supply the dependency arguments and quantifier
+of one use-kind default. Clauses that disagree about their class, dependency arguments or quantifier
+are rejected; declaration order never selects a winner. A clause naming another class is rejected.
 
 > **Non-normative implementation note — defaults have one source.** No card needs to install a
 > remote class's default. Permitting it would let an unrelated expansion silently change what bare
@@ -411,7 +413,8 @@ declares no type variable (T13-8).
 > cards. Treating the abstract `CardFront` as a choice would capture one expensive card type and ask
 > for three copies of it instead of observing the player's tableau.
 
-**L4-10. Requirements round-trip.** Grouping is re-inserted wherever re-parsing would otherwise read the tree differently.
+**L4-10. Requirements round-trip.** Grouping is re-inserted wherever re-parsing would otherwise
+read the tree differently.
 
 ---
 
@@ -451,7 +454,9 @@ C`, and a metric never goes negative, so `Plant - 20` is 0 rather than a debt.
 
 **L5-6. `A OR B` counts the union of its alternatives without double-counting.** Its arms must be
 plain component counts: subtraction discards the component identity a union needs, so
-`Plant - Steel OR Heat` is rejected. Duplicate alternatives are rejected.
+`Plant - Steel OR Heat` is rejected. Duplicate alternatives written by an author are rejected;
+programmatic construction and later rewrites collapse alternatives that have become equal. A
+single remaining count is no longer a union.
 
 > **Non-normative example — Geologist.** A tile can be both on a volcanic area and adjacent to one.
 > The milestone's union must count that tile once; summing the two arms would let overlapping tiles
@@ -486,7 +491,8 @@ live field is realized where a world is available, and pinned by `engine/RankMet
 > award's metric, then awards first and—when applicable—second place. Lexicographic metrics and a
 > filtered selector let the same machinery represent ties without baking one award into the engine.
 
-**L5-10. Metrics round-trip.** Grouping is re-inserted wherever re-parsing would otherwise read the tree differently.
+**L5-10. Metrics round-trip.** Grouping is re-inserted wherever re-parsing would otherwise read the
+tree differently.
 
 ---
 
@@ -540,12 +546,15 @@ parenthesized. A gate does not directly contain another gate.
 > `MAX 0 Energy`. The requirement decides whether that result is available; it is not another arm a
 > player can narrow or waive after choosing the action.
 
-**L6-7. `I OR J` is a choice among alternatives.** Duplicate alternatives are rejected rather than
-collapsed. An `OR` is always open (L7-1), because the choice is the point.
+**L6-7. `I OR J` is a choice among alternatives.** Duplicate alternatives written by an author are
+rejected. Programmatic construction and later rewrites collapse arms that have become equal, and a
+single remaining outcome is no longer an `OR`. An `OR` that remains is always open (L7-1), because
+the choice is the point.
 
 > **Non-normative example — Atmo Collectors.** Spending one floater offers 2 titanium, 3 energy, or
-> 4 heat. Those are three player choices even if two happened to elaborate to equal-looking state
-> changes; silently collapsing authored arms would erase a decision the card explicitly offers.
+> 4 heat. Those remain three player choices because their resulting changes are distinct. By
+> contrast, two context-dependent spellings that elaborate to the same change offer only one
+> resulting move, so retaining both would present a meaningless duplicate choice.
 
 **L6-8. `,` separates independent instructions and has the lowest precedence.** The result is a
 *group*, not one instruction: nothing in this language relates the members of a group to each other,
@@ -658,7 +667,7 @@ narrowing; declining `2 Plant!` or `2 Plant.` is not.
 > realization of the selected optional removal. Letting it replace a mandatory or
 > as-much-as-possible loss would turn “may remove” into a universal escape hatch.
 
-**L7-5. A gate, a `PER` metric, a `BY` actor and an `EACH` selector are not choices.** A proposal
+**L7-5. A gate, a `/` metric, a `BY` actor and an `EACH` selector are not choices.** A proposal
 must reproduce each of them exactly; only what they contain may narrow.
 
 > **Non-normative example — Saturn Surfing.** Its payout is scaled by the floaters on that card and
@@ -735,11 +744,10 @@ of components matching it.
 
 **L8-4. A self trigger is not a subscription to its own type.** There is no way to spell one as the
 other: writing the bare `This` placeholder as a subscription target *is* the self trigger, however
-its empty argument list was written (L3-5). The two say
-different things — `This` is about changes to this very component, and scales its instruction by the
-number of copies changed, while a subscription is about changes anywhere that match an expression,
-and is carried once per copy of the effect-bearing component. How many times each actually fires is
-`ENGINE.md`'s subject.
+its empty argument list was written (L3-5). The two say different things — `This` is about changes
+to this very component, and scales its instruction by the number of copies changed, while a
+subscription is about changes anywhere that match an expression, and is carried once per copy of the
+effect-bearing component. How many times each actually fires is `ENGINE.md`'s subject.
 
 > **Non-normative example — played events.** The generic event rule's `-This` follows the removal of
 > that exact face-up event into `PlayedEvent<Class<This>>`. A subscription to the card's type could
@@ -789,8 +797,6 @@ effect's own colon stays unambiguous.
 > effect's trigger separator from a requirement gate inside its result. Without parentheses, parsing
 > the rendered form could attach the gate to the trigger and produce a different rule.
 
-
-
 ---
 
 ## 9. Actions
@@ -838,6 +844,9 @@ now" section becomes an ordinary rule; an immediate `Ok` produces no effect at a
 > **Non-normative example — Protected Valley.** Its immediate production increase and special greenery
 > placement are written `This: ...`, so they happen when that card component enters play. Treating
 > the instruction as free-floating would offer the bonus without playing the card.
+
+**L9-7. Actions round-trip.** The cost keeps its authored form, and the result's grouping is
+L6-13's.
 
 ---
 
@@ -1038,11 +1047,10 @@ on a removal is not an error: it simply does not receive the removal-only depend
 all-use defaults (L12-4) still apply. `-Marker<>` accepts them.
 
 > **Non-normative example — debt removal.** The symmetric rule — a gain *or* removal must opt in —
-> is the
-> tempting one, and it is wrong. Requiring it of removals rejects `-Owed`, written bare in the
-> action payment lowering, and with it `CryoSleepTest`, `AridorTest`, `DistantPressureMassTest`,
-> three whole-game replays and two integration suites. A removal names a component that already
-> exists; there is no placement left to default.
+> is the tempting one, and it is wrong. Requiring it of removals rejects `-Owed`, written bare in
+> the action payment lowering, and with it `CryoSleepTest`, `AridorTest`,
+> `DistantPressureMassTest`, three whole-game replays and two integration suites. A removal names a
+> component that already exists; there is no placement left to default.
 
 **L12-7. `Foo<>` is invalid where that use has no dependency defaults to accept.** An empty list is
 an acceptance, not merely a second spelling of the same expression.
@@ -1108,10 +1116,12 @@ it is reacting to.
 > `Placement<This>: Plant` rule must give the plant to whoever placed there. Adding `BY Owner` to the
 > trigger captures that actor instead of leaving the reward ownerless or assigning it to the area.
 
-**L12-14. A change to a type this game cannot hold becomes `Die` or `Ok`.** When a specialized
-instruction names a type that is not active (T12-1), a mandatory change becomes a gain of `Die` — an
-instruction that can never be carried out — and an optional one becomes `Ok`. This keeps a rule that
-mentions absent content from silently succeeding.
+**L12-14. A change to a type this game cannot hold becomes `Die` or `Ok`.** A type expression that
+becomes invalid when specialization substitutes a dependency outside its declared bound (T3-4,
+T3-5) becomes a gain of `Die`, so the invalid branch can never be carried out. When a specialized
+instruction instead names a resolved type that is not active (T12-1), a mandatory change becomes
+`Die` and a change that permits zero becomes `Ok`. This keeps a rule that mentions absent content
+from silently succeeding.
 
 > **Non-normative implementation note — cross-expansion safety.** Cimmeria conditionally grants a
 > colony only with the Colonies expansion. If specialization nevertheless reaches an inactive

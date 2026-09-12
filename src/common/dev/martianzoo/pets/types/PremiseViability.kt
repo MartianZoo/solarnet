@@ -4,9 +4,9 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gated
-import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Or as InstructionOr
 import dev.martianzoo.pets.ast.Instruction.Per
+import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
@@ -58,8 +58,8 @@ internal object PremiseViability {
         is Change ->
             tree.removing?.takeIf {
               interpreter.expressionIsUninhabited(it) &&
-                  (tree.intensity ?: table.getClass(it.className).defaults.removeOnly.intensity) ==
-                      MANDATORY
+                  (tree.quantifier
+                      ?: table.getClass(it.className).defaults.removeOnly.quantifier) == MANDATORY
             }
         else ->
             tree.immediateChildren().filterIsInstance<InstructionTree>().firstNotNullOfOrNull {
