@@ -10,9 +10,9 @@
 > **Skip when:** running routine verification; use [TESTING.md](TESTING.md). Do not treat these
 > measurements as current configuration requirements.
 >
-> **Status:** dated research from 2026-08-23, 2026-09-06, 2026-09-10, and 2026-09-11 on the development host.
-> Treat absolute times as noisy: other JVM processes were consuming substantial CPU during the
-> baseline. Relative structure and the large parallel-speedup signal are still clear.
+> **Status:** dated research through 2026-09-12 on the development host. Treat absolute times as
+> noisy: other JVM processes were consuming substantial CPU during some baselines. Relative
+> structure and the large speedup signals are still clear.
 
 ## Configuration entry points
 
@@ -236,6 +236,27 @@ present, the two Terraforming Mars workers peaked at 744 and 612 MiB immediately
 After the Effect copy fix, they peaked at 274 and 278 MiB, with no full collections. The final run
 passed all 1,462 tests in the current JVM modules in 4m57s. These are GC-log heap measurements, not
 whole-process resident memory; the timings include compilation and host contention.
+
+## 2026-09-12 premise-delta reuse result
+
+Terraforming Mars game setup no longer composes and compiles a new Canon catalog containing its
+Players and generated `Premise`. Canon supplies one reusable master class table; each game builds a
+small `PremiseClassTable` delta and constructs only those premise-local Classes. Master Classes and
+Types retain identity across games, while structural operations that mention premise Classes use
+the combined universe.
+
+The focused command below ran the 11 `ClassTableProjectionTest` cases before and after the change:
+
+`./gradlew :tfm-tests:jvmTest --tests dev.martianzoo.tfm.tests.rules.ClassTableProjectionTest --rerun-tasks --console=plain`
+
+After the final correctness changes, including removal of an invalid abstract-`glb` overlap
+shortcut, two isolated repeats each produced exactly one fresh XML suite with 11 tests and no
+failures. Their suite times were 2.840s and 3.125s. Compared with the 11.463s baseline, that is
+72.7–75.2% less time and 3.67–4.04x throughput. The source was copied to a temporary path for these
+repeats because another Gradle worker was using this worktree's generated-output directory; the
+copy gave the repository's isolation script a distinct build root. A final complete JVM suite
+passed in 2m, but concurrent Gradle activity makes that wall time unsuitable for comparison with
+the earlier whole-suite snapshot.
 
 ## Priorities suggested by the data
 

@@ -33,6 +33,7 @@ public class ClassLoader
 private constructor(
     internal override val catalog: Catalog,
     private val masterSource: ClassTable?,
+    private val premiseDeclarations: Map<ClassName, ClassDeclaration> = emptyMap(),
     private val blockedActivations: Map<ClassName, Set<ClassName>> = emptyMap(),
     private val configuredModuleNames: Set<ClassName> = emptySet(),
     private val configuredClassSelections: Set<ClassSelection> = emptySet(),
@@ -46,7 +47,8 @@ private constructor(
 
   internal override val masterTable: ClassTable = masterSource ?: this
 
-  private val knownClassNames: Set<ClassName> = masterSource?.allClassNames ?: catalog.allClassNames
+  private val knownClassNames: Set<ClassName> =
+      (masterSource?.allClassNames ?: catalog.allClassNames) + premiseDeclarations.keys
 
   private val cache = mutableMapOf<Expression, GroundType>()
 
@@ -76,6 +78,7 @@ private constructor(
 
   private val loadedClasses =
       mutableMapOf<ClassName, Class?>(COMPONENT to componentClass, CLASS to classClass)
+  private val activeClassNames = linkedSetOf(COMPONENT, CLASS)
 
   /**
    * Returns the already loaded class named [name], or null; exact-name lookup during loading
@@ -83,11 +86,10 @@ private constructor(
    * [rules T1-6 and T1-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   override fun findClass(name: ClassName): Class? {
-    if (masterSource != null) return masterSource.findClass(name)
     return if (name in loadedClasses) {
       loadedClasses[name] ?: throw PetException("Class-loading cycle involving $name")
     } else {
-      null
+      masterSource?.findClass(name)
     }
   }
 
@@ -98,7 +100,22 @@ private constructor(
    * @throws ExpressionException if [expression] is invalid in this universe.
    */
   override fun resolve(expression: Expression): GroundType {
-    if (masterSource != null) return masterSource.resolve(expression)
+    cache[expression]?.let {
+      return it
+    }
+
+    if (masterSource != null) {
+      var requiresCombinedTable = false
+      expression.visitDescendants { node ->
+        if (node is Not || (node is ClassName && node in premiseDeclarations)) {
+          requiresCombinedTable = true
+        }
+        !requiresCombinedTable
+      }
+      if (!requiresCombinedTable) {
+        return masterSource.resolve(expression).also { cache[expression] = it }
+      }
+    }
     expression.refinement?.conjuncts()?.filterIsInstance<Not>()?.forEach { refinement ->
       fun containsRefinement(candidate: Expression): Boolean =
           candidate.refinement != null || candidate.arguments.any(::containsRefinement)
@@ -107,15 +124,15 @@ private constructor(
       }
     }
     // Avoiding computeIfAbsent due to CME
-    return cache[expression]
-        ?: try {
-          getClass(expression.className)
-              .specialize(expression.arguments)
-              .refine(expression.refinement)
-              .also { cache[expression] = it }
-        } catch (e: RuntimeException) {
-          throw ExpressionException("can't resolve $expression", e)
-        }
+    return try {
+      getClass(expression.className)
+          .specialize(expression.arguments, this)
+          .inTable(this)
+          .refine(expression.refinement)
+          .also { cache[expression] = it }
+    } catch (e: RuntimeException) {
+      throw ExpressionException("can't resolve $expression", e)
+    }
   }
 
   private lateinit var frozenClasses: Set<Class>
@@ -127,6 +144,13 @@ private constructor(
   override fun allClasses(): Set<Class> {
     require(frozen) { "this class table must be frozen before its classes can be enumerated" }
     return frozenClasses
+  }
+
+  override fun allKnownClasses(): Set<Class> {
+    require(frozen) { "this class table must be frozen before its classes can be enumerated" }
+    if (masterSource == null) return frozenClasses
+    return masterSource.allKnownClasses() +
+        premiseDeclarations.keys.mapTo(linkedSetOf()) { name -> getClass(name) }
   }
 
   // LOADING
@@ -174,25 +198,26 @@ private constructor(
   }
 
   private fun enqueue(names: Collection<ClassName>, requestedByClass: ClassName?) {
-    (names - loadedClasses.keys - queue).forEach { name ->
+    (names - activeClassNames - queue).forEach { name ->
       requestedBy[name] = requestedByClass
       queue += name
     }
   }
 
   internal fun loadRelated(next: ClassName, active: Boolean): Class {
-    if (masterSource != null) {
+    if (masterSource != null && next !in premiseDeclarations) {
       val klass = masterSource.getClass(next)
-      if (active && next !in loadedClasses) loadedClasses[next] = klass
+      if (active) activeClassNames += next
       return klass
     }
     if (next in loadedClasses) {
-      return loadedClasses[next] ?: throw PetException("Class-loading cycle involving $next")
+      return (loadedClasses[next] ?: throw PetException("Class-loading cycle involving $next"))
+          .also { if (active) activeClassNames += next }
     }
     val declaration = knownDeclaration(next)
     validateClassNames(declaration)
     validateNoEffectCreatesClass(declaration)
-    return construct(declaration)
+    return construct(declaration, active).also { if (active) activeClassNames += next }
   }
 
   private fun validateNoEffectCreatesClass(declaration: ClassDeclaration) {
@@ -232,7 +257,7 @@ private constructor(
    * Trigger or gate reachable. The closure is monotone: Classes only become active.
    */
   private fun enqueueReachableActivationEdges() {
-    val activeNames = loadedClasses.keys
+    val activeNames = activeClassNames
     (activeNames - COMPONENT - CLASS).forEach { name ->
       enqueue(activationEdges(knownDeclaration(name), activeNames) - THIS, name)
     }
@@ -304,31 +329,41 @@ private constructor(
 
   private fun configuredCount(expression: Expression): Int? {
     if (masterSource == null || !expression.simple || expression.className == THIS) return null
-    val countedClass = masterSource.getClass(expression.className)
+    val countedClass = loadRelated(expression.className, active = false)
+    val masterSubclasses =
+        if (countedClass.classTable === masterSource) countedClass.allSubclasses() else emptySet()
+    val premiseSubclasses =
+        premiseDeclarations.keys
+            .asSequence()
+            .map { name -> loadRelated(name, active = false) }
+            .filter { candidate -> candidate.isSubtypeOf(countedClass) }
+            .toSet()
     val concreteSubclassNames =
-        countedClass
-            .allSubclasses()
+        (masterSubclasses + premiseSubclasses)
             .filterNot(Class::abstract)
             .mapTo(linkedSetOf(), Class::className)
     if (concreteSubclassNames.isEmpty()) return null
     if (catalog.modules.keys.containsAll(concreteSubclassNames)) {
       return configuredModuleNames.count { moduleName ->
-        masterSource.getClass(moduleName).isSubtypeOf(countedClass)
+        loadRelated(moduleName, active = false).isSubtypeOf(countedClass)
       }
     }
     val selections = configuredClassSelections.associateBy(ClassSelection::className)
     if (!selections.keys.containsAll(concreteSubclassNames)) return null
     return selections.values.count { selection ->
-      selection.included && masterSource.getClass(selection.className).isSubtypeOf(countedClass)
+      selection.included &&
+          loadRelated(selection.className, active = false).isSubtypeOf(countedClass)
     }
   }
 
   private fun loadSingle(name: ClassName): Class =
-      loadedClasses[name] ?: loadRelated(name, active = true)
+      findClass(name)?.also { activeClassNames += name } ?: loadRelated(name, active = true)
 
   // All classes are created here (aside from Component and Class, at top).
-  private fun construct(source: ClassDeclaration): Class {
-    check(masterSource == null) { "a projection must not construct Classes" }
+  private fun construct(source: ClassDeclaration, activateRelated: Boolean = true): Class {
+    check(masterSource == null || source.className in premiseDeclarations) {
+      "a game projection may construct only premise Classes"
+    }
     require(!frozen) { "Too late, this class table is frozen!" }
     val decl = validateCustomImplementation(source)
 
@@ -337,7 +372,7 @@ private constructor(
     }
     store(null) // to detect reentrancy
     try {
-      val klass = Class(decl, this)
+      val klass = Class(decl, this, activateRelated)
       validateCustomInheritance(klass)
       store(klass)
       return klass
@@ -403,7 +438,22 @@ private constructor(
   internal fun freeze(): ClassTable {
     require(!frozen)
     if (masterSource != null) {
-      frozenClasses = loadedClasses.keys.mapTo(linkedSetOf(), masterTable::getClass)
+      premiseDeclarations.values.forEach { declaration ->
+        if (declaration.className !in loadedClasses) construct(declaration, activateRelated = false)
+      }
+      val premiseClasses =
+          premiseDeclarations.keys.mapTo(linkedSetOf()) { name ->
+            checkNotNull(loadedClasses[name])
+          }
+      allSubclassesByClass = premiseClasses.associateWith { klass ->
+        premiseClasses.filterTo(linkedSetOf()) { candidate -> candidate.isSubtypeOf(klass) }
+      }
+      directSubclassesByClass = premiseClasses.associateWith { klass ->
+        premiseClasses.filterTo(linkedSetOf()) { candidate ->
+          klass in candidate.directSuperclasses
+        }
+      }
+      frozenClasses = activeClassNames.mapTo(linkedSetOf(), ::getClass)
       frozen = true
       return this
     }
@@ -455,7 +505,7 @@ private constructor(
   public override val allClassNames: Set<ClassName>
     get() {
       require(frozen) { "this class table must be frozen before its classes can be enumerated" }
-      return loadedClasses.keys
+      return if (masterSource == null) loadedClasses.keys else activeClassNames
     }
 
   /**
@@ -466,7 +516,8 @@ private constructor(
   override fun toString(): String = "loader$id"
 
   private fun knownDeclaration(name: ClassName): ClassDeclaration =
-      masterSource?.getClass(name)?.declaration
+      premiseDeclarations[name]
+          ?: masterSource?.getClass(name)?.declaration
           ?: catalog.allClassDeclarations[name]
           ?: throw Exceptions.classNotFound(name)
 
@@ -489,10 +540,11 @@ private constructor(
 
     internal fun projection(
         catalog: Catalog,
-        masterTable: ClassTable,
+        premiseTable: PremiseClassTable,
         configuredModuleNames: Set<ClassName>,
         configuredClassSelections: Set<ClassSelection>,
     ): ClassLoader {
+      val masterTable = premiseTable.master
       require(masterTable.masterTable === masterTable) {
         "Catalog class table is not a master table"
       }
@@ -507,6 +559,7 @@ private constructor(
       return ClassLoader(
           catalog,
           masterTable,
+          premiseTable.declarations,
           blocked,
           configuredModuleNames,
           configuredClassSelections,

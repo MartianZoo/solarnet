@@ -58,6 +58,19 @@ internal class GamePremiseTest {
   }
 
   @Test
+  internal fun ordinaryPremisesReuseCanonAndOwnTheirGeneratedClasses() {
+    val premise = Canon.gamePremise(GameConfig("", "Player1", "Player2"))
+    val table = premise.classTable
+
+    assertSame(Canon, premise.catalog)
+    assertSame(Canon.classTable, premise.premiseClassTable.master)
+    assertSame(Canon.classTable.getClass(cn("Card")), table.getClass(cn("Card")))
+    Canon.classTable.findClass(cn("Player1")) shouldBe null
+    table.getClass(cn("Player1")).classTable shouldBe table
+    table.getClass(cn("Premise")).classTable shouldBe table
+  }
+
+  @Test
   internal fun worldsFromOnePremiseShareTheClassModelButNotLiveState() {
     val premise = Canon.gamePremise(GameConfig("", "Player1", "Player2"))
     val first = Engine.newGame(premise)

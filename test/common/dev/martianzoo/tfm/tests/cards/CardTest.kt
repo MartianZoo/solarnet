@@ -14,7 +14,6 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.TaskResult
-import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestOption as Option
@@ -73,53 +72,23 @@ internal abstract class CardTest(
         if (additional.isEmpty()) {
           commonSetup(selectedOptions.toSet(), players, colonyTiles)
         } else {
-          withAdditionalSelections(
-              canonicalPremise(
-                  *selectedOptions,
-                  players = players,
-                  colonyTiles = colonyTiles,
-                  catalog =
-                      composeAdditions(
-                          canonicalCatalog(Option.FakeStuffBundle in selectedOptions),
-                          players,
-                          additional,
-                      ),
-              ),
-              additional,
+          canonicalPremise(
+              *selectedOptions,
+              players = players,
+              colonyTiles = colonyTiles,
+              catalog = canonicalCatalog(Option.FakeStuffBundle in selectedOptions),
+              additionalClassDeclarations = additional,
           )
         }
     return premise
   }
 
-  /**
-   * Composes [additional] onto [base], seating [players] first so that a declaration naming a
-   * specific player resolves when it loads.
-   */
-  private fun composeAdditions(
-      base: TfmCatalog,
-      players: Int,
-      additional: Set<ClassDeclaration>,
-  ): TfmCatalog =
-      TfmCatalog.compose(
-          base.withPlayers(players),
-          object : TfmCatalog() {
-            override val explicitClassDeclarations = additional
-          },
-      )
-
   private fun premise(config: GameConfig): GamePremise {
     val additional = additionalClassDeclarations(config.playerNames.size)
     val base = canonicalCatalog(config)
     if (additional.isEmpty()) return base.gamePremise(config)
-    val premiseCatalog = composeAdditions(base, config.playerNames.size, additional)
-    return withAdditionalSelections(premiseCatalog.gamePremise(config), additional)
-  }
-
-  private fun withAdditionalSelections(
-      premise: GamePremise,
-      additional: Set<ClassDeclaration>,
-  ): GamePremise {
     val additionalClassNames = additional.map(ClassDeclaration::className)
+    val premise = base.gamePremise(config, additionalClassDeclarations = additional)
     return premise.copy(
         classSelections = premise.classSelections + additionalClassNames.map(::ClassSelection)
     )

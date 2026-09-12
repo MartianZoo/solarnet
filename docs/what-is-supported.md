@@ -6,7 +6,7 @@ Most of the published game content is working... and mostly correctly.[^heroku-s
 
 | Product | Corps | Projects | Preludes | Maps | Tile types | Std projects | Milestones | Awards | Global params | Global events | Game phases | Other |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| TOTALS | 44 / 48 | 394 / 426 | 62 / 71 | 7 / 7 | 17 / 18 | 9 / 10 | 47 / 49 | 39 / 40 | 8 / 8 | 0 / 36 | 12 / 13 | 11 / 17 named items; no Automa |
+| TOTALS | 44 / 48 | 395 / 426 | 62 / 71 | 7 / 7 | 17 / 18 | 9 / 10 | 47 / 49 | 39 / 40 | 8 / 8 | 0 / 36 | 12 / 13 | 11 / 17 named items; no Automa |
 | Terraforming Mars | 9 / 11 | 137 / 137 | - | 1 / 1 | 10 / 10 | 7 / 7 | 5 / 5 | 5 / 5 | 3 / 3 | - | 9 / 9 | - |
 | Corporate Era | 2 / 2 | 71 / 71 | - | - | 4 / 4 | - | - | - | - | - | - | - |
 | Hellas & Elysium | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | - | - | - | - |
@@ -19,7 +19,7 @@ Most of the published game content is working... and mostly correctly.[^heroku-s
 | Utopia & Cimmeria | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | - | - | - | - |
 | Automa | - | - | - | - | 0 / 1 | - | - | - | - | - | - | the whole thing |
 | Milestones & Awards | - | - | - | - | - | - | 33 / 35 | 34 / 35 | - | - | - | - |
-| Promos through 2026-08 | 9 / 10 | 70 / 73 | 9 / 11 | - | 3 / 3 | - | - | - | - | 0 / 5 | - | - |
+| Promos through 2026-08 | 9 / 10 | 71 / 73 | 9 / 11 | - | 3 / 3 | - | - | - | - | 0 / 5 | - | - |
 
 Totals count each distinct published goal definition once. Product rows count the contents of that
 product, including goals reprinted from another product.
@@ -43,7 +43,6 @@ product, including goals reprinted from another product.
 | Milestones & Awards | Milestone | Lobbyist | Turmoil support |
 | Milestones & Awards | Award | Politician | Turmoil support |
 | Promos through 2026-08 | Project | New Holland | Hybrid tile |
-| Promos through 2026-08 | Project | Mars Nomads (`X59`) | Non-tiles on map |
 | Promos through 2026-08 | Project | Self-Replicating Robots (`210`) | Printed tags while staged |
 | Promos through 2026-08 | Prelude | Established Methods (`X54`) | (investigate) |
 | Promos through 2026-08 | Prelude | Head Start | Immediate-action sequencing |

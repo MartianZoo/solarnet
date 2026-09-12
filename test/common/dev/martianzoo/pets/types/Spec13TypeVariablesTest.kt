@@ -1,14 +1,22 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Then
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.typeVariablesFor
+import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Catalog
+import dev.martianzoo.pets.data.GamePremise
+import dev.martianzoo.pets.util.Multiset
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -178,6 +186,44 @@ internal class Spec13TypeVariablesTest {
     first.typeVariables.variables.single().bound shouldBe firstTable.resolve(te("Person"))
     second.typeVariables.variables.single().bound shouldBe secondTable.resolve(te("Person"))
     source.typeVariables.isEmpty shouldBe true
+  }
+
+  @Test
+  internal fun `T13-3 choice inference uses the game universe for premise Classes`() {
+    val sourceCatalog = testCatalog("ABSTRACT CLASS Master")
+    val premise =
+        GamePremise(
+            catalog = sourceCatalog,
+            modules = emptySet(),
+            classSelections = emptySet(),
+            initialComponentTypes = emptySet(),
+            premiseClassDeclarations = parseClasses("ABSTRACT CLASS Local").toSet(),
+        )
+    val reader =
+        object : GameReader {
+          override val actors: List<Actor> = emptyList()
+          override val catalog: Catalog = sourceCatalog
+          override val classTable: ClassTable = premise.classTable
+
+          override fun resolve(expression: Expression): Type = classTable.resolve(expression)
+
+          override fun isAbstract(e: Expression): Boolean = error("unused")
+
+          override fun ensureNarrows(wide: Expression, narrow: Expression): Unit = error("unused")
+
+          override fun has(requirement: Requirement): Boolean = error("unused")
+
+          override fun count(metric: Metric): Int = error("unused")
+
+          override fun count(type: Type): Int = error("unused")
+
+          override fun countComponent(concreteType: Type): Int = error("unused")
+
+          override fun getComponents(type: Type): Multiset<Type> = error("unused")
+        }
+    val instruction = parse<Instruction>("Local THEN Local")
+
+    names(instruction.typeVariablesFor(reader)) shouldContainExactly listOf("Local")
   }
 
   @Test

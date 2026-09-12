@@ -19,17 +19,19 @@ import dev.martianzoo.pets.types.Dependency.TypeDependency
  * root class outside them. Combining sets from different universes throws
  * [IllegalArgumentException], implementing the universe-mismatch failure in rule T1-2.
  */
-public class DependencySet private constructor(private val deps: List<Dependency>) :
-    Specification<DependencySet> {
+public class DependencySet
+private constructor(
+    private val deps: List<Dependency>,
+    internal val classTable: ClassTable?,
+) : Specification<DependencySet> {
 
   internal companion object {
     internal fun of(deps: Iterable<Dependency>): DependencySet {
       val ordered = if (deps is List<Dependency>) deps else deps.toList()
-      Dependency.validate(ordered)
-      return DependencySet(ordered)
+      return DependencySet(ordered, Dependency.validate(ordered))
     }
 
-    internal fun of() = DependencySet(emptyList())
+    internal fun of() = DependencySet(emptyList(), null)
   }
 
   /**
@@ -90,8 +92,6 @@ public class DependencySet private constructor(private val deps: List<Dependency
 
   internal val representedClass: Class? =
       if (isForClassType(deps)) getClassForClassType(deps) else null
-
-  internal val classTable: ClassTable? = deps.firstOrNull()?.boundClass?.classTable
 
   internal fun expressions(): List<Expression> = deps.map { it.expression }
 
@@ -210,18 +210,20 @@ public class DependencySet private constructor(private val deps: List<Dependency
         if (this@DependencySet.getIfPresent(dependency.key) == null) add(dependency)
       }
     }
-    return DependencySet(merged)
+    return of(merged)
   }
 
   internal fun minus(that: DependencySet): DependencySet {
     requireSameClassTable(that)
-    return DependencySet(this.deps - that.deps)
+    return of(this.deps - that.deps)
   }
 
   @PublishedApi
   internal fun requireSameClassTable(that: DependencySet) {
     if (classTable != null && that.classTable != null) {
-      require(classTable === that.classTable) { "dependencies belong to different class tables" }
+      require(classTable!!.commonTable(that.classTable!!) != null) {
+        "dependencies belong to different class tables"
+      }
     }
   }
 
@@ -230,22 +232,22 @@ public class DependencySet private constructor(private val deps: List<Dependency
   /** Returns a submap of this map where every key is one of [keysInOrder]. */
   internal fun subMapInOrder(keysInOrder: Iterable<Key>): DependencySet {
     if (keysInOrder == keys) return this
-    return DependencySet(keysInOrder.mapNotNull(::getIfPresent))
+    return of(keysInOrder.mapNotNull(::getIfPresent))
   }
 
   private inline fun map(function: (GroundType) -> GroundType) =
-      DependencySet(deps.map { if (it is TypeDependency) it.map(function) else it })
+      of(deps.map { if (it is TypeDependency) it.map(function) else it })
 
   internal inline fun mapWithKey(function: (Key, GroundType) -> GroundType) =
-      DependencySet(
+      of(
           deps.map {
             if (it is TypeDependency) it.map { type -> function(it.key, type) } else it
           }
       )
 
-  internal fun specialize(specs: List<Expression>): DependencySet {
+  internal fun specialize(specs: List<Expression>, classTable: ClassTable): DependencySet {
     // This has been a bit optimized
-    val partial = matchPartial(specs)
+    val partial = matchPartial(specs, classTable)
     return of(deps.map { partial.getIfPresent(it.key) ?: it })
   }
 
@@ -253,13 +255,17 @@ public class DependencySet private constructor(private val deps: List<Dependency
     val firstKey = path.keyList.first()
     if (path.keyList.size == 1) {
       require(replacement.key == firstKey)
-      return DependencySet(deps.map { if (it.key == firstKey) replacement else it })
+      return of(deps.map { if (it.key == firstKey) replacement else it })
     }
 
-    fun GroundType.replaceNested(): GroundType =
-        rootClass
-            .withAllDependencies(dependencies.replaceAt(path.drop(1), replacement))
-            .refine(refinement)
+    fun GroundType.replaceNested(): GroundType {
+      val rebuilt = rootClass.withAllDependencies(dependencies.replaceAt(path.drop(1), replacement))
+      val commonTable =
+          requireNotNull(classTable.commonTable(rebuilt.classTable)) {
+            "$this and $rebuilt belong to unrelated class tables"
+          }
+      return rebuilt.inTable(commonTable).refine(refinement)
+    }
 
     val first = get(firstKey)
     val narrowed = (first as TypeDependency).copy(boundType = first.boundType.replaceNested())
@@ -274,16 +280,23 @@ public class DependencySet private constructor(private val deps: List<Dependency
    * are omitted. An argument with no compatible untaken dependency is an expression error.
    */
   public fun matchPartial(args: List<Expression>): DependencySet {
-    return of(matchPartialInOrder(args))
+    val classTable = requireNotNull(classTable) { "empty dependencies cannot match arguments" }
+    return matchPartial(args, classTable)
   }
 
-  internal fun matchPartialInOrder(args: List<Expression>): List<Dependency> {
+  internal fun matchPartial(args: List<Expression>, classTable: ClassTable): DependencySet =
+      of(matchPartialInOrder(args, classTable))
+
+  internal fun matchPartialInOrder(
+      args: List<Expression>,
+      classTable: ClassTable = requireNotNull(this.classTable),
+  ): List<Dependency> {
     val alreadyMatched = mutableSetOf<Dependency>()
 
     fun matchToDependency(arg: Expression): Dependency {
       deps.forEach { dependency ->
         if (dependency !in alreadyMatched) {
-          dependency.intersect(arg)?.let {
+          dependency.intersect(arg, classTable)?.let {
             alreadyMatched += dependency
             return it
           }
@@ -308,6 +321,22 @@ public class DependencySet private constructor(private val deps: List<Dependency
     }
     return concreteSubtypesSameClass(type) { dependency ->
       table.allConcreteSubtypes(dependency)
+    }
+  }
+
+  internal fun structuralConcreteSubtypesSameClass(
+      type: GroundType,
+      table: ClassTable,
+  ): Sequence<GroundType> {
+    if (isForClassType(deps)) {
+      return table
+          .allStructuralSubclasses(getClassForClassType(deps))
+          .asSequence()
+          .filterNot(Class::abstract)
+          .map { it.classType }
+    }
+    return concreteSubtypesSameClass(type) { dependency ->
+      table.allStructuralConcreteSubtypes(dependency)
     }
   }
 
