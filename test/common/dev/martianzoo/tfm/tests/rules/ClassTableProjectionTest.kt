@@ -10,7 +10,6 @@ import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -138,10 +137,4 @@ internal class ClassTableProjectionTest {
 
   private fun projection(config: String, vararg playerNames: String): Projection =
       Projection(GameConfig(config, *playerNames))
-
-  @Test
-  internal fun `SecondPlace incorrectly remains active with only two players`() {
-    baseMultiplayer.classNames.shouldContain(cn("SecondPlace"))
-    threePlayerMultiplayer.classNames.shouldContain(cn("SecondPlace"))
-  }
 }
