@@ -31,7 +31,7 @@ internal class AdditionalGoalsTest : CardTest() {
     p1.runOperation("Chairman FROM ReserveDelegate")
     admin.phase("Action")
     shouldThrow<RequirementException> { p1.claimMilestone(cn("Lobbyist")) }
-    p1.stdAction("LobbyAction", 1) { doTask("PartyDelegate<Scientists> FROM LobbyDelegate") }
+    p1.stdAction("LobbyAction", 1) { doTask("PartyDelegate<Scientists> FROM ReserveDelegate") }
     p1.claimMilestone(cn("Lobbyist")).expect("-8 MC, Lobbyist")
   }
 

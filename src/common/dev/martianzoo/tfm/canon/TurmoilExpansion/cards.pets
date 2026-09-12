@@ -201,22 +201,13 @@ CLASS AerialLenses : AutomatedCard {
   End: -VictoryPoint
 }
 
-CLASS BannedDelegate : EventCard {
-  cost = 0
-  requirement = HAS "Chairman"
-
-  This:: EventTag<This>
-  This: BannedDelegateRemoval<Party, Anyone>. / \
-    (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1
-}
-
 CLASS CulturalMetropolis : AutomatedCard {
   cost = 20
   requirement = HAS "(Ruling<Unity> OR 2 PartyDelegate<Unity>), 2 ReserveDelegate"
 
   This:: CityTag<This>, BuildingTag<This>
   This: PROD[-Energy, 3 MC], CityTile<>, \
-    PartyDelegate<Party> FROM ReserveDelegate THEN PartyDelegate<Party> FROM ReserveDelegate
+    PlaceReserveDelegate<Party> THEN PlaceReserveDelegate<Party>
 }
 
 CLASS DiasporaMovement : AutomatedCard {
@@ -250,7 +241,7 @@ CLASS MartianMediaCenter : ActionCard, ActiveCard {
 
   This:: BuildingTag<This>
   This: PROD[2 MC]
-  3 MC -> PartyDelegate<Party> FROM ReserveDelegate
+  3 MC -> PlaceReserveDelegate<Party>
 }
 
 CLASS ParliamentHall : AutomatedCard {
@@ -324,7 +315,8 @@ CLASS VoteOfNoConfidence : EventCard {
   requirement = HAS "PartyLeader, Chairman<Neutral>, ReserveDelegate"
 
   This:: EventTag<This>
-  This: ReserveDelegate<Neutral> FROM Chairman<Neutral> THEN Chairman FROM ReserveDelegate, TerraformRating
+  This: ReserveDelegate<Neutral> FROM Chairman<Neutral> THEN \
+    Chairman FROM ReserveDelegate, TerraformRating
 }
 
 // Supporting declarations contributed by cards in this expansion.

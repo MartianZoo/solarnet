@@ -7,11 +7,12 @@ import kotlin.test.Test
 
 internal class FakeSeptemTribusTest : CardTest() {
   @Test
-  internal fun `Action pays once for each party containing an owned delegate`() {
+  internal fun `Action ignores the chairman and pays once for each party with an owned delegate`() {
     newGame(TurmoilExpansion, FakeStuffBundle)
     p1.runOperation("$FakeSeptemTribus")
+    admin.runOperation("ReserveDelegate<Neutral> FROM Chairman<Neutral>")
     p1.runOperation(
-        "PartyDelegate<MarsFirst> FROM ReserveDelegate, " +
+        "Chairman FROM ReserveDelegate, PartyDelegate<MarsFirst> FROM ReserveDelegate, " +
             "PartyDelegate<MarsFirst> FROM ReserveDelegate, " +
             "PartyDelegate<Scientists> FROM ReserveDelegate"
     )

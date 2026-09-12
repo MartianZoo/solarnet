@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -9,23 +10,40 @@ import kotlin.test.Test
 
 internal class TurmoilProjectCardsTest : CardTest() {
   @Test
-  internal fun `Banned Delegate returns a non-leader delegate to its owner's reserve`() {
+  internal fun `Cultural Metropolis cannot be played with only one delegate available`() {
     newGame(TurmoilExpansion)
-    val p2 = requireP2()
-    p2.runOperation(
-        "PartyDelegate<MarsFirst> FROM ReserveDelegate, " +
-            "PartyDelegate<MarsFirst> FROM ReserveDelegate"
-    )
-    val reserveBefore = p2.count("ReserveDelegate")
+    repeat(6) { p1.runOperation("PartyDelegate<MarsFirst> FROM ReserveDelegate") }
+    admin.runOperation("Ruling<Unity> FROM Ruling<Greens>")
+    p1.runOperation("PROD[Energy], 20 MC, ProjectCard")
+    admin.phase("Action")
 
-    p1.runOperation("$BannedDelegate") {
-      doTask("BannedDelegateRemoval<Player1, MarsFirst, Player2>")
-      doTask("ReserveDelegate<Player2> FROM PartyDelegate<MarsFirst, Player2>")
+    shouldThrow<RequirementException> {
+      p1.playProject(CulturalMetropolis, 20) {
+        placeTile(4, 2)
+        doTask("PlaceReserveDelegate<Scientists>")
+      }
     }
 
-    p2.count("PartyDelegate<MarsFirst>") shouldBe 1
-    p2.count("PartyLeader<MarsFirst>") shouldBe 1
-    p2.count("ReserveDelegate") shouldBe reserveBefore + 1
+    p1.count("ReserveDelegate") shouldBe 1
+    p1.count("CityTile") shouldBe 0
+  }
+
+  @Test
+  internal fun `Cultural Metropolis requires and places two of the seven reserve delegates`() {
+    newGame(TurmoilExpansion)
+    repeat(5) { p1.runOperation("PartyDelegate<MarsFirst> FROM ReserveDelegate") }
+    admin.runOperation("Ruling<Unity> FROM Ruling<Greens>")
+    p1.runOperation("PROD[Energy], 20 MC, ProjectCard")
+    admin.phase("Action")
+
+    p1.playProject(CulturalMetropolis, 20) {
+      placeTile(4, 2)
+      doTask("PlaceReserveDelegate<Scientists>")
+    }
+
+    p1.count("ReserveDelegate") shouldBe 0
+    p1.count("LobbyActionAvailable") shouldBe 0
+    p1.count("PartyDelegate") shouldBe 7
   }
 
   @Test
@@ -63,7 +81,12 @@ internal class TurmoilProjectCardsTest : CardTest() {
 
     shouldThrow<RequirementException> { p1.playProject(Recruitment, 2) }
 
-    admin.runOperation("PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>")
+    admin.runOperation(
+        "PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>, " +
+            "PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>, " +
+            "PartyDelegate<Unity, Neutral> FROM ReserveDelegate<Neutral>"
+    )
+    admin.count("Dominant<MarsFirst>") shouldBe 1
     val playerReserveBefore = p1.count("ReserveDelegate")
     val neutralReserveBefore = admin.count("ReserveDelegate<Neutral>")
 
@@ -77,15 +100,57 @@ internal class TurmoilProjectCardsTest : CardTest() {
     admin.count("PartyDelegate<MarsFirst, Neutral>") shouldBe 1
     admin.count("PartyLeader<MarsFirst, Neutral>") shouldBe 1
     admin.count("ReserveDelegate<Neutral>") shouldBe neutralReserveBefore + 1
+    admin.count("Dominant<MarsFirst>") shouldBe 1
   }
 
   @Test
-  internal fun `Vote of No Confidence replaces the neutral chairman and raises rating`() {
+  internal fun `Recruitment cannot be played without an owned reserve delegate`() {
     newGame(TurmoilExpansion)
-    p1.runOperation("PartyDelegate<Greens> FROM ReserveDelegate")
+    admin.runOperation("PartyDelegate<MarsFirst, Neutral> FROM ReserveDelegate<Neutral>")
+    repeat(7) { p1.runOperation("PartyDelegate<Unity> FROM ReserveDelegate") }
+    admin.phase("Action")
+    p1.runOperation("2 MC, ProjectCard")
+
+    shouldThrow<RequirementException> { p1.playProject(Recruitment, 2) }
+
+    p1.count("ReserveDelegate") shouldBe 0
+    admin.count("PartyDelegate<MarsFirst, Neutral>") shouldBe 2
+  }
+
+  @Test
+  internal fun `Martian Media Center action requires and places an owned reserve delegate`() {
+    newGame(TurmoilExpansion)
+    p1.runOperation("$MartianMediaCenter, 3 MC")
+    admin.phase("Action")
+
+    p1.cardAction1(MartianMediaCenter) { doTask("PlaceReserveDelegate<Greens>") }
+
+    p1.count("PartyDelegate<Greens>") shouldBe 1
+    p1.count("ReserveDelegate") shouldBe 6
+    p1.count("MC") shouldBe 0
+  }
+
+  @Test
+  internal fun `Martian Media Center action cannot be used without a reserve delegate`() {
+    newGame(TurmoilExpansion)
+    p1.runOperation("$MartianMediaCenter, 3 MC")
+    repeat(7) { p1.runOperation("PartyDelegate<Unity> FROM ReserveDelegate") }
+    admin.phase("Action")
+
+    shouldThrow<NotNowException> {
+      p1.cardAction1(MartianMediaCenter) { doTask("PlaceReserveDelegate<Greens>") }
+    }
+
+    p1.count("MC") shouldBe 3
+    p1.count("PartyDelegate<Greens>") shouldBe 0
+  }
+
+  @Test
+  internal fun `Vote of No Confidence can appoint the final reserve delegate as chairman`() {
+    newGame(TurmoilExpansion)
+    repeat(6) { p1.runOperation("PlaceReserveDelegate<Greens>") }
     admin.phase("Action")
     p1.runOperation("5 MC, ProjectCard")
-    val playerReserveBefore = p1.count("ReserveDelegate")
     val neutralReserveBefore = admin.count("ReserveDelegate<Neutral>")
     val ratingBefore = p1.count("TerraformRating")
 
@@ -93,8 +158,22 @@ internal class TurmoilProjectCardsTest : CardTest() {
 
     admin.count("Chairman<Neutral>") shouldBe 0
     p1.count("Chairman") shouldBe 1
-    p1.count("ReserveDelegate") shouldBe playerReserveBefore - 1
+    p1.count("ReserveDelegate") shouldBe 0
+    p1.count("LobbyActionAvailable") shouldBe 0
     admin.count("ReserveDelegate<Neutral>") shouldBe neutralReserveBefore + 1
     p1.count("TerraformRating") shouldBe ratingBefore + 1
+  }
+
+  @Test
+  internal fun `Vote of No Confidence cannot be played without a reserve delegate`() {
+    newGame(TurmoilExpansion)
+    repeat(7) { p1.runOperation("PartyDelegate<Greens> FROM ReserveDelegate") }
+    admin.phase("Action")
+    p1.runOperation("5 MC, ProjectCard")
+
+    shouldThrow<RequirementException> { p1.playProject(VoteOfNoConfidence, 5) }
+
+    admin.count("Chairman<Neutral>") shouldBe 1
+    p1.count("Chairman") shouldBe 0
   }
 }

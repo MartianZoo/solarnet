@@ -598,7 +598,7 @@ internal class Prelude2CardsTest : CardTest() {
     val startingProduction = p1.production(cn("MC"))
 
     p1.runOperation("$HighCircles") {
-      doTask("PartyDelegate<Unity> FROM ReserveDelegate")
+      doTask("PlaceReserveDelegate<Unity>")
     }
     p1.count("ProjectCard") shouldBe 1
 
@@ -607,9 +607,9 @@ internal class Prelude2CardsTest : CardTest() {
     p1.count("ProjectCard") shouldBe 2
 
     p1.runOperation("$RiseToPower") {
-      doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
-      doTask("PartyDelegate<Reds> FROM ReserveDelegate")
-      doTask("PartyDelegate<Greens> FROM ReserveDelegate")
+      doTask("PlaceReserveDelegate<Scientists>")
+      doTask("PlaceReserveDelegate<Reds>")
+      doTask("PlaceReserveDelegate<Greens>")
     }
     admin.runOperation("MeasureInfluence<Player1>")
 
@@ -667,8 +667,8 @@ internal class Prelude2CardsTest : CardTest() {
 
     p1.runOperation("$ColonialRepresentation")
     p1.runOperation("$ColonialEnvoys") {
-      doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
-      doTask("PartyDelegate<Greens> FROM ReserveDelegate")
+      doTask("PlaceReserveDelegate<Scientists>")
+      doTask("PlaceReserveDelegate<Greens>")
     }
     admin.runOperation("MeasureInfluence<Player1>")
 
@@ -710,7 +710,7 @@ internal class Prelude2CardsTest : CardTest() {
 
     p1.playProject(WgProject, 9) {
       p1.playPrelude(HighCircles) {
-        doTask("PartyDelegate<Unity> FROM ReserveDelegate")
+        doTask("PlaceReserveDelegate<Unity>")
       }
     }
 

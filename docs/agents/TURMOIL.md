@@ -53,11 +53,18 @@ Test ownership:
 
 ## Political components
 
-`TurmoilExpansion` creates one `TurmoilPlayer`, one Lobby delegate, and six reserve delegates for
-each player. Neutral begins with thirteen reserve delegates, the chair, and the two printed setup
-delegates introduced by the first Coming and Distant events. Greens are the initial ruling party.
-Delegates are finite components: sending or returning one always transmutates a Lobby, reserve,
-party, or chairman component rather than creating an unlimited marker.
+`TurmoilExpansion` creates one `TurmoilPlayer`, seven reserve delegates, and one Lobby-availability
+marker for each player. Neutral begins with thirteen reserve delegates, the chair, and the two printed
+setup delegates introduced by the first Coming and Distant events. Greens are the initial ruling party.
+Delegates are finite components: sending or returning one always transmutates a reserve, party, or
+chairman component rather than creating an unlimited marker.
+
+All seven player delegates are fungible physical `ReserveDelegate`s until they enter a party or the
+chairman's seat. `LobbyActionAvailable` separately records that the Lobby placement remains available;
+it does not identify or reserve one physical delegate. Using that placement or exhausting the combined
+supply removes the marker, and a returned delegate does not restore it. Free and paid lobbying, cards,
+and map bonuses all consume a reserve delegate. A neutral Global Event placement is ignored when the
+neutral reserve is empty.
 
 `PartyDelegate<Party, Owner>` records committee membership. `PartyLeader<Party, Owner>`,
 `Dominant<Party>`, `Ruling<Party>`, and `Chairman<Owner>` are separate roles:
@@ -94,8 +101,8 @@ to one existential contribution. AMAP is not used to conceal a missing player ow
 1. Make that party ruling and apply its one-time bonus.
 2. Return the old chairman and the ruling party's non-leader delegates to their owners' reserves.
 3. Move the ruling party leader into the chair; grant one rating if that owner is a player.
-4. Remove its leader role, select the next dominant party clockwise, and refill empty Lobby seats
-   from finite player reserves.
+4. Remove its leader role, select the next dominant party clockwise, and restore free lobbying for
+   players who still have a reserve delegate.
 
 Ruling bonuses count only the current player's owned icons or production. Mars First, Scientists,
 Unity, Greens, and Kelvinists pay from Building, Science, planetary, bio, and heat-production
