@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.text
 
+import dev.martianzoo.pets.ast.ClassName
+
 /** Sparse English-language facts declared for one component Class. */
 internal data class ComponentDescriber(
     internal val noun: Noun? = null,
@@ -12,6 +14,7 @@ internal data class ComponentDescriber(
     internal val spatialRelation: SpatialRelation? = null,
     internal val productionOffset: Boolean? = null,
     internal val requirement: Requirement? = null,
+    internal val requirementCondition: RequirementCondition? = null,
     internal val score: Score? = null,
     internal val deadEndSignal: Boolean? = null,
     internal val triggerFrame: TriggerFrame? = null,
@@ -41,7 +44,11 @@ internal data class ComponentDescriber(
 
     public data object Held : ChangeFrame
 
-    public data class Scale(public val subject: String) : ChangeFrame
+    public data class Scale(
+        public val subject: String,
+        public val increaseVerb: String = "raise",
+        public val decreaseVerb: String = "lower",
+    ) : ChangeFrame
 
     public data class Positioned(
         internal val determiner: Determiner,
@@ -59,6 +66,17 @@ internal data class ComponentDescriber(
         internal val objectPhrase: String? = null,
         internal val cardTargetRelation: String? = null,
     ) : ChangeFrame
+
+    public data class Transition(
+        internal val sources: Map<ClassName, Procedure>,
+    ) : ChangeFrame
+
+    public data class CappedProcedure(
+        internal val verb: String,
+        internal val noun: Noun.Counted,
+    ) : ChangeFrame
+
+    public data class ScopedInstruction(internal val resultModifier: String) : ChangeFrame
 
     public data object RequiredAction : ChangeFrame
 
@@ -126,6 +144,28 @@ internal data class ComponentDescriber(
     }
   }
 
+  /** A requirement whose natural wording depends on authored type arguments. */
+  internal sealed interface RequirementCondition {
+    public data class ArgumentState(
+        internal val argumentIndex: Int,
+        internal val predicate: String,
+    ) : RequirementCondition
+
+    public data class OwnedCount(
+        internal val noun: Noun.Counted,
+        internal val qualifierArgumentIndex: Int? = null,
+        internal val qualifierRelation: String? = null,
+        internal val unboundQualifier: String? = null,
+        internal val ownerArgumentIndex: Int? = null,
+        internal val ownerAdjectives: Map<ClassName, String> = emptyMap(),
+        internal val differences: Map<ClassName, Noun.Counted> = emptyMap(),
+        internal val ownerVerb: String? = null,
+        internal val singleOwnerState: String? = null,
+    ) : RequirementCondition
+
+    public data class OwnerState(internal val predicate: String) : RequirementCondition
+  }
+
   internal data class Score(internal val singular: String, internal val plural: String)
 
   /** The recurring event construction associated with this component Class. */
@@ -143,6 +183,12 @@ internal data class ComponentDescriber(
     public data class Place(internal val noun: Noun.Counted) : TriggerFrame
 
     public data object SpendResource : TriggerFrame
+
+    public data class Named(
+        internal val verb: String,
+        internal val objectPhrase: String? = null,
+        internal val passive: Boolean = false,
+    ) : TriggerFrame
   }
 
   internal data class ActionUse(

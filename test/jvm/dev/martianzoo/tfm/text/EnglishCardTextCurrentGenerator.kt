@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.text
 
-import dev.martianzoo.pets.Vocabulary.Companion.defaultEnglishDisplayName
+import dev.martianzoo.pets.displayName
 import dev.martianzoo.tfm.canon.Canon
 import java.io.File
 
@@ -10,13 +10,17 @@ private object EnglishCardTextCurrentGenerator {
     require(args.size == 2)
     val output = File(args[0])
     val refusalOutput = File(args[1])
-    val goals = EnglishCardTextData.parse(readEnglishCardText("english-card-text-goals.tsv"))
     val english = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
-    val renderedCards = Canon.cards.map { card -> card to english.renderCard(card) }
+    val cardsByName = Canon.cards.associateBy { it.className }
+    val previousOrder = EnglishCardTextData.parse(output.readText()).keys
+    val orderedCards =
+        previousOrder.mapNotNull(cardsByName::get) +
+            Canon.cards.filter { it.className !in previousOrder }
+    val renderedCards = orderedCards.map { card -> card to english.renderCard(card) }
     val rows = renderedCards.map { (card, rendering) ->
       listOf(
               card.className.toString(),
-              goals[card.className]?.englishName ?: defaultEnglishDisplayName(card.className),
+              displayName(Canon, card.className),
               rendering.bottom,
               rendering.top,
           )

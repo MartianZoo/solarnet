@@ -104,7 +104,7 @@ from an original Jacob ruling before this becomes committed behavior.
 
 ## Attribution is related but not identical
 
-We want the history to show when Advanced Alloys, Phobolog, Psychrophiles, and similar rules
+We want the history to show when Advanced Alloys, PhoboLog, Psychrophiles, and similar rules
 contributed and by how much. That requires recording gross contributions before debt consumption
 saturates. It does not necessarily yield one objectively correct allocation of the consumed debt.
 When several bonuses contribute to a payment containing excess, saying which bonus was "needed"

@@ -53,6 +53,32 @@ internal fun renderAdjacentCardInstructions(
     )
   }
 
+  (second as? Then)?.let { playThenDiscard ->
+    val offeredCount = offered.count.fixedQuantity() ?: return@let
+    val play = playThenDiscard.stages.singleOrNull() as? Gain ?: return@let
+    val discarded = playThenDiscard.continuation as? Remove ?: return@let
+    if (
+        offeredCount <= 1 ||
+            play.intensity.modality() != Modality.REQUIRED ||
+            play.count.fixedQuantity() != 1 ||
+            play.gaining.className != PLAY_CARD ||
+            play.gaining.arguments.none { it.className == SELECTING } ||
+            describers.representedClass(play.gaining)?.className != family ||
+            discarded.intensity.modality() != Modality.REQUIRED ||
+            discarded.count.fixedQuantity() != offeredCount - 1 ||
+            !discarded.removing.isCardAt(family, SELECTING)
+    ) {
+      return@let
+    }
+    val clauses =
+        listOf(
+            clause("draw", offeredCards),
+            clause("play", "one of them"),
+            clause("discard", "the other ${offeredCount - 1}"),
+        )
+    return listOf(offered to Clause.Coordinated(Coordination(clauses, Conjunction.THEN)))
+  }
+
   (second as? Then)?.let { purchase ->
     val discarded = purchase.stages.singleOrNull() as? Remove ?: return@let
     val buy = purchase.continuation as? Gain ?: return@let
@@ -285,10 +311,10 @@ private fun matchPredicate(criterion: CardCriterion, describers: Describers): Pr
                   )
               ),
           )
-      CardCriterion.HasRequirement ->
+      is CardCriterion.PropertyPresence ->
           Predicate(
               Verb.HAVE,
-              Coordination.one(NounPhrase("requirement", determiner = Determiner.INDEFINITE)),
+              Coordination.one(NounPhrase(criterion.noun, determiner = Determiner.INDEFINITE)),
           )
       is CardCriterion.ResourceIcon -> {
         val resource = checkNotNull(describers.cardResourceNoun(criterion.className, 1))

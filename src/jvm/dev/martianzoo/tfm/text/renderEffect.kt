@@ -1,11 +1,13 @@
 package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
 import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
+import dev.martianzoo.pets.ast.Effect.Trigger.XTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -14,7 +16,9 @@ import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as TriggerFrame
 
@@ -180,7 +184,7 @@ internal fun renderRequirementFlexibilityResult(
   }
   val removal = effect.instruction as? Remove ?: return null
   if (
-      removal.intensity.modality() != Modality.BEST_EFFORT ||
+      describers.resolvedRemovalModality(removal) != Modality.BEST_EFFORT ||
           removal.removing.refinement != null ||
           describers.fact(
               removal.removing.className,
@@ -369,6 +373,12 @@ internal fun renderEffects(
   val sentences = mutableListOf<Rendering<String>>()
   var index = 0
   while (index < effects.size) {
+    renderOncePerActionProductionReward(effects.drop(index), describers)?.let { (sentence, consumed)
+      ->
+      sentences += sentence
+      index += consumed
+      continue
+    }
     renderAcceptedResourcePayment(effects.drop(index), describers)?.let { (sentence, consumed) ->
       sentences += sentence
       index += consumed
@@ -401,6 +411,103 @@ internal fun renderEffects(
   }
   return joinRenderings(sentences)
 }
+
+private fun renderOncePerActionProductionReward(
+    effects: List<Effect>,
+    describers: Describers,
+): Pair<Rendering<String>, Int>? {
+  val actionReset = effects.getOrNull(0)?.let(describers::prepareForRendering) ?: return null
+  val phaseReset = effects.getOrNull(1)?.let(describers::prepareForRendering) ?: return null
+  val rewardSignal = effects.getOrNull(2)?.let(describers::prepareForRendering) ?: return null
+
+  val resetMarker = removedLatchMarker(actionReset, describers) ?: return null
+  if (!resetsAfterAction(actionReset.trigger, describers)) return null
+  if (removedLatchMarker(phaseReset, describers) != resetMarker) return null
+  if (!resetsForPreludeAction(phaseReset.trigger)) return null
+
+  val markerGain = rewardSignal.instruction as? Gain ?: return null
+  if (
+      !rewardSignal.automatic ||
+          markerGain.gaining != resetMarker ||
+          markerGain.intensity.modality() != Modality.BEST_EFFORT ||
+          markerGain.count.fixedQuantity() != 1
+  ) {
+    return null
+  }
+  val conditionedTrigger = rewardSignal.trigger as? Trigger.IfTrigger ?: return null
+  if (!coversActionPhases(conditionedTrigger.condition)) return null
+  val sizedTrigger = conditionedTrigger.inner as? XTrigger ?: return null
+  val productionTrigger = sizedTrigger.inner as? OnGainOf ?: return null
+  val production =
+      productionCategoryExpression(productionTrigger.expression, describers) ?: return null
+  if (production.owner != null || describers.concrete(production.resource)) return null
+
+  val declaration = describers.declaration(resetMarker.className)
+  if (!hasUnitLatchInvariant(declaration.invariants, describers.thisExpression)) return null
+  val rewardEffect = declaration.effects.singleOrNull() ?: return null
+  if (!rewardEffect.automatic || rewardEffect.trigger != Trigger.WhenGain) return null
+  val reward = renderInstructions(rewardEffect.instruction, describers)
+  val rewardClause = reward.clauses.singleOrNull() as? Clause.Simple ?: return null
+  if (reward.unresolved.isNotEmpty()) return null
+  val conditionalReward =
+      rewardClause.withModifier(Modifier.Phrase("if you increase any production"))
+  return Sentence(
+          Clause.Prefaced(
+              Clause.Preface.OncePerAction,
+              conditionalReward,
+          )
+      )
+      .render() to 3
+}
+
+private fun removedLatchMarker(effect: Effect, describers: Describers): Expression? {
+  val removal = effect.instruction as? Remove ?: return null
+  if (
+      !effect.automatic ||
+          describers.resolvedRemovalModality(removal) != Modality.BEST_EFFORT ||
+          removal.count.fixedQuantity() != 1 ||
+          !removal.removing.simple
+  ) {
+    return null
+  }
+  return removal.removing
+}
+
+private fun resetsAfterAction(trigger: Trigger, describers: Describers): Boolean {
+  val action = describers.actionUseEvent(trigger) ?: return false
+  if (action.slot != null) return false
+  return describers.fact(action.provider.className, ComponentDescriber::actionUse)?.objectPhrase ==
+      "an action"
+}
+
+private fun resetsForPreludeAction(trigger: Trigger): Boolean {
+  val conditioned = trigger as? Trigger.IfTrigger ?: return false
+  val turn = (conditioned.inner as? OnGainOf)?.expression ?: return false
+  if (!turn.simple || turn.className != cn("NewTurn")) return false
+  return countedPresence(conditioned.condition)?.className == cn("PreludePhase")
+}
+
+private fun coversActionPhases(requirement: Requirement): Boolean {
+  val alternatives = (requirement as? Requirement.Or)?.requirements ?: return false
+  return alternatives.mapNotNull(::countedPresence).map(Expression::className).toSet() ==
+      setOf(cn("ActionPhase"), cn("PreludePhase"))
+}
+
+private fun countedPresence(requirement: Requirement): Expression? {
+  val minimum = requirement as? Requirement.Min ?: return null
+  if (minimum.minimum != 1) return null
+  return (minimum.countedMetric as? Metric.Count)?.expression?.takeIf(Expression::simple)
+}
+
+private fun hasUnitLatchInvariant(
+    invariants: Set<Requirement>,
+    contextualThis: Expression,
+): Boolean =
+    invariants.singleOrNull()?.let { invariant ->
+      val maximum = invariant as? Requirement.Max ?: return@let false
+      val marker = (maximum.countedMetric as? Metric.Count)?.expression ?: return@let false
+      maximum.maximum == 1 && marker == contextualThis
+    } == true
 
 private fun renderAcceptedResourcePayment(
     effects: List<Effect>,

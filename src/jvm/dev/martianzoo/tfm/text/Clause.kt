@@ -25,6 +25,10 @@ internal sealed interface Clause {
     override fun linearize(): String = clauses.linearize(Clause::linearize)
   }
 
+  data class Either(public val alternatives: Coordination<Clause>) : Clause {
+    override fun linearize(): String = "either ${alternatives.linearize(Clause::linearize)}"
+  }
+
   data class SharedSubject(
       val subject: NounPhrase,
       val predicates: Coordination<Predicate>,
@@ -51,6 +55,10 @@ internal sealed interface Clause {
     data object FirstAction : Preface {
       override fun linearize(): String = "as your first action"
     }
+
+    data object OncePerAction : Preface {
+      override fun linearize(): String = "once per action you take"
+    }
   }
 }
 
@@ -59,13 +67,15 @@ internal fun Clause.unresolved(): List<Unresolved> =
       is Clause.RawPets -> listOf(unresolved)
       is Clause.Simple -> subject?.unresolved().orEmpty() + predicate.unresolved()
       is Clause.Coordinated -> clauses.members.flatMap(Clause::unresolved)
+      is Clause.Either -> alternatives.members.flatMap(Clause::unresolved)
       is Clause.SharedSubject ->
           subject.unresolved() + predicates.members.flatMap(Predicate::unresolved)
       is Clause.Prefaced ->
           when (val preface = preface) {
             is Clause.Preface.Conditional -> preface.condition.unresolved()
             is Clause.Preface.Temporal -> preface.event.unresolved()
-            Clause.Preface.FirstAction -> emptyList()
+            Clause.Preface.FirstAction,
+            Clause.Preface.OncePerAction -> emptyList()
           } + clause.unresolved()
     }
 

@@ -60,7 +60,7 @@ internal class CanonClassesTest {
                     VenusNextExpansion,
                     Prelude2Expansion,
                     ColoniesExpansion,
-                    TurmoilCardPack,
+                    TurmoilExpansion,
                     PromoCardPack,
                     colonyTiles = testColonyTiles(players = 2),
                 )

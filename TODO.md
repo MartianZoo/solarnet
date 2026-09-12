@@ -82,6 +82,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   unrepresentable.
 - [#59: `-This` Quantifier](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether
   self-removal should default to mandatory.
+- Give Admin an installable autoexecution policy for Global Events that pulls exact cards from an
+  ordered list; until then callers explicitly complete reveal tasks.
 - Investigate whether the three self-handling signals `CimmeriaPlacementBonus`,
   `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
   requiring authored references to generated names. Preserve Cimmeria map generation,

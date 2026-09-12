@@ -44,6 +44,9 @@ private fun renderChangeOrNull(
     references: TypeVariableReferences,
 ): Clause? {
   if (instruction is Transmute) {
+    renderDeclaredTransition(instruction, describers)?.let {
+      return it
+    }
     renderPlayedEventRecovery(instruction, describers)?.let {
       return it
     }
@@ -73,6 +76,9 @@ private fun renderChangeOrNull(
       ComponentDescriber.ChangeFrame.Deck ->
           renderDiscard(instruction, describers) ?: renderDraw(instruction, describers)
       is ComponentDescriber.ChangeFrame.Procedure -> renderProcedure(instruction, frame, describers)
+      is ComponentDescriber.ChangeFrame.Transition -> null
+      is ComponentDescriber.ChangeFrame.CappedProcedure -> null
+      is ComponentDescriber.ChangeFrame.ScopedInstruction -> null
       ComponentDescriber.ChangeFrame.RequiredAction -> renderRequiredAction(instruction, describers)
       ComponentDescriber.ChangeFrame.NextCardEffect -> renderNextCardEffect(instruction, describers)
       ComponentDescriber.ChangeFrame.Play -> renderCardPlay(instruction, describers)
@@ -134,11 +140,34 @@ private fun changeRefusalReason(
     is ComponentDescriber.ChangeFrame.Positioned -> RefusalReason.UNSUPPORTED_PLACEMENT_CHANGE
     ComponentDescriber.ChangeFrame.Countable -> RefusalReason.UNSUPPORTED_STANDARD_RESOURCE_CHANGE
     is ComponentDescriber.ChangeFrame.Procedure,
+    is ComponentDescriber.ChangeFrame.Transition,
+    is ComponentDescriber.ChangeFrame.CappedProcedure,
+    is ComponentDescriber.ChangeFrame.ScopedInstruction,
     ComponentDescriber.ChangeFrame.RequiredAction,
     ComponentDescriber.ChangeFrame.NextCardEffect,
     ComponentDescriber.ChangeFrame.Play -> RefusalReason.UNSUPPORTED_DECLARED_CHANGE
     null -> RefusalReason.UNKNOWN_CHANGE_FRAME
   }
+}
+
+private fun renderDeclaredTransition(
+    transmute: Transmute,
+    describers: Describers,
+): Clause.Simple? {
+  if (
+      transmute.intensity.modality() != Modality.REQUIRED ||
+          transmute.count.fixedQuantity() != 1 ||
+          transmute.gaining.refinement != null ||
+          transmute.removing.refinement != null
+  ) {
+    return null
+  }
+  val transition =
+      describers.changeFrame(transmute.gaining.className)
+          as? ComponentDescriber.ChangeFrame.Transition ?: return null
+  val procedure = transition.sources[transmute.removing.className] ?: return null
+  return procedure.objectPhrase?.let { clause(procedure.verb, NounPhrase.text(it)) }
+      ?: Clause.Simple(Predicate(Verb(procedure.verb)))
 }
 
 private fun renderDiscard(
@@ -534,26 +563,35 @@ private fun renderCardResourceChange(
   val resolved = describers.resolveHeldResource(expression) ?: return null
   val holder = describers.heldResourceHolder(resolved)
   if (instruction is Remove) {
-    return when {
-      resolved.sourceDependencies.isEmpty() && change.intensity.modality() == Modality.REQUIRED ->
-          clause("remove", noun, Modifier.Phrase("from any card"))
-      resolved.hasOnlySourceDependency(Key(OWNED, 0), describers.anyoneExpression) &&
-          change.intensity.modality() == Modality.OPTIONAL ->
-          Clause.Simple(
-              Predicate(
-                  Verb("may remove"),
-                  Coordination.one(noun.atMost()),
-                  listOf(
-                      Modifier.Relation(
-                          "from",
-                          NounPhrase("player", determiner = Determiner.ANY),
-                      )
-                  ),
+    if (
+        resolved.hasOnlySourceDependency(Key(OWNED, 0), describers.anyoneExpression) &&
+            change.intensity.modality() == Modality.OPTIONAL
+    ) {
+      return Clause.Simple(
+          Predicate(
+              Verb("may remove"),
+              Coordination.one(noun.atMost()),
+              listOf(
+                  Modifier.Relation(
+                      "from",
+                      NounPhrase("player", determiner = Determiner.ANY),
+                  )
               ),
-              NounPhrase.you(),
-          )
-      else -> null
+          ),
+          NounPhrase.you(),
+      )
     }
+    if (change.intensity.modality() != Modality.REQUIRED) return null
+    val source =
+        when {
+          resolved.sourceDependencies.isEmpty() -> NounPhrase("card", determiner = Determiner.ANY)
+          describers.heldResourceHasHolder(resolved, describers.thisExpression) ->
+              NounPhrase("card", determiner = Determiner.THIS)
+          holder != null && describers.heldResourceHasHolder(resolved, holder) ->
+              describers.renderCardResourceHolder(holder) ?: return null
+          else -> return null
+        }
+    return clause("remove", noun, Modifier.Relation("from", source))
   }
   if (
       change.intensity.modality() == Modality.OPTIONAL &&
@@ -716,8 +754,8 @@ private fun renderScaleChange(
   val change = instruction as? Instruction.Change ?: return null
   val verb =
       when (change) {
-        is Gain -> "raise"
-        is Remove -> "lower"
+        is Gain -> frame.increaseVerb
+        is Remove -> frame.decreaseVerb
         is Transmute -> return null
       }
   val modalVerb =

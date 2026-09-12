@@ -27,15 +27,162 @@ internal fun renderRequirement(
 }
 
 private fun renderLoweredRequirement(requirement: Requirement, describers: Describers): Clause? =
+    describers.renderDescribedRequirementCondition(requirement)?.let(::requirementClause)
+        ?: when (requirement) {
+          is Requirement.Min -> renderMinimum(requirement, describers)
+          is Requirement.Max -> renderMaximum(requirement, describers)
+          is Requirement.And -> describers.renderRequirementGroup(requirement)
+          is Requirement.Eval,
+          is Requirement.Exact,
+          is Requirement.Or -> null
+          is Requirement.Transform -> null
+        }
+
+private fun Describers.renderDescribedRequirementCondition(
+    requirement: Requirement,
+): Clause? =
     when (requirement) {
-      is Requirement.Min -> renderMinimum(requirement, describers)
-      is Requirement.Max -> renderMaximum(requirement, describers)
-      is Requirement.And -> describers.renderRequirementGroup(requirement)
+      is Requirement.And ->
+          requirement.requirements
+              .sortedBy { it is Requirement.Or }
+              .map { renderDescribedRequirementCondition(it) ?: return null }
+              .let { Clause.Coordinated(Coordination(it, Conjunction.AND)) }
+      is Requirement.Or ->
+          requirement.requirements
+              .map { renderDescribedRequirementCondition(it) ?: return null }
+              .let { Clause.Either(Coordination(it, Conjunction.OR)) }
+      is Requirement.Min -> renderDescribedMinimumCondition(requirement)
+      is Requirement.Max -> renderDescribedMaximumCondition(requirement)
       is Requirement.Eval,
       is Requirement.Exact,
-      is Requirement.Or -> null
       is Requirement.Transform -> null
     }
+
+private fun Describers.renderDescribedMinimumCondition(
+    requirement: Requirement.Min,
+): Clause? {
+  renderDescribedDifferenceCondition(requirement)?.let {
+    return it
+  }
+  val expression = countedExpression(requirement) ?: return null
+  return when (val frame = fact(expression.className, ComponentDescriber::requirementCondition)) {
+    is ComponentDescriber.RequirementCondition.ArgumentState -> {
+      if (requirement.target != 1 || expression.refinement != null) return null
+      val subject = expression.arguments.getOrNull(frame.argumentIndex) ?: return null
+      if (!subject.simple || !concrete(subject.className)) return null
+      Clause.Simple(
+          Predicate(Verb(frame.predicate)),
+          NounPhrase.text(componentNoun(subject.className, 1)),
+      )
+    }
+    is ComponentDescriber.RequirementCondition.OwnedCount ->
+        renderOwnedCountCondition(expression, requirement.target, frame)
+    is ComponentDescriber.RequirementCondition.OwnerState -> {
+      if (
+          requirement.target != 1 ||
+              expression.refinement != null ||
+              expression.arguments.isNotEmpty()
+      ) {
+        return null
+      }
+      Clause.Simple(Predicate(Verb(frame.predicate)), NounPhrase.you())
+    }
+    null -> null
+  }
+}
+
+private fun Describers.renderDescribedDifferenceCondition(
+    requirement: Requirement.Min,
+): Clause? {
+  val difference = requirement.metric as? Metric.Subtract ?: return null
+  val included = (difference.minuend as? Metric.Count)?.expression ?: return null
+  val excluded = (difference.subtrahend as? Metric.Count)?.expression ?: return null
+  if (
+      included.arguments != excluded.arguments ||
+          included.refinement != null ||
+          excluded.refinement != null
+  ) {
+    return null
+  }
+  val frame =
+      fact(included.className, ComponentDescriber::requirementCondition)
+          as? ComponentDescriber.RequirementCondition.OwnedCount ?: return null
+  val differenceNoun = frame.differences[excluded.className] ?: return null
+  return renderOwnedCountCondition(
+      included,
+      requirement.target,
+      frame.copy(noun = differenceNoun),
+  )
+}
+
+private fun Describers.renderDescribedMaximumCondition(
+    requirement: Requirement.Max,
+): Clause? {
+  if (requirement.maximum != 0) return null
+  val expression = countedExpression(requirement) ?: return null
+  val frame =
+      fact(expression.className, ComponentDescriber::requirementCondition)
+          as? ComponentDescriber.RequirementCondition.OwnerState ?: return null
+  if (expression.refinement != null || expression.arguments.singleOrNull() != anyoneExpression) {
+    return null
+  }
+  return Clause.Simple(
+      Predicate(Verb(frame.predicate)),
+      NounPhrase("player", "players", determiner = Determiner.NO),
+  )
+}
+
+private fun Describers.renderOwnedCountCondition(
+    expression: Expression,
+    count: Int,
+    frame: ComponentDescriber.RequirementCondition.OwnedCount,
+): Clause? {
+  if (expression.refinement != null) return null
+  val owner = frame.ownerArgumentIndex?.let(expression.arguments::getOrNull)
+  val ownerAdjective = owner?.let {
+    if (!it.simple) return null
+    frame.ownerAdjectives[it.className] ?: return null
+  }
+  val noun =
+      if (ownerAdjective != null) {
+        ComponentDescriber.Noun.Counted(
+            "$ownerAdjective ${frame.noun.singular}",
+            "$ownerAdjective ${frame.noun.plural}",
+        )
+      } else {
+        frame.noun
+      }
+  var amount = quantifiedNoun(noun, count)
+  frame.qualifierArgumentIndex?.let { argumentIndex ->
+    val qualifier = expression.arguments.getOrNull(argumentIndex)
+    val qualifierPhrase =
+        when {
+          qualifier == null || !concrete(qualifier.className) ->
+              NounPhrase.text(frame.unboundQualifier ?: return null)
+          qualifier.simple -> NounPhrase.text(componentNoun(qualifier.className, 1))
+          else -> return null
+        }
+    amount =
+        amount.withModifier(
+            Modifier.Relation(frame.qualifierRelation ?: return null, qualifierPhrase)
+        )
+  }
+  if (owner == null) {
+    frame.singleOwnerState
+        ?.takeIf { count == 1 }
+        ?.let { state ->
+          return Clause.Simple(Predicate(Verb(state)), NounPhrase.you())
+        }
+    return Clause.Simple(
+        Predicate(Verb(frame.ownerVerb ?: "have"), Coordination.one(amount)),
+        NounPhrase.you(),
+    )
+  }
+  return Clause.Simple(
+      Predicate(Verb.BE, Coordination.one(amount)),
+      NounPhrase("there", grammaticalNumber = amount.number()),
+  )
+}
 
 private fun renderMinimum(requirement: Requirement.Min, describers: Describers): Clause? =
     describers.renderMinimum(requirement)

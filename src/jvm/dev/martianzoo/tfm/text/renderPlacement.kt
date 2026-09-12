@@ -78,15 +78,12 @@ internal fun renderPlacementSites(
           Modifier.Relation("on", NounPhrase(siteNoun, determiner = site.determiner))
       )
   expression.refinement?.let {
-    val refinement = it as? Expression.Refinement.Has ?: return null
-    val authoredRequirements = refinement.requirement.conjuncts()
+    val authoredRequirements = it.hasRequirementsOrNull() ?: return null
     val implicitRequirements =
         implicitSites
             .singleOrNull { it.className == expression.className }
             ?.refinement
-            ?.let { it as? Expression.Refinement.Has ?: return null }
-            ?.requirement
-            ?.conjuncts()
+            ?.hasRequirementsOrNull()
             .orEmpty()
     val novelRequirements = authoredRequirements.filterNot { it in implicitRequirements }
     val renderedRequirements =
@@ -98,8 +95,13 @@ internal fun renderPlacementSites(
   return modifiers
 }
 
-private fun Requirement.conjuncts(): List<Requirement> =
-    if (this is Requirement.And) requirements else listOf(this)
+private fun Expression.Refinement.hasRequirementsOrNull(): List<Requirement>? =
+    when (this) {
+      is Expression.Refinement.Has -> listOf(requirement)
+      is Expression.Refinement.And ->
+          refinements.map { (it as? Expression.Refinement.Has)?.requirement ?: return null }
+      is Expression.Refinement.Not -> null
+    }
 
 private fun renderPlacementSiteRequirement(
     requirement: Requirement,

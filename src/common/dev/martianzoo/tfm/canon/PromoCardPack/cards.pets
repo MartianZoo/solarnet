@@ -289,6 +289,44 @@ CLASS StanfordTorus : AutomatedCard {
   End: 2 VictoryPoint
 }
 
+CLASS PoliticalAlliance : EventCard {
+  cost = 4
+  requirement = HAS "2 PartyLeader"
+
+  This:: EventTag<This>
+  This: TerraformRating
+}
+
+CLASS JovianTaxRights : GePartyDistant<Scientists>, GePartyCurrent<Unity> {
+  ResolveGlobalEvent<Class<This>>:: EACH Player { \
+    PROD[MC / Colony MAX 5], Titanium / Influence \
+  }
+}
+
+CLASS MicrogravityHealthProblems : GePartyDistant<MarsFirst>, GePartyCurrent<Scientists> {
+  ResolveGlobalEvent<Class<This>>:: EACH Player { \
+    -3 MC. / (Colony MAX 5 - Influence) \
+  }
+}
+
+CLASS VenusInfrastructure : GePartyDistant<MarsFirst>, GePartyCurrent<Unity> {
+  ResolveGlobalEvent<Class<This>>:: EACH Player { \
+    2 MC / VenusTag MAX 5, 2 MC / Influence \
+  }
+}
+
+CLASS CloudSocieties : GePartyDistant<Unity>, GePartyCurrent<Reds> {
+  HAS Class<VenusTag>, Class<Colony>
+
+  ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveCloudSocieties<Player> }
+}
+
+CLASS CorrosiveRain : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
+  HAS Class<VenusTag>, Class<Colony>
+
+  ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveCorrosiveRain<Player> }
+}
+
 CLASS Advertising : ActiveCard {
   cost = 4
 

@@ -4,7 +4,7 @@ Ecoline	Ecoline	You start with 2 plant production, 3 plants, and 36 M€.	Effect
 InterplanetaryCinematics	Interplanetary Cinematics	You start with 20 steel and 30 M€.	Effect: Each time you play an event, you gain 2 M€.
 Inventrix	Inventrix	As your first action in the game, draw 3 cards. Start with 45 M€.	Effect: Your temperature, oxygen, and ocean requirements are +2 or -2 steps, your choice in each case.
 MiningGuild	Mining Guild	You start with 30 M€, 5 steel, and 1 steel production.	Effect: Each time you place a tile on an area with steel or titanium placement bonus, increase your steel production 1 step.
-Phobolog	PhoboLog	You start with 10 titanium and 23 M€.	Effect: Your titanium resources are each worth 1 M€ extra.
+PhoboLog	PhoboLog	You start with 10 titanium and 23 M€.	Effect: Your titanium resources are each worth 1 M€ extra.
 TharsisRepublic	Tharsis Republic	You start with 40 M€. As your first action in the game, place a city tile.	Effect: When any city tile is placed ON MARS, increase your M€ production 1 step. When you place a city tile, gain 3 M€.
 ThorGate	ThorGate	You start with 1 energy production and 48 M€.	Effect: When playing a power card OR THE STANDARD PROJECT POWER PLANT, you pay 3 M€ less for it.
 UnitedNationsMarsInitiative	United Nations Mars Initiative	You start with 40 M€.	Action: If your Terraform Rating was raised this generation, you may pay 3 M€ to raise it 1 step more.
@@ -25,7 +25,7 @@ Polyphemos	Polyphemos	You start with 50 M€. Increase your M€ production 5 st
 Poseidon	Poseidon	You start with 45 M€. As your first action, place a colony.	Effect: When any colony is placed, including this, raise your M€ production 1 step.
 LakefrontResorts	Lakefront Resorts	You start with 54 M€.	Effect: When any ocean is placed, increase your M€ production 1 step. / Your bonus for placing adjacent to oceans is 3 M€ instead of 2 M€.
 Pristar	Pristar	You start with 53 M€. Decrease your TR 2 steps. 1 VP per preservation resource here.	Effect: During production phase, if you did not get TR so far this generation, add 1 preservation resource here and gain 6 M€.
-TerraLabsResearch	TerraLabs Research	You start with 14 M€. Lower your TR 1 step.	Effect: Buying cards to hand costs 1 M€, including your starting hand.
+TerralabsResearch	Terralabs Research	You start with 14 M€. Lower your TR 1 step.	Effect: Buying cards to hand costs 1 M€, including your starting hand.
 UtopiaInvest	Utopia Invest	You start with 40 M€. Increase your steel and titanium production 1 step each.	Action: Decrease any production to gain 4 resources of that kind.
 Recyclon	Recyclon	You start with 38 M€ and 1 steel production.	Effect: When you play a building tag, including this, gain 1 microbe to this card, or remove 2 microbes here and raise your plant production 1 step.
 SpliceTacticalGenomics	Splice Tactical Genomics	You start with 44 M€. As your first action, reveal cards until you have revealed a microbe tag. Take that card into hand, and discard the rest.	Effect: Each time a microbe tag is played, including this, THAT PLAYER gains 2 M€, or adds a microbe to THAT card, and you gain 2 M€.
@@ -37,7 +37,7 @@ PharmacyUnion	Pharmacy Union	You start with 54 M€. Draw a science card.	Effect
 NirgalEnterprises	Nirgal Enterprises	You start with 30 M€. Increase your energy, plant, and steel production 1 step each. Awards and Milestones	Effect: AWARDS AND MILESTONES ALWAYS COST 0 M€ FOR YOU.
 PalladinShipping	Palladin Shipping	You start with 36 M€. Gain 5 titanium.	Effect: When you play a space event, gain 1 titanium. Action: Spend 2 titanium to raise the temperature 1 step.
 SagittaFrontierServices	Sagitta Frontier Services	You start with 31 M€. Increase energy production 1 step and M€ production 2 steps.	Draw a card that has no tag. Effect: When you play a card with no tags, including this, gain 4 M€. Effect: When you play a card with EXACTLY 1 TAG, you gain 1 M€.
-EcoTec	EcoTec	You start with 42 M€. Increase your plant production 1 step.	Effect: When you play a bio tag, gain 1 plant or add a microbe to ANY card.
+Ecotec	Ecotec	You start with 42 M€. Increase your plant production 1 step.	Effect: When you play a bio tag, gain 1 plant or add a microbe to ANY card.
 Spire	Spire	You start with 50 M€. As your first action, draw 4 cards, then discard 3 cards from your hand.	Effect: When you play a card with at least 2 tags. including this, add 1 science resource here. Standard Project Effect: When you pay for a standard project, science resources here may be used as 2 M€ each.
 AppliedScience	Applied Science	Add 6 science resources here.	Action: Remove 1 resource here to either add 1 resource to ANY CARD WITH A RESOURCE or gain 1 standard resource.
 AtmosphericEnhancers	Atmospheric Enhancers	Raise temperature 2 steps, or raise oxygen 2 steps, or raise Venus 2 steps. Draw 2 cards with floater icons.	
@@ -479,7 +479,7 @@ PublicPlans	Public Plans	REVEAL ANY NUMBER OF OTHER CARDS FROM YOUR HAND. (YOUR 
 SterlingVents	Sterling Vents	Decrease heat production 2 steps. Increase energy production 2 steps.	
 TychoMagnetics	Tycho Magnetics	You start with 42 M€. Increase your energy production 1 step. KEEP 1 Keep 1 and discard the rest.	Action: Spend any amount of energy to draw the that many cards.
 KuiperCooperative	Kuiper Cooperative	You start with 33 M€. Increase titanium production 1 step.	Action: Add 1 asteroid here for every space tag you have. Standard Project Effect: When you use the AQUIFER or ASTEROID standard projects, you can spend asteroids on card as 1M€ each.
-PolderTechDutch	Polder Tech Dutch	You start with 35 M€. As your first action, place an ocean tile and a greenery tile next to each other IGNORING GREENERY PLACEMENT RESTRICTIONS. Raise oxygen 1 step.	Effect: When you place an ocean tile, gain 1 energy. Effect: When you place a greenery, gain 1 plant.
+PolderTechDutch	PolderTECH Dutch	You start with 35 M€. As your first action, place an ocean tile and a greenery tile next to each other IGNORING GREENERY PLACEMENT RESTRICTIONS. Raise oxygen 1 step.	Effect: When you place an ocean tile, gain 1 energy. Effect: When you place a greenery, gain 1 plant.
 AntiDesertificationTechniques	Anti Desertification Techniques	Gain 3 M€. Increase your plant production 1 step and your steel production 1 step.	
 FakeEstablishedMethods	Fake Established Methods	Gain 30 M€. Then pay for and perform 2 standard projects. NOTE: If you cannot afford a second standard project, spend 10 M€ instead, or as much as possible.	
 GiantSolarCollector	Giant Solar Collector	Increase your energy production 2 steps. Raise Venus 1 step.	

@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.text
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.text.ComponentDescriber.ChangeFrame as Frame
+import dev.martianzoo.tfm.text.ComponentDescriber.RequirementCondition as Condition
 import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as Trigger
 
 /** Terraforming Mars component descriptions supplied to the structural English renderer. */
@@ -16,6 +17,137 @@ internal object TerraformingMarsDescribers {
         klass("HasRaisedTr") to
             ComponentDescriber(presenceCondition = "your terraform rating has been raised"),
         klass("SoloMode") to ComponentDescriber(presenceCondition = "this is a solo game"),
+        klass("Ruling") to
+            ComponentDescriber(
+                requirementCondition = Condition.ArgumentState(0, "is ruling"),
+            ),
+        klass("MarsFirst") to
+            ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("Mars First")),
+        klass("Scientists") to
+            ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("the Scientists party")),
+        klass("Unity") to ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("Unity")),
+        klass("Greens") to
+            ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("the Greens party")),
+        klass("Reds") to ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("the Reds party")),
+        klass("Kelvinists") to
+            ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("the Kelvinists party")),
+        klass("PartyDelegate") to
+            ComponentDescriber(
+                changeFrame =
+                    Frame.Transition(
+                        mapOf(
+                            klass("ReserveDelegate") to
+                                Frame.Procedure("place", "a reserve delegate in any party")
+                        )
+                    ),
+                requirementCondition =
+                    Condition.OwnedCount(
+                        counted("delegate", "delegates"),
+                        qualifierArgumentIndex = 0,
+                        qualifierRelation = "in",
+                        unboundQualifier = "any party",
+                        ownerArgumentIndex = 1,
+                        ownerAdjectives = mapOf(klass("Neutral") to "neutral"),
+                        differences =
+                            mapOf(
+                                klass("PartyLeader") to
+                                    counted("non-leader delegate", "non-leader delegates")
+                            ),
+                    ),
+            ),
+        klass("PartyLeader") to
+            ComponentDescriber(
+                triggerFrame = Trigger.Named("become", "a party leader"),
+                requirementCondition =
+                    Condition.OwnedCount(
+                        counted("party", "parties"),
+                        ownerArgumentIndex = 1,
+                        ownerAdjectives = mapOf(klass("Neutral") to "neutral"),
+                        ownerVerb = "lead",
+                    ),
+            ),
+        klass("Chairman") to
+            ComponentDescriber(
+                changeFrame =
+                    Frame.Transition(
+                        mapOf(
+                            klass("ReserveDelegate") to
+                                Frame.Procedure("move", "a reserve delegate to the chair")
+                        )
+                    ),
+                requirementCondition =
+                    Condition.OwnedCount(
+                        counted("chairman", "chairmen"),
+                        ownerArgumentIndex = 0,
+                        ownerAdjectives = mapOf(klass("Neutral") to "neutral"),
+                        singleOwnerState = "are chairman",
+                    ),
+            ),
+        klass("ReserveDelegate") to
+            ComponentDescriber(
+                changeFrame =
+                    Frame.Transition(
+                        mapOf(
+                            klass("Chairman") to
+                                Frame.Procedure("return", "the chairman to its owner's reserve")
+                        )
+                    ),
+                requirementCondition =
+                    Condition.OwnedCount(
+                        counted("delegate in reserve", "delegates in reserve"),
+                        ownerArgumentIndex = 0,
+                        ownerAdjectives = mapOf(klass("Neutral") to "neutral"),
+                    ),
+            ),
+        klass("Pass") to
+            ComponentDescriber(
+                requirementCondition = Condition.OwnerState("has passed"),
+                changeFrame = Frame.Procedure("pass"),
+            ),
+        klass("PlaceColonialEnvoys") to
+            ComponentDescriber(
+                changeFrame =
+                    Frame.Procedure(
+                        "place",
+                        "1 reserve delegate in any party per colony you own",
+                    )
+            ),
+        klass("BannedDelegateRemoval") to
+            ComponentDescriber(
+                changeFrame =
+                    Frame.CappedProcedure(
+                        "return",
+                        counted(
+                            "non-leader delegate to its owner's reserve",
+                            "non-leader delegates to their owners' reserves",
+                        ),
+                    )
+            ),
+        klass("RecruitmentExchange") to
+            ComponentDescriber(
+                changeFrame =
+                    Frame.CappedProcedure(
+                        "exchange",
+                        counted(
+                            "neutral non-leader delegate for one of your reserve delegates",
+                            "neutral non-leader delegates for your reserve delegates",
+                        ),
+                    )
+            ),
+        klass("FrontierTownBonus") to
+            ComponentDescriber(
+                changeFrame = Frame.ScopedInstruction("and gain its placement bonus twice")
+            ),
+        klass("Influence") to
+            ComponentDescriber(
+                noun = ComponentDescriber.Noun.Fixed("influence"),
+                numericSingularChange = true,
+                changeFrame = Frame.Countable,
+            ),
+        klass("MeasureInfluence") to
+            ComponentDescriber(
+                triggerFrame = Trigger.Named("is counted", "influence", passive = true)
+            ),
         klass("StandardResource") to
             ComponentDescriber(numericSingularChange = true, changeFrame = Frame.Countable),
         klass("Metal") to
@@ -121,6 +253,10 @@ internal object TerraformingMarsDescribers {
                                     ),
                                 "requirement" to
                                     ComponentDescriber.MinimumProperty.Presence("requirement"),
+                                "partyRequirement" to
+                                    ComponentDescriber.MinimumProperty.Presence(
+                                        "party requirement"
+                                    ),
                             )
                     ),
             ),
@@ -150,6 +286,12 @@ internal object TerraformingMarsDescribers {
         klass("MarsArea") to
             ComponentDescriber(
                 metricLocation = "on Mars",
+                metricCount =
+                    ComponentDescriber.MetricCount(
+                        counted("area", "areas"),
+                        unqualifiedSuffix = "on Mars",
+                        forSubclasses = false,
+                    ),
                 placementSite =
                     ComponentDescriber.PlacementSite(
                         noun = ComponentDescriber.Noun.Counted("area", "areas"),
@@ -435,8 +577,33 @@ internal object TerraformingMarsDescribers {
             ),
         klass("GainColonyBonuses") to
             ComponentDescriber(changeFrame = Frame.Procedure("gain", "all your colony bonuses")),
+        klass("AdvanceColonyTracks") to
+            ComponentDescriber(
+                changeFrame =
+                    Frame.Scale(
+                        subject = "all colony tile tracks",
+                        increaseVerb = "increase",
+                        decreaseVerb = "decrease",
+                    )
+            ),
         klass("ColonyTileSelection") to
             ComponentDescriber(changeFrame = Frame.Procedure("add", "a colony tile")),
+        klass("WorldGovernmentTerraforming") to
+            ComponentDescriber(
+                changeFrame =
+                    Frame.Procedure(
+                        "raise",
+                        "1 global parameter without gaining terraform rating or other bonuses",
+                    )
+            ),
+        klass("FocusedOrganization_Signal") to
+            ComponentDescriber(
+                changeFrame =
+                    Frame.Procedure(
+                        "draw",
+                        "1 card and gain 1 standard resource",
+                    )
+            ),
         klass("RequiredAction") to ComponentDescriber(changeFrame = Frame.RequiredAction),
         klass("NextCardEffect") to ComponentDescriber(changeFrame = Frame.NextCardEffect),
         klass("CopyProductionBox") to

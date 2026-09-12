@@ -30,7 +30,7 @@ private object TypeStructureReport {
           cn("VenusNextExpansion"),
           cn("PreludeExpansion"),
           cn("ColoniesExpansion"),
-          cn("TurmoilCardPack"),
+          cn("TurmoilExpansion"),
           cn("PromoCardPack"),
       )
 

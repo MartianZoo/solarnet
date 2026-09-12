@@ -5,6 +5,7 @@ import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
@@ -63,6 +64,15 @@ internal class Describers(
         it.boundType.expressionFull
       }
 
+  internal fun resolvedRemovalModality(removal: Remove): Modality =
+      removal.intensity?.modality()
+          ?: classesByName
+              .getValue(removal.removing.className)
+              .defaults
+              .removeOnly
+              .intensity
+              .modality()
+
   internal fun <T> fact(
       className: ClassName,
       fact: (ComponentDescriber) -> T?,
@@ -96,6 +106,7 @@ internal class Describers(
             ComponentDescriber::spatialRelation,
             ComponentDescriber::productionOffset,
             ComponentDescriber::requirement,
+            ComponentDescriber::requirementCondition,
             ComponentDescriber::score,
             ComponentDescriber::deadEndSignal,
             ComponentDescriber::triggerFrame,

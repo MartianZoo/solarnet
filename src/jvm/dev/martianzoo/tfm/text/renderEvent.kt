@@ -61,6 +61,13 @@ internal fun Describers.renderEvent(trigger: Trigger): Event? {
   }
   if (expression.refinement != null) return null
   when (val frame = triggerFrame(expression.className)) {
+    is TriggerFrame.Named ->
+        return Event(
+            Event.Kind.NAMED,
+            if (frame.passive) Event.ActorConstraint.UNRESTRICTED else Event.ActorConstraint.YOU,
+            NounPhrase.text(frame.objectPhrase.orEmpty()),
+            namedVerb = Verb(frame.verb),
+        )
     is TriggerFrame.PlayCard -> {
       if (expression.simple) {
         return Event(
@@ -233,8 +240,29 @@ internal fun Describers.renderActionUse(expression: Expression): NounPhrase? {
   if (resolved.sourceDependencies.isNotEmpty()) return null
   val use = fact(expression.className, ComponentDescriber::actionUse) ?: return null
   val objectPhrase = NounPhrase.text(use.objectPhrase)
-  val refinement = expression.refinement as? Expression.Refinement.Has ?: return objectPhrase
-  val minimum = refinement.requirement as? Requirement.Min ?: return null
+  val refinement = expression.refinement ?: return objectPhrase
+  if (refinement is Expression.Refinement.And) {
+    if (refinement.refinements.none { it is Expression.Refinement.Has }) return null
+    val restrictions =
+        refinement.refinements.map { conjunct ->
+          when (conjunct) {
+            is Expression.Refinement.Has ->
+                renderActionProviderPresence(conjunct.requirement) ?: return null
+            is Expression.Refinement.Not -> {
+              if (!conjunct.excluded.simple) return null
+              "is not ${conjunct.excluded.className}"
+            }
+            is Expression.Refinement.And -> error("Nested expression-refinement conjunction")
+          }
+        }
+    val provider = describedNoun(expression.className, ComponentDescriber.Noun.ClassName, count = 1)
+    val source =
+        NounPhrase(provider, determiner = Determiner.INDEFINITE)
+            .withModifier(Modifier.Phrase("that ${restrictions.joinToString(" and ")}"))
+    return objectPhrase.withModifier(Modifier.Relation("from", source))
+  }
+  val has = refinement as? Expression.Refinement.Has ?: return null
+  val minimum = has.requirement as? Requirement.Min ?: return null
   val requiredComponent = (minimum.metric as? Metric.Count)?.expression
   if (minimum.target == 1 && requiredComponent?.simple == true) {
     val provider = describedNoun(expression.className, ComponentDescriber.Noun.ClassName, count = 1)
@@ -269,6 +297,16 @@ internal fun Describers.renderActionUse(expression: Expression): NounPhrase? {
           ),
       )
   )
+}
+
+private fun Describers.renderActionProviderPresence(
+    requirement: Requirement,
+): String? {
+  val minimum = requirement as? Requirement.Min ?: return null
+  val requiredComponent = (minimum.metric as? Metric.Count)?.expression
+  if (minimum.target != 1 || requiredComponent?.simple != true) return null
+  val required = componentNoun(requiredComponent.className, 1)
+  return "has ${NounPhrase(required, determiner = Determiner.INDEFINITE).linearize()}"
 }
 
 private fun Describers.purchaseEvent(expression: Expression): Event? {

@@ -5,6 +5,7 @@ internal data class Event(
     val actorConstraint: ActorConstraint,
     val objectPhrase: NounPhrase,
     val complements: List<Modifier> = emptyList(),
+    val namedVerb: Verb? = null,
 ) {
   fun renderTrigger(): Clause.Simple? {
     val voice =
@@ -12,7 +13,7 @@ internal data class Event(
           ActorConstraint.YOU -> Voice.ACTIVE
           ActorConstraint.UNRESTRICTED -> Voice.PASSIVE
         }
-    val verb = kind.verb(voice) ?: return null
+    val verb = namedVerb ?: kind.verb(voice) ?: return null
     return when (voice) {
       Voice.ACTIVE ->
           eventTrigger(
@@ -50,6 +51,7 @@ internal data class Event(
     INCREASE_PRODUCTION(activeVerb = Verb("increases", "increase")),
     RAISE(activeVerb = Verb("raises", "raise"), passiveVerb = Verb("is raised", "are raised")),
     ADD(activeVerb = Verb("adds", "add")),
+    NAMED,
     ;
 
     fun verb(voice: Voice): Verb? =

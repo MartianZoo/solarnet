@@ -5,6 +5,7 @@ import dev.martianzoo.pets.api.CustomClass
 private val canonCustomClasses: Set<CustomClass> =
     terraformingMarsCustomClasses +
         promoCardPackCustomClasses +
+        setOf(PlaceColonialEnvoys, RepeatPlacementBonus) +
         milestonesAwardsCustomClasses +
         vastitasMapCustomClasses
 

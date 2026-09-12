@@ -242,7 +242,7 @@ internal abstract class CardTest(
         listOf(
             UnitedNationsMarsInitiative,
             MiningGuild,
-            Phobolog,
+            PhoboLog,
             SaturnSystems,
             Ecoline,
         )

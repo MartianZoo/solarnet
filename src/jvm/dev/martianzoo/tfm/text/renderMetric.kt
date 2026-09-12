@@ -45,10 +45,12 @@ private fun renderMetric(
     is Metric.Count -> describers.renderCountMetric(metric.expression, count, possessorEstablished)
     is Metric.Scaled -> renderScaledCountPhrase(metric, describers, possessorEstablished)
     is Metric.Max -> {
-      val maximum = (metric.maximum as? Metric.Constant)?.value ?: return null
-      renderMetric(metric.inner, describers, possessorEstablished)?.let {
-        it.copy(phrase = it.phrase.withModifier(Modifier.Parenthetical("max $maximum")))
-      }
+      renderMatchedTagPair(metric, describers, possessorEstablished, count)
+          ?: (metric.maximum as? Metric.Constant)?.value?.let { maximum ->
+            renderMetric(metric.inner, describers, possessorEstablished)?.let {
+              it.copy(phrase = it.phrase.withModifier(Modifier.Parenthetical("max $maximum")))
+            }
+          }
     }
     is Metric.Or -> renderCombinedMetric(metric, describers, possessorEstablished, count)
     is Metric.Subtract ->
@@ -65,13 +67,38 @@ private fun renderMetric(
   }
 }
 
+private fun renderMatchedTagPair(
+    metric: Metric.Max,
+    describers: Describers,
+    possessorEstablished: Boolean,
+    count: Int?,
+): MetricRendering? {
+  val first = (metric.inner as? Metric.Count)?.expression ?: return null
+  val second = (metric.maximum as? Metric.Count)?.expression ?: return null
+  if (!first.simple || !second.simple) return null
+  val firstTag =
+      describers.playedTagPhrase(first.className)?.noun()?.removeSuffix(" tag") ?: return null
+  val secondTag =
+      describers.playedTagPhrase(second.className)?.noun()?.removeSuffix(" tag") ?: return null
+  val firstResolved = describers.resolveExpression(first) ?: return null
+  val secondResolved = describers.resolveExpression(second) ?: return null
+  if (firstResolved.sourceDependencies != secondResolved.sourceDependencies) return null
+  if (firstResolved.sourceDependencies.isNotEmpty()) return null
+  val pair =
+      NounPhrase(
+          "pair of $firstTag and $secondTag tags",
+          "pairs of $firstTag and $secondTag tags",
+          count = count,
+      )
+  return MetricRendering(pair.withOwnership("you have", possessorEstablished))
+}
+
 private fun renderCombinedMetric(
     metric: Metric.Or,
     describers: Describers,
     possessorEstablished: Boolean,
     count: Int?,
 ): MetricRendering? {
-  if (!possessorEstablished) return null
   val members =
       metric.metrics.map {
         renderMetric(it, describers, possessorEstablished) ?: return null
@@ -83,9 +110,13 @@ private fun renderCombinedMetric(
         MetricRendering.Ranking.MOST
       }
   val phrase =
-      NounPhrase.coordinated(Coordination(members.map { it.phrase.asPlural() }, Conjunction.AND))
-          .let { if (count == null) it else it.quantified(count) }
-          .withModifier(Modifier.Phrase("combined"))
+      if (possessorEstablished) {
+        NounPhrase.coordinated(Coordination(members.map { it.phrase.asPlural() }, Conjunction.AND))
+            .let { if (count == null) it else it.quantified(count) }
+            .withModifier(Modifier.Phrase("combined"))
+      } else {
+        NounPhrase.coordinated(Coordination(members.map { it.phrase }, Conjunction.OR))
+      }
   return MetricRendering(phrase, ranking)
 }
 
@@ -201,13 +232,27 @@ private fun Describers.renderFilteredComponentCount(
     count: Int?,
     possessorEstablished: Boolean,
 ): NounPhrase? {
-  val refinement = expression.refinement as? Expression.Refinement.Has ?: return null
-  val noun =
+  val requirements = expression.refinement?.hasRequirementsOrNull() ?: return null
+  var noun =
       renderComponentCount(expression.copy(refinement = null), count, possessorEstablished)
           ?: return null
-  val modifier = renderMetricFilter(expression.className, refinement.requirement) ?: return null
-  return noun.withModifier(modifier)
+  requirements.forEach { requirement ->
+    val modifier =
+        renderMetricFilter(expression.className, requirement)
+            ?: renderSpatialFilter(requirement)
+            ?: return null
+    noun = noun.withModifier(modifier)
+  }
+  return noun
 }
+
+private fun Expression.Refinement.hasRequirementsOrNull(): List<Requirement>? =
+    when (this) {
+      is Expression.Refinement.Has -> listOf(requirement)
+      is Expression.Refinement.And ->
+          refinements.map { (it as? Expression.Refinement.Has)?.requirement ?: return null }
+      is Expression.Refinement.Not -> null
+    }
 
 private fun Describers.renderMetricFilter(
     className: dev.martianzoo.pets.ast.ClassName,
@@ -229,7 +274,8 @@ private fun Describers.renderMetricFilter(
                   grammaticalNumber = NounPhrase.GrammaticalNumber.PLURAL,
               ),
           )
-      CardCriterion.HasRequirement -> Modifier.Relation("with", NounPhrase.plural("requirements"))
+      is CardCriterion.PropertyPresence ->
+          Modifier.Relation("with", NounPhrase.plural("${criterion.noun}s"))
       is CardCriterion.ResourceIcon -> return null
     }
   }
@@ -405,10 +451,11 @@ private fun Describers.placementCountPhrase(
         ownedByYou && site == null -> (placement.unqualifiedOwnership ?: return null) to null
         ownedByYou && site != null ->
             (placement.unqualifiedOwnership ?: return null) to
-                renderPlacementLocation(site.expression)
+                (renderPlacementLocation(site.expression) ?: return null)
         explicitlyUnrestricted && site == null -> (placement.anyoneOwnership ?: return null) to null
         explicitlyUnrestricted && site != null ->
-            (placement.anyoneOwnership ?: return null) to renderPlacementLocation(site.expression)
+            (placement.anyoneOwnership ?: return null) to
+                (renderPlacementLocation(site.expression) ?: return null)
         else -> null
       } ?: return null
   val ownerPhrase =
@@ -453,8 +500,8 @@ private fun Describers.renderPlacementLocation(expression: Expression): Modifier
         ComponentDescriber.Noun.ClassName ->
             NounPhrase.plural(componentNoun(expression.className, 2))
       }
-  val refinement =
-      expression.refinement as? Expression.Refinement.Has ?: return Modifier.Relation("on", noun)
+  val authoredRefinement = expression.refinement ?: return Modifier.Relation("on", noun)
+  val refinement = authoredRefinement as? Expression.Refinement.Has ?: return null
   val modifier = renderSpatialFilter(refinement.requirement) ?: return null
   return Modifier.Relation("on", noun.withModifier(modifier))
 }
@@ -462,7 +509,27 @@ private fun Describers.renderPlacementLocation(expression: Expression): Modifier
 private fun Describers.renderSpatialFilter(requirement: Requirement): Modifier? {
   val counting = requirement as? Requirement.Counting ?: return null
   val expression = (counting.metric as? Metric.Count)?.expression ?: return null
-  val relation = fact(expression.className, ComponentDescriber::spatialRelation) ?: return null
+  val relation = fact(expression.className, ComponentDescriber::spatialRelation)
+  if (relation == null) {
+    val positioned = positionedFrame(expression.className) ?: return null
+    if (
+        counting !is Requirement.Max ||
+            counting.maximum != 0 ||
+            expression.arguments.isNotEmpty() ||
+            expression.refinement != null
+    ) {
+      return null
+    }
+    return Modifier.Relation(
+        "with",
+        NounPhrase(
+            positioned.singular,
+            positioned.plural,
+            determiner = Determiner.NO,
+            grammaticalNumber = NounPhrase.GrammaticalNumber.PLURAL,
+        ),
+    )
+  }
   val targetExpression = expression.arguments.singleOrNull()
   if (targetExpression == null && counting.target != 0) return null
   val targetNoun =
@@ -503,6 +570,13 @@ private fun Describers.spatialTarget(expression: Expression, count: Int): NounPh
     val noun =
         placement.referenceNoun
             ?: ComponentDescriber.Noun.Counted(placement.singular, placement.plural)
+    if (
+        resolved.hasOnlySourceDependency(ownerKey, ownerExpression) ||
+            (resolved.sourceDependencies.isEmpty() &&
+                placement.unqualifiedOwnership == ComponentDescriber.OwnershipPhrase.YOURS)
+    ) {
+      return NounPhrase("${noun.singular} you own", "${noun.plural} you own", count = count)
+    }
     return NounPhrase(noun.singular, noun.plural, count = count)
   }
   val site = placementSite(expression.className) ?: return null

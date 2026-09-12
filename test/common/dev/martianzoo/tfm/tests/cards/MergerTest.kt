@@ -92,10 +92,10 @@ internal class MergerTest : CardTest() {
   }
 
   @Test
-  internal fun `Polyphemos then Merger into TerraLabs still buys cards for three`() {
+  internal fun `Polyphemos then Merger into Terralabs still buys cards for three`() {
     newGame(
         ColoniesExpansion,
-        TurmoilCardPack,
+        TurmoilExpansion,
         PreludeExpansion,
         PromoCardPack,
         colonyTiles = testColonyTiles(2),
@@ -103,7 +103,7 @@ internal class MergerTest : CardTest() {
     playCorporationWithoutStartingProjects(p1, Polyphemos)
     admin.phase("Prelude")
     p1.playPrelude(Merger) {
-      p1.playCorp(TerraLabsResearch)
+      p1.playCorp(TerralabsResearch)
     }
 
     p1.runOperation("ProjectCard<Selecting> THEN BuySelectedCards") {

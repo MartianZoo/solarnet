@@ -214,8 +214,8 @@ supertype just to justify a suffix. Three loose families exist today:
 1. **Content and card packs** — published products contributing cards and components use their own
    noun: `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`, `PreludeExpansion`,
    `Prelude2Expansion`. `CardPack` marks a card-only selection that can be included independently
-   from its product's rules: `Prelude1CardPack`, `Prelude2CardPack`, `PromoCardPack`, and
-   `TurmoilCardPack`. The published expansions and their Bundles retain the official
+   from its product's rules: `Prelude1CardPack`, `Prelude2CardPack`, and `PromoCardPack`. The
+   published expansions and their Bundles retain the official
    `PreludeExpansion` and `Prelude2Expansion` names; the card packs use `Prelude1` and `Prelude2`
    to distinguish their contributions to the merged Prelude deck.
 2. **Exclusive choices** — a closed set behind an abstract supertype, exactly one selected. These
@@ -265,6 +265,30 @@ disambiguator that no printed component carries.
 Display text is presentation, not identity. UI code must therefore call `displayName` with its
 Catalog and locale; Pets-oriented output uses canonical Class Names directly.
 
+### Corporation brand casing
+
+Corporation logos are evidence of branding, but not sufficient evidence of ordinary capitalization:
+the card titles are usually all caps, and logo typography may vary letter size or color for design
+rather than spelling. Prefer the closest explicit English prose from the board-game publisher or
+designer. When official sources conflict, prefer a source that discusses the same board-game
+corporation by name over a later adaptation that silently regularizes it.
+
+The supported names that do not follow ordinary title casing are settled individually:
+
+| Display name | Class Name | Decisive evidence |
+| --- | --- | --- |
+| `CrediCor` | `CrediCor` | Jacob Fryxelius's [logo commentary](https://fryxgames.se/easter-eggs-with-jacob-4/) spells it this way in prose. |
+| `PhoboLog` | `PhoboLog` | The [base-game rulebook](https://fryxgames.se/wp-content/uploads/2023/04/TMRULESFINAL.pdf) repeatedly uses this spelling in both setup and play examples. |
+| `ThorGate` | `ThorGate` | The same rulebook repeatedly uses this spelling in both setup and play examples. |
+| `AstroDrill` | `AstroDrill` | The corporation card's own flavor prose names AstroDrill; later digital-store prose regularizes it to “Astrodrill.” |
+| `PolderTECH Dutch` | `PolderTechDutch` | The originating [Dutch Open announcement](https://terraformingmars.nl/poldertech-dutch-promokaart-dutch-open-25/) consistently uses `PolderTECH Dutch`; the acronym is normalized only in the Class Name. |
+
+`Ecoline` is ordinary title case. `Ecotec` and `Terralabs Research` are also ordinary title case:
+the publisher's [Automa corporation rules](https://fryxgames.se/wp-content/uploads/2024/09/TM-Automa-rulebook-B-08-15-2023.pdf)
+use `Ecoline` and `Ecotec` in prose, and the official [Dice Game rulebook](https://fryxgames.se/wp-content/uploads/2023/10/TMDG_RULES_ENGi.pdf)
+uses `Terralabs`. `Ecotec` and `TerraLabs` have no comparably direct prose support and must not be
+inferred from all-caps wordmarks, OCR artifacts, or third-party databases.
+
 ## Pending naming work
 
 ### Second action signal
@@ -296,7 +320,7 @@ phrase, but the obvious one is taken by the `DoRequiredActionsAction` standard a
 `Has` is reserved for capabilities (`HasActions`), and `HasRaisedTr` is a record that something
 happened, which the [grammar](#grammar-by-kind-of-thing) says should read as a passive or `My` form.
 The conflict is acknowledged; the name is not yet settled. It is declared identically in
-`TerraformingMars` and `TurmoilCardPack`, so any rename must change both.
+`TerraformingMars` and `TurmoilExpansion`, so any rename must change both.
 
 ### Scope of `en.json5`
 

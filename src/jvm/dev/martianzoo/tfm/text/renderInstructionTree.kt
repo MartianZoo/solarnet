@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.text
 
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
@@ -43,6 +44,9 @@ private fun renderLoweredInstructions(
   val instructions = InstructionGroup.of(instructionTree).instructions
   if (instructions.isEmpty()) {
     return RenderedInstructions(listOf(doNothingClause))
+  }
+  renderScopedInstruction(instructions, describers, localReferences)?.let {
+    return it
   }
   val rendered = mutableListOf<Pair<Instruction, Clause>>()
   var index = 0
@@ -108,7 +112,11 @@ private fun renderInstruction(
       is Remove,
       is Instruction.Transmute -> renderChange(instruction, describers, references)
       is Instruction.Each ->
-          Rendering(null, listOf(Unresolved(instruction, RefusalReason.UNSUPPORTED_FANOUT)))
+          renderOpponentFanout(instruction, describers)?.let { Rendering.resolved(it) }
+              ?: Rendering(
+                  null,
+                  listOf(Unresolved(instruction, RefusalReason.UNSUPPORTED_FANOUT)),
+              )
       is Instruction.Or ->
           Rendering.resolved(renderAlternatives(instruction, describers, references))
       is Instruction.Per -> Rendering.resolved(renderPer(instruction, describers, references))
@@ -117,6 +125,7 @@ private fun renderInstruction(
           Rendering.resolved(
               renderCardRevealAndRestore(instruction, describers)
                   ?: renderCardPlaySequence(instruction, describers)
+                  ?: renderCombinedCostSequence(instruction, describers, references)
                   ?: renderStandardResourceCostSequence(instruction, describers, references)
                   ?: renderDiscardCostSequence(instruction, describers, references)
                   ?: renderCardResourceCostSequence(instruction, describers, references)
@@ -126,6 +135,99 @@ private fun renderInstruction(
       is Instruction.Transform -> error("Transforms are expanded before ordinary instructions")
       is Instruction.By -> Rendering.resolved(null)
     }
+
+private fun renderOpponentFanout(
+    instruction: Instruction.Each,
+    describers: Describers,
+): Clause? {
+  val selector = instruction.selector
+  if (selector.copy(refinement = null) != describers.playerExpression) return null
+  val presence = selector.refinement as? Expression.Refinement.Has ?: return null
+  val absent = presence.requirement as? Requirement.Max ?: return null
+  val excluded = (absent.countedMetric as? Metric.Count)?.expression ?: return null
+  if (
+      absent.maximum != 0 ||
+          excluded.className != describers.thisExpression.className ||
+          excluded.arguments.singleOrNull() != describers.anyoneExpression ||
+          excluded.refinement != null
+  ) {
+    return null
+  }
+  val changes = InstructionGroup.of(instruction.body).instructions
+  val clauses = changes.map { change ->
+    val removal = change as? Remove ?: return null
+    val count = removal.count.fixedQuantity() ?: return null
+    when {
+      removal.removing.simple &&
+          describers.isStandardResource(removal.removing.className) &&
+          describers.resolvedRemovalModality(removal) == Modality.BEST_EFFORT ->
+          Clause.Simple(
+              Predicate(
+                  Verb("remove"),
+                  Coordination.one(
+                      describers.componentNounPhrase(removal.removing.className, count)
+                  ),
+                  listOf(Modifier.Relation("from", NounPhrase.plural("each opponent"))),
+              )
+          )
+      describers.isProduction(removal.removing.className) &&
+          describers.resolvedRemovalModality(removal) == Modality.REQUIRED -> {
+        val production = productionExpression(removal.removing, describers) ?: return null
+        if (production.owner != null) return null
+        val steps = if (count == 1) "step" else "steps"
+        Clause.Simple(
+            Predicate(
+                Verb("decrease"),
+                Coordination.one(
+                    NounPhrase.text(
+                        "their ${describers.componentNoun(production.resource, 1)} production $count $steps"
+                    )
+                ),
+            )
+        )
+      }
+      else -> return null
+    }
+  }
+  return Clause.Coordinated(Coordination(clauses, Conjunction.AND))
+}
+
+private fun renderCombinedCostSequence(
+    instruction: Instruction.Then,
+    describers: Describers,
+    references: TypeVariableReferences,
+): Clause? {
+  if (instruction.stages.size < 2) return null
+  val costs =
+      instruction.stages.map { stage ->
+        val removal = stage as? Remove ?: return null
+        if (removal.intensity.modality() != Modality.REQUIRED) return null
+        val count = removal.count.fixedQuantity() ?: return null
+        when {
+          removal.removing.simple && describers.isStandardResource(removal.removing.className) ->
+              Clause.Simple(
+                  Predicate(
+                      Verb("pay"),
+                      Coordination.one(
+                          describers.componentNounPhrase(removal.removing.className, count)
+                      ),
+                  )
+              )
+          describers.isCardResource(removal.removing.className) ->
+              renderChange(removal, describers, references).value as? Clause.Simple ?: return null
+          describers.changeFrame(removal.removing.className) ==
+              ComponentDescriber.ChangeFrame.Deck ->
+              renderChange(removal, describers, references).value as? Clause.Simple ?: return null
+          else -> return null
+        }
+      }
+  val result =
+      renderLoweredInstructions(instruction.continuation, describers, references)
+          .clauses
+          .singleOrNull() ?: return null
+  val costsWithPurpose = costs.dropLast(1) + costs.last().withModifier(Modifier.Purpose(result))
+  return Clause.Coordinated(Coordination(costsWithPurpose, Conjunction.AND))
+}
 
 private fun renderStandardResourceCostSequence(
     instruction: Instruction.Then,
@@ -294,6 +396,9 @@ private fun renderPer(
     describers: Describers,
     references: TypeVariableReferences,
 ): Clause? {
+  renderCappedProcedure(instruction, describers)?.let {
+    return it
+  }
   val clause =
       renderLoweredInstructions(instruction.inner, describers, references).clauses.singleOrNull()
           ?: return null
@@ -304,6 +409,64 @@ private fun renderPer(
           }
           ?: return null
   return (clause as? Clause.Simple)?.withModifier(Modifier.Per(metric))
+}
+
+private fun renderCappedProcedure(
+    instruction: Instruction.Per,
+    describers: Describers,
+): Clause.Simple? {
+  val gain = instruction.inner as? Gain ?: return null
+  if (gain.count.fixedQuantity() != 1 || gain.gaining.refinement != null) return null
+  val frame =
+      describers.changeFrame(gain.gaining.className)
+          as? ComponentDescriber.ChangeFrame.CappedProcedure ?: return null
+  val cap = instruction.metric as? Metric.Max ?: return null
+  if ((cap.maximum as? Metric.Constant)?.value != 1) return null
+  val noun =
+      NounPhrase(frame.noun.singular, frame.noun.plural, count = 1).let {
+        if (gain.intensity.modality() == Modality.BEST_EFFORT) it.atMost() else it
+      }
+  return Clause.Simple(Predicate(Verb(frame.verb), Coordination.one(noun)))
+}
+
+private fun renderScopedInstruction(
+    instructions: List<Instruction>,
+    describers: Describers,
+    references: TypeVariableReferences,
+): RenderedInstructions? {
+  if (instructions.size < 2) return null
+  val start = instructions.first() as? Gain ?: return null
+  if (
+      start.intensity.modality() != Modality.REQUIRED ||
+          start.count.fixedQuantity() != 1 ||
+          start.gaining.refinement != null
+  ) {
+    return null
+  }
+  val frame =
+      describers.changeFrame(start.gaining.className)
+          as? ComponentDescriber.ChangeFrame.ScopedInstruction ?: return null
+  val sequence = instructions.last() as? Instruction.Then ?: return null
+  val main = sequence.stages.singleOrNull() ?: return null
+  val stop = sequence.continuation as? Remove ?: return null
+  if (
+      describers.resolvedRemovalModality(stop) != Modality.BEST_EFFORT ||
+          stop.count.fixedQuantity() != 1 ||
+          stop.removing != start.gaining
+  ) {
+    return null
+  }
+  val mainClause =
+      renderLoweredInstructions(main, describers, references).clauses.singleOrNull()
+          as? Clause.Simple ?: return null
+  val middle =
+      InstructionGroup(instructions.drop(1).dropLast(1))
+          .takeIf { it.instructions.isNotEmpty() }
+          ?.let { renderLoweredInstructions(it, describers, references).clauses }
+          .orEmpty()
+  return RenderedInstructions(
+      middle + mainClause.withModifier(Modifier.Phrase(frame.resultModifier))
+  )
 }
 
 private fun renderAlternatives(

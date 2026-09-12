@@ -13,7 +13,7 @@ internal sealed interface CardCriterion {
 
   data object NoTags : CardCriterion
 
-  data object HasRequirement : CardCriterion
+  data class PropertyPresence(val noun: String) : CardCriterion
 
   data class ResourceIcon(val className: ClassName) : CardCriterion
 }
@@ -40,10 +40,11 @@ internal fun Describers.cardCriterion(requirement: Requirement): CardCriterion? 
         }
       }
     }
-    if (
-        metric is Property && metric.receiver == null && metric.propertyName.value == "requirement"
-    ) {
-      return CardCriterion.HasRequirement
+    if (metric is Property && metric.receiver == null) {
+      val frame = triggerFrame(cn("CardFront")) as? ComponentDescriber.TriggerFrame.PlayCard
+      val property = frame?.minimumProperties?.get(metric.propertyName.value)
+      val presence = property as? ComponentDescriber.MinimumProperty.Presence
+      if (presence != null) return CardCriterion.PropertyPresence(presence.noun)
     }
     if (metric is Metric.Count) {
       val citations = metric.expression
@@ -94,8 +95,8 @@ internal fun matchingCardNoun(
         "$tag ${if (singular) "card" else "cards"}"
       }
       CardCriterion.NoTags -> "${if (singular) "card" else "cards"} with no tags"
-      CardCriterion.HasRequirement ->
-          "${if (singular) "card" else "cards"} with ${if (singular) "a requirement" else "requirements"}"
+      is CardCriterion.PropertyPresence ->
+          if (singular) "card with a ${criterion.noun}" else "cards with ${criterion.noun}s"
       is CardCriterion.ResourceIcon -> {
         val resource = checkNotNull(describers.cardResourceNoun(criterion.className, 1))
         "${if (singular) "card" else "cards"} with $resource ${if (singular) "icon" else "icons"}"

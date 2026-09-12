@@ -45,7 +45,7 @@ internal fun maximumOwedReduction(
     describers: Describers,
 ): ResourceAmount? {
   val removal = instruction as? Remove ?: return null
-  if (removal.intensity.modality() != Modality.BEST_EFFORT) return null
+  if (describers.resolvedRemovalModality(removal) != Modality.BEST_EFFORT) return null
   return paymentResourceAmount(
       removal.removing,
       removal.count,

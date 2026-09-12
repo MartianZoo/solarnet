@@ -71,8 +71,41 @@ private fun actionRefusalReason(action: Action, describers: Describers): Refusal
 private fun Describers.renderCost(cost: Cost): Predicate? =
     when (cost) {
       is Cost.Spend -> renderSpendCost(cost)
+      is Cost.Per -> renderReducedVariableCost(cost)?.first
       else -> null
     }
+
+private fun Describers.renderReducedVariableCost(
+    per: Cost.Per,
+): Pair<Predicate, Clause.Simple>? {
+  val spend = per.cost as? Cost.Spend ?: return null
+  if (
+      !spend.scaledEx.expression.simple || !isStandardResource(spend.scaledEx.expression.className)
+  ) {
+    return null
+  }
+  val unitCost = spend.scaledEx.scalar.fixedQuantity() ?: return null
+  val reduction = per.metric as? Metric.Subtract ?: return null
+  val maximum = (reduction.minuend as? Metric.Constant)?.value ?: return null
+  val metric = renderMetricPhrase(reduction.subtrahend, this) ?: return null
+  val payment =
+      renderResourceSpend(spend.scaledEx.expression) { noun ->
+        noun.copy(count = unitCost * maximum)
+      } ?: return null
+  val reductionAmount =
+      componentNounPhrase(spend.scaledEx.expression.className, unitCost)
+          .withModifier(Modifier.Per(metric))
+  val explanation =
+      Clause.Simple(
+          subject = NounPhrase.text("this cost"),
+          predicate =
+              Predicate(
+                  Verb("is reduced"),
+                  modifiers = listOf(Modifier.Relation("by", reductionAmount)),
+              ),
+      )
+  return payment to explanation
+}
 
 private fun Describers.renderSpendCost(spend: Cost.Spend): Predicate? {
   val expression = spend.scaledEx.expression
@@ -129,6 +162,10 @@ private fun Describers.renderResourceSpend(
           listOf(Modifier.Phrase("from $holder")),
       )
     }
+    if (changeFrame(expression.className) == ComponentDescriber.ChangeFrame.Deck) {
+      val cards = componentNounPhrase(expression.className, 1).copy(count = null)
+      return Predicate(Verb("discard"), Coordination.one(quantity(cards)))
+    }
   }
   if (!expression.simple || plainGainNoun(expression.className, 1) == null) return null
   val noun = componentNounPhrase(expression.className, 1).copy(count = null)
@@ -142,7 +179,7 @@ private fun Describers.renderLinkedXAction(action: Action): RenderedAction? {
   if (gain.intensity.modality() != Modality.REQUIRED) return null
   val gainScalar = gain.count.variableQuantity() ?: return null
   val gaining = gain.gaining
-  if (!gaining.simple || !concrete(gaining.className) || !isStandardResource(gaining.className)) {
+  if (!gaining.simple || !isStandardResource(gaining.className)) {
     return null
   }
   val cost =
@@ -156,9 +193,13 @@ private fun Describers.renderLinkedXAction(action: Action): RenderedAction? {
   val resultQuantity =
       when {
         costScalar.multiple > 1 -> "$gainScalar ${componentNoun(gaining.className, 2)}"
+        gainScalar.multiple == 1 && !concrete(gaining.className) ->
+            "the same number of one ${componentNoun(gaining.className, 1)}"
         gainScalar.multiple == 1 && noun is ComponentDescriber.Noun.Fixed ->
             "that amount of ${componentNoun(gaining.className, 1)}"
         gainScalar.multiple == 1 -> "the same number of ${componentNoun(gaining.className, 2)}"
+        gainScalar.multiple == 2 && noun is ComponentDescriber.Noun.Fixed ->
+            "twice that amount of ${componentNoun(gaining.className, 1)}"
         gainScalar.multiple == 3 && noun is ComponentDescriber.Noun.Fixed ->
             "triple that amount of ${componentNoun(gaining.className, 1)}"
         else -> return null
@@ -225,7 +266,8 @@ private fun renderAction(
     return it.takeIf(RenderedAction::costCanJoinResult)
   }
   val gatedInstruction = lowered.instruction as? Gated
-  val cost = lowered.cost?.let { describers.renderCost(it) ?: return null }
+  val reducedCost = (lowered.cost as? Cost.Per)?.let(describers::renderReducedVariableCost)
+  val cost = reducedCost?.first ?: lowered.cost?.let { describers.renderCost(it) ?: return null }
   val condition =
       gatedInstruction?.gate?.let {
         describers.renderGateCondition(it) ?: return null
@@ -238,7 +280,7 @@ private fun renderAction(
       )
   val separateResultSentences =
       (lowered.instruction as? Instruction.Transform)?.transformKind == CardOperation.TRANSFORM_KIND
-  return RenderedAction(cost, result, condition, separateResultSentences)
+  return RenderedAction(cost, result, condition, separateResultSentences, reducedCost?.second)
       .takeIf(RenderedAction::costCanJoinResult)
 }
 
@@ -247,6 +289,7 @@ private data class RenderedAction(
     val result: RenderedInstructions,
     val condition: Clause? = null,
     val separateResultSentences: Boolean = false,
+    val costExplanation: Clause.Simple? = null,
 ) {
   val unresolved: List<Unresolved>
     get() = result.unresolved
@@ -259,14 +302,18 @@ private data class RenderedAction(
     if (condition == null) {
       if (cost == null) return result.asSentences()
       val infinitive = checkNotNull(result.asActionResultInfinitive())
-      if (!separateResultSentences) {
-        return Sentence(Clause.Simple(cost.withModifier(Modifier.Purpose(infinitive)))).render()
-      }
       val first =
-          Sentence(Clause.Simple(cost.withModifier(Modifier.Purpose(result.clauses.first()))))
-              .render()
-      val remaining = result.clauses.drop(1).map { Sentence(it).render() }
-      return joinRenderings(listOf(first) + remaining)
+          if (!separateResultSentences) {
+            Sentence(Clause.Simple(cost.withModifier(Modifier.Purpose(infinitive)))).render()
+          } else {
+            Sentence(Clause.Simple(cost.withModifier(Modifier.Purpose(result.clauses.first()))))
+                .render()
+          }
+      val remaining =
+          if (separateResultSentences) result.clauses.drop(1).map { Sentence(it).render() }
+          else emptyList()
+      val explanation = costExplanation?.let { listOf(Sentence(it).render()) }.orEmpty()
+      return joinRenderings(listOf(first) + remaining + explanation)
     }
     val clause =
         cost?.let {
@@ -276,6 +323,7 @@ private data class RenderedAction(
   }
 
   fun asAlternative(): Clause? {
+    if (costExplanation != null) return null
     val clause =
         cost?.let {
           val infinitive = result.asActionResultInfinitive() ?: return null
@@ -286,7 +334,9 @@ private data class RenderedAction(
     } ?: clause
   }
 
-  fun costCanJoinResult(): Boolean = cost == null || result.asActionResultInfinitive() != null
+  fun costCanJoinResult(): Boolean =
+      (cost == null || result.asActionResultInfinitive() != null) &&
+          (costExplanation == null || condition == null)
 }
 
 private fun RenderedInstructions.asActionResultInfinitive(): Clause? = takeIf {
@@ -299,6 +349,7 @@ private fun Clause.canBeInfinitive(): Boolean =
       is Clause.Simple -> subject == null
       is Clause.Coordinated -> clauses.members.all(Clause::canBeInfinitive)
       is Clause.RawPets -> true
+      is Clause.Either,
       is Clause.Prefaced,
       is Clause.SharedSubject -> false
     }

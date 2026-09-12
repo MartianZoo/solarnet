@@ -2,13 +2,13 @@ package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.pets.Vocabulary.Companion.defaultEnglishDisplayName
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.displayName
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -33,8 +33,7 @@ internal class EnglishTest {
       withClue(cardFront.toString()) {
         val card = requireNotNull(cardsByClassName[cardFront])
         val rendering = english.renderCard(card)
-        expected.englishName shouldBe
-            (goals[cardFront]?.englishName ?: defaultEnglishDisplayName(cardFront))
+        expected.englishName shouldBe displayName(Canon, cardFront)
         rendering.top shouldBe expected.top
         rendering.bottom shouldBe expected.bottom
         countRenderedPetsFallbacks(rendering.top) +
@@ -71,14 +70,37 @@ internal class EnglishTest {
         "Pay 4 energy to gain 2 steel and raise oxygen 1 step."
     english.describe(listOf(parse<Action>("Animal<This, Owner> -> Steel"))) shouldBe
         "Remove 1 animal from this card to gain 1 steel."
+    english.describe(listOf(parse<Action>("X Floater<This> -> X StandardResource"))) shouldBe
+        "Remove one or more floaters from this card to gain the same number of one standard resource."
+    english.describe(listOf(parse<Action>("X ProjectCard -> 2X MC"))) shouldBe
+        "Discard one or more cards to gain twice that amount of M€."
+    english.describe(listOf(parse<Action>("1 MC / (12 - VenusTag) -> VenusStep"))) shouldBe
+        "Pay 12 M€ to raise Venus 1 step. This cost is reduced by 1 M€ per Venus tag you have."
     english.describe(listOf(parse<Action>("MC -> Animal<This>?"))) shouldBe "[MC -> Animal<This>?]."
     english.describe(parse<InstructionTree>("2 Plant, TemperatureStep")) shouldBe
         "Gain 2 plants. Raise temperature 1 step."
+    english.describe(parse<InstructionTree>("Plant / (VenusTag OR PlantTag OR Colony)")) shouldBe
+        "Gain 1 plant per Venus tag you have, plant tag you have, or colony you own."
+    english.describe(parse<InstructionTree>("PROD[1 MC / EarthTag MAX VenusTag]")) shouldBe
+        "Increase your M€ production 1 step per pair of Earth and Venus tags you have."
     english.describe(parse<InstructionTree>("-3 MC THEN TemperatureStep")) shouldBe
         "Pay 3 M€ to raise temperature 1 step."
+    english.describe(
+        parse<InstructionTree>(
+            "-12 MC THEN -Director<This> THEN PlayCard<Class<PreludeCard>, Hand>"
+        )
+    ) shouldBe "Pay 12 M€ and remove 1 director resource from this card to play a prelude card."
+    english.describe(
+        parse<InstructionTree>(
+            "-ProjectCard THEN -StandardResource THEN FocusedOrganization_Signal"
+        )
+    ) shouldBe
+        "Discard 1 card and pay 1 standard resource to draw 1 card and gain 1 standard resource."
     english.describe(parse<InstructionTree>("-2 Plant")) shouldBe "Remove 2 plants."
     english.describe(parse<InstructionTree>("Animal<Owner, This>?")) shouldBe
         "You may add up to 1 animal to this card."
+    english.describe(parse<InstructionTree>("-Director<This>")) shouldBe
+        "Remove 1 director resource from this card."
     english.describe(
         parse<InstructionTree>("3 MC<Anyone> FROM MC."),
     ) shouldBe "Pay 3 M€ to any player, or as much as possible."
@@ -104,6 +126,13 @@ internal class EnglishTest {
     english.describe(parse<InstructionTree>("ProjectCard")) shouldBe "Draw 1 card."
     english.describe(parse<InstructionTree>("OceanTile")) shouldBe "Place 1 ocean tile."
     english.describe(parse<InstructionTree>("CityTile")) shouldBe "Place a city tile."
+    english.describe(parse<InstructionTree>("2 AdvanceColonyTracks")) shouldBe
+        "Increase all colony tile tracks 2 steps."
+    english.describe(parse<InstructionTree>("WorldGovernmentTerraforming")) shouldBe
+        "Raise 1 global parameter without gaining terraform rating or other bonuses."
+    english.describe(
+        parse<InstructionTree>("EACH Player(HAS MAX 0 This<Anyone>) { -5 MC., PROD[-1 MC] }")
+    ) shouldBe "Remove 5 M€ from each opponent and decrease their M€ production 1 step."
     english.describe(parse<Requirement>("ScienceTag")) shouldBe "Requires a science tag."
     english.describe(parse<Requirement>("Colony")) shouldBe "Requires that you have a colony."
     english.describe(parse<Requirement>("VenusTag, EarthTag, JovianTag")) shouldBe
@@ -146,6 +175,19 @@ internal class EnglishTest {
   internal fun describesActionUseSignalsAsCommands() {
     english.describe(parse<InstructionTree>("UseAction<ActionCard(HAS ActionUsedMarker)>")) shouldBe
         "Use an action from an action card that has an action-used marker."
+    english.describe(
+        parse<InstructionTree>("UseAction<ActionCard(HAS ActionUsedMarker, NOT Viron)>")
+    ) shouldBe "Use an action from an action card that has an action-used marker and is not Viron."
+  }
+
+  @Test
+  internal fun hidesPreludeBookkeepingBehindItsPrintedRule() {
+    english.bottomText(requireNotNull(cardsByClassName[cn("IndustrialComplex")])) shouldBe
+        "Remove 18 M€. Increase each of your productions below 1 to 1."
+    english.topText(requireNotNull(cardsByClassName[cn("SuitableInfrastructure")])) shouldBe
+        "Effect: Once per action you take, gain 2 M€ if you increase any production."
+    english.bottomText(requireNotNull(cardsByClassName[cn("SuitableInfrastructure")])) shouldBe
+        "Gain 5 steel."
   }
 
   @Test
@@ -360,6 +402,13 @@ internal class EnglishTest {
         listOf(
             "Adjacency<CityTile(HAS CapitalMarker), OceanTile>" to RefusalReason.UNSUPPORTED_METRIC
         )
+  }
+
+  @Test
+  internal fun neverDropsUnsupportedExpressionRefinements() {
+    val metric = "CityTile<Anyone, MarsArea(HAS Neighbor<OceanTile>, NOT NoctisArea)>"
+
+    english.describe(parse<InstructionTree>("MC / $metric")) shouldBe "[MC / $metric]."
   }
 
   @Test
