@@ -34,6 +34,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   game record so a log identifies, or can later verify, the engine source that produced it.
 - Make tile placement over an owned `Community` an atomic transmutation, then enforce
   `HAS MAX 1 Occupant<This>` on every `Area` and remove card-level empty-area refinements.
+- Replace the duplicated `TemperatureStep BY Player`/`BY Admin` threshold-ocean triggers and the
+  synthetic `AdminOceanPlacement` signal with one rule that separates who chooses the tile from
+  whose action the placement is attributed to, shared by the standard and extended tracks.
 - Revisit causal ownership inside `BootstrapPhase`, moving initialization work under ordinary
   phase-caused tasks as soon as the required runtime state can express them.
 - Let refinements reference their candidate explicitly, so a selector can relate a nested
