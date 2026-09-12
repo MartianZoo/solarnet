@@ -157,9 +157,10 @@ Keep the substantive reasoning in the owning document and keep this table to one
 
 ### Already being fixed
 
-- **`Temporary` and `MustCleanUp` idle cleanup** —
-  [SEQUENCING.md](SEQUENCING.md#cleanup-vocabulary). One invariant with three satisfaction policies
-  that the declarations do not yet say is one; that document owns the collapse.
+- **Scopes and idle cleanup** — [SEQUENCING.md](SEQUENCING.md#cleanup-vocabulary).
+  `TemporaryScope<Parent>` is the explicit overlap between nested lifetime, idle removal, and
+  mandatory cleanup. Plain whole-World `Temporary` remains distinct while it can legitimately
+  cross a narrower operation boundary.
 - **`CARDS[...]` and the `CardOperation` recognizer** —
   [REAL_CARDS_MODE.md](REAL_CARDS_MODE.md#canonical-card-operation-source). Authored intent is
   discarded and then reconstructed by pattern matching. Known, and owned by that document.

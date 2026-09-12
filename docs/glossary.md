@@ -110,13 +110,14 @@
 - **root type:** The class at the head of an expression, before its written dependency bounds.
 - **rule class:** A class whose declaration is authored directly in Pets to express the game's reusable structure or rules, such as `GreeneryTile`. This describes provenance only; after class loading, a rule class behaves like a content class. Antonym: content class.
 - **scalar:**
+- **Scope:** A live Component that anchors the lifetime of dependent Components. A Component belongs to a Scope by carrying a type dependency on that exact Scope Component.
 - **select-lock:** The rule that no competing game world mutation may invalidate the facts used to resolve a selected task before that task finishes.
 - **selected task:** The task the assignee has chosen to finish next. Selection sets `Task.selected` and takes the select-lock because resolution has read the current game world; the task may remain abstract and accept partial narrowing.
 - **selection:** The client activity that chooses one pending task to finish next and causes the engine to resolve it. Selection is a promise about ordering, not a timeline commit; commit retains its transactional meaning after execution.
 - **self trigger:**
 - **sequential instruction:**
 - **SetupPhase:** The Terraforming Mars phase gained by transmuting BootstrapPhase away with `SetupPhase FROM Phase`. It creates generation 1, grants starting state such as 20 `TerraformRating`, deals starting cards into each Player's `Hand`, and waits for their discards.
-- **Signal:** A Component that triggers its effects and immediately removes itself.
+- **Signal:** An unscoped point event: a Component that triggers its effects and immediately removes itself, owning no lifetime interval.
 - **singleton type:** A concrete type constrained to exactly one occurrence by an inherited `HAS =1 This` invariant. The invariant does not create the occurrence.
 - **SoloOpponent:** The passive Owner created by `SoloMode`; it is neither a Player nor an Actor and receives no tasks or turns.
 - **source effect:** An effect as authored in `.pets` or generated from structured content data, before class-level inheritance and transformation.
@@ -130,6 +131,7 @@
 - **task id:**
 - **task queue:** The one stored, unordered set of pending tasks in a game world. Every task records its assignee; Actor-specific queues are filtered views of that set. Enumeration order has no gameplay meaning.
 - **task result:** The change events and newly spawned task ids returned by a successful operation.
+- **TemporaryScope:** A Scope depending on a parent Scope that the engine removes after queued work and dependent mandatory cleanup finish.
 - **This:** A built-in contextual binding. In a class declaration it remains late-bound through inheritance and is fixed from the exact context Component; in an effect trigger it denotes that Component's own gain or removal event.
 - **transmutation:** One state change that removes copies of one type and gains the same number of another without exposing an intermediate state.
 - **trigger:** The part of an effect that selects the state changes to which it responds.

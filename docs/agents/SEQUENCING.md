@@ -48,7 +48,7 @@
 - [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt) — `fire` selects the complete
   sibling batch; `stableAutomaticOrder` is diagnostic order only.
 - [`WorldTransaction.kt`](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) —
-  `settleAndCleanUp`, and `Engine.removeTemporaryComponents` next to it.
+  `settleAndCleanUp`, and `Engine.removeTemporaryComponent` next to it.
 - [`ActorEngine.kt`](../../src/common/dev/martianzoo/engine/ActorEngine.kt) —
   `enforceSelectLock` and `requireComplete`.
 - [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) — the class KDoc lists
@@ -356,18 +356,24 @@ must not double as current-action cleanup.
 ## Cleanup vocabulary
 
 There is one invariant here and three policies for satisfying it, and the declarations should say so
-directly. Today `Temporary` is not a `MustCleanUp`, so the sweep that satisfies the invariant is not
-covered by the check that enforces it.
+directly. Today plain `Temporary` is not a `MustCleanUp`, because whole-World temporaries can
+legitimately survive one narrower operation while unrelated queues remain.
 
 | Concept | Meaning |
 | --- | --- |
 | `MustCleanUp` | The invariant: this must not outlive its operation. |
-| `Signal` | Policy 1 — removes itself immediately (`This:: -This!`). |
+| `Signal` | Policy 1 — an unscoped point event that removes itself immediately. |
 | `Barrier` | Policy 2 — removed by the game rule that owns it. |
 | `Temporary` | Policy 3 — the engine removes it when the World is idle. |
+| `TemporaryScope<Parent>` | A child `Scope` combining Policy 3 with the cleanup invariant. |
 
-Prefer making `Temporary` a `MustCleanUp` so one check covers all three, and read the `Temporary`
-sweep as one policy for satisfying the invariant rather than as a second, opposite mechanism.
+`TemporaryScope<Parent>` is the coherent overlap: a nested lifetime anchor that must finish cleanly
+and whose removal is the engine's idle policy. Do not make every `Temporary` a `MustCleanUp` unless
+plain whole-World temporaries first stop crossing narrower operation boundaries.
+
+`Signal` belongs in the same lifetime model without being a `Scope`. It has no scope dependency and
+therefore owns no interval; its automatic self-removal makes it a point event. A `NoScope` component
+would duplicate the meaningful absence of that dependency.
 
 `MustCleanUp` components represent mandatory unfinished state, and each needs an honest completion
 event: debt reaching zero, the end of an action, or another rule-specific fact. A generic Player
@@ -377,26 +383,31 @@ Player.
 ### Current behavior: whole-World idle cleanup
 
 `Temporary` is a narrow component-lifetime contract. Whenever every task queue is empty, the
-outermost atomic scope removes every live instance of that class before notifying workflow that the
-operation completed. Removal effects may create more components or tasks, so the engine runs
-automatic work again and repeats cleanup until an idle pass finds nothing left to remove.
-Only that empty pass allows the workflow callback. Work the callback starts synchronously is
+outermost atomic scope removes one eligible concrete Type's instances at a time. Any direct or
+indirect dependent `MustCleanUp` or `Temporary` blocks that Type's removal, keeping an outer scope alive
+while inner mandatory cleanup settles. After each removal, the engine settles newly created work
+and checks the live queue and dependencies again before choosing another Temporary.
+Cleanup stops when tasks remain or no eligible Type remains. Only then can the workflow callback
+run. Work the callback starts synchronously is
 coalesced into one automatic follow-up step, and the same cleanup loop runs again before the
 resulting position is recorded. Every pass happens inside an atomic transaction. See
-`WorldTransaction.settleAndCleanUp` and `Engine.removeTemporaryComponents`.
+`WorldTransaction.settleAndCleanUp` and `Engine.removeTemporaryComponent`. The regression scenarios
+in `TemporaryCleanupTest` cover indirect dependents, new blockers, queued work, and rollback.
 
-Three classes use it:
+Canonical Terraforming Mars uses it in four places:
 
 - **`EventCard`** — its immediate work and tag reactions finish while the live card still exists,
   and removing it creates the corresponding `PlayedEvent`. Law Suit is a deliberate exception in
   behavior, not in machinery: its authored consequence moves the card straight to `PlayedEvent`, so
   no EventCard is left for idle cleanup.
+- **`CardLocationCleanup<CardLocation>`** — removing it resets a transient card location after the
+  work using that location drains.
 - **`FinalScoringPending`** — a temporary marker created automatically by the terminal `End` Phase.
   Gaining `End` queues every final-scoring reaction. Once those tasks and all their consequences
   drain, removing `FinalScoringPending` queues multiplayer victory assignment while `End` remains as the
   exact current Phase.
-- **`MeasureAward<Award>`** — idle cleanup removes it in the same pass as
-  `FinalScoringPending`. Its automatic removal effects rank Players directly by the funded Award's
+- **`MeasureAward<Award, FinalScoringPending>`** — its dependency keeps final scoring open until
+  award measurement finishes. Its automatic removal effects rank Players directly by the funded Award's
   metric and assign places and their victory points before the queued multiplayer victory
   assignment can run.
 
@@ -439,8 +450,8 @@ Ordered. Stop and report rather than growing any of these into cross-module voca
 1. Settle both blocking questions under Selected direction — cross-Actor scope and scoped-component
    identity — then land the first scoped-completion slice and delete one `TfmGameplay` bridge.
 2. Add the two permutation tests above.
-3. Make `Temporary` a `MustCleanUp` and collapse the two idle sweeps into one invariant with one
-   check.
+3. Make plain `Temporary` a `MustCleanUp` only if whole-World temporaries no longer cross narrower
+   operation boundaries, then collapse the two idle checks into one invariant.
 4. **Head Start** — its sibling tasks currently let its two actions interleave. Prefer using the
    current Prelude turn for the first action and granting a second action turn after normal
    settlement. If authoritative evidence demands one indivisible operation, record the simpler timing
