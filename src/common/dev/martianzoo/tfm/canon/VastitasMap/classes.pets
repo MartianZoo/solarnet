@@ -18,7 +18,7 @@ CLASS VastitasMap : MarsMap
 
 "A Vastitas delegate placement bonus, ignored without Turmoil"
 CLASS VastitasDelegatePlacementBonus : Signal {
-  This IF TurmoilExpansion: PlaceReserveDelegate<Party>
+  This IF TurmoilExpansion: PartyDelegate
 }
 
 // The map areas below are code-generated based on the following comment

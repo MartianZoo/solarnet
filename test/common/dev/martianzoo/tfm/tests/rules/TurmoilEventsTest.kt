@@ -51,7 +51,7 @@ internal class TurmoilEventsTest :
     admin.count("PartyDelegate<MarsFirst, Neutral>") shouldBe 1
     admin.count("PartyDelegate<Reds, Neutral>") shouldBe 1
     admin.count("Dominant<MarsFirst>") shouldBe 1
-    admin.count("ReserveDelegate<Neutral>") shouldBe 11
+    admin.count("PartyDelegate<Neutral> OR Chairman<Neutral>") shouldBe 3
   }
 
   @Test
@@ -66,7 +66,7 @@ internal class TurmoilEventsTest :
     admin.count("Distant<Class<CelebrityLeaders>>") shouldBe 1
     admin.count("PartyDelegate<Greens, Neutral>") shouldBe 1
     admin.count("PartyDelegate<Unity, Neutral>") shouldBe 1
-    admin.count("ReserveDelegate<Neutral>") shouldBe 9
+    admin.count("PartyDelegate<Neutral> OR Chairman<Neutral>") shouldBe 5
 
     admin.runOperation("ChangingTimes") { doTask("Diversity") }
 
@@ -77,21 +77,21 @@ internal class TurmoilEventsTest :
     admin.count("Distant<Class<Diversity>>") shouldBe 1
     admin.count("PartyDelegate<Unity, Neutral>") shouldBe 2
     admin.count("PartyDelegate<Scientists, Neutral>") shouldBe 1
-    admin.count("ReserveDelegate<Neutral>") shouldBe 7
+    admin.count("PartyDelegate<Neutral> OR Chairman<Neutral>") shouldBe 7
   }
 
   @Test
-  internal fun `global event delegate placements are ignored when the neutral reserve is empty`() {
+  internal fun `global event delegate placements are ignored when all neutral delegates are placed`() {
     newGame(TurmoilExpansion)
     repeat(11) {
-      admin.runOperation("PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>")
+      admin.runOperation("PartyDelegate<Scientists, Neutral>")
     }
-    val placedBefore = admin.count("PartyDelegate<Party, Neutral>")
+    val placedBefore = admin.count("PartyDelegate<Neutral>")
 
     admin.runOperation("ChangingTimes") { doTask("CelebrityLeaders") }
 
-    admin.count("ReserveDelegate<Neutral>") shouldBe 0
-    admin.count("PartyDelegate<Party, Neutral>") shouldBe placedBefore
+    admin.count("PartyDelegate<Neutral> OR Chairman<Neutral>") shouldBe 14
+    admin.count("PartyDelegate<Neutral>") shouldBe placedBefore
     admin.count("Distant<Class<CelebrityLeaders>>") shouldBe 1
   }
 
@@ -517,7 +517,7 @@ internal class TurmoilEventsTest :
   }
 
   private fun seatPlayerOneAsChairman() {
-    admin.runOperation("ReserveDelegate<Neutral> FROM Chairman<Neutral>")
-    p1.runOperation("Chairman FROM ReserveDelegate")
+    admin.runOperation("-Chairman<Neutral>")
+    p1.runOperation("Chairman")
   }
 }

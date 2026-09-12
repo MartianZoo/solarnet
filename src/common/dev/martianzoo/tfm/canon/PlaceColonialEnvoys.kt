@@ -12,7 +12,7 @@ internal object PlaceColonialEnvoys : CustomClass() {
   override fun translate(game: GameReader, type0: Type): InstructionTree {
     val owner = type0
     val colonyCount = game.getComponents("Colony").count { getOwner(game, it) == owner }
-    val placeDelegate = parse<InstructionTree>("PlaceReserveDelegate<Party>")
+    val placeDelegate = parse<InstructionTree>("PartyDelegate")
     return InstructionGroup.createTree(List(colonyCount) { placeDelegate })
   }
 }

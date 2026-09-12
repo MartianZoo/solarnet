@@ -96,7 +96,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       cardAction1(FakeAppliedScience) { doTask("Plant") }
       playProject(Mine, 4)
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Greens> FROM ReserveDelegate")
+        doTask("PartyDelegate<Greens>")
       }
       pass()
       admin.doTask("HomeworldSupport")
@@ -116,7 +116,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       cardAction1(FakeAppliedScience) { doTask("Steel") }
       playProject(TitaniumMine, mc = 3, steel = 2)
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Reds> FROM ReserveDelegate")
+        doTask("PartyDelegate<Reds>")
       }
       pass()
       draw(Hospitals)
@@ -130,9 +130,9 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       cardAction1(BoardOfDirectors) {
         doTask("-12 MC")
         playPrelude(RiseToPower) {
-          doTask("PlaceReserveDelegate<Reds>")
-          doTask("PlaceReserveDelegate<Unity>")
-          doTask("PlaceReserveDelegate<Scientists>")
+          doTask("PartyDelegate<Reds>")
+          doTask("PartyDelegate<Unity>")
+          doTask("PartyDelegate<Scientists>")
         }
       }
       playProject(ArcticAlgae, 12)
@@ -141,7 +141,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(UndergroundDetonations, steel = 3)
       cardAction1(UndergroundDetonations)
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Unity> FROM ReserveDelegate")
+        doTask("PartyDelegate<Unity>")
       }
       pass()
       admin.doTask("DryDeserts")
@@ -158,7 +158,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         playPrelude(AntiDesertificationTechniques)
       }
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Greens> FROM ReserveDelegate")
+        doTask("PartyDelegate<Greens>")
       }
       cardAction1(FakeAppliedScience) { addCardResources(BoardOfDirectors) }
       pass(unused = UndergroundDetonations)
@@ -192,7 +192,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       exMachina(fakeWildTags("PlantTag"))
       playProject(RobotPollinators, 9)
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Unity> FROM ReserveDelegate")
+        doTask("PartyDelegate<Unity>")
       }
       playProject(AstraMechanica, 7) {
         doWithoutAutoExec(me) {
@@ -222,10 +222,10 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       cardAction1(RestrictedArea) { draw(Hackers) }
       convertHeat()
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Greens> FROM ReserveDelegate")
+        doTask("PartyDelegate<Greens>")
       }
       stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<Greens> FROM ReserveDelegate")
+        doTask("PartyDelegate<Greens>")
       }
       sellPatents(Hospitals, Hackers)
       cardAction1(UndergroundDetonations)
@@ -280,13 +280,13 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       }
       cardAction1(UndergroundDetonations)
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Scientists>")
       }
       convertPlants { placeTile(5, 7) }
       convertPlants { placeTile(6, 4) }
       stdProject("AsteroidProject")
       stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<Unity> FROM ReserveDelegate")
+        doTask("PartyDelegate<Unity>")
       }
       pass(unused = FakeAppliedScience)
       val previousAdminPolicy = admin.autoExecPolicy
@@ -310,7 +310,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       playProject(MineralDeposit, 5)
       playProject(CulturalMetropolis, mc = 2, steel = 6) {
         placeTile(7, 5)
-        doTask("PlaceReserveDelegate<Greens>")
+        doTask("2 PartyDelegate<Greens>")
       }
       cardAction1(StJosephOfCupertinoMission) {
         pay(mc = 2, steel = 1)
@@ -334,7 +334,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       }
       convertHeat()
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Kelvinists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Kelvinists>")
       }
       cardAction1(FakeAppliedScience) { doTask("Titanium") }
       // Payment reconstruction: database saves 100–101 spend 18 M€ and 3 of 4 steel.
@@ -387,10 +387,10 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         doTask("Plant")
       }
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Kelvinists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Kelvinists>")
       }
       stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+        doTask("PartyDelegate<MarsFirst>")
       }
       pass(unused = setOf(BoardOfDirectors, FakeAppliedScience, UndergroundDetonations))
       admin.doTask("EcoSabotage")
@@ -445,7 +445,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       // Applied Science's wild tag supplies the second Jovian tag for this play.
       exMachina(fakeWildTags("JovianTag"))
       playProject(JovianEnvoys, 2) {
-        doTask("PlaceReserveDelegate<Greens>")
+        doTask("2 PartyDelegate<Greens>")
       }
       sellPatents(SubterraneanReservoir, WaterSplittingPlant, ProtectedGrowth)
       cardAction1(RedShips)
@@ -511,7 +511,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       stdProject("AsteroidProject")
       cardAction1(RedShips)
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Greens> FROM ReserveDelegate")
+        doTask("PartyDelegate<Greens>")
       }
       stdProject("CityProject") { placeTile(3, 4) }
       pass(unused = setOf(BoardOfDirectors, FakeAppliedScience, UndergroundDetonations))
@@ -535,16 +535,16 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       }
       playProject(Recruitment, 0) {
         doTask("RecruitmentExchange<Reds>")
-        doTask("ReserveDelegate<Neutral> FROM PartyDelegate<Reds, Neutral>")
+        doTask("-PartyDelegate<Reds, Neutral>")
       }
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Reds> FROM ReserveDelegate")
+        doTask("PartyDelegate<Reds>")
       }
       stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Scientists>")
       }
       stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Scientists>")
       }
       playProject(EventAnalysts, 1)
       // Applied Science's wild tag supplies the seventh science tag.
@@ -688,8 +688,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
           1 to "PartyDelegate<Greens>",
           2 to "PartyDelegate<Reds>",
           0 to "PartyDelegate<Kelvinists>",
+          7 to "PartyDelegate OR Chairman",
           0 to "LobbyActionAvailable",
-          0 to "ReserveDelegate",
       )
 
       val score = Summarizer(game)

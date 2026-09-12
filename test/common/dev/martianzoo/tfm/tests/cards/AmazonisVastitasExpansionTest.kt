@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -99,10 +99,10 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
     listOf("Amazonis_02_02", "Amazonis_07_11").forEach { area ->
       newGame(Amazonis, TurmoilExpansion)
 
-      p1.runOperation("CityTile<$area>") { doTask("PlaceReserveDelegate<Scientists>") }
+      p1.runOperation("CityTile<$area>") { doTask("PartyDelegate<Scientists>") }
 
       p1.count("PartyDelegate<Scientists>") shouldBe 1
-      p1.count("ReserveDelegate") shouldBe 6
+      p1.count("PartyDelegate OR Chairman") shouldBe 1
       p1.count("LobbyActionAvailable") shouldBe 1
     }
   }
@@ -112,27 +112,29 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
     newGame(Amazonis, TurmoilExpansion)
 
     p1.runOperation("CityTile<Amazonis_08_09>") {
-      doTask("PlaceReserveDelegate<MarsFirst>")
+      doTask("2 PartyDelegate<Scientists>")
     }
 
-    p1.count("PartyDelegate<MarsFirst>") shouldBe 2
+    p1.count("PartyDelegate<Scientists>") shouldBe 2
     p1.count("PartyDelegate") shouldBe 2
-    p1.count("ReserveDelegate") shouldBe 5
+    p1.count("PartyLeader<Scientists>") shouldBe 1
+    admin.count("Dominant<Scientists>") shouldBe 1
+    p1.count("PartyDelegate OR Chairman") shouldBe 2
   }
 
   @Test
   internal fun `Olympus Mons cannot be occupied without two available delegates`() {
     newGame(Amazonis, TurmoilExpansion)
-    repeat(6) { p1.runOperation("PartyDelegate<Unity> FROM ReserveDelegate") }
+    repeat(6) { p1.runOperation("PartyDelegate<Unity>") }
 
-    shouldThrow<NotNowException> {
+    shouldThrow<DeadEndException> {
       p1.runOperation("CityTile<Amazonis_08_09>") {
-        doTask("PlaceReserveDelegate<MarsFirst>")
+        doTask("2 PartyDelegate<MarsFirst>")
       }
     }
 
     p1.count("CityTile<Amazonis_08_09>") shouldBe 0
-    p1.count("ReserveDelegate") shouldBe 1
+    p1.count("PartyDelegate OR Chairman") shouldBe 6
   }
 
   @Test
@@ -140,10 +142,10 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
     listOf("Vastitas_4_8", "Vastitas_9_5").forEach { area ->
       newGame(Vastitas, TurmoilExpansion)
 
-      p1.runOperation("CityTile<$area>") { doTask("PlaceReserveDelegate<Greens>") }
+      p1.runOperation("CityTile<$area>") { doTask("PartyDelegate<Greens>") }
 
       p1.count("PartyDelegate<Greens>") shouldBe 1
-      p1.count("ReserveDelegate") shouldBe 6
+      p1.count("PartyDelegate OR Chairman") shouldBe 1
     }
   }
 
@@ -160,11 +162,11 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
   @Test
   internal fun `Vastitas delegate spaces cannot be occupied without an available delegate`() {
     newGame(Vastitas, TurmoilExpansion)
-    repeat(7) { p1.runOperation("PartyDelegate<Unity> FROM ReserveDelegate") }
+    repeat(7) { p1.runOperation("PartyDelegate<Unity>") }
 
-    shouldThrow<NotNowException> {
+    shouldThrow<DeadEndException> {
       p1.runOperation("CityTile<Vastitas_4_8>") {
-        doTask("PlaceReserveDelegate<Greens>")
+        doTask("PartyDelegate<Greens>")
       }
     }
 

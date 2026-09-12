@@ -26,12 +26,12 @@ internal class AdditionalGoalsTest : CardTest() {
   internal fun `Lobbyist counts a chairman and six party delegates without double counting leaders`() {
     newGame(GameConfig("TurmoilExpansion, Lobbyist, Builder, Engineer", "Player1", "Player2"))
     p1.runOperation("8 MC")
-    repeat(5) { p1.runOperation("PartyDelegate<Scientists> FROM ReserveDelegate") }
-    admin.runOperation("ReserveDelegate<Neutral> FROM Chairman<Neutral>")
-    p1.runOperation("Chairman FROM ReserveDelegate")
+    repeat(5) { p1.runOperation("PartyDelegate<Scientists>") }
+    admin.runOperation("-Chairman<Neutral>")
+    p1.runOperation("Chairman")
     admin.phase("Action")
     shouldThrow<RequirementException> { p1.claimMilestone(cn("Lobbyist")) }
-    p1.stdAction("LobbyAction", 1) { doTask("PartyDelegate<Scientists> FROM ReserveDelegate") }
+    p1.stdAction("LobbyAction", 1) { doTask("PartyDelegate<Scientists>") }
     p1.claimMilestone(cn("Lobbyist")).expect("-8 MC, Lobbyist")
   }
 
@@ -39,12 +39,12 @@ internal class AdditionalGoalsTest : CardTest() {
   internal fun `Politician measures final politics including Event Analysts without forming government`() {
     newGame(GameConfig("TurmoilExpansion, Politician, Thermalist, Miner", "Player1", "Player2"))
     val p2 = requireP2()
-    repeat(3) { p1.runOperation("PartyDelegate<Scientists> FROM ReserveDelegate") }
+    repeat(3) { p1.runOperation("PartyDelegate<Scientists>") }
     admin.runOperation("MeasureInfluence<Player1>")
     p1.count("Influence") shouldBe 2
 
     // Player 2 takes dominance after the snapshot. The old influence must not survive scoring.
-    repeat(4) { p2.runOperation("PartyDelegate<Unity> FROM ReserveDelegate") }
+    repeat(4) { p2.runOperation("PartyDelegate<Unity>") }
     p1.runOperation("EventAnalysts, 8 MC")
     admin.phase("Action")
     p1.fundAward(cn("Politician"), 8)

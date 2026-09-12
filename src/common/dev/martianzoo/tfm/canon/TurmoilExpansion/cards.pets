@@ -203,11 +203,11 @@ CLASS AerialLenses : AutomatedCard {
 
 CLASS CulturalMetropolis : AutomatedCard {
   cost = 20
-  requirement = HAS "(Ruling<Unity> OR 2 PartyDelegate<Unity>), 2 ReserveDelegate"
+  requirement = HAS "Ruling<Unity> OR 2 PartyDelegate<Unity>"
 
   This:: CityTag<This>, BuildingTag<This>
   This: PROD[-Energy, 3 MC], CityTile<>, \
-    PlaceReserveDelegate<Party> THEN PlaceReserveDelegate<Party>
+    2 PartyDelegate
 }
 
 CLASS DiasporaMovement : AutomatedCard {
@@ -241,7 +241,7 @@ CLASS MartianMediaCenter : ActionCard, ActiveCard {
 
   This:: BuildingTag<This>
   This: PROD[2 MC]
-  3 MC -> PlaceReserveDelegate<Party>
+  3 MC -> PartyDelegate
 }
 
 CLASS ParliamentHall : AutomatedCard {
@@ -271,7 +271,7 @@ CLASS PublicCelebrations : EventCard {
 
 CLASS Recruitment : EventCard {
   cost = 2
-  requirement = HAS "ReserveDelegate, 1 (PartyDelegate<Party, Neutral> - PartyLeader<Party, Neutral>)"
+  requirement = HAS "1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)"
 
   This:: EventTag<This>
   This: RecruitmentExchange<Party> / \
@@ -312,11 +312,10 @@ CLASS WildlifeDome : AutomatedCard {
 
 CLASS VoteOfNoConfidence : EventCard {
   cost = 5
-  requirement = HAS "PartyLeader, Chairman<Neutral>, ReserveDelegate"
+  requirement = HAS "PartyLeader, Chairman<Neutral>"
 
   This:: EventTag<This>
-  This: ReserveDelegate<Neutral> FROM Chairman<Neutral> THEN \
-    Chairman FROM ReserveDelegate, TerraformRating
+  This: -Chairman<Neutral> THEN Chairman, TerraformRating
 }
 
 // Supporting declarations contributed by cards in this expansion.

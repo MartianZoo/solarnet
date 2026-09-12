@@ -555,10 +555,7 @@ internal class Prelude2CardsTest : CardTest() {
 
     shouldThrow<RequirementException> { p1.playProject(SummitLogistics, 10) }
 
-    p1.runOperation(
-        "PartyDelegate<Scientists> FROM ReserveDelegate, " +
-            "PartyDelegate<Scientists> FROM ReserveDelegate"
-    )
+    p1.runOperation("PartyDelegate<Scientists>, PartyDelegate<Scientists>")
     p1.playProject(SummitLogistics, 10)
 
     p1.count("ProjectCard") shouldBe 2
@@ -568,20 +565,14 @@ internal class Prelude2CardsTest : CardTest() {
   internal fun `Red Appeasement passes and requires every other player to remain active`() {
     newGame(Prelude2Expansion, TurmoilExpansion)
     admin.phase("Action")
-    p1.runOperation(
-        "ProjectCard, PartyDelegate<Reds> FROM ReserveDelegate, " +
-            "PartyDelegate<Reds> FROM ReserveDelegate"
-    )
+    p1.runOperation("ProjectCard, PartyDelegate<Reds>, PartyDelegate<Reds>")
     requireP2().runOperation("Pass")
 
     shouldThrow<RequirementException> { p1.playProject(RedAppeasement, 0) }
 
     newGame(Prelude2Expansion, TurmoilExpansion)
     admin.phase("Action")
-    p1.runOperation(
-        "ProjectCard, PartyDelegate<Reds> FROM ReserveDelegate, " +
-            "PartyDelegate<Reds> FROM ReserveDelegate"
-    )
+    p1.runOperation("ProjectCard, PartyDelegate<Reds>, PartyDelegate<Reds>")
     val startingProduction = p1.production(cn("MC"))
 
     p1.playProject(RedAppeasement, 0)
@@ -598,7 +589,7 @@ internal class Prelude2CardsTest : CardTest() {
     val startingProduction = p1.production(cn("MC"))
 
     p1.runOperation("$HighCircles") {
-      doTask("PlaceReserveDelegate<Unity>")
+      doTask("2 PartyDelegate<Unity>")
     }
     p1.count("ProjectCard") shouldBe 1
 
@@ -607,9 +598,9 @@ internal class Prelude2CardsTest : CardTest() {
     p1.count("ProjectCard") shouldBe 2
 
     p1.runOperation("$RiseToPower") {
-      doTask("PlaceReserveDelegate<Scientists>")
-      doTask("PlaceReserveDelegate<Reds>")
-      doTask("PlaceReserveDelegate<Greens>")
+      doTask("PartyDelegate<Scientists>")
+      doTask("PartyDelegate<Reds>")
+      doTask("PartyDelegate<Greens>")
     }
     admin.runOperation("MeasureInfluence<Player1>")
 
@@ -667,8 +658,8 @@ internal class Prelude2CardsTest : CardTest() {
 
     p1.runOperation("$ColonialRepresentation")
     p1.runOperation("$ColonialEnvoys") {
-      doTask("PlaceReserveDelegate<Scientists>")
-      doTask("PlaceReserveDelegate<Greens>")
+      doTask("PartyDelegate<Scientists>")
+      doTask("PartyDelegate<Greens>")
     }
     admin.runOperation("MeasureInfluence<Player1>")
 
@@ -704,13 +695,13 @@ internal class Prelude2CardsTest : CardTest() {
   @Test
   internal fun `WG Project draws three preludes and plays one`() {
     newGame(Prelude2Expansion, TurmoilExpansion)
-    admin.runOperation("ReserveDelegate<Neutral> FROM Chairman<Neutral>")
-    p1.runOperation("Chairman FROM ReserveDelegate, 9 MC, ProjectCard")
+    admin.runOperation("-Chairman<Neutral>")
+    p1.runOperation("Chairman, 9 MC, ProjectCard")
     admin.phase("Action")
 
     p1.playProject(WgProject, 9) {
       p1.playPrelude(HighCircles) {
-        doTask("PlaceReserveDelegate<Unity>")
+        doTask("2 PartyDelegate<Unity>")
       }
     }
 

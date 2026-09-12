@@ -38,12 +38,12 @@ CLASS AmazonisMap : MarsMap
 
 "An Amazonis delegate placement bonus, ignored without Turmoil"
 CLASS AmazonisDelegatePlacementBonus : Signal {
-  This IF TurmoilExpansion: PlaceReserveDelegate<Party>
+  This IF TurmoilExpansion: PartyDelegate
 }
 
 "The Olympus Mons bonus, placing two delegates in the same party when Turmoil is in use"
 CLASS AmazonisDoubleDelegatePlacementBonus : Signal {
-  This IF TurmoilExpansion: PlaceReserveDelegate<Party> THEN PlaceReserveDelegate<Party>
+  This IF TurmoilExpansion: 2 PartyDelegate
 }
 
 // The map areas below are code-generated based on the following comment

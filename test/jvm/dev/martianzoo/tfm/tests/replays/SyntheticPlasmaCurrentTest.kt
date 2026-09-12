@@ -96,11 +96,11 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       draw(LocalShading)
 
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Scientists>")
         draw(GhgFactories)
       }
       stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<Reds> FROM ReserveDelegate")
+        doTask("PartyDelegate<Reds>")
       }
       playProject(TowingAComet, mc = 3, titanium = 5) {
         placeTile(2, 6)
@@ -143,7 +143,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       cardAction1(LocalShading)
       draw(Omnicourt)
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Greens> FROM ReserveDelegate")
+        doTask("PartyDelegate<Greens>")
       }
       pass()
       // Riots resolves before the Reds government forms, then the visible events advance.
@@ -180,7 +180,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(AdvancedAlloys, 9)
       draw(GiantSpaceMirror)
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Kelvinists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Kelvinists>")
       }
       playProject(GiantSpaceMirror, mc = 2, titanium = 3)
       playProject(Moss, 4)
@@ -231,7 +231,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(VestaShipyard, titanium = 3)
       playProject(BribedCommittee, 5)
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Scientists>")
         draw(NewHolland)
       }
       pass()
@@ -275,7 +275,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(WavePower, 8)
       playProject(Algae, 10)
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Greens> FROM ReserveDelegate")
+        doTask("PartyDelegate<Greens>")
         draw(SearchForLife)
       }
       pass()
@@ -328,7 +328,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(MethaneFromTitan, mc = 2, titanium = 5)
       playProject(EnergyTapping, 2) { doTask("PROD[-Energy<SoloOpponent>]") }
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Scientists>")
       }
       pass()
       // Snow Cover resolves first, Reds form the government, and the visible events advance.
@@ -367,7 +367,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
 
       cardAction1(LocalShading)
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Reds> FROM ReserveDelegate")
+        doTask("PartyDelegate<Reds>")
         draw(HiTechLab)
       }
       playProject(AtalantaPlanitiaLab, 9) {
@@ -428,7 +428,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       }
       playProject(CallistoPenalMines, mc = 3, titanium = 4)
       playProject(EnvoysFromVenus, 0) {
-        doTask("PlaceReserveDelegate<Kelvinists>")
+        doTask("2 PartyDelegate<Kelvinists>")
         draw(Sabotage)
       }
       playProject(Sabotage, 0) { declineTask() }
@@ -441,7 +441,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(SulphurExports, mc = 5, titanium = 3)
       draw(RegoPlastics)
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Scientists>")
       }
       pass()
       // Homeworld Support pays, Unity forms the government, and the visible events advance.
@@ -498,10 +498,10 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       }
       sellPatents(TropicalResort, UndergroundDetonations, SoilFactory)
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Greens> FROM ReserveDelegate")
+        doTask("PartyDelegate<Greens>")
       }
       stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<Unity> FROM ReserveDelegate")
+        doTask("PartyDelegate<Unity>")
       }
       playProject(GanymedeColony, mc = 1, titanium = 3)
       playProject(SubterraneanReservoir, 10) { placeTile(6, 8) }
@@ -576,7 +576,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
         draw(Heather)
       }
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Kelvinists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Kelvinists>")
         draw(NitriteReducingBacteria)
       }
       playProject(NitriteReducingBacteria, 10)
@@ -687,14 +687,14 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(NoctisFarming, 7)
       convertPlants { placeTile(6, 4) }
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Greens> FROM ReserveDelegate")
+        doTask("PartyDelegate<Greens>")
         draw(FuelFactory)
       }
       playProject(MagneticFieldGeneratorsPromo, 19) { placeTile(5, 7) }
       playProject(Plantation, 12) { placeTile(8, 5) }
       stdProject("AsteroidProject")
       stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<Greens> FROM ReserveDelegate")
+        doTask("PartyDelegate<Greens>")
       }
       pass()
       // Interplanetary Trade pays before Mars First takes power, then the visible events advance.
@@ -752,7 +752,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
         declineTask()
       }
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+        doTask("PartyDelegate<MarsFirst>")
         draw(MartianRails)
       }
       playProject(Bushes, 7)

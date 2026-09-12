@@ -68,7 +68,7 @@ CLASS FakeBannedDelegate : EventCard {
 "Returns one selected non-leader delegate without recalculating its party"
 CLASS FakeBannedDelegateRemoval<Party, Anyone> : Owned<Player>, Barrier {
   HAS MAX 1 This
-  This: ReserveDelegate<Anyone> FROM PartyDelegate<Party, Anyone> THEN -This!
+  This: -PartyDelegate<Party, Anyone> THEN -This!
 }
 
 "Septem Tribus with an inert wild tag"

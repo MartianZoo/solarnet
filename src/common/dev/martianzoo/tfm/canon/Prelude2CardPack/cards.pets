@@ -105,7 +105,7 @@ CLASS HighCircles : CardFront<Class<PreludeCard>> {
 
   This:: EarthTag<This>
   This: TerraformRating, CARDS[SearchForCard(HAS partyRequirement)], \
-    PlaceReserveDelegate<Party> THEN PlaceReserveDelegate<Party>
+    2 PartyDelegate
   MeasureInfluence:: HighCirclesInfluence
 }
 
@@ -159,9 +159,9 @@ CLASS RiseToPower : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This: PROD[3 MC], \
-    PlaceReserveDelegate<Party>, \
-    PlaceReserveDelegate<Party>, \
-    PlaceReserveDelegate<Party>
+    PartyDelegate, \
+    PartyDelegate, \
+    PartyDelegate
 }
 
 CLASS SoilBacteria : CardFront<Class<PreludeCard>> {
@@ -261,7 +261,7 @@ CLASS EnvoysFromVenus : EventCard {
   requirement = HAS "3 VenusTag"
 
   This:: VenusTag<This>, EventTag<This>
-  This: PlaceReserveDelegate<Party> THEN PlaceReserveDelegate<Party>
+  This: 2 PartyDelegate
 }
 
 CLASS FloatingRefinery : ActionCard, ActiveCard, ResourceCard<Class<Floater>> {
@@ -303,7 +303,7 @@ CLASS JovianEnvoys : EventCard {
   requirement = HAS "2 JovianTag"
 
   This:: EventTag<This>
-  This: PlaceReserveDelegate<Party> THEN PlaceReserveDelegate<Party>
+  This: 2 PartyDelegate
 }
 
 CLASS MicrogravityNutrition : AutomatedCard {
@@ -344,7 +344,7 @@ CLASS SponsoringNation : AutomatedCard {
 
   This:: EarthTag<This>
   This: 3 TerraformRating, \
-    PlaceReserveDelegate<Party> THEN PlaceReserveDelegate<Party>
+    2 PartyDelegate
 }
 
 CLASS StratosphericExpedition : EventCard {

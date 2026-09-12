@@ -17,13 +17,13 @@ internal class TurmoilGovernmentTest :
     val p2 = requireP2()
     clearSetupPolitics()
     p1.runOperation("RulingBonusProbe, 2 BuildingTag<RulingBonusProbe>")
-    admin.runOperation("ReserveDelegate<Neutral> FROM Chairman<Neutral>")
-    p2.runOperation("Chairman FROM ReserveDelegate")
-    p1.runOperation("PartyDelegate<MarsFirst> FROM ReserveDelegate")
-    p1.runOperation("PartyDelegate<MarsFirst> FROM ReserveDelegate")
-    p2.runOperation("PartyDelegate<MarsFirst> FROM ReserveDelegate")
-    admin.runOperation("PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>")
-    admin.runOperation("PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>")
+    admin.runOperation("-Chairman<Neutral>")
+    p2.runOperation("Chairman")
+    p1.runOperation("PartyDelegate<MarsFirst>")
+    p1.runOperation("PartyDelegate<MarsFirst>")
+    p2.runOperation("PartyDelegate<MarsFirst>")
+    admin.runOperation("PartyDelegate<Kelvinists, Neutral>")
+    admin.runOperation("PartyDelegate<Reds, Neutral>")
 
     admin.runOperation("FormGovernment")
 
@@ -38,10 +38,10 @@ internal class TurmoilGovernmentTest :
     p1.count("TerraformRating") shouldBe 21
     admin.count("Dominant<Kelvinists>") shouldBe 1
     p1.count("LobbyActionAvailable") shouldBe 1
-    p1.count("ReserveDelegate") shouldBe 6
+    p1.count("PartyDelegate OR Chairman") shouldBe 1
     p2.count("LobbyActionAvailable") shouldBe 1
-    p2.count("ReserveDelegate") shouldBe 7
-    admin.count("ReserveDelegate<Neutral>") shouldBe 12
+    p2.count("PartyDelegate OR Chairman") shouldBe 0
+    admin.count("PartyDelegate<Neutral> OR Chairman<Neutral>") shouldBe 2
     admin.count("DominancePriority") shouldBe 0
   }
 
@@ -135,12 +135,12 @@ internal class TurmoilGovernmentTest :
   }
 
   private fun sendNeutralDelegate(party: String) {
-    admin.runOperation("PartyDelegate<$party, Neutral> FROM ReserveDelegate<Neutral>")
+    admin.runOperation("PartyDelegate<$party, Neutral>")
   }
 
   private fun clearSetupPolitics() {
     listOf("MarsFirst", "Reds").forEach { party ->
-      admin.runOperation("ReserveDelegate<Neutral> FROM PartyDelegate<$party, Neutral>")
+      admin.runOperation("-PartyDelegate<$party, Neutral>")
       admin.runOperation("-PartyLeader<$party, Neutral>!")
     }
     admin.runOperation("-Dominant!")
