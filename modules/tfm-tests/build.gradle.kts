@@ -16,6 +16,7 @@ kotlin {
         implementation(libs.kotest.assertions.core)
         implementation(project(":agent"))
         implementation(project(":engine"))
+        implementation(project(":generated"))
         implementation(project(":pets"))
         implementation(project(":script"))
         implementation(project(":tfm-canon"))

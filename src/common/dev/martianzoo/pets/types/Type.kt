@@ -101,6 +101,17 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
     get() = groundType.narrowedDependencies
 
   /**
+   * Projects this type onto [superclass], retaining the resolved dependency bounds carried by this
+   * type. This is the type-level counterpart of walking [Class.directSuperclasses].
+   */
+  public fun asSupertype(superclass: Class): GroundType {
+    require(rootClass.isSubtypeOf(superclass)) {
+      "${rootClass.className} is not a subclass of ${superclass.className}"
+    }
+    return superclass.withAllDependencies(dependencies)
+  }
+
+  /**
    * This type's natural expression. A ground type uses the compact form of
    * [rule T5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types);
    * a type variable retains its authored expression under T13-1.

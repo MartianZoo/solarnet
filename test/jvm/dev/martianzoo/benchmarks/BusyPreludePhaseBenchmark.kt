@@ -31,7 +31,7 @@ import org.openjdk.jmh.annotations.TearDown
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 public open class BusyPreludePhaseBenchmark {
   private lateinit var game: World
-  private lateinit var me: TfmGameplay
+  private lateinit var me: TfmGameplay<*>
   private lateinit var workflow: TfmWorkflow.Stepwise
   private lateinit var beforeCorporationPhase: Checkpoint
 

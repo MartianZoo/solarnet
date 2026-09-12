@@ -55,8 +55,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `PayFromCard` need not inherit `Hidden` through `MustCleanUp`.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
-- Discard the uncommitted typed custom-metric/code-generation experiment; it was evaluated and
-  considered an unsuccessful direction.
+- Migrate the remaining engine tests from legacy card-name constants to generated card occurrences
+  and class literals, then remove the legacy constants and `ClassName` helper overloads.
 - Complete `Game20260820Test` beyond its current partial generation-6 checkpoint using the preserved
   log, player data, and eight later screenshots; keep every new checkpoint independently sourced.
 - Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `tfm-canon`,

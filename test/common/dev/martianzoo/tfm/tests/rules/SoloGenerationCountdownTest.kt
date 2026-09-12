@@ -61,7 +61,7 @@ internal class SoloGenerationCountdownTest {
     player.count("Victory<Player1>") shouldBe 1
   }
 
-  private fun finishNeutralSetup(admin: TfmGameplay) {
+  private fun finishNeutralSetup(admin: TfmGameplay<*>) {
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")

@@ -147,7 +147,7 @@ internal class StinaScriptTest {
     )
   }
 
-  private fun TfmGameplay.assertProduction(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
+  private fun TfmGameplay<*>.assertProduction(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
     assertEquals(m, production(cn("MC")), "MC production")
     assertEquals(s, production(cn("Steel")), "Steel production")
     assertEquals(t, production(cn("Titanium")), "Titanium production")

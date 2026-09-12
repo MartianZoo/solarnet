@@ -3,10 +3,20 @@ package dev.martianzoo.tfm.tests
 import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.World
+import dev.martianzoo.generated.ActionCard
+import dev.martianzoo.generated.CardFront
+import dev.martianzoo.generated.GlobalParameter
+import dev.martianzoo.generated.Owned
+import dev.martianzoo.generated.Player
+import dev.martianzoo.generated.ResourceCard
+import dev.martianzoo.generated.StandardAction
+import dev.martianzoo.generated.StandardProject
+import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
@@ -29,13 +39,22 @@ internal abstract class TfmTest {
   protected val agents
     get() = game.testAgents()
 
-  protected val admin: TfmGameplay
+  protected val admin: TfmGameplay<*>
     get() = game.testTfm(ADMIN)
+
+  /** Binds a generated owner type to this World's configured runtime Player of the same Class. */
+  protected fun <P : Player> World.tfm(owner: P): TfmGameplay<P> {
+    val actor =
+        actors.filterIsInstance<dev.martianzoo.pets.data.Player>().single {
+          it.className == owner.expression.className
+        }
+    return TfmGameplay(testAgents(), actor)
+  }
 
   protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
 
   protected fun <T> OperationScope.doWithoutAutoExec(
-      agent: TfmGameplay,
+      agent: TfmGameplay<*>,
       body: OperationScope.() -> T,
   ): T {
     val previousAutoExecPolicy = agent.autoExecPolicy
@@ -47,31 +66,118 @@ internal abstract class TfmTest {
     }
   }
 
-  protected fun TfmGameplay.placeTile(row: Int, column: Int): TaskResult =
+  protected fun TfmGameplay<*>.placeTile(row: Int, column: Int): TaskResult =
       doTask(tilePlacement(reader, pendingTasks(), row, column))
 
   protected fun OperationScope.placeTile(row: Int, column: Int) {
     doTask(tilePlacement(reader, tasks.extract { it }, row, column))
   }
 
-  protected fun TfmGameplay.addCardResources(card: ClassName, count: Int? = null): TaskResult =
+  protected fun TfmGameplay<*>.addCardResources(card: ClassName, count: Int? = null): TaskResult =
       doTask(cardResources(reader, pendingTasks(), card, count))
 
   protected fun OperationScope.addCardResources(card: ClassName, count: Int? = null) {
     doTask(cardResources(reader, tasks.extract { it }, card, count))
   }
 
-  protected fun TfmGameplay.wgt(choice: String): TaskResult = doTask("$choice! BY Admin")
+  protected fun <P : Player> TfmGameplay<P>.addCardResources(
+      card: ResourceCard<P, *, *>
+  ): TaskResult = addCardResources(card.expression.className)
+
+  protected fun <P : Player> TypedOperationBody<P>.addCardResources(card: ResourceCard<P, *, *>) {
+    addCardResources(card.expression.className)
+  }
+
+  protected fun TfmGameplay<*>.wgt(choice: String): TaskResult = doTask("$choice! BY Admin")
+
+  protected fun TfmGameplay<*>.wgt(choice: GlobalParameter): TaskResult = wgt(choice.toString())
 
   protected fun OperationScope.wgt(choice: String) {
     doTask("$choice! BY Admin")
   }
 
-  protected fun TfmGameplay.declineTask(): TaskResult {
+  protected fun OperationScope.wgt(choice: GlobalParameter) {
+    wgt(choice.toString())
+  }
+
+  protected fun <P : Player> TfmGameplay<P>.stdAction(
+      action: StandardAction,
+      which: Int = 1,
+      body: TypedOperationBody<P>.() -> Unit = {},
+  ): TaskResult = stdAction(action.toString(), which, body = typedBody(body))
+
+  protected fun <P : Player> TfmGameplay<P>.stdProject(
+      project: StandardProject,
+      body: TypedOperationBody<P>.() -> Unit = {},
+  ): TaskResult = stdProject(project.toString(), body = typedBody(body))
+
+  protected fun <P : Player> TypedOperationBody<P>.doTask(component: Owned<P>) {
+    doTask(component.toString())
+  }
+
+  protected fun <P : Player> TfmGameplay<P>.playPrelude(
+      card: CardFront<P, *>,
+      body: TypedOperationBody<P>.() -> Unit = {},
+  ): TaskResult = playPrelude(card.expression.className, typedBody(body))
+
+  protected fun <P : Player> TfmGameplay<P>.playProject(
+      card: CardFront<P, *>,
+      megacredits: Int = 0,
+      steel: Int = 0,
+      titanium: Int = 0,
+      body: TypedOperationBody<P>.() -> Unit = {},
+  ): TaskResult =
+      playProject(
+          card.expression.className,
+          megacredits,
+          steel,
+          titanium,
+          body = typedBody(body),
+      )
+
+  protected fun <P : Player> TfmGameplay<P>.cardAction1(
+      card: ActionCard<P, *>,
+      body: TypedOperationBody<P>.() -> Unit = {},
+  ): TaskResult = cardAction1(card.expression.className, typedBody(body))
+
+  protected fun <P : Player> TfmGameplay<P>.cardAction2(
+      card: ActionCard<P, *>,
+      body: TypedOperationBody<P>.() -> Unit = {},
+  ): TaskResult = cardAction2(card.expression.className, typedBody(body))
+
+  protected fun <P : Player> TypedOperationBody<P>.cardAction1(
+      card: ActionCard<P, *>,
+      body: TypedOperationBody<P>.() -> Unit = {},
+  ) {
+    with(gameplay) {
+      this@cardAction1.cardAction1(card.expression.className, typedBody(body))
+    }
+  }
+
+  protected fun <P : Player> TypedOperationBody<P>.cardAction1(
+      card: ActionCard<P, *>,
+      x: Int,
+      body: TypedOperationBody<P>.() -> Unit = {},
+  ) {
+    with(gameplay) {
+      this@cardAction1.cardAction1(card.expression.className, x, typedBody(body))
+    }
+  }
+
+  protected fun <P : Player> TypedOperationBody<P>.cardAction2(
+      card: ActionCard<P, *>,
+      body: TypedOperationBody<P>.() -> Unit = {},
+  ) {
+    with(gameplay) {
+      this@cardAction2.cardAction2(card.expression.className, typedBody(body))
+    }
+  }
+
+  protected fun TfmGameplay<*>.declineTask(): TaskResult {
     return doTask("Ok")
   }
 
-  protected fun TfmGameplay.declineTask(instruction: String): TaskResult {
+  protected fun TfmGameplay<*>.declineTask(instruction: String): TaskResult {
     val taskId = singleDeclinableTaskId(pendingTasks(), reader, instruction)
     return doTask("Ok", taskId)
   }
@@ -85,15 +191,31 @@ internal abstract class TfmTest {
     doTask("Ok", taskId)
   }
 
-  protected fun TfmGameplay.playCorp(
+  protected fun <A : HasExpression> TfmGameplay<A>.playCorp(
       cardName: ClassName,
-      body: TfmGameplay.() -> Unit = {},
+      body: TfmGameplay<A>.() -> Unit = {},
   ): TaskResult {
     val player = this
     return inTurn {
       playCorp(cardName)
       player.body()
     }
+  }
+
+  protected fun <P : Player> TfmGameplay<P>.playCorp(
+      card: CardFront<P, *>,
+      body: TfmGameplay<P>.() -> Unit,
+  ): TaskResult = playCorp(card.expression.className, body)
+
+  private fun <P : Player> TfmGameplay<P>.typedBody(
+      body: TypedOperationBody<P>.() -> Unit
+  ): OperationBlock = {
+    val operation = this
+    val gameplay = this@typedBody
+    object : TypedOperationBody<P>, OperationScope by operation {
+          override val gameplay: TfmGameplay<P> = gameplay
+        }
+        .body()
   }
 
   private fun tilePlacement(
@@ -160,6 +282,6 @@ internal abstract class TfmTest {
     return matches.single().id
   }
 
-  private fun TfmGameplay.pendingTasks(): List<Task> =
+  private fun TfmGameplay<*>.pendingTasks(): List<Task> =
       game.tasks.extract { it }.filter { it.assignee == actor }
 }

@@ -20,9 +20,9 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 
 internal abstract class AbstractFullGameTest : TfmTest() {
-  protected lateinit var p1: TfmGameplay
-  protected lateinit var p2: TfmGameplay
-  protected lateinit var p3: TfmGameplay
+  protected lateinit var p1: TfmGameplay<*>
+  protected lateinit var p2: TfmGameplay<*>
+  protected lateinit var p3: TfmGameplay<*>
 
   protected abstract val config: GameConfig
   /** Pets declarations for concrete Players with sourced per-seat setup rules. */
@@ -40,7 +40,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   }
 
   /** Returns fresh gameplay for the Player occupying the one-based [seat]. */
-  protected fun player(seat: Int): TfmGameplay {
+  protected fun player(seat: Int): TfmGameplay<Player> {
     require(seat > 0) { "seat numbers begin at 1" }
     val player = game.actors.filterIsInstance<Player>().getOrNull(seat - 1)
     requireNotNull(player) { "no Player occupies seat $seat" }
@@ -58,7 +58,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
 
   // Script-local counterparts live in
   // test/common/dev/martianzoo/tfm/script/StinaScriptTest.kt.
-  protected fun TfmGameplay.assertProduction(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
+  protected fun TfmGameplay<*>.assertProduction(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
     assertProds(
         m to "MC",
         s to "Steel",
@@ -69,7 +69,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     )
   }
 
-  protected fun TfmGameplay.assertResources(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
+  protected fun TfmGameplay<*>.assertResources(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
     assertCounts(
         m to "MC",
         s to "Steel",
@@ -80,11 +80,11 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     )
   }
 
-  protected fun TfmGameplay.assertCardResources(vararg resources: Pair<Int, ClassName>) {
+  protected fun TfmGameplay<*>.assertCardResources(vararg resources: Pair<Int, ClassName>) {
     assertCounts(*resources.map { (count, card) -> count to "CardResource<$card>" }.toTypedArray())
   }
 
-  protected fun TfmGameplay.assertUnusedActionCards(vararg cardNames: ClassName) {
+  protected fun TfmGameplay<*>.assertUnusedActionCards(vararg cardNames: ClassName) {
     val expectedUnusedActionCards = cardNames.toSet()
     val unusedActionCards =
         reader
@@ -97,7 +97,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   }
 
   /** Reproduces an evidenced player mistake without leaving a task selected against stale state. */
-  protected fun TfmGameplay.exMachina(adjustment: String) {
+  protected fun TfmGameplay<*>.exMachina(adjustment: String) {
     agents.exMachina(actor, adjustment)
   }
 
@@ -105,7 +105,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     dev.martianzoo.tfm.tests.retainStartingProjects(game, *retainedCounts)
   }
 
-  protected fun TfmGameplay.assertDashMiddle(
+  protected fun TfmGameplay<*>.assertDashMiddle(
       played: Int,
       actions: Int? = null,
       vp: Int,
@@ -123,7 +123,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     assertVps(vp)
   }
 
-  protected fun TfmGameplay.assertDashRight(
+  protected fun TfmGameplay<*>.assertDashRight(
       events: Int,
       tagless: Int,
       cities: Int,
@@ -152,7 +152,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     }
   }
 
-  private fun TfmGameplay.assertVps(expected: Int) {
+  private fun TfmGameplay<*>.assertVps(expected: Int) {
     val onTransactionComplete = game.onTransactionComplete
     val checkpoint = game.timeline.checkpoint()
     val autoExecPolicys = game.actors.associateWith { game.testAgent(it).autoExecPolicy }
@@ -187,7 +187,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   }
 }
 
-internal fun TfmGameplay.assertTags(
+internal fun TfmGameplay<*>.assertTags(
     but: Int = 0,
     spt: Int = 0,
     sct: Int = 0,

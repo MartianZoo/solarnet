@@ -23,4 +23,4 @@ internal fun World.testAgents(): Agents {
 internal fun World.testAgent(actor: Actor): Agent = testAgents()[actor]
 
 /** Test-only seam for obtaining Terraforming Mars gameplay for [actor]. */
-internal fun World.testTfm(actor: Actor): TfmGameplay = testAgents().tfm(actor)
+internal fun <A : Actor> World.testTfm(actor: A): TfmGameplay<A> = testAgents().tfm(actor)

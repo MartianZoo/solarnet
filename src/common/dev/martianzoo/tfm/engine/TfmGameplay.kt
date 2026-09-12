@@ -8,6 +8,7 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
@@ -34,7 +35,8 @@ private val MC: ClassName = cn("MC")
  * Wraps and extends an [Agent] to provide much more convenient functions specific to *Terraforming
  * Mars*.
  */
-public class TfmGameplay(
+public class TfmGameplay<A : HasExpression>
+public constructor(
     private val agents: Agents,
     override val actor: Actor,
 ) : Agent by agents[actor] {
@@ -45,13 +47,13 @@ public class TfmGameplay(
   private var explicitUnusedActionCardsRequired = false
   private var allowNondefaultPayment = false
 
-  private fun asActor(actor: Actor) =
-      TfmGameplay(agents, actor).also {
+  private fun <Other : Actor> asActor(actor: Other): TfmGameplay<Other> =
+      TfmGameplay<Other>(agents, actor).also {
         if (explicitPaymentChoicesRequired) it.requireExplicitPaymentChoices()
         if (explicitUnusedActionCardsRequired) it.requireExplicitUnusedActionCards()
       }
 
-  public fun asPlayer(player: Player): TfmGameplay = asActor(player)
+  public fun asPlayer(player: Player): TfmGameplay<Player> = asActor(player)
 
   public fun nextGeneration(vararg cardsBought: Int) {
     phase("Production")
@@ -156,7 +158,7 @@ public class TfmGameplay(
    * offer is deliberately left in place so this block can contain the rest of the generation.
    */
   // TODO: Contract temporary tfm-tests gameplay seams.
-  public fun turn(body: TfmGameplay.() -> Unit) {
+  public fun turn(body: TfmGameplay<A>.() -> Unit) {
     body()
     if (secondActionOffer() != null) declineSecondAction()
   }
@@ -526,11 +528,11 @@ public class TfmGameplay(
     allowNondefaultPayment = true
   }
 
-  public fun requireExplicitPaymentChoices(): TfmGameplay = apply {
+  public fun requireExplicitPaymentChoices(): TfmGameplay<A> = apply {
     explicitPaymentChoicesRequired = true
   }
 
-  public fun requireExplicitUnusedActionCards(): TfmGameplay = apply {
+  public fun requireExplicitUnusedActionCards(): TfmGameplay<A> = apply {
     explicitUnusedActionCardsRequired = true
   }
 
@@ -650,6 +652,6 @@ public class TfmGameplay(
 
   public companion object {
     /** Creates Terraforming Mars conveniences for this world's [actor]. */
-    public fun Agents.tfm(actor: Actor): TfmGameplay = TfmGameplay(this, actor)
+    public fun <A : Actor> Agents.tfm(actor: A): TfmGameplay<A> = TfmGameplay(this, actor)
   }
 }

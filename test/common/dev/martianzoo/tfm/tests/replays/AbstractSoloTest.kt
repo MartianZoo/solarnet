@@ -7,7 +7,7 @@ import kotlin.test.BeforeTest
 
 /** Follow-along solo tests driven by the engine-owned game workflow. */
 internal abstract class AbstractSoloTest : CardTrackingFullGameTest() {
-  protected lateinit var me: TfmGameplay
+  protected lateinit var me: TfmGameplay<*>
   private lateinit var workflow: TfmWorkflow.Automatic
 
   protected abstract fun cityAreas(): Pair<String, String>

@@ -440,6 +440,11 @@ internal constructor(
         DependencyPath(key) in it.paths
       }
 
+  /** Dependency paths which one authored type-variable equality requires to share a target. */
+  public val dependencyLinkages: List<Set<DependencyPath>> by lazy {
+    dependencyEqualities().map(DependencyEquality::paths)
+  }
+
   private fun equalityError(equality: DependencyEquality, dependencies: DependencySet): Nothing =
       error(
           "Type-variable ${equality.expressions.joinToString()} dependencies disagree in " +

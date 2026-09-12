@@ -28,6 +28,8 @@ val modules =
         "web",
         "game-viewer",
         "tools",
+        "codegen",
+        "generated",
         "benchmarks",
     )
 

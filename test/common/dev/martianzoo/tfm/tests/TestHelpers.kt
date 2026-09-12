@@ -55,7 +55,7 @@ internal fun retainStartingProjects(game: World, vararg retainedCounts: Int) {
 }
 
 internal fun playCorporationWithoutStartingProjects(
-    player: TfmGameplay,
+    player: TfmGameplay<*>,
     corporation: ClassName,
 ): TaskResult = player.inTurn {
   doTask("PlayCard<Class<CorporationCard>, Class<$corporation>, Hand>")
@@ -147,10 +147,10 @@ object TestHelpers {
     return selected.take(count).toSet()
   }
 
-  fun TfmGameplay.assertCounts(vararg pairs: Pair<Int, String>) =
+  fun TfmGameplay<*>.assertCounts(vararg pairs: Pair<Int, String>) =
       pairs.map { this.count(it.second) } shouldBe pairs.map { it.first }
 
-  fun TfmGameplay.assertProds(vararg pairs: Pair<Int, String>) =
+  fun TfmGameplay<*>.assertProds(vararg pairs: Pair<Int, String>) =
       pairs.map { production(cn(it.second)) } shouldBe pairs.map { it.first }
 
   fun assertNetChanges(

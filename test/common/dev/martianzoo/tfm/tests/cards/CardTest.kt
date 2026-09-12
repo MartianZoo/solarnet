@@ -37,10 +37,10 @@ internal abstract class CardTest(
       additionalClassDeclarations: Set<ClassDeclaration>
   ) : this({ additionalClassDeclarations })
 
-  protected lateinit var p1: TfmGameplay
+  protected lateinit var p1: TfmGameplay<*>
     private set
 
-  private var p2: TfmGameplay? = null
+  private var p2: TfmGameplay<*>? = null
     private set
 
   private var workflow: TfmWorkflow.Automatic? = null
@@ -125,10 +125,10 @@ internal abstract class CardTest(
     )
   }
 
-  protected fun requireP2(): TfmGameplay = requireNotNull(p2) { "This test needs two players" }
+  protected fun requireP2(): TfmGameplay<*> = requireNotNull(p2) { "This test needs two players" }
 
   protected fun playCorporationWithoutStartingProjects(
-      player: TfmGameplay,
+      player: TfmGameplay<*>,
       corporation: ClassName,
   ): TaskResult =
       dev.martianzoo.tfm.tests.playCorporationWithoutStartingProjects(player, corporation)
@@ -215,7 +215,7 @@ internal abstract class CardTest(
     }
   }
 
-  private fun TfmGameplay.topOffMoney(target: Int) {
+  private fun TfmGameplay<*>.topOffMoney(target: Int) {
     val amount = target - count("MC")
     require(amount >= 0) { "$actor already has more than $target MC" }
     if (amount > 0) sneak("$amount MC")
@@ -227,7 +227,7 @@ internal abstract class CardTest(
   }
 
   /** Runs an instruction through the engine while hiding the uninteresting Agent plumbing. */
-  protected fun TfmGameplay.runOperation(
+  protected fun TfmGameplay<*>.runOperation(
       instruction: String,
       body: OperationBlock = {},
   ): TaskResult = runOperation(instruction, body)

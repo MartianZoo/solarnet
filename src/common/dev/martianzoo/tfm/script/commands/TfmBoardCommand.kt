@@ -33,7 +33,7 @@ internal class TfmBoardCommand(repl: ScriptSession) : AbstractTfmCommand(repl, "
       PlayerBoardToText(tfm().asPlayer(repl.player(args)), repl.useAnsiColors).board()
 
   internal class PlayerBoardToText(
-      private val tfm: TfmGameplay,
+      private val tfm: TfmGameplay<*>,
       private val useColors: Boolean = true,
   ) {
 

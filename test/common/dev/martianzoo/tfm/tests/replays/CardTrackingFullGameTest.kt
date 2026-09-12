@@ -4,6 +4,8 @@ import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.engine.Timeline.Checkpoint
+import dev.martianzoo.generated.CardFront
+import dev.martianzoo.generated.Class as PetsClass
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -26,7 +28,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   }
 
   /** Assigns sourced identities to this Player's next anonymous project-card selection. */
-  protected fun TfmGameplay.expectProjectCards(vararg cardClasses: ClassName) {
+  protected fun TfmGameplay<*>.expectProjectCards(vararg cardClasses: ClassName) {
     syncCardPlays()
     cardClasses.forEach { cardClass ->
       check(cards.put(cardClass, Selecting(player)) == null) {
@@ -36,7 +38,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   }
 
   /** Records a sourced deck exit that the game model omits entirely. */
-  protected fun TfmGameplay.discardProjectCardsFromDeck(vararg cardClasses: ClassName) {
+  protected fun TfmGameplay<*>.discardProjectCardsFromDeck(vararg cardClasses: ClassName) {
     syncCardPlays()
     cardClasses.forEach { cardClass ->
       check(cards.put(cardClass, Terminal) == null) { "$cardClass has already left the deck" }
@@ -44,7 +46,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
   }
 
   /** Marks the named cards from the current selection as terminal. */
-  protected fun TfmGameplay.discardUnselectedProjectCards(vararg cardClasses: ClassName) {
+  protected fun TfmGameplay<*>.discardUnselectedProjectCards(vararg cardClasses: ClassName) {
     syncCardPlays()
     discardUnselectedProjectCards(player, cardClasses)
   }
@@ -84,7 +86,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
     }
   }
 
-  protected fun TfmGameplay.draw(vararg cardClasses: ClassName) {
+  protected fun TfmGameplay<*>.draw(vararg cardClasses: ClassName) {
     syncCardPlays()
     cardClasses.forEach { cardClass ->
       when (val location = cards[cardClass]) {
@@ -100,7 +102,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
     }
   }
 
-  protected fun TfmGameplay.returnToHand(vararg cardClasses: ClassName) {
+  protected fun TfmGameplay<*>.returnToHand(vararg cardClasses: ClassName) {
     syncCardPlays()
     cardClasses.forEach { cardClass ->
       val location = cards[cardClass]
@@ -111,23 +113,37 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
     }
   }
 
-  protected fun TfmGameplay.buyCards(vararg cardClasses: ClassName): TaskResult {
+  protected fun TfmGameplay<*>.draw(vararg cards: PetsClass<CardFront<*, *>>) {
+    draw(*cards.map { it.className }.toTypedArray())
+  }
+
+  protected fun TfmGameplay<*>.buyCards(vararg cardClasses: ClassName): TaskResult {
     val result = buyCards(cardClasses.size)
     draw(*cardClasses)
     return result
   }
 
-  protected fun TfmGameplay.discard(vararg cardClasses: ClassName) {
+  protected fun TfmGameplay<*>.buyCards(vararg cards: PetsClass<CardFront<*, *>>): TaskResult =
+      buyCards(*cards.map { it.className }.toTypedArray())
+
+  protected fun TfmGameplay<*>.discard(vararg cardClasses: ClassName) {
     syncCardPlays()
     cardClasses.forEach { cardClass -> move(cardClass, Hand(player), Terminal) }
   }
 
-  protected fun TfmGameplay.sellPatents(vararg cardClasses: ClassName): TaskResult {
+  protected fun TfmGameplay<*>.discard(vararg cards: PetsClass<CardFront<*, *>>) {
+    discard(*cards.map { it.className }.toTypedArray())
+  }
+
+  protected fun TfmGameplay<*>.sellPatents(vararg cardClasses: ClassName): TaskResult {
     return stdProject("SellPatentsProject") {
       doTask("${cardClasses.size} MC FROM ProjectCard<Hand>!")
       discard(*cardClasses)
     }
   }
+
+  protected fun TfmGameplay<*>.sellPatents(vararg cards: PetsClass<CardFront<*, *>>): TaskResult =
+      sellPatents(*cards.map { it.className }.toTypedArray())
 
   protected fun assertCardTrackingComplete() {
     syncCardPlays()
@@ -144,7 +160,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
     }
   }
 
-  protected val TfmGameplay.cardsHand: Set<ClassName>
+  protected val TfmGameplay<*>.cardsHand: Set<ClassName>
     get() {
       syncCardPlays()
       return cards.filterValues { it == Hand(player) }.keys
@@ -198,7 +214,7 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
         "$expression changed without a Player owner in $this"
       }
 
-  private val TfmGameplay.player: Player
+  private val TfmGameplay<*>.player: Player
     get() = actor as Player
 
   private fun Expression?.isProjectCardAt(area: ClassName): Boolean =
