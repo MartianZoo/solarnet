@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -69,6 +70,27 @@ internal class BugsTest : CardTest() {
       doTask("18 Pay<Class<MC>> FROM MC")
       placeTile(5, 5)
     }
+  }
+
+  @Test
+  internal fun `Fake Preservation Program incorrectly triggers Terraforming Deal on reversed TR`() {
+    newGame(Prelude2Expansion, FakeStuffBundle)
+    p1.phase("Prelude")
+    p1.runOperation("FakePreservationProgram, TerraformingDeal")
+    admin.phase("Action")
+
+    // The printed Preservation Program prevents the gain, and therefore this rebate.
+    p1.runOperation("TerraformRating").expect("0 TerraformRating, 2 MC")
+  }
+
+  @Test
+  internal fun `Fake Thawer incorrectly retains credits after temperature reductions`() {
+    newGame(GameConfig("FakeStuffBundle, FakeThawer, Builder, Engineer", "Player1", "Player2"))
+    p1.runOperation("8 MC, 5 TemperatureStep")
+    admin.runOperation("-TemperatureStep")
+    admin.phase("Action")
+    // Unlike markers on the printed track, these credits cannot identify the removed step.
+    p1.claimMilestone(cn("FakeThawer")).expect("-8 MC, FakeThawer")
   }
 
   @Test
