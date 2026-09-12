@@ -167,8 +167,9 @@ public abstract class RecordedGame {
             .flatMap { it.instruction.descendantsOfType<Gain>() }
             .single {
               (count == null || it.count == ActualScalar(count)) &&
-                  reader.catalog.classTable
-                      .getClass(resourceType)
+                  reader
+                      .resolve(resourceType.expression)
+                      .rootClass
                       .isSubtypeOf(reader.resolve(it.gaining).rootClass)
             }
     val arguments = gain.gaining.arguments.toMutableList()

@@ -29,6 +29,6 @@ internal fun <P : PetElement> P.withTypeVariables(scope: TypeVariableScope): P =
 
 internal fun PetElement.typeVariablesFor(info: TypeInfo): TypeVariableScope {
   if (!typeVariables.isEmpty) return typeVariables
-  val table = (info as? GameReader)?.catalog?.classTable ?: return typeVariables
+  val table = (info as? GameReader)?.classTable ?: return typeVariables
   return table.inferTypeVariables().transformElement(this).typeVariables
 }

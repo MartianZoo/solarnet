@@ -212,7 +212,8 @@ private constructor(
                   component.type.variableBindingsFrom(
                       component.type.rootClass.defaultType,
                       effect.typeVariables.variables,
-                  )
+                  ),
+                  elaborator.classTable,
               )
           val uncheckedBinding =
               chain(
@@ -455,7 +456,7 @@ private constructor(
         if (actorVariable != null) {
           val actorDomain = reader.resolve(ACTOR.expression)
           if (!reader.matchesConstraint(actorType, selector, actorDomain)) return null
-          val binding = typeVariables.bind(mapOf(actorVariable to actorType))
+          val binding = typeVariables.bind(mapOf(actorVariable to actorType), reader.classTable)
           val hit =
               inner
                   .transform(binding)

@@ -18,6 +18,7 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GamePremise
@@ -74,6 +75,7 @@ internal fun canonicalPremise(
     colonyTiles: Set<ClassName> = emptySet(),
     catalog: TfmCatalog? = null,
     initialComponentTypes: Set<Expression> = emptySet(),
+    additionalClassDeclarations: Set<ClassDeclaration> = emptySet(),
 ): GamePremise {
   val included = selectedOptions.filterIsInstance<TestOption>()
   val excluded = selectedOptions.filterIsInstance<ExcludedTestOption>().map { it.option }.toSet()
@@ -84,6 +86,7 @@ internal fun canonicalPremise(
       catalog,
       excluded,
       initialComponentTypes,
+      additionalClassDeclarations,
   )
 }
 
@@ -94,6 +97,7 @@ internal fun canonicalPremise(
     catalog: TfmCatalog? = null,
     excludedOptions: Set<TestOption> = emptySet(),
     initialComponentTypes: Set<Expression> = emptySet(),
+    additionalClassDeclarations: Set<ClassDeclaration> = emptySet(),
 ): GamePremise {
   val config =
       GameConfig.create(
@@ -102,12 +106,18 @@ internal fun canonicalPremise(
           playerNames = Player.players(players).map(Player::className),
       )
   val defaultCatalog = canonicalCatalog(config)
-  val resolvedCatalog = (catalog ?: defaultCatalog).withPlayers(players)
-  val base = resolvedCatalog.gamePremise(config, initialComponentTypes)
+  val resolvedCatalog = catalog ?: defaultCatalog
+  val base =
+      resolvedCatalog.gamePremise(
+          config,
+          initialComponentTypes,
+          additionalClassDeclarations,
+      )
   if (catalog == null) return base
   val extensionClassNames =
-      catalog.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className } -
-          defaultCatalog.explicitClassDeclarations.mapTo(hashSetOf()) { it.className }
+      (catalog.explicitClassDeclarations.mapTo(linkedSetOf()) { it.className } -
+          defaultCatalog.explicitClassDeclarations.mapTo(hashSetOf()) { it.className }) +
+          additionalClassDeclarations.map(ClassDeclaration::className)
   return base.copy(
       classSelections = base.classSelections + extensionClassNames.map { ClassSelection(it) },
   )

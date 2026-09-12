@@ -111,11 +111,17 @@ internal constructor(
     public val ordinal: Int
       get() = site.ordinal
 
-    internal fun expressionFor(binding: GroundType, source: Expression): Expression {
+    internal fun expressionFor(
+        binding: GroundType,
+        source: Expression,
+        classTable: ClassTable = binding.classTable,
+    ): Expression {
       val expression = binding.expression
-      val representedKeys = binding.rootClass.matchDependencyKeys(expression.arguments).toSet()
-      val sourceClass = binding.classTable.getClass(source.className)
-      val sourceArguments = source.arguments.zip(sourceClass.matchDependencyKeys(source.arguments))
+      val representedKeys =
+          binding.rootClass.matchDependencyKeys(expression.arguments, classTable).toSet()
+      val sourceClass = classTable.getClass(source.className)
+      val sourceArguments =
+          source.arguments.zip(sourceClass.matchDependencyKeys(source.arguments, classTable))
       val retainedArguments = sourceArguments.filterNot { (_, key) -> key in representedKeys }
       return expression.appendArguments(retainedArguments.map { it.first })
     }

@@ -58,7 +58,12 @@ A few terms are used precisely throughout:
   types, not worlds; it mentions components only to explain what a type *means*.
 - A **world** is whatever can answer "does this requirement hold right now?" — the `TypeInfo`
   interface. Most of the type system never needs one. Where a rule does, it says so.
-- A **universe** is one Catalog's complete, immutable set of classes and types.
+- A **master class table** is the complete immutable class model compiled once from a Catalog's
+  reusable declarations.
+- A **premise class table** is one game's small declaration delta. It imports exactly one master;
+  the master cannot refer back to it, and its names cannot replace master names.
+- A **universe** combines one master class table with at most one premise class table and one
+  game's active-class projection.
 
 ### Refinements are types
 
@@ -91,18 +96,20 @@ Three neighbours are deliberately out of scope:
 
 ## 1. Universes and identity
 
-Compiling a Catalog produces one **master class table**: a complete, frozen universe of classes and
-the types built from them. Nothing in this specification is meaningful except relative to one such
-universe.
+Compiling a Catalog produces one reusable **master class table**. A game combines that master with
+its small **premise class table**, which contains generated Players, its generated `Premise`, and
+any ad-hoc declarations. The resulting frozen class table is that game's universe. Nothing in this
+specification is meaningful except relative to one compatible master or game universe.
 
-**T1-1. One class per name, one universe per Catalog.** A Catalog compiles to exactly one class
-object for each declared name. Two separately compiled tables over identical source are *different*
-universes whose classes and types are not equal to each other.
+**T1-1. One class per name.** A Catalog compiles to exactly one reusable class object for each
+master declaration. Each game universe constructs exactly one class object for each premise
+declaration and reuses its master's objects. Two separately compiled masters over identical source
+are different and their classes and types are not equal.
 
-**T1-2. Values are universe-scoped.** Every class, type and dependency belongs to one master
-universe. An operation that compares values from two universes — subtyping, `glb`, subclass
-enumeration, constraint matching — raises `IllegalArgumentException`. It does not quietly answer
-"no". `ClassTable.knows(type)` is the safe question to ask first.
+**T1-2. Values are universe-scoped.** A master value can be interpreted by that master or by one
+game universe importing it. A premise value belongs only to its game universe. An operation that
+combines unrelated masters, or two distinct premise universes, raises `IllegalArgumentException`.
+It does not quietly answer "no". `ClassTable.knows(type)` is the safe question to ask first.
 
 This matters because a false "not a subtype" would silently misroute a trigger, whereas an exception
 stops the caller at the bug.
@@ -111,9 +118,11 @@ stops the caller at the bug.
 > equal. This guard prevents a type retained from one compiled Catalog from silently failing to match
 > the identically named trigger in another, which would look like a legal card simply did nothing.
 
-**T1-3. Resolution is a function of the written expression.** `ClassTable.resolve` maps an
-`Expression` to a type. The same expression always yields the identical object; different spellings
-of one type yield *equal* types that need not be identical:
+**T1-3. Resolution is a function of the written expression and table.** `ClassTable.resolve` maps
+an `Expression` to a type. A game delegates master-only expressions to its master except when a
+structural refinement must account for premise subclasses. Within one table, the same expression
+always yields the identical object; different spellings of one type yield *equal* types that need
+not be identical:
 
 ```text
 GreeneryTile<Area>  and  GreeneryTile   →  equal types
@@ -132,10 +141,10 @@ supertypes and no dependencies. Every other class has it as a supertype.
 **T1-5. `Class` is the other required class.** Its base type is `Class<Component>`. Section 4 covers
 it.
 
-**T1-6. Enumeration requires a frozen table.** A class table is built by loading classes and then
-freezing. Lookup (`findClass`, `resolve`) works during loading; anything that enumerates the
-universe — `allClasses`, `allClassNames`, `allSubclasses`, `directSubclasses`, and therefore
-`glb` between unrelated classes — requires the table to be frozen first.
+**T1-6. Enumeration requires a frozen table.** A master or combined game table is built by loading
+classes and then freezing. Lookup (`findClass`, `resolve`) works during loading; anything that
+enumerates the universe — `allClasses`, `allClassNames`, `allSubclasses`, `directSubclasses`, and
+therefore `glb` between unrelated classes — requires the table to be frozen first.
 
 Before returning the completed table, compilation resolves every class's structural base type.
 Undeclared names are also rejected while loading. Authored expressions inside effects are resolved
@@ -148,11 +157,10 @@ expressions fail at that boundary. Judgments that require a world remain deferre
 > of the completed Catalog instead of declaration order.
 
 **T1-7. Only the exact declared name resolves.** There are no abbreviations, no case folding, no
-nearest-match. An unknown name raises `ExpressionException`. Compiling a Catalog checks every name
-its declarations write and reports the declaration that wrote one no declaration introduces, so an
-author finds a misspelling when the Catalog loads rather than when play reaches it. A name is
-decided against the Catalog being compiled; a declaration therefore may not name a class only a
-later composition supplies, such as a game's player seats.
+nearest-match. An unknown name raises `ExpressionException`. Master declarations are checked
+against the master namespace and therefore cannot name premise classes. Premise declarations are
+checked against their combined master-and-premise namespace. Duplicate premise names and collisions
+with master names are rejected.
 
 ---
 
@@ -972,8 +980,9 @@ target to exist, so no omitted specialization could contribute.
 
 ## 12. Inhabitance
 
-One Catalog is compiled once into a master universe. A game then takes a **view** of it. The view
-does not create, rename or reshape anything; it records which names this game can hold components of.
+One Catalog is compiled once into a master table. A game then combines it with its premise table and
+takes an active-class **view** of the result. The view reuses every master class, creates only the
+small premise-local delta, and records which names this game can hold components of.
 
 **T12-1. Three states for a name.**
 
@@ -993,9 +1002,11 @@ there cannot be one.
 > `VenusStap` is unknown. Treating both as “not present” would hide typos, while treating both as
 > ordinary classes would offer a Venus track the game did not select.
 
-**T12-2. A view reuses the master universe.** It shares the very same class and type objects.
-Resolution, subtyping, and `glb` therefore give the same answers in a view as in the master.
-A type has one meaning, not one per game.
+**T12-2. A view reuses its master.** It shares the very same master class and type objects. A
+premise class may extend master or premise classes and is visible to hierarchy queries through its
+own view. A master can be combined with one of its premise values; values from sibling premise
+tables are incompatible. Expressions using only master names normally resolve through the master;
+`NOT` remains combined-universe-relative because premise subclasses can create structural overlap.
 
 > **Non-normative implementation note — activation is not recompilation.** The base-game and Venus
 > views must agree on what `Class<VenusStep>` means even though only one can enumerate it. Rebuilding
@@ -1022,11 +1033,11 @@ A type from another Catalog is not even *known*, let alone active (T1-2).
 > inactive without Venus Next. Checking only the active root would create a completion barrier for a
 > track that cannot advance.
 
-**T12-5. Structural meaning stays catalog-wide.** A difference (T8-4) is judged in the master universe.
-If two classes overlap in the Catalog, `Left(NOT Right)` keeps its refinement and keeps rejecting bare
-`Left`, even in a game where the overlapping class is uninhabited. Enumeration under that difference is
-still view-relative, so the game sees only what it can hold. This keeps a written type from meaning
-different things in different games.
+**T12-5. Structural meaning stays universe-wide.** A difference (T8-4) is judged against every
+master and premise class in its universe, not the active-class view. If two classes overlap,
+`Left(NOT Right)` keeps its refinement and keeps rejecting bare `Left`, even when the overlapping
+class is uninhabited. Enumeration under that difference is still view-relative, so the game sees
+only what it can hold. This keeps activation from changing the meaning of a written type.
 
 > **Non-normative example — Philares.** `Player(NOT Player1)` must keep the same structural meaning
 > in two-, three-, and five-player views. Letting inactive seats alter the difference would make the

@@ -700,7 +700,7 @@ public class PetElaborator(public val classTable: ClassTable) {
 
     val klass: Class = classTable.getClass(original.className)
     val dethissed: Expression = replaceThisExpressionsWith(contextCpt).transformExpression(original)
-    val match: DependencySet = klass.dependencies.matchPartial(dethissed.arguments)
+    val match: DependencySet = klass.dependencies.matchPartial(dethissed.arguments, classTable)
 
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
     val refinementBoundKey =
@@ -710,7 +710,7 @@ public class PetElaborator(public val classTable: ClassTable) {
           val candidate =
               replaceThisExpressionsWith(contextCpt).transformExpression(refinementCandidate)
           try {
-            klass.matchDependencyKeys(listOf(candidate)).single()
+            klass.matchDependencyKeys(listOf(candidate), classTable).single()
           } catch (_: ExpressionException) {
             null
           }
@@ -725,7 +725,8 @@ public class PetElaborator(public val classTable: ClassTable) {
             .associate {
               it.key to it.expression
             }
-    val inferred = klass.specialize(dethissed.arguments).narrowedDependencies.keys - preferred.keys
+    val inferred =
+        klass.specialize(dethissed.arguments, classTable).narrowedDependencies.keys - preferred.keys
 
     val newArgs: List<Expression> =
         klass.dependencies.keys.mapNotNull {
@@ -767,7 +768,7 @@ public class PetElaborator(public val classTable: ClassTable) {
     val contextualScope = scope.transformedBy(contextualizer)
     return chain(
             contextualizer,
-            contextualScope.bind(bindings),
+            contextualScope.bind(bindings, classTable),
             invalidChangesToDie(),
         )
         .transformEffect(effect)
@@ -785,12 +786,17 @@ public class PetElaborator(public val classTable: ClassTable) {
       owner: HasClassName? = null,
   ): PetTransformer {
     val bindings =
-        typeVariables.bindingsFrom(authoredGeneral, general.groundType, specific.groundType)
+        typeVariables.bindingsFrom(
+            authoredGeneral,
+            general.groundType,
+            specific.groundType,
+            classTable,
+        )
     val contextualizer = chain(owner?.let(::contextualOwnerBinding))
     val contextualScope = typeVariables.transformedBy(contextualizer)
     return chain(
         contextualizer,
-        contextualScope.bind(bindings),
+        contextualScope.bind(bindings, classTable),
         invalidChangesToDie(),
     )
   }

@@ -59,6 +59,7 @@ internal constructor(
      * [section 8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#8-refinements).
      */
     override val refinement: Refinement? = null,
+    private val resolutionTable: ClassTable? = null,
 ) : Type {
   // Types are immutable; zero is the uncached sentinel (and a harmless rare recomputation).
   private var cachedHashCode: Int = 0
@@ -68,7 +69,14 @@ internal constructor(
    * The universe containing [rootClass], under
    * [rule T1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
-  override val classTable: ClassTable = rootClass.classTable
+  override val classTable: ClassTable =
+      resolutionTable
+          ?: dependencies.classTable?.let { dependencyTable ->
+            requireNotNull(rootClass.classTable.commonTable(dependencyTable)) {
+              "$rootClass and its dependencies belong to different class tables"
+            }
+          }
+          ?: rootClass.classTable
 
   /**
    * This value itself, because a ground type is its own resolved interpretation ([rule
@@ -92,9 +100,12 @@ internal constructor(
       if (rootClass.className == CLASS) dependencies.representedClass else null
 
   init {
-    dependencies.classTable?.let {
-      require(classTable === it) {
-        "$rootClass and its dependencies belong to different class tables"
+    require(classTable.accepts(rootClass.classTable)) {
+      "$rootClass cannot be interpreted by $classTable"
+    }
+    dependencies.classTable?.let { dependencyTable ->
+      require(classTable.accepts(dependencyTable)) {
+        "$dependencies cannot be interpreted by $classTable"
       }
     }
     require(dependencies.keys == rootClass.dependencies.keys) {
@@ -173,7 +184,7 @@ internal constructor(
   // TODO allocating 28 MB per solo game
   override infix fun glb(that: Type): GroundType? {
     val that = that.groundType
-    requireSameClassTable(that)
+    val commonTable = requireSameClassTable(that)
     val glbClass = (rootClass glb that.rootClass) ?: return null
     val glbDeps = (dependencies glb that.dependencies) ?: return null
     val glbRefin =
@@ -183,12 +194,21 @@ internal constructor(
           else -> Refinement.join(refinement, that.refinement)
         }
     val completeDeps = (glbClass.dependencies glb glbDeps) ?: return null
-    val unrefined = glbClass.withAllDependencies(completeDeps)
+    val unrefined = glbClass.withAllDependencies(completeDeps).inTable(commonTable)
     return unrefined.refine(glbRefin)
   }
 
-  internal fun specialize(specs: List<Expression>): GroundType =
-      rootClass.withAllDependencies(dependencies.specialize(specs)).refine(refinement)
+  internal fun specialize(
+      specs: List<Expression>,
+      classTable: ClassTable = this.classTable,
+  ): GroundType =
+      rootClass
+          .withAllDependencies(dependencies.specialize(specs, classTable))
+          .inTable(classTable)
+          .refine(refinement)
+
+  internal fun inTable(classTable: ClassTable): GroundType =
+      if (this.classTable === classTable) this else copy(resolutionTable = classTable)
 
   internal fun refine(newRef: Refinement?): GroundType {
     val combined =
@@ -248,7 +268,8 @@ internal constructor(
       // An unwritten slot still holds its declared bound, which is what T3-4 matches against.
       for (earlier in later - 1 downTo 0) {
         if (
-            !write[earlier] && dependencies.get(keys[earlier]).intersect(expressions[later]) != null
+            !write[earlier] &&
+                dependencies.get(keys[earlier]).intersect(expressions[later], classTable) != null
         ) {
           write[earlier] = true
         }
@@ -311,7 +332,7 @@ internal constructor(
    */
   override fun ensureNarrows(that: Type, info: TypeInfo) {
     val that = that.groundType
-    requireSameClassTable(that)
+    val comparisonTable = requireSameClassTable(that)
     rootClass.ensureNarrows(that.rootClass, info)
 
     dependencies.ensureNarrows(that.dependencies, info)
@@ -320,7 +341,10 @@ internal constructor(
       when (targetRefinement) {
         is Refinement.And -> error("nested refinement conjunction: $targetRefinement")
         is Not -> {
-          if (!alreadyGuarantees(targetRefinement) && !isDisjointFrom(targetRefinement.excluded)) {
+          if (
+              !alreadyGuarantees(targetRefinement) &&
+                  !isDisjointFrom(targetRefinement.excluded, comparisonTable)
+          ) {
             throw NarrowingException("$this does not satisfy $targetRefinement")
           }
         }
@@ -332,7 +356,12 @@ internal constructor(
           } else {
             val requirement =
                 try {
-                  formRequirement(expressionFull, that.expressionFull, targetRefinement)
+                  formRequirement(
+                      expressionFull,
+                      that.expressionFull,
+                      targetRefinement,
+                      comparisonTable,
+                  )
                 } catch (e: ExpressionException) {
                   throw NarrowingException("$this does not satisfy $targetRefinement", e)
                 }
@@ -351,21 +380,28 @@ internal constructor(
    */
   override fun narrows(that: Type, info: TypeInfo): Boolean {
     val that = that.groundType
-    requireSameClassTable(that)
+    val comparisonTable = requireSameClassTable(that)
     if (!rootClass.isSubtypeOf(that.rootClass)) return false
     if (!dependencies.narrows(that.dependencies, info)) return false
 
     return that.refinement?.conjuncts()?.all { targetRefinement ->
       when (targetRefinement) {
         is Refinement.And -> error("nested refinement conjunction: $targetRefinement")
-        is Not -> alreadyGuarantees(targetRefinement) || isDisjointFrom(targetRefinement.excluded)
+        is Not ->
+            alreadyGuarantees(targetRefinement) ||
+                isDisjointFrom(targetRefinement.excluded, comparisonTable)
         is Has -> {
           if (refinement != null) {
             alreadyGuarantees(targetRefinement) && readsPredicatesAlike(that)
           } else {
             val requirement =
                 try {
-                  formRequirement(expressionFull, that.expressionFull, targetRefinement)
+                  formRequirement(
+                      expressionFull,
+                      that.expressionFull,
+                      targetRefinement,
+                      comparisonTable,
+                  )
                 } catch (_: ExpressionException) {
                   return false
                 }
@@ -401,25 +437,39 @@ internal constructor(
       refinement?.conjuncts()?.contains(target) == true
 
   /** Whether this entire structural domain has no member in common with [excludedExpression]. */
-  private fun isDisjointFrom(excludedExpression: Expression): Boolean =
-      !overlapsStructurally(classTable.resolve(excludedExpression))
+  private fun isDisjointFrom(
+      excludedExpression: Expression,
+      comparisonTable: ClassTable,
+  ): Boolean =
+      !inTable(comparisonTable).overlapsStructurally(comparisonTable.resolve(excludedExpression))
 
   /** Whether at least one concrete structural Type inhabits both domains. */
   private fun overlapsStructurally(that: GroundType): Boolean =
       structuralOverlapCache.getOrPut(that) {
-        copy(refinement = null).allConcreteSubtypes().any { candidate ->
-          candidate.narrows(that, NoGameState)
+        val unrefined = copy(refinement = null)
+        val unrefinedThat = that.copy(refinement = null)
+        classTable.allStructuralConcreteSubtypes(unrefined).any { candidate ->
+          candidate.narrows(unrefinedThat, NoGameState)
         }
       }
 
-  private fun requireSameClassTable(that: GroundType) {
-    require(classTable === that.classTable) { "$this and $that belong to different class tables" }
+  private fun requireSameClassTable(that: GroundType): ClassTable {
+    return requireNotNull(classTable.commonTable(that.classTable)) {
+      "$this and $that belong to different class tables"
+    }
   }
 
   /**
-   * Hashes the root class, dependencies, and refinement that determine identity in
+   * Compares and hashes the root class, dependencies, and refinement that determine identity in
    * [rule T5-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
    */
+  override fun equals(other: Any?): Boolean =
+      this === other ||
+          (other is GroundType &&
+              rootClass == other.rootClass &&
+              dependencies == other.dependencies &&
+              refinement == other.refinement)
+
   override fun hashCode(): Int {
     if (cachedHashCode != 0) return cachedHashCode
     var result = rootClass.hashCode()
@@ -433,6 +483,7 @@ internal constructor(
       narrow: Expression,
       wide: Expression,
       refinement: Has,
+      comparisonTable: ClassTable,
   ): Requirement {
 
     fun refinementMangler(
@@ -446,10 +497,10 @@ internal constructor(
           } else if (node is Metric.Rank && node.candidate == null) {
             node.copy(candidate = proposed)
           } else if (node is Expression) {
-            val resolved = classTable.resolve(node)
+            val resolved = comparisonTable.resolve(node)
             val modded =
                 try {
-                  resolved.specialize(listOf(proposed))
+                  resolved.specialize(listOf(proposed), comparisonTable)
                 } catch (e: ExpressionException) {
                   if (!ignoreUnmatched) throw e
                   resolved
