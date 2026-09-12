@@ -67,7 +67,7 @@ private fun Describers.renderFixedScore(instruction: InstructionTree): String? {
   val (className, count, penalty) =
       when (instruction) {
         is Gain -> {
-          if (instruction.intensity.modality() != Modality.REQUIRED) return null
+          if (instruction.quantifier.modality() != Modality.REQUIRED) return null
           if (!instruction.gaining.simple) return null
           Triple(
               instruction.gaining.className,
@@ -76,7 +76,7 @@ private fun Describers.renderFixedScore(instruction: InstructionTree): String? {
           )
         }
         is Remove -> {
-          if (instruction.intensity.modality() != Modality.REQUIRED) return null
+          if (instruction.quantifier.modality() != Modality.REQUIRED) return null
           if (!instruction.removing.simple) return null
           Triple(
               instruction.removing.className,

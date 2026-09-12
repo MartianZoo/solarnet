@@ -45,6 +45,10 @@ bound. Effect-local variables stay open while the effect is installed, then a ma
 specializes their trigger, condition, Actor selector, and instruction together. This is trigger
 specialization, not global replacement of every occurrence of the same abstract Class.
 
+Attaching a class-header scope copies the source Effect before recording its resolved variables.
+Catalogs can share authored declarations; those declarations must not retain a compiled universe
+through a variable's bound Type or let interpretation in another Catalog overwrite an earlier scope.
+
 Action and `THEN` variables survive lowering and queuing. An open variable prevents the relevant
 stages from splitting into independent tasks until an earlier choice supplies its value. Within one
 atomic transmutation, `Foo<Same, Here, To FROM From>` is compact syntax for

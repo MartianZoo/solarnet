@@ -13,7 +13,7 @@ import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import kotlin.reflect.KClass
 
 /**
- * The main part of a transmutation instruction, without its scalar or intensity — the `Foo FROM
+ * The main part of a transmutation instruction, without its scalar or quantifier — the `Foo FROM
  * Bar` of
  * [rule L6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions).
  */

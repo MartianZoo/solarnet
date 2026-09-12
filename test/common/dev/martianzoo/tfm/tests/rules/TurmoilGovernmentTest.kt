@@ -19,9 +19,9 @@ internal class TurmoilGovernmentTest :
     p1.runOperation("RulingBonusProbe, 2 BuildingTag<RulingBonusProbe>")
     admin.runOperation("ReserveDelegate<Neutral> FROM Chairman<Neutral>")
     p2.runOperation("Chairman FROM ReserveDelegate")
-    p1.runOperation("PartyDelegate<MarsFirst> FROM LobbyDelegate")
     p1.runOperation("PartyDelegate<MarsFirst> FROM ReserveDelegate")
-    p2.runOperation("PartyDelegate<MarsFirst> FROM LobbyDelegate")
+    p1.runOperation("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+    p2.runOperation("PartyDelegate<MarsFirst> FROM ReserveDelegate")
     admin.runOperation("PartyDelegate<Kelvinists, Neutral> FROM ReserveDelegate<Neutral>")
     admin.runOperation("PartyDelegate<Reds, Neutral> FROM ReserveDelegate<Neutral>")
 
@@ -37,10 +37,10 @@ internal class TurmoilGovernmentTest :
     p2.count("Chairman") shouldBe 0
     p1.count("TerraformRating") shouldBe 21
     admin.count("Dominant<Kelvinists>") shouldBe 1
-    p1.count("LobbyDelegate") shouldBe 1
-    p1.count("ReserveDelegate") shouldBe 5
-    p2.count("LobbyDelegate") shouldBe 1
-    p2.count("ReserveDelegate") shouldBe 6
+    p1.count("LobbyActionAvailable") shouldBe 1
+    p1.count("ReserveDelegate") shouldBe 6
+    p2.count("LobbyActionAvailable") shouldBe 1
+    p2.count("ReserveDelegate") shouldBe 7
     admin.count("ReserveDelegate<Neutral>") shouldBe 12
     admin.count("DominancePriority") shouldBe 0
   }

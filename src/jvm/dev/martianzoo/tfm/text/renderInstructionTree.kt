@@ -201,7 +201,7 @@ private fun renderCombinedCostSequence(
   val costs =
       instruction.stages.map { stage ->
         val removal = stage as? Remove ?: return null
-        if (removal.intensity.modality() != Modality.REQUIRED) return null
+        if (removal.quantifier.modality() != Modality.REQUIRED) return null
         val count = removal.count.fixedQuantity() ?: return null
         when {
           removal.removing.simple && describers.isStandardResource(removal.removing.className) ->
@@ -236,7 +236,7 @@ private fun renderStandardResourceCostSequence(
 ): Clause.Simple? {
   val removal = instruction.stages.singleOrNull() as? Remove ?: return null
   if (
-      removal.intensity.modality() != Modality.REQUIRED ||
+      removal.quantifier.modality() != Modality.REQUIRED ||
           !removal.removing.simple ||
           !describers.isStandardResource(removal.removing.className)
   ) {
@@ -295,7 +295,7 @@ private fun renderCardResourceCostSequence(
   val removal = instruction.stages.singleOrNull() as? Remove ?: return null
   val resolved = describers.resolveCardResource(removal.removing) ?: return null
   if (
-      removal.intensity.modality() != Modality.REQUIRED ||
+      removal.quantifier.modality() != Modality.REQUIRED ||
           !describers.cardResourceHasHolder(resolved, describers.thisExpression) ||
           removal.removing.refinement != null
   ) {
@@ -325,7 +325,7 @@ private fun renderCardPlaySequence(
 ): Clause.Simple? {
   val play = instruction.stages.singleOrNull() as? Gain ?: return null
   if (
-      play.intensity.modality() != Modality.REQUIRED ||
+      play.quantifier.modality() != Modality.REQUIRED ||
           play.count.fixedQuantity() != 1 ||
           describers.triggerFrame(play.gaining.className) !is TriggerFrame.PlayCard ||
           (!play.gaining.simple && describers.representedExpression(play.gaining)?.simple != true)
@@ -338,7 +338,7 @@ private fun renderCardPlaySequence(
           val removal = continuation.inner as? Remove ?: return null
           val counted = continuation.metric as? Metric.Count ?: return null
           if (
-              removal.intensity.modality() != Modality.REQUIRED ||
+              removal.quantifier.modality() != Modality.REQUIRED ||
                   !removal.removing.simple ||
                   removal.removing != counted.expression ||
                   removal.count.fixedQuantity() != 1 ||
@@ -424,7 +424,7 @@ private fun renderCappedProcedure(
   if ((cap.maximum as? Metric.Constant)?.value != 1) return null
   val noun =
       NounPhrase(frame.noun.singular, frame.noun.plural, count = 1).let {
-        if (gain.intensity.modality() == Modality.BEST_EFFORT) it.atMost() else it
+        if (gain.quantifier.modality() == Modality.BEST_EFFORT) it.atMost() else it
       }
   return Clause.Simple(Predicate(Verb(frame.verb), Coordination.one(noun)))
 }
@@ -437,7 +437,7 @@ private fun renderScopedInstruction(
   if (instructions.size < 2) return null
   val start = instructions.first() as? Gain ?: return null
   if (
-      start.intensity.modality() != Modality.REQUIRED ||
+      start.quantifier.modality() != Modality.REQUIRED ||
           start.count.fixedQuantity() != 1 ||
           start.gaining.refinement != null
   ) {
@@ -537,7 +537,7 @@ private fun renderPlacementSiteFallback(
           unrestrictedPlacement.sites.isNotEmpty() ||
           unrestrictedPlacement.unknownDependencies.isNotEmpty() ||
           unrestricted.gaining.refinement != null ||
-          preferred.intensity.modality() != unrestricted.intensity.modality() ||
+          preferred.quantifier.modality() != unrestricted.quantifier.modality() ||
           preferred.count != unrestricted.count ||
           preferred.count.fixedQuantity() != 1
   ) {

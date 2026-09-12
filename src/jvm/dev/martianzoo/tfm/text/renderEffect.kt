@@ -65,7 +65,7 @@ private fun renderCardResourcePaymentValue(
   val resourceRemoval = sequence.stages.singleOrNull() as? Remove ?: return null
   val resolvedResource = describers.resolveCardResource(resourceRemoval.removing) ?: return null
   if (
-      resourceRemoval.intensity.modality() != Modality.REQUIRED ||
+      resourceRemoval.quantifier.modality() != Modality.REQUIRED ||
           !describers.cardResourceHasHolder(resolvedResource, describers.thisExpression) ||
           resourceRemoval.removing.refinement != null ||
           !describers.isCardResource(resourceRemoval.removing.className)
@@ -75,7 +75,7 @@ private fun renderCardResourcePaymentValue(
   val resourceScalar = resourceRemoval.count.variableQuantity() ?: return null
   if (resourceScalar.multiple != 1) return null
   val owed = sequence.continuation as? Remove ?: return null
-  if (owed.intensity.modality() != Modality.BEST_EFFORT || owed.removing.refinement != null) {
+  if (owed.quantifier.modality() != Modality.BEST_EFFORT || owed.removing.refinement != null) {
     return null
   }
   if (
@@ -139,7 +139,7 @@ private fun renderLinkedCardResourceGain(
   val gain = InstructionGroup.of(instruction).instructions.singleOrNull() as? Gain ?: return null
   val resolved = describers.resolveCardResource(gain.gaining) ?: return null
   if (
-      gain.intensity.modality() != Modality.REQUIRED ||
+      gain.quantifier.modality() != Modality.REQUIRED ||
           !describers.cardResourceHasHolder(resolved, holder) ||
           gain.gaining.refinement != null
   ) {
@@ -345,7 +345,7 @@ private fun isDeadEndInstruction(
     describers: Describers,
 ): Boolean {
   val gain = instruction as? Gain ?: return false
-  if (gain.intensity.modality() != Modality.REQUIRED) return false
+  if (gain.quantifier.modality() != Modality.REQUIRED) return false
   return gain.gaining.simple &&
       describers.concrete(gain.gaining.className) &&
       describers.fact(gain.gaining.className, ComponentDescriber::deadEndSignal) == true &&
@@ -429,7 +429,7 @@ private fun renderOncePerActionProductionReward(
   if (
       !rewardSignal.automatic ||
           markerGain.gaining != resetMarker ||
-          markerGain.intensity.modality() != Modality.BEST_EFFORT ||
+          markerGain.quantifier.modality() != Modality.BEST_EFFORT ||
           markerGain.count.fixedQuantity() != 1
   ) {
     return null
@@ -581,7 +581,7 @@ private fun renderAcceptedCardResourcePayment(
   val acceptingKey = Key(ClassName.cn("AcceptingFromCard"), 0)
   val resolvedAccepted = describers.resolveExpression(accepted.gaining, acceptingKey) ?: return null
   if (
-      accepted.intensity.modality() != Modality.REQUIRED ||
+      accepted.quantifier.modality() != Modality.REQUIRED ||
           !resolvedAccepted.hasOnlySourceDependency(acceptingKey, describers.thisExpression) ||
           accepted.gaining.refinement != null ||
           accepted.count.fixedQuantity() != 1

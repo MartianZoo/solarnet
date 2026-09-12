@@ -183,7 +183,9 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
   }
 
   internal fun isGenerationScoped(className: ClassName): Boolean =
-      isSubtypeOf(className, GENERATIONAL)
+      classesByName.getValue(className).baseType.dependencies.typeDependencies().any {
+        it.boundType.rootClass.className == GENERATION_SCOPE
+      }
 
   internal fun isEndTrigger(className: ClassName): Boolean = isSubtypeOf(className, END)
 
@@ -208,7 +210,7 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
     val CARD_RESOURCE = cn("CardResource")
     val CLASS = cn("Class")
     val END = cn("End")
-    val GENERATIONAL = cn("Generational")
+    val GENERATION_SCOPE = cn("GenerationScope")
     val PLAYER = cn("Player")
     val RESOURCE_HOLDER = cn("ResourceHolder")
     val TAG = cn("Tag")

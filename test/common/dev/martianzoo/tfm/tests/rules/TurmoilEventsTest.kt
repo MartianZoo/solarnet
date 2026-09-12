@@ -81,6 +81,21 @@ internal class TurmoilEventsTest :
   }
 
   @Test
+  internal fun `global event delegate placements are ignored when the neutral reserve is empty`() {
+    newGame(TurmoilExpansion)
+    repeat(11) {
+      admin.runOperation("PartyDelegate<Scientists, Neutral> FROM ReserveDelegate<Neutral>")
+    }
+    val placedBefore = admin.count("PartyDelegate<Party, Neutral>")
+
+    admin.runOperation("ChangingTimes") { doTask("CelebrityLeaders") }
+
+    admin.count("ReserveDelegate<Neutral>") shouldBe 0
+    admin.count("PartyDelegate<Party, Neutral>") shouldBe placedBefore
+    admin.count("Distant<Class<CelebrityLeaders>>") shouldBe 1
+  }
+
+  @Test
   internal fun `current event resolution measures influence before dispatching to that card`() {
     newGame(TurmoilExpansion)
     makeCurrent("AsteroidMiningGlobalEvent")

@@ -14,7 +14,7 @@ internal fun renderPlacement(
     describers: Describers,
 ): Clause? {
   val gain = instruction as? Gain ?: return null
-  if (gain.intensity.modality() != Modality.REQUIRED) return null
+  if (gain.quantifier.modality() != Modality.REQUIRED) return null
   if (!describers.concrete(gain.gaining.className)) return null
   if (gain.gaining.refinement != null) return null
 

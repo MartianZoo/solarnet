@@ -43,16 +43,24 @@ private val systemDeclarationsSource =
       This BY Actor(NOT Admin): Die
     }
 
-    // Anything that cannot exist after the task queue clears (i.e., the action ends)
+    "Anything that cannot remain once its owning operation or scope completes"
     ABSTRACT CLASS MustCleanUp : Hidden
 
-    "Instances are removed automatically whenever every task queue is empty"
+    "Instances are removed at an empty task queue once no dependent Temporary or MustCleanUp remains"
     ABSTRACT CLASS Temporary
+
+    "A lifetime anchor for components that depend on it"
+    ABSTRACT CLASS Scope
+
+    "A child Scope removed after queued work and dependent cleanup finish"
+    ABSTRACT CLASS TemporaryScope<Scope> : Scope, Temporary, MustCleanUp {
+      HAS MAX 1 This
+    }
 
     "Something the player must remove to unblock some other task (i.e., `MAX 0 Barrier:` is common"
     ABSTRACT CLASS Barrier : MustCleanUp
 
-    "A type that immediately deletes itself; you'll never observe it existing, but it's used to trigger things"
+    "An unscoped point event that removes itself immediately after triggering effects"
     ABSTRACT CLASS Signal : MustCleanUp {
       This:: -This!
     }

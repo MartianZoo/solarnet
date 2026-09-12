@@ -65,12 +65,12 @@ internal class Describers(
       }
 
   internal fun resolvedRemovalModality(removal: Remove): Modality =
-      removal.intensity?.modality()
+      removal.quantifier?.modality()
           ?: classesByName
               .getValue(removal.removing.className)
               .defaults
               .removeOnly
-              .intensity
+              .quantifier
               .modality()
 
   internal fun <T> fact(

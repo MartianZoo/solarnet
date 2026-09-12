@@ -176,7 +176,7 @@ private fun Describers.renderLinkedXAction(action: Action): RenderedAction? {
   val spend = action.cost as? Cost.Spend ?: return null
   val costScalar = spend.scaledEx.scalar.variableQuantity() ?: return null
   val gain = action.instruction as? Gain ?: return null
-  if (gain.intensity.modality() != Modality.REQUIRED) return null
+  if (gain.quantifier.modality() != Modality.REQUIRED) return null
   val gainScalar = gain.count.variableQuantity() ?: return null
   val gaining = gain.gaining
   if (!gaining.simple || !isStandardResource(gaining.className)) {

@@ -112,17 +112,6 @@ internal object TerraformingMarsDescribers {
                         "1 reserve delegate in any party per colony you own",
                     )
             ),
-        klass("BannedDelegateRemoval") to
-            ComponentDescriber(
-                changeFrame =
-                    Frame.CappedProcedure(
-                        "return",
-                        counted(
-                            "non-leader delegate to its owner's reserve",
-                            "non-leader delegates to their owners' reserves",
-                        ),
-                    )
-            ),
         klass("RecruitmentExchange") to
             ComponentDescriber(
                 changeFrame =

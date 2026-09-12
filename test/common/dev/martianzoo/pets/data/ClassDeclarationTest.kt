@@ -7,7 +7,7 @@ import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
-import dev.martianzoo.pets.ast.Instruction.Intensity
+import dev.martianzoo.pets.ast.Instruction.Quantifier
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.testlib.te
@@ -115,7 +115,7 @@ internal class ClassDeclarationTest {
     decl.effects.shouldContainExactlyInAnyOrder(eff, invoice, paid)
     decl.defaultsDeclaration.gainOnly.specs.shouldContainExactlyInAnyOrder(gain)
     decl.defaultsDeclaration.universal.specs.shouldContainExactlyInAnyOrder(univ)
-    decl.defaultsDeclaration.gainOnly.intensity shouldBe Intensity.OPTIONAL
+    decl.defaultsDeclaration.gainOnly.quantifier shouldBe Quantifier.OPTIONAL
     decl.extraNodes.shouldContainExactlyInAnyOrder(first)
 
     decl.supertypes.classNames().shouldContainExactlyInAnyOrder(cn("Baz"))

@@ -1,5 +1,5 @@
 count	reason	examples
-18	UNKNOWN_CHANGE_FRAME	Capital: CapitalMarker<CityTile<>> | LandClaim: Community<LandArea(HAS MAX 0 Occupant)>
+32	UNKNOWN_CHANGE_FRAME	Capital: CapitalMarker<CityTile<>> | LandClaim: Community<LandArea(HAS MAX 0 Occupant)>
 7	UNSUPPORTED_EFFECT_TRIGGER	Vitor: CardFront(HAS NonNegativeIconsOf<Class<VictoryPoint>>): 3 MC | Vitor: This IF Class<Award>: Vitor_RequiredAction
 7	UNSUPPORTED_GATE	MiningRights: LandArea(HAS MiningRights_SpecialTile, HAS PlacementBonus<Class<Steel>>): Production<Class<Steel>> | MiningRights: LandArea(HAS MiningRights_SpecialTile, HAS PlacementBonus<Class<Titanium>>): Production<Class<Titanium>>
 4	UNSUPPORTED_FANOUT	Aridor: EACH Class<Tag> { AridorTagWatcher<Class<Tag>, This> } | MarsNomads: EACH LandArea(HAS NomadsMarker) { Placement<LandArea> }

@@ -6,7 +6,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
-import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
@@ -59,12 +59,12 @@ internal fun renderAdjacentCardInstructions(
     val discarded = playThenDiscard.continuation as? Remove ?: return@let
     if (
         offeredCount <= 1 ||
-            play.intensity.modality() != Modality.REQUIRED ||
+            play.quantifier.modality() != Modality.REQUIRED ||
             play.count.fixedQuantity() != 1 ||
             play.gaining.className != PLAY_CARD ||
             play.gaining.arguments.none { it.className == SELECTING } ||
             describers.representedClass(play.gaining)?.className != family ||
-            discarded.intensity.modality() != Modality.REQUIRED ||
+            discarded.quantifier.modality() != Modality.REQUIRED ||
             discarded.count.fixedQuantity() != offeredCount - 1 ||
             !discarded.removing.isCardAt(family, SELECTING)
     ) {
@@ -83,10 +83,10 @@ internal fun renderAdjacentCardInstructions(
     val discarded = purchase.stages.singleOrNull() as? Remove ?: return@let
     val buy = purchase.continuation as? Gain ?: return@let
     if (
-        discarded.intensity.modality() != Modality.OPTIONAL ||
+        discarded.quantifier.modality() != Modality.OPTIONAL ||
             discarded.count != offered.count ||
             !discarded.removing.isCardAt(family, SELECTING) ||
-            buy.intensity.modality() != Modality.REQUIRED ||
+            buy.quantifier.modality() != Modality.REQUIRED ||
             buy.count.fixedQuantity() != 1 ||
             !buy.gaining.simple ||
             buy.gaining.className != BUY_SELECTED_CARDS
@@ -108,7 +108,7 @@ internal fun renderAdjacentCardInstructions(
     val offeredCount = offered.count.fixedQuantity() ?: return@let
     if (
         offeredCount <= 1 ||
-            play.intensity.modality() != Modality.REQUIRED ||
+            play.quantifier.modality() != Modality.REQUIRED ||
             play.count.fixedQuantity() != 1 ||
             play.gaining.className != PLAY_CARD ||
             play.gaining.arguments.none { it.className == SELECTING } ||
@@ -164,7 +164,7 @@ internal fun renderPlayedEventRecovery(
     describers: Describers,
 ): Clause? {
   if (
-      transmute.intensity.modality() != Modality.OPTIONAL ||
+      transmute.quantifier.modality() != Modality.OPTIONAL ||
           !transmute.gaining.simple ||
           transmute.gaining.className != PROJECT_CARD ||
           !transmute.removing.simple ||
@@ -188,7 +188,7 @@ internal fun renderPlayedEventRecovery(
 
 private fun Gain.selectedCardFamily(describers: Describers): ClassName? {
   if (
-      intensity.modality() != Modality.REQUIRED ||
+      quantifier.modality() != Modality.REQUIRED ||
           gaining.refinement != null ||
           gaining.arguments.singleOrNull()?.className != SELECTING ||
           describers.changeFrame(gaining.className) != ComponentDescriber.ChangeFrame.Deck
@@ -203,7 +203,7 @@ private fun Transmute.movesCards(
     from: ClassName,
     to: ClassName,
 ): Boolean =
-    intensity.modality() == Modality.REQUIRED &&
+    quantifier.modality() == Modality.REQUIRED &&
         gaining.isCardAt(family, to) &&
         removing.isCardAt(family, from)
 

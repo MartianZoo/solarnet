@@ -12,11 +12,11 @@ import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
-import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
-import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
-import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
+import dev.martianzoo.pets.ast.Instruction.Quantifier.AMAP
+import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
+import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transmute
@@ -111,7 +111,7 @@ public sealed interface CardOperation {
               !retained.removing.isProjectCardAt(SELECTING) ||
               retained.removing.refinement != null ||
               retained.count != offered.count ||
-              retained.intensity != AMAP ||
+              retained.quantifier != AMAP ||
               !discarded.removingOptionallyAt(SELECTING) ||
               discarded.count != offered.count ||
               !purchase.instructions.last().isMandatoryGainOf(BUY_SELECTED_CARDS)
@@ -147,13 +147,13 @@ public sealed interface CardOperation {
     }
 
     private val Instruction.Change.mandatory: Boolean
-      get() = intensity == null || intensity == MANDATORY
+      get() = quantifier == null || quantifier == MANDATORY
 
     private fun InstructionTree.isMandatoryGainOf(className: ClassName): Boolean =
         this is Gain && gaining == className.expression && mandatory
 
     private fun InstructionTree.removingOptionallyAt(area: ClassName): Boolean =
-        this is Remove && removing.isProjectCardAt(area) && intensity == OPTIONAL
+        this is Remove && removing.isProjectCardAt(area) && quantifier == OPTIONAL
 
     private fun Expression.isProjectCardAt(area: ClassName): Boolean =
         className == PROJECT_CARD && arguments.singleOrNull()?.className == area

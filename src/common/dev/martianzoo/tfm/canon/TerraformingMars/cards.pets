@@ -1177,7 +1177,7 @@ CLASS SpecialDesign : EventCard {
 }
 
 // Supporting declarations contributed by cards in this bundle.
-CLASS HasRaisedTr : Generational, Owned {
+CLASS HasRaisedTr<GenerationScope> : Owned {
   HAS MAX 1 This
   DEFAULT +HasRaisedTr.
 }

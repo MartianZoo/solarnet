@@ -5,7 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.FromExpression.Full
-import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionTree
@@ -40,7 +40,7 @@ internal object FollowModeNeutralizer : TransformHandler {
             operation.cards.copy(scaledEx = scaledEx(PROJECT_CARD, operation.cards.count))
         is CardOperation.RevealAndTest ->
             Then.createTree(
-                listOf(operation.revealed, operation.outcome.copy(intensity = OPTIONAL))
+                listOf(operation.revealed, operation.outcome.copy(quantifier = OPTIONAL))
             )
         is CardOperation.RevealAndPurchase ->
             replacer(operation.retained, operation.retained.withoutFilter())
@@ -55,7 +55,7 @@ internal object FollowModeNeutralizer : TransformHandler {
                 is Full -> source.copy(toExpression = source.toExpression.copy(refinement = null))
                 is FromExpression.Unchanged -> malformed(this)
               },
-          intensity = OPTIONAL,
+          quantifier = OPTIONAL,
       )
 
   private fun malformed(source: PetNode): Nothing =

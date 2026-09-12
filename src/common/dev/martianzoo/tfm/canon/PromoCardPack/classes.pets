@@ -16,10 +16,10 @@ CLASS NomadsMarker<LandArea> : AreaPiece, Owned<Player> {
 }
 
 "A durable generational resource-removal record owned by the victim and naming the attacker"
-CLASS MyResourceWasRemoved<Class<Resource>, Player> : Owned<Owner>, Generational, Hidden
+CLASS MyResourceWasRemoved<Class<Resource>, Player, GenerationScope> : Owned<Owner>, Hidden
 
 "A durable generational production-decrease record owned by the victim and naming the attacker"
-CLASS MyProductionWasDecreased<Class<StandardResource>, Player> : Owned<Owner>, Generational, Hidden
+CLASS MyProductionWasDecreased<Class<StandardResource>, Player, GenerationScope> : Owned<Owner>, Hidden
 
 CLASS ResourceRemovalWatcher<Class<Resource>> : System {
   HAS =1 This

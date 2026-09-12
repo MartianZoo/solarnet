@@ -103,7 +103,7 @@ private fun Gain.resourceValue(effect: Effect, describers: Describers): Resource
   val expression = gaining
   if (
       expression.className != GRANTED_RESOURCE_VALUE ||
-          intensity.modality() != Modality.REQUIRED ||
+          quantifier.modality() != Modality.REQUIRED ||
           expression.refinement != null
   ) {
     return null
@@ -136,7 +136,7 @@ private fun Instruction.Change.baseResource(describers: Describers): Expression?
   val expression = gaining ?: removing ?: return null
   if (
       expression.className != BASE_RESOURCE_VALUE ||
-          intensity.modality() != Modality.REQUIRED ||
+          quantifier.modality() != Modality.REQUIRED ||
           count.fixedQuantity() != 1 ||
           expression.refinement != null
   ) {

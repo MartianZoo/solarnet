@@ -158,15 +158,15 @@ internal constructor(
 
   // TASK COMMANDS
 
-  public fun narrowTask(narrowing: InstructionTree, intensityOmitted: Boolean = false) {
+  public fun narrowTask(narrowing: InstructionTree, quantifierOmitted: Boolean = false) {
     val taskId = tasks.selectedTask() ?: throw TaskException("$actor has no selected task")
-    narrowSelectedTask(taskId, narrowing, intensityOmitted)
+    narrowSelectedTask(taskId, narrowing, quantifierOmitted)
   }
 
   public fun narrowTask(
       taskId: TaskId,
       narrowing: InstructionTree,
-      intensityOmitted: Boolean = false,
+      quantifierOmitted: Boolean = false,
   ) {
     val task = tasks.getTaskData(taskId)
     if (actor != task.assignee) {
@@ -174,12 +174,12 @@ internal constructor(
     }
     enforceSelectLock(taskId)
     if (task.selected) {
-      narrowSelectedTask(taskId, narrowing, intensityOmitted)
+      narrowSelectedTask(taskId, narrowing, quantifierOmitted)
       return
     }
 
     val effectiveNarrowing =
-        effectiveNarrowing(narrowing, task.instruction, intensityOmitted, immutableClassFacts)
+        effectiveNarrowing(narrowing, task.instruction, quantifierOmitted, immutableClassFacts)
     effectiveNarrowing.ensureNarrows(task.instruction, immutableClassFacts)
     if (effectiveNarrowing == task.instruction) return
     val instruction =
@@ -191,14 +191,14 @@ internal constructor(
   private fun narrowSelectedTask(
       taskId: TaskId,
       narrowing: InstructionTree,
-      intensityOmitted: Boolean,
+      quantifierOmitted: Boolean,
   ) {
     val task = tasks.getTaskData(taskId)
     if (actor != task.assignee) {
       throw TaskException("$actor can't narrow a task assigned to ${task.assignee}")
     }
 
-    val effectiveNarrowing = effectiveNarrowing(narrowing, task.instruction, intensityOmitted)
+    val effectiveNarrowing = effectiveNarrowing(narrowing, task.instruction, quantifierOmitted)
     if (effectiveNarrowing == task.instruction) {
       selectAndExecuteIfConcrete(tasks, taskId)
       return
@@ -360,20 +360,20 @@ internal constructor(
 
   public fun doTask(
       narrowing: InstructionTree,
-      intensityOmitted: Boolean = false,
+      quantifierOmitted: Boolean = false,
       executeSubmittedGroup: Boolean = false,
       taskId: TaskId? = null,
   ) {
     val evaluated = evaluatePer(narrowing)
-    val id = matchingTask(evaluated, taskId, intensityOmitted)
+    val id = matchingTask(evaluated, taskId, quantifierOmitted)
     val tasksBefore = tasks.ids()
     val task = tasks.getTaskData(id)
-    if (narrowsTask(evaluated, task.instruction, intensityOmitted)) {
+    if (narrowsTask(evaluated, task.instruction, quantifierOmitted)) {
       enforceSelectLock(id)
-      narrowSelectedTask(id, evaluated, intensityOmitted)
+      narrowSelectedTask(id, evaluated, quantifierOmitted)
     } else {
       selectTask(tasks, task) ?: return
-      narrowTask(evaluated, intensityOmitted)
+      narrowTask(evaluated, quantifierOmitted)
     }
     if (id !in tasks) {
       if (executeSubmittedGroup) {
@@ -390,7 +390,7 @@ internal constructor(
   private fun matchingTask(
       narrowing: InstructionTree,
       taskId: TaskId? = null,
-      intensityOmitted: Boolean = false,
+      quantifierOmitted: Boolean = false,
   ): TaskId {
     tasks.selectedTask()?.let { selected ->
       if (taskId != null && taskId != selected) {
@@ -404,10 +404,10 @@ internal constructor(
     fun weCanNarrowIt(taskData: Task): Boolean {
       if (taskData.assignee != actor) return false
       val instruction = taskData.instruction
-      if (narrowsTask(narrowing, instruction, intensityOmitted)) return true
-      if (targetsThenFirstStage(narrowing, instruction, intensityOmitted)) return false
+      if (narrowsTask(narrowing, instruction, quantifierOmitted)) return true
+      if (targetsThenFirstStage(narrowing, instruction, quantifierOmitted)) return false
       return try {
-        narrowsTask(narrowing, instructor.resolve(instruction), intensityOmitted)
+        narrowsTask(narrowing, instructor.resolve(instruction), quantifierOmitted)
       } catch (_: NotNowException) {
         false
       }
@@ -420,7 +420,7 @@ internal constructor(
     // A failed live refinement can still identify the intended task. Let normal narrowing report
     // which requirement failed instead of replacing that reason with a generic no-task match.
     val possibleMatches = assigned.filter { task ->
-      effectiveNarrowing(narrowing, task.instruction, intensityOmitted, possibleWorldFacts)
+      effectiveNarrowing(narrowing, task.instruction, quantifierOmitted, possibleWorldFacts)
           .narrows(task.instruction, possibleWorldFacts)
     }
     return uniqueMatchingTask(possibleMatches)
@@ -429,9 +429,9 @@ internal constructor(
   private fun targetsThenFirstStage(
       narrowing: InstructionTree,
       existing: InstructionTree,
-      intensityOmitted: Boolean,
+      quantifierOmitted: Boolean,
   ): Boolean {
-    val effective = effectiveNarrowing(narrowing, existing, intensityOmitted)
+    val effective = effectiveNarrowing(narrowing, existing, quantifierOmitted)
     if (effective !is Instruction || effective is Then) return false
     val candidates =
         when (existing) {
@@ -449,9 +449,9 @@ internal constructor(
   private fun narrowsTask(
       narrowing: InstructionTree,
       existing: InstructionTree,
-      intensityOmitted: Boolean,
+      quantifierOmitted: Boolean,
   ): Boolean {
-    val effectiveNarrowing = effectiveNarrowing(narrowing, existing, intensityOmitted)
+    val effectiveNarrowing = effectiveNarrowing(narrowing, existing, quantifierOmitted)
     return effectiveNarrowing.narrows(existing, reader) ||
         selectFirstStageOrNull(existing, effectiveNarrowing) != null
   }
@@ -459,17 +459,17 @@ internal constructor(
   private fun effectiveNarrowing(
       narrowing: InstructionTree,
       existing: InstructionTree,
-      intensityOmitted: Boolean,
+      quantifierOmitted: Boolean,
       info: TypeInfo = reader,
   ): InstructionTree {
-    if (!intensityOmitted || narrowing !is Change) return narrowing
+    if (!quantifierOmitted || narrowing !is Change) return narrowing
     if (narrowing.narrows(existing, info)) return narrowing
 
-    fun inheritIntensity(change: Change): InstructionTree =
+    fun inheritQuantifier(change: Change): InstructionTree =
         when (narrowing) {
-          is Gain -> Gain.gain(narrowing.scaledEx, change.intensity)
-          is Remove -> Remove.remove(narrowing.scaledEx, change.intensity)
-          is Transmute -> narrowing.copy(intensity = change.intensity)
+          is Gain -> Gain.gain(narrowing.scaledEx, change.quantifier)
+          is Remove -> Remove.remove(narrowing.scaledEx, change.quantifier)
+          is Transmute -> narrowing.copy(quantifier = change.quantifier)
         }
 
     val choices =
@@ -480,7 +480,7 @@ internal constructor(
         }
     return choices
         .mapNotNull { choice ->
-          inheritIntensity(choice).takeIf { inherited -> inherited.narrows(choice, info) }
+          inheritQuantifier(choice).takeIf { inherited -> inherited.narrows(choice, info) }
         }
         .distinct()
         .singleOrNull() ?: narrowing
@@ -553,13 +553,13 @@ internal constructor(
 
   public fun tryTask(
       narrowing: InstructionTree,
-      intensityOmitted: Boolean = false,
+      quantifierOmitted: Boolean = false,
       executeSubmittedGroup: Boolean = false,
       taskId: TaskId? = null,
   ) {
     val evaluated = evaluatePer(narrowing)
     try {
-      doTask(evaluated, intensityOmitted, executeSubmittedGroup, taskId)
+      doTask(evaluated, quantifierOmitted, executeSubmittedGroup, taskId)
     } catch (_: AbstractException) {
       // A probe that needs narrowing leaves the task and event history unchanged.
     } catch (_: NotNowException) {

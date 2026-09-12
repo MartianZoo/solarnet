@@ -28,12 +28,12 @@ import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.Instruction.Gated
-import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
-import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
-import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
+import dev.martianzoo.pets.ast.Instruction.Quantifier.AMAP
+import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
+import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.Instruction.Transmute
@@ -138,7 +138,7 @@ internal constructor(
       controller: Actor,
   ) {
     val ct = instruction.count as? ActualScalar ?: throw abstractInstruction(instruction)
-    if (instruction.intensity != MANDATORY) throw abstractInstruction(instruction)
+    if (instruction.quantifier != MANDATORY) throw abstractInstruction(instruction)
 
     val gaining = instruction.gaining?.toComponent(reader)
     val removing = instruction.removing?.toComponent(reader)
@@ -244,16 +244,16 @@ internal constructor(
   }
 
   private fun resolveChange(change: Change): InstructionTree {
-    val intensity = change.intensity ?: error("missing intensity: $change")
+    val quantifier = change.quantifier ?: error("missing quantifier: $change")
     return try {
-      resolveChangeWithoutDependencyFallback(change, intensity)
+      resolveChangeWithoutDependencyFallback(change, quantifier)
     } catch (e: DependencyException) {
       val gaining = change.gaining
       val canFallBackToZero =
-          intensity != MANDATORY &&
+          quantifier != MANDATORY &&
               gaining != null &&
               change.removing == null &&
-              (intensity == OPTIONAL || reader.resolve(gaining).abstract) &&
+              (quantifier == OPTIONAL || reader.resolve(gaining).abstract) &&
               !classTable.getClass(gaining.className).declaration.custom
       if (canFallBackToZero) NoOp else throw e
     }
@@ -261,7 +261,7 @@ internal constructor(
 
   private fun resolveChangeWithoutDependencyFallback(
       change: Change,
-      intens: Instruction.Intensity,
+      intens: Instruction.Quantifier,
   ): InstructionTree {
     // can't resolve at all if we still have an X?
     val count = (change.count as? ActualScalar)?.value ?: return change
@@ -327,18 +327,18 @@ internal constructor(
   private fun narrowChangeTypes(
       change: Change,
       count: Int,
-      intensity: Instruction.Intensity,
+      quantifier: Instruction.Quantifier,
   ): Pair<Type?, Type?>? {
     val narrowed =
         autoNarrowTypes(
             change.gaining,
             change.removing,
-            preserveAbstractActor = intensity == AMAP,
+            preserveAbstractActor = quantifier == AMAP,
         )
     val (gaining, removing) = narrowed
     if (
         change is Transmute &&
-            !Change.change(gaining?.expression, removing?.expression, count, intensity)
+            !Change.change(gaining?.expression, removing?.expression, count, quantifier)
                 .narrows(change, reader)
     ) {
       // Independent auto-narrowing must not choose conflicting values for one atomic variable.
@@ -373,14 +373,14 @@ internal constructor(
       gainingType: Type?,
       removingType: Type?,
       count: Int,
-      intensity: Instruction.Intensity,
+      quantifier: Instruction.Quantifier,
   ): Instruction {
     val gaining = gainingType?.toComponent()
     val removing = removingType?.toComponent()
     val limit = limiter.findLimit(gaining, removing)
     val adjusted: Int = min(count, limit)
 
-    if (intensity == MANDATORY && adjusted != count) {
+    if (quantifier == MANDATORY && adjusted != count) {
       throw LimitsException(
           "Can't ${describe(gainingType, removingType, count)}: max possible is $adjusted"
       )
@@ -390,7 +390,7 @@ internal constructor(
         gainingType?.expression,
         removingType?.expression,
         adjusted,
-        if (intensity == AMAP) MANDATORY else intensity,
+        if (quantifier == AMAP) MANDATORY else quantifier,
     )
   }
 

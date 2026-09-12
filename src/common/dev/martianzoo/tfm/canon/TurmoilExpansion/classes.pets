@@ -1,6 +1,6 @@
 "Expansion adding the Terraforming Committee and Global Events"
 CLASS TurmoilExpansion : Module {
-  HAS Class<RefillLobby>, Class<MeasureInfluence>, Class<ApplyRulingBonus>, Class<FormGovernment>, Class<ChangingTimes>
+  HAS Class<RefillLobby>, Class<PlaceReserveDelegate>, Class<MeasureInfluence>, Class<ApplyRulingBonus>, Class<FormGovernment>, Class<ChangingTimes>
   HAS Class<TurmoilSolarOperation>
   HAS Class<ResolveCurrentGlobalEvent>, Class<ResolveGlobalEvent>
   HAS Class<RemoveOceanForGlobalEvent>, Class<ChooseDryDesertResource>
@@ -10,7 +10,7 @@ CLASS TurmoilExpansion : Module {
   HAS Class<AddResourceToCard>
   HAS Class<ChooseInfluenceFloaterCard>, Class<ResolveCorrosiveRain>
   This:: Neutral, MarsFirst, Scientists, Unity, Greens, Reds, Kelvinists, LobbyAction, UseTurmoilPolicyAction
-  SetupPhase:: EACH Player { TurmoilPlayer, LobbyDelegate, 6 ReserveDelegate }
+  SetupPhase:: EACH Player { TurmoilPlayer, 7 ReserveDelegate, LobbyActionAvailable }
   SetupPhase:: Chairman<Neutral>, 13 ReserveDelegate<Neutral>, Ruling<Greens>
   SetupPhase: RevealComingEvent
   SolarPhase: TurmoilSolarOperation
@@ -269,13 +269,15 @@ ABSTRACT CLASS AbstractDelegate : Owned<Owner> {
     End: VictoryPoint
   }
 
-  "A player's free delegate for the current generation"
-  CLASS LobbyDelegate {
-    HAS MAX 1 This
-  }
-
   "A delegate available to enter the Lobby or a political party"
-  CLASS ReserveDelegate
+  CLASS ReserveDelegate {
+    -This IF TurmoilPlayer<Owner>, MAX 0 This:: -LobbyActionAvailable<Owner>.
+  }
+}
+
+"Marks that a player has not used their free lobbying action this generation"
+CLASS LobbyActionAvailable : Owned<Player>, System {
+  HAS MAX 1 This
 }
 
 "A delegate currently assigned to one political party"
@@ -285,6 +287,11 @@ CLASS PartyDelegate<Party> : Owned<Owner> {
   }
   This:: RecalculateDominance
   MeasureInfluence IF Dominant<Party>, 1 (PartyDelegate<Party, Owner> - PartyLeader<Party, Owner>):: DelegateInfluence.
+}
+
+"Requests a party for one delegate placed using the owner's available reserve"
+CLASS PlaceReserveDelegate<Party> : Owned<Owner>, Signal {
+  This:: PartyDelegate<Party, Owner> FROM ReserveDelegate<Owner>
 }
 
 "The owner whose delegate occupies one party's leader seat"
@@ -313,19 +320,19 @@ CLASS RecalculateDominanceClockwise : Signal {
 
 "The repeatable lobbying action, free from the Lobby or costing 5 M€ from the reserve"
 CLASS LobbyAction : StandardAction {
-  -> PartyDelegate FROM LobbyDelegate
+  LobbyActionAvailable -> PartyDelegate FROM ReserveDelegate
   5 MC -> PartyDelegate FROM ReserveDelegate
 }
 
-"Refills each vacant Lobby seat from that player's finite reserve"
+"Restores free lobbying for each player who has a reserve delegate"
 CLASS RefillLobby : Signal {
-  This:: EACH Player { LobbyDelegate<Player> FROM ReserveDelegate<Player>. }
+  This:: EACH Player(HAS ReserveDelegate<Player>) { LobbyActionAvailable<Player>. }
 }
 
 "Requests the current political influence snapshot for one player"
 CLASS MeasureInfluence : Owned<Player>, Signal
 
-ABSTRACT CLASS Influence : Owned<Player>, Generational
+ABSTRACT CLASS Influence<GenerationScope> : Owned<Player>
 
 "One influence supplied by the committee Chairman"
 CLASS ChairmanInfluence : Influence {
@@ -347,17 +354,11 @@ CLASS EventAnalystsInfluence : Influence {
   HAS MAX 1 This
 }
 
-"Returns one selected non-leader delegate to its owner's reserve"
-CLASS BannedDelegateRemoval<Party, Anyone> : Owned<Player>, Barrier {
-  HAS MAX 1 This
-  This: ReserveDelegate<Anyone> FROM PartyDelegate<Party, Anyone> THEN -This!
-}
-
 "Exchanges one neutral non-leader delegate for one of the player's reserve delegates"
 CLASS RecruitmentExchange<Party> : Owned<Player>, Barrier {
   HAS MAX 1 This
   This: ReserveDelegate<Neutral> FROM PartyDelegate<Party, Neutral> THEN \
-    PartyDelegate<Party, Owner> FROM ReserveDelegate<Owner> THEN -This!
+    PlaceReserveDelegate<Party, Owner> THEN -This!
 }
 
 "A ruling party's capability during the Action phase"
@@ -381,7 +382,7 @@ CLASS ScientistsPolicy : Policy<Scientists>, HasActions {
   10 MC -> (MAX 0 ScientistsUsedMarker: 3 ProjectCard, ScientistsUsedMarker)
 }
 
-CLASS ScientistsUsedMarker : Owned<Player>, Generational {
+CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player> {
   HAS MAX 1 This
 }
 

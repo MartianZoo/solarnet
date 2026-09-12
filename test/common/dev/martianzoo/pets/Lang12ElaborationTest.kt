@@ -254,7 +254,37 @@ internal class Lang12ElaborationTest {
 
     specialize("This: Steel<Seat1>!").instruction shouldBe parse<InstructionTree>("Die!")
     specialize("This: Steel<Seat1>?").instruction shouldBe parse<InstructionTree>("Ok")
+    specialize("This: Steel<Seat1>.").instruction shouldBe parse<InstructionTree>("Ok")
     specialize("This: Plant<Seat1>!").instruction shouldBe parse<InstructionTree>("Plant<Seat1>!")
+  }
+
+  @Test
+  internal fun `L12-14 a change invalidated by dependency specialization becomes Die`() {
+    val table =
+        testCatalog(
+                """
+                ABSTRACT CLASS Target
+                CLASS Good : Target
+                CLASS Bad : Target
+                ABSTRACT CLASS Wrapper<Good>
+                CLASS Holder<Target> { This: Good OR Wrapper<Target> }
+                """
+                    .trimIndent()
+            )
+            .classTable
+    val elaborator = PetElaborator(table)
+    val holderClass = table.getClass(parse("Holder"))
+    val specific = table.resolve(parse("Holder<Bad>"))
+    val authored = elaborator.classEffects(holderClass).single()
+
+    elaborator
+        .specializeEffect(
+            holderClass.defaultType,
+            specific,
+            authored,
+            specific.expressionFull,
+        )
+        .instruction shouldBe parse<InstructionTree>("Good! OR Die!")
   }
 
   // L12-15 Specializing an effect

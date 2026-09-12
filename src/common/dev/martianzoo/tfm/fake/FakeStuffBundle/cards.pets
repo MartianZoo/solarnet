@@ -40,7 +40,7 @@ CLASS FakePreservationProgram : CardFront<Class<PreludeCard>> {
 }
 
 "One TR loss per generation; the original gain still triggers effects such as Terraforming Deal"
-CLASS FakePreservationTrLost : Cardbound<FakePreservationProgram>, Generational {
+CLASS FakePreservationTrLost<GenerationScope> : Cardbound<FakePreservationProgram> {
   HAS MAX 1 This
   This: -TerraformRating
 }
@@ -53,6 +53,22 @@ CLASS FakeHelion : CardFront<Class<CorporationCard>> {
   This: 42 MC, PROD[3 Heat]
 
   Billing<HasActions, ActionSlot, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
+}
+
+"Banned Delegate without immediate party-leader and Dominant-party changes"
+CLASS FakeBannedDelegate : EventCard {
+  cost = 0
+  requirement = HAS "Chairman"
+
+  This:: EventTag<This>
+  This: FakeBannedDelegateRemoval<Party, Anyone>. / \
+    (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1
+}
+
+"Returns one selected non-leader delegate without recalculating its party"
+CLASS FakeBannedDelegateRemoval<Party, Anyone> : Owned<Player>, Barrier {
+  HAS MAX 1 This
+  This: ReserveDelegate<Anyone> FROM PartyDelegate<Party, Anyone> THEN -This!
 }
 
 "Septem Tribus with an inert wild tag"

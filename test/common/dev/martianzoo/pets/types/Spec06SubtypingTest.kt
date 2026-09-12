@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotlin.test.Test
 
 /** Section 6 of `docs/type-system-spec.md`: the subtype relation on types. */
@@ -24,6 +25,7 @@ internal class Spec06SubtypingTest {
           ABSTRACT CLASS Tile : Occupant
           CLASS GreeneryTile : Tile<MarsArea>, Owned<Owner>
           CLASS OceanTile : Tile<WaterArea>
+          CLASS Neighbor<Occupant, Area>
           """
               .trimIndent()
       )
@@ -137,6 +139,16 @@ internal class Spec06SubtypingTest {
         if (narrows(a, b) && narrows(b, a)) type(a) shouldBe type(b)
       }
     }
+  }
+
+  @Test
+  internal fun `T6-4 narrowing with a world is only a preorder`() {
+    // In a world where every land area has a neighbour, these two narrow each other...
+    type("LandArea").narrows(type("LandArea(HAS Neighbor)"), fullWorld) shouldBe true
+    type("LandArea(HAS Neighbor)").narrows(type("LandArea"), fullWorld) shouldBe true
+
+    // ...while remaining distinct types, so antisymmetry fails.
+    type("LandArea") shouldNotBe type("LandArea(HAS Neighbor)")
   }
 
   // T6-5 Universe safety

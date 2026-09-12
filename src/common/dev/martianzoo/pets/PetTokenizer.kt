@@ -15,9 +15,9 @@ import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
 import com.github.h0tk3y.betterParse.lexer.literalToken
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.utils.Tuple2
-import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
-import dev.martianzoo.pets.ast.Instruction.Intensity.MANDATORY
-import dev.martianzoo.pets.ast.Instruction.Intensity.OPTIONAL
+import dev.martianzoo.pets.ast.Instruction.Quantifier.AMAP
+import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
+import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
 
 /**
  * A base class for parsing objects. The tokens here are the lexical level of language-spec sections
@@ -74,7 +74,7 @@ internal abstract class PetTokenizer {
 
   internal val rawScalar: Parser<Int> = _scalarRE map { it.text.toInt() }
 
-  internal val intensity =
+  internal val quantifier =
       optional(
           (char('!') asJust MANDATORY) or (char('.') asJust AMAP) or (char('?') asJust OPTIONAL)
       )

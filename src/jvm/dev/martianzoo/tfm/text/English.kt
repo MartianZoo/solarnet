@@ -274,7 +274,7 @@ internal class English(
     for (instruction in instructions) {
       val per = instruction as? Instruction.Per ?: return null
       val gain = per.inner as? Gain ?: return null
-      if (gain.intensity.modality() != Modality.REQUIRED || gain.count.fixedQuantity() != 1) {
+      if (gain.quantifier.modality() != Modality.REQUIRED || gain.count.fixedQuantity() != 1) {
         return null
       }
       val production = productionExpression(gain.gaining, cardDescribers) ?: return null

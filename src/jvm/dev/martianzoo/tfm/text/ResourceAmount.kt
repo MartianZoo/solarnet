@@ -31,7 +31,7 @@ internal fun owedReduction(
     describers: Describers,
 ): ResourceAmount? {
   val removal = instruction as? Remove ?: return null
-  if (removal.intensity.modality() != Modality.REQUIRED) return null
+  if (removal.quantifier.modality() != Modality.REQUIRED) return null
   return paymentResourceAmount(
       removal.removing,
       removal.count,
@@ -62,7 +62,7 @@ internal fun completeOwedReduction(
   val removal = per.inner as? Remove ?: return null
   val counted = per.metric as? Metric.Count ?: return null
   if (removal.removing != counted.expression) return null
-  if (removal.intensity.modality() != Modality.REQUIRED) return null
+  if (removal.quantifier.modality() != Modality.REQUIRED) return null
   return paymentResourceAmount(
           removal.removing,
           removal.count,
@@ -78,7 +78,7 @@ internal fun paymentResourceGain(
     describers: Describers,
 ): ResourceAmount? {
   val gain = instruction as? Gain ?: return null
-  if (gain.intensity.modality() != Modality.REQUIRED) return null
+  if (gain.quantifier.modality() != Modality.REQUIRED) return null
   return paymentResourceAmount(gain.gaining, gain.count, role, describers)
 }
 
