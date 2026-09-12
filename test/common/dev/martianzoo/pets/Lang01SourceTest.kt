@@ -15,6 +15,7 @@ import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.MetricType
@@ -199,6 +200,32 @@ internal class Lang01SourceTest {
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Tile<Area> { DEFAULT Other<LandArea> }") }
   }
 
+  @Test
+  internal fun `L1-7 compatible DEFAULT clauses merge and conflicting clauses are rejected`() {
+    val merged =
+        parseClasses(
+                """
+                CLASS Tile<Area> {
+                  DEFAULT +Tile<LandArea>
+                  DEFAULT +Tile?
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+            .defaultsDeclaration
+
+    merged.gainOnly.specs shouldContainExactly listOf(parse<Expression>("LandArea"))
+    merged.gainOnly.quantifier shouldBe Instruction.Quantifier.OPTIONAL
+
+    listOf(
+            "CLASS Tile { DEFAULT Tile; DEFAULT Other }",
+            "CLASS Tile { DEFAULT +Tile<LandArea>; DEFAULT +Tile<WaterArea> }",
+            "CLASS Tile { DEFAULT +Tile?; DEFAULT +Tile! }",
+        )
+        .forEach { shouldThrow<PetSyntaxException> { parseClasses(it) } }
+  }
+
   // L1-8 Properties
 
   @Test
@@ -293,6 +320,12 @@ internal class Lang01SourceTest {
   }
 
   @Test
+  internal fun `L1-10 whitespace is required where two tokens would run together`() {
+    parse<Instruction>("2 MC").toString() shouldBe "2 MC"
+    shouldThrow<PetSyntaxException> { parse<Instruction>("2MC") }
+  }
+
+  @Test
   internal fun `L1-10 a backslash before a line ending continues the line`() {
     parseClasses("CLASS Alpha {\n  This: Plant\\\n OR Heat\n}")
         .single()
@@ -371,7 +404,18 @@ internal class Lang01SourceTest {
     val byName = systemClassDeclarations.associateBy { it.className }
 
     byName.keys shouldContainAll
-        listOf(COMPONENT, CLASS, ANYONE, OWNER, OWNED, OK, ATOMIZED, cn("Actor"), cn("Die"))
+        listOf(
+            COMPONENT,
+            CLASS,
+            ANYONE,
+            OWNER,
+            OWNED,
+            OK,
+            ATOMIZED,
+            cn("Actor"),
+            cn("Die"),
+            cn("Custom"),
+        )
     byName.getValue(COMPONENT).abstract shouldBe true
     byName.getValue(COMPONENT).supertypes.shouldBeEmpty()
     byName.getValue(OWNED).defaultsDeclaration.universal.specs shouldContainExactly

@@ -33,8 +33,10 @@ public object Transforming {
 
   /**
    * Replaces each occurrence of the special `This` expression with [contextType], replacing
-   * `Class<This>` appropriately as well. An explicitly specialized `This<Foo>` keeps its authored
-   * arguments and specializes the concrete context class, becoming (for example) `Bar<Foo>`.
+   * `Class<This>` with the class literal for the context's class as well. An explicitly specialized
+   * `This<Foo>` keeps its authored arguments and adopts the context's class, becoming (for example)
+   * `Bar<Foo>`. This is
+   * [rule L12-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-elaboration).
    */
   public fun replaceThisExpressionsWith(contextType: Expression): PetTransformer =
       chain(
@@ -54,8 +56,13 @@ public object Transforming {
 
   /**
    * Replaces each occurrence of the contextual `Owner` placeholder with [owner], except inside any
-   * subtree [shielded] accepts. An Owner-selecting fanout shields its body because only that fanout
-   * may bind `Owner` to the selected Owner.
+   * subtree [shielded] accepts. An Owner-selecting fanout shields its body because the selection
+   * supplies the owner there instead, so an ordinary owned body reads on a card exactly as it does
+   * anywhere else ([rules
+   * L3-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-expressions)
+   * and
+   * [L12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-elaboration)).
+   * `Anyone` is an ordinary class and stands for itself.
    */
   public fun replaceOwnerWith(
       owner: HasClassName,
@@ -81,7 +88,12 @@ public object Transforming {
         }
       }
 
-  /** Replaces every authored X scalar with [value], retaining written coefficients. */
+  /**
+   * Replaces every authored X scalar with [value], retaining written coefficients: `X Plant THEN 2X
+   * Heat` bound to 3 becomes `3 Plant THEN 6 Heat`, since `X` takes one value everywhere it appears
+   * ([rule
+   * L7-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   */
   public fun bindXTo(value: Int): PetTransformer =
       object : PetTransformer() {
         override fun transformNode(node: PetNode): PetNode =
@@ -95,6 +107,14 @@ public object Transforming {
     return Effect(trigger, instruction, automatic = false)
   }
 
+  /**
+   * Lowers each of [actions] to the effect keyed by its position on the class: the nth action is
+   * triggered by `UseAction<This, ActionN>` ([rule
+   * L9-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-actions)).
+   *
+   * The standard-resource cost rewrite that rides along here is `ACTIONS.md`'s subject, not this
+   * module's; see the TODO above.
+   */
   public fun actionListToEffects(actions: Collection<Action>): List<Effect> =
       actions.withIndex().flatMap { (index0Ref, action) ->
         actionToEffects(action, index1Ref = index0Ref + 1)
@@ -141,13 +161,21 @@ public object Transforming {
     )
   }
 
+  /** The position markers `Action1`..`ActionN` keying [actions] to their effects. */
   public fun actionSelectors(actions: Collection<Action>): Set<ClassName> =
       actions.indices.mapTo(linkedSetOf()) { actionSelector(it + 1) }
 
+  // Rule L9-4: a class may offer at most three actions.
   private fun actionSelector(index1Ref: Int): ClassName =
       listOf(cn("Action1"), cn("Action2"), cn("Action3")).getOrNull(index1Ref - 1)
           ?: throw IllegalArgumentException("A component can offer only three actions: $index1Ref")
 
+  /**
+   * Returns the effect `This: instruction`, which is how a card's "do this now" section becomes an
+   * ordinary rule ([rule
+   * L9-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-actions)).
+   * An immediate `Ok` produces no effect at all, so this returns null for one.
+   */
   public fun immediateToEffect(
       instruction: InstructionTree,
       effectIsAutomatic: Boolean = false,

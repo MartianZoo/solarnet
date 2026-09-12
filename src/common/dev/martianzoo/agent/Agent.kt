@@ -1,7 +1,7 @@
-package dev.martianzoo.engine
+package dev.martianzoo.agent
 
-import dev.martianzoo.engine.Agent.OperationBody
-import dev.martianzoo.engine.TimelineImpl.AbortOperationException
+import dev.martianzoo.engine.AbortTransactionException
+import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.KindException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
@@ -36,13 +36,14 @@ public interface Agent {
    * Parses and preprocesses [text]. Preprocessing may change its major kind; callers that require a
    * particular result kind should use [parse].
    */
-  public fun parseInternal(type: KClass<out PetElement>, text: String): PetElement
+  public fun parseAs(type: KClass<out PetElement>, text: String): PetElement
 
   public fun has(requirement: String): Boolean
 
   /** Counts [metric], allowing explicit `EVAL` of metric properties in this Actor's context. */
   public fun count(metric: String): Int
 
+  /** Returns each matching component's exact type expression, preserving multiplicity. */
   public fun list(type: String): Multiset<Expression>
 
   public fun resolve(expression: String): Type
@@ -55,8 +56,8 @@ public interface Agent {
    *
    * @param [narrowing] the new instruction tree; may be abstract or a grouped arm selected from an
    *   `OR`; a group replaces this one task with one task per member; if identical to the current
-   *   instruction this method does nothing; an omitted intensity retains a stronger pending
-   *   intensity when the Class default would weaken it
+   *   instruction this method does nothing; an omitted quantifier retains a stronger pending
+   *   quantifier when the Class default would weaken it
    * @throws [TaskException] if this Actor has no selected task
    * @throws [NarrowingException] if [narrowing] does not narrow the selected task's instruction
    */
@@ -111,9 +112,9 @@ public interface Agent {
    * removes the original task from the game's task queue. Throws an exception if any of this fails.
    *
    * A selected task always wins. Otherwise, the narrowing must match exactly one task, except that
-   * fully identical tasks are interchangeable. When the narrowing omits an intensity and its Class
-   * default would weaken the pending task's intensity, the pending intensity is retained; an
-   * explicitly written intensity must narrow normally.
+   * fully identical tasks are interchangeable. When the narrowing omits a quantifier and its Class
+   * default would weaken the pending task's quantifier, the pending quantifier is retained; an
+   * explicitly written quantifier must narrow normally.
    *
    * @throws [AbstractException] if the task is abstract
    * @throws [NotNowException] if the task can't currently be resolved
@@ -133,21 +134,21 @@ public interface Agent {
 
   public fun autoExecNow(): TaskResult
 
-  public var autoExecMode: AutoExecMode
+  public var autoExecPolicy: AutoExecPolicy
 
   public fun startTurn(): TaskResult
 
-  public fun inTurn(body: BodyLambda = {}): TaskResult
+  public fun inTurn(body: OperationBlock = {}): TaskResult
 
   /** Starts and completes an operation seeded by one or more independent instructions. */
-  public fun manual(initialInstructions: String, body: BodyLambda = {}): TaskResult
+  public fun runOperation(initialInstructions: String, body: OperationBlock = {}): TaskResult
 
   /** Starts a resumable operation seeded by one or more independent instructions. */
-  public fun beginManual(initialInstructions: String, body: BodyLambda = {}): TaskResult
+  public fun beginOperation(initialInstructions: String, body: OperationBlock = {}): TaskResult
 
-  public fun continueManual(body: BodyLambda = {}): TaskResult
+  public fun continueOperation(body: OperationBlock = {}): TaskResult
 
-  public fun finish(body: BodyLambda = {}): TaskResult
+  public fun completeOperation(body: OperationBlock = {}): TaskResult
 
   /** Adds a manual task for the given [instruction], but does not select or execute it. */
   public fun addTasks(instruction: String, firstCause: Cause? = null): List<TaskId>
@@ -157,7 +158,7 @@ public interface Agent {
 
   public fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
 
-  public interface OperationBody {
+  public interface OperationScope {
     public val tasks: TaskQueue
     public val reader: GameReader
 
@@ -171,12 +172,12 @@ public interface Agent {
 
     public fun autoExecNow()
 
-    public fun abort(): Nothing = throw AbortOperationException()
+    public fun abort(): Nothing = throw AbortTransactionException()
   }
 
   public companion object {
     public inline fun <reified P : PetElement> Agent.parse(text: String): P {
-      val parsed = parseInternal(P::class, text)
+      val parsed = parseAs(P::class, text)
       if (parsed !is P) {
         throw KindException(
             "Preprocessing produced `$parsed`, which is not a ${P::class.simpleName}"
@@ -186,5 +187,3 @@ public interface Agent {
     }
   }
 }
-
-public typealias BodyLambda = OperationBody.() -> Unit

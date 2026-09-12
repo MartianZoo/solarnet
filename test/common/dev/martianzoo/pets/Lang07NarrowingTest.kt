@@ -1,6 +1,7 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.TypeInfo
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -11,6 +12,13 @@ import kotlin.test.Test
  * an authored change carries no quantifier to compare until it is.
  */
 internal class Lang07NarrowingTest {
+
+  private object BrokenSpecification : Specification<BrokenSpecification> {
+    override fun isAbstract(info: TypeInfo): Boolean = false
+
+    override fun ensureNarrows(that: BrokenSpecification, info: TypeInfo): Unit =
+        error("not a narrowing refusal")
+  }
 
   private fun narrows(wide: String, narrow: String): Boolean =
       elaborate(narrow).narrows(elaborate(wide), langWorld)
@@ -140,6 +148,14 @@ internal class Lang07NarrowingTest {
     refuses("2X Plant THEN Heat", "3 Plant THEN Heat")
   }
 
+  @Test
+  internal fun `L7-7 shared X follows the selected OR arm across THEN`() {
+    narrows("(X Plant OR X Heat) THEN X Steel", "3 Plant THEN 3 Steel") shouldBe true
+    narrows("(X Plant OR X Heat) THEN X Steel", "3 Heat THEN 3 Steel") shouldBe true
+    refuses("(X Plant OR X Heat) THEN X Steel", "3 Plant THEN 2 Steel")
+    narrows("(X Plant OR 2X Plant) THEN X Steel", "4 Plant THEN 2 Steel") shouldBe true
+  }
+
   // L7-8 Shared type variables
 
   @Test
@@ -160,6 +176,13 @@ internal class Lang07NarrowingTest {
   internal fun `L7-9 narrows answers and ensureNarrows explains`() {
     narrows("2 Plant!", "3 Plant!") shouldBe false
     refuses("2 Plant!", "3 Plant!").message!!.contains("does not narrow") shouldBe true
+  }
+
+  @Test
+  internal fun `L7-9 narrows propagates failures other than a narrowing refusal`() {
+    shouldThrow<IllegalStateException> {
+      BrokenSpecification.narrows(BrokenSpecification, langWorld)
+    }
   }
 
   // L7-10 Groups

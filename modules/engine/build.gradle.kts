@@ -14,12 +14,16 @@ kotlin {
     commonTest {
       kotlin.setSrcDirs(
           listOf(
+              rootProject.layout.projectDirectory.dir(
+                  "test/common/dev/martianzoo/agenttestsupport"
+              ),
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/testsupport"),
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/engine"),
           )
       )
       dependencies {
         implementation(libs.kotest.assertions.core)
+        implementation(project(":agent"))
         implementation(project(":tfm-canon"))
         implementation(project(":tfm-engine"))
       }

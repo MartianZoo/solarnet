@@ -1,8 +1,10 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.engine.AutoExecMode.FIRST
+import dev.martianzoo.agent.Agents
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.exMachina
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.exMachina
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -34,9 +36,9 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     val premise = catalog.gamePremise(config, parseClasses(playerClassPets))
     game = Engine.newGame(premise)
     val players = game.actors.filterIsInstance<Player>()
-    p1 = game.tfm(players[0]).requireExplicitPaymentChoices()
-    if (players.size > 1) p2 = game.tfm(players[1]).requireExplicitPaymentChoices()
-    if (players.size > 2) p3 = game.tfm(players[2]).requireExplicitPaymentChoices()
+    p1 = game.testTfm(players[0]).requireExplicitPaymentChoices()
+    if (players.size > 1) p2 = game.testTfm(players[1]).requireExplicitPaymentChoices()
+    if (players.size > 2) p3 = game.testTfm(players[2]).requireExplicitPaymentChoices()
   }
 
   /** Returns fresh gameplay for the Player occupying the one-based [seat]. */
@@ -44,7 +46,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     require(seat > 0) { "seat numbers begin at 1" }
     val player = game.actors.filterIsInstance<Player>().getOrNull(seat - 1)
     requireNotNull(player) { "no Player occupies seat $seat" }
-    return game.tfm(player)
+    return game.testTfm(player)
   }
 
   private fun copyThis() {
@@ -98,7 +100,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
 
   /** Reproduces an evidenced player mistake without leaving a task selected against stale state. */
   protected fun TfmGameplay.exMachina(adjustment: String) {
-    game.exMachina(this, adjustment)
+    agents.exMachina(actor, adjustment)
   }
 
   protected fun retainStartingProjects(vararg retainedCounts: Int) {
@@ -154,27 +156,30 @@ internal abstract class AbstractFullGameTest : TfmTest() {
 
   private fun TfmGameplay.assertVps(expected: Int) {
     val snapshot = Engine.overlay(game)
-    snapshot.actors.forEach { snapshot.agent(it).autoExecMode = FIRST }
-    snapshot.dropPendingTasksForSnapshot()
-    snapshot.tfm(ADMIN).phase("Production") { snapshot.dropPendingTasksForSnapshot() }
-    snapshot.tfm(ADMIN).manual("End FROM Phase") {
-      snapshot.dropPendingTasksForSnapshot()
+    val snapshotAgents = Agents(snapshot)
+    snapshot.actors.forEach { snapshotAgents[it].autoExecPolicy = EAGER }
+    snapshot.dropPendingTasksForSnapshot(snapshotAgents)
+    snapshotAgents.tfm(ADMIN).phase("Production") {
+      snapshot.dropPendingTasksForSnapshot(snapshotAgents)
     }
-    snapshot.tfm(actor).assertCounts(expected to "VictoryPoint")
+    snapshotAgents.tfm(ADMIN).runOperation("End FROM Phase") {
+      snapshot.dropPendingTasksForSnapshot(snapshotAgents)
+    }
+    snapshotAgents.tfm(actor).assertCounts(expected to "VictoryPoint")
   }
 
   // Pending choices describe future play, so a snapshot must neither execute nor count them.
   // Unbought research cards need to leave Selecting before task removal.
-  private fun dev.martianzoo.engine.World.dropPendingTasksForSnapshot() {
+  private fun dev.martianzoo.engine.World.dropPendingTasksForSnapshot(agents: Agents) {
     actors
         .filterIsInstance<Player>()
-        .map { tfm(it) }
+        .map { agents.tfm(it) }
         .filter { it.count("ProjectCard<Selecting>") > 0 }
         .forEach { it.buyCards(0) }
     tasks
         .extract { it.id to it.assignee }
         .forEach { (id, assignee) ->
-          agent(assignee).dropTask(id)
+          agents[assignee].dropTask(id)
         }
   }
 }

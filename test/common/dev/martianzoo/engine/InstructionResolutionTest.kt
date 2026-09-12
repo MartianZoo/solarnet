@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.AbstractException
@@ -13,7 +14,6 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -33,7 +33,7 @@ internal class InstructionResolutionTest {
       )
 
   init {
-    game.tfm(PLAYER1).sneak("Plant, 10 ProjectCard, PROD[-1 MC]")
+    game.testTfm(PLAYER1).sneak("Plant, 10 ProjectCard, PROD[-1 MC]")
   }
 
   private fun preprocess(instr: InstructionTree): InstructionTree {

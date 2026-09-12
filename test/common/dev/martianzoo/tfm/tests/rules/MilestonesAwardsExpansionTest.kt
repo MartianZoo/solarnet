@@ -18,7 +18,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   @Test
   internal fun `Briber costs twelve MC in addition to the normal claim cost`() {
     newGame(GameConfig("Briber, Builder, Engineer", "Player1", "Player2"))
-    p1.manual("20 MC")
+    p1.runOperation("20 MC")
     admin.phase("Action")
 
     p1.claimMilestone(cn("Briber")).expect("-20 MC, Briber")
@@ -27,7 +27,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   @Test
   internal fun `Briber claim is atomic when the player cannot pay the extra cost`() {
     newGame(GameConfig("Briber, Builder, Engineer", "Player1", "Player2"))
-    p1.manual("19 MC")
+    p1.runOperation("19 MC")
     admin.phase("Action")
 
     shouldThrow<LimitsException> { p1.claimMilestone(cn("Briber")) }
@@ -45,12 +45,12 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
             "Player2",
         )
     )
-    p1.manual("$Vitor, $SearchForLife, $Tardigrades, $ColonizerTrainingCamp, $DustSeals")
+    p1.runOperation("$Vitor, $SearchForLife, $Tardigrades, $ColonizerTrainingCamp, $DustSeals")
 
-    shouldThrow<RequirementException> { p1.manual("Philantropist") }
+    shouldThrow<RequirementException> { p1.runOperation("Philantropist") }
 
-    p1.manual("$SpaceElevator")
-    p1.manual("Philantropist")
+    p1.runOperation("$SpaceElevator")
+    p1.runOperation("Philantropist")
     p1.count("Philantropist") shouldBe 1
   }
 
@@ -65,7 +65,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
             )
         )
     game.classTable.isActive(cn("Merchant")) shouldBe true
-    p1.manual("10 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat")
+    p1.runOperation("10 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat")
     admin.phase("Action")
 
     p1.stdAction("ClaimMilestoneAction") { doTask("Merchant") }
@@ -80,10 +80,10 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
     val oceans = p1.list("WaterArea").take(4)
     admin.count("HydrologistWatcher") shouldBe 1
 
-    oceans.forEach { p1.manual("OceanTile<$it>") }
+    oceans.forEach { p1.runOperation("OceanTile<$it>") }
 
-    shouldThrow<RequirementException> { p2.manual("Hydrologist") }
-    p1.manual("Hydrologist")
+    shouldThrow<RequirementException> { p2.runOperation("Hydrologist") }
+    p1.runOperation("Hydrologist")
     p1.count("Hydrologist") shouldBe 1
   }
 
@@ -91,15 +91,15 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   internal fun `Removing an ocean removes its placement credit`() {
     newGame(GameConfig("Hydrologist, Builder, Engineer", "Player1", "Player2"))
     val oceans = p1.list("WaterArea").take(4)
-    oceans.forEach { p1.manual("OceanTile<$it>") }
+    oceans.forEach { p1.runOperation("OceanTile<$it>") }
     p1.count("OceanCredit") shouldBe 4
     oceans.forEach { p1.count("OceanCredit<OceanTile<$it>>") shouldBe 1 }
 
-    requireP2().manual("-OceanTile<${oceans.first()}>")
+    requireP2().runOperation("-OceanTile<${oceans.first()}>")
 
     p1.count("OceanCredit") shouldBe 3
     p1.count("OceanCredit<OceanTile<${oceans.first()}>>") shouldBe 0
-    shouldThrow<RequirementException> { p1.manual("Hydrologist") }
+    shouldThrow<RequirementException> { p1.runOperation("Hydrologist") }
   }
 
   @Test
@@ -114,13 +114,13 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   // you 6 at setup. Both start one short of their threshold after these grants.
   private fun claimProducerOneProductionShortOfThreshold(milestone: String, modules: String) {
     newGame(GameConfig("$milestone, Builder, Engineer$modules", "Player1", "Player2"))
-    p1.manual("8 MC")
-    p1.manual("PROD[5 Steel, 5 Titanium, 5 Plant]")
+    p1.runOperation("8 MC")
+    p1.runOperation("PROD[5 Steel, 5 Titanium, 5 Plant]")
     admin.phase("Action")
 
-    shouldThrow<RequirementException> { p1.manual(milestone) }
+    shouldThrow<RequirementException> { p1.runOperation(milestone) }
 
-    p1.manual("PROD[Energy]")
+    p1.runOperation("PROD[Energy]")
     p1.stdAction("ClaimMilestoneAction") { doTask(milestone) }
 
     p1.count(milestone) shouldBe 1

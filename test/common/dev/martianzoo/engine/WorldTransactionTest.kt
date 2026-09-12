@@ -1,28 +1,30 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class AtomicOperationScopeTest {
+internal class WorldTransactionTest {
   @Test
   internal fun nestedOperationsAcrossActorsReportOnlyTheOutermostCompletion() {
     val game = Engine.newGame(testGamePremise(players = 2))
-    val player1 = game.agent(PLAYER1)
-    val player2 = game.agent(PLAYER2)
+    val player1 = game.testAgent(PLAYER1)
+    val player2 = game.testAgent(PLAYER2)
     var completions = 0
-    game.onAtomicComplete = { completions++ }
+    game.onTransactionComplete = { completions++ }
 
-    player1.manual("Ok") { player2.manual("Ok") }
+    player1.runOperation("Ok") { player2.runOperation("Ok") }
 
     completions shouldBe 1
 
-    player1.manual("Ok")
+    player1.runOperation("Ok")
 
     completions shouldBe 2
   }
@@ -30,11 +32,11 @@ internal class AtomicOperationScopeTest {
   @Test
   internal fun nestedAgentCallsDoNotStartAutomaticAdvancement() {
     val game = Engine.newGame(testGamePremise(players = 2))
-    val player1 = game.agent(PLAYER1).also { it.autoExecMode = NONE }
-    val player2 = game.agent(PLAYER2)
+    val player1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    val player2 = game.testAgent(PLAYER2)
 
     player2.addTasks("Token")
-    player1.manual("Ok") { player2.autoExecNow() }
+    player1.runOperation("Ok") { player2.autoExecNow() }
 
     game.tasks.isEmpty() shouldBe false
     player2.autoExecNow()
@@ -53,12 +55,12 @@ internal class AtomicOperationScopeTest {
                 """
             )
         )
-    val player = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val player = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     var workflowPulses = 0
-    game.onAtomicComplete = { if (game.tasks.isEmpty()) workflowPulses++ }
+    game.onTransactionComplete = { if (game.tasks.isEmpty()) workflowPulses++ }
 
     player.addTasks("Blocker")
-    player.manual("CleanupProbe")
+    player.runOperation("CleanupProbe")
 
     player.count("CleanupProbe") shouldBe 1
     workflowPulses shouldBe 0
@@ -89,16 +91,63 @@ internal class AtomicOperationScopeTest {
                 """
             )
         )
-    val player = game.agent(PLAYER1)
+    val player = game.testAgent(PLAYER1)
     var workflowPulses = 0
-    game.onAtomicComplete = { if (game.tasks.isEmpty()) workflowPulses++ }
+    game.onTransactionComplete = { if (game.tasks.isEmpty()) workflowPulses++ }
 
-    player.manual("FirstCleanup")
+    player.runOperation("FirstCleanup")
 
     player.count("FirstCleanup") shouldBe 0
     player.count("SecondCleanup") shouldBe 0
     player.count("Done") shouldBe 1
     workflowPulses shouldBe 1
+  }
+
+  @Test
+  internal fun nestedScopesAndUnscopedSignalFinishFromTheInsideOut() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                CLASS GenerationScope : Scope, System { HAS MAX 1 This }
+                CLASS PhaseScope<GenerationScope> : TemporaryScope<GenerationScope>, System {
+                  -This:: PhaseDone
+                }
+                CLASS ActionScope<PhaseScope> : TemporaryScope<PhaseScope>, System {
+                  -This: FinishAction
+                }
+                CLASS FinishAction : Signal, System
+                CLASS PhaseDone : System
+                CLASS Blocker : System
+                """
+            )
+        )
+    val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+
+    admin.addTasks("Blocker")
+    admin.sneak("GenerationScope")
+    admin.sneak("PhaseScope")
+    admin.sneak("ActionScope")
+
+    admin.count("Scope") shouldBe 3
+
+    admin.doTask("Blocker")
+
+    admin.count("Scope") shouldBe 2
+    admin.count("GenerationScope") shouldBe 1
+    admin.count("PhaseScope") shouldBe 1
+    admin.count("ActionScope") shouldBe 0
+    admin.count("FinishAction") shouldBe 0
+    game.tasks.isEmpty() shouldBe false
+
+    admin.doTask("FinishAction")
+
+    admin.count("Scope") shouldBe 1
+    admin.count("GenerationScope") shouldBe 1
+    admin.count("PhaseScope") shouldBe 0
+    admin.count("FinishAction") shouldBe 0
+    admin.count("PhaseDone") shouldBe 1
+    game.tasks.isEmpty() shouldBe true
   }
 
   @Test
@@ -112,16 +161,16 @@ internal class AtomicOperationScopeTest {
                 """
             )
         )
-    val player = game.agent(PLAYER1)
+    val player = game.testAgent(PLAYER1)
     var startFollowUp = true
-    game.onAtomicComplete = {
+    game.onTransactionComplete = {
       if (startFollowUp) {
         startFollowUp = false
         player.sneak("CleanupProbe")
       }
     }
 
-    player.manual("Ok")
+    player.runOperation("Ok")
 
     player.count("CleanupProbe") shouldBe 0
     player.count("Done") shouldBe 1
@@ -138,9 +187,9 @@ internal class AtomicOperationScopeTest {
                 """
             )
         )
-    val player = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val player = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
 
-    shouldThrow<TaskException> { player.manual("CleanupProbe") }
+    shouldThrow<TaskException> { player.runOperation("CleanupProbe") }
 
     player.count("CleanupProbe") shouldBe 0
     player.count("Followup") shouldBe 0
@@ -158,9 +207,9 @@ internal class AtomicOperationScopeTest {
                 """
             )
         )
-    val player = game.agent(PLAYER1)
+    val player = game.testAgent(PLAYER1)
 
-    shouldThrow<DeadEndException> { player.manual("CleanupProbe") }
+    shouldThrow<DeadEndException> { player.runOperation("CleanupProbe") }
 
     player.count("CleanupProbe") shouldBe 0
     player.count("Unfinished") shouldBe 0
@@ -176,7 +225,7 @@ internal class AtomicOperationScopeTest {
                 """
             )
         )
-    val player = game.agent(PLAYER1)
+    val player = game.testAgent(PLAYER1)
 
     player.sneak("CleanupProbe")
 
@@ -188,9 +237,9 @@ internal class AtomicOperationScopeTest {
   @Test
   internal fun directAgentMutationsReportAtomicCompletion() {
     val game = Engine.newGame(testGamePremise())
-    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     var completions = 0
-    game.onAtomicComplete = { completions++ }
+    game.onTransactionComplete = { completions++ }
 
     agent.sneak("Token")
     val taskId = agent.addTasks("-Token?").single()

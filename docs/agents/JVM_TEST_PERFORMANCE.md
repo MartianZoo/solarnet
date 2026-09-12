@@ -10,7 +10,8 @@
 > **Skip when:** running routine verification; use [TESTING.md](TESTING.md). Do not treat these
 > measurements as current configuration requirements.
 >
-> **Status:** dated research from 2026-08-23, 2026-09-06, and 2026-09-08 on the development host.
+> **Status:** dated research from 2026-08-23, 2026-09-06, 2026-09-08, 2026-09-10, and
+> 2026-09-11 on the development host.
 > Treat absolute times as noisy: other JVM processes were consuming substantial CPU during the
 > baseline. Relative structure and the large parallel-speedup signal are still clear.
 
@@ -168,6 +169,40 @@ some canonical-universe startup, but it would not remove configuration-specific 
 support custom catalogs without another representation; measure the remaining startup cost before
 considering that tradeoff.
 
+## 2026-09-10 full-suite distribution and premise-setup profile
+
+A fresh forced JVM run passed 1,463 tests in 4m44s while other JVM work contended for the host. The
+absolute duration is therefore not comparable to the earlier clean runs, but its test-effort
+distribution answers where suite-wide savings remain:
+
+| Area | Share |
+| --- | ---: |
+| Terraforming Mars card tests | 31.66% |
+| Terraforming Mars rule tests | 20.24% |
+| Generic engine tests | 14.25% |
+| Script and REPL tests | 14.14% |
+| Other JVM tests | 10.16% |
+| Replay tests | 4.51% |
+| Pets module tests | 2.76% |
+| Random-card tests | 2.28% |
+
+Card and rule tests together consume 51.9% of observed suite effort. Replays are not the dominant
+cost.
+
+A focused flight recording covered 27 `Prelude2CardsTest` methods and 28 calls to
+`CardTest.newGame`. Application samples attributed 50.2% of CPU and 54.1% of allocation to setup.
+Premise construction used 6.4% of CPU, `Engine.newGame` used 44.1%, and `ClassLimitTable`
+construction alone used 33.2% of CPU and 37.3% of allocation. Setup allocated an estimated 36.42GB
+of the 67.28GB application total. The hottest stacks beneath limit construction repeatedly compiled
+class headers, dependency closures, variable bindings, and dependency equalities from the
+premise-specific master table.
+
+This selects the direction in [CLASS_TABLES.md](CLASS_TABLES.md#selected-replacement-master-tables-premise-tables-and-class-universes):
+compile one immutable master for Canon and one for Canon plus Fakes, then limit each premise to its
+small declaration overlay, realized-Type domain, and genuinely premise-dependent validation. The
+goal is reuse by explicit ownership and bounded lifetimes, not a global cache that grows with every
+premise shape.
+
 ## Browser replay selection result
 
 Only the extensive three-player `OtbGame20260828Test` full-game replay remains in shared test
@@ -223,12 +258,12 @@ and reversal (3.49GB). Of 4.75GB below `EventLog.record`, 3.98GB occurred inside
 below `TaskQueues.addToTaskSet`, 4.85GB occurred there. Retaining real replay history is therefore
 not the issue: manufacturing and deleting speculative history is.
 
-Most replay Agents use `FIRST`, yet current code computes the complete selectable-task list before
-making that mode's stable arbitrary choice. During the planned move of autoexecution into Agent,
-the smallest promising performance investigation is a `FIRST` policy path that tries candidates in
-stable order and retains the first successful atomic execution. `SAFE` still needs its stronger
-ambiguity proof and should remain a separate concern. The measured probe share is the ceiling, not
-the promised gain, because failed candidates still need a legal failure path.
+Most replay Agents use `EAGER`, yet current code computes the complete selectable-task list before
+making that policy's stable arbitrary choice. The smallest promising performance investigation is
+an `EAGER` path that tries candidates in stable order and retains the first successful atomic
+execution. `CONCRETE` still needs its stronger ambiguity proof and should remain a separate
+concern. The measured probe share is the ceiling, not the promised gain, because failed candidates
+still need a legal failure path.
 
 The next independent cost is premise-local static validation. Every replay creates a new
 `GamePremise`; first `Limiter` use constructs a `ClassLimitTable` and exhaustively checks active
@@ -240,18 +275,44 @@ Replay-specific bookkeeping is not material: card-tracking synchronization produ
 and about 0.5MB of allocation, while victory-point snapshot work was under 1% of CPU samples. Keep
 those mechanisms unless a more focused profile contradicts this result.
 
+## 2026-09-11 heap-retention diagnosis
+
+A normal JVM run failed in `:tfm-tests:jvmTest` with `Java heap space`. The two suites absent from
+its XML reports passed alone in a single 512 MiB worker. Running the whole Terraforming Mars suite
+in that worker grew to 504 MiB after full collection; it was stopped after 487 full collections.
+
+The captured heap established this retention path:
+
+`Catalog -> authored Effect -> TypeVariableScope -> TypeVariable.bound -> ClassTable -> Catalog`
+
+`Class.interpretTypeVariablesIn` annotated the shared source Effect in place. Source declarations
+outlived the games that interpreted them and retained those games' compiled universes. It now copies
+the Effect before attaching the resolved scope. The `Spec13TypeVariablesTest` shared-source
+regression fails before the fix because a second Catalog overwrites the first interpretation's
+scope; it also checks that source declarations retain no resolved variables.
+
+`ClassTableProjectionTest` additionally scopes compiled fixtures to test instances. The normal
+worker budget is two 1 GiB heaps, bounded across test tasks by `org.gradle.workers.max=2`; total
+maximum test heap remains 2 GiB per invocation. The build daemon's separate 4 GiB heap is unchanged.
+
+Both complete JVM runs with the new worker budget passed. With the shared-source mutation still
+present, the two Terraforming Mars workers peaked at 744 and 612 MiB immediately after collection.
+After the Effect copy fix, they peaked at 274 and 278 MiB, with no full collections. The final run
+passed all 1,462 tests in the current JVM modules in 4m57s. These are GC-log heap measurements, not
+whole-process resident memory; the timings include compilation and host contention.
+
 ## Priorities suggested by the data
 
 1. Preserve the compiled class-model reuse. It removed over half of measured JVM test time without
    sharing live World state.
-2. Keep the four-fork bound unless memory-constrained CI evidence shows it is too aggressive. It
-   retained a large elapsed-time win after class-model compilation without an unbounded host-based
-   worker count.
+2. Keep the bounded worker and heap policy in [TESTING.md](TESTING.md). Check retained memory as
+   well as elapsed time before increasing parallelism.
 3. Treat isolated slow-test cleanup as secondary. Whole-game scenarios are not the main cost, and
    even deleting the single 15.1s outlier would save under 4% of engine CPU.
-4. Do not prioritize Gradle configuration, compilation, or simply increasing worker heap from this
-   evidence. They are not driving elapsed time, and collection pauses are small.
-5. For replay execution, investigate retaining the first successful `FIRST`-mode candidate instead
-   of probing every eligible task and reversing the selected work.
+4. Trace increasing retained heap to its owners before changing memory limits. Throughput samples
+   from short tests do not establish the memory needs of a long-lived suite worker; do not
+   prioritize Gradle configuration, compilation, or a larger heap from the current evidence.
+5. For replay execution, investigate retaining the first successful `EAGER`-policy candidate
+   instead of probing every eligible task and reversing the selected work.
 6. Treat repeated `ClassLimitTable` validation as the next static-model reuse question. Do not
    optimize replay card tracking, recording retention, or scoring overlays from the current data.

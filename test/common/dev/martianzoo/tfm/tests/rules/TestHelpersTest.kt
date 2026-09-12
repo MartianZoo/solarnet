@@ -12,7 +12,7 @@ internal class TestHelpersTest : CardTest() {
   @Test
   internal fun `Net-change expectations reject empty argument lists`() {
     newGame()
-    val result = p1.manual("GreeneryTile<Tharsis_6_6>")
+    val result = p1.runOperation("GreeneryTile<Tharsis_6_6>")
 
     result.expect("GreeneryTile")
     shouldThrow<IllegalArgumentException> { result.expect("GreeneryTile<>") }.message shouldBe

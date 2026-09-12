@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.tests.*
 import kotlin.test.Test
 
@@ -18,7 +18,7 @@ internal class DeterminedZeroCostActionTest : TfmTest() {
           override val explicitClassDeclarations =
               parseClasses(
                       """
-                      CLASS DeterminedZeroCostAction : ActionCard, ActiveCard<Class<ProjectCard>> {
+                      CLASS DeterminedZeroCostAction : ActionCard, ActiveCard {
                         HAS MAX 1 This
                         cost = 0
                         UseAction<Owner, This, Action1>: -1 MC<Owner> / CityTile<Anyone> THEN Plant<Owner>
@@ -30,9 +30,9 @@ internal class DeterminedZeroCostActionTest : TfmTest() {
         }
     val catalog = TfmCatalog.compose(Canon, extension)
     game = setUpGame(canonicalPremise(catalog = catalog))
-    val p1 = game.tfm(PLAYER1)
-    p1.manual("DeterminedZeroCostAction")
+    val p1 = game.testTfm(PLAYER1)
+    p1.runOperation("DeterminedZeroCostAction")
 
-    p1.manual("UseAction<DeterminedZeroCostAction, Action1>").expect("Plant")
+    p1.runOperation("UseAction<DeterminedZeroCostAction, Action1>").expect("Plant")
   }
 }

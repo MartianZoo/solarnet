@@ -15,13 +15,13 @@ internal constructor(
     override val timeline: Timeline,
     internal val readerImpl: GameReaderImpl,
     override val classTable: ClassTable,
-    private val agentByActor: Map<Actor, Agent>,
+    private val actorEngines: Map<Actor, ActorEngine>,
 ) : World {
   override val tasks: TaskQueue = taskQueues.all()
 
   override val reader: GameReader = readerImpl
 
-  override fun agent(actor: Actor): Agent = agentByActor[actor]!!
+  override fun actorEngine(actor: Actor): ActorEngine = actorEngines.getValue(actor)
 
-  override var onAtomicComplete: () -> Unit = {}
+  override var onTransactionComplete: () -> Unit = {}
 }

@@ -13,7 +13,7 @@ internal constructor(
     override val timeline: Timeline,
     internal val readerImpl: GameReaderImpl,
     override val classTable: ClassTable,
-    private val agentByActor: Map<Actor, Agent>,
+    private val actorEngines: Map<Actor, ActorEngine>,
     private val timelineImpl: TimelineImpl,
     private val recordingPositions: RecordingPositions,
     internal val effector: Effector,
@@ -26,9 +26,9 @@ internal constructor(
   internal val revision: WorldRevision
     get() = events.revision
 
-  override fun agent(actor: Actor): Agent = agentByActor[actor]!!
+  override fun actorEngine(actor: Actor): ActorEngine = actorEngines.getValue(actor)
 
-  override var onAtomicComplete: () -> Unit = {}
+  override var onTransactionComplete: () -> Unit = {}
 
   internal fun recording(): GameRecording {
     val entries = events.entriesSince(Timeline.Checkpoint(0))

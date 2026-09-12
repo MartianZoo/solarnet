@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.api.SystemClasses.TEMPORARY
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
@@ -67,26 +68,29 @@ public object Engine {
         GameReaderImpl(classTable, components, elaborator, customClasses, premise)
     private val timeline = TimelineImpl(reader, components, events, taskQueues, recordingPositions)
     private val limiter = Limiter(classTable, components)
-    private val atomicOperationScope: AtomicOperationScope =
-        AtomicOperationScope(
+    private val worldTransaction: WorldTransaction =
+        WorldTransaction(
             timeline,
-            { world.onAtomicComplete() },
+            { world.onTransactionComplete() },
             recordingPositions,
-            ::removeTemporaryComponents,
+            ::removeTemporaryComponent,
         )
     private val changer = Changer(reader, components, events)
     private val instructor =
         Instructor(reader, limiter, changer, effector, classTable, elaborator, customClasses)
-    private val agentByActor: Map<Actor, Agent> = premise.actors.associateWith(::createAgent)
+    private val actorEngines: Map<Actor, ActorEngine> =
+        premise.actors.associateWith(::createActorEngine)
     private val initializer =
         if (backing == null) {
           Initializer(
-              agentByActor.getValue(ADMIN),
+              reader,
+              elaborator,
               instructor,
               taskQueues,
               classTable,
               timeline,
               premise,
+              actorEngines::getValue,
           )
         } else {
           null
@@ -100,7 +104,7 @@ public object Engine {
               timeline,
               reader,
               classTable,
-              agentByActor,
+              actorEngines,
               timeline,
               recordingPositions,
               effector,
@@ -113,12 +117,13 @@ public object Engine {
               timeline,
               reader,
               classTable,
-              agentByActor,
+              actorEngines,
           )
         }
 
     internal fun createWorld(): World {
       initializer?.initialize()
+      if (backing == null) recordingPositions.record(timeline.checkpoint().ordinal)
       return world
     }
 
@@ -128,19 +133,22 @@ public object Engine {
       }
     }
 
-    private fun removeTemporaryComponents(): Boolean {
+    private fun removeTemporaryComponent(): Boolean {
       if (!taskQueues.all().isEmpty()) return false
-      val temporaryComponents = reader.getComponents(classTable.getClass(TEMPORARY).baseType)
+      val temporary = classTable.getClass(TEMPORARY).baseType
+      val temporaryComponents = reader.getComponents(temporary)
       if (temporaryComponents.isEmpty()) return false
 
-      temporaryComponents.elements.forEach { type ->
-        val count = reader.countComponent(type)
-        if (count > 0) {
-          instructor
-              .execute(remove(type, count), cause = null, actor = ADMIN)
-              .forEach(taskQueues::addTasks)
-        }
-      }
+      val mustCleanUp = classTable.getClass(MUST_CLEAN_UP).baseType
+      val type =
+          temporaryComponents.elements.firstOrNull { type ->
+            !components.hasDependentMatching(type, mustCleanUp, reader) &&
+                !components.hasDependentMatching(type, temporary, reader)
+          } ?: return false
+
+      instructor
+          .execute(remove(type, reader.countComponent(type)), cause = null, actor = ADMIN)
+          .forEach(taskQueues::addTasks)
       return true
     }
 
@@ -203,28 +211,16 @@ public object Engine {
       }
     }
 
-    private fun createAgent(actor: Actor): Agent {
-      val tasks = taskQueues[actor]
-      val implementations =
-          Implementations(
-              tasks,
-              taskQueues,
-              reader,
-              timeline,
-              actor,
-              instructor,
-              changer,
-          )
-      return ApiTranslation(
-          actor,
-          reader,
-          implementations,
-          tasks,
-          classTable,
-          elaborator,
-          atomicOperationScope,
-          backing?.agent(actor)?.autoExecMode ?: AutoExecMode.FIRST,
-      )
-    }
+    private fun createActorEngine(actor: Actor): ActorEngine =
+        ActorEngine(
+            taskQueues[actor],
+            taskQueues,
+            reader,
+            timeline,
+            actor,
+            instructor,
+            changer,
+            worldTransaction,
+        )
   }
 }

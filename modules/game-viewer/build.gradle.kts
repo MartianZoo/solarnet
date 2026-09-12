@@ -19,6 +19,7 @@ kotlin {
     commonMain {
       kotlin.setSrcDirs(listOf(commonSourceDirectory))
       dependencies {
+        implementation(project(":agent"))
         implementation(project(":engine"))
         implementation(project(":pets"))
         implementation(project(":tfm-canon"))

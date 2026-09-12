@@ -258,14 +258,14 @@ public abstract class PetTransformer protected constructor() {
           when (node) {
             is Instruction.NoOp -> node
             is Instruction.Gain ->
-                Instruction.Gain(transformScaledExpression(node.scaledEx), node.intensity)
+                Instruction.Gain(transformScaledExpression(node.scaledEx), node.quantifier)
             is Instruction.Remove ->
-                Instruction.Remove(transformScaledExpression(node.scaledEx), node.intensity)
+                Instruction.Remove(transformScaledExpression(node.scaledEx), node.quantifier)
             is Instruction.Transmute ->
                 Instruction.Transmute(
                         transformFromExpression(node.fromEx),
                         transformScalar(node.scalar),
-                        node.intensity,
+                        node.quantifier,
                     )
                     .withTypeVariables(node.typeVariables.transformedBy(this))
             is Instruction.Per ->

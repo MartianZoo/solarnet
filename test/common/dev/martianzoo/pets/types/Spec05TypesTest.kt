@@ -100,24 +100,27 @@ internal class Spec05TypesTest {
     type("Neighbor<Tharsis_2_2>").expressionFull shouldBe te("Neighbor<Tharsis_2_2, Area>")
   }
 
-  // T5-5 Minimal form
+  // T5-5 Compact form
 
   @Test
-  internal fun `T5-5 the minimal form omits every argument equal to the inherited bound`() {
+  internal fun `T5-5 the compact form omits every argument equal to the inherited bound`() {
     type("GreeneryTile<MarsArea, Owner>").expression shouldBe te("GreeneryTile")
     type("GreeneryTile<Area>").expression shouldBe te("GreeneryTile")
     type("GreeneryTile<Tharsis_2_2, Owner>").expression shouldBe te("GreeneryTile<Tharsis_2_2>")
+    // The area slot cannot accept `Player1`, so it need not be written to protect the owner.
+    type("GreeneryTile<Player1>").expression shouldBe te("GreeneryTile<Player1>")
   }
 
   @Test
-  internal fun `T5-5 the minimal form writes its arguments in dependency order`() {
+  internal fun `T5-5 the compact form writes its arguments in dependency order`() {
     type("GreeneryTile<Player1, Tharsis_2_2>").expression shouldBe
         te("GreeneryTile<Tharsis_2_2, Player1>")
   }
 
   @Test
-  internal fun `T5-5 the minimal form keeps the earliest arguments when sizes tie`() {
-    // Both slots accept `Tharsis_2_2`, so one argument suffices, and it is read left to right.
+  internal fun `T5-5 the compact form keeps an inherited bound whose slot would swallow a later one`() {
+    // Both `Neighbor` slots accept an `Area`, so omitting the first would move the second argument
+    // into it (T3-4); `GreeneryTile` above shows the same position dropped when that cannot happen.
     type("Neighbor<Tharsis_2_2, Area>").expression shouldBe te("Neighbor<Tharsis_2_2>")
     type("Neighbor<Area, Tharsis_2_2>").expression shouldBe te("Neighbor<Area, Tharsis_2_2>")
     type("Neighbor<Tharsis_2_2, Tharsis_2_3>").expression shouldBe
@@ -125,7 +128,7 @@ internal class Spec05TypesTest {
   }
 
   @Test
-  internal fun `T5-5 the minimal form may omit an argument another one already determines`() {
+  internal fun `T5-5 the compact form removes a bound already implied by a later one`() {
     val cards =
         loadTypes(
             "CLASS Player1 : Owner",
@@ -133,7 +136,6 @@ internal class Spec05TypesTest {
             "ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner> { CLASS Animal }",
         )
 
-    // The owner is implied by the card, because both positions hold one header variable.
     cards.resolve(te("Animal<Player1, Pets<Player1>>")).expression shouldBe
         te("Animal<Pets<Player1>>")
     cards.resolve(te("Animal<Player1, Pets<Player1>>")).expressionFull shouldBe
@@ -154,7 +156,10 @@ internal class Spec05TypesTest {
             "GreeneryTile",
             "GreeneryTile<Tharsis_2_2>",
             "GreeneryTile<Tharsis_2_2, Player1>",
+            "GreeneryTile<Player1>",
             "Neighbor<Tharsis_2_2, Tharsis_2_3>",
+            "Neighbor<Area, Tharsis_2_2>",
+            "Neighbor<Tharsis_2_2, Area>",
             "Area(NOT Tharsis_2_2)",
             "Class<GreeneryTile>",
         )
@@ -166,7 +171,15 @@ internal class Spec05TypesTest {
   }
 
   @Test
-  internal fun `T5-6 toString shows the minimal form`() {
+  internal fun `T5-6 both forms round-trip every concrete type in the test universe`() {
+    mars.componentClass.baseType.allConcreteSubtypes().forEach { resolved ->
+      mars.resolve(resolved.expression) shouldBe resolved
+      mars.resolve(resolved.expressionFull) shouldBe resolved
+    }
+  }
+
+  @Test
+  internal fun `T5-6 toString shows the compact form`() {
     "${type("GreeneryTile<Player1, Tharsis_2_2>")}" shouldBe "GreeneryTile<Tharsis_2_2, Player1>"
   }
 
@@ -190,6 +203,20 @@ internal class Spec05TypesTest {
         .getClass(cn("Occupant"))
         .withAllDependencies(type("GreeneryTile<Tharsis_2_2, Player1>").dependencies) shouldBe
         type("Occupant<Tharsis_2_2>")
+  }
+
+  @Test
+  internal fun `T5-7 withAllDependencies enforces the class's declared bounds`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Area { CLASS Land, Water }",
+            "ABSTRACT CLASS Holder<Area>",
+            "ABSTRACT CLASS Narrow : Holder<Land>",
+            "ABSTRACT CLASS Wide : Holder<Area>",
+        )
+
+    val waterDependencies = table.resolve(te("Wide<Water>")).dependencies
+    shouldThrowIae { table.getClass(cn("Narrow")).withAllDependencies(waterDependencies) }
   }
 
   @Test

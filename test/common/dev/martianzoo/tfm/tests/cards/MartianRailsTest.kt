@@ -9,8 +9,8 @@ internal class MartianRailsTest : CardTest() {
   @Test
   internal fun `Can be used when every city is off Mars`() {
     newGame()
-    p1.manual("$MartianRails, Energy")
-    p1.manual("$GanymedeColony").expect("CityTile<GanymedeColony_RemoteArea>")
+    p1.runOperation("$MartianRails, Energy")
+    p1.runOperation("$GanymedeColony").expect("CityTile<GanymedeColony_RemoteArea>")
     admin.phase("Action")
     p1.cardAction1(MartianRails).expect("-Energy, 0 MC")
     p1.assertCounts(0 to "MC")

@@ -37,8 +37,8 @@ internal class AridorTest : CardTest() {
   internal fun `delayed selection enters play immediately when its resource card already exists`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     playCorporationWithoutStartingProjects(p1, Aridor)
-    p1.manual("$TitanShuttles")
-    p1.manual("Floater<$TitanShuttles>")
+    p1.runOperation("$TitanShuttles")
+    p1.runOperation("Floater<$TitanShuttles>")
 
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction") { doTask("DelayedTitan") }
@@ -52,30 +52,30 @@ internal class AridorTest : CardTest() {
     playCorporationWithoutStartingProjects(p1, Aridor)
     val initialProduction = p1.count("PROD[MC]")
 
-    requireP2().manual("$Mine")
+    requireP2().runOperation("$Mine")
     p1.count("PROD[MC]") shouldBe initialProduction
 
-    p1.manual("$EarthCatapult")
+    p1.runOperation("$EarthCatapult")
     p1.count("PROD[MC]") shouldBe initialProduction + 1
 
-    p1.manual("$DevelopmentCenter")
+    p1.runOperation("$DevelopmentCenter")
     p1.count("PROD[MC]") shouldBe initialProduction + 3
 
-    p1.manual("$TitaniumMine")
+    p1.runOperation("$TitaniumMine")
     p1.count("PROD[MC]") shouldBe initialProduction + 3
   }
 
   @Test
   internal fun `existing tag classes are not rewarded when Aridor enters`() {
     newGame(ColoniesExpansion, PromoCardPack, colonyTiles = testColonyTiles(2))
-    p1.manual("$PharmacyUnion, $EarthCatapult")
+    p1.runOperation("$PharmacyUnion, $EarthCatapult")
     val initialProduction = p1.count("PROD[MC]")
 
-    p1.manual("$Aridor")
+    p1.runOperation("$Aridor")
 
     p1.count("PROD[MC]") shouldBe initialProduction
 
-    p1.manual("$DevelopmentCenter")
+    p1.runOperation("$DevelopmentCenter")
 
     p1.count("PROD[MC]") shouldBe initialProduction + 2
   }
@@ -83,19 +83,19 @@ internal class AridorTest : CardTest() {
   @Test
   internal fun `a tag lost with Pharmacy Union can be rewarded again`() {
     newGame(ColoniesExpansion, PromoCardPack, colonyTiles = testColonyTiles(2))
-    p1.manual("$Aridor")
+    p1.runOperation("$Aridor")
     val initialProduction = p1.count("PROD[MC]")
-    p1.manual("$PharmacyUnion")
+    p1.runOperation("$PharmacyUnion")
     p1.count("PROD[MC]") shouldBe initialProduction + 1
 
-    p1.manual("-2 Disease<$PharmacyUnion>")
-    p1.manual("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
+    p1.runOperation("-2 Disease<$PharmacyUnion>")
+    p1.runOperation("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
     p1.count("PROD[MC]") shouldBe initialProduction + 1
 
-    p1.manual("$CryoSleep")
+    p1.runOperation("$CryoSleep")
     p1.count("PROD[MC]") shouldBe initialProduction + 2
 
-    p1.manual("$Decomposers")
+    p1.runOperation("$Decomposers")
 
     p1.count("PROD[MC]") shouldBe initialProduction + 3
   }
@@ -103,15 +103,15 @@ internal class AridorTest : CardTest() {
   @Test
   internal fun `a remaining microbe tag prevents another reward`() {
     newGame(ColoniesExpansion, PromoCardPack, colonyTiles = testColonyTiles(2))
-    p1.manual("$Aridor")
+    p1.runOperation("$Aridor")
     val initialProduction = p1.count("PROD[MC]")
-    p1.manual("$PharmacyUnion, $Decomposers")
+    p1.runOperation("$PharmacyUnion, $Decomposers")
 
-    p1.manual("-3 Disease<$PharmacyUnion>")
-    p1.manual("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
+    p1.runOperation("-3 Disease<$PharmacyUnion>")
+    p1.runOperation("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
 
     p1.count("PROD[MC]") shouldBe initialProduction + 1
-    p1.manual("$UrbanDecomposers") { doTask("2 Microbe<$Decomposers>") }
+    p1.runOperation("$UrbanDecomposers") { doTask("2 Microbe<$Decomposers>") }
     p1.count("PROD[MC]") shouldBe initialProduction + 1
   }
 
@@ -119,7 +119,7 @@ internal class AridorTest : CardTest() {
   internal fun `an event with an already unique tag does not reward production`() {
     newGame(ColoniesExpansion, colonyTiles = testColonyTiles(2))
     playCorporationWithoutStartingProjects(p1, Aridor)
-    p1.manual("$EarthCatapult, ProjectCard")
+    p1.runOperation("$EarthCatapult, ProjectCard")
     val initialProduction = p1.count("PROD[MC]")
     admin.phase("Action")
 
@@ -135,7 +135,7 @@ internal class AridorTest : CardTest() {
     playCorporationWithoutStartingProjects(p1, Aridor)
     val initialProduction = p1.count("PROD[MC]")
 
-    p1.manual("$LunaGovernor")
+    p1.runOperation("$LunaGovernor")
 
     // Luna Governor produces two steps itself; its two Earth icons are one new tag class.
     p1.count("PROD[MC]") shouldBe initialProduction + 3
@@ -151,7 +151,7 @@ internal class AridorTest : CardTest() {
     playCorporationWithoutStartingProjects(p1, Aridor)
     val initialProduction = p1.count("PROD[MC]")
 
-    p1.manual("AerialMappers")
+    p1.runOperation("AerialMappers")
 
     p1.count("PROD[MC]") shouldBe initialProduction + 1
   }

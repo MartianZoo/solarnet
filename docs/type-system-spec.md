@@ -46,7 +46,6 @@ an otherwise surprising provision exists. They are evidence and orientation, not
 | --- | --- |
 | `A <: B` | every A is a B; A *narrows* B |
 | `A ⊓ B` | the greatest lower bound (`glb`) of A and B: the most specific type below both |
-| `A ⊔ B` | the least upper bound (`lub`) of A and B: a common supertype |
 | `CLASS Foo` | Pets source for a class declaration |
 | `Foo<Bar>` | Pets source for a type expression |
 
@@ -101,7 +100,7 @@ object for each declared name. Two separately compiled tables over identical sou
 universes whose classes and types are not equal to each other.
 
 **T1-2. Values are universe-scoped.** Every class, type and dependency belongs to one master
-universe. An operation that compares values from two universes — subtyping, `glb`, `lub`, subclass
+universe. An operation that compares values from two universes — subtyping, `glb`, subclass
 enumeration, constraint matching — raises `IllegalArgumentException`. It does not quietly answer
 "no". `ClassTable.knows(type)` is the safe question to ask first.
 
@@ -138,13 +137,22 @@ freezing. Lookup (`findClass`, `resolve`) works during loading; anything that en
 universe — `allClasses`, `allClassNames`, `allSubclasses`, `directSubclasses`, and therefore
 `glb` between unrelated classes — requires the table to be frozen first.
 
+Before returning the completed table, compilation resolves every class's structural base type.
+Undeclared names are also rejected while loading. Authored expressions inside effects are resolved
+when that effect is first elaborated, when its class and game context are available; invalid
+expressions fail at that boundary. Judgments that require a world remain deferred.
+
 > **Non-normative example — claiming a milestone.** `ClaimMilestoneAction` asks for a concrete
 > `Milestone`. The answer is not knowable while map modules are still being loaded: Elysium may yet
 > add `Legend5`, while another map supplies a different set. Freezing makes that menu a result
 > of the completed Catalog instead of declaration order.
 
 **T1-7. Only the exact declared name resolves.** There are no abbreviations, no case folding, no
-nearest-match. An unknown name raises `ExpressionException`.
+nearest-match. An unknown name raises `ExpressionException`. Compiling a Catalog checks every name
+its declarations write and reports the declaration that wrote one no declaration introduces, so an
+author finds a misspelling when the Catalog loads rather than when play reaches it. A name is
+decided against the Catalog being compiled; a declaration therefore may not name a class only a
+later composition supplies, such as a game's player seats.
 
 ---
 
@@ -201,40 +209,20 @@ CLASS GreeneryTile : OwnedTile
 ```
 
 `Tile ⊓ Owned` is `OwnedTile`. Add `CLASS CommercialDistrictTile : Tile, Owned` and it becomes
-absent: Pets does not manufacture an intersection class, it only recognizes one you declared.
+absent: Pets does not manufacture a structural conjunction, it only recognizes a class you declared.
 
-**T2-9. Least upper bound of two classes (`⊔`).** Always exists, falling back to `Component`. Pets
-takes the common superclasses, discards any that are above another common superclass, and picks one
-of what remains. Multiple inheritance can leave several equally minimal candidates; the choice
-between them prefers the class carrying more dependencies, then the one with more superclasses, and
-is otherwise arbitrary. **Do not depend on which of several minimal candidates comes back** — the
-guarantee is only that the result is a common superclass, and a minimal one.
-
-> **Non-normative implementation note — no card owns the tie-breaker.** The engine uses `lub` to
-> summarize groups of concrete types for API presentation. No canonical card relies on which of two
-> rival minimal supertypes wins, and the rule expressly preserves that freedom.
-
-**T2-10. Intersection classes.** `isIntersectionType()` asks whether a class *is* the intersection of
-its own direct supertypes: whether every class below all of them is also below it. `OwnedTile` is
-one, and the question is worth asking, because a component that is both `Owned` and a `Tile` but
-forgot to extend `OwnedTile` would go uncounted by the Landlord award.
-
-> **Non-normative example — Landlord.** Landlord counts `OwnedTile`, not the conjunction “something
-> that happens to be both `Owned` and `Tile`.” Without a declared, recognizable intersection class,
-> a newly added owned tile kind could look structurally right yet silently escape the award.
-
-**T2-11. Custom classes.** A class declared `: Custom` has its behavior supplied by Kotlin instead of
+**T2-9. Custom classes.** A class declared `: Custom` has its behavior supplied by Kotlin instead of
 Pets. A declaration and an implementation must agree: a class declared `Custom` with no
 implementation is rejected, and so is an implementation for a class not declared `Custom` — including
 for a root class. A `Custom` class may also not *inherit* Pets behavior: no supertype of it may
-declare effects, invariants, or instruction-intensity defaults. A load that fails these checks is not
-cached as a success; loading again fails the same way.
+declare effects, invariants, or instruction-quantifier defaults. A load that fails these checks is
+not cached as a success; loading again fails the same way.
 
 > **Non-normative example — Robotic Workforce.** Its `CopyProductionBox` is a custom component:
 > Kotlin copies the selected building card's production box. The agreement checks prevent that
 > opaque implementation from being accidentally loaded as ordinary Pets behavior, or vice versa.
 
-**T2-12. Class identity.** Within a universe, a class is identified by its name. Its `toString` is
+**T2-10. Class identity.** Within a universe, a class is identified by its name. Its `toString` is
 that name.
 
 ---
@@ -354,8 +342,8 @@ Two dependency *roots* spelled alike stay independent: `Adjacency<Area, Area>` c
 **T3-9. A dependency may only target a type limited to one copy.** An edge names its target by exact
 type alone, so a type admitting two identical components could not say which one it meant. Every
 concrete type a dependency bound admits must therefore carry an applicable `MAX 1` or `=1` invariant.
-This is checked when a game's component-limit table is built, and it is the only place invariants
-enter this specification.
+This is checked when a game's component-limit table is built, and it is the only place
+component-count invariants enter this specification.
 
 > **Non-normative example — action-used markers.** `ActionUsedMarker<ActionCard>` means the marker on
 > one exact owned action card. If two indistinguishable components of that target type could exist,
@@ -408,9 +396,8 @@ and this carries into dependency positions:
 **T4-4. `representedClass`** returns the named class, and is absent for every type that is not a class
 literal.
 
-**T4-5. Bounds follow the class hierarchy.** `Class<Metal> ⊓ Class<Steel>` is `Class<Steel>`;
-`Class<Steel> ⊔ Class<Titanium>` is `Class<Metal>`; the `glb` of literals for disjoint classes is
-absent.
+**T4-5. Greatest lower bounds follow the class hierarchy.** `Class<Metal> ⊓ Class<Steel>` is
+`Class<Steel>`; the `glb` of literals for disjoint classes is absent.
 
 **T4-6. The operand is one bare, existing class name.** All of these are errors:
 
@@ -507,21 +494,28 @@ Abstractness is structural and never consults a world.
 `GreeneryTile` of rule T3-2 that is `GreeneryTile<MarsArea, Owner>`; had `Owned` been inherited
 first, the same type would be written `GreeneryTile<Owner, MarsArea>`.
 
-**T5-5. Minimal form.** `expression` — also what `toString` shows — writes the smallest set of
-arguments that resolves back to the same type. Concretely:
+**T5-5. Compact form.** `expression` — also what `toString` shows — writes a round-tripping argument
+list in dependency-key order, whatever order the arguments were supplied in. It first retains an
+argument when one of these holds:
 
-- an argument equal to what the class already declares is omitted;
-- arguments are written in dependency-key order, whatever order they were supplied in;
-- among equally small candidate sets, the earliest dependencies are preferred;
-- an argument another one already determines may be omitted (this is T3-8 at work: for
-  `Animal<Player1, Pets<Player1>>` the owner follows from the card, so the minimal form is
-  `Animal<Pets<Player1>>`);
-- a refinement is always written.
+- its bound differs from what the class already declares; or
+- omitting it would leave its slot free to swallow a later argument under T3-4.
 
-> **Non-normative example — Martian Zoo.** Once its card dependency is `MartianZoo<Player1>`, an
-> animal's owner is already determined through the holder. Minimal rendering may say
-> `Animal<MartianZoo<Player1>>`; repeating `Player1` would obscure, rather than strengthen, the
-> single ownership fact.
+It then repeatedly omits the first retained argument whose removal still resolves to the same Type,
+including through T3-8 equality propagation. Each retained bound is itself written in compact form,
+and a refinement is always written.
+
+Thus `GreeneryTile<MarsArea, Player1>` is written `GreeneryTile<Player1>`: the area slot rejects
+`Player1`, so leaving it out cannot misdirect the owner. But `Neighbor`'s two slots both accept an
+`Area`, so `Neighbor<Area, Tharsis_2_2>` must keep both arguments while `Neighbor<Tharsis_2_2, Area>`
+drops the second. `Animal<Player1, Pets<Player1>>` becomes `Animal<Pets<Player1>>`, because the
+card-bound owner determines the direct owner through T3-8.
+
+> **Non-normative implementation note — why not search.** The direct pass handles declared bounds
+> and greedy slot capture. A semantic pass then tries individual omissions against ordinary Type
+> resolution, avoiding a second implementation of T3-8. Finding the globally shortest subsequence
+> can require subset search; compact form promises only that no remaining argument can individually
+> be removed while preserving the Type.
 
 **T5-6. Both forms round-trip.** Resolving either form of a type yields that same type.
 
@@ -529,7 +523,8 @@ arguments that resolves back to the same type. Concretely:
 that class's own keys; a missing one is an error. A bound for a key the class does *not* have is
 ignored, which is exactly what projects a type onto each of its supertypes — a greenery tile's owner
 is not part of what an `Occupant` is. `Class.specialize(arguments)` applies arguments to the base
-type, using the matching rule of T3-5.
+type, using the matching rule of T3-5. Every supplied bound is intersected with the Class's declared
+bound; direct construction cannot create a Type outside the Class declaration.
 
 > **Non-normative example — greenery placement.** A concrete greenery carries both its board area
 > and owner. Projecting it to `Occupant` must retain the area while dropping the unrelated ownership
@@ -603,7 +598,8 @@ cannot meet the domain at all simply answers false.
 
 **T7-1. Greatest lower bound (`⊓`, `glb`).** The most general type below both operands, or **absent**
 when there is none. It is computed componentwise: the root classes by T2-8, each shared dependency key
-by `⊓` again, and refinements by T8-9.
+by `⊓` again, and refinements by T8-9. The selected root Class contributes its complete declared
+dependency set, including keys neither operand had and bounds narrower than either operand stated.
 
 ```text
 Tile<Tharsis_2_2>  ⊓  Owned<Player1>       =  OwnedTile<Tharsis_2_2, Player1>
@@ -619,35 +615,10 @@ Where a result does exist it narrows both operands, and no other type below both
 > component must satisfy both the greenery's inherited Mars-area bound and the written `WaterArea`
 > constraint; their meet is the legal special placement, not a replacement of one by the other.
 
-**T7-2. Least upper bound (`⊔`, `lub`).** Always exists, falling back to `Component`. The root classes
-join by T2-9, and only the dependency keys *both* operands carry survive — which is automatic, since
-both are below the joined class.
+**T7-2. `glb` is idempotent and commutative.** Refinement clauses form a set (T8-9), so two meets
+that write their clauses in different orders are equal Types even though their renderings may differ.
 
-```text
-GreeneryTile<Tharsis_2_2, Player1>  ⊔  OceanTile<Tharsis_1_1>  =  Tile<MarsArea>
-```
-
-Because T2-9 is a heuristic among incomparable candidates, `⊔` promises a common supertype, and a
-minimal one, but not a canonical one.
-
-> **Non-normative implementation note — list summaries.** No card resolves a choice by taking the
-> `lub` of its alternatives. The engine uses this operation to describe a heterogeneous group to API
-> clients; falling back to `Component` preserves a truthful, if sometimes uninformative, summary.
-
-**T7-3. Both operations are idempotent, and commutative on structural types.** Two exceptions to
-commutativity follow from choices this specification leaves open elsewhere, and neither changes what
-the result *means*:
-
-- when several minimal common superclasses tie, T2-9 breaks the tie by the order each operand happens
-  to list its supertypes, so `A ⊔ B` and `B ⊔ A` can name different classes;
-- joined refinement clauses (T8-9) are written in operand order, so `A ⊓ B` and `B ⊓ A` can carry
-  the same conjuncts in the other order, and are then not `==`.
-
-> **Non-normative implementation note — no gameplay dependency.** No canonical effect may depend
-> on operand-order tie-breaking or on the printed order of equivalent `HAS` conjuncts. These
-> exceptions document representation behavior, not an observable Terraforming Mars rule.
-
-**T7-4. Cross-universe bounds are rejected**, per T1-2.
+**T7-3. Cross-universe bounds are rejected**, per T1-2.
 
 ---
 
@@ -712,7 +683,7 @@ Player  <: Owner(NOT Player1)     no — abstract `Player` still admits Player1
 
 The exclusion need not narrow the domain; subtraction goes through their structural intersection.
 `Actor(NOT Owner)` excludes players, who inherit both, and retains `Admin`. Overlap is detected even
-where the two have no unique intersection class (T2-8): if two rival classes each extend both
+where the two have no unique greatest common subclass (T2-8): if two rival classes each extend both
 `Occupant` and `Owned`, `Occupant(NOT Owned)` still excludes them. The test never consults a world,
 and works the same inside a dependency: `Marker<Player(NOT Player1)>`.
 
@@ -757,7 +728,7 @@ variable may be specialized later, making the difference non-empty again.
   `IllegalStateException` rather than guessing.
 - A `NOT` target is satisfied by an identical source clause or by the structural test of T8-4.
 - These comparisons read the two predicates *as written*, which is only meaningful when both types
-  substitute the same candidate into them. Two class literals for different classes do not (T8-11),
+  substitute the same candidate into them. Two class literals for different classes do not (T8-10),
   so neither shortcut applies to them: `Class<BuildingTag>(HAS Tag)` does not narrow
   `Class<Tag>(HAS Tag)`, because for the target the predicate asks about the candidate's own class.
 
@@ -766,8 +737,9 @@ variable may be specialized later, making the difference non-empty again.
 > “building card” constraint without another world query, while the extra conjunct prevents choosing
 > the first card twice.
 
-**T8-9. `glb` of refinements.** A refinement the other operand lacks is kept, and two identical
-refinements collapse to one. Otherwise their clauses are conjoined in operand order. Thus both
+**T8-9. `glb` of refinements.** A refinement the other operand lacks is kept. Refinement clauses form
+a set: duplicates collapse and clause order does not affect Type equality. Rendering retains the
+order in which distinct clauses were first encountered. Thus both
 `LandArea(HAS Neighbor, NOT Tharsis_2_2)` and
 `Area(NOT Tharsis_2_2, NOT WaterArea)` are writable results below their two operands.
 
@@ -775,15 +747,7 @@ refinements collapse to one. Otherwise their clauses are conjoined in operand or
 > inferred constraints can each contribute a clause to one candidate. Their meet retains every
 > restriction as a separate clause, producing one writable refinement below both operands.
 
-**T8-10. `lub` of refinements.** A refinement survives only when both operands carry exactly the same
-one; otherwise the result is the unrefined common domain.
-
-> **Non-normative implementation note — safe API widening.** When alternatives filtered by different
-> board questions are summarized, their common description cannot promise either question. No card
-> uses this to decide play; it prevents a UI summary from advertising a predicate not shared by all
-> listed choices.
-
-**T8-11. Refined class literals.** A refinement on `Class<X>` tests the class the candidate names:
+**T8-10. Refined class literals.** A refinement on `Class<X>` tests the class the candidate names:
 references to `X` inside the requirement are rewritten to the candidate's class. Testing
 `Class<BuildingTag>` against `Class<Tag>(HAS Tag<Player1>)` asks `BuildingTag<Player1>` — counting
 tag classes, not tag components.
@@ -792,7 +756,7 @@ tag classes, not tag components.
 > `Class<Tag>(HAS Tag<Owner>)`: distinct tag kinds the player has, not the number of tag components.
 > Testing the represented class is what makes five Earth tags count as one kind.
 
-**T8-12. Refinements inside dependencies** behave like any other, and survive rendering and
+**T8-11. Refinements inside dependencies** behave like any other, and survive rendering and
 re-resolution.
 
 > **Non-normative example — Capital.** Its adjacency scoring embeds the marked capital city inside
@@ -868,9 +832,10 @@ area, that a resource belongs to the current player. It changes how an authored 
 it never changes which types exist.
 
 **T10-1. Three separate sets.** Defaults are gathered independently for all uses (`DEFAULT Foo<...>`),
-for gains (`DEFAULT +Foo<...>`) and for removals (`DEFAULT -Foo<...>`). A class's `defaultType` is its
-base type with the all-uses defaults applied; the gain and removal sets are consumed by instructions,
-not by resolution.
+for gains (`DEFAULT +Foo<...>`) and for removals (`DEFAULT -Foo<...>`). A class's
+`defaultExpression` is its authored template with the all-uses defaults applied; its `defaultType`
+is that expression's valid, declared-bound-respecting interpretation. The gain and removal sets are
+consumed by instructions, not by resolution.
 
 ```pets
 ABSTRACT CLASS Tile<Area> : Owned<Owner> {
@@ -885,14 +850,14 @@ still resolves — a water area — because a default is not a bound.
 > for an empty water area. Merely querying or removing an ocean must not synthesize a future
 > placement target, which is why gain, removal, and ordinary-use defaults cannot be one set.
 
-**T10-2. Intensities.** A gain or removal default may also carry an intensity (`!` mandatory, `.`
+**T10-2. Quantifiers.** A gain or removal default may also carry a quantifier (`!` mandatory, `.`
 as-much-as-possible, `?` optional). `Component` supplies `!` for both, so every class inherits
-something. Gain and removal intensities are inherited independently, and supertypes that disagree
+something. Gain and removal quantifiers are inherited independently, and supertypes that disagree
 about one are an error.
 
 > **Non-normative example — paying `Owed`.** Creating a debt is mandatory, while removing it defaults
 > to as-much-as-possible so mixed payment sources can discharge portions safely. One inherited
-> intensity for both directions would make either debt optional or partial payment illegal.
+> quantifier for both directions would make either debt optional or partial payment illegal.
 
 **T10-3. A `DEFAULT` clause must name the class that declares it.**
 
@@ -915,14 +880,15 @@ that merely restates the declared bound records nothing at all.
 literal `Owner` written in a default is *not* intersected with the class's bound, so it can later be
 replaced by whichever player supplies the context.
 
-The visible consequence is that a class's `defaultType` may sit outside its own base type:
+The visible consequence is that a class's `defaultExpression` may sit outside its own base type:
 
 ```pets
 ABSTRACT CLASS Card : Owned<Player> { DEFAULT Card<Owner> }
 ```
 
-gives base type `Card<Player>` but default type `Card<Owner>`, which is not below it. That is
-intended: the default is a template awaiting a context, not a type any component will have.
+gives base type and default type `Card<Player>`, but default expression `Card<Owner>`. The expression
+is intentionally a template awaiting a context, while every constructed type still respects the
+class's declared bound.
 
 > **Non-normative example — CrediCor.** Its setup effect says simply `57 MC`. The bare resource must
 > retain contextual `Owner` until the corporation's owner is known; normalizing it early to generic
@@ -985,7 +951,7 @@ where an `OceanTile` class also exists — a concrete class incompatible with th
 not one of the choices); and it reports nothing at all when the requested narrowing is incompatible
 with every concrete class. Both flavours answer alike about the same universe. A
 `HAS` refinement can decide between candidates only where enumeration happens anyway, as with a
-refined class literal (T8-11).
+refined class literal (T8-10).
 
 > **Non-normative example — Aquifer.** If exactly one empty water area remains, its ocean placement
 > can be narrowed automatically. With two legal spaces, neither is “more automatic,” so the player
@@ -1028,7 +994,7 @@ there cannot be one.
 > ordinary classes would offer a Venus track the game did not select.
 
 **T12-2. A view reuses the master universe.** It shares the very same class and type objects.
-Resolution, subtyping, `glb` and `lub` therefore give the same answers in a view as in the master.
+Resolution, subtyping, and `glb` therefore give the same answers in a view as in the master.
 A type has one meaning, not one per game.
 
 > **Non-normative implementation note — activation is not recompilation.** The base-game and Venus
@@ -1110,8 +1076,9 @@ ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>
 
 The `Owner` inside `CardFront<Owner>` sits at path `Cardbound_0.Owned_0`; the `Owner` of the
 `Owned<Owner>` supertype sits at `Owned_0`. One path ends with the other, so they are one variable,
-and the two dependency positions are forced to agree. Two header *roots* spelled alike stay independent, as do identical nested bounds in
-sibling branches: `Pair<Box<Person>, Box<Person>>` leaves the two people free to differ.
+and the two dependency positions are forced to agree. Two header *roots* spelled alike stay
+independent, as do identical nested bounds in sibling branches: `Pair<Box<Person>, Box<Person>>`
+leaves the two people free to differ.
 
 > **Non-normative example — cardbound resources.** `CardResource<ResourceHolder<..., Owner>>` and
 > `Owned<Owner>` reach the same holder owner by different dependency paths. Recognizing their shared
@@ -1262,11 +1229,6 @@ One behavior contradicts the rules above. It has a passing characterization in
 
 ## Appendix B: deliberately unspecified
 
-- **Which minimal common superclass `lub` returns** when several are incomparable (T2-9). The result
-  is a common superclass and a minimal one; among ties, do not depend on the choice, and note that
-  swapping the operands can change it (T7-3).
-- **The order of joined refinement clauses** (T8-9). The predicate means the same thing either way,
-  but the two spellings are different types by `==` (T7-3).
 - **Exception messages.** Rules name exception *types* where the type is part of the contract.
 - **Evaluation order and caching.** Resolution memoizes, and several derived values are computed
   lazily; neither is observable except through T1-6.

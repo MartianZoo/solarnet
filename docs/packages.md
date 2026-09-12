@@ -10,11 +10,20 @@ Basic data types shared by the engine and game-specific code.
 
 ### <a href="pets/dev.martianzoo.pets/index.html">dev.martianzoo.pets</a>
 
-The Pets language. Parsers for elements and class declarations, the objects it parses those into, utilities for transforming those objects, and so on.
+The Pets language: parsers for elements and class declarations, utilities for transforming what they
+produce, and elaboration. Specified by the
+[Pets language specification](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md).
+
+Sections 1 and 2 (source, declarations and names), 10 (transform blocks), 11 (owner-local classes)
+and 12 (elaboration) are owned here; the elements themselves live in `dev.martianzoo.pets.ast`.
 
 ### <a href="pets/dev.martianzoo.pets.ast/index.html">dev.martianzoo.pets.ast</a>
 
-Pets element types, like Requirement, Action, Instruction, Expression, and so on. The abstract syntax tree the Pets language is parsed to.
+The abstract syntax tree the Pets language is parsed to: the six element types — Expression,
+Requirement, Metric, Instruction, Effect and Action — plus the ancillary nodes they are built from.
+
+The Kotlin API for the concepts and rules in sections 3 through 9 of the
+[Pets language specification](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md).
 
 ### <a href="pets/dev.martianzoo.pets.types/index.html">dev.martianzoo.pets.types</a>
 

@@ -1,17 +1,25 @@
-package dev.martianzoo.engine
+package dev.martianzoo.agent
 
-import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.engine.Engine
+import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class AgentTest {
   @Test
-  internal fun worldReturnsOneStableAgentWithActorScopedViewsAndTaskCommands() {
+  internal fun oneStableAgentPerActorWithActorScopedViewsAndTaskCommands() {
     val game = Engine.newGame(testGamePremise())
-    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val agents = Agents(game)
+    (agents.world === game) shouldBe true
+    game.actors.map { agents[it].actor } shouldBe game.actors
+    game.actors.map { agents[it].autoExecPolicy }.toSet() shouldBe setOf(EAGER)
+    (game.actorEngine(PLAYER1) === game.actorEngine(PLAYER1)) shouldBe true
+    val agent = agents[PLAYER1].also { it.autoExecPolicy = NONE }
 
-    (agent === game.agent(PLAYER1)) shouldBe true
+    (agent === agents[PLAYER1]) shouldBe true
     (agent.reader === game.reader) shouldBe true
 
     val taskId = agent.addTasks("Token").single()
@@ -27,7 +35,7 @@ internal class AgentTest {
   @Test
   internal fun executionProbeAndTryLeaveAnAbstractTaskUnchanged() {
     val game = Engine.newGame(testGamePremise())
-    val agent = game.agent(PLAYER1).also { it.autoExecMode = NONE }
+    val agent = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
     val taskId = agent.addTasks("Token?").single()
     val taskBefore = agent.tasks.getTaskData(taskId)
 

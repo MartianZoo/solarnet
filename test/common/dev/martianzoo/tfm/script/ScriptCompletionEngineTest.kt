@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.script
 
-import dev.martianzoo.engine.Agent
+import dev.martianzoo.agent.Agent
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionEngine
 import dev.martianzoo.script.ScriptSession
@@ -28,7 +28,7 @@ internal class ScriptCompletionEngineTest {
   @Test
   internal fun completesFixedCommandArguments() {
     assertEquals(listOf("blue"), values("mode b"))
-    assertEquals(listOf("safe"), values("auto s"))
+    assertEquals(listOf("concrete"), values("auto c"))
     assertEquals(listOf("full"), values("log f"))
   }
 

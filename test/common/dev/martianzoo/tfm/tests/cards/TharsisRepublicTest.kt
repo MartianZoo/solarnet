@@ -25,7 +25,7 @@ internal class TharsisRepublicTest : CardTest() {
     newGame(PreludeExpansion, PromoCardPack, players = 1)
     playCorporationWithoutStartingProjects(p1, CrediCor)
     admin.phase("Prelude")
-    p1.manual("PreludeCard")
+    p1.runOperation("PreludeCard")
 
     p1.playPrelude(Merger) {
           p1.playCorp(TharsisRepublic)

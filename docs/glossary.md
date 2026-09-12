@@ -37,7 +37,6 @@
 - **class name:** A class's sole stable engine identity within a catalog. Classes use semantic English names such as `GreeneryTile`, `EarthCatapult`, and `Terraformer`. Configuration never changes the declaration denoted by a given class name.
 - **class table:** An immutable set of mutually compatible classes that resolves expressions into types. A catalog has one master class table; each game world uses a class-table projection containing active classes plus catalog-known uninhabited classes.
 - **class-table projection:** A game-specific class table derived from a catalog's master class table. Active classes carry behavior and enumerate concrete possibilities, while other catalog-known identities remain resolvable as uninhabited classes.
-- **difference type:** A refinement written `B(NOT C)` that denotes the Types in explicit domain `B` which do not overlap excluded Type `C`.
 - **Component:** One immutable occurrence of a concrete type in a game world. Components have no identity or fields beyond their type, so occurrences of the same type differ only by multiplicity.
 - **component effect:** A class effect specialized for one concrete type by binding inherited dependencies and contextual placeholders. It does not yet include the fact that a corresponding Component currently exists.
 - **component graph:** The logical directed graph whose vertices are Components and whose edges are dependencies. Because a type includes the exact types of its dependency targets, the game world stores the vertices as a multiset of types rather than as separately identified objects and edges.
@@ -57,6 +56,7 @@
 - **dependency path:** An ordered sequence of dependency keys locating a direct or nested dependency within a type. For example, it can identify either a card's Owner dependency or a dependency inside the card type used as a resource holder.
 - **dependent removal:** Automatic removal of Components that depend on a Component being removed, performed first and cascading as necessary.
 - **Die:** A Signal with the invariant `HAS MAX 0 This`; attempting to gain it makes the route dead-end.
+- **difference type:** A refinement written `B(NOT C)` that denotes the Types in explicit domain `B` which do not overlap excluded Type `C`.
 - **display name:** The locale-specific natural-language name used for UI text, such as a printed card title. It need not be a valid or stable Pets identifier.
 - **double-colon effect:** Synonym for automatic effect.
 - **drain:** To become empty. A task queue draining can advance workflow.
@@ -79,7 +79,7 @@
 - **live effect:** A component effect paired with its existing context Component, so that it can respond to change events. It counts according to the multiplicity of that type.
 - **manual:** Initiated by a Solarnet client rather than caused by an effect or workflow. Selecting or narrowing an already pending task is not a new manual action. With fully automatic workflow, a game can contain no manual operations.
 - **metric:** A Pets expression that computes a nonnegative integer from a game world.
-- **minimal form:** The shortest canonical expression that reliably resolves back to the same type. It omits inherited bounds that equal the root class's defaults, retaining a bound only when omission would make dependency matching ambiguous.
+- **compact form:** A round-tripping Type expression with no individually removable argument. It omits declared bounds except where needed to protect greedy argument matching, then removes redundancies proved by Type resolution, including dependency equalities.
 - **Module:** An affirmative, immutable singleton Component carrying one part of a realized game's ambient behavior. The exact Module set records the game's general behavior choices.
 - **multi-instruction:** An instruction containing two or more comma-separated, unordered child instructions. It is split into separate tasks because one task cannot contain a multi-instruction.
 - **multi-requirement:** A requirement containing two or more child requirements combined as logical “and.”
@@ -110,13 +110,14 @@
 - **root type:** The class at the head of an expression, before its written dependency bounds.
 - **rule class:** A class whose declaration is authored directly in Pets to express the game's reusable structure or rules, such as `GreeneryTile`. This describes provenance only; after class loading, a rule class behaves like a content class. Antonym: content class.
 - **scalar:**
+- **Scope:** A live Component that anchors the lifetime of dependent Components. A Component belongs to a Scope by carrying a type dependency on that exact Scope Component.
 - **select-lock:** The rule that no competing game world mutation may invalidate the facts used to resolve a selected task before that task finishes.
 - **selected task:** The task the assignee has chosen to finish next. Selection sets `Task.selected` and takes the select-lock because resolution has read the current game world; the task may remain abstract and accept partial narrowing.
 - **selection:** The client activity that chooses one pending task to finish next and causes the engine to resolve it. Selection is a promise about ordering, not a timeline commit; commit retains its transactional meaning after execution.
 - **self trigger:**
 - **sequential instruction:**
 - **SetupPhase:** The Terraforming Mars phase gained by transmuting BootstrapPhase away with `SetupPhase FROM Phase`. It creates generation 1, grants starting state such as 20 `TerraformRating`, deals starting cards into each Player's `Hand`, and waits for their discards.
-- **Signal:** A Component that triggers its effects and immediately removes itself.
+- **Signal:** An unscoped point event: a Component that triggers its effects and immediately removes itself, owning no lifetime interval.
 - **singleton type:** A concrete type constrained to exactly one occurrence by an inherited `HAS =1 This` invariant. The invariant does not create the occurrence.
 - **SoloOpponent:** The passive Owner created by `SoloMode`; it is neither a Player nor an Actor and receives no tasks or turns.
 - **source effect:** An effect as authored in `.pets` or generated from structured content data, before class-level inheritance and transformation.
@@ -130,6 +131,7 @@
 - **task id:**
 - **task queue:** The one stored, unordered set of pending tasks in a game world. Every task records its assignee; Actor-specific queues are filtered views of that set. Enumeration order has no gameplay meaning.
 - **task result:** The change events and newly spawned task ids returned by a successful operation.
+- **TemporaryScope:** A Scope depending on a parent Scope that the engine removes after queued work and dependent mandatory cleanup finish.
 - **This:** A built-in contextual binding. In a class declaration it remains late-bound through inheritance and is fixed from the exact context Component; in an effect trigger it denotes that Component's own gain or removal event.
 - **transmutation:** One state change that removes copies of one type and gains the same number of another without exposing an intermediate state.
 - **trigger:** The part of an effect that selects the state changes to which it responds.

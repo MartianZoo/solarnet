@@ -17,7 +17,13 @@ public interface Specification<S : Specification<S>> {
   /** Completes normally if this specification narrows [that]. */
   public fun ensureNarrows(that: S, info: TypeInfo)
 
-  /** Returns whether this specification narrows [that]. */
+  /**
+   * Returns whether this specification narrows [that] — the boolean form of [ensureNarrows], per
+   * [rule L7-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open).
+   * Only a narrowing failure becomes `false`; a failure caused by something else, such as an
+   * unknown class or a malformed proposal, propagates, so broken input stays distinguishable from a
+   * well-formed move the current state simply forbids.
+   */
   public fun narrows(that: S, info: TypeInfo): Boolean =
       try {
         ensureNarrows(that, info)

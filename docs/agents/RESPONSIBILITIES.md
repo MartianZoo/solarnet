@@ -26,8 +26,8 @@
   the pets-free authored data library used by generators and presentation tools.
 - [`ScriptSession.kt`](../../src/common/dev/martianzoo/script/ScriptSession.kt) —
   inspect only for the script application layer.
-- [`Agent.kt`](../../src/common/dev/martianzoo/engine/Agent.kt) and
-  [`AutoExecMode.kt`](../../src/common/dev/martianzoo/engine/AutoExecMode.kt) — current engine-owned
+- [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) and
+  [`AutoExecPolicy.kt`](../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt) — current engine-owned
   APIs that the selected layering direction will extract.
 - [GAMEWORLD.md](GAMEWORLD.md) owns the selected Game World data, playback, and export model.
 
@@ -55,9 +55,9 @@ The target runtime has three library responsibilities with one-way dependencies:
    wiring repeatedly gives all Agents a chance to act after an engine mutation until none does.
 
 Applications compose those libraries and add game-specific workflow and presentation. Agent
-construction returns an immutable Actor-to-Agent map; its shared loop remains private wiring rather
-than another public game wrapper. A separate passive Actor-access abstraction is not currently
-justified.
+construction returns one `Agents`, pairing a World with its immutable set of Agents; its shared loop
+remains private wiring rather than another public game wrapper. A separate passive Actor-access
+abstraction is not currently justified.
 
 Game World returns a neutral applied-change result after its own data is coherent. It does not call
 back into the engine while applying an event. The engine explicitly reacts to the returned result,
@@ -73,12 +73,12 @@ Task assignment remains an engine-enforced game rule. Preventing a caller from c
 engine API is out of scope. The engine is intentionally indifferent to why an Actor or trusted
 caller chose one legal mutation instead of another.
 
-**Current divergence:** there is no `:gameworld` or `:agent` module. Current `World` combines Game
-World data with live transaction control and Agent lookup, while `Agent`, `AutoExecMode`, queue
-draining, and client-facing string translation all live in `:engine`. `Task` and `GameEvent` live in
-`:pets`; their runtime-data ownership must be untangled during extraction. `TaskQueues` already
-stores one task set and creates assignee-filtered `TaskQueue` views, so task extraction changes
-ownership rather than semantics.
+**Current divergence:** there is no `:gameworld` module. `World` still combines Game World data with
+live transaction control, while `Task` and `GameEvent` live in `:pets`; their runtime-data ownership
+must be untangled during extraction. The `:agent` module now depends one-way on `:engine`, applications
+retain one `Agents`, and engine source has no Agent or policy dependency. `TaskQueues`
+already stores one task set and creates assignee-filtered `TaskQueue` views, so further task
+extraction changes ownership rather than semantics.
 
 Do not create empty Gradle modules ahead of the extraction. First settle the direct core mutation
 surface, the concrete state-change contract, the sole-issuer Agent lifetime, and the plain shared

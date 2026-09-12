@@ -25,7 +25,7 @@ import dev.martianzoo.pets.ast.Requirement.Companion.split
 /**
  * An ordinary resolved type, consisting of a [rootClass], one bound for every [dependencies] entry,
  * and an optional [refinement], as defined by
- * [rules 5-1 and 5-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+ * [rules T5-1 and T5-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
  *
  * "Ground" excludes type variables; it does not mean refinement-free. A narrowing judgment
  * involving a state-dependent refinement may need a world.
@@ -35,14 +35,16 @@ import dev.martianzoo.pets.ast.Requirement.Companion.split
  *
  * @constructor Combines a [rootClass], complete [dependencies], and optional [refinement] into one
  *   resolved type under
- *   [rule 5-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+ *   [rule T5-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
  * @throws IllegalArgumentException if [dependencies] have different keys or belong to another
  *   universe.
  */
-public data class GroundType(
+@ConsistentCopyVisibility
+public data class GroundType
+internal constructor(
     /**
      * The nominal root class specified by
-     * [rule 5-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+     * [rule T5-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
      */
     override val rootClass: Class,
 
@@ -64,27 +66,27 @@ public data class GroundType(
 
   /**
    * The universe containing [rootClass], under
-   * [rule 1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
+   * [rule T1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   override val classTable: ClassTable = rootClass.classTable
 
   /**
    * This value itself, because a ground type is its own resolved interpretation ([rule
-   * 13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables)).
+   * T13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables)).
    */
   override val groundType: GroundType
     get() = this
 
   /**
    * The component-targeting dependencies specified by
-   * [rule 4-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#4-class-literals).
+   * [rule T4-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#4-class-literals).
    */
   override val typeDependencies: List<Dependency.TypeDependency> = dependencies.typeDependencies()
 
   /**
    * The class represented by this `Class<Foo>` type, or null when this is not a class literal
    * ([rule
-   * 4-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#4-class-literals)).
+   * T4-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#4-class-literals)).
    */
   override val representedClass: Class? =
       if (rootClass.className == CLASS) dependencies.representedClass else null
@@ -104,26 +106,26 @@ public data class GroundType(
 
   /**
    * Structural abstractness according to
-   * [rule 5-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+   * [rule T5-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
    */
   override val abstract: Boolean = rootClass.abstract || dependencies.abstract || refinement != null
 
   /**
    * Returns [abstract]; a ground type's abstractness never consults [info] ([rule
-   * 5-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types)).
+   * T5-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types)).
    */
   override fun isAbstract(info: TypeInfo): Boolean = abstract
 
   /**
    * Returns the concrete numeric value of [propertyName], as specified by
-   * [rule 9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
+   * [rule T9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
    */
   override fun getNumberPropertyValue(propertyName: String): Int =
       (rootClass.properties.getValue(PropertyName(propertyName)) as NumberValue).value
 
   /**
    * Returns the concrete metric value of [propertyName], as specified by
-   * [rule 9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
+   * [rule T9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
    */
   override fun getMetricPropertyValue(propertyName: String): Metric =
       (rootClass.properties.getValue(PropertyName(propertyName)) as MetricValue).value
@@ -131,7 +133,7 @@ public data class GroundType(
   /**
    * Returns the concrete requirement value of [propertyName], or null for an absent optional, as
    * specified by
-   * [rule 9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
+   * [rule T9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
    */
   override fun getRequirementPropertyValue(propertyName: String): Requirement? =
       when (val value = rootClass.properties.getValue(PropertyName(propertyName))) {
@@ -142,21 +144,21 @@ public data class GroundType(
 
   /**
    * Performs the context-free subtype test of
-   * [rules 6-1 and 8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rules T6-1 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
    * Comparisons that reach a state-dependent refinement fail; use [narrows] with a world for those.
    */
   override fun isSubtypeOf(that: Type): Boolean = narrows(that, NoGameState)
 
   /**
    * The converse context-free subtype test specified by
-   * [rule 6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rule T6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
    */
   override fun isSupertypeOf(that: Type): Boolean = that.isSubtypeOf(this)
 
   /**
    * Values supplied to selected class-header [variables] when this type specializes [general].
    * Variables unrelated to the header are omitted, following
-   * [rule 13-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   * [rule T13-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
   override fun variableBindingsFrom(
       general: Type,
@@ -165,8 +167,8 @@ public data class GroundType(
 
   /**
    * The greatest lower bound with [that], including the refinement rules, or null when absent
-   * ([rules 7-1 and
-   * 8-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds)).
+   * ([rules T7-1 and
+   * T8-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds)).
    */
   // TODO allocating about 49 MB per solo game on the JVM (2026-09-06)
   override infix fun glb(that: Type): GroundType? {
@@ -180,21 +182,9 @@ public data class GroundType(
           that.refinement == null -> refinement
           else -> Refinement.join(refinement, that.refinement)
         }
-    val unrefined = glbClass.withAllDependencies(glbDeps)
+    val completeDeps = (glbClass.dependencies glb glbDeps) ?: return null
+    val unrefined = glbClass.withAllDependencies(completeDeps)
     return unrefined.refine(glbRefin)
-  }
-
-  /**
-   * A minimal common supertype with [that], including the refinement rules ([rules 7-2 and
-   * 8-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds)).
-   */
-  override infix fun lub(that: Type): GroundType {
-    val that = that.groundType
-    requireSameClassTable(that)
-    val unrefined: GroundType =
-        (rootClass lub that.rootClass).withAllDependencies(dependencies lub that.dependencies)
-
-    return unrefined.refine(refinement.takeIf { it == that.refinement })
   }
 
   internal fun specialize(specs: List<Expression>): GroundType =
@@ -214,11 +204,11 @@ public data class GroundType(
   }
 
   private val expressionLazy = lazy {
-    toExpressionUsingSpecs(minimalDependencyExpressions())
+    toExpressionUsingSpecs(compactDependencyExpressions())
   }
   /**
-   * The minimal round-tripping expression specified by
-   * [rule 5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+   * The compact round-tripping expression specified by
+   * [rule T5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
    */
   override val expression: Expression
     get() = expressionLazy.value
@@ -228,7 +218,7 @@ public data class GroundType(
   }
   /**
    * The full round-tripping expression specified by
-   * [rule 5-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+   * [rule T5-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
    */
   override val expressionFull: Expression
     get() = expressionFullLazy.value
@@ -238,100 +228,86 @@ public data class GroundType(
   }
   /**
    * The bounds narrowed below [rootClass]'s base type, as defined by
-   * [rule 3-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+   * [rule T3-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
    */
   override val narrowedDependencies: DependencySet
     get() = narrowedDependenciesLazy.value
 
-  private fun minimalDependencyExpressions(): List<Expression> {
-    val candidates = dependencies.expressions()
+  private fun compactDependencyExpressions(): List<Expression> {
+    val keys = dependencies.keys
+    val expressions = dependencies.expressions()
+    val narrowed = narrowedDependencies.keys.toSet()
+    val write = MutableList(keys.size) { keys[it] in narrowed }
 
-    fun expressionsAt(indices: Collection<Int>) = indices.sorted().map(candidates::get)
-
-    fun resolvesToThis(indices: Collection<Int>): Boolean = runCatching {
-      rootClass.specialize(expressionsAt(indices)).dependencies == dependencies
-    }
-        .getOrDefault(false)
-
-    for (argumentCount in 0..candidates.size) {
-      fun find(start: Int, selected: List<Int>): List<Expression>? {
-        if (selected.size == argumentCount) {
-          return expressionsAt(selected).takeIf { resolvesToThis(selected) }
+    // A narrowed bound must be written or the narrowing is lost. An unnarrowed one must be written
+    // only to occupy its slot: an omitted argument leaves its slot free, and rule T3-4 hands each
+    // argument to the first free slot that accepts it, which could be an earlier one. Descending
+    // means a slot promoted here is revisited before the loop ends, so one pass reaches a fixpoint.
+    for (later in keys.indices.reversed()) {
+      if (!write[later]) continue
+      // An unwritten slot still holds its declared bound, which is what T3-4 matches against.
+      for (earlier in later - 1 downTo 0) {
+        if (
+            !write[earlier] && dependencies.get(keys[earlier]).intersect(expressions[later]) != null
+        ) {
+          write[earlier] = true
         }
-        val remaining = argumentCount - selected.size
-        for (index in start..candidates.size - remaining) {
-          find(index + 1, selected + index)?.let {
-            return it
+      }
+    }
+    var compact = expressions.filterIndexed { index, _ -> write[index] }
+
+    // Equality propagation can make a written narrowing redundant; for example, the card bound in
+    // Animal<Player1, Pets<Player1>> already determines Player1. Let specialization remain the one
+    // authority on that inference, and discard an argument only when it proves the same Type.
+    var index = 0
+    while (index < compact.size) {
+      val candidate = compact.filterIndexed { candidateIndex, _ -> candidateIndex != index }
+      val resolvesBack =
+          try {
+            classTable.resolve(toExpressionUsingSpecs(candidate)) == this
+          } catch (_: ExpressionException) {
+            false
           }
-        }
-        return null
-      }
-      find(0, emptyList())?.let {
-        return it
+      if (resolvesBack) {
+        compact = candidate
+        index = 0
+      } else {
+        index++
       }
     }
-    return candidates
+    return compact
   }
 
   private fun toExpressionUsingSpecs(specs: List<Expression>) = className.of(specs).has(refinement)
 
   /**
    * Enumerates every concrete structural candidate below this type's structural domain according to
-   * [rules 11-1 and 11-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
+   * [rules T11-1 and T11-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
    * A `NOT` refinement filters the candidates because it is decided structurally; a `HAS`
    * refinement is left for a caller with a world to test. The sequence can be very large.
    */
   override fun allConcreteSubtypes(): Sequence<GroundType> {
-    val candidates =
-        concreteSubclasses(rootClass).flatMap {
-          val deps: DependencySet? = dependencies glb it.baseType.dependencies
-          if (deps == null) {
-            emptySequence()
-          } else {
-            it.withAllDependencies(deps).concreteSubtypesSameClass()
-          }
-        }
-    val structuralRefinement = refinement?.retaining { it is Not }
-    return if (structuralRefinement != null) {
-      val structuralType = copy(refinement = structuralRefinement)
-      candidates.filter { it.narrows(structuralType, NoGameState) }
-    } else {
-      candidates
-    }
+    return classTable.allConcreteSubtypes(this)
   }
 
   /**
    * Returns the sole concrete narrowing in the master universe when every structural choice is
    * unique and its refinement accepts [info], as specified by
-   * [rule 11-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
+   * [rule T11-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
    */
   override fun singleConcreteSubtype(info: TypeInfo): GroundType? {
-    if (
-        (rootClass.className == CLASS && refinement != null) ||
-            refinement?.conjuncts()?.any { it is Not } == true
-    ) {
-      return allConcreteSubtypes().filter { it.narrows(this, info) }.take(2).singleOrNull()
-    }
-    val intersection =
-        concreteSubclasses(rootClass).mapNotNull { klass -> this glb klass.baseType }.singleOrNull()
-            ?: return null
-    val deps = intersection.dependencies.singleConcreteSubtype(info) ?: return null
-    val candidate = intersection.rootClass.withAllDependencies(deps)
-    return candidate.takeIf { !it.abstract && it.narrows(this, info) }
+    return classTable.singleConcreteSubtype(this, info)
   }
 
   /** Returns the subset of [allConcreteSubtypes] having the exact same [rootClass] as ours. */
   // used publicly only by `desc random`
   internal fun concreteSubtypesSameClass(): Sequence<GroundType> =
-      if (rootClass.abstract) emptySequence() else dependencies.concreteSubtypesSameClass(this)
-
-  internal fun concreteSubclasses(baseClass: Class) =
-      baseClass.allSubclasses().asSequence().filter { !it.abstract }
+      classTable.concreteSubtypesSameClass(this)
 
   /**
    * Asserts the contextual narrowing relation with [that], consulting [info] only for a `HAS`
    * refinement, as specified by
-   * [rules 6-1, 6-2, and 8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rules T6-1, T6-2, and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
    */
   override fun ensureNarrows(that: Type, info: TypeInfo) {
     val that = that.groundType
@@ -372,7 +348,7 @@ public data class GroundType(
   /**
    * Tests contextual narrowing with [that], consulting [info] only for a `HAS` refinement, as
    * specified by
-   * [rules 6-1, 6-2, and 8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rules T6-1, T6-2, and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
    */
   override fun narrows(that: Type, info: TypeInfo): Boolean {
     val that = that.groundType
@@ -443,7 +419,7 @@ public data class GroundType(
 
   /**
    * Hashes the root class, dependencies, and refinement that determine identity in
-   * [rule 5-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+   * [rule T5-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
    */
   override fun hashCode(): Int {
     if (cachedHashCode != 0) return cachedHashCode
@@ -512,8 +488,8 @@ public data class GroundType(
   }
 
   /**
-   * Returns the minimal expression required by
-   * [rule 5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+   * Returns the compact expression required by
+   * [rule T5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
    */
   override fun toString(): String = "$expression"
 }

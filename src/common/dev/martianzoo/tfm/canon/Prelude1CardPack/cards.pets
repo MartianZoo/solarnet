@@ -112,7 +112,7 @@ CLASS EcologyExperts : CardFront<Class<PreludeCard>> {
 CLASS ExcentricSponsor : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: PlayCard<Class<ProjectCard>, Hand> THEN -25 Owed<>.
+  This: PlayCard<Class<ProjectCard>, Hand> THEN -25 Owed<>
 }
 
 CLASS ExperimentalForest : CardFront<Class<PreludeCard>> {
@@ -267,7 +267,7 @@ CLASS AcquiredSpaceAgency : CardFront<Class<PreludeCard>> {
   This: 6 Titanium, CARDS[2 SearchForCard(HAS PrintedTag<Class<SpaceTag>>)]
 }
 
-CLASS HousePrinting : AutomatedCard<Class<ProjectCard>> {
+CLASS HousePrinting : AutomatedCard {
   cost = 10
 
   This:: BuildingTag<This>
@@ -275,14 +275,14 @@ CLASS HousePrinting : AutomatedCard<Class<ProjectCard>> {
   End: VictoryPoint
 }
 
-CLASS LavaTubeSettlement : AutomatedCard<Class<ProjectCard>> {
+CLASS LavaTubeSettlement : AutomatedCard {
   cost = 15
 
   This:: CityTag<This>, BuildingTag<This>
   This: PROD[-Energy, 2 MC], CityTile<VolcanicArea> OR (MAX 0 VolcanicArea: CityTile<>)
 }
 
-CLASS MartianSurvey : EventCard<Class<ProjectCard>> {
+CLASS MartianSurvey : EventCard {
   cost = 9
   requirement = HAS "MAX 4 OxygenStep"
 
@@ -291,7 +291,7 @@ CLASS MartianSurvey : EventCard<Class<ProjectCard>> {
   End: VictoryPoint
 }
 
-CLASS Psychrophiles : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Microbe>> {
+CLASS Psychrophiles : ActionCard, ActiveCard, ResourceCard<Class<Microbe>> {
   cost = 2
   requirement = HAS "MAX 5 TemperatureStep"
 
@@ -302,7 +302,7 @@ CLASS Psychrophiles : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<C
   -> Microbe<This>
 }
 
-CLASS SfMemorial : AutomatedCard<Class<ProjectCard>> {
+CLASS SfMemorial : AutomatedCard {
   cost = 7
 
   This:: BuildingTag<This>
@@ -310,7 +310,7 @@ CLASS SfMemorial : AutomatedCard<Class<ProjectCard>> {
   End: VictoryPoint
 }
 
-CLASS SpaceHotels : AutomatedCard<Class<ProjectCard>> {
+CLASS SpaceHotels : AutomatedCard {
   cost = 12
   requirement = HAS "2 EarthTag"
 

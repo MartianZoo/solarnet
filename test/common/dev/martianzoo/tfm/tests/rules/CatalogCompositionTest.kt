@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
@@ -33,7 +34,7 @@ internal class CatalogCompositionTest {
     val game = setUpGame(canonicalPremise(catalog = catalog))
 
     game.classTable.allClassNames.shouldContain(cn("CompositionProbe"))
-    game.agent(PLAYER1).count("TerraformRating<Player1>") shouldBe 20
+    game.testAgent(PLAYER1).count("TerraformRating<Player1>") shouldBe 20
   }
 
   @Test
@@ -63,8 +64,8 @@ internal class CatalogCompositionTest {
         )
     val game = Engine.newGame(premise)
 
-    game.agent(PLAYER1).count("BootstrapDependency") shouldBe 1
-    game.agent(PLAYER1).count("DependentBootstrap<BootstrapDependency>") shouldBe 1
+    game.testAgent(PLAYER1).count("BootstrapDependency") shouldBe 1
+    game.testAgent(PLAYER1).count("DependentBootstrap<BootstrapDependency>") shouldBe 1
   }
 
   @Test
@@ -117,6 +118,6 @@ internal class CatalogCompositionTest {
 
     val game = Engine.newGame(premise)
 
-    game.agent(PLAYER1).count("BootstrapTarget") shouldBe 0
+    game.testAgent(PLAYER1).count("BootstrapTarget") shouldBe 0
   }
 }

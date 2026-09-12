@@ -13,12 +13,12 @@ internal class FakeEstablishedMethodsBugsTest : CardTest() {
   internal fun `Established Methods without its note dead-ends when no second project is affordable`() {
     newGame(PreludeExpansion, FakeStuffBundle)
     p1.phase("Prelude")
-    p1.manual("PreludeCard")
+    p1.runOperation("PreludeCard")
 
     val deadEnd =
         shouldThrow<AbstractException> {
           p1.playPrelude(FakeEstablishedMethods) {
-            p1.manual("-20 MC")
+            p1.runOperation("-20 MC")
             doTask("UseAction<UseStandardProjectAction, Action1>")
             doTask("UseAction<GreeneryProject, Action1>")
             p1.autoExecNow()

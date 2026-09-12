@@ -165,7 +165,9 @@ The container is returned first, then its nested declarations in source order, r
 declaration (T2-1) and re-emitted when the declaration is rendered.
 
 **L1-7. `DEFAULT` clauses name the class that declares them** (T10-3) and are merged into one set
-per use kind (T10-1). A clause naming another class is rejected.
+per use kind (T10-1). Separate compatible clauses may supply the dependency arguments and quantifier
+of one use-kind default. Clauses that disagree about their class, dependency arguments or quantifier
+are rejected; declaration order never selects a winner. A clause naming another class is rejected.
 
 > **Non-normative implementation note — defaults have one source.** No card needs to install a
 > remote class's default. Permitting it would let an unrelated expansion silently change what bare
@@ -197,10 +199,12 @@ written `Foo(HAS Bar)` or `Foo(NOT Bar)` is rejected, because a refined type can
 > generated class extends plain `SpecialTile<LandArea>`; putting the board query in its signature
 > would make a state-dependent predicate part of permanent class identity.
 
-**L1-10. Whitespace and comments.** Horizontal whitespace is insignificant. `//` begins a comment
-that runs to the end of the line. A backslash immediately before a line ending continues the line,
-so one element may span several source lines. Newlines are significant only as separators (L1-1,
-L1-4).
+**L1-10. Whitespace and comments.** Horizontal whitespace separates tokens and carries no other
+meaning: it may appear between any two of them, and no construct depends on how much of it there is.
+It is required only where two tokens would otherwise run together into one, so `2 MC` is a scalar and
+a name while `2MC` is neither. `//` begins a comment that runs to the end of the line. A backslash
+immediately before a line ending continues the line, so one element may span several source lines.
+Newlines are significant only as separators (L1-1, L1-4).
 
 > **Non-normative example — Mars Nomads.** Its action moves a marker and then pays every marked
 > area's placement bonus. A backslash lets that one action span source lines without a newline being
@@ -217,7 +221,7 @@ yields an equal declaration.
 
 **L1-12. A declaration can also be parsed on its own.** `Parsing.parseOneLinerClass` accepts exactly
 one declaration, with an optional semicolon-separated body, and rejects owner-local class syntax
-(L11-6). This is how a declaration embedded in structured card data is read.
+(L11-7). This is how a declaration embedded in structured card data is read.
 
 > **Non-normative implementation note — one record, one declaration.** Catalog composition accepts
 > standalone declarations supplied by structured data. Rejecting a grouped second class or a local
@@ -226,7 +230,7 @@ one declaration, with an optional semicolon-separated body, and rejects owner-lo
 **L1-13. Every catalog also receives the system declarations.** `systemClassDeclarations` supplies
 the classes this specification and the type system depend on — `Component` and `Class` (T1-4, T1-5),
 the ownership vocabulary `Anyone`, `Owner` and `Owned`, the actor root `Actor`, and the signals `Ok`
-(L6-4) and `Die` (L12-14) — plus `Atomized` (L12-11) and `Custom` (T2-11). A catalog's own source is
+(L6-4) and `Die` (L12-14) — plus `Atomized` (L12-11) and `Custom` (T2-9). A catalog's own source is
 loaded alongside them. Which of these a *game* then contains is `OPTIONS.md`'s question, not this
 document's.
 
@@ -239,22 +243,20 @@ document's.
 
 ## 2. Names
 
-**L2-1. A class name is UpperCamelCase, or an all-caps abbreviation.** After the first letter,
-digits and underscores are allowed; a leading letter-plus-digits segment must be followed by another
-capital. All-caps names are at most six characters. Formally:
+**L2-1. A class name is an uppercase-leading identifier.** After the first ASCII uppercase letter,
+ASCII letters, digits, and underscores are allowed. Formally:
 
 ```text
-[A-Z]( [a-z_][A-Za-z0-9_]*
-     | [0-9]+[A-Z][a-z_][A-Za-z0-9_]*
-     | [A-Z0-9]{0,5} )
+[A-Z][A-Za-z0-9_]*
 ```
 
-so `GreeneryTile`, `Tharsis_2_2`, `A_foo`, `L1TradeTerminal`, `MC` and `TR` are names, and `greenery`
-and `Terraforming Mars` are not.
+Thus `GreeneryTile`, `Tharsis_2_2`, `A_foo`, `L1TradeTerminal`, `MC`, and `TOOLONG` are names, while
+`greenery` and `Terraforming Mars` are not.
 
-> **Non-normative example — coordinates and currencies.** `Tharsis_2_2` must be a legal class name
-> for a board space, while `MC` and `TR` must remain readable abbreviations. The unusual grammar
-> admits both without also accepting arbitrary lowercase identifiers or prose labels.
+> **Non-normative example — coordinates and currencies.** Digits and underscores are admitted for
+> board spaces like `Tharsis_2_2`, and all-caps spellings for abbreviations like `MC` and `TR`.
+> Covering both costs only the requirement that a name begin with a capital, which is what keeps
+> lowercase identifiers and prose labels out.
 
 **L2-2. Keywords are reserved and case-sensitive.** `ABSTRACT`, `BY`, `CLASS`, `COUNT`, `DEFAULT`,
 `EACH`, `EVAL`, `FROM`, `HAS`, `IF`, `MAX`, `NOT`, `OR`, `RANK`, `THEN` and `X`, together with the
@@ -264,7 +266,7 @@ perfectly good class names.
 
 **L2-3. A property name is lowerCamelCase**: a lowercase letter followed by letters and digits.
 
-**L2-4. A transform-kind name is an all-caps word** (section 10).
+**L2-4. A transform-kind name is an all-caps identifier** (section 10).
 
 **L2-5. There is one namespace and no scoping.** A name is not declared, bound or shadowed by any
 construct in this document; it means whatever class the class table says it means (T1-1, T1-7).
@@ -294,10 +296,11 @@ L12-7).
 > latter explicitly accepts the empty-water-area placement default. Erasing the spelling difference
 > would either hide a consequential default or force every harmless type reference to accept it.
 
-**L3-3. A refinement is a non-empty conjunction of clauses.** Each comma-separated clause repeats
+**L3-3. A refinement is a non-empty set of conjoined clauses.** Each comma-separated clause repeats
 its keyword: `(HAS r)` refines by a requirement and `(NOT x)` by a structural difference. A
 top-level comma separates clauses, so a conjunction inside one `HAS` must be grouped, as in
-`(HAS (Foo, Bar) OR Baz, NOT Qux)`. T8-1 through T8-12 say what each clause means.
+`(HAS (Foo, Bar) OR Baz, NOT Qux)`. Duplicate clauses collapse and order does not affect equality.
+T8-1 through T8-11 say what each clause means.
 
 **L3-4. A class literal is written with one bare class name**, `Class<Steel>` (T4-1, T4-6).
 
@@ -322,17 +325,18 @@ context, and elaboration replaces it (L12-3). `Anyone` is an ordinary class and 
 > `Anyone` remains available for genuinely unrestricted theft or payment.
 
 **L3-7. An expression renders as the class name, the argument list if one was written, and the
-refinement.** Whitespace is not preserved, but nothing else is normalized away: an authored
-expression is not rewritten into its type's minimal form, so `Tile` and `Tile<Area>` remain distinct
+refinement.** Whitespace is not preserved and duplicate refinement clauses collapse, but an authored
+expression is not rewritten into its type's canonical form: `Tile` and `Tile<Area>` remain distinct
 expressions even though they resolve to one type (T1-3, T5-5).
 
 > **Non-normative implementation note — spelling drives capture.** Type-variable inference records
-> authored repetition. Normalizing `Tile` and `Tile<Area>` to one minimal type before that pass could
+> authored repetition. Normalizing `Tile` and `Tile<Area>` to one canonical type before that pass could
 > falsely turn two deliberately different spellings into one shared player choice.
 
-**L3-8. Two expressions are equal when their spellings agree.** Argument order is part of the
-spelling, so `Microbe<Player1, Ants>` and `Microbe<Ants, Player1>` are different expressions for one
-type. This is why the type system, not the syntax, is the authority on identity (T5-1).
+**L3-8. Two expressions are equal when their structural spellings agree.** Argument order is part of
+the spelling, while refinement-clause order and duplication are not (L3-3). Thus
+`Microbe<Player1, Ants>` and `Microbe<Ants, Player1>` are different expressions for one type. This is
+why the type system, not the syntax, is the authority on identity (T5-1).
 
 > **Non-normative implementation note — syntax is not component identity.** No card distinguishes
 > `Microbe<Player1, Ants>` from the reversed argument spelling once resolved. Keeping the syntax
@@ -409,7 +413,8 @@ declares no type variable (T13-8).
 > cards. Treating the abstract `CardFront` as a choice would capture one expensive card type and ask
 > for three copies of it instead of observing the player's tableau.
 
-**L4-10. Requirements round-trip.** Grouping is re-inserted wherever re-parsing would otherwise read the tree differently.
+**L4-10. Requirements round-trip.** Grouping is re-inserted wherever re-parsing would otherwise
+read the tree differently.
 
 ---
 
@@ -449,7 +454,9 @@ C`, and a metric never goes negative, so `Plant - 20` is 0 rather than a debt.
 
 **L5-6. `A OR B` counts the union of its alternatives without double-counting.** Its arms must be
 plain component counts: subtraction discards the component identity a union needs, so
-`Plant - Steel OR Heat` is rejected. Duplicate alternatives are rejected.
+`Plant - Steel OR Heat` is rejected. Duplicate alternatives written by an author are rejected;
+programmatic construction and later rewrites collapse alternatives that have become equal. A
+single remaining count is no longer a union.
 
 > **Non-normative example — Geologist.** A tile can be both on a volcanic area and adjacent to one.
 > The milestone's union must count that tile once; summing the two arms would let overlapping tiles
@@ -484,7 +491,8 @@ live field is realized where a world is available, and pinned by `engine/RankMet
 > award's metric, then awards first and—when applicable—second place. Lexicographic metrics and a
 > filtered selector let the same machinery represent ties without baking one award into the engine.
 
-**L5-10. Metrics round-trip.** Grouping is re-inserted wherever re-parsing would otherwise read the tree differently.
+**L5-10. Metrics round-trip.** Grouping is re-inserted wherever re-parsing would otherwise read the
+tree differently.
 
 ---
 
@@ -538,12 +546,15 @@ parenthesized. A gate does not directly contain another gate.
 > `MAX 0 Energy`. The requirement decides whether that result is available; it is not another arm a
 > player can narrow or waive after choosing the action.
 
-**L6-7. `I OR J` is a choice among alternatives.** Duplicate alternatives are rejected rather than
-collapsed. An `OR` is always open (L7-1), because the choice is the point.
+**L6-7. `I OR J` is a choice among alternatives.** Duplicate alternatives written by an author are
+rejected. Programmatic construction and later rewrites collapse arms that have become equal, and a
+single remaining outcome is no longer an `OR`. An `OR` that remains is always open (L7-1), because
+the choice is the point.
 
 > **Non-normative example — Atmo Collectors.** Spending one floater offers 2 titanium, 3 energy, or
-> 4 heat. Those are three player choices even if two happened to elaborate to equal-looking state
-> changes; silently collapsing authored arms would erase a decision the card explicitly offers.
+> 4 heat. Those remain three player choices because their resulting changes are distinct. By
+> contrast, two context-dependent spellings that elaborate to the same change offer only one
+> resulting move, so retaining both would present a meaningless duplicate choice.
 
 **L6-8. `,` separates independent instructions and has the lowest precedence.** The result is a
 *group*, not one instruction: nothing in this language relates the members of a group to each other,
@@ -656,7 +667,7 @@ narrowing; declining `2 Plant!` or `2 Plant.` is not.
 > realization of the selected optional removal. Letting it replace a mandatory or
 > as-much-as-possible loss would turn “may remove” into a universal escape hatch.
 
-**L7-5. A gate, a `PER` metric, a `BY` actor and an `EACH` selector are not choices.** A proposal
+**L7-5. A gate, a `/` metric, a `BY` actor and an `EACH` selector are not choices.** A proposal
 must reproduce each of them exactly; only what they contain may narrow.
 
 > **Non-normative example — Saturn Surfing.** Its payout is scaled by the floaters on that card and
@@ -733,11 +744,10 @@ of components matching it.
 
 **L8-4. A self trigger is not a subscription to its own type.** There is no way to spell one as the
 other: writing the bare `This` placeholder as a subscription target *is* the self trigger, however
-its empty argument list was written (L3-5). The two say
-different things — `This` is about changes to this very component, and scales its instruction by the
-number of copies changed, while a subscription is about changes anywhere that match an expression,
-and is carried once per copy of the effect-bearing component. How many times each actually fires is
-`ENGINE.md`'s subject.
+its empty argument list was written (L3-5). The two say different things — `This` is about changes
+to this very component, and scales its instruction by the number of copies changed, while a
+subscription is about changes anywhere that match an expression, and is carried once per copy of the
+effect-bearing component. How many times each actually fires is `ENGINE.md`'s subject.
 
 > **Non-normative example — played events.** The generic event rule's `-This` follows the removal of
 > that exact face-up event into `PlayedEvent<Class<This>>`. A subscription to the card's type could
@@ -787,8 +797,6 @@ effect's own colon stays unambiguous.
 > effect's trigger separator from a requirement gate inside its result. Without parentheses, parsing
 > the rendered form could attach the gate to the trigger and produce a different rule.
 
-
-
 ---
 
 ## 9. Actions
@@ -836,6 +844,9 @@ now" section becomes an ordinary rule; an immediate `Ok` produces no effect at a
 > **Non-normative example — Protected Valley.** Its immediate production increase and special greenery
 > placement are written `This: ...`, so they happen when that card component enters play. Treating
 > the instruction as free-floating would offer the bonus without playing the card.
+
+**L9-7. Actions round-trip.** The cost keeps its authored form, and the result's grouping is
+L6-13's.
 
 ---
 
@@ -1036,11 +1047,10 @@ on a removal is not an error: it simply does not receive the removal-only depend
 all-use defaults (L12-4) still apply. `-Marker<>` accepts them.
 
 > **Non-normative example — debt removal.** The symmetric rule — a gain *or* removal must opt in —
-> is the
-> tempting one, and it is wrong. Requiring it of removals rejects `-Owed`, written bare in the
-> action payment lowering, and with it `CryoSleepTest`, `AridorTest`, `DistantPressureMassTest`,
-> three whole-game replays and two integration suites. A removal names a component that already
-> exists; there is no placement left to default.
+> is the tempting one, and it is wrong. Requiring it of removals rejects `-Owed`, written bare in
+> the action payment lowering, and with it `CryoSleepTest`, `AridorTest`,
+> `DistantPressureMassTest`, three whole-game replays and two integration suites. A removal names a
+> component that already exists; there is no placement left to default.
 
 **L12-7. `Foo<>` is invalid where that use has no dependency defaults to accept.** An empty list is
 an acceptance, not merely a second spelling of the same expression.
@@ -1106,10 +1116,12 @@ it is reacting to.
 > `Placement<This>: Plant` rule must give the plant to whoever placed there. Adding `BY Owner` to the
 > trigger captures that actor instead of leaving the reward ownerless or assigning it to the area.
 
-**L12-14. A change to a type this game cannot hold becomes `Die` or `Ok`.** When a specialized
-instruction names a type that is not active (T12-1), a mandatory change becomes a gain of `Die` — an
-instruction that can never be carried out — and an optional one becomes `Ok`. This keeps a rule that
-mentions absent content from silently succeeding.
+**L12-14. A change to a type this game cannot hold becomes `Die` or `Ok`.** A type expression that
+becomes invalid when specialization substitutes a dependency outside its declared bound (T3-4,
+T3-5) becomes a gain of `Die`, so the invalid branch can never be carried out. When a specialized
+instruction instead names a resolved type that is not active (T12-1), a mandatory change becomes
+`Die` and a change that permits zero becomes `Ok`. This keeps a rule that mentions absent content
+from silently succeeding.
 
 > **Non-normative implementation note — cross-expansion safety.** Cimmeria conditionally grants a
 > colony only with the Colonies expansion. If specialization nevertheless reaches an inactive

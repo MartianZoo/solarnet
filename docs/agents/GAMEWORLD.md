@@ -133,15 +133,17 @@ suffix. The task projection materializes the backing tasks on first use, then ap
 task events. The live-effect index is copied so the same effects fire without rescanning all backing
 components.
 
-An overlay has its own Agents, task projection, timeline, completion callback, and event suffix.
-Agent autoexecution modes begin with the backing Agents' current modes. Mutating or discarding the
-overlay cannot change the backing world. The backing world must remain at the captured revision
-while the overlay is used; overlay component, task, and event access rejects a changed backing
-world.
+An overlay has its own policy-free Actor engines, task projection, timeline, completion callback,
+and event suffix. A client that needs gameplay constructs and retains a separate `Agents(overlay)`;
+the engine neither knows nor copies policy from Agents acting on the backing world. Mutating or
+discarding the overlay cannot change the backing world. The backing world must remain at the
+captured revision while the overlay is used; overlay component, task, and event access rejects a
+changed backing world.
 
-Full-game victory-point snapshots use an overlay for hypothetical production and final scoring, so
-their `WholeWorld` records only actual replay progress. Overlays do not yet support nesting, reuse a
-successful suffix as a live commit, or eliminate engine-internal selection-probe reversals.
+Full-game victory-point snapshots pair an overlay with EAGER-policy Agents for hypothetical
+production and final scoring, so their `WholeWorld` records only actual replay progress. Overlays
+do not yet support nesting, reuse a successful suffix as a live commit, or eliminate
+engine-internal selection-probe reversals.
 
 ## Exported recordings
 

@@ -10,7 +10,7 @@ CLASS FakeResearchNetwork : CardFront<Class<PreludeCard>> {
   This: PROD[1 MC], 3 ProjectCard, FakeWildTag<This>
 }
 
-CLASS FakeResearchCoordination : AutomatedCard<Class<ProjectCard>> {
+CLASS FakeResearchCoordination : AutomatedCard {
   cost = 4
 
   This: FakeWildTag<This>
@@ -56,7 +56,7 @@ CLASS FakeHeadStart : CardFront<Class<PreludeCard>> {
 }
 
 "L1 Trade Terminal with the replay's three resource destinations fixed"
-CLASS FakeL1TradeTerminal : ActiveCard<Class<ProjectCard>> {
+CLASS FakeL1TradeTerminal : ActiveCard {
   cost = 25
 
   This:: SpaceTag<This>
@@ -69,7 +69,7 @@ CLASS FakeL1TradeTerminal : ActiveCard<Class<ProjectCard>> {
 }
 
 "Mars Nomads without its moving map marker and placement bonus"
-CLASS FakeMarsNomads : ActionCard, ActiveCard<Class<ProjectCard>> {
+CLASS FakeMarsNomads : ActionCard, ActiveCard {
   cost = 13
 
   -> Ok
@@ -82,7 +82,7 @@ CLASS RobotUnit<Class<CardFront>> : Resource, Owned<Player>, Hidden {
 }
 
 "Self-Replicating Robots with printed-tag selection delegated in follow mode"
-CLASS FakeSelfReplicatingRobots : ActionCard, ActiveCard<Class<ProjectCard>> {
+CLASS FakeSelfReplicatingRobots : ActionCard, ActiveCard {
   cost = 7
   requirement = HAS "2 ScienceTag"
 

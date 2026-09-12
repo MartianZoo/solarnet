@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.AutoExecMode.NONE
+import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
@@ -20,22 +21,22 @@ internal class OverlayWorldTest {
                 """
             )
         ) as WholeWorld
-    val wholePlayer = whole.agent(PLAYER1).also { it.autoExecMode = NONE }
-    wholePlayer.manual("Watcher")
+    val wholePlayer = whole.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    wholePlayer.runOperation("Watcher")
     val pendingTask = wholePlayer.addTasks("Token?").single()
     val wholeCheckpoint = whole.timeline.checkpoint()
     val wholeRevision = whole.revision
 
     val overlay = Engine.overlay(whole)
     val overlayCheckpoint = overlay.timeline.checkpoint()
+    val overlayPlayer = overlay.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
 
     (overlay is OverlayWorld) shouldBe true
-    overlay.agent(PLAYER1).autoExecMode shouldBe NONE
-    overlay.agent(PLAYER1).doTask("Token")
+    overlayPlayer.doTask("Token")
 
-    overlay.agent(PLAYER1).count("Watcher") shouldBe 1
-    overlay.agent(PLAYER1).count("Token") shouldBe 1
-    overlay.agent(PLAYER1).count("Marker") shouldBe 1
+    overlayPlayer.count("Watcher") shouldBe 1
+    overlayPlayer.count("Token") shouldBe 1
+    overlayPlayer.count("Marker") shouldBe 1
     overlay.tasks.isEmpty() shouldBe true
     overlay.events
         .changesSince(overlayCheckpoint)
@@ -51,7 +52,7 @@ internal class OverlayWorldTest {
     whole.revision shouldBe wholeRevision
 
     overlay.timeline.rollBack(overlayCheckpoint)
-    overlay.agent(PLAYER1).count("Token") shouldBe 0
+    overlayPlayer.count("Token") shouldBe 0
     overlay.tasks.ids().shouldContainExactly(pendingTask)
   }
 
@@ -60,9 +61,9 @@ internal class OverlayWorldTest {
     val whole = Engine.newGame(testGamePremise())
     val overlay = Engine.overlay(whole)
 
-    whole.agent(PLAYER1).manual("Token")
+    whole.testAgent(PLAYER1).runOperation("Token")
 
-    shouldThrow<IllegalStateException> { overlay.agent(PLAYER1).count("Token") }
+    shouldThrow<IllegalStateException> { overlay.testAgent(PLAYER1).count("Token") }
   }
 
   @Test
@@ -76,15 +77,16 @@ internal class OverlayWorldTest {
                 """
             )
         )
-    val wholePlayer = whole.agent(PLAYER1)
-    wholePlayer.manual("Target")
-    wholePlayer.manual("Dependent<Target>")
+    val wholePlayer = whole.testAgent(PLAYER1)
+    wholePlayer.runOperation("Target")
+    wholePlayer.runOperation("Dependent<Target>")
     val overlay = Engine.overlay(whole)
+    val overlayPlayer = overlay.testAgent(PLAYER1)
 
-    overlay.agent(PLAYER1).manual("-Target")
+    overlayPlayer.runOperation("-Target")
 
-    overlay.agent(PLAYER1).count("Target") shouldBe 0
-    overlay.agent(PLAYER1).count("Dependent<Target>") shouldBe 0
+    overlayPlayer.count("Target") shouldBe 0
+    overlayPlayer.count("Dependent<Target>") shouldBe 0
     wholePlayer.count("Target") shouldBe 1
     wholePlayer.count("Dependent<Target>") shouldBe 1
   }
@@ -93,11 +95,12 @@ internal class OverlayWorldTest {
   internal fun rejectsEventReadsAfterItsBackingWorldRebranches() {
     val whole = Engine.newGame(testGamePremise("CLASS Token\nCLASS Marker"))
     val startingCheckpoint = whole.timeline.checkpoint()
-    whole.agent(PLAYER1).manual("Token")
+    val wholePlayer = whole.testAgent(PLAYER1)
+    wholePlayer.runOperation("Token")
     val overlay = Engine.overlay(whole)
 
     whole.timeline.rollBack(startingCheckpoint)
-    whole.agent(PLAYER1).manual("Marker")
+    wholePlayer.runOperation("Marker")
 
     shouldThrow<IllegalStateException> {
       overlay.events.changesSince(startingCheckpoint)

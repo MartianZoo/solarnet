@@ -9,7 +9,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Has
 import dev.martianzoo.pets.ast.Instruction
-import dev.martianzoo.pets.ast.Instruction.Intensity.AMAP
+import dev.martianzoo.pets.ast.Instruction.Quantifier.AMAP
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.ast.PetNode
@@ -313,7 +313,7 @@ internal object StandardResourceMonotonicityReport {
       location: RuleLocation,
       table: ClassTable,
   ): Finding? {
-    if (instruction.intensity != AMAP) return null
+    if (instruction.quantifier != AMAP) return null
     val removing = instruction.removing ?: return null
     val gaining = instruction.gaining ?: return null
     val sourceMatches = expressionCouldCount(removing, quantity, subjectClass, table)

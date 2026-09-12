@@ -62,7 +62,7 @@ internal class MergerTest : CardTest() {
     newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
     playCorporationWithoutStartingProjects(p1, CrediCor)
     admin.phase("Prelude")
-    p1.manual("PreludeCard")
+    p1.runOperation("PreludeCard")
 
     p1.playPrelude(Merger) {
       p1.playCorp(Celestic)
@@ -106,7 +106,7 @@ internal class MergerTest : CardTest() {
       p1.playCorp(TerraLabsResearch)
     }
 
-    p1.manual("ProjectCard<Selecting> THEN BuySelectedCards") {
+    p1.runOperation("ProjectCard<Selecting> THEN BuySelectedCards") {
           p1.pay(mc = 3)
         }
         .expect("ProjectCard, -3 MC")

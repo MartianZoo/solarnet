@@ -11,13 +11,13 @@ internal class EcolineTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame()
-    p1.manual("$Ecoline")
+    p1.runOperation("$Ecoline")
     admin.phase("Action")
   }
 
   @Test
   internal fun `Can convert seven plants into greenery`() {
-    p1.manual("4 Plant")
+    p1.runOperation("4 Plant")
     p1.assertCounts(7 to "Plant")
     p1.convertPlants { placeTile(4, 2) }.expect("-6 Plant, GreeneryTile")
     p1.assertCounts(1 to "Plant")
@@ -25,7 +25,7 @@ internal class EcolineTest : CardTest() {
 
   @Test
   internal fun `Cannot convert only six plants into greenery`() {
-    p1.manual("3 Plant")
+    p1.runOperation("3 Plant")
     shouldThrow<LimitsException> { p1.convertPlants() }
   }
 }
