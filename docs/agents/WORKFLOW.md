@@ -11,8 +11,9 @@
 > **Skip when:** changing work performed inside one phase without changing how that phase begins or
 > ends.
 >
-> **Status:** selected design direction, not implemented. Committed `TfmWorkflow.Automatic` is still a
-> Kotlin coroutine that chooses phases and waits for whole-World idleness.
+> **Status:** `Scope`, `GenerationScope`, `TemporaryScope<Parent>`, and dependency-ordered idle
+> cleanup are implemented. Committed `TfmWorkflow.Automatic` is still a Kotlin coroutine that
+> chooses phases and waits for whole-World idleness.
 
 ## Purpose and scope
 
@@ -41,9 +42,14 @@ The required primitives already exist:
   dependents before removing the dependency itself.
 - [`WorldTransaction`](../../src/common/dev/martianzoo/engine/WorldTransaction.kt) performs
   idle cleanup only after an outer operation and its automatic effects have completed.
-- [`Engine.removeTemporaryComponents`](../../src/common/dev/martianzoo/engine/Engine.kt) removes
-  `Temporary` components when every task queue is empty. Their removal effects may create more
-  work, which Admin autoexecution can settle normally.
+- [`Engine.removeTemporaryComponent`](../../src/common/dev/martianzoo/engine/Engine.kt) removes
+  one eligible `Temporary` Type at an empty task queue, deferring Types with direct or indirect
+  dependent `MustCleanUp` or `Temporary`. The transaction loop settles removal effects before checking the live
+  queue and dependencies for another removal.
+- `GenerationScope` is a singleton lifetime anchor replaced by each `Generation`; generation-local
+  state depends on it instead of listening independently for the next Generation.
+- `TemporaryScope<Parent>` is both a child `Scope` and a `Temporary`; it therefore depends on its
+  parent and is mandatory cleanup removed only after its own dependent cleanup finishes.
 
 Committed [`TfmWorkflow.Automatic`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt) supplies
 the missing phase decisions from Kotlin. It listens for idle completions, resumes a coroutine, and
@@ -58,12 +64,12 @@ approximately as follows; the final declaration syntax may differ:
 
 ```pets
 "The lifetime anchor for the current Phase"
-ABSTRACT CLASS PhaseScope<Phase> : Temporary, System {
+ABSTRACT CLASS PhaseScope<Phase, GenerationScope> : TemporaryScope<GenerationScope>, System {
   HAS MAX 1 PhaseScope
 }
 
 "A Phase scope whose removal queues one fixed successor"
-CLASS NextPhaseScope<Class<NextPhase>, Phase> : PhaseScope<Phase> {
+CLASS NextPhaseScope<Class<NextPhase>, Phase, GenerationScope> : PhaseScope<Phase, GenerationScope> {
   -This: NextPhase FROM Phase
 }
 ```
@@ -184,7 +190,8 @@ silently finding no continuation is not how an active workflow ends.
 
 ## Scope hierarchy
 
-The `GenerationScope` experiment points toward one compositional family of lifetime anchors:
+The implemented `GenerationScope` and nested-cleanup rule establish the first level of one
+compositional family of lifetime anchors:
 
 ```text
 GameScope
@@ -199,11 +206,14 @@ State depends on the narrowest scope matching its true lifetime: an action-local
 the Action scope; a passed marker belongs to the Generation scope; phase-local control belongs to
 the Phase scope.
 
-This hierarchy exposes one necessary change to current cleanup. Today all `Temporary` components
-are removed in one sweep. Nested scopes instead require dependency-ordered cleanup:
+`Signal` is the zero-duration edge of this model. It carries no lifetime-scope dependency, triggers
+its effects, and removes itself immediately. Do not introduce a live `NoScope` sentinel: absence of
+a `Scope` dependency already states that the event owns no interval.
 
-- at an empty queue, remove only Temporary components having no dependent `MustCleanUp`;
-- settle any work their removal creates;
+The engine applies dependency-ordered cleanup needed by this hierarchy:
+
+- at an empty queue, remove one Temporary Type with no direct or indirect dependent `MustCleanUp` or `Temporary`;
+- settle any work its removal creates and recheck the live dependencies;
 - repeat only if the queue remains empty; and
 - never remove an outer scope while a live inner scope or other mandatory cleanup depends on it.
 
@@ -251,14 +261,15 @@ The phase workflow is successful only when all of these hold:
 
 ## First demonstration
 
-Demonstrate the model narrowly before migrating the whole game:
+The first demonstration is complete: an engine test characterizes dependency-ordered
+`TemporaryScope` cleanup with generation, phase, and action test scopes. Continue narrowly before
+migrating the whole game:
 
-1. Characterize dependency-ordered Temporary cleanup with two nested test scopes.
-2. Add a tiny Pets-only chain covering committed Bootstrap, explicit start, Setup, and Corporation.
-3. Show that queued work pauses scope removal and that its final completion resumes the chain.
-4. Compile Prelude's weak ordering contribution and verify both active and inactive cases.
-5. Compile the Solar constraints and verify every combination of base, Venus, and Colonies phases.
-6. Add one requirement-gated branch at scope removal.
+1. Add a tiny Pets-only chain covering committed Bootstrap, explicit start, Setup, and Corporation.
+2. Show that queued work pauses scope removal and that its final completion resumes the chain.
+3. Compile Prelude's weak ordering contribution and verify both active and inactive cases.
+4. Compile the Solar constraints and verify every combination of base, Venus, and Colonies phases.
+5. Add one requirement-gated branch at scope removal.
 
 Do not design Action-turn rotation as part of this demonstration. If the narrow model needs
 phase-specific Kotlin or a second representation of the next phase, stop and reconsider it rather

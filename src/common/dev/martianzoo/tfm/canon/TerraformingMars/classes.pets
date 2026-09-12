@@ -10,7 +10,7 @@ CLASS TerraformingMars : BaseGameModule {
   This: PlayCardFromHandAction, UseStandardProjectAction, UseActionOnCardAction, ConvertPlantsAction, ConvertHeatAction
   This: DoRequiredActionsAction
   This: Action1, Action2, Action3, CardPurchase, CardPlay
-  This: Hand, Selecting, Revealed
+  This: Hand, Selecting, Revealed, GenerationScope
   This: EACH Class<GlobalParameter> { GpIncomplete<Class<GlobalParameter>> }
   This: EACH Class<RemoteArea> { RemoteArea }
 
@@ -259,7 +259,7 @@ ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned<Owner>
 ABSTRACT CLASS Cardbound<CardFront<Player>> : Owned<Player>
 
 "Indicates that an action card has already been used this generation"
-CLASS ActionUsedMarker : Cardbound<ActionCard>, Generational { HAS MAX 1 This }
+CLASS ActionUsedMarker<GenerationScope> : Cardbound<ActionCard> { HAS MAX 1 This }
 
 ABSTRACT CLASS Tag<TagHolder<Player>> : Owned<Player>, Atomized {
   CLASS BuildingTag, SpaceTag, ScienceTag, PowerTag, CityTag
@@ -392,7 +392,7 @@ CLASS NewTurn : Owned<Player>, Signal
 CLASS SecondAction : Owned<Player>, Signal
 
 "Instead of taking an action you can gain this, and be out for the rest of the generation"
-CLASS Pass : Owned<Player>, Generational { HAS MAX 1 This }
+CLASS Pass<GenerationScope> : Owned<Player> { HAS MAX 1 This }
 
 "Any of the basic choices a player can make on their turn"
 ABSTRACT CLASS StandardAction : HasActions {
@@ -536,7 +536,7 @@ CLASS Invoice : Billing {
 CLASS CardInvoice<Class<CardFront>> : Billing<CardPlay, Action1, Class<MC>>
 
 "A card-owned adjustment that remains in play until the next card-play"
-ABSTRACT CLASS NextCardEffect : Owned<Player>, Generational {
+ABSTRACT CLASS NextCardEffect<GenerationScope> : Owned<Player> {
   Billing<CardPlay>:: -This!
 }
 
@@ -570,9 +570,10 @@ ABSTRACT CLASS Phase : System {
 "Tells what generation we're in"
 CLASS Generation : System
 
-"Supertype for anything that automatically disappears between generations"
-ABSTRACT CLASS Generational {
-  Generation:: -This.
+"The lifetime anchor for components that exist only during the current generation"
+CLASS GenerationScope : Scope, System {
+  HAS MAX 1 This
+  Generation:: -This! THEN This!
 }
 
 "Indicates that greenery placement raises oxygen"
@@ -609,7 +610,7 @@ CLASS End : Phase {
 }
 
 "A marker removed after every final-scoring task has completed"
-CLASS FinalScoringPending : Temporary, System
+CLASS FinalScoringPending : Temporary, System { HAS MAX 1 This }
 
 "Asks its owning Player to choose one mandatory global-parameter increase performed by Admin"
 CLASS WorldGovernmentTerraforming : Owned<Player>, Signal {
@@ -768,7 +769,7 @@ CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
 "The number of geometric neighbor relations between live area pieces and areas on the selected Mars map"
 CLASS Neighbor<AreaPiece, MarsArea> : Hidden, Custom
 
-CLASS MeasureAward<Award> : Temporary, System {
+CLASS MeasureAward<Award, FinalScoringPending> : Temporary, System {
   -This:: EACH Player(HAS =1 (RANK Player { EVAL Award.metric })) { FirstPlace<Award> }
   -This IF 3 Player:: EACH Player(HAS =2 (RANK Player { EVAL Award.metric })) { SecondPlace<Award> }
 }

@@ -121,6 +121,22 @@ private constructor(
     }
   }
 
+  /** Whether [dependencyType] has a direct or indirect live dependent matching [dependentType]. */
+  internal fun hasDependentMatching(
+      dependencyType: Type,
+      dependentType: Type,
+      info: TypeInfo,
+  ): Boolean {
+    requireOwnClassTable(dependencyType)
+    requireOwnClassTable(dependentType)
+    val visited = mutableSetOf<Component>()
+    fun hasMatchingDependent(dependency: Component): Boolean =
+        dependentsByDependency[dependency]?.any {
+          visited.add(it) && (it.hasType(dependentType, info) || hasMatchingDependent(it))
+        } == true
+    return hasMatchingDependent(dependencyType.toComponent())
+  }
+
   /** Distinct concrete component Types currently matching [parentType]. */
   internal fun matchingTypes(parentType: Type, info: TypeInfo): Sequence<Type> {
     requireOwnClassTable(parentType)

@@ -199,7 +199,7 @@ set of action cards.
 
 Permission is a component and satisfying it belongs on the left side of the route action. For a
 card, use a card-scoped status with exactly one live face: available or used. Removing the available
-face creates the physical used marker; generational removal of the marker restores the available
+face creates the physical used marker; removing its `GenerationScope` restores the available
 face. This preserves the cube that the physical game places on the card while making availability a
 positive fact.
 
