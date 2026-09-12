@@ -332,7 +332,7 @@ CLASS RefillLobby : Signal {
 "Requests the current political influence snapshot for one player"
 CLASS MeasureInfluence : Owned<Player>, Signal
 
-ABSTRACT CLASS Influence : Owned<Player>, Generational
+ABSTRACT CLASS Influence<GenerationScope> : Owned<Player>
 
 "One influence supplied by the committee Chairman"
 CLASS ChairmanInfluence : Influence {
@@ -382,7 +382,7 @@ CLASS ScientistsPolicy : Policy<Scientists>, HasActions {
   10 MC -> (MAX 0 ScientistsUsedMarker: 3 ProjectCard, ScientistsUsedMarker)
 }
 
-CLASS ScientistsUsedMarker : Owned<Player>, Generational {
+CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player> {
   HAS MAX 1 This
 }
 
