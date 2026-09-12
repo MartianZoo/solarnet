@@ -164,6 +164,12 @@ internal class Lang07NarrowingTest {
     refuses("Token THEN Token", "RedToken THEN BlueToken")
 
     narrows(
+        "Tile<> THEN Tile<>",
+        "GreeneryTile<Land1> THEN GreeneryTile<Land1>",
+    ) shouldBe true
+    refuses("Tile<> THEN Tile<>", "GreeneryTile<Land1> THEN OceanTile<Land1>")
+
+    narrows(
         "Tile<LandArea> THEN Tile<LandArea>",
         "GreeneryTile<Land1> THEN GreeneryTile<Land1>",
     ) shouldBe true

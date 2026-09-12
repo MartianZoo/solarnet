@@ -129,7 +129,14 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     val sources = entries.single { it.variable === variable }.currentExpressions.values
 
     fun collect(wideNode: PetNode, narrowNode: PetNode) {
-      if (wideNode is Expression && wideNode in sources) {
+      if (
+          wideNode is Expression &&
+              sources.any { source ->
+                wideNode === source ||
+                    wideNode == source ||
+                    wideNode.isExpandedFrom(source, variable.bound.classTable)
+              }
+      ) {
         (narrowNode as? Expression)?.let(::add)
         return
       }
@@ -288,21 +295,6 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
       private val replacements: List<Pair<Expression, Expression>>,
       private val classTable: ClassTable,
   ) : PetTransformer() {
-    private fun Expression.isExpandedFrom(source: Expression): Boolean {
-      if (className != source.className || refinement != source.refinement) {
-        return false
-      }
-      val klass = classTable.findClass(className) ?: return false
-      val actualByKey =
-          arguments.zip(klass.matchDependencyKeys(arguments, classTable)).associate {
-            it.second to it.first
-          }
-      return source.arguments.zip(klass.matchDependencyKeys(source.arguments, classTable)).all {
-          (argument, key) ->
-        actualByKey[key] == argument
-      }
-    }
-
     override fun transformNode(node: PetNode): PetNode {
       if (node is Expression) {
         replacements
@@ -314,7 +306,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         if (equal.size == 1) return transformChildren(equal.single())
         val expanded =
             replacements
-                .filter { (source) -> node.isExpandedFrom(source) }
+                .filter { (source) -> node.isExpandedFrom(source, classTable) }
                 .map { it.second }
                 .distinct()
         if (expanded.size == 1) return transformChildren(expanded.single())
@@ -494,5 +486,20 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
       val allEntries = explicitEntries + entries
       return if (allEntries.isEmpty()) EMPTY else TypeVariableScope(allEntries)
     }
+  }
+}
+
+private fun Expression.isExpandedFrom(source: Expression, classTable: ClassTable): Boolean {
+  if (className != source.className || refinement != source.refinement) {
+    return false
+  }
+  val klass = classTable.findClass(className) ?: return false
+  val actualByKey =
+      arguments.zip(klass.matchDependencyKeys(arguments, classTable)).associate {
+        it.second to it.first
+      }
+  return source.arguments.zip(klass.matchDependencyKeys(source.arguments, classTable)).all {
+      (argument, key) ->
+    actualByKey[key] == argument
   }
 }
