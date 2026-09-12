@@ -17,7 +17,7 @@ CLASS Pristar : ResourceCard<Class<Preservation>, Class<CorporationCard>> {
   End: VictoryPoint / Preservation<This>
 }
 
-CLASS TerraLabsResearch : CardFront<Class<CorporationCard>> {
+CLASS TerralabsResearch : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: ScienceTag<This>, EarthTag<This>

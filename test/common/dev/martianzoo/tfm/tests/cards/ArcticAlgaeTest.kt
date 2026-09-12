@@ -24,7 +24,7 @@ internal class ArcticAlgaeTest : CardTest() {
   @Test
   internal fun `Can resolve ocean placements and Arctic Algae before removing plants`() {
     newGameWithAutoWorkflow()
-    playUntilFirstActionPhase(UnitedNationsMarsInitiative, Phobolog)
+    playUntilFirstActionPhase(UnitedNationsMarsInitiative, PhoboLog)
     prepareGiantIceAsteroid()
     val p2 = requireP2()
 
@@ -46,7 +46,7 @@ internal class ArcticAlgaeTest : CardTest() {
   @Test
   internal fun `Can remove plants before resolving ocean placements and Arctic Algae`() {
     newGameWithAutoWorkflow()
-    playUntilFirstActionPhase(UnitedNationsMarsInitiative, Phobolog)
+    playUntilFirstActionPhase(UnitedNationsMarsInitiative, PhoboLog)
     prepareGiantIceAsteroid()
     val p2 = requireP2()
 

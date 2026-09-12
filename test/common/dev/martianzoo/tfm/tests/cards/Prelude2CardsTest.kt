@@ -135,10 +135,10 @@ internal class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  internal fun `EcoTec rewards both of its starting tags`() {
+  internal fun `Ecotec rewards both of its starting tags`() {
     newGame(Prelude2Expansion)
 
-    p1.runOperation("$EcoTec") {
+    p1.runOperation("$Ecotec") {
       doTask("Plant")
       doTask("Plant")
     }

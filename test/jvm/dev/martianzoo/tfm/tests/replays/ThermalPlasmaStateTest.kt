@@ -35,7 +35,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
     with(me) {
       doTask("-ColonyTileSelection<Class<Miranda>>")
 
-      playCorp(TerraLabsResearch) {
+      playCorp(TerralabsResearch) {
         buyCards(
             RadSuits,
             SoilFactory,

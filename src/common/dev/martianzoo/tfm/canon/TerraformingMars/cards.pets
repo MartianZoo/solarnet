@@ -38,7 +38,7 @@ CLASS MiningGuild : CardFront<Class<CorporationCard>> {
   Tile<MarsArea(HAS PlacementBonus<Class<Metal>>)>: PROD[Steel]
 }
 
-CLASS Phobolog : CardFront<Class<CorporationCard>> {
+CLASS PhoboLog : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This:: SpaceTag<This>
