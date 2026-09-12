@@ -129,8 +129,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   areas and add placement rules.
 - Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
   with the canonical card.
-- Complete the unsupported Milestones & Awards goals: Hydrologist and Thawer's player-attributed
-  global-parameter steps, and the Turmoil-dependent Lobbyist and Politician rules.
+- Replace FakeThawer's persistent temperature credits with credits that also account for
+  global events reducing temperature.
 - Simplify `LiveEffect` actor binding by threading a binding context through subscription matching
   instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
 - Separate `Instructor`'s resolution-only capability from execution so `Changer`, `Effector`, and

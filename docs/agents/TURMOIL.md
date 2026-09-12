@@ -73,6 +73,11 @@ friendly ranking express both tie rules without custom Kotlin or a mirrored nume
 
 ## Influence and government
 
+`Terraformer26` is supplied by the Turmoil bundle; other Terraformer versions remain selectable.
+`Lobbyist` counts owned party delegates and the chairman, without double-counting party-leader roles.
+The modular `Politician` award refreshes influence from the final political position during its
+ordinary award measurement. It does not run a Global Event or form a new government.
+
 Influence is a fresh, generational snapshot measured immediately before the Current event. A player
 can receive at most one each from:
 
