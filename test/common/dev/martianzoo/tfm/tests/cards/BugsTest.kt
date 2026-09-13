@@ -17,7 +17,9 @@ internal class BugsTest : CardTest() {
     admin.phase("Prelude")
     p1.runOperation("9 MC, ProjectCard, PreludeCard")
 
-    p1.playPrelude(EcologyExperts) { p1.playProject(ViralEnhancers, 9) }
+    with(p1) {
+      playPrelude(EcologyExperts) { playProject(ViralEnhancers, 9) }
+    }
 
     p1.assertCounts(1 to "Plant")
   }
@@ -28,7 +30,11 @@ internal class BugsTest : CardTest() {
     admin.phase("Prelude")
     p1.runOperation("12 MC, ProjectCard, PreludeCard, GreeneryTile<Tharsis_4_4>")
 
-    p1.playPrelude(EcologyExperts) { p1.playProject(EcologicalZone, 12) { placeTile(4, 5) } }
+    with(p1) {
+      playPrelude(EcologyExperts) {
+        playProject(EcologicalZone, 12) { placeTile(4, 5) }
+      }
+    }
 
     p1.assertCounts(2 to "Animal<$EcologicalZone>")
   }

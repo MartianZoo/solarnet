@@ -79,11 +79,15 @@ internal class Prelude2CardsTest : CardTest() {
     admin.phase("Action")
     p1.runOperation("13 MC, PreludeCard, ProjectCard, $BoardOfDirectors, $SkyDocks")
 
-    p1.cardAction1(BoardOfDirectors) {
-          doTask("-12 MC")
-          p1.playPrelude(EcologyExperts) { p1.playProject(DustSeals, 1) }
-        }
-        .expect("-13 MC")
+    with(p1) {
+      cardAction1(BoardOfDirectors) {
+            doTask("-12 MC")
+            playPrelude(EcologyExperts) {
+              playProject(DustSeals, 1)
+            }
+          }
+          .expect("-13 MC")
+    }
 
     p1.assertCounts(1 to "$EcologyExperts", 1 to "$DustSeals")
   }

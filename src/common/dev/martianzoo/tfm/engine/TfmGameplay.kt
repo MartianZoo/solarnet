@@ -112,13 +112,6 @@ public class TfmGameplay(
   private fun InstructionTree.gains(className: ClassName): Boolean =
       descendantsOfType<Change>().any { it.gaining?.className == className }
 
-  /** Whether this instruction offers `UseAction` against a provider of class [provider]. */
-  private fun InstructionTree.offersAction(provider: ClassName): Boolean =
-      descendantsOfType<Change>().any { change ->
-        change.gaining?.className == cn("UseAction") &&
-            change.gaining!!.arguments.any { it.className == provider }
-      }
-
   private fun Expression?.isSelectedProjectCard(): Boolean =
       this != null &&
           className == cn("ProjectCard") &&
@@ -284,7 +277,9 @@ public class TfmGameplay(
       payment: OperationBlock = { pay(mc, steel, titanium, plants, energy, heat) },
       body: OperationBlock = {},
   ): TaskResult {
-    return inTurn { playProjectWithinOperation(cardName, payment, body) }
+    return stdAction("PlayCardFromHandAction", payment = {}) {
+      playProjectWithinOperation(cardName, payment, body)
+    }
   }
 
   public fun OperationScope.playProject(
@@ -306,9 +301,6 @@ public class TfmGameplay(
       payment: OperationBlock,
       body: OperationBlock,
   ) {
-    if (tasks.matching { it.instruction.offersAction(cn("StandardAction")) }.any()) {
-      doTask("UseAction<PlayCardFromHandAction, Action1>")
-    }
     doTask("PlayCard<Class<ProjectCard>, Class<$cardName>, Hand>")
 
     payment()
