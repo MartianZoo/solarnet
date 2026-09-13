@@ -159,12 +159,14 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
   public fun isSupertypeOf(that: Type): Boolean = that.isSubtypeOf(this)
 
   /**
-   * The greatest lower bound of this type and [that], or null when it is absent ([rule
+   * Combines this type's constraints with [that]'s when their root classes are comparable, or
+   * returns null when they cannot be combined without selecting a third root class ([rule
    * T7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds)).
    *
    * @throws IllegalArgumentException if [that] belongs to another universe (rule T1-2).
    */
-  public infix fun glb(that: Type): GroundType? = groundType glb that.groundType
+  public infix fun intersect(that: Type): GroundType? =
+      groundType.intersectGroundType(that.groundType)
 
   /**
    * Enumerates every concrete narrowing in the master universe, following

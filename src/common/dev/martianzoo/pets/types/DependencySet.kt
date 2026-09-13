@@ -165,14 +165,10 @@ private constructor(
    */
   public fun isSupertypeOf(that: DependencySet): Boolean = that.isSubtypeOf(this)
 
-  /**
-   * Intersects corresponding keyed bounds, returning null if any shared bound has no intersection,
-   * as required by
-   * [rule T7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds).
-   */
-  public infix fun glb(that: DependencySet): DependencySet? {
+  /** Intersects corresponding keyed bounds, returning null if any roots are incomparable. */
+  internal infix fun intersect(that: DependencySet): DependencySet? {
     requireSameClassTable(that)
-    return merge(that) { a, b -> (a glb b) ?: return@glb null }
+    return merge(that) { a, b -> (a intersect b) ?: return@intersect null }
   }
 
   /**

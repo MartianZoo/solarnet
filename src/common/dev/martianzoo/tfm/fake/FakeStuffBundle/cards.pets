@@ -21,7 +21,7 @@ CLASS FakeAppliedScience : ActionCard, ResourceCard<Class<Science>, Class<Prelud
 
   This: FakeWildTag<This>, 6 Science<This>
 
-  Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource
+  Science<This> -> CardResource<ResourceCard(HAS CardResource)> OR StandardResource
 }
 
 CLASS FakeNobelPrize : CardFront<Class<PreludeCard>> {

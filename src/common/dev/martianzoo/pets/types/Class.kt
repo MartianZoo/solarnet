@@ -61,7 +61,6 @@ internal constructor(
      */
     public val directSuperclasses: List<Class> = superclasses(declaration, loader, activateRelated),
 ) : HasClassName, Specification<Class> {
-
   /**
    * The master universe containing this class, as required by
    * [rule T1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
@@ -231,20 +230,12 @@ internal constructor(
     abstractSupertypeBits = bits
   }
 
-  /**
-   * Returns the unique greatest common subclass with [that], or null when absent, following
-   * [rule T2-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
-   *
-   * @throws IllegalArgumentException if [that] belongs to another universe (rule T1-2).
-   */
-  public infix fun glb(that: Class): Class? =
+  /** Returns the narrower operand, or null when neither class narrows the other. */
+  internal infix fun intersect(that: Class): Class? =
       when {
         this.isSubtypeOf(that) -> this
         that.isSubtypeOf(this) -> that
-        else -> {
-          val lowerBounds = loader.allSubclassesOf(this).filter(that::isSupertypeOf)
-          lowerBounds.singleOrNull { candidate -> lowerBounds.all(candidate::isSupertypeOf) }
-        }
+        else -> null
       }
 
   /**
@@ -374,7 +365,7 @@ internal constructor(
     // common narrowing are an error.
     inherited.reduceOrNull { left, right ->
       left.merge(right) { a, b ->
-        (a glb b)
+        (a intersect b)
             ?: throw PetException("$className inherits incompatible bounds for ${a.key}: $a and $b")
       }
     } ?: DependencySet.of()
@@ -446,7 +437,7 @@ internal constructor(
       dependencyEqualities().forEach { equality ->
         val occurrences = equality.paths.map(dependencies::at)
         val intersection = occurrences.reduce { left, right ->
-          (left glb right) ?: equalityError(equality, dependencies)
+          (left intersect right) ?: equalityError(equality, dependencies)
         }
         equality.paths.forEach { path ->
           if (dependencies.at(path) != intersection) {
@@ -828,7 +819,7 @@ internal constructor(
       "expected keys ${dependencies.keys}, got $deps"
     }
     val bounded =
-        requireNotNull(dependencies glb projected) {
+        requireNotNull(dependencies intersect projected) {
           "$deps does not satisfy the declared dependency bounds of $className"
         }
     return GroundType(this, normalizeVariableEqualities(bounded))

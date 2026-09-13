@@ -49,8 +49,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   dependency to that candidate without repeating its complete expression.
 - Give Pets a real structural conjunction, spelled something like `Tile(IS Owned)`, and retire the
   nominal `OwnedTile` class once `Landlord` and the other owned-tile rules can name the intersection
-  directly. Until then a broad active projection checks the nominal relationship; cover every legal
-  configuration family systematically so a mutually exclusive option cannot evade it.
+  directly. Until then a master-universe Canon test checks the nominal `OwnedOccupant` and
+  `OwnedTile` relationships without depending on one active configuration.
 - Decide whether compact Type expressions must be globally shortest. They currently remove each
   individually redundant argument, including T3-8 duplicates, without the subset search needed to
   prove a global minimum; search only equality-related arguments if exact minimality becomes useful.
@@ -67,7 +67,7 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   log, player data, and eight later screenshots; keep every new checkpoint independently sourced.
 - Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `agent`,
   `tfm-canon`, and `script` APIs.
-- Profile and reduce type-system allocation in `Type.glb`, `narrows`, and repeated
+- Profile and reduce type-system allocation in `Type.intersect`, `narrows`, and repeated
   dependency/refinement construction without risking correctness.
 - Let `CustomMetric` optionally provide candidate-selection hooks so `EACH` refinements such as
   tile adjacency can avoid evaluating the metric against every live component.

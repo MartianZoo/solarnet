@@ -353,7 +353,7 @@ public abstract class ClassTable {
     val unrefined = type.copy(refinement = null)
     val candidates =
         subclasses(type.rootClass).asSequence().filterNot(Class::abstract).flatMap { klass ->
-          val dependencies = unrefined.dependencies glb klass.dependencies
+          val dependencies = unrefined.dependencies intersect klass.dependencies
           if (dependencies == null) {
             emptySequence()
           } else {
@@ -412,7 +412,7 @@ public abstract class ClassTable {
         allSubclasses(type.rootClass)
             .asSequence()
             .filterNot(Class::abstract)
-            .mapNotNull { klass -> unrefined glb klass.baseType }
+            .mapNotNull { klass -> unrefined intersect klass.baseType }
             .take(2)
             .singleOrNull() ?: return null
     val dependencies = intersection.dependencies.singleConcreteSubtype(info, this) ?: return null

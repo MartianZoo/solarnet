@@ -3,7 +3,7 @@ package dev.martianzoo.pets.types
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-/** Section 7 of `docs/type-system-spec.md`: greatest lower bounds of types. */
+/** Section 7 of `docs/type-system-spec.md`: intersection of type constraints. */
 internal class Spec07BoundsTest {
 
   private val mars =
@@ -46,41 +46,41 @@ internal class Spec07BoundsTest {
           "Owned<Player1>",
       )
 
-  // T7-1 Greatest lower bound
+  // T7-1 Constraint intersection
 
   @Test
-  internal fun `T7-1 glb of comparable types is the narrower one`() {
-    (type("Tharsis_2_2") glb type("LandArea")) shouldBe type("Tharsis_2_2")
-    (type("GreeneryTile") glb type("Tile")) shouldBe type("GreeneryTile")
-    (type("GreeneryTile") glb type("GreeneryTile")) shouldBe type("GreeneryTile")
+  internal fun `T7-1 intersection of comparable types uses the narrower root`() {
+    (type("Tharsis_2_2") intersect type("LandArea")) shouldBe type("Tharsis_2_2")
+    (type("GreeneryTile") intersect type("Tile")) shouldBe type("GreeneryTile")
+    (type("GreeneryTile") intersect type("GreeneryTile")) shouldBe type("GreeneryTile")
   }
 
   @Test
-  internal fun `T7-1 glb intersects the root classes and every dependency`() {
-    (type("Tile<Tharsis_2_2>") glb type("Owned<Player1>")) shouldBe
-        type("OwnedTile<Tharsis_2_2, Player1>")
-    (type("Occupant<LandArea>") glb type("Tile<Tharsis_2_2>")) shouldBe type("Tile<Tharsis_2_2>")
-    (type("GreeneryTile<Tharsis_2_2>") glb type("GreeneryTile<Player1>")) shouldBe
+  internal fun `T7-1 intersection combines dependencies after selecting a comparable root`() {
+    (type("Occupant<LandArea>") intersect type("Tile<Tharsis_2_2>")) shouldBe
+        type("Tile<Tharsis_2_2>")
+    (type("GreeneryTile<Tharsis_2_2>") intersect type("GreeneryTile<Player1>")) shouldBe
         type("GreeneryTile<Tharsis_2_2, Player1>")
   }
 
   @Test
-  internal fun `T7-1 glb is absent when the classes have no unique common subclass`() {
-    (type("GreeneryTile") glb type("OceanTile")) shouldBe null
-    (type("LandArea") glb type("WaterArea")) shouldBe null
+  internal fun `T7-1 intersection does not infer a third root class`() {
+    (type("Tile<Tharsis_2_2>") intersect type("Owned<Player1>")) shouldBe null
+    (type("GreeneryTile") intersect type("OceanTile")) shouldBe null
+    (type("LandArea") intersect type("WaterArea")) shouldBe null
   }
 
   @Test
-  internal fun `T7-1 glb is absent when one dependency pair has no common narrowing`() {
-    (type("Tile<Tharsis_2_2>") glb type("Tile<Tharsis_2_3>")) shouldBe null
-    (type("GreeneryTile<Player1>") glb type("GreeneryTile<Player2>")) shouldBe null
+  internal fun `T7-1 intersection is absent when one dependency pair is incomparable`() {
+    (type("Tile<Tharsis_2_2>") intersect type("Tile<Tharsis_2_3>")) shouldBe null
+    (type("GreeneryTile<Player1>") intersect type("GreeneryTile<Player2>")) shouldBe null
   }
 
   @Test
-  internal fun `T7-1 when glb exists it narrows both operands`() {
+  internal fun `T7-1 an intersection narrows both operands`() {
     sample.forEach { a ->
       sample.forEach { b ->
-        val bound = type(a) glb type(b)
+        val bound = type(a) intersect type(b)
         if (bound != null) {
           bound.isSubtypeOf(type(a)) shouldBe true
           bound.isSubtypeOf(type(b)) shouldBe true
@@ -90,21 +90,7 @@ internal class Spec07BoundsTest {
   }
 
   @Test
-  internal fun `T7-1 when glb exists it is the greatest such type in the sample`() {
-    sample.forEach { a ->
-      sample.forEach { b ->
-        val bound = type(a) glb type(b)
-        sample.forEach { c ->
-          if (type(c).isSubtypeOf(type(a)) && type(c).isSubtypeOf(type(b))) {
-            (bound != null && type(c).isSubtypeOf(bound)) shouldBe true
-          }
-        }
-      }
-    }
-  }
-
-  @Test
-  internal fun `T7-1 the selected class contributes all of its declared dependency bounds`() {
+  internal fun `T7-1 intersection does not select a common descendant with extra dependencies`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Area",
@@ -116,36 +102,30 @@ internal class Spec07BoundsTest {
             "CLASS Both<Owner> : Left<LandArea>, Right",
         )
 
-    val intersection = table.resolve(te("Left")) glb table.resolve(te("Right"))
-    intersection shouldBe table.resolve(te("Both"))
-    table.resolve(intersection!!.expression) shouldBe intersection
-    table.resolve(intersection.expressionFull) shouldBe intersection
-    intersection.isSubtypeOf(table.resolve(te("Left"))) shouldBe true
-    intersection.isSubtypeOf(table.resolve(te("Right"))) shouldBe true
-
-    (table.resolve(te("Left<Water1>")) glb table.resolve(te("Right"))) shouldBe null
+    (table.resolve(te("Left")) intersect table.resolve(te("Right"))) shouldBe null
+    (table.resolve(te("Left<Water1>")) intersect table.resolve(te("Right"))) shouldBe null
   }
 
   // T7-2 Algebraic shape
 
   @Test
-  internal fun `T7-2 glb is idempotent`() {
+  internal fun `T7-2 intersection is idempotent`() {
     sample.forEach { a ->
-      (type(a) glb type(a)) shouldBe type(a)
+      (type(a) intersect type(a)) shouldBe type(a)
     }
   }
 
   @Test
-  internal fun `T7-2 glb is commutative`() {
+  internal fun `T7-2 intersection is commutative`() {
     sample.forEach { a ->
       sample.forEach { b ->
-        (type(a) glb type(b)) shouldBe (type(b) glb type(a))
+        (type(a) intersect type(b)) shouldBe (type(b) intersect type(a))
       }
     }
   }
 
   @Test
-  internal fun `T7-2 glb is commutative for refinement conjunctions`() {
+  internal fun `T7-2 intersection is commutative for refinement conjunctions`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Area { CLASS Tharsis_2_2 }",
@@ -155,9 +135,9 @@ internal class Spec07BoundsTest {
     val left = table.resolve(te("Area(HAS Neighbor)"))
     val right = table.resolve(te("Area(HAS Marker)"))
 
-    "${(left glb right)}" shouldBe "Area(HAS Neighbor, HAS Marker)"
-    "${(right glb left)}" shouldBe "Area(HAS Marker, HAS Neighbor)"
-    (left glb right) shouldBe (right glb left)
+    "${(left intersect right)}" shouldBe "Area(HAS Neighbor, HAS Marker)"
+    "${(right intersect left)}" shouldBe "Area(HAS Marker, HAS Neighbor)"
+    (left intersect right) shouldBe (right intersect left)
   }
 
   // T7-3 Universe safety
@@ -166,6 +146,6 @@ internal class Spec07BoundsTest {
   internal fun `T7-3 bounds across universes are rejected rather than answered`() {
     val other = loadTypes("ABSTRACT CLASS Area { CLASS Tharsis_2_2 }")
 
-    shouldThrowIae { type("Tharsis_2_2") glb other.resolve(te("Area")) }
+    shouldThrowIae { type("Tharsis_2_2") intersect other.resolve(te("Area")) }
   }
 }

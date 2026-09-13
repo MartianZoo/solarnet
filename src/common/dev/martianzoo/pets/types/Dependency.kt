@@ -50,12 +50,8 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
    */
   public fun isSupertypeOf(that: Dependency): Boolean = that.isSubtypeOf(this)
 
-  /**
-   * Returns the greatest lower bound with [that], or null when absent, by componentwise bound
-   * intersection ([rule
-   * T7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds)).
-   */
-  public abstract infix fun glb(that: Dependency): Dependency?
+  /** Combines this bound with [that], or returns null when their roots are incomparable. */
+  internal abstract infix fun intersect(that: Dependency): Dependency?
 
   /**
    * The stable identity of a dependency: the class that introduced it and its zero-based slot in
@@ -165,16 +161,16 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
      * Intersects [boundType] with [that]'s bound, following
      * [rule T7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds).
      */
-    override fun glb(that: Dependency): Dependency? {
+    override fun intersect(that: Dependency): Dependency? {
       if (that !is TypeDependency) return null
-      return (boundType glb boundOf(that))?.let { copy(boundType = it) }
+      return (boundType intersect boundOf(that))?.let { copy(boundType = it) }
     }
 
     internal inline fun map(function: (GroundType) -> GroundType) =
         copy(boundType = function(boundType))
 
     override fun intersect(expression: Expression, classTable: ClassTable): Dependency? {
-      return glb(copy(boundType = classTable.resolve(expression)))
+      return intersect(copy(boundType = classTable.resolve(expression)))
     }
 
     /**
@@ -222,9 +218,9 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
 
     override fun isSubtypeOf(that: Dependency) = boundClass.isSubtypeOf(boundOf(that))
 
-    override fun glb(that: Dependency): FakeDependency? {
+    override fun intersect(that: Dependency): FakeDependency? {
       if (that !is FakeDependency) return null
-      return (boundClass glb boundOf(that))?.let(::copy)
+      return (boundClass intersect boundOf(that))?.let(::copy)
     }
 
     override fun ensureNarrows(that: Dependency, info: TypeInfo) =
@@ -241,7 +237,7 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
     ): FakeDependency? {
       if (!expression.simple) return null
       val klass = classTable.getClass(expression.className)
-      return glb(FakeDependency(klass))
+      return intersect(FakeDependency(klass))
     }
   }
 
