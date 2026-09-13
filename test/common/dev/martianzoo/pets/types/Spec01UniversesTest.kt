@@ -53,7 +53,7 @@ internal class Spec01UniversesTest {
 
     shouldThrowIae { leftArea.isSubtypeOf(rightArea) }
     shouldThrowIae { leftTile.isSubtypeOf(rightTile) }
-    shouldThrowIae { leftTile intersect rightTile }
+    shouldThrowIae { left.glb(leftTile, rightTile) }
     shouldThrowIae { leftTile.narrows(rightTile, NoGameState) }
     shouldThrowIae { left.getClass(cn("GreeneryTile")).withAllDependencies(rightTile.dependencies) }
     shouldThrowIae { left.allSubclasses(rightArea) }

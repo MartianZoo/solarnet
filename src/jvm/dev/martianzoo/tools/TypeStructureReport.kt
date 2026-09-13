@@ -528,7 +528,7 @@ private object TypeStructureReport {
               .allSubclasses(type.rootClass)
               .asSequence()
               .filterNot(PetsClass::abstract)
-              .mapNotNull { concreteClass -> type intersect concreteClass.baseType }
+              .mapNotNull { concreteClass -> table.glb(type, concreteClass.baseType) }
               .fold(BigInteger.ZERO) { total, concreteType -> total + countSameClass(concreteType) }
         }
   }

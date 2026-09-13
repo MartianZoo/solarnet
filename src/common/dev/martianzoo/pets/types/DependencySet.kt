@@ -165,12 +165,6 @@ private constructor(
    */
   public fun isSupertypeOf(that: DependencySet): Boolean = that.isSubtypeOf(this)
 
-  /** Intersects corresponding keyed bounds, returning null if any roots are incomparable. */
-  internal infix fun intersect(that: DependencySet): DependencySet? {
-    requireSameClassTable(that)
-    return merge(that) { a, b -> (a intersect b) ?: return@intersect null }
-  }
-
   /**
    * Asserts componentwise contextual covariance against [that], forwarding [info] to refinements
    * under

@@ -108,7 +108,7 @@
           "name": "CeosFavoriteProject",
           "cost": 1,
           "tags": [ "EventTag" ],
-          "immediate": "CardResource<ResourceCard(HAS CardResource)>",
+          "immediate": "CardResource<CardFront(HAS CardResource)>",
         },
         {
           "name": "CommercialDistrict",
@@ -498,10 +498,7 @@
           "name": "ViralEnhancers",
           "cost": 9,
           "tags": [ "ScienceTag", "MicrobeTag" ],
-          "effects": [
-            "BioTag<CardFront(NOT ResourceCard)>: Plant",
-            "BioTag<ResourceCard>: Plant OR CardResource<ResourceCard>!",
-          ],
+          "effects": [ "BioTag<CardFront>: Plant OR CardResource<CardFront>!" ],
         },
         {
           "name": "Virus",
