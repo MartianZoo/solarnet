@@ -12,27 +12,34 @@ import dev.martianzoo.pets.ast.Effect.Trigger.SelfTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.Transform
 import dev.martianzoo.pets.ast.Effect.Trigger.XTrigger
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement.Has
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.Requirement
 
 /** Proves facts that follow only from exact counts and uninhabited expression domains. */
 internal class InhabitanceInterpreter(
-    private val classIsUninhabited: (ClassName) -> Boolean,
+    private val classDomainIsEmpty: (ClassName) -> Boolean,
     private val exactCount: (Expression) -> Int? = { null },
 ) {
   internal fun expressionIsUninhabited(expression: Expression): Boolean {
     if (expression.className == THIS) return false
-    if (classIsUninhabited(expression.className)) return true
-    return expression.arguments.any(::expressionIsUninhabited)
+    if (classDomainIsEmpty(expression.className)) return true
+    if (expression.arguments.any(::expressionIsUninhabited)) return true
+    return expression.refinement?.conjuncts()?.filterIsInstance<Has>()?.any {
+      requirementIsFalse(it.requirement)
+    } == true
   }
 
   internal fun requirementIsFalse(requirement: Requirement): Boolean =
       truthOf(requirement) == Truth.FALSE
 
   internal fun metricIsExactlyZero(metric: Metric): Boolean =
-      metric is Count &&
-          (exactCount(metric.expression) == 0 || expressionIsUninhabited(metric.expression))
+      when (metric) {
+        is Count -> exactCount(metric.expression) == 0 || expressionIsUninhabited(metric.expression)
+        is Metric.Or -> metric.metrics.all(::metricIsExactlyZero)
+        else -> false
+      }
 
   internal fun triggerIsReachable(trigger: Trigger): Boolean =
       when (trigger) {
@@ -48,16 +55,17 @@ internal class InhabitanceInterpreter(
 
   private fun truthOf(requirement: Requirement): Truth =
       when (requirement) {
-        is Requirement.Counting if requirement.metric is Count -> {
-          val expression = requirement.metric.expression
-          val count = exactCount(expression) ?: 0.takeIf { expressionIsUninhabited(expression) }
+        is Requirement.Counting -> {
+          val metric = requirement.metric
+          val count =
+              (metric as? Count)?.let { exactCount(it.expression) }
+                  ?: 0.takeIf { metricIsExactlyZero(metric) }
           when {
             count == null -> Truth.UNKNOWN
             count in requirement.range -> Truth.TRUE
             else -> Truth.FALSE
           }
         }
-        is Requirement.Counting -> Truth.UNKNOWN
         is Requirement.And -> truthOfAll(requirement.requirements.map(::truthOf))
         is Requirement.Or -> truthOfAny(requirement.requirements.map(::truthOf))
         is Requirement.Eval,

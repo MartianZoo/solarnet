@@ -11,11 +11,15 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 
-/** Exact premise checks whose proofs depend only on uninhabited Types. */
+/** Exact premise checks whose proofs depend only on empty active type domains. */
 internal object PremiseViability {
   fun validate(table: ClassTable, selectedClassNames: Set<ClassName>) {
     val interpreter =
-        InhabitanceInterpreter(classIsUninhabited = { className -> !table.isActive(className) })
+        InhabitanceInterpreter(
+            classDomainIsEmpty = { className ->
+              table.allConcreteSubtypes(table.getClass(className).baseType).none()
+            }
+        )
     selectedClassNames.forEach { className ->
       val declaration = table.getClass(className).declaration
       (declaration.properties[REQUIREMENT_PROPERTY] as? RequirementValue)?.let { property ->

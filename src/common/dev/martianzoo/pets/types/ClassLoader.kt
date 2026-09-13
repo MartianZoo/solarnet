@@ -270,7 +270,7 @@ private constructor(
   ): Set<ClassName> = buildSet {
     val interpreter =
         InhabitanceInterpreter(
-            classIsUninhabited = { it !in activeNames },
+            classDomainIsEmpty = { it !in activeNames },
             exactCount = ::configuredCount,
         )
 
