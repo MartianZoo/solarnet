@@ -1143,12 +1143,10 @@ Binding it substitutes at every occurrence at once:
 | Effect | the trigger; the instruction |
 | Action | the cost; the result |
 | `THEN` sequence | each stage |
-| Transmutation (`A FROM B`) | the gained side; the removed side; a whole root participates only when its spelling also occurs properly inside the other side |
+| Transmutation (`A FROM B`) | the gained side; the removed side — but *not* the two whole roots |
 
 The transmutation exception matters: the source and destination of `A FROM B` are meant to differ, so
-matching roots alone do not assert equality. Matching a root with a proper subexpression in the
-other role does: `Receipt<Class<X>> FROM X` requires the receipt and source to name the same kind of
-`X`. In
+only repeated *proper subexpressions* assert equality. In
 `Production<Class<X>> FROM Production<Class<X>>` the shared variable is `Class<X>`, not the whole
 production.
 

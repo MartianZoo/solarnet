@@ -46,7 +46,6 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.ast.withTypeVariables
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Defaults
@@ -491,30 +490,21 @@ public class PetElaborator(public val classTable: ClassTable) {
 
       // Rule L12-8: the two halves of `A FROM B` are defaulted independently, and where the
       // transmutation writes no quantifier, the two halves' defaults are intersected.
-      private fun handleTransmute(source: Transmute): Transmute {
-        val gainDefault = defaultFor(source.gaining, { it.gainOnly }, gain = true)
-        val removeDefault = defaultFor(source.removing, { it.removeOnly }, gain = false)
+      private fun handleTransmute(node: Transmute): Transmute {
+        val gainDefault = defaultFor(node.gaining, { it.gainOnly }, gain = true)
+        val removeDefault = defaultFor(node.removing, { it.removeOnly }, gain = false)
         val quantifier =
-            source.quantifier
+            node.quantifier
                 ?: intersectQuantifiers(gainDefault?.quantifier, removeDefault?.quantifier)
-        val gaining = applyDefault(source.gaining, gainDefault, context, gain = true)
-        val removing = applyDefault(source.removing, removeDefault, context, gain = false)
-        val defaultedRoots =
-            object : PetTransformer() {
-              override fun transformNode(node: PetNode): PetNode =
-                  when {
-                    node === source.gaining -> gaining
-                    node === source.removing -> removing
-                    else -> transformChildren(node)
-                  }
-            }
 
         return Transmute(
-                Full(gaining, removing),
-                source.count,
-                quantifier,
-            )
-            .withTypeVariables(source.typeVariables.transformedBy(defaultedRoots))
+            Full(
+                applyDefault(node.gaining, gainDefault, context, gain = true),
+                applyDefault(node.removing, removeDefault, context, gain = false),
+            ),
+            node.count,
+            quantifier,
+        )
       }
 
       private fun defaultFor(

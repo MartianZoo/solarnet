@@ -25,7 +25,6 @@ import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.tfm.canon.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
@@ -161,10 +160,8 @@ object TestHelpers {
   fun TfmGameplay.assertCounts(vararg pairs: Pair<Int, String>) =
       pairs.map { this.count(it.second) } shouldBe pairs.map { it.first }
 
-  fun TfmGameplay.assertProds(vararg pairs: Pair<Int, String>) {
-    val productionLevels = lookUpProductionLevels(reader, actor.expression)
-    pairs.map { productionLevels.getValue(cn(it.second)) } shouldBe pairs.map { it.first }
-  }
+  fun TfmGameplay.assertProds(vararg pairs: Pair<Int, String>) =
+      pairs.map { production(cn(it.second)) } shouldBe pairs.map { it.first }
 
   fun assertNetChanges(
       result: TaskResult,

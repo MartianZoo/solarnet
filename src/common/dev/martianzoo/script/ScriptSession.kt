@@ -149,7 +149,6 @@ public class ScriptSession(
             ?: game.actors.filterIsInstance<Player>().firstOrNull()
             ?: throw UsageException("the game has no participating Player")
     val tfm = agents.tfm(player)
-    val productionLevels = ApiUtils.lookUpProductionLevels(game.reader, player)
 
     fun countIfLoaded(type: String): Int =
         try {
@@ -194,7 +193,7 @@ public class ScriptSession(
               PlayerResourceSnapshot(
                   name = displayName,
                   stock = countIfLoaded(type),
-                  production = productionLevels.getValue(cn(type)),
+                  production = tfm.production(cn(type)),
               )
             },
         tags =

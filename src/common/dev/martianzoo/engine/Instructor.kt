@@ -312,8 +312,6 @@ internal constructor(
         if (!canRemove) return unavailable("max possible is 0")
       }
       // Still abstract, don't check limits yet
-      // Linked choices cannot be narrowed independently without losing their shared identity.
-      if (!change.typeVariables.isEmpty) return change
       return Change.change(g?.expression, r?.expression, count, intens)
     }
 

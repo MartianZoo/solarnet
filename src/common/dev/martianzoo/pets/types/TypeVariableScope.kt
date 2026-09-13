@@ -12,7 +12,6 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Dependency.TypeDependency
-import dev.martianzoo.pets.types.DependencySet.DependencyPath
 import dev.martianzoo.pets.types.TypeVariable.Occurrence
 import dev.martianzoo.pets.types.TypeVariable.Site
 
@@ -150,73 +149,6 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     collect(wide, narrow)
   }
 
-  /** Exact values supplied for [variable] through one transmutation choice [region]. */
-  internal fun normalizedBindingsFrom(
-      authored: Expression,
-      general: GroundType,
-      specific: GroundType,
-      variable: TypeVariable,
-      region: Int,
-      info: TypeInfo,
-  ): List<GroundType> {
-    val classTable = (info as? GameReader)?.classTable ?: variable.bound.classTable
-    return occurrenceBindingsFrom(authored, general, specific, classTable, region)
-        .filter { (occurrence) -> occurrence.typeVariable === variable }
-        .map { (occurrence, captured) ->
-          normalizeBinding(occurrence, captured, classTable)
-        }
-        .distinct()
-  }
-
-  private fun normalizeBinding(
-      occurrence: Occurrence,
-      captured: GroundType,
-      classTable: ClassTable,
-  ): GroundType {
-    val current =
-        classTable.resolve(
-            entries
-                .single { it.variable === occurrence.typeVariable }
-                .currentExpressions
-                .getValue(occurrence)
-        )
-    val changedPaths = changedDependencyPaths(occurrence.groundType, current)
-    if (changedPaths.isEmpty()) return captured.inTable(classTable)
-
-    val baseline = captured.rootClass.baseType.inTable(classTable)
-    var dependencies = captured.dependencies
-    for (path in changedPaths) {
-      dependencies = dependencies.replaceAt(path, baseline.dependencies.at(path))
-    }
-    return captured.rootClass
-        .withAllDependencies(dependencies)
-        .inTable(classTable)
-        .refine(captured.refinement)
-  }
-
-  private fun changedDependencyPaths(
-      authored: GroundType,
-      current: GroundType,
-  ): Set<DependencyPath> = buildSet {
-    for (key in authored.dependencies.keys) {
-      val before = authored.dependencies.get(key)
-      val after = current.dependencies.getIfPresent(key) ?: continue
-      if (before == after) continue
-      if (
-          before is TypeDependency &&
-              after is TypeDependency &&
-              before.boundType.rootClass == after.boundType.rootClass &&
-              before.boundType.refinement == after.boundType.refinement
-      ) {
-        changedDependencyPaths(before.boundType, after.boundType).forEach {
-          add(it.prepend(key))
-        }
-      } else {
-        add(DependencyPath(key))
-      }
-    }
-  }
-
   /** Ground Types supplied for [variable] by narrowing expressions inside [proposed]. */
   internal fun bindingsIn(
       proposed: PetNode,
@@ -250,41 +182,28 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
           requireNotNull(general.classTable.commonTable(specific.classTable)) {
             "$general and $specific belong to unrelated class tables"
           },
-  ): Map<TypeVariable, GroundType> =
-      occurrenceBindingsFrom(authored, general, specific, classTable)
-          .groupBy({ (occurrence) -> occurrence.typeVariable }, { (_, captured) -> captured })
-          .mapValues { (variable, values) ->
-            values.distinct().singleOrNull()
-                ?: error("Type variable $variable has conflicting captures: ${values.distinct()}")
-          }
-
-  private fun occurrenceBindingsFrom(
-      authored: Expression,
-      general: GroundType,
-      specific: GroundType,
-      classTable: ClassTable,
-      region: Int? = null,
-  ): List<Pair<Occurrence, GroundType>> {
-    val captures = mutableListOf<Pair<Occurrence, GroundType>>()
+  ): Map<TypeVariable, GroundType> {
+    val captures = mutableMapOf<TypeVariable, MutableList<GroundType>>()
 
     fun record(expression: Expression, captured: GroundType) {
-      val eligible = entries.flatMap { entry ->
-        entry.currentExpressions
-            .filterKeys { occurrence ->
-              region == null || occurrence.region == region
-            }
-            .entries
+      entries.forEach { entry ->
+        if (
+            entry.currentExpressions.values.any { it === expression } ||
+                entry.currentExpressions.keys.any { it.expression == expression }
+        ) {
+          captures.getOrPut(entry.variable, ::mutableListOf) += captured
+        }
       }
-      val identical = eligible.filter { (occurrence, current) ->
-        current === expression || occurrence.expression === expression
+      if (
+          entries.none { entry ->
+            entry.currentExpressions.values.any { it === expression } ||
+                entry.currentExpressions.keys.any { it.expression == expression }
+          }
+      ) {
+        val matching = entries.filter { entry -> expression in entry.currentExpressions.values }
+        if (matching.size == 1)
+            captures.getOrPut(matching.single().variable, ::mutableListOf) += captured
       }
-      val matching =
-          if (identical.isNotEmpty()) identical
-          else
-              eligible.filter { (occurrence, current) ->
-                current == expression || occurrence.expression == expression
-              }
-      matching.forEach { (occurrence) -> captures += occurrence to captured }
     }
 
     fun walk(expression: Expression, wide: GroundType, narrow: GroundType) {
@@ -312,7 +231,10 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     }
 
     walk(authored, general, specific)
-    return captures
+    return captures.mapValues { (variable, values) ->
+      values.distinct().singleOrNull()
+          ?: error("Type variable $variable has conflicting captures: ${values.distinct()}")
+    }
   }
 
   /**
@@ -417,7 +339,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     fun infer(
         regions: List<PetNode>,
         classTable: ClassTable,
-        regionRootsRequireProperMatch: Boolean = false,
+        includeRegionRoots: Boolean = true,
         explicitDeclarations: List<Expression> = emptyList(),
         visibleScope: TypeVariableScope = EMPTY,
     ): TypeVariableScope {
@@ -428,7 +350,6 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
           val ancestors: Set<Expression>,
           val inRequirement: Boolean,
           val directlyCounted: Boolean,
-          val regionRoot: Boolean,
       )
 
       var ordinal = 0
@@ -443,7 +364,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         ) {
           val expression = node as? Expression
           val nextAncestors = expression?.let { ancestors + it } ?: ancestors
-          if (expression != null) {
+          if (expression != null && (includeRegionRoots || !regionRoot)) {
             add(
                 Found(
                     expression,
@@ -452,7 +373,6 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
                     ancestors,
                     inRequirement,
                     directlyCounted,
-                    regionRoot,
                 )
             )
           }
@@ -511,21 +431,8 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         Entry(variable, variable.occurrences.associateWith { it.expression })
       }
 
-      val properExpressionRegions =
-          occurrences
-              .filterNot(Found::regionRoot)
-              .groupBy({ it.expression.toString() }, Found::region)
-      val eligibleOccurrences =
-          if (!regionRootsRequireProperMatch) occurrences
-          else
-              occurrences.filter { found ->
-                !found.regionRoot ||
-                    properExpressionRegions[found.expression.toString()].orEmpty().any {
-                      it != found.region
-                    }
-              }
       val grouped =
-          eligibleOccurrences
+          occurrences
               .filterNot(Found::directlyCounted)
               .filterNot { found ->
                 explicitIdentities.any(found.expression::sameAuthoredTypeExpressionAs)

@@ -5,7 +5,6 @@ import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.script.ScriptSession
-import dev.martianzoo.tfm.canon.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.engine.TfmGameplay
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -149,13 +148,12 @@ internal class StinaScriptTest {
   }
 
   private fun TfmGameplay.assertProduction(m: Int, s: Int, t: Int, p: Int, e: Int, h: Int) {
-    val levels = lookUpProductionLevels(reader, actor.expression)
-    assertEquals(m, levels.getValue(cn("MC")), "MC production")
-    assertEquals(s, levels.getValue(cn("Steel")), "Steel production")
-    assertEquals(t, levels.getValue(cn("Titanium")), "Titanium production")
-    assertEquals(p, levels.getValue(cn("Plant")), "Plant production")
-    assertEquals(e, levels.getValue(cn("Energy")), "Energy production")
-    assertEquals(h, levels.getValue(cn("Heat")), "Heat production")
+    assertEquals(m, production(cn("MC")), "MC production")
+    assertEquals(s, production(cn("Steel")), "Steel production")
+    assertEquals(t, production(cn("Titanium")), "Titanium production")
+    assertEquals(p, production(cn("Plant")), "Plant production")
+    assertEquals(e, production(cn("Energy")), "Energy production")
+    assertEquals(h, production(cn("Heat")), "Heat production")
   }
 
   private fun Agent.assertTags(

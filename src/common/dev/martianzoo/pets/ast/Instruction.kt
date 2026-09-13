@@ -27,8 +27,6 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
-import dev.martianzoo.pets.types.GroundType
-import dev.martianzoo.pets.types.TypeVariable
 import dev.martianzoo.pets.util.invoke
 import dev.martianzoo.pets.util.toSetStrict
 
@@ -270,8 +268,7 @@ public sealed class Instruction : InstructionTree() {
 
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(scalar, fromEx)
 
-    override fun scale(factor: Int): Instruction =
-        copy(scalar = scalar * factor).withTypeVariables(typeVariables)
+    override fun scale(factor: Int): Instruction = copy(scalar = scalar * factor)
 
     override fun toString(): String {
       val scalText = if (scalar == ActualScalar(1)) "" else "$scalar "
@@ -299,22 +296,8 @@ public sealed class Instruction : InstructionTree() {
             info.isAbstract(variables.expressionOf(it.declaration))
           }) {
         val bindings =
-            variables.normalizedBindingsFrom(
-                gaining,
-                resolve(gaining, variable, info),
-                resolve(proposed.gaining, variable, info),
-                variable,
-                region = 0,
-                info,
-            ) +
-                variables.normalizedBindingsFrom(
-                    removing,
-                    resolve(removing, variable, info),
-                    resolve(proposed.removing, variable, info),
-                    variable,
-                    region = 1,
-                    info,
-                )
+            variables.bindings(gaining, proposed.gaining, variable) +
+                variables.bindings(removing, proposed.removing, variable)
         if (bindings.distinct().size > 1) {
           throw NarrowingException(
               "Can't set Type variable $variable differently: ${bindings.toSet()}"
@@ -322,15 +305,6 @@ public sealed class Instruction : InstructionTree() {
         }
       }
     }
-
-    private fun resolve(
-        expression: Expression,
-        variable: TypeVariable,
-        info: TypeInfo,
-    ): GroundType =
-        ((info as? GameReader)?.resolve(expression)
-                ?: variable.bound.classTable.resolve(expression))
-            .groundType
   }
 
   /**
