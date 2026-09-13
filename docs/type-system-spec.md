@@ -120,20 +120,20 @@ stops the caller at the bug.
 
 **T1-3. Resolution is a function of the written expression and table.** `ClassTable.resolve` maps
 an `Expression` to a type. A game delegates master-only expressions to its master except when a
-structural refinement must account for premise subclasses. Within one table, the same expression
-always yields the identical object; different spellings of one type yield *equal* types that need
-not be identical:
+structural refinement must account for premise subclasses. Within one table, repeated
+resolution of the same expression and different spellings of one type yield equal types:
 
 ```text
 GreeneryTile<Area>  and  GreeneryTile   →  equal types
-GreeneryTile        and  GreeneryTile   →  the identical object
+GreeneryTile        and  GreeneryTile   →  equal types
 ```
 
-A type's own renderings (T5-4, T5-5) always resolve back to it.
+A type's own renderings (T5-4, T5-5) always resolve to a type equal to it. Reference identity is not
+part of the contract.
 
-> **Non-normative implementation note — identity is only a cache promise.** Engine code may safely
-> memoize work by the exact expression it resolved. It must still use equality for synonymous
-> spellings such as `GreeneryTile` and `GreeneryTile<Area>`; no gameplay rule distinguishes them.
+> **Non-normative implementation note — caching is not semantics.** An implementation may cache or
+> intern resolved types, but callers must use equality. No gameplay rule distinguishes synonymous
+> spellings such as `GreeneryTile` and `GreeneryTile<Area>`.
 
 **T1-4. `Component` is the root.** Every universe contains an abstract class `Component` with no
 supertypes and no dependencies. Every other class has it as a supertype.

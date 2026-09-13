@@ -74,22 +74,15 @@ internal class Spec01UniversesTest {
   // T1-3 Resolution is a function of the expression
 
   @Test
-  internal fun `T1-3 one expression always resolves to the identical type object`() {
+  internal fun `T1-3 repeated and synonymous resolutions are equal`() {
     val table = loadTypes("ABSTRACT CLASS Area", "CLASS GreeneryTile<Area>")
 
-    (table.resolve(te("GreeneryTile")) === table.resolve(te("GreeneryTile"))) shouldBe true
-  }
-
-  @Test
-  internal fun `T1-3 different spellings of one type are equal but need not be identical`() {
-    val table = loadTypes("ABSTRACT CLASS Area", "CLASS GreeneryTile<Area>")
-
+    table.resolve(te("GreeneryTile")) shouldBe table.resolve(te("GreeneryTile"))
     table.resolve(te("GreeneryTile<Area>")) shouldBe table.resolve(te("GreeneryTile"))
-    (table.resolve(te("GreeneryTile<Area>")) === table.resolve(te("GreeneryTile"))) shouldBe false
   }
 
   @Test
-  internal fun `T1-3 a type's own renderings resolve back to it`() {
+  internal fun `T1-3 a type's own renderings resolve to an equal type`() {
     val table = loadTypes("ABSTRACT CLASS Area { CLASS Tharsis_2_2 }", "CLASS GreeneryTile<Area>")
     val tile = table.resolve(te("GreeneryTile<Tharsis_2_2>"))
 

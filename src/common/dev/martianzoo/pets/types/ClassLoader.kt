@@ -94,7 +94,7 @@ private constructor(
   }
 
   /**
-   * Resolves [expression] with stable identity and strict exact names under
+   * Resolves [expression] with strict exact names under
    * [rules T1-3 and T1-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    *
    * @throws ExpressionException if [expression] is invalid in this universe.
