@@ -34,7 +34,7 @@
         "MicrobeTag<Anyone>: 2 MC"
       ],
       "components": [
-        "CLASS Splicer<SpliceTacticalGenomics> { MicrobeTag<CardFront>: Microbe<CardFront> OR 2 MC }"
+        "CLASS Splicer<SpliceTacticalGenomics> { MicrobeTag<CardFront(NOT ResourceCard)>: 2 MC; MicrobeTag<ResourceCard>: Microbe<ResourceCard> OR 2 MC }"
       ],
     },
     {

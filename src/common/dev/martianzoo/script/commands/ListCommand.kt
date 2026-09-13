@@ -36,7 +36,7 @@ internal class ListCommand(private val repl: ScriptSession) : ScriptCommand("lis
     val directSubclassTypes: List<Type> =
         repl.game.classTable
             .directSubclasses(parentType.rootClass)
-            .map { (it.baseType glb parentType)!! }
+            .map { (it.baseType intersect parentType)!! }
             .ifEmpty { listOf(parentType) }
 
     val listing = HashMultiset<Type>()

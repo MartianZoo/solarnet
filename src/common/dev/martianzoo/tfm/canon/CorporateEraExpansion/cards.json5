@@ -226,7 +226,10 @@
       "projectKind": "ActiveCard",
       "cost": 9,
       "tags": [ "ScienceTag", "MicrobeTag" ],
-      "effects": [ "BioTag<CardFront>: Plant OR CardResource<CardFront>!" ],
+      "effects": [
+        "BioTag<CardFront(NOT ResourceCard)>: Plant",
+        "BioTag<ResourceCard>: Plant OR CardResource<ResourceCard>!",
+      ],
     },
     {
       "name": "QuantumExtractor",
@@ -448,7 +451,7 @@
       "deck": "ProjectCard",
       "projectKind": "EventCard",
       "cost": 1,
-      "immediate": "CardResource<CardFront(HAS CardResource)>",
+      "immediate": "CardResource<ResourceCard(HAS CardResource)>",
     },
     {
       "name": "AntiGravityTechnology",

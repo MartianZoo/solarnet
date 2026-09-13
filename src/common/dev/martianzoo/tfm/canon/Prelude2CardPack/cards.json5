@@ -289,7 +289,7 @@
       "projectKind": "ActiveCard",
       "cost": 9,
       "tags": [ "VenusTag" ],
-      "immediate": "2 Floater<CardFront(HAS VenusTag)>",
+      "immediate": "2 Floater<ResourceCard(HAS VenusTag)>",
       "actions": [
         "1 MC / (12 - VenusTag) -> VenusStep",
       ],

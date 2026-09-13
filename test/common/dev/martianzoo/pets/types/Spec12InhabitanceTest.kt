@@ -194,7 +194,7 @@ internal class Spec12InhabitanceTest {
       left.getClass(cn("LocalFeature")).isSubtypeOf(right.getClass(cn("LocalFeature")))
     }
     shouldThrowIae {
-      left.resolve(te("Holder<LocalFeature>")) glb right.resolve(te("Holder<LocalFeature>"))
+      left.resolve(te("Holder<LocalFeature>")) intersect right.resolve(te("Holder<LocalFeature>"))
     }
   }
 

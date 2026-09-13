@@ -176,26 +176,22 @@ internal constructor(
       variables: Iterable<TypeVariable>,
   ): Map<TypeVariable, GroundType> = rootClass.variableBindings(general.groundType, this, variables)
 
-  /**
-   * The greatest lower bound with [that], including the refinement rules, or null when absent
-   * ([rules T7-1 and
-   * T8-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds)).
-   */
+  /** Combines this ground type's constraints with [that]'s when their roots are comparable. */
   // TODO allocating 28 MB per solo game
-  override infix fun glb(that: Type): GroundType? {
-    val that = that.groundType
+  internal fun intersectGroundType(that: GroundType): GroundType? {
     val commonTable = requireSameClassTable(that)
-    val glbClass = (rootClass glb that.rootClass) ?: return null
-    val glbDeps = (dependencies glb that.dependencies) ?: return null
-    val glbRefin =
+    val intersectedClass = (rootClass intersect that.rootClass) ?: return null
+    val intersectedDependencies = (dependencies intersect that.dependencies) ?: return null
+    val intersectedRefinement =
         when {
           refinement == null -> that.refinement
           that.refinement == null -> refinement
           else -> Refinement.join(refinement, that.refinement)
         }
-    val completeDeps = (glbClass.dependencies glb glbDeps) ?: return null
-    val unrefined = glbClass.withAllDependencies(completeDeps).inTable(commonTable)
-    return unrefined.refine(glbRefin)
+    val completeDependencies =
+        (intersectedClass.dependencies intersect intersectedDependencies) ?: return null
+    val unrefined = intersectedClass.withAllDependencies(completeDependencies).inTable(commonTable)
+    return unrefined.refine(intersectedRefinement)
   }
 
   internal fun specialize(

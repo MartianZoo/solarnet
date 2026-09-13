@@ -215,7 +215,7 @@
       "cost": 9,
       "tags": [ "JovianTag" ],
       "actions": [
-        "-> Floater<CardFront(HAS JovianTag)>",
+        "-> Floater<ResourceCard(HAS JovianTag)>",
         "-> 1 MC / Floater<This> MAX 4"
       ],
       "effects": [ "End: VictoryPoint" ],
@@ -297,7 +297,7 @@
       "projectKind": "AutomatedCard",
       "cost": 25,
       "tags": [ "JovianTag", "SpaceTag" ],
-      "immediate": "2 TerraformRating, 2 Floater<CardFront(HAS JovianTag)>",
+      "immediate": "2 TerraformRating, 2 Floater<ResourceCard(HAS JovianTag)>",
       "effects": [ "End: VictoryPoint" ],
     },
     {
@@ -453,9 +453,9 @@
       "projectKind": "ActiveCard",
       "cost": 18,
       "tags": [ "JovianTag" ],
-      "immediate": "2 Floater<CardFront(HAS JovianTag)>",
+      "immediate": "2 Floater<ResourceCard(HAS JovianTag)>",
       "actions": [
-        "-> Floater<CardFront(HAS JovianTag)>",
+        "-> Floater<ResourceCard(HAS JovianTag)>",
         "Floater<This> -> Trade"
       ],
       "effects": [ "End: VictoryPoint" ],
@@ -467,7 +467,7 @@
       "cost": 23,
       "tags": [ "JovianTag", "SpaceTag" ],
       "actions": [
-        "-> 2 Floater<CardFront(HAS JovianTag)>",
+        "-> 2 Floater<ResourceCard(HAS JovianTag)>",
         "X Floater<This> -> X Titanium",
       ],
       "effects": [ "End: VictoryPoint" ],
