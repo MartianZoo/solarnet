@@ -60,6 +60,14 @@ internal class CustomMetricTest {
   }
 
   @Test
+  internal fun customMetricsMayEvaluateAnAbstractQueryDirectly() {
+    val p1 = Engine.newGame(customClassSetup()).testTfm(PLAYER1)
+
+    p1.count("AbstractAwareMetric<Player>") shouldBe 23
+    p1.count("AbstractAwareMetric<Player1>") shouldBe 17
+  }
+
+  @Test
   internal fun customMetricsOnlyEvaluateSpecializationsWhoseDependencyTargetsExist() {
     val p1 = Engine.newGame(customClassSetup()).testTfm(PLAYER1)
 
@@ -131,6 +139,15 @@ private object ConcreteOnlyMetric : CustomMetric() {
   }
 }
 
+private object AbstractAwareMetric : CustomMetric() {
+  override fun countAbstract(game: GameReader, type: Type): Int {
+    require(type.abstract)
+    return 23
+  }
+
+  override fun count(game: GameReader, type: Type): Int = 17
+}
+
 private object PlantCount : CustomMetric() {
   override fun count(game: GameReader, type: Type): Int {
     val player = type.expressionFull.arguments.single()
@@ -163,6 +180,7 @@ private object CustomClassDeclarations : TfmCatalog() {
               CLASS BothBehavior : Custom
               CLASS SplitBehavior : Custom
               CLASS ConcreteOnlyMetric<Player> : Custom
+              CLASS AbstractAwareMetric<Player> : Custom
               CLASS PlantCount<Player> : Custom
               CLASS TileMetric<Tile<MarsArea>> : Custom
               CLASS BrokenMetric : Custom
@@ -182,6 +200,7 @@ private object CustomClassDeclarations : TfmCatalog() {
           SplitInstructionImplementation.SplitBehavior,
           SplitMetricImplementation.SplitBehavior,
           ConcreteOnlyMetric,
+          AbstractAwareMetric,
           PlantCount,
           TileMetric,
           BrokenMetric,

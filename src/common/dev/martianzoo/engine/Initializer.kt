@@ -106,6 +106,25 @@ internal class Initializer(
               }
       )
     }
+
+    val liveTypes = reader.getComponents(classTable.componentClass.baseType).elements
+    val invalidLimits =
+        classTable.componentLimits
+            .requiredLimits(liveTypes)
+            .map { limit -> limit to reader.count(limit.type) }
+            .filter { (limit, count) -> count !in limit.range }
+            .sortedBy { (limit, _) -> limit.type.expressionFull.toString() }
+    if (invalidLimits.isNotEmpty()) {
+      throw invalidPetDefinition(
+          "Completed bootstrap violates required component counts: " +
+              invalidLimits.joinToString { (limit, count) ->
+                val expected =
+                    if (limit.range.first == limit.range.last) "${limit.range.first}"
+                    else "${limit.range}"
+                "${limit.type.expressionFull} (found $count, expected $expected)"
+              }
+      )
+    }
   }
 
   private fun createComponents(types: Collection<Type>, cause: Cause, description: String) {

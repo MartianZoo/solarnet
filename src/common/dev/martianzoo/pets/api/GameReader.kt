@@ -42,6 +42,9 @@ public interface GameReader : TypeInfo {
   /** Returns the types of all concrete components in the current world. */
   public fun getComponents(type: Type): Multiset<Type>
 
+  /** Returns the distinct component types that directly depend on [component]. */
+  public fun getDependents(component: Type): Set<Type>
+
   /** Returns the types of all concrete components matching the Pets type expression [type]. */
   public fun getComponents(type: String): Multiset<Type> = getComponents(resolve(parse(type)))
 }

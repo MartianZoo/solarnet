@@ -241,13 +241,15 @@ private constructor(
 
   private fun checkDependents(count: Int, removing: Component) {
     if (countComponent(removing) == count) {
-      dependentsByDependency[removing]?.let { dependents ->
-        if (dependents.isNotEmpty()) {
-          throw ExistingDependentsException(dependents.map { it.type })
-        }
+      val dependents = dependentsOf(removing)
+      if (dependents.isNotEmpty()) {
+        throw ExistingDependentsException(dependents.map { it.type })
       }
     }
   }
+
+  internal fun dependentsOf(component: Component): Set<Component> =
+      dependentsByDependency[component].orEmpty()
 
   private fun registerDependencies(dependent: Component) {
     dependent.type.typeDependencies.forEach { dependency ->

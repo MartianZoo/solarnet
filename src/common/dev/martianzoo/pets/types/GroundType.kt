@@ -500,7 +500,15 @@ internal constructor(
             val resolved = comparisonTable.resolve(node)
             val modded =
                 try {
-                  resolved.specialize(listOf(proposed), comparisonTable)
+                  resolved.rootClass
+                      .withAllDependencies(
+                          resolved.dependencies.specializeRefinementCandidate(
+                              proposed,
+                              comparisonTable,
+                          )
+                      )
+                      .inTable(comparisonTable)
+                      .refine(resolved.refinement)
                 } catch (e: ExpressionException) {
                   if (!ignoreUnmatched) throw e
                   resolved
