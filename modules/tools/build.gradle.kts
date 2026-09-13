@@ -42,6 +42,10 @@ application {
   applicationName = "solo-placement"
 }
 
+tasks.withType<Test>().configureEach {
+  systemProperty("solarnet.root", rootProject.layout.projectDirectory.asFile.absolutePath)
+}
+
 tasks.register<JavaExec>("typeStructureReport") {
   group = "application"
   description = "Reports encoding-relevant type statistics for an all-expansions five-player game."

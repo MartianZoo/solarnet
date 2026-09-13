@@ -17,7 +17,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       GameConfig(
           """
           CimmeriaMap
-          VenusNextExpansion, PreludeExpansion, Prelude2Expansion, PromoCardPack, TurmoilCardPack
+          VenusNextExpansion, PreludeExpansion, Prelude2Expansion, PromoCardPack, TerralabsResearch
           FakeStuffBundle
 
           Energizer, Farmer, Philantropist, Producer, RimSettler, Hoverlord
@@ -39,7 +39,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     // Farmer, Philanthropist, Producer, Rim Settler, Hoverlord; Magnate, Manufacturer,
     // Metropolist, Space Baron, Suburbian, Venuphile."
     // "Terralabs research. I get 14 money and spend all 10 of it. Then I lose a TR."
-    green.playCorp(TerraLabsResearch, 10).expect("4 MC, 10 ProjectCard, -TerraformRating")
+    green.playCorp(TerralabsResearch, 10).expect("4 MC, 10 ProjectCard, -TerraformRating")
     // 9:31:05 pm: "I can play Viron for 48 and I spend 15 on five cards."
     yellow.playCorp(Viron, 5).expect("33 MC")
 
@@ -427,7 +427,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
 
     green.assertCounts(
         14 to "ProjectCard",
-        1 to "$TerraLabsResearch",
+        1 to "$TerralabsResearch",
         1 to "$FakeHeadStart",
         1 to "$FocusedOrganization",
         1 to "$Advertising",

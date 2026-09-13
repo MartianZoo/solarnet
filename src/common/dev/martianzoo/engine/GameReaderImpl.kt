@@ -26,7 +26,7 @@ import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.HashMultiset
 
 internal class GameReaderImpl(
-    private val classTable: ClassTable,
+    override val classTable: ClassTable,
     private val components: ComponentGraph,
     internal val elaborator: PetElaborator,
     private val customClasses: CustomClassRuntime,
@@ -177,4 +177,10 @@ internal class GameReaderImpl(
       else components.countComponent(concreteType.toComponent(this))
 
   override fun getComponents(type: Type) = components.getAll(type, this).map { it.type }
+
+  override fun getDependents(component: Type): Set<Type> {
+    require(!component.abstract)
+    if (!classTable.isActive(component)) return emptySet()
+    return components.dependentsOf(component.toComponent(this)).mapTo(linkedSetOf()) { it.type }
+  }
 }

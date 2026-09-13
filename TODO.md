@@ -26,14 +26,14 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `db9302652`.
 - Review the committed `OverlayWorld` and query-performance work on branch `perf` before integrating
   selected changes into `main`.
-- Do not let `Engine.newGame` exit bootstrap until it has validated every invariant against the
-  completed World, including positive lower bounds and correctly scoped dependent-component
-  invariants.
 - Have the normal full application build stamp its output with the current Git commit and, when
   source changes are present, a stable hash of those changes. Include that stamp in every exported
   game record so a log identifies, or can later verify, the engine source that produced it.
 - Make tile placement over an owned `Community` an atomic transmutation, then enforce
   `HAS MAX 1 Occupant<This>` on every `Area` and remove card-level empty-area refinements.
+- Replace the duplicated `TemperatureStep BY Player`/`BY Admin` threshold-ocean triggers and the
+  synthetic `AdminOceanPlacement` signal with one rule that separates who chooses the tile from
+  whose action the placement is attributed to, shared by the standard and extended tracks.
 - Revisit causal ownership inside `BootstrapPhase`, moving initialization work under ordinary
   phase-caused tasks as soon as the required runtime state can express them.
 - Let refinements reference their candidate explicitly, so a selector can relate a nested
@@ -56,8 +56,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   considered an unsuccessful direction.
 - Complete `Game20260820Test` beyond its current partial generation-6 checkpoint using the preserved
   log, player data, and eight later screenshots; keep every new checkpoint independently sourced.
-- Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `tfm-canon`,
-  and `script` APIs.
+- Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `agent`,
+  `tfm-canon`, and `script` APIs.
 - Profile and reduce type-system allocation in `Type.glb`, `narrows`, and repeated
   dependency/refinement construction without risking correctness.
 - Let `CustomMetric` optionally provide candidate-selection hooks so `EACH` refinements such as
@@ -75,6 +75,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   not award it TR, and whether adding and then removing those steps has any other observable
   consequences.
 - Keep looking for a better representation of Splice Tactical Genomics.
+- Check whether Early Colonization's two `AdvanceColonyTracks` changes should be explicitly
+  mandatory.
 - **Low priority:** [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve
   hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
 - Model `StateChange` as a sealed gain/remove/transmute algebra so invalid nullable combinations are
@@ -128,8 +130,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   areas and add placement rules.
 - Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
   with the canonical card.
-- Complete the unsupported Milestones & Awards goals: Hydrologist and Thawer's player-attributed
-  global-parameter steps, and the Turmoil-dependent Lobbyist and Politician rules.
+- Complete the unsupported Milestones & Awards goals: Thawer's player-attributed temperature
+  steps, and the Turmoil-dependent Lobbyist and Politician rules.
 - Simplify `LiveEffect` actor binding by threading a binding context through subscription matching
   instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
 - Separate `Instructor`'s resolution-only capability from execution so `Changer`, `Effector`, and

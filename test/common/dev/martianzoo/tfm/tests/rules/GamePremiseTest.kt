@@ -21,6 +21,7 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.cards.cardnames.ColonizerTrainingCamp
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
@@ -55,6 +56,19 @@ internal class GamePremiseTest {
         .getClass(cn("Player1"))
         .isSubtypeOf(catalog.classTable.getClass(cn("Player"))) shouldBe true
     catalog.classTable.getClass(cn("Player6")).abstract shouldBe false
+  }
+
+  @Test
+  internal fun ordinaryPremisesReuseCanonAndOwnTheirGeneratedClasses() {
+    val premise = Canon.gamePremise(GameConfig("", "Player1", "Player2"))
+    val table = premise.classTable
+
+    assertSame(Canon, premise.catalog)
+    assertSame(Canon.classTable, premise.premiseClassTable.master)
+    assertSame(Canon.classTable.getClass(cn("Card")), table.getClass(cn("Card")))
+    Canon.classTable.findClass(cn("Player1")) shouldBe null
+    table.getClass(cn("Player1")).classTable shouldBe table
+    table.getClass(cn("Premise")).classTable shouldBe table
   }
 
   @Test
@@ -257,7 +271,7 @@ internal class GamePremiseTest {
         .filter { it.included && Canon.classTable.getClass(it.className).isSubtypeOf(award) }
         .size shouldBe 4
     goalSelections.mapTo(linkedSetOf(), ClassSelection::className) shouldBe
-        (milestone.allSubclasses() + award.allSubclasses())
+        (Canon.classTable.allSubclasses(milestone) + Canon.classTable.allSubclasses(award))
             .filterNot { it.abstract }
             .mapTo(linkedSetOf()) { it.className }
   }
@@ -288,12 +302,8 @@ internal class GamePremiseTest {
   internal fun soloModeDoesNotActivateDefaultGoalsOrMultiplayerGoalActions() {
     val table = Engine.newGame(Canon.gamePremise(GameConfig("", "Player1"))).classTable
 
-    Canon.classTable.getClass(cn("Milestone")).allSubclasses().none {
-      table.isActive(it.className)
-    } shouldBe true
-    Canon.classTable.getClass(cn("Award")).allSubclasses().none {
-      table.isActive(it.className)
-    } shouldBe true
+    table.allSubclasses(Canon.classTable.getClass(cn("Milestone"))).shouldBeEmpty()
+    table.allSubclasses(Canon.classTable.getClass(cn("Award"))).shouldBeEmpty()
     table.isActive(cn("ClaimMilestoneAction")) shouldBe false
     table.isActive(cn("FundAwardAction")) shouldBe false
 

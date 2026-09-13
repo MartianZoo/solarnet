@@ -6,6 +6,7 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Catalog
+import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.Multiset
 
@@ -16,6 +17,9 @@ public interface GameReader : TypeInfo {
 
   /** The Catalog used by the world. */
   public val catalog: Catalog
+
+  /** The complete class universe selected for this game. */
+  public val classTable: ClassTable
 
   /** Returns the type represented by the fully contextualized [expression]. */
   public fun resolve(expression: Expression): Type
@@ -37,6 +41,9 @@ public interface GameReader : TypeInfo {
 
   /** Returns the types of all concrete components in the current world. */
   public fun getComponents(type: Type): Multiset<Type>
+
+  /** Returns the distinct component types that directly depend on [component]. */
+  public fun getDependents(component: Type): Set<Type>
 
   /** Returns the types of all concrete components matching the Pets type expression [type]. */
   public fun getComponents(type: String): Multiset<Type> = getComponents(resolve(parse(type)))

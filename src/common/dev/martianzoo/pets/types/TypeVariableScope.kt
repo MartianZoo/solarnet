@@ -1,7 +1,9 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
@@ -128,7 +130,14 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     val sources = entries.single { it.variable === variable }.currentExpressions.values
 
     fun collect(wideNode: PetNode, narrowNode: PetNode) {
-      if (wideNode is Expression && wideNode in sources) {
+      if (
+          wideNode is Expression &&
+              sources.any { source ->
+                wideNode === source ||
+                    wideNode == source ||
+                    wideNode.isExpandedFrom(source, variable.bound.classTable)
+              }
+      ) {
         (narrowNode as? Expression)?.let(::add)
         return
       }
@@ -150,7 +159,11 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     return proposed
         .descendantsOfType<Expression>()
         .filter { it != declaration && it.narrows(variable.bound.expressionFull, info) }
-        .map { variable.bound.classTable.resolve(it) }
+        .map { expression ->
+          ((info as? GameReader)?.resolve(expression)
+                  ?: variable.bound.classTable.resolve(expression))
+              .groundType
+        }
         .distinct()
   }
 
@@ -165,6 +178,10 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
       authored: Expression,
       general: GroundType,
       specific: GroundType,
+      classTable: ClassTable =
+          requireNotNull(general.classTable.commonTable(specific.classTable)) {
+            "$general and $specific belong to unrelated class tables"
+          },
   ): Map<TypeVariable, GroundType> {
     val captures = mutableMapOf<TypeVariable, MutableList<GroundType>>()
 
@@ -203,7 +220,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         return
       }
 
-      val keys = wide.rootClass.matchDependencyKeys(expression.arguments)
+      val keys = wide.rootClass.matchDependencyKeys(expression.arguments, classTable)
       expression.arguments.zip(keys).forEach { (argument, key) ->
         val wideDependency = wide.dependencies.get(key)
         val narrowDependency = narrow.dependencies.getIfPresent(key) ?: return@forEach
@@ -226,7 +243,13 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
    * capture is consumed, exactly as specified by
    * [rule T13-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
-  public fun bind(bindings: Map<TypeVariable, GroundType>): PetTransformer {
+  public fun bind(
+      bindings: Map<TypeVariable, GroundType>,
+      classTable: ClassTable =
+          bindings.values.firstOrNull()?.classTable
+              ?: entries.firstOrNull()?.variable?.bound?.classTable
+              ?: error("an empty Type-variable scope has no class table"),
+  ): PetTransformer {
     val replacements = entries.flatMap { entry ->
       val replacement = bindings[entry.variable] ?: return@flatMap emptyList()
       val capturedRefinement =
@@ -241,19 +264,19 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
 
       val captured = replacement.consumeCapturedRefinement()
       entry.currentExpressions.flatMap { (occurrence, source) ->
-        val constraint = replacement.classTable.resolve(source)
+        val constraint = classTable.resolve(source)
         val occurrenceBinding =
             (captured glb constraint.consumeCapturedRefinement())
                 ?: throw NarrowingException(
                     "$replacement does not satisfy Type-variable occurrence $source"
                 )
-        val target = occurrence.expressionFor(occurrenceBinding, source)
+        val target = occurrence.expressionFor(occurrenceBinding, source, classTable)
         buildList {
           add(source to target)
           if (occurrence.expression != source) {
             runCatching {
                   occurrence.expression to
-                      occurrence.expressionFor(replacement, occurrence.expression)
+                      occurrence.expressionFor(replacement, occurrence.expression, classTable)
                 }
                 .getOrNull()
                 ?.let(::add)
@@ -264,28 +287,15 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     return BindingTransformer(
         bindings.keys,
         replacements,
-        entries.firstOrNull()?.variable?.bound?.classTable,
+        classTable,
     )
   }
 
   private class BindingTransformer(
       val boundVariables: Set<TypeVariable>,
       private val replacements: List<Pair<Expression, Expression>>,
-      private val classTable: ClassTable?,
+      private val classTable: ClassTable,
   ) : PetTransformer() {
-    private fun Expression.isExpandedFrom(source: Expression): Boolean {
-      if (className != source.className || refinement != source.refinement) {
-        return false
-      }
-      val klass = classTable?.getClass(className) ?: return false
-      val actualByKey =
-          arguments.zip(klass.matchDependencyKeys(arguments)).associate { it.second to it.first }
-      return source.arguments.zip(klass.matchDependencyKeys(source.arguments)).all { (argument, key)
-        ->
-        actualByKey[key] == argument
-      }
-    }
-
     override fun transformNode(node: PetNode): PetNode {
       if (node is Expression) {
         replacements
@@ -297,7 +307,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         if (equal.size == 1) return transformChildren(equal.single())
         val expanded =
             replacements
-                .filter { (source) -> node.isExpandedFrom(source) }
+                .filter { (source) -> node.isExpandedFrom(source, classTable) }
                 .map { it.second }
                 .distinct()
         if (expanded.size == 1) return transformChildren(expanded.single())
@@ -477,5 +487,24 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
       val allEntries = explicitEntries + entries
       return if (allEntries.isEmpty()) EMPTY else TypeVariableScope(allEntries)
     }
+  }
+}
+
+internal fun Expression.isExpandedFrom(source: Expression, classTable: ClassTable): Boolean {
+  if (className != source.className || refinement != source.refinement) {
+    return false
+  }
+  val klass = classTable.findClass(className) ?: return false
+  return try {
+    val actualByKey =
+        arguments.zip(klass.matchDependencyKeys(arguments, classTable)).associate {
+          it.second to it.first
+        }
+    source.arguments.zip(klass.matchDependencyKeys(source.arguments, classTable)).all {
+        (argument, key) ->
+      actualByKey[key] == argument
+    }
+  } catch (_: ExpressionException) {
+    false
   }
 }

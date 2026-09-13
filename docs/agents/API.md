@@ -153,10 +153,10 @@ one `Agents(world)`. That type is the unit every client passes: it holds the Wor
 Agent per Actor, so no API takes a World and its Agents as separate arguments that could disagree.
 Parsing, operation conveniences, policy state, and the shared legacy drain live in `:agent`.
 
-Test fixtures do not yet hold their `Agents`; `testAgents.kt` still caches one process-wide so a
-World's Agent identity survives repeated lookups. Engine tests also still depend upward on `:agent`
-and `:tfm-engine`, because they are integration tests written against the Agent API rather than
-independent engine tests. Both are accepted costs, not the target state.
+`TfmTest` fixtures hold the `Agents` for their current World. Standalone engine integration tests
+still use `testAgents.kt`'s one-World cache so a World's Agent identity survives repeated lookups.
+Those tests also depend upward on `:agent` and `:tfm-engine`, because they exercise the Agent API
+rather than the engine independently. These are accepted costs, not the target state.
 
 The current Agent is still fully permissive and exposes an unscoped `GameReader`, operation and
 turn conveniences, and ex-machina mutation. `AutoExecPolicy` is still the legacy three-value

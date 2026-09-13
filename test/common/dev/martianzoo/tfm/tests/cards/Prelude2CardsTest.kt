@@ -78,11 +78,15 @@ internal class Prelude2CardsTest : CardTest() {
     admin.phase("Action")
     p1.runOperation("13 MC, PreludeCard, ProjectCard, $BoardOfDirectors, $SkyDocks")
 
-    p1.cardAction1(BoardOfDirectors) {
-          doTask("-12 MC")
-          p1.playPrelude(EcologyExperts) { p1.playProject(DustSeals, 1) }
-        }
-        .expect("-13 MC")
+    with(p1) {
+      cardAction1(BoardOfDirectors) {
+            doTask("-12 MC")
+            playPrelude(EcologyExperts) {
+              playProject(DustSeals, 1)
+            }
+          }
+          .expect("-13 MC")
+    }
 
     p1.assertCounts(1 to "$EcologyExperts", 1 to "$DustSeals")
   }
@@ -135,10 +139,10 @@ internal class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  internal fun `EcoTec rewards both of its starting tags`() {
+  internal fun `Ecotec rewards both of its starting tags`() {
     newGame(Prelude2Expansion)
 
-    p1.runOperation("$EcoTec") {
+    p1.runOperation("$Ecotec") {
       doTask("Plant")
       doTask("Plant")
     }
@@ -218,8 +222,8 @@ internal class Prelude2CardsTest : CardTest() {
   @Test
   internal fun `Suitable Infrastructure pays once for each action`() {
     newGame(Prelude2Expansion)
-    admin.phase("Prelude")
     p1.runOperation("$SuitableInfrastructure")
+    admin.phase("Prelude")
     val beforeTwoProductions = p1.count("MC")
 
     p1.playPrelude(DomeFarming)
@@ -243,6 +247,19 @@ internal class Prelude2CardsTest : CardTest() {
     }
 
     p1.count("MC") shouldBe startingMoney - 18
+  }
+
+  @Test
+  internal fun `Suitable Infrastructure covers production inside required actions`() {
+    newGame(PreludeExpansion, Prelude2Expansion)
+    p1.runOperation("$SuitableInfrastructure, $ValleyTrust")
+    admin.phase("Action")
+    val startingMoney = p1.count("MC")
+
+    p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(DomeFarming) }
+
+    p1.assertProds(2 to "MC", 1 to "Plant")
+    p1.count("MC") shouldBe startingMoney + 2
   }
 
   @Test

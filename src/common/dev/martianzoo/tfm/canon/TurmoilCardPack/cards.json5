@@ -1,0 +1,40 @@
+{
+  "cards": [
+    {
+      "name": "LakefrontResorts",
+      "deck": "CorporationCard",
+      "tags": [ "BuildingTag" ],
+      "immediate": "54 MC",
+      "effects": [
+        "OceanTile BY Anyone: PROD[1 MC]",
+        "Placement<MarsArea>: 1 MC / Neighbor<OceanTile, MarsArea>"
+      ],
+    },
+    {
+      "name": "Pristar",
+      "deck": "CorporationCard",
+      "immediate": "53 MC, -2 TerraformRating",
+      "invariants": [ "Class<TrWatcher>" ],
+      "effects": [
+        "ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6 MC",
+        "End: VictoryPoint / Preservation<This>"
+      ],
+      "components": [
+        "CLASS Preservation : CardResource<ResourceHolder<Class<Preservation>>>"
+      ],
+    },
+    {
+      "name": "TerralabsResearch",
+      "deck": "CorporationCard",
+      "tags": [ "ScienceTag", "EarthTag" ],
+      "immediate": "14 MC, -TerraformRating",
+      "effects": [ "BuyCard:: -2 Owed<>" ],
+    },
+    {
+      "name": "UtopiaInvest",
+      "deck": "CorporationCard",
+      "immediate": "40 MC, PROD[Steel, Titanium]",
+      "actions": [ "PROD[StandardResource] -> 4 StandardResource" ],
+    },
+  ],
+}

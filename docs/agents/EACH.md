@@ -57,7 +57,7 @@ Thus `Player(HAS StartToken)` tests each concrete Player for their own StartToke
 Selector refinements decide participation using requirement semantics:
 
 ```pets
-EACH Player(HAS MAX 0 This<Anyone>) { PROD[-2 MC] BY Owner }
+EACH Player(NOT Owner) { PROD[-2 MC] BY Owner }
 ```
 
 An unmet gate inside the body fails normally; it does not omit that branch. `EACH` rejects a

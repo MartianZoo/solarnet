@@ -38,7 +38,8 @@ import dev.martianzoo.pets.util.toSetStrict
  * [section 2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
  *
  * This value compiles [declaration] into resolved supertypes, [dependencies], properties, defaults,
- * and a base type. Class identity is its name within [classTable], not declaration object identity.
+ * and a base type. The class loader constructs exactly one instance per name, so reference identity
+ * represents name identity within [classTable].
  */
 public class Class
 internal constructor(
@@ -51,11 +52,14 @@ internal constructor(
     /** The class loader used while constructing this class. */
     private val loader: ClassLoader,
 
+    /** Whether resolving this declaration's immediate hierarchy activates those Classes. */
+    activateRelated: Boolean = true,
+
     /**
      * The declared direct supertypes; empty only for the root class, under
      * [rules T1-4 and T2-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
      */
-    public val directSuperclasses: List<Class> = superclasses(declaration, loader),
+    public val directSuperclasses: List<Class> = superclasses(declaration, loader, activateRelated),
 ) : HasClassName, Specification<Class> {
 
   /**
@@ -238,7 +242,7 @@ internal constructor(
         this.isSubtypeOf(that) -> this
         that.isSubtypeOf(this) -> that
         else -> {
-          val lowerBounds = allSubclasses().filter(that::isSupertypeOf)
+          val lowerBounds = loader.allSubclassesOf(this).filter(that::isSupertypeOf)
           lowerBounds.singleOrNull { candidate -> lowerBounds.all(candidate::isSupertypeOf) }
         }
       }
@@ -263,7 +267,7 @@ internal constructor(
   public fun isSupertypeOf(that: Class): Boolean = that.isSubtypeOf(this)
 
   private fun requireSameClassTable(that: Class) {
-    require(classTable === that.classTable) {
+    require(classTable.commonTable(that.classTable) != null) {
       "$className and ${that.className} belong to different class tables"
     }
   }
@@ -302,19 +306,6 @@ internal constructor(
 
   internal fun properSuperclasses(): Set<Class> = allSuperclasses() - this
 
-  /**
-   * Every subclass in the frozen master universe, including this class, as specified by
-   * [rules T1-6 and T2-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
-   */
-  public fun allSubclasses(): Set<Class> = loader.allSubclassesOf(this)
-
-  /**
-   * The subclasses exactly one nominal step below this class in the frozen master universe ([rules
-   * T1-6 and
-   * T2-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes)).
-   */
-  public fun directSubclasses(): Set<Class> = loader.directSubclassesOf(this)
-
   // DEPENDENCIES
 
   /** The dependency positions whose values are bound to the inheriting class. */
@@ -323,7 +314,8 @@ internal constructor(
     val declared = sups.flatMap { sourceSupertype ->
       val superclass = loader.getClass(sourceSupertype.className)
       val arguments = sourceSupertype.arguments
-      val matched = superclass.dependencies.matchPartialInOrder(arguments.map(::replaceThis))
+      val matched =
+          superclass.dependencies.matchPartialInOrder(arguments.map(::replaceThis), loader)
       arguments.zip(matched).flatMap { (argument, dependency) ->
         selfBindingsIn(argument, dependency, listOf(dependency.key))
       }
@@ -344,7 +336,7 @@ internal constructor(
           is TypeDependency -> dependency.boundType.dependencies
           else -> return listOf()
         }
-    val matched = dependencies.matchPartialInOrder(expression.arguments.map(::replaceThis))
+    val matched = dependencies.matchPartialInOrder(expression.arguments.map(::replaceThis), loader)
     return expression.arguments.zip(matched).flatMap { (argument, nestedDependency) ->
       selfBindingsIn(argument, nestedDependency, path + nestedDependency.key)
     }
@@ -501,7 +493,7 @@ internal constructor(
         if (expression.arguments.isEmpty()) return
         val dependencySet = loader.load(expression.className).dependencies
         val arguments = expression.arguments.map(replacer(THIS, className)::transformExpression)
-        val matched = dependencySet.matchPartialInOrder(arguments)
+        val matched = dependencySet.matchPartialInOrder(arguments, loader)
         expression.arguments.zip(matched).forEach { (argument, dependency) ->
           val path = DependencyPath(prefix + dependency.key)
           if (eligible(argument)) add(HeaderOccurrence(argument, path, region, ordinal++))
@@ -878,7 +870,10 @@ internal constructor(
    * Applies authored [specs] to [baseType] using greedy dependency matching ([rules T3-5 and
    * T5-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies)).
    */
-  public fun specialize(specs: List<Expression>): GroundType = baseType.specialize(specs)
+  public fun specialize(specs: List<Expression>): GroundType = baseType.specialize(specs, loader)
+
+  internal fun specialize(specs: List<Expression>, classTable: ClassTable): GroundType =
+      baseType.specialize(specs, classTable)
 
   /**
    * Replays specialization and returns the dependency key matched by each authored argument, in the
@@ -886,7 +881,10 @@ internal constructor(
    * [rule T3-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
    */
   public fun matchDependencyKeys(specs: List<Expression>): List<Key> =
-      dependencies.matchPartialInOrder(specs).map(Dependency::key)
+      matchDependencyKeys(specs, loader)
+
+  internal fun matchDependencyKeys(specs: List<Expression>, classTable: ClassTable): List<Key> =
+      dependencies.matchPartialInOrder(specs, classTable).map(Dependency::key)
 
   /**
    * Returns the special *class type* for this class; for example, for the class `Resource` returns
@@ -916,19 +914,6 @@ internal constructor(
     get() = defaultsLazy.value
 
   /**
-   * Implements universe-scoped name identity from
-   * [rules T1-1 and T2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
-   */
-  override fun equals(other: Any?): Boolean =
-      other is Class && other.className == className && other.loader == loader
-
-  /**
-   * Hashes the universe-scoped name identity defined by
-   * [rules T1-1 and T2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
-   */
-  override fun hashCode(): Int = className.hashCode() xor loader.hashCode()
-
-  /**
    * Returns the canonical name required by
    * [rule T2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
    */
@@ -938,6 +923,7 @@ internal constructor(
     fun superclasses(
         declaration: ClassDeclaration,
         loader: ClassLoader,
+        activateRelated: Boolean,
     ): List<Class> {
       return declaration.supertypes
           .classNames()
@@ -950,7 +936,7 @@ internal constructor(
             }
           }
           .ifEmpty { listOf(COMPONENT) }
-          .map { loader.loadRelated(it, active = true) }
+          .map { loader.loadRelated(it, active = activateRelated) }
     }
   }
 }

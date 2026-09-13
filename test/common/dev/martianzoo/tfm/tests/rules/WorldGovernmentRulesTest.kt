@@ -78,4 +78,32 @@ internal class WorldGovernmentRulesTest : CardTest() {
 
     p1.count("TemperatureStep") shouldBe 1
   }
+
+  @Test
+  internal fun `first player places a standard-track threshold ocean for World Government`() {
+    newGame(GameConfig("WorldGovernmentRule", "Player1", "Player2"))
+    admin.runOperation("14 TemperatureStep")
+
+    TfmWorkflow.Stepwise(agents).solarPhase()
+    p1.doTask("TemperatureStep! BY Admin")
+    p1.doTask("OceanTile<Tharsis_1_2> BY Admin")
+
+    admin.count("TemperatureStep") shouldBe 15
+    admin.count("OceanTile<Tharsis_1_2>") shouldBe 1
+    p1.count("TerraformRating") shouldBe 20
+  }
+
+  @Test
+  internal fun `first player places an extended-track threshold ocean for World Government`() {
+    newGame(GameConfig("AmazonisMap, WorldGovernmentRule", "Player1", "Player2"))
+    admin.runOperation("14 TemperatureStep")
+
+    TfmWorkflow.Stepwise(agents).solarPhase()
+    p1.doTask("TemperatureStep! BY Admin")
+    p1.doTask("OceanTile<Amazonis_02_01> BY Admin")
+
+    admin.count("TemperatureStep") shouldBe 15
+    admin.count("OceanTile<Amazonis_02_01>") shouldBe 1
+    p1.count("TerraformRating") shouldBe 20
+  }
 }

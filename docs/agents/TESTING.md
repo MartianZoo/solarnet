@@ -110,10 +110,12 @@ retention.
 
 Normal Gradle access to the user-level cache and configuration under `~/.gradle` is permitted.
 For local wrapper builds, generated project state is isolated by account and worktree under
-`~/.gradle/solarnet-builds/`. This includes Gradle's project cache, Kotlin's persistent data, task
-outputs, and build-process temporary files. CI retains the conventional project-local paths so its
-artifact collection remains stable. Use `./gradlew` rather than a directly installed `gradle` so
-the checked-in isolation configuration is applied.
+`~/.gradle/solarnet-builds/`. Each invocation acquires an OS-locked storage slot there: sequential
+builds reuse slot zero and its caches, while overlapping invocations use distinct slots and cannot
+delete each other's test results or other task outputs. A slot includes Gradle's project cache,
+Kotlin's persistent data, task outputs, and build-process temporary files. CI retains the
+conventional project-local paths so its artifact collection remains stable. Use `./gradlew` rather
+than a directly installed `gradle` so the checked-in isolation configuration is applied.
 Yarn's incompatible `serialize-javascript` resolution warning and “Ignored scripts due to flag”
 warning are expected: the former comes from the deliberate 7.x security pin while Mocha requests
 6.x, and the latter preserves Kotlin/JS's policy of not running package lifecycle scripts.

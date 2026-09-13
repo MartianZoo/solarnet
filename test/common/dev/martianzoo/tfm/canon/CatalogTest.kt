@@ -21,6 +21,16 @@ internal class CatalogTest {
   }
 
   @Test
+  internal fun configuringPlayersRequiresAPlayerDeclaration() {
+    val failure =
+        shouldThrow<IllegalArgumentException> {
+          TfmCatalog().gamePremise(GameConfig("", "Player1"))
+        }
+
+    failure.message.orEmpty() shouldContain "Catalog without Player"
+  }
+
+  @Test
   internal fun specializedThisInvariantCanLimitOneConcreteClassAcrossOwners() {
     val table =
         catalog(

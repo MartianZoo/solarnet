@@ -41,8 +41,7 @@ Repeated sigils produce repeated effects. This preserves presentation codes such
 on the runtime Class without introducing separate display metadata; semantic bonus consumers
 combine the effects while discarding the no-ops.
 
-`./gradlew :tools:generateTfmPets` rewrites every generated `maps.pets` and `cards.pets`. For a
-non-mutating comparison, pass `-PtfmPetsOutput=PATH`. Map output retains each row exactly in a
-diagram comment, keeps each area declaration on one line, and separates declaration rows with a
-blank line. `GenerateCardPetsTest` checks byte-for-byte drift and confirms the generated map Class
-names match the expanded data.
+`./gradlew :tools:regenerateMapAreas` rewrites the generated `maps.pets`. Map output retains each
+row exactly in a diagram comment, keeps each area declaration on one line, and separates declaration
+rows with a blank line. Card Pets use the separate build-time pipeline described in
+[`OPTIONS.md`](OPTIONS.md#card-declarations-and-views).
