@@ -44,7 +44,7 @@ an otherwise surprising provision exists. They are evidence and orientation, not
 
 | Written | Means |
 | --- | --- |
-| `A <: B` | every A is a B; A *narrows* B |
+| `A <: B` | every A is a B; A is a context-free structural subtype of B |
 | `A ⊓ B` | the greatest lower bound (`glb`) of A and B: the most specific type below both |
 | `CLASS Foo` | Pets source for a class declaration |
 | `Foo<Bar>` | Pets source for a type expression |
@@ -242,6 +242,13 @@ that name.
 A type argument in Pets is not a conventional generic parameter. It is a **dependency**: an edge to
 one specific other component that must exist for this one to exist. `Plant<Player1>` needs
 `Player1`; `GreeneryTile<Tharsis_2_2, Player1>` needs both the area and the player.
+
+> **Non-normative design note — concrete Types are the values.** A world deliberately has no
+> occurrence identity or mutable instance fields: it is a multiset whose keys are concrete Types.
+> Thus `Player1` and `Tharsis_2_2` are values precisely by being concrete Types, while multiplicity
+> records how many indistinguishable occurrences of a value exist. A dependency can identify a
+> target only when that target Type is singleton (T3-9). This is a chosen boundary of the model, not
+> an attempt to simulate object references with incomplete identity.
 
 **T3-1. Keys.** Every dependency a class declares gets a **key**: the declaring class's name plus the
 zero-based slot, written `Occupant_0`, `Owned_0`, `Adjacency_1`. The key, not the position, is the
@@ -549,19 +556,22 @@ dependencies or narrowing can treat both uniformly through their resolved interp
 
 ## 6. Subtyping
 
-Narrowing is the central relation: "every component of type A is also of type B".
+Pets uses two related judgments. **Subtyping** is context-free: `A <: B` says every A is a B from
+the Types alone. **Narrowing** is contextual: it additionally asks whether A is an acceptable way to
+settle B in one world, including whether a concrete candidate satisfies B's `HAS` refinement. Every
+subtype is a narrowing; a narrowing that needs live-state evidence is not thereby a subtype.
 
-**T6-1. Two spellings of one test.** `narrows(that, info)` returns a boolean;
-`ensureNarrows(that, info)` throws `NarrowingException` with a reason. `isSubtypeOf` /
-`isSupertypeOf` are the world-free spellings; they pass a sentinel world that raises
-`IllegalStateException` if the comparison actually turns out to need one (T8-8).
+**T6-1. The two judgments.** `narrows(that, info)` answers contextual narrowing;
+`ensureNarrows(that, info)` is its throwing form. `isSubtypeOf` and `isSupertypeOf` answer
+context-free subtyping. They raise `IllegalStateException` rather than guess when a comparison asks
+for live-state evidence (T8-8).
 
 > **Non-normative implementation note — refusing a plausible lie.** A world-free comparison cannot
 > decide whether a concrete area satisfies `HAS Neighbor`. Throwing exposes a caller that chose the
 > structural API; returning false would incorrectly report a legal placement as impossible in some
 > worlds.
 
-**T6-2. The structural rule.** A narrows B when
+**T6-2. The shared structural rule.** A narrows B when
 
 1. A's root class is a subclass of B's root class, and
 2. for every dependency key B constrains, A's bound for that key narrows B's, and
@@ -593,14 +603,15 @@ with a world is a preorder, not an order.
 **T6-6. Constrained narrowing.** `ClassTable.matchesConstraint(candidate, constraint, domain, info)`
 asks whether a candidate satisfies a constraint expression *read inside a domain*. The constraint is
 first intersected with the domain, then the candidate is tested against the result. This is how a
-trigger's `BY` selector is applied: with domain `Actor`, the constraint `Player` accepts `Player1`
-and rejects `Admin`, and `Actor(NOT Player1)` accepts both `Player2` and `Admin`. A constraint that
-cannot meet the domain at all simply answers false.
+trigger's `BY` selector other than the unrestricted `Anyone` is applied: with domain `Actor`, the
+constraint `Player` accepts `Player1` and rejects `Admin`, and `Actor(NOT Player1)` accepts both
+`Player2` and `Admin`. A constraint that cannot meet the domain at all simply answers false.
 
-> **Non-normative example — Aphrodite.** Its trigger says `VenusStep BY Anyone`. Reading `Anyone`
-> inside the `Actor` domain means any player who performed the increase, not any component that falls
-> under the broad ownership hierarchy; the domain turns the convenient spelling into an actor
-> constraint.
+> **Non-normative example — actor constraints.** A `BY Player` trigger uses this judgment to accept a
+> Player and reject Admin. `BY Anyone` is instead the icon-grammar spelling for removing the usual
+> Actor restriction altogether, so Aphrodite also reacts to a World Government increase performed by
+> Admin. That wildcard is handled before constrained narrowing; it is not the ownership class
+> `Anyone` intersected with `Actor`.
 
 ---
 
@@ -1066,8 +1077,9 @@ written.
 A variable's identity is its declaration and scope — never its class name. `Player` can name several
 unrelated variables in different rules.
 
-There are two ways a variable comes into being: a class header declares one (T13-2 to T13-5), or one is
-inferred from repetition in authored syntax (T13-6 to T13-9).
+There are two sources of a shared choice: a class header declares one (T13-2 to T13-5), or authored
+syntax repeats one across places that must agree (T13-6 to T13-9). A trigger supplies the concrete
+value when it matches; `BY` is one place that value can come from.
 
 ### Class-header variables
 
@@ -1157,8 +1169,18 @@ production.
 > destination would be forced to the same track and the card would cancel itself; only repeated
 > proper subexpressions are equality claims.
 
-**T13-8. What does not declare a variable.** These prevent a *declaration*; they never hide a use of a
-variable declared in an enclosing scope.
+> **Non-normative design note — regions are choice sites.** Repetition is meaningful because the
+> physical icon grammar commonly repeats one icon to mean “the same one.” Regions identify the
+> independently settled parts of a rule across which that co-reference matters: trigger and result,
+> cost and result, or successive stages. Repetition inside one observational query instead ranges
+> over matching components and does not select one. The exclusions in T13-8 preserve that semantic
+> boundary; they are not a general claim that equal-looking syntax always binds. Requiring the same
+> authored spelling also keeps co-reference visible in the source: resolution and default insertion
+> cannot silently make two differently written icons become one shared choice.
+
+**T13-8. Where repetition does not introduce another variable.** Repetition is evidence of one
+shared choice only where the occurrences can be settled by that choice. The cases below introduce no
+additional variable; they never hide a use of a variable already declared in an enclosing scope.
 
 | Repetition | Why not |
 | --- | --- |
@@ -1175,10 +1197,17 @@ variable declared in an enclosing scope.
 > of it. Conversely, `EACH Class<GlobalParameter>` owns an explicit fanout variable so its body uses
 > the particular track selected for that iteration.
 
-**T13-9. Actor selectors.** A simple, positive, abstract Actor expression after `BY` declares a
-variable *even with no repetition* — that is how a triggered rule learns who acted. `BY Anyone` is an
-unrestricted filter, and a refined selector such as `BY Player(NOT Owner)` is a filter too; neither
-binds.
+**T13-9. Actor specialization.** A `BY` selector constrains the Actor recorded on the triggering
+event. A simple, positive, abstract Actor expression in that position is specialized to the concrete
+Actor before the inner trigger is matched. It is the declaration occurrence for every identical
+authored occurrence in that Effect, including occurrences elsewhere in the trigger and in the
+instruction. If there is no other occurrence, recording that declaration has no additional language
+meaning: the selector simply tests the Actor.
+
+Other selectors do not become declarations merely because they follow `BY`. `BY Anyone` alone is the
+unrestricted wildcard described after T6-6, and a refined selector alone is a constraint. If an
+identical refined selector is repeated across the trigger and instruction, the ordinary co-reference
+rule T13-6 applies. Repeated `Anyone` is deliberately unspecified (Appendix B).
 
 Where an actor variable is visible, an exclusion may use it, and the difference is tested only after
 the actor is bound:
@@ -1192,10 +1221,17 @@ Binding `Player` to `Player1` gives
 `Owner(NOT Player1)` is itself a variable that may then capture a particular other player. This keeps
 "anyone but the actor" distinct from "the particular other player this event was about".
 
-> **Non-normative examples — Aphrodite and Hydrologist.** Aphrodite says `VenusStep BY Anyone` only
-> to filter the event; its owner receives the money. `HydrologistWatcher` says `OceanTile BY Player`
-> because the actual placer must be captured as the owner of `OceanCredit`. Treating both selectors
-> as variables—or neither—breaks one of the two rules.
+> **Non-normative examples — Hydrologist and Aphrodite.** Hydrologist says
+> `OceanTile BY Player: OceanCredit<Player, OceanTile>`. When Player 2 places an ocean, ordinary
+> trigger specialization supplies `Player2` for both `Player` occurrences, so the credit belongs to
+> the placer. Aphrodite says `VenusStep BY Anyone: 2 MC`; it repeats no `Anyone`, so the wildcard only
+> removes the Actor restriction and the money retains Aphrodite's contextual owner.
+
+> **Non-normative design note — `BY` uses ordinary trigger specialization.** `BY` does not introduce
+> a separate kind of co-reference. It identifies the event field that supplies the value, and the
+> ordinary authored-occurrence rules identify where that value is reused. Specializing it before the
+> inner trigger matters when the Actor is mentioned in a `NOT` there. With no reuse, whether an
+> implementation records a one-occurrence variable is bookkeeping rather than language semantics.
 
 ### Binding
 
@@ -1240,3 +1276,7 @@ One behavior contradicts the rules above. It has a passing characterization in
 - **Exception messages.** Rules name exception *types* where the type is part of the contract.
 - **Evaluation order and caching.** Resolution memoizes, and several derived values are computed
   lazily; neither is observable except through T1-6.
+- **A repeated `Anyone` Actor selector.** `BY Anyone` alone is an unrestricted wildcard and includes
+  Admin. `Anyone` elsewhere is the root of the ownership hierarchy, which does not include Admin.
+  No canonical rule repeats `Anyone` across a `BY` selector and its instruction, and this
+  specification does not yet choose how such an occurrence would capture a non-Owner Actor.

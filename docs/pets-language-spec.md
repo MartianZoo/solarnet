@@ -56,6 +56,15 @@ Temporality is part of that subject matter rather than an artifact of any machin
 that the change A denotes happens before the change B denotes; `EACH Player { Plant }` quantifies
 over the players present in one state, exactly as a metric counts them.
 
+> **Non-normative design note — Pets follows the game’s icon grammar.** Pets is not trying to make
+> Terraforming Mars look like a conventional programming language. Its primary notation is the
+> game’s own: nouns are component types, juxtaposed counts scale them, repeated icons can identify one
+> repeated choice, and omitted context can mean what the physical component leaves implicit. Explicit
+> machinery is added where the game needs a distinction, not merely because a general-purpose
+> language would normally spell it. The standard to apply is therefore whether the compact notation
+> has one coherent elaborated meaning and remains faithful to the game, not whether it resembles a
+> familiar term language.
+
 ### What this document does not cover
 
 Two neighbours are deliberately out of scope.
@@ -531,6 +540,13 @@ nothing left in it is `Ok`.
 > for different heat payouts, or choose `Ok` and do nothing. Treating `Ok` as a physical component
 > would leave a meaningless token behind instead of representing the legitimate no-change arm.
 
+> **Non-normative design note — identity and impossibility.** Instructions denote relations between
+> states, so they need both an identity relation and an impossible relation. `Ok` is the identity:
+> composing with it changes nothing. `Die` (L12-14) is the impossible relation: it has no legal
+> after-state. Giving both ordinary Pets names lets choices and rewrites retain the icon grammar
+> instead of introducing a separate control-flow notation; neither denotes a component that can
+> remain in a world.
+
 **L6-5. `I / M` scales a change by a metric's value.** `Titanium / 3 EarthTag` grants one titanium
 per three complete Earth tags. Only an elementary change may be scaled this way.
 
@@ -766,8 +782,10 @@ a gain of any number of plants with the same number of heat. A removal is writte
 > `This` would combine a one-time setup event with repeatable world events that scale differently.
 
 **L8-7. `BY` restricts a trigger by actor and `IF` by state.** Precedence, tightest first: `OR`,
-`BY`, `IF`. Parentheses give one alternative its own qualifier. A `BY` selector is an expression, so
-`BY Player(NOT Owner)` is a filter and `BY Player` may declare an actor variable (T13-9).
+`BY`, `IF`. Parentheses give one alternative its own qualifier. A `BY` selector is an expression
+specialized by the Actor recorded on the event: `BY Player` can supply that concrete Player to other
+matching occurrences, `BY Player(NOT Owner)` tests the Actor and participates in ordinary repeated-
+expression linking, and `BY Anyone` removes the Actor restriction (T13-9).
 
 > **Non-normative example — Lakefront Resorts.** `OceanTile BY Anyone: PROD[1 MC]` pays its owner
 > whenever any player places an ocean. The actor qualifier belongs to the trigger event, while an
@@ -1086,6 +1104,12 @@ occurrence. Writing `<>` still accepts the default explicitly.
 > candidate card can hold a resource. Deferring the resource holder's header-variable default lets
 > the candidate card fill that slot; eager owner defaulting would ask about a generic resource owned
 > by the enclosing player instead.
+
+> **Non-normative design note — candidate binding precedes defaulting.** Rules L12-9 and L12-10 are
+> consequences of one precedence: a refinement first reads its requirement about the candidate, and
+> only then may omitted dependency context receive a default. The candidate is not concrete until the
+> refinement is tested, so elaboration implements that precedence by reserving or deferring the
+> affected slot. This is staging of one implicit-argument rule, not a second meaning for refinements.
 
 **L12-11. A gain of several `Atomized` components becomes several gains of one.** `3 ProjectCard`
 becomes three independent gains, because three cards are three separate things to choose.
