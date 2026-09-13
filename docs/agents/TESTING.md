@@ -286,10 +286,13 @@ Whole-game tests are high-value integration coverage. When translating a supplie
   counts; the replay names selection discards, and the retained cards are the remainder of the known
   offer. It rejects duplicate arrivals, an exhausted or partly unused fixture, and any attempt to
   discard a card that never arrived or is not in the indicated Player's Hand or selection.
-  Strict completion requires a name for every card in every project-card event and checks the
-  tracked hand sizes against the World. The database-backed Herokuapp conversions use this mode. A
-  named discard is terminal; cards do not return to the deck. For source-known direct deck exits
-  that the model omits, record the terminal exit explicitly; those cards are not arrivals.
+  Strict completion requires an identity label for every card in every project-card event and
+  checks the tracked hand sizes against the World. When a source omits a rejected card's identity,
+  `unknownProjectCards()` supplies distinct replay-local `UnknownCardNN` labels; keep the source gap
+  visible beside their use. These labels prove complete accounting, not complete source knowledge.
+  The database-backed Herokuapp conversions use strict mode without unknown labels. A named discard
+  is terminal; cards do not return to the deck. For source-known direct deck exits that the model
+  omits, record the terminal exit explicitly; those cards are not arrivals.
   Inside an operation, `discardUnselectedProjectCards()` also resolves an already-open anonymous
   selection-removal task.
   Research archives that used drafting may assign each recovered post-draft four-card set as that
