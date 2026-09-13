@@ -47,8 +47,8 @@ CLASS Factorum : ActionCard<Class<CorporationCard>> {
 CLASS MonsInsurance : CardFront<Class<CorporationCard>> {
   cost = 0
 
-  This: 48 MC, PROD[4 MC], EACH Player(HAS MAX 0 This<Anyone>) { PROD[-2 MC] BY Owner }
-  MyResourceWasRemoved<Anyone> OR MyProductionWasDecreased<Anyone>: 3 MC<Anyone> FROM MC.
+  This: 48 MC, PROD[4 MC], EACH Player(NOT Owner) { PROD[-2 MC] BY Owner }
+  MyResourceWasRemoved<Anyone> OR MyProductionWasDecreased<Anyone>: 3 MC<Anyone FROM Owner>.
 }
 
 CLASS Philares : CardFront<Class<CorporationCard>> {
@@ -72,9 +72,9 @@ CLASS AstroDrill : ActionCard, ResourceCard<Class<Asteroid>, Class<CorporationCa
 CLASS PharmacyUnion : ResourceCard<Class<Disease>, Class<CorporationCard>> {
   cost = 0
 
+  This:: 54 MC
   This:: 2 MicrobeTag<This>
   This: CARDS[SearchForCard(HAS PrintedTag<Class<ScienceTag>>)]
-  This:: 54 MC
   MicrobeTag<Anyone>: (Disease<This>! OR (MAX 0 This: Ok)), -4 MC.
   ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)
 }
@@ -764,7 +764,7 @@ CLASS FloydContinuum : ActionCard, ActiveCard {
 
 // Supporting declarations contributed by cards in this bundle.
 CLASS Splicer<SpliceTacticalGenomics> {
-  MicrobeTag<CardFront> IF SpliceTacticalGenomics<Anyone>: Microbe<CardFront> OR 2 MC
+  MicrobeTag<CardFront>: Microbe<CardFront> OR 2 MC
 }
 
 CLASS Disease : CardResource<ResourceHolder<Class<Disease>>>

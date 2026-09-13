@@ -468,9 +468,10 @@ is nested, its container decides how much grouping is needed (L4-5), and after t
 instruction a top-level `OR` must be grouped because a bare `OR` there begins an instruction
 alternative (L6-7).
 
-> **Non-normative example — Industrial Complex.** Its catch-up production uses metrics such as
-> `1 MC / 6 - MC` inside `PROD[...]`. Metric precedence keeps the deficit calculation attached to
-> the scaling operation instead of turning the surrounding production group into alternatives.
+> **Non-normative example — Industrial Complex.** Its catch-up production uses the union of the
+> resource's Class component, the live `QuickStartVariant` component, and any `ProdOffset`
+> components to build its signed target, then subtracts the current `Production`. Parentheses keep
+> that target calculation together.
 
 **L5-8. `receiver.name` reads a class property**, and `EVAL` includes a property's own syntax
 (L12-12). A property metric with no receiver takes one from the enclosing refinement candidate or

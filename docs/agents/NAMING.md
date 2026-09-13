@@ -185,7 +185,7 @@ looking it up.
 - **Capabilities** (supertypes that say what a component can do) read as predicates or agent nouns:
   `HasActions`, `ResourceHolder`. Reserve the `Has` prefix for this use.
 - **Records** that something already happened use the passive voice when the actor does not matter
-  (`SuitableInfrastructurePaid`, `ActionUsedMarker`) and the `My` prefix when it does: `My` marks
+  (`ActionUsedMarker`) and the `My` prefix when it does: `My` marks
   that the *victim* is the owner while the actor rides along in a separate parameter, as in
   `MyResourceWasRemoved<Class<Resource>, Player>`.
 - **Markers** name real physical components players handle: `ActionUsedMarker`, `Community`,
