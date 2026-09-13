@@ -15,13 +15,17 @@ internal class ExcentricSponsorTest : CardTest() {
 
   @Test
   internal fun `Can apply its full discount to the next card`() {
-    p1.playPrelude(ExcentricSponsor) { p1.playProject(NitrogenRichAsteroid, 6) }
-        .expect("-6 MC, PROD[Plant], 3 TerraformRating")
+    with(p1) {
+      playPrelude(ExcentricSponsor) { playProject(NitrogenRichAsteroid, 6) }
+          .expect("-6 MC, PROD[Plant], 3 TerraformRating")
+    }
   }
 
   @Test
   internal fun `Can play a card costing less than its full discount`() {
-    p1.playPrelude(ExcentricSponsor) { p1.playProject(GhgImportFromVenus, 0) }
-        .expect("PROD[3 Heat], TerraformRating")
+    with(p1) {
+      playPrelude(ExcentricSponsor) { playProject(GhgImportFromVenus, 0) }
+          .expect("PROD[3 Heat], TerraformRating")
+    }
   }
 }

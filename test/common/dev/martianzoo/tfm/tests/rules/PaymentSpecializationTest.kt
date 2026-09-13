@@ -26,7 +26,9 @@ internal class PaymentSpecializationTest {
     val p1 = setUpGame().testTfm(PLAYER1)
     p1.runOperation("Steel, Titanium")
 
-    p1.beginOperation("Owed<Class<Steel>> THEN Invoice<CardPurchase, Action1, Class<Steel>>") {
+    p1.beginOperation(
+        "Owed<Class<Steel>> THEN ActionBilling<CardPurchase, Action1, Class<Steel>>"
+    ) {
       shouldThrow<NarrowingException> { doTask("Pay<Class<Titanium>> FROM Titanium") }
       doTask("Pay<Class<Steel>> FROM Steel")
     }

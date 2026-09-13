@@ -100,8 +100,8 @@ internal class Spec02ClassesTest {
 
   @Test
   internal fun `T2-3 a concrete class has itself as its only subclass`() {
-    klass("Tharsis_2_2").allSubclasses() shouldBe setOf(klass("Tharsis_2_2"))
-    klass("Tharsis_2_2").directSubclasses().shouldBeEmpty()
+    mars.allSubclasses(klass("Tharsis_2_2")) shouldBe setOf(klass("Tharsis_2_2"))
+    mars.directSubclasses(klass("Tharsis_2_2")).shouldBeEmpty()
   }
 
   // T2-4 The subclass relation
@@ -190,26 +190,26 @@ internal class Spec02ClassesTest {
   // T2-7 Enumerating the hierarchy
 
   @Test
-  internal fun `T2-7 a class knows its supertypes and subtypes`() {
+  internal fun `T2-7 superclass traversal is intrinsic and subclass traversal is table-relative`() {
     klass("LandArea").allSuperclasses().map { "$it" } shouldContainExactly
         listOf("Component", "Area", "MarsArea", "LandArea")
-    klass("LandArea").allSubclasses().map { "$it" } shouldContainExactly
+    mars.allSubclasses(klass("LandArea")).map { "$it" } shouldContainExactly
         listOf("Tharsis_2_2", "VolcanicArea", "Tharsis_5_5", "LandArea")
-    klass("LandArea").directSubclasses().map { "$it" } shouldContainExactly
+    mars.directSubclasses(klass("LandArea")).map { "$it" } shouldContainExactly
         listOf("Tharsis_2_2", "VolcanicArea")
   }
 
-  // T2-8 Greatest lower bound of two classes
+  // T2-8 Intersection of two classes
 
   @Test
-  internal fun `T2-8 glb of comparable classes is the lower one`() {
-    (klass("LandArea") glb klass("Area")) shouldBe klass("LandArea")
-    (klass("Area") glb klass("LandArea")) shouldBe klass("LandArea")
-    (klass("LandArea") glb klass("LandArea")) shouldBe klass("LandArea")
+  internal fun `T2-8 intersection of comparable classes is the lower one`() {
+    (klass("LandArea") intersect klass("Area")) shouldBe klass("LandArea")
+    (klass("Area") intersect klass("LandArea")) shouldBe klass("LandArea")
+    (klass("LandArea") intersect klass("LandArea")) shouldBe klass("LandArea")
   }
 
   @Test
-  internal fun `T2-8 glb of incomparable classes is their unique greatest common subclass`() {
+  internal fun `T2-8 incomparable classes do not infer a common subclass`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Tile",
@@ -217,32 +217,12 @@ internal class Spec02ClassesTest {
             "CLASS GreeneryTile : OwnedTile",
         )
 
-    (table.getClass(cn("Owned")) glb table.getClass(cn("Tile"))) shouldBe
-        table.getClass(cn("OwnedTile"))
+    (table.getClass(cn("Owned")) intersect table.getClass(cn("Tile"))) shouldBe null
   }
 
   @Test
-  internal fun `T2-8 glb finds an operand inherited only indirectly`() {
-    val table =
-        loadTypes(
-            """
-            ABSTRACT CLASS Occupant
-            ABSTRACT CLASS OwnedOccupant : Occupant, Owned
-            ABSTRACT CLASS Tile : Occupant
-            ABSTRACT CLASS OwnedTile : Tile, OwnedOccupant
-            ABSTRACT CLASS Placeable
-            ABSTRACT CLASS PlaceableOwnedTile : OwnedTile, Placeable
-            """
-                .trimIndent()
-        )
-
-    (table.getClass(cn("Owned")) glb table.getClass(cn("Tile"))) shouldBe
-        table.getClass(cn("OwnedTile"))
-  }
-
-  @Test
-  internal fun `T2-8 glb is absent when no unique greatest common subclass exists`() {
-    val disjoint = klass("LandArea") glb klass("WaterArea")
+  internal fun `T2-8 intersection is absent for incomparable classes`() {
+    val disjoint = klass("LandArea") intersect klass("WaterArea")
     disjoint shouldBe null
 
     val table =
@@ -251,7 +231,7 @@ internal class Spec02ClassesTest {
             "ABSTRACT CLASS OwnedTile : Tile, Owned",
             "ABSTRACT CLASS AlsoOwnedTile : Tile, Owned",
         )
-    (table.getClass(cn("Owned")) glb table.getClass(cn("Tile"))) shouldBe null
+    (table.getClass(cn("Owned")) intersect table.getClass(cn("Tile"))) shouldBe null
   }
 
   // T2-9 Custom classes

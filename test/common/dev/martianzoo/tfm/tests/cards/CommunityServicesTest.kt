@@ -25,7 +25,9 @@ internal class CommunityServicesTest : CardTest() {
     )
     admin.phase("Prelude")
     p1.runOperation("5 MC, ProjectCard, PreludeCard")
-    p1.playPrelude(EcologyExperts) { p1.playProject(Decomposers, 5) }
+    with(p1) {
+      playPrelude(EcologyExperts) { playProject(Decomposers, 5) }
+    }
 
     // Ecology Experts and Decomposers have tags; only Community Services itself is tagless.
     p1.runOperation("$CommunityServices").expect("PROD[1 MC]")

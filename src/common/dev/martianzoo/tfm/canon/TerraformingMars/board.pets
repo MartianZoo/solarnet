@@ -1,0 +1,176 @@
+"Every game must have exactly one of these (Tharsis Map, etc.)"
+ABSTRACT CLASS MarsMap : Module {
+  HAS =1 MarsMap
+  This: EACH Class<MarsArea> { MarsArea }
+}
+
+"A hexagonal area where a tile can go"
+ABSTRACT CLASS Area {
+  HAS =1 This
+  HAS MAX 1 Tile<This>
+
+  "One of the usually-61 areas on the planet itself"
+  ABSTRACT CLASS MarsArea {
+    row = Number
+    column = Number
+
+    Tile<This>:: Placement<This>
+
+    // An unreserved area
+    ABSTRACT CLASS LandArea {
+      HAS MAX 1 Community<This>
+
+      ABSTRACT CLASS VolcanicArea
+    }
+
+    "An area reserved for oceans"
+    ABSTRACT CLASS WaterArea
+
+    "An area reserved for Noctis City"
+    ABSTRACT CLASS NoctisArea
+  }
+
+  "An area not on Mars (yes, it includes one for Stanford Torus)"
+  ABSTRACT CLASS RemoteArea
+}
+
+"A board piece that adjacency locates through a concrete subtype's area dependency"
+ABSTRACT CLASS AreaPiece
+
+"A board piece that exclusively occupies its area"
+ABSTRACT CLASS Occupant<Area> : AreaPiece
+
+"An occupant controlled by an actor"
+ABSTRACT CLASS OwnedOccupant : Owned, Occupant
+
+"A placement in a Mars area"
+CLASS Placement<MarsArea> : Signal
+
+"A player's reservation of one land area"
+CLASS Community : OwnedOccupant<LandArea> {
+  Tile<LandArea> BY Player(NOT Owner):: Die
+  Tile<LandArea> BY Owner:: -This!
+}
+
+// A tile; if it's not on an Area / not in play, it doesn't exist yet
+ABSTRACT CLASS Tile : Occupant {
+  This:: EACH Tile<MarsArea(HAS Neighbor<This>)> { \
+    ForwardAdjacency<Tile<MarsArea(HAS Neighbor<This>)>, This>, \
+    BackwardAdjacency<This, Tile<MarsArea(HAS Neighbor<This>)>> \
+  }
+
+  // OceanTile is declared below with the other global parameters.
+}
+
+// IMPL: This should narrow ownership to Owner, but bare owned-tile expressions rely on the Owned
+// default inserting an explicit contextual Owner variable, which a declared Owner bound erases.
+"Any tile that someone owns"
+ABSTRACT CLASS OwnedTile : OwnedOccupant, Tile {
+  "A greenery tile"
+  CLASS GreeneryTile : Tile<MarsArea> {
+    This IF Photosynthesis: OxygenStep
+    End: VictoryPoint
+  }
+
+  "A city tile, including Capital's"
+  CLASS CityTile {
+    DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
+
+    End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>
+  }
+
+  "A brown special tile (specific subtypes are with the individual cards)"
+  ABSTRACT CLASS SpecialTile : Tile<MarsArea> {
+    DEFAULT +SpecialTile<LandArea>
+  }
+}
+
+// When Tile B is placed next to existing Tile A, a ForwardAdj<A, B> and BackwardAdj<B, A> are created
+ABSTRACT CLASS Adjacency<Tile<Area>, Tile<Area>> : Hidden {
+  CLASS ForwardAdjacency, BackwardAdjacency
+}
+
+"Place a greenery tile next to one of yours if possible, otherwise on any empty land area"
+CLASS DefaultGreeneryTile : Owned, Signal {
+  This: GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> OR \
+    (MAX 0 Neighbor<OwnedTile, LandArea(HAS MAX 0 Tile)>: GreeneryTile<LandArea>)
+}
+
+"Indicates that greenery placement raises oxygen"
+CLASS Photosynthesis : System {
+  HAS MAX 1 This
+  FinalGreeneryPhase: -This!
+}
+
+"A virtual metric whose count is the number of a particular resource printed as an area's bonus"
+CLASS PlacementBonus<Class<Resource>, MarsArea> : Custom
+
+"The number of geometric neighbor relations between live area pieces and areas on the selected Mars map"
+CLASS Neighbor<AreaPiece, MarsArea> : Hidden, Custom
+
+"A single step along a global parameter track; creating one gives the active player (if any) a TR"
+ABSTRACT CLASS GlobalParameter : Atomized {
+  DEFAULT +GlobalParameter.
+  DEFAULT -GlobalParameter.
+
+  This: TerraformRating
+
+  CLASS OceanTile : Tile<MarsArea> {
+    DEFAULT +OceanTile<WaterArea(HAS MAX 0 Tile)>
+
+    Placement<MarsArea(HAS Neighbor<This>)>: 2 MC
+  }
+
+  "Represents a 1% increase in oxygen level"
+  CLASS OxygenStep
+
+  "Represents 2 degrees C of temperature increase"
+  CLASS TemperatureStep
+}
+
+"Enforces the limits, rewards, and completion steps printed on the standard global-parameter tracks"
+CLASS StandardGpTrackRules : System {
+  HAS =1 This
+  HAS MAX 19 TemperatureStep
+  HAS MAX 14 OxygenStep
+  HAS MAX 9 OceanTile
+
+  TemperatureStep IF =3 TemperatureStep: PROD[Heat]
+  TemperatureStep IF =5 TemperatureStep: PROD[Heat]
+  TemperatureStep BY Player IF =15 TemperatureStep: OceanTile<>
+  TemperatureStep BY Admin IF =15 TemperatureStep:: \
+    EACH Player(HAS StartToken) { AdminOceanPlacement<Player> }
+  TemperatureStep IF =19 TemperatureStep:: GpComplete<Class<TemperatureStep>>
+
+  OxygenStep IF =8 OxygenStep: TemperatureStep
+  OxygenStep IF =14 OxygenStep:: GpComplete<Class<OxygenStep>>
+
+  // Keep the trigger's area independent from the aggregate OceanTile count.
+  OceanTile<MarsArea> IF =9 OceanTile:: GpComplete<Class<OceanTile>>
+}
+
+"Records that a particular global parameter track has not reached its maximum"
+CLASS GpIncomplete<Class<GlobalParameter>> : Hidden { HAS MAX 1 This }
+
+"Records that a particular global parameter track has reached its maximum"
+CLASS GpComplete<Class<GlobalParameter>> : Hidden {
+  HAS MAX 1 This
+  This:: -GpIncomplete<Class<GlobalParameter>>!
+  -GlobalParameter:: Die
+}
+
+"A required global parameter that has not yet reached its maximum"
+CLASS GpGameEndBarrier<Class<GlobalParameter>> : GameEndBarrier, System {
+  HAS MAX 1 This
+  GpComplete<Class<GlobalParameter>>:: -This!
+}
+
+"Asks its owning Player to choose one mandatory global-parameter increase performed by Admin"
+CLASS WorldGovernmentTerraforming : Owned<Player>, Signal {
+  This IF GpIncomplete: GlobalParameter! BY Admin
+}
+
+"Asks its owning Player to place an Ocean attributed to Admin"
+CLASS AdminOceanPlacement : Owned<Player>, Signal {
+  This: OceanTile<> BY Admin
+}

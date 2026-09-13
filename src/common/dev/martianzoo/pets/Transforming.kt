@@ -140,24 +140,25 @@ public object Transforming {
     val owed =
         "${spend.scaledEx.scalar} Owed<Class<${spend.scaledEx.expression}>>" +
             if (metric == null) "" else " / $metricText"
-    val invoiceResource =
+    val billingResource =
         if (spend.scaledEx.expression.className == cn("MC")) ""
         else ", Class<${spend.scaledEx.expression}>"
     if (spend.scaledEx.scalar is XScalar) {
       return listOf(
           parse(
               "UseAction<This, $selector>: $owed THEN " +
-                  "Invoice<This, $selector$invoiceResource> THEN " +
-                  "MAX 0 Invoice: (${action.instruction})"
+                  "ActionBilling<This, $selector$billingResource> THEN " +
+                  "MAX 0 ActionBilling: (${action.instruction})"
           )
       )
     }
 
     return listOf(
         parse(
-            "UseAction<This, $selector>: $owed THEN " + "Invoice<This, $selector$invoiceResource>"
+            "UseAction<This, $selector>: $owed THEN " +
+                "ActionBilling<This, $selector$billingResource>"
         ),
-        parse("-Invoice<This, $selector>: " + action.instruction),
+        parse("-ActionBilling<This, $selector>: " + action.instruction),
     )
   }
 

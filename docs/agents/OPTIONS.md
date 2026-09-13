@@ -79,7 +79,7 @@ contains mutually exclusive maps, modes, and replacement classes.
 **Status: current.**
 
 Runtime Catalog assembly receives only explicit Class declarations. Canon supplies those
-declarations through bundled `classes.pets`, generated `cards.pets`, and generated `maps.pets`.
+declarations through every bundled `.pets` source, including generated `cards.pets`.
 Missing declarations fail Catalog loading. Runtime assembly neither synthesizes a missing
 declaration nor supplements its behavior from another representation. Synthetic tests likewise
 supply ordinary Pets declarations.
@@ -161,12 +161,12 @@ competing choice can make a default condition false; an explicit exclusion defea
 multiplayer, each Bundle whose same-named Module is selected contributes its applicable concrete
 milestone and award Classes as defaults. Premise resolution discovers those Classes by their
 authored Bundle membership and freezes the resulting pools as exact signed selections in
-`GamePremise`. A multiplayer premise is invalid unless the result contains at least three milestone
-and three award Classes. Explicitly naming any milestones or awards makes that category an exact
-pool, so named goals replace only their own category. Selecting colony tiles also requests their
-initial components.
-Solo Colonies selects four and keeps three after the setup choice, two-player Colonies uses five,
-and games with at least three players use two more tiles than players.
+`GamePremise`. Explicitly naming any milestones or awards makes that category an exact pool, so
+named goals make only their own category exact; even a smaller nonstandard pool is accepted.
+Selecting colony tiles also requests their initial components. The selected tile count is exact
+user intent rather than a premise invariant. Conventional setup selects four in solo and keeps
+three after the setup choice, uses five for two players, and uses two more than the player count for
+three or more players.
 
 Player-count Modules own mode-specific starting state. `MultiplayerMode` gives each Player 20
 terraform rating during setup; `SoloMode` gives its sole Player 14 directly. The generated Premise
@@ -188,14 +188,11 @@ On `ModulesReady`, selected Modules create the applicable standard or extended t
 components from Pets effects that inspect the complete live Module set. `AmazonisMap` selects
 `ExtendedGlobalParametersRule` by default; an explicit exclusion wins.
 
-`PreludeExpansion` supplies the Prelude 1 rules and phase. It selects `Prelude1CardPack` by default
-and requires at least one `PreludeCardPack`. Either card pack, or both together, may instead be
-selected without enabling the Prelude 1 rules; they only determine which cards can enter a merged
-Prelude deck. `Prelude2Expansion` requires and automatically selects both `PreludeExpansion` and
-`Prelude2CardPack`. When `PreludeExpansion` is already selected, adding either
-`Prelude2Expansion` or `Prelude2CardPack` therefore contributes the same cards. The Prelude 1 pack
-remains the default and may be explicitly excluded. The phase and solo generation adjustment come
-only from `PreludeExpansion`.
+`PreludeExpansion` supplies the Prelude rules and phase and selects `Prelude1CardPack` by default.
+The default pack may be explicitly excluded, including when no replacement pack is selected.
+`Prelude1CardPack` and `Prelude2CardPack` are independent content selections; either or both may be
+selected without enabling the Prelude rules. Selecting `PreludeExpansion` with `Prelude2CardPack`
+uses the Prelude 2 cards in the shared Prelude deck. There is no separate Prelude 2 rules Module.
 
 ## Bundle
 
@@ -236,8 +233,10 @@ with `FakeCanon`, then select the pack's Module.
 
 ## Card declarations and views
 
-`tfm-card-data` owns the pets-free `CardDefinition` records and their JSON5 datasets. The JVM generator
-turns them into canonical `cards.pets`; a drift test requires byte-for-byte agreement. The
+`tfm-card-data` owns the pets-free `CardDefinition` records and each card bundle's `cards.json5`.
+`tfm-card-generator` turns those datasets into `cards.pets` under its build directory. Canon's
+source-generation pipeline combines those generated declarations with the other authored bundle
+files; generated Pets are not checked in. The
 generated declarations carry each card's deck role, tags, cost, play Requirement, actions,
 Effects, and resource role. Runtime card consumers use only the loaded Class, with narrow derived
 queries for those semantics. A concrete subclass of `CardFront` is a card; its represented
@@ -246,9 +245,9 @@ require no runtime per-card metadata relationship.
 
 ## Map data and runtime views
 
-`tfm-map-data` owns each map's rows and per-map legend. The generator emits the diagram comment and area
-declarations into `maps.pets`; `classes.pets` keeps the map Module, milestones, awards, and other
-hand-authored declarations. Semantic runtime facts—area identity, kind, row, column, and bonus
+`tfm-map-data` owns each map's rows and per-map legend. The generator updates the diagram comment and
+area declarations in the map's bundle-specific `.pets` file alongside its map Module, milestones,
+awards, and other hand-authored declarations. Semantic runtime facts—area identity, kind, row, column, and bonus
 Effect—come only from loaded Classes. The shared class-backed grid selects the chosen map bundle's
 concrete `MarsArea` Classes without a name-prefix convention.
 
@@ -336,8 +335,8 @@ the Prelude Expansion Bundle; Valley Trust's RequiredAction reference derives it
 1 dependency without a card property. Automatic Prelude-card selection also requires a
 `PreludeCardPack`, so its draw uses exactly the selected pack or packs.
 
-Concrete awards retain their authored multiplayer-only condition. Explicit selection checks that
-condition too, so solo cannot bypass the rule.
+Concrete milestones and awards are multiplayer-only content. Explicit selection checks that
+condition too, so solo cannot activate either kind of goal.
 
 ### Projection closure
 

@@ -116,6 +116,36 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
+  internal fun `T8-3 an exact argument leaves the candidate for another compatible slot`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Area { CLASS Tharsis_2_2, Tharsis_2_3 }",
+            "ABSTRACT CLASS Adjacency<Area, Area>",
+        )
+    val world = RecordingWorld(answer = true)
+
+    table
+        .resolve(te("Tharsis_2_2"))
+        .narrows(table.resolve(te("Area(HAS Adjacency<Tharsis_2_2>)")), world) shouldBe true
+    world.questions shouldContainExactly listOf("Adjacency<Tharsis_2_2, Tharsis_2_2>")
+  }
+
+  @Test
+  internal fun `T8-3 a broad argument remains eligible for candidate narrowing`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Area { CLASS Tharsis_2_2, Tharsis_2_3 }",
+            "ABSTRACT CLASS Adjacency<Area, Area>",
+        )
+    val world = RecordingWorld(answer = true)
+
+    table
+        .resolve(te("Tharsis_2_2"))
+        .narrows(table.resolve(te("Area(HAS Adjacency<Area>)")), world) shouldBe true
+    world.questions shouldContainExactly listOf("Adjacency<Tharsis_2_2, Area>")
+  }
+
+  @Test
   internal fun `T8-3 a class property may be tested against the candidate`() {
     val cards =
         loadTypes(
@@ -181,7 +211,7 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `T8-4 overlap is detected even with no greatest common subclass`() {
+  internal fun `T8-4 overlap is detected even when ordinary intersection is absent`() {
     val table =
         loadTypes(
             """
@@ -294,27 +324,27 @@ internal class Spec08RefinementsTest {
     type("Tharsis_2_3").narrows(refined, fullWorld) shouldBe false
   }
 
-  // T8-9 Greatest lower bound
+  // T8-9 Refinement intersection
 
   @Test
-  internal fun `T8-9 glb keeps a refinement the other operand lacks`() {
-    (type("LandArea(HAS Neighbor)") glb type("Tharsis_2_2")) shouldBe
+  internal fun `T8-9 intersection keeps a refinement the other operand lacks`() {
+    (type("LandArea(HAS Neighbor)") intersect type("Tharsis_2_2")) shouldBe
         type("Tharsis_2_2(HAS Neighbor)")
-    (type("Tharsis_2_2") glb type("LandArea(HAS Neighbor)")) shouldBe
+    (type("Tharsis_2_2") intersect type("LandArea(HAS Neighbor)")) shouldBe
         type("Tharsis_2_2(HAS Neighbor)")
   }
 
   @Test
   internal fun `T8-9 two identical refinements collapse to one`() {
-    (type("LandArea(HAS Neighbor)") glb type("LandArea(HAS Neighbor)")) shouldBe
+    (type("LandArea(HAS Neighbor)") intersect type("LandArea(HAS Neighbor)")) shouldBe
         type("LandArea(HAS Neighbor)")
-    (type("LandArea(NOT Tharsis_2_2)") glb type("LandArea(NOT Tharsis_2_2)")) shouldBe
+    (type("LandArea(NOT Tharsis_2_2)") intersect type("LandArea(NOT Tharsis_2_2)")) shouldBe
         type("LandArea(NOT Tharsis_2_2)")
   }
 
   @Test
   internal fun `T8-9 two HAS refinements combine as a conjunction`() {
-    (type("LandArea(HAS Neighbor)") glb type("LandArea(HAS Occupant)")) shouldBe
+    (type("LandArea(HAS Neighbor)") intersect type("LandArea(HAS Occupant)")) shouldBe
         type("LandArea(HAS Neighbor, HAS Occupant)")
   }
 
@@ -325,7 +355,7 @@ internal class Spec08RefinementsTest {
             "LandArea(HAS Neighbor)" to "Tharsis_2_2",
         )
         .forEach { (left, right) ->
-          val bound = (type(left) glb type(right))!!
+          val bound = (type(left) intersect type(right))!!
           bound.isSubtypeOf(type(left)) shouldBe true
           bound.isSubtypeOf(type(right)) shouldBe true
         }
@@ -333,9 +363,9 @@ internal class Spec08RefinementsTest {
 
   @Test
   internal fun `T8-9 unlike refinements combine as a conjunction`() {
-    (type("LandArea(HAS Neighbor)") glb type("LandArea(NOT Tharsis_2_2)")) shouldBe
+    (type("LandArea(HAS Neighbor)") intersect type("LandArea(NOT Tharsis_2_2)")) shouldBe
         type("LandArea(HAS Neighbor, NOT Tharsis_2_2)")
-    (type("Area(NOT Tharsis_2_2)") glb type("Area(NOT WaterArea)")) shouldBe
+    (type("Area(NOT Tharsis_2_2)") intersect type("Area(NOT WaterArea)")) shouldBe
         type("Area(NOT Tharsis_2_2, NOT WaterArea)")
   }
 

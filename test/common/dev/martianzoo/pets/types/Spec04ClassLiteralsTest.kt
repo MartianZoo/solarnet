@@ -95,13 +95,13 @@ internal class Spec04ClassLiteralsTest {
   // T4-5 Bounds
 
   @Test
-  internal fun `T4-5 glb of class literals follows the class hierarchy`() {
-    (type("Class<Metal>") glb type("Class<Steel>")) shouldBe type("Class<Steel>")
+  internal fun `T4-5 intersection of class literals follows the class hierarchy`() {
+    (type("Class<Metal>") intersect type("Class<Steel>")) shouldBe type("Class<Steel>")
   }
 
   @Test
-  internal fun `T4-5 glb of literals for disjoint classes is absent`() {
-    (type("Class<Steel>") glb type("Class<Plant>")) shouldBe null
+  internal fun `T4-5 intersection of literals for incomparable classes is absent`() {
+    (type("Class<Steel>") intersect type("Class<Plant>")) shouldBe null
   }
 
   // T4-6 The operand must be one bare class name

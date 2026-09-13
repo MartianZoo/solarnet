@@ -36,7 +36,7 @@ The required primitives already exist:
   bootstrap before returning.
 - Admin creates `BootstrapPhase` before the generated `Premise`; bootstrap begins and ends with
   that same Phase.
-- [`Phase`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets) is legitimate
+- [`Phase`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/game.pets) is legitimate
   Game World state, with exactly one Phase present.
 - Pets Type arguments are component dependencies. Removing a dependency cascades through its
   dependents before removing the dependency itself.
@@ -202,7 +202,7 @@ GameScope
 ```
 
 Each child depends on its parent, and the Phase scope also depends on the current Phase.
-State depends on the narrowest scope matching its true lifetime: an action-local invoice belongs to
+State depends on the narrowest scope matching its true lifetime: action-local billing belongs to
 the Action scope; a passed marker belongs to the Generation scope; phase-local control belongs to
 the Phase scope.
 

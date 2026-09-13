@@ -17,7 +17,9 @@ internal class BugsTest : CardTest() {
     admin.phase("Prelude")
     p1.runOperation("9 MC, ProjectCard, PreludeCard")
 
-    p1.playPrelude(EcologyExperts) { p1.playProject(ViralEnhancers, 9) }
+    with(p1) {
+      playPrelude(EcologyExperts) { playProject(ViralEnhancers, 9) }
+    }
 
     p1.assertCounts(1 to "Plant")
   }
@@ -28,7 +30,11 @@ internal class BugsTest : CardTest() {
     admin.phase("Prelude")
     p1.runOperation("12 MC, ProjectCard, PreludeCard, GreeneryTile<Tharsis_4_4>")
 
-    p1.playPrelude(EcologyExperts) { p1.playProject(EcologicalZone, 12) { placeTile(4, 5) } }
+    with(p1) {
+      playPrelude(EcologyExperts) {
+        playProject(EcologicalZone, 12) { placeTile(4, 5) }
+      }
+    }
 
     p1.assertCounts(2 to "Animal<$EcologicalZone>")
   }
@@ -73,8 +79,20 @@ internal class BugsTest : CardTest() {
   }
 
   @Test
+  internal fun `Fake Preservation Program incorrectly enables UNMI after reversing its TR gain`() {
+    newGame(PreludeExpansion, Prelude2CardPack, FakeStuffBundle)
+    p1.phase("Prelude")
+    p1.runOperation("$UnitedNationsMarsInitiative, FakePreservationProgram")
+    admin.phase("Action")
+
+    // The printed Preservation Program prevents this gain, so it should not satisfy UNMI's gate.
+    p1.runOperation("TerraformRating").expect("0 TerraformRating")
+    p1.cardAction1(UnitedNationsMarsInitiative).expect("-3 MC, TerraformRating")
+  }
+
+  @Test
   internal fun `Fake Preservation Program incorrectly triggers Terraforming Deal on reversed TR`() {
-    newGame(Prelude2Expansion, FakeStuffBundle)
+    newGame(PreludeExpansion, Prelude2CardPack, FakeStuffBundle)
     p1.phase("Prelude")
     p1.runOperation("FakePreservationProgram, TerraformingDeal")
     admin.phase("Action")

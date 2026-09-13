@@ -94,7 +94,7 @@ private constructor(
   }
 
   /**
-   * Resolves [expression] with stable identity and strict exact names under
+   * Resolves [expression] with strict exact names under
    * [rules T1-3 and T1-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    *
    * @throws ExpressionException if [expression] is invalid in this universe.
@@ -331,7 +331,8 @@ private constructor(
     if (masterSource == null || !expression.simple || expression.className == THIS) return null
     val countedClass = loadRelated(expression.className, active = false)
     val masterSubclasses =
-        if (countedClass.classTable === masterSource) countedClass.allSubclasses() else emptySet()
+        if (countedClass.classTable === masterSource) masterSource.allSubclasses(countedClass)
+        else emptySet()
     val premiseSubclasses =
         premiseDeclarations.keys
             .asSequence()
@@ -421,14 +422,14 @@ private constructor(
   private var allSubclassesByClass: Map<Class, Set<Class>>? = null
   private var directSubclassesByClass: Map<Class, Set<Class>>? = null
 
-  internal fun allSubclassesOf(klass: Class): Set<Class> {
+  internal override fun allSubclassesOf(klass: Class): Set<Class> {
     require(frozen) {
       "this class table must be frozen before the subclasses of $klass can be enumerated"
     }
     return checkNotNull(allSubclassesByClass).getValue(klass)
   }
 
-  internal fun directSubclassesOf(klass: Class): Set<Class> {
+  internal override fun directSubclassesOf(klass: Class): Set<Class> {
     require(frozen) {
       "this class table must be frozen before the subclasses of $klass can be enumerated"
     }

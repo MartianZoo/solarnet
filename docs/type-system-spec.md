@@ -44,8 +44,8 @@ an otherwise surprising provision exists. They are evidence and orientation, not
 
 | Written | Means |
 | --- | --- |
-| `A <: B` | every A is a B; A *narrows* B |
-| `A ⊓ B` | the greatest lower bound (`glb`) of A and B: the most specific type below both |
+| `A <: B` | every A is a B; A is a context-free structural subtype of B |
+| `A ∩ B` | intersection of compatible constraints; absent when their root classes are incomparable |
 | `CLASS Foo` | Pets source for a class declaration |
 | `Foo<Bar>` | Pets source for a type expression |
 
@@ -120,20 +120,20 @@ stops the caller at the bug.
 
 **T1-3. Resolution is a function of the written expression and table.** `ClassTable.resolve` maps
 an `Expression` to a type. A game delegates master-only expressions to its master except when a
-structural refinement must account for premise subclasses. Within one table, the same expression
-always yields the identical object; different spellings of one type yield *equal* types that need
-not be identical:
+structural refinement must account for premise subclasses. Within one table, repeated
+resolution of the same expression and different spellings of one type yield equal types:
 
 ```text
 GreeneryTile<Area>  and  GreeneryTile   →  equal types
-GreeneryTile        and  GreeneryTile   →  the identical object
+GreeneryTile        and  GreeneryTile   →  equal types
 ```
 
-A type's own renderings (T5-4, T5-5) always resolve back to it.
+A type's own renderings (T5-4, T5-5) always resolve to a type equal to it. Reference identity is not
+part of the contract.
 
-> **Non-normative implementation note — identity is only a cache promise.** Engine code may safely
-> memoize work by the exact expression it resolved. It must still use equality for synonymous
-> spellings such as `GreeneryTile` and `GreeneryTile<Area>`; no gameplay rule distinguishes them.
+> **Non-normative implementation note — caching is not semantics.** An implementation may cache or
+> intern resolved types, but callers must use equality. No gameplay rule distinguishes synonymous
+> spellings such as `GreeneryTile` and `GreeneryTile<Area>`.
 
 **T1-4. `Component` is the root.** Every universe contains an abstract class `Component` with no
 supertypes and no dependencies. Every other class has it as a supertype.
@@ -143,8 +143,8 @@ it.
 
 **T1-6. Enumeration requires a frozen table.** A master or combined game table is built by loading
 classes and then freezing. Lookup (`findClass`, `resolve`) works during loading; anything that
-enumerates the universe — `allClasses`, `allClassNames`, `allSubclasses`, `directSubclasses`, and
-therefore `glb` between unrelated classes — requires the table to be frozen first.
+enumerates the universe — `allClasses`, `allClassNames`, `allSubclasses`, and `directSubclasses` —
+requires the table to be frozen first.
 
 Before returning the completed table, compilation resolves every class's structural base type.
 Undeclared names are also rejected while loading. Authored expressions inside effects are resolved
@@ -203,12 +203,14 @@ returning false.
 **T2-6. Declaration order is irrelevant.** A supertype may be declared after its subclass.
 
 **T2-7. The hierarchy can be walked in both directions.** A class knows `allSuperclasses()` (itself
-included), `allSubclasses()` and `directSubclasses()`. The downward ones need a frozen table (T1-6).
+included). Downward traversal is table-relative: `ClassTable.allSubclasses(klass)` and
+`ClassTable.directSubclasses(klass)` enumerate the subclasses visible in that table. They need a
+frozen table (T1-6).
 
-**T2-8. Greatest lower bound of two classes (`⊓`).** If one operand is below the other, that one is
-the answer. Otherwise Pets looks for a *unique greatest common subclass*: a class below both, which
-every other class below both is also below. If there is no such class — because the two are disjoint,
-or because two rival classes combine them — the result is **absent** (`null`).
+**T2-8. Intersection of two classes (`∩`).** If one operand is below the other, that one is the
+answer. Otherwise the result is **absent** (`null`). Pets does not search descendants for a third
+class that happens to combine the operands: bounds name their intended root explicitly, and adding
+another declaration elsewhere in the Catalog cannot change their intersection.
 
 ```pets
 ABSTRACT CLASS Tile
@@ -216,8 +218,8 @@ ABSTRACT CLASS OwnedTile : Tile, Owned
 CLASS GreeneryTile : OwnedTile
 ```
 
-`Tile ⊓ Owned` is `OwnedTile`. Add `CLASS CommercialDistrictTile : Tile, Owned` and it becomes
-absent: Pets does not manufacture a structural conjunction, it only recognizes a class you declared.
+`Tile ∩ Owned` is absent even though `OwnedTile` extends both. Write `OwnedTile` when that is the
+intended constraint.
 
 **T2-9. Custom classes.** A class declared `: Custom` has its behavior supplied by Kotlin instead of
 Pets. A declaration and an implementation must agree: a class declared `Custom` with no
@@ -240,6 +242,13 @@ that name.
 A type argument in Pets is not a conventional generic parameter. It is a **dependency**: an edge to
 one specific other component that must exist for this one to exist. `Plant<Player1>` needs
 `Player1`; `GreeneryTile<Tharsis_2_2, Player1>` needs both the area and the player.
+
+> **Non-normative design note — concrete Types are the values.** A world deliberately has no
+> occurrence identity or mutable instance fields: it is a multiset whose keys are concrete Types.
+> Thus `Player1` and `Tharsis_2_2` are values precisely by being concrete Types, while multiplicity
+> records how many indistinguishable occurrences of a value exist. A dependency can identify a
+> target only when that target Type is singleton (T3-9). This is a chosen boundary of the model, not
+> an attempt to simulate object references with incomplete identity.
 
 **T3-1. Keys.** Every dependency a class declares gets a **key**: the declaring class's name plus the
 zero-based slot, written `Occupant_0`, `Owned_0`, `Adjacency_1`. The key, not the position, is the
@@ -264,7 +273,7 @@ CLASS GreeneryTile : Tile<MarsArea>, Owned<Owner>
 `GreeneryTile<MarsArea, Owner>` — the area edge was narrowed, never copied or renamed.
 
 **T3-3. Several supertypes, one key.** When more than one supertype constrains the same key, the
-bounds are intersected (`⊓`, rule T7-1). Bounds with no common narrowing are an error.
+bounds are intersected (`∩`, rule T7-1). Bounds with incomparable roots are an error.
 
 > **Non-normative example — Predators.** Predators is simultaneously an action card, active card,
 > and animal-resource card. Those inheritance paths converge on shared card-front dependencies;
@@ -404,8 +413,8 @@ and this carries into dependency positions:
 **T4-4. `representedClass`** returns the named class, and is absent for every type that is not a class
 literal.
 
-**T4-5. Greatest lower bounds follow the class hierarchy.** `Class<Metal> ⊓ Class<Steel>` is
-`Class<Steel>`; the `glb` of literals for disjoint classes is absent.
+**T4-5. Class-literal intersection follows the class hierarchy.** `Class<Metal> ∩ Class<Steel>` is
+`Class<Steel>`; intersection of literals for incomparable classes is absent.
 
 **T4-6. The operand is one bare, existing class name.** All of these are errors:
 
@@ -547,19 +556,22 @@ dependencies or narrowing can treat both uniformly through their resolved interp
 
 ## 6. Subtyping
 
-Narrowing is the central relation: "every component of type A is also of type B".
+Pets uses two related judgments. **Subtyping** is context-free: `A <: B` says every A is a B from
+the Types alone. **Narrowing** is contextual: it additionally asks whether A is an acceptable way to
+settle B in one world, including whether a concrete candidate satisfies B's `HAS` refinement. Every
+subtype is a narrowing; a narrowing that needs live-state evidence is not thereby a subtype.
 
-**T6-1. Two spellings of one test.** `narrows(that, info)` returns a boolean;
-`ensureNarrows(that, info)` throws `NarrowingException` with a reason. `isSubtypeOf` /
-`isSupertypeOf` are the world-free spellings; they pass a sentinel world that raises
-`IllegalStateException` if the comparison actually turns out to need one (T8-8).
+**T6-1. The two judgments.** `narrows(that, info)` answers contextual narrowing;
+`ensureNarrows(that, info)` is its throwing form. `isSubtypeOf` and `isSupertypeOf` answer
+context-free subtyping. They raise `IllegalStateException` rather than guess when a comparison asks
+for live-state evidence (T8-8).
 
 > **Non-normative implementation note — refusing a plausible lie.** A world-free comparison cannot
 > decide whether a concrete area satisfies `HAS Neighbor`. Throwing exposes a caller that chose the
 > structural API; returning false would incorrectly report a legal placement as impossible in some
 > worlds.
 
-**T6-2. The structural rule.** A narrows B when
+**T6-2. The shared structural rule.** A narrows B when
 
 1. A's root class is a subclass of B's root class, and
 2. for every dependency key B constrains, A's bound for that key narrows B's, and
@@ -591,40 +603,43 @@ with a world is a preorder, not an order.
 **T6-6. Constrained narrowing.** `ClassTable.matchesConstraint(candidate, constraint, domain, info)`
 asks whether a candidate satisfies a constraint expression *read inside a domain*. The constraint is
 first intersected with the domain, then the candidate is tested against the result. This is how a
-trigger's `BY` selector is applied: with domain `Actor`, the constraint `Player` accepts `Player1`
-and rejects `Admin`, and `Actor(NOT Player1)` accepts both `Player2` and `Admin`. A constraint that
-cannot meet the domain at all simply answers false.
+trigger's `BY` selector other than the unrestricted `Anyone` is applied: with domain `Actor`, the
+constraint `Player` accepts `Player1` and rejects `Admin`, and `Actor(NOT Player1)` accepts both
+`Player2` and `Admin`. A constraint that cannot meet the domain at all simply answers false.
 
-> **Non-normative example — Aphrodite.** Its trigger says `VenusStep BY Anyone`. Reading `Anyone`
-> inside the `Actor` domain means any player who performed the increase, not any component that falls
-> under the broad ownership hierarchy; the domain turns the convenient spelling into an actor
-> constraint.
+> **Non-normative example — actor constraints.** A `BY Player` trigger uses this judgment to accept a
+> Player and reject Admin. `BY Anyone` is instead the icon-grammar spelling for removing the usual
+> Actor restriction altogether, so Aphrodite also reacts to a World Government increase performed by
+> Admin. That wildcard is handled before constrained narrowing; it is not the ownership class
+> `Anyone` intersected with `Actor`.
 
 ---
 
 ## 7. Bounds
 
-**T7-1. Greatest lower bound (`⊓`, `glb`).** The most general type below both operands, or **absent**
-when there is none. It is computed componentwise: the root classes by T2-8, each shared dependency key
-by `⊓` again, and refinements by T8-9. The selected root Class contributes its complete declared
-dependency set, including keys neither operand had and bounds narrower than either operand stated.
+**T7-1. Constraint intersection (`∩`, `intersect`).** Two constraints can be combined when their
+root classes are comparable. The narrower root is selected, each shared dependency key is
+intersected recursively, and refinements are combined by T8-9. The selected root Class contributes
+its complete declared dependency set, including keys absent from the wider operand. An incomparable
+root makes the result **absent** even when some third declared class extends both operands.
 
 ```text
-Tile<Tharsis_2_2>  ⊓  Owned<Player1>       =  OwnedTile<Tharsis_2_2, Player1>
-GreeneryTile<Tharsis_2_2>  ⊓  GreeneryTile<Player1>  =  GreeneryTile<Tharsis_2_2, Player1>
-Tile<Tharsis_2_2>  ⊓  Tile<Tharsis_2_3>    =  absent
-GreeneryTile  ⊓  OceanTile                 =  absent
+Tile<Tharsis_2_2>  ∩  Owned<Player1>       =  absent
+GreeneryTile<Tharsis_2_2>  ∩  GreeneryTile<Player1>  =  GreeneryTile<Tharsis_2_2, Player1>
+Tile<Tharsis_2_2>  ∩  Tile<Tharsis_2_3>    =  absent
+GreeneryTile  ∩  OceanTile                 =  absent
 ```
 
-Absent means "Pets cannot write down a single type for this", not "no component could be both".
-Where a result does exist it narrows both operands, and no other type below both is outside it.
+Absent means the constraints cannot be combined without selecting a different root class, not that
+no component could satisfy both. Where a result exists it narrows both operands.
 
 > **Non-normative example — Protected Valley.** It places a greenery on a water area. The selected
 > component must satisfy both the greenery's inherited Mars-area bound and the written `WaterArea`
 > constraint; their meet is the legal special placement, not a replacement of one by the other.
 
-**T7-2. `glb` is idempotent and commutative.** Refinement clauses form a set (T8-9), so two meets
-that write their clauses in different orders are equal Types even though their renderings may differ.
+**T7-2. Intersection is idempotent and commutative.** Refinement clauses form a set (T8-9), so two
+intersections that write their clauses in different orders are equal Types even though their
+renderings may differ.
 
 **T7-3. Cross-universe bounds are rejected**, per T1-2.
 
@@ -656,8 +671,10 @@ Neighbor)`.
 > whether the space is legal.
 
 **T8-3. How the candidate is substituted.** Every expression inside `R` receives the candidate in the
-first of its dependencies that can accept it (T3-5). A bare class property receives it as its
-receiver, so `CardFront(HAS MAX 9 cost)` tested against `Ants` asks `MAX 9 Ants.cost`.
+first compatible dependency whose current bound it narrows. If the candidate narrows none of the
+compatible dependencies, it receives the first compatible dependency. A bare class property
+receives it as its receiver, so `CardFront(HAS MAX 9 cost)` tested against `Ants` asks
+`MAX 9 Ants.cost`.
 
 If no expression in `R` can accept the candidate, the refinement fails without asking the world at
 all. This is not an error; it is the answer. `Component(HAS StartToken)` can only ever match a
@@ -673,13 +690,6 @@ argument, asking whether that candidate owns `This`.
 > already-written `ActionCard(NOT Viron)` inside `ActionUsedMarker`; treating written arguments as
 > occupied slots would make its “another card's action” choice fail.
 
-> **A known gap.** When two dependencies of one expression accept the same type, the candidate takes
-> the first, which may be the one an argument was written into, leaving the intended slot open. For
-> `Area(HAS Adjacency<Tharsis_2_2>)` with candidate `Tharsis_2_2`, the world is asked
-> `Adjacency<Tharsis_2_2, Area>` rather than `Adjacency<Tharsis_2_2, Tharsis_2_2>`. Characterized in
-> `BugsTest`. Reserving written keys is *not* the fix: real cards, including Viron and Mons
-> Insurance, depend on the merging behavior above.
-
 **T8-4. `NOT` is a structural difference.** `D(NOT X)` is the part of `D` that cannot overlap `X`. A
 candidate satisfies it only when its **entire** structural domain avoids `X`:
 
@@ -691,7 +701,7 @@ Player  <: Owner(NOT Player1)     no — abstract `Player` still admits Player1
 
 The exclusion need not narrow the domain; subtraction goes through their structural intersection.
 `Actor(NOT Owner)` excludes players, who inherit both, and retains `Admin`. Overlap is detected even
-where the two have no unique greatest common subclass (T2-8): if two rival classes each extend both
+where ordinary constraint intersection is absent (T2-8): if two rival classes each extend both
 `Occupant` and `Owned`, `Occupant(NOT Owned)` still excludes them. The test never consults a world,
 and works the same inside a dependency: `Marker<Player(NOT Player1)>`.
 
@@ -745,9 +755,9 @@ variable may be specialized later, making the difference non-empty again.
 > “building card” constraint without another world query, while the extra conjunct prevents choosing
 > the first card twice.
 
-**T8-9. `glb` of refinements.** A refinement the other operand lacks is kept. Refinement clauses form
-a set: duplicates collapse and clause order does not affect Type equality. Rendering retains the
-order in which distinct clauses were first encountered. Thus both
+**T8-9. Intersection of refinements.** A refinement the other operand lacks is kept. Refinement
+clauses form a set: duplicates collapse and clause order does not affect Type equality. Rendering
+retains the order in which distinct clauses were first encountered. Thus both
 `LandArea(HAS Neighbor, NOT Tharsis_2_2)` and
 `Area(NOT Tharsis_2_2, NOT WaterArea)` are writable results below their two operands.
 
@@ -875,7 +885,7 @@ about one are an error.
 
 **T10-4. Inheriting dependency defaults.** For one dependency key and one use kind, only the nearest
 declaring superclasses survive: anything a nearer superclass overrode is discarded. What survives is
-intersected (`⊓`), and survivors with no common narrowing are an error. Each inherited default is also
+intersected (`∩`), and survivors with incomparable roots are an error. Each inherited default is also
 intersected with the inheriting class's own bound, so a default can only ever get narrower. A default
 that merely restates the declared bound records nothing at all.
 
@@ -1069,8 +1079,9 @@ written.
 A variable's identity is its declaration and scope — never its class name. `Player` can name several
 unrelated variables in different rules.
 
-There are two ways a variable comes into being: a class header declares one (T13-2 to T13-5), or one is
-inferred from repetition in authored syntax (T13-6 to T13-9).
+There are two sources of a shared choice: a class header declares one (T13-2 to T13-5), or authored
+syntax repeats one across places that must agree (T13-6 to T13-9). A trigger supplies the concrete
+value when it matches; `BY` is one place that value can come from.
 
 ### Class-header variables
 
@@ -1108,10 +1119,10 @@ rejected.
 **T13-4. Inheritance.** A subclass does not redeclare an inherited variable, and effects inherited
 from a superclass keep that superclass's scope.
 
-> **Non-normative example — `CardInvoice`.** It inherits `Billing`'s cleanup effects, including the
+> **Non-normative example — `CardBilling`.** It inherits `Billing`'s cleanup effects, including the
 > resource-denomination variable, while fixing that denomination to MC. Redeclaring the variable in
-> the subclass would disconnect the inherited “remove when no debt remains” test from the invoice's
-> actual currency.
+> the subclass would disconnect the inherited “remove when no debt remains” test from the billing
+> component's actual currency.
 
 **T13-5. Capturing values.** `variableBindingsFrom(general, variables)` reads what a specialized
 component type supplies for each variable. Both types must have the same root class. Specializing
@@ -1160,8 +1171,18 @@ production.
 > destination would be forced to the same track and the card would cancel itself; only repeated
 > proper subexpressions are equality claims.
 
-**T13-8. What does not declare a variable.** These prevent a *declaration*; they never hide a use of a
-variable declared in an enclosing scope.
+> **Non-normative design note — regions are choice sites.** Repetition is meaningful because the
+> physical icon grammar commonly repeats one icon to mean “the same one.” Regions identify the
+> independently settled parts of a rule across which that co-reference matters: trigger and result,
+> cost and result, or successive stages. Repetition inside one observational query instead ranges
+> over matching components and does not select one. The exclusions in T13-8 preserve that semantic
+> boundary; they are not a general claim that equal-looking syntax always binds. Requiring the same
+> authored spelling also keeps co-reference visible in the source: resolution and default insertion
+> cannot silently make two differently written icons become one shared choice.
+
+**T13-8. Where repetition does not introduce another variable.** Repetition is evidence of one
+shared choice only where the occurrences can be settled by that choice. The cases below introduce no
+additional variable; they never hide a use of a variable already declared in an enclosing scope.
 
 | Repetition | Why not |
 | --- | --- |
@@ -1178,10 +1199,17 @@ variable declared in an enclosing scope.
 > of it. Conversely, `EACH Class<GlobalParameter>` owns an explicit fanout variable so its body uses
 > the particular track selected for that iteration.
 
-**T13-9. Actor selectors.** A simple, positive, abstract Actor expression after `BY` declares a
-variable *even with no repetition* — that is how a triggered rule learns who acted. `BY Anyone` is an
-unrestricted filter, and a refined selector such as `BY Player(NOT Owner)` is a filter too; neither
-binds.
+**T13-9. Actor specialization.** A `BY` selector constrains the Actor recorded on the triggering
+event. A simple, positive, abstract Actor expression in that position is specialized to the concrete
+Actor before the inner trigger is matched. It is the declaration occurrence for every identical
+authored occurrence in that Effect, including occurrences elsewhere in the trigger and in the
+instruction. If there is no other occurrence, recording that declaration has no additional language
+meaning: the selector simply tests the Actor.
+
+Other selectors do not become declarations merely because they follow `BY`. `BY Anyone` alone is the
+unrestricted wildcard described after T6-6, and a refined selector alone is a constraint. If an
+identical refined selector is repeated across the trigger and instruction, the ordinary co-reference
+rule T13-6 applies. Repeated `Anyone` is deliberately unspecified (Appendix B).
 
 Where an actor variable is visible, an exclusion may use it, and the difference is tested only after
 the actor is bound:
@@ -1195,10 +1223,17 @@ Binding `Player` to `Player1` gives
 `Owner(NOT Player1)` is itself a variable that may then capture a particular other player. This keeps
 "anyone but the actor" distinct from "the particular other player this event was about".
 
-> **Non-normative examples — Aphrodite and Hydrologist.** Aphrodite says `VenusStep BY Anyone` only
-> to filter the event; its owner receives the money. `HydrologistWatcher` says `OceanTile BY Player`
-> because the actual placer must be captured as the owner of `OceanCredit`. Treating both selectors
-> as variables—or neither—breaks one of the two rules.
+> **Non-normative examples — Hydrologist and Aphrodite.** Hydrologist says
+> `OceanTile BY Player: OceanCredit<Player, OceanTile>`. When Player 2 places an ocean, ordinary
+> trigger specialization supplies `Player2` for both `Player` occurrences, so the credit belongs to
+> the placer. Aphrodite says `VenusStep BY Anyone: 2 MC`; it repeats no `Anyone`, so the wildcard only
+> removes the Actor restriction and the money retains Aphrodite's contextual owner.
+
+> **Non-normative design note — `BY` uses ordinary trigger specialization.** `BY` does not introduce
+> a separate kind of co-reference. It identifies the event field that supplies the value, and the
+> ordinary authored-occurrence rules identify where that value is reused. Specializing it before the
+> inner trigger matters when the Actor is mentioned in a `NOT` there. With no reuse, whether an
+> implementation records a one-occurrence variable is bookkeeping rather than language semantics.
 
 ### Binding
 
@@ -1243,3 +1278,7 @@ One behavior contradicts the rules above. It has a passing characterization in
 - **Exception messages.** Rules name exception *types* where the type is part of the contract.
 - **Evaluation order and caching.** Resolution memoizes, and several derived values are computed
   lazily; neither is observable except through T1-6.
+- **A repeated `Anyone` Actor selector.** `BY Anyone` alone is an unrestricted wildcard and includes
+  Admin. `Anyone` elsewhere is the root of the ownership hierarchy, which does not include Admin.
+  No canonical rule repeats `Anyone` across a `BY` selector and its instruction, and this
+  specification does not yet choose how such an occurrence would capture a non-Owner Actor.

@@ -38,7 +38,8 @@ import dev.martianzoo.pets.util.toSetStrict
  * [section 2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
  *
  * This value compiles [declaration] into resolved supertypes, [dependencies], properties, defaults,
- * and a base type. Class identity is its name within [classTable], not declaration object identity.
+ * and a base type. The class loader constructs exactly one instance per name, so reference identity
+ * represents name identity within [classTable].
  */
 public class Class
 internal constructor(
@@ -60,7 +61,6 @@ internal constructor(
      */
     public val directSuperclasses: List<Class> = superclasses(declaration, loader, activateRelated),
 ) : HasClassName, Specification<Class> {
-
   /**
    * The master universe containing this class, as required by
    * [rule T1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
@@ -230,20 +230,12 @@ internal constructor(
     abstractSupertypeBits = bits
   }
 
-  /**
-   * Returns the unique greatest common subclass with [that], or null when absent, following
-   * [rule T2-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
-   *
-   * @throws IllegalArgumentException if [that] belongs to another universe (rule T1-2).
-   */
-  public infix fun glb(that: Class): Class? =
+  /** Returns the narrower operand, or null when neither class narrows the other. */
+  internal infix fun intersect(that: Class): Class? =
       when {
         this.isSubtypeOf(that) -> this
         that.isSubtypeOf(this) -> that
-        else -> {
-          val lowerBounds = allSubclasses().filter(that::isSupertypeOf)
-          lowerBounds.singleOrNull { candidate -> lowerBounds.all(candidate::isSupertypeOf) }
-        }
+        else -> null
       }
 
   /**
@@ -304,19 +296,6 @@ internal constructor(
   public fun allSuperclasses(): Set<Class> = allSuperclasses
 
   internal fun properSuperclasses(): Set<Class> = allSuperclasses() - this
-
-  /**
-   * Every subclass in the frozen master universe, including this class, as specified by
-   * [rules T1-6 and T2-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
-   */
-  public fun allSubclasses(): Set<Class> = loader.allSubclassesOf(this)
-
-  /**
-   * The subclasses exactly one nominal step below this class in the frozen master universe ([rules
-   * T1-6 and
-   * T2-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes)).
-   */
-  public fun directSubclasses(): Set<Class> = loader.directSubclassesOf(this)
 
   // DEPENDENCIES
 
@@ -386,7 +365,7 @@ internal constructor(
     // common narrowing are an error.
     inherited.reduceOrNull { left, right ->
       left.merge(right) { a, b ->
-        (a glb b)
+        (a intersect b)
             ?: throw PetException("$className inherits incompatible bounds for ${a.key}: $a and $b")
       }
     } ?: DependencySet.of()
@@ -458,7 +437,7 @@ internal constructor(
       dependencyEqualities().forEach { equality ->
         val occurrences = equality.paths.map(dependencies::at)
         val intersection = occurrences.reduce { left, right ->
-          (left glb right) ?: equalityError(equality, dependencies)
+          (left intersect right) ?: equalityError(equality, dependencies)
         }
         equality.paths.forEach { path ->
           if (dependencies.at(path) != intersection) {
@@ -840,7 +819,7 @@ internal constructor(
       "expected keys ${dependencies.keys}, got $deps"
     }
     val bounded =
-        requireNotNull(dependencies glb projected) {
+        requireNotNull(dependencies intersect projected) {
           "$deps does not satisfy the declared dependency bounds of $className"
         }
     return GroundType(this, normalizeVariableEqualities(bounded))
@@ -924,19 +903,6 @@ internal constructor(
    */
   public val defaults: Defaults
     get() = defaultsLazy.value
-
-  /**
-   * Implements universe-scoped name identity from
-   * [rules T1-1 and T2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
-   */
-  override fun equals(other: Any?): Boolean =
-      other is Class && other.className == className && other.loader == loader
-
-  /**
-   * Hashes the universe-scoped name identity defined by
-   * [rules T1-1 and T2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
-   */
-  override fun hashCode(): Int = className.hashCode() xor loader.hashCode()
 
   /**
    * Returns the canonical name required by

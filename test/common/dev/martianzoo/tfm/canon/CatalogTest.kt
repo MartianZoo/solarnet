@@ -297,7 +297,7 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun defaultBundleGoalPoolsRequireThreeOfEachKind() {
+  internal fun defaultBundleGoalPoolsMayContainFewerThanThreeOfEachKind() {
     val source =
         TfmCatalog.compose(
             bundle(
@@ -324,9 +324,16 @@ internal class CatalogTest {
             ),
         )
 
-    shouldThrow<IllegalArgumentException> {
-      source.gamePremise(GameConfig("MultiplayerMode, SparseMap"))
-    }
+    val premise = source.gamePremise(GameConfig("MultiplayerMode, SparseMap"))
+
+    premise.classSelections.filter { it.included }.mapTo(linkedSetOf()) { it.className } shouldBe
+        setOf(
+            cn("FirstMilestone"),
+            cn("SecondMilestone"),
+            cn("FirstAward"),
+            cn("SecondAward"),
+            cn("ThirdAward"),
+        )
   }
 
   @Test
@@ -335,10 +342,10 @@ internal class CatalogTest {
         StandardFormBundle(
             name = "CardPack",
             resourceDirectory = "CardPack",
-            resourceFilenames = setOf("classes.pets", "cards.pets"),
+            resourceFilenames = setOf("support.pets", "cards.pets"),
             resourceReader = { path ->
               when (path) {
-                "CardPack/classes.pets" ->
+                "CardPack/support.pets" ->
                     """
                     ABSTRACT CLASS Module
                     ABSTRACT CLASS CardBack
@@ -422,10 +429,10 @@ internal class CatalogTest {
         StandardFormBundle(
             name = "ContentPack",
             resourceDirectory = "ContentPack",
-            resourceFilenames = setOf("classes.pets", "cards.pets"),
+            resourceFilenames = setOf("content.pets", "cards.pets"),
             resourceReader = { path ->
               when (path) {
-                "ContentPack/classes.pets" -> "CLASS ContentPack : Module"
+                "ContentPack/content.pets" -> "CLASS ContentPack : Module"
                 "ContentPack/cards.pets" -> cardDeclarations
                 else -> error("Unexpected resource $path")
               }

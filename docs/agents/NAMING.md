@@ -173,7 +173,7 @@ looking it up.
   them as "when you ___": `PlayCard`, `PlayTag`, `Pay`, `BuyCard`, `AdvanceColonyTracks`. Write the
   name so that phrase reads back.
 - **Other `MustCleanUp` state** — the transient thing sitting on the table during an action, not the
-  event — is a noun or a past participle: `Owed`, `Required`, `Invoice`, `TradeBarrier`. Do not give it
+  event — is a noun or a past participle: `Owed`, `Required`, `ActionBilling`, `TradeBarrier`. Do not give it
   the bare-verb shape that belongs to Signals.
 - **Custom instructions** are imperative verb phrases: `CopyProductionBox`. Use the
   published verb when the game prints one — Robotic Workforce
@@ -185,7 +185,7 @@ looking it up.
 - **Capabilities** (supertypes that say what a component can do) read as predicates or agent nouns:
   `HasActions`, `ResourceHolder`. Reserve the `Has` prefix for this use.
 - **Records** that something already happened use the passive voice when the actor does not matter
-  (`SuitableInfrastructurePaid`, `ActionUsedMarker`) and the `My` prefix when it does: `My` marks
+  (`ActionUsedMarker`) and the `My` prefix when it does: `My` marks
   that the *victim* is the owner while the actor rides along in a separate parameter, as in
   `MyResourceWasRemoved<Class<Resource>, Player>`.
 - **Markers** name real physical components players handle: `ActionUsedMarker`, `Community`,
@@ -209,13 +209,12 @@ looking it up.
 Most `Module` subtypes extend `Module` directly, and that is fine — they need no intermediate
 supertype just to justify a suffix. Three loose families exist today:
 
-1. **Content and card packs** — published products contributing cards and components use their own
-   noun: `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`, `PreludeExpansion`,
-   `Prelude2Expansion`. `CardPack` marks a card-only selection that can be included independently
-   from its product's rules: `Prelude1CardPack`, `Prelude2CardPack`, `PromoCardPack`, and
-   `TurmoilCardPack`. The published expansions and their Bundles retain the official
-   `PreludeExpansion` and `Prelude2Expansion` names; the card packs use `Prelude1` and `Prelude2`
-   to distinguish their contributions to the merged Prelude deck.
+1. **Rules and card packs** — published products contributing ambient rules use their own noun:
+   `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`, and `PreludeExpansion`.
+   `CardPack` marks a card-only selection: `Prelude1CardPack`, `Prelude2CardPack`,
+   `PromoCardPack`, and `TurmoilCardPack`. Prelude 2 contributes content through
+   `Prelude2CardPack`, not a second Prelude rules Module. The Milestones & Awards product likewise
+   contributes individually selected goals rather than a Module.
 2. **Exclusive choices** — a closed set behind an abstract supertype, exactly one selected. These
    already borrow the supertype's word, which reads well: `MultiplayerMode` and `SoloMode` under
    `GameMode`; `TharsisMap` and `HellasMap` under `MarsMap`; `StandardSoloObjective` and
@@ -356,8 +355,10 @@ is clearer than treating each copy as a separately named token.
 `Barrier` and `GameEndBarrier` are **unrelated supertypes** that both use the word. `Barrier :
 MustCleanUp` means "the player must remove this to unblock a task" and backs the open-ended query
 `MAX 0 Barrier` in
-[`classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets), which spans
-`Owed`, `Billing`, `Required`, and `TradeBarrier`. `GameEndBarrier` extends nothing, means "the game
+[`card-model.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets),
+which spans `Required` there, `Owed` and `Billing` in
+[`payment.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets),
+and `TradeBarrier` in Colonies. `GameEndBarrier` extends nothing, means "the game
 may not end yet", and is queried by name from
 [`TfmWorkflow.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt) and four tests. We are
 keeping the shared word. The trap to watch: a new class that blocks game end will compile just as

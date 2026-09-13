@@ -104,6 +104,7 @@ internal class Spec12InhabitanceTest {
     val catalog =
         testCatalog(
             """
+            ABSTRACT CLASS Player
             ABSTRACT CLASS Feature
             ABSTRACT CLASS DormantBase
             CLASS Holder<Feature>
@@ -117,9 +118,11 @@ internal class Spec12InhabitanceTest {
             modules = emptySet(),
             classSelections = setOf(ClassSelection(cn("LocalFeature"))),
             initialComponentTypes = emptySet(),
+            playerNames = listOf(cn("Player1")),
             premiseClassDeclarations =
                 parseClasses(
                         """
+                        CLASS Player1 : Player
                         CLASS LocalFeature : Feature
                         CLASS DormantFeature : DormantBase
                         CLASS LocalRoot
@@ -136,6 +139,13 @@ internal class Spec12InhabitanceTest {
     view.resolve(te("Holder<LocalFeature>")).classTable shouldBe view
     view.allSubclasses(master.getClass(cn("Feature"))).map { it.className } shouldContainExactly
         listOf(cn("Feature"), cn("LocalFeature"))
+    val masterPlayer = master.getClass(cn("Player"))
+    master.allSubclasses(masterPlayer).map { it.className } shouldContainExactly
+        listOf(cn("Player"))
+    view.allSubclasses(masterPlayer).map { it.className } shouldContainExactly
+        listOf(cn("Player"), cn("Player1"))
+    view.directSubclasses(masterPlayer).map { it.className } shouldContainExactly
+        listOf(cn("Player1"))
     val world = RecordingWorld(answer = true)
     view
         .resolve(te("LocalFeature"))
@@ -184,7 +194,7 @@ internal class Spec12InhabitanceTest {
       left.getClass(cn("LocalFeature")).isSubtypeOf(right.getClass(cn("LocalFeature")))
     }
     shouldThrowIae {
-      left.resolve(te("Holder<LocalFeature>")) glb right.resolve(te("Holder<LocalFeature>"))
+      left.resolve(te("Holder<LocalFeature>")) intersect right.resolve(te("Holder<LocalFeature>"))
     }
   }
 

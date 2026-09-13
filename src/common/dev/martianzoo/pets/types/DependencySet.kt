@@ -165,14 +165,10 @@ private constructor(
    */
   public fun isSupertypeOf(that: DependencySet): Boolean = that.isSubtypeOf(this)
 
-  /**
-   * Intersects corresponding keyed bounds, returning null if any shared bound has no intersection,
-   * as required by
-   * [rule T7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds).
-   */
-  public infix fun glb(that: DependencySet): DependencySet? {
+  /** Intersects corresponding keyed bounds, returning null if any roots are incomparable. */
+  internal infix fun intersect(that: DependencySet): DependencySet? {
     requireSameClassTable(that)
-    return merge(that) { a, b -> (a glb b) ?: return@glb null }
+    return merge(that) { a, b -> (a intersect b) ?: return@intersect null }
   }
 
   /**
@@ -249,6 +245,18 @@ private constructor(
     // This has been a bit optimized
     val partial = matchPartial(specs, classTable)
     return of(deps.map { partial.getIfPresent(it.key) ?: it })
+  }
+
+  internal fun specializeRefinementCandidate(
+      candidate: Expression,
+      classTable: ClassTable,
+  ): DependencySet {
+    val compatible = deps.mapNotNull { it.intersect(candidate, classTable) }
+    val selected =
+        compatible.firstOrNull { narrowed -> narrowed != get(narrowed.key) }
+            ?: compatible.firstOrNull()
+            ?: throw Exceptions.badExpression(candidate, toString())
+    return replaceAt(DependencyPath(selected.key), selected)
   }
 
   internal fun replaceAt(path: DependencyPath, replacement: Dependency): DependencySet {

@@ -21,7 +21,7 @@ CLASS FakeAppliedScience : ActionCard, ResourceCard<Class<Science>, Class<Prelud
 
   This: FakeWildTag<This>, 6 Science<This>
 
-  Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource
+  Science<This> -> CardResource<ResourceCard(HAS CardResource)> OR StandardResource
 }
 
 CLASS FakeNobelPrize : CardFront<Class<PreludeCard>> {
@@ -85,7 +85,7 @@ CLASS FakeL1TradeTerminal : ActiveCard {
 "One robot unit stored with a card that reduces its play cost by 1 MC"
 CLASS RobotUnit<Class<CardFront>> : Resource, Owned<Player>, Hidden {
   ReplicateForStagedProject<Class<CardFront>>: This!
-  PlayCard<Class<CardBack>, Class<CardFront>, Hand>: -Owed<>, -This!
+  PlayCard<Class<CardBack>, Class<CardFront>, Hand>: -Owed, -This!
 }
 
 "Self-Replicating Robots with printed-tag selection delegated in follow mode"

@@ -334,7 +334,7 @@ Whole-game tests are high-value integration coverage. When translating a supplie
 - Source-backed full-game replays enforce that assumption for resources worth more than one M€.
   Leaving an accepted full-value unit unused fails unless the player calls `intentionalUnderpay()`
   immediately before that payment. The same one-shot audit exemption covers spending an accepted
-  1:1 resource while enough M€ could settle the invoice. It does not waive payment legality: an
+  1:1 resource while enough M€ could settle the billing. It does not waive payment legality: an
   allocation containing a unit that could be returned is rejected, while unavoidable rounding
   excess needs no marker. Explain the sourced later payment or checkpoint that requires an unusual
   allocation, and prefer correcting an unsupported allocation over declaring intent.

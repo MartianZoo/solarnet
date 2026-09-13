@@ -142,7 +142,7 @@ internal open class TaskQueues(
     // Task ids define a stable diagnostic order, though queue order has no gameplay meaning.
     val all: Set<Task> = taskSet + task
     taskSet.clear()
-    taskSet += all.sortedBy { it.id }
+    taskSet += all.sortedBy { it.id.ordinal }
   }
 
   protected open fun removeFromTaskSet(task: Task) {

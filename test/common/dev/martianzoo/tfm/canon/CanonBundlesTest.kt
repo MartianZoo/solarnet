@@ -100,8 +100,10 @@ internal class CanonBundlesTest {
   }
 
   @Test
-  internal fun goalCatalogAndItsSupportDoNotRequireASelectableBundleModule() {
+  internal fun contentOnlyProductsDoNotRequireSelectableExpansionModules() {
     Canon.allClassNames.contains(cn("MilestonesAwardsExpansion")) shouldBe false
+    Canon.allClassNames.contains(cn("Prelude2Expansion")) shouldBe false
+    Canon.allClassNames.contains(cn("Prelude2CardPack")) shouldBe true
     Canon.allClassNames.contains(cn("Landscaper")) shouldBe true
 
     val landscaperWithTharsis =
@@ -132,12 +134,32 @@ internal class CanonBundlesTest {
   }
 
   @Test
+  internal fun standardFormBundleCombinesEveryPetsSource() {
+    val bundle =
+        StandardFormBundle(
+            name = "SplitBundle",
+            resourceDirectory = "split",
+            resourceFilenames = setOf("game.pets", "scoring.pets"),
+            resourceReader = { filename ->
+              when (filename) {
+                "split/game.pets" -> "CLASS GameClass"
+                "split/scoring.pets" -> "CLASS ScoringClass"
+                else -> error("Unexpected resource: $filename")
+              }
+            },
+        )
+
+    bundle.explicitClassDeclarations.map { it.className }.toSet() shouldBe
+        setOf(cn("GameClass"), cn("ScoringClass"))
+  }
+
+  @Test
   internal fun standardFormBundleLoadsMapDefinitionFromPetsComment() {
     val bundle =
         StandardFormBundle(
             name = "MapProvider",
             resourceDirectory = "maps",
-            resourceFilenames = setOf("classes.pets"),
+            resourceFilenames = setOf("map.pets"),
             resourceReader = {
               """
               CLASS DemoMap : MarsMap
@@ -161,10 +183,10 @@ internal class CanonBundlesTest {
         StandardFormBundle(
             name = "LocalizedBundle",
             resourceDirectory = "localized",
-            resourceFilenames = setOf("classes.pets", "language/en.json5"),
+            resourceFilenames = setOf("content.pets", "language/en.json5"),
             resourceReader = { filename ->
               when (filename) {
-                "localized/classes.pets" -> "CLASS Example"
+                "localized/content.pets" -> "CLASS Example"
                 "localized/language/en.json5" -> """{ Example: "Example name" }"""
                 else -> error("Unexpected resource: $filename")
               }

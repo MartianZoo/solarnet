@@ -253,13 +253,13 @@ public abstract class ClassTable {
 
   /**
    * Active subclasses of [klass], including [klass] when active, under view-relative enumeration in
-   * [rule T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
+   * [rules T2-7 and T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
    */
   public fun allSubclasses(klass: Class): Set<Class> {
     require(accepts(klass.classTable)) { "$klass belongs to a different Catalog" }
-    if (this === masterTable) return klass.allSubclasses()
+    if (this === masterTable) return allSubclassesOf(klass)
     return activeSubclassesByClass.getOrPut(klass) {
-      klass.allSubclasses().filterTo(linkedSetOf(), ::isActive).apply {
+      klass.classTable.allSubclassesOf(klass).filterTo(linkedSetOf(), ::isActive).apply {
         if (klass.classTable === masterTable) {
           premiseClasses.filterTo(this) { candidate ->
             isActive(candidate) && candidate.isSubtypeOf(klass)
@@ -277,7 +277,7 @@ public abstract class ClassTable {
   internal fun allStructuralSubclasses(klass: Class): Set<Class> {
     require(accepts(klass.classTable)) { "$klass belongs to a different Catalog" }
     return structuralSubclassesByClass.getOrPut(klass) {
-      klass.allSubclasses().toMutableSet().apply {
+      klass.classTable.allSubclassesOf(klass).toMutableSet().apply {
         if (klass.classTable === masterTable) {
           premiseClasses.filterTo(this) { candidate -> candidate.isSubtypeOf(klass) }
         }
@@ -287,13 +287,13 @@ public abstract class ClassTable {
 
   /**
    * Active subclasses exactly one nominal step below [klass], under view-relative enumeration in
-   * [rule T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
+   * [rules T2-7 and T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
    */
   public fun directSubclasses(klass: Class): Set<Class> {
     require(accepts(klass.classTable)) { "$klass belongs to a different Catalog" }
-    if (this === masterTable) return klass.directSubclasses()
+    if (this === masterTable) return directSubclassesOf(klass)
     return activeDirectSubclassesByClass.getOrPut(klass) {
-      klass.directSubclasses().filterTo(linkedSetOf(), ::isActive).apply {
+      klass.classTable.directSubclassesOf(klass).filterTo(linkedSetOf(), ::isActive).apply {
         if (klass.classTable === masterTable) {
           premiseClasses.filterTo(this) { candidate ->
             isActive(candidate) && klass in candidate.directSuperclasses
@@ -302,6 +302,10 @@ public abstract class ClassTable {
       }
     }
   }
+
+  internal abstract fun allSubclassesOf(klass: Class): Set<Class>
+
+  internal abstract fun directSubclassesOf(klass: Class): Set<Class>
 
   /**
    * Enumerates active concrete structural narrowings of [type], combining
@@ -349,7 +353,7 @@ public abstract class ClassTable {
     val unrefined = type.copy(refinement = null)
     val candidates =
         subclasses(type.rootClass).asSequence().filterNot(Class::abstract).flatMap { klass ->
-          val dependencies = unrefined.dependencies glb klass.dependencies
+          val dependencies = unrefined.dependencies intersect klass.dependencies
           if (dependencies == null) {
             emptySequence()
           } else {
@@ -408,7 +412,7 @@ public abstract class ClassTable {
         allSubclasses(type.rootClass)
             .asSequence()
             .filterNot(Class::abstract)
-            .mapNotNull { klass -> unrefined glb klass.baseType }
+            .mapNotNull { klass -> unrefined intersect klass.baseType }
             .take(2)
             .singleOrNull() ?: return null
     val dependencies = intersection.dependencies.singleConcreteSubtype(info, this) ?: return null

@@ -128,6 +128,25 @@ internal class Spec03DependenciesTest {
         .shouldContain("Amphibious inherits incompatible bounds for Tile_0")
   }
 
+  @Test
+  internal fun `T3-3 inherited bounds do not infer a common descendant`() {
+    shouldThrow<PetException> {
+          loadTypes(
+              """
+              ABSTRACT CLASS Tile
+              ABSTRACT CLASS OwnedTile : Tile, Owned
+              ABSTRACT CLASS Holder<Component>
+              ABSTRACT CLASS TileHolder : Holder<Tile>
+              ABSTRACT CLASS OwnedHolder : Holder<Owned>
+              CLASS Both : TileHolder, OwnedHolder
+              """
+                  .trimIndent()
+          )
+        }
+        .message
+        .shouldContain("Both inherits incompatible bounds for Holder_0")
+  }
+
   // T3-4 Arguments intersect the bound
 
   @Test
@@ -158,6 +177,18 @@ internal class Spec03DependenciesTest {
   internal fun `T3-4 an argument outside the bound is an error`() {
     shouldThrow<ExpressionException> { type("OceanTile<Tharsis_2_2>") }
     shouldThrow<ExpressionException> { type("Occupant<Player1>") }
+  }
+
+  @Test
+  internal fun `T3-4 an argument does not infer a common descendant of an incomparable bound`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Tile",
+            "ABSTRACT CLASS OwnedTile : Tile, Owned",
+            "ABSTRACT CLASS Holder<Tile>",
+        )
+
+    shouldThrow<ExpressionException> { table.resolve(te("Holder<Owned>")) }
   }
 
   // T3-5 Argument matching
@@ -305,9 +336,9 @@ internal class Spec03DependenciesTest {
   internal fun `T3-8 shared variables are narrowed before a difference is tested`() {
     val cards = equalityCards()
 
-    (cards.resolve(te("Card<Player1>")) glb cards.resolve(te("Card<Player2>"))) shouldBe null
-    (cards.resolve(te("Card<Player1>")) glb cards.resolve(te("Card(NOT Card<Player2>)"))) shouldBe
-        cards.resolve(te("Card<Player1>"))
+    (cards.resolve(te("Card<Player1>")) intersect cards.resolve(te("Card<Player2>"))) shouldBe null
+    (cards.resolve(te("Card<Player1>")) intersect
+        cards.resolve(te("Card(NOT Card<Player2>)"))) shouldBe cards.resolve(te("Card<Player1>"))
     cards.resolve(te("Linked<Player1, Card(NOT Card<Player2>)>")) shouldBe
         cards.resolve(te("Linked<Player1>"))
     cards.resolve(te("Linked<Player1, Owned(NOT Card)>")).abstract shouldBe true

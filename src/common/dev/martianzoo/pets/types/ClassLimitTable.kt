@@ -11,8 +11,9 @@ import kotlin.Int.Companion.MAX_VALUE
 
 /**
  * Immutable component-count limits for one active class-table view. The type system uses these
- * limits only to enforce that every dependency can identify a unique component, as specified by
- * [rule T3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+ * limits to enforce that every dependency can identify a unique component, as specified by
+ * [rule T3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies),
+ * and the engine applies the same compiled limits to live component counts.
  */
 public class ClassLimitTable private constructor(private val classTable: ClassTable) {
   /**
@@ -82,6 +83,23 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
     }
   }
 
+  /**
+   * Returns every positive-lower-bound limit that must hold for a completed component set.
+   * Self-counts apply to every active concrete specialization; a dependent count containing `This`
+   * applies only to the declaring types present in [liveTypes].
+   */
+  public fun requiredLimits(liveTypes: Collection<Type>): Set<Limit> {
+    liveTypes.forEach { require(classTable.knows(it)) { "$it belongs to a different Catalog" } }
+    val liveTypeSet = liveTypes.toSet()
+    return restrictionsByClass.values
+        .asSequence()
+        .flatten()
+        .distinct()
+        .filter { it.range.first > 0 }
+        .flatMap { it.requiredLimits(liveTypeSet) }
+        .toSet()
+  }
+
   private fun compileRestrictions(): Map<Class, List<Restriction>> {
     val restrictions = mutableMapOf<Class, MutableList<Restriction>>()
     classTable
@@ -105,22 +123,25 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
   }
 
   private fun toRestriction(invariant: Counting, klass: Class): Restriction {
-    var expression =
+    val expression =
         (invariant.metric as? Metric.Count)?.expression
             ?: throw invalidPetDefinition(
                 "Class invariant on ${klass.className} must count one component expression: $invariant"
             )
-
+    if (THIS !in expression.descendantsOfType<ClassName>()) {
+      return BoundRestriction(classTable.resolve(expression), invariant.range)
+    }
     if (classTable.allConcreteSubtypes(klass.baseType).drop(1).none()) {
-      expression =
+      val bound =
           replaceThisExpressionsWith(klass.className.expression).transformExpression(expression)
+      return ScopedBoundRestriction(
+          classTable.resolve(bound),
+          klass,
+          expression.className == THIS,
+          invariant.range,
+      )
     }
-
-    return if (THIS in expression.descendantsOfType<ClassName>()) {
-      UnboundRestriction(expression, klass, classTable, invariant.range)
-    } else {
-      BoundRestriction(classTable.resolve(expression), invariant.range)
-    }
+    return UnboundRestriction(expression, klass, classTable, invariant.range)
   }
 
   private sealed interface Restriction {
@@ -128,6 +149,8 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
     val root: Class
 
     fun bindThisTo(type: Type): Limit?
+
+    fun requiredLimits(liveTypes: Set<Type>): Sequence<Limit>
   }
 
   private data class BoundRestriction(
@@ -137,6 +160,27 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
     override val root: Class = type.rootClass
 
     override fun bindThisTo(type: Type): Limit = Limit(this.type, range)
+
+    override fun requiredLimits(liveTypes: Set<Type>): Sequence<Limit> =
+        sequenceOf(Limit(type, range))
+  }
+
+  private data class ScopedBoundRestriction(
+      val type: Type,
+      val declaringClass: Class,
+      val selfCount: Boolean,
+      override val range: IntRange,
+  ) : Restriction {
+    override val root: Class = type.rootClass
+
+    override fun bindThisTo(type: Type): Limit = Limit(this.type, range)
+
+    override fun requiredLimits(liveTypes: Set<Type>): Sequence<Limit> =
+        if (selfCount || liveTypes.any { it.rootClass.isSubtypeOf(declaringClass) }) {
+          sequenceOf(Limit(type, range))
+        } else {
+          emptySequence()
+        }
   }
 
   private data class UnboundRestriction(
@@ -154,6 +198,20 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
           (listOf(type) + type.typeDependencies.map { it.boundType }).singleOrNull {
             it.rootClass.isSubtypeOf(declaringClass)
           } ?: return null
+      return bindThisToScope(thisType)
+    }
+
+    override fun requiredLimits(liveTypes: Set<Type>): Sequence<Limit> {
+      val scopes =
+          if (expression.className == THIS) {
+            classTable.allConcreteSubtypes(declaringClass.baseType)
+          } else {
+            liveTypes.asSequence().filter { it.rootClass.isSubtypeOf(declaringClass) }
+          }
+      return scopes.distinct().map(::bindThisToScope)
+    }
+
+    private fun bindThisToScope(thisType: Type): Limit {
       val bound =
           replaceThisExpressionsWith(thisType.expressionFull).transformExpression(expression)
       return Limit(classTable.resolve(bound), range)
