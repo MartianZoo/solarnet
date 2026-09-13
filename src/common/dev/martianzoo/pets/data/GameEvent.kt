@@ -6,6 +6,9 @@ import dev.martianzoo.pets.util.pre
 public sealed class GameEvent {
   public abstract val ordinal: Int
 
+  /** Mutable commentary excluded from this event's value equality and all gameplay semantics. */
+  public var notes: String? = null
+
   public sealed class TaskEvent : GameEvent() {
     public abstract val task: Task
 
