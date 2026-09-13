@@ -25,6 +25,7 @@ internal abstract class CardTrackingFullGameTest(
   private val projectCardEvents = mutableListOf<ChangeEvent>()
   private val eventCards = mutableMapOf<ChangeEvent, MutableList<ClassName>>()
   private val recentProjectCardStarts = mutableMapOf<Player, Int>()
+  private var nextUnknownProjectCard = 1
   // Replay narration can identify a card immediately before or after the engine records its move.
   private val pendingAnnotations = mutableListOf<PendingAnnotation>()
   private lateinit var trackingCheckpoint: Checkpoint
@@ -39,6 +40,7 @@ internal abstract class CardTrackingFullGameTest(
     eventCards.clear()
     recentProjectCardStarts.clear()
     pendingAnnotations.clear()
+    nextUnknownProjectCard = 1
     trackingCheckpoint = game.timeline.checkpoint()
     trackingStartOrdinal = trackingCheckpoint.ordinal
 
@@ -69,6 +71,14 @@ internal abstract class CardTrackingFullGameTest(
       check(cards.put(cardClass, Selecting(player)) == null) {
         "$cardClass has already left the deck"
       }
+    }
+  }
+
+  /** Allocates distinct replay-local identities for project cards absent from the source. */
+  protected fun unknownProjectCards(count: Int): Array<ClassName> {
+    require(count >= 0)
+    return Array(count) {
+      cn("UnknownCard${nextUnknownProjectCard++.toString().padStart(2, '0')}")
     }
   }
 
