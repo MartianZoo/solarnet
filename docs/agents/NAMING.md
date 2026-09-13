@@ -209,13 +209,12 @@ looking it up.
 Most `Module` subtypes extend `Module` directly, and that is fine — they need no intermediate
 supertype just to justify a suffix. Three loose families exist today:
 
-1. **Content and card packs** — published products contributing cards and components use their own
-   noun: `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`, `PreludeExpansion`,
-   `Prelude2Expansion`. `CardPack` marks a card-only selection that can be included independently
-   from its product's rules: `Prelude1CardPack`, `Prelude2CardPack`, `PromoCardPack`, and
-   `TurmoilCardPack`. The published expansions and their Bundles retain the official
-   `PreludeExpansion` and `Prelude2Expansion` names; the card packs use `Prelude1` and `Prelude2`
-   to distinguish their contributions to the merged Prelude deck.
+1. **Rules and card packs** — published products contributing ambient rules use their own noun:
+   `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`, and `PreludeExpansion`.
+   `CardPack` marks a card-only selection: `Prelude1CardPack`, `Prelude2CardPack`,
+   `PromoCardPack`, and `TurmoilCardPack`. Prelude 2 contributes content through
+   `Prelude2CardPack`, not a second Prelude rules Module. The Milestones & Awards product likewise
+   contributes individually selected goals rather than a Module.
 2. **Exclusive choices** — a closed set behind an abstract supertype, exactly one selected. These
    already borrow the supertype's word, which reads well: `MultiplayerMode` and `SoloMode` under
    `GameMode`; `TharsisMap` and `HellasMap` under `MarsMap`; `StandardSoloObjective` and

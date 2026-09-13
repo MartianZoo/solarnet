@@ -80,7 +80,7 @@ internal class BugsTest : CardTest() {
 
   @Test
   internal fun `Fake Preservation Program incorrectly enables UNMI after reversing its TR gain`() {
-    newGame(Prelude2Expansion, FakeStuffBundle)
+    newGame(PreludeExpansion, Prelude2CardPack, FakeStuffBundle)
     p1.phase("Prelude")
     p1.runOperation("$UnitedNationsMarsInitiative, FakePreservationProgram")
     admin.phase("Action")
@@ -92,7 +92,7 @@ internal class BugsTest : CardTest() {
 
   @Test
   internal fun `Fake Preservation Program incorrectly triggers Terraforming Deal on reversed TR`() {
-    newGame(Prelude2Expansion, FakeStuffBundle)
+    newGame(PreludeExpansion, Prelude2CardPack, FakeStuffBundle)
     p1.phase("Prelude")
     p1.runOperation("FakePreservationProgram, TerraformingDeal")
     admin.phase("Action")

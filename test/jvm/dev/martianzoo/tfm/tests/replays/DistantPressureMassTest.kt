@@ -17,7 +17,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       GameConfig(
           """
           HellasMap
-          VenusNextExpansion, PreludeExpansion, Prelude2Expansion, ColoniesExpansion, PromoCardPack
+          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, ColoniesExpansion, PromoCardPack
           FakeStuffBundle
 
           Ecologist, Terraformer, Terran, Mayor, Merchant, Researcher
