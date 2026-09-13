@@ -203,7 +203,9 @@ returning false.
 **T2-6. Declaration order is irrelevant.** A supertype may be declared after its subclass.
 
 **T2-7. The hierarchy can be walked in both directions.** A class knows `allSuperclasses()` (itself
-included), `allSubclasses()` and `directSubclasses()`. The downward ones need a frozen table (T1-6).
+included). Downward traversal is table-relative: `ClassTable.allSubclasses(klass)` and
+`ClassTable.directSubclasses(klass)` enumerate the subclasses visible in that table. They need a
+frozen table (T1-6).
 
 **T2-8. Greatest lower bound of two classes (`⊓`).** If one operand is below the other, that one is
 the answer. Otherwise Pets looks for a *unique greatest common subclass*: a class below both, which

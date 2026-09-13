@@ -24,11 +24,8 @@ internal class AwardsTest : TfmTest() {
   internal fun multiplayerOnlyStandardActionsAreAbsentInSoloGames() {
     game = Engine.newGame(canonicalPremise(players = 1))
 
-    game.classTable
-        .getClass(cn("Award"))
-        .allSubclasses()
-        .filter { !it.abstract && game.classTable.isActive(it.className) }
-        .shouldBeEmpty()
+    val award = game.classTable.getClass(cn("Award"))
+    game.classTable.allSubclasses(award).filterNot { it.abstract }.shouldBeEmpty()
     game.classTable.isActive(cn("ClaimMilestoneAction")) shouldBe false
     game.classTable.isActive(cn("FundAwardAction")) shouldBe false
     admin.assertCounts(

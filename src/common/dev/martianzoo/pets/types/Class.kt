@@ -242,7 +242,7 @@ internal constructor(
         this.isSubtypeOf(that) -> this
         that.isSubtypeOf(this) -> that
         else -> {
-          val lowerBounds = allSubclasses().filter(that::isSupertypeOf)
+          val lowerBounds = loader.allSubclassesOf(this).filter(that::isSupertypeOf)
           lowerBounds.singleOrNull { candidate -> lowerBounds.all(candidate::isSupertypeOf) }
         }
       }
@@ -305,19 +305,6 @@ internal constructor(
   public fun allSuperclasses(): Set<Class> = allSuperclasses
 
   internal fun properSuperclasses(): Set<Class> = allSuperclasses() - this
-
-  /**
-   * Every subclass in the frozen master universe, including this class, as specified by
-   * [rules T1-6 and T2-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
-   */
-  public fun allSubclasses(): Set<Class> = loader.allSubclassesOf(this)
-
-  /**
-   * The subclasses exactly one nominal step below this class in the frozen master universe ([rules
-   * T1-6 and
-   * T2-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes)).
-   */
-  public fun directSubclasses(): Set<Class> = loader.directSubclassesOf(this)
 
   // DEPENDENCIES
 

@@ -11,7 +11,8 @@
 > enumeration; use [type-system-spec.md](../type-system-spec.md).
 >
 > **Status:** selected replacement in progress. The reusable master and premise-local declaration
-> delta are implemented; realization semantics and the final API cleanup remain planned.
+> delta and table-relative subclass enumeration are implemented; realization semantics and the
+> remaining API cleanup remain planned.
 
 ## Source map
 
@@ -210,9 +211,9 @@ until the replacement is complete.
    references, cross-master rejection, excluded and dependency-unrealized Types, zero class-literal
    counts, hierarchy answers that include premise declarations, unrealized `Die`, and forbidden
    `Ok:` triggers.
-3. **Inventory context-free operations.** Find every `Class` or `Type` operation that currently
-   reaches `classTable`. Move subclass enumeration, unrelated `glb`, structural overlap, concrete
-   narrowing, and their caches behind an explicit universe before changing representation.
+3. **Inventory remaining context-free operations.** Find every `Class` or `Type` operation that
+   currently reaches `classTable`. Move unrelated `glb`, structural overlap, concrete narrowing,
+   and their caches behind an explicit universe before changing representation.
 4. **Establish the reusable compilation boundary.** Keep only facts unaffected by premise additions
    or exclusion in the master. Use the existing `Class` if it can own those facts honestly;
    otherwise extract one compiled definition without duplicating them. Ensure failed compilation

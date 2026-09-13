@@ -483,7 +483,10 @@ public open class TfmCatalog : Catalog {
   /** Catalog-known concrete subclasses of the ordinary Pets `ColonyTile` class. */
   public val colonyTileClassNames: Set<ClassName> by lazy {
     val colonyTile = universe.findClass(COLONY_TILE) ?: return@lazy emptySet()
-    colonyTile.allSubclasses().filterNot { it.abstract }.mapTo(linkedSetOf()) { it.className }
+    universe
+        .allSubclasses(colonyTile)
+        .filterNot { it.abstract }
+        .mapTo(linkedSetOf()) { it.className }
   }
 
   private fun resolveConfigurationNames(names: Iterable<ClassName>): Set<ClassName> =

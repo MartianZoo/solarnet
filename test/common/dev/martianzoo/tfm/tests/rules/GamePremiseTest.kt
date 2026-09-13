@@ -21,6 +21,7 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.cards.cardnames.ColonizerTrainingCamp
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
@@ -270,7 +271,7 @@ internal class GamePremiseTest {
         .filter { it.included && Canon.classTable.getClass(it.className).isSubtypeOf(award) }
         .size shouldBe 4
     goalSelections.mapTo(linkedSetOf(), ClassSelection::className) shouldBe
-        (milestone.allSubclasses() + award.allSubclasses())
+        (Canon.classTable.allSubclasses(milestone) + Canon.classTable.allSubclasses(award))
             .filterNot { it.abstract }
             .mapTo(linkedSetOf()) { it.className }
   }
@@ -301,12 +302,8 @@ internal class GamePremiseTest {
   internal fun soloModeDoesNotActivateDefaultGoalsOrMultiplayerGoalActions() {
     val table = Engine.newGame(Canon.gamePremise(GameConfig("", "Player1"))).classTable
 
-    Canon.classTable.getClass(cn("Milestone")).allSubclasses().none {
-      table.isActive(it.className)
-    } shouldBe true
-    Canon.classTable.getClass(cn("Award")).allSubclasses().none {
-      table.isActive(it.className)
-    } shouldBe true
+    table.allSubclasses(Canon.classTable.getClass(cn("Milestone"))).shouldBeEmpty()
+    table.allSubclasses(Canon.classTable.getClass(cn("Award"))).shouldBeEmpty()
     table.isActive(cn("ClaimMilestoneAction")) shouldBe false
     table.isActive(cn("FundAwardAction")) shouldBe false
 
