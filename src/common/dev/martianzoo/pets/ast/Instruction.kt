@@ -297,12 +297,30 @@ public sealed class Instruction : InstructionTree() {
             info.isAbstract(variables.expressionOf(it.declaration))
           }) {
         val bindings =
-            variables.bindings(gaining, proposed.gaining, variable) +
-                variables.bindings(removing, proposed.removing, variable)
-        if (bindings.distinct().size > 1) {
-          throw NarrowingException(
-              "Can't set Type variable $variable differently: ${bindings.toSet()}"
-          )
+            variables.bindings(gaining, proposed.gaining, variable, region = 0) +
+                variables.bindings(removing, proposed.removing, variable, region = 1)
+        var commonBinding = variable.bound
+        var selectedRoot = variable.bound.rootClass
+        var selectedRefinement = variable.bound.refinement
+        var selected = false
+        for (binding in bindings) {
+          val type =
+              (info as? GameReader)?.resolve(binding) ?: variable.bound.classTable.resolve(binding)
+          if (
+              selected && (type.rootClass != selectedRoot || type.refinement != selectedRefinement)
+          ) {
+            throw NarrowingException(
+                "Can't set Type variable $variable differently: ${bindings.toSet()}"
+            )
+          }
+          selectedRoot = type.rootClass
+          selectedRefinement = type.refinement
+          selected = true
+          commonBinding =
+              (commonBinding glb type)
+                  ?: throw NarrowingException(
+                      "Can't set Type variable $variable differently: ${bindings.toSet()}"
+                  )
         }
       }
     }

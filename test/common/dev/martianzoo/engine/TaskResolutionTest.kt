@@ -4,7 +4,9 @@ import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.data.GameEvent
 import dev.martianzoo.pets.data.GameEvent.TaskAddedEvent
 import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
@@ -102,6 +104,23 @@ internal class TaskResolutionTest {
     agent.selectTask("-TerraformRating OR -Plant OR Heat OR Tharsis_5_5!")
 
     tasksAsText().shouldContainExactlyInAnyOrder("-TerraformRating<Player1>! OR Heat<Player1>!")
+  }
+
+  @Test
+  internal fun `selection preserves a transmutation's shared type choice`() {
+    agent.runOperation("Steel, Titanium")
+    val taskId = initiate("Production<Class<StandardResource>> FROM StandardResource").single()
+
+    agent.selectTask(taskId)
+    val selected = tasks.getTaskData(taskId).instruction as Transmute
+    selected.typeVariables.isEmpty shouldBe false
+
+    shouldThrow<NarrowingException> {
+      agent.narrowTask("Production<Class<Steel>> FROM Titanium")
+    }
+    agent.narrowTask("Production<Class<Steel>> FROM Steel")
+    agent.count("Steel") shouldBe 0
+    agent.count("Production<Class<Steel>>") shouldBe 1
   }
 
   private fun initiate(ins: String) = (agent as Agent).addTasks(ins)

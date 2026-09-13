@@ -4,6 +4,8 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.isExpandedFrom
 import dev.martianzoo.pets.types.testCatalog
 import io.kotest.assertions.throwables.shouldThrow
@@ -190,6 +192,57 @@ internal class Lang07NarrowingTest {
         "Tile<LandArea> FROM LandArea",
         "GreeneryTile<Land1> FROM Land2",
     )
+  }
+
+  @Test
+  internal fun `L7-8 occurrence-specific ownership does not hide a shared value`() {
+    val catalog =
+        testCatalog(
+            """
+            CLASS Player1 : Owner
+            ABSTRACT CLASS Resource : Owned<Owner> { CLASS Iron, Copper }
+            ABSTRACT CLASS Receipt<Class<Resource>> : Owned<Owner>
+            """
+                .trimIndent()
+        )
+    val elaborator = PetElaborator(catalog.classTable)
+    val player = Player(parse("Player1"))
+    val world = TableWorld(catalog.classTable)
+    fun instruction(source: String) =
+        elaborator.elaborateInput(parse<InstructionTree>(source), player)
+    val wide = instruction("Receipt<Class<Resource>> FROM Resource")
+
+    instruction("Receipt<Class<Iron>> FROM Iron")
+        .narrows(
+            wide,
+            world,
+        ) shouldBe true
+    instruction("Receipt<Class<Iron>> FROM Copper")
+        .narrows(
+            wide,
+            world,
+        ) shouldBe false
+  }
+
+  @Test
+  internal fun `L7-8 overlapping values do not count as the same shared value`() {
+    val catalog =
+        testCatalog(
+            """
+            ABSTRACT CLASS Value
+            ABSTRACT CLASS Left : Value
+            ABSTRACT CLASS Right : Value
+            CLASS Both : Left, Right
+            ABSTRACT CLASS Receipt<Class<Value>>
+            """
+                .trimIndent()
+        )
+    val elaborator = PetElaborator(catalog.classTable)
+    val world = TableWorld(catalog.classTable)
+    fun instruction(source: String) = elaborator.elaborateInput(parse<InstructionTree>(source))
+    val wide = instruction("Receipt<Class<Value>> FROM Value")
+
+    instruction("Receipt<Class<Left>> FROM Right").narrows(wide, world) shouldBe false
   }
 
   @Test

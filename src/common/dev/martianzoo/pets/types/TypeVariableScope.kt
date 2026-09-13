@@ -126,8 +126,22 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
       wide: PetNode,
       narrow: PetNode,
       variable: TypeVariable,
+      region: Int? = null,
   ): List<Expression> = buildList {
-    val sources = entries.single { it.variable === variable }.currentExpressions.values
+    val entry = entries.single { it.variable === variable }
+    val relevant =
+        entry.currentExpressions.filterKeys { occurrence ->
+          region == null || occurrence.region == region
+        }
+    val sources =
+        if (region == null) {
+          relevant.values
+        } else {
+          relevant.flatMap { (occurrence, current) ->
+            if (current == occurrence.expression) listOf(current)
+            else listOf(current, occurrence.expression)
+          }
+        }
 
     fun collect(wideNode: PetNode, narrowNode: PetNode) {
       if (
