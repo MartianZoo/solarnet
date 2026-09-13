@@ -1,10 +1,9 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class HeadStartTest : CardTest() {
@@ -24,7 +23,7 @@ internal class HeadStartTest : CardTest() {
       doTask("11 Pay<Class<MC>> FROM MC")
 
       p1.assertCounts(2 to "MC")
-      p1.production(cn("Energy")) shouldBe 2
+      p1.assertProds(2 to "Energy")
     }
   }
 

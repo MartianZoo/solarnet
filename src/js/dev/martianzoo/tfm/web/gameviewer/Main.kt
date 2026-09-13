@@ -9,6 +9,7 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.displayName
+import dev.martianzoo.tfm.canon.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.MC
@@ -259,6 +260,7 @@ private fun renderDashboard(recording: GameRecording, agents: Agents, player: Pl
 
   val corporation =
       playedCards(game, player).firstOrNull { cardImageDirectory(it) == "corporations" }
+  val productionLevels = lookUpProductionLevels(game.reader, player)
   setValue("player-name", displayName(game.reader.catalog, player.className))
   setValue(
       "corporation-name",
@@ -278,7 +280,7 @@ private fun renderDashboard(recording: GameRecording, agents: Agents, player: Pl
       )
       .forEach { (name, type) ->
         setValue("$name-stock", countIfLoaded(type))
-        val production = tfm.production(dev.martianzoo.pets.ast.ClassName.cn(type))
+        val production = productionLevels.getValue(dev.martianzoo.pets.ast.ClassName.cn(type))
         setValue("$name-production", if (production > 0) "+$production" else production)
       }
 

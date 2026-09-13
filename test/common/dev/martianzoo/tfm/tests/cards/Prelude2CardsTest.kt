@@ -9,6 +9,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.testsupport.PLAYER3
+import dev.martianzoo.tfm.canon.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
@@ -426,16 +427,20 @@ internal class Prelude2CardsTest : CardTest() {
     p1.runOperation(
         "$Sponsors, $EarthOffice, $VenusGovernor, $VenusWaystation, $ForcedPrecipitation"
     )
-    val firstStartingProduction = p1.production(cn("MC"))
+    val firstStartingProduction =
+        lookUpProductionLevels(game.reader, p1.actor.expression).getValue(cn("MC"))
     p1.runOperation("$CloudTourism")
-    p1.production(cn("MC")) shouldBe firstStartingProduction + 2
+    lookUpProductionLevels(game.reader, p1.actor.expression).getValue(cn("MC")) shouldBe
+        firstStartingProduction + 2
 
     newGame(Prelude2Expansion, VenusNextExpansion, CorporateEraExpansion)
     p1.runOperation("$Sponsors, $EarthOffice, $EarthCatapult, $AcquiredCompany, $MediaGroup")
     p1.runOperation("$ForcedPrecipitation")
-    val secondStartingProduction = p1.production(cn("MC"))
+    val secondStartingProduction =
+        lookUpProductionLevels(game.reader, p1.actor.expression).getValue(cn("MC"))
     p1.runOperation("$CloudTourism")
-    p1.production(cn("MC")) shouldBe secondStartingProduction + 2
+    lookUpProductionLevels(game.reader, p1.actor.expression).getValue(cn("MC")) shouldBe
+        secondStartingProduction + 2
   }
 
   // https://boardgamegeek.com/thread/3154781/do-event-tags-count-for-sagitta

@@ -10,6 +10,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.tfm.canon.ApiUtils.lookUpProductionLevels
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
@@ -147,7 +148,7 @@ internal class BootstrapLifecycleTest {
 
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
 
-    game.testTfm(PLAYER1).production(cn("MC")) shouldBe -2
+    lookUpProductionLevels(game.reader, PLAYER1).getValue(cn("MC")) shouldBe -2
   }
 
   @Test
