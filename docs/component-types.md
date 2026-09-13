@@ -1,7 +1,7 @@
 # Terraforming Mars component classes
 
 Here's an overview of the component classes that (currently) make up the core of the game. Refer to
-Terraforming Mars [`classes.pets`](https://github.com/MartianZoo/solarnet/blob/main/src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
+the Terraforming Mars [`.pets` sources](https://github.com/MartianZoo/solarnet/tree/main/src/common/dev/martianzoo/tfm/canon/TerraformingMars)
 as you read.
 
 ## Communal / non-player-owned

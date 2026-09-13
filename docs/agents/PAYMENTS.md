@@ -15,10 +15,10 @@
 
 ## Source map
 
-- [Terraforming Mars `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
-  — search separately for `CLASS Pay`, `CLASS ResourceValue`, `ABSTRACT CLASS Owed`, and
-  `ABSTRACT CLASS Billing` to inspect the current distributed protocol.
-- [Colonies `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/classes.pets)
+- [Terraforming Mars `payment.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets)
+  — search separately for `CLASS Pay`, `CLASS ResourceValue`, `CLASS Owed`, and
+  `ABSTRACT CLASS Billing` to inspect the current protocol.
+- [Colonies `cards.json5`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/cards.json5)
   — search for `Stormcraft` only when evaluating source attribution.
 - [`TfmGameplay.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmGameplay.kt)
   — search for `rejectReturnableUnit` for legality, `auditSourcedTender` for replay auditing, and

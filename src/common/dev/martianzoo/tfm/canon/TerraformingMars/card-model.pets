@@ -1,0 +1,118 @@
+// Has subtypes for cards in hand/in play/etc, so your # of Card instances stays constant except on draw/discard
+ABSTRACT CLASS Card : Owned<Player> {
+  // A generic unplayed card whose face is still supplied by the follow-mode client
+  ABSTRACT CLASS CardBack<CardLocation> {
+    DEFAULT CardBack<Hand>
+    DEFAULT +CardBack
+    DEFAULT -CardBack
+    autoSelectWhen = Requirement?
+
+    CLASS CorporationCard, ProjectCard
+  }
+
+  // A card in play: face-up on the table
+  ABSTRACT CLASS CardFront<Class<CardBack>> : TagHolder {
+    HAS MAX 1 This<Player>
+
+    cost = Number
+    requirement = Requirement?
+    autoSelectWhen = Requirement?
+
+    ABSTRACT CLASS ActiveCard : CardFront<Class<ProjectCard>>
+    ABSTRACT CLASS AutomatedCard : CardFront<Class<ProjectCard>>
+    "A red project card"
+    ABSTRACT CLASS EventCard : CardFront<Class<ProjectCard>>, Temporary {
+      HAS =1 EventTag<This>
+      // Some effects move an event directly into another player's pile. Record it only if that
+      // move did not already create the one played-event record for this physical card.
+      -This IF MAX 0 PlayedEvent<Anyone, Class<This>>:: PlayedEvent<Class<This>>
+    }
+
+    ABSTRACT CLASS ActionCard : HasActions
+    ABSTRACT CLASS ResourceCard : ResourceHolder
+  }
+
+  "A card in your played-events pile"
+  CLASS PlayedEvent<Class<CardFront>> {
+    End: ScoreEventVps<Class<CardFront>>
+  }
+}
+
+"The persistent operation that owns research-phase and corporation-setup card purchases"
+CLASS CardPurchase : HasActions {
+  HAS =1 This
+  -Invoice<This>:: ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>
+}
+
+"Confirms purchase of every project card remaining in the player's selection"
+CLASS BuySelectedCards : Owned<Player>, Signal {
+  This:: (3 Owed<> / ProjectCard<Selecting>) THEN (BuyCard / ProjectCard<Selecting>) THEN Invoice<CardPurchase, Action1>
+}
+
+CLASS BuyCard : Owned<Player>, Signal
+
+CLASS PlayCard<Class<CardBack>, Class<CardFront>, CardLocation> : Owned<Player>, Signal {
+  This:: (EVAL CardFront<Class<CardBack>>.requirement: Ok) OR AdjustGpRequirement<Class<CardFront>>
+  This: Owed<> / CardFront.cost THEN HandleCardTags<Class<CardFront>> THEN CardInvoice<Class<CardFront>> THEN MAX 0 Barrier: CardFront FROM CardBack<CardLocation>
+}
+
+"Signals that a printed global-parameter requirement produced a shortfall ready for adjustment"
+CLASS CheckRequirement<Class<CardFront>> : Owned<Player>, Signal
+
+CLASS PlayTag<Class<Tag>> : Owned<Player>, Signal
+
+CLASS AdjustGpRequirement<Class<CardFront>> : Owned<Player>, Custom
+
+CLASS HandleCardTags<Class<CardFront>> : Owned<Player>, Custom
+
+"A temporary shortfall between a printed global requirement and the current parameter"
+CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
+  DEFAULT -Required.
+}
+
+"One state an unplayed card can occupy"
+ABSTRACT CLASS CardLocation : System {
+  CLASS Hand { HAS =1 This }
+  CLASS Selecting {
+    HAS MAX 1 This
+    CardBack<This>:: CardLocationCleanup<This>.
+    -This:: This!
+  }
+  CLASS Revealed {
+    HAS MAX 1 This
+    CardBack<This>:: CardLocationCleanup<This>.
+    -This:: This!
+  }
+}
+
+"Resets a transient card location after all current work finishes"
+CLASS CardLocationCleanup<CardLocation> : Temporary, Hidden {
+  HAS MAX 1 This
+  -This:: -CardLocation!
+}
+
+"Anything that can hold tags"
+ABSTRACT CLASS TagHolder : Owned<Player>
+
+ABSTRACT CLASS Tag<TagHolder<Player>> : Owned<Player>, Atomized {
+  CLASS BuildingTag, SpaceTag, ScienceTag, PowerTag, CityTag
+  ABSTRACT CLASS BioTag { CLASS PlantTag, MicrobeTag, AnimalTag }
+  ABSTRACT CLASS PlanetaryTag { CLASS EarthTag, JovianTag }
+  "The printed event icon derived for every EventCard"
+  CLASS EventTag : Tag<EventCard>
+}
+
+"Anything that can hold a particular kind of card resource"
+ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned<Owner>
+
+"Miscellaneous state whose identity and owner come from one face-up card"
+ABSTRACT CLASS Cardbound<CardFront<Player>> : Owned<Player>
+
+"Indicates that an action card has already been used this generation"
+CLASS ActionUsedMarker<GenerationScope> : Cardbound<ActionCard> { HAS MAX 1 This }
+
+"A singleton listener needed by selected content"
+ABSTRACT CLASS CardWatcher : System { HAS MAX 1 This }
+
+"Copies the single immediate production box on a chosen card"
+CLASS CopyProductionBox<CardFront<Player>> : Owned<Player>, Custom
