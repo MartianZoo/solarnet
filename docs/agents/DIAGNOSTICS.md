@@ -10,8 +10,8 @@
 > **Skip when:** the failure is already explained by a focused assertion or source-level
 > debugging.
 >
-> **Status:** proposal and investigation procedure. This document does not authorize adding every
-> potentially useful detail to the event model.
+> **Status:** current event notes plus proposed debug logging and investigation procedure. This
+> document does not authorize adding every potentially useful detail to the event model.
 
 ## Goal
 
@@ -38,27 +38,27 @@ the engine considered and why it did nothing.
 The current useful anchors are event ordinal, `ChangeEvent.cause`, task id, and task contents.
 Prefer using and rendering those consistently before adding fields.
 
-The first additional property to consider is:
+Every `GameEvent` has one deliberately broad annotation property:
 
 ```kotlin
-public var diagnostics: String? = null
+public var notes: String? = null
 ```
 
-This is deliberately an arbitrary string rather than a new hierarchy. It can hold a concise dump
-of information that belongs with an event but is not part of game meaning, such as a resolution
-explanation or relevant pre-transition context.
+This is deliberately an arbitrary string rather than a new hierarchy. It can hold sourced human
+commentary or concise diagnostic information that belongs with an event but is not part of game
+meaning. Card-tracked replay tests use it to correlate known physical card names with otherwise
+anonymous project-card changes.
 
-`diagnostics` should:
+`notes`:
 
-- be optional and have no effect on gameplay;
-- be excluded from event equality and gameplay-state equivalence;
-- not become game input or a substitute for `ChangeEvent.cause`;
-- appear only in explicitly diagnostic rendering, so normal history remains readable; and
-- carry no stable machine-readable format promise.
+- is optional, mutable after the event, and has no effect on gameplay;
+- is excluded from event equality and gameplay-state equivalence;
+- must not become game input or a substitute for `ChangeEvent.cause`;
+- appears only when a client explicitly renders it, so normal history remains readable; and
+- carries no stable machine-readable format promise.
 
-Do not put information in `diagnostics`
-for convenience alone. In particular, "why did
-autoexec skip this task?" cannot belong to an event when the skipped decision produced no event.
+Do not put information in `notes` for convenience alone. In particular, "why did autoexec skip
+this task?" cannot belong to an event when the skipped decision produced no event.
 
 Avoid adding several typed fields speculatively. A possible later exception is making operation
 correlation available on more event kinds, if real trace analysis shows it cannot be recovered
