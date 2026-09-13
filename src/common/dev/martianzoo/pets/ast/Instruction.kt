@@ -429,7 +429,7 @@ public sealed class Instruction : InstructionTree() {
 
   /**
    * Fans [body] out over the components matching [selector] in one World snapshot, producing one
-   * independent branch per distinct concrete Type present ([rule
+   * independent branch per matching component occurrence present ([rule
    * L6-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
    * In a branch, the authored [selector] expression denotes that concrete Type, and when the
    * selector is an `Owner`, so does the contextual `Owner`, so an ordinary owned body reads exactly
@@ -440,7 +440,8 @@ public sealed class Instruction : InstructionTree() {
    * requirement is unmet. Class properties in [body] are evaluated separately after each branch has
    * bound its selection. The body may not be empty and fanouts do not nest.
    *
-   * The selector is not a choice: a proposal must reproduce it exactly ([rule
+   * The body need not name the selected component: the selector may serve only as the repetition
+   * source. The selector is not a choice: a proposal must reproduce it exactly ([rule
    * L7-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
    * How the live world is enumerated, and when, is `EACH.md`'s subject.
    */

@@ -20,7 +20,6 @@ import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.DIE
-import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
@@ -408,21 +407,7 @@ internal constructor(
               "branch. Select an abstract type whose matching components can differ."
       )
     }
-    val ownsBody = elaborator.selectionSuppliesOwner(each.selector)
-    val named =
-        each.body.descendantsOfType<Expression>().any {
-          it == each.selectorName ||
-              it == each.representedSelectorName ||
-              (ownsBody && it.className == OWNER)
-        }
-    if (!named) {
-      throw ExpressionException(
-          "`EACH ${each.selector}` never names its selection in `${each.body}`, " +
-              "so every branch would be the same instruction"
-      )
-    }
-    val selected =
-        reader.getComponents(selectorType).elements.map { it.expression }.sortedBy { "$it" }
+    val selected = reader.getComponents(selectorType).map { it.expression }.sortedBy { "$it" }
     val branches = selected.map { branchFor(each, it) }
     return InstructionGroup.createTree(branches)
   }

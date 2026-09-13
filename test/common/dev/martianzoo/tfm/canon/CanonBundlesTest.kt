@@ -55,6 +55,23 @@ internal class CanonBundlesTest {
         )
     prelude2VenusWithoutColonies.isActive(cn("VenusTradeHub")) shouldBe false
     prelude2VenusWithColonies.isActive(cn("VenusTradeHub")) shouldBe true
+
+    val prelude2TurmoilOnly =
+        table(cn("PreludeExpansion"), cn("Prelude2CardPack"), cn("TurmoilExpansion"))
+    val prelude2ColoniesOnly =
+        table(cn("PreludeExpansion"), cn("Prelude2CardPack"), cn("ColoniesExpansion"))
+    val prelude2ColoniesAndTurmoil =
+        table(
+            cn("PreludeExpansion"),
+            cn("Prelude2CardPack"),
+            cn("ColoniesExpansion"),
+            cn("TurmoilExpansion"),
+        )
+    listOf("ColonialEnvoys", "ColonialRepresentation").forEach { cardName ->
+      prelude2TurmoilOnly.isActive(cn(cardName)) shouldBe false
+      prelude2ColoniesOnly.isActive(cn(cardName)) shouldBe false
+      prelude2ColoniesAndTurmoil.isActive(cn(cardName)) shouldBe true
+    }
   }
 
   @Test

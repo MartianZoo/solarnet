@@ -20,14 +20,11 @@ and resolves one independent sibling instruction branch for each match. It is a 
 branches have no index, accumulator, short-circuiting, or authored order. The stable implementation
 order exists only for reproducible output. If nothing matches, the result is `Ok`.
 
-Enumeration uses `ComponentGraph.getAll`, so it ranges over components that exist when the fanout is
-selected, not all possible Types. A queued fanout is one task until selected; only then do its
-branches become sibling tasks. This timing matters when components are created during setup and when
-tests or clients explicitly select tasks.
-
-Pets identifies components by exact Type rather than occurrence. Several fungible components with
-the same exact Type therefore produce one branch, not one branch per copy. Current uses select
-distinguishable components such as players, owned cards, adjacencies, or Class literals.
+Enumeration uses `ComponentGraph.getAll`, so it ranges over component occurrences that exist when
+the fanout is selected, not all possible Types. A queued fanout is one task until selected; only then
+do its branches become sibling tasks. This timing matters when components are created during setup
+and when tests or clients explicitly select tasks. Indistinguishable occurrences of the same exact
+Type each contribute a branch; those branches have equal text but remain independent work.
 
 ## Selector and body scope
 
@@ -60,9 +57,10 @@ Selector refinements decide participation using requirement semantics:
 EACH Player(HAS MAX 0 This<Anyone>) { PROD[-2 MC] BY Owner }
 ```
 
-An unmet gate inside the body fails normally; it does not omit that branch. `EACH` rejects a
-concrete selector, a selector unused by its body, nested fanouts, and an empty body. A `NOT`
-refinement may filter its selector like any other refinement.
+An unmet gate inside the body fails normally; it does not omit that branch. The body need not name
+the selected component: the selector may exist only to determine how many branches are produced.
+`EACH` rejects a concrete selector, nested fanouts, and an empty body. A `NOT` refinement may filter
+its selector like any other refinement.
 
 Class-property syntax in the body remains inert while the enclosing Class effect is prepared. Once
 the fanout snapshot is selected, each branch binds its selected component and, for an Owner
@@ -82,9 +80,10 @@ of an `Owned` component. `This` continues to mean the surrounding effect-bearing
 
 The selected owner does not automatically become the actor, controller, or assignee. Every branch
 inherits attribution and task control from the surrounding effect. Use `BY Owner` when the selected
-owner must receive attribution. Consequently, `EACH` is suitable for choice-free work but cannot
-express “each player makes their own choice.” Such work must remain on an owned component that gives
-the existing task-routing machinery the correct player context.
+owner must receive attribution. A fanout can produce independently narrowed choices for one
+surrounding controller, as Colonial Envoys does. It cannot express “each player makes their own
+choice”; such work must remain on an owned component that gives the existing task-routing machinery
+the correct player context.
 
 ## Sequencing
 
@@ -101,48 +100,15 @@ waits for one task, and `EACH` provides no fanout-wide join or additional atomic
 
 ## Occurrence versus Type
 
-**Audit.** A fanout branch corresponds to a distinct Type, never to a copy. This distinction
-decides whether a rule can use `EACH` at all, and it is easy to miss because a fanout over
-components that happen to be unique looks like a fanout over occurrences.
+A branch corresponds to a component occurrence, even though occurrences of one concrete Type are
+otherwise indistinguishable. Multiplicity repeats the branch; it does not scale the body. This is
+observable whenever the body remains abstract: two identical colonies in
+`EACH Colony<Owner> { PartyDelegate }` produce two delegate choices that may be narrowed
+independently, not one instruction to place two delegates in the same party.
 
-Terraforming Mars' Productive Outpost pays one colony bonus per colony owned. A player may hold two
-`Colony<Player1, Luna>` components, and the card must pay twice. No fanout can express that:
-
-```pets
-EACH Colony<Owner, ColonyTile> { ... }   // one branch for two identical colonies
-```
-
-The rule therefore lives on the `Colony` class, where the effect fires once per component:
-
-```pets
-CLASS Colony<ColonyTile> : Owned<Player> {
-  FinishTrade<Anyone, ColonyTile> OR GainColonyBonuses:: GainColonyBonus<ColonyTile>
-}
-```
-
-**Declined: fanning out over the tile instead.** `EACH ColonyTile(HAS Colony<Owner>) {
-GainColonyBonus<ColonyTile> }` type-checks, binds correctly, and passes the suite, because the
-selection is exactly what the body needs and a non-Owner selector leaves the enclosing owner
-available. It is still wrong: it pays once per tile, so a player with two colonies on one tile is
-underpaid. Do not propose it again.
-
-**Declined: selector destructuring.** Binding a selector's nested variables — `EACH Colony<Owner,
-ColonyTile>` binding `ColonyTile` to `Luna` — would not have helped, because the branch count is
-wrong before any binding happens. Independently, class-scoped dependency variables already
-destructure in the direction that keeps the call site ignorant of the selected class's shape.
-
-**Declined: scaling the body by multiplicity.** Emitting `body * n` for a component present `n`
-times conflates `n` instructions with one `n`-sized instruction. They differ whenever the body is
-abstract: two colonies on Titan owe two separate `Floater` requests, placeable on two different
-cards, not one `2 Floater`. If `EACH` ever honors multiplicity it must emit `n` sibling branches,
-which is the shape it already produces. No current selector would benefit — `Player`,
-`Class<GlobalParameter>`, `CityTile<Player>`, and `Class` literals are unique per Type — so this
-is unbuilt.
-
-The engine makes the same conflation today, ahead of any fanout: a trigger matching `n` components
-specializes its instruction as `instruction * n` (`Hit.specialize`), so `2 Colony<Titan>` produces
-one `6 Floater` task rather than two `3 Floater` tasks. `BugsTest` characterizes the current
-behavior.
+The selected expression still records only the occurrence's concrete Type. Selector substitution,
+property evaluation, and ownership therefore behave identically in equal branches; independence is
+represented by their separate positions in the resulting instruction group.
 
 ## Choosing the mechanism
 
@@ -168,11 +134,7 @@ and is not implied by `EACH`.
   binding and contextual-owner shielding (`selectionSuppliesOwner`).
 - [`InstructionResolutionTest.kt`](../../test/common/dev/martianzoo/engine/InstructionResolutionTest.kt)
   — runtime semantics (`testFanout`).
-- [`InstructionTest.kt`](../../test/common/dev/martianzoo/tfm/pets/ast/InstructionTest.kt) — parsing
-  and rejected forms (`fanout`).
-- [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt) — trigger multiplicity as
-  instruction scaling (`Hit.specialize`).
-- [`ProductiveOutpostTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/colonies/ProductiveOutpostTest.kt)
-  — per-colony rather than per-tile payout.
-- [`BugsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt) — merged bonuses for
-  two colonies on one tile.
+- [`Lang06InstructionsTest.kt`](../../test/common/dev/martianzoo/pets/Lang06InstructionsTest.kt) —
+  syntax and static restrictions.
+- [`Prelude2CardsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/Prelude2CardsTest.kt) —
+  independently chosen Colonial Envoys for equal Colony occurrences.

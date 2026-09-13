@@ -646,14 +646,14 @@ internal class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  internal fun `representation and envoys apply colony scaled political benefits`() {
+  internal fun `representation and envoys apply benefits once per colony occurrence`() {
     newGame(
         Prelude2Expansion,
         TurmoilExpansion,
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2, "Luna", "Io"),
     )
-    p1.runOperation("Colony<Luna>, Colony<Io>")
+    p1.runOperation("2 Colony<Luna>")
     val startingMoney = p1.count("MC")
 
     p1.runOperation("$ColonialRepresentation")

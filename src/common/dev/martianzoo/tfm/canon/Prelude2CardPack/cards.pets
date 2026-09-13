@@ -246,7 +246,7 @@ CLASS ColonialEnvoys : EventCard {
   requirement = HAS "Ruling<Unity> OR 2 PartyDelegate<Unity>"
 
   This:: EventTag<This>
-  This: PlaceColonialEnvoys
+  This: EACH Colony<Owner> { PartyDelegate }
 }
 
 CLASS ColonialRepresentation : ActiveCard {
@@ -424,8 +424,6 @@ CLASS FrontierTownBonus : Owned<Player>, Hidden {
 }
 
 CLASS HighCirclesInfluence : Influence { HAS MAX 1 This }
-
-CLASS PlaceColonialEnvoys : Owned<Player>, Custom
 
 CLASS RepeatPlacementBonus<MarsArea> : Owned<Player>, Custom
 

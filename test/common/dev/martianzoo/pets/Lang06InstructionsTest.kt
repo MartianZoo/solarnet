@@ -177,8 +177,8 @@ internal class Lang06InstructionsTest {
   // L6-10 EACH
 
   /**
-   * This module can pin the fanout's syntax and scope. Enumerating a live world, and rejecting a
-   * concrete or unused selector, happen where the fanout is resolved:
+   * This module can pin the fanout's syntax and scope. Enumerating a live world and rejecting a
+   * concrete selector happen where the fanout is resolved:
    * `test/common/dev/martianzoo/engine/EachSelectorOwnerTest.kt` and
    * `InstructionResolutionTest.kt`.
    */
