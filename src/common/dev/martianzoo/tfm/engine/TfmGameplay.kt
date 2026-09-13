@@ -614,9 +614,6 @@ public class TfmGameplay(
     asActor(ADMIN).runOperation("${phase}Phase FROM Phase", body)
   }
 
-  public fun production(kind: ClassName): Int =
-      count("PROD[$kind]") - count("ProdOffset<Class<$kind>>")
-
   public fun oxygenPercent(): Int = count("OxygenStep")
 
   public fun temperatureC(): Int = -30 + count("TemperatureStep") * 2
