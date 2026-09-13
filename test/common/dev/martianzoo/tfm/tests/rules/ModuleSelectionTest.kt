@@ -36,6 +36,15 @@ internal class ModuleSelectionTest {
                     """,
             ),
             Configuration(
+                description = "Terraforming Mars can be redundantly selected",
+                config = "TerraformingMars",
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
+                    TharsisMap
+                    """,
+            ),
+            Configuration(
                 description = "default solo game",
                 config = "",
                 players = 1,
@@ -57,7 +66,7 @@ internal class ModuleSelectionTest {
 
             // MAPS AND GOAL POOLS
             Configuration(
-                description = "Hellas replaces Tharsis and supplies its goals",
+                description = "Hellas prevents Tharsis from defaulting and supplies its goals",
                 config = "HellasMap",
                 selectsExactly =
                     """
@@ -66,7 +75,7 @@ internal class ModuleSelectionTest {
                     """,
             ),
             Configuration(
-                description = "Elysium replaces Tharsis and supplies its goals",
+                description = "Elysium prevents Tharsis from defaulting and supplies its goals",
                 config = "ElysiumMap",
                 selectsExactly =
                     """
@@ -75,7 +84,7 @@ internal class ModuleSelectionTest {
                     """,
             ),
             Configuration(
-                description = "Utopia replaces Tharsis and supplies its goals",
+                description = "Utopia prevents Tharsis from defaulting and supplies its goals",
                 config = "UtopiaMap",
                 selectsExactly =
                     """
@@ -84,7 +93,7 @@ internal class ModuleSelectionTest {
                     """,
             ),
             Configuration(
-                description = "Cimmeria replaces Tharsis and supplies its goals",
+                description = "Cimmeria prevents Tharsis from defaulting and supplies its goals",
                 config = "CimmeriaMap",
                 selectsExactly =
                     """
@@ -111,17 +120,8 @@ internal class ModuleSelectionTest {
                     """,
             ),
             Configuration(
-                description = "Vastitas retains the standard global parameters",
-                config = "VastitasMap",
-                selectsExactly =
-                    """
-                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
-                    VastitasMap
-                    """,
-            ),
-            Configuration(
-                description = "a named milestone replaces only the map's milestone pool",
-                config = "HellasMap, Landshaper, Builder, Coastguard",
+                description = "named milestones define only an exact milestone pool",
+                config = "HellasMap, Landshaper, Builder, Coastguard, Terraformer",
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
@@ -133,6 +133,16 @@ internal class ModuleSelectionTest {
             Configuration(
                 description = "Venus adds its goals and World Government by default",
                 config = "VenusNextExpansion",
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
+                    TharsisMap,
+                    VenusNextExpansion, WorldGovernmentRule
+                    """,
+            ),
+            Configuration(
+                description = "World Government can be redundantly selected with Venus",
+                config = "VenusNextExpansion, WorldGovernmentRule",
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
@@ -171,6 +181,25 @@ internal class ModuleSelectionTest {
                     """,
             ),
             Configuration(
+                description = "Mandatory Venus can be redundantly excluded without Venus",
+                config = "-MandatoryVenusVariant",
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
+                    TharsisMap
+                    """,
+            ),
+            Configuration(
+                description = "Mandatory Venus can be redundantly excluded with multiplayer Venus",
+                config = "VenusNextExpansion, -MandatoryVenusVariant",
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
+                    TharsisMap,
+                    VenusNextExpansion, WorldGovernmentRule
+                    """,
+            ),
+            Configuration(
                 description = "solo Venus uses neither default milestone nor award pools",
                 config = "VenusNextExpansion",
                 players = 1,
@@ -181,10 +210,20 @@ internal class ModuleSelectionTest {
                     """,
             ),
             Configuration(
-                description = "named goals replace every default goal pool",
+                description = "Mandatory Venus can be redundantly excluded with solo Venus",
+                config = "VenusNextExpansion, -MandatoryVenusVariant",
+                players = 1,
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, SoloMode, StandardSoloObjective,
+                    TharsisMap, VenusNextExpansion, WorldGovernmentRule
+                    """,
+            ),
+            Configuration(
+                description = "named goals define exact pools for both categories",
                 config =
-                    "VenusNextExpansion, Coastguard, Landshaper, Builder, " +
-                        "Botanist, Founder, Administrator",
+                    "VenusNextExpansion, Coastguard, Landshaper, Builder, Terraformer, " +
+                        "Botanist, Founder, Administrator, Banker",
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
@@ -241,24 +280,23 @@ internal class ModuleSelectionTest {
                     """,
             ),
             Configuration(
-                description = "the Prelude 2 expansion includes its card pack",
-                config = "Prelude2Expansion",
+                description = "Prelude rules can use only the Prelude 2 card pack",
+                config = "PreludeExpansion, Prelude2CardPack, -Prelude1CardPack",
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
                     TharsisMap,
-                    PreludeExpansion, Prelude1CardPack, Prelude2Expansion, Prelude2CardPack
+                    PreludeExpansion, Prelude2CardPack
                     """,
             ),
             Configuration(
-                description =
-                    "Prelude 2 can replace rather than supplement the Prelude 1 card pack",
-                config = "Prelude2Expansion, -Prelude1CardPack",
+                description = "Prelude rules can be selected without a card pack",
+                config = "PreludeExpansion, -Prelude1CardPack",
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
                     TharsisMap,
-                    PreludeExpansion, Prelude2Expansion, Prelude2CardPack
+                    PreludeExpansion
                     """,
             ),
 
@@ -274,8 +312,18 @@ internal class ModuleSelectionTest {
                     """,
             ),
             Configuration(
-                description = "Colonies is valid with the required two-player tile pool",
+                description = "Colonies is valid with the standard two-player tile pool",
                 config = "ColoniesExpansion, Callisto, Ceres, Europa, Ganymede, Io",
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
+                    TharsisMap,
+                    ColoniesExpansion
+                    """,
+            ),
+            Configuration(
+                description = "Colonies allows a nonstandard tile pool",
+                config = "ColoniesExpansion, Callisto, Ceres, Europa, Ganymede",
                 selectsExactly =
                     """
                     TerraformingMars, CorporateEraExpansion, MultiplayerMode,
@@ -293,11 +341,29 @@ internal class ModuleSelectionTest {
                     """,
             ),
             Configuration(
+                description = "Quick Start can be redundantly selected without Corporate Era",
+                config = "-CorporateEraExpansion, QuickStartVariant",
+                selectsExactly =
+                    """
+                    TerraformingMars, QuickStartVariant, MultiplayerMode,
+                    TharsisMap
+                    """,
+            ),
+            Configuration(
                 description = "Quick Start can be removed with Corporate Era",
                 config = "-CorporateEraExpansion, -QuickStartVariant",
                 selectsExactly =
                     """
                     TerraformingMars, MultiplayerMode, TharsisMap
+                    """,
+            ),
+            Configuration(
+                description = "Quick Start can be redundantly excluded with Corporate Era",
+                config = "-QuickStartVariant",
+                selectsExactly =
+                    """
+                    TerraformingMars, CorporateEraExpansion, MultiplayerMode,
+                    TharsisMap
                     """,
             ),
             Configuration(
@@ -310,7 +376,7 @@ internal class ModuleSelectionTest {
                     """,
             ),
             Configuration(
-                description = "63 TR replaces the standard solo objective",
+                description = "63 TR prevents the standard solo objective from defaulting",
                 config = "Tr63SoloObjective",
                 players = 1,
                 selectsExactly =
@@ -331,45 +397,39 @@ internal class ModuleSelectionTest {
   }
 
   @Test
-  internal fun `Venus selects Hoverlord and Venuphile directly unless named goals replace them`() {
+  internal fun `Venus goals join only their category's default pool`() {
     val defaults = Engine.newGame(premise("VenusNextExpansion", 2)).classTable
 
     defaults.isActive(cn("Hoverlord")) shouldBe true
     defaults.isActive(cn("Venuphile")) shouldBe true
 
-    val namedGoals =
+    val namedMilestones =
         Engine.newGame(
                 premise(
-                    "VenusNextExpansion, Coastguard, Landshaper, Builder, " +
-                        "Botanist, Founder, Administrator",
+                    "VenusNextExpansion, Coastguard, Landshaper, Builder, Terraformer",
                     2,
                 )
             )
             .classTable
-    namedGoals.isActive(cn("Hoverlord")) shouldBe false
-    namedGoals.isActive(cn("Venuphile")) shouldBe false
+    namedMilestones.isActive(cn("Hoverlord")) shouldBe false
+    namedMilestones.isActive(cn("Venuphile")) shouldBe true
+
+    val namedAwards =
+        Engine.newGame(
+                premise(
+                    "VenusNextExpansion, Botanist, Founder, Administrator, Banker",
+                    2,
+                )
+            )
+            .classTable
+    namedAwards.isActive(cn("Hoverlord")) shouldBe true
+    namedAwards.isActive(cn("Venuphile")) shouldBe false
   }
 
   @Test
   internal fun `requirements exclusions and mutually exclusive choices reject these configurations`() {
     val rejections =
         listOf(
-            Rejection(
-                description = "the Prelude 2 expansion requires its card pack",
-                config = "Prelude2Expansion, -Prelude2CardPack",
-            ),
-            Rejection(
-                description = "the Prelude 2 expansion requires the Prelude 1 rules",
-                config = "Prelude2Expansion, -PreludeExpansion",
-            ),
-            Rejection(
-                description = "Prelude 1 rules require at least one Prelude card pack",
-                config = "PreludeExpansion, -Prelude1CardPack",
-            ),
-            Rejection(
-                description = "a two-player Colonies game rejects one fewer than five tiles",
-                config = "ColoniesExpansion, Callisto, Ceres, Europa, Ganymede",
-            ),
             Rejection(
                 description =
                     "Terraforming Mars implies a default map when no other map is selected",
@@ -382,6 +442,10 @@ internal class ModuleSelectionTest {
             Rejection(
                 description = "a game cannot select two maps",
                 config = "HellasMap, ElysiumMap",
+            ),
+            Rejection(
+                description = "selecting another map does not eject an explicitly selected Tharsis",
+                config = "TharsisMap, HellasMap",
             ),
             Rejection(
                 description = "a game cannot select both player-count modes",
@@ -399,6 +463,16 @@ internal class ModuleSelectionTest {
             Rejection(
                 description = "a multiplayer game cannot select a solo objective",
                 config = "Tr63SoloObjective",
+            ),
+            Rejection(
+                description = "a solo game cannot select a milestone",
+                config = "Terraformer35",
+                players = 1,
+            ),
+            Rejection(
+                description = "a solo game cannot select an award",
+                config = "Landlord",
+                players = 1,
             ),
             Rejection(
                 description = "mandatory Venus is multiplayer-only",

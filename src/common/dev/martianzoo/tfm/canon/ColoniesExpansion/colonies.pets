@@ -1,7 +1,5 @@
 "Expansion adding colony tiles, player colonies, and trade fleets"
 CLASS ColoniesExpansion : Module {
-  premiseRequirement = HAS "(=1 Player, =4 ColonyTile) OR (=2 Player, =5 ColonyTile) OR (3 Player, =2 (ColonyTile - Player))"
-
   This: TradeAction, BuildColonyProject
   SetupPhase: EACH Player { TradeFleet }
   SetupPhase IF SoloMode: PROD[-2 MC<Player>]

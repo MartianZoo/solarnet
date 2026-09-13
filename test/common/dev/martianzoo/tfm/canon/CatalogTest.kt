@@ -297,7 +297,7 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun defaultBundleGoalPoolsRequireThreeOfEachKind() {
+  internal fun defaultBundleGoalPoolsMayContainFewerThanThreeOfEachKind() {
     val source =
         TfmCatalog.compose(
             bundle(
@@ -324,9 +324,16 @@ internal class CatalogTest {
             ),
         )
 
-    shouldThrow<IllegalArgumentException> {
-      source.gamePremise(GameConfig("MultiplayerMode, SparseMap"))
-    }
+    val premise = source.gamePremise(GameConfig("MultiplayerMode, SparseMap"))
+
+    premise.classSelections.filter { it.included }.mapTo(linkedSetOf()) { it.className } shouldBe
+        setOf(
+            cn("FirstMilestone"),
+            cn("SecondMilestone"),
+            cn("FirstAward"),
+            cn("SecondAward"),
+            cn("ThirdAward"),
+        )
   }
 
   @Test

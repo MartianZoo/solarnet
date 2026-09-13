@@ -1,4 +1,0 @@
-"The published Prelude 2 expansion rules"
-CLASS Prelude2Expansion : Module {
-  premiseRequirement = HAS "PreludeExpansion, Prelude2CardPack"
-}

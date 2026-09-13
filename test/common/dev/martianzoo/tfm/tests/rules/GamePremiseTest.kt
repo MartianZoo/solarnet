@@ -219,8 +219,8 @@ internal class GamePremiseTest {
             GameConfig(
                 """
                 HellasMap,
-                Coastguard, Landshaper, Builder,
-                Botanist, Founder, Administrator
+                Coastguard, Landshaper, Builder, Terraformer,
+                Botanist, Founder, Administrator, Banker
                 """,
                 "Player1",
                 "Player2",
@@ -230,18 +230,20 @@ internal class GamePremiseTest {
 
     table.isActive(cn("Coastguard")) shouldBe true
     table.isActive(cn("Landshaper")) shouldBe true
+    table.isActive(cn("Terraformer")) shouldBe true
     table.isActive(cn("Diversifier")) shouldBe false
     table.isActive(cn("Botanist")) shouldBe true
     table.isActive(cn("Founder")) shouldBe true
+    table.isActive(cn("Banker")) shouldBe true
     table.isActive(cn("Cultivator")) shouldBe false
   }
 
   @Test
-  internal fun namedGoalsCanReplaceOneDefaultPoolWithoutSelectingTheExpansionModule() {
+  internal fun namedGoalsCanDefineOneExactPoolWithoutSelectingTheExpansionModule() {
     val premise =
         Canon.gamePremise(
             GameConfig(
-                "HellasMap, Landshaper, Builder, Coastguard",
+                "HellasMap, Landshaper, Builder, Coastguard, Terraformer",
                 "Player1",
                 "Player2",
             )
@@ -277,25 +279,18 @@ internal class GamePremiseTest {
   }
 
   @Test
-  internal fun multiplayerGamesRequireThreeMilestonesAndThreeAwards() {
-    shouldThrow<IllegalArgumentException> {
-      Canon.gamePremise(
-          GameConfig(
-              "HellasMap, Coastguard, Landshaper",
-              "Player1",
-              "Player2",
-          )
-      )
-    }
-    shouldThrow<IllegalArgumentException> {
-      Canon.gamePremise(
-          GameConfig(
-              "HellasMap, Botanist, Founder",
-              "Player1",
-              "Player2",
-          )
-      )
-    }
+  internal fun multiplayerGamesAllowSmallExactGoalPools() {
+    val oneMilestone =
+        Engine.newGame(Canon.gamePremise(GameConfig("HellasMap, Coastguard", "Player1", "Player2")))
+            .classTable
+    val oneAward =
+        Engine.newGame(Canon.gamePremise(GameConfig("HellasMap, Botanist", "Player1", "Player2")))
+            .classTable
+
+    oneMilestone.isActive(cn("Coastguard")) shouldBe true
+    oneMilestone.isActive(cn("Landshaper")) shouldBe false
+    oneAward.isActive(cn("Botanist")) shouldBe true
+    oneAward.isActive(cn("Founder")) shouldBe false
   }
 
   @Test
@@ -309,6 +304,9 @@ internal class GamePremiseTest {
 
     shouldThrow<IllegalArgumentException> {
       Engine.newGame(Canon.gamePremise(GameConfig("Landlord", "Player1")))
+    }
+    shouldThrow<IllegalArgumentException> {
+      Engine.newGame(Canon.gamePremise(GameConfig("Terraformer35", "Player1")))
     }
   }
 
