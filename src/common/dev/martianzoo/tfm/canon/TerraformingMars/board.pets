@@ -38,10 +38,10 @@ ABSTRACT CLASS Area {
 ABSTRACT CLASS AreaPiece
 
 "A board piece that exclusively occupies its area"
-ABSTRACT CLASS Occupant<Area> : AreaPiece {
-  "An occupant controlled by an actor"
-  ABSTRACT CLASS OwnedOccupant : Owned
-}
+ABSTRACT CLASS Occupant<Area> : AreaPiece
+
+"An occupant controlled by an actor"
+ABSTRACT CLASS OwnedOccupant : Owned, Occupant
 
 "A placement in a Mars area"
 CLASS Placement<MarsArea> : Signal
@@ -59,30 +59,30 @@ ABSTRACT CLASS Tile : Occupant {
     BackwardAdjacency<This, Tile<MarsArea(HAS Neighbor<This>)>> \
   }
 
-  // IMPL: This should narrow ownership to Owner, but bare owned-tile expressions rely on the Owned
-  // default inserting an explicit contextual Owner variable, which a declared Owner bound erases.
-  "Any tile that someone owns"
-  ABSTRACT CLASS OwnedTile : OwnedOccupant {
-    "A greenery tile"
-    CLASS GreeneryTile : Tile<MarsArea> {
-      This IF Photosynthesis: OxygenStep
-      End: VictoryPoint
-    }
+  // OceanTile is declared below with the other global parameters.
+}
 
-    "A city tile, including Capital's"
-    CLASS CityTile {
-      DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
-
-      End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>
-    }
-
-    "A brown special tile (specific subtypes are with the individual cards)"
-    ABSTRACT CLASS SpecialTile : Tile<MarsArea> {
-      DEFAULT +SpecialTile<LandArea>
-    }
+// IMPL: This should narrow ownership to Owner, but bare owned-tile expressions rely on the Owned
+// default inserting an explicit contextual Owner variable, which a declared Owner bound erases.
+"Any tile that someone owns"
+ABSTRACT CLASS OwnedTile : OwnedOccupant, Tile {
+  "A greenery tile"
+  CLASS GreeneryTile : Tile<MarsArea> {
+    This IF Photosynthesis: OxygenStep
+    End: VictoryPoint
   }
 
-  // OceanTile is declared below with the other global parameters.
+  "A city tile, including Capital's"
+  CLASS CityTile {
+    DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
+
+    End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>
+  }
+
+  "A brown special tile (specific subtypes are with the individual cards)"
+  ABSTRACT CLASS SpecialTile : Tile<MarsArea> {
+    DEFAULT +SpecialTile<LandArea>
+  }
 }
 
 // When Tile B is placed next to existing Tile A, a ForwardAdj<A, B> and BackwardAdj<B, A> are created
