@@ -38,7 +38,8 @@ import dev.martianzoo.pets.util.toSetStrict
  * [section 2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
  *
  * This value compiles [declaration] into resolved supertypes, [dependencies], properties, defaults,
- * and a base type. Class identity is its name within [classTable], not declaration object identity.
+ * and a base type. The class loader constructs exactly one instance per name, so reference identity
+ * represents name identity within [classTable].
  */
 public class Class
 internal constructor(
@@ -924,19 +925,6 @@ internal constructor(
    */
   public val defaults: Defaults
     get() = defaultsLazy.value
-
-  /**
-   * Implements universe-scoped name identity from
-   * [rules T1-1 and T2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
-   */
-  override fun equals(other: Any?): Boolean =
-      other is Class && other.className == className && other.loader == loader
-
-  /**
-   * Hashes the universe-scoped name identity defined by
-   * [rules T1-1 and T2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
-   */
-  override fun hashCode(): Int = className.hashCode() xor loader.hashCode()
 
   /**
    * Returns the canonical name required by
