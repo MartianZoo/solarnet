@@ -123,6 +123,33 @@ internal class TaskResolutionTest {
     agent.count("Production<Class<Steel>>") shouldBe 1
   }
 
+  @Test
+  internal fun `selection does not independently narrow one side of a shared choice`() {
+    val world =
+        Engine.newGame(
+            testGamePremise(
+                """
+                ABSTRACT CLASS Resource { CLASS Iron, Copper }
+                ABSTRACT CLASS Receipt<Class<Resource>>
+                CLASS IronReceipt : Receipt<Class<Iron>>
+                """
+                    .trimIndent()
+            )
+        )
+    val player = world.testAgent(PLAYER1).also { it.autoExecPolicy = AutoExecPolicy.NONE }
+    player.runOperation("Iron, Copper")
+    val taskId = (player as Agent).addTasks("Receipt<Class<Resource>> FROM Resource").single()
+
+    player.selectTask(taskId)
+    val selected = world.tasks.getTaskData(taskId).instruction as Transmute
+    selected.typeVariables.isEmpty shouldBe false
+    shouldThrow<NarrowingException> { player.narrowTask("IronReceipt FROM Copper") }
+
+    player.narrowTask("IronReceipt FROM Iron")
+    player.count("Iron") shouldBe 0
+    player.count("IronReceipt") shouldBe 1
+  }
+
   private fun initiate(ins: String) = (agent as Agent).addTasks(ins)
 
   private fun history() = events.entriesSince(start)

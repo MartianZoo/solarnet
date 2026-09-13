@@ -27,6 +27,8 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
+import dev.martianzoo.pets.types.GroundType
+import dev.martianzoo.pets.types.TypeVariable
 import dev.martianzoo.pets.util.invoke
 import dev.martianzoo.pets.util.toSetStrict
 
@@ -297,33 +299,38 @@ public sealed class Instruction : InstructionTree() {
             info.isAbstract(variables.expressionOf(it.declaration))
           }) {
         val bindings =
-            variables.bindings(gaining, proposed.gaining, variable, region = 0) +
-                variables.bindings(removing, proposed.removing, variable, region = 1)
-        var commonBinding = variable.bound
-        var selectedRoot = variable.bound.rootClass
-        var selectedRefinement = variable.bound.refinement
-        var selected = false
-        for (binding in bindings) {
-          val type =
-              (info as? GameReader)?.resolve(binding) ?: variable.bound.classTable.resolve(binding)
-          if (
-              selected && (type.rootClass != selectedRoot || type.refinement != selectedRefinement)
-          ) {
-            throw NarrowingException(
-                "Can't set Type variable $variable differently: ${bindings.toSet()}"
-            )
-          }
-          selectedRoot = type.rootClass
-          selectedRefinement = type.refinement
-          selected = true
-          commonBinding =
-              (commonBinding glb type)
-                  ?: throw NarrowingException(
-                      "Can't set Type variable $variable differently: ${bindings.toSet()}"
-                  )
+            variables.normalizedBindingsFrom(
+                gaining,
+                resolve(gaining, variable, info),
+                resolve(proposed.gaining, variable, info),
+                variable,
+                region = 0,
+                info,
+            ) +
+                variables.normalizedBindingsFrom(
+                    removing,
+                    resolve(removing, variable, info),
+                    resolve(proposed.removing, variable, info),
+                    variable,
+                    region = 1,
+                    info,
+                )
+        if (bindings.distinct().size > 1) {
+          throw NarrowingException(
+              "Can't set Type variable $variable differently: ${bindings.toSet()}"
+          )
         }
       }
     }
+
+    private fun resolve(
+        expression: Expression,
+        variable: TypeVariable,
+        info: TypeInfo,
+    ): GroundType =
+        ((info as? GameReader)?.resolve(expression)
+                ?: variable.bound.classTable.resolve(expression))
+            .groundType
   }
 
   /**
