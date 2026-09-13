@@ -110,6 +110,12 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       // The following Turmoil phase forms government and advances the two visible events;
       // generation 1 has no Current event to resolve yet.
       wgt("OceanTile<Tharsis_6_7>").expect("OceanTile<Tharsis_6_7>")
+      assertTurmoilState(
+          ruling = "MarsFirst",
+          dominant = "Reds",
+          current = "Riots",
+          coming = "Revolution",
+      )
       admin
           .doTask("SponsoredProjects")
           .expect("SponsoredProjects, Distant<Class<SponsoredProjects>>")
@@ -137,7 +143,17 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       }
       pass()
       // Riots resolves before the Reds government forms, then the visible events advance.
+      val trBeforeWgt = count("TerraformRating")
       wgt("OceanTile<Tharsis_5_5>").expect("OceanTile<Tharsis_5_5>")
+      count("TerraformRating") shouldBe trBeforeWgt + 1
+      assertTurmoilState(
+          ruling = "Reds",
+          chairman = "Bloo",
+          dominant = "Scientists",
+          removed = "Riots",
+          current = "Revolution",
+          coming = "SponsoredProjects",
+      )
       admin.doTask("StrongSociety").expect("StrongSociety, Distant<Class<StrongSociety>>")
     }
   }
@@ -165,7 +181,21 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       pass()
       // Revolution is harmless at this influence, Scientists take power, and the visible events
       // advance.
+      val mcBeforeWgt = count("MC")
+      val trBeforeWgt = count("TerraformRating")
+      val scienceTagsBeforeWgt = count("ScienceTag")
+      val scientistDelegatesBeforeWgt = count("PartyDelegate<Scientists>")
       wgt("OceanTile<Tharsis_6_9>")
+      count("MC") shouldBe mcBeforeWgt + scienceTagsBeforeWgt
+      count("TerraformRating") shouldBe trBeforeWgt
+      count("PartyDelegate<Scientists>") shouldBe scientistDelegatesBeforeWgt - 1
+      assertTurmoilState(
+          ruling = "Scientists",
+          dominant = "Greens",
+          removed = "Revolution",
+          current = "SponsoredProjects",
+          coming = "StrongSociety",
+      )
       admin.doTask("SnowCover").expect("SnowCover, Distant<Class<SnowCover>>")
     }
   }
@@ -202,7 +232,19 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       pass()
       // Sponsored Projects draws through its influence effect before Greens form the government;
       // the visible events then advance.
+      val mcBeforeWgt = count("MC")
+      val trBeforeWgt = count("TerraformRating")
+      val bioTagsBeforeWgt = count("BioTag")
       wgt("TemperatureStep").expect("TemperatureStep")
+      count("MC") shouldBe mcBeforeWgt + bioTagsBeforeWgt
+      count("TerraformRating") shouldBe trBeforeWgt
+      assertTurmoilState(
+          ruling = "Greens",
+          dominant = "Kelvinists",
+          removed = "SponsoredProjects",
+          current = "StrongSociety",
+          coming = "SnowCover",
+      )
       admin
           .doTask("ScientificCommunity")
           .expect("ScientificCommunity, Distant<Class<ScientificCommunity>>")
@@ -234,7 +276,16 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       pass()
       // Strong Society pays for influence, Kelvinists form the government, and the visible events
       // advance.
+      val trBeforeWgt = count("TerraformRating")
       wgt("VenusStep").expect("VenusStep")
+      count("TerraformRating") shouldBe trBeforeWgt
+      assertTurmoilState(
+          ruling = "Kelvinists",
+          dominant = "Reds",
+          removed = "StrongSociety",
+          current = "SnowCover",
+          coming = "ScientificCommunity",
+      )
       admin.doTask("HomeworldSupport").expect("HomeworldSupport, Distant<Class<HomeworldSupport>>")
     }
   }
@@ -275,6 +326,14 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       pass()
       // Snow Cover resolves first, Reds form the government, and the visible events advance.
       wgt("VenusStep").expect("VenusStep")
+      assertTurmoilState(
+          ruling = "Reds",
+          chairman = "Neutral",
+          dominant = "Scientists",
+          removed = "SnowCover",
+          current = "ScientificCommunity",
+          coming = "HomeworldSupport",
+      )
       admin.doTask("Pandemic").expect("Pandemic, Distant<Class<Pandemic>>")
       draw(SnowAlgae)
       // FAQ v1.8 p.100 awards the solo Reds bonus only at 20 TR or below. The archived server
@@ -313,7 +372,19 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       pass()
       // Scientific Community pays before its discard, Scientists form the government, and the
       // visible events advance.
+      val mcBeforeWgt = count("MC")
+      val trBeforeWgt = count("TerraformRating")
       wgt("VenusStep").expect("VenusStep")
+      // Scientific Community pays 18 M€ for cards and influence; the Scientists bonus pays 4 M€.
+      count("MC") shouldBe mcBeforeWgt + 22
+      count("TerraformRating") shouldBe trBeforeWgt
+      assertTurmoilState(
+          ruling = "Scientists",
+          chairman = "Bloo",
+          removed = "ScientificCommunity",
+          current = "HomeworldSupport",
+          coming = "Pandemic",
+      )
       admin.doTask("CelebrityLeaders").expect("CelebrityLeaders, Distant<Class<CelebrityLeaders>>")
     }
   }
@@ -365,7 +436,18 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       }
       pass()
       // Homeworld Support pays, Unity forms the government, and the visible events advance.
+      val mcBeforeWgt = count("MC")
       wgt("VenusStep").expect("VenusStep")
+      // Homeworld Support pays 10 M€; the Unity bonus pays 6 M€ for planetary tags.
+      count("MC") shouldBe mcBeforeWgt + 16
+      assertTurmoilState(
+          ruling = "Unity",
+          chairman = "Neutral",
+          dominant = "Kelvinists",
+          removed = "HomeworldSupport",
+          current = "Pandemic",
+          coming = "CelebrityLeaders",
+      )
       admin
           .doTask("InterplanetaryTradeGlobalEvent")
           .expect(
@@ -433,7 +515,20 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(SnowAlgae, 11)
       pass()
       // Pandemic resolves before Kelvinists form the government, then the visible events advance.
+      val mcBeforeWgt = count("MC")
+      val trBeforeWgt = count("TerraformRating")
       wgt("OxygenStep").expect("OxygenStep")
+      // Pandemic costs 9 M€; the Kelvinists bonus pays 5 M€ for heat production.
+      count("MC") shouldBe mcBeforeWgt - 4
+      count("TerraformRating") shouldBe trBeforeWgt
+      assertTurmoilState(
+          ruling = "Kelvinists",
+          chairman = "Bloo",
+          dominant = "Greens",
+          removed = "Pandemic",
+          current = "CelebrityLeaders",
+          coming = "InterplanetaryTradeGlobalEvent",
+      )
       admin.doTask("SpinOffProducts").expect("SpinOffProducts, Distant<Class<SpinOffProducts>>")
     }
   }
@@ -492,7 +587,18 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       cardAction1(FloatingHabs) { addCardResources(ExtractorBalloons) }
       pass()
       // Celebrity Leaders pays before Greens take power, then the visible events advance.
+      val mcBeforeWgt = count("MC")
       wgt("TemperatureStep").expect("TemperatureStep")
+      // Celebrity Leaders pays 14 M€; the Greens bonus pays 7 M€ for bio tags.
+      count("MC") shouldBe mcBeforeWgt + 21
+      assertTurmoilState(
+          ruling = "Greens",
+          chairman = "Neutral",
+          dominant = "MarsFirst",
+          removed = "CelebrityLeaders",
+          current = "InterplanetaryTradeGlobalEvent",
+          coming = "SpinOffProducts",
+      )
       admin
           .doTask("SuccessfulOrganisms")
           .expect("SuccessfulOrganisms, Distant<Class<SuccessfulOrganisms>>")
@@ -584,7 +690,17 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       }
       pass()
       // Interplanetary Trade pays before Mars First takes power, then the visible events advance.
+      val mcBeforeWgt = count("MC")
       wgt("TemperatureStep").expect("TemperatureStep")
+      // Interplanetary Trade pays 18 M€; the Mars First bonus pays 10 M€ for building tags.
+      count("MC") shouldBe mcBeforeWgt + 28
+      assertTurmoilState(
+          ruling = "MarsFirst",
+          dominant = "Unity",
+          removed = "InterplanetaryTradeGlobalEvent",
+          current = "SpinOffProducts",
+          coming = "SuccessfulOrganisms",
+      )
       admin
           .doTask("VolcanicEruptions")
           .expect("VolcanicEruptions, Distant<Class<VolcanicEruptions>>")
@@ -728,6 +844,26 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       score.net("Card", "VictoryPoint<Bloo>") shouldBe 35
       score.net("PartyLeader", "VictoryPoint<Bloo>") shouldBe 4
     }
+  }
+
+  private fun assertTurmoilState(
+      ruling: String,
+      dominant: String? = null,
+      chairman: String? = null,
+      removed: String? = null,
+      current: String,
+      coming: String,
+  ) {
+    val expected =
+        mutableListOf(
+            1 to "Ruling<$ruling>",
+            1 to "Current<Class<$current>>",
+            1 to "Coming<Class<$coming>>",
+        )
+    dominant?.let { expected += 1 to "Dominant<$it>" }
+    chairman?.let { expected += 1 to "Chairman<$it>" }
+    removed?.let { expected += 0 to it }
+    admin.assertCounts(*expected.toTypedArray())
   }
 
   private companion object {

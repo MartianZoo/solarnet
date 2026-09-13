@@ -1,23 +1,19 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.canonicalCatalog
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
-/** Three-player physical game begun Saturday, 2026-09-12; converted through Generation 3. */
+/** Three-player physical game begun Saturday, 2026-09-12; converted through Generation 4. */
 internal class OtbGame20260912Test : AbstractFullGameTest() {
   override val config =
       GameConfig(
           """
           VastitasMap
           VenusNextExpansion, PreludeExpansion, Prelude2Expansion, TurmoilExpansion, PromoCardPack
-          FreeAcademiaTreaty
           FakeStuffBundle
 
           Farmer, Generalist, Lobbyist, Philantropist, Producer
@@ -35,20 +31,8 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       """
           .trimIndent()
 
-  // Free Academia Treaty is not yet in canon. This replay ends while it is distant, so this local
-  // permissive component models only the photographed neutral-Scientist placement.
-  override val catalog: TfmCatalog by lazy {
-    TfmCatalog.compose(
-        canonicalCatalog(config),
-        object : TfmCatalog() {
-          override val explicitClassDeclarations =
-              parseClasses("CLASS FreeAcademiaTreaty : GePartyDistant<Scientists>").toSet()
-        },
-    )
-  }
-
   @Test
-  internal fun firstThreeGenerations() {
+  internal fun firstFourGenerations() {
     TfmWorkflow.Automatic(agents).launch()
     retainStartingProjects(10, 7, 8)
     val green = p1.requireExplicitUnusedActionCards()
@@ -576,8 +560,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     blue.wgt("VenusStep").expect("0 TerraformRating<Blue>")
     // Venus Infrastructure pays Green 6 M€, Yellow 4 M€, and Blue 4 M€ from their recorded
     // Venus tags and influence. Unity then pays 1/3/2 M€ for planetary tags and makes Blue
-    // chairman. Free Academia Treaty is revealed with its neutral Scientist delegate.
-    admin.doTask("FreeAcademiaTreaty")
+    // chairman. Diversity—the event headed "Free Academia Treaty"—is revealed with its neutral
+    // Scientist delegate.
+    admin.doTask("Diversity")
 
     // Complete Generation 3 Solar ledgers.
     with(green) {
@@ -601,7 +586,144 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
         1 to "Dominant<Reds>",
         1 to "Current<Class<SponsoredProjects>>",
         1 to "Coming<Class<SpinOffProducts>>",
-        1 to "Distant<Class<FreeAcademiaTreaty>>",
+        1 to "Distant<Class<Diversity>>",
     )
+
+    // Generation 4 Research: Green buys zero, Yellow buys one, and Blue buys three. The complete
+    // ledgers disambiguate which voice owns each purchase.
+    green.buyCards(0)
+    yellow.buyCards(1)
+    blue.buyCards(3)
+
+    green.turn {
+      // "Cultural Metropolis, for 20. No discounts." The photographed city at Vastitas 6-9
+      // supplies the recorded two titanium and two M€ placement bonuses.
+      playProject(CulturalMetropolis, 20) {
+        placeTile(6, 9)
+        doTask("2 PartyDelegate<Reds>")
+      }
+    }
+    yellow.turn {
+      // "I'm gonna go place my free delegate in Punity." The board photo shows that the otherwise
+      // unlabeled speaker placed Yellow's delegate, not Green's.
+      stdAction("LobbyAction", 1) { doTask("PartyDelegate<Unity>") }
+    }
+    blue.turn {
+      // "Mining Area. I'm going to pay two steel for it."
+      playProject(MiningArea, steel = 2) { placeTile(4, 2) }
+    }
+    green.turn {
+      // "I am going to design some microorganisms. Pay 16 ... two plant production."
+      playProject(DesignedMicroorganisms, 16)
+    }
+    yellow.turn {
+      // "I'm gonna pay six for Archaebacteria, for a plant production."
+      playProject(Archaebacteria, 6)
+    }
+    blue.turn {
+      // "Asteroid Hollowing ... I need one titanium to actually put on the card, so I'll take one
+      // back and pay four more money." Final payment was two titanium and eight M€.
+      intentionalUnderpay()
+      playProject(AsteroidHollowing, 8, titanium = 2)
+    }
+    green.turn {
+      // "I will use Orbital Cleanup to get five money."
+      exMachina(fakeWildTags("ScienceTag", 2))
+      cardAction1(OrbitalCleanup).expect("5 MC")
+    }
+    yellow.turn {
+      // "Security Fleet for 12." "I'm gonna spend a titanium to put a fighter on it."
+      intentionalUnderpay()
+      playProject(SecurityFleet, 12)
+      cardAction1(SecurityFleet)
+    }
+    blue.turn {
+      cardAction1(AsteroidHollowing)
+    }
+    green.turn {
+      // "Free lobby into Kelvinists"; then "Sponsored Mohole for five ... two heat production."
+      stdAction("LobbyAction", 1) { doTask("PartyDelegate<Kelvinists>") }
+      playProject(SponsoredMohole, 5)
+    }
+    yellow.turn {
+      // "Research Coordination for four. And then Interplanetary Trade." Its nine-step increase
+      // brings Yellow's M€ production from nine to the photographed 18.
+      playProject(FakeResearchCoordination, 4)
+      exMachina(fakeWildTags("JovianTag", "PlantTag"))
+      playProject(InterplanetaryTrade, 27).expect("PROD[9 MC]")
+    }
+    blue.turn {
+      // "Bioprinting Facility ... one steel and five money." "Spend two energy, gain two plants."
+      playProject(BioPrintingFacility, 5, steel = 1)
+      cardAction1(BioPrintingFacility) { doTask("2 Plant") }
+    }
+    green.turn { cardAction1(FakeSeptemTribus).expect("8 MC") }
+    yellow.turn {
+      cardAction1(SearchForLife) { declineTask() }.expect("-MC, 0 Science")
+    }
+    blue.turn {
+      // Blue's ledger separately records two energy for Bioprinting and one here for Tycho.
+      cardAction1(TychoMagnetics, x = 1)
+    }
+    green.turn {
+      cardAction1(WaterSplittingPlant).expect("-3 Energy, OxygenStep, TerraformRating")
+    }
+    yellow.turn {
+      cardAction2(LocalShading).expect("-Floater<$LocalShading>, PROD[MC]")
+    }
+    blue.turn { stdAction("LobbyAction", 1) { doTask("PartyDelegate<Greens>") } }
+    green.pass()
+    yellow.turn { cardAction1(FakeAppliedScience) { addCardResources(SecurityFleet) } }
+    blue.turn { cardAction1(DirectedHeatUsage) { doTask("4 MC") } }
+    yellow.pass()
+    blue.turn {
+      // "Business Contacts for seven"; the two retained projects are not named in the record.
+      playProject(BusinessContacts, 7)
+      playProject(RadChemFactory, 8)
+    }
+    blue.turn { sellPatents(2) }
+    blue.pass()
+
+    // Yellow added Pristar's preservation resource, which is visible when Sponsored Projects is
+    // resolved, but neither the complete ledger nor the spoken production includes its 6 M€.
+    yellow.exMachina("-6 MC")
+
+    // Complete photographed phone ledgers after Generation 4 production and before World
+    // Government. The board photograph still shows oxygen at four.
+    with(green) {
+      assertProduction(m = 0, s = 0, t = 0, p = 3, e = 3, h = 2)
+      assertResources(m = 35, s = 0, t = 2, p = 6, e = 3, h = 5)
+      assertCounts(22 to "TerraformRating")
+    }
+    with(yellow) {
+      assertProduction(m = 19, s = 2, t = 1, p = 1, e = 2, h = 1)
+      assertResources(m = 38, s = 4, t = 1, p = 1, e = 2, h = 10)
+      assertCounts(19 to "TerraformRating")
+    }
+    with(blue) {
+      assertProduction(m = 7, s = 1, t = 2, p = 1, e = 4, h = 2)
+      assertResources(m = 32, s = 1, t = 2, p = 6, e = 4, h = 10)
+      assertCounts(23 to "TerraformRating")
+    }
+    assertSidebar(gen = 4, temp = -24, oxygen = 4, oceans = 2, venus = 2)
+
+    // "World Government ... oxygen." Sponsored Projects resolves before Reds form government;
+    // the automatic Turmoil phase then advances Spin-Off Products and Diversity. The newly drawn
+    // card is Improved Energy Templates, headed "Second Energy Crisis" in the physical deck.
+    green.wgt("OxygenStep").expect("OxygenStep")
+    admin.doTask("ImprovedEnergyTemplates")
+
+    assertSidebar(gen = 5, temp = -24, oxygen = 5, oceans = 2, venus = 2)
+    admin.assertCounts(
+        1 to "Ruling<Reds>",
+        1 to "Dominant<Scientists>",
+        1 to "Current<Class<SpinOffProducts>>",
+        1 to "Coming<Class<Diversity>>",
+        1 to "Distant<Class<ImprovedEnergyTemplates>>",
+    )
+    // "Yellow, six. Blue has ten. Green has fourteen."
+    yellow.assertCounts(6 to "ProjectCard<Hand>")
+    blue.assertCounts(10 to "ProjectCard<Hand>")
+    green.assertCounts(14 to "ProjectCard<Hand>")
   }
 }
