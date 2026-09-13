@@ -15,14 +15,14 @@ src/
       script/
       tfm/
         carddata/
-          PreludeExpansion/
-            cards.json5
+          CardData.kt
+          CardDefinition.kt
         mapdata/
           TharsisMap/
             maps.json5
         canon/
           PreludeExpansion/
-            cards.pets
+            cards.json5
             classes.pets
             en.json5
           TharsisMap/

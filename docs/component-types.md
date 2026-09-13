@@ -129,7 +129,8 @@ Cards can have several types of things "on" them. `Tag`s depend on a `TagHolder`
 
 The top-level `Owed`, `Accepting`, and `Pay` classes model ordinary resource payments;
 `AcceptingFromCard` and `PayFromCard` are their card-resource counterparts. The best way to understand
-the protocol is to see how these classes are used in the bundle `cards.pets` files.
+the protocol is to see how these classes are used in the action and effect strings in each bundle's
+`cards.json5` file.
 
 ## TODO
 

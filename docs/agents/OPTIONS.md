@@ -236,8 +236,10 @@ with `FakeCanon`, then select the pack's Module.
 
 ## Card declarations and views
 
-`tfm-card-data` owns the pets-free `CardDefinition` records and their JSON5 datasets. The JVM generator
-turns them into canonical `cards.pets`; a drift test requires byte-for-byte agreement. The
+`tfm-card-data` owns the pets-free `CardDefinition` records and each card bundle's `cards.json5`.
+`tfm-card-generator` turns those datasets into `cards.pets` under its build directory. Canon's
+source-generation pipeline combines those generated declarations with the other authored bundle
+files; generated Pets are not checked in. The
 generated declarations carry each card's deck role, tags, cost, play Requirement, actions,
 Effects, and resource role. Runtime card consumers use only the loaded Class, with narrow derived
 queries for those semantics. A concrete subclass of `CardFront` is a card; its represented

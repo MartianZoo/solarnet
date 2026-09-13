@@ -30,7 +30,6 @@ dependencies {
   implementation(project(":agent"))
   implementation(project(":game-viewer"))
   implementation(project(":tfm-canon"))
-  implementation(project(":tfm-card-data"))
   implementation(project(":engine"))
   implementation(project(":pets"))
   implementation(project(":tfm-engine"))
@@ -93,16 +92,6 @@ tasks.register<JavaExec>("regenerateMapAreas") {
   mainClass.set("dev.martianzoo.tools.RegenerateMapAreasKt")
   inputs.files(canonSourceDirectory.asFileTree.matching { include("*/classes.pets") })
   args(canonSourceDirectory.asFile.absolutePath)
-}
-
-tasks.register<JavaExec>("generateCardPets") {
-  group = "build"
-  description = "Generates canonical card declarations into the build directory."
-  classpath = sourceSets.main.get().runtimeClasspath
-  mainClass.set("dev.martianzoo.tools.GenerateCardPetsKt")
-  val outputDirectory = layout.buildDirectory.dir("generated/cardPets")
-  outputs.dir(outputDirectory)
-  args(outputDirectory.get().asFile.absolutePath)
 }
 
 val kotlinFileComplexitySources =

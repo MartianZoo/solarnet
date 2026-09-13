@@ -88,7 +88,7 @@ Keep rules with the game component that owns them. Use a cross-cutting system co
 rule is genuinely ambient or switchable. `GreeneryTile` conditioned on `Photosynthesis` in
 [Terraforming Mars `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
 is the precedent for intrinsic behavior under an ambient rule; `PharmacyUnion` in
-[Promo `cards.pets`](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.pets) is the
+[Promo `cards.json5`](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.json5) is the
 precedent for a published rule that genuinely needs exceptional treatment.
 
 When the user explicitly requests Terraforming Mars rule research, use rulebooks and physical

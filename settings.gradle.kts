@@ -24,6 +24,7 @@ val modules =
         "script",
         "repl",
         "tfm-card-data",
+        "tfm-card-generator",
         "tfm-canon",
         "tfm-fake",
         "web",
