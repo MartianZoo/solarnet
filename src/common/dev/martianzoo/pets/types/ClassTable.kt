@@ -155,6 +155,39 @@ public abstract class ClassTable {
   internal fun accepts(that: ClassTable): Boolean =
       this === that || (this !== masterTable && that === masterTable)
 
+  /**
+   * Returns the unique greatest common subclass of [left] and [right] in this universe, or null
+   * when absent, following
+   * [rule T2-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+   *
+   * @throws IllegalArgumentException if either operand cannot be interpreted by this table (rule
+   *   T1-2).
+   */
+  public fun glb(left: Class, right: Class): Class? {
+    require(accepts(left.classTable) && accepts(right.classTable)) {
+      "$left and $right cannot both be interpreted by this class table"
+    }
+    if (left.isSubtypeOf(right)) return left
+    if (right.isSubtypeOf(left)) return right
+    val lowerBounds = allStructuralSubclasses(left).filterTo(linkedSetOf(), right::isSupertypeOf)
+    return lowerBounds.singleOrNull { candidate -> lowerBounds.all(candidate::isSupertypeOf) }
+  }
+
+  /**
+   * Returns the greatest lower bound of [left] and [right] in this universe, or null when absent,
+   * following
+   * [rule T7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds).
+   *
+   * @throws IllegalArgumentException if either operand cannot be interpreted by this table (rule
+   *   T1-2).
+   */
+  public fun glb(left: Type, right: Type): GroundType? = left.groundType.glbIn(right, this)
+
+  internal fun glb(left: Dependency, right: Dependency): Dependency? = left.glb(right, this)
+
+  internal fun glb(left: DependencySet, right: DependencySet): DependencySet? =
+      left.merge(right) { a, b -> glb(a, b) ?: return null }
+
   /** Immutable component-count limits compiled for the classes active in this table. */
   private val componentLimitsLazy = lazy { ClassLimitTable.create(this) }
 
@@ -353,7 +386,7 @@ public abstract class ClassTable {
     val unrefined = type.copy(refinement = null)
     val candidates =
         subclasses(type.rootClass).asSequence().filterNot(Class::abstract).flatMap { klass ->
-          val dependencies = unrefined.dependencies intersect klass.dependencies
+          val dependencies = glb(unrefined.dependencies, klass.dependencies)
           if (dependencies == null) {
             emptySequence()
           } else {
@@ -412,7 +445,7 @@ public abstract class ClassTable {
         allSubclasses(type.rootClass)
             .asSequence()
             .filterNot(Class::abstract)
-            .mapNotNull { klass -> unrefined intersect klass.baseType }
+            .mapNotNull { klass -> glb(unrefined, klass.baseType) }
             .take(2)
             .singleOrNull() ?: return null
     val dependencies = intersection.dependencies.singleConcreteSubtype(info, this) ?: return null

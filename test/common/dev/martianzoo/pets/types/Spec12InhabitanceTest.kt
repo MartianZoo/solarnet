@@ -159,6 +159,50 @@ internal class Spec12InhabitanceTest {
   }
 
   @Test
+  internal fun `T12-2 glb is relative to the table interpreting the classes`() {
+    val catalog =
+        testCatalog(
+            """
+            ABSTRACT CLASS Left
+            ABSTRACT CLASS Right
+            ABSTRACT CLASS Third
+            ABSTRACT CLASS MasterBoth : Left, Right
+            """
+                .trimIndent()
+        )
+    val master = catalog.classTable
+    val view =
+        GamePremise(
+                catalog = catalog,
+                modules = emptySet(),
+                classSelections =
+                    setOf(ClassSelection(cn("LocalBoth")), ClassSelection(cn("LocalOnly"))),
+                initialComponentTypes = emptySet(),
+                premiseClassDeclarations =
+                    parseClasses(
+                            """
+                            ABSTRACT CLASS LocalBoth : Left, Right
+                            ABSTRACT CLASS LocalOnly : Left, Third
+                            """
+                                .trimIndent()
+                        )
+                        .toSet(),
+            )
+            .classTable
+    val left = master.getClass(cn("Left"))
+    val right = master.getClass(cn("Right"))
+    val third = master.getClass(cn("Third"))
+
+    master.glb(left, right) shouldBe master.getClass(cn("MasterBoth"))
+    view.glb(left, right) shouldBe null
+    master.glb(left, third) shouldBe null
+    view.glb(left, third) shouldBe view.getClass(cn("LocalOnly"))
+    master.glb(master.resolve(te("Left")), master.resolve(te("Right"))) shouldBe
+        master.resolve(te("MasterBoth"))
+    view.glb(master.resolve(te("Left")), master.resolve(te("Right"))) shouldBe null
+  }
+
+  @Test
   internal fun `T12-2 premise class names cannot replace master classes`() {
     val catalog = testCatalog("CLASS Existing")
 
@@ -194,7 +238,10 @@ internal class Spec12InhabitanceTest {
       left.getClass(cn("LocalFeature")).isSubtypeOf(right.getClass(cn("LocalFeature")))
     }
     shouldThrowIae {
-      left.resolve(te("Holder<LocalFeature>")) intersect right.resolve(te("Holder<LocalFeature>"))
+      left.glb(
+          left.resolve(te("Holder<LocalFeature>")),
+          right.resolve(te("Holder<LocalFeature>")),
+      )
     }
   }
 

@@ -67,7 +67,7 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   log, player data, and eight later screenshots; keep every new checkpoint independently sourced.
 - Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `agent`,
   `tfm-canon`, and `script` APIs.
-- Profile and reduce type-system allocation in `Type.intersect`, `narrows`, and repeated
+- Profile and reduce type-system allocation in `ClassTable.glb`, `narrows`, and repeated
   dependency/refinement construction without risking correctness.
 - Let `CustomMetric` optionally provide candidate-selection hooks so `EACH` refinements such as
   tile adjacency can avoid evaluating the metric against every live component.

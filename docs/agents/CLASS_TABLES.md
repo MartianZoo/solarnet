@@ -52,17 +52,15 @@ Activity remains a property of the combined game table, not of a master `Class` 
 
 ## Structural operations versus game-domain operations
 
-Operations whose answers come entirely from reusable declarations belong to the master table:
+Intrinsic facts whose answers come entirely from reusable declarations belong to the master:
 
 - nominal subtyping and superclass relationships;
 - dependencies, properties, and defaults;
-- structural constraint intersection; and
 - expression-to-Type resolution that does not inspect a live World.
 
-Premise declarations participate in nominal relationships and resolution only through their
-combined game table. Structural overlap uses every master and premise class in that table,
-regardless of activation. Constraint intersection only compares superclass relationships and never
-discovers a result by enumerating descendants.
+Downward structural questions ask an explicit table. `ClassTable.glb` and structural overlap use
+every master and premise class in that table, regardless of activation; asking the master and asking
+a combined game table may therefore produce different answers for the same master operands.
 
 Operations whose answers depend on the selected game must receive that context explicitly:
 
@@ -173,7 +171,7 @@ All unrealized abstract Types share these rules:
 - their Components, behavior, and triggered effects cannot occur;
 - their counts, and the counts of their `Class<T>` literals, are zero;
 - optional and AMAP changes to them are `Ok`, while mandatory changes reach `Die`; and
-- nominal information may remain available for validation, subtyping, intersection, `NOT`, and useful
+- nominal information may remain available for validation, subtyping, `glb`, `NOT`, and useful
   diagnostics even though the game has no concrete realization.
 
 Counting `Class<Unrealized>` as zero establishes that there is no concrete Class representative. It
@@ -206,14 +204,14 @@ until the replacement is complete.
 
 1. **Specify the semantic boundary.** Update the type-system specification and glossary to define
    masters, premise tables, universes, unrealized abstract Types, unknown names, comparison
-   identity, class literals, and the universe-relative meaning of `NOT` and intersection.
+   identity, class literals, and the universe-relative meaning of `NOT` and `glb`.
 2. **Pin the new contracts with tests.** Cover master/premise lookup, name collisions, one-way
    references, cross-master rejection, excluded and dependency-unrealized Types, zero class-literal
    counts, hierarchy answers that include premise declarations, unrealized `Die`, and forbidden
    `Ok:` triggers.
 3. **Inventory remaining context-free operations.** Find every `Class` or `Type` operation that
-   currently reaches `classTable`. Move structural overlap, concrete narrowing,
-   and their caches behind an explicit universe before changing representation.
+   currently reaches `classTable`. Move structural overlap, concrete narrowing, and their caches
+   behind an explicit universe before changing representation.
 4. **Establish the reusable compilation boundary.** Keep only facts unaffected by premise additions
    or exclusion in the master. Use the existing `Class` if it can own those facts honestly;
    otherwise extract one compiled definition without duplicating them. Ensure failed compilation

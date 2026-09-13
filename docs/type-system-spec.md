@@ -45,7 +45,7 @@ an otherwise surprising provision exists. They are evidence and orientation, not
 | Written | Means |
 | --- | --- |
 | `A <: B` | every A is a B; A is a context-free structural subtype of B |
-| `A ∩ B` | intersection of compatible constraints; absent when their root classes are incomparable |
+| `A ⊓ B` | the greatest lower bound (`glb`) of A and B: the most specific type below both |
 | `CLASS Foo` | Pets source for a class declaration |
 | `Foo<Bar>` | Pets source for a type expression |
 
@@ -109,7 +109,8 @@ are different and their classes and types are not equal.
 **T1-2. Values are universe-scoped.** A master value can be interpreted by that master or by one
 game universe importing it. A premise value belongs only to its game universe. An operation that
 combines unrelated masters, or two distinct premise universes, raises `IllegalArgumentException`.
-It does not quietly answer "no". `ClassTable.knows(type)` is the safe question to ask first.
+It does not quietly answer "no". Operations whose answer can depend on premise classes take the
+interpreting `ClassTable` explicitly; `ClassTable.knows(type)` is the safe question to ask first.
 
 This matters because a false "not a subtype" would silently misroute a trigger, whereas an exception
 stops the caller at the bug.
@@ -143,8 +144,8 @@ it.
 
 **T1-6. Enumeration requires a frozen table.** A master or combined game table is built by loading
 classes and then freezing. Lookup (`findClass`, `resolve`) works during loading; anything that
-enumerates the universe — `allClasses`, `allClassNames`, `allSubclasses`, and `directSubclasses` —
-requires the table to be frozen first.
+enumerates the universe — `allClasses`, `allClassNames`, `allSubclasses`, `directSubclasses`, and
+therefore `glb` between unrelated classes — requires the table to be frozen first.
 
 Before returning the completed table, compilation resolves every class's structural base type.
 Undeclared names are also rejected while loading. Authored expressions inside effects are resolved
@@ -207,10 +208,11 @@ included). Downward traversal is table-relative: `ClassTable.allSubclasses(klass
 `ClassTable.directSubclasses(klass)` enumerate the subclasses visible in that table. They need a
 frozen table (T1-6).
 
-**T2-8. Intersection of two classes (`∩`).** If one operand is below the other, that one is the
-answer. Otherwise the result is **absent** (`null`). Pets does not search descendants for a third
-class that happens to combine the operands: bounds name their intended root explicitly, and adding
-another declaration elsewhere in the Catalog cannot change their intersection.
+**T2-8. Greatest lower bound of two classes (`⊓`).** `ClassTable.glb(left, right)` interprets both
+classes in that table. If one operand is below the other, that one is the answer. Otherwise Pets
+looks in the table's complete structural universe for a *unique greatest common subclass*: a class
+below both, which every other class below both is also below. If there is no such class — because the
+two are disjoint, or because two rival classes combine them — the result is **absent** (`null`).
 
 ```pets
 ABSTRACT CLASS Tile
@@ -218,8 +220,8 @@ ABSTRACT CLASS OwnedTile : Tile, Owned
 CLASS GreeneryTile : OwnedTile
 ```
 
-`Tile ∩ Owned` is absent even though `OwnedTile` extends both. Write `OwnedTile` when that is the
-intended constraint.
+`Tile ⊓ Owned` is `OwnedTile`. Add `CLASS CommercialDistrictTile : Tile, Owned` and it becomes
+absent: Pets does not manufacture a structural conjunction, it only recognizes a class you declared.
 
 **T2-9. Custom classes.** A class declared `: Custom` has its behavior supplied by Kotlin instead of
 Pets. A declaration and an implementation must agree: a class declared `Custom` with no
@@ -273,7 +275,7 @@ CLASS GreeneryTile : Tile<MarsArea>, Owned<Owner>
 `GreeneryTile<MarsArea, Owner>` — the area edge was narrowed, never copied or renamed.
 
 **T3-3. Several supertypes, one key.** When more than one supertype constrains the same key, the
-bounds are intersected (`∩`, rule T7-1). Bounds with incomparable roots are an error.
+bounds are intersected (`⊓`, rule T7-1). Bounds with no common narrowing are an error.
 
 > **Non-normative example — Predators.** Predators is simultaneously an action card, active card,
 > and animal-resource card. Those inheritance paths converge on shared card-front dependencies;
@@ -413,8 +415,8 @@ and this carries into dependency positions:
 **T4-4. `representedClass`** returns the named class, and is absent for every type that is not a class
 literal.
 
-**T4-5. Class-literal intersection follows the class hierarchy.** `Class<Metal> ∩ Class<Steel>` is
-`Class<Steel>`; intersection of literals for incomparable classes is absent.
+**T4-5. Greatest lower bounds follow the class hierarchy.** `Class<Metal> ⊓ Class<Steel>` is
+`Class<Steel>`; the `glb` of literals for disjoint classes is absent.
 
 **T4-6. The operand is one bare, existing class name.** All of these are errors:
 
@@ -617,29 +619,28 @@ constraint `Player` accepts `Player1` and rejects `Admin`, and `Actor(NOT Player
 
 ## 7. Bounds
 
-**T7-1. Constraint intersection (`∩`, `intersect`).** Two constraints can be combined when their
-root classes are comparable. The narrower root is selected, each shared dependency key is
-intersected recursively, and refinements are combined by T8-9. The selected root Class contributes
-its complete declared dependency set, including keys absent from the wider operand. An incomparable
-root makes the result **absent** even when some third declared class extends both operands.
+**T7-1. Greatest lower bound (`⊓`, `ClassTable.glb`).** In the explicitly supplied table, the most
+general type below both operands, or **absent** when there is none. It is computed componentwise: the
+root classes by T2-8, each shared dependency key by `⊓` again, and refinements by T8-9. The selected
+root Class contributes its complete declared dependency set, including keys neither operand had and
+bounds narrower than either operand stated.
 
 ```text
-Tile<Tharsis_2_2>  ∩  Owned<Player1>       =  absent
-GreeneryTile<Tharsis_2_2>  ∩  GreeneryTile<Player1>  =  GreeneryTile<Tharsis_2_2, Player1>
-Tile<Tharsis_2_2>  ∩  Tile<Tharsis_2_3>    =  absent
-GreeneryTile  ∩  OceanTile                 =  absent
+Tile<Tharsis_2_2>  ⊓  Owned<Player1>       =  OwnedTile<Tharsis_2_2, Player1>
+GreeneryTile<Tharsis_2_2>  ⊓  GreeneryTile<Player1>  =  GreeneryTile<Tharsis_2_2, Player1>
+Tile<Tharsis_2_2>  ⊓  Tile<Tharsis_2_3>    =  absent
+GreeneryTile  ⊓  OceanTile                 =  absent
 ```
 
-Absent means the constraints cannot be combined without selecting a different root class, not that
-no component could satisfy both. Where a result exists it narrows both operands.
+Absent means "Pets cannot write down a single type for this", not "no component could be both".
+Where a result does exist it narrows both operands, and no other type below both is outside it.
 
 > **Non-normative example — Protected Valley.** It places a greenery on a water area. The selected
 > component must satisfy both the greenery's inherited Mars-area bound and the written `WaterArea`
 > constraint; their meet is the legal special placement, not a replacement of one by the other.
 
-**T7-2. Intersection is idempotent and commutative.** Refinement clauses form a set (T8-9), so two
-intersections that write their clauses in different orders are equal Types even though their
-renderings may differ.
+**T7-2. `glb` is idempotent and commutative.** Refinement clauses form a set (T8-9), so two meets
+that write their clauses in different orders are equal Types even though their renderings may differ.
 
 **T7-3. Cross-universe bounds are rejected**, per T1-2.
 
@@ -701,7 +702,7 @@ Player  <: Owner(NOT Player1)     no — abstract `Player` still admits Player1
 
 The exclusion need not narrow the domain; subtraction goes through their structural intersection.
 `Actor(NOT Owner)` excludes players, who inherit both, and retains `Admin`. Overlap is detected even
-where ordinary constraint intersection is absent (T2-8): if two rival classes each extend both
+where the two have no unique greatest common subclass (T2-8): if two rival classes each extend both
 `Occupant` and `Owned`, `Occupant(NOT Owned)` still excludes them. The test never consults a world,
 and works the same inside a dependency: `Marker<Player(NOT Player1)>`.
 
@@ -755,9 +756,9 @@ variable may be specialized later, making the difference non-empty again.
 > “building card” constraint without another world query, while the extra conjunct prevents choosing
 > the first card twice.
 
-**T8-9. Intersection of refinements.** A refinement the other operand lacks is kept. Refinement
-clauses form a set: duplicates collapse and clause order does not affect Type equality. Rendering
-retains the order in which distinct clauses were first encountered. Thus both
+**T8-9. `glb` of refinements.** A refinement the other operand lacks is kept. Refinement clauses form
+a set: duplicates collapse and clause order does not affect Type equality. Rendering retains the
+order in which distinct clauses were first encountered. Thus both
 `LandArea(HAS Neighbor, NOT Tharsis_2_2)` and
 `Area(NOT Tharsis_2_2, NOT WaterArea)` are writable results below their two operands.
 
@@ -885,7 +886,7 @@ about one are an error.
 
 **T10-4. Inheriting dependency defaults.** For one dependency key and one use kind, only the nearest
 declaring superclasses survive: anything a nearer superclass overrode is discarded. What survives is
-intersected (`∩`), and survivors with incomparable roots are an error. Each inherited default is also
+intersected (`⊓`), and survivors with no common narrowing are an error. Each inherited default is also
 intersected with the inheriting class's own bound, so a default can only ever get narrower. A default
 that merely restates the declared bound records nothing at all.
 

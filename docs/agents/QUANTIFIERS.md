@@ -216,9 +216,9 @@ discarded when it is an arm of `OR`. The fallback comes from `OR`, not from AMAP
   AMAP placement is `Ok`.
 - Atmoscoop authors separate concrete AMAP global-parameter arms. A maxed arm resolves to `Ok` and
   remains selectable because it is an explicit arm; Atmoscoop is not one abstract parameter domain.
-- Viral Enhancers has separate effects for non-resource and resource cards. A non-resource bio card
-  gains Plant directly; a resource bio card chooses Plant or a mandatory resource on that same card.
-  This is an engine characterization, not a claim about an official ruling.
+- Viral Enhancers authors `Plant OR CardResource<CardFront>!`. When the entering bio card cannot
+  hold a resource, the concrete mandatory resource arm has a missing dependency and is discarded,
+  forcing Plant. This is an engine characterization, not a claim about an official ruling.
 - Pharmacy Union does not rely on AMAP treating a vanished card as zero. Its microbe effect
   explicitly chooses between adding Disease while Pharmacy Union exists and `Ok` after it has
   flipped; its independent 4 M€ loss remains pending either way.

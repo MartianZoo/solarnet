@@ -176,22 +176,23 @@ internal constructor(
       variables: Iterable<TypeVariable>,
   ): Map<TypeVariable, GroundType> = rootClass.variableBindings(general.groundType, this, variables)
 
-  /** Combines this ground type's constraints with [that]'s when their roots are comparable. */
   // TODO allocating 28 MB per solo game
-  internal fun intersectGroundType(that: GroundType): GroundType? {
-    val commonTable = requireSameClassTable(that)
-    val intersectedClass = (rootClass intersect that.rootClass) ?: return null
-    val intersectedDependencies = (dependencies intersect that.dependencies) ?: return null
-    val intersectedRefinement =
+  internal fun glbIn(that: Type, classTable: ClassTable): GroundType? {
+    val that = that.groundType
+    require(classTable.knows(this) && classTable.knows(that)) {
+      "$this and $that cannot both be interpreted by this class table"
+    }
+    val glbClass = classTable.glb(rootClass, that.rootClass) ?: return null
+    val glbDeps = classTable.glb(dependencies, that.dependencies) ?: return null
+    val glbRefin =
         when {
           refinement == null -> that.refinement
           that.refinement == null -> refinement
           else -> Refinement.join(refinement, that.refinement)
         }
-    val completeDependencies =
-        (intersectedClass.dependencies intersect intersectedDependencies) ?: return null
-    val unrefined = intersectedClass.withAllDependencies(completeDependencies).inTable(commonTable)
-    return unrefined.refine(intersectedRefinement)
+    val completeDeps = classTable.glb(glbClass.dependencies, glbDeps) ?: return null
+    val unrefined = glbClass.withAllDependencies(completeDeps).inTable(classTable)
+    return unrefined.refine(glbRefin)
   }
 
   internal fun specialize(

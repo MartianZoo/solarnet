@@ -61,6 +61,7 @@ internal constructor(
      */
     public val directSuperclasses: List<Class> = superclasses(declaration, loader, activateRelated),
 ) : HasClassName, Specification<Class> {
+
   /**
    * The master universe containing this class, as required by
    * [rule T1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
@@ -230,14 +231,6 @@ internal constructor(
     abstractSupertypeBits = bits
   }
 
-  /** Returns the narrower operand, or null when neither class narrows the other. */
-  internal infix fun intersect(that: Class): Class? =
-      when {
-        this.isSubtypeOf(that) -> this
-        that.isSubtypeOf(this) -> that
-        else -> null
-      }
-
   /**
    * Asserts the subclass relation with [that], producing a narrowing error on failure as specified
    * by
@@ -365,7 +358,7 @@ internal constructor(
     // common narrowing are an error.
     inherited.reduceOrNull { left, right ->
       left.merge(right) { a, b ->
-        (a intersect b)
+        loader.glb(a, b)
             ?: throw PetException("$className inherits incompatible bounds for ${a.key}: $a and $b")
       }
     } ?: DependencySet.of()
@@ -430,6 +423,10 @@ internal constructor(
       )
 
   private fun normalizeVariableEqualities(original: DependencySet): DependencySet {
+    val classTable =
+        original.classTable?.let {
+          requireNotNull(loader.commonTable(it)) { "$original belongs to a different class table" }
+        } ?: loader
     var dependencies = original
     var changed: Boolean
     do {
@@ -437,7 +434,7 @@ internal constructor(
       dependencyEqualities().forEach { equality ->
         val occurrences = equality.paths.map(dependencies::at)
         val intersection = occurrences.reduce { left, right ->
-          (left intersect right) ?: equalityError(equality, dependencies)
+          classTable.glb(left, right) ?: equalityError(equality, dependencies)
         }
         equality.paths.forEach { path ->
           if (dependencies.at(path) != intersection) {
@@ -818,8 +815,12 @@ internal constructor(
     require(projected.keys == dependencies.keys) {
       "expected keys ${dependencies.keys}, got $deps"
     }
+    val classTable =
+        projected.classTable?.let {
+          requireNotNull(loader.commonTable(it)) { "$deps belongs to a different class table" }
+        } ?: loader
     val bounded =
-        requireNotNull(dependencies intersect projected) {
+        requireNotNull(classTable.glb(dependencies, projected)) {
           "$deps does not satisfy the declared dependency bounds of $className"
         }
     return GroundType(this, normalizeVariableEqualities(bounded))

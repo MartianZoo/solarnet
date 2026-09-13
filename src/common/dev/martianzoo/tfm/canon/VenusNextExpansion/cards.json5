@@ -61,7 +61,7 @@
           "name": "AirScrappingExpedition",
           "cost": 13,
           "tags": [ "VenusTag", "EventTag" ],
-          "immediate": "VenusStep, 3 Floater<ResourceCard(HAS VenusTag)>",
+          "immediate": "VenusStep, 3 Floater<CardFront(HAS VenusTag)>",
         },
         {
           "name": "AtalantaPlanitiaLab",
@@ -89,7 +89,7 @@
           "name": "CorroderSuits",
           "cost": 8,
           "tags": [ "VenusTag" ],
-          "immediate": "PROD[2 MC], CardResource<ResourceCard(HAS VenusTag)>",
+          "immediate": "PROD[2 MC], CardResource<CardFront(HAS VenusTag)>",
         },
         {
           "name": "DawnCity",
@@ -158,7 +158,7 @@
           "requirement": "5 VenusStep",
           "cost": 14,
           "tags": [ "VenusTag", "PlantTag" ],
-          "immediate": "2 Microbe<ResourceCard(HAS VenusTag)> OR 2 Animal<ResourceCard(HAS VenusTag)>, PROD[-Energy, 2 MC]",
+          "immediate": "2 Microbe<CardFront(HAS VenusTag)> OR 2 Animal<CardFront(HAS VenusTag)>, PROD[-Energy, 2 MC]",
           "effects": [ "End: 2 VictoryPoint" ],
         },
         {
@@ -183,7 +183,7 @@
           "name": "HydrogenToVenus",
           "cost": 11,
           "tags": [ "SpaceTag", "EventTag" ],
-          "immediate": "VenusStep, Floater<ResourceCard(HAS VenusTag)> / JovianTag",
+          "immediate": "VenusStep, Floater<CardFront(HAS VenusTag)> / JovianTag",
         },
         {
           "name": "IoSulphurResearch",
@@ -236,7 +236,7 @@
           "cost": 18,
           "tags": [ "VenusTag", "CityTag" ],
           "immediate": "PROD[-Energy], CityTile<RemoteArea {}>",
-          "actions": [ "-> CardResource<ResourceCard(HAS VenusTag)>" ],
+          "actions": [ "-> CardResource<CardFront(HAS VenusTag)>" ],
           "effects": [ "End: 3 VictoryPoint" ],
         },
         {
@@ -311,7 +311,7 @@
           "cost": 22,
           "tags": [ "VenusTag", "CityTag" ],
           "immediate": "PROD[2 MC], CityTile<RemoteArea {}>",
-          "actions": [ "-> 2 Floater<ResourceCard(HAS VenusTag)>" ],
+          "actions": [ "-> 2 Floater<CardFront(HAS VenusTag)>" ],
           "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
         },
         {
@@ -352,7 +352,7 @@
           "cost": 9,
           "tags": [ "VenusTag", "MicrobeTag" ],
           "actions": [
-            "-> Microbe<ResourceCard(HAS VenusTag)>",
+            "-> Microbe<CardFront(HAS VenusTag)>",
             "2 Microbe<This> -> VenusStep"
           ],
         },
@@ -386,7 +386,7 @@
           "requirement": "8 VenusStep",
           "cost": 13,
           "tags": [ "VenusTag", "PlantTag" ],
-          "immediate": "VenusStep, Microbe<ResourceCard(HAS VenusTag)> OR Animal<ResourceCard(HAS VenusTag)>",
+          "immediate": "VenusStep, Microbe<CardFront(HAS VenusTag)> OR Animal<CardFront(HAS VenusTag)>",
           "effects": [ "End: VictoryPoint" ],
         },
         {
