@@ -108,6 +108,20 @@ private object TerraformingMars {
   }
 
   internal object Neighbor : CustomMetric() {
+    override fun countAbstract(game: GameReader, type: Type): Int {
+      val (tile, target) = type.typeDependencies.map { it.boundType }
+      val targets = game.getComponents(target).elements
+      val areas = mapDefinition(game).areas
+      return targets.sumOf { targetArea ->
+        val row = targetArea.getNumberPropertyValue("row")
+        val column = targetArea.getNumberPropertyValue("column")
+        areas.hexNeighbors(row, column).sumOf { sourceArea ->
+          val sourceType = game.resolve(sourceArea.className.expression)
+          game.getDependents(sourceType).count { it.narrows(tile, game) }
+        }
+      }
+    }
+
     override fun count(game: GameReader, type: Type): Int {
       val (piece, target) = type.typeDependencies.map { it.boundType }
       val source =

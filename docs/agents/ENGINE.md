@@ -525,10 +525,17 @@ Multiple Metrics are compared lexicographically. Each score binds the candidate 
 `Owner` as an `EACH` body does, including occurrences inside `NOT` refinements. There is no
 direction keyword; a known upper cap minus a Metric can express lowest-first scoring.
 
-An abstract custom metric specializes only over dependency targets represented by live components,
-then sums the satisfying concrete implementations. This follows the ordinary dependency rule that
-a dependent value cannot exist without its targets and avoids enumerating the full structural
-cross-product. Kotlin metric invocations always receive concrete dependency arguments.
+An abstract custom metric normally specializes only over dependency targets represented by live
+components, then sums the satisfying concrete implementations. This follows the ordinary dependency
+rule that a dependent value cannot exist without its targets and avoids enumerating the full
+structural cross-product. A custom metric may instead evaluate the complete abstract query directly
+when it can avoid constructing that cross-product; its implementation is then responsible for the
+same live-dependency semantics. Concrete metric invocations always receive concrete dependency
+arguments.
+
+`GameReader.getDependents` exposes the graph's existing reverse-dependency index for computations
+that start from a known component. It returns distinct direct dependent Types; broader transitive or
+subtype selection remains an explicit caller operation.
 
 Refinements substitute a candidate into their requirement and query the current World. Immutable
 class properties supply printed cost and requirement plus map row and column without creating live
