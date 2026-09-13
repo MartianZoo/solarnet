@@ -1,7 +1,5 @@
-"Counts the tiles in a player's largest contiguous group of owned tiles"
-CLASS TileInLargestGroup : Owned<Player>, Custom
+CLASS VastitasMap : MarsMap
 
-// Vastitas Borealis milestones, then awards, in board order.
 CLASS Agronomist : Milestone { requirement = HAS "4 PlantTag" }
 CLASS Engineer : Milestone { requirement = HAS "10 PROD[Energy OR Heat]" }
 CLASS Spacefarer : Milestone { requirement = HAS "4 SpaceTag" }
@@ -14,7 +12,8 @@ CLASS Highlander : Award { metric = COUNT "OwnedTile<MarsArea(HAS MAX 0 Neighbor
 CLASS Promoter : Award { metric = COUNT "PlayedEvent" }
 CLASS Blacksmith : Award { metric = COUNT "PROD[Metal]" }
 
-CLASS VastitasMap : MarsMap
+"Counts the tiles in a player's largest contiguous group of owned tiles"
+CLASS TileInLargestGroup : Owned<Player>, Custom
 
 // The map areas below are code-generated based on the following comment
 //               LP    L     VS    L     L

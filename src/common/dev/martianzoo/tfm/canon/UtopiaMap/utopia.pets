@@ -1,3 +1,5 @@
+CLASS UtopiaMap : MarsMap
+
 CLASS Manager : Milestone { requirement = HAS "3 SpecialTile" }
 CLASS Pioneer3 : Milestone { requirement = HAS "3 Colony" }
 CLASS Trader : Milestone { requirement = HAS "3 Class<CardResource>(HAS CardResource<Owner>)" }
@@ -9,8 +11,6 @@ CLASS Investor : Award { metric = COUNT "EarthTag" }
 CLASS Botanist : Award { metric = COUNT "PROD[Plant]" }
 CLASS Incorporator : Award { metric = COUNT "ActiveCard(HAS MAX 10 cost) OR AutomatedCard(HAS MAX 10 cost)" }
 CLASS Metropolist : Award { metric = COUNT "CityTile" }
-
-CLASS UtopiaMap : MarsMap
 
 // The map areas below are code-generated based on the following comment
 //               L     L    LEE    L     L

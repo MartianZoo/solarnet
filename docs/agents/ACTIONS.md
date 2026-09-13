@@ -34,8 +34,10 @@
   `actionToEffects` for current lowering.
 - [`PetTransformer.kt`](../../src/common/dev/martianzoo/pets/PetTransformer.kt) — search for
   `transformAction` before changing the lowering stage.
-- [Terraforming Mars `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
-  — search for `TURN AND ACTION PROTOCOL` and `ABSTRACT CLASS Billing`.
+- [Terraforming Mars `actions.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/actions.pets)
+  — search for `ABSTRACT CLASS StandardAction` and `CLASS UseAction`.
+- [Terraforming Mars `payment.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets)
+  — search for `ABSTRACT CLASS Billing`.
 - [`DerivedClassLowerer.kt`](../../src/common/dev/martianzoo/pets/DerivedClassLowerer.kt) — read
   before generating a Class for each authored action.
 - [`VariableAmountActionsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/VariableAmountActionsTest.kt)

@@ -356,8 +356,10 @@ is clearer than treating each copy as a separately named token.
 `Barrier` and `GameEndBarrier` are **unrelated supertypes** that both use the word. `Barrier :
 MustCleanUp` means "the player must remove this to unblock a task" and backs the open-ended query
 `MAX 0 Barrier` in
-[`classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets), which spans
-`Owed`, `Billing`, `Required`, and `TradeBarrier`. `GameEndBarrier` extends nothing, means "the game
+[`card-model.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets),
+which spans `Required` there, `Owed` and `Billing` in
+[`payment.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets),
+and `TradeBarrier` in Colonies. `GameEndBarrier` extends nothing, means "the game
 may not end yet", and is queried by name from
 [`TfmWorkflow.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt) and four tests. We are
 keeping the shared word. The trap to watch: a new class that blocks game end will compile just as

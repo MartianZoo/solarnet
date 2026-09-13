@@ -23,7 +23,8 @@ repairs belong in [`TODO.md`](../../TODO.md), not here; payment allocation is do
 ### 1. M€ production is stored five above the printed value
 
 Each player has five
-[`ProdOffset`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets) components.
+[`ProdOffset`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/resources.pets)
+components.
 Each contributes one M€-production component and removes one M€ during each production phase.
 Together they represent the printed -5 floor without negative component counts. Their represented
 `Class<StandardResource>` dependency lets ordinary metrics pair offsets with their production kind.

@@ -79,7 +79,7 @@ contains mutually exclusive maps, modes, and replacement classes.
 **Status: current.**
 
 Runtime Catalog assembly receives only explicit Class declarations. Canon supplies those
-declarations through bundled `classes.pets`, generated `cards.pets`, and generated `maps.pets`.
+declarations through every bundled `.pets` source, including generated `cards.pets`.
 Missing declarations fail Catalog loading. Runtime assembly neither synthesizes a missing
 declaration nor supplements its behavior from another representation. Synthetic tests likewise
 supply ordinary Pets declarations.
@@ -248,9 +248,9 @@ require no runtime per-card metadata relationship.
 
 ## Map data and runtime views
 
-`tfm-map-data` owns each map's rows and per-map legend. The generator emits the diagram comment and area
-declarations into `maps.pets`; `classes.pets` keeps the map Module, milestones, awards, and other
-hand-authored declarations. Semantic runtime facts—area identity, kind, row, column, and bonus
+`tfm-map-data` owns each map's rows and per-map legend. The generator updates the diagram comment and
+area declarations in the map's bundle-specific `.pets` file alongside its map Module, milestones,
+awards, and other hand-authored declarations. Semantic runtime facts—area identity, kind, row, column, and bonus
 Effect—come only from loaded Classes. The shared class-backed grid selects the chosen map bundle's
 concrete `MarsArea` Classes without a name-prefix convention.
 

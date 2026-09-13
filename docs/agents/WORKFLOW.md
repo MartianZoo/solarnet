@@ -36,7 +36,7 @@ The required primitives already exist:
   bootstrap before returning.
 - Admin creates `BootstrapPhase` before the generated `Premise`; bootstrap begins and ends with
   that same Phase.
-- [`Phase`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets) is legitimate
+- [`Phase`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/game.pets) is legitimate
   Game World state, with exactly one Phase present.
 - Pets Type arguments are component dependencies. Removing a dependency cascades through its
   dependents before removing the dependency itself.

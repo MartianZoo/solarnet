@@ -1,3 +1,5 @@
+CLASS ElysiumMap : MarsMap
+
 CLASS Generalist : Milestone {
   HAS MAX 0 QuickStartVariant
   requirement = HAS "PROD[1 (MC - ProdOffset<Class<MC>>), Steel, Titanium, Plant, Energy, Heat]"
@@ -19,8 +21,6 @@ CLASS DesertSettler : Award {
 }
 CLASS EstateDealer : Award { metric = COUNT "OwnedTile<MarsArea(HAS Neighbor<OceanTile>)>" }
 CLASS Benefactor : Award { metric = COUNT "TerraformRating" }
-
-CLASS ElysiumMap : MarsMap
 
 // The map areas below are code-generated based on the following comment
 //               W     WT    WC    WS    LC

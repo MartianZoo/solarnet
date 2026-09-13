@@ -55,9 +55,10 @@
   every normalization applied to a task on the way in.
 - [`SystemDeclarations.kt`](../../src/common/dev/martianzoo/pets/SystemDeclarations.kt) — search for
   `MustCleanUp`, `Temporary`, `Barrier`, `Signal`.
-- [Terraforming Mars `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
+- [Terraforming Mars `card-model.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets)
+  and [`payment.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets)
   — `CLASS PlayCard` and `ABSTRACT CLASS Billing` for the card-play and payment latches.
-- [Colonies `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/classes.pets)
+- [Colonies `colonies.pets`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/colonies.pets)
   — `CLASS Trade<ColonyTile>` for the counted-prerequisite latch.
 - Tests: [`ActionSequencingTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/ActionSequencingTest.kt),
   [`AutomaticEffectOrderTest.kt`](../../test/common/dev/martianzoo/engine/AutomaticEffectOrderTest.kt),

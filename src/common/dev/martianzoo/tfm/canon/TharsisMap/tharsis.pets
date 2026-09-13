@@ -1,3 +1,7 @@
+CLASS TharsisMap : MarsMap {
+  autoSelectWhen = HAS "TerraformingMars, MAX 0 MarsMap"
+}
+
 CLASS Terraformer35 : Milestone { requirement = HAS "35 TerraformRating" }
 CLASS Mayor : Milestone { requirement = HAS "3 CityTile" }
 CLASS Gardener : Milestone { requirement = HAS "3 GreeneryTile" }
@@ -9,10 +13,6 @@ CLASS Banker : Award { metric = COUNT "PROD[MC]" }
 CLASS Scientist : Award { metric = COUNT "ScienceTag" }
 CLASS Thermalist : Award { metric = COUNT "Heat" }
 CLASS Miner : Award { metric = COUNT "Metal" }
-
-CLASS TharsisMap : MarsMap {
-  autoSelectWhen = HAS "TerraformingMars, MAX 0 MarsMap"
-}
 
 // The map areas below are code-generated based on the following comment
 //              LSS   WSS    L     WC    W

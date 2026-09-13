@@ -29,8 +29,17 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Have the normal full application build stamp its output with the current Git commit and, when
   source changes are present, a stable hash of those changes. Include that stamp in every exported
   game record so a log identifies, or can later verify, the engine source that produced it.
-- Make tile placement over an owned `Community` an atomic transmutation, then enforce
-  `HAS MAX 1 Occupant<This>` on every `Area` and remove card-level empty-area refinements.
+- Give `AreaPiece` its area dependency, make tile placement over an owned `Community` an atomic
+  transmutation, then enforce `HAS MAX 1 Occupant<This>` on every `Area` and remove card-level
+  empty-area refinements.
+- Decide whether `Milestone`'s per-player uniqueness constraint should use
+  `HAS MAX 1 This<Player>` or a clearer way to express one instance of the concrete milestone per
+  player.
+- Replace the persistent `CardPlay` billing host with the live late-stage card-play operation once
+  that operation has a stable identity suitable for `Billing`.
+- Express Quick Start's starting production as nested iteration over players and standard-resource
+  Classes once Pets can represent that directly.
+- Decide whether `NoctisArea` belongs with the Noctis City card instead of the core board model.
 - Replace the duplicated `TemperatureStep BY Player`/`BY Admin` threshold-ocean triggers and the
   synthetic `AdminOceanPlacement` signal with one rule that separates who chooses the tile from
   whose action the placement is attributed to, shared by the standard and extended tracks.

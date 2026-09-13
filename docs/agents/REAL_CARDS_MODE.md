@@ -29,9 +29,9 @@ These are two modes over the same card operations, not two card systems.
 
 ## Source map
 
-- [Terraforming Mars `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
+- [Terraforming Mars `card-model.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets)
   — search for `ABSTRACT CLASS CardLocation`, `ABSTRACT CLASS Card`, `CLASS PlayedEvent`, and
-  `CLASS BuySelectedCards` for the current state model.
+  `CLASS BuySelectedCards`.
 - [`CardOperation.kt`](../../src/common/dev/martianzoo/tfm/canon/CardOperation.kt) — the validated
   semantic forms accepted inside `CARDS[...]`.
 - [`FollowModeNeutralizer.kt`](../../src/common/dev/martianzoo/tfm/canon/FollowModeNeutralizer.kt) —

@@ -1,5 +1,3 @@
-CLASS GainsOf<CardFront, Class<Component>> : Custom
-
 // A goal reprinted from a loaded map keeps the declaration from that map bundle. This bundle
 // supplies the remaining supported goals and revised goals with distinct implementations.
 
@@ -34,6 +32,8 @@ CLASS Administrator : Award { metric = COUNT "CardFront(HAS MAX 0 Tag)" }
 CLASS Biologist : Award { metric = COUNT "BioTag" }
 // CLASS Politician : Award { metric = COUNT "PartyLeader OR Influence" }
 CLASS Visionary : Award { metric = COUNT "ProjectCard<Hand>" }
+
+CLASS GainsOf<CardFront, Class<Component>> : Custom
 
 "Tracks ocean placements only while Hydrologist is in the milestone pool"
 CLASS HydrologistWatcher : CardWatcher {

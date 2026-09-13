@@ -5,24 +5,6 @@ CLASS VenusNextExpansion : Module {
   ModulesReady IF ExtendedGlobalParametersRule: ExtendedVenusTrackRules
 }
 
-CLASS AirScrappingProject : StandardProject {
-  cost = 15
-  1 MC / cost -> VenusStep
-}
-
-"Adds World Government Terraforming to the solar phase"
-CLASS WorldGovernmentRule : Module {
-  autoSelectWhen = HAS "VenusNextExpansion"
-
-  SolarPhase:: EACH Player(HAS StartToken) { WorldGovernmentTerraforming }
-}
-
-"Makes Venus a required global parameter for ending a multiplayer game"
-CLASS MandatoryVenusVariant : Module {
-  premiseRequirement = HAS "MultiplayerMode, VenusNextExpansion"
-  This: GpGameEndBarrier<Class<VenusStep>>
-}
-
 "Represents a 2% increase in Venus... terraformedness"
 CLASS VenusStep : GlobalParameter
 
@@ -47,8 +29,25 @@ CLASS ExtendedVenusTrackRules : System {
   VenusStep IF =18 VenusStep:: GpComplete<Class<VenusStep>>
 }
 
-CLASS VenusTag : PlanetaryTag {
+"Adds World Government Terraforming to the solar phase"
+CLASS WorldGovernmentRule : Module {
+  autoSelectWhen = HAS "VenusNextExpansion"
+
+  SolarPhase:: EACH Player(HAS StartToken) { WorldGovernmentTerraforming }
 }
+
+"Makes Venus a required global parameter for ending a multiplayer game"
+CLASS MandatoryVenusVariant : Module {
+  premiseRequirement = HAS "MultiplayerMode, VenusNextExpansion"
+  This: GpGameEndBarrier<Class<VenusStep>>
+}
+
+CLASS AirScrappingProject : StandardProject {
+  cost = 15
+  1 MC / cost -> VenusStep
+}
+
+CLASS VenusTag : PlanetaryTag
 
 CLASS Hoverlord : Milestone {
   HAS MultiplayerMode
