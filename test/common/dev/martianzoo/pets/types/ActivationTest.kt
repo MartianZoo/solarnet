@@ -148,6 +148,34 @@ internal class ActivationTest {
   }
 
   @Test
+  internal fun `premise requirements reject active abstract domains without inhabitants`() {
+    val catalog =
+        testCatalog(
+            """
+            ABSTRACT CLASS Selectable { requirement = Requirement? }
+            ABSTRACT CLASS Domain
+            CLASS Available : Domain
+            CLASS Related<Domain>
+            CLASS Candidate
+            CLASS OtherCandidate
+            CLASS Selected : Selectable {
+              requirement = HAS "Candidate(HAS Related<Domain>) OR OtherCandidate(HAS Related<Domain>)"
+            }
+            """
+                .trimIndent()
+        )
+
+    shouldThrow<IllegalArgumentException> {
+      gameView(catalog, "Selected", "Domain", "Related", "Candidate", "OtherCandidate")
+    }
+
+    val viable =
+        gameView(catalog, "Selected", "Available", "Related", "Candidate", "OtherCandidate")
+    viable.isActive(cn("Selected")) shouldBe true
+    viable.isActive(cn("Available")) shouldBe true
+  }
+
+  @Test
   internal fun `reachable constructive instructions activate their destination`() {
     val catalog =
         testCatalog(

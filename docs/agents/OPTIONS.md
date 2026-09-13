@@ -382,8 +382,10 @@ Compatible selected content can still have one of three projection outcomes:
 Premise construction rejects both unviable and broken selected content, with different diagnostics.
 It must not silently activate a locked Class or defer an inevitable failure until gameplay.
 
-The first viability analysis reads every selected root's loaded Class declaration and need only
-exploit exact facts about uninhabited Types. A later
+The first viability analysis reads every selected root's loaded Class declaration and exploits
+exactly empty active type domains. This includes inactive Classes and active abstract Classes with
+no active concrete narrowing. A positive `HAS` refinement is empty when its Requirement is exactly
+false, and a metric union is zero when every alternative has an empty domain. A later
 closed-world extension could prove facts not directly involving them—for example, that Law Suit is
 unviable in solo because no opponent-dependent attack record can ever exist. That is the same
 semantic category but a substantially stronger satisfiability analysis, not a prerequisite for the
