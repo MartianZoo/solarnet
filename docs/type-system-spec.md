@@ -656,8 +656,10 @@ Neighbor)`.
 > whether the space is legal.
 
 **T8-3. How the candidate is substituted.** Every expression inside `R` receives the candidate in the
-first of its dependencies that can accept it (T3-5). A bare class property receives it as its
-receiver, so `CardFront(HAS MAX 9 cost)` tested against `Ants` asks `MAX 9 Ants.cost`.
+first compatible dependency whose current bound it narrows. If the candidate narrows none of the
+compatible dependencies, it receives the first compatible dependency. A bare class property
+receives it as its receiver, so `CardFront(HAS MAX 9 cost)` tested against `Ants` asks
+`MAX 9 Ants.cost`.
 
 If no expression in `R` can accept the candidate, the refinement fails without asking the world at
 all. This is not an error; it is the answer. `Component(HAS StartToken)` can only ever match a
@@ -672,13 +674,6 @@ argument, asking whether that candidate owns `This`.
 > bare `cost` reads that card's concrete printed cost. For Viron, the candidate must merge into the
 > already-written `ActionCard(NOT Viron)` inside `ActionUsedMarker`; treating written arguments as
 > occupied slots would make its “another card's action” choice fail.
-
-> **A known gap.** When two dependencies of one expression accept the same type, the candidate takes
-> the first, which may be the one an argument was written into, leaving the intended slot open. For
-> `Area(HAS Adjacency<Tharsis_2_2>)` with candidate `Tharsis_2_2`, the world is asked
-> `Adjacency<Tharsis_2_2, Area>` rather than `Adjacency<Tharsis_2_2, Tharsis_2_2>`. Characterized in
-> `BugsTest`. Reserving written keys is *not* the fix: real cards, including Viron and Mons
-> Insurance, depend on the merging behavior above.
 
 **T8-4. `NOT` is a structural difference.** `D(NOT X)` is the part of `D` that cannot overlap `X`. A
 candidate satisfies it only when its **entire** structural domain avoids `X`:

@@ -116,6 +116,36 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
+  internal fun `T8-3 an exact argument leaves the candidate for another compatible slot`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Area { CLASS Tharsis_2_2, Tharsis_2_3 }",
+            "ABSTRACT CLASS Adjacency<Area, Area>",
+        )
+    val world = RecordingWorld(answer = true)
+
+    table
+        .resolve(te("Tharsis_2_2"))
+        .narrows(table.resolve(te("Area(HAS Adjacency<Tharsis_2_2>)")), world) shouldBe true
+    world.questions shouldContainExactly listOf("Adjacency<Tharsis_2_2, Tharsis_2_2>")
+  }
+
+  @Test
+  internal fun `T8-3 a broad argument remains eligible for candidate narrowing`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Area { CLASS Tharsis_2_2, Tharsis_2_3 }",
+            "ABSTRACT CLASS Adjacency<Area, Area>",
+        )
+    val world = RecordingWorld(answer = true)
+
+    table
+        .resolve(te("Tharsis_2_2"))
+        .narrows(table.resolve(te("Area(HAS Adjacency<Area>)")), world) shouldBe true
+    world.questions shouldContainExactly listOf("Adjacency<Tharsis_2_2, Area>")
+  }
+
+  @Test
   internal fun `T8-3 a class property may be tested against the candidate`() {
     val cards =
         loadTypes(

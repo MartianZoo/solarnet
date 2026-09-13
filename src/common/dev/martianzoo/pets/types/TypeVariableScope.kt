@@ -1,6 +1,7 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.THIS
@@ -489,17 +490,21 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
   }
 }
 
-private fun Expression.isExpandedFrom(source: Expression, classTable: ClassTable): Boolean {
+internal fun Expression.isExpandedFrom(source: Expression, classTable: ClassTable): Boolean {
   if (className != source.className || refinement != source.refinement) {
     return false
   }
   val klass = classTable.findClass(className) ?: return false
-  val actualByKey =
-      arguments.zip(klass.matchDependencyKeys(arguments, classTable)).associate {
-        it.second to it.first
-      }
-  return source.arguments.zip(klass.matchDependencyKeys(source.arguments, classTable)).all {
-      (argument, key) ->
-    actualByKey[key] == argument
+  return try {
+    val actualByKey =
+        arguments.zip(klass.matchDependencyKeys(arguments, classTable)).associate {
+          it.second to it.first
+        }
+    source.arguments.zip(klass.matchDependencyKeys(source.arguments, classTable)).all {
+        (argument, key) ->
+      actualByKey[key] == argument
+    }
+  } catch (_: ExpressionException) {
+    false
   }
 }

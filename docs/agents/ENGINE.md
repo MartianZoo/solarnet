@@ -566,17 +566,13 @@ one-count limit: additional fleet components are real capacity granted by cards.
 ring, and each `ResearchPhase` moves it along that relation by atomic transmutation. Each Player
 permits at most one incoming and one outgoing edge. Phase is likewise exact one after Admin creates
 BootstrapPhase; each transition replaces the current Phase, and `End` remains as the terminal Phase.
-A separate temporary
-`FinalScoringPending` component supplies the completion event that assigns multiplayer victory after every
-scoring task settles. A future comprehensive lower-bound validator must account for the short
-construction interval before Admin creates BootstrapPhase. Bootstrap completion
-verifies its required components and empty task queue; ordinary mutations continue to enforce
-applicable multiplicity limits.
-
-**Audit:** bootstrap verification checks premise Modules, Players, and exact initial component
-Types, not every positive lower bound or every source-owned support component. Canon's lifecycle
-tests currently prove `StartToken` and track-status initialization; the generic initializer would
-not itself detect their accidental omission.
+A separate temporary `FinalScoringPending` component supplies the completion event that assigns
+multiplayer victory after every scoring task settles. Bootstrap completion verifies its configured
+components, empty task queue, and every positive component-count lower bound. Self-counts are
+checked for every active concrete specialization. Relational counts such as an Event Card's
+`EventTag<This>` are checked separately for each live owning component, so unrelated scopes cannot
+satisfy one another and absent owners do not require dependent state. Ordinary mutations continue
+to enforce applicable multiplicity limits.
 
 `GpIncomplete` and `GpComplete` are two faces of one status and are the strongest candidate for an
 exact-one sum; expressing that honestly requires one shared status family and an atomic

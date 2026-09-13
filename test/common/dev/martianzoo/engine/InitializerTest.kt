@@ -8,6 +8,7 @@ import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldInclude
+import io.kotest.matchers.string.shouldNotInclude
 import kotlin.test.Test
 
 internal class InitializerTest {
@@ -45,6 +46,45 @@ internal class InitializerTest {
     admin.count("Player") shouldBe 2
     admin.count("BootstrapProbe") shouldBe 1
     game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun completedBootstrapRejectsAMissingPositiveLowerBound() {
+    val premise = testGamePremise("CLASS RequiredAtBootstrap { HAS =1 This }", players = 0)
+
+    val failure = shouldThrow<PetException> { Engine.newGame(premise) }
+
+    failure.message.orEmpty().shouldInclude("RequiredAtBootstrap (found 0, expected 1)")
+  }
+
+  @Test
+  internal fun completedBootstrapChecksDependentLowerBoundsPerLiveScope() {
+    val premise =
+        testGamePremise(
+                """
+                ABSTRACT CLASS Anchor {
+                  HAS MAX 1 This
+                  HAS =1 Marker<This>
+                  CLASS Left, Right, Absent
+                }
+                CLASS Marker<Anchor>
+                """,
+                players = 0,
+            )
+            .copy(
+                initialComponentTypes =
+                    setOf(
+                        cn("Left").expression,
+                        cn("Right").expression,
+                        cn("Marker").of(cn("Left").expression),
+                    )
+            )
+
+    val failure = shouldThrow<PetException> { Engine.newGame(premise) }
+
+    failure.message.orEmpty().shouldInclude("Marker<Right> (found 0, expected 1)")
+    failure.message.orEmpty().shouldNotInclude("Marker<Left>")
+    failure.message.orEmpty().shouldNotInclude("Marker<Absent>")
   }
 
   @Test

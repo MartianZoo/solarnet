@@ -251,6 +251,18 @@ private constructor(
     return of(deps.map { partial.getIfPresent(it.key) ?: it })
   }
 
+  internal fun specializeRefinementCandidate(
+      candidate: Expression,
+      classTable: ClassTable,
+  ): DependencySet {
+    val compatible = deps.mapNotNull { it.intersect(candidate, classTable) }
+    val selected =
+        compatible.firstOrNull { narrowed -> narrowed != get(narrowed.key) }
+            ?: compatible.firstOrNull()
+            ?: throw Exceptions.badExpression(candidate, toString())
+    return replaceAt(DependencyPath(selected.key), selected)
+  }
+
   internal fun replaceAt(path: DependencyPath, replacement: Dependency): DependencySet {
     val firstKey = path.keyList.first()
     if (path.keyList.size == 1) {

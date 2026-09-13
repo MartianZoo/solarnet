@@ -1,7 +1,11 @@
 package dev.martianzoo.pets
 
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.types.isExpandedFrom
+import dev.martianzoo.pets.types.testCatalog
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -174,6 +178,15 @@ internal class Lang07NarrowingTest {
         "GreeneryTile<Land1> THEN GreeneryTile<Land1>",
     ) shouldBe true
     refuses("Tile<LandArea> THEN Tile<LandArea>", "GreeneryTile<Land1> THEN OceanTile<Land1>")
+  }
+
+  @Test
+  internal fun `L7-8 expansion matching ignores an occurrence unavailable in its universe`() {
+    val table = testCatalog("ABSTRACT CLASS Shade\nCLASS Token<Shade>").classTable
+    val expanded = parse<Expression>("Token<Shade>")
+    val unavailable = parse<Expression>("Token<PremiseShade>")
+
+    expanded.isExpandedFrom(unavailable, table) shouldBe false
   }
 
   // L7-9 The two spellings
