@@ -268,7 +268,8 @@ public sealed class Instruction : InstructionTree() {
 
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(scalar, fromEx)
 
-    override fun scale(factor: Int): Instruction = copy(scalar = scalar * factor)
+    override fun scale(factor: Int): Instruction =
+        copy(scalar = scalar * factor).withTypeVariables(typeVariables)
 
     override fun toString(): String {
       val scalText = if (scalar == ActualScalar(1)) "" else "$scalar "

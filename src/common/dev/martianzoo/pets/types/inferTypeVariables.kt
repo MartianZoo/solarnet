@@ -63,7 +63,7 @@ public fun ClassTable.inferTypeVariables(): PetTransformer =
                       TypeVariableScope.infer(
                           listOf(transformed.gaining, transformed.removing),
                           this@inferTypeVariables,
-                          includeRegionRoots = false,
+                          regionRootsRequireProperMatch = true,
                       )
               )
           else -> transformed

@@ -339,7 +339,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     fun infer(
         regions: List<PetNode>,
         classTable: ClassTable,
-        includeRegionRoots: Boolean = true,
+        regionRootsRequireProperMatch: Boolean = false,
         explicitDeclarations: List<Expression> = emptyList(),
         visibleScope: TypeVariableScope = EMPTY,
     ): TypeVariableScope {
@@ -350,6 +350,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
           val ancestors: Set<Expression>,
           val inRequirement: Boolean,
           val directlyCounted: Boolean,
+          val regionRoot: Boolean,
       )
 
       var ordinal = 0
@@ -364,7 +365,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         ) {
           val expression = node as? Expression
           val nextAncestors = expression?.let { ancestors + it } ?: ancestors
-          if (expression != null && (includeRegionRoots || !regionRoot)) {
+          if (expression != null) {
             add(
                 Found(
                     expression,
@@ -373,6 +374,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
                     ancestors,
                     inRequirement,
                     directlyCounted,
+                    regionRoot,
                 )
             )
           }
@@ -431,8 +433,21 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         Entry(variable, variable.occurrences.associateWith { it.expression })
       }
 
-      val grouped =
+      val properExpressionRegions =
           occurrences
+              .filterNot(Found::regionRoot)
+              .groupBy({ it.expression.toString() }, Found::region)
+      val eligibleOccurrences =
+          if (!regionRootsRequireProperMatch) occurrences
+          else
+              occurrences.filter { found ->
+                !found.regionRoot ||
+                    properExpressionRegions[found.expression.toString()].orEmpty().any {
+                      it != found.region
+                    }
+              }
+      val grouped =
+          eligibleOccurrences
               .filterNot(Found::directlyCounted)
               .filterNot { found ->
                 explicitIdentities.any(found.expression::sameAuthoredTypeExpressionAs)

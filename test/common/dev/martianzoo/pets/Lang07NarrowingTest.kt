@@ -181,6 +181,18 @@ internal class Lang07NarrowingTest {
   }
 
   @Test
+  internal fun `L7-8 a source root repeated inside its destination keeps the same value`() {
+    narrows(
+        "Tile<LandArea> FROM LandArea",
+        "GreeneryTile<Land1> FROM Land1",
+    ) shouldBe true
+    refuses(
+        "Tile<LandArea> FROM LandArea",
+        "GreeneryTile<Land1> FROM Land2",
+    )
+  }
+
+  @Test
   internal fun `L7-8 expansion matching ignores an occurrence unavailable in its universe`() {
     val table = testCatalog("ABSTRACT CLASS Shade\nCLASS Token<Shade>").classTable
     val expanded = parse<Expression>("Token<Shade>")

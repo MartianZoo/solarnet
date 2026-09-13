@@ -2,6 +2,7 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Action
@@ -425,7 +426,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-7 a transmutation's regions are its two roles, minus the roots themselves`() {
+  internal fun `T13-7 matching role roots do not declare a variable`() {
     val instruction =
         resources
             .inferTypeVariables()
@@ -438,6 +439,88 @@ internal class Spec13TypeVariablesTest {
 
     // The whole gained and removed roots may deliberately differ, so only what is inside counts.
     names(transmute.typeVariables) shouldContainExactly listOf("Class<StandardResource>")
+  }
+
+  @Test
+  internal fun `T13-7 a role root can use a variable declared inside the opposite role`() {
+    val instruction =
+        resources
+            .inferTypeVariables()
+            .transformInstruction(parse("Receipt<Class<StandardResource>> FROM StandardResource"))
+    val transmute = instruction as Instruction.Transmute
+
+    names(transmute.typeVariables) shouldContainExactly listOf("StandardResource")
+  }
+
+  @Test
+  internal fun `T13-7 elaboration preserves a transmutation's inferred variables`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Item { CLASS ConcreteItem }",
+            "ABSTRACT CLASS Area { CLASS Land }",
+            """
+            ABSTRACT CLASS Receipt<Class<Item>, Area> {
+              DEFAULT +Receipt<Class<Item>, Land>
+            }
+            """
+                .trimIndent(),
+            "CLASS Rule { This: Receipt<Class<Item>> FROM Item }",
+        )
+    val effect = PetElaborator(table).classEffects(table.getClass(cn("Rule"))).single()
+    val transmute = effect.instruction as Instruction.Transmute
+    val variable = transmute.typeVariables.variables.single()
+    val nestedItem =
+        transmute.gaining.descendantsOfType<Expression>().single { it.className == cn("Item") }
+
+    "${transmute.gaining}" shouldBe "Receipt<Class<Item>, Land>"
+    transmute.typeVariables.expressionOf(variable.declaration) shouldBe nestedItem
+    transmute.typeVariables.variableAt(nestedItem) shouldBe variable
+
+    val bound =
+        transmute.typeVariables
+            .bind(mapOf(variable to table.resolve(te("ConcreteItem"))))
+            .transformInstruction(transmute) as Instruction.Transmute
+    "${bound.gaining}" shouldBe "Receipt<Class<ConcreteItem>, Land>"
+    "${bound.removing}" shouldBe "ConcreteItem"
+  }
+
+  @Test
+  internal fun `T13-7 scaling preserves a transmutation's inferred variables`() {
+    val instruction =
+        resources
+            .inferTypeVariables()
+            .transformInstruction(parse("Receipt<Class<StandardResource>> FROM StandardResource"))
+    val scaled = instruction * 2
+
+    names((scaled as Instruction.Transmute).typeVariables) shouldContainExactly
+        listOf("StandardResource")
+  }
+
+  @Test
+  internal fun `T13-7 matching role roots remain independent`() {
+    val instruction =
+        resources
+            .inferTypeVariables()
+            .transformInstruction(parse("StandardResource FROM StandardResource"))
+
+    (instruction as Instruction.Transmute).typeVariables.isEmpty shouldBe true
+  }
+
+  @Test
+  internal fun `T13-8 a root repeated properly still outranks its nested repeats`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person",
+            "ABSTRACT CLASS Box<Person>",
+            "ABSTRACT CLASS Wrapper<Box>",
+        )
+    val instruction =
+        table
+            .inferTypeVariables()
+            .transformInstruction(parse("Box<Person> FROM Wrapper<Box<Person>>"))
+
+    names((instruction as Instruction.Transmute).typeVariables) shouldContainExactly
+        listOf("Box<Person>")
   }
 
   // T13-8 What does not declare a variable
