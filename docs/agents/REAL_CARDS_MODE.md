@@ -89,8 +89,8 @@ Common procedures compose from this state:
   cleanup remove the rest;
 - reveal-and-test gains a back at `Revealed`, offers the reported outcome, and lets cleanup remove
   the back;
-- buying offered cards prices the backs remaining at `Selecting`, settles one invoice, and then
-  moves that count to `Hand`; and
+- buying offered cards prices the backs remaining at `Selecting`, settles their combined debt, and
+  then moves that count to `Hand`; and
 - Event completion and recovery use exact `PlayedEvent` transmutations with no mode-specific
   handling.
 

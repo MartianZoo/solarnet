@@ -533,4 +533,4 @@ unanswered community post.
 Phase and turn precedence: [WORKFLOW.md](WORKFLOW.md). Current task lifecycle, selection, and
 execution: [ENGINE.md](ENGINE.md). Agent policies and the autoexecution loop:
 [AUTOEXEC.md](AUTOEXEC.md). Delegated narrowing and controllers: [IDENTITY.md](IDENTITY.md). Action
-costs and invoices: [ACTIONS.md](ACTIONS.md). Payment evidence: [PAYMENTS.md](PAYMENTS.md).
+costs and billing: [ACTIONS.md](ACTIONS.md). Payment evidence: [PAYMENTS.md](PAYMENTS.md).

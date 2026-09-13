@@ -202,7 +202,7 @@ GameScope
 ```
 
 Each child depends on its parent, and the Phase scope also depends on the current Phase.
-State depends on the narrowest scope matching its true lifetime: an action-local invoice belongs to
+State depends on the narrowest scope matching its true lifetime: action-local billing belongs to
 the Action scope; a passed marker belongs to the Generation scope; phase-local control belongs to
 the Phase scope.
 

@@ -94,7 +94,7 @@ documented generic protocol whose declarations belong in the runtime prelude, or
 under Terraforming Mars. The half-generic placement is the defect.
 
 The [Pets Action model](ACTIONS.md) makes this division more explicit: fixed and X-scaled Terraforming
-Mars `StandardResource` costs use provider- and action-qualified invoices, while direct and
+Mars `StandardResource` costs use provider- and action-qualified billing components, while direct and
 costless Actions keep normal Pets sequencing. The generic Action transformer recognizes those six
 resource names directly. Treat that leak as layering debt instead of adding a broad extension
 framework for this rule.

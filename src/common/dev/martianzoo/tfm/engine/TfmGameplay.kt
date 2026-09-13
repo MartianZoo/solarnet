@@ -70,7 +70,7 @@ public class TfmGameplay(
     }
   }
 
-  /** Buys the selected number of offered project cards and settles their M€ invoice. */
+  /** Buys the selected number of offered project cards and settles their M€ debt. */
   public fun buyCards(count: Int): TaskResult = agent.continueOperation { buySelectedCards(count) }
 
   private fun OperationScope.buySelectedCards(count: Int) {
@@ -310,8 +310,8 @@ public class TfmGameplay(
   }
 
   /**
-   * Pays the open invoice and rejects any allocation containing a unit that could be returned
-   * without leaving the invoice underpaid.
+   * Pays the open billing component and rejects any allocation containing a unit that could be
+   * returned without leaving the debt underpaid.
    */
   public fun pay(
       mc: Int = 0,
@@ -505,8 +505,8 @@ public class TfmGameplay(
   }
 
   /**
-   * How much of the open invoice one unit of [currency] settles: one when the invoice uses that
-   * denomination, plus one per [ResourceValue] the payer owns for it.
+   * How much of the open billing component one unit of [currency] settles: one when its
+   * denomination is [currency], plus one per [ResourceValue] the payer owns for it.
    */
   private fun paymentValue(currency: String): Int =
       count("ResourceValue<Class<$currency>>") + if (count("Owed<Class<$currency>>") > 0) 1 else 0

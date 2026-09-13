@@ -74,7 +74,7 @@ a separate job, and every question about *how* that is done belongs to some othe
 | What count actually gets executed, and how `.` resolves | [`QUANTIFIERS.md`](agents/QUANTIFIERS.md) |
 | Who acted, how a change is attributed, who may narrow a choice | [`IDENTITY.md`](agents/IDENTITY.md) |
 | How `EACH` enumerates components of a live world, and when | [`EACH.md`](agents/EACH.md) |
-| Action availability, costs, invoices and action identity | [`ACTIONS.md`](agents/ACTIONS.md) |
+| Action availability, costs, billing and action identity | [`ACTIONS.md`](agents/ACTIONS.md) |
 | The order in which independent effects fire | [`SEQUENCING.md`](agents/SEQUENCING.md) |
 | The event log, causes and traces | [`ENGINE.md`](agents/ENGINE.md), [`DIAGNOSTICS.md`](agents/DIAGNOSTICS.md) |
 | Which classes a particular game contains | [`OPTIONS.md`](agents/OPTIONS.md) |

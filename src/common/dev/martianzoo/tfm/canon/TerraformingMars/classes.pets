@@ -304,7 +304,7 @@ ABSTRACT CLASS Resource : Owned {
 
 "A component that makes a standard resource worth one M€ when paid"
 ABSTRACT CLASS ResourceValue<Class<StandardResource>> : Owned<Player> {
-  Pay<Class<StandardResource>>:: -Owed<>
+  Pay<Class<StandardResource>>:: -Owed
 }
 
 "One M€ of a standard resource's ordinary payment value"
@@ -432,10 +432,10 @@ ABSTRACT CLASS StandardAction : HasActions {
 "The persistent operation that owns research-phase and corporation-setup card purchases"
 CLASS CardPurchase : HasActions {
   HAS =1 This
-  -Invoice<This>:: ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>
+  -ActionBilling<This>:: ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>
 }
 
-// TODO: Replace this stable invoice host with a live late-stage card-play operation.
+// TODO: Replace this stable billing host with a live late-stage card-play operation.
 "The persistent operation that owns card play regardless of how the play was initiated"
 CLASS CardPlay : HasActions { HAS =1 This }
 
@@ -482,12 +482,12 @@ CLASS BuyCard : Owned<Player>, Signal
 
 "Confirms purchase of every project card remaining in the player's selection"
 CLASS BuySelectedCards : Owned<Player>, Signal {
-  This:: (3 Owed<> / ProjectCard<Selecting>) THEN (BuyCard / ProjectCard<Selecting>) THEN Invoice<CardPurchase, Action1>
+  This:: (3 Owed<> / ProjectCard<Selecting>) THEN (BuyCard / ProjectCard<Selecting>) THEN ActionBilling<CardPurchase, Action1>
 }
 
 CLASS PlayCard<Class<CardBack>, Class<CardFront>, CardLocation> : Owned<Player>, Signal {
   This:: (EVAL CardFront<Class<CardBack>>.requirement: Ok) OR AdjustGpRequirement<Class<CardFront>>
-  This: Owed<> / CardFront.cost THEN HandleCardTags<Class<CardFront>> THEN CardInvoice<Class<CardFront>> THEN MAX 0 Barrier: CardFront FROM CardBack<CardLocation>
+  This: Owed<> / CardFront.cost THEN HandleCardTags<Class<CardFront>> THEN CardBilling<Class<CardFront>> THEN MAX 0 Barrier: CardFront FROM CardBack<CardLocation>
 }
 
 "Signals that a printed global-parameter requirement produced a shortfall ready for adjustment"
@@ -529,13 +529,13 @@ ABSTRACT CLASS Billing<HasActions, ActionSlot, Class<StandardResource>> : Owned<
   -X Owed<Class<StandardResource>> IF MAX 0 Owed<Class<StandardResource>>:: -This!
 }
 
-"The invoice produced by an action with a standard-resource cost"
-CLASS Invoice : Billing {
-  DEFAULT +Invoice<HasActions, ActionSlot, Class<MC>>
+"The billing produced by an action with a standard-resource cost"
+CLASS ActionBilling : Billing {
+  DEFAULT +ActionBilling<HasActions, ActionSlot, Class<MC>>
 }
 
 "The finalized debt for playing a particular card"
-CLASS CardInvoice<Class<CardFront>> : Billing<CardPlay, Action1, Class<MC>>
+CLASS CardBilling<Class<CardFront>> : Billing<CardPlay, Action1, Class<MC>>
 
 "A card-owned adjustment that remains in play until the next card-play"
 ABSTRACT CLASS NextCardEffect<GenerationScope> : Owned<Player> {

@@ -75,6 +75,14 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   not award it TR, and whether adding and then removing those steps has any other observable
   consequences.
 - Keep looking for a better representation of Splice Tactical Genomics.
+- Consider requirement-gated action costs, using United Nations Mars Initiative to make
+  `HasRaisedTr` a prerequisite to paying its 3 M€ rather than a gate around the result.
+- Derive selected singleton card watchers without explicit support-Class invariants. The current
+  sites are United Nations Mars Initiative and Pristar retaining `TrWatcher`, and Hydrologist
+  retaining `HydrologistWatcher`.
+- Reverse replacement-card references so optional packs identify what they replace rather than
+  base cards naming optional packs. Deimos Down, Great Dam, and Magnetic Field Generators currently
+  use `autoSelectWhen = MAX 0 PromoCardPack`.
 - Check whether Early Colonization's two `AdvanceColonyTracks` changes should be explicitly
   mandatory.
 - **Low priority:** [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve

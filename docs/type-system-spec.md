@@ -1105,10 +1105,10 @@ rejected.
 **T13-4. Inheritance.** A subclass does not redeclare an inherited variable, and effects inherited
 from a superclass keep that superclass's scope.
 
-> **Non-normative example — `CardInvoice`.** It inherits `Billing`'s cleanup effects, including the
+> **Non-normative example — `CardBilling`.** It inherits `Billing`'s cleanup effects, including the
 > resource-denomination variable, while fixing that denomination to MC. Redeclaring the variable in
-> the subclass would disconnect the inherited “remove when no debt remains” test from the invoice's
-> actual currency.
+> the subclass would disconnect the inherited “remove when no debt remains” test from the billing
+> component's actual currency.
 
 **T13-5. Capturing values.** `variableBindingsFrom(general, variables)` reads what a specialized
 component type supplies for each variable. Both types must have the same root class. Specializing
