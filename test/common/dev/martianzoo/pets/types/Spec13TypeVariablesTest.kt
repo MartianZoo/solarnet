@@ -220,6 +220,8 @@ internal class Spec13TypeVariablesTest {
           override fun countComponent(concreteType: Type): Int = error("unused")
 
           override fun getComponents(type: Type): Multiset<Type> = error("unused")
+
+          override fun getDependents(component: Type): Set<Type> = error("unused")
         }
     val instruction = parse<Instruction>("Local THEN Local")
 
