@@ -138,13 +138,15 @@ The ordinary Solar workflow performs World Government Terraforming before the Tu
 4. Changing Times removes Current, moves Coming to Current and Distant to Coming, and requests the
    next concrete Distant event.
 
-The temporary operation is a completion latch for event choices; it is not a new workflow phase.
-`Current`, `Coming`, and `Distant` are typed positions with at most one occupant. A concrete event
-owns its printed delegates and effect while its position component changes. Reveal barriers request
-one concrete catalog event. For now, callers explicitly complete those Admin tasks with the event
-supplied by their shuffled deck or source record. This is a temporary integration compromise, not a
-game decision assigned to Admin. The selected direction is an installable Admin autoexecution
-policy that pulls the next exact event from an ordered list.
+`TurmoilSolarPhase` orders this work after the active Venus and Colonies Solar phases. The temporary
+operation inside it is a completion latch for event choices: it keeps government formation from
+racing consequences created by the current event. `Current`, `Coming`, and `Distant` are typed
+positions with at most one occupant. A concrete event owns its printed delegates and effect while
+its position component changes. Reveal barriers request one concrete catalog event. For now,
+callers explicitly complete those Admin tasks with the event supplied by their shuffled deck or
+source record. This is a temporary integration compromise, not a game decision assigned to Admin.
+The selected direction is an installable Admin autoexecution policy that pulls the next exact event
+from an ordered list.
 
 Admin-authored global-parameter changes grant no rating or player placement bonuses. If Admin raises
 temperature through 0°C, `AdminOceanPlacement` gives the required ocean-placement choice to the

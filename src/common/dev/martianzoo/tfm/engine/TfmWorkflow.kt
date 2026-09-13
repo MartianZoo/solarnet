@@ -52,6 +52,17 @@ public object TfmWorkflow {
         if (adminOps.has("GameEndBarrier")) adminOps.beginOperation("SolarPhase FROM Phase")
         else null
 
+    /** Enters World Government Terraforming, the first expansion-specific Solar phase. */
+    public fun venusSolarPhase(): TaskResult = adminOps.beginOperation("VenusSolarPhase FROM Phase")
+
+    /** Enters colony-track production, after World Government Terraforming when both are active. */
+    public fun coloniesSolarPhase(): TaskResult =
+        adminOps.beginOperation("ColoniesSolarPhase FROM Phase")
+
+    /** Enters the Turmoil operation after every other active expansion-specific Solar phase. */
+    public fun turmoilSolarPhase(): TaskResult =
+        adminOps.beginOperation("TurmoilSolarPhase FROM Phase")
+
     public fun finalGreeneryPhase(): TaskResult =
         adminOps.runOperation("FinalGreeneryPhase FROM Phase")
 
@@ -170,8 +181,8 @@ public object TfmWorkflow {
     private suspend fun preludePhase() {
       m.preludePhase()
       for (player in players) {
-        grantFirstActionTo(player)
-        grantFirstActionTo(player)
+        // The retained cards are the setup fact; custom and replay setups need not retain two.
+        repeat(opsFor(player).count("PreludeCard")) { grantFirstActionTo(player) }
       }
     }
 
@@ -187,7 +198,19 @@ public object TfmWorkflow {
         return false
       }
       letPlayerFinish()
+      runOptionalSolarPhase("VenusSolarPhase", m::venusSolarPhase)
+      runOptionalSolarPhase("ColoniesSolarPhase", m::coloniesSolarPhase)
+      runOptionalSolarPhase("TurmoilSolarPhase", m::turmoilSolarPhase)
       return true
+    }
+
+    private suspend fun runOptionalSolarPhase(
+        phaseName: String,
+        beginPhase: () -> TaskResult,
+    ) {
+      if (!game.classTable.isActive(cn(phaseName))) return
+      beginPhase()
+      letPlayerFinish()
     }
 
     private suspend fun finalGreeneryPhase() {

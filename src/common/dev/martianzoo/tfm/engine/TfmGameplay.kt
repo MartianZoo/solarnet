@@ -192,6 +192,16 @@ public class TfmGameplay(
       payment: OperationBlock = { payInvoiceFromItsResourceIfOffered() },
       body: OperationBlock = {},
   ): TaskResult {
+    return inTfmTurn { useStdAction(stdAction, which, payment, body) }
+  }
+
+  /** Uses a granted standard-action slot within an enclosing operation. */
+  public fun OperationScope.useStdAction(
+      stdAction: String,
+      which: Int = 1,
+      payment: OperationBlock = { payInvoiceFromItsResourceIfOffered() },
+      body: OperationBlock = {},
+  ) {
     require(
         game.classTable
             .getClass(cn(stdAction))
@@ -199,11 +209,9 @@ public class TfmGameplay(
     ) {
       "$stdAction is not a StandardAction"
     }
-    return inTfmTurn {
-      doTask("UseAction<$stdAction, ${whichAction(which)}>")
-      payment()
-      body()
-    }
+    doTask("UseAction<$stdAction, ${whichAction(which)}>")
+    payment()
+    body()
   }
 
   public fun claimMilestone(milestone: ClassName): TaskResult =
@@ -245,10 +253,31 @@ public class TfmGameplay(
       body: OperationBlock = {},
   ): TaskResult {
     return stdAction("UseStandardProjectAction", payment = {}) {
-      doTask("UseAction<$stdProject, Action1>")
-      payment()
-      body()
+      useStdProjectWithinOperation(stdProject, payment, body)
     }
+  }
+
+  /** Uses a granted standard-action slot for a standard project within an enclosing operation. */
+  public fun OperationScope.useStdProject(
+      stdProject: String,
+      payment: OperationBlock = {
+        payAllMc()
+      },
+      body: OperationBlock = {},
+  ) {
+    useStdAction("UseStandardProjectAction", payment = {}) {
+      useStdProjectWithinOperation(stdProject, payment, body)
+    }
+  }
+
+  private fun OperationScope.useStdProjectWithinOperation(
+      stdProject: String,
+      payment: OperationBlock,
+      body: OperationBlock,
+  ) {
+    doTask("UseAction<$stdProject, Action1>")
+    payment()
+    body()
   }
 
   public fun playPrelude(cardName: ClassName, body: OperationBlock = {}): TaskResult {

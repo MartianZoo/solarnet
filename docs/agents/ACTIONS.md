@@ -172,7 +172,9 @@ additional game facts, not replacements for that task.
 
 The Terraforming Mars Kotlin facade's `stdAction()` helper accepts only providers whose Class is a
 subtype of `StandardAction`. Directly granted actions from other `HasActions` providers use the
-ordinary task-selection and payment APIs instead.
+ordinary task-selection and payment APIs instead. Its `OperationScope.useStdAction()` counterpart
+consumes an already-granted standard-action slot inside an enclosing card or Prelude operation and
+applies the same subtype check and payment path.
 
 The normal card-action route illustrates the distinction. `UseActionOnCardAction` is a printed
 standard action. Its left side can spend the card's once-per-generation permission; after its own

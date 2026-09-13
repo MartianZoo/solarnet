@@ -562,6 +562,7 @@ ABSTRACT CLASS Phase : System {
   }
   CLASS ProductionPhase
   CLASS SolarPhase
+  CLASS VenusSolarPhase
   CLASS FinalGreeneryPhase {
     NewTurn: UseAction<ConvertPlantsAction, Action1>?
   }

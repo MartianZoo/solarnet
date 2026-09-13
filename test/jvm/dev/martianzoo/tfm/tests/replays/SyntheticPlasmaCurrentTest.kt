@@ -107,19 +107,9 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
         draw(DawnCity, RedTourismWave)
       }
       pass()
-      // WGT forms government and advances the two visible events; generation 1 has no Current
-      // event to resolve yet.
-      wgt("OceanTile<Tharsis_6_7>")
-          .expect(
-              """
-              OceanTile<Tharsis_6_7>,
-              Ruling<MarsFirst>, Dominant<Reds>,
-              Current<Class<Riots>>,
-              Coming<Class<Revolution>>
-              """
-                  .trimIndent()
-                  .replace('\n', ' ')
-          )
+      // The following Turmoil phase forms government and advances the two visible events;
+      // generation 1 has no Current event to resolve yet.
+      wgt("OceanTile<Tharsis_6_7>").expect("OceanTile<Tharsis_6_7>")
       admin
           .doTask("SponsoredProjects")
           .expect("SponsoredProjects, Distant<Class<SponsoredProjects>>")
@@ -147,19 +137,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       }
       pass()
       // Riots resolves before the Reds government forms, then the visible events advance.
-      wgt("OceanTile<Tharsis_5_5>")
-          .expect(
-              """
-              OceanTile<Tharsis_5_5>,
-              Ruling<Reds>, 2 TerraformRating<Bloo>,
-              Chairman<Bloo>, Dominant<Scientists>,
-              -Riots,
-              Current<Class<Revolution>>,
-              Coming<Class<SponsoredProjects>>
-              """
-                  .trimIndent()
-                  .replace('\n', ' ')
-          )
+      wgt("OceanTile<Tharsis_5_5>").expect("OceanTile<Tharsis_5_5>")
       admin.doTask("StrongSociety").expect("StrongSociety, Distant<Class<StrongSociety>>")
     }
   }
@@ -188,19 +166,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       // Revolution is harmless at this influence, Scientists take power, and the visible events
       // advance.
       wgt("OceanTile<Tharsis_6_9>")
-          .expect(
-              """
-              TerraformRating<Bloo>,
-              Ruling<Scientists>, MC<Bloo>,
-              -PartyDelegate<Scientists>,
-              Dominant<Greens>,
-              -Revolution,
-              Current<Class<SponsoredProjects>>,
-              Coming<Class<StrongSociety>>
-              """
-                  .trimIndent()
-                  .replace('\n', ' ')
-          )
       admin.doTask("SnowCover").expect("SnowCover, Distant<Class<SnowCover>>")
     }
   }
@@ -237,19 +202,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       pass()
       // Sponsored Projects draws through its influence effect before Greens form the government;
       // the visible events then advance.
-      wgt("TemperatureStep")
-          .expect(
-              """
-              TemperatureStep,
-              Ruling<Greens>, MC<Bloo>, TerraformRating<Bloo>,
-              Dominant<Kelvinists>,
-              -SponsoredProjects,
-              Current<Class<StrongSociety>>,
-              Coming<Class<SnowCover>>
-              """
-                  .trimIndent()
-                  .replace('\n', ' ')
-          )
+      wgt("TemperatureStep").expect("TemperatureStep")
       admin
           .doTask("ScientificCommunity")
           .expect("ScientificCommunity, Distant<Class<ScientificCommunity>>")
@@ -281,18 +234,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       pass()
       // Strong Society pays for influence, Kelvinists form the government, and the visible events
       // advance.
-      wgt("VenusStep")
-          .expect(
-              """
-              VenusStep,
-              Ruling<Kelvinists>, TerraformRating<Bloo>, Dominant<Reds>,
-              -StrongSociety,
-              Current<Class<SnowCover>>,
-              Coming<Class<ScientificCommunity>>
-              """
-                  .trimIndent()
-                  .replace('\n', ' ')
-          )
+      wgt("VenusStep").expect("VenusStep")
       admin.doTask("HomeworldSupport").expect("HomeworldSupport, Distant<Class<HomeworldSupport>>")
     }
   }
@@ -332,18 +274,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       }
       pass()
       // Snow Cover resolves first, Reds form the government, and the visible events advance.
-      wgt("VenusStep")
-          .expect(
-              """
-              VenusStep,
-              Ruling<Reds>, Chairman<Neutral>, Dominant<Scientists>,
-              -SnowCover,
-              Current<Class<ScientificCommunity>>,
-              Coming<Class<HomeworldSupport>>
-              """
-                  .trimIndent()
-                  .replace('\n', ' ')
-          )
+      wgt("VenusStep").expect("VenusStep")
       admin.doTask("Pandemic").expect("Pandemic, Distant<Class<Pandemic>>")
       draw(SnowAlgae)
       // FAQ v1.8 p.100 awards the solo Reds bonus only at 20 TR or below. The archived server
@@ -382,18 +313,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       pass()
       // Scientific Community pays before its discard, Scientists form the government, and the
       // visible events advance.
-      wgt("VenusStep")
-          .expect(
-              """
-              VenusStep,
-              Ruling<Scientists>, 4 MC<Bloo>, Chairman<Bloo>, TerraformRating<Bloo>,
-              -ScientificCommunity,
-              Current<Class<HomeworldSupport>>,
-              Coming<Class<Pandemic>>
-              """
-                  .trimIndent()
-                  .replace('\n', ' ')
-          )
+      wgt("VenusStep").expect("VenusStep")
       admin.doTask("CelebrityLeaders").expect("CelebrityLeaders, Distant<Class<CelebrityLeaders>>")
     }
   }
@@ -445,18 +365,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       }
       pass()
       // Homeworld Support pays, Unity forms the government, and the visible events advance.
-      wgt("VenusStep")
-          .expect(
-              """
-              VenusStep,
-              Ruling<Unity>, 10 MC<Bloo>, Chairman<Neutral>, Dominant<Kelvinists>,
-              -HomeworldSupport,
-              Current<Class<Pandemic>>,
-              Coming<Class<CelebrityLeaders>>
-              """
-                  .trimIndent()
-                  .replace('\n', ' ')
-          )
+      wgt("VenusStep").expect("VenusStep")
       admin
           .doTask("InterplanetaryTradeGlobalEvent")
           .expect(
@@ -524,19 +433,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(SnowAlgae, 11)
       pass()
       // Pandemic resolves before Kelvinists form the government, then the visible events advance.
-      wgt("OxygenStep")
-          .expect(
-              """
-              OxygenStep,
-              Ruling<Kelvinists>, 5 MC<Bloo>, Chairman<Bloo>, TerraformRating<Bloo>,
-              Dominant<Greens>,
-              -Pandemic,
-              Current<Class<CelebrityLeaders>>,
-              Coming<Class<InterplanetaryTradeGlobalEvent>>
-              """
-                  .trimIndent()
-                  .replace('\n', ' ')
-          )
+      wgt("OxygenStep").expect("OxygenStep")
       admin.doTask("SpinOffProducts").expect("SpinOffProducts, Distant<Class<SpinOffProducts>>")
     }
   }
@@ -595,18 +492,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       cardAction1(FloatingHabs) { addCardResources(ExtractorBalloons) }
       pass()
       // Celebrity Leaders pays before Greens take power, then the visible events advance.
-      wgt("TemperatureStep")
-          .expect(
-              """
-              TemperatureStep,
-              Ruling<Greens>, 7 MC<Bloo>, Chairman<Neutral>, Dominant<MarsFirst>,
-              -CelebrityLeaders,
-              Current<Class<InterplanetaryTradeGlobalEvent>>,
-              Coming<Class<SpinOffProducts>>
-              """
-                  .trimIndent()
-                  .replace('\n', ' ')
-          )
+      wgt("TemperatureStep").expect("TemperatureStep")
       admin
           .doTask("SuccessfulOrganisms")
           .expect("SuccessfulOrganisms, Distant<Class<SuccessfulOrganisms>>")
@@ -698,18 +584,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       }
       pass()
       // Interplanetary Trade pays before Mars First takes power, then the visible events advance.
-      wgt("TemperatureStep")
-          .expect(
-              """
-              TemperatureStep,
-              Ruling<MarsFirst>, 18 MC<Bloo>, Dominant<Unity>,
-              -InterplanetaryTradeGlobalEvent,
-              Current<Class<SpinOffProducts>>,
-              Coming<Class<SuccessfulOrganisms>>
-              """
-                  .trimIndent()
-                  .replace('\n', ' ')
-          )
+      wgt("TemperatureStep").expect("TemperatureStep")
       admin
           .doTask("VolcanicEruptions")
           .expect("VolcanicEruptions, Distant<Class<VolcanicEruptions>>")

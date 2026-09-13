@@ -228,7 +228,10 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     // When the generation ends, the recorded trades clear and all white markers move 1 step up the
     // Colony track. The players' trade-fleet capacities remain.
     admin.phase("Production")
-    TfmWorkflow.Stepwise(agents).solarPhase()
+    with(TfmWorkflow.Stepwise(agents)) {
+      solarPhase()
+      coloniesSolarPhase()
+    }
     admin.runOperation("Generation")
     admin.assertCounts(
         0 to "Trade",

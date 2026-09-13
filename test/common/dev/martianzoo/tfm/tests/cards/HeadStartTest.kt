@@ -13,18 +13,16 @@ internal class HeadStartTest : CardTest() {
     newGame(PreludeExpansion, FakeStuffBundle)
     admin.phase("Prelude")
     p1.runOperation("4 MC, 10 ProjectCard, PreludeCard")
-    p1.playPrelude(FakeHeadStart) {
-      p1.assertCounts(2 to "Steel", 24 to "MC")
+    p1.turn {
+      playPrelude(FakeHeadStart) {
+        p1.assertCounts(2 to "Steel", 24 to "MC")
 
-      doTask("UseAction<UseStandardProjectAction, Action1>")
-      doTask("UseAction<PowerPlantProject, Action1>")
-      doTask("11 Pay<Class<MC>> FROM MC")
-      doTask("UseAction<UseStandardProjectAction, Action1>")
-      doTask("UseAction<PowerPlantProject, Action1>")
-      doTask("11 Pay<Class<MC>> FROM MC")
+        useStdProject("PowerPlantProject")
+        useStdProject("PowerPlantProject")
 
-      p1.assertCounts(2 to "MC")
-      p1.production(cn("Energy")) shouldBe 2
+        p1.assertCounts(2 to "MC")
+        p1.production(cn("Energy")) shouldBe 2
+      }
     }
   }
 
@@ -35,12 +33,13 @@ internal class HeadStartTest : CardTest() {
     admin.phase("Prelude")
     p1.runOperation("10 ProjectCard, PreludeCard")
 
-    p1.playPrelude(FakeHeadStart) {
-      doTask("UseAction<DoRequiredActionsAction, Action1>")
-      p1.playPrelude(MartianIndustries) {
-        doTask("UseAction<UseStandardProjectAction, Action1>")
-        doTask("UseAction<PowerPlantProject, Action1>")
-        doTask("11 Pay<Class<MC>> FROM MC")
+    p1.turn {
+      playPrelude(FakeHeadStart) {
+        useStdAction("DoRequiredActionsAction") {
+          p1.playPrelude(MartianIndustries) {
+            useStdProject("PowerPlantProject")
+          }
+        }
       }
     }
   }

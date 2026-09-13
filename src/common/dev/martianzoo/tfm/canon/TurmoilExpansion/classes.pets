@@ -1,5 +1,6 @@
 "Expansion adding the Terraforming Committee and Global Events"
 CLASS TurmoilExpansion : Module {
+  HAS Class<TurmoilSolarPhase>
   HAS Class<RefillLobby>, Class<MeasureInfluence>, Class<ApplyRulingBonus>, Class<FormGovernment>, Class<ChangingTimes>
   HAS Class<TurmoilSolarOperation>
   HAS Class<ResolveCurrentGlobalEvent>, Class<ResolveGlobalEvent>
@@ -13,8 +14,10 @@ CLASS TurmoilExpansion : Module {
   SetupPhase:: EACH Player { TurmoilPlayer, LobbyActionAvailable }
   SetupPhase:: Chairman<Neutral>, Ruling<Greens>
   SetupPhase: RevealComingEvent
-  SolarPhase: TurmoilSolarOperation
+  TurmoilSolarPhase: TurmoilSolarOperation
 }
+
+CLASS TurmoilSolarPhase : Phase
 
 CLASS Terraformer26 : Milestone { requirement = HAS "26 TerraformRating" }
 

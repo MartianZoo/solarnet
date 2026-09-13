@@ -17,7 +17,10 @@ internal class TurmoilSolarPhaseTest : CardTest() {
     admin.runOperation("Coming<Class<DryDeserts>> FROM Distant<Class<DryDeserts>>")
     admin.runOperation("RevealDistantEvent") { doTask("CelebrityLeaders") }
 
-    TfmWorkflow.Stepwise(agents).solarPhase()
+    with(TfmWorkflow.Stepwise(agents)) {
+      solarPhase()
+      turmoilSolarPhase()
+    }
 
     p1.count("TerraformRating") shouldBe 19
     requireP2().count("TerraformRating") shouldBe 19
@@ -43,7 +46,10 @@ internal class TurmoilSolarPhaseTest : CardTest() {
     p1.runOperation("10 MC")
     admin.runOperation("RedInfluence, Current<Class<RedInfluence>>")
 
-    TfmWorkflow.Stepwise(agents).solarPhase()
+    with(TfmWorkflow.Stepwise(agents)) {
+      solarPhase()
+      turmoilSolarPhase()
+    }
 
     p1.count("TerraformRating") shouldBe 20
     p1.count("MC") shouldBe 7

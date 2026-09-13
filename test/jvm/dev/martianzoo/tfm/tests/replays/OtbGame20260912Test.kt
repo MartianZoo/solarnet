@@ -1,0 +1,607 @@
+package dev.martianzoo.tfm.tests.replays
+
+import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.tfm.canon.TfmCatalog
+import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.canonicalCatalog
+import dev.martianzoo.tfm.tests.cards.cardnames.*
+import kotlin.test.Test
+
+/** Three-player physical game begun Saturday, 2026-09-12; converted through Generation 3. */
+internal class OtbGame20260912Test : AbstractFullGameTest() {
+  override val config =
+      GameConfig(
+          """
+          VastitasMap
+          VenusNextExpansion, PreludeExpansion, Prelude2Expansion, TurmoilExpansion, PromoCardPack
+          FreeAcademiaTreaty
+          FakeStuffBundle
+
+          Farmer, Generalist, Lobbyist, Philantropist, Producer
+          Collector, Forecaster, Landscaper, Politician, Suburbian
+          """
+      )
+
+  // The second transcript states Blue's three-TR handicap; blue-applog-01.png records it before
+  // Tycho Magnetics and the initial project purchase.
+  override val playerClassPets =
+      """
+      CLASS Green : Player { SetupPhase: PreludeCard }
+      CLASS Yellow : Player { SetupPhase: PreludeCard }
+      CLASS Blue : Player { SetupPhase: 3 TerraformRating, PreludeCard }
+      """
+          .trimIndent()
+
+  // Free Academia Treaty is not yet in canon. This replay ends while it is distant, so this local
+  // permissive component models only the photographed neutral-Scientist placement.
+  override val catalog: TfmCatalog by lazy {
+    TfmCatalog.compose(
+        canonicalCatalog(config),
+        object : TfmCatalog() {
+          override val explicitClassDeclarations =
+              parseClasses("CLASS FreeAcademiaTreaty : GePartyDistant<Scientists>").toSet()
+        },
+    )
+  }
+
+  @Test
+  internal fun firstThreeGenerations() {
+    TfmWorkflow.Automatic(agents).launch()
+    retainStartingProjects(10, 7, 8)
+    val green = p1.requireExplicitUnusedActionCards()
+    val yellow = p2.requireExplicitUnusedActionCards()
+    val blue = p3.requireExplicitUnusedActionCards()
+
+    // "Our coming global event is Mud Slides, and our distant global event is Venus
+    // Infrastructure."
+    admin.doTask("MudSlides")
+    admin.doTask("VenusInfrastructure")
+
+    // "Septim Triboos [Septem Tribus]. I get 36 money, and then I buy 10 cards. Don't tell me I
+    // bought 10."
+    green.playCorp(FakeSeptemTribus, 10)
+    // "Pristar. I get 53 money. I lose two TR. Not super happy. And I buy seven cards."
+    yellow.playCorp(Pristar, 7)
+    // "My corporation is Tycho Magnetics. I start with 42. Not 42 money production. But one energy
+    // production."
+    blue.playCorp(TychoMagnetics, 8)
+
+    green.turn {
+      // "Nobel Prize. My second wild tag. I have no tags, but I have two wild tags."
+      playPrelude(FakeNobelPrize)
+      // "Experimental Forest. My greenery. I'm going to go on six two. For dos cardos. And for
+      // moneyos."
+      playPrelude(ExperimentalForest) { placeTile(6, 2) }
+      // The players acknowledged that paying the initial Greens policy during Prelude was a rule
+      // mistake. Green nevertheless took 4 M€ here (transcript and Green ledger entry 6).
+      green.exMachina("4 MC")
+      // "Y'all ready for this?" "Is it a head start?" "I have 16 project cards in hand. Imagine if
+      // we had a planner milestone. So I gain 32 money. Then I immediately take two actions. You
+      // guys are never going to get to take any turns."
+      // SF Memorial's sentence is missing from the transcript. Green's first ledger segment and
+      // every tableau photo place it in Head Start's first action. The newer transcript restores
+      // the second: "Let's just use my free delegate thingy ... put it in Scientists."
+      playPrelude(FakeHeadStart) {
+        playProject(SfMemorial, 3, steel = 2)
+        useStdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
+      }
+    }
+    yellow.turn {
+      // "Martian Industries." "Nice." "Gain energy production, steel production, and gain six
+      // monies."
+      playPrelude(MartianIndustries)
+      // "Applied Science is a wild tag, not that it counts for anything yet. I immediately add six
+      // science resources, and it's going to let me gain stuff. Stuff and stuff."
+      playPrelude(FakeAppliedScience)
+      // "Established methods. Gain 30 monies." "Wow." "I'm gonna greenery for 23. I'm gonna put
+      // it here for two cards... And that gave me the temperatura."
+      playPrelude(FakeEstablishedMethods) {
+        useStdProject("GreeneryProject") { placeTile(5, 9) }
+        useStdProject("AsteroidProject")
+      }
+      // The players acknowledged this initial Greens-policy payout during Prelude as the same rule
+      // mistake. Yellow nevertheless took 4 M€ here (transcript and Yellow ledger entry 15).
+      yellow.exMachina("4 MC")
+    }
+    blue.turn {
+      // "I got some boring ones, but hopefully they'll be good. Allied Bank." "Oh, that's a good
+      // one." "I increased my money production by four and I give myself three loose monies. Dome
+      // Farming. I increased my money production by two and plant production by one. And Power
+      // Generator [Power Generation]. One, two, three energy production."
+      playPrelude(AlliedBank)
+      playPrelude(DomeFarming)
+      playPrelude(PowerGeneration)
+    }
+
+    green.turn {
+      // "Artificial Photosynthesis. I spent twelve, and I get two energy production. Actually,
+      // no, I'm going to also spend five to put another one of my dudes in Unity."
+      playProject(ArtificialPhotosynthesis, 12) { doTask("PROD[2 Energy]") }
+      // "Actually, no, I'm going to also spend five to put another one of my dudes in community
+      // [Unity]."
+      stdAction("LobbyAction", 2) { doTask("PartyDelegate<Unity>") }
+    }
+    yellow.turn {
+      // "I'm going to lava flows for 18. Raise temperature, two steps. Oh, and I get the heat. Oh,
+      // this is the lava. Two, six."
+      playProject(LavaFlows, 18) { placeTile(2, 6) }
+      // "I'm also going to place my delegate in the Grens [Greens] since that's coming into power.
+      // I was going to try and go for red since that would work better with Prestar [Pristar], but
+      // now I've terraformed. I screwed that up."
+      stdAction("LobbyAction", 1) { doTask("PartyDelegate<Greens>") }
+    }
+    blue.turn {
+      // "I'm going to pay five for Power Supply Consortium. I believe I'm increasing [Green's]
+      // power production by one. And I gain one."
+      playProject(PowerSupplyConsortium, 5) { doTask("PROD[-Energy<Green>]") }
+    }
+    green.turn {
+      // "I'm not liking all of these options." "But I am liking this option." "So I pay seven for
+      // that. The requirement is met and I get a plant production."
+      // The latest photo identifies the otherwise unnamed card as Lichen.
+      playProject(Lichen, 7)
+    }
+    yellow.turn {
+      // "Hermetic Order of Mars. Pay 10. Oxygen must be 4% or lower." "Sure is." "Gain two money
+      // production. Gain a money per empty area adjacent to my tiles. That is seven." "Heck yeah."
+      playProject(HermeticOrderOfMars, 10)
+    }
+    blue.turn {
+      // "I am paying 13." "Blue paying 13 and two money production. In order to gain two heat
+      // production and two more energy production." "My goodness." "On lunar beam."
+      playProject(LunarBeam, 13)
+    }
+    green.turn {
+      // "I think I'm going to pay five to put another doodage in red."
+      stdAction("LobbyAction", 2) { doTask("PartyDelegate<Reds>") }
+    }
+    yellow.turn {
+      // "Titanium mine. Pay seven, gain titanium production."
+      playProject(TitaniumMine, 7)
+    }
+    blue.turn {
+      // "I like science. Put me in the scientist party."
+      // "The ruler's blue lobbyist is in the science party."
+      stdAction("LobbyAction", 1) { doTask("PartyDelegate<Scientists>") }
+    }
+    // "Oh, dominance moved over to the Scientists." Green's recovered Head Start placement and
+    // Blue's placement make Scientists the first party with two delegates.
+    green.turn {
+      // "Well, that's good in some ways. I think I'll go ahead and use my Septim Tribus [Septem
+      // Tribus] action now. And that means I get six money, right?" "Six McSeas."
+      cardAction1(FakeSeptemTribus).expect("6 MC")
+    }
+    yellow.turn {
+      // "Soych for life [Search for Life] for three."
+      playProject(SearchForLife, 3)
+    }
+    blue.turn {
+      // "Dang. You know what? I can't use it yet, but I can afford it right now. So I'm going to
+      // pay one money for Directed Heat Usage."
+      playProject(DirectedHeatUsage, 1)
+    }
+    green.turn {
+      // "Play orbital cleanup. And I lose two money production."
+      playProject(OrbitalCleanup, 14)
+    }
+    yellow.turn {
+      // "I use soych for life [Search for Life] for three."
+      cardAction1(SearchForLife) { declineTask() }.expect("-MC, 0 Science")
+    }
+    blue.pass(unused = DirectedHeatUsage, TychoMagnetics)
+    green.turn {
+      // "I will use Orbital Cleanup to take three money." Artificial Photosynthesis supplies one
+      // printed Science tag; the fake wild tags are reconciled at the pre-WGT checkpoint.
+      cardAction1(OrbitalCleanup).expect("MC")
+    }
+    yellow.turn {
+      // "Decisions, decisions." "You should take mine." "We're reducing blue's energy production
+      // by one."
+      playProject(EnergyTapping, 3) { doTask("PROD[-Energy<Blue>]") }
+    }
+    green.pass()
+    yellow.pass(unused = FakeAppliedScience)
+
+    // Green chose the two inert wild tags on Septem Tribus and Nobel Prize as Science, making the
+    // recorded Orbital Cleanup payout 3 M€ rather than the engine's printed-tag payout of 1 M€.
+    green.exMachina("2 MC")
+
+    // Complete phone-ledger resource checkpoint after Generation 1 production. World Government
+    // is pending, so the Turmoil TR revision must not have happened yet.
+    with(green) {
+      assertResources(m = 29, s = 0, t = 0, p = 1, e = 1, h = 0)
+      assertCounts(21 to "TerraformRating")
+    }
+    with(yellow) {
+      assertResources(m = 24, s = 1, t = 1, p = 0, e = 2, h = 1)
+      assertCounts(22 to "TerraformRating")
+    }
+    with(blue) {
+      assertResources(m = 29, s = 0, t = 0, p = 1, e = 6, h = 2)
+      assertCounts(23 to "TerraformRating")
+    }
+
+    // "I will world government." "Five, eight." "So just increase oceans by one?"
+    green.wgt("OceanTile<Vastitas_5_8>").expect("0 TerraformRating<Green>")
+    // "Oh, turmoil." "Walk us through it." "TR Revision, all players lose one TR." "Boo."
+    // "New Government. The dominant party now becomes ruling. Change policy title to Scientists."
+    // The automatic Solar operation performs TR revision, forms the Scientists government, and
+    // advances both printed events before requesting only the next distant event.
+    // "Changing times. Got the coming global event. Move a distant global event to coming. Turn the
+    // top part of global event face up. It is sponsored projects."
+    admin.doTask("SponsoredProjects")
+
+    // "Really, because you're the chairman. Oh, did you give yourself TR for being chairman?" "No,
+    // because you didn't say it." "Oh, yeah, that is what I skipped. Sorry."
+    // Green placed the first Scientist delegate and remains its leader when Blue ties it. Green
+    // therefore becomes chairman and receives the recorded TR normally. Mud Slides' neutral
+    // delegate makes Greens uniquely dominant with Yellow plus neutral.
+
+    // The three complete phone histories: Generation 2 before Research.
+    with(green) {
+      assertProduction(m = -2, s = 0, t = 0, p = 1, e = 1, h = 0)
+      assertResources(m = 30, s = 0, t = 0, p = 1, e = 1, h = 0)
+      assertCounts(21 to "TerraformRating")
+    }
+    with(yellow) {
+      assertProduction(m = 2, s = 1, t = 1, p = 0, e = 2, h = 1)
+      assertCounts(1 to "ScienceTag")
+      assertResources(m = 25, s = 1, t = 1, p = 0, e = 2, h = 1)
+      assertCounts(21 to "TerraformRating")
+    }
+    with(blue) {
+      assertProduction(m = 4, s = 0, t = 0, p = 1, e = 6, h = 2)
+      assertResources(m = 30, s = 0, t = 0, p = 1, e = 6, h = 2)
+      assertCounts(22 to "TerraformRating")
+    }
+    assertSidebar(gen = 2, temp = -24, oxygen = 2, oceans = 1, venus = 0)
+    admin.assertCounts(
+        1 to "Ruling<Scientists>",
+        1 to "Dominant<Greens>",
+        1 to "Current<Class<MudSlides>>",
+        1 to "Coming<Class<VenusInfrastructure>>",
+        1 to "Distant<Class<SponsoredProjects>>",
+    )
+
+    // Green consistently uses the inert wild tags on Septem Tribus and Nobel Prize as Science for
+    // every sourced Generation 2-3 action that observes them. No intervening rule observes Science
+    // tags, so materialize that choice once and remove it after the final such action.
+    green.exMachina("ScienceTag<$FakeSeptemTribus>, ScienceTag<$FakeNobelPrize>")
+
+    // Generation 2 Research: "I buy four"; Yellow buys two; Blue buys three.
+    green.buyCards(4)
+    yellow.buyCards(2)
+    blue.buyCards(3)
+
+    yellow.turn {
+      // "I will pay three for Supported Research. Requires scientists are in power. They sure
+      // are. Draw two cards."
+      playProject(SupportedResearch, 3).expect("-3 MC, ProjectCard")
+    }
+    blue.turn {
+      // "Blue is paying six money ... to build Fuel Factory. So I'm going to lose one energy
+      // production, but gain a titanium and a money production."
+      playProject(FuelFactory, 6).expect("-6 MC, PROD[-Energy, Titanium, 1 MC]")
+    }
+    green.turn {
+      // "I will play Investment Loan for three and get 10 and lose the money production."
+      playProject(InvestmentLoan, 3).expect("7 MC, PROD[-1 MC]")
+    }
+    yellow.turn {
+      // "I will play Local Shading for four."
+      playProject(LocalShading, 4)
+    }
+    blue.turn {
+      // "Put my blue lobbyist in the Unity party, please."
+      stdAction("LobbyAction", 1) { doTask("PartyDelegate<Unity>") }
+    }
+    green.turn {
+      // "I'm gonna use my free action to put a dude into Greens."
+      stdAction("LobbyAction", 1) { doTask("PartyDelegate<Greens>") }
+    }
+    yellow.turn {
+      // "I'll put my free guy in Reds."
+      stdAction("LobbyAction", 1) { doTask("PartyDelegate<Reds>") }
+    }
+    blue.turn {
+      // "Blue's going to pay five money to put another delegate in Unity."
+      stdAction("LobbyAction", 2) { doTask("PartyDelegate<Unity>") }
+    }
+    green.turn {
+      // "Recruitment in the Greens ... I become the party leader. I paid two for that."
+      playProject(Recruitment, 2) {
+        doTask("RecruitmentExchange<Greens>")
+        doTask("-PartyDelegate<Greens, Neutral>")
+      }
+    }
+
+    yellow.turn {
+      // "Pay five to place a dude in Reds." "Aww, that's no fair." "Yeah. I laid the track."
+      // This is Yellow's turn between Green's Recruitment and Blue's House Printing. Her ledger
+      // includes the 5 M€ payment, board-12-18-40.jpg shows both Yellow delegates in Reds, and
+      // she later cites those two delegates as satisfying Red Appeasement.
+      stdAction("LobbyAction", 2) { doTask("PartyDelegate<Reds>") }
+    }
+    blue.turn {
+      // "Blue is paying ten for House Printing, which gives me a steel production."
+      playProject(HousePrinting, 10)
+    }
+    green.turn {
+      // "I'm gonna pay five and put a dude in Kelvinists."
+      stdAction("LobbyAction", 2) { doTask("PartyDelegate<Kelvinists>") }
+    }
+    yellow.turn {
+      // "Local Shading, add floater."
+      cardAction1(LocalShading).expect("Floater<$LocalShading>")
+    }
+    blue.pass(unused = DirectedHeatUsage, TychoMagnetics)
+
+    green.turn {
+      // "Oh, right. It's your turn." "You're gonna pay five ... to maybe go to Scientists? Wow."
+      // Green has six delegates deployed and the seventh still in reserve. The later photograph
+      // shows Green represented in Scientists, and Green's aggregated ledger includes this 5 M€
+      // payment along with Recruitment, Kelvinists, and Lobbyist.
+      stdAction("LobbyAction", 2) { doTask("PartyDelegate<Scientists>") }
+    }
+
+    yellow.turn {
+      // "Search for Life. Pay one ... It was Public Celebrations."
+      cardAction1(SearchForLife) { declineTask() }.expect("-MC, 0 Science")
+    }
+    green.turn {
+      // "I am going to pay eight for the Lobbyist."
+      claimMilestone(cn("Lobbyist")).expect("-8 MC, Lobbyist")
+    }
+    yellow.turn {
+      // "Applied Science floater onto Local Shading."
+      cardAction1(FakeAppliedScience) { addCardResources(LocalShading) }
+          .expect("-Science<$FakeAppliedScience>, Floater<$LocalShading>")
+    }
+    green.turn {
+      // "I am going to use my Septem Tribus action to take ten money." Green is represented in
+      // five parties; the recovered Generation 1 Scientist delegate became chairman rather than
+      // remaining in Mars First.
+      cardAction1(FakeSeptemTribus).expect("10 MC")
+    }
+    yellow.pass()
+
+    green.turn {
+      // "I am going to play Event Analysts, which costs five. You have an extra influence
+      // permanently."
+      playProject(EventAnalysts, 5)
+    }
+    green.turn {
+      // "Use Orbital Cleanup to take four money."
+      // Artificial Photosynthesis and Event Analysts supply two printed Science tags; Septem
+      // Tribus and Nobel Prize supply the two chosen wild tags.
+      cardAction1(OrbitalCleanup).expect("4 MC")
+    }
+    green.turn {
+      // "Play Peroxide Power for seven money ... minus four [M€ production] ... two energy
+      // production."
+      playProject(PeroxidePower, 7)
+    }
+    green.turn {
+      // "Sell a card for money."
+      sellPatents(1)
+    }
+    green.turn {
+      // "I'm going to play Lightning Harvest for all eight of my money. I do have the three
+      // science tags I need." The same two wild tags satisfy the printed requirement.
+      playProject(LightningHarvest, 8)
+    }
+    green.pass()
+
+    // Reds, Greens, and Unity each have three delegates. The existing marker therefore remains on
+    // Greens, matching the spoken government formation and board-12-18-40.jpg.
+    admin.assertCounts(
+        3 to "PartyDelegate<Reds>",
+        3 to "PartyDelegate<Greens>",
+        3 to "PartyDelegate<Unity>",
+        1 to "Dominant<Greens>",
+    )
+
+    // Complete phone-ledger checkpoint after Generation 2 production. Pristar's preservation
+    // reward is included because the players apply it immediately before World Government. The
+    // automatic workflow is now waiting for that World Government choice.
+    with(green) {
+      assertProduction(m = -3, s = 0, t = 0, p = 1, e = 4, h = 0)
+      assertResources(m = 18, s = 0, t = 0, p = 2, e = 4, h = 1)
+      assertCounts(21 to "TerraformRating")
+    }
+    with(yellow) {
+      assertProduction(m = 2, s = 1, t = 1, p = 0, e = 2, h = 1)
+      assertResources(m = 35, s = 2, t = 2, p = 0, e = 2, h = 4)
+      assertCounts(21 to "TerraformRating")
+    }
+    with(blue) {
+      assertProduction(m = 5, s = 1, t = 1, p = 1, e = 5, h = 2)
+      assertResources(m = 27, s = 1, t = 1, p = 2, e = 5, h = 10)
+      assertCounts(22 to "TerraformRating")
+    }
+
+    // "Ellie does World Government ... ocean ... five seven."
+    yellow.wgt("OceanTile<Vastitas_5_7>").expect("0 TerraformRating<Yellow>")
+    // Mud Slides charges nobody because influence covers every adjacent owned tile. Greens forms
+    // the government and Green becomes chairman.
+    admin.doTask("SpinOffProducts")
+    // "So you're saying this moves to Unity now?" During Changing Times, Venus Infrastructure's
+    // neutral delegate raises Unity from three delegates to four, ahead of Reds' three. The engine
+    // therefore moves the dominance marker to Unity normally, matching board-12-18-40.jpg.
+    admin.assertCounts(
+        3 to "PartyDelegate<Reds>",
+        4 to "PartyDelegate<Unity>",
+        1 to "Dominant<Unity>",
+    )
+    // The three complete phone histories: Generation 3 before Research.
+    with(green) {
+      assertProduction(m = -3, s = 0, t = 0, p = 1, e = 4, h = 0)
+      assertResources(m = 20, s = 0, t = 0, p = 2, e = 4, h = 1)
+      assertCounts(21 to "TerraformRating")
+    }
+    with(yellow) {
+      assertProduction(m = 2, s = 1, t = 1, p = 0, e = 2, h = 1)
+      assertResources(m = 35, s = 2, t = 2, p = 0, e = 2, h = 4)
+      assertCounts(20 to "TerraformRating")
+    }
+    with(blue) {
+      assertProduction(m = 5, s = 1, t = 1, p = 1, e = 5, h = 2)
+      assertResources(m = 28, s = 1, t = 1, p = 2, e = 5, h = 10)
+      assertCounts(21 to "TerraformRating")
+    }
+    assertSidebar(gen = 3, temp = -24, oxygen = 2, oceans = 2, venus = 0)
+    admin.assertCounts(
+        1 to "Ruling<Greens>",
+        1 to "Dominant<Unity>",
+        1 to "Current<Class<VenusInfrastructure>>",
+        1 to "Coming<Class<SponsoredProjects>>",
+        1 to "Distant<Class<SpinOffProducts>>",
+    )
+
+    // Generation 3 Research: all three players buy three projects.
+    green.buyCards(3)
+    yellow.buyCards(3)
+    blue.buyCards(3)
+
+    blue.turn {
+      // "I'm definitely spending three heat in order to gain four money. And ... that was Blue."
+      cardAction1(DirectedHeatUsage) { doTask("4 MC") }.expect("-3 Heat, 4 MC")
+    }
+    green.turn {
+      // "I'm going to use my free action to put a dude into Mars First." The former Green chairman
+      // and one non-leader Green delegate returned when Greens formed, so this placement is legal.
+      stdAction("LobbyAction", 1) { doTask("PartyDelegate<MarsFirst>") }
+    }
+    yellow.turn {
+      // "Sponsored Academies. I pay nine. I pitch a card and draw three and everyone else gets
+      // one."
+      playProject(SponsoredAcademies, 9)
+      // "I guess I have Local Shading. Remove floater to gain money production."
+      cardAction2(LocalShading).expect("-Floater<$LocalShading>, PROD[MC]")
+    }
+    blue.turn {
+      // "Blue ... spending eight money to get the Generalist."
+      claimMilestone(cn("Generalist")).expect("-8 MC, Generalist")
+    }
+    green.turn {
+      // "I'm going to use my Septem Tribus action to take 10 money."
+      cardAction1(FakeSeptemTribus).expect("10 MC")
+    }
+    // Materialize Applied Science's wild tag as Earth only for Space Hotels' requirement. Removing
+    // it afterward keeps the later Unity policy from treating that wild tag as a printed tag.
+    yellow.exMachina("EarthTag<$FakeAppliedScience>")
+    yellow.turn {
+      // "I spend two titanium and six real on Space Hotels. Increase money production four
+      // steps." Sponsored Academies supplies one Earth tag; Applied Science's wild tag is the
+      // second Earth tag for the requirement.
+      playProject(SpaceHotels, 6, titanium = 2)
+    }
+    yellow.exMachina("-EarthTag<$FakeAppliedScience>")
+    blue.turn {
+      // "Blue is spending one steel and seven money ... Natural Preserve ... up here for two
+      // steel."
+      playProject(NaturalPreserve, 7, steel = 1) { placeTile(4, 1) }
+      // "For my second action, I'm going to pay eight money ... Producer."
+      claimMilestone(cn("Producer")).expect("-8 MC, Producer")
+    }
+    green.turn {
+      // "Water Splitting Plant. We have the two oceans. I pay the 12 money."
+      playProject(WaterSplittingPlant, 12)
+    }
+    yellow.turn {
+      // "Apply Science floater onto Local Shading. And I will pay two steel for Mine to get a
+      // steel production."
+      cardAction1(FakeAppliedScience) { addCardResources(LocalShading) }
+      playProject(Mine, steel = 2)
+    }
+    blue.turn {
+      // "Blue, spending five energy for five cards. And I will keep one."
+      cardAction1(TychoMagnetics, x = 5).expect("-5 Energy, ProjectCard")
+    }
+    green.turn {
+      // "Use my Water Splitting Plant, spend three energy, raise oxygen to three, and get a TR."
+      cardAction1(WaterSplittingPlant).expect("-3 Energy, OxygenStep, TerraformRating")
+    }
+    yellow.turn {
+      // "I add a delegate in Unity ... for an influence."
+      stdAction("LobbyAction", 1) { doTask("PartyDelegate<Unity>") }
+      // "Red Appeasement for zero ... gain two money production and this counts as me passing."
+      playProject(RedAppeasement, 0).expect("PROD[2 MC], Pass")
+    }
+    // Automatic workflow notices Pass after a first action, while Red Appeasement supplies it as
+    // Yellow's second. Temporarily defer that Pass until the redundant turn the workflow offers.
+    yellow.exMachina("-Pass")
+    blue.turn {
+      // "Blue is going to send her lobbyist to ... Greens."
+      stdAction("LobbyAction", 1) { doTask("PartyDelegate<Greens>") }
+    }
+    green.turn {
+      // "I'm going to use Orbital Cleanup ... and get four money." Green again chooses both wild
+      // tags as Science.
+      cardAction1(OrbitalCleanup).expect("4 MC")
+    }
+    green.exMachina("-ScienceTag<$FakeSeptemTribus>, -ScienceTag<$FakeNobelPrize>")
+    // This is the Pass already supplied physically by Red Appeasement, deferred solely so the
+    // unchanged workflow can recognize it at the point where it checks first-action results.
+    yellow.pass(unused = SearchForLife).expect("Pass")
+    blue.pass()
+    green.pass()
+
+    // board-12-36-50.jpg and the phone histories show these complete physical ledgers after
+    // production and before World Government or Turmoil. Yellow's phone still reads 40 M€ because
+    // its 6 M€ Pristar reward is entered later with the Solar payouts; the engine has already
+    // awarded it and therefore reads 46 M€ here. Automatic workflow is waiting for World
+    // Government, so no Turmoil TR revision has happened yet.
+    with(green) {
+      assertProduction(m = -3, s = 0, t = 0, p = 1, e = 4, h = 0)
+      assertResources(m = 32, s = 0, t = 0, p = 3, e = 4, h = 2)
+      assertCounts(22 to "TerraformRating")
+    }
+    with(yellow) {
+      assertProduction(m = 9, s = 2, t = 1, p = 0, e = 2, h = 1)
+      assertResources(m = 46, s = 2, t = 1, p = 0, e = 2, h = 7)
+      assertCounts(20 to "TerraformRating")
+    }
+    with(blue) {
+      assertProduction(m = 6, s = 1, t = 1, p = 1, e = 5, h = 2)
+      assertResources(m = 27, s = 3, t = 2, p = 3, e = 5, h = 9)
+      assertCounts(21 to "TerraformRating")
+    }
+    assertSidebar(gen = 3, temp = -24, oxygen = 3, oceans = 2, venus = 0)
+
+    // "Why not Venus? Venus it is. ... Venus is now at two." TR revision remains pending.
+    blue.wgt("VenusStep").expect("0 TerraformRating<Blue>")
+    // Venus Infrastructure pays Green 6 M€, Yellow 4 M€, and Blue 4 M€ from their recorded
+    // Venus tags and influence. Unity then pays 1/3/2 M€ for planetary tags and makes Blue
+    // chairman. Free Academia Treaty is revealed with its neutral Scientist delegate.
+    admin.doTask("FreeAcademiaTreaty")
+
+    // Complete Generation 3 Solar ledgers.
+    with(green) {
+      assertProduction(m = -3, s = 0, t = 0, p = 1, e = 4, h = 0)
+      assertResources(m = 39, s = 0, t = 0, p = 3, e = 4, h = 2)
+      assertCounts(21 to "TerraformRating")
+    }
+    with(yellow) {
+      assertProduction(m = 9, s = 2, t = 1, p = 0, e = 2, h = 1)
+      assertResources(m = 53, s = 2, t = 1, p = 0, e = 2, h = 7)
+      assertCounts(19 to "TerraformRating")
+    }
+    with(blue) {
+      assertProduction(m = 6, s = 1, t = 1, p = 1, e = 5, h = 2)
+      assertResources(m = 33, s = 3, t = 2, p = 3, e = 5, h = 9)
+      assertCounts(21 to "TerraformRating")
+    }
+    assertSidebar(gen = 4, temp = -24, oxygen = 3, oceans = 2, venus = 2)
+    admin.assertCounts(
+        1 to "Ruling<Unity>",
+        1 to "Dominant<Reds>",
+        1 to "Current<Class<SponsoredProjects>>",
+        1 to "Coming<Class<SpinOffProducts>>",
+        1 to "Distant<Class<FreeAcademiaTreaty>>",
+    )
+  }
+}
