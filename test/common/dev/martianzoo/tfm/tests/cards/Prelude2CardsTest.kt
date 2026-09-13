@@ -223,8 +223,8 @@ internal class Prelude2CardsTest : CardTest() {
   @Test
   internal fun `Suitable Infrastructure pays once for each action`() {
     newGame(Prelude2Expansion)
-    admin.phase("Prelude")
     p1.runOperation("$SuitableInfrastructure")
+    admin.phase("Prelude")
     val beforeTwoProductions = p1.count("MC")
 
     p1.playPrelude(DomeFarming)
@@ -248,6 +248,19 @@ internal class Prelude2CardsTest : CardTest() {
     }
 
     p1.count("MC") shouldBe startingMoney - 18
+  }
+
+  @Test
+  internal fun `Suitable Infrastructure covers production inside required actions`() {
+    newGame(PreludeExpansion, Prelude2Expansion)
+    p1.runOperation("$SuitableInfrastructure, $ValleyTrust")
+    admin.phase("Action")
+    val startingMoney = p1.count("MC")
+
+    p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(DomeFarming) }
+
+    p1.assertProds(2 to "MC", 1 to "Plant")
+    p1.count("MC") shouldBe startingMoney + 2
   }
 
   @Test

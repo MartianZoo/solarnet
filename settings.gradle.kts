@@ -23,6 +23,7 @@ val modules =
         "tfm-tests",
         "script",
         "repl",
+        "tfm-card-data",
         "tfm-canon",
         "tfm-fake",
         "web",

@@ -22,7 +22,7 @@ CLASS SagittaFrontierServices : CardFront<Class<CorporationCard>> {
   cost = 0
 
   This: 31 MC, PROD[Energy, 2 MC], CARDS[SearchForCard(HAS MAX 0 PrintedTag)]
-  CardFront(HAS MAX 0 Tag): 4 MC
+  CardFront(HAS =0 Tag): 4 MC
   CardFront(HAS =1 Tag): 1 MC
 }
 
@@ -48,7 +48,7 @@ CLASS AtmosphericEnhancers : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: VenusTag<This>
-  This: (2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep), CARDS[2 SearchForCard(HAS ReferenceTo<Class<Floater>>)]
+  This: 2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep, CARDS[2 SearchForCard(HAS ReferenceTo<Class<Floater>>)]
 }
 
 CLASS BoardOfDirectors : ActionCard, ResourceCard<Class<Director>, Class<PreludeCard>> {
@@ -96,8 +96,7 @@ CLASS IndustrialComplex : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: BuildingTag<This>
-  This IF MAX 0 QuickStartVariant: -18 MC, PROD[1 MC / 6 - MC, Steel / 1 - Steel, Titanium / 1 - Titanium, Plant / 1 - Plant, Energy / 1 - Energy, Heat / 1 - Heat]
-  This IF QuickStartVariant: -18 MC, PROD[MC / 7 - MC, Steel / 2 - Steel, Titanium / 2 - Titanium, Plant / 2 - Plant, Energy / 2 - Energy, Heat / 2 - Heat]
+  This: -18 MC, EACH Class<StandardResource> { PROD[StandardResource / (Class<StandardResource> OR QuickStartVariant OR ProdOffset<Class<StandardResource>>) - Production<Class<StandardResource>>] }
 }
 
 CLASS MainBeltAsteroids : ActionCard, ResourceCard<Class<Asteroid>, Class<PreludeCard>> {
@@ -159,9 +158,8 @@ CLASS SuitableInfrastructure : CardFront<Class<PreludeCard>> {
 
   This:: BuildingTag<This>
   This: 5 Steel
-  UseAction<StandardAction>:: -SuitableInfrastructurePaid.
-  NewTurn IF PreludePhase:: -SuitableInfrastructurePaid.
-  X Production<Class<StandardResource>> IF ActionPhase OR PreludePhase:: SuitableInfrastructurePaid.
+  UseAction<StandardAction>:: SuitableInfrastructureBonus<This>.
+  NewTurn IF PreludePhase:: SuitableInfrastructureBonus<This>.
 }
 
 CLASS TerraformingDeal : CardFront<Class<PreludeCard>> {
@@ -301,7 +299,7 @@ CLASS VenusTradeHub : ActiveCard {
 // Supporting declarations contributed by cards in this bundle.
 CLASS Director : CardResource<ResourceHolder<Class<Director>>>
 
-CLASS SuitableInfrastructurePaid : Atomized, Hidden, Owned<Player> {
+CLASS SuitableInfrastructureBonus : Atomized, Cardbound<SuitableInfrastructure<Player>>, Hidden {
   HAS MAX 1 This
-  This:: 2 MC
+  X Production<Class<StandardResource>>:: 2 MC, -This!
 }
