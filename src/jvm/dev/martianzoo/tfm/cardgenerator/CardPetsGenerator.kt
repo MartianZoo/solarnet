@@ -1,4 +1,4 @@
-package dev.martianzoo.tools
+package dev.martianzoo.tfm.cardgenerator
 
 import dev.martianzoo.pets.DerivedClassLowerer
 import dev.martianzoo.pets.Parsing
@@ -230,6 +230,5 @@ internal object CardPetsGenerator {
   private val COST_PROPERTY = PropertyName("cost")
   private val REQUIREMENT_PROPERTY = PropertyName("requirement")
   private val AUTO_SELECT_WHEN_PROPERTY = PropertyName("autoSelectWhen")
-  private const val GENERATED_HEADER =
-      "// Generated from Terraforming Mars card data by :tools:generateCardPets. Do not edit."
+  private const val GENERATED_HEADER = "// Generated from Terraforming Mars card data. Do not edit."
 }

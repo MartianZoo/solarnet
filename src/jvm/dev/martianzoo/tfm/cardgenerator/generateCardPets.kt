@@ -1,4 +1,4 @@
-package dev.martianzoo.tools
+package dev.martianzoo.tfm.cardgenerator
 
 import dev.martianzoo.tfm.carddata.CardData
 import java.nio.file.Path

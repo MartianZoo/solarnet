@@ -105,7 +105,7 @@ selection from a pool; Quick Start goal variants use complementary Module-count 
 Canon derives goal names, pool membership, selection requirements, and compatibility directly from
 those declarations; there are no parallel goal metadata objects.
 
-Canonical card classes are loaded from each bundle's authored `cards.pets` alongside
+Canonical card classes are loaded from each bundle's generated `cards.pets` alongside authored
 `classes.pets`. A loaded card declaration retains authored actions and authored effects while its
 `effects` contain any follow-mode compilation needed for activation and execution. Ordinary card
 location movements require no compilation; the remaining `CARDS[...]` zones delegate

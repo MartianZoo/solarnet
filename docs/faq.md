@@ -40,7 +40,7 @@ Turmoil is completely doable but will be completely gross. I'm not in any hurry 
 
 That's part of the idea, for sure! However, a couple caveats:
 
-* There's no user-facing provision for bringing fan cards into the system, so for now you would fork the project and edit a bundle's `cards.pets` file. We can talk about a better way to do it, for sure.
+* There's no user-facing provision for bringing fan cards into the system, so for now you would fork the project and edit a bundle's `cards.json5` file. The build generates the corresponding Pets declarations. We can talk about a better way to do it, for sure.
 * This will work fine if your fan cards remix existing game mechanics in new ways. If they do things further out of the ordinary you'd have to write custom Kotlin code, but if they're *further* out of the ordinary than that you might be out of luck. I don't plan on adding a feature unless some officially published card needs it. At some point we could maintain two forks though.
 
 ### What could potentially get built around this?
