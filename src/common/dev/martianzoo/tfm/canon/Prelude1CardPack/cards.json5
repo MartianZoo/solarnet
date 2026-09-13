@@ -44,6 +44,10 @@
       "deck": "PreludeCard",
       "cards": [
         {
+          "name": "AcquiredSpaceAgency",
+          "immediate": "6 Titanium, CARDS[2 SearchForCard(HAS PrintedTag<Class<SpaceTag>>)]",
+        },
+        {
           "name": "AlliedBank",
           "tags": [ "EarthTag" ],
           "immediate": "PROD[4 MC], 3 MC",
@@ -197,10 +201,6 @@
           "name": "UnmiContractor",
           "tags": [ "EarthTag" ],
           "immediate": "3 TerraformRating, ProjectCard",
-        },
-        {
-          "name": "AcquiredSpaceAgency",
-          "immediate": "6 Titanium, CARDS[2 SearchForCard(HAS PrintedTag<Class<SpaceTag>>)]",
         },
       ],
     },

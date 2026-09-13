@@ -324,12 +324,6 @@
           "effects": [ "End: VictoryPoint / Animal<This>" ],
         },
         {
-          "name": "SulphurExports",
-          "cost": 21,
-          "tags": [ "VenusTag", "SpaceTag" ],
-          "immediate": "VenusStep, PROD[1 MC / VenusTag]",
-        },
-        {
           "name": "SulphurEatingBacteria",
           "requirement": "3 VenusStep",
           "cost": 6,
@@ -338,6 +332,12 @@
             "-> Microbe<This>",
             "X Microbe<This> -> 3X MC"
           ],
+        },
+        {
+          "name": "SulphurExports",
+          "cost": 21,
+          "tags": [ "VenusTag", "SpaceTag" ],
+          "immediate": "VenusStep, PROD[1 MC / VenusTag]",
         },
         {
           "name": "TerraformingContract",
@@ -357,39 +357,11 @@
           ],
         },
         {
-          "name": "WaterToVenus",
-          "cost": 9,
-          "tags": [ "SpaceTag", "EventTag" ],
-          "immediate": "VenusStep",
-        },
-        {
           "name": "VenusGovernor",
           "requirement": "2 VenusTag",
           "cost": 4,
           "tags": [ "VenusTag", "VenusTag" ],
           "immediate": "PROD[2 MC]",
-        },
-        {
-          "name": "VenusMagnetizer",
-          "requirement": "5 VenusStep",
-          "cost": 7,
-          "tags": [ "VenusTag" ],
-          "actions": [ "PROD[Energy] -> VenusStep" ],
-        },
-        {
-          "name": "VenusSoils",
-          "cost": 20,
-          "tags": [ "VenusTag", "PlantTag" ],
-          "immediate": "VenusStep, PROD[Plant], 2 Microbe",
-        },
-        {
-          "name": "VenusWaystation",
-          "cost": 9,
-          "tags": [ "VenusTag", "SpaceTag" ],
-          "effects": [
-            "PlayTag<Class<VenusTag>>:: -2 Owed",
-            "End: VictoryPoint"
-          ],
         },
         {
           "name": "VenusianAnimals",
@@ -416,6 +388,34 @@
           "tags": [ "VenusTag", "PlantTag" ],
           "immediate": "VenusStep, Microbe<ResourceCard(HAS VenusTag)> OR Animal<ResourceCard(HAS VenusTag)>",
           "effects": [ "End: VictoryPoint" ],
+        },
+        {
+          "name": "VenusMagnetizer",
+          "requirement": "5 VenusStep",
+          "cost": 7,
+          "tags": [ "VenusTag" ],
+          "actions": [ "PROD[Energy] -> VenusStep" ],
+        },
+        {
+          "name": "VenusSoils",
+          "cost": 20,
+          "tags": [ "VenusTag", "PlantTag" ],
+          "immediate": "VenusStep, PROD[Plant], 2 Microbe",
+        },
+        {
+          "name": "VenusWaystation",
+          "cost": 9,
+          "tags": [ "VenusTag", "SpaceTag" ],
+          "effects": [
+            "PlayTag<Class<VenusTag>>:: -2 Owed",
+            "End: VictoryPoint"
+          ],
+        },
+        {
+          "name": "WaterToVenus",
+          "cost": 9,
+          "tags": [ "SpaceTag", "EventTag" ],
+          "immediate": "VenusStep",
         },
       ],
     },

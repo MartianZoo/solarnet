@@ -4,6 +4,12 @@
       "deck": "CorporationCard",
       "cards": [
         {
+          "name": "Ecotec",
+          "tags": [ "MicrobeTag", "PlantTag" ],
+          "immediate": "42 MC, PROD[Plant]",
+          "effects": [ "BioTag: Plant OR Microbe" ],
+        },
+        {
           "name": "NirgalEnterprises",
           "tags": [ "PowerTag", "PlantTag", "BuildingTag" ],
           "immediate": "30 MC, PROD[Energy, Plant, Steel]",
@@ -26,12 +32,6 @@
             "CardFront(HAS =0 Tag): 4 MC",
             "CardFront(HAS =1 Tag): 1 MC",
           ],
-        },
-        {
-          "name": "Ecotec",
-          "tags": [ "MicrobeTag", "PlantTag" ],
-          "immediate": "42 MC, PROD[Plant]",
-          "effects": [ "BioTag: Plant OR Microbe" ],
         },
         {
           "name": "Spire",
