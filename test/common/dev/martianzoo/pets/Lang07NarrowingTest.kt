@@ -246,6 +246,47 @@ internal class Lang07NarrowingTest {
   }
 
   @Test
+  internal fun `L7-8 overlapping generic arguments do not count as the same shared value`() {
+    val catalog =
+        testCatalog(
+            """
+            ABSTRACT CLASS Value
+            ABSTRACT CLASS Left : Value
+            ABSTRACT CLASS Right : Value
+            CLASS Both : Left, Right
+            ABSTRACT CLASS Box<Value>
+            ABSTRACT CLASS Receipt<Box<Value>>
+            """
+                .trimIndent()
+        )
+    val elaborator = PetElaborator(catalog.classTable)
+    val world = TableWorld(catalog.classTable)
+    fun instruction(source: String) = elaborator.elaborateInput(parse<InstructionTree>(source))
+    val wide = instruction("Receipt<Box<Value>> FROM Box<Value>")
+
+    instruction("Receipt<Box<Left>> FROM Box<Right>").narrows(wide, world) shouldBe false
+  }
+
+  @Test
+  internal fun `L7-8 nominal specialization cannot hide a different shared value`() {
+    val catalog =
+        testCatalog(
+            """
+            ABSTRACT CLASS Resource { CLASS Iron, Copper }
+            ABSTRACT CLASS Receipt<Class<Resource>>
+            CLASS IronReceipt : Receipt<Class<Iron>>
+            """
+                .trimIndent()
+        )
+    val elaborator = PetElaborator(catalog.classTable)
+    val world = TableWorld(catalog.classTable)
+    fun instruction(source: String) = elaborator.elaborateInput(parse<InstructionTree>(source))
+    val wide = instruction("Receipt<Class<Resource>> FROM Resource")
+
+    instruction("IronReceipt FROM Copper").narrows(wide, world) shouldBe false
+  }
+
+  @Test
   internal fun `L7-8 expansion matching ignores an occurrence unavailable in its universe`() {
     val table = testCatalog("ABSTRACT CLASS Shade\nCLASS Token<Shade>").classTable
     val expanded = parse<Expression>("Token<Shade>")
