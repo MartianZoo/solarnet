@@ -71,7 +71,7 @@ internal class ClassTableProjectionTest {
   internal fun `concrete award classes stay unloaded in solo`() {
     val award = baseSolo.classTable.getClass(cn("Award"))
 
-    baseSolo.classTable.isActive(award) shouldBe false
+    baseSolo.classTable.isInhabited(award) shouldBe false
     baseSolo.classTable.allSubclasses(award).shouldBeEmpty()
   }
 
@@ -93,7 +93,7 @@ internal class ClassTableProjectionTest {
   internal fun `Vitor does not activate the unreachable award domain in solo`() {
     val projection = preludeSolo
 
-    projection.classTable.isActive(cn("Vitor")) shouldBe true
+    projection.classTable.isInhabited(cn("Vitor")) shouldBe true
     matchingClasses("award", projection).shouldBeEmpty()
     projection.classNames.shouldNotContain(cn("FirstPlace"))
     projection.classNames.shouldNotContain(cn("SecondPlace"))

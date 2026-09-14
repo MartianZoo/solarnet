@@ -26,8 +26,10 @@ internal class AwardsTest : TfmTest() {
 
     val award = game.classTable.getClass(cn("Award"))
     game.classTable.allSubclasses(award).filterNot { it.abstract }.shouldBeEmpty()
-    game.classTable.isActive(cn("ClaimMilestoneAction")) shouldBe false
-    game.classTable.isActive(cn("FundAwardAction")) shouldBe false
+    game.classTable.isInhabited(cn("ClaimMilestoneAction")) shouldBe false
+    game.classTable.isInhabited(cn("FundAwardAction")) shouldBe false
+    (cn("ClaimMilestoneAction") in game.classTable.allClassNames) shouldBe false
+    (cn("FundAwardAction") in game.classTable.allClassNames) shouldBe false
     admin.assertCounts(
         1 to "PlayCardFromHandAction",
         1 to "AquiferProject",

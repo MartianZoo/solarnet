@@ -26,8 +26,9 @@ import dev.martianzoo.pets.data.ClassSelection
  * Incrementally compiles a [Catalog] into the single master universe specified by
  * [rules T1-1 and T1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
  *
- * Name lookup and resolution are available while loading. Enumeration is available only after the
- * universe has been completed and frozen by [loadEverything].
+ * Name lookup and resolution are available while loading. [loadEverything] completes and freezes a
+ * master universe. A game projection freezes its combined structural universe before computing the
+ * premise's inclusion closure, so every enumeration used by that closure has a stable universe.
  */
 public class ClassLoader
 private constructor(
@@ -78,7 +79,7 @@ private constructor(
 
   private val loadedClasses =
       mutableMapOf<ClassName, Class?>(COMPONENT to componentClass, CLASS to classClass)
-  private val activeClassNames = linkedSetOf(COMPONENT, CLASS)
+  private val includedClassNames = linkedSetOf(COMPONENT, CLASS)
 
   /**
    * Returns the already loaded class named [name], or null; exact-name lookup during loading
@@ -135,10 +136,11 @@ private constructor(
     }
   }
 
-  private lateinit var frozenClasses: Set<Class>
+  private lateinit var frozenClasses: MutableSet<Class>
 
   /**
-   * Returns every class in the completed universe; calling before freezing violates
+   * Returns every included class after this table's structural universe is frozen; calling before
+   * freezing violates
    * [rule T1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   override fun allClasses(): Set<Class> {
@@ -178,7 +180,7 @@ private constructor(
   private val queue = ArrayDeque<ClassName>()
   private val requestedBy = mutableMapOf<ClassName, ClassName?>()
 
-  /** Loads [names] together, advancing their activation closure one complete frontier at a time. */
+  /** Loads [names] together, advancing their inclusion closure one complete frontier at a time. */
   internal fun loadAll(names: Collection<ClassName>) {
     enqueue(names, requestedByClass = null)
     while (queue.isNotEmpty()) {
@@ -191,33 +193,48 @@ private constructor(
               "broken game premise: $path; select one of its bundle Modules: " + availabilityModules
           )
         }
-        loadRelated(next, active = true)
+        loadRelated(next, include = true)
       }
       enqueueReachableActivationEdges()
     }
   }
 
+  /** Computes a game projection's inclusion closure within its completed structural universe. */
+  internal fun includeAll(names: Collection<ClassName>) {
+    require(masterSource != null && frozen) {
+      "a game projection must be structurally frozen before its inclusion closure is computed"
+    }
+    loadAll(names)
+  }
+
   private fun enqueue(names: Collection<ClassName>, requestedByClass: ClassName?) {
-    (names - activeClassNames - queue).forEach { name ->
+    (names - includedClassNames - queue).forEach { name ->
       requestedBy[name] = requestedByClass
       queue += name
     }
   }
 
-  internal fun loadRelated(next: ClassName, active: Boolean): Class {
+  private fun includeClass(name: ClassName) {
+    if (includedClassNames.add(name)) {
+      if (frozen) frozenClasses += getClass(name)
+      invalidateInclusionCaches()
+    }
+  }
+
+  internal fun loadRelated(next: ClassName, include: Boolean): Class {
     if (masterSource != null && next !in premiseDeclarations) {
       val klass = masterSource.getClass(next)
-      if (active) activeClassNames += next
+      if (include) includeClass(next)
       return klass
     }
     if (next in loadedClasses) {
       return (loadedClasses[next] ?: throw PetException("Class-loading cycle involving $next"))
-          .also { if (active) activeClassNames += next }
+          .also { if (include) includeClass(next) }
     }
     val declaration = knownDeclaration(next)
     validateClassNames(declaration)
     validateNoEffectCreatesClass(declaration)
-    return construct(declaration, active).also { if (active) activeClassNames += next }
+    return construct(declaration, include).also { if (include) includeClass(next) }
   }
 
   private fun validateNoEffectCreatesClass(declaration: ClassDeclaration) {
@@ -253,24 +270,26 @@ private constructor(
   }
 
   /**
-   * Rechecks every live declaration because activating one Class can make a previously impossible
-   * Trigger or gate reachable. The closure is monotone: Classes only become active.
+   * Rechecks every included declaration because including one Class can make a previously
+   * impossible Trigger or gate reachable. The closure is monotone: Classes only become included.
    */
   private fun enqueueReachableActivationEdges() {
-    val activeNames = activeClassNames
-    (activeNames - COMPONENT - CLASS).forEach { name ->
-      enqueue(activationEdges(knownDeclaration(name), activeNames) - THIS, name)
+    val includedNames = includedClassNames
+    (includedNames - COMPONENT - CLASS).forEach { name ->
+      enqueue(activationEdges(knownDeclaration(name), includedNames) - THIS, name)
     }
   }
 
   /** Returns the structurally or constructively required Classes in one live declaration. */
   private fun activationEdges(
       declaration: ClassDeclaration,
-      activeNames: Set<ClassName>,
+      includedNames: Set<ClassName>,
   ): Set<ClassName> = buildSet {
     val interpreter =
         InhabitanceInterpreter(
-            classIsUninhabited = { it !in activeNames },
+            classIsUninhabited = { name ->
+              if (masterSource == null) name !in includedNames else !isInhabited(name)
+            },
             exactCount = ::configuredCount,
         )
 
@@ -329,14 +348,14 @@ private constructor(
 
   private fun configuredCount(expression: Expression): Int? {
     if (masterSource == null || !expression.simple || expression.className == THIS) return null
-    val countedClass = loadRelated(expression.className, active = false)
+    val countedClass = loadRelated(expression.className, include = false)
     val masterSubclasses =
         if (countedClass.classTable === masterSource) masterSource.allSubclasses(countedClass)
         else emptySet()
     val premiseSubclasses =
         premiseDeclarations.keys
             .asSequence()
-            .map { name -> loadRelated(name, active = false) }
+            .map { name -> loadRelated(name, include = false) }
             .filter { candidate -> candidate.isSubtypeOf(countedClass) }
             .toSet()
     val concreteSubclassNames =
@@ -346,19 +365,19 @@ private constructor(
     if (concreteSubclassNames.isEmpty()) return null
     if (catalog.modules.keys.containsAll(concreteSubclassNames)) {
       return configuredModuleNames.count { moduleName ->
-        loadRelated(moduleName, active = false).isSubtypeOf(countedClass)
+        loadRelated(moduleName, include = false).isSubtypeOf(countedClass)
       }
     }
     val selections = configuredClassSelections.associateBy(ClassSelection::className)
     if (!selections.keys.containsAll(concreteSubclassNames)) return null
     return selections.values.count { selection ->
       selection.included &&
-          loadRelated(selection.className, active = false).isSubtypeOf(countedClass)
+          loadRelated(selection.className, include = false).isSubtypeOf(countedClass)
     }
   }
 
   private fun loadSingle(name: ClassName): Class =
-      findClass(name)?.also { activeClassNames += name } ?: loadRelated(name, active = true)
+      findClass(name)?.also { includeClass(name) } ?: loadRelated(name, include = true)
 
   // All classes are created here (aside from Component and Class, at top).
   private fun construct(source: ClassDeclaration, activateRelated: Boolean = true): Class {
@@ -440,7 +459,11 @@ private constructor(
     require(!frozen)
     if (masterSource != null) {
       premiseDeclarations.values.forEach { declaration ->
-        if (declaration.className !in loadedClasses) construct(declaration, activateRelated = false)
+        if (declaration.className !in loadedClasses) {
+          validateClassNames(declaration)
+          validateNoEffectCreatesClass(declaration)
+          construct(declaration, activateRelated = false)
+        }
       }
       val premiseClasses =
           premiseDeclarations.keys.mapTo(linkedSetOf()) { name ->
@@ -454,7 +477,7 @@ private constructor(
           klass in candidate.directSuperclasses
         }
       }
-      frozenClasses = activeClassNames.mapTo(linkedSetOf(), ::getClass)
+      frozenClasses = includedClassNames.mapTo(linkedSetOf(), ::getClass)
       frozen = true
       return this
     }
@@ -494,19 +517,20 @@ private constructor(
     }
     directSubclassesByClass = directSubclasses.mapValues { (_, subclasses) -> subclasses.toSet() }
 
-    frozenClasses = knownClasses.toSet()
+    frozenClasses = knownClasses.toCollection(linkedSetOf())
     frozen = true
     return this
   }
 
   /**
-   * Every class name in the completed universe; calling before freezing violates
+   * Every included class name after this table's structural universe is frozen; calling before
+   * freezing violates
    * [rule T1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   public override val allClassNames: Set<ClassName>
     get() {
       require(frozen) { "this class table must be frozen before its classes can be enumerated" }
-      return if (masterSource == null) loadedClasses.keys else activeClassNames
+      return if (masterSource == null) loadedClasses.keys else includedClassNames
     }
 
   /**

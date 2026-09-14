@@ -10,9 +10,9 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 /**
- * Which classes a game premise activates. This is premise-construction policy rather than type
- * meaning, so `docs/type-system-spec.md` describes only what an uninhabited class *means* (section
- * 12), not how one comes to be uninhabited.
+ * Which Classes a game premise includes through activation. This is premise-construction policy
+ * rather than Type meaning, so `docs/type-system-spec.md` describes inhabitance (section 12), not
+ * how the declaration closure is constructed.
  */
 internal class ActivationTest {
 
@@ -35,10 +35,10 @@ internal class ActivationTest {
         )
 
     val inactive = gameView(catalog)
-    inactive.isActive(cn("RuntimeDependency")) shouldBe false
+    inactive.isIncluded(cn("RuntimeDependency")) shouldBe false
 
     val loaded = gameView(catalog, "DependencySource")
-    loaded.isActive(cn("RuntimeDependency")) shouldBe true
+    loaded.isIncluded(cn("RuntimeDependency")) shouldBe true
   }
 
   @Test
@@ -53,23 +53,26 @@ internal class ActivationTest {
         )
     val table = gameView(catalog, "SelectedContent")
 
-    table.isActive(cn("AvailableVocabulary")) shouldBe true
+    table.isIncluded(cn("AvailableVocabulary")) shouldBe true
   }
 
   @Test
-  internal fun `excluding an inactive type does not activate it`() {
+  internal fun `NOT exclusions do not add Classes to the premise closure`() {
     val catalog =
         testCatalog(
             """
             ABSTRACT CLASS Domain
-            ABSTRACT CLASS Holder<Domain>
+            CLASS Holder<Domain>
+            CLASS Included : Domain
             CLASS Inactive : Domain
             """
                 .trimIndent()
         )
-    val table = gameView(catalog, "Holder")
+    val table = gameView(catalog, "Holder", "Included")
 
-    table.isActive(table.resolve(te("Holder<Domain(NOT Inactive)>"))) shouldBe true
+    table.isIncluded(cn("Holder")) shouldBe true
+    table.isIncluded(cn("Inactive")) shouldBe false
+    table.isInhabited(table.resolve(te("Holder<Domain(NOT Inactive)>"))) shouldBe true
   }
 
   @Test
@@ -78,7 +81,7 @@ internal class ActivationTest {
 
     val table = gameView(catalog, "Active")
 
-    table.isActive(cn("Inactive")) shouldBe true
+    table.isIncluded(cn("Inactive")) shouldBe true
   }
 
   @Test
@@ -144,7 +147,7 @@ internal class ActivationTest {
     val catalog = testCatalog("CLASS Querying { HAS MAX 0 Class<Inactive> }\nCLASS Inactive")
     val table = gameView(catalog, "Querying")
 
-    table.isActive(cn("Inactive")) shouldBe false
+    table.isIncluded(cn("Inactive")) shouldBe false
   }
 
   @Test
@@ -160,7 +163,7 @@ internal class ActivationTest {
 
     val table = gameView(catalog, "Active")
 
-    table.isActive(cn("Constructed")) shouldBe true
+    table.isIncluded(cn("Constructed")) shouldBe true
   }
 
   @Test
@@ -188,7 +191,7 @@ internal class ActivationTest {
 
     val table = ClassTable.forPremise(premise)
 
-    table.isActive(cn("Constructed")) shouldBe true
+    table.isIncluded(cn("Constructed")) shouldBe true
   }
 
   @Test
@@ -205,8 +208,8 @@ internal class ActivationTest {
 
     val table = gameView(catalog, "Active")
 
-    table.isActive(cn("Protocol")) shouldBe false
-    table.isActive(cn("Constructed")) shouldBe false
+    table.isIncluded(cn("Protocol")) shouldBe false
+    table.isIncluded(cn("Constructed")) shouldBe false
   }
 
   @Test
@@ -215,7 +218,7 @@ internal class ActivationTest {
 
     val table = gameView(catalog, "Active")
 
-    table.isActive(cn("Required")) shouldBe true
+    table.isIncluded(cn("Required")) shouldBe true
   }
 
   @Test
@@ -240,12 +243,36 @@ internal class ActivationTest {
     val reachable =
         gameView(catalog, "Active", "InactiveTrigger", "InactiveTriggerArgument", "InactiveGate")
 
-    dormant.isActive(cn("Triggered")) shouldBe false
-    dormant.isActive(cn("Gated")) shouldBe false
-    dormant.isActive(cn("InactiveTrigger")) shouldBe false
-    reachable.isActive(cn("Triggered")) shouldBe true
-    reachable.isActive(cn("Gated")) shouldBe true
-    reachable.isActive(cn("InactiveTrigger")) shouldBe true
+    dormant.isIncluded(cn("Triggered")) shouldBe false
+    dormant.isIncluded(cn("Gated")) shouldBe false
+    dormant.isIncluded(cn("InactiveTrigger")) shouldBe false
+    reachable.isIncluded(cn("Triggered")) shouldBe true
+    reachable.isIncluded(cn("Gated")) shouldBe true
+    reachable.isIncluded(cn("InactiveTrigger")) shouldBe true
+  }
+
+  @Test
+  internal fun `included empty domains do not make triggers or gates reachable`() {
+    val catalog =
+        testCatalog(
+            """
+            ABSTRACT CLASS Empty
+            CLASS Active {
+              Empty: Triggered
+              This:: (Empty: Gated)
+            }
+            CLASS Triggered
+            CLASS Gated
+            """
+                .trimIndent()
+        )
+
+    val table = gameView(catalog, "Active", "Empty")
+
+    table.isIncluded(cn("Empty")) shouldBe true
+    table.isInhabited(cn("Empty")) shouldBe false
+    table.isIncluded(cn("Triggered")) shouldBe false
+    table.isIncluded(cn("Gated")) shouldBe false
   }
 
   @Test
@@ -254,6 +281,6 @@ internal class ActivationTest {
 
     val table = gameView(catalog, "Active")
 
-    table.isActive(cn("Inactive")) shouldBe true
+    table.isIncluded(cn("Inactive")) shouldBe true
   }
 }

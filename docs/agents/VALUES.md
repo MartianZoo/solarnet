@@ -170,11 +170,11 @@ Keep the substantive reasoning in the owning document and keep this table to one
 
 ### Will be obsolete
 
-- **The concrete zero-limit encoding and inactive-Type adapter for `Die`** —
+- **The concrete zero-limit encoding and uninhabited-Type adapter for `Die`** —
   [CLASS_TABLES.md](CLASS_TABLES.md#die-and-ok). The selected class-universe model makes `Die` an
-  intentionally unrealized abstract Type and derives impossible changes from the general
-  unrealized-Type rule. The named terminal result and its task normalization remain; the
-  `HAS MAX 0 This` encoding and inactive-to-`Die` conversion do not.
+  intentionally uninhabited abstract Type and derives impossible changes from the general
+  uninhabited-Type rule. The named terminal result and its task normalization remain; the
+  `HAS MAX 0 This` encoding and uninhabited-to-`Die` conversion do not.
 
 ## Keep Pets central
 

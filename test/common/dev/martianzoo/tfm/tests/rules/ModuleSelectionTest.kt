@@ -400,8 +400,8 @@ internal class ModuleSelectionTest {
   internal fun `Venus goals join only their category's default pool`() {
     val defaults = Engine.newGame(premise("VenusNextExpansion", 2)).classTable
 
-    defaults.isActive(cn("Hoverlord")) shouldBe true
-    defaults.isActive(cn("Venuphile")) shouldBe true
+    defaults.isInhabited(cn("Hoverlord")) shouldBe true
+    defaults.isInhabited(cn("Venuphile")) shouldBe true
 
     val namedMilestones =
         Engine.newGame(
@@ -411,8 +411,8 @@ internal class ModuleSelectionTest {
                 )
             )
             .classTable
-    namedMilestones.isActive(cn("Hoverlord")) shouldBe false
-    namedMilestones.isActive(cn("Venuphile")) shouldBe true
+    namedMilestones.isInhabited(cn("Hoverlord")) shouldBe false
+    namedMilestones.isInhabited(cn("Venuphile")) shouldBe true
 
     val namedAwards =
         Engine.newGame(
@@ -422,8 +422,8 @@ internal class ModuleSelectionTest {
                 )
             )
             .classTable
-    namedAwards.isActive(cn("Hoverlord")) shouldBe true
-    namedAwards.isActive(cn("Venuphile")) shouldBe false
+    namedAwards.isInhabited(cn("Hoverlord")) shouldBe true
+    namedAwards.isInhabited(cn("Venuphile")) shouldBe false
   }
 
   @Test

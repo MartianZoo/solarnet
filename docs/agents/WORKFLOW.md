@@ -137,8 +137,9 @@ ColoniesSolarPhase belongs to Solar and is after SolarPhase
 ColoniesSolarPhase is after VenusSolarPhase
 ```
 
-Only active Phase Classes participate. A constraint mentioning an inactive optional Phase is weak:
-it contributes no edge and does not activate that Phase. Thus the active orders are naturally:
+Only included, inhabited Phase Classes participate. A constraint mentioning an excluded or
+uninhabited optional Phase is weak: it contributes no edge and does not include that Phase. Thus the
+applicable orders are naturally:
 
 ```text
 Solar -> Research
@@ -248,8 +249,8 @@ The phase workflow is successful only when all of these hold:
 - `Engine.newGame` still returns a committed, task-free `BootstrapPhase`.
 - Without an explicit start, the World remains there indefinitely.
 - Starting once produces Setup and then every later phase through Pets scopes and effects.
-- Exactly one Phase and at most one active Phase scope exist throughout committed play.
-- Optional phases appear only when their Classes are active.
+- Exactly one Phase and at most one live Phase scope exist throughout committed play.
+- Optional phases appear only when their Classes are included and inhabited.
 - Expansion-owned precedence composes without base code naming expansion phases.
 - Queue drain cannot remove an outer scope before its dependent mandatory cleanup.
 - Rollback restores scopes, their dependents, and the resulting continuation naturally from the
