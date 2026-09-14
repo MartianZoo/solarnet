@@ -26,7 +26,7 @@ internal class OverlayTaskQueues(
     require(findTaskData(task.id) == null)
     val tasks = materialize()
     tasks += task
-    tasks.sortBy { it.id }
+    tasks.sortBy { it.id.ordinal }
   }
 
   override fun removeFromTaskSet(task: Task) {

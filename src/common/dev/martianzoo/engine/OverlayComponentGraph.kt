@@ -26,7 +26,7 @@ internal class OverlayComponentGraph(
   override fun count(parentType: Type, info: TypeInfo): Int {
     requireOwnClassTable(parentType)
     requireUnchangedBacking()
-    return if (!classTable.isActive(parentType)) {
+    return if (!classTable.isInhabited(parentType)) {
       0
     } else if (parentType.className == COMPONENT) {
       backing.count(parentType, info) + componentDeltas.values.sum()
@@ -45,7 +45,7 @@ internal class OverlayComponentGraph(
   override fun matchingTypes(parentType: Type, info: TypeInfo): Sequence<Type> {
     requireOwnClassTable(parentType)
     requireUnchangedBacking()
-    return if (!classTable.isActive(parentType)) {
+    return if (!classTable.isInhabited(parentType)) {
       emptySequence()
     } else if (parentType.abstract) {
       (backing.matchingTypes(parentType, info) + componentDeltas.keys.asSequence().map { it.type })
@@ -63,7 +63,7 @@ internal class OverlayComponentGraph(
   override fun getAll(parentType: Type, info: TypeInfo): Multiset<Component> {
     requireOwnClassTable(parentType)
     requireUnchangedBacking()
-    if (!classTable.isActive(parentType)) return HashMultiset()
+    if (!classTable.isInhabited(parentType)) return HashMultiset()
 
     return HashMultiset<Component>().also { result ->
       result.addAll(backing.getAll(parentType, info))

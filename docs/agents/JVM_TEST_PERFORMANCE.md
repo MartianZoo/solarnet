@@ -10,7 +10,7 @@
 > **Skip when:** running routine verification; use [TESTING.md](TESTING.md). Do not treat these
 > measurements as current configuration requirements.
 >
-> **Status:** dated research through 2026-09-12 on the development host. Treat absolute times as
+> **Status:** dated research through 2026-09-13 on the development host. Treat absolute times as
 > noisy: other JVM processes were consuming substantial CPU during some baselines. Relative
 > structure and the large speedup signals are still clear.
 
@@ -321,6 +321,107 @@ copy gave the repository's isolation script a distinct build root. A final compl
 passed in 2m, but concurrent Gradle activity makes that wall time unsuitable for comparison with
 the earlier whole-suite snapshot.
 
+## 2026-09-13 WholeWorld component-graph query workload
+
+A mutation-aware trace selected only `dev.martianzoo.tfm.tests.replays.*` in
+`:tfm-tests:jvmTest`. It passed and observed 25 `WholeWorld` component graphs. Calls on an
+`OverlayComponentGraph`, including calls it delegated to its backing graph, were excluded. Each
+graph-level request was counted once, so a concrete `count(Type)` did not also count its internal
+exact lookup as a second caller request. The valid raw streams, sequence-aware reducer, and full
+report are under `_local/component-graph-query-trace/2026-09-13-replays-v3/`; the temporary
+production instrumentation was removed after collection.
+
+The run made 1,177,930 queries and 269,456 component-count mutations, or 4.37 queries per mutation.
+It queried 16,635 distinct full Type expressions across the run; one graph queried a median 1,787
+and at most 2,852. The ten hottest Types supplied only 14.21% of calls, so a few special-case keys
+would not fit the workload.
+
+| Graph request | Calls | Share | Observed result shape |
+| --- | ---: | ---: | --- |
+| Type count | 428,396 | 36.37% | 49.1% zero; p90 17, p99 97 |
+| Direct dependents | 284,731 | 24.17% | 74.5% empty; p99 1, maximum 37 |
+| Exact containment | 222,249 | 18.87% | all true |
+| Exact count | 186,641 | 15.84% | all positive; p90 55, p99 126 |
+| Get all | 33,243 | 2.82% | 25.1% empty; p90 7, p99 61 |
+| Matching Types | 11,100 | 0.94% | lazy result cardinality not measured |
+| Type containment | 10,188 | 0.86% | 98.9% true |
+| Transitive matching dependent | 1,382 | 0.12% | all false |
+
+Concrete unrefined inputs supplied 1,029,159 calls (87.37%). Type count was itself 71.7% concrete;
+exact count, exact containment, and direct-dependent lookup are necessarily concrete. The 148,771
+abstract inputs were concentrated in Type count (121,291), get-all (15,946), Type containment
+(6,868), and matching-Type enumeration (4,666). The hottest abstract shapes included
+`OceanTile<MarsArea>`, `MustCleanUp`, `Temporary`, `Barrier`, owner/resource-specialized `Owed`, and
+area-specialized `Tile`; abstract indexing must therefore handle dependency bounds as well as
+nominal inheritance. Refined Types were only 0.15% of all calls and should remain a filtered path.
+
+Mutation markers split the trace into stable-state query sequences. Of 925,917 adjacent pairs
+without an intervening mutation, 20.93% traversed a component-dependency edge, 4.49% moved between
+different roots on one inheritance path, 15.73% repeated the exact Type, and 9.29% retained the root
+while changing dependency bounds or refinement. The leading motifs were:
+
+- 196,541 `dependents -> dependents` pairs, predominantly board-neighbor sweeps;
+- 188,089 `Type count -> Type count` pairs;
+- 135,360 `exact contains(dependency) -> Type count(dependent)` pairs in `Limiter`;
+- 71,444 `exact count -> dependents` pairs on the same Type before removal; and
+- 47,068 `Type count -> exact count` pairs on the same Type.
+
+Using the first application frame outside `ComponentGraph` and `GameReaderImpl` as a code locus,
+67.18% of calls belonged to consecutive multi-query runs. The longest run was 971 queries; common
+run lengths included 49 and 312. `Limiter` produced 42.15% of all calls, Terraforming Mars Neighbor
+metrics produced 19.53%, rollback 9.58%, and forward `Changer` mutation 7.58%. Speculative task
+selection generated 45.38% of calls, other replay execution 50.57%, and setup 4.05%.
+
+Most writes are small but topology churn is real: `+1` and `-1` were 65.01% of mutations, 44.70%
+changed the count of an already-present Type, and 55.30% crossed zero. Excluding immutable preloaded
+Class components, a graph had a median 439 and maximum 757 mutable Types live simultaneously, with
+at most 4,853 total occurrences. The last query before 251,219 mutations (93.23% of all mutations)
+targeted the same Type being changed.
+
+The follow-up experiments used `OtbGame20260825Test`, a complex full-game replay with 31,024 traced
+component-graph queries. A temporary wrapper ran five fresh games inside one warmed test worker;
+each table entry is the median of five wrapper runs, or 25 replay executions. The wrapper was
+removed afterward.
+
+| Representation | Five-replay median | Change from original |
+| --- | ---: | ---: |
+| Original multiset stored separately inside each coarse shard | 3.451 s | baseline |
+| One primary multiset plus secondary sets of elements | 3.501 s | 1.4% slower |
+| One stable count entry per element, referenced by coarse shard sets | 3.280 s | 5.0% faster |
+| Stable entries with one bucket per exact root class | 3.362 s | 2.6% faster |
+| Component nodes also carrying incoming dependency edges | 3.405 s | 1.3% faster |
+
+That run initially selected an ordinary indexed multiset: one stable entry owned each count, an
+element map provided exact lookup, and the existing coarse shards referenced those entries for
+broad queries. Exact-root buckets lost 2.5% against coarse shards, while folding incoming dependency
+edges into the entries lost 3.8% against the winner and complicated overlay lifecycle.
+
+### Rerun after the inhabited-Type merge
+
+After merging `main` at `6c207215a` into `perf` as `f0b7cd319`, the same five-representation matrix
+was repeated both on merged `perf` and on a clean detached `main`. The test wrapper, repetitions,
+and median calculation were unchanged.
+
+| Representation | Merged `perf` | Clean `main` |
+| --- | ---: | ---: |
+| Original multiset stored separately inside each coarse shard | 3.658 s | 3.579 s |
+| One primary multiset plus secondary sets of elements | 3.696 s | 3.637 s |
+| One stable count entry per element, referenced by coarse shard sets | 3.633 s | 3.546 s |
+| Stable entries with one bucket per exact root class | 3.832 s | 3.547 s |
+| Component nodes also carrying incoming dependency edges | 3.677 s | 3.730 s |
+
+The previously selected stable-entry representation now leads by only 0.7% on merged `perf` and
+0.9% on clean `main`, within ordinary host variance and far below the requested threshold for
+permanent complexity. Exact-root buckets are neutral on clean `main` but regress 4.8% with the
+overlay path present. Component-node adjacency and a primary multiset with element sets lose on
+both branches. The rerun therefore supersedes the earlier selection: retain the original coarse,
+shard-owned multisets and the separate dependency adjacency map.
+
+The measured sequence locality does not justify memoizing results. Nor do the live-set and fanout
+bounds justify compact slots or inline adjacency when even the straightforward indexed
+representation no longer produces a meaningful end-to-end gain. Reopen those options only if a new
+profile exposes a larger remaining opportunity.
+
 ## Priorities suggested by the data
 
 1. Preserve the compiled class-model reuse. It removed over half of measured JVM test time without
@@ -336,3 +437,6 @@ the earlier whole-suite snapshot.
    instead of probing every eligible task and reversing the selected work.
 6. Treat repeated `ClassLimitTable` validation as the next static-model reuse question. Do not
    optimize replay card tracking, recording retention, or scoring overlays from the current data.
+7. Keep the current coarse, shard-owned component multisets and separate dependency adjacency map.
+   Do not add stable-entry indexing, exact-root buckets, dense ids, compact adjacency, result
+   caching, or a custom query plan without new evidence of a large end-to-end gain.
