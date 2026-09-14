@@ -1,38 +1,9 @@
 "Expansion adding colony tiles, player colonies, and trade fleets"
 CLASS ColoniesExpansion : Module {
-  premiseRequirement = HAS "(=1 Player, =4 ColonyTile) OR (=2 Player, =5 ColonyTile) OR (3 Player, =2 (ColonyTile - Player))"
-
   This: TradeAction, BuildColonyProject
   SetupPhase: EACH Player { TradeFleet }
   SetupPhase IF SoloMode: PROD[-2 MC<Player>]
   SolarPhase: AdvanceColonyTracks
-}
-
-"Lets the solo player discard one selected colony tile; owned so that player makes the choice"
-CLASS SoloColoniesSetup : Owned<Player>, System {
-  HAS MAX 1 This
-  SetupPhase: -ColonyTileSelection THEN -This!
-}
-
-"Trade with a colony tile"
-CLASS TradeAction : StandardAction {
-  9 MC -> Trade
-  3 Energy -> Trade
-  3 Titanium -> Trade
-}
-
-CLASS BuildColonyProject : StandardProject {
-  cost = 17
-  1 MC / cost -> Colony<>
-}
-
-"A selected colony tile, whether it is already in play or waiting for a compatible card"
-ABSTRACT CLASS ColonyTileSelection<Class<ColonyTile>> { HAS MAX 1 This }
-
-"A normal colony selected for this game but not put into play until setup"
-CLASS SelectedColonyTile<Class<ColonyTile>> : ColonyTileSelection<Class<ColonyTile>>, Hidden {
-  SetupPhase IF MultiplayerMode: ColonyTile FROM This
-  -SoloColoniesSetup IF SoloMode: ColonyTile FROM This
 }
 
 "A colony tile, such as Pluto"
@@ -211,6 +182,33 @@ CLASS TradeBarrier<ColonyTile> : Owned<Player>, Barrier {
 
 "The owner-attributed event that begins a Trade's completion consequences"
 CLASS FinishTrade<ColonyTile> : Owned<Player>, Signal
+
+"Trade with a colony tile"
+CLASS TradeAction : StandardAction {
+  9 MC -> Trade
+  3 Energy -> Trade
+  3 Titanium -> Trade
+}
+
+CLASS BuildColonyProject : StandardProject {
+  cost = 17
+  1 MC / cost -> Colony<>
+}
+
+"A selected colony tile, whether it is already in play or waiting for a compatible card"
+ABSTRACT CLASS ColonyTileSelection<Class<ColonyTile>> { HAS MAX 1 This }
+
+"A normal colony selected for this game but not put into play until setup"
+CLASS SelectedColonyTile<Class<ColonyTile>> : ColonyTileSelection<Class<ColonyTile>>, Hidden {
+  SetupPhase IF MultiplayerMode: ColonyTile FROM This
+  -SoloColoniesSetup IF SoloMode: ColonyTile FROM This
+}
+
+"Lets the solo player discard one selected colony tile; owned so that player makes the choice"
+CLASS SoloColoniesSetup : Owned<Player>, System {
+  HAS MAX 1 This
+  SetupPhase: -ColonyTileSelection THEN -This!
+}
 
 "A notch on the production track of a ColonyTile; note a tile has 0 to 6 of these (not 1 to 7)"
 CLASS ColonyProduction<ColonyTile> {

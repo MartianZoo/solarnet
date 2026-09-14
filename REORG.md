@@ -23,11 +23,10 @@ src/
         canon/
           PreludeExpansion/
             cards.json5
-            classes.pets
+            prelude.pets
             en.json5
           TharsisMap/
-            classes.pets
-            maps.pets
+            tharsis.pets
           TerraformingMars/
             ...
         engine/

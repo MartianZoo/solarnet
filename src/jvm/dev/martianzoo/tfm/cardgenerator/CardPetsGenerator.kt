@@ -68,10 +68,9 @@ internal object CardPetsGenerator {
     private val generatedTagEffect =
         immediateToEffect(
             InstructionGroup.createTree(
-                (data.tags + listOfNotNull("EventTag".takeIf { projectKind == EVENT_CARD }))
-                    .groupingBy(::cn)
-                    .eachCount()
-                    .map { (tag, count) -> gain(tag.of(THIS), count, quantifier = null) }
+                data.tags.groupingBy(::cn).eachCount().map { (tag, count) ->
+                  gain(tag.of(THIS), count, quantifier = null)
+                }
             ),
             true,
         )
@@ -225,7 +224,6 @@ internal object CardPetsGenerator {
   private val RESOURCE_CARD = cn("ResourceCard")
   private val CARD_RESOURCE = cn("CardResource")
   private val ACTION_CARD = cn("ActionCard")
-  private val EVENT_CARD = cn("EventCard")
   private val ACCEPTING_FROM_CARD = cn("AcceptingFromCard")
   private val COST_PROPERTY = PropertyName("cost")
   private val REQUIREMENT_PROPERTY = PropertyName("requirement")

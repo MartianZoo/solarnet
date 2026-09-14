@@ -1,3 +1,5 @@
+CLASS HellasMap : MarsMap
+
 CLASS Diversifier : Milestone { requirement = HAS "8 Class<Tag>(HAS Tag<Owner>)" }
 CLASS Tactician5 : Milestone { requirement = HAS "5 CardFront(HAS requirement)" }
 CLASS PolarExplorer : Milestone {
@@ -12,8 +14,6 @@ CLASS Magnate : Award { metric = COUNT "AutomatedCard" }
 CLASS SpaceBaron : Award { metric = COUNT "SpaceTag" }
 CLASS Excentric : Award { metric = COUNT "CardResource" }
 CLASS Contractor : Award { metric = COUNT "BuildingTag" }
-
-CLASS HellasMap : MarsMap
 
 // The map areas below are code-generated based on the following comment
 //              WPP   LPP   LPP   LPS    LP

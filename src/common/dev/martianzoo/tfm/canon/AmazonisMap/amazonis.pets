@@ -1,3 +1,5 @@
+CLASS AmazonisMap : MarsMap
+
 "Enforces the longer global-parameter tracks printed on Amazonis Planitia"
 CLASS ExtendedGlobalParametersRule : Module {
   autoSelectWhen = HAS "AmazonisMap"
@@ -21,7 +23,6 @@ CLASS ExtendedGlobalParametersRule : Module {
   OceanTile<MarsArea> IF =11 OceanTile:: GpComplete<Class<OceanTile>>
 }
 
-// Amazonis Planitia milestones, then awards, in board order.
 CLASS Terran : Milestone { requirement = HAS "5 EarthTag" }
 CLASS Landshaper : Milestone { requirement = HAS "CityTile, GreeneryTile, SpecialTile" }
 CLASS Merchant3 : Milestone {
@@ -35,8 +36,6 @@ CLASS Innovator : Award { metric = COUNT "CardFront OR PlayedEvent" }
 CLASS Constructor : Award { metric = COUNT "Colony OR CityTile" }
 CLASS Manufacturer : Award { metric = COUNT "PROD[Steel OR Heat]" }
 CLASS Physicist : Award { metric = COUNT "ScienceTag OR SpaceTag" }
-
-CLASS AmazonisMap : MarsMap
 
 // The map areas below are code-generated based on the following comment
 //                  LS   LSS    LS    LC   LTT    L

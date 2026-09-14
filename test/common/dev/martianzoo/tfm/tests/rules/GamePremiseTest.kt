@@ -103,7 +103,9 @@ internal class GamePremiseTest {
     } shouldBe true
     premise.modules.containsAll(setOf(cn("MultiplayerMode"), cn("TerraformingMars"))) shouldBe true
     premise.modules.shouldNotContain(cn("CorporateEraExpansion"))
-    Engine.newGame(premise).classTable.isActive(cn("CorporateEraExpansion")) shouldBe false
+    val table = Engine.newGame(premise).classTable
+    table.isInhabited(cn("CorporateEraExpansion")) shouldBe false
+    (cn("CorporateEraExpansion") in table.allClassNames) shouldBe false
   }
 
   @Test
@@ -127,8 +129,8 @@ internal class GamePremiseTest {
 
     val game = Engine.newGame(premise)
 
-    game.classTable.isActive(cn("ObserverA")) shouldBe true
-    game.classTable.isActive(cn("ObserverB")) shouldBe true
+    game.classTable.isInhabited(cn("ObserverA")) shouldBe true
+    game.classTable.isInhabited(cn("ObserverB")) shouldBe true
   }
 
   @Test
@@ -144,7 +146,7 @@ internal class GamePremiseTest {
 
     val game = Engine.newGame(premise)
     Canon.classTable.findClass(blue) shouldBe null
-    game.classTable.isActive(blue) shouldBe true
+    game.classTable.isInhabited(blue) shouldBe true
     game.actors.shouldContainExactly(Player(blue), Player(yellow), ADMIN)
     game.reader.getComponents("Player").map { it.className }.toSet() shouldBe setOf(blue, yellow)
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
@@ -168,9 +170,10 @@ internal class GamePremiseTest {
             )
             .classTable
 
-    table.isActive(cn("PreludePhase")) shouldBe true
-    table.isActive(cn("SpaceLanes")) shouldBe true
-    table.isActive(cn("MartianIndustries")) shouldBe false
+    table.isInhabited(cn("PreludePhase")) shouldBe true
+    table.isInhabited(cn("SpaceLanes")) shouldBe true
+    table.isInhabited(cn("MartianIndustries")) shouldBe false
+    (cn("MartianIndustries") in table.allClassNames) shouldBe false
   }
 
   @Test
@@ -208,8 +211,10 @@ internal class GamePremiseTest {
   @Test
   internal fun individualClassExclusionOverridesAModule() {
     val premise = Canon.gamePremise(GameConfig("-$ColonizerTrainingCamp", "Player1", "Player2"))
+    val table = Engine.newGame(premise).classTable
 
-    Engine.newGame(premise).classTable.isActive(ColonizerTrainingCamp) shouldBe false
+    table.isInhabited(ColonizerTrainingCamp) shouldBe false
+    (ColonizerTrainingCamp in table.allClassNames) shouldBe false
   }
 
   @Test
@@ -219,8 +224,8 @@ internal class GamePremiseTest {
             GameConfig(
                 """
                 HellasMap,
-                Coastguard, Landshaper, Builder,
-                Botanist, Founder, Administrator
+                Coastguard, Landshaper, Builder, Terraformer,
+                Botanist, Founder, Administrator, Banker
                 """,
                 "Player1",
                 "Player2",
@@ -228,29 +233,34 @@ internal class GamePremiseTest {
         )
     val table = Engine.newGame(premise).classTable
 
-    table.isActive(cn("Coastguard")) shouldBe true
-    table.isActive(cn("Landshaper")) shouldBe true
-    table.isActive(cn("Diversifier")) shouldBe false
-    table.isActive(cn("Botanist")) shouldBe true
-    table.isActive(cn("Founder")) shouldBe true
-    table.isActive(cn("Cultivator")) shouldBe false
+    table.isInhabited(cn("Coastguard")) shouldBe true
+    table.isInhabited(cn("Landshaper")) shouldBe true
+    table.isInhabited(cn("Terraformer")) shouldBe true
+    table.isInhabited(cn("Diversifier")) shouldBe false
+    table.isInhabited(cn("Botanist")) shouldBe true
+    table.isInhabited(cn("Founder")) shouldBe true
+    table.isInhabited(cn("Banker")) shouldBe true
+    table.isInhabited(cn("Cultivator")) shouldBe false
+    (cn("Diversifier") in table.allClassNames) shouldBe false
+    (cn("Cultivator") in table.allClassNames) shouldBe false
   }
 
   @Test
-  internal fun namedGoalsCanReplaceOneDefaultPoolWithoutSelectingTheExpansionModule() {
+  internal fun namedGoalsCanDefineOneExactPoolWithoutSelectingTheExpansionModule() {
     val premise =
         Canon.gamePremise(
             GameConfig(
-                "HellasMap, Landshaper, Builder, Coastguard",
+                "HellasMap, Landshaper, Builder, Coastguard, Terraformer",
                 "Player1",
                 "Player2",
             )
         )
     val table = Engine.newGame(premise).classTable
 
-    table.isActive(cn("Landshaper")) shouldBe true
-    table.isActive(cn("Diversifier")) shouldBe false
-    table.isActive(cn("Cultivator")) shouldBe true
+    table.isInhabited(cn("Landshaper")) shouldBe true
+    table.isInhabited(cn("Diversifier")) shouldBe false
+    table.isInhabited(cn("Cultivator")) shouldBe true
+    (cn("Diversifier") in table.allClassNames) shouldBe false
   }
 
   @Test
@@ -277,25 +287,20 @@ internal class GamePremiseTest {
   }
 
   @Test
-  internal fun multiplayerGamesRequireThreeMilestonesAndThreeAwards() {
-    shouldThrow<IllegalArgumentException> {
-      Canon.gamePremise(
-          GameConfig(
-              "HellasMap, Coastguard, Landshaper",
-              "Player1",
-              "Player2",
-          )
-      )
-    }
-    shouldThrow<IllegalArgumentException> {
-      Canon.gamePremise(
-          GameConfig(
-              "HellasMap, Botanist, Founder",
-              "Player1",
-              "Player2",
-          )
-      )
-    }
+  internal fun multiplayerGamesAllowSmallExactGoalPools() {
+    val oneMilestone =
+        Engine.newGame(Canon.gamePremise(GameConfig("HellasMap, Coastguard", "Player1", "Player2")))
+            .classTable
+    val oneAward =
+        Engine.newGame(Canon.gamePremise(GameConfig("HellasMap, Botanist", "Player1", "Player2")))
+            .classTable
+
+    oneMilestone.isInhabited(cn("Coastguard")) shouldBe true
+    oneMilestone.isInhabited(cn("Landshaper")) shouldBe false
+    oneAward.isInhabited(cn("Botanist")) shouldBe true
+    oneAward.isInhabited(cn("Founder")) shouldBe false
+    (cn("Landshaper") in oneMilestone.allClassNames) shouldBe false
+    (cn("Founder") in oneAward.allClassNames) shouldBe false
   }
 
   @Test
@@ -304,11 +309,16 @@ internal class GamePremiseTest {
 
     table.allSubclasses(Canon.classTable.getClass(cn("Milestone"))).shouldBeEmpty()
     table.allSubclasses(Canon.classTable.getClass(cn("Award"))).shouldBeEmpty()
-    table.isActive(cn("ClaimMilestoneAction")) shouldBe false
-    table.isActive(cn("FundAwardAction")) shouldBe false
+    table.isInhabited(cn("ClaimMilestoneAction")) shouldBe false
+    table.isInhabited(cn("FundAwardAction")) shouldBe false
+    (cn("ClaimMilestoneAction") in table.allClassNames) shouldBe false
+    (cn("FundAwardAction") in table.allClassNames) shouldBe false
 
     shouldThrow<IllegalArgumentException> {
       Engine.newGame(Canon.gamePremise(GameConfig("Landlord", "Player1")))
+    }
+    shouldThrow<IllegalArgumentException> {
+      Engine.newGame(Canon.gamePremise(GameConfig("Terraformer35", "Player1")))
     }
   }
 

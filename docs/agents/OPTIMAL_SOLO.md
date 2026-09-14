@@ -79,8 +79,8 @@ relevant history. Comparing component counts while silently changing those facts
 
 ## How a class challenges monotonicity
 
-The first analysis is syntactic: inspect every active class and custom implementation for ways in
-which the presence or count of `E` can make the future worse. Important shapes include:
+The first analysis is syntactic: inspect every included, inhabited class and custom implementation
+for ways in which the presence or count of `E` can make the future worse. Important shapes include:
 
 - an upper-bound or exact-count requirement, such as `MAX 0 E`;
 - a forced harmful effect triggered by gaining or possessing `E`;

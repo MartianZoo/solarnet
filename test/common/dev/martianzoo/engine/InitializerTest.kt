@@ -58,6 +58,23 @@ internal class InitializerTest {
   }
 
   @Test
+  internal fun uninhabitedConcreteClassDoesNotImposeAPositiveLowerBound() {
+    val premise =
+        testGamePremise(
+            """
+            ABSTRACT CLASS Empty
+            CLASS Holder<Empty> { HAS =1 This }
+            CLASS Live
+            """,
+            players = 0,
+        )
+
+    val game = Engine.newGame(premise)
+    game.classTable.isInhabited(cn("Holder")) shouldBe false
+    game.reader.count(game.classTable.resolve(cn("Holder").expression)) shouldBe 0
+  }
+
+  @Test
   internal fun completedBootstrapChecksDependentLowerBoundsPerLiveScope() {
     val premise =
         testGamePremise(

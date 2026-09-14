@@ -232,22 +232,6 @@ internal constructor(
   }
 
   /**
-   * Returns the unique greatest common subclass with [that], or null when absent, following
-   * [rule T2-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
-   *
-   * @throws IllegalArgumentException if [that] belongs to another universe (rule T1-2).
-   */
-  public infix fun glb(that: Class): Class? =
-      when {
-        this.isSubtypeOf(that) -> this
-        that.isSubtypeOf(this) -> that
-        else -> {
-          val lowerBounds = loader.allSubclassesOf(this).filter(that::isSupertypeOf)
-          lowerBounds.singleOrNull { candidate -> lowerBounds.all(candidate::isSupertypeOf) }
-        }
-      }
-
-  /**
    * Asserts the subclass relation with [that], producing a narrowing error on failure as specified
    * by
    * [rule T2-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
@@ -374,7 +358,7 @@ internal constructor(
     // common narrowing are an error.
     inherited.reduceOrNull { left, right ->
       left.merge(right) { a, b ->
-        (a glb b)
+        loader.glb(a, b)
             ?: throw PetException("$className inherits incompatible bounds for ${a.key}: $a and $b")
       }
     } ?: DependencySet.of()
@@ -439,6 +423,10 @@ internal constructor(
       )
 
   private fun normalizeVariableEqualities(original: DependencySet): DependencySet {
+    val classTable =
+        original.classTable?.let {
+          requireNotNull(loader.commonTable(it)) { "$original belongs to a different class table" }
+        } ?: loader
     var dependencies = original
     var changed: Boolean
     do {
@@ -446,7 +434,7 @@ internal constructor(
       dependencyEqualities().forEach { equality ->
         val occurrences = equality.paths.map(dependencies::at)
         val intersection = occurrences.reduce { left, right ->
-          (left glb right) ?: equalityError(equality, dependencies)
+          classTable.glb(left, right) ?: equalityError(equality, dependencies)
         }
         equality.paths.forEach { path ->
           if (dependencies.at(path) != intersection) {
@@ -827,8 +815,12 @@ internal constructor(
     require(projected.keys == dependencies.keys) {
       "expected keys ${dependencies.keys}, got $deps"
     }
+    val classTable =
+        projected.classTable?.let {
+          requireNotNull(loader.commonTable(it)) { "$deps belongs to a different class table" }
+        } ?: loader
     val bounded =
-        requireNotNull(dependencies glb projected) {
+        requireNotNull(classTable.glb(dependencies, projected)) {
           "$deps does not satisfy the declared dependency bounds of $className"
         }
     return GroundType(this, normalizeVariableEqualities(bounded))
@@ -936,7 +928,7 @@ internal constructor(
             }
           }
           .ifEmpty { listOf(COMPONENT) }
-          .map { loader.loadRelated(it, active = activateRelated) }
+          .map { loader.loadRelated(it, include = activateRelated) }
     }
   }
 }

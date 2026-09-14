@@ -90,7 +90,7 @@ tasks.register<JavaExec>("regenerateMapAreas") {
   description = "Regenerates canonical map-area declarations from diagrams in Pets comments."
   classpath = sourceSets.main.get().runtimeClasspath
   mainClass.set("dev.martianzoo.tools.RegenerateMapAreasKt")
-  inputs.files(canonSourceDirectory.asFileTree.matching { include("*/classes.pets") })
+  inputs.files(canonSourceDirectory.asFileTree.matching { include("**/*.pets") })
   args(canonSourceDirectory.asFile.absolutePath)
 }
 

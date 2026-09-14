@@ -266,7 +266,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
       entry.currentExpressions.flatMap { (occurrence, source) ->
         val constraint = classTable.resolve(source)
         val occurrenceBinding =
-            (captured glb constraint.consumeCapturedRefinement())
+            classTable.glb(captured, constraint.consumeCapturedRefinement())
                 ?: throw NarrowingException(
                     "$replacement does not satisfy Type-variable occurrence $source"
                 )

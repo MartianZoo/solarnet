@@ -1,9 +1,23 @@
 package dev.martianzoo.tfm.cardgenerator
 
+import dev.martianzoo.tfm.carddata.CardData
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 internal class GenerateCardPetsTest {
+  @Test
+  internal fun groupedDecksPreserveCardDefinitionsAndDeriveProjectKinds() {
+    val cards = CardData.definitions("TerraformingMars").associateBy { it.name }
+
+    assertEquals("CorporationCard", cards.getValue("CrediCor").deck)
+    assertEquals(null, cards.getValue("CrediCor").projectKind)
+    assertEquals("AutomatedCard", cards.getValue("DeepWellHeating").projectKind)
+    assertEquals("ActiveCard", cards.getValue("ArcticAlgae").projectKind)
+    assertEquals("EventCard", cards.getValue("ImportedHydrogen").projectKind)
+    assertEquals("EventTag", cards.getValue("ImportedHydrogen").tags.last())
+  }
+
   @Test
   internal fun cardEffectsHaveStableSetupOrdering() {
     val colonies = CardPetsGenerator.renderBundle("ColoniesExpansion")

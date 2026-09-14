@@ -328,23 +328,23 @@ internal class Spec08RefinementsTest {
 
   @Test
   internal fun `T8-9 glb keeps a refinement the other operand lacks`() {
-    (type("LandArea(HAS Neighbor)") glb type("Tharsis_2_2")) shouldBe
+    mars.glb(type("LandArea(HAS Neighbor)"), type("Tharsis_2_2")) shouldBe
         type("Tharsis_2_2(HAS Neighbor)")
-    (type("Tharsis_2_2") glb type("LandArea(HAS Neighbor)")) shouldBe
+    mars.glb(type("Tharsis_2_2"), type("LandArea(HAS Neighbor)")) shouldBe
         type("Tharsis_2_2(HAS Neighbor)")
   }
 
   @Test
   internal fun `T8-9 two identical refinements collapse to one`() {
-    (type("LandArea(HAS Neighbor)") glb type("LandArea(HAS Neighbor)")) shouldBe
+    mars.glb(type("LandArea(HAS Neighbor)"), type("LandArea(HAS Neighbor)")) shouldBe
         type("LandArea(HAS Neighbor)")
-    (type("LandArea(NOT Tharsis_2_2)") glb type("LandArea(NOT Tharsis_2_2)")) shouldBe
+    mars.glb(type("LandArea(NOT Tharsis_2_2)"), type("LandArea(NOT Tharsis_2_2)")) shouldBe
         type("LandArea(NOT Tharsis_2_2)")
   }
 
   @Test
   internal fun `T8-9 two HAS refinements combine as a conjunction`() {
-    (type("LandArea(HAS Neighbor)") glb type("LandArea(HAS Occupant)")) shouldBe
+    mars.glb(type("LandArea(HAS Neighbor)"), type("LandArea(HAS Occupant)")) shouldBe
         type("LandArea(HAS Neighbor, HAS Occupant)")
   }
 
@@ -355,7 +355,7 @@ internal class Spec08RefinementsTest {
             "LandArea(HAS Neighbor)" to "Tharsis_2_2",
         )
         .forEach { (left, right) ->
-          val bound = (type(left) glb type(right))!!
+          val bound = mars.glb(type(left), type(right))!!
           bound.isSubtypeOf(type(left)) shouldBe true
           bound.isSubtypeOf(type(right)) shouldBe true
         }
@@ -363,9 +363,9 @@ internal class Spec08RefinementsTest {
 
   @Test
   internal fun `T8-9 unlike refinements combine as a conjunction`() {
-    (type("LandArea(HAS Neighbor)") glb type("LandArea(NOT Tharsis_2_2)")) shouldBe
+    mars.glb(type("LandArea(HAS Neighbor)"), type("LandArea(NOT Tharsis_2_2)")) shouldBe
         type("LandArea(HAS Neighbor, NOT Tharsis_2_2)")
-    (type("Area(NOT Tharsis_2_2)") glb type("Area(NOT WaterArea)")) shouldBe
+    mars.glb(type("Area(NOT Tharsis_2_2)"), type("Area(NOT WaterArea)")) shouldBe
         type("Area(NOT Tharsis_2_2, NOT WaterArea)")
   }
 

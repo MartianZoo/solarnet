@@ -88,8 +88,8 @@ internal class QuickStartVariantTest : CardTest() {
                 "Player2",
             )
         )
-    quickStart.classTable.isActive(cn("Generalist")) shouldBe false
-    quickStart.classTable.isActive(cn("Generalist2")) shouldBe true
+    quickStart.classTable.isInhabited(cn("Generalist")) shouldBe false
+    quickStart.classTable.isInhabited(cn("Generalist2")) shouldBe true
     p1.runOperation("8 MC")
     admin.phase("Action")
 
@@ -102,7 +102,7 @@ internal class QuickStartVariantTest : CardTest() {
     p1.count("Milestone") shouldBe 1
 
     val corporateEra = newGame(GameConfig("ElysiumMap", "Player1", "Player2"))
-    corporateEra.classTable.isActive(cn("Generalist")) shouldBe true
-    corporateEra.classTable.isActive(cn("Generalist2")) shouldBe false
+    corporateEra.classTable.isInhabited(cn("Generalist")) shouldBe true
+    corporateEra.classTable.isInhabited(cn("Generalist2")) shouldBe false
   }
 }

@@ -17,6 +17,6 @@ internal class FakeCanonTest {
 
     val premise = TfmCatalog.compose(Canon, FakeCanon).gamePremise(config)
 
-    assertTrue(ClassTable.forPremise(premise).isActive(cn("FakeResearchNetwork")))
+    assertTrue(ClassTable.forPremise(premise).isInhabited(cn("FakeResearchNetwork")))
   }
 }

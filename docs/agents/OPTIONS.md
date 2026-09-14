@@ -67,8 +67,8 @@ card registry.
 Within a Catalog, every Class Name has one meaning. The Catalog loads and validates one master
 `ClassTable`. A playable game receives a projection backed by that master:
 
-- selected classes are active;
-- Catalog-known inactive classes are uninhabited; and
+- premise closure determines which classes are included;
+- a known Type with no concrete narrowing in that closure is uninhabited; and
 - unknown names are errors.
 
 The master table is a schema, not a playable Game World. It is never instantiated because it
@@ -79,7 +79,7 @@ contains mutually exclusive maps, modes, and replacement classes.
 **Status: current.**
 
 Runtime Catalog assembly receives only explicit Class declarations. Canon supplies those
-declarations through bundled `classes.pets`, generated `cards.pets`, and generated `maps.pets`.
+declarations through every bundled `.pets` source, including generated `cards.pets`.
 Missing declarations fail Catalog loading. Runtime assembly neither synthesizes a missing
 declaration nor supplements its behavior from another representation. Synthetic tests likewise
 supply ordinary Pets declarations.
@@ -150,8 +150,9 @@ exact initial component types to premise generation rather than mutating the fin
 leaving its executable declaration stale. Award scoring conditions its second-place effect directly
 on the presence of at least three Players. Initial state is not an unrestricted Pets script.
 
-Availability and existence are distinct. With Colonies active, eligible colony classes are active
-so effects can select them, while premise construction creates only the chosen starting selection
+Availability and existence are distinct. With Colonies included, eligible colony classes are
+included and inhabited so effects can select them, while premise construction creates only the
+chosen starting selection
 representations. Normal selected colonies become tiles during setup; card-resource colonies remain
 delayed until a compatible card exists. In solo play four are selected; setup asks the player to
 remove one `ColonyTileSelection` before creating the remaining normal tiles.
@@ -161,12 +162,12 @@ competing choice can make a default condition false; an explicit exclusion defea
 multiplayer, each Bundle whose same-named Module is selected contributes its applicable concrete
 milestone and award Classes as defaults. Premise resolution discovers those Classes by their
 authored Bundle membership and freezes the resulting pools as exact signed selections in
-`GamePremise`. A multiplayer premise is invalid unless the result contains at least three milestone
-and three award Classes. Explicitly naming any milestones or awards makes that category an exact
-pool, so named goals replace only their own category. Selecting colony tiles also requests their
-initial components.
-Solo Colonies selects four and keeps three after the setup choice, two-player Colonies uses five,
-and games with at least three players use two more tiles than players.
+`GamePremise`. Explicitly naming any milestones or awards makes that category an exact pool, so
+named goals make only their own category exact; even a smaller nonstandard pool is accepted.
+Selecting colony tiles also requests their initial components. The selected tile count is exact
+user intent rather than a premise invariant. Conventional setup selects four in solo and keeps
+three after the setup choice, uses five for two players, and uses two more than the player count for
+three or more players.
 
 Player-count Modules own mode-specific starting state. `MultiplayerMode` gives each Player 20
 terraform rating during setup; `SoloMode` gives its sole Player 14 directly. The generated Premise
@@ -179,8 +180,8 @@ Each concrete `MarsMap` is itself a Module. `TharsisMap`, `HellasMap`, and the o
 therefore identify both the immutable premise choice and the live board component; there is no
 parallel map option component. `TharsisMap` selects itself by default when `TerraformingMars` is
 present and no map is selected, while `TerraformingMars` requires exactly one map. Creating the
-selected map fans out over the active `Class<Area>` representatives and
-creates all of those Areas. The selected map also determines which map-area Classes are active,
+selected map fans out over the inhabited `Class<Area>` representatives and
+creates all of those Areas. The selected map also determines which map-area Classes are included,
 while the retained map record supplies the grid and compact display data.
 
 Concrete track-rule components own global-parameter limits, terminal steps, and printed bonuses.
@@ -188,14 +189,11 @@ On `ModulesReady`, selected Modules create the applicable standard or extended t
 components from Pets effects that inspect the complete live Module set. `AmazonisMap` selects
 `ExtendedGlobalParametersRule` by default; an explicit exclusion wins.
 
-`PreludeExpansion` supplies the Prelude 1 rules and phase. It selects `Prelude1CardPack` by default
-and requires at least one `PreludeCardPack`. Either card pack, or both together, may instead be
-selected without enabling the Prelude 1 rules; they only determine which cards can enter a merged
-Prelude deck. `Prelude2Expansion` requires and automatically selects both `PreludeExpansion` and
-`Prelude2CardPack`. When `PreludeExpansion` is already selected, adding either
-`Prelude2Expansion` or `Prelude2CardPack` therefore contributes the same cards. The Prelude 1 pack
-remains the default and may be explicitly excluded. The phase and solo generation adjustment come
-only from `PreludeExpansion`.
+`PreludeExpansion` supplies the Prelude rules and phase and selects `Prelude1CardPack` by default.
+The default pack may be explicitly excluded, including when no replacement pack is selected.
+`Prelude1CardPack` and `Prelude2CardPack` are independent content selections; either or both may be
+selected without enabling the Prelude rules. Selecting `PreludeExpansion` with `Prelude2CardPack`
+uses the Prelude 2 cards in the shared Prelude deck. There is no separate Prelude 2 rules Module.
 
 ## Bundle
 
@@ -217,8 +215,8 @@ per-product Kotlin bundle list or cross-Bundle routing registry.
 Card membership comes from the bundle/resource organization itself, not a list of
 individual members and not reconstruction from Class-name prefixes. A card resource directory
 selects its concrete `CardFront` declarations and unreferenced non-card roots for the same-named
-Module. Ordinary Pets references activate the remaining declarations, and the engine alone decides
-which active Classes instantiate. None has a per-card metadata relationship.
+Module. Ordinary Pets references include the remaining declarations, and the engine alone decides
+which inhabited concrete Classes instantiate. None has a per-card metadata relationship.
 
 A same-named Module selects the Bundle's cards and supplies its default goal pools through
 general rules. Prelude rules, shared declarations, and each selectable Prelude card pool therefore
@@ -248,9 +246,9 @@ require no runtime per-card metadata relationship.
 
 ## Map data and runtime views
 
-`tfm-map-data` owns each map's rows and per-map legend. The generator emits the diagram comment and area
-declarations into `maps.pets`; `classes.pets` keeps the map Module, milestones, awards, and other
-hand-authored declarations. Semantic runtime facts—area identity, kind, row, column, and bonus
+`tfm-map-data` owns each map's rows and per-map legend. The generator updates the diagram comment and
+area declarations in the map's bundle-specific `.pets` file alongside its map Module, milestones,
+awards, and other hand-authored declarations. Semantic runtime facts—area identity, kind, row, column, and bonus
 Effect—come only from loaded Classes. The shared class-backed grid selects the chosen map bundle's
 concrete `MarsArea` Classes without a name-prefix convention.
 
@@ -302,8 +300,8 @@ Projection is premise semantics, not dead-code optimization. It must simultaneou
 
 Uninhabited does not mean merely "currently unavailable." It means that the nominal concept is
 known but its domain is provably empty in this game. Because that is genuine premise meaning, using
-Active Classes to enumerate the selected milestone or award pool is principled rather than an
-optimization leak.
+inhabited Class representatives to enumerate the selected milestone or award pool is principled
+rather than an optimization leak.
 
 ### Bundle-derived ambient compatibility
 
@@ -338,8 +336,8 @@ the Prelude Expansion Bundle; Valley Trust's RequiredAction reference derives it
 1 dependency without a card property. Automatic Prelude-card selection also requires a
 `PreludeCardPack`, so its draw uses exactly the selected pack or packs.
 
-Concrete awards retain their authored multiplayer-only condition. Explicit selection checks that
-condition too, so solo cannot bypass the rule.
+Concrete milestones and awards are multiplayer-only content. Explicit selection checks that
+condition too, so solo cannot activate either kind of goal.
 
 ### Projection closure
 
@@ -385,8 +383,10 @@ Compatible selected content can still have one of three projection outcomes:
 Premise construction rejects both unviable and broken selected content, with different diagnostics.
 It must not silently activate a locked Class or defer an inevitable failure until gameplay.
 
-The first viability analysis reads every selected root's loaded Class declaration and need only
-exploit exact facts about uninhabited Types. A later
+The first viability analysis reads every selected root's loaded Class declaration and exploits
+exactly empty active type domains. This includes inactive Classes and active abstract Classes with
+no active concrete narrowing. A positive `HAS` refinement is empty when its Requirement is exactly
+false, and a metric union is zero when every alternative has an empty domain. A later
 closed-world extension could prove facts not directly involving them—for example, that Law Suit is
 unviable in solo because no opponent-dependent attack record can ever exist. That is the same
 semantic category but a substantially stronger satisfiability analysis, not a prerequisite for the

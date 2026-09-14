@@ -29,9 +29,9 @@ These are two modes over the same card operations, not two card systems.
 
 ## Source map
 
-- [Terraforming Mars `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
+- [Terraforming Mars `card-model.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets)
   — search for `ABSTRACT CLASS CardLocation`, `ABSTRACT CLASS Card`, `CLASS PlayedEvent`, and
-  `CLASS BuySelectedCards` for the current state model.
+  `CLASS BuySelectedCards`.
 - [`CardOperation.kt`](../../src/common/dev/martianzoo/tfm/canon/CardOperation.kt) — the validated
   semantic forms accepted inside `CARDS[...]`.
 - [`FollowModeNeutralizer.kt`](../../src/common/dev/martianzoo/tfm/canon/FollowModeNeutralizer.kt) —
@@ -89,8 +89,8 @@ Common procedures compose from this state:
   cleanup remove the rest;
 - reveal-and-test gains a back at `Revealed`, offers the reported outcome, and lets cleanup remove
   the back;
-- buying offered cards prices the backs remaining at `Selecting`, settles one invoice, and then
-  moves that count to `Hand`; and
+- buying offered cards prices the backs remaining at `Selecting`, settles their combined debt, and
+  then moves that count to `Hand`; and
 - Event completion and recovery use exact `PlayedEvent` transmutations with no mode-specific
   handling.
 

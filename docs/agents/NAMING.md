@@ -53,8 +53,7 @@ We do not choose the names of published components, only how to spell them in Pe
 printed English title with the [Google Java Style camel-case conversion][camel-case]: remove
 apostrophes, split on other punctuation, whitespace, and conventional internal camel-case word
 divisions, lowercase each word, capitalize its first character, and join. `UNMI Contractor` becomes
-`UnmiContractor`; `PolderTECH Dutch` becomes `PolderTechDutch`; `L1 Trade Terminal` becomes
-`L1TradeTerminal`.
+`UnmiContractor`; `Hi-Tech Lab` becomes `HiTechLab`; `L1 Trade Terminal` becomes `L1TradeTerminal`.
 
 Do not expand what the card does not expand. Digits stay digits. Spell a number out only when the
 printed title *begins* with one, since a `ClassName` cannot: `16 Psyche` becomes `SixteenPsyche`,
@@ -173,7 +172,7 @@ looking it up.
   them as "when you ___": `PlayCard`, `PlayTag`, `Pay`, `BuyCard`, `AdvanceColonyTracks`. Write the
   name so that phrase reads back.
 - **Other `MustCleanUp` state** — the transient thing sitting on the table during an action, not the
-  event — is a noun or a past participle: `Owed`, `Required`, `Invoice`, `TradeBarrier`. Do not give it
+  event — is a noun or a past participle: `Owed`, `Required`, `ActionBilling`, `TradeBarrier`. Do not give it
   the bare-verb shape that belongs to Signals.
 - **Custom instructions** are imperative verb phrases: `CopyProductionBox`. Use the
   published verb when the game prints one — Robotic Workforce
@@ -209,13 +208,12 @@ looking it up.
 Most `Module` subtypes extend `Module` directly, and that is fine — they need no intermediate
 supertype just to justify a suffix. Three loose families exist today:
 
-1. **Content and card packs** — published products contributing cards and components use their own
-   noun: `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`, `PreludeExpansion`,
-   `Prelude2Expansion`. `CardPack` marks a card-only selection that can be included independently
-   from its product's rules: `Prelude1CardPack`, `Prelude2CardPack`, `PromoCardPack`, and
-   `TurmoilCardPack`. The published expansions and their Bundles retain the official
-   `PreludeExpansion` and `Prelude2Expansion` names; the card packs use `Prelude1` and `Prelude2`
-   to distinguish their contributions to the merged Prelude deck.
+1. **Rules and card packs** — published products contributing ambient rules use their own noun:
+   `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`, and `PreludeExpansion`.
+   `CardPack` marks a card-only selection: `Prelude1CardPack`, `Prelude2CardPack`,
+   `PromoCardPack`, and `TurmoilCardPack`. Prelude 2 contributes content through
+   `Prelude2CardPack`, not a second Prelude rules Module. The Milestones & Awards product likewise
+   contributes individually selected goals rather than a Module.
 2. **Exclusive choices** — a closed set behind an abstract supertype, exactly one selected. These
    already borrow the supertype's word, which reads well: `MultiplayerMode` and `SoloMode` under
    `GameMode`; `TharsisMap` and `HellasMap` under `MarsMap`; `StandardSoloObjective` and
@@ -279,7 +277,6 @@ The supported names that do not follow ordinary title casing are settled individ
 | `PhoboLog` | `PhoboLog` | The [base-game rulebook](https://fryxgames.se/wp-content/uploads/2023/04/TMRULESFINAL.pdf) repeatedly uses this spelling in both setup and play examples. |
 | `ThorGate` | `ThorGate` | The same rulebook repeatedly uses this spelling in both setup and play examples. |
 | `AstroDrill` | `AstroDrill` | The corporation card's own flavor prose names AstroDrill; later digital-store prose regularizes it to “Astrodrill.” |
-| `PolderTECH Dutch` | `PolderTechDutch` | The originating [Dutch Open announcement](https://terraformingmars.nl/poldertech-dutch-promokaart-dutch-open-25/) consistently uses `PolderTECH Dutch`; the acronym is normalized only in the Class Name. |
 
 `Ecoline` is ordinary title case. `Ecotec` and `Terralabs Research` are also ordinary title case:
 the publisher's [Automa corporation rules](https://fryxgames.se/wp-content/uploads/2024/09/TM-Automa-rulebook-B-08-15-2023.pdf)
@@ -356,8 +353,10 @@ is clearer than treating each copy as a separately named token.
 `Barrier` and `GameEndBarrier` are **unrelated supertypes** that both use the word. `Barrier :
 MustCleanUp` means "the player must remove this to unblock a task" and backs the open-ended query
 `MAX 0 Barrier` in
-[`classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets), which spans
-`Owed`, `Billing`, `Required`, and `TradeBarrier`. `GameEndBarrier` extends nothing, means "the game
+[`card-model.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets),
+which spans `Required` there, `Owed` and `Billing` in
+[`payment.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets),
+and `TradeBarrier` in Colonies. `GameEndBarrier` extends nothing, means "the game
 may not end yet", and is queried by name from
 [`TfmWorkflow.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt) and four tests. We are
 keeping the shared word. The trap to watch: a new class that blocks game end will compile just as

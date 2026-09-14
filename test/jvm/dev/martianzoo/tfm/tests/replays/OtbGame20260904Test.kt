@@ -22,7 +22,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       GameConfig(
           """
           AmazonisMap
-          VenusNextExpansion, PreludeExpansion, Prelude2Expansion, PromoCardPack
+          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, PromoCardPack
           FakeStuffBundle
 
           Builder, Diversifier, Generalist, Landshaper, Tactician
@@ -744,7 +744,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     yellow.pass(unused = SpaceMirrors)
     rainbow.turn {
       // Rainbow's app entry 89 debits 2 M€ where the transcript establishes a 25 M€ cash
-      // payment. Supply the omitted 23 M€ only long enough for the real invoice to reproduce that
+      // payment. Supply the omitted 23 M€ only long enough for the real billing to reproduce that
       // captured under-debit.
       exMachina("23 MC")
       // 3:57:07–3:58:42 PM — Rainbow values three titanium at nine M€, pays the remaining 25 M€,

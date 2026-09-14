@@ -17,7 +17,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       GameConfig(
           """
           CimmeriaMap
-          VenusNextExpansion, PreludeExpansion, Prelude2Expansion, PromoCardPack, TerralabsResearch
+          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, PromoCardPack, TerralabsResearch
           FakeStuffBundle
 
           Energizer, Farmer, Philantropist, Producer, RimSettler, Hoverlord

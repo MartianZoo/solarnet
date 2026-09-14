@@ -1,3 +1,5 @@
+CLASS CimmeriaMap : MarsMap
+
 "Terra Cimmeria's MSL Curiosity placement bonus; its colony branch exists only with Colonies"
 CLASS CimmeriaPlacementBonus : Signal {
   This IF ColoniesExpansion: Colony<>, -5 MC
@@ -14,8 +16,6 @@ CLASS Founder : Award { metric = COUNT "OwnedTile<MarsArea(HAS Neighbor<SpecialT
 CLASS Mogul : Award { metric = COUNT "PROD[Steel OR Titanium OR Plant OR Energy OR Heat]" }
 CLASS Zoologist : Award { metric = COUNT "Animal OR Microbe" }
 CLASS Forecaster : Award { metric = COUNT "CardFront(HAS requirement)" }
-
-CLASS CimmeriaMap : MarsMap
 
 // The map areas below are code-generated based on the following comment
 //               W     LP    VS    LP   WPP

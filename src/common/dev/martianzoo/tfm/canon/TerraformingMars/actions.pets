@@ -1,0 +1,91 @@
+"Any of the basic choices a player can make on their turn"
+ABSTRACT CLASS StandardAction : HasActions {
+  HAS =1 This
+
+  "Play a project card from hand"
+  CLASS PlayCardFromHandAction { -> PlayCard<Class<ProjectCard>, Hand> }
+
+  "Use a standard project"
+  CLASS UseStandardProjectAction { -> UseAction<StandardProject> }
+
+  "Use an action on a card"
+  CLASS UseActionOnCardAction { -> ActionUsedMarker<ActionCard> THEN UseAction<ActionCard> }
+
+  "Convert plants into a greenery tile"
+  CLASS ConvertPlantsAction { 8 Plant -> DefaultGreeneryTile }
+
+  "Convert heat into a temperature increase"
+  CLASS ConvertHeatAction { 8 Heat -> TemperatureStep }
+
+  "Claim an available milestone"
+  CLASS ClaimMilestoneAction { 8 MC -> Milestone }
+
+  "Fund an available award"
+  CLASS FundAwardAction {
+    8 MC -> (=0 Award: Award)
+    14 MC -> (=1 Award: Award)
+    20 MC -> (=2 Award: Award)
+  }
+
+  "Perform a required action before taking another standard action"
+  CLASS DoRequiredActionsAction { -> RequiredAction: RequiredActionsSignal }
+}
+
+"A standard project, as the game defines it"
+ABSTRACT CLASS StandardProject : HasActions {
+  HAS =1 This
+  cost = Number
+
+  "Sell any number of patents"
+  CLASS SellPatentsProject {
+    cost = 0
+    1 MC / cost -> X MC FROM ProjectCard<Hand>
+  }
+
+  CLASS PowerPlantProject {
+    cost = 11
+    1 MC / cost -> PROD[Energy]
+  }
+
+  CLASS AsteroidProject {
+    cost = 14
+    1 MC / cost -> TemperatureStep
+  }
+
+  CLASS AquiferProject {
+    cost = 18
+    1 MC / cost -> OceanTile<>
+  }
+
+  CLASS GreeneryProject {
+    cost = 23
+    1 MC / cost -> DefaultGreeneryTile
+  }
+
+  CLASS CityProject {
+    cost = 25
+    1 MC / cost -> CityTile<>, PROD[1 MC]
+  }
+}
+
+// Any component that responds to `UseAction` signals
+ABSTRACT CLASS HasActions { HAS MAX 1 This }
+
+"Identifies one of the actions offered by a component"
+ABSTRACT CLASS ActionSlot : System {
+  HAS =1 This
+  CLASS Action1, Action2, Action3
+}
+
+"A Signal a player sends to indicate an action they want to perform"
+CLASS UseAction<HasActions, ActionSlot> : Owned<Player>, Signal {
+  This IF RequiredAction: MAX 0 RequiredAction: Ok
+}
+
+ABSTRACT CLASS RequiredAction : Owned<Player>, HasActions {
+  HAS MAX 1 This
+  RequiredActionsSignal: UseAction<This, Action1>
+  RequiredActionsSignal: -This!
+}
+
+CLASS RequiredActionsSignal : Owned<Player>, Signal

@@ -203,9 +203,9 @@ internal class Spec02ClassesTest {
 
   @Test
   internal fun `T2-8 glb of comparable classes is the lower one`() {
-    (klass("LandArea") glb klass("Area")) shouldBe klass("LandArea")
-    (klass("Area") glb klass("LandArea")) shouldBe klass("LandArea")
-    (klass("LandArea") glb klass("LandArea")) shouldBe klass("LandArea")
+    mars.glb(klass("LandArea"), klass("Area")) shouldBe klass("LandArea")
+    mars.glb(klass("Area"), klass("LandArea")) shouldBe klass("LandArea")
+    mars.glb(klass("LandArea"), klass("LandArea")) shouldBe klass("LandArea")
   }
 
   @Test
@@ -217,7 +217,7 @@ internal class Spec02ClassesTest {
             "CLASS GreeneryTile : OwnedTile",
         )
 
-    (table.getClass(cn("Owned")) glb table.getClass(cn("Tile"))) shouldBe
+    table.glb(table.getClass(cn("Owned")), table.getClass(cn("Tile"))) shouldBe
         table.getClass(cn("OwnedTile"))
   }
 
@@ -236,13 +236,13 @@ internal class Spec02ClassesTest {
                 .trimIndent()
         )
 
-    (table.getClass(cn("Owned")) glb table.getClass(cn("Tile"))) shouldBe
+    table.glb(table.getClass(cn("Owned")), table.getClass(cn("Tile"))) shouldBe
         table.getClass(cn("OwnedTile"))
   }
 
   @Test
   internal fun `T2-8 glb is absent when no unique greatest common subclass exists`() {
-    val disjoint = klass("LandArea") glb klass("WaterArea")
+    val disjoint = mars.glb(klass("LandArea"), klass("WaterArea"))
     disjoint shouldBe null
 
     val table =
@@ -251,7 +251,7 @@ internal class Spec02ClassesTest {
             "ABSTRACT CLASS OwnedTile : Tile, Owned",
             "ABSTRACT CLASS AlsoOwnedTile : Tile, Owned",
         )
-    (table.getClass(cn("Owned")) glb table.getClass(cn("Tile"))) shouldBe null
+    table.glb(table.getClass(cn("Owned")), table.getClass(cn("Tile"))) shouldBe null
   }
 
   // T2-9 Custom classes
