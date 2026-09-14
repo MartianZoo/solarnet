@@ -45,10 +45,10 @@ internal class DistantSignalBeamTest :
   }
 
   private fun generation1() {
-    // Save 0 exposes every setup choice. Corporation offers were Vitor, Morning Star Inc., and
-    // PolderTECH Dutch for Pink; Aridor, Ecoline, and Point Luna for Purple. Prelude offers were
-    // Polar Industries, Atmospheric Enhancers, Loan, and Power Generation for Pink; Biosphere
-    // Support, Focused Organization, Project Eden, and Allied Bank for Purple.
+    // Save 0 exposes every setup choice. Pink's corporation offers were Vitor, Morning Star Inc.,
+    // and one unsupported corporation; Purple's were Aridor, Ecoline, and Point Luna. Prelude
+    // offers were Polar Industries, Atmospheric Enhancers, Loan, and Power Generation for Pink;
+    // Biosphere Support, Focused Organization, Project Eden, and Allied Bank for Purple.
     pink.playCorp(MorningStarInc) { buyCards(7) }
     pink.discardUnselectedProjectCards(Insects, EcologyResearch, SecurityFleet)
 

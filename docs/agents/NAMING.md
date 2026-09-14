@@ -53,8 +53,7 @@ We do not choose the names of published components, only how to spell them in Pe
 printed English title with the [Google Java Style camel-case conversion][camel-case]: remove
 apostrophes, split on other punctuation, whitespace, and conventional internal camel-case word
 divisions, lowercase each word, capitalize its first character, and join. `UNMI Contractor` becomes
-`UnmiContractor`; `PolderTECH Dutch` becomes `PolderTechDutch`; `L1 Trade Terminal` becomes
-`L1TradeTerminal`.
+`UnmiContractor`; `Hi-Tech Lab` becomes `HiTechLab`; `L1 Trade Terminal` becomes `L1TradeTerminal`.
 
 Do not expand what the card does not expand. Digits stay digits. Spell a number out only when the
 printed title *begins* with one, since a `ClassName` cannot: `16 Psyche` becomes `SixteenPsyche`,
@@ -278,7 +277,6 @@ The supported names that do not follow ordinary title casing are settled individ
 | `PhoboLog` | `PhoboLog` | The [base-game rulebook](https://fryxgames.se/wp-content/uploads/2023/04/TMRULESFINAL.pdf) repeatedly uses this spelling in both setup and play examples. |
 | `ThorGate` | `ThorGate` | The same rulebook repeatedly uses this spelling in both setup and play examples. |
 | `AstroDrill` | `AstroDrill` | The corporation card's own flavor prose names AstroDrill; later digital-store prose regularizes it to “Astrodrill.” |
-| `PolderTECH Dutch` | `PolderTechDutch` | The originating [Dutch Open announcement](https://terraformingmars.nl/poldertech-dutch-promokaart-dutch-open-25/) consistently uses `PolderTECH Dutch`; the acronym is normalized only in the Class Name. |
 
 `Ecoline` is ordinary title case. `Ecotec` and `Terralabs Research` are also ordinary title case:
 the publisher's [Automa corporation rules](https://fryxgames.se/wp-content/uploads/2024/09/TM-Automa-rulebook-B-08-15-2023.pdf)
