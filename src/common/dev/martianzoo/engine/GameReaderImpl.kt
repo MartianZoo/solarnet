@@ -148,7 +148,7 @@ internal class GameReaderImpl(
 
   private fun componentsMatching(expression: Expression) =
       classTable.resolve(expression).let { type ->
-        if (!classTable.isActive(type)) return@let HashMultiset<Component>()
+        if (!classTable.isInhabited(type)) return@let HashMultiset<Component>()
         if (type.rootClass.declaration.custom) {
           throw ExpressionException(
               "Custom metrics cannot be alternatives in an OR metric: ${type.expressionFull}"
@@ -159,7 +159,7 @@ internal class GameReaderImpl(
 
   private fun countExpression(expression: Expression): Int {
     val type = classTable.resolve(expression)
-    if (!classTable.isActive(type)) return 0
+    if (!classTable.isInhabited(type)) return 0
     if (!type.rootClass.declaration.custom) return components.count(type, this)
 
     return customClasses.count(type, this)
@@ -173,14 +173,14 @@ internal class GameReaderImpl(
       components.matchingTypes(type, this)
 
   override fun countComponent(concreteType: Type) =
-      if (!classTable.isActive(concreteType)) 0
+      if (!classTable.isInhabited(concreteType)) 0
       else components.countComponent(concreteType.toComponent(this))
 
   override fun getComponents(type: Type) = components.getAll(type, this).map { it.type }
 
   override fun getDependents(component: Type): Set<Type> {
     require(!component.abstract)
-    if (!classTable.isActive(component)) return emptySet()
+    if (!classTable.isInhabited(component)) return emptySet()
     return components.dependentsOf(component.toComponent(this)).mapTo(linkedSetOf()) { it.type }
   }
 }

@@ -10,8 +10,8 @@ import dev.martianzoo.pets.ast.Requirement.Counting
 import kotlin.Int.Companion.MAX_VALUE
 
 /**
- * Immutable component-count limits for one active class-table view. The type system uses these
- * limits to enforce that every dependency can identify a unique component, as specified by
+ * Immutable component-count limits for one game class-table view. The type system uses these limits
+ * to enforce that every dependency can identify a unique component, as specified by
  * [rule T3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies),
  * and the engine applies the same compiled limits to live component counts.
  */
@@ -41,17 +41,14 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
   private val restrictionsByClass: Map<Class, List<Restriction>> = compileRestrictions()
 
   init {
-    val invalidDependencies =
-        classTable
-            .allClasses()
-            .filterNot { it.abstract }
-            .mapNotNull { dependent ->
-              dependent.dependencies
-                  .concreteDependencyTargets()
-                  .filter(classTable::isActive)
-                  .firstOrNull { target -> limitsFor(target).all { it.range.last > 1 } }
-                  ?.let { dependent to it }
-            }
+    val inhabitedConcreteClasses = classTable.allInhabitedConcreteClasses()
+    val invalidDependencies = inhabitedConcreteClasses.mapNotNull { dependent ->
+      dependent.dependencies
+          .concreteDependencyTargets()
+          .filter(classTable::isInhabited)
+          .firstOrNull { target -> limitsFor(target).all { it.range.last > 1 } }
+          ?.let { dependent to it }
+    }
 
     if (invalidDependencies.isNotEmpty()) {
       throw invalidPetDefinition(
@@ -85,8 +82,8 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
 
   /**
    * Returns every positive-lower-bound limit that must hold for a completed component set.
-   * Self-counts apply to every active concrete specialization; a dependent count containing `This`
-   * applies only to the declaring types present in [liveTypes].
+   * Self-counts apply to every inhabited concrete specialization; a dependent count containing
+   * `This` applies only to the declaring types present in [liveTypes].
    */
   public fun requiredLimits(liveTypes: Collection<Type>): Set<Limit> {
     liveTypes.forEach { require(classTable.knows(it)) { "$it belongs to a different Catalog" } }
@@ -104,6 +101,7 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
     val restrictions = mutableMapOf<Class, MutableList<Restriction>>()
     classTable
         .allClasses()
+        .filter(classTable::isInhabited)
         .flatMap { klass ->
           klass.invariants.map { invariant ->
             val counting =

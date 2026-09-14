@@ -16,7 +16,7 @@ internal class CustomClassRuntime(
 ) {
   internal fun translateInstruction(component: Component, reader: GameReader): InstructionTree {
     require(component.isCustom)
-    require(elaborator.classTable.isActive(component.type))
+    require(elaborator.classTable.isInhabited(component.type))
 
     val type = component.type
     val implementation = catalog.customClass(type.className)
@@ -53,7 +53,7 @@ internal class CustomClassRuntime(
 
   internal fun count(type: Type, reader: GameReaderImpl): Int {
     require(type.rootClass.declaration.custom)
-    require(elaborator.classTable.isActive(type))
+    require(elaborator.classTable.isInhabited(type))
 
     if (type.abstract) {
       invokeAbstract(type, reader)?.let {

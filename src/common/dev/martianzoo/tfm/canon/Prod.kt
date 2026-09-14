@@ -12,13 +12,13 @@ import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE
 
 internal object Prod {
-  /** Creates the `PROD[...]` handler for one active class table. */
+  /** Creates the `PROD[...]` handler for one game class table. */
   public fun handler(classTable: ClassTable): TransformHandler =
       handler(findResourceClassNames(classTable))
 
   private fun findResourceClassNames(classTable: ClassTable): Set<ClassName> {
-    val standardResource = classTable.findActiveClass(STANDARD_RESOURCE) ?: return emptySet()
-    if (!classTable.isActive(PRODUCTION)) return emptySet()
+    val standardResource = classTable.findInhabitedClass(STANDARD_RESOURCE) ?: return emptySet()
+    if (!classTable.isInhabited(PRODUCTION)) return emptySet()
     return classTable.allSubclasses(standardResource).mapTo(mutableSetOf()) { it.className }
   }
 

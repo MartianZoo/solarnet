@@ -63,7 +63,7 @@ A few terms are used precisely throughout:
 - A **premise class table** is one game's small declaration delta. It imports exactly one master;
   the master cannot refer back to it, and its names cannot replace master names.
 - A **universe** combines one master class table with at most one premise class table and one
-  game's active-class projection.
+  game's premise-selected view.
 
 ### Refinements are types
 
@@ -82,9 +82,9 @@ do not make refinement types a separate kind of expression.
 
 Three neighbours are deliberately out of scope:
 
-- **How a game decides which classes it contains.** Section 12 defines what an *uninhabited* class
-  means; the activation-closure policy that decides which classes end up uninhabited belongs to
-  premise construction. Its behavior is pinned by `ActivationTest.kt` and described in
+- **How a premise selects its declaration closure.** Section 12 takes that closure as part of the
+  game universe and defines inhabitance for its Types. The selection policy belongs to premise
+  construction; its behavior is pinned by `ActivationTest.kt` and described in
   `docs/agents/OPTIONS.md`.
 - **Component-count invariants**, except for the one rule the type system leans on (T3-9): a
   dependency may only target a type limited to a single copy.
@@ -385,8 +385,8 @@ answer and raises `PetException` when the bounds are computed. A one-way chain i
 A dependency asserts that a component exists. `Class<X>` instead names a class *as data*:
 `Production<Class<Steel>>` is a steel production, and needs no steel cube to exist.
 
-One `Class<Foo>` component exists for each active concrete class, so `Class<X>` can also be the
-target of an ordinary dependency without violating T3-9.
+One `Class<Foo>` component exists for each concrete Class whose base Type is inhabited, so
+`Class<X>` can also be the target of an ordinary dependency without violating T3-9.
 
 **T4-1. Form.** `Class<X>` takes exactly one bare class name. The `Class` class's own base type is
 `Class<Component>`, so bare `Class` means "some class".
@@ -398,6 +398,9 @@ CityTile          is abstract  — its area has not been chosen
 Class<CityTile>   is concrete  — `CityTile` is one specific class
 Class<Metal>      is abstract  — `Metal` is not
 ```
+
+Like every concrete Type, a concrete class literal can still be uninhabited in a particular
+universe (T12-4).
 
 > **Non-normative example — the project-card deck.** A bare `ProjectCard` type is abstract because
 > its location and owner are open, yet `Class<ProjectCard>` is the one concrete representative of
@@ -447,8 +450,8 @@ happens to be a class literal.
 > would be ill-typed whenever the player had no steel in stock.
 
 **T4-8. Enumeration.** The concrete narrowings of `Class<Metal>` are `Class<Steel>` and
-`Class<Titanium>` — one per concrete subclass. A literal for a class with no concrete subclass
-enumerates nothing.
+`Class<Titanium>` — one per concrete subclass whose base Type is inhabited. A literal whose
+represented Class has no such subclass enumerates nothing.
 
 > **Non-normative example — the solo opponent.** Solo setup uses `EACH Class<StandardResource>` and
 > `EACH Class<CardResource>` to create one reserve per concrete resource kind. Enumerating stock
@@ -503,6 +506,11 @@ This is the source of a common confusion: the *class* `OceanTile` is concrete, w
 `OceanTile` — short for `OceanTile<WaterArea>` — is not.
 
 Abstractness is structural and never consults a world.
+
+Abstractness and inhabitance are different questions. A concrete Type can be uninhabited because
+its root Class is outside a game's declaration closure or one of its dependency domains is empty.
+An abstract Type is inhabited when its universe contains at least one concrete narrowing, and
+uninhabited when it contains none (T12-4).
 
 > **Non-normative example — Research Outpost.** Its city must occupy
 > `LandArea(HAS MAX 0 Neighbor)`. Even if exactly one board space currently satisfies that query, the
@@ -923,9 +931,9 @@ automatically when only one exists.
 
 These operations come in two flavours. Asked of a **type** (`someType.allConcreteSubtypes()`) they
 range over the whole master universe. Asked of a **class table**
-(`table.allConcreteSubtypes(someType)`) they range only over what that table holds, which for a game
-view means only its active classes (T12-3). The rules below describe the shape of the operation;
-section 12 says which universe answers.
+(`table.allConcreteSubtypes(someType)`) they range over the concrete narrowings inhabited in that
+table. For a game view, the premise-selected declaration closure determines that domain (T12-3).
+The rules below describe the shape of the operation; section 12 says which universe answers.
 
 **T11-1. Enumerating concrete narrowings.** `allConcreteSubtypes()` pairs every concrete subclass of
 the root class with every admissible concrete binding of every dependency:
@@ -991,68 +999,85 @@ target to exist, so no omitted specialization could contribute.
 
 ## 12. Inhabitance
 
-One Catalog is compiled once into a master table. A game then combines it with its premise table and
-takes an active-class **view** of the result. The view reuses every master class, creates only the
-small premise-local delta, and records which names this game can hold components of.
+One Catalog is compiled once into a master table. A game view combines that table with a small
+premise table and the declaration closure selected by the premise. That closure determines which
+concrete narrowings the universe contains. **Inhabitance** is the resulting semantic property of a
+Type, independent of the live World.
 
-**T12-1. Three states for a name.**
+**T12-1. Known names retain their nominal meaning.** A known Class name resolves to its Class, with
+the same hierarchy, dependencies, and declaration whether or not its base Type is inhabited in this
+universe. An unknown Class name is an expression error.
 
-| State | Meaning |
-| --- | --- |
-| **active** | full behavior in this game |
-| **uninhabited** | known to the Catalog, but with an empty domain here |
-| **unknown** | an error in every context |
-
-An uninhabited class keeps its name, its place in the hierarchy, and its dependencies. It resolves;
-it is still a subclass of what it extends; `Class<It>` still names it. Imagine a catalog that knows
-`Jackalope : Rabbit`. In a game where jackalopes are uninhabited, `Jackalope` is not a spelling
-error and is still a rabbit — but the game knows something stronger than "we have not seen one":
-there cannot be one.
+Imagine a Catalog that knows `Jackalope : Rabbit`. In a game whose declaration closure omits
+`Jackalope`, the name still resolves and remains a subclass of `Rabbit`, while the `Jackalope` Type
+is uninhabited: the game knows that no Jackalope Component can exist.
 
 > **Non-normative example — Venus Next.** In a base-only game, `VenusStep` is known but uninhabited;
 > `VenusStap` is unknown. Treating both as “not present” would hide typos, while treating both as
-> ordinary classes would offer a Venus track the game did not select.
+> inhabited would offer a Venus track the game did not select.
 
-**T12-2. A view reuses its master.** It shares the very same master class and type objects. A
-premise class may extend master or premise classes and is visible to hierarchy queries through its
+**T12-2. A view reuses its master.** It shares the very same master Class and Type objects. A
+premise Class may extend master or premise Classes and is visible to hierarchy queries through its
 own view. A master can be combined with one of its premise values; values from sibling premise
 tables are incompatible. Expressions using only master names normally resolve through the master;
 `NOT` remains combined-universe-relative because premise subclasses can create structural overlap.
 
-> **Non-normative implementation note — activation is not recompilation.** The base-game and Venus
-> views must agree on what `Class<VenusStep>` means even though only one can enumerate it. Rebuilding
-> separate class objects per view would make cached types incomparable and violate Catalog isolation
-> instead of merely changing what is inhabited.
+> **Non-normative example — shared master identity.** Base-game and Venus views resolve
+> `Class<VenusStep>` using the same master Class objects. The Type is inhabited only in the view
+> whose declaration closure contains a concrete Venus step.
 
-**T12-3. What the view does change.** Everything that *enumerates*:
+**T12-3. Enumeration is view-relative.** A game view answers enumeration from its
+premise-selected declaration closure:
 
-- `allSubclasses` and `directSubclasses` list only active classes;
-- `allConcreteSubtypes` and `concreteSubtypesSameClass` list only active types;
-- an uninhabited type enumerates nothing, and neither does its class literal;
+- `allSubclasses` and `directSubclasses` list only Classes included by the premise closure;
+- `allConcreteSubtypes` and `concreteSubtypesSameClass` list its inhabited concrete Types;
+- an uninhabited Type enumerates nothing, and `Class<X>` enumerates nothing when `X` has no
+  inhabited concrete specialization;
 - `singleConcreteSubtype` can therefore succeed in a view where the master is undecided — if this
   game has only one milestone, `Milestone` narrows to it automatically.
 
 > **Non-normative example — claiming a milestone.** The master Catalog knows milestones from every
-> supported map, but `ClaimMilestoneAction` must enumerate only those active on the selected map.
-> Otherwise a Tharsis game could offer Hellas's Polar Explorer as a legal claim.
+> supported map, but `ClaimMilestoneAction` must enumerate only the concrete Milestone Types
+> inhabited on the selected map. Otherwise a Tharsis game could offer Hellas's Polar Explorer as a
+> legal claim.
 
-**T12-4. Active types.** A type is active when its root class is active and every dependency bound is.
-A type from another Catalog is not even *known*, let alone active (T1-2).
+**T12-4. Inhabitance is the existence of a concrete narrowing.** A Type is inhabited in a universe
+exactly when it has at least one realizable concrete narrowing there. It is uninhabited when its
+concrete domain is empty. The following all have empty concrete domains:
+
+- a Type rooted in a concrete master Class outside the premise closure;
+- an abstract Type with no inhabited concrete narrowing;
+- a Type whose dependency has no inhabited concrete binding;
+- a structural difference such as `Player1(NOT Player1)` that excludes every candidate; and
+- a class literal whose represented Class has no concrete subclass with an inhabited base Type.
+
+Inhabitance is the greatest self-consistent concrete domain satisfying these rules. Class
+representatives exist structurally (section 4), so a `Class<This>` dependency (T4-9) can make its
+own Class's concrete base Type inhabited; it does not require a Component of the represented Type
+to exist. Ordinary dependency-bound cycles remain illegal (T3-11).
+
+An abstract Type may therefore be inhabited, and a structurally concrete Type may be uninhabited.
+Inhabitance is fixed by the universe and structural refinements. It does not change merely because
+the live World currently contains zero matching Components, no remaining capacity, or no current
+answer to a `HAS` refinement. A Type from another Catalog is not known in this universe (T1-2).
+
+An uninhabited Type counts zero, contributes no concrete choices or class representative, and
+cannot appear as a Component or fire a trigger. Changes to it follow L12-14. Its nominal information
+remains available for resolution, subtyping, intersection, `NOT`, and diagnostics.
 
 > **Non-normative example — game-end barriers.** Core rules know the generic
 > `GpIncomplete<Class<GlobalParameter>>`, but the specialization for `Class<VenusStep>` must remain
-> inactive without Venus Next. Checking only the active root would create a completion barrier for a
+> uninhabited without Venus Next. Checking only the root would create a completion barrier for a
 > track that cannot advance.
 
 **T12-5. Structural meaning stays universe-wide.** A difference (T8-4) is judged against every
-master and premise class in its universe, not the active-class view. If two classes overlap,
-`Left(NOT Right)` keeps its refinement and keeps rejecting bare `Left`, even when the overlapping
-class is uninhabited. Enumeration under that difference is still view-relative, so the game sees
-only what it can hold. This keeps activation from changing the meaning of a written type.
+master and premise Class in its universe, not merely the included premise closure. If two Classes
+overlap, `Left(NOT Right)` keeps its refinement and keeps rejecting bare `Left`, even when the
+overlapping Class's Type is uninhabited. Enumeration under that difference remains view-relative.
 
 > **Non-normative example — Philares.** `Player(NOT Player1)` must keep the same structural meaning
-> in two-, three-, and five-player views. Letting inactive seats alter the difference would make the
-> card's opponent selector a different type when player count changes.
+> in two-, three-, and five-player views. Letting unoccupied seats alter the difference would make
+> the card's opponent selector a different Type when player count changes.
 
 ---
 

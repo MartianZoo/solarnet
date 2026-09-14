@@ -928,7 +928,7 @@ internal constructor(
             }
           }
           .ifEmpty { listOf(COMPONENT) }
-          .map { loader.loadRelated(it, active = activateRelated) }
+          .map { loader.loadRelated(it, include = activateRelated) }
     }
   }
 }

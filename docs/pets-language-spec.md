@@ -1138,17 +1138,15 @@ it is reacting to.
 > `Placement<This>: Plant` rule must give the plant to whoever placed there. Adding `BY Owner` to the
 > trigger captures that actor instead of leaving the reward ownerless or assigning it to the area.
 
-**L12-14. A change to a type this game cannot hold becomes `Die` or `Ok`.** A type expression that
-becomes invalid when specialization substitutes a dependency outside its declared bound (T3-4,
-T3-5) becomes a gain of `Die`, so the invalid branch can never be carried out. When a specialized
-instruction instead names a resolved type that is not active (T12-1), a mandatory change becomes
-`Die` and a change that permits zero becomes `Ok`. This keeps a rule that mentions absent content
-from silently succeeding.
+**L12-14. Changes to uninhabited Types become `Die` or `Ok`.** After specialization, a change whose
+Type expression violates a dependency bound (T3-4, T3-5) becomes a gain of `Die`. A valid change
+whose Type is uninhabited (T12-4) becomes `Die` when mandatory and `Ok` when its quantifier permits
+zero. An expression containing an open Type variable is not tested for inhabitance until that
+variable is bound; specialization may give the expression a nonempty domain (T8-7).
 
-> **Non-normative implementation note — cross-expansion safety.** Cimmeria conditionally grants a
-> colony only with the Colonies expansion. If specialization nevertheless reaches an inactive
-> mandatory colony gain, `Die` preserves the impossibility; an inactive optional branch becomes
-> `Ok` so omitted content cannot masquerade as a successful reward.
+> **Non-normative example — cross-expansion branches.** Cimmeria grants a colony only in a game
+> containing the Colonies expansion. If specialization reaches that branch in another game, a
+> mandatory colony gain becomes `Die`, while an optional gain becomes `Ok`.
 
 **L12-15. Specializing an effect closes it over one exact component.** Given a component's type,
 `specializeEffect` binds the class's type variables (T13-5), the `This` context and the contextual

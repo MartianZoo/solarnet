@@ -201,17 +201,17 @@ internal class ModuleSelectionTest {
     )
 
     val defaults = classTable("VenusNextExpansion")
-    defaults.isActive(cn("Hoverlord")) shouldBe true
-    defaults.isActive(cn("Venuphile")) shouldBe true
+    defaults.isInhabited(cn("Hoverlord")) shouldBe true
+    defaults.isInhabited(cn("Venuphile")) shouldBe true
 
     val namedMilestones =
         classTable("VenusNextExpansion, Coastguard, Landshaper, Builder, Terraformer")
-    namedMilestones.isActive(cn("Hoverlord")) shouldBe false
-    namedMilestones.isActive(cn("Venuphile")) shouldBe true
+    namedMilestones.isInhabited(cn("Hoverlord")) shouldBe false
+    namedMilestones.isInhabited(cn("Venuphile")) shouldBe true
 
     val namedAwards = classTable("VenusNextExpansion, Botanist, Founder, Administrator, Banker")
-    namedAwards.isActive(cn("Hoverlord")) shouldBe true
-    namedAwards.isActive(cn("Venuphile")) shouldBe false
+    namedAwards.isInhabited(cn("Hoverlord")) shouldBe true
+    namedAwards.isInhabited(cn("Venuphile")) shouldBe false
 
     resolvesToExactly(
         "VenusNextExpansion",
@@ -219,19 +219,19 @@ internal class ModuleSelectionTest {
         players = 1,
     )
     val solo = classTable("VenusNextExpansion", players = 1)
-    solo.isActive(cn("Hoverlord")) shouldBe false
-    solo.isActive(cn("Venuphile")) shouldBe false
+    solo.isInhabited(cn("Hoverlord")) shouldBe false
+    solo.isInhabited(cn("Venuphile")) shouldBe false
   }
 
   @Test
   internal fun `expansion-sensitive milestones join only compatible default pools`() {
     val cimmeria = classTable("CimmeriaMap")
-    cimmeria.isActive(cn("Planetologist")) shouldBe false
-    cimmeria.isActive(cn("Hoverlord")) shouldBe false
+    cimmeria.isInhabited(cn("Planetologist")) shouldBe false
+    cimmeria.isInhabited(cn("Hoverlord")) shouldBe false
 
     val cimmeriaWithVenus = classTable("CimmeriaMap, VenusNextExpansion")
-    cimmeriaWithVenus.isActive(cn("Planetologist")) shouldBe true
-    cimmeriaWithVenus.isActive(cn("Hoverlord")) shouldBe true
+    cimmeriaWithVenus.isInhabited(cn("Planetologist")) shouldBe true
+    cimmeriaWithVenus.isInhabited(cn("Hoverlord")) shouldBe true
   }
 
   @Test

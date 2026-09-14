@@ -64,7 +64,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
                 "Player2",
             )
         )
-    game.classTable.isActive(cn("Merchant")) shouldBe true
+    game.classTable.isInhabited(cn("Merchant")) shouldBe true
     p1.runOperation("10 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat")
     admin.phase("Action")
 

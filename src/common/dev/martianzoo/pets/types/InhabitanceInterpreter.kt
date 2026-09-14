@@ -19,12 +19,12 @@ import dev.martianzoo.pets.ast.Requirement
 
 /** Proves facts that follow only from exact counts and uninhabited expression domains. */
 internal class InhabitanceInterpreter(
-    private val classDomainIsEmpty: (ClassName) -> Boolean,
+    private val classIsUninhabited: (ClassName) -> Boolean,
     private val exactCount: (Expression) -> Int? = { null },
 ) {
   internal fun expressionIsUninhabited(expression: Expression): Boolean {
     if (expression.className == THIS) return false
-    if (classDomainIsEmpty(expression.className)) return true
+    if (classIsUninhabited(expression.className)) return true
     if (expression.arguments.any(::expressionIsUninhabited)) return true
     return expression.refinement?.conjuncts()?.filterIsInstance<Has>()?.any {
       requirementIsFalse(it.requirement)

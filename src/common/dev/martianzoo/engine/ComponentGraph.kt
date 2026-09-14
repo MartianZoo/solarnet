@@ -40,7 +40,7 @@ private constructor(
               queryShardsFor = { queryShardClasses(it.rootClass) },
           )
           .apply {
-            classTable.allClasses().filterNot(Class::abstract).forEach { represented ->
+            classTable.allInhabitedConcreteClasses().forEach { represented ->
               add(classTable.resolve(CLASS.of(represented.className)).toComponent(), 1)
             }
           }
@@ -92,11 +92,11 @@ private constructor(
 
   /**
    * How many total component instances have the type [parentType] (or any of its subtypes)? Returns
-   * zero for an inactive type, which cannot have stored components.
+   * zero for an uninhabited type, which cannot have stored components.
    */
   internal fun count(parentType: Type, info: TypeInfo): Int {
     requireOwnClassTable(parentType)
-    return if (!classTable.isActive(parentType)) {
+    return if (!classTable.isInhabited(parentType)) {
       0
     } else if (parentType.className == COMPONENT && parentType.refinement == null) {
       components.size
@@ -112,7 +112,7 @@ private constructor(
 
   internal fun containsAny(parentType: Type, info: TypeInfo): Boolean {
     requireOwnClassTable(parentType)
-    return if (!classTable.isActive(parentType)) {
+    return if (!classTable.isInhabited(parentType)) {
       false
     } else if (parentType.abstract) {
       components.queryElements(parentType).any { it.hasType(parentType, info) }
@@ -140,7 +140,7 @@ private constructor(
   /** Distinct concrete component Types currently matching [parentType]. */
   internal fun matchingTypes(parentType: Type, info: TypeInfo): Sequence<Type> {
     requireOwnClassTable(parentType)
-    return if (!classTable.isActive(parentType)) {
+    return if (!classTable.isInhabited(parentType)) {
       emptySequence()
     } else if (parentType.abstract) {
       components.queryElements(parentType).filter { it.hasType(parentType, info) }.map { it.type }
@@ -153,13 +153,13 @@ private constructor(
 
   /**
    * Returns all component instances having the type [parentType] (or any of its subtypes), as a
-   * multiset. The size of the returned collection will be `[count]([parentType])` . An inactive
+   * multiset. The size of the returned collection will be `[count]([parentType])` . An uninhabited
    * type returns an empty multiset. If [parentType] is `Component` this returns the entire
    * component multiset. A refined `Component` is filtered like every other abstract Type.
    */
   internal fun getAll(parentType: Type, info: TypeInfo): Multiset<Component> {
     requireOwnClassTable(parentType)
-    return if (!classTable.isActive(parentType)) {
+    return if (!classTable.isInhabited(parentType)) {
       HashMultiset()
     } else if (parentType.className == COMPONENT && parentType.refinement == null) {
       components.copy()
@@ -175,8 +175,8 @@ private constructor(
   internal fun applyChange(count: Int, gaining: Component?, removing: Component?) {
     listOfNotNull(gaining, removing).forEach {
       requireOwnClassTable(it.type)
-      if (!classTable.isActive(it.type)) {
-        throw ExpressionException("inactive type has no components: ${it.type}")
+      if (!classTable.isInhabited(it.type)) {
+        throw ExpressionException("uninhabited type has no components: ${it.type}")
       }
       if (it.isCustom) {
         throw ExpressionException(

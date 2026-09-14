@@ -67,8 +67,8 @@ card registry.
 Within a Catalog, every Class Name has one meaning. The Catalog loads and validates one master
 `ClassTable`. A playable game receives a projection backed by that master:
 
-- selected classes are active;
-- Catalog-known inactive classes are uninhabited; and
+- premise closure determines which classes are included;
+- a known Type with no concrete narrowing in that closure is uninhabited; and
 - unknown names are errors.
 
 The master table is a schema, not a playable Game World. It is never instantiated because it
@@ -150,8 +150,9 @@ exact initial component types to premise generation rather than mutating the fin
 leaving its executable declaration stale. Award scoring conditions its second-place effect directly
 on the presence of at least three Players. Initial state is not an unrestricted Pets script.
 
-Availability and existence are distinct. With Colonies active, eligible colony classes are active
-so effects can select them, while premise construction creates only the chosen starting selection
+Availability and existence are distinct. With Colonies included, eligible colony classes are
+included and inhabited so effects can select them, while premise construction creates only the
+chosen starting selection
 representations. Normal selected colonies become tiles during setup; card-resource colonies remain
 delayed until a compatible card exists. In solo play four are selected; setup asks the player to
 remove one `ColonyTileSelection` before creating the remaining normal tiles.
@@ -179,8 +180,8 @@ Each concrete `MarsMap` is itself a Module. `TharsisMap`, `HellasMap`, and the o
 therefore identify both the immutable premise choice and the live board component; there is no
 parallel map option component. `TharsisMap` selects itself by default when `TerraformingMars` is
 present and no map is selected, while `TerraformingMars` requires exactly one map. Creating the
-selected map fans out over the active `Class<Area>` representatives and
-creates all of those Areas. The selected map also determines which map-area Classes are active,
+selected map fans out over the inhabited `Class<Area>` representatives and
+creates all of those Areas. The selected map also determines which map-area Classes are included,
 while the retained map record supplies the grid and compact display data.
 
 Concrete track-rule components own global-parameter limits, terminal steps, and printed bonuses.
@@ -214,8 +215,8 @@ per-product Kotlin bundle list or cross-Bundle routing registry.
 Card membership comes from the bundle/resource organization itself, not a list of
 individual members and not reconstruction from Class-name prefixes. A card resource directory
 selects its concrete `CardFront` declarations and unreferenced non-card roots for the same-named
-Module. Ordinary Pets references activate the remaining declarations, and the engine alone decides
-which active Classes instantiate. None has a per-card metadata relationship.
+Module. Ordinary Pets references include the remaining declarations, and the engine alone decides
+which inhabited concrete Classes instantiate. None has a per-card metadata relationship.
 
 A same-named Module selects the Bundle's cards and supplies its default goal pools through
 general rules. Prelude rules, shared declarations, and each selectable Prelude card pool therefore
@@ -299,8 +300,8 @@ Projection is premise semantics, not dead-code optimization. It must simultaneou
 
 Uninhabited does not mean merely "currently unavailable." It means that the nominal concept is
 known but its domain is provably empty in this game. Because that is genuine premise meaning, using
-Active Classes to enumerate the selected milestone or award pool is principled rather than an
-optimization leak.
+inhabited Class representatives to enumerate the selected milestone or award pool is principled
+rather than an optimization leak.
 
 ### Bundle-derived ambient compatibility
 

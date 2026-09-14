@@ -16,12 +16,12 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
   internal fun `Amazonis defaults prefer its Merchant variant and reuse matching goals`() {
     val table = newGame(Amazonis).classTable
 
-    table.isActive(cn("Merchant3")) shouldBe true
-    table.isActive(cn("Merchant")) shouldBe false
-    table.isActive(cn("Manufacturer")) shouldBe true
-    table.isActive(cn("Manufacturer2")) shouldBe false
-    table.isActive(cn("Terran")) shouldBe true
-    table.isActive(cn("Collector")) shouldBe true
+    table.isInhabited(cn("Merchant3")) shouldBe true
+    table.isInhabited(cn("Merchant")) shouldBe false
+    table.isInhabited(cn("Manufacturer")) shouldBe true
+    table.isInhabited(cn("Manufacturer2")) shouldBe false
+    table.isInhabited(cn("Terran")) shouldBe true
+    table.isInhabited(cn("Collector")) shouldBe true
   }
 
   @Test
@@ -112,7 +112,7 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
   @Test
   internal fun `Vastitas Landscaper counts only the largest contiguous map group`() {
     val game = newGameWithAutoWorkflow(Vastitas)
-    game.classTable.isActive(cn("Landscaper")) shouldBe true
+    game.classTable.isInhabited(cn("Landscaper")) shouldBe true
     playUntilFirstActionPhase()
     p1.turn {
       stdProject("PowerPlantProject")
@@ -133,10 +133,10 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
   internal fun `Vastitas defaults reuse its supported printed goals`() {
     val table = newGame(Vastitas).classTable
 
-    table.isActive(cn("Engineer")) shouldBe true
-    table.isActive(cn("Geologist")) shouldBe true
-    table.isActive(cn("Traveller")) shouldBe true
-    table.isActive(cn("Promoter")) shouldBe true
+    table.isInhabited(cn("Engineer")) shouldBe true
+    table.isInhabited(cn("Geologist")) shouldBe true
+    table.isInhabited(cn("Traveller")) shouldBe true
+    table.isInhabited(cn("Promoter")) shouldBe true
   }
 
   @Test

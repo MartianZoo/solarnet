@@ -228,26 +228,28 @@ internal class Lang12ElaborationTest {
     classEffects("OwnedRule").single().trigger.toString() shouldBe "This"
   }
 
-  // L12-14 Inactive types
+  // L12-14 Uninhabited Types
 
   @Test
-  internal fun `L12-14 a change to a type this game cannot hold becomes Die or Ok`() {
+  internal fun `L12-14 changes to uninhabited Types become Die or Ok`() {
     val catalog =
         testCatalog(
             """
             ABSTRACT CLASS Seat : Owner, Actor { CLASS Seat1 }
+            ABSTRACT CLASS Empty
             CLASS Plant : Owned<Anyone>
             CLASS Steel : Owned<Anyone>
             """
                 .trimIndent()
         )
-    val view: ClassTable = gameView(catalog, "Seat1", "Plant")
+    val view: ClassTable = gameView(catalog, "Seat1", "Empty", "Plant")
     val elaborator = PetElaborator(view)
     val bearer = view.getClass(parse("Plant")).defaultType
     val seat1 = Player(parse("Seat1"))
 
-    view.isActive(cn("Plant")) shouldBe true
-    view.isActive(cn("Steel")) shouldBe false
+    view.isInhabited(cn("Plant")) shouldBe true
+    view.isInhabited(cn("Steel")) shouldBe false
+    view.isInhabited(cn("Empty")) shouldBe false
 
     fun specialize(effect: String): Effect =
         elaborator.specializeEffect(bearer, bearer, parse(effect), parse("Plant"), seat1)
@@ -255,6 +257,8 @@ internal class Lang12ElaborationTest {
     specialize("This: Steel<Seat1>!").instruction shouldBe parse<InstructionTree>("Die!")
     specialize("This: Steel<Seat1>?").instruction shouldBe parse<InstructionTree>("Ok")
     specialize("This: Steel<Seat1>.").instruction shouldBe parse<InstructionTree>("Ok")
+    specialize("This: Empty!").instruction shouldBe parse<InstructionTree>("Die!")
+    specialize("This: Empty?").instruction shouldBe parse<InstructionTree>("Ok")
     specialize("This: Plant<Seat1>!").instruction shouldBe parse<InstructionTree>("Plant<Seat1>!")
   }
 
