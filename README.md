@@ -27,7 +27,7 @@
 
 * It has a crappy command-line UI (a "REPL") you can use to interact with it (see demo video below). Or you can write what you want to do as a unit test ([very long example that plays through an entire game](https://github.com/MartianZoo/solarnet/blob/main/test/common/dev/martianzoo/tfm/tests/replays/Game20230521Test.kt)).
 
-* If you play a game IRL or on the app, you can sort of "log" it in Solarnet, and then be able to ask questions like "How much money did Advanced Alloys actually save me that game?" fairly easily. For now that last part requires writing code. The other catch is that you would have to ban the expansions and individual cards from your game that Solarnet doesn't support yet.
+* If you play a game IRL or on the app, you can sort of "log" it in Solarnet, and then be able to ask questions like "How much money did Earth Catapult actually save me that game?" easily (sort of).
 
 * It works! See [what is supported](https://github.com/MartianZoo/solarnet/blob/main/docs/what-is-supported.md).
 
@@ -43,7 +43,9 @@ JAVA_HOME=<home of a JDK 17 or newer>
 help
 ```
 
-I'll be honest, it's not suuper easy to use yet, and you'll have a LOT more success if you let Codex or Claude Code help you -- they learn it quite easily.
+It does a lot of things but I don't really claim it's easy to use yet.
+
+You'll honestly have a lot more luck if you let Codex or Claude Code help you -- they learn it quite easily.
 
 ## Learning more
 
