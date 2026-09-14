@@ -13,16 +13,10 @@ import io.kotest.matchers.shouldNotBe
 import kotlin.test.Test
 import kotlin.test.assertSame
 
-/**
- * Section 12 of `docs/type-system-spec.md`: what a game's view of the universe changes, and what it
- * does not.
- */
+/** Section 12 of `docs/type-system-spec.md`: game universes and Type inhabitance. */
 internal class Spec12InhabitanceTest {
 
-  /**
-   * A catalog with two milestones. Only one of them is used in the game below, so the other stays
-   * known but uninhabited -- the "jackalope" case.
-   */
+  /** A Catalog with two known milestones and a game view containing one of them. */
   private val catalog =
       testCatalog(
           """
@@ -40,19 +34,20 @@ internal class Spec12InhabitanceTest {
 
   private val view = gameView(catalog, "Player1", "Gardener", "ClaimMilestoneAction")
 
-  // T12-1 The three states of a name
+  // T12-1 Known and unknown names
 
   @Test
-  internal fun `T12-1 a name is active, uninhabited, or unknown`() {
-    view.isActive(cn("Gardener")) shouldBe true
-    view.isActive(cn("Terraformer")) shouldBe false
+  internal fun `T12-1 known and unknown Class names have distinct lookup behavior`() {
+    view.isInhabited(cn("Gardener")) shouldBe true
+    view.isInhabited(cn("Terraformer")) shouldBe false
     view.findClass(cn("Terraformer")) shouldBe master.getClass(cn("Terraformer"))
+    view.isInhabited(cn("Jackalope")) shouldBe false
     view.findClass(cn("Jackalope")) shouldBe null
     shouldThrow<ExpressionException> { view.resolve(te("Jackalope")) }
   }
 
   @Test
-  internal fun `T12-1 an uninhabited class keeps its name, hierarchy and dependencies`() {
+  internal fun `T12-1 a known Class retains its nominal meaning when its base Type is uninhabited`() {
     val terraformer = view.getClass(cn("Terraformer"))
 
     view.resolve(te("Terraformer")).expressionFull shouldBe te("Terraformer<Owner>")
@@ -72,14 +67,14 @@ internal class Spec12InhabitanceTest {
   }
 
   @Test
-  internal fun `T12-2 resolution and subtyping do not depend on the view`() {
+  internal fun `T12-2 resolution and subtyping use shared master identities`() {
     view.resolve(te("Terraformer")) shouldBe master.resolve(te("Terraformer"))
     view.resolve(te("Terraformer")).isSubtypeOf(view.resolve(te("Milestone"))) shouldBe
         master.resolve(te("Terraformer")).isSubtypeOf(master.resolve(te("Milestone")))
   }
 
   @Test
-  internal fun `T12-2 an interpreting view does not change structural Type equality`() {
+  internal fun `T12-2 master Types retain equality in an interpreting view`() {
     val catalog = testCatalog("CLASS MasterLeaf")
     val master = catalog.classTable
     val view =
@@ -100,13 +95,13 @@ internal class Spec12InhabitanceTest {
   }
 
   @Test
-  internal fun `T12-2 premise classes extend the master without recompiling it`() {
+  internal fun `T12-2 premise Classes extend the shared master universe`() {
     val catalog =
         testCatalog(
             """
             ABSTRACT CLASS Player
             ABSTRACT CLASS Feature
-            ABSTRACT CLASS DormantBase
+            ABSTRACT CLASS UnselectedBase
             CLASS Holder<Feature>
             """
                 .trimIndent()
@@ -124,7 +119,7 @@ internal class Spec12InhabitanceTest {
                         """
                         CLASS Player1 : Player
                         CLASS LocalFeature : Feature
-                        CLASS DormantFeature : DormantBase
+                        CLASS UnselectedFeature : UnselectedBase
                         CLASS LocalRoot
                         """
                             .trimIndent()
@@ -152,10 +147,54 @@ internal class Spec12InhabitanceTest {
         .narrows(view.resolve(te("Feature(HAS Holder<Feature>)")), world) shouldBe true
     world.questions shouldContainExactly listOf("Holder<LocalFeature>")
 
-    view.findClass(cn("DormantFeature")) shouldNotBe null
-    view.isActive(cn("DormantFeature")) shouldBe false
-    view.isActive(cn("DormantBase")) shouldBe false
+    view.findClass(cn("UnselectedFeature")) shouldNotBe null
+    view.isInhabited(cn("UnselectedFeature")) shouldBe false
+    view.isInhabited(cn("UnselectedBase")) shouldBe false
     premise.premiseClassTable.isSubtypeOf(cn("LocalRoot"), COMPONENT) shouldBe true
+  }
+
+  @Test
+  internal fun `T12-2 glb is relative to the table interpreting the classes`() {
+    val catalog =
+        testCatalog(
+            """
+            ABSTRACT CLASS Left
+            ABSTRACT CLASS Right
+            ABSTRACT CLASS Third
+            ABSTRACT CLASS MasterBoth : Left, Right
+            """
+                .trimIndent()
+        )
+    val master = catalog.classTable
+    val view =
+        GamePremise(
+                catalog = catalog,
+                modules = emptySet(),
+                classSelections =
+                    setOf(ClassSelection(cn("LocalBoth")), ClassSelection(cn("LocalOnly"))),
+                initialComponentTypes = emptySet(),
+                premiseClassDeclarations =
+                    parseClasses(
+                            """
+                            ABSTRACT CLASS LocalBoth : Left, Right
+                            ABSTRACT CLASS LocalOnly : Left, Third
+                            """
+                                .trimIndent()
+                        )
+                        .toSet(),
+            )
+            .classTable
+    val left = master.getClass(cn("Left"))
+    val right = master.getClass(cn("Right"))
+    val third = master.getClass(cn("Third"))
+
+    master.glb(left, right) shouldBe master.getClass(cn("MasterBoth"))
+    view.glb(left, right) shouldBe null
+    master.glb(left, third) shouldBe null
+    view.glb(left, third) shouldBe view.getClass(cn("LocalOnly"))
+    master.glb(master.resolve(te("Left")), master.resolve(te("Right"))) shouldBe
+        master.resolve(te("MasterBoth"))
+    view.glb(master.resolve(te("Left")), master.resolve(te("Right"))) shouldBe null
   }
 
   @Test
@@ -194,14 +233,17 @@ internal class Spec12InhabitanceTest {
       left.getClass(cn("LocalFeature")).isSubtypeOf(right.getClass(cn("LocalFeature")))
     }
     shouldThrowIae {
-      left.resolve(te("Holder<LocalFeature>")) intersect right.resolve(te("Holder<LocalFeature>"))
+      left.glb(
+          left.resolve(te("Holder<LocalFeature>")),
+          right.resolve(te("Holder<LocalFeature>")),
+      )
     }
   }
 
-  // T12-3 What the view does change
+  // T12-3 View-relative enumeration
 
   @Test
-  internal fun `T12-3 subclass enumeration is view-relative`() {
+  internal fun `T12-3 subclass enumeration follows the premise closure`() {
     master.allSubclasses(master.getClass(cn("Milestone"))).map { "$it" } shouldContainExactly
         listOf("Gardener", "Terraformer", "Milestone")
     view.allSubclasses(view.getClass(cn("Milestone"))).map { "$it" } shouldContainExactly
@@ -211,7 +253,7 @@ internal class Spec12InhabitanceTest {
   }
 
   @Test
-  internal fun `T12-3 concrete enumeration is view-relative`() {
+  internal fun `T12-3 concrete enumeration returns the view's inhabited Types`() {
     master
         .allConcreteSubtypes(master.resolve(te("Milestone")))
         .map { "$it" }
@@ -227,7 +269,7 @@ internal class Spec12InhabitanceTest {
   }
 
   @Test
-  internal fun `T12-3 an uninhabited type enumerates nothing`() {
+  internal fun `T12-3 uninhabited Types and their class literals enumerate nothing`() {
     view.allConcreteSubtypes(view.resolve(te("Terraformer"))).toList() shouldBe listOf()
     view.allConcreteSubtypes(view.resolve(te("Class<Terraformer>"))).toList() shouldBe listOf()
     view.concreteSubtypesSameClass(view.resolve(te("Terraformer"))).toList() shouldBe listOf()
@@ -240,22 +282,56 @@ internal class Spec12InhabitanceTest {
         view.resolve(te("Gardener<Player1>"))
   }
 
-  // T12-4 Active types
+  // T12-4 Concrete-domain inhabitance
 
   @Test
-  internal fun `T12-4 a type is active when its class and every dependency bound are`() {
-    view.isActive(view.resolve(te("Gardener<Player1>"))) shouldBe true
-    view.isActive(view.resolve(te("Terraformer"))) shouldBe false
-    view.isActive(view.resolve(te("ClaimMilestoneAction<Gardener>"))) shouldBe true
-    view.isActive(view.resolve(te("ClaimMilestoneAction<Terraformer>"))) shouldBe false
+  internal fun `T12-4 inhabitance follows available concrete narrowings`() {
+    view.isInhabited(view.resolve(te("Gardener<Player1>"))) shouldBe true
+    view.isInhabited(view.resolve(te("Milestone"))) shouldBe true
+    view.isInhabited(view.resolve(te("Terraformer"))) shouldBe false
+    view.isInhabited(view.resolve(te("ClaimMilestoneAction<Gardener>"))) shouldBe true
+    view.isInhabited(view.resolve(te("ClaimMilestoneAction<Terraformer>"))) shouldBe false
   }
 
   @Test
-  internal fun `T12-4 a type from another catalog is not known, let alone active`() {
+  internal fun `T12-4 abstract and dependent Types can have empty concrete domains`() {
+    val catalog = testCatalog("ABSTRACT CLASS Empty\nCLASS Holder<Empty>\nCLASS Live")
+    val view = gameView(catalog, "Empty", "Holder", "Live")
+
+    view.isIncluded(cn("Empty")) shouldBe true
+    view.isIncluded(cn("Holder")) shouldBe true
+    view.isInhabited(view.resolve(te("Empty"))) shouldBe false
+    view.isInhabited(view.resolve(te("Class<Empty>"))) shouldBe false
+    view.isInhabited(view.resolve(te("Holder<Empty>"))) shouldBe false
+    view.isInhabited(view.resolve(te("Class<Holder>"))) shouldBe false
+    view.isInhabited(view.resolve(te("Live"))) shouldBe true
+  }
+
+  @Test
+  internal fun `T12-4 a Class literal can make its represented Class's base Type inhabited`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Link<Class<Component>>",
+            "CLASS SelfLink : Link<Class<SelfLink>>",
+        )
+
+    table.isInhabited(table.resolve(te("SelfLink"))) shouldBe true
+    table.isInhabited(table.resolve(te("Class<SelfLink>"))) shouldBe true
+  }
+
+  @Test
+  internal fun `T12-4 a structurally empty difference is uninhabited`() {
+    val table = loadTypes("CLASS Rabbit")
+
+    table.isInhabited(table.resolve(te("Rabbit(NOT Rabbit)"))) shouldBe false
+  }
+
+  @Test
+  internal fun `T12-4 a Type from another Catalog is not known in this universe`() {
     val other = testCatalog("ABSTRACT CLASS Milestone { CLASS Gardener }").classTable
 
     view.knows(other.resolve(te("Gardener"))) shouldBe false
-    view.isActive(other.resolve(te("Gardener"))) shouldBe false
+    view.isInhabited(other.resolve(te("Gardener"))) shouldBe false
   }
 
   // T12-5 Structural meaning is universe-wide
@@ -302,19 +378,19 @@ internal class Spec12InhabitanceTest {
   }
 
   @Test
-  internal fun `T12-5 inactive premise classes still determine structural overlap`() {
+  internal fun `T12-5 structural overlap includes every premise Class`() {
     val catalog = testCatalog("ABSTRACT CLASS Left\nABSTRACT CLASS Right")
     val premise =
         GamePremise(
             catalog = catalog,
             modules = emptySet(),
-            classSelections = setOf(ClassSelection(cn("ActiveLeft"))),
+            classSelections = setOf(ClassSelection(cn("LeftOnly"))),
             initialComponentTypes = emptySet(),
             premiseClassDeclarations =
                 parseClasses(
                         """
-                        CLASS ActiveLeft : Left
-                        CLASS DormantOverlap : Left, Right
+                        CLASS LeftOnly : Left
+                        CLASS Overlap : Left, Right
                         """
                             .trimIndent()
                     )
@@ -322,13 +398,13 @@ internal class Spec12InhabitanceTest {
         )
     val view = premise.classTable
 
-    view.isActive(cn("DormantOverlap")) shouldBe false
+    view.isInhabited(cn("Overlap")) shouldBe false
     view.resolve(te("Left(NOT Right)")).refinement shouldBe te("Left(NOT Right)").refinement
     view.resolve(te("Left")).isSubtypeOf(view.resolve(te("Left(NOT Right)"))) shouldBe false
   }
 
   @Test
-  internal fun `T12-5 inactive master classes still determine structural overlap`() {
+  internal fun `T12-5 structural overlap includes every master Class`() {
     val overlaps =
         testCatalog(
             """
@@ -340,16 +416,13 @@ internal class Spec12InhabitanceTest {
             """
                 .trimIndent()
         )
-    val restricted = gameView(overlaps, "Root", "LeftOnly", "Right")
+    val view = gameView(overlaps, "Root", "LeftOnly", "Right")
 
-    restricted.isActive(cn("Overlap")) shouldBe false
-    // `Left` still overlaps `Right` in the catalog, so the exclusion is still meaningful...
-    restricted.resolve(te("Left(NOT Right)")).refinement shouldBe te("Left(NOT Right)").refinement
-    restricted.resolve(te("Left")).isSubtypeOf(restricted.resolve(te("Left(NOT Right)"))) shouldBe
-        false
-    // ...while enumeration, which is view-relative, still lists only what this game can hold.
-    restricted
-        .allConcreteSubtypes(restricted.resolve(te("Left(NOT Right)")))
+    view.isInhabited(cn("Overlap")) shouldBe false
+    view.resolve(te("Left(NOT Right)")).refinement shouldBe te("Left(NOT Right)").refinement
+    view.resolve(te("Left")).isSubtypeOf(view.resolve(te("Left(NOT Right)"))) shouldBe false
+    view
+        .allConcreteSubtypes(view.resolve(te("Left(NOT Right)")))
         .map { "$it" }
         .toList() shouldContainExactly listOf("LeftOnly")
   }

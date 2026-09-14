@@ -505,7 +505,7 @@ constraint, a real case — not by rediscovering the cost.
   `Task.normalizeForTask` normalization form a coherent bridge, and `PremiseViability` earns its
   separate static check by rejecting a bad premise during setup. The selected class-universe model
   in [CLASS_TABLES.md](CLASS_TABLES.md#die-and-ok) should eventually make `Die` an intentionally
-  unrealized abstract Type and make impossible changes follow that ordinary rule. Whatever the
+  uninhabited abstract Type and make impossible changes follow that ordinary rule. Whatever the
   representation, a completed universe must admit no realizable subtype of `Die`, and source must
   admit no `Ok:` trigger: `Ok` produces no change event for such an effect to observe.
 

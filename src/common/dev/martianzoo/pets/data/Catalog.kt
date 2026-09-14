@@ -11,7 +11,7 @@ public interface Catalog {
   /** The one fully compiled class universe from which playable projections are formed. */
   public val classTable: ClassTable
 
-  /** Handlers for this game's explicitly marked Pets syntax, bound to one active class table. */
+  /** Handlers for this game's explicitly marked Pets syntax, bound to one game class table. */
   public val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler>
     get() = emptyMap()
 

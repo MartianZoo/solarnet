@@ -142,14 +142,6 @@ private constructor(
    */
   override fun isAbstract(info: TypeInfo): Boolean = abstract
 
-  internal fun activeIn(table: ClassTable): Boolean = deps.all { dependency ->
-    table.isActive(dependency.boundClass) &&
-        when (dependency) {
-          is TypeDependency -> table.isActive(dependency.boundType)
-          else -> true
-        }
-  }
-
   /**
    * Tests componentwise context-free covariance against [that] according to
    * [rules T6-2 and T6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
@@ -164,12 +156,6 @@ private constructor(
    * T6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping)).
    */
   public fun isSupertypeOf(that: DependencySet): Boolean = that.isSubtypeOf(this)
-
-  /** Intersects corresponding keyed bounds, returning null if any roots are incomparable. */
-  internal infix fun intersect(that: DependencySet): DependencySet? {
-    requireSameClassTable(that)
-    return merge(that) { a, b -> (a intersect b) ?: return@intersect null }
-  }
 
   /**
    * Asserts componentwise contextual covariance against [that], forwarding [info] to refinements
@@ -319,16 +305,18 @@ private constructor(
   internal fun concreteSubtypesSameClass(
       type: GroundType,
       table: ClassTable,
+      inhabitedConcreteClasses: Set<Class>,
   ): Sequence<GroundType> {
     if (isForClassType(deps)) {
       return table
           .allSubclasses(getClassForClassType(deps))
           .asSequence()
           .filterNot(Class::abstract)
+          .filter { it in inhabitedConcreteClasses }
           .map { it.classType }
     }
     return concreteSubtypesSameClass(type) { dependency ->
-      table.allConcreteSubtypes(dependency)
+      table.allConcreteSubtypes(dependency, inhabitedConcreteClasses)
     }
   }
 
@@ -377,7 +365,10 @@ private constructor(
   internal fun singleConcreteSubtype(info: TypeInfo, table: ClassTable): DependencySet? {
     if (isForClassType(deps)) {
       val abstractClass = getClassForClassType(deps)
-      val concreteClass = table.allSubclasses(abstractClass).singleOrNull { !it.abstract }
+      val concreteClass =
+          table
+              .allSubclasses(abstractClass)
+              .singleOrNull(table.allInhabitedConcreteClasses()::contains)
       return concreteClass?.let { depsForClassType(it) }
     }
 

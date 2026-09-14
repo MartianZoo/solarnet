@@ -114,12 +114,12 @@ public data class Defaults(
                   if (inherited?.expression == OWNER.expression) {
                     inherited
                   } else {
-                    inherited?.intersect(klass.dependencies.get(key))
+                    inherited?.let { klass.classTable.glb(it, klass.dependencies.get(key)) }
                   }
                 },
                 { deps: List<Dependency> ->
                   deps.reduce { left, right ->
-                    (left intersect right)
+                    klass.classTable.glb(left, right)
                         ?: throw invalidPetDefinition(
                             "${klass.className} inherits incompatible defaults for $key: " +
                                 "$left and $right"

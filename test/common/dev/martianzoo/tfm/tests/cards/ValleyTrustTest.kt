@@ -67,9 +67,9 @@ internal class ValleyTrustTest : CardTest() {
             ),
             retainedStartingProjects = 5,
         )
-    game.classTable.isActive(cn("PreludePhase")) shouldBe true
-    game.classTable.isActive(selectedPrelude) shouldBe true
-    game.classTable.isActive(otherPrelude) shouldBe otherPreludeIsAvailable
+    game.classTable.isInhabited(cn("PreludePhase")) shouldBe true
+    game.classTable.isInhabited(selectedPrelude) shouldBe true
+    game.classTable.isInhabited(otherPrelude) shouldBe otherPreludeIsAvailable
 
     p1.playCorp(ValleyTrust, 5)
     admin.phase("Action")

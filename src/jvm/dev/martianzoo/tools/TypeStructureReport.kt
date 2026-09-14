@@ -51,21 +51,22 @@ private object TypeStructureReport {
   fun render(game: World): String {
     val table = game.classTable
     val catalog = game.reader.catalog
-    val active = table.allClasses().sortedBy { it.className }
+    val included = table.allClasses().sortedBy { it.className }
     val known =
-        (catalog.allClassDeclarations.keys.mapNotNull(table::findClass) + active)
+        (catalog.allClassDeclarations.keys.mapNotNull(table::findClass) + included)
             .distinct()
             .sortedBy { it.className }
-    val phantom = known.filterNot(table::isActive)
-    val concrete = active.filterNot(PetsClass::abstract)
-    val abstract = active.filter(PetsClass::abstract)
+    val inhabited = known.filter(table::isInhabited)
+    val uninhabited = known.filterNot(table::isInhabited)
+    val concrete = included.filterNot(PetsClass::abstract)
+    val abstract = included.filter(PetsClass::abstract)
     val bitBearingSuperclassesUnsorted = known.flatMap(PetsClass::directSuperclasses).distinct()
     val properSubclassCounts = bitBearingSuperclassesUnsorted.associateWith { superclass ->
       known.count { it !== superclass && superclass in it.allSuperclasses() }
     }
     val bitBearingSuperclasses =
         bitBearingSuperclassesUnsorted.sortedWith(
-            compareBy<PetsClass> { !table.isActive(it) }
+            compareBy<PetsClass> { !table.isInhabited(it) }
                 .thenByDescending { properSubclassCounts.getValue(it) }
                 .thenBy(PetsClass::className)
         )
@@ -78,7 +79,7 @@ private object TypeStructureReport {
           wordsFor(it + 1)
         } ?: 0
 
-    val activeCompiledMaskWords = active.map(::compiledMaskWords)
+    val includedCompiledMaskWords = included.map(::compiledMaskWords)
     val knownCompiledMaskWords = known.map(::compiledMaskWords)
     val knownCompiledSetBits =
         known.sumOf { klass -> klass.allSuperclasses().count(superclassBits::containsKey) }.toLong()
@@ -87,24 +88,24 @@ private object TypeStructureReport {
     fun depth(klass: PetsClass): Int =
         depthCache.getOrPut(klass) { klass.directSuperclasses.maxOfOrNull(::depth)?.plus(1) ?: 0 }
 
-    val directEdges = active.sumOf { it.directSuperclasses.size }
-    val ancestorCounts = active.map { it.allSuperclasses().size }
-    val descendantCounts = active.map { table.allSubclasses(it).size }
+    val directEdges = included.sumOf { it.directSuperclasses.size }
+    val ancestorCounts = included.map { it.allSuperclasses().size }
+    val descendantCounts = included.map { table.allSubclasses(it).size }
     val subtypePairs = ancestorCounts.sumOf(Int::toLong)
-    val dependencyCounts = active.map { it.dependencies.keys.size }
-    val declaredDependencyCounts = active.map { it.declaration.dependencies.size }
-    val dependencyPathCounts = active.map { it.dependencies.flatten().size }
-    val dependencyDepths = active.map { typeDepth(it.baseType) }
-    val concreteDescendantCounts = active.map { klass ->
+    val dependencyCounts = included.map { it.dependencies.keys.size }
+    val declaredDependencyCounts = included.map { it.declaration.dependencies.size }
+    val dependencyPathCounts = included.map { it.dependencies.flatten().size }
+    val dependencyDepths = included.map { typeDepth(it.baseType) }
+    val concreteDescendantCounts = included.map { klass ->
       table.allSubclasses(klass).count { !it.abstract }
     }
 
-    val multipleInheritance = active.filter { it.directSuperclasses.size > 1 }
+    val multipleInheritance = included.filter { it.directSuperclasses.size > 1 }
     val emptyAbstract = abstract.filter { klass ->
       table.allSubclasses(klass).none { !it.abstract }
     }
     val equalConcreteExtensions =
-        active
+        included
             .groupBy { klass ->
               table.allSubclasses(klass).filterNot(PetsClass::abstract).map { it.className }.toSet()
             }
@@ -112,7 +113,7 @@ private object TypeStructureReport {
             .filter { it.size > 1 }
 
     val flattenedChoiceProducts = concrete.associateWith { flattenedChoiceProduct(it, table) }
-    val dependencyVariablePaths = dependencyVariablePaths(active, table)
+    val dependencyVariablePaths = dependencyVariablePaths(included, table)
     val concreteTypeCounter = ConcreteTypeCounter(table, dependencyVariablePaths)
     val rootCounts = linkedMapOf<PetsClass, RootCount>()
     val groundMillis = measureTimeMillis {
@@ -126,7 +127,7 @@ private object TypeStructureReport {
     val exactGroundAtomCount = exactGroundCounts.values.fold(BigInteger.ZERO, BigInteger::add)
     val groundWitnesses = rootCounts.values.flatMap(RootCount::samples).distinct()
     val rootDenotationStart = System.nanoTime()
-    val rootDenotationCounts = active.associateWith {
+    val rootDenotationCounts = included.associateWith {
       concreteTypeCounter.countAllConcrete(it.baseType)
     }
     val rootDenotationMillis = (System.nanoTime() - rootDenotationStart) / 1_000_000
@@ -135,9 +136,9 @@ private object TypeStructureReport {
       flattenedChoiceProducts.getValue(klass) != result.count
     }
 
-    val expressionStats = collectPlainObservedTypes(active, table)
+    val expressionStats = collectPlainObservedTypes(included, table)
     val candidateTypes = buildSet {
-      active.forEach { klass ->
+      included.forEach { klass ->
         add(klass.baseType)
         add(klass.defaultType)
       }
@@ -224,36 +225,36 @@ private object TypeStructureReport {
       line("current distinct component types", currentComponentTypes.size)
 
       section("Class universe")
-      line("active classes", active.size)
-      line("active abstract / concrete", "${abstract.size} / ${concrete.size}")
+      line("included classes", included.size)
+      line("included abstract / concrete", "${abstract.size} / ${concrete.size}")
       line("catalog-known classes", known.size)
-      line("phantom classes", phantom.size)
+      line("inhabited / uninhabited classes", "${inhabited.size} / ${uninhabited.size}")
       line("direct inheritance edges", directEdges)
       line("multiple-inheritance classes", multipleInheritance.size)
-      line("maximum direct supertypes", active.maxOf { it.directSuperclasses.size })
+      line("maximum direct supertypes", included.maxOf { it.directSuperclasses.size })
       line("empty abstract classes", emptyAbstract.size)
-      line("inheritance depth", distribution(active.map(::depth)))
+      line("inheritance depth", distribution(included.map(::depth)))
       line("ancestor count (including self)", distribution(ancestorCounts))
       line("descendant count (including self)", distribution(descendantCounts))
       line("concrete-descendant count", distribution(concreteDescendantCounts))
       line("reflexive subtype pairs", subtypePairs)
       line(
           "subtype relation density",
-          percent(subtypePairs, active.size.toLong() * active.size),
+          percent(subtypePairs, included.size.toLong() * included.size),
       )
       line("equal concrete-extension class groups", equalConcreteExtensions.size)
-      appendTop("largest class families", active, { table.allSubclasses(it).size })
-      appendTop("most ancestors", active, { it.allSuperclasses().size })
+      appendTop("largest class families", included, { table.allSubclasses(it).size })
+      appendTop("most ancestors", included, { it.allSuperclasses().size })
 
       section("Class bitmap costs")
-      val activeWords = wordsFor(active.size)
+      val includedWords = wordsFor(included.size)
       val knownWords = wordsFor(known.size)
       line("classes requiring a superclass bit", bitBearingSuperclasses.size)
       line(
-          "active / phantom superclass bits",
-          "${bitBearingSuperclasses.count(table::isActive)} / ${bitBearingSuperclasses.count { !table.isActive(it) }}",
+          "inhabited / uninhabited superclass bits",
+          "${bitBearingSuperclasses.count(table::isInhabited)} / ${bitBearingSuperclasses.count { !table.isInhabited(it) }}",
       )
-      line("compiled active mask words", distribution(activeCompiledMaskWords))
+      line("compiled included mask words", distribution(includedCompiledMaskWords))
       line("compiled known mask words", distribution(knownCompiledMaskWords))
       line(
           "compiled known mask word payload",
@@ -264,14 +265,14 @@ private object TypeStructureReport {
           "compiled known bit density",
           percent(knownCompiledSetBits, known.size.toLong() * bitBearingSuperclasses.size),
       )
-      line("active-class words per fixed bitmap", activeWords)
+      line("included-class words per fixed bitmap", includedWords)
       line(
-          "active ancestor matrix",
-          bytes(active.size.toLong() * activeWords * Long.SIZE_BYTES),
+          "included ancestor matrix",
+          bytes(included.size.toLong() * includedWords * Long.SIZE_BYTES),
       )
       line(
-          "active full relation lower bound",
-          bytes(bitsToBytes(active.size.toLong() * active.size)),
+          "included full relation lower bound",
+          bytes(bitsToBytes(included.size.toLong() * included.size)),
       )
       line("known-class words per fixed bitmap", knownWords)
       line(
@@ -294,8 +295,8 @@ private object TypeStructureReport {
           "dependency-variable groups",
           dependencyVariablePaths.values.sumOf(List<Set<DependencyPath>>::size),
       )
-      appendTop("widest dependency schemas", active, { it.dependencies.keys.size })
-      appendTop("deepest dependency schemas", active, { typeDepth(it.baseType) })
+      appendTop("widest dependency schemas", included, { it.dependencies.keys.size })
+      appendTop("deepest dependency schemas", included, { typeDepth(it.baseType) })
 
       section("Structurally concrete type atoms")
       line("recursively counted concrete roots", rootCounts.size)
@@ -325,7 +326,7 @@ private object TypeStructureReport {
         )
       }
       appendTopBig("largest exact root-type counts", concrete, exactGroundCounts::getValue)
-      appendTopBig("largest nominal-root denotations", active, rootDenotationCounts::getValue)
+      appendTopBig("largest nominal-root denotations", included, rootDenotationCounts::getValue)
       val exactGroundWords = wordsFor(exactGroundAtomCount)
       line("dense-mask words at exact count", integer(exactGroundWords))
       line(
@@ -433,7 +434,7 @@ private object TypeStructureReport {
       )
 
       section("Exact concrete-type counts by nominal root")
-      active.forEach { klass ->
+      included.forEach { klass ->
         appendLine(
             "${klass.className.toString().padEnd(42)} ${integer(rootDenotationCounts.getValue(klass))}"
         )
@@ -528,7 +529,7 @@ private object TypeStructureReport {
               .allSubclasses(type.rootClass)
               .asSequence()
               .filterNot(PetsClass::abstract)
-              .mapNotNull { concreteClass -> type intersect concreteClass.baseType }
+              .mapNotNull { concreteClass -> table.glb(type, concreteClass.baseType) }
               .fold(BigInteger.ZERO) { total, concreteType -> total + countSameClass(concreteType) }
         }
   }

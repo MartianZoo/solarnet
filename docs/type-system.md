@@ -21,23 +21,24 @@ As expected, we *declare* named classes (like `Player1`, `Animal`, or `Ecologica
 A class is abstract or concrete. It can have any number of abstract superclasses. Concrete classes are final, so no class may extend one.
 
 A Catalog has one master Class Table containing every Class it knows. Before a game begins, that
-table is projected into the Class Table for this particular game and then frozen. The projection
-preserves every known Class identity but gives it one of two roles: active or uninhabited. Its
-Active Classes are the ones that might be needed in the game. For any Active Class, we know the
-complete set of its active subclasses.
+table is combined with a small premise Class Table and then frozen. The resulting game view
+preserves every known master Class identity while including only the declaration closure needed by
+that premise. Inclusion is how the view is constructed; inhabitance describes the resulting Types.
+A Type is inhabited when the view contains at least one concrete narrowing of it.
 
 This explains, for example, how we can tell which five milestones are available to be claimed even
-though no `Milestone` Component exists in the Game World until one is claimed: we inspect the Active
-Classes. A milestone Class excluded from this game's pool is still known to the Catalog, but it is
-uninhabited and does not appear among those choices. This also lets Aridor install a listener for
-each active tag Class without introducing tags from expansions that are not in the game.
+though no `Milestone` Component exists in the Game World until one is claimed: we enumerate its
+inhabited concrete Types. A milestone Class excluded from this game's pool is still known to the
+Catalog, but its Type is uninhabited and does not appear among those choices. This also lets Aridor
+install a listener for each inhabited tag Type without introducing tags from expansions that are
+not in the game.
 
-### Uninhabited classes: the jackalope example
+### Uninhabited Types: the jackalope example
 
 Imagine that the master Class Table contains `Jackalope : Rabbit`. A jackalope is not an unknown
 animal: the Catalog understands the name and knows exactly what kind of animal it would be. But
-suppose the premise for one game makes `Jackalope` uninhabited. In that game we know something
-stronger than "we have not seen one yet": there cannot be a Jackalope Component at all.
+suppose the premise for one game leaves the `Jackalope` Type uninhabited. In that game we know
+something stronger than "we have not seen one yet": there cannot be a Jackalope Component at all.
 
 That lets the engine answer several questions exactly:
 
@@ -54,9 +55,11 @@ Jackalope ever appears" is perfectly safe: execution can never reach its body. C
 instruction that actually tries to create an uninhabited Jackalope cannot succeed. Optional and
 AMAP changes to uninhabited Types become zero no-ops; mandatory changes are dead ends.
 
-An Uninhabited Class therefore preserves *meaning* while excluding *inhabitants, behavior, and
-choices*. Whether a reference should activate a Class or leave it uninhabited is
-premise-construction policy, not part of what the resulting Uninhabited Type means.
+This is not limited to excluded concrete Classes. An abstract Type with no concrete narrowing, a
+Type with an uninhabited dependency, and a structural difference that excludes every candidate are
+uninhabited in exactly the same sense. Conversely, an abstract Type such as `Milestone` is inhabited
+when at least one concrete milestone is available. Uninhabited Types preserve nominal meaning while
+excluding inhabitants, behavior, and choices.
 
 ## Types and dependencies
 
@@ -131,7 +134,7 @@ The effects inside a class declaration can use the special class name `This`. It
 
 A class invariant such as `HAS =1 This` constrains every concrete type rooted in that class or its subclasses to exactly one occurrence. It does not create that occurrence. A component that must exist needs an explicit creator, such as the premise, a Module, or another component's instruction.
 
-For example, `Area` has an exact-one invariant. The selected `MarsMap` uses `EACH Class<Area> { Area }` to create every active concrete Area, after which the invariant prevents duplicates or removal.
+For example, `Area` has an exact-one invariant. The selected `MarsMap` uses `EACH Class<Area> { Area }` to create every inhabited concrete Area, after which the invariant prevents duplicates or removal.
 
 ### Class types
 
@@ -141,7 +144,7 @@ The `Class` class is predefined. `Class<Foo>` contains one class name, not a dep
 * Only a single class name can go inside the angle brackets. `Class<Steel>` works but `Class<Steel<Player2>>` does not.
 * Even though the type `Steel` is abstract, and the type `AnythingElse<Steel>` would also be abstract, `Class<Steel>` is considered concrete! After all, it's as concrete as it *can* be.
 
-Class representatives are structural: the Component Graph starts with one for every active concrete Class before event logging begins. If you ask a Game World to count instances of the Type `Class<StandardResource>`, the answer is `6`. (Those are `Class<MC>`, `Class<Titanium>`, etc. You don't get seven, including `Class<StandardResource>` itself, because `Class<StandardResource>` is abstract and therefore cannot be a Component.)
+Class representatives are structural: the Component Graph starts with one for every inhabited concrete Class before event logging begins. If you ask a Game World to count instances of the Type `Class<StandardResource>`, the answer is `6`. (Those are `Class<MC>`, `Class<Titanium>`, etc. You don't get seven, including `Class<StandardResource>` itself, because `Class<StandardResource>` is abstract and therefore cannot be a Component.)
 
 #### What's that good for?
 

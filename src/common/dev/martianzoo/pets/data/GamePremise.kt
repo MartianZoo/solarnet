@@ -29,7 +29,9 @@ public data class GamePremise(
   public val premiseClassTable: PremiseClassTable
     get() = premiseClassTableLazy.value
 
-  /** The immutable active-class projection shared by every World built from this premise. */
+  /**
+   * The immutable premise-selected class-table view shared by every World built from this premise.
+   */
   private val classTableLazy = lazy { ClassTable.forPremise(this) }
   public val classTable: ClassTable
     get() = classTableLazy.value

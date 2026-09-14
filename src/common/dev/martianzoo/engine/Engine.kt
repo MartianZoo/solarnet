@@ -158,8 +158,10 @@ public object Engine {
       }
       premise.initialComponentTypes.forEach { expression ->
         val type = classTable.resolve(expression)
-        require(!type.abstract && classTable.isActive(type) && !type.rootClass.declaration.custom) {
-          "initial component type must be concrete, active, and instantiable: $expression"
+        require(
+            !type.abstract && classTable.isInhabited(type) && !type.rootClass.declaration.custom
+        ) {
+          "initial component type must be concrete, inhabited, and instantiable: $expression"
         }
       }
 
@@ -169,33 +171,34 @@ public object Engine {
               listOfNotNull(premise.bootstrapClassName, premise.premiseClassName) +
               premise.classSelections.filter { it.included }.map { it.className } +
               premise.initialComponentTypes.map { classTable.resolve(it).className }
+      val inhabitedConcreteClasses = classTable.allInhabitedConcreteClasses()
 
-      fun countActiveClasses(count: Count): Int {
+      fun countInhabitedClasses(count: Count): Int {
         if (count.expression.className == CLASS) {
           val representedClass = count.expression.arguments.singleOrNull()
           require(representedClass?.simple == true) {
             "Module Class invariants must name one simple Class: $count"
           }
-          return if (classTable.isActive(representedClass.className)) 1 else 0
+          return if (classTable.isInhabited(representedClass.className)) 1 else 0
         }
         require(count.expression.simple) { "Module invariants must count a simple class: $count" }
-        val type = classTable.findActiveClass(count.expression.className)?.baseType ?: return 0
+        val type = classTable.findInhabitedClass(count.expression.className)?.baseType ?: return 0
         return classTable.allClasses().count { klass ->
-          !klass.abstract &&
+          klass in inhabitedConcreteClasses &&
               klass.baseType.isSubtypeOf(type) &&
               klass.className in initiallyPresentClassNames
         }
       }
 
-      fun evaluateActiveClasses(metric: Metric): Int =
+      fun evaluateInhabitedClasses(metric: Metric): Int =
           metric.evaluate(
-              ::countActiveClasses,
+              ::countInhabitedClasses,
               { property -> error("Module premise metrics cannot read properties: $property") },
               { union -> error("Module premise metrics cannot use OR: $union") },
               { rank -> error("Module premise metrics cannot use RANK: $rank") },
           )
 
-      fun holds(requirement: Requirement): Boolean = requirement.isMetBy(::evaluateActiveClasses)
+      fun holds(requirement: Requirement): Boolean = requirement.isMetBy(::evaluateInhabitedClasses)
 
       premise.modules
           .flatMap { moduleName -> classTable.getClass(moduleName).invariants }

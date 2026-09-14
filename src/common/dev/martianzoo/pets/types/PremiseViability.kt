@@ -14,8 +14,7 @@ import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 /** Exact premise checks whose proofs depend only on uninhabited Types. */
 internal object PremiseViability {
   fun validate(table: ClassTable, selectedClassNames: Set<ClassName>) {
-    val interpreter =
-        InhabitanceInterpreter(classIsUninhabited = { className -> !table.isActive(className) })
+    val interpreter = InhabitanceInterpreter(classIsUninhabited = { !table.isInhabited(it) })
     selectedClassNames.forEach { className ->
       val declaration = table.getClass(className).declaration
       (declaration.properties[REQUIREMENT_PROPERTY] as? RequirementValue)?.let { property ->

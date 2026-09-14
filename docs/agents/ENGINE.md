@@ -420,7 +420,7 @@ onto the progression as follows:
 
 - A declaration retains `authoredEffects` and `authoredActions`. Its executable `effects` also
   include actions converted to effects and may contain Catalog-specific source compilation.
-- `PetElaborator.classEffects` collects inherited effects for an active Class, inserts defaults,
+- `PetElaborator.classEffects` collects inherited effects for an included Class, inserts defaults,
   atomizes, lowers marked syntax, and evaluates properties as far as the Class context permits. A
   class effect may still contain context-relative or event-relative values.
 - `LiveEffect.compile` specializes a class effect to one exact component Type. Apart from the

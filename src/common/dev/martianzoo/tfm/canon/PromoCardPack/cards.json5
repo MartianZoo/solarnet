@@ -72,15 +72,6 @@
           ],
         },
         {
-          "name": "PolderTechDutch",
-          "tags": [ "EarthTag" ],
-          "immediate": "35 MC, RequiredAction { -> OceanTile<> THEN GreeneryTile<LandArea(HAS Neighbor<OceanTile>)> }",
-          "effects": [
-            "OceanTile: Energy",
-            "GreeneryTile: Plant",
-          ],
-        },
-        {
           "name": "Recyclon",
           "tags": [ "MicrobeTag", "BuildingTag" ],
           "immediate": "38 MC, PROD[Steel]",
@@ -95,7 +86,7 @@
             "MicrobeTag<Anyone>: 2 MC"
           ],
           "components": [
-            "CLASS Splicer<SpliceTacticalGenomics> { MicrobeTag<CardFront(NOT ResourceCard)>: 2 MC; MicrobeTag<ResourceCard>: Microbe<ResourceCard> OR 2 MC }"
+            "CLASS Splicer<SpliceTacticalGenomics> { MicrobeTag<CardFront>: Microbe<CardFront> OR 2 MC }"
           ],
         },
         {
@@ -335,12 +326,6 @@
           "tags": [ "PowerTag", "CityTag", "BuildingTag" ],
           "immediate": "PROD[2 MC, Energy], 3 Plant, CityTile<>",
         },
-        {
-          "name": "FloydContinuum",
-          "cost": 4,
-          "tags": [ "ScienceTag" ],
-          "actions": [ "-> 3 MC / GpComplete" ]
-      },
         {
           "name": "GreatDamPromo",
           "requirement": "4 OceanTile",

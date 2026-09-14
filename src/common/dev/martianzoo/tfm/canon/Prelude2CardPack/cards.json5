@@ -256,7 +256,7 @@
           "name": "VenusShuttles",
           "cost": 9,
           "tags": [ "VenusTag" ],
-          "immediate": "2 Floater<ResourceCard(HAS VenusTag)>",
+          "immediate": "2 Floater<CardFront(HAS VenusTag)>",
           "actions": [
             "1 MC / (12 - VenusTag) -> VenusStep",
           ],

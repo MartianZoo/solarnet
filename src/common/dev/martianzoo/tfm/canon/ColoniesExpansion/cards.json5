@@ -181,7 +181,7 @@
           "cost": 9,
           "tags": [ "JovianTag" ],
           "actions": [
-            "-> Floater<ResourceCard(HAS JovianTag)>",
+            "-> Floater<CardFront(HAS JovianTag)>",
             "-> 1 MC / Floater<This> MAX 4"
           ],
           "effects": [ "End: VictoryPoint" ],
@@ -245,7 +245,7 @@
           "name": "NitrogenFromTitan",
           "cost": 25,
           "tags": [ "JovianTag", "SpaceTag" ],
-          "immediate": "2 TerraformRating, 2 Floater<ResourceCard(HAS JovianTag)>",
+          "immediate": "2 TerraformRating, 2 Floater<CardFront(HAS JovianTag)>",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -369,9 +369,9 @@
           "name": "TitanFloatingLaunchPad",
           "cost": 18,
           "tags": [ "JovianTag" ],
-          "immediate": "2 Floater<ResourceCard(HAS JovianTag)>",
+          "immediate": "2 Floater<CardFront(HAS JovianTag)>",
           "actions": [
-            "-> Floater<ResourceCard(HAS JovianTag)>",
+            "-> Floater<CardFront(HAS JovianTag)>",
             "Floater<This> -> Trade"
           ],
           "effects": [ "End: VictoryPoint" ],
@@ -381,7 +381,7 @@
           "cost": 23,
           "tags": [ "JovianTag", "SpaceTag" ],
           "actions": [
-            "-> 2 Floater<ResourceCard(HAS JovianTag)>",
+            "-> 2 Floater<CardFront(HAS JovianTag)>",
             "X Floater<This> -> X Titanium",
           ],
           "effects": [ "End: VictoryPoint" ],
