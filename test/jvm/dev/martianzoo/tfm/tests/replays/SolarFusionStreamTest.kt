@@ -40,9 +40,9 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
 
     admin.assertCounts(1 to "Generation")
 
-    // Player-record evidence: JR rejected Teractor and PolderTECH Dutch; UNMI Contractor and
-    // Acquired Space Agency; Crash Site Cleanup, Outdoor Sports, Interstellar Colony Ship,
-    // Tropical Resort, Physics Complex, and Weather Balloons.
+    // Player-record evidence: JR rejected Teractor and one unsupported corporation; UNMI
+    // Contractor and Acquired Space Agency; Crash Site Cleanup, Outdoor Sports, Interstellar Colony
+    // Ship, Tropical Resort, Physics Complex, and Weather Balloons.
     JR.playCorp(TharsisRepublic) {
       JR.buyCards(MethaneFromTitan, TechnologyDemonstration, FueledGenerators, LavaTubeSettlement)
     }

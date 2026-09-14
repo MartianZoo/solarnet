@@ -588,8 +588,8 @@ nested pairs. Every stage before the last must be a single instruction: a group 
 on the left is rejected, because "before" needs one identifiable change to be before. What waiting
 means for pending work is `SEQUENCING.md`'s subject.
 
-> **Non-normative example — Polder Tech Dutch.** Its required action places an ocean and then a
-> greenery adjacent to an ocean. `THEN` ensures the new ocean exists before the greenery's legal-area
+> **Non-normative example — solo neutral tiles.** Each placement pairs a city with a subsequent
+> greenery adjacent to a city. `THEN` ensures the new city exists before the greenery's legal-area
 > query is settled; a comma would let the second choice be evaluated against the old board.
 
 **L6-10. `EACH Selector { body }` quantifies over one state.** It denotes one independent branch of
