@@ -12,6 +12,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
@@ -47,34 +48,27 @@ internal class CanonClassesTest {
   }
 
   @Test
-  internal fun activeOwnedTileKindsInBroadCombinedGameExtendOwnedTile() {
-    // Landlord counts `OwnedTile`, so a class that is both a `Tile` and `Owned` but forgets to
-    // extend it would look structurally right and silently escape the award. Pets has no structural
-    // conjunction to state that directly yet (see TODO.md), so this broad active projection checks
-    // the nominal class until every legal configuration family can be covered systematically.
-    val table =
-        Engine.newGame(
-                canonicalPremise(
-                    CorporateEraExpansion,
-                    Cimmeria,
-                    VenusNextExpansion,
-                    Prelude2Expansion,
-                    ColoniesExpansion,
-                    TurmoilExpansion,
-                    PromoCardPack,
-                    colonyTiles = testColonyTiles(players = 2),
-                )
-            )
-            .classTable
-    val tile = table.getClass(cn("Tile"))
-    val owned = table.getClass(cn("Owned"))
-    val ownedTile = table.getClass(cn("OwnedTile"))
+  internal fun namedIntersectionsCoverEveryMatchingCanonClass() {
+    val table = Canon.classTable
 
-    table
-        .allClasses()
-        .filter { it.isSubtypeOf(tile) && it.isSubtypeOf(owned) && !it.isSubtypeOf(ownedTile) }
-        .map { "$it" }
-        .shouldBeEmpty()
+    fun assertNamedIntersection(name: String, vararg intersectedNames: String) {
+      val intersection = table.getClass(cn(name))
+      val intersected = intersectedNames.map { table.getClass(cn(it)) }
+      withClue("$name must cover ${intersectedNames.joinToString(" and ")}") {
+        table
+            .allClasses()
+            .filter { candidate ->
+              intersected.all(candidate::isSubtypeOf) && !candidate.isSubtypeOf(intersection)
+            }
+            .map { "$it" }
+            .shouldBeEmpty()
+      }
+    }
+
+    assertNamedIntersection("OwnedOccupant", "Owned", "Occupant")
+    assertNamedIntersection("OwnedTile", "Owned", "Tile")
+    assertNamedIntersection("ResourceCard", "ResourceHolder", "CardFront")
+    assertNamedIntersection("TemporaryScope", "Temporary", "Scope")
   }
 
   @Test

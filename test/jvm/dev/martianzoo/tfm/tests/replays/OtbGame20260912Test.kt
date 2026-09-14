@@ -13,7 +13,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       GameConfig(
           """
           VastitasMap
-          VenusNextExpansion, PreludeExpansion, Prelude2Expansion, TurmoilExpansion, PromoCardPack
+          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack
           FakeStuffBundle
 
           Farmer, Generalist, Lobbyist, Philantropist, Producer
@@ -69,7 +69,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // every tableau photo place it in Head Start's first action. The newer transcript restores
       // the second: "Let's just use my free delegate thingy ... put it in Scientists."
       playPrelude(FakeHeadStart) {
-        playProject(SfMemorial, 3, steel = 2)
+        useStdAction("PlayCardFromHandAction", payment = {}) {
+          this.playProject(SfMemorial, 3, steel = 2)
+        }
         useStdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
       }
     }

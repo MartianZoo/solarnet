@@ -55,9 +55,10 @@
   every normalization applied to a task on the way in.
 - [`SystemDeclarations.kt`](../../src/common/dev/martianzoo/pets/SystemDeclarations.kt) — search for
   `MustCleanUp`, `Temporary`, `Barrier`, `Signal`.
-- [Terraforming Mars `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
+- [Terraforming Mars `card-model.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets)
+  and [`payment.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets)
   — `CLASS PlayCard` and `ABSTRACT CLASS Billing` for the card-play and payment latches.
-- [Colonies `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/classes.pets)
+- [Colonies `colonies.pets`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/colonies.pets)
   — `CLASS Trade<ColonyTile>` for the counted-prerequisite latch.
 - Tests: [`ActionSequencingTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/ActionSequencingTest.kt),
   [`AutomaticEffectOrderTest.kt`](../../test/common/dev/martianzoo/engine/AutomaticEffectOrderTest.kt),
@@ -504,7 +505,7 @@ constraint, a real case — not by rediscovering the cost.
   `Task.normalizeForTask` normalization form a coherent bridge, and `PremiseViability` earns its
   separate static check by rejecting a bad premise during setup. The selected class-universe model
   in [CLASS_TABLES.md](CLASS_TABLES.md#die-and-ok) should eventually make `Die` an intentionally
-  unrealized abstract Type and make impossible changes follow that ordinary rule. Whatever the
+  uninhabited abstract Type and make impossible changes follow that ordinary rule. Whatever the
   representation, a completed universe must admit no realizable subtype of `Die`, and source must
   admit no `Ok:` trigger: `Ok` produces no change event for such an effect to observe.
 
@@ -533,4 +534,4 @@ unanswered community post.
 Phase and turn precedence: [WORKFLOW.md](WORKFLOW.md). Current task lifecycle, selection, and
 execution: [ENGINE.md](ENGINE.md). Agent policies and the autoexecution loop:
 [AUTOEXEC.md](AUTOEXEC.md). Delegated narrowing and controllers: [IDENTITY.md](IDENTITY.md). Action
-costs and invoices: [ACTIONS.md](ACTIONS.md). Payment evidence: [PAYMENTS.md](PAYMENTS.md).
+costs and billing: [ACTIONS.md](ACTIONS.md). Payment evidence: [PAYMENTS.md](PAYMENTS.md).

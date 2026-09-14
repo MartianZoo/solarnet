@@ -1,10 +1,15 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.engine.Engine
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.tests.TestOption.FakeStuffBundle
 import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.cards.CardTest
 import dev.martianzoo.tfm.tests.cards.cardnames.FakeBannedDelegate
 import dev.martianzoo.tfm.tests.cards.cardnames.Recruitment
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -111,5 +116,15 @@ internal class BugsTest : CardTest() {
     p1.count("LobbyActionAvailable") shouldBe 0
     p1.count("PartyDelegate OR Chairman") shouldBe 7
     p1.count("PartyDelegate") shouldBe 7
+  }
+
+  @Test
+  internal fun `SecondPlace incorrectly remains active with only two players`() {
+    val twoPlayers = Engine.newGame(Canon.gamePremise(GameConfig("", "Player1", "Player2")))
+    val threePlayers =
+        Engine.newGame(Canon.gamePremise(GameConfig("", "Player1", "Player2", "Player3")))
+
+    twoPlayers.classTable.allClassNames.shouldContain(cn("SecondPlace"))
+    threePlayers.classTable.allClassNames.shouldContain(cn("SecondPlace"))
   }
 }

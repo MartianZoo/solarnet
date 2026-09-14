@@ -44,7 +44,7 @@ product, including goals reprinted from another product.
 | Promos through 2026-08 | Prelude | Established Methods (`X54`) | (investigate) |
 | Promos through 2026-08 | Prelude | Head Start | Immediate-action sequencing |
 
-The Fakes above require FakeCanon and `FakeStuffBundle`; they are not included in the canonical
+The two Fakes above require FakeCanon and `FakeStuffBundle`; they are not included in the canonical
 support totals or the shared Heroku card settings. `FakePreservationProgram` loses one TR after its
 owner's first TR gain in each generation's action phase. `FakeThawer` counts successful
 player-attributed temperature increases and can be selected explicitly as a milestone.

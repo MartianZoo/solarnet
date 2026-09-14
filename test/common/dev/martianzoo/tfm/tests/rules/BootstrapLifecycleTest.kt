@@ -65,7 +65,7 @@ internal class BootstrapLifecycleTest {
             Scenario(emptyList(), players = 1, map = Tharsis),
             Scenario(listOf(Hellas, PreludeExpansion), players = 2, map = Hellas),
             Scenario(
-                listOf(Amazonis, VenusNextExpansion, Prelude2Expansion),
+                listOf(Amazonis, VenusNextExpansion, PreludeExpansion, Prelude2CardPack),
                 players = 3,
                 map = Amazonis,
             ),

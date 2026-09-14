@@ -96,12 +96,12 @@ internal class Spec04ClassLiteralsTest {
 
   @Test
   internal fun `T4-5 glb of class literals follows the class hierarchy`() {
-    (type("Class<Metal>") glb type("Class<Steel>")) shouldBe type("Class<Steel>")
+    table.glb(type("Class<Metal>"), type("Class<Steel>")) shouldBe type("Class<Steel>")
   }
 
   @Test
   internal fun `T4-5 glb of literals for disjoint classes is absent`() {
-    (type("Class<Steel>") glb type("Class<Plant>")) shouldBe null
+    table.glb(type("Class<Steel>"), type("Class<Plant>")) shouldBe null
   }
 
   // T4-6 The operand must be one bare class name
@@ -165,7 +165,7 @@ internal class Spec04ClassLiteralsTest {
   // T4-8 Enumeration
 
   @Test
-  internal fun `T4-8 every concrete class has exactly one literal`() {
+  internal fun `T4-8 enumeration has one literal per concrete Class with an inhabited base Type`() {
     type("Class<Metal>").allConcreteSubtypes().map { "$it" }.toList() shouldContainExactly
         listOf("Class<Steel>", "Class<Titanium>")
     type("Class<Steel>").allConcreteSubtypes().map { "$it" }.toList() shouldContainExactly
@@ -175,7 +175,7 @@ internal class Spec04ClassLiteralsTest {
   }
 
   @Test
-  internal fun `T4-8 a literal for a class with no concrete subclass enumerates nothing`() {
+  internal fun `T4-8 a literal with no inhabited concrete subclass enumerates nothing`() {
     val empty = loadTypes("ABSTRACT CLASS Award")
 
     empty.resolve(te("Class<Award>")).allConcreteSubtypes().toList().shouldBeEmpty()

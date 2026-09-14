@@ -66,7 +66,7 @@ internal class TfmActionCommandTest {
   }
 
   @Test
-  internal fun `tfm action binds a variable invoice cost`() {
+  internal fun `tfm action binds a variable billing cost`() {
     val repl = actionGame("PowerInfrastructure, 5 Energy")
 
     val output = repl.command("tfm_action PowerInfrastructure 1, 5 Energy")
@@ -81,7 +81,7 @@ internal class TfmActionCommandTest {
   }
 
   @Test
-  internal fun `tfm action binds a multiplied variable invoice cost`() {
+  internal fun `tfm action binds a multiplied variable billing cost`() {
     val repl = actionGame("EnergyMarket, 6 MC", "BRPX")
 
     val output = repl.command("tfm_action EnergyMarket 1, 6 MC")
@@ -96,7 +96,7 @@ internal class TfmActionCommandTest {
   }
 
   @Test
-  internal fun `tfm action pays a fixed invoice cost`() {
+  internal fun `tfm action pays a fixed billing cost`() {
     val repl = actionGame("DevelopmentCenter, Energy")
 
     val output = repl.command("tfm_action DevelopmentCenter 1, 1 Energy")
@@ -111,7 +111,7 @@ internal class TfmActionCommandTest {
   }
 
   @Test
-  internal fun `tfm action rolls back when invoice payment uses the wrong resource`() {
+  internal fun `tfm action rolls back when billing payment uses the wrong resource`() {
     val repl = actionGame("PROD[Energy], ElectroCatapult, Plant, Energy")
 
     val output = repl.command("tfm_action ElectroCatapult 1, 1 Energy")

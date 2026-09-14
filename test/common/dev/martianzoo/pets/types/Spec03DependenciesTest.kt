@@ -305,9 +305,11 @@ internal class Spec03DependenciesTest {
   internal fun `T3-8 shared variables are narrowed before a difference is tested`() {
     val cards = equalityCards()
 
-    (cards.resolve(te("Card<Player1>")) glb cards.resolve(te("Card<Player2>"))) shouldBe null
-    (cards.resolve(te("Card<Player1>")) glb cards.resolve(te("Card(NOT Card<Player2>)"))) shouldBe
-        cards.resolve(te("Card<Player1>"))
+    cards.glb(cards.resolve(te("Card<Player1>")), cards.resolve(te("Card<Player2>"))) shouldBe null
+    cards.glb(
+        cards.resolve(te("Card<Player1>")),
+        cards.resolve(te("Card(NOT Card<Player2>)")),
+    ) shouldBe cards.resolve(te("Card<Player1>"))
     cards.resolve(te("Linked<Player1, Card(NOT Card<Player2>)>")) shouldBe
         cards.resolve(te("Linked<Player1>"))
     cards.resolve(te("Linked<Player1, Owned(NOT Card)>")).abstract shouldBe true

@@ -16,7 +16,7 @@ import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.TestOption.Elysium
 import dev.martianzoo.tfm.tests.TestOption.Hellas
 import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
-import dev.martianzoo.tfm.tests.TestOption.Prelude2Expansion
+import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.TestOption.Tharsis
 import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
@@ -45,7 +45,7 @@ internal class CanonAdmissibilityTest {
     maps.forEach { (option, mapClass) ->
       val world = Engine.newGame(canonicalPremise(option))
 
-      world.classTable.isActive(cn(mapClass)) shouldBe true
+      world.classTable.isInhabited(cn(mapClass)) shouldBe true
       world.actors.shouldContainExactly(PLAYER1, PLAYER2, ADMIN)
       world.isIdle() shouldBe true
     }
@@ -59,7 +59,8 @@ internal class CanonAdmissibilityTest {
             CorporateEraExpansion,
             Cimmeria,
             VenusNextExpansion,
-            Prelude2Expansion,
+            PreludeExpansion,
+            Prelude2CardPack,
             ColoniesExpansion,
             TurmoilExpansion,
             PromoCardPack,
@@ -68,10 +69,9 @@ internal class CanonAdmissibilityTest {
 
     val world = Engine.newGame(canonicalPremise(*selected, colonyTiles = colonies))
 
-    selected.forEach { world.classTable.isActive(it.className) shouldBe true }
-    world.classTable.isActive(Prelude2CardPack.className) shouldBe true
-    colonies.forEach { world.classTable.isActive(it) shouldBe true }
-    world.classTable.isActive(cn("CimmeriaMap")) shouldBe true
+    selected.forEach { world.classTable.isInhabited(it.className) shouldBe true }
+    colonies.forEach { world.classTable.isInhabited(it) shouldBe true }
+    world.classTable.isInhabited(cn("CimmeriaMap")) shouldBe true
     world.isIdle() shouldBe true
   }
 }

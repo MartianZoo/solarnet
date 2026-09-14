@@ -19,7 +19,7 @@ internal class AdditionalGoalsTest : CardTest() {
     shouldThrow<RequirementException> { p1.claimMilestone(cn("Terraformer26")) }
     p1.runOperation("TerraformRating")
     p1.claimMilestone(cn("Terraformer26")).expect("-8 MC, Terraformer26")
-    game.classTable.isActive(cn("Terraformer35")) shouldBe true
+    game.classTable.isInhabited(cn("Terraformer35")) shouldBe true
   }
 
   @Test

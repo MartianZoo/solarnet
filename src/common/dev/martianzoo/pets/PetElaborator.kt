@@ -160,7 +160,7 @@ public class PetElaborator(public val classTable: ClassTable) {
    * an exact component later.
    */
   public fun classEffects(klass: Class): List<Effect> {
-    require(classTable.isActive(klass)) { "$klass is not active in this game" }
+    require(classTable.isIncluded(klass)) { "$klass is not included in this game" }
     return effectsByClass.getOrPut(klass) {
       fun directClassEffects(source: Class) =
           source.declaration.effects.map { effect ->
@@ -700,7 +700,7 @@ public class PetElaborator(public val classTable: ClassTable) {
 
     val klass: Class = classTable.getClass(original.className)
     val dethissed: Expression = replaceThisExpressionsWith(contextCpt).transformExpression(original)
-    val match: DependencySet = klass.dependencies.matchPartial(dethissed.arguments)
+    val match: DependencySet = klass.dependencies.matchPartial(dethissed.arguments, classTable)
 
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
     val refinementBoundKey =
@@ -710,7 +710,7 @@ public class PetElaborator(public val classTable: ClassTable) {
           val candidate =
               replaceThisExpressionsWith(contextCpt).transformExpression(refinementCandidate)
           try {
-            klass.matchDependencyKeys(listOf(candidate)).single()
+            klass.matchDependencyKeys(listOf(candidate), classTable).single()
           } catch (_: ExpressionException) {
             null
           }
@@ -725,7 +725,8 @@ public class PetElaborator(public val classTable: ClassTable) {
             .associate {
               it.key to it.expression
             }
-    val inferred = klass.specialize(dethissed.arguments).narrowedDependencies.keys - preferred.keys
+    val inferred =
+        klass.specialize(dethissed.arguments, classTable).narrowedDependencies.keys - preferred.keys
 
     val newArgs: List<Expression> =
         klass.dependencies.keys.mapNotNull {
@@ -765,10 +766,11 @@ public class PetElaborator(public val classTable: ClassTable) {
     val scope = effect.typeVariables
     val bindings = specific.variableBindingsFrom(general, scope.variables)
     val contextualScope = scope.transformedBy(contextualizer)
+    val binder = contextualScope.bind(bindings, classTable)
     return chain(
             contextualizer,
-            contextualScope.bind(bindings),
-            invalidChangesToDie(),
+            binder,
+            invalidChangesToDie { contextualScope.transformedBy(binder) },
         )
         .transformEffect(effect)
   }
@@ -785,34 +787,49 @@ public class PetElaborator(public val classTable: ClassTable) {
       owner: HasClassName? = null,
   ): PetTransformer {
     val bindings =
-        typeVariables.bindingsFrom(authoredGeneral, general.groundType, specific.groundType)
+        typeVariables.bindingsFrom(
+            authoredGeneral,
+            general.groundType,
+            specific.groundType,
+            classTable,
+        )
     val contextualizer = chain(owner?.let(::contextualOwnerBinding))
     val contextualScope = typeVariables.transformedBy(contextualizer)
+    val binder = contextualScope.bind(bindings, classTable)
     return chain(
         contextualizer,
-        contextualScope.bind(bindings),
-        invalidChangesToDie(),
+        binder,
+        invalidChangesToDie { contextualScope.transformedBy(binder) },
     )
   }
 
   /**
    * Rule L12-14: a change to a type this game cannot hold becomes `Die` or `Ok`. An invalid
-   * post-specialization type becomes `Die`. A resolved but inactive type becomes `Die` when the
+   * post-specialization type becomes `Die`. A resolved but uninhabited type becomes `Die` when the
    * change is mandatory and `Ok` when it permits zero.
    */
-  private fun invalidChangesToDie(): PetTransformer {
+  private fun invalidChangesToDie(openVariables: () -> TypeVariableScope): PetTransformer {
     return object : PetTransformer() {
+      private val remainingVariables by lazy(LazyThreadSafetyMode.NONE, openVariables)
+
       override fun transformNode(node: PetNode): PetNode {
         val specialized = transformChildren(node)
         if (specialized !is Change) return specialized
 
         try {
-          val types =
-              listOfNotNull(
-                  specialized.gaining?.let(classTable::resolve),
-                  specialized.removing?.let(classTable::resolve),
-              )
-          if (types.any { !classTable.isActive(it) }) {
+          val expressions = listOfNotNull(specialized.gaining, specialized.removing)
+          if (
+              !remainingVariables.isEmpty &&
+                  expressions.any { expression ->
+                    expression.descendantsOfType<Expression>().any {
+                      remainingVariables.variableAt(it) != null
+                    }
+                  }
+          ) {
+            return specialized
+          }
+          val types = expressions.map(classTable::resolve)
+          if (types.any { !classTable.isInhabited(it) }) {
             return if (specialized.quantifier == MANDATORY) {
               gain(DIE)
             } else {

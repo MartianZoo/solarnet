@@ -11,7 +11,7 @@ public class OtbGame20260825 : RecordedGame() {
       GameConfig(
           """
           CimmeriaMap
-          VenusNextExpansion, PreludeExpansion, Prelude2Expansion, PromoCardPack, TerraLabsResearch
+          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, PromoCardPack, TurmoilCardPack
           FakeStuffBundle
 
           Energizer, Farmer, Philantropist, Producer, RimSettler, Hoverlord
@@ -28,7 +28,7 @@ public class OtbGame20260825 : RecordedGame() {
     green.doTask("Ok")
     yellow.doTask("-5 ProjectCard<Hand>")
 
-    green.playCorp(TerraLabsResearch, 10)
+    green.playCorp(TerralabsResearch, 10)
 
     yellow.playCorp(Viron, 5)
 

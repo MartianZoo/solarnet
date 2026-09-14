@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -16,7 +17,9 @@ internal class BugsTest : CardTest() {
     admin.phase("Prelude")
     p1.runOperation("9 MC, ProjectCard, PreludeCard")
 
-    p1.playPrelude(EcologyExperts) { p1.playProject(ViralEnhancers, 9) }
+    with(p1) {
+      playPrelude(EcologyExperts) { playProject(ViralEnhancers, 9) }
+    }
 
     p1.assertCounts(1 to "Plant")
   }
@@ -27,7 +30,11 @@ internal class BugsTest : CardTest() {
     admin.phase("Prelude")
     p1.runOperation("12 MC, ProjectCard, PreludeCard, GreeneryTile<Tharsis_4_4>")
 
-    p1.playPrelude(EcologyExperts) { p1.playProject(EcologicalZone, 12) { placeTile(4, 5) } }
+    with(p1) {
+      playPrelude(EcologyExperts) {
+        playProject(EcologicalZone, 12) { placeTile(4, 5) }
+      }
+    }
 
     p1.assertCounts(2 to "Animal<$EcologicalZone>")
   }
@@ -69,6 +76,39 @@ internal class BugsTest : CardTest() {
       doTask("18 Pay<Class<MC>> FROM MC")
       placeTile(5, 5)
     }
+  }
+
+  @Test
+  internal fun `Fake Preservation Program incorrectly enables UNMI after reversing its TR gain`() {
+    newGame(PreludeExpansion, Prelude2CardPack, FakeStuffBundle)
+    p1.phase("Prelude")
+    p1.runOperation("$UnitedNationsMarsInitiative, FakePreservationProgram")
+    admin.phase("Action")
+
+    // The printed Preservation Program prevents this gain, so it should not satisfy UNMI's gate.
+    p1.runOperation("TerraformRating").expect("0 TerraformRating")
+    p1.cardAction1(UnitedNationsMarsInitiative).expect("-3 MC, TerraformRating")
+  }
+
+  @Test
+  internal fun `Fake Preservation Program incorrectly triggers Terraforming Deal on reversed TR`() {
+    newGame(PreludeExpansion, Prelude2CardPack, FakeStuffBundle)
+    p1.phase("Prelude")
+    p1.runOperation("FakePreservationProgram, TerraformingDeal")
+    admin.phase("Action")
+
+    // The printed Preservation Program prevents the gain, and therefore this rebate.
+    p1.runOperation("TerraformRating").expect("0 TerraformRating, 2 MC")
+  }
+
+  @Test
+  internal fun `Fake Thawer incorrectly retains credits after temperature reductions`() {
+    newGame(GameConfig("FakeStuffBundle, FakeThawer, Builder, Engineer", "Player1", "Player2"))
+    p1.runOperation("8 MC, 5 TemperatureStep")
+    admin.runOperation("-TemperatureStep")
+    admin.phase("Action")
+    // Unlike markers on the printed track, these credits cannot identify the removed step.
+    p1.claimMilestone(cn("FakeThawer")).expect("-8 MC, FakeThawer")
   }
 
   @Test

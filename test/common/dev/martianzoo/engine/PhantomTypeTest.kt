@@ -6,6 +6,7 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
@@ -17,15 +18,15 @@ internal class PhantomTypeTest {
   private fun agent() = Engine.newGame(canonicalPremise()).testAgent(ADMIN)
 
   @Test
-  internal fun `inactive types and their class literals count zero`() {
+  internal fun `uninhabited types and their class literals count zero`() {
     val game = Engine.newGame(canonicalPremise())
     val agent = game.testAgent(ADMIN)
     val venusTag = agent.resolve("VenusTag")
 
     agent.count("VenusTag") shouldBe 0
     agent.count("Class<VenusTag>") shouldBe 0
-    game.classTable.isActive(venusTag) shouldBe false
-    game.classTable.isActive(agent.resolve("Class<VenusTag>")) shouldBe false
+    game.classTable.isInhabited(venusTag) shouldBe false
+    game.classTable.isInhabited(agent.resolve("Class<VenusTag>")) shouldBe false
     game.reader.count(venusTag) shouldBe 0
     game.reader.countComponent(venusTag) shouldBe 0
     game.reader.getComponents(venusTag).isEmpty() shouldBe true
@@ -37,6 +38,24 @@ internal class PhantomTypeTest {
 
     shouldThrow<ExpressionException> { agent.count("Typo") }
     shouldThrow<ExpressionException> { agent.count("Class<Typo>") }
+  }
+
+  @Test
+  internal fun `an included abstract Class without a concrete narrowing is uninhabited`() {
+    val game =
+        Engine.newGame(
+            testGamePremise("ABSTRACT CLASS Empty\nCLASS Holder<Empty>\nCLASS Live", players = 1)
+        )
+    val agent = game.testAgent(PLAYER1)
+
+    game.classTable.isInhabited(cn("Empty")) shouldBe false
+    game.classTable.isInhabited(cn("Holder")) shouldBe false
+    game.classTable.isInhabited(cn("Live")) shouldBe true
+    agent.count("Empty") shouldBe 0
+    agent.count("Class<Empty>") shouldBe 0
+    agent.count("Class<Holder>") shouldBe 0
+    agent.count("Class<Live>") shouldBe 1
+    shouldThrow<DeadEndException> { agent.runOperation("Empty!") }
   }
 
   @Test

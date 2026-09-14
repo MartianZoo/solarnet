@@ -50,12 +50,7 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
    */
   public fun isSupertypeOf(that: Dependency): Boolean = that.isSubtypeOf(this)
 
-  /**
-   * Returns the greatest lower bound with [that], or null when absent, by componentwise bound
-   * intersection ([rule
-   * T7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds)).
-   */
-  public abstract infix fun glb(that: Dependency): Dependency?
+  internal abstract fun glb(that: Dependency, classTable: ClassTable): Dependency?
 
   /**
    * The stable identity of a dependency: the class that introduced it and its zero-based slot in
@@ -99,7 +94,10 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
    */
   public abstract override fun narrows(that: Dependency, info: TypeInfo): Boolean
 
-  internal abstract fun intersect(expression: Expression): Dependency?
+  internal abstract fun intersect(
+      expression: Expression,
+      classTable: ClassTable,
+  ): Dependency?
 
   /**
    * An ordinary component-targeting dependency whose [boundType] identifies the possible target
@@ -162,16 +160,16 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
      * Intersects [boundType] with [that]'s bound, following
      * [rule T7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds).
      */
-    override fun glb(that: Dependency): Dependency? {
+    override fun glb(that: Dependency, classTable: ClassTable): Dependency? {
       if (that !is TypeDependency) return null
-      return (boundType glb boundOf(that))?.let { copy(boundType = it) }
+      return classTable.glb(boundType, boundOf(that))?.let { copy(boundType = it) }
     }
 
     internal inline fun map(function: (GroundType) -> GroundType) =
         copy(boundType = function(boundType))
 
-    override fun intersect(expression: Expression): Dependency? {
-      return glb(copy(boundType = boundType.classTable.resolve(expression)))
+    override fun intersect(expression: Expression, classTable: ClassTable): Dependency? {
+      return classTable.glb(this, copy(boundType = classTable.resolve(expression)))
     }
 
     /**
@@ -219,9 +217,9 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
 
     override fun isSubtypeOf(that: Dependency) = boundClass.isSubtypeOf(boundOf(that))
 
-    override fun glb(that: Dependency): FakeDependency? {
+    override fun glb(that: Dependency, classTable: ClassTable): FakeDependency? {
       if (that !is FakeDependency) return null
-      return (boundClass glb boundOf(that))?.let(::copy)
+      return classTable.glb(boundClass, boundOf(that))?.let(::copy)
     }
 
     override fun ensureNarrows(that: Dependency, info: TypeInfo) =
@@ -232,26 +230,34 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
     private fun boundOf(that: Dependency): Class =
         (that as FakeDependency).boundClass.also { require(key == that.key) }
 
-    override fun intersect(expression: Expression): FakeDependency? {
+    override fun intersect(
+        expression: Expression,
+        classTable: ClassTable,
+    ): FakeDependency? {
       if (!expression.simple) return null
-      val klass = boundClass.classTable.getClass(expression.className)
-      return glb(FakeDependency(klass))
+      val klass = classTable.getClass(expression.className)
+      return glb(FakeDependency(klass), classTable)
     }
   }
 
   internal companion object {
     // Note these don't really belong here; they're just here so that FakeDependency can be private
 
-    internal fun validate(deps: List<Dependency>) {
+    internal fun validate(deps: List<Dependency>): ClassTable? {
       deps.indices.forEach { index ->
         for (previous in 0 until index) {
           require(deps[index].key != deps[previous].key) { "duplicate dependency keys: $deps" }
         }
       }
       require(deps.none { it is FakeDependency } || deps.single() is FakeDependency)
-      val classTable = deps.firstOrNull()?.boundClass?.classTable
-      require(deps.all { it.boundClass.classTable === classTable }) {
-        "dependencies belong to different class tables"
+      return deps.fold<Dependency, ClassTable?>(null) { table, dependency ->
+        val incoming =
+            if (dependency is TypeDependency) dependency.boundType.classTable
+            else dependency.boundClass.classTable
+        table?.commonTable(incoming)
+            ?: incoming.also {
+              require(table == null) { "dependencies belong to different class tables" }
+            }
       }
     }
 

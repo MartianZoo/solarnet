@@ -105,8 +105,8 @@ selection from a pool; Quick Start goal variants use complementary Module-count 
 Canon derives goal names, pool membership, selection requirements, and compatibility directly from
 those declarations; there are no parallel goal metadata objects.
 
-Canonical card classes are loaded from each bundle's authored `cards.pets` alongside
-`classes.pets`. A loaded card declaration retains authored actions and authored effects while its
+Canonical card classes are loaded from each bundle's generated `cards.pets` alongside its other
+authored `.pets` sources. A loaded card declaration retains authored actions and authored effects while its
 `effects` contain any follow-mode compilation needed for activation and execution. Ordinary card
 location movements require no compilation; the remaining `CARDS[...]` zones delegate
 printed-face predicates to the client.
@@ -258,7 +258,7 @@ may still be observable one change at a time.
 
 Task iteration is stable for reproducibility, but order has no game meaning. A task has:
 
-- stable `TaskId`, derived from its original add-event ordinal;
+- stable `TaskId` value wrapper, derived from its original add-event ordinal;
 - one task-shaped `Instruction`;
 - `controller`, which owns the surrounding operation and receives resulting work;
 - `assignee`, who may select and narrow it;
@@ -420,7 +420,7 @@ onto the progression as follows:
 
 - A declaration retains `authoredEffects` and `authoredActions`. Its executable `effects` also
   include actions converted to effects and may contain Catalog-specific source compilation.
-- `PetElaborator.classEffects` collects inherited effects for an active Class, inserts defaults,
+- `PetElaborator.classEffects` collects inherited effects for an included Class, inserts defaults,
   atomizes, lowers marked syntax, and evaluates properties as far as the Class context permits. A
   class effect may still contain context-relative or event-relative values.
 - `LiveEffect.compile` specializes a class effect to one exact component Type. Apart from the
@@ -525,10 +525,17 @@ Multiple Metrics are compared lexicographically. Each score binds the candidate 
 `Owner` as an `EACH` body does, including occurrences inside `NOT` refinements. There is no
 direction keyword; a known upper cap minus a Metric can express lowest-first scoring.
 
-An abstract custom metric specializes only over dependency targets represented by live components,
-then sums the satisfying concrete implementations. This follows the ordinary dependency rule that
-a dependent value cannot exist without its targets and avoids enumerating the full structural
-cross-product. Kotlin metric invocations always receive concrete dependency arguments.
+An abstract custom metric normally specializes only over dependency targets represented by live
+components, then sums the satisfying concrete implementations. This follows the ordinary dependency
+rule that a dependent value cannot exist without its targets and avoids enumerating the full
+structural cross-product. A custom metric may instead evaluate the complete abstract query directly
+when it can avoid constructing that cross-product; its implementation is then responsible for the
+same live-dependency semantics. Concrete metric invocations always receive concrete dependency
+arguments.
+
+`GameReader.getDependents` exposes the graph's existing reverse-dependency index for computations
+that start from a known component. It returns distinct direct dependent Types; broader transitive or
+subtype selection remains an explicit caller operation.
 
 Refinements substitute a candidate into their requirement and query the current World. Immutable
 class properties supply printed cost and requirement plus map row and column without creating live
@@ -566,17 +573,13 @@ one-count limit: additional fleet components are real capacity granted by cards.
 ring, and each `ResearchPhase` moves it along that relation by atomic transmutation. Each Player
 permits at most one incoming and one outgoing edge. Phase is likewise exact one after Admin creates
 BootstrapPhase; each transition replaces the current Phase, and `End` remains as the terminal Phase.
-A separate temporary
-`FinalScoringPending` component supplies the completion event that assigns multiplayer victory after every
-scoring task settles. A future comprehensive lower-bound validator must account for the short
-construction interval before Admin creates BootstrapPhase. Bootstrap completion
-verifies its required components and empty task queue; ordinary mutations continue to enforce
-applicable multiplicity limits.
-
-**Audit:** bootstrap verification checks premise Modules, Players, and exact initial component
-Types, not every positive lower bound or every source-owned support component. Canon's lifecycle
-tests currently prove `StartToken` and track-status initialization; the generic initializer would
-not itself detect their accidental omission.
+A separate temporary `FinalScoringPending` component supplies the completion event that assigns
+multiplayer victory after every scoring task settles. Bootstrap completion verifies its configured
+components, empty task queue, and every positive component-count lower bound. Self-counts are
+checked for every active concrete specialization. Relational counts such as an Event Card's
+`EventTag<This>` are checked separately for each live owning component, so unrelated scopes cannot
+satisfy one another and absent owners do not require dependent state. Ordinary mutations continue
+to enforce applicable multiplicity limits.
 
 `GpIncomplete` and `GpComplete` are two faces of one status and are the strongest candidate for an
 exact-one sum; expressing that honestly requires one shared status family and an atomic

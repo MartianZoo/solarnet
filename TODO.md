@@ -26,22 +26,31 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `db9302652`.
 - Review the committed `OverlayWorld` and query-performance work on branch `perf` before integrating
   selected changes into `main`.
-- Do not let `Engine.newGame` exit bootstrap until it has validated every invariant against the
-  completed World, including positive lower bounds and correctly scoped dependent-component
-  invariants.
 - Have the normal full application build stamp its output with the current Git commit and, when
   source changes are present, a stable hash of those changes. Include that stamp in every exported
   game record so a log identifies, or can later verify, the engine source that produced it.
-- Make tile placement over an owned `Community` an atomic transmutation, then enforce
-  `HAS MAX 1 Occupant<This>` on every `Area` and remove card-level empty-area refinements.
+- Give `AreaPiece` its area dependency, make tile placement over an owned `Community` an atomic
+  transmutation, then enforce `HAS MAX 1 Occupant<This>` on every `Area` and remove card-level
+  empty-area refinements.
+- Decide whether `Milestone`'s per-player uniqueness constraint should use
+  `HAS MAX 1 This<Player>` or a clearer way to express one instance of the concrete milestone per
+  player.
+- Replace the persistent `CardPlay` billing host with the live late-stage card-play operation once
+  that operation has a stable identity suitable for `Billing`.
+- Express Quick Start's starting production as nested iteration over players and standard-resource
+  Classes once Pets can represent that directly.
+- Decide whether `NoctisArea` belongs with the Noctis City card instead of the core board model.
+- Replace the duplicated `TemperatureStep BY Player`/`BY Admin` threshold-ocean triggers and the
+  synthetic `AdminOceanPlacement` signal with one rule that separates who chooses the tile from
+  whose action the placement is attributed to, shared by the standard and extended tracks.
 - Revisit causal ownership inside `BootstrapPhase`, moving initialization work under ordinary
   phase-caused tasks as soon as the required runtime state can express them.
 - Let refinements reference their candidate explicitly, so a selector can relate a nested
   dependency to that candidate without repeating its complete expression.
 - Give Pets a real structural conjunction, spelled something like `Tile(IS Owned)`, and retire the
   nominal `OwnedTile` class once `Landlord` and the other owned-tile rules can name the intersection
-  directly. Until then a broad active projection checks the nominal relationship; cover every legal
-  configuration family systematically so a mutually exclusive option cannot evade it.
+  directly. Until then a master-universe Canon test checks the nominal `OwnedOccupant` and
+  `OwnedTile` relationships without depending on one active configuration.
 - Decide whether compact Type expressions must be globally shortest. They currently remove each
   individually redundant argument, including T3-8 duplicates, without the subset search needed to
   prove a global minimum; search only equality-related arguments if exact minimality becomes useful.
@@ -56,9 +65,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   considered an unsuccessful direction.
 - Complete `Game20260820Test` beyond its current partial generation-6 checkpoint using the preserved
   log, player data, and eight later screenshots; keep every new checkpoint independently sourced.
-- Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `tfm-canon`,
-  and `script` APIs.
-- Profile and reduce type-system allocation in `Type.glb`, `narrows`, and repeated
+- Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `agent`,
+  `tfm-canon`, and `script` APIs.
+- Profile and reduce type-system allocation in `ClassTable.glb`, `narrows`, and repeated
   dependency/refinement construction without risking correctness.
 - Let `CustomMetric` optionally provide candidate-selection hooks so `EACH` refinements such as
   tile adjacency can avoid evaluating the metric against every live component.
@@ -75,6 +84,16 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   not award it TR, and whether adding and then removing those steps has any other observable
   consequences.
 - Keep looking for a better representation of Splice Tactical Genomics.
+- Consider requirement-gated action costs, using United Nations Mars Initiative to make
+  `HasRaisedTr` a prerequisite to paying its 3 M€ rather than a gate around the result.
+- Derive selected singleton card watchers without explicit support-Class invariants. The current
+  sites are United Nations Mars Initiative and Pristar retaining `TrWatcher`, and Hydrologist
+  retaining `HydrologistWatcher`.
+- Reverse replacement-card references so optional packs identify what they replace rather than
+  base cards naming optional packs. Deimos Down, Great Dam, and Magnetic Field Generators currently
+  use `autoSelectWhen = MAX 0 PromoCardPack`.
+- Check whether Early Colonization's two `AdvanceColonyTracks` changes should be explicitly
+  mandatory.
 - **Low priority:** [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve
   hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
 - Model `StateChange` as a sealed gain/remove/transmute algebra so invalid nullable combinations are

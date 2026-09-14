@@ -19,6 +19,7 @@ import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
+import kotlin.jvm.JvmInline
 
 public data class Task(
     /** Identifies this task by the ordinal of its add event. Stable through task edits. */
@@ -205,14 +206,13 @@ public data class Task(
   }
 
   /** A task's stable internal identity, wrapping the ordinal of its add event. */
-  public data class TaskId(val ordinal: Int) : Comparable<TaskId> {
+  @JvmInline
+  public value class TaskId(public val ordinal: Int) {
     init {
       require(ordinal >= 0)
     }
 
     internal fun next(): TaskId = TaskId(ordinal + 1)
-
-    override fun compareTo(other: TaskId): Int = ordinal.compareTo(other.ordinal)
 
     override fun toString(): String = ordinal.toString()
   }

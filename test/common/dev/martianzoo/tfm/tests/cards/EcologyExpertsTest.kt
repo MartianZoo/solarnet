@@ -33,8 +33,10 @@ internal class EcologyExpertsTest : CardTest() {
     p1.runOperation("4 MC, ProjectCard, PreludeCard")
     val spliceMoney = p2.count("MC")
 
-    p1.playPrelude(EcologyExperts) {
-      p1.playProject(Decomposers, 5) { doTask("2 MC<Player1>") }
+    with(p1) {
+      playPrelude(EcologyExperts) {
+        playProject(Decomposers, 5) { doTask("2 MC<Player1>") }
+      }
     }
 
     p1.assertCounts(3 to "MC")
@@ -47,7 +49,9 @@ internal class EcologyExpertsTest : CardTest() {
     admin.phase("Prelude")
     p1.runOperation("2 MC, ProjectCard, PreludeCard")
 
-    p1.playPrelude(EcologyExperts) { p1.playProject(DustSeals, 2) }
+    with(p1) {
+      playPrelude(EcologyExperts) { playProject(DustSeals, 2) }
+    }
 
     p1.assertCounts(1 to "$DustSeals")
   }

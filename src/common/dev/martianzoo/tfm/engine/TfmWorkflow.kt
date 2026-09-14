@@ -198,9 +198,9 @@ public object TfmWorkflow {
         return false
       }
       letPlayerFinish()
-      runOptionalSolarPhase("VenusSolarPhase", m::venusSolarPhase)
-      runOptionalSolarPhase("ColoniesSolarPhase", m::coloniesSolarPhase)
-      runOptionalSolarPhase("TurmoilSolarPhase", m::turmoilSolarPhase)
+      runOptionalSolarPhase("WorldGovernmentRule", m::venusSolarPhase)
+      runOptionalSolarPhase("ColoniesExpansion", m::coloniesSolarPhase)
+      runOptionalSolarPhase("TurmoilExpansion", m::turmoilSolarPhase)
       return true
     }
 
@@ -208,7 +208,7 @@ public object TfmWorkflow {
         phaseName: String,
         beginPhase: () -> TaskResult,
     ) {
-      if (!game.classTable.isActive(cn(phaseName))) return
+      if (!game.classTable.isInhabited(cn(phaseName))) return
       beginPhase()
       letPlayerFinish()
     }
@@ -258,7 +258,8 @@ public object TfmWorkflow {
     private fun hasPassed(player: Player) = opsFor(player).has("Pass")
 
     private fun hasComponent(className: String): Boolean =
-        game.classTable.isActive(cn(className)) && game.reader.getComponents(className).isNotEmpty()
+        game.classTable.isInhabited(cn(className)) &&
+            game.reader.getComponents(className).isNotEmpty()
 
     private suspend fun grantFirstActionTo(player: Player) {
       shutdownCheckpoint = game.timeline.checkpoint()

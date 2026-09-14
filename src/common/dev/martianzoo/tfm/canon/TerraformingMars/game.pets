@@ -1,0 +1,149 @@
+"The base Terraforming Mars rules"
+CLASS TerraformingMars : BaseGameModule {
+  HAS =1 GameMode, =1 MarsMap
+  HAS Class<Production>
+  HAS Class<BootstrapPhase>, Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>, Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<VenusSolarPhase>, Class<ColoniesSolarPhase>, Class<TurmoilSolarPhase>, Class<FinalGreeneryPhase>, Class<End>
+  HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
+  autoSelectWhen = HAS "MAX 0 TerraformingMars"
+
+  This: SellPatentsProject, PowerPlantProject, AsteroidProject, AquiferProject, GreeneryProject, CityProject
+  This: PlayCardFromHandAction, UseStandardProjectAction, UseActionOnCardAction, ConvertPlantsAction, ConvertHeatAction
+  This: DoRequiredActionsAction
+  This: Action1, Action2, Action3, CardPurchase, CardPlay
+  This: Hand, Selecting, Revealed, GenerationScope
+  This: EACH Class<GlobalParameter> { GpIncomplete<Class<GlobalParameter>> }
+  This: EACH Class<RemoteArea> { RemoteArea }
+
+  ModulesReady IF MAX 0 ExtendedGlobalParametersRule: StandardGpTrackRules
+
+  CorporationPhase: Photosynthesis
+  CorporationPhase:: EACH Class<CardWatcher> { CardWatcher }
+
+  PlayTag<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>
+  PlayTag<Class<SpaceTag>> IF Owed:: Accepting<Class<Titanium>>
+}
+
+"Starts each player with one production of every standard resource"
+CLASS QuickStartVariant : Module {
+  autoSelectWhen = HAS "TerraformingMars, MAX 0 CorporateEraExpansion"
+
+  SetupPhase: EACH Player { PROD[MC, Steel, Titanium, Plant, Energy, Heat] }
+}
+
+"An affirmative, immutable Module active in a playable game"
+ABSTRACT CLASS Module : System {
+  HAS =1 This
+  autoSelectWhen = Requirement?
+  premiseRequirement = Requirement?
+  -This:: Die!
+}
+
+"The Module whose immediate setup must precede every other selected Module"
+ABSTRACT CLASS BaseGameModule : Module { HAS =1 BaseGameModule }
+
+"Signals that the complete selected Module layer is live"
+CLASS ModulesReady : Signal
+
+"Exactly one player-count Module active in a playable game"
+ABSTRACT CLASS GameMode : Module {
+  HAS MAX 1 GameMode
+  premiseRequirement = HAS "=1 TerraformingMars"
+
+  "Multiplayer rules, including the end condition that deliberately excludes Venus"
+  CLASS MultiplayerMode {
+    HAS 2 Player
+    autoSelectWhen = HAS "2 Player"
+
+    This: ClaimMilestoneAction, FundAwardAction
+    This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
+    SetupPhase: EACH Player { 20 TerraformRating }
+    -FinalScoringPending: EACH Player(HAS =1 (RANK Player { VictoryPoint, MC })) { Victory }
+  }
+}
+
+"One of the actual people or bots playing Terraforming Mars"
+ABSTRACT CLASS Player : Owner, Actor {
+  HAS =1 This
+  HAS MAX 1 AfterMe<This, Anyone>, MAX 1 AfterMe<Anyone, This>
+
+  // Queued `This` work gives every Player its production floor and payment values only after the
+  // complete seat layer exists.
+  This: 5 ProdOffset<This, Class<MC>> BY Admin
+  This: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
+
+  SetupPhase: 2 CorporationCard THEN -CorporationCard \
+    THEN 10 ProjectCard THEN -10 ProjectCard?
+  ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
+}
+
+"One step on the terraform rating track; you generally start with 20 of them"
+CLASS TerraformRating : Owned<Player> {
+  ProductionPhase: 1 MC
+  End: VictoryPoint
+}
+
+"Marks the player who takes the first turn"
+CLASS StartToken : Owned<Player> {
+  HAS =1 StartToken
+}
+
+"Identifies the Player immediately after another Player in seat order"
+CLASS AfterMe<Owner, Player> : System {
+  HAS MAX 1 This
+  ResearchPhase IF StartToken<Owner>: StartToken<Player> FROM StartToken<Owner>.
+}
+
+"The current game phase; exactly one exists from bootstrap through the terminal End phase"
+ABSTRACT CLASS Phase : System {
+  HAS =1 Phase
+
+  CLASS BootstrapPhase
+  CLASS SetupPhase { This:: Generation }
+  CLASS CorporationPhase {
+    NewTurn: PlayCard<Class<CorporationCard>, Hand>, \
+      (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>), \
+      -10 ProjectCard<Selecting>? THEN BuySelectedCards
+  }
+  CLASS ResearchPhase { This:: Generation }
+  CLASS ActionPhase {
+    NewTurn: UseAction<StandardAction> OR Pass
+    SecondAction: UseAction<StandardAction>?
+  }
+  CLASS ProductionPhase
+  CLASS SolarPhase
+  CLASS VenusSolarPhase
+  CLASS ColoniesSolarPhase
+  CLASS TurmoilSolarPhase
+  CLASS FinalGreeneryPhase {
+    NewTurn: UseAction<ConvertPlantsAction, Action1>?
+  }
+
+  "The terminal game phase"
+  CLASS End {
+    This:: FinalScoringPending
+  }
+}
+
+"This is what the engine creates to grant you a 'turn' (note in some phases you get two in a row)"
+CLASS NewTurn : Owned<Player>, Signal
+
+"The engine's signal for the second action slot in an action phase turn; no Pass option"
+CLASS SecondAction : Owned<Player>, Signal
+
+"Instead of taking an action you can gain this, and be out for the rest of the generation"
+CLASS Pass<GenerationScope> : Owned<Player> { HAS MAX 1 This }
+
+"Tells what generation we're in"
+CLASS Generation : System
+
+"The lifetime anchor for components that exist only during the current generation"
+CLASS GenerationScope : Scope, System {
+  HAS MAX 1 This
+  Generation:: -This! THEN This!
+}
+
+"Something that prevents the game from ending at the post-production check"
+ABSTRACT CLASS GameEndBarrier
+
+"Signals the post-production check after the final GameEndBarrier is removed"
+CLASS CheckGameEnd : Signal, System

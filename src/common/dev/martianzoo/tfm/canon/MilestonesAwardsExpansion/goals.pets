@@ -1,0 +1,48 @@
+// A goal reprinted from a loaded map keeps the declaration from that map bundle. This bundle
+// supplies the remaining supported goals and revised goals with distinct implementations.
+
+CLASS Briber : Milestone {
+  requirement = HAS "This"
+  This:: -12 MC
+}
+CLASS Builder : Milestone { requirement = HAS "7 BuildingTag" }
+CLASS Hydrologist : Milestone {
+  HAS Class<HydrologistWatcher>
+  requirement = HAS "4 OceanCredit"
+}
+CLASS Legend : Milestone { requirement = HAS "4 PlayedEvent" }
+CLASS Merchant : Milestone { requirement = HAS "2 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat" }
+CLASS Philantropist : Milestone { requirement = HAS "5 CardFront(HAS GainsOf<Class<VictoryPoint>>)" }
+CLASS Pioneer : Milestone { requirement = HAS "4 Colony" }
+CLASS Producer : Milestone {
+  HAS MAX 0 QuickStartVariant
+  requirement = HAS "16 (PROD[StandardResource] - ProdOffset)"
+}
+CLASS Producer22 : Milestone {
+  HAS QuickStartVariant
+  requirement = HAS "22 (PROD[StandardResource] - ProdOffset)"
+}
+CLASS Tactician : Milestone { requirement = HAS "4 CardFront(HAS requirement)" }
+CLASS Terraformer : Milestone { requirement = HAS "29 TerraformRating" }
+// Requires recording owned temperature increases.
+// CLASS Thawer : Milestone { requirement = HAS "5 TemperatureStep" }
+CLASS Tycoon : Milestone { requirement = HAS "10 (ActiveCard OR AutomatedCard)" }
+
+CLASS Administrator : Award { metric = COUNT "CardFront(HAS MAX 0 Tag)" }
+CLASS Biologist : Award { metric = COUNT "BioTag" }
+CLASS Politician : Award {
+  metric = COUNT "PartyLeader OR Influence"
+  MeasureAward<This>:: EACH Influence<Player> { -Influence<Player>! }
+  MeasureAward<This>:: EACH Player { MeasureInfluence }
+}
+CLASS Visionary : Award { metric = COUNT "ProjectCard<Hand>" }
+
+CLASS GainsOf<CardFront, Class<Component>> : Custom
+
+"Tracks ocean placements only while Hydrologist is in the milestone pool"
+CLASS HydrologistWatcher : CardWatcher {
+  OceanTile BY Player: OceanCredit<Player, OceanTile>
+}
+
+"A player's credit for an ocean that remains on Mars"
+CLASS OceanCredit<OceanTile> : Owned<Player>

@@ -21,8 +21,8 @@ import dev.martianzoo.pets.types.Dependency.TypeDependency
 
 /**
  * Either the complete immutable class universe compiled from one catalog or a playable view that
- * marks a subset of that universe active. Identity and structural operations remain master-wide;
- * enumeration through a view is active-only, as specified by
+ * includes the subset selected by one premise. Identity and structural operations remain
+ * master-wide; concrete enumeration through a view is limited to that subset, as specified by
  * [sections 1 and 12](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
  *
  * @constructor Creates a table implementation for one master universe or one of its views, under
@@ -38,7 +38,8 @@ public abstract class ClassTable {
      * [rules T12-1 through T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
      */
     public fun forPremise(premise: GamePremise): ClassTable {
-      val masterTable = premise.catalog.classTable
+      val premiseTable = premise.premiseClassTable
+      val masterTable = premiseTable.master
       val initialClassNames =
           premise.initialComponentTypes.flatMap { it.descendantsOfType<ClassName>() }.toSet()
       val configurationNames: Set<ClassName> =
@@ -51,7 +52,7 @@ public abstract class ClassTable {
       val moduleSelections = premise.modules.flatMap { premise.catalog.modules.getValue(it) }
       val (applicableModuleSelections, inapplicableModuleSelections) =
           moduleSelections.partition { selection ->
-            selection.appliesTo(configurationNames, masterTable)
+            selection.appliesTo(configurationNames, premiseTable)
           }
       val moduleIncluded =
           applicableModuleSelections
@@ -84,30 +85,31 @@ public abstract class ClassTable {
 
       val table =
           ClassLoader.projection(
-                  premise.catalog,
-                  masterTable,
-                  premise.modules,
-                  premise.classSelections,
-              )
-              .apply { loadAll(roots) }
-              .freeze()
+              premise.catalog,
+              premiseTable,
+              premise.modules,
+              premise.classSelections,
+          )
+      table.freeze()
+      table.includeAll(roots)
       val unexpectedModules =
-          premise.catalog.modules.keys.filterTo(linkedSetOf()) { table.isActive(it) } -
+          premise.catalog.modules.keys.filterTo(linkedSetOf()) { table.isIncluded(it) } -
               premise.modules
       require(unexpectedModules.isEmpty()) {
         "structural activation selected unrequested Modules: $unexpectedModules"
       }
       val playerClass = masterTable.findClass(PLAYER)
-      val activePlayerClassNames =
+      val inhabitedPlayerClassNames =
           playerClass
               ?.let(table::allSubclasses)
               .orEmpty()
               .filterNot(Class::abstract)
+              .filter(table::isInhabited)
               .mapTo(linkedSetOf(), Class::className)
-      require(activePlayerClassNames == premise.playerNames.toSet()) {
-        "active Player classes do not match occupied seats: $activePlayerClassNames"
+      require(inhabitedPlayerClassNames == premise.playerNames.toSet()) {
+        "inhabited Player classes do not match occupied seats: $inhabitedPlayerClassNames"
       }
-      val reactivated = excluded.filterTo(linkedSetOf(), table::isActive)
+      val reactivated = excluded.filterTo(linkedSetOf(), table::isIncluded)
       require(reactivated.isEmpty()) {
         "structural activation conflicts with excluded classes: $reactivated"
       }
@@ -138,7 +140,56 @@ public abstract class ClassTable {
   /** The Catalog-scoped table whose compiled class universe backs this projection. */
   internal abstract val masterTable: ClassTable
 
-  /** Immutable component-count limits compiled for the classes active in this table. */
+  /**
+   * Returns the narrower table that can interpret values from both receivers, or null when the
+   * values belong to unrelated premise or master universes.
+   */
+  internal fun commonTable(that: ClassTable): ClassTable? =
+      when {
+        this === that -> this
+        this === that.masterTable -> that
+        that === masterTable -> this
+        else -> null
+      }
+
+  /** Whether values owned by [that] can participate in operations interpreted by this table. */
+  internal fun accepts(that: ClassTable): Boolean =
+      this === that || (this !== masterTable && that === masterTable)
+
+  /**
+   * Returns the unique greatest common subclass of [left] and [right] in this universe, or null
+   * when absent, following
+   * [rule T2-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+   *
+   * @throws IllegalArgumentException if either operand cannot be interpreted by this table (rule
+   *   T1-2).
+   */
+  public fun glb(left: Class, right: Class): Class? {
+    require(accepts(left.classTable) && accepts(right.classTable)) {
+      "$left and $right cannot both be interpreted by this class table"
+    }
+    if (left.isSubtypeOf(right)) return left
+    if (right.isSubtypeOf(left)) return right
+    val lowerBounds = allStructuralSubclasses(left).filterTo(linkedSetOf(), right::isSupertypeOf)
+    return lowerBounds.singleOrNull { candidate -> lowerBounds.all(candidate::isSupertypeOf) }
+  }
+
+  /**
+   * Returns the greatest lower bound of [left] and [right] in this universe, or null when absent,
+   * following
+   * [rule T7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds).
+   *
+   * @throws IllegalArgumentException if either operand cannot be interpreted by this table (rule
+   *   T1-2).
+   */
+  public fun glb(left: Type, right: Type): GroundType? = left.groundType.glbIn(right, this)
+
+  internal fun glb(left: Dependency, right: Dependency): Dependency? = left.glb(right, this)
+
+  internal fun glb(left: DependencySet, right: DependencySet): DependencySet? =
+      left.merge(right) { a, b -> glb(a, b) ?: return null }
+
+  /** Immutable component-count limits compiled for this table's included classes. */
   private val componentLimitsLazy = lazy { ClassLimitTable.create(this) }
 
   /**
@@ -161,16 +212,16 @@ public abstract class ClassTable {
   public abstract val classClass: Class
 
   /**
-   * Every active class in this view; for a master table, the complete frozen universe ([rules T1-6
-   * and
+   * Every class included by this view's premise closure; for a master table, the complete frozen
+   * universe ([rules T1-6 and
    * T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance)).
    */
   public abstract fun allClasses(): Set<Class>
 
-  /**
-   * Every active class name in this view, under the three-state model of
-   * [rule T12-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
-   */
+  /** Every nominal class in this combined universe, including classes excluded from its view. */
+  internal abstract fun allKnownClasses(): Set<Class>
+
+  /** Every class name included by this view's premise closure. */
   public abstract val allClassNames: Set<ClassName>
 
   /**
@@ -191,80 +242,196 @@ public abstract class ClassTable {
       findClass(name) ?: throw Exceptions.classNotFound(name)
 
   /**
-   * Returns the active class with canonical [name], or null when it is unknown or uninhabited
-   * ([rule
-   * T12-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance)).
+   * Returns the class with canonical [name] when its base Type is inhabited in this universe, or
+   * null when the name is unknown or its base Type is uninhabited.
    */
-  public fun findActiveClass(name: ClassName): Class? = findClass(name)?.takeIf(::isActive)
+  public fun findInhabitedClass(name: ClassName): Class? = findClass(name)?.takeIf(::isInhabited)
 
   /**
-   * Whether [name] names an active class in this view ([rule
-   * T12-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance)).
+   * Whether [name] is known and its class's base Type has at least one concrete narrowing in this
+   * universe. Unknown names are not inhabited.
    */
-  public fun isActive(name: ClassName): Boolean = name in allClassNames
+  public fun isInhabited(name: ClassName): Boolean = findClass(name)?.let(::isInhabited) == true
 
   /**
-   * Whether [klass] belongs to this master universe and is active in this view ([rules T12-2 and
-   * T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance)).
+   * Whether [klass] belongs to this master universe and its base Type has at least one concrete
+   * narrowing in this universe.
    */
-  public fun isActive(klass: Class): Boolean =
-      klass.classTable === masterTable && klass.className in allClassNames
+  public fun isInhabited(klass: Class): Boolean =
+      accepts(klass.classTable) && isInhabited(klass.baseType)
 
   /**
    * Safely tests whether [type] belongs to the master universe backing this table, before
    * operations governed by the universe-mismatch rule
    * [T1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
-  public fun knows(type: Type): Boolean = type.classTable === masterTable
+  public fun knows(type: Type): Boolean = accepts(type.classTable)
+
+  private val inhabitanceByType = mutableMapOf<GroundType, Boolean>()
+  private var inhabitedConcreteClassesCache: Set<Class>? = null
 
   /**
-   * Whether [type]'s root and every bound dependency are active in this view, exactly as defined by
-   * [rule T12-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
+   * Whether [type] has at least one concrete narrowing in this universe. This includes abstract
+   * Types with an inhabited concrete specialization and excludes Types whose root, dependency, or
+   * structural refinement leaves no concrete possibility.
    */
-  public fun isActive(type: Type): Boolean =
-      knows(type) && isActive(type.rootClass) && type.dependencies.activeIn(this)
-
-  private val activeSubclassesByClass = mutableMapOf<Class, Set<Class>>()
+  public fun isInhabited(type: Type): Boolean {
+    if (!knows(type)) return false
+    val groundType = type.groundType
+    val structuralRefinement = groundType.refinement?.retaining { it is Not }
+    val cacheKey =
+        if (structuralRefinement == groundType.refinement) groundType
+        else groundType.copy(refinement = structuralRefinement)
+    return inhabitanceByType.getOrPut(cacheKey) {
+      allConcreteSubtypes(cacheKey).iterator().hasNext()
+    }
+  }
 
   /**
-   * Active subclasses of [klass], including [klass] when active, under view-relative enumeration in
-   * [rule T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
+   * Every included concrete Class whose base Type is inhabited. The result is the greatest fixed
+   * point because Class-literal dependencies may be mutually supporting: a Class representative
+   * exists exactly when its represented Class is inhabited.
+   */
+  public fun allInhabitedConcreteClasses(): Set<Class> {
+    inhabitedConcreteClassesCache?.let {
+      return it
+    }
+    var possible = allClasses().filterNotTo(linkedSetOf(), Class::abstract)
+    while (true) {
+      val surviving =
+          possible.filterTo(linkedSetOf()) { klass ->
+            allConcreteSubtypes(klass.baseType, possible).iterator().hasNext()
+          }
+      if (surviving == possible) {
+        inhabitedConcreteClassesCache = surviving
+        return surviving
+      }
+      possible = surviving
+    }
+  }
+
+  /** Whether premise construction included [name], independent of its Type's inhabitance. */
+  internal fun isIncluded(name: ClassName): Boolean = name in allClassNames
+
+  /** Whether premise construction included [klass], independent of its Type's inhabitance. */
+  internal fun isIncluded(klass: Class): Boolean =
+      accepts(klass.classTable) && isIncluded(klass.className)
+
+  private val includedSubclassesByClass = mutableMapOf<Class, Set<Class>>()
+
+  private val premiseClasses: Set<Class> by lazy {
+    if (this === masterTable) emptySet()
+    else allKnownClasses().filterTo(linkedSetOf()) { it.classTable === this }
+  }
+
+  /**
+   * Included subclasses of [klass], including [klass] when included, under view-relative
+   * enumeration in
+   * [rules T2-7 and T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
    */
   public fun allSubclasses(klass: Class): Set<Class> {
-    require(klass.classTable === masterTable) { "$klass belongs to a different Catalog" }
-    if (this === masterTable) return klass.allSubclasses()
-    return activeSubclassesByClass.getOrPut(klass) {
-      klass.allSubclasses().filterTo(linkedSetOf(), ::isActive)
+    require(accepts(klass.classTable)) { "$klass belongs to a different Catalog" }
+    if (this === masterTable) return allSubclassesOf(klass)
+    return includedSubclassesByClass.getOrPut(klass) {
+      klass.classTable.allSubclassesOf(klass).filterTo(linkedSetOf(), ::isIncluded).apply {
+        if (klass.classTable === masterTable) {
+          premiseClasses.filterTo(this) { candidate ->
+            isIncluded(candidate) && candidate.isSubtypeOf(klass)
+          }
+        }
+      }
     }
   }
 
-  private val activeDirectSubclassesByClass = mutableMapOf<Class, Set<Class>>()
+  private val includedDirectSubclassesByClass = mutableMapOf<Class, Set<Class>>()
+
+  private val structuralSubclassesByClass = mutableMapOf<Class, Set<Class>>()
+
+  /** Clears answers whose domain changes while a premise's inclusion closure is growing. */
+  internal fun invalidateInclusionCaches() {
+    inhabitanceByType.clear()
+    inhabitedConcreteClassesCache = null
+    includedSubclassesByClass.clear()
+    includedDirectSubclassesByClass.clear()
+  }
+
+  /** Every structurally possible subclass in this combined universe, independent of inclusion. */
+  internal fun allStructuralSubclasses(klass: Class): Set<Class> {
+    require(accepts(klass.classTable)) { "$klass belongs to a different Catalog" }
+    return structuralSubclassesByClass.getOrPut(klass) {
+      klass.classTable.allSubclassesOf(klass).toMutableSet().apply {
+        if (klass.classTable === masterTable) {
+          premiseClasses.filterTo(this) { candidate -> candidate.isSubtypeOf(klass) }
+        }
+      }
+    }
+  }
 
   /**
-   * Active subclasses exactly one nominal step below [klass], under view-relative enumeration in
-   * [rule T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
+   * Included subclasses exactly one nominal step below [klass], under view-relative enumeration in
+   * [rules T2-7 and T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
    */
   public fun directSubclasses(klass: Class): Set<Class> {
-    require(klass.classTable === masterTable) { "$klass belongs to a different Catalog" }
-    if (this === masterTable) return klass.directSubclasses()
-    return activeDirectSubclassesByClass.getOrPut(klass) {
-      klass.directSubclasses().filterTo(linkedSetOf(), ::isActive)
+    require(accepts(klass.classTable)) { "$klass belongs to a different Catalog" }
+    if (this === masterTable) return directSubclassesOf(klass)
+    return includedDirectSubclassesByClass.getOrPut(klass) {
+      klass.classTable.directSubclassesOf(klass).filterTo(linkedSetOf(), ::isIncluded).apply {
+        if (klass.classTable === masterTable) {
+          premiseClasses.filterTo(this) { candidate ->
+            isIncluded(candidate) && klass in candidate.directSuperclasses
+          }
+        }
+      }
     }
   }
 
+  internal abstract fun allSubclassesOf(klass: Class): Set<Class>
+
+  internal abstract fun directSubclassesOf(klass: Class): Set<Class>
+
   /**
-   * Enumerates active concrete structural narrowings of [type], combining
+   * Enumerates inhabited concrete structural narrowings of [type], combining
    * [rules T11-1, T11-2, and T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
    */
   public fun allConcreteSubtypes(type: Type): Sequence<GroundType> {
+    return allConcreteSubtypes(type, allInhabitedConcreteClasses())
+  }
+
+  internal fun allConcreteSubtypes(
+      type: Type,
+      inhabitedConcreteClasses: Set<Class>,
+  ): Sequence<GroundType> {
     val type = type.groundType
-    require(type.classTable === masterTable) { "$type belongs to a different Catalog" }
-    return concreteSubtypes(type) { candidate -> concreteSubtypesSameClass(candidate) }
+    require(knows(type)) { "$type belongs to a different Catalog" }
+    return concreteSubtypes(
+        type,
+        ::allSubclasses,
+        { it in inhabitedConcreteClasses },
+    ) { candidate ->
+      candidate.dependencies.concreteSubtypesSameClass(
+          candidate,
+          this,
+          inhabitedConcreteClasses,
+      )
+    }
+  }
+
+  /** Enumerates concrete structural types without applying this game's inclusion filter. */
+  internal fun allStructuralConcreteSubtypes(type: Type): Sequence<GroundType> {
+    val type = type.groundType
+    require(knows(type)) { "$type belongs to a different Catalog" }
+    return concreteSubtypes(
+        type,
+        ::allStructuralSubclasses,
+        { true },
+    ) { candidate ->
+      candidate.dependencies.structuralConcreteSubtypesSameClass(candidate, this)
+    }
   }
 
   /**
-   * Enumerates active concrete structural narrowings of [type], using [dependencyTargets] instead
-   * of the full dependency domains as permitted by
+   * Enumerates inhabited concrete structural narrowings of [type], using [dependencyTargets]
+   * instead of the full dependency domains as permitted by
    * [rule T11-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
    * Each supplied target must be a concrete narrowing of the requested dependency type.
    */
@@ -273,26 +440,37 @@ public abstract class ClassTable {
       dependencyTargets: (Type) -> Sequence<Type>,
   ): Sequence<GroundType> {
     val type = type.groundType
-    require(type.classTable === masterTable) { "$type belongs to a different Catalog" }
-    return concreteSubtypes(type) { candidate ->
+    require(knows(type)) { "$type belongs to a different Catalog" }
+    val inhabitedConcreteClasses = allInhabitedConcreteClasses()
+    return concreteSubtypes(
+        type,
+        ::allSubclasses,
+        { it in inhabitedConcreteClasses },
+    ) { candidate ->
       candidate.dependencies.concreteSubtypesSameClass(candidate, dependencyTargets)
     }
   }
 
   private fun concreteSubtypes(
       type: GroundType,
+      subclasses: (Class) -> Set<Class>,
+      concreteClassIsInhabited: (Class) -> Boolean,
       concretizeDependencies: (GroundType) -> Sequence<GroundType>,
   ): Sequence<GroundType> {
     val unrefined = type.copy(refinement = null)
     val candidates =
-        allSubclasses(type.rootClass).asSequence().filterNot(Class::abstract).flatMap { klass ->
-          val dependencies = unrefined.dependencies glb klass.dependencies
-          if (dependencies == null) {
-            emptySequence()
-          } else {
-            concretizeDependencies(klass.withAllDependencies(dependencies))
-          }
-        }
+        subclasses(type.rootClass)
+            .asSequence()
+            .filterNot(Class::abstract)
+            .filter(concreteClassIsInhabited)
+            .flatMap { klass ->
+              val dependencies = glb(unrefined.dependencies, klass.dependencies)
+              if (dependencies == null) {
+                emptySequence()
+              } else {
+                concretizeDependencies(klass.withAllDependencies(dependencies))
+              }
+            }
     return applyStructuralRefinement(type, candidates)
   }
 
@@ -310,22 +488,23 @@ public abstract class ClassTable {
   }
 
   /**
-   * Enumerates active concrete narrowings with the same root class as [type], combining
+   * Enumerates inhabited concrete narrowings with the same root class as [type], combining
    * [rules T11-3 and T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
    */
   public fun concreteSubtypesSameClass(type: Type): Sequence<GroundType> {
     val type = type.groundType
-    require(type.classTable === masterTable) { "$type belongs to a different Catalog" }
-    if (type.rootClass.abstract || !isActive(type.rootClass)) return emptySequence()
+    require(knows(type)) { "$type belongs to a different Catalog" }
+    val inhabitedConcreteClasses = allInhabitedConcreteClasses()
+    if (type.rootClass !in inhabitedConcreteClasses) return emptySequence()
     val unrefined = type.copy(refinement = null)
     val candidates =
-        unrefined.dependencies.concreteSubtypesSameClass(unrefined, this).filter(::isActive)
+        unrefined.dependencies.concreteSubtypesSameClass(unrefined, this, inhabitedConcreteClasses)
     return applyStructuralRefinement(type, candidates)
   }
 
   /**
-   * Returns the sole active concrete narrowing of [type] when every structural choice is unique and
-   * its refinement accepts [info], combining
+   * Returns the sole inhabited concrete narrowing of [type] when every structural choice is unique
+   * and its refinement accepts [info], combining
    * [rules T11-4 and T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
    */
   public fun singleConcreteSubtype(type: Type, info: TypeInfo): GroundType? {
@@ -335,6 +514,7 @@ public abstract class ClassTable {
     }
 
     val unrefined = type.copy(refinement = null)
+    val inhabitedConcreteClasses = allInhabitedConcreteClasses()
     val structuralRefinement = type.refinement?.retaining { it is Not }
     if (structuralRefinement != null) {
       val structuralType = type.copy(refinement = structuralRefinement)
@@ -345,7 +525,8 @@ public abstract class ClassTable {
         allSubclasses(type.rootClass)
             .asSequence()
             .filterNot(Class::abstract)
-            .mapNotNull { klass -> unrefined glb klass.baseType }
+            .filter { it in inhabitedConcreteClasses }
+            .mapNotNull { klass -> glb(unrefined, klass.baseType) }
             .take(2)
             .singleOrNull() ?: return null
     val dependencies = intersection.dependencies.singleConcreteSubtype(info, this) ?: return null
@@ -387,12 +568,12 @@ public abstract class ClassTable {
       domain: Type,
       info: TypeInfo,
   ): Boolean {
-    require(candidate.classTable === masterTable && domain.classTable === masterTable) {
+    require(knows(candidate) && knows(domain)) {
       "constraint types belong to a different Catalog"
     }
     val key = Key(domain.className, 0)
     val domainDependency = TypeDependency(key, domain.groundType)
-    val constrained = domainDependency.intersect(constraint) ?: return false
+    val constrained = domainDependency.intersect(constraint, this) ?: return false
     return TypeDependency(key, candidate.groundType).narrows(constrained, info)
   }
 }

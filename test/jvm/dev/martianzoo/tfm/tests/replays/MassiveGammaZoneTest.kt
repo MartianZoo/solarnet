@@ -19,7 +19,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       GameConfig(
           """
           TharsisMap
-          PreludeExpansion, Prelude2Expansion, PromoCardPack, TurmoilExpansion
+          PreludeExpansion, Prelude2CardPack, PromoCardPack, TurmoilExpansion
           Tr63SoloObjective
           FakeStuffBundle
           """,
@@ -70,7 +70,8 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
           Mine,
           Ants,
       )
-      playCorp(PolderTechDutch) {
+      // The source selected PolderTECH Dutch, which Canon does not treat as a published promo.
+      playCorp(FakePolderTechDutch) {
         buyCards(MarsNomads, RobotPollinators, SpaceMirrors, MeatIndustry, Mine)
       }
       discardUnselectedProjectCards(RadSuits, MassConverter, ImportedNutrients, PowerGrid, Ants)

@@ -16,7 +16,7 @@ internal class CustomClassRuntime(
 ) {
   internal fun translateInstruction(component: Component, reader: GameReader): InstructionTree {
     require(component.isCustom)
-    require(elaborator.classTable.isActive(component.type))
+    require(elaborator.classTable.isInhabited(component.type))
 
     val type = component.type
     val implementation = catalog.customClass(type.className)
@@ -53,9 +53,12 @@ internal class CustomClassRuntime(
 
   internal fun count(type: Type, reader: GameReaderImpl): Int {
     require(type.rootClass.declaration.custom)
-    require(elaborator.classTable.isActive(type))
+    require(elaborator.classTable.isInhabited(type))
 
     if (type.abstract) {
+      invokeAbstract(type, reader)?.let {
+        return it
+      }
       val candidates =
           elaborator.classTable.allConcreteSubtypes(type, reader::matchingComponentTypes)
       return (if (type.refinement == null) candidates
@@ -68,12 +71,20 @@ internal class CustomClassRuntime(
     return countConcrete(type, reader)
   }
 
+  private fun invokeAbstract(type: Type, reader: GameReader): Int? {
+    val implementation = implementationFor(type)
+    val count =
+        try {
+          implementation.countAbstract(reader, type)
+        } catch (e: RuntimeException) {
+          throw CustomCodeException("Custom metric failed for ${type.expressionFull}", e)
+        }
+    count?.let { requireValidCount(type, it) }
+    return count
+  }
+
   private fun countConcrete(type: Type, reader: GameReader): Int {
-    val implementation =
-        catalog.customMetric(type.className)
-            ?: throw CustomCodeException(
-                "Custom class `${type.className}` has no metric implementation"
-            )
+    val implementation = implementationFor(type)
 
     val count =
         try {
@@ -81,9 +92,19 @@ internal class CustomClassRuntime(
         } catch (e: RuntimeException) {
           throw CustomCodeException("Custom metric failed for ${type.expressionFull}", e)
         }
+    requireValidCount(type, count)
+    return count
+  }
+
+  private fun implementationFor(type: Type) =
+      catalog.customMetric(type.className)
+          ?: throw CustomCodeException(
+              "Custom class `${type.className}` has no metric implementation"
+          )
+
+  private fun requireValidCount(type: Type, count: Int) {
     if (count < 0) {
       throw CustomCodeException("Custom metric `${type.expressionFull}` returned $count")
     }
-    return count
   }
 }

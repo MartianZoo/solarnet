@@ -20,7 +20,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       GameConfig(
           """
           HellasMap
-          VenusNextExpansion, PreludeExpansion, Prelude2Expansion, Merger
+          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, Merger
           FakeStuffBundle
 
           Energizer, Builder, Generalist, Diversifier, Terraformer, Sponsor
@@ -44,7 +44,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     // Generation 1
     admin.assertCounts(1 to "Generation")
 
-    // Pink rejected CrediCor and EcoTec; Venus Contract and Focused Organization; and Windmills,
+    // Pink rejected CrediCor and Ecotec; Venus Contract and Focused Organization; and Windmills,
     // Open City, and Energy Saving.
     // Pink played Tharsis Republic
     pink.playCorp(TharsisRepublic) {

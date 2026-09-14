@@ -23,7 +23,8 @@ repairs belong in [`TODO.md`](../../TODO.md), not here; payment allocation is do
 ### 1. M€ production is stored five above the printed value
 
 Each player has five
-[`ProdOffset`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets) components.
+[`ProdOffset`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/resources.pets)
+components.
 Each contributes one M€-production component and removes one M€ during each production phase.
 Together they represent the printed -5 floor without negative component counts. Their represented
 `Class<StandardResource>` dependency lets ordinary metrics pair offsets with their production kind.
@@ -36,10 +37,10 @@ totals, and displayed values subtract the owner's `ProdOffset` components, keepi
 equal to the printed values. A universal saturating `PositiveMoneyProd` would not be safer: it would
 erase distinctions that Banker must retain.
 
-Industrial Complex remains the one authored arithmetic exception. Filling a negative M€-production
-track to one or two needs the signed deficit, while Metric subtraction saturates at zero and Metric
-union cannot add a scalar to the five offset components. Its targets are therefore six and seven;
-counting unrelated singleton components as numerals would be less truthful than those local offsets.
+Industrial Complex applies the same rule uniformly with `EACH Class<StandardResource>`: it builds
+the target from a union of the resource's Class component, the live `QuickStartVariant` component,
+and `ProdOffset<Class<StandardResource>>`, then subtracts the current `Production`. Only M€ has
+offsets, so the expression also describes the other five tracks without a hardcoded exception.
 
 ### 2. The solo opponent has replenished backing stocks, not possessions
 

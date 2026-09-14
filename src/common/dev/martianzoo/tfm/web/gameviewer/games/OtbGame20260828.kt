@@ -13,7 +13,7 @@ public class OtbGame20260828 : RecordedGame() {
       GameConfig(
           """
           CimmeriaMap
-          VenusNextExpansion, PreludeExpansion, Prelude2Expansion, ColoniesExpansion, PromoCardPack
+          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, ColoniesExpansion, PromoCardPack
           FakeStuffBundle
 
           Engineer, Fundraiser, Landshaper, Merchant, Metallurgist

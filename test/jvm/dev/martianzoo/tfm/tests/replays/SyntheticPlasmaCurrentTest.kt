@@ -15,7 +15,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       GameConfig(
           """
           TharsisMap
-          VenusNextExpansion, PreludeExpansion, Prelude2Expansion, PromoCardPack, TurmoilExpansion
+          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, PromoCardPack, TurmoilExpansion
           Tr63SoloObjective
           """,
           "Bloo",
@@ -65,7 +65,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           ExtractorBalloons,
           Vermin,
       )
-      playCorp(Phobolog) {
+      playCorp(PhoboLog) {
         buyCards(TowingAComet, Moss, TitaniumMine, Algae, ExtractorBalloons)
       }
       discardUnselectedProjectCards(
@@ -644,7 +644,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
             ImportedHydrogen,
             Farming,
             Decomposers,
-            FloydContinuum,
+            // The source also discarded unsupported Floyd Continuum here.
             AerosportTournament,
             IshtarMining,
         )

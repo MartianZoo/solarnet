@@ -56,6 +56,15 @@ Temporality is part of that subject matter rather than an artifact of any machin
 that the change A denotes happens before the change B denotes; `EACH Player { Plant }` quantifies
 over the players present in one state, exactly as a metric counts them.
 
+> **Non-normative design note — Pets follows the game’s icon grammar.** Pets is not trying to make
+> Terraforming Mars look like a conventional programming language. Its primary notation is the
+> game’s own: nouns are component types, juxtaposed counts scale them, repeated icons can identify one
+> repeated choice, and omitted context can mean what the physical component leaves implicit. Explicit
+> machinery is added where the game needs a distinction, not merely because a general-purpose
+> language would normally spell it. The standard to apply is therefore whether the compact notation
+> has one coherent elaborated meaning and remains faithful to the game, not whether it resembles a
+> familiar term language.
+
 ### What this document does not cover
 
 Two neighbours are deliberately out of scope.
@@ -74,7 +83,7 @@ a separate job, and every question about *how* that is done belongs to some othe
 | What count actually gets executed, and how `.` resolves | [`QUANTIFIERS.md`](agents/QUANTIFIERS.md) |
 | Who acted, how a change is attributed, who may narrow a choice | [`IDENTITY.md`](agents/IDENTITY.md) |
 | How `EACH` enumerates components of a live world, and when | [`EACH.md`](agents/EACH.md) |
-| Action availability, costs, invoices and action identity | [`ACTIONS.md`](agents/ACTIONS.md) |
+| Action availability, costs, billing and action identity | [`ACTIONS.md`](agents/ACTIONS.md) |
 | The order in which independent effects fire | [`SEQUENCING.md`](agents/SEQUENCING.md) |
 | The event log, causes and traces | [`ENGINE.md`](agents/ENGINE.md), [`DIAGNOSTICS.md`](agents/DIAGNOSTICS.md) |
 | Which classes a particular game contains | [`OPTIONS.md`](agents/OPTIONS.md) |
@@ -468,9 +477,10 @@ is nested, its container decides how much grouping is needed (L4-5), and after t
 instruction a top-level `OR` must be grouped because a bare `OR` there begins an instruction
 alternative (L6-7).
 
-> **Non-normative example — Industrial Complex.** Its catch-up production uses metrics such as
-> `1 MC / 6 - MC` inside `PROD[...]`. Metric precedence keeps the deficit calculation attached to
-> the scaling operation instead of turning the surrounding production group into alternatives.
+> **Non-normative example — Industrial Complex.** Its catch-up production uses the union of the
+> resource's Class component, the live `QuickStartVariant` component, and any `ProdOffset`
+> components to build its signed target, then subtracts the current `Production`. Parentheses keep
+> that target calculation together.
 
 **L5-8. `receiver.name` reads a class property**, and `EVAL` includes a property's own syntax
 (L12-12). A property metric with no receiver takes one from the enclosing refinement candidate or
@@ -530,6 +540,13 @@ nothing left in it is `Ok`.
 > for different heat payouts, or choose `Ok` and do nothing. Treating `Ok` as a physical component
 > would leave a meaningless token behind instead of representing the legitimate no-change arm.
 
+> **Non-normative design note — identity and impossibility.** Instructions denote relations between
+> states, so they need both an identity relation and an impossible relation. `Ok` is the identity:
+> composing with it changes nothing. `Die` (L12-14) is the impossible relation: it has no legal
+> after-state. Giving both ordinary Pets names lets choices and rewrites retain the icon grammar
+> instead of introducing a separate control-flow notation; neither denotes a component that can
+> remain in a world.
+
 **L6-5. `I / M` scales a change by a metric's value.** `Titanium / 3 EarthTag` grants one titanium
 per three complete Earth tags. Only an elementary change may be scaled this way.
 
@@ -571,8 +588,8 @@ nested pairs. Every stage before the last must be a single instruction: a group 
 on the left is rejected, because "before" needs one identifiable change to be before. What waiting
 means for pending work is `SEQUENCING.md`'s subject.
 
-> **Non-normative example — Polder Tech Dutch.** Its required action places an ocean and then a
-> greenery adjacent to an ocean. `THEN` ensures the new ocean exists before the greenery's legal-area
+> **Non-normative example — solo neutral tiles.** Each placement pairs a city with a subsequent
+> greenery adjacent to a city. `THEN` ensures the new city exists before the greenery's legal-area
 > query is settled; a comma would let the second choice be evaluated against the old board.
 
 **L6-10. `EACH Selector { body }` quantifies over one state.** It denotes one independent branch of
@@ -693,9 +710,6 @@ by its own coefficient, so `X Plant THEN 2X Heat` may become `3 Plant THEN 6 Hea
 transmutation that repeats an abstract expression must supply one consistent value for it (T13-6,
 T13-7); two different values are rejected.
 
-> **A known gap.** When the repeated expression is written with an empty argument list, the variable
-> is declared but never binds, and the stages may diverge after all. Characterized in `LangBugsTest`.
-
 > **Non-normative example — Utopia Invest.** `PROD[StandardResource] -> 4 StandardResource` means
 > reduce one chosen production track and gain four units of that same resource. Binding the two
 > occurrences independently would allow trading steel production for four plants.
@@ -768,8 +782,10 @@ a gain of any number of plants with the same number of heat. A removal is writte
 > `This` would combine a one-time setup event with repeatable world events that scale differently.
 
 **L8-7. `BY` restricts a trigger by actor and `IF` by state.** Precedence, tightest first: `OR`,
-`BY`, `IF`. Parentheses give one alternative its own qualifier. A `BY` selector is an expression, so
-`BY Player(NOT Owner)` is a filter and `BY Player` may declare an actor variable (T13-9).
+`BY`, `IF`. Parentheses give one alternative its own qualifier. A `BY` selector is an expression
+specialized by the Actor recorded on the event: `BY Player` can supply that concrete Player to other
+matching occurrences, `BY Player(NOT Owner)` tests the Actor and participates in ordinary repeated-
+expression linking, and `BY Anyone` removes the Actor restriction (T13-9).
 
 > **Non-normative example — Lakefront Resorts.** `OceanTile BY Anyone: PROD[1 MC]` pays its owner
 > whenever any player places an ocean. The actor qualifier belongs to the trigger event, while an
@@ -1089,6 +1105,12 @@ occurrence. Writing `<>` still accepts the default explicitly.
 > the candidate card fill that slot; eager owner defaulting would ask about a generic resource owned
 > by the enclosing player instead.
 
+> **Non-normative design note — candidate binding precedes defaulting.** Rules L12-9 and L12-10 are
+> consequences of one precedence: a refinement first reads its requirement about the candidate, and
+> only then may omitted dependency context receive a default. The candidate is not concrete until the
+> refinement is tested, so elaboration implements that precedence by reserving or deferring the
+> affected slot. This is staging of one implicit-argument rule, not a second meaning for refinements.
+
 **L12-11. A gain of several `Atomized` components becomes several gains of one.** `3 ProjectCard`
 becomes three independent gains, because three cards are three separate things to choose.
 
@@ -1116,17 +1138,15 @@ it is reacting to.
 > `Placement<This>: Plant` rule must give the plant to whoever placed there. Adding `BY Owner` to the
 > trigger captures that actor instead of leaving the reward ownerless or assigning it to the area.
 
-**L12-14. A change to a type this game cannot hold becomes `Die` or `Ok`.** A type expression that
-becomes invalid when specialization substitutes a dependency outside its declared bound (T3-4,
-T3-5) becomes a gain of `Die`, so the invalid branch can never be carried out. When a specialized
-instruction instead names a resolved type that is not active (T12-1), a mandatory change becomes
-`Die` and a change that permits zero becomes `Ok`. This keeps a rule that mentions absent content
-from silently succeeding.
+**L12-14. Changes to uninhabited Types become `Die` or `Ok`.** After specialization, a change whose
+Type expression violates a dependency bound (T3-4, T3-5) becomes a gain of `Die`. A valid change
+whose Type is uninhabited (T12-4) becomes `Die` when mandatory and `Ok` when its quantifier permits
+zero. An expression containing an open Type variable is not tested for inhabitance until that
+variable is bound; specialization may give the expression a nonempty domain (T8-7).
 
-> **Non-normative implementation note — cross-expansion safety.** Cimmeria conditionally grants a
-> colony only with the Colonies expansion. If specialization nevertheless reaches an inactive
-> mandatory colony gain, `Die` preserves the impossibility; an inactive optional branch becomes
-> `Ok` so omitted content cannot masquerade as a successful reward.
+> **Non-normative example — cross-expansion branches.** Cimmeria grants a colony only in a game
+> containing the Colonies expansion. If specialization reaches that branch in another game, a
+> mandatory colony gain becomes `Die`, while an optional gain becomes `Ok`.
 
 **L12-15. Specializing an effect closes it over one exact component.** Given a component's type,
 `specializeEffect` binds the class's type variables (T13-5), the `This` context and the contextual

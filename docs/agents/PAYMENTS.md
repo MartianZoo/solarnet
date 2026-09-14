@@ -7,7 +7,7 @@
 > **Read when:** fixing excess payment, recording tender value, attributing payment contributions,
 > or evaluating Helion/Stormcraft implications for one auditable allocation.
 >
-> **Skip when:** changing Action-to-invoice lowering without changing allocation; use
+> **Skip when:** changing Action-to-billing lowering without changing allocation; use
 > [ACTIONS.md](ACTIONS.md).
 >
 > **Status:** current `TfmGameplay` legality and replay-audit behavior. The engine-level allocation
@@ -15,10 +15,10 @@
 
 ## Source map
 
-- [Terraforming Mars `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
-  — search separately for `CLASS Pay`, `CLASS ResourceValue`, `ABSTRACT CLASS Owed`, and
-  `ABSTRACT CLASS Billing` to inspect the current distributed protocol.
-- [Colonies `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/classes.pets)
+- [Terraforming Mars `payment.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets)
+  — search separately for `CLASS Pay`, `CLASS ResourceValue`, `CLASS Owed`, and
+  `ABSTRACT CLASS Billing` to inspect the current protocol.
+- [Colonies `cards.json5`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/cards.json5)
   — search for `Stormcraft` only when evaluating source attribution.
 - [`TfmGameplay.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmGameplay.kt)
   — search for `rejectReturnableUnit` for legality, `auditSourcedTender` for replay auditing, and
@@ -40,20 +40,20 @@ The payment system must eventually distinguish three facts:
 
 1. which indivisible resources the player chose to spend;
 2. the full value contributed by each resource after every applicable rule; and
-3. how much of the combined value was needed to settle the invoice.
+3. how much of the combined value was needed to settle the billing.
 
 Today it preserves the first fact but not the other two. `Pay` and `PayFromCard` remove the selected
 resource. Each owned `ResourceValue` for that resource then removes one M€-denominated `Owed`,
 stopping harmlessly when no matching debt remains. Players start with two `BaseResourceValue`
 components for steel and three for titanium. Advanced Alloys and the single-resource modifier cards
 grant source-dependent values; Martian Lumber Corp demonstrates the same rule with three plant
-values. M€ has no `ResourceValue`: `Pay` already settles debt when the paid resource and invoice
+values. M€ has no `ResourceValue`: `Pay` already settles debt when the paid resource and billing
 denominations match. If the earlier removals exhaust the debt, a later value component records no
 contribution. The result depends on automatic-effect execution order, although that order is not a
 game rule and must not decide which source receives credit.
 
 Consequently the engine cannot tell the difference between value that was never offered and value
-that was offered but unnecessary. Direct task execution can therefore settle an invoice after an
+that was offered but unnecessary. Direct task execution can therefore settle a debt after an
 illegal selection. `BugsTest.Space Elevator incorrectly accepts payment that wastes one steel`
 captures the known failure. `TfmGameplay.pay` prevents some such selections in advance, but its
 check applies to the complete tender: it rejects the payment exactly when removing a selected unit
@@ -81,7 +81,7 @@ resource. It does not mutate and roll back the World to answer the query.
 
 The helper follows the payer's Actor through a cross-Player workflow. The active Player may control
 when a triggered option is selected, while the component owner chooses the option and settles the
-owner's invoice. The helper may therefore advance concrete billing work through its current
+owner's billing. The helper may therefore advance concrete billing work through its current
 assignee before the payer chooses tender; this coordinates existing task delegation and does not
 change task ownership.
 
@@ -104,7 +104,7 @@ from an original Jacob ruling before this becomes committed behavior.
 
 ## Attribution is related but not identical
 
-We want the history to show when Advanced Alloys, Phobolog, Psychrophiles, and similar rules
+We want the history to show when Advanced Alloys, PhoboLog, Psychrophiles, and similar rules
 contributed and by how much. That requires recording gross contributions before debt consumption
 saturates. It does not necessarily yield one objectively correct allocation of the consumed debt.
 When several bonuses contribute to a payment containing excess, saying which bonus was "needed"
@@ -121,7 +121,7 @@ credit from those facts without making that choice part of payment execution.
 
 **Adopted for `TfmGameplay.pay`.** The client assembles the complete payment, calculates its
 effective unit values, and submits only legal selections. It removes each selected unit in turn and
-rejects the allocation if any reduced selection still covers the invoice.
+rejects the allocation if any reduced selection still covers the billing.
 
 This is a legitimate division of responsibility in a follow-mode engine, especially when the
 engine exposes low-level choices rather than owning the player's whole move. It also has the lowest
@@ -145,10 +145,10 @@ direct validation.
 
 ### Record an allowed excess reserve
 
-The invoice could create `AllowedOverpayment` units. Payment effects would remove plain `Owed`
+The billing could create `AllowedOverpayment` units. Payment effects would remove plain `Owed`
 first and the reserve second, failing if their complete value could remove neither. This records
 excess and prevents silent saturation. It does not explain how much reserve to create: the legal
-amount depends on the least-valued selected unit, which is not known when the invoice is created.
+amount depends on the least-valued selected unit, which is not known when the billing is created.
 Making every payment source add its own allowance is wrong because the allowance is a minimum, not
 a sum.
 
@@ -166,7 +166,7 @@ reversible bookkeeping, not yet as a complete design.
 
 ### Escrow sources and try returning each one
 
-Selected resources could remain in payment escrow until the invoice has been evaluated. The engine
+Selected resources could remain in payment escrow until the billing has been evaluated. The engine
 would reject the selection if any single source unit could be returned while the remainder still
 covers the debt. This expresses the working rule directly and supports strange conversion chains.
 
@@ -178,8 +178,8 @@ or counterfactual evaluator. That may ultimately be the right model, but it is n
 
 Instead of having each payment effect remove `Owed` immediately, spending could produce a payment
 signal, conversions and bonuses could produce further payment value, and only the terminal value
-would settle the invoice. Each signal would remain associated with both its source unit and its
-invoice. This would preserve gross value and attribution and could support either engine or client
+would settle the billing. Each signal would remain associated with both its source unit and its
+billing. This would preserve gross value and attribution and could support either engine or client
 validation.
 
 This is the most coherent systemic direction found so far, but it adds an intermediate concept and
@@ -195,20 +195,20 @@ titanium. The combination with Stormcraft is still a useful test of whether a pr
 composes.
 
 Stormcraft currently responds to a Heat `Billing` by offering `PayFromCard<Stormcraft>`, then that
-signal directly removes two `Owed<Heat>`. If Helion makes Heat acceptable for an M€ invoice, simply
+signal directly removes two `Owed<Heat>`. If Helion makes Heat acceptable for an M€ billing, simply
 having Stormcraft react to `Accepting<Heat>` would expose the floater choice but would not complete the
-conversion: `PayFromCard<Stormcraft>` would still seek Heat debt while the invoice contains M€ debt.
+conversion: `PayFromCard<Stormcraft>` would still seek Heat debt while the billing contains M€ debt.
 The signal also does not retain that the floater represents two Heat.
 
 The designer-ruling premise supplied for this discussion requires the conceptual chain:
 
 ```text
-Stormcraft floater -> two Heat payment units -> Helion conversion -> M€ invoice value
+Stormcraft floater -> two Heat payment units -> Helion conversion -> M€ billing value
 ```
 
 A future model can support that either by making conversions composable or by evaluating the whole
-chain in a client. It must also associate the chain with one invoice so the same Heat value cannot
-settle unrelated Heat and M€ debts. This example favors recording payment production separately
+chain in a client. It must also associate the chain with one billing component so the same Heat
+value cannot settle unrelated Heat and M€ debts. This example favors recording payment production separately
 from debt consumption, but its low product priority means it is a design check, not a reason to
 implement Helion now.
 
@@ -216,7 +216,7 @@ implement Helion now.
 
 First replace the distributed parallel-task lifecycle with the single payment-choice loop while
 preserving the exact `Pay` and `PayFromCard` history needed by later allocation work. Complete
-Billing directly from debt reaching zero. Do not add a separate `Paid` component: invoice removal
+Billing directly from debt reaching zero. Do not add a separate `Paid` component: billing removal
 remains the completion event.
 
 Do not repair Space Elevator by prohibiting all excess or by relying on automatic-effect order.

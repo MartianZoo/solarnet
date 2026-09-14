@@ -50,7 +50,7 @@ internal class CustomMetricMilestonesTest {
         )
     val p1 = game.testTfm(PLAYER1)
     p1.runOperation(
-        "$Ecoline, $ThorGate, $Phobolog, $InventorsGuild, $EarthOffice, " +
+        "$Ecoline, $ThorGate, $PhoboLog, $InventorsGuild, $EarthOffice, " +
             "$IoMiningIndustries, $Pets, 8 Plant, 6 Steel, 4 Heat, 3 ProjectCard"
     )
     game
