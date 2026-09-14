@@ -1,5 +1,7 @@
 # Solarnet
 
+**Solarnet is an independent fan project, not affiliated with or endorsed by FryxGames AB.**
+
 ## Fast facts
 
 * Solarnet is a game engine for the amazing board game *[Terraforming Mars](https://boardgamegeek.com/boardgame/167791/terraforming-mars)* as a standalone library. It's just a toy but there are a few really cool things about it.
