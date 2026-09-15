@@ -16,7 +16,6 @@ kotlin {
 
 dependencies {
   implementation(project(":agent"))
-  implementation(project(":game-viewer"))
   implementation(project(":tfm-canon"))
   implementation(project(":tfm-fake"))
   implementation(project(":engine"))

@@ -70,14 +70,13 @@ A live Game World is a `World` containing:
 
 The `:state` library owns the passive component state, exact pending tasks, event history, readable
 projections, and runtime event/task values of one game. It stores task Instructions as inert data
-but has no task execution, effects, Agent, or autoexecution. The selected final boundary also puts
-approved recording positions in `:state`; those positions have not moved yet.
+but has no task execution, effects, Agent, or autoexecution. Immutable recordings and their approved
+positions also live in `:state`; the engine only decides and tracks those positions during live play.
 The engine consumes that Game World and owns task and instruction behavior. The `:agent` library
 consumes the engine and supplies the normal Actor-scoped client API and optional policies.
 See [GAMEWORLD.md](GAMEWORLD.md),
 [RESPONSIBILITIES.md](RESPONSIBILITIES.md#selected-runtime-dependency-direction), and
-[API.md](API.md). Live transaction coordination, approved recording positions, and recording
-navigation remain in `:engine` during the staged extraction.
+[API.md](API.md). Live transaction coordination remains in `:engine`; recording navigation does not.
 
 `GameConfig` is unresolved user intent. Catalog-specific resolution composes concrete Player
 Classes named by the configuration, then applies defaults, selection policy, and validation to
@@ -249,11 +248,10 @@ failure reverses component state, tasks, event-backed indexes, and events.
 prevents rollback into initialization or a workflow stage.
 
 `World.recording()` captures the event sequence and selected positions around successful outermost
-Agent completion. `GameRecording.seek` currently reverses or reapplies those events on the same live
-`World`, and capturing seals its public rollback surface to those positions. This coupling is
-transitional. The selected model exports immutable history and opens an independent scrollable Game
-World view whose public seek targets are only completed positions, never arbitrary event ordinals.
-See [GAMEWORLD.md](GAMEWORLD.md).
+Agent completion without changing the live `World`. Opening the immutable recording constructs an
+independent passive Game World; seeking reverses or reapplies recorded events there, and its public
+targets are only completed positions, never arbitrary event ordinals. See
+[GAMEWORLD.md](GAMEWORLD.md).
 
 Failure-atomicity is not game-rule atomicity. An operation whose intermediate changes fire effects
 may still be observable one change at a time.
@@ -514,7 +512,7 @@ chain. `:` effects become tasks. Use
 
 ## Metrics, refinements, and limits
 
-`GameReader.count` evaluates component counts, union metrics, and custom metrics. A union is a
+State's `GameReader.count` evaluates component counts, union metrics, and custom metrics. A union is a
 multiset union: for each exact component Type, keep the greatest matching multiplicity so overlapping
 arms do not double count. Its arms must be distinct component counts; capped, scaled, subtractive,
 property, and virtual custom counts cannot participate because they have no component identity.

@@ -78,7 +78,9 @@ public class EventLog internal constructor() {
     return TaskResult(changes, newTasks)
   }
 
-  internal fun markSetupStart() {
-    setupStart = Checkpoint(size)
+  internal fun markSetupStart(checkpoint: Checkpoint) {
+    require(checkpoint.ordinal in 0..size)
+    check(setupStart == null) { "setup start is already marked" }
+    setupStart = checkpoint
   }
 }

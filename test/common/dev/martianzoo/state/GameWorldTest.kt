@@ -1,6 +1,6 @@
 package dev.martianzoo.state
 
-import dev.martianzoo.engine.testClassTable
+import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExistingDependentsException
@@ -18,13 +18,14 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class GameWorldTest {
-  private val table = testClassTable("CLASS Token\nCLASS Holder<Token>")
+  private val premise = testGamePremise("CLASS Token\nCLASS Holder<Token>", players = 0)
+  private val table = premise.classTable
   private val token = table.resolve(parse<Expression>("Token")).toComponent()
   private val holder = table.resolve(parse<Expression>("Holder<Token>")).toComponent()
 
   @Test
   internal fun appliesAndReversesOnlyExactConcreteChanges() {
-    val world = GameWorld(table)
+    val world = GameWorld(premise)
     val tokenGain = changeEvent(world, ComponentChange.Gain(component = token))
     val holderGain = changeEvent(world, ComponentChange.Gain(component = holder))
 
@@ -46,7 +47,7 @@ internal class GameWorldTest {
 
   @Test
   internal fun exactTaskEventsKeepHistoryAndPendingProjectionTogether() {
-    val world = GameWorld(table)
+    val world = GameWorld(premise)
     val task =
         Task(
             id = TaskId(0),
@@ -76,7 +77,7 @@ internal class GameWorldTest {
 
   @Test
   internal fun rejectedOrdinalDoesNotAdvanceStateHistoryOrRevision() {
-    val world = GameWorld(table)
+    val world = GameWorld(premise)
     val revision = world.revision
 
     shouldThrow<IllegalArgumentException> {
@@ -90,8 +91,8 @@ internal class GameWorldTest {
 
   @Test
   internal fun separateWorldsReplayTheSameTaskValueAndThenDiverge() {
-    val first = GameWorld(table)
-    val second = GameWorld(table)
+    val first = GameWorld(premise)
+    val second = GameWorld(premise)
     val task =
         Task(
             id = TaskId(0),

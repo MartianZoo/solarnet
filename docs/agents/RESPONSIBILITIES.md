@@ -74,15 +74,10 @@ Task assignment remains an engine-enforced game rule. Preventing a caller from c
 engine API is out of scope. The engine is intentionally indifferent to why an Actor or trusted
 caller chose one legal mutation instead of another.
 
-**Current divergence:** `:state` now owns passive component and task storage, exact event history,
-and inert `ComponentChange`, `Task`, `GameEvent`, and `TaskResult` data. `GameReaderImpl`, task
-construction and execution, live transactions, approved recording positions, and recording
-navigation remain in `:engine`. The game viewer therefore still has an engine dependency until
-immutable recording export and independent playback move across the seam.
-
-Do not create empty Gradle modules ahead of the extraction. First settle the direct core mutation
-surface, the concrete state-change contract, the sole-issuer Agent lifetime, and the plain shared
-autoexecution loop; then move one coherent dependency slice at a time.
+`:state` owns passive component and task storage, exact event history, the rich `GameReader`, custom
+metric evaluation, and immutable recording navigation. Task construction and execution, effects,
+live transactions, and the decision that an operation has reached a viewer-safe position remain in
+`:engine`. The game viewer consumes state recordings and has no engine dependency.
 
 ## Terraforming Mars behavior outside `tfm`
 

@@ -15,6 +15,7 @@ import kotlin.test.Test
 internal class CardTrackingFullGameTestTest :
     CardTrackingFullGameTest(requireEveryProjectCardChangeNamed = true) {
   override val config = GameConfig("PreludeExpansion", "Player1")
+  internal override val producesReplayRecording = false
 
   @Test
   internal fun namedDrawsReturnsPlaysAndDiscardsMaintainThePlayersHand() {
