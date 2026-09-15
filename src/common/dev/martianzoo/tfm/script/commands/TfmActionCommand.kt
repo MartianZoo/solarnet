@@ -13,14 +13,14 @@ import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.data.Task
-import dev.martianzoo.pets.data.Task.TaskId
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.script.ScriptSession.UsageException
 import dev.martianzoo.script.commands.TaskCommand
+import dev.martianzoo.state.Task
+import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.tfm.canon.cardActions
 import dev.martianzoo.tfm.canon.tfmCatalog
 
@@ -88,7 +88,7 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
     val costTasks = repl.game.tasks.extract { it }.filter { it.id !in taskIdsBeforeAction }
     val directCosts = costTasks.filter { it.instruction.descendantsOfType<Remove>().any() }
     if (directCosts.isEmpty()) {
-      openInvoice(costTasks, payment)
+      openBilling(costTasks, payment)
       TfmPayCommand(repl).withArgs(payment)
       return
     }
@@ -104,14 +104,14 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
     }
   }
 
-  private fun openInvoice(costTasks: List<Task>, payment: String) {
-    val invoice = costTasks.single { task ->
+  private fun openBilling(costTasks: List<Task>, payment: String) {
+    val billing = costTasks.single { task ->
       task.instruction.descendantsOfType<Change>().any { change ->
         change.gaining?.className == cn("Owed")
       }
     }
     val owed =
-        invoice.instruction.descendantsOfType<Change>().single { change ->
+        billing.instruction.descendantsOfType<Change>().single { change ->
           change.gaining?.className == cn("Owed")
         }
     val narrowing =
@@ -126,20 +126,20 @@ internal class TfmActionCommand(private val repl: ScriptSession) : ScriptCommand
           check(suppliedAmount % authoredMultiple == 0) {
             "$suppliedAmount isn't a multiple of $authoredMultiple"
           }
-          bindXTo(suppliedAmount / authoredMultiple).transformInstruction(invoice.instruction)
+          bindXTo(suppliedAmount / authoredMultiple).transformInstruction(billing.instruction)
         } else {
-          invoice.instruction
+          billing.instruction
         }
     TaskCommand(repl).withArgs(firstStage(narrowing).toString())
-    val invoiceTask =
+    val billingTask =
         repl.game.tasks
             .extract { it }
             .single { task ->
               task.instruction.descendantsOfType<Change>().any { change ->
-                change.gaining?.className == cn("Invoice")
+                change.gaining?.className == cn("ActionBilling")
               }
             }
-    TaskCommand(repl).withArgs(firstStage(invoiceTask.instruction).toString())
+    TaskCommand(repl).withArgs(firstStage(billingTask.instruction).toString())
   }
 
   private fun firstStage(instruction: InstructionTree): InstructionTree =

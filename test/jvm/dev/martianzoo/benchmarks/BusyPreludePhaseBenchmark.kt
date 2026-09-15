@@ -2,11 +2,11 @@ package dev.martianzoo.benchmarks
 
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog

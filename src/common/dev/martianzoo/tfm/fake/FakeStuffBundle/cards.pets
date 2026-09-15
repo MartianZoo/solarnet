@@ -55,6 +55,16 @@ CLASS FakeHelion : CardFront<Class<CorporationCard>> {
   Billing<HasActions, ActionSlot, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
 }
 
+"A replay-only stand-in for an unsupported upstream corporation"
+CLASS FakePolderTechDutch : CardFront<Class<CorporationCard>> {
+  cost = 0
+
+  This:: EarthTag<This>
+  This: 35 MC, RequiredAction { -> OceanTile<> THEN GreeneryTile<LandArea(HAS Neighbor<OceanTile>)> }
+  OceanTile: Energy
+  GreeneryTile: Plant
+}
+
 "Banned Delegate without immediate party-leader and Dominant-party changes"
 CLASS FakeBannedDelegate : EventCard {
   cost = 0
@@ -68,7 +78,7 @@ CLASS FakeBannedDelegate : EventCard {
 "Returns one selected non-leader delegate without recalculating its party"
 CLASS FakeBannedDelegateRemoval<Party, Anyone> : Owned<Player>, Barrier {
   HAS MAX 1 This
-  This: ReserveDelegate<Anyone> FROM PartyDelegate<Party, Anyone> THEN -This!
+  This: -PartyDelegate<Party, Anyone> THEN -This!
 }
 
 "Septem Tribus with an inert wild tag"
@@ -107,17 +117,10 @@ CLASS FakeL1TradeTerminal : ActiveCard {
   End: 2 VictoryPoint
 }
 
-"Mars Nomads without its moving map marker and placement bonus"
-CLASS FakeMarsNomads : ActionCard, ActiveCard {
-  cost = 13
-
-  -> Ok
-}
-
 "One robot unit stored with a card that reduces its play cost by 1 MC"
 CLASS RobotUnit<Class<CardFront>> : Resource, Owned<Player>, Hidden {
   ReplicateForStagedProject<Class<CardFront>>: This!
-  PlayCard<Class<CardBack>, Class<CardFront>, Hand>: -Owed<>, -This!
+  PlayCard<Class<CardBack>, Class<CardFront>, Hand>: -Owed, -This!
 }
 
 "Self-Replicating Robots with printed-tag selection delegated in follow mode"

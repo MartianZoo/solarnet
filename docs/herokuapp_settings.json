@@ -59,7 +59,6 @@
         "Philares",
         "PhoboLog",
         "Point Luna",
-        "PolderTECH Dutch",
         "Polyphemos",
         "Poseidon",
         "Pristar",
@@ -147,9 +146,10 @@
         "World Government Advisor"
     ],
     "bannedCards": [
+        "Floyd Continuum",
         "L1 Trade Terminal",
-        "Mars Nomads",
         "New Holland",
+        "PolderTECH Dutch",
         "Research Coordination",
         "Self-replicating Robots"
     ],

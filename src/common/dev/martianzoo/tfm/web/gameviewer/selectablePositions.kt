@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.web.gameviewer
 
-import dev.martianzoo.engine.Timeline.Checkpoint
+import dev.martianzoo.state.Checkpoint
 
 /** Recording positions whose preceding displayed step contains a visible log event. */
 internal fun selectablePositionIndices(

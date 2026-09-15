@@ -26,13 +26,15 @@ import dev.martianzoo.pets.data.ClassSelection
  * Incrementally compiles a [Catalog] into the single master universe specified by
  * [rules T1-1 and T1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
  *
- * Name lookup and resolution are available while loading. Enumeration is available only after the
- * universe has been completed and frozen by [loadEverything].
+ * Name lookup and resolution are available while loading. [loadEverything] completes and freezes a
+ * master universe. A game projection freezes its combined structural universe before computing the
+ * premise's inclusion closure, so every enumeration used by that closure has a stable universe.
  */
 public class ClassLoader
 private constructor(
     internal override val catalog: Catalog,
     private val masterSource: ClassTable?,
+    private val premiseDeclarations: Map<ClassName, ClassDeclaration> = emptyMap(),
     private val blockedActivations: Map<ClassName, Set<ClassName>> = emptyMap(),
     private val configuredModuleNames: Set<ClassName> = emptySet(),
     private val configuredClassSelections: Set<ClassSelection> = emptySet(),
@@ -46,7 +48,8 @@ private constructor(
 
   internal override val masterTable: ClassTable = masterSource ?: this
 
-  private val knownClassNames: Set<ClassName> = masterSource?.allClassNames ?: catalog.allClassNames
+  private val knownClassNames: Set<ClassName> =
+      (masterSource?.allClassNames ?: catalog.allClassNames) + premiseDeclarations.keys
 
   private val cache = mutableMapOf<Expression, GroundType>()
 
@@ -76,6 +79,7 @@ private constructor(
 
   private val loadedClasses =
       mutableMapOf<ClassName, Class?>(COMPONENT to componentClass, CLASS to classClass)
+  private val includedClassNames = linkedSetOf(COMPONENT, CLASS)
 
   /**
    * Returns the already loaded class named [name], or null; exact-name lookup during loading
@@ -83,22 +87,36 @@ private constructor(
    * [rules T1-6 and T1-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   override fun findClass(name: ClassName): Class? {
-    if (masterSource != null) return masterSource.findClass(name)
     return if (name in loadedClasses) {
       loadedClasses[name] ?: throw PetException("Class-loading cycle involving $name")
     } else {
-      null
+      masterSource?.findClass(name)
     }
   }
 
   /**
-   * Resolves [expression] with stable identity and strict exact names under
+   * Resolves [expression] with strict exact names under
    * [rules T1-3 and T1-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    *
    * @throws ExpressionException if [expression] is invalid in this universe.
    */
   override fun resolve(expression: Expression): GroundType {
-    if (masterSource != null) return masterSource.resolve(expression)
+    cache[expression]?.let {
+      return it
+    }
+
+    if (masterSource != null) {
+      var requiresCombinedTable = false
+      expression.visitDescendants { node ->
+        if (node is Not || (node is ClassName && node in premiseDeclarations)) {
+          requiresCombinedTable = true
+        }
+        !requiresCombinedTable
+      }
+      if (!requiresCombinedTable) {
+        return masterSource.resolve(expression).also { cache[expression] = it }
+      }
+    }
     expression.refinement?.conjuncts()?.filterIsInstance<Not>()?.forEach { refinement ->
       fun containsRefinement(candidate: Expression): Boolean =
           candidate.refinement != null || candidate.arguments.any(::containsRefinement)
@@ -107,26 +125,34 @@ private constructor(
       }
     }
     // Avoiding computeIfAbsent due to CME
-    return cache[expression]
-        ?: try {
-          getClass(expression.className)
-              .specialize(expression.arguments)
-              .refine(expression.refinement)
-              .also { cache[expression] = it }
-        } catch (e: RuntimeException) {
-          throw ExpressionException("can't resolve $expression", e)
-        }
+    return try {
+      getClass(expression.className)
+          .specialize(expression.arguments, this)
+          .inTable(this)
+          .refine(expression.refinement)
+          .also { cache[expression] = it }
+    } catch (e: RuntimeException) {
+      throw ExpressionException("can't resolve $expression", e)
+    }
   }
 
-  private lateinit var frozenClasses: Set<Class>
+  private lateinit var frozenClasses: MutableSet<Class>
 
   /**
-   * Returns every class in the completed universe; calling before freezing violates
+   * Returns every included class after this table's structural universe is frozen; calling before
+   * freezing violates
    * [rule T1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   override fun allClasses(): Set<Class> {
     require(frozen) { "this class table must be frozen before its classes can be enumerated" }
     return frozenClasses
+  }
+
+  override fun allKnownClasses(): Set<Class> {
+    require(frozen) { "this class table must be frozen before its classes can be enumerated" }
+    if (masterSource == null) return frozenClasses
+    return masterSource.allKnownClasses() +
+        premiseDeclarations.keys.mapTo(linkedSetOf()) { name -> getClass(name) }
   }
 
   // LOADING
@@ -154,7 +180,7 @@ private constructor(
   private val queue = ArrayDeque<ClassName>()
   private val requestedBy = mutableMapOf<ClassName, ClassName?>()
 
-  /** Loads [names] together, advancing their activation closure one complete frontier at a time. */
+  /** Loads [names] together, advancing their inclusion closure one complete frontier at a time. */
   internal fun loadAll(names: Collection<ClassName>) {
     enqueue(names, requestedByClass = null)
     while (queue.isNotEmpty()) {
@@ -167,32 +193,48 @@ private constructor(
               "broken game premise: $path; select one of its bundle Modules: " + availabilityModules
           )
         }
-        loadRelated(next, active = true)
+        loadRelated(next, include = true)
       }
       enqueueReachableActivationEdges()
     }
   }
 
+  /** Computes a game projection's inclusion closure within its completed structural universe. */
+  internal fun includeAll(names: Collection<ClassName>) {
+    require(masterSource != null && frozen) {
+      "a game projection must be structurally frozen before its inclusion closure is computed"
+    }
+    loadAll(names)
+  }
+
   private fun enqueue(names: Collection<ClassName>, requestedByClass: ClassName?) {
-    (names - loadedClasses.keys - queue).forEach { name ->
+    (names - includedClassNames - queue).forEach { name ->
       requestedBy[name] = requestedByClass
       queue += name
     }
   }
 
-  internal fun loadRelated(next: ClassName, active: Boolean): Class {
-    if (masterSource != null) {
+  private fun includeClass(name: ClassName) {
+    if (includedClassNames.add(name)) {
+      if (frozen) frozenClasses += getClass(name)
+      invalidateInclusionCaches()
+    }
+  }
+
+  internal fun loadRelated(next: ClassName, include: Boolean): Class {
+    if (masterSource != null && next !in premiseDeclarations) {
       val klass = masterSource.getClass(next)
-      if (active && next !in loadedClasses) loadedClasses[next] = klass
+      if (include) includeClass(next)
       return klass
     }
     if (next in loadedClasses) {
-      return loadedClasses[next] ?: throw PetException("Class-loading cycle involving $next")
+      return (loadedClasses[next] ?: throw PetException("Class-loading cycle involving $next"))
+          .also { if (include) includeClass(next) }
     }
     val declaration = knownDeclaration(next)
     validateClassNames(declaration)
     validateNoEffectCreatesClass(declaration)
-    return construct(declaration)
+    return construct(declaration, include).also { if (include) includeClass(next) }
   }
 
   private fun validateNoEffectCreatesClass(declaration: ClassDeclaration) {
@@ -228,24 +270,26 @@ private constructor(
   }
 
   /**
-   * Rechecks every live declaration because activating one Class can make a previously impossible
-   * Trigger or gate reachable. The closure is monotone: Classes only become active.
+   * Rechecks every included declaration because including one Class can make a previously
+   * impossible Trigger or gate reachable. The closure is monotone: Classes only become included.
    */
   private fun enqueueReachableActivationEdges() {
-    val activeNames = loadedClasses.keys
-    (activeNames - COMPONENT - CLASS).forEach { name ->
-      enqueue(activationEdges(knownDeclaration(name), activeNames) - THIS, name)
+    val includedNames = includedClassNames
+    (includedNames - COMPONENT - CLASS).forEach { name ->
+      enqueue(activationEdges(knownDeclaration(name), includedNames) - THIS, name)
     }
   }
 
   /** Returns the structurally or constructively required Classes in one live declaration. */
   private fun activationEdges(
       declaration: ClassDeclaration,
-      activeNames: Set<ClassName>,
+      includedNames: Set<ClassName>,
   ): Set<ClassName> = buildSet {
     val interpreter =
         InhabitanceInterpreter(
-            classIsUninhabited = { it !in activeNames },
+            classIsUninhabited = { name ->
+              if (masterSource == null) name !in includedNames else !isInhabited(name)
+            },
             exactCount = ::configuredCount,
         )
 
@@ -304,31 +348,42 @@ private constructor(
 
   private fun configuredCount(expression: Expression): Int? {
     if (masterSource == null || !expression.simple || expression.className == THIS) return null
-    val countedClass = masterSource.getClass(expression.className)
+    val countedClass = loadRelated(expression.className, include = false)
+    val masterSubclasses =
+        if (countedClass.classTable === masterSource) masterSource.allSubclasses(countedClass)
+        else emptySet()
+    val premiseSubclasses =
+        premiseDeclarations.keys
+            .asSequence()
+            .map { name -> loadRelated(name, include = false) }
+            .filter { candidate -> candidate.isSubtypeOf(countedClass) }
+            .toSet()
     val concreteSubclassNames =
-        countedClass
-            .allSubclasses()
+        (masterSubclasses + premiseSubclasses)
             .filterNot(Class::abstract)
             .mapTo(linkedSetOf(), Class::className)
     if (concreteSubclassNames.isEmpty()) return null
     if (catalog.modules.keys.containsAll(concreteSubclassNames)) {
       return configuredModuleNames.count { moduleName ->
-        masterSource.getClass(moduleName).isSubtypeOf(countedClass)
+        loadRelated(moduleName, include = false).isSubtypeOf(countedClass)
       }
     }
     val selections = configuredClassSelections.associateBy(ClassSelection::className)
     if (!selections.keys.containsAll(concreteSubclassNames)) return null
     return selections.values.count { selection ->
-      selection.included && masterSource.getClass(selection.className).isSubtypeOf(countedClass)
+      selection.included &&
+          loadRelated(selection.className, include = false).isSubtypeOf(countedClass)
     }
   }
 
   private fun loadSingle(name: ClassName): Class =
-      loadedClasses[name] ?: loadRelated(name, active = true)
+      findClass(name)?.also { includeClass(name) } ?: loadRelated(name, include = true)
 
   // All classes are created here (aside from Component and Class, at top).
-  private fun construct(source: ClassDeclaration): Class {
-    check(masterSource == null) { "a projection must not construct Classes" }
+  private fun construct(source: ClassDeclaration, activateRelated: Boolean = true): Class {
+    check(masterSource == null || source.className in premiseDeclarations) {
+      "a game projection may construct only premise Classes"
+    }
     require(!frozen) { "Too late, this class table is frozen!" }
     val decl = validateCustomImplementation(source)
 
@@ -337,7 +392,7 @@ private constructor(
     }
     store(null) // to detect reentrancy
     try {
-      val klass = Class(decl, this)
+      val klass = Class(decl, this, activateRelated)
       validateCustomInheritance(klass)
       store(klass)
       return klass
@@ -386,14 +441,14 @@ private constructor(
   private var allSubclassesByClass: Map<Class, Set<Class>>? = null
   private var directSubclassesByClass: Map<Class, Set<Class>>? = null
 
-  internal fun allSubclassesOf(klass: Class): Set<Class> {
+  internal override fun allSubclassesOf(klass: Class): Set<Class> {
     require(frozen) {
       "this class table must be frozen before the subclasses of $klass can be enumerated"
     }
     return checkNotNull(allSubclassesByClass).getValue(klass)
   }
 
-  internal fun directSubclassesOf(klass: Class): Set<Class> {
+  internal override fun directSubclassesOf(klass: Class): Set<Class> {
     require(frozen) {
       "this class table must be frozen before the subclasses of $klass can be enumerated"
     }
@@ -403,7 +458,26 @@ private constructor(
   internal fun freeze(): ClassTable {
     require(!frozen)
     if (masterSource != null) {
-      frozenClasses = loadedClasses.keys.mapTo(linkedSetOf(), masterTable::getClass)
+      premiseDeclarations.values.forEach { declaration ->
+        if (declaration.className !in loadedClasses) {
+          validateClassNames(declaration)
+          validateNoEffectCreatesClass(declaration)
+          construct(declaration, activateRelated = false)
+        }
+      }
+      val premiseClasses =
+          premiseDeclarations.keys.mapTo(linkedSetOf()) { name ->
+            checkNotNull(loadedClasses[name])
+          }
+      allSubclassesByClass = premiseClasses.associateWith { klass ->
+        premiseClasses.filterTo(linkedSetOf()) { candidate -> candidate.isSubtypeOf(klass) }
+      }
+      directSubclassesByClass = premiseClasses.associateWith { klass ->
+        premiseClasses.filterTo(linkedSetOf()) { candidate ->
+          klass in candidate.directSuperclasses
+        }
+      }
+      frozenClasses = includedClassNames.mapTo(linkedSetOf(), ::getClass)
       frozen = true
       return this
     }
@@ -443,19 +517,20 @@ private constructor(
     }
     directSubclassesByClass = directSubclasses.mapValues { (_, subclasses) -> subclasses.toSet() }
 
-    frozenClasses = knownClasses.toSet()
+    frozenClasses = knownClasses.toCollection(linkedSetOf())
     frozen = true
     return this
   }
 
   /**
-   * Every class name in the completed universe; calling before freezing violates
+   * Every included class name after this table's structural universe is frozen; calling before
+   * freezing violates
    * [rule T1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   public override val allClassNames: Set<ClassName>
     get() {
       require(frozen) { "this class table must be frozen before its classes can be enumerated" }
-      return loadedClasses.keys
+      return if (masterSource == null) loadedClasses.keys else includedClassNames
     }
 
   /**
@@ -466,7 +541,8 @@ private constructor(
   override fun toString(): String = "loader$id"
 
   private fun knownDeclaration(name: ClassName): ClassDeclaration =
-      masterSource?.getClass(name)?.declaration
+      premiseDeclarations[name]
+          ?: masterSource?.getClass(name)?.declaration
           ?: catalog.allClassDeclarations[name]
           ?: throw Exceptions.classNotFound(name)
 
@@ -489,10 +565,11 @@ private constructor(
 
     internal fun projection(
         catalog: Catalog,
-        masterTable: ClassTable,
+        premiseTable: PremiseClassTable,
         configuredModuleNames: Set<ClassName>,
         configuredClassSelections: Set<ClassSelection>,
     ): ClassLoader {
+      val masterTable = premiseTable.master
       require(masterTable.masterTable === masterTable) {
         "Catalog class table is not a master table"
       }
@@ -507,6 +584,7 @@ private constructor(
       return ClassLoader(
           catalog,
           masterTable,
+          premiseTable.declarations,
           blocked,
           configuredModuleNames,
           configuredClassSelections,

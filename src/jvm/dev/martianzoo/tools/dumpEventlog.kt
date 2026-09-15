@@ -2,16 +2,15 @@ package dev.martianzoo.tools
 
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.SystemClasses.HIDDEN
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -25,7 +24,8 @@ private val gameOptions: Set<ClassName> =
         cn("TharsisMap"),
         cn("CorporateEraExpansion"),
         cn("VenusNextExpansion"),
-        cn("Prelude2Expansion"),
+        cn("PreludeExpansion"),
+        cn("Prelude2CardPack"),
         cn("ColoniesExpansion"),
         cn("TurmoilExpansion"),
         cn("PromoCardPack"),
@@ -59,9 +59,9 @@ private fun specialSupertypes(game: World, event: ChangeEvent): String {
   val hidden = game.classTable.getClass(HIDDEN)
   val system = game.classTable.getClass(SYSTEM)
   return listOfNotNull(event.change.gaining, event.change.removing)
-      .flatMap { expression ->
+      .flatMap { component ->
         buildList {
-          val changedClass = game.classTable.resolve(expression).rootClass
+          val changedClass = component.type.rootClass
           if (changedClass.isSubtypeOf(system)) add("System")
           if (changedClass.isSubtypeOf(hidden)) add("Hidden")
         }
@@ -70,7 +70,7 @@ private fun specialSupertypes(game: World, event: ChangeEvent): String {
       .joinToString(",")
 }
 
-private fun tsv(expression: Expression?): String = expression?.toString().orEmpty()
+private fun tsv(value: Any?): String = value?.toString().orEmpty()
 
 private fun toTsv(game: World, event: ChangeEvent): String =
     listOf(

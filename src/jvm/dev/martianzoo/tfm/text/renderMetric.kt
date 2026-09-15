@@ -54,7 +54,10 @@ private fun renderMetric(
     }
     is Metric.Or -> renderCombinedMetric(metric, describers, possessorEstablished, count)
     is Metric.Subtract ->
-        if (describers.isProductionOffset(metric.subtrahend)) {
+        if (
+            (metric.subtrahend as? Metric.Count)?.expression?.let(describers::isProductionOffset) ==
+                true
+        ) {
           renderMetric(metric.minuend, describers, possessorEstablished, count)
         } else {
           null
@@ -126,11 +129,6 @@ private fun renderScaledCountPhrase(
     possessorEstablished: Boolean,
 ): MetricRendering? {
   return renderMetric(metric.inner, describers, possessorEstablished, metric.unit)
-}
-
-private fun Describers.isProductionOffset(metric: Metric): Boolean {
-  val expression = (metric as? Metric.Count)?.expression ?: return false
-  return fact(expression.className, ComponentDescriber::productionOffset) == true
 }
 
 private fun Describers.renderCountMetric(

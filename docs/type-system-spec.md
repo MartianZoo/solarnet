@@ -44,7 +44,7 @@ an otherwise surprising provision exists. They are evidence and orientation, not
 
 | Written | Means |
 | --- | --- |
-| `A <: B` | every A is a B; A *narrows* B |
+| `A <: B` | every A is a B; A is a context-free structural subtype of B |
 | `A ⊓ B` | the greatest lower bound (`glb`) of A and B: the most specific type below both |
 | `CLASS Foo` | Pets source for a class declaration |
 | `Foo<Bar>` | Pets source for a type expression |
@@ -58,7 +58,12 @@ A few terms are used precisely throughout:
   types, not worlds; it mentions components only to explain what a type *means*.
 - A **world** is whatever can answer "does this requirement hold right now?" — the `TypeInfo`
   interface. Most of the type system never needs one. Where a rule does, it says so.
-- A **universe** is one Catalog's complete, immutable set of classes and types.
+- A **master class table** is the complete immutable class model compiled once from a Catalog's
+  reusable declarations.
+- A **premise class table** is one game's small declaration delta. It imports exactly one master;
+  the master cannot refer back to it, and its names cannot replace master names.
+- A **universe** combines one master class table with at most one premise class table and one
+  game's premise-selected view.
 
 ### Refinements are types
 
@@ -77,9 +82,9 @@ do not make refinement types a separate kind of expression.
 
 Three neighbours are deliberately out of scope:
 
-- **How a game decides which classes it contains.** Section 12 defines what an *uninhabited* class
-  means; the activation-closure policy that decides which classes end up uninhabited belongs to
-  premise construction. Its behavior is pinned by `ActivationTest.kt` and described in
+- **How a premise selects its declaration closure.** Section 12 takes that closure as part of the
+  game universe and defines inhabitance for its Types. The selection policy belongs to premise
+  construction; its behavior is pinned by `ActivationTest.kt` and described in
   `docs/agents/OPTIONS.md`.
 - **Component-count invariants**, except for the one rule the type system leans on (T3-9): a
   dependency may only target a type limited to a single copy.
@@ -91,18 +96,21 @@ Three neighbours are deliberately out of scope:
 
 ## 1. Universes and identity
 
-Compiling a Catalog produces one **master class table**: a complete, frozen universe of classes and
-the types built from them. Nothing in this specification is meaningful except relative to one such
-universe.
+Compiling a Catalog produces one reusable **master class table**. A game combines that master with
+its small **premise class table**, which contains generated Players, its generated `Premise`, and
+any ad-hoc declarations. The resulting frozen class table is that game's universe. Nothing in this
+specification is meaningful except relative to one compatible master or game universe.
 
-**T1-1. One class per name, one universe per Catalog.** A Catalog compiles to exactly one class
-object for each declared name. Two separately compiled tables over identical source are *different*
-universes whose classes and types are not equal to each other.
+**T1-1. One class per name.** A Catalog compiles to exactly one reusable class object for each
+master declaration. Each game universe constructs exactly one class object for each premise
+declaration and reuses its master's objects. Two separately compiled masters over identical source
+are different and their classes and types are not equal.
 
-**T1-2. Values are universe-scoped.** Every class, type and dependency belongs to one master
-universe. An operation that compares values from two universes — subtyping, `glb`, subclass
-enumeration, constraint matching — raises `IllegalArgumentException`. It does not quietly answer
-"no". `ClassTable.knows(type)` is the safe question to ask first.
+**T1-2. Values are universe-scoped.** A master value can be interpreted by that master or by one
+game universe importing it. A premise value belongs only to its game universe. An operation that
+combines unrelated masters, or two distinct premise universes, raises `IllegalArgumentException`.
+It does not quietly answer "no". Operations whose answer can depend on premise classes take the
+interpreting `ClassTable` explicitly; `ClassTable.knows(type)` is the safe question to ask first.
 
 This matters because a false "not a subtype" would silently misroute a trigger, whereas an exception
 stops the caller at the bug.
@@ -111,20 +119,22 @@ stops the caller at the bug.
 > equal. This guard prevents a type retained from one compiled Catalog from silently failing to match
 > the identically named trigger in another, which would look like a legal card simply did nothing.
 
-**T1-3. Resolution is a function of the written expression.** `ClassTable.resolve` maps an
-`Expression` to a type. The same expression always yields the identical object; different spellings
-of one type yield *equal* types that need not be identical:
+**T1-3. Resolution is a function of the written expression and table.** `ClassTable.resolve` maps
+an `Expression` to a type. A game delegates master-only expressions to its master except when a
+structural refinement must account for premise subclasses. Within one table, repeated
+resolution of the same expression and different spellings of one type yield equal types:
 
 ```text
 GreeneryTile<Area>  and  GreeneryTile   →  equal types
-GreeneryTile        and  GreeneryTile   →  the identical object
+GreeneryTile        and  GreeneryTile   →  equal types
 ```
 
-A type's own renderings (T5-4, T5-5) always resolve back to it.
+A type's own renderings (T5-4, T5-5) always resolve to a type equal to it. Reference identity is not
+part of the contract.
 
-> **Non-normative implementation note — identity is only a cache promise.** Engine code may safely
-> memoize work by the exact expression it resolved. It must still use equality for synonymous
-> spellings such as `GreeneryTile` and `GreeneryTile<Area>`; no gameplay rule distinguishes them.
+> **Non-normative implementation note — caching is not semantics.** An implementation may cache or
+> intern resolved types, but callers must use equality. No gameplay rule distinguishes synonymous
+> spellings such as `GreeneryTile` and `GreeneryTile<Area>`.
 
 **T1-4. `Component` is the root.** Every universe contains an abstract class `Component` with no
 supertypes and no dependencies. Every other class has it as a supertype.
@@ -132,10 +142,10 @@ supertypes and no dependencies. Every other class has it as a supertype.
 **T1-5. `Class` is the other required class.** Its base type is `Class<Component>`. Section 4 covers
 it.
 
-**T1-6. Enumeration requires a frozen table.** A class table is built by loading classes and then
-freezing. Lookup (`findClass`, `resolve`) works during loading; anything that enumerates the
-universe — `allClasses`, `allClassNames`, `allSubclasses`, `directSubclasses`, and therefore
-`glb` between unrelated classes — requires the table to be frozen first.
+**T1-6. Enumeration requires a frozen table.** A master or combined game table is built by loading
+classes and then freezing. Lookup (`findClass`, `resolve`) works during loading; anything that
+enumerates the universe — `allClasses`, `allClassNames`, `allSubclasses`, `directSubclasses`, and
+therefore `glb` between unrelated classes — requires the table to be frozen first.
 
 Before returning the completed table, compilation resolves every class's structural base type.
 Undeclared names are also rejected while loading. Authored expressions inside effects are resolved
@@ -148,11 +158,10 @@ expressions fail at that boundary. Judgments that require a world remain deferre
 > of the completed Catalog instead of declaration order.
 
 **T1-7. Only the exact declared name resolves.** There are no abbreviations, no case folding, no
-nearest-match. An unknown name raises `ExpressionException`. Compiling a Catalog checks every name
-its declarations write and reports the declaration that wrote one no declaration introduces, so an
-author finds a misspelling when the Catalog loads rather than when play reaches it. A name is
-decided against the Catalog being compiled; a declaration therefore may not name a class only a
-later composition supplies, such as a game's player seats.
+nearest-match. An unknown name raises `ExpressionException`. Master declarations are checked
+against the master namespace and therefore cannot name premise classes. Premise declarations are
+checked against their combined master-and-premise namespace. Duplicate premise names and collisions
+with master names are rejected.
 
 ---
 
@@ -195,12 +204,15 @@ returning false.
 **T2-6. Declaration order is irrelevant.** A supertype may be declared after its subclass.
 
 **T2-7. The hierarchy can be walked in both directions.** A class knows `allSuperclasses()` (itself
-included), `allSubclasses()` and `directSubclasses()`. The downward ones need a frozen table (T1-6).
+included). Downward traversal is table-relative: `ClassTable.allSubclasses(klass)` and
+`ClassTable.directSubclasses(klass)` enumerate the subclasses visible in that table. They need a
+frozen table (T1-6).
 
-**T2-8. Greatest lower bound of two classes (`⊓`).** If one operand is below the other, that one is
-the answer. Otherwise Pets looks for a *unique greatest common subclass*: a class below both, which
-every other class below both is also below. If there is no such class — because the two are disjoint,
-or because two rival classes combine them — the result is **absent** (`null`).
+**T2-8. Greatest lower bound of two classes (`⊓`).** `ClassTable.glb(left, right)` interprets both
+classes in that table. If one operand is below the other, that one is the answer. Otherwise Pets
+looks in the table's complete structural universe for a *unique greatest common subclass*: a class
+below both, which every other class below both is also below. If there is no such class — because the
+two are disjoint, or because two rival classes combine them — the result is **absent** (`null`).
 
 ```pets
 ABSTRACT CLASS Tile
@@ -232,6 +244,13 @@ that name.
 A type argument in Pets is not a conventional generic parameter. It is a **dependency**: an edge to
 one specific other component that must exist for this one to exist. `Plant<Player1>` needs
 `Player1`; `GreeneryTile<Tharsis_2_2, Player1>` needs both the area and the player.
+
+> **Non-normative design note — concrete Types are the values.** A world deliberately has no
+> occurrence identity or mutable instance fields: it is a multiset whose keys are concrete Types.
+> Thus `Player1` and `Tharsis_2_2` are values precisely by being concrete Types, while multiplicity
+> records how many indistinguishable occurrences of a value exist. A dependency can identify a
+> target only when that target Type is singleton (T3-9). This is a chosen boundary of the model, not
+> an attempt to simulate object references with incomplete identity.
 
 **T3-1. Keys.** Every dependency a class declares gets a **key**: the declaring class's name plus the
 zero-based slot, written `Occupant_0`, `Owned_0`, `Adjacency_1`. The key, not the position, is the
@@ -366,8 +385,8 @@ answer and raises `PetException` when the bounds are computed. A one-way chain i
 A dependency asserts that a component exists. `Class<X>` instead names a class *as data*:
 `Production<Class<Steel>>` is a steel production, and needs no steel cube to exist.
 
-One `Class<Foo>` component exists for each active concrete class, so `Class<X>` can also be the
-target of an ordinary dependency without violating T3-9.
+One `Class<Foo>` component exists for each concrete Class whose base Type is inhabited, so
+`Class<X>` can also be the target of an ordinary dependency without violating T3-9.
 
 **T4-1. Form.** `Class<X>` takes exactly one bare class name. The `Class` class's own base type is
 `Class<Component>`, so bare `Class` means "some class".
@@ -379,6 +398,9 @@ CityTile          is abstract  — its area has not been chosen
 Class<CityTile>   is concrete  — `CityTile` is one specific class
 Class<Metal>      is abstract  — `Metal` is not
 ```
+
+Like every concrete Type, a concrete class literal can still be uninhabited in a particular
+universe (T12-4).
 
 > **Non-normative example — the project-card deck.** A bare `ProjectCard` type is abstract because
 > its location and owner are open, yet `Class<ProjectCard>` is the one concrete representative of
@@ -428,8 +450,8 @@ happens to be a class literal.
 > would be ill-typed whenever the player had no steel in stock.
 
 **T4-8. Enumeration.** The concrete narrowings of `Class<Metal>` are `Class<Steel>` and
-`Class<Titanium>` — one per concrete subclass. A literal for a class with no concrete subclass
-enumerates nothing.
+`Class<Titanium>` — one per concrete subclass whose base Type is inhabited. A literal whose
+represented Class has no such subclass enumerates nothing.
 
 > **Non-normative example — the solo opponent.** Solo setup uses `EACH Class<StandardResource>` and
 > `EACH Class<CardResource>` to create one reserve per concrete resource kind. Enumerating stock
@@ -485,6 +507,11 @@ This is the source of a common confusion: the *class* `OceanTile` is concrete, w
 
 Abstractness is structural and never consults a world.
 
+Abstractness and inhabitance are different questions. A concrete Type can be uninhabited because
+its root Class is outside a game's declaration closure or one of its dependency domains is empty.
+An abstract Type is inhabited when its universe contains at least one concrete narrowing, and
+uninhabited when it contains none (T12-4).
+
 > **Non-normative example — Research Outpost.** Its city must occupy
 > `LandArea(HAS MAX 0 Neighbor)`. Even if exactly one board space currently satisfies that query, the
 > refined type itself remains abstract; the world may narrow it to a concrete area, but cannot turn
@@ -539,19 +566,22 @@ dependencies or narrowing can treat both uniformly through their resolved interp
 
 ## 6. Subtyping
 
-Narrowing is the central relation: "every component of type A is also of type B".
+Pets uses two related judgments. **Subtyping** is context-free: `A <: B` says every A is a B from
+the Types alone. **Narrowing** is contextual: it additionally asks whether A is an acceptable way to
+settle B in one world, including whether a concrete candidate satisfies B's `HAS` refinement. Every
+subtype is a narrowing; a narrowing that needs live-state evidence is not thereby a subtype.
 
-**T6-1. Two spellings of one test.** `narrows(that, info)` returns a boolean;
-`ensureNarrows(that, info)` throws `NarrowingException` with a reason. `isSubtypeOf` /
-`isSupertypeOf` are the world-free spellings; they pass a sentinel world that raises
-`IllegalStateException` if the comparison actually turns out to need one (T8-8).
+**T6-1. The two judgments.** `narrows(that, info)` answers contextual narrowing;
+`ensureNarrows(that, info)` is its throwing form. `isSubtypeOf` and `isSupertypeOf` answer
+context-free subtyping. They raise `IllegalStateException` rather than guess when a comparison asks
+for live-state evidence (T8-8).
 
 > **Non-normative implementation note — refusing a plausible lie.** A world-free comparison cannot
 > decide whether a concrete area satisfies `HAS Neighbor`. Throwing exposes a caller that chose the
 > structural API; returning false would incorrectly report a legal placement as impossible in some
 > worlds.
 
-**T6-2. The structural rule.** A narrows B when
+**T6-2. The shared structural rule.** A narrows B when
 
 1. A's root class is a subclass of B's root class, and
 2. for every dependency key B constrains, A's bound for that key narrows B's, and
@@ -583,23 +613,25 @@ with a world is a preorder, not an order.
 **T6-6. Constrained narrowing.** `ClassTable.matchesConstraint(candidate, constraint, domain, info)`
 asks whether a candidate satisfies a constraint expression *read inside a domain*. The constraint is
 first intersected with the domain, then the candidate is tested against the result. This is how a
-trigger's `BY` selector is applied: with domain `Actor`, the constraint `Player` accepts `Player1`
-and rejects `Admin`, and `Actor(NOT Player1)` accepts both `Player2` and `Admin`. A constraint that
-cannot meet the domain at all simply answers false.
+trigger's `BY` selector other than the unrestricted `Anyone` is applied: with domain `Actor`, the
+constraint `Player` accepts `Player1` and rejects `Admin`, and `Actor(NOT Player1)` accepts both
+`Player2` and `Admin`. A constraint that cannot meet the domain at all simply answers false.
 
-> **Non-normative example — Aphrodite.** Its trigger says `VenusStep BY Anyone`. Reading `Anyone`
-> inside the `Actor` domain means any player who performed the increase, not any component that falls
-> under the broad ownership hierarchy; the domain turns the convenient spelling into an actor
-> constraint.
+> **Non-normative example — actor constraints.** A `BY Player` trigger uses this judgment to accept a
+> Player and reject Admin. `BY Anyone` is instead the icon-grammar spelling for removing the usual
+> Actor restriction altogether, so Aphrodite also reacts to a World Government increase performed by
+> Admin. That wildcard is handled before constrained narrowing; it is not the ownership class
+> `Anyone` intersected with `Actor`.
 
 ---
 
 ## 7. Bounds
 
-**T7-1. Greatest lower bound (`⊓`, `glb`).** The most general type below both operands, or **absent**
-when there is none. It is computed componentwise: the root classes by T2-8, each shared dependency key
-by `⊓` again, and refinements by T8-9. The selected root Class contributes its complete declared
-dependency set, including keys neither operand had and bounds narrower than either operand stated.
+**T7-1. Greatest lower bound (`⊓`, `ClassTable.glb`).** In the explicitly supplied table, the most
+general type below both operands, or **absent** when there is none. It is computed componentwise: the
+root classes by T2-8, each shared dependency key by `⊓` again, and refinements by T8-9. The selected
+root Class contributes its complete declared dependency set, including keys neither operand had and
+bounds narrower than either operand stated.
 
 ```text
 Tile<Tharsis_2_2>  ⊓  Owned<Player1>       =  OwnedTile<Tharsis_2_2, Player1>
@@ -648,8 +680,10 @@ Neighbor)`.
 > whether the space is legal.
 
 **T8-3. How the candidate is substituted.** Every expression inside `R` receives the candidate in the
-first of its dependencies that can accept it (T3-5). A bare class property receives it as its
-receiver, so `CardFront(HAS MAX 9 cost)` tested against `Ants` asks `MAX 9 Ants.cost`.
+first compatible dependency whose current bound it narrows. If the candidate narrows none of the
+compatible dependencies, it receives the first compatible dependency. A bare class property
+receives it as its receiver, so `CardFront(HAS MAX 9 cost)` tested against `Ants` asks
+`MAX 9 Ants.cost`.
 
 If no expression in `R` can accept the candidate, the refinement fails without asking the world at
 all. This is not an error; it is the answer. `Component(HAS StartToken)` can only ever match a
@@ -664,13 +698,6 @@ argument, asking whether that candidate owns `This`.
 > bare `cost` reads that card's concrete printed cost. For Viron, the candidate must merge into the
 > already-written `ActionCard(NOT Viron)` inside `ActionUsedMarker`; treating written arguments as
 > occupied slots would make its “another card's action” choice fail.
-
-> **A known gap.** When two dependencies of one expression accept the same type, the candidate takes
-> the first, which may be the one an argument was written into, leaving the intended slot open. For
-> `Area(HAS Adjacency<Tharsis_2_2>)` with candidate `Tharsis_2_2`, the world is asked
-> `Adjacency<Tharsis_2_2, Area>` rather than `Adjacency<Tharsis_2_2, Tharsis_2_2>`. Characterized in
-> `BugsTest`. Reserving written keys is *not* the fix: real cards, including Viron and Mons
-> Insurance, depend on the merging behavior above.
 
 **T8-4. `NOT` is a structural difference.** `D(NOT X)` is the part of `D` that cannot overlap `X`. A
 candidate satisfies it only when its **entire** structural domain avoids `X`:
@@ -904,9 +931,9 @@ automatically when only one exists.
 
 These operations come in two flavours. Asked of a **type** (`someType.allConcreteSubtypes()`) they
 range over the whole master universe. Asked of a **class table**
-(`table.allConcreteSubtypes(someType)`) they range only over what that table holds, which for a game
-view means only its active classes (T12-3). The rules below describe the shape of the operation;
-section 12 says which universe answers.
+(`table.allConcreteSubtypes(someType)`) they range over the concrete narrowings inhabited in that
+table. For a game view, the premise-selected declaration closure determines that domain (T12-3).
+The rules below describe the shape of the operation; section 12 says which universe answers.
 
 **T11-1. Enumerating concrete narrowings.** `allConcreteSubtypes()` pairs every concrete subclass of
 the root class with every admissible concrete binding of every dependency:
@@ -972,65 +999,85 @@ target to exist, so no omitted specialization could contribute.
 
 ## 12. Inhabitance
 
-One Catalog is compiled once into a master universe. A game then takes a **view** of it. The view
-does not create, rename or reshape anything; it records which names this game can hold components of.
+One Catalog is compiled once into a master table. A game view combines that table with a small
+premise table and the declaration closure selected by the premise. That closure determines which
+concrete narrowings the universe contains. **Inhabitance** is the resulting semantic property of a
+Type, independent of the live World.
 
-**T12-1. Three states for a name.**
+**T12-1. Known names retain their nominal meaning.** A known Class name resolves to its Class, with
+the same hierarchy, dependencies, and declaration whether or not its base Type is inhabited in this
+universe. An unknown Class name is an expression error.
 
-| State | Meaning |
-| --- | --- |
-| **active** | full behavior in this game |
-| **uninhabited** | known to the Catalog, but with an empty domain here |
-| **unknown** | an error in every context |
-
-An uninhabited class keeps its name, its place in the hierarchy, and its dependencies. It resolves;
-it is still a subclass of what it extends; `Class<It>` still names it. Imagine a catalog that knows
-`Jackalope : Rabbit`. In a game where jackalopes are uninhabited, `Jackalope` is not a spelling
-error and is still a rabbit — but the game knows something stronger than "we have not seen one":
-there cannot be one.
+Imagine a Catalog that knows `Jackalope : Rabbit`. In a game whose declaration closure omits
+`Jackalope`, the name still resolves and remains a subclass of `Rabbit`, while the `Jackalope` Type
+is uninhabited: the game knows that no Jackalope Component can exist.
 
 > **Non-normative example — Venus Next.** In a base-only game, `VenusStep` is known but uninhabited;
 > `VenusStap` is unknown. Treating both as “not present” would hide typos, while treating both as
-> ordinary classes would offer a Venus track the game did not select.
+> inhabited would offer a Venus track the game did not select.
 
-**T12-2. A view reuses the master universe.** It shares the very same class and type objects.
-Resolution, subtyping, and `glb` therefore give the same answers in a view as in the master.
-A type has one meaning, not one per game.
+**T12-2. A view reuses its master.** It shares the very same master Class and Type objects. A
+premise Class may extend master or premise Classes and is visible to hierarchy queries through its
+own view. A master can be combined with one of its premise values; values from sibling premise
+tables are incompatible. Expressions using only master names normally resolve through the master;
+`NOT` remains combined-universe-relative because premise subclasses can create structural overlap.
 
-> **Non-normative implementation note — activation is not recompilation.** The base-game and Venus
-> views must agree on what `Class<VenusStep>` means even though only one can enumerate it. Rebuilding
-> separate class objects per view would make cached types incomparable and violate Catalog isolation
-> instead of merely changing what is inhabited.
+> **Non-normative example — shared master identity.** Base-game and Venus views resolve
+> `Class<VenusStep>` using the same master Class objects. The Type is inhabited only in the view
+> whose declaration closure contains a concrete Venus step.
 
-**T12-3. What the view does change.** Everything that *enumerates*:
+**T12-3. Enumeration is view-relative.** A game view answers enumeration from its
+premise-selected declaration closure:
 
-- `allSubclasses` and `directSubclasses` list only active classes;
-- `allConcreteSubtypes` and `concreteSubtypesSameClass` list only active types;
-- an uninhabited type enumerates nothing, and neither does its class literal;
+- `allSubclasses` and `directSubclasses` list only Classes included by the premise closure;
+- `allConcreteSubtypes` and `concreteSubtypesSameClass` list its inhabited concrete Types;
+- an uninhabited Type enumerates nothing, and `Class<X>` enumerates nothing when `X` has no
+  inhabited concrete specialization;
 - `singleConcreteSubtype` can therefore succeed in a view where the master is undecided — if this
   game has only one milestone, `Milestone` narrows to it automatically.
 
 > **Non-normative example — claiming a milestone.** The master Catalog knows milestones from every
-> supported map, but `ClaimMilestoneAction` must enumerate only those active on the selected map.
-> Otherwise a Tharsis game could offer Hellas's Polar Explorer as a legal claim.
+> supported map, but `ClaimMilestoneAction` must enumerate only the concrete Milestone Types
+> inhabited on the selected map. Otherwise a Tharsis game could offer Hellas's Polar Explorer as a
+> legal claim.
 
-**T12-4. Active types.** A type is active when its root class is active and every dependency bound is.
-A type from another Catalog is not even *known*, let alone active (T1-2).
+**T12-4. Inhabitance is the existence of a concrete narrowing.** A Type is inhabited in a universe
+exactly when it has at least one realizable concrete narrowing there. It is uninhabited when its
+concrete domain is empty. The following all have empty concrete domains:
+
+- a Type rooted in a concrete master Class outside the premise closure;
+- an abstract Type with no inhabited concrete narrowing;
+- a Type whose dependency has no inhabited concrete binding;
+- a structural difference such as `Player1(NOT Player1)` that excludes every candidate; and
+- a class literal whose represented Class has no concrete subclass with an inhabited base Type.
+
+Inhabitance is the greatest self-consistent concrete domain satisfying these rules. Class
+representatives exist structurally (section 4), so a `Class<This>` dependency (T4-9) can make its
+own Class's concrete base Type inhabited; it does not require a Component of the represented Type
+to exist. Ordinary dependency-bound cycles remain illegal (T3-11).
+
+An abstract Type may therefore be inhabited, and a structurally concrete Type may be uninhabited.
+Inhabitance is fixed by the universe and structural refinements. It does not change merely because
+the live World currently contains zero matching Components, no remaining capacity, or no current
+answer to a `HAS` refinement. A Type from another Catalog is not known in this universe (T1-2).
+
+An uninhabited Type counts zero, contributes no concrete choices or class representative, and
+cannot appear as a Component or fire a trigger. Changes to it follow L12-14. Its nominal information
+remains available for resolution, subtyping, intersection, `NOT`, and diagnostics.
 
 > **Non-normative example — game-end barriers.** Core rules know the generic
 > `GpIncomplete<Class<GlobalParameter>>`, but the specialization for `Class<VenusStep>` must remain
-> inactive without Venus Next. Checking only the active root would create a completion barrier for a
+> uninhabited without Venus Next. Checking only the root would create a completion barrier for a
 > track that cannot advance.
 
-**T12-5. Structural meaning stays catalog-wide.** A difference (T8-4) is judged in the master universe.
-If two classes overlap in the Catalog, `Left(NOT Right)` keeps its refinement and keeps rejecting bare
-`Left`, even in a game where the overlapping class is uninhabited. Enumeration under that difference is
-still view-relative, so the game sees only what it can hold. This keeps a written type from meaning
-different things in different games.
+**T12-5. Structural meaning stays universe-wide.** A difference (T8-4) is judged against every
+master and premise Class in its universe, not merely the included premise closure. If two Classes
+overlap, `Left(NOT Right)` keeps its refinement and keeps rejecting bare `Left`, even when the
+overlapping Class's Type is uninhabited. Enumeration under that difference remains view-relative.
 
 > **Non-normative example — Philares.** `Player(NOT Player1)` must keep the same structural meaning
-> in two-, three-, and five-player views. Letting inactive seats alter the difference would make the
-> card's opponent selector a different type when player count changes.
+> in two-, three-, and five-player views. Letting unoccupied seats alter the difference would make
+> the card's opponent selector a different Type when player count changes.
 
 ---
 
@@ -1058,8 +1105,9 @@ written.
 A variable's identity is its declaration and scope — never its class name. `Player` can name several
 unrelated variables in different rules.
 
-There are two ways a variable comes into being: a class header declares one (T13-2 to T13-5), or one is
-inferred from repetition in authored syntax (T13-6 to T13-9).
+There are two sources of a shared choice: a class header declares one (T13-2 to T13-5), or authored
+syntax repeats one across places that must agree (T13-6 to T13-9). A trigger supplies the concrete
+value when it matches; `BY` is one place that value can come from.
 
 ### Class-header variables
 
@@ -1097,10 +1145,10 @@ rejected.
 **T13-4. Inheritance.** A subclass does not redeclare an inherited variable, and effects inherited
 from a superclass keep that superclass's scope.
 
-> **Non-normative example — `CardInvoice`.** It inherits `Billing`'s cleanup effects, including the
+> **Non-normative example — `CardBilling`.** It inherits `Billing`'s cleanup effects, including the
 > resource-denomination variable, while fixing that denomination to MC. Redeclaring the variable in
-> the subclass would disconnect the inherited “remove when no debt remains” test from the invoice's
-> actual currency.
+> the subclass would disconnect the inherited “remove when no debt remains” test from the billing
+> component's actual currency.
 
 **T13-5. Capturing values.** `variableBindingsFrom(general, variables)` reads what a specialized
 component type supplies for each variable. Both types must have the same root class. Specializing
@@ -1149,8 +1197,18 @@ production.
 > destination would be forced to the same track and the card would cancel itself; only repeated
 > proper subexpressions are equality claims.
 
-**T13-8. What does not declare a variable.** These prevent a *declaration*; they never hide a use of a
-variable declared in an enclosing scope.
+> **Non-normative design note — regions are choice sites.** Repetition is meaningful because the
+> physical icon grammar commonly repeats one icon to mean “the same one.” Regions identify the
+> independently settled parts of a rule across which that co-reference matters: trigger and result,
+> cost and result, or successive stages. Repetition inside one observational query instead ranges
+> over matching components and does not select one. The exclusions in T13-8 preserve that semantic
+> boundary; they are not a general claim that equal-looking syntax always binds. Requiring the same
+> authored spelling also keeps co-reference visible in the source: resolution and default insertion
+> cannot silently make two differently written icons become one shared choice.
+
+**T13-8. Where repetition does not introduce another variable.** Repetition is evidence of one
+shared choice only where the occurrences can be settled by that choice. The cases below introduce no
+additional variable; they never hide a use of a variable already declared in an enclosing scope.
 
 | Repetition | Why not |
 | --- | --- |
@@ -1158,7 +1216,7 @@ variable declared in an enclosing scope.
 | The expression a metric counts directly | a count ranges over a domain rather than picking one member |
 | A nested repeat inside a larger repeat | recognition prefers the largest repeated expression, so repeating `CardFront<Owner>` does not also infer an `Owner` variable |
 | A different authored spelling | `Tile` and `Tile<Area>` resolve alike but are different names; likewise `Duo<Area, Person>` and `Duo<Person, Area>` |
-| An `EACH` selector, and body text naming it | the fanout declares its own variable for its body |
+| An `EACH` selector and any body text naming it | the fanout declares its own variable for its body |
 | A first-stage `THEN` dependency choice | it outranks a matching class variable, and an earlier gate occurrence belongs to that same choice |
 | A concrete expression, or `This` | there is no open choice to bind |
 
@@ -1167,10 +1225,17 @@ variable declared in an enclosing scope.
 > of it. Conversely, `EACH Class<GlobalParameter>` owns an explicit fanout variable so its body uses
 > the particular track selected for that iteration.
 
-**T13-9. Actor selectors.** A simple, positive, abstract Actor expression after `BY` declares a
-variable *even with no repetition* — that is how a triggered rule learns who acted. `BY Anyone` is an
-unrestricted filter, and a refined selector such as `BY Player(NOT Owner)` is a filter too; neither
-binds.
+**T13-9. Actor specialization.** A `BY` selector constrains the Actor recorded on the triggering
+event. A simple, positive, abstract Actor expression in that position is specialized to the concrete
+Actor before the inner trigger is matched. It is the declaration occurrence for every identical
+authored occurrence in that Effect, including occurrences elsewhere in the trigger and in the
+instruction. If there is no other occurrence, recording that declaration has no additional language
+meaning: the selector simply tests the Actor.
+
+Other selectors do not become declarations merely because they follow `BY`. `BY Anyone` alone is the
+unrestricted wildcard described after T6-6, and a refined selector alone is a constraint. If an
+identical refined selector is repeated across the trigger and instruction, the ordinary co-reference
+rule T13-6 applies. Repeated `Anyone` is deliberately unspecified (Appendix B).
 
 Where an actor variable is visible, an exclusion may use it, and the difference is tested only after
 the actor is bound:
@@ -1184,10 +1249,17 @@ Binding `Player` to `Player1` gives
 `Owner(NOT Player1)` is itself a variable that may then capture a particular other player. This keeps
 "anyone but the actor" distinct from "the particular other player this event was about".
 
-> **Non-normative examples — Aphrodite and Hydrologist.** Aphrodite says `VenusStep BY Anyone` only
-> to filter the event; its owner receives the money. `HydrologistWatcher` says `OceanTile BY Player`
-> because the actual placer must be captured as the owner of `OceanCredit`. Treating both selectors
-> as variables—or neither—breaks one of the two rules.
+> **Non-normative examples — Hydrologist and Aphrodite.** Hydrologist says
+> `OceanTile BY Player: OceanCredit<Player, OceanTile>`. When Player 2 places an ocean, ordinary
+> trigger specialization supplies `Player2` for both `Player` occurrences, so the credit belongs to
+> the placer. Aphrodite says `VenusStep BY Anyone: 2 MC`; it repeats no `Anyone`, so the wildcard only
+> removes the Actor restriction and the money retains Aphrodite's contextual owner.
+
+> **Non-normative design note — `BY` uses ordinary trigger specialization.** `BY` does not introduce
+> a separate kind of co-reference. It identifies the event field that supplies the value, and the
+> ordinary authored-occurrence rules identify where that value is reused. Specializing it before the
+> inner trigger matters when the Actor is mentioned in a `NOT` there. With no reuse, whether an
+> implementation records a one-occurrence variable is bookkeeping rather than language semantics.
 
 ### Binding
 
@@ -1232,3 +1304,7 @@ One behavior contradicts the rules above. It has a passing characterization in
 - **Exception messages.** Rules name exception *types* where the type is part of the contract.
 - **Evaluation order and caching.** Resolution memoizes, and several derived values are computed
   lazily; neither is observable except through T1-6.
+- **A repeated `Anyone` Actor selector.** `BY Anyone` alone is an unrestricted wildcard and includes
+  Admin. `Anyone` elsewhere is the root of the ownership hierarchy, which does not include Admin.
+  No canonical rule repeats `Anyone` across a `BY` selector and its instruction, and this
+  specification does not yet choose how such an occurrence would capture a non-Owner Actor.

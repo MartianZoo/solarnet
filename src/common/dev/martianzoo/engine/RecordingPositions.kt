@@ -1,5 +1,7 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.state.Checkpoint
+
 /** Event-log positions after completed outer gameplay operations and automatic follow-up work. */
 internal class RecordingPositions {
   private val ordinals = mutableListOf<Int>()
@@ -12,5 +14,5 @@ internal class RecordingPositions {
     while (ordinals.lastOrNull()?.let { it > ordinal } == true) ordinals.removeLast()
   }
 
-  internal fun snapshot(): List<Timeline.Checkpoint> = ordinals.map(Timeline::Checkpoint)
+  internal fun snapshot(): List<Checkpoint> = ordinals.map(::Checkpoint)
 }

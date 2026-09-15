@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.text
 
+import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -9,6 +10,7 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as TriggerFrame
 
 internal fun renderInstructionTree(
@@ -113,6 +115,12 @@ private fun renderInstruction(
       is Instruction.Transmute -> renderChange(instruction, describers, references)
       is Instruction.Each ->
           renderOpponentFanout(instruction, describers)?.let { Rendering.resolved(it) }
+              ?: renderProductionFloorFanout(instruction, describers)?.let {
+                Rendering.resolved(it)
+              }
+              ?: renderOwnedFanout(instruction, describers, references)?.let {
+                Rendering.resolved(it)
+              }
               ?: Rendering(
                   null,
                   listOf(Unresolved(instruction, RefusalReason.UNSUPPORTED_FANOUT)),
@@ -135,6 +143,55 @@ private fun renderInstruction(
       is Instruction.Transform -> error("Transforms are expanded before ordinary instructions")
       is Instruction.By -> Rendering.resolved(null)
     }
+
+private fun renderProductionFloorFanout(
+    instruction: Instruction.Each,
+    describers: Describers,
+): Clause.Simple? {
+  val resourceCategory = describers.representedClassArgument(instruction.selector) ?: return null
+  if (!resourceCategory.simple || !describers.isStandardResource(resourceCategory.className)) {
+    return null
+  }
+  val per =
+      InstructionGroup.of(instruction.body).instructions.singleOrNull() as? Instruction.Per
+          ?: return null
+  val gain = per.inner as? Gain ?: return null
+  if (gain.quantifier.modality() != Modality.REQUIRED || gain.count.fixedQuantity() != 1)
+      return null
+  val production = productionCategoryExpression(gain.gaining, describers) ?: return null
+  if (production.owner != null || production.resource != resourceCategory.className) return null
+  val remaining = per.metric as? Metric.Subtract ?: return null
+  if ((remaining.subtrahend as? Metric.Count)?.expression != gain.gaining) return null
+  val offsets =
+      (remaining.minuend as? Metric.Or)?.metrics?.map {
+        (it as? Metric.Count)?.expression ?: return null
+      } ?: return null
+  if (offsets.count { it == instruction.selector } != 1) return null
+  if (offsets.filterNot { it == instruction.selector }.any { !describers.isProductionOffset(it) }) {
+    return null
+  }
+  return Clause.Simple(
+      Predicate(
+          Verb("increase"),
+          Coordination.one(NounPhrase.text("each of your productions below 1 to 1")),
+      )
+  )
+}
+
+private fun renderOwnedFanout(
+    instruction: Instruction.Each,
+    describers: Describers,
+    references: TypeVariableReferences,
+): Clause.Simple? {
+  val selector = instruction.selector
+  val resolved = describers.resolveExpression(selector) ?: return null
+  if (!resolved.hasOnlySourceDependency(Key(OWNED, 0), describers.ownerExpression)) return null
+  val body = renderLoweredInstructions(instruction.body, describers, references)
+  if (body.unresolved.isNotEmpty()) return null
+  val result = body.clauses.singleOrNull() as? Clause.Simple ?: return null
+  val metric = renderMetricPhrase(Metric.Count(selector), describers) ?: return null
+  return result.withModifier(Modifier.Per(metric))
+}
 
 private fun renderOpponentFanout(
     instruction: Instruction.Each,

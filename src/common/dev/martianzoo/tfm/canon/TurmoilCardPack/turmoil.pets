@@ -1,0 +1,4 @@
+"Adds the Turmoil cards usable without the expansion's political rules"
+CLASS TurmoilCardPack : Module {
+  autoSelectWhen = HAS "TurmoilExpansion"
+}

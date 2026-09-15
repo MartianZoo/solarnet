@@ -1,0 +1,270 @@
+package dev.martianzoo.state
+
+import dev.martianzoo.pets.api.Exceptions.DependencyException
+import dev.martianzoo.pets.api.Exceptions.ExistingDependentsException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.COMPONENT
+import dev.martianzoo.pets.api.TypeInfo
+import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.HashMultiset
+import dev.martianzoo.pets.util.Multiset
+
+/**
+ * A multiset of [Component] instances; the "present" state of a game in progress. It is a plain
+ * multiset, but called a "graph" because these component instances have references to their
+ * dependencies which are also stored in the multiset.
+ */
+public class ComponentGraph internal constructor(private val classTable: ClassTable) {
+  /** A removable listener registered with [listenToCount]. */
+  public fun interface CountSubscription {
+    public fun cancel()
+  }
+
+  private val shardClassByClass = mutableMapOf<Class, Class>()
+  private val queryShardClassesByClass = mutableMapOf<Class, Set<Class>>()
+  private val components =
+      ShardedMultiset<Component, Type, Class>(
+              shardFor = { shardClass(it.type.rootClass) },
+              queryShardsFor = { queryShardClasses(it.rootClass) },
+          )
+          .apply {
+            classTable.allInhabitedConcreteClasses().forEach { represented ->
+              add(classTable.resolve(CLASS.of(represented.className)).toComponent(), 1)
+            }
+          }
+
+  private val dependentsByDependency = mutableMapOf<Component, MutableSet<Component>>()
+
+  private data class CountListener(
+      val type: Type,
+      val info: TypeInfo,
+      val callback: (Int) -> Unit,
+      var lastCount: Int,
+  )
+
+  private val countListeners = mutableListOf<CountListener>()
+
+  /**
+   * Immediately reports, then observes, the count of [type]. [info] supplies live state for
+   * abstract and refined types. Listener failures do not interrupt game mutation.
+   */
+  public fun listenToCount(
+      type: Type,
+      info: TypeInfo,
+      listener: (Int) -> Unit,
+  ): CountSubscription {
+    requireOwnClassTable(type)
+    val initialCount = count(type, info)
+    val registration = CountListener(type, info, listener, initialCount)
+    countListeners += registration
+    notify(listener, initialCount)
+    return CountSubscription {
+      countListeners.remove(registration)
+    }
+  }
+
+  /**
+   * Does at least one instance of [component] exist currently? (That is, is [countComponent]
+   * nonzero?)
+   */
+  public operator fun contains(component: Component): Boolean {
+    requireOwnClassTable(component.type)
+    return component in components
+  }
+
+  /** How many instances of the exact component [component] currently exist? */
+  public fun countComponent(component: Component): Int {
+    requireOwnClassTable(component.type)
+    return components.count(component)
+  }
+
+  /**
+   * How many total component instances have the type [parentType] (or any of its subtypes)? Returns
+   * zero for an uninhabited type, which cannot have stored components.
+   */
+  public fun count(parentType: Type, info: TypeInfo): Int {
+    requireOwnClassTable(parentType)
+    return if (!classTable.isInhabited(parentType)) {
+      0
+    } else if (parentType.className == COMPONENT && parentType.refinement == null) {
+      components.size
+    } else if (parentType.abstract) {
+      components
+          .queryEntries(parentType)
+          .filter { (component, _) -> component.hasType(parentType, info) }
+          .sumOf { (_, count) -> count }
+    } else {
+      countComponent(parentType.toComponent())
+    }
+  }
+
+  public fun containsAny(parentType: Type, info: TypeInfo): Boolean {
+    requireOwnClassTable(parentType)
+    return if (!classTable.isInhabited(parentType)) {
+      false
+    } else if (parentType.abstract) {
+      components.queryElements(parentType).any { it.hasType(parentType, info) }
+    } else {
+      parentType.toComponent() in components
+    }
+  }
+
+  /** Whether [dependencyType] has a direct or indirect live dependent matching [dependentType]. */
+  public fun hasDependentMatching(
+      dependencyType: Type,
+      dependentType: Type,
+      info: TypeInfo,
+  ): Boolean {
+    requireOwnClassTable(dependencyType)
+    requireOwnClassTable(dependentType)
+    val visited = mutableSetOf<Component>()
+    fun hasMatchingDependent(dependency: Component): Boolean =
+        dependentsByDependency[dependency]?.any {
+          visited.add(it) && (it.hasType(dependentType, info) || hasMatchingDependent(it))
+        } == true
+    return hasMatchingDependent(dependencyType.toComponent())
+  }
+
+  /** Distinct concrete component Types currently matching [parentType]. */
+  public fun matchingTypes(parentType: Type, info: TypeInfo): Sequence<Type> {
+    requireOwnClassTable(parentType)
+    return if (!classTable.isInhabited(parentType)) {
+      emptySequence()
+    } else if (parentType.abstract) {
+      components.queryElements(parentType).filter { it.hasType(parentType, info) }.map { it.type }
+    } else if (parentType.toComponent() in components) {
+      sequenceOf(parentType)
+    } else {
+      emptySequence()
+    }
+  }
+
+  /**
+   * Returns all component instances having the type [parentType] (or any of its subtypes), as a
+   * multiset. The size of the returned collection will be `[count]([parentType])` . An uninhabited
+   * type returns an empty multiset. If [parentType] is `Component` this returns the entire
+   * component multiset. A refined `Component` is filtered like every other abstract Type.
+   */
+  public fun getAll(parentType: Type, info: TypeInfo): Multiset<Component> {
+    requireOwnClassTable(parentType)
+    return if (!classTable.isInhabited(parentType)) {
+      HashMultiset()
+    } else if (parentType.className == COMPONENT && parentType.refinement == null) {
+      components.copy()
+    } else if (parentType.abstract) {
+      components.filter(parentType) { it.hasType(parentType, info) }
+    } else {
+      val component = parentType.toComponent()
+      HashMultiset<Component>().also { it.add(component, components.count(component)) }
+    }
+  }
+
+  /** Removes and/or gains [count] copies while keeping structural indexes synchronized. */
+  internal fun applyChange(count: Int, gaining: Component?, removing: Component?) {
+    listOfNotNull(gaining, removing).forEach {
+      requireOwnClassTable(it.type)
+      if (!classTable.isInhabited(it.type)) {
+        throw ExpressionException("uninhabited type has no components: ${it.type}")
+      }
+      if (it.isCustom) {
+        throw ExpressionException(
+            "Custom component `${it.expressionFull}` cannot enter ComponentGraph"
+        )
+      }
+    }
+    // This is the authoritative state invariant. Live engines may predict it while resolving an
+    // instruction, but passive replay and direct GameWorld use cannot rely on an engine check.
+    gaining?.let { component ->
+      val missing =
+          component.dependencyComponents.filter { dependency ->
+            val removed = if (dependency == removing) count else 0
+            countComponent(dependency) - removed <= 0
+          }
+      if (missing.isNotEmpty()) throw DependencyException(missing.map { it.type })
+    }
+    removing?.let {
+      checkDependents(count, it)
+      val remaining = components.mustRemove(it, count)
+      if (remaining == 0) unregisterDependencies(it)
+    }
+    gaining?.let {
+      val newCount = components.add(it, count)
+      if (newCount == count && count > 0) registerDependencies(it)
+    }
+    notifyCountListeners()
+  }
+
+  private fun notifyCountListeners() {
+    countListeners.toList().forEach { registration ->
+      val count = count(registration.type, registration.info)
+      if (count != registration.lastCount) {
+        registration.lastCount = count
+        notify(registration.callback, count)
+      }
+    }
+  }
+
+  private fun notify(listener: (Int) -> Unit, count: Int) {
+    try {
+      listener(count)
+    } catch (_: Throwable) {
+      // Observation must not make an already-applied state change fail.
+    }
+  }
+
+  private fun requireOwnClassTable(type: Type) {
+    require(classTable.knows(type)) { "$type belongs to a different Catalog" }
+  }
+
+  private fun queryShardClasses(klass: Class): Set<Class> =
+      queryShardClassesByClass.getOrPut(klass) {
+        // An abstract query can cross a later inheritance junction, so include the shard of every
+        // possible root subclass. The shards partition components, so summing them is safe.
+        classTable.allSubclasses(klass).mapTo(linkedSetOf(), ::shardClass)
+      }
+
+  private fun shardClass(klass: Class): Class =
+      shardClassByClass.getOrPut(klass) {
+        // Collapse a single-inheritance chain into one shard, stopping at Component or at the
+        // first inheritance junction. Every class therefore has exactly one shard.
+        val parents = klass.directSuperclasses
+        if (classTable.componentClass in parents || parents.size != 1) {
+          klass
+        } else {
+          shardClass(parents.single())
+        }
+      }
+
+  private fun checkDependents(count: Int, removing: Component) {
+    if (countComponent(removing) == count) {
+      val dependents = dependentsOf(removing)
+      if (dependents.isNotEmpty()) {
+        throw ExistingDependentsException(dependents.map { it.type })
+      }
+    }
+  }
+
+  public fun dependentsOf(component: Component): Set<Component> =
+      dependentsByDependency[component].orEmpty()
+
+  private fun registerDependencies(dependent: Component) {
+    dependent.type.typeDependencies.forEach { dependency ->
+      dependentsByDependency
+          .getOrPut(dependency.boundType.toComponent(), ::linkedSetOf)
+          .add(dependent)
+    }
+  }
+
+  private fun unregisterDependencies(dependent: Component) {
+    dependent.type.typeDependencies.forEach { dependency ->
+      val dependencyComponent = dependency.boundType.toComponent()
+      dependentsByDependency[dependencyComponent]?.let { dependents ->
+        dependents.remove(dependent)
+        if (dependents.isEmpty()) dependentsByDependency.remove(dependencyComponent)
+      }
+    }
+  }
+}

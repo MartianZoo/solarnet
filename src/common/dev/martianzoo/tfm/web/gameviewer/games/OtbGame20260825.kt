@@ -11,7 +11,7 @@ public class OtbGame20260825 : RecordedGame() {
       GameConfig(
           """
           CimmeriaMap
-          VenusNextExpansion, PreludeExpansion, Prelude2Expansion, PromoCardPack, TerralabsResearch
+          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, PromoCardPack, TurmoilCardPack
           FakeStuffBundle
 
           Energizer, Farmer, Philantropist, Producer, RimSettler, Hoverlord

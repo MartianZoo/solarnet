@@ -8,22 +8,19 @@ import kotlin.test.Test
 
 internal class FakeBannedDelegateTest : CardTest() {
   @Test
-  internal fun `returns a selected non-leader delegate to its owner's reserve`() {
+  internal fun `removes a selected non-leader delegate`() {
     newGame(TurmoilExpansion, FakeStuffBundle)
     val p2 = requireP2()
-    p2.runOperation(
-        "PartyDelegate<MarsFirst> FROM ReserveDelegate, " +
-            "PartyDelegate<MarsFirst> FROM ReserveDelegate"
-    )
-    val reserveBefore = p2.count("ReserveDelegate")
+    p2.runOperation("PartyDelegate<MarsFirst>, PartyDelegate<MarsFirst>")
+    val delegatesBefore = p2.count("PartyDelegate OR Chairman")
 
     p1.runOperation("$FakeBannedDelegate") {
       doTask("FakeBannedDelegateRemoval<Player1, MarsFirst, Player2>")
-      doTask("ReserveDelegate<Player2> FROM PartyDelegate<MarsFirst, Player2>")
+      doTask("-PartyDelegate<MarsFirst, Player2>")
     }
 
     p2.count("PartyDelegate<MarsFirst>") shouldBe 1
     p2.count("PartyLeader<MarsFirst>") shouldBe 1
-    p2.count("ReserveDelegate") shouldBe reserveBefore + 1
+    p2.count("PartyDelegate OR Chairman") shouldBe delegatesBefore - 1
   }
 }

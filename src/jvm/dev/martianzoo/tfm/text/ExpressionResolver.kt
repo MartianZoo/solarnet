@@ -19,9 +19,6 @@ import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE
 internal class ExpressionResolver(private val classTable: ClassTable) {
   internal val classesByName = classTable.allClasses().associateBy(Class::className)
 
-  internal fun isActive(className: ClassName): Boolean =
-      classesByName[className]?.let(classTable::isActive) == true
-
   internal fun resolve(expression: Expression): ResolvedExpression? =
       resolve(expression, contextualThisKey = null)
 

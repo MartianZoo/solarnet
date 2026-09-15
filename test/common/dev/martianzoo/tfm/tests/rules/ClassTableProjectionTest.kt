@@ -10,7 +10,6 @@ import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -72,7 +71,7 @@ internal class ClassTableProjectionTest {
   internal fun `concrete award classes stay unloaded in solo`() {
     val award = baseSolo.classTable.getClass(cn("Award"))
 
-    baseSolo.classTable.isActive(award) shouldBe false
+    baseSolo.classTable.isInhabited(award) shouldBe false
     baseSolo.classTable.allSubclasses(award).shouldBeEmpty()
   }
 
@@ -94,7 +93,7 @@ internal class ClassTableProjectionTest {
   internal fun `Vitor does not activate the unreachable award domain in solo`() {
     val projection = preludeSolo
 
-    projection.classTable.isActive(cn("Vitor")) shouldBe true
+    projection.classTable.isInhabited(cn("Vitor")) shouldBe true
     matchingClasses("award", projection).shouldBeEmpty()
     projection.classNames.shouldNotContain(cn("FirstPlace"))
     projection.classNames.shouldNotContain(cn("SecondPlace"))
@@ -138,10 +137,4 @@ internal class ClassTableProjectionTest {
 
   private fun projection(config: String, vararg playerNames: String): Projection =
       Projection(GameConfig(config, *playerNames))
-
-  @Test
-  internal fun `SecondPlace incorrectly remains active with only two players`() {
-    baseMultiplayer.classNames.shouldContain(cn("SecondPlace"))
-    threePlayerMultiplayer.classNames.shouldContain(cn("SecondPlace"))
-  }
 }

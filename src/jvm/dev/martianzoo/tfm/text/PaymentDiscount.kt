@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.text
 import dev.martianzoo.pets.ast.ClassName
 
 internal data class PaymentDiscount(
-    val trigger: Clause.Simple,
+    val trigger: Clause,
     val reduction: ResourceAmount,
     val categoryReduction: Boolean = false,
 ) {

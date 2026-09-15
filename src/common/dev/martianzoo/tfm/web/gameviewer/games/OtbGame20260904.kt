@@ -13,7 +13,7 @@ public class OtbGame20260904 : RecordedGame() {
       GameConfig(
           """
           AmazonisMap
-          VenusNextExpansion, PreludeExpansion, Prelude2Expansion, PromoCardPack
+          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, PromoCardPack
           FakeStuffBundle
 
           Builder, Diversifier, Generalist, Landshaper, Tactician

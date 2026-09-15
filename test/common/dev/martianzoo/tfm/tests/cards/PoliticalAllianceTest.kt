@@ -26,11 +26,11 @@ internal class PoliticalAllianceTest : CardTest() {
 
     shouldThrow<RequirementException> { p1.playProject(PoliticalAlliance, 4) }
 
-    admin.runOperation("ReserveDelegate<Neutral> FROM Chairman<Neutral>")
-    p1.runOperation("Chairman FROM ReserveDelegate, PartyDelegate<Scientists> FROM ReserveDelegate")
+    admin.runOperation("-Chairman<Neutral>")
+    p1.runOperation("Chairman, PartyDelegate<Scientists>")
     shouldThrow<RequirementException> { p1.playProject(PoliticalAlliance, 4) }
 
-    p1.runOperation("PartyDelegate<Unity> FROM ReserveDelegate")
+    p1.runOperation("PartyDelegate<Unity>")
     p1.playProject(PoliticalAlliance, 4).expect("-4 MC, TerraformRating")
   }
 }

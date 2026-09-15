@@ -32,6 +32,7 @@ dependencies {
   implementation(project(":tfm-canon"))
   implementation(project(":engine"))
   implementation(project(":pets"))
+  implementation(project(":state"))
   implementation(project(":tfm-engine"))
   kotlinFileComplexityAnalyzer(libs.detekt.metrics)
   testRuntimeOnly(libs.detekt.metrics)
@@ -40,6 +41,10 @@ dependencies {
 application {
   mainClass.set("dev.martianzoo.tools.SoloPlacementKt")
   applicationName = "solo-placement"
+}
+
+tasks.withType<Test>().configureEach {
+  systemProperty("solarnet.root", rootProject.layout.projectDirectory.asFile.absolutePath)
 }
 
 tasks.register<JavaExec>("typeStructureReport") {
@@ -86,7 +91,7 @@ tasks.register<JavaExec>("regenerateMapAreas") {
   description = "Regenerates canonical map-area declarations from diagrams in Pets comments."
   classpath = sourceSets.main.get().runtimeClasspath
   mainClass.set("dev.martianzoo.tools.RegenerateMapAreasKt")
-  inputs.files(canonSourceDirectory.asFileTree.matching { include("*/classes.pets") })
+  inputs.files(canonSourceDirectory.asFileTree.matching { include("**/*.pets") })
   args(canonSourceDirectory.asFile.absolutePath)
 }
 

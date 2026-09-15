@@ -17,7 +17,7 @@
   — search for `fun main` to inspect the implemented catalog report.
 - [`SoloGenerationCountdownTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/SoloGenerationCountdownTest.kt)
   — read only when a proposed optimization depends on committed TR63 timing.
-- [Terraforming Mars `cards.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/cards.pets)
+- [Terraforming Mars `cards.json5`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/cards.json5)
   — search for a named counterexample such as `Factorum` before relying on the analysis.
 
 This note develops one facet of exact or conservative optimization for the TR63 solo variant. It
@@ -79,8 +79,8 @@ relevant history. Comparing component counts while silently changing those facts
 
 ## How a class challenges monotonicity
 
-The first analysis is syntactic: inspect every active class and custom implementation for ways in
-which the presence or count of `E` can make the future worse. Important shapes include:
+The first analysis is syntactic: inspect every included, inhabited class and custom implementation
+for ways in which the presence or count of `E` can make the future worse. Important shapes include:
 
 - an upper-bound or exact-count requirement, such as `MAX 0 E`;
 - a forced harmful effect triggered by gaining or possessing `E`;

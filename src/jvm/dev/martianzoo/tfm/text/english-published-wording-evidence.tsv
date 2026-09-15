@@ -479,7 +479,6 @@ PublicPlans	Public Plans	REVEAL ANY NUMBER OF OTHER CARDS FROM YOUR HAND. (YOUR 
 SterlingVents	Sterling Vents	Decrease heat production 2 steps. Increase energy production 2 steps.	
 TychoMagnetics	Tycho Magnetics	You start with 42 M€. Increase your energy production 1 step. KEEP 1 Keep 1 and discard the rest.	Action: Spend any amount of energy to draw the that many cards.
 KuiperCooperative	Kuiper Cooperative	You start with 33 M€. Increase titanium production 1 step.	Action: Add 1 asteroid here for every space tag you have. Standard Project Effect: When you use the AQUIFER or ASTEROID standard projects, you can spend asteroids on card as 1M€ each.
-PolderTechDutch	PolderTECH Dutch	You start with 35 M€. As your first action, place an ocean tile and a greenery tile next to each other IGNORING GREENERY PLACEMENT RESTRICTIONS. Raise oxygen 1 step.	Effect: When you place an ocean tile, gain 1 energy. Effect: When you place a greenery, gain 1 plant.
 AntiDesertificationTechniques	Anti Desertification Techniques	Gain 3 M€. Increase your plant production 1 step and your steel production 1 step.	
 FakeEstablishedMethods	Fake Established Methods	Gain 30 M€. Then pay for and perform 2 standard projects. NOTE: If you cannot afford a second standard project, spend 10 M€ instead, or as much as possible.	
 GiantSolarCollector	Giant Solar Collector	Increase your energy production 2 steps. Raise Venus 1 step.	
@@ -504,4 +503,3 @@ ProtectedGrowth	Protected Growth	Oxygen must be 7% or less. Gain 1 plant per pow
 StaticHarvesting	Static Harvesting	Requires 3 or fewer ocean tiles. Increase your energy production 1 step. Gain 1 M€ per building tag you have.	
 Vermin	Vermin		Each player, including you, gets -1 VP per city they have IF THERE ARE AT LEAST 10 ANIMALS HERE. Effect: When any city is placed, add 1 animal here. Action: Add 1 animal here or 1 microbe to ANOTHER card.
 WeatherBalloons	Weather Balloons	Draw 1 card.	Action: Add 1 floater here, or spend 1 floater here to gain 1 M€ per city ON MARS.)
-FloydContinuum	Floyd Continuum		Action: Gain 3 M€ per completed terraforming parameter.

@@ -1,12 +1,12 @@
 package dev.martianzoo.agent
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
-import dev.martianzoo.pets.data.Task
-import dev.martianzoo.pets.data.Task.TaskId
+import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.GameEvent.TaskEditedEvent
+import dev.martianzoo.state.Task
+import dev.martianzoo.state.Task.TaskId
 
 /**
  * Applies an evidenced replay adjustment, attributed to [adjustingActor], without leaving a

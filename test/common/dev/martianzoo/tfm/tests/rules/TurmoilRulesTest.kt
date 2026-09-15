@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.cards.CardTest
@@ -9,7 +10,7 @@ import kotlin.test.Test
 
 internal class TurmoilRulesTest : CardTest() {
   @Test
-  internal fun `setup creates seven delegates and one free lobbying action per player`() {
+  internal fun `setup establishes delegate capacity and one free lobbying action per player`() {
     newGame(TurmoilExpansion)
     val p2 = requireP2()
 
@@ -17,10 +18,10 @@ internal class TurmoilRulesTest : CardTest() {
     p2.count("TurmoilPlayer") shouldBe 1
     p1.count("LobbyActionAvailable") shouldBe 1
     p2.count("LobbyActionAvailable") shouldBe 1
-    p1.count("ReserveDelegate") shouldBe 7
-    p2.count("ReserveDelegate") shouldBe 7
+    p1.count("PartyDelegate OR Chairman") shouldBe 0
+    p2.count("PartyDelegate OR Chairman") shouldBe 0
     admin.count("Neutral") shouldBe 1
-    admin.count("ReserveDelegate<Neutral>") shouldBe 11
+    admin.count("PartyDelegate<Neutral> OR Chairman<Neutral>") shouldBe 3
     admin.count("Party") shouldBe 6
     admin.count("Chairman<Neutral>") shouldBe 1
     admin.count("Ruling<Greens>") shouldBe 1
@@ -37,11 +38,11 @@ internal class TurmoilRulesTest : CardTest() {
     admin.phase("Action")
 
     p1.stdAction("LobbyAction", 1) {
-      doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+      doTask("PartyDelegate<MarsFirst>")
     }
 
     p1.count("LobbyActionAvailable") shouldBe 0
-    p1.count("ReserveDelegate") shouldBe 6
+    p1.count("PartyDelegate OR Chairman") shouldBe 1
     p1.count("PartyDelegate<MarsFirst>") shouldBe 1
     p1.count("PartyLeader<MarsFirst>") shouldBe 1
     admin.count("Dominant<MarsFirst>") shouldBe 1
@@ -61,40 +62,40 @@ internal class TurmoilRulesTest : CardTest() {
 
     p1.turn {
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+        doTask("PartyDelegate<MarsFirst>")
       }
       stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+        doTask("PartyDelegate<MarsFirst>")
       }
     }
     p1.count("PartyDelegate<MarsFirst>") shouldBe 2
     admin.count("Dominant<MarsFirst>") shouldBe 1
     p2.turn {
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Scientists>")
       }
       p2.count("PartyDelegate<Scientists>") shouldBe 1
       admin.count("Dominant<Scientists>") shouldBe 0
       admin.count("Dominant<MarsFirst>") shouldBe 1
       stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Scientists>")
       }
     }
     admin.count("Dominant<MarsFirst>") shouldBe 1
     p1.pass()
     p2.turn {
       stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Scientists>")
       }
       stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Scientists>")
       }
     }
 
     p1.count("MC") shouldBe 5
     p2.count("MC") shouldBe 0
-    p1.count("ReserveDelegate") shouldBe 5
-    p2.count("ReserveDelegate") shouldBe 3
+    p1.count("PartyDelegate OR Chairman") shouldBe 2
+    p2.count("PartyDelegate OR Chairman") shouldBe 4
     p1.count("PartyLeader<MarsFirst>") shouldBe 1
     p2.count("PartyLeader<Scientists>") shouldBe 1
     admin.count("Dominant<Scientists>") shouldBe 1
@@ -109,17 +110,17 @@ internal class TurmoilRulesTest : CardTest() {
 
     p1.turn {
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Scientists>")
       }
     }
     p2.turn {
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Scientists>")
       }
       p1.count("PartyLeader<Scientists>") shouldBe 1
       p2.count("PartyLeader<Scientists>") shouldBe 0
       stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Scientists>")
       }
     }
 
@@ -136,28 +137,27 @@ internal class TurmoilRulesTest : CardTest() {
 
     p1.turn {
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+        doTask("PartyDelegate<MarsFirst>")
       }
       stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+        doTask("PartyDelegate<MarsFirst>")
       }
     }
     p2.pass()
     p1.turn {
       repeat(5) {
         stdAction("LobbyAction", 2) {
-          doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+          doTask("PartyDelegate<MarsFirst>")
         }
       }
     }
 
     p1.count("PartyDelegate") shouldBe 7
     p1.count("LobbyActionAvailable") shouldBe 0
-    p1.count("ReserveDelegate") shouldBe 0
     p1.count("MC") shouldBe 5
-    shouldThrow<NotNowException> {
+    shouldThrow<DeadEndException> {
       p1.stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+        doTask("PartyDelegate<MarsFirst>")
       }
     }
     p1.count("MC") shouldBe 5
@@ -166,12 +166,12 @@ internal class TurmoilRulesTest : CardTest() {
   }
 
   @Test
-  internal fun `card supply uses the same reserve without consuming free lobbying`() {
+  internal fun `card placement uses delegate capacity without consuming free lobbying`() {
     newGame(TurmoilExpansion)
 
-    p1.runOperation("PlaceReserveDelegate<MarsFirst>")
+    p1.runOperation("PartyDelegate<MarsFirst>")
 
-    p1.count("ReserveDelegate") shouldBe 6
+    p1.count("PartyDelegate OR Chairman") shouldBe 1
     p1.count("LobbyActionAvailable") shouldBe 1
     p1.count("PartyDelegate<MarsFirst>") shouldBe 1
   }
@@ -179,18 +179,17 @@ internal class TurmoilRulesTest : CardTest() {
   @Test
   internal fun `lobbying cannot place an eighth delegate`() {
     newGame(TurmoilExpansion)
-    repeat(7) { p1.runOperation("PartyDelegate<MarsFirst> FROM ReserveDelegate") }
+    repeat(7) { p1.runOperation("PartyDelegate<MarsFirst>") }
     p1.runOperation("5 MC")
     admin.phase("Action")
 
-    shouldThrow<NotNowException> {
+    shouldThrow<DeadEndException> {
       p1.stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Scientists>")
       }
     }
 
     p1.count("MC") shouldBe 5
-    p1.count("ReserveDelegate") shouldBe 0
     p1.count("LobbyActionAvailable") shouldBe 0
     p1.count("PartyDelegate") shouldBe 7
   }
@@ -198,35 +197,35 @@ internal class TurmoilRulesTest : CardTest() {
   @Test
   internal fun `a returned delegate does not restore a Lobby emptied with the seventh delegate`() {
     newGame(TurmoilExpansion)
-    repeat(7) { p1.runOperation("PartyDelegate<MarsFirst> FROM ReserveDelegate") }
+    repeat(7) { p1.runOperation("PartyDelegate<MarsFirst>") }
     admin.phase("Action")
 
     p1.count("LobbyActionAvailable") shouldBe 0
-    p1.runOperation("ReserveDelegate FROM PartyDelegate<MarsFirst>")
+    p1.runOperation("-PartyDelegate<MarsFirst>")
     shouldThrow<NotNowException> {
       p1.stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<Scientists> FROM ReserveDelegate")
+        doTask("PartyDelegate<Scientists>")
       }
     }
 
     p1.count("LobbyActionAvailable") shouldBe 0
-    p1.count("ReserveDelegate") shouldBe 1
+    p1.count("PartyDelegate OR Chairman") shouldBe 6
   }
 
   @Test
-  internal fun `lobby refill restores the free action without changing available delegate count`() {
+  internal fun `lobby refill restores the free action without changing placed delegate count`() {
     newGame(TurmoilExpansion)
     admin.phase("Action")
     p1.stdAction("LobbyAction", 1) {
-      doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+      doTask("PartyDelegate<MarsFirst>")
     }
 
     admin.runOperation("RefillLobby")
 
     p1.count("LobbyActionAvailable") shouldBe 1
-    p1.count("ReserveDelegate") shouldBe 6
+    p1.count("PartyDelegate OR Chairman") shouldBe 1
     requireP2().count("LobbyActionAvailable") shouldBe 1
-    requireP2().count("ReserveDelegate") shouldBe 7
+    requireP2().count("PartyDelegate OR Chairman") shouldBe 0
   }
 
   @Test
@@ -238,15 +237,15 @@ internal class TurmoilRulesTest : CardTest() {
 
     p1.turn {
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+        doTask("PartyDelegate<MarsFirst>")
       }
       stdAction("LobbyAction", 2) {
-        doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+        doTask("PartyDelegate<MarsFirst>")
       }
     }
     p2.turn {
       stdAction("LobbyAction", 1) {
-        doTask("PartyDelegate<MarsFirst> FROM ReserveDelegate")
+        doTask("PartyDelegate<MarsFirst>")
       }
     }
     admin.runOperation("Chairman<Player1> FROM Chairman<Neutral>")
@@ -270,7 +269,7 @@ internal class TurmoilRulesTest : CardTest() {
 
   private fun clearSetupPolitics() {
     listOf("MarsFirst", "Reds").forEach { party ->
-      admin.runOperation("ReserveDelegate<Neutral> FROM PartyDelegate<$party, Neutral>")
+      admin.runOperation("-PartyDelegate<$party, Neutral>")
       admin.runOperation("-PartyLeader<$party, Neutral>!")
     }
     admin.runOperation("-Dominant!")

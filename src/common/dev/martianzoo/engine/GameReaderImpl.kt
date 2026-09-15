@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -24,10 +23,14 @@ import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.HashMultiset
+import dev.martianzoo.state.Component
+import dev.martianzoo.state.Component.Companion.toComponent
+import dev.martianzoo.state.GameWorld
+import dev.martianzoo.state.toComponent
 
 internal class GameReaderImpl(
-    private val classTable: ClassTable,
-    private val components: ComponentGraph,
+    override val classTable: ClassTable,
+    private val gameWorld: GameWorld,
     internal val elaborator: PetElaborator,
     private val customClasses: CustomClassRuntime,
     private val premise: GamePremise,
@@ -148,33 +151,41 @@ internal class GameReaderImpl(
 
   private fun componentsMatching(expression: Expression) =
       classTable.resolve(expression).let { type ->
-        if (!classTable.isActive(type)) return@let HashMultiset<Component>()
+        if (!classTable.isInhabited(type)) return@let HashMultiset<Component>()
         if (type.rootClass.declaration.custom) {
           throw ExpressionException(
               "Custom metrics cannot be alternatives in an OR metric: ${type.expressionFull}"
           )
         }
-        components.getAll(type, this)
+        gameWorld.components.getAll(type, this)
       }
 
   private fun countExpression(expression: Expression): Int {
     val type = classTable.resolve(expression)
-    if (!classTable.isActive(type)) return 0
-    if (!type.rootClass.declaration.custom) return components.count(type, this)
+    if (!classTable.isInhabited(type)) return 0
+    if (!type.rootClass.declaration.custom) return gameWorld.components.count(type, this)
 
     return customClasses.count(type, this)
   }
 
-  override fun count(type: Type) = components.count(type, this)
+  override fun count(type: Type) = gameWorld.components.count(type, this)
 
-  internal fun containsAny(type: Type) = components.containsAny(type, this)
+  internal fun containsAny(type: Type) = gameWorld.components.containsAny(type, this)
 
   internal fun matchingComponentTypes(type: Type): Sequence<Type> =
-      components.matchingTypes(type, this)
+      gameWorld.components.matchingTypes(type, this)
 
   override fun countComponent(concreteType: Type) =
-      if (!classTable.isActive(concreteType)) 0
-      else components.countComponent(concreteType.toComponent(this))
+      if (!classTable.isInhabited(concreteType)) 0
+      else gameWorld.components.countComponent(concreteType.toComponent(this))
 
-  override fun getComponents(type: Type) = components.getAll(type, this).map { it.type }
+  override fun getComponents(type: Type) = gameWorld.components.getAll(type, this).map { it.type }
+
+  override fun getDependents(component: Type): Set<Type> {
+    require(!component.abstract)
+    if (!classTable.isInhabited(component)) return emptySet()
+    return gameWorld.components.dependentsOf(component.toComponent(this)).mapTo(linkedSetOf()) {
+      it.type
+    }
+  }
 }

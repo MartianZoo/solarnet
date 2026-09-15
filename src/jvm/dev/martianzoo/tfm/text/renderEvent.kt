@@ -403,7 +403,9 @@ internal fun Describers.playedCardEvent(expression: Expression): Event? {
                         else
                             "at most ${counting.target} ${if (counting.target == 1) singular else plural}"
                     is Requirement.Exact ->
-                        "exactly ${counting.target} ${if (counting.target == 1) singular else plural}"
+                        if (counting.target == 0) "no $plural"
+                        else
+                            "exactly ${counting.target} ${if (counting.target == 1) singular else plural}"
                   }
               cardPhrase.withModifier(Modifier.Relation("with", NounPhrase.text(quantity)))
             }

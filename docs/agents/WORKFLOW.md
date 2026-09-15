@@ -12,8 +12,9 @@
 > ends.
 >
 > **Status:** `Scope`, `GenerationScope`, `TemporaryScope<Parent>`, and dependency-ordered idle
-> cleanup are implemented. Committed `TfmWorkflow.Automatic` is still a Kotlin coroutine that
-> chooses phases and waits for whole-World idleness.
+> cleanup are implemented. The Solar segment has explicit `SolarPhase`, `VenusSolarPhase`,
+> `ColoniesSolarPhase`, and `TurmoilSolarPhase` components. Committed `TfmWorkflow.Automatic` is
+> still a Kotlin coroutine that chooses their active order and waits for whole-World idleness.
 
 ## Purpose and scope
 
@@ -36,7 +37,7 @@ The required primitives already exist:
   bootstrap before returning.
 - Admin creates `BootstrapPhase` before the generated `Premise`; bootstrap begins and ends with
   that same Phase.
-- [`Phase`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets) is legitimate
+- [`Phase`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/game.pets) is legitimate
   Game World state, with exactly one Phase present.
 - Pets Type arguments are component dependencies. Removing a dependency cascades through its
   dependents before removing the dependency itself.
@@ -135,16 +136,22 @@ VenusSolarPhase belongs to Solar and is after SolarPhase
 
 ColoniesSolarPhase belongs to Solar and is after SolarPhase
 ColoniesSolarPhase is after VenusSolarPhase
+
+TurmoilSolarPhase belongs to Solar and is after SolarPhase
+TurmoilSolarPhase is after VenusSolarPhase
+TurmoilSolarPhase is after ColoniesSolarPhase
 ```
 
-Only active Phase Classes participate. A constraint mentioning an inactive optional Phase is weak:
-it contributes no edge and does not activate that Phase. Thus the active orders are naturally:
+Only included, inhabited Phase Classes participate. A constraint mentioning an excluded or
+uninhabited optional Phase is weak: it contributes no edge and does not include that Phase. Thus the
+applicable orders are naturally:
 
 ```text
 Solar -> Research
 Solar -> Venus Solar -> Research
 Solar -> Colonies Solar -> Research
 Solar -> Venus Solar -> Colonies Solar -> Research
+Solar -> Venus Solar -> Colonies Solar -> Turmoil Solar -> Research
 ```
 
 Prelude similarly contributes that `PreludePhase` belongs to the Corporation-to-Action segment and
@@ -202,7 +209,7 @@ GameScope
 ```
 
 Each child depends on its parent, and the Phase scope also depends on the current Phase.
-State depends on the narrowest scope matching its true lifetime: an action-local invoice belongs to
+State depends on the narrowest scope matching its true lifetime: action-local billing belongs to
 the Action scope; a passed marker belongs to the Generation scope; phase-local control belongs to
 the Phase scope.
 
@@ -248,8 +255,8 @@ The phase workflow is successful only when all of these hold:
 - `Engine.newGame` still returns a committed, task-free `BootstrapPhase`.
 - Without an explicit start, the World remains there indefinitely.
 - Starting once produces Setup and then every later phase through Pets scopes and effects.
-- Exactly one Phase and at most one active Phase scope exist throughout committed play.
-- Optional phases appear only when their Classes are active.
+- Exactly one Phase and at most one live Phase scope exist throughout committed play.
+- Optional phases appear only when their Classes are included and inhabited.
 - Expansion-owned precedence composes without base code naming expansion phases.
 - Queue drain cannot remove an outer scope before its dependent mandatory cleanup.
 - Rollback restores scopes, their dependents, and the resulting continuation naturally from the

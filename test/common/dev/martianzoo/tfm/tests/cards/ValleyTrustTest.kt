@@ -44,22 +44,6 @@ internal class ValleyTrustTest : CardTest() {
   }
 
   @Test
-  internal fun `Prelude 2 expansion and card pack add the same cards to Prelude 1 rules`() {
-    resolveValleyTrustPrelude(
-        "PreludeExpansion, Prelude2Expansion",
-        selectedPrelude = SpaceLanes,
-        otherPrelude = MartianIndustries,
-        otherPreludeIsAvailable = true,
-    )
-    resolveValleyTrustPrelude(
-        "PreludeExpansion, Prelude2CardPack",
-        selectedPrelude = SpaceLanes,
-        otherPrelude = MartianIndustries,
-        otherPreludeIsAvailable = true,
-    )
-  }
-
-  @Test
   internal fun `Must perform required action before another standard action`() {
     newGame(PreludeExpansion, retainedStartingProjects = 5)
     p1.playCorp(ValleyTrust, 5)
@@ -83,9 +67,9 @@ internal class ValleyTrustTest : CardTest() {
             ),
             retainedStartingProjects = 5,
         )
-    game.classTable.isActive(cn("PreludePhase")) shouldBe true
-    game.classTable.isActive(selectedPrelude) shouldBe true
-    game.classTable.isActive(otherPrelude) shouldBe otherPreludeIsAvailable
+    game.classTable.isInhabited(cn("PreludePhase")) shouldBe true
+    game.classTable.isInhabited(selectedPrelude) shouldBe true
+    game.classTable.isInhabited(otherPrelude) shouldBe otherPreludeIsAvailable
 
     p1.playCorp(ValleyTrust, 5)
     admin.phase("Action")

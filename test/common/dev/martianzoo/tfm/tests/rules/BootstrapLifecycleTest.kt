@@ -5,10 +5,10 @@ import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
@@ -65,7 +65,7 @@ internal class BootstrapLifecycleTest {
             Scenario(emptyList(), players = 1, map = Tharsis),
             Scenario(listOf(Hellas, PreludeExpansion), players = 2, map = Hellas),
             Scenario(
-                listOf(Amazonis, VenusNextExpansion, Prelude2Expansion),
+                listOf(Amazonis, VenusNextExpansion, PreludeExpansion, Prelude2CardPack),
                 players = 3,
                 map = Amazonis,
             ),

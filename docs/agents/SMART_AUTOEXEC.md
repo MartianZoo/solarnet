@@ -28,9 +28,10 @@ promising safety alone. If a later restricted reader omits a fact required by a 
   for `resolve` and `executeResolved` for state reads, execution, and effect creation.
 - [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt) — search for
   `candidatesFor` and `stableAutomaticOrder` before defining EGS equality.
-- [`Task.kt`](../../src/common/dev/martianzoo/pets/data/Task.kt) and
-  [`TaskQueue.kt`](../../src/common/dev/martianzoo/engine/TaskQueue.kt) — inspect
-  selected state, continuations, causes, normalization, and id-only ordering.
+- [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt) and
+  [`TaskQueue.kt`](../../src/common/dev/martianzoo/state/TaskQueue.kt) — inspect selected state,
+  continuations, causes, and id-only ordering. [`newTasks.kt`](../../src/common/dev/martianzoo/engine/newTasks.kt)
+  owns engine task normalization.
 
 ## Read only the relevant sections
 
@@ -354,7 +355,7 @@ For each instruction/effect family, a useful summary contains:
 
 The analysis is a fixed point over automatic-effect output. A cycle or unknown custom behavior
 widens to `UNKNOWN`; it must not be truncated and labeled safe. Premise projection can remove
-inactive types and impossible subscriptions. Current-World analysis can remove effects whose source
+uninhabited types and impossible subscriptions. Current-World analysis can remove effects whose source
 component is absent only when no preceding action in the proof region can add such a source.
 
 Two actions have a static independence certificate when their write closures cannot intersect the
@@ -396,7 +397,7 @@ The working policy should spend proof effort in this order:
 3. Catalog/premise symmetry, trigger-free, and footprint certificates.
 
 Stop at the first proof. Never fall through to stable task order. Cache immutable Catalog summaries
-by Catalog identity, premise summaries by active Class table, and dynamic certificates by EGS
+by Catalog identity, premise summaries by premise Class table, and dynamic certificates by EGS
 revision plus the exact state slices they depend on. An accepted command invalidates dynamic
 analysis. Only measured need should add pairwise disposable-World diamonds or bounded frontier
 search with memoization.

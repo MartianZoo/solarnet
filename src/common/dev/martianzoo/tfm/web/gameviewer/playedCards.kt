@@ -1,12 +1,12 @@
 package dev.martianzoo.tfm.web.gameviewer
 
 import dev.martianzoo.agent.Agents
-import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.tfm.canon.cardResourceType
 import dev.martianzoo.tfm.canon.tfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
@@ -25,7 +25,7 @@ internal fun playedCards(game: World, player: Player): List<Type> {
       .changesSince(Checkpoint(0))
       .asSequence()
       .mapNotNull { it.change.gaining }
-      .map(game.reader::resolve)
+      .map { it.type }
       .filter(current::contains)
       .distinct()
       .toList()
@@ -68,7 +68,7 @@ internal fun playedEventCards(game: World, player: Player): List<ClassName> {
       .asSequence()
       .filter { it.actor == player }
       .mapNotNull { it.change.gaining }
-      .map(game.reader::resolve)
+      .map { it.type }
       .filter(current::contains)
       .mapNotNull { playedEvent ->
         playedEvent.typeDependencies

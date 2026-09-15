@@ -24,13 +24,12 @@ internal class AwardsTest : TfmTest() {
   internal fun multiplayerOnlyStandardActionsAreAbsentInSoloGames() {
     game = Engine.newGame(canonicalPremise(players = 1))
 
-    game.classTable
-        .getClass(cn("Award"))
-        .allSubclasses()
-        .filter { !it.abstract && game.classTable.isActive(it.className) }
-        .shouldBeEmpty()
-    game.classTable.isActive(cn("ClaimMilestoneAction")) shouldBe false
-    game.classTable.isActive(cn("FundAwardAction")) shouldBe false
+    val award = game.classTable.getClass(cn("Award"))
+    game.classTable.allSubclasses(award).filterNot { it.abstract }.shouldBeEmpty()
+    game.classTable.isInhabited(cn("ClaimMilestoneAction")) shouldBe false
+    game.classTable.isInhabited(cn("FundAwardAction")) shouldBe false
+    (cn("ClaimMilestoneAction") in game.classTable.allClassNames) shouldBe false
+    (cn("FundAwardAction") in game.classTable.allClassNames) shouldBe false
     admin.assertCounts(
         1 to "PlayCardFromHandAction",
         1 to "AquiferProject",

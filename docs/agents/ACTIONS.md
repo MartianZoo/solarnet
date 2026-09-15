@@ -8,7 +8,7 @@
 > action availability, billing, or cards with fixed, property-scaled, or X-scaled
 > standard-resource left sides.
 >
-> **Skip when:** changing payment allocation after an invoice has already been created; use
+> **Skip when:** changing payment allocation after billing state has already been created; use
 > [PAYMENTS.md](PAYMENTS.md) for that.
 >
 > **Status:** current implementation plus a working direction. The semantic lifecycle under
@@ -34,8 +34,10 @@
   `actionToEffects` for current lowering.
 - [`PetTransformer.kt`](../../src/common/dev/martianzoo/pets/PetTransformer.kt) — search for
   `transformAction` before changing the lowering stage.
-- [Terraforming Mars `classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
-  — search for `TURN AND ACTION PROTOCOL` and `ABSTRACT CLASS Billing`.
+- [Terraforming Mars `actions.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/actions.pets)
+  — search for `ABSTRACT CLASS StandardAction` and `CLASS UseAction`.
+- [Terraforming Mars `payment.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets)
+  — search for `ABSTRACT CLASS Billing`.
 - [`DerivedClassLowerer.kt`](../../src/common/dev/martianzoo/pets/DerivedClassLowerer.kt) — read
   before generating a Class for each authored action.
 - [`VariableAmountActionsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/VariableAmountActionsTest.kt)
@@ -114,7 +116,7 @@ Being at peace with the authoring form does not commit the implementation to tod
 ### Current model
 
 One provider may declare up to three arrows. `Action1`, `Action2`, and `Action3` select among them.
-`UseAction<HasActions, ActionSlot>` and `Invoice<HasActions, ActionSlot, Resource>` carry both the
+`UseAction<HasActions, ActionSlot>` and `ActionBilling<HasActions, ActionSlot, Resource>` carry both the
 live provider and the positional selector. This admits meaningless combinations such as
 `UseAction<ConvertPlantsAction, Action2>`.
 
@@ -169,6 +171,12 @@ declaring family with three generated action Classes is preferable.
 
 The pending abstract task is the immediate right to attempt an action. Limited-use components are
 additional game facts, not replacements for that task.
+
+The Terraforming Mars Kotlin facade's `stdAction()` helper accepts only providers whose Class is a
+subtype of `StandardAction`. Directly granted actions from other `HasActions` providers use the
+ordinary task-selection and payment APIs instead. Its `OperationScope.useStdAction()` counterpart
+consumes an already-granted standard-action slot inside an enclosing card or Prelude operation and
+applies the same subtype check and payment path.
 
 The normal card-action route illustrates the distinction. `UseActionOnCardAction` is a printed
 standard action. Its left side can spend the card's once-per-generation permission; after its own
@@ -246,7 +254,7 @@ Whatever representation is chosen must preserve these rules:
 3. Ordinary instructions should remain usable for direct removals, production transformations,
    holder-sensitive resources, and selections.
 4. Terraforming Mars may recognize standard-resource forms and replace them with `Owed` and
-   `Invoice` workflow.
+   `ActionBilling` workflow.
 5. Type variables, selected values, and X shared across the arrow must survive until the right-side
    effect responds to the Signal.
 6. Dynamic feasibility is attempt-and-rollback. Enumeration need not prove that every left
@@ -261,7 +269,7 @@ Today the direct case already preserves bindings without a separate workflow obj
 `Action.toInstruction()` builds one `THEN` tree from the left side and right side and carries their
 Type-variable scope onto that tree. `Then.ensureIsNarrowedBy` binds those variables across its
 stages and checks a shared X value. X-scaled standard-resource lowering likewise keeps debt,
-invoice, and continuation in one generated sequence. A redesign should reuse this mechanism if it
+billing, and continuation in one generated sequence. A redesign should reuse this mechanism if it
 can; inserting a delayed action Signal must not accidentally discard the binding environment.
 
 ### Current implementation gap
@@ -270,9 +278,9 @@ Current lowering has the opposite signal order.
 
 - For a nonstandard left side, `actionToEffect` makes `UseAction<Provider, Slot>` trigger
   `left-side instruction THEN right side`.
-- For a fixed standard-resource left side, `UseAction` creates `Owed` and `Invoice`, and
-  `-Invoice` directly triggers the right side.
-- X-scaled standard-resource actions keep the right side in a local continuation following invoice
+- For a fixed standard-resource left side, `UseAction` creates `Owed` and `ActionBilling`, and
+  `-ActionBilling` directly triggers the right side.
+- X-scaled standard-resource actions keep the right side in a local continuation following billing
   creation.
 
 Thus the current `UseAction` Signal means “choice accepted; begin all action work.” In the working
@@ -281,8 +289,8 @@ side.” The desired standard-resource chain is:
 
 ```text
 choose concrete action
-→ create adjusted debt and invoice
-→ settle invoice
+→ create adjusted debt and billing
+→ settle billing
 → issue concrete action Signal
 → ordinary right-side effect
 ```
@@ -292,7 +300,7 @@ side, a fixed billable left side, an X-scaled action, and a Type variable shared
 
 The remaining completion question is about sequencing, not the value of the left side. `THEN` knows
 that one instruction task completed, but does not wait for all work descended from that task.
-Invoice removal is already a precise completion event for payment, and a strictly sequential
+ActionBilling removal is already a precise completion event for payment, and a strictly sequential
 payment loop may need no `Temporary`. If some other left-side instruction must wait for
 all work it caused, whole-World-idle `Temporary` is too broad; the scoped-completion direction in
 [SEQUENCING.md](SEQUENCING.md#the-missing-rule-when-an-operation-is-over) is the relevant candidate.
@@ -307,19 +315,19 @@ The current billing facts remain useful:
 
 1. `Owed<Resource>` records the adjusted fungible debt.
 2. Debt enables `Accepting<Resource>` and card-held substitutes.
-3. A qualified `Invoice` implements `Billing` and exposes payment choices.
+3. A qualified `ActionBilling` implements `Billing` and exposes payment choices.
 4. Payments remove `Owed`.
-5. When matching debt reaches zero, the invoice removes itself.
+5. When matching debt reaches zero, the billing removes itself.
 
-Under the working model, invoice removal completes the left side and causes the chosen action
-Signal. The right side then responds to that Signal instead of directly to `-Invoice`. No separate
+Under the working model, billing removal completes the left side and causes the chosen action
+Signal. The right side then responds to that Signal instead of directly to `-ActionBilling`. No separate
 `Paid` component is needed.
 
-Only invoice creation needs to name its denomination, and M€ is the default. Discounts and
-surcharges modify `Owed` before the invoice exists. Accepted substitutes reduce that same invoice;
+Only billing creation needs to name its denomination, and M€ is the default. Discounts and
+surcharges modify `Owed` before the billing exists. Accepted substitutes reduce that same debt;
 they are not parallel kinds of debt.
 
-The invoice must retain enough identity to correlate with the selected action before that action's
+The billing must retain enough identity to correlate with the selected action before that action's
 Signal exists. If action identity becomes a concrete Class, the likely key is the action Class plus
 whatever live provider dependency modifiers need. It cannot depend on the ephemeral Signal
 instance because that instance is deliberately issued only after settlement.
@@ -338,7 +346,7 @@ If debt remains with no accepted tender, the payment task has no concrete choice
 dead-ends. When no debt remains, Billing removes itself; under the working model that removal lets
 the action machinery issue the selected action Signal.
 
-Card play uses the same debt-zero rule but is not necessarily an action. `-CardInvoice` can put the
+Card play uses the same debt-zero rule but is not necessarily an action. `-CardBilling` can put the
 card into play as soon as its debt is settled. EventCard lifetime remains owned by whole-World idle
 cleanup; see [SEQUENCING.md](SEQUENCING.md#current-behavior-whole-world-idle-cleanup).
 
@@ -354,12 +362,12 @@ ordinary left-side work unless Terraforming Mars deliberately rewrites it as bil
 
 ## Composition
 
-Several additions to `Owed` may precede one invoice. Card buying adds 3 M€ per selected card, so
-Polyphemos and Terralabs Research can alter the same debt before the invoice opens.
+Several additions to `Owed` may precede one billing component. Card buying adds 3 M€ per selected
+card, so Polyphemos and Terralabs Research can alter the same debt before the billing opens.
 
 Trade has three actions for 9 M€, 3 energy, or 3 titanium. Cryo-Sleep and Rim Freighters both write
-`Invoice<TradeAction>:: -Owed`; the bare removal follows the invoice's selected denomination, so
-the cards already need not name MC, energy, titanium, or an action slot. Concrete Trade action
+`ActionBilling<TradeAction>:: -Owed`; the bare removal follows the billing component's selected
+denomination, so the cards already need not name MC, energy, titanium, or an action slot. Concrete Trade action
 Classes must remain members of a common `TradeAction` family so this one listener continues to
 cover all three.
 
@@ -380,7 +388,7 @@ that dependency-driven behavior without requiring persistent duplicate action co
 `Action` syntax, the abstract action protocol, concrete action identity, and the transition from a
 satisfied left side to a Signal belong to generic Pets.
 
-`StandardResource`, `Owed`, `Invoice`, card-action permission, Trade fleets, standard-action routes,
+`StandardResource`, `Owed`, `ActionBilling`, card-action permission, Trade fleets, standard-action routes,
 and the recognition of billable Terraforming Mars left sides belong to Terraforming Mars. The
 generic transformer currently recognizes six Terraforming Mars resource names; treat that as one
 existing layering flaw rather than justification for pushing billing into generic Pets.
@@ -413,12 +421,12 @@ multi-arrow providers in this stage.
 After Stage 1 is coherent, carry the same shape through one fixed standard-resource left side.
 
 1. Let Terraforming Mars rewrite the selected action's left-side instruction into `Owed` and
-   `Invoice` work.
+   `ActionBilling` work.
 2. Complete payment sequentially.
-3. Make invoice removal cause the concrete action Signal rather than the right side directly.
+3. Make billing removal cause the concrete action Signal rather than the right side directly.
 4. Keep the right-side effect identical to the direct prototype.
-5. Verify successful payment ordering, failed-payment rollback, and one invoice modifier.
-6. Use the result to decide whether invoice removal is sufficient completion or action-local scoped
+5. Verify successful payment ordering, failed-payment rollback, and one billing modifier card.
+6. Use the result to decide whether billing removal is sufficient completion or action-local scoped
    state still earns a role. Do not introduce `Temporary` just to bridge parallel payment tasks
    that the sequential payment loop will remove.
 
@@ -442,11 +450,11 @@ Unresolved, in decision order:
    it?** An instruction-valued property on the concrete action Class is plausible, but it must compose
    with normal Pets transformation rather than create a second instruction system.
 3. **What exact completion causes the action Signal?** Plain `THEN` may suffice for a direct
-   instruction; invoice removal may suffice for sequential payment; descendant work may require a
+   instruction; billing removal may suffice for sequential payment; descendant work may require a
    scoped completion component. Determine where, if anywhere, `Temporary` still earns a role.
 4. **Can the delayed Signal preserve today's binding behavior and declaring-family matching?** The
    existing `THEN` tree carries Type variables and shared X; Trade modifiers target all three arrows
-   through `Invoice<TradeAction>`. A concrete-Signal design must preserve both without parallel
+   through `ActionBilling<TradeAction>`. A concrete-Signal design must preserve both without parallel
    identity data.
 5. **How does `RequiredAction` positively replace and restore the ordinary action providers?** The
    leading shape is one removable player-owned provider for standard actions, while the

@@ -36,7 +36,7 @@ Owning implementation:
 Test ownership:
 
 - [`TurmoilRulesTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/TurmoilRulesTest.kt)
-  covers setup, lobbying, finite reserves, ranks, and influence.
+  covers setup, lobbying, delegate capacity, ranks, and influence.
 - [`TurmoilGovernmentTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/TurmoilGovernmentTest.kt)
   covers ruling bonuses, chairman succession, delegate return, dominance, and Lobby refill.
 - [`TurmoilPoliciesTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/TurmoilPoliciesTest.kt)
@@ -53,18 +53,17 @@ Test ownership:
 
 ## Political components
 
-`TurmoilExpansion` creates one `TurmoilPlayer`, seven reserve delegates, and one Lobby-availability
-marker for each player. Neutral begins with thirteen reserve delegates, the chair, and the two printed
-setup delegates introduced by the first Coming and Distant events. Greens are the initial ruling party.
-Delegates are finite components: sending or returning one always transmutates a reserve, party, or
-chairman component rather than creating an unlimited marker.
+`TurmoilExpansion` creates one `TurmoilPlayer` and one Lobby-availability marker for each player.
+Neutral begins with the chair and the two printed setup delegates introduced by the first Coming and
+Distant events. Greens are the initial ruling party.
 
-All seven player delegates are fungible physical `ReserveDelegate`s until they enter a party or the
-chairman's seat. `LobbyActionAvailable` separately records that the Lobby placement remains available;
-it does not identify or reserve one physical delegate. Using that placement or exhausting the combined
-supply removes the marker, and a returned delegate does not restore it. Free and paid lobbying, cards,
-and map bonuses all consume a reserve delegate. A neutral Global Event placement is ignored when the
-neutral reserve is empty.
+Only placed delegates are components. A player's available supply is derived from the seven-delegate
+limit minus their `PartyDelegate`s and `Chairman`; neutral uses the analogous fourteen-delegate limit.
+There is no second representation for off-board delegates, just as there is none for unplaced tiles.
+`LobbyActionAvailable` separately records whether the free Lobby placement remains available. Using
+that placement or placing the seventh delegate removes the marker, and returning a delegate does not
+restore it. Any player placement beyond seven is impossible, and a neutral Global Event placement is
+ignored once neutral has fourteen placed delegates.
 
 `PartyDelegate<Party, Owner>` records committee membership. `PartyLeader<Party, Owner>`,
 `Dominant<Party>`, `Ruling<Party>`, and `Chairman<Owner>` are separate roles:
@@ -99,10 +98,11 @@ to one existential contribution. AMAP is not used to conceal a missing player ow
 `FormGovernment` is supplied by the dominant party and performs the complete ordered operation:
 
 1. Make that party ruling and apply its one-time bonus.
-2. Return the old chairman and the ruling party's non-leader delegates to their owners' reserves.
+2. Return the old chairman and the ruling party's non-leader delegates to their owners' available
+   supply by removing their placed components.
 3. Move the ruling party leader into the chair; grant one rating if that owner is a player.
 4. Remove its leader role, select the next dominant party clockwise, and restore free lobbying for
-   players who still have a reserve delegate.
+   players with fewer than seven placed delegates.
 
 Ruling bonuses count only the current player's owned icons or production. Mars First, Scientists,
 Unity, Greens, and Kelvinists pay from Building, Science, planetary, bio, and heat-production
@@ -138,13 +138,15 @@ The ordinary Solar workflow performs World Government Terraforming before the Tu
 4. Changing Times removes Current, moves Coming to Current and Distant to Coming, and requests the
    next concrete Distant event.
 
-The temporary operation is a completion latch for event choices; it is not a new workflow phase.
-`Current`, `Coming`, and `Distant` are typed positions with at most one occupant. A concrete event
-owns its printed delegates and effect while its position component changes. Reveal barriers request
-one concrete catalog event. For now, callers explicitly complete those Admin tasks with the event
-supplied by their shuffled deck or source record. This is a temporary integration compromise, not a
-game decision assigned to Admin. The selected direction is an installable Admin autoexecution
-policy that pulls the next exact event from an ordered list.
+`TurmoilSolarPhase` orders this work after the active Venus and Colonies Solar phases. The temporary
+operation inside it is a completion latch for event choices: it keeps government formation from
+racing consequences created by the current event. `Current`, `Coming`, and `Distant` are typed
+positions with at most one occupant. A concrete event owns its printed delegates and effect while
+its position component changes. Reveal barriers request one concrete catalog event. For now,
+callers explicitly complete those Admin tasks with the event supplied by their shuffled deck or
+source record. This is a temporary integration compromise, not a game decision assigned to Admin.
+The selected direction is an installable Admin autoexecution policy that pulls the next exact event
+from an ordered list.
 
 Admin-authored global-parameter changes grant no rating or player placement bonuses. If Admin raises
 temperature through 0°C, `AdminOceanPlacement` gives the required ocean-placement choice to the

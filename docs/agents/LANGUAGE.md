@@ -187,10 +187,9 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   for Terraforming Mars.
 - Treat symmetry as a question, not a mandate. Different composition rules are evidence for different
   shapes.
-- Some cases stay unresolved on purpose: Cyberia Systems' first-choice marker, Sponsored Academies'
-  grouped player fanout, and Industrial Complex's production-floor behavior are each too isolated to
-  earn permanent machinery. Reopen one only with a smaller general interpretation, not a protocol
-  built for it.
+- Some cases stay unresolved on purpose: Cyberia Systems' first-choice marker and Sponsored
+  Academies' grouped player fanout are each too isolated to earn permanent machinery. Reopen one
+  only with a smaller general interpretation, not a protocol built for it.
 
 ## Wording decisions
 

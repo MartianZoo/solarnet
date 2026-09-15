@@ -19,7 +19,7 @@
   sigil decoding without a Pets dependency.
 - [`GenerateTfmPets.kt`](../../src/jvm/dev/martianzoo/tools/GenerateTfmPets.kt) — map declaration
   construction and rendering.
-- [Tharsis `maps.pets`](../../src/common/dev/martianzoo/tfm/canon/TharsisMap/maps.pets) — generated
+- [Tharsis `tharsis.pets`](../../src/common/dev/martianzoo/tfm/canon/TharsisMap/tharsis.pets) — generated
   diagram comment and area declarations.
 
 Map topology and bonus metadata are authored as whole row strings plus a per-map legend in
@@ -32,17 +32,16 @@ the reader does not infer an overall map shape.
 Maps whose largest row or column is at least 10 use two digits for both coordinates in every area
 class name; smaller maps retain their unpadded names.
 
-Canon loads only generated Class declarations. Each map's hand-authored map Module, milestones, and
-awards remain in `classes.pets` beside `maps.pets`; premise resolution derives its default pools
-from that bundle ownership.
+Canon loads only Class declarations. Each map's bundle-specific `.pets` file keeps its map Module,
+milestones, awards, diagram comment, and generated areas together; premise resolution derives its
+default pools from that bundle ownership.
 
 A legend entry whose instruction is `Ok` is emitted as its own harmless `Placement<This>: Ok` effect.
 Repeated sigils produce repeated effects. This preserves presentation codes such as `D` and `DD`
 on the runtime Class without introducing separate display metadata; semantic bonus consumers
 combine the effects while discarding the no-ops.
 
-`./gradlew :tools:generateTfmPets` rewrites every generated `maps.pets` and `cards.pets`. For a
-non-mutating comparison, pass `-PtfmPetsOutput=PATH`. Map output retains each row exactly in a
-diagram comment, keeps each area declaration on one line, and separates declaration rows with a
-blank line. `GenerateCardPetsTest` checks byte-for-byte drift and confirms the generated map Class
-names match the expanded data.
+`./gradlew :tools:regenerateMapAreas` rewrites the generated area section in each map's `.pets` file. Map output retains each
+row exactly in a diagram comment, keeps each area declaration on one line, and separates declaration
+rows with a blank line. Card Pets use the separate build-time pipeline described in
+[`OPTIONS.md`](OPTIONS.md#card-declarations-and-views).

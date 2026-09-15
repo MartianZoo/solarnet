@@ -24,7 +24,10 @@ internal class Describers(
   private val classesByName = expressions.classesByName
 
   init {
-    require(descriptions.keys.all(expressions::isActive))
+    val unknownDescriptions = descriptions.keys - classesByName.keys
+    require(unknownDescriptions.isEmpty()) {
+      "English descriptions name Classes outside the supplied table: $unknownDescriptions"
+    }
     validateInheritedFacts()
   }
 
@@ -191,6 +194,10 @@ internal class Describers(
   internal fun isTag(className: ClassName): Boolean = expressions.isTag(className)
 
   internal fun isProduction(className: ClassName): Boolean = expressions.isProduction(className)
+
+  internal fun isProductionOffset(expression: Expression): Boolean =
+      expression.refinement == null &&
+          fact(expression.className, ComponentDescriber::productionOffset) == true
 
   internal fun isPlayerOwned(className: ClassName): Boolean = expressions.isPlayerOwned(className)
 

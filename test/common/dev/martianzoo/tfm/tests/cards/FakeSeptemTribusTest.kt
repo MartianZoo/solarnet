@@ -10,11 +10,10 @@ internal class FakeSeptemTribusTest : CardTest() {
   internal fun `Action ignores the chairman and pays once for each party with an owned delegate`() {
     newGame(TurmoilExpansion, FakeStuffBundle)
     p1.runOperation("$FakeSeptemTribus")
-    admin.runOperation("ReserveDelegate<Neutral> FROM Chairman<Neutral>")
+    admin.runOperation("-Chairman<Neutral>")
     p1.runOperation(
-        "Chairman FROM ReserveDelegate, PartyDelegate<MarsFirst> FROM ReserveDelegate, " +
-            "PartyDelegate<MarsFirst> FROM ReserveDelegate, " +
-            "PartyDelegate<Scientists> FROM ReserveDelegate"
+        "Chairman, PartyDelegate<MarsFirst>, PartyDelegate<MarsFirst>, " +
+            "PartyDelegate<Scientists>"
     )
     admin.phase("Action")
 

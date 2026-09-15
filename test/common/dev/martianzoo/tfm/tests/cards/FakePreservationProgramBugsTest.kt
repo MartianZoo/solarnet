@@ -1,13 +1,14 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.tfm.tests.TestOption.FakeStuffBundle
-import dev.martianzoo.tfm.tests.TestOption.Prelude2Expansion
+import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
+import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import kotlin.test.Test
 
 internal class FakePreservationProgramBugsTest : CardTest() {
   @Test
   internal fun `reversed TR still pays Terraforming Deal`() {
-    newGame(Prelude2Expansion, FakeStuffBundle)
+    newGame(PreludeExpansion, Prelude2CardPack, FakeStuffBundle)
     p1.phase("Prelude")
     p1.runOperation("FakePreservationProgram, TerraformingDeal")
     admin.phase("Action")

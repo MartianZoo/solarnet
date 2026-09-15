@@ -280,6 +280,7 @@ private fun renderAcceptedPaymentResource(
 
 internal fun acceptedFirstActionPaymentResource(
     effect: Effect,
+    singleAction: Boolean,
     describers: Describers,
 ): String? {
   val gain = effect.instruction as? Gain ?: return null
@@ -293,7 +294,12 @@ internal fun acceptedFirstActionPaymentResource(
 
   val actionUse = describers.actionUseEvent(effect.trigger) ?: return null
   if (actionUse.provider != describers.thisExpression) return null
-  if (actionUse.slot != ClassName.cn("Action1").expression) return null
+  if (
+      actionUse.slot != ClassName.cn("Action1").expression &&
+          !(singleAction && actionUse.slot == null)
+  ) {
+    return null
+  }
   return acceptance.noun
 }
 
@@ -416,37 +422,34 @@ private fun renderOncePerActionProductionReward(
     effects: List<Effect>,
     describers: Describers,
 ): Pair<Rendering<String>, Int>? {
-  val actionReset = effects.getOrNull(0)?.let(describers::prepareForRendering) ?: return null
-  val phaseReset = effects.getOrNull(1)?.let(describers::prepareForRendering) ?: return null
-  val rewardSignal = effects.getOrNull(2)?.let(describers::prepareForRendering) ?: return null
+  val actionEnable = effects.getOrNull(0)?.let(describers::prepareForRendering) ?: return null
+  val phaseEnable = effects.getOrNull(1)?.let(describers::prepareForRendering) ?: return null
 
-  val resetMarker = removedLatchMarker(actionReset, describers) ?: return null
-  if (!resetsAfterAction(actionReset.trigger, describers)) return null
-  if (removedLatchMarker(phaseReset, describers) != resetMarker) return null
-  if (!resetsForPreludeAction(phaseReset.trigger)) return null
+  val rewardMarker = enabledLatchMarker(actionEnable) ?: return null
+  if (!resetsAfterAction(actionEnable.trigger, describers)) return null
+  if (enabledLatchMarker(phaseEnable) != rewardMarker) return null
+  if (!resetsForPreludeAction(phaseEnable.trigger)) return null
 
-  val markerGain = rewardSignal.instruction as? Gain ?: return null
-  if (
-      !rewardSignal.automatic ||
-          markerGain.gaining != resetMarker ||
-          markerGain.quantifier.modality() != Modality.BEST_EFFORT ||
-          markerGain.count.fixedQuantity() != 1
-  ) {
-    return null
-  }
-  val conditionedTrigger = rewardSignal.trigger as? Trigger.IfTrigger ?: return null
-  if (!coversActionPhases(conditionedTrigger.condition)) return null
-  val sizedTrigger = conditionedTrigger.inner as? XTrigger ?: return null
+  val declaration = describers.declaration(rewardMarker.className)
+  if (!hasUnitLatchInvariant(declaration.invariants, describers.thisExpression)) return null
+  val rewardEffect = declaration.effects.singleOrNull() ?: return null
+  if (!rewardEffect.automatic) return null
+  val sizedTrigger = rewardEffect.trigger as? XTrigger ?: return null
   val productionTrigger = sizedTrigger.inner as? OnGainOf ?: return null
   val production =
       productionCategoryExpression(productionTrigger.expression, describers) ?: return null
   if (production.owner != null || describers.concrete(production.resource)) return null
 
-  val declaration = describers.declaration(resetMarker.className)
-  if (!hasUnitLatchInvariant(declaration.invariants, describers.thisExpression)) return null
-  val rewardEffect = declaration.effects.singleOrNull() ?: return null
-  if (!rewardEffect.automatic || rewardEffect.trigger != Trigger.WhenGain) return null
-  val reward = renderInstructions(rewardEffect.instruction, describers)
+  val rewardInstructions = InstructionGroup.of(rewardEffect.instruction).instructions
+  val markerRemoval = rewardInstructions.lastOrNull() as? Remove ?: return null
+  if (
+      markerRemoval.removing != describers.thisExpression ||
+          markerRemoval.quantifier.modality() != Modality.REQUIRED ||
+          markerRemoval.count.fixedQuantity() != 1
+  ) {
+    return null
+  }
+  val reward = renderInstructions(InstructionGroup(rewardInstructions.dropLast(1)), describers)
   val rewardClause = reward.clauses.singleOrNull() as? Clause.Simple ?: return null
   if (reward.unresolved.isNotEmpty()) return null
   val conditionalReward =
@@ -457,20 +460,20 @@ private fun renderOncePerActionProductionReward(
               conditionalReward,
           )
       )
-      .render() to 3
+      .render() to 2
 }
 
-private fun removedLatchMarker(effect: Effect, describers: Describers): Expression? {
-  val removal = effect.instruction as? Remove ?: return null
+private fun enabledLatchMarker(effect: Effect): Expression? {
+  val gain = effect.instruction as? Gain ?: return null
   if (
       !effect.automatic ||
-          describers.resolvedRemovalModality(removal) != Modality.BEST_EFFORT ||
-          removal.count.fixedQuantity() != 1 ||
-          !removal.removing.simple
+          gain.quantifier.modality() != Modality.BEST_EFFORT ||
+          gain.count.fixedQuantity() != 1 ||
+          gain.gaining.refinement != null
   ) {
     return null
   }
-  return removal.removing
+  return gain.gaining
 }
 
 private fun resetsAfterAction(trigger: Trigger, describers: Describers): Boolean {
@@ -485,12 +488,6 @@ private fun resetsForPreludeAction(trigger: Trigger): Boolean {
   val turn = (conditioned.inner as? OnGainOf)?.expression ?: return false
   if (!turn.simple || turn.className != cn("NewTurn")) return false
   return countedPresence(conditioned.condition)?.className == cn("PreludePhase")
-}
-
-private fun coversActionPhases(requirement: Requirement): Boolean {
-  val alternatives = (requirement as? Requirement.Or)?.requirements ?: return false
-  return alternatives.mapNotNull(::countedPresence).map(Expression::className).toSet() ==
-      setOf(cn("ActionPhase"), cn("PreludePhase"))
 }
 
 private fun countedPresence(requirement: Requirement): Expression? {
@@ -630,6 +627,21 @@ private fun resourceValueModifier(value: NounPhrase): Modifier.Relation =
     )
 
 internal fun paymentDiscount(effect: Effect, describers: Describers): PaymentDiscount? {
+  (effect.trigger as? Trigger.Or)?.let { alternatives ->
+    val discounts =
+        alternatives.triggers.map { trigger ->
+          paymentDiscount(effect.copy(trigger = trigger), describers) ?: return null
+        }
+    val first = discounts.firstOrNull() ?: return null
+    if (
+        discounts.any {
+          it.reduction != first.reduction || it.categoryReduction != first.categoryReduction
+        }
+    ) {
+      return null
+    }
+    return first.copy(trigger = coordinatePaymentTriggers(discounts.map(PaymentDiscount::trigger)))
+  }
   completeOwedReduction(effect.instruction, describers)?.let { reduction ->
     val trigger = describers.renderPaymentDiscountTrigger(effect.trigger) ?: return null
     if (!trigger.accepts(reduction)) return null
@@ -660,19 +672,7 @@ internal fun paymentDiscount(effect: Effect, describers: Describers): PaymentDis
 }
 
 private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): Rendering<String> {
-  val clauses = discounts.map { it.trigger }.distinct()
-  val actingPlayer = NounPhrase.you()
-  val trigger =
-      if (clauses.size == 1) {
-        clauses.single()
-      } else if (clauses.all { it.subject == actingPlayer }) {
-        Clause.SharedSubject(
-            actingPlayer,
-            Coordination(clauses.map(Clause.Simple::predicate), Conjunction.OR),
-        )
-      } else {
-        Clause.Coordinated(Coordination(clauses, Conjunction.OR))
-      }
+  val trigger = coordinatePaymentTriggers(discounts.map(PaymentDiscount::trigger).distinct())
   val reduction = discounts.first().reduction
   val result =
       if (reduction.count == 0) {
@@ -696,6 +696,20 @@ private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): Rendering<S
         )
       }
   return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).render()
+}
+
+private fun coordinatePaymentTriggers(clauses: List<Clause>): Clause {
+  if (clauses.size == 1) return clauses.single()
+  val simple = clauses.filterIsInstance<Clause.Simple>().takeIf { it.size == clauses.size }
+  val actingPlayer = NounPhrase.you()
+  return if (simple != null && simple.all { it.subject == actingPlayer }) {
+    Clause.SharedSubject(
+        actingPlayer,
+        Coordination(simple.map(Clause.Simple::predicate), Conjunction.OR),
+    )
+  } else {
+    Clause.Coordinated(Coordination(clauses, Conjunction.OR))
+  }
 }
 
 private fun renderResourcePaymentValue(

@@ -115,10 +115,12 @@ retention.
 
 Normal Gradle access to the user-level cache and configuration under `~/.gradle` is permitted.
 For local wrapper builds, generated project state is isolated by account and worktree under
-`~/.gradle/solarnet-builds/`. This includes Gradle's project cache, Kotlin's persistent data, task
-outputs, and build-process temporary files. CI retains the conventional project-local paths so its
-artifact collection remains stable. Use `./gradlew` rather than a directly installed `gradle` so
-the checked-in isolation configuration is applied.
+`~/.gradle/solarnet-builds/`. Each invocation acquires an OS-locked storage slot there: sequential
+builds reuse slot zero and its caches, while overlapping invocations use distinct slots and cannot
+delete each other's test results or other task outputs. A slot includes Gradle's project cache,
+Kotlin's persistent data, task outputs, and build-process temporary files. CI retains the
+conventional project-local paths so its artifact collection remains stable. Use `./gradlew` rather
+than a directly installed `gradle` so the checked-in isolation configuration is applied.
 Yarn's incompatible `serialize-javascript` resolution warning and “Ignored scripts due to flag”
 warning are expected: the former comes from the deliberate 7.x security pin while Mocha requests
 6.x, and the latter preserves Kotlin/JS's policy of not running package lifecycle scripts.
@@ -168,7 +170,7 @@ clear coverage of these contracts matters more than preserving every current tes
    exercised without Terraforming Mars content.
 2. **Pure Pets type-system tests.** Class loading, type relationships, metrics, requirements, and
    related semantics, using small declarations owned by the test rather than Canon.
-3. **Game World and engine-coordination tests.** Pure `:gameworld` scenarios verify that exact
+3. **Game World and engine-coordination tests.** Pure `:state` scenarios verify that exact
    component/task events, materialized projections, history, completed recording positions, and
    independent playback views remain coherent without firing effects. Cross-module engine
    scenarios cover consequence calculation and failure atomicity: a failed operation must restore
@@ -280,17 +282,27 @@ workaround. Once the bug is fixed, move the useful scenario to its proper behavi
 Whole-game tests are high-value integration coverage. When translating a supplied game log:
 
 - `CardTrackingFullGameTest` is an opt-in full-game base for source archives that identify project
-  cards. `expectProjectCards()` assigns sourced identities to an otherwise anonymous selection;
-  named draw, purchase, discard, and return calls then update one test-owned location ledger. The
-  tracker reads game events only to observe named cards being played. A named discard is terminal;
-  cards do not return to the deck. For source-known deck exits that the model omits, record the
-  terminal exit explicitly. `discardUnselectedProjectCards()` may either close a previously named
-  selection or introduce the rejected names directly; inside an operation it also resolves an
-  already-open anonymous selection-removal task.
+  cards. Named draw, offer, purchase, discard, and return calls update one test-owned location
+  ledger and annotate the corresponding project-card events. Naming may happen immediately before
+  or after the engine change.
+  A replay with complete source data may instead override `projectCardArrivalOrder` for each Player.
+  This is the order in which cards enter that Player's modeled Hand or Selecting state, not a claim
+  about the physical deck order. The tracker consumes the fixture according to the anonymous event
+  counts; the replay names selection discards, and the retained cards are the remainder of the known
+  offer. It rejects duplicate arrivals, an exhausted or partly unused fixture, and any attempt to
+  discard a card that never arrived or is not in the indicated Player's Hand or selection.
+  Strict completion requires an identity label for every card in every project-card event and
+  checks the tracked hand sizes against the World. When a source omits a rejected card's identity,
+  `unknownProjectCards()` supplies distinct replay-local `UnknownCardNN` labels; keep the source gap
+  visible beside their use. These labels prove complete accounting, not complete source knowledge.
+  The database-backed Herokuapp conversions use strict mode without unknown labels. A named discard
+  is terminal; cards do not return to the deck. For source-known direct deck exits that the model
+  omits, record the terminal exit explicitly; those cards are not arrivals.
+  Inside an operation, `discardUnselectedProjectCards()` also resolves an already-open anonymous
+  selection-removal task.
   Research archives that used drafting may assign each recovered post-draft four-card set as that
-  player's ordinary deal when the tested engine does not support drafting. Express an
-  research deal directly by partitioning its cards between `buyCards()` and
-  `discardUnselectedProjectCards()`; do not declare the same offer first.
+  player's ordinary deal when the tested engine does not support drafting. In an arrival-ordered
+  replay, buy only the evidenced count and name the unselected cards.
   `AbstractSoloTest` inherits this capability, but a solo test opts into tracking only by using
   the named calls.
   When a source gives only a discard count, an exact tracked hand requires the test to select
@@ -337,7 +349,7 @@ Whole-game tests are high-value integration coverage. When translating a supplie
 - Source-backed full-game replays enforce that assumption for resources worth more than one M€.
   Leaving an accepted full-value unit unused fails unless the player calls `intentionalUnderpay()`
   immediately before that payment. The same one-shot audit exemption covers spending an accepted
-  1:1 resource while enough M€ could settle the invoice. It does not waive payment legality: an
+  1:1 resource while enough M€ could settle the billing. It does not waive payment legality: an
   allocation containing a unit that could be returned is rejected, while unavoidable rounding
   excess needs no marker. Explain the sourced later payment or checkpoint that requires an unusual
   allocation, and prefer correcting an unsupported allocation over declaring intent.

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.web.gameviewer
 
-import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.tfm.engine.visibleLogEvents
 import kotlin.test.Test
 import kotlin.test.assertEquals

@@ -71,12 +71,17 @@ internal class EndgameRulesTest : CardTest() {
   }
 
   @Test
-  internal fun `Prelude shortens the solo countdown by two generations`() {
+  internal fun `Prelude shortens either solo objective by two generations`() {
     newGame(players = 1)
     admin.count("SoloGenerationsLeft") shouldBe 13
 
     newGame(PreludeExpansion, players = 1)
     admin.count("SoloGenerationsLeft") shouldBe 11
+
+    newGame(PreludeExpansion, Tr63SoloObjective, players = 1)
+    admin.count("SoloGenerationsLeft") shouldBe 11
+    p1.count("Tr63SoloObjective") shouldBe 1
+    p1.count("StandardSoloObjective") shouldBe 0
   }
 
   @Test

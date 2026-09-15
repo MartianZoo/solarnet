@@ -1,6 +1,6 @@
 "Expansion adding the Terraforming Committee and Global Events"
 CLASS TurmoilExpansion : Module {
-  HAS Class<RefillLobby>, Class<PlaceReserveDelegate>, Class<MeasureInfluence>, Class<ApplyRulingBonus>, Class<FormGovernment>, Class<ChangingTimes>
+  HAS Class<RefillLobby>, Class<MeasureInfluence>, Class<ApplyRulingBonus>, Class<FormGovernment>, Class<ChangingTimes>
   HAS Class<TurmoilSolarOperation>
   HAS Class<ResolveCurrentGlobalEvent>, Class<ResolveGlobalEvent>
   HAS Class<RemoveOceanForGlobalEvent>, Class<ChooseDryDesertResource>
@@ -10,10 +10,10 @@ CLASS TurmoilExpansion : Module {
   HAS Class<AddResourceToCard>
   HAS Class<ChooseInfluenceFloaterCard>, Class<ResolveCorrosiveRain>
   This:: Neutral, MarsFirst, Scientists, Unity, Greens, Reds, Kelvinists, LobbyAction, UseTurmoilPolicyAction
-  SetupPhase:: EACH Player { TurmoilPlayer, 7 ReserveDelegate, LobbyActionAvailable }
-  SetupPhase:: Chairman<Neutral>, 13 ReserveDelegate<Neutral>, Ruling<Greens>
+  SetupPhase:: EACH Player { TurmoilPlayer, LobbyActionAvailable }
+  SetupPhase:: Chairman<Neutral>, Ruling<Greens>
   SetupPhase: RevealComingEvent
-  SolarPhase: TurmoilSolarOperation
+  TurmoilSolarPhase: TurmoilSolarOperation
 }
 
 CLASS Terraformer26 : Milestone { requirement = HAS "26 TerraformRating" }
@@ -37,12 +37,14 @@ ABSTRACT CLASS GlobalEvent {
 
 "The party receiving the neutral delegate printed in a Global Event's distant position"
 ABSTRACT CLASS GePartyDistant<Party> : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Party, Neutral> FROM ReserveDelegate<Neutral>.
+  PlaceDistantDelegate<Class<This>> IF \
+    MAX 13 (PartyDelegate<Neutral> OR Chairman<Neutral>):: PartyDelegate<Party, Neutral>.
 }
 
 "The party receiving the neutral delegate when a Global Event becomes current"
 ABSTRACT CLASS GePartyCurrent<Party> : GlobalEvent {
-  Current<Class<This>>:: PartyDelegate<Party, Neutral> FROM ReserveDelegate<Neutral>.
+  Current<Class<This>> IF \
+    MAX 13 (PartyDelegate<Neutral> OR Chairman<Neutral>):: PartyDelegate<Party, Neutral>.
 }
 
 "One Global Event card occupying its printed board position"
@@ -169,11 +171,14 @@ CLASS ChangingTimes : Signal {
 "A player participating in the Turmoil political rules"
 CLASS TurmoilPlayer : Owned<Player>, System {
   HAS MAX 1 This
+  PartyDelegate OR Chairman IF 7 (PartyDelegate OR Chairman):: -LobbyActionAvailable.
+  PartyDelegate OR Chairman IF 8 (PartyDelegate OR Chairman):: Die
 }
 
 "The owner of gray delegates"
 CLASS Neutral : Owner {
   HAS MAX 1 This
+  PartyDelegate OR Chairman IF 15 (PartyDelegate OR Chairman):: Die
 }
 
 ABSTRACT CLASS Party {
@@ -181,9 +186,9 @@ ABSTRACT CLASS Party {
   FormGovernment IF Dominant<This>:: \
     (MAX 0 Ruling<This>: Ruling<This> FROM Ruling) OR (Ruling<This>: Ok), \
     ApplyRulingBonus<This>, \
-    EACH Anyone(HAS Chairman<Anyone>) { ReserveDelegate<Anyone> FROM Chairman<Anyone> }, \
+    EACH Anyone(HAS Chairman) { -Chairman<Anyone> }, \
     EACH Anyone(HAS PartyDelegate<This, Anyone>) { \
-      (ReserveDelegate<Anyone> FROM PartyDelegate<This, Anyone>) / (PartyDelegate<This, Anyone> - PartyLeader<This, Anyone>) \
+      -PartyDelegate<This, Anyone> / (PartyDelegate<This, Anyone> - PartyLeader<This, Anyone>) \
     }, \
     EACH Anyone(HAS PartyLeader<This, Anyone>) { Chairman<Anyone> FROM PartyDelegate<This, Anyone> }, \
     EACH Player(HAS PartyLeader<This, Player>) { TerraformRating<Player> }, \
@@ -261,18 +266,11 @@ ABSTRACT CLASS PartyStatus<Party> {
   }
 }
 
-ABSTRACT CLASS AbstractDelegate : Owned<Owner> {
-  "The delegate holding the committee chair"
-  CLASS Chairman {
-    HAS MAX 1 Chairman
-    MeasureInfluence:: ChairmanInfluence
-    End: VictoryPoint
-  }
-
-  "A delegate available to enter the Lobby or a political party"
-  CLASS ReserveDelegate {
-    -This IF TurmoilPlayer<Owner>, MAX 0 This:: -LobbyActionAvailable<Owner>.
-  }
+"The delegate holding the committee chair"
+CLASS Chairman : Owned<Owner> {
+  HAS MAX 1 Chairman
+  MeasureInfluence:: ChairmanInfluence
+  End: VictoryPoint
 }
 
 "Marks that a player has not used their free lobbying action this generation"
@@ -282,16 +280,11 @@ CLASS LobbyActionAvailable : Owned<Player>, System {
 
 "A delegate currently assigned to one political party"
 CLASS PartyDelegate<Party> : Owned<Owner> {
-  This:: EACH Anyone(HAS MAX 0 PartyLeader<Party, Anyone>, HAS =1 (RANK Anyone { PartyDelegate<Party, Anyone>, PartyLeader<Party, Anyone> })) { \
+  X This:: EACH Anyone(HAS MAX 0 PartyLeader<Party, Anyone>, HAS =1 (RANK Anyone { PartyDelegate<Party, Anyone>, PartyLeader<Party, Anyone> })) { \
     PartyLeader<Party, Anyone> \
   }
-  This:: RecalculateDominance
+  X This:: RecalculateDominance
   MeasureInfluence IF Dominant<Party>, 1 (PartyDelegate<Party, Owner> - PartyLeader<Party, Owner>):: DelegateInfluence.
-}
-
-"Requests a party for one delegate placed using the owner's available reserve"
-CLASS PlaceReserveDelegate<Party> : Owned<Owner>, Signal {
-  This:: PartyDelegate<Party, Owner> FROM ReserveDelegate<Owner>
 }
 
 "The owner whose delegate occupies one party's leader seat"
@@ -318,15 +311,15 @@ CLASS RecalculateDominanceClockwise : Signal {
   }
 }
 
-"The repeatable lobbying action, free from the Lobby or costing 5 M€ from the reserve"
+"The repeatable lobbying action, free from the Lobby or costing 5 M€"
 CLASS LobbyAction : StandardAction {
-  LobbyActionAvailable -> PartyDelegate FROM ReserveDelegate
-  5 MC -> PartyDelegate FROM ReserveDelegate
+  LobbyActionAvailable -> PartyDelegate
+  5 MC -> PartyDelegate
 }
 
-"Restores free lobbying for each player who has a reserve delegate"
+"Restores free lobbying for each player who has an available delegate"
 CLASS RefillLobby : Signal {
-  This:: EACH Player(HAS ReserveDelegate<Player>) { LobbyActionAvailable<Player>. }
+  This:: EACH Player(HAS MAX 6 (PartyDelegate OR Chairman)) { LobbyActionAvailable<Player>. }
 }
 
 "Requests the current political influence snapshot for one player"
@@ -354,11 +347,10 @@ CLASS EventAnalystsInfluence : Influence {
   HAS MAX 1 This
 }
 
-"Exchanges one neutral non-leader delegate for one of the player's reserve delegates"
+"Exchanges one neutral non-leader delegate for one of the player's available delegates"
 CLASS RecruitmentExchange<Party> : Owned<Player>, Barrier {
   HAS MAX 1 This
-  This: ReserveDelegate<Neutral> FROM PartyDelegate<Party, Neutral> THEN \
-    PlaceReserveDelegate<Party, Owner> THEN -This!
+  This: -PartyDelegate<Party, Neutral> THEN PartyDelegate<Party, Owner> THEN -This!
 }
 
 "A ruling party's capability during the Action phase"

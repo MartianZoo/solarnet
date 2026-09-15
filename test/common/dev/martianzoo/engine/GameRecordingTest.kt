@@ -5,6 +5,7 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
@@ -30,7 +31,7 @@ internal class GameRecordingTest {
     observedCounts.shouldContainExactly(0, 1)
 
     val invalidPosition =
-        (0 until recording.positions.last().ordinal).map(Timeline::Checkpoint).first {
+        (0 until recording.positions.last().ordinal).map(::Checkpoint).first {
           it !in recording.positions
         }
     shouldThrow<IllegalArgumentException> { game.timeline.rollBack(invalidPosition) }

@@ -14,17 +14,20 @@ internal class CanonBundlesTest {
     val utopia = table(cn("UtopiaMap"))
     val cimmeria = table(cn("CimmeriaMap"))
 
-    utopia.isActive(cn("UtopiaMap")) shouldBe true
-    utopia.isActive(cn("CimmeriaMap")) shouldBe false
-    cimmeria.isActive(cn("CimmeriaMap")) shouldBe true
-    cimmeria.isActive(cn("UtopiaMap")) shouldBe false
-    utopia.isActive(cn("CimmeriaPlacementBonus")) shouldBe false
-    cimmeria.isActive(cn("CimmeriaPlacementBonus")) shouldBe true
+    utopia.isInhabited(cn("UtopiaMap")) shouldBe true
+    utopia.isInhabited(cn("CimmeriaMap")) shouldBe false
+    (cn("CimmeriaMap") in utopia.allClassNames) shouldBe false
+    cimmeria.isInhabited(cn("CimmeriaMap")) shouldBe true
+    cimmeria.isInhabited(cn("UtopiaMap")) shouldBe false
+    (cn("UtopiaMap") in cimmeria.allClassNames) shouldBe false
+    utopia.isInhabited(cn("CimmeriaPlacementBonus")) shouldBe false
+    (cn("CimmeriaPlacementBonus") in utopia.allClassNames) shouldBe false
+    cimmeria.isInhabited(cn("CimmeriaPlacementBonus")) shouldBe true
   }
 
   @Test
   internal fun independentColoniesCardCanBeSelectedWithoutColonies() {
-    table(cn("Arklight")).isActive(cn("Arklight")) shouldBe true
+    table(cn("Arklight")).isInhabited(cn("Arklight")) shouldBe true
   }
 
   @Test
@@ -41,8 +44,9 @@ internal class CanonBundlesTest {
     val promosWithoutColonies = table(cn("PromoCardPack"), cn("PreludeExpansion"))
     val promosWithColonies =
         table(cn("PromoCardPack"), cn("PreludeExpansion"), cn("ColoniesExpansion"))
-    promosWithoutColonies.isActive(cn("StrategicBasePlanning")) shouldBe false
-    promosWithColonies.isActive(cn("StrategicBasePlanning")) shouldBe true
+    promosWithoutColonies.isInhabited(cn("StrategicBasePlanning")) shouldBe false
+    (cn("StrategicBasePlanning") in promosWithoutColonies.allClassNames) shouldBe false
+    promosWithColonies.isInhabited(cn("StrategicBasePlanning")) shouldBe true
 
     val prelude2VenusWithoutColonies =
         table(cn("PreludeExpansion"), cn("Prelude2CardPack"), cn("VenusNextExpansion"))
@@ -53,17 +57,39 @@ internal class CanonBundlesTest {
             cn("VenusNextExpansion"),
             cn("ColoniesExpansion"),
         )
-    prelude2VenusWithoutColonies.isActive(cn("VenusTradeHub")) shouldBe false
-    prelude2VenusWithColonies.isActive(cn("VenusTradeHub")) shouldBe true
+    prelude2VenusWithoutColonies.isInhabited(cn("VenusTradeHub")) shouldBe false
+    (cn("VenusTradeHub") in prelude2VenusWithoutColonies.allClassNames) shouldBe false
+    prelude2VenusWithColonies.isInhabited(cn("VenusTradeHub")) shouldBe true
+
+    val prelude2TurmoilOnly =
+        table(cn("PreludeExpansion"), cn("Prelude2CardPack"), cn("TurmoilExpansion"))
+    val prelude2ColoniesOnly =
+        table(cn("PreludeExpansion"), cn("Prelude2CardPack"), cn("ColoniesExpansion"))
+    val prelude2ColoniesAndTurmoil =
+        table(
+            cn("PreludeExpansion"),
+            cn("Prelude2CardPack"),
+            cn("ColoniesExpansion"),
+            cn("TurmoilExpansion"),
+        )
+    listOf("ColonialEnvoys", "ColonialRepresentation").forEach { cardName ->
+      prelude2TurmoilOnly.isInhabited(cn(cardName)) shouldBe false
+      (cn(cardName) in prelude2TurmoilOnly.allClassNames) shouldBe false
+      prelude2ColoniesOnly.isInhabited(cn(cardName)) shouldBe false
+      (cn(cardName) in prelude2ColoniesOnly.allClassNames) shouldBe false
+      prelude2ColoniesAndTurmoil.isInhabited(cn(cardName)) shouldBe true
+    }
   }
 
   @Test
   internal fun secondaryModuleDoesNotEnableItsOwningExpansionBundle() {
     val worldGovernmentOnly = table(cn("WorldGovernmentRule"))
 
-    worldGovernmentOnly.isActive(cn("WorldGovernmentRule")) shouldBe true
-    worldGovernmentOnly.isActive(cn("VenusTag")) shouldBe false
-    worldGovernmentOnly.isActive(cn("VenusStep")) shouldBe false
+    worldGovernmentOnly.isInhabited(cn("WorldGovernmentRule")) shouldBe true
+    worldGovernmentOnly.isInhabited(cn("VenusTag")) shouldBe false
+    (cn("VenusTag") in worldGovernmentOnly.allClassNames) shouldBe false
+    worldGovernmentOnly.isInhabited(cn("VenusStep")) shouldBe false
+    (cn("VenusStep") in worldGovernmentOnly.allClassNames) shouldBe false
   }
 
   @Test
@@ -77,8 +103,9 @@ internal class CanonBundlesTest {
         )
     val solo = ClassTable.forPremise(premise)
 
-    solo.isActive(cn("Vitor")) shouldBe true
-    solo.isActive(cn("MultiplayerMode")) shouldBe false
+    solo.isInhabited(cn("Vitor")) shouldBe true
+    solo.isInhabited(cn("MultiplayerMode")) shouldBe false
+    (cn("MultiplayerMode") in solo.allClassNames) shouldBe false
   }
 
   @Test
@@ -86,8 +113,9 @@ internal class CanonBundlesTest {
     val withoutColonies = table(cn("UtopiaMap"))
     val withColonies = table(cn("UtopiaMap"), cn("ColoniesExpansion"))
 
-    withoutColonies.isActive(cn("Pioneer3")) shouldBe false
-    withColonies.isActive(cn("Pioneer3")) shouldBe true
+    withoutColonies.isInhabited(cn("Pioneer3")) shouldBe false
+    (cn("Pioneer3") in withoutColonies.allClassNames) shouldBe false
+    withColonies.isInhabited(cn("Pioneer3")) shouldBe true
   }
 
   @Test
@@ -95,19 +123,22 @@ internal class CanonBundlesTest {
     val base = table(cn("TharsisMap"))
     val venus = table(cn("TharsisMap"), cn("VenusNextExpansion"))
 
-    base.isActive(cn("Hoverlord")) shouldBe false
-    venus.isActive(cn("Hoverlord")) shouldBe true
+    base.isInhabited(cn("Hoverlord")) shouldBe false
+    (cn("Hoverlord") in base.allClassNames) shouldBe false
+    venus.isInhabited(cn("Hoverlord")) shouldBe true
   }
 
   @Test
-  internal fun goalCatalogAndItsSupportDoNotRequireASelectableBundleModule() {
+  internal fun contentOnlyProductsDoNotRequireSelectableExpansionModules() {
     Canon.allClassNames.contains(cn("MilestonesAwardsExpansion")) shouldBe false
+    Canon.allClassNames.contains(cn("Prelude2Expansion")) shouldBe false
+    Canon.allClassNames.contains(cn("Prelude2CardPack")) shouldBe true
     Canon.allClassNames.contains(cn("Landscaper")) shouldBe true
 
     val landscaperWithTharsis =
         table(cn("TharsisMap"), cn("Landscaper"), cn("Administrator"), cn("Biologist"))
-    landscaperWithTharsis.isActive(cn("Landscaper")) shouldBe true
-    landscaperWithTharsis.isActive(cn("TileInLargestGroup")) shouldBe true
+    landscaperWithTharsis.isInhabited(cn("Landscaper")) shouldBe true
+    landscaperWithTharsis.isInhabited(cn("TileInLargestGroup")) shouldBe true
   }
 
   @Test
@@ -124,11 +155,35 @@ internal class CanonBundlesTest {
     val withoutPromos = table(cn("TharsisMap"))
     val withPromos = table(cn("TharsisMap"), cn("PromoCardPack"))
 
-    relevant.filterTo(linkedSetOf(), withoutPromos::isActive) shouldBe
+    relevant.filterTo(linkedSetOf(), withoutPromos::isInhabited) shouldBe
         setOf(cn("DeimosDown"), cn("GreatDam"), cn("MagneticFieldGenerators"))
-    relevant.filterTo(linkedSetOf(), withPromos::isActive) shouldBe
+    relevant.filterTo(linkedSetOf(), withoutPromos.allClassNames::contains) shouldBe
+        setOf(cn("DeimosDown"), cn("GreatDam"), cn("MagneticFieldGenerators"))
+    relevant.filterTo(linkedSetOf(), withPromos::isInhabited) shouldBe
+        setOf(cn("DeimosDownPromo"), cn("GreatDamPromo"), cn("MagneticFieldGeneratorsPromo"))
+    relevant.filterTo(linkedSetOf(), withPromos.allClassNames::contains) shouldBe
         setOf(cn("DeimosDownPromo"), cn("GreatDamPromo"), cn("MagneticFieldGeneratorsPromo"))
     Canon.allClassNames.containsAll(relevant) shouldBe true
+  }
+
+  @Test
+  internal fun standardFormBundleCombinesEveryPetsSource() {
+    val bundle =
+        StandardFormBundle(
+            name = "SplitBundle",
+            resourceDirectory = "split",
+            resourceFilenames = setOf("game.pets", "scoring.pets"),
+            resourceReader = { filename ->
+              when (filename) {
+                "split/game.pets" -> "CLASS GameClass"
+                "split/scoring.pets" -> "CLASS ScoringClass"
+                else -> error("Unexpected resource: $filename")
+              }
+            },
+        )
+
+    bundle.explicitClassDeclarations.map { it.className }.toSet() shouldBe
+        setOf(cn("GameClass"), cn("ScoringClass"))
   }
 
   @Test
@@ -137,7 +192,7 @@ internal class CanonBundlesTest {
         StandardFormBundle(
             name = "MapProvider",
             resourceDirectory = "maps",
-            resourceFilenames = setOf("classes.pets"),
+            resourceFilenames = setOf("map.pets"),
             resourceReader = {
               """
               CLASS DemoMap : MarsMap
@@ -161,10 +216,10 @@ internal class CanonBundlesTest {
         StandardFormBundle(
             name = "LocalizedBundle",
             resourceDirectory = "localized",
-            resourceFilenames = setOf("classes.pets", "language/en.json5"),
+            resourceFilenames = setOf("content.pets", "language/en.json5"),
             resourceReader = { filename ->
               when (filename) {
-                "localized/classes.pets" -> "CLASS Example"
+                "localized/content.pets" -> "CLASS Example"
                 "localized/language/en.json5" -> """{ Example: "Example name" }"""
                 else -> error("Unexpected resource: $filename")
               }

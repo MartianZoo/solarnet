@@ -68,7 +68,7 @@ private fun Describers.renderDescribedMinimumCondition(
   return when (val frame = fact(expression.className, ComponentDescriber::requirementCondition)) {
     is ComponentDescriber.RequirementCondition.ArgumentState -> {
       if (requirement.target != 1 || expression.refinement != null) return null
-      val subject = expression.arguments.getOrNull(frame.argumentIndex) ?: return null
+      val subject = resolveExpression(expression)?.sourceDependency(frame.dependency) ?: return null
       if (!subject.simple || !concrete(subject.className)) return null
       Clause.Simple(
           Predicate(Verb(frame.predicate)),
@@ -138,7 +138,8 @@ private fun Describers.renderOwnedCountCondition(
     frame: ComponentDescriber.RequirementCondition.OwnedCount,
 ): Clause? {
   if (expression.refinement != null) return null
-  val owner = frame.ownerArgumentIndex?.let(expression.arguments::getOrNull)
+  val resolved = resolveExpression(expression) ?: return null
+  val owner = frame.ownerDependency?.let(resolved::sourceDependency)
   val ownerAdjective = owner?.let {
     if (!it.simple) return null
     frame.ownerAdjectives[it.className] ?: return null
@@ -153,8 +154,8 @@ private fun Describers.renderOwnedCountCondition(
         frame.noun
       }
   var amount = quantifiedNoun(noun, count)
-  frame.qualifierArgumentIndex?.let { argumentIndex ->
-    val qualifier = expression.arguments.getOrNull(argumentIndex)
+  frame.qualifierDependency?.let { dependency ->
+    val qualifier = resolved.sourceDependency(dependency)
     val qualifierPhrase =
         when {
           qualifier == null || !concrete(qualifier.className) ->

@@ -15,19 +15,18 @@ src/
       script/
       tfm/
         carddata/
-          PreludeExpansion/
-            cards.json5
+          CardData.kt
+          CardDefinition.kt
         mapdata/
           TharsisMap/
             maps.json5
         canon/
           PreludeExpansion/
-            cards.pets
-            classes.pets
+            cards.json5
+            prelude.pets
             en.json5
           TharsisMap/
-            classes.pets
-            maps.pets
+            tharsis.pets
           TerraformingMars/
             ...
         engine/

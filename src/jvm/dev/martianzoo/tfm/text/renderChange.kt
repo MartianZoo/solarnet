@@ -44,9 +44,6 @@ private fun renderChangeOrNull(
     references: TypeVariableReferences,
 ): Clause? {
   if (instruction is Transmute) {
-    renderDeclaredTransition(instruction, describers)?.let {
-      return it
-    }
     renderPlayedEventRecovery(instruction, describers)?.let {
       return it
     }
@@ -76,7 +73,9 @@ private fun renderChangeOrNull(
       ComponentDescriber.ChangeFrame.Deck ->
           renderDiscard(instruction, describers) ?: renderDraw(instruction, describers)
       is ComponentDescriber.ChangeFrame.Procedure -> renderProcedure(instruction, frame, describers)
-      is ComponentDescriber.ChangeFrame.Transition -> null
+      is ComponentDescriber.ChangeFrame.CountedProcedure ->
+          renderCountedProcedure(instruction, frame, describers)
+      is ComponentDescriber.ChangeFrame.State -> renderStateChange(instruction, frame, describers)
       is ComponentDescriber.ChangeFrame.CappedProcedure -> null
       is ComponentDescriber.ChangeFrame.ScopedInstruction -> null
       ComponentDescriber.ChangeFrame.RequiredAction -> renderRequiredAction(instruction, describers)
@@ -140,7 +139,8 @@ private fun changeRefusalReason(
     is ComponentDescriber.ChangeFrame.Positioned -> RefusalReason.UNSUPPORTED_PLACEMENT_CHANGE
     ComponentDescriber.ChangeFrame.Countable -> RefusalReason.UNSUPPORTED_STANDARD_RESOURCE_CHANGE
     is ComponentDescriber.ChangeFrame.Procedure,
-    is ComponentDescriber.ChangeFrame.Transition,
+    is ComponentDescriber.ChangeFrame.CountedProcedure,
+    is ComponentDescriber.ChangeFrame.State,
     is ComponentDescriber.ChangeFrame.CappedProcedure,
     is ComponentDescriber.ChangeFrame.ScopedInstruction,
     ComponentDescriber.ChangeFrame.RequiredAction,
@@ -150,22 +150,44 @@ private fun changeRefusalReason(
   }
 }
 
-private fun renderDeclaredTransition(
-    transmute: Transmute,
+private fun renderCountedProcedure(
+    instruction: Instruction,
+    frame: ComponentDescriber.ChangeFrame.CountedProcedure,
     describers: Describers,
 ): Clause.Simple? {
+  val gain = instruction as? Gain ?: return null
+  if (gain.quantifier.modality() != Modality.REQUIRED || !gain.gaining.simple) return null
+  val count = gain.count.fixedQuantity() ?: return null
+  return clause(
+      frame.verb,
+      NounPhrase(frame.noun.singular, frame.noun.plural, count = count),
+  )
+}
+
+private fun renderStateChange(
+    instruction: Instruction,
+    frame: ComponentDescriber.ChangeFrame.State,
+    describers: Describers,
+): Clause.Simple? {
+  val change = instruction as? Instruction.Change ?: return null
+  val expression = change.gaining ?: change.removing ?: return null
   if (
-      transmute.quantifier.modality() != Modality.REQUIRED ||
-          transmute.count.fixedQuantity() != 1 ||
-          transmute.gaining.refinement != null ||
-          transmute.removing.refinement != null
+      change.quantifier.modality() != Modality.REQUIRED ||
+          change.count.fixedQuantity() != 1 ||
+          expression.refinement != null ||
+          describers.resolveExpression(expression)?.sourceDependencies?.keys?.any {
+            it != Key(OWNED, 0)
+          } != false
   ) {
     return null
   }
-  val transition =
-      describers.changeFrame(transmute.gaining.className)
-          as? ComponentDescriber.ChangeFrame.Transition ?: return null
-  val procedure = transition.sources[transmute.removing.className] ?: return null
+  val procedure =
+      when (change) {
+        is Gain -> frame.enter
+        is Remove -> frame.leave
+        is Transmute -> return null
+      }
+  if (procedure.cardTargetRelation != null) return null
   return procedure.objectPhrase?.let { clause(procedure.verb, NounPhrase.text(it)) }
       ?: Clause.Simple(Predicate(Verb(procedure.verb)))
 }

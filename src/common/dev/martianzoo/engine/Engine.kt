@@ -16,6 +16,7 @@ import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.ModuleProperties.PREMISE_REQUIREMENT
 import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.state.GameWorld
 
 /** Entry point to the solarnet engine -- create new games here. */
 public object Engine {
@@ -31,18 +32,17 @@ public object Engine {
     private val elaborator: PetElaborator = PetElaborator(classTable)
     private val customClasses = CustomClassRuntime(premise.catalog, elaborator)
 
-    // Reader construction depends on the component graph, whose effector in turn needs the reader.
-    // The effector does not read it until components begin changing, after construction is
-    // complete.
+    private val gameWorld = GameWorld(classTable)
+
+    // Effect compilation needs the reader, but no effect is read until state begins changing.
     private val effector: Effector = Effector(elaborator) { reader }
-    private val components = ComponentGraph(effector, classTable)
-    private val events = EventLog()
-    private val taskQueues = TaskQueues(events, classTable)
+    private val taskQueues = TaskQueues(gameWorld, classTable)
     private val recordingPositions = RecordingPositions()
     private val reader: GameReaderImpl =
-        GameReaderImpl(classTable, components, elaborator, customClasses, premise)
-    private val timeline = TimelineImpl(reader, components, events, taskQueues, recordingPositions)
-    private val limiter = Limiter(classTable, components)
+        GameReaderImpl(classTable, gameWorld, elaborator, customClasses, premise)
+    private val changer = Changer(reader, gameWorld, effector)
+    private val timeline = TimelineImpl(gameWorld, changer, recordingPositions)
+    private val limiter = Limiter(classTable, gameWorld)
     private val worldTransaction: WorldTransaction =
         WorldTransaction(
             timeline,
@@ -50,7 +50,6 @@ public object Engine {
             recordingPositions,
             ::removeTemporaryComponent,
         )
-    private val changer = Changer(reader, components, events)
     private val instructor =
         Instructor(reader, limiter, changer, effector, classTable, elaborator, customClasses)
     private val actorEngines: Map<Actor, ActorEngine> =
@@ -61,6 +60,7 @@ public object Engine {
             elaborator,
             instructor,
             taskQueues,
+            gameWorld,
             classTable,
             timeline,
             premise,
@@ -68,9 +68,7 @@ public object Engine {
         )
     private val world: WholeWorld =
         WholeWorld(
-            components,
-            events,
-            taskQueues.all(),
+            gameWorld,
             timeline,
             reader,
             classTable,
@@ -86,7 +84,7 @@ public object Engine {
     }
 
     private fun removeTemporaryComponent(): Boolean {
-      if (!taskQueues.all().isEmpty()) return false
+      if (!gameWorld.tasks.isEmpty()) return false
       val temporary = classTable.getClass(TEMPORARY).baseType
       val temporaryComponents = reader.getComponents(temporary)
       if (temporaryComponents.isEmpty()) return false
@@ -94,8 +92,8 @@ public object Engine {
       val mustCleanUp = classTable.getClass(MUST_CLEAN_UP).baseType
       val type =
           temporaryComponents.elements.firstOrNull { type ->
-            !components.hasDependentMatching(type, mustCleanUp, reader) &&
-                !components.hasDependentMatching(type, temporary, reader)
+            !gameWorld.components.hasDependentMatching(type, mustCleanUp, reader) &&
+                !gameWorld.components.hasDependentMatching(type, temporary, reader)
           } ?: return false
 
       instructor
@@ -110,8 +108,10 @@ public object Engine {
       }
       premise.initialComponentTypes.forEach { expression ->
         val type = classTable.resolve(expression)
-        require(!type.abstract && classTable.isActive(type) && !type.rootClass.declaration.custom) {
-          "initial component type must be concrete, active, and instantiable: $expression"
+        require(
+            !type.abstract && classTable.isInhabited(type) && !type.rootClass.declaration.custom
+        ) {
+          "initial component type must be concrete, inhabited, and instantiable: $expression"
         }
       }
 
@@ -121,33 +121,34 @@ public object Engine {
               listOfNotNull(premise.bootstrapClassName, premise.premiseClassName) +
               premise.classSelections.filter { it.included }.map { it.className } +
               premise.initialComponentTypes.map { classTable.resolve(it).className }
+      val inhabitedConcreteClasses = classTable.allInhabitedConcreteClasses()
 
-      fun countActiveClasses(count: Count): Int {
+      fun countInhabitedClasses(count: Count): Int {
         if (count.expression.className == CLASS) {
           val representedClass = count.expression.arguments.singleOrNull()
           require(representedClass?.simple == true) {
             "Module Class invariants must name one simple Class: $count"
           }
-          return if (classTable.isActive(representedClass.className)) 1 else 0
+          return if (classTable.isInhabited(representedClass.className)) 1 else 0
         }
         require(count.expression.simple) { "Module invariants must count a simple class: $count" }
-        val type = classTable.findActiveClass(count.expression.className)?.baseType ?: return 0
+        val type = classTable.findInhabitedClass(count.expression.className)?.baseType ?: return 0
         return classTable.allClasses().count { klass ->
-          !klass.abstract &&
+          klass in inhabitedConcreteClasses &&
               klass.baseType.isSubtypeOf(type) &&
               klass.className in initiallyPresentClassNames
         }
       }
 
-      fun evaluateActiveClasses(metric: Metric): Int =
+      fun evaluateInhabitedClasses(metric: Metric): Int =
           metric.evaluate(
-              ::countActiveClasses,
+              ::countInhabitedClasses,
               { property -> error("Module premise metrics cannot read properties: $property") },
               { union -> error("Module premise metrics cannot use OR: $union") },
               { rank -> error("Module premise metrics cannot use RANK: $rank") },
           )
 
-      fun holds(requirement: Requirement): Boolean = requirement.isMetBy(::evaluateActiveClasses)
+      fun holds(requirement: Requirement): Boolean = requirement.isMetBy(::evaluateInhabitedClasses)
 
       premise.modules
           .flatMap { moduleName -> classTable.getClass(moduleName).invariants }
@@ -165,7 +166,8 @@ public object Engine {
 
     private fun createActorEngine(actor: Actor): ActorEngine =
         ActorEngine(
-            taskQueues[actor],
+            gameWorld.tasksFor(actor),
+            gameWorld,
             taskQueues,
             reader,
             timeline,

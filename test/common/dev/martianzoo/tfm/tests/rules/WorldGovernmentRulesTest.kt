@@ -20,7 +20,10 @@ internal class WorldGovernmentRulesTest : CardTest() {
   internal fun `A completed parameter is not a legal World Government choice`() {
     newGame(VenusNextExpansion)
     p1.runOperation("15 VenusStep")
-    TfmWorkflow.Stepwise(agents).solarPhase()
+    with(TfmWorkflow.Stepwise(agents)) {
+      solarPhase()
+      venusSolarPhase()
+    }
 
     shouldThrow<LimitsException> { p1.doTask("VenusStep! BY Admin") }
     p1.doTask("TemperatureStep! BY Admin")
@@ -32,7 +35,10 @@ internal class WorldGovernmentRulesTest : CardTest() {
     p1.runOperation("$Aphrodite")
     val moneyBefore = p1.count("MC")
     val ratingBefore = p1.count("TerraformRating")
-    TfmWorkflow.Stepwise(agents).solarPhase()
+    with(TfmWorkflow.Stepwise(agents)) {
+      solarPhase()
+      venusSolarPhase()
+    }
 
     p1.doTask("VenusStep! BY Admin")
 
@@ -44,7 +50,10 @@ internal class WorldGovernmentRulesTest : CardTest() {
   internal fun `Admin terraforming does not trigger an owner-only effect`() {
     newGame(VenusNextExpansion, PromoCardPack)
     p1.runOperation("$HomeostasisBureau")
-    TfmWorkflow.Stepwise(agents).solarPhase()
+    with(TfmWorkflow.Stepwise(agents)) {
+      solarPhase()
+      venusSolarPhase()
+    }
 
     p1.doTask("TemperatureStep! BY Admin")
 
@@ -73,9 +82,46 @@ internal class WorldGovernmentRulesTest : CardTest() {
   internal fun `World Government can be selected without Venus`() {
     newGame(GameConfig("WorldGovernmentRule", "Player1", "Player2"))
 
-    TfmWorkflow.Stepwise(agents).solarPhase()
+    with(TfmWorkflow.Stepwise(agents)) {
+      solarPhase()
+      venusSolarPhase()
+    }
     p1.doTask("TemperatureStep! BY Admin")
 
     p1.count("TemperatureStep") shouldBe 1
+  }
+
+  @Test
+  internal fun `first player places a standard-track threshold ocean for World Government`() {
+    newGame(GameConfig("WorldGovernmentRule", "Player1", "Player2"))
+    admin.runOperation("14 TemperatureStep")
+
+    with(TfmWorkflow.Stepwise(agents)) {
+      solarPhase()
+      venusSolarPhase()
+    }
+    p1.doTask("TemperatureStep! BY Admin")
+    p1.doTask("OceanTile<Tharsis_1_2> BY Admin")
+
+    admin.count("TemperatureStep") shouldBe 15
+    admin.count("OceanTile<Tharsis_1_2>") shouldBe 1
+    p1.count("TerraformRating") shouldBe 20
+  }
+
+  @Test
+  internal fun `first player places an extended-track threshold ocean for World Government`() {
+    newGame(GameConfig("AmazonisMap, WorldGovernmentRule", "Player1", "Player2"))
+    admin.runOperation("14 TemperatureStep")
+
+    with(TfmWorkflow.Stepwise(agents)) {
+      solarPhase()
+      venusSolarPhase()
+    }
+    p1.doTask("TemperatureStep! BY Admin")
+    p1.doTask("OceanTile<Amazonis_02_01> BY Admin")
+
+    admin.count("TemperatureStep") shouldBe 15
+    admin.count("OceanTile<Amazonis_02_01>") shouldBe 1
+    p1.count("TerraformRating") shouldBe 20
   }
 }

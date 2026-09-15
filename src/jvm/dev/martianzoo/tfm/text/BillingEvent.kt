@@ -39,7 +39,7 @@ internal fun Describers.billingEvent(trigger: Trigger): BillingEvent? {
       }
   val card =
       expression
-          .takeIf { it.className == CARD_INVOICE }
+          .takeIf { it.className == CARD_BILLING }
           ?.let {
             val cardClass = resolved.dependency(CARD) ?: return null
             cardClass.representedClass
@@ -53,7 +53,7 @@ internal fun Describers.billingEvent(trigger: Trigger): BillingEvent? {
 }
 
 private val BILLING = cn("Billing")
-private val CARD_INVOICE = cn("CardInvoice")
-private val CARD = Key(CARD_INVOICE, 0)
+private val CARD_BILLING = cn("CardBilling")
+private val CARD = Key(CARD_BILLING, 0)
 private val PROVIDER = Key(BILLING, 0)
 private val RESOURCE = Key(BILLING, 2)

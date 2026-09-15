@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.types.Dependency.Key
 
 /** Sparse English-language facts declared for one component Class. */
 internal data class ComponentDescriber(
@@ -67,8 +68,14 @@ internal data class ComponentDescriber(
         internal val cardTargetRelation: String? = null,
     ) : ChangeFrame
 
-    public data class Transition(
-        internal val sources: Map<ClassName, Procedure>,
+    public data class CountedProcedure(
+        internal val verb: String,
+        internal val noun: Noun.Counted,
+    ) : ChangeFrame
+
+    public data class State(
+        internal val enter: Procedure,
+        internal val leave: Procedure,
     ) : ChangeFrame
 
     public data class CappedProcedure(
@@ -147,16 +154,16 @@ internal data class ComponentDescriber(
   /** A requirement whose natural wording depends on authored type arguments. */
   internal sealed interface RequirementCondition {
     public data class ArgumentState(
-        internal val argumentIndex: Int,
+        internal val dependency: Key,
         internal val predicate: String,
     ) : RequirementCondition
 
     public data class OwnedCount(
         internal val noun: Noun.Counted,
-        internal val qualifierArgumentIndex: Int? = null,
+        internal val qualifierDependency: Key? = null,
         internal val qualifierRelation: String? = null,
         internal val unboundQualifier: String? = null,
-        internal val ownerArgumentIndex: Int? = null,
+        internal val ownerDependency: Key? = null,
         internal val ownerAdjectives: Map<ClassName, String> = emptyMap(),
         internal val differences: Map<ClassName, Noun.Counted> = emptyMap(),
         internal val ownerVerb: String? = null,

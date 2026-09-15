@@ -93,16 +93,6 @@ internal class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  internal fun `Floyd Continuum pays for every completed parameter`() {
-    newGame(PromoCardPack, VenusNextExpansion)
-    admin.phase("Action")
-    val oceans = p1.list("WaterArea").take(9).joinToString { "OceanTile<$it>" }
-    p1.runOperation("$FloydContinuum, 19 TemperatureStep, 14 OxygenStep, 15 VenusStep, $oceans")
-
-    p1.cardAction1(FloydContinuum).expect("12 MC")
-  }
-
-  @Test
   internal fun `Carbon Nanosystems can spend multiple graphene on one space card`() {
     newGame(PromoCardPack)
 
@@ -225,7 +215,8 @@ internal class NewPromoCardsTest : CardTest() {
     p1.cardAction1(StJosephOfCupertinoMission) {
       p1.pay(5)
       doTask("Cathedral<CityTile<Player2, Tharsis_4_2>>")
-      p2.stdAction("CathedralOption")
+      p2.doTask("UseAction<CathedralOption, Action1>")
+      p2.pay(2)
     }
 
     p2.assertCounts(0 to "MC", 1 to "ProjectCard")

@@ -1,23 +1,21 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
-import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.pets.data.GameEvent.TaskAddedEvent
-import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
-import dev.martianzoo.pets.data.GameEvent.TaskEvent
-import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.pets.data.Task
-import dev.martianzoo.pets.data.Task.TaskId
 import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.GameEvent.TaskAddedEvent
+import dev.martianzoo.state.GameEvent.TaskEditedEvent
+import dev.martianzoo.state.GameEvent.TaskRemovedEvent
+import dev.martianzoo.state.GameWorld
+import dev.martianzoo.state.Task
+import dev.martianzoo.state.Task.TaskId
 
 /**
- * With any change to the task queue, a set of normalizations is *always* applied. Here, the
- * notation `a >> b` is used for a task whose [Task.instruction] is `a` and whose [Task.then] is
- * `b`.
+ * Constructs and edits task data using engine normalization before recording exact state events.
+ * Here, `a >> b` is a task whose [Task.instruction] is `a` and whose [Task.then] is `b`.
  * * Removing task `a >> b` first creates task `b >> null`
  * * `Ok >> b` is removed
  * * `Die >> b` or `a >> Die` produces [DeadEndException]
@@ -32,42 +30,13 @@ import dev.martianzoo.pets.types.ClassTable
  * * New tasks created have the same controller, Actor, and cause as the original. Selected tasks
  *   cannot be split
  */
-internal class TaskQueues
-private constructor(
-    private val events: EventLog,
-    private val classTable: ClassTable?,
-    initialTasks: Collection<Task>,
+internal class TaskQueues(
+    private val gameWorld: GameWorld,
+    private val classTable: ClassTable? = null,
 ) {
-  init {
-    require(initialTasks.all { it.id.ordinal < events.size })
-  }
-
-  internal constructor(
-      events: EventLog,
-      classTable: ClassTable? = null,
-  ) : this(events, classTable, emptyList())
-
-  private val taskSet: MutableSet<Task> = initialTasks.toMutableSet()
   private val isAbstract: ((Expression) -> Boolean)? = classTable?.let { table ->
     { expression -> table.resolve(expression).abstract }
   }
-
-  /** Copies current tasks without recording their existing additions in [events]. */
-  internal fun copy(events: EventLog): TaskQueues = TaskQueues(events, classTable, taskSet)
-
-  internal fun all(): TaskQueue = TaskQueue(this, assignee = null) { true }
-
-  internal operator fun get(assignee: Actor): TaskQueue =
-      TaskQueue(this, assignee = assignee) { it.assignee == assignee }
-
-  // READ-ONLY OPERATIONS NEEDED BY MUTATORS
-
-  internal fun getTaskData(id: TaskId) =
-      taskSet.firstOrNull { it.id == id } ?: throw TaskException("nonexistent task: $id")
-
-  internal fun getAllTaskData(): List<Task> = taskSet.toList()
-
-  // ALL NON-PRIVATE MUTATIONS OF TASKSET
 
   internal fun addTasks(task: PendingTask) =
       addTasks(
@@ -84,8 +53,8 @@ private constructor(
       actor: Actor = controller,
   ): List<TaskAddedEvent> {
     val newTasks =
-        Task.newTasks(
-            firstId = TaskId(events.size),
+        newTasks(
+            firstId = TaskId(gameWorld.nextOrdinal),
             controller = controller,
             instruction = instruction,
             cause = cause,
@@ -93,69 +62,23 @@ private constructor(
             isAbstract = isAbstract,
         )
     return newTasks.map {
-      require(it.id.ordinal == events.size)
-      apply(TaskAddedEvent(events.nextOrdinal, it))
+      require(it.id.ordinal == gameWorld.nextOrdinal)
+      gameWorld.apply(TaskAddedEvent(gameWorld.nextOrdinal, it))
     }
   }
 
-  internal fun removeTask(id: TaskId): TaskRemovedEvent {
-    val task = getTaskData(id)
-    return apply(TaskRemovedEvent(events.nextOrdinal, task))
+  internal fun removeTask(task: Task): TaskRemovedEvent {
+    return gameWorld.apply(TaskRemovedEvent(gameWorld.nextOrdinal, task))
   }
 
   internal fun editTask(newTask: Task): TaskEditedEvent? {
-    val id = newTask.id
-    val oldTask = getTaskData(id)
-    if (newTask == oldTask) return null
-    return apply(TaskEditedEvent(events.nextOrdinal, oldTask = oldTask, task = newTask))
+    val normalized = normalizeTask(newTask)
+    val oldTask = gameWorld.tasks.getTaskData(normalized.id)
+    if (normalized == oldTask) return null
+    return gameWorld.apply(
+        TaskEditedEvent(gameWorld.nextOrdinal, oldTask = oldTask, task = normalized)
+    )
   }
 
-  /** Applies and records one task event. This is also the task-history replay point. */
-  private fun <E : TaskEvent> apply(entry: E): E =
-      events.record(entry) {
-        when (entry) {
-          is TaskAddedEvent -> addToTaskSet(entry.task)
-          is TaskRemovedEvent -> removeFromTaskSet(entry.task)
-          is TaskEditedEvent -> {
-            removeFromTaskSet(entry.oldTask)
-            addToTaskSet(entry.task)
-          }
-        }
-      }
-
-  /** Reapplies one previously recorded task event without normalizing it again. */
-  internal fun replay(entry: TaskEvent) {
-    apply(entry)
-  }
-
-  // This method can get away without the normalizations/integrity-checks/whatever because it is
-  // operating at a purely mechanical level, just undoing changes that were already made.
-  // It's crucial that we ensure an entry got logged for every individual taskSet change.
-  internal fun reverse(entry: TaskEvent) {
-    when (entry) {
-      is TaskAddedEvent -> removeFromTaskSet(entry.task)
-      is TaskRemovedEvent -> addToTaskSet(entry.task)
-      is TaskEditedEvent -> {
-        removeFromTaskSet(entry.task)
-        addToTaskSet(entry.oldTask)
-      }
-    }
-  }
-
-  // DIRECT MUTATORS
-
-  private fun addToTaskSet(task: Task) {
-    require(taskSet.none { it.id == task.id })
-
-    // Task ids define a stable diagnostic order, though queue order has no gameplay meaning.
-    val all: Set<Task> = taskSet + task
-    taskSet.clear()
-    taskSet += all.sortedBy { it.id }
-  }
-
-  private fun removeFromTaskSet(task: Task) {
-    require(taskSet.remove(task))
-  }
-
-  override fun toString(): String = taskSet.joinToString("\n")
+  override fun toString(): String = gameWorld.tasks.toString()
 }

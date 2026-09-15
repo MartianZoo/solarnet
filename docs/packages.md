@@ -6,7 +6,7 @@ Basic interfaces that everything else needs to share.
 
 ### <a href="pets/dev.martianzoo.pets.data/index.html">dev.martianzoo.pets.data</a>
 
-Basic data types shared by the engine and game-specific code.
+Catalog, premise, configuration, and Actor data shared by state and game-specific code.
 
 ### <a href="pets/dev.martianzoo.pets/index.html">dev.martianzoo.pets</a>
 
@@ -52,6 +52,13 @@ cards, maps, etc.
 ### <a href="tfm-fake/dev.martianzoo.tfm.fake/index.html">dev.martianzoo.tfm.fake</a>
 
 Contains noncanonical Terraforming Mars declarations for tests, replays, and support tools.
+
+## module STATE
+
+### <a href="state/dev.martianzoo.state/index.html">dev.martianzoo.state</a>
+
+The replayable state of one game: components, pending tasks, exact event history, and passive event
+application.
 
 ## module ENGINE
 

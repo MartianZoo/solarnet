@@ -1,18 +1,20 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.api.Exceptions.ExistingDependentsException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.Component
+import dev.martianzoo.state.Component.Companion.toComponent
+import dev.martianzoo.state.ComponentChange
+import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.GameWorld
 
 internal class Changer(
     private val reader: GameReader,
-    private val components: ComponentGraph,
-    private val events: EventLog,
+    private val gameWorld: GameWorld,
+    private val effector: Effector,
 ) {
 
   internal fun change(
@@ -24,13 +26,35 @@ internal class Changer(
       actor: Actor,
   ): Pair<ChangeEvent, Boolean> {
     return try {
-      val change = StateChange(count, gaining?.expression, removing?.expression)
-      val event = ChangeEvent(events.nextOrdinal, actor, change, cause)
-      events.record(event) { components.applyChange(count, gaining, removing) } to true
+      val change =
+          when {
+            gaining == null -> ComponentChange.Remove(count, checkNotNull(removing))
+            removing == null -> ComponentChange.Gain(count, gaining)
+            else -> ComponentChange.Transmute(count, gaining, removing)
+          }
+      val event = ChangeEvent(gameWorld.nextOrdinal, actor, change, cause)
+      applyEvent(event) to true
     } catch (e: ExistingDependentsException) {
       if (!orRemoveOneDependent) throw e
       removeAll(e.dependents.first(), cause, actor) to false
     }
+  }
+
+  /** Reapplies one recorded component event without calculating its consequences. */
+  internal fun replay(event: ChangeEvent) {
+    applyEvent(event)
+  }
+
+  /** Reverses authoritative state and then synchronizes the engine's derived effect index. */
+  internal fun rollBackTo(ordinal: Int) {
+    gameWorld.rollBackTo(ordinal).forEach(effector::applied)
+  }
+
+  private fun applyEvent(event: ChangeEvent): ChangeEvent {
+    effector.prepare(event.change)
+    gameWorld.apply(event)
+    effector.applied(event.change)
+    return event
   }
 
   private fun removeAll(dependent: Type, cause: Cause?, actor: Actor): ChangeEvent =

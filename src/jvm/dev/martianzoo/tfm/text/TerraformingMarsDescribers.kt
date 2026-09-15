@@ -1,13 +1,19 @@
 package dev.martianzoo.tfm.text
 
+import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.tfm.text.ComponentDescriber.ChangeFrame as Frame
 import dev.martianzoo.tfm.text.ComponentDescriber.RequirementCondition as Condition
 import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as Trigger
 
 /** Terraforming Mars component descriptions supplied to the structural English renderer. */
 internal object TerraformingMarsDescribers {
+  private val owner = Key(OWNED, 0)
+  private val party = Key(cn("PartyDelegate"), 0)
+  private val rulingParty = Key(cn("PartyStatus"), 0)
+
   private val declarations: Map<ClassName, ComponentDescriber> = run {
     uniqueDeclarations(
         klass("Component") to
@@ -19,7 +25,7 @@ internal object TerraformingMarsDescribers {
         klass("SoloMode") to ComponentDescriber(presenceCondition = "this is a solo game"),
         klass("Ruling") to
             ComponentDescriber(
-                requirementCondition = Condition.ArgumentState(0, "is ruling"),
+                requirementCondition = Condition.ArgumentState(rulingParty, "is ruling"),
             ),
         klass("MarsFirst") to
             ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("Mars First")),
@@ -34,19 +40,20 @@ internal object TerraformingMarsDescribers {
         klass("PartyDelegate") to
             ComponentDescriber(
                 changeFrame =
-                    Frame.Transition(
-                        mapOf(
-                            klass("ReserveDelegate") to
-                                Frame.Procedure("place", "a reserve delegate in any party")
-                        )
+                    Frame.CountedProcedure(
+                        "place",
+                        counted(
+                            "reserve delegate in any party",
+                            "reserve delegates in any party",
+                        ),
                     ),
                 requirementCondition =
                     Condition.OwnedCount(
                         counted("delegate", "delegates"),
-                        qualifierArgumentIndex = 0,
+                        qualifierDependency = party,
                         qualifierRelation = "in",
                         unboundQualifier = "any party",
-                        ownerArgumentIndex = 1,
+                        ownerDependency = owner,
                         ownerAdjectives = mapOf(klass("Neutral") to "neutral"),
                         differences =
                             mapOf(
@@ -61,7 +68,7 @@ internal object TerraformingMarsDescribers {
                 requirementCondition =
                     Condition.OwnedCount(
                         counted("party", "parties"),
-                        ownerArgumentIndex = 1,
+                        ownerDependency = owner,
                         ownerAdjectives = mapOf(klass("Neutral") to "neutral"),
                         ownerVerb = "lead",
                     ),
@@ -69,48 +76,22 @@ internal object TerraformingMarsDescribers {
         klass("Chairman") to
             ComponentDescriber(
                 changeFrame =
-                    Frame.Transition(
-                        mapOf(
-                            klass("ReserveDelegate") to
-                                Frame.Procedure("move", "a reserve delegate to the chair")
-                        )
+                    Frame.State(
+                        enter = Frame.Procedure("move", "a reserve delegate to the chair"),
+                        leave = Frame.Procedure("return", "the chairman to its owner's reserve"),
                     ),
                 requirementCondition =
                     Condition.OwnedCount(
                         counted("chairman", "chairmen"),
-                        ownerArgumentIndex = 0,
+                        ownerDependency = owner,
                         ownerAdjectives = mapOf(klass("Neutral") to "neutral"),
                         singleOwnerState = "are chairman",
-                    ),
-            ),
-        klass("ReserveDelegate") to
-            ComponentDescriber(
-                changeFrame =
-                    Frame.Transition(
-                        mapOf(
-                            klass("Chairman") to
-                                Frame.Procedure("return", "the chairman to its owner's reserve")
-                        )
-                    ),
-                requirementCondition =
-                    Condition.OwnedCount(
-                        counted("delegate in reserve", "delegates in reserve"),
-                        ownerArgumentIndex = 0,
-                        ownerAdjectives = mapOf(klass("Neutral") to "neutral"),
                     ),
             ),
         klass("Pass") to
             ComponentDescriber(
                 requirementCondition = Condition.OwnerState("has passed"),
                 changeFrame = Frame.Procedure("pass"),
-            ),
-        klass("PlaceColonialEnvoys") to
-            ComponentDescriber(
-                changeFrame =
-                    Frame.Procedure(
-                        "place",
-                        "1 reserve delegate in any party per colony you own",
-                    )
             ),
         klass("RecruitmentExchange") to
             ComponentDescriber(
@@ -620,6 +601,7 @@ internal object TerraformingMarsDescribers {
                 changeFrame = Frame.Countable,
             ),
         klass("ProdOffset") to ComponentDescriber(productionOffset = true),
+        klass("QuickStartVariant") to ComponentDescriber(productionOffset = true),
         klass("TileInLargestGroup") to
             ComponentDescriber(
                 metricCount =

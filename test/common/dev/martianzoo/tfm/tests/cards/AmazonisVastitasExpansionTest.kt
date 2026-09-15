@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -18,12 +18,12 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
   internal fun `Amazonis defaults prefer its Merchant variant and reuse matching goals`() {
     val table = newGame(Amazonis).classTable
 
-    table.isActive(cn("Merchant3")) shouldBe true
-    table.isActive(cn("Merchant")) shouldBe false
-    table.isActive(cn("Manufacturer")) shouldBe true
-    table.isActive(cn("Manufacturer2")) shouldBe false
-    table.isActive(cn("Terran")) shouldBe true
-    table.isActive(cn("Collector")) shouldBe true
+    table.isInhabited(cn("Merchant3")) shouldBe true
+    table.isInhabited(cn("Merchant")) shouldBe false
+    table.isInhabited(cn("Manufacturer")) shouldBe true
+    table.isInhabited(cn("Manufacturer2")) shouldBe false
+    table.isInhabited(cn("Terran")) shouldBe true
+    table.isInhabited(cn("Collector")) shouldBe true
   }
 
   @Test
@@ -99,10 +99,10 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
     listOf("Amazonis_02_02", "Amazonis_07_11").forEach { area ->
       newGame(Amazonis, TurmoilExpansion)
 
-      p1.runOperation("CityTile<$area>") { doTask("PlaceReserveDelegate<Scientists>") }
+      p1.runOperation("CityTile<$area>") { doTask("PartyDelegate<Scientists>") }
 
       p1.count("PartyDelegate<Scientists>") shouldBe 1
-      p1.count("ReserveDelegate") shouldBe 6
+      p1.count("PartyDelegate OR Chairman") shouldBe 1
       p1.count("LobbyActionAvailable") shouldBe 1
     }
   }
@@ -112,27 +112,29 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
     newGame(Amazonis, TurmoilExpansion)
 
     p1.runOperation("CityTile<Amazonis_08_09>") {
-      doTask("PlaceReserveDelegate<MarsFirst>")
+      doTask("2 PartyDelegate<Scientists>")
     }
 
-    p1.count("PartyDelegate<MarsFirst>") shouldBe 2
+    p1.count("PartyDelegate<Scientists>") shouldBe 2
     p1.count("PartyDelegate") shouldBe 2
-    p1.count("ReserveDelegate") shouldBe 5
+    p1.count("PartyLeader<Scientists>") shouldBe 1
+    admin.count("Dominant<Scientists>") shouldBe 1
+    p1.count("PartyDelegate OR Chairman") shouldBe 2
   }
 
   @Test
   internal fun `Olympus Mons cannot be occupied without two available delegates`() {
     newGame(Amazonis, TurmoilExpansion)
-    repeat(6) { p1.runOperation("PartyDelegate<Unity> FROM ReserveDelegate") }
+    repeat(6) { p1.runOperation("PartyDelegate<Unity>") }
 
-    shouldThrow<NotNowException> {
+    shouldThrow<DeadEndException> {
       p1.runOperation("CityTile<Amazonis_08_09>") {
-        doTask("PlaceReserveDelegate<MarsFirst>")
+        doTask("2 PartyDelegate<MarsFirst>")
       }
     }
 
     p1.count("CityTile<Amazonis_08_09>") shouldBe 0
-    p1.count("ReserveDelegate") shouldBe 1
+    p1.count("PartyDelegate OR Chairman") shouldBe 6
   }
 
   @Test
@@ -140,10 +142,10 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
     listOf("Vastitas_4_8", "Vastitas_9_5").forEach { area ->
       newGame(Vastitas, TurmoilExpansion)
 
-      p1.runOperation("CityTile<$area>") { doTask("PlaceReserveDelegate<Greens>") }
+      p1.runOperation("CityTile<$area>") { doTask("PartyDelegate<Greens>") }
 
       p1.count("PartyDelegate<Greens>") shouldBe 1
-      p1.count("ReserveDelegate") shouldBe 6
+      p1.count("PartyDelegate OR Chairman") shouldBe 1
     }
   }
 
@@ -160,11 +162,11 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
   @Test
   internal fun `Vastitas delegate spaces cannot be occupied without an available delegate`() {
     newGame(Vastitas, TurmoilExpansion)
-    repeat(7) { p1.runOperation("PartyDelegate<Unity> FROM ReserveDelegate") }
+    repeat(7) { p1.runOperation("PartyDelegate<Unity>") }
 
-    shouldThrow<NotNowException> {
+    shouldThrow<DeadEndException> {
       p1.runOperation("CityTile<Vastitas_4_8>") {
-        doTask("PlaceReserveDelegate<Greens>")
+        doTask("PartyDelegate<Greens>")
       }
     }
 
@@ -191,7 +193,7 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
   @Test
   internal fun `Vastitas Landscaper counts only the largest contiguous map group`() {
     val game = newGameWithAutoWorkflow(Vastitas)
-    game.classTable.isActive(cn("Landscaper")) shouldBe true
+    game.classTable.isInhabited(cn("Landscaper")) shouldBe true
     playUntilFirstActionPhase()
     p1.turn {
       stdProject("PowerPlantProject")
@@ -212,10 +214,10 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
   internal fun `Vastitas defaults reuse its supported printed goals`() {
     val table = newGame(Vastitas).classTable
 
-    table.isActive(cn("Engineer")) shouldBe true
-    table.isActive(cn("Geologist")) shouldBe true
-    table.isActive(cn("Traveller")) shouldBe true
-    table.isActive(cn("Promoter")) shouldBe true
+    table.isInhabited(cn("Engineer")) shouldBe true
+    table.isInhabited(cn("Geologist")) shouldBe true
+    table.isInhabited(cn("Traveller")) shouldBe true
+    table.isInhabited(cn("Promoter")) shouldBe true
   }
 
   @Test

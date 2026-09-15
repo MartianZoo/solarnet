@@ -6,7 +6,6 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
-import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.api.Exceptions.AbstractException
@@ -22,13 +21,14 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.data.Task
-import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.Task
+import dev.martianzoo.state.TaskQueue
+import dev.martianzoo.state.TaskResult
 
 private val MC: ClassName = cn("MC")
+private val STANDARD_ACTION: ClassName = cn("StandardAction")
 
 /**
  * Wraps and extends an [Agent] to provide much more convenient functions specific to *Terraforming
@@ -71,7 +71,7 @@ public class TfmGameplay(
     }
   }
 
-  /** Buys the selected number of offered project cards and settles their M€ invoice. */
+  /** Buys the selected number of offered project cards and settles their M€ debt. */
   public fun buyCards(count: Int): TaskResult = agent.continueOperation { buySelectedCards(count) }
 
   private fun OperationScope.buySelectedCards(count: Int) {
@@ -113,13 +113,6 @@ public class TfmGameplay(
   private fun InstructionTree.gains(className: ClassName): Boolean =
       descendantsOfType<Change>().any { it.gaining?.className == className }
 
-  /** Whether this instruction offers `UseAction` against a provider of class [provider]. */
-  private fun InstructionTree.offersAction(provider: ClassName): Boolean =
-      descendantsOfType<Change>().any { change ->
-        change.gaining?.className == cn("UseAction") &&
-            change.gaining!!.arguments.any { it.className == provider }
-      }
-
   private fun Expression?.isSelectedProjectCard(): Boolean =
       this != null &&
           className == cn("ProjectCard") &&
@@ -148,7 +141,7 @@ public class TfmGameplay(
     return passWithoutUnusedActionCardCheck()
   }
 
-  private fun passWithoutUnusedActionCardCheck(): TaskResult = inTfmTurn { doTask("Pass") }
+  private fun passWithoutUnusedActionCardCheck(): TaskResult = inTurn { doTask("Pass") }
 
   /**
    * Performs the actions in one test-level turn, declining an unused second action when needed. If
@@ -162,7 +155,7 @@ public class TfmGameplay(
   }
 
   public fun declineSecondAction(): TaskResult {
-    return inTfmTurn {
+    return inTurn {
       val secondAction =
           secondActionOffer()
               ?: throw TaskException("$actor is not waiting on exactly one second-action offer")
@@ -180,22 +173,37 @@ public class TfmGameplay(
   private fun Task.isActionPhaseSecondAction(): Boolean {
     val origin = cause ?: return false
     if (origin.context.className != cn("ActionPhase")) return false
-    val trigger = game.events.entryAt(origin.triggerEvent) as? ChangeEvent
+    val trigger = game.events.changeAt(origin.triggerEvent)
     return trigger?.change?.gaining?.className == cn("SecondAction")
   }
 
+  /** Uses an action supplied by [stdAction], which must be a `StandardAction` provider. */
   public fun stdAction(
       stdAction: String,
       which: Int = 1,
       payment: OperationBlock = { payInvoiceFromItsResourceIfOffered() },
       body: OperationBlock = {},
   ): TaskResult {
-    // TODO: Reject providers that are not StandardAction; generic HasActions need a distinct API.
-    return inTfmTurn {
-      doTask("UseAction<$stdAction, ${whichAction(which)}>")
-      payment()
-      body()
+    return inTfmTurn { useStdAction(stdAction, which, payment, body) }
+  }
+
+  /** Uses a granted standard-action slot within an enclosing operation. */
+  public fun OperationScope.useStdAction(
+      stdAction: String,
+      which: Int = 1,
+      payment: OperationBlock = { payInvoiceFromItsResourceIfOffered() },
+      body: OperationBlock = {},
+  ) {
+    require(
+        game.classTable
+            .getClass(cn(stdAction))
+            .isSubtypeOf(game.classTable.getClass(STANDARD_ACTION))
+    ) {
+      "$stdAction is not a StandardAction"
     }
+    doTask("UseAction<$stdAction, ${whichAction(which)}>")
+    payment()
+    body()
   }
 
   public fun claimMilestone(milestone: ClassName): TaskResult =
@@ -237,14 +245,35 @@ public class TfmGameplay(
       body: OperationBlock = {},
   ): TaskResult {
     return stdAction("UseStandardProjectAction", payment = {}) {
-      doTask("UseAction<$stdProject, Action1>")
-      payment()
-      body()
+      useStdProjectWithinOperation(stdProject, payment, body)
     }
   }
 
+  /** Uses a granted standard-action slot for a standard project within an enclosing operation. */
+  public fun OperationScope.useStdProject(
+      stdProject: String,
+      payment: OperationBlock = {
+        payAllMc()
+      },
+      body: OperationBlock = {},
+  ) {
+    useStdAction("UseStandardProjectAction", payment = {}) {
+      useStdProjectWithinOperation(stdProject, payment, body)
+    }
+  }
+
+  private fun OperationScope.useStdProjectWithinOperation(
+      stdProject: String,
+      payment: OperationBlock,
+      body: OperationBlock,
+  ) {
+    doTask("UseAction<$stdProject, Action1>")
+    payment()
+    body()
+  }
+
   public fun playPrelude(cardName: ClassName, body: OperationBlock = {}): TaskResult {
-    return inTfmTurn { playPreludeWithinOperation(cardName, body) }
+    return inTurn { playPreludeWithinOperation(cardName, body) }
   }
 
   public fun OperationScope.playPrelude(cardName: ClassName, body: OperationBlock = {}) {
@@ -285,7 +314,9 @@ public class TfmGameplay(
       payment: OperationBlock = { pay(mc, steel, titanium, plants, energy, heat) },
       body: OperationBlock = {},
   ): TaskResult {
-    return inTfmTurn { playProjectWithinOperation(cardName, payment, body) }
+    return stdAction("PlayCardFromHandAction", payment = {}) {
+      playProjectWithinOperation(cardName, payment, body)
+    }
   }
 
   public fun OperationScope.playProject(
@@ -307,9 +338,6 @@ public class TfmGameplay(
       payment: OperationBlock,
       body: OperationBlock,
   ) {
-    if (tasks.matching { it.instruction.offersAction(cn("StandardAction")) }.any()) {
-      doTask("UseAction<PlayCardFromHandAction, Action1>")
-    }
     doTask("PlayCard<Class<ProjectCard>, Class<$cardName>, Hand>")
 
     payment()
@@ -340,8 +368,8 @@ public class TfmGameplay(
   }
 
   /**
-   * Pays the open invoice and rejects any allocation containing a unit that could be returned
-   * without leaving the invoice underpaid.
+   * Pays the open billing component and rejects any allocation containing a unit that could be
+   * returned without leaving the debt underpaid.
    */
   public fun pay(
       mc: Int = 0,
@@ -535,8 +563,8 @@ public class TfmGameplay(
   }
 
   /**
-   * How much of the open invoice one unit of [currency] settles: one when the invoice uses that
-   * denomination, plus one per [ResourceValue] the payer owns for it.
+   * How much of the open billing component one unit of [currency] settles: one when its
+   * denomination is [currency], plus one per [ResourceValue] the payer owns for it.
    */
   private fun paymentValue(currency: String): Int =
       count("ResourceValue<Class<$currency>>") + if (count("Owed<Class<$currency>>") > 0) 1 else 0

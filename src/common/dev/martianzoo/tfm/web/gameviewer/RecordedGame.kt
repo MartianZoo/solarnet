@@ -20,9 +20,9 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.data.Task
-import dev.martianzoo.pets.data.Task.TaskId
-import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.state.Task
+import dev.martianzoo.state.Task.TaskId
+import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -167,8 +167,9 @@ public abstract class RecordedGame {
             .flatMap { it.instruction.descendantsOfType<Gain>() }
             .single {
               (count == null || it.count == ActualScalar(count)) &&
-                  reader.catalog.classTable
-                      .getClass(resourceType)
+                  reader
+                      .resolve(resourceType.expression)
+                      .rootClass
                       .isSubtypeOf(reader.resolve(it.gaining).rootClass)
             }
     val arguments = gain.gaining.arguments.toMutableList()

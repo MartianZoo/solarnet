@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Transforming
@@ -20,7 +19,6 @@ import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.DIE
-import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
@@ -43,10 +41,12 @@ import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.Component.Companion.toComponent
+import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.toComponent
 import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It resolves and executes instructions. */
@@ -267,11 +267,11 @@ internal constructor(
     val count = (change.count as? ActualScalar)?.value ?: return change
 
     val (g, r) = narrowChangeTypes(change, count, intens) ?: return change
-    if (listOfNotNull(g, r).any { !classTable.isActive(it) }) {
+    if (listOfNotNull(g, r).any { !classTable.isInhabited(it) }) {
       if (intens != MANDATORY) return NoOp
       throw DeadEndException(
-          "mandatory change uses inactive type: " +
-              listOfNotNull(g, r).filterNot(classTable::isActive).joinToString()
+          "mandatory change uses uninhabited type: " +
+              listOfNotNull(g, r).filterNot(classTable::isInhabited).joinToString()
       )
     }
     if (g?.className == DIE) throw DeadEndException("a Die instruction was reached")
@@ -408,21 +408,7 @@ internal constructor(
               "branch. Select an abstract type whose matching components can differ."
       )
     }
-    val ownsBody = elaborator.selectionSuppliesOwner(each.selector)
-    val named =
-        each.body.descendantsOfType<Expression>().any {
-          it == each.selectorName ||
-              it == each.representedSelectorName ||
-              (ownsBody && it.className == OWNER)
-        }
-    if (!named) {
-      throw ExpressionException(
-          "`EACH ${each.selector}` never names its selection in `${each.body}`, " +
-              "so every branch would be the same instruction"
-      )
-    }
-    val selected =
-        reader.getComponents(selectorType).elements.map { it.expression }.sortedBy { "$it" }
+    val selected = reader.getComponents(selectorType).map { it.expression }.sortedBy { "$it" }
     val branches = selected.map { branchFor(each, it) }
     return InstructionGroup.createTree(branches)
   }
@@ -479,7 +465,7 @@ internal constructor(
     var g = gaining?.let(reader::resolve)
     var r = removing?.let(reader::resolve)
 
-    if (listOfNotNull(g, r).any { !classTable.isActive(it) }) return g to r
+    if (listOfNotNull(g, r).any { !classTable.isInhabited(it) }) return g to r
 
     if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
       val dependencyComponents = g.dependencies.typeDependencies().map { it.boundType }

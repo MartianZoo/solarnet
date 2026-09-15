@@ -11,6 +11,7 @@ import dev.martianzoo.pets.types.GroundType
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.types.TypeVariable
 import dev.martianzoo.pets.util.toSetStrict
+import dev.martianzoo.state.toComponent
 
 public class TypeDescription
 public constructor(
@@ -22,7 +23,7 @@ public constructor(
     get() = type.rootClass
 
   private val elaborator = PetElaborator(classTable)
-  private val active = classTable.isActive(type)
+  private val inhabited = classTable.isInhabited(type)
 
   public val docstring: String?
     get() = rootClass.docstring
@@ -33,7 +34,7 @@ public constructor(
 
   public val rawClassEffects: List<Effect> = rootClass.declaration.effects
   public val classEffects: List<Effect> =
-      if (active) elaborator.classEffects(rootClass) else emptyList()
+      if (inhabited) elaborator.classEffects(rootClass) else emptyList()
 
   public val classInvariants: Set<Requirement> = rootClass.invariants
 
@@ -52,7 +53,7 @@ public constructor(
   public val componentTypesCount: Int = classTable.allConcreteSubtypes(type).take(100).count()
 
   public val componentEffects: List<Effect> =
-      if (type.abstract || !active) emptyList()
+      if (type.abstract || !inhabited) emptyList()
       else LiveEffect.compile(type.toComponent(), elaborator).map(LiveEffect::effect)
 
   private fun descendingBySubclassCount(classes: Iterable<Class>): Set<ClassName> =

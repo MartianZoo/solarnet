@@ -36,7 +36,7 @@ postconditions remain the semantic contract.
 
 | Stage | What has become known |
 |---|---|
-| Pets source | The card declaration and Effect are still text. |
+| Card data | The card fields and Effect are still text. |
 | Source Effect | The whole string has been read as one well-formed Effect. |
 | Class Declaration | The Effect belongs to Recyclon's parsed declaration. |
 | loaded Class | Recyclon's hierarchy, Dependencies, defaults, and Invariants have Type-system meaning. |
@@ -48,12 +48,12 @@ postconditions remain the semantic contract.
 | Selected Task | The client has chosen the next Task, and current Game World facts have been applied. |
 | State Change | An exact gain or removal has happened and a Change Event records it. |
 
-## 1. The Pets source
+## 1. The structured card data
 
 **PetTransformers, in order:** none.
 
-The Effect initially appears as one line in Recyclon's `cards.pets` declaration. Nothing has parsed
-or validated it yet. In particular, it has not been checked against any Class Table, and no omitted
+The Effect initially appears as one string in Recyclon's `cards.json5` record. Nothing has parsed or
+validated it yet. In particular, it has not been checked against any Class Table, and no omitted
 Dependency or Quantifier has been filled in.
 
 **Postcondition:** the source resource contains the original Effect text. The program does not yet
@@ -63,8 +63,8 @@ have an Effect.
 
 **PetTransformers, in order:** `DerivedClassLowerer`.
 
-Class parsing reads the entire line as an Effect, not as a general Instruction or some other Pets
-element. Reading must consume the entire string. The result has three principal parts:
+The card generator parses the entire string as an Effect, not as a general Instruction or some
+other Pets element. Reading must consume the entire string. The result has three principal parts:
 
 ```pets
 Trigger:      BuildingTag
@@ -94,8 +94,8 @@ expressions; Class-level defaults and validity have not yet been established.
 
 **PetTransformers, in order:** `FollowModeNeutralizer`.
 
-Parsing `cards.pets` contributes Recyclon's Class Declaration directly. Its behavior-bearing part
-is:
+The card generator assembles Recyclon's Class Declaration, renders it into generated `cards.pets`,
+and the Catalog source pipeline parses that declaration. Its behavior-bearing part is:
 
 ```pets
 CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
@@ -106,11 +106,11 @@ CLASS Recyclon : ResourceCard<Class<Microbe>, Class<CorporationCard>> {
 }
 ```
 
-The last line is our original Source Effect. The preceding lines directly author the card's tags,
-immediate instruction, cost, deck, and resource role. Parsing does not silently merge, remove, or
-reorder authored Effects. `FollowModeNeutralizer` preserves generic card-location operations while
-delegating printed-face constraints to the follow-mode client. Recyclon's Effect contains no such
-operation and is unchanged.
+The last line is our original Source Effect. The preceding lines are generated from the card's tags,
+immediate instruction, cost, deck, and derived resource role. Generation preserves the authored
+order of Effects. `FollowModeNeutralizer` preserves generic card-location operations while delegating
+printed-face constraints to the follow-mode client. Recyclon's Effect contains no such operation and
+is unchanged.
 
 **Postcondition:** the Effect now has a Class Declaration as its Context. The declaration says what
 Recyclon directly contributes, but remains inert: it is not yet a Class and has not inherited
