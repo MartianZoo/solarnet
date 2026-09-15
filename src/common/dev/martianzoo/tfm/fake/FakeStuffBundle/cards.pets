@@ -16,6 +16,14 @@ CLASS FakeResearchCoordination : AutomatedCard {
   This: FakeWildTag<This>
 }
 
+"Floyd Continuum as represented by the source replay"
+CLASS FakeFloydContinuum : ActionCard, ActiveCard {
+  cost = 4
+
+  This:: ScienceTag<This>
+  -> 3 MC / GpComplete
+}
+
 CLASS FakeAppliedScience : ActionCard, ResourceCard<Class<Science>, Class<PreludeCard>> {
   cost = 0
 
