@@ -4,7 +4,6 @@ import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.ActorEngine
-import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
@@ -12,7 +11,8 @@ import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.data.Task.TaskId
+import dev.martianzoo.state.Task.TaskId
+import dev.martianzoo.state.TaskQueue
 
 /** Shared legacy queue drain above the policy-free engine. */
 internal class AutoExecLoop(private val world: World) {

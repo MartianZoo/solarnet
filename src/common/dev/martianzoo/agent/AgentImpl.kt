@@ -4,7 +4,6 @@ import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.engine.ActorEngine
-import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
@@ -18,12 +17,13 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.data.Task.TaskId
-import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.pets.util.Multiset
+import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.GameEvent.TaskRemovedEvent
+import dev.martianzoo.state.Task.TaskId
+import dev.martianzoo.state.TaskQueue
+import dev.martianzoo.state.TaskResult
 import kotlin.reflect.KClass
 
 /** Implements Actor-contextual parsing, atomic operation coordination, and autoexecution. */

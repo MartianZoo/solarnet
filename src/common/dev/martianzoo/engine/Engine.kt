@@ -16,6 +16,7 @@ import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.ModuleProperties.PREMISE_REQUIREMENT
 import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.state.GameWorld
 
 /** Entry point to the solarnet engine -- create new games here. */
 public object Engine {
@@ -31,18 +32,17 @@ public object Engine {
     private val elaborator: PetElaborator = PetElaborator(classTable)
     private val customClasses = CustomClassRuntime(premise.catalog, elaborator)
 
-    // Reader construction depends on the component graph, whose effector in turn needs the reader.
-    // The effector does not read it until components begin changing, after construction is
-    // complete.
+    private val gameWorld = GameWorld(classTable)
+
+    // Effect compilation needs the reader, but no effect is read until state begins changing.
     private val effector: Effector = Effector(elaborator) { reader }
-    private val components = ComponentGraph(effector, classTable)
-    private val events = EventLog()
-    private val taskQueues = TaskQueues(events, classTable)
+    private val taskQueues = TaskQueues(gameWorld, classTable)
     private val recordingPositions = RecordingPositions()
     private val reader: GameReaderImpl =
-        GameReaderImpl(classTable, components, elaborator, customClasses, premise)
-    private val timeline = TimelineImpl(reader, components, events, taskQueues, recordingPositions)
-    private val limiter = Limiter(classTable, components)
+        GameReaderImpl(classTable, gameWorld, elaborator, customClasses, premise)
+    private val changer = Changer(reader, gameWorld, effector)
+    private val timeline = TimelineImpl(gameWorld, changer, recordingPositions)
+    private val limiter = Limiter(classTable, gameWorld)
     private val worldTransaction: WorldTransaction =
         WorldTransaction(
             timeline,
@@ -50,7 +50,6 @@ public object Engine {
             recordingPositions,
             ::removeTemporaryComponent,
         )
-    private val changer = Changer(reader, components, events)
     private val instructor =
         Instructor(reader, limiter, changer, effector, classTable, elaborator, customClasses)
     private val actorEngines: Map<Actor, ActorEngine> =
@@ -61,6 +60,7 @@ public object Engine {
             elaborator,
             instructor,
             taskQueues,
+            gameWorld,
             classTable,
             timeline,
             premise,
@@ -68,9 +68,7 @@ public object Engine {
         )
     private val world: WholeWorld =
         WholeWorld(
-            components,
-            events,
-            taskQueues.all(),
+            gameWorld,
             timeline,
             reader,
             classTable,
@@ -86,7 +84,7 @@ public object Engine {
     }
 
     private fun removeTemporaryComponent(): Boolean {
-      if (!taskQueues.all().isEmpty()) return false
+      if (!gameWorld.tasks.isEmpty()) return false
       val temporary = classTable.getClass(TEMPORARY).baseType
       val temporaryComponents = reader.getComponents(temporary)
       if (temporaryComponents.isEmpty()) return false
@@ -94,8 +92,8 @@ public object Engine {
       val mustCleanUp = classTable.getClass(MUST_CLEAN_UP).baseType
       val type =
           temporaryComponents.elements.firstOrNull { type ->
-            !components.hasDependentMatching(type, mustCleanUp, reader) &&
-                !components.hasDependentMatching(type, temporary, reader)
+            !gameWorld.components.hasDependentMatching(type, mustCleanUp, reader) &&
+                !gameWorld.components.hasDependentMatching(type, temporary, reader)
           } ?: return false
 
       instructor
@@ -168,7 +166,8 @@ public object Engine {
 
     private fun createActorEngine(actor: Actor): ActorEngine =
         ActorEngine(
-            taskQueues[actor],
+            gameWorld.tasksFor(actor),
+            gameWorld,
             taskQueues,
             reader,
             timeline,

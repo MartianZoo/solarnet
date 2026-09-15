@@ -3,12 +3,13 @@ package dev.martianzoo.engine
 import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.data.GameEvent
-import dev.martianzoo.pets.data.GameEvent.TaskAddedEvent
-import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
+import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.GameEvent
+import dev.martianzoo.state.GameEvent.TaskAddedEvent
+import dev.martianzoo.state.GameEvent.TaskRemovedEvent
+import dev.martianzoo.state.TaskQueue
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*

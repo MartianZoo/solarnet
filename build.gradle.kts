@@ -75,6 +75,7 @@ dokka {
 
 dependencies {
   dokka(project(":pets"))
+  dokka(project(":state"))
   dokka(project(":engine"))
   dokka(project(":tfm-engine"))
   dokka(project(":script"))

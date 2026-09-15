@@ -772,7 +772,8 @@ public sealed class Instruction : InstructionTree() {
       return concreteValues.singleOrNull()
     }
 
-    internal fun keepTogether(isAbstract: ((Expression) -> Boolean)?) =
+    /** Whether task admission must retain this complete sequence as one pending instruction. */
+    public fun mustRemainOneTask(isAbstract: ((Expression) -> Boolean)?): Boolean =
         hasSharedX() ||
             isAbstract?.let { check ->
               typeVariables.variables.any { variable ->

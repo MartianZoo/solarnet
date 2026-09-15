@@ -165,7 +165,7 @@ clear coverage of these contracts matters more than preserving every current tes
    exercised without Terraforming Mars content.
 2. **Pure Pets type-system tests.** Class loading, type relationships, metrics, requirements, and
    related semantics, using small declarations owned by the test rather than Canon.
-3. **Game World and engine-coordination tests.** Pure `:gameworld` scenarios verify that exact
+3. **Game World and engine-coordination tests.** Pure `:state` scenarios verify that exact
    component/task events, materialized projections, history, completed recording positions, and
    independent playback views remain coherent without firing effects. Cross-module engine
    scenarios cover consequence calculation and failure atomicity: a failed operation must restore

@@ -1,7 +1,6 @@
 package dev.martianzoo.agent
 
 import dev.martianzoo.engine.AbortTransactionException
-import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.KindException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
@@ -11,12 +10,13 @@ import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.pets.data.Task.TaskId
-import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.Multiset
+import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.GameEvent.TaskRemovedEvent
+import dev.martianzoo.state.Task.TaskId
+import dev.martianzoo.state.TaskQueue
+import dev.martianzoo.state.TaskResult
 import kotlin.reflect.KClass
 
 /** The single, fully permissive mutation authority for one Actor in a World. */

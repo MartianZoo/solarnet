@@ -14,9 +14,9 @@ import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.Task
-import dev.martianzoo.pets.data.Task.TaskId
-import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.state.Task
+import dev.martianzoo.state.Task.TaskId
+import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
 import dev.martianzoo.tfm.canon.cardResourceType

@@ -9,6 +9,7 @@ kotlin {
       dependencies {
         implementation(project(":engine"))
         implementation(project(":pets"))
+        implementation(project(":state"))
       }
     }
     commonTest {

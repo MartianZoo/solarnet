@@ -11,9 +11,6 @@ import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.data.Task
-import dev.martianzoo.pets.data.Task.TaskId
-import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.script.Access.BlueMode
 import dev.martianzoo.script.Access.GreenMode
@@ -43,6 +40,9 @@ import dev.martianzoo.script.commands.StatusCommand
 import dev.martianzoo.script.commands.TaskCommand
 import dev.martianzoo.script.commands.TasksCommand
 import dev.martianzoo.script.commands.TurnCommand
+import dev.martianzoo.state.Task
+import dev.martianzoo.state.Task.TaskId
+import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.ApiUtils
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmClasses.TILE

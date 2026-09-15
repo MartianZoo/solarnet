@@ -3,13 +3,13 @@ package dev.martianzoo.tfm.engine
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.OperationBlock
-import dev.martianzoo.engine.Timeline
 import dev.martianzoo.engine.World
-import dev.martianzoo.engine.toComponent
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.TaskResult
+import dev.martianzoo.state.toComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
@@ -113,7 +113,7 @@ public object TfmWorkflow {
      * only while the coroutine is suspended waiting for those tasks to drain. [shutdown] rolls back
      * to this point to undo the pending workflow task.
      */
-    private var shutdownCheckpoint: Timeline.Checkpoint? = null
+    private var shutdownCheckpoint: Checkpoint? = null
 
     init {
       game.onTransactionComplete = { if (game.isIdle()) resumeSignal.trySend(Unit) }

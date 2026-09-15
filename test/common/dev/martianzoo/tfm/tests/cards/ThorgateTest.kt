@@ -23,8 +23,8 @@ internal class ThorgateTest : CardTest() {
 
     result.changes
         .filter { event ->
-          event.change.removing?.let(game.reader::resolve) == p1.resolve("MC") ||
-              event.change.gaining?.let(game.reader::resolve) == p1.resolve("MC")
+          event.change.removing?.type == p1.resolve("MC") ||
+              event.change.gaining?.type == p1.resolve("MC")
         }
         .map { event ->
           if (event.change.removing != null) -event.change.count else event.change.count

@@ -4,7 +4,6 @@ import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.World
-import dev.martianzoo.engine.toComponent
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
@@ -24,8 +23,8 @@ import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
@@ -230,8 +229,8 @@ object TestHelpers {
 
     val actuals = MutableList(types.size) { 0 }
     for (change in result.net()) {
-      val g = change.gaining?.let(game.reader::resolve)
-      val r = change.removing?.let(game.reader::resolve)
+      val g = change.gaining?.type
+      val r = change.removing?.type
       for ((index, type) in types.withIndex()) {
         if (g?.isSubtypeOf(type) == true) actuals[index] += change.count
         if (r?.isSubtypeOf(type) == true) actuals[index] -= change.count
@@ -252,7 +251,7 @@ object TestHelpers {
     return changes
         .flatMap { listOfNotNull(it.change.gaining, it.change.removing) }
         .mapNotNull {
-          val ownerName = game.reader.resolve(it).toComponent().owner?.className
+          val ownerName = it.owner?.className
           game.actors.filterIsInstance<Player>().singleOrNull { player ->
             player.className == ownerName
           }

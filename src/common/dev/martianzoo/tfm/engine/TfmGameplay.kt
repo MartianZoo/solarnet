@@ -6,7 +6,6 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
-import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.api.Exceptions.AbstractException
@@ -22,11 +21,11 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.data.Task
-import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.Task
+import dev.martianzoo.state.TaskQueue
+import dev.martianzoo.state.TaskResult
 
 private val MC: ClassName = cn("MC")
 private val STANDARD_ACTION: ClassName = cn("StandardAction")
@@ -174,7 +173,7 @@ public class TfmGameplay(
   private fun Task.isActionPhaseSecondAction(): Boolean {
     val origin = cause ?: return false
     if (origin.context.className != cn("ActionPhase")) return false
-    val trigger = game.events.entryAt(origin.triggerEvent) as? ChangeEvent
+    val trigger = game.events.changeAt(origin.triggerEvent)
     return trigger?.change?.gaining?.className == cn("SecondAction")
   }
 

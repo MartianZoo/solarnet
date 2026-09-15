@@ -1,8 +1,8 @@
 package dev.martianzoo.script
 
 import dev.martianzoo.agent.Agent
-import dev.martianzoo.pets.data.Task.TaskId
-import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.state.Task.TaskId
+import dev.martianzoo.state.TaskResult
 
 internal sealed class Access {
   internal abstract fun exec(instruction: String): TaskResult

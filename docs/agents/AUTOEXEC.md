@@ -172,7 +172,7 @@ powers come from game state; its autonomous behavior comes from its policy confi
 
 ## Required properties
 
-- `:engine` and `:gameworld` contain no Agent or policy behavior.
+- `:engine` and `:state` contain no Agent or policy behavior.
 - A configured Game World has exactly one Agent per Actor.
 - Every ordinary explicit and autonomous Actor mutation enters through that Agent.
 - The engine reports only that a complete mutation changed the game; it does not schedule Agents.

@@ -1,4 +1,4 @@
-package dev.martianzoo.engine
+package dev.martianzoo.state
 
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe

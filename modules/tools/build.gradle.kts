@@ -32,6 +32,7 @@ dependencies {
   implementation(project(":tfm-canon"))
   implementation(project(":engine"))
   implementation(project(":pets"))
+  implementation(project(":state"))
   implementation(project(":tfm-engine"))
   kotlinFileComplexityAnalyzer(libs.detekt.metrics)
   testRuntimeOnly(libs.detekt.metrics)

@@ -96,8 +96,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   mandatory.
 - **Low priority:** [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve
   hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
-- Model `StateChange` as a sealed gain/remove/transmute algebra so invalid nullable combinations are
-  unrepresentable.
 - [#59: `-This` Quantifier](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether
   self-removal should default to mandatory.
 - Give Admin an installable autoexecution policy for Global Events that pulls exact cards from an
