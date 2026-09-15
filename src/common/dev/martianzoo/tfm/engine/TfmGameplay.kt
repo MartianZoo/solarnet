@@ -27,6 +27,7 @@ import dev.martianzoo.state.TaskQueue
 import dev.martianzoo.state.TaskResult
 
 private val MC: ClassName = cn("MC")
+private val STANDARD_ACTION: ClassName = cn("StandardAction")
 
 /**
  * Wraps and extends an [Agent] to provide much more convenient functions specific to *Terraforming
@@ -175,13 +176,20 @@ public class TfmGameplay(
     return trigger?.change?.gaining?.className == cn("SecondAction")
   }
 
+  /** Uses an action supplied by [stdAction], which must be a `StandardAction` provider. */
   public fun stdAction(
       stdAction: String,
       which: Int = 1,
       payment: OperationBlock = { payInvoiceFromItsResourceIfOffered() },
       body: OperationBlock = {},
   ): TaskResult {
-    // TODO: Reject providers that are not StandardAction; generic HasActions need a distinct API.
+    require(
+        game.classTable
+            .getClass(cn(stdAction))
+            .isSubtypeOf(game.classTable.getClass(STANDARD_ACTION))
+    ) {
+      "$stdAction is not a StandardAction"
+    }
     return inTurn {
       doTask("UseAction<$stdAction, ${whichAction(which)}>")
       payment()

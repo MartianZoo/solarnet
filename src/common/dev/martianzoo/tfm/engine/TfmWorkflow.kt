@@ -170,8 +170,8 @@ public object TfmWorkflow {
     private suspend fun preludePhase() {
       m.preludePhase()
       for (player in players) {
-        grantFirstActionTo(player)
-        grantFirstActionTo(player)
+        // The retained cards are the setup fact; custom and replay setups need not retain two.
+        repeat(opsFor(player).count("PreludeCard")) { grantFirstActionTo(player) }
       }
     }
 
