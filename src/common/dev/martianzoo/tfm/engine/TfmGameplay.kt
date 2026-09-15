@@ -15,7 +15,6 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Change
-import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.data.Actor
@@ -513,6 +512,7 @@ public class TfmGameplay(
   public fun cardAction1(cardName: ClassName, body: OperationBlock = {}): TaskResult =
       cardAction(1, cardName, body = body)
 
+  /** Binds the action's X to positive [x] without directly executing the resulting task. */
   public fun cardAction1(
       cardName: ClassName,
       x: Int,
@@ -522,6 +522,7 @@ public class TfmGameplay(
   public fun cardAction2(cardName: ClassName, body: OperationBlock = {}): TaskResult =
       cardAction(2, cardName, body = body)
 
+  /** Binds the action's X to positive [x] without directly executing the resulting task. */
   public fun cardAction2(
       cardName: ClassName,
       x: Int,
@@ -532,6 +533,7 @@ public class TfmGameplay(
     useCardAction(1, cardName, body = body)
   }
 
+  /** Binds the action's X to positive [x] without directly executing the resulting task. */
   public fun OperationScope.cardAction1(cardName: ClassName, x: Int, body: OperationBlock = {}) {
     useCardAction(1, cardName, x, body)
   }
@@ -540,6 +542,7 @@ public class TfmGameplay(
     useCardAction(2, cardName, body = body)
   }
 
+  /** Binds the action's X to positive [x] without directly executing the resulting task. */
   public fun OperationScope.cardAction2(cardName: ClassName, x: Int, body: OperationBlock = {}) {
     useCardAction(2, cardName, x, body)
   }
@@ -579,8 +582,8 @@ public class TfmGameplay(
             }
     val variableTask = variableTasks.single()
     val bound = bindXTo(x).transformInstructionTree(variableTask.instruction)
-    val firstStage = if (bound is Then) bound.first else bound
-    operation.doTask(firstStage.toString())
+    narrowTask(variableTask.id, bound.toString())
+    operation.autoExecNow()
   }
 
   private fun whichAction(which: Int): String =

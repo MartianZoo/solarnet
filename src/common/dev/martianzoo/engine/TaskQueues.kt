@@ -22,13 +22,13 @@ import dev.martianzoo.state.Task.TaskId
  * * `a, b >> null` is split into `a >> null` and `b >> null`
  * * `a, b >> c` produces some exception (which?)
  * * `a THEN b >> null` where `a THEN b` is separable is rewritten to `a >> b`
- * * `a THEN b >> c` where `a THEN b` is separable is rewritten to `a >> b THEN c`
+ * * `a THEN b >> c` retains both boundaries rather than merging their independent variable scopes
  * * `a, Ok` becomes `a`
  * * `a, Die` becomes `Die`
  * * `a OR Die` becomes `a`; if every option is `Die`, the task produces [DeadEndException]
  * * A concrete selected task is guaranteed to execute successfully
- * * New tasks created have the same controller, Actor, and cause as the original. Selected tasks
- *   cannot be split
+ * * Normalization retains task identity, controller, Actor, selection, and cause. Selected tasks
+ *   cannot be replaced by independent siblings
  */
 internal class TaskQueues(
     private val gameWorld: GameWorld,
@@ -72,7 +72,7 @@ internal class TaskQueues(
   }
 
   internal fun editTask(newTask: Task): TaskEditedEvent? {
-    val normalized = normalizeTask(newTask)
+    val normalized = normalizeTask(newTask, isAbstract)
     val oldTask = gameWorld.tasks.getTaskData(normalized.id)
     if (normalized == oldTask) return null
     return gameWorld.apply(

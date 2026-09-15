@@ -302,27 +302,15 @@ internal constructor(
     val group = InstructionGroup.of(replacement)
     if (group.size == 1) {
       val instruction = group.instructions.single()
-      val updated =
-          if (instruction is Then && then == null) {
-            newTasks(
-                    firstId = original.id,
-                    controller = original.controller,
-                    instruction = group,
-                    cause = original.cause,
-                    actor = original.actor,
-                    isAbstract = reader::isAbstract,
-                )
-                .single()
-          } else {
-            original.copy(instruction = instruction, then = then)
-          }
       val selection =
           if (original.selection == Selection.DELEGATED || instruction.isAbstract(reader)) {
             Selection.DELEGATED
           } else {
             Selection.SELECTED
           }
-      taskQueues.editTask(updated.copy(selection = selection))
+      taskQueues.editTask(
+          original.copy(instruction = instruction, then = then, selection = selection)
+      )
     } else {
       // Structural completion replaces the selected task with ordinary pending siblings. No child
       // inherits selection; a later player input must select whichever sibling comes next.
