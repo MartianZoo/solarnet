@@ -1,0 +1,246 @@
+"Expansion adding colony tiles, player colonies, and trade fleets"
+CLASS ColoniesExpansion : Module {
+  This: TradeAction, BuildColonyProject
+  SetupPhase: EACH Player { TradeFleet }
+  SetupPhase IF SoloMode: PROD[-2 MC<Player>]
+  SolarPhase: AdvanceColonyTracks
+}
+
+"A colony tile, such as Pluto"
+ABSTRACT CLASS ColonyTile {
+  HAS MAX 1 This, MAX 3 Colony<This>, MAX 1 Trade<This>
+
+  This:: ColonyProduction<This>
+  Colony<This>:: ColonyProduction<This> / Colony<This> - ColonyProduction<This>
+  ResetColonyProduction<This>: -ColonyProduction<This>. / ColonyProduction<This> - Colony<This, Anyone>
+  AdvanceColonyTracks: ColonyProduction<This>
+  FinishTrade<This>: ResetColonyProduction<This>
+}
+
+CLASS Callisto : ColonyTile, ColonyTileSelection<Class<Callisto>> {
+  Colony<This>: PROD[Energy]
+  GainColonyBonus<This>: 3 Energy
+
+  FinishTrade<This> IF =0 ColonyProduction<This>: Ok
+  FinishTrade<This> IF =1 ColonyProduction<This>: 2 Energy
+  FinishTrade<This> IF =2 ColonyProduction<This>: 3 Energy
+  FinishTrade<This> IF =3 ColonyProduction<This>: 5 Energy
+  FinishTrade<This> IF =4 ColonyProduction<This>: 7 Energy
+  FinishTrade<This> IF =5 ColonyProduction<This>: 10 Energy
+  FinishTrade<This> IF =6 ColonyProduction<This>: 13 Energy
+}
+
+CLASS Ceres : ColonyTile, ColonyTileSelection<Class<Ceres>> {
+  Colony<This>: PROD[Steel]
+  GainColonyBonus<This>: 2 Steel
+
+  FinishTrade<This> IF =0 ColonyProduction<This>: Steel
+  FinishTrade<This> IF =1 ColonyProduction<This>: 2 Steel
+  FinishTrade<This> IF =2 ColonyProduction<This>: 3 Steel
+  FinishTrade<This> IF =3 ColonyProduction<This>: 4 Steel
+  FinishTrade<This> IF =4 ColonyProduction<This>: 6 Steel
+  FinishTrade<This> IF =5 ColonyProduction<This>: 8 Steel
+  FinishTrade<This> IF =6 ColonyProduction<This>: 10 Steel
+}
+
+CLASS Enceladus : ColonyTile {
+  Colony<This>: 3 Microbe
+  GainColonyBonus<This>: Microbe
+
+  FinishTrade<This> IF =0 ColonyProduction<This>: Ok
+  FinishTrade<This> IF =1 ColonyProduction<This>: Microbe
+  FinishTrade<This> IF =2 ColonyProduction<This>: 2 Microbe
+  FinishTrade<This> IF =3 ColonyProduction<This>: 3 Microbe
+  FinishTrade<This> IF =4 ColonyProduction<This>: 4 Microbe
+  FinishTrade<This> IF =5 ColonyProduction<This>: 4 Microbe
+  FinishTrade<This> IF =6 ColonyProduction<This>: 5 Microbe
+}
+
+CLASS Europa : ColonyTile, ColonyTileSelection<Class<Europa>> {
+  Colony<This>: OceanTile<>
+  GainColonyBonus<This>: 1 MC
+
+  FinishTrade<This> IF =0 ColonyProduction<This>: PROD[1 MC]
+  FinishTrade<This> IF =1 ColonyProduction<This>: PROD[1 MC]
+  FinishTrade<This> IF =2 ColonyProduction<This>: PROD[Energy]
+  FinishTrade<This> IF =3 ColonyProduction<This>: PROD[Energy]
+  FinishTrade<This> IF =4 ColonyProduction<This>: PROD[Plant]
+  FinishTrade<This> IF =5 ColonyProduction<This>: PROD[Plant]
+  FinishTrade<This> IF =6 ColonyProduction<This>: PROD[Plant]
+}
+
+CLASS Ganymede : ColonyTile, ColonyTileSelection<Class<Ganymede>> {
+  Colony<This>: PROD[Plant]
+  GainColonyBonus<This>: Plant
+
+  FinishTrade<This> IF =0 ColonyProduction<This>: Ok
+  FinishTrade<This> IF =1 ColonyProduction<This>: Plant
+  FinishTrade<This> IF =2 ColonyProduction<This>: 2 Plant
+  FinishTrade<This> IF =3 ColonyProduction<This>: 3 Plant
+  FinishTrade<This> IF =4 ColonyProduction<This>: 4 Plant
+  FinishTrade<This> IF =5 ColonyProduction<This>: 5 Plant
+  FinishTrade<This> IF =6 ColonyProduction<This>: 6 Plant
+}
+
+CLASS Io : ColonyTile, ColonyTileSelection<Class<Io>> {
+  Colony<This>: PROD[Heat]
+  GainColonyBonus<This>: 2 Heat
+
+  FinishTrade<This> IF =0 ColonyProduction<This>: 2 Heat
+  FinishTrade<This> IF =1 ColonyProduction<This>: 3 Heat
+  FinishTrade<This> IF =2 ColonyProduction<This>: 4 Heat
+  FinishTrade<This> IF =3 ColonyProduction<This>: 6 Heat
+  FinishTrade<This> IF =4 ColonyProduction<This>: 8 Heat
+  FinishTrade<This> IF =5 ColonyProduction<This>: 10 Heat
+  FinishTrade<This> IF =6 ColonyProduction<This>: 13 Heat
+}
+
+CLASS Luna : ColonyTile, ColonyTileSelection<Class<Luna>> {
+  Colony<This>: PROD[2 MC]
+  GainColonyBonus<This>: 2 MC
+
+  FinishTrade<This> IF =0 ColonyProduction<This>: 1 MC
+  FinishTrade<This> IF =1 ColonyProduction<This>: 2 MC
+  FinishTrade<This> IF =2 ColonyProduction<This>: 4 MC
+  FinishTrade<This> IF =3 ColonyProduction<This>: 7 MC
+  FinishTrade<This> IF =4 ColonyProduction<This>: 10 MC
+  FinishTrade<This> IF =5 ColonyProduction<This>: 13 MC
+  FinishTrade<This> IF =6 ColonyProduction<This>: 17 MC
+}
+
+CLASS Miranda : ColonyTile {
+  Colony<This>: Animal
+  GainColonyBonus<This>: ProjectCard
+
+  FinishTrade<This> IF =0 ColonyProduction<This>: Ok
+  FinishTrade<This> IF =1 ColonyProduction<This>: Animal
+  FinishTrade<This> IF =2 ColonyProduction<This>: Animal
+  FinishTrade<This> IF =3 ColonyProduction<This>: 2 Animal
+  FinishTrade<This> IF =4 ColonyProduction<This>: 2 Animal
+  FinishTrade<This> IF =5 ColonyProduction<This>: 3 Animal
+  FinishTrade<This> IF =6 ColonyProduction<This>: 3 Animal
+}
+
+CLASS Pluto : ColonyTile, ColonyTileSelection<Class<Pluto>> {
+  Colony<This>: 2 ProjectCard
+  GainColonyBonus<This>: ProjectCard THEN -ProjectCard
+
+  FinishTrade<This> IF =0 ColonyProduction<This>: Ok
+  FinishTrade<This> IF =1 ColonyProduction<This>: ProjectCard
+  FinishTrade<This> IF =2 ColonyProduction<This>: 2 ProjectCard
+  FinishTrade<This> IF =3 ColonyProduction<This>: 2 ProjectCard
+  FinishTrade<This> IF =4 ColonyProduction<This>: 3 ProjectCard
+  FinishTrade<This> IF =5 ColonyProduction<This>: 3 ProjectCard
+  FinishTrade<This> IF =6 ColonyProduction<This>: 4 ProjectCard
+}
+
+CLASS Titan : ColonyTile {
+  Colony<This>: 3 Floater
+  GainColonyBonus<This>: Floater
+
+  FinishTrade<This> IF =0 ColonyProduction<This>: Ok
+  FinishTrade<This> IF =1 ColonyProduction<This>: Floater
+  FinishTrade<This> IF =2 ColonyProduction<This>: Floater
+  FinishTrade<This> IF =3 ColonyProduction<This>: 2 Floater
+  FinishTrade<This> IF =4 ColonyProduction<This>: 3 Floater
+  FinishTrade<This> IF =5 ColonyProduction<This>: 3 Floater
+  FinishTrade<This> IF =6 ColonyProduction<This>: 4 Floater
+}
+
+CLASS Triton : ColonyTile, ColonyTileSelection<Class<Triton>> {
+  Colony<This>: 3 Titanium
+  GainColonyBonus<This>: Titanium
+
+  FinishTrade<This> IF =0 ColonyProduction<This>: Ok
+  FinishTrade<This> IF =1 ColonyProduction<This>: Titanium
+  FinishTrade<This> IF =2 ColonyProduction<This>: Titanium
+  FinishTrade<This> IF =3 ColonyProduction<This>: 2 Titanium
+  FinishTrade<This> IF =4 ColonyProduction<This>: 3 Titanium
+  FinishTrade<This> IF =5 ColonyProduction<This>: 4 Titanium
+  FinishTrade<This> IF =6 ColonyProduction<This>: 5 Titanium
+}
+
+"One of the up-to-three colonies players can own on a ColonyTile"
+CLASS Colony<ColonyTile> : Owned<Player> {
+  DEFAULT +Colony<ColonyTile(HAS MAX 0 Colony)>
+  FinishTrade<Anyone, ColonyTile> OR GainColonyBonuses:: GainColonyBonus<ColonyTile>
+}
+
+"A player's persistent capacity to conduct one Trade per generation"
+CLASS TradeFleet : Owned<Player>
+
+"A trade with one colony tile, retained until the next generation"
+CLASS Trade<ColonyTile, GenerationScope> : Owned<Player> {
+  This:: (MAX 0 (Trade - TradeFleet): TradeBarrier<ColonyTile>)
+  This: -TradeBarrier<ColonyTile>
+}
+
+"One unresolved barrier to completing a Trade"
+CLASS TradeBarrier<ColonyTile> : Owned<Player>, Barrier {
+  -This IF MAX 0 This:: FinishTrade<ColonyTile> BY Owner
+}
+
+"The owner-attributed event that begins a Trade's completion consequences"
+CLASS FinishTrade<ColonyTile> : Owned<Player>, Signal
+
+"Trade with a colony tile"
+CLASS TradeAction : StandardAction {
+  9 MC -> Trade
+  3 Energy -> Trade
+  3 Titanium -> Trade
+}
+
+CLASS BuildColonyProject : StandardProject {
+  cost = 17
+  1 MC / cost -> Colony<>
+}
+
+"A selected colony tile, whether it is already in play or waiting for a compatible card"
+ABSTRACT CLASS ColonyTileSelection<Class<ColonyTile>> { HAS MAX 1 This }
+
+"A normal colony selected for this game but not put into play until setup"
+CLASS SelectedColonyTile<Class<ColonyTile>> : ColonyTileSelection<Class<ColonyTile>>, Hidden {
+  SetupPhase IF MultiplayerMode: ColonyTile FROM This
+  -SoloColoniesSetup IF SoloMode: ColonyTile FROM This
+}
+
+"Lets the solo player discard one selected colony tile; owned so that player makes the choice"
+CLASS SoloColoniesSetup : Owned<Player>, System {
+  HAS MAX 1 This
+  SetupPhase: -ColonyTileSelection THEN -This!
+}
+
+"A notch on the production track of a ColonyTile; note a tile has 0 to 6 of these (not 1 to 7)"
+CLASS ColonyProduction<ColonyTile> {
+  HAS MAX 6 This
+  DEFAULT +ColonyProduction.
+}
+
+"An implementation detail used to trigger colony bonuses to be paid out"
+CLASS GainColonyBonus<ColonyTile> : Owned<Player>, Signal
+
+"Advances every colony tile track one step, as in production and Early Colonization"
+CLASS AdvanceColonyTracks : Signal
+
+"Requests one colony bonus payment for each colony the player owns"
+CLASS GainColonyBonuses : Owned<Player>, Signal
+
+"An implementation detail used to trigger a colony tile's 'white cube' to move left"
+CLASS ResetColonyProduction<ColonyTile> : Signal
+
+ABSTRACT CLASS DelayedColonyTile<Class<ColonyTile>, Class<CardResource>> : ColonyTileSelection<Class<ColonyTile>>
+
+CLASS DelayedEnceladus : DelayedColonyTile<Class<Enceladus>, Class<Microbe>> {
+  This IF ResourceCard<Class<Microbe>>:: Enceladus FROM This
+  ResourceCard<Class<Microbe>>:: Enceladus FROM This
+}
+
+CLASS DelayedMiranda : DelayedColonyTile<Class<Miranda>, Class<Animal>> {
+  This IF ResourceCard<Class<Animal>>:: Miranda FROM This
+  ResourceCard<Class<Animal>>:: Miranda FROM This
+}
+
+CLASS DelayedTitan : DelayedColonyTile<Class<Titan>, Class<Floater>> {
+  This IF ResourceCard<Class<Floater>>:: Titan FROM This
+  ResourceCard<Class<Floater>>:: Titan FROM This
+}

@@ -203,8 +203,8 @@ internal class FinalGreeneryPhaseTest {
   }
 
   @Test
-  internal fun tenPlantsCanBecomeTwoGreeneriesWithEcolinePolderTechAndTheElysiumBonus() {
-    val game = Engine.newGame(canonicalPremise(Elysium, PromoCardPack))
+  internal fun elevenPlantsCanBecomeTwoGreeneriesWithEcolineAndTheElysiumBonus() {
+    val game = Engine.newGame(canonicalPremise(Elysium))
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
@@ -213,7 +213,7 @@ internal class FinalGreeneryPhaseTest {
 
     playCorporationWithoutStartingProjects(p1, CrediCor)
     playCorporationWithoutStartingProjects(p2, MiningGuild)
-    p1.sneak("$Ecoline, $PolderTechDutch, 10 Plant")
+    p1.sneak("$Ecoline, 11 Plant")
     admin.sneak(
         "-GpGameEndBarrier<Class<TemperatureStep>>, " +
             "-GpGameEndBarrier<Class<OxygenStep>>, " +
@@ -225,9 +225,9 @@ internal class FinalGreeneryPhaseTest {
 
     p1.pass()
     p2.pass()
-    p1.count("Plant") shouldBe 10
+    p1.count("Plant") shouldBe 11
     p1.convertPlants {
-      // 10 - 7 with Ecoline + 1 from PolderTECH + the unique 3-plant bonus = 7.
+      // 11 - 7 with Ecoline + the unique 3-plant bonus = 7.
       doTask("GreeneryTile<Elysium_5_6>")
     }
     p1.count("Plant") shouldBe 7

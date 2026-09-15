@@ -5,7 +5,7 @@ import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
-internal class StinaGameTest : AbstractSoloTest() {
+internal class StinaGameTest : AbstractSoloTest(requireEveryProjectCardChangeNamed = true) {
   override val config = GameConfig("ElysiumMap, PreludeExpansion", "Me")
 
   override fun cityAreas() = "Elysium_5_6" to "Elysium_7_7"
@@ -63,13 +63,20 @@ internal class StinaGameTest : AbstractSoloTest() {
             placeTile(9, 7)
           }
           .expect("0 ProjectCard")
+      // The source does not identify the cards rejected from these two offers.
+      val unknownInventionContestCards = unknownProjectCards(2)
+      expectProjectCards(ImportedGhg, *unknownInventionContestCards)
       playProject(InventionContest, 0) {
             draw(ImportedGhg, MassConverter)
+            discardUnselectedProjectCards(*unknownInventionContestCards)
             doTask("ProjectCard FROM Science<OlympusConference>")
           }
           .expect("ProjectCard, 3 MC")
+      val unknownBusinessContactsCards = unknownProjectCards(2)
+      expectProjectCards(TowingAComet, AdaptationTechnology, *unknownBusinessContactsCards)
       playProject(BusinessContacts, 1) {
             draw(TowingAComet, AdaptationTechnology)
+            discardUnselectedProjectCards(*unknownBusinessContactsCards)
           }
           .expect("ProjectCard, 2 MC")
       playProject(QuantumExtractor, 10).expect("PROD[4 Energy]")

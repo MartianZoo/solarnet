@@ -277,17 +277,27 @@ workaround. Once the bug is fixed, move the useful scenario to its proper behavi
 Whole-game tests are high-value integration coverage. When translating a supplied game log:
 
 - `CardTrackingFullGameTest` is an opt-in full-game base for source archives that identify project
-  cards. `expectProjectCards()` assigns sourced identities to an otherwise anonymous selection;
-  named draw, purchase, discard, and return calls then update one test-owned location ledger. The
-  tracker reads game events only to observe named cards being played. A named discard is terminal;
-  cards do not return to the deck. For source-known deck exits that the model omits, record the
-  terminal exit explicitly. `discardUnselectedProjectCards()` may either close a previously named
-  selection or introduce the rejected names directly; inside an operation it also resolves an
-  already-open anonymous selection-removal task.
+  cards. Named draw, offer, purchase, discard, and return calls update one test-owned location
+  ledger and annotate the corresponding project-card events. Naming may happen immediately before
+  or after the engine change.
+  A replay with complete source data may instead override `projectCardArrivalOrder` for each Player.
+  This is the order in which cards enter that Player's modeled Hand or Selecting state, not a claim
+  about the physical deck order. The tracker consumes the fixture according to the anonymous event
+  counts; the replay names selection discards, and the retained cards are the remainder of the known
+  offer. It rejects duplicate arrivals, an exhausted or partly unused fixture, and any attempt to
+  discard a card that never arrived or is not in the indicated Player's Hand or selection.
+  Strict completion requires an identity label for every card in every project-card event and
+  checks the tracked hand sizes against the World. When a source omits a rejected card's identity,
+  `unknownProjectCards()` supplies distinct replay-local `UnknownCardNN` labels; keep the source gap
+  visible beside their use. These labels prove complete accounting, not complete source knowledge.
+  The database-backed Herokuapp conversions use strict mode without unknown labels. A named discard
+  is terminal; cards do not return to the deck. For source-known direct deck exits that the model
+  omits, record the terminal exit explicitly; those cards are not arrivals.
+  Inside an operation, `discardUnselectedProjectCards()` also resolves an already-open anonymous
+  selection-removal task.
   Research archives that used drafting may assign each recovered post-draft four-card set as that
-  player's ordinary deal when the tested engine does not support drafting. Express an
-  research deal directly by partitioning its cards between `buyCards()` and
-  `discardUnselectedProjectCards()`; do not declare the same offer first.
+  player's ordinary deal when the tested engine does not support drafting. In an arrival-ordered
+  replay, buy only the evidenced count and name the unselected cards.
   `AbstractSoloTest` inherits this capability, but a solo test opts into tracking only by using
   the named calls.
   When a source gives only a discard count, an exact tracked hand requires the test to select
@@ -334,7 +344,7 @@ Whole-game tests are high-value integration coverage. When translating a supplie
 - Source-backed full-game replays enforce that assumption for resources worth more than one M€.
   Leaving an accepted full-value unit unused fails unless the player calls `intentionalUnderpay()`
   immediately before that payment. The same one-shot audit exemption covers spending an accepted
-  1:1 resource while enough M€ could settle the invoice. It does not waive payment legality: an
+  1:1 resource while enough M€ could settle the billing. It does not waive payment legality: an
   allocation containing a unit that could be returned is rejected, while unavoidable rounding
   excess needs no marker. Explain the sourced later payment or checkpoint that requires an unusual
   allocation, and prefer correcting an unsupported allocation over declaring intent.

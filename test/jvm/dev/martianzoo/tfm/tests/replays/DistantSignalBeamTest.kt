@@ -12,12 +12,13 @@ import kotlin.test.Test
 // Distant Signal Beam (g1ddd59fe5633), save 79, generation 3.
 // Source: _local/replays/Game20260905/game-g1ddd59fe5633.sqlite
 // https://terraforming-mars.herokuapp.com/the-end?id=p35d2aed733c5
-internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
+internal class DistantSignalBeamTest :
+    CardTrackingFullGameTest(requireEveryProjectCardChangeNamed = true) {
   override val config =
       GameConfig(
           """
           HellasMap
-          VenusNextExpansion, PreludeExpansion, Prelude2Expansion, ColoniesExpansion, PromoCardPack
+          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, ColoniesExpansion, PromoCardPack
           Aridor
 
           Diversifier, Merchant, Fundraiser, Terraformer, Producer, Trader
@@ -44,61 +45,14 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
   }
 
   private fun generation1() {
-    // Save 0 exposes every setup choice. Corporation offers were Vitor, Morning Star Inc., and
-    // PolderTECH Dutch for Pink; Aridor, Ecoline, and Point Luna for Purple. Prelude offers were
-    // Polar Industries, Atmospheric Enhancers, Loan, and Power Generation for Pink; Biosphere
-    // Support, Focused Organization, Project Eden, and Allied Bank for Purple.
-    pink.expectProjectCards(
-        HousePrinting,
-        Insects,
-        CloudSeeding,
-        MicroMills,
-        Pets,
-        LagrangeObservatory,
-        GhgImportFromVenus,
-        EcologyResearch,
-        SecurityFleet,
-        IoSulphurResearch,
-    )
-    pink.playCorp(MorningStarInc) {
-      buyCards(
-          HousePrinting,
-          CloudSeeding,
-          MicroMills,
-          Pets,
-          LagrangeObservatory,
-          GhgImportFromVenus,
-          IoSulphurResearch,
-      )
-    }
+    // Save 0 exposes every setup choice. Pink's corporation offers were Vitor, Morning Star Inc.,
+    // and one unsupported corporation; Purple's were Aridor, Ecoline, and Point Luna. Prelude
+    // offers were Polar Industries, Atmospheric Enhancers, Loan, and Power Generation for Pink;
+    // Biosphere Support, Focused Organization, Project Eden, and Allied Bank for Purple.
+    pink.playCorp(MorningStarInc) { buyCards(7) }
     pink.discardUnselectedProjectCards(Insects, EcologyResearch, SecurityFleet)
 
-    purple.expectProjectCards(
-        RotatorImpacts,
-        PowerSupplyConsortium,
-        Tardigrades,
-        InterplanetaryTrade,
-        Casinos,
-        AdaptationTechnology,
-        FusionPower,
-        BreathingFilters,
-        PeroxidePower,
-        NeutralizerFactory,
-    )
-    purple.playCorp(Aridor) {
-      buyCards(
-          RotatorImpacts,
-          PowerSupplyConsortium,
-          Tardigrades,
-          InterplanetaryTrade,
-          Casinos,
-          AdaptationTechnology,
-          FusionPower,
-          BreathingFilters,
-          PeroxidePower,
-          NeutralizerFactory,
-      )
-    }
+    purple.playCorp(Aridor) { buyCards(10) }
 
     pink.turn {
       playPrelude(AtmosphericEnhancers) {
@@ -122,12 +76,10 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
             TollStation,
             SelfReplicatingRobots,
         )
-        draw(TitanShuttles, AtmoCollectors)
         doTask("2 VenusStep")
       }
       playPrelude(PolarIndustries) {
         placeTile(5, 6)
-        draw(Cartel)
       }
     }
 
@@ -158,7 +110,6 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
             CeresTechMarket,
             CrashSiteCleanup,
         )
-        draw(VenusSoils, SulphurEatingBacteria, StratosphericExpedition)
       }
       playProject(TitanShuttles, 23)
     }
@@ -185,9 +136,9 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
   private fun generation2() {
     // The retained draft saves prove that both players saw all eight cards. Solarnet models each
     // recovered post-draft four-card set as its eventual owner's ordinary Research offer.
-    pink.buyCards(HeatTrappers)
+    pink.buyCards(1)
     pink.discardUnselectedProjectCards(GeothermalPower, PhobosSpaceHaven, DirectedHeatUsage)
-    purple.buyCards(Omnicourt, BactoviralResearch, SolarReflectors)
+    purple.buyCards(3)
     purple.discardUnselectedProjectCards(SoilFactory)
 
     // Database save 42: immediately after both Research purchases.
@@ -201,11 +152,10 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
     purple.turn { claimMilestone(cn("Fundraiser")) }
     pink.turn {
       cardAction2(TitanShuttles, 2)
-      playProject(LagrangeObservatory, 3, titanium = 2) { draw(StaticHarvesting) }
+      playProject(LagrangeObservatory, 3, titanium = 2)
     }
     purple.turn {
       playProject(BactoviralResearch, 10) {
-        draw(LocalShading)
         addCardResources(Tardigrades)
       }
       // Database save 49: Bactoviral Research introduced Purple's first science tag.
@@ -234,9 +184,9 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
     // Again, both players saw all eight draft cards. Pink's final set was Terraforming Contract,
     // Electro Catapult, Underground City, and Shuttles; Purple's was Red Spot Observatory, Mining
     // Colony, Outdoor Sports, and Soil Enrichment.
-    pink.buyCards(TerraformingContract)
+    pink.buyCards(1)
     pink.discardUnselectedProjectCards(ElectroCatapult, UndergroundCity, Shuttles)
-    purple.buyCards(MiningColony)
+    purple.buyCards(1)
     purple.discardUnselectedProjectCards(RedSpotObservatory, OutdoorSports, SoilEnrichment)
 
     // Database save 74: immediately after both Research purchases.
@@ -289,4 +239,58 @@ internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
     checkHandSizes()
     assertCardTrackingComplete()
   }
+
+  override val projectCardArrivalOrder =
+      mapOf(
+          cn("Pink") to
+              listOf(
+                  HousePrinting,
+                  Insects,
+                  CloudSeeding,
+                  MicroMills,
+                  Pets,
+                  LagrangeObservatory,
+                  GhgImportFromVenus,
+                  EcologyResearch,
+                  SecurityFleet,
+                  IoSulphurResearch,
+                  TitanShuttles,
+                  AtmoCollectors,
+                  Cartel,
+                  VenusSoils,
+                  SulphurEatingBacteria,
+                  StratosphericExpedition,
+                  HeatTrappers,
+                  GeothermalPower,
+                  PhobosSpaceHaven,
+                  DirectedHeatUsage,
+                  StaticHarvesting,
+                  TerraformingContract,
+                  ElectroCatapult,
+                  UndergroundCity,
+                  Shuttles,
+              ),
+          cn("Purple") to
+              listOf(
+                  RotatorImpacts,
+                  PowerSupplyConsortium,
+                  Tardigrades,
+                  InterplanetaryTrade,
+                  Casinos,
+                  AdaptationTechnology,
+                  FusionPower,
+                  BreathingFilters,
+                  PeroxidePower,
+                  NeutralizerFactory,
+                  Omnicourt,
+                  BactoviralResearch,
+                  SolarReflectors,
+                  SoilFactory,
+                  LocalShading,
+                  MiningColony,
+                  RedSpotObservatory,
+                  OutdoorSports,
+                  SoilEnrichment,
+              ),
+      )
 }

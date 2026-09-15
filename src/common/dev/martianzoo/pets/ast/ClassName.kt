@@ -22,7 +22,8 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
  * L2-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-names)).
  * Create one using the compactly-named function [cn].
  */
-public class ClassName private constructor(public val asString: String) :
+@ConsistentCopyVisibility
+public data class ClassName private constructor(public val asString: String) :
     PetNode(), HasExpression, Comparable<ClassName> {
   public companion object {
     private val reservedNames =
@@ -102,10 +103,6 @@ public class ClassName private constructor(public val asString: String) :
   override val expression: Expression = Expression(this)
   override val expressionFull: Expression
     get() = expression
-
-  override fun equals(other: Any?): Boolean = other is ClassName && other.asString == asString
-
-  override fun hashCode(): Int = asString.hashCode() xor 1994079235
 
   override fun toString(): String = asString
 

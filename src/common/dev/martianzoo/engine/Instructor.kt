@@ -267,11 +267,11 @@ internal constructor(
     val count = (change.count as? ActualScalar)?.value ?: return change
 
     val (g, r) = narrowChangeTypes(change, count, intens) ?: return change
-    if (listOfNotNull(g, r).any { !classTable.isActive(it) }) {
+    if (listOfNotNull(g, r).any { !classTable.isInhabited(it) }) {
       if (intens != MANDATORY) return NoOp
       throw DeadEndException(
-          "mandatory change uses inactive type: " +
-              listOfNotNull(g, r).filterNot(classTable::isActive).joinToString()
+          "mandatory change uses uninhabited type: " +
+              listOfNotNull(g, r).filterNot(classTable::isInhabited).joinToString()
       )
     }
     if (g?.className == DIE) throw DeadEndException("a Die instruction was reached")
@@ -479,7 +479,7 @@ internal constructor(
     var g = gaining?.let(reader::resolve)
     var r = removing?.let(reader::resolve)
 
-    if (listOfNotNull(g, r).any { !classTable.isActive(it) }) return g to r
+    if (listOfNotNull(g, r).any { !classTable.isInhabited(it) }) return g to r
 
     if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
       val dependencyComponents = g.dependencies.typeDependencies().map { it.boundType }

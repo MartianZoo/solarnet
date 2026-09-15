@@ -170,14 +170,6 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
   public fun isSupertypeOf(that: Type): Boolean = that.isSubtypeOf(this)
 
   /**
-   * The greatest lower bound of this type and [that], or null when it is absent ([rule
-   * T7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds)).
-   *
-   * @throws IllegalArgumentException if [that] belongs to another universe (rule T1-2).
-   */
-  public infix fun glb(that: Type): GroundType? = groundType glb that.groundType
-
-  /**
    * Enumerates every concrete narrowing in the master universe, following
    * [rules T11-1 and T11-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
    */

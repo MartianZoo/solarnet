@@ -1,7 +1,7 @@
 # Terraforming Mars component classes
 
 Here's an overview of the component classes that (currently) make up the core of the game. Refer to
-Terraforming Mars [`classes.pets`](https://github.com/MartianZoo/solarnet/blob/main/src/common/dev/martianzoo/tfm/canon/TerraformingMars/classes.pets)
+the Terraforming Mars [`.pets` sources](https://github.com/MartianZoo/solarnet/tree/main/src/common/dev/martianzoo/tfm/canon/TerraformingMars)
 as you read.
 
 ## Communal / non-player-owned
@@ -86,7 +86,10 @@ The `Owned-Owner` dependency is a regular component dependency just like any oth
 
 ### OwnedTile
 
-An abstract class `OwnedTile` extends both `Tile` and `Owned`. Every owned tile kind extends it, giving rules such as Landlord one nominal class to count. A broad combined-game test checks that relationship among its active classes; systematic coverage of every legal configuration remains planned. Pets cannot yet spell that intersection structurally, which is why the nominal class exists.
+An abstract class `OwnedTile` extends both `Tile` and `Owned`. Every owned tile kind extends it,
+giving rules such as Landlord one nominal class to count. A Canon-wide hierarchy test checks that
+every class extending both `Tile` and `Owned` also extends `OwnedTile`. Pets cannot spell that
+intersection structurally, which is why the nominal class exists.
 
 The three kinds of tiles are `GreeneryTile`, `CityTile`, and `SpecialTile` (the last is abstract as each specific kind of tile extends it).
 
@@ -129,7 +132,8 @@ Cards can have several types of things "on" them. `Tag`s depend on a `TagHolder`
 
 The top-level `Owed`, `Accepting`, and `Pay` classes model ordinary resource payments;
 `AcceptingFromCard` and `PayFromCard` are their card-resource counterparts. The best way to understand
-the protocol is to see how these classes are used in the bundle `cards.pets` files.
+the protocol is to see how these classes are used in the action and effect strings in each bundle's
+`cards.json5` file.
 
 ## TODO
 

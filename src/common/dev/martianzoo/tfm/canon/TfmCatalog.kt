@@ -295,7 +295,7 @@ public open class TfmCatalog : Catalog {
     }
     listOf(TfmClasses.MILESTONE, TfmClasses.AWARD).forEach { goalClass ->
       (explicitlyIncluded intersect goalClassNames(goalClass)).forEach { goalName ->
-        goalCompatibilityRequirement(goalName, goalClass)?.let { requirement ->
+        goalCompatibilityRequirement(goalName)?.let { requirement ->
           require(
               requirement.isMetBy { metric ->
                 countConfigured(metric, included - goalName, configurationTable)
@@ -368,10 +368,6 @@ public open class TfmCatalog : Catalog {
             .flatMap { modules.getValue(it) }
             .filter { it.included && it.appliesTo(included, configurationTable) }
             .mapTo(hashSetOf(), ClassSelection::className)
-    if (MULTIPLAYER_MODE in moduleNames) {
-      requireGoalPoolSize(selectedMilestoneNames, TfmClasses.MILESTONE)
-      requireGoalPoolSize(selectedAwardNames, TfmClasses.AWARD)
-    }
     require(individualNames.intersect(colonyNames).all { it in selectedByModules }) {
       "selected ColonyTiles must be provided by a selected Module"
     }
@@ -465,7 +461,7 @@ public open class TfmCatalog : Catalog {
           val declaration = classDeclaration(className)
           ClassSelection(
               className,
-              requirement = goalAutomaticSelectionRequirement(declaration, goalClass),
+              requirement = goalAutomaticSelectionRequirement(declaration),
           )
         }
         .filter { selection -> selection.appliesTo(configuredClassNames, configurationTable) }
@@ -473,17 +469,13 @@ public open class TfmCatalog : Catalog {
         .minus(explicitlyExcluded)
   }
 
-  private fun requireGoalPoolSize(selectedGoals: Set<ClassName>, goalClass: ClassName) {
-    require(selectedGoals.size >= MINIMUM_GOAL_POOL_SIZE) {
-      "a multiplayer game requires at least $MINIMUM_GOAL_POOL_SIZE $goalClass classes; " +
-          "found ${selectedGoals.size}: ${selectedGoals.sortedBy(ClassName::toString)}"
-    }
-  }
-
   /** Catalog-known concrete subclasses of the ordinary Pets `ColonyTile` class. */
   public val colonyTileClassNames: Set<ClassName> by lazy {
     val colonyTile = universe.findClass(COLONY_TILE) ?: return@lazy emptySet()
-    colonyTile.allSubclasses().filterNot { it.abstract }.mapTo(linkedSetOf()) { it.className }
+    universe
+        .allSubclasses(colonyTile)
+        .filterNot { it.abstract }
+        .mapTo(linkedSetOf()) { it.className }
   }
 
   private fun resolveConfigurationNames(names: Iterable<ClassName>): Set<ClassName> =
@@ -748,11 +740,10 @@ public open class TfmCatalog : Catalog {
 
   private fun goalAutomaticSelectionRequirement(
       declaration: ClassDeclaration,
-      goalClass: ClassName,
   ): Requirement? =
       Requirement.join(
           Requirement.join(
-              if (goalClass == TfmClasses.AWARD) MULTIPLAYER_ONLY else null,
+              MULTIPLAYER_ONLY,
               declaration.invariants.fold<Requirement, Requirement?>(null, Requirement::join),
           ),
           bundleCompatibilityRequirement(declaration.className, listOf(declaration)),
@@ -760,10 +751,9 @@ public open class TfmCatalog : Catalog {
 
   private fun goalCompatibilityRequirement(
       className: ClassName,
-      goalClass: ClassName,
   ): Requirement? =
       Requirement.join(
-          if (goalClass == TfmClasses.AWARD) MULTIPLAYER_ONLY else null,
+          MULTIPLAYER_ONLY,
           bundleCompatibilityRequirement(className, listOf(classDeclaration(className))),
       )
 
@@ -869,7 +859,6 @@ public open class TfmCatalog : Catalog {
     private val SELECTED_COLONY_TILE = cn("SelectedColonyTile")
     private val SOLO_COLONIES_SETUP = cn("SoloColoniesSetup")
     private val MULTIPLAYER_ONLY: Requirement = parse("MultiplayerMode")
-    private const val MINIMUM_GOAL_POOL_SIZE = 3
   }
 
   /** One Catalog assembled from several providers before it is exposed to callers. */

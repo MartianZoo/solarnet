@@ -114,6 +114,33 @@ supply one; the engine does not.
 hypothetical-analysis facility and must decline on uncertainty. [SMART_AUTOEXEC.md](SMART_AUTOEXEC.md)
 defines that optional guarantee. A caller may instead install a policy with no such promise.
 
+## Replay identity preservation
+
+> **Proposal:** Source-backed Terraforming Mars replays need a policy that preserves choices whose
+> anonymous engine representation would otherwise erase source-known card identity.
+
+Do not lower the replay Player's whole autoexecution level for this purpose. A replay policy should
+otherwise make the same eager choices as the ordinary first-choice policy, but decline a task that
+would purely remove a `ProjectCard`. The replay then performs that removal explicitly with the
+sourced card names and can associate those names with the exact resulting events. Playing a project
+card is not such a removal: its transmutation into the named card preserves the identity needed by
+the replay.
+
+This policy belongs in Terraforming Mars replay configuration, not in the generic Agent library.
+Generic policy machinery must not name `ProjectCard`, and the distinction must inspect the typed
+task instruction rather than rendered text. Do not add an `EAGER_EXCEPT_PROJECT_CARD` enum value or
+an independent task-filter mechanism beside Agent policies. The clean implementation depends on the
+configurable-policy direction described above: install a Terraforming Mars policy in place of the
+ordinary eager policy, and filter candidates before either selection or execution can acquire the
+select-lock.
+
+With the removal reserved, replay helpers should keep card names beside the source action, execute
+the named discard or rejection directly, and annotate only events produced by that command. This is
+intended to remove retrospective matching across unrelated event ranges, not to establish gameplay
+ordering or make card identity part of the engine model. Any mutable annotation needed while a
+replay is being assembled should become immutable at the recording boundary; recording ownership is
+specified by [GAMEWORLD.md](GAMEWORLD.md).
+
 ## The planned `slow` policy
 
 The agent library should eventually supply `slow`: an exhaustive proof policy that spends as much

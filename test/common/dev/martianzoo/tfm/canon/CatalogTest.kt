@@ -272,7 +272,7 @@ internal class CatalogTest {
 
     val table = ClassTable.forPremise(source.gamePremise(GameConfig("ExampleModule")))
 
-    table.isActive(card.className) shouldBe false
+    table.isInhabited(card.className) shouldBe false
   }
 
   @Test
@@ -297,7 +297,7 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun defaultBundleGoalPoolsRequireThreeOfEachKind() {
+  internal fun defaultBundleGoalPoolsMayContainFewerThanThreeOfEachKind() {
     val source =
         TfmCatalog.compose(
             bundle(
@@ -324,9 +324,16 @@ internal class CatalogTest {
             ),
         )
 
-    shouldThrow<IllegalArgumentException> {
-      source.gamePremise(GameConfig("MultiplayerMode, SparseMap"))
-    }
+    val premise = source.gamePremise(GameConfig("MultiplayerMode, SparseMap"))
+
+    premise.classSelections.filter { it.included }.mapTo(linkedSetOf()) { it.className } shouldBe
+        setOf(
+            cn("FirstMilestone"),
+            cn("SecondMilestone"),
+            cn("FirstAward"),
+            cn("SecondAward"),
+            cn("ThirdAward"),
+        )
   }
 
   @Test
@@ -335,10 +342,10 @@ internal class CatalogTest {
         StandardFormBundle(
             name = "CardPack",
             resourceDirectory = "CardPack",
-            resourceFilenames = setOf("classes.pets", "cards.pets"),
+            resourceFilenames = setOf("support.pets", "cards.pets"),
             resourceReader = { path ->
               when (path) {
-                "CardPack/classes.pets" ->
+                "CardPack/support.pets" ->
                     """
                     ABSTRACT CLASS Module
                     ABSTRACT CLASS CardBack
@@ -359,8 +366,8 @@ internal class CatalogTest {
 
     val table = ClassTable.forPremise(source.gamePremise(GameConfig("CardPack")))
 
-    table.isActive(cn("ExampleCard")) shouldBe true
-    table.isActive(cn("PassiveHelper")) shouldBe true
+    (cn("ExampleCard") in table.allClassNames) shouldBe true
+    (cn("PassiveHelper") in table.allClassNames) shouldBe true
   }
 
   @Test
@@ -376,7 +383,7 @@ internal class CatalogTest {
 
     val premise = source.gamePremise(GameConfig("Base, ExampleCard"))
 
-    ClassTable.forPremise(premise).isActive(cn("ExampleCard")) shouldBe true
+    (cn("ExampleCard") in ClassTable.forPremise(premise).allClassNames) shouldBe true
   }
 
   @Test
@@ -422,10 +429,10 @@ internal class CatalogTest {
         StandardFormBundle(
             name = "ContentPack",
             resourceDirectory = "ContentPack",
-            resourceFilenames = setOf("classes.pets", "cards.pets"),
+            resourceFilenames = setOf("content.pets", "cards.pets"),
             resourceReader = { path ->
               when (path) {
-                "ContentPack/classes.pets" -> "CLASS ContentPack : Module"
+                "ContentPack/content.pets" -> "CLASS ContentPack : Module"
                 "ContentPack/cards.pets" -> cardDeclarations
                 else -> error("Unexpected resource $path")
               }
@@ -444,21 +451,25 @@ internal class CatalogTest {
         )
 
     val filtered = ClassTable.forPremise(source.gamePremise(GameConfig("Base, ContentPack")))
-    filtered.isActive(observingCard) shouldBe false
-    filtered.isActive(constructingCard) shouldBe false
-    filtered.isActive(observingMaximumCard) shouldBe false
-    filtered.isActive(observingRemovalCard) shouldBe false
-    filtered.isActive(cn("SupportingClassCard")) shouldBe true
-    filtered.isActive(independentCard) shouldBe true
+    filtered.isInhabited(observingCard) shouldBe false
+    filtered.isInhabited(constructingCard) shouldBe false
+    filtered.isInhabited(observingMaximumCard) shouldBe false
+    filtered.isInhabited(observingRemovalCard) shouldBe false
+    (observingCard in filtered.allClassNames) shouldBe false
+    (constructingCard in filtered.allClassNames) shouldBe false
+    (observingMaximumCard in filtered.allClassNames) shouldBe false
+    (observingRemovalCard in filtered.allClassNames) shouldBe false
+    filtered.isInhabited(cn("SupportingClassCard")) shouldBe true
+    filtered.isInhabited(independentCard) shouldBe true
 
     val automatic =
         ClassTable.forPremise(source.gamePremise(GameConfig("Base, ContentPack, Feature")))
-    automatic.isActive(observingCard) shouldBe true
-    automatic.isActive(constructingCard) shouldBe true
-    automatic.isActive(observingMaximumCard) shouldBe true
-    automatic.isActive(observingRemovalCard) shouldBe true
-    automatic.isActive(cn("SupportingClassCard")) shouldBe true
-    automatic.isActive(independentCard) shouldBe true
+    automatic.isInhabited(observingCard) shouldBe true
+    automatic.isInhabited(constructingCard) shouldBe true
+    automatic.isInhabited(observingMaximumCard) shouldBe true
+    automatic.isInhabited(observingRemovalCard) shouldBe true
+    automatic.isInhabited(cn("SupportingClassCard")) shouldBe true
+    automatic.isInhabited(independentCard) shouldBe true
 
     listOf(
             observingCard,
@@ -476,7 +487,7 @@ internal class CatalogTest {
 
     val explicitIndependent =
         ClassTable.forPremise(source.gamePremise(GameConfig("Base, $independentCard")))
-    explicitIndependent.isActive(independentCard) shouldBe true
+    explicitIndependent.isInhabited(independentCard) shouldBe true
   }
 
   private fun catalog(vararg declarations: ClassDeclaration): TfmCatalog =

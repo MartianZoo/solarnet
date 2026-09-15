@@ -9,7 +9,7 @@ import dev.martianzoo.pets.PetTokenizer
  * digits ([rule
  * L2-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-names)).
  */
-public data class PropertyName(public val value: String) : PetNode(), Comparable<PropertyName> {
+public data class PropertyName(public val value: String) : PetNode() {
   internal companion object {
     private val propertyNameRegex = Regex("[a-z][A-Za-z0-9]*")
 
@@ -21,8 +21,6 @@ public data class PropertyName(public val value: String) : PetNode(), Comparable
   }
 
   override fun toString(): String = value
-
-  override fun compareTo(other: PropertyName): Int = value.compareTo(other.value)
 
   override val kind: kotlin.reflect.KClass<out PetNode> = PropertyName::class
 

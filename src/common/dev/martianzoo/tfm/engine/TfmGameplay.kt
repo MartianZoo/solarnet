@@ -10,7 +10,6 @@ import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.Transforming.bindXTo
-import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
@@ -73,7 +72,7 @@ public constructor(
     }
   }
 
-  /** Buys the selected number of offered project cards and settles their M€ invoice. */
+  /** Buys the selected number of offered project cards and settles their M€ debt. */
   public fun buyCards(count: Int): TaskResult = agent.continueOperation { buySelectedCards(count) }
 
   private fun OperationScope.buySelectedCards(count: Int) {
@@ -115,13 +114,6 @@ public constructor(
   private fun InstructionTree.gains(className: ClassName): Boolean =
       descendantsOfType<Change>().any { it.gaining?.className == className }
 
-  /** Whether this instruction offers `UseAction` against a provider of class [provider]. */
-  private fun InstructionTree.offersAction(provider: ClassName): Boolean =
-      descendantsOfType<Change>().any { change ->
-        change.gaining?.className == cn("UseAction") &&
-            change.gaining!!.arguments.any { it.className == provider }
-      }
-
   private fun Expression?.isSelectedProjectCard(): Boolean =
       this != null &&
           className == cn("ProjectCard") &&
@@ -150,7 +142,7 @@ public constructor(
     return passWithoutUnusedActionCardCheck()
   }
 
-  private fun passWithoutUnusedActionCardCheck(): TaskResult = inTfmTurn { doTask("Pass") }
+  private fun passWithoutUnusedActionCardCheck(): TaskResult = inTurn { doTask("Pass") }
 
   /**
    * Performs the actions in one test-level turn, declining an unused second action when needed. If
@@ -164,7 +156,7 @@ public constructor(
   }
 
   public fun declineSecondAction(): TaskResult {
-    return inTfmTurn {
+    return inTurn {
       val secondAction =
           secondActionOffer()
               ?: throw TaskException("$actor is not waiting on exactly one second-action offer")
@@ -193,7 +185,7 @@ public constructor(
       body: OperationBlock = {},
   ): TaskResult {
     // TODO: Reject providers that are not StandardAction; generic HasActions need a distinct API.
-    return inTfmTurn {
+    return inTurn {
       doTask("UseAction<$stdAction, ${whichAction(which)}>")
       payment()
       body()
@@ -246,7 +238,7 @@ public constructor(
   }
 
   public fun playPrelude(cardName: ClassName, body: OperationBlock = {}): TaskResult {
-    return inTfmTurn { playPreludeWithinOperation(cardName, body) }
+    return inTurn { playPreludeWithinOperation(cardName, body) }
   }
 
   public fun OperationScope.playPrelude(cardName: ClassName, body: OperationBlock = {}) {
@@ -287,7 +279,9 @@ public constructor(
       payment: OperationBlock = { pay(mc, steel, titanium, plants, energy, heat) },
       body: OperationBlock = {},
   ): TaskResult {
-    return inTfmTurn { playProjectWithinOperation(cardName, payment, body) }
+    return stdAction("PlayCardFromHandAction", payment = {}) {
+      playProjectWithinOperation(cardName, payment, body)
+    }
   }
 
   public fun OperationScope.playProject(
@@ -309,9 +303,6 @@ public constructor(
       payment: OperationBlock,
       body: OperationBlock,
   ) {
-    if (tasks.matching { it.instruction.offersAction(cn("StandardAction")) }.any()) {
-      doTask("UseAction<PlayCardFromHandAction, Action1>")
-    }
     doTask("PlayCard<Class<ProjectCard>, Class<$cardName>, Hand>")
 
     payment()
@@ -320,30 +311,9 @@ public constructor(
     autoExecNow()
   }
 
-  private fun inTfmTurn(body: OperationBlock): TaskResult {
-    return inTurn {
-      val preexistingTasks = game.tasks.extract { it }.associateBy { it.id }
-      body()
-      autoExecNow()
-      val newPendingTasks =
-          game.tasks
-              .extract { it }
-              .filter { task ->
-                val previous = preexistingTasks[task.id]
-                previous == null || previous.copy(selection = task.selection) != task
-              }
-      if (newPendingTasks.isNotEmpty()) {
-        if (newPendingTasks.any { it.instruction.isAbstract(game.reader) }) {
-          throw AbstractException("pending abstract tasks:\n${newPendingTasks.joinToString("\n")}")
-        }
-        throw TaskException("pending tasks:\n${newPendingTasks.joinToString("\n")}")
-      }
-    }
-  }
-
   /**
-   * Pays the open invoice and rejects any allocation containing a unit that could be returned
-   * without leaving the invoice underpaid.
+   * Pays the open billing component and rejects any allocation containing a unit that could be
+   * returned without leaving the debt underpaid.
    */
   public fun pay(
       mc: Int = 0,
@@ -537,8 +507,8 @@ public constructor(
   }
 
   /**
-   * How much of the open invoice one unit of [currency] settles: one when the invoice uses that
-   * denomination, plus one per [ResourceValue] the payer owns for it.
+   * How much of the open billing component one unit of [currency] settles: one when its
+   * denomination is [currency], plus one per [ResourceValue] the payer owns for it.
    */
   private fun paymentValue(currency: String): Int =
       count("ResourceValue<Class<$currency>>") + if (count("Owed<Class<$currency>>") > 0) 1 else 0

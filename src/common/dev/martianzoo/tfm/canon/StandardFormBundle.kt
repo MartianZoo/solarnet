@@ -10,12 +10,11 @@ import dev.martianzoo.pets.util.toSetStrict
 /**
  * A Catalog-provider bundle built from conventionally named Pets and JSON sources.
  *
- * `classes.pets` and `cards.pets` supply declarations, while bundle language files and compact map
- * diagrams supply category-specific metadata. Each is read by name or by language pattern, so a
- * directory may hold anything else without affecting the bundle. A bundle identity is raw source
- * provenance, not a Pets class, so no declaration is required or synthesized for it. Callers whose
- * resources are not in Canon's generated registry can provide [resourceFilenames] and
- * [resourceReader] directly.
+ * Every `.pets` resource supplies declarations. `cards.pets` additionally identifies the bundle's
+ * card declarations, while bundle language files and compact map diagrams supply category-specific
+ * metadata. A bundle identity is raw source provenance, not a Pets class, so no declaration is
+ * required or synthesized for it. Callers whose resources are not in Canon's generated registry can
+ * provide [resourceFilenames] and [resourceReader] directly.
  */
 public class StandardFormBundle
 public constructor(
@@ -33,9 +32,20 @@ public constructor(
     }
   }
 
-  private val cardDeclarationsByResource: Map<ResourceSet, Set<ClassDeclaration>> =
+  private val petDeclarationsByResource:
+      Map<
+          ResourceSet,
+          Map<String, List<ClassDeclaration>>,
+      > =
       resources.associateWith { resourceSet ->
-        readIfPresent(resourceSet, CARD_PETS_FILENAME, ::parseClasses).toSetStrict()
+        petSourceFilenames(resourceSet).associateWith { filename ->
+          parseClasses(read(resourceSet, filename))
+        }
+      }
+
+  private val cardDeclarationsByResource: Map<ResourceSet, Set<ClassDeclaration>> =
+      petDeclarationsByResource.mapValues { (_, declarationsByFilename) ->
+        declarationsByFilename[CARD_PETS_FILENAME].orEmpty().toSetStrict()
       }
 
   override val cardResourceClassNames: Set<ClassName> =
@@ -50,11 +60,8 @@ public constructor(
           }
 
   override val explicitClassDeclarations: Set<ClassDeclaration> =
-      resources
-          .flatMap { resourceSet ->
-            readIfPresent(resourceSet, CLASSES_FILENAME, ::parseClasses)
-          }
-          .plus(cardDeclarationsByResource.values.flatten())
+      petDeclarationsByResource.values
+          .flatMap { declarationsByFilename -> declarationsByFilename.values.flatten() }
           .toSetStrict()
 
   override val displayNamesByLanguage: Map<String, Map<ClassName, String>> =
@@ -77,23 +84,29 @@ public constructor(
 
   override val marsMapDefinitions: Set<MarsMapDefinition> =
       resources.flatMapTo(linkedSetOf()) { resourceSet ->
-        readIfPresent(resourceSet, CLASSES_FILENAME, MarsMapReader::readMaps)
+        readPetSources(resourceSet, MarsMapReader::readMaps)
       }
 
   private fun read(resourceSet: ResourceSet, filename: String): String =
       resourceReader("${resourceSet.directory}/$filename")
 
-  private fun <T> readIfPresent(
+  private fun petSourceFilenames(resourceSet: ResourceSet): List<String> =
+      resourceSet.filenames.filter(::isPetSourceFilename).sorted()
+
+  private fun <T> readPetSources(
       resourceSet: ResourceSet,
-      filename: String,
       parse: (String) -> List<T>,
   ): List<T> =
-      if (filename in resourceSet.filenames) parse(read(resourceSet, filename)) else emptyList()
+      petSourceFilenames(resourceSet).flatMap { filename ->
+        parse(read(resourceSet, filename))
+      }
+
+  private fun isPetSourceFilename(filename: String): Boolean = filename.endsWith(PETS_SUFFIX)
 
   private companion object {
     private const val DEFAULT_DIRECTORY = "bundles"
-    private const val CLASSES_FILENAME = "classes.pets"
     private const val CARD_PETS_FILENAME = "cards.pets"
+    private const val PETS_SUFFIX = ".pets"
     private val LANGUAGE_FILENAME = Regex("language/([^/]+)\\.json5")
   }
 

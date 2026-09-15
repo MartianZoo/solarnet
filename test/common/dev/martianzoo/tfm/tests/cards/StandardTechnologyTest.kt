@@ -22,7 +22,7 @@ internal class StandardTechnologyTest : CardTest() {
 
     shouldThrow<LimitsException> { p1.stdProject("PowerPlantProject") }
 
-    p1.assertCounts(8 to "MC", 0 to "Owed", 0 to "Invoice")
+    p1.assertCounts(8 to "MC", 0 to "Owed", 0 to "ActionBilling")
     p1.assertProds(0 to "Energy")
   }
 

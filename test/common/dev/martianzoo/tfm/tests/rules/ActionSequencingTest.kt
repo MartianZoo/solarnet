@@ -18,7 +18,7 @@ import kotlin.test.Test
 
 internal class ActionSequencingTest {
   @Test
-  internal fun `invoice settlement belongs to the action provider's owner`() {
+  internal fun `billing settlement belongs to the action provider's owner`() {
     val game = setUpGame()
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)

@@ -3,6 +3,7 @@ package dev.martianzoo.buildlogic
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
@@ -24,17 +25,29 @@ public abstract class GenerateCatalogSources : DefaultTask() {
 
   @get:Input public abstract val sourceName: Property<String>
 
+  /** Optional basename filter for catalogs stored alongside other authored bundle files. */
+  @get:Input public abstract val includedFileNames: SetProperty<String>
+
   @get:OutputDirectory public abstract val outputDirectory: DirectoryProperty
+
+  init {
+    includedFileNames.convention(emptySet())
+  }
 
   @TaskAction
   public fun generate() {
     val input = inputDirectory.get().asFile
     val prefix = logicalPrefix.get().trim('/')
+    val includedNames = includedFileNames.get()
     require(prefix.isNotEmpty()) { "Catalog logical prefix must not be empty" }
     val resourcesByBundle =
         input
             .walkTopDown()
-            .filter { it.isFile && it.extension != "kt" }
+            .filter {
+              it.isFile &&
+                  it.extension != "kt" &&
+                  (includedNames.isEmpty() || it.name in includedNames)
+            }
             .map { file ->
               val relativePath = file.relativeTo(input).invariantSeparatorsPath
               val segments = relativePath.split('/')

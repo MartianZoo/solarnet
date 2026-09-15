@@ -1,0 +1,11 @@
+"The published Prelude 1 rules"
+CLASS PreludeExpansion : Module {
+  HAS Class<PreludePhase>
+  X SoloGenerationsLeft:: -2 SoloGenerationsLeft!
+
+  SetupPhase:: EACH Player { 4 PreludeCard THEN -2 PreludeCard }
+}
+
+CLASS PreludePhase : Phase {
+  NewTurn: PlayCard<Class<PreludeCard>, Hand> OR (-PreludeCard THEN 15 MC)
+}

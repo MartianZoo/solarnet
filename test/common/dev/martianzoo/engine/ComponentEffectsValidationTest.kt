@@ -17,7 +17,7 @@ internal class ComponentEffectsValidationTest {
           ABSTRACT CLASS Target
           CLASS Good : Target
           CLASS Bad : Target
-          ABSTRACT CLASS Wrapper<Good>
+          CLASS Wrapper<Good>
           CLASS Holder<Target> { This: Good OR Wrapper<Target> }
           CLASS BrokenHolder<Target> { Wrapper<Target>: Good }
           """

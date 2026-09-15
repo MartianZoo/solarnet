@@ -19,12 +19,12 @@ internal class CryoSleepTest : ColoniesCardTest() {
   }
 
   @Test
-  internal fun `Discount lowers the energy invoice before payment`() {
+  internal fun `Discount lowers the energy billing before payment`() {
     p1.runOperation("$CryoSleep, 2 Energy")
     p1.also { it.autoExecPolicy = NONE }
         .beginOperation("UseAction<TradeAction, Action2>") {
           doTask("3 Owed<Class<Energy>>")
-          doTask("Invoice<TradeAction, Action2, Class<Energy>>")
+          doTask("ActionBilling<TradeAction, Action2, Class<Energy>>")
           p1.count("Energy") shouldBe 2
           p1.count("Owed<Class<Energy>>") shouldBe 2
           abort()
