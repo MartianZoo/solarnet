@@ -278,7 +278,9 @@ without promoting that view into the Game World storage model.
 
 `InstructionTree` is the broad AST kind. `Instruction` is one task-shaped root.
 `InstructionGroup` is a normalized comma-separated batch. Queue admission splits a group into one
-task per member. Narrowing a grouped `OR` branch can likewise replace one task with several.
+task per member. Every admitted or edited Task passes through the same engine normalization while
+retaining its identity and lifecycle fields. Narrowing a grouped `OR` branch can likewise replace
+one task with several.
 
 `A THEN B` stores A as current work and B as a continuation. Completing A enqueues B in its place;
 B is not immediate and receives no priority over unrelated pending work. Open implicit variables can
