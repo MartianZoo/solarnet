@@ -1,6 +1,22 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.generated.ColoniesExpansion
+import dev.martianzoo.generated.Constructor
+import dev.martianzoo.generated.Ecologist
+import dev.martianzoo.generated.Excentric
+import dev.martianzoo.generated.Highlander
+import dev.martianzoo.generated.Hoverlord
+import dev.martianzoo.generated.Merchant
+import dev.martianzoo.generated.Metallurgist
+import dev.martianzoo.generated.Mogul
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.PromoCardPack
+import dev.martianzoo.generated.Tactician
+import dev.martianzoo.generated.Traveller
+import dev.martianzoo.generated.UtopiaMap
+import dev.martianzoo.generated.Venuphile
+import dev.martianzoo.generated.VenusNextExpansion
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -17,19 +33,34 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
   // partial game, so the executable pool omits it. The transcript says Enceladus twice; the
   // photographed five-tile colony setup has one Enceladus.
   override val config =
-      GameConfig(
-          """
-          UtopiaMap
-          VenusNextExpansion, PreludeExpansion, ColoniesExpansion
-          PromoCardPack
-          FakeStuffBundle
-
-          Ecologist, Merchant, Metallurgist, Tactician, Hoverlord
-          Constructor, Excentric, Highlander, Mogul, Traveller, Venuphile
-          ${colonyTiles.joinToString()}
-          """,
-          "Green",
-          "Yellow",
+      gameConfig(
+          modules =
+              listOf(
+                  UtopiaMap.c,
+                  VenusNextExpansion.c,
+                  PreludeExpansion.c,
+                  ColoniesExpansion.c,
+                  PromoCardPack.c,
+              ),
+          milestones =
+              listOf(
+                  Ecologist.c,
+                  Merchant.c,
+                  Metallurgist.c,
+                  Tactician.c,
+                  Hoverlord.c,
+              ),
+          awards =
+              listOf(
+                  Constructor.c,
+                  Excentric.c,
+                  Highlander.c,
+                  Mogul.c,
+                  Traveller.c,
+                  Venuphile.c,
+              ),
+          extra = "FakeStuffBundle, ${colonyTiles.joinToString()}",
+          playerNames = listOf("Green", "Yellow"),
       )
 
   @Test

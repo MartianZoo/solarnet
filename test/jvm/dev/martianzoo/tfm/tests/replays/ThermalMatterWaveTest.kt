@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.generated.*
 import dev.martianzoo.generated.Class as PetsClass
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -11,12 +11,16 @@ import kotlin.test.Test
 // https://terraforming-mars.herokuapp.com/the-end?id=pccc28386ce4b
 internal class ThermalMatterWaveTest : AbstractSoloTest() {
   override val config =
-      GameConfig(
-          """
-          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, PromoCardPack, Tr63SoloObjective
-          Ceres, Io, Miranda, Triton
-          """,
-          "Player1",
+      gameConfig(
+          modules =
+              listOf(
+                  VenusNextExpansion.c,
+                  PreludeExpansion.c,
+                  ColoniesExpansion.c,
+                  PromoCardPack.c,
+              ),
+          extra = "Tr63SoloObjective, Ceres, Io, Miranda, Triton",
+          playerNames = listOf("Player1"),
       )
 
   override fun cityAreas(): Pair<String, String> = "Tharsis_4_6" to "Tharsis_6_6"
@@ -26,7 +30,9 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
   @Test
   internal fun game20260730() {
     retainStartingProjects(7)
-    with(game.tfm(Player1())) {
+    // Generated seat types are premise-local; card helpers need only the abstract Player owner.
+    @Suppress("UNCHECKED_CAST") val generatedMe = me as TfmGameplay<Player>
+    with(generatedMe) {
       doTask("-ColonyTileSelection<Class<Miranda>>")
 
       playCorp(CrediCor()) {
@@ -77,7 +83,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       convertHeat()
       playProject(CryoSleep(), 10)
       stdAction(TradeAction(), 2) {
-            doTask(Trade<_, Ceres>())
+            doTask("Trade<Ceres>")
           }
           .expect("-2 Energy, 6 Steel")
       playProject(StripMine(), 1, steel = 8).expect("3 MC")
@@ -98,7 +104,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       cardAction2(TitanShuttles()) {
         doTask("-8 Floater<${TitanShuttles.className}> THEN 8 Titanium")
       }
-      stdAction(TradeAction(), 3) { doTask(Trade<_, Triton>()) }
+      stdAction(TradeAction(), 3) { doTask("Trade<Triton>") }
       playProject(SterlingVents(), 2, steel = 1).expect("PROD[2 Energy, -2 Heat]")
       playProject(ElectroCatapult(), 8, steel = 3)
       cardAction1(ElectroCatapult())
@@ -143,7 +149,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       cardAction2(RotatorImpacts()) {
         draw(SpinOffDepartment.c)
       }
-      stdAction(TradeAction(), 3) { doTask(Trade<_, Io>()) }.expect("-2 Titanium, 13 Heat")
+      stdAction(TradeAction(), 3) { doTask("Trade<Io>") }.expect("-2 Titanium, 13 Heat")
       convertHeat()
       convertHeat()
       playProject(SpinOffDepartment(), 4, steel = 2)
@@ -222,7 +228,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
         draw(Comet.c)
         doTask("-ProjectCard")
       }
-      stdAction(TradeAction(), 1) { doTask(Trade<_, Triton>()) }
+      stdAction(TradeAction(), 1) { doTask("Trade<Triton>") }
       playProject(Comet(), 1, titanium = 5) {
         draw(
             SolarPower.c,
@@ -338,7 +344,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       }
       playProject(Shuttles(), 2, titanium = 2).expect("PROD[2 MC, -Energy]")
       playProject(PioneerSettlement(), 3, titanium = 2) { doTask("Colony<Triton>") }
-      stdAction(TradeAction(), 2) { doTask(Trade<_, Io>()) }
+      stdAction(TradeAction(), 2) { doTask("Trade<Io>") }
       convertHeat()
       convertHeat()
       playProject(TitanFloatingLaunchPad(), 18) {

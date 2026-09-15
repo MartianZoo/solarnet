@@ -3,13 +3,13 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -114,7 +114,10 @@ internal class CatalogCompositionTest {
                   .toSet()
         }
     val catalog = TfmCatalog.compose(Canon, extension)
-    val premise = catalog.gamePremise(GameConfig("BootstrapSource", "Player1", "Player2"))
+    val premise =
+        catalog.gamePremise(
+            gameConfig(extra = "BootstrapSource", playerNames = listOf("Player1", "Player2"))
+        )
 
     val game = Engine.newGame(premise)
 

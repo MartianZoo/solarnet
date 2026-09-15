@@ -1,12 +1,17 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.generated.Banker
+import dev.martianzoo.generated.Landlord
+import dev.martianzoo.generated.PromoCardPack
+import dev.martianzoo.generated.Visionary
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
+import dev.martianzoo.tfm.tests.TestOption
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -83,7 +88,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
 
   @Test
   internal fun `Staged cards remain outside hand for Planner`() {
-    newGame(PromoCardPack, FakeStuffBundle)
+    newGame(TestOption.PromoCardPack, FakeStuffBundle)
     admin.phase("Action")
     p1.runOperation("8 MC, $FakeSelfReplicatingRobots, 16 ProjectCard")
     stage(Mine)
@@ -95,10 +100,11 @@ internal class SelfReplicatingRobotsTest : CardTest() {
   @Test
   internal fun `Staged cards remain outside hand for Visionary`() {
     newGame(
-        GameConfig(
-            "PromoCardPack, FakeStuffBundle, Visionary, Landlord, Banker",
-            "Player1",
-            "Player2",
+        gameConfig(
+            modules = listOf(PromoCardPack.c),
+            awards = listOf(Visionary.c, Landlord.c, Banker.c),
+            extra = "FakeStuffBundle",
+            playerNames = listOf("Player1", "Player2"),
         )
     )
     val p2 = requireP2()
@@ -150,7 +156,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
 
   @Test
   internal fun `Excentric ignores resources on a card that is not in play`() {
-    newGame(Hellas, PromoCardPack, FakeStuffBundle)
+    newGame(Hellas, TestOption.PromoCardPack, FakeStuffBundle)
     val p2 = requireP2()
     admin.phase("Action")
     p1.runOperation("8 MC, $FakeSelfReplicatingRobots, ProjectCard")
@@ -176,7 +182,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
 
   @Test
   internal fun `Staging a card does not fire its play effects or triggers`() {
-    newGame(PromoCardPack, FakeStuffBundle)
+    newGame(TestOption.PromoCardPack, FakeStuffBundle)
     admin.phase("Action")
     p1.runOperation("$FakeSelfReplicatingRobots, ProjectCard, PROD[2 MC, Energy]")
     stage(ImmigrantCity)
@@ -311,8 +317,8 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     )
   }
 
-  private fun initialize(cards: Int, vararg options: dev.martianzoo.tfm.tests.TestOption) {
-    newGame(PromoCardPack, FakeStuffBundle, *options)
+  private fun initialize(cards: Int, vararg options: TestOption) {
+    newGame(TestOption.PromoCardPack, FakeStuffBundle, *options)
     admin.phase("Action")
     p1.runOperation("$FakeSelfReplicatingRobots, $cards ProjectCard")
   }

@@ -2,7 +2,12 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.generated.ColoniesExpansion
+import dev.martianzoo.generated.ElysiumMap
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.PromoCardPack
+import dev.martianzoo.generated.VenusNextExpansion
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -10,14 +15,17 @@ import kotlin.test.Test
 
 internal class SoloGame20230721Test : AbstractSoloTest() {
   override val config =
-      GameConfig(
-          """
-          ElysiumMap
-          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, PromoCardPack
-          Tr63SoloObjective
-          Ceres, Enceladus, Luna, Triton
-          """,
-          "Me",
+      gameConfig(
+          modules =
+              listOf(
+                  ElysiumMap.c,
+                  VenusNextExpansion.c,
+                  PreludeExpansion.c,
+                  ColoniesExpansion.c,
+                  PromoCardPack.c,
+              ),
+          extra = "Tr63SoloObjective, Ceres, Enceladus, Luna, Triton",
+          playerNames = listOf("Me"),
       )
 
   // Could at some point calculate these automatically from cards drawn

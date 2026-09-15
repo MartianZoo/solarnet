@@ -1,7 +1,25 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.generated.CimmeriaMap
+import dev.martianzoo.generated.Energizer
+import dev.martianzoo.generated.Farmer
+import dev.martianzoo.generated.Hoverlord
+import dev.martianzoo.generated.Magnate
+import dev.martianzoo.generated.Manufacturer
+import dev.martianzoo.generated.Metropolist
+import dev.martianzoo.generated.Philantropist
+import dev.martianzoo.generated.Prelude2CardPack
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.Producer
+import dev.martianzoo.generated.PromoCardPack
+import dev.martianzoo.generated.RimSettler
+import dev.martianzoo.generated.SpaceBaron
+import dev.martianzoo.generated.Suburbian
+import dev.martianzoo.generated.TerralabsResearch
+import dev.martianzoo.generated.Venuphile
+import dev.martianzoo.generated.VenusNextExpansion
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
@@ -13,17 +31,36 @@ import kotlin.test.assertEquals
 /** Physical game played Tuesday and Wednesday, 2026-08-25–26. */
 internal class OtbGame20260825Test : AbstractFullGameTest() {
   override val config =
-      GameConfig(
-          """
-          CimmeriaMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, PromoCardPack, TerralabsResearch
-          FakeStuffBundle
-
-          Energizer, Farmer, Philantropist, Producer, RimSettler, Hoverlord
-          Magnate, Manufacturer, Metropolist, SpaceBaron, Suburbian, Venuphile
-          """,
-          "Green",
-          "Yellow",
+      gameConfig(
+          modules =
+              listOf(
+                  CimmeriaMap.c,
+                  VenusNextExpansion.c,
+                  PreludeExpansion.c,
+                  Prelude2CardPack.c,
+                  PromoCardPack.c,
+              ),
+          milestones =
+              listOf(
+                  Energizer.c,
+                  Farmer.c,
+                  Philantropist.c,
+                  Producer.c,
+                  RimSettler.c,
+                  Hoverlord.c,
+              ),
+          awards =
+              listOf(
+                  Magnate.c,
+                  Manufacturer.c,
+                  Metropolist.c,
+                  SpaceBaron.c,
+                  Suburbian.c,
+                  Venuphile.c,
+              ),
+          cardFronts = listOf(TerralabsResearch.c),
+          extra = "FakeStuffBundle",
+          playerNames = listOf("Green", "Yellow"),
       )
 
   @Test
@@ -38,7 +75,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     // Farmer, Philanthropist, Producer, Rim Settler, Hoverlord; Magnate, Manufacturer,
     // Metropolist, Space Baron, Suburbian, Venuphile."
     // "Terralabs research. I get 14 money and spend all 10 of it. Then I lose a TR."
-    green.playCorp(TerralabsResearch, 10).expect("4 MC, 10 ProjectCard, -TerraformRating")
+    green.playCorp(TerralabsResearch.className, 10).expect("4 MC, 10 ProjectCard, -TerraformRating")
     // 9:31:05 pm: "I can play Viron for 48 and I spend 15 on five cards."
     yellow.playCorp(Viron, 5).expect("33 MC")
 
@@ -426,7 +463,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
 
     green.assertCounts(
         14 to "ProjectCard",
-        1 to "$TerralabsResearch",
+        1 to "${TerralabsResearch.className}",
         1 to "$FakeHeadStart",
         1 to "$FocusedOrganization",
         1 to "$Advertising",

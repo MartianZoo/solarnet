@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.*
@@ -347,7 +347,7 @@ internal class ModuleSelectionTest {
   }
 
   private fun premise(config: String, players: Int) =
-      Canon.gamePremise(GameConfig(config, *(1..players).map { "Player$it" }.toTypedArray()))
+      Canon.gamePremise(gameConfig(extra = config, playerNames = (1..players).map { "Player$it" }))
 
   private fun multiplayerWith(vararg additions: String): Set<ClassName> =
       defaultMultiplayer + additions.map(::cn)

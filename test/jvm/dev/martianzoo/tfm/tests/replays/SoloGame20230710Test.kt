@@ -1,6 +1,10 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.generated.ColoniesExpansion
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.PromoCardPack
+import dev.martianzoo.generated.VenusNextExpansion
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -8,14 +12,16 @@ import kotlin.test.Test
 
 internal class SoloGame20230710Test : AbstractSoloTest() {
   override val config =
-      GameConfig(
-          """
-          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, PromoCardPack
-          FakeStuffBundle
-          Tr63SoloObjective
-          Callisto, Ganymede, Luna, Miranda
-          """,
-          "Me",
+      gameConfig(
+          modules =
+              listOf(
+                  VenusNextExpansion.c,
+                  PreludeExpansion.c,
+                  ColoniesExpansion.c,
+                  PromoCardPack.c,
+              ),
+          extra = "FakeStuffBundle, Tr63SoloObjective, Callisto, Ganymede, Luna, Miranda",
+          playerNames = listOf("Me"),
       )
 
   override fun cityAreas(): Pair<String, String> = "Tharsis_4_1" to "Tharsis_5_8"

@@ -1,8 +1,23 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.generated.Administrator
+import dev.martianzoo.generated.AmazonisMap
+import dev.martianzoo.generated.Builder
+import dev.martianzoo.generated.Diversifier
+import dev.martianzoo.generated.Excentric
+import dev.martianzoo.generated.Generalist
+import dev.martianzoo.generated.Highlander
+import dev.martianzoo.generated.Landshaper
+import dev.martianzoo.generated.Prelude2CardPack
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.PromoCardPack
+import dev.martianzoo.generated.Promoter
+import dev.martianzoo.generated.Tactician
+import dev.martianzoo.generated.Thermalist
+import dev.martianzoo.generated.VenusNextExpansion
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -18,15 +33,32 @@ import kotlin.test.Test
  */
 internal class OtbGame20260904Test : AbstractFullGameTest() {
   override val config =
-      GameConfig(
-          """
-          AmazonisMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, PromoCardPack
-          FakeStuffBundle
-
-          Builder, Diversifier, Generalist, Landshaper, Tactician
-          Administrator, Excentric, Highlander, Promoter, Thermalist
-          """
+      gameConfig(
+          modules =
+              listOf(
+                  AmazonisMap.c,
+                  VenusNextExpansion.c,
+                  PreludeExpansion.c,
+                  Prelude2CardPack.c,
+                  PromoCardPack.c,
+              ),
+          milestones =
+              listOf(
+                  Builder.c,
+                  Diversifier.c,
+                  Generalist.c,
+                  Landshaper.c,
+                  Tactician.c,
+              ),
+          awards =
+              listOf(
+                  Administrator.c,
+                  Excentric.c,
+                  Highlander.c,
+                  Promoter.c,
+                  Thermalist.c,
+              ),
+          extra = "FakeStuffBundle",
       )
   // 2:01:56 PM — Green: "We're playing on Amazonas Planitia, the smooth plain. Our expansions are
   // Prelude 1, Prelude 2, Venus, and all the promo cards that we have. Our milestones are builder,

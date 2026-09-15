@@ -3,9 +3,10 @@
 > **Agent record:** This is not user documentation, just an agent record written neither by humans nor for humans.
 
 The JVM-only `codegen` module contains `pets-type-generator`, a KotlinPoet generator for the resolved
-canonical Pets vocabulary. It generates declarations from `Canon.withPlayers(5).classTable`, so
-generation uses the same validated, normalized authority and conventional-seat composition as the
-runtime rather than recreating either one.
+canonical Pets vocabulary. It generates declarations from `Canon.classTable`, so generation uses
+the same validated, normalized master authority as the runtime rather than recreating it. Premise-
+local declarations, including concrete Player seats and the generated `Premise`, are not part of
+that reusable vocabulary.
 
 Run it from Gradle:
 
@@ -36,7 +37,7 @@ abbreviation remains unsuffixed, while independent parameters with the same abbr
 zero-based suffixes (`T0`, `T1`).
 The root generated `Component` extends `HasExpression` and exposes `val expression: Expression`.
 Every concrete companion supplies `className`, a typed `c` class literal, an `invoke` factory, and a
-`fromExpression` adapter. Calling a generated class such as `AerialMappers<Player1>()` produces a
+`fromExpression` adapter. Calling a generated class such as `AerialMappers<Player>()` produces a
 typed component occurrence; `AerialMappers.c` identifies the unapplied card class without inventing
 an owner. `fromExpression` checks the class root and wraps an already prepared expression; it exists
 for trusted runtime boundaries. The generated `generatedPetsComponent` factory selects that adapter
@@ -46,7 +47,7 @@ class's name rather than `Class`. Typed class-literal dependencies therefore exp
 without inspecting the expression argument.
 Concrete payload constructors are internal. Each concrete class provides an `invoke` factory which
 uses reified Kotlin parameters and `typeOf` to build the corresponding Pets AST directly. Thus
-`CityTile<Tharsis_4_4, Player1>()` has expression `CityTile<Tharsis_4_4, Player1>` without accepting
+`CityTile<Player, Tharsis_4_4>()` has expression `CityTile<Player, Tharsis_4_4>` without accepting
 a caller-supplied expression or parsing a string. Each final concrete class also implements
 `toString()` as `expression.toString()`.
 The generated `Class` component is covariant in the generated `Component` hierarchy. A Pets class
@@ -77,14 +78,21 @@ underscore distinguishes generated declaration metadata from a Pets class proper
 
 The generator deliberately omits invariants, defaults, executable effects, and component values. The
 multiplatform `generated` module treats `:codegen:generatePetsTypes` as its `commonMain` source
-producer, so ordinary JVM and JavaScript compilation generates and compiles all four files. For
-now, only engine tests depend on the compiled generated vocabulary; engine production sources do
-not. Generated-value test adapters are additive: existing `ClassName` overloads remain. They are
+producer, so ordinary JVM and JavaScript compilation generates and compiles all four files. Its
+small authored support source lives beside that generated vocabulary. The `gameConfig` factory
+accepts separately typed lists of `Class<Module>`, `Class<Milestone<*>>`, `Class<Award>`, and
+`Class<CardFront<*, *>>`; its `extra` string is reserved for exclusions, noncanonical test classes,
+and selections outside those four roles. Functional tests use this boundary without changing the
+untyped `GameConfig` data model.
+
+Generated-value test adapters are additive: existing `ClassName` overloads remain. They are
 extensions on `TfmGameplay<P>` so Kotlin carries the same generated owner into card occurrences and
 operation bodies without a parallel gameplay wrapper. Hand-tracking operations instead accept
-`Class<CardFront<*>>`, because drawing or discarding a card does not create an owned occurrence.
+`Class<CardFront<*, *>>`, because drawing or discarding a card does not create an owned occurrence.
 The broader front type is necessary because the current Pets hierarchy does not relate a card
-front to its project, corporation, or prelude back. The Thermal Matter Wave replay is the first
-engine test class fully migrated from the legacy card-name imports.
+front to its project, corporation, or prelude back. Concrete generated player types are deliberately
+absent, so a generated owner parameter cannot name a premise-local runtime Player such as `Player1`.
+Replay code can use the abstract generated `Player` only where an adapter consumes the card's class
+root; owner-bearing selections such as `Trade<Player1, Ceres>` remain context-relative strings.
 `GeneratedPetsTypesUsageTest` is the smaller executable example of construction, properties, and
 compile-time shapes.

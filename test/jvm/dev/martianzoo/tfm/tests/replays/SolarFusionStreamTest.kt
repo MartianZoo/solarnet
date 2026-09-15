@@ -1,6 +1,19 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.generated.Banker
+import dev.martianzoo.generated.Benefactor
+import dev.martianzoo.generated.Botanist
+import dev.martianzoo.generated.Builder
+import dev.martianzoo.generated.ElysiumMap
+import dev.martianzoo.generated.Energizer
+import dev.martianzoo.generated.Founder
+import dev.martianzoo.generated.Incorporator
+import dev.martianzoo.generated.Philantropist
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.PromoCardPack
+import dev.martianzoo.generated.Spacefarer
+import dev.martianzoo.generated.Terraformer
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -15,18 +28,26 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
   // Unsupported component: unclaimed Terraformer substitutes for unclaimed Hydrologist.
   // The thresholds select the archived Builder and Terraformer variants.
   override val config =
-      GameConfig(
-          """
-          ElysiumMap
-          PreludeExpansion, PromoCardPack
-          FakeStuffBundle
-
-          Builder, Philantropist, Spacefarer, Terraformer, Energizer
-          Incorporator, Botanist, Founder, Benefactor, Banker
-          """,
-          "JR",
-          "KB",
-          "ER",
+      gameConfig(
+          modules = listOf(ElysiumMap.c, PreludeExpansion.c, PromoCardPack.c),
+          milestones =
+              listOf(
+                  Builder.c,
+                  Philantropist.c,
+                  Spacefarer.c,
+                  Terraformer.c,
+                  Energizer.c,
+              ),
+          awards =
+              listOf(
+                  Incorporator.c,
+                  Botanist.c,
+                  Founder.c,
+                  Benefactor.c,
+                  Banker.c,
+              ),
+          extra = "FakeStuffBundle",
+          playerNames = listOf("JR", "KB", "ER"),
       )
 
   @Test

@@ -1,8 +1,26 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.generated.ColoniesExpansion
+import dev.martianzoo.generated.Ecologist
+import dev.martianzoo.generated.Electrician
+import dev.martianzoo.generated.HellasMap
+import dev.martianzoo.generated.Highlander
+import dev.martianzoo.generated.Industrialist
+import dev.martianzoo.generated.Investor
+import dev.martianzoo.generated.Manufacturer
+import dev.martianzoo.generated.Mayor
+import dev.martianzoo.generated.Merchant
+import dev.martianzoo.generated.Prelude2CardPack
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.PromoCardPack
+import dev.martianzoo.generated.Researcher
+import dev.martianzoo.generated.Scientist
+import dev.martianzoo.generated.Terraformer
+import dev.martianzoo.generated.Terran
+import dev.martianzoo.generated.VenusNextExpansion
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -14,18 +32,36 @@ import kotlin.test.Test
 // http://newazure.local:8080/the-end?id=paffe109dfc39
 internal class DistantPressureMassTest : CardTrackingFullGameTest() {
   override val config =
-      GameConfig(
-          """
-          HellasMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, ColoniesExpansion, PromoCardPack
-          FakeStuffBundle
-
-          Ecologist, Terraformer, Terran, Mayor, Merchant, Researcher
-          Electrician, Industrialist, Highlander, Investor, Scientist, Manufacturer
-          Ceres, Ganymede, Io, Miranda, Titan
-          """,
-          "Keen",
-          "Been",
+      gameConfig(
+          modules =
+              listOf(
+                  HellasMap.c,
+                  VenusNextExpansion.c,
+                  PreludeExpansion.c,
+                  Prelude2CardPack.c,
+                  ColoniesExpansion.c,
+                  PromoCardPack.c,
+              ),
+          milestones =
+              listOf(
+                  Ecologist.c,
+                  Terraformer.c,
+                  Terran.c,
+                  Mayor.c,
+                  Merchant.c,
+                  Researcher.c,
+              ),
+          awards =
+              listOf(
+                  Electrician.c,
+                  Industrialist.c,
+                  Highlander.c,
+                  Investor.c,
+                  Scientist.c,
+                  Manufacturer.c,
+              ),
+          extra = "FakeStuffBundle, Ceres, Ganymede, Io, Miranda, Titan",
+          playerNames = listOf("Keen", "Been"),
       )
   // Solarnet's Terran is the archive's Terran5 milestone. It was available but never claimed.
 

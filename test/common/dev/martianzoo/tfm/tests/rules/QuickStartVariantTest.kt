@@ -2,9 +2,12 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
+import dev.martianzoo.generated.CorporateEraExpansion
+import dev.martianzoo.generated.ElysiumMap
+import dev.martianzoo.generated.QuickStartVariant
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
@@ -19,13 +22,9 @@ internal class QuickStartVariantTest : CardTest() {
   internal fun `Quick Start gives every player one standard-resource production`() {
     val game =
         newGame(
-            GameConfig(
-                "-CorporateEraExpansion",
-                "Player1",
-                "Player2",
-                "Player3",
-                "Player4",
-                "Player5",
+            gameConfig(
+                extra = "-CorporateEraExpansion",
+                playerNames = listOf("Player1", "Player2", "Player3", "Player4", "Player5"),
             )
         )
 
@@ -46,10 +45,9 @@ internal class QuickStartVariantTest : CardTest() {
   @Test
   internal fun `Quick Start can be explicitly disabled or combined with Corporate Era`() {
     newGame(
-        GameConfig(
-            "CorporateEraExpansion, QuickStartVariant",
-            "Player1",
-            "Player2",
+        gameConfig(
+            modules = listOf(CorporateEraExpansion.c, QuickStartVariant.c),
+            playerNames = listOf("Player1", "Player2"),
         )
     )
     p1.assertProds(
@@ -62,10 +60,9 @@ internal class QuickStartVariantTest : CardTest() {
     )
 
     newGame(
-        GameConfig(
-            "-CorporateEraExpansion, -QuickStartVariant",
-            "Player1",
-            "Player2",
+        gameConfig(
+            extra = "-CorporateEraExpansion, -QuickStartVariant",
+            playerNames = listOf("Player1", "Player2"),
         )
     )
     p1.assertProds(
@@ -82,10 +79,10 @@ internal class QuickStartVariantTest : CardTest() {
   internal fun `Elysium uses Generalist2 only in a Quick Start game`() {
     val quickStart =
         newGame(
-            GameConfig(
-                "ElysiumMap, -CorporateEraExpansion",
-                "Player1",
-                "Player2",
+            gameConfig(
+                modules = listOf(ElysiumMap.c),
+                extra = "-CorporateEraExpansion",
+                playerNames = listOf("Player1", "Player2"),
             )
         )
     quickStart.classTable.isInhabited(cn("Generalist")) shouldBe false
@@ -101,7 +98,10 @@ internal class QuickStartVariantTest : CardTest() {
     p1.stdAction("ClaimMilestoneAction") { doTask("Generalist2") }
     p1.count("Milestone") shouldBe 1
 
-    val corporateEra = newGame(GameConfig("ElysiumMap", "Player1", "Player2"))
+    val corporateEra =
+        newGame(
+            gameConfig(modules = listOf(ElysiumMap.c), playerNames = listOf("Player1", "Player2"))
+        )
     corporateEra.classTable.isInhabited(cn("Generalist")) shouldBe true
     corporateEra.classTable.isInhabited(cn("Generalist2")) shouldBe false
   }

@@ -1,13 +1,16 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
+import dev.martianzoo.generated.AmazonisMap
+import dev.martianzoo.generated.VenusNextExpansion
+import dev.martianzoo.generated.WorldGovernmentRule
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
-import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
+import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion as VenusNextExpansionOption
 import dev.martianzoo.tfm.tests.cards.CardTest
 import dev.martianzoo.tfm.tests.cards.cardnames.Aphrodite
 import dev.martianzoo.tfm.tests.cards.cardnames.HomeostasisBureau
@@ -18,7 +21,7 @@ import kotlin.test.Test
 internal class WorldGovernmentRulesTest : CardTest() {
   @Test
   internal fun `A completed parameter is not a legal World Government choice`() {
-    newGame(VenusNextExpansion)
+    newGame(VenusNextExpansionOption)
     p1.runOperation("15 VenusStep")
     TfmWorkflow.Stepwise(agents).solarPhase()
 
@@ -28,7 +31,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
 
   @Test
   internal fun `Admin terraforming triggers Aphrodite without granting terraform rating`() {
-    newGame(VenusNextExpansion, PromoCardPack)
+    newGame(VenusNextExpansionOption, PromoCardPack)
     p1.runOperation("$Aphrodite")
     val moneyBefore = p1.count("MC")
     val ratingBefore = p1.count("TerraformRating")
@@ -42,7 +45,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
 
   @Test
   internal fun `Admin terraforming does not trigger an owner-only effect`() {
-    newGame(VenusNextExpansion, PromoCardPack)
+    newGame(VenusNextExpansionOption, PromoCardPack)
     p1.runOperation("$HomeostasisBureau")
     TfmWorkflow.Stepwise(agents).solarPhase()
 
@@ -58,10 +61,10 @@ internal class WorldGovernmentRulesTest : CardTest() {
     game.isIdle() shouldBe true
 
     newGame(
-        GameConfig(
-            "VenusNextExpansion, -WorldGovernmentRule",
-            "Player1",
-            "Player2",
+        gameConfig(
+            modules = listOf(VenusNextExpansion.c),
+            extra = "-WorldGovernmentRule",
+            playerNames = listOf("Player1", "Player2"),
         )
     )
     TfmWorkflow.Stepwise(agents).solarPhase()
@@ -71,7 +74,12 @@ internal class WorldGovernmentRulesTest : CardTest() {
 
   @Test
   internal fun `World Government can be selected without Venus`() {
-    newGame(GameConfig("WorldGovernmentRule", "Player1", "Player2"))
+    newGame(
+        gameConfig(
+            modules = listOf(WorldGovernmentRule.c),
+            playerNames = listOf("Player1", "Player2"),
+        )
+    )
 
     TfmWorkflow.Stepwise(agents).solarPhase()
     p1.doTask("TemperatureStep! BY Admin")
@@ -81,7 +89,12 @@ internal class WorldGovernmentRulesTest : CardTest() {
 
   @Test
   internal fun `first player places a standard-track threshold ocean for World Government`() {
-    newGame(GameConfig("WorldGovernmentRule", "Player1", "Player2"))
+    newGame(
+        gameConfig(
+            modules = listOf(WorldGovernmentRule.c),
+            playerNames = listOf("Player1", "Player2"),
+        )
+    )
     admin.runOperation("14 TemperatureStep")
 
     TfmWorkflow.Stepwise(agents).solarPhase()
@@ -95,7 +108,12 @@ internal class WorldGovernmentRulesTest : CardTest() {
 
   @Test
   internal fun `first player places an extended-track threshold ocean for World Government`() {
-    newGame(GameConfig("AmazonisMap, WorldGovernmentRule", "Player1", "Player2"))
+    newGame(
+        gameConfig(
+            modules = listOf(AmazonisMap.c, WorldGovernmentRule.c),
+            playerNames = listOf("Player1", "Player2"),
+        )
+    )
     admin.runOperation("14 TemperatureStep")
 
     TfmWorkflow.Stepwise(agents).solarPhase()

@@ -2,6 +2,7 @@ package dev.martianzoo.generated
 
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.Parsing
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -9,43 +10,68 @@ import kotlin.test.assertFailsWith
 
 internal class GeneratedPetsTypesUsageTest {
   @Test
+  fun gameConfigsAreBuiltFromRichClasses() {
+    val config =
+        gameConfig(
+            modules = listOf(HellasMap.c, PreludeExpansion.c),
+            milestones = listOf(Gardener.c),
+            awards = listOf(Banker.c),
+            cardFronts = listOf(AerialMappers.c),
+            extra = "-WorldGovernmentRule\nCeres",
+            playerNames = listOf("Blue", "Yellow"),
+        )
+
+    assertEquals(
+        setOf(
+            cn("HellasMap"),
+            cn("PreludeExpansion"),
+            cn("Gardener"),
+            cn("Banker"),
+            cn("AerialMappers"),
+            cn("Ceres"),
+        ),
+        config.includedClassNames,
+    )
+    assertEquals(setOf(cn("WorldGovernmentRule")), config.excludedClassNames)
+    assertEquals(listOf(cn("Blue"), cn("Yellow")), config.playerNames)
+  }
+
+  @Test
   fun generatedTypesConstructTheirExpressionsAndEnforceTheirShapes() {
-    assertExpression("Player1", Player1())
-    assertExpression("Player2", Player2())
     assertExpression("SoloOpponent", SoloOpponent())
     assertExpression("Tharsis_4_4", Tharsis_4_4())
     assertExpression("Cimmeria_1_1", Cimmeria_1_1())
     assertExpression("OceanTile<Tharsis_4_4>", OceanTile<Tharsis_4_4>())
 
-    val city = CityTile<Tharsis_4_4, Player1>()
-    assertExpression("CityTile<Tharsis_4_4, Player1>", city)
-    assertExpression("CityTile<Tharsis_4_4, Player1>", acceptOwnedLandTile(city))
+    val city = CityTile<Player, Tharsis_4_4>()
+    assertExpression("CityTile<Player, Tharsis_4_4>", city)
+    assertExpression("CityTile<Player, Tharsis_4_4>", acceptOwnedLandTile(city))
 
-    val greenery = GreeneryTile<Tharsis_4_4, Player1>()
-    assertExpression("GreeneryTile<Tharsis_4_4, Player1>", greenery)
-    assertExpression("GreeneryTile<Tharsis_4_4, Player1>", acceptOwnedLandTile(greenery))
+    val greenery = GreeneryTile<Player, Tharsis_4_4>()
+    assertExpression("GreeneryTile<Player, Tharsis_4_4>", greenery)
+    assertExpression("GreeneryTile<Player, Tharsis_4_4>", acceptOwnedLandTile(greenery))
 
-    assertExpression("Terraformer35<Player1>", Terraformer35<Player1>())
-    val aerialMappers: ActionCard<Player1, *> = AerialMappers()
-    assertExpression("AerialMappers<Player1>", aerialMappers)
+    assertExpression("Terraformer35<Player>", Terraformer35<Player>())
+    val aerialMappers: ActionCard<Player, *> = AerialMappers()
+    assertExpression("AerialMappers<Player>", aerialMappers)
     assertExpression(
-        "AerialMappers<Player1>",
-        AerialMappers.fromExpression(Parsing.parse("AerialMappers<Player1>")),
+        "AerialMappers<Player>",
+        AerialMappers.fromExpression(Parsing.parse("AerialMappers<Player>")),
     )
     assertExpression(
-        "AerialMappers<Player1>",
-        generatedPetsComponent(Parsing.parse("AerialMappers<Player1>")),
+        "AerialMappers<Player>",
+        generatedPetsComponent(Parsing.parse("AerialMappers<Player>")),
     )
     assertFailsWith<IllegalArgumentException> {
-      AerialMappers.fromExpression(Player1().expression)
+      AerialMappers.fromExpression(SoloOpponent().expression)
     }
-    acceptPlayer1ActionCard(aerialMappers)
+    acceptPlayerActionCard(aerialMappers)
     assertExpression("Class<AerialMappers>", AerialMappers.c)
     assertEquals("AerialMappers", AerialMappers.className.toString())
     assertEquals(AerialMappers.className, AerialMappers.c.className)
     assertExpression(
-        "Cathedral<Player1, CityTile<Tharsis_4_4, Player1>>",
-        Cathedral<Player1, CityTile<Tharsis_4_4, Player1>>(),
+        "Cathedral<Player, CityTile<Player, Tharsis_4_4>>",
+        Cathedral<Player, CityTile<Player, Tharsis_4_4>>(),
     )
     assertExpression("Callisto", Callisto())
     acceptCallistoSelection(Callisto())
@@ -53,7 +79,7 @@ internal class GeneratedPetsTypesUsageTest {
     assertEquals("TemperatureStep", TemperatureStep().toString())
 
     // Number properties retain ordinary Kotlin values.
-    val birds = Birds<Player1>()
+    val birds = Birds<Player>()
     assertEquals(11, PowerPlantProject().cost)
     assertEquals(10, birds.cost)
     assertEquals(1, Tharsis_1_1().row)
@@ -61,27 +87,27 @@ internal class GeneratedPetsTypesUsageTest {
 
     // Stored Requirement and Metric syntax is parsed into its native Pets type.
     assertEquals("13 OxygenStep", birds.requirement.toString())
-    assertEquals("3 GreeneryTile", Gardener<Player1>().requirement.toString())
+    assertEquals("3 GreeneryTile", Gardener<Player>().requirement.toString())
     assertEquals("PROD[MC]", Banker().metric.toString())
     assertEquals(null, QuickStartVariant().premiseRequirement)
 
     // OwnedTile has separate covariant area and owner parameters:
-    // acceptOwnedLandTile(CityTile<Cimmeria_1_1, Player1>()) // WaterArea is not LandArea.
-    // acceptOwnedLandTile(CityTile<Tharsis_4_4, SoloOpponent>()) // Not owned by a Player.
+    // acceptOwnedLandTile(CityTile<Player, Cimmeria_1_1>()) // WaterArea is not LandArea.
+    // acceptOwnedLandTile(CityTile<SoloOpponent, Tharsis_4_4>()) // Not owned by a Player.
     // acceptOwnedLandTile(OceanTile<Tharsis_4_4>()) // A Tile, but not an OwnedTile.
     // val wrongArity: OwnedTile<LandArea> // OwnedTile requires both area and owner arguments.
 
     // Linkage makes the Cathedral owner agree with the nested CityTile owner:
-    // Cathedral<Player1, CityTile<Tharsis_4_4, Player2>>()
+    // Cathedral<Player, CityTile<SoloOpponent, Tharsis_4_4>>()
 
     // Bounds reject unrelated shapes before an Expression can be constructed:
     // Terraformer35<SoloOpponent>() // SoloOpponent is not a Player.
     // Aerial Mappers' Floater resource type is fixed by its Pets declaration, not caller-selected.
   }
 
-  private fun acceptOwnedLandTile(tile: OwnedTile<LandArea, Player>): HasExpression = tile
+  private fun acceptOwnedLandTile(tile: OwnedTile<Player, LandArea>): HasExpression = tile
 
-  private fun acceptPlayer1ActionCard(card: ActionCard<Player1, *>): HasExpression = card
+  private fun acceptPlayerActionCard(card: ActionCard<Player, *>): HasExpression = card
 
   private fun acceptCallistoSelection(
       selection: ColonyTileSelection<Class<Callisto>>

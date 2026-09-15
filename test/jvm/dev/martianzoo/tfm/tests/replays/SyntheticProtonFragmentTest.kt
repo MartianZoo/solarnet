@@ -1,10 +1,23 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.generated.Biologist
+import dev.martianzoo.generated.Botanist
+import dev.martianzoo.generated.Collector
+import dev.martianzoo.generated.Diversifier
+import dev.martianzoo.generated.Forecaster
+import dev.martianzoo.generated.HellasMap
+import dev.martianzoo.generated.Mayor
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.PromoCardPack
+import dev.martianzoo.generated.SpaceBaron
+import dev.martianzoo.generated.Sponsor
+import dev.martianzoo.generated.Trader
+import dev.martianzoo.generated.Tycoon
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -18,14 +31,24 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
   // Player-record evidence: Hellas, Corporate Era, Prelude, promo cards, drafting, fast mode,
   // three players, no Venus/Colonies/Turmoil, and these full-random milestone and award pools.
   override val config =
-      GameConfig(
-          """
-          HellasMap
-          PreludeExpansion, PromoCardPack
-
-          Mayor, Diversifier, Trader, Sponsor, Tycoon
-          Biologist, SpaceBaron, Forecaster, Botanist, Collector
-          """
+      gameConfig(
+          modules = listOf(HellasMap.c, PreludeExpansion.c, PromoCardPack.c),
+          milestones =
+              listOf(
+                  Mayor.c,
+                  Diversifier.c,
+                  Trader.c,
+                  Sponsor.c,
+                  Tycoon.c,
+              ),
+          awards =
+              listOf(
+                  Biologist.c,
+                  SpaceBaron.c,
+                  Forecaster.c,
+                  Botanist.c,
+                  Collector.c,
+              ),
       )
   // Player-record evidence: Purple has a five-TR handicap.
   override val playerClassPets =

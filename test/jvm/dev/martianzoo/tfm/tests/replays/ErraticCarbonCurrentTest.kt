@@ -1,7 +1,23 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.generated.Collector
+import dev.martianzoo.generated.Ecologist
+import dev.martianzoo.generated.Excentric
+import dev.martianzoo.generated.Fundraiser
+import dev.martianzoo.generated.HellasMap
+import dev.martianzoo.generated.Investor
+import dev.martianzoo.generated.Magnate
+import dev.martianzoo.generated.Philantropist
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.Producer
+import dev.martianzoo.generated.PromoCardPack
+import dev.martianzoo.generated.RimSettler
+import dev.martianzoo.generated.Suburbian
+import dev.martianzoo.generated.Terraformer
+import dev.martianzoo.generated.Traveller
+import dev.martianzoo.generated.VenusNextExpansion
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -13,17 +29,28 @@ import kotlin.test.Test
 internal class ErraticCarbonCurrentTest :
     CardTrackingFullGameTest(requireEveryProjectCardChangeNamed = true) {
   override val config =
-      GameConfig(
-          """
-          HellasMap
-          VenusNextExpansion, PreludeExpansion, PromoCardPack
-          FakeStuffBundle
-
-          RimSettler, Ecologist, Producer, Fundraiser, Philantropist, Terraformer
-          Traveller, Collector, Excentric, Investor, Suburbian, Magnate
-          """,
-          "Blue",
-          "Pink",
+      gameConfig(
+          modules = listOf(HellasMap.c, VenusNextExpansion.c, PreludeExpansion.c, PromoCardPack.c),
+          milestones =
+              listOf(
+                  RimSettler.c,
+                  Ecologist.c,
+                  Producer.c,
+                  Fundraiser.c,
+                  Philantropist.c,
+                  Terraformer.c,
+              ),
+          awards =
+              listOf(
+                  Traveller.c,
+                  Collector.c,
+                  Excentric.c,
+                  Investor.c,
+                  Suburbian.c,
+                  Magnate.c,
+              ),
+          extra = "FakeStuffBundle",
+          playerNames = listOf("Blue", "Pink"),
       )
 
   private val blue

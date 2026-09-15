@@ -3,10 +3,14 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.generated.Prelude2CardPack
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.QuickStartVariant
+import dev.martianzoo.generated.VenusNextExpansion
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -15,10 +19,10 @@ import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
-import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
-import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
+import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack as Prelude2CardPackOption
+import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion as PreludeExpansionOption
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
-import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
+import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion as VenusNextExpansionOption
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -27,7 +31,7 @@ import kotlin.test.Test
 internal class Prelude2CardsTest : CardTest() {
   @Test
   internal fun `Nirgal pays nothing for milestones and awards`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption)
     p1.runOperation("$NirgalEnterprises, 16 ProjectCard")
     val startingMoney = p1.count("MC")
     admin.phase("Action")
@@ -41,7 +45,7 @@ internal class Prelude2CardsTest : CardTest() {
   // https://boardgamegeek.com/thread/3412262/i-bit-confused-on-combining-this-and-prelude-1-int
   @Test
   internal fun `Prelude and Prelude 2 share one setup and phase`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption)
 
     admin.phase("Prelude")
 
@@ -52,7 +56,7 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Board of Directors remains in play and can play another prelude`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption)
     admin.phase("Prelude")
     p1.runOperation("12 MC, 2 PreludeCard")
     p1.playPrelude(BoardOfDirectors)
@@ -70,8 +74,8 @@ internal class Prelude2CardsTest : CardTest() {
   @Test
   internal fun `Sky Docks discounts a project played through Board of Directors and Ecology Experts`() {
     newGame(
-        PreludeExpansion,
-        Prelude2CardPack,
+        PreludeExpansionOption,
+        Prelude2CardPackOption,
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
     )
@@ -93,7 +97,7 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Terraforming Deal pays two per TR step`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption)
     p1.runOperation("20 MC, $TerraformingDeal")
     admin.phase("Action")
     val startingTr = p1.count("TerraformRating")
@@ -107,7 +111,7 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `World Government Advisor lets its owner choose rather than the start player`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption)
     val p2 = requireP2()
     p2.runOperation("$WorldGovernmentAdvisor")
     admin.phase("Action")
@@ -122,10 +126,15 @@ internal class Prelude2CardsTest : CardTest() {
   @Test
   internal fun `World Government Advisor works with Venus while World Government is disabled`() {
     newGame(
-        GameConfig(
-            "PreludeExpansion, Prelude2CardPack, VenusNextExpansion, -WorldGovernmentRule",
-            "Player1",
-            "Player2",
+        gameConfig(
+            modules =
+                listOf(
+                    PreludeExpansion.c,
+                    Prelude2CardPack.c,
+                    VenusNextExpansion.c,
+                ),
+            extra = "-WorldGovernmentRule",
+            playerNames = listOf("Player1", "Player2"),
         )
     )
     p1.runOperation("$WorldGovernmentAdvisor")
@@ -140,7 +149,7 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Ecotec rewards both of its starting tags`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption)
 
     p1.runOperation("$Ecotec") {
       doTask("Plant")
@@ -152,7 +161,7 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Spire draws four cards and discards three as its first action`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption)
     p1.runOperation("$Spire")
     admin.phase("Action")
 
@@ -164,7 +173,7 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Spire counts the derived event tag toward its two-tag requirement`() {
-    newGame(PreludeExpansion, Prelude2CardPack, CorporateEraExpansion)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption, CorporateEraExpansion)
     p1.runOperation("$Spire")
     val startingScience = p1.count("Science<$Spire>")
 
@@ -177,7 +186,7 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Spire science pays two toward standard projects`() {
-    newGame(PreludeExpansion, Prelude2CardPack, CorporateEraExpansion)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption, CorporateEraExpansion)
     p1.runOperation("$Spire, 20 MC")
     val startingScience = p1.count("Science<$Spire>")
     p1.runOperation("$Research")
@@ -197,7 +206,7 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Spire science cannot pay other debts`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption)
     p1.runOperation("$Spire, Science<$Spire>")
 
     shouldThrow<TaskException> {
@@ -207,7 +216,7 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Selling patents does not offer Spire science for later debts`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption)
     p1.runOperation("$Spire, Science<$Spire>, ProjectCard<Hand>")
     p1.runOperation("-RequiredAction!")
     admin.phase("Action")
@@ -221,7 +230,7 @@ internal class Prelude2CardsTest : CardTest() {
   // https://boardgamegeek.com/thread/3335155/article/44576777#44576777
   @Test
   internal fun `Suitable Infrastructure pays once for each action`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption)
     p1.runOperation("$SuitableInfrastructure")
     admin.phase("Prelude")
     val beforeTwoProductions = p1.count("MC")
@@ -251,7 +260,7 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Suitable Infrastructure covers production inside required actions`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption)
     p1.runOperation("$SuitableInfrastructure, $ValleyTrust")
     admin.phase("Action")
     val startingMoney = p1.count("MC")
@@ -264,7 +273,7 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Focused Organization may gain a different resource than it spends`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption)
     p1.runOperation("$FocusedOrganization") { doTask("Steel") }
     admin.phase("Action")
 
@@ -278,7 +287,12 @@ internal class Prelude2CardsTest : CardTest() {
   @Test
   internal fun `Early Colonization advances every track twice and Solar reuses the same operation`() {
     val colonyTiles = testColonyTiles(2, "Luna")
-    newGame(PreludeExpansion, Prelude2CardPack, ColoniesExpansion, colonyTiles = colonyTiles)
+    newGame(
+        PreludeExpansionOption,
+        Prelude2CardPackOption,
+        ColoniesExpansion,
+        colonyTiles = colonyTiles,
+    )
     admin.runOperation("5 ColonyProduction<Luna>")
 
     p1.runOperation("$EarlyColonization") { doTask("Colony<Luna>") }
@@ -297,7 +311,7 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Industrial Complex raises only production tracks below one`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption)
     p1.runOperation("18 MC, PROD[-5 MC], PROD[2 Titanium], PROD[Plant]")
 
     p1.runOperation("$IndustrialComplex")
@@ -316,7 +330,15 @@ internal class Prelude2CardsTest : CardTest() {
   @Test
   internal fun `Industrial Complex raises production tracks below two in Quick Start`() {
     newGame(
-        GameConfig("PreludeExpansion, Prelude2CardPack, QuickStartVariant", "Player1", "Player2")
+        gameConfig(
+            modules =
+                listOf(
+                    PreludeExpansion.c,
+                    Prelude2CardPack.c,
+                    QuickStartVariant.c,
+                ),
+            playerNames = listOf("Player1", "Player2"),
+        )
     )
     p1.runOperation("18 MC, PROD[-6 MC], PROD[2 Titanium], PROD[-Plant]")
 
@@ -335,7 +357,7 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Recession applies each opponent loss as much as possible`() {
-    newGame(PreludeExpansion, Prelude2CardPack, players = 3)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption, players = 3)
     val p2 = requireP2()
     val p3 = game.testTfm(PLAYER3)
     p2.runOperation("4 MC, PROD[-4 MC]")
@@ -354,7 +376,7 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Recession is unplayable when an opponent is at minimum mc production`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption)
     val p2 = requireP2()
     admin.phase("Prelude")
     p1.playPrelude(Donation)
@@ -386,7 +408,7 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Recession ordering determines which victim receives partial Mons compensation`() {
-    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack, players = 5)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption, PromoCardPack, players = 5)
     val playerActors = Player.players(5)
     val players = playerActors.map { game.testTfm(it) }
     val mons = players[1]
@@ -441,7 +463,12 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Cloud Tourism uses the lower Earth and Venus tag count`() {
-    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion, CorporateEraExpansion)
+    newGame(
+        PreludeExpansionOption,
+        Prelude2CardPackOption,
+        VenusNextExpansionOption,
+        CorporateEraExpansion,
+    )
     p1.runOperation(
         "$Sponsors, $EarthOffice, $VenusGovernor, $VenusWaystation, $ForcedPrecipitation"
     )
@@ -449,7 +476,12 @@ internal class Prelude2CardsTest : CardTest() {
     p1.runOperation("$CloudTourism")
     p1.production(cn("MC")) shouldBe firstStartingProduction + 2
 
-    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion, CorporateEraExpansion)
+    newGame(
+        PreludeExpansionOption,
+        Prelude2CardPackOption,
+        VenusNextExpansionOption,
+        CorporateEraExpansion,
+    )
     p1.runOperation("$Sponsors, $EarthOffice, $EarthCatapult, $AcquiredCompany, $MediaGroup")
     p1.runOperation("$ForcedPrecipitation")
     val secondStartingProduction = p1.production(cn("MC"))
@@ -461,8 +493,8 @@ internal class Prelude2CardsTest : CardTest() {
   @Test
   internal fun `Sagitta treats the event icon as an additional printed tag`() {
     newGame(
-        PreludeExpansion,
-        Prelude2CardPack,
+        PreludeExpansionOption,
+        Prelude2CardPackOption,
         CorporateEraExpansion,
         ColoniesExpansion,
         PromoCardPack,
@@ -490,7 +522,7 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Sagitta ignores cards played by another player`() {
-    newGame(PreludeExpansion, Prelude2CardPack, players = 2)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption, players = 2)
     val p2 = requireP2()
     p1.runOperation("$SagittaFrontierServices")
     val startingMoney = p1.count("MC")
@@ -504,7 +536,7 @@ internal class Prelude2CardsTest : CardTest() {
   // https://www.reddit.com/r/TerraformingMarsGame/comments/1kgksgg
   @Test
   internal fun `A prelude remains playable when its global parameter is already maximized`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption)
     admin.phase("Prelude")
     val oceans = p1.list("WaterArea").take(9).joinToString { "OceanTile<$it>" }
     p1.runOperation("5 MC, 19 TemperatureStep, $oceans")
@@ -519,7 +551,7 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Venus Orbital Survey follows both reveal outcomes`() {
-    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption, VenusNextExpansionOption)
     p1.runOperation("$VenusOrbitalSurvey, 3 MC")
     admin.phase("Action")
 
@@ -534,7 +566,7 @@ internal class Prelude2CardsTest : CardTest() {
 
   @Test
   internal fun `Venus Shuttles action cost is reduced by Venus tags`() {
-    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
+    newGame(PreludeExpansionOption, Prelude2CardPackOption, VenusNextExpansionOption)
     p1.runOperation(
         "$VenusGovernor, $VenusWaystation, $ForcedPrecipitation, $VenusMagnetizer, 20 MC"
     )

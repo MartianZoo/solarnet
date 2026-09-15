@@ -3,8 +3,11 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.generated.ElysiumMap
+import dev.martianzoo.generated.LakefrontResorts
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.canon.Canon
@@ -22,10 +25,10 @@ internal class FirstPartialGameTest : TfmTest() {
     repeat(1) {
       val setup =
           Canon.gamePremise(
-              GameConfig(
-                  "ElysiumMap, PreludeExpansion, LakefrontResorts",
-                  "Player1",
-                  "Player2",
+              gameConfig(
+                  modules = listOf(ElysiumMap.c, PreludeExpansion.c),
+                  cardFronts = listOf(LakefrontResorts.c),
+                  playerNames = listOf("Player1", "Player2"),
               )
           )
       val game = Engine.newGame(setup)
@@ -36,7 +39,7 @@ internal class FirstPartialGameTest : TfmTest() {
       val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
       retainStartingProjects(game, 3, 8)
 
-      p1.playCorp(LakefrontResorts, 3)
+      p1.playCorp(LakefrontResorts.className, 3)
       p2.playCorp(InterplanetaryCinematics, 8)
 
       p1.turn {

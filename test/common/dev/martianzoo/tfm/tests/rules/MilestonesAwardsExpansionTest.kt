@@ -1,10 +1,20 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
+import dev.martianzoo.generated.Briber
+import dev.martianzoo.generated.Builder
+import dev.martianzoo.generated.Engineer
+import dev.martianzoo.generated.Hydrologist
+import dev.martianzoo.generated.Legend
+import dev.martianzoo.generated.Merchant
+import dev.martianzoo.generated.Philantropist
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.Producer
+import dev.martianzoo.generated.Producer22
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.cards.CardTest
@@ -17,7 +27,17 @@ import kotlin.test.Test
 internal class MilestonesAwardsExpansionTest : CardTest() {
   @Test
   internal fun `Briber costs twelve MC in addition to the normal claim cost`() {
-    newGame(GameConfig("Briber, Builder, Engineer", "Player1", "Player2"))
+    newGame(
+        gameConfig(
+            milestones =
+                listOf(
+                    Briber.c,
+                    Builder.c,
+                    Engineer.c,
+                ),
+            playerNames = listOf("Player1", "Player2"),
+        )
+    )
     p1.runOperation("20 MC")
     admin.phase("Action")
 
@@ -26,7 +46,17 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
 
   @Test
   internal fun `Briber claim is atomic when the player cannot pay the extra cost`() {
-    newGame(GameConfig("Briber, Builder, Engineer", "Player1", "Player2"))
+    newGame(
+        gameConfig(
+            milestones =
+                listOf(
+                    Briber.c,
+                    Builder.c,
+                    Engineer.c,
+                ),
+            playerNames = listOf("Player1", "Player2"),
+        )
+    )
     p1.runOperation("19 MC")
     admin.phase("Action")
 
@@ -39,10 +69,15 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   @Test
   internal fun `Philantropist counts victory point gains but not Vitor's reference`() {
     newGame(
-        GameConfig(
-            "PreludeExpansion, Philantropist, Builder, Engineer",
-            "Player1",
-            "Player2",
+        gameConfig(
+            modules = listOf(PreludeExpansion.c),
+            milestones =
+                listOf(
+                    Philantropist.c,
+                    Builder.c,
+                    Engineer.c,
+                ),
+            playerNames = listOf("Player1", "Player2"),
         )
     )
     p1.runOperation("$Vitor, $SearchForLife, $Tardigrades, $ColonizerTrainingCamp, $DustSeals")
@@ -58,10 +93,14 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   internal fun `Merchant checks resources after the normal claim cost`() {
     val game =
         newGame(
-            GameConfig(
-                "Merchant, Builder, Engineer",
-                "Player1",
-                "Player2",
+            gameConfig(
+                milestones =
+                    listOf(
+                        Merchant.c,
+                        Builder.c,
+                        Engineer.c,
+                    ),
+                playerNames = listOf("Player1", "Player2"),
             )
         )
     game.classTable.isInhabited(cn("Merchant")) shouldBe true
@@ -75,7 +114,17 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
 
   @Test
   internal fun `Hydrologist can be claimed after placing four oceans`() {
-    newGame(GameConfig("Hydrologist, Builder, Engineer", "Player1", "Player2"))
+    newGame(
+        gameConfig(
+            milestones =
+                listOf(
+                    Hydrologist.c,
+                    Builder.c,
+                    Engineer.c,
+                ),
+            playerNames = listOf("Player1", "Player2"),
+        )
+    )
     val p2 = requireP2()
     val oceans = p1.list("WaterArea").take(4)
     admin.count("HydrologistWatcher") shouldBe 1
@@ -89,7 +138,17 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
 
   @Test
   internal fun `Removing an ocean removes its placement credit`() {
-    newGame(GameConfig("Hydrologist, Builder, Engineer", "Player1", "Player2"))
+    newGame(
+        gameConfig(
+            milestones =
+                listOf(
+                    Hydrologist.c,
+                    Builder.c,
+                    Engineer.c,
+                ),
+            playerNames = listOf("Player1", "Player2"),
+        )
+    )
     val oceans = p1.list("WaterArea").take(4)
     oceans.forEach { p1.runOperation("OceanTile<$it>") }
     p1.count("OceanCredit") shouldBe 4
@@ -104,7 +163,18 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
 
   @Test
   internal fun `OceanCredit and its watcher stay undefined without Hydrologist`() {
-    val game = newGame(GameConfig("Builder, Legend, Merchant", "Player1", "Player2"))
+    val game =
+        newGame(
+            gameConfig(
+                milestones =
+                    listOf(
+                        Builder.c,
+                        Legend.c,
+                        Merchant.c,
+                    ),
+                playerNames = listOf("Player1", "Player2"),
+            )
+        )
 
     game.classTable.allClassNames.shouldNotContain(cn("OceanCredit"))
     game.classTable.allClassNames.shouldNotContain(cn("HydrologistWatcher"))
@@ -113,7 +183,13 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   // Producer wants 16 printed production, and Producer22 wants 22 because QuickStartVariant hands
   // you 6 at setup. Both start one short of their threshold after these grants.
   private fun claimProducerOneProductionShortOfThreshold(milestone: String, modules: String) {
-    newGame(GameConfig("$milestone, Builder, Engineer$modules", "Player1", "Player2"))
+    newGame(
+        gameConfig(
+            milestones = listOf(Builder.c, Engineer.c),
+            extra = "$milestone$modules",
+            playerNames = listOf("Player1", "Player2"),
+        )
+    )
     p1.runOperation("8 MC")
     p1.runOperation("PROD[5 Steel, 5 Titanium, 5 Plant]")
     admin.phase("Action")
@@ -138,19 +214,28 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   internal fun `Producer versions belong to opposite Quick Start modes`() {
     shouldThrow<LimitsException> {
       newGame(
-          GameConfig(
-              "Producer, Builder, Engineer, -CorporateEraExpansion",
-              "Player1",
-              "Player2",
+          gameConfig(
+              milestones =
+                  listOf(
+                      Producer.c,
+                      Builder.c,
+                      Engineer.c,
+                  ),
+              extra = "-CorporateEraExpansion",
+              playerNames = listOf("Player1", "Player2"),
           )
       )
     }
     shouldThrow<IllegalArgumentException> {
       newGame(
-          GameConfig(
-              "Producer22, Builder, Engineer",
-              "Player1",
-              "Player2",
+          gameConfig(
+              milestones =
+                  listOf(
+                      Producer22.c,
+                      Builder.c,
+                      Engineer.c,
+                  ),
+              playerNames = listOf("Player1", "Player2"),
           )
       )
     }

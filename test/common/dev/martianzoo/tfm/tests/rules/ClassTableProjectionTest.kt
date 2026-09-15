@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
@@ -136,5 +137,5 @@ internal class ClassTableProjectionTest {
       projection("PreludeExpansion, VenusNextExpansion", "Player1", "Player2")
 
   private fun projection(config: String, vararg playerNames: String): Projection =
-      Projection(GameConfig(config, *playerNames))
+      Projection(gameConfig(extra = config, playerNames = playerNames.toList()))
 }

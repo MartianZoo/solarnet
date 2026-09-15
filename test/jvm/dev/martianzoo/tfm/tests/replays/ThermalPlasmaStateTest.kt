@@ -1,6 +1,12 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.generated.ColoniesExpansion
+import dev.martianzoo.generated.ElysiumMap
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.PromoCardPack
+import dev.martianzoo.generated.TerralabsResearch
+import dev.martianzoo.generated.VenusNextExpansion
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -11,14 +17,18 @@ import kotlin.test.Test
 // earlier clone of the same source game at /the-end?id=pe59a6b631bd6.
 internal class ThermalPlasmaStateTest : AbstractSoloTest() {
   override val config =
-      GameConfig(
-          """
-          ElysiumMap
-          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TerralabsResearch, PromoCardPack
-          Tr63SoloObjective
-          Ganymede, Luna, Miranda, Pluto
-          """,
-          "Me",
+      gameConfig(
+          modules =
+              listOf(
+                  ElysiumMap.c,
+                  VenusNextExpansion.c,
+                  PreludeExpansion.c,
+                  ColoniesExpansion.c,
+                  PromoCardPack.c,
+              ),
+          cardFronts = listOf(TerralabsResearch.c),
+          extra = "Tr63SoloObjective, Ganymede, Luna, Miranda, Pluto",
+          playerNames = listOf("Me"),
       )
 
   // Drew and discarded Orbital Reflectors to place a 2
@@ -35,7 +45,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
     with(me) {
       doTask("-ColonyTileSelection<Class<Miranda>>")
 
-      playCorp(TerralabsResearch) {
+      playCorp(TerralabsResearch.className) {
         buyCards(
             RadSuits,
             SoilFactory,

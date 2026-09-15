@@ -1,6 +1,23 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.generated.Builder
+import dev.martianzoo.generated.Contractor
+import dev.martianzoo.generated.Diversifier
+import dev.martianzoo.generated.Energizer
+import dev.martianzoo.generated.Forecaster
+import dev.martianzoo.generated.Founder
+import dev.martianzoo.generated.Generalist
+import dev.martianzoo.generated.HellasMap
+import dev.martianzoo.generated.Incorporator
+import dev.martianzoo.generated.Landscaper
+import dev.martianzoo.generated.Merger
+import dev.martianzoo.generated.Prelude2CardPack
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.Scientist
+import dev.martianzoo.generated.Sponsor
+import dev.martianzoo.generated.Terraformer
+import dev.martianzoo.generated.VenusNextExpansion
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -17,17 +34,30 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
   // Player-record evidence: Merger was dealt despite promo cards being disabled, so it is included
   // individually without enabling PromoCardPack.
   override val config =
-      GameConfig(
-          """
-          HellasMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, Merger
-          FakeStuffBundle
-
-          Energizer, Builder, Generalist, Diversifier, Terraformer, Sponsor
-          Scientist, Landscaper, Founder, Contractor, Forecaster, Incorporator
-          """,
-          "Pink",
-          "Green",
+      gameConfig(
+          modules =
+              listOf(HellasMap.c, VenusNextExpansion.c, PreludeExpansion.c, Prelude2CardPack.c),
+          milestones =
+              listOf(
+                  Energizer.c,
+                  Builder.c,
+                  Generalist.c,
+                  Diversifier.c,
+                  Terraformer.c,
+                  Sponsor.c,
+              ),
+          awards =
+              listOf(
+                  Scientist.c,
+                  Landscaper.c,
+                  Founder.c,
+                  Contractor.c,
+                  Forecaster.c,
+                  Incorporator.c,
+              ),
+          cardFronts = listOf(Merger.c),
+          extra = "FakeStuffBundle",
+          playerNames = listOf("Pink", "Green"),
       )
 
   @Test
@@ -78,7 +108,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Green lost 5 M€ because of Pink
       playPrelude(Recession).expect("PROD[-1 MC<Green>], -5 MC<Green>")
       // Pink played Merger
-      playPrelude(Merger) {
+      playPrelude(Merger.className) {
             // You drew Interplanetary Cinematics,Inventrix,Sagitta Frontier Services,Teractor
             // Pink played Sagitta Frontier Services
             playCorp(SagittaFrontierServices)

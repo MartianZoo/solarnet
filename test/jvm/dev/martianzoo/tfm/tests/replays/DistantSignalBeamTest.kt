@@ -1,7 +1,26 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.generated.Aridor
+import dev.martianzoo.generated.Banker
+import dev.martianzoo.generated.Collector
+import dev.martianzoo.generated.ColoniesExpansion
+import dev.martianzoo.generated.Cultivator
+import dev.martianzoo.generated.Diversifier
+import dev.martianzoo.generated.Forecaster
+import dev.martianzoo.generated.Founder
+import dev.martianzoo.generated.Fundraiser
+import dev.martianzoo.generated.HellasMap
+import dev.martianzoo.generated.Manufacturer
+import dev.martianzoo.generated.Merchant
+import dev.martianzoo.generated.Prelude2CardPack
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.Producer
+import dev.martianzoo.generated.PromoCardPack
+import dev.martianzoo.generated.Terraformer
+import dev.martianzoo.generated.Trader
+import dev.martianzoo.generated.VenusNextExpansion
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -15,18 +34,37 @@ import kotlin.test.Test
 internal class DistantSignalBeamTest :
     CardTrackingFullGameTest(requireEveryProjectCardChangeNamed = true) {
   override val config =
-      GameConfig(
-          """
-          HellasMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, ColoniesExpansion, PromoCardPack
-          Aridor
-
-          Diversifier, Merchant, Fundraiser, Terraformer, Producer, Trader
-          Manufacturer, Cultivator, Banker, Collector, Founder, Forecaster
-          Ceres, Enceladus, Europa, Miranda, Triton
-          """,
-          "Pink",
-          "Purple",
+      gameConfig(
+          modules =
+              listOf(
+                  HellasMap.c,
+                  VenusNextExpansion.c,
+                  PreludeExpansion.c,
+                  Prelude2CardPack.c,
+                  ColoniesExpansion.c,
+                  PromoCardPack.c,
+              ),
+          milestones =
+              listOf(
+                  Diversifier.c,
+                  Merchant.c,
+                  Fundraiser.c,
+                  Terraformer.c,
+                  Producer.c,
+                  Trader.c,
+              ),
+          awards =
+              listOf(
+                  Manufacturer.c,
+                  Cultivator.c,
+                  Banker.c,
+                  Collector.c,
+                  Founder.c,
+                  Forecaster.c,
+              ),
+          cardFronts = listOf(Aridor.c),
+          extra = "Ceres, Enceladus, Europa, Miranda, Triton",
+          playerNames = listOf("Pink", "Purple"),
       )
 
   private val pink
@@ -52,7 +90,7 @@ internal class DistantSignalBeamTest :
     pink.playCorp(MorningStarInc) { buyCards(7) }
     pink.discardUnselectedProjectCards(Insects, EcologyResearch, SecurityFleet)
 
-    purple.playCorp(Aridor) { buyCards(10) }
+    purple.playCorp(Aridor.className) { buyCards(10) }
 
     pink.turn {
       playPrelude(AtmosphericEnhancers) {

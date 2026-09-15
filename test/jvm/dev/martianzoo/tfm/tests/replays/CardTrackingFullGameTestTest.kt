@@ -1,9 +1,10 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.engine.Timeline.Checkpoint
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.tests.cards.cardnames.AcquiredCompany
 import dev.martianzoo.tfm.tests.cards.cardnames.AdaptedLichen
@@ -14,7 +15,8 @@ import kotlin.test.Test
 
 internal class CardTrackingFullGameTestTest :
     CardTrackingFullGameTest(requireEveryProjectCardChangeNamed = true) {
-  override val config = GameConfig("PreludeExpansion", "Player1")
+  override val config =
+      gameConfig(modules = listOf(PreludeExpansion.c), playerNames = listOf("Player1"))
 
   @Test
   internal fun namedDrawsReturnsPlaysAndDiscardsMaintainThePlayersHand() {
@@ -140,7 +142,8 @@ internal class CardTrackingFullGameTestTest :
 
   private class ArrivalOrderReplay(arrivals: List<ClassName>) :
       CardTrackingFullGameTest(requireEveryProjectCardChangeNamed = true) {
-    override val config = GameConfig("PreludeExpansion", "Player1")
+    override val config =
+        gameConfig(modules = listOf(PreludeExpansion.c), playerNames = listOf("Player1"))
     override val projectCardArrivalOrder = mapOf(cn("Player1") to arrivals)
 
     fun setUp() = commonSetup()

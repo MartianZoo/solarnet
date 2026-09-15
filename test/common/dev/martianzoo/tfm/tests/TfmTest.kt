@@ -55,15 +55,6 @@ internal abstract class TfmTest {
   protected val admin: TfmGameplay<Actor>
     get() = agents.tfm(ADMIN)
 
-  /** Binds a generated owner type to this World's configured runtime Player of the same Class. */
-  protected fun <P : Player> World.tfm(owner: P): TfmGameplay<P> {
-    val actor =
-        actors.filterIsInstance<dev.martianzoo.pets.data.Player>().single {
-          it.className == owner.expression.className
-        }
-    return TfmGameplay(testAgents(), actor)
-  }
-
   protected fun TaskResult.expect(string: String) = TestHelpers.assertNetChanges(this, game, string)
 
   protected fun <T> OperationScope.doWithoutAutoExec(
@@ -147,6 +138,24 @@ internal abstract class TfmTest {
           titanium,
           body = typedBody(body),
       )
+
+  protected fun <P : Player> TypedOperationBody<P>.playProject(
+      card: CardFront<P, *>,
+      megacredits: Int = 0,
+      steel: Int = 0,
+      titanium: Int = 0,
+      body: TypedOperationBody<P>.() -> Unit = {},
+  ) {
+    with(gameplay) {
+      this@playProject.playProject(
+          card.expression.className,
+          megacredits,
+          steel,
+          titanium,
+          body = typedBody(body),
+      )
+    }
+  }
 
   protected fun <P : Player> TfmGameplay<P>.cardAction1(
       card: ActionCard<P, *>,

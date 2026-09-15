@@ -1,6 +1,10 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.generated.HellasMap
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.PromoCardPack
+import dev.martianzoo.generated.VenusNextExpansion
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -20,13 +24,10 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
   override fun greeneryAreas() = "Hellas_6_2" to "Hellas_9_5"
 
   override val config =
-      GameConfig(
-          """
-          HellasMap
-          VenusNextExpansion, PreludeExpansion, PromoCardPack, Tr63SoloObjective
-          -WorldGovernmentRule
-          """,
-          "Me",
+      gameConfig(
+          modules = listOf(HellasMap.c, VenusNextExpansion.c, PreludeExpansion.c, PromoCardPack.c),
+          extra = "Tr63SoloObjective, -WorldGovernmentRule",
+          playerNames = listOf("Me"),
       )
 
   @Test

@@ -1,8 +1,10 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.generated.Builder
+import dev.martianzoo.generated.Engineer
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -103,7 +105,13 @@ internal class BugsTest : CardTest() {
 
   @Test
   internal fun `Fake Thawer incorrectly retains credits after temperature reductions`() {
-    newGame(GameConfig("FakeStuffBundle, FakeThawer, Builder, Engineer", "Player1", "Player2"))
+    newGame(
+        gameConfig(
+            milestones = listOf(Builder.c, Engineer.c),
+            extra = "FakeStuffBundle, FakeThawer",
+            playerNames = listOf("Player1", "Player2"),
+        )
+    )
     p1.runOperation("8 MC, 5 TemperatureStep")
     admin.runOperation("-TemperatureStep")
     admin.phase("Action")

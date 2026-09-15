@@ -1,12 +1,15 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.generated.ElysiumMap
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.Test
 
 internal class StinaGameTest : AbstractSoloTest(requireEveryProjectCardChangeNamed = true) {
-  override val config = GameConfig("ElysiumMap, PreludeExpansion", "Me")
+  override val config =
+      gameConfig(modules = listOf(ElysiumMap.c, PreludeExpansion.c), playerNames = listOf("Me"))
 
   override fun cityAreas() = "Elysium_5_6" to "Elysium_7_7"
 

@@ -2,7 +2,10 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.PromoCardPack
+import dev.martianzoo.generated.VenusNextExpansion
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -12,13 +15,10 @@ import kotlin.test.Test
 internal class Game20230521Test : AbstractFullGameTest() {
 
   override val config =
-      GameConfig(
-          """
-          VenusNextExpansion, PreludeExpansion, PromoCardPack
-          -WorldGovernmentRule
-          """,
-          "Player1",
-          "Player2",
+      gameConfig(
+          modules = listOf(VenusNextExpansion.c, PreludeExpansion.c, PromoCardPack.c),
+          extra = "-WorldGovernmentRule",
+          playerNames = listOf("Player1", "Player2"),
       )
 
   @Test

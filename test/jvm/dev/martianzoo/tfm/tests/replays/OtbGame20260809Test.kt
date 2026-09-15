@@ -1,6 +1,23 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.generated.Botanist
+import dev.martianzoo.generated.Coastguard
+import dev.martianzoo.generated.ColoniesExpansion
+import dev.martianzoo.generated.Founder
+import dev.martianzoo.generated.HellasMap
+import dev.martianzoo.generated.Hoverlord
+import dev.martianzoo.generated.Landlord
+import dev.martianzoo.generated.Landshaper
+import dev.martianzoo.generated.Magnate
+import dev.martianzoo.generated.Mayor
+import dev.martianzoo.generated.Metropolist
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.Producer
+import dev.martianzoo.generated.PromoCardPack
+import dev.martianzoo.generated.Sponsor
+import dev.martianzoo.generated.Venuphile
+import dev.martianzoo.generated.VenusNextExpansion
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -17,18 +34,35 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
   // "Our awards are Botanist, Founder, Landlord, Magnate, and Metropolist."
   // "And also, we have the Hoverlord milestone and the Venophile award."
   override val config =
-      GameConfig(
-          """
-          HellasMap
-          VenusNextExpansion, PreludeExpansion, ColoniesExpansion
-          PromoCardPack
-
-          Coastguard, Landshaper, Mayor, Producer, Sponsor, Hoverlord
-          Botanist, Founder, Landlord, Magnate, Metropolist, Venuphile
-          Callisto, Luna, Triton, Miranda, Enceladus
-          """,
-          "Yellow",
-          "Green",
+      gameConfig(
+          modules =
+              listOf(
+                  HellasMap.c,
+                  VenusNextExpansion.c,
+                  PreludeExpansion.c,
+                  ColoniesExpansion.c,
+                  PromoCardPack.c,
+              ),
+          milestones =
+              listOf(
+                  Coastguard.c,
+                  Landshaper.c,
+                  Mayor.c,
+                  Producer.c,
+                  Sponsor.c,
+                  Hoverlord.c,
+              ),
+          awards =
+              listOf(
+                  Botanist.c,
+                  Founder.c,
+                  Landlord.c,
+                  Magnate.c,
+                  Metropolist.c,
+                  Venuphile.c,
+              ),
+          extra = "Callisto, Luna, Triton, Miranda, Enceladus",
+          playerNames = listOf("Yellow", "Green"),
       )
 
   @Test

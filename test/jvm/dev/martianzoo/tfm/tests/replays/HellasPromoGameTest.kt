@@ -3,13 +3,16 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.generated.HellasMap
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.PromoCardPack
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.Hellas
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
+import dev.martianzoo.tfm.tests.TestOption.PromoCardPack as PromoCardPackOption
 import dev.martianzoo.tfm.tests.canonicalPremise
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.matchers.shouldBe
@@ -17,13 +20,9 @@ import kotlin.test.Test
 
 internal class HellasPromoGameTest : AbstractFullGameTest() {
   override val config =
-      GameConfig(
-          """
-          HellasMap
-          PromoCardPack, PreludeExpansion
-          """,
-          "Player1",
-          "Player2",
+      gameConfig(
+          modules = listOf(HellasMap.c, PromoCardPack.c, PreludeExpansion.c),
+          playerNames = listOf("Player1", "Player2"),
       )
 
   @Test
@@ -150,7 +149,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
 
   @Test
   internal fun earlyGameWithNoPrelude() {
-    val setup = canonicalPremise(Hellas, PromoCardPack, players = 2)
+    val setup = canonicalPremise(Hellas, PromoCardPackOption, players = 2)
     val game = Engine.newGame(setup)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)

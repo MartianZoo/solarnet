@@ -1,7 +1,23 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.generated.Benefactor
+import dev.martianzoo.generated.CimmeriaMap
+import dev.martianzoo.generated.ColoniesExpansion
+import dev.martianzoo.generated.Engineer
+import dev.martianzoo.generated.EstateDealer
+import dev.martianzoo.generated.Fundraiser
+import dev.martianzoo.generated.Industrialist
+import dev.martianzoo.generated.Landshaper
+import dev.martianzoo.generated.Merchant
+import dev.martianzoo.generated.Metallurgist
+import dev.martianzoo.generated.Metropolist
+import dev.martianzoo.generated.Prelude2CardPack
+import dev.martianzoo.generated.PreludeExpansion
+import dev.martianzoo.generated.PromoCardPack
+import dev.martianzoo.generated.SpaceBaron
+import dev.martianzoo.generated.VenusNextExpansion
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
@@ -14,19 +30,34 @@ import kotlin.test.assertEquals
 internal class OtbGame20260828Test : AbstractFullGameTest() {
   private val colonyTiles = listOf("Ganymede", "Io", "Luna", "Miranda", "Titan")
   override val config =
-      GameConfig(
-          """
-          CimmeriaMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, ColoniesExpansion, PromoCardPack
-          FakeStuffBundle
-
-          Engineer, Fundraiser, Landshaper, Merchant, Metallurgist
-          Benefactor, EstateDealer, Industrialist, Metropolist, SpaceBaron
-          ${colonyTiles.joinToString()}
-          """,
-          "Green",
-          "Blue",
-          "Yellow",
+      gameConfig(
+          modules =
+              listOf(
+                  CimmeriaMap.c,
+                  VenusNextExpansion.c,
+                  PreludeExpansion.c,
+                  Prelude2CardPack.c,
+                  ColoniesExpansion.c,
+                  PromoCardPack.c,
+              ),
+          milestones =
+              listOf(
+                  Engineer.c,
+                  Fundraiser.c,
+                  Landshaper.c,
+                  Merchant.c,
+                  Metallurgist.c,
+              ),
+          awards =
+              listOf(
+                  Benefactor.c,
+                  EstateDealer.c,
+                  Industrialist.c,
+                  Metropolist.c,
+                  SpaceBaron.c,
+              ),
+          extra = "FakeStuffBundle, ${colonyTiles.joinToString()}",
+          playerNames = listOf("Green", "Blue", "Yellow"),
       )
 
   @Test

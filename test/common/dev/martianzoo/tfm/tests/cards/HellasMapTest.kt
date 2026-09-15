@@ -1,9 +1,10 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.generated.HellasMap
+import dev.martianzoo.generated.LakefrontResorts
+import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestOption.Hellas
-import dev.martianzoo.tfm.tests.cards.cardnames.LakefrontResorts
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -26,9 +27,15 @@ internal class HellasMapTest : CardTest() {
 
   @Test
   internal fun `Ocean income from the south pole bonus can fund its payment`() {
-    newGame(GameConfig("HellasMap, LakefrontResorts", "Player1", "Player2"))
+    newGame(
+        gameConfig(
+            modules = listOf(HellasMap.c),
+            cardFronts = listOf(LakefrontResorts.c),
+            playerNames = listOf("Player1", "Player2"),
+        )
+    )
     admin.phase("Action")
-    p1.runOperation("$LakefrontResorts")
+    p1.runOperation("${LakefrontResorts.className}")
     p1.runOperation("OceanTile<Hellas_4_7>, OceanTile<Hellas_5_6>")
     p1.runOperation("-54 MC")
 

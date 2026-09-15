@@ -121,7 +121,7 @@ internal class PetsTypeGeneratorTest {
 
   @Test
   fun canonicalToolEmitsEveryClassAcrossSemanticFiles() {
-    val table = Canon.withPlayers(5).classTable
+    val table = Canon.classTable
     val generatedFiles = generateCanonicalPetsTypes(PetsTypeGenerator.Options())
     val typesByFile = generatedFiles.associate { file ->
       file.name to file.members.filterIsInstance<TypeSpec>().mapNotNullTo(linkedSetOf()) { it.name }
@@ -143,6 +143,8 @@ internal class PetsTypeGeneratorTest {
     assertTrue("AerialMappers" in typesByFile.getValue("CanonicalPetsCards"))
     assertTrue("Terraformer35" in typesByFile.getValue("CanonicalPetsGoals"))
     assertTrue("Tharsis_1_1" in typesByFile.getValue("CanonicalPetsMapAreas"))
+    assertFalse("Premise" in typesByFile.values.flatten())
+    assertFalse(typesByFile.values.flatten().any { it.matches(Regex("Player[1-5]")) })
     val cards = table.getClass(cn("Card"))
     val areas = table.getClass(cn("Area"))
     val milestone = table.getClass(cn("Milestone"))
