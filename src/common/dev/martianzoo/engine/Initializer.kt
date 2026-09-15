@@ -7,20 +7,23 @@ import dev.martianzoo.pets.api.Exceptions.KindException
 import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.GameWorld
+import dev.martianzoo.state.TaskResult
 
 internal class Initializer(
     private val reader: GameReader,
     private val elaborator: PetElaborator,
     private val instructor: Instructor,
     private val tasks: TaskQueues,
+    private val gameWorld: GameWorld,
     private val classTable: ClassTable,
     private val timeline: TimelineImpl,
     private val premise: GamePremise,
@@ -28,7 +31,7 @@ internal class Initializer(
 ) {
   // Taking 14% of total solo game time
   internal fun initialize() {
-    val adminEvent = execute("$ADMIN", cause = null).changes.first()
+    val adminEvent = executeSeed("$ADMIN").changes.first()
     val adminCause = Cause(ADMIN.expression, adminEvent.ordinal)
     val premiseCause = createBootstrapComponent(adminCause) ?: adminCause
     createConfiguredComponents(premiseCause, adminCause)
@@ -40,27 +43,33 @@ internal class Initializer(
 
   private fun createBootstrapComponent(cause: Cause): Cause? =
       premise.bootstrapClassName?.let { className ->
-        val event = execute("$className", cause).changes.first()
+        val event = executeAdminTask("$className", cause).changes.first()
         Cause(className.expression, event.ordinal)
       }
 
-  /**
-   * Executes a bootstrap instruction without creating a task for the instruction itself. Bootstrap
-   * creation is explicitly mandatory because failure to create the first Actor or an initial
-   * Component must stop initialization rather than become an omitted change.
-   */
-  private fun execute(instruction: String, cause: Cause?): TaskResult = timeline.atomic {
+  /** Creates the Actor required before any ordinary task can be assigned or executed. */
+  private fun executeSeed(instruction: String): TaskResult = timeline.atomic {
+    val parsed = parseMandatoryInstruction(instruction)
+    instructor.execute(parsed, cause = null, actor = ADMIN).forEach(tasks::addTasks)
+  }
+
+  /** Admits initialization through the same task lifecycle used after construction. */
+  private fun executeAdminTask(instruction: String, cause: Cause): TaskResult = timeline.atomic {
+    val parsed = parseMandatoryInstruction(instruction)
+    val admin = actorEngines(ADMIN)
+    admin.addTasks(InstructionGroup.of(parsed), cause).forEach(admin::selectTask)
+  }
+
+  private fun parseMandatoryInstruction(instruction: String): Instruction {
     val parsed = elaborator.elaborateInput(Parsing.parse<Instruction>("$instruction!"))
-    if (parsed !is Instruction) {
-      throw KindException("Preprocessing produced `$parsed`, which is not an Instruction")
-    }
-    instructor.execute(parsed, cause, ADMIN).forEach(tasks::addTasks)
+    return parsed as? Instruction
+        ?: throw KindException("Preprocessing produced `$parsed`, which is not an Instruction")
   }
 
   /** Executes a generated premise recipe, or directly creates an uncompiled custom premise. */
   private fun createConfiguredComponents(premiseCause: Cause, fallbackCause: Cause) {
     premise.premiseClassName?.let {
-      execute("$it", premiseCause)
+      executeAdminTask("$it", premiseCause)
       return
     }
     createComponents(
@@ -79,14 +88,14 @@ internal class Initializer(
 
   /** Runs choice-free queued initialization work in stable insertion order. */
   private fun drainBootstrapTasks() {
-    val allTasks = tasks.all()
+    val allTasks = gameWorld.tasks
     while (!allTasks.isEmpty()) {
       if (allTasks.selectedTask() != null) break
       val taskId = allTasks.ids().first()
       val assignee = allTasks.getTaskData(taskId).assignee
       actorEngines(assignee).selectTask(taskId)
     }
-    allTasks.requireAllQueuesEmpty()
+    gameWorld.requireNoPendingTasks()
   }
 
   private fun verifyCompletedBootstrap() {
@@ -143,7 +152,7 @@ internal class Initializer(
           continue
         }
         try {
-          execute("${type.expression}", cause)
+          executeAdminTask("${type.expression}", cause)
           remaining.remove(type)
           missingByType.remove(type)
           progress = true

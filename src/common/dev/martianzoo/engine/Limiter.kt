@@ -6,11 +6,14 @@ import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.types.ClassLimitTable
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.Component
+import dev.martianzoo.state.GameWorld
+import dev.martianzoo.state.toComponent
 import kotlin.Int.Companion.MAX_VALUE
 
 internal class Limiter(
     private val classTable: ClassTable,
-    private val components: ComponentGraph,
+    private val gameWorld: GameWorld,
 ) {
   private val limits: ClassLimitTable = classTable.componentLimits
 
@@ -40,15 +43,23 @@ internal class Limiter(
           (g - r) to (r - g)
         }
 
-    fun count(type: Type) = components.count(type, NoGameState)
+    fun count(type: Type) = gameWorld.components.count(type, NoGameState)
 
     val headroom = gainInvars.map { it.range.last - count(it.type) }
     val footroom = removeInvars.map { count(it.type) - it.range.first }
-    return (headroom + footroom).minOrNull() ?: MAX_VALUE
+    // Predict GameWorld's dependency invariant so a concrete selected transmutation cannot fail
+    // only when it reaches passive state application.
+    val dependencyFootroom =
+        gaining
+            ?.dependencyComponents
+            ?.filter { it == removing }
+            ?.map { gameWorld.components.countComponent(it) - 1 }
+            .orEmpty()
+    return (headroom + footroom + dependencyFootroom).minOrNull() ?: MAX_VALUE
   }
 
   private fun missingDependencies(gaining: Component?): List<Component> =
-      gaining?.dependencyComponents?.filter { it !in components }.orEmpty()
+      gaining?.dependencyComponents?.filterNot { it in gameWorld.components }.orEmpty()
 
   internal fun hasExecutableConcreteGain(
       type: Type,
@@ -58,7 +69,9 @@ internal class Limiter(
     require(type.abstract)
     require(minimum > 0)
     return classTable
-        .allConcreteSubtypes(type) { dependency -> components.matchingTypes(dependency, info) }
+        .allConcreteSubtypes(type) { dependency ->
+          gameWorld.components.matchingTypes(dependency, info)
+        }
         .any { candidate ->
           candidate.narrows(type, info) &&
               findLimitWithDependenciesPresent(candidate.toComponent(), null) >= minimum
@@ -72,7 +85,7 @@ internal class Limiter(
   ): Boolean {
     require(type.abstract)
     require(minimum > 0)
-    return components.matchingTypes(type, info).any { candidate ->
+    return gameWorld.components.matchingTypes(type, info).any { candidate ->
       findLimit(null, candidate.toComponent()) >= minimum
     }
   }

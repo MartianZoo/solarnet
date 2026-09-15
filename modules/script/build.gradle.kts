@@ -13,6 +13,7 @@ kotlin {
         implementation(project(":agent"))
         implementation(project(":pets"))
         implementation(project(":engine"))
+        implementation(project(":state"))
         implementation(project(":tfm-canon"))
         implementation(project(":tfm-engine"))
       }

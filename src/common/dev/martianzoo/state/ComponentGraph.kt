@@ -1,5 +1,6 @@
-package dev.martianzoo.engine
+package dev.martianzoo.state
 
+import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExistingDependentsException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
@@ -16,21 +17,11 @@ import dev.martianzoo.pets.util.Multiset
  * multiset, but called a "graph" because these component instances have references to their
  * dependencies which are also stored in the multiset.
  */
-public class ComponentGraph
-private constructor(
-    private val classTable: ClassTable,
-    private val addEffects: (Component, Int) -> Unit,
-    private val removeEffects: (Component, Int) -> Unit,
-) {
+public class ComponentGraph internal constructor(private val classTable: ClassTable) {
   /** A removable listener registered with [listenToCount]. */
   public fun interface CountSubscription {
     public fun cancel()
   }
-
-  internal constructor(
-      effector: Effector,
-      classTable: ClassTable,
-  ) : this(classTable, effector::add, effector::mustRemove)
 
   private val shardClassByClass = mutableMapOf<Class, Class>()
   private val queryShardClassesByClass = mutableMapOf<Class, Set<Class>>()
@@ -79,13 +70,13 @@ private constructor(
    * Does at least one instance of [component] exist currently? (That is, is [countComponent]
    * nonzero?)
    */
-  internal operator fun contains(component: Component): Boolean {
+  public operator fun contains(component: Component): Boolean {
     requireOwnClassTable(component.type)
     return component in components
   }
 
   /** How many instances of the exact component [component] currently exist? */
-  internal fun countComponent(component: Component): Int {
+  public fun countComponent(component: Component): Int {
     requireOwnClassTable(component.type)
     return components.count(component)
   }
@@ -94,7 +85,7 @@ private constructor(
    * How many total component instances have the type [parentType] (or any of its subtypes)? Returns
    * zero for an uninhabited type, which cannot have stored components.
    */
-  internal fun count(parentType: Type, info: TypeInfo): Int {
+  public fun count(parentType: Type, info: TypeInfo): Int {
     requireOwnClassTable(parentType)
     return if (!classTable.isInhabited(parentType)) {
       0
@@ -110,7 +101,7 @@ private constructor(
     }
   }
 
-  internal fun containsAny(parentType: Type, info: TypeInfo): Boolean {
+  public fun containsAny(parentType: Type, info: TypeInfo): Boolean {
     requireOwnClassTable(parentType)
     return if (!classTable.isInhabited(parentType)) {
       false
@@ -122,7 +113,7 @@ private constructor(
   }
 
   /** Whether [dependencyType] has a direct or indirect live dependent matching [dependentType]. */
-  internal fun hasDependentMatching(
+  public fun hasDependentMatching(
       dependencyType: Type,
       dependentType: Type,
       info: TypeInfo,
@@ -138,7 +129,7 @@ private constructor(
   }
 
   /** Distinct concrete component Types currently matching [parentType]. */
-  internal fun matchingTypes(parentType: Type, info: TypeInfo): Sequence<Type> {
+  public fun matchingTypes(parentType: Type, info: TypeInfo): Sequence<Type> {
     requireOwnClassTable(parentType)
     return if (!classTable.isInhabited(parentType)) {
       emptySequence()
@@ -157,7 +148,7 @@ private constructor(
    * type returns an empty multiset. If [parentType] is `Component` this returns the entire
    * component multiset. A refined `Component` is filtered like every other abstract Type.
    */
-  internal fun getAll(parentType: Type, info: TypeInfo): Multiset<Component> {
+  public fun getAll(parentType: Type, info: TypeInfo): Multiset<Component> {
     requireOwnClassTable(parentType)
     return if (!classTable.isInhabited(parentType)) {
       HashMultiset()
@@ -171,7 +162,7 @@ private constructor(
     }
   }
 
-  /** Removes and/or gains [count] copies while keeping live-effect indexes synchronized. */
+  /** Removes and/or gains [count] copies while keeping structural indexes synchronized. */
   internal fun applyChange(count: Int, gaining: Component?, removing: Component?) {
     listOfNotNull(gaining, removing).forEach {
       requireOwnClassTable(it.type)
@@ -184,16 +175,24 @@ private constructor(
         )
       }
     }
+    // This is the authoritative state invariant. Live engines may predict it while resolving an
+    // instruction, but passive replay and direct GameWorld use cannot rely on an engine check.
+    gaining?.let { component ->
+      val missing =
+          component.dependencyComponents.filter { dependency ->
+            val removed = if (dependency == removing) count else 0
+            countComponent(dependency) - removed <= 0
+          }
+      if (missing.isNotEmpty()) throw DependencyException(missing.map { it.type })
+    }
     removing?.let {
       checkDependents(count, it)
       val remaining = components.mustRemove(it, count)
       if (remaining == 0) unregisterDependencies(it)
-      removeEffects(it, count)
     }
     gaining?.let {
       val newCount = components.add(it, count)
       if (newCount == count && count > 0) registerDependencies(it)
-      addEffects(it, count)
     }
     notifyCountListeners()
   }
@@ -248,7 +247,7 @@ private constructor(
     }
   }
 
-  internal fun dependentsOf(component: Component): Set<Component> =
+  public fun dependentsOf(component: Component): Set<Component> =
       dependentsByDependency[component].orEmpty()
 
   private fun registerDependencies(dependent: Component) {
@@ -267,10 +266,5 @@ private constructor(
         if (dependents.isEmpty()) dependentsByDependency.remove(dependencyComponent)
       }
     }
-  }
-
-  internal companion object {
-    internal fun empty(classTable: ClassTable): ComponentGraph =
-        ComponentGraph(classTable, addEffects = { _, _ -> }, removeEffects = { _, _ -> })
   }
 }

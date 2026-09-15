@@ -4,7 +4,7 @@
 > human didn't write it and we don't expect humans to read it. The project owner can't personally
 > vouch for the information here.
 
-> **Read when:** moving code across gameworld, engine, permissions, autoexecution, generic, or
+> **Read when:** moving code across state, engine, permissions, autoexecution, generic, or
 > Terraforming Mars packages; changing bare-number rejection or Action lowering; splitting Catalog
 > responsibilities; or separating script/workflow mechanics.
 >
@@ -39,7 +39,7 @@ below; their presence does not schedule it.
 
 The target runtime has three library responsibilities with one-way dependencies:
 
-1. **Game World:** `:gameworld` owns the complete replayable data of one game: immutable context,
+1. **Game World:** `:state` owns the replayable data of one game: immutable context,
    concrete components, exact pending tasks, event history, readable projections, and approved
    recording positions. Instructions are inert task data here. Game World can apply and replay only
    already-decided component and task events; it has no instruction interpretation, task behavior,
@@ -59,9 +59,10 @@ construction returns one `Agents`, pairing a World with its immutable set of Age
 remains private wiring rather than another public game wrapper. A separate passive Actor-access
 abstraction is not currently justified.
 
-Game World returns a neutral applied-change result after its own data is coherent. It does not call
-back into the engine while applying an event. The engine explicitly reacts to the returned result,
-so `GameWorld` has no knowledge of effects or the engine and recording playback cannot fire rules.
+Game World returns the exact applied event after its own data is coherent. It does not call back
+into the engine while applying an event. Engine `Changer` explicitly updates its derived effect
+index, so `GameWorld` has no knowledge of effects or the engine and recording playback cannot fire
+rules.
 
 The concrete-change value is owned by Game World and contains resolved component Types and counts.
 It is not an `Instruction` subtype and carries no effect behavior. Exact task events may carry task
@@ -73,12 +74,11 @@ Task assignment remains an engine-enforced game rule. Preventing a caller from c
 engine API is out of scope. The engine is intentionally indifferent to why an Actor or trusted
 caller chose one legal mutation instead of another.
 
-**Current divergence:** there is no `:gameworld` module. `World` still combines Game World data with
-live transaction control, while `Task` and `GameEvent` live in `:pets`; their runtime-data ownership
-must be untangled during extraction. The `:agent` module now depends one-way on `:engine`, applications
-retain one `Agents`, and engine source has no Agent or policy dependency. `TaskQueues`
-already stores one task set and creates assignee-filtered `TaskQueue` views, so further task
-extraction changes ownership rather than semantics.
+**Current divergence:** `:state` now owns passive component and task storage, exact event history,
+and inert `ComponentChange`, `Task`, `GameEvent`, and `TaskResult` data. `GameReaderImpl`, task
+construction and execution, live transactions, approved recording positions, and recording
+navigation remain in `:engine`. The game viewer therefore still has an engine dependency until
+immutable recording export and independent playback move across the seam.
 
 Do not create empty Gradle modules ahead of the extraction. First settle the direct core mutation
 surface, the concrete state-change contract, the sole-issuer Agent lifetime, and the plain shared
@@ -138,7 +138,7 @@ workflow project should extract those mechanics while moving phase topology to t
 Hex-to-ANSI color rendering and half-space centering are generic helpers inside Terraforming Mars UI
 classes. They are too small to drive an architecture change. Move them only with nearby work.
 
-### Presentation, assembly, and engine data sit inside `:pets`
+### Presentation and assembly data sit inside `:pets`
 
 `docs/pets-language-spec.md` deliberately stops at the language: source, declarations, expressions,
 requirements, metrics, instructions, narrowing, effects, actions, transform blocks, owner-local
@@ -150,12 +150,8 @@ plausibly belong elsewhere:
 - [`Catalog.kt`](../../src/common/dev/martianzoo/pets/data/Catalog.kt),
   [`GamePremise.kt`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt) and
   `ClassSelection` are game assembly, owned by [`OPTIONS.md`](OPTIONS.md).
-- [`Task.kt`](../../src/common/dev/martianzoo/pets/data/Task.kt),
-  [`GameEvent.kt`](../../src/common/dev/martianzoo/pets/data/GameEvent.kt) and `TaskResult` are
-  engine data that merely happen to hold Pets.
-
-No move is scheduled. Record here first if one is, and settle whether `:pets` should shrink to the
-language and its types before adding anything else to these files.
+Runtime `Task`, `GameEvent`, and `TaskResult` data have moved to `:state`; their instruction-bearing
+values remain inert there, while task construction and normalization stay in `:engine`.
 
 ## Already-correct dependencies
 
@@ -164,10 +160,8 @@ Do not reopen these without new evidence:
 - `SystemDeclarations.kt` owns the generic runtime vocabulary. In the target model that includes a
   concrete `Admin : Actor` Class and Component, while Kotlin `Engine` names only the passive
   mutation-processing mechanism.
-- Admin creates `BootstrapPhase` before the generated `Premise`; workflow replaces it with
-  `SetupPhase`.
-  Bootstrap should reach ordinary Admin task execution as early as the state model honestly
-  permits; these three components are the direct pre-task seed.
+- Direct bootstrap creates only Admin. BootstrapPhase, the generated Premise, and fallback premise
+  components use ordinary Admin tasks; workflow later replaces BootstrapPhase with `SetupPhase`.
 - Class reachability roots are chosen outside `ClassLoader`; the loader only follows generic
   structural reachability.
 - Runtime players use the configured concrete Player Class identities supplied by Catalog

@@ -8,6 +8,7 @@ import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.Component
 
 /** Engine runtime for Kotlin-provided instruction and metric behavior of Pets custom classes. */
 internal class CustomClassRuntime(

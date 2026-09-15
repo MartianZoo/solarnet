@@ -20,13 +20,15 @@ import kotlin.test.Test
 
 internal class InstructionResolutionTest {
   private val game: World = setUpGame(canonicalPremise())
+  private val gameWorld = (game as WholeWorld).gameWorld
   private val elaborator = PetElaborator(game.classTable)
+  private val effector = Effector(elaborator) { game.reader }
   private val instructor: Instructor =
       Instructor(
           game.reader,
-          Limiter(game.classTable, game.components),
-          Changer(game.reader, game.components, game.events),
-          Effector(elaborator) { game.reader },
+          Limiter(game.classTable, gameWorld),
+          Changer(game.reader, gameWorld, effector),
+          effector,
           game.classTable,
           elaborator,
           CustomClassRuntime(game.reader.catalog, elaborator),

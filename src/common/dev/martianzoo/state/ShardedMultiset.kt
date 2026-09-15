@@ -1,4 +1,4 @@
-package dev.martianzoo.engine
+package dev.martianzoo.state
 
 import dev.martianzoo.pets.util.HashMultiset
 import dev.martianzoo.pets.util.Multiset

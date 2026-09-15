@@ -21,8 +21,10 @@
   owns the preserved legacy queue drain.
 - [`World.kt`](../../src/common/dev/martianzoo/engine/World.kt) returns stable ActorEngines;
   [`Agents.kt`](../../src/common/dev/martianzoo/agent/Agents.kt) pairs one World with its Agents.
-- [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) already stores one global
-  task set; [`TaskQueue.kt`](../../src/common/dev/martianzoo/engine/TaskQueue.kt) is a filtered view.
+- [`TaskStore.kt`](../../src/common/dev/martianzoo/state/TaskStore.kt) stores one global task set;
+  [`TaskQueue.kt`](../../src/common/dev/martianzoo/state/TaskQueue.kt) is its filtered read view, and
+  [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) constructs normalized task
+  events.
 - [`Access.kt`](../../src/common/dev/martianzoo/script/Access.kt) implements current script-only
   access modes.
 - [GAMEWORLD.md](GAMEWORLD.md) owns task data and recording navigation;

@@ -33,12 +33,15 @@
 - [`World.kt`](../../src/common/dev/martianzoo/engine/World.kt) and
   [`WholeWorld.kt`](../../src/common/dev/martianzoo/engine/WholeWorld.kt) — search
   for `public interface World` and `public class WholeWorld` for the read surface and live assembly.
-- [`ComponentGraph.kt`](../../src/common/dev/martianzoo/engine/ComponentGraph.kt) —
-  inspect for component multiplicity and indexes.
-- [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) and
+- [`GameWorld.kt`](../../src/common/dev/martianzoo/state/GameWorld.kt) and
+  [`ComponentGraph.kt`](../../src/common/dev/martianzoo/state/ComponentGraph.kt) — inspect for
+  passive component mutation, multiplicity, and indexes.
+- [`TaskQueue.kt`](../../src/common/dev/martianzoo/state/TaskQueue.kt),
+  [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt),
+  [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt), and
   [`PendingTask.kt`](../../src/common/dev/martianzoo/engine/PendingTask.kt) — inspect
   only for deferred work and resolution.
-- [`EventLog.kt`](../../src/common/dev/martianzoo/engine/EventLog.kt) and
+- [`EventLog.kt`](../../src/common/dev/martianzoo/state/EventLog.kt) and
   [`Timeline.kt`](../../src/common/dev/martianzoo/engine/Timeline.kt) — inspect only
   for history, atomicity, rollback, or revisions.
  - [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) — search for
@@ -65,14 +68,16 @@ A live Game World is a `World` containing:
 | `ClassTable` | The closed vocabulary and type relationships |
 | Mutation executor | Validation and atomic calculation for direct Actor-attributed calls |
 
-The planned `:gameworld` library owns the complete replayable data of one game: component state,
-exact pending tasks, event history, readable projections, and approved recording positions. It
-stores task Instructions as inert data but has no task execution, effects, Agent, or autoexecution.
-The engine consumes that Game World and owns task and instruction behavior. The planned `:agent`
-library consumes the engine and supplies the normal Actor-scoped client API and optional policies.
+The `:state` library owns the passive component state, exact pending tasks, event history, readable
+projections, and runtime event/task values of one game. It stores task Instructions as inert data
+but has no task execution, effects, Agent, or autoexecution. The selected final boundary also puts
+approved recording positions in `:state`; those positions have not moved yet.
+The engine consumes that Game World and owns task and instruction behavior. The `:agent` library
+consumes the engine and supplies the normal Actor-scoped client API and optional policies.
 See [GAMEWORLD.md](GAMEWORLD.md),
 [RESPONSIBILITIES.md](RESPONSIBILITIES.md#selected-runtime-dependency-direction), and
-[API.md](API.md). Current code still combines these responsibilities in `World` and `:engine`.
+[API.md](API.md). Live transaction coordination, approved recording positions, and recording
+navigation remain in `:engine` during the staged extraction.
 
 `GameConfig` is unresolved user intent. Catalog-specific resolution composes concrete Player
 Classes named by the configuration, then applies defaults, selection policy, and validation to
@@ -120,10 +125,12 @@ Promo Card Pack contributes
 three direct class exclusions for the cards its revised printings supersede; there is no general
 replacement registry.
 
-`Engine.newGame(premise)` wires the World with one structural representative for every active
-concrete Class, then creates `Admin`. Admin creates `BootstrapPhase`, which creates the generated
-`Premise` component. Its immediate effects create the `BaseGameModule` first, then the other
-literally named Modules, seated Players in order, and the premise's exact initial components. Its
+`Engine.newGame(premise)` constructs a passive `GameWorld` with one structural representative for
+every active concrete Class, then directly creates the `Admin` component: the minimum state needed
+before an Actor can receive work. It admits `BootstrapPhase` and then the generated `Premise`
+component through ordinary Admin tasks. The Premise's immediate effects create the `BaseGameModule`
+first, then the other literally named Modules, seated Players in order, and the premise's exact
+initial components. Its
 queued `ModulesReady` signal runs after that complete layer exists. The initializer then drains the
 remaining queued work and performs a final drain. Completion requires an empty task queue and every
 premise-required component to exist
@@ -181,10 +188,10 @@ The goal is not to call every constructor step an Admin action. It is to make th
 short and explicit as possible, then use the ordinary task lifecycle for everything after the
 handoff.
 
-In Canon, the initializer directly materializes only `Admin` and `BootstrapPhase`, then creates the
-generated `Premise` with the phase as its cause. Immediate Premise effects create all selected
-Modules, seated Players, and exact initial component Types; direct initialization remains only an
-idempotent fallback for copied custom premises. Module and Player effects create their owned
+In Canon, the initializer directly materializes only `Admin`, then assigns creation of
+`BootstrapPhase` and the generated `Premise` to ordinary Admin tasks. Immediate Premise effects
+create all selected Modules, seated Players, and exact initial component Types; ordinary Admin tasks
+provide the idempotent fallback for copied custom premises. Module and Player effects create their owned
 bootstrap state. An exact `HAS =1 This` remains a live multiplicity invariant, not an initialization
 instruction.
 
@@ -201,19 +208,19 @@ narrow or otherwise satisfy the inherited dependency bound. Removing the last ta
 `ComponentGraph` reports existing dependents, `Changer` removes them first, then retries the original
 removal.
 
-The only state mutation is a count plus optional source and destination. A transmutation removes
-before it adds. Currently every successful mutation updates live-effect indexes and enters the
-combined Event Log.
+Component mutation is represented by an exact gain, removal, or transmutation. A transmutation
+removes before it adds. Every successful live engine mutation enters the Game World's event log and
+then updates the engine's derived live-effect index.
 `ComponentGraph.listenToCount` observes the live count of one resolved Type, reports its initial
 value immediately, and reports later changes during both forward play and recording navigation.
 The caller supplies the World's `GameReader` for abstract or refined Type evaluation and can cancel
 the returned subscription. Listener failures do not interrupt state mutation.
 
-**Forward-looking:** `GameWorld` applies only a fully concrete gain, removal, or transmutation. It
-does not index or fire effects. The engine invokes that operation and explicitly reacts to a neutral
-description of what changed. Recording playback invokes the same passive application without an
-engine, so recorded consequences are never calculated twice. [GAMEWORLD.md](GAMEWORLD.md) owns the
-contract.
+`GameWorld` applies only a fully concrete gain, removal, or transmutation. It maintains structural
+indexes but does not index or fire effects. Engine `Changer` precompiles the affected live effects,
+invokes that operation, and updates the derived effect index from the applied event. Future
+recording playback can invoke the same passive application without an engine, so recorded
+consequences are never calculated twice. [GAMEWORLD.md](GAMEWORLD.md) owns the contract.
 
 `sneak` therefore remains an engine cheat, not a state operation. Normal execution and `sneak`
 apply the same concrete `GameWorld` mutation; the engine decides whether to process the reported
@@ -227,17 +234,14 @@ instruction defaults so Kotlin translation remains its sole behavior.
 ## Events and timeline
 
 The log contains `ChangeEvent`, `TaskAddedEvent`, `TaskRemovedEvent`, and `TaskEditedEvent`. A change
-records its Actor and Cause, with changed component Types stored as minimal round-tripping
-expressions. Rendered history uses `BY` for Actor, `VIA` for the effect-bearing cause, and `BECAUSE`
-for causal event ordinal.
+records its Actor and Cause, with changed components stored as resolved `Component` values. Rendered
+history uses `BY` for Actor, `VIA` for the effect-bearing cause, and `BECAUSE` for causal event
+ordinal.
 
-`EventLog.record` and rollback are the single history/mutation interface: application or reversal
-must succeed before the log changes. Each current event has one integer ordinal. Each forward or
-reverse mutation advances an opaque `WorldRevision`; unlike the event-count checkpoint, a revision
-is never reused after rollback.
-
-A log may capture another log as an immutable prefix in constant time. Later source events are not
-part of the capture, and the source may not roll back that captured prefix while the suffix exists.
+`GameWorld.apply` and rollback are the single exact event/state interface: application or reversal
+updates event history and the component or pending-task projection together. Each current event has
+one integer ordinal. Each forward or reverse mutation advances an opaque `WorldRevision`; unlike
+the event-count checkpoint, a revision is never reused after rollback.
 
 `Timeline` provides event-count checkpoints, atomic blocks, rollback, and a commit floor. An atomic
 failure reverses component state, tasks, event-backed indexes, and events.
@@ -262,7 +266,6 @@ Task iteration is stable for reproducibility, but order has no game meaning. A t
 - one task-shaped `Instruction`;
 - `controller`, which owns the surrounding operation and receives resulting work;
 - `assignee`, who may select and narrow it;
-- `narrower`, who supplies choices after selection;
 - `actor`, recorded on resulting changes unless instruction-side `BY` overrides it;
 - `cause`;
 - selected flag;

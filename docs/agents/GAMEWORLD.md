@@ -4,34 +4,41 @@
 > human didn't write it and we don't expect humans to read it. The project owner can't personally
 > vouch for the information here.
 
-> **Read when:** creating or changing the `:gameworld` module, deciding ownership of components,
+> **Read when:** creating or changing the `:state` module, deciding ownership of components,
 > pending-task data, events, recordings, exported games, or recording navigation.
 >
 > **Skip when:** changing how an instruction is resolved or executed, how effects fire, or how an
 > Agent chooses work. Those belong in [ENGINE.md](ENGINE.md), [SEQUENCING.md](SEQUENCING.md), and
 > [AUTOEXEC.md](AUTOEXEC.md).
 >
-> **Status:** selected design with substantial current implementation divergence.
+> **Status:** selected design with component, task, and event state extracted; recording navigation
+> and export remain in transition.
 
 ## Current source map
 
+- [`GameWorld.kt`](../../src/common/dev/martianzoo/state/GameWorld.kt),
+  [`ComponentChange.kt`](../../src/common/dev/martianzoo/state/ComponentChange.kt), and
+  [`ComponentGraph.kt`](../../src/common/dev/martianzoo/state/ComponentGraph.kt) — the passive,
+  fully concrete component-state boundary.
 - [`World.kt`](../../src/common/dev/martianzoo/engine/World.kt) and
   [`WholeWorld.kt`](../../src/common/dev/martianzoo/engine/WholeWorld.kt) — search for
   `public interface World` and `internal class WholeWorld` for the currently combined object.
-- [`ComponentGraph.kt`](../../src/common/dev/martianzoo/engine/ComponentGraph.kt) and
-  [`GameReaderImpl.kt`](../../src/common/dev/martianzoo/engine/GameReaderImpl.kt) — search for
-  `applyChange` and `internal class GameReaderImpl` for present-state storage and queries.
-- [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt),
-  [`Task.kt`](../../src/common/dev/martianzoo/pets/data/Task.kt), and
-  [`GameEvent.kt`](../../src/common/dev/martianzoo/pets/data/GameEvent.kt) — search for
-  `internal class TaskQueues`, `public data class Task`, and `public sealed class GameEvent` for
-  task storage, task behavior currently attached to its data type, and recorded deltas.
-- [`EventLog.kt`](../../src/common/dev/martianzoo/engine/EventLog.kt),
+- [`GameReaderImpl.kt`](../../src/common/dev/martianzoo/engine/GameReaderImpl.kt) — the current
+  higher-level Pets query adapter over `GameWorld`; it remains in engine while custom metrics do.
+- [`TaskQueue.kt`](../../src/common/dev/martianzoo/state/TaskQueue.kt),
+  [`TaskStore.kt`](../../src/common/dev/martianzoo/state/TaskStore.kt),
+  [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt),
+  [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt), and
+  [`GameEvent.kt`](../../src/common/dev/martianzoo/state/GameEvent.kt) — search for
+  `internal class TaskStore`, `internal class TaskQueues`, `public data class Task`, and
+  `public sealed class GameEvent` for state-owned task storage, engine-owned task construction, and
+  passive recorded values.
+- [`EventLog.kt`](../../src/common/dev/martianzoo/state/EventLog.kt),
   [`TimelineImpl.kt`](../../src/common/dev/martianzoo/engine/TimelineImpl.kt),
   [`GameRecording.kt`](../../src/common/dev/martianzoo/engine/GameRecording.kt), and
   [`RecordingPositions.kt`](../../src/common/dev/martianzoo/engine/RecordingPositions.kt) — search
-  for `record`, `seek`, `public class GameRecording`, and `internal fun record` for the current
-  history, transaction, playback, and completed-position coupling.
+  for `entriesSince`, `seek`, `public class GameRecording`, and `internal fun record` for the
+  current history, transaction, playback, and completed-position coupling.
 - [`RecordedGame.kt`](../../src/common/dev/martianzoo/tfm/web/gameviewer/RecordedGame.kt) and
   [`Main.kt`](../../src/js/dev/martianzoo/tfm/web/gameviewer/Main.kt) — search for `record()` and
   `loadSelectedGame` for the engine-backed browser replay that exported data will replace.
@@ -42,13 +49,15 @@ Each time people sit down to play, they create one Game World: a pocket universe
 immutable game context, present components, pending choices, and history. It exists for the whole
 lifetime of that game rather than denoting one snapshot.
 
-The `:gameworld` module owns that data model. A Game World contains:
+The `:state` module owns the replayable core of that data model. A current `GameWorld` contains:
 
 - immutable premise-derived context, including its Class Table and Actors;
 - the `ComponentGraph`, which materializes the components present at the current position;
 - one unordered queue of exact pending `Task` values;
-- the complete `GameEvent` log; and
-- the approved recording positions at which that world may be presented.
+- the complete `GameEvent` log.
+
+Approved recording positions are still stored by engine-side `RecordingPositions`; moving them
+with independent recording navigation is the next extraction step.
 
 The component graph is the present, the task queue is the unresolved future, and the event
 log is the past. They are three views of one game lifetime and must advance or reverse together.
@@ -56,18 +65,18 @@ The current component and task projections are materialized from an event-log pr
 never disagree with that prefix.
 
 Task instructions, assignment, selection state, continuations, causes, and ids are facts about the
-game. Storing those facts does not give Game World any task behavior. In particular, `:gameworld`
+game. Storing those facts does not give Game World any task behavior. In particular, `:state`
 does not select, narrow, normalize, resolve, split, execute, or automatically process tasks.
 
 ## Dependency direction
 
 Using “depends on” explicitly:
 
-- `:gameworld` depends on `:pets` for the language, static type model, Catalog, and premise;
-- `:engine` depends on `:gameworld` and interprets the pending instructions it contains;
+- `:state` depends on `:pets` for the language and static type model;
+- `:engine` depends on `:state` and interprets the pending instructions it contains;
 - `:agent` depends on `:engine` and owns Actor-scoped interaction and policies;
 - `:tfm-engine` depends on `:engine` for Terraforming Mars behavior; and
-- the game viewer depends on `:gameworld` and `:tfm-canon`, plus `:tfm-fake` for noncanonical
+- the game viewer will depend on `:state` and `:tfm-canon`, plus `:tfm-fake` for noncanonical
   recordings, but not on `:engine` or `:tfm-engine`.
 
 The designated JVM replay exporter composes all needed layers. A browser that reads its output
@@ -94,16 +103,18 @@ Dependent removal illustrates the split. Game World may reject removal while dep
 The engine decides which dependent removal to perform and records that concrete change before
 retrying the original removal. Playback merely reapplies those recorded events.
 
-Runtime `Task`, `GameEvent`, and recording-position values belong to `:gameworld` and should move
-there; current source still places `Task` and `GameEvent` in `:pets`. Task construction and
-normalization belong in `:engine`.
+Runtime `Task`, `GameEvent`, and `TaskResult` values, exact task storage, event history, and passive
+event application now live in `:state`. Task construction and normalization live in `:engine`.
+Approved recording positions and independent recording navigation have not yet moved out of the
+engine.
 
 ## Live play and recording navigation
 
 The engine operates against a live Game World positioned at its latest event. The engine owns live
 transaction coordination, failure rollback, the commit floor, effects, and the decision that an
-outer mutation has reached a coherent presentable position. Game World stores the resulting
-approved position but does not decide when the engine is finished.
+outer mutation has reached a coherent presentable position. Currently the engine also stores that
+approved position; the target recording model moves the position data into `:state` without moving
+the decision there.
 
 A recording is immutable exported history. Opening it creates an independent Game World view with
 its own component graph, task queue, and cursor. Seeking changes only that derived view. It cannot
@@ -120,7 +131,7 @@ projection, not transient projections encountered while moving the cursor.
 
 Current `Timeline` combines live transaction control with recording playback. Extraction should
 leave transaction atomicity and the commit floor in `:engine`, while moving independent recording
-navigation into `:gameworld`.
+navigation into `:state`.
 
 ## Exported recordings
 
@@ -144,7 +155,7 @@ queries such as production counts and visible-log filtering must not pull in `Tf
 
 ## Verification responsibilities
 
-Pure `:gameworld` tests should verify:
+Pure `:state` tests should verify:
 
 - exact component and task events advance and reverse all projections together;
 - event replay never fires effects or invents task work;
@@ -161,8 +172,11 @@ mutation completes.
 
 ## Extraction order
 
-1. Move the passive component store and readable Game World projection behind a `:gameworld` API.
+1. Move the passive component store behind a `:state` `GameWorld` API. **Done.** The broader
+   `GameReader` adapter remains in engine pending the custom-metric boundary.
 2. Split exact task storage and event replay from engine-owned task construction and behavior.
+   **Done.** `GameWorld` now applies and reverses exact events while engine `TaskQueues` constructs
+   and normalizes task work.
 3. Separate recording navigation from live engine transaction control.
 4. Add the recording schema, deterministic JVM exporter, and checked-file verification.
 5. Export designated full-game replay tests and switch the viewer to those files.

@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Transforming
@@ -43,10 +42,12 @@ import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.Component.Companion.toComponent
+import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.toComponent
 import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It resolves and executes instructions. */

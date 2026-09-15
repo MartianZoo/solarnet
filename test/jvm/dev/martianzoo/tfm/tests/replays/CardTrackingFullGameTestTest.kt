@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent
+import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.tests.cards.cardnames.AcquiredCompany
 import dev.martianzoo.tfm.tests.cards.cardnames.AdaptedLichen
 import dev.martianzoo.tfm.tests.cards.cardnames.AsteroidMining

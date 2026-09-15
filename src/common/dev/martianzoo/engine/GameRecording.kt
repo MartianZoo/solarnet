@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Timeline.Checkpoint
-import dev.martianzoo.pets.data.GameEvent
+import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.GameEvent
 
 /** A completed world's event history, navigable only at completed gameplay positions. */
 public class GameRecording

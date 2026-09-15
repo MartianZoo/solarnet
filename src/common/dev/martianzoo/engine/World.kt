@@ -6,6 +6,9 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.state.ComponentGraph
+import dev.martianzoo.state.EventLog
+import dev.martianzoo.state.TaskQueue
 
 /**
  * A live Pets world with transactional mutation, pending tasks, and event history. A world is the
@@ -13,9 +16,8 @@ import dev.martianzoo.pets.types.ClassTable
  * [EventLog], and a [TaskQueue]. These types embody the present, past, and future of the world
  * (respectively).
  *
- * These are live objects rather than read-only/writable interface pairs. Their engine-internal
- * mutation methods live on the same types. [actorEngine] provides the Actor-attributed mutation
- * boundary used by higher-level clients.
+ * These are live read surfaces over state owned by one `GameWorld`. [actorEngine] provides the
+ * Actor-attributed mutation boundary used by higher-level clients.
  *
  * A [GameReader] provides the public component queries, including queries expressed as a Pets
  * [Metric] or [Requirement].

@@ -3,6 +3,7 @@ package dev.martianzoo.engine
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.state.Component
 import io.kotest.matchers.collections.shouldContainExactly
 import kotlin.test.Test
 

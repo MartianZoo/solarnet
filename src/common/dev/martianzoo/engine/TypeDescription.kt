@@ -11,6 +11,7 @@ import dev.martianzoo.pets.types.GroundType
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.types.TypeVariable
 import dev.martianzoo.pets.util.toSetStrict
+import dev.martianzoo.state.toComponent
 
 public class TypeDescription
 public constructor(

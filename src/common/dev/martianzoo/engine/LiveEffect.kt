@@ -31,12 +31,14 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.types.TypeVariable
 import dev.martianzoo.pets.types.TypeVariableScope
+import dev.martianzoo.state.Component
+import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.toComponent
 
 /** One specialized component effect ready for subscription matching and firing. */
 internal class LiveEffect

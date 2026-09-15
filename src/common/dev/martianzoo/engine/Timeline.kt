@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.TaskResult
 
 public interface Timeline {
   public fun checkpoint(): Checkpoint
@@ -24,12 +25,4 @@ public interface Timeline {
    * complete normally.
    */
   public fun atomic(block: () -> Unit): TaskResult
-
-  public data class Checkpoint(public val ordinal: Int) {
-    init {
-      require(ordinal >= 0)
-    }
-
-    override fun toString(): String = "$ordinal"
-  }
 }

@@ -1,11 +1,11 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.script.ScriptSession.UsageException
+import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.tfm.engine.visibleLogEvents
 
 internal class LogCommand(private val repl: ScriptSession) : ScriptCommand("log") {

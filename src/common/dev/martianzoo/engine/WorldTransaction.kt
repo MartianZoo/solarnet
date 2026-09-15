@@ -1,6 +1,6 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.state.TaskResult
 
 /**
  * Coordinates nested game mutations as one transaction, settles callback-started follow-ups, and

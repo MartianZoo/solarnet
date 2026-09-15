@@ -2,14 +2,13 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agenttestsupport.testTfm
-import dev.martianzoo.engine.Component.Companion.toComponent
-import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.Component
+import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.engine.TfmGameplay
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
@@ -541,18 +540,18 @@ internal abstract class CardTrackingFullGameTest(
     }
   }
 
-  private fun ChangeEvent.projectCardLocation(expression: Expression?): CardLocation? {
-    if (expression?.className != PROJECT_CARD) return null
-    val player = playerOwner(expression)
+  private fun ChangeEvent.projectCardLocation(component: Component?): CardLocation? {
+    if (component?.className != PROJECT_CARD) return null
+    val player = playerOwner(component)
     return when {
-      expression.isProjectCardAt(HAND) -> Hand(player)
-      expression.isProjectCardAt(SELECTING) -> Selecting(player)
+      component.isProjectCardAt(HAND) -> Hand(player)
+      component.isProjectCardAt(SELECTING) -> Selecting(player)
       else -> null
     }
   }
 
-  private fun ChangeEvent.projectCardPlayer(expression: Expression?): Player? =
-      expression?.takeIf { it.className == PROJECT_CARD }?.let { playerOwner(it) }
+  private fun ChangeEvent.projectCardPlayer(component: Component?): Player? =
+      component?.takeIf { it.className == PROJECT_CARD }?.let { playerOwner(it) }
 
   private fun ChangeEvent.involvesProjectCard(): Boolean =
       change.gaining?.className == PROJECT_CARD || change.removing?.className == PROJECT_CARD
@@ -593,23 +592,23 @@ internal abstract class CardTrackingFullGameTest(
     cards[cardClass] = to
   }
 
-  private fun ChangeEvent.playerOwner(expression: Expression): Player =
+  private fun ChangeEvent.playerOwner(component: Component): Player =
       checkNotNull(
-          expression.toComponent(game.reader).owner?.className?.let { ownerName ->
+          component.owner?.className?.let { ownerName ->
             game.actors.filterIsInstance<Player>().singleOrNull { it.className == ownerName }
           }
       ) {
-        "$expression changed without a Player owner in $this"
+        "$component changed without a Player owner in $this"
       }
 
   private val TfmGameplay.player: Player
     get() = actor as Player
 
-  private fun Expression?.isProjectCardAt(area: ClassName): Boolean =
-      this?.className == PROJECT_CARD && arguments.any { it.className == area }
+  private fun Component?.isProjectCardAt(area: ClassName): Boolean =
+      this?.className == PROJECT_CARD && type.expressionFull.arguments.any { it.className == area }
 
-  private fun Expression.trackedCardClass(): ClassName? =
-      descendantsOfType<ClassName>().firstOrNull { it in cards }
+  private fun Component.trackedCardClass(): ClassName? =
+      expressionFull.descendantsOfType<ClassName>().firstOrNull { it in cards }
 
   private sealed interface CardLocation {
     val player: Player?
