@@ -22,7 +22,7 @@ internal class TaskNormalizationTest {
           """,
           players = 2,
       )
-  private val world = GameWorld(premise.classTable)
+  private val world = GameWorld(premise)
   private val queues = TaskQueues(world, premise.classTable)
 
   @Test
