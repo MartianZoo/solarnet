@@ -11,8 +11,8 @@
 > Agent chooses work. Those belong in [ENGINE.md](ENGINE.md), [SEQUENCING.md](SEQUENCING.md), and
 > [AUTOEXEC.md](AUTOEXEC.md).
 >
-> **Status:** selected design with component, task, and event state extracted; recording navigation
-> and export remain in transition.
+> **Status:** current model for state-owned world data, rich queries, recording playback, and replay
+> exports.
 
 ## Current source map
 
@@ -20,11 +20,12 @@
   [`ComponentChange.kt`](../../src/common/dev/martianzoo/state/ComponentChange.kt), and
   [`ComponentGraph.kt`](../../src/common/dev/martianzoo/state/ComponentGraph.kt) — the passive,
   fully concrete component-state boundary.
+- [`GameReaderImpl.kt`](../../src/common/dev/martianzoo/state/GameReaderImpl.kt) and
+  [`CustomMetricRuntime.kt`](../../src/common/dev/martianzoo/state/CustomMetricRuntime.kt) — the
+  state-owned rich Pets query adapter and Catalog-provided metric evaluation.
 - [`World.kt`](../../src/common/dev/martianzoo/engine/World.kt) and
-  [`WholeWorld.kt`](../../src/common/dev/martianzoo/engine/WholeWorld.kt) — search for
-  `public interface World` and `internal class WholeWorld` for the currently combined object.
-- [`GameReaderImpl.kt`](../../src/common/dev/martianzoo/engine/GameReaderImpl.kt) — the current
-  higher-level Pets query adapter over `GameWorld`; it remains in engine while custom metrics do.
+  [`WholeWorld.kt`](../../src/common/dev/martianzoo/engine/WholeWorld.kt) — the live engine facade
+  over one `GameWorld`.
 - [`TaskQueue.kt`](../../src/common/dev/martianzoo/state/TaskQueue.kt),
   [`TaskStore.kt`](../../src/common/dev/martianzoo/state/TaskStore.kt),
   [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt),
@@ -33,31 +34,27 @@
   `internal class TaskStore`, `internal class TaskQueues`, `public data class Task`, and
   `public sealed class GameEvent` for state-owned task storage, engine-owned task construction, and
   passive recorded values.
-- [`EventLog.kt`](../../src/common/dev/martianzoo/state/EventLog.kt),
-  [`TimelineImpl.kt`](../../src/common/dev/martianzoo/engine/TimelineImpl.kt),
-  [`GameRecording.kt`](../../src/common/dev/martianzoo/engine/GameRecording.kt), and
-  [`RecordingPositions.kt`](../../src/common/dev/martianzoo/engine/RecordingPositions.kt) — search
-  for `entriesSince`, `seek`, `public class GameRecording`, and `internal fun record` for the
-  current history, transaction, playback, and completed-position coupling.
-- [`RecordedGame.kt`](../../src/common/dev/martianzoo/tfm/web/gameviewer/RecordedGame.kt) and
-  [`Main.kt`](../../src/js/dev/martianzoo/tfm/web/gameviewer/Main.kt) — search for `record()` and
-  `loadSelectedGame` for the engine-backed browser replay that exported data will replace.
+- [`GameRecording.kt`](../../src/common/dev/martianzoo/state/GameRecording.kt),
+  [`GameRecordingJson.kt`](../../src/common/dev/martianzoo/state/GameRecordingJson.kt), and
+  [`recording.kt`](../../src/common/dev/martianzoo/engine/recording.kt) — immutable recording data,
+  passive independent playback, opaque JSON interchange, and capture from a live engine World.
+- [`ReplayExportExtension.kt`](../../test/jvm/dev/martianzoo/tfm/tests/replays/ReplayExportExtension.kt)
+  and [`Main.kt`](../../src/js/dev/martianzoo/tfm/web/gameviewer/Main.kt) — automatic successful
+  replay-test export and engine-free browser loading.
 
 ## One game's pocket universe
 
 Each time people sit down to play, they create one Game World: a pocket universe with its own
-immutable game context, present components, pending choices, and history. It exists for the whole
-lifetime of that game rather than denoting one snapshot.
+immutable premise, present components, pending choices, history, and rich read model. It exists for
+the whole lifetime of that game rather than denoting one snapshot.
 
 The `:state` module owns the replayable core of that data model. A current `GameWorld` contains:
 
-- immutable premise-derived context, including its Class Table and Actors;
+- immutable premise-derived context, including its Catalog, Class Table, and Actors;
 - the `ComponentGraph`, which materializes the components present at the current position;
 - one unordered queue of exact pending `Task` values;
-- the complete `GameEvent` log.
-
-Approved recording positions are still stored by engine-side `RecordingPositions`; moving them
-with independent recording navigation is the next extraction step.
+- the complete `GameEvent` log; and
+- a `GameReader` whose ordinary and custom metrics are passive queries over those components.
 
 The component graph is the present, the task queue is the unresolved future, and the event
 log is the past. They are three views of one game lifetime and must advance or reverse together.
@@ -76,11 +73,11 @@ Using “depends on” explicitly:
 - `:engine` depends on `:state` and interprets the pending instructions it contains;
 - `:agent` depends on `:engine` and owns Actor-scoped interaction and policies;
 - `:tfm-engine` depends on `:engine` for Terraforming Mars behavior; and
-- the game viewer will depend on `:state` and `:tfm-canon`, plus `:tfm-fake` for noncanonical
+- the game viewer depends on `:state` and `:tfm-canon`, plus `:tfm-fake` for noncanonical
   recordings, but not on `:engine` or `:tfm-engine`.
 
-The designated JVM replay exporter composes all needed layers. A browser that reads its output
-does not calculate consequences and must not acquire an engine dependency indirectly.
+JVM replay tests compose all needed layers while playing. A browser reads only their exported files,
+does not calculate consequences, and has no `:engine`, `:agent`, or `:tfm-engine` dependency.
 
 ## Passive event application
 
@@ -93,6 +90,11 @@ Applying one updates the event log and its materialized component/task projectio
 operation. Game World enforces its own structural invariants, such as concrete active component
 Types, dependency integrity, exact task-event matching, and unique task ids.
 
+Constructing a `GameWorld` with a complete event list applies that list in ordinal order and
+reconstructs the corresponding component graph, pending tasks, and event history. It requires the
+compatible Class Table because event files reference resolved Types through their full Pets
+expressions rather than embedding another Catalog.
+
 Application is mechanically inert. It never discovers or fires effects, creates follow-up work,
 chooses dependent removals, interprets an Instruction, or invokes Agent policy. During live play,
 the engine decides a change, asks Game World to apply it, and then explicitly calculates any
@@ -103,55 +105,50 @@ Dependent removal illustrates the split. Game World may reject removal while dep
 The engine decides which dependent removal to perform and records that concrete change before
 retrying the original removal. Playback merely reapplies those recorded events.
 
-Runtime `Task`, `GameEvent`, and `TaskResult` values, exact task storage, event history, and passive
-event application now live in `:state`. Task construction and normalization live in `:engine`.
-Approved recording positions and independent recording navigation have not yet moved out of the
-engine.
+Runtime `Task`, `GameEvent`, and `TaskResult` values, exact task storage, event history, passive
+application, rich queries, immutable recordings, and playback navigation live in `:state`. Task
+construction, normalization, custom-instruction translation, and execution live in `:engine`.
 
 ## Live play and recording navigation
 
 The engine operates against a live Game World positioned at its latest event. The engine owns live
 transaction coordination, failure rollback, the commit floor, effects, and the decision that an
-outer mutation has reached a coherent presentable position. Currently the engine also stores that
-approved position; the target recording model moves the position data into `:state` without moving
-the decision there.
+outer mutation has reached a coherent presentable position. It records those ordinals while live;
+capture copies them into the immutable state-owned recording.
 
-A recording is immutable exported history. Opening it creates an independent Game World view with
-its own component graph, task queue, and cursor. Seeking changes only that derived view. It cannot
-alter the engine-owned world that produced the recording, the immutable recording, or another
-view opened from the same recording.
+A recording is immutable exported history. Opening it creates an independent Game World with its
+own component graph, task queue, reader, and cursor. Seeking passively applies or reverses exact
+events and cannot alter the engine-owned world that produced the recording, the immutable
+recording, or another view opened from the same recording.
 
 Public navigation accepts only an approved recording position or its list index. An event ordinal
 may be displayed in the log and used by causal metadata, but it is not a seek target. Intermediate
 events inside automatic `::` consequences, cascading dependent removal, idle cleanup, or another
 outer operation are replay mechanics, never worlds exposed to the viewer.
 
-A seek may internally apply or reverse many events. Observers receive the completed target
-projection, not transient projections encountered while moving the cursor.
+The engine's `Timeline` retains live transaction atomicity and the commit floor. Its
+`RecordingPositions` records coherent completed-operation ordinals; capture copies those values
+into a state-owned recording, where they become the only public seek targets.
 
-Current `Timeline` combines live transaction control with recording playback. Extraction should
-leave transaction atomicity and the commit floor in `:engine`, while moving independent recording
-navigation into `:state`.
+## Serialized events and exported recordings
 
-## Exported recordings
+`EventLogJson` is the state-level opaque JSON encoding for an exact event list. Changes use full
+round-tripping Type expressions; tasks retain their complete instruction, continuation, assignment,
+selection, and cause, while events retain their notes. Decoding takes the compatible Class Table
+and returns events that can construct a fresh `GameWorld`.
 
-The initial export format is deterministic, versioned, checked-in data. It is intentionally
-Canon-dependent rather than self-contained. An export contains enough information to reconstruct
-the exact premise with the supplied Catalog, followed by the complete event stream and approved
-positions. It includes full task values, not display-only copies.
+`GameRecordingJson` wraps that data in one JSON value containing only what the viewer consumes:
+the positive and negative Class selections needed to recreate the same playable Class universe,
+ordered Player names, approved positions, and exact events. Premise-local setup effects are
+deliberately absent: playback applies their already-recorded consequences and never executes setup.
+The browser supplies the matching Canon rather than loading a serialized Catalog.
 
-The format records a schema version and a Canon fingerprint. A mismatch requires regeneration;
-the first format does not promise migration across changed Canon definitions. This avoids embedding
-a second Class Table or duplicating the Catalog in every recording.
-
-Designated JVM full-game replay tests are the sole authored source of viewer games. A dedicated
-export task runs those replays and writes deterministic files. A verification task regenerates them
-outside the source tree and byte-compares them with the checked-in copies. Ordinary viewer builds
-consume the checked-in files without running the engine.
-
-Once equivalent exports exist, delete the duplicated replay programs under the game viewer. The
-viewer may derive Terraforming Mars presentation facts from `GameReader` and `tfm-canon`, but pure
-queries such as production counts and visible-log filtering must not pull in `TfmGameplay`.
+Every successfully completed `AbstractFullGameTest` writes `<test-class>.json` under the
+`:tfm-tests` build directory. Replay tests are JVM-only. The game viewer's resource task packages
+whatever `.json` files currently exist there and generates `games/index.txt`; it does not cause
+tests to run. After a clean, a viewer-only build therefore has an empty menu. When a full build also
+runs JVM tests, task ordering makes their current outputs available before viewer resources are
+processed. The dropdown uses each test filename without its extension.
 
 ## Verification responsibilities
 
@@ -163,27 +160,8 @@ Pure `:state` tests should verify:
 - only approved positions are seekable;
 - seeking never exposes intermediate automatic-effect or dependent-removal events;
 - separate views of one recording navigate independently;
-- observers see only the completed seek target; and
-- export encoding is deterministic and rejects incompatible schema or Canon fingerprints.
+- recording and event encoding round-trip exact state data.
 
 Cross-module engine tests should continue to confirm that live failure rollback restores components,
 tasks, and history together, and that the engine marks positions only after a coherent outer
 mutation completes.
-
-## Extraction order
-
-1. Move the passive component store behind a `:state` `GameWorld` API. **Done.** The broader
-   `GameReader` adapter remains in engine pending the custom-metric boundary.
-2. Split exact task storage and event replay from engine-owned task construction and behavior.
-   **Done.** `GameWorld` now applies and reverses exact events while engine `TaskQueues` constructs
-   and normalizes task work.
-3. Separate recording navigation from live engine transaction control.
-4. Add the recording schema, deterministic JVM exporter, and checked-file verification.
-5. Export designated full-game replay tests and switch the viewer to those files.
-6. Remove viewer replay sources and its engine dependencies.
-7. Move remaining runtime data types and rendering helpers to their final owning modules once the
-   dependency seam is settled by the working composition.
-
-Do not create an empty module, a parallel display model, or a self-contained serialized Catalog as
-preparatory architecture. Each step must leave one working composition and reduce an actual
-dependency or ownership mismatch.

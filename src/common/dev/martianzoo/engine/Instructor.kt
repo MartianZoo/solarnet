@@ -58,7 +58,7 @@ internal constructor(
     private val effector: Effector,
     private val classTable: ClassTable,
     private val elaborator: PetElaborator,
-    private val customClasses: CustomClassRuntime,
+    private val customClasses: CustomInstructionRuntime,
 ) {
   private val automaticEffectStack = mutableListOf<PendingTask>()
 
@@ -490,5 +490,4 @@ internal constructor(
 
 private const val MAX_AUTOMATIC_EFFECT_DEPTH = 8
 
-private fun GameReader.hasAnyComponents(type: Type): Boolean =
-    (this as? GameReaderImpl)?.containsAny(type) ?: getComponents(type).isNotEmpty()
+private fun GameReader.hasAnyComponents(type: Type): Boolean = getComponents(type).isNotEmpty()

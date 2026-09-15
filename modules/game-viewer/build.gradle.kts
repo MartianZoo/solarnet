@@ -19,16 +19,20 @@ kotlin {
     commonMain {
       kotlin.setSrcDirs(listOf(commonSourceDirectory))
       dependencies {
-        implementation(project(":agent"))
-        implementation(project(":engine"))
         implementation(project(":pets"))
         implementation(project(":state"))
         implementation(project(":tfm-canon"))
         implementation(project(":tfm-fake"))
+      }
+    }
+    commonTest {
+      kotlin.setSrcDirs(listOf(commonTestDirectory))
+      dependencies {
+        implementation(project(":agent"))
+        implementation(project(":engine"))
         implementation(project(":tfm-engine"))
       }
     }
-    commonTest { kotlin.setSrcDirs(listOf(commonTestDirectory)) }
     jsMain {
       kotlin.setSrcDirs(listOf(jsSourceDirectory))
       dependencies { implementation(devNpm("tslib", "2.8.1")) }
@@ -36,9 +40,17 @@ kotlin {
   }
 }
 
+val replayEventLogsDirectory =
+    project(":tfm-tests").layout.buildDirectory.dir("generated/replay-event-logs")
+
 tasks.named<ProcessResources>("jsProcessResources") {
+  mustRunAfter(":tfm-tests:jvmTest")
   from(jsSourceDirectory) { include("*.html", "*.css") }
   from(sharedSourceDirectory) { into("assets") }
+  from(replayEventLogsDirectory) {
+    include("*.json")
+    into("games")
+  }
   val localImages =
       providers
           .gradleProperty("localImagesDir")
@@ -47,6 +59,16 @@ tasks.named<ProcessResources>("jsProcessResources") {
   from(localImages) {
     include("*.png", "MC/*.png")
     into("images")
+  }
+  doLast {
+    val gamesDirectory = destinationDir.resolve("games").also { it.mkdirs() }
+    val names =
+        gamesDirectory
+            .listFiles { file -> file.isFile && file.extension == "json" }
+            .orEmpty()
+            .map { it.nameWithoutExtension }
+            .sorted()
+    gamesDirectory.resolve("index.txt").writeText(names.joinToString("\n", postfix = "\n"))
   }
 }
 

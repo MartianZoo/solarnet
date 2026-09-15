@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
@@ -53,6 +54,7 @@ internal constructor(
     private val instructor: Instructor,
     private val changer: Changer,
     private val worldTransaction: WorldTransaction,
+    private val elaborator: PetElaborator,
 ) {
   private val allTasks: TaskQueue = gameWorld.tasks
 
@@ -525,7 +527,6 @@ internal constructor(
   private fun loweredRemovalBinding(then: Then, narrow: Instruction): PetTransformer? {
     val general = (then.first as? Change)?.removing ?: return null
     val specific = (narrow as? Change)?.removing ?: return null
-    val elaborator = (reader as GameReaderImpl).elaborator
     return elaborator.specializeVariables(
         reader.resolve(general),
         reader.resolve(specific),

@@ -31,7 +31,7 @@ internal class InstructionResolutionTest {
           effector,
           game.classTable,
           elaborator,
-          CustomClassRuntime(game.reader.catalog, elaborator),
+          CustomInstructionRuntime(game.reader.catalog, elaborator),
       )
 
   init {
