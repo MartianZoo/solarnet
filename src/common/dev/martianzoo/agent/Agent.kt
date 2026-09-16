@@ -166,6 +166,10 @@ public interface Agent {
 
     public fun doTask(narrowing: String, taskId: TaskId)
 
+    public fun doTasks(vararg narrowings: String) {
+      narrowings.forEach(::doTask)
+    }
+
     public fun tryTask(narrowing: String)
 
     public fun tryTask(narrowing: String, taskId: TaskId)
