@@ -1,7 +1,6 @@
 package dev.martianzoo.agent
 
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
-import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.ActorEngine
 import dev.martianzoo.engine.World
@@ -9,41 +8,46 @@ import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
 
-/** Shared legacy queue drain above the policy-free engine. */
+/** Shared Agent-policy queue drain above the policy-free engine. */
 internal class AutoExecLoop(private val world: World) {
   private val allTasks: TaskQueue
     get() = world.tasks
 
-  internal fun run(actor: Actor, policy: AutoExecPolicy) {
-    while (actOnce(actor, policy)) {}
+  private val policies = mutableMapOf<Actor, () -> AutoExecPolicy>()
+
+  internal fun register(actor: Actor, policy: () -> AutoExecPolicy) {
+    check(policies.put(actor, policy) == null) { "Agent already registered for $actor" }
   }
 
-  private fun actOnce(actor: Actor, policy: AutoExecPolicy): Boolean {
+  internal fun run() {
+    while (actOnce()) {}
+  }
+
+  private fun actOnce(): Boolean {
     if (allTasks.isEmpty()) return false
-
-    // Preserve the transitional rule: Player NONE still drains Admin work, while Admin NONE stops.
-    val eligible =
-        if (policy == NONE) {
-          if (actor !is Player) return false
-          allTasks.ids().filter { taskId -> allTasks.getTaskData(taskId).assignee == ADMIN }
-        } else {
-          allTasks.ids()
-        }
-    if (eligible.isEmpty()) return false
-
     val selected = allTasks.selectedTask()
-    if (selected != null && selected !in eligible) return false
-    val effectivePolicy = if (policy == NONE) EAGER else policy
-    val options = selected?.let(::listOf) ?: eligible.filter(::canSelectTask)
+    val candidates = selected?.let(::listOf) ?: allTasks.ids().filter(::canSelectTask)
+    val candidateCounts = candidates.groupingBy { allTasks.getTaskData(it).assignee }.eachCount()
+    val options = candidates.filter { taskId ->
+      val actor = allTasks.getTaskData(taskId).assignee
+      when (policy(taskId)) {
+        NONE -> false
+        CONCRETE -> candidateCounts.getValue(actor) == 1
+        else -> true
+      }
+    }
+    val activeCandidates = candidates.filter { taskId -> policy(taskId) != NONE }
 
     when (options.size) {
       0 -> {
-        val taskId = eligible.first()
+        val taskId =
+            allTasks.ids().firstOrNull { taskId ->
+              policy(taskId) != NONE
+            } ?: return false
+        if (selected != null || activeCandidates.isNotEmpty()) return false
         engineFor(taskId).doTask(taskId)
         error("that should've completed")
       }
@@ -58,7 +62,6 @@ internal class AutoExecLoop(private val world: World) {
           throw e.cause ?: e
         }
       }
-      else -> if (effectivePolicy == CONCRETE) return false
     }
 
     var recoverable = false
@@ -79,6 +82,11 @@ internal class AutoExecLoop(private val world: World) {
   }
 
   private fun canSelectTask(taskId: TaskId): Boolean = engineFor(taskId).canSelectTask(taskId)
+
+  private fun policy(taskId: TaskId): AutoExecPolicy {
+    val actor = allTasks.getTaskData(taskId).assignee
+    return policies.getValue(actor).invoke()
+  }
 
   private fun engineFor(taskId: TaskId): ActorEngine =
       world.actorEngine(allTasks.getTaskData(taskId).assignee)

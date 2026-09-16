@@ -63,8 +63,14 @@ public class TfmGameplay(
 
   public fun playCorp(cardName: ClassName, buyCards: Int, body: OperationBlock = {}): TaskResult {
     return inTurn {
+      // TODO: Remove the EAGER dependency after Pets owns corporation reward/purchase ordering.
+      val retained = this@TfmGameplay.count("ProjectCard<Selecting>")
+      require(buyCards == retained) {
+        "must buy all $retained project cards retained during setup, not $buyCards"
+      }
       doTask("PlayCard<Class<CorporationCard>, Class<$cardName>, Hand>")
-      buySelectedCards(buyCards)
+      if (hasPendingBuySelectedCards(tasks)) doTask("BuySelectedCards")
+      if (this@TfmGameplay.count("Owed") > 0) payAllMc()
       body()
     }
   }
@@ -76,9 +82,14 @@ public class TfmGameplay(
     openPendingProjectCardOffer()
     val offered = this@TfmGameplay.count("ProjectCard<Selecting>")
     require(count in 0..offered) { "cannot buy $count of $offered selected project cards" }
-    val discarded = offered - count
-    selectTask(tasks.extract { it }.single { it.discardsSelectedProjectCards() }.id)
-    narrowTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>")
+    val discardTask = tasks.extract { it }.singleOrNull { it.discardsSelectedProjectCards() }
+    if (discardTask == null) {
+      require(count == offered) { "all $offered retained project cards must be bought" }
+    } else {
+      val discarded = offered - count
+      selectTask(discardTask.id)
+      narrowTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>")
+    }
     if (hasPendingBuySelectedCards(tasks)) doTask("BuySelectedCards")
     if (count > 0) payAllMc()
   }

@@ -21,7 +21,9 @@ internal fun setUpGame(
   val setup = OptionCodeTranslation.setup(optionCodes, players)
   return createGame(setup).apply {
     TfmWorkflow.Stepwise(testAgents()).setupPhase()
-    actors.filterIsInstance<Player>().forEach { testTfm(it).doTask("-10 ProjectCard<Hand>") }
+    actors.filterIsInstance<Player>().forEach {
+      testTfm(it).doTask("-10 ProjectCard<Selecting>")
+    }
   }
 }
 

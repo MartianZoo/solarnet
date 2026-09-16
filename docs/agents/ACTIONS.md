@@ -332,8 +332,9 @@ instance because that instance is deliberately issued only after settlement.
 
 ### Single payment-choice loop
 
-**Status: proposal.** Today each tender kind creates its own optional task. Paying with one kind can
-leave stale alternatives that callers must decline or clean up.
+**Status: unselected candidate.** Do not implement this before the investigations and decision
+gates in [PAYMENTS.md](PAYMENTS.md). Today each tender kind creates its own optional task. Paying
+with one kind can leave stale alternatives that callers must decline or clean up.
 
 Replace them with one required task meaning “pay one accepted unit.” Its refinements are the legal
 `Accepting<Resource>` and `AcceptingFromCard<Holder>` choices. Spending one unit creates a common

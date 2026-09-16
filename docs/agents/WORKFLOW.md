@@ -46,8 +46,9 @@ The required primitives already exist:
   one eligible `Temporary` Type at an empty task queue, deferring Types with direct or indirect
   dependent `MustCleanUp` or `Temporary`. The transaction loop settles removal effects before checking the live
   queue and dependencies for another removal.
-- `GenerationScope` is a singleton lifetime anchor replaced by each `Generation`; generation-local
-  state depends on it instead of listening independently for the next Generation.
+- `GenerationScope` is a singleton lifetime anchor created naturally by the first `Generation` and
+  replaced by each later one; generation-local state depends on it instead of listening
+  independently for the next Generation.
 - `TemporaryScope<Parent>` is both a child `Scope` and a `Temporary`; it therefore depends on its
   parent and is mandatory cleanup removed only after its own dependent cleanup finishes.
 
@@ -55,6 +56,12 @@ Committed [`TfmWorkflow.Automatic`](../../src/common/dev/martianzoo/tfm/engine/T
 the missing phase decisions from Kotlin. It listens for idle completions, resumes a coroutine, and
 calls the next phase operation. The selected design replaces that continuing control role, not the
 engine primitives above.
+
+Setup and Research are simultaneous player-work windows. Setup deals each Player's starting cards
+and creates one `NewTurn` whose Player-owned tasks discard one corporation, exactly two Preludes,
+and any rejected starting projects. Every Player queue may remain active together. Research likewise
+offers cards to every Player and waits for whole-World idleness rather than imposing seat order.
+Corporation and Prelude phases retain ordered turns for playing the cards kept during Setup.
 
 ## Runtime model
 

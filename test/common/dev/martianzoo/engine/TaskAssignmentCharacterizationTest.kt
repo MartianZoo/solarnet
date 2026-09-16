@@ -51,22 +51,20 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  internal fun wholeGameAutoExecutionPreservesAnotherAssigneesActor() {
+  internal fun oneAgentsPolicyDoesNotExecuteAnotherActorsTask() {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    val checkpoint = game.timeline.checkpoint()
 
     p2.addTasks("Token<Player2>")
     p1.autoExecPolicy = EAGER
 
-    game.tasks.isEmpty() shouldBe true
-    p2.count("Token<Player2>") shouldBe 1
-    game.events.changesSince(checkpoint).single().actor shouldBe PLAYER2
+    game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
+    p2.count("Token<Player2>") shouldBe 0
   }
 
   @Test
-  internal fun playerNoneDrainsOnlyAdminWork() {
+  internal fun sharedLoopRespectsEveryAssigneesPolicy() {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
@@ -76,9 +74,9 @@ internal class TaskAssignmentCharacterizationTest {
     admin.addTasks("AdminToken")
     p1.autoExecNow()
 
-    admin.count("AdminToken") shouldBe 1
+    admin.count("AdminToken") shouldBe 0
     p2.count("Token<Player2>") shouldBe 0
-    game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
+    game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2, ADMIN)
   }
 
   @Test
