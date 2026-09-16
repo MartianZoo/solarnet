@@ -29,7 +29,7 @@ CLASS Merchant3 : Milestone {
   requirement = HAS "3 MC, 3 Steel, 3 Titanium, 3 Plant, 3 Energy, 3 Heat"
 }
 CLASS Sponsor : Milestone { requirement = HAS "3 CardFront(HAS 20 cost)" }
-CLASS Lobbyist : Milestone { requirement = HAS "7 (PartyDelegate OR Chairman)" }
+CLASS Lobbyist : Milestone { requirement = HAS "7 Delegate" }
 
 CLASS Collector : Award { metric = COUNT "Class<Resource>(HAS Resource<Owner>)" }
 CLASS Innovator : Award { metric = COUNT "CardFront OR PlayedEvent" }

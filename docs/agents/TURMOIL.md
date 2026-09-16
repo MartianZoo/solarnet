@@ -53,17 +53,22 @@ Test ownership:
 
 ## Political components
 
-`TurmoilExpansion` creates one `TurmoilPlayer` and one Lobby-availability marker for each player.
+`TurmoilExpansion` queues creation of its parties, actions, and Neutral owner as ordinary Module
+work. During Setup it creates one `TurmoilPlayer` and one Lobby-availability marker for each player.
 Neutral begins with the chair and the two printed setup delegates introduced by the first Coming and
 Distant events. Greens are the initial ruling party.
 
-Only placed delegates are components. A player's available supply is derived from the seven-delegate
-limit minus their `PartyDelegate`s and `Chairman`; neutral uses the analogous fourteen-delegate limit.
+`Delegate<Owner>` is the common supertype of `PartyDelegate` and `Chairman`. Only placed delegates
+are components. A player's available supply is derived from the seven-delegate limit; its
+`TurmoilPlayer` component supplies the per-player context that a normal Class invariant cannot bind.
+Neutral is itself the owner, so it directly carries the corresponding `MAX 14 Delegate<This>`
+invariant; the chairman is one of those fourteen delegates while occupying the chair.
 There is no second representation for off-board delegates, just as there is none for unplaced tiles.
-`LobbyActionAvailable` separately records whether the free Lobby placement remains available. Using
-that placement or placing the seventh delegate removes the marker, and returning a delegate does not
-restore it. Any player placement beyond seven is impossible, and a neutral Global Event placement is
-ignored once neutral has fourteen placed delegates.
+`LobbyActionAvailable` separately records whether the free Lobby placement remains available and
+removes itself when its owner places a seventh delegate. Using that placement also consumes the
+marker, and returning a delegate does not restore it. Any player placement beyond seven is
+impossible, and the neutral invariant makes a Global Event placement an AMAP no-op once all fourteen
+neutral delegates are placed.
 
 `PartyDelegate<Party, Owner>` records committee membership. `PartyLeader<Party, Owner>`,
 `Dominant<Party>`, `Ruling<Party>`, and `Chairman<Owner>` are separate roles:

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -232,7 +233,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       cardAction1(UndergroundDetonations)
       pass()
       val previousAdminPolicy = admin.autoExecPolicy
-      admin.autoExecPolicy = NONE
+      admin.autoExecPolicy = CONCRETE
       try {
         doTask("-OceanTile<Tharsis_2_6>")
         val resourceChoices = game.tasks.extract { it }
@@ -291,7 +292,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       }
       pass(unused = FakeAppliedScience)
       val previousAdminPolicy = admin.autoExecPolicy
-      admin.autoExecPolicy = NONE
+      admin.autoExecPolicy = CONCRETE
       try {
         doTask("OceanTile<Tharsis_1_5> BY Admin")
         admin.doTask("MudSlides")
@@ -689,7 +690,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
           1 to "PartyDelegate<Greens>",
           2 to "PartyDelegate<Reds>",
           0 to "PartyDelegate<Kelvinists>",
-          7 to "PartyDelegate OR Chairman",
+          7 to "Delegate",
           0 to "LobbyActionAvailable",
       )
 

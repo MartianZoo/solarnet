@@ -12,7 +12,7 @@ internal class FakeBannedDelegateTest : CardTest() {
     newGame(TurmoilExpansion, FakeStuffBundle)
     val p2 = requireP2()
     p2.runOperation("PartyDelegate<MarsFirst>, PartyDelegate<MarsFirst>")
-    val delegatesBefore = p2.count("PartyDelegate OR Chairman")
+    val delegatesBefore = p2.count("Delegate")
 
     p1.runOperation("$FakeBannedDelegate") {
       doTask("FakeBannedDelegateRemoval<Player1, MarsFirst, Player2>")
@@ -21,6 +21,6 @@ internal class FakeBannedDelegateTest : CardTest() {
 
     p2.count("PartyDelegate<MarsFirst>") shouldBe 1
     p2.count("PartyLeader<MarsFirst>") shouldBe 1
-    p2.count("PartyDelegate OR Chairman") shouldBe delegatesBefore - 1
+    p2.count("Delegate") shouldBe delegatesBefore - 1
   }
 }

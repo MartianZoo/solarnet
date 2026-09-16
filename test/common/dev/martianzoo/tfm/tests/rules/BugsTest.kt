@@ -106,7 +106,7 @@ internal class BugsTest : CardTest() {
     admin.phase("Action")
 
     p1.count("LobbyActionAvailable") shouldBe 1
-    p1.count("PartyDelegate OR Chairman") shouldBe 6
+    p1.count("Delegate") shouldBe 6
 
     p1.stdAction("LobbyAction", 2) {
       doTask("PartyDelegate<Scientists>")
@@ -114,7 +114,7 @@ internal class BugsTest : CardTest() {
 
     p1.count("MC") shouldBe 0
     p1.count("LobbyActionAvailable") shouldBe 0
-    p1.count("PartyDelegate OR Chairman") shouldBe 7
+    p1.count("Delegate") shouldBe 7
     p1.count("PartyDelegate") shouldBe 7
   }
 

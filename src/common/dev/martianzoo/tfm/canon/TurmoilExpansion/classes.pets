@@ -9,7 +9,7 @@ CLASS TurmoilExpansion : Module {
   HAS Class<ResolveSponsoredProjects>, Class<ResolveCloudSocieties>
   HAS Class<AddResourceToCard>
   HAS Class<ChooseInfluenceFloaterCard>, Class<ResolveCorrosiveRain>
-  This:: Neutral, MarsFirst, Scientists, Unity, Greens, Reds, Kelvinists, LobbyAction, UseTurmoilPolicyAction
+  This: Neutral, EACH Class<Party> { Party }, LobbyAction, UseTurmoilPolicyAction
   SetupPhase:: EACH Player { TurmoilPlayer, LobbyActionAvailable }
   SetupPhase:: Chairman<Neutral>, Ruling<Greens>
   SetupPhase: RevealComingEvent
@@ -37,14 +37,12 @@ ABSTRACT CLASS GlobalEvent {
 
 "The party receiving the neutral delegate printed in a Global Event's distant position"
 ABSTRACT CLASS GePartyDistant<Party> : GlobalEvent {
-  PlaceDistantDelegate<Class<This>> IF \
-    MAX 13 (PartyDelegate<Neutral> OR Chairman<Neutral>):: PartyDelegate<Party, Neutral>.
+  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Party, Neutral>.
 }
 
 "The party receiving the neutral delegate when a Global Event becomes current"
 ABSTRACT CLASS GePartyCurrent<Party> : GlobalEvent {
-  Current<Class<This>> IF \
-    MAX 13 (PartyDelegate<Neutral> OR Chairman<Neutral>):: PartyDelegate<Party, Neutral>.
+  Current<Class<This>>:: PartyDelegate<Party, Neutral>.
 }
 
 "One Global Event card occupying its printed board position"
@@ -171,14 +169,12 @@ CLASS ChangingTimes : Signal {
 "A player participating in the Turmoil political rules"
 CLASS TurmoilPlayer : Owned<Player>, System {
   HAS MAX 1 This
-  PartyDelegate OR Chairman IF 7 (PartyDelegate OR Chairman):: -LobbyActionAvailable.
-  PartyDelegate OR Chairman IF 8 (PartyDelegate OR Chairman):: Die
+  Delegate IF 8 Delegate:: Die
 }
 
 "The owner of gray delegates"
 CLASS Neutral : Owner {
-  HAS MAX 1 This
-  PartyDelegate OR Chairman IF 15 (PartyDelegate OR Chairman):: Die
+  HAS =1 This, MAX 14 Delegate<This>
 }
 
 ABSTRACT CLASS Party {
@@ -267,25 +263,23 @@ ABSTRACT CLASS PartyStatus<Party> {
 }
 
 "The delegate holding the committee chair"
-CLASS Chairman : Owned<Owner> {
-  HAS MAX 1 Chairman
-  MeasureInfluence:: ChairmanInfluence
-  End: VictoryPoint
-}
-
-"Marks that a player has not used their free lobbying action this generation"
-CLASS LobbyActionAvailable : Owned<Player>, System {
-  HAS MAX 1 This
-}
-
-"A delegate currently assigned to one political party"
-CLASS PartyDelegate<Party> : Owned<Owner> {
-  X This:: EACH Anyone(HAS MAX 0 PartyLeader<Party, Anyone>, HAS =1 (RANK Anyone { PartyDelegate<Party, Anyone>, PartyLeader<Party, Anyone> })) { \
-    PartyLeader<Party, Anyone> \
+ABSTRACT CLASS Delegate : Owned<Owner> {
+  CLASS Chairman {
+    HAS MAX 1 Chairman
+    MeasureInfluence:: ChairmanInfluence
+    End: VictoryPoint
   }
-  X This:: RecalculateDominance
-  MeasureInfluence IF Dominant<Party>, 1 (PartyDelegate<Party, Owner> - PartyLeader<Party, Owner>):: DelegateInfluence.
+
+  "A delegate currently assigned to one political party"
+  CLASS PartyDelegate<Party> {
+    X This:: EACH Anyone(HAS MAX 0 PartyLeader<Party, Anyone>, HAS =1 (RANK Anyone { PartyDelegate<Party, Anyone>, PartyLeader<Party, Anyone> })) { \
+      PartyLeader<Party, Anyone> \
+    }
+    X This:: RecalculateDominance
+    MeasureInfluence IF Dominant<Party>, 1 (PartyDelegate<Party, Owner> - PartyLeader<Party, Owner>):: DelegateInfluence.
+  }
 }
+
 
 "The owner whose delegate occupies one party's leader seat"
 CLASS PartyLeader<Party> : Owned<Owner> {
@@ -294,6 +288,12 @@ CLASS PartyLeader<Party> : Owned<Owner> {
   }
   MeasureInfluence IF Dominant<Party>:: PartyLeaderInfluence
   End: VictoryPoint
+}
+
+"Marks that a player has not used their free lobbying action this generation"
+CLASS LobbyActionAvailable : Owned<Player>, System {
+  HAS MAX 1 This
+  Delegate IF 7 Delegate:: -This.
 }
 
 CLASS RecalculateDominance : Signal {
@@ -319,7 +319,7 @@ CLASS LobbyAction : StandardAction {
 
 "Restores free lobbying for each player who has an available delegate"
 CLASS RefillLobby : Signal {
-  This:: EACH Player(HAS MAX 6 (PartyDelegate OR Chairman)) { LobbyActionAvailable<Player>. }
+  This:: EACH Player(HAS MAX 6 Delegate) { LobbyActionAvailable<Player>. }
 }
 
 "Requests the current political influence snapshot for one player"

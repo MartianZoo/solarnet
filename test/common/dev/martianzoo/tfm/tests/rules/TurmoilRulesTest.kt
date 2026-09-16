@@ -18,10 +18,10 @@ internal class TurmoilRulesTest : CardTest() {
     p2.count("TurmoilPlayer") shouldBe 1
     p1.count("LobbyActionAvailable") shouldBe 1
     p2.count("LobbyActionAvailable") shouldBe 1
-    p1.count("PartyDelegate OR Chairman") shouldBe 0
-    p2.count("PartyDelegate OR Chairman") shouldBe 0
+    p1.count("Delegate") shouldBe 0
+    p2.count("Delegate") shouldBe 0
     admin.count("Neutral") shouldBe 1
-    admin.count("PartyDelegate<Neutral> OR Chairman<Neutral>") shouldBe 3
+    admin.count("Delegate<Neutral>") shouldBe 3
     admin.count("Party") shouldBe 6
     admin.count("Chairman<Neutral>") shouldBe 1
     admin.count("Ruling<Greens>") shouldBe 1
@@ -42,7 +42,7 @@ internal class TurmoilRulesTest : CardTest() {
     }
 
     p1.count("LobbyActionAvailable") shouldBe 0
-    p1.count("PartyDelegate OR Chairman") shouldBe 1
+    p1.count("Delegate") shouldBe 1
     p1.count("PartyDelegate<MarsFirst>") shouldBe 1
     p1.count("PartyLeader<MarsFirst>") shouldBe 1
     admin.count("Dominant<MarsFirst>") shouldBe 1
@@ -94,8 +94,8 @@ internal class TurmoilRulesTest : CardTest() {
 
     p1.count("MC") shouldBe 5
     p2.count("MC") shouldBe 0
-    p1.count("PartyDelegate OR Chairman") shouldBe 2
-    p2.count("PartyDelegate OR Chairman") shouldBe 4
+    p1.count("Delegate") shouldBe 2
+    p2.count("Delegate") shouldBe 4
     p1.count("PartyLeader<MarsFirst>") shouldBe 1
     p2.count("PartyLeader<Scientists>") shouldBe 1
     admin.count("Dominant<Scientists>") shouldBe 1
@@ -171,7 +171,7 @@ internal class TurmoilRulesTest : CardTest() {
 
     p1.runOperation("PartyDelegate<MarsFirst>")
 
-    p1.count("PartyDelegate OR Chairman") shouldBe 1
+    p1.count("Delegate") shouldBe 1
     p1.count("LobbyActionAvailable") shouldBe 1
     p1.count("PartyDelegate<MarsFirst>") shouldBe 1
   }
@@ -195,6 +195,18 @@ internal class TurmoilRulesTest : CardTest() {
   }
 
   @Test
+  internal fun `delegate limit is independent for each player`() {
+    newGame(TurmoilExpansion)
+    val p2 = requireP2()
+
+    repeat(7) { p1.runOperation("PartyDelegate<MarsFirst>") }
+    repeat(7) { p2.runOperation("PartyDelegate<Scientists>") }
+
+    p1.count("Delegate") shouldBe 7
+    p2.count("Delegate") shouldBe 7
+  }
+
+  @Test
   internal fun `a returned delegate does not restore a Lobby emptied with the seventh delegate`() {
     newGame(TurmoilExpansion)
     repeat(7) { p1.runOperation("PartyDelegate<MarsFirst>") }
@@ -209,7 +221,7 @@ internal class TurmoilRulesTest : CardTest() {
     }
 
     p1.count("LobbyActionAvailable") shouldBe 0
-    p1.count("PartyDelegate OR Chairman") shouldBe 6
+    p1.count("Delegate") shouldBe 6
   }
 
   @Test
@@ -223,9 +235,9 @@ internal class TurmoilRulesTest : CardTest() {
     admin.runOperation("RefillLobby")
 
     p1.count("LobbyActionAvailable") shouldBe 1
-    p1.count("PartyDelegate OR Chairman") shouldBe 1
+    p1.count("Delegate") shouldBe 1
     requireP2().count("LobbyActionAvailable") shouldBe 1
-    requireP2().count("PartyDelegate OR Chairman") shouldBe 0
+    requireP2().count("Delegate") shouldBe 0
   }
 
   @Test

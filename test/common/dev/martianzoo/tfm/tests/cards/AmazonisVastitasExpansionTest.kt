@@ -102,7 +102,7 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
       p1.runOperation("CityTile<$area>") { doTask("PartyDelegate<Scientists>") }
 
       p1.count("PartyDelegate<Scientists>") shouldBe 1
-      p1.count("PartyDelegate OR Chairman") shouldBe 1
+      p1.count("Delegate") shouldBe 1
       p1.count("LobbyActionAvailable") shouldBe 1
     }
   }
@@ -119,7 +119,7 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
     p1.count("PartyDelegate") shouldBe 2
     p1.count("PartyLeader<Scientists>") shouldBe 1
     admin.count("Dominant<Scientists>") shouldBe 1
-    p1.count("PartyDelegate OR Chairman") shouldBe 2
+    p1.count("Delegate") shouldBe 2
   }
 
   @Test
@@ -134,7 +134,7 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
     }
 
     p1.count("CityTile<Amazonis_08_09>") shouldBe 0
-    p1.count("PartyDelegate OR Chairman") shouldBe 6
+    p1.count("Delegate") shouldBe 6
   }
 
   @Test
@@ -145,7 +145,7 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
       p1.runOperation("CityTile<$area>") { doTask("PartyDelegate<Greens>") }
 
       p1.count("PartyDelegate<Greens>") shouldBe 1
-      p1.count("PartyDelegate OR Chairman") shouldBe 1
+      p1.count("Delegate") shouldBe 1
     }
   }
 

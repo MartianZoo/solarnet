@@ -24,7 +24,7 @@ internal class TurmoilProjectCardsTest : CardTest() {
       }
     }
 
-    p1.count("PartyDelegate OR Chairman") shouldBe 6
+    p1.count("Delegate") shouldBe 6
     p1.count("CityTile") shouldBe 0
   }
 
@@ -41,7 +41,7 @@ internal class TurmoilProjectCardsTest : CardTest() {
       doTask("2 PartyDelegate<Scientists>")
     }
 
-    p1.count("PartyDelegate OR Chairman") shouldBe 7
+    p1.count("Delegate") shouldBe 7
     p1.count("LobbyActionAvailable") shouldBe 0
     p1.count("PartyDelegate") shouldBe 7
   }
@@ -83,8 +83,8 @@ internal class TurmoilProjectCardsTest : CardTest() {
             "PartyDelegate<Unity, Neutral>, PartyDelegate<Unity, Neutral>"
     )
     admin.count("Dominant<MarsFirst>") shouldBe 1
-    val playerDelegatesBefore = p1.count("PartyDelegate OR Chairman")
-    val neutralDelegatesBefore = admin.count("PartyDelegate<Neutral> OR Chairman<Neutral>")
+    val playerDelegatesBefore = p1.count("Delegate")
+    val neutralDelegatesBefore = admin.count("Delegate<Neutral>")
 
     p1.playProject(Recruitment, 2) {
       doTask("RecruitmentExchange<MarsFirst>")
@@ -92,10 +92,10 @@ internal class TurmoilProjectCardsTest : CardTest() {
     }
 
     p1.count("PartyDelegate<MarsFirst>") shouldBe 1
-    p1.count("PartyDelegate OR Chairman") shouldBe playerDelegatesBefore + 1
+    p1.count("Delegate") shouldBe playerDelegatesBefore + 1
     admin.count("PartyDelegate<MarsFirst, Neutral>") shouldBe 1
     admin.count("PartyLeader<MarsFirst, Neutral>") shouldBe 1
-    admin.count("PartyDelegate<Neutral> OR Chairman<Neutral>") shouldBe neutralDelegatesBefore - 1
+    admin.count("Delegate<Neutral>") shouldBe neutralDelegatesBefore - 1
     admin.count("Dominant<MarsFirst>") shouldBe 1
   }
 
@@ -114,7 +114,7 @@ internal class TurmoilProjectCardsTest : CardTest() {
       }
     }
 
-    p1.count("PartyDelegate OR Chairman") shouldBe 7
+    p1.count("Delegate") shouldBe 7
     admin.count("PartyDelegate<MarsFirst, Neutral>") shouldBe 2
   }
 
@@ -127,7 +127,7 @@ internal class TurmoilProjectCardsTest : CardTest() {
     p1.cardAction1(MartianMediaCenter) { doTask("PartyDelegate<Greens>") }
 
     p1.count("PartyDelegate<Greens>") shouldBe 1
-    p1.count("PartyDelegate OR Chairman") shouldBe 1
+    p1.count("Delegate") shouldBe 1
     p1.count("MC") shouldBe 0
   }
 
@@ -152,16 +152,16 @@ internal class TurmoilProjectCardsTest : CardTest() {
     repeat(6) { p1.runOperation("PartyDelegate<Greens>") }
     admin.phase("Action")
     p1.runOperation("5 MC, ProjectCard")
-    val neutralDelegatesBefore = admin.count("PartyDelegate<Neutral> OR Chairman<Neutral>")
+    val neutralDelegatesBefore = admin.count("Delegate<Neutral>")
     val ratingBefore = p1.count("TerraformRating")
 
     p1.playProject(VoteOfNoConfidence, 5)
 
     admin.count("Chairman<Neutral>") shouldBe 0
     p1.count("Chairman") shouldBe 1
-    p1.count("PartyDelegate OR Chairman") shouldBe 7
+    p1.count("Delegate") shouldBe 7
     p1.count("LobbyActionAvailable") shouldBe 0
-    admin.count("PartyDelegate<Neutral> OR Chairman<Neutral>") shouldBe neutralDelegatesBefore - 1
+    admin.count("Delegate<Neutral>") shouldBe neutralDelegatesBefore - 1
     p1.count("TerraformRating") shouldBe ratingBefore + 1
   }
 

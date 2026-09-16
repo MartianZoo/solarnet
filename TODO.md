@@ -100,6 +100,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   self-removal should default to mandatory.
 - Give Admin an installable autoexecution policy for Global Events that pulls exact cards from an
   ordered list; until then callers explicitly complete reveal tasks.
+- Reconsider Turmoil's `PartyLeader` representation and name. It currently supplements the actual
+  `PartyDelegate` as a non-`Delegate` role; decide whether a clearer role name or a true delegate
+  subtype can express leadership without representing or counting the physical marker twice.
 - Investigate whether the three self-handling signals `CimmeriaPlacementBonus`,
   `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
   requiring authored references to generated names. Preserve Cimmeria map generation,
