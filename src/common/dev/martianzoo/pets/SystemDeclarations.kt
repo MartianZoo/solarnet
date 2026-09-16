@@ -60,7 +60,7 @@ private val systemDeclarationsSource =
     "Something the player must remove to unblock some other task (i.e., `MAX 0 Barrier:` is common"
     ABSTRACT CLASS Barrier : MustCleanUp
 
-    "An unscoped point event that removes itself immediately after triggering effects"
+    "An unscoped point event; `IF This` skips self-removal when no instance entered live state"
     ABSTRACT CLASS Signal : MustCleanUp {
       This IF This:: -This!
     }

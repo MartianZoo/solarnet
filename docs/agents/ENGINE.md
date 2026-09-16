@@ -503,9 +503,7 @@ Other subscriptions multiply by the number of live effect-bearing components.
 
 An effect on an owned component listening to an unowned event defaults to matching only its Owner
 unless it says `BY Anyone`. Unowned `System` components are Admin-only; `Hidden` controls
-presentation instead. `Signal` is hidden but not necessarily engine-only. A direct gain fires its
-gain and removal effects once from one self-transmutation. When a Signal is gained from a different
-Type, its declared automatic self-removal creates the following removal event.
+presentation instead. `Signal` is hidden but not necessarily engine-only.
 
 A positive abstract Actor selector can bind the matching Actor for reuse elsewhere in the trigger or
 instruction. Type-variable occurrence paths likewise carry a concrete trigger narrowing into linked
