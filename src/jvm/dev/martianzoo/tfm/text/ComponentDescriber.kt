@@ -76,6 +76,7 @@ internal data class ComponentDescriber(
     public data class State(
         internal val enter: Procedure,
         internal val leave: Procedure,
+        internal val ownershipTransfers: Map<ClassName, Procedure> = emptyMap(),
     ) : ChangeFrame
 
     public data class CappedProcedure(

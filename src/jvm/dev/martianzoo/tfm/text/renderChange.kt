@@ -170,23 +170,42 @@ private fun renderStateChange(
     describers: Describers,
 ): Clause.Simple? {
   val change = instruction as? Instruction.Change ?: return null
-  val expression = change.gaining ?: change.removing ?: return null
-  if (
-      change.quantifier.modality() != Modality.REQUIRED ||
-          change.count.fixedQuantity() != 1 ||
-          expression.refinement != null ||
-          describers.resolveExpression(expression)?.sourceDependencies?.keys?.any {
-            it != Key(OWNED, 0)
-          } != false
-  ) {
+  if (change.quantifier.modality() != Modality.REQUIRED || change.count.fixedQuantity() != 1) {
     return null
   }
+  val ownerKey = Key(OWNED, 0)
   val procedure =
-      when (change) {
-        is Gain -> frame.enter
-        is Remove -> frame.leave
-        is Transmute -> return null
-      }
+      if (change is Transmute) {
+        if (
+            change.gaining.className != change.removing.className ||
+                change.gaining.refinement != null ||
+                change.removing.refinement != null
+        ) {
+          return null
+        }
+        val gaining = describers.resolveExpression(change.gaining) ?: return null
+        val removing = describers.resolveExpression(change.removing) ?: return null
+        if (!gaining.hasOnlySourceDependency(ownerKey, describers.ownerExpression)) return null
+        val previousOwner =
+            removing.sourceDependency(ownerKey)?.takeIf(Expression::simple) ?: return null
+        if (removing.sourceDependencies.keys != setOf(ownerKey)) return null
+        frame.ownershipTransfers[previousOwner.className]
+      } else {
+        val expression = change.gaining ?: change.removing ?: return null
+        if (
+            expression.refinement != null ||
+                describers.resolveExpression(expression)?.sourceDependencies?.keys?.any {
+                  it != ownerKey
+                } != false
+        ) {
+          return null
+        }
+        when (change) {
+          is Gain -> frame.enter
+          is Remove -> frame.leave
+          is Transmute -> error("Handled above")
+        }
+      } ?: return null
   if (procedure.cardTargetRelation != null) return null
   return procedure.objectPhrase?.let { clause(procedure.verb, NounPhrase.text(it)) }
       ?: Clause.Simple(Predicate(Verb(procedure.verb)))

@@ -99,10 +99,10 @@
         },
         {
           "name": "VoteOfNoConfidence",
-          "requirement": "PartyLeader, Chairman<Neutral>",
+          "requirement": "PartyLeader",
           "cost": 5,
           "tags": [ "EventTag" ],
-          "immediate": "-Chairman<Neutral> THEN Chairman, TerraformRating",
+          "immediate": "Chairman<Owner FROM Neutral>, TerraformRating",
         },
         {
           "name": "WildlifeDome",

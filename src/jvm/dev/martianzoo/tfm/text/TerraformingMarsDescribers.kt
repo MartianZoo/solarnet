@@ -42,10 +42,7 @@ internal object TerraformingMarsDescribers {
                 changeFrame =
                     Frame.CountedProcedure(
                         "place",
-                        counted(
-                            "reserve delegate in any party",
-                            "reserve delegates in any party",
-                        ),
+                        counted("delegate", "delegates"),
                     ),
                 requirementCondition =
                     Condition.OwnedCount(
@@ -79,6 +76,14 @@ internal object TerraformingMarsDescribers {
                     Frame.State(
                         enter = Frame.Procedure("move", "a reserve delegate to the chair"),
                         leave = Frame.Procedure("return", "the chairman to its owner's reserve"),
+                        ownershipTransfers =
+                            mapOf(
+                                klass("Neutral") to
+                                    Frame.Procedure(
+                                        "replace",
+                                        "the neutral chairman with one of your delegates",
+                                    )
+                            ),
                     ),
                 requirementCondition =
                     Condition.OwnedCount(
