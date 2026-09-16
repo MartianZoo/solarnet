@@ -31,7 +31,7 @@ internal class InstructionResolutionTest {
           effector,
           game.classTable,
           elaborator,
-          CustomClassRuntime(game.reader.catalog, elaborator),
+          CustomInstructionRuntime(game.reader.catalog, elaborator),
       )
 
   init {
@@ -149,6 +149,10 @@ internal class InstructionResolutionTest {
     checkResolution(
         "EACH ProjectCard<Anyone> { -ProjectCard<Anyone> }",
         List(10) { "-ProjectCard<Player1, Hand>!" }.joinToString(", "),
+    )
+    checkResolution(
+        "EACH ProjectCard<Anyone> { StandardResource }",
+        List(10) { "StandardResource<Player1>!" }.joinToString(", "),
     )
   }
 

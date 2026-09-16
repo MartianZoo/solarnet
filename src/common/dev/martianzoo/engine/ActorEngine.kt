@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
@@ -53,6 +54,7 @@ internal constructor(
     private val instructor: Instructor,
     private val changer: Changer,
     private val worldTransaction: WorldTransaction,
+    private val elaborator: PetElaborator,
 ) {
   private val allTasks: TaskQueue = gameWorld.tasks
 
@@ -302,27 +304,15 @@ internal constructor(
     val group = InstructionGroup.of(replacement)
     if (group.size == 1) {
       val instruction = group.instructions.single()
-      val updated =
-          if (instruction is Then && then == null) {
-            newTasks(
-                    firstId = original.id,
-                    controller = original.controller,
-                    instruction = group,
-                    cause = original.cause,
-                    actor = original.actor,
-                    isAbstract = reader::isAbstract,
-                )
-                .single()
-          } else {
-            original.copy(instruction = instruction, then = then)
-          }
       val selection =
           if (original.selection == Selection.DELEGATED || instruction.isAbstract(reader)) {
             Selection.DELEGATED
           } else {
             Selection.SELECTED
           }
-      taskQueues.editTask(updated.copy(selection = selection))
+      taskQueues.editTask(
+          original.copy(instruction = instruction, then = then, selection = selection)
+      )
     } else {
       // Structural completion replaces the selected task with ordinary pending siblings. No child
       // inherits selection; a later player input must select whichever sibling comes next.
@@ -525,7 +515,6 @@ internal constructor(
   private fun loweredRemovalBinding(then: Then, narrow: Instruction): PetTransformer? {
     val general = (then.first as? Change)?.removing ?: return null
     val specific = (narrow as? Change)?.removing ?: return null
-    val elaborator = (reader as GameReaderImpl).elaborator
     return elaborator.specializeVariables(
         reader.resolve(general),
         reader.resolve(specific),

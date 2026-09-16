@@ -43,7 +43,6 @@ public sealed class ComponentChange {
   ) : ComponentChange() {
     init {
       require(count > 0)
-      require(gaining != removing) { "both gaining and removing $gaining" }
     }
   }
 

@@ -144,7 +144,7 @@ internal class TaskAssignmentCharacterizationTest {
 
   @Test
   internal fun pendingTaskReceivesItsAddEventOrdinalWhenInsertedIntoItsAssigneesQueue() {
-    val world = GameWorld(testGamePremise("CLASS Token<Player>", players = 2).classTable)
+    val world = GameWorld(testGamePremise("CLASS Token<Player>", players = 2))
     val queues = TaskQueues(world)
     val cause = Cause(parse<Expression>("Token"), triggerEvent = 0)
     val pending =

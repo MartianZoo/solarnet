@@ -70,14 +70,13 @@ A live Game World is a `World` containing:
 
 The `:state` library owns the passive component state, exact pending tasks, event history, readable
 projections, and runtime event/task values of one game. It stores task Instructions as inert data
-but has no task execution, effects, Agent, or autoexecution. The selected final boundary also puts
-approved recording positions in `:state`; those positions have not moved yet.
+but has no task execution, effects, Agent, or autoexecution. Immutable recordings and their approved
+positions also live in `:state`; the engine only decides and tracks those positions during live play.
 The engine consumes that Game World and owns task and instruction behavior. The `:agent` library
 consumes the engine and supplies the normal Actor-scoped client API and optional policies.
 See [GAMEWORLD.md](GAMEWORLD.md),
 [RESPONSIBILITIES.md](RESPONSIBILITIES.md#selected-runtime-dependency-direction), and
-[API.md](API.md). Live transaction coordination, approved recording positions, and recording
-navigation remain in `:engine` during the staged extraction.
+[API.md](API.md). Live transaction coordination remains in `:engine`; recording navigation does not.
 
 `GameConfig` is unresolved user intent. Catalog-specific resolution composes concrete Player
 Classes named by the configuration, then applies defaults, selection policy, and validation to
@@ -209,8 +208,11 @@ narrow or otherwise satisfy the inherited dependency bound. Removing the last ta
 removal.
 
 Component mutation is represented by an exact gain, removal, or transmutation. A transmutation
-removes before it adds. Every successful live engine mutation enters the Game World's event log and
-then updates the engine's derived live-effect index.
+removes before it adds. A direct Signal gain is represented as a transmutation whose gain and
+removal Types are the same, so it fires both sides without changing live state. A Signal gained from
+another Type is an ordinary transmutation; the Signal's declared automatic effect then records its
+removal as a second change. Every successful live engine mutation enters the Game World's event log
+and then updates the engine's derived live-effect index.
 `ComponentGraph.listenToCount` observes the live count of one resolved Type, reports its initial
 value immediately, and reports later changes during both forward play and recording navigation.
 The caller supplies the World's `GameReader` for abstract or refined Type evaluation and can cancel
@@ -249,11 +251,10 @@ failure reverses component state, tasks, event-backed indexes, and events.
 prevents rollback into initialization or a workflow stage.
 
 `World.recording()` captures the event sequence and selected positions around successful outermost
-Agent completion. `GameRecording.seek` currently reverses or reapplies those events on the same live
-`World`, and capturing seals its public rollback surface to those positions. This coupling is
-transitional. The selected model exports immutable history and opens an independent scrollable Game
-World view whose public seek targets are only completed positions, never arbitrary event ordinals.
-See [GAMEWORLD.md](GAMEWORLD.md).
+Agent completion without changing the live `World`. Opening the immutable recording constructs an
+independent passive Game World; seeking reverses or reapplies recorded events there, and its public
+targets are only completed positions, never arbitrary event ordinals. See
+[GAMEWORLD.md](GAMEWORLD.md).
 
 Failure-atomicity is not game-rule atomicity. An operation whose intermediate changes fire effects
 may still be observable one change at a time.
@@ -280,7 +281,9 @@ without promoting that view into the Game World storage model.
 
 `InstructionTree` is the broad AST kind. `Instruction` is one task-shaped root.
 `InstructionGroup` is a normalized comma-separated batch. Queue admission splits a group into one
-task per member. Narrowing a grouped `OR` branch can likewise replace one task with several.
+task per member. Every admitted or edited Task passes through the same engine normalization while
+retaining its identity and lifecycle fields. Narrowing a grouped `OR` branch can likewise replace
+one task with several.
 
 `A THEN B` stores A as current work and B as a continuation. Completing A enqueues B in its place;
 B is not immediate and receives no priority over unrelated pending work. Open implicit variables can
@@ -500,7 +503,9 @@ Other subscriptions multiply by the number of live effect-bearing components.
 
 An effect on an owned component listening to an unowned event defaults to matching only its Owner
 unless it says `BY Anyone`. Unowned `System` components are Admin-only; `Hidden` controls
-presentation instead. `Signal` is hidden but not necessarily engine-only.
+presentation instead. `Signal` is hidden but not necessarily engine-only. A direct gain fires its
+gain and removal effects once from one self-transmutation. When a Signal is gained from a different
+Type, its declared automatic self-removal creates the following removal event.
 
 A positive abstract Actor selector can bind the matching Actor for reuse elsewhere in the trigger or
 instruction. Type-variable occurrence paths likewise carry a concrete trigger narrowing into linked
@@ -514,7 +519,7 @@ chain. `:` effects become tasks. Use
 
 ## Metrics, refinements, and limits
 
-`GameReader.count` evaluates component counts, union metrics, and custom metrics. A union is a
+State's `GameReader.count` evaluates component counts, union metrics, and custom metrics. A union is a
 multiset union: for each exact component Type, keep the greatest matching multiplicity so overlapping
 arms do not double count. Its arms must be distinct component counts; capped, scaled, subtractive,
 property, and virtual custom counts cannot participate because they have no component identity.

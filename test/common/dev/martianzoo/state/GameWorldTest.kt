@@ -1,6 +1,6 @@
 package dev.martianzoo.state
 
-import dev.martianzoo.engine.testClassTable
+import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExistingDependentsException
@@ -18,13 +18,16 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class GameWorldTest {
-  private val table = testClassTable("CLASS Token\nCLASS Holder<Token>")
+  private val premise =
+      testGamePremise("CLASS Token\nCLASS Holder<Token>\nCLASS Moment : Signal", players = 0)
+  private val table = premise.classTable
   private val token = table.resolve(parse<Expression>("Token")).toComponent()
   private val holder = table.resolve(parse<Expression>("Holder<Token>")).toComponent()
+  private val moment = table.resolve(parse<Expression>("Moment")).toComponent()
 
   @Test
   internal fun appliesAndReversesOnlyExactConcreteChanges() {
-    val world = GameWorld(table)
+    val world = GameWorld(premise)
     val tokenGain = changeEvent(world, ComponentChange.Gain(component = token))
     val holderGain = changeEvent(world, ComponentChange.Gain(component = holder))
 
@@ -45,8 +48,37 @@ internal class GameWorldTest {
   }
 
   @Test
+  internal fun selfTransmutationNeverChangesTheComponentProjection() {
+    val world = GameWorld(premise)
+    val observedCounts = mutableListOf<Int>()
+    world.components.listenToCount(moment.type, world.reader, observedCounts::add)
+
+    world.apply(changeEvent(world, ComponentChange.Transmute(gaining = moment, removing = moment)))
+
+    world.components.countComponent(moment) shouldBe 0
+    observedCounts shouldBe listOf(0)
+    world.rollBackTo(0)
+    world.components.countComponent(moment) shouldBe 0
+    observedCounts shouldBe listOf(0)
+  }
+
+  @Test
+  internal fun ordinaryTransmutationCanGainASignal() {
+    val world = GameWorld(premise)
+    world.apply(changeEvent(world, ComponentChange.Gain(component = token)))
+
+    world.apply(changeEvent(world, ComponentChange.Transmute(gaining = moment, removing = token)))
+
+    world.components.countComponent(moment) shouldBe 1
+    world.components.countComponent(token) shouldBe 0
+    world.rollBackTo(1)
+    world.components.countComponent(moment) shouldBe 0
+    world.components.countComponent(token) shouldBe 1
+  }
+
+  @Test
   internal fun exactTaskEventsKeepHistoryAndPendingProjectionTogether() {
-    val world = GameWorld(table)
+    val world = GameWorld(premise)
     val task =
         Task(
             id = TaskId(0),
@@ -76,7 +108,7 @@ internal class GameWorldTest {
 
   @Test
   internal fun rejectedOrdinalDoesNotAdvanceStateHistoryOrRevision() {
-    val world = GameWorld(table)
+    val world = GameWorld(premise)
     val revision = world.revision
 
     shouldThrow<IllegalArgumentException> {
@@ -90,8 +122,8 @@ internal class GameWorldTest {
 
   @Test
   internal fun separateWorldsReplayTheSameTaskValueAndThenDiverge() {
-    val first = GameWorld(table)
-    val second = GameWorld(table)
+    val first = GameWorld(premise)
+    val second = GameWorld(premise)
     val task =
         Task(
             id = TaskId(0),

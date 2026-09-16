@@ -35,13 +35,15 @@ internal fun newTasks(
   val normalized =
       InstructionGroup.of(instruction.instructions.map(::normalizeForTask)).instructions
   return normalized.map {
-    newTask(
-        TaskId(nextOrdinal++),
-        controller,
-        actor,
-        it,
-        cause,
-        isAbstract = isAbstract,
+    normalizeTask(
+        Task(
+            id = TaskId(nextOrdinal++),
+            controller = controller,
+            actor = actor,
+            instruction = it,
+            cause = cause,
+        ),
+        isAbstract,
     )
   }
 }
@@ -91,42 +93,26 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
       is Transform -> throw ExpressionException("unhandled transform in task: $tree")
     }
 
-/** Applies engine-owned task normalization without changing the task's identity or lifecycle. */
-internal fun normalizeTask(task: Task): Task {
+/**
+ * Applies engine-owned normalization while preserving this task's identity and lifecycle. A
+ * separable sequence moves into [Task.then] only when that continuation slot is free; otherwise
+ * both sequence boundaries remain intact so their implicit variables stay independent.
+ */
+internal fun normalizeTask(
+    task: Task,
+    isAbstract: ((Expression) -> Boolean)? = null,
+): Task {
   val instruction =
       normalizeForTask(task.instruction) as? Instruction
           ?: throw TaskException(
               "task input must be split into individual instructions: ${task.instruction}"
           )
   val then = task.then?.let(::normalizeForTask)?.let(InstructionGroup::of)?.takeIf { !it.isEmpty() }
-  return task.copy(instruction = instruction, then = then)
-}
-
-private fun newTask(
-    id: TaskId,
-    controller: Actor,
-    actor: Actor,
-    instruction: Instruction,
-    cause: Cause?,
-    isAbstract: ((Expression) -> Boolean)? = null,
-): Task {
-  val normalized =
-      normalizeTask(
-          Task(
-              id = id,
-              controller = controller,
-              actor = actor,
-              instruction = instruction,
-              cause = cause,
-          )
-      )
-  val normalizedThen = normalized.instruction as? Then
-  return if (normalizedThen != null && !normalizedThen.mustRemainOneTask(isAbstract)) {
-    normalized.copy(
-        instruction = normalizedThen.first,
-        then = normalizedThen.continuationAfterFirst(),
-    )
-  } else {
-    normalized
-  }
+  val normalized = task.copy(instruction = instruction, then = then)
+  val sequence = normalized.instruction as? Then ?: return normalized
+  if (normalized.then != null || sequence.mustRemainOneTask(isAbstract)) return normalized
+  return normalized.copy(
+      instruction = sequence.first,
+      then = sequence.continuationAfterFirst(),
+  )
 }
