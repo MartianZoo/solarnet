@@ -168,7 +168,7 @@ internal abstract class CardTrackingFullGameTest(
     }
     if (inferredPlayer != null) {
       resolveKnownSelection(inferredPlayer)
-      resolveKnownHandSelectionCycle(inferredPlayer)
+      resolveKnownHandSelectionCycle(inferredPlayer, recentStart)
     }
   }
 
@@ -297,7 +297,7 @@ internal abstract class CardTrackingFullGameTest(
       observeCardPlay(event)
     }
     trackingCheckpoint = current
-    resolveFullyKeptSelections()
+    resolveFullyKeptSelections(syncStart)
     applyPendingAnnotations()
   }
 
@@ -320,16 +320,17 @@ internal abstract class CardTrackingFullGameTest(
     arrivalOffsets[player.className] = end
   }
 
-  private fun resolveFullyKeptSelections() {
+  private fun resolveFullyKeptSelections(earliestOrdinal: Int) {
     projectCardArrivalOrder.keys.forEach { playerName ->
       val player = game.actors.filterIsInstance<Player>().single { it.className == playerName }
       val selectingCards = cards.filterValues { it == Selecting(player) }.keys.toList()
       if (selectingCards.isEmpty()) return@forEach
       val selected =
-          selectEvents(selectingCards.size, trackingStartOrdinal) { event ->
+          selectEvents(selectingCards.size, earliestOrdinal) { event ->
             event.projectCardLocation(event.change.removing) == Selecting(player) &&
                 event.projectCardLocation(event.change.gaining) == Hand(player)
           } ?: return@forEach
+      if (selected.sumOf { it.event.remainingCardCapacity } != selectingCards.size) return@forEach
       annotateSelectedEvents(selected, selectingCards)
       selectingCards.forEach { cards[it] = Hand(player) }
     }
@@ -351,11 +352,11 @@ internal abstract class CardTrackingFullGameTest(
     selectingCards.forEach { cards[it] = Hand(player) }
   }
 
-  private fun resolveKnownHandSelectionCycle(player: Player) {
+  private fun resolveKnownHandSelectionCycle(player: Player, earliestOrdinal: Int) {
     val handCards = cards.filterValues { it == Hand(player) }.keys.toList()
     if (handCards.isEmpty()) return
     val movedToSelecting =
-        selectEvents(handCards.size, trackingStartOrdinal) { event ->
+        selectEvents(handCards.size, earliestOrdinal) { event ->
           event.projectCardLocation(event.change.removing) == Hand(player) &&
               event.projectCardLocation(event.change.gaining) == Selecting(player)
         } ?: return

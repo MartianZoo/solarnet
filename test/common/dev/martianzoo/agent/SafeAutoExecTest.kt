@@ -11,7 +11,7 @@ import kotlin.test.Test
 
 internal class SafeAutoExecTest {
   @Test
-  internal fun safeLeavesAChoiceBetweenTasksPendingAcrossActors() {
+  internal fun safeActsOnOnlyItsOwnUnambiguousTask() {
     val game =
         Engine.newGame(testGamePremise("CLASS Token<Owner>\nCLASS Marker<Owner>", players = 2))
     val agents = Agents(game)
@@ -21,9 +21,9 @@ internal class SafeAutoExecTest {
 
     p1.autoExecPolicy = CONCRETE
 
-    p1.count("Token<Player1>") shouldBe 0
+    p1.count("Token<Player1>") shouldBe 1
     p2.count("Marker<Player2>") shouldBe 0
-    game.tasks.ids() shouldBe taskIds.toSet()
+    game.tasks.ids() shouldBe setOf(taskIds.last())
     game.tasks.extract { it.selected }.all { !it } shouldBe true
   }
 

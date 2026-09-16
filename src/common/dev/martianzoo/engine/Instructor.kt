@@ -398,7 +398,7 @@ internal constructor(
    * Fans one instruction out over the World as it stands right now. Every component matching the
    * selector contributes one independent branch, so a selector refinement — evaluated against each
    * candidate like any other refinement — is how "each player who..." is expressed. The resulting
-   * siblings carry no order, so they are deliberately produced in a stable but arbitrary sort.
+   * siblings carry no game order.
    */
   private fun resolveEach(each: Each): InstructionTree {
     val selectorType = reader.resolve(each.selector)
@@ -407,7 +407,7 @@ internal constructor(
           "`EACH ${each.selector}` resolves to a concrete Type; `EACH` requires an abstract selector"
       )
     }
-    val selected = reader.getComponents(selectorType).map { it.expression }.sortedBy { "$it" }
+    val selected = reader.getComponents(selectorType).map { it.expression }
     val branches = selected.map { branchFor(each, it) }
     return InstructionGroup.createTree(branches)
   }

@@ -10,8 +10,8 @@
 > **Skip when:** changing authored `::` effects or explicit task semantics. Those belong in
 > [ENGINE.md](ENGINE.md), [SEQUENCING.md](SEQUENCING.md), and [API.md](API.md).
 >
-> **Status:** selected layer ownership is implemented; the policy-relative synchronous-settlement
-> contract remains forward-looking. Current `:agent` code preserves legacy `AutoExecPolicy` behavior.
+> **Status:** Agent-owned policies and the shared synchronous settlement loop are implemented.
+> Stronger proof-oriented policy families remain forward-looking.
 
 ## Choice-safety check
 
@@ -29,7 +29,7 @@
   [`AutoExecPolicy.kt`](../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt),
   [`AgentImpl.kt`](../../src/common/dev/martianzoo/agent/AgentImpl.kt), and
   [`AutoExecLoop.kt`](../../src/common/dev/martianzoo/agent/AutoExecLoop.kt) contain the current
-  Agent-owned legacy implementation.
+  Agent-owned implementation.
 - [`ActorEngine.kt`](../../src/common/dev/martianzoo/engine/ActorEngine.kt) contains the policy-free
   task commands and probes used by the loop.
 - [API.md](API.md) owns the unique Actor-scoped Agent and its client surface.
@@ -43,11 +43,11 @@ choose further actions; no separately named driver is required.
 
 Agent exposes policy addition and removal plus `autoExecNow()`. Its policy storage, precedence, and
 decision process remain implementation details unless an actual client needs to control them.
-`autoExecNow()` asks that Agent's installed policies to act against the current game and does not
-belong to the engine. If it produces a mutation, the normal shared loop then gives every Agent a
-chance to respond. Adding or removing a policy invokes `autoExecNow()` before returning, because
-either change can alter the remaining policies' decisions. For an Agent with no active policies,
-`autoExecNow()` is a no-op.
+`autoExecNow()` asks the shared loop to let every Agent's installed policy act against the current
+game and does not belong to the engine. Adding or removing a policy invokes that loop before
+returning, because either change can alter the remaining policies' decisions. An Agent with no
+active policy makes no choices, though the same loop may still settle work assigned to other
+Actors whose policies are active.
 
 Any subset of Actors may be fully autonomous. There is no separate AI-player kind: adding policies
 to the same Agent progressively reduces the decisions left for a human until its policies cover every
@@ -67,9 +67,9 @@ still in progress.
 
 The `:agent` module then runs one plain shared loop:
 
-1. give each Agent a chance to consult its policies;
-2. allow an Agent to make at most one engine mutation;
-3. if any Agent acts, discard answers computed from the old game and begin another pass; and
+1. offer queued task candidates, in queue order, to their assignee Agent's policy;
+2. allow at most one engine mutation;
+3. if an Agent acts, discard answers computed from the old game and begin another pass; and
 4. return from the original Agent call only after one complete pass in which no Agent acts.
 
 This loop belongs to the private wiring shared by the Agents created for one game. Each Agent may
@@ -156,19 +156,34 @@ differ only when no later game rule can observe those differences.
 Do not publish a cheaper heuristic under the `slow` name. Build the analysis substrate when a real
 proof policy is implemented; do not add speculative public APIs ahead of it.
 
-## Current implementation divergence
+## Current implementation
 
 Committed code stores `AutoExecPolicy` on each `Agent`, defaults every Agent to `EAGER`, and invokes
 one shared loop from Agent-side command and operation completion points. The engine has no policy or
-autoexecution dependency. The loop deliberately preserves the old calling-Agent semantics: a
-non-`NONE` policy scans the whole task queue rather than governing only its Actor's tasks, and a
-Player using `NONE` still drains only Admin-assigned work. It does not yet provide policy attachment,
-per-assignee scheduling, or the planned Admin-first policy schedule. Treat the sections above and
-below as the replacement contract, not current behavior.
+autoexecution dependency. The loop preserves global task-queue order while consulting the policy of
+each candidate task's assignee; `NONE` therefore prevents that Actor's work from being selected by
+another Agent. `CONCRETE` considers ambiguity among the selectable candidates assigned to that same
+Actor. Configurable policy attachment and the planned Admin-first policy schedule remain
+forward-looking.
 
 Admin's default may execute concrete work, select abstract work, narrow choices, and intelligently
 choose among available Admin tasks. Admin is not inherently deterministic or choice-free. Its legal
 powers come from game state; its autonomous behavior comes from its policy configuration.
+
+## Accepted temporary limitations
+
+- The legacy dead-end fallback may try an active Agent's temporarily illegal task when a `NONE`
+  Agent has selectable work that could enable it, rather than returning at the policy-relative
+  stable point. No current Terraforming Mars scenario demonstrates this edge. Characterize a real
+  case before changing dead-end classification.
+- `TfmGameplay.playCorp` currently depends on `EAGER`: `CONCRETE` neither opens the retained-project
+  offer nor proves the order between corporation rewards and the resulting card purchase. Do not
+  repair that ordering in the gameplay helper. Revisit it when the owning Pets or engine rule can
+  express why starting cash precedes payment for retained cards.
+- `Game20230521Test` temporarily switches Players to `EAGER` to drain mandatory production work
+  that `CONCRETE` sees as several sibling tasks. This is accepted replay infrastructure, not a
+  gameplay-policy precedent. Replace it when a policy can prove those tasks mandatory; meanwhile,
+  revisit the seam if production can expose any optional Player choice.
 
 ## Required properties
 

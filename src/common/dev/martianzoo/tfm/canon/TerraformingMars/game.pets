@@ -10,7 +10,7 @@ CLASS TerraformingMars : BaseGameModule {
   This: PlayCardFromHandAction, UseStandardProjectAction, UseActionOnCardAction, ConvertPlantsAction, ConvertHeatAction
   This: DoRequiredActionsAction
   This: Action1, Action2, Action3, CardPurchase, CardPlay
-  This: Hand, Selecting, Revealed, GenerationScope
+  This: Hand, Selecting, Revealed
   This: EACH Class<GlobalParameter> { GpIncomplete<Class<GlobalParameter>> }
   This: EACH Class<RemoteArea> { RemoteArea }
 
@@ -71,8 +71,10 @@ ABSTRACT CLASS Player : Owner, Actor {
   This: 5 ProdOffset<This, Class<MC>> BY Admin
   This: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
 
-  SetupPhase: 2 CorporationCard THEN -CorporationCard \
-    THEN 10 ProjectCard THEN -10 ProjectCard?
+  SetupPhase: 2 CorporationCard THEN 10 ProjectCard THEN NewTurn
+  NewTurn IF SetupPhase: -CorporationCard, \
+    ((ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>) THEN -10 ProjectCard<Selecting>? \
+      THEN (ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>))
   ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
 }
 
@@ -101,8 +103,8 @@ ABSTRACT CLASS Phase : System {
   CLASS SetupPhase { This:: Generation }
   CLASS CorporationPhase {
     NewTurn: PlayCard<Class<CorporationCard>, Hand>, \
-      (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>), \
-      -10 ProjectCard<Selecting>? THEN BuySelectedCards
+      (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>)
+    -CorporationCard<Hand>: BuySelectedCards
   }
   CLASS ResearchPhase { This:: Generation }
   CLASS ActionPhase {
@@ -131,7 +133,9 @@ CLASS SecondAction : Owned<Player>, Signal
 CLASS Pass<GenerationScope> : Owned<Player> { HAS MAX 1 This }
 
 "Tells what generation we're in"
-CLASS Generation : System
+CLASS Generation : System {
+  This IF MAX 0 GenerationScope:: GenerationScope
+}
 
 "The lifetime anchor for components that exist only during the current generation"
 CLASS GenerationScope : Scope, System {
