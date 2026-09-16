@@ -894,6 +894,12 @@ surrounding group (L6-8).
 > production-track changes. Splicing the returned group preserves the card's surrounding gains;
 > wrapping the pair as one alien node would break ordinary instruction narrowing.
 
+> **Non-normative example — resource differences.** `PROD[StandardResource(NOT MC)]` becomes
+> `Production<Class<StandardResource>(NOT Class<MC>)>`. Production represents its resource kind
+> with a class literal, so both sides of a resource difference move into that representation. The
+> two sides must retain the same resource dependencies; a difference between distinct owners, for
+> example, cannot be represented by the class literal and is rejected.
+
 **L10-4. A trigger block wraps only a gain or removal**, never `OR`, `BY` or `IF` — the mark applies
 to the event being watched, not to the restrictions on it.
 

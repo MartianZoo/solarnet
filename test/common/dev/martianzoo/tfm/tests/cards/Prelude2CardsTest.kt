@@ -413,10 +413,7 @@ internal class Prelude2CardsTest : CardTest() {
 
     p1.playPrelude(Recession) {
       p1.autoExecPolicy = NONE
-      doTask(
-          "EACH Player(HAS MAX 0 $Recession<Anyone>) { " +
-              "-5 MC<Owner>., -Production<Owner, Class<MC>>! }"
-      )
+      doTask("EACH Player(NOT Player1) { -5 MC<Owner>., PROD[-1 MC<Owner>] }")
       doTask("-5 MC<Player2>")
       doTask("PROD[-1 MC<Player2>]")
       doTask("3 MC<Player2> FROM MC<Player2>")
