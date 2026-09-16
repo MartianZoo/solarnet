@@ -207,9 +207,10 @@ State depends on the narrowest scope matching its true lifetime: action-local bi
 the Action scope; a passed marker belongs to the Generation scope; phase-local control belongs to
 the Phase scope.
 
-`Signal` is the zero-duration edge of this model. It carries no lifetime-scope dependency, triggers
-its effects, and removes itself immediately. Do not introduce a live `NoScope` sentinel: absence of
-a `Scope` dependency already states that the event owns no interval.
+`Signal` is the zero-duration edge of this model. It carries no lifetime-scope dependency. A direct
+gain is one self-transmutation with no live component interval; a Signal gained by transmutation is
+immediately removed by its declared effect. Do not introduce a live `NoScope` sentinel: absence of
+a `Scope` dependency already states that no enclosing interval is needed.
 
 The engine applies dependency-ordered cleanup needed by this hierarchy:
 

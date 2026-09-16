@@ -208,8 +208,11 @@ narrow or otherwise satisfy the inherited dependency bound. Removing the last ta
 removal.
 
 Component mutation is represented by an exact gain, removal, or transmutation. A transmutation
-removes before it adds. Every successful live engine mutation enters the Game World's event log and
-then updates the engine's derived live-effect index.
+removes before it adds. A direct Signal gain is represented as a transmutation whose gain and
+removal Types are the same, so it fires both sides without changing live state. A Signal gained from
+another Type is an ordinary transmutation; the Signal's declared automatic effect then records its
+removal as a second change. Every successful live engine mutation enters the Game World's event log
+and then updates the engine's derived live-effect index.
 `ComponentGraph.listenToCount` observes the live count of one resolved Type, reports its initial
 value immediately, and reports later changes during both forward play and recording navigation.
 The caller supplies the World's `GameReader` for abstract or refined Type evaluation and can cancel
@@ -500,7 +503,9 @@ Other subscriptions multiply by the number of live effect-bearing components.
 
 An effect on an owned component listening to an unowned event defaults to matching only its Owner
 unless it says `BY Anyone`. Unowned `System` components are Admin-only; `Hidden` controls
-presentation instead. `Signal` is hidden but not necessarily engine-only.
+presentation instead. `Signal` is hidden but not necessarily engine-only. A direct gain fires its
+gain and removal effects once from one self-transmutation. When a Signal is gained from a different
+Type, its declared automatic self-removal creates the following removal event.
 
 A positive abstract Actor selector can bind the matching Actor for reuse elsewhere in the trigger or
 instruction. Type-variable occurrence paths likewise carry a concrete trigger narrowing into linked

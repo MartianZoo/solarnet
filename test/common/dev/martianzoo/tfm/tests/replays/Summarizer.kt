@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.api.SystemClasses.SIGNAL
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.Component
@@ -36,6 +37,22 @@ internal constructor(
     val minuses = changes.sumOf { extracted(it.removing, it) }
     return pluses - minuses
   }
+
+  internal fun signalCount(ofType: String): Int = signalCount(null, reader.resolve(parse(ofType)))
+
+  internal fun signalCount(byType: String, ofType: String): Int =
+      signalCount(reader.resolve(parse(byType)), reader.resolve(parse(ofType)))
+
+  private fun signalCount(byType: Type?, ofType: Type): Int =
+      events.changesSinceSetup().sumOf { event ->
+        val change = event.change
+        val signal = change.gaining ?: return@sumOf 0
+        if (!signal.type.narrows(reader.resolve(SIGNAL.expression))) return@sumOf 0
+        val causeMatches =
+            byType == null ||
+                event.cause?.let { reader.resolve(it.context).narrows(byType) } == true
+        if (causeMatches && signal.type.narrows(ofType)) change.count else 0
+      }
 
   private fun Type.narrows(supertype: Type): Boolean = narrows(supertype, reader)
 

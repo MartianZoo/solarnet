@@ -378,8 +378,8 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
 
       // Best current match for the app's reported action count: turns offered plus passes,
       // excluding the final-greenery offer.
-      (-sum.net("NewTurn", "NewTurn<Player1>") + sum.net("ActionPhase", "Pass<Player1>") -
-          1) shouldBe 168
+      (sum.signalCount("NewTurn<Player1>") + sum.net("ActionPhase", "Pass<Player1>") - 1) shouldBe
+          168
 
       // Discounts earned
       // Random automatic order may attribute fewer saturated removals here; see SEQUENCING.md.

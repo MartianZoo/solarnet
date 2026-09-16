@@ -2,6 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.pets.api.Exceptions.ExistingDependentsException
 import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.api.SystemClasses.SIGNAL
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.Component
@@ -29,6 +30,9 @@ internal class Changer(
       val change =
           when {
             gaining == null -> ComponentChange.Remove(count, checkNotNull(removing))
+            removing == null &&
+                gaining.type.rootClass.isSubtypeOf(reader.classTable.getClass(SIGNAL)) ->
+                ComponentChange.Transmute(count, gaining = gaining, removing = gaining)
             removing == null -> ComponentChange.Gain(count, gaining)
             else -> ComponentChange.Transmute(count, gaining, removing)
           }

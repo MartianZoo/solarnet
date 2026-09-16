@@ -20,10 +20,11 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class EventLogJsonTest {
-  private val premise = testGamePremise("CLASS Token\nCLASS Marker")
+  private val premise = testGamePremise("CLASS Token\nCLASS Marker\nCLASS Ping : Signal")
   private val table = premise.classTable
   private val token = table.resolve(parse<Expression>("Token")).toComponent()
   private val marker = table.resolve(parse<Expression>("Marker")).toComponent()
+  private val ping = table.resolve(parse<Expression>("Ping")).toComponent()
 
   @Test
   internal fun exactEventsRoundTripAndReconstructTheirWorld() {
@@ -50,6 +51,12 @@ internal class EventLogJsonTest {
                 Cause(parse("Token"), 0),
             ),
             TaskRemovedEvent(4, selected),
+            ChangeEvent(
+                5,
+                player,
+                ComponentChange.Transmute(1, gaining = ping, removing = ping),
+                Cause(parse("Token"), 0),
+            ),
         )
     events[3].notes = "line one\nline two\twith a tab"
     val original = GameWorld(premise, events)

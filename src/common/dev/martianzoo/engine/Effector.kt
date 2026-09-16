@@ -26,11 +26,12 @@ internal class Effector(
    * Compiles every effect needed to synchronize [change], before authoritative state is changed.
    */
   internal fun prepare(change: ComponentChange) {
-    listOfNotNull(change.gaining, change.removing).forEach(::liveEffects)
+    listOfNotNull(change.gaining, change.removing).distinct().forEach(::liveEffects)
   }
 
   /** Synchronizes the engine's derived effect index after passive state application. */
   internal fun applied(change: ComponentChange) {
+    if (change.gaining == change.removing) return
     change.removing?.let { mustRemove(it, change.count) }
     change.gaining?.let { add(it, change.count) }
   }
@@ -85,6 +86,7 @@ internal class Effector(
       resolvedChange: LiveEffect.ResolvedChange,
   ): List<PendingTask> =
       listOfNotNull(resolvedChange.gaining, resolvedChange.removing)
+          .distinct()
           .map(Type::toComponent)
           .flatMap { liveEffects(it) }
           .filter { automatic == null || it.automatic == automatic }

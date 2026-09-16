@@ -18,10 +18,12 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class GameWorldTest {
-  private val premise = testGamePremise("CLASS Token\nCLASS Holder<Token>", players = 0)
+  private val premise =
+      testGamePremise("CLASS Token\nCLASS Holder<Token>\nCLASS Moment : Signal", players = 0)
   private val table = premise.classTable
   private val token = table.resolve(parse<Expression>("Token")).toComponent()
   private val holder = table.resolve(parse<Expression>("Holder<Token>")).toComponent()
+  private val moment = table.resolve(parse<Expression>("Moment")).toComponent()
 
   @Test
   internal fun appliesAndReversesOnlyExactConcreteChanges() {
@@ -43,6 +45,35 @@ internal class GameWorldTest {
     world.components.count(token.type, NoGameState) shouldBe 0
     world.components.count(holder.type, NoGameState) shouldBe 0
     world.events.entriesSince(Checkpoint(0)) shouldBe emptyList()
+  }
+
+  @Test
+  internal fun selfTransmutationNeverChangesTheComponentProjection() {
+    val world = GameWorld(premise)
+    val observedCounts = mutableListOf<Int>()
+    world.components.listenToCount(moment.type, world.reader, observedCounts::add)
+
+    world.apply(changeEvent(world, ComponentChange.Transmute(gaining = moment, removing = moment)))
+
+    world.components.countComponent(moment) shouldBe 0
+    observedCounts shouldBe listOf(0)
+    world.rollBackTo(0)
+    world.components.countComponent(moment) shouldBe 0
+    observedCounts shouldBe listOf(0)
+  }
+
+  @Test
+  internal fun ordinaryTransmutationCanGainASignal() {
+    val world = GameWorld(premise)
+    world.apply(changeEvent(world, ComponentChange.Gain(component = token)))
+
+    world.apply(changeEvent(world, ComponentChange.Transmute(gaining = moment, removing = token)))
+
+    world.components.countComponent(moment) shouldBe 1
+    world.components.countComponent(token) shouldBe 0
+    world.rollBackTo(1)
+    world.components.countComponent(moment) shouldBe 0
+    world.components.countComponent(token) shouldBe 1
   }
 
   @Test

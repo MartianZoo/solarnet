@@ -88,7 +88,8 @@ Game World accepts only changes whose meaning has already been decided:
 
 Applying one updates the event log and its materialized component/task projections as one
 operation. Game World enforces its own structural invariants, such as concrete active component
-Types, dependency integrity, exact task-event matching, and unique task ids.
+Types, dependency integrity, exact task-event matching, and unique task ids. A transmutation may
+name the same component on both sides; its net component-state change is zero.
 
 Constructing a `GameWorld` with a complete event list applies that list in ordinal order and
 reconstructs the corresponding component graph, pending tasks, and event history. It requires the

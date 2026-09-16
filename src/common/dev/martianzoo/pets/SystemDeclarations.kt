@@ -62,7 +62,7 @@ private val systemDeclarationsSource =
 
     "An unscoped point event that removes itself immediately after triggering effects"
     ABSTRACT CLASS Signal : MustCleanUp {
-      This:: -This!
+      This IF This:: -This!
     }
 
     "An entity that can initiate or continue game operations"
