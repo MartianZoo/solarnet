@@ -34,6 +34,10 @@ internal class AgentImpl(
     private val autoExecLoop: AutoExecLoop,
 ) : Agent {
 
+  init {
+    autoExecLoop.register(engine.actor) { autoExecPolicy }
+  }
+
   override val actor: Actor
     get() = engine.actor
 
@@ -164,9 +168,9 @@ internal class AgentImpl(
   }
 
   private inline fun continueOperationBody(body: () -> Unit) {
-    autoExecLoop.run(actor, autoExecPolicy)
+    autoExecLoop.run()
     body()
-    autoExecLoop.run(actor, autoExecPolicy)
+    autoExecLoop.run()
   }
 
   private inner class Adapter : OperationScope {
@@ -176,33 +180,33 @@ internal class AgentImpl(
 
     override fun doTask(narrowing: String) {
       this@AgentImpl.doTask(narrowing)
-      autoExecLoop.run(actor, autoExecPolicy)
+      autoExecLoop.run()
     }
 
     override fun doTask(narrowing: String, taskId: TaskId) {
       this@AgentImpl.doTask(narrowing, taskId)
-      autoExecLoop.run(actor, autoExecPolicy)
+      autoExecLoop.run()
     }
 
     override fun tryTask(narrowing: String) {
       this@AgentImpl.tryTask(narrowing)
-      autoExecLoop.run(actor, autoExecPolicy)
+      autoExecLoop.run()
     }
 
     override fun tryTask(narrowing: String, taskId: TaskId) {
       this@AgentImpl.tryTask(narrowing, taskId)
-      autoExecLoop.run(actor, autoExecPolicy)
+      autoExecLoop.run()
     }
 
     override fun autoExecNow() {
-      autoExecLoop.run(actor, autoExecPolicy)
+      autoExecLoop.run()
     }
   }
 
   override fun autoExecNow() = atomic {}
 
   private fun autoExecAtomically(): TaskResult =
-      engine.transact(settle = {}, block = { autoExecLoop.run(actor, autoExecPolicy) })
+      engine.transact(settle = {}, block = { autoExecLoop.run() })
 
   // TURNS
 
@@ -291,7 +295,7 @@ internal class AgentImpl(
       engine.transact(
           block = block,
           validateCompletion = validateCompletion,
-          settle = { autoExecLoop.run(actor, autoExecPolicy) },
+          settle = { autoExecLoop.run() },
       )
 
   // Direct mutations preserve their legacy behavior of not invoking autoexecution.

@@ -41,6 +41,7 @@ internal class EffectActorCharacterizationTest {
   internal fun adminPerformedPlacementDoesNotGiveTheChangedComponentOwnerTheAreaBonus() {
     val game = Engine.newGame(canonicalPremise(cn("ElysiumMap"), players = 2))
     val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    game.testAgent(PLAYER1).autoExecPolicy = NONE
     admin.runOperation("Photosynthesis")
     val checkpoint = game.timeline.checkpoint()
 

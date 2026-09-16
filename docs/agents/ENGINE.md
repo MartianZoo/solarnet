@@ -128,15 +128,17 @@ replacement registry.
 every active concrete Class, then directly creates the `Admin` component: the minimum state needed
 before an Actor can receive work. It admits `BootstrapPhase` and then the generated `Premise`
 component through ordinary Admin tasks. The Premise's immediate effects create the `BaseGameModule`
-first, then the other literally named Modules, seated Players in order, and the premise's exact
-initial components. Its
+first, then the other literally named Modules, seated Players in order, and exact initial
+components. This gently keeps Players behind independent Module selection without putting
+player-dependent initial components before their owners. Its
 queued `ModulesReady` signal runs after that complete layer exists. The initializer then drains the
 remaining queued work and performs a final drain. Completion requires an empty task queue and every
 premise-required component to exist
 before the initialized state is committed. Structural Class representatives are installed before
 event logging and therefore produce no Change Events. By the time `newGame` returns, the World has
-one Phase, every seated Player, and each Player's five `ProdOffset<Class<MC>>` components; workflow
-later replaces Bootstrap with `SetupPhase` as an ordinary effectful operation.
+one Phase, every seated Player, and each Player's five `ProdOffset<Class<MC>>` components, but no
+`GenerationScope`; the first `Generation` creates that scope when workflow replaces Bootstrap with
+`SetupPhase` as an ordinary effectful operation.
 
 This staging is deliberate. The generated declaration is the executable form of the already
 resolved Module selection; live effects do not choose defaults from a partial World. Queued
@@ -503,9 +505,7 @@ Other subscriptions multiply by the number of live effect-bearing components.
 
 An effect on an owned component listening to an unowned event defaults to matching only its Owner
 unless it says `BY Anyone`. Unowned `System` components are Admin-only; `Hidden` controls
-presentation instead. `Signal` is hidden but not necessarily engine-only. A direct gain fires its
-gain and removal effects once from one self-transmutation. When a Signal is gained from a different
-Type, its declared automatic self-removal creates the following removal event.
+presentation instead. `Signal` is hidden but not necessarily engine-only.
 
 A positive abstract Actor selector can bind the matching Actor for reuse elsewhere in the trigger or
 instruction. Type-variable occurrence paths likewise carry a concrete trigger narrowing into linked

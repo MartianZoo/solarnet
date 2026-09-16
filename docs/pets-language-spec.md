@@ -513,9 +513,8 @@ element that does.
 
 **L6-1. The elementary instructions are gain, removal and transmutation.** `n Foo` says the after
 state holds n more components of type `Foo`; `-n Foo` that it holds n fewer; `n Foo FROM Bar` that
-n components of `Bar` have become n of `Foo`. A direct gain of the system `Signal` class is recorded
-as `n Signal FROM Signal`: both event sides fire while its before-state and after-state counts remain
-equal. A Signal explicitly transmuted from another Type is gained normally and then removes itself.
+n components of `Bar` have become n of `Foo`. A direct gain of the system `Signal` class fires both
+gain and removal triggers while its count remains unchanged.
 
 **L6-2. A count is a positive integer or `X`.** `X` denotes an amount left open, and may carry a
 coefficient: `2X Plant` is an even number of plants. A count of zero is rejected.

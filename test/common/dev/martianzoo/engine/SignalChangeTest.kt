@@ -19,17 +19,17 @@ internal class SignalChangeTest {
     val signalType = admin.resolve("Moment")
     game.components.listenToCount(signalType, game.reader, observedCounts::add)
 
-    val result = admin.runOperation("2 Moment!")
+    val result = admin.runOperation("Moment!")
 
     observedCounts.shouldContainExactly(0)
     admin.count("Moment") shouldBe 0
-    admin.count("SelfGain") shouldBe 2
-    admin.count("SelfRemoval") shouldBe 2
-    admin.count("ExternalGain") shouldBe 2
-    admin.count("ExternalRemoval") shouldBe 2
-    admin.count("EitherSignalSide") shouldBe 2
-    admin.count("GainOrSourceRemoval") shouldBe 2
-    admin.count("Token") shouldBe 2
+    admin.count("SelfGain") shouldBe 1
+    admin.count("SelfRemoval") shouldBe 1
+    admin.count("ExternalGain") shouldBe 1
+    admin.count("ExternalRemoval") shouldBe 1
+    admin.count("EitherSignalSide") shouldBe 1
+    admin.count("GainOrSourceRemoval") shouldBe 1
+    admin.count("Token") shouldBe 1
     admin.count("ObservedWhileLive") shouldBe 0
     admin.count("HeardTokenWhileLive") shouldBe 0
 
@@ -39,7 +39,7 @@ internal class SignalChangeTest {
         }
     signalChanges.size shouldBe 1
     signalChanges.single().change shouldBe
-        ComponentChange.Transmute(2, signalType.toComponent(), signalType.toComponent())
+        ComponentChange.Transmute(1, signalType.toComponent(), signalType.toComponent())
   }
 
   @Test

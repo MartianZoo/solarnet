@@ -363,7 +363,7 @@ legitimately survive one narrower operation while unrelated queues remain.
 | Concept | Meaning |
 | --- | --- |
 | `MustCleanUp` | The invariant: this must not outlive its operation. |
-| `Signal` | Policy 1 — a direct gain is a zero-state self-transmutation; otherwise it removes itself immediately. |
+| `Signal` | Policy 1 — an unscoped point event that leaves no persistent state. |
 | `Barrier` | Policy 2 — removed by the game rule that owns it. |
 | `Temporary` | Policy 3 — the engine removes it when the World is idle. |
 | `TemporaryScope<Parent>` | A child `Scope` combining Policy 3 with the cleanup invariant. |
@@ -372,10 +372,9 @@ legitimately survive one narrower operation while unrelated queues remain.
 and whose removal is the engine's idle policy. Do not make every `Temporary` a `MustCleanUp` unless
 plain whole-World temporaries first stop crossing narrower operation boundaries.
 
-`Signal` belongs in the same lifetime model without being a `Scope`. It has no scope dependency. A
-direct gain is recorded as one self-transmutation and therefore owns no interval. A Signal gained
-from another Type is live only until its automatic self-removal runs. A `NoScope` component would
-duplicate the meaningful absence of that dependency.
+`Signal` belongs in the same lifetime model without being a `Scope`. It has no scope dependency or
+persistent lifetime interval. A `NoScope` component would duplicate the meaningful absence of that
+dependency.
 
 `MustCleanUp` components represent mandatory unfinished state, and each needs an honest completion
 event: debt reaching zero, the end of an action, or another rule-specific fact. A generic Player

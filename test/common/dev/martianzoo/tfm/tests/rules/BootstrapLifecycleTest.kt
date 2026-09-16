@@ -33,8 +33,8 @@ internal class BootstrapLifecycleTest {
     admin.count("Phase") shouldBe 1
     admin.count("BootstrapPhase") shouldBe 1
     admin.count("Generation") shouldBe 0
-    admin.count("GenerationScope") shouldBe 1
-    admin.count("Scope") shouldBe 1
+    admin.count("GenerationScope") shouldBe 0
+    admin.count("Scope") shouldBe 0
     admin.count("TerraformRating") shouldBe 0
     admin.count("Player") shouldBe 2
     admin.count("ProdOffset<Player1, Class<MC>>") shouldBe 5
@@ -151,7 +151,7 @@ internal class BootstrapLifecycleTest {
   }
 
   @Test
-  internal fun setupKeepsStartingCardsInHandUntilCorporationTurns() {
+  internal fun setupRetainsStartingCardsUntilCorporationTurns() {
     val game = Engine.newGame(canonicalPremise(PreludeExpansion))
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     val admin = game.testAgent(ADMIN)
@@ -159,7 +159,7 @@ internal class BootstrapLifecycleTest {
 
     admin.count("SetupPhase") shouldBe 1
     p1.count("CorporationCard<Hand>") shouldBe 1
-    p1.count("ProjectCard<Hand>") shouldBe 10
+    p1.count("ProjectCard<Selecting>") shouldBe 10
     p1.count("PreludeCard<Hand>") shouldBe 2
 
     retainStartingProjects(game, 7, 5)
