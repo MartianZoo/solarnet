@@ -1,12 +1,12 @@
-package dev.martianzoo.script.commands
+package dev.martianzoo.tfm.script.commands
 
-import dev.martianzoo.script.ScriptCommand
-import dev.martianzoo.script.ScriptCompletion
-import dev.martianzoo.script.ScriptCompletionContext
-import dev.martianzoo.script.ScriptSession
-import dev.martianzoo.script.ScriptSession.UsageException
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.tfm.engine.visibleLogEvents
+import dev.martianzoo.tfm.script.ScriptCommand
+import dev.martianzoo.tfm.script.ScriptCompletion
+import dev.martianzoo.tfm.script.ScriptCompletionContext
+import dev.martianzoo.tfm.script.ScriptSession
+import dev.martianzoo.tfm.script.ScriptSession.UsageException
 
 internal class LogCommand(private val repl: ScriptSession) : ScriptCommand("log") {
   override val usage = "log [full]"

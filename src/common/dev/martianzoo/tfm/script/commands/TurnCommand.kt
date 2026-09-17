@@ -1,7 +1,7 @@
-package dev.martianzoo.script.commands
+package dev.martianzoo.tfm.script.commands
 
-import dev.martianzoo.script.ScriptCommand
-import dev.martianzoo.script.ScriptSession
+import dev.martianzoo.tfm.script.ScriptCommand
+import dev.martianzoo.tfm.script.ScriptSession
 
 internal class TurnCommand(private val repl: ScriptSession) : ScriptCommand("turn") {
   override val usage = "turn"

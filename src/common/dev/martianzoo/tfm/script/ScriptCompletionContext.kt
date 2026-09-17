@@ -1,4 +1,4 @@
-package dev.martianzoo.script
+package dev.martianzoo.tfm.script
 
 public class ScriptCompletionContext
 private constructor(

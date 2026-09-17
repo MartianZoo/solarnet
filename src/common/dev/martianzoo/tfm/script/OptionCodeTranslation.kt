@@ -1,4 +1,4 @@
-package dev.martianzoo.script
+package dev.martianzoo.tfm.script
 
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn

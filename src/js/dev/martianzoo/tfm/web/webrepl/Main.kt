@@ -2,11 +2,11 @@
 
 package dev.martianzoo.tfm.web.webrepl
 
-import dev.martianzoo.script.ScriptCommand
-import dev.martianzoo.script.ScriptCompletionEngine
-import dev.martianzoo.script.ScriptSession
-import dev.martianzoo.script.ScriptSession.UsageException
-import dev.martianzoo.script.welcome
+import dev.martianzoo.tfm.script.ScriptCommand
+import dev.martianzoo.tfm.script.ScriptCompletionEngine
+import dev.martianzoo.tfm.script.ScriptSession
+import dev.martianzoo.tfm.script.ScriptSession.UsageException
+import dev.martianzoo.tfm.script.welcome
 import kotlin.js.JSON
 import kotlin.js.json
 import kotlinx.browser.document

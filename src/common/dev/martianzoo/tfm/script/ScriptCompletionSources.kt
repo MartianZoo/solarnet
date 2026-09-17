@@ -1,4 +1,4 @@
-package dev.martianzoo.script
+package dev.martianzoo.tfm.script
 
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player

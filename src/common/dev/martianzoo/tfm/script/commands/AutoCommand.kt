@@ -1,13 +1,13 @@
-package dev.martianzoo.script.commands
+package dev.martianzoo.tfm.script.commands
 
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.script.ScriptCommand
-import dev.martianzoo.script.ScriptCompletion
-import dev.martianzoo.script.ScriptCompletionContext
-import dev.martianzoo.script.ScriptSession
-import dev.martianzoo.script.ScriptSession.UsageException
+import dev.martianzoo.tfm.script.ScriptCommand
+import dev.martianzoo.tfm.script.ScriptCompletion
+import dev.martianzoo.tfm.script.ScriptCompletionContext
+import dev.martianzoo.tfm.script.ScriptSession
+import dev.martianzoo.tfm.script.ScriptSession.UsageException
 
 internal class AutoCommand(private val repl: ScriptSession) : ScriptCommand("auto") {
   override val usage = "auto [none|concrete|eager]"

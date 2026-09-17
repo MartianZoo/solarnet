@@ -1,4 +1,4 @@
-package dev.martianzoo.script
+package dev.martianzoo.tfm.script
 
 public class ScriptCompletionEngine(
     private val repl: ScriptSession,

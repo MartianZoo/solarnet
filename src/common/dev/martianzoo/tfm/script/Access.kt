@@ -1,4 +1,4 @@
-package dev.martianzoo.script
+package dev.martianzoo.tfm.script
 
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.state.Task.TaskId

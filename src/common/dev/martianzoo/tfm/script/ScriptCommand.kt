@@ -1,6 +1,6 @@
-package dev.martianzoo.script
+package dev.martianzoo.tfm.script
 
-import dev.martianzoo.script.ScriptSession.UsageException
+import dev.martianzoo.tfm.script.ScriptSession.UsageException
 
 public abstract class ScriptCommand(public val name: String) {
   public open val isReadOnly: Boolean = false // not currently used

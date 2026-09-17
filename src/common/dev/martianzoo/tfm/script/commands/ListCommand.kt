@@ -1,14 +1,14 @@
-package dev.martianzoo.script.commands
+package dev.martianzoo.tfm.script.commands
 
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.HashMultiset
-import dev.martianzoo.script.PetsCompletionRoot
-import dev.martianzoo.script.ScriptCommand
-import dev.martianzoo.script.ScriptCompletion
-import dev.martianzoo.script.ScriptCompletionContext
-import dev.martianzoo.script.ScriptSession
+import dev.martianzoo.tfm.script.PetsCompletionRoot
+import dev.martianzoo.tfm.script.ScriptCommand
+import dev.martianzoo.tfm.script.ScriptCompletion
+import dev.martianzoo.tfm.script.ScriptCompletionContext
+import dev.martianzoo.tfm.script.ScriptSession
 
 internal class ListCommand(private val repl: ScriptSession) : ScriptCommand("list") {
   override val usage = "list <Expression>"
