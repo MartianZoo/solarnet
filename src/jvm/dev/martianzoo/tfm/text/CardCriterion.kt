@@ -16,6 +16,8 @@ internal sealed interface CardCriterion {
   data class PropertyPresence(val noun: String) : CardCriterion
 
   data class ResourceIcon(val className: ClassName) : CardCriterion
+
+  data class PrintedIcon(val className: ClassName) : CardCriterion
 }
 
 internal fun Describers.cardCriterion(requirement: Requirement): CardCriterion? {
@@ -52,6 +54,10 @@ internal fun Describers.cardCriterion(requirement: Requirement): CardCriterion? 
         val resource = representedClassName(citations) ?: return null
         if (cardResourceNoun(resource, 1) == null) return null
         return CardCriterion.ResourceIcon(resource)
+      }
+      if (fact(citations.className, ComponentDescriber::printedIconCount) == true) {
+        val icon = representedClassName(citations) ?: return null
+        return CardCriterion.PrintedIcon(icon)
       }
     }
   }
@@ -101,12 +107,23 @@ internal fun matchingCardNoun(
         val resource = checkNotNull(describers.cardResourceNoun(criterion.className, 1))
         "${if (singular) "card" else "cards"} with $resource ${if (singular) "icon" else "icons"}"
       }
+      is CardCriterion.PrintedIcon -> {
+        val noun =
+            describers.fact(criterion.className, ComponentDescriber::score)?.singular
+                ?: describers.componentNoun(criterion.className, 1)
+        if (singular) {
+          "card with ${NounPhrase(noun, determiner = Determiner.INDEFINITE).linearize()} icon"
+        } else {
+          "cards with $noun icons"
+        }
+      }
     }
 
 private fun representedClassName(expression: Expression): ClassName? {
   if (expression.refinement != null) return null
-  val wrapper = expression.arguments.singleOrNull() ?: return null
-  if (wrapper.className != CLASS || wrapper.refinement != null) return null
+  val wrapper =
+      expression.arguments.singleOrNull { it.className == CLASS && it.refinement == null }
+          ?: return null
   return wrapper.arguments.singleOrNull()?.takeIf { it.simple }?.className
 }
 

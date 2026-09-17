@@ -3,6 +3,8 @@ package dev.martianzoo.tfm.text
 import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Dependency.Key
 
 /** One countable component related spatially to another component. */
@@ -16,6 +18,7 @@ internal data class CountedRelation(
       val plural: String,
       val determiner: Determiner,
       val ownership: ComponentDescriber.OwnershipPhrase,
+      val modifiers: List<Modifier> = emptyList(),
   ) {
     val ownedByYou: Boolean
       get() = ownership == ComponentDescriber.OwnershipPhrase.YOURS
@@ -31,12 +34,11 @@ internal data class CountedRelation(
         count: Int? = null,
         determiner: Determiner? = null,
     ): NounPhrase {
-      val noun = NounPhrase(singular, plural, count = count, determiner = determiner)
-      return if (ownership == ComponentDescriber.OwnershipPhrase.ANYONES) {
-        noun.withModifier(Modifier.Phrase("anyone owns"))
-      } else {
-        noun
+      var noun = NounPhrase(singular, plural, count = count, determiner = determiner)
+      if (ownership == ComponentDescriber.OwnershipPhrase.ANYONES) {
+        noun = noun.withModifier(Modifier.Phrase("anyone owns"))
       }
+      return modifiers.fold(noun, NounPhrase::withModifier)
     }
   }
 
@@ -95,7 +97,6 @@ private fun renderParticipant(
     expression: Expression,
     describers: Describers,
 ): CountedRelation.Participant? {
-  if (expression.refinement != null) return null
   val placement = describers.positionedFrame(expression.className) ?: return null
   val resolved = describers.resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
@@ -125,11 +126,36 @@ private fun renderParticipant(
   val placementNoun = ComponentDescriber.Noun.Counted(placement.singular, placement.plural)
   val noun =
       if (determiner == Determiner.THIS) placementNoun else placement.referenceNoun ?: placementNoun
+  val modifiers =
+      expression.refinement
+          ?.let { refinement ->
+            val presence = refinement as? Expression.Refinement.Has ?: return null
+            val minimum = presence.requirement as? Requirement.Min ?: return null
+            val contained = (minimum.metric as? Metric.Count)?.expression ?: return null
+            if (
+                minimum.minimum != 1 ||
+                    !contained.simple ||
+                    !describers.concrete(contained.className)
+            ) {
+              return null
+            }
+            val containedNoun =
+                describers.positionedFrame(contained.className)?.singular
+                    ?: describers.componentNoun(contained.className, 1)
+            listOf(
+                Modifier.Relation(
+                    "with",
+                    NounPhrase(containedNoun, determiner = Determiner.INDEFINITE),
+                )
+            )
+          }
+          .orEmpty()
   return CountedRelation.Participant(
       noun.singular,
       noun.plural,
       determiner,
       ownership,
+      modifiers,
   )
 }
 

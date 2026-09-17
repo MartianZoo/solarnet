@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
+import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Dependency.Key
 
@@ -13,19 +14,44 @@ internal fun renderPlacement(
     description: ComponentDescriber.ChangeFrame.Positioned,
     describers: Describers,
 ): Clause? {
-  val gain = instruction as? Gain ?: return null
+  val gain = instruction as? Gain
+  if (gain == null) {
+    val removal = instruction as? Remove ?: return null
+    if (
+        removal.quantifier.modality() != Modality.REQUIRED ||
+            removal.removing.refinement != null ||
+            !removal.removing.simple ||
+            !describers.concrete(removal.removing.className)
+    ) {
+      return null
+    }
+    val count = removal.count.fixedQuantity() ?: return null
+    return Clause.Simple(
+        Predicate(
+            Verb("remove"),
+            Coordination.one(
+                describers.quantifiedComponentNounPhrase(
+                    removal.removing.className,
+                    count,
+                    description.singular,
+                    description.plural,
+                    description.determiner,
+                )
+            ),
+        )
+    )
+  }
   if (gain.quantifier.modality() != Modality.REQUIRED) return null
   if (!describers.concrete(gain.gaining.className)) return null
   if (gain.gaining.refinement != null) return null
 
   val placement = resolvePlacementExpression(gain.gaining, describers) ?: return null
   if (placement.owner != null || placement.unknownDependencies.isNotEmpty()) return null
+  val implicitSites = describers.gainDefaultExpressions(gain.gaining.className)
   val siteModifiers =
-      renderPlacementSites(
-          placement,
-          describers,
-          implicitSites = describers.gainDefaultExpressions(gain.gaining.className),
-      ) ?: return null
+      renderRelaxedPlacementDefault(placement, implicitSites, description, describers)
+          ?: renderPlacementSites(placement, describers, implicitSites)
+          ?: return null
   val count = gain.count.fixedQuantity() ?: return null
   if (siteModifiers.isNotEmpty() && count != 1) return null
   val noun =
@@ -37,6 +63,28 @@ internal fun renderPlacement(
           description.determiner,
       )
   return placementClause(noun, siteModifiers)
+}
+
+private fun renderRelaxedPlacementDefault(
+    placement: PlacementExpression,
+    implicitSites: List<Expression>,
+    description: ComponentDescriber.ChangeFrame.Positioned,
+    describers: Describers,
+): List<Modifier>? {
+  val site = placement.sites.singleOrNull()?.takeIf { it.refinement == null } ?: return null
+  val defaultSite = implicitSites.singleOrNull { it.className == site.className } ?: return null
+  val restriction = defaultSite.refinement?.requirementsOrNull()?.singleOrNull() ?: return null
+  val maximum = restriction as? Requirement.Max ?: return null
+  val excluded = countedExpression(maximum) ?: return null
+  if (
+      maximum.target != 0 ||
+          !excluded.simple ||
+          describers.positionedFrame(excluded.className) != description
+  ) {
+    return null
+  }
+  val piece = NounPhrase(description.singular, determiner = description.determiner).linearize()
+  return listOf(Modifier.Parenthetical("may be placed where you already have $piece"))
 }
 
 internal fun resolvePlacementExpression(
@@ -78,12 +126,12 @@ internal fun renderPlacementSites(
           Modifier.Relation("on", NounPhrase(siteNoun, determiner = site.determiner))
       )
   expression.refinement?.let {
-    val authoredRequirements = it.hasRequirementsOrNull() ?: return null
+    val authoredRequirements = it.requirementsOrNull() ?: return null
     val implicitRequirements =
         implicitSites
             .singleOrNull { it.className == expression.className }
             ?.refinement
-            ?.hasRequirementsOrNull()
+            ?.requirementsOrNull()
             .orEmpty()
     val novelRequirements = authoredRequirements.filterNot { it in implicitRequirements }
     val renderedRequirements =
@@ -95,7 +143,7 @@ internal fun renderPlacementSites(
   return modifiers
 }
 
-private fun Expression.Refinement.hasRequirementsOrNull(): List<Requirement>? =
+internal fun Expression.Refinement.requirementsOrNull(): List<Requirement>? =
     when (this) {
       is Expression.Refinement.Has -> listOf(requirement)
       is Expression.Refinement.And ->
@@ -103,12 +151,25 @@ private fun Expression.Refinement.hasRequirementsOrNull(): List<Requirement>? =
       is Expression.Refinement.Not -> null
     }
 
-private fun renderPlacementSiteRequirement(
+internal fun renderPlacementSiteRequirement(
     requirement: Requirement,
     describers: Describers,
 ): Modifier? =
     renderSpatialRequirement(requirement, describers)
         ?: renderPlacementBonusRequirement(requirement, describers)
+        ?: renderEmptySiteRequirement(requirement, describers)
+
+private fun renderEmptySiteRequirement(
+    requirement: Requirement,
+    describers: Describers,
+): Modifier? {
+  val maximum = requirement as? Requirement.Max ?: return null
+  if (maximum.target != 0) return null
+  val expression = countedExpression(maximum) ?: return null
+  if (!expression.simple) return null
+  val noun = describers.componentNoun(expression.className, 1)
+  return Modifier.Relation("with", NounPhrase(noun, determiner = Determiner.NO))
+}
 
 private fun renderPlacementBonusRequirement(
     requirement: Requirement,

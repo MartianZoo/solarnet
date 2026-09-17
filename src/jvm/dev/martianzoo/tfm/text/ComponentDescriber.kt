@@ -30,6 +30,7 @@ internal data class ComponentDescriber(
     internal val distinctKinds: Noun.Counted? = null,
     internal val countNoun: Noun.Counted? = null,
     internal val metricCount: MetricCount? = null,
+    internal val printedIconCount: Boolean? = null,
 ) {
   internal sealed interface Noun {
     public data object ClassName : Noun

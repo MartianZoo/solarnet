@@ -79,6 +79,10 @@ internal class EnglishTest {
     english.describe(listOf(parse<Action>("MC -> Animal<This>?"))) shouldBe "[MC -> Animal<This>?]."
     english.describe(parse<InstructionTree>("2 Plant, TemperatureStep")) shouldBe
         "Gain 2 plants. Raise temperature 1 step."
+    english.describe(parse<InstructionTree>("MC? / ProjectCard")) shouldBe
+        "You may gain up to 1 M€ per card."
+    english.describe(parse<InstructionTree>("-4 MC.")) shouldBe
+        "Remove 4 M€, or as much as possible."
     english.describe(parse<InstructionTree>("Plant / (VenusTag OR PlantTag OR Colony)")) shouldBe
         "Gain 1 plant per Venus tag you have, plant tag you have, or colony you own."
     english.describe(parse<InstructionTree>("PROD[1 MC / EarthTag MAX VenusTag]")) shouldBe
@@ -126,6 +130,24 @@ internal class EnglishTest {
     english.describe(parse<InstructionTree>("ProjectCard")) shouldBe "Draw 1 card."
     english.describe(parse<InstructionTree>("OceanTile")) shouldBe "Place 1 ocean tile."
     english.describe(parse<InstructionTree>("CityTile")) shouldBe "Place a city tile."
+    english.describe(parse<InstructionTree>("Colony<ColonyTile>")) shouldBe
+        "Place a colony (may be placed where you already have a colony)."
+    english.describe(parse<InstructionTree>("Community<LandArea(HAS MAX 0 Occupant)>")) shouldBe
+        "Place a community marker on a land area with no occupant."
+    english.describe(
+        parse<InstructionTree>(
+            "Community<LandArea(HAS MAX 0 Occupant, HAS Neighbor<OwnedOccupant>)>"
+        )
+    ) shouldBe
+        "Place a community marker on a land area with no occupant next to a tile or community you own."
+    english.describe(parse<InstructionTree>("EACH Player { ProjectCard }")) shouldBe
+        "Have each player draw 1 card."
+    english.describe(
+        parse<InstructionTree>("EACH Player(HAS StartToken) { ChooseOceanArea }")
+    ) shouldBe "[EACH Player(HAS StartToken) { ChooseOceanArea }]."
+    english.describe(
+        parse<InstructionTree>("EACH Player(NOT Owner) { PROD[-2 MC] BY Owner }")
+    ) shouldBe "Each other player decreases their own M€ production 2 steps."
     english.describe(parse<InstructionTree>("2 AdvanceColonyTracks")) shouldBe
         "Increase all colony tile tracks 2 steps."
     english.describe(parse<InstructionTree>("WorldGovernmentTerraforming")) shouldBe
@@ -141,6 +163,23 @@ internal class EnglishTest {
         "Requires a Venus tag and a plant tag."
     english.describe(parse<Effect>("End: VictoryPoint / Cathedral<Anyone>")) shouldBe
         "1 VP per any cathedral."
+    english.describe(
+        parse<Effect>("CardFront(HAS NonNegativeIconsOf<Class<VictoryPoint>>): 3 MC")
+    ) shouldBe "When you play a card with a VP icon, gain 3 M€."
+    english.describe(parse<Effect>("-Community: 3 MC")) shouldBe
+        "When you remove a community marker, gain 3 M€."
+    english.describe(
+        parse<Effect>(
+            "MyResourceWasRemoved<Anyone> OR MyProductionWasDecreased<Anyone>: 3 MC<Anyone FROM Owner>."
+        )
+    ) shouldBe
+        "When any player has their resources removed by another player, or has their production decreased by another player, pay 3 M€ to that player, or as much as possible."
+
+    english.describe(
+        parse<InstructionTree>(
+            "X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X MC"
+        )
+    ) shouldBe "Reveal any number of cards from your hand, then gain 1 M€ per revealed card."
 
     english.describe(parse<InstructionTree>("Animal")) shouldBe "Add 1 animal to any card."
     english.describe(parse<InstructionTree>("MAX 0 Plant: Steel")) shouldBe
@@ -388,20 +427,10 @@ internal class EnglishTest {
   }
 
   @Test
-  internal fun tracksUnsupportedMetricsWithinRenderedScores() {
-    val effect =
+  internal fun describesSpatialMetricsWithContainedMarkers() {
+    english.describe(
         parse<Effect>("End: VictoryPoint / Adjacency<CityTile(HAS CapitalMarker), OceanTile>")
-    val rendering =
-        renderEffect(
-            effect,
-            Describers(Canon.classTable, TerraformingMarsDescribers.descriptions),
-        )
-
-    rendering.value shouldBe "1 VP per [Adjacency<CityTile(HAS CapitalMarker), OceanTile>]."
-    rendering.unresolved.map { it.node.toString() to it.reason } shouldBe
-        listOf(
-            "Adjacency<CityTile(HAS CapitalMarker), OceanTile>" to RefusalReason.UNSUPPORTED_METRIC
-        )
+    ) shouldBe "1 VP per ocean tile adjacent to your city tile with a capital marker."
   }
 
   @Test
@@ -412,7 +441,7 @@ internal class EnglishTest {
   }
 
   @Test
-  internal fun tracksUnsupportedInstructionsWithinTriggeredEffects() {
+  internal fun tracksAStandaloneUnsupportedTriggeredInstruction() {
     val effect = parse<Effect>("Trade<ColonyTile>:: TradeBarrier<ColonyTile>")
     val rendering =
         renderEffect(
@@ -423,6 +452,24 @@ internal class EnglishTest {
     rendering.value shouldBe "When you trade, [TradeBarrier<ColonyTile>]."
     rendering.unresolved.map { it.node.toString() to it.reason } shouldBe
         listOf("TradeBarrier<ColonyTile>" to RefusalReason.UNKNOWN_CHANGE_FRAME)
+  }
+
+  @Test
+  internal fun refusesACompoundTriggeredInstructionWithUnsupportedPartsAsAUnit() {
+    val effect =
+        parse<Effect>(
+            "Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier<ColonyTile>"
+        )
+    val rendering =
+        renderEffect(
+            effect,
+            Describers(Canon.classTable, TerraformingMarsDescribers.descriptions),
+        )
+
+    rendering.value shouldBe
+        "[Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier<ColonyTile>]."
+    rendering.unresolved.map { it.node.toString() to it.reason } shouldBe
+        listOf(effect.toString() to RefusalReason.UNSUPPORTED_EFFECT_TRIGGER)
   }
 
   @Test

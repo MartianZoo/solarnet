@@ -1,15 +1,10 @@
 count	reason	examples
-18	UNKNOWN_CHANGE_FRAME	Capital: CapitalMarker<CityTile<>> | LandClaim: Community<LandArea(HAS MAX 0 Occupant)>
-7	UNSUPPORTED_EFFECT_TRIGGER	Vitor: CardFront(HAS NonNegativeIconsOf<Class<VictoryPoint>>): 3 MC | Vitor: This IF Class<Award>: Vitor_RequiredAction
-7	UNSUPPORTED_GATE	MiningRights: LandArea(HAS MiningRights_SpecialTile, HAS PlacementBonus<Class<Steel>>): Production<Class<Steel>> | MiningRights: LandArea(HAS MiningRights_SpecialTile, HAS PlacementBonus<Class<Titanium>>): Production<Class<Titanium>>
-4	UNSUPPORTED_FANOUT	Aridor: EACH Class<Tag> { AridorTagWatcher<Class<Tag>, This> } | MarsNomads: EACH LandArea(HAS NomadsMarker) { Placement<LandArea> }
-2	UNSUPPORTED_PLACEMENT_CHANGE	ResearchColony: Colony<ColonyTile> | SpacePortColony: Colony<ColonyTile>
+10	UNKNOWN_CHANGE_FRAME	TradeEnvoys: TradeBarrier<ColonyTile> | TradingColony: TradeBarrier<ColonyTile>
+7	UNSUPPORTED_EFFECT_TRIGGER	Aridor: PlayCard<Class<ProjectCard>, Class<EventCard>>:: AridorPlayingEvent<This> | TradeEnvoys: Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier<ColonyTile>
+3	UNSUPPORTED_FANOUT	Aridor: EACH Class<Tag> { AridorTagWatcher<Class<Tag>, This> } | MarsNomads: EACH LandArea(HAS NomadsMarker) { Placement<LandArea> }
 1	UNKNOWN_ACTION_FRAME	SearchForLife: MC -> CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS PrintedTag<Class<MicrobeTag>>): Science<This>) OR Ok)]
 1	UNKNOWN_REQUIREMENT_FRAME	CrashSiteCleanup: MyResourceWasRemoved<Anyone, Class<Plant>, Owner>
 1	UNSUPPORTED_DECLARED_CHANGE	CyberiaSystems: CopyProductionBox<CardFront(HAS BuildingTag, HAS MAX 0 CyberiaSystemsFirstChoice)>
 1	UNSUPPORTED_END_EFFECT	Vermin: End IF 10 Animal<This>: EACH Player { -VictoryPoint / CityTile }
-1	UNSUPPORTED_METRIC	Capital: Adjacency<CityTile(HAS CapitalMarker), OceanTile>
-1	UNSUPPORTED_SCALING	PublicPlans: MC? / ProjectCard
-1	UNSUPPORTED_SEQUENCE	SponsoredAcademies: -ProjectCard THEN (2 ProjectCard, EACH Player { ProjectCard })
-1	UNSUPPORTED_STANDARD_RESOURCE_CHANGE	PharmacyUnion: -4 MC.
-1	UNSUPPORTED_TRACK_CHANGE	PharmacyUnion: TerraformRating FROM Disease<This>!
+1	UNSUPPORTED_GATE	LawSuit: (MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): 3 MC FROM MC<Player>
+1	UNSUPPORTED_PLACEMENT_CHANGE	MarsNomads: NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>)> FROM NomadsMarker<Owner>

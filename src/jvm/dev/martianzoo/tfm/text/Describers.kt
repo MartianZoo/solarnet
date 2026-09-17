@@ -124,6 +124,7 @@ internal class Describers(
             ComponentDescriber::distinctKinds,
             ComponentDescriber::countNoun,
             ComponentDescriber::metricCount,
+            ComponentDescriber::printedIconCount,
         )
     classesByName.values.forEach { componentClass ->
       facts.forEach { fact ->

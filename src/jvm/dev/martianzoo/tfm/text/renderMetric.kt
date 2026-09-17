@@ -275,6 +275,12 @@ private fun Describers.renderMetricFilter(
       is CardCriterion.PropertyPresence ->
           Modifier.Relation("with", NounPhrase.plural("${criterion.noun}s"))
       is CardCriterion.ResourceIcon -> return null
+      is CardCriterion.PrintedIcon -> {
+        val noun =
+            fact(criterion.className, ComponentDescriber::score)?.singular
+                ?: componentNoun(criterion.className, 1)
+        Modifier.Relation("with", NounPhrase.plural("$noun icons"))
+      }
     }
   }
   val frame = triggerFrame(className) as? ComponentDescriber.TriggerFrame.PlayCard ?: return null

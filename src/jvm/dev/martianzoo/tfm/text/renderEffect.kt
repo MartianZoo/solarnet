@@ -872,6 +872,11 @@ private fun renderTriggeredInstructions(
       }
   val result =
       renderPreparedInstructions(instruction, describers, TypeVariableReferences.from(effect))
+  val compound =
+      InstructionGroup.of(instruction).instructions.any {
+        it is Instruction.Or || it is Instruction.Then
+      }
+  if (compound && result.unresolved.isNotEmpty()) return null
   return Sentence(
           Clause.Prefaced(
               Clause.Preface.Temporal(trigger),

@@ -51,6 +51,7 @@ internal data class Event(
     INCREASE_PRODUCTION(activeVerb = Verb("increases", "increase")),
     RAISE(activeVerb = Verb("raises", "raise"), passiveVerb = Verb("is raised", "are raised")),
     ADD(activeVerb = Verb("adds", "add")),
+    REMOVE(activeVerb = Verb("removes", "remove")),
     NAMED,
     ;
 

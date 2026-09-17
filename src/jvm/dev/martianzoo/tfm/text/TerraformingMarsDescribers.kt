@@ -22,6 +22,25 @@ internal object TerraformingMarsDescribers {
             ),
         klass("HasRaisedTr") to
             ComponentDescriber(presenceCondition = "your terraform rating has been raised"),
+        klass("MyResourceWasRemoved") to
+            ComponentDescriber(
+                triggerFrame =
+                    Trigger.Named(
+                        "has their resources removed by another player",
+                        "any player",
+                        passive = true,
+                    )
+            ),
+        klass("MyProductionWasDecreased") to
+            ComponentDescriber(
+                triggerFrame =
+                    Trigger.Named(
+                        "has their production decreased by another player",
+                        "any player",
+                        passive = true,
+                    )
+            ),
+        klass("NonNegativeIconsOf") to ComponentDescriber(printedIconCount = true),
         klass("SoloMode") to ComponentDescriber(presenceCondition = "this is a solo game"),
         klass("Ruling") to
             ComponentDescriber(
@@ -319,6 +338,11 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 placementSite = ComponentDescriber.PlacementSite(ComponentDescriber.Noun.ClassName)
             ),
+        klass("ColonyTile") to
+            ComponentDescriber(
+                placementSite =
+                    ComponentDescriber.PlacementSite(counted("colony tile", "colony tiles"))
+            ),
         klass("Neighbor") to
             ComponentDescriber(
                 spatialRelation =
@@ -341,6 +365,17 @@ internal object TerraformingMarsDescribers {
                 placementBonus =
                     ComponentDescriber.PlacementBonus(
                         ComponentDescriber.Noun.Counted("placement bonus", "placement bonuses")
+                    )
+            ),
+        klass("OwnedOccupant") to
+            ComponentDescriber(
+                changeFrame =
+                    Frame.Positioned(
+                        determiner = Determiner.INDEFINITE,
+                        singular = "tile or community",
+                        plural = "tiles or communities",
+                        unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
+                        anyoneOwnership = ComponentDescriber.OwnershipPhrase.ANYONES,
                     )
             ),
         klass("Tile") to
@@ -514,6 +549,8 @@ internal object TerraformingMarsDescribers {
                         unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
                         anyoneOwnership = ComponentDescriber.OwnershipPhrase.IMPLICIT,
                     ),
+                placementSite =
+                    ComponentDescriber.PlacementSite(counted("city tile", "city tiles")),
                 requirement =
                     ComponentDescriber.Requirement(
                         minimum =
@@ -523,6 +560,33 @@ internal object TerraformingMarsDescribers {
                             ),
                         ownedCount = ComponentDescriber.Noun.Counted("city tile", "city tiles"),
                     ),
+            ),
+        klass("CapitalMarker") to
+            ComponentDescriber(
+                changeFrame =
+                    Frame.Positioned(
+                        Determiner.INDEFINITE,
+                        "capital marker",
+                        "capital markers",
+                    )
+            ),
+        klass("Community") to
+            ComponentDescriber(
+                changeFrame =
+                    Frame.Positioned(
+                        Determiner.INDEFINITE,
+                        "community marker",
+                        "community markers",
+                    )
+            ),
+        klass("NomadsMarker") to
+            ComponentDescriber(
+                changeFrame =
+                    Frame.Positioned(
+                        Determiner.INDEFINITE,
+                        "nomads marker",
+                        "nomads markers",
+                    )
             ),
         klass("Colony") to
             ComponentDescriber(
@@ -571,6 +635,8 @@ internal object TerraformingMarsDescribers {
                         "1 global parameter without gaining terraform rating or other bonuses",
                     )
             ),
+        klass("ChooseOceanArea") to
+            ComponentDescriber(changeFrame = Frame.Procedure("choose", "an ocean area")),
         klass("FocusedOrganization_Signal") to
             ComponentDescriber(
                 changeFrame =

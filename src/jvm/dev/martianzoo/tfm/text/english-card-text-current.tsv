@@ -13,7 +13,7 @@ DeepWellHeating	Deep Well Heating	Increase your energy production 1 step. Raise 
 CloudSeeding	Cloud Seeding	Requires 3 ocean tiles. Decrease your M€ production 1 step and any player's heat production 1 step and increase your plant production 2 steps.
 SearchForLife	Search For Life	Requires that oxygen is 6% or lower. 3 VPs if you have 1 or more science resources on this card.	Action: [MC -> CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS PrintedTag<Class<MicrobeTag>>): Science<This>) OR Ok)]].
 MartianRails	Martian Rails		Action: Pay 1 energy to gain 1 M€ per any city tile on Mars.
-Capital	Capital	Requires 4 ocean tiles. Place a city tile, then [CapitalMarker<CityTile<>>]. Decrease your energy production 2 steps and increase your M€ production 5 steps. 1 VP per [Adjacency<CityTile(HAS CapitalMarker), OceanTile>].
+Capital	Capital	Requires 4 ocean tiles. Place a city tile, then place a capital marker on a city tile. Decrease your energy production 2 steps and increase your M€ production 5 steps. 1 VP per ocean tile adjacent to your city tile with a capital marker.
 AsteroidCard	Asteroid	Raise temperature 1 step. Gain 2 titanium. You may remove up to 3 plants from any player.
 Comet	Comet	Raise temperature 1 step. Place 1 ocean tile. You may remove up to 3 plants from any player.
 BigAsteroid	Big Asteroid	Raise temperature 2 steps. Gain 4 titanium. You may remove up to 4 plants from any player.
@@ -56,7 +56,7 @@ BeamFromAThoriumAsteroid	Beam From A Thorium Asteroid	Requires a Jovian tag. Inc
 Mangrove	Mangrove	Requires that temperature is +4°C or higher. Place a greenery tile on an area reserved for ocean.
 Trees	Trees	Requires that temperature is -4°C or higher. Increase your plant production 3 steps. Gain 1 plant.
 MiningExpedition	Mining Expedition	Raise oxygen 1 step. You may remove up to 2 plants from any player. Gain 2 steel.
-MiningRights	Mining Rights	Place this tile, then [LandArea(HAS MiningRights_SpecialTile, HAS PlacementBonus<Class<Steel>>): Production<Class<Steel>>] or [LandArea(HAS MiningRights_SpecialTile, HAS PlacementBonus<Class<Titanium>>): Production<Class<Titanium>>].
+MiningRights	Mining Rights	Place this tile, then if this tile is on a land area with a steel placement bonus, increase your steel production 1 step, or if this tile is on a land area with a titanium placement bonus, increase your titanium production 1 step.
 Birds	Birds	Requires that oxygen is 13% or higher. Decrease any player's plant production 2 steps. 1 VP per animal on this card.	Action: Add 1 animal to this card.
 TowingAComet	Towing A Comet	Gain 2 plants. Raise oxygen 1 step. Place 1 ocean tile.
 SpaceMirrors	Space Mirrors		Action: Pay 7 M€ to increase your energy production 1 step.
@@ -162,9 +162,9 @@ Mine	Mine	Increase your steel production 1 step.
 VestaShipyard	Vesta Shipyard	Increase your titanium production 1 step.
 GreatEscarpmentConsortium	Great Escarpment Consortium	Requires that you have steel production. Decrease any player's steel production 1 step and increase your steel production 1 step.
 MineralDeposit	Mineral Deposit	Gain 5 steel.
-MiningArea	Mining Area	Place this tile on a land area next to a tile you own, then [LandArea(HAS MiningArea_SpecialTile, HAS PlacementBonus<Class<Steel>>): Production<Class<Steel>>] or [LandArea(HAS MiningArea_SpecialTile, HAS PlacementBonus<Class<Titanium>>): Production<Class<Titanium>>].
+MiningArea	Mining Area	Place this tile on a land area next to a tile you own, then if this tile is on a land area with a steel placement bonus, increase your steel production 1 step, or if this tile is on a land area with a titanium placement bonus, increase your titanium production 1 step.
 BuildingIndustries	Building Industries	Decrease your energy production 1 step and increase your steel production 2 steps.
-LandClaim	Land Claim	[Community<LandArea(HAS MAX 0 Occupant)>].
+LandClaim	Land Claim	Place a community marker on a land area with no occupant.
 Sponsors	Sponsors	Increase your M€ production 2 steps.
 ElectroCatapult	Electro Catapult	Requires that oxygen is 8% or lower. Decrease your energy production 1 step.	Action: Pay 1 plant to gain 7 M€, or pay 1 steel to gain 7 M€.
 EarthCatapult	Earth Catapult		Effect: When you play a card, pay 2 M€ less.
@@ -257,7 +257,7 @@ RotatorImpacts	Rotator Impacts	Requires that Venus is 14% or lower.	Action: Pay 
 SisterPlanetSupport	Sister Planet Support	Requires a Venus tag and an Earth tag. Increase your M€ production 3 steps.
 Solarnet	Solarnet	Requires a Venus tag, an Earth tag, and a Jovian tag. Draw 2 cards.
 SpinInducingAsteroid	Spin-Inducing Asteroid	Requires that Venus is 10% or lower. Raise Venus 2 steps.
-SponsoredAcademies	Sponsored Academies	[-ProjectCard THEN (2 ProjectCard, EACH Player { ProjectCard })].
+SponsoredAcademies	Sponsored Academies	Discard 1 card to draw 2 cards and have each player draw 1 card.
 Stratopolis	Stratopolis	Requires 2 science tags. Increase your M€ production 2 steps. Place a city tile on the reserved area outside Mars. 1 VP per 3 floaters on this card.	Action: Add 2 floaters to a Venus card.
 StratosphericBirds	Stratospheric Birds	Requires that Venus is 12% or higher. Remove 1 floater from any card. 1 VP per animal on this card.	Action: Add 1 animal to this card.
 SulphurExports	Sulphur Exports	Raise Venus 1 step. Increase your M€ production 1 step per Venus tag you have.
@@ -276,7 +276,7 @@ CheungShingMars	Cheung Shing Mars	Gain 44 M€. Increase your M€ production 3 
 PointLuna	Point Luna	Gain 38 M€. Increase your titanium production 1 step.	Effect: When you play an Earth tag, draw 1 card.
 RobinsonIndustries	Robinson Industries	Gain 47 M€.	Action: Pay 4 M€ to increase one of your lowest productions 1 step.
 ValleyTrust	Valley Trust	Gain 37 M€. As your first action, draw 3 prelude cards, then discard 2 prelude cards, then play a prelude card.	Effect: When you play a science tag, pay 2 M€ less.
-Vitor	Vitor	[This IF Class<Award>: Vitor_RequiredAction]. Gain 45 M€.	Effect: [CardFront(HAS NonNegativeIconsOf<Class<VictoryPoint>>): 3 MC].
+Vitor	Vitor	As your first action, fund an award for free. Gain 45 M€.	Effect: When you play a card with a VP icon, gain 3 M€.
 AlliedBank	Allied Bank	Increase your M€ production 4 steps. Gain 3 M€.
 AquiferTurbines	Aquifer Turbines	Place 1 ocean tile. Increase your energy production 2 steps. Remove 3 M€.
 Biofuels	Biofuels	Increase your plant production 1 step and your energy production 1 step. Gain 2 plants.
@@ -355,20 +355,20 @@ ProductiveOutpost	Productive Outpost	Gain all your colony bonuses.
 QuantumCommunications	Quantum Communications	Requires 4 science tags. Increase your M€ production 1 step per any colony.
 RedSpotObservatory	Red Spot Observatory	Requires 3 science tags. Draw 2 cards.	Action: Add 1 floater to this card, or remove 1 floater from this card to draw 1 card.
 RefugeeCamps	Refugee Camps	1 VP per camp resource on this card.	Action: Decrease your M€ production 1 step to add 1 camp resource to this card.
-ResearchColony	Research Colony	[Colony<ColonyTile>]. Draw 2 cards.
+ResearchColony	Research Colony	Place a colony (may be placed where you already have a colony). Draw 2 cards.
 RimFreighters	Rim Freighters		Effect: When you use the Trade standard action, pay 1 M€ less.
 SkyDocks	Sky Docks	Requires 2 Earth tags. Gain 1 Trade Fleet.	Effect: When you play a card, pay 1 M€ less.
 SolarProbe	Solar Probe	Draw 1 card per 3 science tags you have.
 SolarReflectors	Solar Reflectors	Increase your heat production 5 steps.
 SpacePort	Space Port	Requires that you have a colony. Gain 1 Trade Fleet. Place a city tile. Decrease your energy production 1 step and increase your M€ production 4 steps.
-SpacePortColony	Space Port Colony	Requires that you have a colony. [Colony<ColonyTile>]. Gain 1 Trade Fleet. 1 VP per 2 any colonies.
+SpacePortColony	Space Port Colony	Requires that you have a colony. Place a colony (may be placed where you already have a colony). Gain 1 Trade Fleet. 1 VP per 2 any colonies.
 SpinOffDepartment	Spin-Off Department	Increase your M€ production 2 steps.	Effect: When you play a card with a printed cost of 20 M€ or more, draw 1 card.
 SubZeroSaltFish	Sub-Zero Salt Fish	Requires that temperature is -6°C or higher. Decrease any player's plant production 1 step. 1 VP per 2 animals on this card.	Action: Add 1 animal to this card.
 TitanAirScrapping	Titan Air-Scrapping		Action: Pay 1 titanium to add 2 floaters to this card, or remove 2 floaters from this card to raise your terraform rating 1 step.
 TitanFloatingLaunchPad	Titan Floating Launch-Pad	Add 2 floaters to a Jovian card.	Action: Add 1 floater to a Jovian card, or remove 1 floater from this card to trade.
 TitanShuttles	Titan Shuttles		Action: Add 2 floaters to a Jovian card, or remove one or more floaters from this card to gain the same number of titanium.
-TradeEnvoys	Trade Envoys		Effect: When you trade, [TradeBarrier<ColonyTile>]. When you trade, you may raise that colony tile track 1 step, then [-TradeBarrier<ColonyTile>].
-TradingColony	Trading Colony	Place a colony.	Effect: When you trade, [TradeBarrier<ColonyTile>]. When you trade, you may raise that colony tile track 1 step, then [-TradeBarrier<ColonyTile>].
+TradeEnvoys	Trade Envoys		Effect: When you trade, [TradeBarrier<ColonyTile>]. [Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier<ColonyTile>].
+TradingColony	Trading Colony	Place a colony.	Effect: When you trade, [TradeBarrier<ColonyTile>]. [Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier<ColonyTile>].
 UrbanDecomposers	Urban Decomposers	Requires a city tile and a colony. Increase your plant production 1 step. Add 2 microbes to any card.
 WarpDrive	Warp Drive	Requires 5 science tags.	Effect: When you play a space tag, pay 4 M€ less.
 LakefrontResorts	Lakefront Resorts	Gain 54 M€.	Effect: When any ocean tile is placed, increase your M€ production 1 step. When you place a tile on Mars, gain 1 M€ per ocean tile next to that area.
@@ -411,15 +411,15 @@ VenusAllies	Venus Allies	Raise Venus 2 steps. Gain 4 M€ per colony you own.
 VenusOrbitalSurvey	Venus Orbital Survey		Action: Reveal 2 project cards. Draw any Venus cards for free. You may buy each other card.
 VenusShuttles	Venus Shuttles	Add 2 floaters to a Venus card.	Action: Pay 12 M€ to raise Venus 1 step. This cost is reduced by 1 M€ per Venus tag you have.
 VenusTradeHub	Venus Trade Hub	Requires 2 Venus tags.	Effect: When you trade, gain 3 M€.
-ArcadianCommunities	Arcadian Communities	Gain 40 M€ and 10 steel. As your first action, [Community<LandArea(HAS MAX 0 Occupant)>].	Action: [Community<LandArea(HAS MAX 0 Occupant, HAS Neighbor<OwnedOccupant>)>]. / Effect: [-Community: 3 MC].
-MarsNomads	Mars Nomads	[NomadsMarker<LandArea(HAS MAX 0 Occupant)>].	Action: [NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>)> FROM NomadsMarker<Owner>], then [EACH LandArea(HAS NomadsMarker) { Placement<LandArea> }].
+ArcadianCommunities	Arcadian Communities	Gain 40 M€ and 10 steel. As your first action, place a community marker on a land area with no occupant.	Action: Place a community marker on a land area with no occupant next to a tile or community you own. / Effect: When you remove a community marker, gain 3 M€.
+MarsNomads	Mars Nomads	Place a nomads marker on a land area with no occupant.	Action: [NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>)> FROM NomadsMarker<Owner>], then [EACH LandArea(HAS NomadsMarker) { Placement<LandArea> }].
 Recyclon	Recyclon	Gain 38 M€. Increase your steel production 1 step.	Effect: When you play a building tag, add 1 microbe to this card or remove 2 microbes from this card to increase your plant production 1 step.
 SpliceTacticalGenomics	Splice Tactical Genomics	[Splicer<This>]. Gain 44 M€. As your first action, draw 1 microbe card.	Effect: When any microbe tag is played, gain 2 M€.
 Factorum	Factorum	Gain 37 M€. Increase your steel production 1 step.	Action: If you have no energy, increase your energy production 1 step, or pay 3 M€ to draw 1 building card.
-MonsInsurance	Mons Insurance	Gain 48 M€. Increase your M€ production 4 steps. [EACH Player(NOT Owner) { -2 Production<Class<MC>> BY Owner }].	Effect: [MyResourceWasRemoved<Anyone> OR MyProductionWasDecreased<Anyone>: 3 MC<Anyone FROM Owner>.].
+MonsInsurance	Mons Insurance	Gain 48 M€. Increase your M€ production 4 steps. Each other player decreases their own M€ production 2 steps.	Effect: When any player has their resources removed by another player, or has their production decreased by another player, pay 3 M€ to that player, or as much as possible.
 Philares	Philares	Gain 47 M€. As your first action, place a greenery tile.	Effect: When an adjacency between one of your tiles and an opponent's tile is created, gain a standard resource.
 AstroDrill	AstroDrill	Gain 35 M€. Add 3 asteroids to this card.	Action: Add 1 asteroid to any card or gain a standard resource, or remove 1 asteroid from this card to gain 3 titanium.
-PharmacyUnion	Pharmacy Union	Gain 54 M€. Draw 1 science card.	Effect: When any microbe tag is played, add 1 disease resource to this card or [MAX 0 This: Ok] and [-4 MC.]. When you play a science tag, [TerraformRating FROM Disease<This>!] or [MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok].
+PharmacyUnion	Pharmacy Union	Gain 54 M€. Draw 1 science card.	Effect: [MicrobeTag<Anyone>: Disease<This>! OR (MAX 0 This: Ok), -4 MC.]. [ScienceTag: (TerraformRating FROM Disease<This>!) OR (MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)].
 TychoMagnetics	Tycho Magnetics	Gain 42 M€. Increase your energy production 1 step.	Action: Pay one or more energy to look at X project cards and draw one of them.
 KuiperCooperative	Kuiper Cooperative	Gain 33 M€. Increase your titanium production 1 step.	Action: Add 1 asteroid to this card per space tag you have. / Effect: When you use a standard project or a standard project, asteroids on this card may be used as 1 M€ each.
 CorporateArchives	Corporate Archives	Gain 13 M€. Look at 7 project cards. Draw 2 of them.
@@ -499,7 +499,7 @@ ProtectedGrowth	Protected Growth	Requires that oxygen is 7% or lower. Gain 1 pla
 StaticHarvesting	Static Harvesting	Requires that there are 3 or fewer ocean tiles. Increase your energy production 1 step. Gain 1 M€ per building tag you have.
 Vermin	Vermin	[End IF 10 Animal<This>: EACH Player { -VictoryPoint / CityTile }].	Action: Add 1 animal to this card or add 1 microbe to any card. / Effect: When any city tile is placed, add 1 animal to this card.
 WeatherBalloons	Weather Balloons	Draw 1 card.	Action: Add 1 floater to this card, or remove 1 floater from this card to gain 1 M€ per any city tile on Mars.
-PublicPlans	Public Plans	[MC? / ProjectCard].
+PublicPlans	Public Plans	Reveal any number of cards from your hand, then gain 1 M€ per revealed card.
 SterlingVents	Sterling Vents	Decrease your heat production 2 steps and increase your energy production 2 steps.
 CorridorsOfPower	Corridors Of Power	Raise your terraform rating 1 step. Gain 4 M€.	Effect: When you become a party leader, draw 1 card.
 HighCircles	High Circles	Raise your terraform rating 1 step. Draw 1 card with a party requirement. Place 2 delegates.	Effect: When influence is counted, gain 1 influence.

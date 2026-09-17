@@ -8,7 +8,7 @@ internal data class Predicate(
     val complement: Complement? = null,
 ) {
   init {
-    require(objects == null || complement == null)
+    require(objects == null || complement !is Complement.That)
   }
 
   fun withModifier(modifier: Modifier): Predicate = copy(modifiers = modifiers + modifier)
@@ -32,7 +32,17 @@ internal data class Predicate(
           modifiers.flatMap(Modifier::unresolved) +
           complement?.clause?.unresolved().orEmpty()
 
-  data class Complement(val clause: Clause) {
-    fun linearize(): String = "that ${clause.linearize()}"
+  sealed interface Complement {
+    val clause: Clause
+
+    fun linearize(): String
+
+    data class That(override val clause: Clause) : Complement {
+      override fun linearize(): String = "that ${clause.linearize()}"
+    }
+
+    data class BareInfinitive(override val clause: Clause) : Complement {
+      override fun linearize(): String = clause.linearize()
+    }
   }
 }

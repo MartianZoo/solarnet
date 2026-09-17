@@ -6,12 +6,10 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
-import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.Instruction.Transmute
-import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.tfm.canon.CardOperation
 import dev.martianzoo.tfm.canon.CardOperation.RevealAndPurchase
@@ -151,12 +149,19 @@ internal fun renderCardRevealAndRestore(
   ) {
     return null
   }
-  val normalized =
-      Instruction.Per(
-          Gain.gain(scaledEx(outcome.gaining, 1), OPTIONAL),
-          Metric.Count(PROJECT_CARD.expression),
+  val reveal =
+      Clause.Simple(
+          Predicate(
+              Verb("reveal"),
+              Coordination.one(NounPhrase.text("any number of cards from your hand")),
+          )
       )
-  return renderInstructions(normalized, describers).clauses.singleOrNull()
+  val gain =
+      (renderInstructions(Gain.gain(scaledEx(outcome.gaining, 1)), describers)
+              .clauses
+              .singleOrNull() as? Clause.Simple)
+          ?.withModifier(Modifier.Per(NounPhrase.text("revealed card"))) ?: return null
+  return Clause.Coordinated(Coordination(listOf(reveal, gain), Conjunction.THEN))
 }
 
 internal fun renderPlayedEventRecovery(
@@ -326,6 +331,15 @@ private fun matchPredicate(criterion: CardCriterion, describers: Describers): Pr
                     determiner = Determiner.INDEFINITE,
                 )
             ),
+        )
+      }
+      is CardCriterion.PrintedIcon -> {
+        val noun =
+            describers.fact(criterion.className, ComponentDescriber::score)?.singular
+                ?: describers.componentNoun(criterion.className, 1)
+        Predicate(
+            Verb.HAVE,
+            Coordination.one(NounPhrase("$noun icon", determiner = Determiner.INDEFINITE)),
         )
       }
     }

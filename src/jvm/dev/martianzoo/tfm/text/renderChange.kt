@@ -462,6 +462,24 @@ private fun renderCountableChange(
         else noun.copy(count = null, determiner = Determiner.INDEFINITE),
     )
   }
+  (instruction as? Gain)?.let { gain ->
+    if (
+        gain.quantifier.modality() == Modality.OPTIONAL &&
+            gain.gaining.simple &&
+            describers.concrete(gain.gaining.className)
+    ) {
+      val count = gain.count.fixedQuantity() ?: return@let
+      return Clause.Simple(
+          Predicate(
+              Verb("may gain"),
+              Coordination.one(
+                  describers.componentNounPhrase(gain.gaining.className, count).atMost()
+              ),
+          ),
+          NounPhrase.you(),
+      )
+    }
+  }
   (instruction as? Transmute)?.let {
     return renderStandardResourceTransfer(it, describers)
   }
@@ -470,8 +488,18 @@ private fun renderCountableChange(
   if (expression.refinement != null) return null
   val count = removal.count.fixedQuantity() ?: return null
   if (!describers.concrete(expression.className)) return null
-  if (expression.simple && removal.quantifier.modality() == Modality.REQUIRED) {
-    return clause("remove", describers.componentNounPhrase(expression.className, count))
+  if (expression.simple) {
+    val amount = describers.componentNounPhrase(expression.className, count)
+    return when (removal.quantifier.modality()) {
+      Modality.REQUIRED -> clause("remove", amount)
+      Modality.BEST_EFFORT ->
+          clause(
+              "remove",
+              amount,
+              Modifier.Supplement("or as much as possible"),
+          )
+      Modality.OPTIONAL -> null
+    }
   }
   val resolved = describers.resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)

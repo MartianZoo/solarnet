@@ -444,7 +444,7 @@ private fun requirementClause(complement: Clause): Clause.Simple =
         predicate =
             Predicate(
                 Verb("requires"),
-                complement = Predicate.Complement(complement),
+                complement = Predicate.Complement.That(complement),
             ),
     )
 

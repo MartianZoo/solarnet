@@ -148,6 +148,12 @@ internal class English(
       return renderInstructionTree(prepared.instruction, cardDescribers)
     }
     val conditional = prepared.trigger as? IfTrigger
+    if (
+        conditional?.inner == WhenGain &&
+            cardDescribers.isAvailableProcedureClass(conditional.condition)
+    ) {
+      return renderInstructionTree(prepared.instruction, cardDescribers)
+    }
     val condition =
         conditional
             ?.takeIf { it.inner == WhenGain }

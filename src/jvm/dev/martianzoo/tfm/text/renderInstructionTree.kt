@@ -115,6 +115,9 @@ private fun renderInstruction(
       is Instruction.Transmute -> renderChange(instruction, describers, references)
       is Instruction.Each ->
           renderOpponentFanout(instruction, describers)?.let { Rendering.resolved(it) }
+              ?: renderPlayerFanout(instruction, describers, references)?.let {
+                Rendering.resolved(it)
+              }
               ?: renderProductionFloorFanout(instruction, describers)?.let {
                 Rendering.resolved(it)
               }
@@ -143,6 +146,28 @@ private fun renderInstruction(
       is Instruction.Transform -> error("Transforms are expanded before ordinary instructions")
       is Instruction.By -> Rendering.resolved(null)
     }
+
+private fun renderPlayerFanout(
+    instruction: Instruction.Each,
+    describers: Describers,
+    references: TypeVariableReferences,
+): Clause.Simple? {
+  val selector = instruction.selector
+  if (selector.copy(refinement = null) != describers.playerExpression) return null
+  if (selector.refinement != null) return null
+  val subject = NounPhrase.text("each player")
+  val result =
+      renderLoweredInstructions(instruction.body, describers, references).clauses.singleOrNull()
+          as? Clause.Simple ?: return null
+  if (result.subject != null || result.unresolved().isNotEmpty()) return null
+  return Clause.Simple(
+      Predicate(
+          Verb("have"),
+          Coordination.one(subject),
+          complement = Predicate.Complement.BareInfinitive(result),
+      )
+  )
+}
 
 private fun renderProductionFloorFanout(
     instruction: Instruction.Each,
@@ -199,20 +224,27 @@ private fun renderOpponentFanout(
 ): Clause? {
   val selector = instruction.selector
   if (selector.copy(refinement = null) != describers.playerExpression) return null
-  val presence = selector.refinement as? Expression.Refinement.Has ?: return null
-  val absent = presence.requirement as? Requirement.Max ?: return null
-  val excluded = (absent.countedMetric as? Metric.Count)?.expression ?: return null
-  if (
-      absent.maximum != 0 ||
-          excluded.className != describers.thisExpression.className ||
-          excluded.arguments.singleOrNull() != describers.anyoneExpression ||
-          excluded.refinement != null
-  ) {
-    return null
-  }
+  val selectsOpponents =
+      when (val refinement = selector.refinement) {
+        is Expression.Refinement.Not -> refinement.excluded == describers.ownerExpression
+        is Expression.Refinement.Has -> {
+          val absent = refinement.requirement as? Requirement.Max
+          val excluded = (absent?.countedMetric as? Metric.Count)?.expression
+          absent?.maximum == 0 &&
+              excluded?.className == describers.thisExpression.className &&
+              excluded.arguments.singleOrNull() == describers.anyoneExpression &&
+              excluded.refinement == null
+        }
+        is Expression.Refinement.And,
+        null -> false
+      }
+  if (!selectsOpponents) return null
+  val playersAct = selector.refinement is Expression.Refinement.Not
   val changes = InstructionGroup.of(instruction.body).instructions
   val clauses = changes.map { change ->
-    val removal = change as? Remove ?: return null
+    val attributed = change as? Instruction.By
+    if (attributed != null && attributed.actor != describers.ownerExpression) return null
+    val removal = (attributed?.inner ?: change) as? Remove ?: return null
     val count = removal.count.fixedQuantity() ?: return null
     when {
       removal.removing.simple &&
@@ -232,15 +264,18 @@ private fun renderOpponentFanout(
         val production = productionExpression(removal.removing, describers) ?: return null
         if (production.owner != null) return null
         val steps = if (count == 1) "step" else "steps"
+        val possessor =
+            if (playersAct) "their own" else if (changes.size == 1) "each opponent's" else "their"
         Clause.Simple(
             Predicate(
-                Verb("decrease"),
+                Verb("decreases", "decrease"),
                 Coordination.one(
                     NounPhrase.text(
-                        "their ${describers.componentNoun(production.resource, 1)} production $count $steps"
+                        "$possessor ${describers.componentNoun(production.resource, 1)} production $count $steps"
                     )
                 ),
-            )
+            ),
+            subject = if (playersAct) NounPhrase.text("each other player") else null,
         )
       }
       else -> return null
@@ -326,8 +361,7 @@ private fun renderDiscardCostSequence(
   }
   val result =
       renderLoweredInstructions(instruction.continuation, describers, references)
-          .clauses
-          .singleOrNull() ?: return null
+          .asCoordinatedClause()
   return discarded.withModifier(Modifier.Purpose(result))
 }
 
@@ -430,22 +464,22 @@ private fun renderGated(
   val clause =
       renderLoweredInstructions(instruction.inner, describers, references).clauses.singleOrNull()
           ?: return null
-  val selectedClass =
-      (instruction.gate as? Requirement.Min)
-          ?.takeIf { it.minimum == 1 }
-          ?.countedMetric
-          ?.let { it as? Metric.Count }
-          ?.expression
-          ?.let(describers::representedClassArgument)
-  if (
-      selectedClass != null &&
-          describers.changeFrame(selectedClass.className) is
-              ComponentDescriber.ChangeFrame.Procedure
-  ) {
+  if (describers.isAvailableProcedureClass(instruction.gate)) {
     return clause
   }
   val condition = describers.renderGateCondition(instruction.gate) ?: return null
   return Clause.Prefaced(Clause.Preface.Conditional(condition), clause)
+}
+
+internal fun Describers.isAvailableProcedureClass(requirement: Requirement): Boolean {
+  val selectedClass =
+      (requirement as? Requirement.Min)
+          ?.takeIf { it.minimum == 1 }
+          ?.countedMetric
+          ?.let { it as? Metric.Count }
+          ?.expression
+          ?.let(::representedClassArgument) ?: return false
+  return changeFrame(selectedClass.className) is ComponentDescriber.ChangeFrame.Procedure
 }
 
 private fun renderPer(
@@ -674,6 +708,9 @@ internal fun Describers.renderGateCondition(requirement: Requirement): Clause? {
   val counting = requirement as? Requirement.Counting ?: return null
   val metric = counting.metric as? Metric.Count ?: return null
   val expression = metric.expression
+  renderPlacedPieceSiteCondition(counting, expression)?.let {
+    return it
+  }
   val resolved = resolveExpression(expression) ?: return null
   if (resolved.sourceDependencies.isNotEmpty() || expression.refinement != null) {
     return null
@@ -752,5 +789,41 @@ internal fun Describers.renderGateCondition(requirement: Requirement): Clause? {
           Coordination.one(NounPhrase("$name tag", "$name tags", count = requirement.minimum)),
       ),
       NounPhrase.you(),
+  )
+}
+
+private fun Describers.renderPlacedPieceSiteCondition(
+    requirement: Requirement.Counting,
+    expression: Expression,
+): Clause.Simple? {
+  if (requirement !is Requirement.Min || requirement.minimum != 1) return null
+  val site = placementSite(expression.className) ?: return null
+  val requirements = expression.refinement?.requirementsOrNull() ?: return null
+  val pieceRequirement =
+      requirements.singleOrNull { candidate ->
+        val minimum = candidate as? Requirement.Min ?: return@singleOrNull false
+        val piece = countedExpression(minimum) ?: return@singleOrNull false
+        minimum.minimum == 1 &&
+            piece.simple &&
+            concrete(piece.className) &&
+            positionedFrame(piece.className)?.determiner == Determiner.THIS
+      } ?: return null
+  val pieceExpression = countedExpression(pieceRequirement as Requirement.Min) ?: return null
+  val piece = positionedFrame(pieceExpression.className) ?: return null
+  val siteModifiers =
+      requirements
+          .filterNot { it === pieceRequirement }
+          .map { siteRequirement ->
+            renderPlacementSiteRequirement(siteRequirement, this) ?: return null
+          }
+  if (siteModifiers.isEmpty()) return null
+  val siteNoun = describedNoun(expression.className, site.noun, 1)
+  val sitePhrase =
+      siteModifiers.fold(NounPhrase(siteNoun, determiner = site.determiner)) { phrase, modifier ->
+        phrase.withModifier(modifier)
+      }
+  return Clause.Simple(
+      Predicate(Verb.BE, modifiers = listOf(Modifier.Relation("on", sitePhrase))),
+      NounPhrase(piece.singular, determiner = piece.determiner),
   )
 }

@@ -5,6 +5,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Property
@@ -31,6 +32,16 @@ internal fun Describers.renderEvent(trigger: Trigger): Event? {
           listOf(Modifier.Phrase("1 step")),
       )
     }
+  }
+  val removed = (trigger as? OnRemoveOf)?.expression
+  if (removed != null) {
+    if (!removed.simple || !concrete(removed.className)) return null
+    val positioned = positionedFrame(removed.className) ?: return null
+    return Event(
+        Event.Kind.REMOVE,
+        Event.ActorConstraint.YOU,
+        NounPhrase(positioned.singular, determiner = positioned.determiner),
+    )
   }
   val expression = (trigger as? OnGainOf)?.expression ?: return null
   if (expression.refinement is Expression.Refinement.Not) return null
@@ -359,6 +370,18 @@ internal fun Describers.playedCardEvent(expression: Expression): Event? {
         Determiner.INDEFINITE
       }
   val cardPhrase = NounPhrase(card, determiner = determiner)
+  val criterion =
+      (expression.refinement as? Expression.Refinement.Has)?.requirement?.let(::cardCriterion)
+  if (criterion is CardCriterion.PrintedIcon) {
+    return Event(
+        Event.Kind.PLAY,
+        actorConstraint,
+        NounPhrase(
+            matchingCardNoun(criterion, singular = true, this),
+            determiner = determiner,
+        ),
+    )
+  }
   val objectPhrase =
       expression.refinement?.let {
         val refinement = it as? Expression.Refinement.Has ?: return null
