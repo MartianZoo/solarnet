@@ -6,6 +6,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.
+- Remove `trimIndent()` from tests except where stripping indentation is part of preparing a
+  genuinely multiline input.
 - Rewrite the agent documents that have outgrown their intended teaching or orientation role:
   - make `ENGINE.md` only a quick tour of the runtime's major pieces;
   - make `GAMEWORLD.md` a quick orientation to the intended `state`/`engine` split;

@@ -238,15 +238,15 @@ one declaration, with an optional semicolon-separated body, and rejects owner-lo
 
 **L1-13. Every catalog also receives the system declarations.** `systemClassDeclarations` supplies
 the classes this specification and the type system depend on — `Component` and `Class` (T1-4, T1-5),
-the ownership vocabulary `Anyone`, `Owner` and `Owned`, the actor root `Actor`, and the signals `Ok`
-(L6-4) and `Die` (L12-14) — plus `Atomized` (L12-11) and `Custom` (T2-9). A catalog's own source is
-loaded alongside them. Which of these a *game* then contains is `OPTIONS.md`'s question, not this
-document's.
+the ownership vocabulary `Anyone`, `Owner` and `Owned`, the actor root `Actor`, the identity signal
+`Ok` (L6-4), and the impossible type `Die` (L12-14) — plus `Atomized` (L12-11) and `Custom` (T2-9).
+A catalog's own source is loaded alongside them. Which of these a *game* then contains is
+`OPTIONS.md`'s question, not this document's.
 
-> **Non-normative example — impossible and empty outcomes.** Elaboration uses the built-in `Die`
-> and `Ok` signals when selected content makes a mandatory result impossible or an optional result
-> empty. Supplying them in every Catalog lets that rule work before any Terraforming Mars module
-> contributes its own classes.
+> **Non-normative example — impossible and empty outcomes.** Specialization uses the built-in `Die`
+> and `Ok` terminal instructions when selected content makes a mandatory result impossible or an
+> optional result empty. Supplying their Classes in every Catalog lets that rule work before any
+> Terraforming Mars module contributes its own classes.
 
 ---
 
@@ -791,8 +791,13 @@ expression linking, and `BY Anyone` removes the Actor restriction (T13-9).
 > whenever any player places an ocean. The actor qualifier belongs to the trigger event, while an
 > `IF` would ask about board state rather than attribute who performed the placement.
 
-**L8-8. A class literal may not be a trigger.** `Class<Foo>: Bar` is rejected: the one component per
-concrete class is fixed before any effect runs (T4-6), so nothing ever gains one.
+**L8-8. A static non-event may not be a subscribed trigger.** `Class<Foo>: Bar` is rejected: the one
+component per concrete class is fixed before any effect runs (T4-6), so nothing ever gains one.
+`Ok: Bar`, `-Ok: Bar`, and a subscription rooted at any nominal supertype of `Ok` are likewise
+invalid: `Ok` is the identity instruction and produces no change event. A refinement does not make
+such an overly broad subscription valid; for example, `Signal(NOT Ok): Bar` is still forbidden.
+This does not prohibit a self trigger inherited from such a supertype; there is no `Ok` gain from
+which that trigger could fire.
 
 > **Non-normative implementation note — static representatives do not happen.** Canonical cards use
 > class literals to name tag, resource, or card kinds, never as events. Accepting the syntax would

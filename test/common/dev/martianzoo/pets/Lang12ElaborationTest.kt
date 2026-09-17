@@ -259,6 +259,9 @@ internal class Lang12ElaborationTest {
     specialize("This: Steel<Seat1>.").instruction shouldBe parse<InstructionTree>("Ok")
     specialize("This: Empty!").instruction shouldBe parse<InstructionTree>("Die!")
     specialize("This: Empty?").instruction shouldBe parse<InstructionTree>("Ok")
+    specialize("This: Empty? / Plant<Seat1>").instruction shouldBe parse<InstructionTree>("Ok")
+    specialize("This: EACH Plant<Seat1> { Empty? }").instruction shouldBe
+        parse<InstructionTree>("Ok")
     specialize("This: Plant<Seat1>!").instruction shouldBe parse<InstructionTree>("Plant<Seat1>!")
   }
 

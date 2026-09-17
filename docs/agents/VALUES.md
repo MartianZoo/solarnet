@@ -131,6 +131,11 @@ Keep the substantive reasoning in the owning document and keep this table to one
 
 ### At peace with it
 
+- **`Die` as a concrete zero-capacity Type** —
+  [CLASS_TABLES.md](CLASS_TABLES.md#die-and-ok). Concrete accurately makes `Die` final;
+  `HAS MAX 0 This` states why it cannot occur without making abstractness falsely advertise an
+  implementation choice. Structurally uninhabited Types remain a distinct general case even where
+  the engine can derive the same result.
 - **Class properties as a mechanism** — [PROPERTIES.md](PROPERTIES.md#why-class-properties-earn-their-cost).
   Few property kinds, one or two declaring classes each; without them the same facts needed major
   cheats. Declaring-class count is not the measure.
@@ -167,14 +172,6 @@ Keep the substantive reasoning in the owning document and keep this table to one
 - **`ActionUsedMarker`, `TradeBarrier`, and the `ActionSlot` pair** —
   [ACTIONS.md](ACTIONS.md#permission). One missing concept, permission, improvised five ways; that
   document owns the collapse and the step order.
-
-### Will be obsolete
-
-- **The concrete zero-limit encoding and uninhabited-Type adapter for `Die`** —
-  [CLASS_TABLES.md](CLASS_TABLES.md#die-and-ok). The selected class-universe model makes `Die` an
-  intentionally uninhabited abstract Type and derives impossible changes from the general
-  uninhabited-Type rule. The named terminal result and its task normalization remain; the
-  `HAS MAX 0 This` encoding and uninhabited-to-`Die` conversion do not.
 
 ## Keep Pets central
 

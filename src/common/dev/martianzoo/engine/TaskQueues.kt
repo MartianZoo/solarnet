@@ -18,14 +18,15 @@ import dev.martianzoo.state.Task.TaskId
  * Here, `a >> b` is a task whose [Task.instruction] is `a` and whose [Task.then] is `b`.
  * * Removing task `a >> b` first creates task `b >> null`
  * * `Ok >> b` is removed
- * * `Die >> b` or `a >> Die` produces [DeadEndException]
+ * * Mandatory `Die >> b` or `a >> Die` produces [DeadEndException]; nonmandatory `Die` is `Ok`
  * * `a, b >> null` is split into `a >> null` and `b >> null`
  * * `a, b >> c` produces some exception (which?)
  * * `a THEN b >> null` where `a THEN b` is separable is rewritten to `a >> b`
  * * `a THEN b >> c` retains both boundaries rather than merging their independent variable scopes
  * * `a, Ok` becomes `a`
- * * `a, Die` becomes `Die`
- * * `a OR Die` becomes `a`; if every option is `Die`, the task produces [DeadEndException]
+ * * `a, Die!` becomes `Die!`
+ * * `a OR Die!` becomes `a`; if every option is mandatory `Die`, the task produces
+ *   [DeadEndException]
  * * A concrete selected task is guaranteed to execute successfully
  * * Normalization retains task identity, controller, Actor, selection, and cause. Selected tasks
  *   cannot be replaced by independent siblings

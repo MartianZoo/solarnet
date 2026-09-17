@@ -1,6 +1,7 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
@@ -13,8 +14,10 @@ import dev.martianzoo.pets.ast.Effect.Trigger.WhenRemove
 import dev.martianzoo.pets.ast.Effect.Trigger.XTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.types.testCatalog
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 /** Section 8 of `docs/pets-language-spec.md`: effects as rules attached to a class. */
@@ -116,6 +119,29 @@ internal class Lang08EffectsTest {
     roundTrip<Effect>("Plant BY Player(NOT Owner): Heat")
     roundTrip<Effect>("Plant BY Actor(NOT Player2): Heat")
     roundTrip<Effect>("Plant IF =3 This OR =5 This: PROD[Heat]")
+  }
+
+  // L8-8 Static non-events
+
+  @Test
+  internal fun `L8-8 a subscription may not be rooted at Ok or its supertypes`() {
+    shouldRejectSubscription("Ok")
+    shouldRejectSubscription("-Ok")
+    shouldRejectSubscription("Signal")
+    shouldRejectSubscription("Signal(NOT Ok)")
+  }
+
+  @Test
+  internal fun `L8-8 an ordinary Signal subtype remains a valid subscription`() {
+    testCatalog("CLASS Event : Signal\nCLASS Result\nCLASS Listener { Event: Result }").classTable
+  }
+
+  private fun shouldRejectSubscription(trigger: String) {
+    shouldThrow<PetException> {
+          testCatalog("CLASS Result\nCLASS Listener { $trigger: Result }").classTable
+        }
+        .message
+        .orEmpty() shouldContain "root is Ok or a nominal supertype of Ok"
   }
 
   // L8-8 Class literals are not triggers

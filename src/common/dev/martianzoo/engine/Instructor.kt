@@ -274,14 +274,15 @@ internal constructor(
               listOfNotNull(g, r).filterNot(classTable::isInhabited).joinToString()
       )
     }
-    if (g?.className == DIE) throw DeadEndException("a Die instruction was reached")
-
     val atomized = classTable.findClass(ATOMIZED)
     if (r != null && count > 1 && atomized != null && g?.rootClass?.isSubtypeOf(atomized) == true) {
       throw ExpressionException(
           "Can't transmute $count components into atomized type ${g.expression}; " +
               "split it into one-component transmutations"
       )
+    }
+    if (g?.className == DIE && intens == MANDATORY) {
+      throw DeadEndException("a Die instruction was reached")
     }
 
     if (listOfNotNull(g, r).any { it.abstract }) {

@@ -501,13 +501,10 @@ constraint, a real case — not by rediscovering the cost.
   units. Reconstructed games still reach the same paid state. The repair is the payment direction in
   [PAYMENTS.md](PAYMENTS.md), not sibling precedence.
 - **`Die` and `Ok` are complementary terminal results.** `Die` denotes an impossible branch and
-  `Ok` denotes the identity instruction. The current `PetElaborator.invalidChangesToDie` marker and
-  `Task.normalizeForTask` normalization form a coherent bridge, and `PremiseViability` earns its
-  separate static check by rejecting a bad premise during setup. The selected class-universe model
-  in [CLASS_TABLES.md](CLASS_TABLES.md#die-and-ok) should eventually make `Die` an intentionally
-  uninhabited abstract Type and make impossible changes follow that ordinary rule. Whatever the
-  representation, a completed universe must admit no realizable subtype of `Die`, and source must
-  admit no `Ok:` trigger: `Ok` produces no change event for such an effect to observe.
+  `Ok` denotes the identity instruction. `Die` is a concrete, final Type with zero component
+  capacity, while task normalization preserves the named terminal result for early branch pruning.
+  Source admits no subscription rooted at `Ok` or one of its nominal supertypes, regardless of
+  refinement: `Ok` produces no change event for such an effect to observe.
 
 ## Research on file
 
