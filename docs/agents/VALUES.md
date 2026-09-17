@@ -28,40 +28,64 @@ together. Correct behavior is necessary, but an implementation that relies on in
 exceptions, mirrored models, privileged integration paths, or a disproportionate framework is
 still a design failure.
 
-## Order the work by conceptual value
+## Priority tiers
 
-This is not a total ordering of independent features: several items are facets of the same design,
-and evidence is a proof obligation rather than a competing aspiration. When work really must be
-chosen, use this order:
+These tiers rank how much outcomes matter, not the order of every implementation step. The numbered
+items within Tiers 1 and 2 are approximately ordered; nearby items should not be read as a precise
+comparison. Some are different faces of the same design, and evidence is a proof obligation rather
+than a competing feature.
 
-1. Make the semantic model smaller, clearer, more regular, and formally precise. Profound software
-   design matters more than uncovering a profound grammar peculiar to Terraforming Mars.
-2. Put ordinary game meaning in authored Pets and general semantics, not in Kotlin orchestration.
-   In particular, production code such as `TfmGameplay`, initializers, and workflow glue should not
-   know particular cards, components, expansions, or science-fiction concepts.
-3. Make one semantic source drive execution, natural-language explanation, iconography, and
-   analysis. These are views of one meaning, not parallel authorities.
-4. Make the runtime consequences of that model intelligible. The fragmented action and payment
-   lifecycle is a particularly important design pressure: task-pool searches, cause-based
-   choreography, and enormous incidental traces should not be needed to understand an action.
-5. Keep authored Pets compact and reminiscent of the physical game's icon grammar. When notation
-   and semantics genuinely conflict, prefer precise formal semantics over immediate readability,
-   but decide local syntax costs case by case rather than by a blanket rule.
+### Tier 1: defining and worth active investment
 
-Several attractive outcomes are deliberately lower priorities:
+1. An exceptionally small, clear, regular, and formally precise semantic model. Profound software
+   design matters more than uncovering a grammar peculiar to Terraforming Mars.
+2. One semantic source driving execution, natural-language explanation, iconography, and analysis.
+   Reaching this point would be the project's fullest realization, even when more immediate repairs
+   sensibly come first.
+3. Ordinary game meaning in authored Pets and general semantics, not Kotlin orchestration.
+   Production code such as `TfmGameplay`, initializers, and workflow glue should not know particular
+   cards, components, expansions, or science-fiction concepts.
+4. Exact source-backed replay tests proving that the model works across whole games. Focused
+   scenarios and language tests matter, but nothing provides comparable evidence that the pieces
+   work together.
+5. Runtime consequences that can be understood without reconstructing incidental machinery. The
+   fragmented action and payment lifecycle is the most pressing current example: task-pool searches,
+   cause-based choreography, and enormous traces should not be needed to understand an action.
+6. Compact authored Pets that evokes the physical icon grammar without compromising precise
+   semantics. Judge genuine notation-versus-semantics conflicts case by case.
 
-- Broad card coverage and exact support for every awkward official case.
-- Runtime modularity or general reuse for its own sake. Clean composition is valuable chiefly as
-  evidence that the design is sound.
-- Immediate comprehensibility to a Terraforming Mars player, polished outsider demonstrations, and
-  a finite shareable form.
-- Autonomous physical-deck play, hidden information, fan material, unrelated games, compatibility,
-  and speculative flexibility.
-- Turning exported histories and provenance into a serious causal-analysis product. Exact replay
-  evidence remains mandatory; the larger analytics product does not.
+Current work should preserve the replay evidence while improving these foundations; there is no
+expected need to choose between clean orchestration and working replays. Complexity serving only
+one to three minor cards deserves special scrutiny, including consideration of dropping the cards.
 
-This order chooses what to improve; it does not excuse defects or authorize claims the
-implementation cannot support.
+### Tier 2: valued, but not a current program of work
+
+1. An independent executable conformance suite that can falsify the engine rather than trusting a
+   transparent implementation to audit itself.
+2. Material performance improvements that enable qualitatively different work. Small percentage
+   gains do not justify attention; large gains can.
+3. Excellent parser and typechecker diagnostics, especially for mistakes authors hit commonly.
+4. Generative and property-based exploration of interactions not represented by curated examples.
+5. A polished explanation for outsiders and, later, an educational reconstruction of how the design
+   developed. The clean resulting model matters more than preserving its history during development.
+6. Richer causal presentation when it can be derived or post-processed cheaply. Existing event logs
+   already provide substantial traceability, so perfect attribution does not merit design cost.
+
+These may be improved opportunistically or when they block Tier 1, but they do not currently earn a
+major initiative of their own.
+
+### Tier 3: desirable, but given little weight
+
+- Broad coverage of official material and exact support for every awkward card or expansion.
+- General reuse, unrelated games, and module purity pursued for their own sake rather than as
+  evidence of a coherent design.
+- Autonomous physical-deck play, hidden information, fan material, and a polished player product.
+- Large-scale strategic analysis, AI players, and a separate optimized engine.
+- A comprehensive causal-analytics product built over exported histories.
+- Making raw Pets immediately understandable to a typical Terraforming Mars player.
+
+Things the project does not regard as desirable are omitted rather than assigned a tier. These
+tiers do not excuse defects or authorize claims the implementation cannot support.
 
 ## Let libraries attest to the design
 
