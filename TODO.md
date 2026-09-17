@@ -32,8 +32,11 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Have the normal full application build stamp its output with the current Git commit and, when
   source changes are present, a stable hash of those changes. Include that stamp in every exported
   game record so a log identifies, or can later verify, the engine source that produced it.
-- Make tile placement over an owned `Community` an atomic transmutation, then enforce
-  `HAS MAX 1 Occupant<This>` on every `Area` and remove card-level empty-area refinements.
+- Desupport Land Claim and Arcadian Communities, then remove the `Community` reservation model and
+  any supporting occupancy machinery that is no longer needed.
+- Desupport Mons Insurance, Crash Site Cleanup, and Law Suit; rewrite Hydrologist with
+  player-owned watchers, then remove the attack-history records/watchers and the actor-value reuse
+  machinery that no remaining Canon behavior needs.
 - Decide whether `Milestone`'s per-player uniqueness constraint should use
   `HAS MAX 1 This<Player>` or a clearer way to express one instance of the concrete milestone per
   player.

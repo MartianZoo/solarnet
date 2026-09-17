@@ -514,7 +514,8 @@ element that does.
 **L6-1. The elementary instructions are gain, removal and transmutation.** `n Foo` says the after
 state holds n more components of type `Foo`; `-n Foo` that it holds n fewer; `n Foo FROM Bar` that
 n components of `Bar` have become n of `Foo`. A direct gain of the system `Signal` class fires both
-gain and removal triggers while its count remains unchanged.
+gain and removal triggers while its count remains unchanged. This point-event behavior belongs only
+to a direct Signal gain; writing `SignalSubtype FROM SignalSubtype` is an ordinary transmutation.
 
 **L6-2. A count is a positive integer or `X`.** `X` denotes an amount left open, and may carry a
 coefficient: `2X Plant` is an even number of plants. A count of zero is rejected.
@@ -527,6 +528,13 @@ coefficient: `2X Plant` is an even number of plants. A count of zero is rejected
 much of it as possible, and `?` any part of it including none. An authored change may omit the
 quantifier; elaboration then supplies the class's default (T10-2, L12-5). What "as much as possible"
 resolves to against a real state is `QUANTIFIERS.md`'s subject.
+
+After both sides have narrowed to concrete Types, a transmutation is **reflexive** when those Types
+are equal (T5-1), regardless of how they were spelled. A mandatory reflexive transmutation is
+invalid; an optional or as-much-as-possible one resolves to `Ok` and produces no change event. The
+same rule applies whether its quantifier was written or supplied by elaboration. An empty argument
+list affects default acceptance and authored spelling (L3-2); it cannot make equal resolved Types
+non-reflexive.
 
 > **Non-normative examples — Artificial Lake and asteroid attacks.** Artificial Lake's special
 > ocean placement is `!`: choosing that arm requires the exceptional land placement to succeed in
@@ -558,7 +566,10 @@ per three complete Earth tags. Only an elementary change may be scaled this way.
 **L6-6. `r: I` gates an instruction on a requirement.** The gate is not a choice (L7-5); when its
 requirement fails, the instruction cannot be carried out. `OR` binds tighter than a gate, so
 `3 PlantTag: Plant OR 4 Plant` gates both alternatives, and a gate on one alternative alone must be
-parenthesized. A gate does not directly contain another gate.
+parenthesized. A gate does not directly contain another gate. When a first-stage gate uses a type
+variable shared with that stage and a later `THEN` stage, resolution waits for the first-stage
+choice, substitutes it throughout the sequence, and then checks the gate before executing the
+change (T13-8).
 
 > **Non-normative example — Factorum.** Its first action grants energy production only under
 > `MAX 0 Energy`. The requirement decides whether that result is available; it is not another arm a

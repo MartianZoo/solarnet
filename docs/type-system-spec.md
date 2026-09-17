@@ -774,10 +774,9 @@ variable may be specialized later, making the difference non-empty again.
   so neither shortcut applies to them: `Class<BuildingTag>(HAS Tag)` does not narrow
   `Class<Tag>(HAS Tag)`, because for the target the predicate asks about the candidate's own class.
 
-> **Non-normative example — Cyberia Systems.** Its second production-box choice is a building card
-> with no `CyberiaSystemsFirstChoice` marker. That refined choice must still satisfy the broader
-> “building card” constraint without another world query, while the extra conjunct prevents choosing
-> the first card twice.
+> **Non-normative example — Cyberia Systems.** Its first production-box choice binds `CardFront`,
+> and a gate checks `BuildingTag<CardFront>`. The second choice retains its own building-tag clause
+> while repeating the first choice inside `NOT CardFront`, so it cannot choose the first card twice.
 
 **T8-9. `glb` of refinements.** A refinement the other operand lacks is kept. Refinement clauses form
 a set: duplicates collapse and clause order does not affect Type equality. Rendering retains the
@@ -1205,17 +1204,14 @@ Binding it substitutes at every occurrence at once:
 | Effect | the trigger; the instruction |
 | Action | the cost; the result |
 | `THEN` sequence | each stage |
-| Transmutation (`A FROM B`) | the gained side; the removed side — but *not* the two whole roots |
+| Transmutation (`A FROM B`) | the gained side; the removed side |
 
-The transmutation exception matters: the source and destination of `A FROM B` are meant to differ, so
-only repeated *proper subexpressions* assert equality. In
-`Production<Class<X>> FROM Production<Class<X>>` the shared variable is `Class<X>`, not the whole
-production.
-
-> **Non-normative example — Market Manipulation.** `ColonyProduction FROM ColonyProduction` moves
-> one step from one colony to another. If the two whole roots declared one variable, source and
-> destination would be forced to the same track and the card would cancel itself; only repeated
-> proper subexpressions are equality claims.
+> **Non-normative examples — movement and Market Manipulation.** Moving one component between two
+> locations can make the destination structurally distinct while preserving the source as a
+> co-reference, as Mars Nomads does with
+> `NomadsMarker<LandArea(HAS Neighbor<NomadsMarker<Owner>>, NOT LandArea)> FROM
+> NomadsMarker<Owner, LandArea>`. Market Manipulation uses the same shape:
+> `ColonyProduction(NOT ColonyProduction) FROM ColonyProduction`.
 
 > **Non-normative design note — regions are choice sites.** Repetition is meaningful because the
 > physical icon grammar commonly repeats one icon to mean “the same one.” Regions identify the

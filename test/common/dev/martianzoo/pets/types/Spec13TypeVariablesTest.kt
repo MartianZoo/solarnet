@@ -425,7 +425,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-7 a transmutation's regions are its two roles, minus the roots themselves`() {
+  internal fun `T13-7 a transmutation's regions are its two roles`() {
     val instruction =
         resources
             .inferTypeVariables()
@@ -436,8 +436,8 @@ internal class Spec13TypeVariablesTest {
             )
     val transmute = instruction as Instruction.Transmute
 
-    // The whole gained and removed roots may deliberately differ, so only what is inside counts.
-    names(transmute.typeVariables) shouldContainExactly listOf("Class<StandardResource>")
+    names(transmute.typeVariables) shouldContainExactly
+        listOf("Production<Class<StandardResource>>")
   }
 
   // T13-8 What does not declare a variable

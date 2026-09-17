@@ -4,6 +4,7 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.data.Catalog
@@ -48,6 +49,13 @@ internal class PetElaboratorTest {
                 }
                 ABSTRACT CLASS OwnerRule : Owner {
                   This: ContextualTile<This>
+                }
+                ABSTRACT CLASS Choice { CLASS RedChoice, BlueChoice }
+                CLASS SequentialRule {
+                  This: Choice THEN -Choice(NOT Choice)
+                }
+                CLASS TransmutingRule {
+                  This: Choice(NOT Choice) FROM Choice
                 }
                 """
                     .trimIndent(),
@@ -117,5 +125,32 @@ internal class PetElaboratorTest {
         componentType.expressionFull,
         player1,
     ) shouldBe parse<Effect>("This: ContextRule<Player1>, Token<Player1>!")
+  }
+
+  @Test
+  internal fun effectSpecializationPreservesVariablesOwnedByANestedSequence() {
+    val rule = table.getClass(parse("SequentialRule"))
+    val effect = elaborator.classEffects(rule).single()
+
+    elaborator.specializeEffect(
+        rule.defaultType,
+        rule.defaultType,
+        effect,
+        rule.defaultType.expressionFull,
+    ) shouldBe parse<Effect>("This: Choice! THEN -Choice(NOT Choice)!")
+  }
+
+  @Test
+  internal fun effectSpecializationPreservesVariablesOwnedByATransmutation() {
+    val rule = table.getClass(parse("TransmutingRule"))
+    val effect = elaborator.classEffects(rule).single()
+    ((effect.instruction as Transmute).typeVariables.isEmpty) shouldBe false
+
+    elaborator.specializeEffect(
+        rule.defaultType,
+        rule.defaultType,
+        effect,
+        rule.defaultType.expressionFull,
+    ) shouldBe parse<Effect>("This: Choice(NOT Choice) FROM Choice!")
   }
 }

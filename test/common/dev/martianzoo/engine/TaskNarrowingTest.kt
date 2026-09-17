@@ -442,6 +442,43 @@ internal class TaskNarrowingTest {
   }
 
   @Test
+  internal fun `a later stage can exclude the type selected by the first stage`() {
+    writer.runOperation("Plant, Heat")
+    initiate("StandardResource THEN -StandardResource(NOT StandardResource)")
+
+    writer.doTask("Steel")
+
+    tasksAsText().shouldContainExactly("-StandardResource<Player1>(NOT Steel<Player1>)!")
+    writer.doTask("-Plant")
+    writer.count("Steel") shouldBe 1
+    writer.count("Plant") shouldBe 0
+    writer.count("Heat") shouldBe 1
+  }
+
+  @Test
+  internal fun `a first-stage gate waits for its shared choice`() {
+    writer.runOperation("Plant")
+    initiate("(StandardResource: StandardResource) THEN StandardResource")
+
+    shouldThrow<TaskException> { writer.doTask("Heat") }
+    writer.doTask("Plant")
+
+    writer.count("Plant") shouldBe 2
+    tasksAsText().shouldContainExactly("Plant<Player1>!")
+  }
+
+  @Test
+  internal fun `a transmutation can exclude its selected source from the destination`() {
+    writer.runOperation("Plant")
+    initiate("StandardResource(NOT StandardResource) FROM StandardResource")
+
+    writer.doTask("Steel FROM Plant")
+
+    writer.count("Steel") shouldBe 1
+    writer.count("Plant") shouldBe 0
+  }
+
+  @Test
   internal fun `unselected X binding exposes a separable THEN head without executing it`() {
     val taskId = initiate("X Plant THEN X Heat THEN Steel").single()
 

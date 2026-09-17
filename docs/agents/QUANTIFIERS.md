@@ -127,8 +127,10 @@ missing destination dependency makes the pair unavailable for every quantifier; 
 do not convert it to `Ok`. If source footroom is zero, however, optional and AMAP do become `Ok`.
 
 Transmuting a concrete Type into itself is `Ok` when optional or AMAP and is an
-`ExpressionException` when mandatory. A zero AMAP transmutation can still bind Type Variables in a
-following `THEN`; target selection and component movement are separate consequences of that stage.
+`ExpressionException` when mandatory. This is the ordinary reflexive-transmutation rule (L6-3),
+including when the Type is a Signal subtype; only a direct Signal gain has the distinct point-event
+semantics of L6-1. A zero AMAP transmutation can still bind Type Variables in a following `THEN`;
+target selection and component movement are separate consequences of that stage.
 
 ## Abstract pure gains and removals
 
