@@ -1,9 +1,9 @@
 package dev.martianzoo.repl
 
-import dev.martianzoo.script.ScriptCommand
-import dev.martianzoo.script.ScriptCompletion
-import dev.martianzoo.script.ScriptCompletionEngine
-import dev.martianzoo.script.ScriptSession
+import dev.martianzoo.tfm.script.ScriptCommand
+import dev.martianzoo.tfm.script.ScriptCompletion
+import dev.martianzoo.tfm.script.ScriptCompletionEngine
+import dev.martianzoo.tfm.script.ScriptSession
 import org.jline.reader.Candidate
 import org.jline.reader.Completer
 import org.jline.reader.LineReader

@@ -1,0 +1,30 @@
+package dev.martianzoo.tfm.script.commands
+
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.tfm.script.ScriptCommand
+import dev.martianzoo.tfm.script.ScriptCompletion
+import dev.martianzoo.tfm.script.ScriptCompletionContext
+import dev.martianzoo.tfm.script.ScriptSession
+
+internal class BecomeCommand(private val repl: ScriptSession) : ScriptCommand("become") {
+  override val usage = "become [PlayerN]"
+  override val help =
+      """
+        Type `become Player2` or whatever and your prompt will change accordingly; everything you
+        do now will be done as if it's player 2 doing it. You can also `become Admin` to do
+        administrative things.
+      """
+
+  override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
+      context.playerNames()
+
+  override fun noArgs(): List<String> {
+    repl.agent = repl.agents[ADMIN]
+    return listOf("Okay, you are Admin now")
+  }
+
+  override fun withArgs(args: String): List<String> {
+    repl.agent = repl.agents[repl.actor(args)]
+    return listOf("Hi, ${repl.agent.actor.className}")
+  }
+}

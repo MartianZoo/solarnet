@@ -10,10 +10,10 @@ import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.script.ScriptCommand
-import dev.martianzoo.script.ScriptCompletion
-import dev.martianzoo.script.ScriptCompletionContext
-import dev.martianzoo.script.ScriptSession
+import dev.martianzoo.tfm.script.ScriptCommand
+import dev.martianzoo.tfm.script.ScriptCompletion
+import dev.martianzoo.tfm.script.ScriptCompletionContext
+import dev.martianzoo.tfm.script.ScriptSession
 
 internal class TfmPayCommand(private val repl: ScriptSession) : ScriptCommand("tfm_pay") {
   override val usage: String = "tfm_pay <amount resource>"

@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.script
 
-import dev.martianzoo.script.ScriptSession
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

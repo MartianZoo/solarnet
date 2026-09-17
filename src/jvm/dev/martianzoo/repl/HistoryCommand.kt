@@ -1,7 +1,7 @@
 package dev.martianzoo.repl
 
-import dev.martianzoo.script.ScriptCommand
-import dev.martianzoo.script.ScriptSession.UsageException
+import dev.martianzoo.tfm.script.ScriptCommand
+import dev.martianzoo.tfm.script.ScriptSession.UsageException
 
 internal class HistoryCommand(private val terminal: ReplTerminal) : ScriptCommand("history") {
   override val usage = "history <count>"

@@ -1,7 +1,7 @@
 package dev.martianzoo.repl
 
 import com.google.common.truth.Truth.assertThat
-import dev.martianzoo.script.ScriptCompletionEngine
+import dev.martianzoo.tfm.script.ScriptCompletionEngine
 import java.io.File
 import java.nio.file.Files
 import org.junit.jupiter.api.Test

@@ -1,0 +1,64 @@
+package dev.martianzoo.tfm.script.commands
+
+import dev.martianzoo.pets.api.SystemClasses.COMPONENT
+import dev.martianzoo.pets.ast.Metric.Count
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.util.HashMultiset
+import dev.martianzoo.tfm.script.PetsCompletionRoot
+import dev.martianzoo.tfm.script.ScriptCommand
+import dev.martianzoo.tfm.script.ScriptCompletion
+import dev.martianzoo.tfm.script.ScriptCompletionContext
+import dev.martianzoo.tfm.script.ScriptSession
+
+internal class ListCommand(private val repl: ScriptSession) : ScriptCommand("list") {
+  override val usage = "list <Expression>"
+  override val help =
+      """
+        This command is super broken right now.
+      """
+  override val isReadOnly = true
+
+  override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
+      context.petsWords(PetsCompletionRoot.EXPRESSION)
+
+  override fun noArgs() = withArgs("$COMPONENT")
+
+  override fun withArgs(args: String): List<String> {
+    val output = mutableListOf<String>()
+    val parentType: Type = repl.agent.resolve(args)
+
+    // TODO When applicable include an explicit `<Anyone>` for clarity's sake
+    val displayType = parentType.expression.toString()
+
+    val totalCount = repl.game.reader.count(Count(parentType.expressionFull))
+    if (totalCount == 0) return listOf("0 $displayType")
+
+    val directSubclassTypes: List<Type> =
+        repl.game.classTable
+            .directSubclasses(parentType.rootClass)
+            .map { repl.game.classTable.glb(it.baseType, parentType)!! }
+            .ifEmpty { listOf(parentType) }
+
+    val listing = HashMultiset<Type>()
+    directSubclassTypes.forEach {
+      listing.add(it, repl.game.reader.count(Count(it.expressionFull)))
+    }
+
+    // if (listing.elements.size == 1) {
+    //   if (parentType.dependencies.keys.any()) {
+    //   }
+    // }
+
+    output += buildString {
+      append("$totalCount $displayType")
+      val overlaps = listing.size - totalCount
+      if (overlaps > 0) append(" ($overlaps overlaps)")
+      append(":")
+    }
+
+    val x = listing.entries.sortedByDescending { (_, ct) -> ct }
+
+    output += x.map { (e, ct) -> "  $ct ${e.expression}" }
+    return output
+  }
+}
