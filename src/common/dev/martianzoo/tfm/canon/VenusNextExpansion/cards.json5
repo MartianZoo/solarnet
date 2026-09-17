@@ -302,7 +302,7 @@
           "name": "SponsoredAcademies",
           "cost": 9,
           "tags": [ "ScienceTag", "EarthTag" ],
-          "immediate": "-ProjectCard THEN (2 ProjectCard, EACH Player { ProjectCard })",
+          "immediate": "-ProjectCard THEN 3 ProjectCard, EACH Player(NOT Owner) { ProjectCard }",
           "effects": [ "End: VictoryPoint" ],
         },
         {
