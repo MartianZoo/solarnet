@@ -1,0 +1,55 @@
+#!/bin/sh
+
+# Gradle opens the root project's .gradle directory before init scripts run. Keep that earliest
+# cache access in the same per-account, per-worktree home storage as the rest of the build.
+worktree_root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+[ -f "$worktree_root/gradle/user-isolation.init.gradle.kts" ] || exit 0
+
+if ! command -v shasum >/dev/null 2>&1; then
+  echo "Solarnet: shasum is unavailable; cannot link the Gradle project cache" >&2
+  exit 0
+fi
+
+canonical_root=$(cd "$worktree_root" && pwd -P) || exit 0
+worktree_id=$(printf '%s' "$canonical_root" | shasum -a 256 | cut -c1-24)
+account_worktree_root="$HOME/.gradle/solarnet-builds/$worktree_id"
+
+link_project_cache() {
+  relative_root=$1
+  if [ "$relative_root" = "." ]; then
+    cache_directory="$account_worktree_root/bootstrap-project-cache"
+    project_link="$worktree_root/.gradle"
+  else
+    cache_directory="$account_worktree_root/bootstrap-project-caches/$relative_root"
+    project_link="$worktree_root/$relative_root/.gradle"
+  fi
+
+  mkdir -p "$cache_directory" || {
+    echo "Solarnet: cannot create Gradle project cache $cache_directory" >&2
+    return
+  }
+
+  if [ -L "$project_link" ]; then
+    if [ "$(readlink "$project_link")" != "$cache_directory" ]; then
+      echo "Solarnet: $project_link already links elsewhere; leaving it unchanged" >&2
+    fi
+  elif [ -e "$project_link" ]; then
+    echo "Solarnet: $project_link already exists; leaving it unchanged" >&2
+  else
+    ln -s "$cache_directory" "$project_link" ||
+      echo "Solarnet: cannot link $project_link to $cache_directory" >&2
+  fi
+}
+
+# Included builds have their own early project cache. Derive every build root from tracked settings
+# files so adding another included build does not require changing this hook.
+git -C "$worktree_root" ls-files -- \
+  'settings.gradle' \
+  'settings.gradle.kts' \
+  '*/settings.gradle' \
+  '*/settings.gradle.kts' |
+  while IFS= read -r settings_file; do
+    link_project_cache "$(dirname "$settings_file")"
+  done
+
+exit 0

@@ -433,8 +433,6 @@
           "cost": 13,
           "immediate": "NomadsMarker<LandArea(HAS MAX 0 Occupant)>",
           "actions": [
-            // TODO: do we have a test that I can place the nomads marker where I have a community, and that I can move it there?
-            // that is supposed to be allowed, right? what about whether I can place a community where the nomads marker already is?
             "-> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>)> FROM NomadsMarker<Owner> THEN EACH LandArea(HAS NomadsMarker) { Placement<LandArea> }"
           ],
         },
