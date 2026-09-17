@@ -1,6 +1,5 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Transforming
@@ -20,7 +19,6 @@ import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.DIE
-import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
@@ -43,10 +41,12 @@ import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.Component.Companion.toComponent
+import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.toComponent
 import kotlin.math.min
 
 /** Just a cute name for "instruction handler". It resolves and executes instructions. */
@@ -58,7 +58,7 @@ internal constructor(
     private val effector: Effector,
     private val classTable: ClassTable,
     private val elaborator: PetElaborator,
-    private val customClasses: CustomClassRuntime,
+    private val customClasses: CustomInstructionRuntime,
 ) {
   private val automaticEffectStack = mutableListOf<PendingTask>()
 
@@ -398,31 +398,16 @@ internal constructor(
    * Fans one instruction out over the World as it stands right now. Every component matching the
    * selector contributes one independent branch, so a selector refinement — evaluated against each
    * candidate like any other refinement — is how "each player who..." is expressed. The resulting
-   * siblings carry no order, so they are deliberately produced in a stable but arbitrary sort.
+   * siblings carry no game order.
    */
   private fun resolveEach(each: Each): InstructionTree {
     val selectorType = reader.resolve(each.selector)
     if (!selectorType.abstract) {
       throw ExpressionException(
-          "`EACH ${each.selector}` selects one concrete Type, so it would have a single " +
-              "branch. Select an abstract type whose matching components can differ."
+          "`EACH ${each.selector}` resolves to a concrete Type; `EACH` requires an abstract selector"
       )
     }
-    val ownsBody = elaborator.selectionSuppliesOwner(each.selector)
-    val named =
-        each.body.descendantsOfType<Expression>().any {
-          it == each.selectorName ||
-              it == each.representedSelectorName ||
-              (ownsBody && it.className == OWNER)
-        }
-    if (!named) {
-      throw ExpressionException(
-          "`EACH ${each.selector}` never names its selection in `${each.body}`, " +
-              "so every branch would be the same instruction"
-      )
-    }
-    val selected =
-        reader.getComponents(selectorType).elements.map { it.expression }.sortedBy { "$it" }
+    val selected = reader.getComponents(selectorType).map { it.expression }
     val branches = selected.map { branchFor(each, it) }
     return InstructionGroup.createTree(branches)
   }
@@ -505,5 +490,4 @@ internal constructor(
 
 private const val MAX_AUTOMATIC_EFFECT_DEPTH = 8
 
-private fun GameReader.hasAnyComponents(type: Type): Boolean =
-    (this as? GameReaderImpl)?.containsAny(type) ?: getComponents(type).isNotEmpty()
+private fun GameReader.hasAnyComponents(type: Type): Boolean = getComponents(type).isNotEmpty()

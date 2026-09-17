@@ -96,7 +96,7 @@ internal class CanonClassesTest {
   }
 
   @Test
-  internal fun preludeSetupDealsTwoPreludeCardsToEachPlayer() {
+  internal fun preludeSetupRetainsTwoOfFourPreludeCardsForEachPlayer() {
     val game = setUpGame(canonicalPremise(PreludeExpansion, players = 2))
 
     game.testTfm(PLAYER1).phase("Prelude")

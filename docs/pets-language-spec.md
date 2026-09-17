@@ -513,7 +513,8 @@ element that does.
 
 **L6-1. The elementary instructions are gain, removal and transmutation.** `n Foo` says the after
 state holds n more components of type `Foo`; `-n Foo` that it holds n fewer; `n Foo FROM Bar` that
-n components of `Bar` have become n of `Foo`.
+n components of `Bar` have become n of `Foo`. A direct gain of the system `Signal` class fires both
+gain and removal triggers while its count remains unchanged.
 
 **L6-2. A count is a positive integer or `X`.** `X` denotes an amount left open, and may carry a
 coefficient: `2X Plant` is an even number of plants. A count of zero is rejected.
@@ -593,14 +594,14 @@ means for pending work is `SEQUENCING.md`'s subject.
 > query is settled; a comma would let the second choice be evaluated against the old board.
 
 **L6-10. `EACH Selector { body }` quantifies over one state.** It denotes one independent branch of
-`body` for each distinct concrete type matching `Selector` present in the state, with the selector's
-spelling in the body denoting that type. A refinement on the selector filters which components take
-part without becoming part of the name the body uses. The body may not be empty, and fanouts do not
-nest. A concrete selector and a body that never names its selection are both meaningless — every
-branch would be the same instruction — and are rejected where the fanout is resolved against a
-world, which is `EACH.md`'s subject, along with how that world is enumerated and when. This module
-pins the syntax and that scoping; `engine/EachSelectorOwnerTest.kt` and
-`engine/InstructionResolutionTest.kt` pin the rest.
+`body` for each component occurrence matching `Selector` present in the state, with the selector's
+spelling in the body denoting that component's concrete type. Equal occurrences therefore produce
+equal but independent branches. A refinement on the selector filters which components take part
+without becoming part of the name the body uses. The body may use the selector only as its
+repetition source; it need not name the selected component. The body may not be empty, fanouts do
+not nest, and a concrete selector is rejected where the fanout is resolved against a world.
+`EACH.md` specifies how and when that world is enumerated. This module pins the syntax and scoping;
+`engine/EachSelectorOwnerTest.kt` and `engine/InstructionResolutionTest.kt` pin the rest.
 
 > **Non-normative example — Mars Nomads.** After moving its marker, the card uses `EACH LandArea(HAS
 > NomadsMarker) { Placement<LandArea> }` to award the bonus of the newly marked area. The selector

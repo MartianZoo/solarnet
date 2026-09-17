@@ -5,6 +5,11 @@ import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.GameEvent.TaskAddedEvent
+import dev.martianzoo.state.GameEvent.TaskEditedEvent
+import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldInclude
@@ -12,6 +17,52 @@ import io.kotest.matchers.string.shouldNotInclude
 import kotlin.test.Test
 
 internal class InitializerTest {
+  @Test
+  internal fun bootstrapLayersAfterAdminUseOrdinaryTasks() {
+    val premise =
+        testGamePremise("CLASS BootstrapPhase\nCLASS Premise", players = 0)
+            .copy(
+                bootstrapClassName = cn("BootstrapPhase"),
+                premiseClassName = cn("Premise"),
+            )
+
+    val events = Engine.newGame(premise).events.entriesSince(Checkpoint(0))
+
+    events.map { it::class } shouldBe
+        listOf(
+            ChangeEvent::class,
+            TaskAddedEvent::class,
+            TaskEditedEvent::class,
+            ChangeEvent::class,
+            TaskRemovedEvent::class,
+            TaskAddedEvent::class,
+            TaskEditedEvent::class,
+            ChangeEvent::class,
+            TaskRemovedEvent::class,
+        )
+    (events[0] as ChangeEvent).change.gaining?.className shouldBe cn("Admin")
+    (events[3] as ChangeEvent).change.gaining?.className shouldBe cn("BootstrapPhase")
+    (events[7] as ChangeEvent).change.gaining?.className shouldBe cn("Premise")
+  }
+
+  @Test
+  internal fun bootstrapCauseUsesItsFirstChangeWhenImmediateEffectsFollow() {
+    val premise =
+        testGamePremise(
+                """
+                CLASS BootstrapPhase { This:: Marker }
+                CLASS Marker
+                """,
+                players = 0,
+            )
+            .copy(bootstrapClassName = cn("BootstrapPhase"))
+
+    val game = Engine.newGame(premise)
+
+    game.reader.count(game.classTable.resolve(cn("BootstrapPhase").expression)) shouldBe 1
+    game.reader.count(game.classTable.resolve(cn("Marker").expression)) shouldBe 1
+  }
+
   @Test
   internal fun generatedPremiseDoesNotFallThroughToDirectCreation() {
     val premise =

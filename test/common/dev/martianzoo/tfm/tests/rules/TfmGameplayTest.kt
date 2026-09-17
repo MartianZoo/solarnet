@@ -47,6 +47,16 @@ internal class TfmGameplayTest :
   }
 
   @Test
+  internal fun `Standard action helper rejects a non-standard action provider`() {
+    newGame(TestOption.PromoCardPack)
+    p1.runOperation("CathedralOption")
+    admin.phase("Action")
+
+    shouldThrow<IllegalArgumentException> { p1.stdAction("CathedralOption") }.message shouldBe
+        "CathedralOption is not a StandardAction"
+  }
+
+  @Test
   internal fun `Declining a second action rejects an unrelated optional task`() {
     newGame()
 

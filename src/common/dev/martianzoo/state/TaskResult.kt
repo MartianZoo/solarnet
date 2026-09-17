@@ -1,9 +1,7 @@
-package dev.martianzoo.pets.data
+package dev.martianzoo.state
 
-import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.StateChange
-import dev.martianzoo.pets.data.Task.TaskId
+import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.Task.TaskId
 import kotlin.math.absoluteValue
 
 /**
@@ -14,8 +12,8 @@ public data class TaskResult(
     public val changes: List<ChangeEvent> = emptyList(),
     public val tasksSpawned: Set<TaskId> = emptySet(),
 ) {
-  public fun net(): List<StateChange> {
-    val map = mutableMapOf<Expression, Int>()
+  public fun net(): List<ComponentChange> {
+    val map = mutableMapOf<Component, Int>()
     for (event in changes) {
       val change = event.change
       change.gaining?.let {
@@ -28,12 +26,12 @@ public data class TaskResult(
       }
     }
     return map.filterValues { it != 0 }
-        .map { (expr, count) ->
-          StateChange(
-              count = count.absoluteValue,
-              gaining = if (count > 0) expr else null,
-              removing = if (count < 0) expr else null,
-          )
+        .map { (component, count) ->
+          if (count > 0) {
+            ComponentChange.Gain(count, component)
+          } else {
+            ComponentChange.Remove(count.absoluteValue, component)
+          }
         }
   }
 }

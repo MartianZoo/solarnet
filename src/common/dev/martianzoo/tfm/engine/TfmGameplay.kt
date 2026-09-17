@@ -6,7 +6,6 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
-import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.api.Exceptions.LimitsException
@@ -16,18 +15,18 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Change
-import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.data.Task
-import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.Task
+import dev.martianzoo.state.TaskQueue
+import dev.martianzoo.state.TaskResult
 
 private val MC: ClassName = cn("MC")
+private val STANDARD_ACTION: ClassName = cn("StandardAction")
 
 /**
  * Wraps and extends an [Agent] to provide much more convenient functions specific to *Terraforming
@@ -74,8 +73,14 @@ public class TfmGameplay(
   /** Plays the chosen corporation, then retains and buys [buyCards] starting project cards. */
   public fun playCorp(cardName: ClassName, buyCards: Int, body: OperationBlock = {}): TaskResult {
     return inTurn {
-      playCorp(cardName)
-      buySelectedCards(buyCards)
+      // TODO: Remove the EAGER dependency after Pets owns corporation reward/purchase ordering.
+      val retained = this@TfmGameplay.count("ProjectCard<Selecting>")
+      require(buyCards == retained) {
+        "must buy all $retained project cards retained during setup, not $buyCards"
+      }
+      doTask("PlayCard<Class<CorporationCard>, Class<$cardName>, Hand>")
+      if (hasPendingBuySelectedCards(tasks)) doTask("BuySelectedCards")
+      if (this@TfmGameplay.count("Owed") > 0) payAllMc()
       body()
     }
   }
@@ -87,9 +92,14 @@ public class TfmGameplay(
     openPendingProjectCardOffer()
     val offered = this@TfmGameplay.count("ProjectCard<Selecting>")
     require(count in 0..offered) { "cannot buy $count of $offered selected project cards" }
-    val discarded = offered - count
-    selectTask(tasks.extract { it }.single { it.discardsSelectedProjectCards() }.id)
-    narrowTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>")
+    val discardTask = tasks.extract { it }.singleOrNull { it.discardsSelectedProjectCards() }
+    if (discardTask == null) {
+      require(count == offered) { "all $offered retained project cards must be bought" }
+    } else {
+      val discarded = offered - count
+      selectTask(discardTask.id)
+      narrowTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>")
+    }
     if (hasPendingBuySelectedCards(tasks)) doTask("BuySelectedCards")
     if (count > 0) payAllMc()
   }
@@ -182,17 +192,24 @@ public class TfmGameplay(
   private fun Task.isActionPhaseSecondAction(): Boolean {
     val origin = cause ?: return false
     if (origin.context.className != cn("ActionPhase")) return false
-    val trigger = game.events.entryAt(origin.triggerEvent) as? ChangeEvent
+    val trigger = game.events.changeAt(origin.triggerEvent)
     return trigger?.change?.gaining?.className == cn("SecondAction")
   }
 
+  /** Uses an action supplied by [stdAction], which must be a `StandardAction` provider. */
   public fun stdAction(
       stdAction: String,
       which: Int = 1,
       payment: OperationBlock = { payInvoiceFromItsResourceIfOffered() },
       body: OperationBlock = {},
   ): TaskResult {
-    // TODO: Reject providers that are not StandardAction; generic HasActions need a distinct API.
+    require(
+        game.classTable
+            .getClass(cn(stdAction))
+            .isSubtypeOf(game.classTable.getClass(STANDARD_ACTION))
+    ) {
+      "$stdAction is not a StandardAction"
+    }
     return inTurn {
       doTask("UseAction<$stdAction, ${whichAction(which)}>")
       payment()
@@ -524,6 +541,7 @@ public class TfmGameplay(
   public fun cardAction1(cardName: ClassName, body: OperationBlock = {}): TaskResult =
       cardAction(1, cardName, body = body)
 
+  /** Binds the action's X to positive [x] without directly executing the resulting task. */
   public fun cardAction1(
       cardName: ClassName,
       x: Int,
@@ -533,6 +551,7 @@ public class TfmGameplay(
   public fun cardAction2(cardName: ClassName, body: OperationBlock = {}): TaskResult =
       cardAction(2, cardName, body = body)
 
+  /** Binds the action's X to positive [x] without directly executing the resulting task. */
   public fun cardAction2(
       cardName: ClassName,
       x: Int,
@@ -543,6 +562,7 @@ public class TfmGameplay(
     useCardAction(1, cardName, body = body)
   }
 
+  /** Binds the action's X to positive [x] without directly executing the resulting task. */
   public fun OperationScope.cardAction1(cardName: ClassName, x: Int, body: OperationBlock = {}) {
     useCardAction(1, cardName, x, body)
   }
@@ -551,6 +571,7 @@ public class TfmGameplay(
     useCardAction(2, cardName, body = body)
   }
 
+  /** Binds the action's X to positive [x] without directly executing the resulting task. */
   public fun OperationScope.cardAction2(cardName: ClassName, x: Int, body: OperationBlock = {}) {
     useCardAction(2, cardName, x, body)
   }
@@ -590,8 +611,8 @@ public class TfmGameplay(
             }
     val variableTask = variableTasks.single()
     val bound = bindXTo(x).transformInstructionTree(variableTask.instruction)
-    val firstStage = if (bound is Then) bound.first else bound
-    operation.doTask(firstStage.toString())
+    narrowTask(variableTask.id, bound.toString())
+    operation.autoExecNow()
   }
 
   private fun whichAction(which: Int): String =

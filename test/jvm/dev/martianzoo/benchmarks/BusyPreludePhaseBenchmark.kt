@@ -2,11 +2,11 @@ package dev.martianzoo.benchmarks
 
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -14,7 +14,6 @@ import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.fake.FakeCanon
-import dev.martianzoo.tfm.web.gameviewer.cardnames.FakeEstablishedMethods
 import java.util.concurrent.TimeUnit
 import org.openjdk.jmh.annotations.Benchmark
 import org.openjdk.jmh.annotations.BenchmarkMode
@@ -30,6 +29,7 @@ import org.openjdk.jmh.annotations.TearDown
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 public open class BusyPreludePhaseBenchmark {
+  private val fakeEstablishedMethods = cn("FakeEstablishedMethods")
   private lateinit var game: World
   private lateinit var me: TfmGameplay
   private lateinit var workflow: TfmWorkflow.Stepwise
@@ -71,7 +71,7 @@ public open class BusyPreludePhaseBenchmark {
     me.playCorp(cn("Teractor"), 10)
 
     workflow.preludePhase()
-    me.playPrelude(FakeEstablishedMethods) {
+    me.playPrelude(fakeEstablishedMethods) {
       doTask("UseAction<PlayCardFromHandAction, Action1>")
       doTask("PlayCard<Class<ProjectCard>, Class<EarthOffice>, Hand>")
       me.pay(0)
@@ -90,7 +90,7 @@ public open class BusyPreludePhaseBenchmark {
     // https://boardgamegeek.com/thread/3055761/article/41996773#41996773
     me.stdAction("DoRequiredActionsAction") {
       me.playPrelude(cn("DoubleDown")) {
-        doTask("CopyPrelude<$FakeEstablishedMethods>")
+        doTask("CopyPrelude<$fakeEstablishedMethods>")
         doTask("UseAction<PlayCardFromHandAction, Action1>")
         doTask("PlayCard<Class<ProjectCard>, Class<LunaGovernor>, Hand>")
         me.pay(0)

@@ -59,14 +59,23 @@ The required primitives already exist:
   one eligible `Temporary` Type at an empty task queue, deferring Types with direct or indirect
   dependent `MustCleanUp` or `Temporary`. The transaction loop settles removal effects before
   checking the live queue and dependencies for another removal.
-- `GenerationScope` is a singleton lifetime anchor replaced by each `Generation`; generation-local
-  state depends on it instead of listening independently for the next Generation.
+- `GenerationScope` is a singleton lifetime anchor created naturally by the first `Generation` and
+  replaced by each later one; generation-local state depends on it instead of listening
+  independently for the next Generation.
+- `TemporaryScope<Parent>` is both a child `Scope` and a `Temporary`; it therefore depends on its
+  parent and is mandatory cleanup removed only after its own dependent cleanup finishes.
 
 [`TfmWorkflow.Automatic`](../../src/common/dev/martianzoo/tfm/engine/TfmWorkflow.kt) still listens for
 idle completions and resumes a coroutine. It does not choose Setup, Corporation, Production, Solar,
 Research, Final Greenery, or End: concrete phase scopes and mode-owned Pets rules make those
 decisions. The selected design removes the remaining phase-level control role without replacing the
 engine primitives above.
+
+Setup and Research are simultaneous player-work windows. Setup deals each Player's starting cards
+and creates one `NewTurn` whose Player-owned tasks discard one corporation, exactly two Preludes,
+and any rejected starting projects. Every Player queue may remain active together. Research likewise
+offers cards to every Player and waits for whole-World idleness rather than imposing seat order.
+Corporation and Prelude phases retain ordered turns for playing the cards kept during Setup.
 
 ## Runtime model
 
@@ -248,9 +257,9 @@ state depends on the narrowest scope matching its true lifetime: an action-local
 the Action scope; a passed marker belongs to the Action-phase scope; a genuinely per-generation
 marker belongs to the Generation scope; phase-local control belongs to the Phase scope.
 
-`Signal` is the zero-duration edge of this model. It carries no lifetime-scope dependency, triggers
-its effects, and removes itself immediately. Do not introduce a live `NoScope` sentinel: absence of
-a `Scope` dependency already states that the event owns no interval.
+`Signal` is the zero-duration edge of this model. It carries no lifetime-scope dependency and leaves
+no persistent state. Do not introduce a live `NoScope` sentinel: absence of a `Scope` dependency
+already states that no enclosing interval is needed.
 
 The engine applies dependency-ordered cleanup needed by this hierarchy:
 

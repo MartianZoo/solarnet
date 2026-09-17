@@ -1,6 +1,5 @@
-package dev.martianzoo.engine
+package dev.martianzoo.state
 
-import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -21,27 +20,22 @@ import dev.martianzoo.pets.ast.PropertyValue.RequirementType
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.HashMultiset
 
+/** State-owned implementation of the rich read model over a [GameWorld]. */
 internal class GameReaderImpl(
-    override val classTable: ClassTable,
-    private val components: ComponentGraph,
-    internal val elaborator: PetElaborator,
-    private val customClasses: CustomClassRuntime,
-    private val premise: GamePremise,
+    premise: GamePremise,
+    private val gameWorld: GameWorld,
 ) : GameReader {
+  override val classTable = premise.classTable
   override val actors = premise.actors
-
   override val catalog = premise.catalog
 
+  private val elaborator = PetElaborator(classTable)
+  private val customMetrics = CustomMetricRuntime(catalog, elaborator)
+
   override fun resolve(expression: Expression) = classTable.resolve(expression)
-
-  internal fun matchesConstraint(candidate: Type, constraint: Expression, domain: Type) =
-      classTable.matchesConstraint(candidate, constraint, domain, this)
-
-  // Next 3 are for TypeInfo interface
 
   override fun isAbstract(e: Expression) = resolve(e).isAbstract(this)
 
@@ -154,33 +148,32 @@ internal class GameReaderImpl(
               "Custom metrics cannot be alternatives in an OR metric: ${type.expressionFull}"
           )
         }
-        components.getAll(type, this)
+        gameWorld.components.getAll(type, this)
       }
 
   private fun countExpression(expression: Expression): Int {
     val type = classTable.resolve(expression)
     if (!classTable.isInhabited(type)) return 0
-    if (!type.rootClass.declaration.custom) return components.count(type, this)
-
-    return customClasses.count(type, this)
+    if (!type.rootClass.declaration.custom) return gameWorld.components.count(type, this)
+    return customMetrics.count(type, this)
   }
 
-  override fun count(type: Type) = components.count(type, this)
-
-  internal fun containsAny(type: Type) = components.containsAny(type, this)
-
-  internal fun matchingComponentTypes(type: Type): Sequence<Type> =
-      components.matchingTypes(type, this)
+  override fun count(type: Type) = gameWorld.components.count(type, this)
 
   override fun countComponent(concreteType: Type) =
       if (!classTable.isInhabited(concreteType)) 0
-      else components.countComponent(concreteType.toComponent(this))
+      else gameWorld.components.countComponent(concreteType.toComponent())
 
-  override fun getComponents(type: Type) = components.getAll(type, this).map { it.type }
+  override fun getComponents(type: Type) = gameWorld.components.getAll(type, this).map { it.type }
 
   override fun getDependents(component: Type): Set<Type> {
     require(!component.abstract)
     if (!classTable.isInhabited(component)) return emptySet()
-    return components.dependentsOf(component.toComponent(this)).mapTo(linkedSetOf()) { it.type }
+    return gameWorld.components.dependentsOf(component.toComponent()).mapTo(linkedSetOf()) {
+      it.type
+    }
   }
+
+  internal fun matchingComponentTypes(type: Type): Sequence<Type> =
+      gameWorld.components.matchingTypes(type, this)
 }

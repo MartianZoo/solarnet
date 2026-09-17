@@ -7,8 +7,9 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.StateChange
 import dev.martianzoo.pets.util.toStrings
+import dev.martianzoo.state.ComponentChange
+import dev.martianzoo.state.toComponent
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
@@ -55,7 +56,7 @@ internal class SimpleAddsRemovesTest {
 
     p1.runOperation("Holder<Player1, Card<Player1>>")
 
-    game.events.changesSince(checkpoint).first().change.gaining shouldBe
+    game.events.changesSince(checkpoint).first().change.gaining?.expression shouldBe
         parse<Expression>("Holder<Card<Player1>>")
     p1.count("Token") shouldBe 1
   }
@@ -75,6 +76,19 @@ internal class SimpleAddsRemovesTest {
     val p2 = Engine.newGame(canonicalPremise()).testTfm(PLAYER2)
 
     shouldThrow<LimitsException> { p2.runOperation("-Plant") }
+  }
+
+  @Test
+  internal fun transmutationCannotConsumeTheGainedComponentsLastDependency() {
+    val game =
+        Engine.newGame(testGamePremise("CLASS Token { HAS MAX 1 This }\nCLASS Holder<Token>"))
+    val admin = game.testAgent(ADMIN)
+    admin.sneak("Token!")
+
+    shouldThrow<LimitsException> { admin.runOperation("Holder<Token> FROM Token!") }
+
+    admin.count("Token") shouldBe 1
+    admin.count("Holder<Token>") shouldBe 0
   }
 
   @Test
@@ -135,18 +149,18 @@ internal class SimpleAddsRemovesTest {
     changes
         .map { it.change }
         .shouldContainExactly(
-            StateChange(5, gaining = parse<Expression>("Heat<Player2>")),
-            StateChange(10, gaining = parse<Expression>("Heat<Player1>")),
-            StateChange(4, removing = parse<Expression>("Heat<Player2>")),
-            StateChange(
+            ComponentChange.Gain(5, game.component("Heat<Player2>")),
+            ComponentChange.Gain(10, game.component("Heat<Player1>")),
+            ComponentChange.Remove(4, game.component("Heat<Player2>")),
+            ComponentChange.Transmute(
                 3,
-                gaining = parse<Expression>("Steel<Player1>"),
-                removing = parse<Expression>("Heat<Player1>"),
+                gaining = game.component("Steel<Player1>"),
+                removing = game.component("Heat<Player1>"),
             ),
-            StateChange(
+            ComponentChange.Transmute(
                 2,
-                gaining = parse<Expression>("Heat<Player2>"),
-                removing = parse<Expression>("Heat<Player1>"),
+                gaining = game.component("Heat<Player2>"),
+                removing = game.component("Heat<Player1>"),
             ),
         )
 
@@ -163,6 +177,9 @@ internal class SimpleAddsRemovesTest {
   private fun strip(strings: Iterable<String>): List<String> {
     return strings.map { endRegex.replace(startRegex.replace(it, ""), "") }
   }
+
+  private fun World.component(expression: String) =
+      reader.resolve(parse<Expression>(expression)).toComponent()
 
   private val startRegex = Regex("^[^:]+: ")
   private val endRegex = Regex(" BECAUSE.*")

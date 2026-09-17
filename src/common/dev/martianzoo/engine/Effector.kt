@@ -3,10 +3,13 @@ package dev.martianzoo.engine
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.HashMultiset
 import dev.martianzoo.pets.util.invoke
+import dev.martianzoo.state.Component
+import dev.martianzoo.state.ComponentChange
+import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.toComponent
 
 /** Maintains the live-effect index and fires matching effects for component changes. */
 internal class Effector(
@@ -18,6 +21,20 @@ internal class Effector(
   private val registry = mutableMapOf<LiveEffect.RegistryKey, HashMultiset<LiveEffect>>()
 
   private val effects = mutableMapOf<Component, List<LiveEffect>>()
+
+  /**
+   * Compiles every effect needed to synchronize [change], before authoritative state is changed.
+   */
+  internal fun prepare(change: ComponentChange) {
+    listOfNotNull(change.gaining, change.removing).distinct().forEach(::liveEffects)
+  }
+
+  /** Synchronizes the engine's derived effect index after passive state application. */
+  internal fun applied(change: ComponentChange) {
+    if (change.gaining == change.removing) return
+    change.removing?.let { mustRemove(it, change.count) }
+    change.gaining?.let { add(it, change.count) }
+  }
 
   internal fun add(component: Component, delta: Int) =
       liveEffects(component).forEach { effect ->
@@ -47,8 +64,8 @@ internal class Effector(
   ): List<PendingTask> {
     val resolvedChange =
         LiveEffect.ResolvedChange(
-            gaining = triggerEvent.change.gaining?.let(reader()::resolve),
-            removing = triggerEvent.change.removing?.let(reader()::resolve),
+            gaining = triggerEvent.change.gaining?.type,
+            removing = triggerEvent.change.removing?.type,
         )
     val selfEffects = fireSelfEffects(triggerEvent, controller, automatic, resolvedChange)
     val otherEffects = fireOtherEffects(triggerEvent, controller, automatic, resolvedChange)
@@ -69,6 +86,7 @@ internal class Effector(
       resolvedChange: LiveEffect.ResolvedChange,
   ): List<PendingTask> =
       listOfNotNull(resolvedChange.gaining, resolvedChange.removing)
+          .distinct()
           .map(Type::toComponent)
           .flatMap { liveEffects(it) }
           .filter { automatic == null || it.automatic == automatic }

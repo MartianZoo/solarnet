@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.agenttestsupport.testTfm
@@ -162,6 +163,7 @@ internal class LawSuitTest : CardTest() {
     p1.assertCounts(0 to "PlayedEvent<Class<$LawSuit>>")
     p2.assertCounts(1 to "PlayedEvent<Class<$LawSuit>>")
 
+    p1.autoExecPolicy = EAGER
     admin.runOperation("End FROM Phase")
 
     p1.assertCounts(20 to "VictoryPoint")

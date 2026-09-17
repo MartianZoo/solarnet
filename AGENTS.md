@@ -15,6 +15,11 @@ the router.
 > **Recurring failure warning:** A narrow request that appears to require a new gameplay helper,
 > representation, processing stage, or cross-module API is a stop signal. Explain the design
 > pressure and the smallest promising direction before editing.
+>
+> If a small behavior request has no evident small implementation, stop before writing a large
+> solution. Say plainly that you do not yet know how to achieve it without disproportionate code,
+> describe the pressure, and ask whether to investigate further. Do not turn a small behavior into
+> dozens of lines of custom machinery and present that as a completed solution.
 
 Keep embedded Pets declarations multiline when they do not fit comfortably on one line; do not
 replace them with `parseOneLinerClass` merely to shorten Kotlin. Keep gameviewer recordings compact:

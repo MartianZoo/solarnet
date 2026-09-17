@@ -5,10 +5,10 @@ import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.data.GameEvent
-import dev.martianzoo.pets.data.GameEvent.TaskAddedEvent
-import dev.martianzoo.pets.data.GameEvent.TaskEditedEvent
-import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
+import dev.martianzoo.state.GameEvent
+import dev.martianzoo.state.GameEvent.TaskAddedEvent
+import dev.martianzoo.state.GameEvent.TaskEditedEvent
+import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.engine.*
 import io.kotest.assertions.throwables.shouldThrow

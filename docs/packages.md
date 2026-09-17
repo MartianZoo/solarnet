@@ -6,7 +6,7 @@ Basic interfaces that everything else needs to share.
 
 ### <a href="pets/dev.martianzoo.pets.data/index.html">dev.martianzoo.pets.data</a>
 
-Basic data types shared by the engine and game-specific code.
+Catalog, premise, configuration, and Actor data shared by state and game-specific code.
 
 ### <a href="pets/dev.martianzoo.pets/index.html">dev.martianzoo.pets</a>
 
@@ -47,6 +47,13 @@ cards, maps, etc.
 
 Contains noncanonical Terraforming Mars declarations for tests, replays, and support tools.
 
+## module STATE
+
+### <a href="state/dev.martianzoo.state/index.html">dev.martianzoo.state</a>
+
+The replayable state of one game: components, pending tasks, exact event history, rich queries,
+passive event application, immutable recordings, and opaque recording serialization.
+
 ## module ENGINE
 
 ### <a href="engine/dev.martianzoo.engine/index.html">dev.martianzoo.engine</a>
@@ -81,8 +88,9 @@ An early rough browser version of REgo PLastics.
 
 ### <a href="game-viewer/dev.martianzoo.tfm.web.gameviewer/index.html">dev.martianzoo.tfm.web.gameviewer</a>
 
-A browser viewer for recorded games, with saved replays and event-log timeline navigation. Both
-browser applications use assets owned by `dev/martianzoo/tfm/web/shared`.
+An engine-free browser viewer that discovers generated replay-test recordings and navigates their
+event-log timelines through passive state playback. Both browser applications use assets owned by
+`dev/martianzoo/tfm/web/shared`.
 
 ## module TOOLS
 

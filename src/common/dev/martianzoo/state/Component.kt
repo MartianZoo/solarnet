@@ -1,4 +1,4 @@
-package dev.martianzoo.engine
+package dev.martianzoo.state
 
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.api.Exceptions
@@ -7,6 +7,7 @@ import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.TypeInfo
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Class
@@ -16,12 +17,12 @@ import kotlin.jvm.JvmInline
 
 /** One concrete [Type] used as a value in a [ComponentGraph]. */
 @JvmInline
-public value class Component internal constructor(public val type: Type) : HasExpression {
+public value class Component public constructor(public val type: Type) : HasExpression {
   init {
     if (type.abstract) throw Exceptions.abstractComponent(type)
   }
 
-  internal val isCustom: Boolean
+  public val isCustom: Boolean
     get() = type.rootClass.declaration.custom
 
   /**
@@ -30,7 +31,7 @@ public value class Component internal constructor(public val type: Type) : HasEx
    * `Class<Tile>` has an empty dependency list, despite its appearance. The list order corresponds
    * to [Class.dependencies].
    */
-  internal val dependencyComponents: List<Component>
+  public val dependencyComponents: List<Component>
     get() = type.typeDependencies.map { it.boundType.toComponent() }
 
   /** The concrete Pets type in this component's direct ownership dependency, if it has one. */
@@ -43,13 +44,17 @@ public value class Component internal constructor(public val type: Type) : HasEx
         }
 
   /** This component's owner when that owner is a seated Player. */
-  internal val playerOwner: Player?
+  public val playerOwner: Player?
     get() =
         owner
             ?.takeIf { owner ->
               owner.classTable.findClass(PLAYER)?.let(owner.rootClass::isSubtypeOf) == true
             }
             ?.let { Player(it.className) }
+
+  /** The Class identity at the root of this component's concrete [type]. */
+  public val className: ClassName
+    get() = type.className
 
   override val expression: Expression
     get() = type.expression

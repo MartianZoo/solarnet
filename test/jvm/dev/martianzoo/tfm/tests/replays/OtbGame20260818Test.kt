@@ -1,11 +1,16 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.EventLogJson
+import dev.martianzoo.state.GameWorld
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.retainStartingProjects
 import io.kotest.matchers.shouldBe
+import java.nio.file.Files
 import kotlin.test.Test
 
 /** Live game begun Tue 2026-08-18. Quoted evidence is verbatim from the supplied transcripts. */
@@ -1654,6 +1659,24 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       assertProduction(m = 35, s = 2, t = 7, p = 16, e = 1, h = 6)
       assertResources(m = 87, s = 3, t = 7, p = 17, e = 1, h = 16)
       assertCounts(44 to "TerraformRating", 11 to "Animal<$Pets>")
+    }
+
+    val originalEvents = game.events.entriesSince(Checkpoint(0))
+    val eventLogFile = Files.createTempFile("solarnet-events-", ".json")
+    try {
+      Files.writeString(eventLogFile, EventLogJson.encode(originalEvents))
+      val decodedEvents = EventLogJson.decode(Files.readString(eventLogFile), game.classTable)
+      val reconstructed = GameWorld(gamePremise, decodedEvents)
+      val allComponents = game.classTable.componentClass.baseType
+
+      decodedEvents shouldBe originalEvents
+      decodedEvents.map { it.notes } shouldBe originalEvents.map { it.notes }
+      reconstructed.events.entriesSince(Checkpoint(0)) shouldBe originalEvents
+      reconstructed.tasks.extract { it } shouldBe game.tasks.extract { it }
+      reconstructed.components.getAll(allComponents, NoGameState).entries shouldBe
+          game.components.getAll(allComponents, NoGameState).entries
+    } finally {
+      Files.deleteIfExists(eventLogFile)
     }
 
     // "So I'm going to 1-2 and 1-3."

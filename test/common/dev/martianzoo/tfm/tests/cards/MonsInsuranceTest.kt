@@ -153,7 +153,7 @@ internal class MonsInsuranceTest : CardTest() {
     game.events
         .changesSince(checkpoint)
         .single {
-          it.change.removing?.let(game.reader::resolve) == p2.resolve("MC")
+          it.change.removing?.type == p2.resolve("MC")
         }
         .actor shouldBe p2.actor
   }

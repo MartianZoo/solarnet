@@ -4,7 +4,6 @@ import dev.martianzoo.agent.Agent.Companion.parse
 import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.engine.ActorEngine
-import dev.martianzoo.engine.TaskQueue
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
@@ -18,12 +17,13 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.data.Task.TaskId
-import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.pets.util.Multiset
+import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.GameEvent.TaskRemovedEvent
+import dev.martianzoo.state.Task.TaskId
+import dev.martianzoo.state.TaskQueue
+import dev.martianzoo.state.TaskResult
 import kotlin.reflect.KClass
 
 /** Implements Actor-contextual parsing, atomic operation coordination, and autoexecution. */
@@ -33,6 +33,10 @@ internal class AgentImpl(
     private val elaborator: PetElaborator,
     private val autoExecLoop: AutoExecLoop,
 ) : Agent {
+
+  init {
+    autoExecLoop.register(engine.actor) { autoExecPolicy }
+  }
 
   override val actor: Actor
     get() = engine.actor
@@ -164,9 +168,9 @@ internal class AgentImpl(
   }
 
   private inline fun continueOperationBody(body: () -> Unit) {
-    autoExecLoop.run(actor, autoExecPolicy)
+    autoExecLoop.run()
     body()
-    autoExecLoop.run(actor, autoExecPolicy)
+    autoExecLoop.run()
   }
 
   private inner class Adapter : OperationScope {
@@ -176,33 +180,33 @@ internal class AgentImpl(
 
     override fun doTask(narrowing: String) {
       this@AgentImpl.doTask(narrowing)
-      autoExecLoop.run(actor, autoExecPolicy)
+      autoExecLoop.run()
     }
 
     override fun doTask(narrowing: String, taskId: TaskId) {
       this@AgentImpl.doTask(narrowing, taskId)
-      autoExecLoop.run(actor, autoExecPolicy)
+      autoExecLoop.run()
     }
 
     override fun tryTask(narrowing: String) {
       this@AgentImpl.tryTask(narrowing)
-      autoExecLoop.run(actor, autoExecPolicy)
+      autoExecLoop.run()
     }
 
     override fun tryTask(narrowing: String, taskId: TaskId) {
       this@AgentImpl.tryTask(narrowing, taskId)
-      autoExecLoop.run(actor, autoExecPolicy)
+      autoExecLoop.run()
     }
 
     override fun autoExecNow() {
-      autoExecLoop.run(actor, autoExecPolicy)
+      autoExecLoop.run()
     }
   }
 
   override fun autoExecNow() = atomic {}
 
   private fun autoExecAtomically(): TaskResult =
-      engine.transact(settle = {}, block = { autoExecLoop.run(actor, autoExecPolicy) })
+      engine.transact(settle = {}, block = { autoExecLoop.run() })
 
   // TURNS
 
@@ -291,7 +295,7 @@ internal class AgentImpl(
       engine.transact(
           block = block,
           validateCompletion = validateCompletion,
-          settle = { autoExecLoop.run(actor, autoExecPolicy) },
+          settle = { autoExecLoop.run() },
       )
 
   // Direct mutations preserve their legacy behavior of not invoking autoexecution.

@@ -1216,7 +1216,7 @@ additional variable; they never hide a use of a variable already declared in an 
 | The expression a metric counts directly | a count ranges over a domain rather than picking one member |
 | A nested repeat inside a larger repeat | recognition prefers the largest repeated expression, so repeating `CardFront<Owner>` does not also infer an `Owner` variable |
 | A different authored spelling | `Tile` and `Tile<Area>` resolve alike but are different names; likewise `Duo<Area, Person>` and `Duo<Person, Area>` |
-| An `EACH` selector, and body text naming it | the fanout declares its own variable for its body |
+| An `EACH` selector and any body text naming it | the fanout declares its own variable for its body |
 | A first-stage `THEN` dependency choice | it outranks a matching class variable, and an earlier gate occurrence belongs to that same choice |
 | A concrete expression, or `This` | there is no open choice to bind |
 

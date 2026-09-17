@@ -5,10 +5,12 @@ import dev.martianzoo.agent.exMachina
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.engine.recording
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
@@ -16,27 +18,52 @@ import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalCatalog
+import dev.martianzoo.tfm.tests.retainStartingProjects
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(ReplayExportExtension::class)
 internal abstract class AbstractFullGameTest : TfmTest() {
   protected lateinit var p1: TfmGameplay
   protected lateinit var p2: TfmGameplay
   protected lateinit var p3: TfmGameplay
+  protected lateinit var gamePremise: GamePremise
+    private set
 
   protected abstract val config: GameConfig
+  protected open val requireExplicitPaymentChoices: Boolean = true
+  internal open val producesReplayRecording: Boolean = true
   /** Pets declarations for concrete Players with sourced per-seat setup rules. */
   protected open val playerClassPets: String = ""
   protected open val catalog: TfmCatalog by lazy { canonicalCatalog(config) }
 
+  internal fun completedRecordingJson(): String? {
+    if (game.events.entriesSinceSetup().isEmpty()) return null
+    val json = dev.martianzoo.state.GameRecordingJson.encode(game.recording())
+    val viewerPremise = catalog.gamePremise(dev.martianzoo.state.GameRecordingJson.config(json))
+    check(viewerPremise.modules == gamePremise.modules) {
+      "recording changed selected Modules: ${gamePremise.modules} -> ${viewerPremise.modules}"
+    }
+    check(viewerPremise.classSelections == gamePremise.classSelections) {
+      "recording changed individual Class selections"
+    }
+    dev.martianzoo.state.GameRecordingJson.decode(json, viewerPremise).open()
+    return json
+  }
+
   @BeforeTest
   open fun commonSetup() {
-    val premise = catalog.gamePremise(config, parseClasses(playerClassPets))
-    game = Engine.newGame(premise)
+    gamePremise = catalog.gamePremise(config, parseClasses(playerClassPets))
+    game = Engine.newGame(gamePremise)
     val players = game.actors.filterIsInstance<Player>()
-    p1 = game.testTfm(players[0]).requireExplicitPaymentChoices()
-    if (players.size > 1) p2 = game.testTfm(players[1]).requireExplicitPaymentChoices()
-    if (players.size > 2) p3 = game.testTfm(players[2]).requireExplicitPaymentChoices()
+    fun gameplay(player: Player): TfmGameplay =
+        game.testTfm(player).let {
+          if (requireExplicitPaymentChoices) it.requireExplicitPaymentChoices() else it
+        }
+    p1 = gameplay(players[0])
+    if (players.size > 1) p2 = gameplay(players[1])
+    if (players.size > 2) p3 = gameplay(players[2])
   }
 
   /** Returns fresh gameplay for the Player occupying the one-based [seat]. */
@@ -90,6 +117,10 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   /** Reproduces an evidenced player mistake without leaving a task selected against stale state. */
   protected fun TfmGameplay.exMachina(adjustment: String) {
     agents.exMachina(actor, adjustment)
+  }
+
+  protected fun retainStartingProjects(vararg retainedCounts: Int) {
+    game.retainStartingProjects(*retainedCounts)
   }
 
   protected fun TfmGameplay.assertDashMiddle(

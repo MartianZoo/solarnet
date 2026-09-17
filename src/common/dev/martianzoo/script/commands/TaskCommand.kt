@@ -1,11 +1,11 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.pets.data.TaskResult
 import dev.martianzoo.script.PetsCompletionRoot
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
+import dev.martianzoo.state.TaskResult
 
 internal class TaskCommand(private val repl: ScriptSession) : ScriptCommand("task") {
   override val usage = "task <Instruction> | task <select | drop>"

@@ -1,216 +1,200 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.agenttestsupport.testAgents
-import dev.martianzoo.agenttestsupport.testTfm
-import dev.martianzoo.engine.Engine
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.testsupport.PLAYER1
-import dev.martianzoo.testsupport.PLAYER2
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
-import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.retainStartingProjects
 import kotlin.test.Test
 
-internal class FirstPartialGameTest : TfmTest() {
+internal class FirstPartialGameTest : AbstractFullGameTest() {
+  override val requireExplicitPaymentChoices = false
+  override val config =
+      GameConfig(
+          "ElysiumMap, PreludeExpansion, LakefrontResorts",
+          "Player1",
+          "Player2",
+      )
+
   @Test
   internal fun fourWholeGenerations() {
-    repeat(1) {
-      val setup =
-          Canon.gamePremise(
-              GameConfig(
-                  "ElysiumMap, PreludeExpansion, LakefrontResorts",
-                  "Player1",
-                  "Player2",
-              )
-          )
-      val game = Engine.newGame(setup)
-      val admin = game.testTfm(ADMIN)
-      val p1 = game.testTfm(PLAYER1)
-      val p2 = game.testTfm(PLAYER2)
+    val workflow = TfmWorkflow.Automatic(agents).launch()
+    retainStartingProjects(3, 8)
 
-      val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
-      game.retainStartingProjects(3, 8)
+    p1.playCorp(LakefrontResorts, 3)
+    p2.playCorp(InterplanetaryCinematics, 8)
 
-      p1.playCorp(LakefrontResorts, 3)
-      p2.playCorp(InterplanetaryCinematics, 8)
+    p1.turn {
+      playPrelude(MartianIndustries)
+      playPrelude(GalileanMining)
+    }
+    p2.turn {
+      playPrelude(MiningOperations)
+      playPrelude(UnmiContractor)
+    }
 
-      p1.turn {
-        playPrelude(MartianIndustries)
-        playPrelude(GalileanMining)
-      }
-      p2.turn {
-        playPrelude(MiningOperations)
-        playPrelude(UnmiContractor)
-      }
+    // Generation 1 (Player1 first)
+    p1.turn { playProject(AsteroidMining, 30) }
+    p2.turn { playProject(NaturalPreserve, 1, steel = 4) { placeTile(3, 7) } }
+    p1.pass()
+    p2.turn {
+      playProject(SpaceElevator, 1, steel = 13)
+      cardAction1(SpaceElevator)
+      playProject(InventionContest, 2)
+      assertCounts(0 to "ProjectCard<Selecting>")
+      playProject(GreatEscarpmentConsortium, 6) { doTask("PROD[-Steel<Player1>]") }
+    }
+    p2.pass()
 
-      // Generation 1 (Player1 first)
-      p1.turn { playProject(AsteroidMining, 30) }
-      p2.turn { playProject(NaturalPreserve, 1, steel = 4) { placeTile(3, 7) } }
-      p1.pass()
-      p2.turn {
-        playProject(SpaceElevator, 1, steel = 13)
-        cardAction1(SpaceElevator)
-        playProject(InventionContest, 2)
-        assertCounts(0 to "ProjectCard<Selecting>")
-        playProject(GreatEscarpmentConsortium, 6) { doTask("PROD[-Steel<Player1>]") }
-      }
-      p2.pass()
+    // Generation 2 (Player2 first)
+    p1.buyCards(4)
+    p2.buyCards(1)
 
-      // Generation 2 (Player2 first)
-      p1.buyCards(4)
-      p2.buyCards(1)
+    p2.turn {
+      cardAction1(SpaceElevator)
+      playProject(EarthCatapult, 23)
+    }
 
-      p2.turn {
-        cardAction1(SpaceElevator)
-        playProject(EarthCatapult, 23)
-      }
+    p1.turn {
+      playProject(TitaniumMine, 7)
+      playProject(RoboticWorkforce, 9) { doTask("CopyProductionBox<$MartianIndustries>") }
+    }
 
-      p1.turn {
-        playProject(TitaniumMine, 7)
-        playProject(RoboticWorkforce, 9) { doTask("CopyProductionBox<$MartianIndustries>") }
-      }
+    p2.turn {
+      playProject(IndustrialMicrobes, steel = 5)
+      playProject(TechnologyDemonstration, titanium = 1)
+    }
 
-      p2.turn {
-        playProject(IndustrialMicrobes, steel = 5)
-        playProject(TechnologyDemonstration, titanium = 1)
-      }
+    p1.turn { playProject(Sponsors, 6) }
 
-      p1.turn { playProject(Sponsors, 6) }
+    p2.turn {
+      playProject(EnergyTapping, 1) { doTask("PROD[-Energy<Player1>]") }
+      playProject(BuildingIndustries, steel = 2)
+    }
 
-      p2.turn {
-        playProject(EnergyTapping, 1) { doTask("PROD[-Energy<Player1>]") }
-        playProject(BuildingIndustries, steel = 2)
-      }
+    p1.pass()
+    p2.pass()
 
-      p1.pass()
-      p2.pass()
+    // Generation 3 (Player1 first)
+    p1.buyCards(3)
+    p2.buyCards(2)
 
-      // Generation 3 (Player1 first)
-      p1.buyCards(3)
-      p2.buyCards(2)
+    p1.turn { playProject(Mine, 2, steel = 1) }
 
-      p1.turn { playProject(Mine, 2, steel = 1) }
+    p2.turn {
+      cardAction1(SpaceElevator)
+      playProject(ElectroCatapult, 5, steel = 5)
+    }
 
-      p2.turn {
-        cardAction1(SpaceElevator)
-        playProject(ElectroCatapult, 5, steel = 5)
-      }
+    p1.pass()
 
-      p1.pass()
+    p2.turn {
+      cardAction2(ElectroCatapult)
+      playProject(SpaceHotels, 7, titanium = 1)
 
-      p2.turn {
-        cardAction2(ElectroCatapult)
-        playProject(SpaceHotels, 7, titanium = 1)
-
-        playProject(MarsUniversity, 6) { doTask("-ProjectCard<Hand>! THEN ProjectCard<Hand>") }
-        playProject(ArtificialPhotosynthesis, 10) {
-          doTask("PROD[2 Energy]")
-          // Decline Mars University's discard-and-draw effect for the science tag.
-          declineTask()
-        }
-
-        playProject(BribedCommittee, 5)
-
-        pass()
+      playProject(MarsUniversity, 6) { doTask("-ProjectCard<Hand>! THEN ProjectCard<Hand>") }
+      playProject(ArtificialPhotosynthesis, 10) {
+        doTask("PROD[2 Energy]")
+        // Decline Mars University's discard-and-draw effect for the science tag.
+        declineTask()
       }
 
-      // Generation 4 (Player2 first)
-      p1.buyCards(3)
-      p2.buyCards(2)
+      playProject(BribedCommittee, 5)
 
-      p2.turn {
-        cardAction2(ElectroCatapult)
-        cardAction1(SpaceElevator)
+      pass()
+    }
+
+    // Generation 4 (Player2 first)
+    p1.buyCards(3)
+    p2.buyCards(2)
+
+    p2.turn {
+      cardAction2(ElectroCatapult)
+      cardAction1(SpaceElevator)
+    }
+
+    p1.turn {
+      playProject(ResearchOutpost, 14, steel = 2) { placeTile(5, 6) }
+      playProject(IoMiningIndustries, 1, titanium = 13)
+    }
+
+    p2.turn {
+      playProject(TransNeptuneProbe, 1, titanium = 1) {
+        // Decline Mars University's discard-and-draw effect for the science tag.
+        declineTask()
       }
+      playProject(Hackers, 1) { doTask("PROD[-2 MC<Player1>]") }
+    }
 
-      p1.turn {
-        playProject(ResearchOutpost, 14, steel = 2) { placeTile(5, 6) }
-        playProject(IoMiningIndustries, 1, titanium = 13)
-      }
+    p1.turn { sellPatents(1) }
 
-      p2.turn {
-        playProject(TransNeptuneProbe, 1, titanium = 1) {
-          // Decline Mars University's discard-and-draw effect for the science tag.
-          declineTask()
-        }
-        playProject(Hackers, 1) { doTask("PROD[-2 MC<Player1>]") }
-      }
+    p2.turn {
+      playProject(SolarPower, 1, steel = 4)
+      stdProject("CityProject") { placeTile(6, 5) }
+    }
 
-      p1.turn { sellPatents(1) }
+    workflow.shutdown()
+    TfmWorkflow.Stepwise(game.testAgents()).productionPhase()
 
-      p2.turn {
-        playProject(SolarPower, 1, steel = 4)
-        stdProject("CityProject") { placeTile(6, 5) }
-      }
+    admin.assertCounts(4 to "Generation")
+    admin.assertCounts(0 to "OceanTile", 0 to "OxygenStep", 0 to "TemperatureStep")
 
-      workflow.shutdown()
-      TfmWorkflow.Stepwise(game.testAgents()).productionPhase()
+    with(p1) {
+      assertCounts(20 to "TerraformRating")
 
-      admin.assertCounts(4 to "Generation")
-      admin.assertCounts(0 to "OceanTile", 0 to "OxygenStep", 0 to "TemperatureStep")
+      assertCounts(
+          34 to "MC",
+          2 to "Steel",
+          8 to "Titanium",
+          3 to "Plant",
+          1 to "Energy",
+          3 to "Heat",
+      )
+      assertProds(
+          2 to "MC",
+          2 to "Steel",
+          7 to "Titanium",
+          0 to "Plant",
+          1 to "Energy",
+          0 to "Heat",
+      )
 
-      with(p1) {
-        assertCounts(20 to "TerraformRating")
+      assertCounts(15 to "Card", 5 to "ProjectCard", 10 to "CardFront")
+      assertCounts(0 to "ProjectCard<Selecting>", 0 to "ProjectCard<Revealed>")
+      assertCounts(1 to "ActiveCard", 6 to "AutomatedCard", 0 to "PlayedEvent")
 
-        assertCounts(
-            34 to "MC",
-            2 to "Steel",
-            8 to "Titanium",
-            3 to "Plant",
-            1 to "Energy",
-            3 to "Heat",
-        )
-        assertProds(
-            2 to "MC",
-            2 to "Steel",
-            7 to "Titanium",
-            0 to "Plant",
-            1 to "Energy",
-            0 to "Heat",
-        )
+      assertTags(but = 5, spt = 2, sct = 2, eat = 1, jot = 3, cit = 1)
 
-        assertCounts(15 to "Card", 5 to "ProjectCard", 10 to "CardFront")
-        assertCounts(0 to "ProjectCard<Selecting>", 0 to "ProjectCard<Revealed>")
-        assertCounts(1 to "ActiveCard", 6 to "AutomatedCard", 0 to "PlayedEvent")
+      assertCounts(1 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
+    }
 
-        assertTags(but = 5, spt = 2, sct = 2, eat = 1, jot = 3, cit = 1)
+    with(p2) {
+      assertCounts(25 to "TerraformRating")
 
-        assertCounts(1 to "CityTile", 0 to "GreeneryTile", 0 to "SpecialTile")
-      }
+      assertCounts(
+          47 to "MC",
+          6 to "Steel",
+          1 to "Titanium",
+          1 to "Plant",
+          2 to "Energy",
+          3 to "Heat",
+      )
+      assertProds(
+          8 to "MC",
+          6 to "Steel",
+          1 to "Titanium",
+          0 to "Plant",
+          2 to "Energy",
+          0 to "Heat",
+      )
 
-      with(p2) {
-        assertCounts(25 to "TerraformRating")
+      assertCounts(23 to "Card", 3 to "ProjectCard", 17 to "CardFront")
+      assertCounts(0 to "ProjectCard<Selecting>", 0 to "ProjectCard<Revealed>")
+      assertCounts(4 to "ActiveCard", 10 to "AutomatedCard", 3 to "PlayedEvent")
 
-        assertCounts(
-            47 to "MC",
-            6 to "Steel",
-            1 to "Titanium",
-            1 to "Plant",
-            2 to "Energy",
-            3 to "Heat",
-        )
-        assertProds(
-            8 to "MC",
-            6 to "Steel",
-            1 to "Titanium",
-            0 to "Plant",
-            2 to "Energy",
-            0 to "Heat",
-        )
+      assertTags(but = 9, spt = 3, sct = 4, pot = 2, eat = 3, mit = 1)
 
-        assertCounts(23 to "Card", 3 to "ProjectCard", 17 to "CardFront")
-        assertCounts(0 to "ProjectCard<Selecting>", 0 to "ProjectCard<Revealed>")
-        assertCounts(4 to "ActiveCard", 10 to "AutomatedCard", 3 to "PlayedEvent")
-
-        assertTags(but = 9, spt = 3, sct = 4, pot = 2, eat = 3, mit = 1)
-
-        assertCounts(1 to "CityTile", 0 to "GreeneryTile", 1 to "SpecialTile")
-      }
+      assertCounts(1 to "CityTile", 0 to "GreeneryTile", 1 to "SpecialTile")
     }
   }
 }

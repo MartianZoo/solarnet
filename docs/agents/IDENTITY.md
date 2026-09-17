@@ -20,7 +20,7 @@
 
 - [`Identities.kt`](../../src/common/dev/martianzoo/pets/data/Identities.kt) — search
   for `public sealed interface Actor` for the operation identity mechanism.
-- [`Task.kt`](../../src/common/dev/martianzoo/pets/data/Task.kt) — inspect `controller`, the derived
+- [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt) — inspect `controller`, the derived
   `assignee`, `actor`, and selection state before changing queued work.
 - [`LiveEffect.kt`](../../src/common/dev/martianzoo/engine/LiveEffect.kt) — search
   for `taskController` to see trigger-time routing.

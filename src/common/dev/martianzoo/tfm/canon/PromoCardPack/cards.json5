@@ -480,8 +480,8 @@
           "name": "NeptunianPowerConsultants",
           "cost": 14,
           "tags": [ "PowerTag" ],
-          "immediate": "NeptunianOption",
           "effects": [
+            "This:: NeptunianOption",
             "OceanTile BY Anyone: UseAction<NeptunianOption>?",
             "End: VictoryPoint / Hydroelectric<This>"
           ],

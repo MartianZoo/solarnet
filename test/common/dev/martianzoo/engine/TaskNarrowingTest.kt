@@ -3,12 +3,13 @@ package dev.martianzoo.engine
 import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.data.GameEvent
-import dev.martianzoo.pets.data.GameEvent.TaskAddedEvent
-import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
+import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.GameEvent
+import dev.martianzoo.state.GameEvent.TaskAddedEvent
+import dev.martianzoo.state.GameEvent.TaskRemovedEvent
+import dev.martianzoo.state.TaskQueue
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
@@ -428,6 +429,26 @@ internal class TaskNarrowingTest {
     writer.doTask("3 Plant")
 
     tasksAsText().shouldContainExactly("3 Heat<Player1>?")
+  }
+
+  @Test
+  internal fun `unselected X binding exposes a separable THEN head without executing it`() {
+    val taskId = initiate("X Plant THEN X Heat THEN Steel").single()
+
+    writer.narrowTask(taskId, "3 Plant THEN 3 Heat THEN Steel")
+
+    val task = tasks.getTaskData(taskId)
+    task.instruction.toString() shouldBe "3 Plant<Player1>!"
+    task.then.toString() shouldBe "3 Heat<Player1>! THEN Steel<Player1>!"
+    task.selected shouldBe false
+    writer.count("Plant") shouldBe 0
+
+    writer.doTask("3 Plant")
+
+    writer.count("Plant") shouldBe 3
+    val continuation = tasks.extract { it }.single()
+    continuation.instruction.toString() shouldBe "3 Heat<Player1>!"
+    continuation.then.toString() shouldBe "Steel<Player1>!"
   }
 
   @Test

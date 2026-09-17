@@ -172,6 +172,10 @@ declaring family with three generated action Classes is preferable.
 The pending abstract task is the immediate right to attempt an action. Limited-use components are
 additional game facts, not replacements for that task.
 
+The Terraforming Mars Kotlin facade's `stdAction()` helper accepts only providers whose Class is a
+subtype of `StandardAction`. Directly granted actions from other `HasActions` providers use the
+ordinary task-selection and payment APIs instead.
+
 The normal card-action route illustrates the distinction. `UseActionOnCardAction` is a printed
 standard action. Its left side can spend the card's once-per-generation permission; after its own
 Signal, its right-side effect creates the narrower task for the selected card action.
@@ -328,8 +332,9 @@ instance because that instance is deliberately issued only after settlement.
 
 ### Single payment-choice loop
 
-**Status: proposal.** Today each tender kind creates its own optional task. Paying with one kind can
-leave stale alternatives that callers must decline or clean up.
+**Status: unselected candidate.** Do not implement this before the investigations and decision
+gates in [PAYMENTS.md](PAYMENTS.md). Today each tender kind creates its own optional task. Paying
+with one kind can leave stale alternatives that callers must decline or clean up.
 
 Replace them with one required task meaning “pay one accepted unit.” Its refinements are the legal
 `Accepting<Resource>` and `AcceptingFromCard<Holder>` choices. Spending one unit creates a common
