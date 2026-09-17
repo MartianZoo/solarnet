@@ -10,7 +10,7 @@ CLASS ChooseOceanArea : Owned, Signal {
 }
 
 "The moving marker placed by Mars Nomads"
-CLASS NomadsMarker<LandArea> : AreaPiece, Owned<Player> {
+CLASS NomadsMarker : Owned<Player>, AreaPiece<LandArea> {
   HAS MAX 1 This
   Tile<LandArea> BY Anyone:: Die
 }
