@@ -58,6 +58,10 @@ internal class Spec01UniversesTest {
     shouldThrowIae { left.getClass(cn("GreeneryTile")).withAllDependencies(rightTile.dependencies) }
     shouldThrowIae { left.allSubclasses(rightArea) }
     shouldThrowIae { left.matchesConstraint(leftTile, te("Area"), rightTile, NoGameState) }
+
+    val leftPlant = loadTypes("CLASS Plant")
+    val rightPlant = loadTypes("CLASS Plant").resolve(te("Plant"))
+    shouldThrowIae { leftPlant.componentLimits.requiredLimits(listOf(rightPlant)) }
   }
 
   @Test

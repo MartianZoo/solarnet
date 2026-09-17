@@ -45,6 +45,16 @@ internal class TaskNarrowingTest {
   }
 
   @Test
+  internal fun `nonmandatory Die is the empty zero-capacity change`() {
+    initiate("Die?")
+    initiate("Die.")
+
+    tasks.isEmpty() shouldBe true
+    history().shouldBeEmpty()
+    game.timeline.checkpoint() shouldBe start
+  }
+
+  @Test
   internal fun `initiating an abstract task works as expected`() {
     initiate("2 Plant?")
 

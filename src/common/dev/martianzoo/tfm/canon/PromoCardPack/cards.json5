@@ -61,7 +61,7 @@
             // tags can remove the last disease and then offer the flip.
             "ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)"
           ],
-          "components": [ "CLASS Disease : CardResource<ResourceHolder<Class<Disease>>>" ],
+          "components": [ "CLASS Disease : CardResource" ],
         },
         {
           "name": "Philares",
@@ -225,7 +225,7 @@
             "PayFromCard<This>:: -4 Owed",
             "End: VictoryPoint"
           ],
-          "components": [ "CLASS Graphene : CardResource<ResourceHolder<Class<Graphene>>>" ],
+          "components": [ "CLASS Graphene : CardResource" ],
         },
         {
           "name": "Casinos",
@@ -433,8 +433,6 @@
           "cost": 13,
           "immediate": "NomadsMarker<LandArea(HAS MAX 0 Occupant)>",
           "actions": [
-            // TODO: do we have a test that I can place the nomads marker where I have a community, and that I can move it there?
-            // that is supposed to be allowed, right? what about whether I can place a community where the nomads marker already is?
             "-> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>)> FROM NomadsMarker<Owner> THEN EACH LandArea(HAS NomadsMarker) { Placement<LandArea> }"
           ],
         },
@@ -480,16 +478,14 @@
           "name": "NeptunianPowerConsultants",
           "cost": 14,
           "tags": [ "PowerTag" ],
-          "immediate": "NeptunianOption",
           "effects": [
-            "OceanTile BY Anyone: UseAction<NeptunianOption>?",
+            "This:: NeptunianOption<This>",
+            "OceanTile BY Anyone: UseAction<NeptunianOption<This>>?",
             "End: VictoryPoint / Hydroelectric<This>"
           ],
           "components": [
-            // TODO: what happens if this is just `CardResource` instead of all that?
-            // if that works, use that approach everywhere.
-            "CLASS Hydroelectric : CardResource<ResourceHolder<Class<Hydroelectric>>>",
-            "CLASS NeptunianOption : Owned, HasActions { 5 MC -> PROD[Energy], Hydroelectric<NeptunianPowerConsultants>; UseAction<This>:: Accepting<Class<Steel>> }"
+            "CLASS Hydroelectric : CardResource",
+            "CLASS NeptunianOption : Cardbound, HasActions { 5 MC -> PROD[Energy], Hydroelectric<NeptunianPowerConsultants>; UseAction<This>:: Accepting<Class<Steel>> }"
           ],
         },
         {

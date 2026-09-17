@@ -2,7 +2,9 @@ package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.FromExpression.Full
@@ -55,6 +57,14 @@ internal class Lang06InstructionsTest {
     remove(cn("Plant"), count = 3, quantifier = AMAP) shouldBe parse<Instruction>("-3 Plant.")
   }
 
+  @Test
+  internal fun `L6-1 programmatic changes need a type and a nonnegative count`() {
+    shouldThrow<IllegalArgumentException> {
+      Instruction.Change.change(gaining = cn("Plant").expression, count = -1)
+    }
+    shouldThrow<NullPointerException> { Instruction.Change.change() }
+  }
+
   // L6-2 Counts
 
   @Test
@@ -70,6 +80,7 @@ internal class Lang06InstructionsTest {
     (parse<Instruction>("2X Plant") as Gain).count shouldBe XScalar(2)
     shouldThrow<PetSyntaxException> { parse<Instruction>("0 Plant") }
     shouldThrow<PetSyntaxException> { parse<Instruction>("-0 Plant") }
+    shouldThrow<IllegalArgumentException> { parse<Instruction>("Plant") * -1 }
   }
 
   // L6-3 Quantifiers
@@ -163,6 +174,9 @@ internal class Lang06InstructionsTest {
     then.continuation shouldBe parse<Instruction>("Steel")
     then.instructions.size shouldBe 3
     parse<Instruction>("Plant THEN (Heat THEN Steel)") shouldBe then
+    shouldThrow<IllegalStateException> {
+      then.withInstructions(listOf(parse<InstructionTree>("Plant")))
+    }
   }
 
   @Test
@@ -237,6 +251,7 @@ internal class Lang06InstructionsTest {
       ((it as Transmute).fromEx is Full) shouldBe true
     }
     roundTrip<InstructionTree>("Marker<Mars1 FROM Mars2>(HAS Plant)")
+    shouldThrow<PetSyntaxException> { Compact(cn("Marker"), emptyList()) }
   }
 
   // L6-13 Precedence and rendering
@@ -360,8 +375,21 @@ internal class Lang06InstructionsTest {
   // L6-14 X across one instruction
 
   @Test
-  internal fun `L6-14 X may span a sequence but not independent instructions`() {
+  internal fun `L6-14 X may span a sequence`() {
     parse<InstructionTree>("X Plant THEN 2X Heat").toString() shouldBe "X Plant THEN 2X Heat"
-    shouldThrow<PetSyntaxException> { parse<InstructionTree>("X Plant, X Heat") }
+  }
+
+  @Test
+  internal fun `L6-14 a group links nothing, so each member has its own X`() {
+    val group = parse<InstructionTree>("X Plant, X Heat") as InstructionGroup
+    group.size shouldBe 2
+    group.toString() shouldBe "X Plant, X Heat"
+  }
+
+  @Test
+  internal fun `L6-14 a member's X can be a use of one introduced around the group`() {
+    roundTrip<Action>("X Heat -> X Steel, X Plant")
+    roundTrip<Effect>("X Plant: X Heat, X Steel")
+    roundTrip<InstructionTree>("X Plant THEN (X Heat, X Steel)")
   }
 }

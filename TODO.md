@@ -6,6 +6,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.
+- Remove `trimIndent()` from tests except where stripping indentation is part of preparing a
+  genuinely multiline input.
 - Rewrite the agent documents that have outgrown their intended teaching or orientation role:
   - make `ENGINE.md` only a quick tour of the runtime's major pieces;
   - make `GAMEWORLD.md` a quick orientation to the intended `state`/`engine` split;
@@ -29,9 +32,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Have the normal full application build stamp its output with the current Git commit and, when
   source changes are present, a stable hash of those changes. Include that stamp in every exported
   game record so a log identifies, or can later verify, the engine source that produced it.
-- Give `AreaPiece` its area dependency, make tile placement over an owned `Community` an atomic
-  transmutation, then enforce `HAS MAX 1 Occupant<This>` on every `Area` and remove card-level
-  empty-area refinements.
+- Make tile placement over an owned `Community` an atomic transmutation, then enforce
+  `HAS MAX 1 Occupant<This>` on every `Area` and remove card-level empty-area refinements.
 - Decide whether `Milestone`'s per-player uniqueness constraint should use
   `HAS MAX 1 This<Player>` or a clearer way to express one instance of the concrete milestone per
   player.
@@ -67,6 +69,11 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   log, player data, and eight later screenshots; keep every new checkpoint independently sourced.
 - Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `agent`,
   `tfm-canon`, and `script` APIs.
+- Move `startTurn` and `inTurn` from generic `Agent` to `TfmGameplay`, removing `NewTurn` knowledge
+  from the agent implementation.
+- Gradually replace Canon-backed generic engine-test premises with focused declarations where that
+  makes the engine contract clearer; the current upward test dependency is undesirable but not
+  urgent.
 - Profile and reduce type-system allocation in `ClassTable.glb`, `narrows`, and repeated
   dependency/refinement construction without risking correctness.
 - Let `CustomMetric` optionally provide candidate-selection hooks so `EACH` refinements such as
@@ -107,10 +114,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
   requiring authored references to generated names. Preserve Cimmeria map generation,
   `PlaceNeutralTiles`'s system-only ownership, and SRR's explicit card-Class selection.
-- Have the payment lowering in `Transforming.actionToEffects` receive its standard-resource Class
-  names from `tfm-canon` instead of the hardcoded `standardResourceClasses` set in `pets`; that set is
-  Terraforming Mars data sitting in the language core, and it is the only reason generic Action
-  lowering knows any game's vocabulary.
 - **Better Task Disambiguation:** let callers state the intended task without searching the task
   pool; use extra identity only when distinct tasks accept the same narrowing. Prior partial work is
   in commits `fc84e1490` and `a76bb9949`. Current use cases:

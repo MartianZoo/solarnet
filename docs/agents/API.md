@@ -25,7 +25,7 @@
   [`TaskQueue.kt`](../../src/common/dev/martianzoo/state/TaskQueue.kt) is its filtered read view, and
   [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) constructs normalized task
   events.
-- [`Access.kt`](../../src/common/dev/martianzoo/script/Access.kt) implements current script-only
+- [`Access.kt`](../../src/common/dev/martianzoo/tfm/script/Access.kt) implements current script-only
   access modes.
 - [GAMEWORLD.md](GAMEWORLD.md) owns task data and recording navigation;
   [RESPONSIBILITIES.md](RESPONSIBILITIES.md#selected-runtime-dependency-direction) owns the target

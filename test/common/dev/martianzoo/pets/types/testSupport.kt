@@ -29,6 +29,7 @@ internal fun testCatalog(
     petsText: String,
     customImplementations: Set<CustomClass> = emptySet(),
     moduleSelections: Map<ClassName, Set<ClassSelection>> = emptyMap(),
+    classAvailabilityModules: Map<ClassName, Set<ClassName>> = emptyMap(),
 ): Catalog {
   val explicitDeclarations = parseClasses(petsText).toSet()
   val declarations = systemClassDeclarations + explicitDeclarations
@@ -40,6 +41,7 @@ internal fun testCatalog(
         }
     override val customClasses: Set<CustomClass> = customImplementations
     override val modules: Map<ClassName, Set<ClassSelection>> = moduleSelections
+    override val classAvailabilityModules: Map<ClassName, Set<ClassName>> = classAvailabilityModules
     override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
   }
 }

@@ -13,7 +13,7 @@
 
 ## Source map
 
-- [`StandardResourceMonotonicityReport.kt`](../../src/jvm/dev/martianzoo/tools/StandardResourceMonotonicityReport.kt)
+- [`StandardResourceMonotonicityReport.kt`](../../src/jvm/dev/martianzoo/tfm/tools/StandardResourceMonotonicityReport.kt)
   — search for `fun main` to inspect the implemented catalog report.
 - [`SoloGenerationCountdownTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/SoloGenerationCountdownTest.kt)
   — read only when a proposed optimization depends on committed TR63 timing.

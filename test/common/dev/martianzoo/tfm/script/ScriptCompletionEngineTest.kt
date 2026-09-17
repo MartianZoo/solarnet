@@ -1,9 +1,6 @@
 package dev.martianzoo.tfm.script
 
 import dev.martianzoo.agent.Agent
-import dev.martianzoo.script.ScriptCompletion
-import dev.martianzoo.script.ScriptCompletionEngine
-import dev.martianzoo.script.ScriptSession
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

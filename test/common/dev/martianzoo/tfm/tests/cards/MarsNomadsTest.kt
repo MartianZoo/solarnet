@@ -77,7 +77,26 @@ internal class MarsNomadsTest : CardTest() {
   }
 
   @Test
-  internal fun `Marker blocks tiles without reserving its current area`() {
+  internal fun `Action cannot move the marker onto a community`() {
+    newGame(PromoCardPack)
+    val p2 = requireP2()
+    p1.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_1_1>") }
+    p2.runOperation("Community<Tharsis_2_2>")
+    admin.phase("Action")
+
+    p1.cardAction1(MarsNomads) {
+      shouldThrow<NarrowingException> {
+        doTask("NomadsMarker<Tharsis_2_2 FROM Tharsis_1_1>")
+      }
+      doTask("NomadsMarker<Tharsis_2_1 FROM Tharsis_1_1>")
+    }
+
+    p1.assertCounts(1 to "NomadsMarker<Tharsis_2_1>")
+    p2.assertCounts(1 to "Community<Tharsis_2_2>")
+  }
+
+  @Test
+  internal fun `A community can reserve the marker's area while the marker still blocks tiles`() {
     newGame(PromoCardPack, CorporateEraExpansion)
     val p2 = requireP2()
     p1.runOperation("$MarsNomads") { doTask("NomadsMarker<Tharsis_1_1>") }

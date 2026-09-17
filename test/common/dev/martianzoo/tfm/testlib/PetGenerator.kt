@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.testlib
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
@@ -225,7 +225,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     override fun <T : PetNode> invoke(type: KClass<T>, gen: RandomGenerator<PetNode>): T? {
       return try {
         super.invoke(type, gen)
-      } catch (_: PetSyntaxException) {
+      } catch (_: PetException) {
         null
       }
     }

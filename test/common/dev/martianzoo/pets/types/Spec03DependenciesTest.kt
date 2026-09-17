@@ -343,6 +343,26 @@ internal class Spec03DependenciesTest {
   }
 
   @Test
+  internal fun `T3-9 Signal cannot be a dependency target`() {
+    shouldThrow<PetException> { loadTypes("CLASS Holder<Signal>") }.message shouldContain
+        "Signal types and Die cannot be dependency targets"
+  }
+
+  @Test
+  internal fun `T3-9 a Signal subtype cannot be a dependency target`() {
+    shouldThrow<PetException> {
+          loadTypes("CLASS Event : Signal { HAS MAX 1 This }", "CLASS Holder<Event>")
+        }
+        .message shouldContain "Holder dependency Holder_0 cannot target Event"
+  }
+
+  @Test
+  internal fun `T3-9 Die cannot be a dependency target`() {
+    shouldThrow<PetException> { loadTypes("CLASS Holder<Die>") }.message shouldContain
+        "Signal types and Die cannot be dependency targets"
+  }
+
+  @Test
   internal fun `T3-9 exact per-type and stronger aggregate limits make valid dependency targets`() {
     val table =
         loadTypes(
@@ -392,6 +412,15 @@ internal class Spec03DependenciesTest {
         )
 
     shouldThrow<PetException> { table.componentLimits }
+
+    val calculated =
+        loadTypes(
+            "CLASS Foo",
+            "CLASS Bar",
+            "CLASS InvalidInvariant { HAS =1 (Foo - Bar) }",
+            "CLASS Dependent<InvalidInvariant>",
+        )
+    shouldThrow<PetException> { calculated.componentLimits }
   }
 
   // T3-10 Dependency sets

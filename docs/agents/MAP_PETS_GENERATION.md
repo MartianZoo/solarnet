@@ -17,7 +17,7 @@
   rows and its per-map legend.
 - [`MapDefinition.kt`](../../src/common/dev/martianzoo/tfm/mapdata/MapDefinition.kt) — diagram and
   sigil decoding without a Pets dependency.
-- [`GenerateTfmPets.kt`](../../src/jvm/dev/martianzoo/tools/GenerateTfmPets.kt) — map declaration
+- [`regenerateMapAreas.kt`](../../src/jvm/dev/martianzoo/tfm/tools/regenerateMapAreas.kt) — map declaration
   construction and rendering.
 - [Tharsis `tharsis.pets`](../../src/common/dev/martianzoo/tfm/canon/TharsisMap/tharsis.pets) — generated
   diagram comment and area declarations.

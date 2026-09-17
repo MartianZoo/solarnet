@@ -526,7 +526,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // 3:19:50 PM — Blue: "but I do get to do my Neptunian power consults so I will pay five monies
     // Yeah, so I get an energy production and I place a hydroelectric resource on Neptunian power
     // result."
-    blue.doTask("UseAction<NeptunianOption, Action1>")
+    blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
     blue.pay(5)
 
     // board-15-20-29.jpg and all four app histories: Generation 4 before Research.
@@ -755,8 +755,8 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
             // two plants."
             placeTile(7, 4)
             autoExecNow()
-            selectTask("UseAction<Blue, NeptunianOption<Blue>>?")
-            blue.doTask("UseAction<NeptunianOption, Action1>")
+            selectTask("UseAction<Blue, NeptunianOption<Blue, NeptunianPowerConsultants<Blue>>>?")
+            blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             blue.pay(5)
             // 3:59:00 PM — Green: "All right this would be nine four."
             // 3:59:01 PM — Blue: "Two money, one steel and one titanium. Where am I doing the
@@ -764,16 +764,16 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
             // one? Only two money or two plants. Do I need another card? Do I need another card?"
             placeTile(9, 4)
             autoExecNow()
-            selectTask("UseAction<Blue, NeptunianOption<Blue>>?")
-            blue.doTask("UseAction<NeptunianOption, Action1>")
+            selectTask("UseAction<Blue, NeptunianOption<Blue, NeptunianPowerConsultants<Blue>>>?")
+            blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             blue.pay(5)
             // Crossing 0°C supplies Amazonis's temperature-track ocean bonus.
             // 3:59:30 PM — Green: "All right, going to 611 and you get a card. What a turn of
             // events."
             placeTile(6, 11)
             autoExecNow()
-            selectTask("UseAction<Blue, NeptunianOption<Blue>>?")
-            blue.doTask("UseAction<NeptunianOption, Action1>")
+            selectTask("UseAction<Blue, NeptunianOption<Blue, NeptunianPowerConsultants<Blue>>>?")
+            blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             blue.pay(5)
             doTask("-5 Plant<Yellow>!")
           }
@@ -929,7 +929,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 3:09:29 PM — Green: "Three six for two money."
       playProject(ConvoyFromEuropa, 15) {
             placeTile(3, 6)
-            doTask("UseAction<NeptunianOption, Action1>")
+            doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             pay(5)
           }
           .expect("-16 MC")
@@ -1027,7 +1027,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // No opposing tile bordered the selected ocean.
       playProject(Flooding, 7) {
         placeTile(6, 6)
-        blue.doTask("UseAction<NeptunianOption, Action1>")
+        blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
         blue.intentionalUnderpay()
         blue.pay(2, heat = 3)
       }
@@ -1141,7 +1141,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       cardAction2(IcyImpactors) {
         rainbow.doTask("OceanTile<Amazonis_02_01> BY Green")
         green.doTask("TerraformRating")
-        selectTask("UseAction<Blue, NeptunianOption<Blue>>?")
+        selectTask("UseAction<Blue, NeptunianOption<Blue, NeptunianPowerConsultants<Blue>>>?")
         blue.narrowTask("Ok")
       }
     }
@@ -1220,7 +1220,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       playProject(Comet, 21) {
             placeTile(6, 5)
             doTask("-3 Plant<Blue>")
-            blue.doTask("UseAction<NeptunianOption, Action1>")
+            blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             blue.pay(5)
           }
           .expect("-19 MC")
@@ -1241,7 +1241,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       playProject(MoholeLake, 29, steel = 1) {
         placeTile(5, 5)
         autoExecNow()
-        blue.doTask("UseAction<NeptunianOption, Action1>")
+        blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
         blue.pay(5)
       }
       // 3:41:04 PM — Rainbow: "Well, my second action, I will greener eyes."

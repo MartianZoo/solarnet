@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
@@ -103,9 +104,10 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   }
 
   @Test
-  internal fun `OceanCredit and its watcher stay undefined without Hydrologist`() {
+  internal fun `Hydrologist and its support stay undefined when not selected`() {
     val game = newGame(GameConfig("Builder, Legend, Merchant", "Player1", "Player2"))
 
+    game.classTable.allClassNames.shouldNotContain(cn("Hydrologist"))
     game.classTable.allClassNames.shouldNotContain(cn("OceanCredit"))
     game.classTable.allClassNames.shouldNotContain(cn("HydrologistWatcher"))
   }
@@ -145,7 +147,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
           )
       )
     }
-    shouldThrow<IllegalArgumentException> {
+    shouldThrow<PetException> {
       newGame(
           GameConfig(
               "Producer22, Builder, Engineer",

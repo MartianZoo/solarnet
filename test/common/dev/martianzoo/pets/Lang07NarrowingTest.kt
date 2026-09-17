@@ -4,6 +4,10 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.PropertyValue.NumberValue
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.pets.types.isExpandedFrom
 import dev.martianzoo.pets.types.testCatalog
 import io.kotest.assertions.throwables.shouldThrow
@@ -65,6 +69,12 @@ internal class Lang07NarrowingTest {
   }
 
   @Test
+  internal fun `L7-2 programmatic values reject incompatible narrowings`() {
+    shouldThrow<NarrowingException> { XScalar(1).ensureNarrows(ActualScalar(1), langWorld) }
+    shouldThrow<NarrowingException> { NumberValue(1).ensureNarrows(NumberValue(2), langWorld) }
+  }
+
+  @Test
   internal fun `L7-2 a narrowing preserves the number of stages and the size of a group`() {
     refuses("Plant THEN Heat", "Plant THEN Heat THEN Steel")
     refuses("Plant, Heat", "Plant, Heat, Steel")
@@ -90,6 +100,15 @@ internal class Lang07NarrowingTest {
     narrows("2 Plant?", "2 Plant?") shouldBe true
     refuses("2 Plant!", "2 Plant.")
     refuses("2 Plant.", "2 Plant!")
+  }
+
+  @Test
+  internal fun `L7-3 both changes must be elaborated before narrowing`() {
+    val authored = parse<InstructionTree>("Plant")
+    val elaborated = elaborate("Plant")
+
+    shouldThrow<NullPointerException> { authored.ensureNarrows(elaborated, langWorld) }
+    shouldThrow<NullPointerException> { elaborated.ensureNarrows(authored, langWorld) }
   }
 
   @Test
@@ -150,6 +169,8 @@ internal class Lang07NarrowingTest {
     narrows("X Plant THEN 2X Heat", "3 Plant THEN 6 Heat") shouldBe true
     refuses("X Plant THEN 2X Heat", "3 Plant THEN 5 Heat")
     refuses("2X Plant THEN Heat", "3 Plant THEN Heat")
+    refuses("X Plant THEN X Heat", "3 Plant THEN 2 Heat")
+    refuses("(X Plant? OR 2X Plant?) THEN X Steel?", "4 Plant? THEN Ok")
   }
 
   @Test
@@ -181,6 +202,23 @@ internal class Lang07NarrowingTest {
   }
 
   @Test
+  internal fun `L7-8 binding a THEN stage requires a binding and a met gate`() {
+    val unbound = elaborate("Plant THEN Heat") as dev.martianzoo.pets.ast.Instruction.Then
+    shouldThrow<NarrowingException> {
+      unbound.bindFirstStage(elaborate("Plant") as dev.martianzoo.pets.ast.Instruction, langWorld)
+    }
+
+    val gated =
+        elaborate("MAX 0 Heat: Plant THEN Steel") as dev.martianzoo.pets.ast.Instruction.Then
+    shouldThrow<NarrowingException> {
+      gated.selectFirstStage(
+          elaborate("Plant") as dev.martianzoo.pets.ast.Instruction,
+          TableWorld(langTable, answer = false),
+      )
+    }
+  }
+
+  @Test
   internal fun `L7-8 expansion matching ignores an occurrence unavailable in its universe`() {
     val table = testCatalog("ABSTRACT CLASS Shade\nCLASS Token<Shade>").classTable
     val expanded = parse<Expression>("Token<Shade>")
@@ -202,6 +240,21 @@ internal class Lang07NarrowingTest {
     shouldThrow<IllegalStateException> {
       BrokenSpecification.narrows(BrokenSpecification, langWorld)
     }
+  }
+
+  @Test
+  internal fun `L7-7 X is at least one`() {
+    // A written zero is already rejected when parsed (L6-2), so this is the only way to propose
+    // one.
+    shouldThrow<NarrowingException> { ActualScalar(0).ensureNarrows(XScalar(1), langWorld) }
+    ActualScalar(3).ensureNarrows(XScalar(1), langWorld)
+  }
+
+  @Test
+  internal fun `L7-7 one X around a group settles every member of it`() {
+    narrows("-X Heat! THEN (X Steel!, X Plant!)", "-3 Heat! THEN (3 Steel!, 3 Plant!)") shouldBe
+        true
+    refuses("-X Heat! THEN (X Steel!, X Plant!)", "-3 Heat! THEN (3 Steel!, 2 Plant!)")
   }
 
   // L7-10 Groups

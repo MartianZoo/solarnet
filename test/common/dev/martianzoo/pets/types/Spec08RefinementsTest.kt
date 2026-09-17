@@ -1,8 +1,11 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Requirement
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -64,6 +67,9 @@ internal class Spec08RefinementsTest {
   internal fun `T8-2 a world that denies the requirement rejects the candidate`() {
     type("Tharsis_2_2").narrows(type("LandArea(HAS Neighbor)"), emptyWorld) shouldBe false
     type("Tharsis_2_2").narrows(type("LandArea(HAS Neighbor)"), fullWorld) shouldBe true
+    shouldThrow<NarrowingException> {
+      type("Tharsis_2_2").ensureNarrows(type("LandArea(HAS Neighbor)"), emptyWorld)
+    }
   }
 
   @Test
@@ -104,6 +110,9 @@ internal class Spec08RefinementsTest {
             world,
         ) shouldBe false
     world.questions shouldContainExactly listOf()
+    shouldThrow<NarrowingException> {
+      table.resolve(te("Rock")).ensureNarrows(table.resolve(te("Component(HAS StartToken)")), world)
+    }
   }
 
   @Test
@@ -182,6 +191,9 @@ internal class Spec08RefinementsTest {
     actors.resolve(te("Player1")).isSubtypeOf(notPlayer1) shouldBe false
     // `Player` still admits Player1, so it does not satisfy the exclusion.
     actors.resolve(te("Player")).isSubtypeOf(notPlayer1) shouldBe false
+    shouldThrow<NarrowingException> {
+      actors.resolve(te("Player1")).ensureNarrows(notPlayer1, NoGameState)
+    }
   }
 
   @Test
@@ -289,6 +301,15 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
+  internal fun `T8-8 the context-free sentinel rejects every state query`() {
+    shouldThrow<IllegalStateException> { NoGameState.isAbstract(te("LandArea")) }
+    shouldThrow<IllegalStateException> {
+      NoGameState.ensureNarrows(te("LandArea"), te("Tharsis_2_2"))
+    }
+    shouldThrow<IllegalStateException> { NoGameState.has(parse<Requirement>("LandArea")) }
+  }
+
+  @Test
   internal fun `T8-8 an identical refinement is accepted without consulting a world`() {
     type("Tharsis_2_2(HAS Neighbor)").isSubtypeOf(type("LandArea(HAS Neighbor)")) shouldBe true
     type("Tharsis_2_2(NOT Tharsis_2_3)").isSubtypeOf(type("LandArea(NOT Tharsis_2_3)")) shouldBe
@@ -309,6 +330,9 @@ internal class Spec08RefinementsTest {
     type("LandArea(HAS Neighbor)").narrows(type("LandArea(HAS Occupant)"), fullWorld) shouldBe false
     type("LandArea(NOT Tharsis_2_2)").narrows(type("LandArea(HAS Neighbor)"), fullWorld) shouldBe
         false
+    shouldThrow<NarrowingException> {
+      type("LandArea(HAS Neighbor)").ensureNarrows(type("LandArea(HAS Occupant)"), fullWorld)
+    }
   }
 
   @Test

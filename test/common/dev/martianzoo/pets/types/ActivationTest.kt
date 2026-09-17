@@ -2,6 +2,7 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.CustomClass
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GamePremise
@@ -85,6 +86,18 @@ internal class ActivationTest {
   }
 
   @Test
+  internal fun `locked vocabulary names the Module that makes it available`() {
+    val catalog =
+        testCatalog(
+            "CLASS Locked\nCLASS UnlockingModule",
+            moduleSelections = mapOf(cn("UnlockingModule") to emptySet()),
+            classAvailabilityModules = mapOf(cn("Locked") to setOf(cn("UnlockingModule"))),
+        )
+
+    shouldThrow<PetException> { gameView(catalog, "Locked") }
+  }
+
+  @Test
   internal fun `premise rejects a structurally activated unrequested Module`() {
     val catalog =
         testCatalog(
@@ -102,7 +115,7 @@ internal class ActivationTest {
         )
     val premise = GamePremise(catalog, setOf(cn("Requested")), emptySet(), emptySet())
 
-    shouldThrow<IllegalArgumentException> { ClassTable.forPremise(premise) }
+    shouldThrow<PetException> { ClassTable.forPremise(premise) }
   }
 
   @Test
@@ -116,7 +129,7 @@ internal class ActivationTest {
             emptySet(),
         )
 
-    shouldThrow<IllegalArgumentException> { ClassTable.forPremise(premise) }
+    shouldThrow<PetException> { ClassTable.forPremise(premise) }
   }
 
   @Test
@@ -139,7 +152,7 @@ internal class ActivationTest {
         )
     val premise = GamePremise(catalog, setOf(cn("Requested")), emptySet(), emptySet())
 
-    shouldThrow<IllegalArgumentException> { ClassTable.forPremise(premise) }
+    shouldThrow<PetException> { ClassTable.forPremise(premise) }
   }
 
   @Test
@@ -168,7 +181,7 @@ internal class ActivationTest {
                 .trimIndent()
         )
 
-    shouldThrow<IllegalArgumentException> {
+    shouldThrow<PetException> {
       gameView(catalog, "Selected", "Domain", "Related", "Candidate", "OtherCandidate")
     }
 

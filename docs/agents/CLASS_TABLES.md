@@ -12,8 +12,8 @@
 >
 > **Status:** selected replacement in progress. The reusable master and premise-local declaration
 > delta, table-relative subclass enumeration, general Type-inhabitance query, public activity-API
-> removal, and runtime inhabitance boundaries are implemented. `Die`, `Ok`, and the remaining
-> universe/API cleanup remain planned.
+> removal, runtime inhabitance boundaries, and the `Die`/`Ok` terminal invariants are implemented.
+> The remaining universe/API cleanup remains planned.
 
 ## Source map
 
@@ -190,16 +190,18 @@ pruning machinery.
 
 ### `Die` and `Ok`
 
-`Die` should be the canonical intentionally uninhabited abstract Type. Its current concrete
-declaration with `HAS MAX 0 This` is an implementation technique, not selected semantics. Once the
-universe model supplies the general rule, `Die!` fails because `Die` has no concrete narrowing, and
-nonmandatory `Die` changes follow the ordinary uninhabited-Type rule. Every completed universe must
-verify that no premise or catalog declaration gives `Die` a realizable subclass.
+`Die` is concrete and therefore final, but `HAS MAX 0 This` gives it zero component capacity in
+every World. That differs honestly from a structurally uninhabited Type, which has no concrete
+narrowing in a particular universe. The engine may derive the same terminal result from either
+fact: a mandatory gain cannot execute, while a nonmandatory gain resolves to no change. `Die`
+retains named task normalization because it is the canonical impossible instruction and can be
+recognized before World-relative resolution.
 
 `Ok` is the complementary identity instruction: it denotes no change and therefore produces no
-event that an effect could observe. A declaration with an `Ok:` trigger is invalid and must be
-rejected rather than retained as an effect that can never fire. Preserve these paired integrity
-rules together: no realizable subtype of `Die`, and no trigger on `Ok`.
+event that an effect could observe. A subscribed trigger rooted at `Ok` or any nominal supertype of
+`Ok` is invalid, even when a refinement excludes `Ok`; those subscriptions are too broad to be
+useful. Self triggers remain ordinary; the gain of `Ok` to which one could react is canonicalized to
+no change.
 
 ## Migration plan
 
@@ -211,8 +213,8 @@ until the replacement is complete.
    identity, class literals, and the universe-relative meaning of `NOT` and `glb`.
 2. **Pin the new contracts with tests.** Cover master/premise lookup, name collisions, one-way
    references, cross-master rejection, excluded and dependency-uninhabited Types, zero class-literal
-   counts, hierarchy answers that include premise declarations, uninhabited `Die`, and forbidden
-   `Ok:` triggers.
+   counts, hierarchy answers that include premise declarations, zero-capacity `Die`, and forbidden
+   subscriptions rooted at `Ok` or one of its nominal supertypes.
 3. **Inventory remaining context-free operations.** Find every `Class` or `Type` operation that
    currently reaches `classTable`. Move structural overlap, concrete narrowing, and their caches
    behind an explicit universe before changing representation.
@@ -233,18 +235,15 @@ until the replacement is complete.
 8. **Move premise variation to the delta.** Stop composing new `TfmCatalog`s for Players and the
    generated `Premise`; remove the conventional-player catalog cache after all callers use premise
    definitions.
-9. **Make `Die` and `Ok` ordinary consequences.** Replace `Die`'s concrete zero-limit encoding with
-   the selected uninhabited abstract semantics, reject a realizable `Die` subtype or an `Ok:` trigger,
-   and remove special runtime branches only where the general rules now give the same result.
-10. **Split expensive derived work.** Precompile master restriction and dependency-validation
+9. **Split expensive derived work.** Precompile master restriction and dependency-validation
    templates once. Let each universe merge premise deltas, apply its Class set, and perform only the
    validation whose answer can vary by premise.
-11. **Migrate the runtime.** Build class representatives only for inhabited concrete Classes, reject
+10. **Migrate the runtime.** Build class representatives only for inhabited concrete Classes, reject
     uninhabited component mutations at the boundary, and bind elaboration, transformations,
     component limits, and automatic narrowing to the universe.
-12. **Delete the projection model.** Remove master/projection identity aliases, active-name masks,
+11. **Delete the projection model.** Remove master/projection identity aliases, active-name masks,
     projection loaders, obsolete caches, and the superseded current-model documentation together so
     only one ontology remains.
-13. **Verify reuse and savings.** Assert that repeated premises share the same master compiled
+12. **Verify reuse and savings.** Assert that repeated premises share the same master compiled
     definitions while sharing no mutable universe state. Re-run the focused card setup profiles and
     full JVM-suite category timings; retain no global cache keyed by premise shape.

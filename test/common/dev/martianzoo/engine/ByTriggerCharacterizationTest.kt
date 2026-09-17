@@ -99,6 +99,10 @@ internal class ByTriggerCharacterizationTest {
     }
   }
 
+  /**
+   * Rule L8-8: an unqualified subscription to a type with no owner of its own watches only the
+   * events its effect's owner performed.
+   */
   @Test
   internal fun anUnownedTriggerDefaultsToTheEffectOwner() {
     val game = newGame()
@@ -127,6 +131,7 @@ internal class ByTriggerCharacterizationTest {
     game.events.changesSince(checkpoint).takeLast(2).all { it.actor == PLAYER2 } shouldBe true
   }
 
+  /** Rule L8-8: where the watched type is itself owned, ownership says whose events these are. */
   @Test
   internal fun anOwnedTriggerUsesItsAuthoredOwnershipInsteadOfAnImplicitActorFilter() {
     val game = newGame()

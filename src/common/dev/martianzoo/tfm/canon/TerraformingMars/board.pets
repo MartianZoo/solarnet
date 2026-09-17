@@ -34,11 +34,11 @@ ABSTRACT CLASS Area {
   ABSTRACT CLASS RemoteArea
 }
 
-"A board piece that adjacency locates through a concrete subtype's area dependency"
-ABSTRACT CLASS AreaPiece
+"A board piece located in an area"
+ABSTRACT CLASS AreaPiece<Area>
 
 "A board piece that exclusively occupies its area"
-ABSTRACT CLASS Occupant<Area> : AreaPiece
+ABSTRACT CLASS Occupant : AreaPiece
 
 "An occupant controlled by an actor"
 ABSTRACT CLASS OwnedOccupant : Owned, Occupant

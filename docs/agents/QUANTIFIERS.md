@@ -80,7 +80,9 @@ gain and removal defaults. A subclass may override either direction independentl
 AMAP. An explicit symbol always wins.
 
 For `Gaining FROM Removing` with no explicit quantifier, the gain and removal defaults are combined
-into the transmutation's one quantifier. Mandatory wins over AMAP, and AMAP wins over optional. Each
+into the transmutation's one quantifier: it permits exactly the counts both defaults permit, which
+works out to mandatory beating AMAP and AMAP beating optional (L12-8). That is a combination of two
+policies, not a ranking — narrowing still treats mandatory and AMAP as incomparable (L7-3). Each
 side still supplies its own dependency defaults before the Types are resolved.
 
 ## Concrete pure gains
