@@ -232,7 +232,7 @@ private constructor(
         blockedActivations[next]?.let { availabilityModules ->
           val source = requestedBy.getValue(next)
           val path = source?.let { "$it requires locked Class $next" } ?: "Class $next is locked"
-          throw IllegalArgumentException(
+          throw invalidPetDefinition(
               "broken game premise: $path; select one of its bundle Modules: " + availabilityModules
           )
         }

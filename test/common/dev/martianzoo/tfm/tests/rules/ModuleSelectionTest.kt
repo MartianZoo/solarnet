@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
@@ -236,8 +237,8 @@ internal class ModuleSelectionTest {
 
   @Test
   internal fun `requirements and mutually exclusive choices reject configurations`() {
-    rejects("-TharsisMap")
-    rejects("-TerraformingMars")
+    petsRejects("-TharsisMap")
+    petsRejects("-TerraformingMars")
 
     cannotSelectTogether("HellasMap", "ElysiumMap")
     cannotSelectTogether("TharsisMap", "HellasMap")
@@ -246,7 +247,7 @@ internal class ModuleSelectionTest {
 
     rejects("SoloMode, -MultiplayerMode")
     rejects("MultiplayerMode, -SoloMode", players = 1)
-    rejects("Tr63SoloObjective")
+    petsRejects("Tr63SoloObjective")
     rejects("-StandardSoloObjective", players = 1)
 
     rejects("Terraformer35", players = 1)
@@ -254,8 +255,8 @@ internal class ModuleSelectionTest {
     rejects("VenusNextExpansion, MandatoryVenusVariant", players = 1)
 
     rejects("Callisto")
-    rejects("HellasMap, Geologist")
-    rejects("UtopiaMap, Geologist")
+    petsRejects("HellasMap, Geologist")
+    petsRejects("UtopiaMap, Geologist")
   }
 
   private fun defaultMayBeExcluded(
@@ -343,6 +344,12 @@ internal class ModuleSelectionTest {
   private fun rejects(config: String, players: Int = 2) {
     withClue("[$config] with $players player(s) is rejected") {
       shouldThrow<IllegalArgumentException> { Engine.newGame(premise(config, players)) }
+    }
+  }
+
+  private fun petsRejects(config: String, players: Int = 2) {
+    withClue("[$config] with $players player(s) is rejected by Pets") {
+      shouldThrow<PetException> { Engine.newGame(premise(config, players)) }
     }
   }
 

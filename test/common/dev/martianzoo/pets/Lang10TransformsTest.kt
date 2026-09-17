@@ -64,8 +64,8 @@ internal class Lang10TransformsTest {
     }
 
     val instruction = parse<Instruction>("LATER[Plant]")
-    shouldThrow<IllegalStateException> { instruction.isAbstract(langWorld) }
-    shouldThrow<IllegalStateException> { instruction.ensureNarrows(instruction, langWorld) }
+    shouldThrow<ExpressionException> { instruction.isAbstract(langWorld) }
+    shouldThrow<ExpressionException> { instruction.ensureNarrows(instruction, langWorld) }
   }
 
   // L10-3 A handler rewrites only inside its block

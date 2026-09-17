@@ -4,6 +4,7 @@ import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
@@ -34,7 +35,7 @@ internal class GamePremiseTest {
     val catalog = Canon.withPlayers(1)
 
     listOf(cn("MC"), PLAYER).forEach { invalidPlayerName ->
-      shouldThrow<IllegalArgumentException> {
+      shouldThrow<PetException> {
         GamePremise(
             catalog,
             modules = emptySet(),
@@ -185,6 +186,7 @@ internal class GamePremiseTest {
     shouldThrow<IllegalArgumentException> {
       Canon.gamePremise(GameConfig("Blue, Yellow, VenusNextExpansion", "Player1"))
     }
+    shouldThrow<PetException> { Canon.gamePremise(GameConfig("", "MC")) }
   }
 
   @Test
@@ -201,7 +203,7 @@ internal class GamePremiseTest {
   internal fun unconfiguredPlayerCannotBeActivatedAsAnOrdinaryClass() {
     val premise = Canon.withPlayers(3).gamePremise(GameConfig("", "Player1", "Player2"))
 
-    shouldThrow<IllegalArgumentException> {
+    shouldThrow<PetException> {
       Engine.newGame(
           premise.copy(classSelections = setOf(ClassSelection(cn("Player3"), included = true)))
       )

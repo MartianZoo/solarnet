@@ -2,6 +2,7 @@ package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetTransformer.Companion.chain
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.SystemClasses.USE_ACTION
@@ -162,14 +163,18 @@ public object Transforming {
     )
   }
 
-  /** The position markers `Action1`..`ActionN` keying [actions] to their effects. */
+  /**
+   * The position markers `Action1`..`ActionN` keying [actions] to their effects.
+   *
+   * @throws PetSyntaxException if [actions] contains more than the three representable positions
+   */
   public fun actionSelectors(actions: Collection<Action>): Set<ClassName> =
       actions.indices.mapTo(linkedSetOf()) { actionSelector(it + 1) }
 
   // Rule L9-4: a class may offer at most three actions.
   private fun actionSelector(index1Ref: Int): ClassName =
       listOf(cn("Action1"), cn("Action2"), cn("Action3")).getOrNull(index1Ref - 1)
-          ?: throw IllegalArgumentException("A component can offer only three actions: $index1Ref")
+          ?: throw PetSyntaxException("A component can offer only three actions: $index1Ref")
 
   /**
    * Returns the effect `This: instruction`, which is how a card's "do this now" section becomes an

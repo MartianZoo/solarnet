@@ -267,7 +267,7 @@ internal class Spec02ClassesTest {
         .custom shouldBe true
 
     // A declared-but-unimplemented Custom class is rejected by the Catalog lookup itself.
-    shouldThrowIae { loadTypes(declaration) }
+    shouldThrow<PetException> { loadTypes(declaration) }
     shouldThrow<PetException> {
       ClassLoader(testCatalog("CLASS Neighbor", setOf(object : CustomClass(cn("Neighbor")) {})))
           .loadEverything()

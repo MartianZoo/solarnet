@@ -13,6 +13,7 @@ import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.Transforming.bindXTo
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.GameReader
@@ -927,10 +928,10 @@ public sealed class Instruction : InstructionTree() {
     override fun scale(factor: Int): Instruction = copy(instruction = instruction * factor)
 
     override fun isAbstract(info: TypeInfo): Boolean =
-        error("should have been transformed by now: $this")
+        throw ExpressionException("unhandled instruction transform: $this")
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo): Unit =
-        error("should have been transformed by now: $this")
+        throw ExpressionException("unhandled instruction transform: $this")
 
     override fun toString(): String = "$transformKind[$instruction]"
 

@@ -1,6 +1,7 @@
 package dev.martianzoo.pets.data
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -22,7 +23,9 @@ internal class GamePremiseTest {
             moduleSelections = mapOf(cn("OptionalModule") to emptySet()),
         )
 
-    shouldReject(catalog, playerNames = listOf(cn("Missing")))
+    shouldThrow<PetException> {
+      premise(catalog, playerNames = listOf(cn("Missing")))
+    }
     shouldReject(catalog, playerNames = listOf(cn("Blue"), cn("Blue")))
     shouldReject(catalog, modules = setOf(cn("Missing")))
     shouldReject(
@@ -70,7 +73,7 @@ internal class GamePremiseTest {
       premiseClassName: ClassName? = null,
   ) {
     shouldThrow<IllegalArgumentException> {
-      GamePremise(
+      premise(
           catalog,
           modules,
           selections,
@@ -81,4 +84,23 @@ internal class GamePremiseTest {
       )
     }
   }
+
+  private fun premise(
+      catalog: Catalog,
+      modules: Set<ClassName> = emptySet(),
+      selections: Set<ClassSelection> = emptySet(),
+      initialTypes: Set<Expression> = emptySet(),
+      playerNames: List<ClassName> = emptyList(),
+      bootstrapClassName: ClassName? = null,
+      premiseClassName: ClassName? = null,
+  ): GamePremise =
+      GamePremise(
+          catalog,
+          modules,
+          selections,
+          initialTypes,
+          playerNames,
+          bootstrapClassName,
+          premiseClassName,
+      )
 }

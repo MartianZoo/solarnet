@@ -1,5 +1,6 @@
 package dev.martianzoo.pets.data
 
+import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
@@ -12,7 +13,12 @@ public data class ClassSelection(
     public val included: Boolean = true,
     public val requirement: Requirement? = null,
 ) {
-  /** Whether this selection applies in a premise-local namespace over its imported master. */
+  /**
+   * Whether this selection applies in a premise-local namespace over its imported master.
+   *
+   * @throws dev.martianzoo.pets.api.Exceptions.PetException if its authored condition is not a
+   *   count of one simple class
+   */
   public fun appliesTo(
       configuredClassNames: Set<ClassName>,
       classTable: PremiseClassTable,
@@ -33,8 +39,8 @@ public data class ClassSelection(
       configuredClassNames: Set<ClassName>,
       isSubtypeOf: (candidate: ClassName, superclass: ClassName) -> Boolean,
   ): Int {
-    require(metric is Count && metric.expression.simple) {
-      "Module conditions must count simple classes: $metric"
+    if (metric !is Count || !metric.expression.simple) {
+      throw invalidPetDefinition("Module conditions must count simple classes: $metric")
     }
     return configuredClassNames.count { configuredName ->
       isSubtypeOf(configuredName, metric.expression.className)

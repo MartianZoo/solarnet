@@ -83,7 +83,21 @@ internal class Lang09ActionsTest {
     val four = List(4) { parse<Action>("-> Widget$it") }
 
     actionListToEffects(four.take(3)).size shouldBe 3
-    shouldThrow<IllegalArgumentException> { actionListToEffects(four) }
+    shouldThrow<PetSyntaxException> {
+      parseClasses(
+              """
+              CLASS Busy {
+                -> Widget1
+                -> Widget2
+                -> Widget3
+                -> Widget4
+              }
+              """
+                  .trimIndent()
+          )
+          .single()
+          .effects
+    }
   }
 
   // L9-5 A class's effects
