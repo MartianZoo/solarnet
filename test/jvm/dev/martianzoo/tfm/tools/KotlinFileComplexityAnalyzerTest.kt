@@ -1,4 +1,4 @@
-package dev.martianzoo.tools
+package dev.martianzoo.tfm.tools
 
 import java.io.File
 import kotlin.test.Test

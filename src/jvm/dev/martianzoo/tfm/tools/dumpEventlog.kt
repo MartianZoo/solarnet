@@ -1,4 +1,4 @@
-package dev.martianzoo.tools
+package dev.martianzoo.tfm.tools
 
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.engine.Engine

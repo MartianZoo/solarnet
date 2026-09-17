@@ -1,4 +1,4 @@
-package dev.martianzoo.benchmarks
+package dev.martianzoo.tfm.benchmarks
 
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.engine.Engine

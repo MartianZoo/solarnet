@@ -1,4 +1,4 @@
-package dev.martianzoo.tools
+package dev.martianzoo.tfm.tools
 
 import dev.martianzoo.tfm.canon.cardCost
 import kotlin.test.Test
