@@ -457,22 +457,59 @@ internal class Spec13TypeVariablesTest {
 
   @Test
   internal fun `T13-8 occurrences confined to requirements do not declare`() {
-    effect("StandardResource IF StandardResource: Ok").typeVariables.variables shouldBe listOf()
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person { CLASS Alice }",
+            "ABSTRACT CLASS Eligible<Person>",
+            "ABSTRACT CLASS Ready<Person>",
+            "CLASS Coin",
+        )
+
+    val instruction =
+        table
+            .inferTypeVariables()
+            .transformInstruction(parse("(Eligible<Person>: Coin) THEN (Ready<Person>: Coin)"))
+            as Then
+
+    instruction.typeVariables.variables shouldBe listOf()
   }
 
   @Test
-  internal fun `T13-8 the expression a metric counts directly does not declare`() {
+  internal fun `T13-8 occurrences inside metrics do not declare`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS StandardResource { CLASS Plant }",
-            "CLASS Marker",
+            "ABSTRACT CLASS Person { CLASS Alice }",
+            "ABSTRACT CLASS Score<Person>",
+            "ABSTRACT CLASS Value<Person>",
+            "CLASS Coin",
         )
 
-    table
-        .inferTypeVariables()
-        .transformEffect(parse<Effect>("StandardResource: Marker / StandardResource"))
-        .typeVariables
-        .variables shouldBe listOf()
+    val instruction =
+        table
+            .inferTypeVariables()
+            .transformInstruction(parse("(Coin / Score<Person>) THEN (Coin / Value<Person>)"))
+            as Then
+
+    instruction.typeVariables.variables shouldBe listOf()
+  }
+
+  @Test
+  internal fun `T13-8 occurrences inside refinements do not declare`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person : Owner { CLASS Alice }",
+            "ABSTRACT CLASS Notice<Owner>",
+            "ABSTRACT CLASS Receipt<Component>",
+        )
+
+    val instruction =
+        table
+            .inferTypeVariables()
+            .transformInstruction(
+                parse("Notice<Owner(NOT Person)> THEN Receipt<Component(NOT Person)>")
+            ) as Then
+
+    instruction.typeVariables.variables shouldBe listOf()
   }
 
   @Test
@@ -561,10 +598,34 @@ internal class Spec13TypeVariablesTest {
 
     choice.occurrences.map { "${it.expression}" } shouldContainExactly
         listOf("Person", "Person", "Person")
+    (choice.usages.first().ordinal < choice.declaration.ordinal) shouldBe true
     then.typeVariables
         .bind(mapOf(choice to table.resolve(te("Alice"))))
         .transformEffect(inferred)
         .toString() shouldBe "This: Eligible<Alice>: Coin<Alice> THEN Receipt<Alice>"
+  }
+
+  @Test
+  internal fun `T13-8 an earlier stage cannot observe a variable declared by a later stage`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person : Owner { CLASS Alice }",
+            "ABSTRACT CLASS Eligible<Person>",
+            "ABSTRACT CLASS Score<Person>",
+            "ABSTRACT CLASS Notice<Owner>",
+            "ABSTRACT CLASS Receipt<Person>",
+            "CLASS Coin",
+        )
+
+    listOf(
+            "(Eligible<Person>: Ok) THEN Receipt<Person>",
+            "(Coin / Score<Person>) THEN Receipt<Person>",
+            "Notice<Owner(NOT Person)> THEN Receipt<Person>",
+        )
+        .forEach { source ->
+          val instruction = table.inferTypeVariables().transformInstruction(parse(source)) as Then
+          instruction.typeVariables.variables shouldBe listOf()
+        }
   }
 
   @Test

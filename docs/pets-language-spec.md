@@ -910,10 +910,12 @@ effect's own colon stays unambiguous.
 > the rendered form could attach the gate to the trigger and produce a different rule.
 
 **L8-12. `Type AS Name` explicitly names an Effect-local Type variable.** The declaration must occur
-in the trigger, and the bare `Name` may then replace the complete declared expression anywhere else
-in that Effect. A name has the class-name shape from L2-1, so one letter is enough, but it must not
-be a Type name in the Catalog. One Effect may declare a name only once and must use every name it
-declares. A use is bare: it cannot have arguments or a refinement.
+in a matching expression in the trigger, and the bare `Name` may then replace the complete declared
+expression anywhere else in that Effect. Requirements, metrics and the contents of refinements only
+observe, so they may use a visible name but cannot declare one. A name has the class-name shape from
+L2-1, so one letter is enough, but it must not be a Type name in the Catalog. One Effect may declare
+a name only once and must use every name it declares. A use is bare: it cannot have arguments or a
+refinement.
 
 Repeating the Type without naming it does not link an Effect trigger to its instruction (T13-6).
 For example, Manutech writes `PROD[StandardResource AS SR]: SR`: the production increase chooses the

@@ -1249,10 +1249,12 @@ dependency does supply one — `CLASS Leaf : Badge<Alice>` supplies `Alice` for 
 ### Effect-local and inferred variables
 
 **T13-6. An Effect names a shared choice explicitly.** `Type AS Name` declares a variable in the
-Effect's trigger. A bare `Name` elsewhere in the same Effect uses the declaration's complete
-structural expression. The name has class-name syntax, including a single capital letter, but must
-not name any Type in the Catalog. It is local to the Effect, must be unique there, and must be used
-at least once. A reference cannot have arguments or a refinement.
+matching part of an Effect's trigger. A bare `Name` elsewhere in the same Effect uses the
+declaration's complete structural expression. Naming does not make an observing occurrence eligible
+to declare: a requirement, metric or refinement may use a variable declared by a match, but cannot
+declare one. The name has class-name syntax, including a single capital letter, but must not name any
+Type in the Catalog. It is local to the Effect, must be unique there, and must be used at least once.
+A reference cannot have arguments or a refinement.
 
 Binding it substitutes at every occurrence at once:
 `Production<Class<StandardResource AS R>>: R` bound to `Plant` becomes
@@ -1305,14 +1307,16 @@ ever uses.
 | Repetition | Why not |
 | --- | --- |
 | Occurrences confined to requirements | a requirement observes candidates, it does not choose one |
-| The expression a metric counts directly | a count ranges over a domain rather than picking one member |
+| Occurrences inside a metric | a count ranges over a domain rather than picking one member |
+| An occurrence inside a refinement | a refinement tests a candidate chosen or matched outside it |
 | A nested repeat inside a larger repeat | recognition prefers the largest repeated expression, so repeating `CardFront<Owner>` does not also infer an `Owner` variable |
 | A different authored spelling | `Tile` and `Tile<Area>` resolve alike but are different names; likewise `Duo<Area, Person>` and `Duo<Person, Area>` |
 | An `EACH` selector and any body text naming it | the fanout declares its own variable for its body |
 | A concrete expression, or `This` | there is no open choice to bind |
 
-The first two rows are the observing case of the section's first property: an occurrence that only
-looks never introduces, but does use a variable already introduced. That is why the gate in
+The first three rows are the observing case of the section's first property: an occurrence that only
+looks never introduces, but does use a variable whose choice is available in the same settlement
+region or an earlier one. That is why the gate in
 `(Eligible<Person>: Coin<Person>) THEN Receipt<Person>` speaks about the same person the stages
 choose, rather than ranging over people of its own.
 

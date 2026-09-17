@@ -356,6 +356,11 @@ public data class Effect(
     }
 
     private fun resolveTypeVariableNames(effect: Effect): Effect {
+      observingTypeVariableDeclaration(effect.trigger)?.let {
+        throw PetSyntaxException(
+            "A Type-variable name cannot be declared in an observing expression: $it"
+        )
+      }
       val declarations =
           effect.trigger.descendantsOfType<Expression>().filter {
             it.typeVariableName is Declaration
@@ -413,6 +418,16 @@ public data class Effect(
             throw PetSyntaxException("Type-variable $it is declared but never used")
           }
       return resolved
+    }
+
+    private fun observingTypeVariableDeclaration(root: PetNode): Expression? {
+      fun find(node: PetNode, observing: Boolean): Expression? {
+        if (observing && node is Expression && node.typeVariableName is Declaration) return node
+        val childrenObserve = observing || node.startsTypeVariableObservation
+        return node.immediateChildren().firstNotNullOfOrNull { find(it, childrenObserve) }
+      }
+
+      return find(root, observing = false)
     }
   }
 }
