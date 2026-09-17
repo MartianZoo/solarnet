@@ -364,6 +364,10 @@ concrete type a dependency bound admits must therefore carry an applicable `MAX 
 This is checked when a game's component-limit table is built, and it is the only place
 component-count invariants enter this specification.
 
+`Signal` and every subtype of `Signal`, as well as `Die`, are never valid dependency targets,
+regardless of component-count limits. A Signal is a point event removed immediately after firing,
+and `Die` has no legal occurrence; neither can anchor the existence of another Component.
+
 > **Non-normative example — action-used markers.** `ActionUsedMarker<ActionCard>` means the marker on
 > one exact owned action card. If two indistinguishable components of that target type could exist,
 > the dependency would identify neither one, and Project Inspection could offer the wrong card for
@@ -1064,6 +1068,11 @@ answer to a `HAS` refinement. A Type from another Catalog is not known in this u
 An uninhabited Type counts zero, contributes no concrete choices or class representative, and
 cannot appear as a Component or fire a trigger. Changes to it follow L12-14. Its nominal information
 remains available for resolution, subtyping, intersection, `NOT`, and diagnostics.
+
+`Die` is distinct from this structural case. It is a concrete, final Type whose invariant gives it
+zero component capacity in every World. The engine can reject a mandatory change to either kind,
+but their reasons remain different: an uninhabited Type has no concrete narrowing in the universe,
+while `Die` is concrete and has no legal occurrence.
 
 > **Non-normative example — game-end barriers.** Core rules know the generic
 > `GpIncomplete<Class<GlobalParameter>>`, but the specialization for `Class<VenusStep>` must remain

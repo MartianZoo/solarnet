@@ -57,6 +57,28 @@ internal class TaskNormalizationTest {
     edited.then shouldBe instructionGroup("X Heat")
   }
 
+  @Test
+  internal fun `terminal normalization composes without inventing no-op tasks`() {
+    queues.addTasks(instructionGroup("Die? BY Player1"), PLAYER1, cause = null) shouldBe emptyList()
+    queues.addTasks(instructionGroup("Die? / Plant"), PLAYER1, cause = null) shouldBe emptyList()
+    queues.addTasks(instructionGroup("EACH Player { Die? }"), PLAYER1, cause = null) shouldBe
+        emptyList()
+
+    val leading = addTask("Die? THEN Plant")
+    leading.instruction shouldBe parse<Instruction>("Plant")
+    leading.then shouldBe null
+
+    val trailing = addTask("Heat THEN Die?")
+    trailing.instruction shouldBe parse<Instruction>("Heat")
+    trailing.then shouldBe null
+  }
+
+  @Test
+  internal fun `a no-op choice and a gated no-op remain meaningful`() {
+    addTask("Die? OR Plant").instruction shouldBe parse<Instruction>("Ok OR Plant")
+    addTask("Plant: Die?").instruction shouldBe parse<Instruction>("Plant: Ok")
+  }
+
   private fun addTask(instruction: String) =
       queues.addTasks(instructionGroup(instruction), PLAYER1, cause = null).single().task
 

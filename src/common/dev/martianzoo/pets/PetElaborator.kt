@@ -28,6 +28,7 @@ import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
+import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
@@ -813,6 +814,15 @@ public class PetElaborator(public val classTable: ClassTable) {
       private val remainingVariables by lazy(LazyThreadSafetyMode.NONE, openVariables)
 
       override fun transformNode(node: PetNode): PetNode {
+        if (node is Each) {
+          val selector = transformExpression(node.selector)
+          val body = transformInstructionTree(node.body)
+          return if (body is NoOp) NoOp else Each(selector, body)
+        }
+        if (node is Per) {
+          val inner = transformInstruction(node.inner)
+          return if (inner is NoOp) NoOp else Per(inner, transformMetric(node.metric))
+        }
         val specialized = transformChildren(node)
         if (specialized !is Change) return specialized
 

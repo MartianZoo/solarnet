@@ -6,8 +6,12 @@ import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
+import dev.martianzoo.pets.api.SystemClasses.OK
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
+import dev.martianzoo.pets.ast.Effect.Trigger.SubscribedTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -174,7 +178,46 @@ private constructor(
     knownClassNames.forEach { name ->
       getClass(name).baseType
     }
+    validateNoOkSubscriptions()
     return completed
+  }
+
+  /**
+   * Rejects subscriptions rooted at `Ok` or a nominal supertype, which are statically forbidden.
+   */
+  internal fun validateNoOkSubscriptions() {
+    val okClass = getClass(OK)
+    val declaringClasses =
+        if (masterSource == null) {
+          allKnownClasses()
+        } else {
+          premiseDeclarations.keys.mapTo(linkedSetOf(), ::getClass)
+        }
+    declaringClasses.forEach { declaringClass ->
+      declaringClass.declaration.effects.forEach { effect ->
+        val forbidden =
+            effect.trigger
+                .descendantsOfType<SubscribedTrigger>()
+                .map {
+                  when (it) {
+                    is OnGainOf -> it.expression
+                    is OnRemoveOf -> it.expression
+                  }
+                }
+                .firstOrNull { expression ->
+                  val triggerClass =
+                      if (expression.className == THIS) declaringClass
+                      else getClass(expression.className)
+                  okClass.isSubtypeOf(triggerClass)
+                }
+        if (forbidden != null) {
+          throw invalidPetDefinition(
+              "${declaringClass.className} effect `$effect` subscribes to $forbidden, " +
+                  "whose root is Ok or a nominal supertype of Ok"
+          )
+        }
+      }
+    }
   }
 
   private val queue = ArrayDeque<ClassName>()
@@ -479,6 +522,7 @@ private constructor(
       }
       frozenClasses = includedClassNames.mapTo(linkedSetOf(), ::getClass)
       frozen = true
+      premiseClasses.forEach { it.baseType }
       return this
     }
     knownClassNames.forEach { name ->

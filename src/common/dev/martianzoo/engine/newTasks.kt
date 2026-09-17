@@ -9,11 +9,12 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Each
-import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
+import dev.martianzoo.pets.ast.Instruction.Quantifier.AMAP
+import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.InstructionGroup
@@ -52,24 +53,35 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
     when (tree) {
       is InstructionGroup -> InstructionGroup.of(tree.instructions.map(::normalizeForTask))
       is Change if tree.gaining != DIE.expression -> tree
-      is Change -> throw DeadEndException("a Die instruction was reached")
+      is Change ->
+          if (tree.quantifier == OPTIONAL || tree.quantifier == AMAP) NoOp
+          else throw DeadEndException("a Die instruction was reached")
       is By -> {
         val inner = normalizeForTask(tree.inner)
-        if (inner is Then) {
-          inner.withInstructions(inner.instructions.map { By.createTree(it, tree.actor) })
-        } else {
-          By.createTree(inner, tree.actor)
+        when (inner) {
+          is NoOp -> NoOp
+          is Then ->
+              inner.withInstructions(inner.instructions.map { By.createTree(it, tree.actor) })
+          else -> By.createTree(inner, tree.actor)
         }
       }
-      is Each -> tree.copy(body = normalizeForTask(tree.body))
+      is Each ->
+          when (val body = normalizeForTask(tree.body)) {
+            is NoOp -> NoOp
+            else -> tree.copy(body = body)
+          }
       is Gated -> Gated.createTree(tree.gate, normalizeForTask(tree.inner))
       is Per -> {
         val inner = normalizeForTask(tree.inner)
-        tree.copy(
-            inner =
-                inner as? Instruction
-                    ?: throw TaskException("PER normalized to independent instructions: $inner")
-        )
+        if (inner is NoOp) {
+          NoOp
+        } else {
+          tree.copy(
+              inner =
+                  inner as? Instruction
+                      ?: throw TaskException("PER normalized to independent instructions: $inner")
+          )
+        }
       }
       is Or -> {
         val liveOptions =
@@ -84,10 +96,12 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
         Or.createTree(liveOptions)
       }
       is Then -> {
-        if ((tree.first as? Gain)?.gaining?.className == DIE) {
-          throw DeadEndException("a Die instruction was reached")
+        val live = tree.instructions.map(::normalizeForTask).filterNot { it is NoOp }
+        when (live.size) {
+          0 -> NoOp
+          1 -> live.single()
+          else -> tree.withInstructions(live)
         }
-        tree.withInstructions(tree.instructions.map(::normalizeForTask))
       }
       is NoOp -> NoOp
       is Transform -> throw ExpressionException("unhandled transform in task: $tree")
