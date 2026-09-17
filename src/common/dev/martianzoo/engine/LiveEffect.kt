@@ -113,7 +113,9 @@ private constructor(
     val cause = Cause(context.expression, triggerEvent.ordinal)
     val instruction =
         elaborator.evaluateProperties(
-            hit.specialize(effect.instruction),
+            effect.typeVariables
+                .expandNames()
+                .transformInstructionTree(hit.specialize(effect.instruction)),
             context.expression,
             contextualOwner,
         )

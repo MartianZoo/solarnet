@@ -26,7 +26,7 @@ ABSTRACT CLASS SoloObjective : Module {
   CLASS Tr63SoloObjective {
     This: BufferGasProject
 
-    CheckGameEnd IF 63 TerraformRating<Player>: Victory<Player>
+    CheckGameEnd IF 63 TerraformRating<Player AS Winner>: Victory<Winner>
   }
 }
 

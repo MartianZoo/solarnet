@@ -39,6 +39,7 @@ internal abstract class PetTokenizer {
 
   // Rule L2-2: these are the words the grammar itself uses, and none may be a class name. The
   // spellings are exact, so `Max`, `By` and `Has` remain perfectly good class names.
+  internal val _as = word("AS")
   internal val _by = word("BY")
   internal val _count = word("COUNT")
   internal val _each = word("EACH")

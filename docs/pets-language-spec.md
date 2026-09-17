@@ -267,11 +267,11 @@ Thus `GreeneryTile`, `Tharsis_2_2`, `A_foo`, `L1TradeTerminal`, `MC`, and `TOOLO
 > Covering both costs only the requirement that a name begin with a capital, which is what keeps
 > lowercase identifiers and prose labels out.
 
-**L2-2. Keywords are reserved and case-sensitive.** `ABSTRACT`, `BY`, `CLASS`, `COUNT`, `DEFAULT`,
-`EACH`, `EVAL`, `FROM`, `HAS`, `IF`, `MAX`, `NOT`, `OR`, `RANK`, `THEN` and `X`, together with the
-property-value words `Metric`, `Number` and `Requirement`, are the words the grammar itself uses, and
-none of them may be a class name. Because the reserved spellings are exact, `Max`, `By` and `Has` are
-perfectly good class names.
+**L2-2. Keywords are reserved and case-sensitive.** `ABSTRACT`, `AS`, `BY`, `CLASS`, `COUNT`,
+`DEFAULT`, `EACH`, `EVAL`, `FROM`, `HAS`, `IF`, `MAX`, `NOT`, `OR`, `RANK`, `THEN` and `X`, together
+with the property-value words `Metric`, `Number` and `Requirement`, are the words the grammar itself
+uses, and none of them may be a class name. Because the reserved spellings are exact, `Max`, `By`
+and `Has` are perfectly good class names.
 
 **L2-3. A property name is lowerCamelCase**: a lowercase letter followed by letters and digits.
 
@@ -292,7 +292,8 @@ shadow:
 | `X` | one open amount | one instruction, across the stages of a `THEN` (L6-14) |
 | an `EACH` or `RANK` selector | each selected component | that construct's body, shadowing an enclosing spelling (L6-10, L5-9) |
 | a refinement's domain | the candidate | that refinement (T8-3) |
-| a repeated abstract expression | one shared choice | its construct's settlement sites (T13-6) |
+| `Type AS Name` in an Effect trigger | one shared choice | that Effect (L8-12, T13-6) |
+| a repeated abstract expression in another choice construct | one shared choice | its construct's settlement sites (T13-7) |
 
 > **Non-normative example — generated special tiles.** `MiningRights_SpecialTile` must be referable
 > later by that exact global name when its placement bonus is inspected. Lexical scoping would make
@@ -757,8 +758,8 @@ never a way to do nothing. Declining belongs to `?` and `Ok` (L7-4).
 > transaction the card never offers.
 
 **L7-8. A shared type variable takes one value everywhere it appears.** Narrowing a sequence or a
-transmutation that repeats an abstract expression must supply one consistent value for it (T13-6,
-T13-7); two different values are rejected.
+transmutation that repeats an abstract expression must supply one consistent value for it (T13-7);
+two different values are rejected.
 
 > **Non-normative example — Utopia Invest.** `PROD[StandardResource] -> 4 StandardResource` means
 > reduce one chosen production track and gain four units of that same resource. Binding the two
@@ -908,6 +909,16 @@ effect's own colon stays unambiguous.
 > effect's trigger separator from a requirement gate inside its result. Without parentheses, parsing
 > the rendered form could attach the gate to the trigger and produce a different rule.
 
+**L8-12. `Type AS Name` explicitly names an Effect-local Type variable.** The declaration must occur
+in the trigger, and the bare `Name` may then replace the complete declared expression anywhere else
+in that Effect. A name has the class-name shape from L2-1, so one letter is enough, but it must not
+be a Type name in the Catalog. One Effect may declare a name only once and must use every name it
+declares. A use is bare: it cannot have arguments or a refinement.
+
+Repeating the Type without naming it does not link an Effect trigger to its instruction (T13-6).
+For example, Manutech writes `PROD[StandardResource AS SR]: SR`: the production increase chooses the
+resource kind, and the instruction uses that same choice.
+
 ---
 
 ## 9. Actions
@@ -1014,9 +1025,9 @@ surrounding group (L6-8).
 **L10-4. A trigger block wraps only a gain or removal**, never `OR`, `BY` or `IF` — the mark applies
 to the event being watched, not to the restrictions on it.
 
-> **Non-normative example — Manutech.** `PROD[StandardResource]: StandardResource` listens for a
-> production increase of a chosen resource. If `PROD` swallowed `BY` or `IF`, the production handler
-> would be asked to rewrite actor attribution or state conditions that are not production changes.
+> **Non-normative example — Manutech.** `PROD[StandardResource AS SR]: SR` listens for a production
+> increase of a chosen resource. If `PROD` swallowed `BY` or `IF`, the production handler would be
+> asked to rewrite actor attribution or state conditions that are not production changes.
 
 **L10-5. Nesting a block inside a block of the same kind is representable but not processable.** The
 syntax admits `PROD[PROD[Plant]]`; any handler for that kind rejects it, because the second mark

@@ -449,8 +449,9 @@ universe (T12-4).
 and this carries into dependency positions:
 `Production<Class<Steel>> <: Production<Class<Metal>>`.
 
-> **Non-normative example — Manutech.** Its `PROD[StandardResource]: StandardResource` trigger must
-> observe a steel-production increase and pay steel. That works because `Class<Steel>` narrows
+> **Non-normative example — Manutech.** Its
+> `PROD[StandardResource AS SR]: SR` trigger must observe a steel-production
+> increase and pay steel. That works because `Class<Steel>` narrows
 > `Class<StandardResource>` through the same covariance as ordinary dependencies.
 
 **T4-4. `representedClass`** returns the named class, and is absent for every type that is not a class
@@ -1146,10 +1147,10 @@ overlapping Class's Type is uninhabited. Enumeration under that difference remai
 
 ## 13. Type variables
 
-Repeated icons in a game rule usually mean one shared choice, not two independent ones:
+An Effect can name the shared choice that connects its trigger to its instruction:
 
 ```text
-PROD[StandardResource]: StandardResource
+PROD[StandardResource AS SR]: SR
 ```
 
 "When you gain production of a resource, gain one of *that* resource." The two occurrences are one
@@ -1168,11 +1169,12 @@ written.
 A variable's identity is its declaration and scope — never its class name. `Player` can name several
 unrelated variables in different rules.
 
-There are two sources of a shared choice: a class header declares one (T13-2 to T13-5), or authored
-syntax repeats one across places that must agree (T13-6 to T13-9). A trigger supplies the concrete
-value when it matches; `BY` is one place that value can come from.
+There are three sources of a shared choice: a class header declares one (T13-2 to T13-5), an Effect
+names one explicitly (T13-6), or authored syntax repeats one across other places that must agree
+(T13-7 to T13-9). A trigger supplies the concrete value when it matches; `BY` is one place that
+value can come from.
 
-Three properties hold of both sources, and most of the rules below are consequences of them:
+Three properties hold of all three sources, and most of the rules below are consequences of them:
 
 1. **An occurrence either chooses, matches, or observes.** A change's target chooses a value; a
    trigger matches one from the event it responds to; a requirement, a gate, the expression a metric
@@ -1244,30 +1246,37 @@ dependency does supply one — `CLASS Leaf : Badge<Alice>` supplies `Alice` for 
 > `StandardResource` to steel: its initial stock, production, and mirrored player transfers. Merely
 > narrowing the header would leave a supposedly steel reserve operating on arbitrary resources.
 
-### Inferred variables
+### Effect-local and inferred variables
 
-**T13-6. Repetition across choice regions.** An authored construct is divided into **regions** (T13-7).
-An abstract expression whose identical spelling appears in at least two regions declares one variable,
-and every occurrence of that spelling — including further ones in the same region — uses it.
+**T13-6. An Effect names a shared choice explicitly.** `Type AS Name` declares a variable in the
+Effect's trigger. A bare `Name` elsewhere in the same Effect uses the declaration's complete
+structural expression. The name has class-name syntax, including a single capital letter, but must
+not name any Type in the Catalog. It is local to the Effect, must be unique there, and must be used
+at least once. A reference cannot have arguments or a refinement.
 
 Binding it substitutes at every occurrence at once:
-`Production<Class<StandardResource>>: StandardResource` bound to `Plant` becomes
+`Production<Class<StandardResource AS R>>: R` bound to `Plant` becomes
 `Production<Class<Plant>>: Plant`.
 
 > **Non-normative example — Manutech.** The production increase is one choice region and the gained
-> resource is another. Their repeated spelling means “that same resource”; without cross-region
-> inference, increasing titanium production could reward heat.
+> resource is another. Its explicit `SR` name says “that same resource”; without that
+> link, increasing titanium production could reward heat.
 
-**T13-7. The regions of each construct.**
+Repeating an abstract expression without `AS` does not declare an Effect variable. When the
+instruction leaves the Effect's lexical scope, its references have already been expanded to the
+chosen structural Type.
+
+**T13-7. Repetition across the choice regions of other constructs.** An abstract expression whose
+identical spelling appears in at least two regions below declares one variable, and every occurrence
+of that spelling — including further ones in the same region — uses it.
 
 | Construct | Regions |
 | --- | --- |
-| Effect | the trigger; the instruction |
 | Action | the cost; the result |
 | `THEN` sequence | each stage |
 | Transmutation (`A FROM B`) | the gained side; the removed side — but *not* the two whole roots |
 
-The first three are settlement sites: parts of one rule that are settled separately, and across
+The first two are settlement sites: parts of one rule that are settled separately, and across
 which "the same one" is worth saying. An action's two regions are the two stages its arrow lowers to
 (L9-2), and `X` is shared across exactly these same regions (L6-14).
 
@@ -1282,11 +1291,11 @@ production, because the whole production is what the change is replacing.
 > destination would be forced to the same track and the card would cancel itself; only repeated
 > proper subexpressions are equality claims.
 
-> **Non-normative design note — why spelling.** Repetition is meaningful because the physical icon
-> grammar commonly repeats one icon to mean “the same one.” Requiring the *same authored spelling*
-> keeps that claim visible in the source: resolution and default insertion cannot silently make two
-> differently written icons become one shared choice, and an author who means two independent
-> choices can simply write them differently.
+> **Non-normative design note — why spelling remains here.** Repetition is meaningful because the
+> physical icon grammar commonly repeats one icon to mean “the same one.” Requiring the *same
+> authored spelling* keeps that claim visible in the source: resolution and default insertion
+> cannot silently make two differently written icons become one shared choice, and an author who
+> means two independent choices can simply write them differently.
 
 **T13-8. Where repetition does not introduce another variable.** Repetition is evidence of one
 shared choice only where the occurrences can be settled by that choice. The cases below introduce no
@@ -1314,38 +1323,37 @@ choose, rather than ranging over people of its own.
 
 **T13-9. Actor specialization.** A `BY` selector constrains the Actor recorded on the triggering
 event. A simple, positive, abstract Actor expression in that position is specialized to the concrete
-Actor before the inner trigger is matched. It is the declaration occurrence for every identical
-authored occurrence in that Effect, including occurrences elsewhere in the trigger and in the
-instruction. If there is no other occurrence, recording that declaration has no additional language
-meaning: the selector simply tests the Actor.
+Actor before the inner trigger is matched. It is a one-occurrence declaration unless it has an
+explicit name; `AS` references then use the value supplied by the event Actor. With no reuse,
+recording that declaration has no additional language meaning: the selector simply tests the Actor.
 
 Other selectors do not become declarations merely because they follow `BY`. `BY Anyone` alone is the
-unrestricted wildcard described after T6-6, and a refined selector alone is a constraint. If an
-identical refined selector is repeated across the trigger and instruction, the ordinary co-reference
-rule T13-6 applies. Repeated `Anyone` is deliberately unspecified (Appendix B).
+unrestricted wildcard described after T6-6, and a refined selector alone is a constraint. Reusing
+any Actor selector elsewhere in the Effect requires an explicit name, as in
+`BY Player AS ActingPlayer`; repeating its Type spelling does not link it. `BY Anyone` remains a
+wildcard unless it is explicitly named.
 
 Where an actor variable is visible, an exclusion may use it, and the difference is tested only after
 the actor is bound:
 
 ```text
-Notice<Owner(NOT Player)> BY Player: Heat<Owner(NOT Player)>
+Notice<Owner(NOT ActingPlayer) AS Other> BY Player AS ActingPlayer: Heat<Other> BY ActingPlayer
 ```
 
-Binding `Player` to `Player1` gives
-`Notice<Owner(NOT Player1)> BY Player1: Heat<Owner(NOT Player1)>`, and the remaining
-`Owner(NOT Player1)` is itself a variable that may then capture a particular other player. This keeps
+Binding `ActingPlayer` to `Player1` gives
+`Notice<Owner(NOT Player1) AS Other> BY Player1: Heat<Other> BY Player1`, and the remaining
+`Other` variable may then capture a particular other player. This keeps
 "anyone but the actor" distinct from "the particular other player this event was about".
 
 > **Non-normative examples — Hydrologist and Aphrodite.** Hydrologist says
-> `OceanTile BY Player: OceanCredit<Player, OceanTile>`. When Player 2 places an ocean, ordinary
-> trigger specialization supplies `Player2` for both `Player` occurrences, so the credit belongs to
-> the placer. Aphrodite says `VenusStep BY Anyone: 2 MC`; it repeats no `Anyone`, so the wildcard only
+> `OceanTile AS Ocean BY Player AS Placer: OceanCredit<Placer, Ocean>`. When Player 2 places an
+> ocean, trigger specialization supplies `Player2` for `Placer`, so the credit belongs to
+> the placer. Aphrodite says `VenusStep BY Anyone: 2 MC`; it does not name the wildcard, so it only
 > removes the Actor restriction and the money retains Aphrodite's contextual owner.
 
-> **Non-normative design note — `BY` uses ordinary trigger specialization.** `BY` does not introduce
-> a separate kind of co-reference. It identifies the event field that supplies the value, and the
-> ordinary authored-occurrence rules identify where that value is reused. Specializing it before the
-> inner trigger matters when the Actor is mentioned in a `NOT` there. With no reuse, whether an
+> **Non-normative design note — `BY` supplies an explicitly named value.** `BY` identifies the event
+> field that supplies the value; `AS` identifies where that value is reused. Specializing it before
+> the inner trigger matters when the Actor is mentioned in a `NOT` there. With no reuse, whether an
 > implementation records a one-occurrence variable is bookkeeping rather than language semantics.
 
 ### Binding
@@ -1388,7 +1396,3 @@ variable sits on captures nothing, rather than guessing from a coincidentally si
 - **Exception messages.** Rules name exception *types* where the type is part of the contract.
 - **Evaluation order and caching.** Resolution memoizes, and several derived values are computed
   lazily; neither is observable except through T1-6.
-- **A repeated `Anyone` Actor selector.** `BY Anyone` alone is an unrestricted wildcard and includes
-  Admin. `Anyone` elsewhere is the root of the ownership hierarchy, which does not include Admin.
-  No canonical rule repeats `Anyone` across a `BY` selector and its instruction, and this
-  specification does not yet choose how such an occurrence would capture a non-Owner Actor.

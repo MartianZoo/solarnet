@@ -1,11 +1,14 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.ANYONE
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.withTypeVariables
@@ -22,11 +25,22 @@ public fun ClassTable.inferTypeVariables(): PetTransformer =
         val transformed = transformChildren(node)
         return when (transformed) {
           is Effect -> {
+            val namedDeclarations =
+                transformed.trigger.descendantsOfType<Expression>().filter {
+                  it.typeVariableName is Declaration
+                }
+            namedDeclarations.forEach { declaration ->
+              val name = declaration.typeVariableName!!.name
+              if (name in allClassNames) {
+                throw ExpressionException("Type-variable name $name is already a Type name")
+              }
+            }
             val actorClass = resolve(ACTOR.expression).rootClass
             val actorDeclarations =
                 transformed.trigger.descendantsOfType<ByTrigger>().map(ByTrigger::by).filter {
                     selector ->
                   selector.simple &&
+                      selector.typeVariableName == null &&
                       selector.className != ANYONE &&
                       transformed.typeVariables.variableAt(selector) == null &&
                       resolve(selector).rootClass.let { it.abstract && it.isSubtypeOf(actorClass) }
@@ -37,6 +51,8 @@ public fun ClassTable.inferTypeVariables(): PetTransformer =
                         listOf(transformed.trigger, transformed.instruction),
                         this@inferTypeVariables,
                         explicitDeclarations = actorDeclarations,
+                        namedDeclarations = namedDeclarations,
+                        inferRepeatedExpressions = false,
                         visibleScope = transformed.typeVariables,
                     )
             )

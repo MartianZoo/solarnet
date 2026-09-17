@@ -1,6 +1,8 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration as SyntaxDeclaration
 
 /**
  * One authored type variable: a shared choice with one [declaration] and zero or more [usages],
@@ -45,6 +47,10 @@ internal constructor(
    * [rule T13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
   public val declaration: Declaration = Declaration(this, declarationSite)
+
+  /** The explicit source name assigned with `AS`, or null for an inferred variable. */
+  public val name: ClassName? =
+      (declaration.expression.typeVariableName as? SyntaxDeclaration)?.name
 
   /**
    * Every later occurrence interpreted as a use of the same choice, in authored order ([rule
@@ -145,5 +151,5 @@ internal constructor(
    * Returns the declaration spelling; variable identity remains its declaration and scope under
    * [rule T13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
-  override fun toString(): String = "${declaration.expression}"
+  override fun toString(): String = name?.toString() ?: "${declaration.expression}"
 }

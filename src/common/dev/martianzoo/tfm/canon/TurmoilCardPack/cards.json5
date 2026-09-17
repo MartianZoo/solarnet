@@ -9,7 +9,7 @@
           "immediate": "54 MC",
           "effects": [
             "OceanTile BY Anyone: PROD[1 MC]",
-            "Placement<MarsArea>: 1 MC / Neighbor<OceanTile, MarsArea>"
+            "Placement<MarsArea AS There>: 1 MC / Neighbor<OceanTile, There>"
           ],
         },
         {

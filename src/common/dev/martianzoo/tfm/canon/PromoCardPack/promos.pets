@@ -6,7 +6,7 @@ CLASS PromoCardPack : Module {
 
 "Asks its owner to choose an ocean area while preserving the Player who places it"
 CLASS ChooseOceanArea : Owned, Signal {
-  This BY Actor: OceanTile<> BY Actor
+  This BY Actor AS PerformingActor: OceanTile<> BY PerformingActor
 }
 
 "The moving marker placed by Mars Nomads"
@@ -23,10 +23,10 @@ CLASS MyProductionWasDecreased<Class<StandardResource>, Player, GenerationScope>
 
 CLASS ResourceRemovalWatcher<Class<Resource>> : System {
   HAS =1 This
-  -X Resource<Owner(NOT Player)> BY Player:: MyResourceWasRemoved<Owner(NOT Player), Class<Resource>, Player>.
+  -X Resource<Owner(NOT Player) AS Victim> BY Player AS Attacker:: MyResourceWasRemoved<Victim, Class<Resource>, Attacker>.
 }
 
 CLASS ProductionDecreaseWatcher<Class<StandardResource>> : System {
   HAS =1 This
-  -X Production<Owner(NOT Player), Class<StandardResource>> BY Player:: MyProductionWasDecreased<Owner(NOT Player), Class<StandardResource>, Player>.
+  -X Production<Owner(NOT Player) AS Victim, Class<StandardResource>> BY Player AS Attacker:: MyProductionWasDecreased<Victim, Class<StandardResource>, Attacker>.
 }

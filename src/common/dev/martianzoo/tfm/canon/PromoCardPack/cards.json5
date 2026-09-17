@@ -41,7 +41,7 @@
           "name": "MonsInsurance",
           "immediate": "48 MC, PROD[4 MC], EACH Player(NOT Owner) { PROD[-2 MC] BY Owner }",
           "effects": [
-            "MyResourceWasRemoved<Anyone> OR MyProductionWasDecreased<Anyone>: 3 MC<Anyone FROM Owner>.",
+            "MyResourceWasRemoved<Anyone AS Victim> OR MyProductionWasDecreased<Victim>: 3 MC<Victim FROM Owner>.",
           ],
         },
         {
@@ -86,7 +86,7 @@
             "MicrobeTag<Anyone>: 2 MC"
           ],
           "components": [
-            "CLASS Splicer<SpliceTacticalGenomics> { MicrobeTag<CardFront>: Microbe<CardFront> OR 2 MC }"
+            "CLASS Splicer<SpliceTacticalGenomics> { MicrobeTag<CardFront AS ThatCard>: Microbe<ThatCard> OR 2 MC }"
           ],
         },
         {

@@ -8,6 +8,8 @@ import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
@@ -115,6 +117,22 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
               }
       )
 
+  /**
+   * Expands references to explicitly named variables back to their structural expressions when a
+   * node leaves this lexical scope.
+   */
+  public fun expandNames(): PetTransformer {
+    val names = variables.mapNotNull(TypeVariable::name).toSet()
+    return object : PetTransformer() {
+      override fun transformNode(node: PetNode): PetNode {
+        if (node is Expression && (node.typeVariableName as? Reference)?.name in names) {
+          return transformChildren(node.copy(typeVariableName = null))
+        }
+        return transformChildren(node)
+      }
+    }
+  }
+
   internal operator fun plus(that: TypeVariableScope): TypeVariableScope =
       when {
         isEmpty -> that
@@ -185,24 +203,26 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
   ): Map<TypeVariable, GroundType> {
     val captures = mutableMapOf<TypeVariable, MutableList<GroundType>>()
 
+    fun Expression.matchesAfterNameConsumption(that: Expression): Boolean =
+        this == that ||
+            ((typeVariableName == null || that.typeVariableName == null) &&
+                copy(typeVariableName = null) == that.copy(typeVariableName = null))
+
+    fun Entry.matchesAfterNameConsumption(expression: Expression): Boolean =
+        currentExpressions.values.any { it.matchesAfterNameConsumption(expression) } ||
+            currentExpressions.keys.any { occurrence ->
+              occurrence.expression.matchesAfterNameConsumption(expression)
+            }
+
     fun record(expression: Expression, captured: GroundType) {
-      entries.forEach { entry ->
-        if (
-            entry.currentExpressions.values.any { it === expression } ||
-                entry.currentExpressions.keys.any { it.expression == expression }
-        ) {
-          captures.getOrPut(entry.variable, ::mutableListOf) += captured
-        }
+      val identical = entries.filter { entry ->
+        entry.currentExpressions.values.any { it === expression }
       }
-      if (
-          entries.none { entry ->
-            entry.currentExpressions.values.any { it === expression } ||
-                entry.currentExpressions.keys.any { it.expression == expression }
-          }
-      ) {
-        val matching = entries.filter { entry -> expression in entry.currentExpressions.values }
-        if (matching.size == 1)
-            captures.getOrPut(matching.single().variable, ::mutableListOf) += captured
+      val matching = identical.ifEmpty {
+        entries.filter { it.matchesAfterNameConsumption(expression) }
+      }
+      matching.forEach { entry ->
+        captures.getOrPut(entry.variable, ::mutableListOf) += captured
       }
     }
 
@@ -341,6 +361,8 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         classTable: ClassTable,
         includeRegionRoots: Boolean = true,
         explicitDeclarations: List<Expression> = emptyList(),
+        namedDeclarations: List<Expression> = emptyList(),
+        inferRepeatedExpressions: Boolean = true,
         visibleScope: TypeVariableScope = EMPTY,
     ): TypeVariableScope {
       data class Found(
@@ -399,47 +421,58 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         return classTable.resolve(expression.copy(refinement = nonStructuralRefinement))
       }
 
-      val explicitIdentities = explicitDeclarations
-      val explicitEntries = explicitDeclarations.map { expression ->
-        val declaration = occurrences.single { it.expression === expression }
-        val declarationIdentity = expression
-        val usages =
-            occurrences
-                .filter { found ->
-                  found !== declaration &&
-                      found.expression.sameAuthoredTypeExpressionAs(declarationIdentity)
-                }
-                .sortedBy(Found::ordinal)
-        val variable =
-            TypeVariable(
-                classTable.resolve(expression),
-                Site(
-                    expression,
-                    declaration.region,
-                    declaration.ordinal,
-                    interpretedGroundType = classTable.resolve(expression),
-                ),
-                usages.map { usage ->
-                  Site(
-                      usage.expression,
-                      usage.region,
-                      usage.ordinal,
-                      interpretedGroundType = classTable.resolve(usage.expression),
-                  )
-                },
-            )
-        Entry(variable, variable.occurrences.associateWith { it.expression })
-      }
+      val allExplicitDeclarations = explicitDeclarations + namedDeclarations
+      val explicitIdentities = allExplicitDeclarations
+      val explicitEntries =
+          allExplicitDeclarations
+              .map { expression ->
+                val declaration = occurrences.single { it.expression === expression }
+                val declaredName = (expression.typeVariableName as? Declaration)?.name
+                val usages =
+                    occurrences
+                        .filter { found ->
+                          found !== declaration &&
+                              if (declaredName == null) {
+                                inferRepeatedExpressions &&
+                                    found.expression.sameAuthoredTypeExpressionAs(expression)
+                              } else {
+                                (found.expression.typeVariableName as? Reference)?.name ==
+                                    declaredName
+                              }
+                        }
+                        .sortedBy(Found::ordinal)
+                val variable =
+                    TypeVariable(
+                        interpretedGroundType(declaration),
+                        Site(
+                            expression,
+                            declaration.region,
+                            declaration.ordinal,
+                            interpretedGroundType = interpretedGroundType(declaration),
+                        ),
+                        usages.map { usage ->
+                          Site(
+                              usage.expression,
+                              usage.region,
+                              usage.ordinal,
+                              interpretedGroundType = interpretedGroundType(usage),
+                          )
+                        },
+                    )
+                Entry(variable, variable.occurrences.associateWith { it.expression })
+              }
+              .sortedBy { it.variable.declaration.ordinal }
 
       val grouped =
           occurrences
               .filterNot(Found::directlyCounted)
+              .filter { it.expression.typeVariableName == null }
               .filterNot { found ->
                 explicitIdentities.any(found.expression::sameAuthoredTypeExpressionAs)
               }
               .filterNot { visibleScope.variableAt(it.expression) != null }
               .groupBy { it.expression.toString() }
-      val candidates =
+      val repeatedCandidates =
           grouped
               .filter { (_, found) ->
                 val source = found.first().expression
@@ -450,6 +483,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
               }
               .toList()
               .sortedBy { (_, found) -> found.minOf { it.ancestors.size } }
+      val candidates = if (inferRepeatedExpressions) repeatedCandidates else emptyList()
 
       val selected = linkedSetOf<String>()
       val entries = buildList {

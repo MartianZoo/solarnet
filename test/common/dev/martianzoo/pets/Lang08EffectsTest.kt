@@ -267,4 +267,25 @@ internal class Lang08EffectsTest {
   internal fun `L8-11 an effect's descendant count is its whole subtree`() {
     parse<Effect>("Steel<Steel>: PROD[(1 Heat FROM Plant) OR MC]").descendantCount() shouldBe 20
   }
+
+  // L8-12 Explicit Type-variable names
+
+  @Test
+  internal fun `L8-12 a trigger expression can name a Type variable used by the Effect`() {
+    roundTrip<Effect>("StandardResource AS R: R")
+    roundTrip<Effect>(
+        "Notice<Owner(NOT ActingPlayer) AS Victim> BY Player AS ActingPlayer: Heat<Victim>"
+    )
+  }
+
+  @Test
+  internal fun `L8-12 a Type-variable name is local to one Effect`() {
+    shouldThrow<PetSyntaxException> { parse<Effect>("StandardResource AS R: Plant") }
+    shouldThrow<PetSyntaxException> { parse<Effect>("StandardResource: Plant AS R") }
+    shouldThrow<PetSyntaxException> {
+      parse<Effect>("StandardResource AS R OR StandardResource AS R: R")
+    }
+    shouldThrow<PetSyntaxException> { parse<Effect>("StandardResource AS R: R<Plant>") }
+    shouldThrow<PetSyntaxException> { parse<Effect>("Notice<B AS A, A AS B>: A") }
+  }
 }

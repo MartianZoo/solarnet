@@ -2,6 +2,7 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.GameReader
@@ -38,7 +39,7 @@ internal class Spec13TypeVariablesTest {
       resources.inferTypeVariables().transformEffect(parse(source))
 
   private fun names(scope: TypeVariableScope) =
-      scope.variables.map { "${it.declaration.expression}" }
+      scope.variables.map { it.name?.toString() ?: "${it.declaration.expression}" }
 
   // T13-1 A variable is a kind of type
 
@@ -357,33 +358,45 @@ internal class Spec13TypeVariablesTest {
     }
   }
 
-  // T13-6 Inferred variables
+  // T13-6 Explicit Effect variables
 
   @Test
-  internal fun `T13-6 one spelling repeated across two choice regions declares one variable`() {
-    val trade = effect("StandardResource: StandardResource")
+  internal fun `T13-6 AS declares an Effect variable and its name uses it`() {
+    val trade = effect("StandardResource AS R: R")
     val variable = trade.typeVariables.variables.single()
 
+    variable.name shouldBe cn("R")
     variable.occurrences.map { "${it.expression}" } shouldContainExactly
-        listOf("StandardResource", "StandardResource")
+        listOf("StandardResource AS R", "R")
   }
 
   @Test
-  internal fun `T13-6 an expression appearing in only one region declares nothing`() {
+  internal fun `T13-6 repeated Effect spelling alone declares nothing`() {
+    effect("StandardResource: StandardResource").typeVariables.variables shouldBe listOf()
     effect("StandardResource: Plant").typeVariables.variables shouldBe listOf()
-    effect("StandardResource: Ok").typeVariables.variables shouldBe listOf()
+  }
+
+  @Test
+  internal fun `T13-6 a variable name cannot be a Type name`() {
+    shouldThrow<ExpressionException> { effect("StandardResource AS Plant: Plant") }
+    shouldThrow<ExpressionException> {
+      loadTypes(
+          "ABSTRACT CLASS StandardResource { CLASS Plant }",
+          "CLASS Observer { StandardResource AS Plant: Plant }",
+      )
+    }
   }
 
   @Test
   internal fun `T13-6 all occurrences in one region join the same variable`() {
-    val many = effect("StandardResource: StandardResource, StandardResource")
+    val many = effect("StandardResource AS R: R, R")
 
     many.typeVariables.variables.single().occurrences.size shouldBe 3
   }
 
   @Test
   internal fun `T13-6 the value chosen for a variable reaches every occurrence`() {
-    val trade = effect("Production<Class<StandardResource>>: StandardResource")
+    val trade = effect("Production<Class<StandardResource AS R>>: R")
     val variable = trade.typeVariables.variables.single()
 
     trade.typeVariables
@@ -396,8 +409,7 @@ internal class Spec13TypeVariablesTest {
 
   @Test
   internal fun `T13-7 an effect's regions are its trigger and its instruction`() {
-    names(effect("StandardResource: StandardResource").typeVariables) shouldContainExactly
-        listOf("StandardResource")
+    names(effect("StandardResource AS R: R").typeVariables) shouldContainExactly listOf("R")
   }
 
   @Test
@@ -473,12 +485,11 @@ internal class Spec13TypeVariablesTest {
         )
 
     // `CardFront<Owner>` repeats, so the nested `Owner` text does not declare its own variable.
-    names(
+    val instruction =
         table
             .inferTypeVariables()
-            .transformEffect(parse<Effect>("CardFront<Owner>: Notice<CardFront<Owner>>"))
-            .typeVariables
-    ) shouldContainExactly listOf("CardFront<Owner>")
+            .transformInstruction(parse("CardFront<Owner> THEN Notice<CardFront<Owner>>")) as Then
+    names(instruction.typeVariables) shouldContainExactly listOf("CardFront<Owner>")
   }
 
   @Test
@@ -491,11 +502,10 @@ internal class Spec13TypeVariablesTest {
         )
 
     // `Tile` and `Tile<Area>` resolve alike but are different authored names.
-    table
-        .inferTypeVariables()
-        .transformEffect(parse<Effect>("Tile: Notice<Tile<Area>>"))
-        .typeVariables
-        .variables shouldBe listOf()
+    val instruction =
+        table.inferTypeVariables().transformInstruction(parse("Tile THEN Notice<Tile<Area>>"))
+            as Then
+    instruction.typeVariables.variables shouldBe listOf()
   }
 
   @Test
@@ -570,15 +580,12 @@ internal class Spec13TypeVariablesTest {
 
     // `Duo<Area, Person>` and `Duo<Person, Area>` are different authored names, so the shared
     // variables are the two inner ones.
-    names(
-            table
-                .inferTypeVariables()
-                .transformEffect(
-                    parse<Effect>("Notice<Duo<Area, Person>>: Token<Duo<Person, Area>>")
-                )
-                .typeVariables
-        )
-        .toSet() shouldBe setOf("Area", "Person")
+    val instruction =
+        table
+            .inferTypeVariables()
+            .transformInstruction(parse("Notice<Duo<Area, Person>> THEN Token<Duo<Person, Area>>"))
+            as Then
+    names(instruction.typeVariables).toSet() shouldBe setOf("Area", "Person")
   }
 
   // T13-9 Actor selectors
@@ -602,6 +609,13 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
+  internal fun `T13-9 repeating an unnamed actor Type does not reuse its value`() {
+    val bound = actorEffect("Heat BY Player: Notice<Player>")
+
+    bound.typeVariables.variables.single().occurrences.size shouldBe 1
+  }
+
+  @Test
   internal fun `T13-9 Anyone and a refined selector are filters, not binders`() {
     names(actorEffect("Heat BY Anyone: Ok").typeVariables) shouldContainExactly listOf()
     names(actorEffect("Heat BY Player(NOT Owner): Ok").typeVariables) shouldContainExactly listOf()
@@ -609,19 +623,19 @@ internal class Spec13TypeVariablesTest {
 
   @Test
   internal fun `T13-9 an exclusion may use the actor variable, and is tested after binding`() {
-    val bound = actorEffect("Notice<Owner(NOT Player)> BY Player: Heat<Owner(NOT Player)>")
-    val actor = bound.typeVariables.variables.single { "${it.declaration.expression}" == "Player" }
-    val event =
-        bound.typeVariables.variables.single {
-          "${it.declaration.expression}" == "Owner(NOT Player)"
-        }
+    val bound =
+        actorEffect(
+            "Notice<Owner(NOT ActingPlayer) AS Other> BY Player AS ActingPlayer: Heat<Other>"
+        )
+    val actor = bound.typeVariables.variables.single { it.name == cn("ActingPlayer") }
+    val event = bound.typeVariables.variables.single { it.name == cn("Other") }
 
     actor.occurrences.size shouldBe 3
     event.occurrences.size shouldBe 2
     bound.typeVariables
         .bind(mapOf(actor to actors.resolve(te("Player1"))))
         .transformEffect(bound)
-        .toString() shouldBe "Notice<Owner(NOT Player1)> BY Player1: Heat<Owner(NOT Player1)>"
+        .toString() shouldBe "Notice<Owner(NOT Player1) AS Other> BY Player1: Heat<Other>"
   }
 
   @Test
@@ -637,9 +651,11 @@ internal class Spec13TypeVariablesTest {
         table
             .inferTypeVariables()
             .transformEffect(
-                parse<Effect>("Resource<Owner(NOT Player)> BY Player: Notice<Owner(NOT Player)>")
+                parse<Effect>(
+                    "Resource<Owner(NOT ActingPlayer) AS Other> BY Player AS ActingPlayer: Notice<Other>"
+                )
             )
-    val actor = bound.typeVariables.variables.single { "${it.declaration.expression}" == "Player" }
+    val actor = bound.typeVariables.variables.single { it.name == cn("ActingPlayer") }
     val afterActor =
         bound.typeVariables
             .bind(mapOf(actor to table.resolve(te("Player1"))))
@@ -647,11 +663,12 @@ internal class Spec13TypeVariablesTest {
     val event = afterActor.typeVariables.variables.single()
 
     event.bound shouldBe table.resolve(te("Owner"))
-    "${event.declaration.expression}" shouldBe "Owner(NOT Player)"
+    "${afterActor.typeVariables.expressionOf(event.declaration)}" shouldBe
+        "Owner(NOT Player1) AS Other"
 
     val captured =
         afterActor.typeVariables.bindingsFrom(
-            parse("Resource<Owner(NOT Player1)>"),
+            afterActor.trigger.descendantsOfType<Expression>().first(),
             table.resolve(parse("Resource<Owner(NOT Player1)>")),
             table.resolve(parse("Resource<Passive>")),
         )
@@ -673,7 +690,7 @@ internal class Spec13TypeVariablesTest {
     val bound =
         table
             .inferTypeVariables()
-            .transformEffect(parse<Effect>("StandardResource: Notice<StandardResource>, Steel"))
+            .transformEffect(parse<Effect>("StandardResource AS R: Notice<R>, Steel"))
     val variable = bound.typeVariables.variables.single()
 
     bound.typeVariables
@@ -693,7 +710,7 @@ internal class Spec13TypeVariablesTest {
     val bound =
         table
             .inferTypeVariables()
-            .transformEffect(parse<Effect>("StandardResource: Notice<StandardResource>"))
+            .transformEffect(parse<Effect>("StandardResource AS R: Notice<R>"))
     val variable = bound.typeVariables.variables.single()
 
     shouldThrow<NarrowingException> {
@@ -712,9 +729,7 @@ internal class Spec13TypeVariablesTest {
     val bound =
         table
             .inferTypeVariables()
-            .transformEffect(
-                parse<Effect>("StandardResource(HAS Marker): Token<StandardResource(HAS Marker)>")
-            )
+            .transformEffect(parse<Effect>("StandardResource(HAS Marker) AS R: Token<R>"))
     val variable = bound.typeVariables.variables.single()
     val world = RecordingWorld(answer = true)
 
@@ -732,16 +747,17 @@ internal class Spec13TypeVariablesTest {
 
   @Test
   internal fun `T13-11 a scope reports the variables and spellings visible in it`() {
-    val trade = effect("StandardResource: StandardResource")
+    val trade = effect("StandardResource AS R: R")
     val scope = trade.typeVariables
     val variable = scope.variables.single()
 
     scope.isEmpty shouldBe false
     TypeVariableScope.EMPTY.isEmpty shouldBe true
-    scope.expressionsOf(variable).map { "$it" } shouldContainExactly listOf("StandardResource")
-    "${scope.expressionOf(variable.declaration)}" shouldBe "StandardResource"
-    scope.variableAt(parse<Expression>("StandardResource")) shouldBe variable
-    scope.variableDeclaredAt(parse<Expression>("StandardResource")) shouldBe variable
+    scope.expressionsOf(variable).map { "$it" }.toSet() shouldBe setOf("StandardResource AS R", "R")
+    "${scope.expressionOf(variable.declaration)}" shouldBe "StandardResource AS R"
+    scope.variableAt(parse<Expression>("R")) shouldBe variable
+    scope.variableDeclaredAt(trade.trigger.descendantsOfType<Expression>().first()) shouldBe
+        variable
     scope.variableAt(parse<Expression>("Plant")) shouldBe null
   }
 

@@ -41,6 +41,7 @@ internal class Lang02NamesTest {
   private val reserved =
       listOf(
           "ABSTRACT",
+          "AS",
           "BY",
           "CLASS",
           "COUNT",

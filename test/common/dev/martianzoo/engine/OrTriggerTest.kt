@@ -105,12 +105,12 @@ private object OrProbeDeclarations : TfmCatalog() {
 
               CLASS LeftFirstOrProbe {
                 HAS =1 This
-                LeftSpecializedSignal OR RightSpecializedSignal IF =1 LeftSpecializedSignal: LeftFirstReward<LeftSpecializedSignal, RightSpecializedSignal>
+                LeftSpecializedSignal AS Left OR RightSpecializedSignal AS Right IF =1 Left: LeftFirstReward<Left, Right>
               }
 
               CLASS RightFirstOrProbe {
                 HAS =1 This
-                RightSpecializedSignal OR LeftSpecializedSignal IF =1 RightSpecializedSignal: RightFirstReward<LeftSpecializedSignal, RightSpecializedSignal>
+                RightSpecializedSignal AS Right OR LeftSpecializedSignal AS Left IF =1 Right: RightFirstReward<Left, Right>
               }
               """
                   .trimIndent()

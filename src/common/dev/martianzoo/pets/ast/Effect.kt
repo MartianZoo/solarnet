@@ -9,10 +9,13 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.THIS
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.util.iff
 
@@ -342,12 +345,74 @@ public data class Effect(
           colons and
           maybeGroup(InstructionTree.parser()) map
           { (trig, immed, instr) ->
-            Effect(
-                trigger = trig,
-                automatic = immed,
-                instruction = instr,
+            resolveTypeVariableNames(
+                Effect(
+                    trigger = trig,
+                    automatic = immed,
+                    instruction = instr,
+                )
             )
           }
+    }
+
+    private fun resolveTypeVariableNames(effect: Effect): Effect {
+      val declarations =
+          effect.trigger.descendantsOfType<Expression>().filter {
+            it.typeVariableName is Declaration
+          }
+      val declarationsByName = declarations.associateBy { it.typeVariableName!!.name }
+      if (declarationsByName.size != declarations.size) {
+        throw PetSyntaxException("An Effect cannot declare the same Type-variable name twice")
+      }
+      effect.instruction
+          .descendantsOfType<Expression>()
+          .firstOrNull {
+            it.typeVariableName is Declaration
+          }
+          ?.let {
+            throw PetSyntaxException(
+                "A Type-variable name must be declared in an Effect trigger: $it"
+            )
+          }
+      if (declarations.isEmpty()) return effect
+
+      val references = mutableMapOf<ClassName, Int>()
+      val resolving = mutableSetOf<ClassName>()
+      val resolver =
+          object : PetTransformer() {
+            override fun transformNode(node: PetNode): PetNode {
+              if (node is Expression && node.typeVariableName == null) {
+                declarationsByName[node.className]?.let { declaration ->
+                  if (!node.simple) {
+                    throw PetSyntaxException(
+                        "Type-variable reference ${node.className} cannot have arguments or a refinement"
+                    )
+                  }
+                  references[node.className] = references.getOrElse(node.className) { 0 } + 1
+                  if (!resolving.add(node.className)) {
+                    throw PetSyntaxException(
+                        "Type-variable declarations cannot refer to each other cyclically"
+                    )
+                  }
+                  return try {
+                    transformChildren(
+                        declaration.copy(typeVariableName = Reference(node.className))
+                    )
+                  } finally {
+                    resolving.remove(node.className)
+                  }
+                }
+              }
+              return transformChildren(node)
+            }
+          }
+      val resolved = resolver.transformEffect(effect)
+      declarationsByName.keys
+          .firstOrNull { references[it] == null }
+          ?.let {
+            throw PetSyntaxException("Type-variable $it is declared but never used")
+          }
+      return resolved
     }
   }
 }

@@ -14,6 +14,7 @@ import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
 import dev.martianzoo.pets.ast.Effect.Trigger.SubscribedTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
@@ -325,6 +326,13 @@ private constructor(
    * whether an argument fits its bound depends on classes this one may be loaded ahead of.
    */
   private fun validateClassNames(declaration: ClassDeclaration) {
+    declaration.effects
+        .flatMap { it.trigger.descendantsOfType<Expression>() }
+        .mapNotNull { (it.typeVariableName as? Declaration)?.name }
+        .firstOrNull { it in knownClassNames }
+        ?.let { name ->
+          throw ExpressionException("Type-variable name $name is already a Type name")
+        }
     declaration.allNodes.forEach { node ->
       node.visitDescendants {
         val name = it as? ClassName

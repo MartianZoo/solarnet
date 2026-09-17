@@ -87,8 +87,8 @@ CLASS FakeL1TradeTerminal : ActiveCard {
   This:: SpaceTag<This>
   This: Floater<FloatingHabs>, Floater<AerialMappers>, Floater<FloatingRefinery>
 
-  Trade<ColonyTile>:: TradeBarrier<ColonyTile>
-  Trade<ColonyTile>: (2 ColonyProduction<ColonyTile> OR Ok) THEN -TradeBarrier<ColonyTile>
+  Trade<ColonyTile AS Choice>:: TradeBarrier<Choice>
+  Trade<ColonyTile AS Choice>: (2 ColonyProduction<Choice> OR Ok) THEN -TradeBarrier<Choice>
 
   End: 2 VictoryPoint
 }

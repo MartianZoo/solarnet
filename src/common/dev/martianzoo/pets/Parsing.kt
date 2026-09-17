@@ -168,9 +168,21 @@ public object Parsing {
   private fun rejectUnsupportedSyntax(parsed: Any?) {
     when (parsed) {
       is ClassDeclaration -> parsed.allNodes.forEach(::rejectUnsupportedSyntax)
-      is PetNode ->
+      is Effect ->
           parsed.visitDescendants {
             (it as? Expression)?.let(ScaledExpression::rejectIfDenominationless)
+            true
+          }
+      is PetNode ->
+          parsed.visitDescendants {
+            (it as? Expression)?.let { expression ->
+              ScaledExpression.rejectIfDenominationless(expression)
+              if (expression.typeVariableName != null) {
+                throw PetSyntaxException(
+                    "Type-variable names are currently supported only within Effects"
+                )
+              }
+            }
             true
           }
       is Iterable<*> -> parsed.forEach(::rejectUnsupportedSyntax)

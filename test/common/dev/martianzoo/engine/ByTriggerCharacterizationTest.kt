@@ -210,7 +210,7 @@ private object ProbeDeclarations : TfmCatalog() {
               }
 
               CLASS ActorBindingProbe {
-                -OwnedActorTrigger<Owner(NOT Player)> BY Player: Steel<Player>, Heat<Owner(NOT Player)>
+                -OwnedActorTrigger<Owner(NOT ActingPlayer) AS Other> BY Player AS ActingPlayer: Steel<ActingPlayer>, Heat<Other>
               }
 
               CLASS RepeatedOwnerProbe : Owned {

@@ -53,6 +53,13 @@ public data class Expression(
      * L3-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-expressions)).
      */
     val argumentsSpecified: Boolean = arguments.isNotEmpty(),
+
+    /**
+     * An explicit Type-variable name declared by this expression or referenced here. A reference
+     * keeps the declaration's structural expression in [className], [arguments], and [refinement],
+     * so ordinary Type operations remain unaware of the shorter authored spelling.
+     */
+    val typeVariableName: TypeVariableName? = null,
 ) : PetElement(), HasClassName, HasExpression, Specification<Expression> {
   // Expressions are immutable after parsing; zero is the uncached sentinel.
   private var cachedHashCode: Int = 0
@@ -78,6 +85,7 @@ public data class Expression(
               arguments == other.arguments &&
               refinement == other.refinement &&
               argumentsSpecified == other.argumentsSpecified &&
+              typeVariableName == other.typeVariableName &&
               derivedClassBody == other.derivedClassBody)
 
   override fun hashCode(): Int {
@@ -86,6 +94,7 @@ public data class Expression(
     result = 31 * result + arguments.hashCode()
     result = 31 * result + (refinement?.hashCode() ?: 0)
     result = 31 * result + argumentsSpecified.hashCode()
+    result = 31 * result + (typeVariableName?.hashCode() ?: 0)
     result = 31 * result + (derivedClassBody?.hashCode() ?: 0)
     cachedHashCode = result
     return result
@@ -106,13 +115,29 @@ public data class Expression(
   }
 
   override fun toString(): String = buildString {
+    (typeVariableName as? TypeVariableName.Reference)?.let {
+      append(it.name)
+      return@buildString
+    }
     append(className)
     if (argumentsSpecified) append(arguments.joinToString(", ", "<", ">"))
     refinement?.let { append("($it)") }
+    (typeVariableName as? TypeVariableName.Declaration)?.let { append(" AS ").append(it.name) }
   }
 
   /** Does this expression consist only of a class name, with no arguments and no refinement? */
   val simple: Boolean = arguments.isEmpty() && refinement == null && !argumentsSpecified
+
+  /** The two source roles of one explicit Type-variable name. */
+  public sealed class TypeVariableName {
+    public abstract val name: ClassName
+
+    /** The `Name` in `Type AS Name`. */
+    public data class Declaration(override val name: ClassName) : TypeVariableName()
+
+    /** A bare `Name` in the same scope that refers to its declaration. */
+    public data class Reference(override val name: ClassName) : TypeVariableName()
+  }
 
   /**
    * Is this just the name [name], with no arguments and no refinement, however the empty argument
@@ -244,24 +269,33 @@ public data class Expression(
                 optionalList(commaSeparated(parser(allowDerivedClass))) and
                 skipChar('>')
         val refinement = refinementParser()
+        val typeVariableName = skip(_as) and ClassName.parser()
+
+        val expression =
+            ClassName.parser() and
+                optional(argumentList) and
+                optional(refinement) and
+                optional(typeVariableName) map
+                { (clazz, args, ref, name) ->
+                  Expression(
+                      clazz,
+                      args.orEmpty(),
+                      ref,
+                      args != null,
+                      name?.let(TypeVariableName::Declaration),
+                  )
+                }
 
         if (allowDerivedClass) {
-          ClassName.parser() and
-              optional(argumentList) and
-              optional(refinement) and
+          expression and
               optional(ClassParsing.Declarations.derivedClassBody) map
-              { (clazz, args, ref, body) ->
-                Expression(clazz, args.orEmpty(), ref, args != null).let {
+              { (parsed, body) ->
+                parsed.let {
                   if (body == null) it else it.withDerivedClassBody(body)
                 }
               }
         } else {
-          ClassName.parser() and
-              optional(argumentList) and
-              optional(refinement) map
-              { (clazz, args, ref) ->
-                Expression(clazz, args.orEmpty(), ref, args != null)
-              }
+          expression
         }
       }
     }

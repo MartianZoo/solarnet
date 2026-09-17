@@ -20,7 +20,7 @@
           "name": "Manutech",
           "tags": [ "BuildingTag" ],
           "immediate": "35 MC, PROD[Steel]",
-          "effects": [ "PROD[StandardResource]: StandardResource" ],
+          "effects": [ "PROD[StandardResource AS SR]: SR" ],
         },
         {
           "name": "MorningStarInc",

@@ -259,11 +259,11 @@ exist for the same word: `Class.kt` skips `ANYONE` when recognizing header-varia
   no wildcard carve-out, and the type-system spec's Appendix A hole closes;
 - the ownership root Class takes a name of its own, used only in headers.
 
-Repeated `Anyone` would then co-refer like any other repeated spelling, which Mons Insurance
-already relies on; no canonical `BY Anyone` effect repeats a bare `Anyone`, so that costs nothing
-today. This is a rename across canon plus the removal of five carve-outs, and it was deliberately
-**not** attempted during the specification review; treat it as the next piece of work here, not as
-settled.
+An explicitly named `Anyone AS Name` would then co-refer without another carve-out, as Mons
+Insurance's `Anyone AS Victim` already does; no canonical `BY Anyone` effect names its wildcard, so
+that costs nothing today. This is a rename across canon plus the removal of five carve-outs, and it
+was deliberately **not** attempted during the specification review; treat it as the next piece of
+work here, not as settled.
 
 ## Future extension
 
