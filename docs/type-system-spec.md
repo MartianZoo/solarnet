@@ -318,8 +318,9 @@ supplied rather than only the resulting type.
 > a greenery with a city in that same area. After compatibility-based argument matching, variable
 > capture needs the filled keys to remember that both written `MarsArea`s name the location edge.
 
-**T3-7. `This` in a supertype argument names the inheriting class.** It is rebound at each level of
-the hierarchy, in place, leaving every other argument alone:
+**T3-7. `This` in a header argument names the inheriting class.** In a declared dependency or a
+supertype argument, it is rebound at each level of the hierarchy, in place, leaving every other
+argument alone:
 
 ```pets
 ABSTRACT CLASS Link<Class<Component>>
@@ -330,9 +331,19 @@ CLASS SelfLeaf : SelfBound
 gives `SelfLeaf<Class<SelfLeaf>>`, while writing the class name literally
 (`Link<Class<SelfBound>>`) would have given `SelfLeaf<Class<SelfBound>>`.
 
+The same rule applies within a declared dependency:
+
+```pets
+ABSTRACT CLASS Holder<Class<Component>>
+ABSTRACT CLASS Held<Holder<Class<This>>>
+CLASS HeldLeaf : Held
+```
+
+Here `HeldLeaf` has the bound `Holder<Class<HeldLeaf>>`.
+
 > **Non-normative implementation note — presently general-purpose.** Canonical Terraforming Mars
 > uses the related `Class<This>` rule (T4-9), but no current canonical class needs bare `This` in a
-> supertype argument. T3-7 states the general rebinding rule rather than a card-specific exception.
+> header argument. T3-7 states the general rebinding rule rather than a card-specific exception.
 
 **T3-8. One header variable in two positions forces them to agree.** When the same type variable
 occupies two dependency paths of a class header (section 13 defines what that means), resolving a
@@ -462,16 +473,16 @@ represented Class has no such subclass enumerates nothing.
 > components instead would omit zero-stock kinds and duplicate kinds with several cubes.
 
 **T4-9. `Class<This>`** follows rule T3-7: it names the inheriting class. This is how a card resource
-knows which card class can hold it:
+knows which holder can contain it:
 
 ```pets
-ABSTRACT CLASS ResourceCard<Class<CardResource>> : CardFront
-ABSTRACT CLASS CardResource : Cardbound<ResourceCard<Class<This>>> { CLASS Animal, Microbe }
-CLASS Fish : ResourceCard<Class<Animal>>
+ABSTRACT CLASS ResourceHolder<Class<CardResource>>
+ABSTRACT CLASS CardResource<ResourceHolder<Class<This>>> { CLASS Animal, Microbe }
+CLASS Fish : ResourceHolder<Class<Animal>>
 ```
 
-`Animal`'s base type becomes `Animal<Owner, ResourceCard<Owner, Class<Animal>>>`, so
-`Animal<Player1, Fish>` resolves and `Animal<Ants>` — Ants holds microbes — does not.
+`Animal`'s holder bound becomes `ResourceHolder<Class<Animal>>`, so `Animal<Fish>` resolves while a
+holder specialized for microbes does not.
 
 > **Non-normative example — played events.** `EventCard` removes itself into
 > `PlayedEvent<Class<This>>`. When Asteroid is played, rebinding records `Class<Asteroid>`; retaining

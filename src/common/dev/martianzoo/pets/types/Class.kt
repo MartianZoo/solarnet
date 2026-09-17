@@ -297,7 +297,12 @@ internal constructor(
   /** The dependency positions whose values are bound to the inheriting class. */
   private val selfBindings: Lazy<Set<DependencyPath>> = lazy {
     val inherited = directSuperclasses.flatMap { it.selfBindings() }
-    val declared = sups.flatMap { sourceSupertype ->
+    val declaredDependencies =
+        declaration.dependencies.flatMapIndexed { index, expression ->
+          val key = Key(className, index)
+          selfBindingsIn(expression, declaredDeps().get(key), listOf(key))
+        }
+    val declaredSupertypes = sups.flatMap { sourceSupertype ->
       val superclass = loader.getClass(sourceSupertype.className)
       val arguments = sourceSupertype.arguments
       val matched =
@@ -306,7 +311,7 @@ internal constructor(
         selfBindingsIn(argument, dependency, listOf(dependency.key))
       }
     }
-    (inherited + declared).toSet()
+    (inherited + declaredDependencies + declaredSupertypes).toSet()
   }
 
   private fun selfBindingsIn(
@@ -368,7 +373,7 @@ internal constructor(
   private val declaredDeps: Lazy<DependencySet> = lazy {
     DependencySet.of(
         declaration.dependencies.mapIndexed { index, expression ->
-          TypeDependency(Key(className, index), loader.resolve(expression))
+          TypeDependency(Key(className, index), loader.resolve(replaceThis(expression)))
         }
     )
   }

@@ -158,9 +158,9 @@ internal class Lang08EffectsTest {
 
   @Test
   internal fun `L8-9 a bare Component subscription must be qualified`() {
-    listOf("Component: Heat", "-Component: Heat", "Plant OR Component: Heat").forEach {
-      shouldThrow<PetSyntaxException> { parse<Effect>(it) }
-    }
+    shouldThrow<PetSyntaxException> { parse<Effect>("Component: Heat") }
+    shouldThrow<PetSyntaxException> { parse<Effect>("-Component: Heat") }
+    shouldThrow<PetSyntaxException> { parse<Effect>("Plant OR Component: Heat") }
 
     roundTrip<Effect>("Component IF Plant: Heat")
     roundTrip<Effect>("Component BY Anyone: Heat")

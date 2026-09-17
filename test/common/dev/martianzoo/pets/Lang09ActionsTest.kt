@@ -63,9 +63,8 @@ internal class Lang09ActionsTest {
 
   @Test
   internal fun `L9-3 alternative costs are separate actions, not one composite cost`() {
-    listOf("=0 Award: 8 Ore -> Award", "Ore, Gizmo -> Award").forEach {
-      shouldThrow<PetSyntaxException> { parse<Action>(it) }
-    }
+    shouldThrow<PetSyntaxException> { parse<Action>("=0 Award: 8 Ore -> Award") }
+    shouldThrow<PetSyntaxException> { parse<Action>("Ore, Gizmo -> Award") }
   }
 
   // L9-4 Lowering to an effect
