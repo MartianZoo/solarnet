@@ -32,9 +32,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Have the normal full application build stamp its output with the current Git commit and, when
   source changes are present, a stable hash of those changes. Include that stamp in every exported
   game record so a log identifies, or can later verify, the engine source that produced it.
-- Give `AreaPiece` its area dependency, make tile placement over an owned `Community` an atomic
-  transmutation, then enforce `HAS MAX 1 Occupant<This>` on every `Area` and remove card-level
-  empty-area refinements.
+- Make tile placement over an owned `Community` an atomic transmutation, then enforce
+  `HAS MAX 1 Occupant<This>` on every `Area` and remove card-level empty-area refinements.
 - Decide whether `Milestone`'s per-player uniqueness constraint should use
   `HAS MAX 1 This<Player>` or a clearer way to express one instance of the concrete milestone per
   player.

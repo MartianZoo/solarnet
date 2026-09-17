@@ -36,7 +36,7 @@ CLASS Visionary : Award { metric = COUNT "ProjectCard<Hand>" }
 CLASS GainsOf<CardFront, Class<Component>> : Custom
 
 "Tracks ocean placements only while Hydrologist is in the milestone pool"
-CLASS HydrologistWatcher : CardWatcher {
+CLASS HydrologistWatcher<Class<Hydrologist>> : CardWatcher {
   OceanTile BY Player: OceanCredit<Player, OceanTile>
 }
 
