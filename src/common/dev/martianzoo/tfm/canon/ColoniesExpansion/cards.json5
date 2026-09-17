@@ -7,12 +7,10 @@
           "name": "Aridor",
           "effects": [
             "This:: EACH Class<Tag> { AridorTagWatcher<Class<Tag>, This> }",
-            "PlayCard<Class<ProjectCard>, Class<EventCard>>:: AridorPlayingEvent<This>",
             "This: 40 MC, RequiredAction { -> ColonyTileSelection }"
           ],
           "components": [
-            "CLASS AridorPlayingEvent : Cardbound<Aridor<Player>>, Hidden { HAS MAX 1 This; -EventCard<Player>:: -This! }",
-            "CLASS AridorTagWatcher<Class<Tag>> : Cardbound<Aridor<Player>>, Hidden { HAS MAX 1 This; CardFront<Player>(HAS Tag) IF MAX 0 AridorPlayingEvent<Aridor<Player>>, =1 CardFront<Player>(HAS Tag): PROD[1 MC] }"
+            "CLASS AridorTagWatcher<Class<Tag>> : Cardbound<Aridor>, Hidden { HAS MAX 1 This; CardFront(HAS Tag, NOT EventCard) IF =1 CardFront(HAS Tag, NOT EventCard): PROD[1 MC] }"
           ],
         },
         {

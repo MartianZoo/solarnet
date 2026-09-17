@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
-import dev.martianzoo.engine.Component.Companion.toComponent
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
@@ -29,19 +29,23 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.pets.data.GameEvent.TaskRemovedEvent
-import dev.martianzoo.pets.data.Task
-import dev.martianzoo.pets.data.Task.Selection
-import dev.martianzoo.pets.data.Task.TaskId
-import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.state.Component.Companion.toComponent
+import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.GameEvent.TaskRemovedEvent
+import dev.martianzoo.state.GameWorld
+import dev.martianzoo.state.Task
+import dev.martianzoo.state.Task.Selection
+import dev.martianzoo.state.Task.TaskId
+import dev.martianzoo.state.TaskQueue
+import dev.martianzoo.state.TaskResult
 
 /** Policy-free task and state mutation mechanics attributed to one [actor]. */
 public class ActorEngine
 internal constructor(
     /** Tasks currently assigned to [actor]. */
     public val tasks: TaskQueue,
-    taskQueues: TaskQueues,
+    private val gameWorld: GameWorld,
+    private val taskQueues: TaskQueues,
     /** The live game state read by this engine. */
     public val reader: GameReader,
     private val timeline: Timeline,
@@ -50,10 +54,9 @@ internal constructor(
     private val instructor: Instructor,
     private val changer: Changer,
     private val worldTransaction: WorldTransaction,
+    private val elaborator: PetElaborator,
 ) {
-  // Selection and delegated reassignment are whole-game concerns, so this engine reads the whole
-  // queue as a view rather than reaching into TaskQueues storage. Clients use World.tasks.
-  private val allTasks: TaskQueue = taskQueues.all()
+  private val allTasks: TaskQueue = gameWorld.tasks
 
   private object SelectionProbeSucceeded : RuntimeException()
 
@@ -102,13 +105,23 @@ internal constructor(
   // TASKS LAYER
 
   public fun addTasks(instructions: InstructionGroup, firstCause: Cause? = null): List<TaskId> =
-      tasks.addTasks(instructions, firstCause).map { it.task.id }
+      taskQueues.addTasks(instructions, actor, firstCause).map { it.task.id }
 
-  public fun dropTask(taskId: TaskId): TaskRemovedEvent = tasks.removeTask(taskId)
+  public fun dropTask(taskId: TaskId): TaskRemovedEvent {
+    val task = tasks.getTaskData(taskId)
+    return taskQueues.removeTask(task)
+  }
 
   /** Restores prior task data while applying an evidenced replay correction. */
   public fun restoreTask(task: Task) {
-    tasks.editTask(task)
+    val current = tasks.getTaskData(task.id)
+    if (task.assignee != current.assignee) {
+      throw TaskException(
+          "can't restore task ${task.id} assigned to ${task.assignee} over its current " +
+              "${current.assignee} assignment"
+      )
+    }
+    taskQueues.editTask(task)
   }
 
   /** Requires that no new pending task or cleanup component remains. */
@@ -134,16 +147,15 @@ internal constructor(
    */
   private fun handleTask(queue: TaskQueue, task: Task) {
     task.then?.let {
-      queue
-          .queueFor(task.controller)
-          .addTasks(
-              it,
-              task.cause,
-              task.actor,
-              controller = task.controller,
-          )
+      taskQueues.addTasks(
+          it,
+          task.controller,
+          task.cause,
+          task.actor,
+      )
     }
-    queue.removeTask(task.id)
+    val stored = queue.getTaskData(task.id)
+    taskQueues.removeTask(stored)
   }
 
   private fun enforceSelectLock(taskId: TaskId) {
@@ -185,7 +197,7 @@ internal constructor(
     val instruction =
         effectiveNarrowing as? Instruction
             ?: throw TaskException("one task can't be narrowed to independent tasks")
-    tasks.editTask(task.copy(instructionIn = instruction))
+    taskQueues.editTask(task.copy(instruction = instruction))
   }
 
   private fun narrowSelectedTask(
@@ -292,39 +304,25 @@ internal constructor(
     val group = InstructionGroup.of(replacement)
     if (group.size == 1) {
       val instruction = group.instructions.single()
-      val updated =
-          if (instruction is Then && then == null) {
-            Task.newTasks(
-                    firstId = original.id,
-                    controller = original.controller,
-                    instruction = group,
-                    cause = original.cause,
-                    actor = original.actor,
-                    isAbstract = reader::isAbstract,
-                )
-                .single()
-          } else {
-            original.copy(instructionIn = instruction, thenIn = then)
-          }
       val selection =
           if (original.selection == Selection.DELEGATED || instruction.isAbstract(reader)) {
             Selection.DELEGATED
           } else {
             Selection.SELECTED
           }
-      allTasks.editTask(updated.copy(selection = selection))
+      taskQueues.editTask(
+          original.copy(instruction = instruction, then = then, selection = selection)
+      )
     } else {
       // Structural completion replaces the selected task with ordinary pending siblings. No child
       // inherits selection; a later player input must select whichever sibling comes next.
-      queue
-          .queueFor(original.controller)
-          .addTasks(
-              group,
-              original.cause,
-              original.actor,
-              controller = original.controller,
-          )
-      handleTask(queue, original.copy(thenIn = then))
+      taskQueues.addTasks(
+          group,
+          original.controller,
+          original.cause,
+          original.actor,
+      )
+      handleTask(queue, original.copy(then = then))
     }
   }
 
@@ -354,7 +352,7 @@ internal constructor(
             selectedTask.actor,
             selectedTask.controller,
         )
-    newTasks.forEach { queue.queueFor(it.controller).addTasks(it) }
+    newTasks.forEach(taskQueues::addTasks)
     handleTask(queue, selectedTask)
   }
 
@@ -517,7 +515,6 @@ internal constructor(
   private fun loweredRemovalBinding(then: Then, narrow: Instruction): PetTransformer? {
     val general = (then.first as? Change)?.removing ?: return null
     val specific = (narrow as? Change)?.removing ?: return null
-    val elaborator = (reader as GameReaderImpl).elaborator
     return elaborator.specializeVariables(
         reader.resolve(general),
         reader.resolve(specific),
@@ -581,5 +578,5 @@ internal constructor(
   }
 
   private fun queueForAnyTask(taskId: TaskId): TaskQueue =
-      tasks.queueFor(allTasks.getTaskData(taskId).assignee)
+      gameWorld.tasksFor(allTasks.getTaskData(taskId).assignee)
 }

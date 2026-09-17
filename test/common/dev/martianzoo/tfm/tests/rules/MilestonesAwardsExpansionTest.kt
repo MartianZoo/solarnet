@@ -162,7 +162,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   }
 
   @Test
-  internal fun `OceanCredit and its watcher stay undefined without Hydrologist`() {
+  internal fun `Hydrologist and its support stay undefined when not selected`() {
     val game =
         newGame(
             gameConfig(
@@ -176,6 +176,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
             )
         )
 
+    game.classTable.allClassNames.shouldNotContain(cn("Hydrologist"))
     game.classTable.allClassNames.shouldNotContain(cn("OceanCredit"))
     game.classTable.allClassNames.shouldNotContain(cn("HydrologistWatcher"))
   }

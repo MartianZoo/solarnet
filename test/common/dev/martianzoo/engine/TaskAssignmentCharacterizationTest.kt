@@ -10,8 +10,9 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
-import dev.martianzoo.pets.data.Task.TaskId
+import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.GameWorld
+import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.assertions.throwables.shouldThrow
@@ -22,7 +23,15 @@ import kotlin.test.Test
 internal class TaskAssignmentCharacterizationTest {
   private fun game() =
       Engine.newGame(
-          testGamePremise("CLASS Token<Owner>\nCLASS Marker<Owner>\nCLASS AdminToken", players = 2)
+          testGamePremise(
+              """
+              CLASS Token<Owner>
+              CLASS Marker<Owner>
+              CLASS AdminToken
+              CLASS Blocked<Owner> { HAS MAX 0 This }
+              """,
+              players = 2,
+          )
       )
 
   @Test
@@ -42,22 +51,20 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
-  internal fun wholeGameAutoExecutionPreservesAnotherAssigneesActor() {
+  internal fun oneAgentsPolicyDoesNotExecuteAnotherActorsTask() {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
-    val checkpoint = game.timeline.checkpoint()
 
     p2.addTasks("Token<Player2>")
     p1.autoExecPolicy = EAGER
 
-    game.tasks.isEmpty() shouldBe true
-    p2.count("Token<Player2>") shouldBe 1
-    game.events.changesSince(checkpoint).single().actor shouldBe PLAYER2
+    game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
+    p2.count("Token<Player2>") shouldBe 0
   }
 
   @Test
-  internal fun playerNoneDrainsOnlyAdminWork() {
+  internal fun sharedLoopRespectsEveryAssigneesPolicy() {
     val game = game()
     val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val p2 = game.testAgent(PLAYER2).also { it.autoExecPolicy = NONE }
@@ -67,9 +74,9 @@ internal class TaskAssignmentCharacterizationTest {
     admin.addTasks("AdminToken")
     p1.autoExecNow()
 
-    admin.count("AdminToken") shouldBe 1
+    admin.count("AdminToken") shouldBe 0
     p2.count("Token<Player2>") shouldBe 0
-    game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2)
+    game.tasks.extract { it.assignee }.shouldContainExactly(PLAYER2, ADMIN)
   }
 
   @Test
@@ -113,9 +120,30 @@ internal class TaskAssignmentCharacterizationTest {
   }
 
   @Test
+  internal fun resolvedPerformerOverrideRenormalizesThenTaskSequencing() {
+    val game = game()
+    val p1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+
+    val task =
+        p1.addTasks("((X Token<Player1>? THEN X Marker<Player1>?) OR Blocked<Player1>) BY Player2")
+            .single()
+    p1.selectTask(task)
+    p1.doTask("2 Token<Player1> BY Player2")
+
+    p1.count("Token<Player1>") shouldBe 2
+    p1.count("Marker<Player1>") shouldBe 0
+    game.tasks
+        .extract { it.instruction.toString() }
+        .shouldContainExactly("2 Marker<Player1>? BY Player2")
+
+    p1.doTask("2 Marker<Player1> BY Player2")
+    p1.count("Marker<Player1>") shouldBe 2
+  }
+
+  @Test
   internal fun pendingTaskReceivesItsAddEventOrdinalWhenInsertedIntoItsAssigneesQueue() {
-    val events = EventLog()
-    val queues = TaskQueues(events)
+    val world = GameWorld(testGamePremise("CLASS Token<Player>", players = 2))
+    val queues = TaskQueues(world)
     val cause = Cause(parse<Expression>("Token"), triggerEvent = 0)
     val pending =
         PendingTask(
@@ -124,7 +152,7 @@ internal class TaskAssignmentCharacterizationTest {
             cause = cause,
         )
 
-    val event = queues[PLAYER2].addTasks(pending).single()
+    val event = queues.addTasks(pending).single()
     val added = event.task
 
     added.id.ordinal shouldBe event.ordinal
@@ -132,25 +160,6 @@ internal class TaskAssignmentCharacterizationTest {
     added.actor shouldBe PLAYER2
     added.instruction shouldBe pending.instruction.instructions.single()
     added.cause shouldBe cause
-    queues[PLAYER2].ids().shouldContainExactly(TaskId(event.ordinal))
-  }
-
-  @Test
-  internal fun copiedQueuesRetainTasksAndThenDiverge() {
-    val events = EventLog()
-    val queues = TaskQueues(events)
-    val pending =
-        PendingTask(
-            controller = PLAYER2,
-            instruction = InstructionGroup(listOf(parse<Instruction>("Token<Player2>!"))),
-            cause = Cause(parse<Expression>("Token"), triggerEvent = 0),
-        )
-    queues[PLAYER2].addTasks(pending)
-
-    events.markSetupStart()
-    val copied = queues.copy(EventLog(events))
-    copied[PLAYER2].addTasks(pending).single().task.id shouldBe TaskId(1)
-    queues[PLAYER2].ids().shouldContainExactly(TaskId(0))
-    copied[PLAYER2].ids().shouldContainExactly(TaskId(0), TaskId(1))
+    world.tasksFor(PLAYER2).ids().shouldContainExactly(TaskId(event.ordinal))
   }
 }

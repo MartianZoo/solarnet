@@ -91,6 +91,7 @@ public abstract class ClassTable {
               premise.classSelections,
           )
       table.freeze()
+      table.validateNoOkSubscriptions()
       table.includeAll(roots)
       val unexpectedModules =
           premise.catalog.modules.keys.filterTo(linkedSetOf()) { table.isIncluded(it) } -

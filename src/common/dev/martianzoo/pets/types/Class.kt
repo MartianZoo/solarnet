@@ -9,6 +9,8 @@ import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.SystemClasses.ANYONE
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
+import dev.martianzoo.pets.api.SystemClasses.DIE
+import dev.martianzoo.pets.api.SystemClasses.SIGNAL
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.ClassName
@@ -383,11 +385,26 @@ internal constructor(
     }
     resolvingDependencies = true
     try {
-      if (className == CLASS) {
-        depsForClassType(loader.componentClass)
-      } else {
-        inheritedDeps().merge(declaredDeps()) { _, _ -> error("unexpected") }
-      }
+      val resolved =
+          if (className == CLASS) {
+            depsForClassType(loader.componentClass)
+          } else {
+            inheritedDeps().merge(declaredDeps()) { _, _ -> error("unexpected") }
+          }
+      resolved
+          .typeDependencies()
+          .firstOrNull { dependency ->
+            val target = dependency.boundType.rootClass
+            target.className == DIE || target.allSuperclasses().any { it.className == SIGNAL }
+          }
+          ?.let { dependency ->
+            throw PetException(
+                "$className dependency ${dependency.key} cannot target " +
+                    "${dependency.boundType.expressionFull}; Signal types and Die cannot be " +
+                    "dependency targets"
+            )
+          }
+      resolved
     } finally {
       resolvingDependencies = false
     }

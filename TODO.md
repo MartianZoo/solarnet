@@ -6,6 +6,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.
+- Remove `trimIndent()` from tests except where stripping indentation is part of preparing a
+  genuinely multiline input.
 - Rewrite the agent documents that have outgrown their intended teaching or orientation role:
   - make `ENGINE.md` only a quick tour of the runtime's major pieces;
   - make `GAMEWORLD.md` a quick orientation to the intended `state`/`engine` split;
@@ -29,9 +32,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Have the normal full application build stamp its output with the current Git commit and, when
   source changes are present, a stable hash of those changes. Include that stamp in every exported
   game record so a log identifies, or can later verify, the engine source that produced it.
-- Give `AreaPiece` its area dependency, make tile placement over an owned `Community` an atomic
-  transmutation, then enforce `HAS MAX 1 Occupant<This>` on every `Area` and remove card-level
-  empty-area refinements.
+- Make tile placement over an owned `Community` an atomic transmutation, then enforce
+  `HAS MAX 1 Occupant<This>` on every `Area` and remove card-level empty-area refinements.
 - Decide whether `Milestone`'s per-player uniqueness constraint should use
   `HAS MAX 1 This<Player>` or a clearer way to express one instance of the concrete milestone per
   player.
@@ -96,8 +98,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   mandatory.
 - **Low priority:** [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve
   hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
-- Model `StateChange` as a sealed gain/remove/transmute algebra so invalid nullable combinations are
-  unrepresentable.
 - [#59: `-This` Quantifier](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether
   self-removal should default to mandatory.
 - Investigate whether the three self-handling signals `CimmeriaPlacementBonus`,

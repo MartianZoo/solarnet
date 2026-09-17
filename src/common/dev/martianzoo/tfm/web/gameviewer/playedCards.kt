@@ -1,18 +1,17 @@
 package dev.martianzoo.tfm.web.gameviewer
 
-import dev.martianzoo.agent.Agents
-import dev.martianzoo.engine.Timeline.Checkpoint
-import dev.martianzoo.engine.World
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.GameWorld
 import dev.martianzoo.tfm.canon.cardResourceType
 import dev.martianzoo.tfm.canon.tfmCatalog
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 
 /** Current face-up cards, retaining the order in which they first entered play. */
-internal fun playedCards(game: World, player: Player): List<Type> {
+internal fun playedCards(game: GameWorld, player: Player): List<Type> {
   val current =
       game.reader
           .getComponents("CardFront")
@@ -25,7 +24,7 @@ internal fun playedCards(game: World, player: Player): List<Type> {
       .changesSince(Checkpoint(0))
       .asSequence()
       .mapNotNull { it.change.gaining }
-      .map(game.reader::resolve)
+      .map { it.type }
       .filter(current::contains)
       .distinct()
       .toList()
@@ -44,31 +43,29 @@ internal fun cardImageDirectory(card: Type): String? {
 
 /** This card's configured resource type and live count for [player], when it can hold resources. */
 internal fun cardResourceCount(
-    agents: Agents,
+    reader: GameReader,
     player: Player,
     card: Type,
 ): Pair<ClassName, Int>? {
-  val reader = agents.world.reader
   val resourceType = cardResourceType(reader.tfmCatalog.card(card.className)) ?: return null
-  return resourceType to agents.tfm(player).count("$resourceType<${card.className}>")
+  return resourceType to GameQueries(reader).count(player, "$resourceType<${card.className}>")
 }
 
 /** Whether this action card has its generational used marker at the current recording position. */
-internal fun hasActionUsedMarker(agents: Agents, player: Player, card: Type): Boolean {
-  val reader = agents.world.reader
+internal fun hasActionUsedMarker(reader: GameReader, player: Player, card: Type): Boolean {
   if (!card.isSubtypeOf(reader.resolve(cn("ActionCard").expression))) return false
-  return agents.tfm(player).count("ActionUsedMarker<${card.className}>") > 0
+  return GameQueries(reader).count(player, "ActionUsedMarker<${card.className}>") > 0
 }
 
 /** Event cards in this player's played-event pile, retaining their play order. */
-internal fun playedEventCards(game: World, player: Player): List<ClassName> {
+internal fun playedEventCards(game: GameWorld, player: Player): List<ClassName> {
   val current = game.reader.getComponents("PlayedEvent").elements.toSet()
   return game.events
       .changesSince(Checkpoint(0))
       .asSequence()
       .filter { it.actor == player }
       .mapNotNull { it.change.gaining }
-      .map(game.reader::resolve)
+      .map { it.type }
       .filter(current::contains)
       .mapNotNull { playedEvent ->
         playedEvent.typeDependencies

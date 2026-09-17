@@ -11,6 +11,7 @@ kotlin {
         implementation(project(":agent"))
         implementation(project(":engine"))
         implementation(project(":pets"))
+        implementation(project(":state"))
       }
     }
     jsMain {

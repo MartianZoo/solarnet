@@ -9,6 +9,7 @@ kotlin {
       dependencies {
         implementation(libs.kotlinx.coroutines.core)
         implementation(project(":pets"))
+        implementation(project(":state"))
       }
     }
     commonTest {

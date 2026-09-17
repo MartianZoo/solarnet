@@ -20,16 +20,18 @@ import kotlin.test.Test
 
 internal class InstructionResolutionTest {
   private val game: World = setUpGame(canonicalPremise())
+  private val gameWorld = (game as WholeWorld).gameWorld
   private val elaborator = PetElaborator(game.classTable)
+  private val effector = Effector(elaborator) { game.reader }
   private val instructor: Instructor =
       Instructor(
           game.reader,
-          Limiter(game.classTable, game.components),
-          Changer(game.reader, game.components, game.events),
-          Effector(elaborator) { game.reader },
+          Limiter(game.classTable, gameWorld),
+          Changer(game.reader, gameWorld, effector),
+          effector,
           game.classTable,
           elaborator,
-          CustomClassRuntime(game.reader.catalog, elaborator),
+          CustomInstructionRuntime(game.reader.catalog, elaborator),
       )
 
   init {
@@ -131,27 +133,26 @@ internal class InstructionResolutionTest {
   @Test
   internal fun testOnlyAnOwnerSelectionSuppliesTheOwnerOfItsBranch() {
     checkResolution("EACH Player { Plant }", "Plant<Player1>!, Plant<Player2>!")
-    shouldThrow<ExpressionException> { preprocessAndResolve("EACH Anyone { Plant }") }
     checkResolution(
         "EACH ProjectCard<Anyone> { -ProjectCard<Anyone>, Plant }",
-        "-ProjectCard<Player1, Hand>!, Plant<Player1>!",
+        List(10) { "-ProjectCard<Player1, Hand>!, Plant<Player1>!" }.joinToString(", "),
     )
-    shouldThrow<ExpressionException> {
-      preprocessAndResolve("EACH ProjectCard<Anyone> { Plant }")
-    }
     // A selector reads its enclosing context, so `Owner` there is one component, not every owner.
     shouldThrow<ExpressionException> { preprocessAndResolve("EACH Owner { Plant }") }
-    // ...but it does mean a selector names components in the enclosing owner's context: these are
-    // Player1's own cards, and they are interchangeable, so there is nothing to fan out over.
+    // ...and it concretizes dependencies in a selector rooted in the enclosing owner's context.
     shouldThrow<ExpressionException> { preprocessAndResolve("EACH ProjectCard<Owner> { Plant }") }
   }
 
   @Test
-  internal fun testFanoutRangesOverTypesRatherThanOccurrences() {
-    // Player1 holds ten indistinguishable ProjectCards, which are one concrete Type, not ten.
+  internal fun testFanoutRangesOverOccurrences() {
+    // Player1 holds ten indistinguishable ProjectCards, and each copy contributes one branch.
     checkResolution(
         "EACH ProjectCard<Anyone> { -ProjectCard<Anyone> }",
-        "-ProjectCard<Player1, Hand>!",
+        List(10) { "-ProjectCard<Player1, Hand>!" }.joinToString(", "),
+    )
+    checkResolution(
+        "EACH ProjectCard<Anyone> { StandardResource }",
+        List(10) { "StandardResource<Player1>!" }.joinToString(", "),
     )
   }
 
@@ -161,13 +162,9 @@ internal class InstructionResolutionTest {
   }
 
   @Test
-  internal fun testFanoutMustNameItsSelection() {
-    // `OxygenStep` is unowned, so nothing in the body could denote the selected player.
-    shouldThrow<ExpressionException> { preprocessAndResolve("EACH Player { OxygenStep }") }
-    // Reported even when the selector happens to match nothing right now.
-    shouldThrow<ExpressionException> {
-      preprocessAndResolve("EACH CardFront<Anyone> { OxygenStep }")
-    }
+  internal fun testFanoutSelectorMayOnlySupplyRepetition() {
+    checkResolution("EACH Player { OxygenStep }", "OxygenStep!, OxygenStep!")
+    checkResolution("EACH CardFront<Anyone> { OxygenStep }", "Ok")
   }
 
   @Test

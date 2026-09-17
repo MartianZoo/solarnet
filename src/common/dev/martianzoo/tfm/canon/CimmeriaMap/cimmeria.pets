@@ -13,7 +13,7 @@ CLASS Fundraiser : Milestone { requirement = HAS "PROD[12 (MC - ProdOffset<Class
 
 CLASS Electrician : Award { metric = COUNT "PowerTag" }
 CLASS Founder : Award { metric = COUNT "OwnedTile<MarsArea(HAS Neighbor<SpecialTile<Anyone>>)>" }
-CLASS Mogul : Award { metric = COUNT "PROD[Steel OR Titanium OR Plant OR Energy OR Heat]" }
+CLASS Mogul : Award { metric = COUNT "PROD[StandardResource(NOT MC)]" }
 CLASS Zoologist : Award { metric = COUNT "Animal OR Microbe" }
 CLASS Forecaster : Award { metric = COUNT "CardFront(HAS requirement)" }
 

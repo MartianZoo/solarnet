@@ -480,16 +480,16 @@
           "name": "NeptunianPowerConsultants",
           "cost": 14,
           "tags": [ "PowerTag" ],
-          "immediate": "NeptunianOption",
           "effects": [
-            "OceanTile BY Anyone: UseAction<NeptunianOption>?",
+            "This:: NeptunianOption<This>",
+            "OceanTile BY Anyone: UseAction<NeptunianOption<This>>?",
             "End: VictoryPoint / Hydroelectric<This>"
           ],
           "components": [
             // TODO: what happens if this is just `CardResource` instead of all that?
             // if that works, use that approach everywhere.
             "CLASS Hydroelectric : CardResource<ResourceHolder<Class<Hydroelectric>>>",
-            "CLASS NeptunianOption : Owned, HasActions { 5 MC -> PROD[Energy], Hydroelectric<NeptunianPowerConsultants>; UseAction<This>:: Accepting<Class<Steel>> }"
+            "CLASS NeptunianOption : Cardbound, HasActions { 5 MC -> PROD[Energy], Hydroelectric<NeptunianPowerConsultants>; UseAction<This>:: Accepting<Class<Steel>> }"
           ],
         },
         {

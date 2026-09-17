@@ -129,7 +129,7 @@ internal class NewPromoCardsTest : CardTest() {
 
     p1.stdProject("AquiferProject") {
       doTask("OceanTile<Tharsis_1_2>")
-      doTask("UseAction<NeptunianOption, Action1>")
+      doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
       p1.pay(mc = 1, steel = 2)
     }
 
@@ -151,8 +151,10 @@ internal class NewPromoCardsTest : CardTest() {
 
     p2.stdProject("AquiferProject") {
       doTask("OceanTile<Tharsis_1_2>")
-      p2.selectTask("UseAction<Player1, NeptunianOption<Player1>>?")
-      p1.doTask("UseAction<NeptunianOption, Action1>")
+      p2.selectTask(
+          "UseAction<Player1, " + "NeptunianOption<Player1, NeptunianPowerConsultants<Player1>>>?"
+      )
+      p1.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
       p1.pay(5)
       p2.autoExecPolicy = EAGER
     }
@@ -215,7 +217,8 @@ internal class NewPromoCardsTest : CardTest() {
     p1.cardAction1(StJosephOfCupertinoMission) {
       p1.pay(5)
       doTask("Cathedral<CityTile<Player2, Tharsis_4_2>>")
-      p2.stdAction("CathedralOption")
+      p2.doTask("UseAction<CathedralOption, Action1>")
+      p2.pay(2)
     }
 
     p2.assertCounts(0 to "MC", 1 to "ProjectCard")

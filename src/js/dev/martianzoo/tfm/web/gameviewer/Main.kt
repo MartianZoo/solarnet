@@ -1,20 +1,22 @@
 package dev.martianzoo.tfm.web.gameviewer
 
-import dev.martianzoo.agent.Agents
-import dev.martianzoo.engine.ComponentGraph.CountSubscription
-import dev.martianzoo.engine.GameRecording
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.displayName
+import dev.martianzoo.state.ComponentGraph.CountSubscription
+import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.GameRecording
+import dev.martianzoo.state.GameRecordingJson
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
+import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.canon.TfmClasses.MC
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.engine.visibleLogEvents
+import dev.martianzoo.tfm.fake.FakeCanon
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.Element
@@ -28,8 +30,8 @@ public fun main() {
   val gameSelect = document.getElementById("game-select") as HTMLSelectElement
   val status = checkNotNull(document.getElementById("status"))
   val positionLabel = checkNotNull(document.getElementById("position-label"))
-  var recording: GameRecording? = null
-  var agents: Agents? = null
+  var recording: GameRecording.Playback? = null
+  var savedGames = emptyList<SavedGame>()
   var recordingName = ""
   var selectedPlayerIndex = 0
   var selectablePositions = emptyList<Int>()
@@ -42,14 +44,9 @@ public fun main() {
   placeholder.textContent = "Select a game…"
   gameSelect.appendChild(placeholder)
 
-  SavedGames.all.forEachIndexed { index, savedGame ->
-    val option = document.createElement("option")
-    option.setAttribute("value", index.toString())
-    option.textContent = savedGame.name
-    gameSelect.appendChild(option)
-  }
+  gameSelect.disabled = true
 
-  fun updatePosition(active: GameRecording, scrollLog: Boolean) {
+  fun updatePosition(active: GameRecording.Playback, scrollLog: Boolean) {
     val players = active.world.actors.filterIsInstance<Player>()
     selectedPlayerIndex = selectedPlayerIndex.coerceIn(players.indices)
     val player = players[selectedPlayerIndex]
@@ -59,14 +56,13 @@ public fun main() {
         "Position ${displayedIndex + 1} of ${selectablePositions.size} · event ${checkpoint.ordinal}"
     status.textContent = recordingName
     measurePhase("render.player-tabs-update") { updatePlayerTabs(active, selectedPlayerIndex) }
-    val activeAgents = checkNotNull(agents)
-    measurePhase("render.dashboard") { renderDashboard(active, activeAgents, player) }
-    measurePhase("render.cards") { renderCards(active, activeAgents, player) }
+    measurePhase("render.dashboard") { renderDashboard(active, player) }
+    measurePhase("render.cards") { renderCards(active, player) }
     measurePhase("render.log-state") { updateLogState(active) }
     if (scrollLog) measurePhase("render.log-scroll") { scrollActiveLogStop() }
   }
 
-  fun showPosition(active: GameRecording, index: Int, scrollLog: Boolean = true) {
+  fun showPosition(active: GameRecording.Playback, index: Int, scrollLog: Boolean = true) {
     if (index !in active.positions.indices) return
     active.seek(index)
     updatePosition(active, scrollLog)
@@ -74,33 +70,35 @@ public fun main() {
 
   fun loadSelectedGame() {
     if (gameSelect.value.isEmpty()) return
-    val selected = SavedGames.all[gameSelect.value.toInt()]
+    val selected = savedGames[gameSelect.value.toInt()]
     gameSelect.disabled = true
-    status.textContent = "Replaying ${selected.name}…"
-    window.setTimeout(
-        {
+    status.textContent = "Loading ${selected.name}…"
+    window
+        .fetch(selected.resourcePath)
+        .then { response ->
+          if (!response.ok) error("HTTP ${response.status}")
+          response.text()
+        }
+        .then { text ->
           try {
             clearBenchmarkEntries()
             mark("load.start")
             mapSubscriptions.forEach(CountSubscription::cancel)
-            val replay = selected.create()
-            val active =
-                replay.record(
-                    onGameConstructed = {
-                      mark("construction.end")
-                      measure("construction", "load.start", "construction.end")
-                    },
-                    onReplayCompleted = {
-                      mark("replay.end")
-                      measure("authored-replay", "construction.end", "replay.end")
-                    },
-                )
-            agents = replay.agents
-            val logEvents = active.world.visibleLogEvents()
+            val config = GameRecordingJson.config(text)
+            val catalog: TfmCatalog =
+                if (cn("FakeStuffBundle") in config.includedClassNames) {
+                  TfmCatalog.compose(Canon, FakeCanon)
+                } else {
+                  Canon
+                }
+            val premise = catalog.gamePremise(config)
+            val active = GameRecordingJson.decode(text, premise).open()
+            val logEvents =
+                visibleLogEvents(active.world.events.changesSinceSetup(), active.world.reader)
             selectablePositions =
                 selectablePositionIndices(active.positions, logEvents.map(ChangeEvent::ordinal))
             mark("preparation.end")
-            measure("recording-and-log-positions", "replay.end", "preparation.end")
+            measure("recording-and-log-positions", "load.start", "preparation.end")
             measurePhase("initial-seek") { active.seek(selectablePositions.first()) }
             recording = active
             recordingName = selected.name
@@ -126,9 +124,12 @@ public fun main() {
             status.textContent = "Could not replay ${selected.name}: ${failure.message}"
             gameSelect.disabled = false
           }
-        },
-        0,
-    )
+        }
+        .catch { failure ->
+          recording = null
+          status.textContent = "Could not load ${selected.name}: ${failure.message}"
+          gameSelect.disabled = false
+        }
   }
 
   gameSelect.addEventListener("change", { loadSelectedGame() })
@@ -149,13 +150,34 @@ public fun main() {
       },
   )
   positionLabel.textContent = "Built ${document.lastModified}"
+
+  window
+      .fetch("games/index.txt")
+      .then { response ->
+        if (!response.ok) error("HTTP ${response.status}")
+        response.text()
+      }
+      .then { text ->
+        savedGames = SavedGames.fromIndex(text)
+        savedGames.forEachIndexed { index, savedGame ->
+          val option = document.createElement("option")
+          option.setAttribute("value", index.toString())
+          option.textContent = savedGame.name
+          gameSelect.appendChild(option)
+        }
+        gameSelect.disabled = savedGames.isEmpty()
+        status.textContent =
+            if (savedGames.isEmpty()) "No replay test event logs were built."
+            else "Choose a replay test."
+      }
+      .catch { failure ->
+        status.textContent = "Could not discover replay tests: ${failure.message}"
+      }
 }
 
 private fun clearBenchmarkEntries() {
   val phases =
       listOf(
-          "construction",
-          "authored-replay",
           "recording-and-log-positions",
           "initial-seek",
           "render.map",
@@ -171,8 +193,7 @@ private fun clearBenchmarkEntries() {
   phases.forEach { phase ->
     window.performance.asDynamic().clearMeasures("$BENCHMARK_PREFIX:$phase")
   }
-  listOf("load.start", "construction.end", "replay.end", "preparation.end", "load.end").forEach {
-      name ->
+  listOf("load.start", "preparation.end", "load.end").forEach { name ->
     window.performance.asDynamic().clearMarks("$BENCHMARK_PREFIX:$name")
   }
 }
@@ -205,7 +226,7 @@ private inline fun <T> measurePhase(name: String, block: () -> T): T {
   }
 }
 
-private fun renderPlayerTabs(recording: GameRecording, onSelect: (Int) -> Unit) {
+private fun renderPlayerTabs(recording: GameRecording.Playback, onSelect: (Int) -> Unit) {
   val game = recording.world
   val tabs = checkNotNull(document.getElementById("player-tabs"))
   tabs.innerHTML = ""
@@ -225,7 +246,10 @@ private fun renderPlayerTabs(recording: GameRecording, onSelect: (Int) -> Unit) 
   }
 }
 
-private fun updatePlayerTabs(recording: GameRecording, selectedPlayerIndex: Int) {
+private fun updatePlayerTabs(
+    recording: GameRecording.Playback,
+    selectedPlayerIndex: Int,
+) {
   val tabs = checkNotNull(document.getElementById("player-tabs"))
   for (index in 0 until tabs.children.length) {
     val tab = tabs.children.item(index) ?: continue
@@ -242,9 +266,9 @@ private fun updatePlayerTabs(recording: GameRecording, selectedPlayerIndex: Int)
       "dashboard-panel player-${playerColors[selectedPlayerIndex]}"
 }
 
-private fun renderDashboard(recording: GameRecording, agents: Agents, player: Player) {
+private fun renderDashboard(recording: GameRecording.Playback, player: Player) {
   val game = recording.world
-  val tfm = agents.tfm(player)
+  val queries = GameQueries(game.reader)
 
   fun setValue(name: String, value: Any?) {
     document.querySelector("[data-stat='$name']")?.textContent = value?.toString() ?: "—"
@@ -252,7 +276,7 @@ private fun renderDashboard(recording: GameRecording, agents: Agents, player: Pl
 
   fun countIfLoaded(type: String): Int =
       try {
-        tfm.count(type)
+        queries.count(player, type)
       } catch (_: ExpressionException) {
         0
       }
@@ -264,7 +288,10 @@ private fun renderDashboard(recording: GameRecording, agents: Agents, player: Pl
       "corporation-name",
       corporation?.let { displayName(game.reader.catalog, it.className) },
   )
-  setValue("phase", tfm.list("Phase").singleOrNull()?.toString()?.removeSuffix("Phase") ?: "—")
+  setValue(
+      "phase",
+      game.reader.getComponents("Phase").singleOrNull()?.toString()?.removeSuffix("Phase") ?: "—",
+  )
   setValue("terraform-rating", countIfLoaded("TerraformRating"))
   setValue("cards", countIfLoaded("ProjectCard"))
 
@@ -278,7 +305,7 @@ private fun renderDashboard(recording: GameRecording, agents: Agents, player: Pl
       )
       .forEach { (name, type) ->
         setValue("$name-stock", countIfLoaded(type))
-        val production = tfm.production(dev.martianzoo.pets.ast.ClassName.cn(type))
+        val production = queries.production(player, cn(type))
         setValue("$name-production", if (production > 0) "+$production" else production)
       }
 
@@ -306,7 +333,7 @@ private fun renderDashboard(recording: GameRecording, agents: Agents, player: Pl
       }
 }
 
-private fun renderCards(recording: GameRecording, agents: Agents, player: Player) {
+private fun renderCards(recording: GameRecording.Playback, player: Player) {
   val game = recording.world
   val container = checkNotNull(document.getElementById("played-cards"))
   container.innerHTML = ""
@@ -372,8 +399,8 @@ private fun renderCards(recording: GameRecording, agents: Agents, player: Player
     appendCardImage(
         directory,
         card.className,
-        cardResourceCount(agents, player, card),
-        hasActionUsedMarker(agents, player, card),
+        cardResourceCount(game.reader, player, card),
+        hasActionUsedMarker(game.reader, player, card),
     )
   }
   if (events.isNotEmpty()) {
@@ -386,7 +413,7 @@ private fun renderCards(recording: GameRecording, agents: Agents, player: Player
 }
 
 private fun renderLog(
-    recording: GameRecording,
+    recording: GameRecording.Playback,
     events: List<ChangeEvent>,
     selectablePositions: List<Int>,
     onSeek: (Int) -> Unit,
@@ -424,7 +451,7 @@ private fun renderLog(
   appendStopsThrough(Int.MAX_VALUE)
 }
 
-private fun updateLogState(recording: GameRecording) {
+private fun updateLogState(recording: GameRecording.Playback) {
   val log = checkNotNull(document.getElementById("game-log"))
   val checkpoint = recording.positions[recording.positionIndex]
   for (index in 0 until log.children.length) {
@@ -445,7 +472,7 @@ private fun scrollActiveLogStop() {
   active.asDynamic().scrollIntoView(js("({block: 'nearest'})"))
 }
 
-private fun renderMap(recording: GameRecording): List<CountSubscription> {
+private fun renderMap(recording: GameRecording.Playback): List<CountSubscription> {
   val game = recording.world
   val map = mapDefinition(game.reader)
   document.getElementById("mars-map")?.innerHTML = buildString {
@@ -481,7 +508,7 @@ private fun areaBaseSvg(area: AreaDefinition): String {
       "<g id='map-state-${area.row}-${area.column}'></g>"
 }
 
-private fun renderAreaState(recording: GameRecording, area: AreaDefinition) {
+private fun renderAreaState(recording: GameRecording.Playback, area: AreaDefinition) {
   val game = recording.world
   val reader = game.reader
   val target = document.getElementById("map-state-${area.row}-${area.column}") ?: return

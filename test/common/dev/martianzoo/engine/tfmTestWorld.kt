@@ -38,5 +38,7 @@ internal fun canonicalPremise(
 internal fun setUpGame(premise: GamePremise = canonicalPremise()): World =
     Engine.newGame(premise).apply {
       TfmWorkflow.Stepwise(testAgents()).setupPhase()
-      actors.filterIsInstance<Player>().forEach { testAgent(it).doTask("-10 ProjectCard<Hand>") }
+      actors.filterIsInstance<Player>().forEach {
+        testAgent(it).doTask("-10 ProjectCard<Selecting>")
+      }
     }

@@ -2,6 +2,8 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.generated.Prelude2CardPack
 import dev.martianzoo.generated.PreludeExpansion
@@ -418,6 +420,7 @@ internal class Prelude2CardsTest : CardTest() {
     mons.runOperation("-27 MC")
     victims.forEach { it.runOperation("5 MC") }
     admin.phase("Prelude")
+    players.drop(1).forEach { it.autoExecPolicy = NONE }
     p1.autoExecPolicy = CONCRETE
 
     fun OperationScope.settle(
@@ -431,10 +434,8 @@ internal class Prelude2CardsTest : CardTest() {
     }
 
     p1.playPrelude(Recession) {
-      doTask(
-          "EACH Player(HAS MAX 0 $Recession<Anyone>) { " +
-              "-5 MC<Owner>., -Production<Owner, Class<MC>>! }"
-      )
+      p1.autoExecPolicy = NONE
+      doTask("EACH Player(NOT Player1) { -5 MC<Owner>., PROD[-1 MC<Owner>] }")
       doTask("-5 MC<Player2>")
       doTask("PROD[-1 MC<Player2>]")
       doTask("3 MC<Player2> FROM MC<Player2>")
@@ -442,6 +443,7 @@ internal class Prelude2CardsTest : CardTest() {
       settle(victimActors[0])
       settle(victimActors[2])
       settle(victimActors[1], secondPayout = 1)
+      doTask("10 MC<Player1>")
     }
 
     // https://boardgamegeek.com/thread/3334230/article/44565901#44565901
@@ -449,11 +451,13 @@ internal class Prelude2CardsTest : CardTest() {
     victims.map { it.count("MC") } shouldBe listOf(6, 4, 6)
     mons.count("PreludeCard") shouldBe 2
 
+    mons.autoExecPolicy = CONCRETE
     shouldThrow<LimitsException> { mons.playPrelude(MainBeltAsteroids) }
     shouldThrow<LimitsException> { mons.playPrelude(BusinessEmpire) }
 
     mons.startTurn()
     mons.doTask("-PreludeCard")
+    mons.autoExecPolicy = EAGER
     mons.playPrelude(BusinessEmpire)
 
     mons.count("MC") shouldBe 9

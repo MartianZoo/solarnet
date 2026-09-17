@@ -253,7 +253,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       cardAction1(AquiferPumping) {
         pay(8)
         placeTile(9, 9)
-        doTask("UseAction<NeptunianOption, Action1>")
+        doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
         pay(5)
       }
       // Yellow immediately spends eight plants for a greenery at 9,8.
@@ -271,7 +271,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
         doTask("UseAction<$AquiferPumping, Action1>")
         pay(8)
         placeTile(8, 9)
-        doTask("UseAction<NeptunianOption, Action1>")
+        doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
         pay(5)
       }
     }
@@ -320,7 +320,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       cardAction1(AquiferPumping) {
         pay(8)
         placeTile(7, 9)
-        doTask("UseAction<NeptunianOption, Action1>")
+        doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
         pay(5)
       }
       // "Viar on. Oceans are now maxed." The final ocean goes at 1,5, followed by the last
@@ -329,7 +329,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
         doTask("UseAction<$AquiferPumping, Action1>")
         pay(8)
         placeTile(1, 5)
-        doTask("UseAction<NeptunianOption, Action1>")
+        doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
         pay(5)
       }
     }

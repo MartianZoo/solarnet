@@ -9,17 +9,15 @@ plugins {
   alias(libs.plugins.dokka)
 }
 
-// JVM tests provide the exhaustive signal. Kotlin creates a browser-test task for every JS target,
-// but only tfm-tests may execute one; its build file permanently filters that task to one replay.
+// JVM tests provide the behavioral signal. Browser applications compile against their passive
+// dependencies, but generated browser-test tasks do not execute gameplay in Chrome.
 subprojects {
-  if (name != "tfm-tests") {
-    tasks
-        .matching { it.name == "jsBrowserTest" }
-        .configureEach {
-          description = "Disabled: browser verification is owned by :tfm-tests:jsBrowserSmokeTest."
-          onlyIf("only the Terraforming Mars browser smoke test may run") { false }
-        }
-  }
+  tasks
+      .matching { it.name == "jsBrowserTest" }
+      .configureEach {
+        description = "Disabled: browser applications consume data produced by JVM tests."
+        onlyIf("gameplay tests run only on the JVM") { false }
+      }
 }
 
 val pinnedYarnResolutions =
@@ -75,6 +73,7 @@ dokka {
 
 dependencies {
   dokka(project(":pets"))
+  dokka(project(":state"))
   dokka(project(":engine"))
   dokka(project(":tfm-engine"))
   dokka(project(":script"))

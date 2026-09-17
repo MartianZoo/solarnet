@@ -31,12 +31,14 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent
-import dev.martianzoo.pets.data.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.types.TypeVariable
 import dev.martianzoo.pets.types.TypeVariableScope
+import dev.martianzoo.state.Component
+import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.toComponent
 
 /** One specialized component effect ready for subscription matching and firing. */
 internal class LiveEffect
@@ -106,6 +108,7 @@ private constructor(
             resolvedChange,
             isSelf,
             reader,
+            elaborator,
         ) ?: return null
     val cause = Cause(context.expression, triggerEvent.ordinal)
     val instruction =
@@ -305,6 +308,7 @@ private constructor(
         resolvedChange: ResolvedChange,
         isSelf: Boolean,
         reader: GameReader,
+        elaborator: PetElaborator,
     ): Hit?
 
     abstract val classToCheck: ClassName?
@@ -329,6 +333,7 @@ private constructor(
           resolvedChange: ResolvedChange,
           isSelf: Boolean,
           reader: GameReader,
+          elaborator: PetElaborator,
       ): Hit? {
         alternatives.forEach { alternative ->
           alternative
@@ -338,6 +343,7 @@ private constructor(
                   resolvedChange,
                   isSelf,
                   reader,
+                  elaborator,
               )
               ?.let {
                 return it
@@ -364,8 +370,8 @@ private constructor(
           resolvedChange: ResolvedChange,
           isSelf: Boolean,
           reader: GameReader,
+          elaborator: PetElaborator,
       ): Hit? {
-        reader as GameReaderImpl
         if (isSelf) return null
         val change = currentEvent.change
         val changeType = resolvedChange.type(matchOnGain) ?: return null
@@ -389,7 +395,7 @@ private constructor(
           // role as a contextual variable without treating that Owner as the executing Actor.
           val ownerForBinding = contextualOwner?.takeIf { OWNER in match }
           val binder =
-              reader.elaborator.specializeVariables(
+              elaborator.specializeVariables(
                   matchType,
                   changeType,
                   match,
@@ -418,6 +424,7 @@ private constructor(
           resolvedChange: ResolvedChange,
           isSelf: Boolean,
           reader: GameReader,
+          elaborator: PetElaborator,
       ): Hit? {
         if (!isSelf) return null
         val changeType = resolvedChange.type(matchOnGain) ?: return null
@@ -446,16 +453,18 @@ private constructor(
           resolvedChange: ResolvedChange,
           isSelf: Boolean,
           reader: GameReader,
+          elaborator: PetElaborator,
       ): Hit? {
-        reader as GameReaderImpl
         val actor = currentEvent.actor
-        val actorType = reader.resolve(actor.expression)
+        val actorType = reader.classTable.resolve(actor.expression)
 
         // An explicit Actor declaration is bound before the inner trigger is matched. A use inside
         // a NOT refinement therefore receives the concrete Actor before that difference is tested.
         if (actorVariable != null) {
           val actorDomain = reader.resolve(ACTOR.expression)
-          if (!reader.matchesConstraint(actorType, selector, actorDomain)) return null
+          if (!reader.classTable.matchesConstraint(actorType, selector, actorDomain, reader)) {
+            return null
+          }
           val binding = typeVariables.bind(mapOf(actorVariable to actorType), reader.classTable)
           val hit =
               inner
@@ -466,6 +475,7 @@ private constructor(
                       resolvedChange,
                       isSelf,
                       reader,
+                      elaborator,
                   ) ?: return null
           return hit.before(binding)
         }
@@ -477,6 +487,7 @@ private constructor(
                 resolvedChange,
                 isSelf,
                 reader,
+                elaborator,
             ) ?: return null
 
         // BY describes the Actor that performed the triggering change, recorded on the event.
@@ -486,7 +497,7 @@ private constructor(
         // Apply that established contextual rule before evaluating the selector as an Actor type.
         if (specializedSelector == OWNER.expression) {
           val owner = actor as? Player ?: return null
-          hit = hit.then(reader.elaborator.contextualOwnerBinding(owner))
+          hit = hit.then(elaborator.contextualOwnerBinding(owner))
           specializedSelector = hit.specialize(selector)
         }
         val by = specializedSelector.className
@@ -496,7 +507,16 @@ private constructor(
         if (by == ANYONE && specializedSelector.refinement == null) return hit
 
         val actorDomain = reader.resolve(ACTOR.expression)
-        if (!reader.matchesConstraint(actorType, specializedSelector, actorDomain)) return null
+        if (
+            !reader.classTable.matchesConstraint(
+                actorType,
+                specializedSelector,
+                actorDomain,
+                reader,
+            )
+        ) {
+          return null
+        }
 
         return hit
       }
@@ -519,6 +539,7 @@ private constructor(
           resolvedChange: ResolvedChange,
           isSelf: Boolean,
           reader: GameReader,
+          elaborator: PetElaborator,
       ): Hit? {
         val wouldHit =
             inner.checkForHit(
@@ -527,6 +548,7 @@ private constructor(
                 resolvedChange,
                 isSelf,
                 reader,
+                elaborator,
             ) ?: return null
         return if (reader.has(wouldHit.specialize(condition))) wouldHit else null
       }
@@ -547,6 +569,7 @@ private constructor(
           resolvedChange: ResolvedChange,
           isSelf: Boolean,
           reader: GameReader,
+          elaborator: PetElaborator,
       ): Hit? {
         val hit =
             inner.checkForHit(
@@ -555,6 +578,7 @@ private constructor(
                 resolvedChange,
                 isSelf,
                 reader,
+                elaborator,
             ) ?: return null
         return hit.bindCount(currentEvent.change.count)
       }

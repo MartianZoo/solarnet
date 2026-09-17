@@ -12,6 +12,7 @@ kotlin {
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/tests"),
           )
       )
+      kotlin.exclude("**/replays/**")
       dependencies {
         implementation(libs.kotest.assertions.core)
         implementation(project(":agent"))
@@ -19,6 +20,7 @@ kotlin {
         implementation(project(":generated"))
         implementation(project(":pets"))
         implementation(project(":script"))
+        implementation(project(":state"))
         implementation(project(":tfm-canon"))
         implementation(project(":tfm-fake"))
         implementation(project(":tfm-engine"))
@@ -32,6 +34,9 @@ kotlin {
     jvmTest {
       kotlin.setSrcDirs(
           listOf(
+              rootProject.layout.projectDirectory.dir(
+                  "test/common/dev/martianzoo/tfm/tests/replays"
+              ),
               rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tfm/tests"),
               rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tfm/randomcards"),
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/testlib"),
@@ -40,6 +45,16 @@ kotlin {
       kotlin.exclude("PetGenerator.kt", "testHelpers.kt")
     }
   }
+}
+
+val replayEventLogsDirectory = layout.buildDirectory.dir("generated/replay-event-logs")
+
+tasks.named<Test>("jvmTest") {
+  systemProperty(
+      "solarnet.replayEventLogDirectory",
+      replayEventLogsDirectory.get().asFile.absolutePath,
+  )
+  outputs.dir(replayEventLogsDirectory)
 }
 
 val randomCardCount = providers.gradleProperty("randomCardCount").orElse("12")
@@ -59,18 +74,4 @@ tasks.register<JavaExec>("sampleRandomCards") {
     require(randomCardSeed.isPresent) { "randomCardOutput requires randomCardSeed" }
     args(it)
   }
-}
-
-// Browser verification is deliberately limited to one extensive shared replay. Keep this filter
-// unconditional: no Gradle invocation may use the JS target to run any other test.
-tasks.named<org.gradle.api.tasks.testing.AbstractTestTask>("jsBrowserTest") {
-  filter.includeTestsMatching(
-      "dev.martianzoo.tfm.tests.replays.OtbGame20260828Test.otbGame20260828"
-  )
-}
-
-tasks.register("jsBrowserSmokeTest") {
-  group = LifecycleBasePlugin.VERIFICATION_GROUP
-  description = "Runs one extensive Terraforming Mars game in a browser."
-  dependsOn("jsBrowserTest")
 }

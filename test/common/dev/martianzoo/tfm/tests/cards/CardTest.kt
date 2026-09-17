@@ -13,7 +13,7 @@ import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.data.TaskResult
+import dev.martianzoo.state.TaskResult
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestOption as Option

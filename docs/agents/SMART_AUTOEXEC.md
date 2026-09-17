@@ -28,9 +28,10 @@ promising safety alone. If a later restricted reader omits a fact required by a 
   for `resolve` and `executeResolved` for state reads, execution, and effect creation.
 - [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt) — search for
   `candidatesFor` and `stableAutomaticOrder` before defining EGS equality.
-- [`Task.kt`](../../src/common/dev/martianzoo/pets/data/Task.kt) and
-  [`TaskQueue.kt`](../../src/common/dev/martianzoo/engine/TaskQueue.kt) — inspect
-  selected state, continuations, causes, normalization, and id-only ordering.
+- [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt) and
+  [`TaskQueue.kt`](../../src/common/dev/martianzoo/state/TaskQueue.kt) — inspect selected state,
+  continuations, causes, and id-only ordering. [`newTasks.kt`](../../src/common/dev/martianzoo/engine/newTasks.kt)
+  owns engine task normalization.
 
 ## Read only the relevant sections
 

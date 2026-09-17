@@ -1,10 +1,10 @@
 package dev.martianzoo.script.commands
 
-import dev.martianzoo.engine.Timeline.Checkpoint
 import dev.martianzoo.script.ScriptCommand
 import dev.martianzoo.script.ScriptCompletion
 import dev.martianzoo.script.ScriptCompletionContext
 import dev.martianzoo.script.ScriptSession
+import dev.martianzoo.state.Checkpoint
 
 internal class RollbackCommand(private val repl: ScriptSession) : ScriptCommand("rollback") {
   override val usage = "rollback <logid>"

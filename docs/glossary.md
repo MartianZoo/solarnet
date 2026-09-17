@@ -54,7 +54,8 @@
 - **dependency key:** The internal stable identity of a dependency: its declaring class plus its declaration ordinal.
 - **dependency path:** An ordered sequence of dependency keys locating a direct or nested dependency within a type. For example, it can identify either a card's Owner dependency or a dependency inside the card type used as a resource holder.
 - **dependent removal:** Automatic removal of Components that depend on a Component being removed, performed first and cascading as necessary.
-- **Die:** A Signal with the invariant `HAS MAX 0 This`; attempting to gain it makes the route dead-end.
+- **Die:** A concrete, final Type with the invariant `HAS MAX 0 This`. A mandatory gain is a dead
+  end; a nonmandatory gain can resolve to no change.
 - **difference type:** A refinement written `B(NOT C)` that denotes the Types in explicit domain `B` which do not overlap excluded Type `C`.
 - **display name:** The locale-specific natural-language name used for UI text, such as a printed card title. It need not be a valid or stable Pets identifier.
 - **double-colon effect:** Synonym for automatic effect.
@@ -118,7 +119,7 @@
 - **self trigger:**
 - **sequential instruction:**
 - **SetupPhase:** The Terraforming Mars phase gained by transmuting BootstrapPhase away with `SetupPhase FROM Phase`. It creates generation 1, grants starting state such as 20 `TerraformRating`, deals starting cards into each Player's `Hand`, and waits for their discards.
-- **Signal:** An unscoped point event: a Component that triggers its effects and immediately removes itself, owning no lifetime interval.
+- **Signal:** An unscoped point event that leaves no persistent component state.
 - **singleton type:** A concrete type constrained to exactly one occurrence by an inherited `HAS =1 This` invariant. The invariant does not create the occurrence.
 - **SoloOpponent:** The passive Owner created by `SoloMode`; it is neither a Player nor an Actor and receives no tasks or turns.
 - **source effect:** An effect as authored in `.pets` or generated from structured content data, before class-level inheritance and transformation.

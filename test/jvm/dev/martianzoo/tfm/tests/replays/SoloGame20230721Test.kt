@@ -603,7 +603,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
 
       // The score is really 99, but we faked Flooding. Note
       // herokuapp says 111.
-      sum.net("ActionPhase", "UseAction<Me>") shouldBe 98
+      sum.signalCount("ActionPhase", "UseAction<Me>") shouldBe 98
     }
   }
 }

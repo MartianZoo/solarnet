@@ -6,6 +6,10 @@ import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement
+import dev.martianzoo.pets.ast.Expression.Refinement.And
+import dev.martianzoo.pets.ast.Expression.Refinement.Has
+import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
@@ -43,8 +47,33 @@ internal object Prod {
           }
           // Production represents its resource kind with a Class dependency, so the resource
           // selector's refinement belongs on that represented class after lowering.
-          val resourceClass = node.className.classExpression().copy(refinement = node.refinement)
-          return PRODUCTION.of(node.arguments + resourceClass)
+          return PRODUCTION.of(node.arguments + node.toClassSelector())
         }
+      }
+
+  private fun Expression.toClassSelector(
+      expectedArguments: List<Expression> = arguments
+  ): Expression {
+    if (arguments != expectedArguments) {
+      throw PetSyntaxException(
+          "PROD cannot represent a resource difference with different dependencies: $this"
+      )
+    }
+    return className
+        .classExpression()
+        .copy(refinement = refinement?.let { toClassRefinement(it, expectedArguments) })
+  }
+
+  private fun toClassRefinement(
+      refinement: Refinement,
+      resourceArguments: List<Expression>,
+  ): Refinement =
+      when (refinement) {
+        is Has -> refinement
+        is Not -> Not(refinement.excluded.toClassSelector(resourceArguments))
+        is And ->
+            Refinement.create(
+                refinement.refinements.map { toClassRefinement(it, resourceArguments) }
+            )
       }
 }
