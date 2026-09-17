@@ -95,12 +95,7 @@ internal class ClassDeclarationTest {
 
     val inv: Requirement = Requirement.Exact(scaledEx(THIS.expression, 1))
     val eff: Effect = parse<Effect>("This: DoStuff")
-    val billing =
-        parse<Effect>(
-            "UseAction<This, Action1>: Owed<Class<Steel>> THEN " +
-                "ActionBilling<This, Action1, Class<Steel>>"
-        )
-    val paid = parse<Effect>("-ActionBilling<This, Action1>: 5 MC")
+    val actionEffect = parse<Effect>("UseAction<This, Action1>: -Steel! THEN 5 MC")
     val gain = cn("Abc").expression
     val univ = cn("Xyz").expression
     val first = cn("Action1")
@@ -112,7 +107,7 @@ internal class ClassDeclarationTest {
     decl.invariants.shouldContainExactlyInAnyOrder(inv)
     decl.authoredEffects.shouldContainExactly(eff)
     decl.authoredActions.shouldContainExactly(parse<Action>("Steel -> 5 MC"))
-    decl.effects.shouldContainExactlyInAnyOrder(eff, billing, paid)
+    decl.effects.shouldContainExactlyInAnyOrder(eff, actionEffect)
     decl.defaultsDeclaration.gainOnly.specs.shouldContainExactlyInAnyOrder(gain)
     decl.defaultsDeclaration.universal.specs.shouldContainExactlyInAnyOrder(univ)
     decl.defaultsDeclaration.gainOnly.quantifier shouldBe Quantifier.OPTIONAL
@@ -126,8 +121,7 @@ internal class ClassDeclarationTest {
         sup,
         inv,
         eff,
-        billing,
-        paid,
+        actionEffect,
         gain,
         univ,
         first,
