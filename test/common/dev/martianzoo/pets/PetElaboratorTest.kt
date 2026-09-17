@@ -54,7 +54,16 @@ internal class PetElaboratorTest {
         )
     object : Catalog by baseCatalog {
       override val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> =
-          mapOf("UNWRAP" to { _ -> TransformHandler { transformed -> transformed } })
+          mapOf(
+              "UNWRAP" to { _ -> TransformHandler { transformed -> transformed } },
+              "ORDER" to
+                  { _ ->
+                    TransformHandler { transformed ->
+                      if (transformed is Metric.Eval) parse<Metric>("Pulse")
+                      else parse<Metric>("Token")
+                    }
+                  },
+          )
 
       override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
     }
@@ -78,6 +87,15 @@ internal class PetElaboratorTest {
     shouldThrow<PetSyntaxException> { elaborator.elaborateInput(source, player1) }
     elaborator.elaborateMetricInput(source, player1.expression, player1) shouldBe
         parse<Metric>("Pulse")
+  }
+
+  @Test
+  internal fun metricInputTransformsBeforeExpandingProperties() {
+    elaborator.elaborateMetricInput(
+        parse("ORDER[EVAL Score.score]"),
+        player1.expression,
+        player1,
+    ) shouldBe parse<Metric>("Pulse")
   }
 
   @Test

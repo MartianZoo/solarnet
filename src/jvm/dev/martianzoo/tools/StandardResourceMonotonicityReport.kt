@@ -25,7 +25,6 @@ import dev.martianzoo.pets.types.Class as PetsClass
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
-import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE
 import dev.martianzoo.tfm.canon.cardRequirement
@@ -85,7 +84,7 @@ internal object StandardResourceMonotonicityReport {
 
   fun analyze(premise: GamePremise = maximalSoloPremise()): Analysis {
     val table = ClassTable.forPremise(premise)
-    val productionLowerer = table.transformDispatcher(setOf(PROD))
+    val productionLowerer = table.transformDispatcher()
     val quantities = quantities(table)
     val findings = linkedSetOf<Finding>()
     val opaqueUsages = linkedSetOf<OpaqueUsage>()

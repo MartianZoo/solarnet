@@ -43,7 +43,7 @@ internal class TransformHandlerTest {
   }
 
   @Test
-  internal fun unregisteredTransformIsPreservedForAnotherStage() {
+  internal fun unregisteredTransformIsLeftForALaterPass() {
     val dispatcher = TransformHandler.dispatcher(emptyMap())
 
     dispatcher.transformInstructionTree(parse<InstructionTree>("LATER[Inside]")).toString() shouldBe

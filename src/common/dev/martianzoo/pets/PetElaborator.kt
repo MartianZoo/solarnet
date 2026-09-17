@@ -68,9 +68,8 @@ import dev.martianzoo.pets.util.invoke
  * The stages are fixed ([rule
  * L12-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-elaboration)):
  * infer type variables, split atomized gains, insert defaults, bind the contextual owner, dispatch
- * transform blocks, expand property evaluations. Two entry points apply different subsets in
- * different orders — [elaborateInput] for an element a player submits, and [classEffects] for a
- * class's own effects.
+ * transform blocks, expand property evaluations. The entry points supply different contexts and
+ * permit different property forms while preserving that shared ordering.
  *
  * Runtime binding operations return [PetTransformer] only where the engine must retain one deferred
  * binding across several AST families.
@@ -121,8 +120,8 @@ public class PetElaborator(public val classTable: ClassTable) {
   ): Metric =
       chain(
               normalizeInput(),
-              propertyEvaluator(context, owner),
               finishAuthoredSyntax(context, owner),
+              propertyEvaluator(context, owner),
           )
           .transformMetric(input)
 
@@ -360,8 +359,8 @@ public class PetElaborator(public val classTable: ClassTable) {
     val context = klass.className.has(Min(scaledEx(OK, 1)))
     return chain(
         classTable.inferTypeVariables(),
-        insertDefaults(context),
         atomizer(),
+        insertDefaults(context),
         transformDispatcher(),
         fixEffectForUnownedContext(klass),
     )

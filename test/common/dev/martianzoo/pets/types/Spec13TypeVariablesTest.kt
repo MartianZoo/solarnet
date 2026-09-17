@@ -511,7 +511,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-8 a first-stage dependency choice outranks a matching class variable`() {
+  internal fun `T13-3 a repeat inside a THEN uses the class variable rather than hiding it`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
@@ -521,15 +521,13 @@ internal class Spec13TypeVariablesTest {
         )
     val offer = table.getClass(cn("Offer"))
     val classScoped = offer.interpretTypeVariablesIn(offer.declaration.effects.single())
-    val inferred = table.inferTypeVariables().transformEffect(classScoped)
-    val choice = (inferred.instruction as Then).typeVariables.variables.single()
+    val classVariable = classScoped.typeVariables.variables.single()
 
-    classScoped.typeVariables.isEmpty shouldBe true
-    "${choice.declaration.expression}" shouldBe "Person"
-    (inferred.instruction as Then)
-        .typeVariables
-        .bind(mapOf(choice to table.resolve(te("Alice"))))
-        .transformEffect(inferred)
+    "${classVariable.declaration.expression}" shouldBe "Person"
+    classVariable.occurrences.size shouldBe 3
+    classScoped.typeVariables
+        .bind(mapOf(classVariable to table.resolve(te("Alice"))))
+        .transformEffect(classScoped)
         .toString() shouldBe "This: Coin<Alice> THEN Receipt<Alice>"
   }
 

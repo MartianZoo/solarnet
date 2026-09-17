@@ -4,7 +4,6 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Instruction.NoOp
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 
 /**
  * A normalized group of independent instructions, used for both Pets commas and task batches. The
@@ -18,7 +17,8 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
  * wrapper identity is not part of the source representation. Groups narrow elementwise: members are
  * matched by position and the sizes must agree ([rule
  * L7-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
- * Because nothing connects the members, two of them may not share an `X` ([rule
+ * A group creates no linkage at all between its members, so an `X` in one member is never the same
+ * amount as an `X` in another; each is linked only to an `X` introduced around the group ([rule
  * L6-14](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
  */
 public data class InstructionGroup(val instructions: List<Instruction>) : InstructionTree() {
@@ -58,9 +58,6 @@ public data class InstructionGroup(val instructions: List<Instruction>) : Instru
   init {
     if (instructions.any { it == NoOp }) {
       throw PetSyntaxException("Instruction groups cannot contain Ok")
-    }
-    if (instructions.count { it.descendantsOfType<XScalar>().any() } > 1) {
-      throw PetSyntaxException("X cannot link independent instructions")
     }
   }
 
