@@ -135,6 +135,13 @@ internal class Spec09PropertiesTest {
           "CLASS Gardener : Milestone { requirement = TemperatureStep }",
       )
     }
+    shouldThrow<PetException> {
+      loadTypes(
+          "ABSTRACT CLASS Scored { score = Metric }",
+          "CLASS Invalid : Scored { score = HAS \"Plant\" }",
+          "CLASS Plant",
+      )
+    }
   }
 
   // T9-3 Concrete classes are complete

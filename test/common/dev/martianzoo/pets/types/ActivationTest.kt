@@ -85,6 +85,18 @@ internal class ActivationTest {
   }
 
   @Test
+  internal fun `locked vocabulary names the Module that makes it available`() {
+    val catalog =
+        testCatalog(
+            "CLASS Locked\nCLASS UnlockingModule",
+            moduleSelections = mapOf(cn("UnlockingModule") to emptySet()),
+            classAvailabilityModules = mapOf(cn("Locked") to setOf(cn("UnlockingModule"))),
+        )
+
+    shouldThrow<IllegalArgumentException> { gameView(catalog, "Locked") }
+  }
+
+  @Test
   internal fun `premise rejects a structurally activated unrequested Module`() {
     val catalog =
         testCatalog(

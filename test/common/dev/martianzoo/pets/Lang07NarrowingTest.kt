@@ -4,6 +4,10 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.PropertyValue.NumberValue
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.pets.types.isExpandedFrom
 import dev.martianzoo.pets.types.testCatalog
 import io.kotest.assertions.throwables.shouldThrow
@@ -65,6 +69,12 @@ internal class Lang07NarrowingTest {
   }
 
   @Test
+  internal fun `L7-2 programmatic values reject incompatible narrowings`() {
+    shouldThrow<NarrowingException> { XScalar(1).ensureNarrows(ActualScalar(1), langWorld) }
+    shouldThrow<NarrowingException> { NumberValue(1).ensureNarrows(NumberValue(2), langWorld) }
+  }
+
+  @Test
   internal fun `L7-2 a narrowing preserves the number of stages and the size of a group`() {
     refuses("Plant THEN Heat", "Plant THEN Heat THEN Steel")
     refuses("Plant, Heat", "Plant, Heat, Steel")
@@ -90,6 +100,15 @@ internal class Lang07NarrowingTest {
     narrows("2 Plant?", "2 Plant?") shouldBe true
     refuses("2 Plant!", "2 Plant.")
     refuses("2 Plant.", "2 Plant!")
+  }
+
+  @Test
+  internal fun `L7-3 both changes must be elaborated before narrowing`() {
+    val authored = parse<InstructionTree>("Plant")
+    val elaborated = elaborate("Plant")
+
+    shouldThrow<NullPointerException> { authored.ensureNarrows(elaborated, langWorld) }
+    shouldThrow<NullPointerException> { elaborated.ensureNarrows(authored, langWorld) }
   }
 
   @Test
@@ -150,6 +169,8 @@ internal class Lang07NarrowingTest {
     narrows("X Plant THEN 2X Heat", "3 Plant THEN 6 Heat") shouldBe true
     refuses("X Plant THEN 2X Heat", "3 Plant THEN 5 Heat")
     refuses("2X Plant THEN Heat", "3 Plant THEN Heat")
+    refuses("X Plant THEN X Heat", "3 Plant THEN 2 Heat")
+    refuses("(X Plant? OR 2X Plant?) THEN X Steel?", "4 Plant? THEN Ok")
   }
 
   @Test
@@ -178,6 +199,23 @@ internal class Lang07NarrowingTest {
         "GreeneryTile<Land1> THEN GreeneryTile<Land1>",
     ) shouldBe true
     refuses("Tile<LandArea> THEN Tile<LandArea>", "GreeneryTile<Land1> THEN OceanTile<Land1>")
+  }
+
+  @Test
+  internal fun `L7-8 binding a THEN stage requires a binding and a met gate`() {
+    val unbound = elaborate("Plant THEN Heat") as dev.martianzoo.pets.ast.Instruction.Then
+    shouldThrow<NarrowingException> {
+      unbound.bindFirstStage(elaborate("Plant") as dev.martianzoo.pets.ast.Instruction, langWorld)
+    }
+
+    val gated =
+        elaborate("MAX 0 Heat: Plant THEN Steel") as dev.martianzoo.pets.ast.Instruction.Then
+    shouldThrow<NarrowingException> {
+      gated.selectFirstStage(
+          elaborate("Plant") as dev.martianzoo.pets.ast.Instruction,
+          TableWorld(langTable, answer = false),
+      )
+    }
   }
 
   @Test

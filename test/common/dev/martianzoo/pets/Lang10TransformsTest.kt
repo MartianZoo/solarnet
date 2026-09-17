@@ -1,6 +1,7 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -51,6 +52,20 @@ internal class Lang10TransformsTest {
     TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { null }))
         .transformInstructionTree(parse("MARK[Plant]"))
         .toString() shouldBe "MARK[Plant]"
+  }
+
+  @Test
+  internal fun `L10-2 preserved blocks must be handled before semantic operations`() {
+    shouldThrow<ExpressionException> {
+      parse<Metric>("LATER[Plant]").evaluate({ 0 }, { 0 }, { 0 }, { 0 })
+    }
+    shouldThrow<ExpressionException> {
+      parse<Requirement>("LATER[Plant]").isMetBy { 0 }
+    }
+
+    val instruction = parse<Instruction>("LATER[Plant]")
+    shouldThrow<IllegalStateException> { instruction.isAbstract(langWorld) }
+    shouldThrow<IllegalStateException> { instruction.ensureNarrows(instruction, langWorld) }
   }
 
   // L10-3 A handler rewrites only inside its block

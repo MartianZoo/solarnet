@@ -55,6 +55,14 @@ internal class Lang06InstructionsTest {
     remove(cn("Plant"), count = 3, quantifier = AMAP) shouldBe parse<Instruction>("-3 Plant.")
   }
 
+  @Test
+  internal fun `L6-1 programmatic changes need a type and a nonnegative count`() {
+    shouldThrow<IllegalArgumentException> {
+      Instruction.Change.change(gaining = cn("Plant").expression, count = -1)
+    }
+    shouldThrow<NullPointerException> { Instruction.Change.change() }
+  }
+
   // L6-2 Counts
 
   @Test
@@ -70,6 +78,7 @@ internal class Lang06InstructionsTest {
     (parse<Instruction>("2X Plant") as Gain).count shouldBe XScalar(2)
     shouldThrow<PetSyntaxException> { parse<Instruction>("0 Plant") }
     shouldThrow<PetSyntaxException> { parse<Instruction>("-0 Plant") }
+    shouldThrow<IllegalArgumentException> { parse<Instruction>("Plant") * -1 }
   }
 
   // L6-3 Quantifiers
@@ -163,6 +172,9 @@ internal class Lang06InstructionsTest {
     then.continuation shouldBe parse<Instruction>("Steel")
     then.instructions.size shouldBe 3
     parse<Instruction>("Plant THEN (Heat THEN Steel)") shouldBe then
+    shouldThrow<IllegalStateException> {
+      then.withInstructions(listOf(parse<InstructionTree>("Plant")))
+    }
   }
 
   @Test
@@ -237,6 +249,7 @@ internal class Lang06InstructionsTest {
       ((it as Transmute).fromEx is Full) shouldBe true
     }
     roundTrip<InstructionTree>("Marker<Mars1 FROM Mars2>(HAS Plant)")
+    shouldThrow<PetSyntaxException> { Compact(cn("Marker"), emptyList()) }
   }
 
   // L6-13 Precedence and rendering

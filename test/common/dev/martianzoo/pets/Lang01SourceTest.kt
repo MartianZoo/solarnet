@@ -17,6 +17,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.MetricType
 import dev.martianzoo.pets.ast.PropertyValue.MetricValue
@@ -36,6 +37,23 @@ import kotlin.test.Test
 
 /** Section 1 of `docs/pets-language-spec.md`: what a Pets source is made of. */
 internal class Lang01SourceTest {
+  @Test
+  internal fun parsingNeedsAConcreteAstKind() {
+    shouldThrow<IllegalArgumentException> { Parsing.parse(PetNode::class, "Plant") }
+    shouldThrow<IllegalArgumentException> {
+      Parsing.acceptsNextToken(PetNode::class, "", "Plant")
+    }
+  }
+
+  @Test
+  internal fun customClassesCannotDeclareOrdinaryClassBehavior() {
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Broken : Custom { HAS Broken }") }
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Broken : Custom { This: Ok }") }
+    shouldThrow<PetSyntaxException> {
+      parseClasses("CLASS Broken : Custom { DEFAULT Broken }")
+    }
+  }
+
   private fun shouldRejectSource(source: String) {
     shouldThrow<PetSyntaxException> { parseClasses(source) }
   }

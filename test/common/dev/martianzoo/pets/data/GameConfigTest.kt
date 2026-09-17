@@ -52,7 +52,10 @@ internal class GameConfigTest {
     shouldThrow<IllegalArgumentException> { GameConfig("TerraformingMars, TerraformingMars") }
     shouldThrow<IllegalArgumentException> { GameConfig("TerraformingMars, -TerraformingMars") }
     shouldThrow<IllegalArgumentException> { GameConfig("TerraformingMars", "Blue", "Blue") }
+    shouldThrow<IllegalArgumentException> { GameConfig("TerraformingMars", "TerraformingMars") }
+    shouldThrow<IllegalArgumentException> { GameConfig("-TerraformingMars", "TerraformingMars") }
     shouldThrow<IllegalArgumentException> { GameConfig("2 Player") }
+    shouldThrow<IllegalArgumentException> { GameConfig("-") }
     shouldThrow<IllegalArgumentException> { GameConfig("Select<Class<ColonizerTrainingCamp>>") }
   }
 }

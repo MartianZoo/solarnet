@@ -2,6 +2,7 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Action
@@ -684,6 +685,25 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
+  internal fun `T13-10 a binding must satisfy every recorded occurrence`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS StandardResource { CLASS Plant }",
+            "CLASS Hand",
+            "ABSTRACT CLASS Notice<StandardResource>",
+        )
+    val bound =
+        table
+            .inferTypeVariables()
+            .transformEffect(parse<Effect>("StandardResource: Notice<StandardResource>"))
+    val variable = bound.typeVariables.variables.single()
+
+    shouldThrow<NarrowingException> {
+      bound.typeVariables.bind(mapOf(variable to table.resolve(te("Hand"))))
+    }
+  }
+
+  @Test
   internal fun `T13-10 a refined declaration is evaluated once, while its value is captured`() {
     val table =
         loadTypes(
@@ -768,5 +788,26 @@ internal class Spec13TypeVariablesTest {
         table.resolve(authored),
         table.resolve(parse("Container<Hand>")),
     ) shouldBe emptyMap()
+  }
+
+  @Test
+  internal fun `T13-11 one variable cannot capture conflicting structural values`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person { CLASS Alice, Bob }",
+            "ABSTRACT CLASS Pair<Person, Person>",
+        )
+    val authored = parse<Expression>("Pair<Person, Person>")
+    val person = authored.arguments.first()
+    val scope =
+        TypeVariableScope.infer(listOf(authored), table, explicitDeclarations = listOf(person))
+
+    shouldThrow<IllegalStateException> {
+      scope.bindingsFrom(
+          authored,
+          table.resolve(authored),
+          table.resolve(parse("Pair<Alice, Bob>")),
+      )
+    }
   }
 }
