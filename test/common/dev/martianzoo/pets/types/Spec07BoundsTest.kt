@@ -78,6 +78,28 @@ internal class Spec07BoundsTest {
   }
 
   @Test
+  internal fun `T7-1 absent covers both disjointness and an overlap no class names`() {
+    // Disjoint: no component could be both, and their extensions really are disjoint.
+    mars.glb(type("Tharsis_2_2"), type("Tharsis_2_3")) shouldBe null
+    mars.allConcreteSubtypes(type("Tharsis_2_2")).toSet() shouldBe setOf(type("Tharsis_2_2"))
+
+    // Not writable: rival classes each combine the two, so concrete types below both do exist.
+    val rivals =
+        loadTypes(
+            """
+            ABSTRACT CLASS Tile
+            ABSTRACT CLASS Owned2
+            CLASS GreeneryTile : Tile, Owned2
+            CLASS CommercialDistrictTile : Tile, Owned2
+            """
+                .trimIndent()
+        )
+    rivals.glb(rivals.resolve(te("Tile")), rivals.resolve(te("Owned2"))) shouldBe null
+    rivals.allConcreteSubtypes(rivals.resolve(te("Tile"))).toSet() shouldBe
+        setOf(rivals.resolve(te("GreeneryTile")), rivals.resolve(te("CommercialDistrictTile")))
+  }
+
+  @Test
   internal fun `T7-1 when glb exists it narrows both operands`() {
     sample.forEach { a ->
       sample.forEach { b ->

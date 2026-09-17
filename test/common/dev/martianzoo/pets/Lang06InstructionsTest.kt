@@ -2,7 +2,9 @@ package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.FromExpression.Full
@@ -360,8 +362,21 @@ internal class Lang06InstructionsTest {
   // L6-14 X across one instruction
 
   @Test
-  internal fun `L6-14 X may span a sequence but not independent instructions`() {
+  internal fun `L6-14 X may span a sequence`() {
     parse<InstructionTree>("X Plant THEN 2X Heat").toString() shouldBe "X Plant THEN 2X Heat"
-    shouldThrow<PetSyntaxException> { parse<InstructionTree>("X Plant, X Heat") }
+  }
+
+  @Test
+  internal fun `L6-14 a group links nothing, so each member has its own X`() {
+    val group = parse<InstructionTree>("X Plant, X Heat") as InstructionGroup
+    group.size shouldBe 2
+    group.toString() shouldBe "X Plant, X Heat"
+  }
+
+  @Test
+  internal fun `L6-14 a member's X can be a use of one introduced around the group`() {
+    roundTrip<Action>("X Heat -> X Steel, X Plant")
+    roundTrip<Effect>("X Plant: X Heat, X Steel")
+    roundTrip<InstructionTree>("X Plant THEN (X Heat, X Steel)")
   }
 }

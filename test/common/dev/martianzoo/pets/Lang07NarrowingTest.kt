@@ -4,6 +4,8 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.pets.types.isExpandedFrom
 import dev.martianzoo.pets.types.testCatalog
 import io.kotest.assertions.throwables.shouldThrow
@@ -202,6 +204,21 @@ internal class Lang07NarrowingTest {
     shouldThrow<IllegalStateException> {
       BrokenSpecification.narrows(BrokenSpecification, langWorld)
     }
+  }
+
+  @Test
+  internal fun `L7-7 X is at least one`() {
+    // A written zero is already rejected when parsed (L6-2), so this is the only way to propose
+    // one.
+    shouldThrow<NarrowingException> { ActualScalar(0).ensureNarrows(XScalar(1), langWorld) }
+    ActualScalar(3).ensureNarrows(XScalar(1), langWorld)
+  }
+
+  @Test
+  internal fun `L7-7 one X around a group settles every member of it`() {
+    narrows("-X Heat! THEN (X Steel!, X Plant!)", "-3 Heat! THEN (3 Steel!, 3 Plant!)") shouldBe
+        true
+    refuses("-X Heat! THEN (X Steel!, X Plant!)", "-3 Heat! THEN (3 Steel!, 2 Plant!)")
   }
 
   // L7-10 Groups

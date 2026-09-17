@@ -286,7 +286,9 @@ it exposes an optional choice. Card-play and payment lifecycles belong to
 ## Automatic effects
 
 For one concrete change the engine recursively executes all matching `::` effects before admitting
-any queued `:` effect. An automatic reaction never enters a queue and is never selectable.
+any queued `:` effect. That greediness is language rule L8-2, not merely an engine policy: a queued
+trigger is decided against a World in which the automatic consequences of its event have already
+happened. An automatic reaction never enters a queue and is never selectable.
 
 Write `A:: B` only when all three hold:
 
