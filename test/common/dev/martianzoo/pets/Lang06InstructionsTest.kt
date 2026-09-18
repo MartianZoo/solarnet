@@ -215,6 +215,14 @@ internal class Lang06InstructionsTest {
 
     val represented = parse<Instruction>("EACH Class<Area AS A> { A }") as Each
     represented.bodyFor(parse("Class<MarsArea>")) shouldBe parse<InstructionTree>("MarsArea")
+
+    val applied = parse<Instruction>("EACH Class<Area AS A> { Tile<A<Owner>> }") as Each
+    applied.bodyFor(parse("Class<MarsArea>")) shouldBe
+        parse<InstructionTree>("Tile<MarsArea<Owner>>")
+
+    shouldThrow<PetSyntaxException> {
+      parse<Instruction>("EACH Area AS A { Tile<A<Owner>> }")
+    }
   }
 
   @Test
@@ -401,6 +409,7 @@ internal class Lang06InstructionsTest {
   internal fun `L6-15 a THEN stage can name a Type used by a later stage`() {
     roundTrip<Instruction>("Plant AS P THEN P")
     roundTrip<Instruction>("Foo<Plant AS P> THEN Bar<P>")
+    roundTrip<Instruction>("Foo<Class<Plant AS P>> THEN P<Owner>")
     roundTrip<Instruction>("Plant AS P THEN Foo<Bar(HAS Baz<P>)>")
     roundTrip<Instruction>("CityTile<> AS City THEN GreeneryTile<LandArea(HAS Neighbor<City>)>")
   }
@@ -423,6 +432,7 @@ internal class Lang06InstructionsTest {
   @Test
   internal fun `L6-16 a transmutation destination can name a Type used by its source`() {
     roundTrip<Instruction>("Foo<Plant AS P> FROM Bar<P>")
+    roundTrip<Instruction>("Foo<Class<Plant AS P>> FROM P<Owner>")
     roundTrip<Effect>("Foo: Bar<Plant AS P> FROM Baz<P>")
     roundTrip<Action>("Foo -> Bar<Plant AS P> FROM Baz<P>")
     roundTrip<Instruction>("Foo<Plant AS P> FROM Bar<P> THEN Baz<Heat AS P> FROM Qux<P>")

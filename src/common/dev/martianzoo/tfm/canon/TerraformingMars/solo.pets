@@ -67,10 +67,10 @@ CLASS SoloStandardResourceReserve<Class<StandardResource AS ThatResource>> : Own
 }
 
 "A neutral solo-mode holder for each kind of removable card resource"
-CLASS SoloCardResourceReserve : ResourceHolder<Class<CardResource>>, Owned<SoloOpponent>, System {
+CLASS SoloCardResourceReserve : ResourceHolder<Class<CardResource AS ThatResource>>, Owned<SoloOpponent>, System {
   HAS =1 This
-  SetupPhase: 42 CardResource<This>
+  SetupPhase: 42 ThatResource<This>
 
-  -CardResource<This> BY Player:: CardResource<This> BY Admin
-  CardResource<This> BY Player:: -CardResource<This> BY Admin
+  -ThatResource<This> BY Player:: ThatResource<This> BY Admin
+  ThatResource<This> BY Player:: -ThatResource<This> BY Admin
 }

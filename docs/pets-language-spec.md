@@ -368,9 +368,15 @@ why the type system, not the syntax, is the authority on identity (T5-1).
 
 **L3-9. `Type AS Name` names a Type variable where the enclosing construct permits one.** A bare
 `Name` in that scope then denotes the complete declared expression. The name has the class-name
-shape from L2-1, so one letter is enough, but it must not be a Type name in the Catalog. A reference
-is bare: it cannot have arguments or a refinement. The enclosing construct determines where the
-declaration and its uses may occur (L6-15, L6-16, L8-12, L9-8).
+shape from L2-1, so one letter is enough, but it must not be a Type name in the Catalog. The
+enclosing construct determines where the declaration and its uses may occur (L6-15, L6-16, L8-12,
+L9-8).
+
+A reference is bare and cannot have a refinement. There is one argument-list form:
+`Class<Type AS Name>` names the Class represented by that literal, and `Name<dependencies>` denotes
+the selected Class with those dependency arguments. `Name<>` deliberately accepts that use's
+defaults under L3-2. This is represented-Class application, not an argument list on an arbitrary
+Type variable; T4-1 and T13-1 define it.
 
 ---
 

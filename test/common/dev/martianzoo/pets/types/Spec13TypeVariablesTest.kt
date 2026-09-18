@@ -281,16 +281,34 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-3 a simple named header variable can receive use-site arguments`() {
+  internal fun `T13-3 an ordinary header variable reference cannot receive arguments`() {
+    shouldThrow<PetSyntaxException> {
+      parseClasses(
+          "CLASS Player1 : Owner\n" +
+              "ABSTRACT CLASS Person : Owned<Owner>\n" +
+              "ABSTRACT CLASS Holder<Person AS P> { This: P<Player1> }"
+      )
+    }
+  }
+
+  @Test
+  internal fun `T13-3 a represented-Class header variable can receive dependency arguments`() {
     val table =
         loadTypes(
             "CLASS Player1 : Owner",
             "ABSTRACT CLASS Person : Owned<Owner> { CLASS Alice }",
-            "ABSTRACT CLASS Holder<Person AS P> { This: P<Player1> }",
+            "ABSTRACT CLASS Holder<Class<Person AS P>> { This: P<Player1> }",
         )
-    val variable = table.getClass(cn("Holder")).typeVariables.single()
+    val holder = table.getClass(cn("Holder"))
+    val variable = holder.typeVariables.single { it.name == cn("P") }
+    val effect = holder.interpretTypeVariablesIn(holder.declaration.effects.single())
+    val specialized = table.resolve(te("Holder<Class<Alice>>"))
 
     variable.usages.map { "${it.expression}" } shouldContainExactly listOf("P<Player1>")
+    effect.typeVariables
+        .bind(specialized.variableBindingsFrom(holder.defaultType, listOf(variable)))
+        .transformEffect(effect)
+        .toString() shouldBe "This: Alice<Player1>"
   }
 
   @Test
@@ -390,6 +408,32 @@ internal class Spec13TypeVariablesTest {
         .bind(specialized.variableBindingsFrom(offer.defaultType, effect.typeVariables.variables))
         .transformEffect(effect)
         .toString() shouldBe "This: Rock<RockHolder>"
+  }
+
+  @Test
+  internal fun `T13-5 represented-Class arguments must agree with the selected Class`() {
+    val table =
+        loadTypes(
+            "CLASS Player1 : Owner",
+            "CLASS Player2 : Owner",
+            "ABSTRACT CLASS Token : Owned<Owner>",
+            "CLASS Player1Token : Token, Owned<Player1>",
+            "CLASS Compatible<Class<Token AS T>> { This: T<Player1> }",
+            "CLASS Conflicting<Class<Token AS T>> { This: T<Player2> }",
+        )
+
+    fun boundEffect(className: String): Effect {
+      val klass = table.getClass(cn(className))
+      val effect = klass.interpretTypeVariablesIn(klass.declaration.effects.single())
+      val specialized = table.resolve(te("$className<Class<Player1Token>>"))
+      val variable = effect.typeVariables.variables.single()
+      return effect.typeVariables
+          .bind(specialized.variableBindingsFrom(klass.defaultType, listOf(variable)))
+          .transformEffect(effect)
+    }
+
+    boundEffect("Compatible").toString() shouldBe "This: Player1Token<Player1>"
+    shouldThrow<NarrowingException> { boundEffect("Conflicting") }
   }
 
   @Test
@@ -510,6 +554,24 @@ internal class Spec13TypeVariablesTest {
         .bind(mapOf(variable to resources.resolve(te("Plant"))))
         .transformEffect(trade)
         .toString() shouldBe "Production<Class<Plant>>: Plant"
+  }
+
+  @Test
+  internal fun `T13-6 a represented-Class Effect variable accepts dependency arguments`() {
+    val trade = effect("Production<Class<StandardResource AS R>>: R<Player1>")
+    val variable = trade.typeVariables.variables.single()
+
+    trade.typeVariables
+        .bind(mapOf(variable to resources.resolve(te("Plant"))))
+        .transformEffect(trade)
+        .toString() shouldBe "Production<Class<Plant>>: Plant<Player1>"
+
+    val acceptingDefaults = effect("Production<Class<StandardResource AS R>>: R<>")
+    val defaultedVariable = acceptingDefaults.typeVariables.variables.single()
+    acceptingDefaults.typeVariables
+        .bind(mapOf(defaultedVariable to resources.resolve(te("Plant"))))
+        .transformEffect(acceptingDefaults)
+        .toString() shouldBe "Production<Class<Plant>>: Plant<>"
   }
 
   // T13-7 Regions

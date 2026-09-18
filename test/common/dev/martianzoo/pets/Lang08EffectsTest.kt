@@ -273,6 +273,7 @@ internal class Lang08EffectsTest {
   @Test
   internal fun `L8-12 a trigger expression can name a Type variable used by the Effect`() {
     roundTrip<Effect>("StandardResource AS R: R")
+    roundTrip<Effect>("Production<Class<StandardResource AS R>>: R<Owner>")
     roundTrip<Effect>("StandardResource AS R IF R: R")
     roundTrip<Effect>("StandardResource AS R: Plant THEN R")
     roundTrip<Effect>("This: StandardResource AS R THEN R")
@@ -289,6 +290,9 @@ internal class Lang08EffectsTest {
       parse<Effect>("StandardResource AS R OR StandardResource AS R: R")
     }
     shouldThrow<PetSyntaxException> { parse<Effect>("StandardResource AS R: R<Plant>") }
+    shouldThrow<PetSyntaxException> {
+      parse<Effect>("Production<Class<StandardResource AS R>>: R(HAS Marker)")
+    }
     shouldThrow<PetSyntaxException> { parse<Effect>("Notice<B AS A, A AS B>: A") }
     shouldThrow<PetSyntaxException> {
       parse<Effect>("CheckGameEnd IF 63 TerraformRating<Player AS Winner>: Victory<Winner>")

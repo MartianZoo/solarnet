@@ -197,6 +197,7 @@ internal class Lang09ActionsTest {
   internal fun `L9-8 an Action cost can name a Type used by its result`() {
     roundTrip<Action>("StandardResource AS R -> 4 R")
     roundTrip<Action>("Foo<Plant AS P> -> Bar<P>")
+    roundTrip<Action>("Foo<Class<Plant AS P>> -> P<Owner>")
     roundTrip<Action>("Plant AS P -> Foo<Bar(HAS Baz<P>)>")
   }
 

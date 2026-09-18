@@ -178,8 +178,16 @@ internal class Lang05MetricsTest {
 
     val unnamed = parse<Metric>("RANK Player { Score<Player> }") as Metric.Rank
     unnamed.metricsFor(parse("Player2")) shouldBe listOf(parse<Metric>("Score<Player>"))
+
+    val represented = parse<Metric>("RANK Class<Tag AS T> { Score<T<Owner>> }") as Metric.Rank
+    represented.metricsFor(parse("Class<BuildingTag>")) shouldBe
+        listOf(parse<Metric>("Score<BuildingTag<Owner>>"))
+
     rank.candidate shouldBe null
     shouldThrow<PetSyntaxException> { parse<Metric>("RANK Player { }") }
+    shouldThrow<PetSyntaxException> {
+      parse<Metric>("RANK Player AS P { Score<P<Owner>> }")
+    }
   }
 
   // L5-10 Rendering

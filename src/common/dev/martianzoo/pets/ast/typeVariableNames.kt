@@ -16,7 +16,7 @@ internal fun Transmute.localTypeVariableDeclarations(): List<Expression> {
   val sourceNames =
       removing.descendantsOfType<Expression>().mapNotNull { expression ->
         (expression.typeVariableName as? Reference)?.name
-            ?: expression.className.takeIf { expression.simple }
+            ?: expression.className.takeIf { expression.typeVariableName == null }
       }
   return gaining.descendantsOfType<Expression>().filter {
     it.typeVariableName is Declaration && it.typeVariableName.name in sourceNames
@@ -79,32 +79,45 @@ internal fun PetNode.observingTypeVariableDeclaration(): Expression? {
   return find(this, observing = false)
 }
 
-/**
- * Resolves bare references to [declarations] while retaining their shorter authored spelling. Type
- * interpretation later validates each declaration and records its scoped identity.
- */
+/** Resolves references to [declarations] while retaining their authored name and argument list. */
 internal fun <P : PetNode> resolveTypeVariableNames(
     root: P,
     declarations: List<Expression>,
     scopeDescription: String,
 ): P {
-  val resolved =
-      resolveTypeVariableNames(listOf(root), declarations, scopeDescription, false).single()
+  val resolved = resolveTypeVariableNames(listOf(root), declarations, scopeDescription).single()
   @Suppress("UNCHECKED_CAST")
   return resolved as P
 }
 
+/**
+ * Resolves one lexical scope. Local settlement variables expand a bare reference to their declared
+ * structure; [expandBareReferences] is false when the value instead comes from a Class header or a
+ * selector and binding supplies the selected structure later.
+ */
 internal fun resolveTypeVariableNames(
     roots: List<PetNode>,
     declarations: List<Expression>,
     scopeDescription: String,
-    allowSpecializedReferences: Boolean,
+    expandBareReferences: Boolean = true,
 ): List<PetNode> {
   val declarationsByName = declarations.associateBy { it.typeVariableName!!.name }
   if (declarationsByName.size != declarations.size) {
     throw PetSyntaxException("$scopeDescription cannot declare the same Type-variable name twice")
   }
   if (declarations.isEmpty()) return roots
+
+  // `Class<Foo AS F>` names the represented Class, so `F<Bar>` can instantiate the selected
+  // Class with dependency constraints. No other kind of Type-variable declaration is applicable.
+  val representedClassDeclarations =
+      roots
+          .flatMap { it.descendantsOfType<Expression>() }
+          .filter { it.className == dev.martianzoo.pets.api.SystemClasses.CLASS }
+          .mapNotNull { expression ->
+            expression.arguments.singleOrNull()?.takeIf {
+              it.typeVariableName is Declaration
+            }
+          }
 
   val references = mutableMapOf<ClassName, Int>()
   roots
@@ -125,7 +138,7 @@ internal fun resolveTypeVariableNames(
             declarationsByName[node.className]?.let { declaration ->
               if (
                   !node.simple &&
-                      (!allowSpecializedReferences ||
+                      (representedClassDeclarations.none { it === declaration } ||
                           !declaration.simple ||
                           node.refinement != null)
               ) {
@@ -144,13 +157,13 @@ internal fun resolveTypeVariableNames(
                 val referenced =
                     structuralDeclaration.copy(
                         arguments =
-                            if (node.simple && !allowSpecializedReferences) {
+                            if (node.simple && expandBareReferences) {
                               structuralDeclaration.arguments
                             } else {
                               node.arguments
                             },
                         argumentsSpecified =
-                            if (node.simple && !allowSpecializedReferences) {
+                            if (node.simple && expandBareReferences) {
                               structuralDeclaration.argumentsSpecified
                             } else {
                               node.argumentsSpecified
@@ -194,7 +207,7 @@ internal fun resolveSelectorTypeVariableNames(
       listOf(selector) + scopedNodes,
       declarations,
       scopeDescription,
-      allowSpecializedReferences = true,
+      expandBareReferences = false,
   )
 }
 
@@ -214,7 +227,7 @@ internal fun resolveClassLiteralTypeVariableNames(expression: Expression): Expre
               listOf(expression),
               listOf(declaration),
               "A refined Class literal",
-              allowSpecializedReferences = true,
+              expandBareReferences = false,
           )
           .single()
   return resolved as Expression
@@ -249,11 +262,11 @@ internal fun selectorReferenceBinder(
     selector: Expression,
     selected: Expression,
 ): PetTransformer {
-  data class Binding(val expression: Expression, val acceptsArguments: Boolean)
+  data class Binding(val expression: Expression, val acceptsDependencyArguments: Boolean)
 
   val bindings = buildMap {
     (selector.typeVariableName as? Declaration)?.let {
-      put(it.name, Binding(selected, selector.simple))
+      put(it.name, Binding(selected, acceptsDependencyArguments = false))
     }
     val representedDeclaration =
         selector.arguments.singleOrNull()?.takeIf {
@@ -264,7 +277,7 @@ internal fun selectorReferenceBinder(
       require(selected.className == dev.martianzoo.pets.api.SystemClasses.CLASS)
       put(
           it.typeVariableName!!.name,
-          Binding(selected.arguments.single(), it.simple),
+          Binding(selected.arguments.single(), acceptsDependencyArguments = it.simple),
       )
     }
   }
@@ -275,14 +288,14 @@ internal fun selectorReferenceBinder(
         val name = (node.typeVariableName as? Reference)?.name
         bindings[name]?.let { binding ->
           val arguments =
-              if (binding.acceptsArguments && node.argumentsSpecified) node.arguments
+              if (binding.acceptsDependencyArguments && node.argumentsSpecified) node.arguments
               else emptyList()
           return transformChildren(
               binding.expression.copy(
                   arguments = binding.expression.arguments + arguments,
                   argumentsSpecified =
                       binding.expression.argumentsSpecified ||
-                          (binding.acceptsArguments && node.argumentsSpecified),
+                          (binding.acceptsDependencyArguments && node.argumentsSpecified),
               )
           )
         }
@@ -321,7 +334,7 @@ internal fun resolveClassTypeVariableNames(declaration: ClassDeclaration): Class
           header + body,
           declarations,
           "A Class header",
-          allowSpecializedReferences = true,
+          expandBareReferences = false,
       )
   val dependencyCount = declaration.dependencies.size
   val headerCount = header.size

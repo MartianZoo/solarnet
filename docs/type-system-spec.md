@@ -427,7 +427,10 @@ One `Class<Foo>` component exists for each concrete Class whose base Type is inh
 `Class<X>` can also be the target of an ordinary dependency without violating T3-9.
 
 **T4-1. Form.** `Class<X>` takes exactly one bare class name. The `Class` class's own base type is
-`Class<Component>`, so bare `Class` means "some class".
+`Class<Component>`, so bare `Class` means "some class". Where a construct permits a Type-variable
+name, `Class<X AS Name>` names the represented Class itself. A later bare `Name` denotes that
+Class's base Type, while `Name<dependencies>` applies ordinary dependency arguments to it under
+T13-1; neither form denotes the `Class<X>` component.
 
 **T4-2. Concreteness depends only on the class named.** Not on that class's dependencies:
 
@@ -1167,6 +1170,15 @@ A variable has one **declaration** occurrence and any number of **usage** occurr
 order. Each occurrence is itself a `Type` view of the same variable, and remembers where it was
 written.
 
+A variable declared as the bare operand in `Class<Type AS Name>` is a **represented-Class
+variable**. It shares the selected Class identity rather than an already parameterized Type, so a
+usage may apply dependency arguments: binding `Name` to `Plant` turns `Name<Player1>` into
+`Plant<Player1>`. The resulting expression follows the ordinary dependency rules: arguments match
+dependency keys under T3-5, intersect their bounds under T3-4, and must agree with dependencies the
+selected Class already fixes. An explicit empty list, `Name<>`, retains its normal language meaning
+of accepting that use's defaults. Only a represented-Class variable may have an argument list; no
+Type-variable reference may add a refinement.
+
 A variable's identity is its declaration and scope — never its class name. `Player` can name several
 unrelated variables in different rules.
 
@@ -1222,14 +1234,12 @@ Box<Person>>` leaves the two people free to differ. They can instead be linked d
 > suffix is what prevents a resource and its physical card from acquiring different owners.
 
 **T13-3. Uses in the class's own body are named explicitly.** `Type AS Name` on an eligible header
-expression names that variable, and bare `Name` in the Class's authored effects or actions uses it.
+expression names that variable, and `Name` in the Class's authored effects or actions uses it.
 Repeating one of the Class's own dependency Types in the body does not link the two occurrences. The
 name follows the same namespace rules as a local variable: a single capital letter is allowed, but
-an existing Type name is not, and every declared name must be used.
-
-A name for a structurally simple header Type may receive arguments at a use site. For example,
-`Resource AS R` can be used as `R<Owner>` when `Resource<Owner>` is a valid specialization. Other
-references remain bare; a reference cannot add a refinement.
+an existing Type name is not, and every declared name must be used. An ordinary header-variable
+reference is bare. A represented-Class header variable follows T13-1, so
+`Class<Resource AS R>` may use `R<Owner>` to instantiate the selected resource Class with an owner.
 
 > **Non-normative example — production.** `Production<Class<StandardResource AS R>>` uses `R` in
 > its body: during Production Phase, a steel-production component must create steel. An unnamed
@@ -1272,7 +1282,8 @@ declaration's complete structural expression. Naming does not make an observing 
 to declare: a requirement, metric or refinement may use a variable declared by a match, but cannot
 declare one. The name has class-name syntax, including a single capital letter, but must not name any
 Type in the Catalog. It is local to the Effect, must be unique there, and must be used at least once.
-A reference cannot have arguments or a refinement.
+Only a represented-Class reference may instead carry dependency arguments, as defined by T13-1; no
+reference may carry a refinement.
 
 Binding it substitutes at every occurrence at once:
 `Production<Class<StandardResource AS R>>: R` bound to `Plant` becomes
@@ -1288,8 +1299,9 @@ chosen structural Type.
 
 **T13-7. Other construct-local variables.** An Action, `THEN` sequence, full transmutation, `EACH`,
 `RANK`, or refined class literal declares a shared choice explicitly with `Type AS Name` in the
-region that supplies it and uses the bare `Name` where that selected value is needed. Repeating an
-unnamed Type does not link the regions.
+region that supplies it and uses `Name` where that selected value is needed. Repeating an unnamed
+Type does not link the regions. References are bare except that a represented-Class variable may be
+applied to dependency arguments under T13-1.
 
 | Construct | Declaration | Regions |
 | --- | --- | --- |
@@ -1383,6 +1395,12 @@ Binding `ActingPlayer` to `Player1` gives
 transformer that rewrites the occurrences it recorded and nothing else — a coincidental mention of
 the same class elsewhere is untouched. Each occurrence keeps its own arguments while receiving the
 captured value.
+
+For represented-Class application, binding `R` to the Class `C` makes `R<A>` mean `C<A>`. If `C`
+already narrows the dependency that `A` matches, the two constraints intersect normally and a
+conflict is a narrowing error. Application produces an ordinary Type expression; it does not create
+the invalid class literal `Class<C<A>>`. Writing `Class<R>` separately continues to denote the
+literal for `C`.
 
 A refinement on the *declaration* is consumed by binding: it was already evaluated while the
 candidate was captured, so later occurrences reuse the captured type without asking the world again.

@@ -131,16 +131,17 @@ internal constructor(
                 .zip(authoredClass.matchDependencyKeys(authored.arguments, classTable))
                 .associate { (argument, key) -> key to argument }
         val targetArguments =
-            target.arguments.zip(targetClass.matchDependencyKeys(target.arguments, classTable)).map {
-                (argument, key) ->
-              authoredByKey[key]?.let { authoredArgument ->
-                retainNestedVariableNames(argument, authoredArgument)
-                    .copy(
-                        typeVariableName =
-                            authoredArgument.typeVariableName ?: argument.typeVariableName
-                    )
-              } ?: argument
-            }
+            target.arguments
+                .zip(targetClass.matchDependencyKeys(target.arguments, classTable))
+                .map { (argument, key) ->
+                  authoredByKey[key]?.let { authoredArgument ->
+                    retainNestedVariableNames(argument, authoredArgument)
+                        .copy(
+                            typeVariableName =
+                                authoredArgument.typeVariableName ?: argument.typeVariableName
+                        )
+                  } ?: argument
+                }
         return target.copy(arguments = targetArguments)
       }
 
@@ -158,7 +159,12 @@ internal constructor(
             source.arguments.zip(sourceClass.matchDependencyKeys(source.arguments, classTable))
           }
       val retainedArguments = sourceArguments.filterNot { (_, key) -> key in representedKeys }
-      return expression.appendArguments(retainedArguments.map { it.first })
+      val applied = expression.appendArguments(retainedArguments.map { it.first })
+      return if (source.argumentsSpecified && !applied.argumentsSpecified) {
+        applied.copy(argumentsSpecified = true)
+      } else {
+        applied
+      }
     }
   }
 
