@@ -40,14 +40,15 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   internal fun completedRecordingJson(): String? {
     if (game.events.entriesSinceSetup().isEmpty()) return null
     val json = dev.martianzoo.state.GameRecordingJson.encode(game.recording())
-    val viewerPremise = catalog.gamePremise(dev.martianzoo.state.GameRecordingJson.config(json))
+    val document = dev.martianzoo.state.GameRecordingJson.parse(json)
+    val viewerPremise = catalog.gamePremise(document.config)
     check(viewerPremise.modules == gamePremise.modules) {
       "recording changed selected Modules: ${gamePremise.modules} -> ${viewerPremise.modules}"
     }
     check(viewerPremise.classSelections == gamePremise.classSelections) {
       "recording changed individual Class selections"
     }
-    dev.martianzoo.state.GameRecordingJson.decode(json, viewerPremise).open()
+    document.decode(viewerPremise).open()
     return json
   }
 

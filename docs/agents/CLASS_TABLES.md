@@ -12,8 +12,9 @@
 >
 > **Status:** selected replacement in progress. The reusable master and premise-local declaration
 > delta, table-relative subclass enumeration, general Type-inhabitance query, public activity-API
-> removal, runtime inhabitance boundaries, and the `Die`/`Ok` terminal invariants are implemented.
-> The remaining universe/API cleanup remains planned.
+> removal, master-owned component-limit templates, runtime inhabitance boundaries, and the
+> `Die`/`Ok` terminal invariants are implemented. The remaining universe/API cleanup remains
+> planned.
 
 ## Source map
 
@@ -50,6 +51,12 @@ expression normally delegates resolution to the master. A type mentioning a prem
 game table so nested resolution cannot fall back to the wrong namespace.
 
 Premise inclusion remains a property of the combined game table, not of a master `Class` or `Type`.
+
+Stable interpretations of component-limit invariants and concrete dependency targets are compiled
+with the master Classes that declare them. A combined game table realizes those templates against
+its inhabited Class set, adds premise-local declarations, and validates only the resulting
+premise-specific dependency targets. It does not rebuild or retain a completed premise table by
+configuration shape.
 
 ## Structural operations versus game-domain operations
 
@@ -235,9 +242,9 @@ until the replacement is complete.
 8. **Move premise variation to the delta.** Stop composing new `TfmCatalog`s for Players and the
    generated `Premise`; remove the conventional-player catalog cache after all callers use premise
    definitions.
-9. **Split expensive derived work.** Precompile master restriction and dependency-validation
-   templates once. Let each universe merge premise deltas, apply its Class set, and perform only the
-   validation whose answer can vary by premise.
+9. **Split expensive derived work.** Master restriction and dependency-target templates are now
+   compiled once. Each universe merges premise deltas, applies its Class set, and performs only the
+   realization and validation whose answers can vary by premise.
 10. **Migrate the runtime.** Build class representatives only for inhabited concrete Classes, reject
     uninhabited component mutations at the boundary, and bind elaboration, transformations,
     component limits, and automatic narrowing to the universe.

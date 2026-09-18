@@ -88,7 +88,6 @@ internal class TurmoilProjectCardsTest : CardTest() {
 
     p1.playProject(Recruitment, 2) {
       doTask("RecruitmentExchange<MarsFirst>")
-      doTask("-PartyDelegate<MarsFirst, Neutral>")
     }
 
     p1.count("PartyDelegate<MarsFirst>") shouldBe 1

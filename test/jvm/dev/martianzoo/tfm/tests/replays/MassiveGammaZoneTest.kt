@@ -537,7 +537,6 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       }
       playProject(Recruitment, 0) {
         doTask("RecruitmentExchange<Reds>")
-        doTask("-PartyDelegate<Reds, Neutral>")
       }
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Reds>")
