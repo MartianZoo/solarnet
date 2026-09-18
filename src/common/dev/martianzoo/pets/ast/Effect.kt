@@ -13,9 +13,7 @@ import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.THIS
-import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Instruction.Gated
-import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.util.iff
 
 /**
@@ -354,37 +352,14 @@ public data class Effect(
           }
     }
 
-    private fun resolveTypeVariableNames(effect: Effect): Effect {
-      effect.trigger.observingTypeVariableDeclaration()?.let {
-        throw PetSyntaxException(
-            "A Type-variable name cannot be declared in an observing expression: $it"
+    private fun resolveTypeVariableNames(effect: Effect): Effect =
+        resolveTypeVariableNames(
+            effect,
+            effect.trigger,
+            effect.instruction,
+            "An Effect",
+            "an Effect trigger",
         )
-      }
-      val declarations =
-          effect.trigger.descendantsOfType<Expression>().filter {
-            it.typeVariableName is Declaration
-          }
-      val declarationNames = declarations.mapTo(mutableSetOf()) { it.typeVariableName!!.name }
-      effect.instruction
-          .descendantsOfType<Expression>()
-          .filter { it.typeVariableName is Declaration }
-          .firstOrNull { it.typeVariableName!!.name in declarationNames }
-          ?.let {
-            throw PetSyntaxException(
-                "Type-variable ${it.typeVariableName!!.name} cannot shadow an enclosing declaration"
-            )
-          }
-
-      fun declarationOutsideThen(node: PetNode): Expression? {
-        if (node is Then) return null
-        if (node is Expression && node.typeVariableName is Declaration) return node
-        return node.immediateChildren().firstNotNullOfOrNull(::declarationOutsideThen)
-      }
-      declarationOutsideThen(effect.instruction)?.let {
-        throw PetSyntaxException("A Type-variable name must be declared in an Effect trigger: $it")
-      }
-      return resolveTypeVariableNames(effect, declarations, "Effect") as Effect
-    }
   }
 }
 

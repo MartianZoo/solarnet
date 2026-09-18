@@ -414,18 +414,39 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-7 an action's regions are its cost and its result`() {
+  internal fun `T13-7 an action names a choice shared by its cost and result`() {
     val action: Action =
-        resources
-            .inferTypeVariables()
-            .transformAction(parse("StandardResource -> StandardResource"))
+        resources.inferTypeVariables().transformAction(parse("StandardResource AS R -> R"))
     val lowered = action.toInstruction() as Then
     val variable = lowered.typeVariables.variables.single()
 
+    names(action.typeVariables) shouldContainExactly listOf("R")
     lowered.typeVariables
         .bind(mapOf(variable to resources.resolve(te("Plant"))))
         .transformInstruction(lowered)
         .toString() shouldBe "-Plant! THEN Plant"
+
+    val unlinked =
+        resources
+            .inferTypeVariables()
+            .transformAction(parse("StandardResource -> StandardResource"))
+    unlinked.typeVariables.variables shouldBe listOf()
+  }
+
+  @Test
+  internal fun `T13-7 repeated inference does not duplicate a named Action variable`() {
+    val infer = resources.inferTypeVariables()
+    val once = infer.transformAction(parse("StandardResource AS R -> R"))
+    val twice = infer.transformAction(once)
+
+    names(twice.typeVariables) shouldContainExactly listOf("R")
+  }
+
+  @Test
+  internal fun `T13-7 an Action variable name cannot be a Type name`() {
+    shouldThrow<ExpressionException> {
+      resources.inferTypeVariables().transformAction(parse("StandardResource AS Plant -> Plant"))
+    }
   }
 
   @Test
@@ -569,11 +590,15 @@ internal class Spec13TypeVariablesTest {
         )
 
     // `CardFront<Owner>` repeats, so the nested `Owner` text does not declare its own variable.
-    val action =
-        table
-            .inferTypeVariables()
-            .transformAction(parse("CardFront<Owner> -> Notice<CardFront<Owner>>"))
-    names(action.typeVariables) shouldContainExactly listOf("CardFront<Owner>")
+    val scope =
+        TypeVariableScope.infer(
+            listOf<PetNode>(
+                parse<Expression>("CardFront<Owner>"),
+                parse<Expression>("Notice<CardFront<Owner>>"),
+            ),
+            table,
+        )
+    names(scope) shouldContainExactly listOf("CardFront<Owner>")
   }
 
   @Test
@@ -586,8 +611,15 @@ internal class Spec13TypeVariablesTest {
         )
 
     // `Tile` and `Tile<Area>` resolve alike but are different authored names.
-    val action = table.inferTypeVariables().transformAction(parse("Tile -> Notice<Tile<Area>>"))
-    action.typeVariables.variables shouldBe listOf()
+    val scope =
+        TypeVariableScope.infer(
+            listOf<PetNode>(
+                parse<Expression>("Tile"),
+                parse<Expression>("Notice<Tile<Area>>"),
+            ),
+            table,
+        )
+    scope.variables shouldBe listOf()
   }
 
   @Test
@@ -695,11 +727,15 @@ internal class Spec13TypeVariablesTest {
 
     // `Duo<Area, Person>` and `Duo<Person, Area>` are different authored names, so the shared
     // variables are the two inner ones.
-    val action =
-        table
-            .inferTypeVariables()
-            .transformAction(parse("Notice<Duo<Area, Person>> -> Token<Duo<Person, Area>>"))
-    names(action.typeVariables).toSet() shouldBe setOf("Area", "Person")
+    val scope =
+        TypeVariableScope.infer(
+            listOf<PetNode>(
+                parse<Expression>("Notice<Duo<Area, Person>>"),
+                parse<Expression>("Token<Duo<Person, Area>>"),
+            ),
+            table,
+        )
+    names(scope).toSet() shouldBe setOf("Area", "Person")
   }
 
   // T13-9 Actor selectors

@@ -841,7 +841,11 @@ public sealed class Instruction : InstructionTree() {
                   "Type-variable ${it.typeVariableName!!.name} cannot shadow an enclosing declaration"
               )
             }
-        return dev.martianzoo.pets.ast.resolveTypeVariableNames(then, declarations, "THEN") as Then
+        return dev.martianzoo.pets.ast.resolveTypeVariableNames(
+            then,
+            declarations,
+            "A THEN sequence",
+        )
       }
     }
   }

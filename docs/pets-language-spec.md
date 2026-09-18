@@ -292,8 +292,8 @@ shadow:
 | `X` | one open amount | one instruction, across the stages of a `THEN` (L6-14) |
 | an `EACH` or `RANK` selector | each selected component | that construct's body, shadowing an enclosing spelling (L6-10, L5-9) |
 | a refinement's domain | the candidate | that refinement (T8-3) |
-| `Type AS Name` in an Effect trigger or `THEN` | one shared choice | that Effect or sequence (L6-15, L8-12, T13-6) |
-| a repeated abstract expression in an action or transmutation | one shared choice | its construct's settlement sites (T13-7) |
+| `Type AS Name` in an Effect trigger, `THEN`, or Action cost | one shared choice | that Effect, sequence, or Action (L6-15, L8-12, L9-8, T13-6) |
+| a repeated abstract expression in a transmutation | one shared choice | that transmutation's two sides (T13-7) |
 
 > **Non-normative example — generated special tiles.** `MiningRights_SpecialTile` must be referable
 > later by that exact global name when its placement bonus is inspected. Lexical scoping would make
@@ -370,7 +370,7 @@ why the type system, not the syntax, is the authority on identity (T5-1).
 `Name` in that scope then denotes the complete declared expression. The name has the class-name
 shape from L2-1, so one letter is enough, but it must not be a Type name in the Catalog. A reference
 is bare: it cannot have arguments or a refinement. The enclosing construct determines where the
-declaration and its uses may occur (L6-15, L8-12).
+declaration and its uses may occur (L6-15, L8-12, L9-8).
 
 ---
 
@@ -775,13 +775,14 @@ never a way to do nothing. Declining belongs to `?` and `Ok` (L7-4).
 > … energy. A three-MC proposal cannot be reconciled with the coefficient and must not round into a
 > transaction the card never offers.
 
-**L7-8. A shared type variable takes one value everywhere it appears.** Narrowing a sequence or a
-transmutation with a shared variable must supply one consistent value for it (T13-7); two different
-values are rejected. A sequence declares that variable with `AS` (L6-15), while an action or
-transmutation still infers it from repetition.
+**L7-8. A shared type variable takes one value everywhere it appears.** Narrowing a sequence,
+action, or transmutation with a shared variable must supply one consistent value for it (T13-7); two
+different values are rejected. A sequence or Action declares that variable with `AS` (L6-15,
+L9-8), while a transmutation still infers it from repetition.
 
-> **Non-normative example — Utopia Invest.** `PROD[StandardResource] -> 4 StandardResource` means
-> reduce one chosen production track and gain four units of that same resource. Binding the two
+> **Non-normative example — Utopia Invest.**
+> `PROD[StandardResource AS ThatResource] -> 4 ThatResource` means reduce one chosen production
+> track and gain four units of that same resource. Binding the two
 > occurrences independently would allow trading steel production for four plants.
 
 **L7-9. `narrows` is the boolean form of `ensureNarrows`.** The former answers, the latter throws
@@ -1000,6 +1001,16 @@ now" section becomes an ordinary rule; an immediate `Ok` produces no effect at a
 
 **L9-7. Actions round-trip.** The cost keeps its authored form, and the result's grouping is
 L6-13's.
+
+**L9-8. An Action names any Type choice shared by its cost and result explicitly.** A matching or
+choosing expression in the cost declares `Type AS Name`, and a bare `Name` in the result uses that
+choice. The name must occur on both sides of the arrow and may be declared only once. Requirements,
+metrics and the contents of refinements may use a visible name but cannot declare one. Repeating an
+abstract Type without naming it does not link the cost to the result.
+
+> **Non-normative example — Utopia Invest.**
+> `PROD[StandardResource AS ThatResource] -> 4 ThatResource` lowers one production track and gains
+> four of that same resource.
 
 ---
 

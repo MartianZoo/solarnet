@@ -153,7 +153,16 @@ public data class Action(
             skip(_arrow) and
             InstructionTree.parser() map
             { (c, i) ->
-              Action(c, i)
+              resolveTypeVariableNames(Action(c, i))
             }
+
+    private fun resolveTypeVariableNames(action: Action): Action =
+        dev.martianzoo.pets.ast.resolveTypeVariableNames(
+            action,
+            action.cost,
+            action.instruction,
+            "An Action",
+            "an Action cost",
+        )
   }
 }

@@ -1169,10 +1169,10 @@ written.
 A variable's identity is its declaration and scope — never its class name. `Player` can name several
 unrelated variables in different rules.
 
-There are three sources of a shared choice: a class header declares one (T13-2 to T13-5), an Effect
-or `THEN` sequence names one explicitly (T13-6, T13-7), or an action or transmutation repeats one
-across places that must agree (T13-7 to T13-9). A trigger supplies the concrete value when it
-matches; `BY` is one place that value can come from.
+There are three sources of a shared choice: a class header declares one (T13-2 to T13-5), an Effect,
+`THEN` sequence, or Action names one explicitly (T13-6, T13-7), or a transmutation repeats one across
+places that must agree (T13-7 to T13-9). A trigger supplies the concrete value when it matches; `BY`
+is one place that value can come from.
 
 Three properties hold of all three sources, and most of the rules below are consequences of them:
 
@@ -1266,14 +1266,14 @@ Repeating an abstract expression without `AS` does not declare an Effect variabl
 instruction leaves the Effect's lexical scope, its references have already been expanded to the
 chosen structural Type.
 
-**T13-7. Other construct-local variables.** An action or transmutation infers a variable when an
-abstract expression's identical spelling appears in at least two regions below. A `THEN` sequence
-instead declares a shared choice explicitly with `Type AS Name` in a choosing stage and uses the
-bare `Name` in another stage. Repeating an unnamed Type across stages does not link it.
+**T13-7. Other construct-local variables.** An Action or `THEN` sequence declares a shared choice
+explicitly with `Type AS Name` in its earlier choosing region and uses the bare `Name` in its later
+region. Repeating an unnamed Type does not link the regions. A transmutation still infers a variable
+when an abstract expression's identical spelling appears on both sides.
 
 | Construct | Declaration | Regions |
 | --- | --- | --- |
-| Action | identical spelling | the cost; the result |
+| Action | `Type AS Name` and bare `Name` | the cost; the result |
 | `THEN` sequence | `Type AS Name` and bare `Name` | each stage |
 | Transmutation (`A FROM B`) | identical spelling | the gained side; the removed side — but *not* the two whole roots |
 
@@ -1292,10 +1292,11 @@ production, because the whole production is what the change is replacing.
 > destination would be forced to the same track and the card would cancel itself; only repeated
 > proper subexpressions are equality claims.
 
-> **Non-normative design note — where spelling remains.** Actions and transmutations retain the
-> physical icon grammar's repeated “same one” shorthand. Requiring the *same authored spelling*
-> keeps that claim visible: resolution and default insertion cannot silently join differently
-> written icons. A sequence is more general and potentially distant, so it requires a name.
+> **Non-normative design note — where spelling remains.** Transmutations retain the physical icon
+> grammar's repeated “same one” shorthand. Requiring the *same authored spelling* keeps that claim
+> visible: resolution and default insertion cannot silently join differently written icons.
+> Sequences and Actions can separate their choices across independently settled stages, so they
+> require a name.
 
 **T13-8. Where repetition does not introduce another variable.** Repetition is evidence of one
 shared choice only where the occurrences can be settled by that choice. The cases below introduce no

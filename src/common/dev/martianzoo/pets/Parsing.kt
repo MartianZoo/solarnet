@@ -168,7 +168,8 @@ public object Parsing {
   private fun rejectUnsupportedSyntax(parsed: Any?) {
     when (parsed) {
       is ClassDeclaration -> parsed.allNodes.forEach(::rejectUnsupportedSyntax)
-      is Effect ->
+      is Effect,
+      is Action ->
           parsed.visitDescendants {
             (it as? Expression)?.let(ScaledExpression::rejectIfDenominationless)
             true
@@ -180,7 +181,7 @@ public object Parsing {
             ScaledExpression.rejectIfDenominationless(expression)
             if (expression.typeVariableName != null && !namedScope) {
               throw PetSyntaxException(
-                  "Type-variable names are currently supported only within Effects or THEN sequences"
+                  "Type-variable names are currently supported only within Effects, Actions, or THEN sequences"
               )
             }
           }

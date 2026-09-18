@@ -33,7 +33,7 @@
         {
           "name": "UtopiaInvest",
           "immediate": "40 MC, PROD[Steel, Titanium]",
-          "actions": [ "PROD[StandardResource] -> 4 StandardResource" ],
+          "actions": [ "PROD[StandardResource AS ThatResource] -> 4 ThatResource" ],
         },
       ],
     },

@@ -190,4 +190,31 @@ internal class Lang09ActionsTest {
         """
     )
   }
+
+  // L9-8 named Type variables across an Action
+
+  @Test
+  internal fun `L9-8 an Action cost can name a Type used by its result`() {
+    roundTrip<Action>("StandardResource AS R -> 4 R")
+    roundTrip<Action>("Foo<Plant AS P> -> Bar<P>")
+    roundTrip<Action>("Plant AS P -> Foo<Bar(HAS Baz<P>)>")
+  }
+
+  @Test
+  internal fun `L9-8 an Action Type-variable name must be unambiguous and used`() {
+    shouldThrow<PetSyntaxException> { parse<Action>("Plant AS P -> Heat") }
+    shouldThrow<PetSyntaxException> {
+      parse<Action>("Duo<Plant AS P, Heat AS P> -> P")
+    }
+    shouldThrow<PetSyntaxException> { parse<Action>("Plant AS P -> P<Steel>") }
+  }
+
+  @Test
+  internal fun `L9-8 an Action variable must be declared by its cost`() {
+    shouldThrow<PetSyntaxException> { parse<Action>("Plant / Score<Steel AS S> -> S") }
+    shouldThrow<PetSyntaxException> { parse<Action>("Plant -> Steel AS S") }
+    shouldThrow<PetSyntaxException> {
+      parse<Action>("StandardResource AS R -> Plant AS R THEN R")
+    }
+  }
 }

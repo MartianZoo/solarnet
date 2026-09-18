@@ -15,8 +15,8 @@ import dev.martianzoo.pets.ast.localTypeVariableDeclarations
 import dev.martianzoo.pets.ast.withTypeVariables
 
 /**
- * Returns a transformer that records explicitly named scopes in effects and sequences and infers
- * the remaining action, transmutation, and actor scopes. It applies the region, exclusion, and
+ * Returns a transformer that records explicitly named scopes in effects, Actions, and sequences and
+ * infers the remaining transmutation and actor scopes. It applies the region, exclusion, and
  * actor-selector rules in
  * [rules T13-6 through T13-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
  */
@@ -54,14 +54,28 @@ public fun ClassTable.inferTypeVariables(): PetTransformer =
                     )
             )
           }
-          is Action ->
-              transformed.withTypeVariables(
-                  transformed.typeVariables +
-                      TypeVariableScope.infer(
-                          listOfNotNull(transformed.cost, transformed.instruction),
-                          this@inferTypeVariables,
-                      )
-              )
+          is Action -> {
+            val visibleNames = transformed.typeVariables.variables.mapNotNull { it.name }.toSet()
+            val namedDeclarations =
+                transformed.cost
+                    ?.descendantsOfType<Expression>()
+                    ?.filter {
+                      it.typeVariableName is Declaration &&
+                          it.typeVariableName.name !in visibleNames
+                    }
+                    .orEmpty()
+            validateTypeVariableNames(namedDeclarations)
+            val localScope =
+                TypeVariableScope.infer(
+                    listOfNotNull(transformed.cost, transformed.instruction),
+                    this@inferTypeVariables,
+                    namedDeclarations = namedDeclarations,
+                    inferRepeatedExpressions = false,
+                    visibleScope = transformed.typeVariables,
+                )
+            requireSharedAcrossRegions(localScope, "Action")
+            transformed.withTypeVariables(transformed.typeVariables + localScope)
+          }
           is Instruction.Then -> {
             val visibleNames = transformed.typeVariables.variables.mapNotNull { it.name }.toSet()
             val namedDeclarations =
@@ -77,15 +91,7 @@ public fun ClassTable.inferTypeVariables(): PetTransformer =
                     inferRepeatedExpressions = false,
                     visibleScope = transformed.typeVariables,
                 )
-            localScope.variables
-                .firstOrNull { variable ->
-                  variable.occurrences.map { it.region }.distinct().size < 2
-                }
-                ?.let {
-                  throw ExpressionException(
-                      "A THEN Type variable must be used in more than one stage: $it"
-                  )
-                }
+            requireSharedAcrossRegions(localScope, "THEN")
             transformed.withTypeVariables(transformed.typeVariables + localScope)
           }
           is Instruction.Transmute ->
@@ -108,5 +114,17 @@ public fun ClassTable.inferTypeVariables(): PetTransformer =
             throw ExpressionException("Type-variable name $name is already a Type name")
           }
         }
+      }
+
+      private fun requireSharedAcrossRegions(scope: TypeVariableScope, construct: String) {
+        scope.variables
+            .firstOrNull { variable ->
+              variable.occurrences.map { it.region }.distinct().size < 2
+            }
+            ?.let {
+              throw ExpressionException(
+                  "A $construct Type variable must be used in more than one region: $it"
+              )
+            }
       }
     }
