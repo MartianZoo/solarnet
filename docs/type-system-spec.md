@@ -374,11 +374,11 @@ type of that class propagates a choice from either position into the other:
 
 ```pets
 ABSTRACT CLASS CardFront : Owned<Owner>
-ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner> { CLASS Animal }
+ABSTRACT CLASS Cardbound<CardFront<Owner AS CardOwner>> : Owned<CardOwner> { CLASS Animal }
 ```
 
-The `Owner` inside `CardFront<Owner>` and the `Owner` of `Owned<Owner>` are the same variable, so
-an animal's owner is necessarily the owner of the card it lives on:
+`CardOwner` explicitly makes the owner inside `CardFront` and the owner supplied to `Owned` the same
+variable, so an animal's owner is necessarily the owner of the card it lives on:
 
 ```text
 Animal<Player1>             →  Animal<Player1, CardFront<Player1>>
@@ -826,13 +826,14 @@ order in which distinct clauses were first encountered. Thus both
 > restriction as a separate clause, producing one writable refinement below both operands.
 
 **T8-10. Refined class literals.** A refinement on `Class<X>` tests the class the candidate names:
-references to `X` inside the requirement are rewritten to the candidate's class. Testing
-`Class<BuildingTag>` against `Class<Tag>(HAS Tag<Player1>)` asks `BuildingTag<Player1>` — counting
-tag classes, not tag components.
+`Class<X AS Name>` makes that class available as `Name` inside the requirement. Testing
+`Class<BuildingTag>` against `Class<Tag AS ThatTag>(HAS ThatTag<Player1>)` asks `BuildingTag<Player1>` —
+counting tag classes, not tag components. Repeating an unnamed `X` asks about the ordinary `X`
+type; it does not refer to the represented class.
 
 > **Non-normative example — Diversifier.** Its milestone requirement counts
-> `Class<Tag>(HAS Tag<Owner>)`: distinct tag kinds the player has, not the number of tag components.
-> Testing the represented class is what makes five Earth tags count as one kind.
+> `Class<Tag AS ThatTag>(HAS ThatTag<Owner>)`: distinct tag kinds the player has, not the number of tag
+> components. Testing the represented class is what makes five Earth tags count as one kind.
 
 **T8-11. Refinements inside dependencies** behave like any other, and survive rendering and
 re-resolution.
@@ -1182,9 +1183,9 @@ Three properties hold of all three sources, and most of the rules below are cons
    introduce a variable. An observing occurrence never does — it ranges over whatever matches it —
    though it happily *uses* a variable already introduced elsewhere.
 2. **A local declaration does not shadow.** Where a variable is already visible, the same name uses
-   it rather than declaring another variable. Structural binders — an `EACH` or `RANK` selector, a
-   compact transmutation's unchanged slot, or the represented class inside a refined class literal
-   — establish identity without comparing Type spelling.
+   it rather than declaring another variable. An `EACH` or `RANK` selector and the represented class
+   inside a refined class literal require explicit names when their selected values are reused. A
+   compact transmutation's unchanged slot is one shared syntax node, not two spellings being linked.
 
 3. **Inheritance passes values, not names.** A subclass does not see its superclass's header
    variables by spelling or by an explicit source name; it receives their values when a component
@@ -1196,21 +1197,25 @@ Three properties hold of all three sources, and most of the rules below are cons
 resolving to an abstract type. `ABSTRACT CLASS Holder<Box<Person>>` declares two — `Box<Person>` and
 the `Person` nested inside it.
 
-A header variable needs an `AS` name only when that Class's own body refers to it (T13-3). Header
-equalities and inherited specialization remain structural and need no source-level name.
+A header variable needs an `AS` name when that Class's own body refers to it or when distinct
+dependency paths must denote the same variable (T13-3). Occurrences that reach one dependency path
+are structurally one position; inherited specialization likewise supplies values by position and
+does not expose the superclass's source-level name.
 
-Occurrences that reach the *same dependency path* are one variable, even through different
-supertypes. That is what rule T3-8 is built on:
+Occurrences that reach the *same dependency path* are one variable even through different
+supertypes. Explicit names make that relationship visible in source and are required if the body
+uses the variable. That is what rule T3-8 is built on:
 
 ```pets
-ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>
+ABSTRACT CLASS Cardbound<CardFront<Owner AS CardOwner>> : Owned<CardOwner>
 ```
 
 The `Owner` inside `CardFront<Owner>` sits at path `Cardbound_0.Owned_0`; the `Owner` of the
 `Owned<Owner>` supertype sits at `Owned_0`. One path ends with the other, so they are one variable,
-and the two dependency positions are forced to agree. Two header *roots* spelled alike stay
-independent, as do identical nested bounds in sibling branches: `Pair<Box<Person>, Box<Person>>`
-leaves the two people free to differ.
+and the explicitly named dependency positions are forced to agree. Two header *roots* spelled alike
+stay independent, as do identical nested bounds in sibling branches: `Pair<Box<Person>,
+Box<Person>>` leaves the two people free to differ. They can instead be linked deliberately, as in
+`Pair<Box<Person AS P>, Box<P>>`.
 
 > **Non-normative example — cardbound resources.** `CardResource<ResourceHolder<..., Owner>>` and
 > `Owned<Owner>` reach the same holder owner by different dependency paths. Recognizing their shared
@@ -1233,11 +1238,12 @@ references remain bare; a reference cannot add a refinement.
 **T13-4. Inheritance.** A subclass does not redeclare an inherited variable, and effects inherited
 from a superclass keep that superclass's scope.
 
-An explicit supertype argument supplies the value of an inherited variable. Repeating that supplied
-Type in the subclass's own body refers structurally to the supplied value; it does not declare a new
-variable and needs no `AS` name. Thus a concrete `ResourceCard<Class<Animal>>` can use `Animal<This>`
-in its body, while the generic variable is declared and named, if needed, by `ResourceCard` or its
-superclass.
+An explicit supertype argument supplies the value of an inherited variable. If that value remains
+abstract and the subclass's own body uses it, the argument must name it explicitly: `Badge<Person
+AS P> { This: Token<P> }`. Repeating `Person` in the body is independent. A concrete specialization
+needs no variable merely to spell its fixed Type; `ResourceCard<Class<Animal>>` can use
+`Animal<This>` because `Animal` is already the complete concrete value, not because the two
+occurrences are linked.
 
 > **Non-normative example — `CardBilling`.** It inherits `Billing`'s cleanup effects, including the
 > resource-denomination variable, while fixing that denomination to MC. Redeclaring the variable in
@@ -1280,15 +1286,19 @@ Repeating an abstract expression without `AS` does not declare an Effect variabl
 instruction leaves the Effect's lexical scope, its references have already been expanded to the
 chosen structural Type.
 
-**T13-7. Other construct-local variables.** An Action, `THEN` sequence, or full transmutation
-declares a shared choice explicitly with `Type AS Name` in the region that supplies it and uses the
-bare `Name` in the other region. Repeating an unnamed Type does not link the regions.
+**T13-7. Other construct-local variables.** An Action, `THEN` sequence, full transmutation, `EACH`,
+`RANK`, or refined class literal declares a shared choice explicitly with `Type AS Name` in the
+region that supplies it and uses the bare `Name` where that selected value is needed. Repeating an
+unnamed Type does not link the regions.
 
 | Construct | Declaration | Regions |
 | --- | --- | --- |
 | Action | `Type AS Name` and bare `Name` | the cost; the result |
 | `THEN` sequence | `Type AS Name` and bare `Name` | each stage |
 | Full transmutation (`A FROM B`) | `Type AS Name` in the gained side; bare `Name` in the removed side | the gained side; the removed side |
+| `EACH` | `Selector AS Name` | the body |
+| `RANK` | `Selector AS Name` | the comparison metrics |
+| Refined class literal | `Class<Type AS Name>` | that literal's refinement |
 
 The first two are settlement sites: parts of one rule that are settled separately, and across
 which "the same one" is worth saying. An action's two regions are the two stages its arrow lowers to
@@ -1317,7 +1327,8 @@ variable. The cases below introduce no additional variable and do not hide one a
 | A declaration inside a requirement | a requirement observes candidates, it does not choose one |
 | A declaration inside a metric | a count ranges over a domain rather than picking one member |
 | A declaration inside a refinement | a refinement tests a candidate chosen or matched outside it |
-| An `EACH` selector and any body text naming it | the fanout declares its own variable for its body |
+| An unnamed `EACH` or `RANK` selector repeated in its body or metrics | selectors are reused only through `AS` names |
+| An unnamed represented class repeated inside its `Class<T>` refinement | represented classes are reused only through `AS` names |
 | A concrete expression, or `This` | there is no open choice to bind |
 
 The three observing rows are the first property above: an occurrence that only looks never
@@ -1328,8 +1339,8 @@ stages choose, rather than ranging over people of its own.
 
 > **Non-normative examples — Sponsor and `EACH`.** Sponsor's metric must count three independently
 > matching expensive cards, not capture the first `CardFront(HAS 20 cost)` and demand three copies
-> of it. Conversely, `EACH Class<GlobalParameter>` owns an explicit fanout variable so its body uses
-> the particular track selected for that iteration.
+> of it. Conversely, `EACH Class<GlobalParameter> AS ParamClass { GpIncomplete<ParamClass> }`
+> explicitly uses the particular track selected for that iteration.
 
 **T13-9. Actor specialization.** A `BY` selector constrains the Actor recorded on the triggering
 event. A simple, positive, abstract Actor expression in that position is specialized to the concrete

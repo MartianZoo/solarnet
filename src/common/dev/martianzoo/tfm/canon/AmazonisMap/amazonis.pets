@@ -13,7 +13,7 @@ CLASS ExtendedGlobalParametersRule : Module {
   TemperatureStep IF =9 TemperatureStep: PROD[Plant]
   TemperatureStep BY Player IF =15 TemperatureStep: OceanTile<>
   TemperatureStep BY Admin IF =15 TemperatureStep:: \
-    EACH Player(HAS StartToken) { AdminOceanPlacement<Player> }
+    EACH Player(HAS StartToken) AS StartPlayer { AdminOceanPlacement<StartPlayer> }
   TemperatureStep IF =22 TemperatureStep:: GpComplete<Class<TemperatureStep>>
 
   OxygenStep IF =7 OxygenStep: ProjectCard
@@ -31,7 +31,7 @@ CLASS Merchant3 : Milestone {
 CLASS Sponsor : Milestone { requirement = HAS "3 CardFront(HAS 20 cost)" }
 // CLASS Lobbyist : Milestone { requirement = HAS "7 Delegate<Owner, Party>" }
 
-CLASS Collector : Award { metric = COUNT "Class<Resource>(HAS Resource<Owner>)" }
+CLASS Collector : Award { metric = COUNT "Class<Resource AS ThatResource>(HAS ThatResource<Owner>)" }
 CLASS Innovator : Award { metric = COUNT "CardFront OR PlayedEvent" }
 CLASS Constructor : Award { metric = COUNT "Colony OR CityTile" }
 CLASS Manufacturer : Award { metric = COUNT "PROD[Steel OR Heat]" }

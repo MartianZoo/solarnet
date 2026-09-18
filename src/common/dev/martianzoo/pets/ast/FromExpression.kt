@@ -10,6 +10,7 @@ import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.StructuralReference
 import kotlin.reflect.KClass
 
 /**
@@ -27,7 +28,14 @@ public sealed class FromExpression : PetNode() {
   public abstract val fromExpression: Expression
 
   /** An argument retained unchanged by a compact transmutation. */
-  public data class Unchanged(public val expression: Expression) : FromExpression() {
+  public class Unchanged(source: Expression) : FromExpression() {
+    public val expression: Expression =
+        if (source.typeVariableName == null) {
+          source.copy(typeVariableName = StructuralReference(source.className))
+        } else {
+          source
+        }
+
     override val toExpression: Expression
       get() = expression
 
@@ -37,6 +45,13 @@ public sealed class FromExpression : PetNode() {
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(expression)
 
     override fun toString(): String = "$expression"
+
+    override fun equals(other: Any?): Boolean =
+        other is Unchanged &&
+            expression.copy(typeVariableName = null) ==
+                other.expression.copy(typeVariableName = null)
+
+    override fun hashCode(): Int = expression.copy(typeVariableName = null).hashCode()
   }
 
   /** A transmutation whose source and destination are both written in full. */

@@ -170,12 +170,14 @@ internal class Lang05MetricsTest {
    */
   @Test
   internal fun `L5-9 RANK names a selector, a candidate expression and its metrics`() {
-    val rank =
-        parse<Metric>("RANK Player(NOT Player1) { Score<Player>, MC<Player> }") as Metric.Rank
+    val rank = parse<Metric>("RANK Player(NOT Player1) AS P { Score<P>, MC<P> }") as Metric.Rank
 
-    rank.selector shouldBe parse("Player(NOT Player1)")
-    rank.selectorName shouldBe parse("Player")
-    rank.metrics shouldBe listOf(parse<Metric>("Score<Player>"), parse<Metric>("MC<Player>"))
+    rank.selector.toString() shouldBe "Player(NOT Player1) AS P"
+    rank.metricsFor(parse("Player2")) shouldBe
+        listOf(parse<Metric>("Score<Player2>"), parse<Metric>("MC<Player2>"))
+
+    val unnamed = parse<Metric>("RANK Player { Score<Player> }") as Metric.Rank
+    unnamed.metricsFor(parse("Player2")) shouldBe listOf(parse<Metric>("Score<Player>"))
     rank.candidate shouldBe null
     shouldThrow<PetSyntaxException> { parse<Metric>("RANK Player { }") }
   }

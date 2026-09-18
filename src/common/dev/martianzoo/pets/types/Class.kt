@@ -6,7 +6,6 @@ import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetException
-import dev.martianzoo.pets.api.SystemClasses.ANYONE
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.DIE
@@ -18,7 +17,6 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
-import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue
@@ -455,10 +453,25 @@ internal constructor(
       changed = false
       dependencyEqualities().forEach { equality ->
         val occurrences = equality.paths.map(dependencies::at)
-        val intersection = occurrences.reduce { left, right ->
-          classTable.glb(left, right) ?: equalityError(equality, dependencies)
-        }
+        val intersectionByPath =
+            if (occurrences.map(Dependency::key).distinct().size == 1) {
+              val intersection = occurrences.reduce { left, right ->
+                classTable.glb(left, right) ?: equalityError(equality, dependencies)
+              }
+              equality.paths.associateWith { intersection }
+            } else {
+              val typed = occurrences.filterIsInstance<TypeDependency>()
+              if (typed.size != occurrences.size) equalityError(equality, dependencies)
+              val bound =
+                  typed.map(TypeDependency::boundType).reduce { left, right ->
+                    classTable.glb(left, right) ?: equalityError(equality, dependencies)
+                  }
+              equality.paths.associateWith { path ->
+                (dependencies.at(path) as TypeDependency).map { bound }
+              }
+            }
         equality.paths.forEach { path ->
+          val intersection = intersectionByPath.getValue(path)
           if (dependencies.at(path) != intersection) {
             dependencies = dependencies.replaceAt(path, intersection)
             changed = true
@@ -471,7 +484,16 @@ internal constructor(
 
   internal fun requireVariableEqualitiesSatisfied(dependencies: DependencySet) {
     dependencyEqualities().forEach { equality ->
-      if (equality.paths.map(dependencies::at).distinct().size > 1) {
+      val occurrences = equality.paths.map(dependencies::at)
+      val agree =
+          if (occurrences.map(Dependency::key).distinct().size == 1) {
+            occurrences.distinct().size == 1
+          } else {
+            val typed = occurrences.filterIsInstance<TypeDependency>()
+            typed.size == occurrences.size &&
+                typed.map(TypeDependency::boundType).distinct().size == 1
+          }
+      if (!agree) {
         equalityError(equality, dependencies)
       }
     }
@@ -531,7 +553,6 @@ internal constructor(
         val paths: MutableSet<DependencyPath>,
         val headerExpressions: MutableSet<Expression>,
         var lexicallyDeclared: Boolean,
-        var structurallyVisibleInBody: Boolean,
     )
 
     fun inheritedSeed(binding: HeaderVariableBinding) =
@@ -548,7 +569,6 @@ internal constructor(
             binding.paths.toMutableSet(),
             binding.headerExpressions.toMutableSet(),
             lexicallyDeclared = false,
-            structurallyVisibleInBody = false,
         )
 
     fun Seed.absorb(other: Seed) {
@@ -560,7 +580,6 @@ internal constructor(
       paths += other.paths
       headerExpressions += other.headerExpressions
       lexicallyDeclared = lexicallyDeclared || other.lexicallyDeclared
-      structurallyVisibleInBody = structurallyVisibleInBody || other.structurallyVisibleInBody
     }
 
     fun Seed.copySeed() =
@@ -572,7 +591,6 @@ internal constructor(
             paths.toMutableSet(),
             headerExpressions.toMutableSet(),
             lexicallyDeclared = lexicallyDeclared,
-            structurallyVisibleInBody = structurallyVisibleInBody,
         )
 
     val seeds = mutableListOf<Seed>()
@@ -586,12 +604,22 @@ internal constructor(
           seeds += incoming
         }
 
+    fun sameDependencyPath(first: HeaderOccurrence, second: HeaderOccurrence): Boolean {
+      fun hasSuffix(longer: List<Key>, suffix: List<Key>): Boolean =
+          longer.size >= suffix.size && longer.takeLast(suffix.size) == suffix
+      val firstPath = first.path.keyList
+      val secondPath = second.path.keyList
+      return hasSuffix(firstPath, secondPath) || hasSuffix(secondPath, firstPath)
+    }
+
     val occurrenceGroups = mutableListOf<MutableList<HeaderOccurrence>>()
     headerOccurrences().forEach { occurrence ->
       val matching = occurrenceGroups.filter { group ->
         group.any { prior ->
-          prior.expression.sameUnnamedTypeExpressionAs(occurrence.expression) &&
-              sameHeaderVariable(prior, occurrence)
+          val priorName = prior.expression.typeVariableName?.name
+          val occurrenceName = occurrence.expression.typeVariableName?.name
+          (priorName != null && priorName == occurrenceName) ||
+              sameDependencyPath(prior, occurrence)
         }
       }
       if (matching.isEmpty()) {
@@ -636,7 +664,6 @@ internal constructor(
                         mutableSetOf(),
                         mutableSetOf(),
                         lexicallyDeclared = true,
-                        structurallyVisibleInBody = false,
                     )
                 alreadyDeclared != null ->
                     alreadyDeclared.copySeed().also { merged ->
@@ -665,15 +692,6 @@ internal constructor(
             target.paths += occurrence.path
           }
           target.paths += paths
-          if (
-              named.isEmpty() &&
-                  overlapping.isNotEmpty() &&
-                  occurrences.all { it.region >= declaration.dependencies.size }
-          ) {
-            // A supertype argument fixes an inherited variable. The subclass body sees that fixed
-            // value structurally; this is specialization, not a new variable declaration.
-            target.structurallyVisibleInBody = true
-          }
           seeds += target
         }
 
@@ -702,47 +720,12 @@ internal constructor(
       "$className declares the same header Type-variable name twice"
     }
     val variablesByName = namedVariables.toMap()
-    val structurallyVisibleVariables = seeds.filter(Seed::structurallyVisibleInBody)
     var bodyOrdinal = headerOccurrences().size
     declaration.effects.forEachIndexed { effectIndex, effect ->
-      // A fanout selector owns its variable, even if it resembles an inherited specialization.
-      val fanoutSelectors: List<Expression> =
-          effect.descendantsOfType<Each>().flatMap { each ->
-            listOf(each.selector) +
-                each.selector.descendantsOfType<Expression>() +
-                each.body.descendantsOfType<Expression>().filter {
-                  it == each.selectorName || it == each.representedSelectorName
-                }
-          }
       effect.descendantsOfType<Expression>().forEach { expression ->
         val named = (expression.typeVariableName as? Reference)?.name
-        val matching =
-            if (named != null) {
-              listOfNotNull(variablesByName[named])
-            } else {
-              if (expression.className == ANYONE || fanoutSelectors.any { it === expression }) {
-                return@forEach
-              }
-              val exact = structurallyVisibleVariables.filter { seed ->
-                seed.headerExpressions.any(expression::sameAuthoredTypeExpressionAs)
-              }
-              exact.ifEmpty {
-                structurallyVisibleVariables.filter { seed ->
-                  seed.headerExpressions.any { header ->
-                    header.className == expression.className &&
-                        ((header.simple && expression.arguments.isNotEmpty()) ||
-                            (expression.simple && header.arguments.isNotEmpty()))
-                  }
-                }
-              }
-            }
-        if (matching.size > 1) {
-          throw PetException(
-              "$className uses ambiguous inherited Type specialization $expression in $effect"
-          )
-        }
-        matching
-            .singleOrNull()
+        named
+            ?.let(variablesByName::get)
             ?.usages
             ?.add(
                 TypeVariable.Site(
@@ -774,22 +757,6 @@ internal constructor(
             DependencyEquality(binding.headerExpressions, paths)
           }
     }
-  }
-
-  private fun sameHeaderVariable(
-      first: HeaderOccurrence,
-      second: HeaderOccurrence,
-  ): Boolean {
-    fun hasSuffix(longer: List<Key>, suffix: List<Key>): Boolean =
-        longer.size >= suffix.size && longer.takeLast(suffix.size) == suffix
-
-    val firstPath = first.path.keyList
-    val secondPath = second.path.keyList
-    if (hasSuffix(firstPath, secondPath) || hasSuffix(secondPath, firstPath)) return true
-
-    val firstInSupertype = first.region >= declaration.dependencies.size
-    val secondInSupertype = second.region >= declaration.dependencies.size
-    return firstInSupertype != secondInSupertype && firstPath.last() == secondPath.last()
   }
 
   private val typeVariablesLazy = lazy {

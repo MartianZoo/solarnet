@@ -11,13 +11,13 @@ CLASS TerraformingMars : BaseGameModule {
   This: DoRequiredActionsAction
   This: Action1, Action2, Action3, CardPurchase, CardPlay
   This: Hand, Selecting, Revealed
-  This: EACH Class<GlobalParameter> { GpIncomplete<Class<GlobalParameter>> }
-  This: EACH Class<RemoteArea> { RemoteArea }
+  This: EACH Class<GlobalParameter> AS ParamClass { GpIncomplete<ParamClass> }
+  This: EACH Class<RemoteArea AS ThatArea> { ThatArea }
 
   ModulesReady IF MAX 0 ExtendedGlobalParametersRule: StandardGpTrackRules
 
   CorporationPhase: Photosynthesis
-  CorporationPhase:: EACH Class<CardWatcher> { CardWatcher }
+  CorporationPhase:: EACH Class<CardWatcher AS Watcher> { Watcher }
 
   PlayTag<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>
   PlayTag<Class<SpaceTag>> IF Owed:: Accepting<Class<Titanium>>

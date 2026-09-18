@@ -118,11 +118,11 @@ internal class Spec13TypeVariablesTest {
         loadTypes(
             "CLASS Player1 : Owner",
             "ABSTRACT CLASS CardFront : Owned<Owner>",
-            "ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>",
+            "ABSTRACT CLASS Cardbound<CardFront<Owner AS CardOwner>> : Owned<CardOwner>",
         )
 
     cards.getClass(cn("Cardbound")).typeVariables.map { "$it" } shouldContainExactly
-        listOf("CardFront<Owner>", "Owner")
+        listOf("CardFront<Owner AS CardOwner>", "CardOwner")
     cards
         .getClass(cn("Cardbound"))
         .isEqualityConstrainedDependency(Dependency.Key(cn("Owned"), 0)) shouldBe true
@@ -136,6 +136,16 @@ internal class Spec13TypeVariablesTest {
     table.getClass(cn("Duo")).typeVariables.map { "$it" } shouldContainExactly
         listOf("Person", "Person")
     table.getClass(cn("Duo")).typeVariables.distinct().size shouldBe 2
+  }
+
+  @Test
+  internal fun `T13-2 an explicit name can link two header roots`() {
+    val table =
+        loadTypes("ABSTRACT CLASS Person { CLASS Alice }", "ABSTRACT CLASS Duo<Person AS P, P>")
+
+    table.getClass(cn("Duo")).typeVariables.map { "$it" } shouldContainExactly listOf("P")
+    table.getClass(cn("Duo")).isEqualityConstrainedDependency(Dependency.Key(cn("Duo"), 0)) shouldBe
+        true
   }
 
   @Test
@@ -319,13 +329,13 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-4 a supplied supertype argument is visible structurally in the subclass body`() {
+  internal fun `T13-4 a supplied supertype argument needs a name in the subclass body`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
             "ABSTRACT CLASS Token<Person>",
             "ABSTRACT CLASS Badge<Person>",
-            "ABSTRACT CLASS PersonBadge : Badge<Person> { This: Token<Person> }",
+            "ABSTRACT CLASS PersonBadge : Badge<Person AS P> { This: Token<P> }",
         )
     val personBadge = table.getClass(cn("PersonBadge"))
     val effect = personBadge.interpretTypeVariablesIn(personBadge.declaration.effects.single())
@@ -380,6 +390,31 @@ internal class Spec13TypeVariablesTest {
         .bind(specialized.variableBindingsFrom(offer.defaultType, effect.typeVariables.variables))
         .transformEffect(effect)
         .toString() shouldBe "This: Rock<RockHolder>"
+  }
+
+  @Test
+  internal fun `T13-5 specializing an outer variable preserves a nested local declaration`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Player : Owner",
+            "ABSTRACT CLASS Resource<Owner>",
+            "CLASS Plant<Owner> : Resource<Owner>",
+            "ABSTRACT CLASS Watcher<Class<Resource AS ThatResource>> { " +
+                "-X ThatResource<Owner AS Victim> BY Player AS Attacker: " +
+                "Resource<Victim>, Resource<Attacker> }",
+        )
+    val watcher = table.getClass(cn("Watcher"))
+    val effect =
+        table
+            .inferTypeVariables()
+            .transformEffect(watcher.interpretTypeVariablesIn(watcher.declaration.effects.single()))
+    val specialized = table.resolve(te("Watcher<Class<Plant>>"))
+
+    effect.typeVariables
+        .bind(specialized.variableBindingsFrom(watcher.defaultType, effect.typeVariables.variables))
+        .transformEffect(effect)
+        .toString() shouldBe
+        "-X Plant<Owner AS Victim> BY Player AS Attacker: Resource<Victim>, Resource<Attacker>"
   }
 
   @Test
@@ -678,7 +713,7 @@ internal class Spec13TypeVariablesTest {
   // T13-8 What does not declare a variable
 
   @Test
-  internal fun `T13-8 an EACH selector declares its own variable, never a header one`() {
+  internal fun `T13-8 an unnamed EACH selector does not use a header variable`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS StandardResource { CLASS Plant }",
@@ -687,6 +722,16 @@ internal class Spec13TypeVariablesTest {
     val variable = table.getClass(cn("Holder")).typeVariables.single()
 
     variable.occurrences.size shouldBe 1
+  }
+
+  @Test
+  internal fun `T13-8 a selector variable name cannot be a Type name`() {
+    shouldThrow<ExpressionException> {
+      loadTypes(
+          "ABSTRACT CLASS Person",
+          "CLASS Holder { This: EACH Person AS Holder { Holder } }",
+      )
+    }
   }
 
   @Test
@@ -761,8 +806,13 @@ internal class Spec13TypeVariablesTest {
   @Test
   internal fun `T13-9 repeating an unnamed actor Type does not reuse its value`() {
     val bound = actorEffect("Heat BY Player: Notice<Player>")
+    val actor = bound.typeVariables.variables.single()
 
-    bound.typeVariables.variables.single().occurrences.size shouldBe 1
+    actor.occurrences.size shouldBe 1
+    bound.typeVariables
+        .bind(mapOf(actor to actors.resolve(te("Player1"))))
+        .transformEffect(bound)
+        .toString() shouldBe "Heat BY Player1: Notice<Player>"
   }
 
   @Test
@@ -840,13 +890,15 @@ internal class Spec13TypeVariablesTest {
     val bound =
         table
             .inferTypeVariables()
-            .transformEffect(parse<Effect>("StandardResource AS R: Notice<R>, Steel"))
+            .transformEffect(
+                parse<Effect>("StandardResource AS R: Notice<R>, StandardResource, Steel")
+            )
     val variable = bound.typeVariables.variables.single()
 
     bound.typeVariables
         .bind(mapOf(variable to table.resolve(te("Plant"))))
         .transformEffect(bound)
-        .toString() shouldBe "Plant: Notice<Plant>, Steel"
+        .toString() shouldBe "Plant: Notice<Plant>, StandardResource, Steel"
   }
 
   @Test
@@ -963,7 +1015,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-11 one variable cannot capture conflicting structural values`() {
+  internal fun `T13-11 capture does not include an identically spelled sibling`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice, Bob }",
@@ -978,12 +1030,12 @@ internal class Spec13TypeVariablesTest {
             unnamedDeclarations = listOf(person),
         )
 
-    shouldThrow<IllegalStateException> {
-      scope.bindingsFrom(
-          authored,
-          table.resolve(authored),
-          table.resolve(parse("Pair<Alice, Bob>")),
-      )
-    }
+    scope
+        .bindingsFrom(
+            authored,
+            table.resolve(authored),
+            table.resolve(parse("Pair<Alice, Bob>")),
+        )
+        .map { (variable, value) -> "$variable=$value" } shouldContainExactly listOf("Person=Alice")
   }
 }

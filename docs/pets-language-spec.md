@@ -58,7 +58,7 @@ over the players present in one state, exactly as a metric counts them.
 
 > **Non-normative design note — Pets follows the game’s icon grammar.** Pets is not trying to make
 > Terraforming Mars look like a conventional programming language. Its primary notation is the
-> game’s own: nouns are component types, juxtaposed counts scale them, repeated icons can identify one
+> game’s own: nouns are component types, juxtaposed counts scale them, explicit names can identify one
 > repeated choice, and omitted context can mean what the physical component leaves implicit. Explicit
 > machinery is added where the game needs a distinction, not merely because a general-purpose
 > language would normally spell it. The standard to apply is therefore whether the compact notation
@@ -290,7 +290,7 @@ shadow:
 | `This` | the component the declaration is about | the whole declaration (L3-5) |
 | `Owner` | the context's owner | the whole declaration, except inside an `EACH` whose selector is an owner (L12-3) |
 | `X` | one open amount | one instruction, across the stages of a `THEN` (L6-14) |
-| an `EACH` or `RANK` selector | each selected component | that construct's body, shadowing an enclosing spelling (L6-10, L5-9) |
+| `Type AS Name` in an `EACH` or `RANK` selector | each selected component | that construct's body or metrics (L6-10, L5-9) |
 | a refinement's domain | the candidate | that refinement (T8-3) |
 | `Type AS Name` in an Effect trigger, `THEN`, Action cost, or transmutation destination | one shared choice | that Effect, sequence, Action, or transmutation (L6-15, L6-16, L8-12, L9-8, T13-6) |
 | an unchanged argument in compact `FROM` syntax | one shared choice | that transmutation's two sides (L6-12, T13-7) |
@@ -352,9 +352,9 @@ refinement.** Whitespace is not preserved and duplicate refinement clauses colla
 expression is not rewritten into its type's canonical form: `Tile` and `Tile<Area>` remain distinct
 expressions even though they resolve to one type (T1-3, T5-5).
 
-> **Non-normative implementation note — spelling drives capture.** Type-variable inference records
-> authored repetition. Normalizing `Tile` and `Tile<Area>` to one canonical type before that pass could
-> falsely turn two deliberately different spellings into one shared player choice.
+> **Non-normative implementation note — spelling is not identity.** Type-variable inference records
+> explicit declarations and references before normalization. `Tile` and `Tile<Area>` can resolve to
+> one type without becoming one shared choice.
 
 **L3-8. Two expressions are equal when their structural spellings agree.** Argument order is part of
 the spelling, while refinement-clause order and duplication are not (L3-3). Thus
@@ -513,9 +513,10 @@ context.
 **L5-9. `RANK Selector { m1, m2, ... }` is a competition rank.** It denotes the highest-first
 position of one candidate among the components matching `Selector` in one state, comparing the
 listed metrics lexicographically. Authored syntax leaves the candidate open; a refinement supplies
-it. At least one metric is required, and the selector's refinement filters the field without
-becoming part of the name the metrics use. This module pins the syntax and that scoping; ranking a
-live field is realized where a world is available, and pinned by `engine/RankMetricTest.kt`.
+it. At least one metric is required. `Selector AS Name` explicitly makes the candidate available as
+`Name` in the metrics; repeating an unnamed selector Type there does not refer to the candidate.
+This module pins the syntax and that scoping; ranking a live field is realized where a world is
+available, and pinned by `engine/RankMetricTest.kt`.
 
 > **Non-normative example — award scoring.** Award resolution ranks every player by the selected
 > award's metric, then awards first and—when applicable—second place. Lexicographic metrics and a
@@ -632,18 +633,19 @@ waiting means for pending work is `SEQUENCING.md`'s subject.
 > query is settled; a comma would let the second choice be evaluated against the old board.
 
 **L6-10. `EACH Selector { body }` quantifies over one state.** It denotes one independent branch of
-`body` for each component occurrence matching `Selector` present in the state, with the selector's
-spelling in the body denoting that component's concrete type. Equal occurrences therefore produce
-equal but independent branches. A refinement on the selector filters which components take part
-without becoming part of the name the body uses. The body may use the selector only as its
-repetition source; it need not name the selected component. The body may not be empty, fanouts do
-not nest, and a concrete selector is rejected where the fanout is resolved against a world.
+`body` for each component occurrence matching `Selector` present in the state. `Selector AS Name`
+explicitly makes that occurrence's concrete type available as `Name` in the body; repeating an
+unnamed selector Type does not refer to it. Equal occurrences produce equal but independent
+branches. A refinement on the selector filters which components take part. The selector may serve
+only as the repetition source, so the body need not name the selected component. The body may not
+be empty, fanouts do not nest, and a concrete selector is rejected where the fanout is resolved
+against a world.
 `EACH.md` specifies how and when that world is enumerated. This module pins the syntax and scoping;
 `engine/EachSelectorOwnerTest.kt` and `engine/InstructionResolutionTest.kt` pin the rest.
 
 > **Non-normative example — Mars Nomads.** After moving its marker, the card uses `EACH LandArea(HAS
-> NomadsMarker) { Placement<LandArea> }` to award the bonus of the newly marked area. The selector
-> both filters the live board and supplies the concrete area used in each branch.
+> NomadsMarker) AS There { Placement<There> }` to award the bonus of the newly marked area. The
+> selector both filters the live board and explicitly names the concrete area used in each branch.
 
 **L6-11. `I BY Actor` names who performs the change.** It distributes over a group, so
 `(A, B) BY Player1` is `A BY Player1, B BY Player1`. Attribution itself is `IDENTITY.md`'s subject.
@@ -881,9 +883,9 @@ a gain of any number of plants with the same number of heat. A removal is writte
 
 **L8-7. `BY` restricts a trigger by actor and `IF` by state.** Precedence, tightest first: `OR`,
 `BY`, `IF`. Parentheses give one alternative its own qualifier. A `BY` selector is an expression
-specialized by the Actor recorded on the event: `BY Player` can supply that concrete Player to other
-matching occurrences, and `BY Player(NOT Owner)` tests the Actor and participates in ordinary
-repeated-expression linking (T13-9).
+specialized by the Actor recorded on the event. `BY Player AS ActingPlayer` explicitly makes that
+concrete Player available elsewhere in the Effect; repeating an unnamed `Player` does not. A
+refined selector such as `BY Player(NOT Owner)` only tests the Actor (T13-9).
 
 > **Non-normative example — Lakefront Resorts.** `OceanTile BY Anyone: PROD[1 MC]` pays its owner
 > whenever any player places an ocean. The actor qualifier belongs to the trigger event, while an

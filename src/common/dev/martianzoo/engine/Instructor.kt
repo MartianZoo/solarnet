@@ -17,7 +17,6 @@ import dev.martianzoo.pets.api.Exceptions.requirementsNotMetInChoices
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
-import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.DIE
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.Expression
@@ -37,7 +36,6 @@ import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
@@ -415,20 +413,13 @@ internal constructor(
 
   private fun branchFor(each: Each, selected: Expression): InstructionTree {
     val owner = selected.takeIf { elaborator.selectionSuppliesOwner(each.selector) }
-    val representedSelection =
-        each.representedSelectorName?.let {
-          check(selected.className == CLASS)
-          selected.arguments.single()
-        }
     val bind =
         PetTransformer.chain(
-            replacer(each.selectorName, selected),
-            each.representedSelectorName?.let { replacer(it, checkNotNull(representedSelection)) },
             // This selection, rather than the enclosing context, supplies Owner. The unshielded
             // replacement is intentional.
             owner?.let(Transforming::replaceOwnerWith),
         )
-    val bound = bind.transformInstructionTree(each.body)
+    val bound = bind.transformInstructionTree(each.bodyFor(selected))
     val evaluated = elaborator.evaluateProperties(bound, context = selected, owner = owner)
     return resolveTree(evaluated)
   }

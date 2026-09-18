@@ -9,9 +9,11 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.StructuralReference
 import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.constructLocalTypeVariableDeclarations
 import dev.martianzoo.pets.ast.localTypeVariableDeclarations
 import dev.martianzoo.pets.ast.withTypeVariables
 
@@ -26,14 +28,8 @@ public fun ClassTable.inferTypeVariables(): PetTransformer =
         val transformed = transformChildren(node)
         return when (transformed) {
           is Effect -> {
-            val visibleNames = transformed.typeVariables.variables.mapNotNull { it.name }.toSet()
-            val namedDeclarations =
-                transformed.trigger.descendantsOfType<Expression>().filter {
-                  it.typeVariableName is Declaration && it.typeVariableName.name !in visibleNames
-                }
-            validateTypeVariableNames(namedDeclarations)
             val actorClass = resolve(ACTOR.expression).rootClass
-            val actorDeclarations =
+            val actorCandidates =
                 transformed.trigger.descendantsOfType<ByTrigger>().map(ByTrigger::by).filter {
                     selector ->
                   selector.simple &&
@@ -42,10 +38,21 @@ public fun ClassTable.inferTypeVariables(): PetTransformer =
                       transformed.typeVariables.variableAt(selector) == null &&
                       resolve(selector).rootClass.let { it.abstract && it.isSubtypeOf(actorClass) }
                 }
-            transformed.withTypeVariables(
-                transformed.typeVariables +
+            val (scoped, actorDeclarations) =
+                markStructuralOccurrences(transformed, actorCandidates)
+            val visibleNames = scoped.typeVariables.variables.mapNotNull { it.name }.toSet()
+            val constructLocalDeclarations = scoped.trigger.constructLocalTypeVariableDeclarations()
+            val namedDeclarations =
+                scoped.trigger.descendantsOfType<Expression>().filter {
+                  it.typeVariableName is Declaration &&
+                      it !in constructLocalDeclarations &&
+                      it.typeVariableName.name !in visibleNames
+                }
+            validateTypeVariableNames(namedDeclarations)
+            scoped.withTypeVariables(
+                scoped.typeVariables +
                     TypeVariableScope.fromDeclarations(
-                        listOf(transformed.trigger, transformed.instruction),
+                        listOf(scoped.trigger, scoped.instruction),
                         this@inferTypeVariables,
                         unnamedDeclarations = actorDeclarations,
                         namedDeclarations = namedDeclarations,
@@ -54,11 +61,14 @@ public fun ClassTable.inferTypeVariables(): PetTransformer =
           }
           is Action -> {
             val visibleNames = transformed.typeVariables.variables.mapNotNull { it.name }.toSet()
+            val constructLocalDeclarations =
+                transformed.cost?.constructLocalTypeVariableDeclarations().orEmpty()
             val namedDeclarations =
                 transformed.cost
                     ?.descendantsOfType<Expression>()
                     ?.filter {
                       it.typeVariableName is Declaration &&
+                          it !in constructLocalDeclarations &&
                           it.typeVariableName.name !in visibleNames
                     }
                     .orEmpty()
@@ -89,32 +99,33 @@ public fun ClassTable.inferTypeVariables(): PetTransformer =
             transformed.withTypeVariables(transformed.typeVariables + localScope)
           }
           is Instruction.Transmute -> {
-            val visibleNames = transformed.typeVariables.variables.mapNotNull { it.name }.toSet()
+            val scoped = transformed
+            val visibleNames = scoped.typeVariables.variables.mapNotNull { it.name }.toSet()
             val namedDeclarations =
-                transformed.localTypeVariableDeclarations().filter {
+                scoped.localTypeVariableDeclarations().filter {
                   it.typeVariableName!!.name !in visibleNames
                 }
             validateTypeVariableNames(namedDeclarations)
             val structuralDeclarations =
-                (transformed.fromEx as? FromExpression.Compact)
+                (scoped.fromEx as? FromExpression.Compact)
                     ?.arguments
                     ?.filterIsInstance<FromExpression.Unchanged>()
                     ?.map(FromExpression.Unchanged::expression)
                     ?.filter { expression ->
-                      expression.typeVariableName == null &&
+                      expression.typeVariableName is StructuralReference &&
                           resolve(expression).abstract &&
-                          transformed.typeVariables.variableAt(expression) == null
+                          scoped.typeVariables.variableAt(expression) == null
                     }
                     .orEmpty()
             val localScope =
                 TypeVariableScope.fromDeclarations(
-                    listOf(transformed.gaining, transformed.removing),
+                    listOf(scoped.gaining, scoped.removing),
                     this@inferTypeVariables,
                     unnamedDeclarations = structuralDeclarations,
                     namedDeclarations = namedDeclarations,
                 )
             requireSharedAcrossRegions(localScope, "Transmutation")
-            transformed.withTypeVariables(transformed.typeVariables + localScope)
+            scoped.withTypeVariables(scoped.typeVariables + localScope)
           }
           else -> transformed
         }
@@ -127,6 +138,33 @@ public fun ClassTable.inferTypeVariables(): PetTransformer =
             throw ExpressionException("Type-variable name $name is already a Type name")
           }
         }
+      }
+
+      private fun <P : PetNode> markStructuralOccurrences(
+          root: P,
+          declarations: List<Expression>,
+      ): Pair<P, List<Expression>> {
+        if (declarations.isEmpty()) return root to emptyList()
+        val marked = declarations.map { it to StructuralReference(it.className) }
+        val marker =
+            object : PetTransformer() {
+              override fun transformNode(node: PetNode): PetNode {
+                if (node is Expression) {
+                  marked
+                      .firstOrNull { (source) -> source === node }
+                      ?.let { (_, reference) ->
+                        return transformChildren(node.copy(typeVariableName = reference))
+                      }
+                }
+                return transformChildren(node)
+              }
+            }
+        @Suppress("UNCHECKED_CAST") val transformed = marker.transformWithoutKindCheck(root) as P
+        val transformedExpressions = transformed.descendantsOfType<Expression>().toList()
+        val transformedDeclarations = marked.map { (_, reference) ->
+          transformedExpressions.first { it.typeVariableName === reference }
+        }
+        return transformed to transformedDeclarations
       }
 
       private fun requireSharedAcrossRegions(scope: TypeVariableScope, construct: String) {

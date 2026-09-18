@@ -123,7 +123,28 @@ internal constructor(
         source: Expression,
         classTable: ClassTable = binding.classTable,
     ): Expression {
-      val expression = binding.expression
+      fun retainNestedVariableNames(target: Expression, authored: Expression): Expression {
+        val targetClass = classTable.getClass(target.className)
+        val authoredClass = classTable.getClass(authored.className)
+        val authoredByKey =
+            authored.arguments
+                .zip(authoredClass.matchDependencyKeys(authored.arguments, classTable))
+                .associate { (argument, key) -> key to argument }
+        val targetArguments =
+            target.arguments.zip(targetClass.matchDependencyKeys(target.arguments, classTable)).map {
+                (argument, key) ->
+              authoredByKey[key]?.let { authoredArgument ->
+                retainNestedVariableNames(argument, authoredArgument)
+                    .copy(
+                        typeVariableName =
+                            authoredArgument.typeVariableName ?: argument.typeVariableName
+                    )
+              } ?: argument
+            }
+        return target.copy(arguments = targetArguments)
+      }
+
+      val expression = retainNestedVariableNames(binding.expression, source)
       val representedKeys =
           binding.rootClass.matchDependencyKeys(expression.arguments, classTable).toSet()
       val sourceClass = classTable.getClass(source.className)

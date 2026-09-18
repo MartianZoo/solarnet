@@ -92,7 +92,7 @@ public sealed class Metric : PetElement() {
    * world is available, and pinned by `engine/RankMetricTest.kt`.
    */
   public data class Rank(
-      /** The field being ranked. Its refinement filters that field, but see [selectorName]. */
+      /** The field being ranked. Its refinement filters that field. */
       public val selector: Expression,
 
       /** The comparison keys, compared lexicographically. At least one is required. */
@@ -105,13 +105,11 @@ public sealed class Metric : PetElement() {
       if (metrics.isEmpty()) throw PetSyntaxException("RANK needs a metric")
     }
 
-    /**
-     * The expression used inside [metrics] to denote each candidate: [selector] without its
-     * refinement, since
-     * [rule L5-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics)
-     * keeps that filter out of the name the metrics use.
-     */
-    public val selectorName: Expression = selector.copy(refinement = null)
+    /** Returns the comparison metrics with explicit selector names bound to [candidate]. */
+    public fun metricsFor(candidate: Expression): List<Metric> =
+        selectorReferenceBinder(selector, candidate).let { binder ->
+          metrics.map(binder::transformMetric)
+        }
 
     override fun visitChildren(visitor: Visitor) {
       visitor.visit(selector)
@@ -336,7 +334,9 @@ public sealed class Metric : PetElement() {
                 commaSeparated(parser()) and
                 skipChar('}') map
                 { (selector, metrics) ->
-                  Rank(selector, metrics)
+                  val resolved =
+                      resolveSelectorTypeVariableNames(selector, metrics, "A RANK selector")
+                  Rank(resolved[0] as Expression, resolved.drop(1).map { it as Metric })
                 }
 
         val transform: Parser<Metric> =

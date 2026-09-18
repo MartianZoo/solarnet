@@ -206,13 +206,15 @@ internal class Lang06InstructionsTest {
   }
 
   @Test
-  internal fun `L6-10 a selector refinement filters without joining the name the body uses`() {
-    (parse<Instruction>("EACH ResourceCard(HAS CardResource) { CardResource }") as Each)
-        .selectorName shouldBe parse<Expression>("ResourceCard")
-    (parse<Instruction>("EACH Player(NOT Player1) { Plant<Player> }") as Each).selectorName shouldBe
-        parse<Expression>("Player")
-    (parse<Instruction>("EACH Class<Area> { Area }") as Each).representedSelectorName shouldBe
-        parse<Expression>("Area")
+  internal fun `L6-10 explicit selector names bind only their body references`() {
+    val player = parse<Instruction>("EACH Player(NOT Player1) AS P { Plant<P> }") as Each
+    player.bodyFor(parse("Player2")) shouldBe parse<InstructionTree>("Plant<Player2>")
+
+    val unnamed = parse<Instruction>("EACH Player { Plant<Player> }") as Each
+    unnamed.bodyFor(parse("Player2")) shouldBe parse<InstructionTree>("Plant<Player>")
+
+    val represented = parse<Instruction>("EACH Class<Area AS A> { A }") as Each
+    represented.bodyFor(parse("Class<MarsArea>")) shouldBe parse<InstructionTree>("MarsArea")
   }
 
   @Test

@@ -85,8 +85,11 @@ public data class Expression(
               arguments == other.arguments &&
               refinement == other.refinement &&
               argumentsSpecified == other.argumentsSpecified &&
-              typeVariableName == other.typeVariableName &&
+              equalityTypeVariableName == other.equalityTypeVariableName &&
               derivedClassBody == other.derivedClassBody)
+
+  private val equalityTypeVariableName: TypeVariableName?
+    get() = typeVariableName.takeUnless { it is TypeVariableName.StructuralReference }
 
   override fun hashCode(): Int {
     if (cachedHashCode != 0) return cachedHashCode
@@ -94,7 +97,7 @@ public data class Expression(
     result = 31 * result + arguments.hashCode()
     result = 31 * result + (refinement?.hashCode() ?: 0)
     result = 31 * result + argumentsSpecified.hashCode()
-    result = 31 * result + (typeVariableName?.hashCode() ?: 0)
+    result = 31 * result + (equalityTypeVariableName?.hashCode() ?: 0)
     result = 31 * result + (derivedClassBody?.hashCode() ?: 0)
     cachedHashCode = result
     return result
@@ -138,6 +141,12 @@ public data class Expression(
 
     /** A bare `Name` in the same scope that refers to its declaration. */
     public data class Reference(override val name: ClassName) : TypeVariableName()
+
+    /** A resolved reference to the class named by the surrounding refined `Class<T>`. */
+    internal data class RepresentedClassReference(override val name: ClassName) : TypeVariableName()
+
+    /** Identity retained by one structurally shared occurrence as syntax is rebuilt. */
+    internal class StructuralReference(override val name: ClassName) : TypeVariableName()
   }
 
   /**
@@ -278,12 +287,14 @@ public data class Expression(
                 optional(refinement) and
                 optional(typeVariableName) map
                 { (clazz, args, ref, name) ->
-                  Expression(
-                      clazz,
-                      args.orEmpty(),
-                      ref,
-                      args != null,
-                      name?.let(TypeVariableName::Declaration),
+                  resolveClassLiteralTypeVariableNames(
+                      Expression(
+                          clazz,
+                          args.orEmpty(),
+                          ref,
+                          args != null,
+                          name?.let(TypeVariableName::Declaration),
+                      )
                   )
                 }
 

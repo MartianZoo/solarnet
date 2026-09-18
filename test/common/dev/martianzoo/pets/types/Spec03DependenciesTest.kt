@@ -269,7 +269,7 @@ internal class Spec03DependenciesTest {
             "CLASS Player1 : Owner",
             "CLASS Player2 : Owner",
             "ABSTRACT CLASS CardFront : Owned<Owner> { CLASS Pets }",
-            "ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner> { CLASS Animal }",
+            "ABSTRACT CLASS Cardbound<CardFront<Owner AS CardOwner>> : Owned<CardOwner> { CLASS Animal }",
         )
 
     cards.getClass(cn("Cardbound")).baseType.expressionFull shouldBe
@@ -441,7 +441,7 @@ internal class Spec03DependenciesTest {
         loadTypes(
             "CLASS Player1 : Owner",
             "ABSTRACT CLASS CardFront : Owned<Owner> { CLASS Pets }",
-            "ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner> { CLASS Animal }",
+            "ABSTRACT CLASS Cardbound<CardFront<Owner AS CardOwner>> : Owned<CardOwner> { CLASS Animal }",
         )
     val animal = cards.resolve(te("Animal<Pets<Player1>>"))
 

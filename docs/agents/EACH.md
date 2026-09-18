@@ -12,7 +12,7 @@
 ## Contract
 
 ```pets
-EACH Selector { InstructionTree }
+EACH Selector [AS Name] { InstructionTree }
 ```
 
 `EACH` takes one snapshot of the current World, finds every existing component matching `Selector`,
@@ -28,20 +28,20 @@ Type each contribute a branch; those branches have equal text but remain indepen
 
 ## Selector and body scope
 
-The selector declares a fresh variable for its body. It is not a use of an enclosing Class variable
-with the same spelling. Each matching concrete Type replaces occurrences of that selector in the
-body:
+The selector can explicitly name each selected concrete Type for use in its body. Repeating an
+unnamed selector Type in the body is independent:
 
 ```pets
 EACH Player { Plant }                         // each selected Player gains a Plant
 EACH Player(HAS StartToken) { ChooseOceanArea } // only the start Player gets the request
+EACH LandArea(HAS NomadsMarker) AS There { Placement<There> }
 ```
 
-A Class selector also declares its represented Class name. This permits a structurally present
-Class representative to create one component of the Class it represents:
+A Class selector can instead name its represented Class. This permits a structurally present Class
+representative to create one component of the Class it represents:
 
 ```pets
-EACH Class<Area> { Area }
+EACH Class<MarsArea AS ThatArea> { ThatArea }
 ```
 
 The selector's main expression still reads the enclosing context. For example,
@@ -66,7 +66,7 @@ Class-property syntax in the body remains inert while the enclosing Class effect
 the fanout snapshot is selected, each branch binds its selected component and, for an Owner
 selection, contextual `Owner`, then evaluates its class properties independently. Property syntax
 in the selector instead belongs to the enclosing context; award ranking expands the funded Award's
-metric there, while `RANK` binds each candidate Player:
+metric there. `RANK Selector AS Name` likewise exposes a candidate only through its explicit name:
 
 ```pets
 EACH Player(HAS =1 (RANK Player { EVAL Award.metric })) { FirstPlace<Award> }

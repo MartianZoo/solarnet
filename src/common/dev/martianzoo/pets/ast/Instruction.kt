@@ -17,7 +17,6 @@ import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.GameReader
-import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.OK
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.FromExpression.Full
@@ -452,8 +451,8 @@ public sealed class Instruction : InstructionTree() {
    * selector is an `Owner`, so does the contextual `Owner`, so an ordinary owned body reads exactly
    * as it does on a card.
    *
-   * A selector refinement chooses which components take part, without becoming part of the name the
-   * body uses (see [selectorName]). A gate in [body] behaves like any other gate and fails when its
+   * A selector refinement chooses which components take part. `AS` explicitly names the selected
+   * component for use in [body]. A gate in [body] behaves like any other gate and fails when its
    * requirement is unmet. Class properties in [body] are evaluated separately after each branch has
    * bound its selection. The body may not be empty and fanouts do not nest.
    *
@@ -472,17 +471,9 @@ public sealed class Instruction : InstructionTree() {
       }
     }
 
-    /**
-     * The authored expression a body occurrence must equal in order to denote the selected
-     * component: [selector] without its refinement, since
-     * [rule L6-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)
-     * keeps that filter out of the name the body uses.
-     */
-    public val selectorName: Expression = selector.copy(refinement = null)
-
-    /** The Class name represented by a `Class<T>` selector, when this is a Class fanout. */
-    public val representedSelectorName: Expression? =
-        selectorName.arguments.singleOrNull()?.takeIf { selectorName.className == CLASS }
+    /** Returns this fanout's body with its explicit selector names bound to [selected]. */
+    public fun bodyFor(selected: Expression): InstructionTree =
+        selectorReferenceBinder(selector, selected).transformInstructionTree(body)
 
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(selector, body)
 
@@ -1101,7 +1092,9 @@ public sealed class Instruction : InstructionTree() {
                 parser() and
                 skipChar('}') map
                 { (selector, body) ->
-                  Each(selector, body)
+                  val resolved =
+                      resolveSelectorTypeVariableNames(selector, listOf(body), "An EACH selector")
+                  Each(resolved[0] as Expression, resolved[1] as InstructionTree)
                 }
 
         val atomBase: Parser<InstructionTree> = each or maybeTransform or group(parser())

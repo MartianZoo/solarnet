@@ -23,6 +23,7 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.TransformNode
+import dev.martianzoo.pets.ast.expandClassLiteralTypeVariableName
 import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration
@@ -107,6 +108,8 @@ private constructor(
    * @throws ExpressionException if [expression] is invalid in this universe.
    */
   override fun resolve(expression: Expression): GroundType {
+    val expanded = expression.expandClassLiteralTypeVariableName()
+    if (expanded !== expression && expanded != expression) return resolve(expanded)
     cache[expression]?.let {
       return it
     }
@@ -326,8 +329,8 @@ private constructor(
    * whether an argument fits its bound depends on classes this one may be loaded ahead of.
    */
   private fun validateClassNames(declaration: ClassDeclaration) {
-    declaration.effects
-        .flatMap { it.trigger.descendantsOfType<Expression>() }
+    declaration.allNodes
+        .flatMap { it.descendantsOfType<Expression>() }
         .mapNotNull { (it.typeVariableName as? Declaration)?.name }
         .firstOrNull { it in knownClassNames }
         ?.let { name ->

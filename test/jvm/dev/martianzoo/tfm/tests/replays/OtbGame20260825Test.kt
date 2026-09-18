@@ -575,7 +575,12 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     // third M€ required by the card, then remove it from Green after reproducing the physical play.
     yellow.exMachina("MC")
     green.turn {
-      playProject(LawSuit, 2) { doTask("3 MC<Green> FROM MC<Yellow>") }
+      playProject(LawSuit, 2) {
+        doTask(
+            "3 MC<Green> FROM MC<Yellow> THEN " +
+                "PlayedEvent<Yellow, Class<LawSuit>> FROM LawSuit<Green>"
+        )
+      }
     }
     green.exMachina("-MC")
     yellow.turn {

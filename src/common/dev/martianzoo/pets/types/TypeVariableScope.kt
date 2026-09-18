@@ -9,6 +9,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.StructuralReference
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.startsTypeVariableObservation
 import dev.martianzoo.pets.types.Dependency.TypeDependency
@@ -72,7 +73,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     return entries.firstOrNull { it.declarationExpression() === expression }?.variable
         ?: entries
             .singleOrNull {
-              it.declarationExpression()?.sameAuthoredTypeExpressionAs(expression) == true
+              it.declarationExpression() == expression
             }
             ?.variable
   }
@@ -88,11 +89,16 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
             entry.currentExpressions.values.any { it === expression }
           }
           ?.variable
-          ?: entries
-              .singleOrNull { entry ->
-                entry.currentExpressions.values.any { it.sameAuthoredTypeExpressionAs(expression) }
-              }
-              ?.variable
+          ?: expression.takeIf(Expression::simple)?.className?.let { name ->
+            entries.singleOrNull { it.variable.name == name }?.variable
+          }
+          ?: expression.typeVariableName?.let { name ->
+            entries
+                .singleOrNull { entry ->
+                  entry.currentExpressions.values.any { it.typeVariableName == name }
+                }
+                ?.variable
+          }
 
   /**
    * Returns this scope with recorded occurrence spellings transformed alongside their owning
@@ -115,16 +121,16 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
               }
       )
 
-  /**
-   * Removes explicit names while retaining their structural expressions when a node leaves this
-   * lexical scope.
-   */
+  /** Hides explicit names while retaining their occurrence identity outside the lexical scope. */
   public fun expandNames(): PetTransformer {
-    val names = variables.mapNotNull(TypeVariable::name).toSet()
+    val references = variables.mapNotNull(TypeVariable::name).associateWith(::StructuralReference)
     return object : PetTransformer() {
       override fun transformNode(node: PetNode): PetNode {
-        if (node is Expression && node.typeVariableName?.name in names) {
-          return transformChildren(node.copy(typeVariableName = null))
+        if (node is Expression) {
+          if (node.typeVariableName is StructuralReference) return transformChildren(node)
+          references[node.typeVariableName?.name]?.let { reference ->
+            return transformChildren(node.copy(typeVariableName = reference))
+          }
         }
         return transformChildren(node)
       }
@@ -150,8 +156,10 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
           wideNode is Expression &&
               sources.any { source ->
                 wideNode === source ||
-                    wideNode == source ||
-                    wideNode.isExpandedFrom(source, variable.bound.classTable)
+                    (source.typeVariableName != null &&
+                        wideNode.typeVariableName == source.typeVariableName &&
+                        (wideNode == source ||
+                            wideNode.isExpandedFrom(source, variable.bound.classTable)))
               }
       ) {
         (narrowNode as? Expression)
@@ -205,15 +213,15 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
   ): Map<TypeVariable, GroundType> {
     val captures = mutableMapOf<TypeVariable, MutableList<GroundType>>()
 
-    fun Expression.matchesAfterNameConsumption(that: Expression): Boolean =
-        this == that ||
-            ((typeVariableName == null || that.typeVariableName == null) &&
-                copy(typeVariableName = null) == that.copy(typeVariableName = null))
+    fun Expression.matchesRecordedOccurrence(that: Expression): Boolean =
+        typeVariableName != null &&
+            typeVariableName == that.typeVariableName &&
+            copy(typeVariableName = null) == that.copy(typeVariableName = null)
 
-    fun Entry.matchesAfterNameConsumption(expression: Expression): Boolean =
-        currentExpressions.values.any { it.matchesAfterNameConsumption(expression) } ||
+    fun Entry.matchesRecordedOccurrence(expression: Expression): Boolean =
+        currentExpressions.values.any { it.matchesRecordedOccurrence(expression) } ||
             currentExpressions.keys.any { occurrence ->
-              occurrence.expression.matchesAfterNameConsumption(expression)
+              occurrence.expression.matchesRecordedOccurrence(expression)
             }
 
     fun record(expression: Expression, captured: GroundType) {
@@ -221,7 +229,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         entry.currentExpressions.values.any { it === expression }
       }
       val matching = identical.ifEmpty {
-        entries.filter { it.matchesAfterNameConsumption(expression) }
+        entries.filter { it.matchesRecordedOccurrence(expression) }
       }
       matching.forEach { entry ->
         captures.getOrPut(entry.variable, ::mutableListOf) += captured
@@ -306,11 +314,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         }
       }
     }
-    return BindingTransformer(
-        bindings.keys,
-        replacements,
-        classTable,
-    )
+    return BindingTransformer(bindings.keys, replacements, classTable)
   }
 
   private class BindingTransformer(
@@ -325,11 +329,22 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
             ?.let {
               return transformChildren(it.second)
             }
-        val equal = replacements.filter { (source) -> source == node }.map { it.second }.distinct()
+        fun Expression.hasSameVariableIdentityAs(source: Expression): Boolean =
+            source.typeVariableName != null && typeVariableName == source.typeVariableName
+
+        val equal =
+            replacements
+                .filter { (source) ->
+                  node.hasSameVariableIdentityAs(source) && source == node
+                }
+                .map { it.second }
+                .distinct()
         if (equal.size == 1) return transformChildren(equal.single())
         val expanded =
             replacements
-                .filter { (source) -> node.isExpandedFrom(source, classTable) }
+                .filter { (source) ->
+                  node.hasSameVariableIdentityAs(source) && node.isExpandedFrom(source, classTable)
+                }
                 .map { it.second }
                 .distinct()
         if (expanded.size == 1) return transformChildren(expanded.single())

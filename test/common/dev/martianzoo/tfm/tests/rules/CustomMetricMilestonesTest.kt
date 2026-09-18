@@ -57,12 +57,12 @@ internal class CustomMetricMilestonesTest {
         .testTfm(PLAYER2)
         .runOperation("$EarthCatapult, $Mine, $DeepWellHeating, 9 Plant, 7 Steel, 5 Heat")
 
-    p1.count("Class<Tag>(HAS Tag<Player1>)") shouldBe 7
-    p1.count("Class<Tag>(HAS Tag<Player2>)") shouldBe 3
+    p1.count("Class<Tag AS ThatTag>(HAS ThatTag<Player1>)") shouldBe 7
+    p1.count("Class<Tag AS ThatTag>(HAS ThatTag<Player2>)") shouldBe 3
     shouldThrow<RequirementException> { p1.runOperation("Diversifier") }
 
     p1.runOperation("$Decomposers")
-    p1.count("Class<Tag>(HAS Tag<Player1>)") shouldBe 8
+    p1.count("Class<Tag AS ThatTag>(HAS ThatTag<Player1>)") shouldBe 8
     p1.runOperation("Diversifier")
     p1.count("Diversifier") shouldBe 1
   }

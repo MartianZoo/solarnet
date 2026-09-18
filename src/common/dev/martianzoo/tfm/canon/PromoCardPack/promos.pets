@@ -1,7 +1,7 @@
 "Adds official promotional project, corporation, and prelude cards"
 CLASS PromoCardPack : Module {
-  This: EACH Class<Resource> { ResourceRemovalWatcher<Class<Resource>> }
-  This: EACH Class<StandardResource> { ProductionDecreaseWatcher<Class<StandardResource>> }
+  This: EACH Class<Resource AS ThatResource> { ResourceRemovalWatcher<Class<ThatResource>> }
+  This: EACH Class<StandardResource AS ThatResource> { ProductionDecreaseWatcher<Class<ThatResource>> }
 }
 
 "Asks its owner to choose an ocean area while preserving the Player who places it"
@@ -10,9 +10,9 @@ CLASS ChooseOceanArea : Owned, Signal {
 }
 
 "The moving marker placed by Mars Nomads"
-CLASS NomadsMarker : Owned<Player>, AreaPiece<LandArea> {
+CLASS NomadsMarker : Owned<Player>, AreaPiece<LandArea AS There> {
   HAS MAX 1 This
-  Tile<LandArea> BY Anyone:: Die
+  Tile<There> BY Anyone:: Die
 }
 
 "A durable generational resource-removal record owned by the victim and naming the attacker"
@@ -21,12 +21,12 @@ CLASS MyResourceWasRemoved<Class<Resource>, Player, GenerationScope> : Owned<Own
 "A durable generational production-decrease record owned by the victim and naming the attacker"
 CLASS MyProductionWasDecreased<Class<StandardResource>, Player, GenerationScope> : Owned<Owner>, Hidden
 
-CLASS ResourceRemovalWatcher<Class<Resource AS Kind>> : System {
+CLASS ResourceRemovalWatcher<Class<Resource AS ThatResource>> : System {
   HAS =1 This
-  -X Kind<Owner(NOT Player) AS Victim> BY Player AS Attacker:: MyResourceWasRemoved<Victim, Class<Kind>, Attacker>.
+  -X ThatResource<Owner(NOT Attacker) AS Victim> BY Player AS Attacker:: MyResourceWasRemoved<Victim, Class<ThatResource>, Attacker>.
 }
 
-CLASS ProductionDecreaseWatcher<Class<StandardResource AS Kind>> : System {
+CLASS ProductionDecreaseWatcher<Class<StandardResource AS ThatResource>> : System {
   HAS =1 This
-  -X Production<Owner(NOT Player) AS Victim, Class<Kind>> BY Player AS Attacker:: MyProductionWasDecreased<Victim, Class<Kind>, Attacker>.
+  -X Production<Owner(NOT Attacker) AS Victim, Class<ThatResource>> BY Player AS Attacker:: MyProductionWasDecreased<Victim, Class<ThatResource>, Attacker>.
 }

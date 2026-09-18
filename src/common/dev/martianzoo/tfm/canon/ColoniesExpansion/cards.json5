@@ -6,7 +6,7 @@
         {
           "name": "Aridor",
           "effects": [
-            "This:: EACH Class<Tag> { AridorTagWatcher<Class<Tag>, This> }",
+            "This:: EACH Class<Tag> AS TagClass { AridorTagWatcher<TagClass, This> }",
             "This: 40 MC, RequiredAction { -> ColonyTileSelection }"
           ],
           "components": [

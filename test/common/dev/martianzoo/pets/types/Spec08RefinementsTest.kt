@@ -416,7 +416,7 @@ internal class Spec08RefinementsTest {
     tags
         .resolve(te("Class<BuildingTag>"))
         .narrows(
-            tags.resolve(te("Class<Tag>(HAS Tag<Player1>)")),
+            tags.resolve(te("Class<Tag AS ThatTag>(HAS ThatTag<Player1>)")),
             world,
         ) shouldBe true
     world.questions shouldContainExactly listOf("BuildingTag<Player1>")
@@ -430,16 +430,23 @@ internal class Spec08RefinementsTest {
             "ABSTRACT CLASS Tag : Owned<Owner> { CLASS BuildingTag, SpaceTag }",
         )
 
-    // Same words, different meanings: for the target the predicate asks about the candidate's own
-    // class, so "some tag exists" does not establish "some building tag exists".
+    // Without a name, both predicates ask about the ordinary Tag type.
     tags
         .resolve(te("Class<BuildingTag>(HAS Tag)"))
-        .isSubtypeOf(tags.resolve(te("Class<Tag>(HAS Tag)"))) shouldBe false
+        .isSubtypeOf(tags.resolve(te("Class<Tag>(HAS Tag)"))) shouldBe true
+
+    // Explicit represented-class references have different meanings for different candidates.
+    tags
+        .resolve(te("Class<BuildingTag AS ThatTag>(HAS ThatTag)"))
+        .isSubtypeOf(tags.resolve(te("Class<Tag AS ThatTag>(HAS ThatTag)"))) shouldBe false
 
     // For one and the same represented class the shortcut is still sound.
     tags
-        .resolve(te("Class<BuildingTag>(HAS Tag)"))
-        .isSubtypeOf(tags.resolve(te("Class<BuildingTag>(HAS Tag)"))) shouldBe true
+        .resolve(te("Class<BuildingTag AS ThatTag>(HAS ThatTag)"))
+        .isSubtypeOf(tags.resolve(te("Class<BuildingTag AS ThatTag>(HAS ThatTag)"))) shouldBe true
+
+    tags.resolve(te("Class<Tag AS ThatTag>(HAS ThatTag)")) shouldBe
+        tags.resolve(te("Class<Tag AS K>(HAS K)"))
   }
 
   // T8-11 Refinements inside dependencies

@@ -94,7 +94,7 @@ CLASS CardLocationCleanup<CardLocation AS Location> : Temporary, Hidden {
 "Anything that can hold tags"
 ABSTRACT CLASS TagHolder : Owned<Player>
 
-ABSTRACT CLASS Tag<TagHolder<Player>> : Owned<Player>, Atomized {
+ABSTRACT CLASS Tag<TagHolder<Player AS TagOwner>> : Owned<TagOwner>, Atomized {
   CLASS BuildingTag, SpaceTag, ScienceTag, PowerTag, CityTag
   ABSTRACT CLASS BioTag { CLASS PlantTag, MicrobeTag, AnimalTag }
   ABSTRACT CLASS PlanetaryTag { CLASS EarthTag, JovianTag }
@@ -106,7 +106,7 @@ ABSTRACT CLASS Tag<TagHolder<Player>> : Owned<Player>, Atomized {
 ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned<Owner>
 
 "Miscellaneous state whose identity and owner come from one face-up card"
-ABSTRACT CLASS Cardbound<CardFront<Player>> : Owned<Player>
+ABSTRACT CLASS Cardbound<CardFront<Player AS SameOwner>> : Owned<SameOwner>
 
 "Indicates that an action card has already been used this generation"
 CLASS ActionUsedMarker<GenerationScope> : Cardbound<ActionCard> { HAS MAX 1 This }
@@ -115,4 +115,4 @@ CLASS ActionUsedMarker<GenerationScope> : Cardbound<ActionCard> { HAS MAX 1 This
 ABSTRACT CLASS CardWatcher : System { HAS MAX 1 This }
 
 "Copies the single immediate production box on a chosen card"
-CLASS CopyProductionBox<CardFront<Player>> : Owned<Player>, Custom
+CLASS CopyProductionBox<CardFront<Player AS SameOwner>> : Owned<SameOwner>, Custom

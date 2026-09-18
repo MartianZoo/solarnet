@@ -300,7 +300,7 @@
         },
         {
           "name": "DiversitySupport",
-          "requirement": "9 Class<Resource>(HAS Resource<Owner>)",
+          "requirement": "9 Class<Resource AS ThatResource>(HAS ThatResource<Owner>)",
           "cost": 1,
           "tags": [ "EventTag" ],
           "immediate": "TerraformRating",
@@ -393,7 +393,7 @@
           "name": "InterplanetaryTrade",
           "cost": 27,
           "tags": [ "SpaceTag" ],
-          "immediate": "PROD[1 MC / Class<Tag>(HAS Tag<Owner>)]",
+          "immediate": "PROD[1 MC / Class<Tag AS ThatTag>(HAS ThatTag<Owner>)]",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -434,7 +434,7 @@
           "cost": 13,
           "immediate": "NomadsMarker<LandArea(HAS MAX 0 Occupant)>",
           "actions": [
-            "-> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>)> FROM NomadsMarker<Owner> THEN EACH LandArea(HAS NomadsMarker) { Placement<LandArea> }"
+            "-> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>)> FROM NomadsMarker<Owner> THEN EACH LandArea(HAS NomadsMarker) AS There { Placement<There> }"
           ],
         },
         {

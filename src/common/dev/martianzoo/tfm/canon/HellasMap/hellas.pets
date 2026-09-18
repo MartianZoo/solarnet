@@ -1,6 +1,6 @@
 CLASS HellasMap : MarsMap
 
-CLASS Diversifier : Milestone { requirement = HAS "8 Class<Tag>(HAS Tag<Owner>)" }
+CLASS Diversifier : Milestone { requirement = HAS "8 Class<Tag AS ThatTag>(HAS ThatTag<Owner>)" }
 CLASS Tactician5 : Milestone { requirement = HAS "5 CardFront(HAS requirement)" }
 CLASS PolarExplorer : Milestone {
   HAS HellasMap

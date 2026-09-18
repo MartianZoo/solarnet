@@ -42,8 +42,8 @@ CLASS SoloGenerationsLeft : GameEndBarrier
 "The passive owner of the removable neutral stock in solo mode"
 CLASS SoloOpponent : Owner, System {
   HAS =1 This
-  This:: EACH Class<StandardResource> { SoloStandardResourceReserve<Class<StandardResource>> }
-  This:: EACH Class<CardResource> { SoloCardResourceReserve<Class<CardResource>> }
+  This:: EACH Class<StandardResource> AS ResourceClass { SoloStandardResourceReserve<ResourceClass> }
+  This:: EACH Class<CardResource> AS ResourceClass { SoloCardResourceReserve<ResourceClass> }
   SetupPhase: PlaceNeutralTiles
 }
 

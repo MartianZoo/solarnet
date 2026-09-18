@@ -198,19 +198,13 @@ public object Parsing {
             true
           }
       is PetNode -> {
-        fun check(node: PetNode, insideThen: Boolean) {
-          val namedScope = insideThen || node is Instruction.Then || node is Instruction.Transmute
+        fun check(node: PetNode) {
           (node as? Expression)?.let { expression ->
             ScaledExpression.rejectIfDenominationless(expression)
-            if (expression.typeVariableName != null && !namedScope) {
-              throw PetSyntaxException(
-                  "Type-variable names are currently supported only within Effects, Actions, THEN sequences, or transmutations"
-              )
-            }
           }
-          node.immediateChildren().forEach { check(it, namedScope) }
+          node.immediateChildren().forEach(::check)
         }
-        check(parsed, insideThen = false)
+        check(parsed)
       }
       is Iterable<*> -> parsed.forEach(::rejectUnsupportedSyntax)
     }

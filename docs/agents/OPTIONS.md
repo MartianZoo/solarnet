@@ -252,8 +252,9 @@ awards, and other hand-authored declarations. Semantic runtime facts—area iden
 Effect—come only from loaded Classes. The shared class-backed grid selects the chosen map bundle's
 concrete `MarsArea` Classes without a name-prefix convention.
 
-The selected `MarsMap` creates every active Mars area with `EACH Class<MarsArea> { MarsArea }`; the
-base `TerraformingMars` Module separately creates active remote areas. This keeps planetary area
+The selected `MarsMap` creates every active Mars area with
+`EACH Class<MarsArea AS ThatArea> { ThatArea }`; the base `TerraformingMars` Module separately
+creates active remote areas. This keeps planetary area
 ownership with the selected map without making card-owned remote locations map content. The former
 `CreateMapAreas` custom instruction is gone. Adjacency, placement-bonus metrics, largest-group
 scoring, the text renderer, and the game viewer consume the class-backed grid.

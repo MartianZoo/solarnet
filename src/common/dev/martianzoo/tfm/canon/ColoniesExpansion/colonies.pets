@@ -199,7 +199,7 @@ CLASS BuildColonyProject : StandardProject {
 ABSTRACT CLASS ColonyTileSelection<Class<ColonyTile>> { HAS MAX 1 This }
 
 "A normal colony selected for this game but not put into play until setup"
-CLASS SelectedColonyTile<Class<ColonyTile AS TheTile>> : ColonyTileSelection<Class<ColonyTile>>, Hidden {
+CLASS SelectedColonyTile<Class<ColonyTile AS TheTile>> : ColonyTileSelection<Class<TheTile>>, Hidden {
   SetupPhase IF MultiplayerMode: TheTile FROM This
   -SoloColoniesSetup IF SoloMode: TheTile FROM This
 }
@@ -228,7 +228,7 @@ CLASS GainColonyBonuses : Owned<Player>, Signal
 "An implementation detail used to trigger a colony tile's 'white cube' to move left"
 CLASS ResetColonyProduction<ColonyTile> : Signal
 
-ABSTRACT CLASS DelayedColonyTile<Class<ColonyTile>, Class<CardResource>> : ColonyTileSelection<Class<ColonyTile>>
+ABSTRACT CLASS DelayedColonyTile<Class<ColonyTile AS TheTile>, Class<CardResource>> : ColonyTileSelection<Class<TheTile>>
 
 CLASS DelayedEnceladus : DelayedColonyTile<Class<Enceladus>, Class<Microbe>> {
   This IF ResourceCard<Class<Microbe>>:: Enceladus FROM This

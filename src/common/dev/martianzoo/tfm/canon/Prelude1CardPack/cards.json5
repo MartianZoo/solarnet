@@ -18,7 +18,7 @@
         {
           "name": "RobinsonIndustries",
           "immediate": "47 MC",
-          "actions": [ "4 MC -> PROD[StandardResource(HAS =1 (RANK Class<StandardResource> { Production<Class<StandardResource>(NOT Class<StandardResource>)> OR ProdOffset<Class<StandardResource>> }))]" ],
+          "actions": [ "4 MC -> PROD[StandardResource(HAS =1 (RANK Class<StandardResource> AS ResourceType { Production<Class<StandardResource>(NOT ResourceType)> OR ProdOffset<ResourceType> }))]" ],
         },
         {
           "name": "ValleyTrust",

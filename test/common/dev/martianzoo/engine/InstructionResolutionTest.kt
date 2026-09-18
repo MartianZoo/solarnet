@@ -134,7 +134,7 @@ internal class InstructionResolutionTest {
   internal fun testOnlyAnOwnerSelectionSuppliesTheOwnerOfItsBranch() {
     checkResolution("EACH Player { Plant }", "Plant<Player1>!, Plant<Player2>!")
     checkResolution(
-        "EACH ProjectCard<Anyone> { -ProjectCard<Anyone>, Plant }",
+        "EACH ProjectCard<Anyone> AS ThatCard { -ThatCard, Plant }",
         List(10) { "-ProjectCard<Player1, Hand>!, Plant<Player1>!" }.joinToString(", "),
     )
     // A selector reads its enclosing context, so `Owner` there is one component, not every owner.
@@ -147,7 +147,7 @@ internal class InstructionResolutionTest {
   internal fun testFanoutRangesOverOccurrences() {
     // Player1 holds ten indistinguishable ProjectCards, and each copy contributes one branch.
     checkResolution(
-        "EACH ProjectCard<Anyone> { -ProjectCard<Anyone> }",
+        "EACH ProjectCard<Anyone> AS ThatCard { -ThatCard }",
         List(10) { "-ProjectCard<Player1, Hand>!" }.joinToString(", "),
     )
     checkResolution(
@@ -158,7 +158,7 @@ internal class InstructionResolutionTest {
 
   @Test
   internal fun testFanoutOverNothingIsNoOp() {
-    checkResolution("EACH CardFront<Anyone> { -CardFront<Anyone> }", "Ok")
+    checkResolution("EACH CardFront<Anyone> AS ThatCard { -ThatCard }", "Ok")
   }
 
   @Test

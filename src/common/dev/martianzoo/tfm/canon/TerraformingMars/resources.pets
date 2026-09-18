@@ -15,7 +15,7 @@ ABSTRACT CLASS Resource : Owned {
 
   "A resource cube living on a compatible card or neutral holder, such as `Animal<Pets>`"
   // The explicit Owned occurrence links the holder's Owner to the resource's inherited Owner.
-  ABSTRACT CLASS CardResource<ResourceHolder<Class<This>, Owner>> : Owned<Owner> {
+  ABSTRACT CLASS CardResource<ResourceHolder<Class<This>, Owner AS ResourceOwner>> : Owned<ResourceOwner> {
     DEFAULT +CardResource.
 
     "A particular kind of resource held by a card"
