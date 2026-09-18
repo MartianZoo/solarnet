@@ -88,6 +88,16 @@ internal class InstructionResolutionTest {
   }
 
   @Test
+  internal fun reflexiveTransmutationIsInvalidWhenMandatoryAndNoOpOtherwise() {
+    shouldThrow<ExpressionException> { preprocessAndResolve("Plant FROM Plant") }
+    shouldThrow<ExpressionException> { preprocessAndResolve("Plant FROM Plant!") }
+    shouldThrow<ExpressionException> { preprocessAndResolve("Plant<Owner> FROM Plant!") }
+    checkResolution("Plant FROM Plant?", "Ok")
+    checkResolution("Plant FROM Plant.", "Ok")
+    checkResolution("Plant<Owner> FROM Plant?", "Ok")
+  }
+
+  @Test
   internal fun testResolvePer() {
     checkResolution("Plant / TerraformRating", "20 Plant<Player1>!")
     checkResolution("Plant / 3 TerraformRating", "6 Plant<Player1>!")

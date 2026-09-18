@@ -343,8 +343,8 @@ player, and "effect" there is the ordinary English word, not the Pets grammar te
 is aimed at.
 
 Hand-written card helpers use whatever category word fits the card — `NeptunianOption`,
-`CathedralOption`, `CyberiaSystemsFirstChoice`, and the `...Watcher` singletons. There is no plan to
-regularize these suffixes; do not propose one.
+`CathedralOption`, and the `...Watcher` singletons. There is no plan to regularize these suffixes;
+do not propose one.
 
 `SoloGenerationsLeft` deliberately names the counted collection: a solo game begins with fourteen
 and removes one whenever a Generation begins. The plural reads naturally at its principal uses and
