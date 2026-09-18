@@ -184,21 +184,21 @@ internal class Lang07NarrowingTest {
   // L7-8 Shared type variables
 
   @Test
-  internal fun `L7-8 a repeated abstract expression takes one value everywhere`() {
-    narrows("Token THEN Token", "RedToken THEN RedToken") shouldBe true
-    refuses("Token THEN Token", "RedToken THEN BlueToken")
+  internal fun `L7-8 a named abstract expression takes one value everywhere`() {
+    narrows("Token AS T THEN T", "RedToken THEN RedToken") shouldBe true
+    refuses("Token AS T THEN T", "RedToken THEN BlueToken")
 
     narrows(
-        "Tile<> THEN Tile<>",
+        "Tile<> AS T THEN T",
         "GreeneryTile<Land1> THEN GreeneryTile<Land1>",
     ) shouldBe true
-    refuses("Tile<> THEN Tile<>", "GreeneryTile<Land1> THEN OceanTile<Land1>")
+    refuses("Tile<> AS T THEN T", "GreeneryTile<Land1> THEN OceanTile<Land1>")
 
     narrows(
-        "Tile<LandArea> THEN Tile<LandArea>",
+        "Tile<LandArea> AS T THEN T",
         "GreeneryTile<Land1> THEN GreeneryTile<Land1>",
     ) shouldBe true
-    refuses("Tile<LandArea> THEN Tile<LandArea>", "GreeneryTile<Land1> THEN OceanTile<Land1>")
+    refuses("Tile<LandArea> AS T THEN T", "GreeneryTile<Land1> THEN OceanTile<Land1>")
   }
 
   @Test

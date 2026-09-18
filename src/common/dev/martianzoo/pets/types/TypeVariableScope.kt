@@ -117,14 +117,14 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
       )
 
   /**
-   * Expands references to explicitly named variables back to their structural expressions when a
-   * node leaves this lexical scope.
+   * Removes explicit names while retaining their structural expressions when a node leaves this
+   * lexical scope.
    */
   public fun expandNames(): PetTransformer {
     val names = variables.mapNotNull(TypeVariable::name).toSet()
     return object : PetTransformer() {
       override fun transformNode(node: PetNode): PetNode {
-        if (node is Expression && (node.typeVariableName as? Reference)?.name in names) {
+        if (node is Expression && node.typeVariableName?.name in names) {
           return transformChildren(node.copy(typeVariableName = null))
         }
         return transformChildren(node)
@@ -155,7 +155,11 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
                     wideNode.isExpandedFrom(source, variable.bound.classTable)
               }
       ) {
-        (narrowNode as? Expression)?.let(::add)
+        (narrowNode as? Expression)
+            ?.takeUnless {
+              wideNode.typeVariableName is Reference && it == wideNode
+            }
+            ?.let(::add)
         return
       }
       wideNode.immediateChildren().zip(narrowNode.immediateChildren()).forEach { (wide, narrow) ->
@@ -442,6 +446,11 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
                               }
                         }
                         .sortedBy(Found::ordinal)
+                if (declaredName != null && usages.any { it.region < declaration.region }) {
+                  throw ExpressionException(
+                      "Type variable $declaredName cannot be used before it is declared"
+                  )
+                }
                 val variable =
                     TypeVariable(
                         interpretedGroundType(declaration),

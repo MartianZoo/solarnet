@@ -1170,9 +1170,9 @@ A variable's identity is its declaration and scope — never its class name. `Pl
 unrelated variables in different rules.
 
 There are three sources of a shared choice: a class header declares one (T13-2 to T13-5), an Effect
-names one explicitly (T13-6), or authored syntax repeats one across other places that must agree
-(T13-7 to T13-9). A trigger supplies the concrete value when it matches; `BY` is one place that
-value can come from.
+or `THEN` sequence names one explicitly (T13-6, T13-7), or an action or transmutation repeats one
+across places that must agree (T13-7 to T13-9). A trigger supplies the concrete value when it
+matches; `BY` is one place that value can come from.
 
 Three properties hold of all three sources, and most of the rules below are consequences of them:
 
@@ -1186,8 +1186,6 @@ Three properties hold of all three sources, and most of the rules below are cons
    `RANK` selector, or the represented class inside a refined class literal — introduces a name of
    its own over an enclosing one.
 
-   **Known departure.** A nested inferred scope currently also records such an occurrence as an
-   inner variable. See Appendix A.
 3. **Inheritance passes values, not names.** A subclass does not see its superclass's header
    variables by spelling; it receives their values when a component fixes them (T13-4, T13-5).
 
@@ -1246,7 +1244,7 @@ dependency does supply one — `CLASS Leaf : Badge<Alice>` supplies `Alice` for 
 > `StandardResource` to steel: its initial stock, production, and mirrored player transfers. Merely
 > narrowing the header would leave a supposedly steel reserve operating on arbitrary resources.
 
-### Effect-local and inferred variables
+### Local and inferred variables
 
 **T13-6. An Effect names a shared choice explicitly.** `Type AS Name` declares a variable in the
 matching part of an Effect's trigger. A bare `Name` elsewhere in the same Effect uses the
@@ -1268,15 +1266,16 @@ Repeating an abstract expression without `AS` does not declare an Effect variabl
 instruction leaves the Effect's lexical scope, its references have already been expanded to the
 chosen structural Type.
 
-**T13-7. Repetition across the choice regions of other constructs.** An abstract expression whose
-identical spelling appears in at least two regions below declares one variable, and every occurrence
-of that spelling — including further ones in the same region — uses it.
+**T13-7. Other construct-local variables.** An action or transmutation infers a variable when an
+abstract expression's identical spelling appears in at least two regions below. A `THEN` sequence
+instead declares a shared choice explicitly with `Type AS Name` in a choosing stage and uses the
+bare `Name` in another stage. Repeating an unnamed Type across stages does not link it.
 
-| Construct | Regions |
-| --- | --- |
-| Action | the cost; the result |
-| `THEN` sequence | each stage |
-| Transmutation (`A FROM B`) | the gained side; the removed side — but *not* the two whole roots |
+| Construct | Declaration | Regions |
+| --- | --- | --- |
+| Action | identical spelling | the cost; the result |
+| `THEN` sequence | `Type AS Name` and bare `Name` | each stage |
+| Transmutation (`A FROM B`) | identical spelling | the gained side; the removed side — but *not* the two whole roots |
 
 The first two are settlement sites: parts of one rule that are settled separately, and across
 which "the same one" is worth saying. An action's two regions are the two stages its arrow lowers to
@@ -1293,11 +1292,10 @@ production, because the whole production is what the change is replacing.
 > destination would be forced to the same track and the card would cancel itself; only repeated
 > proper subexpressions are equality claims.
 
-> **Non-normative design note — why spelling remains here.** Repetition is meaningful because the
-> physical icon grammar commonly repeats one icon to mean “the same one.” Requiring the *same
-> authored spelling* keeps that claim visible in the source: resolution and default insertion
-> cannot silently make two differently written icons become one shared choice, and an author who
-> means two independent choices can simply write them differently.
+> **Non-normative design note — where spelling remains.** Actions and transmutations retain the
+> physical icon grammar's repeated “same one” shorthand. Requiring the *same authored spelling*
+> keeps that claim visible: resolution and default insertion cannot silently join differently
+> written icons. A sequence is more general and potentially distant, so it requires a name.
 
 **T13-8. Where repetition does not introduce another variable.** Repetition is evidence of one
 shared choice only where the occurrences can be settled by that choice. The cases below introduce no
@@ -1317,8 +1315,8 @@ ever uses.
 The first three rows are the observing case of the section's first property: an occurrence that only
 looks never introduces, but does use a variable whose choice is available in the same settlement
 region or an earlier one. That is why the gate in
-`(Eligible<Person>: Coin<Person>) THEN Receipt<Person>` speaks about the same person the stages
-choose, rather than ranging over people of its own.
+`(Eligible<Choice>: Coin<Person AS Choice>) THEN Receipt<Choice>` speaks about the same person the
+stages choose, rather than ranging over people of its own.
 
 > **Non-normative examples — Sponsor and `EACH`.** Sponsor's metric must count three independently
 > matching expensive cards, not capture the first `CardFront(HAS 20 cost)` and demand three copies
@@ -1389,13 +1387,7 @@ variable sits on captures nothing, rather than guessing from a coincidentally si
 
 ---
 
-## Appendix A: known departures
-
-| Rule | Current implementation departure |
-| --- | --- |
-| T13-3 | When a class-header variable is repeated inside a nested inferred scope such as `THEN`, the implementation records both the use of the visible header variable and an inner variable with the same name. Class-header specialization currently binds the occurrence first, leaving the inner variable inert, but the duplicate remains observable through `TypeVariableScope`. |
-
-## Appendix B: deliberately unspecified
+## Appendix A: deliberately unspecified
 
 - **Exception messages.** Rules name exception *types* where the type is part of the contract.
 - **Evaluation order and caching.** Resolution memoizes, and several derived values are computed

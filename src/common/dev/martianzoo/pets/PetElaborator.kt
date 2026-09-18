@@ -2,6 +2,7 @@ package dev.martianzoo.pets
 
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.PetTransformer.Companion.noOp
+import dev.martianzoo.pets.Transforming.actionToEffect
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -163,17 +164,28 @@ public class PetElaborator(public val classTable: ClassTable) {
     require(classTable.isIncluded(klass)) { "$klass is not included in this game" }
     return effectsByClass.getOrPut(klass) {
       fun directClassEffects(source: Class) =
-          source.declaration.effects.map { effect ->
-            try {
-              attachToClassTransformer(source)
-                  .transformEffect(source.interpretTypeVariablesIn(effect))
-            } catch (e: PetException) {
-              throw invalidPetDefinition(
-                  "Invalid effect declared by `${source.className}`: `$effect`: ${e.message}",
-                  e,
-              )
-            }
-          }
+          source.declaration
+              .let { declaration ->
+                declaration.executableEffects
+                    ?: declaration.authoredEffects +
+                        declaration.authoredActions.mapIndexed { index, action ->
+                          actionToEffect(
+                              classTable.inferTypeVariables().transformAction(action),
+                              index + 1,
+                          )
+                        }
+              }
+              .map { effect ->
+                try {
+                  attachToClassTransformer(source)
+                      .transformEffect(source.interpretTypeVariablesIn(effect))
+                } catch (e: PetException) {
+                  throw invalidPetDefinition(
+                      "Invalid effect declared by `${source.className}`: `$effect`: ${e.message}",
+                      e,
+                  )
+                }
+              }
 
       val evaluator =
           propertyEvaluator(

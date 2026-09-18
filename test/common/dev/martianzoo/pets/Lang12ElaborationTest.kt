@@ -47,8 +47,8 @@ internal class Lang12ElaborationTest {
             "ProjectCard<Player1>!, ProjectCard<Player1>!, Tile<Player1, LandArea>!"
         )
 
-    // Type-variable inference ran too, on a shape that records one.
-    val sequence = elaborate("Token THEN Token") as Instruction.Then
+    // Named Type-variable recording ran too.
+    val sequence = elaborate("Token AS T THEN T") as Instruction.Then
     sequence.typeVariables.isEmpty shouldBe false
   }
 

@@ -9,7 +9,9 @@ ABSTRACT CLASS StandardAction : HasActions {
   CLASS UseStandardProjectAction { -> UseAction<StandardProject> }
 
   "Use an action on a card"
-  CLASS UseActionOnCardAction { -> ActionUsedMarker<ActionCard> THEN UseAction<ActionCard> }
+  CLASS UseActionOnCardAction {
+    -> ActionUsedMarker<ActionCard AS ThatCard> THEN UseAction<ThatCard>
+  }
 
   "Convert plants into a greenery tile"
   CLASS ConvertPlantsAction { 8 Plant -> DefaultGreeneryTile }

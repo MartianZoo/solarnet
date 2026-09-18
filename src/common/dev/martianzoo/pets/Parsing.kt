@@ -173,18 +173,21 @@ public object Parsing {
             (it as? Expression)?.let(ScaledExpression::rejectIfDenominationless)
             true
           }
-      is PetNode ->
-          parsed.visitDescendants {
-            (it as? Expression)?.let { expression ->
-              ScaledExpression.rejectIfDenominationless(expression)
-              if (expression.typeVariableName != null) {
-                throw PetSyntaxException(
-                    "Type-variable names are currently supported only within Effects"
-                )
-              }
+      is PetNode -> {
+        fun check(node: PetNode, insideThen: Boolean) {
+          val namedScope = insideThen || node is Instruction.Then
+          (node as? Expression)?.let { expression ->
+            ScaledExpression.rejectIfDenominationless(expression)
+            if (expression.typeVariableName != null && !namedScope) {
+              throw PetSyntaxException(
+                  "Type-variable names are currently supported only within Effects or THEN sequences"
+              )
             }
-            true
           }
+          node.immediateChildren().forEach { check(it, namedScope) }
+        }
+        check(parsed, insideThen = false)
+      }
       is Iterable<*> -> parsed.forEach(::rejectUnsupportedSyntax)
     }
   }

@@ -13,6 +13,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.typeVariablesFor
 import dev.martianzoo.pets.data.Actor
@@ -225,9 +226,9 @@ internal class Spec13TypeVariablesTest {
 
           override fun getDependents(component: Type): Set<Type> = error("unused")
         }
-    val instruction = parse<Instruction>("Local THEN Local")
+    val instruction = parse<Instruction>("Local AS L THEN L")
 
-    names(instruction.typeVariablesFor(reader)) shouldContainExactly listOf("Local")
+    names(instruction.typeVariablesFor(reader)) shouldContainExactly listOf("L")
   }
 
   @Test
@@ -428,13 +429,60 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-7 a THEN sequence's regions are its stages`() {
+  internal fun `T13-7 a THEN sequence names a choice shared by its stages`() {
     val instruction: Instruction =
+        resources.inferTypeVariables().transformInstruction(parse("StandardResource AS R THEN R"))
+    val then = instruction as Then
+    val variable = then.typeVariables.variables.single()
+
+    names(then.typeVariables) shouldContainExactly listOf("R")
+    then.typeVariables
+        .bind(mapOf(variable to resources.resolve(te("Plant"))))
+        .transformInstruction(then)
+        .toString() shouldBe "Plant THEN Plant"
+
+    val unlinked =
         resources
             .inferTypeVariables()
-            .transformInstruction(parse("StandardResource THEN StandardResource"))
+            .transformInstruction(parse("StandardResource THEN StandardResource")) as Then
+    unlinked.typeVariables.variables shouldBe listOf()
+  }
 
-    names((instruction as Then).typeVariables) shouldContainExactly listOf("StandardResource")
+  @Test
+  internal fun `T13-7 repeated inference does not duplicate a named THEN variable`() {
+    val infer = resources.inferTypeVariables()
+    val once = infer.transformInstruction(parse("StandardResource AS R THEN R"))
+    val twice = infer.transformInstruction(once) as Then
+
+    names(twice.typeVariables) shouldContainExactly listOf("R")
+  }
+
+  @Test
+  internal fun `T13-7 a THEN name follows declaration order and must cross stages`() {
+    shouldThrow<ExpressionException> {
+      resources.inferTypeVariables().transformInstruction(parse("R THEN StandardResource AS R"))
+    }
+
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS StandardResource { CLASS Plant }",
+            "ABSTRACT CLASS Duo<StandardResource, StandardResource>",
+            "CLASS Coin",
+        )
+    shouldThrow<ExpressionException> {
+      table
+          .inferTypeVariables()
+          .transformInstruction(parse("Duo<StandardResource AS R, R> THEN Coin"))
+    }
+  }
+
+  @Test
+  internal fun `T13-7 a THEN variable name cannot be a Type name`() {
+    shouldThrow<ExpressionException> {
+      resources
+          .inferTypeVariables()
+          .transformInstruction(parse("StandardResource AS Plant THEN Plant"))
+    }
   }
 
   @Test
@@ -465,13 +513,13 @@ internal class Spec13TypeVariablesTest {
             "CLASS Coin",
         )
 
-    val instruction =
-        table
-            .inferTypeVariables()
-            .transformInstruction(parse("(Eligible<Person>: Coin) THEN (Ready<Person>: Coin)"))
-            as Then
+    val regions =
+        listOf<PetNode>(
+            parse<Requirement>("Eligible<Person>"),
+            parse<Requirement>("Ready<Person>"),
+        )
 
-    instruction.typeVariables.variables shouldBe listOf()
+    TypeVariableScope.infer(regions, table).variables shouldBe listOf()
   }
 
   @Test
@@ -484,13 +532,13 @@ internal class Spec13TypeVariablesTest {
             "CLASS Coin",
         )
 
-    val instruction =
-        table
-            .inferTypeVariables()
-            .transformInstruction(parse("(Coin / Score<Person>) THEN (Coin / Value<Person>)"))
-            as Then
+    val regions =
+        listOf<PetNode>(
+            parse<Metric>("Score<Person>"),
+            parse<Metric>("Value<Person>"),
+        )
 
-    instruction.typeVariables.variables shouldBe listOf()
+    TypeVariableScope.infer(regions, table).variables shouldBe listOf()
   }
 
   @Test
@@ -502,14 +550,13 @@ internal class Spec13TypeVariablesTest {
             "ABSTRACT CLASS Receipt<Component>",
         )
 
-    val instruction =
-        table
-            .inferTypeVariables()
-            .transformInstruction(
-                parse("Notice<Owner(NOT Person)> THEN Receipt<Component(NOT Person)>")
-            ) as Then
+    val regions =
+        listOf<PetNode>(
+            parse<Expression>("Owner(NOT Person)").refinement!!,
+            parse<Expression>("Component(NOT Person)").refinement!!,
+        )
 
-    instruction.typeVariables.variables shouldBe listOf()
+    TypeVariableScope.infer(regions, table).variables shouldBe listOf()
   }
 
   @Test
@@ -522,11 +569,11 @@ internal class Spec13TypeVariablesTest {
         )
 
     // `CardFront<Owner>` repeats, so the nested `Owner` text does not declare its own variable.
-    val instruction =
+    val action =
         table
             .inferTypeVariables()
-            .transformInstruction(parse("CardFront<Owner> THEN Notice<CardFront<Owner>>")) as Then
-    names(instruction.typeVariables) shouldContainExactly listOf("CardFront<Owner>")
+            .transformAction(parse("CardFront<Owner> -> Notice<CardFront<Owner>>"))
+    names(action.typeVariables) shouldContainExactly listOf("CardFront<Owner>")
   }
 
   @Test
@@ -539,10 +586,8 @@ internal class Spec13TypeVariablesTest {
         )
 
     // `Tile` and `Tile<Area>` resolve alike but are different authored names.
-    val instruction =
-        table.inferTypeVariables().transformInstruction(parse("Tile THEN Notice<Tile<Area>>"))
-            as Then
-    instruction.typeVariables.variables shouldBe listOf()
+    val action = table.inferTypeVariables().transformAction(parse("Tile -> Notice<Tile<Area>>"))
+    action.typeVariables.variables shouldBe listOf()
   }
 
   @Test
@@ -586,18 +631,19 @@ internal class Spec13TypeVariablesTest {
             "ABSTRACT CLASS Eligible<Person>",
             "ABSTRACT CLASS Coin<Person>",
             "ABSTRACT CLASS Receipt<Person>",
-            "CLASS Offer<Person> { This: (Eligible<Person>: Coin<Person>) THEN Receipt<Person> }",
         )
-    val offer = table.getClass(cn("Offer"))
     val inferred =
         table
             .inferTypeVariables()
-            .transformEffect(offer.interpretTypeVariablesIn(offer.declaration.effects.single()))
+            .transformEffect(
+                parse("This: (Eligible<Choice>: Coin<Person AS Choice>) THEN Receipt<Choice>")
+            )
     val then = inferred.instruction as Then
     val choice = then.typeVariables.variables.single()
 
+    choice.name.toString() shouldBe "Choice"
     choice.occurrences.map { "${it.expression}" } shouldContainExactly
-        listOf("Person", "Person", "Person")
+        listOf("Person AS Choice", "Choice", "Choice")
     (choice.usages.first().ordinal < choice.declaration.ordinal) shouldBe true
     then.typeVariables
         .bind(mapOf(choice to table.resolve(te("Alice"))))
@@ -618,13 +664,21 @@ internal class Spec13TypeVariablesTest {
         )
 
     listOf(
-            "(Eligible<Person>: Ok) THEN Receipt<Person>",
-            "(Coin / Score<Person>) THEN Receipt<Person>",
-            "Notice<Owner(NOT Person)> THEN Receipt<Person>",
+            listOf<PetNode>(
+                parse<Requirement>("Eligible<Person>"),
+                parse<Expression>("Receipt<Person>"),
+            ),
+            listOf<PetNode>(
+                parse<Metric>("Score<Person>"),
+                parse<Expression>("Receipt<Person>"),
+            ),
+            listOf<PetNode>(
+                parse<Expression>("Owner(NOT Person)").refinement!!,
+                parse<Expression>("Receipt<Person>"),
+            ),
         )
-        .forEach { source ->
-          val instruction = table.inferTypeVariables().transformInstruction(parse(source)) as Then
-          instruction.typeVariables.variables shouldBe listOf()
+        .forEach { regions ->
+          TypeVariableScope.infer(regions, table).variables shouldBe listOf()
         }
   }
 
@@ -641,12 +695,11 @@ internal class Spec13TypeVariablesTest {
 
     // `Duo<Area, Person>` and `Duo<Person, Area>` are different authored names, so the shared
     // variables are the two inner ones.
-    val instruction =
+    val action =
         table
             .inferTypeVariables()
-            .transformInstruction(parse("Notice<Duo<Area, Person>> THEN Token<Duo<Person, Area>>"))
-            as Then
-    names(instruction.typeVariables).toSet() shouldBe setOf("Area", "Person")
+            .transformAction(parse("Notice<Duo<Area, Person>> -> Token<Duo<Person, Area>>"))
+    names(action.typeVariables).toSet() shouldBe setOf("Area", "Person")
   }
 
   // T13-9 Actor selectors

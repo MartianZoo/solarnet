@@ -585,7 +585,8 @@ public sealed class Instruction : InstructionTree() {
             variables
                 .bindings(this, proposed, variable)
                 .filter {
-                  it != declaration && narrowsExpression(it, declaration, info)
+                  !sameAfterNameConsumption(it, declaration) &&
+                      narrowsExpression(it, declaration, info)
                 }
                 .distinct()
         if (bindings.size > 1) {
@@ -621,6 +622,9 @@ public sealed class Instruction : InstructionTree() {
         wide: Expression,
         info: TypeInfo,
     ): Boolean = narrow.narrows(wide, info)
+
+    private fun sameAfterNameConsumption(left: Expression, right: Expression): Boolean =
+        left == right || left.copy(typeVariableName = null) == right.copy(typeVariableName = null)
 
     /** Narrows the first stage and carries every shared choice into later stages. */
     public fun bindFirstStage(
@@ -665,7 +669,10 @@ public sealed class Instruction : InstructionTree() {
                 val positionalBindings =
                     variables
                         .bindings(selectableFirst, proposed, variable)
-                        .filter { it != declaration && narrowsExpression(it, declaration, info) }
+                        .filter {
+                          !sameAfterNameConsumption(it, declaration) &&
+                              narrowsExpression(it, declaration, info)
+                        }
                         .map { expression ->
                           ((info as? GameReader)?.resolve(expression)
                                   ?: variable.bound.classTable.resolve(expression))
@@ -784,7 +791,11 @@ public sealed class Instruction : InstructionTree() {
 
     /** Returns the right-associated continuation enqueued after the first stage. */
     public fun continuationAfterFirst(): InstructionGroup =
-        InstructionGroup.of(createTree(stages.drop(1) + continuation))
+        InstructionGroup.of(
+            typeVariables
+                .expandNames()
+                .transformInstructionTree(createTree(stages.drop(1) + continuation))
+        )
 
     override fun toString(): String = instructions.joinToString(" THEN ") { groupPartIfNeeded(it) }
 
@@ -811,6 +822,27 @@ public sealed class Instruction : InstructionTree() {
                   }
                 }
               }
+
+      internal fun resolveTypeVariableNames(then: Then): Then {
+        then.observingTypeVariableDeclaration()?.let {
+          throw PetSyntaxException(
+              "A Type-variable name cannot be declared in an observing expression: $it"
+          )
+        }
+        val declarations = then.localTypeVariableDeclarations()
+        val localNames = declarations.mapTo(mutableSetOf()) { it.typeVariableName!!.name }
+        then
+            .descendantsOfType<Expression>()
+            .filter { it.typeVariableName is Expression.TypeVariableName.Declaration }
+            .filterNot { candidate -> declarations.any { it === candidate } }
+            .firstOrNull { it.typeVariableName!!.name in localNames }
+            ?.let {
+              throw PetSyntaxException(
+                  "Type-variable ${it.typeVariableName!!.name} cannot shadow an enclosing declaration"
+              )
+            }
+        return dev.martianzoo.pets.ast.resolveTypeVariableNames(then, declarations, "THEN") as Then
+      }
     }
   }
 
@@ -1046,7 +1078,13 @@ public sealed class Instruction : InstructionTree() {
                   Gated.createTree(gate, ins)
                 }
 
-        val then = separatedTerms(gated, _then) map { Then.createTree(it) }
+        val then =
+            separatedTerms(gated, _then) map
+                {
+                  Then.createTree(it).let { sequence ->
+                    if (sequence is Then) Then.resolveTypeVariableNames(sequence) else sequence
+                  }
+                }
 
         commaSeparated(then) map { InstructionGroup.createTree(it) }
       }

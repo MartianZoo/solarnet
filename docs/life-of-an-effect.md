@@ -77,9 +77,10 @@ Instruction whose first stage removes two microbes and whose second stage raises
 Parentheses affect that structure but are not retained as a separate element.
 
 This is also when a `Type AS Name` declaration and its references are recorded as one Effect-local
-Type Variable. That recognition happens before defaults or Production Box lowering. `This` and
-`Owner` are contextual bindings, not Type Variables. Recyclon has no Type Variable linking its
-Trigger to its Instruction.
+Type Variable. A `THEN` nested in the instruction similarly owns any variable it names across its
+stages. That recognition happens before defaults or Production Box lowering. `This` and `Owner` are
+contextual bindings, not Type Variables. Recyclon has no Type Variable linking its Trigger to its
+Instruction.
 
 An Effect can also declare a Class local to its card. Such a declaration would be given a stable
 card-owned Class Name here. Recyclon's Effect does not do so, so its visible structure is unchanged.

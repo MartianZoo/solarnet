@@ -271,7 +271,8 @@
         {
           "name": "CyberiaSystems",
           "cost": 16,
-          "immediate": "PROD[Steel], CopyProductionBox<CardFront(HAS BuildingTag)> THEN CyberiaSystemsFirstChoice<CardFront(HAS BuildingTag)> THEN CopyProductionBox<CardFront(HAS BuildingTag, HAS MAX 0 CyberiaSystemsFirstChoice)> THEN -CyberiaSystemsFirstChoice",
+          // TODO: Prefer the pending Cyberia Systems fix once it merges.
+          "immediate": "PROD[Steel], CopyProductionBox<CardFront(HAS BuildingTag) AS FirstChoice> THEN CyberiaSystemsFirstChoice<FirstChoice> THEN CopyProductionBox<CardFront(HAS BuildingTag, HAS MAX 0 CyberiaSystemsFirstChoice)> THEN -CyberiaSystemsFirstChoice",
           "components": [
             "CLASS CyberiaSystemsFirstChoice : Cardbound, MustCleanUp"
           ],
@@ -412,7 +413,7 @@
           "name": "LawSuit",
           "cost": 2,
           "tags": [ "EventTag" ],
-          "immediate": "((MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): 3 MC FROM MC<Player>) THEN PlayedEvent<Player, Class<This>> FROM This",
+          "immediate": "((MyResourceWasRemoved<Owner, Attacker> OR MyProductionWasDecreased<Owner, Attacker>): 3 MC FROM MC<Player AS Attacker>) THEN PlayedEvent<Attacker, Class<This>> FROM This",
           "effects": [ "End: -VictoryPoint" ],
         },
         {

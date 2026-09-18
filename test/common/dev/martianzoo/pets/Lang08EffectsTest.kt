@@ -274,6 +274,8 @@ internal class Lang08EffectsTest {
   internal fun `L8-12 a trigger expression can name a Type variable used by the Effect`() {
     roundTrip<Effect>("StandardResource AS R: R")
     roundTrip<Effect>("StandardResource AS R IF R: R")
+    roundTrip<Effect>("StandardResource AS R: Plant THEN R")
+    roundTrip<Effect>("This: StandardResource AS R THEN R")
     roundTrip<Effect>(
         "Notice<Owner(NOT ActingPlayer) AS Victim> BY Player AS ActingPlayer: Heat<Victim>"
     )
@@ -293,6 +295,9 @@ internal class Lang08EffectsTest {
     }
     shouldThrow<PetSyntaxException> {
       parse<Effect>("Notice<Owner(NOT Player AS ActingPlayer)> BY Player: Heat")
+    }
+    shouldThrow<PetSyntaxException> {
+      parse<Effect>("StandardResource AS R: Plant AS R THEN R")
     }
   }
 }

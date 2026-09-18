@@ -11,12 +11,13 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.PetNode
+import dev.martianzoo.pets.ast.localTypeVariableDeclarations
 import dev.martianzoo.pets.ast.withTypeVariables
 
 /**
- * Returns a transformer that discovers and records inferred type-variable scopes in effects,
- * actions, sequences, and transmutations. It applies the region, exclusion, and actor-selector
- * rules in
+ * Returns a transformer that records explicitly named scopes in effects and sequences and infers
+ * the remaining action, transmutation, and actor scopes. It applies the region, exclusion, and
+ * actor-selector rules in
  * [rules T13-6 through T13-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
  */
 public fun ClassTable.inferTypeVariables(): PetTransformer =
@@ -25,16 +26,12 @@ public fun ClassTable.inferTypeVariables(): PetTransformer =
         val transformed = transformChildren(node)
         return when (transformed) {
           is Effect -> {
+            val visibleNames = transformed.typeVariables.variables.mapNotNull { it.name }.toSet()
             val namedDeclarations =
                 transformed.trigger.descendantsOfType<Expression>().filter {
-                  it.typeVariableName is Declaration
+                  it.typeVariableName is Declaration && it.typeVariableName.name !in visibleNames
                 }
-            namedDeclarations.forEach { declaration ->
-              val name = declaration.typeVariableName!!.name
-              if (name in allClassNames) {
-                throw ExpressionException("Type-variable name $name is already a Type name")
-              }
-            }
+            validateTypeVariableNames(namedDeclarations)
             val actorClass = resolve(ACTOR.expression).rootClass
             val actorDeclarations =
                 transformed.trigger.descendantsOfType<ByTrigger>().map(ByTrigger::by).filter {
@@ -65,14 +62,32 @@ public fun ClassTable.inferTypeVariables(): PetTransformer =
                           this@inferTypeVariables,
                       )
               )
-          is Instruction.Then ->
-              transformed.withTypeVariables(
-                  transformed.typeVariables +
-                      TypeVariableScope.infer(
-                          transformed.instructions,
-                          this@inferTypeVariables,
-                      )
-              )
+          is Instruction.Then -> {
+            val visibleNames = transformed.typeVariables.variables.mapNotNull { it.name }.toSet()
+            val namedDeclarations =
+                transformed.localTypeVariableDeclarations().filter {
+                  it.typeVariableName!!.name !in visibleNames
+                }
+            validateTypeVariableNames(namedDeclarations)
+            val localScope =
+                TypeVariableScope.infer(
+                    transformed.instructions,
+                    this@inferTypeVariables,
+                    namedDeclarations = namedDeclarations,
+                    inferRepeatedExpressions = false,
+                    visibleScope = transformed.typeVariables,
+                )
+            localScope.variables
+                .firstOrNull { variable ->
+                  variable.occurrences.map { it.region }.distinct().size < 2
+                }
+                ?.let {
+                  throw ExpressionException(
+                      "A THEN Type variable must be used in more than one stage: $it"
+                  )
+                }
+            transformed.withTypeVariables(transformed.typeVariables + localScope)
+          }
           is Instruction.Transmute ->
               transformed.withTypeVariables(
                   transformed.typeVariables +
@@ -83,6 +98,15 @@ public fun ClassTable.inferTypeVariables(): PetTransformer =
                       )
               )
           else -> transformed
+        }
+      }
+
+      private fun validateTypeVariableNames(declarations: List<Expression>) {
+        declarations.forEach { declaration ->
+          val name = declaration.typeVariableName!!.name
+          if (name in allClassNames) {
+            throw ExpressionException("Type-variable name $name is already a Type name")
+          }
         }
       }
     }

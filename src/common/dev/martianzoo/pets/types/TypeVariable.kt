@@ -43,7 +43,7 @@ internal constructor(
     get() = declaration.expression
 
   /**
-   * The first authored occurrence, which introduces this variable under
+   * The occurrence that introduces this variable under
    * [rule T13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
   public val declaration: Declaration = Declaration(this, declarationSite)
@@ -53,13 +53,14 @@ internal constructor(
       (declaration.expression.typeVariableName as? SyntaxDeclaration)?.name
 
   /**
-   * Every later occurrence interpreted as a use of the same choice, in authored order ([rule
+   * Every other occurrence interpreted as a use of the same choice, in authored order ([rule
    * T13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables)).
    */
   public val usages: List<Usage> = usageSites.map { Usage(this, it) }
 
   /**
-   * [declaration] followed by [usages], preserving the authored order required by
+   * [declaration] followed by [usages]. The usages preserve their authored order; an observing use
+   * may precede the declaration within the same settlement region under
    * [rule T13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
   public val occurrences: List<Occurrence> = listOf(declaration) + usages

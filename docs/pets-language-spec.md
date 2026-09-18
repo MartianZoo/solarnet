@@ -292,8 +292,8 @@ shadow:
 | `X` | one open amount | one instruction, across the stages of a `THEN` (L6-14) |
 | an `EACH` or `RANK` selector | each selected component | that construct's body, shadowing an enclosing spelling (L6-10, L5-9) |
 | a refinement's domain | the candidate | that refinement (T8-3) |
-| `Type AS Name` in an Effect trigger | one shared choice | that Effect (L8-12, T13-6) |
-| a repeated abstract expression in another choice construct | one shared choice | its construct's settlement sites (T13-7) |
+| `Type AS Name` in an Effect trigger or `THEN` | one shared choice | that Effect or sequence (L6-15, L8-12, T13-6) |
+| a repeated abstract expression in an action or transmutation | one shared choice | its construct's settlement sites (T13-7) |
 
 > **Non-normative example — generated special tiles.** `MiningRights_SpecialTile` must be referable
 > later by that exact global name when its placement bonus is inspected. Lexical scoping would make
@@ -365,6 +365,12 @@ why the type system, not the syntax, is the authority on identity (T5-1).
 > `Microbe<Player1, Ants>` from the reversed argument spelling once resolved. Keeping the syntax
 > unequal preserves faithful rendering and exact variable-occurrence tracking without changing the
 > game type.
+
+**L3-9. `Type AS Name` names a Type variable where the enclosing construct permits one.** A bare
+`Name` in that scope then denotes the complete declared expression. The name has the class-name
+shape from L2-1, so one letter is enough, but it must not be a Type name in the Catalog. A reference
+is bare: it cannot have arguments or a refinement. The enclosing construct determines where the
+declaration and its uses may occur (L6-15, L8-12).
 
 ---
 
@@ -678,6 +684,18 @@ trigger's amount, and so equal — through the trigger, not through the comma.
 > cards, then grants `X` MC. Sharing the count across the sequence makes the payout equal the number
 > temporarily revealed.
 
+**L6-15. A `THEN` sequence names any Type choice shared across stages explicitly.** A matching or
+choosing expression in one stage declares `Type AS Name`, and a bare `Name` elsewhere in the
+sequence uses that choice. No use may occur in a stage before the declaration, the name must occur
+in at least two stages, and it may be declared only once in the sequence. Requirements, metrics and
+the contents of refinements may use a visible name but cannot declare one. Repeating an abstract
+Type without naming it does not link the stages.
+
+> **Non-normative example — neutral solo tiles.**
+> `CityTile<> AS City THEN GreeneryTile<LandArea(HAS Neighbor<City>)>` makes the greenery adjacent
+> to the city just placed. By contrast, `ProjectCard THEN -ProjectCard` draws a card and then
+> discards an independently chosen card; repetition alone does not couple them.
+
 ---
 
 ## 7. Narrowing: what remains open
@@ -758,8 +776,9 @@ never a way to do nothing. Declining belongs to `?` and `Ok` (L7-4).
 > transaction the card never offers.
 
 **L7-8. A shared type variable takes one value everywhere it appears.** Narrowing a sequence or a
-transmutation that repeats an abstract expression must supply one consistent value for it (T13-7);
-two different values are rejected.
+transmutation with a shared variable must supply one consistent value for it (T13-7); two different
+values are rejected. A sequence declares that variable with `AS` (L6-15), while an action or
+transmutation still infers it from repetition.
 
 > **Non-normative example — Utopia Invest.** `PROD[StandardResource] -> 4 StandardResource` means
 > reduce one chosen production track and gain four units of that same resource. Binding the two
@@ -909,13 +928,11 @@ effect's own colon stays unambiguous.
 > effect's trigger separator from a requirement gate inside its result. Without parentheses, parsing
 > the rendered form could attach the gate to the trigger and produce a different rule.
 
-**L8-12. `Type AS Name` explicitly names an Effect-local Type variable.** The declaration must occur
-in a matching expression in the trigger, and the bare `Name` may then replace the complete declared
-expression anywhere else in that Effect. Requirements, metrics and the contents of refinements only
-observe, so they may use a visible name but cannot declare one. A name has the class-name shape from
-L2-1, so one letter is enough, but it must not be a Type name in the Catalog. One Effect may declare
-a name only once and must use every name it declares. A use is bare: it cannot have arguments or a
-refinement.
+**L8-12. `Type AS Name` explicitly names an Effect-local Type variable.** Following L3-9, the
+declaration must occur in a matching expression in the trigger, and the bare `Name` may then replace
+the complete declared expression anywhere else in that Effect. Requirements, metrics and the
+contents of refinements only observe, so they may use a visible name but cannot declare one. One
+Effect may declare a name only once and must use every name it declares.
 
 Repeating the Type without naming it does not link an Effect trigger to its instruction (T13-6).
 For example, Manutech writes `PROD[StandardResource AS SR]: SR`: the production increase chooses the

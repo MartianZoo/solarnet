@@ -392,4 +392,27 @@ internal class Lang06InstructionsTest {
     roundTrip<Effect>("X Plant: X Heat, X Steel")
     roundTrip<InstructionTree>("X Plant THEN (X Heat, X Steel)")
   }
+
+  // L6-15 named Type variables across a sequence
+
+  @Test
+  internal fun `L6-15 a THEN stage can name a Type used by a later stage`() {
+    roundTrip<Instruction>("Plant AS P THEN P")
+    roundTrip<Instruction>("Foo<Plant AS P> THEN Bar<P>")
+    roundTrip<Instruction>("Plant AS P THEN Foo<Bar(HAS Baz<P>)>")
+    roundTrip<Instruction>("CityTile<> AS City THEN GreeneryTile<LandArea(HAS Neighbor<City>)>")
+  }
+
+  @Test
+  internal fun `L6-15 a THEN Type-variable name must be unambiguous and used`() {
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant AS P THEN Heat") }
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant AS P THEN Heat AS P THEN P") }
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant AS P THEN P<Steel>") }
+  }
+
+  @Test
+  internal fun `L6-15 an observing expression cannot declare a THEN variable`() {
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant / Steel AS P THEN P") }
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant(NOT Steel AS S) THEN S") }
+  }
 }

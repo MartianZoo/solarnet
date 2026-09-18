@@ -9,14 +9,13 @@ import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.pets.PetTokenizer
-import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
-import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
 import dev.martianzoo.pets.ast.Instruction.Gated
+import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.util.iff
 
 /**
@@ -356,7 +355,7 @@ public data class Effect(
     }
 
     private fun resolveTypeVariableNames(effect: Effect): Effect {
-      observingTypeVariableDeclaration(effect.trigger)?.let {
+      effect.trigger.observingTypeVariableDeclaration()?.let {
         throw PetSyntaxException(
             "A Type-variable name cannot be declared in an observing expression: $it"
         )
@@ -365,69 +364,26 @@ public data class Effect(
           effect.trigger.descendantsOfType<Expression>().filter {
             it.typeVariableName is Declaration
           }
-      val declarationsByName = declarations.associateBy { it.typeVariableName!!.name }
-      if (declarationsByName.size != declarations.size) {
-        throw PetSyntaxException("An Effect cannot declare the same Type-variable name twice")
-      }
+      val declarationNames = declarations.mapTo(mutableSetOf()) { it.typeVariableName!!.name }
       effect.instruction
           .descendantsOfType<Expression>()
-          .firstOrNull {
-            it.typeVariableName is Declaration
-          }
+          .filter { it.typeVariableName is Declaration }
+          .firstOrNull { it.typeVariableName!!.name in declarationNames }
           ?.let {
             throw PetSyntaxException(
-                "A Type-variable name must be declared in an Effect trigger: $it"
+                "Type-variable ${it.typeVariableName!!.name} cannot shadow an enclosing declaration"
             )
           }
-      if (declarations.isEmpty()) return effect
 
-      val references = mutableMapOf<ClassName, Int>()
-      val resolving = mutableSetOf<ClassName>()
-      val resolver =
-          object : PetTransformer() {
-            override fun transformNode(node: PetNode): PetNode {
-              if (node is Expression && node.typeVariableName == null) {
-                declarationsByName[node.className]?.let { declaration ->
-                  if (!node.simple) {
-                    throw PetSyntaxException(
-                        "Type-variable reference ${node.className} cannot have arguments or a refinement"
-                    )
-                  }
-                  references[node.className] = references.getOrElse(node.className) { 0 } + 1
-                  if (!resolving.add(node.className)) {
-                    throw PetSyntaxException(
-                        "Type-variable declarations cannot refer to each other cyclically"
-                    )
-                  }
-                  return try {
-                    transformChildren(
-                        declaration.copy(typeVariableName = Reference(node.className))
-                    )
-                  } finally {
-                    resolving.remove(node.className)
-                  }
-                }
-              }
-              return transformChildren(node)
-            }
-          }
-      val resolved = resolver.transformEffect(effect)
-      declarationsByName.keys
-          .firstOrNull { references[it] == null }
-          ?.let {
-            throw PetSyntaxException("Type-variable $it is declared but never used")
-          }
-      return resolved
-    }
-
-    private fun observingTypeVariableDeclaration(root: PetNode): Expression? {
-      fun find(node: PetNode, observing: Boolean): Expression? {
-        if (observing && node is Expression && node.typeVariableName is Declaration) return node
-        val childrenObserve = observing || node.startsTypeVariableObservation
-        return node.immediateChildren().firstNotNullOfOrNull { find(it, childrenObserve) }
+      fun declarationOutsideThen(node: PetNode): Expression? {
+        if (node is Then) return null
+        if (node is Expression && node.typeVariableName is Declaration) return node
+        return node.immediateChildren().firstNotNullOfOrNull(::declarationOutsideThen)
       }
-
-      return find(root, observing = false)
+      declarationOutsideThen(effect.instruction)?.let {
+        throw PetSyntaxException("A Type-variable name must be declared in an Effect trigger: $it")
+      }
+      return resolveTypeVariableNames(effect, declarations, "Effect") as Effect
     }
   }
 }

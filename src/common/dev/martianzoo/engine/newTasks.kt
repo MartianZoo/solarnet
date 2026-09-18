@@ -124,9 +124,12 @@ internal fun normalizeTask(
   val then = task.then?.let(::normalizeForTask)?.let(InstructionGroup::of)?.takeIf { !it.isEmpty() }
   val normalized = task.copy(instruction = instruction, then = then)
   val sequence = normalized.instruction as? Then ?: return normalized
-  if (normalized.then != null || sequence.mustRemainOneTask(isAbstract)) return normalized
-  return normalized.copy(
-      instruction = sequence.first,
-      then = sequence.continuationAfterFirst(),
+  val runtimeSequence =
+      sequence.typeVariables.expandNames().transformInstruction(sequence) as Instruction.Then
+  val runtime = normalized.copy(instruction = runtimeSequence)
+  if (runtime.then != null || runtimeSequence.mustRemainOneTask(isAbstract)) return runtime
+  return runtime.copy(
+      instruction = runtimeSequence.first,
+      then = runtimeSequence.continuationAfterFirst(),
   )
 }

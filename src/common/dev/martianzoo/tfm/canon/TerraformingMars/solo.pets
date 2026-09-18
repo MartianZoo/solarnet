@@ -50,8 +50,8 @@ CLASS SoloOpponent : Owner, System {
 "Creates the two independent city-and-greenery placement tasks in solo setup"
 CLASS PlaceNeutralTiles : Signal, System, Owned<SoloOpponent> {
   HAS MAX 1 This
-  This: CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<>>)>
-  This: CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<>>)>
+  This: CityTile<> AS ThatCity THEN GreeneryTile<LandArea(HAS Neighbor<ThatCity>)>
+  This: CityTile<> AS ThatCity THEN GreeneryTile<LandArea(HAS Neighbor<ThatCity>)>
 }
 
 "Creates the neutral solo stock of each standard resource and its production"
