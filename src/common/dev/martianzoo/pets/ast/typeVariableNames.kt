@@ -5,16 +5,33 @@ import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
 import dev.martianzoo.pets.ast.Instruction.Then
+import dev.martianzoo.pets.ast.Instruction.Transmute
+
+/** Declarations whose names connect this transmutation's destination to its source. */
+internal fun Transmute.localTypeVariableDeclarations(): List<Expression> {
+  val sourceNames =
+      removing.descendantsOfType<Expression>().mapNotNull { expression ->
+        (expression.typeVariableName as? Reference)?.name
+            ?: expression.className.takeIf { expression.simple }
+      }
+  return gaining.descendantsOfType<Expression>().filter {
+    it.typeVariableName is Declaration && it.typeVariableName.name in sourceNames
+  }
+}
 
 /** Declarations belonging to this sequence, excluding declarations owned by nested sequences. */
 internal fun Then.localTypeVariableDeclarations(): List<Expression> = buildList {
-  fun collect(node: PetNode) {
+  fun collect(node: PetNode, excluded: Set<Expression>) {
     if (node is Then) return
-    if (node is Expression && node.typeVariableName is Declaration) add(node)
-    node.immediateChildren().forEach(::collect)
+    val nextExcluded =
+        if (node is Transmute) excluded + node.localTypeVariableDeclarations() else excluded
+    if (node is Expression && node.typeVariableName is Declaration && node !in nextExcluded) {
+      add(node)
+    }
+    node.immediateChildren().forEach { collect(it, nextExcluded) }
   }
 
-  immediateChildren().forEach(::collect)
+  immediateChildren().forEach { collect(it, emptySet()) }
 }
 
 /** The first named declaration beneath an observing requirement, metric, or refinement. */
@@ -107,12 +124,18 @@ internal fun <P : PetNode> resolveTypeVariableNames(
         )
       }
 
-  fun declarationOutsideThen(node: PetNode): Expression? {
+  fun declarationOutsideThen(node: PetNode, excluded: Set<Expression>): Expression? {
     if (node is Then) return null
-    if (node is Expression && node.typeVariableName is Declaration) return node
-    return node.immediateChildren().firstNotNullOfOrNull(::declarationOutsideThen)
+    val nextExcluded =
+        if (node is Transmute) excluded + node.localTypeVariableDeclarations() else excluded
+    if (node is Expression && node.typeVariableName is Declaration && node !in nextExcluded) {
+      return node
+    }
+    return node.immediateChildren().firstNotNullOfOrNull {
+      declarationOutsideThen(it, nextExcluded)
+    }
   }
-  declarationOutsideThen(usageRegion)?.let {
+  declarationOutsideThen(usageRegion, emptySet())?.let {
     throw PetSyntaxException("A Type-variable name must be declared in $declarationLocation: $it")
   }
   return resolveTypeVariableNames(root, declarations, scopeDescription)

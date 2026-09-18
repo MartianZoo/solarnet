@@ -9,15 +9,15 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
+import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.localTypeVariableDeclarations
 import dev.martianzoo.pets.ast.withTypeVariables
 
 /**
- * Returns a transformer that records explicitly named scopes in effects, Actions, and sequences and
- * infers the remaining transmutation and actor scopes. It applies the region, exclusion, and
- * actor-selector rules in
+ * Returns a transformer that records explicit names and the structural choices made by compact
+ * transmutations and actor selectors. It applies the region, exclusion, and actor-selector rules in
  * [rules T13-6 through T13-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
  */
 public fun ClassTable.inferTypeVariables(): PetTransformer =
@@ -44,13 +44,11 @@ public fun ClassTable.inferTypeVariables(): PetTransformer =
                 }
             transformed.withTypeVariables(
                 transformed.typeVariables +
-                    TypeVariableScope.infer(
+                    TypeVariableScope.fromDeclarations(
                         listOf(transformed.trigger, transformed.instruction),
                         this@inferTypeVariables,
-                        explicitDeclarations = actorDeclarations,
+                        unnamedDeclarations = actorDeclarations,
                         namedDeclarations = namedDeclarations,
-                        inferRepeatedExpressions = false,
-                        visibleScope = transformed.typeVariables,
                     )
             )
           }
@@ -66,12 +64,10 @@ public fun ClassTable.inferTypeVariables(): PetTransformer =
                     .orEmpty()
             validateTypeVariableNames(namedDeclarations)
             val localScope =
-                TypeVariableScope.infer(
+                TypeVariableScope.fromDeclarations(
                     listOfNotNull(transformed.cost, transformed.instruction),
                     this@inferTypeVariables,
                     namedDeclarations = namedDeclarations,
-                    inferRepeatedExpressions = false,
-                    visibleScope = transformed.typeVariables,
                 )
             requireSharedAcrossRegions(localScope, "Action")
             transformed.withTypeVariables(transformed.typeVariables + localScope)
@@ -84,25 +80,42 @@ public fun ClassTable.inferTypeVariables(): PetTransformer =
                 }
             validateTypeVariableNames(namedDeclarations)
             val localScope =
-                TypeVariableScope.infer(
+                TypeVariableScope.fromDeclarations(
                     transformed.instructions,
                     this@inferTypeVariables,
                     namedDeclarations = namedDeclarations,
-                    inferRepeatedExpressions = false,
-                    visibleScope = transformed.typeVariables,
                 )
             requireSharedAcrossRegions(localScope, "THEN")
             transformed.withTypeVariables(transformed.typeVariables + localScope)
           }
-          is Instruction.Transmute ->
-              transformed.withTypeVariables(
-                  transformed.typeVariables +
-                      TypeVariableScope.infer(
-                          listOf(transformed.gaining, transformed.removing),
-                          this@inferTypeVariables,
-                          includeRegionRoots = false,
-                      )
-              )
+          is Instruction.Transmute -> {
+            val visibleNames = transformed.typeVariables.variables.mapNotNull { it.name }.toSet()
+            val namedDeclarations =
+                transformed.localTypeVariableDeclarations().filter {
+                  it.typeVariableName!!.name !in visibleNames
+                }
+            validateTypeVariableNames(namedDeclarations)
+            val structuralDeclarations =
+                (transformed.fromEx as? FromExpression.Compact)
+                    ?.arguments
+                    ?.filterIsInstance<FromExpression.Unchanged>()
+                    ?.map(FromExpression.Unchanged::expression)
+                    ?.filter { expression ->
+                      expression.typeVariableName == null &&
+                          resolve(expression).abstract &&
+                          transformed.typeVariables.variableAt(expression) == null
+                    }
+                    .orEmpty()
+            val localScope =
+                TypeVariableScope.fromDeclarations(
+                    listOf(transformed.gaining, transformed.removing),
+                    this@inferTypeVariables,
+                    unnamedDeclarations = structuralDeclarations,
+                    namedDeclarations = namedDeclarations,
+                )
+            requireSharedAcrossRegions(localScope, "Transmutation")
+            transformed.withTypeVariables(transformed.typeVariables + localScope)
+          }
           else -> transformed
         }
       }

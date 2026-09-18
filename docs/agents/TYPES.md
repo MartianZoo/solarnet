@@ -49,10 +49,11 @@ through a variable's bound Type or let interpretation in another Catalog overwri
 
 Explicitly named Action and `THEN` variables survive lowering and queuing. An open variable prevents
 the relevant stages from splitting into independent tasks until an earlier choice supplies its
-value. Within one atomic transmutation,
+value. A full transmutation likewise names a destination choice used by its source. Within a compact
+atomic transmutation,
 `Foo<Same, Here, To FROM From>` is compact syntax for
 `Foo<Same, Here, To> FROM Foo<Same, Here, From>`; each unchanged argument occupies both roles and
-therefore uses one atomic variable.
+therefore uses one structural variable without a repeated-spelling scan.
 
 The [`EACH`](EACH.md) fanout makes its selector a declaration whose scope is its body. Each
 enumerated concrete selector Type substitutes through the recorded use paths. Inside the body, an

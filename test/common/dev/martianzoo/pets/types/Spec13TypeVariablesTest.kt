@@ -13,7 +13,6 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.typeVariablesFor
 import dev.martianzoo.pets.data.Actor
@@ -507,120 +506,104 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-7 a transmutation's regions are its two roles, minus the roots themselves`() {
-    val instruction =
+  internal fun `T13-7 a transmutation names a destination choice used by its source`() {
+    val transmute =
+        resources
+            .inferTypeVariables()
+            .transformInstruction(
+                parse("Receipt<Class<StandardResource AS R>> FROM Production<Class<R>>")
+            ) as Instruction.Transmute
+    val variable = transmute.typeVariables.variables.single()
+
+    variable.name shouldBe cn("R")
+    variable.occurrences.map { "${it.expression}" } shouldContainExactly
+        listOf("StandardResource AS R", "R")
+    transmute.typeVariables
+        .bind(mapOf(variable to resources.resolve(te("Plant"))))
+        .transformInstruction(transmute)
+        .toString() shouldBe "Receipt<Class<Plant>> FROM Production<Class<Plant>>"
+  }
+
+  @Test
+  internal fun `T13-7 repeated transmutation spelling alone declares nothing`() {
+    val transmute =
         resources
             .inferTypeVariables()
             .transformInstruction(
                 parse(
                     "Production<Class<StandardResource>> FROM Production<Class<StandardResource>>"
                 )
-            )
-    val transmute = instruction as Instruction.Transmute
+            ) as Instruction.Transmute
 
-    // The whole gained and removed roots may deliberately differ, so only what is inside counts.
-    names(transmute.typeVariables) shouldContainExactly listOf("Class<StandardResource>")
+    transmute.typeVariables.variables shouldBe listOf()
+  }
+
+  @Test
+  internal fun `T13-7 a compact transmutation structurally shares each unchanged argument`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person { CLASS Alice, Bob }",
+            "ABSTRACT CLASS Side { CLASS Left, Right }",
+            "ABSTRACT CLASS Pair<Person, Side>",
+        )
+    val transmute =
+        table.inferTypeVariables().transformInstruction(parse("Pair<Person, Left FROM Right>"))
+            as Instruction.Transmute
+    val variable = transmute.typeVariables.variables.single()
+
+    variable.occurrences.map { "${it.expression}" } shouldContainExactly listOf("Person", "Person")
+    transmute.typeVariables
+        .bind(mapOf(variable to table.resolve(te("Alice"))))
+        .transformInstruction(transmute)
+        .toString() shouldBe "Pair<Alice, Left FROM Right>"
+  }
+
+  @Test
+  internal fun `T13-3 a transmutation uses a class variable rather than hiding it`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Resource { CLASS A }",
+            "ABSTRACT CLASS Source<Resource>",
+            "ABSTRACT CLASS Destination<Resource>",
+            "CLASS Converter<Resource> { This: Destination<Resource> FROM Source<Resource> }",
+        )
+    val converter = table.getClass(cn("Converter"))
+    val effect = converter.interpretTypeVariablesIn(converter.declaration.effects.single())
+    val transmute = effect.instruction as Instruction.Transmute
+    val variable = converter.typeVariables.single()
+
+    effect.typeVariables.variables shouldBe converter.typeVariables
+    transmute.typeVariables.variables shouldBe listOf()
+    effect.typeVariables
+        .bind(mapOf(variable to table.resolve(te("A"))))
+        .transformEffect(effect)
+        .toString() shouldBe "This: Destination<A> FROM Source<A>"
+  }
+
+  @Test
+  internal fun `T13-7 a transmutation variable name cannot be a Type name`() {
+    shouldThrow<ExpressionException> {
+      resources
+          .inferTypeVariables()
+          .transformInstruction(
+              parse("Receipt<Class<StandardResource AS Plant>> FROM Production<Class<Plant>>")
+          )
+    }
+  }
+
+  @Test
+  internal fun `T13-7 a second inference does not duplicate a named transmutation variable`() {
+    val infer = resources.inferTypeVariables()
+    val once =
+        infer.transformInstruction(
+            parse("Receipt<Class<StandardResource AS R>> FROM Production<Class<R>>")
+        )
+    val twice = infer.transformInstruction(once) as Instruction.Transmute
+
+    names(twice.typeVariables) shouldContainExactly listOf("R")
   }
 
   // T13-8 What does not declare a variable
-
-  @Test
-  internal fun `T13-8 occurrences confined to requirements do not declare`() {
-    val table =
-        loadTypes(
-            "ABSTRACT CLASS Person { CLASS Alice }",
-            "ABSTRACT CLASS Eligible<Person>",
-            "ABSTRACT CLASS Ready<Person>",
-            "CLASS Coin",
-        )
-
-    val regions =
-        listOf<PetNode>(
-            parse<Requirement>("Eligible<Person>"),
-            parse<Requirement>("Ready<Person>"),
-        )
-
-    TypeVariableScope.infer(regions, table).variables shouldBe listOf()
-  }
-
-  @Test
-  internal fun `T13-8 occurrences inside metrics do not declare`() {
-    val table =
-        loadTypes(
-            "ABSTRACT CLASS Person { CLASS Alice }",
-            "ABSTRACT CLASS Score<Person>",
-            "ABSTRACT CLASS Value<Person>",
-            "CLASS Coin",
-        )
-
-    val regions =
-        listOf<PetNode>(
-            parse<Metric>("Score<Person>"),
-            parse<Metric>("Value<Person>"),
-        )
-
-    TypeVariableScope.infer(regions, table).variables shouldBe listOf()
-  }
-
-  @Test
-  internal fun `T13-8 occurrences inside refinements do not declare`() {
-    val table =
-        loadTypes(
-            "ABSTRACT CLASS Person : Owner { CLASS Alice }",
-            "ABSTRACT CLASS Notice<Owner>",
-            "ABSTRACT CLASS Receipt<Component>",
-        )
-
-    val regions =
-        listOf<PetNode>(
-            parse<Expression>("Owner(NOT Person)").refinement!!,
-            parse<Expression>("Component(NOT Person)").refinement!!,
-        )
-
-    TypeVariableScope.infer(regions, table).variables shouldBe listOf()
-  }
-
-  @Test
-  internal fun `T13-8 recognition prefers the largest repeated expression`() {
-    val table =
-        loadTypes(
-            "CLASS Player1 : Owner",
-            "ABSTRACT CLASS CardFront : Owned<Owner>",
-            "ABSTRACT CLASS Notice<CardFront>",
-        )
-
-    // `CardFront<Owner>` repeats, so the nested `Owner` text does not declare its own variable.
-    val scope =
-        TypeVariableScope.infer(
-            listOf<PetNode>(
-                parse<Expression>("CardFront<Owner>"),
-                parse<Expression>("Notice<CardFront<Owner>>"),
-            ),
-            table,
-        )
-    names(scope) shouldContainExactly listOf("CardFront<Owner>")
-  }
-
-  @Test
-  internal fun `T13-8 the authored spelling is the variable's surface name`() {
-    val table =
-        loadTypes(
-            "ABSTRACT CLASS Area { CLASS Tharsis_2_2 }",
-            "ABSTRACT CLASS Tile<Area>",
-            "ABSTRACT CLASS Notice<Tile>",
-        )
-
-    // `Tile` and `Tile<Area>` resolve alike but are different authored names.
-    val scope =
-        TypeVariableScope.infer(
-            listOf<PetNode>(
-                parse<Expression>("Tile"),
-                parse<Expression>("Notice<Tile<Area>>"),
-            ),
-            table,
-        )
-    scope.variables shouldBe listOf()
-  }
 
   @Test
   internal fun `T13-8 an EACH selector declares its own variable, never a header one`() {
@@ -681,61 +664,6 @@ internal class Spec13TypeVariablesTest {
         .bind(mapOf(choice to table.resolve(te("Alice"))))
         .transformEffect(inferred)
         .toString() shouldBe "This: Eligible<Alice>: Coin<Alice> THEN Receipt<Alice>"
-  }
-
-  @Test
-  internal fun `T13-8 an earlier stage cannot observe a variable declared by a later stage`() {
-    val table =
-        loadTypes(
-            "ABSTRACT CLASS Person : Owner { CLASS Alice }",
-            "ABSTRACT CLASS Eligible<Person>",
-            "ABSTRACT CLASS Score<Person>",
-            "ABSTRACT CLASS Notice<Owner>",
-            "ABSTRACT CLASS Receipt<Person>",
-            "CLASS Coin",
-        )
-
-    listOf(
-            listOf<PetNode>(
-                parse<Requirement>("Eligible<Person>"),
-                parse<Expression>("Receipt<Person>"),
-            ),
-            listOf<PetNode>(
-                parse<Metric>("Score<Person>"),
-                parse<Expression>("Receipt<Person>"),
-            ),
-            listOf<PetNode>(
-                parse<Expression>("Owner(NOT Person)").refinement!!,
-                parse<Expression>("Receipt<Person>"),
-            ),
-        )
-        .forEach { regions ->
-          TypeVariableScope.infer(regions, table).variables shouldBe listOf()
-        }
-  }
-
-  @Test
-  internal fun `T13-8 authored argument order does not make one enclosing variable`() {
-    val table =
-        loadTypes(
-            "ABSTRACT CLASS Area { CLASS Tharsis_2_2 }",
-            "ABSTRACT CLASS Person { CLASS Alice }",
-            "ABSTRACT CLASS Duo<Area, Person>",
-            "ABSTRACT CLASS Notice<Component>",
-            "ABSTRACT CLASS Token<Component>",
-        )
-
-    // `Duo<Area, Person>` and `Duo<Person, Area>` are different authored names, so the shared
-    // variables are the two inner ones.
-    val scope =
-        TypeVariableScope.infer(
-            listOf<PetNode>(
-                parse<Expression>("Notice<Duo<Area, Person>>"),
-                parse<Expression>("Token<Duo<Person, Area>>"),
-            ),
-            table,
-        )
-    names(scope).toSet() shouldBe setOf("Area", "Person")
   }
 
   // T13-9 Actor selectors
@@ -922,7 +850,11 @@ internal class Spec13TypeVariablesTest {
     val authored = parse<Expression>("Container<Box<Person>>")
     val person = authored.arguments.single().arguments.single()
     val scope =
-        TypeVariableScope.infer(listOf(authored), table, explicitDeclarations = listOf(person))
+        TypeVariableScope.fromDeclarations(
+            listOf(authored),
+            table,
+            unnamedDeclarations = listOf(person),
+        )
 
     scope
         .bindingsFrom(
@@ -945,7 +877,11 @@ internal class Spec13TypeVariablesTest {
     val authored = parse<Expression>("Container<Box<Person>>")
     val person = authored.arguments.single().arguments.single()
     val scope =
-        TypeVariableScope.infer(listOf(authored), table, explicitDeclarations = listOf(person))
+        TypeVariableScope.fromDeclarations(
+            listOf(authored),
+            table,
+            unnamedDeclarations = listOf(person),
+        )
 
     scope.bindingsFrom(
         authored,
@@ -964,7 +900,11 @@ internal class Spec13TypeVariablesTest {
     val authored = parse<Expression>("Pair<Person, Person>")
     val person = authored.arguments.first()
     val scope =
-        TypeVariableScope.infer(listOf(authored), table, explicitDeclarations = listOf(person))
+        TypeVariableScope.fromDeclarations(
+            listOf(authored),
+            table,
+            unnamedDeclarations = listOf(person),
+        )
 
     shouldThrow<IllegalStateException> {
       scope.bindingsFrom(

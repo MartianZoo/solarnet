@@ -407,7 +407,7 @@
           "name": "KaguyaTech",
           "cost": 10,
           "tags": [ "CityTag", "PlantTag" ],
-          "immediate": "PROD[2 MC], ProjectCard, CityTile<MarsArea> FROM GreeneryTile<MarsArea>",
+          "immediate": "PROD[2 MC], ProjectCard, CityTile<MarsArea AS ThatArea> FROM GreeneryTile<ThatArea>",
         },
         {
           "name": "LawSuit",

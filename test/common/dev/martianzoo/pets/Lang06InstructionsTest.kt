@@ -415,4 +415,38 @@ internal class Lang06InstructionsTest {
     shouldThrow<PetSyntaxException> { parse<Instruction>("Plant / Steel AS P THEN P") }
     shouldThrow<PetSyntaxException> { parse<Instruction>("Plant(NOT Steel AS S) THEN S") }
   }
+
+  // L6-16 named Type variables across a transmutation
+
+  @Test
+  internal fun `L6-16 a transmutation destination can name a Type used by its source`() {
+    roundTrip<Instruction>("Foo<Plant AS P> FROM Bar<P>")
+    roundTrip<Effect>("Foo: Bar<Plant AS P> FROM Baz<P>")
+    roundTrip<Action>("Foo -> Bar<Plant AS P> FROM Baz<P>")
+    roundTrip<Instruction>("Foo<Plant AS P> FROM Bar<P> THEN Baz<Heat AS P> FROM Qux<P>")
+  }
+
+  @Test
+  internal fun `L6-16 an enclosing sequence can own a name declared inside a transmutation`() {
+    roundTrip<Instruction>("Foo FROM Bar<Plant AS P> THEN P")
+  }
+
+  @Test
+  internal fun `L6-16 a transmutation name must be declared in its destination and used`() {
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Foo<P> FROM Bar<Plant AS P>") }
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Foo<Plant AS P> FROM Bar") }
+    shouldThrow<PetSyntaxException> {
+      parse<Instruction>("Foo<Plant AS P, Heat AS P> FROM Bar<P>")
+    }
+    shouldThrow<PetSyntaxException> {
+      parse<Instruction>("Foo<Plant AS P> FROM Bar<P> THEN P")
+    }
+  }
+
+  @Test
+  internal fun `L6-16 an observing expression cannot declare a transmutation variable`() {
+    shouldThrow<PetSyntaxException> {
+      parse<Instruction>("Foo(HAS Baz<Plant AS P>) FROM Bar<P>")
+    }
+  }
 }

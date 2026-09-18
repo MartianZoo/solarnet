@@ -292,8 +292,8 @@ shadow:
 | `X` | one open amount | one instruction, across the stages of a `THEN` (L6-14) |
 | an `EACH` or `RANK` selector | each selected component | that construct's body, shadowing an enclosing spelling (L6-10, L5-9) |
 | a refinement's domain | the candidate | that refinement (T8-3) |
-| `Type AS Name` in an Effect trigger, `THEN`, or Action cost | one shared choice | that Effect, sequence, or Action (L6-15, L8-12, L9-8, T13-6) |
-| a repeated abstract expression in a transmutation | one shared choice | that transmutation's two sides (T13-7) |
+| `Type AS Name` in an Effect trigger, `THEN`, Action cost, or transmutation destination | one shared choice | that Effect, sequence, Action, or transmutation (L6-15, L6-16, L8-12, L9-8, T13-6) |
+| an unchanged argument in compact `FROM` syntax | one shared choice | that transmutation's two sides (L6-12, T13-7) |
 
 > **Non-normative example — generated special tiles.** `MiningRights_SpecialTile` must be referable
 > later by that exact global name when its placement bonus is inspected. Lexical scoping would make
@@ -370,7 +370,7 @@ why the type system, not the syntax, is the authority on identity (T5-1).
 `Name` in that scope then denotes the complete declared expression. The name has the class-name
 shape from L2-1, so one letter is enough, but it must not be a Type name in the Catalog. A reference
 is bare: it cannot have arguments or a refinement. The enclosing construct determines where the
-declaration and its uses may occur (L6-15, L8-12, L9-8).
+declaration and its uses may occur (L6-15, L6-16, L8-12, L9-8).
 
 ---
 
@@ -655,7 +655,8 @@ not nest, and a concrete selector is rejected where the fanout is resolved again
 
 **L6-12. A transmutation may be written compactly when both sides share a class.**
 `Foo<Same, Here, To FROM From>` is `Foo<Same, Here, To> FROM Foo<Same, Here, From>`. Exactly one
-argument may change; the unchanged ones occupy both roles.
+argument may change; each unchanged argument is one structural slot occupying both roles, so any
+open choice within it must take the same value on both sides.
 
 > **Non-normative example — Air Raid.** `5 MC<Owner FROM Anyone>` transfers five MC by changing only
 > the ownership argument. Compact transmutation preserves the resource class and amount on both
@@ -695,6 +696,16 @@ Type without naming it does not link the stages.
 > `CityTile<> AS City THEN GreeneryTile<LandArea(HAS Neighbor<City>)>` makes the greenery adjacent
 > to the city just placed. By contrast, `ProjectCard THEN -ProjectCard` draws a card and then
 > discards an independently chosen card; repetition alone does not couple them.
+
+**L6-16. A full transmutation names any Type choice shared by its two sides explicitly.** The
+gained, or destination, side declares `Type AS Name`; a bare `Name` on the removed, or source, side
+uses that choice. The pair is settled atomically. Repeating an unnamed Type on the two sides does
+not link them. A name declared inside a transmutation may instead belong to an enclosing `THEN`
+sequence when that enclosing scope uses it.
+
+> **Non-normative example — Kaguya Tech.**
+> `CityTile<MarsArea AS ThatArea> FROM GreeneryTile<ThatArea>` replaces a greenery with a city in
+> that same area. Without the name, the source and destination areas are independent choices.
 
 ---
 
@@ -777,8 +788,8 @@ never a way to do nothing. Declining belongs to `?` and `Ok` (L7-4).
 
 **L7-8. A shared type variable takes one value everywhere it appears.** Narrowing a sequence,
 action, or transmutation with a shared variable must supply one consistent value for it (T13-7); two
-different values are rejected. A sequence or Action declares that variable with `AS` (L6-15,
-L9-8), while a transmutation still infers it from repetition.
+different values are rejected. A sequence, Action, or full transmutation declares that variable
+with `AS` (L6-15, L6-16, L9-8); compact `FROM` structurally shares its unchanged arguments (L6-12).
 
 > **Non-normative example — Utopia Invest.**
 > `PROD[StandardResource AS ThatResource] -> 4 ThatResource` means reduce one chosen production

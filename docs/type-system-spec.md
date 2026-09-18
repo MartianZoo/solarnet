@@ -1169,10 +1169,10 @@ written.
 A variable's identity is its declaration and scope — never its class name. `Player` can name several
 unrelated variables in different rules.
 
-There are three sources of a shared choice: a class header declares one (T13-2 to T13-5), an Effect,
-`THEN` sequence, or Action names one explicitly (T13-6, T13-7), or a transmutation repeats one across
-places that must agree (T13-7 to T13-9). A trigger supplies the concrete value when it matches; `BY`
-is one place that value can come from.
+There are three sources of a shared choice: a class header declares one (T13-2 to T13-5), a local
+construct names one explicitly (T13-6, T13-7), or a binder such as a compact transmutation slot or
+actor selector establishes one structurally (T13-7 to T13-9). A trigger supplies the concrete value
+when it matches; `BY` is one place that value can come from.
 
 Three properties hold of all three sources, and most of the rules below are consequences of them:
 
@@ -1181,10 +1181,10 @@ Three properties hold of all three sources, and most of the rules below are cons
    counts, and a refinement only look at what is there. Choosing and matching occurrences can
    introduce a variable. An observing occurrence never does — it ranges over whatever matches it —
    though it happily *uses* a variable already introduced elsewhere.
-2. **Repetition does not shadow.** Where a variable is already visible, a repeated spelling is one
-   more occurrence of it, never a new variable hiding it. Only an explicit binder — an `EACH` or
-   `RANK` selector, or the represented class inside a refined class literal — introduces a name of
-   its own over an enclosing one.
+2. **A local declaration does not shadow.** Where a variable is already visible, the same name uses
+   it rather than declaring another variable. Structural binders — an `EACH` or `RANK` selector, a
+   compact transmutation's unchanged slot, or the represented class inside a refined class literal
+   — establish identity without comparing Type spelling.
 
 3. **Inheritance passes values, not names.** A subclass does not see its superclass's header
    variables by spelling; it receives their values when a component fixes them (T13-4, T13-5).
@@ -1266,56 +1266,49 @@ Repeating an abstract expression without `AS` does not declare an Effect variabl
 instruction leaves the Effect's lexical scope, its references have already been expanded to the
 chosen structural Type.
 
-**T13-7. Other construct-local variables.** An Action or `THEN` sequence declares a shared choice
-explicitly with `Type AS Name` in its earlier choosing region and uses the bare `Name` in its later
-region. Repeating an unnamed Type does not link the regions. A transmutation still infers a variable
-when an abstract expression's identical spelling appears on both sides.
+**T13-7. Other construct-local variables.** An Action, `THEN` sequence, or full transmutation
+declares a shared choice explicitly with `Type AS Name` in the region that supplies it and uses the
+bare `Name` in the other region. Repeating an unnamed Type does not link the regions.
 
 | Construct | Declaration | Regions |
 | --- | --- | --- |
 | Action | `Type AS Name` and bare `Name` | the cost; the result |
 | `THEN` sequence | `Type AS Name` and bare `Name` | each stage |
-| Transmutation (`A FROM B`) | identical spelling | the gained side; the removed side — but *not* the two whole roots |
+| Full transmutation (`A FROM B`) | `Type AS Name` in the gained side; bare `Name` in the removed side | the gained side; the removed side |
 
 The first two are settlement sites: parts of one rule that are settled separately, and across
 which "the same one" is worth saying. An action's two regions are the two stages its arrow lowers to
 (L9-2), and `X` is shared across exactly these same regions (L6-14).
 
-A transmutation is not like that — its two sides are settled together, as one atomic pair — and its
-row is here for a different reason, the same one that makes L6-12's compact form work: a
-transmutation states what changes, so what it repeats is what it keeps. In
-`Production<Class<X>> FROM Production<Class<X>>` the shared variable is `Class<X>`, not the whole
-production, because the whole production is what the change is replacing.
+A transmutation is not like the first two: its sides are settled together as one atomic pair. Its
+left, gained side declares a shared choice and its right, removed side uses it. Compact `FROM` syntax
+needs no name for unchanged arguments: each is one AST slot used by both roles, so its identity is
+structural rather than inferred from two spellings.
 
 > **Non-normative example — Market Manipulation.** `ColonyProduction FROM ColonyProduction` moves
-> one step from one colony to another. If the two whole roots declared one variable, source and
-> destination would be forced to the same track and the card would cancel itself; only repeated
-> proper subexpressions are equality claims.
+> one step from one colony to another. The repeated roots are independent choices; linking them
+> would force the same track and make the card cancel itself.
 
-> **Non-normative design note — where spelling remains.** Transmutations retain the physical icon
-> grammar's repeated “same one” shorthand. Requiring the *same authored spelling* keeps that claim
-> visible: resolution and default insertion cannot silently join differently written icons.
-> Sequences and Actions can separate their choices across independently settled stages, so they
-> require a name.
+> **Non-normative example — Kaguya Tech.**
+> `CityTile<MarsArea AS ThatArea> FROM GreeneryTile<ThatArea>` explicitly preserves the selected
+> Mars area while changing its tile. The declaration is on the left, where a reader first encounters
+> the shared choice.
 
-**T13-8. Where repetition does not introduce another variable.** Repetition is evidence of one
-shared choice only where the occurrences can be settled by that choice. The cases below introduce no
-additional variable; none of them hides a variable already visible, which a repeated spelling only
-ever uses.
+**T13-8. What does not declare a variable.** Repeated Type spelling never declares a construct-local
+variable. The cases below introduce no additional variable and do not hide one already visible.
 
-| Repetition | Why not |
+| Occurrence | Why not |
 | --- | --- |
-| Occurrences confined to requirements | a requirement observes candidates, it does not choose one |
-| Occurrences inside a metric | a count ranges over a domain rather than picking one member |
-| An occurrence inside a refinement | a refinement tests a candidate chosen or matched outside it |
-| A nested repeat inside a larger repeat | recognition prefers the largest repeated expression, so repeating `CardFront<Owner>` does not also infer an `Owner` variable |
-| A different authored spelling | `Tile` and `Tile<Area>` resolve alike but are different names; likewise `Duo<Area, Person>` and `Duo<Person, Area>` |
+| Any unnamed repetition in a local construct | equality of text does not assert one shared choice |
+| A declaration inside a requirement | a requirement observes candidates, it does not choose one |
+| A declaration inside a metric | a count ranges over a domain rather than picking one member |
+| A declaration inside a refinement | a refinement tests a candidate chosen or matched outside it |
 | An `EACH` selector and any body text naming it | the fanout declares its own variable for its body |
 | A concrete expression, or `This` | there is no open choice to bind |
 
-The first three rows are the observing case of the section's first property: an occurrence that only
-looks never introduces, but does use a variable whose choice is available in the same settlement
-region or an earlier one. That is why the gate in
+The three observing rows are the first property above: an occurrence that only looks never
+introduces, but may use a variable whose choice is available in the same settlement region or an
+earlier one. That is why the gate in
 `(Eligible<Choice>: Coin<Person AS Choice>) THEN Receipt<Choice>` speaks about the same person the
 stages choose, rather than ranging over people of its own.
 

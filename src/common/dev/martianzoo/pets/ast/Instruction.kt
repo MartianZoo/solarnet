@@ -254,8 +254,8 @@ public sealed class Instruction : InstructionTree() {
    * See [FromExpression] for the compact spelling available when both sides share a class ([rule
    * L6-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
    *
-   * Because both sides may repeat one abstract expression, narrowing a transmutation must supply a
-   * single consistent value for each shared type variable ([rule
+   * A destination expression may explicitly name a choice used by the source. Narrowing must supply
+   * a single consistent value for each such type variable ([rule
    * L7-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
    */
   public data class Transmute(
@@ -286,6 +286,21 @@ public sealed class Instruction : InstructionTree() {
         super.safeToNestIn(container) && (fromEx !is Full || container !is Or)
 
     override fun precedence(): Int = if (fromEx is Full) 7 else 10
+
+    internal companion object {
+      fun resolveTypeVariableNames(transmute: Transmute): Transmute {
+        transmute.gaining.observingTypeVariableDeclaration()?.let {
+          throw PetSyntaxException(
+              "A Type-variable name cannot be declared in an observing expression: $it"
+          )
+        }
+        return dev.martianzoo.pets.ast.resolveTypeVariableNames(
+            transmute,
+            transmute.localTypeVariableDeclarations(),
+            "A transmutation",
+        )
+      }
+    }
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       super.ensureIsNarrowedBy(proposed, info)
@@ -830,6 +845,36 @@ public sealed class Instruction : InstructionTree() {
           )
         }
         val declarations = then.localTypeVariableDeclarations()
+        then.descendantsOfType<Transmute>().forEach { transmute ->
+          transmute.localTypeVariableDeclarations().forEach { declaration ->
+            val name = declaration.typeVariableName!!.name
+            fun usedOutside(node: PetNode): Boolean {
+              if (node === transmute) return false
+              if (
+                  node is Transmute &&
+                      node.localTypeVariableDeclarations().any {
+                        it.typeVariableName!!.name == name
+                      }
+              ) {
+                return false
+              }
+              if (
+                  node is Expression &&
+                      node.typeVariableName !is Expression.TypeVariableName.Declaration &&
+                      (node.typeVariableName?.name == name ||
+                          (node.typeVariableName == null && node.simple && node.className == name))
+              ) {
+                return true
+              }
+              return node.immediateChildren().any(::usedOutside)
+            }
+            if (usedOutside(then)) {
+              throw PetSyntaxException(
+                  "Type-variable $name cannot be used outside its transmutation"
+              )
+            }
+          }
+        }
         val localNames = declarations.mapTo(mutableSetOf()) { it.typeVariableName!!.name }
         then
             .descendantsOfType<Expression>()
@@ -1032,7 +1077,7 @@ public sealed class Instruction : InstructionTree() {
                 FromExpression.parser() and
                 optional(quantifier) map
                 { (scalar, fro, int) ->
-                  Transmute(fro, scalar ?: ActualScalar(1), int)
+                  Transmute.resolveTypeVariableNames(Transmute(fro, scalar ?: ActualScalar(1), int))
                 }
 
         val perable: Parser<Instruction> = transmute or group(transmute) or gain or remove

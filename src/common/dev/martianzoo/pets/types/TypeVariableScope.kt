@@ -4,7 +4,6 @@ import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.GameReader
-import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
@@ -359,20 +358,16 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
       return if (entries.isEmpty()) EMPTY else TypeVariableScope(entries)
     }
 
-    fun infer(
+    fun fromDeclarations(
         regions: List<PetNode>,
         classTable: ClassTable,
-        includeRegionRoots: Boolean = true,
-        explicitDeclarations: List<Expression> = emptyList(),
+        unnamedDeclarations: List<Expression> = emptyList(),
         namedDeclarations: List<Expression> = emptyList(),
-        inferRepeatedExpressions: Boolean = true,
-        visibleScope: TypeVariableScope = EMPTY,
     ): TypeVariableScope {
       data class Found(
           val expression: Expression,
           val region: Int,
           val ordinal: Int,
-          val ancestors: Set<Expression>,
           val observing: Boolean,
       )
 
@@ -381,19 +376,15 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         fun collect(
             node: PetNode,
             region: Int,
-            ancestors: Set<Expression>,
             observing: Boolean,
-            regionRoot: Boolean,
         ) {
           val expression = node as? Expression
-          val nextAncestors = expression?.let { ancestors + it } ?: ancestors
-          if (expression != null && (includeRegionRoots || !regionRoot)) {
+          if (expression != null) {
             add(
                 Found(
                     expression,
                     region,
                     ordinal++,
-                    ancestors,
                     observing,
                 )
             )
@@ -403,15 +394,13 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
             collect(
                 child,
                 region,
-                nextAncestors,
                 childrenObserve,
-                false,
             )
           }
         }
 
         regions.forEachIndexed { index, region ->
-          collect(region, index, emptySet(), false, true)
+          collect(region, index, false)
         }
       }
 
@@ -421,12 +410,11 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         return classTable.resolve(expression.copy(refinement = nonStructuralRefinement))
       }
 
-      val allExplicitDeclarations = explicitDeclarations + namedDeclarations
-      val explicitIdentities = allExplicitDeclarations
-      val explicitEntries =
-          allExplicitDeclarations
+      val declarations = unnamedDeclarations + namedDeclarations
+      val entries =
+          declarations
               .map { expression ->
-                val declaration = occurrences.single { it.expression === expression }
+                val declaration = occurrences.first { it.expression === expression }
                 if (declaration.observing) {
                   throw ExpressionException(
                       "A Type variable cannot be declared in an observing expression: $expression"
@@ -438,8 +426,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
                         .filter { found ->
                           found !== declaration &&
                               if (declaredName == null) {
-                                inferRepeatedExpressions &&
-                                    found.expression.sameAuthoredTypeExpressionAs(expression)
+                                found.expression === expression
                               } else {
                                 (found.expression.typeVariableName as? Reference)?.name ==
                                     declaredName
@@ -472,65 +459,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
                 Entry(variable, variable.occurrences.associateWith { it.expression })
               }
               .sortedBy { it.variable.declaration.ordinal }
-
-      val grouped =
-          occurrences
-              .filter { it.expression.typeVariableName == null }
-              .filterNot { found ->
-                explicitIdentities.any(found.expression::sameAuthoredTypeExpressionAs)
-              }
-              .filterNot { visibleScope.variableAt(it.expression) != null }
-              .groupBy { it.expression.toString() }
-      val repeatedCandidates =
-          grouped
-              .filter { (_, found) ->
-                val declaration = found.firstOrNull { !it.observing }
-                val source = declaration?.expression ?: return@filter false
-                source.className != THIS &&
-                    runCatching { classTable.resolve(source).abstract }.getOrDefault(false) &&
-                    found.map(Found::region).distinct().size >= 2 &&
-                    found.none { it.observing && it.region < declaration.region }
-              }
-              .toList()
-              .sortedBy { (_, found) -> found.minOf { it.ancestors.size } }
-      val candidates = if (inferRepeatedExpressions) repeatedCandidates else emptyList()
-
-      val selected = linkedSetOf<String>()
-      val entries = buildList {
-        for ((_, found) in candidates) {
-          val source = found.first().expression
-          if (found.all { occurrence -> occurrence.ancestors.any { it.toString() in selected } }) {
-            continue
-          }
-          selected += source.toString()
-
-          val ordered = found.sortedBy(Found::ordinal)
-          val declarationFound = ordered.first { !it.observing }
-          val usages = ordered.filterNot { it === declarationFound }
-          val type = interpretedGroundType(declarationFound)
-          val variable =
-              TypeVariable(
-                  type,
-                  Site(
-                      declarationFound.expression,
-                      declarationFound.region,
-                      declarationFound.ordinal,
-                      interpretedGroundType = type,
-                  ),
-                  usages.map { occurrence ->
-                    Site(
-                        occurrence.expression,
-                        occurrence.region,
-                        occurrence.ordinal,
-                        interpretedGroundType = interpretedGroundType(occurrence),
-                    )
-                  },
-              )
-          add(Entry(variable, variable.occurrences.associateWith { it.expression }))
-        }
-      }
-      val allEntries = explicitEntries + entries
-      return if (allEntries.isEmpty()) EMPTY else TypeVariableScope(allEntries)
+      return if (entries.isEmpty()) EMPTY else TypeVariableScope(entries)
     }
   }
 }

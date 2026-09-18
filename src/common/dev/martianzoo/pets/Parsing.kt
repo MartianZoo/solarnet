@@ -166,6 +166,26 @@ public object Parsing {
   }
 
   private fun rejectUnsupportedSyntax(parsed: Any?) {
+    if (parsed is PetNode) {
+      val references =
+          parsed
+              .descendantsOfType<Expression>()
+              .mapNotNull {
+                (it.typeVariableName as? Expression.TypeVariableName.Reference)?.name
+              }
+              .toSet()
+      parsed
+          .descendantsOfType<Expression>()
+          .firstOrNull {
+            it.typeVariableName is Expression.TypeVariableName.Declaration &&
+                it.typeVariableName.name !in references
+          }
+          ?.let {
+            throw PetSyntaxException(
+                "Type-variable ${it.typeVariableName!!.name} is declared but never used"
+            )
+          }
+    }
     when (parsed) {
       is ClassDeclaration -> parsed.allNodes.forEach(::rejectUnsupportedSyntax)
       is Effect,
@@ -176,12 +196,12 @@ public object Parsing {
           }
       is PetNode -> {
         fun check(node: PetNode, insideThen: Boolean) {
-          val namedScope = insideThen || node is Instruction.Then
+          val namedScope = insideThen || node is Instruction.Then || node is Instruction.Transmute
           (node as? Expression)?.let { expression ->
             ScaledExpression.rejectIfDenominationless(expression)
             if (expression.typeVariableName != null && !namedScope) {
               throw PetSyntaxException(
-                  "Type-variable names are currently supported only within Effects, Actions, or THEN sequences"
+                  "Type-variable names are currently supported only within Effects, Actions, THEN sequences, or transmutations"
               )
             }
           }
