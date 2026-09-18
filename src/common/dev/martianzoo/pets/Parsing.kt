@@ -187,7 +187,10 @@ public object Parsing {
           }
     }
     when (parsed) {
-      is ClassDeclaration -> parsed.allNodes.forEach(::rejectUnsupportedSyntax)
+      is ClassDeclaration ->
+          (parsed.allNodes - parsed.dependencies.toSet() - parsed.supertypes).forEach(
+              ::rejectUnsupportedSyntax
+          )
       is Effect,
       is Action ->
           parsed.visitDescendants {

@@ -33,8 +33,8 @@ ABSTRACT CLASS Card : Owned<Player> {
   }
 
   "A card in your played-events pile"
-  CLASS PlayedEvent<Class<CardFront>> {
-    End: ScoreEventVps<Class<CardFront>>
+  CLASS PlayedEvent<Class<CardFront AS ThatCard>> {
+    End: ScoreEventVps<Class<ThatCard>>
   }
 }
 
@@ -51,9 +51,9 @@ CLASS BuySelectedCards : Owned<Player>, Signal {
 
 CLASS BuyCard : Owned<Player>, Signal
 
-CLASS PlayCard<Class<CardBack>, Class<CardFront>, CardLocation> : Owned<Player>, Signal {
-  This:: (EVAL CardFront<Class<CardBack>>.requirement: Ok) OR AdjustGpRequirement<Class<CardFront>>
-  This: Owed<> / CardFront.cost THEN HandleCardTags<Class<CardFront>> THEN CardBilling<Class<CardFront>> THEN MAX 0 Barrier: CardFront FROM CardBack<CardLocation>
+CLASS PlayCard<Class<CardBack AS Back>, Class<CardFront AS Front>, CardLocation AS Location> : Owned<Player>, Signal {
+  This:: (EVAL Front<Class<Back>>.requirement: Ok) OR AdjustGpRequirement<Class<Front>>
+  This: Owed<> / Front.cost THEN HandleCardTags<Class<Front>> THEN CardBilling<Class<Front>> THEN MAX 0 Barrier: Front FROM Back<Location>
 }
 
 "Signals that a printed global-parameter requirement produced a shortfall ready for adjustment"
@@ -86,9 +86,9 @@ ABSTRACT CLASS CardLocation : System {
 }
 
 "Resets a transient card location after all current work finishes"
-CLASS CardLocationCleanup<CardLocation> : Temporary, Hidden {
+CLASS CardLocationCleanup<CardLocation AS Location> : Temporary, Hidden {
   HAS MAX 1 This
-  -This:: -CardLocation!
+  -This:: -Location!
 }
 
 "Anything that can hold tags"

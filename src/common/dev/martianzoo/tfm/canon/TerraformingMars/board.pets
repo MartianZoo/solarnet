@@ -153,16 +153,16 @@ CLASS StandardGpTrackRules : System {
 CLASS GpIncomplete<Class<GlobalParameter>> : Hidden { HAS MAX 1 This }
 
 "Records that a particular global parameter track has reached its maximum"
-CLASS GpComplete<Class<GlobalParameter>> : Hidden {
+CLASS GpComplete<Class<GlobalParameter AS ThatParam> AS ParamClass> : Hidden {
   HAS MAX 1 This
-  This:: -GpIncomplete<Class<GlobalParameter>>!
-  -GlobalParameter:: Die
+  This:: -GpIncomplete<ParamClass>!
+  -ThatParam:: Die
 }
 
 "A required global parameter that has not yet reached its maximum"
-CLASS GpGameEndBarrier<Class<GlobalParameter>> : GameEndBarrier, System {
+CLASS GpGameEndBarrier<Class<GlobalParameter> AS ParamClass> : GameEndBarrier, System {
   HAS MAX 1 This
-  GpComplete<Class<GlobalParameter>>:: -This!
+  GpComplete<ParamClass>:: -This!
 }
 
 "Asks its owning Player to choose one mandatory global-parameter increase performed by Admin"

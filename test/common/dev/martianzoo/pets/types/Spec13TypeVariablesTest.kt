@@ -5,6 +5,7 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -49,7 +50,7 @@ internal class Spec13TypeVariablesTest {
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
             "ABSTRACT CLASS Token<Person>",
-            "ABSTRACT CLASS Badge<Person> { This: Token<Person> }",
+            "ABSTRACT CLASS Badge<Person AS P> { This: Token<P> }",
         )
     val variable = table.getClass(cn("Badge")).typeVariables.single()
 
@@ -61,7 +62,7 @@ internal class Spec13TypeVariablesTest {
     variable.abstract shouldBe true
     variable.isSubtypeOf(table.resolve(te("Person"))) shouldBe true
     table.resolve(te("Alice")).isSubtypeOf(variable) shouldBe true
-    "${variable.expression}" shouldBe "Person"
+    "${variable.expression}" shouldBe "Person AS P"
   }
 
   @Test
@@ -70,14 +71,14 @@ internal class Spec13TypeVariablesTest {
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
             "ABSTRACT CLASS Token<Person>",
-            "ABSTRACT CLASS Badge<Person> { This: Token<Person> }",
+            "ABSTRACT CLASS Badge<Person AS P> { This: Token<P> }",
         )
     val variable = table.getClass(cn("Badge")).typeVariables.single()
 
     variable.occurrences shouldBe listOf(variable.declaration) + variable.usages
     variable.declaration.typeVariable shouldBe variable
     variable.usages.single().typeVariable shouldBe variable
-    variable.occurrences.map { "${it.expression}" } shouldContainExactly listOf("Person", "Person")
+    variable.occurrences.map { "${it.expression}" } shouldContainExactly listOf("Person AS P", "P")
     variable.occurrences.map { it.ordinal } shouldBe listOf(0, 1)
   }
 
@@ -169,7 +170,7 @@ internal class Spec13TypeVariablesTest {
             """
             ABSTRACT CLASS Person { CLASS Alice }
             ABSTRACT CLASS Token<Person>
-            ABSTRACT CLASS Holder<Person> { This: Token<Person> }
+            ABSTRACT CLASS Holder<Person AS P> { This: Token<P> }
             """
         )
     val secondCatalog =
@@ -231,40 +232,71 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-3 header text repeated in the class's own effects is a use`() {
+  internal fun `T13-3 a named header variable is visible in the class's own effects`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
             "ABSTRACT CLASS Box<Person>",
             "ABSTRACT CLASS Token<Box<Person>>",
-            "ABSTRACT CLASS Holder<Box<Person>> { This: Token<Box> }",
+            "ABSTRACT CLASS Holder<Box<Person> AS HeldBox> { This: Token<HeldBox> }",
         )
     val holder = table.getClass(cn("Holder"))
     val effect = holder.interpretTypeVariablesIn(holder.declaration.effects.single())
 
-    names(effect.typeVariables) shouldContainExactly listOf("Box<Person>")
+    names(effect.typeVariables) shouldContainExactly listOf("HeldBox")
   }
 
   @Test
-  internal fun `T13-3 a simple header variable may head an occurrence that adds arguments`() {
+  internal fun `T13-3 a header variable reference may appear inside another expression`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
             "ABSTRACT CLASS Box<Person>",
-            "ABSTRACT CLASS Holder<Person> { This: Box<Person> }",
+            "ABSTRACT CLASS Holder<Person AS P> { This: Box<P> }",
         )
     val variable = table.getClass(cn("Holder")).typeVariables.single()
 
-    variable.occurrences.map { "${it.expression}" } shouldContainExactly listOf("Person", "Person")
+    variable.occurrences.map { "${it.expression}" } shouldContainExactly listOf("Person AS P", "P")
   }
 
   @Test
-  internal fun `T13-3 an effect use that could name two header variables is rejected`() {
+  internal fun `T13-3 repeated header spelling in a body is not linked`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person",
+            "ABSTRACT CLASS Independent<Person> { This: Person }",
+        )
+
+    table.getClass(cn("Independent")).typeVariables.single().usages shouldBe emptyList()
+  }
+
+  @Test
+  internal fun `T13-3 a simple named header variable can receive use-site arguments`() {
+    val table =
+        loadTypes(
+            "CLASS Player1 : Owner",
+            "ABSTRACT CLASS Person : Owned<Owner> { CLASS Alice }",
+            "ABSTRACT CLASS Holder<Person AS P> { This: P<Player1> }",
+        )
+    val variable = table.getClass(cn("Holder")).typeVariables.single()
+
+    variable.usages.map { "${it.expression}" } shouldContainExactly listOf("P<Player1>")
+  }
+
+  @Test
+  internal fun `T13-3 a Class-header variable name cannot be a Type name`() {
     shouldThrow<PetException> {
       loadTypes(
           "ABSTRACT CLASS Person",
-          "ABSTRACT CLASS Ambiguous<Person, Person> { This: Person }",
+          "ABSTRACT CLASS Holder<Person AS Holder> { This: Holder }",
       )
+    }
+  }
+
+  @Test
+  internal fun `T13-3 a Class-header variable name must be used`() {
+    shouldThrow<PetSyntaxException> {
+      parseClasses("ABSTRACT CLASS Person\nABSTRACT CLASS Holder<Person AS P>")
     }
   }
 
@@ -276,14 +308,34 @@ internal class Spec13TypeVariablesTest {
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
             "ABSTRACT CLASS Token<Person>",
-            "ABSTRACT CLASS Badge<Person> { This: Token<Person> }",
+            "ABSTRACT CLASS Badge<Person AS P> { This: Token<P> }",
             "ABSTRACT CLASS Middle : Badge",
             "CLASS Leaf : Badge<Alice>",
         )
 
-    table.getClass(cn("Badge")).typeVariables.map { "$it" } shouldContainExactly listOf("Person")
+    table.getClass(cn("Badge")).typeVariables.map { "$it" } shouldContainExactly listOf("P")
     table.getClass(cn("Middle")).typeVariables.map { "$it" } shouldContainExactly listOf()
     table.getClass(cn("Leaf")).typeVariables.map { "$it" } shouldContainExactly listOf()
+  }
+
+  @Test
+  internal fun `T13-4 a supplied supertype argument is visible structurally in the subclass body`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person { CLASS Alice }",
+            "ABSTRACT CLASS Token<Person>",
+            "ABSTRACT CLASS Badge<Person>",
+            "ABSTRACT CLASS PersonBadge : Badge<Person> { This: Token<Person> }",
+        )
+    val personBadge = table.getClass(cn("PersonBadge"))
+    val effect = personBadge.interpretTypeVariablesIn(personBadge.declaration.effects.single())
+    val variable = effect.typeVariables.variables.single()
+    val specialized = table.resolve(te("PersonBadge<Alice>"))
+
+    effect.typeVariables
+        .bind(specialized.variableBindingsFrom(personBadge.defaultType, listOf(variable)))
+        .transformEffect(effect)
+        .toString() shouldBe "This: Token<Alice>"
   }
 
   // T13-5 Capturing values
@@ -295,7 +347,7 @@ internal class Spec13TypeVariablesTest {
             "ABSTRACT CLASS Person { CLASS Alice }",
             "ABSTRACT CLASS Box<Person>",
             "ABSTRACT CLASS Token<Box<Person>>",
-            "ABSTRACT CLASS Holder<Box<Person>> { This: Box<Person> }",
+            "ABSTRACT CLASS Holder<Box<Person> AS HeldBox> { This: HeldBox }",
         )
     val holder = table.getClass(cn("Holder"))
     val effect = holder.interpretTypeVariablesIn(holder.declaration.effects.single())
@@ -305,9 +357,29 @@ internal class Spec13TypeVariablesTest {
             .variableBindingsFrom(holder.defaultType, effect.typeVariables.variables)
 
     bindings.map { (variable, value) -> "$variable=$value" } shouldContainExactly
-        listOf("Box<Person>=Box<Alice>", "Person=Alice")
+        listOf("HeldBox=Box<Alice>")
     effect.typeVariables.bind(bindings).transformEffect(effect).toString() shouldBe
         "This: Box<Alice>"
+  }
+
+  @Test
+  internal fun `T13-5 nested named variables both specialize a class body`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Resource<Holder>",
+            "ABSTRACT CLASS Holder<Class<Resource>>",
+            "CLASS Rock<Holder> : Resource<Holder>",
+            "CLASS RockHolder : Holder<Class<Rock>>",
+            "CLASS Offer<Holder<Class<Resource AS R>> AS H> { This: R<H> }",
+        )
+    val offer = table.getClass(cn("Offer"))
+    val effect = offer.interpretTypeVariablesIn(offer.declaration.effects.single())
+    val specialized = table.resolve(te("Offer<RockHolder>"))
+
+    effect.typeVariables
+        .bind(specialized.variableBindingsFrom(offer.defaultType, effect.typeVariables.variables))
+        .transformEffect(effect)
+        .toString() shouldBe "This: Rock<RockHolder>"
   }
 
   @Test
@@ -316,7 +388,7 @@ internal class Spec13TypeVariablesTest {
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
             "ABSTRACT CLASS Token<Person>",
-            "ABSTRACT CLASS Badge<Person> { This: Token<Person> }",
+            "ABSTRACT CLASS Badge<Person AS P> { This: Token<P> }",
         )
     val badge = table.getClass(cn("Badge"))
     val variable = badge.typeVariables.single()
@@ -330,7 +402,7 @@ internal class Spec13TypeVariablesTest {
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
             "ABSTRACT CLASS Token<Person>",
-            "ABSTRACT CLASS Badge<Person> { This: Token<Person> }",
+            "ABSTRACT CLASS Badge<Person AS P> { This: Token<P> }",
             "CLASS Leaf : Badge<Alice>",
         )
     val variable = table.getClass(cn("Badge")).typeVariables.single()
@@ -565,7 +637,7 @@ internal class Spec13TypeVariablesTest {
             "ABSTRACT CLASS Resource { CLASS A }",
             "ABSTRACT CLASS Source<Resource>",
             "ABSTRACT CLASS Destination<Resource>",
-            "CLASS Converter<Resource> { This: Destination<Resource> FROM Source<Resource> }",
+            "CLASS Converter<Resource AS R> { This: Destination<R> FROM Source<R> }",
         )
     val converter = table.getClass(cn("Converter"))
     val effect = converter.interpretTypeVariablesIn(converter.declaration.effects.single())
@@ -618,19 +690,19 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-3 a repeat inside a THEN uses the class variable rather than hiding it`() {
+  internal fun `T13-3 a named class variable remains visible inside a THEN`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
             "ABSTRACT CLASS Coin<Person>",
             "ABSTRACT CLASS Receipt<Person>",
-            "CLASS Offer<Person> { This: Coin<Person> THEN Receipt<Person> }",
+            "CLASS Offer<Person AS P> { This: Coin<P> THEN Receipt<P> }",
         )
     val offer = table.getClass(cn("Offer"))
     val classScoped = offer.interpretTypeVariablesIn(offer.declaration.effects.single())
     val classVariable = classScoped.typeVariables.variables.single()
 
-    "${classVariable.declaration.expression}" shouldBe "Person"
+    "${classVariable.declaration.expression}" shouldBe "Person AS P"
     classVariable.occurrences.size shouldBe 3
     classScoped.typeVariables
         .bind(mapOf(classVariable to table.resolve(te("Alice"))))

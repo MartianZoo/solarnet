@@ -161,23 +161,23 @@ CLASS Triton : ColonyTile, ColonyTileSelection<Class<Triton>> {
 }
 
 "One of the up-to-three colonies players can own on a ColonyTile"
-CLASS Colony<ColonyTile> : Owned<Player> {
+CLASS Colony<ColonyTile AS TheTile> : Owned<Player> {
   DEFAULT +Colony<ColonyTile(HAS MAX 0 Colony)>
-  FinishTrade<Anyone, ColonyTile> OR GainColonyBonuses:: GainColonyBonus<ColonyTile>
+  FinishTrade<Anyone, TheTile> OR GainColonyBonuses:: GainColonyBonus<TheTile>
 }
 
 "A player's persistent capacity to conduct one Trade per generation"
 CLASS TradeFleet : Owned<Player>
 
 "A trade with one colony tile, retained until the next generation"
-CLASS Trade<ColonyTile, GenerationScope> : Owned<Player> {
-  This:: (MAX 0 (Trade - TradeFleet): TradeBarrier<ColonyTile>)
-  This: -TradeBarrier<ColonyTile>
+CLASS Trade<ColonyTile AS TheTile, GenerationScope> : Owned<Player> {
+  This:: (MAX 0 (Trade - TradeFleet): TradeBarrier<TheTile>)
+  This: -TradeBarrier<TheTile>
 }
 
 "One unresolved barrier to completing a Trade"
-CLASS TradeBarrier<ColonyTile> : Owned<Player>, Barrier {
-  -This IF MAX 0 This:: FinishTrade<ColonyTile> BY Owner
+CLASS TradeBarrier<ColonyTile AS TheTile> : Owned<Player>, Barrier {
+  -This IF MAX 0 This:: FinishTrade<TheTile> BY Owner
 }
 
 "The owner-attributed event that begins a Trade's completion consequences"
@@ -199,9 +199,9 @@ CLASS BuildColonyProject : StandardProject {
 ABSTRACT CLASS ColonyTileSelection<Class<ColonyTile>> { HAS MAX 1 This }
 
 "A normal colony selected for this game but not put into play until setup"
-CLASS SelectedColonyTile<Class<ColonyTile>> : ColonyTileSelection<Class<ColonyTile>>, Hidden {
-  SetupPhase IF MultiplayerMode: ColonyTile FROM This
-  -SoloColoniesSetup IF SoloMode: ColonyTile FROM This
+CLASS SelectedColonyTile<Class<ColonyTile AS TheTile>> : ColonyTileSelection<Class<ColonyTile>>, Hidden {
+  SetupPhase IF MultiplayerMode: TheTile FROM This
+  -SoloColoniesSetup IF SoloMode: TheTile FROM This
 }
 
 "Lets the solo player discard one selected colony tile; owned so that player makes the choice"

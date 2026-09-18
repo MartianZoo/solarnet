@@ -117,6 +117,7 @@ public data class Expression(
   override fun toString(): String = buildString {
     (typeVariableName as? TypeVariableName.Reference)?.let {
       append(it.name)
+      if (arguments.isNotEmpty()) append(arguments.joinToString(", ", "<", ">"))
       return@buildString
     }
     append(className)

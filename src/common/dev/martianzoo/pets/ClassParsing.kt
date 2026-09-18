@@ -32,6 +32,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.resolveClassTypeVariableNames
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.ClassKind
 import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.ABSTRACT
@@ -305,15 +306,17 @@ internal object ClassParsing : PetTokenizer() {
       ): List<NestableDecl> {
         val mergedDefaults = DefaultsDeclaration.merge(body.defaultses)
         val newDecl =
-            signature.asDeclaration.copy(
-                kind = kind,
-                invariants = body.invariants.toSetStrict(),
-                authoredEffects = body.effects,
-                authoredActions = body.actions,
-                defaultsDeclaration = mergedDefaults,
-                properties = body.properties,
-                extraNodes = actionSelectors(body.actions),
-                docstring = docstring,
+            resolveClassTypeVariableNames(
+                signature.asDeclaration.copy(
+                    kind = kind,
+                    invariants = body.invariants.toSetStrict(),
+                    authoredEffects = body.effects,
+                    authoredActions = body.actions,
+                    defaultsDeclaration = mergedDefaults,
+                    properties = body.properties,
+                    extraNodes = actionSelectors(body.actions),
+                    docstring = docstring,
+                )
             )
         val unnested = body.nestedGroups.flatMap { it.unnestAllFrom(signature.className) }
         return IncompleteNestableDecl(newDecl) plus unnested
@@ -335,7 +338,11 @@ internal object ClassParsing : PetTokenizer() {
           kind: ClassKind,
           signature: Signature,
           docstring: String?,
-      ) : this(signature.asDeclaration.copy(kind = kind, docstring = docstring))
+      ) : this(
+          resolveClassTypeVariableNames(
+              signature.asDeclaration.copy(kind = kind, docstring = docstring)
+          )
+      )
 
       // Rule L1-5: a nested declaration becomes a sibling that names its container as a supertype,
       // so the readable taxonomy survives without Pets needing a namespace.

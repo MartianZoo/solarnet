@@ -26,12 +26,12 @@ ABSTRACT CLASS Resource : Owned {
 "Each instance of this creates an instance of a standard resource during ProductionPhase"
 // IMPL: This should narrow ownership to Owner, but bare production uses the same contextual
 // Owner binding as Resource and becomes incorrectly unbound when Owner is the declared bound.
-CLASS Production<Class<StandardResource>> : Owned {
-  ProductionPhase: StandardResource
+CLASS Production<Class<StandardResource AS ThatResource>> : Owned {
+  ProductionPhase: ThatResource
 }
 
 "The five synthetic M€-production steps that represent the printed production floor"
-CLASS ProdOffset<Class<StandardResource>> : Owned<Player>, System {
-  This:: PROD[StandardResource]
-  ProductionPhase: -StandardResource
+CLASS ProdOffset<Class<StandardResource AS ThatResource>> : Owned<Player>, System {
+  This:: PROD[ThatResource]
+  ProductionPhase: -ThatResource
 }

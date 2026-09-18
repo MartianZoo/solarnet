@@ -128,7 +128,14 @@ internal constructor(
           binding.rootClass.matchDependencyKeys(expression.arguments, classTable).toSet()
       val sourceClass = classTable.getClass(source.className)
       val sourceArguments =
-          source.arguments.zip(sourceClass.matchDependencyKeys(source.arguments, classTable))
+          if (
+              source.typeVariableName is Expression.TypeVariableName.Reference &&
+                  !source.argumentsSpecified
+          ) {
+            emptyList()
+          } else {
+            source.arguments.zip(sourceClass.matchDependencyKeys(source.arguments, classTable))
+          }
       val retainedArguments = sourceArguments.filterNot { (_, key) -> key in representedKeys }
       return expression.appendArguments(retainedArguments.map { it.first })
     }

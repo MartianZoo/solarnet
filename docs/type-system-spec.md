@@ -1187,13 +1187,17 @@ Three properties hold of all three sources, and most of the rules below are cons
    — establish identity without comparing Type spelling.
 
 3. **Inheritance passes values, not names.** A subclass does not see its superclass's header
-   variables by spelling; it receives their values when a component fixes them (T13-4, T13-5).
+   variables by spelling or by an explicit source name; it receives their values when a component
+   fixes them (T13-4, T13-5).
 
 ### Class-header variables
 
 **T13-2. Each eligible abstract header expression declares one.** Eligible means: not `This`, and
 resolving to an abstract type. `ABSTRACT CLASS Holder<Box<Person>>` declares two — `Box<Person>` and
 the `Person` nested inside it.
+
+A header variable needs an `AS` name only when that Class's own body refers to it (T13-3). Header
+equalities and inherited specialization remain structural and need no source-level name.
 
 Occurrences that reach the *same dependency path* are one variable, even through different
 supertypes. That is what rule T3-8 is built on:
@@ -1212,18 +1216,28 @@ leaves the two people free to differ.
 > `Owned<Owner>` reach the same holder owner by different dependency paths. Recognizing their shared
 > suffix is what prevents a resource and its physical card from acquiring different owners.
 
-**T13-3. Uses in the class's own body.** Text in the effects authored in a class body that matches a
-header variable is a *use* of it, not a new declaration. A simple header variable may also head an
-occurrence that adds arguments: with header variable `Person`, an effect writing `Box<Person>` uses
-it. An effect occurrence that could equally name two independent header variables is ambiguous and is
-rejected.
+**T13-3. Uses in the class's own body are named explicitly.** `Type AS Name` on an eligible header
+expression names that variable, and bare `Name` in the Class's authored effects or actions uses it.
+Repeating one of the Class's own dependency Types in the body does not link the two occurrences. The
+name follows the same namespace rules as a local variable: a single capital letter is allowed, but
+an existing Type name is not, and every declared name must be used.
 
-> **Non-normative example — production.** `Production<Class<StandardResource>>` uses
-> `StandardResource` in its body: during Production Phase, a steel-production component must create
-> steel. Treating the body spelling as a fresh choice could produce plants from steel production.
+A name for a structurally simple header Type may receive arguments at a use site. For example,
+`Resource AS R` can be used as `R<Owner>` when `Resource<Owner>` is a valid specialization. Other
+references remain bare; a reference cannot add a refinement.
+
+> **Non-normative example — production.** `Production<Class<StandardResource AS R>>` uses `R` in
+> its body: during Production Phase, a steel-production component must create steel. An unnamed
+> `StandardResource` there would instead be an independent Type.
 
 **T13-4. Inheritance.** A subclass does not redeclare an inherited variable, and effects inherited
 from a superclass keep that superclass's scope.
+
+An explicit supertype argument supplies the value of an inherited variable. Repeating that supplied
+Type in the subclass's own body refers structurally to the supplied value; it does not declare a new
+variable and needs no `AS` name. Thus a concrete `ResourceCard<Class<Animal>>` can use `Animal<This>`
+in its body, while the generic variable is declared and named, if needed, by `ResourceCard` or its
+superclass.
 
 > **Non-normative example — `CardBilling`.** It inherits `Billing`'s cleanup effects, including the
 > resource-denomination variable, while fixing that denomination to MC. Redeclaring the variable in

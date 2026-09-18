@@ -90,9 +90,9 @@ CLASS StartToken : Owned<Player> {
 }
 
 "Identifies the Player immediately after another Player in seat order"
-CLASS AfterMe<Owner, Player> : System {
+CLASS AfterMe<Owner AS Previous, Player AS Next> : System {
   HAS MAX 1 This
-  ResearchPhase IF StartToken<Owner>: StartToken<Player> FROM StartToken<Owner>.
+  ResearchPhase IF StartToken<Previous>: StartToken<Next> FROM StartToken<Previous>.
 }
 
 "The current game phase; exactly one exists from bootstrap through the terminal End phase"

@@ -16,6 +16,8 @@ import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
 import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.PropertyName
@@ -529,6 +531,7 @@ internal constructor(
         val paths: MutableSet<DependencyPath>,
         val headerExpressions: MutableSet<Expression>,
         var lexicallyDeclared: Boolean,
+        var structurallyVisibleInBody: Boolean,
     )
 
     fun inheritedSeed(binding: HeaderVariableBinding) =
@@ -545,6 +548,7 @@ internal constructor(
             binding.paths.toMutableSet(),
             binding.headerExpressions.toMutableSet(),
             lexicallyDeclared = false,
+            structurallyVisibleInBody = false,
         )
 
     fun Seed.absorb(other: Seed) {
@@ -556,6 +560,7 @@ internal constructor(
       paths += other.paths
       headerExpressions += other.headerExpressions
       lexicallyDeclared = lexicallyDeclared || other.lexicallyDeclared
+      structurallyVisibleInBody = structurallyVisibleInBody || other.structurallyVisibleInBody
     }
 
     fun Seed.copySeed() =
@@ -567,6 +572,7 @@ internal constructor(
             paths.toMutableSet(),
             headerExpressions.toMutableSet(),
             lexicallyDeclared = lexicallyDeclared,
+            structurallyVisibleInBody = structurallyVisibleInBody,
         )
 
     val seeds = mutableListOf<Seed>()
@@ -584,7 +590,7 @@ internal constructor(
     headerOccurrences().forEach { occurrence ->
       val matching = occurrenceGroups.filter { group ->
         group.any { prior ->
-          prior.expression.sameAuthoredTypeExpressionAs(occurrence.expression) &&
+          prior.expression.sameUnnamedTypeExpressionAs(occurrence.expression) &&
               sameHeaderVariable(prior, occurrence)
         }
       }
@@ -603,7 +609,11 @@ internal constructor(
     occurrenceGroups
         .sortedBy { occurrences -> occurrences.minOf(HeaderOccurrence::ordinal) }
         .forEach { occurrences ->
-          val first = occurrences.minBy(HeaderOccurrence::ordinal)
+          val named = occurrences.filter { it.expression.typeVariableName is Declaration }
+          require(named.size <= 1) {
+            "$className declares the same header Type variable more than once"
+          }
+          val first = named.singleOrNull() ?: occurrences.minBy(HeaderOccurrence::ordinal)
           fun localSite() =
               TypeVariable.Site(
                   first.expression,
@@ -626,6 +636,7 @@ internal constructor(
                         mutableSetOf(),
                         mutableSetOf(),
                         lexicallyDeclared = true,
+                        structurallyVisibleInBody = false,
                     )
                 alreadyDeclared != null ->
                     alreadyDeclared.copySeed().also { merged ->
@@ -654,14 +665,47 @@ internal constructor(
             target.paths += occurrence.path
           }
           target.paths += paths
+          if (
+              named.isEmpty() &&
+                  overlapping.isNotEmpty() &&
+                  occurrences.all { it.region >= declaration.dependencies.size }
+          ) {
+            // A supertype argument fixes an inherited variable. The subclass body sees that fixed
+            // value structurally; this is specialization, not a new variable declaration.
+            target.structurallyVisibleInBody = true
+          }
           seeds += target
         }
 
-    val effectVariables = seeds.filter(Seed::lexicallyDeclared)
+    val namedVariables =
+        seeds.filter(Seed::lexicallyDeclared).mapNotNull { seed ->
+          (seed.declaration.expression.typeVariableName as? Declaration)?.name?.let { it to seed }
+        }
+    val ineligibleDeclaration =
+        (declaration.dependencies + declaration.supertypes)
+            .flatMap { it.descendantsOfType<Expression>() }
+            .firstOrNull { expression ->
+              expression.typeVariableName is Declaration &&
+                  namedVariables.none { (_, seed) ->
+                    seed.declaration.expression === expression
+                  }
+            }
+    require(ineligibleDeclaration == null) {
+      "$ineligibleDeclaration cannot declare a Class-header Type variable"
+    }
+    namedVariables
+        .firstOrNull { (name) -> name in loader.allClassNames }
+        ?.let { (name) ->
+          throw PetException("Type-variable name $name is already a Type name")
+        }
+    require(namedVariables.map { it.first }.distinct().size == namedVariables.size) {
+      "$className declares the same header Type-variable name twice"
+    }
+    val variablesByName = namedVariables.toMap()
+    val structurallyVisibleVariables = seeds.filter(Seed::structurallyVisibleInBody)
     var bodyOrdinal = headerOccurrences().size
     declaration.effects.forEachIndexed { effectIndex, effect ->
-      // A fanout selector declares its own variable for its body; it is never a use of one of
-      // this Class's header variables, even when it is spelled the same way.
+      // A fanout selector owns its variable, even if it resembles an inherited specialization.
       val fanoutSelectors: List<Expression> =
           effect.descendantsOfType<Each>().flatMap { each ->
             listOf(each.selector) +
@@ -671,22 +715,31 @@ internal constructor(
                 }
           }
       effect.descendantsOfType<Expression>().forEach { expression ->
-        if (expression.className == ANYONE) return@forEach
-        if (fanoutSelectors.any { it === expression }) return@forEach
-        val exact = effectVariables.filter { seed ->
-          seed.headerExpressions.any(expression::sameAuthoredTypeExpressionAs)
-        }
-        val matching = exact.ifEmpty {
-          effectVariables.filter { seed ->
-            seed.headerExpressions.any { header ->
-              header.className == expression.className &&
-                  ((header.simple && expression.arguments.isNotEmpty()) ||
-                      (expression.simple && header.arguments.isNotEmpty()))
+        val named = (expression.typeVariableName as? Reference)?.name
+        val matching =
+            if (named != null) {
+              listOfNotNull(variablesByName[named])
+            } else {
+              if (expression.className == ANYONE || fanoutSelectors.any { it === expression }) {
+                return@forEach
+              }
+              val exact = structurallyVisibleVariables.filter { seed ->
+                seed.headerExpressions.any(expression::sameAuthoredTypeExpressionAs)
+              }
+              exact.ifEmpty {
+                structurallyVisibleVariables.filter { seed ->
+                  seed.headerExpressions.any { header ->
+                    header.className == expression.className &&
+                        ((header.simple && expression.arguments.isNotEmpty()) ||
+                            (expression.simple && header.arguments.isNotEmpty()))
+                  }
+                }
+              }
             }
-          }
-        }
         if (matching.size > 1) {
-          throw PetException("$className uses ambiguous Class Type variable $expression in $effect")
+          throw PetException(
+              "$className uses ambiguous inherited Type specialization $expression in $effect"
+          )
         }
         matching
             .singleOrNull()

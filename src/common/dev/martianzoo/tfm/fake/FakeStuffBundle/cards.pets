@@ -94,9 +94,9 @@ CLASS FakeL1TradeTerminal : ActiveCard {
 }
 
 "One robot unit stored with a card that reduces its play cost by 1 MC"
-CLASS RobotUnit<Class<CardFront>> : Resource, Owned<Player>, Hidden {
-  ReplicateForStagedProject<Class<CardFront>>: This!
-  PlayCard<Class<CardBack>, Class<CardFront>, Hand>: -Owed, -This!
+CLASS RobotUnit<Class<CardFront AS ThatCard>> : Resource, Owned<Player>, Hidden {
+  ReplicateForStagedProject<Class<ThatCard>>: This!
+  PlayCard<Class<CardBack>, Class<ThatCard>, Hand>: -Owed, -This!
 }
 
 "Self-Replicating Robots with printed-tag selection delegated in follow mode"
@@ -110,8 +110,8 @@ CLASS FakeSelfReplicatingRobots : ActionCard, ActiveCard {
   -> ReplicateForStagedProject<Class<CardFront>(HAS RobotUnit<Class<CardFront>>)>
 }
 
-CLASS StageForReplicatedProject<Class<CardFront>> : Owned<Player>, Signal {
-  This: -ProjectCard<Hand> THEN 2 RobotUnit<Class<CardFront>>!
+CLASS StageForReplicatedProject<Class<CardFront AS ThatCard>> : Owned<Player>, Signal {
+  This: -ProjectCard<Hand> THEN 2 RobotUnit<Class<ThatCard>>!
 }
 
 CLASS ReplicateForStagedProject<Class<CardFront>> : Owned<Player>, Signal

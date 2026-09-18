@@ -6,6 +6,7 @@ import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transmute
+import dev.martianzoo.pets.data.ClassDeclaration
 
 /** Declarations whose names connect this transmutation's destination to its source. */
 internal fun Transmute.localTypeVariableDeclarations(): List<Expression> {
@@ -54,20 +55,42 @@ internal fun <P : PetNode> resolveTypeVariableNames(
     declarations: List<Expression>,
     scopeDescription: String,
 ): P {
+  val resolved =
+      resolveTypeVariableNames(listOf(root), declarations, scopeDescription, false).single()
+  @Suppress("UNCHECKED_CAST")
+  return resolved as P
+}
+
+private fun resolveTypeVariableNames(
+    roots: List<PetNode>,
+    declarations: List<Expression>,
+    scopeDescription: String,
+    allowSpecializedReferences: Boolean,
+): List<PetNode> {
   val declarationsByName = declarations.associateBy { it.typeVariableName!!.name }
   if (declarationsByName.size != declarations.size) {
     throw PetSyntaxException("$scopeDescription cannot declare the same Type-variable name twice")
   }
-  if (declarations.isEmpty()) return root
+  if (declarations.isEmpty()) return roots
 
   val references = mutableMapOf<ClassName, Int>()
   val resolving = mutableSetOf<ClassName>()
+  fun withoutNames(expression: Expression): Expression =
+      expression.copy(
+          arguments = expression.arguments.map(::withoutNames),
+          typeVariableName = null,
+      )
   val resolver =
       object : PetTransformer() {
         override fun transformNode(node: PetNode): PetNode {
           if (node is Expression && node.typeVariableName == null) {
             declarationsByName[node.className]?.let { declaration ->
-              if (!node.simple) {
+              if (
+                  !node.simple &&
+                      (!allowSpecializedReferences ||
+                          !declaration.simple ||
+                          node.refinement != null)
+              ) {
                 throw PetSyntaxException(
                     "Type-variable reference ${node.className} cannot have arguments or a refinement"
                 )
@@ -79,7 +102,23 @@ internal fun <P : PetNode> resolveTypeVariableNames(
                 )
               }
               return try {
-                transformChildren(declaration.copy(typeVariableName = Reference(node.className)))
+                val structuralDeclaration = withoutNames(declaration)
+                val referenced =
+                    structuralDeclaration.copy(
+                        arguments =
+                            if (node.simple && !allowSpecializedReferences) {
+                              structuralDeclaration.arguments
+                            } else {
+                              node.arguments
+                            },
+                        argumentsSpecified =
+                            if (node.simple && !allowSpecializedReferences) {
+                              structuralDeclaration.argumentsSpecified
+                            } else {
+                              node.argumentsSpecified
+                            },
+                    )
+                transformChildren(referenced.copy(typeVariableName = Reference(node.className)))
               } finally {
                 resolving.remove(node.className)
               }
@@ -88,11 +127,48 @@ internal fun <P : PetNode> resolveTypeVariableNames(
           return transformChildren(node)
         }
       }
-  @Suppress("UNCHECKED_CAST") val resolved = resolver.transformWithoutKindCheck(root) as P
+  val resolved = roots.map(resolver::transformWithoutKindCheck)
   declarationsByName.keys
       .firstOrNull { references[it] == null }
       ?.let { throw PetSyntaxException("Type-variable $it is declared but never used") }
   return resolved
+}
+
+/**
+ * Resolves names declared in a Class header throughout that Class's authored effects and actions.
+ */
+internal fun resolveClassTypeVariableNames(declaration: ClassDeclaration): ClassDeclaration {
+  val declarations =
+      (declaration.dependencies + declaration.supertypes)
+          .flatMap { it.descendantsOfType<Expression>() }
+          .filter { it.typeVariableName is Declaration }
+  if (declarations.isEmpty()) return declaration
+
+  val names = declarations.mapTo(mutableSetOf()) { it.typeVariableName!!.name }
+  val body = declaration.authoredEffects + declaration.authoredActions
+  body
+      .flatMap { it.descendantsOfType<Expression>() }
+      .firstOrNull {
+        it.typeVariableName is Declaration && it.typeVariableName.name in names
+      }
+      ?.let {
+        throw PetSyntaxException(
+            "Type-variable ${it.typeVariableName!!.name} cannot shadow a Class-header declaration"
+        )
+      }
+
+  val resolved =
+      resolveTypeVariableNames(
+          body,
+          declarations,
+          "A Class header",
+          allowSpecializedReferences = true,
+      )
+  val effectCount = declaration.authoredEffects.size
+  return declaration.copy(
+      authoredEffects = resolved.take(effectCount).map { it as Effect },
+      authoredActions = resolved.drop(effectCount).map { it as Action },
+  )
 }
 
 /** Resolves a scope whose declarations belong in [declarationRegion] and uses in [usageRegion]. */

@@ -45,7 +45,7 @@ internal class GenerateCardPetsTest {
     assertInOrder(
         colonies,
         "CLASS Aridor :",
-        "CLASS AridorTagWatcher<Class<Tag>> :",
+        "CLASS AridorTagWatcher<Class<Tag AS ThatTag>> :",
         "CLASS Arklight :",
     )
   }
