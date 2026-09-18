@@ -1,20 +1,19 @@
 package dev.martianzoo.tfm.web.gameviewer
 
-import dev.martianzoo.tfm.web.gameviewer.games.OtbGame20260809
-import dev.martianzoo.tfm.web.gameviewer.games.OtbGame20260818
-import dev.martianzoo.tfm.web.gameviewer.games.OtbGame20260825
-import dev.martianzoo.tfm.web.gameviewer.games.OtbGame20260828
-import dev.martianzoo.tfm.web.gameviewer.games.OtbGame20260904
-import dev.martianzoo.tfm.web.gameviewer.games.OtbGame20260912
-
+/** Discovers the recording filenames packaged by the most recent resource build. */
 public object SavedGames {
-  public val all: List<SavedGame> =
-      listOf(
-          SavedGame("August 9, 2026", ::OtbGame20260809),
-          SavedGame("August 18, 2026", ::OtbGame20260818),
-          SavedGame("August 25, 2026", ::OtbGame20260825),
-          SavedGame("August 28, 2026", ::OtbGame20260828),
-          SavedGame("September 4, 2026 (partial)", ::OtbGame20260904),
-          SavedGame("September 12, 2026", ::OtbGame20260912),
-      )
+  public fun fromIndex(text: String): List<SavedGame> =
+      text
+          .lineSequence()
+          .map(String::trim)
+          .filter(String::isNotEmpty)
+          .onEach { name ->
+            require(name.endsWith("Test") && name.none { it == '/' || it == '\\' }) {
+              "invalid replay-test filename: $name"
+            }
+          }
+          .distinct()
+          .sorted()
+          .map(::SavedGame)
+          .toList()
 }

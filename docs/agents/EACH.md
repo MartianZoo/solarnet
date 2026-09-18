@@ -17,8 +17,8 @@ EACH Selector { InstructionTree }
 
 `EACH` takes one snapshot of the current World, finds every existing component matching `Selector`,
 and resolves one independent sibling instruction branch for each match. It is a fanout, not a loop:
-branches have no index, accumulator, short-circuiting, or authored order. The stable implementation
-order exists only for reproducible output. If nothing matches, the result is `Ok`.
+branches have no index, accumulator, short-circuiting, or authored order. Encounter order comes
+directly from the component graph and is not a contract. If nothing matches, the result is `Ok`.
 
 Enumeration uses `ComponentGraph.getAll`, so it ranges over component occurrences that exist when
 the fanout is selected, not all possible Types. A queued fanout is one task until selected; only then

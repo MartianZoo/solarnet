@@ -57,8 +57,8 @@ Contains noncanonical Terraforming Mars declarations for tests, replays, and sup
 
 ### <a href="state/dev.martianzoo.state/index.html">dev.martianzoo.state</a>
 
-The replayable state of one game: components, pending tasks, exact event history, and passive event
-application.
+The replayable state of one game: components, pending tasks, exact event history, rich queries,
+passive event application, immutable recordings, and opaque recording serialization.
 
 ## module ENGINE
 
@@ -74,9 +74,9 @@ Terraforming Mars-specific gameplay, workflow, and shared presentation rules.
 
 ## module SCRIPT
 
-### <a href="script/dev.martianzoo.script/index.html">dev.martianzoo.script</a>
+### <a href="script/dev.martianzoo.tfm.script/index.html">dev.martianzoo.tfm.script</a>
 
-The command and session layer shared by the REPL applications.
+The Terraforming Mars command and session layer shared by the REPL applications.
 
 ## module REPL
 
@@ -88,17 +88,19 @@ REgo PLastics, an extremely bad command-line UI to the engine.
 
 ### <a href="web/dev.martianzoo.tfm.web.webrepl/index.html">dev.martianzoo.tfm.web.webrepl</a>
 
-An early rough browser version of REgo PLastics.
+An early rough browser version of REgo PLastics. The same module also supplies Pets Almanac, a
+searchable viewer for Canon's normalized Pets declarations and detailed type information.
 
 ## module GAME-VIEWER
 
 ### <a href="game-viewer/dev.martianzoo.tfm.web.gameviewer/index.html">dev.martianzoo.tfm.web.gameviewer</a>
 
-A browser viewer for recorded games, with saved replays and event-log timeline navigation. Both
-browser applications use assets owned by `dev/martianzoo/tfm/web/shared`.
+An engine-free browser viewer that discovers generated replay-test recordings and navigates their
+event-log timelines through passive state playback. Both browser applications use assets owned by
+`dev/martianzoo/tfm/web/shared`.
 
 ## module TOOLS
 
-### dev.martianzoo.tools
+### dev.martianzoo.tfm.tools
 
 Standalone command-line tools built from Solarnet's data.

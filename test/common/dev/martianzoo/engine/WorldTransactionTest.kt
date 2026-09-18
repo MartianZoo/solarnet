@@ -30,7 +30,7 @@ internal class WorldTransactionTest {
   }
 
   @Test
-  internal fun nestedAgentCallsDoNotStartAutomaticAdvancement() {
+  internal fun outerTransactionSettlesEveryAgentsPolicyAfterNestedCalls() {
     val game = Engine.newGame(testGamePremise(players = 2))
     val player1 = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
     val player2 = game.testAgent(PLAYER2)
@@ -38,8 +38,6 @@ internal class WorldTransactionTest {
     player2.addTasks("Token")
     player1.runOperation("Ok") { player2.autoExecNow() }
 
-    game.tasks.isEmpty() shouldBe false
-    player2.autoExecNow()
     game.tasks.isEmpty() shouldBe true
   }
 

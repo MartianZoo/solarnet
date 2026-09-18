@@ -1,20 +1,23 @@
 package dev.martianzoo.tfm.web.gameviewer
 
-import dev.martianzoo.agent.Agents
-import dev.martianzoo.engine.GameRecording
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.displayName
 import dev.martianzoo.state.ComponentGraph.CountSubscription
 import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.GameRecording
+import dev.martianzoo.state.GameRecordingJson
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
+import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.canon.TfmClasses.MC
 import dev.martianzoo.tfm.canon.TfmClasses.TILE
-import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
-import dev.martianzoo.tfm.engine.visibleLogEvents
+import dev.martianzoo.tfm.fake.FakeCanon
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.Element
@@ -23,13 +26,14 @@ import org.w3c.dom.HTMLSelectElement
 import org.w3c.dom.events.KeyboardEvent
 
 private const val BENCHMARK_PREFIX = "game-viewer"
+private val classWord = Regex("[A-Za-z][A-Za-z0-9_]*")
 
 public fun main() {
   val gameSelect = document.getElementById("game-select") as HTMLSelectElement
   val status = checkNotNull(document.getElementById("status"))
   val positionLabel = checkNotNull(document.getElementById("position-label"))
-  var recording: GameRecording? = null
-  var agents: Agents? = null
+  var recording: GameRecording.Playback? = null
+  var savedGames = emptyList<SavedGame>()
   var recordingName = ""
   var selectedPlayerIndex = 0
   var selectablePositions = emptyList<Int>()
@@ -42,14 +46,9 @@ public fun main() {
   placeholder.textContent = "Select a game…"
   gameSelect.appendChild(placeholder)
 
-  SavedGames.all.forEachIndexed { index, savedGame ->
-    val option = document.createElement("option")
-    option.setAttribute("value", index.toString())
-    option.textContent = savedGame.name
-    gameSelect.appendChild(option)
-  }
+  gameSelect.disabled = true
 
-  fun updatePosition(active: GameRecording, scrollLog: Boolean) {
+  fun updatePosition(active: GameRecording.Playback, scrollLog: Boolean) {
     val players = active.world.actors.filterIsInstance<Player>()
     selectedPlayerIndex = selectedPlayerIndex.coerceIn(players.indices)
     val player = players[selectedPlayerIndex]
@@ -59,14 +58,13 @@ public fun main() {
         "Position ${displayedIndex + 1} of ${selectablePositions.size} · event ${checkpoint.ordinal}"
     status.textContent = recordingName
     measurePhase("render.player-tabs-update") { updatePlayerTabs(active, selectedPlayerIndex) }
-    val activeAgents = checkNotNull(agents)
-    measurePhase("render.dashboard") { renderDashboard(active, activeAgents, player) }
-    measurePhase("render.cards") { renderCards(active, activeAgents, player) }
+    measurePhase("render.dashboard") { renderDashboard(active, player) }
+    measurePhase("render.cards") { renderCards(active, player) }
     measurePhase("render.log-state") { updateLogState(active) }
     if (scrollLog) measurePhase("render.log-scroll") { scrollActiveLogStop() }
   }
 
-  fun showPosition(active: GameRecording, index: Int, scrollLog: Boolean = true) {
+  fun showPosition(active: GameRecording.Playback, index: Int, scrollLog: Boolean = true) {
     if (index !in active.positions.indices) return
     active.seek(index)
     updatePosition(active, scrollLog)
@@ -74,33 +72,35 @@ public fun main() {
 
   fun loadSelectedGame() {
     if (gameSelect.value.isEmpty()) return
-    val selected = SavedGames.all[gameSelect.value.toInt()]
+    val selected = savedGames[gameSelect.value.toInt()]
     gameSelect.disabled = true
-    status.textContent = "Replaying ${selected.name}…"
-    window.setTimeout(
-        {
+    status.textContent = "Loading ${selected.name}…"
+    window
+        .fetch(selected.resourcePath)
+        .then { response ->
+          if (!response.ok) error("HTTP ${response.status}")
+          response.text()
+        }
+        .then { text ->
           try {
             clearBenchmarkEntries()
             mark("load.start")
             mapSubscriptions.forEach(CountSubscription::cancel)
-            val replay = selected.create()
-            val active =
-                replay.record(
-                    onGameConstructed = {
-                      mark("construction.end")
-                      measure("construction", "load.start", "construction.end")
-                    },
-                    onReplayCompleted = {
-                      mark("replay.end")
-                      measure("authored-replay", "construction.end", "replay.end")
-                    },
-                )
-            agents = replay.agents
-            val logEvents = active.world.visibleLogEvents()
+            val config = GameRecordingJson.config(text)
+            val catalog: TfmCatalog =
+                if (cn("FakeStuffBundle") in config.includedClassNames) {
+                  TfmCatalog.compose(Canon, FakeCanon)
+                } else {
+                  Canon
+                }
+            val premise = catalog.gamePremise(config)
+            val active = GameRecordingJson.decode(text, premise).open()
+            val logEvents =
+                visibleLogEvents(active.world.events.changesSinceSetup(), active.world.reader)
             selectablePositions =
                 selectablePositionIndices(active.positions, logEvents.map(ChangeEvent::ordinal))
             mark("preparation.end")
-            measure("recording-and-log-positions", "replay.end", "preparation.end")
+            measure("recording-and-log-positions", "load.start", "preparation.end")
             measurePhase("initial-seek") { active.seek(selectablePositions.first()) }
             recording = active
             recordingName = selected.name
@@ -126,9 +126,12 @@ public fun main() {
             status.textContent = "Could not replay ${selected.name}: ${failure.message}"
             gameSelect.disabled = false
           }
-        },
-        0,
-    )
+        }
+        .catch { failure ->
+          recording = null
+          status.textContent = "Could not load ${selected.name}: ${failure.message}"
+          gameSelect.disabled = false
+        }
   }
 
   gameSelect.addEventListener("change", { loadSelectedGame() })
@@ -149,13 +152,34 @@ public fun main() {
       },
   )
   positionLabel.textContent = "Built ${document.lastModified}"
+
+  window
+      .fetch("games/index.txt")
+      .then { response ->
+        if (!response.ok) error("HTTP ${response.status}")
+        response.text()
+      }
+      .then { text ->
+        savedGames = SavedGames.fromIndex(text)
+        savedGames.forEachIndexed { index, savedGame ->
+          val option = document.createElement("option")
+          option.setAttribute("value", index.toString())
+          option.textContent = savedGame.name
+          gameSelect.appendChild(option)
+        }
+        gameSelect.disabled = savedGames.isEmpty()
+        status.textContent =
+            if (savedGames.isEmpty()) "No replay test event logs were built."
+            else "Choose a replay test."
+      }
+      .catch { failure ->
+        status.textContent = "Could not discover replay tests: ${failure.message}"
+      }
 }
 
 private fun clearBenchmarkEntries() {
   val phases =
       listOf(
-          "construction",
-          "authored-replay",
           "recording-and-log-positions",
           "initial-seek",
           "render.map",
@@ -171,8 +195,7 @@ private fun clearBenchmarkEntries() {
   phases.forEach { phase ->
     window.performance.asDynamic().clearMeasures("$BENCHMARK_PREFIX:$phase")
   }
-  listOf("load.start", "construction.end", "replay.end", "preparation.end", "load.end").forEach {
-      name ->
+  listOf("load.start", "preparation.end", "load.end").forEach { name ->
     window.performance.asDynamic().clearMarks("$BENCHMARK_PREFIX:$name")
   }
 }
@@ -205,27 +228,72 @@ private inline fun <T> measurePhase(name: String, block: () -> T): T {
   }
 }
 
-private fun renderPlayerTabs(recording: GameRecording, onSelect: (Int) -> Unit) {
+private fun almanacHref(className: ClassName): String = "/classviewer/#$className"
+
+private fun configureClassLink(element: Element, className: ClassName) {
+  element.setAttribute("href", almanacHref(className))
+  element.setAttribute("target", "_blank")
+  element.setAttribute("rel", "noopener noreferrer")
+}
+
+private fun classLink(className: ClassName, label: String = className.toString()): Element =
+    document.createElement("a").apply {
+      configureClassLink(this, className)
+      this.className = "almanac-link"
+      textContent = label
+    }
+
+private fun appendClassLinkedText(
+    container: Element,
+    text: String,
+    classesByName: Map<String, ClassName>,
+) {
+  var offset = 0
+  classWord.findAll(text).forEach { match ->
+    val className = classesByName[match.value] ?: return@forEach
+    if (match.range.first > offset) {
+      container.appendChild(document.createTextNode(text.substring(offset, match.range.first)))
+    }
+    container.appendChild(classLink(className))
+    offset = match.range.last + 1
+  }
+  if (offset < text.length) container.appendChild(document.createTextNode(text.substring(offset)))
+}
+
+private fun svgClassLink(className: ClassName, content: String): String =
+    "<a class='almanac-link' href='${almanacHref(className)}' target='_blank' " +
+        "rel='noopener noreferrer'>$content</a>"
+
+private fun renderPlayerTabs(recording: GameRecording.Playback, onSelect: (Int) -> Unit) {
   val game = recording.world
   val tabs = checkNotNull(document.getElementById("player-tabs"))
   tabs.innerHTML = ""
   val players = game.actors.filterIsInstance<Player>()
   val playerNames = players.map { displayName(game.reader.catalog, it.className) }
   val playerColors = assignPlayerColors(playerNames)
-  players.forEachIndexed { index, _ ->
+  players.forEachIndexed { index, player ->
     val name = playerNames[index]
     val tab = document.createElement("button")
-    tab.className = "player-tab player-${playerColors[index]}"
+    tab.className = "player-tab almanac-link player-${playerColors[index]}"
     tab.setAttribute("type", "button")
     tab.setAttribute("role", "tab")
     tab.setAttribute("data-player-index", index.toString())
     tab.textContent = name
-    tab.addEventListener("click", { onSelect(index) })
+    tab.addEventListener(
+        "click",
+        {
+          onSelect(index)
+          window.open(almanacHref(player.className), "_blank", "noopener")
+        },
+    )
     tabs.appendChild(tab)
   }
 }
 
-private fun updatePlayerTabs(recording: GameRecording, selectedPlayerIndex: Int) {
+private fun updatePlayerTabs(
+    recording: GameRecording.Playback,
+    selectedPlayerIndex: Int,
+) {
   val tabs = checkNotNull(document.getElementById("player-tabs"))
   for (index in 0 until tabs.children.length) {
     val tab = tabs.children.item(index) ?: continue
@@ -242,31 +310,54 @@ private fun updatePlayerTabs(recording: GameRecording, selectedPlayerIndex: Int)
       "dashboard-panel player-${playerColors[selectedPlayerIndex]}"
 }
 
-private fun renderDashboard(recording: GameRecording, agents: Agents, player: Player) {
+private fun renderDashboard(recording: GameRecording.Playback, player: Player) {
   val game = recording.world
-  val tfm = agents.tfm(player)
+  val queries = GameQueries(game.reader)
 
   fun setValue(name: String, value: Any?) {
     document.querySelector("[data-stat='$name']")?.textContent = value?.toString() ?: "—"
   }
 
+  fun setClassValue(name: String, className: ClassName?, value: Any?) {
+    val element = document.querySelector("[data-stat='$name']") ?: return
+    element.innerHTML = ""
+    if (className == null || value == null) {
+      element.textContent = "—"
+    } else {
+      element.appendChild(classLink(className, value.toString()))
+    }
+  }
+
   fun countIfLoaded(type: String): Int =
       try {
-        tfm.count(type)
+        queries.count(player, type)
       } catch (_: ExpressionException) {
         0
       }
 
   val corporation =
       playedCards(game, player).firstOrNull { cardImageDirectory(it) == "corporations" }
-  setValue("player-name", displayName(game.reader.catalog, player.className))
-  setValue(
+  setClassValue(
+      "player-name",
+      player.className,
+      displayName(game.reader.catalog, player.className),
+  )
+  setClassValue(
       "corporation-name",
+      corporation?.className,
       corporation?.let { displayName(game.reader.catalog, it.className) },
   )
-  setValue("phase", tfm.list("Phase").singleOrNull()?.toString()?.removeSuffix("Phase") ?: "—")
-  setValue("terraform-rating", countIfLoaded("TerraformRating"))
-  setValue("cards", countIfLoaded("ProjectCard"))
+  val phase = game.reader.getComponents("Phase").singleOrNull()
+  setClassValue(
+      "phase",
+      phase?.className,
+      phase?.toString()?.removeSuffix("Phase"),
+  )
+  linkedMapOf("terraform-rating" to "TerraformRating", "cards" to "ProjectCard").forEach {
+      (name, type) ->
+    setValue(name, countIfLoaded(type))
+    document.querySelector("[data-stat-icon='$name']")?.let { configureClassLink(it, cn(type)) }
+  }
 
   linkedMapOf(
           "megacredit" to "MC",
@@ -277,8 +368,11 @@ private fun renderDashboard(recording: GameRecording, agents: Agents, player: Pl
           "heat" to "Heat",
       )
       .forEach { (name, type) ->
+        document.querySelector("[data-resource='$name'] .resource-icon")?.let {
+          configureClassLink(it, cn(type))
+        }
         setValue("$name-stock", countIfLoaded(type))
-        val production = tfm.production(dev.martianzoo.pets.ast.ClassName.cn(type))
+        val production = queries.production(player, cn(type))
         setValue("$name-production", if (production > 0) "+$production" else production)
       }
 
@@ -297,6 +391,10 @@ private fun renderDashboard(recording: GameRecording, agents: Agents, player: Pl
           "event" to "PlayedEvent",
       )
       .forEach { (name, type) ->
+        val iconClass = if (type == "PlayedEvent") cn("EventTag") else cn(type)
+        document.querySelector("[data-tag='$name'] .tag-icon")?.let {
+          configureClassLink(it, iconClass)
+        }
         val loaded = countIfLoaded("Class<$type>") > 0
         val element = document.querySelector("[data-tag='$name']")
         if (loaded) element?.removeAttribute("hidden") else element?.setAttribute("hidden", "")
@@ -306,7 +404,7 @@ private fun renderDashboard(recording: GameRecording, agents: Agents, player: Pl
       }
 }
 
-private fun renderCards(recording: GameRecording, agents: Agents, player: Player) {
+private fun renderCards(recording: GameRecording.Playback, player: Player) {
   val game = recording.world
   val container = checkNotNull(document.getElementById("played-cards"))
   container.innerHTML = ""
@@ -325,8 +423,8 @@ private fun renderCards(recording: GameRecording, agents: Agents, player: Player
 
   fun appendCardImage(
       directory: String,
-      cardName: dev.martianzoo.pets.ast.ClassName,
-      resourceCount: Pair<dev.martianzoo.pets.ast.ClassName, Int>? = null,
+      cardName: ClassName,
+      resourceCount: Pair<ClassName, Int>? = null,
       actionUsed: Boolean = false,
   ) {
     val slot = document.createElement("div")
@@ -337,7 +435,11 @@ private fun renderCards(recording: GameRecording, agents: Agents, player: Player
     image.setAttribute("src", "images/$cardName.png")
     image.setAttribute("alt", cardDisplayName)
     image.setAttribute("title", cardDisplayName)
-    slot.appendChild(image)
+    val imageLink = classLink(cardName)
+    imageLink.className = "card-image-link almanac-link"
+    imageLink.textContent = ""
+    imageLink.appendChild(image)
+    slot.appendChild(imageLink)
     resourceCount?.let { (resourceType, count) ->
       val counter = document.createElement("div")
       counter.className = "card-resources-counter"
@@ -351,13 +453,17 @@ private fun renderCards(recording: GameRecording, agents: Agents, player: Player
       val resource = document.createElement("img")
       resource.className = "card-resource-icon"
       resource.setAttribute("src", "images/$resourceType.png")
-      resource.setAttribute("alt", "")
+      resource.setAttribute("alt", displayName(game.reader.catalog, resourceType))
       counter.appendChild(number)
-      counter.appendChild(resource)
+      val resourceLink = classLink(resourceType)
+      resourceLink.className = "card-resource-link almanac-link"
+      resourceLink.textContent = ""
+      resourceLink.appendChild(resource)
+      counter.appendChild(resourceLink)
       slot.appendChild(counter)
     }
     if (actionUsed) {
-      val marker = document.createElement("span")
+      val marker = classLink(cn("ActionUsedMarker"), "")
       marker.className = "action-used-marker player-$color"
       marker.setAttribute("role", "img")
       marker.setAttribute("aria-label", "Action used")
@@ -372,8 +478,8 @@ private fun renderCards(recording: GameRecording, agents: Agents, player: Player
     appendCardImage(
         directory,
         card.className,
-        cardResourceCount(agents, player, card),
-        hasActionUsedMarker(agents, player, card),
+        cardResourceCount(game.reader, player, card),
+        hasActionUsedMarker(game.reader, player, card),
     )
   }
   if (events.isNotEmpty()) {
@@ -386,7 +492,7 @@ private fun renderCards(recording: GameRecording, agents: Agents, player: Player
 }
 
 private fun renderLog(
-    recording: GameRecording,
+    recording: GameRecording.Playback,
     events: List<ChangeEvent>,
     selectablePositions: List<Int>,
     onSeek: (Int) -> Unit,
@@ -394,6 +500,10 @@ private fun renderLog(
   val log = checkNotNull(document.getElementById("game-log"))
   log.innerHTML = ""
   var selectableIndex = 0
+  val classesByName =
+      recording.world.reader.classTable.allClasses().associate {
+        it.className.toString() to it.className
+      }
 
   fun appendStopsThrough(ordinal: Int) {
     while (
@@ -418,13 +528,13 @@ private fun renderLog(
     val line = document.createElement("div")
     line.className = "log-line"
     line.setAttribute("data-ordinal", event.ordinal.toString())
-    line.textContent = event.toString()
+    appendClassLinkedText(line, event.toString(), classesByName)
     log.appendChild(line)
   }
   appendStopsThrough(Int.MAX_VALUE)
 }
 
-private fun updateLogState(recording: GameRecording) {
+private fun updateLogState(recording: GameRecording.Playback) {
   val log = checkNotNull(document.getElementById("game-log"))
   val checkpoint = recording.positions[recording.positionIndex]
   for (index in 0 until log.children.length) {
@@ -445,7 +555,7 @@ private fun scrollActiveLogStop() {
   active.asDynamic().scrollIntoView(js("({block: 'nearest'})"))
 }
 
-private fun renderMap(recording: GameRecording): List<CountSubscription> {
+private fun renderMap(recording: GameRecording.Playback): List<CountSubscription> {
   val game = recording.world
   val map = mapDefinition(game.reader)
   document.getElementById("mars-map")?.innerHTML = buildString {
@@ -477,11 +587,13 @@ private fun areaBaseSvg(area: AreaDefinition): String {
           )
           .joinToString(" ") { (x, y) -> "$x,$y" }
   val kind = area.kind.toString().removeSuffix("Area").lowercase()
-  return "<polygon class='map-space $kind' points='$points'/>" +
-      "<g id='map-state-${area.row}-${area.column}'></g>"
+  return svgClassLink(
+      area.className,
+      "<polygon class='map-space $kind' points='$points'><title>${area.className}</title></polygon>",
+  ) + "<g id='map-state-${area.row}-${area.column}'></g>"
 }
 
-private fun renderAreaState(recording: GameRecording, area: AreaDefinition) {
+private fun renderAreaState(recording: GameRecording.Playback, area: AreaDefinition) {
   val game = recording.world
   val reader = game.reader
   val target = document.getElementById("map-state-${area.row}-${area.column}") ?: return
@@ -500,9 +612,11 @@ private fun renderAreaState(recording: GameRecording, area: AreaDefinition) {
                 .firstOrNull { it.className in playerClassNames }
                 ?.className
                 ?.let { ownerName ->
-                  players.indexOfFirst { it.className == ownerName }.takeIf { it >= 0 }
+                  players
+                      .indexOfFirst { it.className == ownerName }
+                      .takeIf { it >= 0 }
+                      ?.let { ownerName to playerColors[it] }
                 }
-                ?.let { playerColors[it] }
         buildString {
           val imageBox =
               if (tile.className.toString() == "GreeneryTile") {
@@ -511,13 +625,21 @@ private fun renderAreaState(recording: GameRecording, area: AreaDefinition) {
                 "x='${centerX - 59}' y='${centerY - 59}' width='118' height='118'"
               }
           append(
-              "<image class='map-tile' href='images/${tile.className}.png' " +
-                  "$imageBox preserveAspectRatio='xMidYMid meet'/>"
+              svgClassLink(
+                  tile.className,
+                  "<image class='map-tile' href='images/${tile.className}.png' " +
+                      "$imageBox preserveAspectRatio='xMidYMid meet'>" +
+                      "<title>${tile.className}</title></image>",
+              )
           )
-          owner?.let {
+          owner?.let { (ownerName, ownerColor) ->
             append(
-                "<rect class='owner-cube player-$it' x='${centerX + 21}' " +
-                    "y='${centerY + 17}' width='15' height='15' rx='2'/>"
+                svgClassLink(
+                    ownerName,
+                    "<rect class='owner-cube player-$ownerColor' x='${centerX + 21}' " +
+                        "y='${centerY + 17}' width='15' height='15' rx='2'>" +
+                        "<title>$ownerName</title></rect>",
+                )
             )
           }
         }
@@ -529,14 +651,23 @@ private fun emptyAreaSvg(area: AreaDefinition, centerX: Double, centerY: Double)
       val kind = area.kind.toString().removeSuffix("Area").lowercase()
       if (kind == "volcanic") {
         append(
-            "<path class='volcano-marker' d='M ${centerX - 17.2},${centerY + 29.6} " +
-                "L ${centerX - 6.8},${centerY + 8.8} L ${centerX - 1.2},${centerY + 16} " +
-                "L ${centerX + 6.8},${centerY + 5.6} L ${centerX + 17.2},${centerY + 29.6} Z'/>"
+            svgClassLink(
+                area.className,
+                "<path class='volcano-marker' d='M ${centerX - 17.2},${centerY + 29.6} " +
+                    "L ${centerX - 6.8},${centerY + 8.8} L ${centerX - 1.2},${centerY + 16} " +
+                    "L ${centerX + 6.8},${centerY + 5.6} " +
+                    "L ${centerX + 17.2},${centerY + 29.6} Z'/>",
+            )
         )
       }
       if (kind == "noctis") {
-        append("<text class='noctis-label' x='$centerX' y='${centerY + 21}'>Noctis</text>")
-        append("<text class='noctis-label' x='$centerX' y='${centerY + 38}'>City</text>")
+        append(
+            svgClassLink(
+                area.className,
+                "<text class='noctis-label' x='$centerX' y='${centerY + 21}'>Noctis</text>" +
+                    "<text class='noctis-label' x='$centerX' y='${centerY + 38}'>City</text>",
+            )
+        )
       }
       val bonusX = centerX - 45.7
       val bonusY = centerY - 23.0
@@ -548,23 +679,40 @@ private fun emptyAreaSvg(area: AreaDefinition, centerX: Double, centerY: Double)
             val count = (change.count as? ActualScalar)?.value ?: return@flatMap emptyList()
             when {
               change.gaining?.className == MC && count in 1..49 ->
-                  listOf("MC/MC${count.toString().padStart(2, '0')}" to null)
+                  listOf(Triple("MC/MC${count.toString().padStart(2, '0')}", null, MC))
               change.gaining != null ->
-                  List(count) { change.gaining!!.className.toString() to null }
-              change.removing?.className == MC && count in 1..9 -> listOf("MC/MC-$count" to null)
-              change.removing?.className == MC -> listOf(null to "−$count")
+                  List(count) {
+                    Triple(
+                        change.gaining!!.className.toString(),
+                        null,
+                        change.gaining!!.className,
+                    )
+                  }
+              change.removing?.className == MC && count in 1..9 ->
+                  listOf(Triple("MC/MC-$count", null, MC))
+              change.removing?.className == MC -> listOf(Triple(null, "−$count", MC))
               else -> emptyList()
             }
           }
-          .forEachIndexed { index, (imageName, label) ->
+          .forEachIndexed { index, (imageName, label, className) ->
             val x = bonusX + index * 25.0
             if (imageName != null) {
               append(
-                  "<image class='bonus-icon' href='images/$imageName.png' " +
-                      "x='$x' y='$bonusY' width='25' height='25'/>"
+                  svgClassLink(
+                      className,
+                      "<image class='bonus-icon' href='images/$imageName.png' " +
+                          "x='$x' y='$bonusY' width='25' height='25'>" +
+                          "<title>$className</title></image>",
+                  )
               )
             } else if (label != null) {
-              append("<text class='bonus-text' x='${x + 12.5}' y='${bonusY + 12.5}'>$label</text>")
+              append(
+                  svgClassLink(
+                      className,
+                      "<text class='bonus-text' x='${x + 12.5}' " +
+                          "y='${bonusY + 12.5}'>$label</text>",
+                  )
+              )
             }
           }
     }

@@ -43,15 +43,15 @@ Kotlin 2.2. Contributors do not need another JDK installed.
 Start with the smallest test or build task that verifies the changed behavior. Expand verification
 only when the change crosses a wider scope or the narrower result leaves a material risk.
 
-- `./gradlew build` checks the whole repository: every JVM test plus one representative
-  multi-generation engine game in Chrome. Use it only when repository-wide verification is
-  warranted by the scope of the change or explicitly requested.
+- `./gradlew build` checks the whole repository: every JVM test plus all production JavaScript
+  compilation and packaging. Use it only when repository-wide verification is warranted by the
+  scope of the change or explicitly requested.
 - `./gradlew test` runs every repository JVM test suite, including the multiplatform modules whose
   JVM test tasks are named `jvmTest`.
-- `./gradlew :tfm-tests:jsBrowserSmokeTest` runs the only browser test: the extensive three-player
-  `OtbGame20260828Test` replay. Kotlin-generated browser-test tasks in every other module are
-  permanently skipped, and the underlying `:tfm-tests:jsBrowserTest` task is permanently filtered
-  to that replay. No Gradle invocation may run other tests in a browser.
+- `./gradlew :tfm-tests:jvmTest` runs the replay tests and writes one opaque JSON recording per
+  successful `AbstractFullGameTest` subclass under that module's
+  `generated/replay-event-logs` build directory. Generated browser-test tasks are disabled; the
+  browser viewer applies those recordings through `:state` and never runs the engine.
 - `./gradlew :tfm-tests:sampleRandomCards` prints randomly generated project cards as raw Pets.
   Use `-PrandomCardCount=N` and `-PrandomCardSeed=N` to control and reproduce a sample, and add
   `-PrandomCardOutput=PATH` to write it to a text file. The task has no dependency on the language
@@ -81,8 +81,8 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   not proof of a user choice: an automatic or queued effect carried by a Player-owned component may
   attribute its derived changes to that Player. Use the cause columns to trace derivation; because
   task events are omitted, the TSV cannot by itself classify every row as chosen versus automatic.
-- `./gradlew :tools:dumpOtbGame20260828EventLog` replays the complete August 28, 2026 game used by
-  the game viewer and writes every change event in the same format to
+- `./gradlew :tools:dumpOtbGame20260828EventLog` runs the JVM replay suite, reads the generated
+  August 28, 2026 recording, and writes every change event in the same format to
   `_local/eventlogs/otb-game-20260828-eventlog.tsv`.
 - `SOLARNET_RANDOM_AUTOMATIC_EFFECTS=true ./gradlew test --rerun-tasks` runs the unchanged JVM suites
   while choosing a random execution order for each batch of independent automatic-effect listeners.
@@ -114,13 +114,20 @@ models per worker. Do not use worker recycling or a larger build-daemon heap to 
 retention.
 
 Normal Gradle access to the user-level cache and configuration under `~/.gradle` is permitted.
-For local wrapper builds, generated project state is isolated by account and worktree under
+For local builds, generated project state is isolated by account and worktree under
 `~/.gradle/solarnet-builds/`. Each invocation acquires an OS-locked storage slot there: sequential
 builds reuse slot zero and its caches, while overlapping invocations use distinct slots and cannot
 delete each other's test results or other task outputs. A slot includes Gradle's project cache,
 Kotlin's persistent data, task outputs, and build-process temporary files. CI retains the
-conventional project-local paths so its artifact collection remains stable. Use `./gradlew` rather
-than a directly installed `gradle` so the checked-in isolation configuration is applied.
+conventional project-local paths so its artifact collection remains stable. The wrapper supplies
+the isolation init script directly. For IntelliJ and other Tooling API clients, copy
+`gradle/user-isolation-bootstrap.init.gradle.kts` to
+`~/.gradle/init.d/solarnet-user-isolation.init.gradle.kts` once; that user-level bootstrap discovers
+the checked-in script in every current and future Solarnet worktree. Gradle opens `.gradle` before
+any init script runs, so also install `gradle/user-isolation.post-checkout` as the shared Git
+repository's `hooks/post-checkout`; it creates an ignored `.gradle` symlink into the same
+per-worktree home storage for every tracked Gradle build whenever Git creates or checks out a
+worktree.
 Yarn's incompatible `serialize-javascript` resolution warning and “Ignored scripts due to flag”
 warning are expected: the former comes from the deliberate 7.x security pin while Mocha requests
 6.x, and the latter preserves Kotlin/JS's policy of not running package lifecycle scripts.
@@ -180,8 +187,8 @@ clear coverage of these contracts matters more than preserving every current tes
    observations available to a player rather than internal state or implementation details.
    `CoreRulesTest` documents game-wide rules in this same style.
 5. **Whole-game tests.** Long scenarios that show the workflow and many rules operate together,
-   especially when reconstructed from independent game records. Designated JVM replays are also
-   the sole authored source of deterministic checked-in game-viewer exports.
+   especially when reconstructed from independent game records. Every successful replay test also
+   emits the recording consumed by the game viewer.
 6. **Canon admissibility tests.** A compact gate confirming that the complete authority loads and
    that representative supported configurations compose into usable projected class tables and
    worlds. This is not a demand to restate the contents of every card or bundle in assertions.
@@ -189,8 +196,8 @@ clear coverage of these contracts matters more than preserving every current tes
    wrong, visibly quarantined in `BugsTest` until the behavior is corrected.
 8. **Script-command contract tests.** Terraforming-independent checks of each command's public
    contract. These are useful interface coverage even though they are not a development priority.
-9. **Cross-runtime packaging smoke coverage.** One representative browser game showing that the
-   JavaScript artifact, generated Canon data, and engine work together outside the JVM.
+9. **Cross-runtime packaging coverage.** JavaScript compilation and resource assembly show that the
+   viewer, generated Canon data, and passive state playback compose without the engine.
 
 This list does not itself decide which current tests should be retained. Test-deletion proposals
 are a separate review.

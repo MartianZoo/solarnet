@@ -7,19 +7,29 @@ CLASS FakeWildTagUse : TagHolder, Temporary { HAS MAX 1 This }
 CLASS FakeResearchNetwork : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: PROD[1 MC], 3 ProjectCard, FakeWildTag<This>
+  This:: FakeWildTag<This>
+  This: PROD[1 MC], 3 ProjectCard
 }
 
 CLASS FakeResearchCoordination : AutomatedCard {
   cost = 4
 
-  This: FakeWildTag<This>
+  This:: FakeWildTag<This>
+}
+
+"Floyd Continuum as represented by the source replay"
+CLASS FakeFloydContinuum : ActionCard, ActiveCard {
+  cost = 4
+
+  This:: ScienceTag<This>
+  -> 3 MC / GpComplete
 }
 
 CLASS FakeAppliedScience : ActionCard, ResourceCard<Class<Science>, Class<PreludeCard>> {
   cost = 0
 
-  This: FakeWildTag<This>, 6 Science<This>
+  This:: FakeWildTag<This>
+  This: 6 Science<This>
 
   Science<This> -> CardResource<CardFront(HAS CardResource)> OR StandardResource
 }
@@ -27,7 +37,8 @@ CLASS FakeAppliedScience : ActionCard, ResourceCard<Class<Science>, Class<Prelud
 CLASS FakeNobelPrize : CardFront<Class<PreludeCard>> {
   cost = 0
 
-  This: FakeWildTag<This>, 5 MC, CARDS[2 SearchForCard(HAS requirement)]
+  This:: FakeWildTag<This>
+  This: 5 MC, CARDS[2 SearchForCard(HAS requirement)]
   End: 2 VictoryPoint
 }
 

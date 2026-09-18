@@ -4,10 +4,7 @@ kotlin {
   sourceSets {
     commonMain {
       kotlin.setSrcDirs(
-          listOf(
-              rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/script"),
-              rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/script"),
-          )
+          listOf(rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/script"))
       )
       dependencies {
         implementation(project(":agent"))
@@ -26,22 +23,6 @@ kotlin {
               ),
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/testsupport"),
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/script"),
-          )
-      )
-    }
-    jsMain {
-      kotlin.setSrcDirs(
-          listOf(
-              rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/script"),
-              rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/script"),
-          )
-      )
-    }
-    jvmMain {
-      kotlin.setSrcDirs(
-          listOf(
-              rootProject.layout.projectDirectory.dir("src/jvm/dev/martianzoo/script"),
-              rootProject.layout.projectDirectory.dir("src/jvm/dev/martianzoo/tfm/script"),
           )
       )
     }

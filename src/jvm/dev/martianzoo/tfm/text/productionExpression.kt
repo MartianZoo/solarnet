@@ -23,6 +23,29 @@ internal fun productionCategoryExpression(
       describers.plainGainCategoryNoun(production.resource, 1) != null
     }
 
+internal fun refinedProductionCategoryExpressions(
+    expression: Expression,
+    describers: Describers,
+): List<ProductionExpression>? {
+  val resolved = describers.resolveExpression(expression) ?: return null
+  if (!describers.isProduction(resolved.type.rootClass.className)) return null
+  val resource = resolved.dependency(Key(PRODUCTION, 0)) ?: return null
+  if (resource.refinement == null) return null
+  val ownerKey = Key(OWNED, 0)
+  if (resolved.dependency(ownerKey) == null) return null
+  val owner = resolved.sourceDependency(ownerKey)?.takeUnless { it == describers.ownerExpression }
+  return resource
+      .allConcreteSubtypes()
+      .mapNotNull { it.representedClass?.className }
+      .distinct()
+      .map { ProductionExpression(owner, it) }
+      .toList()
+      .takeIf { productions ->
+        productions.isNotEmpty() &&
+            productions.all { describers.plainGainCategoryNoun(it.resource, 1) != null }
+      }
+}
+
 private fun parseProductionExpression(
     expression: Expression,
     describers: Describers,
@@ -32,7 +55,7 @@ private fun parseProductionExpression(
           ?: return parseContextualProductionExpression(expression, describers)
   if (!describers.isProduction(resolved.type.rootClass.className)) return null
   val resource =
-      resolved.dependency(Key(PRODUCTION, 0))?.representedType()?.takeIf { it.refinement == null }
+      resolved.dependency(Key(PRODUCTION, 0))?.takeIf { it.refinement == null }?.representedType()
           ?: return null
   val ownerKey = Key(OWNED, 0)
   if (resolved.dependency(ownerKey) == null) return null

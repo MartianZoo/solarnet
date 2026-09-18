@@ -1,16 +1,23 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.GameEvent.TaskAddedEvent
+import dev.martianzoo.state.GameEvent.TaskEditedEvent
+import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.*
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -76,8 +83,81 @@ internal class PhantomTypeTest {
     val agent = agent()
 
     agent.runOperation("VenusTag! OR Plant<Player1>!")
+    agent.runOperation("Die! OR Plant<Player1>!")
 
-    agent.count("Plant<Player1>") shouldBe 1
+    agent.count("Plant<Player1>") shouldBe 2
+  }
+
+  @Test
+  internal fun `choices discard both structurally empty and zero-capacity branches`() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                ABSTRACT CLASS Empty
+                CLASS ZeroCapacity { HAS MAX 0 This }
+                CLASS Live
+                """,
+                players = 0,
+            )
+        )
+    val agent = game.testAgent(ADMIN)
+
+    agent.runOperation("Empty! OR Live!")
+    agent.runOperation("ZeroCapacity! OR Live!")
+    agent.runOperation("Empty?")
+    agent.runOperation("ZeroCapacity?")
+
+    agent.count("Live") shouldBe 2
+  }
+
+  @Test
+  internal fun `an optional uninhabited effect adds no task lifecycle`() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                ABSTRACT CLASS Empty
+                CLASS Source { HAS MAX 1 This; This: Empty? }
+                """,
+                players = 0,
+            )
+        )
+    val agent = game.testAgent(ADMIN)
+    val before = game.timeline.checkpoint()
+
+    agent.runOperation("Source")
+
+    game.tasks.isEmpty() shouldBe true
+    game.events
+        .entriesSince(before)
+        .map { it::class }
+        .shouldContainExactly(
+            TaskAddedEvent::class,
+            TaskEditedEvent::class,
+            ChangeEvent::class,
+            TaskRemovedEvent::class,
+        )
+  }
+
+  @Test
+  internal fun `an uninhabited effect choice is pruned before its task is added`() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                ABSTRACT CLASS Empty
+                CLASS Live
+                CLASS Source { HAS MAX 1 This; This: Empty! OR Live! }
+                """,
+                players = 0,
+            )
+        )
+    val agent = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+
+    agent.beginOperation("Source") {
+      game.tasks.extract { it.instruction.toString() }.shouldContainExactly("Live!")
+    }
   }
 
   @Test
@@ -105,6 +185,6 @@ internal class PhantomTypeTest {
             initialComponentTypes = setOf(cn("PhantomEffectProbe").expression),
         )
 
-    shouldThrow<IllegalArgumentException> { Engine.newGame(premise) }
+    shouldThrow<PetException> { Engine.newGame(premise) }
   }
 }

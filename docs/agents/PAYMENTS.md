@@ -1,226 +1,243 @@
-# Payment allocation
+# Payment simplification plan
 
 > **NOTE:** This document is used by agents to capture information for themselves to read later; a
 > human didn't write it and we don't expect humans to read it. The project owner can't personally
 > vouch for the information here.
-
-> **Read when:** fixing excess payment, recording tender value, attributing payment contributions,
-> or evaluating Helion/Stormcraft implications for one auditable allocation.
 >
-> **Skip when:** changing Action-to-billing lowering without changing allocation; use
-> [ACTIONS.md](ACTIONS.md).
+> **Read when:** changing card or action billing, payment choices, tender value, excess-payment
+> legality, or the player-facing payment APIs.
 >
-> **Status:** current `TfmGameplay` legality and replay-audit behavior. The engine-level allocation
-> defect described below remains open.
+> **Skip when:** changing a direct non-payment action cost; use [ACTIONS.md](ACTIONS.md).
+>
+> **Status:** investigation-first simplification plan. Freeze new payment capabilities until the
+> decision gates below are settled.
 
-## Source map
+## Objective
 
-- [Terraforming Mars `payment.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets)
-  — search separately for `CLASS Pay`, `CLASS ResourceValue`, `CLASS Owed`, and
-  `ABSTRACT CLASS Billing` to inspect the current protocol.
-- [Colonies `cards.json5`](../../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/cards.json5)
-  — search for `Stormcraft` only when evaluating source attribution.
-- [`TfmGameplay.kt`](../../src/common/dev/martianzoo/tfm/engine/TfmGameplay.kt)
-  — search for `rejectReturnableUnit` for legality, `auditSourcedTender` for replay auditing, and
-  `paymentValue` for the per-unit value query.
-- [`PaymentSpecializationTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/PaymentSpecializationTest.kt)
-  and [`BugsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt)
-  — read before choosing a repair.
+Payment should be one intelligible operation:
 
-## What must be fixed
+1. establish debt and apply every cost adjustment;
+2. let the payer choose one legal complete tender; and
+3. continue the card play or action only after settlement.
 
-Payment **sequencing** and payment **allocation evidence** are separate. The proposed sequencing
-direction in [ACTIONS.md](ACTIONS.md#proposed-single-payment-choice-loop) offers one required
-abstract tender choice at a time and removes Billing directly when no matching debt remains. That
-removes parallel tender tasks, explicit rejection of unused methods, and client-side cleanup scans.
-It does not reveal gross value hidden by saturated `Owed` removals and does not by itself repair the
-allocation defect below.
+The common exact-M€ case must remain visibly common. Steel, Titanium, card-held resources, and
+discounts must not turn every payment into a distributed protocol that a client reconstructs from
+tasks and causes.
 
-The payment system must eventually distinguish three facts:
+Success means fewer permanent concepts and less event and task churn, not merely shorter Kotlin.
+Do not add an aggregate-payment representation alongside the current protocol.
 
-1. which indivisible resources the player chose to spend;
-2. the full value contributed by each resource after every applicable rule; and
-3. how much of the combined value was needed to settle the billing.
+## Established findings
 
-Today it preserves the first fact but not the other two. `Pay` and `PayFromCard` remove the selected
-resource. Each owned `ResourceValue` for that resource then removes one M€-denominated `Owed`,
-stopping harmlessly when no matching debt remains. Players start with two `BaseResourceValue`
-components for steel and three for titanium. Advanced Alloys and the single-resource modifier cards
-grant source-dependent values; Martian Lumber Corp demonstrates the same rule with three plant
-values. M€ has no `ResourceValue`: `Pay` already settles debt when the paid resource and billing
-denominations match. If the earlier removals exhaust the debt, a later value component records no
-contribution. The result depends on automatic-effect execution order, although that order is not a
-game rule and must not decide which source receives credit.
+### Current complexity is not all forced
 
-Consequently the engine cannot tell the difference between value that was never offered and value
-that was offered but unnecessary. Direct task execution can therefore settle a debt after an
-illegal selection. `BugsTest.Space Elevator incorrectly accepts payment that wastes one steel`
-captures the known failure. `TfmGameplay.pay` prevents some such selections in advance, but its
-check applies to the complete tender: it rejects the payment exactly when removing a selected unit
-would still cover the debt. This permits unavoidable rounding excess while rejecting a genuinely
-returnable unit. Direct task callers can still bypass the helper altogether.
+[Terraforming Mars `payment.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets)
+currently distributes payment across `Owed`, `Billing`, `ActionBilling`, `CardBilling`,
+`Accepting`, `AcceptingFromCard`, `Pay`, `PayFromCard`, and `ResourceValue`.
+[`TfmGameplay.pay`](../../src/common/dev/martianzoo/tfm/engine/TfmGameplay.kt) changes autoexecution
+policy and searches the task pool for billing, offers, and cause-related follow-up work.
+[`TfmPayCommand`](../../src/common/dev/martianzoo/tfm/script/commands/TfmPayCommand.kt) submits each
+tender kind separately and declines unused offers.
 
-Exact payment cannot replace the real rule. Reconstructed games contain legitimate payments whose
-resource values do not sum exactly to the price, so forbidding every excess would reject sourced
-play.
+That client choreography is not a game rule. Cash-only payment still creates and removes `Owed`,
+`Accepting`, `Billing`, and `Pay`; a zero-cost card still creates and removes `CardBilling`. These
+are primary simplification probes.
 
-## Client legality and replay audit
+### The older model was smaller but not sufficient
 
-`TfmGameplay.pay` always applies the legality rule above. There is no caller opt-out: a replay marker
-cannot turn an illegal tender into a legal one.
+The earlier `Owed`/`Accept`/`Pay` model proves that today's identity hierarchy is not inherent. It
+still created parallel optional offers, required cause-based cleanup, exposed payment before all
+adjustments necessarily settled, concealed excess through saturating debt removal, and kept
+card-held tender outside one checked allocation. Recover its conceptual scale, not its defects.
 
-`TfmGameplay.requireExplicitPaymentChoices()` separately audits sourced allocation choices without
-changing legality or the engine's payment model. By default it spends each accepted above-par
-resource at full value before M€ and preserves a 1:1 resource when M€ can settle the bill. A sourced
-departure calls `intentionalUnderpay()` immediately before that payment. The audit does not apply
-when the instruction requires a particular resource rather than billing in M€.
+### A whole tender is not one current task
 
-`paymentValue` reads the value already represented in the component graph: one when the live debt
-uses the paid resource's denomination, plus the payer's `ResourceValue` components for that
-resource. It does not mutate and roll back the World to answer the query.
+One task cannot currently bind independently chosen quantities of M€, Steel, Titanium, and
+card-held resources. Instruction groups split into separate tasks, and `THEN` remains one task only
+to preserve shared `X` or an abstract Type variable. One engine task for a complete tender therefore
+requires a new representation or task capability.
 
-The helper follows the payer's Actor through a cross-Player workflow. The active Player may control
-when a triggered option is selected, while the component owner chooses the option and settles the
-owner's billing. The helper may therefore advance concrete billing work through its current
-assignee before the payer chooses tender; this coordinates existing task delegation and does not
-change task ownership.
+That capability is necessary only if raw engine tasks must themselves accept and validate complete
+tenders. Current player-facing clients already receive several ordinary tender kinds in one call
+and execute their separate task choices inside one atomic transaction. They do not represent every
+card-held source inside that same checked allocation, so a trusted-boundary design must extend the
+client tender without creating a second game model. The enforcement boundary is an open product and
+ownership decision, not a technical conclusion.
 
-## Working statement of the rule
+### The real requirements are narrower than the current model
 
-For debt `D`, let the selected indivisible payment units have effective values `v1 ... vn`, let
-`P` be their sum, and let excess `E = P - D`. The discussed rule is:
+| Requirement | What it establishes | What it does not establish |
+| --- | --- | --- |
+| Finalized debt | Discounts and surcharges need one amount and denomination to modify. | The current billing identity hierarchy. |
+| Post-adjustment choice boundary | Tender cannot be committed before automatic adjustments finish. | A persistent billing component. |
+| Complete-tender validation | Excess legality depends on every selected indivisible unit. | A one-unit task loop. |
+| Queryable effective value | Boom Town and value-increasing cards make value dynamic data. | One component per M€ or attribution in execution state. |
+| Contextual modifier hook | Rules need card Class, action family, denomination, or settlement timing. | `CardPlay`, `ActionSlot`, or meaningless provider/slot pairs. |
+| Completion before consequences | Cards and action results must wait for successful settlement. | Billing removal as the only possible latch. |
+
+The current working excess rule for debt `D`, selected unit values `v1 ... vn`, and total `P` is:
 
 ```text
-P >= D and E < vi for every selected unit i
+P >= D and P - D < vi for every selected unit i
 ```
 
-Equivalently, removing any one selected unit would make the payment insufficient. This
-"nothing can be returned" formulation is useful because it avoids calculating the minimum value
-as a separate concept. It still requires the system evaluating the allocation to know or reproduce
-each unit's complete effective contribution.
+It permits unavoidable rounding excess but rejects a tender from which one unit can be returned.
+The authoritative rule remains unverified.
 
-The precise official rule and its treatment of unusual payment conversions remain to be verified
-from an original Jacob ruling before this becomes committed behavior.
+## Constraints on the investigation
 
-## Attribution is related but not identical
+- Do not implement the proposed one-unit loop in [ACTIONS.md](ACTIONS.md). It multiplies task cycles
+  for cash, cannot validate the complete tender by itself, and still needs completion machinery.
+- Defer Helion, composable conversion chains, and allocation attribution.
+- Do not assume `Billing`, `ActionBilling`, `CardBilling`, `CardPlay`, `ActionSlot`, `Accepting`,
+  `PayFromCard`, or per-M€ `ResourceValue` components survive.
+- Do not build a generic engine feature unless a prototype shows a clear game-independent contract
+  and substantial net deletion.
+- Preserve the known Space Elevator defect as a visible `BugsTest` until the rule and enforcement
+  boundary are selected.
 
-We want the history to show when Advanced Alloys, PhoboLog, Psychrophiles, and similar rules
-contributed and by how much. That requires recording gross contributions before debt consumption
-saturates. It does not necessarily yield one objectively correct allocation of the consumed debt.
-When several bonuses contribute to a payment containing excess, saying which bonus was "needed"
-may require a reporting convention or a counterfactual definition. Registration order is not an
-acceptable convention.
+## Investigations before selecting a design
 
-The durable facts are the chosen source units, every conversion or bonus they caused, their gross
-terminal values, the debt consumed, and the resulting excess. Analytics can derive a stated form of
-credit from those facts without making that choice part of payment execution.
+### 1. Inventory live requirements
 
-## Candidate designs
+Classify every production listener of `Billing`, `ActionBilling`, `CardBilling`, `Accepting`,
+`Pay`, `PayFromCard`, and `ResourceValue` as one of:
 
-### Validate in a client
+- pre-payment debt adjustment;
+- accepted tender source;
+- tender value;
+- post-settlement reward;
+- continuation or cleanup; or
+- reporting only.
 
-**Adopted for `TfmGameplay.pay`.** The client assembles the complete payment, calculates its
-effective unit values, and submits only legal selections. It removes each selected unit in turn and
-rejects the allocation if any reduced selection still covers the billing.
+For each distinct rule shape, record its minimum context and whether an existing card-play or action
+event can own it. Listener count alone does not justify today's identity shape.
 
-This is a legitimate division of responsibility in a follow-mode engine, especially when the
-engine exposes low-level choices rather than owning the player's whole move. It also has the lowest
-engine cost. Owned `ResourceValue` counts expose the direct value of accepted standard resources,
-with each modifier recorded as the source of its granted values. The model still supplies too little
-evidence for a general client to handle every conversion reliably: saturated `Owed` removals conceal
-gross value, and payment conversions may be transitive. Raw task callers would still be able to
-create an illegal history, and that limitation must remain explicit.
+### 2. Establish concurrency and ownership needs
 
-### Give the last, least-valued unit AMAP settlement
+Use minimal scenarios to answer:
 
-Require every earlier payment unit to contribute its full value, then let one final unit remove as
-much remaining debt as possible. This is mathematically complete if that final unit has minimum
-value. If the final unit has value `v` and excess is legal, all preceding units total
-`D + E - v < D`, so positive debt necessarily remains for it.
+- Can one payer legally have two live obligations at once?
+- Can payment create required work assigned to another Actor?
+- Must two actions from one provider remain distinguishable while both obligations are live?
+- Is payer plus denomination enough for any useful subset of the corpus?
 
-This approach is small operationally but does not discover which unit is least-valued. A trusted
-client could order that unit last; unrestricted engine tasks could choose the wrong final unit. A
-rule that identifies the last unit inside the engine needs the same effective-value information as
-direct validation.
+Do not retain identity for hypothetical concurrency.
 
-### Record an allowed excess reserve
+### 3. Verify legality evidence
 
-The billing could create `AllowedOverpayment` units. Payment effects would remove plain `Owed`
-first and the reserve second, failing if their complete value could remove neither. This records
-excess and prevents silent saturation. It does not explain how much reserve to create: the legal
-amount depends on the least-valued selected unit, which is not known when the billing is created.
-Making every payment source add its own allowance is wrong because the allowance is a minimum, not
-a sum.
+Confirm the excess-payment rule from authoritative evidence before building engine enforcement
+around it. Inventory reconstructed payments with unavoidable excess so exact payment is not adopted
+as a false simplification.
 
-### Temporarily lend debt and take the unused part back
+### 4. Measure representative operations
 
-Before accepting payment, the engine could add artificial debt `K`. Against real debt `D`, a
-payment worth `D + E` leaves `K - E` of the artificial debt. Removing that unused debt afterward
-leaves `E` as an explicit record. This lets every contributing effect execute fully without knowing
-its value in advance.
+Record event and task counts, transient components, and client calls for:
 
-The trick discovers excess but cannot decide whether that excess is legal without learning the
-least unit value or attempting the return test. It also needs a safe `K` and must keep artificial
-debt out of attribution. It is therefore useful mainly as evidence that excess can be surfaced by
-reversible bookkeeping, not yet as a complete design.
+- exact-M€ card payment;
+- one discount;
+- mixed M€/metal with a value modifier;
+- one card-held source such as Psychrophiles;
+- the illegal Space Elevator tender;
+- a non-M€ obligation such as Trade; and
+- a cross-Actor payment consequence if one exists.
 
-### Escrow sources and try returning each one
+Use the measurements as design diagnostics, not brittle production assertions.
 
-Selected resources could remain in payment escrow until the billing has been evaluated. The engine
-would reject the selection if any single source unit could be returned while the remainder still
-covers the debt. This expresses the working rule directly and supports strange conversion chains.
+### 5. Prototype four bounded alternatives
 
-It is complete, but reversing one source unit requires retaining that unit's entire causal group of
-base value, bonuses, and conversions. Implemented properly, this is a per-allocation payment ledger
-or counterfactual evaluator. That may ultimately be the right model, but it is not a small trick.
+Each prototype covers only exact cash, one discount, one mixed tender, and one card-held source.
+Do not migrate the corpus during comparison.
 
-### Produce tender or credit before consuming debt
+**A. Trusted whole-tender settlement.** Keep complete-tender submission at the player-facing
+boundaries, but replace per-method optional tasks and cleanup with the smallest domain-owned
+settlement operation. Determine whether Pets can continue to own accepted sources and values while
+the client only chooses them. Include a card-held source in the submitted allocation without
+mirroring holders or values in a client model. Record the raw-task legality gap explicitly.
 
-Instead of having each payment effect remove `Owed` immediately, spending could produce a payment
-signal, conversions and bonuses could produce further payment value, and only the terminal value
-would settle the billing. Each signal would remain associated with both its source unit and its
-billing. This would preserve gross value and attribution and could support either engine or client
-validation.
+**B. One whole-tender engine task.** Add the smallest way for one task to bind several independent
+quantities and validate them together. Decide whether this is honest generic task semantics or a
+Terraforming Mars instruction. Reject it unless the resulting deletions decisively outweigh the new
+cross-module concept.
 
-This is the most coherent systemic direction found so far, but it adds an intermediate concept and
-may require payment units to remain grouped. It should not be adopted solely to make one failing
-test pass. A prototype would need to demonstrate that it simplifies the existing Steel, Titanium,
-card-resource, and modifier rules as a whole.
+**C. Sequential tender choices.** Select one source at a time, in batched quantities rather than
+necessarily one physical unit. Determine how the complete allocation accumulates, how the player
+finishes or corrects it, how excess is validated, and what resumes the enclosing operation. Reject
+any version that creates a parallel ledger or leaves cash comparably noisy.
 
-## What Helion and Stormcraft reveal
+**D. Owner-scoped escrow.** Transfer selected resources temporarily to an
+`Escrow<Payer, Obligation>` Owner, then validate and consume the collected tender or return it on
+cancellation. This may let existing single-resource choices assemble a complete allocation without
+a multi-quantity task.
 
-Helion support is low priority and is not part of the current payment-fix scope. Ordinary Heat cubes
-could use the same `ResourceValue<Class<Heat>>` representation now exercised by plants, steel, and
-titanium. The combination with Stormcraft is still a useful test of whether a proposed model
-composes.
+Escrow must answer:
 
-Stormcraft currently responds to a Heat `Billing` by offering `PayFromCard<Stormcraft>`, then that
-signal directly removes two `Owed<Heat>`. If Helion makes Heat acceptable for an M€ billing, simply
-having Stormcraft react to `Accepting<Heat>` would expose the floater choice but would not complete the
-conversion: `PayFromCard<Stormcraft>` would still seek Heat debt while the billing contains M€ debt.
-The signal also does not retain that the floater represents two Heat.
+- Can standard resources be owned by Escrow without firing Player resource rules against the wrong
+  owner?
+- Can card-held resources move there without breaking the rule that their Owner follows their
+  holder, or would escrow require duplicate tender tokens?
+- Do deposits fire loss, gain, conversion, or payment effects before acceptance?
+- Can invalid completion restore resources and consequences when deposits came from separately
+  committed tasks?
+- Can escrow retain payer, obligation, source, and effective value without becoming a second
+  ledger?
 
-The designer-ruling premise supplied for this discussion requires the conceptual chain:
+Reject escrow if standard and card-held resources need different shadow forms, if returning a
+deposit differs observably from never spending it, or if its lifecycle rivals the present protocol.
 
-```text
-Stormcraft floater -> two Heat payment units -> Helion conversion -> M€ billing value
-```
+Compare all four alternatives by permanent concepts, affected modules, event/task counts, client
+knowledge, raw-task legality, and card-specific rules.
 
-A future model can support that either by making conversions composable or by evaluating the whole
-chain in a client. It must also associate the chain with one billing component so the same Heat
-value cannot settle unrelated Heat and M€ debts. This example favors recording payment production separately
-from debt consumption, but its low product priority means it is a design check, not a reason to
-implement Helion now.
+### 6. Minimize identity independently
 
-## Present direction
+Prototype the smallest event or interval satisfying the listener inventory. Test a late card-play
+event, concrete action identity, payer plus denomination, and scoped operation. Do not wait for the
+allocation design to remove identity no rule needs.
 
-First replace the distributed parallel-task lifecycle with the single payment-choice loop while
-preserving the exact `Pay` and `PayFromCard` history needed by later allocation work. Complete
-Billing directly from debt reaching zero. Do not add a separate `Paid` component: billing removal
-remains the completion event.
+## Decision and implementation sequence
 
-Do not repair Space Elevator by prohibiting all excess or by relying on automatic-effect order.
-Client-side return testing is the initial enforcement point and reads per-unit value from
-owned `ResourceValue` components. It does not reach raw task callers or expose complete transitive
-payment value. A larger in-engine ledger is justified only if it makes those existing rules
-materially clearer rather than adding a second machinery alongside them.
+1. Complete the listener, concurrency, legality, and measurement investigations.
+2. Settle the enforcement boundary with the project owner.
+3. Run the four small prototypes and review deletion as carefully as addition.
+4. Select one representation; retain no compatibility path or parallel model.
+5. Implement one vertical slice covering exact cash, a discount, mixed tender, card-held tender,
+   and one post-settlement rule.
+6. Apply the complexity budget before migrating remaining cards and replays.
+7. Delete obsolete billing Classes, offer cleanup, cause scans, and client policy manipulation as
+   part of the same program.
+8. Reconsider attribution and unusual conversions only after execution is simple and stable.
+
+## Acceptance criteria
+
+- One debt source of truth and one completion rule.
+- One complete allocation decision, even if several removals execute internally.
+- No unused offers or cleanup for exact cash.
+- No player-facing search through `cause.context`, rendered instructions, or the whole task pool to
+  discover payment scope.
+- Adjustments finish before tender can commit.
+- Complete-tender validation at the selected boundary.
+- Ordinary and card-held resources follow one allocation rule.
+- Effective value is queryable without speculative World mutation and rollback.
+- No dependence on automatic-listener order.
+- A net reduction in concepts and cross-module knowledge.
+
+## Settled project constraints
+
+- Simplifying the action and payment lifecycle is a current priority ahead of a broader Pets
+  conformance program.
+- Keep complete replays working throughout the redesign; this appears feasible and temporary replay
+  breakage is not a useful default plan. This does not prevent a separate, deliberate decision to
+  drop a card whose support imposes disproportionate permanent complexity.
+- Do not complicate the payment model to achieve perfect causal attribution. Preserve enough event
+  facts for current traceability and post-process the logs when a richer explanation is wanted.
+
+## Open questions for the project owner
+
+1. **Enforcement boundary:** Must raw engine tasks reject an illegal complete tender, or is legality
+   at `TfmGameplay` and script boundaries sufficient for now?
+2. **Core-engine budget:** Is a multi-quantity task capability acceptable only if a prototype shows
+   substantial net deletion and a clean game-independent contract?
+3. **Fidelity timing:** Should the excess-payment rule be researched before implementation, or
+   should simplification provisionally preserve the current client rule?
+4. **Common-case budget:** Should exact-M€ payment have no payment-option components, or is one
+   explicit payment-window component acceptable if it materially simplifies modifiers?

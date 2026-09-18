@@ -1,52 +1,60 @@
 "The base Terraforming Mars rules"
 CLASS TerraformingMars : BaseGameModule {
+  autoSelectWhen = HAS "MAX 0 TerraformingMars"
+
   HAS =1 GameMode, =1 MarsMap
   HAS Class<Production>
-  HAS Class<BootstrapPhase>, Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>, Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<VenusSolarPhase>, Class<ColoniesSolarPhase>, Class<TurmoilSolarPhase>, Class<FinalGreeneryPhase>, Class<End>
+  HAS Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>
+  HAS Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<VenusSolarPhase>
+  HAS Class<ColoniesSolarPhase>, Class<TurmoilSolarPhase>, Class<FinalGreeneryPhase>, Class<End>
   HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
-  autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
   This: SellPatentsProject, PowerPlantProject, AsteroidProject, AquiferProject, GreeneryProject, CityProject
   This: PlayCardFromHandAction, UseStandardProjectAction, UseActionOnCardAction, ConvertPlantsAction, ConvertHeatAction
   This: DoRequiredActionsAction
-  This: Action1, Action2, Action3, CardPurchase, CardPlay
-  This: Hand, Selecting, Revealed, GenerationScope
+  This: Hand, Selecting, Revealed, CardPurchase, CardPlay
   This: EACH Class<GlobalParameter> { GpIncomplete<Class<GlobalParameter>> }
   This: EACH Class<RemoteArea> { RemoteArea }
+  This: EACH Class<ActionSlot> { ActionSlot }
 
   ModulesReady IF MAX 0 ExtendedGlobalParametersRule: StandardGpTrackRules
 
+  // TODO: get rid of
   CorporationPhase: Photosynthesis
   CorporationPhase:: EACH Class<CardWatcher> { CardWatcher }
 
+  // TODO: do we need `IF Owed` ... if so could `Accepting` just remove itself when no Owed exist?
   PlayTag<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>
   PlayTag<Class<SpaceTag>> IF Owed:: Accepting<Class<Titanium>>
 }
 
-"Starts each player with one production of every standard resource"
+"Variant rule: each player begins with 1 of each production"
 CLASS QuickStartVariant : Module {
   autoSelectWhen = HAS "TerraformingMars, MAX 0 CorporateEraExpansion"
 
   SetupPhase: EACH Player { PROD[MC, Steel, Titanium, Plant, Energy, Heat] }
 }
 
-"An affirmative, immutable Module active in a playable game"
+"A singleton immutable provider of rule content based on game options"
 ABSTRACT CLASS Module : System {
-  HAS =1 This
   autoSelectWhen = Requirement?
   premiseRequirement = Requirement?
-  -This:: Die!
+
+  HAS =1 This
 }
 
+// TODO: why do we need this
 "The Module whose immediate setup must precede every other selected Module"
 ABSTRACT CLASS BaseGameModule : Module { HAS =1 BaseGameModule }
 
+// TODO: why do we need this
 "Signals that the complete selected Module layer is live"
 CLASS ModulesReady : Signal
 
 "Exactly one player-count Module active in a playable game"
 ABSTRACT CLASS GameMode : Module {
-  HAS MAX 1 GameMode
+  HAS MAX 1 GameMode // TODO =1 ??
+  // TODO: why would we ever need this?
   premiseRequirement = HAS "=1 TerraformingMars"
 
   "Multiplayer rules, including the end condition that deliberately excludes Venus"
@@ -57,6 +65,8 @@ ABSTRACT CLASS GameMode : Module {
     This: ClaimMilestoneAction, FundAwardAction
     This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
     SetupPhase: EACH Player { 20 TerraformRating }
+
+    // TODO: something better for this to trigger on
     -FinalScoringPending: EACH Player(HAS =1 (RANK Player { VictoryPoint, MC })) { Victory }
   }
 }
@@ -71,8 +81,10 @@ ABSTRACT CLASS Player : Owner, Actor {
   This: 5 ProdOffset<This, Class<MC>> BY Admin
   This: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
 
-  SetupPhase: 2 CorporationCard THEN -CorporationCard \
-    THEN 10 ProjectCard THEN -10 ProjectCard?
+  SetupPhase: 2 CorporationCard THEN 10 ProjectCard THEN NewTurn
+  NewTurn IF SetupPhase: -CorporationCard, \
+    ((ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>) THEN -10 ProjectCard<Selecting>? \
+      THEN (ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>))
   ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
 }
 
@@ -83,14 +95,12 @@ CLASS TerraformRating : Owned<Player> {
 }
 
 "Marks the player who takes the first turn"
-CLASS StartToken : Owned<Player> {
-  HAS =1 StartToken
-}
+CLASS StartToken : Owned<Player> { HAS =1 StartToken }
 
 "Identifies the Player immediately after another Player in seat order"
 CLASS AfterMe<Owner, Player> : System {
   HAS MAX 1 This
-  ResearchPhase IF StartToken<Owner>: StartToken<Player> FROM StartToken<Owner>.
+  ResearchPhase IF StartToken<Owner>: StartToken<Player FROM Owner>.
 }
 
 "The current game phase; exactly one exists from bootstrap through the terminal End phase"
@@ -101,8 +111,8 @@ ABSTRACT CLASS Phase : System {
   CLASS SetupPhase { This:: Generation }
   CLASS CorporationPhase {
     NewTurn: PlayCard<Class<CorporationCard>, Hand>, \
-      (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>), \
-      -10 ProjectCard<Selecting>? THEN BuySelectedCards
+      (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>)
+    -CorporationCard<Hand>: BuySelectedCards
   }
   CLASS ResearchPhase { This:: Generation }
   CLASS ActionPhase {
@@ -134,7 +144,9 @@ CLASS SecondAction : Owned<Player>, Signal
 CLASS Pass<GenerationScope> : Owned<Player> { HAS MAX 1 This }
 
 "Tells what generation we're in"
-CLASS Generation : System
+CLASS Generation : System {
+  This IF MAX 0 GenerationScope:: GenerationScope
+}
 
 "The lifetime anchor for components that exist only during the current generation"
 CLASS GenerationScope : Scope, System {
@@ -142,7 +154,7 @@ CLASS GenerationScope : Scope, System {
   Generation:: -This! THEN This!
 }
 
-"Something that prevents the game from ending at the post-production check"
+"Anything that prevents the game from ending"
 ABSTRACT CLASS GameEndBarrier
 
 "Signals the post-production check after the final GameEndBarrier is removed"

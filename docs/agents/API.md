@@ -25,7 +25,7 @@
   [`TaskQueue.kt`](../../src/common/dev/martianzoo/state/TaskQueue.kt) is its filtered read view, and
   [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) constructs normalized task
   events.
-- [`Access.kt`](../../src/common/dev/martianzoo/script/Access.kt) implements current script-only
+- [`Access.kt`](../../src/common/dev/martianzoo/tfm/script/Access.kt) implements current script-only
   access modes.
 - [GAMEWORLD.md](GAMEWORLD.md) owns task data and recording navigation;
   [RESPONSIBILITIES.md](RESPONSIBILITIES.md#selected-runtime-dependency-direction) owns the target
@@ -71,6 +71,8 @@ option the task did not already permit.
 An unselected task may receive a state-independent narrowing, such as replacing a Type with a
 subtype established by immutable Class facts. It remains unselected and unexecuted. This operation
 must not evaluate AMAP, a gate, a Metric, current viability, or any other mutable-World fact.
+When narrowing removes the shared variables that required a `THEN` sequence to remain one task, the
+same task exposes its first stage and retains the rest as its continuation without executing either.
 Selection establishes the promise to act next and the select-lock before those facts are resolved.
 The current `Agent.narrowTask(taskId, narrowing)` implements this check; the selected-task overload
 retains state-aware resolution and immediate execution when the result becomes concrete.

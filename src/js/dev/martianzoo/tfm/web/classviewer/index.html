@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta http-equiv="Cache-Control" content="no-store">
+    <title>Pets Almanac</title>
+    <link rel="stylesheet" href="class-viewer.css?v=20260917-2">
+  </head>
+  <body>
+    <header class="toolbar">
+      <span class="brand">Pets Almanac</span>
+      <div class="search-wrap">
+        <label for="class-search">Class</label>
+        <input id="class-search" type="text" role="combobox" aria-autocomplete="list"
+               aria-controls="class-suggestions" aria-expanded="false" autocomplete="off"
+               spellcheck="false" placeholder="Type a class name">
+        <div id="class-suggestions" class="suggestions" role="listbox" hidden></div>
+      </div>
+      <span id="class-count" class="class-count"></span>
+    </header>
+
+    <main id="class-columns" class="columns"></main>
+    <footer class="credits">
+      Thanks to the
+      <a href="https://github.com/hadronikle/Complete-Terraforming-Mars-Card-Database"
+         target="_blank" rel="noopener">Complete Terraforming Mars Card Database</a>
+      for card scans; icon images swiped from
+      <a href="https://github.com/terraforming-mars/terraforming-mars"
+         target="_blank" rel="noopener">terraforming-mars/terraforming-mars</a>.
+    </footer>
+    <script src="class-viewer.js"></script>
+  </body>
+</html>

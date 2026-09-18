@@ -34,6 +34,24 @@ internal class TriggerScalingTest {
     }
   }
 
+  /** Rule L8-4: a self trigger scales by the number of copies that very change gained. */
+  @Test
+  internal fun `a self trigger scales by the number of copies changed`() {
+    val premise =
+        canonicalPremise(
+            catalog = catalog,
+            initialComponentTypes = setOf(cn("TriggerScalingProbe").expression),
+        )
+    val game = Engine.newGame(premise)
+    val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+
+    agent.beginOperation("3 SelfScaler!") {
+      game.tasks
+          .extract { it.instruction.toString() }
+          .shouldContainExactlyInAnyOrder("3 SelfResult!")
+    }
+  }
+
   private companion object {
     val declarations =
         object : TfmCatalog() {
@@ -45,6 +63,8 @@ internal class TriggerScalingTest {
                       CLASS UnscaledResult
                       CLASS BoundResult
                       CLASS FixedResult
+                      CLASS SelfResult
+                      CLASS SelfScaler { This: SelfResult }
 
                       CLASS TriggerScalingProbe {
                         HAS =1 This

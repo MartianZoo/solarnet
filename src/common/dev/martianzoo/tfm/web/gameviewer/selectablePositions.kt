@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.web.gameviewer
 
 import dev.martianzoo.state.Checkpoint
 
-/** Recording positions whose preceding displayed step contains a visible log event. */
+/** Recording positions whose preceding step is visible, plus the initial and final positions. */
 internal fun selectablePositionIndices(
     positions: List<Checkpoint>,
     visibleEventOrdinals: List<Int>,
@@ -18,5 +18,6 @@ internal fun selectablePositionIndices(
       selected += candidateIndex
     }
   }
+  if (selected.last() != positions.lastIndex) selected += positions.lastIndex
   return selected
 }

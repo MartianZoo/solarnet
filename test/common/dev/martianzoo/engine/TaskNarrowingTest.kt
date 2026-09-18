@@ -45,6 +45,16 @@ internal class TaskNarrowingTest {
   }
 
   @Test
+  internal fun `nonmandatory Die is the empty zero-capacity change`() {
+    initiate("Die?")
+    initiate("Die.")
+
+    tasks.isEmpty() shouldBe true
+    history().shouldBeEmpty()
+    game.timeline.checkpoint() shouldBe start
+  }
+
+  @Test
   internal fun `initiating an abstract task works as expected`() {
     initiate("2 Plant?")
 
@@ -429,6 +439,63 @@ internal class TaskNarrowingTest {
     writer.doTask("3 Plant")
 
     tasksAsText().shouldContainExactly("3 Heat<Player1>?")
+  }
+
+  @Test
+  internal fun `a later stage can exclude the type selected by the first stage`() {
+    writer.runOperation("Plant, Heat")
+    initiate("StandardResource THEN -StandardResource(NOT StandardResource)")
+
+    writer.doTask("Steel")
+
+    tasksAsText().shouldContainExactly("-StandardResource<Player1>(NOT Steel<Player1>)!")
+    writer.doTask("-Plant")
+    writer.count("Steel") shouldBe 1
+    writer.count("Plant") shouldBe 0
+    writer.count("Heat") shouldBe 1
+  }
+
+  @Test
+  internal fun `a first-stage gate waits for its shared choice`() {
+    writer.runOperation("Plant")
+    initiate("(StandardResource: StandardResource) THEN StandardResource")
+
+    shouldThrow<TaskException> { writer.doTask("Heat") }
+    writer.doTask("Plant")
+
+    writer.count("Plant") shouldBe 2
+    tasksAsText().shouldContainExactly("Plant<Player1>!")
+  }
+
+  @Test
+  internal fun `a transmutation can exclude its selected source from the destination`() {
+    writer.runOperation("Plant")
+    initiate("StandardResource(NOT StandardResource) FROM StandardResource")
+
+    writer.doTask("Steel FROM Plant")
+
+    writer.count("Steel") shouldBe 1
+    writer.count("Plant") shouldBe 0
+  }
+
+  @Test
+  internal fun `unselected X binding exposes a separable THEN head without executing it`() {
+    val taskId = initiate("X Plant THEN X Heat THEN Steel").single()
+
+    writer.narrowTask(taskId, "3 Plant THEN 3 Heat THEN Steel")
+
+    val task = tasks.getTaskData(taskId)
+    task.instruction.toString() shouldBe "3 Plant<Player1>!"
+    task.then.toString() shouldBe "3 Heat<Player1>! THEN Steel<Player1>!"
+    task.selected shouldBe false
+    writer.count("Plant") shouldBe 0
+
+    writer.doTask("3 Plant")
+
+    writer.count("Plant") shouldBe 3
+    val continuation = tasks.extract { it }.single()
+    continuation.instruction.toString() shouldBe "3 Heat<Player1>!"
+    continuation.then.toString() shouldBe "Steel<Player1>!"
   }
 
   @Test

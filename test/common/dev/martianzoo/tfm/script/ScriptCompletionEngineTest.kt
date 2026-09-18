@@ -1,9 +1,6 @@
 package dev.martianzoo.tfm.script
 
 import dev.martianzoo.agent.Agent
-import dev.martianzoo.script.ScriptCompletion
-import dev.martianzoo.script.ScriptCompletionEngine
-import dev.martianzoo.script.ScriptSession
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -14,8 +11,8 @@ internal class ScriptCompletionEngineTest {
   private val completer = ScriptCompletionEngine(repl)
 
   init {
-    repl.command("as Player1 task -10 ProjectCard<Hand>")
-    repl.command("as Player2 task -10 ProjectCard<Hand>")
+    repl.command("as Player1 task -10 ProjectCard<Selecting>")
+    repl.command("as Player2 task -10 ProjectCard<Selecting>")
   }
 
   @Test

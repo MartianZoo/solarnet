@@ -30,8 +30,8 @@ Every rule is checked by tests whose names begin with the same id, in
 | 13. Type variables | `Spec13TypeVariablesTest.kt` |
 
 So `grep -rn "T8-9" docs/type-system-spec.md test/common/dev/martianzoo/pets/types/` finds a rule and
-everything that proves it. One known departure from these rules has a passing characterization in
-`BugsTest.kt`; it is flagged where it belongs and listed again in the appendix.
+everything that proves it. Where a rule and the implementation are known to disagree, the rule says
+so and Appendix A records the departure. There is one such departure today.
 
 Examples use real Terraforming Mars component names — `GreeneryTile`, `Tharsis_2_2`, `Plant`,
 `Cardbound` — but the declarations shown are simplified. They illustrate a rule; they are not a
@@ -64,6 +64,29 @@ A few terms are used precisely throughout:
   the master cannot refer back to it, and its names cannot replace master names.
 - A **universe** combines one master class table with at most one premise class table and one
   game's premise-selected view.
+
+### What a structural type denotes
+
+A universe is closed and every concrete class is final (T2-3), so the concrete types below any
+structural type form a fixed, finite set. Call it that type's **extension**. `Tile`'s extension is
+every concrete tile type in the universe; `Tharsis_2_2`'s is itself; an uninhabited type's is empty.
+
+Most of this specification is about that set, and several rules are already stated in terms of it: a
+difference removes members (T8-4), enumeration lists them (T11-1), inhabitance asks whether any
+remain (T12-4), and automatic narrowing asks whether exactly one does (T11-4). Two properties tie
+the rest to it:
+
+- **Subtyping is sound for it.** If `A <: B` then every member of A's extension is a member of B's.
+- **A meet is exact when it exists.** When `A ⊓ B` is a type, its extension is exactly the overlap
+  of theirs (T7-1).
+
+The converses are deliberately not claimed. Subtyping is nominal (T2-4): an abstract class whose
+only concrete subclass is `Foo` has the same extension as `Foo` without becoming the same type, and
+`Tile ⊓ Owned` can be absent although concrete owned tiles exist. Pets recognizes the classes a
+Catalog declared rather than manufacturing types to name every set, and that is what keeps a type's
+meaning stable as a Catalog grows.
+
+A `HAS` refinement (section 8) filters this set further, and only a world can say how.
 
 ### Refinements are types
 
@@ -318,8 +341,9 @@ supplied rather than only the resulting type.
 > a greenery with a city in that same area. After compatibility-based argument matching, variable
 > capture needs the filled keys to remember that both written `MarsArea`s name the location edge.
 
-**T3-7. `This` in a supertype argument names the inheriting class.** It is rebound at each level of
-the hierarchy, in place, leaving every other argument alone:
+**T3-7. `This` in a header argument names the inheriting class.** In a declared dependency or a
+supertype argument, it is rebound at each level of the hierarchy, in place, leaving every other
+argument alone:
 
 ```pets
 ABSTRACT CLASS Link<Class<Component>>
@@ -330,9 +354,19 @@ CLASS SelfLeaf : SelfBound
 gives `SelfLeaf<Class<SelfLeaf>>`, while writing the class name literally
 (`Link<Class<SelfBound>>`) would have given `SelfLeaf<Class<SelfBound>>`.
 
+The same rule applies within a declared dependency:
+
+```pets
+ABSTRACT CLASS Holder<Class<Component>>
+ABSTRACT CLASS Held<Holder<Class<This>>>
+CLASS HeldLeaf : Held
+```
+
+Here `HeldLeaf` has the bound `Holder<Class<HeldLeaf>>`.
+
 > **Non-normative implementation note — presently general-purpose.** Canonical Terraforming Mars
 > uses the related `Class<This>` rule (T4-9), but no current canonical class needs bare `This` in a
-> supertype argument. T3-7 states the general rebinding rule rather than a card-specific exception.
+> header argument. T3-7 states the general rebinding rule rather than a card-specific exception.
 
 **T3-8. One header variable in two positions forces them to agree.** When the same type variable
 occupies two dependency paths of a class header (section 13 defines what that means), resolving a
@@ -363,6 +397,10 @@ type alone, so a type admitting two identical components could not say which one
 concrete type a dependency bound admits must therefore carry an applicable `MAX 1` or `=1` invariant.
 This is checked when a game's component-limit table is built, and it is the only place
 component-count invariants enter this specification.
+
+`Signal` and every subtype of `Signal`, as well as `Die`, are never valid dependency targets,
+regardless of component-count limits. A Signal is a point event removed immediately after firing,
+and `Die` has no legal occurrence; neither can anchor the existence of another Component.
 
 > **Non-normative example — action-used markers.** `ActionUsedMarker<ActionCard>` means the marker on
 > one exact owned action card. If two indistinguishable components of that target type could exist,
@@ -458,16 +496,16 @@ represented Class has no such subclass enumerates nothing.
 > components instead would omit zero-stock kinds and duplicate kinds with several cubes.
 
 **T4-9. `Class<This>`** follows rule T3-7: it names the inheriting class. This is how a card resource
-knows which card class can hold it:
+knows which holder can contain it:
 
 ```pets
-ABSTRACT CLASS ResourceCard<Class<CardResource>> : CardFront
-ABSTRACT CLASS CardResource : Cardbound<ResourceCard<Class<This>>> { CLASS Animal, Microbe }
-CLASS Fish : ResourceCard<Class<Animal>>
+ABSTRACT CLASS ResourceHolder<Class<CardResource>>
+ABSTRACT CLASS CardResource<ResourceHolder<Class<This>>> { CLASS Animal, Microbe }
+CLASS Fish : ResourceHolder<Class<Animal>>
 ```
 
-`Animal`'s base type becomes `Animal<Owner, ResourceCard<Owner, Class<Animal>>>`, so
-`Animal<Player1, Fish>` resolves and `Animal<Ants>` — Ants holds microbes — does not.
+`Animal`'s holder bound becomes `ResourceHolder<Class<Animal>>`, so `Animal<Fish>` resolves while a
+holder specialized for microbes does not.
 
 > **Non-normative example — played events.** `EventCard` removes itself into
 > `PlayedEvent<Class<This>>`. When Asteroid is played, rebinding records `Class<Asteroid>`; retaining
@@ -640,7 +678,17 @@ Tile<Tharsis_2_2>  ⊓  Tile<Tharsis_2_3>    =  absent
 GreeneryTile  ⊓  OceanTile                 =  absent
 ```
 
-Absent means "Pets cannot write down a single type for this", not "no component could be both".
+Absent covers two different situations, and every caller that treats it as an error should know
+which one it is looking at:
+
+- **The operands are disjoint.** `Tile<Tharsis_2_2> ⊓ Tile<Tharsis_2_3>` is absent because no
+  component could be both; their extensions do not overlap. Writing an argument outside a bound
+  (T3-4) is this case, and rejecting it is a genuine type error.
+- **The overlap is not writable.** `Tile ⊓ Owned`, once two rival classes each extend both, is
+  absent although concrete owned tiles exist. This is a limit of naming, not a claim about
+  components; a Catalog that needs the intersection declares a class for it, which is why canon
+  declares `OwnedTile`.
+
 Where a result does exist it narrows both operands, and no other type below both is outside it.
 
 > **Non-normative example — Protected Valley.** It places a greenery on a water area. The selected
@@ -679,11 +727,13 @@ Neighbor)`.
 > `Neighbor<OwnedTile>` turns that printed condition into the concrete board query that decides
 > whether the space is legal.
 
-**T8-3. How the candidate is substituted.** Every expression inside `R` receives the candidate in the
-first compatible dependency whose current bound it narrows. If the candidate narrows none of the
-compatible dependencies, it receives the first compatible dependency. A bare class property
-receives it as its receiver, so `CardFront(HAS MAX 9 cost)` tested against `Ants` asks
-`MAX 9 Ants.cost`.
+**T8-3. How the candidate is substituted.** Each outermost expression inside `R` receives the
+candidate — not the expressions nested in its own arguments, which say what that expression is about
+rather than which candidate is being tested. The candidate takes the first compatible dependency
+whose bound it *strictly* narrows, so a slot already holding exactly that type is left alone and the
+candidate moves on to one it can still narrow. If it strictly narrows none of the compatible
+dependencies, it takes the first compatible one. A bare class property receives it as its receiver,
+so `CardFront(HAS MAX 9 cost)` tested against `Ants` asks `MAX 9 Ants.cost`.
 
 If no expression in `R` can accept the candidate, the refinement fails without asking the world at
 all. This is not an error; it is the answer. `Component(HAS StartToken)` can only ever match a
@@ -759,10 +809,9 @@ variable may be specialized later, making the difference non-empty again.
   so neither shortcut applies to them: `Class<BuildingTag>(HAS Tag)` does not narrow
   `Class<Tag>(HAS Tag)`, because for the target the predicate asks about the candidate's own class.
 
-> **Non-normative example — Cyberia Systems.** Its second production-box choice is a building card
-> with no `CyberiaSystemsFirstChoice` marker. That refined choice must still satisfy the broader
-> “building card” constraint without another world query, while the extra conjunct prevents choosing
-> the first card twice.
+> **Non-normative example — Cyberia Systems.** Its first production-box choice binds `CardFront`,
+> and a gate checks `BuildingTag<CardFront>`. The second choice retains its own building-tag clause
+> while repeating the first choice inside `NOT CardFront`, so it cannot choose the first card twice.
 
 **T8-9. `glb` of refinements.** A refinement the other operand lacks is kept. Refinement clauses form
 a set: duplicates collapse and clause order does not affect Type equality. Rendering retains the
@@ -980,10 +1029,18 @@ with every concrete class. Both flavours answer alike about the same universe. A
 `HAS` refinement can decide between candidates only where enumeration happens anyway, as with a
 refined class literal (T8-10).
 
-> **Non-normative example — Aquifer.** If exactly one empty water area remains, its ocean placement
-> can be narrowed automatically. With two legal spaces, neither is “more automatic,” so the player
-> must choose; counting one matching root while overlooking unresolved area dependencies would place
-> the tile for them.
+This is an under-approximation, and knowingly so: a type is narrowed automatically when the
+*universe* leaves one candidate, not when the current board does. An ocean placement asking for
+`WaterArea(HAS MAX 0 Tile)` is never settled automatically, however few empty water areas remain,
+because the map declares many water areas and only a world could say which are empty. Asking a world
+about every candidate on every resolution would cost more than it saves, and the answer would change
+under the player's feet; a player choosing between two spaces they could already see is not a
+decision the engine should be making anyway.
+
+> **Non-normative example — Aquifer.** On a map with two water areas, an ocean gain stays an
+> ordinary choice even when one is occupied. What automatic narrowing does settle is the case where
+> the universe itself is down to one candidate — a map with a single water area, or a resource kind
+> with only one concrete class.
 
 **T11-5. Caller-supplied targets.** `ClassTable.allConcreteSubtypes(type, dependencyTargets)`
 enumerates using a caller's smaller set of possible dependency targets instead of the full structural
@@ -1065,6 +1122,11 @@ An uninhabited Type counts zero, contributes no concrete choices or class repres
 cannot appear as a Component or fire a trigger. Changes to it follow L12-14. Its nominal information
 remains available for resolution, subtyping, intersection, `NOT`, and diagnostics.
 
+`Die` is distinct from this structural case. It is a concrete, final Type whose invariant gives it
+zero component capacity in every World. The engine can reject a mandatory change to either kind,
+but their reasons remain different: an uninhabited Type has no concrete narrowing in the universe,
+while `Die` is concrete and has no legal occurrence.
+
 > **Non-normative example — game-end barriers.** Core rules know the generic
 > `GpIncomplete<Class<GlobalParameter>>`, but the specialization for `Class<VenusStep>` must remain
 > uninhabited without Venus Next. Checking only the root would create a completion barrier for a
@@ -1108,6 +1170,23 @@ unrelated variables in different rules.
 There are two sources of a shared choice: a class header declares one (T13-2 to T13-5), or authored
 syntax repeats one across places that must agree (T13-6 to T13-9). A trigger supplies the concrete
 value when it matches; `BY` is one place that value can come from.
+
+Three properties hold of both sources, and most of the rules below are consequences of them:
+
+1. **An occurrence either chooses, matches, or observes.** A change's target chooses a value; a
+   trigger matches one from the event it responds to; a requirement, a gate, the expression a metric
+   counts, and a refinement only look at what is there. Choosing and matching occurrences can
+   introduce a variable. An observing occurrence never does — it ranges over whatever matches it —
+   though it happily *uses* a variable already introduced elsewhere.
+2. **Repetition does not shadow.** Where a variable is already visible, a repeated spelling is one
+   more occurrence of it, never a new variable hiding it. Only an explicit binder — an `EACH` or
+   `RANK` selector, or the represented class inside a refined class literal — introduces a name of
+   its own over an enclosing one.
+
+   **Known departure.** A nested inferred scope currently also records such an occurrence as an
+   inner variable. See Appendix A.
+3. **Inheritance passes values, not names.** A subclass does not see its superclass's header
+   variables by spelling; it receives their values when a component fixes them (T13-4, T13-5).
 
 ### Class-header variables
 
@@ -1185,30 +1264,25 @@ Binding it substitutes at every occurrence at once:
 | Effect | the trigger; the instruction |
 | Action | the cost; the result |
 | `THEN` sequence | each stage |
-| Transmutation (`A FROM B`) | the gained side; the removed side — but *not* the two whole roots |
+| Transmutation (`A FROM B`) | the gained side; the removed side |
 
-The transmutation exception matters: the source and destination of `A FROM B` are meant to differ, so
-only repeated *proper subexpressions* assert equality. In
-`Production<Class<X>> FROM Production<Class<X>>` the shared variable is `Class<X>`, not the whole
-production.
+> **Non-normative examples — movement and Market Manipulation.** Moving one component between two
+> locations can make the destination structurally distinct while preserving the source as a
+> co-reference, as Mars Nomads does with
+> `NomadsMarker<LandArea(HAS Neighbor<NomadsMarker<Owner>>, NOT LandArea)> FROM
+> NomadsMarker<Owner, LandArea>`. Market Manipulation uses the same shape:
+> `ColonyProduction(NOT ColonyProduction) FROM ColonyProduction`.
 
-> **Non-normative example — Market Manipulation.** `ColonyProduction FROM ColonyProduction` moves
-> one step from one colony to another. If the two whole roots declared one variable, source and
-> destination would be forced to the same track and the card would cancel itself; only repeated
-> proper subexpressions are equality claims.
-
-> **Non-normative design note — regions are choice sites.** Repetition is meaningful because the
-> physical icon grammar commonly repeats one icon to mean “the same one.” Regions identify the
-> independently settled parts of a rule across which that co-reference matters: trigger and result,
-> cost and result, or successive stages. Repetition inside one observational query instead ranges
-> over matching components and does not select one. The exclusions in T13-8 preserve that semantic
-> boundary; they are not a general claim that equal-looking syntax always binds. Requiring the same
-> authored spelling also keeps co-reference visible in the source: resolution and default insertion
-> cannot silently make two differently written icons become one shared choice.
+> **Non-normative design note — why spelling.** Repetition is meaningful because the physical icon
+> grammar commonly repeats one icon to mean “the same one.” Requiring the *same authored spelling*
+> keeps that claim visible in the source: resolution and default insertion cannot silently make two
+> differently written icons become one shared choice, and an author who means two independent
+> choices can simply write them differently.
 
 **T13-8. Where repetition does not introduce another variable.** Repetition is evidence of one
 shared choice only where the occurrences can be settled by that choice. The cases below introduce no
-additional variable; they never hide a use of a variable already declared in an enclosing scope.
+additional variable; none of them hides a variable already visible, which a repeated spelling only
+ever uses.
 
 | Repetition | Why not |
 | --- | --- |
@@ -1217,8 +1291,12 @@ additional variable; they never hide a use of a variable already declared in an 
 | A nested repeat inside a larger repeat | recognition prefers the largest repeated expression, so repeating `CardFront<Owner>` does not also infer an `Owner` variable |
 | A different authored spelling | `Tile` and `Tile<Area>` resolve alike but are different names; likewise `Duo<Area, Person>` and `Duo<Person, Area>` |
 | An `EACH` selector and any body text naming it | the fanout declares its own variable for its body |
-| A first-stage `THEN` dependency choice | it outranks a matching class variable, and an earlier gate occurrence belongs to that same choice |
 | A concrete expression, or `This` | there is no open choice to bind |
+
+The first two rows are the observing case of the section's first property: an occurrence that only
+looks never introduces, but does use a variable already introduced. That is why the gate in
+`(Eligible<Person>: Coin<Person>) THEN Receipt<Person>` speaks about the same person the stages
+choose, rather than ranging over people of its own.
 
 > **Non-normative examples — Sponsor and `EACH`.** Sponsor's metric must count three independently
 > matching expensive cards, not capture the first `CardFront(HAS 20 cost)` and demand three copies
@@ -1292,12 +1370,9 @@ variable sits on captures nothing, rather than guessing from a coincidentally si
 
 ## Appendix A: known departures
 
-One behavior contradicts the rules above. It has a passing characterization in
-`test/common/dev/martianzoo/pets/types/BugsTest.kt`; the rule states the intent.
-
-| Rule | Departure |
+| Rule | Current implementation departure |
 | --- | --- |
-| T8-3 | When two dependencies of one expression accept the same type, a substituted refinement candidate takes the first, which may already hold a written argument, leaving the intended slot open. Simply reserving written keys is not the fix — real cards depend on the current merging behavior. |
+| T13-3 | When a class-header variable is repeated inside a nested inferred scope such as `THEN`, the implementation records both the use of the visible header variable and an inner variable with the same name. Class-header specialization currently binds the occurrence first, leaving the inner variable inert, but the duplicate remains observable through `TypeVariableScope`. |
 
 ## Appendix B: deliberately unspecified
 

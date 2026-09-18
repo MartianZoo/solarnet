@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.PetElaborator
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.api.SystemClasses.TEMPORARY
@@ -30,16 +31,15 @@ public object Engine {
   ) {
     private val classTable = premise.classTable.also(::validatePremise)
     private val elaborator: PetElaborator = PetElaborator(classTable)
-    private val customClasses = CustomClassRuntime(premise.catalog, elaborator)
+    private val customClasses = CustomInstructionRuntime(premise.catalog, elaborator)
 
-    private val gameWorld = GameWorld(classTable)
+    private val gameWorld = GameWorld(premise)
 
     // Effect compilation needs the reader, but no effect is read until state begins changing.
     private val effector: Effector = Effector(elaborator) { reader }
     private val taskQueues = TaskQueues(gameWorld, classTable)
     private val recordingPositions = RecordingPositions()
-    private val reader: GameReaderImpl =
-        GameReaderImpl(classTable, gameWorld, elaborator, customClasses, premise)
+    private val reader: GameReader = gameWorld.reader
     private val changer = Changer(reader, gameWorld, effector)
     private val timeline = TimelineImpl(gameWorld, changer, recordingPositions)
     private val limiter = Limiter(classTable, gameWorld)
@@ -73,7 +73,6 @@ public object Engine {
             reader,
             classTable,
             actorEngines,
-            timeline,
             recordingPositions,
         )
 
@@ -175,6 +174,7 @@ public object Engine {
             instructor,
             changer,
             worldTransaction,
+            elaborator,
         )
   }
 }

@@ -4,9 +4,6 @@ import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.script.OptionCodeTranslation
-import dev.martianzoo.script.ScriptSession
-import dev.martianzoo.script.createGame
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -21,7 +18,9 @@ internal fun setUpGame(
   val setup = OptionCodeTranslation.setup(optionCodes, players)
   return createGame(setup).apply {
     TfmWorkflow.Stepwise(testAgents()).setupPhase()
-    actors.filterIsInstance<Player>().forEach { testTfm(it).doTask("-10 ProjectCard<Hand>") }
+    actors.filterIsInstance<Player>().forEach {
+      testTfm(it).doTask("-10 ProjectCard<Selecting>")
+    }
   }
 }
 

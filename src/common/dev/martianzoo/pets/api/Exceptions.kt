@@ -54,7 +54,7 @@ public object Exceptions {
 
   // TOP-LEVEL EXCEPTIONS
 
-  /** A problem in authored Pets source or in the definitions assembled from it. */
+  /** A problem in authored Pets, game configuration, or the definitions assembled from them. */
   public open class PetException public constructor(message: String, cause: Throwable? = null) :
       Exception(message, cause)
 

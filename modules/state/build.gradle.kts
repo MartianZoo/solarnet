@@ -6,7 +6,10 @@ kotlin {
       kotlin.setSrcDirs(
           listOf(rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/state"))
       )
-      dependencies { implementation(project(":pets")) }
+      dependencies {
+        implementation(libs.kotlinx.serialization.json)
+        implementation(project(":pets"))
+      }
     }
     commonTest {
       kotlin.setSrcDirs(

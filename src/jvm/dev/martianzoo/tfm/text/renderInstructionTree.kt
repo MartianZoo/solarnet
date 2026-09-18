@@ -114,7 +114,9 @@ private fun renderInstruction(
       is Remove,
       is Instruction.Transmute -> renderChange(instruction, describers, references)
       is Instruction.Each ->
-          renderOpponentFanout(instruction, describers)?.let { Rendering.resolved(it) }
+          renderOpponentFanout(instruction, describers, references)?.let {
+            Rendering.resolved(it)
+          }
               ?: renderPlayerFanout(instruction, describers, references)?.let {
                 Rendering.resolved(it)
               }
@@ -221,6 +223,7 @@ private fun renderOwnedFanout(
 private fun renderOpponentFanout(
     instruction: Instruction.Each,
     describers: Describers,
+    references: TypeVariableReferences,
 ): Clause? {
   val selector = instruction.selector
   if (selector.copy(refinement = null) != describers.playerExpression) return null
@@ -244,21 +247,42 @@ private fun renderOpponentFanout(
   val clauses = changes.map { change ->
     val attributed = change as? Instruction.By
     if (attributed != null && attributed.actor != describers.ownerExpression) return null
-    val removal = (attributed?.inner ?: change) as? Remove ?: return null
+    val inner = attributed?.inner ?: change
+    if (
+        playersAct &&
+            inner is Gain &&
+            describers.changeFrame(inner.gaining.className) is ComponentDescriber.ChangeFrame.Deck
+    ) {
+      val rendered = renderChange(inner, describers, references)
+      val gain = rendered.value as? Clause.Simple ?: return null
+      if (rendered.unresolved.isNotEmpty() || gain.subject != null) return null
+      return@map gain.copy(
+          predicate = gain.predicate.copy(verb = Verb("draws", "draw")),
+          subject = NounPhrase.text("each other player"),
+      )
+    }
+    val removal = inner as? Remove ?: return null
     val count = removal.count.fixedQuantity() ?: return null
     when {
       removal.removing.simple &&
           describers.isStandardResource(removal.removing.className) &&
-          describers.resolvedRemovalModality(removal) == Modality.BEST_EFFORT ->
+          describers.resolvedRemovalModality(removal) == Modality.BEST_EFFORT -> {
+        val resource = describers.componentNounPhrase(removal.removing.className, count)
+        if (playersAct) {
+          Clause.Simple(
+              Predicate(Verb("removes", "remove"), Coordination.one(resource)),
+              subject = NounPhrase.text("each other player"),
+          )
+        } else {
           Clause.Simple(
               Predicate(
                   Verb("remove"),
-                  Coordination.one(
-                      describers.componentNounPhrase(removal.removing.className, count)
-                  ),
+                  Coordination.one(resource),
                   listOf(Modifier.Relation("from", NounPhrase.plural("each opponent"))),
               )
           )
+        }
+      }
       describers.isProduction(removal.removing.className) &&
           describers.resolvedRemovalModality(removal) == Modality.REQUIRED -> {
         val production = productionExpression(removal.removing, describers) ?: return null
@@ -281,7 +305,16 @@ private fun renderOpponentFanout(
       else -> return null
     }
   }
-  return Clause.Coordinated(Coordination(clauses, Conjunction.AND))
+  clauses.mapNotNull(Clause.Simple::subject).distinct().singleOrNull()?.let { subject ->
+    if (clauses.all { it.subject == subject }) {
+      return Clause.SharedSubject(
+          subject,
+          Coordination(clauses.map(Clause.Simple::predicate), Conjunction.AND),
+      )
+    }
+  }
+  return coordinateClauseObjects(clauses, Conjunction.AND)
+      ?: Clause.Coordinated(Coordination(clauses, Conjunction.AND))
 }
 
 private fun renderCombinedCostSequence(

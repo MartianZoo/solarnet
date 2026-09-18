@@ -21,7 +21,7 @@
           ],
           "invariants": [ "Class<TrWatcher>" ],
           "components": [
-            "CLASS Preservation : CardResource<ResourceHolder<Class<Preservation>>>"
+            "CLASS Preservation : CardResource"
           ],
         },
         {

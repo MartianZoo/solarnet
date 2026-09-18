@@ -9,11 +9,12 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Each
-import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
 import dev.martianzoo.pets.ast.Instruction.Per
+import dev.martianzoo.pets.ast.Instruction.Quantifier.AMAP
+import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.InstructionGroup
@@ -35,13 +36,15 @@ internal fun newTasks(
   val normalized =
       InstructionGroup.of(instruction.instructions.map(::normalizeForTask)).instructions
   return normalized.map {
-    newTask(
-        TaskId(nextOrdinal++),
-        controller,
-        actor,
-        it,
-        cause,
-        isAbstract = isAbstract,
+    normalizeTask(
+        Task(
+            id = TaskId(nextOrdinal++),
+            controller = controller,
+            actor = actor,
+            instruction = it,
+            cause = cause,
+        ),
+        isAbstract,
     )
   }
 }
@@ -50,24 +53,35 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
     when (tree) {
       is InstructionGroup -> InstructionGroup.of(tree.instructions.map(::normalizeForTask))
       is Change if tree.gaining != DIE.expression -> tree
-      is Change -> throw DeadEndException("a Die instruction was reached")
+      is Change ->
+          if (tree.quantifier == OPTIONAL || tree.quantifier == AMAP) NoOp
+          else throw DeadEndException("a Die instruction was reached")
       is By -> {
         val inner = normalizeForTask(tree.inner)
-        if (inner is Then) {
-          inner.withInstructions(inner.instructions.map { By.createTree(it, tree.actor) })
-        } else {
-          By.createTree(inner, tree.actor)
+        when (inner) {
+          is NoOp -> NoOp
+          is Then ->
+              inner.withInstructions(inner.instructions.map { By.createTree(it, tree.actor) })
+          else -> By.createTree(inner, tree.actor)
         }
       }
-      is Each -> tree.copy(body = normalizeForTask(tree.body))
+      is Each ->
+          when (val body = normalizeForTask(tree.body)) {
+            is NoOp -> NoOp
+            else -> tree.copy(body = body)
+          }
       is Gated -> Gated.createTree(tree.gate, normalizeForTask(tree.inner))
       is Per -> {
         val inner = normalizeForTask(tree.inner)
-        tree.copy(
-            inner =
-                inner as? Instruction
-                    ?: throw TaskException("PER normalized to independent instructions: $inner")
-        )
+        if (inner is NoOp) {
+          NoOp
+        } else {
+          tree.copy(
+              inner =
+                  inner as? Instruction
+                      ?: throw TaskException("PER normalized to independent instructions: $inner")
+          )
+        }
       }
       is Or -> {
         val liveOptions =
@@ -82,51 +96,37 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
         Or.createTree(liveOptions)
       }
       is Then -> {
-        if ((tree.first as? Gain)?.gaining?.className == DIE) {
-          throw DeadEndException("a Die instruction was reached")
+        val live = tree.instructions.map(::normalizeForTask).filterNot { it is NoOp }
+        when (live.size) {
+          0 -> NoOp
+          1 -> live.single()
+          else -> tree.withInstructions(live)
         }
-        tree.withInstructions(tree.instructions.map(::normalizeForTask))
       }
       is NoOp -> NoOp
       is Transform -> throw ExpressionException("unhandled transform in task: $tree")
     }
 
-/** Applies engine-owned task normalization without changing the task's identity or lifecycle. */
-internal fun normalizeTask(task: Task): Task {
+/**
+ * Applies engine-owned normalization while preserving this task's identity and lifecycle. A
+ * separable sequence moves into [Task.then] only when that continuation slot is free; otherwise
+ * both sequence boundaries remain intact so their implicit variables stay independent.
+ */
+internal fun normalizeTask(
+    task: Task,
+    isAbstract: ((Expression) -> Boolean)? = null,
+): Task {
   val instruction =
       normalizeForTask(task.instruction) as? Instruction
           ?: throw TaskException(
               "task input must be split into individual instructions: ${task.instruction}"
           )
   val then = task.then?.let(::normalizeForTask)?.let(InstructionGroup::of)?.takeIf { !it.isEmpty() }
-  return task.copy(instruction = instruction, then = then)
-}
-
-private fun newTask(
-    id: TaskId,
-    controller: Actor,
-    actor: Actor,
-    instruction: Instruction,
-    cause: Cause?,
-    isAbstract: ((Expression) -> Boolean)? = null,
-): Task {
-  val normalized =
-      normalizeTask(
-          Task(
-              id = id,
-              controller = controller,
-              actor = actor,
-              instruction = instruction,
-              cause = cause,
-          )
-      )
-  val normalizedThen = normalized.instruction as? Then
-  return if (normalizedThen != null && !normalizedThen.mustRemainOneTask(isAbstract)) {
-    normalized.copy(
-        instruction = normalizedThen.first,
-        then = normalizedThen.continuationAfterFirst(),
-    )
-  } else {
-    normalized
-  }
+  val normalized = task.copy(instruction = instruction, then = then)
+  val sequence = normalized.instruction as? Then ?: return normalized
+  if (normalized.then != null || sequence.mustRemainOneTask(isAbstract)) return normalized
+  return normalized.copy(
+      instruction = sequence.first,
+      then = sequence.continuationAfterFirst(),
+  )
 }

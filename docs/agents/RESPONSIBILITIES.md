@@ -24,7 +24,7 @@
   inspect when splitting generic Catalog assembly from Terraforming Mars registries.
 - [`MapDefinition.kt`](../../src/common/dev/martianzoo/tfm/mapdata/MapDefinition.kt) —
   the pets-free authored data library used by generators and presentation tools.
-- [`ScriptSession.kt`](../../src/common/dev/martianzoo/script/ScriptSession.kt) —
+- [`ScriptSession.kt`](../../src/common/dev/martianzoo/tfm/script/ScriptSession.kt) —
   inspect only for the script application layer.
 - [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) and
   [`AutoExecPolicy.kt`](../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt) — current
@@ -74,37 +74,28 @@ Task assignment remains an engine-enforced game rule. Preventing a caller from c
 engine API is out of scope. The engine is intentionally indifferent to why an Actor or trusted
 caller chose one legal mutation instead of another.
 
-**Current divergence:** `:state` now owns passive component and task storage, exact event history,
-and inert `ComponentChange`, `Task`, `GameEvent`, and `TaskResult` data. `GameReaderImpl`, task
-construction and execution, live transactions, approved recording positions, and recording
-navigation remain in `:engine`. The game viewer therefore still has an engine dependency until
-immutable recording export and independent playback move across the seam.
-
-Do not create empty Gradle modules ahead of the extraction. First settle the direct core mutation
-surface, the concrete state-change contract, the sole-issuer Agent lifetime, and the plain shared
-autoexecution loop; then move one coherent dependency slice at a time.
+`:state` owns passive component and task storage, exact event history, the rich `GameReader`, custom
+metric evaluation, and immutable recording navigation. Task construction and execution, effects,
+live transactions, and the decision that an operation has reached a viewer-safe position remain in
+`:engine`. The game viewer consumes state recordings and has no engine dependency.
 
 ## Terraforming Mars behavior outside `tfm`
 
 ### Turn/action protocol is split across layers
 
 Generic Pets and engine code know `Action`, `UseAction`, `ActionSlot`, `NewTurn`, and turn-start
-translation, while the foundational declarations live in Terraforming Mars canon. Either this is a
-documented generic protocol whose declarations belong in the runtime prelude, or all of it belongs
-under Terraforming Mars. The half-generic placement is the defect.
+translation, while the foundational declarations live in Terraforming Mars canon. The generic
+action syntax and identity protocol are deliberate; the generic Agent's turn conveniences remain
+layering debt and are tracked in `TODO.md`.
 
 The [Pets Action model](ACTIONS.md) makes this division more explicit: fixed and X-scaled Terraforming
 Mars `StandardResource` costs use provider- and action-qualified billing components, while direct and
-costless Actions keep normal Pets sequencing. The generic Action transformer recognizes those six
-resource names directly. Treat that leak as layering debt instead of adding a broad extension
-framework for this rule.
+costless Actions keep normal Pets sequencing. Generic Pets performs only the ordinary arrow-to-effect
+lowering. `TfmCatalog` applies the standard-resource billing rewrite to its own declarations before
+class loading, without global transformer registration.
 
-### The script application is mostly REgo/Terraforming Mars
-
-The reusable command shell and completion framework live beside concrete Canon construction,
-`TfmWorkflow`, colors, phase behavior, map views, six resources, and Terraforming Mars setup
-syntax. A focused application profile or `TfmScriptSession` should own those contributions if this
-area is refactored.
+The REgo command/session implementation now lives under `dev.martianzoo.tfm.script`; no reusable
+script application abstraction has been extracted without another application requiring one.
 
 The REPL similarly combines its JLine adapter with REgo construction, branding, history, and
 launcher behavior. Keep executable wiring application-specific; extract the adapter only when

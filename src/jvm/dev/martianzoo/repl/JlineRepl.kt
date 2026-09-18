@@ -1,8 +1,8 @@
 package dev.martianzoo.repl
 
-import dev.martianzoo.script.ScriptCommand
-import dev.martianzoo.script.ScriptSession
-import dev.martianzoo.script.welcome
+import dev.martianzoo.tfm.script.ScriptCommand
+import dev.martianzoo.tfm.script.ScriptSession
+import dev.martianzoo.tfm.script.welcome
 import kotlin.io.path.Path
 import kotlin.system.exitProcess
 import org.jline.reader.Completer

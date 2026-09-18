@@ -257,7 +257,7 @@ RotatorImpacts	Rotator Impacts	Requires that Venus is 14% or lower.	Action: Pay 
 SisterPlanetSupport	Sister Planet Support	Requires a Venus tag and an Earth tag. Increase your M€ production 3 steps.
 Solarnet	Solarnet	Requires a Venus tag, an Earth tag, and a Jovian tag. Draw 2 cards.
 SpinInducingAsteroid	Spin-Inducing Asteroid	Requires that Venus is 10% or lower. Raise Venus 2 steps.
-SponsoredAcademies	Sponsored Academies	Discard 1 card to draw 2 cards and have each player draw 1 card.
+SponsoredAcademies	Sponsored Academies	Discard 1 card to draw 3 cards. Each other player draws 1 card.
 Stratopolis	Stratopolis	Requires 2 science tags. Increase your M€ production 2 steps. Place a city tile on the reserved area outside Mars. 1 VP per 3 floaters on this card.	Action: Add 2 floaters to a Venus card.
 StratosphericBirds	Stratospheric Birds	Requires that Venus is 12% or higher. Remove 1 floater from any card. 1 VP per animal on this card.	Action: Add 1 animal to this card.
 SulphurExports	Sulphur Exports	Raise Venus 1 step. Increase your M€ production 1 step per Venus tag you have.
@@ -317,7 +317,7 @@ MartianSurvey	Martian Survey	Requires that oxygen is 4% or lower. Draw 2 cards.
 Psychrophiles	Psychrophiles	Requires that temperature is -20°C or lower.	Action: Add 1 microbe to this card. / Effect: When you play a plant tag, microbes on this card may be used as 2 M€ each.
 SfMemorial	SF Memorial	Draw 1 card.
 SpaceHotels	Space Hotels	Requires 2 Earth tags. Increase your M€ production 4 steps.
-Aridor	Aridor	[EACH Class<Tag> { AridorTagWatcher<Class<Tag>, This> }]. Gain 40 M€. As your first action, add a colony tile.	Effect: [PlayCard<Class<ProjectCard>, Class<EventCard>>:: AridorPlayingEvent<This>].
+Aridor	Aridor	[EACH Class<Tag> { AridorTagWatcher<Class<Tag>, This> }]. Gain 40 M€. As your first action, add a colony tile.
 Arklight	Arklight	Gain 45 M€. Increase your M€ production 2 steps. 1 VP per 2 animals on this card.	Effect: When you play an animal tag or a plant tag, add 1 animal to this card.
 Polyphemos	Polyphemos	Gain 50 M€ and 5 titanium. Increase your M€ production 5 steps.	Effect: When you buy a card, pay 2 M€ extra.
 Poseidon	Poseidon	Gain 45 M€. As your first action, place a colony.	Effect: When any colony is placed, increase your M€ production 1 step.
@@ -391,7 +391,7 @@ MainBeltAsteroids	Main Belt Asteroids	Remove 5 M€. 1 VP per 2 asteroids on thi
 OldMiningColony	Old Mining Colony	Increase your titanium production 1 step. Place a colony. Discard 1 card.
 PlanetaryAlliance	Planetary Alliance	Raise your terraform rating 2 steps. Draw 1 Jovian card. Draw 1 Venus card.
 ProjectEden	Project Eden	Place 1 ocean tile. Place a city tile. Place a greenery tile. Discard 3 cards.
-Recession	Recession	Gain 10 M€. Remove 5 M€ from each opponent and decrease their M€ production 1 step.
+Recession	Recession	Gain 10 M€. Each other player removes 5 M€ and decreases their own M€ production 1 step.
 SoilBacteria	Soil Bacteria	Draw 2 microbe cards. Gain 3 plants.	Effect: When you play a plant tag or a microbe tag, gain 1 plant.
 SpaceLanes	Space Lanes	Gain 3 titanium.	Effect: When you play a planetary tag, pay 2 M€ less.
 SuitableInfrastructure	Suitable Infrastructure	Gain 5 steel.	Effect: Once per action you take, gain 2 M€ if you increase any production.
@@ -412,7 +412,7 @@ VenusOrbitalSurvey	Venus Orbital Survey		Action: Reveal 2 project cards. Draw an
 VenusShuttles	Venus Shuttles	Add 2 floaters to a Venus card.	Action: Pay 12 M€ to raise Venus 1 step. This cost is reduced by 1 M€ per Venus tag you have.
 VenusTradeHub	Venus Trade Hub	Requires 2 Venus tags.	Effect: When you trade, gain 3 M€.
 ArcadianCommunities	Arcadian Communities	Gain 40 M€ and 10 steel. As your first action, place a community marker on a land area with no occupant.	Action: Place a community marker on a land area with no occupant next to a tile or community you own. / Effect: When you remove a community marker, gain 3 M€.
-MarsNomads	Mars Nomads	Place a nomads marker on a land area with no occupant.	Action: [NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>)> FROM NomadsMarker<Owner>], then [EACH LandArea(HAS NomadsMarker) { Placement<LandArea> }].
+MarsNomads	Mars Nomads	Place a nomads marker on a land area with no occupant.	Action: [NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>, NOT LandArea)> FROM NomadsMarker<Owner, LandArea>], then [EACH MarsArea(HAS NomadsMarker) { Placement<MarsArea> }].
 Recyclon	Recyclon	Gain 38 M€. Increase your steel production 1 step.	Effect: When you play a building tag, add 1 microbe to this card or remove 2 microbes from this card to increase your plant production 1 step.
 SpliceTacticalGenomics	Splice Tactical Genomics	[Splicer<This>]. Gain 44 M€. As your first action, draw 1 microbe card.	Effect: When any microbe tag is played, gain 2 M€.
 Factorum	Factorum	Gain 37 M€. Increase your steel production 1 step.	Action: If you have no energy, increase your energy production 1 step, or pay 3 M€ to draw 1 building card.
@@ -479,12 +479,12 @@ DirectedHeatUsage	Directed Heat Usage		Action: Pay 3 heat to gain 4 M€ or 2 pl
 AqueductSystems	Aqueduct Systems	Requires a city tile adjacent to an ocean tile. Draw 3 building cards.
 AstraMechanica	Astra Mechanica	You may return up to one of your played event cards to your hand. You may return up to one of your played event cards to your hand.
 CarbonNanosystems	Carbon Nanosystems		Effect: When you play a science tag, add 1 graphene resource to this card. When you play a space tag or a city tag, graphene resources on this card may be used as 4 M€ each.
-CyberiaSystems	Cyberia Systems	Increase your steel production 1 step. Copy the immediate production box of a building card, then [CyberiaSystemsFirstChoice<CardFront(HAS BuildingTag)>], then [CopyProductionBox<CardFront(HAS BuildingTag, HAS MAX 0 CyberiaSystemsFirstChoice)>], then [-CyberiaSystemsFirstChoice].
+CyberiaSystems	Cyberia Systems	Increase your steel production 1 step. [BuildingTag<CardFront>: CopyProductionBox<CardFront>], then [CopyProductionBox<CardFront(HAS BuildingTag, NOT CardFront)>].
 HermeticOrderOfMars	Hermetic Order Of Mars	Requires that oxygen is 4% or lower. Increase your M€ production 2 steps. Gain 1 M€ per area on Mars with no tiles next to at least 1 tile you own.
 HomeostasisBureau	Homeostasis Bureau	Increase your heat production 2 steps.	Effect: When you raise temperature 1 step, gain 3 M€.
 KaguyaTech	Kaguya Tech	Increase your M€ production 2 steps. Draw 1 card. Change a greenery tile on any area into a city tile on that area.
 MartianLumberCorp	Martian Lumber Corp	Requires that you have 2 greenery tiles. Increase your plant production 1 step.	Effect: When you play a building tag, plants may be used as 3 M€ each.
-NeptunianPowerConsultants	Neptunian Power Consultants	[NeptunianOption]. 1 VP per hydroelectric resource on this card.	Effect: When any ocean tile is placed, [UseAction<NeptunianOption>?].
+NeptunianPowerConsultants	Neptunian Power Consultants	[NeptunianOption<This>]. 1 VP per hydroelectric resource on this card.	Effect: When any ocean tile is placed, [UseAction<NeptunianOption<This>>?].
 RedShips	Red Ships	Requires that oxygen is 4% or higher.	Action: Gain 1 M€ per any city tile on areas next to at least 1 ocean tile or any special tile on areas next to at least 1 ocean tile.
 SolarLogistics	Solar Logistics	Gain 2 titanium.	Effect: When you play an Earth tag, pay 2 M€ less. When any space event card is played, draw 1 card.
 StJosephOfCupertinoMission	St. Joseph Of Cupertino Mission	[CathedralOption]. 1 VP per any cathedral.	Action: Pay 5 M€ (steel may be used) to [Cathedral<Anyone, CityTile<Anyone>>].

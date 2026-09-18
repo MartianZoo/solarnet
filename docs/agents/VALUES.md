@@ -1,8 +1,7 @@
 # Project values
 
-> **NOTE:** This document is used by agents to capture information for themselves to read later; a
-> human didn't write it and we don't expect humans to read it. The project owner can't personally
-> vouch for the information here.
+> **NOTE:** This is an agent-maintained synthesis of priorities explicitly selected with the
+> project owner. It guides future agents; it is not a verbatim statement by the owner.
 
 > **Read when:** designing, implementing, or reviewing a behavior or architecture change, especially
 > when fidelity, generality, completeness, and conceptual cost compete.
@@ -15,36 +14,85 @@
 These are the durable criteria for design and review. Repository-level instructions in
 [`AGENTS.md`](../../AGENTS.md) remain authoritative for how to work.
 
-## Aim for exceptional library design
+## What Solarnet is for
 
-Solarnet is meant to be a showpiece of library design, not merely a complete application or a rules
-implementation that passes its tests. Its concepts, contracts, dependencies, and composition should
-be unusually clear. The whole should feel like the natural assembly of understandable parts.
+Solarnet is an open-ended playground for exceptional software and language design. It does not need
+a finite finish line. Its purpose is not primarily to complete a Terraforming Mars implementation,
+produce a generally reusable game engine, or ship a conventional application. Terraforming Mars is
+the demanding subject through which the project can discover and demonstrate a small executable
+algebra of rules.
 
-Design quality is a product requirement. Correctness against the project's declared behavior is
-necessary, but an implementation that depends on incoherent exceptions, mirrored models,
-privileged integration paths, or a disproportionate framework is still a failure. Prefer the
-smallest coherent set of rules from which the desired behavior follows.
+The project should attest that a complicated real system can arise from concepts that are few,
+precise, composable, and honestly owned. The result should feel discovered rather than patched
+together. Correct behavior is necessary, but an implementation that relies on incoherent
+exceptions, mirrored models, privileged integration paths, or a disproportionate framework is
+still a design failure.
 
-When choosing investments, prefer, in order:
+## Priority tiers
 
-1. A smaller, clearer, and more coherent model.
-2. Better library responsibilities, contracts, and composition.
-3. Better fidelity, usability, diagnostics, or performance where a demonstrated need selects them.
-4. Broader coverage of official Terraforming Mars material.
-5. Fan material, unrelated games, compatibility, and speculative flexibility only when explicitly
-   selected.
+These tiers rank how much outcomes matter, not the order of every implementation step. The numbered
+items within Tiers 1 and 2 are approximately ordered; nearby items should not be read as a precise
+comparison. Some are different faces of the same design, and evidence is a proof obligation rather
+than a competing feature.
 
-This order chooses what to improve; it does not excuse defects. Preserve invariants, make only
-claims the implementation satisfies, and hold lower-priority work to the same design standard.
+### Tier 1: defining and worth active investment
 
-## Build libraries that compose
+1. An exceptionally small, clear, regular, and formally precise semantic model. Profound software
+   design matters more than uncovering a grammar peculiar to Terraforming Mars.
+2. One semantic source driving execution, natural-language explanation, iconography, and analysis.
+   Reaching this point would be the project's fullest realization, even when more immediate repairs
+   sensibly come first.
+3. Ordinary game meaning in authored Pets and general semantics, not Kotlin orchestration.
+   Production code such as `TfmGameplay`, initializers, and workflow glue should not know particular
+   cards, components, expansions, or science-fiction concepts.
+4. Exact source-backed replay tests proving that the model works across whole games. Focused
+   scenarios and language tests matter, but nothing provides comparable evidence that the pieces
+   work together.
+5. Runtime consequences that can be understood without reconstructing incidental machinery. The
+   fragmented action and payment lifecycle is the most pressing current example: task-pool searches,
+   cause-based choreography, and enormous traces should not be needed to understand an action.
+6. Compact authored Pets that evokes the physical icon grammar without compromising precise
+   semantics. Judge genuine notation-versus-semantics conflicts case by case.
 
-Treat Solarnet as a collection of libraries, even when one application is their only current
-consumer. Good separation directly improves that application: responsibilities become easier to
-explain, dependencies easier to control, behavior easier to test, and parts easier to replace and
-combine. Usefulness in unforeseen contexts should emerge from that discipline rather than from
-designing for unusual hypothetical consumers.
+Current work should preserve the replay evidence while improving these foundations; there is no
+expected need to choose between clean orchestration and working replays. Complexity serving only
+one to three minor cards deserves special scrutiny, including consideration of dropping the cards.
+
+### Tier 2: valued, but not a current program of work
+
+1. An independent executable conformance suite that can falsify the engine rather than trusting a
+   transparent implementation to audit itself.
+2. Material performance improvements that enable qualitatively different work. Small percentage
+   gains do not justify attention; large gains can.
+3. Excellent parser and typechecker diagnostics, especially for mistakes authors hit commonly.
+4. Generative and property-based exploration of interactions not represented by curated examples.
+5. A polished explanation for outsiders and, later, an educational reconstruction of how the design
+   developed. The clean resulting model matters more than preserving its history during development.
+6. Richer causal presentation when it can be derived or post-processed cheaply. Existing event logs
+   already provide substantial traceability, so perfect attribution does not merit design cost.
+
+These may be improved opportunistically or when they block Tier 1, but they do not currently earn a
+major initiative of their own.
+
+### Tier 3: desirable, but given little weight
+
+- Broad coverage of official material and exact support for every awkward card or expansion.
+- General reuse, unrelated games, and module purity pursued for their own sake rather than as
+  evidence of a coherent design.
+- Autonomous physical-deck play, hidden information, fan material, and a polished player product.
+- Large-scale strategic analysis, AI players, and a separate optimized engine.
+- A comprehensive causal-analytics product built over exported histories.
+- Making raw Pets immediately understandable to a typical Terraforming Mars player.
+
+Things the project does not regard as desirable are omitted rather than assigned a tier. These
+tiers do not excuse defects or authorize claims the implementation cannot support.
+
+## Let libraries attest to the design
+
+Treat Solarnet as a collection of libraries where that division makes responsibilities and
+semantics clearer. Composition is a test of the model, not an end-user requirement for hypothetical
+consumers. Good separation can make ownership easier to explain, dependencies easier to control,
+behavior easier to test, and parts easier to replace and combine.
 
 - Give each library one intelligible responsibility and a small, expressive contract.
 - A caller should depend only on the capabilities it uses. Every module dependency must be
@@ -65,13 +113,14 @@ design tool, not a ratchet.
 
 Composition does not require broad abstraction. Separate the real capabilities Solarnet has, then
 connect their honest contracts. Do not add flexibility for arbitrary games, hypothetical clients,
-hostile callers, or imagined performance needs.
+hostile callers, or imagined performance needs. A less reusable structure can be correct when it
+keeps the model smaller and its ownership more honest.
 
 ## Model the game honestly
 
-Solarnet ultimately aspires to support every official Terraforming Mars card and rule exactly as the
-designer intends, but completeness is deliberately a low priority. At this stage, design cleanup is
-more important than forcing every official rule into the current model.
+Solarnet may continue to acquire official Terraforming Mars cards and rules indefinitely, but
+completeness is not a project goal. Design cleanup is more important than forcing every official
+rule into the model.
 
 When exact fidelity would require disproportionate or poorly understood machinery, select the
 clearest coherent variant the model can support and document the difference from the official rule.
@@ -79,10 +128,15 @@ A variant is a deliberate rule, not a new label for accidental behavior. Do not 
 exact, and do not preserve a bad design just because it happens to cover one more card. Revisit
 documented variants as the model improves.
 
-Adding cards is valuable primarily because varied and difficult rules test the model. A card may
-reveal that existing concepts compose well, expose a missing general rule, or identify an honest
-special case. Select card work for that design evidence, not to maximize a coverage count. Repeated
-card-shaped workarounds indicate that the model is missing something.
+Adding cards is valuable primarily because varied rules test the model. A card may reveal that
+existing concepts compose well, expose a missing general rule, or identify an honest special case.
+Select card work for that evidence, not to maximize a coverage count. Do not romanticize ugly edge
+cases merely because they are difficult.
+
+Any engine behavior or semantic machinery used by only one to three minor cards deserves explicit
+investigation. That count is a suspicion trigger, not an automatic deletion rule: ask what general
+truth the mechanism captures and what becomes simpler if the cards or behavior are dropped. Be
+willing to retire cards and nominal support when doing so materially simplifies the model.
 
 Keep rules with the game component that owns them. Use a cross-cutting system component only when a
 rule is genuinely ambient or switchable. `GreeneryTile` conditioned on `Photosynthesis` in
@@ -108,6 +162,9 @@ Jacob Fryxelius. Do not initiate rule research during routine implementation wor
   mutations, and calculate consequences; caller policy and strategy belong above them.
 - Do not push application preferences downward to guarantee a pleasant default, and do not omit a
   lower-layer invariant just because an upper layer currently behaves well.
+- Treat broad cross-module pressure as evidence about the model. Removing domain-specific
+  orchestration, making scopes self-running, and simplifying actions and payments may be parts of
+  the same correction rather than projects to optimize independently.
 
 ## Dispositioned complexity findings
 
@@ -131,6 +188,11 @@ Keep the substantive reasoning in the owning document and keep this table to one
 
 ### At peace with it
 
+- **`Die` as a concrete zero-capacity Type** —
+  [CLASS_TABLES.md](CLASS_TABLES.md#die-and-ok). Concrete accurately makes `Die` final;
+  `HAS MAX 0 This` states why it cannot occur without making abstractness falsely advertise an
+  implementation choice. Structurally uninhabited Types remain a distinct general case even where
+  the engine can derive the same result.
 - **Class properties as a mechanism** — [PROPERTIES.md](PROPERTIES.md#why-class-properties-earn-their-cost).
   Few property kinds, one or two declaring classes each; without them the same facts needed major
   cheats. Declaring-class count is not the measure.
@@ -168,14 +230,6 @@ Keep the substantive reasoning in the owning document and keep this table to one
   [ACTIONS.md](ACTIONS.md#permission). One missing concept, permission, improvised five ways; that
   document owns the collapse and the step order.
 
-### Will be obsolete
-
-- **The concrete zero-limit encoding and uninhabited-Type adapter for `Die`** —
-  [CLASS_TABLES.md](CLASS_TABLES.md#die-and-ok). The selected class-universe model makes `Die` an
-  intentionally uninhabited abstract Type and derives impossible changes from the general
-  uninhabited-Type rule. The named terminal result and its task normalization remain; the
-  `HAS MAX 0 This` encoding and uninhabited-to-`Die` conversion do not.
-
 ## Keep Pets central
 
 > **Recurring failure warning:** If one card or rule appears to need custom Kotlin, a custom
@@ -184,16 +238,29 @@ Keep the substantive reasoning in the owning document and keep this table to one
 > mechanisms.
 
 Pets should read like the physical game: compact, composable, and precise about ownership, identity,
-timing, and choice. Prefer hand-authored Pets plus general runtime semantics. Every custom class or
-instruction shows that Pets cannot yet express part of the game and is therefore a design-failure
-signal, not an ordinary implementation technique. Avoid custom Kotlin whenever a coherent Pets
-formulation exists. If custom Kotlin appears unavoidable for a behavior or architecture change,
-stop, identify the general missing Pets capability, and proceed only if the user explicitly selects
-that exception. Keep approved Kotlin minimal; Kotlin-generated Pets is not automatically simpler.
+timing, and choice. Authored source data may lower into Pets, but there must not be a second parallel
+declaration of the same content. Once lowered, execution must proceed through Pets semantics.
+
+First make a genuine attempt to express behavior in ordinary Pets. Custom instructions, custom
+metrics, and other deliberately bounded custom classes are acceptable when they keep the general
+language and engine smaller. They should state an honest exception at the semantic boundary, not
+smuggle card knowledge into orchestration. A few explicit custom classes can cost less than a
+general feature, especially when that feature would exist for only a few cards.
+
+The hard boundary is ordinary production Kotlin outside those extension points. It must not branch
+on particular cards, components, expansions, or setting vocabulary. `TfmGameplay`, initializers,
+phase drivers, and similar integration code must not repair or coordinate individual content. If a
+behavior cannot be expressed in raw Pets or a bounded custom semantic extension, reconsider the
+behavior, the card's inclusion, or the model before adding orchestration.
+
+Keep approved custom Kotlin minimal and plainly owned. Kotlin-generated Pets is not automatically
+simpler, and a proliferation of custom classes is still a reason to look for a missing general
+concept; neither observation makes every custom class a design failure.
 
 Prototype code is not exempt from these boundaries. If demonstrating a proposed model requires
-mirrored state, a privileged runtime path, Kotlin-generated Pets, or domain-specific engine
-knowledge, stop: that requirement is evidence against the model, not scaffolding to implement.
+mirrored semantic state, a privileged runtime path, or domain-specific knowledge outside the
+declared source-lowering and custom-extension boundaries, stop: that requirement is evidence
+against the model, not scaffolding to implement it.
 
 Components have types and multiplicity, not fields or incidental object identity. A Catalog
 supplies coherent data, Modules select ambient rules, and a GamePremise describes one exact game.
@@ -207,5 +274,11 @@ Do not blur these roles or activate optional vocabulary simply by mentioning it 
   an impossible engine state.
 - Prefer readable scenario and integration tests that demonstrate observable behavior and library
   composition. Do not duplicate production catalogs or assert incidental task text and ordering.
+- Focused scenarios and full source-backed replays are complementary. Scenarios explain individual
+  rules; replays prove that the model survives their interaction. Do not trade either away merely
+  to improve a coverage count.
+- Exact replay evidence is non-negotiable wherever the project claims modeled behavior. Preserve
+  original sources, make corrections visible, and ensure the observed execution genuinely follows
+  from the declared model. Rich exported provenance and causal analytics can wait.
 - A passing narrow test proves only its assertion. Review the final diff and state what was not
   verified.

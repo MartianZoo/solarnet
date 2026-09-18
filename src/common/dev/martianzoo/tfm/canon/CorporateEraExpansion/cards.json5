@@ -411,7 +411,7 @@
           "tags": [ "SpaceTag" ],
           "actions": [ "Titanium -> Fighter<This>" ],
           "effects": [ "End: VictoryPoint / Fighter<This>" ],
-          "components": [ "CLASS Fighter : CardResource<ResourceHolder<Class<Fighter>>>" ],
+          "components": [ "CLASS Fighter : CardResource" ],
         },
         {
           "name": "SpaceElevator",

@@ -238,10 +238,11 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         val resourceChoices = game.tasks.extract { it }
         doTask("Titanium", resourceChoices[0].id)
         doTask("Heat", resourceChoices[1].id)
-        admin.doTask("GenerousFunding")
       } finally {
         admin.autoExecPolicy = previousAdminPolicy
       }
+      admin.autoExecNow()
+      admin.doTask("GenerousFunding")
     }
   }
 
@@ -294,10 +295,11 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       admin.autoExecPolicy = NONE
       try {
         doTask("OceanTile<Tharsis_1_5> BY Admin")
-        admin.doTask("MudSlides")
       } finally {
         admin.autoExecPolicy = previousAdminPolicy
       }
+      admin.autoExecNow()
+      admin.doTask("MudSlides")
     }
   }
 
@@ -356,6 +358,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       } finally {
         admin.autoExecPolicy = previousAdminPolicy
       }
+      admin.autoExecNow()
     }
   }
 
@@ -536,7 +539,6 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       }
       playProject(Recruitment, 0) {
         doTask("RecruitmentExchange<Reds>")
-        doTask("-PartyDelegate<Reds, Neutral>")
       }
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Reds>")

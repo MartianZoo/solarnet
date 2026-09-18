@@ -307,7 +307,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       // "Recruitment in the Greens ... I become the party leader. I paid two for that."
       playProject(Recruitment, 2) {
         doTask("RecruitmentExchange<Greens>")
-        doTask("-PartyDelegate<Greens, Neutral>")
       }
     }
 

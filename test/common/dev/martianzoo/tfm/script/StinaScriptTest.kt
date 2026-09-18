@@ -4,7 +4,6 @@ import dev.martianzoo.agent.Agent
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.tfm.engine.TfmGameplay
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -28,7 +27,6 @@ internal class StinaScriptTest {
         task Ok
 
         tfm_play SaturnSystems
-        task Ok
         task 30 Pay<Class<MC>> FROM MC
 
         tfm_play Biolab

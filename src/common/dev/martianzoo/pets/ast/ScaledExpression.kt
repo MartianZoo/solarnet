@@ -121,6 +121,7 @@ private constructor(
 
       override fun ensureNarrows(that: Scalar, info: TypeInfo) {
         when {
+          that is XScalar && value == 0 -> throw NarrowingException("X is at least 1")
           that is XScalar && (value % that.multiple != 0) ->
               throw NarrowingException("$value isn't a multiple of ${that.multiple}")
           that is ActualScalar && value != that.value ->
@@ -135,8 +136,8 @@ private constructor(
      * An amount left open, carrying the written coefficient [multiple]: `2X Plant` is an even
      * number of plants ([rule
      * L6-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
-     * Every occurrence of `X` in one instruction takes the same value, each scaled by its own
-     * coefficient ([rule
+     * `X` stands for at least one, never zero. Every occurrence of `X` in one instruction takes the
+     * same value, each scaled by its own coefficient ([rule
      * L7-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
      */
     public data class XScalar public constructor(val multiple: Int) : Scalar() {

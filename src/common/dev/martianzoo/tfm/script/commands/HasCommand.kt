@@ -1,0 +1,27 @@
+package dev.martianzoo.tfm.script.commands
+
+import dev.martianzoo.agent.Agent.Companion.parse
+import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.tfm.script.PetsCompletionRoot
+import dev.martianzoo.tfm.script.ScriptCommand
+import dev.martianzoo.tfm.script.ScriptCompletion
+import dev.martianzoo.tfm.script.ScriptCompletionContext
+import dev.martianzoo.tfm.script.ScriptSession
+
+internal class HasCommand(private val repl: ScriptSession) : ScriptCommand("has") {
+  override val usage = "has <Requirement>"
+  override val help =
+      """
+        Evaluates the requirement and tells you true or false. Go see pets-language-spec.md on the
+        github page for syntax.
+      """
+  override val isReadOnly = true
+
+  override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
+      context.petsWords(PetsCompletionRoot.REQUIREMENT)
+
+  override fun withArgs(args: String): List<String> {
+    val result = repl.agent.has(args)
+    return listOf("$result: ${repl.agent.parse<Requirement>(args)}")
+  }
+}

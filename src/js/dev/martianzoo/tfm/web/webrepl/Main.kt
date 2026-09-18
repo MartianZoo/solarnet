@@ -2,11 +2,12 @@
 
 package dev.martianzoo.tfm.web.webrepl
 
-import dev.martianzoo.script.ScriptCommand
-import dev.martianzoo.script.ScriptCompletionEngine
-import dev.martianzoo.script.ScriptSession
-import dev.martianzoo.script.ScriptSession.UsageException
-import dev.martianzoo.script.welcome
+import dev.martianzoo.tfm.script.ScriptCommand
+import dev.martianzoo.tfm.script.ScriptCompletionEngine
+import dev.martianzoo.tfm.script.ScriptSession
+import dev.martianzoo.tfm.script.ScriptSession.UsageException
+import dev.martianzoo.tfm.script.welcome
+import dev.martianzoo.tfm.web.classviewer.classViewerMain
 import kotlin.js.JSON
 import kotlin.js.json
 import kotlinx.browser.document
@@ -83,6 +84,11 @@ private class BrowserInformationCommand(name: String, override val help: String)
 }
 
 public fun main() {
+  if (window.location.pathname.split('/').any { it == "classviewer" }) {
+    classViewerMain()
+    return
+  }
+
   // These imports extend jQuery and install the terminal's ANSI formatter and CSS.
   jqueryTerminal
   unixFormatting

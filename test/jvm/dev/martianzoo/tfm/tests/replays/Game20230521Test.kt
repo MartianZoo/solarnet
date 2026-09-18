@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -23,7 +25,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
   @Test
   internal fun game20230521() {
-    TfmWorkflow.Automatic(agents).launch()
+    val workflow = TfmWorkflow.Automatic(agents).launch()
     retainStartingProjects(5, 4)
 
     // Good luck Player1!
@@ -71,6 +73,14 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     listOf(p1, p2).forEach { it.autoExecPolicy = CONCRETE }
+
+    // TODO: Replace this accepted seam when a policy can prove sibling production tasks mandatory.
+    fun finishProductionPhase() {
+      admin.autoExecPolicy = NONE
+      listOf(p1, p2).forEach { it.autoExecPolicy = EAGER }
+      listOf(p1, p2).forEach { it.autoExecPolicy = CONCRETE }
+      admin.autoExecPolicy = EAGER
+    }
 
     // Player1 played Inventors' Guild
     // Player1 ended turn
@@ -139,6 +149,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 2
+    finishProductionPhase()
     // Player1 bought 2 card(s)
     // You drew Investment Loan and Deuterium Export
     p1.buyCards(2)
@@ -223,6 +234,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 3
+    finishProductionPhase()
     // Player1 bought 2 card(s)
     // You drew Spin-Inducing Asteroid and Imported GHG
     p1.buyCards(2)
@@ -338,6 +350,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.pass()
 
     // Generation 4
+    finishProductionPhase()
     // Player1 bought 1 card(s)
     // You drew Tectonic Stress Power
     p1.buyCards(1)
@@ -463,6 +476,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 5
+    finishProductionPhase()
     // Player1 bought 3 card(s)
     // You drew Small Asteroid, Fueled Generators and Domed Crater
     p1.buyCards(3)
@@ -604,6 +618,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p2.pass()
 
     // Generation 6
+    finishProductionPhase()
     // Player1 bought 4 card(s)
     // You drew Sister Planet Support, Miranda Resort, Solarnet and Dusk Laser Mining
     p1.buyCards(4)
@@ -775,6 +790,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 7
+    finishProductionPhase()
     // Player1 bought 3 card(s)
     // You drew Stratospheric Birds, Media Archives and Trees
     p1.buyCards(3)
@@ -913,6 +929,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 8
+    finishProductionPhase()
     // Player1 bought 2 card(s)
     // You drew Sulphur Exports and Mohole Lake
     p1.buyCards(2)
@@ -1085,6 +1102,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 9
+    finishProductionPhase()
     // Player1 bought 3 card(s)
     // You drew Rego Plastics, SF Memorial and Water to Venus
     p1.buyCards(3)
@@ -1353,6 +1371,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     }
 
     // Generation 10
+    finishProductionPhase()
     // Player1 bought 2 card(s)
     // You drew Nitrogen-Rich Asteroid and Lava Tube Settlement
     p1.buyCards(2)
@@ -1586,6 +1605,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       pass()
     }
     // Generation 11
+    finishProductionPhase()
     // Player1 bought 2 card(s)
     // You drew Business Network and Gene Repair
     // Player2 bought 1 card(s)
@@ -1883,26 +1903,44 @@ internal class Game20230521Test : AbstractFullGameTest() {
           }
           .expect("PROD[2 MC]")
     }
+    workflow.shutdown()
     // Player2 passed
     p2.pass()
     // Player1 passed
     p1.pass()
+    admin.autoExecPolicy = NONE
+    listOf(p1, p2).forEach { it.autoExecPolicy = EAGER }
+    val stepwise = TfmWorkflow.Stepwise(agents)
+    stepwise.productionPhase()
+    listOf(p1, p2).forEach { it.autoExecPolicy = NONE }
+    admin.autoExecPolicy = EAGER
+    stepwise.finalGreeneryPhase()
+    admin.autoExecPolicy = NONE
     // Final greenery placement
     p1.convertPlants {
+      doTask("DefaultGreeneryTile")
       // Player1 placed greenery tile on row 6 position 4
       placeTile(6, 5)
       doTask("Plant")
       doTask("2 MC")
+      doTask("2 MC")
     }
     // Player1's plants amount increased by 1
     // Decline another final greenery placement.
+    p1.startTurn()
     p1.declineTask()
     p2.convertPlants {
+      doTask("DefaultGreeneryTile")
       // Player2 placed greenery tile on row 8 position 5
       placeTile(8, 8)
+      doTask("2 MC")
     }
     // Decline another final greenery placement.
+    p2.startTurn()
     p2.declineTask()
+    listOf(p1, p2).forEach { it.autoExecPolicy = EAGER }
+    admin.autoExecPolicy = EAGER
+    stepwise.endPhase()
     // This game id was gf386a4cd5de1
 
     val summ = Summarizer(game)
@@ -1945,7 +1983,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     summer.net("$ArcticAlgae", "Plant") shouldBe 3
 
     // Blue has done 16 card buys: 5 initial, 8 in research, and 3 from inventors guild
-    summer.net("BuySelectedCards<Player1>", "BuyCard<Player1>") shouldBe 16
+    summer.signalCount("BuySelectedCards<Player1>", "BuyCard<Player1>") shouldBe 16
 
     // DeuteriumExport produced a net of 1 floaters (made, consumed, made)
     summer.net("$DeuteriumExport", "Floater") shouldBe 1

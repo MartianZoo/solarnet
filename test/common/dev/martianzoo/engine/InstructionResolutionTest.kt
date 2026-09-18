@@ -31,7 +31,7 @@ internal class InstructionResolutionTest {
           effector,
           game.classTable,
           elaborator,
-          CustomClassRuntime(game.reader.catalog, elaborator),
+          CustomInstructionRuntime(game.reader.catalog, elaborator),
       )
 
   init {
@@ -85,6 +85,16 @@ internal class InstructionResolutionTest {
         "OxygenStep FROM TerraformRating<Player1>!",
     )
     shouldThrow<ExpressionException> { preprocessAndResolve("2 OxygenStep FROM TerraformRating!") }
+  }
+
+  @Test
+  internal fun reflexiveTransmutationIsInvalidWhenMandatoryAndNoOpOtherwise() {
+    shouldThrow<ExpressionException> { preprocessAndResolve("Plant FROM Plant") }
+    shouldThrow<ExpressionException> { preprocessAndResolve("Plant FROM Plant!") }
+    shouldThrow<ExpressionException> { preprocessAndResolve("Plant<Owner> FROM Plant!") }
+    checkResolution("Plant FROM Plant?", "Ok")
+    checkResolution("Plant FROM Plant.", "Ok")
+    checkResolution("Plant<Owner> FROM Plant?", "Ok")
   }
 
   @Test
@@ -149,6 +159,10 @@ internal class InstructionResolutionTest {
     checkResolution(
         "EACH ProjectCard<Anyone> { -ProjectCard<Anyone> }",
         List(10) { "-ProjectCard<Player1, Hand>!" }.joinToString(", "),
+    )
+    checkResolution(
+        "EACH ProjectCard<Anyone> { StandardResource }",
+        List(10) { "StandardResource<Player1>!" }.joinToString(", "),
     )
   }
 

@@ -73,9 +73,7 @@ internal class CatalogTest {
         )
 
     val unavailable =
-        shouldThrow<IllegalArgumentException> {
-          source.gamePremise(GameConfig("Selected")).classTable
-        }
+        shouldThrow<PetException> { source.gamePremise(GameConfig("Selected")).classTable }
 
     unavailable.message.orEmpty() shouldContain
         "unviable game premise: Selected has reachable mandatory removal Missing"

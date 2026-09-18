@@ -63,9 +63,8 @@ internal class Lang09ActionsTest {
 
   @Test
   internal fun `L9-3 alternative costs are separate actions, not one composite cost`() {
-    listOf("=0 Award: 8 Ore -> Award", "Ore, Gizmo -> Award").forEach {
-      shouldThrow<PetSyntaxException> { parse<Action>(it) }
-    }
+    shouldThrow<PetSyntaxException> { parse<Action>("=0 Award: 8 Ore -> Award") }
+    shouldThrow<PetSyntaxException> { parse<Action>("Ore, Gizmo -> Award") }
   }
 
   // L9-4 Lowering to an effect
@@ -84,7 +83,21 @@ internal class Lang09ActionsTest {
     val four = List(4) { parse<Action>("-> Widget$it") }
 
     actionListToEffects(four.take(3)).size shouldBe 3
-    shouldThrow<IllegalArgumentException> { actionListToEffects(four) }
+    shouldThrow<PetSyntaxException> {
+      parseClasses(
+              """
+              CLASS Busy {
+                -> Widget1
+                -> Widget2
+                -> Widget3
+                -> Widget4
+              }
+              """
+                  .trimIndent()
+          )
+          .single()
+          .effects
+    }
   }
 
   // L9-5 A class's effects

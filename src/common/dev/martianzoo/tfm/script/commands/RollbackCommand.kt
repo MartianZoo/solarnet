@@ -1,0 +1,29 @@
+package dev.martianzoo.tfm.script.commands
+
+import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.tfm.script.ScriptCommand
+import dev.martianzoo.tfm.script.ScriptCompletion
+import dev.martianzoo.tfm.script.ScriptCompletionContext
+import dev.martianzoo.tfm.script.ScriptSession
+
+internal class RollbackCommand(private val repl: ScriptSession) : ScriptCommand("rollback") {
+  override val usage = "rollback <logid>"
+  override val help =
+      """
+        Undoes the event with the id given and every event after it. If you undo too far,
+        you can't go forward again (you can only try to reconstruct the game from your
+        ~/.rego_history). If you want to undo your command `exec 5 Plant`, look for the number in
+        the command prompt on that line; that's the number to use here. Or check `log`. Be careful
+        though, as you it will let you undo to a position when the engine was in the middle of
+        doing stuff, which would put you in an invalid world.
+      """
+
+  override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> =
+      context.checkpointIds()
+
+  override fun withArgs(args: String): List<String> {
+    val rollbackOrdinal = args.toInt()
+    repl.game.timeline.rollBack(Checkpoint(rollbackOrdinal))
+    return listOf("Rollback done")
+  }
+}

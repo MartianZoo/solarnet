@@ -13,6 +13,7 @@ import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.Transforming.bindXTo
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.GameReader
@@ -27,6 +28,8 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
+import dev.martianzoo.pets.types.GroundType
+import dev.martianzoo.pets.types.TypeVariable
 import dev.martianzoo.pets.util.invoke
 import dev.martianzoo.pets.util.toSetStrict
 
@@ -143,11 +146,20 @@ public sealed class Instruction : InstructionTree() {
     }
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
+      ensureChangeIsNarrowedBy(this, proposed, info)
+    }
+
+    protected fun ensureChangeIsNarrowedBy(
+        authored: Change,
+        proposed: InstructionTree,
+        info: TypeInfo,
+    ) {
+      val quantifier = authored.quantifier
       if (proposed == NoOp && quantifier == OPTIONAL) return
       proposed as? Change ?: throw NarrowingException("$this  /  $proposed")
       proposed.quantifier!!.ensureNarrows(quantifier!!, info)
       val proposedCount = proposed.count
-      val authoredCount = count
+      val authoredCount = authored.count
       if (
           quantifier == OPTIONAL && proposedCount is ActualScalar && authoredCount is ActualScalar
       ) {
@@ -155,8 +167,8 @@ public sealed class Instruction : InstructionTree() {
       } else {
         proposedCount.ensureNarrows(authoredCount, info)
       }
-      gaining?.let { proposed.gaining!!.ensureNarrows(it, info) }
-      removing?.let { proposed.removing!!.ensureNarrows(it, info) }
+      authored.gaining?.let { proposed.gaining!!.ensureNarrows(it, info) }
+      authored.removing?.let { proposed.removing!!.ensureNarrows(it, info) }
     }
   }
 
@@ -287,10 +299,13 @@ public sealed class Instruction : InstructionTree() {
     override fun precedence(): Int = if (fromEx is Full) 7 else 10
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      super.ensureIsNarrowedBy(proposed, info)
-      if (proposed == NoOp) return
-      proposed as Transmute
+      if (proposed == NoOp) {
+        ensureChangeIsNarrowedBy(this, proposed, info)
+        return
+      }
+      proposed as? Transmute ?: throw NarrowingException("$this  /  $proposed")
       val variables = typeVariablesFor(info)
+      val selected = mutableMapOf<TypeVariable, GroundType>()
       for (variable in
           variables.variables.filter {
             info.isAbstract(variables.expressionOf(it.declaration))
@@ -298,12 +313,22 @@ public sealed class Instruction : InstructionTree() {
         val bindings =
             variables.bindings(gaining, proposed.gaining, variable) +
                 variables.bindings(removing, proposed.removing, variable)
-        if (bindings.distinct().size > 1) {
+        val distinct = bindings.distinct()
+        if (distinct.size > 1) {
           throw NarrowingException(
               "Can't set Type variable $variable differently: ${bindings.toSet()}"
           )
         }
+        distinct.singleOrNull()?.let {
+          selected[variable] = variable.bound.classTable.resolve(it).groundType
+        }
       }
+      if (selected.isNotEmpty()) {
+        val specialized = variables.bind(selected).transformInstruction(this) as Transmute
+        ensureChangeIsNarrowedBy(specialized, proposed, info)
+        return
+      }
+      ensureChangeIsNarrowedBy(this, proposed, info)
     }
   }
 
@@ -927,10 +952,10 @@ public sealed class Instruction : InstructionTree() {
     override fun scale(factor: Int): Instruction = copy(instruction = instruction * factor)
 
     override fun isAbstract(info: TypeInfo): Boolean =
-        error("should have been transformed by now: $this")
+        throw ExpressionException("unhandled instruction transform: $this")
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo): Unit =
-        error("should have been transformed by now: $this")
+        throw ExpressionException("unhandled instruction transform: $this")
 
     override fun toString(): String = "$transformKind[$instruction]"
 

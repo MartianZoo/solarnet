@@ -185,6 +185,7 @@ public class ComponentGraph internal constructor(private val classTable: ClassTa
           }
       if (missing.isNotEmpty()) throw DependencyException(missing.map { it.type })
     }
+    if (gaining == removing) return
     removing?.let {
       checkDependents(count, it)
       val remaining = components.mustRemove(it, count)

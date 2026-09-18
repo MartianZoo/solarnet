@@ -1,7 +1,9 @@
 package dev.martianzoo.state
 
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.TaskEvent
@@ -11,9 +13,16 @@ import dev.martianzoo.state.GameEvent.TaskEvent
  *
  * A GameWorld accepts only already-decided, fully concrete events. It keeps event history,
  * components, and pending tasks synchronized, but does not interpret instructions or calculate
- * consequences.
+ * consequences. Supplying [initialEvents] reconstructs the exact projections produced by applying
+ * that complete event sequence to a fresh world with the same [classTable].
  */
-public class GameWorld(public val classTable: ClassTable) {
+public class GameWorld(
+    public val premise: GamePremise,
+    initialEvents: List<GameEvent> = emptyList(),
+) {
+  /** The immutable classes available to this world. */
+  public val classTable: ClassTable = premise.classTable
+
   /** The current component multiset and its observable count indexes. */
   public val components: ComponentGraph = ComponentGraph(classTable)
 
@@ -24,6 +33,16 @@ public class GameWorld(public val classTable: ClassTable) {
 
   /** Every task currently pending in this world. */
   public val tasks: TaskQueue = taskStore.all()
+
+  /** Higher-level Pets queries over this world's materialized present. */
+  public val reader: GameReader = GameReaderImpl(premise, this)
+
+  /** Every Actor participating in this world, with seated Players in seat order. */
+  public val actors: List<Actor> = premise.actors
+
+  init {
+    initialEvents.forEach(::apply)
+  }
 
   /** The ordinal required for the next exact event. */
   public val nextOrdinal: Int
@@ -78,8 +97,8 @@ public class GameWorld(public val classTable: ClassTable) {
 
   public fun activitySince(checkpoint: Checkpoint): TaskResult = events.activitySince(checkpoint)
 
-  public fun markSetupStart() {
-    events.markSetupStart()
+  public fun markSetupStart(checkpoint: Checkpoint = Checkpoint(nextOrdinal)) {
+    events.markSetupStart(checkpoint)
   }
 
   public fun requireNoPendingTasks() {

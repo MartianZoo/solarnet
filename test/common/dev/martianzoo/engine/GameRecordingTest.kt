@@ -5,7 +5,6 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.testsupport.PLAYER1
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
@@ -25,31 +24,34 @@ internal class GameRecordingTest {
     tasks.beginOperation("Heat?")
     agent.doTask("Heat!")
     val recording = game.recording()
+    val playback = recording.open()
+    val playbackHeat = playback.world.reader.resolve(parse<Expression>("Heat<Player1>"))
+    val playbackCounts = mutableListOf<Int>()
+    val playbackSubscription =
+        playback.world.components.listenToCount(
+            playbackHeat,
+            playback.world.reader,
+            playbackCounts::add,
+        )
 
-    recording.positions.size shouldBe 3
-    recording.positionIndex shouldBe 2
+    playback.positions.size shouldBe 3
+    playback.positionIndex shouldBe 2
     observedCounts.shouldContainExactly(0, 1)
 
-    val invalidPosition =
-        (0 until recording.positions.last().ordinal).map(::Checkpoint).first {
-          it !in recording.positions
-        }
-    shouldThrow<IllegalArgumentException> { game.timeline.rollBack(invalidPosition) }
-    game.timeline.rollBack(recording.positions.first())
-    agent.count("Heat<Player1>") shouldBe 0
-    recording.seek(recording.positions.lastIndex)
+    shouldThrow<IllegalArgumentException> { playback.seek(-1) }
 
-    recording.seek(0)
-    agent.count("Heat<Player1>") shouldBe 0
-    recording.seek(1)
-    agent.count("Heat<Player1>") shouldBe 0
-    recording.seek(2)
+    playback.seek(0)
+    playback.world.reader.count(playbackHeat) shouldBe 0
+    playback.seek(1)
+    playback.world.reader.count(playbackHeat) shouldBe 0
+    playback.seek(2)
+    playback.world.reader.count(playbackHeat) shouldBe 1
+    playbackCounts.shouldContainExactly(1, 0, 1)
     agent.count("Heat<Player1>") shouldBe 1
-    observedCounts.shouldContainExactly(0, 1, 0, 1, 0, 1)
+    observedCounts.shouldContainExactly(0, 1)
 
     subscription.cancel()
-    recording.seek(0)
-    observedCounts.shouldContainExactly(0, 1, 0, 1, 0, 1)
+    playbackSubscription.cancel()
   }
 
   @Test
@@ -66,15 +68,15 @@ internal class GameRecordingTest {
     }
 
     agent.runOperation("Heat")
-    val recording = game.recording()
+    val playback = game.recording().open()
 
-    recording.positions.size shouldBe 3
-    recording.seek(1)
-    agent.count("Heat<Player1>") shouldBe 1
-    agent.count("Plant<Player1>") shouldBe 0
-    agent.count("Steel<Player1>") shouldBe 0
-    recording.seek(2)
-    agent.count("Plant<Player1>") shouldBe 1
-    agent.count("Steel<Player1>") shouldBe 1
+    playback.positions.size shouldBe 3
+    playback.seek(1)
+    playback.world.reader.count(playback.world.reader.resolve(parse("Heat<Player1>"))) shouldBe 1
+    playback.world.reader.count(playback.world.reader.resolve(parse("Plant<Player1>"))) shouldBe 0
+    playback.world.reader.count(playback.world.reader.resolve(parse("Steel<Player1>"))) shouldBe 0
+    playback.seek(2)
+    playback.world.reader.count(playback.world.reader.resolve(parse("Plant<Player1>"))) shouldBe 1
+    playback.world.reader.count(playback.world.reader.resolve(parse("Steel<Player1>"))) shouldBe 1
   }
 }

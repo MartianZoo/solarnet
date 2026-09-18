@@ -6,8 +6,12 @@ import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
+import dev.martianzoo.pets.api.SystemClasses.OK
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
+import dev.martianzoo.pets.ast.Effect.Trigger.SubscribedTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -17,6 +21,7 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.TransformNode
 import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration
@@ -174,7 +179,72 @@ private constructor(
     knownClassNames.forEach { name ->
       getClass(name).baseType
     }
+    validateNoOkSubscriptions()
+    validateTransformKinds()
     return completed
+  }
+
+  /** The classes this load is responsible for checking: a master's own, or a premise's delta. */
+  private fun declaringClassesToValidate(): Set<Class> =
+      if (masterSource == null) {
+        allKnownClasses()
+      } else {
+        premiseDeclarations.keys.mapTo(linkedSetOf(), ::getClass)
+      }
+
+  /**
+   * Rejects a transform block whose kind this Catalog defines no handler for, per
+   * [rule L10-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-transform-blocks).
+   * One rewriting pass may leave another pass's kind in place, but a mark no pass will ever claim
+   * is a mistake in the source.
+   */
+  internal fun validateTransformKinds() {
+    val known = catalog.transformHandlerFactories.keys
+    declaringClassesToValidate().map(Class::declaration).forEach { declaration ->
+      declaration.allNodes.forEach { root ->
+        root.visitDescendants { node ->
+          if (node is TransformNode<*> && node.transformKind !in known) {
+            throw invalidPetDefinition(
+                "${declaration.className} uses transform kind `${node.transformKind}`, " +
+                    "which this Catalog does not define: $node"
+            )
+          }
+          true
+        }
+      }
+    }
+  }
+
+  /**
+   * Rejects subscriptions rooted at `Ok` or a nominal supertype, which are statically forbidden.
+   */
+  internal fun validateNoOkSubscriptions() {
+    val okClass = getClass(OK)
+    declaringClassesToValidate().forEach { declaringClass ->
+      declaringClass.declaration.effects.forEach { effect ->
+        val forbidden =
+            effect.trigger
+                .descendantsOfType<SubscribedTrigger>()
+                .map {
+                  when (it) {
+                    is OnGainOf -> it.expression
+                    is OnRemoveOf -> it.expression
+                  }
+                }
+                .firstOrNull { expression ->
+                  val triggerClass =
+                      if (expression.className == THIS) declaringClass
+                      else getClass(expression.className)
+                  okClass.isSubtypeOf(triggerClass)
+                }
+        if (forbidden != null) {
+          throw invalidPetDefinition(
+              "${declaringClass.className} effect `$effect` subscribes to $forbidden, " +
+                  "whose root is Ok or a nominal supertype of Ok"
+          )
+        }
+      }
+    }
   }
 
   private val queue = ArrayDeque<ClassName>()
@@ -189,7 +259,7 @@ private constructor(
         blockedActivations[next]?.let { availabilityModules ->
           val source = requestedBy.getValue(next)
           val path = source?.let { "$it requires locked Class $next" } ?: "Class $next is locked"
-          throw IllegalArgumentException(
+          throw invalidPetDefinition(
               "broken game premise: $path; select one of its bundle Modules: " + availabilityModules
           )
         }
@@ -479,6 +549,7 @@ private constructor(
       }
       frozenClasses = includedClassNames.mapTo(linkedSetOf(), ::getClass)
       frozen = true
+      premiseClasses.forEach { it.baseType }
       return this
     }
     knownClassNames.forEach { name ->

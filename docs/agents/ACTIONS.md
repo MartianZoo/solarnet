@@ -278,10 +278,11 @@ Current lowering has the opposite signal order.
 
 - For a nonstandard left side, `actionToEffect` makes `UseAction<Provider, Slot>` trigger
   `left-side instruction THEN right side`.
-- For a fixed standard-resource left side, `UseAction` creates `Owed` and `ActionBilling`, and
+- For a fixed standard-resource left side, the Terraforming Mars declaration lowerer makes
+  `UseAction` create `Owed` and `ActionBilling`, and
   `-ActionBilling` directly triggers the right side.
 - X-scaled standard-resource actions keep the right side in a local continuation following billing
-  creation.
+  creation. Generic Pets lowering does not know the standard-resource Classes or billing protocol.
 
 Thus the current `UseAction` Signal means “choice accepted; begin all action work.” In the working
 model, it should mean “the general action machinery has successfully satisfied this action's left
@@ -334,8 +335,9 @@ instance because that instance is deliberately issued only after settlement.
 
 ### Single payment-choice loop
 
-**Status: proposal.** Today each tender kind creates its own optional task. Paying with one kind can
-leave stale alternatives that callers must decline or clean up.
+**Status: unselected candidate.** Do not implement this before the investigations and decision
+gates in [PAYMENTS.md](PAYMENTS.md). Today each tender kind creates its own optional task. Paying
+with one kind can leave stale alternatives that callers must decline or clean up.
 
 Replace them with one required task meaning “pay one accepted unit.” Its refinements are the legal
 `Accepting<Resource>` and `AcceptingFromCard<Holder>` choices. Spending one unit creates a common

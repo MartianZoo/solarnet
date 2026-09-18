@@ -3,7 +3,6 @@ package dev.martianzoo.engine
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.types.ClassTable
-import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.ComponentGraph
 import dev.martianzoo.state.EventLog
 import dev.martianzoo.state.GameWorld
@@ -18,8 +17,7 @@ internal constructor(
     override val reader: GameReader,
     override val classTable: ClassTable,
     private val actorEngines: Map<Actor, ActorEngine>,
-    private val timelineImpl: TimelineImpl,
-    private val recordingPositions: RecordingPositions,
+    internal val recordingPositions: RecordingPositions,
 ) : World {
   override val components: ComponentGraph
     get() = gameWorld.components
@@ -37,14 +35,4 @@ internal constructor(
   override fun actorEngine(actor: Actor): ActorEngine = actorEngines.getValue(actor)
 
   override var onTransactionComplete: () -> Unit = {}
-
-  internal fun recording(): GameRecording {
-    val entries = events.entriesSince(Checkpoint(0))
-    val positions =
-        (recordingPositions.snapshot().filter { it.ordinal <= entries.size } +
-                Checkpoint(entries.size))
-            .distinct()
-    timelineImpl.sealRecording(positions)
-    return GameRecording(this, timelineImpl, entries, positions)
-  }
 }

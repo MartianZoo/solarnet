@@ -808,10 +808,15 @@ private fun renderScaleChange(
     references: TypeVariableReferences,
 ): Clause? {
   if (instruction is Transmute) {
+    val gainingAnother =
+        (instruction.gaining.refinement as? Expression.Refinement.Not)?.excluded?.let { excluded ->
+          instruction.gaining.copy(refinement = null) == instruction.removing &&
+              excluded == instruction.removing
+        } == true
     if (
         instruction.quantifier.modality() != Modality.REQUIRED ||
-            !instruction.gaining.simple ||
-            instruction.removing != instruction.gaining
+            !(instruction.gaining.simple && instruction.removing == instruction.gaining) &&
+                !gainingAnother
     ) {
       return null
     }

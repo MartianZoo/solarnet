@@ -1,6 +1,7 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -213,12 +214,59 @@ internal class Lang12ElaborationTest {
         parse<Effect>("This BY Owner: ProjectCard<Owner>!, ProjectCard<Owner>!, Plant<Owner>!")
   }
 
+  @Test
+  internal fun `L12-12 invalid property evaluations explain the invalid definition`() {
+    val table =
+        testCatalog(
+                """
+                CLASS Plant
+                CLASS Holder {
+                  score = 1
+                  requirement = HAS "Plant"
+                }
+                CLASS Recursive { score = COUNT "EVAL This.score" }
+                """
+                    .trimIndent()
+            )
+            .classTable
+    val elaborator = PetElaborator(table)
+
+    shouldThrow<PetException> {
+      elaborator.evaluateProperties(parse<Metric>("EVAL score"), parse("Holder"))
+    }
+    shouldThrow<PetException> {
+      elaborator.evaluateProperties(parse<Metric>("EVAL Holder.missing"), parse("Holder"))
+    }
+    shouldThrow<PetException> {
+      elaborator.evaluateProperties(parse<Metric>("EVAL Holder.requirement"), parse("Holder"))
+    }
+    shouldThrow<PetException> {
+      elaborator.evaluateProperties(
+          parse<InstructionTree>("EVAL Holder.score: Plant"),
+          parse("Holder"),
+      )
+    }
+    shouldThrow<PetException> {
+      elaborator.evaluateProperties(parse<Metric>("EVAL Recursive.score"), parse("Recursive"))
+    }
+  }
+
   // L12-13 Class effects
 
   @Test
   internal fun `L12-13 effects are gathered from every superclass and elaborated in context`() {
     classEffects("SimpleRule").size shouldBe 1
     classEffects("OwnedRule").single() shouldBe parse<Effect>("This: Plant<Owner>!")
+  }
+
+  @Test
+  internal fun `L12-13 effects are available only for an included class`() {
+    val catalog = testCatalog("CLASS Included\nCLASS Excluded")
+    val table = gameView(catalog, "Included")
+
+    shouldThrow<IllegalArgumentException> {
+      PetElaborator(table).classEffects(table.getClass(cn("Excluded")))
+    }
   }
 
   @Test
@@ -259,6 +307,9 @@ internal class Lang12ElaborationTest {
     specialize("This: Steel<Seat1>.").instruction shouldBe parse<InstructionTree>("Ok")
     specialize("This: Empty!").instruction shouldBe parse<InstructionTree>("Die!")
     specialize("This: Empty?").instruction shouldBe parse<InstructionTree>("Ok")
+    specialize("This: Empty? / Plant<Seat1>").instruction shouldBe parse<InstructionTree>("Ok")
+    specialize("This: EACH Plant<Seat1> { Empty? }").instruction shouldBe
+        parse<InstructionTree>("Ok")
     specialize("This: Plant<Seat1>!").instruction shouldBe parse<InstructionTree>("Plant<Seat1>!")
   }
 

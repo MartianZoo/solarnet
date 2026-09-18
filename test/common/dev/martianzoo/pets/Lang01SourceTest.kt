@@ -17,6 +17,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.MetricType
 import dev.martianzoo.pets.ast.PropertyValue.MetricValue
@@ -36,6 +37,26 @@ import kotlin.test.Test
 
 /** Section 1 of `docs/pets-language-spec.md`: what a Pets source is made of. */
 internal class Lang01SourceTest {
+  @Test
+  internal fun parsingNeedsAConcreteAstKind() {
+    shouldThrow<IllegalArgumentException> { Parsing.parse(PetNode::class, "Plant") }
+    shouldThrow<IllegalArgumentException> {
+      Parsing.acceptsNextToken(PetNode::class, "", "Plant")
+    }
+  }
+
+  @Test
+  internal fun customClassesCannotDeclareOrdinaryClassBehavior() {
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Broken : Custom { HAS Broken }") }
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Broken : Custom { This: Ok }") }
+    shouldThrow<PetSyntaxException> {
+      parseClasses("CLASS Broken : Custom { DEFAULT Broken }")
+    }
+  }
+
+  private fun shouldRejectSource(source: String) {
+    shouldThrow<PetSyntaxException> { parseClasses(source) }
+  }
 
   // L1-1 A source is a sequence of declarations
 
@@ -55,14 +76,11 @@ internal class Lang01SourceTest {
 
   @Test
   internal fun `L1-1 an incomplete final declaration rejects the whole source`() {
-    listOf(
-            "CLASS Alpha\nABSTRACT",
-            "CLASS Alpha\nCLASS",
-            "CLASS Alpha\nCLASS Beta<",
-            "CLASS Alpha\nCLASS Beta {",
-            "CLASS Alpha\n\"a docstring with no class\"",
-        )
-        .forEach { shouldThrow<PetSyntaxException> { parseClasses(it) } }
+    shouldRejectSource("CLASS Alpha\nABSTRACT")
+    shouldRejectSource("CLASS Alpha\nCLASS")
+    shouldRejectSource("CLASS Alpha\nCLASS Beta<")
+    shouldRejectSource("CLASS Alpha\nCLASS Beta {")
+    shouldRejectSource("CLASS Alpha\n\"a docstring with no class\"")
   }
 
   // L1-2 Signatures
@@ -87,7 +105,7 @@ internal class Lang01SourceTest {
 
     declarations.map { it.className } shouldContainExactly
         listOf(cn("Alpha"), cn("Beta"), cn("Gamma"))
-    declarations.forEach { it.abstract shouldBe true }
+    declarations.map { it.abstract } shouldBe listOf(true, true, true)
     declarations[1].dependencies shouldContainExactly listOf(parse<Expression>("Area"))
     declarations[2].supertypes shouldBe setOf(parse<Expression>("Root"))
   }
@@ -218,12 +236,9 @@ internal class Lang01SourceTest {
     merged.gainOnly.specs shouldContainExactly listOf(parse<Expression>("LandArea"))
     merged.gainOnly.quantifier shouldBe Instruction.Quantifier.OPTIONAL
 
-    listOf(
-            "CLASS Tile { DEFAULT Tile; DEFAULT Other }",
-            "CLASS Tile { DEFAULT +Tile<LandArea>; DEFAULT +Tile<WaterArea> }",
-            "CLASS Tile { DEFAULT +Tile?; DEFAULT +Tile! }",
-        )
-        .forEach { shouldThrow<PetSyntaxException> { parseClasses(it) } }
+    shouldRejectSource("CLASS Tile { DEFAULT Tile; DEFAULT Other }")
+    shouldRejectSource("CLASS Tile { DEFAULT +Tile<LandArea>; DEFAULT +Tile<WaterArea> }")
+    shouldRejectSource("CLASS Tile { DEFAULT +Tile?; DEFAULT +Tile! }")
   }
 
   // L1-8 Properties
@@ -276,38 +291,29 @@ internal class Lang01SourceTest {
 
   @Test
   internal fun `L1-8 other right-hand sides are rejected`() {
-    listOf(
-            "CLASS Alpha { cost = -1 }",
-            "CLASS Alpha { score = TemperatureStep }",
-            "CLASS Alpha { score = COUNT TemperatureStep }",
-            "CLASS Alpha { requirement = HAS TemperatureStep }",
-            """CLASS Alpha { requirement = HAS "Temperature\"Step" }""",
-        )
-        .forEach { shouldThrow<PetSyntaxException> { parseClasses(it) } }
+    shouldRejectSource("CLASS Alpha { cost = -1 }")
+    shouldRejectSource("CLASS Alpha { score = TemperatureStep }")
+    shouldRejectSource("CLASS Alpha { score = COUNT TemperatureStep }")
+    shouldRejectSource("CLASS Alpha { requirement = HAS TemperatureStep }")
+    shouldRejectSource("""CLASS Alpha { requirement = HAS "Temperature\"Step" }""")
   }
 
   // L1-9 Signature expressions carry no refinements
 
   @Test
   internal fun `L1-9 a signature expression may not be refined at any depth`() {
-    listOf(
-            "CLASS Alpha<Beta(HAS Qux)>",
-            "CLASS Alpha<Beta(NOT Qux)>",
-            "CLASS Alpha : Beta(NOT Qux)",
-            "CLASS Alpha<Beta<Qux(HAS Eep)>>",
-        )
-        .forEach { shouldThrow<PetSyntaxException> { parseClasses(it) } }
+    shouldRejectSource("CLASS Alpha<Beta(HAS Qux)>")
+    shouldRejectSource("CLASS Alpha<Beta(NOT Qux)>")
+    shouldRejectSource("CLASS Alpha : Beta(NOT Qux)")
+    shouldRejectSource("CLASS Alpha<Beta<Qux(HAS Eep)>>")
   }
 
   @Test
   internal fun `L1-9 other malformed declaration sources are rejected too`() {
-    listOf(
-            "CLASS Alpha : Beta, Beta",
-            "CLASS Alpha @ CLASS Beta",
-            "CLASS Alpha { DEFAULT Alpha(HAS Beta) }",
-            "CLASS Alpha[ALPHA]",
-        )
-        .forEach { shouldThrow<PetSyntaxException> { parseClasses(it) } }
+    shouldRejectSource("CLASS Alpha : Beta, Beta")
+    shouldRejectSource("CLASS Alpha @ CLASS Beta")
+    shouldRejectSource("CLASS Alpha { DEFAULT Alpha(HAS Beta) }")
+    shouldRejectSource("CLASS Alpha[ALPHA]")
   }
 
   // L1-10 Whitespace and comments
@@ -334,19 +340,16 @@ internal class Lang01SourceTest {
 
   @Test
   internal fun `L1-10 a declaration may be spelled many ways`() {
-    listOf(
-            "CLASS Alpha",
-            "ABSTRACT CLASS Alpha",
-            "CLASS Alpha<Beta>",
-            "CLASS Alpha : Beta",
-            "CLASS Alpha { HAS MC }",
-            "CLASS MC",
-            " CLASS Alpha",
-            "\nCLASS Alpha",
-            "CLASS Alpha ",
-            "CLASS Alpha\n",
-        )
-        .forEach { parseClasses(it).size shouldBe 1 }
+    parseClasses("CLASS Alpha").size shouldBe 1
+    parseClasses("ABSTRACT CLASS Alpha").size shouldBe 1
+    parseClasses("CLASS Alpha<Beta>").size shouldBe 1
+    parseClasses("CLASS Alpha : Beta").size shouldBe 1
+    parseClasses("CLASS Alpha { HAS MC }").size shouldBe 1
+    parseClasses("CLASS MC").size shouldBe 1
+    parseClasses(" CLASS Alpha").size shouldBe 1
+    parseClasses("\nCLASS Alpha").size shouldBe 1
+    parseClasses("CLASS Alpha ").size shouldBe 1
+    parseClasses("CLASS Alpha\n").size shouldBe 1
 
     parseClasses("CLASS Alpha {\n}").size shouldBe 1
     parseClasses("CLASS Alpha {\n  // just a comment\n}").size shouldBe 1

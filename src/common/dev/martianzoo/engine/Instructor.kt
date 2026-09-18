@@ -21,6 +21,7 @@ import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.DIE
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -44,6 +45,7 @@ import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.types.inferTypeVariables
 import dev.martianzoo.state.Component.Companion.toComponent
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.toComponent
@@ -58,7 +60,7 @@ internal constructor(
     private val effector: Effector,
     private val classTable: ClassTable,
     private val elaborator: PetElaborator,
-    private val customClasses: CustomClassRuntime,
+    private val customClasses: CustomInstructionRuntime,
 ) {
   private val automaticEffectStack = mutableListOf<PendingTask>()
 
@@ -209,10 +211,24 @@ internal constructor(
       }
       is Each -> resolveEach(unresolved)
       is Or -> resolveOr(unresolved)
-      is Then ->
-          unresolved.withInstructions(
-              listOf(resolveTree(unresolved.first)) + unresolved.instructions.drop(1)
-          )
+      is Then -> {
+        val first = unresolved.first
+        val gated = first as? Gated
+        val gateVariables =
+            gated
+                ?.gate
+                ?.descendantsOfType<Expression>()
+                ?.mapNotNull(unresolved.typeVariables::variableAt)
+                ?.toSet()
+                .orEmpty()
+        val openGate =
+            gated?.inner?.descendantsOfType<Expression>()?.any {
+              unresolved.typeVariables.variableAt(it) in gateVariables
+            } == true
+        unresolved.withInstructions(
+            listOf(if (openGate) first else resolveTree(first)) + unresolved.instructions.drop(1)
+        )
+      }
       is Transform -> throw ExpressionException("unhandled instruction transform: $unresolved")
     }
   }
@@ -265,6 +281,20 @@ internal constructor(
   ): InstructionTree {
     // can't resolve at all if we still have an X?
     val count = (change.count as? ActualScalar)?.value ?: return change
+    if (change is Transmute) {
+      // An exclusion containing an open co-reference becomes meaningful only when an atomic
+      // proposal binds that variable. Generated syntax may need the ordinary inference fallback.
+      val variables =
+          change.typeVariables.takeUnless { it.isEmpty }
+              ?: classTable.inferTypeVariables().transformInstruction(change).typeVariables
+      val openExclusion =
+          change.descendantsOfType<Not>().any { not ->
+            not.excluded.descendantsOfType<Expression>().any {
+              variables.variableAt(it) != null
+            }
+          }
+      if (openExclusion) return change
+    }
 
     val (g, r) = narrowChangeTypes(change, count, intens) ?: return change
     if (listOfNotNull(g, r).any { !classTable.isInhabited(it) }) {
@@ -274,14 +304,15 @@ internal constructor(
               listOfNotNull(g, r).filterNot(classTable::isInhabited).joinToString()
       )
     }
-    if (g?.className == DIE) throw DeadEndException("a Die instruction was reached")
-
     val atomized = classTable.findClass(ATOMIZED)
     if (r != null && count > 1 && atomized != null && g?.rootClass?.isSubtypeOf(atomized) == true) {
       throw ExpressionException(
           "Can't transmute $count components into atomized type ${g.expression}; " +
               "split it into one-component transmutations"
       )
+    }
+    if (g?.className == DIE && intens == MANDATORY) {
+      throw DeadEndException("a Die instruction was reached")
     }
 
     if (listOfNotNull(g, r).any { it.abstract }) {
@@ -398,17 +429,16 @@ internal constructor(
    * Fans one instruction out over the World as it stands right now. Every component matching the
    * selector contributes one independent branch, so a selector refinement — evaluated against each
    * candidate like any other refinement — is how "each player who..." is expressed. The resulting
-   * siblings carry no order, so they are deliberately produced in a stable but arbitrary sort.
+   * siblings carry no game order.
    */
   private fun resolveEach(each: Each): InstructionTree {
     val selectorType = reader.resolve(each.selector)
     if (!selectorType.abstract) {
       throw ExpressionException(
-          "`EACH ${each.selector}` selects one concrete Type, so it would have a single " +
-              "branch. Select an abstract type whose matching components can differ."
+          "`EACH ${each.selector}` resolves to a concrete Type; `EACH` requires an abstract selector"
       )
     }
-    val selected = reader.getComponents(selectorType).map { it.expression }.sortedBy { "$it" }
+    val selected = reader.getComponents(selectorType).map { it.expression }
     val branches = selected.map { branchFor(each, it) }
     return InstructionGroup.createTree(branches)
   }
@@ -491,5 +521,4 @@ internal constructor(
 
 private const val MAX_AUTOMATIC_EFFECT_DEPTH = 8
 
-private fun GameReader.hasAnyComponents(type: Type): Boolean =
-    (this as? GameReaderImpl)?.containsAny(type) ?: getComponents(type).isNotEmpty()
+private fun GameReader.hasAnyComponents(type: Type): Boolean = getComponents(type).isNotEmpty()

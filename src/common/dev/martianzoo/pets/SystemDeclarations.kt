@@ -8,8 +8,9 @@ import dev.martianzoo.pets.util.toSetStrict
  * Pets runtime declarations that are available to every Catalog, as required by
  * [rule L1-13](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations):
  * the classes this language and the type system depend on, including `Component` and `Class`, the
- * ownership vocabulary `Anyone`, `Owner` and `Owned`, the actor root `Actor`, the signals `Ok` and
- * `Die`, and `Atomized` and `Custom`. A catalog's own source is loaded alongside them.
+ * ownership vocabulary `Anyone`, `Owner` and `Owned`, the actor root `Actor`, the identity signal
+ * `Ok`, the impossible type `Die`, and `Atomized` and `Custom`. A catalog's own source is loaded
+ * alongside them.
  *
  * Which of these a particular *game* then contains is `OPTIONS.md`'s question, not this module's.
  */
@@ -60,9 +61,9 @@ private val systemDeclarationsSource =
     "Something the player must remove to unblock some other task (i.e., `MAX 0 Barrier:` is common"
     ABSTRACT CLASS Barrier : MustCleanUp
 
-    "An unscoped point event that removes itself immediately after triggering effects"
+    "An unscoped point event; `IF This` skips self-removal when no instance entered live state"
     ABSTRACT CLASS Signal : MustCleanUp {
-      This:: -This!
+      This IF This:: -This!
     }
 
     "An entity that can initiate or continue game operations"
@@ -85,7 +86,7 @@ private val systemDeclarationsSource =
     "Gaining `Ok` is the standard 'do-nothing' instruction; can't trigger anything"
     CLASS Ok : Signal
 
-    "A component you can't create; the task queue will refuse to enqueue an attempt to"
-    CLASS Die : Signal { HAS MAX 0 This }
+    "A component that can never be created"
+    CLASS Die { HAS MAX 0 This }
     """
         .trimIndent() + "\n"
