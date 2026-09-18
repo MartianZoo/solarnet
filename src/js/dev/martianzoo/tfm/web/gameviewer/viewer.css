@@ -1,6 +1,8 @@
 :root { color-scheme: dark; background: #080808; font-family: Arial, sans-serif; }
 html, body { box-sizing: border-box; width: 100%; height: 100%; margin: 0; }
 body { display: flex; flex-direction: column; overflow: auto; background: #080808; }
+.almanac-link { color: inherit; text-decoration: none; }
+.almanac-link:hover { text-decoration: underline; }
 
 .controls {
   box-sizing: border-box;
@@ -111,11 +113,13 @@ body { display: flex; flex-direction: column; overflow: auto; background: #08080
 .cards-panel { min-height: 0; overflow: auto; background: #1b1b1b; }
 #played-cards { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 14px 12px; padding: 16px 18px; }
 .played-card-slot { position: relative; display: flex; width: 206px; height: 250px; flex: 0 0 206px; align-items: flex-start; justify-content: center; }
-.played-card { width: auto; height: 250px; max-width: 100%; object-fit: contain; filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.8)); }
+.card-image-link { display: block; max-width: 100%; height: 100%; }
+.played-card { display: block; width: auto; height: 250px; max-width: 100%; object-fit: contain; filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.8)); }
 .card-resources-counter { box-sizing: border-box; position: absolute; bottom: 11px; left: 11px; z-index: 3; display: flex; min-width: 55px; height: 29px; align-items: center; justify-content: center; gap: 4px; padding: 2px 7px; border: 2px solid; border-color: #eee #777 #777 #eee; border-radius: 6px; color: #020202; background: linear-gradient(135deg, rgba(245, 245, 245, 0.96), rgba(150, 150, 150, 0.96)); box-shadow: 0 2px 3px rgba(0, 0, 0, 0.72); font-weight: 700; }
 .corporations-card-slot .card-resources-counter { left: 21px; }
 .card-resources-counter-number { font-size: 19px; line-height: 1; }
 .card-resource-icon { width: 20px; height: 20px; object-fit: contain; }
+.card-resource-link { display: block; width: 20px; height: 20px; }
 .action-used-marker { box-sizing: border-box; position: absolute; top: 9px; right: 9px; z-index: 4; width: 21px; height: 21px; border: 1px solid rgba(0, 0, 0, 0.8); border-radius: 2px; background: linear-gradient(135deg, rgba(255, 255, 255, 0.68) 0 16%, rgba(255, 255, 255, 0.08) 18% 48%, rgba(0, 0, 0, 0.28) 52% 100%), rgb(var(--player-color)); box-shadow: inset 1px 1px 1px rgba(255, 255, 255, 0.55), inset -2px -2px 2px rgba(0, 0, 0, 0.42); filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.9)); }
 .corporations-card-slot .action-used-marker { right: 20px; }
 .event-cards-divider { display: flex; flex: 1 0 100%; align-items: center; gap: 10px; margin: 2px 0; color: #888; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; }
