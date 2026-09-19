@@ -12,6 +12,7 @@ import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Metric
@@ -130,7 +131,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-2 nested and inherited positions stay independent without a shared name`() {
+  internal fun `T13-2 nested and inherited positions declare distinct variables`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person : Owner { CLASS Alice, Bob }",
@@ -145,7 +146,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-2 two header roots spelled alike stay independent`() {
+  internal fun `T13-2 each equal header root declares its own variable`() {
     val table =
         loadTypes("ABSTRACT CLASS Person { CLASS Alice }", "ABSTRACT CLASS Duo<Person, Person>")
 
@@ -165,7 +166,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-2 identical nested bounds in sibling branches stay independent`() {
+  internal fun `T13-2 each sibling branch declares its own nested variables`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice, Bob }",
@@ -218,7 +219,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-3 choice inference uses the game universe for premise Classes`() {
+  internal fun `T13-3 scope recording uses the game universe for premise Classes`() {
     val sourceCatalog = testCatalog("ABSTRACT CLASS Master")
     val premise =
         GamePremise(
@@ -286,14 +287,14 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-3 repeated header spelling in a body is not linked`() {
+  internal fun `T13-3 a class body uses a header variable only through its name`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person",
-            "ABSTRACT CLASS Independent<Person> { This: Person }",
+            "ABSTRACT CLASS Holder<Person> { This: Person }",
         )
 
-    table.getClass(cn("Independent")).typeVariables.single().usages shouldBe emptyList()
+    table.getClass(cn("Holder")).typeVariables.single().usages shouldBe emptyList()
   }
 
   @Test
@@ -341,6 +342,16 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-3 a Class-header variable name must be used`() {
     shouldThrow<PetSyntaxException> {
       parseClasses("ABSTRACT CLASS Person\nABSTRACT CLASS Holder<Person AS P>")
+    }
+  }
+
+  @Test
+  internal fun `T13-3 only an eligible abstract header occurrence can declare a variable`() {
+    shouldThrow<PetException> {
+      loadTypes(
+          "CLASS Alice",
+          "ABSTRACT CLASS Holder<Alice AS A>",
+      )
     }
   }
 
@@ -538,7 +549,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-6 repeated Effect spelling alone declares nothing`() {
+  internal fun `T13-6 unnamed Effect expressions do not declare a variable`() {
     effect("StandardResource: StandardResource").typeVariables.variables shouldBe listOf()
     effect("StandardResource: Plant").typeVariables.variables shouldBe listOf()
   }
@@ -595,6 +606,7 @@ internal class Spec13TypeVariablesTest {
   @Test
   internal fun `T13-7 an effect's regions are its trigger and its instruction`() {
     names(effect("StandardResource AS R: R").typeVariables) shouldContainExactly listOf("R")
+    shouldThrow<ExpressionException> { effect("StandardResource AS R OR R: Ok") }
   }
 
   @Test
@@ -610,11 +622,11 @@ internal class Spec13TypeVariablesTest {
         .transformInstruction(lowered)
         .toString() shouldBe "-Plant! THEN Plant"
 
-    val unlinked =
+    val ordinary =
         resources
             .recordTypeVariableScopes()
             .transformAction(parse("StandardResource -> StandardResource"))
-    unlinked.typeVariables.variables shouldBe listOf()
+    ordinary.typeVariables.variables shouldBe listOf()
   }
 
   @Test
@@ -650,11 +662,11 @@ internal class Spec13TypeVariablesTest {
         .transformInstruction(then)
         .toString() shouldBe "Plant THEN Plant"
 
-    val unlinked =
+    val ordinary =
         resources
             .recordTypeVariableScopes()
             .transformInstruction(parse("StandardResource THEN StandardResource")) as Then
-    unlinked.typeVariables.variables shouldBe listOf()
+    ordinary.typeVariables.variables shouldBe listOf()
   }
 
   @Test
@@ -716,7 +728,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-7 repeated transmutation spelling alone declares nothing`() {
+  internal fun `T13-7 full transmutation sides share only named variables`() {
     val transmute =
         resources
             .recordTypeVariableScopes()
@@ -727,27 +739,6 @@ internal class Spec13TypeVariablesTest {
             ) as Instruction.Transmute
 
     transmute.typeVariables.variables shouldBe listOf()
-  }
-
-  @Test
-  internal fun `T13-7 a compact transmutation structurally shares each unchanged argument`() {
-    val table =
-        loadTypes(
-            "ABSTRACT CLASS Person { CLASS Alice, Bob }",
-            "ABSTRACT CLASS Side { CLASS Left, Right }",
-            "ABSTRACT CLASS Pair<Person, Side>",
-        )
-    val transmute =
-        table
-            .recordTypeVariableScopes()
-            .transformInstruction(parse("Pair<Person, Left FROM Right>")) as Instruction.Transmute
-    val variable = transmute.typeVariables.variables.single()
-
-    variable.occurrences.map { "${it.expression}" } shouldContainExactly listOf("Person", "Person")
-    transmute.typeVariables
-        .bind(mapOf(variable to table.resolve(te("Alice"))))
-        .transformInstruction(transmute)
-        .toString() shouldBe "Pair<Alice, Left FROM Right>"
   }
 
   @Test
@@ -795,7 +786,7 @@ internal class Spec13TypeVariablesTest {
     names(twice.typeVariables) shouldContainExactly listOf("R")
   }
 
-  // T13-8 What does not declare a variable
+  // T13-8 Variable declaration sites
 
   @Test
   internal fun `T13-8 an unnamed EACH selector does not use a header variable`() {
@@ -886,7 +877,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-9 repeating an unnamed actor Type creates no hidden link`() {
+  internal fun `T13-9 an unnamed actor filter does not bind the instruction`() {
     val bound = actorEffect("Heat BY Player: Notice<Player>")
 
     names(bound.typeVariables) shouldContainExactly listOf()
@@ -1076,13 +1067,22 @@ internal class Spec13TypeVariablesTest {
             "ABSTRACT CLASS Box<Person>",
             "ABSTRACT CLASS Container<Component>",
         )
-    val authored = parse<Expression>("Container<Box<Person>>")
-    val person = authored.arguments.single().arguments.single()
+    val container = parse<Expression>("Container<Box<Person>>")
+    val person =
+        container.arguments
+            .single()
+            .arguments
+            .single()
+            .copy(typeVariableName = Declaration(cn("P")))
+    val authored =
+        container.copy(
+            arguments = listOf(container.arguments.single().copy(arguments = listOf(person)))
+        )
     val scope =
         TypeVariableScope.fromDeclarations(
             listOf(authored),
             table,
-            unnamedDeclarations = listOf(person),
+            namedDeclarations = listOf(person),
         )
 
     scope
@@ -1091,7 +1091,7 @@ internal class Spec13TypeVariablesTest {
             table.resolve(authored),
             table.resolve(parse("Container<Box<Alice>>")),
         )
-        .map { (variable, value) -> "$variable=$value" } shouldContainExactly listOf("Person=Alice")
+        .map { (variable, value) -> "$variable=$value" } shouldContainExactly listOf("P=Alice")
   }
 
   @Test
@@ -1103,13 +1103,22 @@ internal class Spec13TypeVariablesTest {
             "CLASS Hand",
             "ABSTRACT CLASS Container<Component>",
         )
-    val authored = parse<Expression>("Container<Box<Person>>")
-    val person = authored.arguments.single().arguments.single()
+    val container = parse<Expression>("Container<Box<Person>>")
+    val person =
+        container.arguments
+            .single()
+            .arguments
+            .single()
+            .copy(typeVariableName = Declaration(cn("P")))
+    val authored =
+        container.copy(
+            arguments = listOf(container.arguments.single().copy(arguments = listOf(person)))
+        )
     val scope =
         TypeVariableScope.fromDeclarations(
             listOf(authored),
             table,
-            unnamedDeclarations = listOf(person),
+            namedDeclarations = listOf(person),
         )
 
     scope.bindingsFrom(
@@ -1120,19 +1129,20 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-11 capture does not include an identically spelled sibling`() {
+  internal fun `T13-11 capture follows only the selected dependency occurrence`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice, Bob }",
             "ABSTRACT CLASS Pair<Person, Person>",
         )
-    val authored = parse<Expression>("Pair<Person, Person>")
-    val person = authored.arguments.first()
+    val pair = parse<Expression>("Pair<Person, Person>")
+    val person = pair.arguments.first().copy(typeVariableName = Declaration(cn("P")))
+    val authored = pair.copy(arguments = listOf(person, pair.arguments.last()))
     val scope =
         TypeVariableScope.fromDeclarations(
             listOf(authored),
             table,
-            unnamedDeclarations = listOf(person),
+            namedDeclarations = listOf(person),
         )
 
     scope
@@ -1141,6 +1151,6 @@ internal class Spec13TypeVariablesTest {
             table.resolve(authored),
             table.resolve(parse("Pair<Alice, Bob>")),
         )
-        .map { (variable, value) -> "$variable=$value" } shouldContainExactly listOf("Person=Alice")
+        .map { (variable, value) -> "$variable=$value" } shouldContainExactly listOf("P=Alice")
   }
 }

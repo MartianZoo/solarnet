@@ -9,8 +9,9 @@ import com.github.h0tk3y.betterParse.combinators.zeroOrMore
 import com.github.h0tk3y.betterParse.grammar.parser
 import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
-import dev.martianzoo.pets.ast.Expression.TypeVariableName.StructuralReference
+import dev.martianzoo.pets.api.TypeInfo
 import kotlin.reflect.KClass
 
 /**
@@ -28,13 +29,7 @@ public sealed class FromExpression : PetNode() {
   public abstract val fromExpression: Expression
 
   /** An argument retained unchanged by a compact transmutation. */
-  public class Unchanged(source: Expression) : FromExpression() {
-    public val expression: Expression =
-        if (source.typeVariableName == null) {
-          source.copy(typeVariableName = StructuralReference(source.className))
-        } else {
-          source
-        }
+  public data class Unchanged(public val expression: Expression) : FromExpression() {
 
     override val toExpression: Expression
       get() = expression
@@ -45,13 +40,6 @@ public sealed class FromExpression : PetNode() {
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(expression)
 
     override fun toString(): String = "$expression"
-
-    override fun equals(other: Any?): Boolean =
-        other is Unchanged &&
-            expression.copy(typeVariableName = null) ==
-                other.expression.copy(typeVariableName = null)
-
-    override fun hashCode(): Int = expression.copy(typeVariableName = null).hashCode()
   }
 
   /** A transmutation whose source and destination are both written in full. */
@@ -99,6 +87,42 @@ public sealed class FromExpression : PetNode() {
     override fun toString(): String = buildString {
       append(className).append(arguments.joinToString(", ", "<", ">"))
       refinement?.let { append("(").append(it).append(")") }
+    }
+
+    /** Requires every retained slot to have one value in a proposed transmutation's projections. */
+    internal fun ensureRetainedArgumentsAgree(
+        proposedTo: Expression,
+        proposedFrom: Expression,
+        info: TypeInfo,
+    ) {
+      fun correspondingExpression(
+          projection: PetNode,
+          proposed: PetNode,
+          retained: Expression,
+      ): Expression? {
+        if (projection === retained) return proposed as? Expression
+        return projection
+            .immediateChildren()
+            .zip(proposed.immediateChildren())
+            .firstNotNullOfOrNull { (wide, narrow) ->
+              correspondingExpression(wide, narrow, retained)
+            }
+      }
+
+      descendantsOfType<Unchanged>().forEach { unchanged ->
+        val proposedGain =
+            correspondingExpression(toExpression, proposedTo, unchanged.expression)
+                ?: throw NarrowingException(
+                    "Can't preserve compact argument ${unchanged.expression}"
+                )
+        val proposedRemoval =
+            correspondingExpression(fromExpression, proposedFrom, unchanged.expression)
+                ?: throw NarrowingException(
+                    "Can't preserve compact argument ${unchanged.expression}"
+                )
+        proposedGain.ensureNarrows(proposedRemoval, info)
+        proposedRemoval.ensureNarrows(proposedGain, info)
+      }
     }
   }
 

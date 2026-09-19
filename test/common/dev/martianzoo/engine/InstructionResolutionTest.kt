@@ -88,6 +88,22 @@ internal class InstructionResolutionTest {
   }
 
   @Test
+  internal fun `resolution retains an occurrence omitted by the compact resolved Type`() {
+    checkResolution(
+        "CityTile<MarsArea AS ThatArea> FROM GreeneryTile<ThatArea>",
+        "CityTile<Player1, MarsArea AS ThatArea> FROM GreeneryTile<Player1, ThatArea>!",
+    )
+  }
+
+  @Test
+  internal fun `resolution retains compact FROM until both projections are concrete`() {
+    checkResolution(
+        "Production<Player1 FROM Player2, Class<StandardResource>>?",
+        "Production<Player1 FROM Player2, Class<StandardResource>>?",
+    )
+  }
+
+  @Test
   internal fun testResolvePer() {
     checkResolution("Plant / TerraformRating", "20 Plant<Player1>!")
     checkResolution("Plant / 3 TerraformRating", "6 Plant<Player1>!")

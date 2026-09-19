@@ -287,7 +287,7 @@ internal class Spec03DependenciesTest {
   }
 
   @Test
-  internal fun `T3-8 independent dependency roots stay independent even when spelled alike`() {
+  internal fun `T3-8 distinct dependency roots accept different values`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Area { CLASS Tharsis_2_2, Tharsis_2_3 }",

@@ -576,10 +576,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     yellow.exMachina("MC")
     green.turn {
       playProject(LawSuit, 2) {
-        doTask(
-            "3 MC<Green> FROM MC<Yellow> THEN " +
-                "PlayedEvent<Yellow, Class<LawSuit>> FROM LawSuit<Green>"
-        )
+        doTask("3 MC<Green> FROM MC<Yellow>")
       }
     }
     green.exMachina("-MC")

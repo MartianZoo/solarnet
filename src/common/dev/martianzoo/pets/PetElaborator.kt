@@ -22,7 +22,10 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Has
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
+import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.FromExpression.Full
+import dev.martianzoo.pets.ast.FromExpression.Unchanged
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Each
@@ -163,6 +166,7 @@ public class PetElaborator(public val classTable: ClassTable) {
   public fun classEffects(klass: Class): List<Effect> {
     require(classTable.isIncluded(klass)) { "$klass is not included in this game" }
     return effectsByClass.getOrPut(klass) {
+      val scopeRecorder = classTable.recordTypeVariableScopes()
       fun directClassEffects(source: Class) =
           source.declaration
               .let { declaration ->
@@ -170,7 +174,7 @@ public class PetElaborator(public val classTable: ClassTable) {
                     ?: declaration.authoredEffects +
                         declaration.authoredActions.mapIndexed { index, action ->
                           actionToEffect(
-                              classTable.recordTypeVariableScopes().transformAction(action),
+                              scopeRecorder.transformAction(action),
                               index + 1,
                           )
                         }
@@ -457,6 +461,57 @@ public class PetElaborator(public val classTable: ClassTable) {
   private fun insertDefaults(context: Expression): PetTransformer =
       chain(insertGainRemoveDefaults(context), insertExpressionDefaults(context))
 
+  /** Rebuilds a compact transmutation after independently processing its two projections. */
+  private fun retainCompactForm(
+      original: Compact,
+      gaining: Expression,
+      removing: Expression,
+  ): Compact {
+    if (
+        gaining.className != original.className ||
+            removing.className != original.className ||
+            removing.refinement != null
+    ) {
+      throw PetSyntaxException("Defaulting cannot split compact transmutation $original")
+    }
+
+    val klass = classTable.getClass(original.className)
+    fun keyedArguments(expression: Expression): Map<Key, Expression> {
+      val keys = klass.dependencies.matchPartial(expression.arguments, classTable).keys
+      return keys.zip(expression.arguments).toMap()
+    }
+
+    val gainingByKey = keyedArguments(gaining)
+    val removingByKey = keyedArguments(removing)
+    if (gainingByKey.keys != removingByKey.keys) {
+      throw PetSyntaxException("Defaulting cannot split compact transmutation $original")
+    }
+
+    val originalKeys =
+        klass.dependencies.matchPartial(original.toExpression.arguments, classTable).keys
+    val originalByKey = originalKeys.zip(original.arguments).toMap()
+    val arguments = buildList {
+      klass.dependencies.keys.forEach { key ->
+        val gained = gainingByKey[key] ?: return@forEach
+        val removed = removingByKey[key] ?: return@forEach
+        val authored = originalByKey[key]
+        add(
+            when {
+              authored != null &&
+                  authored.toExpression == gained &&
+                  authored.fromExpression == removed -> authored
+              gained == removed -> Unchanged(gained)
+              else -> Full(gained, removed)
+            }
+        )
+      }
+    }
+    if (arguments.count { it !is Unchanged } != 1) {
+      throw PetSyntaxException("Defaulting cannot split compact transmutation $original")
+    }
+    return Compact(original.className, arguments, gaining.refinement)
+  }
+
   private fun insertGainRemoveDefaults(context: Expression): PetTransformer {
     return object : PetTransformer() {
       override fun transformNode(node: PetNode): PetNode {
@@ -500,8 +555,8 @@ public class PetElaborator(public val classTable: ClassTable) {
         }
       }
 
-      // Rule L12-8: the two halves of `A FROM B` are defaulted independently, and where the
-      // transmutation writes no quantifier, the two halves' defaults are intersected.
+      // Rule L12-8: the gained and removed projections are defaulted independently, and where the
+      // transmutation writes no quantifier, the projections' defaults are intersected.
       private fun handleTransmute(node: Transmute): Transmute {
         val gainDefault = defaultFor(node.gaining, { it.gainOnly }, gain = true)
         val removeDefault = defaultFor(node.removing, { it.removeOnly }, gain = false)
@@ -509,14 +564,12 @@ public class PetElaborator(public val classTable: ClassTable) {
             node.quantifier
                 ?: intersectQuantifiers(gainDefault?.quantifier, removeDefault?.quantifier)
 
-        return Transmute(
-            Full(
-                applyDefault(node.gaining, gainDefault, context, gain = true),
-                applyDefault(node.removing, removeDefault, context, gain = false),
-            ),
-            node.count,
-            quantifier,
-        )
+        val gaining = applyDefault(node.gaining, gainDefault, context, gain = true)
+        val removing = applyDefault(node.removing, removeDefault, context, gain = false)
+        val fromExpression =
+            (node.fromEx as? Compact)?.let { retainCompactForm(it, gaining, removing) }
+                ?: Full(gaining, removing)
+        return Transmute(fromExpression, node.count, quantifier)
       }
 
       private fun defaultFor(
@@ -654,6 +707,22 @@ public class PetElaborator(public val classTable: ClassTable) {
             is Expression.Refinement.Not -> transformRefinement(refinement)
           }
 
+      fun defaultShell(shell: Expression): Expression {
+        val klass = classTable.getClass(shell.className)
+        val defaultDeps = klass.defaults.allUsages.dependencies
+        rejectEmptyArgumentsWithoutDefaults(shell, klass.defaults.allUsages, "all-use")
+        val refinementCandidate =
+            refinementCandidates.lastOrNull()?.takeIf { (_, depth) -> depth == rankDepth }?.first
+        return insertDefaultsIntoExpr(
+            shell,
+            defaultDeps,
+            context,
+            classTable,
+            deferVariableDefaults = refinementDepth > 0 && !shell.argumentsSpecified,
+            refinementCandidate = refinementCandidate,
+        )
+      }
+
       override fun transformNode(node: PetNode): PetNode {
         if (node is Expression.Refinement) {
           refinementDepth++
@@ -671,24 +740,29 @@ public class PetElaborator(public val classTable: ClassTable) {
             rankDepth--
           }
         }
+        if (node is Compact) {
+          val shell =
+              Compact(
+                  transformClassName(node.className),
+                  node.arguments.map(::transformFromExpression),
+              )
+          val gaining = defaultShell(shell.toExpression)
+          val removing = defaultShell(shell.fromExpression)
+          val refinement =
+              node.refinement?.let {
+                transformRefinementForCandidate(it, gaining.copy(refinement = null))
+              }
+          return retainCompactForm(
+              shell,
+              gaining.copy(refinement = refinement),
+              removing,
+          )
+        }
         if (node !is Expression) return transformChildren(node)
         if (leaveItAlone(node)) return node
 
         val shell = transformChildren(node.copy(refinement = null)) as Expression
-        val klass = classTable.getClass(shell.className)
-        val defaultDeps = klass.defaults.allUsages.dependencies
-        rejectEmptyArgumentsWithoutDefaults(node, klass.defaults.allUsages, "all-use")
-        val refinementCandidate =
-            refinementCandidates.lastOrNull()?.takeIf { (_, depth) -> depth == rankDepth }?.first
-        val defaulted =
-            insertDefaultsIntoExpr(
-                shell,
-                defaultDeps,
-                context,
-                classTable,
-                deferVariableDefaults = refinementDepth > 0 && !node.argumentsSpecified,
-                refinementCandidate = refinementCandidate,
-            )
+        val defaulted = defaultShell(shell)
         val refinement =
             node.refinement?.let {
               transformRefinementForCandidate(it, defaulted.copy(refinement = null))
@@ -813,6 +887,71 @@ public class PetElaborator(public val classTable: ClassTable) {
         binder,
         invalidChangesToDie { contextualScope.transformedBy(binder) },
     )
+  }
+
+  /**
+   * Retains the explicitly authored Type-variable occurrences when Type resolution rebuilds
+   * [resolved] in compact form. Arguments are matched by dependency key, and an authored variable
+   * argument omitted only because it equals the Class default remains present.
+   */
+  public fun retainTypeVariableNames(
+      resolved: Expression,
+      authored: Expression,
+  ): Expression {
+    if (authored.descendantsOfType<Expression>().none { it.typeVariableName != null }) {
+      return resolved
+    }
+
+    fun retainAtRepresentedDependencies(
+        target: Expression,
+        source: Expression,
+    ): Expression {
+      val sourceClass = classTable.getClass(source.className)
+      val sourceByKey =
+          source.arguments
+              .zip(sourceClass.matchDependencyKeys(source.arguments, classTable))
+              .associate { (argument, key) -> key to argument }
+      val targetClass = classTable.getClass(target.className)
+      val targetArguments =
+          target.arguments.zip(targetClass.matchDependencyKeys(target.arguments, classTable)).map {
+              (argument, key) ->
+            sourceByKey[key]?.let { sourceArgument ->
+              retainAtRepresentedDependencies(argument, sourceArgument)
+            } ?: argument
+          }
+      return target.copy(
+          arguments = targetArguments,
+          typeVariableName = source.typeVariableName ?: target.typeVariableName,
+      )
+    }
+
+    val expression = retainAtRepresentedDependencies(resolved, authored)
+    val representedKeys =
+        classTable
+            .getClass(expression.className)
+            .matchDependencyKeys(expression.arguments, classTable)
+            .toSet()
+    val authoredClass = classTable.getClass(authored.className)
+    val authoredArguments =
+        if (authored.typeVariableName is Reference && !authored.argumentsSpecified) {
+          emptyList()
+        } else {
+          authored.arguments.zip(authoredClass.matchDependencyKeys(authored.arguments, classTable))
+        }
+    val retainedArguments = authoredArguments.filter { (argument, key) ->
+      key !in representedKeys &&
+          argument.descendantsOfType<Expression>().any { it.typeVariableName != null }
+    }
+    val applied = expression.appendArguments(retainedArguments.map { it.first })
+    return if (
+        authored.typeVariableName != null &&
+            authored.argumentsSpecified &&
+            !applied.argumentsSpecified
+    ) {
+      applied.copy(argumentsSpecified = true)
+    } else {
+      applied
+    }
   }
 
   /**

@@ -29,6 +29,7 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 /** Section 6 of `docs/pets-language-spec.md`: instructions as relations between two states. */
@@ -255,6 +256,7 @@ internal class Lang06InstructionsTest {
     compact.gaining shouldBe parse<Expression>("Marker<Mars1, Player1>")
     compact.removing shouldBe parse<Expression>("Marker<Mars1, Player2>")
     (compact.fromEx is Compact) shouldBe true
+    (compact.gaining.arguments[0] === compact.removing.arguments[0]) shouldBe true
     shouldThrow<PetSyntaxException> { parse<Instruction>("Marker<Mars1 FROM Mars2, P1 FROM P2>") }
 
     parse<Instruction>("Marker<Player1> FROM Marker<Player2>").let {
@@ -419,6 +421,11 @@ internal class Lang06InstructionsTest {
     shouldThrow<PetSyntaxException> { parse<Instruction>("Plant AS P THEN Heat") }
     shouldThrow<PetSyntaxException> { parse<Instruction>("Plant AS P THEN Heat AS P THEN P") }
     shouldThrow<PetSyntaxException> { parse<Instruction>("Plant AS P THEN P<Steel>") }
+
+    shouldThrow<PetSyntaxException> {
+          parse<Instruction>("Foo<Bar AS B> THEN (Qux<B>, EACH Bar AS B { B })")
+        }
+        .message shouldContain "cannot shadow"
   }
 
   @Test

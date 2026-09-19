@@ -8,8 +8,8 @@ import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.ExpandedReference
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
-import dev.martianzoo.pets.ast.Expression.TypeVariableName.StructuralReference
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.startsTypeVariableObservation
 import dev.martianzoo.pets.types.Dependency.TypeDependency
@@ -123,11 +123,11 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
 
   /** Hides explicit names while retaining their occurrence identity outside the lexical scope. */
   public fun expandNames(): PetTransformer {
-    val references = variables.mapNotNull(TypeVariable::name).associateWith(::StructuralReference)
+    val references = variables.mapNotNull(TypeVariable::name).associateWith(::ExpandedReference)
     return object : PetTransformer() {
       override fun transformNode(node: PetNode): PetNode {
         if (node is Expression) {
-          if (node.typeVariableName is StructuralReference) return transformChildren(node)
+          if (node.typeVariableName is ExpandedReference) return transformChildren(node)
           references[node.typeVariableName?.name]?.let { reference ->
             return transformChildren(node.copy(typeVariableName = reference))
           }
@@ -157,9 +157,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
               sources.any { source ->
                 wideNode === source ||
                     (source.typeVariableName != null &&
-                        wideNode.typeVariableName == source.typeVariableName &&
-                        (wideNode == source ||
-                            wideNode.isExpandedFrom(source, variable.bound.classTable)))
+                        wideNode.typeVariableName == source.typeVariableName)
               }
       ) {
         (narrowNode as? Expression)
@@ -186,7 +184,10 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     val declaration = expressionOf(variable.declaration)
     return proposed
         .descendantsOfType<Expression>()
-        .filter { it != declaration && it.narrows(variable.bound.expressionFull, info) }
+        .filter {
+          it.copy(typeVariableName = null) != declaration.copy(typeVariableName = null) &&
+              it.narrows(variable.bound.expressionFull, info)
+        }
         .map { expression ->
           ((info as? GameReader)?.resolve(expression)
                   ?: variable.bound.classTable.resolve(expression))
@@ -348,6 +349,12 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
                 .map { it.second }
                 .distinct()
         if (expanded.size == 1) return transformChildren(expanded.single())
+        val sameVariable =
+            replacements
+                .filter { (source) -> node.hasSameVariableIdentityAs(source) }
+                .map { it.second }
+                .distinct()
+        if (sameVariable.size == 1) return transformChildren(sameVariable.single())
       }
       return transformChildren(node)
     }
@@ -376,7 +383,6 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     fun fromDeclarations(
         regions: List<PetNode>,
         classTable: ClassTable,
-        unnamedDeclarations: List<Expression> = emptyList(),
         namedDeclarations: List<Expression> = emptyList(),
     ): TypeVariableScope {
       data class Found(
@@ -425,42 +431,38 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         return classTable.resolve(expression.copy(refinement = nonStructuralRefinement))
       }
 
-      val declarations = unnamedDeclarations + namedDeclarations
       val entries =
-          declarations
+          namedDeclarations
               .map { expression ->
-                val declaration = occurrences.first { it.expression === expression }
+                val declaration = occurrences.single { it.expression === expression }
                 if (declaration.observing) {
                   throw ExpressionException(
                       "A Type variable cannot be declared in an observing expression: $expression"
                   )
                 }
-                val declaredName = (expression.typeVariableName as? Declaration)?.name
+                val declaredName = (expression.typeVariableName as Declaration).name
                 val usages =
                     occurrences
                         .filter { found ->
                           found !== declaration &&
-                              if (declaredName == null) {
-                                found.expression === expression
-                              } else {
-                                (found.expression.typeVariableName as? Reference)?.name ==
-                                    declaredName
-                              }
+                              (found.expression.typeVariableName as? Reference)?.name ==
+                                  declaredName
                         }
                         .sortedBy(Found::ordinal)
-                if (declaredName != null && usages.any { it.region < declaration.region }) {
+                if (usages.any { it.region < declaration.region }) {
                   throw ExpressionException(
                       "Type variable $declaredName cannot be used before it is declared"
                   )
                 }
+                val declarationGroundType = interpretedGroundType(declaration)
                 val variable =
                     TypeVariable(
-                        interpretedGroundType(declaration),
+                        declarationGroundType,
                         Site(
                             expression,
                             declaration.region,
                             declaration.ordinal,
-                            interpretedGroundType = interpretedGroundType(declaration),
+                            interpretedGroundType = declarationGroundType,
                         ),
                         usages.map { usage ->
                           Site(

@@ -89,7 +89,7 @@ public data class Expression(
               derivedClassBody == other.derivedClassBody)
 
   private val equalityTypeVariableName: TypeVariableName?
-    get() = typeVariableName.takeUnless { it is TypeVariableName.StructuralReference }
+    get() = typeVariableName.takeUnless { it is TypeVariableName.ExpandedReference }
 
   override fun hashCode(): Int {
     if (cachedHashCode != 0) return cachedHashCode
@@ -120,7 +120,7 @@ public data class Expression(
   override fun toString(): String = buildString {
     (typeVariableName as? TypeVariableName.Reference)?.let {
       append(it.name)
-      if (arguments.isNotEmpty()) append(arguments.joinToString(", ", "<", ">"))
+      if (it.argumentsSpecified) append(arguments.joinToString(", ", "<", ">"))
       return@buildString
     }
     append(className)
@@ -139,14 +139,24 @@ public data class Expression(
     /** The `Name` in `Type AS Name`. */
     public data class Declaration(override val name: ClassName) : TypeVariableName()
 
-    /** A bare `Name` in the same scope that refers to its declaration. */
-    public data class Reference(override val name: ClassName) : TypeVariableName()
+    /** A `Name` in the same scope that refers to its declaration. */
+    public class Reference
+    internal constructor(
+        override val name: ClassName,
+        internal val argumentsSpecified: Boolean = false,
+    ) : TypeVariableName() {
+      override fun equals(other: Any?): Boolean = other is Reference && name == other.name
+
+      override fun hashCode(): Int = name.hashCode()
+
+      override fun toString(): String = "Reference(name=$name)"
+    }
 
     /** A resolved reference to the class named by the surrounding refined `Class<T>`. */
     internal data class RepresentedClassReference(override val name: ClassName) : TypeVariableName()
 
-    /** Identity retained by one structurally shared occurrence as syntax is rebuilt. */
-    internal class StructuralReference(override val name: ClassName) : TypeVariableName()
+    /** Identity retained after an explicit reference is expanded to its structural expression. */
+    internal class ExpandedReference(override val name: ClassName) : TypeVariableName()
   }
 
   /**

@@ -1324,10 +1324,7 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       // "So you lose three money and I gain three money?"
       // "My Mons doesn't activate for that. I would just pay myself."
       playProject(LawSuit, 0) {
-            doTask(
-                "3 MC<Green> FROM MC<Yellow> THEN " +
-                    "PlayedEvent<Yellow, Class<LawSuit>> FROM LawSuit<Green>"
-            )
+            doTask("3 MC<Green> FROM MC<Yellow>")
           }
           .expect("3 MC<Green>, -3 MC<Yellow>")
     }

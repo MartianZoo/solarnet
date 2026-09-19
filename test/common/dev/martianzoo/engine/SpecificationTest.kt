@@ -82,7 +82,7 @@ internal class SpecificationTest {
   }
 
   @Test
-  internal fun compactTransmutationLinksItsUnchangedArguments() {
+  internal fun compactTransmutationRetainsItsUnchangedArguments() {
     val wide = "Production<Player, Class<Steel FROM Heat>>?"
 
     test(

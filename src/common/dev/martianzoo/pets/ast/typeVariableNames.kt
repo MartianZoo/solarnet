@@ -11,6 +11,11 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.Metric.Rank
 import dev.martianzoo.pets.data.ClassDeclaration
 
+private fun containsInstance(expressions: Iterable<Expression>, candidate: Expression): Boolean =
+    expressions.any {
+      it === candidate
+    }
+
 /** Declarations whose names connect this transmutation's destination to its source. */
 internal fun Transmute.localTypeVariableDeclarations(): List<Expression> {
   val sourceNames =
@@ -26,23 +31,27 @@ internal fun Transmute.localTypeVariableDeclarations(): List<Expression> {
 /** Declarations belonging to this sequence, excluding declarations owned by nested sequences. */
 internal fun Then.localTypeVariableDeclarations(): List<Expression> = buildList {
   val selectorDeclarations = constructLocalTypeVariableDeclarations()
-  fun collect(node: PetNode, excluded: Set<Expression>) {
+  fun collect(node: PetNode, excluded: List<Expression>) {
     if (node is Then) return
     val nextExcluded =
         excluded +
             selectorDeclarations +
             if (node is Transmute) node.localTypeVariableDeclarations() else emptySet()
-    if (node is Expression && node.typeVariableName is Declaration && node !in nextExcluded) {
+    if (
+        node is Expression &&
+            node.typeVariableName is Declaration &&
+            !containsInstance(nextExcluded, node)
+    ) {
       add(node)
     }
     node.immediateChildren().forEach { collect(it, nextExcluded) }
   }
 
-  immediateChildren().forEach { collect(it, emptySet()) }
+  immediateChildren().forEach { collect(it, emptyList()) }
 }
 
 /** Declarations owned by selectors or refined class literals rather than an enclosing scope. */
-internal fun PetNode.constructLocalTypeVariableDeclarations(): Set<Expression> = buildSet {
+internal fun PetNode.constructLocalTypeVariableDeclarations(): List<Expression> = buildList {
   visitDescendants { node ->
     when (node) {
       is Each -> addAll(node.selector.selectorTypeVariableDeclarations())
@@ -68,7 +77,7 @@ internal fun PetNode.observingTypeVariableDeclaration(): Expression? {
         observing &&
             node is Expression &&
             node.typeVariableName is Declaration &&
-            node !in localDeclarations
+            !containsInstance(localDeclarations, node)
     ) {
       return node
     }
@@ -169,7 +178,11 @@ internal fun resolveTypeVariableNames(
                               node.argumentsSpecified
                             },
                     )
-                transformChildren(referenced.copy(typeVariableName = Reference(node.className)))
+                transformChildren(
+                    referenced.copy(
+                        typeVariableName = Reference(node.className, node.argumentsSpecified)
+                    )
+                )
               } finally {
                 resolving.remove(node.className)
               }
@@ -367,12 +380,13 @@ internal fun <P : PetNode> resolveTypeVariableNames(
         "A Type-variable name cannot be declared in an observing expression: $it"
     )
   }
+  val declarationConstructLocals =
+      declarationRegion?.constructLocalTypeVariableDeclarations().orEmpty()
   val declarations =
       declarationRegion
           ?.descendantsOfType<Expression>()
           ?.filter {
-            it.typeVariableName is Declaration &&
-                it !in declarationRegion.constructLocalTypeVariableDeclarations()
+            it.typeVariableName is Declaration && !containsInstance(declarationConstructLocals, it)
           }
           .orEmpty()
   val declarationNames = declarations.mapTo(mutableSetOf()) { it.typeVariableName!!.name }
@@ -380,7 +394,7 @@ internal fun <P : PetNode> resolveTypeVariableNames(
   usageRegion
       .descendantsOfType<Expression>()
       .filter {
-        it.typeVariableName is Declaration && it !in constructLocalDeclarations
+        it.typeVariableName is Declaration && !containsInstance(constructLocalDeclarations, it)
       }
       .firstOrNull { it.typeVariableName!!.name in declarationNames }
       ?.let {
@@ -396,8 +410,8 @@ internal fun <P : PetNode> resolveTypeVariableNames(
     if (
         node is Expression &&
             node.typeVariableName is Declaration &&
-            node !in nextExcluded &&
-            node !in constructLocalDeclarations
+            !containsInstance(nextExcluded, node) &&
+            !containsInstance(constructLocalDeclarations, node)
     ) {
       return node
     }

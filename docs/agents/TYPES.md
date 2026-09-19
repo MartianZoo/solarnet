@@ -53,13 +53,14 @@ value. A full transmutation likewise names a destination choice used by its sour
 atomic transmutation,
 `Foo<Same, Here, To FROM From>` is compact syntax for
 `Foo<Same, Here, To> FROM Foo<Same, Here, From>`; each unchanged argument occupies both roles and
-therefore uses one structural variable without a repeated-spelling scan.
+is stored once. The gained and removed Types remain projections of that compact tree until
+execution; no Type variable is involved.
 
 The [`EACH`](EACH.md) fanout enumerates its selector. `Selector AS Name` explicitly makes each
-selected concrete Type available through `Name` in the body; unnamed repeated Type spelling does
-not. Inside the body, an Owner selection supplies contextual `Owner`; a non-Owner selection retains
-the enclosing contextual owner. `This` is the effect-bearing component. The body need not use the
-selection.
+selected concrete Type available through `Name` in the body; other body expressions retain their
+ordinary meanings. Inside the body, an Owner selection supplies contextual `Owner`; a non-Owner
+selection retains the enclosing contextual owner. `This` is the effect-bearing component. The body
+need not use the selection.
 
 ## 2. Implementation direction for Type-variable identity
 

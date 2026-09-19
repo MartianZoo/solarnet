@@ -419,12 +419,12 @@ internal constructor(
   private fun readsPredicatesAlike(that: GroundType): Boolean =
       representedClass == null ||
           representedClass == that.representedClass ||
-          (refinement?.descendantsOfType<Expression>()?.none {
-            it.typeVariableName is RepresentedClassReference
-          } != false &&
-              that.refinement?.descendantsOfType<Expression>()?.none {
-                it.typeVariableName is RepresentedClassReference
-              } != false)
+          (!namesRepresentedClass(refinement) && !namesRepresentedClass(that.refinement))
+
+  private fun namesRepresentedClass(refinement: Refinement?): Boolean =
+      refinement?.descendantsOfType<Expression>()?.any {
+        it.typeVariableName is RepresentedClassReference
+      } == true
 
   /** Whether our own refinement conjoins at least all of [target]'s requirements. */
   private fun alreadyGuarantees(target: Has): Boolean {

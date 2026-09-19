@@ -19,6 +19,7 @@ import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.OK
 import dev.martianzoo.pets.api.TypeInfo
+import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
@@ -305,6 +306,11 @@ public sealed class Instruction : InstructionTree() {
       super.ensureIsNarrowedBy(proposed, info)
       if (proposed == NoOp) return
       proposed as Transmute
+      (fromEx as? Compact)?.ensureRetainedArgumentsAgree(
+          proposed.gaining,
+          proposed.removing,
+          info,
+      )
       val variables = typeVariablesFor(info)
       for (variable in
           variables.variables.filter {
@@ -630,7 +636,7 @@ public sealed class Instruction : InstructionTree() {
     ): Boolean = narrow.narrows(wide, info)
 
     private fun sameAfterNameConsumption(left: Expression, right: Expression): Boolean =
-        left == right || left.copy(typeVariableName = null) == right.copy(typeVariableName = null)
+        left.copy(typeVariableName = null) == right.copy(typeVariableName = null)
 
     /** Narrows the first stage and carries every shared choice into later stages. */
     public fun bindFirstStage(

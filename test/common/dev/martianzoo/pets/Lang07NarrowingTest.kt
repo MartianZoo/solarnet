@@ -208,6 +208,11 @@ internal class Lang07NarrowingTest {
       unbound.bindFirstStage(elaborate("Plant") as dev.martianzoo.pets.ast.Instruction, langWorld)
     }
 
+    val named = elaborate("Token AS T THEN T") as dev.martianzoo.pets.ast.Instruction.Then
+    shouldThrow<NarrowingException> {
+      named.bindFirstStage(elaborate("Token") as dev.martianzoo.pets.ast.Instruction, langWorld)
+    }
+
     val gated =
         elaborate("MAX 0 Heat: Plant THEN Steel") as dev.martianzoo.pets.ast.Instruction.Then
     shouldThrow<NarrowingException> {

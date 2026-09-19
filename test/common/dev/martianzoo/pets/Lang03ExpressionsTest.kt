@@ -149,6 +149,14 @@ internal class Lang03ExpressionsTest {
   }
 
   @Test
+  internal fun `L3-7 a represented-Class reference preserves its explicit empty arguments`() {
+    val expression = parse<Expression>("Class<Component AS F>(HAS F<>)")
+
+    expression.toString() shouldBe "Class<Component AS F>(HAS F<>)"
+    parse<Expression>(expression.toString()) shouldBe expression
+  }
+
+  @Test
   internal fun `L3-7 an expression built through the API renders the same way`() {
     cn("Aa")
         .of(

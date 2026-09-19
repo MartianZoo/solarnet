@@ -20,6 +20,7 @@ import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
 import dev.martianzoo.pets.api.SystemClasses.DIE
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -265,6 +266,14 @@ internal constructor(
     val count = (change.count as? ActualScalar)?.value ?: return change
 
     val (g, r) = narrowChangeTypes(change, count, intens) ?: return change
+    val gainingExpression =
+        g?.expression?.let { resolved ->
+          change.gaining?.let { elaborator.retainTypeVariableNames(resolved, it) } ?: resolved
+        }
+    val removingExpression =
+        r?.expression?.let { resolved ->
+          change.removing?.let { elaborator.retainTypeVariableNames(resolved, it) } ?: resolved
+        }
     if (listOfNotNull(g, r).any { !classTable.isInhabited(it) }) {
       if (intens != MANDATORY) return NoOp
       throw DeadEndException(
@@ -310,8 +319,9 @@ internal constructor(
             }
         if (!canRemove) return unavailable("max possible is 0")
       }
+      if (change is Transmute && change.fromEx is Compact) return change
       // Still abstract, don't check limits yet
-      return Change.change(g?.expression, r?.expression, count, intens)
+      return Change.change(gainingExpression, removingExpression, count, intens)
     }
 
     if (g == r && intens != MANDATORY) return NoOp
@@ -320,7 +330,7 @@ internal constructor(
     translateCustomChange(change, g, r)?.let {
       return it
     }
-    return limitChange(g, r, count, intens)
+    return limitChange(g, r, gainingExpression, removingExpression, count, intens)
   }
 
   private fun narrowChangeTypes(
@@ -371,6 +381,8 @@ internal constructor(
   private fun limitChange(
       gainingType: Type?,
       removingType: Type?,
+      gainingExpression: Expression?,
+      removingExpression: Expression?,
       count: Int,
       quantifier: Instruction.Quantifier,
   ): Instruction {
@@ -386,8 +398,8 @@ internal constructor(
     }
 
     return Change.change(
-        gainingType?.expression,
-        removingType?.expression,
+        gainingExpression,
+        removingExpression,
         adjusted,
         if (quantifier == AMAP) MANDATORY else quantifier,
     )

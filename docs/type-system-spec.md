@@ -386,7 +386,8 @@ Animal<Pets<Player1>>       →  Animal<Player1, Pets<Player1>>
 Animal<Player1, Pets<Player2>>  →  error
 ```
 
-Two dependency *roots* spelled alike stay independent: `Adjacency<Area, Area>` constrains nothing.
+Each root in `Adjacency<Area, Area>` declares its own header variable, so the declaration constrains
+nothing. `Adjacency<Area AS A, A>` would require both positions to use one area Type.
 
 > **Non-normative example — Pets.** An `Animal<Pets<Player1>>` must also be owned by Player 1.
 > Without propagation between the two appearances of the header's owner variable, an animal on
@@ -831,8 +832,8 @@ order in which distinct clauses were first encountered. Thus both
 **T8-10. Refined class literals.** A refinement on `Class<X>` tests the class the candidate names:
 `Class<X AS Name>` makes that class available as `Name` inside the requirement. Testing
 `Class<BuildingTag>` against `Class<Tag AS ThatTag>(HAS ThatTag<Player1>)` asks `BuildingTag<Player1>` —
-counting tag classes, not tag components. Repeating an unnamed `X` asks about the ordinary `X`
-type; it does not refer to the represented class.
+counting tag classes, not tag components. In `Class<X>(HAS X)`, both `X` expressions retain their
+ordinary Type meaning; the refinement refers to the represented class only through a declared name.
 
 > **Non-normative example — Diversifier.** Its milestone requirement counts
 > `Class<Tag AS ThatTag>(HAS ThatTag<Owner>)`: distinct tag kinds the player has, not the number of tag
@@ -1151,14 +1152,14 @@ overlapping Class's Type is uninhabited. Enumeration under that difference remai
 
 ## 13. Type variables
 
-An Effect can name the shared choice that connects its trigger to its instruction:
+An Effect can give one open Type choice a local name and use it in its instruction:
 
 ```text
 PROD[StandardResource AS SR]: SR
 ```
 
-"When you gain production of a resource, gain one of *that* resource." The two occurrences are one
-**type variable**: one choice, used twice.
+"When you gain production of a resource, gain one of *that* resource." `SR` is a **type variable**:
+one choice declared once and used once.
 
 **T13-1. A variable is a kind of type.** `Type` has exactly two forms: an ordinary `GroundType`, and a
 `TypeVariable` whose resolved meaning is its `bound` — itself a ground type. Every ordinary
@@ -1182,12 +1183,12 @@ Type-variable reference may add a refinement.
 A variable's identity is its declaration and scope — never its class name. `Player` can name several
 unrelated variables in different rules.
 
-There are three sources of a shared choice: a class header declares one (T13-2 to T13-5), a local
-construct names one explicitly (T13-6, T13-7), or a compact transmutation's single unchanged slot
-establishes one structurally (T13-7). A trigger supplies a concrete value when it matches; an
-explicitly named `BY` selector is one place that value can come from (T13-9).
+There are two sources of a variable: an eligible class-header occurrence declares one (T13-2 to
+T13-5), and a local construct declares one explicitly with `AS` (T13-6, T13-7). A trigger supplies a
+concrete value when it matches; an explicitly named `BY` selector is one place that value can come
+from (T13-9).
 
-Three properties hold of all three sources, and most of the rules below are consequences of them:
+Three properties hold of every variable, and most of the rules below are consequences of them:
 
 1. **An occurrence either chooses, matches, or observes.** A change's target chooses a value; a
    trigger matches one from the event it responds to; a requirement, a gate, the expression a metric
@@ -1196,35 +1197,29 @@ Three properties hold of all three sources, and most of the rules below are cons
    though it happily *uses* a variable already introduced elsewhere.
 2. **A local declaration does not shadow.** Where a variable is already visible, the same name uses
    it rather than declaring another variable. An `EACH` or `RANK` selector and the represented class
-   inside a refined class literal require explicit names when their selected values are reused. A
-   compact transmutation's unchanged slot is one shared syntax node, not two spellings being linked.
-
-3. **Inheritance passes values, not names.** A subclass does not see its superclass's header
-   variables by spelling or by an explicit source name; it receives their values when a component
-   fixes them (T13-4, T13-5).
+   inside a refined class literal expose their selected values through explicit names.
+3. **Inheritance passes values, not names.** Inherited effects retain their superclass's variable
+   scope. A subclass receives values for those variables when a component fixes them (T13-4,
+   T13-5).
 
 ### Class-header variables
 
-**T13-2. Each eligible abstract header occurrence declares one unless it explicitly uses another.**
-Eligible means: not `This`, and resolving to an abstract type.
+**T13-2. Each eligible abstract header occurrence declares its own variable.** Eligible means: not
+`This`, and resolving to an abstract type. A bare variable name instead refers to its declaration.
 `ABSTRACT CLASS Holder<Box<Person>>` declares two — `Box<Person>` and the `Person` nested inside it.
 
-No relationship is inferred from equal spelling or from dependency paths that happen to overlap.
-Distinct occurrences are distinct variables unless one is declared with `AS Name` and the other
-explicitly uses `Name`. A header variable therefore needs a name when the Class's own body refers to
-it or when distinct dependency positions must agree (T13-3). That explicit relationship is what
-rule T3-8 is built on:
+`Type AS Name` exposes one header variable to other positions, which use it by writing `Name`. A
+header variable therefore needs a name when the Class's own body refers to it or when distinct
+dependency positions must agree (T13-3). That relationship is what rule T3-8 is built on:
 
 ```pets
 ABSTRACT CLASS Cardbound<CardFront<Owner AS CardOwner>> : Owned<CardOwner>
 ```
 
-`CardOwner` explicitly makes the owner inside `CardFront` and the owner of the `Owned` supertype one
-variable, so the two dependency positions are forced to agree. Without that name they would remain
-independent even though their dependency paths have a common suffix. Equal roots and identical
-nested bounds in sibling branches are independent for the same reason: `Pair<Box<Person>,
-Box<Person>>` leaves the two people free to differ. They can instead be linked deliberately, as in
-`Pair<Box<Person AS P>, Box<P>>`.
+`CardOwner` makes the owner inside `CardFront` and the owner of the `Owned` supertype one variable,
+so the two dependency positions are forced to agree. Each `Person` occurrence in
+`Pair<Box<Person>, Box<Person>>` instead declares its own variable, leaving the two people free to
+differ. `Pair<Box<Person AS P>, Box<P>>` uses one variable in both branches.
 
 > **Non-normative example — separate owners.** `ABSTRACT CLASS Cathedral<City<Owner>> :
 > Owned<Owner>` does not imply that the cathedral and city have one owner. A declaration that
@@ -1233,7 +1228,7 @@ Box<Person>>` leaves the two people free to differ. They can instead be linked d
 
 **T13-3. Uses in the class's own body are named explicitly.** `Type AS Name` on an eligible header
 expression names that variable, and `Name` in the Class's authored effects or actions uses it.
-Repeating one of the Class's own dependency Types in the body does not link the two occurrences. The
+An unnamed Type in the body is an ordinary expression rather than a header-variable reference. The
 name follows the same namespace rules as a local variable: a single capital letter is allowed, but
 an existing Type name is not, and every declared name must be used. An ordinary header-variable
 reference is bare. A represented-Class header variable follows T13-1, so
@@ -1248,10 +1243,10 @@ from a superclass keep that superclass's scope.
 
 An explicit supertype argument supplies the value of an inherited variable. If that value remains
 abstract and the subclass's own body uses it, the argument must name it explicitly: `Badge<Person
-AS P> { This: Token<P> }`. Repeating `Person` in the body is independent. A concrete specialization
-needs no variable merely to spell its fixed Type; `ResourceCard<Class<Animal>>` can use
-`Animal<This>` because `Animal` is already the complete concrete value, not because the two
-occurrences are linked.
+AS P> { This: Token<P> }`. An unmarked `Person` in the body is a separate ordinary choice. A
+concrete specialization needs no variable merely to spell its fixed Type;
+`ResourceCard<Class<Animal>>` can use `Animal<This>` because `Animal` is already the complete
+concrete value.
 
 > **Non-normative example — `CardBilling`.** It inherits `Billing`'s cleanup effects, including the
 > resource-denomination variable, while fixing that denomination to MC. Redeclaring the variable in
@@ -1272,7 +1267,7 @@ dependency does supply one — `CLASS Leaf : Badge<Alice>` supplies `Alice` for 
 > `StandardResource` to steel: its initial stock, production, and mirrored player transfers. Merely
 > narrowing the header would leave a supposedly steel reserve operating on arbitrary resources.
 
-### Local and structural variables
+### Local variables
 
 **T13-6. An Effect names a shared choice explicitly.** `Type AS Name` declares a variable in the
 matching part of an Effect's trigger. A bare `Name` elsewhere in the same Effect uses the
@@ -1280,26 +1275,27 @@ declaration's complete structural expression. Naming does not make an observing 
 to declare: a requirement, metric or refinement may use a variable declared by a match, but cannot
 declare one. The name has class-name syntax, including a single capital letter, but must not name any
 Type in the Catalog. It is local to the Effect, must be unique there, and must be used at least once.
-Only a represented-Class reference may instead carry dependency arguments, as defined by T13-1; no
-reference may carry a refinement.
+At least one use must be in the instruction: repetitions confined to the trigger do not connect the
+trigger's matched value to the Effect's result. Only a represented-Class reference may instead
+carry dependency arguments, as defined by T13-1; no reference may carry a refinement.
 
 Binding it substitutes at every occurrence at once:
 `Production<Class<StandardResource AS R>>: R` bound to `Plant` becomes
 `Production<Class<Plant>>: Plant`.
 
 > **Non-normative example — Manutech.** The production increase is one choice region and the gained
-> resource is another. Its explicit `SR` name says “that same resource”; without that
-> link, increasing titanium production could reward heat.
+> resource is another. Its explicit `SR` name makes both regions choose the same resource, so
+> increasing titanium production rewards titanium.
 
-Repeating an abstract expression without `AS` does not declare an Effect variable. When the
-instruction leaves the Effect's lexical scope, its references have already been expanded to the
-chosen structural Type.
+Other abstract expressions in the Effect remain ordinary Types and are settled in their own
+positions. When the instruction leaves the Effect's lexical scope, its references have already been
+expanded to the chosen structural Type.
 
 **T13-7. Other construct-local variables.** An Action, `THEN` sequence, full transmutation, `EACH`,
 `RANK`, or refined class literal declares a shared choice explicitly with `Type AS Name` in the
-region that supplies it and uses `Name` where that selected value is needed. Repeating an unnamed
-Type does not link the regions. References are bare except that a represented-Class variable may be
-applied to dependency arguments under T13-1.
+region that supplies it and uses `Name` where that selected value is needed. An unnamed Type belongs
+only to the region where it is written. References are bare except that a represented-Class variable
+may be applied to dependency arguments under T13-1.
 
 | Construct | Declaration | Regions |
 | --- | --- | --- |
@@ -1314,32 +1310,32 @@ The first two are settlement sites: parts of one rule that are settled separatel
 which "the same one" is worth saying. An action's two regions are the two stages its arrow lowers to
 (L9-2), and `X` is shared across exactly these same regions (L6-14).
 
-A transmutation is not like the first two: its sides are settled together as one atomic pair. Its
-left, gained side declares a shared choice and its right, removed side uses it. Compact `FROM` syntax
-needs no name for unchanged arguments: each is one AST slot used by both roles, so its identity is
-structural rather than inferred from two spellings.
+A full transmutation is not like the first two: its sides are settled together as one atomic pair.
+Its left, gained side declares a shared choice and its right, removed side uses it. Compact `FROM`
+has its own instruction syntax and does not declare a variable (L6-12).
 
 > **Non-normative example — Market Manipulation.** `ColonyProduction FROM ColonyProduction` moves
-> one step from one colony to another. The repeated roots are independent choices; linking them
-> would force the same track and make the card cancel itself.
+> one step from one colony to another. Each root is an ordinary choice, so the source and destination
+> may be different tracks.
 
 > **Non-normative example — Kaguya Tech.**
 > `CityTile<MarsArea AS ThatArea> FROM GreeneryTile<ThatArea>` explicitly preserves the selected
 > Mars area while changing its tile. The declaration is on the left, where a reader first encounters
 > the shared choice.
 
-**T13-8. What does not declare a variable.** Repeated Type spelling never declares a construct-local
-variable. The cases below introduce no additional variable and do not hide one already visible.
+**T13-8. Only choosing and matching occurrences declare construct-local variables.** An ordinary
+unnamed expression has no variable identity. Observing expressions may use a visible variable name,
+but they cannot introduce one.
 
-| Occurrence | Why not |
+| Occurrence | Variable rule |
 | --- | --- |
-| Any unnamed repetition in a local construct | equality of text does not assert one shared choice |
-| A declaration inside a requirement | a requirement observes candidates, it does not choose one |
-| A declaration inside a metric | a count ranges over a domain rather than picking one member |
-| A declaration inside a refinement | a refinement tests a candidate chosen or matched outside it |
-| An unnamed `EACH` or `RANK` selector repeated in its body or metrics | selectors are reused only through `AS` names |
-| An unnamed represented class repeated inside its `Class<T>` refinement | represented classes are reused only through `AS` names |
-| A concrete expression, or `This` | there is no open choice to bind |
+| An ordinary unnamed expression in a local construct | it is settled in its own position |
+| A requirement | it observes candidates rather than choosing one |
+| A metric | it ranges over a domain rather than picking one member |
+| A refinement | it tests a candidate chosen or matched outside it |
+| An `EACH` or `RANK` selector | `AS` exposes its selected value to the body or metrics |
+| A represented class inside a refined `Class<T>` literal | `AS` exposes its selected Class to the refinement |
+| A concrete expression, or `This` | it has no open choice to bind |
 
 The three observing rows are the first property above: an occurrence that only looks never
 introduces, but may use a variable whose choice is available in the same settlement region or an
@@ -1358,10 +1354,9 @@ variable supplied by the concrete event Actor; its references use that value, an
 the inner trigger is matched.
 
 Other selectors do not become declarations merely because they follow `BY`. `BY Anyone` alone is the
-unrestricted wildcard described after T6-6, and a refined selector alone is a constraint. Reusing
-any Actor selector elsewhere in the Effect requires an explicit name, as in
-`BY Player AS ActingPlayer`; repeating its Type spelling does not link it. `BY Anyone` remains a
-wildcard unless it is explicitly named.
+unrestricted wildcard described after T6-6, and a refined selector alone is a constraint. A selector
+exposes its Actor elsewhere in the Effect only through an explicit name, as in
+`BY Player AS ActingPlayer`. `BY Anyone` remains a wildcard unless it is explicitly named.
 
 Where an actor variable is visible, an exclusion may use it, and the difference is tested only after
 the actor is bound:
@@ -1383,23 +1378,20 @@ Binding `ActingPlayer` to `Player1` gives
 
 > **Non-normative design note — `BY` supplies an explicitly named value.** `BY` identifies the event
 > field that supplies the value; `AS` identifies where that value is reused. Specializing it before
-> the inner trigger matters when the Actor is mentioned in a `NOT` there. Without `AS`, there is no
-> value to record or reuse.
+> the inner trigger matters when the Actor is mentioned in a `NOT` there. An unnamed selector remains
+> only an Actor filter.
 
 ### Binding
 
 **T13-10. Binding replaces recorded occurrences only.** `TypeVariableScope.bind(bindings)` returns a
-transformer that rewrites the occurrences it recorded and nothing else — a coincidental mention of
-the same class elsewhere is untouched. Each occurrence keeps its own arguments while receiving the
-captured value.
+transformer that rewrites the variable's declaration and usages. Every unmarked expression remains
+outside the scope. Each occurrence keeps its own arguments while receiving the captured value.
 
-Preprocessing may copy an expression or insert default dependency arguments after its occurrence
-was recorded. The scope follows that occurrence's current spelling through each transformation.
-Binding first recognizes the same syntax node, then an exact copy carrying the same variable
-marker, and finally that marked expression with only dependency-key-preserving arguments added.
-None of these fallbacks compares an unmarked Class name. For example, if preprocessing expands the
-recorded `Tile<> AS T` to `Tile<LandArea, Anyone> AS T`, binding `T` still replaces that declaration
-and its marked uses; a separate unmarked `Tile<LandArea, Anyone>` remains untouched.
+Preprocessing preserves a variable's marker when it copies an expression or inserts default
+dependency arguments. Binding recognizes the original syntax node, a marked copy, or that marked
+expression with dependency-key-preserving arguments added. For example, if preprocessing expands
+`Tile<> AS T` to `Tile<LandArea, Anyone> AS T`, binding `T` replaces that declaration and its marked
+uses. An unmarked `Tile<LandArea, Anyone>` is an ordinary expression outside the scope.
 
 For represented-Class application, binding `R` to the Class `C` makes `R<A>` mean `C<A>`. If `C`
 already narrows the dependency that `A` matches, the two constraints intersect normally and a
@@ -1412,20 +1404,18 @@ candidate was captured, so later occurrences reuse the captured type without ask
 
 > **Non-normative example — Cyberia Systems.** Once a building card satisfying the first-choice
 > refinement is selected, later occurrences must reuse that captured card without re-evaluating the
-> consumed board query. Replacing every similar-looking `CardFront` would also corrupt the distinct
-> second-choice expression.
+> consumed board query. The unmarked second-choice `CardFront` remains a separate expression.
 
 **T13-11. Scope queries.** A `TypeVariableScope` reports the variables visible in it (`variables`,
 `isEmpty`), the current spelling of a variable or of one occurrence (`expressionsOf`,
 `expressionOf`), and which variable a given syntax node uses or declares (`variableAt`,
 `variableDeclaredAt`). `bindingsFrom(authored, general, specific)` captures values by walking the
-dependency keys chosen while resolving the authored expression — so a candidate that lacks the path a
-variable sits on captures nothing, rather than guessing from a coincidentally similar type.
+dependency keys chosen while resolving the authored expression. A candidate that lacks the recorded
+path captures nothing.
 
 > **Non-normative example — Law Suit.** The removal watchers record victim, resource class, and
 > acting player in distinct authored dependency positions; Law Suit later consumes that exact
-> signal. Path-aware capture prevents a coincidentally similar `Player` or `Owner` elsewhere in the
-> rule from becoming the attacker.
+> signal. Path-aware capture leaves unrelated `Player` and `Owner` positions untouched.
 
 ---
 

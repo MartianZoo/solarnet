@@ -147,8 +147,7 @@ internal class Lang04RequirementsTest {
 
   @Test
   internal fun `L4-9 nothing inside a requirement is an open choice`() {
-    // An abstract expression repeated only inside requirements declares no variable to bind
-    // (T13-8), so the two `Player` occurrences below stay independent filters.
+    // Requirements observe their `Player` domains; neither occurrence declares a variable.
     val effect =
         langTable
             .recordTypeVariableScopes()

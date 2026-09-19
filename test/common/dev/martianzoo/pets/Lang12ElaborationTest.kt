@@ -6,7 +6,9 @@ import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.data.Player
@@ -47,7 +49,7 @@ internal class Lang12ElaborationTest {
             "ProjectCard<Player1>!, ProjectCard<Player1>!, Tile<Player1, LandArea>!"
         )
 
-    // Named Type-variable recording ran too.
+    // Scope recording precedes the later elaboration stages.
     val sequence = elaborate("Token AS T THEN T") as Instruction.Then
     sequence.typeVariables.isEmpty shouldBe false
   }
@@ -138,13 +140,18 @@ internal class Lang12ElaborationTest {
     shouldThrow<PetSyntaxException> { elaborate("Ok<>") }
   }
 
-  // L12-8 Transmutation halves
+  // L12-8 Transmutation projections
 
   @Test
-  internal fun `L12-8 the two halves of a transmutation are defaulted independently`() {
+  internal fun `L12-8 transmutation projections are defaulted independently`() {
     elaborate("Tile<> FROM Marker") shouldBe
         parse<InstructionTree>("Tile<Player1, LandArea> FROM Marker<Player1>!")
     shouldThrow<PetSyntaxException> { elaborate("Tile FROM Marker") }
+
+    val compact = elaborate("Marker<Mars1 FROM Mars2>") as Transmute
+    compact shouldBe parse<Instruction>("Marker<Player1, Mars1 FROM Mars2>!")
+    (compact.fromEx is Compact) shouldBe true
+    compact.typeVariables.isEmpty shouldBe true
   }
 
   @Test

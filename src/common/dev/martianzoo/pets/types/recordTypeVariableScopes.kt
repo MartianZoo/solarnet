@@ -6,8 +6,6 @@ import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
-import dev.martianzoo.pets.ast.Expression.TypeVariableName.StructuralReference
-import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.constructLocalTypeVariableDeclarations
@@ -15,9 +13,8 @@ import dev.martianzoo.pets.ast.localTypeVariableDeclarations
 import dev.martianzoo.pets.ast.withTypeVariables
 
 /**
- * Returns a transformer that records explicitly named and structurally shared Type-variable scopes.
- * Structural sharing comes only from compact transmutations. It applies the region, exclusion, and
- * actor-selector rules in
+ * Returns a transformer that records explicitly named Type-variable scopes. It applies the region,
+ * exclusion, and actor-selector rules in
  * [rules T13-6 through T13-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
  */
 public fun ClassTable.recordTypeVariableScopes(): PetTransformer =
@@ -32,18 +29,18 @@ public fun ClassTable.recordTypeVariableScopes(): PetTransformer =
             val namedDeclarations =
                 transformed.trigger.descendantsOfType<Expression>().filter {
                   it.typeVariableName is Declaration &&
-                      it !in constructLocalDeclarations &&
+                      constructLocalDeclarations.none { local -> local === it } &&
                       it.typeVariableName.name !in visibleNames
                 }
             validateTypeVariableNames(namedDeclarations)
-            transformed.withTypeVariables(
-                transformed.typeVariables +
-                    TypeVariableScope.fromDeclarations(
-                        listOf(transformed.trigger, transformed.instruction),
-                        this@recordTypeVariableScopes,
-                        namedDeclarations = namedDeclarations,
-                    )
-            )
+            val localScope =
+                TypeVariableScope.fromDeclarations(
+                    listOf(transformed.trigger, transformed.instruction),
+                    this@recordTypeVariableScopes,
+                    namedDeclarations = namedDeclarations,
+                )
+            requireSharedAcrossRegions(localScope, "Effect")
+            transformed.withTypeVariables(transformed.typeVariables + localScope)
           }
           is Action -> {
             val visibleNames = transformed.typeVariables.variables.mapNotNull { it.name }.toSet()
@@ -54,7 +51,7 @@ public fun ClassTable.recordTypeVariableScopes(): PetTransformer =
                     ?.descendantsOfType<Expression>()
                     ?.filter {
                       it.typeVariableName is Declaration &&
-                          it !in constructLocalDeclarations &&
+                          constructLocalDeclarations.none { local -> local === it } &&
                           it.typeVariableName.name !in visibleNames
                     }
                     .orEmpty()
@@ -92,22 +89,10 @@ public fun ClassTable.recordTypeVariableScopes(): PetTransformer =
                   it.typeVariableName!!.name !in visibleNames
                 }
             validateTypeVariableNames(namedDeclarations)
-            val structuralDeclarations =
-                (scoped.fromEx as? FromExpression.Compact)
-                    ?.arguments
-                    ?.filterIsInstance<FromExpression.Unchanged>()
-                    ?.map(FromExpression.Unchanged::expression)
-                    ?.filter { expression ->
-                      expression.typeVariableName is StructuralReference &&
-                          resolve(expression).abstract &&
-                          scoped.typeVariables.variableAt(expression) == null
-                    }
-                    .orEmpty()
             val localScope =
                 TypeVariableScope.fromDeclarations(
                     listOf(scoped.gaining, scoped.removing),
                     this@recordTypeVariableScopes,
-                    unnamedDeclarations = structuralDeclarations,
                     namedDeclarations = namedDeclarations,
                 )
             requireSharedAcrossRegions(localScope, "Transmutation")

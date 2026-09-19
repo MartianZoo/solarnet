@@ -430,7 +430,7 @@ internal class Spec08RefinementsTest {
             "ABSTRACT CLASS Tag : Owned<Owner> { CLASS BuildingTag, SpaceTag }",
         )
 
-    // Without a name, both predicates ask about the ordinary Tag type.
+    // Both unmarked predicates ask about the ordinary Tag type.
     tags
         .resolve(te("Class<BuildingTag>(HAS Tag)"))
         .isSubtypeOf(tags.resolve(te("Class<Tag>(HAS Tag)"))) shouldBe true
