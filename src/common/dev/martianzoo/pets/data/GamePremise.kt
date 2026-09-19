@@ -1,6 +1,6 @@
 package dev.martianzoo.pets.data
 
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
@@ -11,9 +11,7 @@ import dev.martianzoo.pets.types.PremiseClassTable
 /**
  * The complete immutable input from which equivalent playable worlds are constructed.
  *
- * @throws PetException if a configured player name is not a concrete Player class
- * @throws IllegalArgumentException if its programmatically assembled fields violate another
- *   premise-construction contract
+ * @throws InvalidGameConfigException if its fields cannot describe a playable game configuration
  */
 public data class GamePremise(
     public val catalog: Catalog,
@@ -54,44 +52,59 @@ public data class GamePremise(
           !premiseClassTable.isSubtypeOf(playerName, PLAYER)
     }
     if (invalidPlayerNames.isNotEmpty()) {
-      throw PetException("player names must be concrete Player classes: $invalidPlayerNames")
+      throw InvalidGameConfigException(
+          "player names must be concrete Player classes: $invalidPlayerNames"
+      )
     }
-    require(playerNames.distinct().size == playerNames.size) {
-      "a game premise cannot seat the same player name more than once"
+    if (playerNames.distinct().size != playerNames.size) {
+      throw InvalidGameConfigException(
+          "a game premise cannot seat the same player name more than once"
+      )
     }
-    require(modules.all { it in catalog.modules }) {
-      "unknown Modules: ${modules - catalog.modules.keys}"
+    if (modules.any { it !in catalog.modules }) {
+      throw InvalidGameConfigException("unknown Modules: ${modules - catalog.modules.keys}")
     }
-    require(selectedNames.distinct().size == selectedNames.size) {
-      "a game premise cannot select the same individual class more than once"
+    if (selectedNames.distinct().size != selectedNames.size) {
+      throw InvalidGameConfigException(
+          "a game premise cannot select the same individual class more than once"
+      )
     }
-    require(classSelections.all { it.requirement == null }) {
-      "individual class selections must be exact, not conditional"
+    if (classSelections.any { it.requirement != null }) {
+      throw InvalidGameConfigException("individual class selections must be exact, not conditional")
     }
-    require(selectedNames.all { it in allKnownNames }) {
-      "individual class selections must belong to the premise Catalog: " +
-          (selectedNames - allKnownNames)
+    if (selectedNames.any { it !in allKnownNames }) {
+      throw InvalidGameConfigException(
+          "individual class selections must belong to the premise Catalog: " +
+              (selectedNames - allKnownNames)
+      )
     }
-    require(selectedNames.none { it in catalog.modules }) {
-      "Modules must use the premise's Module selection: ${selectedNames.filter { it in catalog.modules }}"
+    if (selectedNames.any { it in catalog.modules }) {
+      throw InvalidGameConfigException(
+          "Modules must use the premise's Module selection: " +
+              selectedNames.filter { it in catalog.modules }
+      )
     }
     val initialClassNames =
         initialComponentTypes.flatMap { it.descendantsOfType<ClassName>() }.toSet()
-    require(initialClassNames.all { it in allKnownNames }) {
-      "initial component types must belong to the premise Catalog"
+    if (initialClassNames.any { it !in allKnownNames }) {
+      throw InvalidGameConfigException("initial component types must belong to the premise Catalog")
     }
     premiseClassName?.let { className ->
       val declaration =
           premiseDeclarationsByName[className] ?: catalog.allClassDeclarations[className]
-      require(declaration != null && !declaration.abstract && declaration.dependencies.isEmpty()) {
-        "premise class must be a concrete dependency-free Catalog Class: $className"
+      if (declaration == null || declaration.abstract || declaration.dependencies.isNotEmpty()) {
+        throw InvalidGameConfigException(
+            "premise class must be a concrete dependency-free Catalog Class: $className"
+        )
       }
     }
     bootstrapClassName?.let { className ->
       val declaration =
           premiseDeclarationsByName[className] ?: catalog.allClassDeclarations[className]
-      require(declaration != null && !declaration.abstract && declaration.dependencies.isEmpty()) {
-        "bootstrap class must be a concrete dependency-free Catalog Class: $className"
+      if (declaration == null || declaration.abstract || declaration.dependencies.isNotEmpty()) {
+        throw InvalidGameConfigException(
+            "bootstrap class must be a concrete dependency-free Catalog Class: $className"
+        )
       }
     }
   }

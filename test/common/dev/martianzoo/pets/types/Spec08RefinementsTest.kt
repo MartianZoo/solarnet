@@ -262,8 +262,12 @@ internal class Spec08RefinementsTest {
 
   @Test
   internal fun `T8-5 the excluded operand must be free of refinements, recursively`() {
-    shouldThrow<ExpressionException> { actors.resolve(te("Owner(NOT Player(HAS Marker))")) }
-    shouldThrow<ExpressionException> { actors.resolve(te("Owner(NOT Player(NOT Player1))")) }
+    shouldThrow<ExpressionException> {
+      actors.resolve(te("Owner(NOT Player(HAS Marker))"))
+    }
+    shouldThrow<ExpressionException> {
+      actors.resolve(te("Owner(NOT Player(NOT Player1))"))
+    }
     shouldThrow<ExpressionException> {
       actors.resolve(te("Marker<Player(NOT Player(HAS Marker))>"))
     }

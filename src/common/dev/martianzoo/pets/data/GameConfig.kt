@@ -1,6 +1,6 @@
 package dev.martianzoo.pets.data
 
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
@@ -11,7 +11,8 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
  * A Catalog applies defaults, selection policies, and validation to cook this into a complete
  * [GamePremise].
  *
- * @throws PetException if the configuration contains invalid or contradictory user input
+ * @throws InvalidGameConfigException if the configuration contains invalid or contradictory user
+ *   input
  */
 public data class GameConfig(
     public val includedClassNames: Set<ClassName>,
@@ -20,13 +21,17 @@ public data class GameConfig(
 ) {
   init {
     if (playerNames.distinct().size != playerNames.size) {
-      throw PetException("a game configuration cannot seat the same player name more than once")
+      throw InvalidGameConfigException(
+          "a game configuration cannot seat the same player name more than once"
+      )
     }
     if (
         includedClassNames.intersect(excludedClassNames).isNotEmpty() ||
             playerNames.any { it in includedClassNames || it in excludedClassNames }
     ) {
-      throw PetException("a game configuration cannot include and exclude the same class")
+      throw InvalidGameConfigException(
+          "a game configuration cannot include and exclude the same class"
+      )
     }
   }
 
@@ -61,7 +66,9 @@ public data class GameConfig(
               val included = !token.startsWith('-')
               val name = if (included) token else token.drop(1)
               if (name.isEmpty() || name.any(Char::isWhitespace)) {
-                throw PetException("expected a comma-or-newline-separated class name, got: $token")
+                throw InvalidGameConfigException(
+                    "expected a comma-or-newline-separated class name, got: $token"
+                )
               }
               cn(name) to included
             }
@@ -70,7 +77,7 @@ public data class GameConfig(
             entries.filterNot { it.second }.map { it.first },
         )
       } catch (e: IllegalArgumentException) {
-        throw PetException("invalid game configuration: $source", e)
+        throw InvalidGameConfigException("invalid game configuration: $source", e)
       }
     }
 
@@ -78,7 +85,7 @@ public data class GameConfig(
         try {
           playerNames.map(::cn)
         } catch (e: IllegalArgumentException) {
-          throw PetException("invalid player names: ${playerNames.joinToString()}", e)
+          throw InvalidGameConfigException("invalid player names: ${playerNames.joinToString()}", e)
         }
 
     private fun toSets(
@@ -86,7 +93,9 @@ public data class GameConfig(
         excluded: List<ClassName>,
     ): Pair<Set<ClassName>, Set<ClassName>> {
       if ((included + excluded).distinct().size != included.size + excluded.size) {
-        throw PetException("a game configuration cannot mention the same class more than once")
+        throw InvalidGameConfigException(
+            "a game configuration cannot mention the same class more than once"
+        )
       }
       return included.toCollection(linkedSetOf()) to excluded.toCollection(linkedSetOf())
     }

@@ -6,7 +6,7 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
-import dev.martianzoo.pets.api.Exceptions.DependencyException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.GameConfig
@@ -92,7 +92,7 @@ internal class CatalogCompositionTest {
             initialComponentTypes =
                 setOf(parse<Expression>("BlockedBootstrap<MissingBootstrapDependency>")),
         )
-    val failure = shouldThrow<DependencyException> { Engine.newGame(premise) }
+    val failure = shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
 
     failure.message.orEmpty().shouldInclude("Missing dependencies: MissingBootstrapDependency")
   }

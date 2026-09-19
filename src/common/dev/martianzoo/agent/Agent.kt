@@ -1,9 +1,9 @@
 package dev.martianzoo.agent
 
 import dev.martianzoo.engine.AbortTransactionException
-import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.KindException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.GameReader
@@ -116,7 +116,7 @@ public interface Agent {
    * default would weaken the pending task's quantifier, the pending quantifier is retained; an
    * explicitly written quantifier must narrow normally.
    *
-   * @throws [AbstractException] if the task is abstract
+   * @throws [NotFullySpecifiedException] if the task is abstract
    * @throws [NotNowException] if the task can't currently be resolved
    */
   public fun doTask(narrowing: String): TaskResult

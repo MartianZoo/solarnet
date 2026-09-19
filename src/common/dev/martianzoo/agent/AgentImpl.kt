@@ -7,7 +7,7 @@ import dev.martianzoo.engine.ActorEngine
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
-import dev.martianzoo.pets.api.Exceptions.AbstractException
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Expression
@@ -161,7 +161,7 @@ internal class AgentImpl(
     engine.addTasks(initialInstructions).forEach { taskId ->
       try {
         engine.doTask(taskId)
-      } catch (_: AbstractException) {
+      } catch (_: NotFullySpecifiedException) {
         // Initial abstract work remains pending for the operation body to narrow.
       }
     }

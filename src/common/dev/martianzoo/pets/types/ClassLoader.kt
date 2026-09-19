@@ -2,7 +2,8 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.api.Exceptions
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
@@ -93,7 +94,8 @@ private constructor(
    */
   override fun findClass(name: ClassName): Class? {
     return if (name in loadedClasses) {
-      loadedClasses[name] ?: throw PetException("Class-loading cycle involving $name")
+      loadedClasses[name]
+          ?: throw InvalidPetDefinitionException("Class-loading cycle involving $name")
     } else {
       masterSource?.findClass(name)
     }
@@ -259,9 +261,10 @@ private constructor(
         blockedActivations[next]?.let { availabilityModules ->
           val source = requestedBy.getValue(next)
           val path = source?.let { "$it requires locked Class $next" } ?: "Class $next is locked"
-          throw invalidPetDefinition(
-              "broken game premise: $path; select one of its bundle Modules: " + availabilityModules
-          )
+          val message =
+              "broken game premise: $path; select one of its bundle Modules: $availabilityModules"
+          if (masterSource == null) throw invalidPetDefinition(message)
+          throw InvalidGameConfigException(message)
         }
         loadRelated(next, include = true)
       }
@@ -298,7 +301,8 @@ private constructor(
       return klass
     }
     if (next in loadedClasses) {
-      return (loadedClasses[next] ?: throw PetException("Class-loading cycle involving $next"))
+      return (loadedClasses[next]
+              ?: throw InvalidPetDefinitionException("Class-loading cycle involving $next"))
           .also { if (include) includeClass(next) }
     }
     val declaration = knownDeclaration(next)
@@ -329,7 +333,7 @@ private constructor(
       node.visitDescendants {
         val name = it as? ClassName
         if (name != null && name != THIS && name !in knownClassNames) {
-          throw ExpressionException(
+          throw InvalidPetDefinitionException(
               "${declaration.className} names `$name`, which no declaration introduces " +
                   "(check bundles, check spelling)"
           )
@@ -466,6 +470,9 @@ private constructor(
       validateCustomInheritance(klass)
       store(klass)
       return klass
+    } catch (e: ExpressionException) {
+      loadedClasses.remove(decl.className)
+      throw InvalidPetDefinitionException("Invalid definition for `${decl.className}`", e)
     } catch (e: Throwable) {
       loadedClasses.remove(decl.className)
       throw e
@@ -499,7 +506,7 @@ private constructor(
       }
     }
     if (problems.isNotEmpty()) {
-      throw PetException(
+      throw InvalidPetDefinitionException(
           "${klass.className} cannot inherit Pets behavior as a Custom class: " +
               problems.joinToString()
       )
@@ -623,7 +630,9 @@ private constructor(
       catalog.customClass(decl.className)
     } else {
       if (catalog.customClasses.any { it.className == decl.className }) {
-        throw PetException("Non-custom class ${decl.className} has a custom implementation")
+        throw InvalidPetDefinitionException(
+            "Non-custom class ${decl.className} has a custom implementation"
+        )
       }
     }
     return decl

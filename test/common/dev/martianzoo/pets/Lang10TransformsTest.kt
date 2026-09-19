@@ -3,7 +3,7 @@ package dev.martianzoo.pets
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -46,7 +46,7 @@ internal class Lang10TransformsTest {
 
   @Test
   internal fun `L10-2 a Catalog must define every transform kind its source uses`() {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
           testCatalog("CLASS Result\nCLASS Marked { This: LATER[Result] }").classTable
         }
         .message
@@ -57,7 +57,7 @@ internal class Lang10TransformsTest {
   internal fun `L10-2 premise source must also use defined transform kinds`() {
     val catalog = testCatalog("CLASS Result")
 
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
           GamePremise(
                   catalog = catalog,
                   modules = emptySet(),
@@ -114,7 +114,7 @@ internal class Lang10TransformsTest {
 
   @Test
   internal fun `L10-3 a handler must return the same kind of Pets`() {
-    shouldThrow<PetSyntaxException> {
+    shouldThrow<IllegalStateException> {
       TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { parse<Metric>("Different") }))
           .transformInstructionTree(parse("MARK[Plant]"))
     }
@@ -144,7 +144,7 @@ internal class Lang10TransformsTest {
   @Test
   internal fun `L10-5 nesting a block of the same kind is representable but not processable`() {
     parse<InstructionTree>("PROD[PROD[Plant]]").toString() shouldBe "PROD[PROD[Plant]]"
-    shouldThrow<PetSyntaxException> {
+    shouldThrow<ExpressionException> {
       identity.transformInstructionTree(parse("MARK[MARK[Plant]]"))
     }
     shouldThrow<IllegalArgumentException> {

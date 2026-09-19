@@ -26,6 +26,14 @@ internal fun setUpGame(
 
 internal class BasicTest {
   @Test
+  internal fun invalidNewGameConfigurationIncludesUsage() {
+    val response = ScriptSession().command("newgame B 0")
+
+    assertEquals(2, response.size)
+    assertTrue(response.last().startsWith("Usage: newgame"))
+  }
+
+  @Test
   internal fun playerSnapshotDefaultsToTheFirstConfiguredPlayer() {
     val session = ScriptSession()
 

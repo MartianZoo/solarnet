@@ -3,11 +3,11 @@ package dev.martianzoo.engine
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetElaborator
-import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.abstractInstruction
 import dev.martianzoo.pets.ast.Instruction
@@ -84,7 +84,9 @@ internal class InstructionResolutionTest {
         "OxygenStep FROM TerraformRating!",
         "OxygenStep FROM TerraformRating<Player1>!",
     )
-    shouldThrow<ExpressionException> { preprocessAndResolve("2 OxygenStep FROM TerraformRating!") }
+    shouldThrow<ExpressionException> {
+      preprocessAndResolve("2 OxygenStep FROM TerraformRating!")
+    }
   }
 
   @Test
@@ -150,7 +152,9 @@ internal class InstructionResolutionTest {
     // A selector reads its enclosing context, so `Owner` there is one component, not every owner.
     shouldThrow<ExpressionException> { preprocessAndResolve("EACH Owner { Plant }") }
     // ...and it concretizes dependencies in a selector rooted in the enclosing owner's context.
-    shouldThrow<ExpressionException> { preprocessAndResolve("EACH ProjectCard<Owner> { Plant }") }
+    shouldThrow<ExpressionException> {
+      preprocessAndResolve("EACH ProjectCard<Owner> { Plant }")
+    }
   }
 
   @Test
@@ -201,7 +205,7 @@ internal class InstructionResolutionTest {
         "Steel / 2 ProjectCard OR -Titanium? OR (Plant: 5 Steel) OR Ok OR 5 Steel",
         "5 Steel<Player1>! OR Ok",
     )
-    shouldThrow<NotNowException> {
+    shouldThrow<GameplayException> {
       preprocessAndResolve(
           "-2 Plant OR Plant FROM Heat OR 2 Heat FROM Plant " +
               "OR 2 Plant<Player2> FROM Plant<Player1> OR (30 TerraformRating: Plant)",
@@ -222,8 +226,10 @@ internal class InstructionResolutionTest {
 
   @Test
   internal fun testResolveGroups() {
-    shouldThrow<AbstractException> { preprocessAndResolve("Plant, Heat") }
-    shouldThrow<AbstractException> { preprocessAndResolve("(TerraformRating: Plant), Heat") }
+    shouldThrow<NotFullySpecifiedException> { preprocessAndResolve("Plant, Heat") }
+    shouldThrow<NotFullySpecifiedException> {
+      preprocessAndResolve("(TerraformRating: Plant), Heat")
+    }
     checkResolution("TerraformRating: (Plant, Heat)", "Plant<Player1>!, Heat<Player1>!")
   }
 }

@@ -16,8 +16,8 @@ public data class ClassSelection(
   /**
    * Whether this selection applies in a premise-local namespace over its imported master.
    *
-   * @throws dev.martianzoo.pets.api.Exceptions.PetException if its authored condition is not a
-   *   count of one simple class
+   * @throws dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException if its authored
+   *   condition is not a count of one simple class
    */
   public fun appliesTo(
       configuredClassNames: Set<ClassName>,

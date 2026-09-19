@@ -2,8 +2,8 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -259,7 +259,7 @@ internal class Spec13TypeVariablesTest {
 
   @Test
   internal fun `T13-3 an effect use that could name two header variables is rejected`() {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
           "ABSTRACT CLASS Person",
           "ABSTRACT CLASS Ambiguous<Person, Person> { This: Person }",
