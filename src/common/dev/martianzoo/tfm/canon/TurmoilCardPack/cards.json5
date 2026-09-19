@@ -32,6 +32,7 @@
         },
         {
           "name": "UtopiaInvest",
+          "tags": [ "BuildingTag" ],
           "immediate": "40 MC, PROD[Steel, Titanium]",
           "actions": [ "PROD[StandardResource] -> 4 StandardResource" ],
         },

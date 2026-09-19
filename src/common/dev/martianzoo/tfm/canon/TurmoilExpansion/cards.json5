@@ -71,10 +71,9 @@
         },
         {
           "name": "Recruitment",
-          "requirement": "1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)",
           "cost": 2,
           "tags": [ "EventTag" ],
-          "immediate": "RecruitmentExchange<Party> / (PartyDelegate<Party, Neutral> - PartyLeader<Party, Neutral>) MAX 1",
+          "immediate": "RecruitmentExchange<Party>",
         },
         {
           "name": "RedTourismWave",
