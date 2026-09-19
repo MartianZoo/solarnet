@@ -85,8 +85,9 @@ live transactions, and the decision that an operation has reached a viewer-safe 
 
 Generic Pets and engine code know `Action`, `UseAction`, `ActionSlot`, `NewTurn`, and turn-start
 translation, while the foundational declarations live in Terraforming Mars canon. The generic
-action syntax and identity protocol are deliberate; the generic Agent's turn conveniences remain
-layering debt and are tracked in `TODO.md`.
+action syntax and identity protocol are deliberate. The generic Agent's `startTurn` and `inTurn`
+conveniences remain layering debt: move them to `TfmGameplay` so the Agent no longer knows
+`NewTurn`.
 
 The [Pets Action model](ACTIONS.md) makes this division more explicit: fixed and X-scaled Terraforming
 Mars `StandardResource` costs use provider- and action-qualified billing components, while direct and

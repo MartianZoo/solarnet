@@ -6,6 +6,8 @@
 
 Read this page after `AGENTS.md`, but do not read every linked document. Pick the route matching the
 current task, read its “Read when” note and named sections, then inspect the linked source and tests.
+For a portfolio-level index of substantial proposed and selected work, see
+[`PLANS.md`](PLANS.md); do not read every owning document merely because it is indexed there.
 
 ## Authority labels
 
@@ -115,8 +117,9 @@ when the relevant design and testing routes were followed earlier.
 
 ## Maintain this collection
 
-- Keep focused programs of work in the smallest owning document. Use [`TODO.md`](../../TODO.md)
-  only for miscellaneous work not already covered by one of these focused plans.
+- Keep focused programs of work in the smallest owning document. Index substantial work in
+  [`PLANS.md`](PLANS.md), and use [`TODO.md`](../../TODO.md) only for bounded miscellaneous work not
+  already covered by one of these focused plans.
 - Keep current behavior, proposed behavior, and desired rules visibly separate.
 - Link to production source and meaningful tests instead of copying inventories that can drift.
 - For a source location, give the file and a stable search string, never a line number.
