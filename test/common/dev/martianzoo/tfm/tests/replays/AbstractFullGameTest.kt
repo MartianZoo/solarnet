@@ -20,9 +20,7 @@ import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalCatalog
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
-import org.junit.jupiter.api.extension.ExtendWith
 
-@ExtendWith(ReplayExportExtension::class)
 internal abstract class AbstractFullGameTest : TfmTest() {
   protected lateinit var p1: TfmGameplay
   protected lateinit var p2: TfmGameplay
