@@ -43,7 +43,7 @@
   only for deferred work and resolution.
 - [`EventLog.kt`](../../src/common/dev/martianzoo/state/EventLog.kt) and
   [`Timeline.kt`](../../src/common/dev/martianzoo/engine/Timeline.kt) — inspect only
-  for history, atomicity, rollback, or revisions.
+  for history, atomicity, or rollback.
  - [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) — search for
    `public interface Agent` before changing caller-facing operations.
  - [`PetElaborator.kt`](../../src/common/dev/martianzoo/pets/PetElaborator.kt),
@@ -64,7 +64,7 @@ A live Game World is a `World` containing:
 | `ComponentGraph` | Present state: a multiset of concrete components |
 | Global task queue | Deferred work and Actor choices, with one assignee on each Task |
 | `EventLog` | Applied component and task history |
-| `Timeline` | Atomicity, rollback, revision, and commit floor |
+| `Timeline` | Atomicity, rollback, and commit floor |
 | `ClassTable` | The closed vocabulary and type relationships |
 | Mutation executor | Validation and atomic calculation for direct Actor-attributed calls |
 
@@ -244,8 +244,7 @@ ordinal.
 
 `GameWorld.apply` and rollback are the single exact event/state interface: application or reversal
 updates event history and the component or pending-task projection together. Each current event has
-one integer ordinal. Each forward or reverse mutation advances an opaque `WorldRevision`; unlike
-the event-count checkpoint, a revision is never reused after rollback.
+one integer ordinal.
 
 `Timeline` provides event-count checkpoints, atomic blocks, rollback, and a commit floor. An atomic
 failure reverses component state, tasks, event-backed indexes, and events.

@@ -107,9 +107,8 @@ internal class GameWorldTest {
   }
 
   @Test
-  internal fun rejectedOrdinalDoesNotAdvanceStateHistoryOrRevision() {
+  internal fun rejectedOrdinalDoesNotAdvanceStateHistory() {
     val world = GameWorld(premise)
-    val revision = world.revision
 
     shouldThrow<IllegalArgumentException> {
       world.apply(ChangeEvent(1, ADMIN, ComponentChange.Gain(component = token), cause = null))
@@ -117,7 +116,6 @@ internal class GameWorldTest {
 
     world.components.countComponent(token) shouldBe 0
     world.events.entriesSince(Checkpoint(0)) shouldBe emptyList()
-    world.revision shouldBe revision
   }
 
   @Test

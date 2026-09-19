@@ -233,9 +233,10 @@ gate for the deferred section.
 
 ## Working proof rules
 
-Each rule should return `PROVEN`, `DISPROVEN`, or `UNKNOWN` plus a compact certificate tied to the
-exact `WorldRevision`, not an event-count checkpoint. `UNKNOWN` does nothing. Every certificate also
-checks the agency obligation.
+Each rule should return `PROVEN`, `DISPROVEN`, or `UNKNOWN` plus a compact certificate tied to a
+non-reused state identity, not an event-count checkpoint. Introduce that identity only if retained
+dynamic certificates are implemented. `UNKNOWN` does nothing. Every certificate also checks the
+agency obligation.
 
 ### 1. Semantic stutter
 
@@ -397,8 +398,8 @@ The working policy should spend proof effort in this order:
 3. Catalog/premise symmetry, trigger-free, and footprint certificates.
 
 Stop at the first proof. Never fall through to stable task order. Cache immutable Catalog summaries
-by Catalog identity, premise summaries by premise Class table, and dynamic certificates by EGS
-revision plus the exact state slices they depend on. An accepted command invalidates dynamic
+by Catalog identity, premise summaries by premise Class table, and dynamic certificates by an EGS
+identity plus the exact state slices they depend on. An accepted command invalidates dynamic
 analysis. Only measured need should add pairwise disposable-World diamonds or bounded frontier
 search with memoization.
 

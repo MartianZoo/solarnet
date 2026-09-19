@@ -48,10 +48,6 @@ public class GameWorld(
   public val nextOrdinal: Int
     get() = events.nextOrdinal
 
-  /** An identity which advances on every forward or reverse event application. */
-  public val revision: WorldRevision
-    get() = events.revision
-
   /** A live task view restricted to [assignee]. */
   public fun tasksFor(assignee: Actor): TaskQueue = taskStore.forAssignee(assignee)
 
