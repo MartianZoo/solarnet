@@ -29,8 +29,8 @@ Every rule is checked by tests whose names begin with the same id, in
 | 12. Elaboration | `Lang12ElaborationTest.kt` |
 
 So `grep -rn "L6-9" docs/pets-language-spec.md test/common/dev/martianzoo/pets/` finds a rule and
-everything that proves it. Known departures from these rules have passing characterizations in
-`LangBugsTest.kt`; each is flagged where it belongs and listed again in the appendix.
+everything that proves it. Where a rule and the implementation are known to disagree, the rule says
+so; there is no such departure today.
 
 Examples use real Terraforming Mars component names — `GreeneryTile`, `Plant`, `OceanTile` — but the
 declarations shown are simplified. They illustrate a rule; they are not a transcript of `tfm-canon`.
@@ -277,9 +277,22 @@ perfectly good class names.
 
 **L2-4. A transform-kind name is an all-caps identifier** (section 10).
 
-**L2-5. There is one namespace and no scoping.** A name is not declared, bound or shadowed by any
-construct in this document; it means whatever class the class table says it means (T1-1, T1-7).
-Which name a concept should get, and how names are displayed to a person, is `NAMING.md`'s subject.
+**L2-5. Class names are global.** A class name means whatever class the class table says it means
+(T1-1, T1-7); no construct declares a class name, and no construct gives one a different class in
+part of a source. Which name a concept should get, and how names are displayed to a person, is
+`NAMING.md`'s subject.
+
+This is not the same as saying that nothing is bound. Several constructs do bind, and two of them
+shadow:
+
+| Construct | What it binds | Where |
+| --- | --- | --- |
+| `This` | the component the declaration is about | the whole declaration (L3-5) |
+| `Owner` | the context's owner | the whole declaration, except inside an `EACH` whose selector is an owner (L12-3) |
+| `X` | one open amount | one instruction, across the stages of a `THEN` (L6-14) |
+| an `EACH` or `RANK` selector | each selected component | that construct's body, shadowing an enclosing spelling (L6-10, L5-9) |
+| a refinement's domain | the candidate | that refinement (T8-3) |
+| a repeated abstract expression | one shared choice | its construct's settlement sites (T13-6) |
 
 > **Non-normative example — generated special tiles.** `MiningRights_SpecialTile` must be referable
 > later by that exact global name when its placement bonus is inspected. Lexical scoping would make
@@ -513,8 +526,14 @@ element that does.
 
 **L6-1. The elementary instructions are gain, removal and transmutation.** `n Foo` says the after
 state holds n more components of type `Foo`; `-n Foo` that it holds n fewer; `n Foo FROM Bar` that
-n components of `Bar` have become n of `Foo`. A direct gain of the system `Signal` class fires both
-gain and removal triggers while its count remains unchanged.
+n components of `Bar` have become n of `Foo`.
+
+A direct gain of the system `Signal` class fires both gain and removal triggers while its count
+remains unchanged. Both changes are real — that is how a signal does its work, by what its gain and
+its removal trigger (section 8) — and no signal component remains behind. This point-event behavior
+belongs only to a direct Signal gain; writing `SignalSubtype FROM SignalSubtype` is an ordinary
+transmutation. A `Signal` gained by an explicit transmutation from another type is gained normally,
+then removes itself.
 
 **L6-2. A count is a positive integer or `X`.** `X` denotes an amount left open, and may carry a
 coefficient: `2X Plant` is an even number of plants. A count of zero is rejected.
@@ -525,8 +544,26 @@ coefficient: `2X Plant` is an even number of plants. A count of zero is rejected
 
 **L6-3. A quantifier says how much of the count must happen.** `!` means the whole amount, `.` as
 much of it as possible, and `?` any part of it including none. An authored change may omit the
-quantifier; elaboration then supplies the class's default (T10-2, L12-5). What "as much as possible"
-resolves to against a real state is `QUANTIFIERS.md`'s subject.
+quantifier; elaboration then supplies the class's default (T10-2, L12-5).
+
+The three differ in *who* settles the amount, which is why later rules treat them so differently:
+
+| Quantifier | The amount is | Settled by |
+| --- | --- | --- |
+| `!` | already fixed | nobody; the change happens in full or not at all |
+| `?` | an open choice | whoever settles the instruction, who may choose none (L7-1) |
+| `.` | fixed, but not yet known | the state the change is carried out against |
+
+So `!` is concrete, `?` is abstract, and `.` is neither: it leaves no choice, but its amount is
+read off a state rather than written down. Narrowing can settle a choice (section 7); only
+resolution against a state can settle a `.`, which is `QUANTIFIERS.md`'s subject.
+
+After both sides have narrowed to concrete Types, a transmutation is **reflexive** when those Types
+are equal (T5-1), regardless of how they were spelled. A mandatory reflexive transmutation is
+invalid; an optional or as-much-as-possible one resolves to `Ok` and produces no change event. The
+same rule applies whether its quantifier was written or supplied by elaboration. An empty argument
+list affects default acceptance and authored spelling (L3-2); it cannot make equal resolved Types
+non-reflexive.
 
 > **Non-normative examples — Artificial Lake and asteroid attacks.** Artificial Lake's special
 > ocean placement is `!`: choosing that arm requires the exceptional land placement to succeed in
@@ -558,7 +595,10 @@ per three complete Earth tags. Only an elementary change may be scaled this way.
 **L6-6. `r: I` gates an instruction on a requirement.** The gate is not a choice (L7-5); when its
 requirement fails, the instruction cannot be carried out. `OR` binds tighter than a gate, so
 `3 PlantTag: Plant OR 4 Plant` gates both alternatives, and a gate on one alternative alone must be
-parenthesized. A gate does not directly contain another gate.
+parenthesized. A gate does not directly contain another gate. When a first-stage gate uses a type
+variable shared with that stage and a later `THEN` stage, resolution waits for the first-stage
+choice, substitutes it throughout the sequence, and then checks the gate before executing the
+change (T13-8).
 
 > **Non-normative example — Factorum.** Its first action grants energy production only under
 > `MAX 0 Energy`. The requirement decides whether that result is available; it is not another arm a
@@ -586,8 +626,9 @@ one.
 **L6-9. `A THEN B` says A happens before B.** The relation is stated between the two changes
 themselves and is right-associative, so `A THEN B THEN C` is one sequence of three stages rather than
 nested pairs. Every stage before the last must be a single instruction: a group or another sequence
-on the left is rejected, because "before" needs one identifiable change to be before. What waiting
-means for pending work is `SEQUENCING.md`'s subject.
+on the left is rejected. A group is only an envelope around independent instructions (L6-8) — there
+is no shell around `(A, B)` for a `THEN` to relate to, and nothing that "before" could name. What
+waiting means for pending work is `SEQUENCING.md`'s subject.
 
 > **Non-normative example — solo neutral tiles.** Each placement pairs a city with a subsequent
 > greenery adjacent to a city. `THEN` ensures the new city exists before the greenery's legal-area
@@ -633,14 +674,18 @@ an `OR`, whose bare `FROM` would be ambiguous.
 > parentheses—keeps “spend a disease for TR” separate from “if none remain, archive the corporation
 > and gain three TR.”
 
-**L6-14. `X` is one open amount per instruction, and may span a sequence.** Two independent
-instructions may not share an `X` (there is nothing to make the two amounts agree), while the stages
-of a `THEN` may, and then must agree (L7-7).
+**L6-14. `X` is one open amount per instruction, and may span a sequence.** The stages of a `THEN`
+share one `X`, and must then agree about its value (L7-7); so do an action's cost and result (L9-2),
+and a trigger and the instruction it triggers (L8-5).
+
+A group links nothing (L6-8), so it neither joins nor separates the `X`s inside it. Each member's
+`X` is simply the one introduced around the group, if there is one, and otherwise that member's own
+open amount. In `X Foo, X Bar` the two amounts are unrelated; in `X Qux: X Foo, X Bar` both are the
+trigger's amount, and so equal — through the trigger, not through the comma.
 
 > **Non-normative example — Public Plans.** It reveals `X` cards from hand, returns those same `X`
 > cards, then grants `X` MC. Sharing the count across the sequence makes the payout equal the number
-> temporarily revealed; allowing a comma-separated group to share it would assert equality without
-> any temporal operation connecting the choices.
+> temporarily revealed.
 
 ---
 
@@ -648,7 +693,15 @@ of a `THEN` may, and then must agree (L7-7).
 
 An authored instruction usually leaves something open — an abstract type, an unfixed count, a choice
 between alternatives. **Narrowing** is the relation "this more specific instruction is an acceptable
-way of carrying out that more general one".
+way of carrying out that more general one": P narrows Q when every change P can bring about is one Q
+could have brought about, and every choice P still leaves open is one Q left open. The rules below
+are that relation, decided from the two instructions alone.
+
+**Narrowing is not resolution.** Settling `3 Plant.` against a state with room for two yields
+`2 Plant!`, and that is not a narrowing: nothing in the two instructions says so, and in another
+state the same `.` settles differently. Narrowing is what a settler may choose; resolution is what a
+state decides, and it is `QUANTIFIERS.md`'s subject. Every rule here is state-independent, except
+where a `HAS` refinement asks a world about a candidate (T8-8).
 
 This section is about *elaborated* instructions. An authored change carries no quantifier until
 elaboration supplies one (L6-3), and narrowing has nothing to compare until it does.
@@ -671,8 +724,12 @@ much less.
 > Permitting arbitrary shape changes would let a proposal keep the attractive half of that sequence.
 
 **L7-3. A change may narrow its count, its quantifier and its types.** The count may not grow, and
-may shrink only under `?`. The quantifier may narrow: `?` may become anything, while `!` and `.` are
-incompatible with each other. Each written expression must narrow the authored one (T6-2).
+may shrink only under `?`. Each written expression must narrow the authored one (T6-2).
+
+Only `?` leaves a choice, so only `?` narrows: it may become `!`, `.` or a smaller count. `!` and
+`.` leave no choice at all, so neither narrows to the other (L6-3). In particular a proposal may not
+turn `3 Plant.` into `3 Plant!`: as much as possible is not the same claim as all of it, and which
+amount `.` means is for resolution, not for the settler, to decide.
 
 > **Non-normative example — Comet.** Its optional loss of up to three plants may narrow to one, two,
 > three, or none, but its mandatory temperature and ocean gains may not shrink. The quantifier—not
@@ -699,9 +756,11 @@ alternative; an `OR` narrows an `OR` when every one of its alternatives does.
 > energy production. Either concrete choice satisfies the authored `OR`; a proposed `OR` is safe
 > only when every arm remains one the card actually offered.
 
-**L7-7. `X` takes one value everywhere it appears.** Each occurrence receives that value multiplied
-by its own coefficient, so `X Plant THEN 2X Heat` may become `3 Plant THEN 6 Heat` but not
-`3 Plant THEN 5 Heat`. A proposed count that is not a multiple of the coefficient is rejected.
+**L7-7. `X` takes one value everywhere it appears, and that value is at least one.** Each
+occurrence receives the value multiplied by its own coefficient, so `X Plant THEN 2X Heat` may
+become `3 Plant THEN 6 Heat` but not `3 Plant THEN 5 Heat`. A proposed count that is not a multiple
+of the coefficient is rejected, and so is zero: an instruction that offers `X` offers a real amount,
+never a way to do nothing. Declining belongs to `?` and `Ok` (L7-4).
 
 > **Non-normative example — Energy Market.** `2X MC -> X Energy` permits 2, 4, 6, … MC for 1, 2, 3,
 > … energy. A three-MC proposal cannot be reconciled with the coefficient and must not round into a
@@ -724,11 +783,14 @@ class, a malformed proposal — is not converted into a "no".
 > make broken input indistinguishable from a well-formed action the current state simply forbids.
 
 **L7-10. Groups narrow elementwise.** Members are matched by position, and the sizes must agree.
+A group is not itself pending work — its members become independent tasks, each narrowed on its own
+— so this rule reaches only a group nested inside an `OR` arm or a `THEN` stage.
 
-> **Non-normative example — Deimos Down.** Its temperature steps, steel gain, and optional plant
-> loss are independent but not interchangeable fields in a proposal. Positional matching prevents a
-> client from reordering or dropping one consequence while still claiming to execute the card's
-> complete group.
+> **Non-normative implementation note — position is a key, not an order.** A group's member order
+> carries no gameplay meaning (L6-8); matching by it is only how a proposal says which member it is
+> speaking about. Matching members up by content instead would be ambiguous exactly where it
+> matters: with `3 Metal!, 4 Steel?` a proposal of two steel gains could pair either way, and the
+> two members may carry different continuations.
 
 ---
 
@@ -738,12 +800,17 @@ An effect is a rule attached to a class: `CityTile: 2 MC` says that whenever a c
 this component's owner gains 2 MC. Every component of that class carries the rule for as long as it
 exists.
 
-**L8-1. An effect is a trigger, a colon, and an instruction.** The trigger says which event the rule
-is about; the instruction says how the state after that event relates to the state before it.
+**L8-1. An effect is a trigger, a colon, and an instruction.** The trigger says which changes the
+rule is about; the instruction is the change the rule then requires. A trigger is decided against
+the state its event produced — that goes for the expression it matches, for a `HAS` refinement
+inside that expression, and for an `IF` condition (L8-7) alike.
 
 **L8-2. `::` marks an automatic effect** — a consequence carrying no choice, which the rule intends
-to be inseparable from the event that caused it. When that distinction matters is `SEQUENCING.md`'s
-subject.
+to be inseparable from the event that caused it. It is greedy: every automatic consequence of one
+event is carried out before any queued (`:`) effect of that same event is even tested, so a queued
+trigger is decided against a state in which the automatic consequences have already happened. That
+is also why an automatic effect can observe an intermediate state that no queued effect ever sees.
+What follows from this for pending work is `SEQUENCING.md`'s subject.
 
 > **Non-normative example — Birds.** `This:: AnimalTag<This>` installs the printed animal tag as an
 > automatic consequence of the card entering play. Making it an ordinary `:` effect would present a
@@ -759,10 +826,18 @@ of components matching it.
 
 **L8-4. A self trigger is not a subscription to its own type.** There is no way to spell one as the
 other: writing the bare `This` placeholder as a subscription target *is* the self trigger, however
-its empty argument list was written (L3-5). The two say different things — `This` is about changes
-to this very component, and scales its instruction by the number of copies changed, while a
-subscription is about changes anywhere that match an expression, and is carried once per copy of the
-effect-bearing component. How many times each actually fires is `ENGINE.md`'s subject.
+its empty argument list was written (L3-5). `This` is about changes to this very component, while a
+subscription is about changes anywhere that match an expression.
+
+They also scale differently, which is part of what each one means:
+
+- A matching change of n components makes a self trigger's instruction happen n times over: `This: 2
+  MC` on a component gained three at once grants 6 MC.
+- A subscription is carried by each copy of the effect-bearing component, and each of those
+  activations likewise scales by the n of the matching change. Two copies of a card watching a gain
+  of three plants react as six.
+- An `X` trigger (L8-5) takes that n as the value of `X` instead of multiplying, so the rule reacts
+  once and can speak about the size of what happened.
 
 > **Non-normative example — played events.** The generic event rule's `-This` follows the removal of
 > that exact face-up event into `PlayedEvent<Class<This>>`. A subscription to the card's type could
@@ -785,14 +860,37 @@ a gain of any number of plants with the same number of heat. A removal is writte
 **L8-7. `BY` restricts a trigger by actor and `IF` by state.** Precedence, tightest first: `OR`,
 `BY`, `IF`. Parentheses give one alternative its own qualifier. A `BY` selector is an expression
 specialized by the Actor recorded on the event: `BY Player` can supply that concrete Player to other
-matching occurrences, `BY Player(NOT Owner)` tests the Actor and participates in ordinary repeated-
-expression linking, and `BY Anyone` removes the Actor restriction (T13-9).
+matching occurrences, and `BY Player(NOT Owner)` tests the Actor and participates in ordinary
+repeated-expression linking (T13-9).
 
 > **Non-normative example — Lakefront Resorts.** `OceanTile BY Anyone: PROD[1 MC]` pays its owner
 > whenever any player places an ocean. The actor qualifier belongs to the trigger event, while an
 > `IF` would ask about board state rather than attribute who performed the placement.
 
-**L8-8. A static non-event may not be a subscribed trigger.** `Class<Foo>: Bar` is rejected: the one
+**L8-8. An unqualified subscription on an owned component watches its owner's events.** A rule
+printed on a player's card means what the icon means: *yours*. How that is said depends on whether
+the watched type has an owner of its own.
+
+- When it does, ownership says it, and no actor restriction is added. `CityTile` on a player's card
+  is already `CityTile<Owner>` by L12-4, so it watches that player's cities however they arose.
+- When it does not, there is no ownership to say it with, so the rule watches only events that
+  player performed: `OceanTile` on a card reacts to the oceans its owner places, not an opponent's.
+- A `System` type is exempt: `ProductionPhase` and other Admin-only machinery are the table's own
+  events, belonging to no player, and every owner's rule sees them.
+
+Writing any `BY` selector replaces this implicit restriction, which is what `BY Anyone` is for
+(L8-7): it says the rule watches everyone's events, including the table's. A rule on a component
+with no owner has no such restriction to begin with, and takes its event's Actor instead where its
+result needs a player (L12-13). Who is then credited with the resulting change is `IDENTITY.md`'s
+subject; this module pins the spellings, and `engine/ByTriggerCharacterizationTest.kt` pins the
+matching.
+
+> **Non-normative example — Arctic Algae and Tharsis Republic.** Arctic Algae writes
+> `OceanTile BY Anyone: 2 Plant` because it must react to everyone's oceans; without the marking it
+> would react only to its owner's. Tharsis Republic needs no such marking on
+> `CityTile<Anyone, MarsArea>`: it says whose cities it watches by naming the owner it accepts.
+
+**L8-9. A static non-event may not be a subscribed trigger.** `Class<Foo>: Bar` is rejected: the one
 component per concrete class is fixed before any effect runs (T4-6), so nothing ever gains one.
 `Ok: Bar`, `-Ok: Bar`, and a subscription rooted at any nominal supertype of `Ok` are likewise
 invalid: `Ok` is the identity instruction and produces no change event. A refinement does not make
@@ -804,15 +902,16 @@ which that trigger could fire.
 > class literals to name tag, resource, or card kinds, never as events. Accepting the syntax would
 > create a subscription guaranteed never to fire and likely conceal a missing ordinary type.
 
-**L8-9. A bare `Component` subscription must be qualified.** `Component: Bar` subscribes to
-everything and is rejected; `Component IF Foo: Bar` and `Component BY Anyone: Bar` are accepted,
-because each states what the rule is actually watching for.
+**L8-10. There is no universe-wide subscription.** `Component: Bar` is rejected when it is parsed,
+and qualifying it changes nothing: `Component` is a supertype of `Ok`, so `Component IF Foo: Bar`
+and `Component BY Anyone: Bar` are rejected when the declaration is loaded, by L8-9.
 
-> **Non-normative implementation note — reject accidental global listeners.** No canonical rule
-> needs an unqualified subscription to every component gain. Requiring `IF` or `BY` makes a rare
-> universe-wide watcher state its filter instead of turning a forgotten type name into trigger spam.
+> **Non-normative implementation note — one consequence, two messages.** An unqualified
+> `Component` trigger is caught without a class table so that the error names the real mistake, a
+> forgotten type name. The broader ban follows from where `Ok` sits in the hierarchy, and no
+> canonical rule wants to watch every component gain anyway.
 
-**L8-10. Effects round-trip, and a gated instruction is parenthesized after the colon** so that the
+**L8-11. Effects round-trip, and a gated instruction is parenthesized after the colon** so that the
 effect's own colon stays unambiguous.
 
 > **Non-normative implementation note — two colons, two roles.** Rendering must distinguish an
@@ -829,12 +928,19 @@ An action is a rule a player may invoke: `Steel -> 5 MC` offers to turn one stee
 minus sign; it is understood to be given up.
 
 **L9-2. An action means: spend the cost, then do the result.** `cost -> I` denotes `-cost! THEN I`,
-and a costless action denotes just `I`. That is the whole of what the arrow means; the `THEN` is
-L6-9's, with nothing added.
+and a costless action denotes just `I`. The `THEN` is L6-9's, with nothing added, and the cost and
+the result share one `X` because they are its two stages (L6-14).
+
+That is what the arrow means *in this language*. A Catalog may then rewrite the lowered cost into
+something it considers the same act — Terraforming Mars replaces a standard-resource cost with a
+debt that other rules may discount and that several tenders may settle. Such a rewrite changes
+meaning and belongs above this specification, with the Catalog that performs it (`ACTIONS.md`); Pets
+defines the form it starts from.
 
 > **Non-normative example — the Aquifer standard project.** `18 MC -> OceanTile<>` must remove all
 > 18 MC before offering the placement. Lowering the arrow to mandatory payment followed by the result
-> prevents a player from placing first and discovering afterward that payment cannot complete.
+> prevents a player from placing first and discovering afterward that payment cannot complete —
+> and gives the Terraforming Mars payment rewrite one instruction to recognize.
 
 **L9-3. A cost is a scaled expression, optionally scaled by a metric, optionally inside a transform
 block.** A comma-separated or gated cost is rejected — alternative costs are written as separate
@@ -846,9 +952,14 @@ actions, so that each is one thing a player can choose to do.
 
 **L9-4. An action becomes an effect keyed to the action's position on its class.** The nth action of
 a class lowers to an effect triggered by `UseAction<This, ActionN>`, and a class may offer at most
-three. Action identity, availability and payment are `ACTIONS.md`'s subject; the standard-resource
-cost rewrite that currently rides along in this module belongs there too, and `Transforming.kt`
-carries a TODO to move it into `tfm-canon`.
+three.
+
+The order in which a class writes its actions is therefore significant, exactly as the order of the
+boxes printed on a card is: the first action *is* `Action1`, and inserting or swapping actions
+renames what a saved game, a replay, or an action-used marker was talking about. Editing a class's
+action list is a change to its content, not a formatting choice. Action identity, availability and
+payment are `ACTIONS.md`'s subject; the standard-resource cost rewrite that currently rides along in
+this module belongs there too, and `Transforming.kt` carries a TODO to move it into `tfm-canon`.
 
 > **Non-normative example — Energy Market.** Its two printed actions lower to distinct `Action1` and
 > `Action2` triggers. Keying by position lets an action-used marker distinguish buying energy from
@@ -884,15 +995,20 @@ accept a block are instruction, action cost, metric, requirement and trigger.
 > than a steel-cube gain. Keeping the mark around one typed node lets the production handler rewrite
 > the noun without giving brackets general statement-like semantics.
 
-**L10-2. A block whose kind has no handler is preserved verbatim**, so a source may carry marks that
-a later stage will interpret.
+**L10-2. Every mark names a kind its Catalog defines.** A declaration using a kind for which the
+Catalog supplies no handler is rejected when it is loaded. One rewriting pass may still leave
+another pass's kind in place — a Catalog can dispatch one kind while assembling declarations and
+another only once a class table exists — but a mark that no pass will ever claim is a mistake in
+the source, not a message to some later stage.
 
-> **Non-normative implementation note — extensible marks.** Every canonical Terraforming Mars block
-> currently has a handler, but the language parser does not own that registry. Preserving an unknown
-> kind lets a Catalog-specific stage interpret it instead of the generic parser deleting information.
+> **Non-normative implementation note — a typo should not survive to runtime.** `PORD[Plant]` used
+> to be carried along silently and to fail much later, if that branch was ever reached at all.
+> Checking the Catalog's kinds once, at load, catches it where the source is.
 
-**L10-3. A handler rewrites only inside its own block**, and what it returns must be the same kind of
-Pets it was given. A block that expands into several independent instructions splices into the
+**L10-3. A handler rewrites only inside its own block**, and what it returns must belong to the same
+category of Pets it was given: an instruction for an instruction, a metric for a metric, and so on.
+It need not be the same *kind* of node — a gain may come back a group, a requirement may come back a
+conjunction — and a block that expands into several independent instructions splices into the
 surrounding group (L6-8).
 
 > **Non-normative example — Noctis City.** `PROD[-Energy, 3 MC]` expands into two independent
@@ -1016,26 +1132,23 @@ on a land area, that a resource belongs to the player doing the thing, that "gai
 three separate cards. It changes how a source *reads*; it never changes which types exist, which is
 what section 10 of the type system specification means by a default not being a bound.
 
-**L12-1. Elaboration is a fixed set of stages, applied differently depending on where the Pets came
-from.** The stages are: infer type variables (T13-6 through T13-9); split atomized gains (L12-11);
+**L12-1. Elaboration is one rewriting, in one order, of an element against a context.** The stages
+are, in this order: infer type variables (T13-6 through T13-9); split atomized gains (L12-11);
 insert defaults (L12-4 through L12-10); bind the contextual owner (L12-3); dispatch transform blocks
 (section 10); expand property evaluations (L12-12).
 
-Two entry points apply different subsets, in different orders:
+Where the Pets came from does not change that order. It supplies the context, and two things follow
+from the context rather than from a different pipeline:
 
 | | An element a player submits | A class's own effects |
 | --- | --- | --- |
-| Defaults are inserted against | `This` | the class's own context |
-| Order of defaults and atomizing | atomize, then default | default, then atomize |
+| The context is | `This` — the submitting player's own scope | the class's own context |
 | Contextual owner | bound to the submitting player | left open, and `BY Owner` added where the result needs one (L12-13) |
 | Property evaluations | rejected, except in a metric (L12-12) | expanded once the receiver is concrete |
 
-The shared core — inferring variables, atomizing, defaulting and dispatching — is the same rewriting
-in both.
-
 > **Non-normative example — player setup.** `10 ProjectCard` must become ten independent card gains,
-> each defaulted to the setting-up player. The fixed stage order prevents owner defaulting from
-> happening on one aggregate pseudo-card.
+> each defaulted to the setting-up player. Atomizing before defaulting means each card is defaulted
+> in its own right, rather than one aggregate pseudo-card being split afterward.
 
 **L12-2. `This` is replaced by the context expression.** `Class<This>` becomes the class literal for
 the context's class, and `This<Foo>` keeps its own arguments while adopting the context's class.
@@ -1066,6 +1179,11 @@ When a class has gain dependency defaults, a gain may not leave its argument lis
 `OceanTile<>` to accept them, or supply at least one argument. This keeps a defaulted placement
 visible at the point of use.
 
+Where both sets speak to one dependency key, the use-kind default wins: it is the more specific
+statement about what this use means. The all-use set then fills only the keys it left open. A
+use-kind default that merely restates the declared bound records nothing at all (T10-4), so it
+cannot be used to *cancel* an all-use default for that key.
+
 > **Non-normative example — Subterranean Reservoir.** The card writes `OceanTile<>` to advertise that
 > its ocean will use the standard empty-water-area placement default. Allowing bare `OceanTile`
 > would conceal a board choice behind syntax that elsewhere merely names the type.
@@ -1087,10 +1205,21 @@ an acceptance, not merely a second spelling of the same expression.
 > cannot honestly mean “accept the plant placement defaults,” because there are none. Rejecting it
 > catches cargo-cult opt-in syntax instead of preserving a misleading no-op distinction.
 
-**L12-8. The two halves of `A FROM B` are defaulted independently**, and where the transmutation
-writes no quantifier of its own, the gained half's gain default and the removed half's removal
-default are intersected, the stricter winning: mandatory beats as-much-as-possible, which beats
-optional.
+**L12-8. The two halves of `A FROM B` are defaulted independently.** Where the transmutation writes
+no quantifier of its own, it must satisfy both halves' defaults at once, and takes the one quantifier
+that permits exactly the amounts both of them permit.
+
+That is not a ranking of the three quantifiers (L7-3 keeps `!` and `.` incomparable); it is what
+their policies leave in common. `!` permits only the full count; `.` permits only the most the state
+allows; `?` permits anything up to that. So `!` with `.` permits the full count when the state
+allows it and nothing otherwise, which is `!`; `.` with `?` permits only the most possible, which is
+`.`; and `!` with `?` is `!`. Written as a table, the combination is:
+
+| | `!` | `.` | `?` |
+| --- | --- | --- | --- |
+| **`!`** | `!` | `!` | `!` |
+| **`.`** | `!` | `.` | `.` |
+| **`?`** | `!` | `.` | `?` |
 
 > **Non-normative example — Public Plans.** `ProjectCard<Revealed FROM Hand>` changes a card's
 > location while retaining its contextual owner. Defaulting the gained and removed card types
@@ -1170,22 +1299,14 @@ owner together, in one step.
 
 ---
 
-## Appendix A: known departures
-
-Each of these has a passing characterization in `test/common/dev/martianzoo/pets/LangBugsTest.kt`;
-the rule states the intent.
-
-| Rule | Departure |
-| --- | --- |
-| L7-8 | A repeated abstract expression written with an empty argument list (`Tile<> THEN Tile<>`) declares a shared variable that never binds, because the recorded variable keeps the spelling it had before use-specific defaults were inserted. The stages may then be narrowed to different types. |
-
-## Appendix B: deliberately unspecified
+## Appendix A: deliberately unspecified
 
 - **Which parentheses a renderer adds beyond the ones round-tripping requires.** Rendering is
-  required to round-trip (L4-10, L5-10, L6-13, L8-10), not to be minimal, and today it is not
+  required to round-trip (L4-10, L5-10, L6-13, L8-11), not to be minimal, and today it is not
   minimal.
 - **Exception messages.** Rules name exception *types* where the type is part of the contract.
 - **The order in which elaboration visits nodes.** Only the order of the stages (L12-1) is
   specified.
 - **Where a transform handler comes from**, and what any particular kind such as `PROD` rewrites.
-  Section 10 specifies the mark, not its meaning.
+  Section 10 specifies the mark and the contract every handler owes (L10-3), not what any one kind
+  means; that belongs to the Catalog defining it.

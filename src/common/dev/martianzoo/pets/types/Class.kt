@@ -16,9 +16,7 @@ import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Each
-import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue
@@ -297,7 +295,12 @@ internal constructor(
   /** The dependency positions whose values are bound to the inheriting class. */
   private val selfBindings: Lazy<Set<DependencyPath>> = lazy {
     val inherited = directSuperclasses.flatMap { it.selfBindings() }
-    val declared = sups.flatMap { sourceSupertype ->
+    val declaredDependencies =
+        declaration.dependencies.flatMapIndexed { index, expression ->
+          val key = Key(className, index)
+          selfBindingsIn(expression, declaredDeps().get(key), listOf(key))
+        }
+    val declaredSupertypes = sups.flatMap { sourceSupertype ->
       val superclass = loader.getClass(sourceSupertype.className)
       val arguments = sourceSupertype.arguments
       val matched =
@@ -306,7 +309,7 @@ internal constructor(
         selfBindingsIn(argument, dependency, listOf(dependency.key))
       }
     }
-    (inherited + declared).toSet()
+    (inherited + declaredDependencies + declaredSupertypes).toSet()
   }
 
   private fun selfBindingsIn(
@@ -368,7 +371,7 @@ internal constructor(
   private val declaredDeps: Lazy<DependencySet> = lazy {
     DependencySet.of(
         declaration.dependencies.mapIndexed { index, expression ->
-          TypeDependency(Key(className, index), loader.resolve(expression))
+          TypeDependency(Key(className, index), loader.resolve(replaceThis(expression)))
         }
     )
   }
@@ -662,26 +665,6 @@ internal constructor(
     val effectVariables = seeds.filter(Seed::lexicallyDeclared)
     var bodyOrdinal = headerOccurrences().size
     declaration.effects.forEachIndexed { effectIndex, effect ->
-      val queuedChoiceExpressions =
-          effect.descendantsOfType<Then>().flatMap { then ->
-            val firstRoleRoots =
-                then.first.descendantsOfType<Change>().flatMap { change ->
-                  listOfNotNull(change.gaining, change.removing)
-                }
-            val firstRoleDependencies = firstRoleRoots.flatMap { root ->
-              root.descendantsOfType<Expression>().filterNot { it === root }
-            }
-            TypeVariableScope.infer(then.instructions, classTable)
-                .variables
-                .filter { variable ->
-                  variable.occurrences.any { occurrence ->
-                    firstRoleDependencies.any { it === occurrence.expression }
-                  }
-                }
-                .flatMap { variable ->
-                  variable.occurrences.map { occurrence -> occurrence.expression }
-                }
-          }
       // A fanout selector declares its own variable for its body; it is never a use of one of
       // this Class's header variables, even when it is spelled the same way.
       val fanoutSelectors: List<Expression> =
@@ -694,7 +677,6 @@ internal constructor(
           }
       effect.descendantsOfType<Expression>().forEach { expression ->
         if (expression.className == ANYONE) return@forEach
-        if (queuedChoiceExpressions.any { it === expression }) return@forEach
         if (fanoutSelectors.any { it === expression }) return@forEach
         val exact = effectVariables.filter { seed ->
           seed.headerExpressions.any(expression::sameAuthoredTypeExpressionAs)

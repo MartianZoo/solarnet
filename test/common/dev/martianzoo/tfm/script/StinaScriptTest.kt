@@ -4,7 +4,6 @@ import dev.martianzoo.agent.Agent
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.script.ScriptSession
 import dev.martianzoo.tfm.engine.TfmGameplay
 import kotlin.test.Test
 import kotlin.test.assertEquals

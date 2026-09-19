@@ -339,7 +339,6 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     fun infer(
         regions: List<PetNode>,
         classTable: ClassTable,
-        includeRegionRoots: Boolean = true,
         explicitDeclarations: List<Expression> = emptyList(),
         visibleScope: TypeVariableScope = EMPTY,
     ): TypeVariableScope {
@@ -360,11 +359,10 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
             ancestors: Set<Expression>,
             inRequirement: Boolean,
             directlyCounted: Boolean,
-            regionRoot: Boolean,
         ) {
           val expression = node as? Expression
           val nextAncestors = expression?.let { ancestors + it } ?: ancestors
-          if (expression != null && (includeRegionRoots || !regionRoot)) {
+          if (expression != null) {
             add(
                 Found(
                     expression,
@@ -383,13 +381,12 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
                 nextAncestors,
                 inRequirement || node is Requirement,
                 node is Metric.Count && child is Expression,
-                false,
             )
           }
         }
 
         regions.forEachIndexed { index, region ->
-          collect(region, index, emptySet(), false, false, true)
+          collect(region, index, emptySet(), false, false)
         }
       }
 

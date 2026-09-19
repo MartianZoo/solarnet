@@ -8,7 +8,7 @@ kotlin {
     kotlin.setSrcDirs(
         listOf(
             rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/testsupport"),
-            rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/benchmarks"),
+            rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tfm/benchmarks"),
         )
     )
   }

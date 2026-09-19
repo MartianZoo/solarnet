@@ -184,6 +184,37 @@ internal class Spec04ClassLiteralsTest {
   // T4-9 `Class<This>`
 
   @Test
+  internal fun `T4-9 a Class-of-This literal in a declared dependency names the inheriting class`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Holder<Class<Component>>",
+            "ABSTRACT CLASS Resource<Holder<Class<This>>>",
+            "ABSTRACT CLASS CardResource : Resource",
+            "CLASS Animal : CardResource",
+        )
+
+    table.getClass(cn("Resource")).baseType.expressionFull shouldBe
+        te("Resource<Holder<Class<Resource>>>")
+    table.getClass(cn("CardResource")).baseType.expressionFull shouldBe
+        te("CardResource<Holder<Class<CardResource>>>")
+    table.getClass(cn("Animal")).baseType.expressionFull shouldBe
+        te("Animal<Holder<Class<Animal>>>")
+  }
+
+  @Test
+  internal fun `T4-9 a literal class name in a declared dependency remains fixed`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Holder<Class<Component>>",
+            "ABSTRACT CLASS Fixed<Holder<Class<Fixed>>>",
+            "CLASS FixedLeaf : Fixed",
+        )
+
+    table.getClass(cn("FixedLeaf")).baseType.expressionFull shouldBe
+        te("FixedLeaf<Holder<Class<Fixed>>>")
+  }
+
+  @Test
   internal fun `T4-9 a Class-of-This literal in a header names the inheriting class`() {
     val cards =
         loadTypes(

@@ -13,6 +13,7 @@ import dev.martianzoo.generated.Producer
 import dev.martianzoo.generated.Producer22
 import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.*
@@ -227,7 +228,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
           )
       )
     }
-    shouldThrow<IllegalArgumentException> {
+    shouldThrow<PetException> {
       newGame(
           gameConfig(
               milestones =

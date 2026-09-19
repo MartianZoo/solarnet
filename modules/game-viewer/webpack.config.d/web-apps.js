@@ -16,6 +16,13 @@ if (process.env.WEBPACK_SERVE) {
       bundle: "web.js",
       resources: path.resolve(__dirname, "../solarnet-web/kotlin"),
     },
+    {
+      route: "classviewer",
+      title: "Pets Almanac",
+      entry: path.resolve(__dirname, "../solarnet-web/kotlin/solarnet-web.js"),
+      bundle: "class-viewer.js",
+      resources: path.resolve(__dirname, "../solarnet-web/kotlin/classviewer"),
+    },
   ];
 
   config.entry = Object.fromEntries(apps.map((app) => [app.route, app.entry]));

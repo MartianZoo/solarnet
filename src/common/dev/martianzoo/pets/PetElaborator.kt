@@ -47,6 +47,7 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.ast.withTypeVariables
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Defaults
@@ -68,9 +69,8 @@ import dev.martianzoo.pets.util.invoke
  * The stages are fixed ([rule
  * L12-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-elaboration)):
  * infer type variables, split atomized gains, insert defaults, bind the contextual owner, dispatch
- * transform blocks, expand property evaluations. Two entry points apply different subsets in
- * different orders — [elaborateInput] for an element a player submits, and [classEffects] for a
- * class's own effects.
+ * transform blocks, expand property evaluations. The entry points supply different contexts and
+ * permit different property forms while preserving that shared ordering.
  *
  * Runtime binding operations return [PetTransformer] only where the engine must retain one deferred
  * binding across several AST families.
@@ -121,8 +121,8 @@ public class PetElaborator(public val classTable: ClassTable) {
   ): Metric =
       chain(
               normalizeInput(),
-              propertyEvaluator(context, owner),
               finishAuthoredSyntax(context, owner),
+              propertyEvaluator(context, owner),
           )
           .transformMetric(input)
 
@@ -360,8 +360,8 @@ public class PetElaborator(public val classTable: ClassTable) {
     val context = klass.className.has(Min(scaledEx(OK, 1)))
     return chain(
         classTable.inferTypeVariables(),
-        insertDefaults(context),
         atomizer(),
+        insertDefaults(context),
         transformDispatcher(),
         fixEffectForUnownedContext(klass),
     )
@@ -499,13 +499,14 @@ public class PetElaborator(public val classTable: ClassTable) {
                 ?: intersectQuantifiers(gainDefault?.quantifier, removeDefault?.quantifier)
 
         return Transmute(
-            Full(
-                applyDefault(node.gaining, gainDefault, context, gain = true),
-                applyDefault(node.removing, removeDefault, context, gain = false),
-            ),
-            node.count,
-            quantifier,
-        )
+                Full(
+                    applyDefault(node.gaining, gainDefault, context, gain = true),
+                    applyDefault(node.removing, removeDefault, context, gain = false),
+                ),
+                node.count,
+                quantifier,
+            )
+            .withTypeVariables(node.typeVariables.transformedBy(this))
       }
 
       private fun defaultFor(
@@ -814,6 +815,13 @@ public class PetElaborator(public val classTable: ClassTable) {
       private val remainingVariables by lazy(LazyThreadSafetyMode.NONE, openVariables)
 
       override fun transformNode(node: PetNode): PetNode {
+        if (node is Instruction.Then && !node.typeVariables.isEmpty) {
+          val nested = invalidChangesToDie { remainingVariables + node.typeVariables }
+          return node.withParts(
+              node.stages.map(nested::transformInstruction),
+              nested.transformInstructionTree(node.continuation),
+          )
+        }
         if (node is Each) {
           val selector = transformExpression(node.selector)
           val body = transformInstructionTree(node.body)
@@ -828,11 +836,12 @@ public class PetElaborator(public val classTable: ClassTable) {
 
         try {
           val expressions = listOfNotNull(specialized.gaining, specialized.removing)
+          val visibleVariables = remainingVariables + specialized.typeVariables
           if (
-              !remainingVariables.isEmpty &&
+              !visibleVariables.isEmpty &&
                   expressions.any { expression ->
                     expression.descendantsOfType<Expression>().any {
-                      remainingVariables.variableAt(it) != null
+                      visibleVariables.variableAt(it) != null
                     }
                   }
           ) {

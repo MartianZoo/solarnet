@@ -121,10 +121,10 @@ internal class Lang08EffectsTest {
     roundTrip<Effect>("Plant IF =3 This OR =5 This: PROD[Heat]")
   }
 
-  // L8-8 Static non-events
+  // L8-9 Static non-events
 
   @Test
-  internal fun `L8-8 a subscription may not be rooted at Ok or its supertypes`() {
+  internal fun `L8-9 a subscription may not be rooted at Ok or its supertypes`() {
     shouldRejectSubscription("Ok")
     shouldRejectSubscription("-Ok")
     shouldRejectSubscription("Signal")
@@ -132,7 +132,7 @@ internal class Lang08EffectsTest {
   }
 
   @Test
-  internal fun `L8-8 an ordinary Signal subtype remains a valid subscription`() {
+  internal fun `L8-9 an ordinary Signal subtype remains a valid subscription`() {
     testCatalog("CLASS Event : Signal\nCLASS Result\nCLASS Listener { Event: Result }").classTable
   }
 
@@ -144,40 +144,47 @@ internal class Lang08EffectsTest {
         .orEmpty() shouldContain "root is Ok or a nominal supertype of Ok"
   }
 
-  // L8-8 Class literals are not triggers
+  // L8-9 Class literals are not triggers
 
   @Test
-  internal fun `L8-8 a class literal may not be a trigger`() {
+  internal fun `L8-9 a class literal may not be a trigger`() {
     shouldThrow<PetSyntaxException> { parse<Effect>("Class<Plant>: Heat") }
     shouldThrow<PetSyntaxException> { parse<Effect>("-Class<Plant>: Heat") }
     shouldThrow<PetSyntaxException> { parse<Effect>("PROD[Class<Plant>]: Heat") }
     roundTrip<Effect>("PlayCard<Class<Plant>>: Heat")
   }
 
-  // L8-9 A bare Component subscription
+  // L8-10 There is no universe-wide subscription
 
   @Test
-  internal fun `L8-9 a bare Component subscription must be qualified`() {
-    listOf("Component: Heat", "-Component: Heat", "Plant OR Component: Heat").forEach {
-      shouldThrow<PetSyntaxException> { parse<Effect>(it) }
-    }
+  internal fun `L8-10 an unqualified Component subscription is rejected without a class table`() {
+    shouldThrow<PetSyntaxException> { parse<Effect>("Component: Heat") }
+    shouldThrow<PetSyntaxException> { parse<Effect>("-Component: Heat") }
+    shouldThrow<PetSyntaxException> { parse<Effect>("Plant OR Component: Heat") }
+  }
 
+  @Test
+  internal fun `L8-10 qualifying one parses, but L8-9 still rejects it at load`() {
     roundTrip<Effect>("Component IF Plant: Heat")
     roundTrip<Effect>("Component BY Anyone: Heat")
+    shouldRejectSubscription("Component IF Result")
+    shouldRejectSubscription("Component BY Anyone")
+
+    // An ordinary subscription that is not above `Ok` remains fine.
     roundTrip<Effect>("Owned<Player>: Heat")
   }
 
-  // L8-10 Rendering
+  // L8-11 Rendering
 
   @Test
-  internal fun `L8-10 a gated instruction is parenthesized after the colon`() {
+  internal fun `L8-11 a gated instruction is parenthesized after the colon`() {
     roundTrip<Effect>("Plant: (Heat: Steel)")
     parse<Effect>("Plant: (Heat: Steel)").instruction shouldBe parse<InstructionTree>("Heat: Steel")
     roundTrip<Effect>("Plant IF Heat, Steel: Ore", "Plant IF (Heat, Steel): Ore")
   }
 
   @Test
-  internal fun `L8-10 effects round-trip`() {
+  internal fun `L8-11 effects round-trip`() {
     roundTripAll<Effect>(
         """
         This: Ok
@@ -257,7 +264,7 @@ internal class Lang08EffectsTest {
   }
 
   @Test
-  internal fun `L8-10 an effect's descendant count is its whole subtree`() {
+  internal fun `L8-11 an effect's descendant count is its whole subtree`() {
     parse<Effect>("Steel<Steel>: PROD[(1 Heat FROM Plant) OR MC]").descendantCount() shouldBe 20
   }
 }

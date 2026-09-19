@@ -412,6 +412,15 @@ internal class Spec03DependenciesTest {
         )
 
     shouldThrow<PetException> { table.componentLimits }
+
+    val calculated =
+        loadTypes(
+            "CLASS Foo",
+            "CLASS Bar",
+            "CLASS InvalidInvariant { HAS =1 (Foo - Bar) }",
+            "CLASS Dependent<InvalidInvariant>",
+        )
+    shouldThrow<PetException> { calculated.componentLimits }
   }
 
   // T3-10 Dependency sets

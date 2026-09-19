@@ -609,7 +609,10 @@ public open class TfmCatalog : Catalog {
   // CLASS DECLARATIONS
 
   internal open val contributedClassDeclarations: List<ClassDeclaration> by lazy {
-    val explicit = explicitClassDeclarations.map(FollowModeNeutralizer::neutralize)
+    val explicit =
+        explicitClassDeclarations
+            .map(TfmActionLowerer::lower)
+            .map(FollowModeNeutralizer::neutralize)
     val explicitNames = explicit.mapTo(hashSetOf(), ClassDeclaration::className)
     val requiredNames = buildSet {
       marsMapDefinitions.forEach { map ->

@@ -1,5 +1,6 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -33,7 +34,7 @@ internal object PremiseViability {
   }
 
   private fun unviable(className: ClassName, reason: String): Nothing =
-      throw IllegalArgumentException("unviable game premise: $className has $reason")
+      throw invalidPetDefinition("unviable game premise: $className has $reason")
 
   private val REQUIREMENT_PROPERTY = PropertyName("requirement")
 

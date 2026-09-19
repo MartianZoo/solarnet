@@ -207,7 +207,7 @@
           "name": "MarketManipulation",
           "cost": 1,
           "tags": [ "EarthTag", "EventTag" ],
-          "immediate": "ColonyProduction FROM ColonyProduction",
+          "immediate": "ColonyProduction(NOT ColonyProduction) FROM ColonyProduction",
         },
         {
           "name": "MartianZoo",
@@ -284,7 +284,7 @@
           "tags": [ "EarthTag" ],
           "actions": [ "PROD[1 MC] -> Camp<This>" ],
           "effects": [ "End: VictoryPoint / Camp<This>" ],
-          "components": [ "CLASS Camp : CardResource<ResourceHolder<Class<Camp>>>" ],
+          "components": [ "CLASS Camp : CardResource" ],
         },
         {
           "name": "ResearchColony",

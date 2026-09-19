@@ -109,13 +109,20 @@ models per worker. Do not use worker recycling or a larger build-daemon heap to 
 retention.
 
 Normal Gradle access to the user-level cache and configuration under `~/.gradle` is permitted.
-For local wrapper builds, generated project state is isolated by account and worktree under
+For local builds, generated project state is isolated by account and worktree under
 `~/.gradle/solarnet-builds/`. Each invocation acquires an OS-locked storage slot there: sequential
 builds reuse slot zero and its caches, while overlapping invocations use distinct slots and cannot
 delete each other's test results or other task outputs. A slot includes Gradle's project cache,
 Kotlin's persistent data, task outputs, and build-process temporary files. CI retains the
-conventional project-local paths so its artifact collection remains stable. Use `./gradlew` rather
-than a directly installed `gradle` so the checked-in isolation configuration is applied.
+conventional project-local paths so its artifact collection remains stable. The wrapper supplies
+the isolation init script directly. For IntelliJ and other Tooling API clients, copy
+`gradle/user-isolation-bootstrap.init.gradle.kts` to
+`~/.gradle/init.d/solarnet-user-isolation.init.gradle.kts` once; that user-level bootstrap discovers
+the checked-in script in every current and future Solarnet worktree. Gradle opens `.gradle` before
+any init script runs, so also install `gradle/user-isolation.post-checkout` as the shared Git
+repository's `hooks/post-checkout`; it creates an ignored `.gradle` symlink into the same
+per-worktree home storage for every tracked Gradle build whenever Git creates or checks out a
+worktree.
 Yarn's incompatible `serialize-javascript` resolution warning and “Ignored scripts due to flag”
 warning are expected: the former comes from the deliberate 7.x security pin while Mocha requests
 6.x, and the latter preserves Kotlin/JS's policy of not running package lifecycle scripts.

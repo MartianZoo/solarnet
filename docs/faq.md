@@ -2,17 +2,24 @@
 
 ### What are the goals of this engine?
 
-Solarnet's goals in descending order:
+The goals fall into tiers rather than a strict ranking within each tier.
 
-1. Correctness -- I want it to *eventually* implement the game rules with absolute fidelity. It's doing pretty well so far.
-2. Completeness -- over time I want to support every single published card, milestone, award, map, component, and officially sanctioned variant. This will take a long time and adding cards is not the priority at the moment (I have over 450 working already).
-3. Simplicity -- I'm trying to keep the Pets language (and the engine itself) as simple and elegant as I can. This will be a constant push-and-pull, though.
-4. Composability -- I'm writing this as a series of libraries that other TfM-related projects could theoretically use for other purposes. The generic Pets language and engine are separate from the Terraforming Mars catalog, gameplay, text, and client modules; see the [package overview](packages.md) for the current split.
+The defining tier is exceptional software and language design: a small, precise semantic model;
+ordinary game meaning expressed through Pets rather than card-specific orchestration; and one source
+capable of driving execution, natural language, iconography, and analysis. Exact source-backed
+replays are indispensable evidence that this model actually works across a whole game. The most
+pressing current design problem is making actions and payments one intelligible lifecycle.
 
-Please notice **what is not on this list**!
+I also value an independent executable conformance suite, excellent diagnostics for incorrect Pets,
+generative testing, material performance improvements, and a polished explanation of the project.
+These are not where I intend to spend substantial time now.
 
-1. Performance -- it's okay if this library is slow, as long as running the unit tests doesn't annoy me too grotesquely. We should either make sure it is *very* well-tested before adding any even-slightly-risky optimizations, or actually leave it slow and create a *second* optimized engine (call it "Aerobrake"), which we can parity-test against Solarnet. In these ways we can get performance without risking correctness. But this is not even on my mind at all right now.
-2. Usability -- there is a command line "REPL" (read-evaluate-print loop) called REgo PLastics. It is a **very, very bad user interface** and I plan for it to always stay that way. It is just a small program to let you interact directly with the engine library.
+Broad official-card completeness, general reuse, autonomous physical-deck play, fan material, AI
+players, and a comprehensive analytics product would all be nice. I do not care enough about them
+to distort the core design or make them current projects.
+
+The REgo PLastics command-line interface is intentionally just a direct way to interact with the
+low-level engine; turning it into a polished player interface is not a goal.
 
 ### Could this engine be used for other games?
 
@@ -41,13 +48,19 @@ Turmoil is completely doable but will be completely gross. I'm not in any hurry 
 That's part of the idea, for sure! However, a couple caveats:
 
 * There's no user-facing provision for bringing fan cards into the system, so for now you would fork the project and edit a bundle's `cards.json5` file. The build generates the corresponding Pets declarations. We can talk about a better way to do it, for sure.
-* This will work fine if your fan cards remix existing game mechanics in new ways. If they do things further out of the ordinary you'd have to write custom Kotlin code, but if they're *further* out of the ordinary than that you might be out of luck. I don't plan on adding a feature unless some officially published card needs it. At some point we could maintain two forks though.
+* This will work fine if your fan cards remix existing game mechanics. Further-out behavior may
+  need a bounded custom instruction, metric, or class after a genuine attempt to express it in
+  ordinary Pets. A new general feature is not justified merely because one published or fan card
+  needs it.
 
 ### What could potentially get built around this?
 
-_Who knows!?_ I can't wait to be surprised. But here are some thoughts I have.
+_Who knows!?_ I can't wait to be surprised. The first item is central to Solarnet itself; the rest
+are lower-priority possibilities around it.
 
-* The same Pets format used by the engine should be convertible to icon grammar or to natural language. The idea of single-sourcing the data for all 3 purposes was what initially drew me into all this. It would be cool if from looking at a card you *know* how it has to work, because it could hardly do otherwise.
+* The same semantic source should drive execution, icon grammar, natural language, and analysis.
+  This single-sourcing was what initially drew me into all this. It would be cool if from looking at
+  a card you *know* how it has to work, because it could hardly do otherwise.
 * Logfile analysis. Solarnet logs are a fully detailed record of the game, in a very analyzable form. For example, for any card, you could pretty easily find out how much that card actually "paid out" over the course of the game. It would be great to build a queryable database out of this stuff.
 * I hope it might be good for training AI players. Since the cards are fully introspectable (i.e. code can use the Pets AST API directly), the AIs could make immediate use of cards they'd never seen before.
 * Parity tests between it and any other engine out there. Whether that turns up bugs in this engine, that engine, or both, it'll be a useful activity.
@@ -56,7 +69,9 @@ _Who knows!?_ I can't wait to be surprised. But here are some thoughts I have.
 
 ### Can we please improve the error messages? They're almost mocking me.
 
-Yeah. I try to improve them, but so far I've been the only user. The more other people are trying to use this the more effort I'll be putting into making that a better experience.
+Yes. A parser's responsibility is not merely to accept correct Pets; it should precisely highlight
+why incorrect Pets is incorrect, especially for commonly encountered mistakes. I value that highly,
+but it is not a current program of work.
 
 ### What do the FryxFolk think of this project?
 

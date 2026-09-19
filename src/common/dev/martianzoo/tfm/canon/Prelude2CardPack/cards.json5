@@ -60,7 +60,7 @@
           "actions": [
             "-> PreludeCard, -PreludeCard OR (-12 MC THEN -Director<This> THEN PlayCard<Class<PreludeCard>, Hand>)",
           ],
-          "components": [ "CLASS Director : CardResource<ResourceHolder<Class<Director>>>" ],
+          "components": [ "CLASS Director : CardResource" ],
         },
         {
           "name": "ColonyTradeHub",

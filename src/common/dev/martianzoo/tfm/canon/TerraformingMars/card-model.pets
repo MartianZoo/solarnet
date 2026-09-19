@@ -1,6 +1,5 @@
-// Has subtypes for cards in hand/in play/etc, so your # of Card instances stays constant except on draw/discard
 ABSTRACT CLASS Card : Owned<Player> {
-  // A generic unplayed card whose face is still supplied by the follow-mode client
+  "A generic unplayed card with unknown face"
   ABSTRACT CLASS CardBack<CardLocation> {
     DEFAULT CardBack<Hand>
     DEFAULT +CardBack
@@ -10,7 +9,7 @@ ABSTRACT CLASS Card : Owned<Player> {
     CLASS CorporationCard, ProjectCard
   }
 
-  // A card in play: face-up on the table
+  "A card in play, face-up on the table (consider rename to CardFace)"
   ABSTRACT CLASS CardFront<Class<CardBack>> : TagHolder {
     HAS MAX 1 This<Player>
 
@@ -18,7 +17,9 @@ ABSTRACT CLASS Card : Owned<Player> {
     requirement = Requirement?
     autoSelectWhen = Requirement?
 
+    "A blue project card"
     ABSTRACT CLASS ActiveCard : CardFront<Class<ProjectCard>>
+    "A green project card"
     ABSTRACT CLASS AutomatedCard : CardFront<Class<ProjectCard>>
     "A red project card"
     ABSTRACT CLASS EventCard : CardFront<Class<ProjectCard>>, Temporary {
@@ -28,7 +29,10 @@ ABSTRACT CLASS Card : Owned<Player> {
       -This IF MAX 0 PlayedEvent<Anyone, Class<This>>:: PlayedEvent<Class<This>>
     }
 
+    "Any card with actions, including corporation and prelude cards"
     ABSTRACT CLASS ActionCard : HasActions
+
+    "Any card that can hold resources"
     ABSTRACT CLASS ResourceCard : ResourceHolder
   }
 
@@ -38,13 +42,12 @@ ABSTRACT CLASS Card : Owned<Player> {
   }
 }
 
-"The persistent operation that owns research-phase and corporation-setup card purchases"
 CLASS CardPurchase : HasActions {
   HAS =1 This
   -ActionBilling<This>:: ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>
 }
 
-"Confirms purchase of every project card remaining in the player's selection"
+"Triggers the purchase of every project card remaining in the player's selection"
 CLASS BuySelectedCards : Owned<Player>, Signal {
   This:: (3 Owed<> / ProjectCard<Selecting>) THEN (BuyCard / ProjectCard<Selecting>) THEN ActionBilling<CardPurchase, Action1>
 }
@@ -70,9 +73,11 @@ CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
   DEFAULT -Required.
 }
 
-"One state an unplayed card can occupy"
+"A location that an owned unplayed card can occupy"
 ABSTRACT CLASS CardLocation : System {
-  CLASS Hand { HAS =1 This }
+  CLASS Hand {
+    HAS =1 This
+  }
   CLASS Selecting {
     HAS MAX 1 This
     CardBack<This>:: CardLocationCleanup<This>.
@@ -91,7 +96,7 @@ CLASS CardLocationCleanup<CardLocation> : Temporary, Hidden {
   -This:: -CardLocation!
 }
 
-"Anything that can hold tags"
+// TODO: can this be simplified??
 ABSTRACT CLASS TagHolder : Owned<Player>
 
 ABSTRACT CLASS Tag<TagHolder<Player>> : Owned<Player>, Atomized {
@@ -102,13 +107,13 @@ ABSTRACT CLASS Tag<TagHolder<Player>> : Owned<Player>, Atomized {
   CLASS EventTag : Tag<EventCard>
 }
 
+// TODO: can this be simplified?
 "Anything that can hold a particular kind of card resource"
 ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned<Owner>
 
-"Miscellaneous state whose identity and owner come from one face-up card"
 ABSTRACT CLASS Cardbound<CardFront<Player>> : Owned<Player>
 
-"Indicates that an action card has already been used this generation"
+"Marks an action card that has been used this generation"
 CLASS ActionUsedMarker<GenerationScope> : Cardbound<ActionCard> { HAS MAX 1 This }
 
 "A singleton listener needed by selected content"

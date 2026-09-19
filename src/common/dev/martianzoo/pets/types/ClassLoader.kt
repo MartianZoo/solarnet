@@ -21,6 +21,7 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.TransformNode
 import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration
@@ -179,7 +180,39 @@ private constructor(
       getClass(name).baseType
     }
     validateNoOkSubscriptions()
+    validateTransformKinds()
     return completed
+  }
+
+  /** The classes this load is responsible for checking: a master's own, or a premise's delta. */
+  private fun declaringClassesToValidate(): Set<Class> =
+      if (masterSource == null) {
+        allKnownClasses()
+      } else {
+        premiseDeclarations.keys.mapTo(linkedSetOf(), ::getClass)
+      }
+
+  /**
+   * Rejects a transform block whose kind this Catalog defines no handler for, per
+   * [rule L10-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-transform-blocks).
+   * One rewriting pass may leave another pass's kind in place, but a mark no pass will ever claim
+   * is a mistake in the source.
+   */
+  internal fun validateTransformKinds() {
+    val known = catalog.transformHandlerFactories.keys
+    declaringClassesToValidate().map(Class::declaration).forEach { declaration ->
+      declaration.allNodes.forEach { root ->
+        root.visitDescendants { node ->
+          if (node is TransformNode<*> && node.transformKind !in known) {
+            throw invalidPetDefinition(
+                "${declaration.className} uses transform kind `${node.transformKind}`, " +
+                    "which this Catalog does not define: $node"
+            )
+          }
+          true
+        }
+      }
+    }
   }
 
   /**
@@ -187,13 +220,7 @@ private constructor(
    */
   internal fun validateNoOkSubscriptions() {
     val okClass = getClass(OK)
-    val declaringClasses =
-        if (masterSource == null) {
-          allKnownClasses()
-        } else {
-          premiseDeclarations.keys.mapTo(linkedSetOf(), ::getClass)
-        }
-    declaringClasses.forEach { declaringClass ->
+    declaringClassesToValidate().forEach { declaringClass ->
       declaringClass.declaration.effects.forEach { effect ->
         val forbidden =
             effect.trigger
@@ -232,7 +259,7 @@ private constructor(
         blockedActivations[next]?.let { availabilityModules ->
           val source = requestedBy.getValue(next)
           val path = source?.let { "$it requires locked Class $next" } ?: "Class $next is locked"
-          throw IllegalArgumentException(
+          throw invalidPetDefinition(
               "broken game premise: $path; select one of its bundle Modules: " + availabilityModules
           )
         }

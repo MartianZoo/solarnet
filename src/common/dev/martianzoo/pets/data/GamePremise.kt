@@ -1,5 +1,6 @@
 package dev.martianzoo.pets.data
 
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
@@ -7,7 +8,13 @@ import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.PremiseClassTable
 
-/** The complete immutable input from which equivalent playable worlds are constructed. */
+/**
+ * The complete immutable input from which equivalent playable worlds are constructed.
+ *
+ * @throws PetException if a configured player name is not a concrete Player class
+ * @throws IllegalArgumentException if its programmatically assembled fields violate another
+ *   premise-construction contract
+ */
 public data class GamePremise(
     public val catalog: Catalog,
     public val modules: Set<ClassName>,
@@ -46,8 +53,8 @@ public data class GamePremise(
       (configuredClass?.abstract ?: premiseDeclaration?.abstract ?: true) ||
           !premiseClassTable.isSubtypeOf(playerName, PLAYER)
     }
-    require(invalidPlayerNames.isEmpty()) {
-      "player names must be concrete Player classes: $invalidPlayerNames"
+    if (invalidPlayerNames.isNotEmpty()) {
+      throw PetException("player names must be concrete Player classes: $invalidPlayerNames")
     }
     require(playerNames.distinct().size == playerNames.size) {
       "a game premise cannot seat the same player name more than once"

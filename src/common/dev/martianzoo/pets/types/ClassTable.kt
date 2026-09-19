@@ -4,6 +4,7 @@ import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.Exceptions
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.TypeInfo
@@ -36,6 +37,9 @@ public abstract class ClassTable {
      * Forms and freezes the playable view selected by [premise], reusing its catalog's
      * master-universe objects as required by
      * [rules T12-1 through T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
+     *
+     * @throws dev.martianzoo.pets.api.Exceptions.PetException if the selected configuration and its
+     *   declarations cannot form a playable view
      */
     public fun forPremise(premise: GamePremise): ClassTable {
       val premiseTable = premise.premiseClassTable
@@ -92,12 +96,15 @@ public abstract class ClassTable {
           )
       table.freeze()
       table.validateNoOkSubscriptions()
+      table.validateTransformKinds()
       table.includeAll(roots)
       val unexpectedModules =
           premise.catalog.modules.keys.filterTo(linkedSetOf()) { table.isIncluded(it) } -
               premise.modules
-      require(unexpectedModules.isEmpty()) {
-        "structural activation selected unrequested Modules: $unexpectedModules"
+      if (unexpectedModules.isNotEmpty()) {
+        throw invalidPetDefinition(
+            "structural activation selected unrequested Modules: $unexpectedModules"
+        )
       }
       val playerClass = masterTable.findClass(PLAYER)
       val inhabitedPlayerClassNames =
@@ -107,12 +114,16 @@ public abstract class ClassTable {
               .filterNot(Class::abstract)
               .filter(table::isInhabited)
               .mapTo(linkedSetOf(), Class::className)
-      require(inhabitedPlayerClassNames == premise.playerNames.toSet()) {
-        "inhabited Player classes do not match occupied seats: $inhabitedPlayerClassNames"
+      if (inhabitedPlayerClassNames != premise.playerNames.toSet()) {
+        throw invalidPetDefinition(
+            "inhabited Player classes do not match occupied seats: $inhabitedPlayerClassNames"
+        )
       }
       val reactivated = excluded.filterTo(linkedSetOf(), table::isIncluded)
-      require(reactivated.isEmpty()) {
-        "structural activation conflicts with excluded classes: $reactivated"
+      if (reactivated.isNotEmpty()) {
+        throw invalidPetDefinition(
+            "structural activation conflicts with excluded classes: $reactivated"
+        )
       }
       PremiseViability.validate(table, roots)
       return table
@@ -128,13 +139,8 @@ public abstract class ClassTable {
    * [rule T1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity);
    * transformation semantics are outside the type-system specification.
    */
-  public fun transformDispatcher(
-      kinds: Set<String> = catalog.transformHandlerFactories.keys,
-  ): PetTransformer {
-    val handlers =
-        catalog.transformHandlerFactories.filterKeys(kinds::contains).mapValues { (_, factory) ->
-          factory(this)
-        }
+  public fun transformDispatcher(): PetTransformer {
+    val handlers = catalog.transformHandlerFactories.mapValues { (_, factory) -> factory(this) }
     return TransformHandler.dispatcher(handlers)
   }
 

@@ -5,6 +5,7 @@ import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.testlib.assertFails
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -21,5 +22,6 @@ internal class ActorTest {
     (ADMIN is Player) shouldBe false
     (ADMIN is Owner) shouldBe false
     assertFails { Player(cn("Admin")) }
+    shouldThrow<IllegalArgumentException> { Player.players(-1) }
   }
 }

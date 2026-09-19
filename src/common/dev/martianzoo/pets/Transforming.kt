@@ -1,7 +1,7 @@
 package dev.martianzoo.pets
 
-import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetTransformer.Companion.chain
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.SystemClasses.USE_ACTION
@@ -18,19 +18,13 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
-import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 
 /**
  * Small context-free functions for transforming Pets syntax trees. [PetElaborator] owns the
  * Class-table-dependent transformation packages.
  */
 public object Transforming {
-  // TODO: Move Terraforming Mars payment lowering into tfm-canon.
-  private val standardResourceClasses: Set<ClassName> =
-      setOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").mapTo(linkedSetOf(), ::cn)
-
   /**
    * Replaces each occurrence of the special `This` expression with [contextType], replacing
    * `Class<This>` with the class literal for the context's class as well. An explicitly specialized
@@ -111,65 +105,24 @@ public object Transforming {
    * Lowers each of [actions] to the effect keyed by its position on the class: the nth action is
    * triggered by `UseAction<This, ActionN>` ([rule
    * L9-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-actions)).
-   *
-   * The standard-resource cost rewrite that rides along here is `ACTIONS.md`'s subject, not this
-   * module's; see the TODO above.
    */
   public fun actionListToEffects(actions: Collection<Action>): List<Effect> =
-      actions.withIndex().flatMap { (index0Ref, action) ->
-        actionToEffects(action, index1Ref = index0Ref + 1)
+      actions.mapIndexed { index0Ref, action ->
+        actionToEffect(action, index0Ref + 1)
       }
 
-  private fun actionToEffects(action: Action, index1Ref: Int): List<Effect> {
-    val (spend, metric) =
-        when (val cost = action.cost) {
-          is Action.Cost.Spend -> cost to null
-          is Action.Cost.Per -> (cost.cost as? Action.Cost.Spend)?.let { it to cost.metric }
-          else -> null
-        } ?: return listOf(actionToEffect(action, index1Ref))
-    if (spend.scaledEx.expression.className !in standardResourceClasses) {
-      return listOf(actionToEffect(action, index1Ref))
-    }
-
-    val selector = actionSelector(index1Ref)
-    val metricText =
-        when (metric) {
-          is Property -> if (metric.receiver == null) "This.$metric" else "$metric"
-          else -> "$metric"
-        }
-    val owed =
-        "${spend.scaledEx.scalar} Owed<Class<${spend.scaledEx.expression}>>" +
-            if (metric == null) "" else " / $metricText"
-    val billingResource =
-        if (spend.scaledEx.expression.className == cn("MC")) ""
-        else ", Class<${spend.scaledEx.expression}>"
-    if (spend.scaledEx.scalar is XScalar) {
-      return listOf(
-          parse(
-              "UseAction<This, $selector>: $owed THEN " +
-                  "ActionBilling<This, $selector$billingResource> THEN " +
-                  "MAX 0 ActionBilling: (${action.instruction})"
-          )
-      )
-    }
-
-    return listOf(
-        parse(
-            "UseAction<This, $selector>: $owed THEN " +
-                "ActionBilling<This, $selector$billingResource>"
-        ),
-        parse("-ActionBilling<This, $selector>: " + action.instruction),
-    )
-  }
-
-  /** The position markers `Action1`..`ActionN` keying [actions] to their effects. */
+  /**
+   * The position markers `Action1`..`ActionN` keying [actions] to their effects.
+   *
+   * @throws PetSyntaxException if [actions] contains more than the three representable positions
+   */
   public fun actionSelectors(actions: Collection<Action>): Set<ClassName> =
       actions.indices.mapTo(linkedSetOf()) { actionSelector(it + 1) }
 
   // Rule L9-4: a class may offer at most three actions.
   private fun actionSelector(index1Ref: Int): ClassName =
       listOf(cn("Action1"), cn("Action2"), cn("Action3")).getOrNull(index1Ref - 1)
-          ?: throw IllegalArgumentException("A component can offer only three actions: $index1Ref")
+          ?: throw PetSyntaxException("A component can offer only three actions: $index1Ref")
 
   /**
    * Returns the effect `This: instruction`, which is how a card's "do this now" section becomes an
