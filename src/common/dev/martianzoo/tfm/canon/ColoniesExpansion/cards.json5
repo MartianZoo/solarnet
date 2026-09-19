@@ -207,7 +207,7 @@
           "name": "MarketManipulation",
           "cost": 1,
           "tags": [ "EarthTag", "EventTag" ],
-          "immediate": "ColonyProduction FROM ColonyProduction",
+          "immediate": "ColonyProduction(NOT ColonyProduction) FROM ColonyProduction",
         },
         {
           "name": "MartianZoo",

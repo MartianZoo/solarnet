@@ -339,7 +339,8 @@ Selecting a task causes the engine to resolve its state-dependent parts against 
 Resolution repeats after each narrowing and:
 
 - evaluates `PER` metrics;
-- evaluates gates and optional no-ops;
+- evaluates gates once any first-stage choice they share has been bound, and evaluates optional
+  no-ops;
 - recursively resolves `OR` arms and removes locally impossible ones;
 - narrows Types when exactly one concrete choice remains;
 - resolves quantifiers and abstract choice domains as specified in

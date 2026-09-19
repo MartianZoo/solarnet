@@ -187,6 +187,8 @@ internal class Lang07NarrowingTest {
   internal fun `L7-8 a repeated abstract expression takes one value everywhere`() {
     narrows("Token THEN Token", "RedToken THEN RedToken") shouldBe true
     refuses("Token THEN Token", "RedToken THEN BlueToken")
+    narrows("Token FROM Token", "RedToken FROM RedToken") shouldBe true
+    refuses("Token FROM Token", "RedToken FROM BlueToken")
 
     narrows(
         "Tile<> THEN Tile<>",

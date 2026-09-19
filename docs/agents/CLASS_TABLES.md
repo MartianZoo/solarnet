@@ -13,8 +13,11 @@
 > **Status:** selected replacement in progress. The reusable master and premise-local declaration
 > delta, table-relative subclass enumeration, general Type-inhabitance query, public activity-API
 > removal, master-owned component-limit templates, runtime inhabitance boundaries, and the
-> `Die`/`Ok` terminal invariants are implemented. The remaining universe/API cleanup remains
-> planned.
+> `Die`/`Ok` terminal invariants are implemented.
+> The exact remaining work and its first decision gate are under
+> [Remaining work to finish](#remaining-work-to-finish). Do not describe this program as bounded
+> until that gate has shown whether a separate runtime representation deletes more complexity than
+> it adds.
 
 ## Source map
 
@@ -26,6 +29,10 @@
   search for `classTable` to see where the game projection is retained.
 - [`ClassTableProjectionTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/ClassTableProjectionTest.kt)
   — read when changing inhabitation or Catalog/Class identity invariants.
+- [`Spec12InhabitanceTest.kt`](../../test/common/dev/martianzoo/pets/types/Spec12InhabitanceTest.kt)
+  — the normative master/view identity, enumeration, and inhabitance scenarios.
+- [`JVM_TEST_PERFORMANCE.md`](JVM_TEST_PERFORMANCE.md#2026-09-12-premise-delta-reuse-result) — the
+  measured reuse result to preserve and the baseline for final verification.
 
 ## Fast rejection checks
 
@@ -210,47 +217,97 @@ event that an effect could observe. A subscribed trigger rooted at `Ok` or any n
 useful. Self triggers remain ordinary; the gain of `Ok` to which one could react is canonicalized to
 no change.
 
-## Migration plan
+## Completion ledger
 
-Do these in order; keep the current implementation and the selected semantics clearly separated
-until the replacement is complete.
+The semantic migration is substantially complete:
 
-1. **Specify the semantic boundary.** Update the type-system specification and glossary to define
-   masters, premise tables, universes, uninhabited Types, unknown names, comparison
-   identity, class literals, and the universe-relative meaning of `NOT` and `glb`.
-2. **Pin the new contracts with tests.** Cover master/premise lookup, name collisions, one-way
-   references, cross-master rejection, excluded and dependency-uninhabited Types, zero class-literal
-   counts, hierarchy answers that include premise declarations, zero-capacity `Die`, and forbidden
-   subscriptions rooted at `Ok` or one of its nominal supertypes.
-3. **Inventory remaining context-free operations.** Find every `Class` or `Type` operation that
-   currently reaches `classTable`. Move structural overlap, concrete narrowing, and their caches
-   behind an explicit universe before changing representation.
-4. **Establish the reusable compilation boundary.** Keep only facts unaffected by premise additions
-   or exclusion in the master. Use the existing `Class` if it can own those facts honestly;
-   otherwise extract one compiled definition without duplicating them. Ensure failed compilation
-   cannot partially populate the reusable result.
-5. **Introduce `ClassUniverse` behavior-preservingly.** Initially build it from today's complete
-   Catalog so engine callers can migrate from `ClassTable` without simultaneously changing
-   inhabitance semantics.
-6. **Introduce `PremiseClassTable`.** Compile its small declaration delta against imported master
-   schemas, resolve overlay references through the combined namespace, and prohibit master-to-
-   premise references and duplicate names.
-7. **Switch from activity to inhabitance.** Resolve excluded master-known names as uninhabited
-   Types and make enumeration and class-literal behavior follow from that fact. The public
-   `isActive` and `findActiveClass` APIs are gone; finish renaming or deleting the internal
-   activation-view machinery while preserving activation only as premise-construction policy.
-8. **Move premise variation to the delta.** Stop composing new `TfmCatalog`s for Players and the
-   generated `Premise`; remove the conventional-player catalog cache after all callers use premise
-   definitions.
-9. **Split expensive derived work.** Master restriction and dependency-target templates are now
-   compiled once. Each universe merges premise deltas, applies its Class set, and performs only the
-   realization and validation whose answers can vary by premise.
-10. **Migrate the runtime.** Build class representatives only for inhabited concrete Classes, reject
-    uninhabited component mutations at the boundary, and bind elaboration, transformations,
-    component limits, and automatic narrowing to the universe.
-11. **Delete the projection model.** Remove master/projection identity aliases, active-name masks,
-    projection loaders, obsolete caches, and the superseded current-model documentation together so
-    only one ontology remains.
-12. **Verify reuse and savings.** Assert that repeated premises share the same master compiled
-    definitions while sharing no mutable universe state. Re-run the focused card setup profiles and
-    full JVM-suite category timings; retain no global cache keyed by premise shape.
+- [`type-system-spec.md`](../type-system-spec.md#1-universes-and-identity) and
+  [its inhabitance section](../type-system-spec.md#12-inhabitance) define master identity,
+  premise-local declarations, game universes, unknown versus uninhabited Types, comparison, and
+  view-relative enumeration.
+- `PremiseClassTable` is the small declaration delta; games reuse their Catalog's master `Class` and
+  `Type` objects rather than recompiling them.
+- Public activity queries are gone. Inhabitance controls enumeration, class literals, effects, and
+  mutation admission, while excluded known names retain their nominal meaning.
+- Component-limit and dependency-target templates are compiled with their master declarations.
+  Runtime limits, elaboration, transformation, and narrowing use the game table, and unrelated
+  masters and sibling premise universes are rejected.
+- The specification tests cover the identity and inhabitance contract, and the measured premise-
+  delta change produced the intended large setup-speed improvement.
+
+This foundation is not to be rebuilt while finishing the program.
+
+## Remaining work to finish
+
+Do these in order. The first item is a decision gate; do not begin a representation split before it
+answers whether that split reduces the permanent model.
+
+1. **Audit the remaining roles and callers.** Inventory `Catalog.classTable`,
+   `GamePremise.premiseClassTable`, `GamePremise.classTable`, `ClassTable.masterTable`, and every
+   game-sensitive operation reached through `Class.classTable` or `Type.classTable`. Classify each
+   use as one of:
+   - reusable master structure and compiled facts;
+   - premise-local declaration compilation;
+   - one game's complete structural namespace; or
+   - one game's selected, inhabited enumeration view.
+
+   Record which answers can differ between the last two roles. The audit is complete only when no
+   caller is classified merely as “needs a `ClassTable`.”
+
+2. **Choose the smallest honest API from that audit.** The required semantic result is one reusable
+   master, one premise declaration delta, and one explicit game-relative authority for every answer
+   affected by premise Classes or selection. A Kotlin type named `MasterClassTable` or
+   `ClassUniverse` is not itself a requirement. Introduce role-specific interfaces or concrete
+   types only if they delete dual-role conditionals, unsafe access, or duplicated caches; otherwise
+   keep one implementation and make the roles explicit in its API and names. Do not retain both an
+   old and new public path.
+
+3. **Close the access gap.** `Catalog.classTable` is currently public even though normal game
+   clients need the game view. Narrow master acquisition to Catalog construction, premise
+   construction, and canonical metadata. Expose the premise declaration delta only to code that
+   compiles the game universe. Runtime and client code must receive its game-relative authority
+   directly, never recover the master through a Catalog.
+
+4. **Remove superseded projection machinery and vocabulary.** Replace or delete
+   `ClassLoader.projection`, `masterSource`/`masterTable` identity conditionals, mutable
+   `includedClassNames`/inclusion-cache invalidation, and `activation` terminology to the extent the
+   selected API makes them obsolete. Premise construction may still compute a monotone declaration
+   closure; that policy is not a second type ontology and should be named as premise selection, not
+   runtime activity. Rename projection-oriented tests and documentation with the implementation.
+
+5. **Finish the reusable derived-work boundary.** Keep master-only hierarchy, restrictions,
+   dependency validation, properties, defaults, invariants, and effects compiled once. A game may
+   merge premise declarations, apply its selected Class set, and calculate only answers that can
+   vary by premise. Remove obsolete caches rather than adding a global cache keyed by premise shape.
+
+6. **Verify the final surface and delete the transition.** The focused specification and projection
+   suites must still prove shared master identity, premise-only Class construction, sibling-universe
+   rejection, uninhabited behavior, and runtime mutation rejection. Add a direct assertion that
+   repeated premises share master compiled objects but no mutable game-view state. Run the complete
+   JVM suite and repeat the focused setup measurement from
+   [`JVM_TEST_PERFORMANCE.md`](JVM_TEST_PERFORMANCE.md#2026-09-12-premise-delta-reuse-result). Delete
+   superseded APIs, aliases, caches, tests, and documentation in the same program.
+
+### Completion criteria
+
+The Class-universe model is finished when:
+
+- the four roles in the audit have explicit owners and no API silently alternates between them;
+- every game-relative operation receives one compatible game authority explicitly;
+- master declarations and compiled facts are constructed once and never depend on a premise;
+- a game constructs only premise-local Classes and retains no mutable state shared with another
+  game;
+- normal runtime and client code cannot accidentally use the unfiltered master where a game view is
+  required;
+- the implementation and documentation no longer describe the same object alternately as a master,
+  projection, activation view, and universe; and
+- the identity, inhabitance, runtime-boundary, full-suite, and reuse/performance checks above pass.
+
+### Not required for completion
+
+- Do not add `MasterClassTable` or `ClassUniverse` merely to make the implementation nouns match
+  this document; role clarity and net deletion decide the representation.
+- Do not remove a `Class` or `Type` link to its master identity when that link serves only reusable
+  structural meaning. The forbidden shortcut is recovering one game's selected domain implicitly.
+- Do not serialize or clone master declarations, support unrelated Catalogs in one universe, add a
+  global premise cache, or optimize beyond preserving the demonstrated reuse benefit.

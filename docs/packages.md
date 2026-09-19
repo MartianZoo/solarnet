@@ -82,7 +82,8 @@ REgo PLastics, an extremely bad command-line UI to the engine.
 
 ### <a href="web/dev.martianzoo.tfm.web.webrepl/index.html">dev.martianzoo.tfm.web.webrepl</a>
 
-An early rough browser version of REgo PLastics.
+An early rough browser version of REgo PLastics. The same module also supplies Pets Almanac, a
+searchable viewer for Canon's normalized Pets declarations and detailed type information.
 
 ## module GAME-VIEWER
 

@@ -160,7 +160,9 @@ Parsing, operation conveniences, policy state, and the shared legacy drain live 
 `TfmTest` fixtures hold the `Agents` for their current World. Standalone engine integration tests
 still use `testAgents.kt`'s one-World cache so a World's Agent identity survives repeated lookups.
 Those tests also depend upward on `:agent` and `:tfm-engine`, because they exercise the Agent API
-rather than the engine independently. These are accepted costs, not the target state.
+rather than the engine independently. These are accepted costs, not the target state. Gradually
+replace Canon-backed premises with focused declarations where that makes the generic engine
+contract clearer; the cleanup is desirable but not urgent.
 
 The current Agent is still fully permissive and exposes an unscoped `GameReader`, operation and
 turn conveniences, and ex-machina mutation. `AutoExecPolicy` is still the legacy three-value

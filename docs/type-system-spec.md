@@ -809,10 +809,9 @@ variable may be specialized later, making the difference non-empty again.
   so neither shortcut applies to them: `Class<BuildingTag>(HAS Tag)` does not narrow
   `Class<Tag>(HAS Tag)`, because for the target the predicate asks about the candidate's own class.
 
-> **Non-normative example — Cyberia Systems.** Its second production-box choice is a building card
-> with no `CyberiaSystemsFirstChoice` marker. That refined choice must still satisfy the broader
-> “building card” constraint without another world query, while the extra conjunct prevents choosing
-> the first card twice.
+> **Non-normative example — Cyberia Systems.** Its first production-box choice binds `CardFront`,
+> and a gate checks `BuildingTag<CardFront>`. The second choice retains its own building-tag clause
+> while repeating the first choice inside `NOT CardFront`, so it cannot choose the first card twice.
 
 **T8-9. `glb` of refinements.** A refinement the other operand lacks is kept. Refinement clauses form
 a set: duplicates collapse and clause order does not affect Type equality. Rendering retains the
@@ -1265,22 +1264,14 @@ Binding it substitutes at every occurrence at once:
 | Effect | the trigger; the instruction |
 | Action | the cost; the result |
 | `THEN` sequence | each stage |
-| Transmutation (`A FROM B`) | the gained side; the removed side — but *not* the two whole roots |
+| Transmutation (`A FROM B`) | the gained side; the removed side |
 
-The first three are settlement sites: parts of one rule that are settled separately, and across
-which "the same one" is worth saying. An action's two regions are the two stages its arrow lowers to
-(L9-2), and `X` is shared across exactly these same regions (L6-14).
-
-A transmutation is not like that — its two sides are settled together, as one atomic pair — and its
-row is here for a different reason, the same one that makes L6-12's compact form work: a
-transmutation states what changes, so what it repeats is what it keeps. In
-`Production<Class<X>> FROM Production<Class<X>>` the shared variable is `Class<X>`, not the whole
-production, because the whole production is what the change is replacing.
-
-> **Non-normative example — Market Manipulation.** `ColonyProduction FROM ColonyProduction` moves
-> one step from one colony to another. If the two whole roots declared one variable, source and
-> destination would be forced to the same track and the card would cancel itself; only repeated
-> proper subexpressions are equality claims.
+> **Non-normative examples — movement and Market Manipulation.** Moving one component between two
+> locations can make the destination structurally distinct while preserving the source as a
+> co-reference, as Mars Nomads does with
+> `NomadsMarker<LandArea(HAS Neighbor<NomadsMarker<Owner>>, NOT LandArea)> FROM
+> NomadsMarker<Owner, LandArea>`. Market Manipulation uses the same shape:
+> `ColonyProduction(NOT ColonyProduction) FROM ColonyProduction`.
 
 > **Non-normative design note — why spelling.** Repetition is meaningful because the physical icon
 > grammar commonly repeats one icon to mean “the same one.” Requiring the *same authored spelling*
