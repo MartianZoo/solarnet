@@ -350,6 +350,7 @@ CLASS EventAnalystsInfluence : Influence {
 "Exchanges one neutral non-leader delegate for one of the player's available delegates"
 CLASS RecruitmentExchange<Party> : Owned<Player>, Barrier {
   HAS MAX 1 This
+  This IF MAX 0 (PartyDelegate<Party, Neutral> - PartyLeader<Party, Neutral>):: Die
   This: -PartyDelegate<Party, Neutral> THEN PartyDelegate<Party, Owner> THEN -This!
 }
 

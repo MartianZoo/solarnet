@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -72,12 +71,23 @@ internal class TurmoilProjectCardsTest : CardTest() {
   }
 
   @Test
-  internal fun `Recruitment exchanges a neutral non-leader for an available owned delegate`() {
+  internal fun `Recruitment cannot complete without a neutral non-leader delegate`() {
     newGame(TurmoilExpansion)
     admin.phase("Action")
     p1.runOperation("2 MC, ProjectCard")
 
-    shouldThrow<RequirementException> { p1.playProject(Recruitment, 2) }
+    shouldThrow<DeadEndException> {
+      p1.playProject(Recruitment, 2) {
+        doTask("RecruitmentExchange<MarsFirst>")
+      }
+    }
+  }
+
+  @Test
+  internal fun `Recruitment exchanges a neutral non-leader for an available owned delegate`() {
+    newGame(TurmoilExpansion)
+    admin.phase("Action")
+    p1.runOperation("2 MC, ProjectCard")
 
     admin.runOperation(
         "PartyDelegate<MarsFirst, Neutral>, " +
