@@ -9,16 +9,35 @@ plugins {
   alias(libs.plugins.dokka)
 }
 
-// JVM tests provide the behavioral signal. Browser applications compile against their passive
-// dependencies, but generated browser-test tasks do not execute gameplay in Chrome.
+val allBrowserTestsRequested =
+    gradle.startParameter.taskNames.any { it.substringAfterLast(':') == "allBrowserTests" }
+
+extra["allBrowserTestsRequested"] = allBrowserTestsRequested
+
+// Kotlin creates a browser-test task for every JS target. Only :web:jsBrowserTest is part of the
+// normal test suite; the rest are inert unless the deliberately unavailable full-browser target
+// below is temporarily restored.
 subprojects {
-  tasks
-      .matching { it.name == "jsBrowserTest" }
-      .configureEach {
-        description = "Disabled: browser applications consume data produced by JVM tests."
-        onlyIf("gameplay tests run only on the JVM") { false }
-      }
+  if (name != "web") {
+    tasks
+        .matching { it.name == "jsBrowserTest" }
+        .configureEach {
+          description = "Disabled except through the temporary full-browser test target."
+          inputs.property("allBrowserTestsRequested", allBrowserTestsRequested)
+          onlyIf("only the repository browser suite runs routinely") { task ->
+            task.inputs.properties["allBrowserTestsRequested"] == true
+          }
+        }
+  }
 }
+
+// This is intentionally not an available Gradle target. Temporarily uncomment it only when the
+// low-value, very slow exercise of every browser-compatible test is specifically wanted.
+// tasks.register("allBrowserTests") {
+//   group = LifecycleBasePlugin.VERIFICATION_GROUP
+//   description = "Runs every browser-compatible test in a browser."
+//   dependsOn(subprojects.map { it.tasks.matching { task -> task.name == "jsBrowserTest" } })
+// }
 
 val pinnedYarnResolutions =
     mapOf(

@@ -27,7 +27,12 @@ kotlin {
     }
     jsTest {
       kotlin.setSrcDirs(
-          listOf(rootProject.layout.projectDirectory.dir("test/js/dev/martianzoo/tfm/tests"))
+          listOf(
+              rootProject.layout.projectDirectory.dir(
+                  "test/common/dev/martianzoo/tfm/tests/replays"
+              ),
+              rootProject.layout.projectDirectory.dir("test/js/dev/martianzoo/tfm/tests"),
+          )
       )
     }
     jvmTest {
@@ -49,6 +54,7 @@ kotlin {
 val replayEventLogsDirectory = layout.buildDirectory.dir("generated/replay-event-logs")
 
 tasks.named<Test>("jvmTest") {
+  systemProperty("junit.jupiter.extensions.autodetection.enabled", "true")
   systemProperty(
       "solarnet.replayEventLogDirectory",
       replayEventLogsDirectory.get().asFile.absolutePath,
