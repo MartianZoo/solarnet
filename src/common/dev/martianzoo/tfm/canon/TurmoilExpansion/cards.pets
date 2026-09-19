@@ -81,7 +81,7 @@ CLASS Pandemic : GePartyDistant<Greens>, GePartyCurrent<MarsFirst> {
 }
 
 CLASS ParadigmBreakdown : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { -2 ProjectCard., 2 ProjectCard / Influence }
+  ResolveGlobalEvent<Class<This>>:: EACH Player { -2 ProjectCard., 2 MC / Influence }
 }
 
 CLASS Productivity : GePartyDistant<Scientists>, GePartyCurrent<MarsFirst> {
