@@ -2,7 +2,7 @@ CLASS UtopiaMap : MarsMap
 
 CLASS Manager : Milestone { requirement = HAS "3 SpecialTile" }
 CLASS Pioneer3 : Milestone { requirement = HAS "3 Colony" }
-CLASS Trader : Milestone { requirement = HAS "3 Class<CardResource AS ThatResource>(HAS ThatResource<Owner>)" }
+CLASS Trader : Milestone { requirement = HAS "3 Class<CardResource>(HAS CardResource<Owner>)" }
 CLASS Metallurgist : Milestone { requirement = HAS "6 PROD[Metal]" }
 CLASS Researcher : Milestone { requirement = HAS "4 ScienceTag" }
 

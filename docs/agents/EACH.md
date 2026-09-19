@@ -12,7 +12,7 @@
 ## Contract
 
 ```pets
-EACH Selector [AS Name] { InstructionTree }
+EACH Selector[^Handle] { InstructionTree }
 ```
 
 `EACH` takes one snapshot of the current World, finds every existing component matching `Selector`,
@@ -28,20 +28,20 @@ Type each contribute a branch; those branches have equal text but remain indepen
 
 ## Selector and body scope
 
-The selector can explicitly name each selected concrete Type for use in its body. Repeating an
+The selector can explicitly mark each selected concrete Type for use in its body. Repeating an
 unnamed selector Type in the body is independent:
 
 ```pets
 EACH Player { Plant }                         // each selected Player gains a Plant
 EACH Player(HAS StartToken) { ChooseOceanArea } // only the start Player gets the request
-EACH LandArea(HAS NomadsMarker) AS There { Placement<There> }
+EACH Player^1(HAS StartToken) { AdminOceanPlacement<Player^1> }
 ```
 
-A Class selector can instead name its represented Class. This permits a structurally present Class
+A Class selector can instead mark its represented Class. This permits a structurally present Class
 representative to create one component of the Class it represents:
 
 ```pets
-EACH Class<MarsArea AS ThatArea> { ThatArea }
+EACH Class<MarsArea^1> { MarsArea^1 }
 ```
 
 The selector's main expression still reads the enclosing context. For example,
@@ -66,7 +66,8 @@ Class-property syntax in the body remains inert while the enclosing Class effect
 the fanout snapshot is selected, each branch binds its selected component and, for an Owner
 selection, contextual `Owner`, then evaluates its class properties independently. Property syntax
 in the selector instead belongs to the enclosing context; award ranking expands the funded Award's
-metric there. `RANK Selector AS Name` likewise exposes a candidate only through its explicit name:
+metric there. `RANK Selector^Handle` likewise exposes a candidate only through its qualified
+reference:
 
 ```pets
 EACH Player(HAS =1 (RANK Player { EVAL Award.metric })) { FirstPlace<Award> }

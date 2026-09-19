@@ -29,7 +29,6 @@ public data class ClassName private constructor(public val asString: String) :
     private val reservedNames =
         setOf(
             "ABSTRACT",
-            "AS",
             "BY",
             "CLASS",
             "COUNT",

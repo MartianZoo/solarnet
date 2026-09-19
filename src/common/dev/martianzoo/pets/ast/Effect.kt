@@ -216,7 +216,7 @@ public data class Effect(
      * Restricts [inner] to events performed by an actor matching [by] ([rule
      * L8-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)).
      * Because the selector is an expression, `BY Player(NOT Owner)` and `BY Player` filter while
-     * `BY Player AS ActingPlayer` declares an actor variable ([rule
+     * `BY Player^1` marks an actor variable reused as `Player^1` ([rule
      * T13-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables)).
      * It binds less tightly than `OR` and more tightly than `IF`.
      */
@@ -358,7 +358,6 @@ public data class Effect(
             effect.trigger,
             effect.instruction,
             "An Effect",
-            "an Effect trigger",
         )
   }
 }

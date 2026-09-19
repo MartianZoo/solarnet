@@ -89,13 +89,12 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
             entry.currentExpressions.values.any { it === expression }
           }
           ?.variable
-          ?: expression.takeIf(Expression::simple)?.className?.let { name ->
-            entries.singleOrNull { it.variable.name == name }?.variable
-          }
-          ?: expression.typeVariableName?.let { name ->
+          ?: expression.typeVariableName?.let { marker ->
             entries
                 .singleOrNull { entry ->
-                  entry.currentExpressions.values.any { it.typeVariableName == name }
+                  entry.currentExpressions.values.any {
+                    it.typeVariableName?.identity == marker.identity
+                  }
                 }
                 ?.variable
           }
@@ -123,12 +122,22 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
 
   /** Hides explicit names while retaining their occurrence identity outside the lexical scope. */
   public fun expandNames(): PetTransformer {
-    val references = variables.mapNotNull(TypeVariable::name).associateWith(::ExpandedReference)
+    val references =
+        variables
+            .mapNotNull { it.declaration.expression.typeVariableName as? Declaration }
+            .associate { marker ->
+              marker.identity to
+                  ExpandedReference(
+                      marker.name,
+                      marker.boundClassName,
+                      marker.resolution,
+                  )
+            }
     return object : PetTransformer() {
       override fun transformNode(node: PetNode): PetNode {
         if (node is Expression) {
           if (node.typeVariableName is ExpandedReference) return transformChildren(node)
-          references[node.typeVariableName?.name]?.let { reference ->
+          references[node.typeVariableName?.identity]?.let { reference ->
             return transformChildren(node.copy(typeVariableName = reference))
           }
         }
@@ -157,7 +166,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
               sources.any { source ->
                 wideNode === source ||
                     (source.typeVariableName != null &&
-                        wideNode.typeVariableName == source.typeVariableName)
+                        wideNode.typeVariableName?.identity == source.typeVariableName.identity)
               }
       ) {
         (narrowNode as? Expression)
@@ -216,7 +225,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
 
     fun Expression.matchesRecordedOccurrence(that: Expression): Boolean =
         typeVariableName != null &&
-            typeVariableName == that.typeVariableName &&
+            typeVariableName.identity == that.typeVariableName?.identity &&
             copy(typeVariableName = null) == that.copy(typeVariableName = null)
 
     fun Entry.matchesRecordedOccurrence(expression: Expression): Boolean =
@@ -331,7 +340,8 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
               return transformChildren(it.second)
             }
         fun Expression.hasSameVariableIdentityAs(source: Expression): Boolean =
-            source.typeVariableName != null && typeVariableName == source.typeVariableName
+            source.typeVariableName != null &&
+                typeVariableName?.identity == source.typeVariableName.identity
 
         val equal =
             replacements
@@ -349,12 +359,6 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
                 .map { it.second }
                 .distinct()
         if (expanded.size == 1) return transformChildren(expanded.single())
-        val sameVariable =
-            replacements
-                .filter { (source) -> node.hasSameVariableIdentityAs(source) }
-                .map { it.second }
-                .distinct()
-        if (sameVariable.size == 1) return transformChildren(sameVariable.single())
       }
       return transformChildren(node)
     }
@@ -440,20 +444,15 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
                       "A Type variable cannot be declared in an observing expression: $expression"
                   )
                 }
-                val declaredName = (expression.typeVariableName as Declaration).name
+                val declarationMarker = expression.typeVariableName as Declaration
                 val usages =
                     occurrences
                         .filter { found ->
                           found !== declaration &&
-                              (found.expression.typeVariableName as? Reference)?.name ==
-                                  declaredName
+                              (found.expression.typeVariableName as? Reference)?.identity ==
+                                  declarationMarker.identity
                         }
                         .sortedBy(Found::ordinal)
-                if (usages.any { it.region < declaration.region }) {
-                  throw ExpressionException(
-                      "Type variable $declaredName cannot be used before it is declared"
-                  )
-                }
                 val declarationGroundType = interpretedGroundType(declaration)
                 val variable =
                     TypeVariable(

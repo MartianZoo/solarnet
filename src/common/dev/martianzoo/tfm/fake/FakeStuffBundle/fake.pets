@@ -1,6 +1,6 @@
 "Explicitly selected support for incomplete game content"
 CLASS FakeStuffBundle : Module {
-  TemperatureStep BY Player AS ThawingPlayer IF Class<FakeThawer>:: FakeTemperatureCredit<ThawingPlayer>
+  TemperatureStep BY Player^1 IF Class<FakeThawer>:: FakeTemperatureCredit<Player^1>
 }
 
 "Thawer whose temperature credits survive temperature reductions"

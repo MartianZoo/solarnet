@@ -39,7 +39,6 @@ internal abstract class PetTokenizer {
 
   // Rule L2-2: these are the words the grammar itself uses, and none may be a class name. The
   // spellings are exact, so `Max`, `By` and `Has` remain perfectly good class names.
-  internal val _as = word("AS")
   internal val _by = word("BY")
   internal val _count = word("COUNT")
   internal val _each = word("EACH")
@@ -72,6 +71,9 @@ internal abstract class PetTokenizer {
   internal val _allCapsWordRE = regex(Regex("""\b[A-Z][A-Z0-9_]*\b"""), "ALLCAPS")
   internal val _lowerCamelRE = regex(Regex("""\b[a-z][A-Za-z0-9]*\b"""), "lowerCamel")
   private val _scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)"""), "scalar")
+
+  /** A decimal Type-variable handle, retained as source text rather than interpreted as a count. */
+  internal val numericTypeVariableName: Parser<String> = _scalarRE map { it.text }
 
   internal val rawScalar: Parser<Int> = _scalarRE map { it.text.toInt() }
 

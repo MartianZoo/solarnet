@@ -416,37 +416,31 @@ internal class Spec08RefinementsTest {
     tags
         .resolve(te("Class<BuildingTag>"))
         .narrows(
-            tags.resolve(te("Class<Tag AS ThatTag>(HAS ThatTag<Player1>)")),
+            tags.resolve(te("Class<Tag>(HAS Tag<Player1>)")),
             world,
         ) shouldBe true
     world.questions shouldContainExactly listOf("BuildingTag<Player1>")
   }
 
   @Test
-  internal fun `T8-10 two class literals do not compare their predicates as written`() {
+  internal fun `T8-10 each class literal predicate refers to its represented class`() {
     val tags =
         loadTypes(
             "CLASS Player1 : Owner",
             "ABSTRACT CLASS Tag : Owned<Owner> { CLASS BuildingTag, SpaceTag }",
         )
 
-    // Both unmarked predicates ask about the ordinary Tag type.
     tags
         .resolve(te("Class<BuildingTag>(HAS Tag)"))
-        .isSubtypeOf(tags.resolve(te("Class<Tag>(HAS Tag)"))) shouldBe true
+        .isSubtypeOf(tags.resolve(te("Class<Tag>(HAS Tag)"))) shouldBe false
 
-    // Explicit represented-class references have different meanings for different candidates.
     tags
-        .resolve(te("Class<BuildingTag AS ThatTag>(HAS ThatTag)"))
-        .isSubtypeOf(tags.resolve(te("Class<Tag AS ThatTag>(HAS ThatTag)"))) shouldBe false
+        .resolve(te("Class<BuildingTag>(HAS BuildingTag)"))
+        .isSubtypeOf(tags.resolve(te("Class<BuildingTag>(HAS BuildingTag)"))) shouldBe true
 
-    // For one and the same represented class the shortcut is still sound.
-    tags
-        .resolve(te("Class<BuildingTag AS ThatTag>(HAS ThatTag)"))
-        .isSubtypeOf(tags.resolve(te("Class<BuildingTag AS ThatTag>(HAS ThatTag)"))) shouldBe true
-
-    tags.resolve(te("Class<Tag AS ThatTag>(HAS ThatTag)")) shouldBe
-        tags.resolve(te("Class<Tag AS K>(HAS K)"))
+    // An explicit handle remains an equivalent spelling when another construct needs it.
+    tags.resolve(te("Class<Tag^ThatTag>(HAS Tag^ThatTag)")) shouldBe
+        tags.resolve(te("Class<Tag>(HAS Tag)"))
   }
 
   // T8-11 Refinements inside dependencies

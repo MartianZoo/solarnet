@@ -41,7 +41,6 @@ internal class Lang02NamesTest {
   private val reserved =
       listOf(
           "ABSTRACT",
-          "AS",
           "BY",
           "CLASS",
           "COUNT",
@@ -79,8 +78,8 @@ internal class Lang02NamesTest {
   }
 
   @Test
-  internal fun `L2-2 reserved spellings are exact, so Max and By are class names`() {
-    parse<Expression>("Has<By, Max>").toString() shouldBe "Has<By, Max>"
+  internal fun `L2-2 reserved spellings are exact, and former keywords are class names`() {
+    parse<Expression>("Has<By, Max, AS>").toString() shouldBe "Has<By, Max, AS>"
     parse<Expression>("Rank").className shouldBe cn("Rank")
   }
 

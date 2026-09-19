@@ -42,35 +42,35 @@ CLASS SoloGenerationsLeft : GameEndBarrier
 "The passive owner of the removable neutral stock in solo mode"
 CLASS SoloOpponent : Owner, System {
   HAS =1 This
-  This:: EACH Class<StandardResource> AS ResourceClass { SoloStandardResourceReserve<ResourceClass> }
-  This:: EACH Class<CardResource> AS ResourceClass { SoloCardResourceReserve<ResourceClass> }
+  This:: EACH Class^1<StandardResource> { SoloStandardResourceReserve<Class^1> }
+  This:: EACH Class^1<CardResource> { SoloCardResourceReserve<Class^1> }
   SetupPhase: PlaceNeutralTiles
 }
 
 "Creates the two independent city-and-greenery placement tasks in solo setup"
 CLASS PlaceNeutralTiles : Signal, System, Owned<SoloOpponent> {
   HAS MAX 1 This
-  This: CityTile<> AS ThatCity THEN GreeneryTile<LandArea(HAS Neighbor<ThatCity>)>
-  This: CityTile<> AS ThatCity THEN GreeneryTile<LandArea(HAS Neighbor<ThatCity>)>
+  This: CityTile^1<> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile^1>)>
+  This: CityTile^1<> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile^1>)>
 }
 
 "Creates the neutral solo stock of each standard resource and its production"
-CLASS SoloStandardResourceReserve<Class<StandardResource AS ThatResource>> : Owned<SoloOpponent>, System {
+CLASS SoloStandardResourceReserve<Class<StandardResource^1>> : Owned<SoloOpponent>, System {
   HAS =1 This
-  SetupPhase: 42 ThatResource
-  SetupPhase: PROD[42 ThatResource]
+  SetupPhase: 42 StandardResource^1
+  SetupPhase: PROD[42 StandardResource^1]
 
-  -ThatResource BY Player:: ThatResource BY Admin
-  ThatResource BY Player:: -ThatResource BY Admin
-  PROD[-ThatResource] BY Player:: PROD[ThatResource] BY Admin
-  PROD[ThatResource] BY Player:: PROD[-ThatResource] BY Admin
+  -StandardResource^1 BY Player:: StandardResource^1 BY Admin
+  StandardResource^1 BY Player:: -StandardResource^1 BY Admin
+  PROD[-StandardResource^1] BY Player:: PROD[StandardResource^1] BY Admin
+  PROD[StandardResource^1] BY Player:: PROD[-StandardResource^1] BY Admin
 }
 
 "A neutral solo-mode holder for each kind of removable card resource"
-CLASS SoloCardResourceReserve : ResourceHolder<Class<CardResource AS ThatResource>>, Owned<SoloOpponent>, System {
+CLASS SoloCardResourceReserve : ResourceHolder<Class<CardResource^1>>, Owned<SoloOpponent>, System {
   HAS =1 This
-  SetupPhase: 42 ThatResource<This>
+  SetupPhase: 42 CardResource^1<This>
 
-  -ThatResource<This> BY Player:: ThatResource<This> BY Admin
-  ThatResource<This> BY Player:: -ThatResource<This> BY Admin
+  -CardResource^1<This> BY Player:: CardResource^1<This> BY Admin
+  CardResource^1<This> BY Player:: -CardResource^1<This> BY Admin
 }

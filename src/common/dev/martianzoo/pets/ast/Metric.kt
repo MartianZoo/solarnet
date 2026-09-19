@@ -105,7 +105,7 @@ public sealed class Metric : PetElement() {
       if (metrics.isEmpty()) throw PetSyntaxException("RANK needs a metric")
     }
 
-    /** Returns the comparison metrics with explicit selector names bound to [candidate]. */
+    /** Returns the comparison metrics with marked selector occurrences bound to [candidate]. */
     public fun metricsFor(candidate: Expression): List<Metric> =
         selectorReferenceBinder(selector, candidate).let { binder ->
           metrics.map(binder::transformMetric)

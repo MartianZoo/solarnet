@@ -40,7 +40,7 @@ internal class CatalogTest {
                           HAS =1 This
                           CLASS Player1, Player2
                         }
-                        ABSTRACT CLASS CardFront<Player AS SameOwner> : Owned<SameOwner> {
+                        ABSTRACT CLASS CardFront<Player^1> : Owned<Player^1> {
                           HAS MAX 1 This<Player>
                         }
                         CLASS ExampleCard : CardFront

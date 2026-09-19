@@ -215,10 +215,6 @@ a name while `2MC` is neither. `//` begins a comment that runs to the end of the
 immediately before a line ending continues the line, so one element may span several source lines.
 Newlines are significant only as separators (L1-1, L1-4).
 
-> **Non-normative example — Mars Nomads.** Its action moves a marker and then pays every marked
-> area's placement bonus. A backslash lets that one action span source lines without a newline being
-> mistaken for the end of the body element.
-
 **L1-11. A declaration renders as parseable source, and round-trips.** `toString()` produces a
 multi-line declaration and `toString(oneLine = true)` a semicolon-separated one; parsing either
 yields an equal declaration.
@@ -267,7 +263,7 @@ Thus `GreeneryTile`, `Tharsis_2_2`, `A_foo`, `L1TradeTerminal`, `MC`, and `TOOLO
 > Covering both costs only the requirement that a name begin with a capital, which is what keeps
 > lowercase identifiers and prose labels out.
 
-**L2-2. Keywords are reserved and case-sensitive.** `ABSTRACT`, `AS`, `BY`, `CLASS`, `COUNT`,
+**L2-2. Keywords are reserved and case-sensitive.** `ABSTRACT`, `BY`, `CLASS`, `COUNT`,
 `DEFAULT`, `EACH`, `EVAL`, `FROM`, `HAS`, `IF`, `MAX`, `NOT`, `OR`, `RANK`, `THEN` and `X`, together
 with the property-value words `Metric`, `Number` and `Requirement`, are the words the grammar itself
 uses, and none of them may be a class name. Because the reserved spellings are exact, `Max`, `By`
@@ -290,9 +286,9 @@ shadow:
 | `This` | the component the declaration is about | the whole declaration (L3-5) |
 | `Owner` | the context's owner | the whole declaration, except inside an `EACH` whose selector is an owner (L12-3) |
 | `X` | one open amount | one instruction, across the stages of a `THEN` (L6-14) |
-| `Type AS Name` in an `EACH` or `RANK` selector | each selected component | that construct's body or metrics (L6-10, L5-9) |
+| `Type^Handle` in an `EACH` or `RANK` selector | each selected component | that construct's body or metrics (L6-10, L5-9) |
 | a refinement's domain | the candidate | that refinement (T8-3) |
-| `Type AS Name` in an Effect trigger, `THEN`, Action cost, or transmutation destination | one shared choice | that Effect, sequence, Action, or transmutation (L6-15, L6-16, L8-12, L9-8, T13-6) |
+| `Type^Handle` in an Effect trigger, `THEN`, Action cost, or transmutation destination | one shared choice | that Effect, sequence, Action, or transmutation (L6-15, L6-16, L8-12, L9-8, T13-6) |
 
 > **Non-normative example — generated special tiles.** `MiningRights_SpecialTile` must be referable
 > later by that exact global name when its placement bonus is inspected. Lexical scoping would make
@@ -352,7 +348,7 @@ expression is not rewritten into its type's canonical form: `Tile` and `Tile<Are
 expressions even though they resolve to one type (T1-3, T5-5).
 
 > **Non-normative implementation note — normalization preserves variable identity.** Type-variable
-> scope recording precedes normalization, and later rewrites retain each declaration and reference's
+> scope recording precedes normalization, and later rewrites retain each marked occurrence's
 > marker. Ordinary expressions remain outside that scope even when they resolve to the same Type.
 
 **L3-8. Two expressions are equal when their structural spellings agree.** Argument order is part of
@@ -365,21 +361,26 @@ why the type system, not the syntax, is the authority on identity (T5-1).
 > unequal preserves faithful rendering and exact variable-occurrence tracking without changing the
 > game type.
 
-**L3-9. `Type AS Name` names a Type variable where the enclosing construct permits one.** A bare
-`Name` in that scope then denotes the complete declared expression. The name has the class-name
-shape from L2-1, so one letter is enough, but it must not be a Type name in the Catalog. The
-enclosing construct determines where the declaration and its uses may occur (L6-15, L6-16, L8-12,
-L9-8).
+**L3-9. Matching `Type^Handle` markers name one Type variable where the enclosing construct permits
+one.** `Type` must exactly equal the occurrence's root Class. A handle is either class-name-shaped
+under L2-1 or a decimal integer with no leading zeroes. It is only a local discriminator and may
+equal a Catalog Type name. Occurrences are matched within a scope by `(BoundClass, Handle)`, so one
+scope may reuse a handle for different bound Classes. `1` is the conventional first handle. The
+syntax does not distinguish a declaration from a use or require the occurrence that supplies the
+choice to come first; the enclosing construct determines which occurrence supplies the value and
+where the marker is visible (L6-15, L6-16, L8-12, L9-8).
 
-A reference is bare and cannot have a refinement. There is one argument-list form:
-`Class<Type AS Name>` names the Class represented by that literal, and `Name<dependencies>` denotes
-the selected Class with those dependency arguments. `Name<>` deliberately accepts that use's
-defaults under L3-2. This is represented-Class application, not an argument list on an arbitrary
-Type variable; T4-1 and T13-1 define it.
+An occurrence that reuses a supplied value cannot add a refinement. There is one argument-list
+form: `Class<Type^Handle>` marks the Class represented by that literal, and
+`Type^Handle<dependencies>` denotes the selected Class with those dependency arguments.
+`Type^Handle<>` deliberately accepts that occurrence's defaults under L3-2. This is
+represented-Class application, not an argument list on an arbitrary Type variable; T4-1 and T13-1
+define it.
 
-A construct-local Type variable exists only through one of these declarations and its references.
-Every other expression retains its ordinary meaning. Compact `FROM` is an instruction form, not a
-variable declaration: it stores each unchanged argument once and derives both projections from it
+A construct-local Type variable exists only through two or more matching marked occurrences.
+Every other expression retains its ordinary meaning, except that the represented root inside a
+refined `Class<T>` literal follows T8-10 automatically. Compact `FROM` is an instruction form, not
+a variable declaration: it stores each unchanged argument once and derives both projections from it
 (L6-12).
 
 ---
@@ -523,10 +524,10 @@ context.
 **L5-9. `RANK Selector { m1, m2, ... }` is a competition rank.** It denotes the highest-first
 position of one candidate among the components matching `Selector` in one state, comparing the
 listed metrics lexicographically. Authored syntax leaves the candidate open; a refinement supplies
-it. At least one metric is required. `Selector AS Name` explicitly makes the candidate available as
-`Name` in the metrics; other expressions in those metrics retain their ordinary meanings. This
-module pins the syntax and that scoping; ranking a live field is realized where a world is available,
-and pinned by `engine/RankMetricTest.kt`.
+it. At least one metric is required. `Selector^Handle` explicitly makes the candidate available
+as `SelectorRoot^Handle` in the metrics; other expressions in those metrics retain their ordinary
+meanings. This module pins the syntax and that scoping; ranking a live field is realized where a
+world is available, and pinned by `engine/RankMetricTest.kt`.
 
 > **Non-normative example — award scoring.** Award resolution ranks every player by the selected
 > award's metric, then awards first and—when applicable—second place. Lexicographic metrics and a
@@ -643,19 +644,19 @@ waiting means for pending work is `SEQUENCING.md`'s subject.
 > query is settled; a comma would let the second choice be evaluated against the old board.
 
 **L6-10. `EACH Selector { body }` quantifies over one state.** It denotes one independent branch of
-`body` for each component occurrence matching `Selector` present in the state. `Selector AS Name`
-explicitly makes that occurrence's concrete type available as `Name` in the body; other body
-expressions retain their ordinary meanings. Equal occurrences produce equal but independent
-branches. A refinement on the selector filters which components take part. The selector may serve
-only as the repetition source, so the body need not name the selected component. The body may not be
-empty, fanouts do not nest, and a concrete selector is rejected where the fanout is resolved against
-a world.
+`body` for each component occurrence matching `Selector` present in the state. `Selector^Handle`
+explicitly makes that occurrence's concrete type available as `SelectorRoot^Handle` in the body;
+other body expressions retain their ordinary meanings. Equal occurrences produce equal but
+independent branches. A refinement on the selector filters which components take part. The selector
+may serve only as the repetition source, so the body need not name the selected component. The body
+may not be empty, fanouts do not nest, and a concrete selector is rejected where the fanout is
+resolved against a world.
 `EACH.md` specifies how and when that world is enumerated. This module pins the syntax and scoping;
 `engine/EachSelectorOwnerTest.kt` and `engine/InstructionResolutionTest.kt` pin the rest.
 
-> **Non-normative example — Mars Nomads.** After moving its marker, the card uses `EACH LandArea(HAS
-> NomadsMarker) AS There { Placement<There> }` to award the bonus of the newly marked area. The
-> selector both filters the live board and explicitly names the concrete area used in each branch.
+> **Non-normative example — map setup.** `EACH Class<MarsArea^1> { MarsArea^1 }` creates one
+> component of every concrete area Class. The selector explicitly exposes the represented Class to
+> the body.
 
 **L6-11. `I BY Actor` names who performs the change.** It distributes over a group, so
 `(A, B) BY Player1` is `A BY Player1, B BY Player1`. Attribution itself is `IDENTITY.md`'s subject.
@@ -699,26 +700,23 @@ trigger's amount, and so equal — through the trigger, not through the comma.
 > cards, then grants `X` MC. Sharing the count across the sequence makes the payout equal the number
 > temporarily revealed.
 
-**L6-15. A `THEN` sequence names any Type choice shared across stages explicitly.** A matching or
-choosing expression in one stage declares `Type AS Name`, and a bare `Name` elsewhere in the
-sequence uses that choice. No use may occur in a stage before the declaration, the name must occur
-in at least two stages, and it may be declared only once in the sequence. Requirements, metrics and
-the contents of refinements may use a visible name but cannot declare one. Other expressions belong
-only to the stage where they are written.
+**L6-15. A `THEN` sequence marks any Type choice shared across stages explicitly.** Matching
+`BoundClass^Handle` occurrences in two or more stages use one choice. At least one occurrence must
+choose or match a value; an observing occurrence in a requirement, metric, or refinement may appear
+before that supplying occurrence. Other expressions belong only to the stage where they are written.
 
 > **Non-normative example — neutral solo tiles.**
-> `CityTile<> AS City THEN GreeneryTile<LandArea(HAS Neighbor<City>)>` makes the greenery adjacent
-> to the city just placed. `ProjectCard THEN -ProjectCard` declares no variable, so the drawn and
-> discarded cards are independent choices.
+> `CityTile^1<> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile^1>)>` makes the greenery
+> adjacent to the city just placed. `ProjectCard THEN -ProjectCard` declares no variable, so the
+> drawn and discarded cards are independent choices.
 
-**L6-16. A full transmutation names any Type choice shared by its two sides explicitly.** The
-gained, or destination, side declares `Type AS Name`; a bare `Name` on the removed, or source, side
-uses that choice. The pair is settled atomically. Other expressions belong only to the side where
-they are written. A name declared inside a transmutation may instead belong to an enclosing `THEN`
-sequence when that enclosing scope uses it.
+**L6-16. A full transmutation marks any Type choice shared by its two sides explicitly.** Matching
+`BoundClass^Handle` occurrences on the gained and removed sides use one choice. The pair is settled
+atomically. Other expressions belong only to the side where they are written. A marker occurring on
+only one side may instead belong to an enclosing `THEN` sequence when that sequence also marks it.
 
 > **Non-normative example — Kaguya Tech.**
-> `CityTile<MarsArea AS ThatArea> FROM GreeneryTile<ThatArea>` replaces a greenery with a city in
+> `CityTile<MarsArea^1> FROM GreeneryTile<MarsArea^1>` replaces a greenery with a city in
 > that same area. The unmarked form chooses its source and destination areas independently.
 
 ---
@@ -802,11 +800,11 @@ never a way to do nothing. Declining belongs to `?` and `Ok` (L7-4).
 
 **L7-8. A shared type variable takes one value everywhere it appears.** Narrowing a sequence,
 action, or transmutation with a shared variable must supply one consistent value for it (T13-7); two
-different values are rejected. A sequence, Action, or full transmutation declares that variable
-with `AS` (L6-15, L6-16, L9-8).
+different values are rejected. A sequence, Action, or full transmutation marks that variable with
+the same `^Handle` at each occurrence (L6-15, L6-16, L9-8).
 
 > **Non-normative example — Utopia Invest.**
-> `PROD[StandardResource AS ThatResource] -> 4 ThatResource` means reduce one chosen production
+> `PROD[StandardResource^1] -> 4 StandardResource^1` means reduce one chosen production
 > track and gain four units of that same resource. Binding the two
 > occurrences independently would allow trading steel production for four plants.
 
@@ -895,9 +893,9 @@ a gain of any number of plants with the same number of heat. A removal is writte
 
 **L8-7. `BY` restricts a trigger by actor and `IF` by state.** Precedence, tightest first: `OR`,
 `BY`, `IF`. Parentheses give one alternative its own qualifier. A `BY` selector is an expression
-specialized by the Actor recorded on the event. `BY Player AS ActingPlayer` explicitly makes that
-concrete Player available elsewhere in the Effect. An unnamed or refined selector only filters the
-event Actor (T13-9).
+specialized by the Actor recorded on the event. `BY Player^1` explicitly makes that concrete
+Player available as `Player^1` elsewhere in the Effect. An unnamed or refined selector only filters
+the event Actor (T13-9).
 
 > **Non-normative example — Lakefront Resorts.** `OceanTile BY Anyone: PROD[1 MC]` pays its owner
 > whenever any player places an ocean. The actor qualifier belongs to the trigger event, while an
@@ -954,14 +952,14 @@ effect's own colon stays unambiguous.
 > effect's trigger separator from a requirement gate inside its result. Without parentheses, parsing
 > the rendered form could attach the gate to the trigger and produce a different rule.
 
-**L8-12. `Type AS Name` explicitly names an Effect-local Type variable.** Following L3-9, the
-declaration must occur in a matching expression in the trigger, and the bare `Name` may then replace
-the complete declared expression anywhere else in that Effect. Requirements, metrics and the
-contents of refinements only observe, so they may use a visible name but cannot declare one. One
-Effect may declare a name only once, and the instruction must use every name the trigger declares.
+**L8-12. Matching `Type^Handle` occurrences explicitly mark an Effect-local Type variable.**
+Following L3-9, a matching expression in the trigger supplies the value and the instruction must
+contain the same `(BoundClass, Handle)` pair. Requirements, metrics and refinements may observe that
+value without supplying it. The marked trigger occurrence's complete structural expression is the
+variable's bound.
 
-For example, Manutech writes `PROD[StandardResource AS SR]: SR`: the production increase declares
-the resource kind, and the instruction uses that choice.
+For example, Manutech writes `PROD[StandardResource^1]: StandardResource^1`: the production
+increase supplies the resource kind, and the instruction shares that choice.
 
 ---
 
@@ -1026,14 +1024,13 @@ now" section becomes an ordinary rule; an immediate `Ok` produces no effect at a
 **L9-7. Actions round-trip.** The cost keeps its authored form, and the result's grouping is
 L6-13's.
 
-**L9-8. An Action names any Type choice shared by its cost and result explicitly.** A matching or
-choosing expression in the cost declares `Type AS Name`, and a bare `Name` in the result uses that
-choice. The name must occur on both sides of the arrow and may be declared only once. Requirements,
-metrics and the contents of refinements may use a visible name but cannot declare one. Other
-expressions belong only to the side where they are written.
+**L9-8. An Action marks any Type choice shared by its cost and result explicitly.** Matching
+`BoundClass^Handle` occurrences on both sides of the arrow use one choice, supplied by a matching or
+choosing occurrence in the cost. Requirements, metrics and refinements may observe that value
+without supplying it. Other expressions belong only to the side where they are written.
 
 > **Non-normative example — Utopia Invest.**
-> `PROD[StandardResource AS ThatResource] -> 4 ThatResource` lowers one production track and gains
+> `PROD[StandardResource^1] -> 4 StandardResource^1` lowers one production track and gains
 > four of that same resource.
 
 ---
@@ -1079,9 +1076,10 @@ surrounding group (L6-8).
 **L10-4. A trigger block wraps only a gain or removal**, never `OR`, `BY` or `IF` — the mark applies
 to the event being watched, not to the restrictions on it.
 
-> **Non-normative example — Manutech.** `PROD[StandardResource AS SR]: SR` listens for a production
-> increase of a chosen resource. If `PROD` swallowed `BY` or `IF`, the production handler would be
-> asked to rewrite actor attribution or state conditions that are not production changes.
+> **Non-normative example — Manutech.** `PROD[StandardResource^1]: StandardResource^1` listens
+> for a production increase of a chosen resource. If `PROD` swallowed `BY` or `IF`, the production
+> handler would be asked to rewrite actor attribution or state conditions that are not production
+> changes.
 
 **L10-5. Nesting a block inside a block of the same kind is representable but not processable.** The
 syntax admits `PROD[PROD[Plant]]`; any handler for that kind rejects it, because the second mark

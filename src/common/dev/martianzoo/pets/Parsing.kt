@@ -167,22 +167,24 @@ public object Parsing {
 
   private fun rejectUnsupportedSyntax(parsed: Any?) {
     if (parsed is PetNode) {
-      val references =
-          parsed
-              .descendantsOfType<Expression>()
-              .mapNotNull {
-                (it.typeVariableName as? Expression.TypeVariableName.Reference)?.name
-              }
-              .toSet()
-      parsed
-          .descendantsOfType<Expression>()
+      val expressions = parsed.descendantsOfType<Expression>()
+      expressions
           .firstOrNull {
             it.typeVariableName is Expression.TypeVariableName.Declaration &&
-                it.typeVariableName.name !in references
+                !it.typeVariableName.resolved
           }
           ?.let {
+            val marker = it.typeVariableName!!
             throw PetSyntaxException(
-                "Type-variable ${it.typeVariableName!!.name} is declared but never used"
+                "Type-variable marker ${marker.boundClassName}^${marker.name} is not shared in a scope"
+            )
+          }
+      expressions
+          .mapNotNull { it.typeVariableName as? Expression.TypeVariableName.Reference }
+          .firstOrNull { !it.resolved }
+          ?.let {
+            throw PetSyntaxException(
+                "Type-variable marker ${it.boundClassName}^${it.name} has no supplying occurrence"
             )
           }
     }

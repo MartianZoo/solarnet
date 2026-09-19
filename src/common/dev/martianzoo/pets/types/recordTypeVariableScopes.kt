@@ -23,16 +23,15 @@ public fun ClassTable.recordTypeVariableScopes(): PetTransformer =
         val transformed = transformChildren(node)
         return when (transformed) {
           is Effect -> {
-            val visibleNames = transformed.typeVariables.variables.mapNotNull { it.name }.toSet()
+            val visibleIdentities = transformed.typeVariables.variableIdentities()
             val constructLocalDeclarations =
                 transformed.trigger.constructLocalTypeVariableDeclarations()
             val namedDeclarations =
                 transformed.trigger.descendantsOfType<Expression>().filter {
                   it.typeVariableName is Declaration &&
                       constructLocalDeclarations.none { local -> local === it } &&
-                      it.typeVariableName.name !in visibleNames
+                      it.typeVariableName.identity !in visibleIdentities
                 }
-            validateTypeVariableNames(namedDeclarations)
             val localScope =
                 TypeVariableScope.fromDeclarations(
                     listOf(transformed.trigger, transformed.instruction),
@@ -43,7 +42,7 @@ public fun ClassTable.recordTypeVariableScopes(): PetTransformer =
             transformed.withTypeVariables(transformed.typeVariables + localScope)
           }
           is Action -> {
-            val visibleNames = transformed.typeVariables.variables.mapNotNull { it.name }.toSet()
+            val visibleIdentities = transformed.typeVariables.variableIdentities()
             val constructLocalDeclarations =
                 transformed.cost?.constructLocalTypeVariableDeclarations().orEmpty()
             val namedDeclarations =
@@ -52,10 +51,9 @@ public fun ClassTable.recordTypeVariableScopes(): PetTransformer =
                     ?.filter {
                       it.typeVariableName is Declaration &&
                           constructLocalDeclarations.none { local -> local === it } &&
-                          it.typeVariableName.name !in visibleNames
+                          it.typeVariableName.identity !in visibleIdentities
                     }
                     .orEmpty()
-            validateTypeVariableNames(namedDeclarations)
             val localScope =
                 TypeVariableScope.fromDeclarations(
                     listOfNotNull(transformed.cost, transformed.instruction),
@@ -66,12 +64,11 @@ public fun ClassTable.recordTypeVariableScopes(): PetTransformer =
             transformed.withTypeVariables(transformed.typeVariables + localScope)
           }
           is Instruction.Then -> {
-            val visibleNames = transformed.typeVariables.variables.mapNotNull { it.name }.toSet()
+            val visibleIdentities = transformed.typeVariables.variableIdentities()
             val namedDeclarations =
                 transformed.localTypeVariableDeclarations().filter {
-                  it.typeVariableName!!.name !in visibleNames
+                  it.typeVariableName!!.identity !in visibleIdentities
                 }
-            validateTypeVariableNames(namedDeclarations)
             val localScope =
                 TypeVariableScope.fromDeclarations(
                     transformed.instructions,
@@ -83,12 +80,11 @@ public fun ClassTable.recordTypeVariableScopes(): PetTransformer =
           }
           is Instruction.Transmute -> {
             val scoped = transformed
-            val visibleNames = scoped.typeVariables.variables.mapNotNull { it.name }.toSet()
+            val visibleIdentities = scoped.typeVariables.variableIdentities()
             val namedDeclarations =
                 scoped.localTypeVariableDeclarations().filter {
-                  it.typeVariableName!!.name !in visibleNames
+                  it.typeVariableName!!.identity !in visibleIdentities
                 }
-            validateTypeVariableNames(namedDeclarations)
             val localScope =
                 TypeVariableScope.fromDeclarations(
                     listOf(scoped.gaining, scoped.removing),
@@ -102,14 +98,10 @@ public fun ClassTable.recordTypeVariableScopes(): PetTransformer =
         }
       }
 
-      private fun validateTypeVariableNames(declarations: List<Expression>) {
-        declarations.forEach { declaration ->
-          val name = declaration.typeVariableName!!.name
-          if (name in allClassNames) {
-            throw ExpressionException("Type-variable name $name is already a Type name")
-          }
-        }
-      }
+      private fun TypeVariableScope.variableIdentities() =
+          variables
+              .mapNotNull { it.declaration.expression.typeVariableName as? Declaration }
+              .mapTo(mutableSetOf()) { it.identity }
 
       private fun requireSharedAcrossRegions(scope: TypeVariableScope, construct: String) {
         scope.variables

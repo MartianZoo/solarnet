@@ -289,11 +289,6 @@ public sealed class Instruction : InstructionTree() {
 
     internal companion object {
       fun resolveTypeVariableNames(transmute: Transmute): Transmute {
-        transmute.gaining.observingTypeVariableDeclaration()?.let {
-          throw PetSyntaxException(
-              "A Type-variable name cannot be declared in an observing expression: $it"
-          )
-        }
         return dev.martianzoo.pets.ast.resolveTypeVariableNames(
             transmute,
             transmute.localTypeVariableDeclarations(),
@@ -457,10 +452,10 @@ public sealed class Instruction : InstructionTree() {
    * selector is an `Owner`, so does the contextual `Owner`, so an ordinary owned body reads exactly
    * as it does on a card.
    *
-   * A selector refinement chooses which components take part. `AS` explicitly names the selected
-   * component for use in [body]. A gate in [body] behaves like any other gate and fails when its
-   * requirement is unmet. Class properties in [body] are evaluated separately after each branch has
-   * bound its selection. The body may not be empty and fanouts do not nest.
+   * A selector refinement chooses which components take part. A `^Handle` marker exposes the
+   * selected component for use in [body]. A gate in [body] behaves like any other gate and fails
+   * when its requirement is unmet. Class properties in [body] are evaluated separately after each
+   * branch has bound its selection. The body may not be empty and fanouts do not nest.
    *
    * The body need not name the selected component: the selector may serve only as the repetition
    * source. The selector is not a choice: a proposal must reproduce it exactly ([rule
@@ -477,7 +472,7 @@ public sealed class Instruction : InstructionTree() {
       }
     }
 
-    /** Returns this fanout's body with its explicit selector names bound to [selected]. */
+    /** Returns this fanout's body with its marked selector occurrences bound to [selected]. */
     public fun bodyFor(selected: Expression): InstructionTree =
         selectorReferenceBinder(selector, selected).transformInstructionTree(body)
 
@@ -836,21 +831,16 @@ public sealed class Instruction : InstructionTree() {
               }
 
       internal fun resolveTypeVariableNames(then: Then): Then {
-        then.observingTypeVariableDeclaration()?.let {
-          throw PetSyntaxException(
-              "A Type-variable name cannot be declared in an observing expression: $it"
-          )
-        }
         val declarations = then.localTypeVariableDeclarations()
         then.descendantsOfType<Transmute>().forEach { transmute ->
           transmute.localTypeVariableDeclarations().forEach { declaration ->
-            val name = declaration.typeVariableName!!.name
+            val identity = declaration.typeVariableName!!.identity
             fun usedOutside(node: PetNode): Boolean {
               if (node === transmute) return false
               if (
                   node is Transmute &&
                       node.localTypeVariableDeclarations().any {
-                        it.typeVariableName!!.name == name
+                        it.typeVariableName!!.identity == identity
                       }
               ) {
                 return false
@@ -858,8 +848,7 @@ public sealed class Instruction : InstructionTree() {
               if (
                   node is Expression &&
                       node.typeVariableName !is Expression.TypeVariableName.Declaration &&
-                      (node.typeVariableName?.name == name ||
-                          (node.typeVariableName == null && node.simple && node.className == name))
+                      node.typeVariableName?.identity == identity
               ) {
                 return true
               }
@@ -867,22 +856,12 @@ public sealed class Instruction : InstructionTree() {
             }
             if (usedOutside(then)) {
               throw PetSyntaxException(
-                  "Type-variable $name cannot be used outside its transmutation"
+                  "Type-variable ${declaration.typeVariableName!!.name} cannot be used outside " +
+                      "its transmutation"
               )
             }
           }
         }
-        val localNames = declarations.mapTo(mutableSetOf()) { it.typeVariableName!!.name }
-        then
-            .descendantsOfType<Expression>()
-            .filter { it.typeVariableName is Expression.TypeVariableName.Declaration }
-            .filterNot { candidate -> declarations.any { it === candidate } }
-            .firstOrNull { it.typeVariableName!!.name in localNames }
-            ?.let {
-              throw PetSyntaxException(
-                  "Type-variable ${it.typeVariableName!!.name} cannot shadow an enclosing declaration"
-              )
-            }
         return dev.martianzoo.pets.ast.resolveTypeVariableNames(
             then,
             declarations,

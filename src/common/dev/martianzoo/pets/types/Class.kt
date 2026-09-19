@@ -523,6 +523,9 @@ internal constructor(
 
       fun collectArguments(expression: Expression, prefix: List<Key>, region: Int) {
         if (expression.arguments.isEmpty()) return
+        if (expression.className == CLASS && expression.typeVariableName is Declaration) {
+          return
+        }
         val dependencySet = loader.load(expression.className).dependencies
         val arguments = expression.arguments.map(replacer(THIS, className)::transformExpression)
         val matched = dependencySet.matchPartialInOrder(arguments, loader)
@@ -535,7 +538,12 @@ internal constructor(
 
       declaration.dependencies.forEachIndexed { index, expression ->
         val path = DependencyPath(Key(className, index))
-        if (eligible(expression)) add(HeaderOccurrence(expression, path, index, ordinal++))
+        if (
+            eligible(expression) &&
+                (expression.className != CLASS || expression.typeVariableName is Declaration)
+        ) {
+          add(HeaderOccurrence(expression, path, index, ordinal++))
+        }
         collectArguments(expression, path.keyList, index)
       }
       declaration.supertypes.forEachIndexed { index, expression ->
@@ -608,9 +616,9 @@ internal constructor(
     headerOccurrences().forEach { occurrence ->
       val matching = occurrenceGroups.filter { group ->
         group.any { prior ->
-          val priorName = prior.expression.typeVariableName?.name
-          val occurrenceName = occurrence.expression.typeVariableName?.name
-          priorName != null && priorName == occurrenceName
+          val priorIdentity = prior.expression.typeVariableName?.identity
+          val occurrenceIdentity = occurrence.expression.typeVariableName?.identity
+          priorIdentity != null && priorIdentity == occurrenceIdentity
         }
       }
       if (matching.isEmpty()) {
@@ -688,7 +696,9 @@ internal constructor(
 
     val namedVariables =
         seeds.filter(Seed::lexicallyDeclared).mapNotNull { seed ->
-          (seed.declaration.expression.typeVariableName as? Declaration)?.name?.let { it to seed }
+          (seed.declaration.expression.typeVariableName as? Declaration)?.identity?.let {
+            it to seed
+          }
         }
     val ineligibleDeclaration =
         (declaration.dependencies + declaration.supertypes)
@@ -702,21 +712,16 @@ internal constructor(
     require(ineligibleDeclaration == null) {
       "$ineligibleDeclaration cannot declare a Class-header Type variable"
     }
-    namedVariables
-        .firstOrNull { (name) -> name in loader.allClassNames }
-        ?.let { (name) ->
-          throw PetException("Type-variable name $name is already a Type name")
-        }
     require(namedVariables.map { it.first }.distinct().size == namedVariables.size) {
-      "$className declares the same header Type-variable name twice"
+      "$className declares the same header Type-variable bound Class and handle twice"
     }
-    val variablesByName = namedVariables.toMap()
+    val variablesByIdentity = namedVariables.toMap()
     var bodyOrdinal = headerOccurrences().size
     declaration.effects.forEachIndexed { effectIndex, effect ->
       effect.descendantsOfType<Expression>().forEach { expression ->
-        val named = (expression.typeVariableName as? Reference)?.name
-        named
-            ?.let(variablesByName::get)
+        val identity = (expression.typeVariableName as? Reference)?.identity
+        identity
+            ?.let(variablesByIdentity::get)
             ?.usages
             ?.add(
                 TypeVariable.Site(

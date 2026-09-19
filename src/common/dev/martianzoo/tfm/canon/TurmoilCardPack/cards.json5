@@ -9,7 +9,7 @@
           "immediate": "54 MC",
           "effects": [
             "OceanTile BY Anyone: PROD[1 MC]",
-            "Placement<MarsArea AS There>: 1 MC / Neighbor<OceanTile, There>"
+            "Placement<MarsArea^1>: 1 MC / Neighbor<OceanTile, MarsArea^1>"
           ],
         },
         {
@@ -33,7 +33,7 @@
         {
           "name": "UtopiaInvest",
           "immediate": "40 MC, PROD[Steel, Titanium]",
-          "actions": [ "PROD[StandardResource AS ThatResource] -> 4 ThatResource" ],
+          "actions": [ "PROD[StandardResource^1] -> 4 StandardResource^1" ],
         },
       ],
     },

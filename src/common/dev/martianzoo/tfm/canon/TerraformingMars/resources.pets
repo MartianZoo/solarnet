@@ -15,7 +15,7 @@ ABSTRACT CLASS Resource : Owned {
 
   "A resource cube living on a compatible card or neutral holder, such as `Animal<Pets>`"
   // The explicit Owned occurrence links the holder's Owner to the resource's inherited Owner.
-  ABSTRACT CLASS CardResource<ResourceHolder<Class<This>, Owner AS ResourceOwner>> : Owned<ResourceOwner> {
+  ABSTRACT CLASS CardResource<ResourceHolder<Class<This>, Owner^1>> : Owned<Owner^1> {
     DEFAULT +CardResource.
 
     "A particular kind of resource held by a card"
@@ -26,12 +26,12 @@ ABSTRACT CLASS Resource : Owned {
 "Each instance of this creates an instance of a standard resource during ProductionPhase"
 // IMPL: This should narrow ownership to Owner, but bare production uses the same contextual
 // Owner binding as Resource and becomes incorrectly unbound when Owner is the declared bound.
-CLASS Production<Class<StandardResource AS ThatResource>> : Owned {
-  ProductionPhase: ThatResource
+CLASS Production<Class<StandardResource^1>> : Owned {
+  ProductionPhase: StandardResource^1
 }
 
 "The five synthetic M€-production steps that represent the printed production floor"
-CLASS ProdOffset<Class<StandardResource AS ThatResource>> : Owned<Player>, System {
-  This:: PROD[ThatResource]
-  ProductionPhase: -ThatResource
+CLASS ProdOffset<Class<StandardResource^1>> : Owned<Player>, System {
+  This:: PROD[StandardResource^1]
+  ProductionPhase: -StandardResource^1
 }

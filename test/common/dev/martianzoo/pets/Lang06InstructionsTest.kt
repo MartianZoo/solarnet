@@ -29,7 +29,6 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 /** Section 6 of `docs/pets-language-spec.md`: instructions as relations between two states. */
@@ -208,21 +207,21 @@ internal class Lang06InstructionsTest {
 
   @Test
   internal fun `L6-10 explicit selector names bind only their body references`() {
-    val player = parse<Instruction>("EACH Player(NOT Player1) AS P { Plant<P> }") as Each
+    val player = parse<Instruction>("EACH Player^1(NOT Player1) { Plant<Player^1> }") as Each
     player.bodyFor(parse("Player2")) shouldBe parse<InstructionTree>("Plant<Player2>")
 
     val unnamed = parse<Instruction>("EACH Player { Plant<Player> }") as Each
     unnamed.bodyFor(parse("Player2")) shouldBe parse<InstructionTree>("Plant<Player>")
 
-    val represented = parse<Instruction>("EACH Class<Area AS A> { A }") as Each
+    val represented = parse<Instruction>("EACH Class<Area^1> { Area^1 }") as Each
     represented.bodyFor(parse("Class<MarsArea>")) shouldBe parse<InstructionTree>("MarsArea")
 
-    val applied = parse<Instruction>("EACH Class<Area AS A> { Tile<A<Owner>> }") as Each
+    val applied = parse<Instruction>("EACH Class<Area^1> { Tile<Area^1<Owner>> }") as Each
     applied.bodyFor(parse("Class<MarsArea>")) shouldBe
         parse<InstructionTree>("Tile<MarsArea<Owner>>")
 
     shouldThrow<PetSyntaxException> {
-      parse<Instruction>("EACH Area AS A { Tile<A<Owner>> }")
+      parse<Instruction>("EACH Area^1 { Tile<Area^1<Owner>> }")
     }
   }
 
@@ -409,63 +408,57 @@ internal class Lang06InstructionsTest {
 
   @Test
   internal fun `L6-15 a THEN stage can name a Type used by a later stage`() {
-    roundTrip<Instruction>("Plant AS P THEN P")
-    roundTrip<Instruction>("Foo<Plant AS P> THEN Bar<P>")
-    roundTrip<Instruction>("Foo<Class<Plant AS P>> THEN P<Owner>")
-    roundTrip<Instruction>("Plant AS P THEN Foo<Bar(HAS Baz<P>)>")
-    roundTrip<Instruction>("CityTile<> AS City THEN GreeneryTile<LandArea(HAS Neighbor<City>)>")
+    roundTrip<Instruction>("Plant^1 THEN Plant^1")
+    roundTrip<Instruction>("Foo<Plant^1> THEN Bar<Plant^1>")
+    roundTrip<Instruction>("Foo<Class<Plant^1>> THEN Plant^1<Owner>")
+    roundTrip<Instruction>("Plant^1 THEN Foo<Bar(HAS Baz<Plant^1>)>")
+    roundTrip<Instruction>("CityTile^1<> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile^1>)>")
   }
 
   @Test
-  internal fun `L6-15 a THEN Type-variable name must be unambiguous and used`() {
-    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant AS P THEN Heat") }
-    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant AS P THEN Heat AS P THEN P") }
-    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant AS P THEN P<Steel>") }
+  internal fun `L6-15 a THEN Type-variable marker must be shared`() {
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant^1 THEN Heat") }
+    roundTrip<Instruction>("Plant^1 THEN Plant^1 THEN Plant^1")
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant^1 THEN Plant^1<Steel>") }
 
-    shouldThrow<PetSyntaxException> {
-          parse<Instruction>("Foo<Bar AS B> THEN (Qux<B>, EACH Bar AS B { B })")
-        }
-        .message shouldContain "cannot shadow"
+    roundTrip<Instruction>("Foo<Bar^1> THEN (Qux<Bar^1>, EACH Bar^1 { Bar^1 })")
   }
 
   @Test
-  internal fun `L6-15 an observing expression cannot declare a THEN variable`() {
-    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant / Steel AS P THEN P") }
-    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant(NOT Steel AS S) THEN S") }
+  internal fun `L6-15 an observing expression may precede the occurrence that supplies a variable`() {
+    roundTrip<Instruction>("Plant / Steel^1 THEN Steel^1")
+    roundTrip<Instruction>("Plant(NOT Steel^1) THEN Steel^1")
   }
 
   // L6-16 named Type variables across a transmutation
 
   @Test
   internal fun `L6-16 a transmutation destination can name a Type used by its source`() {
-    roundTrip<Instruction>("Foo<Plant AS P> FROM Bar<P>")
-    roundTrip<Instruction>("Foo<Class<Plant AS P>> FROM P<Owner>")
-    roundTrip<Effect>("Foo: Bar<Plant AS P> FROM Baz<P>")
-    roundTrip<Action>("Foo -> Bar<Plant AS P> FROM Baz<P>")
-    roundTrip<Instruction>("Foo<Plant AS P> FROM Bar<P> THEN Baz<Heat AS P> FROM Qux<P>")
+    roundTrip<Instruction>("Foo<Plant^1> FROM Bar<Plant^1>")
+    roundTrip<Instruction>("Foo<Class<Plant^1>> FROM Plant^1<Owner>")
+    roundTrip<Effect>("Foo: Bar<Plant^1> FROM Baz<Plant^1>")
+    roundTrip<Action>("Foo -> Bar<Plant^1> FROM Baz<Plant^1>")
+    roundTrip<Instruction>("Foo<Plant^1> FROM Bar<Plant^1> THEN Baz<Heat^1> FROM Qux<Heat^1>")
   }
 
   @Test
   internal fun `L6-16 an enclosing sequence can own a name declared inside a transmutation`() {
-    roundTrip<Instruction>("Foo FROM Bar<Plant AS P> THEN P")
+    roundTrip<Instruction>("Foo FROM Bar<Plant^1> THEN Plant^1")
   }
 
   @Test
-  internal fun `L6-16 a transmutation name must be declared in its destination and used`() {
-    shouldThrow<PetSyntaxException> { parse<Instruction>("Foo<P> FROM Bar<Plant AS P>") }
-    shouldThrow<PetSyntaxException> { parse<Instruction>("Foo<Plant AS P> FROM Bar") }
+  internal fun `L6-16 a transmutation marker must be shared by its sides`() {
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Foo<Plant^1> FROM Bar") }
+    roundTrip<Instruction>("Foo<Plant^1, Plant^1> FROM Bar<Plant^1>")
     shouldThrow<PetSyntaxException> {
-      parse<Instruction>("Foo<Plant AS P, Heat AS P> FROM Bar<P>")
-    }
-    shouldThrow<PetSyntaxException> {
-      parse<Instruction>("Foo<Plant AS P> FROM Bar<P> THEN P")
+      parse<Instruction>("Foo<Plant^1> FROM Bar<Plant^1> THEN Plant^1")
     }
   }
 
   @Test
   internal fun `L6-16 an observing expression cannot declare a transmutation variable`() {
     shouldThrow<PetSyntaxException> {
-      parse<Instruction>("Foo(HAS Baz<Plant AS P>) FROM Bar<P>")
+      parse<Instruction>("Foo(HAS Baz<Plant^1>) FROM Bar<Plant^1>")
     }
   }
 }

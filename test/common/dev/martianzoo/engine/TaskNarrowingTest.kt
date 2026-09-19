@@ -492,7 +492,7 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `autoexec leaves an AMAP choice that binds a later stage to the player`() {
     game.testAgent(PLAYER2).runOperation("3 MC")
-    initiate("3 MC FROM MC<Player AS P>. THEN Plant<P>")
+    initiate("3 MC FROM MC<Player^1>. THEN Plant<Player^1>")
 
     writer.autoExecNow()
 
@@ -514,7 +514,7 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `selecting a zero-count AMAP actor after autoexec still binds the continuation`() {
     writer.runOperation("3 MC")
-    initiate("3 MC FROM MC<Player AS P>. THEN Plant<P>")
+    initiate("3 MC FROM MC<Player^1>. THEN Plant<Player^1>")
     writer.autoExecNow()
     writer.autoExecPolicy = NONE
 
@@ -529,7 +529,7 @@ internal class TaskNarrowingTest {
   internal fun `selecting an AMAP source binds the later stage before resolution`() {
     game.testAgent(PLAYER2).runOperation("3 MC")
     writer.autoExecPolicy = NONE
-    initiate("3 MC FROM MC<Player AS P>. THEN Plant<P>")
+    initiate("3 MC FROM MC<Player^1>. THEN Plant<Player^1>")
 
     writer.doTask("3 MC FROM MC<Player2>.")
 
@@ -541,7 +541,7 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `selecting a gated mandatory source binds the later stage before resolution`() {
     game.testAgent(PLAYER2).runOperation("Plant, 3 MC")
-    initiate("(Plant<P>: 3 MC FROM MC<Player AS P>) THEN Heat<P>")
+    initiate("(Plant<Player^1>: 3 MC FROM MC<Player^1>) THEN Heat<Player^1>")
 
     writer.doTask("3 MC FROM MC<Player2>")
 
@@ -554,7 +554,7 @@ internal class TaskNarrowingTest {
   internal fun `a gated source must satisfy the gate for the selected player`() {
     writer.runOperation("3 MC")
     game.testAgent(PLAYER2).runOperation("Plant")
-    initiate("(Plant<P>: 3 MC<Player2> FROM MC<Player AS P>) THEN Heat<P>")
+    initiate("(Plant<Player^1>: 3 MC<Player2> FROM MC<Player^1>) THEN Heat<Player^1>")
 
     shouldThrow<TaskException> { writer.doTask("3 MC<Player2> FROM MC<Player1>") }
 

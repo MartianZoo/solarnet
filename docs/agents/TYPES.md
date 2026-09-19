@@ -33,7 +33,7 @@
 
 ## 1. Type-variable lifetime outside resolution
 
-*Type-system-spec section 13 defines what a Type variable is, where one is declared, and what
+*Type-system-spec section 13 defines what a Type variable is, where one is scoped, and what
 binding does, and language-spec L7-8 says what narrowing one requires. These are the engine-facing
 consequences.*
 
@@ -56,11 +56,11 @@ atomic transmutation,
 is stored once. The gained and removed Types remain projections of that compact tree until
 execution; no Type variable is involved.
 
-The [`EACH`](EACH.md) fanout enumerates its selector. `Selector AS Name` explicitly makes each
-selected concrete Type available through `Name` in the body; other body expressions retain their
-ordinary meanings. Inside the body, an Owner selection supplies contextual `Owner`; a non-Owner
-selection retains the enclosing contextual owner. `This` is the effect-bearing component. The body
-need not use the selection.
+The [`EACH`](EACH.md) fanout enumerates its selector. `Selector^Handle` explicitly makes each
+selected concrete Type available through `SelectorRoot^Handle` in the body; other body expressions
+retain their ordinary meanings. Inside the body, an Owner selection supplies contextual `Owner`; a
+non-Owner selection retains the enclosing contextual owner. `This` is the effect-bearing component.
+The body need not use the selection.
 
 ## 2. Implementation direction for Type-variable identity
 

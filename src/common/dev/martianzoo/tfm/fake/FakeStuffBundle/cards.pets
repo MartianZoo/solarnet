@@ -87,16 +87,16 @@ CLASS FakeL1TradeTerminal : ActiveCard {
   This:: SpaceTag<This>
   This: Floater<FloatingHabs>, Floater<AerialMappers>, Floater<FloatingRefinery>
 
-  Trade<ColonyTile AS Choice>:: TradeBarrier<Choice>
-  Trade<ColonyTile AS Choice>: (2 ColonyProduction<Choice> OR Ok) THEN -TradeBarrier<Choice>
+  Trade<ColonyTile^1>:: TradeBarrier<ColonyTile^1>
+  Trade<ColonyTile^1>: (2 ColonyProduction<ColonyTile^1> OR Ok) THEN -TradeBarrier<ColonyTile^1>
 
   End: 2 VictoryPoint
 }
 
 "One robot unit stored with a card that reduces its play cost by 1 MC"
-CLASS RobotUnit<Class<CardFront AS ThatCard>> : Resource, Owned<Player>, Hidden {
-  ReplicateForStagedProject<Class<ThatCard>>: This!
-  PlayCard<Class<CardBack>, Class<ThatCard>, Hand>: -Owed, -This!
+CLASS RobotUnit<Class<CardFront^1>> : Resource, Owned<Player>, Hidden {
+  ReplicateForStagedProject<Class<CardFront^1>>: This!
+  PlayCard<Class<CardBack>, Class<CardFront^1>, Hand>: -Owed, -This!
 }
 
 "Self-Replicating Robots with printed-tag selection delegated in follow mode"
@@ -110,8 +110,8 @@ CLASS FakeSelfReplicatingRobots : ActionCard, ActiveCard {
   -> ReplicateForStagedProject<Class<CardFront>(HAS RobotUnit<Class<CardFront>>)>
 }
 
-CLASS StageForReplicatedProject<Class<CardFront AS ThatCard>> : Owned<Player>, Signal {
-  This: -ProjectCard<Hand> THEN 2 RobotUnit<Class<ThatCard>>!
+CLASS StageForReplicatedProject<Class<CardFront^1>> : Owned<Player>, Signal {
+  This: -ProjectCard<Hand> THEN 2 RobotUnit<Class<CardFront^1>>!
 }
 
 CLASS ReplicateForStagedProject<Class<CardFront>> : Owned<Player>, Signal

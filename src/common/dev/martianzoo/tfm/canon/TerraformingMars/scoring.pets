@@ -22,9 +22,9 @@ ABSTRACT CLASS Award {
   End: MeasureAward<This>
 }
 
-CLASS MeasureAward<Award AS ThatAward, FinalScoringPending> : Temporary, System {
-  -This:: EACH Player(HAS =1 (RANK Player { EVAL ThatAward.metric })) { FirstPlace<ThatAward> }
-  -This IF 3 Player:: EACH Player(HAS =2 (RANK Player { EVAL ThatAward.metric })) { SecondPlace<ThatAward> }
+CLASS MeasureAward<Award^1, FinalScoringPending> : Temporary, System {
+  -This:: EACH Player(HAS =1 (RANK Player { EVAL Award^1.metric })) { FirstPlace<Award^1> }
+  -This IF 3 Player:: EACH Player(HAS =2 (RANK Player { EVAL Award^1.metric })) { SecondPlace<Award^1> }
 }
 
 CLASS FirstPlace<Award> : Owned<Player> { This:: 5 VictoryPoint }

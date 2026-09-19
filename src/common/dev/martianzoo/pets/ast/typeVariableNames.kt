@@ -5,6 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.RepresentedClassReference
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Resolution
 import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transmute
@@ -16,38 +17,88 @@ private fun containsInstance(expressions: Iterable<Expression>, candidate: Expre
       it === candidate
     }
 
+private fun Expression.restoredDeclaration(): Expression {
+  val marker = requireNotNull(typeVariableName)
+  val bareReference = marker as? Reference
+  return copy(
+      className = marker.boundClassName,
+      arguments = if (bareReference?.argumentsSpecified == false) emptyList() else arguments,
+      refinement = if (bareReference?.argumentsSpecified == false) null else refinement,
+      argumentsSpecified =
+          if (bareReference?.argumentsSpecified == false) false else argumentsSpecified,
+      typeVariableName = Declaration(marker.name, marker.boundClassName),
+  )
+}
+
 /** Declarations whose names connect this transmutation's destination to its source. */
 internal fun Transmute.localTypeVariableDeclarations(): List<Expression> {
-  val sourceNames =
+  val sourceIdentities =
       removing.descendantsOfType<Expression>().mapNotNull { expression ->
-        (expression.typeVariableName as? Reference)?.name
-            ?: expression.className.takeIf { expression.typeVariableName == null }
+        expression.typeVariableName?.identity
       }
-  return gaining.descendantsOfType<Expression>().filter {
-    it.typeVariableName is Declaration && it.typeVariableName.name in sourceNames
+  return gaining.nonObservingTypeVariableDeclarations().filter {
+    it.typeVariableName!!.identity in sourceIdentities
   }
 }
 
 /** Declarations belonging to this sequence, excluding declarations owned by nested sequences. */
 internal fun Then.localTypeVariableDeclarations(): List<Expression> = buildList {
-  val selectorDeclarations = constructLocalTypeVariableDeclarations()
-  fun collect(node: PetNode, excluded: List<Expression>) {
+  data class Candidate(val region: Int, val expression: Expression, val observing: Boolean)
+  val candidates = mutableListOf<Candidate>()
+  fun collect(node: PetNode, region: Int, excluded: List<Expression>, observing: Boolean) {
     if (node is Then) return
+    val constructDeclarations =
+        when (node) {
+          is Each -> node.selector.selectorTypeVariableDeclarations()
+          is Rank -> node.selector.selectorTypeVariableDeclarations()
+          is Expression ->
+              if (
+                  node.className == dev.martianzoo.pets.api.SystemClasses.CLASS &&
+                      node.refinement != null
+              ) {
+                node.arguments
+                    .singleOrNull()
+                    ?.takeIf {
+                      it.typeVariableName is Declaration
+                    }
+                    ?.let(::listOf)
+                    .orEmpty()
+              } else {
+                emptyList()
+              }
+          else -> emptyList()
+        }
     val nextExcluded =
         excluded +
-            selectorDeclarations +
+            constructDeclarations +
             if (node is Transmute) node.localTypeVariableDeclarations() else emptySet()
     if (
         node is Expression &&
-            node.typeVariableName is Declaration &&
-            !containsInstance(nextExcluded, node)
+            (node.typeVariableName is Declaration || node.typeVariableName is Reference) &&
+            nextExcluded.none {
+              it.typeVariableName!!.identity == node.typeVariableName.identity
+            }
     ) {
-      add(node)
+      candidates += Candidate(region, node, observing)
     }
-    node.immediateChildren().forEach { collect(it, nextExcluded) }
+    val childrenObserve = observing || node.startsTypeVariableObservation
+    node.immediateChildren().forEach { collect(it, region, nextExcluded, childrenObserve) }
   }
 
-  immediateChildren().forEach { collect(it, emptyList()) }
+  instructions.forEachIndexed { region, node ->
+    collect(node, region, emptyList(), observing = false)
+  }
+  candidates
+      .groupBy { it.expression.typeVariableName!!.identity }
+      .values
+      .filter { occurrences -> occurrences.map { it.region }.distinct().size >= 2 }
+      .mapNotNullTo(this) { occurrences ->
+        occurrences
+            .firstOrNull {
+              !it.observing && it.expression.typeVariableName is Declaration
+            }
+            ?.expression
+      }
 }
 
 /** Declarations owned by selectors or refined class literals rather than an enclosing scope. */
@@ -69,23 +120,14 @@ internal fun PetNode.constructLocalTypeVariableDeclarations(): List<Expression> 
   }
 }
 
-/** The first named declaration beneath an observing requirement, metric, or refinement. */
-internal fun PetNode.observingTypeVariableDeclaration(): Expression? {
-  val localDeclarations = constructLocalTypeVariableDeclarations()
-  fun find(node: PetNode, observing: Boolean): Expression? {
-    if (
-        observing &&
-            node is Expression &&
-            node.typeVariableName is Declaration &&
-            !containsInstance(localDeclarations, node)
-    ) {
-      return node
-    }
+/** Marked expressions outside observing requirements, metrics, and refinements. */
+private fun PetNode.nonObservingTypeVariableDeclarations(): List<Expression> = buildList {
+  fun collect(node: PetNode, observing: Boolean) {
+    if (!observing && node is Expression && node.typeVariableName is Declaration) add(node)
     val childrenObserve = observing || node.startsTypeVariableObservation
-    return node.immediateChildren().firstNotNullOfOrNull { find(it, childrenObserve) }
+    node.immediateChildren().forEach { collect(it, childrenObserve) }
   }
-
-  return find(this, observing = false)
+  collect(this@nonObservingTypeVariableDeclarations, observing = false)
 }
 
 /** Resolves references to [declarations] while retaining their authored name and argument list. */
@@ -100,26 +142,61 @@ internal fun <P : PetNode> resolveTypeVariableNames(
 }
 
 /**
- * Resolves one lexical scope. Local settlement variables expand a bare reference to their declared
- * structure; [expandBareReferences] is false when the value instead comes from a Class header or a
+ * Resolves one lexical scope. Local settlement variables expand a reference to their declared
+ * structure; [expandReferences] is false when the value instead comes from a Class header or a
  * selector and binding supplies the selected structure later.
  */
 internal fun resolveTypeVariableNames(
     roots: List<PetNode>,
     declarations: List<Expression>,
     scopeDescription: String,
-    expandBareReferences: Boolean = true,
+    expandReferences: Boolean = true,
 ): List<PetNode> {
-  val declarationsByName = declarations.associateBy { it.typeVariableName!!.name }
-  if (declarationsByName.size != declarations.size) {
-    throw PetSyntaxException("$scopeDescription cannot declare the same Type-variable name twice")
-  }
   if (declarations.isEmpty()) return roots
+  val selectedDeclarations = declarations.distinctBy { it.typeVariableName!!.key }
+  val selectedByKey = selectedDeclarations.associateBy { it.typeVariableName!!.key }
+  val resolutions = selectedByKey.mapValues { (_, declaration) ->
+    declaration.typeVariableName!!.resolution ?: Resolution()
+  }
+  val markerNormalizer =
+      object : PetTransformer() {
+        override fun transformNode(node: PetNode): PetNode {
+          if (node is Expression && node.typeVariableName is Declaration) {
+            val marker = node.typeVariableName
+            val selected = selectedByKey[marker.key]
+            if (marker.resolved && node !== selected) return transformChildren(node)
+            if (node === selected && !marker.resolved) {
+              return transformChildren(
+                  node.copy(typeVariableName = marker.resolved(resolutions.getValue(marker.key)))
+              )
+            }
+            if (selected != null && node !== selected) {
+              return transformChildren(
+                  node.copy(
+                      typeVariableName =
+                          Reference(
+                              marker.name,
+                              marker.boundClassName,
+                              argumentsSpecified = node.argumentsSpecified,
+                          )
+                  )
+              )
+            }
+          }
+          return transformChildren(node)
+        }
+      }
+  val normalizedRoots = roots.map(markerNormalizer::transformWithoutKindCheck)
+  val declarationsByKey =
+      normalizedRoots
+          .flatMap { it.descendantsOfType<Expression>() }
+          .filter { it.typeVariableName is Declaration && it.typeVariableName.key in selectedByKey }
+          .associateBy { it.typeVariableName!!.key }
 
-  // `Class<Foo AS F>` names the represented Class, so `F<Bar>` can instantiate the selected
+  // `Class<Foo^1>` names the represented Class, so `Foo^1<Bar>` can instantiate the selected
   // Class with dependency constraints. No other kind of Type-variable declaration is applicable.
   val representedClassDeclarations =
-      roots
+      normalizedRoots
           .flatMap { it.descendantsOfType<Expression>() }
           .filter { it.className == dev.martianzoo.pets.api.SystemClasses.CLASS }
           .mapNotNull { expression ->
@@ -128,13 +205,13 @@ internal fun resolveTypeVariableNames(
             }
           }
 
-  val references = mutableMapOf<ClassName, Int>()
-  roots
+  val references = mutableMapOf<Pair<ClassName, String>, Int>()
+  normalizedRoots
       .flatMap { it.descendantsOfType<Expression>() }
-      .mapNotNull { (it.typeVariableName as? Reference)?.name }
-      .filter { it in declarationsByName }
-      .forEach { name -> references[name] = references.getOrElse(name) { 0 } + 1 }
-  val resolving = mutableSetOf<ClassName>()
+      .mapNotNull { (it.typeVariableName as? Reference)?.takeUnless(Reference::resolved)?.key }
+      .filter { it in declarationsByKey }
+      .forEach { key -> references[key] = references.getOrElse(key) { 0 } + 1 }
+  val resolving = mutableSetOf<Pair<ClassName, String>>()
   fun withoutNames(expression: Expression): Expression =
       expression.copy(
           arguments = expression.arguments.map(::withoutNames),
@@ -143,58 +220,66 @@ internal fun resolveTypeVariableNames(
   val resolver =
       object : PetTransformer() {
         override fun transformNode(node: PetNode): PetNode {
-          if (node is Expression && node.typeVariableName == null) {
-            declarationsByName[node.className]?.let { declaration ->
-              if (
-                  !node.simple &&
-                      (representedClassDeclarations.none { it === declaration } ||
-                          !declaration.simple ||
-                          node.refinement != null)
-              ) {
-                throw PetSyntaxException(
-                    "Type-variable reference ${node.className} cannot have arguments or a refinement"
-                )
-              }
-              references[node.className] = references.getOrElse(node.className) { 0 } + 1
-              if (!resolving.add(node.className)) {
-                throw PetSyntaxException(
-                    "Type-variable declarations cannot refer to each other cyclically"
-                )
-              }
-              return try {
-                val structuralDeclaration = withoutNames(declaration)
-                val referenced =
-                    structuralDeclaration.copy(
-                        arguments =
-                            if (node.simple && expandBareReferences) {
-                              structuralDeclaration.arguments
-                            } else {
-                              node.arguments
-                            },
-                        argumentsSpecified =
-                            if (node.simple && expandBareReferences) {
-                              structuralDeclaration.argumentsSpecified
-                            } else {
-                              node.argumentsSpecified
-                            },
-                    )
-                transformChildren(
-                    referenced.copy(
-                        typeVariableName = Reference(node.className, node.argumentsSpecified)
-                    )
-                )
-              } finally {
-                resolving.remove(node.className)
+          if (node is Expression) {
+            val reference = (node.typeVariableName as? Reference)?.takeUnless(Reference::resolved)
+            reference?.let {
+              declarationsByKey[reference.key]?.let { declaration ->
+                val representedApplication =
+                    representedClassDeclarations.any { it === declaration } &&
+                        declaration.simple &&
+                        node.refinement == null
+                val repeatedStructure =
+                    node.arguments == declaration.arguments &&
+                        node.argumentsSpecified == declaration.argumentsSpecified &&
+                        node.refinement == declaration.refinement
+                if (!node.simple && !representedApplication && !repeatedStructure) {
+                  throw PetSyntaxException(
+                      "Type-variable reference $node cannot have arguments or a refinement"
+                  )
+                }
+                references[reference.key] = references.getOrElse(reference.key) { 0 } + 1
+                if (!resolving.add(reference.key)) {
+                  throw PetSyntaxException(
+                      "Type-variable declarations cannot refer to each other cyclically"
+                  )
+                }
+                return try {
+                  val structuralDeclaration = withoutNames(declaration)
+                  val referenced =
+                      structuralDeclaration.copy(
+                          arguments =
+                              if (node.simple && expandReferences) {
+                                structuralDeclaration.arguments
+                              } else {
+                                node.arguments
+                              },
+                          argumentsSpecified =
+                              if (node.simple && expandReferences) {
+                                structuralDeclaration.argumentsSpecified
+                              } else {
+                                node.argumentsSpecified
+                              },
+                      )
+                  transformChildren(
+                      referenced.copy(
+                          typeVariableName = reference.resolved(resolutions.getValue(reference.key))
+                      )
+                  )
+                } finally {
+                  resolving.remove(reference.key)
+                }
               }
             }
           }
           return transformChildren(node)
         }
       }
-  val resolved = roots.map(resolver::transformWithoutKindCheck)
-  declarationsByName.keys
+  val resolved = normalizedRoots.map(resolver::transformWithoutKindCheck)
+  declarationsByKey.keys
       .firstOrNull { references[it] == null }
-      ?.let { throw PetSyntaxException("Type-variable $it is declared but never used") }
+      ?.let { (boundClass, handle) ->
+        throw PetSyntaxException("Type-variable marker $boundClass^$handle is not shared")
+      }
   return resolved
 }
 
@@ -208,7 +293,7 @@ internal fun Expression.selectorTypeVariableDeclarations(): List<Expression> =
         },
     )
 
-/** Resolves explicit selector names in the selector and the nodes evaluated for each selection. */
+/** Resolves selector markers in the selector and the nodes evaluated for each selection. */
 internal fun resolveSelectorTypeVariableNames(
     selector: Expression,
     scopedNodes: List<PetNode>,
@@ -220,7 +305,7 @@ internal fun resolveSelectorTypeVariableNames(
       listOf(selector) + scopedNodes,
       declarations,
       scopeDescription,
-      expandBareReferences = false,
+      expandReferences = false,
   )
 }
 
@@ -240,7 +325,7 @@ internal fun resolveClassLiteralTypeVariableNames(expression: Expression): Expre
               listOf(expression),
               listOf(declaration),
               "A refined Class literal",
-              expandBareReferences = false,
+              expandReferences = false,
           )
           .single()
   return resolved as Expression
@@ -249,14 +334,21 @@ internal fun resolveClassLiteralTypeVariableNames(expression: Expression): Expre
 /** Erases a refined class literal's lexical alias while retaining its candidate references. */
 internal fun Expression.expandClassLiteralTypeVariableName(): Expression {
   if (className != dev.martianzoo.pets.api.SystemClasses.CLASS || refinement == null) return this
-  val declaration =
-      arguments.singleOrNull()?.takeIf { it.typeVariableName is Declaration } ?: return this
-  val name = declaration.typeVariableName!!.name
-  val representedClass = declaration.className
+  val represented = arguments.singleOrNull() ?: return this
+  val declaration = represented.takeIf { it.typeVariableName is Declaration }
+  val identity = declaration?.typeVariableName?.identity
+  val representedClass = represented.className
   val expander =
       object : PetTransformer() {
         override fun transformNode(node: PetNode): PetNode {
-          if (node is Expression && (node.typeVariableName as? Reference)?.name == name) {
+          if (
+              node is Expression &&
+                  ((identity != null &&
+                      (node.typeVariableName as? Reference)?.identity == identity) ||
+                      (identity == null &&
+                          node.typeVariableName == null &&
+                          node.className == representedClass))
+          ) {
             return transformChildren(
                 node.copy(typeVariableName = RepresentedClassReference(representedClass))
             )
@@ -279,7 +371,7 @@ internal fun selectorReferenceBinder(
 
   val bindings = buildMap {
     (selector.typeVariableName as? Declaration)?.let {
-      put(it.name, Binding(selected, acceptsDependencyArguments = false))
+      put(it.identity, Binding(selected, acceptsDependencyArguments = false))
     }
     val representedDeclaration =
         selector.arguments.singleOrNull()?.takeIf {
@@ -289,7 +381,7 @@ internal fun selectorReferenceBinder(
     representedDeclaration?.let {
       require(selected.className == dev.martianzoo.pets.api.SystemClasses.CLASS)
       put(
-          it.typeVariableName!!.name,
+          it.typeVariableName!!.identity,
           Binding(selected.arguments.single(), acceptsDependencyArguments = it.simple),
       )
     }
@@ -298,8 +390,8 @@ internal fun selectorReferenceBinder(
   return object : PetTransformer() {
     override fun transformNode(node: PetNode): PetNode {
       if (node is Expression) {
-        val name = (node.typeVariableName as? Reference)?.name
-        bindings[name]?.let { binding ->
+        val identity = (node.typeVariableName as? Reference)?.identity
+        bindings[identity]?.let { binding ->
           val arguments =
               if (binding.acceptsDependencyArguments && node.argumentsSpecified) node.arguments
               else emptyList()
@@ -327,27 +419,37 @@ internal fun resolveClassTypeVariableNames(declaration: ClassDeclaration): Class
       header
           .flatMap { it.descendantsOfType<Expression>() }
           .filter { it.typeVariableName is Declaration }
+          .distinctBy { it.typeVariableName!!.key }
   if (declarations.isEmpty()) return declaration
 
-  val names = declarations.mapTo(mutableSetOf()) { it.typeVariableName!!.name }
-  val body = declaration.authoredEffects + declaration.authoredActions
-  body
-      .flatMap { it.descendantsOfType<Expression>() }
-      .firstOrNull {
-        it.typeVariableName is Declaration && it.typeVariableName.name in names
+  val headerKeys = declarations.mapTo(mutableSetOf()) { it.typeVariableName!!.key }
+  val constructLocalIdentities =
+      (declaration.authoredEffects + declaration.authoredActions)
+          .flatMap(PetNode::constructLocalTypeVariableDeclarations)
+          .mapTo(mutableSetOf()) { it.typeVariableName!!.identity }
+  val headerMarkerRestorer =
+      object : PetTransformer() {
+        override fun transformNode(node: PetNode): PetNode {
+          if (
+              node is Expression &&
+                  node.typeVariableName?.key in headerKeys &&
+                  node.typeVariableName?.identity !in constructLocalIdentities
+          ) {
+            return transformChildren(node.restoredDeclaration())
+          }
+          return transformChildren(node)
+        }
       }
-      ?.let {
-        throw PetSyntaxException(
-            "Type-variable ${it.typeVariableName!!.name} cannot shadow a Class-header declaration"
-        )
-      }
-
+  val body =
+      (declaration.authoredEffects + declaration.authoredActions).map(
+          headerMarkerRestorer::transformWithoutKindCheck
+      )
   val resolved =
       resolveTypeVariableNames(
           header + body,
           declarations,
           "A Class header",
-          expandBareReferences = false,
+          expandReferences = false,
       )
   val dependencyCount = declaration.dependencies.size
   val headerCount = header.size
@@ -373,54 +475,78 @@ internal fun <P : PetNode> resolveTypeVariableNames(
     declarationRegion: PetNode?,
     usageRegion: PetNode,
     scopeDescription: String,
-    declarationLocation: String,
 ): P {
-  declarationRegion?.observingTypeVariableDeclaration()?.let {
-    throw PetSyntaxException(
-        "A Type-variable name cannot be declared in an observing expression: $it"
-    )
-  }
   val declarationConstructLocals =
       declarationRegion?.constructLocalTypeVariableDeclarations().orEmpty()
   val declarations =
       declarationRegion
-          ?.descendantsOfType<Expression>()
+          ?.nonObservingTypeVariableDeclarations()
           ?.filter {
-            it.typeVariableName is Declaration && !containsInstance(declarationConstructLocals, it)
+            !containsInstance(declarationConstructLocals, it)
           }
           .orEmpty()
-  val declarationNames = declarations.mapTo(mutableSetOf()) { it.typeVariableName!!.name }
-  val constructLocalDeclarations = usageRegion.constructLocalTypeVariableDeclarations()
-  usageRegion
-      .descendantsOfType<Expression>()
-      .filter {
-        it.typeVariableName is Declaration && !containsInstance(constructLocalDeclarations, it)
+  val constructLocalIdentities =
+      root.constructLocalTypeVariableDeclarations().mapTo(mutableSetOf()) {
+        it.typeVariableName!!.identity
       }
-      .firstOrNull { it.typeVariableName!!.name in declarationNames }
-      ?.let {
-        throw PetSyntaxException(
-            "Type-variable ${it.typeVariableName!!.name} cannot shadow an enclosing declaration"
-        )
+  fun Expression.markerKeyOutsideConstruct(): Pair<ClassName, String>? =
+      typeVariableName?.takeIf { it.identity !in constructLocalIdentities }?.key
+  val usageKeys =
+      usageRegion
+          .descendantsOfType<Expression>()
+          .mapNotNull(Expression::markerKeyOutsideConstruct)
+          .toSet()
+  val actorKeys =
+      declarationRegion
+          ?.descendantsOfType<Effect.Trigger.ByTrigger>()
+          ?.mapNotNull { it.by.markerKeyOutsideConstruct() }
+          ?.toSet()
+          .orEmpty()
+  val declarationKeyCounts =
+      declarationRegion
+          ?.descendantsOfType<Expression>()
+          ?.mapNotNull(Expression::markerKeyOutsideConstruct)
+          ?.groupingBy { it }
+          ?.eachCount()
+          .orEmpty()
+  val selectedKeys =
+      declarations
+          .mapNotNull { declaration ->
+            declaration.typeVariableName!!.key.takeIf { key ->
+              key in usageKeys || (key in actorKeys && declarationKeyCounts.getValue(key) >= 2)
+            }
+          }
+          .toSet()
+  if (selectedKeys.isEmpty()) return root
+  val outerMarkerRestorer =
+      object : PetTransformer() {
+        override fun transformNode(node: PetNode): PetNode {
+          if (
+              node is Expression &&
+                  node.typeVariableName?.key in selectedKeys &&
+                  node.typeVariableName?.identity !in constructLocalIdentities
+          ) {
+            return transformChildren(node.restoredDeclaration())
+          }
+          return transformChildren(node)
+        }
       }
-
-  fun declarationOutsideThen(node: PetNode, excluded: Set<Expression>): Expression? {
-    if (node is Then) return null
-    val nextExcluded =
-        if (node is Transmute) excluded + node.localTypeVariableDeclarations() else excluded
-    if (
-        node is Expression &&
-            node.typeVariableName is Declaration &&
-            !containsInstance(nextExcluded, node) &&
-            !containsInstance(constructLocalDeclarations, node)
-    ) {
-      return node
-    }
-    return node.immediateChildren().firstNotNullOfOrNull {
-      declarationOutsideThen(it, nextExcluded)
-    }
-  }
-  declarationOutsideThen(usageRegion, emptySet())?.let {
-    throw PetSyntaxException("A Type-variable name must be declared in $declarationLocation: $it")
-  }
-  return resolveTypeVariableNames(root, declarations, scopeDescription)
+  val restoredRoot = outerMarkerRestorer.transformWithoutKindCheck(root)
+  @Suppress("UNCHECKED_CAST") val typedRoot = restoredRoot as P
+  val restoredDeclarationRegion =
+      when (restoredRoot) {
+        is Effect -> restoredRoot.trigger
+        is Action -> restoredRoot.cost
+        else -> error("Unexpected local Type-variable scope: $restoredRoot")
+      }
+  val restoredDeclarations =
+      restoredDeclarationRegion
+          ?.nonObservingTypeVariableDeclarations()
+          ?.filter { it.typeVariableName!!.key in selectedKeys }
+          .orEmpty()
+  return resolveTypeVariableNames(
+      typedRoot,
+      restoredDeclarations,
+      scopeDescription,
+  )
 }

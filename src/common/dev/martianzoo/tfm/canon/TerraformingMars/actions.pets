@@ -10,7 +10,7 @@ ABSTRACT CLASS StandardAction : HasActions {
 
   "Use an action on a card"
   CLASS UseActionOnCardAction {
-    -> ActionUsedMarker<ActionCard AS ThatCard> THEN UseAction<ThatCard>
+    -> ActionUsedMarker<ActionCard^1> THEN UseAction<ActionCard^1>
   }
 
   "Convert plants into a greenery tile"

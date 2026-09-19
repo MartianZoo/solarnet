@@ -1,7 +1,7 @@
 "Every game must have exactly one of these (Tharsis Map, etc.)"
 ABSTRACT CLASS MarsMap : Module {
   HAS =1 MarsMap
-  This: EACH Class<MarsArea AS ThatArea> { ThatArea }
+  This: EACH Class<MarsArea^1> { MarsArea^1 }
 }
 
 "A hexagonal area where a tile can go"
@@ -47,16 +47,16 @@ ABSTRACT CLASS OwnedOccupant : Owned, Occupant
 CLASS Placement<MarsArea> : Signal
 
 "A player's reservation of one land area"
-CLASS Community : OwnedOccupant<LandArea AS ThatArea> {
-  Tile<ThatArea> BY Player(NOT Owner):: Die
-  Tile<ThatArea> BY Owner:: -This!
+CLASS Community : OwnedOccupant<LandArea^1> {
+  Tile<LandArea^1> BY Player(NOT Owner):: Die
+  Tile<LandArea^1> BY Owner:: -This!
 }
 
 // A tile; if it's not on an Area / not in play, it doesn't exist yet
 ABSTRACT CLASS Tile : Occupant {
-  This:: EACH Tile<MarsArea(HAS Neighbor<This>)> AS NeighborTile { \
-    ForwardAdjacency<NeighborTile, This>, \
-    BackwardAdjacency<This, NeighborTile> \
+  This:: EACH Tile^1<MarsArea(HAS Neighbor<This>)> { \
+    ForwardAdjacency<Tile^1, This>, \
+    BackwardAdjacency<This, Tile^1> \
   }
 
   // OceanTile is declared below with the other global parameters.
@@ -139,7 +139,7 @@ CLASS StandardGpTrackRules : System {
   TemperatureStep IF =5 TemperatureStep: PROD[Heat]
   TemperatureStep BY Player IF =15 TemperatureStep: OceanTile<>
   TemperatureStep BY Admin IF =15 TemperatureStep:: \
-    EACH Player(HAS StartToken) AS StartPlayer { AdminOceanPlacement<StartPlayer> }
+    EACH Player^1(HAS StartToken) { AdminOceanPlacement<Player^1> }
   TemperatureStep IF =19 TemperatureStep:: GpComplete<Class<TemperatureStep>>
 
   OxygenStep IF =8 OxygenStep: TemperatureStep
@@ -152,16 +152,16 @@ CLASS StandardGpTrackRules : System {
 CLASS GpIncomplete<Class<GlobalParameter>> : Hidden { HAS MAX 1 This }
 
 "Records that a particular global parameter track has reached its maximum"
-CLASS GpComplete<Class<GlobalParameter AS ThatParam> AS ParamClass> : Hidden {
+CLASS GpComplete<Class<GlobalParameter^1>> : Hidden {
   HAS MAX 1 This
-  This:: -GpIncomplete<ParamClass>!
-  -ThatParam:: Die
+  This:: -GpIncomplete<Class<GlobalParameter^1>>!
+  -GlobalParameter^1:: Die
 }
 
 "A required global parameter that has not yet reached its maximum"
-CLASS GpGameEndBarrier<Class<GlobalParameter> AS ParamClass> : GameEndBarrier, System {
+CLASS GpGameEndBarrier<Class^1<GlobalParameter>> : GameEndBarrier, System {
   HAS MAX 1 This
-  GpComplete<ParamClass>:: -This!
+  GpComplete<Class^1>:: -This!
 }
 
 "Asks its owning Player to choose one mandatory global-parameter increase performed by Admin"

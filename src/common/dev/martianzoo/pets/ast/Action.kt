@@ -162,7 +162,6 @@ public data class Action(
             action.cost,
             action.instruction,
             "An Action",
-            "an Action cost",
         )
   }
 }

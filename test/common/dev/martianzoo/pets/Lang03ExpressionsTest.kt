@@ -10,6 +10,7 @@ import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.Expression.Refinement.And
 import dev.martianzoo.pets.ast.Expression.Refinement.Has
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -150,10 +151,23 @@ internal class Lang03ExpressionsTest {
 
   @Test
   internal fun `L3-7 a represented-Class reference preserves its explicit empty arguments`() {
-    val expression = parse<Expression>("Class<Component AS F>(HAS F<>)")
+    val expression = parse<Expression>("Class<Component^1>(HAS Component^1<>)")
 
-    expression.toString() shouldBe "Class<Component AS F>(HAS F<>)"
+    expression.toString() shouldBe "Class<Component^1>(HAS Component^1<>)"
     parse<Expression>(expression.toString()) shouldBe expression
+  }
+
+  @Test
+  internal fun `L3-7 reference equality includes whether arguments were authored`() {
+    val structural = cn("Component").of(cn("Owner"))
+    val bare =
+        structural.copy(typeVariableName = Reference("1", cn("Component"), false, resolved = true))
+    val applied =
+        structural.copy(typeVariableName = Reference("1", cn("Component"), true, resolved = true))
+
+    bare shouldNotBe applied
+    bare.toString() shouldBe "Component^1"
+    applied.toString() shouldBe "Component^1<Owner>"
   }
 
   @Test

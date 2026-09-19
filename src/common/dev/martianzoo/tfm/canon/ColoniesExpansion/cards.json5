@@ -6,11 +6,11 @@
         {
           "name": "Aridor",
           "effects": [
-            "This:: EACH Class<Tag> AS TagClass { AridorTagWatcher<TagClass, This> }",
+            "This:: EACH Class^1<Tag> { AridorTagWatcher<Class^1, This> }",
             "This: 40 MC, RequiredAction { -> ColonyTileSelection }"
           ],
           "components": [
-            "CLASS AridorTagWatcher<Class<Tag AS ThatTag>> : Cardbound<Aridor>, Hidden { HAS MAX 1 This; CardFront(HAS ThatTag, NOT EventCard) IF =1 CardFront(HAS ThatTag, NOT EventCard): PROD[1 MC] }"
+            "CLASS AridorTagWatcher<Class<Tag^1>> : Cardbound<Aridor>, Hidden { HAS MAX 1 This; CardFront(HAS Tag^1, NOT EventCard) IF =1 CardFront(HAS Tag^1, NOT EventCard): PROD[1 MC] }"
           ],
         },
         {
@@ -388,8 +388,8 @@
           "name": "TradeEnvoys",
           "cost": 6,
           "effects": [
-            "Trade<ColonyTile AS Choice>:: TradeBarrier<Choice>",
-            "Trade<ColonyTile AS Choice>: ColonyProduction<Choice>? THEN -TradeBarrier<Choice>",
+            "Trade<ColonyTile^1>:: TradeBarrier<ColonyTile^1>",
+            "Trade<ColonyTile^1>: ColonyProduction<ColonyTile^1>? THEN -TradeBarrier<ColonyTile^1>",
           ],
         },
         {
@@ -398,8 +398,8 @@
           "tags": [ "SpaceTag" ],
           "immediate": "Colony<>",
           "effects": [
-            "Trade<ColonyTile AS Choice>:: TradeBarrier<Choice>",
-            "Trade<ColonyTile AS Choice>: ColonyProduction<Choice>? THEN -TradeBarrier<Choice>",
+            "Trade<ColonyTile^1>:: TradeBarrier<ColonyTile^1>",
+            "Trade<ColonyTile^1>: ColonyProduction<ColonyTile^1>? THEN -TradeBarrier<ColonyTile^1>",
           ],
         },
         {

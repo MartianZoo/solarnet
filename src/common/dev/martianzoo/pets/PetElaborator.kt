@@ -472,7 +472,10 @@ public class PetElaborator(public val classTable: ClassTable) {
             removing.className != original.className ||
             removing.refinement != null
     ) {
-      throw PetSyntaxException("Defaulting cannot split compact transmutation $original")
+      throw PetSyntaxException(
+          "Defaulting cannot change the root or removed refinement of compact transmutation " +
+              original
+      )
     }
 
     val klass = classTable.getClass(original.className)
@@ -484,7 +487,10 @@ public class PetElaborator(public val classTable: ClassTable) {
     val gainingByKey = keyedArguments(gaining)
     val removingByKey = keyedArguments(removing)
     if (gainingByKey.keys != removingByKey.keys) {
-      throw PetSyntaxException("Defaulting cannot split compact transmutation $original")
+      throw PetSyntaxException(
+          "Defaulting cannot give compact transmutation projections different dependencies: " +
+              original
+      )
     }
 
     val originalKeys =
@@ -507,7 +513,9 @@ public class PetElaborator(public val classTable: ClassTable) {
       }
     }
     if (arguments.count { it !is Unchanged } != 1) {
-      throw PetSyntaxException("Defaulting cannot split compact transmutation $original")
+      throw PetSyntaxException(
+          "Defaulting cannot change more than one dependency of compact transmutation $original"
+      )
     }
     return Compact(original.className, arguments, gaining.refinement)
   }

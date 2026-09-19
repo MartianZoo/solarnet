@@ -498,7 +498,7 @@
           "name": "ViralEnhancers",
           "cost": 9,
           "tags": [ "ScienceTag", "MicrobeTag" ],
-          "effects": [ "BioTag<CardFront AS TaggedCard>: Plant OR CardResource<TaggedCard>!" ],
+          "effects": [ "BioTag<CardFront^1>: Plant OR CardResource<CardFront^1>!" ],
         },
         {
           "name": "Virus",

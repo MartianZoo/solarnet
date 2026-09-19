@@ -266,13 +266,9 @@ internal constructor(
     val count = (change.count as? ActualScalar)?.value ?: return change
 
     val (g, r) = narrowChangeTypes(change, count, intens) ?: return change
-    val gainingExpression =
-        g?.expression?.let { resolved ->
-          change.gaining?.let { elaborator.retainTypeVariableNames(resolved, it) } ?: resolved
-        }
-    val removingExpression =
-        r?.expression?.let { resolved ->
-          change.removing?.let { elaborator.retainTypeVariableNames(resolved, it) } ?: resolved
+    fun retainedExpression(resolved: Type?, authored: Expression?): Expression? =
+        resolved?.expression?.let { expression ->
+          authored?.let { elaborator.retainTypeVariableNames(expression, it) } ?: expression
         }
     if (listOfNotNull(g, r).any { !classTable.isInhabited(it) }) {
       if (intens != MANDATORY) return NoOp
@@ -321,7 +317,12 @@ internal constructor(
       }
       if (change is Transmute && change.fromEx is Compact) return change
       // Still abstract, don't check limits yet
-      return Change.change(gainingExpression, removingExpression, count, intens)
+      return Change.change(
+          retainedExpression(g, change.gaining),
+          retainedExpression(r, change.removing),
+          count,
+          intens,
+      )
     }
 
     if (g == r && intens != MANDATORY) return NoOp
@@ -330,7 +331,14 @@ internal constructor(
     translateCustomChange(change, g, r)?.let {
       return it
     }
-    return limitChange(g, r, gainingExpression, removingExpression, count, intens)
+    return limitChange(
+        g,
+        r,
+        retainedExpression(g, change.gaining),
+        retainedExpression(r, change.removing),
+        count,
+        intens,
+    )
   }
 
   private fun narrowChangeTypes(

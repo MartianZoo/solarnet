@@ -90,8 +90,8 @@ internal class InstructionResolutionTest {
   @Test
   internal fun `resolution retains an occurrence omitted by the compact resolved Type`() {
     checkResolution(
-        "CityTile<MarsArea AS ThatArea> FROM GreeneryTile<ThatArea>",
-        "CityTile<Player1, MarsArea AS ThatArea> FROM GreeneryTile<Player1, ThatArea>!",
+        "CityTile<MarsArea^1> FROM GreeneryTile<MarsArea^1>",
+        "CityTile<Player1, MarsArea^1> FROM GreeneryTile<Player1, MarsArea^1>!",
     )
   }
 
@@ -150,7 +150,7 @@ internal class InstructionResolutionTest {
   internal fun testOnlyAnOwnerSelectionSuppliesTheOwnerOfItsBranch() {
     checkResolution("EACH Player { Plant }", "Plant<Player1>!, Plant<Player2>!")
     checkResolution(
-        "EACH ProjectCard<Anyone> AS ThatCard { -ThatCard, Plant }",
+        "EACH ProjectCard^1<Anyone> { -ProjectCard^1, Plant }",
         List(10) { "-ProjectCard<Player1, Hand>!, Plant<Player1>!" }.joinToString(", "),
     )
     // A selector reads its enclosing context, so `Owner` there is one component, not every owner.
@@ -163,7 +163,7 @@ internal class InstructionResolutionTest {
   internal fun testFanoutRangesOverOccurrences() {
     // Player1 holds ten indistinguishable ProjectCards, and each copy contributes one branch.
     checkResolution(
-        "EACH ProjectCard<Anyone> AS ThatCard { -ThatCard }",
+        "EACH ProjectCard^1<Anyone> { -ProjectCard^1 }",
         List(10) { "-ProjectCard<Player1, Hand>!" }.joinToString(", "),
     )
     checkResolution(
@@ -174,7 +174,7 @@ internal class InstructionResolutionTest {
 
   @Test
   internal fun testFanoutOverNothingIsNoOp() {
-    checkResolution("EACH CardFront<Anyone> AS ThatCard { -ThatCard }", "Ok")
+    checkResolution("EACH CardFront^1<Anyone> { -CardFront^1 }", "Ok")
   }
 
   @Test

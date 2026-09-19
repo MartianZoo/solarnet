@@ -253,7 +253,7 @@ Effect—come only from loaded Classes. The shared class-backed grid selects the
 concrete `MarsArea` Classes without a name-prefix convention.
 
 The selected `MarsMap` creates every active Mars area with
-`EACH Class<MarsArea AS ThatArea> { ThatArea }`; the base `TerraformingMars` Module separately
+`EACH Class<MarsArea^1> { MarsArea^1 }`; the base `TerraformingMars` Module separately
 creates active remote areas. This keeps planetary area
 ownership with the selected map without making card-owned remote locations map content. The former
 `CreateMapAreas` custom instruction is gone. Adjacency, placement-bonus metrics, largest-group

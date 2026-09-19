@@ -50,7 +50,7 @@ internal class Lang12ElaborationTest {
         )
 
     // Scope recording precedes the later elaboration stages.
-    val sequence = elaborate("Token AS T THEN T") as Instruction.Then
+    val sequence = elaborate("Token^1 THEN Token^1") as Instruction.Then
     sequence.typeVariables.isEmpty shouldBe false
   }
 

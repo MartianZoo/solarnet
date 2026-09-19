@@ -92,7 +92,7 @@
           "name": "IndustrialComplex",
           "tags": [ "BuildingTag" ],
           "effects": [
-            "This: -18 MC, EACH Class<StandardResource AS ThatResource> AS ResourceType { PROD[ThatResource / (ResourceType OR QuickStartVariant OR ProdOffset<ResourceType>) - Production<ResourceType>] }",
+            "This: -18 MC, EACH Class<StandardResource^1> { PROD[StandardResource^1 / (Class<StandardResource^1> OR QuickStartVariant OR ProdOffset<Class<StandardResource^1>>) - Production<Class<StandardResource^1>>] }",
           ],
         },
         {

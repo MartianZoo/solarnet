@@ -55,7 +55,7 @@ public data class Expression(
     val argumentsSpecified: Boolean = arguments.isNotEmpty(),
 
     /**
-     * An explicit Type-variable name declared by this expression or referenced here. A reference
+     * An explicit Type-variable handle declared by this expression or referenced here. A reference
      * keeps the declaration's structural expression in [className], [arguments], and [refinement],
      * so ordinary Type operations remain unaware of the shorter authored spelling.
      */
@@ -118,45 +118,109 @@ public data class Expression(
   }
 
   override fun toString(): String = buildString {
-    (typeVariableName as? TypeVariableName.Reference)?.let {
-      append(it.name)
-      if (it.argumentsSpecified) append(arguments.joinToString(", ", "<", ">"))
-      return@buildString
-    }
     append(className)
-    if (argumentsSpecified) append(arguments.joinToString(", ", "<", ">"))
-    refinement?.let { append("($it)") }
-    (typeVariableName as? TypeVariableName.Declaration)?.let { append(" AS ").append(it.name) }
+    val authoredMarker = typeVariableName?.takeIf {
+      it is TypeVariableName.Declaration || it is TypeVariableName.Reference
+    }
+    authoredMarker?.let { append('^').append(it.name) }
+    val reference = authoredMarker as? TypeVariableName.Reference
+    if (reference?.argumentsSpecified ?: argumentsSpecified) {
+      append(arguments.joinToString(", ", "<", ">"))
+    }
+    if (reference == null) refinement?.let { append("($it)") }
   }
 
   /** Does this expression consist only of a class name, with no arguments and no refinement? */
   val simple: Boolean = arguments.isEmpty() && refinement == null && !argumentsSpecified
 
-  /** The two source roles of one explicit Type-variable name. */
+  /** The internal roles assigned to occurrences of one explicit Type-variable marker. */
   public sealed class TypeVariableName {
-    public abstract val name: ClassName
+    /** One resolved lexical variable, distinct from an equal marker in a nested scope. */
+    internal class Resolution
 
-    /** The `Name` in `Type AS Name`. */
-    public data class Declaration(override val name: ClassName) : TypeVariableName()
+    /** The authored local handle, either an uppercase-leading identifier or a decimal integer. */
+    public abstract val name: String
 
-    /** A `Name` in the same scope that refers to its declaration. */
-    public class Reference
-    internal constructor(
-        override val name: ClassName,
-        internal val argumentsSpecified: Boolean = false,
+    /** The exact root Class that qualifies this handle. */
+    public abstract val boundClassName: ClassName
+
+    internal val key: Pair<ClassName, String>
+      get() = boundClassName to name
+
+    internal abstract val resolution: Resolution?
+
+    /** Resolved occurrences compare by lexical scope; unresolved parser markers compare by key. */
+    internal val identity: Any
+      get() = resolution ?: key
+
+    /** The occurrence selected internally to supply the value shared by `Type^Handle` markers. */
+    public class Declaration
+    private constructor(
+        override val name: String,
+        override val boundClassName: ClassName,
+        override val resolution: Resolution?,
     ) : TypeVariableName() {
-      override fun equals(other: Any?): Boolean = other is Reference && name == other.name
+      public constructor(name: String, boundClassName: ClassName) : this(name, boundClassName, null)
 
-      override fun hashCode(): Int = name.hashCode()
+      internal val resolved: Boolean
+        get() = resolution != null
 
-      override fun toString(): String = "Reference(name=$name)"
+      override fun equals(other: Any?): Boolean = other is Declaration && key == other.key
+
+      override fun hashCode(): Int = key.hashCode()
+
+      internal fun resolved(resolution: Resolution): Declaration =
+          Declaration(name, boundClassName, resolution)
+    }
+
+    /** Another `BoundClass^Handle` occurrence in the same scope. */
+    public class Reference
+    private constructor(
+        override val name: String,
+        override val boundClassName: ClassName,
+        internal val argumentsSpecified: Boolean,
+        override val resolution: Resolution?,
+    ) : TypeVariableName() {
+      internal constructor(
+          name: String,
+          boundClassName: ClassName,
+          argumentsSpecified: Boolean = false,
+          resolved: Boolean = false,
+      ) : this(
+          name,
+          boundClassName,
+          argumentsSpecified,
+          if (resolved) Resolution() else null,
+      )
+
+      internal val resolved: Boolean
+        get() = resolution != null
+
+      override fun equals(other: Any?): Boolean =
+          other is Reference && key == other.key && argumentsSpecified == other.argumentsSpecified
+
+      override fun hashCode(): Int = 31 * key.hashCode() + argumentsSpecified.hashCode()
+
+      override fun toString(): String = "Reference(boundClassName=$boundClassName, name=$name)"
+
+      internal fun resolved(resolution: Resolution): Reference =
+          Reference(name, boundClassName, argumentsSpecified, resolution)
     }
 
     /** A resolved reference to the class named by the surrounding refined `Class<T>`. */
-    internal data class RepresentedClassReference(override val name: ClassName) : TypeVariableName()
+    internal data class RepresentedClassReference(
+        override val boundClassName: ClassName,
+    ) : TypeVariableName() {
+      override val name: String = boundClassName.asString
+      override val resolution: Resolution? = null
+    }
 
     /** Identity retained after an explicit reference is expanded to its structural expression. */
-    internal class ExpandedReference(override val name: ClassName) : TypeVariableName()
+    internal class ExpandedReference(
+        override val name: String,
+        override val boundClassName: ClassName,
+        override val resolution: Resolution?,
+    ) : TypeVariableName()
   }
 
   /**
@@ -289,24 +353,25 @@ public data class Expression(
                 optionalList(commaSeparated(parser(allowDerivedClass))) and
                 skipChar('>')
         val refinement = refinementParser()
-        val typeVariableName = skip(_as) and ClassName.parser()
-
-        val expression =
+        val typeVariableHandle = (ClassName.parser() map { it.asString }) or numericTypeVariableName
+        val typeVariableMarker = skipChar('^') and typeVariableHandle
+        val ordinary =
             ClassName.parser() and
+                optional(typeVariableMarker) and
                 optional(argumentList) and
-                optional(refinement) and
-                optional(typeVariableName) map
-                { (clazz, args, ref, name) ->
+                optional(refinement) map
+                { (clazz, name, args, ref) ->
                   resolveClassLiteralTypeVariableNames(
                       Expression(
                           clazz,
                           args.orEmpty(),
                           ref,
                           args != null,
-                          name?.let(TypeVariableName::Declaration),
+                          name?.let { TypeVariableName.Declaration(it, clazz) },
                       )
                   )
                 }
+        val expression = ordinary
 
         if (allowDerivedClass) {
           expression and

@@ -37,7 +37,7 @@ CLASS GainsOf<CardFront, Class<Component>> : Custom
 
 "Tracks ocean placements only while Hydrologist is in the milestone pool"
 CLASS HydrologistWatcher<Class<Hydrologist>> : CardWatcher {
-  OceanTile AS Ocean BY Player AS Placer: OceanCredit<Placer, Ocean>
+  OceanTile^1 BY Player^1: OceanCredit<Player^1, OceanTile^1>
 }
 
 "A player's credit for an ocean that remains on Mars"

@@ -185,20 +185,20 @@ internal class Lang07NarrowingTest {
 
   @Test
   internal fun `L7-8 a named abstract expression takes one value everywhere`() {
-    narrows("Token AS T THEN T", "RedToken THEN RedToken") shouldBe true
-    refuses("Token AS T THEN T", "RedToken THEN BlueToken")
+    narrows("Token^1 THEN Token^1", "RedToken THEN RedToken") shouldBe true
+    refuses("Token^1 THEN Token^1", "RedToken THEN BlueToken")
 
     narrows(
-        "Tile<> AS T THEN T",
+        "Tile^1<> THEN Tile^1",
         "GreeneryTile<Land1> THEN GreeneryTile<Land1>",
     ) shouldBe true
-    refuses("Tile<> AS T THEN T", "GreeneryTile<Land1> THEN OceanTile<Land1>")
+    refuses("Tile^1<> THEN Tile^1", "GreeneryTile<Land1> THEN OceanTile<Land1>")
 
     narrows(
-        "Tile<LandArea> AS T THEN T",
+        "Tile^1<LandArea> THEN Tile^1",
         "GreeneryTile<Land1> THEN GreeneryTile<Land1>",
     ) shouldBe true
-    refuses("Tile<LandArea> AS T THEN T", "GreeneryTile<Land1> THEN OceanTile<Land1>")
+    refuses("Tile^1<LandArea> THEN Tile^1", "GreeneryTile<Land1> THEN OceanTile<Land1>")
   }
 
   @Test
@@ -208,7 +208,7 @@ internal class Lang07NarrowingTest {
       unbound.bindFirstStage(elaborate("Plant") as dev.martianzoo.pets.ast.Instruction, langWorld)
     }
 
-    val named = elaborate("Token AS T THEN T") as dev.martianzoo.pets.ast.Instruction.Then
+    val named = elaborate("Token^1 THEN Token^1") as dev.martianzoo.pets.ast.Instruction.Then
     shouldThrow<NarrowingException> {
       named.bindFirstStage(elaborate("Token") as dev.martianzoo.pets.ast.Instruction, langWorld)
     }

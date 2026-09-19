@@ -205,7 +205,7 @@ internal class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  internal fun `St Joseph of Cupertino Mission can own a Cathedral on another player's city`() {
+  internal fun `Mission owns the Cathedral while the city owner receives its offer`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.runOperation("14 MC, ProjectCard")
@@ -217,12 +217,12 @@ internal class NewPromoCardsTest : CardTest() {
     p1.cardAction1(StJosephOfCupertinoMission) {
       p1.pay(5)
       doTask("Cathedral<Player1, CityTile<Player2, Tharsis_4_2>>")
-      doTask("UseAction<CathedralOption, Action1>")
-      p1.pay(2)
+      p2.doTask("UseAction<CathedralOption, Action1>")
+      p2.pay(2)
     }
 
-    p1.assertCounts(0 to "MC", 1 to "ProjectCard")
-    p2.assertCounts(2 to "MC", 0 to "ProjectCard")
+    p1.assertCounts(2 to "MC", 0 to "ProjectCard")
+    p2.assertCounts(0 to "MC", 1 to "ProjectCard")
     admin.runOperation("End FROM Phase")
     p1.assertCounts(21 to "VictoryPoint")
   }
@@ -237,8 +237,6 @@ internal class NewPromoCardsTest : CardTest() {
     p1.cardAction1(StJosephOfCupertinoMission) {
       p1.pay(5)
       doTask("Cathedral<Player1, CityTile<SoloOpponent, Tharsis_4_1>>")
-      // Decline the Cathedral's optional paid card draw.
-      declineTask()
     }
 
     p1.assertCounts(1 to "Cathedral<Player1, CityTile<SoloOpponent, Tharsis_4_1>>")

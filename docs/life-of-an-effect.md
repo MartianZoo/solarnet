@@ -76,11 +76,11 @@ The grouping is now settled. The right side is one `OR`. Its second arm is one S
 Instruction whose first stage removes two microbes and whose second stage raises plant production.
 Parentheses affect that structure but are not retained as a separate element.
 
-This is also when a `Type AS Name` declaration and its references are recorded as one Effect-local
-Type Variable. A `THEN` nested in the instruction similarly owns any variable it names across its
-stages. That recognition happens before defaults or Production Box lowering. `This` and `Owner` are
-contextual bindings, not Type Variables. Recyclon has no Type Variable linking its Trigger to its
-Instruction.
+This is also when matching `BoundClass^Handle` occurrences are recorded as one Effect-local Type
+Variable. A `THEN` nested in the instruction similarly owns any variable it marks across its stages.
+That recognition happens before defaults or Production Box lowering.
+`This` and `Owner` are contextual bindings, not Type Variables. Recyclon has no Type Variable
+linking its Trigger to its Instruction.
 
 An Effect can also declare a Class local to its card. Such a declaration would be given a stable
 card-owned Class Name here. Recyclon's Effect does not do so, so its visible structure is unchanged.
@@ -286,15 +286,15 @@ test the Live Effect against relevant Change Events for exactly as long as that 
 **PetTransformers, in order:** `PetElaborator.specializeVariables` first binds each Trigger variable from
 the matching Change Event, then builds this effective chain over the Instruction:
 
-1. binding of the Type Variable usages declared by the Trigger
+1. binding of the Type Variable occurrences shared with the Trigger
 2. `replaceOwnerWith`, only if a contextual `Owner` remains in the Trigger
 3. `invalidChangesToDie`
 
 The resulting Instruction is then multiplied by the matching State Change's count; multiplication
-is not a PetTransformer. Recyclon has no Trigger-declared Type Variable and its Component Effect has
+is not a PetTransformer. Recyclon has no Trigger-shared Type Variable and its Component Effect has
 already replaced `Owner`, so only step 3 runs over its Instruction and it changes nothing. A
 Manutech Component Effect has likewise already replaced contextual `Owner` with its card owner's
-Player Type; step 1 then replaces its `SR` Type Variable with `Plant`.
+Player Type; step 1 then replaces its `(StandardResource, 1)` Type Variable with `Plant`.
 
 Now suppose Player1 plays Titanium Mine. Its printed building tag produces the exact State Change
 that gains a `BuildingTag` dependent on `TitaniumMine<Player1>`. Its Change Event matches:
@@ -320,21 +320,21 @@ expansion and component contextualization:
 
 ```pets
 // Source Effect
-PROD[StandardResource AS SR]: SR
+PROD[StandardResource^1]: StandardResource^1
 
 // Class Effect
-Production<Owner, Class<StandardResource AS SR>>: SR!
+Production<Owner, Class<StandardResource^1>>: StandardResource^1!
 
 // Component Effect on Manutech<Player1>
-Production<Player1, Class<StandardResource AS SR>>: SR!
+Production<Player1, Class<StandardResource^1>>: StandardResource^1!
 
 // Triggered by gaining Production<Player1, Class<Plant>>
 Plant<Player1>!
 ```
 
-The `AS SR` declaration and `SR` reference are one Type Variable. The exact Trigger match narrows it
-to `Plant`, and that same choice narrows the result. Default expansion changes the recorded
-occurrence spellings without declaring another variable from the inserted `Owner`.
+The matching `StandardResource^1` markers identify one Type Variable. The exact Trigger match
+narrows it to `Plant`, and that same choice narrows the result. Default expansion changes the
+recorded occurrence spellings without declaring another variable from the inserted `Owner`.
 Component specialization independently replaces that contextual placeholder with `Player1`.
 
 **Postcondition:** the Trigger is finished. Its exact Change Event has bound every Trigger-declared
@@ -391,13 +391,14 @@ Tasks.
 Trade Envoys illustrates why separation can sometimes wait longer:
 
 ```pets
-Trade<ColonyTile AS Choice>:
-  ColonyProduction<Choice>? THEN -TradeBarrier<Choice>
+Trade<ColonyTile^1>:
+  ColonyProduction<ColonyTile^1>? THEN -TradeBarrier<ColonyTile^1>
 ```
 
-The `Choice` name is a Type Variable shared by the Trigger and first stage. The Sequential
-Instruction must retain that link until an exact event such as `Trade<Luna>` narrows the first stage
-to `ColonyProduction<Luna>?`. Only then is the first stage safely independent of its continuation.
+The `(ColonyTile, 0)` pair identifies a Type Variable shared by the Trigger and first stage. The
+Sequential Instruction must retain that link until an exact event such as `Trade<Luna>` narrows the
+first stage to `ColonyProduction<Luna>?`. Only then is the first stage safely independent of its
+continuation.
 
 **Postcondition:** the selected Task is a valid narrowing of the offered Task, and any later `THEN`
 stages have been retained with the same Assignee, Cause, and Performer. No later stage can appear

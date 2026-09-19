@@ -195,27 +195,27 @@ internal class Lang09ActionsTest {
 
   @Test
   internal fun `L9-8 an Action cost can name a Type used by its result`() {
-    roundTrip<Action>("StandardResource AS R -> 4 R")
-    roundTrip<Action>("Foo<Plant AS P> -> Bar<P>")
-    roundTrip<Action>("Foo<Class<Plant AS P>> -> P<Owner>")
-    roundTrip<Action>("Plant AS P -> Foo<Bar(HAS Baz<P>)>")
+    roundTrip<Action>("StandardResource^1 -> 4 StandardResource^1")
+    roundTrip<Action>("Foo<Plant^1> -> Bar<Plant^1>")
+    roundTrip<Action>("Foo<Class<Plant^1>> -> Plant^1<Owner>")
+    roundTrip<Action>("Plant^1 -> Foo<Bar(HAS Baz<Plant^1>)>")
   }
 
   @Test
-  internal fun `L9-8 an Action Type-variable name must be unambiguous and used`() {
-    shouldThrow<PetSyntaxException> { parse<Action>("Plant AS P -> Heat") }
-    shouldThrow<PetSyntaxException> {
-      parse<Action>("Duo<Plant AS P, Heat AS P> -> P")
-    }
-    shouldThrow<PetSyntaxException> { parse<Action>("Plant AS P -> P<Steel>") }
+  internal fun `L9-8 an Action Type-variable marker must be shared`() {
+    shouldThrow<PetSyntaxException> { parse<Action>("Plant^1 -> Heat") }
+    roundTrip<Action>("Duo<Plant^1, Plant^1> -> Plant^1")
+    shouldThrow<PetSyntaxException> { parse<Action>("Plant^1 -> Plant^1<Steel>") }
   }
 
   @Test
   internal fun `L9-8 an Action variable must be declared by its cost`() {
-    shouldThrow<PetSyntaxException> { parse<Action>("Plant / Score<Steel AS S> -> S") }
-    shouldThrow<PetSyntaxException> { parse<Action>("Plant -> Steel AS S") }
     shouldThrow<PetSyntaxException> {
-      parse<Action>("StandardResource AS R -> Plant AS R THEN R")
+      parse<Action>("Plant / Score<Steel^1> -> Steel^1")
+    }
+    shouldThrow<PetSyntaxException> { parse<Action>("Plant -> Steel^1") }
+    shouldThrow<PetSyntaxException> {
+      parse<Action>("StandardResource^1 -> Plant^1 THEN StandardResource^1")
     }
   }
 }
