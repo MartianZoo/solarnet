@@ -1105,10 +1105,10 @@ classes with the same natural suffix must be declared explicitly.
 > signals or special tiles must name them. Inventing `_2` would make class identity depend on source
 > order, so inserting an earlier local declaration could retarget saved components and references.
 
-**L11-7. The syntax is available only where a declaration file is being read.** `parseOneLinerClass`
-rejects it, and `Parsing.parse` parses and validates it before rejecting it with
-`NoNewClassDeclarationsException`, because a submitted instruction has no definition owner and a
-live game's class table is frozen (T1-6).
+**L11-7. The syntax is available only where a declaration file is being read.**
+`parseOneLinerClass` rejects it, and `Parsing.parse` parses and validates it before rejecting it with
+`PetSyntaxException`, because a submitted instruction has no definition owner and a live game's
+class table is frozen (T1-6).
 
 > **Non-normative implementation note — submitted moves cannot extend the game.** A player may
 > choose among classes already in the Catalog, but cannot submit `SpecialTile { ... }` to create a

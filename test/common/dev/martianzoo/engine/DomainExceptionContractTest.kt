@@ -6,9 +6,7 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
-import dev.martianzoo.pets.api.Exceptions.KindException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.api.Exceptions.NoNewClassDeclarationsException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.PetException
@@ -37,15 +35,15 @@ internal class DomainExceptionContractTest {
   }
 
   @Test
-  internal fun preprocessingKindChangesUseKindExceptions() {
-    shouldThrow<KindException> { agent().parse<Instruction>("2 OxygenStep!") }
+  internal fun preprocessingKindChangesAreProgrammerErrors() {
+    shouldThrow<IllegalStateException> { agent().parse<Instruction>("2 OxygenStep!") }
   }
 
   @Test
   internal fun ownerLocalClassesAreParsedBeforeTheFrozenClassTableRejectsThem() {
     val agent = agent()
 
-    shouldThrow<NoNewClassDeclarationsException> {
+    shouldThrow<PetSyntaxException> {
       agent.runOperation("RequiredAction { -> 3 ProjectCard }")
     }
     shouldThrow<PetSyntaxException> { agent.runOperation("RequiredAction { -> }") }

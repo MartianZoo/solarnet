@@ -4,7 +4,6 @@ import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
-import dev.martianzoo.pets.api.Exceptions.KindException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
@@ -63,7 +62,9 @@ internal class Initializer(
   private fun parseMandatoryInstruction(instruction: String): Instruction {
     val parsed = elaborator.elaborateInput(Parsing.parse<Instruction>("$instruction!"))
     return parsed as? Instruction
-        ?: throw KindException("Preprocessing produced `$parsed`, which is not an Instruction")
+        ?: throw IllegalStateException(
+            "Preprocessing produced `$parsed`, which is not an Instruction"
+        )
   }
 
   /** Executes a generated premise recipe, or directly creates an uncompiled custom premise. */
