@@ -2,6 +2,7 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetException
@@ -14,6 +15,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.typeVariablesFor
 import dev.martianzoo.pets.data.Actor
@@ -112,8 +114,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-2 occurrences that reach one dependency path are one variable`() {
-    // `Cardbound<CardFront<Player>> : Owned<Player>`: the card's owner is the component's owner.
+  internal fun `T13-2 an explicit name links nested and inherited dependency positions`() {
     val cards =
         loadTypes(
             "CLASS Player1 : Owner",
@@ -126,6 +127,21 @@ internal class Spec13TypeVariablesTest {
     cards
         .getClass(cn("Cardbound"))
         .isEqualityConstrainedDependency(Dependency.Key(cn("Owned"), 0)) shouldBe true
+  }
+
+  @Test
+  internal fun `T13-2 nested and inherited positions stay independent without a shared name`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person : Owner { CLASS Alice, Bob }",
+            "ABSTRACT CLASS City : Owned<Person>",
+            "ABSTRACT CLASS Cathedral<City<Person>, Person AS CathedralOwner> : Owned<CathedralOwner>",
+        )
+
+    val cathedral = table.getClass(cn("Cathedral"))
+    cathedral.typeVariables.map { "$it" } shouldContainExactly
+        listOf("City<Person>", "Person", "CathedralOwner")
+    cathedral.typeVariables.distinct().size shouldBe 3
   }
 
   @Test
@@ -858,23 +874,16 @@ internal class Spec13TypeVariablesTest {
       actors.inferTypeVariables().transformEffect(parse<Effect>(source))
 
   @Test
-  internal fun `T13-9 a simple abstract actor selector binds even with no repetition`() {
-    val bound = actorEffect("Heat BY Player: Ok")
-
-    names(bound.typeVariables) shouldContainExactly listOf("Player")
-    bound.typeVariables.variables.single().occurrences.size shouldBe 1
+  internal fun `T13-9 an unnamed actor selector is only a filter`() {
+    names(actorEffect("Heat BY Player: Ok").typeVariables) shouldContainExactly listOf()
   }
 
   @Test
-  internal fun `T13-9 repeating an unnamed actor Type does not reuse its value`() {
+  internal fun `T13-9 repeating an unnamed actor Type creates no hidden link`() {
     val bound = actorEffect("Heat BY Player: Notice<Player>")
-    val actor = bound.typeVariables.variables.single()
 
-    actor.occurrences.size shouldBe 1
-    bound.typeVariables
-        .bind(mapOf(actor to actors.resolve(te("Player1"))))
-        .transformEffect(bound)
-        .toString() shouldBe "Heat BY Player1: Notice<Player>"
+    names(bound.typeVariables) shouldContainExactly listOf()
+    bound.toString() shouldBe "Heat BY Player: Notice<Player>"
   }
 
   @Test
@@ -961,6 +970,33 @@ internal class Spec13TypeVariablesTest {
         .bind(mapOf(variable to table.resolve(te("Plant"))))
         .transformEffect(bound)
         .toString() shouldBe "Plant: Notice<Plant>, StandardResource, Steel"
+  }
+
+  @Test
+  internal fun `T13-10 binding follows marked occurrences through copied syntax`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS StandardResource { CLASS Plant, Steel }",
+            "ABSTRACT CLASS Notice<StandardResource>",
+        )
+    val inferred =
+        table
+            .inferTypeVariables()
+            .transformEffect(parse<Effect>("StandardResource AS R: Notice<R>, StandardResource"))
+    val copier =
+        object : PetTransformer() {
+          override fun transformNode(node: PetNode): PetNode {
+            val transformed = transformChildren(node)
+            return if (transformed is Expression) transformed.copy() else transformed
+          }
+        }
+    val copied = copier.transformEffect(inferred)
+    val variable = copied.typeVariables.variables.single()
+
+    copied.typeVariables
+        .bind(mapOf(variable to table.resolve(te("Plant"))))
+        .transformEffect(copied)
+        .toString() shouldBe "Plant: Notice<Plant>, StandardResource"
   }
 
   @Test

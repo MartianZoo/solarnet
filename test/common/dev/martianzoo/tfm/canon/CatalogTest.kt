@@ -40,7 +40,9 @@ internal class CatalogTest {
                           HAS =1 This
                           CLASS Player1, Player2
                         }
-                        ABSTRACT CLASS CardFront<Player> : Owned<Player> { HAS MAX 1 This<Player> }
+                        ABSTRACT CLASS CardFront<Player AS SameOwner> : Owned<SameOwner> {
+                          HAS MAX 1 This<Player>
+                        }
                         CLASS ExampleCard : CardFront
                         """
                             .trimIndent()

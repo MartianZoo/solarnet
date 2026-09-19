@@ -604,22 +604,13 @@ internal constructor(
           seeds += incoming
         }
 
-    fun sameDependencyPath(first: HeaderOccurrence, second: HeaderOccurrence): Boolean {
-      fun hasSuffix(longer: List<Key>, suffix: List<Key>): Boolean =
-          longer.size >= suffix.size && longer.takeLast(suffix.size) == suffix
-      val firstPath = first.path.keyList
-      val secondPath = second.path.keyList
-      return hasSuffix(firstPath, secondPath) || hasSuffix(secondPath, firstPath)
-    }
-
     val occurrenceGroups = mutableListOf<MutableList<HeaderOccurrence>>()
     headerOccurrences().forEach { occurrence ->
       val matching = occurrenceGroups.filter { group ->
         group.any { prior ->
           val priorName = prior.expression.typeVariableName?.name
           val occurrenceName = occurrence.expression.typeVariableName?.name
-          (priorName != null && priorName == occurrenceName) ||
-              sameDependencyPath(prior, occurrence)
+          priorName != null && priorName == occurrenceName
         }
       }
       if (matching.isEmpty()) {

@@ -36,7 +36,7 @@ CLASS Pay<Class<StandardResource> AS ResourceClass> : Owned<Player>, Signal {
 }
 
 "Offers payment using the resource held by a specific card"
-CLASS AcceptingFromCard<ResourceCard<Class<CardResource AS ThatResource>, Player> AS ThatCard> : Owned<Player>, MustCleanUp {
+CLASS AcceptingFromCard<ResourceCard<Class<CardResource AS ThatResource>, Player AS SameOwner> AS ThatCard> : Owned<SameOwner>, MustCleanUp {
   HAS MAX 1 This
   Billing: X PayFromCard<ThatCard> FROM ThatResource<ThatCard>?
   -X Billing:: -This!

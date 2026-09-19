@@ -258,7 +258,7 @@ internal class Spec03DependenciesTest {
           "CLASS Player1 : Owner",
           "CLASS Player2 : Owner",
           "CLASS Card : Owned<Owner>",
-          "ABSTRACT CLASS Linked<Card<Owner>> : Owned<Owner>",
+          "ABSTRACT CLASS Linked<Card<Owner AS SameOwner>> : Owned<SameOwner>",
           "CLASS InheritedLink : Linked",
       )
 

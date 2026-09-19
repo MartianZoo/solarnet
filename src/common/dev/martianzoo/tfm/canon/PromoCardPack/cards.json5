@@ -128,7 +128,7 @@
         {
           "name": "DoubleDown",
           "immediate": "CopyPrelude",
-          "components": [ "CLASS CopyPrelude<CardFront<Player>> : Owned<Player>, Custom" ],
+          "components": [ "CLASS CopyPrelude<CardFront<Player AS SameOwner>> : Owned<SameOwner>, Custom" ],
         },
         {
           "name": "GiantSolarCollector",
@@ -643,8 +643,8 @@
             "UseAction<This>:: Accepting<Class<Steel>>",
             "End: VictoryPoint / Cathedral<Anyone>"
           ],
-          // The city owner owns the Cathedral and therefore receives its pay-2-to-draw offer. The
-          // Mission owner still receives the endgame VP through the effect above.
+          // The Cathedral owner receives its pay-2-to-draw offer; its City dependency may have a
+          // different owner. The Mission owner still receives the endgame VP through the effect above.
           "components": [
             "CLASS CathedralOption : HasActions { 2 MC -> ProjectCard }",
             "CLASS Cathedral<CityTile<Owner>> : Owned<Owner> { HAS MAX 1 This; This: UseAction<CathedralOption>? }"

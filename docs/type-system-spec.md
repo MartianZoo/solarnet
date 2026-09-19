@@ -1183,9 +1183,9 @@ A variable's identity is its declaration and scope — never its class name. `Pl
 unrelated variables in different rules.
 
 There are three sources of a shared choice: a class header declares one (T13-2 to T13-5), a local
-construct names one explicitly (T13-6, T13-7), or a binder such as a compact transmutation slot or
-actor selector establishes one structurally (T13-7 to T13-9). A trigger supplies the concrete value
-when it matches; `BY` is one place that value can come from.
+construct names one explicitly (T13-6, T13-7), or a compact transmutation's single unchanged slot
+establishes one structurally (T13-7). A trigger supplies a concrete value when it matches; an
+explicitly named `BY` selector is one place that value can come from (T13-9).
 
 Three properties hold of all three sources, and most of the rules below are consequences of them:
 
@@ -1205,33 +1205,31 @@ Three properties hold of all three sources, and most of the rules below are cons
 
 ### Class-header variables
 
-**T13-2. Each eligible abstract header expression declares one.** Eligible means: not `This`, and
-resolving to an abstract type. `ABSTRACT CLASS Holder<Box<Person>>` declares two — `Box<Person>` and
-the `Person` nested inside it.
+**T13-2. Each eligible abstract header occurrence declares one unless it explicitly uses another.**
+Eligible means: not `This`, and resolving to an abstract type.
+`ABSTRACT CLASS Holder<Box<Person>>` declares two — `Box<Person>` and the `Person` nested inside it.
 
-A header variable needs an `AS` name when that Class's own body refers to it or when distinct
-dependency paths must denote the same variable (T13-3). Occurrences that reach one dependency path
-are structurally one position; inherited specialization likewise supplies values by position and
-does not expose the superclass's source-level name.
-
-Occurrences that reach the *same dependency path* are one variable even through different
-supertypes. Explicit names make that relationship visible in source and are required if the body
-uses the variable. That is what rule T3-8 is built on:
+No relationship is inferred from equal spelling or from dependency paths that happen to overlap.
+Distinct occurrences are distinct variables unless one is declared with `AS Name` and the other
+explicitly uses `Name`. A header variable therefore needs a name when the Class's own body refers to
+it or when distinct dependency positions must agree (T13-3). That explicit relationship is what
+rule T3-8 is built on:
 
 ```pets
 ABSTRACT CLASS Cardbound<CardFront<Owner AS CardOwner>> : Owned<CardOwner>
 ```
 
-The `Owner` inside `CardFront<Owner>` sits at path `Cardbound_0.Owned_0`; the `Owner` of the
-`Owned<Owner>` supertype sits at `Owned_0`. One path ends with the other, so they are one variable,
-and the explicitly named dependency positions are forced to agree. Two header *roots* spelled alike
-stay independent, as do identical nested bounds in sibling branches: `Pair<Box<Person>,
+`CardOwner` explicitly makes the owner inside `CardFront` and the owner of the `Owned` supertype one
+variable, so the two dependency positions are forced to agree. Without that name they would remain
+independent even though their dependency paths have a common suffix. Equal roots and identical
+nested bounds in sibling branches are independent for the same reason: `Pair<Box<Person>,
 Box<Person>>` leaves the two people free to differ. They can instead be linked deliberately, as in
 `Pair<Box<Person AS P>, Box<P>>`.
 
-> **Non-normative example — cardbound resources.** `CardResource<ResourceHolder<..., Owner>>` and
-> `Owned<Owner>` reach the same holder owner by different dependency paths. Recognizing their shared
-> suffix is what prevents a resource and its physical card from acquiring different owners.
+> **Non-normative example — separate owners.** `ABSTRACT CLASS Cathedral<City<Owner>> :
+> Owned<Owner>` does not imply that the cathedral and city have one owner. A declaration that
+> requires that rule says so explicitly: `ABSTRACT CLASS Cathedral<City<Owner AS SameOwner>> :
+> Owned<SameOwner>`.
 
 **T13-3. Uses in the class's own body are named explicitly.** `Type AS Name` on an eligible header
 expression names that variable, and `Name` in the Class's authored effects or actions uses it.
@@ -1355,10 +1353,9 @@ stages choose, rather than ranging over people of its own.
 > explicitly uses the particular track selected for that iteration.
 
 **T13-9. Actor specialization.** A `BY` selector constrains the Actor recorded on the triggering
-event. A simple, positive, abstract Actor expression in that position is specialized to the concrete
-Actor before the inner trigger is matched. It is a one-occurrence declaration unless it has an
-explicit name; `AS` references then use the value supplied by the event Actor. With no reuse,
-recording that declaration has no additional language meaning: the selector simply tests the Actor.
+event. An unnamed selector is only a filter and declares no variable. `AS` explicitly declares a
+variable supplied by the concrete event Actor; its references use that value, and it is bound before
+the inner trigger is matched.
 
 Other selectors do not become declarations merely because they follow `BY`. `BY Anyone` alone is the
 unrestricted wildcard described after T6-6, and a refined selector alone is a constraint. Reusing
@@ -1386,8 +1383,8 @@ Binding `ActingPlayer` to `Player1` gives
 
 > **Non-normative design note — `BY` supplies an explicitly named value.** `BY` identifies the event
 > field that supplies the value; `AS` identifies where that value is reused. Specializing it before
-> the inner trigger matters when the Actor is mentioned in a `NOT` there. With no reuse, whether an
-> implementation records a one-occurrence variable is bookkeeping rather than language semantics.
+> the inner trigger matters when the Actor is mentioned in a `NOT` there. Without `AS`, there is no
+> value to record or reuse.
 
 ### Binding
 
@@ -1395,6 +1392,14 @@ Binding `ActingPlayer` to `Player1` gives
 transformer that rewrites the occurrences it recorded and nothing else — a coincidental mention of
 the same class elsewhere is untouched. Each occurrence keeps its own arguments while receiving the
 captured value.
+
+Preprocessing may copy an expression or insert default dependency arguments after its occurrence
+was recorded. The scope follows that occurrence's current spelling through each transformation.
+Binding first recognizes the same syntax node, then an exact copy carrying the same variable
+marker, and finally that marked expression with only dependency-key-preserving arguments added.
+None of these fallbacks compares an unmarked Class name. For example, if preprocessing expands the
+recorded `Tile<> AS T` to `Tile<LandArea, Anyone> AS T`, binding `T` still replaces that declaration
+and its marked uses; a separate unmarked `Tile<LandArea, Anyone>` remains untouched.
 
 For represented-Class application, binding `R` to the Class `C` makes `R<A>` mean `C<A>`. If `C`
 already narrows the dependency that `A` matches, the two constraints intersect normally and a
