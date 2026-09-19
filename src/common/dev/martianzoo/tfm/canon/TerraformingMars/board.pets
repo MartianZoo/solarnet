@@ -145,8 +145,7 @@ CLASS StandardGpTrackRules : System {
   OxygenStep IF =8 OxygenStep: TemperatureStep
   OxygenStep IF =14 OxygenStep:: GpComplete<Class<OxygenStep>>
 
-  // Keep the trigger's area independent from the aggregate OceanTile count.
-  OceanTile<MarsArea> IF =9 OceanTile:: GpComplete<Class<OceanTile>>
+  OceanTile IF =9 OceanTile:: GpComplete<Class<OceanTile>>
 }
 
 "Records that a particular global parameter track has not reached its maximum"

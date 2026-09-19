@@ -39,7 +39,7 @@ internal class Spec13TypeVariablesTest {
       )
 
   private fun effect(source: String): Effect =
-      resources.inferTypeVariables().transformEffect(parse(source))
+      resources.recordTypeVariableScopes().transformEffect(parse(source))
 
   private fun names(scope: TypeVariableScope) =
       scope.variables.map { it.name?.toString() ?: "${it.declaration.expression}" }
@@ -466,7 +466,7 @@ internal class Spec13TypeVariablesTest {
     val watcher = table.getClass(cn("Watcher"))
     val effect =
         table
-            .inferTypeVariables()
+            .recordTypeVariableScopes()
             .transformEffect(watcher.interpretTypeVariablesIn(watcher.declaration.effects.single()))
     val specialized = table.resolve(te("Watcher<Class<Plant>>"))
 
@@ -600,7 +600,7 @@ internal class Spec13TypeVariablesTest {
   @Test
   internal fun `T13-7 an action names a choice shared by its cost and result`() {
     val action: Action =
-        resources.inferTypeVariables().transformAction(parse("StandardResource AS R -> R"))
+        resources.recordTypeVariableScopes().transformAction(parse("StandardResource AS R -> R"))
     val lowered = action.toInstruction() as Then
     val variable = lowered.typeVariables.variables.single()
 
@@ -612,16 +612,16 @@ internal class Spec13TypeVariablesTest {
 
     val unlinked =
         resources
-            .inferTypeVariables()
+            .recordTypeVariableScopes()
             .transformAction(parse("StandardResource -> StandardResource"))
     unlinked.typeVariables.variables shouldBe listOf()
   }
 
   @Test
-  internal fun `T13-7 repeated inference does not duplicate a named Action variable`() {
-    val infer = resources.inferTypeVariables()
-    val once = infer.transformAction(parse("StandardResource AS R -> R"))
-    val twice = infer.transformAction(once)
+  internal fun `T13-7 recording twice does not duplicate a named Action variable`() {
+    val recorder = resources.recordTypeVariableScopes()
+    val once = recorder.transformAction(parse("StandardResource AS R -> R"))
+    val twice = recorder.transformAction(once)
 
     names(twice.typeVariables) shouldContainExactly listOf("R")
   }
@@ -629,14 +629,18 @@ internal class Spec13TypeVariablesTest {
   @Test
   internal fun `T13-7 an Action variable name cannot be a Type name`() {
     shouldThrow<ExpressionException> {
-      resources.inferTypeVariables().transformAction(parse("StandardResource AS Plant -> Plant"))
+      resources
+          .recordTypeVariableScopes()
+          .transformAction(parse("StandardResource AS Plant -> Plant"))
     }
   }
 
   @Test
   internal fun `T13-7 a THEN sequence names a choice shared by its stages`() {
     val instruction: Instruction =
-        resources.inferTypeVariables().transformInstruction(parse("StandardResource AS R THEN R"))
+        resources
+            .recordTypeVariableScopes()
+            .transformInstruction(parse("StandardResource AS R THEN R"))
     val then = instruction as Then
     val variable = then.typeVariables.variables.single()
 
@@ -648,16 +652,16 @@ internal class Spec13TypeVariablesTest {
 
     val unlinked =
         resources
-            .inferTypeVariables()
+            .recordTypeVariableScopes()
             .transformInstruction(parse("StandardResource THEN StandardResource")) as Then
     unlinked.typeVariables.variables shouldBe listOf()
   }
 
   @Test
-  internal fun `T13-7 repeated inference does not duplicate a named THEN variable`() {
-    val infer = resources.inferTypeVariables()
-    val once = infer.transformInstruction(parse("StandardResource AS R THEN R"))
-    val twice = infer.transformInstruction(once) as Then
+  internal fun `T13-7 recording twice does not duplicate a named THEN variable`() {
+    val recorder = resources.recordTypeVariableScopes()
+    val once = recorder.transformInstruction(parse("StandardResource AS R THEN R"))
+    val twice = recorder.transformInstruction(once) as Then
 
     names(twice.typeVariables) shouldContainExactly listOf("R")
   }
@@ -665,7 +669,9 @@ internal class Spec13TypeVariablesTest {
   @Test
   internal fun `T13-7 a THEN name follows declaration order and must cross stages`() {
     shouldThrow<ExpressionException> {
-      resources.inferTypeVariables().transformInstruction(parse("R THEN StandardResource AS R"))
+      resources
+          .recordTypeVariableScopes()
+          .transformInstruction(parse("R THEN StandardResource AS R"))
     }
 
     val table =
@@ -676,7 +682,7 @@ internal class Spec13TypeVariablesTest {
         )
     shouldThrow<ExpressionException> {
       table
-          .inferTypeVariables()
+          .recordTypeVariableScopes()
           .transformInstruction(parse("Duo<StandardResource AS R, R> THEN Coin"))
     }
   }
@@ -685,7 +691,7 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-7 a THEN variable name cannot be a Type name`() {
     shouldThrow<ExpressionException> {
       resources
-          .inferTypeVariables()
+          .recordTypeVariableScopes()
           .transformInstruction(parse("StandardResource AS Plant THEN Plant"))
     }
   }
@@ -694,7 +700,7 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-7 a transmutation names a destination choice used by its source`() {
     val transmute =
         resources
-            .inferTypeVariables()
+            .recordTypeVariableScopes()
             .transformInstruction(
                 parse("Receipt<Class<StandardResource AS R>> FROM Production<Class<R>>")
             ) as Instruction.Transmute
@@ -713,7 +719,7 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-7 repeated transmutation spelling alone declares nothing`() {
     val transmute =
         resources
-            .inferTypeVariables()
+            .recordTypeVariableScopes()
             .transformInstruction(
                 parse(
                     "Production<Class<StandardResource>> FROM Production<Class<StandardResource>>"
@@ -732,8 +738,9 @@ internal class Spec13TypeVariablesTest {
             "ABSTRACT CLASS Pair<Person, Side>",
         )
     val transmute =
-        table.inferTypeVariables().transformInstruction(parse("Pair<Person, Left FROM Right>"))
-            as Instruction.Transmute
+        table
+            .recordTypeVariableScopes()
+            .transformInstruction(parse("Pair<Person, Left FROM Right>")) as Instruction.Transmute
     val variable = transmute.typeVariables.variables.single()
 
     variable.occurrences.map { "${it.expression}" } shouldContainExactly listOf("Person", "Person")
@@ -769,7 +776,7 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-7 a transmutation variable name cannot be a Type name`() {
     shouldThrow<ExpressionException> {
       resources
-          .inferTypeVariables()
+          .recordTypeVariableScopes()
           .transformInstruction(
               parse("Receipt<Class<StandardResource AS Plant>> FROM Production<Class<Plant>>")
           )
@@ -777,13 +784,13 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-7 a second inference does not duplicate a named transmutation variable`() {
-    val infer = resources.inferTypeVariables()
+  internal fun `T13-7 recording twice does not duplicate a named transmutation variable`() {
+    val recorder = resources.recordTypeVariableScopes()
     val once =
-        infer.transformInstruction(
+        recorder.transformInstruction(
             parse("Receipt<Class<StandardResource AS R>> FROM Production<Class<R>>")
         )
-    val twice = infer.transformInstruction(once) as Instruction.Transmute
+    val twice = recorder.transformInstruction(once) as Instruction.Transmute
 
     names(twice.typeVariables) shouldContainExactly listOf("R")
   }
@@ -842,13 +849,13 @@ internal class Spec13TypeVariablesTest {
             "ABSTRACT CLASS Coin<Person>",
             "ABSTRACT CLASS Receipt<Person>",
         )
-    val inferred =
+    val scoped =
         table
-            .inferTypeVariables()
+            .recordTypeVariableScopes()
             .transformEffect(
                 parse("This: (Eligible<Choice>: Coin<Person AS Choice>) THEN Receipt<Choice>")
             )
-    val then = inferred.instruction as Then
+    val then = scoped.instruction as Then
     val choice = then.typeVariables.variables.single()
 
     choice.name.toString() shouldBe "Choice"
@@ -857,7 +864,7 @@ internal class Spec13TypeVariablesTest {
     (choice.usages.first().ordinal < choice.declaration.ordinal) shouldBe true
     then.typeVariables
         .bind(mapOf(choice to table.resolve(te("Alice"))))
-        .transformEffect(inferred)
+        .transformEffect(scoped)
         .toString() shouldBe "This: Eligible<Alice>: Coin<Alice> THEN Receipt<Alice>"
   }
 
@@ -871,7 +878,7 @@ internal class Spec13TypeVariablesTest {
       )
 
   private fun actorEffect(source: String) =
-      actors.inferTypeVariables().transformEffect(parse<Effect>(source))
+      actors.recordTypeVariableScopes().transformEffect(parse<Effect>(source))
 
   @Test
   internal fun `T13-9 an unnamed actor selector is only a filter`() {
@@ -920,7 +927,7 @@ internal class Spec13TypeVariablesTest {
         )
     val bound =
         table
-            .inferTypeVariables()
+            .recordTypeVariableScopes()
             .transformEffect(
                 parse<Effect>(
                     "Resource<Owner(NOT ActingPlayer) AS Other> BY Player AS ActingPlayer: Notice<Other>"
@@ -960,7 +967,7 @@ internal class Spec13TypeVariablesTest {
         )
     val bound =
         table
-            .inferTypeVariables()
+            .recordTypeVariableScopes()
             .transformEffect(
                 parse<Effect>("StandardResource AS R: Notice<R>, StandardResource, Steel")
             )
@@ -979,9 +986,9 @@ internal class Spec13TypeVariablesTest {
             "ABSTRACT CLASS StandardResource { CLASS Plant, Steel }",
             "ABSTRACT CLASS Notice<StandardResource>",
         )
-    val inferred =
+    val scoped =
         table
-            .inferTypeVariables()
+            .recordTypeVariableScopes()
             .transformEffect(parse<Effect>("StandardResource AS R: Notice<R>, StandardResource"))
     val copier =
         object : PetTransformer() {
@@ -990,7 +997,7 @@ internal class Spec13TypeVariablesTest {
             return if (transformed is Expression) transformed.copy() else transformed
           }
         }
-    val copied = copier.transformEffect(inferred)
+    val copied = copier.transformEffect(scoped)
     val variable = copied.typeVariables.variables.single()
 
     copied.typeVariables
@@ -1009,7 +1016,7 @@ internal class Spec13TypeVariablesTest {
         )
     val bound =
         table
-            .inferTypeVariables()
+            .recordTypeVariableScopes()
             .transformEffect(parse<Effect>("StandardResource AS R: Notice<R>"))
     val variable = bound.typeVariables.variables.single()
 
@@ -1028,7 +1035,7 @@ internal class Spec13TypeVariablesTest {
         )
     val bound =
         table
-            .inferTypeVariables()
+            .recordTypeVariableScopes()
             .transformEffect(parse<Effect>("StandardResource(HAS Marker) AS R: Token<R>"))
     val variable = bound.typeVariables.variables.single()
     val world = RecordingWorld(answer = true)

@@ -288,7 +288,7 @@ retaining its identity and lifecycle fields. Narrowing a grouped `OR` branch can
 one task with several.
 
 `A THEN B` stores A as current work and B as a continuation. Completing A enqueues B in its place;
-B is not immediate and receives no priority over unrelated pending work. Open implicit variables can
+B is not immediate and receives no priority over unrelated pending work. Open Type variables can
 prevent splitting until an earlier stage fixes their shared Type. Narrowing and resolution normalize
 the task again, so the sequence splits once those shared values become concrete.
 

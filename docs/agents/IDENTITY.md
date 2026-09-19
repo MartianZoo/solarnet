@@ -245,9 +245,9 @@ bare `Owner`, so `Owner` is the contextual variable and `Owner(NOT Player)` is t
 word, read two ways depending on whether a refinement follows it.
 
 **`BY Anyone` is a third meaning.** It is handled before constrained narrowing (`LiveEffect`, search
-for `by == ANYONE`) and includes Admin, who is not an `Anyone` at all. Two more Kotlin carve-outs
-exist for the same word: `Class.kt` skips `ANYONE` when recognizing header-variable uses, and
-`inferTypeVariables` skips it when recognizing Actor declarations.
+for `by == ANYONE`) and includes Admin, who is not an `Anyone` at all. This remains a Kotlin
+carve-out in `LiveEffect`; Type-variable discovery needs no `ANYONE`-specific rule because reusing
+an Actor selector requires an explicit name.
 
 **A shape that would dissolve all of it.** Make both words contextual rather than classes:
 

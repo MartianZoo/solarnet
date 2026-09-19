@@ -56,7 +56,7 @@ import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.DependencySet
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.types.TypeVariableScope
-import dev.martianzoo.pets.types.inferTypeVariables
+import dev.martianzoo.pets.types.recordTypeVariableScopes
 import dev.martianzoo.pets.util.invoke
 
 /**
@@ -68,9 +68,9 @@ import dev.martianzoo.pets.util.invoke
  *
  * The stages are fixed ([rule
  * L12-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-elaboration)):
- * infer type variables, split atomized gains, insert defaults, bind the contextual owner, dispatch
- * transform blocks, expand property evaluations. The entry points supply different contexts and
- * permit different property forms while preserving that shared ordering.
+ * record Type-variable scopes, split atomized gains, insert defaults, bind the contextual owner,
+ * dispatch transform blocks, expand property evaluations. The entry points supply different
+ * contexts and permit different property forms while preserving that shared ordering.
  *
  * Runtime binding operations return [PetTransformer] only where the engine must retain one deferred
  * binding across several AST families.
@@ -140,7 +140,7 @@ public class PetElaborator(public val classTable: ClassTable) {
       )
 
   private fun normalizeInput(): PetTransformer =
-      chain(useFullNames(), classTable.inferTypeVariables())
+      chain(useFullNames(), classTable.recordTypeVariableScopes())
 
   private fun finishAuthoredSyntax(
       context: Expression,
@@ -170,7 +170,7 @@ public class PetElaborator(public val classTable: ClassTable) {
                     ?: declaration.authoredEffects +
                         declaration.authoredActions.mapIndexed { index, action ->
                           actionToEffect(
-                              classTable.inferTypeVariables().transformAction(action),
+                              classTable.recordTypeVariableScopes().transformAction(action),
                               index + 1,
                           )
                         }
@@ -370,7 +370,7 @@ public class PetElaborator(public val classTable: ClassTable) {
   private fun attachToClassTransformer(klass: Class): PetTransformer {
     val context = klass.className.has(Min(scaledEx(OK, 1)))
     return chain(
-        classTable.inferTypeVariables(),
+        classTable.recordTypeVariableScopes(),
         atomizer(),
         insertDefaults(context),
         transformDispatcher(),

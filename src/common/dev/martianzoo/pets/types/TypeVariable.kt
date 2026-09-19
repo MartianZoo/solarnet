@@ -48,7 +48,7 @@ internal constructor(
    */
   public val declaration: Declaration = Declaration(this, declarationSite)
 
-  /** The explicit source name assigned with `AS`, or null for an inferred variable. */
+  /** The explicit source name assigned with `AS`, or null for a structural variable. */
   public val name: ClassName? =
       (declaration.expression.typeVariableName as? SyntaxDeclaration)?.name
 

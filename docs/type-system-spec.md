@@ -1272,7 +1272,7 @@ dependency does supply one — `CLASS Leaf : Badge<Alice>` supplies `Alice` for 
 > `StandardResource` to steel: its initial stock, production, and mirrored player transfers. Merely
 > narrowing the header would leave a supposedly steel reserve operating on arbitrary resources.
 
-### Local and inferred variables
+### Local and structural variables
 
 **T13-6. An Effect names a shared choice explicitly.** `Type AS Name` declares a variable in the
 matching part of an Effect's trigger. A bare `Name` elsewhere in the same Effect uses the

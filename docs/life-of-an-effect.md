@@ -142,7 +142,7 @@ game knows whether Recyclon is Active. These facts may now be used to form its C
 
 **PetTransformers, in order:**
 
-1. `inferTypeVariables`
+1. `recordTypeVariableScopes`
 2. `insertGainRemoveDefaults`
 3. `insertExpressionDefaults`
 4. `atomizer`
@@ -351,7 +351,7 @@ text to choose or narrow it, that input first passes through:
 2. `rejectPropertyEvaluations`
 3. `canonicalize`
 4. `useFullNames`
-5. `inferTypeVariables`
+5. `recordTypeVariableScopes`
 6. `atomizer`
 7. `insertGainRemoveDefaults` and `insertExpressionDefaults`, together exposed as `insertDefaults`
 8. `replaceOwnerWith`, when the client is a Player

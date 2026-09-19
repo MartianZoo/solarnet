@@ -352,9 +352,9 @@ refinement.** Whitespace is not preserved and duplicate refinement clauses colla
 expression is not rewritten into its type's canonical form: `Tile` and `Tile<Area>` remain distinct
 expressions even though they resolve to one type (T1-3, T5-5).
 
-> **Non-normative implementation note — spelling is not identity.** Type-variable inference records
-> explicit declarations and references before normalization. `Tile` and `Tile<Area>` can resolve to
-> one type without becoming one shared choice.
+> **Non-normative implementation note — spelling is not identity.** Type-variable scope recording
+> preserves explicit declarations and references before normalization. `Tile` and `Tile<Area>` can
+> resolve to one type without becoming one shared choice.
 
 **L3-8. Two expressions are equal when their structural spellings agree.** Argument order is part of
 the spelling, while refinement-clause order and duplication are not (L3-3). Thus
@@ -1183,7 +1183,7 @@ three separate cards. It changes how a source *reads*; it never changes which ty
 what section 10 of the type system specification means by a default not being a bound.
 
 **L12-1. Elaboration is one rewriting, in one order, of an element against a context.** The stages
-are, in this order: infer type variables (T13-6 through T13-9); split atomized gains (L12-11);
+are, in this order: record Type-variable scopes (T13-6 through T13-9); split atomized gains (L12-11);
 insert defaults (L12-4 through L12-10); bind the contextual owner (L12-3); dispatch transform blocks
 (section 10); expand property evaluations (L12-12).
 

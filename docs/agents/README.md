@@ -63,7 +63,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 
 | Concept being changed | Read | Authority |
 | --- | --- | --- |
-| Classes, Types, dependencies, refinements, implicit variables, or uninhabited types | The cited rule of [`type-system-spec.md`](../type-system-spec.md) | Specification, checked rule-by-rule by `pets/types/Spec*Test.kt` |
+| Classes, Types, dependencies, refinements, Type variables, or uninhabited types | The cited rule of [`type-system-spec.md`](../type-system-spec.md) | Specification, checked rule-by-rule by `pets/types/Spec*Test.kt` |
 | Pets syntax, declarations, instructions, effects, actions, narrowing, owner-local Classes, or elaboration | The cited rule of [`pets-language-spec.md`](../pets-language-spec.md) | Specification, checked rule-by-rule by `pets/Lang*Test.kt` |
 | Type-variable lifetime in the engine | The matching section of [`TYPES.md`](TYPES.md) | Current model and working direction |
 | Class-property syntax, defaults, cardinality, or property groups | The matching section of [`PROPERTIES.md`](PROPERTIES.md) | Current model and working rules |

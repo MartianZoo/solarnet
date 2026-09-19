@@ -110,7 +110,7 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
 /**
  * Applies engine-owned normalization while preserving this task's identity and lifecycle. A
  * separable sequence moves into [Task.then] only when that continuation slot is free; otherwise
- * both sequence boundaries remain intact so their implicit variables stay independent.
+ * both sequence boundaries remain intact so their local Type-variable scopes stay independent.
  */
 internal fun normalizeTask(
     task: Task,

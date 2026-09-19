@@ -20,7 +20,7 @@ CLASS ExtendedGlobalParametersRule : Module {
   OxygenStep IF =11 OxygenStep: TemperatureStep
   OxygenStep IF =18 OxygenStep:: GpComplete<Class<OxygenStep>>
 
-  OceanTile<MarsArea> IF =11 OceanTile:: GpComplete<Class<OceanTile>>
+  OceanTile IF =11 OceanTile:: GpComplete<Class<OceanTile>>
 }
 
 CLASS Terran : Milestone { requirement = HAS "5 EarthTag" }
