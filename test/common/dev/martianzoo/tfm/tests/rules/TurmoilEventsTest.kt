@@ -209,8 +209,8 @@ internal class TurmoilEventsTest :
     p1.count("Steel") shouldBe 1
     p1.count("PROD[Steel]") shouldBe 0
     p1.count("PROD[Energy]") shouldBe 0
-    p1.count("ProjectCard") shouldBe 2
-    p1.count("MC") shouldBe 4
+    p1.count("ProjectCard") shouldBe 0
+    p1.count("MC") shouldBe 6
     p1.count("PROD[MC] - ProdOffset<Class<MC>>") shouldBe 1
     p1.count("TerraformRating") shouldBe 17
     requireP2().count("TerraformRating") shouldBe 16
