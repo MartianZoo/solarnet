@@ -180,6 +180,29 @@ internal class BugsTest : CardTest() {
   }
 
   @Test
+  internal fun `Astra Mechanica incorrectly takes back Lava Flows and Deimos Down promo`() {
+    newGameWithAutoWorkflow(PromoCardPack)
+    playUntilFirstActionPhase()
+
+    p1.turn {
+      playProject(LavaFlows, 18) { placeTile(2, 2) }
+      playProject(DeimosDownPromo, 31) { placeTile(4, 5) }
+    }
+    requireP2().pass()
+
+    p1.playProject(AstraMechanica, 7) {
+          doWithoutAutoExec(p1) {
+            doTask("ProjectCard FROM PlayedEvent<Class<$LavaFlows>>")
+            doTask("ProjectCard FROM PlayedEvent<Class<$DeimosDownPromo>>")
+          }
+        }
+        .expect(
+            "$AstraMechanica, ProjectCard, " +
+                "-PlayedEvent<Class<$LavaFlows>>, -PlayedEvent<Class<$DeimosDownPromo>>"
+        )
+  }
+
+  @Test
   internal fun `Fake SRR robot units incorrectly count as resource types and for Collector`() {
     newGame(Amazonis, VenusNextExpansion, PromoCardPack, FakeStuffBundle)
     val p2 = requireP2()
