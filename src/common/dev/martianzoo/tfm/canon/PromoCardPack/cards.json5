@@ -271,11 +271,7 @@
         {
           "name": "CyberiaSystems",
           "cost": 16,
-          // TODO: Prefer the pending Cyberia Systems fix once it merges.
-          "immediate": "PROD[Steel], CopyProductionBox<CardFront^1(HAS BuildingTag)> THEN CyberiaSystemsFirstChoice<CardFront^1> THEN CopyProductionBox<CardFront(HAS BuildingTag, HAS MAX 0 CyberiaSystemsFirstChoice)> THEN -CyberiaSystemsFirstChoice",
-          "components": [
-            "CLASS CyberiaSystemsFirstChoice : Cardbound, MustCleanUp"
-          ],
+          "immediate": "PROD[Steel], (BuildingTag<CardFront^First>: CopyProductionBox<CardFront^First>) THEN CopyProductionBox<CardFront(HAS BuildingTag, NOT CardFront^First)>",
         },
         {
           "name": "DeimosDownPromo",
@@ -434,7 +430,7 @@
           "cost": 13,
           "immediate": "NomadsMarker<LandArea(HAS MAX 0 Occupant)>",
           "actions": [
-            "-> NomadsMarker<LandArea^1(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>)> FROM NomadsMarker<Owner> THEN Placement<LandArea^1>"
+            "-> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>, NOT LandArea^Source)> FROM NomadsMarker<Owner, LandArea^Source> THEN EACH MarsArea^Destination(HAS NomadsMarker) { Placement<MarsArea^Destination> }"
           ],
         },
         {

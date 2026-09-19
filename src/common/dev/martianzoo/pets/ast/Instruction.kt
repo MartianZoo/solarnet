@@ -28,6 +28,8 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.Companion.checkNonzero
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
+import dev.martianzoo.pets.types.GroundType
+import dev.martianzoo.pets.types.TypeVariable
 import dev.martianzoo.pets.util.invoke
 import dev.martianzoo.pets.util.toSetStrict
 
@@ -144,11 +146,20 @@ public sealed class Instruction : InstructionTree() {
     }
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
+      ensureChangeIsNarrowedBy(this, proposed, info)
+    }
+
+    protected fun ensureChangeIsNarrowedBy(
+        authored: Change,
+        proposed: InstructionTree,
+        info: TypeInfo,
+    ) {
+      val quantifier = authored.quantifier
       if (proposed == NoOp && quantifier == OPTIONAL) return
       proposed as? Change ?: throw NarrowingException("$this  /  $proposed")
       proposed.quantifier!!.ensureNarrows(quantifier!!, info)
       val proposedCount = proposed.count
-      val authoredCount = count
+      val authoredCount = authored.count
       if (
           quantifier == OPTIONAL && proposedCount is ActualScalar && authoredCount is ActualScalar
       ) {
@@ -156,8 +167,8 @@ public sealed class Instruction : InstructionTree() {
       } else {
         proposedCount.ensureNarrows(authoredCount, info)
       }
-      gaining?.let { proposed.gaining!!.ensureNarrows(it, info) }
-      removing?.let { proposed.removing!!.ensureNarrows(it, info) }
+      authored.gaining?.let { proposed.gaining!!.ensureNarrows(it, info) }
+      authored.removing?.let { proposed.removing!!.ensureNarrows(it, info) }
     }
   }
 
@@ -254,8 +265,8 @@ public sealed class Instruction : InstructionTree() {
    * See [FromExpression] for the compact spelling available when both sides share a class ([rule
    * L6-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
    *
-   * A destination expression may explicitly name a choice used by the source. Narrowing must supply
-   * a single consistent value for each such type variable ([rule
+   * Either side may explicitly name a choice used by the other. Narrowing must supply a single
+   * consistent value for each such type variable ([rule
    * L7-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
    */
   public data class Transmute(
@@ -298,15 +309,18 @@ public sealed class Instruction : InstructionTree() {
     }
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      super.ensureIsNarrowedBy(proposed, info)
-      if (proposed == NoOp) return
-      proposed as Transmute
+      if (proposed == NoOp) {
+        ensureChangeIsNarrowedBy(this, proposed, info)
+        return
+      }
+      proposed as? Transmute ?: throw NarrowingException("$this  /  $proposed")
       (fromEx as? Compact)?.ensureRetainedArgumentsAgree(
           proposed.gaining,
           proposed.removing,
           info,
       )
       val variables = typeVariablesFor(info)
+      val selected = mutableMapOf<TypeVariable, GroundType>()
       for (variable in
           variables.variables.filter {
             info.isAbstract(variables.expressionOf(it.declaration))
@@ -314,12 +328,22 @@ public sealed class Instruction : InstructionTree() {
         val bindings =
             variables.bindings(gaining, proposed.gaining, variable) +
                 variables.bindings(removing, proposed.removing, variable)
-        if (bindings.distinct().size > 1) {
+        val distinct = bindings.distinct()
+        if (distinct.size > 1) {
           throw NarrowingException(
               "Can't set Type variable $variable differently: ${bindings.toSet()}"
           )
         }
+        distinct.singleOrNull()?.let {
+          selected[variable] = variable.bound.classTable.resolve(it).groundType
+        }
       }
+      if (selected.isNotEmpty()) {
+        val specialized = variables.bind(selected).transformInstruction(this) as Transmute
+        ensureChangeIsNarrowedBy(specialized, proposed, info)
+        return
+      }
+      ensureChangeIsNarrowedBy(this, proposed, info)
     }
   }
 

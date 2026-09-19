@@ -818,10 +818,10 @@ variable may be specialized later, making the difference non-empty again.
   so neither shortcut applies to them: `Class<BuildingTag>(HAS Tag)` does not narrow
   `Class<Tag>(HAS Tag)`, because for the target the predicate asks about the candidate's own class.
 
-> **Non-normative example — Cyberia Systems.** Its second production-box choice is a building card
-> with no `CyberiaSystemsFirstChoice` marker. That refined choice must still satisfy the broader
-> “building card” constraint without another world query, while the extra conjunct prevents choosing
-> the first card twice.
+> **Non-normative example — Cyberia Systems.** Its first production-box choice binds
+> `CardFront^First`, and a gate checks `BuildingTag<CardFront^First>`. The second choice retains its
+> own building-tag clause while using the first choice inside `NOT CardFront^First`, so it cannot
+> choose the first card twice.
 
 **T8-9. `glb` of refinements.** A refinement the other operand lacks is kept. Refinement clauses form
 a set: duplicates collapse and clause order does not affect Type equality. Rendering retains the
@@ -1312,7 +1312,7 @@ dependency arguments under T13-1.
 | --- | --- | --- |
 | Action | a choosing or matching marker in the cost | the result |
 | `THEN` sequence | a choosing or matching marker in any stage | another stage |
-| Full transmutation (`A FROM B`) | a marker in the gained side | the removed side |
+| Full transmutation (`A FROM B`) | a choosing marker on either side | the other side |
 | `EACH` | the marked selector | the body |
 | `RANK` | the marked selector | the comparison metrics |
 
@@ -1321,12 +1321,14 @@ which "the same one" is worth saying. An action's two regions are the two stages
 (L9-2), and `X` is shared across exactly these same regions (L6-14).
 
 A full transmutation is not like the first two: its sides are settled together as one atomic pair.
-Matching markers on its gained and removed sides share one choice. Compact `FROM`
-has its own instruction syntax and does not declare a variable (L6-12).
+Matching markers on its gained and removed sides share one choice. A non-observing marker on either
+side can supply that choice, so the destination may use the selected source in a refinement just as
+the source may use the selected destination. Compact `FROM` has its own instruction syntax and does
+not declare a variable (L6-12).
 
-> **Non-normative example — Market Manipulation.** `ColonyProduction FROM ColonyProduction` moves
-> one step from one colony to another. Each root is an ordinary choice, so the source and destination
-> may be different tracks.
+> **Non-normative example — Market Manipulation.**
+> `ColonyProduction(NOT ColonyProduction^Source) FROM ColonyProduction^Source` moves one step to a
+> different colony track. The source marker supplies the track excluded from the destination.
 
 > **Non-normative example — Kaguya Tech.**
 > `CityTile<MarsArea^1> FROM GreeneryTile<MarsArea^1>` explicitly preserves the selected

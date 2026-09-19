@@ -20,6 +20,7 @@ import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
 import dev.martianzoo.pets.api.SystemClasses.DIE
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
@@ -43,6 +44,7 @@ import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.types.recordTypeVariableScopes
 import dev.martianzoo.state.Component.Companion.toComponent
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.toComponent
@@ -208,10 +210,24 @@ internal constructor(
       }
       is Each -> resolveEach(unresolved)
       is Or -> resolveOr(unresolved)
-      is Then ->
-          unresolved.withInstructions(
-              listOf(resolveTree(unresolved.first)) + unresolved.instructions.drop(1)
-          )
+      is Then -> {
+        val first = unresolved.first
+        val gated = first as? Gated
+        val gateVariables =
+            gated
+                ?.gate
+                ?.descendantsOfType<Expression>()
+                ?.mapNotNull(unresolved.typeVariables::variableAt)
+                ?.toSet()
+                .orEmpty()
+        val openGate =
+            gated?.inner?.descendantsOfType<Expression>()?.any {
+              unresolved.typeVariables.variableAt(it) in gateVariables
+            } == true
+        unresolved.withInstructions(
+            listOf(if (openGate) first else resolveTree(first)) + unresolved.instructions.drop(1)
+        )
+      }
       is Transform -> throw ExpressionException("unhandled instruction transform: $unresolved")
     }
   }
@@ -264,6 +280,20 @@ internal constructor(
   ): InstructionTree {
     // can't resolve at all if we still have an X?
     val count = (change.count as? ActualScalar)?.value ?: return change
+    if (change is Transmute) {
+      // An exclusion containing an open co-reference becomes meaningful only when an atomic
+      // proposal binds that explicitly named variable.
+      val variables =
+          change.typeVariables.takeUnless { it.isEmpty }
+              ?: classTable.recordTypeVariableScopes().transformInstruction(change).typeVariables
+      val openExclusion =
+          change.descendantsOfType<Not>().any { not ->
+            not.excluded.descendantsOfType<Expression>().any {
+              variables.variableAt(it) != null
+            }
+          }
+      if (openExclusion) return change
+    }
 
     val (g, r) = narrowChangeTypes(change, count, intens) ?: return change
     fun retainedExpression(resolved: Type?, authored: Expression?): Expression? =

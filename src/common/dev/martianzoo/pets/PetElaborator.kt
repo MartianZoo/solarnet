@@ -51,6 +51,7 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.ast.withTypeVariables
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Defaults
@@ -578,6 +579,7 @@ public class PetElaborator(public val classTable: ClassTable) {
             (node.fromEx as? Compact)?.let { retainCompactForm(it, gaining, removing) }
                 ?: Full(gaining, removing)
         return Transmute(fromExpression, node.count, quantifier)
+            .withTypeVariables(node.typeVariables.transformedBy(this))
       }
 
       private fun defaultFor(
@@ -972,6 +974,13 @@ public class PetElaborator(public val classTable: ClassTable) {
       private val remainingVariables by lazy(LazyThreadSafetyMode.NONE, openVariables)
 
       override fun transformNode(node: PetNode): PetNode {
+        if (node is Instruction.Then && !node.typeVariables.isEmpty) {
+          val nested = invalidChangesToDie { remainingVariables + node.typeVariables }
+          return node.withParts(
+              node.stages.map(nested::transformInstruction),
+              nested.transformInstructionTree(node.continuation),
+          )
+        }
         if (node is Each) {
           val selector = transformExpression(node.selector)
           val body = transformInstructionTree(node.body)
@@ -986,11 +995,12 @@ public class PetElaborator(public val classTable: ClassTable) {
 
         try {
           val expressions = listOfNotNull(specialized.gaining, specialized.removing)
+          val visibleVariables = remainingVariables + specialized.typeVariables
           if (
-              !remainingVariables.isEmpty &&
+              !visibleVariables.isEmpty &&
                   expressions.any { expression ->
                     expression.descendantsOfType<Expression>().any {
-                      remainingVariables.variableAt(it) != null
+                      visibleVariables.variableAt(it) != null
                     }
                   }
           ) {

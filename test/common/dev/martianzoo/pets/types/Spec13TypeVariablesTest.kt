@@ -789,6 +789,24 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
+  internal fun `T13-7 a transmutation names a source choice used by its destination`() {
+    val transmute =
+        resources
+            .recordTypeVariableScopes()
+            .transformInstruction(
+                parse("StandardResource(NOT StandardResource^R) FROM StandardResource^R")
+            ) as Instruction.Transmute
+    val variable = transmute.typeVariables.variables.single()
+
+    variable.name shouldBe "R"
+    variable.declaration.region shouldBe 1
+    transmute.typeVariables
+        .bind(mapOf(variable to resources.resolve(te("Plant"))))
+        .transformInstruction(transmute)
+        .toString() shouldBe "StandardResource(NOT Plant) FROM Plant"
+  }
+
+  @Test
   internal fun `T13-7 full transmutation sides share only named variables`() {
     val transmute =
         resources

@@ -30,15 +30,22 @@ private fun Expression.restoredDeclaration(): Expression {
   )
 }
 
-/** Declarations whose names connect this transmutation's destination to its source. */
+/** Declarations whose names connect either side of this transmutation to the other. */
 internal fun Transmute.localTypeVariableDeclarations(): List<Expression> {
+  val destinationIdentities =
+      gaining.descendantsOfType<Expression>().mapNotNull { expression ->
+        expression.typeVariableName?.identity
+      }
   val sourceIdentities =
       removing.descendantsOfType<Expression>().mapNotNull { expression ->
         expression.typeVariableName?.identity
       }
   return gaining.nonObservingTypeVariableDeclarations().filter {
     it.typeVariableName!!.identity in sourceIdentities
-  }
+  } +
+      removing.nonObservingTypeVariableDeclarations().filter {
+        it.typeVariableName!!.identity in destinationIdentities
+      }
 }
 
 /** Declarations belonging to this sequence, excluding declarations owned by nested sequences. */

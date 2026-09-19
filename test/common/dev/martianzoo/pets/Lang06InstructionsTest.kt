@@ -456,9 +456,10 @@ internal class Lang06InstructionsTest {
   }
 
   @Test
-  internal fun `L6-16 an observing expression cannot declare a transmutation variable`() {
+  internal fun `L6-16 an observing expression uses a source variable but cannot declare one`() {
+    roundTrip<Instruction>("Foo(HAS Baz<Plant^1>) FROM Bar<Plant^1>")
     shouldThrow<PetSyntaxException> {
-      parse<Instruction>("Foo(HAS Baz<Plant^1>) FROM Bar<Plant^1>")
+      parse<Instruction>("Foo(HAS Baz<Plant^1>) FROM Bar(HAS Qux<Plant^1>)")
     }
   }
 }
