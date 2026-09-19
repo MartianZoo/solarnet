@@ -38,10 +38,10 @@ internal class TurmoilGovernmentTest :
     p1.count("TerraformRating") shouldBe 21
     admin.count("Dominant<Kelvinists>") shouldBe 1
     p1.count("LobbyActionAvailable") shouldBe 1
-    p1.count("PartyDelegate OR Chairman") shouldBe 1
+    p1.count("Delegate") shouldBe 1
     p2.count("LobbyActionAvailable") shouldBe 1
-    p2.count("PartyDelegate OR Chairman") shouldBe 0
-    admin.count("PartyDelegate<Neutral> OR Chairman<Neutral>") shouldBe 2
+    p2.count("Delegate") shouldBe 0
+    admin.count("Delegate<Neutral>") shouldBe 2
     admin.count("DominancePriority") shouldBe 0
   }
 

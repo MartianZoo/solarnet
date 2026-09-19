@@ -204,6 +204,11 @@ public abstract class ClassTable {
   /** Immutable component-count limits compiled for this table's included classes. */
   private val componentLimitsLazy = lazy { ClassLimitTable.create(this) }
 
+  /** Master-owned compilation of stable class-invariant declarations used by every view. */
+  internal val classLimitTemplates: ClassLimitTemplateTable by lazy {
+    if (this === masterTable) ClassLimitTemplateTable(this) else masterTable.classLimitTemplates
+  }
+
   /**
    * The component-count limits that enforce the single-target dependency invariant in
    * [rule T3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).

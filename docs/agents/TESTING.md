@@ -43,15 +43,17 @@ Kotlin 2.2. Contributors do not need another JDK installed.
 Start with the smallest test or build task that verifies the changed behavior. Expand verification
 only when the change crosses a wider scope or the narrower result leaves a material risk.
 
-- `./gradlew build` checks the whole repository: every JVM test plus all production JavaScript
-  compilation and packaging. Use it only when repository-wide verification is warranted by the
-  scope of the change or explicitly requested.
-- `./gradlew test` runs every repository JVM test suite, including the multiplatform modules whose
-  JVM test tasks are named `jvmTest`.
+- `./gradlew build` checks the whole repository: the same tests as `test`, plus all production
+  JavaScript compilation and packaging. Use it only when repository-wide verification is warranted
+  by the scope of the change or explicitly requested.
+- `./gradlew test` runs every repository JVM test suite, every browser-specific test, and the
+  `OtbGame20260828Test` replay once in a browser. The multiplatform modules' JVM test tasks are named
+  `jvmTest`; their generated browser tasks are inert outside the one intentionally commented-out
+  full-browser target in the root build.
 - `./gradlew :tfm-tests:jvmTest` runs the replay tests and writes one opaque JSON recording per
   successful `AbstractFullGameTest` subclass under that module's
-  `generated/replay-event-logs` build directory. Generated browser-test tasks are disabled; the
-  browser viewer applies those recordings through `:state` and never runs the engine.
+  `generated/replay-event-logs` build directory. The browser viewer applies those recordings through
+  `:state` and never runs the engine.
 - `./gradlew :tfm-tests:sampleRandomCards` prints randomly generated project cards as raw Pets.
   Use `-PrandomCardCount=N` and `-PrandomCardSeed=N` to control and reproduce a sample, and add
   `-PrandomCardOutput=PATH` to write it to a text file. The task has no dependency on the language
@@ -81,9 +83,10 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   not proof of a user choice: an automatic or queued effect carried by a Player-owned component may
   attribute its derived changes to that Player. Use the cause columns to trace derivation; because
   task events are omitted, the TSV cannot by itself classify every row as chosen versus automatic.
-- `./gradlew :tools:dumpOtbGame20260828EventLog` runs the JVM replay suite, reads the generated
-  August 28, 2026 recording, and writes every change event in the same format to
-  `_local/eventlogs/otb-game-20260828-eventlog.tsv`.
+- `./gradlew :tools:dumpOtbGame20260828EventLog` and
+  `./gradlew :tools:dumpOtbGame20260912EventLog` run the JVM replay suite, read those generated
+  physical-game recordings, and write every change event in the same format under
+  `_local/eventlogs/`.
 - `SOLARNET_RANDOM_AUTOMATIC_EFFECTS=true ./gradlew test --rerun-tasks` runs the unchanged JVM suites
   while choosing a random execution order for each batch of independent automatic-effect listeners.
   A component's own automatic Effects retain declaration order. This is a diagnostic mode for
@@ -196,8 +199,9 @@ clear coverage of these contracts matters more than preserving every current tes
    wrong, visibly quarantined in `BugsTest` until the behavior is corrected.
 8. **Script-command contract tests.** Terraforming-independent checks of each command's public
    contract. These are useful interface coverage even though they are not a development priority.
-9. **Cross-runtime packaging coverage.** JavaScript compilation and resource assembly show that the
-   viewer, generated Canon data, and passive state playback compose without the engine.
+9. **Cross-runtime browser coverage.** Browser-specific tests cover browser APIs, one representative
+   replay checks the shared engine on JavaScript, and production JavaScript compilation and resource
+   assembly cover the engine-free viewer.
 
 This list does not itself decide which current tests should be retained. Test-deletion proposals
 are a separate review.

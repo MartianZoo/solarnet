@@ -134,15 +134,20 @@ into a state-owned recording, where they become the only public seek targets.
 ## Serialized events and exported recordings
 
 `EventLogJson` is the state-level opaque JSON encoding for an exact event list. Changes use full
-round-tripping Type expressions; tasks retain their complete instruction, continuation, assignment,
-selection, and cause, while events retain their notes. Decoding takes the compatible Class Table
-and returns events that can construct a fresh `GameWorld`.
+round-tripping Type expressions; task additions and edits carry the resulting complete task, while
+task removals identify the task already established by the event prefix. The sequential decoder
+reconstructs each edit's prior task and each removed task from that prefix, so exact event values,
+reverse playback, and notes survive without serializing the same task state twice. Decoding an
+independent event list takes a compatible Class Table. Recording decode instead takes the owning
+premise and resolves Actor references through that premise.
 
 `GameRecordingJson` wraps that data in one JSON value containing only what the viewer consumes:
 the positive and negative Class selections needed to recreate the same playable Class universe,
 ordered Player names, approved positions, and exact events. Premise-local setup effects are
 deliberately absent: playback applies their already-recorded consequences and never executes setup.
-The browser supplies the matching Canon rather than loading a serialized Catalog.
+The browser supplies the matching Canon rather than loading a serialized Catalog. Callers retain
+one parsed recording document while reading its configuration, reconstructing the premise, and
+decoding its typed events.
 
 Every successfully completed `AbstractFullGameTest` writes `<test-class>.json` under the
 `:tfm-tests` build directory. Replay tests are JVM-only. The game viewer's resource task packages

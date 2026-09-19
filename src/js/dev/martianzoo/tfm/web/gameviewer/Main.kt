@@ -86,7 +86,8 @@ public fun main() {
             clearBenchmarkEntries()
             mark("load.start")
             mapSubscriptions.forEach(CountSubscription::cancel)
-            val config = GameRecordingJson.config(text)
+            val document = GameRecordingJson.parse(text)
+            val config = document.config
             val catalog: TfmCatalog =
                 if (cn("FakeStuffBundle") in config.includedClassNames) {
                   TfmCatalog.compose(Canon, FakeCanon)
@@ -94,7 +95,7 @@ public fun main() {
                   Canon
                 }
             val premise = catalog.gamePremise(config)
-            val active = GameRecordingJson.decode(text, premise).open()
+            val active = document.decode(premise).open()
             val logEvents =
                 visibleLogEvents(active.world.events.changesSinceSetup(), active.world.reader)
             selectablePositions =

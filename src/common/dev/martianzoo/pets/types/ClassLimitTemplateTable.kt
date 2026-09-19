@@ -1,0 +1,61 @@
+package dev.martianzoo.pets.types
+
+import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
+import dev.martianzoo.pets.api.SystemClasses.THIS
+import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement.Not
+import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Requirement.Counting
+
+/** Stable interpretations of master-universe component-limit declarations. */
+internal class ClassLimitTemplateTable(private val masterTable: ClassTable) {
+  internal data class Template(
+      val expression: Expression,
+      val range: IntRange,
+      val fixedType: Type?,
+  )
+
+  private val masterTemplates = mutableMapOf<Class, List<Template>>()
+  private val masterDependencyTargets = mutableMapOf<Class, List<GroundType>>()
+
+  internal fun templatesFor(klass: Class): List<Template> =
+      if (klass.classTable === masterTable) {
+        masterTemplates.getOrPut(klass) { compile(klass, masterTable) }
+      } else {
+        compile(klass, klass.classTable)
+      }
+
+  internal fun dependencyTargetsFor(klass: Class): List<GroundType> =
+      if (klass.classTable === masterTable) {
+        masterDependencyTargets.getOrPut(klass) {
+          klass.dependencies.concreteDependencyTargets().toList()
+        }
+      } else {
+        klass.dependencies.concreteDependencyTargets().toList()
+      }
+
+  private fun compile(klass: Class, resolutionTable: ClassTable): List<Template> =
+      klass.invariants.map { invariant ->
+        val counting =
+            invariant as? Counting
+                ?: throw invalidPetDefinition(
+                    "Class invariant on ${klass.className} is not a counting requirement: $invariant"
+                )
+        val expression =
+            (counting.metric as? Metric.Count)?.expression
+                ?: throw invalidPetDefinition(
+                    "Class invariant on ${klass.className} must count one component expression: $invariant"
+                )
+        Template(
+            expression,
+            counting.range,
+            expression
+                .takeUnless {
+                  THIS in it.descendantsOfType<ClassName>() ||
+                      it.descendantsOfType<Not>().isNotEmpty()
+                }
+                ?.let(resolutionTable::resolve),
+        )
+      }
+}

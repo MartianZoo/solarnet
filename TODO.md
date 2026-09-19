@@ -1,4 +1,4 @@
-<!-- Only miscellaneous work not already covered by a focused grand-plan document in docs/agents/ belongs here. -->
+<!-- Only bounded miscellaneous work not already covered anywhere in docs/agents/ belongs here. -->
 
 # TODO
 
@@ -6,97 +6,21 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
-- Represent a direct `Signal` point event as its own fourth `ComponentChange` kind instead of
-  encoding it as a self-transmutation. Preserve its paired gain/removal triggers while keeping
-  authored reflexive transmutations invalid.
 - Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.
-- Remove `trimIndent()` from tests except where stripping indentation is part of preparing a
-  genuinely multiline input.
-- Rewrite the agent documents that have outgrown their intended teaching or orientation role:
-  - make `ENGINE.md` only a quick tour of the runtime's major pieces;
-  - make `GAMEWORLD.md` a quick orientation to the intended `state`/`engine` split;
-  - reduce `API.md` to its important core principles and decisions;
-  - make `RESPONSIBILITIES.md` tight and focused;
-  - make `SEQUENCING.md` an overview of intra-turn ordering mechanisms and ideas for improving them;
-  - rewrite `IDENTITY.md` as a teaching document about the runtime roles and their uses;
-  - make `QUANTIFIERS.md` a focused educational reference;
-  - reduce `EACH.md` to a terse feature reference;
-  - let `AUTOEXEC.md` broadly survey the ideas for improving autoexecution;
-  - make `PROPERTIES.md` a focused feature reference followed by the possible future design for
-    instruction-valued properties;
-  - replace `OPTIONS.md` with a focused educational explanation of the features;
-  - reduce `TESTING.md` to the important repository-specific guidance; and
-  - rewrite `JVM_TEST_PERFORMANCE.md` holistically, incorporating the work on `perf` and keeping the
-    document identical on `perf` and `main`.
-- Revisit the cleanup-vocabulary draft that removes broad `Barrier` waits, preserved in stash commit
-  `db9302652`.
-- Review the committed `OverlayWorld` and query-performance work on branch `perf` before integrating
-  selected changes into `main`.
-- Have the normal full application build stamp its output with the current Git commit and, when
-  source changes are present, a stable hash of those changes. Include that stamp in every exported
-  game record so a log identifies, or can later verify, the engine source that produced it.
-- Desupport Land Claim and Arcadian Communities, then remove the `Community` reservation model and
-  any supporting occupancy machinery that is no longer needed.
-- Desupport Mons Insurance, Crash Site Cleanup, and Law Suit; rewrite Hydrologist with
-  player-owned watchers, then remove the attack-history records/watchers and the actor-value reuse
-  machinery that no remaining Canon behavior needs.
 - Decide whether `Milestone`'s per-player uniqueness constraint should use
   `HAS MAX 1 This<Player>` or a clearer way to express one instance of the concrete milestone per
   player.
-- Replace the persistent `CardPlay` billing host with the live late-stage card-play operation once
-  that operation has a stable identity suitable for `Billing`.
-- Express Quick Start's starting production as nested iteration over players and standard-resource
-  Classes once Pets can represent that directly.
 - Decide whether `NoctisArea` belongs with the Noctis City card instead of the core board model.
 - Replace the duplicated `TemperatureStep BY Player`/`BY Admin` threshold-ocean triggers and the
   synthetic `AdminOceanPlacement` signal with one rule that separates who chooses the tile from
   whose action the placement is attributed to, shared by the standard and extended tracks.
-- Revisit causal ownership inside `BootstrapPhase`, moving initialization work under ordinary
-  phase-caused tasks as soon as the required runtime state can express them.
-- Let refinements reference their candidate explicitly, so a selector can relate a nested
-  dependency to that candidate without repeating its complete expression.
-- Give Pets a real structural conjunction, spelled something like `Tile(IS Owned)`, and retire the
-  nominal `OwnedTile` class once `Landlord` and the other owned-tile rules can name the intersection
-  directly. Until then a master-universe Canon test checks the nominal `OwnedOccupant` and
-  `OwnedTile` relationships without depending on one active configuration.
-- Decide whether compact Type expressions must be globally shortest. They currently remove each
-  individually redundant argument, including T3-8 duplicates, without the subset search needed to
-  prove a global minimum; search only equality-related arguments if exact minimality becomes useful.
-- Separate the expression API's three intents: an object's natural available expression, a resolved
-  Type's compact expression, and its full expression. Keep syntax expressions universe-independent;
-  converting an arbitrary expression to either resolved form must take a `ClassTable` explicitly.
-- Decouple cleanup lifetime from log visibility so player-meaningful signals such as `Pay` and
-  `PayFromCard` need not inherit `Hidden` through `MustCleanUp`.
-- Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
-  the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
 - Discard the uncommitted typed custom-metric/code-generation experiment; it was evaluated and
   considered an unsuccessful direction.
-- Complete `Game20260820Test` beyond its current partial generation-6 checkpoint using the preserved
-  log, player data, and eight later screenshots; keep every new checkpoint independently sourced.
-- Install and configure Kotlin ABI/binary API validation for public `pets`, `engine`, `agent`,
-  `tfm-canon`, and `script` APIs.
-- Move `startTurn` and `inTurn` from generic `Agent` to `TfmGameplay`, removing `NewTurn` knowledge
-  from the agent implementation.
-- Gradually replace Canon-backed generic engine-test premises with focused declarations where that
-  makes the engine contract clearer; the current upward test dependency is undesirable but not
-  urgent.
-- Profile and reduce type-system allocation in `ClassTable.glb`, `narrows`, and repeated
-  dependency/refinement construction without risking correctness.
-- Let `CustomMetric` optionally provide candidate-selection hooks so `EACH` refinements such as
-  tile adjacency can avoid evaluating the metric against every live component.
-- **Medium-high priority:** Consolidate exception cleanup
-  ([#42](https://github.com/MartianZoo/solarnet/issues/42)): catch only expected script/domain
-  failures, preserve defects and stack traces, use precise MartianZoo exceptions at domain layers,
-  and narrow `Instruction.narrows`.
 - **Low priority:** [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)
   — Resolve contextual ownership correctly and display the resolved player.
-- **Low priority:** Consider compiling Pets during the build into validated runtime artifacts, but
-  only if one compiler can replace runtime parsing/validation without creating a second semantic
-  model.
 - **Low priority:** Investigate why the oxygen steps created by SoloOpponent's setup greeneries do
   not award it TR, and whether adding and then removing those steps has any other observable
   consequences.
-- Keep looking for a better representation of Splice Tactical Genomics.
 - Consider requirement-gated action costs, using United Nations Mars Initiative to make
   `HasRaisedTr` a prerequisite to paying its 3 M€ rather than a gate around the result.
 - Derive selected singleton card watchers without explicit support-Class invariants. The current
@@ -113,30 +37,13 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   self-removal should default to mandatory.
 - Give Admin an installable autoexecution policy for Global Events that pulls exact cards from an
   ordered list; until then callers explicitly complete reveal tasks.
+- Reconsider Turmoil's `PartyLeader` representation and name. It currently supplements the actual
+  `PartyDelegate` as a non-`Delegate` role; decide whether a clearer role name or a true delegate
+  subtype can express leadership without representing or counting the physical marker twice.
 - Investigate whether the three self-handling signals `CimmeriaPlacementBonus`,
   `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
   requiring authored references to generated names. Preserve Cimmeria map generation,
   `PlaceNeutralTiles`'s system-only ownership, and SRR's explicit card-Class selection.
-- **Better Task Disambiguation:** let callers state the intended task without searching the task
-  pool; use extra identity only when distinct tasks accept the same narrowing. Prior partial work is
-  in commits `fc84e1490` and `a76bb9949`. Current use cases:
-  - `TfmTest` and `RecordedGame` search tasks for tile placement, card-resource placement, qualified
-    declines, and wild-tag assignment.
-  - `TfmGameplay` searches for project-card offers/discards, the second-action offer, wild-tag
-    offers, billing and payment tasks, and the variable-X task.
-  - `TfmPlayCommand`, `TfmActionCommand`, and `TfmPayCommand` search for standard actions, action
-    costs, invoices, and payment offers.
-  - `TaskDelegationTest`, `PhilaresTest`, `NewPromoCardsTest`, and `PropertyTest` recover a task by
-    scanning ids or instruction text before selecting or dropping it. Keep mechanism assertions
-    separate from gameplay calls when designing the replacement.
-  - Functional cross-player handoffs already proceed without explicit selection under `CONCRETE`
-    when the handoff is the only selectable task. The remaining tests mix it with forced sibling
-    work; `CONCRETE` stops because it cannot prove an order harmless. Prefer explicit sequencing or
-    a narrow proof of harmless reordering over making `CONCRETE` execute an arbitrary concrete
-    sibling.
-  - Compare a context-component `ClassName` selector (for example, Search for Life or Big Asteroid)
-    with matching the original pending instruction and with an already-held stable `TaskId`. Keep
-    ordinary `doTask(concreteNarrowing)` as the default path.
 
 ### Hypothetical Card Behavior
 
