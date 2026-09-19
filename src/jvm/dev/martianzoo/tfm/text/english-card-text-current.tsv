@@ -525,7 +525,7 @@ MartianMediaCenter	Martian Media Center	Requires that either Mars First is rulin
 ParliamentHall	Parliament Hall	Requires that either Mars First is ruling or you have 2 delegates in Mars First. Increase your M€ production 1 step per 3 building tags you have.
 PrOffice	PR Office	Requires that either Unity is ruling or you have 2 delegates in Unity. Raise your terraform rating 1 step. Gain 1 M€ per Earth tag you have.
 PublicCelebrations	Public Celebrations	Requires that you are chairman.
-Recruitment	Recruitment	Requires that there is a neutral non-leader delegate in any party. Exchange 1 neutral non-leader delegate for one of your reserve delegates.
+Recruitment	Recruitment	Exchange 1 neutral non-leader delegate for one of your reserve delegates.
 RedTourismWave	Red Tourism Wave	Requires that either the Reds party is ruling or you have 2 delegates in the Reds party. Gain 1 M€ per area on Mars with no tiles next to at least 1 tile you own.
 SponsoredMohole	Sponsored Mohole	Requires that either the Kelvinists party is ruling or you have 2 delegates in the Kelvinists party. Increase your heat production 2 steps.
 SupportedResearch	Supported Research	Requires that either the Scientists party is ruling or you have 2 delegates in the Scientists party. Draw 2 cards.

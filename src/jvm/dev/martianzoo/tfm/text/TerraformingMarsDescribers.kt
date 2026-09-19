@@ -120,7 +120,7 @@ internal object TerraformingMarsDescribers {
         klass("RecruitmentExchange") to
             ComponentDescriber(
                 changeFrame =
-                    Frame.CappedProcedure(
+                    Frame.CountedProcedure(
                         "exchange",
                         counted(
                             "neutral non-leader delegate for one of your reserve delegates",

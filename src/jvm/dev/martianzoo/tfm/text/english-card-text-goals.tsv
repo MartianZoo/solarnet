@@ -519,7 +519,7 @@ ParliamentHall	Parliament Hall	Requires that either Mars First is ruling or you 
 PoliticalAlliance	Political Alliance	Requires that you lead 2 parties. Raise your terraform rating 1 step.
 PrOffice	PR Office	Requires that either Unity is ruling or you have 2 delegates in Unity. Raise your terraform rating 1 step. Gain 1 M€ per Earth tag you have.
 PublicCelebrations	Public Celebrations	Requires that you are chairman.
-Recruitment	Recruitment	Requires that there is a neutral non-leader delegate in any party. Exchange 1 neutral non-leader delegate for one of your reserve delegates.
+Recruitment	Recruitment	Exchange 1 neutral non-leader delegate for one of your reserve delegates.
 RedAppeasement	Red Appeasement	Requires that no player has passed and either the Reds party is ruling or you have 2 delegates in the Reds party. Increase your M€ production 2 steps. Pass.
 RedTourismWave	Red Tourism Wave	Requires that either the Reds party is ruling or you have 2 delegates in the Reds party. Gain 1 M€ per area on Mars with no tiles next to at least 1 tile you own.
 RiseToPower	Rise To Power	Increase your M€ production 3 steps. Place 1 delegate. Place 1 delegate. Place 1 delegate.
