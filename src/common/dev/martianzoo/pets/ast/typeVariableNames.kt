@@ -141,9 +141,8 @@ private fun PetNode.nonObservingTypeVariableDeclarations(): List<Expression> = b
 internal fun <P : PetNode> resolveTypeVariableNames(
     root: P,
     declarations: List<Expression>,
-    scopeDescription: String,
 ): P {
-  val resolved = resolveTypeVariableNames(listOf(root), declarations, scopeDescription).single()
+  val resolved = resolveTypeVariableNames(listOf(root), declarations).single()
   @Suppress("UNCHECKED_CAST")
   return resolved as P
 }
@@ -156,7 +155,6 @@ internal fun <P : PetNode> resolveTypeVariableNames(
 internal fun resolveTypeVariableNames(
     roots: List<PetNode>,
     declarations: List<Expression>,
-    scopeDescription: String,
     expandReferences: Boolean = true,
 ): List<PetNode> {
   if (declarations.isEmpty()) return roots
@@ -304,14 +302,12 @@ internal fun Expression.selectorTypeVariableDeclarations(): List<Expression> =
 internal fun resolveSelectorTypeVariableNames(
     selector: Expression,
     scopedNodes: List<PetNode>,
-    scopeDescription: String,
 ): List<PetNode> {
   val declarations = selector.selectorTypeVariableDeclarations()
   if (declarations.isEmpty()) return listOf(selector) + scopedNodes
   return resolveTypeVariableNames(
       listOf(selector) + scopedNodes,
       declarations,
-      scopeDescription,
       expandReferences = false,
   )
 }
@@ -331,7 +327,6 @@ internal fun resolveClassLiteralTypeVariableNames(expression: Expression): Expre
       resolveTypeVariableNames(
               listOf(expression),
               listOf(declaration),
-              "A refined Class literal",
               expandReferences = false,
           )
           .single()
@@ -455,7 +450,6 @@ internal fun resolveClassTypeVariableNames(declaration: ClassDeclaration): Class
       resolveTypeVariableNames(
           header + body,
           declarations,
-          "A Class header",
           expandReferences = false,
       )
   val dependencyCount = declaration.dependencies.size
@@ -481,7 +475,6 @@ internal fun <P : PetNode> resolveTypeVariableNames(
     root: P,
     declarationRegion: PetNode?,
     usageRegion: PetNode,
-    scopeDescription: String,
 ): P {
   val declarationConstructLocals =
       declarationRegion?.constructLocalTypeVariableDeclarations().orEmpty()
@@ -554,6 +547,5 @@ internal fun <P : PetNode> resolveTypeVariableNames(
   return resolveTypeVariableNames(
       typedRoot,
       restoredDeclarations,
-      scopeDescription,
   )
 }

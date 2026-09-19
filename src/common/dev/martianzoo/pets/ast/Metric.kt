@@ -334,8 +334,7 @@ public sealed class Metric : PetElement() {
                 commaSeparated(parser()) and
                 skipChar('}') map
                 { (selector, metrics) ->
-                  val resolved =
-                      resolveSelectorTypeVariableNames(selector, metrics, "A RANK selector")
+                  val resolved = resolveSelectorTypeVariableNames(selector, metrics)
                   Rank(resolved[0] as Expression, resolved.drop(1).map { it as Metric })
                 }
 

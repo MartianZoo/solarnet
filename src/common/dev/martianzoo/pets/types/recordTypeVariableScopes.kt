@@ -7,6 +7,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.constructLocalTypeVariableDeclarations
 import dev.martianzoo.pets.ast.localTypeVariableDeclarations
@@ -23,76 +24,38 @@ public fun ClassTable.recordTypeVariableScopes(): PetTransformer =
         val transformed = transformChildren(node)
         return when (transformed) {
           is Effect -> {
-            val visibleIdentities = transformed.typeVariables.variableIdentities()
-            val constructLocalDeclarations =
-                transformed.trigger.constructLocalTypeVariableDeclarations()
-            val namedDeclarations =
-                transformed.trigger.descendantsOfType<Expression>().filter {
-                  it.typeVariableName is Declaration &&
-                      constructLocalDeclarations.none { local -> local === it } &&
-                      it.typeVariableName.identity !in visibleIdentities
-                }
-            val localScope =
-                TypeVariableScope.fromDeclarations(
-                    listOf(transformed.trigger, transformed.instruction),
-                    this@recordTypeVariableScopes,
-                    namedDeclarations = namedDeclarations,
-                )
-            requireSharedAcrossRegions(localScope, "Effect")
-            transformed.withTypeVariables(transformed.typeVariables + localScope)
+            recordLocalScope(
+                transformed,
+                listOf(transformed.trigger, transformed.instruction),
+                transformed.trigger.descendantsOfType(),
+                "Effect",
+                transformed.trigger.constructLocalTypeVariableDeclarations(),
+            )
           }
           is Action -> {
-            val visibleIdentities = transformed.typeVariables.variableIdentities()
-            val constructLocalDeclarations =
-                transformed.cost?.constructLocalTypeVariableDeclarations().orEmpty()
-            val namedDeclarations =
-                transformed.cost
-                    ?.descendantsOfType<Expression>()
-                    ?.filter {
-                      it.typeVariableName is Declaration &&
-                          constructLocalDeclarations.none { local -> local === it } &&
-                          it.typeVariableName.identity !in visibleIdentities
-                    }
-                    .orEmpty()
-            val localScope =
-                TypeVariableScope.fromDeclarations(
-                    listOfNotNull(transformed.cost, transformed.instruction),
-                    this@recordTypeVariableScopes,
-                    namedDeclarations = namedDeclarations,
-                )
-            requireSharedAcrossRegions(localScope, "Action")
-            transformed.withTypeVariables(transformed.typeVariables + localScope)
+            recordLocalScope(
+                transformed,
+                listOfNotNull(transformed.cost, transformed.instruction),
+                transformed.cost?.descendantsOfType<Expression>().orEmpty(),
+                "Action",
+                transformed.cost?.constructLocalTypeVariableDeclarations().orEmpty(),
+            )
           }
           is Instruction.Then -> {
-            val visibleIdentities = transformed.typeVariables.variableIdentities()
-            val namedDeclarations =
-                transformed.localTypeVariableDeclarations().filter {
-                  it.typeVariableName!!.identity !in visibleIdentities
-                }
-            val localScope =
-                TypeVariableScope.fromDeclarations(
-                    transformed.instructions,
-                    this@recordTypeVariableScopes,
-                    namedDeclarations = namedDeclarations,
-                )
-            requireSharedAcrossRegions(localScope, "THEN")
-            transformed.withTypeVariables(transformed.typeVariables + localScope)
+            recordLocalScope(
+                transformed,
+                transformed.instructions,
+                transformed.localTypeVariableDeclarations(),
+                "THEN",
+            )
           }
           is Instruction.Transmute -> {
-            val scoped = transformed
-            val visibleIdentities = scoped.typeVariables.variableIdentities()
-            val namedDeclarations =
-                scoped.localTypeVariableDeclarations().filter {
-                  it.typeVariableName!!.identity !in visibleIdentities
-                }
-            val localScope =
-                TypeVariableScope.fromDeclarations(
-                    listOf(scoped.gaining, scoped.removing),
-                    this@recordTypeVariableScopes,
-                    namedDeclarations = namedDeclarations,
-                )
-            requireSharedAcrossRegions(localScope, "Transmutation")
-            scoped.withTypeVariables(scoped.typeVariables + localScope)
+            recordLocalScope(
+                transformed,
+                listOf(transformed.gaining, transformed.removing),
+                transformed.localTypeVariableDeclarations(),
+                "Transmutation",
+            )
           }
           else -> transformed
         }
@@ -102,6 +65,29 @@ public fun ClassTable.recordTypeVariableScopes(): PetTransformer =
           variables
               .mapNotNull { it.declaration.expression.typeVariableName as? Declaration }
               .mapTo(mutableSetOf()) { it.identity }
+
+      private fun <P : PetElement> recordLocalScope(
+          node: P,
+          regions: List<PetNode>,
+          declarationCandidates: Iterable<Expression>,
+          construct: String,
+          constructLocalDeclarations: List<Expression> = emptyList(),
+      ): P {
+        val visibleIdentities = node.typeVariables.variableIdentities()
+        val namedDeclarations = declarationCandidates.filter {
+          it.typeVariableName is Declaration &&
+              constructLocalDeclarations.none { local -> local === it } &&
+              it.typeVariableName.identity !in visibleIdentities
+        }
+        val localScope =
+            TypeVariableScope.fromDeclarations(
+                regions,
+                this@recordTypeVariableScopes,
+                namedDeclarations = namedDeclarations,
+            )
+        requireSharedAcrossRegions(localScope, construct)
+        return node.withTypeVariables(node.typeVariables + localScope)
+      }
 
       private fun requireSharedAcrossRegions(scope: TypeVariableScope, construct: String) {
         scope.variables

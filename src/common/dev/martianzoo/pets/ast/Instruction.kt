@@ -303,7 +303,6 @@ public sealed class Instruction : InstructionTree() {
         return dev.martianzoo.pets.ast.resolveTypeVariableNames(
             transmute,
             transmute.localTypeVariableDeclarations(),
-            "A transmutation",
         )
       }
     }
@@ -889,7 +888,6 @@ public sealed class Instruction : InstructionTree() {
         return dev.martianzoo.pets.ast.resolveTypeVariableNames(
             then,
             declarations,
-            "A THEN sequence",
         )
       }
     }
@@ -1101,8 +1099,7 @@ public sealed class Instruction : InstructionTree() {
                 parser() and
                 skipChar('}') map
                 { (selector, body) ->
-                  val resolved =
-                      resolveSelectorTypeVariableNames(selector, listOf(body), "An EACH selector")
+                  val resolved = resolveSelectorTypeVariableNames(selector, listOf(body))
                   Each(resolved[0] as Expression, resolved[1] as InstructionTree)
                 }
 

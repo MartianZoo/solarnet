@@ -357,7 +357,6 @@ public data class Effect(
             effect,
             effect.trigger,
             effect.instruction,
-            "An Effect",
         )
   }
 }
