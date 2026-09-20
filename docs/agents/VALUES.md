@@ -257,11 +257,14 @@ Keep the substantive reasoning in the owning document and keep this table to one
   Standard back typing already rejects beginner faces, while `NOT BeginnerCorporation` deliberately
   states the normal-path rule at every normal-corporation offer.
 - **Turmoil's `TurmoilPlayer`, `ApplyRulingBonus`, and `Class<GlobalEvent>`-keyed event positions** —
-  [TURMOIL.md](TURMOIL.md). A 2026-09-19 sweep removed ten other Turmoil classes and tried to remove
-  these three; each is forced by a language rule, and TURMOIL.md records which one.
+  A player's delegate cap needs the bearer's owner available inside an effect, unlike Neutral's
+  direct invariant. The ruling bonus cannot trigger on `Ruling`, because setup places Greens without
+  applying its bonus. Event positions use `Class<GlobalEvent>` because `EACH` must bind one concrete
+  event Type across the position transmutation while exact-event occupancy stays bounded.
 - **Turmoil's two party-arrow supertypes and two reveal requests** —
-  [TURMOIL.md](TURMOIL.md#modeling-rule). Pets needs distinct spellings for the two party roles,
-  while Coming and Distant reveal requests have different completion behavior.
+  Pets needs distinct spellings for the two otherwise indistinguishable party dependencies. The
+  Coming request bootstraps setup by becoming the Distant request after its choice; later Distant
+  requests simply finish, and a shared position parameter would also admit unsupported Current.
 
 ### Accepted for now
 
