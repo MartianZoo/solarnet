@@ -55,7 +55,7 @@ internal fun renderPlacement(
   val count = gain.count.fixedQuantity() ?: return null
   if (siteModifiers.isNotEmpty() && count != 1) return null
   val noun =
-      if (count == 1 && description.singular.endsWith("tile")) {
+      if (count == 1) {
         NounPhrase(
             description.singular,
             description.plural,

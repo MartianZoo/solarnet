@@ -701,20 +701,10 @@ private fun coalesceAdjacentChanges(
       index += run.size
       continue
     }
-    if (isCoalescibleStandardResourceGain(instruction, describers)) {
-      val run =
-          rendered.drop(index).takeWhile { (candidate) ->
-            isCoalescibleStandardResourceGain(candidate, describers)
-          }
-      val clauses = factorAdjacentPredicates(run.map { it.second })
-      result += clauses
-      index += run.size
-      continue
-    }
     result += renderedClause
     index++
   }
-  return result
+  return factorAdjacentPredicates(result)
 }
 
 private fun factorAdjacentPredicates(clauses: List<Clause>): List<Clause> {
@@ -722,8 +712,18 @@ private fun factorAdjacentPredicates(clauses: List<Clause>): List<Clause> {
   clauses.forEach { clause ->
     val previous = result.lastOrNull() as? Clause.Simple
     val current = clause as? Clause.Simple
+    val previousObjects = previous?.predicate?.objects
+    val currentObjects = current?.predicate?.objects
     val factored =
-        if (previous != null && current != null) {
+        if (
+            previous != null &&
+                current != null &&
+                previous.predicate.modifiers.isEmpty() &&
+                current.predicate.modifiers.isEmpty() &&
+                previousObjects != null &&
+                currentObjects != null &&
+                previousObjects.members.none { it in currentObjects.members }
+        ) {
           coordinateClauseObjects(listOf(previous, current), Conjunction.AND)
         } else {
           null

@@ -159,9 +159,15 @@ private fun renderCountedProcedure(
   if (gain.quantifier.modality() != Modality.REQUIRED || gain.gaining.refinement != null)
       return null
   val count = gain.count.fixedQuantity() ?: return null
+  val noun =
+      if (count == 1 && frame.verb == "place") {
+        NounPhrase(frame.noun.singular, frame.noun.plural, determiner = Determiner.INDEFINITE)
+      } else {
+        NounPhrase(frame.noun.singular, frame.noun.plural, count = count)
+      }
   return clause(
       frame.verb,
-      NounPhrase(frame.noun.singular, frame.noun.plural, count = count),
+      noun,
   )
 }
 
@@ -246,14 +252,6 @@ internal fun isProductionChange(instruction: Instruction, describers: Describers
   val expression =
       (instruction as? Instruction.Change)?.let { it.gaining ?: it.removing } ?: return false
   return describers.isProduction(expression.className)
-}
-
-internal fun isCoalescibleStandardResourceGain(
-    instruction: Instruction,
-    describers: Describers,
-): Boolean {
-  val expression = (instruction as? Gain)?.gaining ?: return false
-  return describers.isStandardResource(expression.className)
 }
 
 internal fun standardResourceGain(

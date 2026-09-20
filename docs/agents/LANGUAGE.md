@@ -205,6 +205,9 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
 - Join a rendered action cost to its result with `to`. Refuse a costed action whose result cannot be
   an infinitive; do not split it into separately modalized sentences. A mandatory standard-resource
   removal followed by `THEN` is a payment for its result and joins with `to`.
+- Factor a shared subject and verb across adjacent instructions with distinct objects and no clause
+  modifiers. Do not make independently chosen destinations look shared or collapse repeated
+  operations. Keep consecutive production changes in one sentence even when their verbs differ.
 - Render discount effects declaratively as `you pay N M€ less`, adding `for it` when the trigger
   supplies a clear discounted object.
 - Introduce a triggering event with `when`, never `each time`. Describe one event; express the
@@ -216,8 +219,9 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
 - Describe a card-resource location as `this card`, never `here`.
 - For an unbound card-resource destination, say `another card` when the current card cannot hold
   that resource type; otherwise say `any card`.
-- Use an indefinite article for exactly one placed tile. Use `1` for other explicit singular
-  quantities; ordinary type references still use articles.
+- Use the placement frame's determiner, normally an indefinite article, for exactly one placed
+  object. Use `1` for other explicit singular quantities; ordinary type references still use
+  articles.
 - Describe unrestricted persistent counts and requirements as being `in play`; when the counted
   objects are restricted to Mars, say `in play on Mars`. Placement triggers say only `on Mars`, and
   player-local counts do not say `in play`.

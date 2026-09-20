@@ -79,6 +79,14 @@ internal class EnglishTest {
     english.describe(listOf(parse<Action>("MC -> Animal<This>?"))) shouldBe "[MC -> Animal<This>?]."
     english.describe(parse<InstructionTree>("2 Plant, TemperatureStep")) shouldBe
         "Gain 2 plants. Raise temperature 1 step."
+    english.describe(parse<InstructionTree>("ProjectCard, PreludeCard")) shouldBe
+        "Draw 1 card and 1 prelude card."
+    english.describe(parse<InstructionTree>("3 Microbe, 2 Animal")) shouldBe
+        "Add 3 microbes to any card. Add 2 animals to any card."
+    english.describe(parse<InstructionTree>("PartyDelegate, PartyDelegate")) shouldBe
+        "Place a delegate. Place a delegate."
+    english.describe(parse<InstructionTree>("PROD[-Energy, 2 MC]")) shouldBe
+        "Decrease your energy production 1 step and increase your M€ production 2 steps."
     english.describe(parse<InstructionTree>("MC? / ProjectCard")) shouldBe
         "You may gain up to 1 M€ per card."
     english.describe(parse<InstructionTree>("-4 MC.")) shouldBe
@@ -130,15 +138,16 @@ internal class EnglishTest {
     english.describe(parse<InstructionTree>("OceanTile")) shouldBe "Place an ocean tile."
     english.describe(parse<InstructionTree>("CityTile")) shouldBe "Place a city tile."
     english.describe(parse<InstructionTree>("Colony<ColonyTile>")) shouldBe
-        "Place 1 colony (may be placed where you already have a colony)."
+        "Place a colony (may be placed where you already have a colony)."
+    english.describe(parse<InstructionTree>("2 Colony<>")) shouldBe "Place 2 colonies."
     english.describe(parse<InstructionTree>("Community<LandArea(HAS MAX 0 Occupant)>")) shouldBe
-        "Place 1 community marker on a land area with no occupant."
+        "Place a community marker on a land area with no occupant."
     english.describe(
         parse<InstructionTree>(
             "Community<LandArea(HAS MAX 0 Occupant, HAS Neighbor<OwnedOccupant>)>"
         )
     ) shouldBe
-        "Place 1 community marker on a land area with no occupant next to a tile or community you own."
+        "Place a community marker on a land area with no occupant next to a tile or community you own."
     english.describe(parse<InstructionTree>("EACH Player { ProjectCard }")) shouldBe
         "Have each player draw 1 card."
     english.describe(
