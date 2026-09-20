@@ -5,6 +5,9 @@ CLASS Owed<Class<StandardResource>> : Owned<Player>, Barrier {
   X This:: Accepting<Class<StandardResource>>
 }
 
+"Identifies one aspect of a card play or purchase whose cost is being adjusted"
+CLASS PayingFor<Class<Component>> : Owned<Player>, Signal
+
 "A finalized debt; removing it signals that its denomination has been fully paid"
 ABSTRACT CLASS Billing<HasActions, ActionSlot, Class<StandardResource>> : Owned<Player>, Barrier {
   HAS MAX 1 This
@@ -47,7 +50,7 @@ CLASS PayFromCard<ResourceCard<Class<CardResource>, Player>> : Owned<Player>, Si
 
 "A card-owned adjustment that remains in play until the next card-play"
 ABSTRACT CLASS NextCardEffect<GenerationScope> : Owned<Player> {
-  Billing<CardPlay>:: -This!
+  PayingFor<Class<CardFront>>:: -This!
 }
 
 "A component that makes a standard resource worth one M€ when paid"
