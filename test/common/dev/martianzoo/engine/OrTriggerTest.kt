@@ -90,7 +90,8 @@ private object OrProbeDeclarations : TfmCatalog() {
               CLASS ConcreteIndexedSignal : IndexedSignal
               CLASS IndexedReward
               CLASS ConcreteOrderedSignal : IndexedSignal
-              CLASS OrderedReward1, OrderedReward2
+              CLASS OrderedReward1
+              CLASS OrderedReward2
 
               CLASS IndexedProbe {
                 HAS =1 This

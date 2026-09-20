@@ -44,7 +44,7 @@ public object Parsing {
    * class, in source order ([rule
    * L1-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
    * Nested declarations follow their container, recursively ([rule
-   * L1-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)),
+   * L1-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)),
    * and owner-local classes are lowered to ordinary declarations ([section
    * 11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-owner-local-classes)).
    * Examples can be reviewed in `global.pets` and `player.pets`.
@@ -68,7 +68,7 @@ public object Parsing {
 
   /**
    * Parses exactly one class declaration, with an optional semicolon-separated body ([rule
-   * L1-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
+   * L1-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
    * This is how a declaration embedded in structured card data is read; syntax examples can be seen
    * in `"components"` fields of `cards.json`.
    *

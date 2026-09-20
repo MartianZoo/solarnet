@@ -7,7 +7,7 @@ import dev.martianzoo.pets.util.toSetStrict
 
 /**
  * Pets runtime declarations that are available to every Catalog, as required by
- * [rule L1-13](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations):
+ * [rule L1-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations):
  * the classes this language and the type system depend on, including `Component` and `Class`, the
  * ownership vocabulary `Anyone`, `Owner` and `Owned`, the actor root `Actor`, the identity signal
  * `Ok`, the impossible type `Die`, and `Atomized` and `Custom`. A catalog's own source is loaded
