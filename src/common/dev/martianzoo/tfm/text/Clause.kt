@@ -5,8 +5,17 @@ internal sealed interface Clause {
   fun linearize(): String
 
   /** Pets source retained visibly when this renderer does not understand the node. */
-  data class RawPets(val unresolved: Unresolved) : Clause {
-    override fun linearize(): String = "[${unresolved.node}]"
+  data class RawPets(
+      val source: String,
+      val refusals: List<Unresolved>,
+  ) : Clause {
+    init {
+      require(refusals.isNotEmpty())
+    }
+
+    constructor(unresolved: Unresolved) : this(unresolved.node.toString(), listOf(unresolved))
+
+    override fun linearize(): String = "[$source]"
   }
 
   data class Simple(
@@ -64,7 +73,7 @@ internal sealed interface Clause {
 
 internal fun Clause.unresolved(): List<Unresolved> =
     when (this) {
-      is Clause.RawPets -> listOf(unresolved)
+      is Clause.RawPets -> refusals
       is Clause.Simple -> subject?.unresolved().orEmpty() + predicate.unresolved()
       is Clause.Coordinated -> clauses.members.flatMap(Clause::unresolved)
       is Clause.Either -> alternatives.members.flatMap(Clause::unresolved)

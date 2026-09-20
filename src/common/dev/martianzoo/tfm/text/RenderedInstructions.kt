@@ -6,8 +6,7 @@ internal data class RenderedInstructions(val clauses: List<Clause>) {
     require(clauses.isNotEmpty())
   }
 
-  internal fun asSentences(): Rendering<EnglishText> =
-      joinEnglishTexts(clauses.map { Sentence(it).asText() })
+  internal fun asSentences(): EnglishText = EnglishText.join(clauses.map { Sentence(it).asText() })
 
   internal fun asCoordinatedClause(): Clause = clauses.reduce { preceding, next ->
     Clause.Coordinated(Coordination(listOf(preceding, next), Conjunction.AND))

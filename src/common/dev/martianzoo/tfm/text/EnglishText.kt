@@ -4,12 +4,18 @@ package dev.martianzoo.tfm.text
 internal sealed interface EnglishText {
   fun linearize(): String
 
+  fun unresolved(): List<Unresolved>
+
   data object Empty : EnglishText {
     override fun linearize(): String = ""
+
+    override fun unresolved(): List<Unresolved> = emptyList()
   }
 
   data class SentenceText(val sentence: Sentence) : EnglishText {
     override fun linearize(): String = sentence.linearize()
+
+    override fun unresolved(): List<Unresolved> = sentence.unresolved()
   }
 
   data class Sequence(
@@ -22,6 +28,8 @@ internal sealed interface EnglishText {
 
     override fun linearize(): String =
         members.joinToString(separator, transform = EnglishText::linearize)
+
+    override fun unresolved(): List<Unresolved> = members.flatMap(EnglishText::unresolved)
   }
 
   data class Labeled(
@@ -29,6 +37,8 @@ internal sealed interface EnglishText {
       val body: EnglishText,
   ) : EnglishText {
     override fun linearize(): String = "$label${body.linearize()}"
+
+    override fun unresolved(): List<Unresolved> = body.unresolved()
   }
 
   companion object {

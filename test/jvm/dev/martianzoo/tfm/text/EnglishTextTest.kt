@@ -6,11 +6,11 @@ import kotlin.test.Test
 internal class EnglishTextTest {
   @Test
   internal fun keepsCardRegionsStructuredUntilLinearization() {
-    val action = EnglishText.Labeled("Action: ", Sentence(clause("gain", "1 plant")).asText().value)
+    val action = EnglishText.Labeled("Action: ", Sentence(clause("gain", "1 plant")).asText())
     val effect =
         EnglishText.Labeled(
             "Effect: ",
-            Sentence(clause("gain", "1 heat"), punctuation = "!").asText().value,
+            Sentence(clause("gain", "1 heat"), punctuation = "!").asText(),
         )
 
     EnglishText.join(listOf(action, effect), " / ").linearize() shouldBe

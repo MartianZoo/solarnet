@@ -12,7 +12,7 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 
-internal fun renderEndEffect(effect: Effect, describers: Describers): Rendering<EnglishText>? {
+internal fun renderEndEffect(effect: Effect, describers: Describers): EnglishText? {
   val condition =
       when (val trigger = effect.trigger) {
         is IfTrigger -> {
@@ -93,21 +93,9 @@ private fun Describers.renderFixedScore(instruction: InstructionTree): String? {
 private fun renderPerVictoryPoints(
     instruction: InstructionTree,
     describers: Describers,
-): Rendering<EnglishText>? {
+): EnglishText? {
   val per = instruction as? Per ?: return null
   val points = describers.renderFixedScore(per.inner) ?: return null
-  val metric = renderMetricPhrase(per.metric, describers)
-  val text =
-      Sentence(
-              NounPhrase.text(
-                  "$points ${Modifier.Per(metric ?: NounPhrase.text("[${per.metric}]")).linearize()}"
-              )
-          )
-          .asText()
-          .value
-  return if (metric != null) {
-    Rendering.resolved(text)
-  } else {
-    Rendering.unresolved(per.metric, RefusalReason.UNSUPPORTED_METRIC, text)
-  }
+  val metric = lexicalizeMetricPhrase(per.metric, describers)
+  return Sentence(NounPhrase.text(points).withModifier(Modifier.Per(metric))).asText()
 }

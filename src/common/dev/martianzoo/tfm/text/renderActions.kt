@@ -17,8 +17,8 @@ internal fun renderActions(
     actions: List<Action>,
     describers: Describers,
     firstActionPaymentResource: String? = null,
-): Rendering<EnglishText> {
-  if (actions.isEmpty()) return Rendering.resolved(EnglishText.Empty)
+): EnglishText {
+  if (actions.isEmpty()) return EnglishText.Empty
   val rendered = actions.mapIndexed { index, action ->
     renderAction(action, describers)?.let { renderedAction ->
       if (index == 0 && firstActionPaymentResource != null) {
@@ -29,24 +29,29 @@ internal fun renderActions(
         renderedAction
       }
     }
-        ?: return Rendering.unresolved(
-            action,
-            actionRefusalReason(action, describers),
-            Sentence(NounPhrase.text("[${actions.joinToString(" OR ")}]")).asText().value,
-        )
+        ?: return Sentence(
+                Clause.RawPets(
+                    actions.joinToString(" OR "),
+                    listOf(Unresolved(action, actionRefusalReason(action, describers))),
+                )
+            )
+            .asText()
   }
   val unresolved = rendered.flatMap(RenderedAction::unresolved)
   if (rendered.size == 1) return rendered.single().asSentences()
   val alternatives = rendered.mapIndexed { index, action ->
     action.asAlternative()
-        ?: return Rendering(
-            Sentence(NounPhrase.text("[${actions.joinToString(" OR ")}]")).asText().value,
-            unresolved +
-                Unresolved(
-                    actions[index],
-                    RefusalReason.ACTION_ALTERNATIVES_NOT_COMBINABLE,
-                ),
-        )
+        ?: return Sentence(
+                Clause.RawPets(
+                    actions.joinToString(" OR "),
+                    unresolved +
+                        Unresolved(
+                            actions[index],
+                            RefusalReason.ACTION_ALTERNATIVES_NOT_COMBINABLE,
+                        ),
+                )
+            )
+            .asText()
   }
   val conjunction = if (alternatives.size == 2) Conjunction.COMMA_OR else Conjunction.OR
   val joined = Clause.Coordinated(Coordination(alternatives, conjunction))
@@ -295,7 +300,7 @@ private data class RenderedAction(
     copy(cost = it.withModifier(modifier))
   }
 
-  fun asSentences(): Rendering<EnglishText> {
+  fun asSentences(): EnglishText {
     if (condition == null) {
       if (cost == null) return result.asSentences()
       val infinitive = checkNotNull(result.asActionResultInfinitive())
@@ -310,7 +315,7 @@ private data class RenderedAction(
           if (separateResultSentences) result.clauses.drop(1).map { Sentence(it).asText() }
           else emptyList()
       val explanation = costExplanation?.let { listOf(Sentence(it).asText()) }.orEmpty()
-      return joinEnglishTexts(listOf(first) + remaining + explanation)
+      return EnglishText.join(listOf(first) + remaining + explanation)
     }
     val clause =
         cost?.let {

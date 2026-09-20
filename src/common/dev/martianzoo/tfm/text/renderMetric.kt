@@ -21,6 +21,10 @@ internal data class MetricRendering(
 internal fun renderMetricPhrase(metric: Metric, describers: Describers): NounPhrase? =
     renderMetric(metric, describers, possessorEstablished = false)?.phrase
 
+/** Total pass-one metric boundary for a context that can retain a phrase-level refusal. */
+internal fun lexicalizeMetricPhrase(metric: Metric, describers: Describers): NounPhrase =
+    lexicalizeMetric(metric, describers, possessorEstablished = false).phrase
+
 internal fun renderRequirementMetricPhrase(
     metric: Metric,
     count: Int,
@@ -35,6 +39,34 @@ internal fun renderRankedMetricPhrase(metric: Metric, describers: Describers): N
   }
 }
 
+/** Total ranked-metric boundary used by goal text. */
+internal fun lexicalizeRankedMetricPhrase(metric: Metric, describers: Describers): NounPhrase {
+  val rendering = lexicalizeMetric(metric, describers, possessorEstablished = true)
+  return when (rendering.ranking) {
+    MetricRendering.Ranking.MOST -> rendering.phrase.asPlural().withDeterminer(Determiner.MOST)
+    MetricRendering.Ranking.HIGHEST -> rendering.phrase.withDeterminer(Determiner.HIGHEST)
+  }
+}
+
+private fun lexicalizeMetric(
+    metric: Metric,
+    describers: Describers,
+    possessorEstablished: Boolean,
+): MetricRendering =
+    when (metric) {
+      is Metric.Count ->
+          describers.lexicalizeCountedExpression(
+              metric.expression,
+              count = null,
+              possessorEstablished,
+          )
+      else ->
+          renderMetric(metric, describers, possessorEstablished)
+              ?: MetricRendering(
+                  NounPhrase.rawPets(Unresolved(metric, RefusalReason.UNSUPPORTED_METRIC))
+              )
+    }
+
 private fun renderMetric(
     metric: Metric,
     describers: Describers,
@@ -42,7 +74,8 @@ private fun renderMetric(
     count: Int? = null,
 ): MetricRendering? {
   return when (metric) {
-    is Metric.Count -> describers.renderCountMetric(metric.expression, count, possessorEstablished)
+    is Metric.Count ->
+        describers.recognizeCountedExpression(metric.expression, count, possessorEstablished)
     is Metric.Scaled -> renderScaledCountPhrase(metric, describers, possessorEstablished)
     is Metric.Max -> {
       renderMatchedTagPair(metric, describers, possessorEstablished, count)
@@ -133,7 +166,16 @@ private fun renderScaledCountPhrase(
   return renderMetric(metric.inner, describers, possessorEstablished, metric.unit)
 }
 
-private fun Describers.renderCountMetric(
+/** The sole count-expression-to-noun-phrase lexicalization protocol. */
+internal fun Describers.lexicalizeCountedExpression(
+    expression: Expression,
+    count: Int?,
+    possessorEstablished: Boolean,
+): MetricRendering =
+    recognizeCountedExpression(expression, count, possessorEstablished)
+        ?: unsupportedCountedExpression(expression)
+
+private fun Describers.recognizeCountedExpression(
     expression: Expression,
     count: Int?,
     possessorEstablished: Boolean,
@@ -224,6 +266,9 @@ private fun Describers.renderCountMetric(
   val noun = cardResourceNounPhrase(expression.className, agreementCount) ?: return null
   return MetricRendering(noun.copy(count = count).withModifier(Modifier.Phrase("on this card")))
 }
+
+private fun unsupportedCountedExpression(expression: Expression): MetricRendering =
+    MetricRendering(NounPhrase.rawPets(Unresolved(expression, RefusalReason.UNSUPPORTED_METRIC)))
 
 private fun Describers.renderFilteredPlacementCount(
     expression: Expression,

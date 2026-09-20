@@ -16,7 +16,7 @@ import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as TriggerFrame
 internal fun renderInstructionTree(
     instructionTree: InstructionTree,
     describers: Describers,
-): Rendering<EnglishText> {
+): EnglishText {
   val prepared = describers.prepareForRendering(instructionTree)
   val rendered =
       renderPreparedInstructions(prepared, describers, TypeVariableReferences.from(prepared))
@@ -63,37 +63,42 @@ private fun renderLoweredInstructions(
       index += 2
       continue
     }
-    val rendering = renderInstructionClauses(instruction, describers, localReferences)
-    val clauses =
-        rendering.value
-            ?: listOf(
-                Clause.RawPets(
-                    rendering.unresolved.singleOrNull()
-                        ?: Unresolved(instruction, instructionRefusalReason(instruction))
-                )
-            )
+    val clauses = lexicalizeInstruction(instruction, describers, localReferences)
     rendered += clauses.map { instruction to it }
     index++
   }
   return RenderedInstructions(rewriteAdjacentClauses(rendered.map { it.second }))
 }
 
-private fun renderInstructionClauses(
+/** Total pass-one boundary for one prepared instruction. */
+private fun lexicalizeInstruction(
     instruction: Instruction,
     describers: Describers,
     references: TypeVariableReferences,
-): Rendering<List<Clause>?> =
-    if (instruction is Instruction.Transform) {
-      Rendering.resolved(renderCardOperation(instruction, describers))
-    } else {
-      renderInstruction(instruction, describers, references).map { it?.let(::listOf) }
-    }
+): List<Clause> =
+    recognizeInstructionClauses(instruction, describers, references)
+        ?: listOf(
+            Clause.RawPets(
+                Unresolved(instruction, instructionRefusalReason(instruction, describers))
+            )
+        )
 
-private fun instructionRefusalReason(instruction: Instruction): RefusalReason =
+private fun recognizeInstructionClauses(
+    instruction: Instruction,
+    describers: Describers,
+    references: TypeVariableReferences,
+): List<Clause>? =
+    if (instruction is Instruction.Transform) renderCardOperation(instruction, describers)
+    else renderInstruction(instruction, describers, references)?.let(::listOf)
+
+private fun instructionRefusalReason(
+    instruction: Instruction,
+    describers: Describers,
+): RefusalReason =
     when (instruction) {
       is Gain,
       is Remove,
-      is Instruction.Transmute -> RefusalReason.UNKNOWN_CHANGE_FRAME
+      is Instruction.Transmute -> changeRefusalReason(instruction, describers)
       is Instruction.Each -> RefusalReason.UNSUPPORTED_FANOUT
       is Instruction.Or -> RefusalReason.UNSUPPORTED_ALTERNATIVES
       is Instruction.Per -> RefusalReason.UNSUPPORTED_SCALING
@@ -108,45 +113,30 @@ private fun renderInstruction(
     instruction: Instruction,
     describers: Describers,
     references: TypeVariableReferences,
-): Rendering<Clause?> =
+): Clause? =
     when (instruction) {
       is Gain,
       is Remove,
       is Instruction.Transmute -> renderChange(instruction, describers, references)
       is Instruction.Each ->
-          renderOpponentFanout(instruction, describers, references)?.let {
-            Rendering.resolved(it)
-          }
-              ?: renderPlayerFanout(instruction, describers, references)?.let {
-                Rendering.resolved(it)
-              }
-              ?: renderProductionFloorFanout(instruction, describers)?.let {
-                Rendering.resolved(it)
-              }
-              ?: renderOwnedFanout(instruction, describers, references)?.let {
-                Rendering.resolved(it)
-              }
-              ?: Rendering(
-                  null,
-                  listOf(Unresolved(instruction, RefusalReason.UNSUPPORTED_FANOUT)),
-              )
-      is Instruction.Or ->
-          Rendering.resolved(renderAlternatives(instruction, describers, references))
-      is Instruction.Per -> Rendering.resolved(renderPer(instruction, describers, references))
-      is Instruction.Gated -> Rendering.resolved(renderGated(instruction, describers, references))
+          renderOpponentFanout(instruction, describers, references)
+              ?: renderPlayerFanout(instruction, describers, references)
+              ?: renderProductionFloorFanout(instruction, describers)
+              ?: renderOwnedFanout(instruction, describers, references)
+      is Instruction.Or -> renderAlternatives(instruction, describers, references)
+      is Instruction.Per -> renderPer(instruction, describers, references)
+      is Instruction.Gated -> renderGated(instruction, describers, references)
       is Instruction.Then ->
-          Rendering.resolved(
-              renderCardRevealAndRestore(instruction, describers)
-                  ?: renderCardPlaySequence(instruction, describers)
-                  ?: renderCombinedCostSequence(instruction, describers, references)
-                  ?: renderStandardResourceCostSequence(instruction, describers, references)
-                  ?: renderDiscardCostSequence(instruction, describers, references)
-                  ?: renderCardResourceCostSequence(instruction, describers, references)
-                  ?: renderSequentialThen(instruction, describers, references)
-          )
-      is NoOp -> Rendering.resolved(doNothingClause)
+          renderCardRevealAndRestore(instruction, describers)
+              ?: renderCardPlaySequence(instruction, describers)
+              ?: renderCombinedCostSequence(instruction, describers, references)
+              ?: renderStandardResourceCostSequence(instruction, describers, references)
+              ?: renderDiscardCostSequence(instruction, describers, references)
+              ?: renderCardResourceCostSequence(instruction, describers, references)
+              ?: renderSequentialThen(instruction, describers, references)
+      is NoOp -> doNothingClause
       is Instruction.Transform -> error("Transforms are expanded before ordinary instructions")
-      is Instruction.By -> Rendering.resolved(null)
+      is Instruction.By -> null
     }
 
 private fun renderPlayerFanout(
@@ -253,9 +243,8 @@ private fun renderOpponentFanout(
             inner is Gain &&
             describers.changeFrame(inner.gaining.className) is ComponentDescriber.ChangeFrame.Deck
     ) {
-      val rendered = renderChange(inner, describers, references)
-      val gain = rendered.value as? Clause.Simple ?: return null
-      if (rendered.unresolved.isNotEmpty() || gain.subject != null) return null
+      val gain = renderChange(inner, describers, references) as? Clause.Simple ?: return null
+      if (gain.subject != null) return null
       return@map gain.copy(
           predicate = gain.predicate.copy(verb = Verb("draws", "draw")),
           subject = NounPhrase.text("each other player"),
@@ -339,10 +328,10 @@ private fun renderCombinedCostSequence(
                   )
               )
           describers.isCardResource(removal.removing.className) ->
-              renderChange(removal, describers, references).value as? Clause.Simple ?: return null
+              renderChange(removal, describers, references) as? Clause.Simple ?: return null
           describers.changeFrame(removal.removing.className) ==
               ComponentDescriber.ChangeFrame.Deck ->
-              renderChange(removal, describers, references).value as? Clause.Simple ?: return null
+              renderChange(removal, describers, references) as? Clause.Simple ?: return null
           else -> return null
         }
       }
@@ -387,8 +376,7 @@ private fun renderDiscardCostSequence(
     references: TypeVariableReferences,
 ): Clause? {
   val removal = instruction.stages.singleOrNull() as? Remove ?: return null
-  val discarded =
-      renderChange(removal, describers, references).value as? Clause.Simple ?: return null
+  val discarded = renderChange(removal, describers, references) as? Clause.Simple ?: return null
   if (describers.changeFrame(removal.removing.className) !is ComponentDescriber.ChangeFrame.Deck) {
     return null
   }
@@ -673,8 +661,8 @@ private fun renderPlacementSiteFallback(
   val countedSite = absence.countedMetric as? Metric.Count ?: return null
   if (absence.maximum != 0 || countedSite.expression != site) return null
 
-  val preferredClause = renderChange(preferred, describers).value as? Clause.Simple ?: return null
-  if (renderChange(unrestricted, describers).value !is Clause.Simple) return null
+  val preferredClause = renderChange(preferred, describers) as? Clause.Simple ?: return null
+  if (renderChange(unrestricted, describers) !is Clause.Simple) return null
   return preferredClause
       .withModifier(Modifier.Phrase("if using a board that has one"))
       .withModifier(Modifier.Supplement("otherwise place it normally"))

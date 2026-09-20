@@ -11,11 +11,20 @@ internal data class NounPhrase(
     private val upperBounded: Boolean = false,
     private val coordinatedHead: Coordination<NounPhrase>? = null,
     internal val attributiveModifiers: Coordination<NounPhrase>? = null,
+    private val rawPets: Unresolved? = null,
 ) {
   init {
     require(count == null || grammaticalNumber == null)
     require(!upperBounded || count != null)
     require(coordinatedHead == null || singular.isEmpty())
+    require(rawPets == null || singular.isEmpty())
+    require(rawPets == null || coordinatedHead == null)
+    require(rawPets == null || count == null)
+    require(rawPets == null || determiner == null)
+    require(rawPets == null || modifiers.isEmpty())
+    require(rawPets == null || grammaticalNumber == null)
+    require(rawPets == null || !upperBounded)
+    require(rawPets == null || attributiveModifiers == null)
   }
 
   internal fun number(): GrammaticalNumber =
@@ -28,6 +37,9 @@ internal data class NounPhrase(
 
   /** The selected head noun together with any attributive modifier. */
   fun noun(): String {
+    rawPets?.let {
+      return "[${it.node}]"
+    }
     val head =
         coordinatedHead?.linearize(NounPhrase::linearize)
             ?: if (number() == GrammaticalNumber.SINGULAR) singular else plural
@@ -38,29 +50,36 @@ internal data class NounPhrase(
         .joinToString(" ")
   }
 
-  fun withModifier(modifier: Modifier): NounPhrase = copy(modifiers = modifiers + modifier)
+  fun withModifier(modifier: Modifier): NounPhrase =
+      if (rawPets != null) this else copy(modifiers = modifiers + modifier)
 
-  fun withDeterminer(determiner: Determiner): NounPhrase = copy(determiner = determiner)
+  fun withDeterminer(determiner: Determiner): NounPhrase =
+      if (rawPets != null) this else copy(determiner = determiner)
 
   fun withAttributiveModifier(modifier: NounPhrase): NounPhrase =
       withAttributiveModifiers(Coordination.one(modifier))
 
   fun withAttributiveModifiers(modifiers: Coordination<NounPhrase>): NounPhrase =
-      copy(
-          attributiveModifiers =
-              Coordination(
-                  modifiers.members.map {
-                    it.copy(count = null, determiner = null, upperBounded = false)
-                  },
-                  modifiers.conjunction,
-              )
-      )
+      if (rawPets != null) this
+      else
+          copy(
+              attributiveModifiers =
+                  Coordination(
+                      modifiers.members.map {
+                        it.copy(count = null, determiner = null, upperBounded = false)
+                      },
+                      modifiers.conjunction,
+                  )
+          )
 
-  fun asPlural(): NounPhrase = copy(count = null, grammaticalNumber = GrammaticalNumber.PLURAL)
+  fun asPlural(): NounPhrase =
+      if (rawPets != null) this
+      else copy(count = null, grammaticalNumber = GrammaticalNumber.PLURAL)
 
-  fun quantified(count: Int): NounPhrase = copy(count = count, grammaticalNumber = null)
+  fun quantified(count: Int): NounPhrase =
+      if (rawPets != null) this else copy(count = count, grammaticalNumber = null)
 
-  fun atMost(): NounPhrase = copy(upperBounded = true)
+  fun atMost(): NounPhrase = if (rawPets != null) this else copy(upperBounded = true)
 
   internal fun trailingSteps(): Modifier.Steps? = modifiers.lastOrNull() as? Modifier.Steps
 
@@ -85,7 +104,8 @@ internal data class NounPhrase(
   }
 
   internal fun unresolved(): List<Unresolved> =
-      coordinatedHead?.members.orEmpty().flatMap(NounPhrase::unresolved) +
+      listOfNotNull(rawPets) +
+          coordinatedHead?.members.orEmpty().flatMap(NounPhrase::unresolved) +
           attributiveModifiers?.members.orEmpty().flatMap(NounPhrase::unresolved) +
           modifiers.flatMap(Modifier::unresolved)
 
@@ -97,6 +117,8 @@ internal data class NounPhrase(
 
     fun coordinated(nouns: Coordination<NounPhrase>): NounPhrase =
         NounPhrase("", coordinatedHead = nouns)
+
+    fun rawPets(unresolved: Unresolved): NounPhrase = NounPhrase("", rawPets = unresolved)
 
     fun you(): NounPhrase = NounPhrase("you", grammaticalNumber = GrammaticalNumber.PLURAL)
   }

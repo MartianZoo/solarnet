@@ -14,7 +14,7 @@ import dev.martianzoo.pets.ast.InstructionGroup
 internal fun renderCardResourceValueEffects(
     effects: List<Effect>,
     describers: Describers,
-): Pair<Set<Effect>, Rendering<EnglishText>?> {
+): Pair<Set<Effect>, EnglishText?> {
   val resourceValueEffects = effects.filter { effect ->
     val instructions = InstructionGroup.of(effect.instruction).instructions
     instructions.isNotEmpty() && instructions.all(::isResourceValueChange)

@@ -85,16 +85,17 @@ argument in Pets, so it must be head plus attributive modifier in English — ne
 Other attributive compounds remain glued into noun strings. Structured coordination in that slot
 exists specifically for the shared-head rule below; do not generalize it into another modifier API.
 
-There is also no single named entry point for "expression to noun phrase." The real one is
-`renderCountMetric`, `private` inside `renderMetric.kt` and named for its caller — which is the
-mechanical reason milestone work grew a parallel string renderer before being folded back in.
-`Describers` additionally exposes seven partial producers (`componentNounPhrase`,
+`lexicalizeCountedExpression` is the single total protocol from a counted `Expression` to its noun
+phrase and ranking. It owns the ordered family of private recognizers and returns an opaque
+phrase-level `RawPets` refusal when none accepts the expression. Those private recognizers remain
+nullable deliberately: refusal must be chosen only after every applicable protocol has had a turn,
+not used as a successful value inside another recognizer ladder.
+
+`Describers` still exposes several narrower producers (`componentNounPhrase`,
 `quantifiedComponentNounPhrase`, `cardResourceNounPhrase`, `playedTagPhrase`, `describedNoun`,
 `plainGainNoun`, `plainGainCategoryNoun`) that each fuse a classification guard to a noun
-derivation, so a caller must already know what kind of thing it holds before it can ask for words.
-That is backwards, and it is why the same classification questions (`isStandardResource`,
-`resolveCardResource`, `triggerFrame`, `positionedFrame`, and others) are each asked independently in
-three to eight files.
+derivation. These serve contexts that already established a narrower semantic role; do not use them
+to recreate a competing general expression dispatcher.
 
 `ChangeFrame` is the one axis that got this right: a closed classification, dispatched exhaustively,
 declared as data. Treat it as the template, not as a finished job.
@@ -110,8 +111,9 @@ not a general rewrite engine.
 
 `EnglishText` is the document-level continuation of the EST: sentences, sequences, and labeled card
 regions remain structured while renderers compose them. Only the `English` facade asks that tree for
-a `String`. `Rendering` still carries refusal evidence alongside a structural value; consolidating
-that evidence into the exhaustive pass-1 result is separate work.
+a `String`. Refusal is an EST leaf (`Clause.RawPets` or `NounPhrase.rawPets`), so visible fallback and
+typed refusal evidence have one recursive source of truth. Family boundaries totalize nullable
+recognizers exactly once; internal recognizers do not manufacture refusal values.
 
 Two hard constraints, both checkable by review:
 
@@ -306,8 +308,8 @@ semantic invariant needs direct proof.
   — lexical facts and inheritance.
 - [`ExpressionResolver.kt`](../../src/common/dev/martianzoo/tfm/text/ExpressionResolver.kt) — structural
   Class and dependency roles.
-- [`Rendering.kt`](../../src/common/dev/martianzoo/tfm/text/Rendering.kt) — visible fallback and refusal
-  evidence.
+- `Clause.RawPets`, `NounPhrase.rawPets`, and `EnglishText.unresolved()` — visible fallback and
+  recursively derived refusal evidence.
 - `renderActions.kt`, `renderChange.kt`, `renderEffect.kt`, `renderInstructionTree.kt`,
   `renderMetric.kt`, `renderRequirement.kt`, `renderGoal.kt` — family interpreters.
 - [`EnglishCardTextCurrentGenerator.kt`](../../test/jvm/dev/martianzoo/tfm/text/EnglishCardTextCurrentGenerator.kt)

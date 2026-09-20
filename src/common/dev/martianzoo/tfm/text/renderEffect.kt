@@ -25,15 +25,11 @@ import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as TriggerFrame
 internal fun renderEffect(
     effect: Effect,
     describers: Describers,
-): Rendering<EnglishText> {
+): EnglishText {
   val lowered = describers.prepareForRendering(effect)
   if (isEndEffect(lowered, describers)) {
     return renderEndEffect(lowered, describers)
-        ?: Rendering.unresolved(
-            effect,
-            RefusalReason.UNSUPPORTED_END_EFFECT,
-            Sentence(NounPhrase.text("[$effect]")).asText().value,
-        )
+        ?: refusedEffect(effect, RefusalReason.UNSUPPORTED_END_EFFECT)
   }
   val rendered =
       renderRemovalPrevention(lowered, describers)
@@ -45,18 +41,16 @@ internal fun renderEffect(
           ?: renderRequirementFlexibility(lowered, describers)
           ?: renderLinkedPlayedTagResourceChoice(lowered, describers)
           ?: renderTriggeredInstructions(lowered, describers)
-  return rendered
-      ?: Rendering.unresolved(
-          effect,
-          RefusalReason.UNSUPPORTED_EFFECT_TRIGGER,
-          Sentence(NounPhrase.text("[$effect]")).asText().value,
-      )
+  return rendered ?: refusedEffect(effect, RefusalReason.UNSUPPORTED_EFFECT_TRIGGER)
 }
+
+private fun refusedEffect(effect: Effect, reason: RefusalReason): EnglishText =
+    Sentence(Clause.RawPets(Unresolved(effect, reason))).asText()
 
 private fun renderCardResourcePaymentValue(
     effect: Effect,
     describers: Describers,
-): Rendering<EnglishText>? {
+): EnglishText? {
   val choice = effect.instruction as? Instruction.Or ?: return null
   if (choice.instructions.size != 2) return null
   val sequence = choice.instructions.filterIsInstance<Then>().singleOrNull() ?: return null
@@ -105,7 +99,7 @@ private fun renderCardResourcePaymentValue(
 private fun renderLinkedPlayedTagResourceChoice(
     effect: Effect,
     describers: Describers,
-): Rendering<EnglishText>? {
+): EnglishText? {
   val trigger = (effect.trigger as? OnGainOf)?.expression ?: return null
   if (trigger.refinement != null) return null
   val holderKey = Key(ClassName.cn("Tag"), 0)
@@ -159,7 +153,7 @@ private fun renderLinkedCardResourceGain(
 private fun renderRequirementFlexibility(
     effect: Effect,
     describers: Describers,
-): Rendering<EnglishText>? {
+): EnglishText? {
   val result = renderRequirementFlexibilityResult(effect, describers) ?: return null
   val event =
       eventTrigger(
@@ -220,7 +214,7 @@ internal fun renderRequirementFlexibilityResult(
 private fun renderPurchaseAdjustment(
     effect: Effect,
     describers: Describers,
-): Rendering<EnglishText>? {
+): EnglishText? {
   val trigger = effect.trigger as? OnGainOf ?: return null
   when (describers.triggerFrame(trigger.expression.className)) {
     is TriggerFrame.PayingFor,
@@ -262,7 +256,7 @@ private fun renderPurchaseAdjustment(
 private fun renderAcceptedPaymentResource(
     effect: Effect,
     describers: Describers,
-): Rendering<EnglishText>? {
+): EnglishText? {
   val gain = effect.instruction as? Gain ?: return null
   val acceptance =
       paymentResourceGain(
@@ -322,7 +316,7 @@ private fun Describers.renderActionPaymentTrigger(trigger: Trigger): Clause.Simp
 private fun renderRemovalPrevention(
     effect: Effect,
     describers: Describers,
-): Rendering<EnglishText>? {
+): EnglishText? {
   if (!effect.automatic || !isDeadEndInstruction(effect.instruction, describers)) return null
   val (trigger, actor) =
       when (val authoredTrigger = effect.trigger) {
@@ -379,8 +373,8 @@ internal fun renderEffects(
     effects: List<Effect>,
     describers: Describers,
     cardResourceType: ClassName? = null,
-): Rendering<EnglishText> {
-  val sentences = mutableListOf<Rendering<EnglishText>>()
+): EnglishText {
+  val sentences = mutableListOf<EnglishText>()
   var index = 0
   while (index < effects.size) {
     renderOncePerActionProductionReward(effects.drop(index), describers)?.let { (sentence, consumed)
@@ -419,13 +413,13 @@ internal fun renderEffects(
     sentences += renderPaymentDiscount(run.filterNotNull())
     index += run.size
   }
-  return joinEnglishTexts(sentences)
+  return EnglishText.join(sentences)
 }
 
 private fun renderOncePerActionProductionReward(
     effects: List<Effect>,
     describers: Describers,
-): Pair<Rendering<EnglishText>, Int>? {
+): Pair<EnglishText, Int>? {
   val actionEnable = effects.getOrNull(0)?.let(describers::prepareForRendering) ?: return null
   val phaseEnable = effects.getOrNull(1)?.let(describers::prepareForRendering) ?: return null
 
@@ -513,7 +507,7 @@ private fun hasUnitLatchInvariant(
 private fun renderAcceptedResourcePayment(
     effects: List<Effect>,
     describers: Describers,
-): Pair<Rendering<EnglishText>, Int>? {
+): Pair<EnglishText, Int>? {
   val acceptance = effects.getOrNull(0) ?: return null
   val payment = effects.getOrNull(1) ?: return null
   val accepted =
@@ -544,7 +538,7 @@ internal fun renderAcceptedResourceValue(
     accepted: ResourceAmount,
     valuePhrase: NounPhrase,
     describers: Describers,
-): Rendering<EnglishText>? {
+): EnglishText? {
   val resourceClassName = accepted.resource ?: return null
   if (accepted.count != 1) return null
   if (describers.hasBasePaymentValue(resourceClassName)) return null
@@ -566,7 +560,7 @@ private fun renderAcceptedCardResourcePayment(
     effects: List<Effect>,
     cardResourceType: ClassName?,
     describers: Describers,
-): Pair<Rendering<EnglishText>, Int>? {
+): Pair<EnglishText, Int>? {
   cardResourceType ?: return null
   val acceptance = effects.getOrNull(0) ?: return null
   val payment = effects.getOrNull(1) ?: return null
@@ -681,7 +675,7 @@ internal fun paymentDiscount(effect: Effect, describers: Describers): PaymentDis
   )
 }
 
-private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): Rendering<EnglishText> {
+private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): EnglishText {
   val trigger = coordinatePaymentTriggers(discounts.map(PaymentDiscount::trigger).distinct())
   val reduction = discounts.first().reduction
   val result =
@@ -747,7 +741,7 @@ private fun Clause.hasExplicitObject(): Boolean =
 private fun renderResourcePaymentValue(
     effect: Effect,
     describers: Describers,
-): Rendering<EnglishText>? {
+): EnglishText? {
   val spent = describers.renderSpentResource(effect.trigger) ?: return null
   val reduction = owedReduction(effect.instruction, describers) ?: return null
   return Sentence(
@@ -883,7 +877,7 @@ private fun Describers.renderPlainGainAmount(instruction: InstructionTree): Reso
 private fun renderTriggeredInstructions(
     effect: Effect,
     describers: Describers,
-): Rendering<EnglishText>? {
+): EnglishText? {
   val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
   val instruction =
       if (

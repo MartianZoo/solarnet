@@ -264,7 +264,7 @@ private fun renderRevealAndTest(
     describers: Describers,
 ): List<Clause>? {
   val criterion = describers.cardCriterion(operation.filter) ?: return null
-  val outcome = renderChange(operation.outcome, describers).value ?: return null
+  val outcome = renderChange(operation.outcome, describers) ?: return null
   return listOf(
       clause("reveal", "1 project card"),
       Clause.Prefaced(

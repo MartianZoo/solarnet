@@ -23,42 +23,41 @@ internal class English(
   private val describers = Describers(classTable, descriptions)
 
   /** Returns complete English sentences describing [effect]. */
-  internal fun describe(effect: Effect): String = renderEffect(effect, describers).value.linearize()
+  internal fun describe(effect: Effect): String = renderEffect(effect, describers).linearize()
 
   /** Returns complete English sentences describing [actions] as one action region. */
   internal fun describe(actions: List<Action>): String =
-      renderActions(actions, describers).value.linearize()
+      renderActions(actions, describers).linearize()
 
   /** Returns complete, context-neutral English sentences describing [instructionTree]. */
   internal fun describe(instructionTree: InstructionTree): String =
-      renderInstructionTree(instructionTree, describers).value.linearize()
+      renderInstructionTree(instructionTree, describers).linearize()
 
   /** Returns complete English sentences describing [requirement]. */
   internal fun describe(requirement: Requirement): String =
-      renderRequirement(requirement, describers).value.linearize()
+      renderRequirement(requirement, describers).linearize()
 
   /** Returns the best available English text describing [goal]. */
   internal fun renderGoal(goal: Class): EnglishGoalRendering {
     val rendered = renderGoal(goal, describers)
-    return EnglishGoalRendering(rendered.value.linearize(), rendered.unresolved)
+    return EnglishGoalRendering(rendered.linearize(), rendered.unresolved())
   }
 
   /** Returns the best available text above [card]'s artwork. */
-  internal fun topText(card: Class): String =
-      renderTopText(card, cardDescribers(card)).value.linearize()
+  internal fun topText(card: Class): String = renderTopText(card, cardDescribers(card)).linearize()
 
   /** Returns the best available text below [card]'s artwork. */
   internal fun bottomText(card: Class): String =
-      renderBottomText(card, cardDescribers(card)).value.linearize()
+      renderBottomText(card, cardDescribers(card)).linearize()
 
   internal fun renderCard(card: Class): EnglishCardRendering {
     val cardDescribers = cardDescribers(card)
     val top = renderTopText(card, cardDescribers)
     val bottom = renderBottomText(card, cardDescribers)
     return EnglishCardRendering(
-        top.value.linearize(),
-        bottom.value.linearize(),
-        top.unresolved + bottom.unresolved,
+        top.linearize(),
+        bottom.linearize(),
+        top.unresolved() + bottom.unresolved(),
     )
   }
 
@@ -68,7 +67,7 @@ internal class English(
   private fun renderBottomText(
       card: Class,
       cardDescribers: Describers,
-  ): Rendering<EnglishText> {
+  ): EnglishText {
     val interpretedEffects = interpretedCardEffects(card)
     val resourceValueEffects = renderCardResourceValueEffects(interpretedEffects, cardDescribers)
     val requirement = cardRequirement(card)?.let { renderRequirement(it, cardDescribers) }
@@ -85,7 +84,7 @@ internal class English(
             .filter { isEndEffect(it, cardDescribers) }
             .filterNot { isUnconditionalFixedScore(it, cardDescribers) }
             .map { renderEffect(it, cardDescribers) }
-    return joinEnglishTexts(
+    return EnglishText.join(
         listOfNotNull(requirement) + immediateEffects + listOfNotNull(instructions) + scoring
     )
   }
@@ -93,7 +92,7 @@ internal class English(
   private fun renderTopText(
       card: Class,
       cardDescribers: Describers,
-  ): Rendering<EnglishText> {
+  ): EnglishText {
     val interpretedEffects = interpretedCardEffects(card)
     val cardActions = cardActions(card)
     val resourceValueEffects = renderCardResourceValueEffects(interpretedEffects, cardDescribers)
@@ -118,7 +117,7 @@ internal class English(
             .takeIf { it.isNotEmpty() }
             ?.let { renderActions(it, cardDescribers, integratedPayment?.second) }
     val paymentWasIntegrated = integratedPayment != null
-    val actions = actionsWithPayment?.map { text -> EnglishText.Labeled("Action: ", text) }
+    val actions = actionsWithPayment?.let { EnglishText.Labeled("Action: ", it) }
     val renderedPersistentEffects =
         persistentEffects
             .filterIndexed { index, _ ->
@@ -135,10 +134,10 @@ internal class English(
     val effectTexts = listOfNotNull(renderedPersistentEffects, resourceValueEffects.second)
     val effects =
         effectTexts
-            .takeIf(List<Rendering<EnglishText>>::isNotEmpty)
-            ?.let(::joinEnglishTexts)
-            ?.map { text -> EnglishText.Labeled("Effect: ", text) }
-    return joinEnglishTexts(listOfNotNull(actions, effects), " / ")
+            .takeIf(List<EnglishText>::isNotEmpty)
+            ?.let { EnglishText.join(it) }
+            ?.let { EnglishText.Labeled("Effect: ", it) }
+    return EnglishText.join(listOfNotNull(actions, effects), " / ")
   }
 
   private fun interpretedCardEffects(card: Class): List<Effect> =
@@ -152,7 +151,7 @@ internal class English(
   private fun renderImmediateSelfEffect(
       effect: Effect,
       cardDescribers: Describers,
-  ): Rendering<EnglishText> {
+  ): EnglishText {
     val prepared = cardDescribers.prepareForRendering(effect)
     if (prepared.trigger == WhenGain) {
       return renderInstructionTree(prepared.instruction, cardDescribers)
@@ -170,11 +169,8 @@ internal class English(
             ?.condition
             ?.let(cardDescribers::renderGateCondition)
     if (condition == null) {
-      return Rendering.unresolved(
-          effect,
-          RefusalReason.UNSUPPORTED_EFFECT_TRIGGER,
-          Sentence(NounPhrase.text("[$effect]")).asText().value,
-      )
+      return Sentence(Clause.RawPets(Unresolved(effect, RefusalReason.UNSUPPORTED_EFFECT_TRIGGER)))
+          .asText()
     }
     val instruction = renderInstructions(prepared.instruction, cardDescribers)
     return Sentence(
@@ -189,7 +185,7 @@ internal class English(
   private fun renderImmediateSelfEffects(
       effects: List<Effect>,
       cardDescribers: Describers,
-  ): List<Rendering<EnglishText>> = effects.map {
+  ): List<EnglishText> = effects.map {
     renderImmediateSelfEffect(it, cardDescribers)
   }
 }

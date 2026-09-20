@@ -19,22 +19,29 @@ internal fun renderChange(
     instruction: Instruction,
     describers: Describers,
     references: TypeVariableReferences = TypeVariableReferences.EMPTY,
-): Rendering<Clause?> {
+): Clause? {
   val expression =
       when (instruction) {
         is Gain -> instruction.gaining
         is Remove -> instruction.removing
         is Transmute -> instruction.gaining
-        else -> return Rendering.unresolved(instruction, RefusalReason.UNKNOWN_CHANGE_FRAME, null)
+        else -> return null
       }
-  val clause = renderChangeOrNull(instruction, expression, describers, references)
-  return if (clause != null) Rendering.resolved(clause)
-  else
-      Rendering.unresolved(
-          instruction,
-          changeRefusalReason(instruction, expression, describers),
-          null,
-      )
+  return renderChangeOrNull(instruction, expression, describers, references)
+}
+
+internal fun changeRefusalReason(
+    instruction: Instruction,
+    describers: Describers,
+): RefusalReason {
+  val expression =
+      when (instruction) {
+        is Gain -> instruction.gaining
+        is Remove -> instruction.removing
+        is Transmute -> instruction.gaining
+        else -> return RefusalReason.UNKNOWN_CHANGE_FRAME
+      }
+  return changeRefusalReason(instruction, expression, describers)
 }
 
 private fun renderChangeOrNull(
