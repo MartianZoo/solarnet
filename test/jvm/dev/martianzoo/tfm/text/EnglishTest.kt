@@ -452,7 +452,7 @@ internal class EnglishTest {
             Describers(Canon.classTable, TerraformingMarsDescribers.descriptions),
         )
 
-    rendering.value shouldBe "Pay 2 steel to [3 VictoryPoint]."
+    rendering.value.linearize() shouldBe "Pay 2 steel to [3 VictoryPoint]."
     rendering.unresolved.map { it.node.toString() to it.reason } shouldBe
         listOf("3 VictoryPoint" to RefusalReason.UNKNOWN_CHANGE_FRAME)
   }
@@ -480,7 +480,7 @@ internal class EnglishTest {
             Describers(Canon.classTable, TerraformingMarsDescribers.descriptions),
         )
 
-    rendering.value shouldBe "When you trade, [TradeBarrier<ColonyTile>]."
+    rendering.value.linearize() shouldBe "When you trade, [TradeBarrier<ColonyTile>]."
     rendering.unresolved.map { it.node.toString() to it.reason } shouldBe
         listOf("TradeBarrier<ColonyTile>" to RefusalReason.UNKNOWN_CHANGE_FRAME)
   }
@@ -497,7 +497,7 @@ internal class EnglishTest {
             Describers(Canon.classTable, TerraformingMarsDescribers.descriptions),
         )
 
-    rendering.value shouldBe
+    rendering.value.linearize() shouldBe
         "[Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier<ColonyTile>]."
     rendering.unresolved.map { it.node.toString() to it.reason } shouldBe
         listOf(effect.toString() to RefusalReason.UNSUPPORTED_EFFECT_TRIGGER)

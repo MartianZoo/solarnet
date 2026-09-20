@@ -14,13 +14,13 @@ internal data class Rendering<out T>(val value: T, val unresolved: List<Unresolv
   }
 }
 
-internal fun joinRenderings(
-    renderings: Iterable<Rendering<String>>,
+internal fun joinEnglishTexts(
+    renderings: Iterable<Rendering<EnglishText>>,
     separator: String = " ",
-): Rendering<String> {
+): Rendering<EnglishText> {
   val parts = renderings.toList()
   return Rendering(
-      parts.joinToString(separator) { it.value },
+      EnglishText.join(parts.map(Rendering<EnglishText>::value), separator),
       parts.flatMap { it.unresolved },
   )
 }

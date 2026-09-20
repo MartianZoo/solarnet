@@ -16,7 +16,7 @@ import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as TriggerFrame
 internal fun renderInstructionTree(
     instructionTree: InstructionTree,
     describers: Describers,
-): Rendering<String> {
+): Rendering<EnglishText> {
   val prepared = describers.prepareForRendering(instructionTree)
   val rendered =
       renderPreparedInstructions(prepared, describers, TypeVariableReferences.from(prepared))

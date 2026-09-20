@@ -47,7 +47,10 @@ Pets AST + Class Table
   structural paraphrase rules    must not read Describers or mention a ClassName
           │
           ▼
-  linearize: agreement, capitalization, punctuation
+  EnglishText document tree
+          │
+          ▼
+  English facade linearizes: agreement, capitalization, punctuation, regions
           │
           ▼
   English facade: standalone descriptions, card regions, goal text
@@ -104,6 +107,11 @@ The named functions in `rewriteEnglishSyntax.kt` are the current pass-2 seam. Th
 heads and adjacent predicates, distribute a shared step count, and attach one purpose to coordinated
 costs. Their signatures accept only EST types. This is deliberately a handful of ordinary functions,
 not a general rewrite engine.
+
+`EnglishText` is the document-level continuation of the EST: sentences, sequences, and labeled card
+regions remain structured while renderers compose them. Only the `English` facade asks that tree for
+a `String`. `Rendering` still carries refusal evidence alongside a structural value; consolidating
+that evidence into the exhaustive pass-1 result is separate work.
 
 Two hard constraints, both checkable by review:
 
@@ -287,7 +295,9 @@ semantic invariant needs direct proof.
 - [`English.kt`](../../src/common/dev/martianzoo/tfm/text/English.kt) — internal facade and card-region
   assembly; `EnglishCardTextRenderer.kt` is the public card-text entry point.
 - `Clause.kt`, `Predicate.kt`, `Verb.kt`, `NounPhrase.kt`, `Determiner.kt`, `Modifier.kt`,
-  `Coordination.kt` — English syntax and final linearization.
+  `Coordination.kt`, `Sentence.kt` — sentence-level English syntax.
+- [`EnglishText.kt`](../../src/common/dev/martianzoo/tfm/text/EnglishText.kt) — document composition and
+  the single facade-facing linearization root.
 - [`rewriteEnglishSyntax.kt`](../../src/common/dev/martianzoo/tfm/text/rewriteEnglishSyntax.kt) —
   named EST-only paraphrases and structural composition helpers.
 - [`ComponentDescriber.kt`](../../src/common/dev/martianzoo/tfm/text/ComponentDescriber.kt),

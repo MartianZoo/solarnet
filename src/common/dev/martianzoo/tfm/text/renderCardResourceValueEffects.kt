@@ -14,7 +14,7 @@ import dev.martianzoo.pets.ast.InstructionGroup
 internal fun renderCardResourceValueEffects(
     effects: List<Effect>,
     describers: Describers,
-): Pair<Set<Effect>, Rendering<String>?> {
+): Pair<Set<Effect>, Rendering<EnglishText>?> {
   val resourceValueEffects = effects.filter { effect ->
     val instructions = InstructionGroup.of(effect.instruction).instructions
     instructions.isNotEmpty() && instructions.all(::isResourceValueChange)
@@ -71,7 +71,7 @@ internal fun renderCardResourceValueEffects(
     val nouns = valuesByResource.keys.map { describers.componentNoun(it.className, 1) }
     val resources = if (nouns.size == 1) nouns.single() else englishAlternatives(nouns)
     return grants.mapTo(linkedSetOf(), ResourceValueGrant::effect) to
-        Rendering.resolved(completeSentence("each $resources you pay is worth $value M€ extra"))
+        Sentence(NounPhrase.text("each $resources you pay is worth $value M€ extra")).asText()
   }
 
   val penalty =
@@ -90,7 +90,7 @@ internal fun renderCardResourceValueEffects(
   if (restoration.singleBaseGain(describers) != removed) return emptySet<Effect>() to null
   val resource = describers.componentNoun(removed.className, 1)
   return setOf(penalty, restoration) to
-      Rendering.resolved(completeSentence("your $resource is worth 1 M€ less"))
+      Sentence(NounPhrase.text("your $resource is worth 1 M€ less")).asText()
 }
 
 private fun isResourceValueChange(instruction: Instruction): Boolean =

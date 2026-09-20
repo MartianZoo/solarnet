@@ -25,14 +25,14 @@ import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as TriggerFrame
 internal fun renderEffect(
     effect: Effect,
     describers: Describers,
-): Rendering<String> {
+): Rendering<EnglishText> {
   val lowered = describers.prepareForRendering(effect)
   if (isEndEffect(lowered, describers)) {
     return renderEndEffect(lowered, describers)
         ?: Rendering.unresolved(
             effect,
             RefusalReason.UNSUPPORTED_END_EFFECT,
-            completeSentence("[$effect]"),
+            Sentence(NounPhrase.text("[$effect]")).asText().value,
         )
   }
   val rendered =
@@ -49,14 +49,14 @@ internal fun renderEffect(
       ?: Rendering.unresolved(
           effect,
           RefusalReason.UNSUPPORTED_EFFECT_TRIGGER,
-          completeSentence("[$effect]"),
+          Sentence(NounPhrase.text("[$effect]")).asText().value,
       )
 }
 
 private fun renderCardResourcePaymentValue(
     effect: Effect,
     describers: Describers,
-): Rendering<String>? {
+): Rendering<EnglishText>? {
   val choice = effect.instruction as? Instruction.Or ?: return null
   if (choice.instructions.size != 2) return null
   val sequence = choice.instructions.filterIsInstance<Then>().singleOrNull() ?: return null
@@ -99,13 +99,13 @@ private fun renderCardResourcePaymentValue(
                   modifiers = listOf(resourceValueModifier(currencyPhrase)),
               ),
       )
-  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).render()
+  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).asText()
 }
 
 private fun renderLinkedPlayedTagResourceChoice(
     effect: Effect,
     describers: Describers,
-): Rendering<String>? {
+): Rendering<EnglishText>? {
   val trigger = (effect.trigger as? OnGainOf)?.expression ?: return null
   if (trigger.refinement != null) return null
   val holderKey = Key(ClassName.cn("Tag"), 0)
@@ -128,7 +128,7 @@ private fun renderLinkedPlayedTagResourceChoice(
           objectPhrase = tagPhrase,
       )
   val result = Clause.Coordinated(Coordination(clauses, Conjunction.OR))
-  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(event), result)).render()
+  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(event), result)).asText()
 }
 
 private fun renderLinkedCardResourceGain(
@@ -159,7 +159,7 @@ private fun renderLinkedCardResourceGain(
 private fun renderRequirementFlexibility(
     effect: Effect,
     describers: Describers,
-): Rendering<String>? {
+): Rendering<EnglishText>? {
   val result = renderRequirementFlexibilityResult(effect, describers) ?: return null
   val event =
       eventTrigger(
@@ -167,7 +167,7 @@ private fun renderRequirementFlexibility(
           verb = Verb("play"),
           objectPhrase = NounPhrase("card", determiner = Determiner.INDEFINITE),
       )
-  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(event), result)).render()
+  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(event), result)).asText()
 }
 
 internal fun renderRequirementFlexibilityResult(
@@ -220,7 +220,7 @@ internal fun renderRequirementFlexibilityResult(
 private fun renderPurchaseAdjustment(
     effect: Effect,
     describers: Describers,
-): Rendering<String>? {
+): Rendering<EnglishText>? {
   val trigger = effect.trigger as? OnGainOf ?: return null
   when (describers.triggerFrame(trigger.expression.className)) {
     is TriggerFrame.PayingFor,
@@ -256,13 +256,13 @@ private fun renderPurchaseAdjustment(
               ),
           )
       )
-      .render()
+      .asText()
 }
 
 private fun renderAcceptedPaymentResource(
     effect: Effect,
     describers: Describers,
-): Rendering<String>? {
+): Rendering<EnglishText>? {
   val gain = effect.instruction as? Gain ?: return null
   val acceptance =
       paymentResourceGain(
@@ -279,7 +279,7 @@ private fun renderAcceptedPaymentResource(
           ?: return null
   val result =
       Clause.Simple(subject = NounPhrase.plural(noun), predicate = Predicate(Verb("may be used")))
-  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).render()
+  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).asText()
 }
 
 internal fun acceptedFirstActionPaymentResource(
@@ -322,7 +322,7 @@ private fun Describers.renderActionPaymentTrigger(trigger: Trigger): Clause.Simp
 private fun renderRemovalPrevention(
     effect: Effect,
     describers: Describers,
-): Rendering<String>? {
+): Rendering<EnglishText>? {
   if (!effect.automatic || !isDeadEndInstruction(effect.instruction, describers)) return null
   val (trigger, actor) =
       when (val authoredTrigger = effect.trigger) {
@@ -343,9 +343,9 @@ private fun renderRemovalPrevention(
           if (!describers.isCardResource(it.className)) return@all false
           val resolved = describers.resolveCardResource(it) ?: return@all false
           describers.cardResourceHasHolder(resolved, describers.thisExpression)
-        } -> Rendering.resolved(completeSentence("$resources may not be removed from this card"))
+        } -> Sentence(NounPhrase.text("$resources may not be removed from this card")).asText()
     actor != null && describers.isNotOwner(actor) && removed.all(Expression::simple) ->
-        Rendering.resolved(completeSentence("opponents may not remove your $resources"))
+        Sentence(NounPhrase.text("opponents may not remove your $resources")).asText()
     else -> null
   }
 }
@@ -379,8 +379,8 @@ internal fun renderEffects(
     effects: List<Effect>,
     describers: Describers,
     cardResourceType: ClassName? = null,
-): Rendering<String> {
-  val sentences = mutableListOf<Rendering<String>>()
+): Rendering<EnglishText> {
+  val sentences = mutableListOf<Rendering<EnglishText>>()
   var index = 0
   while (index < effects.size) {
     renderOncePerActionProductionReward(effects.drop(index), describers)?.let { (sentence, consumed)
@@ -419,13 +419,13 @@ internal fun renderEffects(
     sentences += renderPaymentDiscount(run.filterNotNull())
     index += run.size
   }
-  return joinRenderings(sentences)
+  return joinEnglishTexts(sentences)
 }
 
 private fun renderOncePerActionProductionReward(
     effects: List<Effect>,
     describers: Describers,
-): Pair<Rendering<String>, Int>? {
+): Pair<Rendering<EnglishText>, Int>? {
   val actionEnable = effects.getOrNull(0)?.let(describers::prepareForRendering) ?: return null
   val phaseEnable = effects.getOrNull(1)?.let(describers::prepareForRendering) ?: return null
 
@@ -464,7 +464,7 @@ private fun renderOncePerActionProductionReward(
               conditionalReward,
           )
       )
-      .render() to 2
+      .asText() to 2
 }
 
 private fun enabledLatchMarker(effect: Effect): Expression? {
@@ -513,7 +513,7 @@ private fun hasUnitLatchInvariant(
 private fun renderAcceptedResourcePayment(
     effects: List<Effect>,
     describers: Describers,
-): Pair<Rendering<String>, Int>? {
+): Pair<Rendering<EnglishText>, Int>? {
   val acceptance = effects.getOrNull(0) ?: return null
   val payment = effects.getOrNull(1) ?: return null
   val accepted =
@@ -544,7 +544,7 @@ internal fun renderAcceptedResourceValue(
     accepted: ResourceAmount,
     valuePhrase: NounPhrase,
     describers: Describers,
-): Rendering<String>? {
+): Rendering<EnglishText>? {
   val resourceClassName = accepted.resource ?: return null
   if (accepted.count != 1) return null
   if (describers.hasBasePaymentValue(resourceClassName)) return null
@@ -559,14 +559,14 @@ internal fun renderAcceptedResourceValue(
                   modifiers = listOf(resourceValueModifier(valuePhrase)),
               ),
       )
-  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(triggerClause), result)).render()
+  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(triggerClause), result)).asText()
 }
 
 private fun renderAcceptedCardResourcePayment(
     effects: List<Effect>,
     cardResourceType: ClassName?,
     describers: Describers,
-): Pair<Rendering<String>, Int>? {
+): Pair<Rendering<EnglishText>, Int>? {
   cardResourceType ?: return null
   val acceptance = effects.getOrNull(0) ?: return null
   val payment = effects.getOrNull(1) ?: return null
@@ -609,7 +609,7 @@ private fun renderAcceptedCardResourcePayment(
                     listOf(resourceValueModifier(reduction.phrase)),
                 ),
         )
-    return Sentence(result).render() to 2
+    return Sentence(result).asText() to 2
   }
   val trigger = describers.renderEventTrigger(acceptance.trigger) ?: return null
   val result =
@@ -621,7 +621,7 @@ private fun renderAcceptedCardResourcePayment(
                   modifiers = listOf(resourceValueModifier(reduction.phrase)),
               ),
       )
-  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).render() to 2
+  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).asText() to 2
 }
 
 private fun resourceValueModifier(value: NounPhrase): Modifier.Relation =
@@ -681,7 +681,7 @@ internal fun paymentDiscount(effect: Effect, describers: Describers): PaymentDis
   )
 }
 
-private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): Rendering<String> {
+private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): Rendering<EnglishText> {
   val trigger = coordinatePaymentTriggers(discounts.map(PaymentDiscount::trigger).distinct())
   val reduction = discounts.first().reduction
   val result =
@@ -717,7 +717,7 @@ private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): Rendering<S
                 ),
         )
       }
-  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).render()
+  return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).asText()
 }
 
 private fun coordinatePaymentTriggers(clauses: List<Clause>): Clause {
@@ -747,10 +747,13 @@ private fun Clause.hasExplicitObject(): Boolean =
 private fun renderResourcePaymentValue(
     effect: Effect,
     describers: Describers,
-): Rendering<String>? {
+): Rendering<EnglishText>? {
   val spent = describers.renderSpentResource(effect.trigger) ?: return null
   val reduction = owedReduction(effect.instruction, describers) ?: return null
-  return Rendering.resolved("Each $spent you pay is worth ${reduction.phrase.linearize()} extra.")
+  return Sentence(
+          NounPhrase.text("Each $spent you pay is worth ${reduction.phrase.linearize()} extra")
+      )
+      .asText()
 }
 
 private fun Describers.renderEventTrigger(trigger: Trigger): Clause? {
@@ -880,7 +883,7 @@ private fun Describers.renderPlainGainAmount(instruction: InstructionTree): Reso
 private fun renderTriggeredInstructions(
     effect: Effect,
     describers: Describers,
-): Rendering<String>? {
+): Rendering<EnglishText>? {
   val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
   val instruction =
       if (
@@ -907,5 +910,5 @@ private fun renderTriggeredInstructions(
               result.asCoordinatedClause(),
           )
       )
-      .render()
+      .asText()
 }

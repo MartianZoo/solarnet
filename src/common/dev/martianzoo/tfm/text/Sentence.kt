@@ -21,9 +21,15 @@ private constructor(
       punctuation: String = ".",
   ) : this(null, nounPhrase, punctuation)
 
-  fun render(): Rendering<String> {
-    val text = clause?.linearize() ?: checkNotNull(nounPhrase).linearize()
-    val unresolved = clause?.unresolved() ?: checkNotNull(nounPhrase).unresolved()
-    return Rendering(completeSentence(text, punctuation), unresolved)
+  internal fun asText(): Rendering<EnglishText> {
+    return Rendering(EnglishText.SentenceText(this), unresolved())
   }
+
+  internal fun linearize(): String {
+    val text = clause?.linearize() ?: checkNotNull(nounPhrase).linearize()
+    return completeSentence(text, punctuation)
+  }
+
+  private fun unresolved(): List<Unresolved> =
+      clause?.unresolved() ?: checkNotNull(nounPhrase).unresolved()
 }

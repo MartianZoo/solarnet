@@ -14,16 +14,16 @@ internal fun countedExpression(requirement: Requirement.Counting): Expression? =
 internal fun renderRequirement(
     requirement: Requirement,
     describers: Describers,
-): Rendering<String> {
+): Rendering<EnglishText> {
   val rendered =
       renderLoweredRequirement(describers.lowerProductionSyntax(requirement), describers)
           ?.let(::Sentence)
-          ?.render()
+          ?.asText()
   return rendered
       ?: Rendering.unresolved(
           requirement,
           RefusalReason.UNKNOWN_REQUIREMENT_FRAME,
-          completeSentence("[$requirement]"),
+          Sentence(NounPhrase.text("[$requirement]")).asText().value,
       )
 }
 

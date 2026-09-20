@@ -17,8 +17,8 @@ internal fun renderActions(
     actions: List<Action>,
     describers: Describers,
     firstActionPaymentResource: String? = null,
-): Rendering<String> {
-  if (actions.isEmpty()) return Rendering.resolved("")
+): Rendering<EnglishText> {
+  if (actions.isEmpty()) return Rendering.resolved(EnglishText.Empty)
   val rendered = actions.mapIndexed { index, action ->
     renderAction(action, describers)?.let { renderedAction ->
       if (index == 0 && firstActionPaymentResource != null) {
@@ -32,7 +32,7 @@ internal fun renderActions(
         ?: return Rendering.unresolved(
             action,
             actionRefusalReason(action, describers),
-            completeSentence("[${actions.joinToString(" OR ")}]"),
+            Sentence(NounPhrase.text("[${actions.joinToString(" OR ")}]")).asText().value,
         )
   }
   val unresolved = rendered.flatMap(RenderedAction::unresolved)
@@ -40,7 +40,7 @@ internal fun renderActions(
   val alternatives = rendered.mapIndexed { index, action ->
     action.asAlternative()
         ?: return Rendering(
-            completeSentence("[${actions.joinToString(" OR ")}]"),
+            Sentence(NounPhrase.text("[${actions.joinToString(" OR ")}]")).asText().value,
             unresolved +
                 Unresolved(
                     actions[index],
@@ -50,7 +50,7 @@ internal fun renderActions(
   }
   val conjunction = if (alternatives.size == 2) Conjunction.COMMA_OR else Conjunction.OR
   val joined = Clause.Coordinated(Coordination(alternatives, conjunction))
-  return Sentence(joined).render()
+  return Sentence(joined).asText()
 }
 
 private fun actionRefusalReason(action: Action, describers: Describers): RefusalReason {
@@ -295,28 +295,28 @@ private data class RenderedAction(
     copy(cost = it.withModifier(modifier))
   }
 
-  fun asSentences(): Rendering<String> {
+  fun asSentences(): Rendering<EnglishText> {
     if (condition == null) {
       if (cost == null) return result.asSentences()
       val infinitive = checkNotNull(result.asActionResultInfinitive())
       val first =
           if (!separateResultSentences) {
-            Sentence(Clause.Simple(cost.withModifier(Modifier.Purpose(infinitive)))).render()
+            Sentence(Clause.Simple(cost.withModifier(Modifier.Purpose(infinitive)))).asText()
           } else {
             Sentence(Clause.Simple(cost.withModifier(Modifier.Purpose(result.clauses.first()))))
-                .render()
+                .asText()
           }
       val remaining =
-          if (separateResultSentences) result.clauses.drop(1).map { Sentence(it).render() }
+          if (separateResultSentences) result.clauses.drop(1).map { Sentence(it).asText() }
           else emptyList()
-      val explanation = costExplanation?.let { listOf(Sentence(it).render()) }.orEmpty()
-      return joinRenderings(listOf(first) + remaining + explanation)
+      val explanation = costExplanation?.let { listOf(Sentence(it).asText()) }.orEmpty()
+      return joinEnglishTexts(listOf(first) + remaining + explanation)
     }
     val clause =
         cost?.let {
           Clause.Simple(it.withModifier(Modifier.Purpose(result.asCoordinatedClause())))
         } ?: result.asCoordinatedClause()
-    return Sentence(Clause.Prefaced(Clause.Preface.Conditional(condition), clause)).render()
+    return Sentence(Clause.Prefaced(Clause.Preface.Conditional(condition), clause)).asText()
   }
 
   fun asAlternative(): Clause? {
