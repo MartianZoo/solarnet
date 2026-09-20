@@ -159,8 +159,8 @@ public object TfmWorkflow {
       adminOps.beginOperation("WorkflowStarted")
       awaitTasksDrained()
       corporationPhase()
-      if (hasComponent("PreludeExpansion")) preludePhase()
-      m.actionPhase()
+      adminOps.runOperation("-CorporationPhaseScope")
+      completePreludePhase()
       while (true) {
         actionPhase()
         if (!completeActionPhase()) break
@@ -174,12 +174,12 @@ public object TfmWorkflow {
     }
 
     // TODO: This is slightly inconsistent with the action-phase turn model; revisit.
-    private suspend fun preludePhase() {
-      m.preludePhase()
+    private suspend fun completePreludePhase() {
       for (player in players) {
         // The retained cards are the setup fact; custom and replay setups need not retain two.
         repeat(opsFor(player).count("PreludeCard")) { grantFirstActionTo(player) }
       }
+      adminOps.runOperation("-PreludePhaseScope.")
     }
 
     private suspend fun finalGreeneryPhase() {

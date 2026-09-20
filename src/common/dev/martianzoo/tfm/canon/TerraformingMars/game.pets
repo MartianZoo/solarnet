@@ -1,12 +1,11 @@
 "The base Terraforming Mars rules"
 CLASS TerraformingMars : BaseGameModule {
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
-  phaseSegment = HAS "SolarPhase, ResearchPhase"
 
   HAS =1 GameMode, =1 MarsMap
   HAS Class<Production>
   HAS Class<BootstrapPhase>, Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>, Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>, Class<End>
-  HAS Class<WorkflowStarted>, Class<BootstrapPhaseScope>, Class<SetupPhaseScope>, Class<ActionPhaseScope>, Class<ProductionPhaseScope>, Class<SolarPhaseScope>, Class<ResearchPhaseScope>, Class<FinalGreeneryPhaseScope>
+  HAS Class<WorkflowStarted>, Class<BootstrapPhaseScope>, Class<SetupPhaseScope>, Class<CorporationPhaseScope>, Class<ActionPhaseScope>, Class<ProductionPhaseScope>, Class<SolarPhaseScope>, Class<ResearchPhaseScope>, Class<FinalGreeneryPhaseScope>
   HAS Class<VenusSolarPhase>, Class<ColoniesSolarPhase>, Class<TurmoilSolarPhase>
   HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
 
@@ -41,7 +40,6 @@ CLASS QuickStartVariant : Module {
 ABSTRACT CLASS Module : System {
   autoSelectWhen = Requirement?
   premiseRequirement = Requirement?
-  phaseSegment = Requirement?
   phaseAfter = Requirement?
 
   HAS =1 This
@@ -112,6 +110,8 @@ CLASS AfterMe<Owner, Player> : System {
 
 "The current game phase; exactly one exists from bootstrap through the terminal End phase"
 ABSTRACT CLASS Phase : System {
+  phaseSegment = Requirement?
+
   HAS =1 Phase
 
   CLASS BootstrapPhase
@@ -120,6 +120,8 @@ ABSTRACT CLASS Phase : System {
     This:: Generation
   }
   CLASS CorporationPhase {
+    phaseSegment = HAS "CorporationPhase, ActionPhase"
+
     NewTurn: PlayCard<Class<CorporationCard>, Hand>, \
       (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>)
     -CorporationCard<Hand>: BuySelectedCards
@@ -134,7 +136,7 @@ ABSTRACT CLASS Phase : System {
     SecondAction: UseAction<StandardAction>?
   }
   CLASS ProductionPhase { This IF WorkflowStarted:: ProductionPhaseScope }
-  CLASS SolarPhase
+  CLASS SolarPhase { phaseSegment = HAS "SolarPhase, ResearchPhase" }
   CLASS VenusSolarPhase
   CLASS ColoniesSolarPhase
   CLASS TurmoilSolarPhase
@@ -167,6 +169,9 @@ CLASS BootstrapPhaseScope : PhaseScope<BootstrapPhase>, Temporary {
 CLASS SetupPhaseScope : PhaseScope<SetupPhase>, Temporary {
   -This IF WorkflowStarted:: CorporationPhase FROM SetupPhase
 }
+
+"The corporation phase's lifetime anchor"
+CLASS CorporationPhaseScope : PhaseScope<CorporationPhase>
 
 "The action phase's lifetime anchor and continuation"
 CLASS ActionPhaseScope : PhaseScope<ActionPhase> {

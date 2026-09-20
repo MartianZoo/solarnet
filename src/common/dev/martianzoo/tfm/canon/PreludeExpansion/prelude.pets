@@ -1,6 +1,8 @@
 "The published Prelude 1 rules"
 CLASS PreludeExpansion : Module {
-  HAS Class<PreludePhase>
+  phaseAfter = HAS "PreludePhase, CorporationPhase"
+
+  HAS Class<PreludePhase>, Class<PreludePhaseScope>
   X SoloGenerationsLeft:: -2 SoloGenerationsLeft!
 
   SetupPhase:: EACH Player { 4 PreludeCard }
@@ -10,3 +12,6 @@ CLASS PreludeExpansion : Module {
 CLASS PreludePhase : Phase {
   NewTurn: PlayCard<Class<PreludeCard>, Hand> OR (-PreludeCard THEN 15 MC)
 }
+
+"The Prelude phase's lifetime anchor"
+CLASS PreludePhaseScope : PhaseScope<PreludePhase>

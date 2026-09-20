@@ -47,6 +47,7 @@ internal class TfmWorkflowTest {
         0 to "SetupPhase",
         0 to "SetupPhaseScope",
         1 to "CorporationPhase",
+        1 to "CorporationPhaseScope",
     )
   }
 
@@ -56,7 +57,7 @@ internal class TfmWorkflowTest {
     val admin = game.testTfm(ADMIN)
     admin.beginOperation("WorkflowStarted")
     game.retainStartingProjects(0, 0)
-    admin.runOperation("ActionPhase FROM Phase")
+    admin.runOperation("-CorporationPhaseScope")
     val checkpoint = game.timeline.checkpoint()
 
     admin.beginOperation("-ActionPhaseScope")
@@ -185,7 +186,13 @@ internal class TfmWorkflowTest {
     p1.playCorp(InterplanetaryCinematics, 7)
     p2.playCorp(PharmacyUnion, 5)
 
-    admin.assertCounts(1 to "ActionPhase", 1 to "ActionPhaseScope")
+    admin.assertCounts(
+        0 to "CorporationPhaseScope",
+        0 to "PreludePhase",
+        0 to "PreludePhaseScope",
+        1 to "ActionPhase",
+        1 to "ActionPhaseScope",
+    )
 
     p1.turn { sellPatents(1) }
     p2.pass()
@@ -249,6 +256,7 @@ internal class TfmWorkflowTest {
   @Test
   internal fun automaticPreludePhasePlaysEveryRetainedPrelude() {
     val game = Engine.newGame(canonicalPremise(PreludeExpansion, players = 2))
+    val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
@@ -257,6 +265,13 @@ internal class TfmWorkflowTest {
 
     p1.playCorp(UnitedNationsMarsInitiative)
     p2.playCorp(CrediCor)
+
+    admin.assertCounts(
+        0 to "CorporationPhaseScope",
+        1 to "PreludePhase",
+        1 to "PreludePhaseScope",
+        0 to "ActionPhase",
+    )
 
     p1.turn {
       playPrelude(Donation)
@@ -270,6 +285,12 @@ internal class TfmWorkflowTest {
 
     p1.count("PreludeCard") shouldBe 0
     p2.count("PreludeCard") shouldBe 0
+    admin.assertCounts(
+        0 to "PreludePhase",
+        0 to "PreludePhaseScope",
+        1 to "ActionPhase",
+        1 to "ActionPhaseScope",
+    )
     workflow.shutdown()
   }
 

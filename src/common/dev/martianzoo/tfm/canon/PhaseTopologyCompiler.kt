@@ -9,18 +9,22 @@ import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.data.ClassDeclaration
 
-/** Compiles module-owned phase-order facts into the concrete scopes that advance each segment. */
+/** Compiles authored phase-order facts into the concrete scopes that advance each segment. */
 internal object PhaseTopologyCompiler {
   private val MODULE = cn("Module")
   private val PHASE_AFTER = PropertyName("phaseAfter")
+  private val PHASE_SCOPE = cn("PhaseScope")
   private val PHASE_SEGMENT = PropertyName("phaseSegment")
 
   fun lower(source: Collection<ClassDeclaration>): List<ClassDeclaration> {
     val byName = source.associateBy(ClassDeclaration::className)
     val modules = source.filter { isSubtypeOf(it.className, MODULE, byName) }
-    val segments = modules.mapNotNull { module ->
-      metadata(module, PHASE_SEGMENT)?.let { phases ->
+    val segments = source.mapNotNull { declaration ->
+      metadata(declaration, PHASE_SEGMENT)?.let { phases ->
         if (phases.size != 2) invalid("phaseSegment must name its start and endpoint: $phases")
+        if (phases.first() != declaration.className) {
+          invalid("phaseSegment must be declared by its start phase: ${declaration.className}")
+        }
         Segment(phases[0], phases[1])
       }
     }
@@ -44,18 +48,33 @@ internal object PhaseTopologyCompiler {
       invalid("PhaseAfter constraints do not belong to one PhaseSegment: $unusedEdges")
     }
 
-    val phaseEffects = compiled.flatMap { it.phaseEffects }.associateBy(ClassDeclaration::className)
-    val generatedScopes = compiled.flatMap { it.scopes }
-    val collisions = generatedScopes.map(ClassDeclaration::className).toSet() intersect byName.keys
-    if (collisions.isNotEmpty())
-        invalid("compiled phase scopes collide with declarations: $collisions")
+    val phaseContributions = compiled.flatMap { it.phaseEffects }
+    val scopeContributions = compiled.flatMap { it.scopes }
+    val additions = phaseContributions + scopeContributions
+    val duplicateAdditions =
+        additions.groupBy(ClassDeclaration::className).filterValues {
+          it.size > 1
+        }
+    if (duplicateAdditions.isNotEmpty()) {
+      invalid(
+          "compiled topology contributes to a declaration more than once: ${duplicateAdditions.keys}"
+      )
+    }
+    val additionsByName = additions.associateBy(ClassDeclaration::className)
+    scopeContributions.forEach { contribution ->
+      val existing = byName[contribution.className] ?: return@forEach
+      val phaseScope = contribution.supertypes.single { it.className == PHASE_SCOPE }
+      if (phaseScope !in existing.supertypes) {
+        invalid("authored ${existing.className} must directly extend $phaseScope")
+      }
+    }
 
     return source.map { declaration ->
-      val addition = phaseEffects[declaration.className] ?: return@map declaration
+      val addition = additionsByName[declaration.className] ?: return@map declaration
       declaration.copy(
           authoredEffects = declaration.authoredEffects + addition.authoredEffects,
       )
-    } + generatedScopes
+    } + scopeContributions.filter { it.className !in byName }
   }
 
   private fun compile(
