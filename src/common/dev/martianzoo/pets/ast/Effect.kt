@@ -50,7 +50,7 @@ public data class Effect(
     // to
     // say what it is actually watching for.
     trigger.unqualifiedBroadSubscription()?.let {
-      throw PetSyntaxException("$it trigger requires IF or BY")
+      throw PetSyntaxException("`$it` trigger requires `IF` or `BY`")
     }
   }
 
@@ -103,7 +103,7 @@ public data class Effect(
       init {
         require(triggers.size >= 2)
         if (triggers.map { it.selfMode() }.distinct().size != 1) {
-          throw PetSyntaxException("OR trigger cannot mix This with subscribed triggers")
+          throw PetSyntaxException("`OR` trigger cannot mix `This` with subscribed triggers")
         }
       }
 
@@ -147,7 +147,7 @@ public data class Effect(
          */
         public fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
-            throw PetSyntaxException("Class types cannot be used as effect triggers: $expression")
+            throw PetSyntaxException("effect trigger cannot be a Class type: `$expression`")
           }
           return if (expression.isBare(THIS)) {
             WhenGain
@@ -185,7 +185,7 @@ public data class Effect(
          */
         public fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
-            throw PetSyntaxException("Class types cannot be used as effect triggers: -$expression")
+            throw PetSyntaxException("effect trigger cannot be a Class type: `-$expression`")
           }
           return if (expression.isBare(THIS)) {
             WhenRemove
@@ -277,7 +277,7 @@ public data class Effect(
 
       init {
         if (inner !is OnGainOf && inner !is OnRemoveOf && inner !is XTrigger) {
-          throw PetSyntaxException("only gain/remove trigger can go in transform block")
+          throw PetSyntaxException("transform block requires a gain or removal trigger: `$inner`")
         }
       }
 

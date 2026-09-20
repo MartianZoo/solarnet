@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
@@ -138,7 +138,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
 
   @Test
   internal fun `Producer versions belong to opposite Quick Start modes`() {
-    shouldThrow<LimitsException> {
+    shouldThrow<InvalidGameConfigException> {
       newGame(
           GameConfig(
               "Producer, Builder, Engineer, -CorporateEraExpansion",
@@ -147,7 +147,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
           )
       )
     }
-    shouldThrow<PetException> {
+    shouldThrow<InvalidGameConfigException> {
       newGame(
           GameConfig(
               "Producer22, Builder, Engineer",

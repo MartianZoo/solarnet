@@ -52,7 +52,7 @@ internal class ScaledExpressionTest {
     val failure = assertFailsWith<PetSyntaxException>(block = block)
     assertContains(
         failure.message.orEmpty(),
-        "Denominationless money amounts are no longer supported; write MC explicitly",
+        "money amounts must name `MC` explicitly",
     )
   }
 }

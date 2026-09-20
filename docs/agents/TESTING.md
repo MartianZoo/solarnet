@@ -54,6 +54,13 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   successful `AbstractFullGameTest` subclass under that module's
   `generated/replay-event-logs` build directory. The browser viewer applies those recordings through
   `:state` and never runs the engine.
+- `./gradlew :tfm-tests:replayTestCoverage` runs only tests in the replay package and writes HTML and
+  XML production-code coverage reports under that module's `reports/jacoco/replayTestCoverage`
+  build directory. Its execution data comes from the separate `replayTest` task, so card, rule,
+  random-card, and browser tests do not contribute to the report.
+- `./gradlew :pets:jvmTestCoverage` runs only the Pets module's JVM test suite and writes HTML and
+  XML coverage reports for Pets production code under that module's
+  `reports/jacoco/jvmTestCoverage` build directory.
 - `./gradlew :tfm-tests:sampleRandomCards` prints randomly generated project cards as raw Pets.
   Use `-PrandomCardCount=N` and `-PrandomCardSeed=N` to control and reproduce a sample, and add
   `-PrandomCardOutput=PATH` to write it to a text file. Its weights favor nested selectors,
@@ -179,8 +186,8 @@ clear coverage of these contracts matters more than preserving every current tes
    component/task events, materialized projections, history, completed recording positions, and
    independent playback views remain coherent without firing effects. Cross-module engine
    scenarios cover consequence calculation and failure atomicity: a failed operation must restore
-   present components, pending work, and recorded history together while retaining a fresh revision
-   identity. [GAMEWORLD.md](GAMEWORLD.md) owns the detailed split.
+   present components, pending work, and recorded history together. [GAMEWORLD.md](GAMEWORLD.md)
+   owns the detailed split.
 4. **Player-level card and game-rule tests.** `CardTest` scenarios count when they use actions and
    observations available to a player rather than internal state or implementation details.
    `CoreRulesTest` documents game-wide rules in this same style.

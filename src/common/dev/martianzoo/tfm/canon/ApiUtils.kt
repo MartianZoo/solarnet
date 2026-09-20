@@ -19,8 +19,8 @@ public object ApiUtils {
   public fun getOwner(game: GameReader, component: Type): Type {
     val ownerType = game.resolve(OWNER.expression)
     val owner =
-        component.expressionFull.arguments.single { game.resolve(it).narrows(ownerType, game) }
-    return game.resolve(owner)
+        component.typeDependencies.map { it.boundType }.single { it.narrows(ownerType, game) }
+    return owner
   }
 
   /** Returns [getOwner], requiring that the component is owned by a seated [Player]. */
@@ -30,10 +30,10 @@ public object ApiUtils {
         ?: error("component is not owned by a Player: $component")
   }
 
-  /** Returns the name of every concrete class of type `StandardResource`. */
+  /** Returns the name of every inhabited concrete `StandardResource` Class in [game]. */
   public fun standardResourceNames(game: GameReader): Set<ClassName> {
     val standardResource = game.resolve(cn("StandardResource").expression)
-    return standardResource.classTable
+    return game.classTable
         .allSubclasses(standardResource.rootClass)
         .asSequence()
         .filterNot(Class::abstract)
@@ -42,7 +42,7 @@ public object ApiUtils {
         .toSetStrict()
   }
 
-  /** Returns a map with six entries, giving [player]'s current printed production levels. */
+  /** Returns [player]'s current printed production level for each inhabited standard resource. */
   public fun lookUpProductionLevels(game: GameReader, player: Expression): Map<ClassName, Int> =
       standardResourceNames(game).associateWith { resourceName ->
         val resource = resourceName.classExpression()
@@ -51,7 +51,7 @@ public object ApiUtils {
         game.count(production) - game.count(offset)
       }
 
-  /** Returns a map with six entries, giving [player]'s current printed production levels. */
+  /** Returns [player]'s current printed production level for each inhabited standard resource. */
   public fun lookUpProductionLevels(game: GameReader, player: Player): Map<ClassName, Int> =
       lookUpProductionLevels(game, player.expression)
 

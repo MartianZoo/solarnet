@@ -1,7 +1,6 @@
 package dev.martianzoo.state
 
 import dev.martianzoo.pets.HasExpression
-import dev.martianzoo.pets.api.Exceptions
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.api.SystemClasses.OWNER
@@ -19,7 +18,7 @@ import kotlin.jvm.JvmInline
 @JvmInline
 public value class Component public constructor(public val type: Type) : HasExpression {
   init {
-    if (type.abstract) throw Exceptions.abstractComponent(type)
+    require(!type.abstract) { "component type must be concrete: `${type.expression}`" }
   }
 
   public val isCustom: Boolean
@@ -78,7 +77,4 @@ public value class Component public constructor(public val type: Type) : HasExpr
   }
 }
 
-public fun Type.toComponent(): Component {
-  if (abstract) throw Exceptions.abstractComponent(this)
-  return Component(this)
-}
+public fun Type.toComponent(): Component = Component(this)

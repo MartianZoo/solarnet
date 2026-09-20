@@ -3,8 +3,7 @@ package dev.martianzoo.engine
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.DependencyException
-import dev.martianzoo.pets.api.Exceptions.KindException
-import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
@@ -63,7 +62,9 @@ internal class Initializer(
   private fun parseMandatoryInstruction(instruction: String): Instruction {
     val parsed = elaborator.elaborateInput(Parsing.parse<Instruction>("$instruction!"))
     return parsed as? Instruction
-        ?: throw KindException("Preprocessing produced `$parsed`, which is not an Instruction")
+        ?: throw IllegalStateException(
+            "Preprocessing produced `$parsed`, which is not an Instruction"
+        )
   }
 
   /** Executes a generated premise recipe, or directly creates an uncompiled custom premise. */
@@ -108,7 +109,7 @@ internal class Initializer(
             premise.initialComponentTypes.map(classTable::resolve)
     val invalidCounts = expected.associateWith(reader::count).filterValues { it != 1 }
     if (invalidCounts.isNotEmpty()) {
-      throw invalidPetDefinition(
+      throw InvalidGameConfigException(
           "Bootstrap did not create each required component exactly once: " +
               invalidCounts.entries.joinToString { (type, count) ->
                 "${type.expressionFull} (found $count)"
@@ -124,7 +125,7 @@ internal class Initializer(
             .filter { (limit, count) -> count !in limit.range }
             .sortedBy { (limit, _) -> limit.type.expressionFull.toString() }
     if (invalidLimits.isNotEmpty()) {
-      throw invalidPetDefinition(
+      throw InvalidGameConfigException(
           "Completed bootstrap violates required component counts: " +
               invalidLimits.joinToString { (limit, count) ->
                 val expected =
@@ -171,7 +172,7 @@ internal class Initializer(
                   } ?: "could not be created"
               "  ${type.expressionFull} $reason"
             }
-        throw invalidPetDefinition(
+        throw InvalidGameConfigException(
             "Could not create $description components; dependencies remain missing:\n$diagnostic"
         )
       }

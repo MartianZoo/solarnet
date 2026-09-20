@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.AbstractException
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.tfm.tests.TestOption.FakeStuffBundle
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.FakeEstablishedMethods
@@ -16,7 +16,7 @@ internal class FakeEstablishedMethodsBugsTest : CardTest() {
     p1.runOperation("PreludeCard")
 
     val deadEnd =
-        shouldThrow<AbstractException> {
+        shouldThrow<NotFullySpecifiedException> {
           p1.playPrelude(FakeEstablishedMethods) {
             p1.runOperation("-20 MC")
             doTask("UseAction<UseStandardProjectAction, Action1>")

@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
+import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -56,7 +56,9 @@ internal class MarketManipulationTest : ColoniesCardTest() {
   internal fun `Cannot raise Titan's delayed colony track`() {
     p1.runOperation("ProjectCard, MC")
     p1.playProject(MarketManipulation, 1) {
-      shouldThrow<NotNowException> { doTask("ColonyProduction<Titan> FROM ColonyProduction<Luna>") }
+      shouldThrow<GameplayException> {
+        doTask("ColonyProduction<Titan> FROM ColonyProduction<Luna>")
+      }
       abort()
     }
   }
@@ -65,7 +67,9 @@ internal class MarketManipulationTest : ColoniesCardTest() {
   internal fun `Cannot lower Titan's delayed colony track`() {
     p1.runOperation("ProjectCard, MC")
     p1.playProject(MarketManipulation, 1) {
-      shouldThrow<NotNowException> { doTask("ColonyProduction<Luna> FROM ColonyProduction<Titan>") }
+      shouldThrow<GameplayException> {
+        doTask("ColonyProduction<Luna> FROM ColonyProduction<Titan>")
+      }
       abort()
     }
   }

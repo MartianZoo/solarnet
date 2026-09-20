@@ -60,7 +60,7 @@ This cost is broad rather than dominated by a few outliers. The median engine me
 for only 24.2%.
 
 Largest classes were `ModuleSelectionTest` (18.9s), `Prelude2CardsTest` (15.5s),
-`TaskNarrowingTest` (14.4s), `ClassTableProjectionTest` (7.7s), and `CoreRulesTest` (7.6s).
+`TaskNarrowingTest` (14.4s), `ClassTableSelectionTest` (7.7s), and `CoreRulesTest` (7.6s).
 The single largest method was ModuleSelection's valid-configuration catalog at 15.1s.
 
 ## CPU and allocation sample
@@ -93,10 +93,10 @@ Because the parallel runs performed more observed test work, it does not explain
 
 ## Compiled class-model result
 
-`GamePremise` now retains one active `ClassTable` projection, effective inherited invariants are
-cached on the Catalog-owned Classes, and each projection compiles its immutable component limits
-once. Independent Worlds share that class model while each `Limiter` applies it only to the World's
-live component graph.
+`GamePremise` now retains one game `ClassTable` view, effective inherited invariants are cached on
+the Catalog-owned Classes, and each game view compiles its immutable component limits once.
+Independent Worlds share that class model while each `Limiter` applies it only to the World's live
+component graph.
 
 An immediate before/after run of all 26 `Prelude2CardsTest` methods used the same focused Gradle
 command. Reported suite time fell from 14.623s to 6.810s: 53.4% less time and 2.15x throughput.
@@ -227,7 +227,7 @@ the Effect before attaching the resolved scope. The `Spec13TypeVariablesTest` sh
 regression fails before the fix because a second Catalog overwrites the first interpretation's
 scope; it also checks that source declarations retain no resolved variables.
 
-`ClassTableProjectionTest` additionally scopes compiled fixtures to test instances. The normal
+`ClassTableSelectionTest` additionally scopes compiled fixtures to test instances. The normal
 worker budget is two 1 GiB heaps, bounded across test tasks by `org.gradle.workers.max=2`; total
 maximum test heap remains 2 GiB per invocation. The build daemon's separate 4 GiB heap is unchanged.
 
@@ -245,9 +245,10 @@ small `PremiseClassTable` delta and constructs only those premise-local Classes.
 Types retain identity across games, while structural operations that mention premise Classes use
 the combined universe.
 
-The focused command below ran the 11 `ClassTableProjectionTest` cases before and after the change:
+The focused command below ran the 11 cases in the suite now named `ClassTableSelectionTest` before
+and after the change:
 
-`./gradlew :tfm-tests:jvmTest --tests dev.martianzoo.tfm.tests.rules.ClassTableProjectionTest --rerun-tasks --console=plain`
+`./gradlew :tfm-tests:jvmTest --tests dev.martianzoo.tfm.tests.rules.ClassTableSelectionTest --rerun-tasks --console=plain`
 
 After the final correctness changes, including removal of an invalid abstract-`glb` overlap
 shortcut, two isolated repeats each produced exactly one fresh XML suite with 11 tests and no
@@ -360,6 +361,13 @@ baseline; the interleaved comparisons establish the structural savings. The fina
 including master-owned concrete dependency targets, scored 28.611s, 27.400s, and 27.374s (27.400s
 median) after host contention subsided. That is 5.8% below the historical score, although the
 controlled comparisons remain stronger attribution evidence than cross-load absolute times.
+
+## 2026-09-19 class-table API finish
+
+The class-table API finish retained the same construction and cache path. Two isolated
+repeats of its renamed focused suite passed all 10 then-current cases in 2.354s and 2.519s. That
+count differs from the earlier 11-case measurement, so these are regression checks rather than a
+new throughput claim; they give no performance reason to introduce another table representation.
 
 ## Priorities suggested by the data
 

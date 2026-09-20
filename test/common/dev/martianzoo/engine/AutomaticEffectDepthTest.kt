@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agenttestsupport.testAgent
+import dev.martianzoo.engine.Exceptions.RunawayEffectChainException
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn

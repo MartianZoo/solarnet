@@ -109,7 +109,8 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
     get() = groundType.expression
 
   /**
-   * The expression containing every dependency bound in key order ([rule
+   * The expression containing every open dependency bound in key order; class-fixed bounds remain
+   * semantic but are not argument positions ([rule
    * T5-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types)).
    */
   override val expressionFull: Expression
@@ -157,20 +158,6 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
    * [rule T6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
    */
   public fun isSupertypeOf(that: Type): Boolean = that.isSubtypeOf(this)
-
-  /**
-   * Enumerates every concrete narrowing in the master universe, following
-   * [rules T11-1 and T11-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
-   */
-  public fun allConcreteSubtypes(): Sequence<GroundType> = groundType.allConcreteSubtypes()
-
-  /**
-   * Returns the sole concrete narrowing in the master universe when every structural choice is
-   * unique and its refinement accepts [info], as specified by
-   * [rule T11-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
-   */
-  public fun singleConcreteSubtype(info: TypeInfo): GroundType? =
-      groundType.singleConcreteSubtype(info)
 
   /**
    * Returns the concrete numeric value of [propertyName], under the property-reading contract of

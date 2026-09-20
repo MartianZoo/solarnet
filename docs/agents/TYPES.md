@@ -23,7 +23,7 @@
 | --- | --- |
 | Classes, Types, dependencies, refinements, Type variables, uninhabited Types | [`type-system-spec.md`](../type-system-spec.md) |
 | Owner-local derived Classes, and default insertion into instructions | [`pets-language-spec.md`](../pets-language-spec.md) sections 11 and 12 |
-| Which Classes a premise activates | [`OPTIONS.md`](OPTIONS.md#projection-closure); tests in `ActivationTest.kt` |
+| Which Classes a premise selects | [`OPTIONS.md`](OPTIONS.md#selection-closure); tests in `PremiseSelectionTest.kt` |
 | Master Class identity versus game-filtered enumeration | [`CLASS_TABLES.md`](CLASS_TABLES.md) |
 | Class-property cardinality, groups, and direction | [`PROPERTIES.md`](PROPERTIES.md) |
 | Contextual `Owner`, Actor attribution, delegated narrowing | [`IDENTITY.md`](IDENTITY.md) |

@@ -6,6 +6,7 @@ import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.ANYONE
@@ -185,13 +186,20 @@ private constructor(
       return if (component.owner == null || component.playerOwner != null) {
         elaborator.classEffects(component.type.rootClass).map { effect ->
           val bound =
-              elaborator.specializeEffect(
-                  component.type.rootClass.defaultType,
-                  component.type,
-                  effect,
-                  component.expression,
-                  component.owner,
-              )
+              try {
+                elaborator.specializeEffect(
+                    component.type.rootClass.defaultType,
+                    component.type,
+                    effect,
+                    component.expression,
+                    component.owner,
+                )
+              } catch (e: NarrowingException) {
+                throw ExpressionException(
+                    "invalid component effect for ${component.type.expressionFull}: ${e.message}",
+                    e,
+                )
+              }
           try {
             elaborator.classTable.checkAllTypes(bound)
             bound

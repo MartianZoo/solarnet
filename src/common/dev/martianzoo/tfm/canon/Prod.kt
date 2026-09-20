@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.TransformHandler
-import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
@@ -32,7 +32,7 @@ internal object Prod {
     return TransformHandler { inner ->
       lowerer.transformWithoutKindCheck(inner).also { lowered ->
         if (lowered == inner) {
-          throw PetSyntaxException("No standard resources found in PROD box: $inner")
+          throw ExpressionException("No standard resources found in PROD box: $inner")
         }
       }
     }
@@ -55,7 +55,7 @@ internal object Prod {
       expectedArguments: List<Expression> = arguments
   ): Expression {
     if (arguments != expectedArguments) {
-      throw PetSyntaxException(
+      throw ExpressionException(
           "PROD cannot represent a resource difference with different dependencies: $this"
       )
     }

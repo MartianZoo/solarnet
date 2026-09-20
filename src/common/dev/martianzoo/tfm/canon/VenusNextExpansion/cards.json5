@@ -114,7 +114,7 @@
           "tags": [ "VenusTag" ],
           "actions": [ "-> Floater" ],
           "effects": [
-            "PlayTag<Class<VenusTag>>:: AcceptingFromCard<This>",
+            "PayingFor<Class<VenusTag>>:: AcceptingFromCard<This>",
             "PayFromCard<This>:: -3 Owed"
           ],
         },
@@ -407,7 +407,7 @@
           "cost": 9,
           "tags": [ "VenusTag", "SpaceTag" ],
           "effects": [
-            "PlayTag<Class<VenusTag>>:: -2 Owed",
+            "PayingFor<Class<VenusTag>>:: -2 Owed",
             "End: VictoryPoint"
           ],
         },

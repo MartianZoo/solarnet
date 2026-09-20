@@ -21,4 +21,13 @@ internal class MassiveDiscountsTest : CardTest() {
 
     p1.playProject(SpaceElevator, 4, steel = 1, titanium = 1).expect("-4 MC, -Steel, -Titanium")
   }
+
+  @Test
+  internal fun `A discount applies once for each matching printed tag`() {
+    newGame(CorporateEraExpansion, ColoniesExpansion)
+    admin.phase("Action")
+    p1.runOperation("$EarthOffice, $AcquiredCompany, $MediaGroup, ProjectCard, 4 MC")
+
+    p1.playProject(LunaGovernor, 0).expect("PROD[2 MC]")
+  }
 }

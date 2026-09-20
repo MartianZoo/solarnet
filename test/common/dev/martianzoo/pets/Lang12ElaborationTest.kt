@@ -1,7 +1,8 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -116,7 +117,7 @@ internal class Lang12ElaborationTest {
   internal fun `L12-5 a gain receives its gain defaults, and must opt in to them`() {
     elaborate("Tile<>") shouldBe parse<InstructionTree>("Tile<Player1, LandArea>!")
     elaborate("Tile<Mars1>") shouldBe parse<InstructionTree>("Tile<Player1, Mars1>!")
-    shouldThrow<PetSyntaxException> { elaborate("Tile") }
+    shouldThrow<ExpressionException> { elaborate("Tile") }
   }
 
   // L12-6 A removal declines by writing nothing
@@ -133,9 +134,9 @@ internal class Lang12ElaborationTest {
 
   @Test
   internal fun `L12-7 an empty argument list is invalid where there is nothing to accept`() {
-    shouldThrow<PetSyntaxException> { elaborate("Plant<>") }
-    shouldThrow<PetSyntaxException> { elaborate("-Plant<>") }
-    shouldThrow<PetSyntaxException> { elaborate("Ok<>") }
+    shouldThrow<ExpressionException> { elaborate("Plant<>") }
+    shouldThrow<ExpressionException> { elaborate("-Plant<>") }
+    shouldThrow<ExpressionException> { elaborate("Ok<>") }
   }
 
   // L12-8 Transmutation halves
@@ -144,7 +145,7 @@ internal class Lang12ElaborationTest {
   internal fun `L12-8 the two halves of a transmutation are defaulted independently`() {
     elaborate("Tile<> FROM Marker") shouldBe
         parse<InstructionTree>("Tile<Player1, LandArea> FROM Marker<Player1>!")
-    shouldThrow<PetSyntaxException> { elaborate("Tile FROM Marker") }
+    shouldThrow<ExpressionException> { elaborate("Tile FROM Marker") }
   }
 
   @Test
@@ -231,22 +232,22 @@ internal class Lang12ElaborationTest {
             .classTable
     val elaborator = PetElaborator(table)
 
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       elaborator.evaluateProperties(parse<Metric>("EVAL score"), parse("Holder"))
     }
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       elaborator.evaluateProperties(parse<Metric>("EVAL Holder.missing"), parse("Holder"))
     }
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       elaborator.evaluateProperties(parse<Metric>("EVAL Holder.requirement"), parse("Holder"))
     }
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       elaborator.evaluateProperties(
           parse<InstructionTree>("EVAL Holder.score: Plant"),
           parse("Holder"),
       )
     }
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       elaborator.evaluateProperties(parse<Metric>("EVAL Recursive.score"), parse("Recursive"))
     }
   }
@@ -319,9 +320,9 @@ internal class Lang12ElaborationTest {
         testCatalog(
                 """
                 ABSTRACT CLASS Target
-                CLASS Good : Target
+                ABSTRACT CLASS Allowed : Target { CLASS Good }
                 CLASS Bad : Target
-                ABSTRACT CLASS Wrapper<Good>
+                CLASS Wrapper<Allowed>
                 CLASS Holder<Target> { This: Good OR Wrapper<Target> }
                 """
                     .trimIndent()

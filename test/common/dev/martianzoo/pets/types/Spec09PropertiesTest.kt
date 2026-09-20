@@ -1,7 +1,8 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PropertyName
@@ -110,7 +111,7 @@ internal class Spec09PropertiesTest {
 
   @Test
   internal fun `T9-2 a subclass may not override a value that is already fixed`() {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
           "ABSTRACT CLASS Area { row = Number }",
           "ABSTRACT CLASS FixedArea : Area { row = 8 }",
@@ -121,21 +122,21 @@ internal class Spec09PropertiesTest {
 
   @Test
   internal fun `T9-2 a subclass may not widen or sidestep an inherited bound`() {
-    shouldThrow<PetException> {
+    shouldThrow<PetSyntaxException> {
       loadTypes(
           "ABSTRACT CLASS TemperatureStep",
           "ABSTRACT CLASS Area { row = Number }",
           "CLASS Tharsis_2_2 : Area { row = TemperatureStep }",
       )
     }
-    shouldThrow<PetException> {
+    shouldThrow<PetSyntaxException> {
       loadTypes(
           "ABSTRACT CLASS TemperatureStep",
           "ABSTRACT CLASS Milestone { requirement = Requirement }",
           "CLASS Gardener : Milestone { requirement = TemperatureStep }",
       )
     }
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
           "ABSTRACT CLASS Scored { score = Metric }",
           "CLASS Invalid : Scored { score = HAS \"Plant\" }",
@@ -148,13 +149,13 @@ internal class Spec09PropertiesTest {
 
   @Test
   internal fun `T9-3 a concrete class must fix every property it inherits`() {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes("ABSTRACT CLASS Area { row = Number }", "CLASS Tharsis_2_2 : Area")
     }
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes("ABSTRACT CLASS Award { metric = Metric }", "CLASS Thermalist : Award")
     }
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
           "ABSTRACT CLASS Milestone { requirement = Requirement }",
           "CLASS Gardener : Milestone",
@@ -211,7 +212,7 @@ internal class Spec09PropertiesTest {
 
   @Test
   internal fun `T9-4 two properties with one name but unrelated origins are an error`() {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
           "ABSTRACT CLASS FirstArea { row = 8 }",
           "ABSTRACT CLASS SecondArea { row = 8 }",
@@ -222,7 +223,7 @@ internal class Spec09PropertiesTest {
 
   @Test
   internal fun `T9-4 divergent narrowings of one property are an error`() {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
           "ABSTRACT CLASS Area { row = Number }",
           "ABSTRACT CLASS FirstArea : Area { row = 8 }",
@@ -230,7 +231,7 @@ internal class Spec09PropertiesTest {
           "CLASS Tharsis_2_2 : FirstArea, SecondArea",
       )
     }
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
           "ABSTRACT CLASS TemperatureStep",
           "ABSTRACT CLASS Area { score = Metric }",

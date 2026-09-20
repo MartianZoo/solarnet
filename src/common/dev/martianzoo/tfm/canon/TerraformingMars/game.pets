@@ -24,8 +24,8 @@ CLASS TerraformingMars : BaseGameModule {
   CorporationPhase:: EACH Class<CardWatcher> { CardWatcher }
 
   // TODO: do we need `IF Owed` ... if so could `Accepting` just remove itself when no Owed exist?
-  PlayTag<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>
-  PlayTag<Class<SpaceTag>> IF Owed:: Accepting<Class<Titanium>>
+  PayingFor<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>
+  PayingFor<Class<SpaceTag>> IF Owed:: Accepting<Class<Titanium>>
 }
 
 "Variant rule: each player begins with 1 of each production"

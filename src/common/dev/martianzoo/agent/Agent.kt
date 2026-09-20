@@ -1,9 +1,8 @@
 package dev.martianzoo.agent
 
-import dev.martianzoo.engine.AbortTransactionException
-import dev.martianzoo.pets.api.Exceptions.AbstractException
-import dev.martianzoo.pets.api.Exceptions.KindException
+import dev.martianzoo.engine.Exceptions.AbortTransactionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.GameReader
@@ -63,18 +62,6 @@ public interface Agent {
    */
   public fun narrowTask(narrowing: String): TaskResult
 
-  /**
-   * Narrows this Actor's task identified by [taskId]. An unselected task is replaced only when
-   * [narrowing] discards options using immutable Class and task structure; it remains unselected
-   * and is not resolved or executed. A selected task behaves as in [narrowTask].
-   *
-   * @throws [TaskException] if [taskId] is not assigned to this Actor or another task holds the
-   *   select-lock
-   * @throws [NarrowingException] if [narrowing] does not narrow the task without consulting mutable
-   *   World state
-   */
-  public fun narrowTask(taskId: TaskId, narrowing: String): TaskResult
-
   /** Tells whether [selectTask] will complete normally. */
   public fun canSelectTask(taskId: TaskId): Boolean
 
@@ -116,7 +103,7 @@ public interface Agent {
    * default would weaken the pending task's quantifier, the pending quantifier is retained; an
    * explicitly written quantifier must narrow normally.
    *
-   * @throws [AbstractException] if the task is abstract
+   * @throws [NotFullySpecifiedException] if the task is abstract
    * @throws [NotNowException] if the task can't currently be resolved
    */
   public fun doTask(narrowing: String): TaskResult
@@ -124,12 +111,19 @@ public interface Agent {
   /** Carries out [narrowing] against the task identified by [taskId]. */
   public fun doTask(narrowing: String, taskId: TaskId): TaskResult
 
+  /**
+   * Attempts [narrowing], leaving its task pending when the play is incomplete or unavailable.
+   * Invalid task selection, invalid narrowing, and dead ends still throw.
+   */
   public fun tryTask(narrowing: String): TaskResult
 
   /** Tries [narrowing] against the task identified by [taskId]. */
   public fun tryTask(narrowing: String, taskId: TaskId): TaskResult
 
-  /** Tries to select and execute [taskId], leaving it pending when it needs a choice. */
+  /**
+   * Tries to select and execute [taskId], leaving it pending when the play is incomplete or
+   * unavailable. Invalid task selection and dead ends still throw.
+   */
   public fun tryTask(taskId: TaskId): TaskResult
 
   public fun autoExecNow(): TaskResult
@@ -183,7 +177,7 @@ public interface Agent {
     public inline fun <reified P : PetElement> Agent.parse(text: String): P {
       val parsed = parseAs(P::class, text)
       if (parsed !is P) {
-        throw KindException(
+        throw IllegalStateException(
             "Preprocessing produced `$parsed`, which is not a ${P::class.simpleName}"
         )
       }

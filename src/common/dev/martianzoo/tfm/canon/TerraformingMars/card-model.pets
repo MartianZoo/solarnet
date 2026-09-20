@@ -49,24 +49,21 @@ CLASS CardPurchase : HasActions {
 
 "Triggers the purchase of every project card remaining in the player's selection"
 CLASS BuySelectedCards : Owned<Player>, Signal {
-  This:: (3 Owed<> / ProjectCard<Selecting>) THEN (BuyCard / ProjectCard<Selecting>) THEN ActionBilling<CardPurchase, Action1>
+  This:: (3 Owed<> / ProjectCard<Selecting>) THEN (PayingFor<Class<ProjectCard>> / ProjectCard<Selecting>) THEN ActionBilling<CardPurchase, Action1>
 }
-
-CLASS BuyCard : Owned<Player>, Signal
 
 CLASS PlayCard<Class<CardBack>, Class<CardFront>, CardLocation> : Owned<Player>, Signal {
   This:: (EVAL CardFront<Class<CardBack>>.requirement: Ok) OR AdjustGpRequirement<Class<CardFront>>
-  This: Owed<> / CardFront.cost THEN HandleCardTags<Class<CardFront>> THEN CardBilling<Class<CardFront>> THEN MAX 0 Barrier: CardFront FROM CardBack<CardLocation>
+  This: Owed<> / CardFront.cost THEN PriceCard<Class<CardFront>> THEN CardBilling<Class<CardFront>> THEN MAX 0 Barrier: CardFront FROM CardBack<CardLocation>
 }
 
 "Signals that a printed global-parameter requirement produced a shortfall ready for adjustment"
 CLASS CheckRequirement<Class<CardFront>> : Owned<Player>, Signal
 
-CLASS PlayTag<Class<Tag>> : Owned<Player>, Signal
-
 CLASS AdjustGpRequirement<Class<CardFront>> : Owned<Player>, Custom
 
-CLASS HandleCardTags<Class<CardFront>> : Owned<Player>, Custom
+"Emits one payment-adjustment event for the card and one for each of its printed tags"
+CLASS PriceCard<Class<CardFront>> : Owned<Player>, Custom
 
 "A temporary shortfall between a printed global requirement and the current parameter"
 CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {

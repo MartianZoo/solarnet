@@ -2,8 +2,8 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -259,7 +259,7 @@ internal class Spec13TypeVariablesTest {
 
   @Test
   internal fun `T13-3 an effect use that could name two header variables is rejected`() {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
           "ABSTRACT CLASS Person",
           "ABSTRACT CLASS Ambiguous<Person, Person> { This: Person }",
@@ -683,6 +683,33 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
+  internal fun `T13-10 binding omits arguments fixed by the chosen subclass`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Kind { CLASS Fixed, Other }",
+            "ABSTRACT CLASS Box<Kind>",
+            "CLASS FixedBox : Box<Fixed>",
+            "ABSTRACT CLASS Notice<Box<Kind>>",
+            "ABSTRACT CLASS Holder<Box<Kind>> { This: Notice<Box<Kind>> }",
+        )
+    val holder = table.getClass(cn("Holder"))
+    val bound = holder.interpretTypeVariablesIn(holder.declaration.effects.single())
+    val box = bound.typeVariables.variables.first { it.expression == te("Box<Kind>") }
+
+    bound.typeVariables
+        .bind(mapOf(box to table.resolve(te("FixedBox"))))
+        .transformEffect(bound)
+        .toString() shouldBe "This: Notice<FixedBox>"
+
+    val kind = bound.typeVariables.variables.first { it.expression == te("Kind") }
+    shouldThrow<NarrowingException> {
+      bound.typeVariables.bind(
+          mapOf(box to table.resolve(te("FixedBox")), kind to table.resolve(te("Other")))
+      )
+    }
+  }
+
+  @Test
   internal fun `T13-10 a binding must satisfy every recorded occurrence`() {
     val table =
         loadTypes(
@@ -763,6 +790,23 @@ internal class Spec13TypeVariablesTest {
             authored,
             table.resolve(authored),
             table.resolve(parse("Container<Box<Alice>>")),
+        )
+        .map { (variable, value) -> "$variable=$value" } shouldContainExactly listOf("Person=Alice")
+  }
+
+  @Test
+  internal fun `T13-11 capture follows the represented Class type`() {
+    val table = loadTypes("ABSTRACT CLASS Person { CLASS Alice }")
+    val authored = parse<Expression>("Class<Person>")
+    val person = authored.arguments.single()
+    val scope =
+        TypeVariableScope.infer(listOf(authored), table, explicitDeclarations = listOf(person))
+
+    scope
+        .bindingsFrom(
+            authored,
+            table.resolve(authored),
+            table.resolve(parse("Class<Alice>")),
         )
         .map { (variable, value) -> "$variable=$value" } shouldContainExactly listOf("Person=Alice")
   }
