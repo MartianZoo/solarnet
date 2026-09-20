@@ -52,7 +52,7 @@ private fun createGame(playerCount: Int): World {
     val players = game.actors.filterIsInstance<Player>()
     players.forEach { player -> agents[player].doTask("-6 ProjectCard<Selecting>") }
     if (playerCount == 1) {
-      agents.tfm(players.first()).doTask("-ColonyTileSelection<Class<${colonies.first()}>>")
+      agents.tfm(players.first()).doTask("-SelectedColonyTile<Class<${colonies.first()}>>")
     }
     TfmWorkflow.Stepwise(agents).corporationPhase()
     agents.tfm(players.first()).playCorp(cn("InterplanetaryCinematics"), buyCards = 4)
