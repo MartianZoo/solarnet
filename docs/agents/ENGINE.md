@@ -248,8 +248,8 @@ one integer ordinal.
 
 `Timeline` provides event-count checkpoints, atomic blocks, rollback, and a commit floor. An atomic
 failure reverses component state, tasks, event-backed indexes, and events.
-`AbortTransactionException` requests rollback without surfacing as a caller error. The commit floor
-prevents rollback into initialization or a workflow stage.
+`Exceptions.AbortTransactionException` requests rollback without surfacing as a caller error. The
+commit floor prevents rollback into initialization or a workflow stage.
 
 `World.recording()` captures the event sequence and selected positions around successful outermost
 Agent completion without changing the live `World`. Opening the immutable recording constructs an
@@ -513,8 +513,8 @@ instruction positions without rewriting coincidental equal Class Names.
 
 `::` effects execute inline, recursively, before queued effects from the same concrete change are
 admitted. A causal chain may contain at most eight nested automatic effects; exceeding that limit
-fails the operation atomically with `RunawayEffectChainException`, which carries the attempted
-chain. `:` effects become tasks. Use
+fails the operation atomically with `Exceptions.RunawayEffectChainException`, which carries the
+attempted chain. `:` effects become tasks. Use
 [SEQUENCING.md](SEQUENCING.md) before depending on that difference.
 
 ## Metrics, refinements, and limits
