@@ -66,14 +66,16 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
     val sourceDependencies = sourceKeys.zip(expression.arguments).toMap()
     val semanticSourceDependencies = sourceKeys.zip(semanticSourceArguments).toMap()
     val defaultArguments = rootClass.defaultType.expressionFull.arguments
-    val defaults = rootClass.matchDependencyKeys(defaultArguments).zip(defaultArguments).toMap()
+    val argumentKeys = rootClass.matchDependencyKeys(defaultArguments)
+    val defaults = argumentKeys.zip(defaultArguments).toMap()
     val defaultedKeys =
-        rootClass.dependencies.keys.filterTo(linkedSetOf()) { key ->
+        argumentKeys.filterTo(linkedSetOf()) { key ->
           val path = DependencyPath(listOf(key))
           rootClass.defaultType.dependencies.at(path) != rootClass.baseType.dependencies.at(path)
         }
-    val semanticArguments =
-        rootClass.dependencies.keys.map { semanticSourceDependencies[it] ?: defaults.getValue(it) }
+    val semanticArguments = argumentKeys.map {
+      semanticSourceDependencies[it] ?: defaults.getValue(it)
+    }
     val semanticExpression = expression.copy(arguments = semanticArguments)
     val semanticType =
         try {

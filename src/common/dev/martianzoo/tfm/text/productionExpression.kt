@@ -34,8 +34,8 @@ internal fun refinedProductionCategoryExpressions(
   val ownerKey = Key(OWNED, 0)
   if (resolved.dependency(ownerKey) == null) return null
   val owner = resolved.sourceDependency(ownerKey)?.takeUnless { it == describers.ownerExpression }
-  return resource
-      .allConcreteSubtypes()
+  return describers
+      .allConcreteSubtypes(resource)
       .mapNotNull { it.representedClass?.className }
       .distinct()
       .map { ProductionExpression(owner, it) }

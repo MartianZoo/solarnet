@@ -117,17 +117,6 @@ internal object TerraformingMarsDescribers {
                 requirementCondition = Condition.OwnerState("has passed"),
                 changeFrame = Frame.Procedure("pass"),
             ),
-        klass("RecruitmentExchange") to
-            ComponentDescriber(
-                changeFrame =
-                    Frame.CountedProcedure(
-                        "exchange",
-                        counted(
-                            "neutral non-leader delegate for one of your reserve delegates",
-                            "neutral non-leader delegates for your reserve delegates",
-                        ),
-                    )
-            ),
         klass("FrontierTownBonus") to
             ComponentDescriber(
                 changeFrame = Frame.ScopedInstruction("and gain its placement bonus twice")
@@ -605,10 +594,13 @@ internal object TerraformingMarsDescribers {
                         ownedCount = ComponentDescriber.Noun.Counted("colony", "colonies"),
                     ),
             ),
-        klass("BuyCard") to
+        klass("PayingFor") to
             ComponentDescriber(
                 triggerFrame =
-                    Trigger.Purchase(noun = ComponentDescriber.Noun.Counted("card", "cards")),
+                    Trigger.PayingFor(
+                        purchaseClass = klass("ProjectCard"),
+                        purchaseNoun = counted("card", "cards"),
+                    )
             ),
         klass("CopyPrelude") to
             ComponentDescriber(
@@ -696,7 +688,6 @@ internal object TerraformingMarsDescribers {
                 triggerFrame = Trigger.PlayCard(),
             ),
         klass("CheckRequirement") to ComponentDescriber(triggerFrame = Trigger.PlayCard()),
-        klass("PlayTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag()),
         klass("UseAction") to ComponentDescriber(triggerFrame = Trigger.UseAction),
         klass("StandardProject") to
             ComponentDescriber(

@@ -257,16 +257,17 @@ semantic invariant needs direct proof.
 
 ## Source map
 
-- [`English.kt`](../../src/jvm/dev/martianzoo/tfm/text/English.kt) — facade and card-region assembly.
+- [`English.kt`](../../src/common/dev/martianzoo/tfm/text/English.kt) — internal facade and card-region
+  assembly; `EnglishCardTextRenderer.kt` is the public card-text entry point.
 - `Clause.kt`, `Predicate.kt`, `Verb.kt`, `NounPhrase.kt`, `Determiner.kt`, `Modifier.kt`,
   `Coordination.kt` — English syntax and final linearization.
-- [`ComponentDescriber.kt`](../../src/jvm/dev/martianzoo/tfm/text/ComponentDescriber.kt),
-  [`Describers.kt`](../../src/jvm/dev/martianzoo/tfm/text/Describers.kt),
-  [`TerraformingMarsDescribers.kt`](../../src/jvm/dev/martianzoo/tfm/text/TerraformingMarsDescribers.kt)
+- [`ComponentDescriber.kt`](../../src/common/dev/martianzoo/tfm/text/ComponentDescriber.kt),
+  [`Describers.kt`](../../src/common/dev/martianzoo/tfm/text/Describers.kt),
+  [`TerraformingMarsDescribers.kt`](../../src/common/dev/martianzoo/tfm/text/TerraformingMarsDescribers.kt)
   — lexical facts and inheritance.
-- [`ExpressionResolver.kt`](../../src/jvm/dev/martianzoo/tfm/text/ExpressionResolver.kt) — structural
+- [`ExpressionResolver.kt`](../../src/common/dev/martianzoo/tfm/text/ExpressionResolver.kt) — structural
   Class and dependency roles.
-- [`Rendering.kt`](../../src/jvm/dev/martianzoo/tfm/text/Rendering.kt) — visible fallback and refusal
+- [`Rendering.kt`](../../src/common/dev/martianzoo/tfm/text/Rendering.kt) — visible fallback and refusal
   evidence.
 - `renderActions.kt`, `renderChange.kt`, `renderEffect.kt`, `renderInstructionTree.kt`,
   `renderMetric.kt`, `renderRequirement.kt`, `renderGoal.kt` — family interpreters.

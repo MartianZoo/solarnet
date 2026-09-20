@@ -189,6 +189,11 @@ internal data class ComponentDescriber(
 
     public data class Purchase(internal val noun: Noun.Counted) : TriggerFrame
 
+    public data class PayingFor(
+        internal val purchaseClass: ClassName,
+        internal val purchaseNoun: Noun.Counted,
+    ) : TriggerFrame
+
     public data class Place(internal val noun: Noun.Counted) : TriggerFrame
 
     public data object SpendResource : TriggerFrame

@@ -54,6 +54,9 @@ internal fun Describers.renderEvent(trigger: Trigger): Event? {
   productionEvent(expression)?.let {
     return it
   }
+  payingForEvent(expression)?.let {
+    return it
+  }
   if (expression.refinement == null) {
     scaleFrame(expression.className)?.let {
       return Event(
@@ -329,6 +332,25 @@ private fun Describers.purchaseEvent(expression: Expression): Event? {
       Event.ActorConstraint.YOU,
       NounPhrase(noun, determiner = Determiner.INDEFINITE),
   )
+}
+
+private fun Describers.payingForEvent(expression: Expression): Event? {
+  if (expression.refinement != null) return null
+  val frame = triggerFrame(expression.className) as? TriggerFrame.PayingFor ?: return null
+  val target = representedExpression(expression) ?: return null
+  if (target.className == frame.purchaseClass) {
+    return Event(
+        Event.Kind.BUY,
+        Event.ActorConstraint.YOU,
+        NounPhrase(frame.purchaseNoun.singular, determiner = Determiner.INDEFINITE),
+    )
+  }
+  playedCardEvent(target)?.let {
+    return it
+  }
+  if (!isTag(target.className)) return null
+  val tag = playedTagPhrase(target.className) ?: return null
+  return Event(Event.Kind.PLAY, Event.ActorConstraint.YOU, tag)
 }
 
 private fun Describers.productionEvent(expression: Expression): Event? {

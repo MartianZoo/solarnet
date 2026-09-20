@@ -156,7 +156,8 @@ private fun renderCountedProcedure(
     describers: Describers,
 ): Clause.Simple? {
   val gain = instruction as? Gain ?: return null
-  if (gain.quantifier.modality() != Modality.REQUIRED || gain.gaining.refinement != null) return null
+  if (gain.quantifier.modality() != Modality.REQUIRED || gain.gaining.refinement != null)
+      return null
   val count = gain.count.fixedQuantity() ?: return null
   return clause(
       frame.verb,

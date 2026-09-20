@@ -1,6 +1,8 @@
-plugins { id("solarnet.jvm") }
+plugins { id("solarnet.kmp-jvm-js") }
 
-val textSourceDirectory = rootProject.layout.projectDirectory.dir("src/jvm/dev/martianzoo/tfm/text")
+val textSourceDirectory =
+    rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/text")
+val textDataDirectory = rootProject.layout.projectDirectory.dir("src/jvm/dev/martianzoo/tfm/text")
 val randomCardInput = providers.gradleProperty("randomCardInput")
 val randomCardEnglishOutput = providers.gradleProperty("randomCardEnglishOutput")
 val randomCardEnglishComparisonOutput =
@@ -8,37 +10,40 @@ val randomCardEnglishComparisonOutput =
 
 kotlin {
   sourceSets {
-    main { kotlin.setSrcDirs(listOf(textSourceDirectory)) }
-    test {
+    commonMain {
+      kotlin.setSrcDirs(listOf(textSourceDirectory))
+      dependencies {
+        implementation(project(":pets"))
+        implementation(project(":tfm-canon"))
+      }
+    }
+    jvmTest {
       kotlin.setSrcDirs(
           listOf(rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tfm/text"))
       )
+      dependencies { implementation(libs.kotest.assertions.core) }
     }
   }
 }
 
-dependencies {
-  implementation(project(":pets"))
-  implementation(project(":tfm-canon"))
-  testImplementation(libs.kotest.assertions.core)
-}
-
-tasks.named<ProcessResources>("processResources") {
-  from(textSourceDirectory) {
+tasks.named<ProcessResources>("jvmProcessResources") {
+  from(textDataDirectory) {
     include("*.tsv")
     into("language")
   }
 }
 
+val jvmTestCompilation = kotlin.targets.getByName("jvm").compilations.getByName("test")
+
 tasks.register<JavaExec>("writeEnglishCardTextCurrent") {
   group = "verification"
   description = "Writes the English renderer's current canonical-card output snapshot."
-  dependsOn("testClasses")
-  classpath = sourceSets.test.get().runtimeClasspath
+  dependsOn(jvmTestCompilation.compileTaskProvider)
+  classpath = files(jvmTestCompilation.output.allOutputs, jvmTestCompilation.runtimeDependencyFiles)
   mainClass = "dev.martianzoo.tfm.text.EnglishCardTextCurrentGenerator"
   args(
-      textSourceDirectory.file("english-card-text-current.tsv").asFile.absolutePath,
-      textSourceDirectory.file("english-card-text-refusals.tsv").asFile.absolutePath,
+      textDataDirectory.file("english-card-text-current.tsv").asFile.absolutePath,
+      textDataDirectory.file("english-card-text-refusals.tsv").asFile.absolutePath,
   )
   outputs.upToDateWhen { false }
 }
@@ -46,12 +51,12 @@ tasks.register<JavaExec>("writeEnglishCardTextCurrent") {
 tasks.register<JavaExec>("writeEnglishGoalTextCurrent") {
   group = "verification"
   description = "Writes the English renderer's current milestone and award output snapshot."
-  dependsOn("testClasses")
-  classpath = sourceSets.test.get().runtimeClasspath
+  dependsOn(jvmTestCompilation.compileTaskProvider)
+  classpath = files(jvmTestCompilation.output.allOutputs, jvmTestCompilation.runtimeDependencyFiles)
   mainClass = "dev.martianzoo.tfm.text.EnglishGoalTextCurrentGenerator"
   args(
-      textSourceDirectory.file("english-goal-text-current.tsv").asFile.absolutePath,
-      textSourceDirectory.file("english-goal-text-refusals.tsv").asFile.absolutePath,
+      textDataDirectory.file("english-goal-text-current.tsv").asFile.absolutePath,
+      textDataDirectory.file("english-goal-text-refusals.tsv").asFile.absolutePath,
   )
   outputs.upToDateWhen { false }
 }
@@ -59,8 +64,8 @@ tasks.register<JavaExec>("writeEnglishGoalTextCurrent") {
 tasks.register<JavaExec>("writeRandomCardEnglishText") {
   group = "verification"
   description = "Writes top and bottom English text for a saved random-card PETS report."
-  dependsOn("testClasses")
-  classpath = sourceSets.test.get().runtimeClasspath
+  dependsOn(jvmTestCompilation.compileTaskProvider)
+  classpath = files(jvmTestCompilation.output.allOutputs, jvmTestCompilation.runtimeDependencyFiles)
   mainClass = "dev.martianzoo.tfm.text.EnglishRandomCardTextGenerator"
   args(randomCardInput.getOrElse(""), randomCardEnglishOutput.getOrElse(""))
   randomCardEnglishComparisonOutput.orNull?.let { args(it) }

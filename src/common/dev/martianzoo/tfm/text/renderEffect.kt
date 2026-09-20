@@ -222,8 +222,12 @@ private fun renderPurchaseAdjustment(
     describers: Describers,
 ): Rendering<String>? {
   val trigger = effect.trigger as? OnGainOf ?: return null
-  if (!trigger.expression.simple) return null
-  if (describers.triggerFrame(trigger.expression.className) !is TriggerFrame.Purchase) return null
+  when (describers.triggerFrame(trigger.expression.className)) {
+    is TriggerFrame.PayingFor,
+    is TriggerFrame.Purchase -> Unit
+    else -> return null
+  }
+  if (describers.renderEvent(trigger)?.kind != Event.Kind.BUY) return null
   val triggerClause = describers.renderEventTrigger(trigger) ?: return null
   val change = effect.instruction as? Instruction.Change ?: return null
   val adjustment =

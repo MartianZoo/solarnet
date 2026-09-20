@@ -12,6 +12,7 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Dependency.Key
+import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.types.inferTypeVariables
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 
@@ -167,6 +168,8 @@ internal class Describers(
 
   internal fun resolveExpression(expression: Expression): ResolvedExpression? =
       expressions.resolve(expression)
+
+  internal fun allConcreteSubtypes(type: Type) = classTable.allConcreteSubtypes(type)
 
   internal fun resolveExpression(
       expression: Expression,

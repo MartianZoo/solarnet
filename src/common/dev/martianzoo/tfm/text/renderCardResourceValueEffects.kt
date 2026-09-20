@@ -35,7 +35,8 @@ internal fun renderCardResourceValueEffects(
   ) {
     val valuesByResource = linkedMapOf<Expression, Int>()
     grants.forEach { grant ->
-      valuesByResource.merge(grant.resource, grant.value, Int::plus)
+      valuesByResource[grant.resource] =
+          valuesByResource.getOrElse(grant.resource) { 0 } + grant.value
     }
     val value =
         valuesByResource.values.distinct().singleOrNull() ?: return emptySet<Effect>() to null

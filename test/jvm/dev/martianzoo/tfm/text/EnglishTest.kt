@@ -118,14 +118,14 @@ internal class EnglishTest {
     english.describe(
         parse<Effect>("CardBilling<Class<CardFront>(HAS requirement)>:: -2 Owed<>")
     ) shouldBe "When you play a card with a requirement, pay 2 M€ less."
-    english.describe(parse<Effect>("BuyCard:: 2 Owed<>")) shouldBe
+    english.describe(parse<Effect>("PayingFor<Owner, Class<ProjectCard>>:: 2 Owed<>")) shouldBe
         "When you buy a card, pay 2 M€ extra."
     english.describe(
         parse<Effect>("UseAction<This, Action1>:: Accepting<Class<Titanium>>")
     ) shouldBe "When you pay for this action, titanium may be used."
-    english.describe(parse<Effect>("PlayTag<Class<PlanetaryTag>>:: -2 Owed<>")) shouldBe
+    english.describe(parse<Effect>("PayingFor<Owner, Class<PlanetaryTag>>:: -2 Owed<>")) shouldBe
         "When you play a planetary tag, pay 2 M€ less."
-    english.describe(parse<Effect>("PlayTag<Class<EarthTag>>:: -2 Owed<>")) shouldBe
+    english.describe(parse<Effect>("PayingFor<Owner, Class<EarthTag>>:: -2 Owed<>")) shouldBe
         "When you play an Earth tag, pay 2 M€ less."
     english.describe(parse<InstructionTree>("ProjectCard")) shouldBe "Draw 1 card."
     english.describe(parse<InstructionTree>("OceanTile")) shouldBe "Place 1 ocean tile."
@@ -240,7 +240,7 @@ internal class EnglishTest {
     val card =
         syntheticCard(
             """
-            CLASS ConditionalImmediate : AutomatedCard<Class<ProjectCard>> {
+            CLASS ConditionalImmediate : AutomatedCard {
               cost = 0
               This IF SoloMode: PROD[2 MC]
             }
@@ -256,7 +256,7 @@ internal class EnglishTest {
     val flexibility =
         syntheticCard(
             """
-            CLASS FlexibleNextCard : AutomatedCard<Class<ProjectCard>> {
+            CLASS FlexibleNextCard : AutomatedCard {
               cost = 0
               This: NextCardEffect { CheckRequirement:: -2 Required<Class<GlobalParameter>>. }
             }
@@ -265,7 +265,7 @@ internal class EnglishTest {
     val discount =
         syntheticCard(
             """
-            CLASS DiscountNextCard : AutomatedCard<Class<ProjectCard>> {
+            CLASS DiscountNextCard : AutomatedCard {
               cost = 0
               This: NextCardEffect { Billing<CardPlay>:: -8 Owed<> }
             }
@@ -295,9 +295,9 @@ internal class EnglishTest {
     val unintroduced =
         syntheticCard(
             """
-            CLASS Unintroduced<StandardResource> : ActiveCard<Class<ProjectCard>> {
+            CLASS Unintroduced<StandardResource> : ActiveCard {
               cost = 0
-              BuyCard: StandardResource
+              PayingFor<Owner, Class<ProjectCard>>: StandardResource
             }
             """
         )
@@ -315,7 +315,7 @@ internal class EnglishTest {
     val card =
         syntheticCard(
             """
-            CLASS TitaniumAction : ActionCard, ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Asteroid>> {
+            CLASS TitaniumAction : ActionCard, ActiveCard, ResourceCard<Class<Asteroid>> {
               cost = 0
               UseAction<This, Action1>:: Accepting<Class<Titanium>>
               12 MC -> OceanTile
@@ -332,7 +332,7 @@ internal class EnglishTest {
   internal fun cardWithoutTopElementsHasEmptyTopText() {
     val requirementOnly =
         syntheticCard(
-            "CLASS RequirementOnly : AutomatedCard<Class<ProjectCard>> { cost = 0; requirement = HAS \"OxygenStep\" }"
+            "CLASS RequirementOnly : AutomatedCard { cost = 0; requirement = HAS \"OxygenStep\" }"
         )
 
     english.topText(requirementOnly) shouldBe ""
@@ -376,9 +376,7 @@ internal class EnglishTest {
   @Test
   internal fun cardWithoutBottomElementsHasEmptyBottomText() {
     val actionOnly =
-        syntheticCard(
-            "CLASS ActionOnly : ActionCard, ActiveCard<Class<ProjectCard>> { cost = 0; -> ProjectCard }"
-        )
+        syntheticCard("CLASS ActionOnly : ActionCard, ActiveCard { cost = 0; -> ProjectCard }")
 
     english.bottomText(actionOnly) shouldBe ""
   }
@@ -386,12 +384,10 @@ internal class EnglishTest {
   @Test
   internal fun omitsUnconditionalFixedScoresFromCardText() {
     val fixedScore =
-        syntheticCard(
-            "CLASS FixedScore : AutomatedCard<Class<ProjectCard>> { cost = 0; End: 2 VictoryPoint }"
-        )
+        syntheticCard("CLASS FixedScore : AutomatedCard { cost = 0; End: 2 VictoryPoint }")
     val metricScore =
         syntheticCard(
-            "CLASS MetricScore : AutomatedCard<Class<ProjectCard>> { cost = 0; End: VictoryPoint / Colony<Anyone> }"
+            "CLASS MetricScore : AutomatedCard { cost = 0; End: VictoryPoint / Colony<Anyone> }"
         )
 
     english.bottomText(fixedScore) shouldBe ""
@@ -500,10 +496,10 @@ internal class EnglishTest {
         parseClasses(
                 """
                 CLASS Fanium : StandardResource
-                CLASS FaniumConverter : ActiveCard<Class<ProjectCard>> {
+                CLASS FaniumConverter : ActiveCard {
                   cost = 0
                   This:: GrantedResourceValue<Class<Fanium>, This>
-                  PlayTag<Class<BuildingTag>>:: Accepting<Class<Fanium>>
+                  PayingFor<Owner, Class<BuildingTag>>:: Accepting<Class<Fanium>>
                 }
                 """
                     .trimIndent()
