@@ -12,7 +12,13 @@ import dev.martianzoo.pets.types.PremiseClassTable
 import dev.martianzoo.pets.types.PremiseViability
 
 /**
- * The complete immutable input from which equivalent playable worlds are constructed.
+ * The complete immutable, resolved input from which equivalent playable worlds are constructed.
+ *
+ * [modules] names the exact ambient rules, [classSelections] records the remaining signed content
+ * choices, [playerNames] fixes seat order, and [initialComponentTypes] names state to instantiate
+ * once. [classTable] forms their inclusion closure over the Catalog's reusable master table. Known
+ * Classes outside that closure remain uninhabited; closure that reaches an excluded Class or an
+ * unrequested Module is invalid.
  *
  * @throws InvalidGameConfigException if its fields cannot describe a playable game configuration
  */

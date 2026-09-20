@@ -7,7 +7,12 @@ import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.PremiseClassTable
 
-/** One class inclusion or exclusion, optionally conditional on the full game configuration. */
+/**
+ * One signed Class selection contributed by a Module or recorded directly in a [GamePremise].
+ *
+ * Module selections may be conditional on the completed configuration. Direct premise selections
+ * are unconditional and express exact resolved content choices.
+ */
 public data class ClassSelection(
     public val className: ClassName,
     public val included: Boolean = true,
