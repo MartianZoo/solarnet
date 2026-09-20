@@ -351,6 +351,9 @@ For the **selection closure**, classify references by what execution demands:
 - Counts, Metrics, Requirements, Triggers, difference refinements, and nonconstructive changes do
   not by themselves include their referenced Classes. An uninhabited Class contributes an exactly
   empty domain.
+- A positive lower bound in a Class invariant is the deliberate Requirement exception: it includes
+  every structural domain it counts, including domains under conjunction or disjunction. This makes
+  the vocabulary available but does not create a Component or choose a concrete Type.
 - Reachability matters. A hard reference beneath a Trigger or gate that is provably false because
   of uninhabited Types is harmless; execution cannot reach it. A conservative analysis may treat
   anything it cannot prove unreachable as reachable.
@@ -388,7 +391,10 @@ It must not silently include a locked Class or defer an inevitable failure until
 The first viability analysis reads every selected root's loaded Class declaration and exploits
 exactly empty inhabited type domains. This includes excluded Classes and selected abstract Classes
 with no inhabited concrete narrowing. A positive `HAS` refinement is empty when its Requirement is
-exactly false, and a metric union is zero when every alternative has an empty domain. A later
+exactly false, and a metric union is zero when every alternative has an empty domain. A mandatory
+removal inside `OR` makes the entry point impossible only when every arm has such a removal; scaling
+it by a metric proved to be zero makes it unreachable. False gates and silent triggers are likewise
+unreachable rather than unviable. A later
 closed-world extension could prove facts not directly involving them—for example, that Law Suit is
 unviable in solo because no opponent-dependent attack record can ever exist. That is the same
 semantic category but a substantially stronger satisfiability analysis, not a prerequisite for the

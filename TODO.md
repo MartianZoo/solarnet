@@ -39,6 +39,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
   requiring authored references to generated names. Preserve Cimmeria map generation,
   `PlaceNeutralTiles`'s system-only ownership, and SRR's explicit card-Class selection.
+- Investigate why semantic validation during parsing throws `IllegalArgumentException` for malformed
+  Pets, and whether those paths should use a parser-specific exception before translation.
 
 ### Hypothetical Card Behavior
 

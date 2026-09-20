@@ -195,6 +195,58 @@ internal class PremiseSelectionTest {
   }
 
   @Test
+  internal fun `premise requirements reject a false conjunct`() {
+    val catalog =
+        testCatalog(
+            """
+            ABSTRACT CLASS Selectable { requirement = Requirement? }
+            ABSTRACT CLASS Empty
+            ABSTRACT CLASS AlsoEmpty
+            CLASS Available
+            CLASS Selected : Selectable { requirement = HAS "Available, Empty" }
+            CLASS AllTrue : Selectable { requirement = HAS "MAX 0 Empty, MAX 0 AlsoEmpty" }
+            CLASS PartlyUnknown : Selectable { requirement = HAS "MAX 0 Empty, MAX 0 Available" }
+            """
+                .trimIndent()
+        )
+
+    shouldThrow<InvalidGameConfigException> {
+      gameView(catalog, "Selected", "Available", "Empty")
+    }
+    gameView(catalog, "AllTrue", "Empty", "AlsoEmpty").isInhabited(cn("AllTrue")) shouldBe true
+    gameView(catalog, "PartlyUnknown", "Empty", "Available")
+        .isInhabited(cn("PartlyUnknown")) shouldBe true
+  }
+
+  @Test
+  internal fun `only inevitable reachable mandatory removals make a premise unviable`() {
+    val catalog =
+        testCatalog(
+            """
+            ABSTRACT CLASS Empty
+            ABSTRACT CLASS AlsoEmpty
+            CLASS Available
+            CLASS Direct { This:: -Empty! }
+            CLASS Nested { This:: Available THEN -Empty! }
+            CLASS EveryAlternative { This:: (-Empty! OR -AlsoEmpty!) }
+            CLASS Optional { This:: -Empty? }
+            CLASS OneAlternative { This:: (-Empty! OR Available!) }
+            CLASS FalseGate { This:: (Empty: -Empty!) }
+            CLASS ZeroTimes { This:: -Empty! / (Empty OR AlsoEmpty) }
+            CLASS NonzeroTimes { This:: -Empty! / 1 }
+            """
+                .trimIndent()
+        )
+
+    listOf("Direct", "Nested", "EveryAlternative", "NonzeroTimes").forEach { selected ->
+      shouldThrow<InvalidGameConfigException> { gameView(catalog, selected) }
+    }
+    listOf("Optional", "OneAlternative", "FalseGate", "ZeroTimes").forEach { selected ->
+      gameView(catalog, selected).isInhabited(cn(selected)) shouldBe true
+    }
+  }
+
+  @Test
   internal fun `reachable constructive instructions include their destination`() {
     val catalog =
         testCatalog(
@@ -266,17 +318,37 @@ internal class PremiseSelectionTest {
   }
 
   @Test
+  internal fun `conjunctive and alternative positive invariants include their domains`() {
+    val catalog =
+        testCatalog(
+            """
+            CLASS Selected { HAS First, Second OR Third }
+            CLASS First
+            CLASS Second
+            CLASS Third
+            """
+                .trimIndent()
+        )
+
+    val table = gameView(catalog, "Selected")
+
+    listOf("First", "Second", "Third").forEach { table.isIncluded(cn(it)) shouldBe true }
+  }
+
+  @Test
   internal fun `constructive instructions include only when their trigger and gate can be reached`() {
     val catalog =
         testCatalog(
             """
             CLASS Selected {
               ProtocolTrigger<TriggerArgument>: Triggered
+              X ProtocolTrigger: XTriggered
               This:: (Class<GateProtocol>: Gated)
             }
             CLASS ProtocolTrigger<TriggerArgument>
             CLASS TriggerArgument
             CLASS Triggered
+            CLASS XTriggered
             CLASS GateProtocol
             CLASS Gated
             """
@@ -288,9 +360,11 @@ internal class PremiseSelectionTest {
         gameView(catalog, "Selected", "ProtocolTrigger", "TriggerArgument", "GateProtocol")
 
     dormant.isIncluded(cn("Triggered")) shouldBe false
+    dormant.isIncluded(cn("XTriggered")) shouldBe false
     dormant.isIncluded(cn("Gated")) shouldBe false
     dormant.isIncluded(cn("ProtocolTrigger")) shouldBe false
     reachable.isIncluded(cn("Triggered")) shouldBe true
+    reachable.isIncluded(cn("XTriggered")) shouldBe true
     reachable.isIncluded(cn("Gated")) shouldBe true
     reachable.isIncluded(cn("ProtocolTrigger")) shouldBe true
   }

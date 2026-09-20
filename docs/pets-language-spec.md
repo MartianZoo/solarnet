@@ -771,7 +771,8 @@ never a way to do nothing. Declining belongs to `?` and `Ok` (L7-4).
 
 **L7-8. A shared type variable takes one value everywhere it appears.** Narrowing a sequence or a
 transmutation that repeats an abstract expression must supply one consistent value for it (T13-6,
-T13-7); two different values are rejected.
+T13-7); two different values are rejected. Selecting one `THEN` stage binds that value in every
+later stage, including when the selected instruction chose an arm of an `OR`.
 
 > **Non-normative example — Utopia Invest.** `PROD[StandardResource] -> 4 StandardResource` means
 > reduce one chosen production track and gain four units of that same resource. Binding the two
@@ -1012,7 +1013,8 @@ the source, not a message to some later stage.
 category of Pets it was given: an instruction for an instruction, a metric for a metric, and so on.
 It need not be the same *kind* of node — a gain may come back a group, a requirement may come back a
 conjunction — and a block that expands into several independent instructions splices into the
-surrounding group (L6-8).
+surrounding group (L6-8). A block that expands into a sequence at the final stage of another
+sequence likewise splices into that surrounding sequence (L6-9).
 
 > **Non-normative example — Noctis City.** `PROD[-Energy, 3 MC]` expands into two independent
 > production-track changes. Splicing the returned group preserves the card's surrounding gains;
@@ -1071,6 +1073,9 @@ generated declaration is `CLASS Inventrix_RequiredAction : RequiredAction`.
 **L11-3. The body follows the complete expression.** Arguments specialize both the occurrence and
 the generated class's declared supertype; refinements constrain only the occurrence and are removed
 recursively from the supertype, because a refined type cannot be a supertype (L1-9).
+
+Within an argument, `This` still denotes the enclosing owner: the occurrence retains `This` to name
+that owner instance, while the generated class's supertype names the enclosing owner Class.
 
 ```pets
 SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {}

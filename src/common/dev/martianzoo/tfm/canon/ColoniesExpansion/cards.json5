@@ -25,7 +25,7 @@
         {
           "name": "Polyphemos",
           "immediate": "50 MC, 5 Titanium, PROD[5 MC]",
-          "effects": [ "BuyCard:: 2 Owed<>" ],
+          "effects": [ "PayingFor<Class<ProjectCard>>:: 2 Owed<>" ],
         },
         {
           "name": "Poseidon",
@@ -83,7 +83,7 @@
           "requirement": "2 EarthTag",
           "cost": 5,
           "tags": [ "EarthTag", "EventTag" ],
-          "immediate": "NextCardEffect { Billing<CardPlay>:: -16 Owed }",
+          "immediate": "NextCardEffect { PayingFor<Class<CardFront>>:: -16 Owed }",
           "effects": [ "End: -VictoryPoint" ],
         },
         {
@@ -305,7 +305,7 @@
           "tags": [ "EarthTag", "SpaceTag" ],
           "immediate": "TradeFleet",
           "effects": [
-            "Billing<CardPlay>:: -1 Owed",
+            "PayingFor<Class<CardFront>>:: -1 Owed",
             "End: 2 VictoryPoint"
           ],
         },
@@ -415,7 +415,7 @@
           "cost": 14,
           "tags": [ "ScienceTag" ],
           "effects": [
-            "PlayTag<Class<SpaceTag>>:: -4 Owed",
+            "PayingFor<Class<SpaceTag>>:: -4 Owed",
             "End: 2 VictoryPoint"
           ],
         },

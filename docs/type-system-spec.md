@@ -1366,6 +1366,8 @@ candidate was captured, so later occurrences reuse the captured type without ask
 `variableDeclaredAt`). `bindingsFrom(authored, general, specific)` captures values by walking the
 dependency keys chosen while resolving the authored expression — so a candidate that lacks the path a
 variable sits on captures nothing, rather than guessing from a coincidentally similar type.
+For `Class<T>`, the represented Class is that structural path: specializing `Class<Person>` to
+`Class<Alice>` captures `Alice` for the `Person` occurrence.
 
 > **Non-normative example — Law Suit.** The removal watchers record victim, resource class, and
 > acting player in distinct authored dependency positions; Law Suit later consumes that exact

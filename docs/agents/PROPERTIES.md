@@ -277,7 +277,8 @@ tags = Instruction*
 A concrete card might then hold instructions that gain its printed Tag components when the front
 comes into existence. Because the instructions belong to the card Class, they would also be
 available through `Class<CardFront>` before a live CardFront component exists. This could subsume the
-current Kotlin metadata bridge that handles card tags during play.
+current Kotlin metadata bridge that `PriceCard` uses to emit counted
+`PayingFor<Class<Component>>` events.
 
 The direction is promising but not yet a design. It must answer:
 
@@ -288,7 +289,7 @@ The direction is promising but not yet a design. It must answer:
 - how `This`, Owner, defaults, and trigger-time specialization are contextualized;
 - whether `Instruction*` is a group value, a cardinality-bearing property, or both.
 
-The goal is not merely to move `HandleCardTags` into generated Pets. The result should provide one
+The goal is not merely to move `PriceCard` into generated Pets. The result should provide one
 source of printed tag facts that supports both pre-existence queries and live materialization.
 
 ## Design constraints for future extensions

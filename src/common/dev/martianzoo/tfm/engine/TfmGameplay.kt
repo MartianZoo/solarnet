@@ -533,7 +533,7 @@ public class TfmGameplay(
   public fun cardAction1(cardName: ClassName, body: OperationBlock = {}): TaskResult =
       cardAction(1, cardName, body = body)
 
-  /** Binds the action's X to positive [x] without directly executing the resulting task. */
+  /** Selects the action's variable task and binds its X to positive [x]. */
   public fun cardAction1(
       cardName: ClassName,
       x: Int,
@@ -603,7 +603,8 @@ public class TfmGameplay(
             }
     val variableTask = variableTasks.single()
     val bound = bindXTo(x).transformInstructionTree(variableTask.instruction)
-    narrowTask(variableTask.id, bound.toString())
+    selectTask(variableTask.id)
+    narrowTask(bound.toString())
     operation.autoExecNow()
   }
 

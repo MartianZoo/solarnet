@@ -160,7 +160,7 @@ public object Parsing {
               .trimIndent(),
           e,
       )
-    } catch (e: RuntimeException) {
+    } catch (e: IllegalArgumentException) {
       throw PetSyntaxException("invalid Pets syntax: `$source`", e)
     }
   }

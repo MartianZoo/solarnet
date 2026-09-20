@@ -280,13 +280,17 @@ public abstract class PetTransformer protected constructor() {
                     transformRequirement(node.gate),
                     transformInstructionTree(node.inner),
                 )
-            is Instruction.Then ->
-                node
-                    .withParts(
-                        node.stages.map(::transformInstruction),
-                        transformInstructionTree(node.continuation),
-                    )
-                    .withTypeVariables(node.typeVariables.transformedBy(this))
+            is Instruction.Then -> {
+              val continuation = transformInstructionTree(node.continuation)
+              val nestedScope = (continuation as? Instruction.Then)?.typeVariables
+              node
+                  .withInstructions(node.stages.map(::transformInstruction) + continuation)
+                  .withTypeVariables(
+                      node.typeVariables.transformedBy(this).let { outerScope ->
+                        if (nestedScope == null) outerScope else outerScope + nestedScope
+                      }
+                  )
+            }
             is Instruction.Each ->
                 Instruction.Each(
                     transformExpression(node.selector),

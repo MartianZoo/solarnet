@@ -242,13 +242,13 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
    * occurrence retains its own arguments, and a declaration refinement already checked during
    * capture is consumed, exactly as specified by
    * [rule T13-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   * Callers with no [bindings] must supply [classTable] explicitly.
    */
   public fun bind(
       bindings: Map<TypeVariable, GroundType>,
       classTable: ClassTable =
           bindings.values.firstOrNull()?.classTable
-              ?: entries.firstOrNull()?.variable?.bound?.classTable
-              ?: error("empty type-variable scope has no class table"),
+              ?: error("empty bindings require an explicit class table"),
   ): PetTransformer {
     fun Entry.capturedRefinement() =
         if (variable.declaration in currentExpressions) {

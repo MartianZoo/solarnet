@@ -107,14 +107,15 @@ internal class DomainExceptionContractTest {
 
   @Test
   internal fun gameplayFailuresAreNegativeResultsButIncompleteRequestsAreNot() {
-    val agent = agent()
-    val task = agent.addTasks("Plant OR Heat").single()
+    val narrowingAgent = agent()
+    val task = narrowingAgent.addTasks("Plant OR Heat").single()
+    narrowingAgent.selectTask(task)
 
-    shouldThrow<NarrowingException> { agent.narrowTask(task, "Steel") }
+    shouldThrow<NarrowingException> { narrowingAgent.narrowTask("Steel") }
         .shouldBeInstanceOf<GameplayException>()
-    shouldThrow<NotNowException> { agent.runOperation("-Plant") }
+    shouldThrow<NotNowException> { agent().runOperation("-Plant") }
         .shouldBeInstanceOf<GameplayException>()
-    val incomplete: Exception = shouldThrow<NotFullySpecifiedException> { agent.sneak("X Plant") }
+    val incomplete: Exception = shouldThrow<NotFullySpecifiedException> { agent().sneak("X Plant") }
     (incomplete is GameplayException) shouldBe false
     isPetException(incomplete) shouldBe false
   }

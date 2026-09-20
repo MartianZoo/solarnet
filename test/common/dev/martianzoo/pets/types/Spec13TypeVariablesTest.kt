@@ -795,6 +795,23 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
+  internal fun `T13-11 capture follows the represented Class type`() {
+    val table = loadTypes("ABSTRACT CLASS Person { CLASS Alice }")
+    val authored = parse<Expression>("Class<Person>")
+    val person = authored.arguments.single()
+    val scope =
+        TypeVariableScope.infer(listOf(authored), table, explicitDeclarations = listOf(person))
+
+    scope
+        .bindingsFrom(
+            authored,
+            table.resolve(authored),
+            table.resolve(parse("Class<Alice>")),
+        )
+        .map { (variable, value) -> "$variable=$value" } shouldContainExactly listOf("Person=Alice")
+  }
+
+  @Test
   internal fun `T13-11 capture follows dependency paths, so a mismatched candidate captures nothing`() {
     val table =
         loadTypes(
