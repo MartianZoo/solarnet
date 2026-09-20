@@ -246,7 +246,7 @@ Keep the substantive reasoning in the owning document and keep this table to one
 - **Pets `Action` cost sugar and the parallel `Cost` AST** —
   [ACTIONS.md](ACTIONS.md#why-the-action-cost-form-is-a-product-requirement). `cost ->` is a product
   requirement used by many cards.
-- **The metric operator set** — [ENGINE.md](ENGINE.md#metrics-refinements-and-limits). `Max`,
+- **The metric operator set** — [ENGINE.md](ENGINE.md#the-metric-operators-are-intentional). `Max`,
   `Subtract`, and `Or` have few authored uses, but the algebra is under-built rather than
   over-built.
 

@@ -165,9 +165,18 @@ ancestry is a backward walk through event ordinals, ending either at the scoped 
 event or at a null cause. Because it is derived from the event log, rollback restores it for free —
 which the No-hidden-ordering-state promise requires and a cached field would not.
 
+Scoped completion is also the smallest identified validation point for a positive lower bound that
+one automatic consequence chain may temporarily violate and repair. Validation at every
+`Timeline.atomic` exit is too early because a successful transaction may intentionally leave
+Player-choice Tasks; whole-World idleness is too late because it combines unrelated work. The
+intended rule is to keep upper bounds immediate and validate applicable lower bounds when their
+causal scope closes. This is a dependency of the selected direction, not current behavior, and must
+not broaden the first implementation slice before scoped identity and cross-Actor completion are
+settled.
+
 **One precondition, unsettled.** "The scoped component's own gain event" is not yet well defined.
 The component graph is a multiset with no instance identity, and equal Types are indistinguishable
-([ENGINE.md](ENGINE.md#component-graph)). Either every scoped concrete Type must carry a
+([ENGINE.md](ENGINE.md#concrete-state-and-its-history)). Either every scoped concrete Type must carry a
 maximum-one invariant, or scoping needs an explicit operation identity. Requiring maximum-one costs
 nothing today — `End` is bounded by `MAX 1 Phase`, `CardFront` by `MAX 1 This<Player>`, and
 `Trade<This>` by its `ColonyTile` invariant — but it has to become a stated requirement rather than

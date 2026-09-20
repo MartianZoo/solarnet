@@ -21,9 +21,9 @@ Autoexec. The client plays by selecting Tasks and narrowing the selected Task, t
 engine's resolution, execution, and resulting State Changes. It does not need to know how those
 consequences are carried out internally.
 
-The current and target Agent APIs expose Player activities such as `selectTask` and `narrowTask`.
-In the target layering, every explicit and Driver-chosen mutation passes through that unique Agent,
-which uses private `ActorAccess`. Resolution and execution remain engine consequences.
+The Agent API exposes Player activities such as `selectTask` and `narrowTask`. Every ordinary
+explicit or policy-chosen mutation passes through that Actor's Agent, which delegates to the
+World's stable policy-free `ActorEngine`. Resolution and execution remain engine consequences.
 
 `PetTransformer` is the implementation's common mechanism for turning one Pets tree into another.
 Each numbered stage below lists the PetTransformers which touch our Effect, in execution order. A
@@ -80,6 +80,11 @@ This is also when repeated authored Type Expressions that denote one choice are 
 Variables. That recognition happens before defaults or Production Box lowering can make unrelated
 expressions look alike. `This` and `Owner` are contextual bindings, not Type Variables. Recyclon has
 no Type Variable linking its Trigger to its Instruction.
+
+Those links belong to the complete authored region. Rendering and reparsing an isolated subtree
+creates a new region and cannot reconstruct a variable identity shared with nodes outside that
+subtree. Transform the original typed tree, or resubmit the complete authored region through normal
+elaboration; do not use a subtree's text as a substitute for its recorded occurrence links.
 
 An Effect can also declare a Class local to its card. Such a declaration would be given a stable
 card-owned Class Name here. Recyclon's Effect does not do so, so its visible structure is unchanged.
@@ -344,7 +349,7 @@ the Assignee.
 ## 9. The queued Effect becomes a Task
 
 **PetTransformers, in order:** creating and adding the Task uses none. If a client supplies Pets
-text to choose or narrow it, that input first passes through:
+text to choose or narrow it, that input first passes through this pipeline:
 
 1. `DerivedClassLowerer`, as part of reading the submitted Pets text
 2. `rejectPropertyEvaluations`
@@ -406,8 +411,8 @@ before the selected first stage completes.
 
 **PetTransformers, in order:** none during resolution or execution of Recyclon's ordinary Change
 Instruction. Resolution handles its count, Quantifier, Type, and Limits directly. If the client
-identifies the Task by Pets text rather than Task ID, that text uses the eight-step client-input
-chain listed in stage 9 before resolution begins.
+identifies the Task by Pets text rather than Task ID, that text uses the client-input pipeline
+listed in stage 9 before resolution begins.
 
 The client selects the removal Task. The engine resolves it against the current Game World. With at
 least two microbes on Recyclon, it becomes the Selected Task for exactly:
