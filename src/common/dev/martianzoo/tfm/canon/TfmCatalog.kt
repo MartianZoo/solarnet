@@ -344,7 +344,6 @@ public open class TfmCatalog : Catalog {
             configurationTable,
         )
     included = included + selectedMilestoneNames + selectedAwardNames
-    val colonyNames = colonyTileClassNames
     val individualNames = included - moduleNames
     val individualSelections = linkedMapOf<ClassName, Boolean>()
     individualNames.forEach { individualSelections[it] = true }
@@ -363,30 +362,26 @@ public open class TfmCatalog : Catalog {
         individualSelections
             .filterKeys { it !in configuredPlayerNames }
             .mapTo(linkedSetOf()) { (className, included) -> ClassSelection(className, included) }
+    val selectedByModules =
+        moduleNames
+            .flatMap { modules.getValue(it) }
+            .filter { it.included && it.appliesTo(included, configurationTable) }
+            .mapTo(hashSetOf(), ClassSelection::className)
+    if (individualNames.intersect(colonyTileClassNames).any { it !in selectedByModules }) {
+      throw InvalidGameConfigException("selected ColonyTiles must be provided by a selected Module")
+    }
     val initialTypes =
         individualNames
-            .filter { it in colonyNames }
-            .mapTo(
-                additionalInitialComponentTypes.toCollection(linkedSetOf()),
-                ::initialColonyTileType,
-            )
-    if (configuredPlayerNames.size == 1 && initialTypes.isNotEmpty()) {
-      initialTypes.add(SOLO_COLONIES_SETUP.of(configuredPlayerNames.single().expression))
-    }
+            .filter { it in colonyTileClassNames }
+            .mapTo(additionalInitialComponentTypes.toCollection(linkedSetOf())) {
+              SELECTED_COLONY_TILE.of(it.classExpression())
+            }
     configuredPlayerNames.firstOrNull()?.let { firstPlayer ->
       initialTypes.add(TfmClasses.START_TOKEN.of(firstPlayer.expression))
       configuredPlayerNames.zip(configuredPlayerNames.drop(1) + firstPlayer).mapTo(initialTypes) {
           (player, nextPlayer) ->
         TfmClasses.AFTER_ME.of(player.expression, nextPlayer.expression)
       }
-    }
-    val selectedByModules =
-        moduleNames
-            .flatMap { modules.getValue(it) }
-            .filter { it.included && it.appliesTo(included, configurationTable) }
-            .mapTo(hashSetOf(), ClassSelection::className)
-    if (individualNames.intersect(colonyNames).any { it !in selectedByModules }) {
-      throw InvalidGameConfigException("selected ColonyTiles must be provided by a selected Module")
     }
     val premiseDeclaration =
         if (moduleNames.isEmpty()) {
@@ -433,18 +428,6 @@ public open class TfmCatalog : Catalog {
         additionalClassDeclarations = playerDeclarations.toSet(),
     )
   }
-
-  private fun initialColonyTileType(className: ClassName) =
-      if (universe.getClass(className).isSubtypeOf(universe.getClass(COLONY_TILE_SELECTION))) {
-        SELECTED_COLONY_TILE.of(className.classExpression())
-      } else {
-        universe
-            .allConcreteSubtypes(
-                universe.resolve(COLONY_TILE_SELECTION.of(className.classExpression()))
-            )
-            .single { it.rootClass.className != SELECTED_COLONY_TILE }
-            .expression
-      }
 
   private fun countConfigured(
       metric: Metric,
@@ -881,7 +864,6 @@ public open class TfmCatalog : Catalog {
     private val COLONY_TILE = cn("ColonyTile")
     private val COLONY_TILE_SELECTION = cn("ColonyTileSelection")
     private val SELECTED_COLONY_TILE = cn("SelectedColonyTile")
-    private val SOLO_COLONIES_SETUP = cn("SoloColoniesSetup")
     private val MULTIPLAYER_ONLY: Requirement = parse("MultiplayerMode")
   }
 

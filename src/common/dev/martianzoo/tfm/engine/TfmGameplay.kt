@@ -255,9 +255,7 @@ public class TfmGameplay(
       },
       body: OperationBlock = {},
   ): TaskResult {
-    return stdAction("UseStandardProjectAction", payment = {}) {
-      useStdProjectWithinOperation(stdProject, payment, body)
-    }
+    return inTurn { useStdProject(stdProject, payment, body) }
   }
 
   /** Uses a granted standard-action slot for a standard project within an enclosing operation. */
@@ -269,18 +267,10 @@ public class TfmGameplay(
       body: OperationBlock = {},
   ) {
     useStdAction("UseStandardProjectAction", payment = {}) {
-      useStdProjectWithinOperation(stdProject, payment, body)
+      doTask("UseAction<$stdProject, Action1>")
+      payment()
+      body()
     }
-  }
-
-  private fun OperationScope.useStdProjectWithinOperation(
-      stdProject: String,
-      payment: OperationBlock,
-      body: OperationBlock,
-  ) {
-    doTask("UseAction<$stdProject, Action1>")
-    payment()
-    body()
   }
 
   public fun playPrelude(cardName: ClassName, body: OperationBlock = {}): TaskResult {

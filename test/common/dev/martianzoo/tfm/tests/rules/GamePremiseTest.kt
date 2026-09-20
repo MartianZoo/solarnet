@@ -189,6 +189,38 @@ internal class GamePremiseTest {
   }
 
   @Test
+  internal fun selectedColonyRequiresItsProvidingModule() {
+    shouldThrow<InvalidGameConfigException> {
+      Canon.gamePremise(GameConfig("Callisto", "Player1", "Player2"))
+    }
+  }
+
+  @Test
+  internal fun configuredColoniesReachPlayWithoutSeparateInitialTypes() {
+    val game =
+        Engine.newGame(
+            Canon.gamePremise(
+                GameConfig("ColoniesExpansion, Callisto, Luna, Enceladus", "Player1", "Player2")
+            )
+        )
+    val admin = game.testAgent(ADMIN)
+    val workflow = TfmWorkflow.Stepwise(game.testAgents())
+
+    admin.count("SelectedColonyTile") shouldBe 3
+    admin.count("SelectedColonyTile<Class<Ceres>>") shouldBe 0
+
+    workflow.setupPhase()
+    retainStartingProjects(game, 0, 0)
+    workflow.corporationPhase()
+
+    admin.count("SelectedColonyTile") shouldBe 0
+    admin.count("Callisto") shouldBe 1
+    admin.count("Luna") shouldBe 1
+    admin.count("DelayedEnceladus") shouldBe 1
+    admin.count("Ceres") shouldBe 0
+  }
+
+  @Test
   internal fun configurationsCanSeatMoreThanFivePlayers() {
     val names = listOf("One", "Two", "Three", "Four", "Five", "Six").map(::cn)
 

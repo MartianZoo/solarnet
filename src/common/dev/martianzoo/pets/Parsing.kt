@@ -171,6 +171,9 @@ public object Parsing {
       is PetNode ->
           parsed.visitDescendants {
             (it as? Expression)?.let(ScaledExpression::rejectIfDenominationless)
+            if (it is Metric.Rank && it.selector == null) {
+              throw PetSyntaxException("`RANK { ... }` requires an enclosing expression refinement")
+            }
             true
           }
       is Iterable<*> -> parsed.forEach(::rejectUnsupportedSyntax)

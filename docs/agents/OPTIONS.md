@@ -152,10 +152,12 @@ on the presence of at least three Players. Initial state is not an unrestricted 
 
 Availability and existence are distinct. With Colonies included, eligible colony classes are
 included and inhabited so effects can select them, while premise construction creates only the
-chosen starting selection
-representations. Normal selected colonies become tiles during setup; card-resource colonies remain
-delayed until a compatible card exists. In solo play four are selected; setup asks the player to
-remove one `ColonyTileSelection` before creating the remaining normal tiles.
+chosen `SelectedColonyTile<Class<ColonyTile>>` starting markers, one for each configured colony,
+so the configuration is their only source. `ColoniesExpansion` creates a
+player-owned `SoloColoniesSetup` during solo setup; it asks that player to remove one marker. When
+the Corporation phase begins, every remaining marker becomes its abstract `ColonyTileSelection`,
+whose ordinary concrete narrowing creates either the colony tile or its card-resource-dependent
+delayed marker. The delayed marker creates its tile once a compatible card exists.
 
 Defaults are evaluated against the growing Module selection. Naming a
 competing choice can make a default condition false; an explicit exclusion defeats it. In
@@ -427,13 +429,14 @@ named domain concept should become generic.
    `PreludeExpansion`, and grants the two Prelude plays itself. This is the clearest architectural
    leak: the base Kotlin workflow knows how one optional Module changes phase topology. The native
    workflow direction in `WORKFLOW.md` should remove this dependency.
-2. **Moderate — Colonies remains privileged in premise infrastructure.**
+2. **Moderate — Colonies remains privileged in static selection infrastructure.**
    Concrete colony tiles and their immediate or delayed `ColonyTileSelection` representations are
-   ordinary Pets classes. `tfm-canon/.../TfmCatalog.kt` still recognizes the `ColonyTile`
-   hierarchy when constructing initial component Types and deciding which available tiles remain
-   active for mid-game additions. These are premise responsibilities rather than a parallel
-   class-definition format, but a future general model for configured starting components could
-   remove the remaining expansion names.
+   ordinary Pets classes, and runtime setup and realization are authored in Pets.
+   `tfm-canon/.../TfmCatalog.kt` still recognizes the `ColonyTile` hierarchy when translating
+   configured colonies to exact `SelectedColonyTile` initial Types, deciding which available tiles
+   remain active for mid-game additions, and rejecting a selected tile not provided by a selected
+   Module. A future general model for static content pools could remove those
+   remaining expansion names.
 3. **Moderate — expansion concepts appear in engine and card APIs.**
    `engine/.../TfmAgent.kt` publishes `playPrelude` and `venusPercent`.
    `tfm-canon/.../TfmClasses.kt` names Prelude cards for card-specific custom behavior, while

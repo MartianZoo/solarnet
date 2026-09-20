@@ -67,7 +67,7 @@ ABSTRACT CLASS GameMode : Module {
     SetupPhase: EACH Player { 20 TerraformRating }
 
     // TODO: something better for this to trigger on
-    -FinalScoringPending: EACH Player(HAS =1 (RANK Player { VictoryPoint, MC })) { Victory }
+    -FinalScoringPending: EACH Player(HAS =1 (RANK { VictoryPoint, MC })) { Victory }
   }
 }
 

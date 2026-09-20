@@ -12,6 +12,8 @@ import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
+import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.TestOption.Hellas
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
@@ -188,6 +190,39 @@ internal class TfmWorkflowTest {
     p1.count("TerraformRating") shouldBe 19
     p2.count("TerraformRating") shouldBe 19
     admin.count("TurmoilSolarPhase") shouldBe 1
+    workflow.shutdown()
+  }
+
+  @Test
+  internal fun automaticSolarWaitsForWorldGovernmentBeforeColonies() {
+    val game =
+        Engine.newGame(
+            canonicalPremise(
+                VenusNextExpansion,
+                ColoniesExpansion,
+                players = 2,
+                colonyTiles = testColonyTiles(2, "Luna"),
+            )
+        )
+    val admin = game.testTfm(ADMIN)
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    retainStartingProjects(game, 0, 0)
+    playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
+    playCorporationWithoutStartingProjects(p2, CrediCor)
+    val lunaProduction = admin.count("ColonyProduction<Luna>")
+
+    p1.pass()
+    p2.pass()
+
+    admin.count("VenusSolarPhase") shouldBe 1
+    admin.count("ColoniesSolarPhase") shouldBe 0
+    admin.count("ColonyProduction<Luna>") shouldBe lunaProduction
+
+    p1.doTask("TemperatureStep! BY Admin")
+
+    admin.count("ColonyProduction<Luna>") shouldBe lunaProduction + 1
     workflow.shutdown()
   }
 }

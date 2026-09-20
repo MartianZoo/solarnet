@@ -26,7 +26,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
   internal fun soloGame20230710() {
     retainStartingProjects(10)
     with(me) {
-      doTask("-ColonyTileSelection<Class<Miranda>>")
+      doTask("-SelectedColonyTile<Class<Miranda>>")
 
       playCorp(PharmacyUnion, 10).expect("16 MC, 11 ProjectCard")
 

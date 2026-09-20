@@ -41,10 +41,8 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
   init {
     val inhabitedConcreteClasses = classTable.allInhabitedConcreteClasses()
     val invalidDependencies = inhabitedConcreteClasses.mapNotNull { dependent ->
-      classTable.classLimitTemplates
-          .dependencyTargetsFor(dependent)
-          .asSequence()
-          .filter(classTable::isInhabited)
+      dependent.dependencies
+          .concreteDependencyTargets(classTable)
           .firstOrNull { target -> !hasSingleTargetLimit(target) }
           ?.let { dependent to it }
     }

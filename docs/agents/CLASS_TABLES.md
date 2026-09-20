@@ -55,11 +55,10 @@ game table so nested resolution cannot fall back to the wrong namespace.
 
 Premise inclusion remains a property of the combined game table, not of a master `Class` or `Type`.
 
-Stable interpretations of component-limit invariants and concrete dependency targets are compiled
-with the master Classes that declare them. A combined game table realizes those templates against
-its inhabited Class set, adds premise-local declarations, and validates only the resulting
-premise-specific dependency targets. It does not rebuild or retain a completed premise table by
-configuration shape.
+Stable interpretations of component-limit invariants are compiled with the master Classes that
+declare them. A combined game table realizes those templates against its inhabited Class set and
+adds premise-local declarations. Dependency targets remain view-relative and are enumerated in the
+combined table. It does not rebuild or retain a completed premise table by configuration shape.
 
 ## Structural operations versus game-domain operations
 
@@ -222,8 +221,8 @@ The semantic migration is complete:
   `Type` objects rather than recompiling them.
 - Public activity queries are gone. Inhabitance controls enumeration, class literals, effects, and
   mutation admission, while excluded known names retain their nominal meaning.
-- Component-limit and dependency-target templates are compiled with their master declarations.
-  Runtime limits, elaboration, transformation, and narrowing use the game table, and unrelated
+- Component-limit templates are compiled with their master declarations. Runtime dependency-target
+  validation, limits, elaboration, transformation, and narrowing use the game table, and unrelated
   masters and sibling premise universes are rejected.
 - Parameterless enumeration and automatic narrowing are absent from `Type`, `GroundType`, `Class`,
   and `DependencySet`; callers name the Catalog or game table explicitly.

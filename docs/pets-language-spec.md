@@ -507,10 +507,14 @@ context.
 position of one candidate among the components matching `Selector` in one state, comparing the
 listed metrics lexicographically. Equal metric vectors share one rank, and the next unequal vector's
 rank skips the places occupied by the tie. Authored syntax leaves the candidate open; a refinement
-supplies it. At least one metric is required, and the selector's refinement filters the field
-without becoming part of the name the metrics use. There is no lowest-first form; subtracting the
-metric from a known upper cap expresses the inverse ordering. This module pins the syntax and that
-scoping; ranking a live field is realized where a world is available, and pinned by
+supplies it. Inside a `HAS` refinement only, the selector may also be omitted from a counted rank:
+`Foo(HAS =1 (RANK { score }))` means `Foo(HAS =1 (RANK Foo { score }))`, using the unrefined
+expression that owns that refinement as the field. Outside an expression refinement there is no
+outer domain to supply that selector, so `RANK { score }` is invalid. At least one metric is
+required, and the selector's refinement filters the field without becoming part of the name the
+metrics use. There is no lowest-first form; subtracting the metric from a known upper cap expresses
+the inverse ordering. This module pins the syntax and that scoping; ranking a live field is realized
+where a world is available, and pinned by
 `engine/RankMetricTest.kt`.
 
 > **Non-normative example — award scoring.** Award resolution ranks every player by the selected

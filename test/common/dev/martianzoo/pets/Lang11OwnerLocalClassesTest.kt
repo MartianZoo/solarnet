@@ -61,6 +61,13 @@ internal class Lang11OwnerLocalClassesTest {
   }
 
   @Test
+  internal fun `L11-3 parsing an outer refinement preserves an owner-local class within it`() {
+    parseClasses("CLASS Owner1 { This: Widget(HAS Bar { HAS MAX 1 This }) }").map {
+      it.className
+    } shouldContainExactly listOf(cn("Owner1"), cn("Owner1_Bar"))
+  }
+
+  @Test
   internal fun `L11-3 This in an argument names the enclosing class in the declaration`() {
     val declarations = parseClasses("CLASS Card { This: Action1<This> {} }")
 
