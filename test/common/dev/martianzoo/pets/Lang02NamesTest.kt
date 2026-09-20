@@ -18,24 +18,22 @@ internal class Lang02NamesTest {
 
   @Test
   internal fun `L2-1 an uppercase-leading identifier is a class name`() {
-    listOf(
-            "GreeneryTile",
-            "Tharsis_2_2",
-            "A_foo",
-            "FOO_bar",
-            "L1TradeTerminal",
-            "MC",
-            "TOOLONG",
-            "Ok",
-        )
-        .forEach { parse<Expression>(it).className shouldBe cn(it) }
+    parse<Expression>("GreeneryTile").className shouldBe cn("GreeneryTile")
+    parse<Expression>("Tharsis_2_2").className shouldBe cn("Tharsis_2_2")
+    parse<Expression>("A_foo").className shouldBe cn("A_foo")
+    parse<Expression>("FOO_bar").className shouldBe cn("FOO_bar")
+    parse<Expression>("L1TradeTerminal").className shouldBe cn("L1TradeTerminal")
+    parse<Expression>("MC").className shouldBe cn("MC")
+    parse<Expression>("TOOLONG").className shouldBe cn("TOOLONG")
+    parse<Expression>("Ok").className shouldBe cn("Ok")
   }
 
   @Test
   internal fun `L2-1 other shapes are not class names`() {
-    listOf("greenery", "greeneryTile", "_Foo", "9Lives").forEach {
-      shouldThrow<IllegalArgumentException> { cn(it) }
-    }
+    shouldThrow<IllegalArgumentException> { cn("greenery") }
+    shouldThrow<IllegalArgumentException> { cn("greeneryTile") }
+    shouldThrow<IllegalArgumentException> { cn("_Foo") }
+    shouldThrow<IllegalArgumentException> { cn("9Lives") }
   }
 
   // L2-2 Reserved words
@@ -65,14 +63,18 @@ internal class Lang02NamesTest {
 
   @Test
   internal fun `L2-2 a keyword is not a class name`() {
-    reserved.forEach { shouldThrow<IllegalArgumentException> { cn(it) } }
+    reserved.associateWith {
+      runCatching { cn(it) }.exceptionOrNull() is IllegalArgumentException
+    } shouldBe reserved.associateWith { true }
   }
 
   @Test
   internal fun `L2-2 every reserved word is one the grammar itself takes`() {
     // The two lists have to agree: a word the grammar takes but does not reserve would let `cn`
     // mint a name no expression could ever mention.
-    reserved.forEach { shouldThrow<PetSyntaxException> { parse<Expression>(it) } }
+    reserved.associateWith {
+      runCatching { parse<Expression>(it) }.exceptionOrNull() is PetSyntaxException
+    } shouldBe reserved.associateWith { true }
   }
 
   @Test
@@ -83,10 +85,12 @@ internal class Lang02NamesTest {
 
   @Test
   internal fun `L2-2 declaration keywords do not consume identifier prefixes`() {
-    listOf("CLASSIC", "DEFAULT_VALUE", "ABSTRACTThing").forEach { name ->
-      parse<Expression>(name).className shouldBe cn(name)
-      parseClasses("CLASS $name").single().className shouldBe cn(name)
-    }
+    parse<Expression>("CLASSIC").className shouldBe cn("CLASSIC")
+    parseClasses("CLASS CLASSIC").single().className shouldBe cn("CLASSIC")
+    parse<Expression>("DEFAULT_VALUE").className shouldBe cn("DEFAULT_VALUE")
+    parseClasses("CLASS DEFAULT_VALUE").single().className shouldBe cn("DEFAULT_VALUE")
+    parse<Expression>("ABSTRACTThing").className shouldBe cn("ABSTRACTThing")
+    parseClasses("CLASS ABSTRACTThing").single().className shouldBe cn("ABSTRACTThing")
   }
 
   // L2-3 Property names

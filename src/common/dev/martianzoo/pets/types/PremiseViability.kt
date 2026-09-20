@@ -1,5 +1,6 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -11,7 +12,14 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 
-/** Exact premise checks whose proofs depend only on uninhabited Types. */
+/**
+ * Rejects selected content whose mandatory entry behavior is impossible because a required Type is
+ * uninhabited.
+ *
+ * This deliberately proves only exact empty-domain facts, such as a false play requirement or a
+ * reachable mandatory removal from an empty Type. Broader closed-world satisfiability is not part
+ * of premise construction.
+ */
 internal object PremiseViability {
   fun validate(table: ClassTable, selectedClassNames: Set<ClassName>) {
     val interpreter = InhabitanceInterpreter(classIsUninhabited = { !table.isInhabited(it) })
@@ -33,7 +41,7 @@ internal object PremiseViability {
   }
 
   private fun unviable(className: ClassName, reason: String): Nothing =
-      throw IllegalArgumentException("unviable game premise: $className has $reason")
+      throw InvalidGameConfigException("unviable game premise: `$className` has $reason")
 
   private val REQUIREMENT_PROPERTY = PropertyName("requirement")
 

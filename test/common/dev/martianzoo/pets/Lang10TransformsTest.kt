@@ -1,6 +1,9 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -11,8 +14,11 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.TransformNode
+import dev.martianzoo.pets.data.GamePremise
+import dev.martianzoo.pets.types.testCatalog
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 /** Section 10 of `docs/pets-language-spec.md`: marking a subtree for a named rewrite. */
@@ -36,21 +42,61 @@ internal class Lang10TransformsTest {
     shouldThrow<PetSyntaxException> { parse<dev.martianzoo.pets.ast.Expression>("PROD[Plant]") }
   }
 
-  // L10-2 An unhandled block is preserved
+  // L10-2 Every mark names a kind its Catalog defines
 
   @Test
-  internal fun `L10-2 a block whose kind has no handler is preserved verbatim`() {
-    TransformHandler.dispatcher(emptyMap())
-        .transformInstructionTree(parse("LATER[Plant]"))
-        .toString() shouldBe "LATER[Plant]"
-    identity.transformInstructionTree(parse("LATER[Plant]")).toString() shouldBe "LATER[Plant]"
+  internal fun `L10-2 a Catalog must define every transform kind its source uses`() {
+    shouldThrow<InvalidPetDefinitionException> {
+          testCatalog("CLASS Result\nCLASS Marked { This: LATER[Result] }").classTable
+        }
+        .message
+        .orEmpty() shouldContain "transform kind `LATER`"
   }
 
   @Test
-  internal fun `L10-2 a handler may also decline to rewrite its own block`() {
+  internal fun `L10-2 premise source must also use defined transform kinds`() {
+    val catalog = testCatalog("CLASS Result")
+
+    shouldThrow<InvalidPetDefinitionException> {
+          GamePremise(
+                  catalog = catalog,
+                  modules = emptySet(),
+                  classSelections = emptySet(),
+                  initialComponentTypes = emptySet(),
+                  premiseClassDeclarations =
+                      parseClasses("CLASS LocalMarked { This: LATER[Result] }").toSet(),
+              )
+              .classTable
+        }
+        .message
+        .orEmpty() shouldContain "transform kind `LATER`"
+  }
+
+  @Test
+  internal fun `L10-2 one pass leaves another pass's kind in place`() {
+    identity.transformInstructionTree(parse("MARK[LATER[Plant]]")).toString() shouldBe
+        "LATER[Plant]"
+  }
+
+  @Test
+  internal fun `L10-2 a handler may still decline to rewrite its own block`() {
     TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { null }))
         .transformInstructionTree(parse("MARK[Plant]"))
         .toString() shouldBe "MARK[Plant]"
+  }
+
+  @Test
+  internal fun `L10-2 preserved blocks must be handled before semantic operations`() {
+    shouldThrow<ExpressionException> {
+      parse<Metric>("LATER[Plant]").evaluate({ 0 }, { 0 }, { 0 }, { 0 })
+    }
+    shouldThrow<ExpressionException> {
+      parse<Requirement>("LATER[Plant]").isMetBy { 0 }
+    }
+
+    val instruction = parse<Instruction>("LATER[Plant]")
+    shouldThrow<ExpressionException> { instruction.isAbstract(langWorld) }
+    shouldThrow<ExpressionException> { instruction.ensureNarrows(instruction, langWorld) }
   }
 
   // L10-3 A handler rewrites only inside its block
@@ -68,7 +114,7 @@ internal class Lang10TransformsTest {
 
   @Test
   internal fun `L10-3 a handler must return the same kind of Pets`() {
-    shouldThrow<PetSyntaxException> {
+    shouldThrow<IllegalStateException> {
       TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { parse<Metric>("Different") }))
           .transformInstructionTree(parse("MARK[Plant]"))
     }
@@ -98,7 +144,7 @@ internal class Lang10TransformsTest {
   @Test
   internal fun `L10-5 nesting a block of the same kind is representable but not processable`() {
     parse<InstructionTree>("PROD[PROD[Plant]]").toString() shouldBe "PROD[PROD[Plant]]"
-    shouldThrow<PetSyntaxException> {
+    shouldThrow<ExpressionException> {
       identity.transformInstructionTree(parse("MARK[MARK[Plant]]"))
     }
     shouldThrow<IllegalArgumentException> {
@@ -109,7 +155,11 @@ internal class Lang10TransformsTest {
   @Test
   internal fun `L10-5 blocks of different kinds nest freely`() {
     roundTrip<InstructionTree>("PROD[LATER[Plant]]")
-    identity.transformInstructionTree(parse("MARK[LATER[Plant]]")).toString() shouldBe
-        "LATER[Plant]"
+
+    val both =
+        TransformHandler.dispatcher(
+            mapOf("MARK" to TransformHandler { it }, "OTHER" to TransformHandler { it })
+        )
+    both.transformInstructionTree(parse("MARK[OTHER[Plant]]")).toString() shouldBe "Plant"
   }
 }

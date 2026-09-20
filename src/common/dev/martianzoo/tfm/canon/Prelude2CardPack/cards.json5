@@ -60,7 +60,7 @@
           "actions": [
             "-> PreludeCard, -PreludeCard OR (-12 MC THEN -Director<This> THEN PlayCard<Class<PreludeCard>, Hand>)",
           ],
-          "components": [ "CLASS Director : CardResource<ResourceHolder<Class<Director>>>" ],
+          "components": [ "CLASS Director : CardResource" ],
         },
         {
           "name": "ColonyTradeHub",
@@ -122,7 +122,7 @@
         },
         {
           "name": "Recession",
-          "immediate": "10 MC, EACH Player(HAS MAX 0 This<Anyone>) { -5 MC., PROD[-1 MC] }",
+          "immediate": "10 MC, EACH Player(NOT Owner) { -5 MC., PROD[-1 MC] }",
         },
         {
           "name": "SoilBacteria",
@@ -135,7 +135,7 @@
           "tags": [ "SpaceTag" ],
           "immediate": "3 Titanium",
           "effects": [
-            "PlayTag<Class<PlanetaryTag>>:: -2 Owed",
+            "PayingFor<Class<PlanetaryTag>>:: -2 Owed",
           ],
         },
         {

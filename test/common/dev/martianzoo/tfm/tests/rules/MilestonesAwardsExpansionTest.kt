@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -103,9 +104,10 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   }
 
   @Test
-  internal fun `OceanCredit and its watcher stay undefined without Hydrologist`() {
+  internal fun `Hydrologist and its support stay undefined when not selected`() {
     val game = newGame(GameConfig("Builder, Legend, Merchant", "Player1", "Player2"))
 
+    game.classTable.allClassNames.shouldNotContain(cn("Hydrologist"))
     game.classTable.allClassNames.shouldNotContain(cn("OceanCredit"))
     game.classTable.allClassNames.shouldNotContain(cn("HydrologistWatcher"))
   }
@@ -136,7 +138,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
 
   @Test
   internal fun `Producer versions belong to opposite Quick Start modes`() {
-    shouldThrow<LimitsException> {
+    shouldThrow<InvalidGameConfigException> {
       newGame(
           GameConfig(
               "Producer, Builder, Engineer, -CorporateEraExpansion",
@@ -145,7 +147,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
           )
       )
     }
-    shouldThrow<IllegalArgumentException> {
+    shouldThrow<InvalidGameConfigException> {
       newGame(
           GameConfig(
               "Producer22, Builder, Engineer",

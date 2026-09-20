@@ -30,7 +30,7 @@ public sealed class Metric : PetElement() {
      * omitting the meaningless wrapper when [unit] is one. A unit of zero is rejected.
      */
     public fun scaled(inner: Metric, unit: Int): Metric {
-      if (unit < 1) throw PetSyntaxException("metric can't be zero")
+      if (unit < 1) throw PetSyntaxException("metric unit must be positive: `$unit`")
       return if (unit == 1) inner else Scaled(inner, unit)
     }
 
@@ -77,8 +77,8 @@ public sealed class Metric : PetElement() {
                 0,
             )
         is Or -> countUnion(this)
-        is Eval -> error("metric property evaluation was not expanded: $this")
-        is Transform -> throw ExpressionException("unhandled metric transform: $this")
+        is Eval -> error("metric property evaluation was not expanded: `$this`")
+        is Transform -> throw ExpressionException("unhandled metric transform: `$this`")
       }
 
   /**
@@ -92,8 +92,8 @@ public sealed class Metric : PetElement() {
    * world is available, and pinned by `engine/RankMetricTest.kt`.
    */
   public data class Rank(
-      /** The field being ranked. Its refinement filters that field, but see [selectorName]. */
-      public val selector: Expression,
+      /** The field being ranked, or null until an enclosing refinement supplies its domain. */
+      public val selector: Expression?,
 
       /** The comparison keys, compared lexicographically. At least one is required. */
       public val metrics: List<Metric>,
@@ -102,7 +102,7 @@ public sealed class Metric : PetElement() {
       public val candidate: Expression? = null,
   ) : Metric() {
     init {
-      if (metrics.isEmpty()) throw PetSyntaxException("RANK needs a metric")
+      if (metrics.isEmpty()) throw PetSyntaxException("`RANK` requires at least one metric")
     }
 
     /**
@@ -111,14 +111,15 @@ public sealed class Metric : PetElement() {
      * [rule L5-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics)
      * keeps that filter out of the name the metrics use.
      */
-    public val selectorName: Expression = selector.copy(refinement = null)
+    public val selectorName: Expression? = selector?.copy(refinement = null)
 
     override fun visitChildren(visitor: Visitor) {
       visitor.visit(selector)
       visitor.visit(metrics)
     }
 
-    override fun toString(): String = "RANK $selector { ${metrics.joinToString(", ")} }"
+    override fun toString(): String =
+        "RANK${selector?.let { " $it" }.orEmpty()} { ${metrics.joinToString(", ")} }"
 
     override fun precedence(): Int = 12
   }
@@ -175,7 +176,7 @@ public sealed class Metric : PetElement() {
   @ConsistentCopyVisibility
   public data class Scaled internal constructor(val inner: Metric, val unit: Int) : Metric() {
     init {
-      if (unit < 1) throw PetSyntaxException("metric can't be zero")
+      if (unit < 1) throw PetSyntaxException("metric unit must be positive: `$unit`")
     }
 
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner)
@@ -192,7 +193,9 @@ public sealed class Metric : PetElement() {
    */
   public data class Max(val inner: Metric, val maximum: Metric) : Metric() {
     init {
-      if (inner is Max) throw PetSyntaxException("what are you even doing")
+      if (inner is Max) {
+        throw PetSyntaxException("`MAX` metric cannot contain another `MAX`: `$inner`")
+      }
     }
 
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner, maximum)
@@ -261,7 +264,7 @@ public sealed class Metric : PetElement() {
         val counted = flattened.map {
           it as? Count
               ?: throw PetSyntaxException(
-                  "OR metric alternatives must identify components, but found: $it"
+                  "`OR` metric alternatives must identify components: `$it`"
               )
         }
         val distinct = counted.distinct()
@@ -307,7 +310,7 @@ public sealed class Metric : PetElement() {
               val authored = listOf(met) + addon
               val flattened = authored.flatMap { if (it is Or) it.metrics else listOf(it) }
               if (flattened.distinct().size != flattened.size) {
-                throw PetSyntaxException("duplicate metric OR alternative: $flattened")
+                throw PetSyntaxException("duplicate metric `OR` alternatives: `$flattened`")
               }
               if (addon.any()) Or.create(authored)!! else met
             }
@@ -328,16 +331,7 @@ public sealed class Metric : PetElement() {
     fun atomParser(): Parser<Metric> {
       return parser {
         val count: Parser<Count> = Expression.parser() map Metric::Count
-
-        val rank: Parser<Metric> =
-            skip(_rank) and
-                Expression.parser(allowDerivedClass = false) and
-                skipChar('{') and
-                commaSeparated(parser()) and
-                skipChar('}') map
-                { (selector, metrics) ->
-                  Rank(selector, metrics)
-                }
+        val rank = rankParser()
 
         val transform: Parser<Metric> =
             transform(parser()) map { (node, transformName) -> Transform(node, transformName) }
@@ -363,6 +357,27 @@ public sealed class Metric : PetElement() {
 
         max
       }
+    }
+
+    fun rankParser(): Parser<Metric> {
+      val explicitRank: Parser<Metric> =
+          skip(_rank) and
+              Expression.parser(allowDerivedClass = false) and
+              skipChar('{') and
+              commaSeparated(parser()) and
+              skipChar('}') map
+              { (selector, metrics) ->
+                Rank(selector, metrics)
+              }
+      val implicitRank: Parser<Metric> =
+          skip(_rank) and
+              skipChar('{') and
+              commaSeparated(parser()) and
+              skipChar('}') map
+              { metrics ->
+                Rank(null, metrics)
+              }
+      return explicitRank or implicitRank
     }
   }
 }

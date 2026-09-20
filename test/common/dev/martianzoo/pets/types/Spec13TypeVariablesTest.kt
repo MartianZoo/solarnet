@@ -2,7 +2,8 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -258,7 +259,7 @@ internal class Spec13TypeVariablesTest {
 
   @Test
   internal fun `T13-3 an effect use that could name two header variables is rejected`() {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
           "ABSTRACT CLASS Person",
           "ABSTRACT CLASS Ambiguous<Person, Person> { This: Person }",
@@ -425,7 +426,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-7 a transmutation's regions are its two roles, minus the roots themselves`() {
+  internal fun `T13-7 a transmutation's regions are its two roles`() {
     val instruction =
         resources
             .inferTypeVariables()
@@ -436,8 +437,8 @@ internal class Spec13TypeVariablesTest {
             )
     val transmute = instruction as Instruction.Transmute
 
-    // The whole gained and removed roots may deliberately differ, so only what is inside counts.
-    names(transmute.typeVariables) shouldContainExactly listOf("Class<StandardResource>")
+    names(transmute.typeVariables) shouldContainExactly
+        listOf("Production<Class<StandardResource>>")
   }
 
   // T13-8 What does not declare a variable
@@ -510,7 +511,7 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-8 a first-stage dependency choice outranks a matching class variable`() {
+  internal fun `T13-3 a repeat inside a THEN uses the class variable rather than hiding it`() {
     val table =
         loadTypes(
             "ABSTRACT CLASS Person { CLASS Alice }",
@@ -520,15 +521,13 @@ internal class Spec13TypeVariablesTest {
         )
     val offer = table.getClass(cn("Offer"))
     val classScoped = offer.interpretTypeVariablesIn(offer.declaration.effects.single())
-    val inferred = table.inferTypeVariables().transformEffect(classScoped)
-    val choice = (inferred.instruction as Then).typeVariables.variables.single()
+    val classVariable = classScoped.typeVariables.variables.single()
 
-    classScoped.typeVariables.isEmpty shouldBe true
-    "${choice.declaration.expression}" shouldBe "Person"
-    (inferred.instruction as Then)
-        .typeVariables
-        .bind(mapOf(choice to table.resolve(te("Alice"))))
-        .transformEffect(inferred)
+    "${classVariable.declaration.expression}" shouldBe "Person"
+    classVariable.occurrences.size shouldBe 3
+    classScoped.typeVariables
+        .bind(mapOf(classVariable to table.resolve(te("Alice"))))
+        .transformEffect(classScoped)
         .toString() shouldBe "This: Coin<Alice> THEN Receipt<Alice>"
   }
 
@@ -684,6 +683,52 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
+  internal fun `T13-10 binding omits arguments fixed by the chosen subclass`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Kind { CLASS Fixed, Other }",
+            "ABSTRACT CLASS Box<Kind>",
+            "CLASS FixedBox : Box<Fixed>",
+            "ABSTRACT CLASS Notice<Box<Kind>>",
+            "ABSTRACT CLASS Holder<Box<Kind>> { This: Notice<Box<Kind>> }",
+        )
+    val holder = table.getClass(cn("Holder"))
+    val bound = holder.interpretTypeVariablesIn(holder.declaration.effects.single())
+    val box = bound.typeVariables.variables.first { it.expression == te("Box<Kind>") }
+
+    bound.typeVariables
+        .bind(mapOf(box to table.resolve(te("FixedBox"))))
+        .transformEffect(bound)
+        .toString() shouldBe "This: Notice<FixedBox>"
+
+    val kind = bound.typeVariables.variables.first { it.expression == te("Kind") }
+    shouldThrow<NarrowingException> {
+      bound.typeVariables.bind(
+          mapOf(box to table.resolve(te("FixedBox")), kind to table.resolve(te("Other")))
+      )
+    }
+  }
+
+  @Test
+  internal fun `T13-10 a binding must satisfy every recorded occurrence`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS StandardResource { CLASS Plant }",
+            "CLASS Hand",
+            "ABSTRACT CLASS Notice<StandardResource>",
+        )
+    val bound =
+        table
+            .inferTypeVariables()
+            .transformEffect(parse<Effect>("StandardResource: Notice<StandardResource>"))
+    val variable = bound.typeVariables.variables.single()
+
+    shouldThrow<NarrowingException> {
+      bound.typeVariables.bind(mapOf(variable to table.resolve(te("Hand"))))
+    }
+  }
+
+  @Test
   internal fun `T13-10 a refined declaration is evaluated once, while its value is captured`() {
     val table =
         loadTypes(
@@ -750,6 +795,23 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
+  internal fun `T13-11 capture follows the represented Class type`() {
+    val table = loadTypes("ABSTRACT CLASS Person { CLASS Alice }")
+    val authored = parse<Expression>("Class<Person>")
+    val person = authored.arguments.single()
+    val scope =
+        TypeVariableScope.infer(listOf(authored), table, explicitDeclarations = listOf(person))
+
+    scope
+        .bindingsFrom(
+            authored,
+            table.resolve(authored),
+            table.resolve(parse("Class<Alice>")),
+        )
+        .map { (variable, value) -> "$variable=$value" } shouldContainExactly listOf("Person=Alice")
+  }
+
+  @Test
   internal fun `T13-11 capture follows dependency paths, so a mismatched candidate captures nothing`() {
     val table =
         loadTypes(
@@ -768,5 +830,26 @@ internal class Spec13TypeVariablesTest {
         table.resolve(authored),
         table.resolve(parse("Container<Hand>")),
     ) shouldBe emptyMap()
+  }
+
+  @Test
+  internal fun `T13-11 one variable cannot capture conflicting structural values`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person { CLASS Alice, Bob }",
+            "ABSTRACT CLASS Pair<Person, Person>",
+        )
+    val authored = parse<Expression>("Pair<Person, Person>")
+    val person = authored.arguments.first()
+    val scope =
+        TypeVariableScope.infer(listOf(authored), table, explicitDeclarations = listOf(person))
+
+    shouldThrow<IllegalStateException> {
+      scope.bindingsFrom(
+          authored,
+          table.resolve(authored),
+          table.resolve(parse("Pair<Alice, Bob>")),
+      )
+    }
   }
 }

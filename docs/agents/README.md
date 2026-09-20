@@ -6,6 +6,8 @@
 
 Read this page after `AGENTS.md`, but do not read every linked document. Pick the route matching the
 current task, read its “Read when” note and named sections, then inspect the linked source and tests.
+For a portfolio-level index of substantial proposed and selected work, see
+[`PLANS.md`](PLANS.md); do not read every owning document merely because it is indexed there.
 
 ## Authority labels
 
@@ -24,7 +26,7 @@ matches a row, read the linked section before editing.
 | Tempting next step | Required response | Read |
 | --- | --- | --- |
 | Broaden a narrow request, add a second representation, or introduce vocabulary across modules | Stop and report the design pressure and smallest promising direction. | [`AGENTS.md`](../../AGENTS.md#try-the-simpler-approach-first), [`VALUES.md`](VALUES.md#keep-concepts-few-and-ownership-precise) |
-| Add custom Kotlin, a custom instruction, or component-specific machinery to implement one card or rule | First try removal and composition of ordinary Pets. Custom code is evidence of a missing general capability, not the normal fallback. | [`VALUES.md`](VALUES.md#keep-pets-central) |
+| Add custom Kotlin, a custom instruction, or component-specific machinery to implement one card or rule | First try removal and composition of ordinary Pets. If a bounded custom semantic extension is still smaller, keep it explicit; never hide the rule in orchestration. | [`VALUES.md`](VALUES.md#keep-pets-central) |
 | Add a `TfmGameplay` operation or make one repair state, ordering, or task identity | Keep helpers as recurring player-facing syntax; repair the owning Pets or engine rule instead. | [`TESTING.md`](TESTING.md#test-design), [`SEQUENCING.md`](SEQUENCING.md#the-missing-rule-when-an-operation-is-over) |
 | Make a card or rule test inspect task text, causes, queue order, or mirrored Canon data | Exercise player-facing actions and assert observable results. | [`TESTING.md`](TESTING.md#test-design) |
 | Replace a result expectation with broad absolute-state assertions around an action | Use `.expect()` for the action's interesting partial net delta; reserve absolute assertions for sourced checkpoints. | [`TESTING.md`](TESTING.md#expectations) |
@@ -47,7 +49,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | --- | --- | --- |
 | Game World ownership, passive component/task data, recordings, exports, or playback | [`GAMEWORLD.md`](GAMEWORLD.md) | Selected direction |
 | Current World construction, components, tasks, effects, or Agent | [`ENGINE.md`](ENGINE.md) | Current model |
-| Current live event, transaction, checkpoint, or rollback implementation | [`ENGINE.md`](ENGINE.md#events-and-timeline) | Current model |
+| Current live event, transaction, checkpoint, or rollback implementation | [`ENGINE.md`](ENGINE.md#concrete-state-and-its-history) | Current model |
 | Task ordering, `THEN`, automatic effects, barriers, or completion | [`SEQUENCING.md`](SEQUENCING.md) | Working rules and selected direction |
 | Admin, Actor attribution, task assignee, context owner, or delegated narrowing | [`IDENTITY.md`](IDENTITY.md) | Current model and selected direction |
 | Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) | Current engine contract |
@@ -67,7 +69,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Pets syntax, declarations, instructions, effects, actions, narrowing, owner-local Classes, or elaboration | The cited rule of [`pets-language-spec.md`](../pets-language-spec.md) | Specification, checked rule-by-rule by `pets/Lang*Test.kt` |
 | Type-variable lifetime in the engine | The matching section of [`TYPES.md`](TYPES.md) | Current model and working direction |
 | Class-property syntax, defaults, cardinality, or property groups | The matching section of [`PROPERTIES.md`](PROPERTIES.md) | Current model and working rules |
-| Catalogs, Modules, Bundles, configuration, premise resolution, or projection policy | The matching section of [`OPTIONS.md`](OPTIONS.md) | Current model and working direction |
+| Catalogs, Modules, Bundles, configuration, premise resolution, or projection policy | KDoc on [`Catalog`](../../src/common/dev/martianzoo/pets/data/Catalog.kt), [`GamePremise`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt), and [`Bundle`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt); then the matching tests | Current model |
 | Master Class identity versus game-filtered enumeration | [`CLASS_TABLES.md`](CLASS_TABLES.md) | Current model |
 | Generic component fanout (`EACH`) | [`EACH.md`](EACH.md) | Current model |
 
@@ -85,7 +87,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | --- | --- | --- |
 | Extract the Game World or remove engine code from recording playback | [`GAMEWORLD.md`](GAMEWORLD.md) | Selected direction |
 | Move runtime layers or generic versus Terraforming Mars responsibilities | The matching division in [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md) | Selected direction and audit |
-| Extract the client Agent API, Agent-owned autoexecution policies, or the shared autoexecution loop | [`API.md`](API.md), [`AUTOEXEC.md`](AUTOEXEC.md), after the Agent section of [`ENGINE.md`](ENGINE.md#current-agent-surface) | Current divergence and selected direction |
+| Extract the client Agent API, Agent-owned autoexecution policies, or the shared autoexecution loop | [`API.md`](API.md), [`AUTOEXEC.md`](AUTOEXEC.md), after the Agent section of [`ENGINE.md`](ENGINE.md#actor-engines-and-agents) | Current divergence and selected direction |
 | Reduce Kotlin visibility | [`VISIBILITY.md`](VISIBILITY.md) | Working rules and procedure |
 
 ### Verify a change
@@ -115,8 +117,9 @@ when the relevant design and testing routes were followed earlier.
 
 ## Maintain this collection
 
-- Keep focused programs of work in the smallest owning document. Use [`TODO.md`](../../TODO.md)
-  only for miscellaneous work not already covered by one of these focused plans.
+- Keep focused programs of work in the smallest owning document. Index substantial work in
+  [`PLANS.md`](PLANS.md), and use [`TODO.md`](../../TODO.md) only for bounded miscellaneous work not
+  already covered by one of these focused plans.
 - Keep current behavior, proposed behavior, and desired rules visibly separate.
 - Link to production source and meaningful tests instead of copying inventories that can drift.
 - For a source location, give the file and a stable search string, never a line number.

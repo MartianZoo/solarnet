@@ -2,20 +2,15 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.TransformHandler
-import dev.martianzoo.pets.api.Exceptions
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
-import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.PetNode
-import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Catalog
-import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Dependency.TypeDependency
 
@@ -30,94 +25,6 @@ import dev.martianzoo.pets.types.Dependency.TypeDependency
  *   [section 1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
  */
 public abstract class ClassTable {
-  /** Construction operations for class-table views. */
-  public companion object {
-    /**
-     * Forms and freezes the playable view selected by [premise], reusing its catalog's
-     * master-universe objects as required by
-     * [rules T12-1 through T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
-     */
-    public fun forPremise(premise: GamePremise): ClassTable {
-      val premiseTable = premise.premiseClassTable
-      val masterTable = premiseTable.master
-      val initialClassNames =
-          premise.initialComponentTypes.flatMap { it.descendantsOfType<ClassName>() }.toSet()
-      val configurationNames: Set<ClassName> =
-          premise.modules +
-              premise.classSelections
-                  .filter(ClassSelection::included)
-                  .map(ClassSelection::className) +
-              premise.playerNames +
-              initialClassNames
-      val moduleSelections = premise.modules.flatMap { premise.catalog.modules.getValue(it) }
-      val (applicableModuleSelections, inapplicableModuleSelections) =
-          moduleSelections.partition { selection ->
-            selection.appliesTo(configurationNames, premiseTable)
-          }
-      val moduleIncluded =
-          applicableModuleSelections
-              .filter(ClassSelection::included)
-              .mapTo(linkedSetOf(), ClassSelection::className)
-      val conditionallyExcluded =
-          inapplicableModuleSelections
-              .filter(ClassSelection::included)
-              .mapTo(hashSetOf(), ClassSelection::className) - moduleIncluded
-      val moduleExcluded =
-          applicableModuleSelections
-              .filterNot(ClassSelection::included)
-              .mapTo(hashSetOf(), ClassSelection::className) + conditionallyExcluded
-      val selectedByModules = moduleIncluded - moduleExcluded
-      val explicitlyIncluded =
-          premise.classSelections
-              .filter(ClassSelection::included)
-              .mapTo(linkedSetOf(), ClassSelection::className)
-      val explicitlyExcluded =
-          premise.classSelections
-              .filterNot(ClassSelection::included)
-              .mapTo(linkedSetOf(), ClassSelection::className)
-      val excluded = (moduleExcluded - explicitlyIncluded) + explicitlyExcluded
-      val roots =
-          premise.modules +
-              ((selectedByModules - explicitlyExcluded) + explicitlyIncluded) +
-              initialClassNames +
-              premise.actors.map(Actor::className) +
-              listOfNotNull(premise.bootstrapClassName, premise.premiseClassName)
-
-      val table =
-          ClassLoader.projection(
-              premise.catalog,
-              premiseTable,
-              premise.modules,
-              premise.classSelections,
-          )
-      table.freeze()
-      table.includeAll(roots)
-      val unexpectedModules =
-          premise.catalog.modules.keys.filterTo(linkedSetOf()) { table.isIncluded(it) } -
-              premise.modules
-      require(unexpectedModules.isEmpty()) {
-        "structural activation selected unrequested Modules: $unexpectedModules"
-      }
-      val playerClass = masterTable.findClass(PLAYER)
-      val inhabitedPlayerClassNames =
-          playerClass
-              ?.let(table::allSubclasses)
-              .orEmpty()
-              .filterNot(Class::abstract)
-              .filter(table::isInhabited)
-              .mapTo(linkedSetOf(), Class::className)
-      require(inhabitedPlayerClassNames == premise.playerNames.toSet()) {
-        "inhabited Player classes do not match occupied seats: $inhabitedPlayerClassNames"
-      }
-      val reactivated = excluded.filterTo(linkedSetOf(), table::isIncluded)
-      require(reactivated.isEmpty()) {
-        "structural activation conflicts with excluded classes: $reactivated"
-      }
-      PremiseViability.validate(table, roots)
-      return table
-    }
-  }
-
   /** The Catalog whose compiled class universe backs this table. */
   internal abstract val catalog: Catalog
 
@@ -127,17 +34,12 @@ public abstract class ClassTable {
    * [rule T1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity);
    * transformation semantics are outside the type-system specification.
    */
-  public fun transformDispatcher(
-      kinds: Set<String> = catalog.transformHandlerFactories.keys,
-  ): PetTransformer {
-    val handlers =
-        catalog.transformHandlerFactories.filterKeys(kinds::contains).mapValues { (_, factory) ->
-          factory(this)
-        }
+  public fun transformDispatcher(): PetTransformer {
+    val handlers = catalog.transformHandlerFactories.mapValues { (_, factory) -> factory(this) }
     return TransformHandler.dispatcher(handlers)
   }
 
-  /** The Catalog-scoped table whose compiled class universe backs this projection. */
+  /** The Catalog-scoped table whose compiled Classes back this game table. */
   internal abstract val masterTable: ClassTable
 
   /**
@@ -166,7 +68,7 @@ public abstract class ClassTable {
    */
   public fun glb(left: Class, right: Class): Class? {
     require(accepts(left.classTable) && accepts(right.classTable)) {
-      "$left and $right cannot both be interpreted by this class table"
+      "`$left` and `$right` cannot both be interpreted by this class table"
     }
     if (left.isSubtypeOf(right)) return left
     if (right.isSubtypeOf(left)) return right
@@ -191,6 +93,11 @@ public abstract class ClassTable {
 
   /** Immutable component-count limits compiled for this table's included classes. */
   private val componentLimitsLazy = lazy { ClassLimitTable.create(this) }
+
+  /** Master-owned compilation of stable class-invariant declarations used by every view. */
+  internal val classLimitTemplates: ClassLimitTemplateTable by lazy {
+    if (this === masterTable) ClassLimitTemplateTable(this) else masterTable.classLimitTemplates
+  }
 
   /**
    * The component-count limits that enforce the single-target dependency invariant in
@@ -239,7 +146,7 @@ public abstract class ClassTable {
    * @throws ExpressionException if [name] is unknown.
    */
   public fun getClass(name: ClassName): Class =
-      findClass(name) ?: throw Exceptions.classNotFound(name)
+      findClass(name) ?: throw ExpressionException("no class named `$name` in the current game")
 
   /**
    * Returns the class with canonical [name] when its base Type is inhabited in this universe, or
@@ -330,7 +237,7 @@ public abstract class ClassTable {
    * [rules T2-7 and T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
    */
   public fun allSubclasses(klass: Class): Set<Class> {
-    require(accepts(klass.classTable)) { "$klass belongs to a different Catalog" }
+    require(accepts(klass.classTable)) { "`$klass` belongs to a different Catalog" }
     if (this === masterTable) return allSubclassesOf(klass)
     return includedSubclassesByClass.getOrPut(klass) {
       klass.classTable.allSubclassesOf(klass).filterTo(linkedSetOf(), ::isIncluded).apply {
@@ -357,7 +264,7 @@ public abstract class ClassTable {
 
   /** Every structurally possible subclass in this combined universe, independent of inclusion. */
   internal fun allStructuralSubclasses(klass: Class): Set<Class> {
-    require(accepts(klass.classTable)) { "$klass belongs to a different Catalog" }
+    require(accepts(klass.classTable)) { "`$klass` belongs to a different Catalog" }
     return structuralSubclassesByClass.getOrPut(klass) {
       klass.classTable.allSubclassesOf(klass).toMutableSet().apply {
         if (klass.classTable === masterTable) {
@@ -372,7 +279,7 @@ public abstract class ClassTable {
    * [rules T2-7 and T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
    */
   public fun directSubclasses(klass: Class): Set<Class> {
-    require(accepts(klass.classTable)) { "$klass belongs to a different Catalog" }
+    require(accepts(klass.classTable)) { "`$klass` belongs to a different Catalog" }
     if (this === masterTable) return directSubclassesOf(klass)
     return includedDirectSubclassesByClass.getOrPut(klass) {
       klass.classTable.directSubclassesOf(klass).filterTo(linkedSetOf(), ::isIncluded).apply {
@@ -402,7 +309,7 @@ public abstract class ClassTable {
       inhabitedConcreteClasses: Set<Class>,
   ): Sequence<GroundType> {
     val type = type.groundType
-    require(knows(type)) { "$type belongs to a different Catalog" }
+    require(knows(type)) { "`$type` belongs to a different Catalog" }
     return concreteSubtypes(
         type,
         ::allSubclasses,
@@ -419,7 +326,7 @@ public abstract class ClassTable {
   /** Enumerates concrete structural types without applying this game's inclusion filter. */
   internal fun allStructuralConcreteSubtypes(type: Type): Sequence<GroundType> {
     val type = type.groundType
-    require(knows(type)) { "$type belongs to a different Catalog" }
+    require(knows(type)) { "`$type` belongs to a different Catalog" }
     return concreteSubtypes(
         type,
         ::allStructuralSubclasses,
@@ -440,7 +347,7 @@ public abstract class ClassTable {
       dependencyTargets: (Type) -> Sequence<Type>,
   ): Sequence<GroundType> {
     val type = type.groundType
-    require(knows(type)) { "$type belongs to a different Catalog" }
+    require(knows(type)) { "`$type` belongs to a different Catalog" }
     val inhabitedConcreteClasses = allInhabitedConcreteClasses()
     return concreteSubtypes(
         type,
@@ -493,7 +400,7 @@ public abstract class ClassTable {
    */
   public fun concreteSubtypesSameClass(type: Type): Sequence<GroundType> {
     val type = type.groundType
-    require(knows(type)) { "$type belongs to a different Catalog" }
+    require(knows(type)) { "`$type` belongs to a different Catalog" }
     val inhabitedConcreteClasses = allInhabitedConcreteClasses()
     if (type.rootClass !in inhabitedConcreteClasses) return emptySequence()
     val unrefined = type.copy(refinement = null)

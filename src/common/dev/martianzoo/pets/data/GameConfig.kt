@@ -1,14 +1,18 @@
 package dev.martianzoo.pets.data
 
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
 /**
- * Unresolved user intent expressed as positive and negative class-name spellings, plus concrete
- * user-facing player names in seat order.
+ * Unresolved user intent expressed as unordered positive and negative class-name selections, plus
+ * concrete user-facing player names in seat order.
  *
- * A Catalog applies defaults, selection policies, and validation to cook this into a complete
- * [GamePremise].
+ * A Catalog-specific premise factory applies defaults, selection policies, and validation to cook
+ * this into a complete [GamePremise]. The configuration itself never records inferred selections.
+ *
+ * @throws InvalidGameConfigException if the configuration contains invalid or contradictory user
+ *   input
  */
 public data class GameConfig(
     public val includedClassNames: Set<ClassName>,
@@ -16,14 +20,22 @@ public data class GameConfig(
     public val playerNames: List<ClassName> = emptyList(),
 ) {
   init {
-    require(playerNames.distinct().size == playerNames.size) {
-      "a game configuration cannot seat the same player name more than once"
+    if (playerNames.distinct().size != playerNames.size) {
+      throw InvalidGameConfigException("duplicate player names: `$playerNames`")
     }
-    require(
-        includedClassNames.intersect(excludedClassNames).isEmpty() &&
-            playerNames.none { it in includedClassNames || it in excludedClassNames }
-    ) {
-      "a game configuration cannot include and exclude the same class"
+    val includedAndExcluded = includedClassNames intersect excludedClassNames
+    if (includedAndExcluded.isNotEmpty()) {
+      throw InvalidGameConfigException(
+          "class names cannot be both included and excluded: `$includedAndExcluded`"
+      )
+    }
+    val playerClassSelections = playerNames.filter {
+      it in includedClassNames || it in excludedClassNames
+    }
+    if (playerClassSelections.isNotEmpty()) {
+      throw InvalidGameConfigException(
+          "player names cannot also be class selections: `$playerClassSelections`"
+      )
     }
   }
 
@@ -35,7 +47,7 @@ public data class GameConfig(
   public constructor(
       source: String,
       vararg playerNames: String,
-  ) : this(parse(source), playerNames.map(::cn))
+  ) : this(parse(source), parsePlayerNames(playerNames.toList()))
 
   override fun toString(): String =
       (includedClassNames.map { "$it" } + excludedClassNames.map { "-$it" }).joinToString()
@@ -52,27 +64,40 @@ public data class GameConfig(
     }
 
     private fun parse(source: String): Pair<Set<ClassName>, Set<ClassName>> {
-      val entries =
-          source.split(',', '\n').map(String::trim).filter(String::isNotEmpty).map { token ->
-            val included = !token.startsWith('-')
-            val name = if (included) token else token.drop(1)
-            require(name.isNotEmpty() && name.none(Char::isWhitespace)) {
-              "expected a comma-or-newline-separated class name, got: $token"
+      try {
+        val entries =
+            source.split(',', '\n').map(String::trim).filter(String::isNotEmpty).map { token ->
+              val included = !token.startsWith('-')
+              val name = if (included) token else token.drop(1)
+              if (name.isEmpty() || name.any(Char::isWhitespace)) {
+                throw InvalidGameConfigException(
+                    "expected a comma-or-newline-separated class name, found `$token`"
+                )
+              }
+              cn(name) to included
             }
-            cn(name) to included
-          }
-      return toSets(
-          entries.filter { it.second }.map { it.first },
-          entries.filterNot { it.second }.map { it.first },
-      )
+        return toSets(
+            entries.filter { it.second }.map { it.first },
+            entries.filterNot { it.second }.map { it.first },
+        )
+      } catch (e: IllegalArgumentException) {
+        throw InvalidGameConfigException("invalid game configuration: `$source`", e)
+      }
     }
+
+    private fun parsePlayerNames(playerNames: List<String>): List<ClassName> =
+        try {
+          playerNames.map(::cn)
+        } catch (e: IllegalArgumentException) {
+          throw InvalidGameConfigException("invalid player names: `$playerNames`", e)
+        }
 
     private fun toSets(
         included: List<ClassName>,
         excluded: List<ClassName>,
     ): Pair<Set<ClassName>, Set<ClassName>> {
-      require((included + excluded).distinct().size == included.size + excluded.size) {
-        "a game configuration cannot mention the same class more than once"
+      if ((included + excluded).distinct().size != included.size + excluded.size) {
+        throw InvalidGameConfigException("duplicate class selections: `${included + excluded}`")
       }
       return included.toCollection(linkedSetOf()) to excluded.toCollection(linkedSetOf())
     }

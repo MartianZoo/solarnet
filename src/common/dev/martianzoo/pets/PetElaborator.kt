@@ -5,9 +5,9 @@ import dev.martianzoo.pets.PetTransformer.Companion.noOp
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
-import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
@@ -28,6 +28,7 @@ import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.NoOp
+import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Remove
 import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
@@ -46,6 +47,7 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.ast.withTypeVariables
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Defaults
@@ -67,9 +69,8 @@ import dev.martianzoo.pets.util.invoke
  * The stages are fixed ([rule
  * L12-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-elaboration)):
  * infer type variables, split atomized gains, insert defaults, bind the contextual owner, dispatch
- * transform blocks, expand property evaluations. Two entry points apply different subsets in
- * different orders — [elaborateInput] for an element a player submits, and [classEffects] for a
- * class's own effects.
+ * transform blocks, expand property evaluations. The entry points supply different contexts and
+ * permit different property forms while preserving that shared ordering.
  *
  * Runtime binding operations return [PetTransformer] only where the engine must retain one deferred
  * binding across several AST families.
@@ -120,8 +121,8 @@ public class PetElaborator(public val classTable: ClassTable) {
   ): Metric =
       chain(
               normalizeInput(),
-              propertyEvaluator(context, owner),
               finishAuthoredSyntax(context, owner),
+              propertyEvaluator(context, owner),
           )
           .transformMetric(input)
 
@@ -160,7 +161,7 @@ public class PetElaborator(public val classTable: ClassTable) {
    * an exact component later.
    */
   public fun classEffects(klass: Class): List<Effect> {
-    require(classTable.isIncluded(klass)) { "$klass is not included in this game" }
+    require(classTable.isIncluded(klass)) { "`$klass` is not included in this game" }
     return effectsByClass.getOrPut(klass) {
       fun directClassEffects(source: Class) =
           source.declaration.effects.map { effect ->
@@ -168,8 +169,8 @@ public class PetElaborator(public val classTable: ClassTable) {
               attachToClassTransformer(source)
                   .transformEffect(source.interpretTypeVariablesIn(effect))
             } catch (e: PetException) {
-              throw invalidPetDefinition(
-                  "Invalid effect declared by `${source.className}`: `$effect`: ${e.message}",
+              throw InvalidPetDefinitionException(
+                  "invalid effect declared by `${source.className}`: `$effect`: ${e.message}",
                   e,
               )
             }
@@ -194,7 +195,7 @@ public class PetElaborator(public val classTable: ClassTable) {
             when (node) {
               is Metric.Eval,
               is Requirement.Eval ->
-                  throw PetSyntaxException("EVAL is valid only inside a class effect")
+                  throw PetSyntaxException("`EVAL` is valid only inside a Class effect")
               else -> transformChildren(node)
             }
       }
@@ -249,22 +250,17 @@ public class PetElaborator(public val classTable: ClassTable) {
         val contextualProperty = contextualizer.transformProperty(property)
         val receiver =
             contextualProperty.receiver
-                ?: throw invalidPetDefinition(
-                    "Evaluated property `${contextualProperty.propertyName}` has no receiver"
+                ?: throw InvalidPetDefinitionException(
+                    "evaluated property `${contextualProperty.propertyName}` has no receiver"
                 )
 
         val receiverType = classTable.resolve(receiver)
-        val propertyType =
-            if (receiverType.rootClass === classTable.classClass) {
-              classTable.resolve(receiverType.expressionFull.arguments.single())
-            } else {
-              receiverType
-            }
+        val propertyType = receiverType.representedClass?.baseType ?: receiverType
         val propertyClass = propertyType.rootClass
         val value =
             propertyClass.properties[contextualProperty.propertyName]
-                ?: throw invalidPetDefinition(
-                    "Class `${propertyClass.className}` has no property " +
+                ?: throw InvalidPetDefinitionException(
+                    "class `${propertyClass.className}` has no property " +
                         "`${contextualProperty.propertyName}`"
                 )
         if (deferAbstract && (value.abstract || (propertyType.abstract && THIS in value)))
@@ -276,8 +272,8 @@ public class PetElaborator(public val classTable: ClassTable) {
                     is MetricValue -> value.value
                     is NumberValue -> contextualProperty
                     else ->
-                        throw invalidPetDefinition(
-                            "Property `${contextualProperty.propertyName}` is not a concrete Metric on " +
+                        throw InvalidPetDefinitionException(
+                            "property `${contextualProperty.propertyName}` is not a concrete Metric on " +
                                 "`${propertyClass.className}`"
                         )
                   }
@@ -286,18 +282,18 @@ public class PetElaborator(public val classTable: ClassTable) {
                     AbsentRequirementValue -> Min(scaledEx(COMPONENT, 1))
                     is RequirementValue -> value.value
                     else ->
-                        throw invalidPetDefinition(
-                            "Property `${contextualProperty.propertyName}` is not a concrete Requirement on " +
+                        throw InvalidPetDefinitionException(
+                            "property `${contextualProperty.propertyName}` is not a concrete Requirement on " +
                                 "`${propertyClass.className}`"
                         )
                   }
-              else -> error("checked above")
+              else -> error("unsupported property evaluation syntax: `${node::class.simpleName}`")
             }
 
         val key = propertyType.expressionFull to contextualProperty.propertyName
         if (!expanding.add(key)) {
-          throw invalidPetDefinition(
-              "Property `${contextualProperty.propertyName}` is recursive on " +
+          throw InvalidPetDefinitionException(
+              "property `${contextualProperty.propertyName}` is recursive on " +
                   "`${propertyType.expressionFull}`"
           )
         }
@@ -311,7 +307,8 @@ public class PetElaborator(public val classTable: ClassTable) {
               when (syntax) {
                 is Metric -> transformMetric(transformer.transformMetric(syntax))
                 is Requirement -> transformRequirement(transformer.transformRequirement(syntax))
-                else -> error("checked above")
+                else ->
+                    error("unsupported property evaluation syntax: `${syntax::class.simpleName}`")
               }
             } finally {
               expanding.remove(key)
@@ -326,7 +323,7 @@ public class PetElaborator(public val classTable: ClassTable) {
         return when (expanded) {
           is Metric -> finishing.transformMetric(expanded)
           is Requirement -> finishing.transformRequirement(expanded)
-          else -> error("checked above")
+          else -> error("property evaluation produced `${expanded::class.simpleName}`")
         }
       }
     }
@@ -359,8 +356,8 @@ public class PetElaborator(public val classTable: ClassTable) {
     val context = klass.className.has(Min(scaledEx(OK, 1)))
     return chain(
         classTable.inferTypeVariables(),
-        insertDefaults(context),
         atomizer(),
+        insertDefaults(context),
         transformDispatcher(),
         fixEffectForUnownedContext(klass),
     )
@@ -375,8 +372,9 @@ public class PetElaborator(public val classTable: ClassTable) {
             needsContext(node.selector) ||
                 (!selectionSuppliesOwner(node.selector) && needsContext(node.body))
         is Metric.Rank ->
-            needsContext(node.selector) ||
-                (!selectionSuppliesOwner(node.selector) && node.metrics.any(::needsContext))
+            node.selector?.let(::needsContext) == true ||
+                (node.selector?.let(::selectionSuppliesOwner) != true &&
+                    node.metrics.any(::needsContext))
         else -> node.immediateChildren().any(::needsContext)
       }
     }
@@ -498,13 +496,14 @@ public class PetElaborator(public val classTable: ClassTable) {
                 ?: intersectQuantifiers(gainDefault?.quantifier, removeDefault?.quantifier)
 
         return Transmute(
-            Full(
-                applyDefault(node.gaining, gainDefault, context, gain = true),
-                applyDefault(node.removing, removeDefault, context, gain = false),
-            ),
-            node.count,
-            quantifier,
-        )
+                Full(
+                    applyDefault(node.gaining, gainDefault, context, gain = true),
+                    applyDefault(node.removing, removeDefault, context, gain = false),
+                ),
+                node.count,
+                quantifier,
+            )
+            .withTypeVariables(node.typeVariables.transformedBy(this))
       }
 
       private fun defaultFor(
@@ -567,7 +566,7 @@ public class PetElaborator(public val classTable: ClassTable) {
             expression.arguments.isEmpty() &&
             !expression.argumentsSpecified
     ) {
-      throw PetSyntaxException(
+      throw ExpressionException(
           "`${expression.className}` has $kind dependency defaults; write " +
               "`${expression.className}<>` to accept them or provide dependency arguments"
       )
@@ -589,7 +588,7 @@ public class PetElaborator(public val classTable: ClassTable) {
             expression.arguments.isEmpty() &&
             default.dependencies.keys.isEmpty()
     ) {
-      throw PetSyntaxException(
+      throw ExpressionException(
           "`${expression.className}<>` has no $kind dependency defaults to accept"
       )
     }
@@ -700,7 +699,8 @@ public class PetElaborator(public val classTable: ClassTable) {
 
     val klass: Class = classTable.getClass(original.className)
     val dethissed: Expression = replaceThisExpressionsWith(contextCpt).transformExpression(original)
-    val match: DependencySet = klass.dependencies.matchPartial(dethissed.arguments, classTable)
+    val match: DependencySet =
+        klass.argumentDependencies.matchPartial(dethissed.arguments, classTable)
 
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
     val refinementBoundKey =
@@ -729,7 +729,7 @@ public class PetElaborator(public val classTable: ClassTable) {
         klass.specialize(dethissed.arguments, classTable).narrowedDependencies.keys - preferred.keys
 
     val newArgs: List<Expression> =
-        klass.dependencies.keys.mapNotNull {
+        klass.argumentDependencies.keys.mapNotNull {
           preferred[it] ?: fallbacks[it]?.takeUnless { _ -> it in inferred }
         }
 
@@ -813,16 +813,33 @@ public class PetElaborator(public val classTable: ClassTable) {
       private val remainingVariables by lazy(LazyThreadSafetyMode.NONE, openVariables)
 
       override fun transformNode(node: PetNode): PetNode {
+        if (node is Instruction.Then && !node.typeVariables.isEmpty) {
+          val nested = invalidChangesToDie { remainingVariables + node.typeVariables }
+          return node.withParts(
+              node.stages.map(nested::transformInstruction),
+              nested.transformInstructionTree(node.continuation),
+          )
+        }
+        if (node is Each) {
+          val selector = transformExpression(node.selector)
+          val body = transformInstructionTree(node.body)
+          return if (body is NoOp) NoOp else Each(selector, body)
+        }
+        if (node is Per) {
+          val inner = transformInstruction(node.inner)
+          return if (inner is NoOp) NoOp else Per(inner, transformMetric(node.metric))
+        }
         val specialized = transformChildren(node)
         if (specialized !is Change) return specialized
 
         try {
           val expressions = listOfNotNull(specialized.gaining, specialized.removing)
+          val visibleVariables = remainingVariables + specialized.typeVariables
           if (
-              !remainingVariables.isEmpty &&
+              !visibleVariables.isEmpty &&
                   expressions.any { expression ->
                     expression.descendantsOfType<Expression>().any {
-                      remainingVariables.variableAt(it) != null
+                      visibleVariables.variableAt(it) != null
                     }
                   }
           ) {

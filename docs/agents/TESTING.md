@@ -43,15 +43,24 @@ Kotlin 2.2. Contributors do not need another JDK installed.
 Start with the smallest test or build task that verifies the changed behavior. Expand verification
 only when the change crosses a wider scope or the narrower result leaves a material risk.
 
-- `./gradlew build` checks the whole repository: every JVM test plus all production JavaScript
-  compilation and packaging. Use it only when repository-wide verification is warranted by the
-  scope of the change or explicitly requested.
-- `./gradlew test` runs every repository JVM test suite, including the multiplatform modules whose
-  JVM test tasks are named `jvmTest`.
+- `./gradlew build` checks the whole repository: the same tests as `test`, plus all production
+  JavaScript compilation and packaging. Use it only when repository-wide verification is warranted
+  by the scope of the change or explicitly requested.
+- `./gradlew test` runs every repository JVM test suite, every browser-specific test, and the
+  `OtbGame20260828Test` replay once in a browser. The multiplatform modules' JVM test tasks are named
+  `jvmTest`; their generated browser tasks are inert outside the one intentionally commented-out
+  full-browser target in the root build.
 - `./gradlew :tfm-tests:jvmTest` runs the replay tests and writes one opaque JSON recording per
   successful `AbstractFullGameTest` subclass under that module's
-  `generated/replay-event-logs` build directory. Generated browser-test tasks are disabled; the
-  browser viewer applies those recordings through `:state` and never runs the engine.
+  `generated/replay-event-logs` build directory. The browser viewer applies those recordings through
+  `:state` and never runs the engine.
+- `./gradlew :tfm-tests:replayTestCoverage` runs only tests in the replay package and writes HTML and
+  XML production-code coverage reports under that module's `reports/jacoco/replayTestCoverage`
+  build directory. Its execution data comes from the separate `replayTest` task, so card, rule,
+  random-card, and browser tests do not contribute to the report.
+- `./gradlew :pets:jvmTestCoverage` runs only the Pets module's JVM test suite and writes HTML and
+  XML coverage reports for Pets production code under that module's
+  `reports/jacoco/jvmTestCoverage` build directory.
 - `./gradlew :tfm-tests:sampleRandomCards` prints randomly generated project cards as raw Pets.
   Use `-PrandomCardCount=N` and `-PrandomCardSeed=N` to control and reproduce a sample, and add
   `-PrandomCardOutput=PATH` to write it to a text file. Its weights favor nested selectors,
@@ -109,13 +118,20 @@ models per worker. Do not use worker recycling or a larger build-daemon heap to 
 retention.
 
 Normal Gradle access to the user-level cache and configuration under `~/.gradle` is permitted.
-For local wrapper builds, generated project state is isolated by account and worktree under
+For local builds, generated project state is isolated by account and worktree under
 `~/.gradle/solarnet-builds/`. Each invocation acquires an OS-locked storage slot there: sequential
 builds reuse slot zero and its caches, while overlapping invocations use distinct slots and cannot
 delete each other's test results or other task outputs. A slot includes Gradle's project cache,
 Kotlin's persistent data, task outputs, and build-process temporary files. CI retains the
-conventional project-local paths so its artifact collection remains stable. Use `./gradlew` rather
-than a directly installed `gradle` so the checked-in isolation configuration is applied.
+conventional project-local paths so its artifact collection remains stable. The wrapper supplies
+the isolation init script directly. For IntelliJ and other Tooling API clients, copy
+`gradle/user-isolation-bootstrap.init.gradle.kts` to
+`~/.gradle/init.d/solarnet-user-isolation.init.gradle.kts` once; that user-level bootstrap discovers
+the checked-in script in every current and future Solarnet worktree. Gradle opens `.gradle` before
+any init script runs, so also install `gradle/user-isolation.post-checkout` as the shared Git
+repository's `hooks/post-checkout`; it creates an ignored `.gradle` symlink into the same
+per-worktree home storage for every tracked Gradle build whenever Git creates or checks out a
+worktree.
 Yarn's incompatible `serialize-javascript` resolution warning and “Ignored scripts due to flag”
 warning are expected: the former comes from the deliberate 7.x security pin while Mocha requests
 6.x, and the latter preserves Kotlin/JS's policy of not running package lifecycle scripts.
@@ -169,8 +185,8 @@ clear coverage of these contracts matters more than preserving every current tes
    component/task events, materialized projections, history, completed recording positions, and
    independent playback views remain coherent without firing effects. Cross-module engine
    scenarios cover consequence calculation and failure atomicity: a failed operation must restore
-   present components, pending work, and recorded history together while retaining a fresh revision
-   identity. [GAMEWORLD.md](GAMEWORLD.md) owns the detailed split.
+   present components, pending work, and recorded history together. [GAMEWORLD.md](GAMEWORLD.md)
+   owns the detailed split.
 4. **Player-level card and game-rule tests.** `CardTest` scenarios count when they use actions and
    observations available to a player rather than internal state or implementation details.
    `CoreRulesTest` documents game-wide rules in this same style.
@@ -184,8 +200,9 @@ clear coverage of these contracts matters more than preserving every current tes
    wrong, visibly quarantined in `BugsTest` until the behavior is corrected.
 8. **Script-command contract tests.** Terraforming-independent checks of each command's public
    contract. These are useful interface coverage even though they are not a development priority.
-9. **Cross-runtime packaging coverage.** JavaScript compilation and resource assembly show that the
-   viewer, generated Canon data, and passive state playback compose without the engine.
+9. **Cross-runtime browser coverage.** Browser-specific tests cover browser APIs, one representative
+   replay checks the shared engine on JavaScript, and production JavaScript compilation and resource
+   assembly cover the engine-free viewer.
 
 This list does not itself decide which current tests should be retained. Test-deletion proposals
 are a separate review.

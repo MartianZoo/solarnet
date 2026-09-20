@@ -85,10 +85,10 @@ internal class SimpleAddsRemovesTest {
     val admin = game.testAgent(ADMIN)
     admin.sneak("Token!")
 
-    shouldThrow<LimitsException> { admin.runOperation("Holder<Token> FROM Token!") }
+    shouldThrow<LimitsException> { admin.runOperation("Holder FROM Token!") }
 
     admin.count("Token") shouldBe 1
-    admin.count("Holder<Token>") shouldBe 0
+    admin.count("Holder") shouldBe 0
   }
 
   @Test

@@ -61,7 +61,7 @@
             // tags can remove the last disease and then offer the flip.
             "ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)"
           ],
-          "components": [ "CLASS Disease : CardResource<ResourceHolder<Class<Disease>>>" ],
+          "components": [ "CLASS Disease : CardResource" ],
         },
         {
           "name": "Philares",
@@ -221,11 +221,11 @@
           "tags": [ "ScienceTag", "BuildingTag" ],
           "effects": [
             "ScienceTag: Graphene<This>",
-            "PlayTag<Class<SpaceTag>> OR PlayTag<Class<CityTag>>:: AcceptingFromCard<This>",
+            "PayingFor<Class<SpaceTag>> OR PayingFor<Class<CityTag>>:: AcceptingFromCard<This>",
             "PayFromCard<This>:: -4 Owed",
             "End: VictoryPoint"
           ],
-          "components": [ "CLASS Graphene : CardResource<ResourceHolder<Class<Graphene>>>" ],
+          "components": [ "CLASS Graphene : CardResource" ],
         },
         {
           "name": "Casinos",
@@ -264,17 +264,14 @@
           "cost": 12,
           "tags": [ "ScienceTag" ],
           "effects": [
-            "CardBilling<Class<CardFront>(HAS requirement)>:: -2 Owed",
+            "PayingFor<Class<CardFront>(HAS requirement)>:: -2 Owed",
             "End: VictoryPoint"
           ],
         },
         {
           "name": "CyberiaSystems",
           "cost": 16,
-          "immediate": "PROD[Steel], CopyProductionBox<CardFront(HAS BuildingTag)> THEN CyberiaSystemsFirstChoice<CardFront(HAS BuildingTag)> THEN CopyProductionBox<CardFront(HAS BuildingTag, HAS MAX 0 CyberiaSystemsFirstChoice)> THEN -CyberiaSystemsFirstChoice",
-          "components": [
-            "CLASS CyberiaSystemsFirstChoice : Cardbound, MustCleanUp"
-          ],
+          "immediate": "PROD[Steel], (BuildingTag<CardFront>: CopyProductionBox<CardFront>) THEN CopyProductionBox<CardFront(HAS BuildingTag, NOT CardFront)>",
         },
         {
           "name": "DeimosDownPromo",
@@ -411,7 +408,7 @@
         {
           "name": "LawSuit",
           "cost": 2,
-          "tags": [ "EventTag" ],
+          "tags": [ "EarthTag", "EventTag" ],
           "immediate": "((MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): 3 MC FROM MC<Player>) THEN PlayedEvent<Player, Class<This>> FROM This",
           "effects": [ "End: -VictoryPoint" ],
         },
@@ -433,9 +430,7 @@
           "cost": 13,
           "immediate": "NomadsMarker<LandArea(HAS MAX 0 Occupant)>",
           "actions": [
-            // TODO: do we have a test that I can place the nomads marker where I have a community, and that I can move it there?
-            // that is supposed to be allowed, right? what about whether I can place a community where the nomads marker already is?
-            "-> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>)> FROM NomadsMarker<Owner> THEN EACH LandArea(HAS NomadsMarker) { Placement<LandArea> }"
+            "-> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>, NOT LandArea)> FROM NomadsMarker<Owner, LandArea> THEN EACH MarsArea(HAS NomadsMarker) { Placement<MarsArea> }"
           ],
         },
         {
@@ -446,7 +441,7 @@
           "effects": [
             "This:: 3 GrantedResourceValue<Class<Plant>, This>",
             "This: PROD[Plant]",
-            "PlayTag<Class<BuildingTag>>:: Accepting<Class<Plant>>"
+            "PayingFor<Class<BuildingTag>>:: Accepting<Class<Plant>>"
           ],
         },
         {
@@ -481,15 +476,13 @@
           "cost": 14,
           "tags": [ "PowerTag" ],
           "effects": [
-            "This:: NeptunianOption",
-            "OceanTile BY Anyone: UseAction<NeptunianOption>?",
+            "This:: NeptunianOption<This>",
+            "OceanTile BY Anyone: UseAction<NeptunianOption<This>>?",
             "End: VictoryPoint / Hydroelectric<This>"
           ],
           "components": [
-            // TODO: what happens if this is just `CardResource` instead of all that?
-            // if that works, use that approach everywhere.
-            "CLASS Hydroelectric : CardResource<ResourceHolder<Class<Hydroelectric>>>",
-            "CLASS NeptunianOption : Owned, HasActions { 5 MC -> PROD[Energy], Hydroelectric<NeptunianPowerConsultants>; UseAction<This>:: Accepting<Class<Steel>> }"
+            "CLASS Hydroelectric : CardResource",
+            "CLASS NeptunianOption : Cardbound, HasActions { 5 MC -> PROD[Energy], Hydroelectric<NeptunianPowerConsultants>; UseAction<This>:: Accepting<Class<Steel>> }"
           ],
         },
         {
@@ -611,7 +604,7 @@
           "tags": [ "EarthTag", "SpaceTag" ],
           "immediate": "2 Titanium",
           "effects": [
-            "PlayTag<Class<EarthTag>>:: -2 Owed",
+            "PayingFor<Class<EarthTag>>:: -2 Owed",
             "EventCard<Anyone>(HAS SpaceTag): ProjectCard",
             "End: VictoryPoint"
           ],

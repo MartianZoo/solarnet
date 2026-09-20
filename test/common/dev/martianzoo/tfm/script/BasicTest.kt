@@ -4,9 +4,6 @@ import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.script.OptionCodeTranslation
-import dev.martianzoo.script.ScriptSession
-import dev.martianzoo.script.createGame
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.engine.TfmWorkflow
@@ -28,6 +25,14 @@ internal fun setUpGame(
 }
 
 internal class BasicTest {
+  @Test
+  internal fun invalidNewGameConfigurationIncludesUsage() {
+    val response = ScriptSession().command("newgame B 0")
+
+    assertEquals(2, response.size)
+    assertTrue(response.last().startsWith("Usage: newgame"))
+  }
+
   @Test
   internal fun playerSnapshotDefaultsToTheFirstConfiguredPlayer() {
     val session = ScriptSession()

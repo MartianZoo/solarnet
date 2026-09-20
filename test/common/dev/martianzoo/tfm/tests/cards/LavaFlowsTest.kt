@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -28,7 +28,7 @@ internal class LavaFlowsTest : CardTest() {
             "GreeneryTile<Tharsis_4_1>, GreeneryTile<Tharsis_5_1>"
     )
 
-    shouldThrow<NotNowException> { p1.runOperation("$LavaFlows") }
+    shouldThrow<GameplayException> { p1.runOperation("$LavaFlows") }
 
     p1.count("Tile<Tharsis_2_3>") shouldBe 0
     p1.temperatureC() shouldBe -30

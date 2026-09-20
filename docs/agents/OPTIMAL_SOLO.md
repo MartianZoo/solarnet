@@ -13,7 +13,7 @@
 
 ## Source map
 
-- [`StandardResourceMonotonicityReport.kt`](../../src/jvm/dev/martianzoo/tools/StandardResourceMonotonicityReport.kt)
+- [`StandardResourceMonotonicityReport.kt`](../../src/jvm/dev/martianzoo/tfm/tools/StandardResourceMonotonicityReport.kt)
   — search for `fun main` to inspect the implemented catalog report.
 - [`SoloGenerationCountdownTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/SoloGenerationCountdownTest.kt)
   — read only when a proposed optimization depends on committed TR63 timing.
@@ -27,7 +27,7 @@ current state restore it conditionally.
 
 ## Adopted problem
 
-For one fixed [`GamePremise`](OPTIONS.md), play is a finite sequence of player choices with
+For one fixed [`GamePremise`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt), play is a finite sequence of player choices with
 deterministic consequences. A completed game scores normally if the player has at least 63 TR after
 the last production phase and scores zero otherwise. A game in which a deck runs out and would be
 reshuffled is outside the problem and is discarded rather than evaluated.

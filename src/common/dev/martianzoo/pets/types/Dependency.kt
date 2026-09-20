@@ -132,9 +132,6 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
     override val className: ClassName
       get() = boundClass.className
 
-    internal fun allConcreteSpecializations(): Sequence<TypeDependency> =
-        boundType.allConcreteSubtypes().map { TypeDependency(key, it) }
-
     /**
      * The canonical `key=full-bound` rendering of this dependency ([rules T3-1 and
      * T5-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies)).
@@ -246,7 +243,7 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
     internal fun validate(deps: List<Dependency>): ClassTable? {
       deps.indices.forEach { index ->
         for (previous in 0 until index) {
-          require(deps[index].key != deps[previous].key) { "duplicate dependency keys: $deps" }
+          require(deps[index].key != deps[previous].key) { "duplicate dependency keys: `$deps`" }
         }
       }
       require(deps.none { it is FakeDependency } || deps.single() is FakeDependency)

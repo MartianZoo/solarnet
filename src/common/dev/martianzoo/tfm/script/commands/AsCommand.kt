@@ -1,0 +1,41 @@
+package dev.martianzoo.tfm.script.commands
+
+import dev.martianzoo.tfm.script.ScriptCommand
+import dev.martianzoo.tfm.script.ScriptCompletion
+import dev.martianzoo.tfm.script.ScriptCompletionContext
+import dev.martianzoo.tfm.script.ScriptSession
+import dev.martianzoo.tfm.script.ScriptSession.UsageException
+
+internal class AsCommand(private val repl: ScriptSession) : ScriptCommand("as") {
+  override val usage = "as <PlayerN> <full command>"
+  override val help =
+      """
+        For any command you could type normally, put `as Player2` etc. or `as Admin` before it.
+        It's handled as if you had first `become` that player, then restored.
+      """
+
+  override fun noArgs() = throw UsageException()
+
+  override fun completions(context: ScriptCompletionContext): List<ScriptCompletion> {
+    if (context.argIndex == 0) return context.playerNames()
+
+    val delegated = context.droppingLeadingWords(1)
+    if (delegated.args.isBlank()) return context.commandNames()
+
+    if (!delegated.hasRestAfterFirstWord) return context.commandNames()
+
+    return context.commandArguments(delegated.firstWord, delegated.restAfterFirstWord)
+  }
+
+  override fun withArgs(args: String): List<String> {
+    val (player, rest) = args.trim().split(Regex("\\s+"), 2)
+
+    val saved = repl.agent
+    return try {
+      repl.agent = repl.agents[repl.actor(player)]
+      repl.command(rest)
+    } finally {
+      repl.agent = saved
+    }
+  }
+}

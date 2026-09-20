@@ -24,7 +24,7 @@
   inspect when splitting generic Catalog assembly from Terraforming Mars registries.
 - [`MapDefinition.kt`](../../src/common/dev/martianzoo/tfm/mapdata/MapDefinition.kt) —
   the pets-free authored data library used by generators and presentation tools.
-- [`ScriptSession.kt`](../../src/common/dev/martianzoo/script/ScriptSession.kt) —
+- [`ScriptSession.kt`](../../src/common/dev/martianzoo/tfm/script/ScriptSession.kt) —
   inspect only for the script application layer.
 - [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) and
   [`AutoExecPolicy.kt`](../../src/common/dev/martianzoo/agent/AutoExecPolicy.kt) — current
@@ -84,22 +84,19 @@ live transactions, and the decision that an operation has reached a viewer-safe 
 ### Turn/action protocol is split across layers
 
 Generic Pets and engine code know `Action`, `UseAction`, `ActionSlot`, `NewTurn`, and turn-start
-translation, while the foundational declarations live in Terraforming Mars canon. Either this is a
-documented generic protocol whose declarations belong in the runtime prelude, or all of it belongs
-under Terraforming Mars. The half-generic placement is the defect.
+translation, while the foundational declarations live in Terraforming Mars canon. The generic
+action syntax and identity protocol are deliberate. The generic Agent's `startTurn` and `inTurn`
+conveniences remain layering debt: move them to `TfmGameplay` so the Agent no longer knows
+`NewTurn`.
 
 The [Pets Action model](ACTIONS.md) makes this division more explicit: fixed and X-scaled Terraforming
 Mars `StandardResource` costs use provider- and action-qualified billing components, while direct and
-costless Actions keep normal Pets sequencing. The generic Action transformer recognizes those six
-resource names directly. Treat that leak as layering debt instead of adding a broad extension
-framework for this rule.
+costless Actions keep normal Pets sequencing. Generic Pets performs only the ordinary arrow-to-effect
+lowering. `TfmCatalog` applies the standard-resource billing rewrite to its own declarations before
+class loading, without global transformer registration.
 
-### The script application is mostly REgo/Terraforming Mars
-
-The reusable command shell and completion framework live beside concrete Canon construction,
-`TfmWorkflow`, colors, phase behavior, map views, six resources, and Terraforming Mars setup
-syntax. A focused application profile or `TfmScriptSession` should own those contributions if this
-area is refactored.
+The REgo command/session implementation now lives under `dev.martianzoo.tfm.script`; no reusable
+script application abstraction has been extracted without another application requiring one.
 
 The REPL similarly combines its JLine adapter with REgo construction, branding, history, and
 launcher behavior. Keep executable wiring application-specific; extract the adapter only when
@@ -144,7 +141,7 @@ plausibly belong elsewhere:
   presentation names. It is not part of what a source may mean. [`NAMING.md`](NAMING.md) owns naming.
 - [`Catalog.kt`](../../src/common/dev/martianzoo/pets/data/Catalog.kt),
   [`GamePremise.kt`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt) and
-  `ClassSelection` are game assembly, owned by [`OPTIONS.md`](OPTIONS.md).
+  `ClassSelection` implement game assembly rather than Pets language semantics.
 Runtime `Task`, `GameEvent`, and `TaskResult` data have moved to `:state`; their instruction-bearing
 values remain inert there, while task construction and normalization stay in `:engine`.
 

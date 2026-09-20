@@ -20,7 +20,7 @@ import kotlin.reflect.KClass
  * [L5-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics),
  * [L6-13](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)
  * and
- * [L8-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)
+ * [L8-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)
  * for the elements.
  */
 public sealed class PetNode {

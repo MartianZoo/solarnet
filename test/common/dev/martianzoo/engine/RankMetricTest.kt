@@ -62,6 +62,29 @@ internal class RankMetricTest {
   }
 
   @Test
+  internal fun refinementDomainCanSupplyAnOmittedRankSelector() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                CLASS Score : Owned<Player>
+                CLASS Prize : Owned<Player>
+                """,
+                players = 3,
+            )
+        )
+    game.testAgent(PLAYER1).runOperation("3 Score<Player1>")
+    game.testAgent(PLAYER2).runOperation("2 Score<Player2>")
+    game.testAgent(PLAYER3).runOperation("Score<Player3>")
+
+    game.testAgent(ADMIN).runOperation("EACH Player(HAS =2 (RANK { Score })) { Prize<Player> }")
+
+    game.testAgent(PLAYER1).count("Prize<Player1>") shouldBe 0
+    game.testAgent(PLAYER2).count("Prize<Player2>") shouldBe 1
+    game.testAgent(PLAYER3).count("Prize<Player3>") shouldBe 0
+  }
+
+  @Test
   internal fun ownedCandidatesSupplyTheirOwnersToRankMetrics() {
     val game =
         Engine.newGame(

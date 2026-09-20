@@ -1,6 +1,8 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -115,7 +117,7 @@ internal class Lang12ElaborationTest {
   internal fun `L12-5 a gain receives its gain defaults, and must opt in to them`() {
     elaborate("Tile<>") shouldBe parse<InstructionTree>("Tile<Player1, LandArea>!")
     elaborate("Tile<Mars1>") shouldBe parse<InstructionTree>("Tile<Player1, Mars1>!")
-    shouldThrow<PetSyntaxException> { elaborate("Tile") }
+    shouldThrow<ExpressionException> { elaborate("Tile") }
   }
 
   // L12-6 A removal declines by writing nothing
@@ -132,9 +134,9 @@ internal class Lang12ElaborationTest {
 
   @Test
   internal fun `L12-7 an empty argument list is invalid where there is nothing to accept`() {
-    shouldThrow<PetSyntaxException> { elaborate("Plant<>") }
-    shouldThrow<PetSyntaxException> { elaborate("-Plant<>") }
-    shouldThrow<PetSyntaxException> { elaborate("Ok<>") }
+    shouldThrow<ExpressionException> { elaborate("Plant<>") }
+    shouldThrow<ExpressionException> { elaborate("-Plant<>") }
+    shouldThrow<ExpressionException> { elaborate("Ok<>") }
   }
 
   // L12-8 Transmutation halves
@@ -143,7 +145,7 @@ internal class Lang12ElaborationTest {
   internal fun `L12-8 the two halves of a transmutation are defaulted independently`() {
     elaborate("Tile<> FROM Marker") shouldBe
         parse<InstructionTree>("Tile<Player1, LandArea> FROM Marker<Player1>!")
-    shouldThrow<PetSyntaxException> { elaborate("Tile FROM Marker") }
+    shouldThrow<ExpressionException> { elaborate("Tile FROM Marker") }
   }
 
   @Test
@@ -213,12 +215,59 @@ internal class Lang12ElaborationTest {
         parse<Effect>("This BY Owner: ProjectCard<Owner>!, ProjectCard<Owner>!, Plant<Owner>!")
   }
 
+  @Test
+  internal fun `L12-12 invalid property evaluations explain the invalid definition`() {
+    val table =
+        testCatalog(
+                """
+                CLASS Plant
+                CLASS Holder {
+                  score = 1
+                  requirement = HAS "Plant"
+                }
+                CLASS Recursive { score = COUNT "EVAL This.score" }
+                """
+                    .trimIndent()
+            )
+            .classTable
+    val elaborator = PetElaborator(table)
+
+    shouldThrow<InvalidPetDefinitionException> {
+      elaborator.evaluateProperties(parse<Metric>("EVAL score"), parse("Holder"))
+    }
+    shouldThrow<InvalidPetDefinitionException> {
+      elaborator.evaluateProperties(parse<Metric>("EVAL Holder.missing"), parse("Holder"))
+    }
+    shouldThrow<InvalidPetDefinitionException> {
+      elaborator.evaluateProperties(parse<Metric>("EVAL Holder.requirement"), parse("Holder"))
+    }
+    shouldThrow<InvalidPetDefinitionException> {
+      elaborator.evaluateProperties(
+          parse<InstructionTree>("EVAL Holder.score: Plant"),
+          parse("Holder"),
+      )
+    }
+    shouldThrow<InvalidPetDefinitionException> {
+      elaborator.evaluateProperties(parse<Metric>("EVAL Recursive.score"), parse("Recursive"))
+    }
+  }
+
   // L12-13 Class effects
 
   @Test
   internal fun `L12-13 effects are gathered from every superclass and elaborated in context`() {
     classEffects("SimpleRule").size shouldBe 1
     classEffects("OwnedRule").single() shouldBe parse<Effect>("This: Plant<Owner>!")
+  }
+
+  @Test
+  internal fun `L12-13 effects are available only for an included class`() {
+    val catalog = testCatalog("CLASS Included\nCLASS Excluded")
+    val table = gameView(catalog, "Included")
+
+    shouldThrow<IllegalArgumentException> {
+      PetElaborator(table).classEffects(table.getClass(cn("Excluded")))
+    }
   }
 
   @Test
@@ -259,6 +308,9 @@ internal class Lang12ElaborationTest {
     specialize("This: Steel<Seat1>.").instruction shouldBe parse<InstructionTree>("Ok")
     specialize("This: Empty!").instruction shouldBe parse<InstructionTree>("Die!")
     specialize("This: Empty?").instruction shouldBe parse<InstructionTree>("Ok")
+    specialize("This: Empty? / Plant<Seat1>").instruction shouldBe parse<InstructionTree>("Ok")
+    specialize("This: EACH Plant<Seat1> { Empty? }").instruction shouldBe
+        parse<InstructionTree>("Ok")
     specialize("This: Plant<Seat1>!").instruction shouldBe parse<InstructionTree>("Plant<Seat1>!")
   }
 
@@ -268,9 +320,9 @@ internal class Lang12ElaborationTest {
         testCatalog(
                 """
                 ABSTRACT CLASS Target
-                CLASS Good : Target
+                ABSTRACT CLASS Allowed : Target { CLASS Good }
                 CLASS Bad : Target
-                ABSTRACT CLASS Wrapper<Good>
+                CLASS Wrapper<Allowed>
                 CLASS Holder<Target> { This: Good OR Wrapper<Target> }
                 """
                     .trimIndent()

@@ -1,13 +1,16 @@
 package dev.martianzoo.pets.types
 
-import dev.martianzoo.pets.api.Exceptions
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.PetException
-import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
+import dev.martianzoo.pets.api.SystemClasses.OK
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
+import dev.martianzoo.pets.ast.Effect.Trigger.SubscribedTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -17,6 +20,7 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.TransformNode
 import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration
@@ -27,15 +31,15 @@ import dev.martianzoo.pets.data.ClassSelection
  * [rules T1-1 and T1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
  *
  * Name lookup and resolution are available while loading. [loadEverything] completes and freezes a
- * master universe. A game projection freezes its combined structural universe before computing the
- * premise's inclusion closure, so every enumeration used by that closure has a stable universe.
+ * master universe. A game table freezes its combined structural namespace before computing the
+ * premise's inclusion closure, so every enumeration used by that closure has a stable namespace.
  */
 public class ClassLoader
 private constructor(
     internal override val catalog: Catalog,
     private val masterSource: ClassTable?,
     private val premiseDeclarations: Map<ClassName, ClassDeclaration> = emptyMap(),
-    private val blockedActivations: Map<ClassName, Set<ClassName>> = emptyMap(),
+    private val unavailableClasses: Map<ClassName, Set<ClassName>> = emptyMap(),
     private val configuredModuleNames: Set<ClassName> = emptySet(),
     private val configuredClassSelections: Set<ClassSelection> = emptySet(),
 ) : ClassTable() {
@@ -88,7 +92,8 @@ private constructor(
    */
   override fun findClass(name: ClassName): Class? {
     return if (name in loadedClasses) {
-      loadedClasses[name] ?: throw PetException("Class-loading cycle involving $name")
+      loadedClasses[name]
+          ?: throw InvalidPetDefinitionException("class-loading cycle involving `$name`")
     } else {
       masterSource?.findClass(name)
     }
@@ -121,7 +126,7 @@ private constructor(
       fun containsRefinement(candidate: Expression): Boolean =
           candidate.refinement != null || candidate.arguments.any(::containsRefinement)
       if (containsRefinement(refinement.excluded)) {
-        throw ExpressionException("NOT operand cannot itself contain a refinement: $expression")
+        throw ExpressionException("`NOT` operand cannot contain a refinement: `$expression`")
       }
     }
     // Avoiding computeIfAbsent due to CME
@@ -132,7 +137,7 @@ private constructor(
           .refine(expression.refinement)
           .also { cache[expression] = it }
     } catch (e: RuntimeException) {
-      throw ExpressionException("can't resolve $expression", e)
+      throw ExpressionException("cannot resolve `$expression`", e)
     }
   }
 
@@ -174,7 +179,72 @@ private constructor(
     knownClassNames.forEach { name ->
       getClass(name).baseType
     }
+    validateNoOkSubscriptions()
+    validateTransformKinds()
     return completed
+  }
+
+  /** The classes this load is responsible for checking: a master's own, or a premise's delta. */
+  private fun declaringClassesToValidate(): Set<Class> =
+      if (masterSource == null) {
+        allKnownClasses()
+      } else {
+        premiseDeclarations.keys.mapTo(linkedSetOf(), ::getClass)
+      }
+
+  /**
+   * Rejects a transform block whose kind this Catalog defines no handler for, per
+   * [rule L10-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-transform-blocks).
+   * One rewriting pass may leave another pass's kind in place, but a mark no pass will ever claim
+   * is a mistake in the source.
+   */
+  internal fun validateTransformKinds() {
+    val known = catalog.transformHandlerFactories.keys
+    declaringClassesToValidate().map(Class::declaration).forEach { declaration ->
+      declaration.allNodes.forEach { root ->
+        root.visitDescendants { node ->
+          if (node is TransformNode<*> && node.transformKind !in known) {
+            throw InvalidPetDefinitionException(
+                "`${declaration.className}` uses undefined transform kind " +
+                    "`${node.transformKind}` in `$node`"
+            )
+          }
+          true
+        }
+      }
+    }
+  }
+
+  /**
+   * Rejects subscriptions rooted at `Ok` or a nominal supertype, which are statically forbidden.
+   */
+  internal fun validateNoOkSubscriptions() {
+    val okClass = getClass(OK)
+    declaringClassesToValidate().forEach { declaringClass ->
+      declaringClass.declaration.effects.forEach { effect ->
+        val forbidden =
+            effect.trigger
+                .descendantsOfType<SubscribedTrigger>()
+                .map {
+                  when (it) {
+                    is OnGainOf -> it.expression
+                    is OnRemoveOf -> it.expression
+                  }
+                }
+                .firstOrNull { expression ->
+                  val triggerClass =
+                      if (expression.className == THIS) declaringClass
+                      else getClass(expression.className)
+                  okClass.isSubtypeOf(triggerClass)
+                }
+        if (forbidden != null) {
+          throw InvalidPetDefinitionException(
+              "`${declaringClass.className}` effect `$effect` subscribes to `$forbidden`, " +
+                  "whose root is `Ok` or a nominal supertype of `Ok`"
+          )
+        }
+      }
+    }
   }
 
   private val queue = ArrayDeque<ClassName>()
@@ -186,23 +256,34 @@ private constructor(
     while (queue.isNotEmpty()) {
       while (queue.isNotEmpty()) {
         val next = queue.removeFirst()
-        blockedActivations[next]?.let { availabilityModules ->
+        unavailableClasses[next]?.let { availabilityModules ->
           val source = requestedBy.getValue(next)
-          val path = source?.let { "$it requires locked Class $next" } ?: "Class $next is locked"
-          throw IllegalArgumentException(
-              "broken game premise: $path; select one of its bundle Modules: " + availabilityModules
-          )
+          val path =
+              source?.let { "`$it` requires locked Class `$next`" } ?: "Class `$next` is locked"
+          val message =
+              "broken game premise: $path; required bundle modules: `$availabilityModules`"
+          if (masterSource == null) throw InvalidPetDefinitionException(message)
+          throw InvalidGameConfigException(message)
         }
         loadRelated(next, include = true)
       }
-      enqueueReachableActivationEdges()
+      enqueueReachableSelectionEdges()
     }
   }
 
-  /** Computes a game projection's inclusion closure within its completed structural universe. */
+  /**
+   * Computes a game's inclusion closure within its completed structural namespace.
+   *
+   * Structural references and reachable constructive instructions include their required Classes.
+   * Counts, requirements, and triggers alone do not, except that a positive lower bound in a Class
+   * invariant includes the structural domain it counts. A constructive instruction beneath a
+   * provably false gate or trigger is inert. The calculation repeats because each included Class
+   * can make another edge reachable. A required Class locked behind an unselected Module makes the
+   * premise broken rather than silently selecting that Module.
+   */
   internal fun includeAll(names: Collection<ClassName>) {
     require(masterSource != null && frozen) {
-      "a game projection must be structurally frozen before its inclusion closure is computed"
+      "a game table must be structurally frozen before its inclusion closure is computed"
     }
     loadAll(names)
   }
@@ -228,7 +309,8 @@ private constructor(
       return klass
     }
     if (next in loadedClasses) {
-      return (loadedClasses[next] ?: throw PetException("Class-loading cycle involving $next"))
+      return (loadedClasses[next]
+              ?: throw InvalidPetDefinitionException("class-loading cycle involving `$next`"))
           .also { if (include) includeClass(next) }
     }
     val declaration = knownDeclaration(next)
@@ -242,9 +324,8 @@ private constructor(
         declaration.effects
             .flatMap { effect -> effect.instruction.descendantsOfType<Change>() }
             .firstOrNull { it.gaining?.className == CLASS } ?: return
-    throw invalidPetDefinition(
-        "Class representatives are fixed before effects run and cannot be gained by an effect: " +
-            change
+    throw InvalidPetDefinitionException(
+        "class representatives cannot be gained by an effect: `$change`"
     )
   }
 
@@ -259,9 +340,8 @@ private constructor(
       node.visitDescendants {
         val name = it as? ClassName
         if (name != null && name != THIS && name !in knownClassNames) {
-          throw ExpressionException(
-              "${declaration.className} names `$name`, which no declaration introduces " +
-                  "(check bundles, check spelling)"
+          throw InvalidPetDefinitionException(
+              "`${declaration.className}` names undeclared Class `$name`"
           )
         }
         true
@@ -273,15 +353,15 @@ private constructor(
    * Rechecks every included declaration because including one Class can make a previously
    * impossible Trigger or gate reachable. The closure is monotone: Classes only become included.
    */
-  private fun enqueueReachableActivationEdges() {
+  private fun enqueueReachableSelectionEdges() {
     val includedNames = includedClassNames
     (includedNames - COMPONENT - CLASS).forEach { name ->
-      enqueue(activationEdges(knownDeclaration(name), includedNames) - THIS, name)
+      enqueue(selectionEdges(knownDeclaration(name), includedNames) - THIS, name)
     }
   }
 
   /** Returns the structurally or constructively required Classes in one live declaration. */
-  private fun activationEdges(
+  private fun selectionEdges(
       declaration: ClassDeclaration,
       includedNames: Set<ClassName>,
   ): Set<ClassName> = buildSet {
@@ -380,11 +460,11 @@ private constructor(
       findClass(name)?.also { includeClass(name) } ?: loadRelated(name, include = true)
 
   // All classes are created here (aside from Component and Class, at top).
-  private fun construct(source: ClassDeclaration, activateRelated: Boolean = true): Class {
+  private fun construct(source: ClassDeclaration, includeRelated: Boolean = true): Class {
     check(masterSource == null || source.className in premiseDeclarations) {
-      "a game projection may construct only premise Classes"
+      "a game table may construct only premise Classes"
     }
-    require(!frozen) { "Too late, this class table is frozen!" }
+    require(!frozen) { "class table is already frozen" }
     val decl = validateCustomImplementation(source)
 
     fun store(c: Class?) {
@@ -392,10 +472,13 @@ private constructor(
     }
     store(null) // to detect reentrancy
     try {
-      val klass = Class(decl, this, activateRelated)
+      val klass = Class(decl, this, includeRelated)
       validateCustomInheritance(klass)
       store(klass)
       return klass
+    } catch (e: ExpressionException) {
+      loadedClasses.remove(decl.className)
+      throw InvalidPetDefinitionException("invalid definition for `${decl.className}`", e)
     } catch (e: Throwable) {
       loadedClasses.remove(decl.className)
       throw e
@@ -429,8 +512,8 @@ private constructor(
       }
     }
     if (problems.isNotEmpty()) {
-      throw PetException(
-          "${klass.className} cannot inherit Pets behavior as a Custom class: " +
+      throw InvalidPetDefinitionException(
+          "`${klass.className}` cannot inherit Pets behavior as a Custom class: " +
               problems.joinToString()
       )
     }
@@ -443,14 +526,14 @@ private constructor(
 
   internal override fun allSubclassesOf(klass: Class): Set<Class> {
     require(frozen) {
-      "this class table must be frozen before the subclasses of $klass can be enumerated"
+      "this class table must be frozen before the subclasses of `$klass` can be enumerated"
     }
     return checkNotNull(allSubclassesByClass).getValue(klass)
   }
 
   internal override fun directSubclassesOf(klass: Class): Set<Class> {
     require(frozen) {
-      "this class table must be frozen before the subclasses of $klass can be enumerated"
+      "this class table must be frozen before the subclasses of `$klass` can be enumerated"
     }
     return checkNotNull(directSubclassesByClass)[klass] ?: emptySet()
   }
@@ -462,7 +545,7 @@ private constructor(
         if (declaration.className !in loadedClasses) {
           validateClassNames(declaration)
           validateNoEffectCreatesClass(declaration)
-          construct(declaration, activateRelated = false)
+          construct(declaration, includeRelated = false)
         }
       }
       val premiseClasses =
@@ -479,6 +562,7 @@ private constructor(
       }
       frozenClasses = includedClassNames.mapTo(linkedSetOf(), ::getClass)
       frozen = true
+      premiseClasses.forEach { it.baseType }
       return this
     }
     knownClassNames.forEach { name ->
@@ -544,7 +628,7 @@ private constructor(
       premiseDeclarations[name]
           ?: masterSource?.getClass(name)?.declaration
           ?: catalog.allClassDeclarations[name]
-          ?: throw Exceptions.classNotFound(name)
+          ?: throw ExpressionException("no class named `$name` in the current game")
 
   private fun validateCustomImplementation(decl: ClassDeclaration): ClassDeclaration {
     if (masterSource != null) return decl
@@ -552,7 +636,9 @@ private constructor(
       catalog.customClass(decl.className)
     } else {
       if (catalog.customClasses.any { it.className == decl.className }) {
-        throw PetException("Non-custom class ${decl.className} has a custom implementation")
+        throw InvalidPetDefinitionException(
+            "non-custom Class `${decl.className}` has a custom implementation"
+        )
       }
     }
     return decl
@@ -563,7 +649,7 @@ private constructor(
   internal companion object {
     private var nextId: Int = 0
 
-    internal fun projection(
+    internal fun forPremise(
         catalog: Catalog,
         premiseTable: PremiseClassTable,
         configuredModuleNames: Set<ClassName>,
@@ -571,9 +657,9 @@ private constructor(
     ): ClassLoader {
       val masterTable = premiseTable.master
       require(masterTable.masterTable === masterTable) {
-        "Catalog class table is not a master table"
+        "catalog class table is not a master table"
       }
-      val blocked =
+      val unavailableClasses =
           catalog.classAvailabilityModules
               .mapNotNull { (className, availabilityModules) ->
                 (className to availabilityModules).takeIf {
@@ -585,7 +671,7 @@ private constructor(
           catalog,
           masterTable,
           premiseTable.declarations,
-          blocked,
+          unavailableClasses,
           configuredModuleNames,
           configuredClassSelections,
       )

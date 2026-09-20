@@ -7,7 +7,6 @@ import dev.martianzoo.state.ComponentGraph
 import dev.martianzoo.state.EventLog
 import dev.martianzoo.state.GameWorld
 import dev.martianzoo.state.TaskQueue
-import dev.martianzoo.state.WorldRevision
 
 /** The live, complete implementation of a [World]. */
 internal class WholeWorld
@@ -27,10 +26,6 @@ internal constructor(
 
   override val tasks: TaskQueue
     get() = gameWorld.tasks
-
-  /** The exact event-backed state revision, including changes later rolled back. */
-  internal val revision: WorldRevision
-    get() = gameWorld.revision
 
   override fun actorEngine(actor: Actor): ActorEngine = actorEngines.getValue(actor)
 

@@ -67,7 +67,7 @@ public sealed class FromExpression : PetNode() {
   ) : FromExpression() {
     init {
       if (arguments.count { it !is Unchanged } != 1) {
-        throw PetSyntaxException("A compact transmutation must contain exactly one FROM")
+        throw PetSyntaxException("a compact transmutation must contain exactly one `FROM`")
       }
     }
 

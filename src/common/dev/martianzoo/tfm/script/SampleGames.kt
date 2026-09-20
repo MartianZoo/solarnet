@@ -4,8 +4,6 @@ import dev.martianzoo.agent.Agents
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.script.OptionCodeTranslation
-import dev.martianzoo.script.createGame
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 

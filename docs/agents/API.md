@@ -25,7 +25,7 @@
   [`TaskQueue.kt`](../../src/common/dev/martianzoo/state/TaskQueue.kt) is its filtered read view, and
   [`TaskQueues.kt`](../../src/common/dev/martianzoo/engine/TaskQueues.kt) constructs normalized task
   events.
-- [`Access.kt`](../../src/common/dev/martianzoo/script/Access.kt) implements current script-only
+- [`Access.kt`](../../src/common/dev/martianzoo/tfm/script/Access.kt) implements current script-only
   access modes.
 - [GAMEWORLD.md](GAMEWORLD.md) owns task data and recording navigation;
   [RESPONSIBILITIES.md](RESPONSIBILITIES.md#selected-runtime-dependency-direction) owns the target
@@ -58,31 +58,20 @@ addition with ordinary task action. None justifies a universal request type or
 overloads are the explicit escape hatch when distinct tasks accept the same narrowing; no engine
 API accepts a presentation index.
 
-The current flat Agent now exposes one checked id-based narrowing and one explicit ex-machina task
+The current flat Agent exposes narrowing only for its selected task and one explicit ex-machina task
 removal. It has no arbitrary task replacement or bulk task-removal command. Internal task-data edits
 remain engine bookkeeping, including restoration around an evidenced replay correction.
 
-## Narrowing before selection
+## Narrowing after selection
 
 Narrowing is allowed to discard options. That is a legitimate Actor decision, not a defect. A
 candidate is valid only when the engine proves it narrows the stored task and cannot introduce an
 option the task did not already permit.
 
-An unselected task may receive a state-independent narrowing, such as replacing a Type with a
-subtype established by immutable Class facts. It remains unselected and unexecuted. This operation
-must not evaluate AMAP, a gate, a Metric, current viability, or any other mutable-World fact.
-When narrowing removes the shared variables that required a `THEN` sequence to remain one task, the
-same task exposes its first stage and retains the rest as its continuation without executing either.
-Selection establishes the promise to act next and the select-lock before those facts are resolved.
-The current `Agent.narrowTask(taskId, narrowing)` implements this check; the selected-task overload
-retains state-aware resolution and immediate execution when the result becomes concrete.
-Consequently, a task whose target has a live refinement cannot be narrowed to one concrete target
-before selection, even when that target happens to satisfy the refinement in the current World.
-
-Provably permanent forced narrowing may likewise simplify an unselected task. “Probably forever”
-is insufficient: the proof must use only immutable premise, Class, and task structure. Whether that
-normalization belongs to engine task admission or an Agent policy is still open; both must use the
-same checked narrowing relation.
+Selection establishes the promise to act next and the select-lock before narrowing resolves live
+World facts. `Agent.narrowTask(narrowing)` therefore applies only to the selected task; callers that
+need to identify a task first use `selectTask(taskId)`. A partial narrowing remains selected, while a
+concrete result executes before the call returns.
 
 ## Agent
 
@@ -160,7 +149,9 @@ Parsing, operation conveniences, policy state, and the shared legacy drain live 
 `TfmTest` fixtures hold the `Agents` for their current World. Standalone engine integration tests
 still use `testAgents.kt`'s one-World cache so a World's Agent identity survives repeated lookups.
 Those tests also depend upward on `:agent` and `:tfm-engine`, because they exercise the Agent API
-rather than the engine independently. These are accepted costs, not the target state.
+rather than the engine independently. These are accepted costs, not the target state. Gradually
+replace Canon-backed premises with focused declarations where that makes the generic engine
+contract clearer; the cleanup is desirable but not urgent.
 
 The current Agent is still fully permissive and exposes an unscoped `GameReader`, operation and
 turn conveniences, and ex-machina mutation. `AutoExecPolicy` is still the legacy three-value

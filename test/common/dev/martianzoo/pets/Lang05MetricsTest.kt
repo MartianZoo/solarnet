@@ -180,6 +180,21 @@ internal class Lang05MetricsTest {
     shouldThrow<PetSyntaxException> { parse<Metric>("RANK Player { }") }
   }
 
+  @Test
+  internal fun `L5-9 RANK may infer its selector only from an enclosing refinement`() {
+    parse<Expression>("Player(HAS =1 (RANK { Score }))") shouldBe
+        parse<Expression>("Player(HAS =1 (RANK Player { Score }))")
+    parse<Expression>("Holder<Player>(HAS =1 (RANK { Score }))") shouldBe
+        parse<Expression>("Holder<Player>(HAS =1 (RANK Holder<Player> { Score }))")
+    parse<Expression>("Outer(HAS Inner(HAS =1 (RANK { Score })))") shouldBe
+        parse<Expression>("Outer(HAS Inner(HAS =1 (RANK Inner { Score })))")
+
+    shouldThrow<PetSyntaxException> { parse<Metric>("RANK { Score }") }
+    shouldThrow<PetSyntaxException> { parse<Expression.Refinement>("(HAS =1 (RANK { Score }))") }
+    shouldThrow<PetSyntaxException> { parse<Expression>("Player(HAS RANK { Score })") }
+    shouldThrow<PetSyntaxException> { parse<Expression>("Player(HAS =1 (RANK { }))") }
+  }
+
   // L5-10 Rendering
 
   @Test

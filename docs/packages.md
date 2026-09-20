@@ -68,9 +68,9 @@ Terraforming Mars-specific gameplay, workflow, and shared presentation rules.
 
 ## module SCRIPT
 
-### <a href="script/dev.martianzoo.script/index.html">dev.martianzoo.script</a>
+### <a href="script/dev.martianzoo.tfm.script/index.html">dev.martianzoo.tfm.script</a>
 
-The command and session layer shared by the REPL applications.
+The Terraforming Mars command and session layer shared by the REPL applications.
 
 ## module REPL
 
@@ -82,7 +82,8 @@ REgo PLastics, an extremely bad command-line UI to the engine.
 
 ### <a href="web/dev.martianzoo.tfm.web.webrepl/index.html">dev.martianzoo.tfm.web.webrepl</a>
 
-An early rough browser version of REgo PLastics.
+An early rough browser version of REgo PLastics. The same module also supplies Pets Almanac, a
+searchable viewer for Canon's normalized Pets declarations and detailed type information.
 
 ## module GAME-VIEWER
 
@@ -94,6 +95,6 @@ event-log timelines through passive state playback. Both browser applications us
 
 ## module TOOLS
 
-### dev.martianzoo.tools
+### dev.martianzoo.tfm.tools
 
 Standalone command-line tools built from Solarnet's data.

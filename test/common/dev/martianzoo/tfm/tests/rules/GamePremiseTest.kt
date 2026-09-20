@@ -4,6 +4,7 @@ import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
@@ -34,7 +35,7 @@ internal class GamePremiseTest {
     val catalog = Canon.withPlayers(1)
 
     listOf(cn("MC"), PLAYER).forEach { invalidPlayerName ->
-      shouldThrow<IllegalArgumentException> {
+      shouldThrow<InvalidGameConfigException> {
         GamePremise(
             catalog,
             modules = emptySet(),
@@ -64,7 +65,6 @@ internal class GamePremiseTest {
     val table = premise.classTable
 
     assertSame(Canon, premise.catalog)
-    assertSame(Canon.classTable, premise.premiseClassTable.master)
     assertSame(Canon.classTable.getClass(cn("Card")), table.getClass(cn("Card")))
     Canon.classTable.findClass(cn("Player1")) shouldBe null
     table.getClass(cn("Player1")).classTable shouldBe table
@@ -178,13 +178,46 @@ internal class GamePremiseTest {
 
   @Test
   internal fun malformedConfigurationFailsBeforeBootstrappingAWorld() {
-    shouldThrow<IllegalArgumentException> {
+    shouldThrow<InvalidGameConfigException> {
       Canon.gamePremise(GameConfig("TypoOption, VenusNextExpansion", "Player1"))
     }
-    shouldThrow<IllegalArgumentException> { Canon.gamePremise(GameConfig("VenusNextExpansion")) }
-    shouldThrow<IllegalArgumentException> {
+    shouldThrow<InvalidGameConfigException> { Canon.gamePremise(GameConfig("VenusNextExpansion")) }
+    shouldThrow<InvalidGameConfigException> {
       Canon.gamePremise(GameConfig("Blue, Yellow, VenusNextExpansion", "Player1"))
     }
+    shouldThrow<InvalidGameConfigException> { Canon.gamePremise(GameConfig("", "MC")) }
+  }
+
+  @Test
+  internal fun selectedColonyRequiresItsProvidingModule() {
+    shouldThrow<InvalidGameConfigException> {
+      Canon.gamePremise(GameConfig("Callisto", "Player1", "Player2"))
+    }
+  }
+
+  @Test
+  internal fun configuredColoniesReachPlayWithoutSeparateInitialTypes() {
+    val game =
+        Engine.newGame(
+            Canon.gamePremise(
+                GameConfig("ColoniesExpansion, Callisto, Luna, Enceladus", "Player1", "Player2")
+            )
+        )
+    val admin = game.testAgent(ADMIN)
+    val workflow = TfmWorkflow.Stepwise(game.testAgents())
+
+    admin.count("SelectedColonyTile") shouldBe 3
+    admin.count("SelectedColonyTile<Class<Ceres>>") shouldBe 0
+
+    workflow.setupPhase()
+    game.retainStartingProjects(0, 0)
+    workflow.corporationPhase()
+
+    admin.count("SelectedColonyTile") shouldBe 0
+    admin.count("Callisto") shouldBe 1
+    admin.count("Luna") shouldBe 1
+    admin.count("DelayedEnceladus") shouldBe 1
+    admin.count("Ceres") shouldBe 0
   }
 
   @Test
@@ -201,7 +234,7 @@ internal class GamePremiseTest {
   internal fun unconfiguredPlayerCannotBeActivatedAsAnOrdinaryClass() {
     val premise = Canon.withPlayers(3).gamePremise(GameConfig("", "Player1", "Player2"))
 
-    shouldThrow<IllegalArgumentException> {
+    shouldThrow<InvalidGameConfigException> {
       Engine.newGame(
           premise.copy(classSelections = setOf(ClassSelection(cn("Player3"), included = true)))
       )
@@ -314,10 +347,10 @@ internal class GamePremiseTest {
     (cn("ClaimMilestoneAction") in table.allClassNames) shouldBe false
     (cn("FundAwardAction") in table.allClassNames) shouldBe false
 
-    shouldThrow<IllegalArgumentException> {
+    shouldThrow<InvalidGameConfigException> {
       Engine.newGame(Canon.gamePremise(GameConfig("Landlord", "Player1")))
     }
-    shouldThrow<IllegalArgumentException> {
+    shouldThrow<InvalidGameConfigException> {
       Engine.newGame(Canon.gamePremise(GameConfig("Terraformer35", "Player1")))
     }
   }
@@ -330,6 +363,6 @@ internal class GamePremiseTest {
             additionalInitialComponentTypes = setOf(cn("Card").expression),
         )
 
-    shouldThrow<IllegalArgumentException> { Engine.newGame(premise) }
+    shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
   }
 }

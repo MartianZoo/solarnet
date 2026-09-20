@@ -23,9 +23,7 @@
 | --- | --- |
 | Classes, Types, dependencies, refinements, Type variables, uninhabited Types | [`type-system-spec.md`](../type-system-spec.md) |
 | Owner-local derived Classes, and default insertion into instructions | [`pets-language-spec.md`](../pets-language-spec.md) sections 11 and 12 |
-| Known-wrong type behavior | `test/common/dev/martianzoo/pets/types/BugsTest.kt` |
-| Known-wrong language behavior | `test/common/dev/martianzoo/pets/LangBugsTest.kt` |
-| Which Classes a premise activates | [`OPTIONS.md`](OPTIONS.md#projection-closure); tests in `ActivationTest.kt` |
+| Which Classes a premise selects | [`GamePremise.kt`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt) and tests in `PremiseSelectionTest.kt` |
 | Master Class identity versus game-filtered enumeration | [`CLASS_TABLES.md`](CLASS_TABLES.md) |
 | Class-property cardinality, groups, and direction | [`PROPERTIES.md`](PROPERTIES.md) |
 | Contextual `Owner`, Actor attribution, delegated narrowing | [`IDENTITY.md`](IDENTITY.md) |
@@ -76,3 +74,13 @@ without adding occurrence tokens or provenance to `Expression`.
 The card-owned `Splicer<SpliceTacticalGenomics>` component is a working content mechanism, not
 unfinished Type-variable infrastructure. Further changes to its ownership or task assignment would
 be optional content cleanup.
+
+## 3. `glb` reports disjointness and inexpressibility the same way
+
+T7-1 now distinguishes them: `Tharsis_2_2 ⊓ Tharsis_2_3` is absent because nothing could be both,
+while `Tile ⊓ Owned` with rival subclasses is absent only because no declared class names the
+overlap. `ClassTable.glb` returns null for both, and callers treat both as errors.
+
+Changing the return type to tell them apart would touch every caller, for an error message. Revisit
+only when a real diagnosis needs it — the honest first step would be a separate query, not a new
+result type for `glb`.

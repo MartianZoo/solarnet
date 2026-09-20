@@ -34,7 +34,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
   internal fun thermalPlasmaState() {
     game.retainStartingProjects(8)
     with(me) {
-      doTask("-ColonyTileSelection<Class<Miranda>>")
+      doTask("-SelectedColonyTile<Class<Miranda>>")
 
       playCorp(TerralabsResearch) {
         buyCards(

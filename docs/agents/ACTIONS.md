@@ -174,7 +174,9 @@ additional game facts, not replacements for that task.
 
 The Terraforming Mars Kotlin facade's `stdAction()` helper accepts only providers whose Class is a
 subtype of `StandardAction`. Directly granted actions from other `HasActions` providers use the
-ordinary task-selection and payment APIs instead.
+ordinary task-selection and payment APIs instead. Its `OperationScope.useStdAction()` counterpart
+consumes an already-granted standard-action slot inside an enclosing card or Prelude operation and
+applies the same subtype check and payment path.
 
 The normal card-action route illustrates the distinction. `UseActionOnCardAction` is a printed
 standard action. Its left side can spend the card's once-per-generation permission; after its own
@@ -276,10 +278,11 @@ Current lowering has the opposite signal order.
 
 - For a nonstandard left side, `actionToEffect` makes `UseAction<Provider, Slot>` trigger
   `left-side instruction THEN right side`.
-- For a fixed standard-resource left side, `UseAction` creates `Owed` and `ActionBilling`, and
+- For a fixed standard-resource left side, the Terraforming Mars declaration lowerer makes
+  `UseAction` create `Owed` and `ActionBilling`, and
   `-ActionBilling` directly triggers the right side.
 - X-scaled standard-resource actions keep the right side in a local continuation following billing
-  creation.
+  creation. Generic Pets lowering does not know the standard-resource Classes or billing protocol.
 
 Thus the current `UseAction` Signal means “choice accepted; begin all action work.” In the working
 model, it should mean “the general action machinery has successfully satisfied this action's left

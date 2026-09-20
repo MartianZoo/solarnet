@@ -32,7 +32,7 @@ Do not add an aggregate-payment representation alongside the current protocol.
 ### Current complexity is not all forced
 
 [Terraforming Mars `payment.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets)
-currently distributes payment across `Owed`, `Billing`, `ActionBilling`, `CardBilling`,
+currently distributes payment across `Owed`, `PayingFor`, `Billing`, `ActionBilling`, `CardBilling`,
 `Accepting`, `AcceptingFromCard`, `Pay`, `PayFromCard`, and `ResourceValue`.
 [`TfmGameplay.pay`](../../src/common/dev/martianzoo/tfm/engine/TfmGameplay.kt) changes autoexecution
 policy and searches the task pool for billing, offers, and cause-related follow-up work.
@@ -42,6 +42,11 @@ tender kind separately and declines unused offers.
 That client choreography is not a game rule. Cash-only payment still creates and removes `Owed`,
 `Accepting`, `Billing`, and `Pay`; a zero-cost card still creates and removes `CardBilling`. These
 are primary simplification probes.
+
+Card pricing now separates adjustment context from payment completion. `PriceCard` emits one
+`PayingFor` event for the concrete card and one per printed tag, and project-card purchase emits one
+per purchased card. Card modifiers listen to those events; the existing `Billing` hierarchy still
+opens tender choices and gates continuation. Actions retain their provider-and-slot billing model.
 
 ### The older model was smaller but not sufficient
 
@@ -100,8 +105,8 @@ The authoritative rule remains unverified.
 
 ### 1. Inventory live requirements
 
-Classify every production listener of `Billing`, `ActionBilling`, `CardBilling`, `Accepting`,
-`Pay`, `PayFromCard`, and `ResourceValue` as one of:
+Classify every production listener of `PayingFor`, `Billing`, `ActionBilling`, `CardBilling`,
+`Accepting`, `Pay`, `PayFromCard`, and `ResourceValue` as one of:
 
 - pre-payment debt adjustment;
 - accepted tender source;
@@ -221,18 +226,23 @@ allocation design to remove identity no rule needs.
 - No dependence on automatic-listener order.
 - A net reduction in concepts and cross-module knowledge.
 
+## Settled project constraints
+
+- Simplifying the action and payment lifecycle is a current priority ahead of a broader Pets
+  conformance program.
+- Keep complete replays working throughout the redesign; this appears feasible and temporary replay
+  breakage is not a useful default plan. This does not prevent a separate, deliberate decision to
+  drop a card whose support imposes disproportionate permanent complexity.
+- Do not complicate the payment model to achieve perfect causal attribution. Preserve enough event
+  facts for current traceability and post-process the logs when a richer explanation is wanted.
+
 ## Open questions for the project owner
 
 1. **Enforcement boundary:** Must raw engine tasks reject an illegal complete tender, or is legality
    at `TfmGameplay` and script boundaries sufficient for now?
-2. **Coverage during redesign:** Must every supported payment card and complete replay remain usable
-   throughout migration, or may low-priority cards be temporarily unsupported while the old model
-   is removed?
-3. **Attribution:** Must history credit each value modifier, or is recording sources spent,
-   effective values, debt, and excess sufficient?
-4. **Core-engine budget:** Is a multi-quantity task capability acceptable only if a prototype shows
+2. **Core-engine budget:** Is a multi-quantity task capability acceptable only if a prototype shows
    substantial net deletion and a clean game-independent contract?
-5. **Fidelity timing:** Should the excess-payment rule be researched before implementation, or
+3. **Fidelity timing:** Should the excess-payment rule be researched before implementation, or
    should simplification provisionally preserve the current client rule?
-6. **Common-case budget:** Should exact-M€ payment have no payment-option components, or is one
+4. **Common-case budget:** Should exact-M€ payment have no payment-option components, or is one
    explicit payment-window component acceptable if it materially simplifies modifiers?

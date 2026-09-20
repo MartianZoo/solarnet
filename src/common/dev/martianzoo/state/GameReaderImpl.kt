@@ -48,6 +48,9 @@ internal class GameReaderImpl(
       metric.evaluate({ countExpression(it.expression) }, ::readProperty, ::countUnion, ::rank)
 
   private fun rank(metric: Rank): Int {
+    val selector =
+        metric.selector
+            ?: throw ExpressionException("RANK can only omit its selector inside a refinement")
     val candidateExpression =
         metric.candidate
             ?: throw ExpressionException(
@@ -58,10 +61,10 @@ internal class GameReaderImpl(
       throw ExpressionException("RANK candidate is abstract: ${candidate.expressionFull}")
     }
 
-    val peers = getComponents(classTable.resolve(metric.selector)).elements
+    val peers = getComponents(classTable.resolve(selector)).elements
     if (candidate !in peers) {
       throw ExpressionException(
-          "RANK candidate ${candidate.expressionFull} is not a live ${metric.selector}"
+          "RANK candidate ${candidate.expressionFull} is not a live $selector"
       )
     }
     val candidateScore = rankScore(metric, candidate)
@@ -69,10 +72,11 @@ internal class GameReaderImpl(
   }
 
   private fun rankScore(metric: Rank, candidate: Type): List<Int> {
+    val selectorName = checkNotNull(metric.selectorName)
     val owner = candidate.toComponent().owner
     val binding =
         chain(
-            replacer(metric.selectorName, candidate.expressionFull),
+            replacer(selectorName, candidate.expressionFull),
             owner?.let(elaborator::contextualOwnerBinding),
         )
     return metric.metrics.map { score ->
@@ -101,12 +105,7 @@ internal class GameReaderImpl(
         property.receiver
             ?: throw ExpressionException("Property `${property.propertyName}` has no receiver")
     val receiverType = classTable.resolve(receiver)
-    val propertyType =
-        if (receiverType.rootClass === classTable.classClass) {
-          classTable.resolve(receiverType.expressionFull.arguments.single())
-        } else {
-          receiverType
-        }
+    val propertyType = receiverType.representedClass?.baseType ?: receiverType
     val propertyClass = propertyType.rootClass
     return when (val value = propertyClass.properties[property.propertyName]) {
       null ->

@@ -83,8 +83,8 @@ public sealed class Requirement : PetElement() {
         }
         is Or -> requirements.any { it.isMetBy(count) }
         is And -> requirements.all { it.isMetBy(count) }
-        is Eval -> error("requirement property evaluation was not expanded: $this")
-        is Transform -> throw ExpressionException("unhandled requirement transform: $this")
+        is Eval -> error("requirement property evaluation was not expanded: `$this`")
+        is Transform -> throw ExpressionException("unhandled requirement transform: `$this`")
       }
 
   /**
@@ -353,5 +353,5 @@ public sealed class Requirement : PetElement() {
 private fun ScaledExpression.actualScalar(): Int =
     when (val scalar = scalar) {
       is ActualScalar -> scalar.value
-      is XScalar -> throw PetSyntaxException("can't use X in requirements (yet?)")
+      is XScalar -> throw PetSyntaxException("`X` is not allowed in requirements")
     }

@@ -63,7 +63,7 @@ public sealed class PropertyValue : PetNode(), Specification<PropertyValue> {
   /** One concrete, non-negative, world-independent property value. */
   public data class NumberValue(public val value: Int) : PropertyValue() {
     init {
-      require(value >= 0) { "Number property cannot be negative: $value" }
+      require(value >= 0) { "number property cannot be negative: `$value`" }
     }
 
     override fun toString(): String = "$value"
@@ -81,7 +81,7 @@ public sealed class PropertyValue : PetNode(), Specification<PropertyValue> {
 
   override fun ensureNarrows(that: PropertyValue, info: TypeInfo) {
     if (this != that && !that.accepts(this)) {
-      throw NarrowingException("$this does not narrow property value $that")
+      throw NarrowingException("property value `$this` does not narrow `$that`")
     }
   }
 

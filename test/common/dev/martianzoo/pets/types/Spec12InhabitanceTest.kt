@@ -2,6 +2,8 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.ClassSelection
@@ -10,6 +12,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 import kotlin.test.assertSame
 
@@ -64,6 +67,18 @@ internal class Spec12InhabitanceTest {
     (view.getClass(cn("Gardener")) === master.getClass(cn("Gardener"))) shouldBe true
     (view.resolve(te("Gardener")) === master.resolve(te("Gardener"))) shouldBe true
     view.knows(master.resolve(te("Gardener"))) shouldBe true
+  }
+
+  @Test
+  internal fun `T12-2 premises share compiled Classes but own their selected domains`() {
+    val otherView = gameView(catalog, "Player1", "Terraformer", "ClaimMilestoneAction")
+
+    assertSame(master.getClass(cn("Milestone")), view.getClass(cn("Milestone")))
+    assertSame(master.getClass(cn("Milestone")), otherView.getClass(cn("Milestone")))
+    view.isInhabited(cn("Gardener")) shouldBe true
+    otherView.isInhabited(cn("Gardener")) shouldBe false
+    view.isInhabited(cn("Terraformer")) shouldBe false
+    otherView.isInhabited(cn("Terraformer")) shouldBe true
   }
 
   @Test
@@ -128,6 +143,7 @@ internal class Spec12InhabitanceTest {
         )
     val view = premise.classTable
 
+    assertSame(master, premise.premiseClassTable.master)
     master.findClass(cn("LocalFeature")) shouldBe null
     assertSame(master.getClass(cn("Holder")), view.getClass(cn("Holder")))
     view.getClass(cn("LocalFeature")).isSubtypeOf(master.getClass(cn("Feature"))) shouldBe true
@@ -151,6 +167,27 @@ internal class Spec12InhabitanceTest {
     view.isInhabited(cn("UnselectedFeature")) shouldBe false
     view.isInhabited(cn("UnselectedBase")) shouldBe false
     premise.premiseClassTable.isSubtypeOf(cn("LocalRoot"), COMPONENT) shouldBe true
+    premise.classTable
+        .getClass(cn("LocalRoot"))
+        .isSubtypeOf(premise.classTable.componentClass) shouldBe true
+  }
+
+  @Test
+  internal fun `T12-2 master dependencies validate premise-local targets`() {
+    val catalog = testCatalog("ABSTRACT CLASS Target\nCLASS Holder<Target>")
+    val view =
+        GamePremise(
+                catalog = catalog,
+                modules = emptySet(),
+                classSelections =
+                    setOf(ClassSelection(cn("Holder")), ClassSelection(cn("LocalTarget"))),
+                initialComponentTypes = emptySet(),
+                premiseClassDeclarations = parseClasses("CLASS LocalTarget : Target").toSet(),
+            )
+            .classTable
+
+    shouldThrow<InvalidPetDefinitionException> { view.componentLimits }.message shouldContain
+        "Holder -> LocalTarget"
   }
 
   @Test
@@ -201,7 +238,7 @@ internal class Spec12InhabitanceTest {
   internal fun `T12-2 premise class names cannot replace master classes`() {
     val catalog = testCatalog("CLASS Existing")
 
-    shouldThrowIae {
+    shouldThrow<InvalidGameConfigException> {
       GamePremise(
           catalog = catalog,
           modules = emptySet(),
@@ -213,10 +250,43 @@ internal class Spec12InhabitanceTest {
   }
 
   @Test
+  internal fun `T12-2 premise declarations cannot add broad Signal subscriptions`() {
+    val catalog = testCatalog("CLASS Result")
+
+    shouldThrow<InvalidPetDefinitionException> {
+      GamePremise(
+              catalog = catalog,
+              modules = emptySet(),
+              classSelections = emptySet(),
+              initialComponentTypes = emptySet(),
+              premiseClassDeclarations =
+                  parseClasses("CLASS LocalListener { Signal(NOT Ok): Result }").toSet(),
+          )
+          .classTable
+    }
+  }
+
+  @Test
+  internal fun `T12-2 premise declarations cannot add Signal dependency targets`() {
+    val catalog = testCatalog("CLASS Result")
+
+    shouldThrow<InvalidPetDefinitionException> {
+      GamePremise(
+              catalog = catalog,
+              modules = emptySet(),
+              classSelections = emptySet(),
+              initialComponentTypes = emptySet(),
+              premiseClassDeclarations = parseClasses("ABSTRACT CLASS Local<Signal>").toSet(),
+          )
+          .classTable
+    }
+  }
+
+  @Test
   internal fun `T12-2 sibling premise class tables are distinct universes`() {
     val catalog = testCatalog("ABSTRACT CLASS Feature\nCLASS Holder<Feature>")
     val declaration = parseClasses("CLASS LocalFeature : Feature").toSet()
-    fun projection(): ClassTable =
+    fun gameView(): ClassTable =
         GamePremise(
                 catalog = catalog,
                 modules = emptySet(),
@@ -225,8 +295,8 @@ internal class Spec12InhabitanceTest {
                 premiseClassDeclarations = declaration,
             )
             .classTable
-    val left = projection()
-    val right = projection()
+    val left = gameView()
+    val right = gameView()
 
     left.getClass(cn("LocalFeature")) shouldNotBe right.getClass(cn("LocalFeature"))
     shouldThrowIae {

@@ -28,7 +28,7 @@ import dev.martianzoo.pets.util.iff
  *
  * An effect round-trips, and rendering parenthesizes a gated instruction after the colon so that
  * the effect's own colon stays unambiguous ([rule
- * L8-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)).
+ * L8-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)).
  */
 public data class Effect(
     /** The event this rule is about. */
@@ -46,10 +46,11 @@ public data class Effect(
     val automatic: Boolean = false,
 ) : PetElement() {
   init {
-    // A bare Component subscription watches everything and states nothing; rule L8-9 requires it to
+    // A bare Component subscription watches everything and states nothing; rule L8-10 requires it
+    // to
     // say what it is actually watching for.
     trigger.unqualifiedBroadSubscription()?.let {
-      throw PetSyntaxException("$it trigger requires IF or BY")
+      throw PetSyntaxException("`$it` trigger requires `IF` or `BY`")
     }
   }
 
@@ -102,7 +103,7 @@ public data class Effect(
       init {
         require(triggers.size >= 2)
         if (triggers.map { it.selfMode() }.distinct().size != 1) {
-          throw PetSyntaxException("OR trigger cannot mix This with subscribed triggers")
+          throw PetSyntaxException("`OR` trigger cannot mix `This` with subscribed triggers")
         }
       }
 
@@ -141,12 +142,12 @@ public data class Effect(
          *
          * @throws PetSyntaxException if [expression] is a class literal, which nothing ever gains
          *   ([rule
-         *   L8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects),
+         *   L8-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects),
          *   [rule T4-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#4-class-literals))
          */
         public fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
-            throw PetSyntaxException("Class types cannot be used as effect triggers: $expression")
+            throw PetSyntaxException("effect trigger cannot be a Class type: `$expression`")
           }
           return if (expression.isBare(THIS)) {
             WhenGain
@@ -179,12 +180,12 @@ public data class Effect(
          *
          * @throws PetSyntaxException if [expression] is a class literal, which nothing ever removes
          *   ([rule
-         *   L8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects),
+         *   L8-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects),
          *   [rule T4-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#4-class-literals))
          */
         public fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
-            throw PetSyntaxException("Class types cannot be used as effect triggers: -$expression")
+            throw PetSyntaxException("effect trigger cannot be a Class type: `-$expression`")
           }
           return if (expression.isBare(THIS)) {
             WhenRemove
@@ -276,7 +277,7 @@ public data class Effect(
 
       init {
         if (inner !is OnGainOf && inner !is OnRemoveOf && inner !is XTrigger) {
-          throw PetSyntaxException("only gain/remove trigger can go in transform block")
+          throw PetSyntaxException("transform block requires a gain or removal trigger: `$inner`")
         }
       }
 
@@ -354,7 +355,7 @@ public data class Effect(
 /**
  * Returns a `Component` subscription reached without passing through an `IF` or `BY`, or null if
  * there is none.
- * [Rule L8-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)
+ * [Rule L8-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)
  * rejects such an unqualified universe-wide watcher.
  */
 private fun Effect.Trigger.unqualifiedBroadSubscription(qualified: Boolean = false): Expression? =

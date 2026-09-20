@@ -1,53 +1,63 @@
 "The base Terraforming Mars rules"
 CLASS TerraformingMars : BaseGameModule {
+  autoSelectWhen = HAS "MAX 0 TerraformingMars"
+  phaseSegment = HAS "SolarPhase, ResearchPhase"
+
   HAS =1 GameMode, =1 MarsMap
   HAS Class<Production>
   HAS Class<BootstrapPhase>, Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>, Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>, Class<End>
   HAS Class<WorkflowStarted>, Class<BootstrapPhaseScope>, Class<SetupPhaseScope>, Class<ActionPhaseScope>, Class<ProductionPhaseScope>, Class<SolarPhaseScope>, Class<ResearchPhaseScope>, Class<FinalGreeneryPhaseScope>
+  HAS Class<VenusSolarPhase>, Class<ColoniesSolarPhase>, Class<TurmoilSolarPhase>
   HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
-  autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
   This: SellPatentsProject, PowerPlantProject, AsteroidProject, AquiferProject, GreeneryProject, CityProject
   This: PlayCardFromHandAction, UseStandardProjectAction, UseActionOnCardAction, ConvertPlantsAction, ConvertHeatAction
   This: DoRequiredActionsAction
-  This: Action1, Action2, Action3, CardPurchase, CardPlay
-  This: Hand, Selecting, Revealed
+  This: Hand, Selecting, Revealed, CardPurchase, CardPlay
   This: EACH Class<GlobalParameter> { GpIncomplete<Class<GlobalParameter>> }
   This: EACH Class<RemoteArea> { RemoteArea }
+  This: EACH Class<ActionSlot> { ActionSlot }
 
   ModulesReady IF MAX 0 ExtendedGlobalParametersRule: StandardGpTrackRules
 
+  // TODO: get rid of
   CorporationPhase: Photosynthesis
   CorporationPhase:: EACH Class<CardWatcher> { CardWatcher }
 
-  PlayTag<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>
-  PlayTag<Class<SpaceTag>> IF Owed:: Accepting<Class<Titanium>>
+  // TODO: do we need `IF Owed` ... if so could `Accepting` just remove itself when no Owed exist?
+  PayingFor<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>
+  PayingFor<Class<SpaceTag>> IF Owed:: Accepting<Class<Titanium>>
 }
 
-"Starts each player with one production of every standard resource"
+"Variant rule: each player begins with 1 of each production"
 CLASS QuickStartVariant : Module {
   autoSelectWhen = HAS "TerraformingMars, MAX 0 CorporateEraExpansion"
 
   SetupPhase: EACH Player { PROD[MC, Steel, Titanium, Plant, Energy, Heat] }
 }
 
-"An affirmative, immutable Module active in a playable game"
+"A singleton immutable provider of rule content based on game options"
 ABSTRACT CLASS Module : System {
-  HAS =1 This
   autoSelectWhen = Requirement?
   premiseRequirement = Requirement?
-  -This:: Die!
+  phaseSegment = Requirement?
+  phaseAfter = Requirement?
+
+  HAS =1 This
 }
 
+// TODO: why do we need this
 "The Module whose immediate setup must precede every other selected Module"
 ABSTRACT CLASS BaseGameModule : Module { HAS =1 BaseGameModule }
 
+// TODO: why do we need this
 "Signals that the complete selected Module layer is live"
 CLASS ModulesReady : Signal
 
 "Exactly one player-count Module active in a playable game"
 ABSTRACT CLASS GameMode : Module {
-  HAS MAX 1 GameMode
+  HAS MAX 1 GameMode // TODO =1 ??
+  // TODO: why would we ever need this?
   premiseRequirement = HAS "=1 TerraformingMars"
 
   "Multiplayer rules, including the end condition that deliberately excludes Venus"
@@ -59,7 +69,7 @@ ABSTRACT CLASS GameMode : Module {
     This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
     SetupPhase: EACH Player { 20 TerraformRating }
     CheckGameEnd IF WorkflowStarted, ProductionPhase:: FinalGreeneryPhase FROM ProductionPhase
-    -FinalScoringPending: EACH Player(HAS =1 (RANK Player { VictoryPoint, MC })) { Victory }
+    -FinalScoringPending: EACH Player(HAS =1 (RANK { VictoryPoint, MC })) { Victory }
   }
 }
 
@@ -87,14 +97,12 @@ CLASS TerraformRating : Owned<Player> {
 }
 
 "Marks the player who takes the first turn"
-CLASS StartToken : Owned<Player> {
-  HAS =1 StartToken
-}
+CLASS StartToken : Owned<Player> { HAS =1 StartToken }
 
 "Identifies the Player immediately after another Player in seat order"
 CLASS AfterMe<Owner, Player> : System {
   HAS MAX 1 This
-  ResearchPhase IF StartToken<Owner>: StartToken<Player> FROM StartToken<Owner>.
+  ResearchPhase IF StartToken<Owner>: StartToken<Player FROM Owner>.
 }
 
 "The current game phase; exactly one exists from bootstrap through the terminal End phase"
@@ -103,7 +111,7 @@ ABSTRACT CLASS Phase : System {
 
   CLASS BootstrapPhase
   CLASS SetupPhase {
-    This IF WorkflowStarted:: SetupPhaseScope<This>
+    This IF WorkflowStarted:: SetupPhaseScope
     This:: Generation
   }
   CLASS CorporationPhase {
@@ -112,18 +120,21 @@ ABSTRACT CLASS Phase : System {
     -CorporationCard<Hand>: BuySelectedCards
   }
   CLASS ResearchPhase {
-    This IF WorkflowStarted:: ResearchPhaseScope<This>
+    This IF WorkflowStarted:: ResearchPhaseScope
     This:: Generation
   }
   CLASS ActionPhase {
-    This IF WorkflowStarted:: ActionPhaseScope<This>
+    This IF WorkflowStarted:: ActionPhaseScope
     NewTurn: UseAction<StandardAction> OR Pass
     SecondAction: UseAction<StandardAction>?
   }
-  CLASS ProductionPhase { This IF WorkflowStarted:: ProductionPhaseScope<This> }
-  CLASS SolarPhase { This IF WorkflowStarted:: SolarPhaseScope<This> }
+  CLASS ProductionPhase { This IF WorkflowStarted:: ProductionPhaseScope }
+  CLASS SolarPhase
+  CLASS VenusSolarPhase
+  CLASS ColoniesSolarPhase
+  CLASS TurmoilSolarPhase
   CLASS FinalGreeneryPhase {
-    This IF WorkflowStarted:: FinalGreeneryPhaseScope<This>
+    This IF WorkflowStarted:: FinalGreeneryPhaseScope
     NewTurn: UseAction<ConvertPlantsAction, Action1>?
   }
 
@@ -136,45 +147,40 @@ ABSTRACT CLASS Phase : System {
 "Records that the phase workflow has been explicitly started"
 CLASS WorkflowStarted : System {
   HAS MAX 1 This
-  This:: BootstrapPhaseScope<BootstrapPhase>
+  This:: BootstrapPhaseScope
 }
 
 "The lifetime anchor for components belonging to one occurrence of a phase"
 ABSTRACT CLASS PhaseScope<Phase> : System { HAS MAX 1 PhaseScope }
 
 "The bootstrap phase's lifetime anchor and continuation"
-CLASS BootstrapPhaseScope<BootstrapPhase> : PhaseScope<BootstrapPhase>, Temporary {
+CLASS BootstrapPhaseScope : PhaseScope<BootstrapPhase>, Temporary {
   -This IF WorkflowStarted:: SetupPhase FROM BootstrapPhase
 }
 
 "The setup phase's lifetime anchor and continuation"
-CLASS SetupPhaseScope<SetupPhase> : PhaseScope<SetupPhase>, Temporary {
+CLASS SetupPhaseScope : PhaseScope<SetupPhase>, Temporary {
   -This IF WorkflowStarted:: CorporationPhase FROM SetupPhase
 }
 
 "The action phase's lifetime anchor and continuation"
-CLASS ActionPhaseScope<ActionPhase> : PhaseScope<ActionPhase> {
+CLASS ActionPhaseScope : PhaseScope<ActionPhase> {
   -This IF WorkflowStarted:: ProductionPhase FROM ActionPhase
 }
 
 "The production phase's lifetime anchor and continuation"
-CLASS ProductionPhaseScope<ProductionPhase> : PhaseScope<ProductionPhase>, Temporary {
+CLASS ProductionPhaseScope : PhaseScope<ProductionPhase>, Temporary {
   -This IF WorkflowStarted, GameEndBarrier:: SolarPhase FROM ProductionPhase
   -This IF WorkflowStarted, MAX 0 GameEndBarrier:: CheckGameEnd
 }
 
-"The solar phase's lifetime anchor and continuation"
-CLASS SolarPhaseScope<SolarPhase> : PhaseScope<SolarPhase>, Temporary {
-  -This IF WorkflowStarted:: ResearchPhase FROM SolarPhase
-}
-
 "The research phase's lifetime anchor and continuation"
-CLASS ResearchPhaseScope<ResearchPhase> : PhaseScope<ResearchPhase>, Temporary {
+CLASS ResearchPhaseScope : PhaseScope<ResearchPhase>, Temporary {
   -This IF WorkflowStarted:: ActionPhase FROM ResearchPhase
 }
 
 "The final greenery phase's lifetime anchor and terminal continuation"
-CLASS FinalGreeneryPhaseScope<FinalGreeneryPhase> : PhaseScope<FinalGreeneryPhase> {
+CLASS FinalGreeneryPhaseScope : PhaseScope<FinalGreeneryPhase> {
   -This IF WorkflowStarted:: End FROM FinalGreeneryPhase
 }
 
@@ -198,7 +204,7 @@ CLASS GenerationScope : Scope, System {
   Generation:: -This! THEN This!
 }
 
-"Something that prevents the game from ending at the post-production check"
+"Anything that prevents the game from ending"
 ABSTRACT CLASS GameEndBarrier
 
 "Signals the post-production check after the final GameEndBarrier is removed"

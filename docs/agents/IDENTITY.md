@@ -105,6 +105,11 @@ example, `OceanTile` on that card means `OceanTile BY Owner`; writing `OceanTile
 explicitly cancels the filter. This is trigger matching, not task attribution and not an authored
 Type variable.
 
+That rule is now stated as language rule L8-8, together with its two other cases: a watched type
+that carries its own ownership says whose events it means by ownership instead, and a `System` type
+is exempt because its events are the table's own. This document keeps only the attribution half —
+who is credited with the change that results.
+
 An ownerless rule can also require the triggering Player as context for its result. The canonical
 case is `GlobalParameter`:
 
@@ -226,8 +231,39 @@ The former watcher limitation is resolved: explicit `Owner(NOT Player)` differen
 concrete victim, so `MyResourceWasRemoved` and `MyProductionWasDecreased` now declare `Owned<Owner>`.
 
 The direction to investigate is giving the contextual owner a spelling distinct from the Class name,
-so `Anyone` and the carve-outs can go and a class can declare `Owner` as a real bound. Confirm first
-that no rule genuinely needs `Anyone` and `Owner` to be different Types.
+so `Anyone` and the carve-outs can go and a class can declare `Owner` as a real bound.
+
+#### What the 2026-09-17 review added
+
+**The audit's own precondition now has an answer.** "Confirm first that no rule genuinely needs
+`Anyone` and `Owner` to be different Types": in `tfm/canon`, `Anyone` appears only as a dependency
+argument or after `BY`, and `Owner` is used as a Class only in twelve class headers and in four
+`Owner(NOT Player)` arguments. Nothing needs them to denote different sets.
+
+**The overload decides meaning by punctuation.** `Transforming.replaceOwnerWith` substitutes only a
+bare `Owner`, so `Owner` is the contextual variable and `Owner(NOT Player)` is the Class — the same
+word, read two ways depending on whether a refinement follows it.
+
+**`BY Anyone` is a third meaning.** It is handled before constrained narrowing (`LiveEffect`, search
+for `by == ANYONE`) and includes Admin, who is not an `Anyone` at all. Two more Kotlin carve-outs
+exist for the same word: `Class.kt` skips `ANYONE` when recognizing header-variable uses, and
+`inferTypeVariables` skips it when recognizing Actor declarations.
+
+**A shape that would dissolve all of it.** Make both words contextual rather than classes:
+
+- `Owner` means the context's player and is never a class, so it is never intersected with a bound
+  (T10-5 disappears), and `Anyone(NOT Player)` — not `Owner(NOT Player)` — is how a rule names a
+  victim;
+- `Anyone` means the unrestricted top of *its role*: the ownership root as an argument, `Actor`
+  after `BY`. `BY Anyone` then includes Admin because agency, not ownership, is the role there —
+  no wildcard carve-out, and the type-system spec's Appendix A hole closes;
+- the ownership root Class takes a name of its own, used only in headers.
+
+Repeated `Anyone` would then co-refer like any other repeated spelling, which Mons Insurance
+already relies on; no canonical `BY Anyone` effect repeats a bare `Anyone`, so that costs nothing
+today. This is a rename across canon plus the removal of five carve-outs, and it was deliberately
+**not** attempted during the specification review; treat it as the next piece of work here, not as
+settled.
 
 ## Future extension
 

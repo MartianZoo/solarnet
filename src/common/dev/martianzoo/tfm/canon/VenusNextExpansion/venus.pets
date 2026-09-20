@@ -32,8 +32,9 @@ CLASS ExtendedVenusTrackRules : System {
 "Adds World Government Terraforming to the solar phase"
 CLASS WorldGovernmentRule : Module {
   autoSelectWhen = HAS "VenusNextExpansion"
+  phaseAfter = HAS "VenusSolarPhase, SolarPhase"
 
-  SolarPhase:: EACH Player(HAS StartToken) { WorldGovernmentTerraforming }
+  VenusSolarPhase:: EACH Player(HAS StartToken) { WorldGovernmentTerraforming }
 }
 
 "Makes Venus a required global parameter for ending a multiplayer game"

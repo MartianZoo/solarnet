@@ -1,5 +1,6 @@
 package dev.martianzoo.engine
 
+import dev.martianzoo.engine.Exceptions.RunawayEffectChainException
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Transforming
@@ -8,12 +9,9 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.pets.api.Exceptions.abstractInstruction
-import dev.martianzoo.pets.api.Exceptions.orWithoutChoice
-import dev.martianzoo.pets.api.Exceptions.requirementNotMet
-import dev.martianzoo.pets.api.Exceptions.requirementsNotMetInChoices
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
@@ -21,6 +19,7 @@ import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.DIE
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -44,6 +43,7 @@ import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.pets.types.inferTypeVariables
 import dev.martianzoo.state.Component.Companion.toComponent
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.toComponent
@@ -93,15 +93,7 @@ internal constructor(
       // Independent siblings, such as the branches of a fanout, execute in place here; only an
       // enqueued task turns them into separately selectable work.
       is InstructionGroup ->
-          resolved.instructions.forEach {
-            doExecute(
-                it as? Instruction ?: throw abstractInstruction(it),
-                cause,
-                deferred,
-                actor,
-                controller,
-            )
-          }
+          resolved.instructions.forEach { doExecute(it, cause, deferred, actor, controller) }
     }
   }
 
@@ -112,19 +104,21 @@ internal constructor(
       actor: Actor,
       controller: Actor,
   ) {
+    if (resolved !is Then && resolved.isAbstract(reader)) {
+      throw NotFullySpecifiedException("instruction is abstract: $resolved")
+    }
     when (resolved) {
       is Change -> executeChange(resolved, cause, deferred, actor, controller)
       is By -> doExecuteResolved(resolved.inner, cause, deferred, actorFor(resolved), controller)
-      is Then ->
-          resolved.instructions.forEachIndexed { index, tree ->
-            val instruction = tree as? Instruction ?: throw abstractInstruction(tree)
-            if (index == 0) {
-              doExecuteResolved(instruction, cause, deferred, actor, controller)
-            } else {
-              doExecute(instruction, cause, deferred, actor, controller)
-            }
+      is Then -> {
+        doExecuteResolved(resolved.first, cause, deferred, actor, controller)
+        resolved.instructions.drop(1).forEach { tree ->
+          InstructionGroup.of(tree).instructions.forEach {
+            doExecute(it, cause, deferred, actor, controller)
           }
-      is Or -> throw orWithoutChoice(resolved)
+        }
+      }
+      is Or -> error("abstract OR passed the execution boundary: $resolved")
       is NoOp -> {}
       else -> error("somehow a ${resolved::class.simpleName} was enqueued: $resolved")
     }
@@ -137,8 +131,8 @@ internal constructor(
       actor: Actor,
       controller: Actor,
   ) {
-    val ct = instruction.count as? ActualScalar ?: throw abstractInstruction(instruction)
-    if (instruction.quantifier != MANDATORY) throw abstractInstruction(instruction)
+    val ct = instruction.count as ActualScalar
+    check(instruction.quantifier == MANDATORY)
 
     val gaining = instruction.gaining?.toComponent(reader)
     val removing = instruction.removing?.toComponent(reader)
@@ -204,15 +198,31 @@ internal constructor(
       is By -> By.createTree(resolve(unresolved.inner), actorType(unresolved).expression)
       is Per -> resolve(unresolved.inner * reader.count(unresolved.metric))
       is Gated -> {
-        if (!reader.has(unresolved.gate)) throw requirementNotMet(unresolved.gate)
+        if (!reader.has(unresolved.gate)) {
+          throw RequirementException("requirement not met: `${unresolved.gate}` / null")
+        }
         resolveTree(unresolved.inner)
       }
       is Each -> resolveEach(unresolved)
       is Or -> resolveOr(unresolved)
-      is Then ->
-          unresolved.withInstructions(
-              listOf(resolveTree(unresolved.first)) + unresolved.instructions.drop(1)
-          )
+      is Then -> {
+        val first = unresolved.first
+        val gated = first as? Gated
+        val gateVariables =
+            gated
+                ?.gate
+                ?.descendantsOfType<Expression>()
+                ?.mapNotNull(unresolved.typeVariables::variableAt)
+                ?.toSet()
+                .orEmpty()
+        val openGate =
+            gated?.inner?.descendantsOfType<Expression>()?.any {
+              unresolved.typeVariables.variableAt(it) in gateVariables
+            } == true
+        unresolved.withInstructions(
+            listOf(if (openGate) first else resolveTree(first)) + unresolved.instructions.drop(1)
+        )
+      }
       is Transform -> throw ExpressionException("unhandled instruction transform: $unresolved")
     }
   }
@@ -265,6 +275,20 @@ internal constructor(
   ): InstructionTree {
     // can't resolve at all if we still have an X?
     val count = (change.count as? ActualScalar)?.value ?: return change
+    if (change is Transmute) {
+      // An exclusion containing an open co-reference becomes meaningful only when an atomic
+      // proposal binds that variable. Generated syntax may need the ordinary inference fallback.
+      val variables =
+          change.typeVariables.takeUnless { it.isEmpty }
+              ?: classTable.inferTypeVariables().transformInstruction(change).typeVariables
+      val openExclusion =
+          change.descendantsOfType<Not>().any { not ->
+            not.excluded.descendantsOfType<Expression>().any {
+              variables.variableAt(it) != null
+            }
+          }
+      if (openExclusion) return change
+    }
 
     val (g, r) = narrowChangeTypes(change, count, intens) ?: return change
     if (listOfNotNull(g, r).any { !classTable.isInhabited(it) }) {
@@ -274,14 +298,15 @@ internal constructor(
               listOfNotNull(g, r).filterNot(classTable::isInhabited).joinToString()
       )
     }
-    if (g?.className == DIE) throw DeadEndException("a Die instruction was reached")
-
     val atomized = classTable.findClass(ATOMIZED)
     if (r != null && count > 1 && atomized != null && g?.rootClass?.isSubtypeOf(atomized) == true) {
       throw ExpressionException(
           "Can't transmute $count components into atomized type ${g.expression}; " +
               "split it into one-component transmutations"
       )
+    }
+    if (g?.className == DIE && intens == MANDATORY) {
+      throw DeadEndException("a Die instruction was reached")
     }
 
     if (listOfNotNull(g, r).any { it.abstract }) {
@@ -451,7 +476,12 @@ internal constructor(
     val why = failures.joinToString { it.message.orEmpty() }
     if (failures.any { it is DeadEndException }) throw DeadEndException("no choice remains: $why")
     val unmet = failures.filterIsInstance<RequirementException>()
-    if (unmet.size == failures.size) throw requirementsNotMetInChoices(unmet)
+    if (unmet.size == failures.size) {
+      require(unmet.isNotEmpty())
+      throw RequirementException(
+          "requirements not met in every choice: " + unmet.joinToString { it.message.orEmpty() }
+      )
+    }
     throw NotNowException("all options impossible: $why")
   }
 

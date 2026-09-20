@@ -12,11 +12,11 @@
 > ends.
 >
 > **Status:** working partial proof. Once `WorkflowStarted` exists, phase scopes carry
-> Bootstrap-to-Setup-to-Corporation, the Production-to-Solar-to-Research-to-Action cycle, and the
-> final transition from Final Greenery to End. `TfmWorkflow.Automatic` still wakes Action and Final
-> Greenery scopes after their domain sequencing finishes, enters Prelude or Action after
-> Corporation, and owns all intra-phase sequencing. `GenerationScope` and dependency-ordered idle
-> cleanup are implemented beneath that proof.
+> Bootstrap-to-Setup-to-Corporation, the compiled Solar segment, the recurring
+> Production-to-Research-to-Action cycle, and the final transition from Final Greenery to End.
+> `TfmWorkflow.Automatic` still wakes Action and Final Greenery scopes after their domain sequencing
+> finishes, enters Prelude or Action after Corporation, and owns all intra-phase sequencing.
+> `GenerationScope` and dependency-ordered idle cleanup are implemented beneath that proof.
 
 ## Purpose and scope
 
@@ -92,7 +92,7 @@ ABSTRACT CLASS PhaseScope<Phase> : System {
 }
 
 "The scope belonging to an occurrence of PreludePhase"
-CLASS PreludePhaseScope<PreludePhase> : PhaseScope<PreludePhase>, Temporary {
+CLASS PreludePhaseScope : PhaseScope<PreludePhase>, Temporary {
   -This:: ActionPhase FROM PreludePhase
 }
 ```
@@ -105,7 +105,7 @@ equivalent to:
 
 ```pets
 CLASS PreludePhase : Phase {
-  This:: PreludePhaseScope<This>
+  This:: PreludePhaseScope
   // Prelude-owned work
 }
 ```
@@ -161,7 +161,7 @@ Creating `WorkflowStarted` creates the Bootstrap continuation:
 
 ```pets
 CLASS WorkflowStarted : System {
-  This:: BootstrapPhaseScope<BootstrapPhase>
+  This:: BootstrapPhaseScope
 }
 ```
 
@@ -176,19 +176,24 @@ Expansion authors should state only their own relative-order requirements. They 
 a base transition or describe a complete ordering that includes other optional expansions.
 
 The workflow topology is cyclic, so precedence is local to a named segment rather than one global
-order. Conceptually, base Terraforming Mars declares a Solar segment from `SolarPhase` to
-`ResearchPhase`. Expansions contribute facts such as:
+order. Base Terraforming Mars declares a Solar segment from `SolarPhase` to `ResearchPhase` through
+the optional `phaseSegment` Module property. Each expansion Module uses `phaseAfter` to name its
+phase first and every weaker predecessor after it:
 
-```text
-VenusSolarPhase belongs to Solar and is after SolarPhase
-
-ColoniesSolarPhase belongs to Solar and is after SolarPhase
-ColoniesSolarPhase is after VenusSolarPhase
+```pets
+CLASS TerraformingMars : BaseGameModule {
+  phaseSegment = HAS "SolarPhase, ResearchPhase"
+}
+CLASS WorldGovernmentRule : Module {
+  phaseAfter = HAS "VenusSolarPhase, SolarPhase"
+}
+CLASS ColoniesExpansion : Module {
+  phaseAfter = HAS "ColoniesSolarPhase, SolarPhase, VenusSolarPhase"
+}
 ```
 
-Only included, inhabited Phase Classes participate. A constraint mentioning an excluded or
-uninhabited optional Phase is weak: it contributes no edge and does not include that Phase. Thus the
-applicable orders are naturally:
+Only selected Modules contribute their optional phases at runtime. Thus the applicable orders are
+naturally:
 
 ```text
 Solar -> Research
@@ -201,24 +206,23 @@ Prelude similarly contributes that `PreludePhase` belongs to the Corporation-to-
 comes after `CorporationPhase`. Membership in that segment already places it before the segment's
 `ActionPhase` endpoint.
 
-A topology compiler gathers the active members and constraints of each segment, proves that they
-produce one unique linear order, and emits concrete Phase-scope removal effects into Pets Classes.
-Runtime execution neither sorts phases nor interprets precedence. The expansion constraints are
-authoring input and do not also become live Components; the compiled scopes and continuations are
-the one runtime representation. Reconsider live constraint Components only if a real rule needs to
-observe or alter phase topology during a game.
+A topology compiler gathers those declaration properties across the composed Catalog, proves one
+linear order, and emits concrete Phase-scope Classes plus mutually exclusive Module-gated removal
+effects for every possible next phase. Runtime execution neither sorts phases nor interprets
+precedence. The properties are authoring metadata, not live Components; the compiled scopes and
+continuations are the one runtime representation. Reconsider live constraint Components only if a
+real rule needs to observe or alter phase topology during a game.
 
 The compiler must reject:
 
 - a cycle within a segment;
 - two incomparable phases that could both be next;
 - an absent required segment endpoint;
-- a phase placed in incompatible segments; and
+- a constraint that cannot be reached from exactly one segment start; and
 - any compiled nonterminal path lacking exactly one continuation.
 
-Whether compilation specializes one Game Premise or emits requirement-gated Pets for every Module
-combination is an implementation choice. The resulting World behavior and Pets model must be the
-same, and Kotlin must not retain a second topology registry.
+Compilation emits requirement-gated Pets for every Module combination in the Catalog. Kotlin does
+not retain a runtime topology registry.
 
 ## Dynamic paths remain Pets behavior
 
@@ -293,14 +297,15 @@ The implemented recurring and terminal paths are:
 ActionPhaseScope removal -> ProductionPhase
 ProductionPhaseScope removal -> SolarPhase, while a GameEndBarrier exists
 ProductionPhaseScope removal -> CheckGameEnd, otherwise
-SolarPhaseScope removal -> ResearchPhase
+SolarPhaseScope removal -> first selected optional Solar phase, or ResearchPhase
+Each compiled optional Solar scope -> next selected optional phase, or ResearchPhase
 ResearchPhaseScope removal -> ActionPhase
 CheckGameEnd -> FinalGreeneryPhase, when the active GameMode's end condition succeeds
 FinalGreeneryPhaseScope removal -> End
 ```
 
-`ProductionPhaseScope`, `SolarPhaseScope`, and `ResearchPhaseScope` are Temporary. Pending phase
-work keeps cleanup from removing them; when it drains, their automatic removal effects cascade.
+`ProductionPhaseScope`, every compiled Solar scope, and `ResearchPhaseScope` are Temporary. Pending
+phase work keeps cleanup from removing them; when it drains, their automatic removal effects cascade.
 This includes optional Production work such as Supercapacitors. `ActionPhaseScope` and
 `FinalGreeneryPhaseScope` are deliberately not Temporary because their queues drain between
 players. `TfmWorkflow.Automatic` removes them only after the existing player sequencing observes phase
@@ -335,7 +340,7 @@ The phase workflow is successful only when all of these hold:
 - Without an explicit start, the World remains there indefinitely.
 - Starting once produces Setup and then every later phase through Pets scopes and effects.
 - Exactly one Phase and at most one live Phase scope exist throughout committed play.
-- Optional phases appear only when their Classes are included and inhabited.
+- Optional phases appear only when their owning Modules are selected.
 - Expansion-owned precedence composes without base code naming expansion phases.
 - Queue drain cannot remove an outer scope before its dependent mandatory cleanup.
 - Rollback restores scopes, their dependents, and the resulting continuation naturally from the
@@ -347,10 +352,8 @@ The phase workflow is successful only when all of these hold:
 
 ## Remaining demonstrations
 
-The next workflow migration is not yet selected. The known candidates are:
-
-- compile Prelude's weak ordering contribution and verify both active and inactive cases; and
-- compile the Solar constraints and verify every combination of base, Venus, and Colonies phases.
+The next workflow migration is not yet selected. Prelude's weak ordering contribution remains the
+known candidate; the Solar segment compilation is implemented for base, Venus, and Colonies.
 
 Do not redesign Action-turn rotation as part of the Action-to-Production proof; that is sequencing.
 If the narrow model needs phase-specific Kotlin, a literal runtime stack, or a second representation

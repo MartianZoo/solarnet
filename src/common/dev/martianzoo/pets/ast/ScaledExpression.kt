@@ -33,8 +33,7 @@ private constructor(
     // Identity, rather than the name, makes this parse-only marker impossible to author.
     private val denominationlessClass = cn("Denominationless")
     private val denominationlessExpression = denominationlessClass.expression
-    private const val denominationlessAmountMessage =
-        "Denominationless money amounts are no longer supported; write MC explicitly"
+    private const val denominationlessAmountMessage = "money amounts must name `MC` explicitly"
 
     /** Returns [expression] scaled by [scalar]. */
     public fun scaledEx(expression: HasExpression, scalar: Scalar): ScaledExpression =
@@ -101,7 +100,7 @@ private constructor(
 
     internal companion object {
       internal fun checkNonzero(s: Scalar) {
-        if (s == ActualScalar(0)) throw PetSyntaxException("Can't do zero")
+        if (s == ActualScalar(0)) throw PetSyntaxException("instruction count cannot be zero")
       }
     }
 
@@ -121,10 +120,11 @@ private constructor(
 
       override fun ensureNarrows(that: Scalar, info: TypeInfo) {
         when {
+          that is XScalar && value == 0 -> throw NarrowingException("`X` must be at least 1")
           that is XScalar && (value % that.multiple != 0) ->
-              throw NarrowingException("$value isn't a multiple of ${that.multiple}")
+              throw NarrowingException("`$value` is not a multiple of `${that.multiple}`")
           that is ActualScalar && value != that.value ->
-              throw NarrowingException("can't change value from ${that.value} to $value")
+              throw NarrowingException("cannot change value from `${that.value}` to `$value`")
         }
       }
 
@@ -135,8 +135,8 @@ private constructor(
      * An amount left open, carrying the written coefficient [multiple]: `2X Plant` is an even
      * number of plants ([rule
      * L6-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
-     * Every occurrence of `X` in one instruction takes the same value, each scaled by its own
-     * coefficient ([rule
+     * `X` stands for at least one, never zero. Every occurrence of `X` in one instruction takes the
+     * same value, each scaled by its own coefficient ([rule
      * L7-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
      */
     public data class XScalar public constructor(val multiple: Int) : Scalar() {
@@ -147,7 +147,7 @@ private constructor(
       override val abstract: Boolean = true
 
       override fun ensureNarrows(that: Scalar, info: TypeInfo) {
-        if (this != that) throw NarrowingException("$this / $that")
+        if (this != that) throw NarrowingException("`$this` does not narrow `$that`")
       }
 
       override fun times(multiple: Int) = copy(multiple = this.multiple * multiple)

@@ -1,7 +1,7 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.api.CustomClass
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import io.kotest.assertions.throwables.shouldThrow
@@ -64,7 +64,7 @@ internal class Spec02ClassesTest {
 
   @Test
   internal fun `T2-2 naming Component as a supertype is an error`() {
-    shouldThrow<PetException> { loadTypes("CLASS GreeneryTile : Component") }
+    shouldThrow<InvalidPetDefinitionException> { loadTypes("CLASS GreeneryTile : Component") }
   }
 
   @Test
@@ -90,10 +90,10 @@ internal class Spec02ClassesTest {
 
   @Test
   internal fun `T2-3 no class may extend a concrete class`() {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes("CLASS GreeneryTile", "CLASS SpecialTile : GreeneryTile")
     }
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes("CLASS GreeneryTile", "ABSTRACT CLASS SpecialTile : GreeneryTile")
     }
   }
@@ -172,10 +172,10 @@ internal class Spec02ClassesTest {
 
   @Test
   internal fun `T2-5 a supertype cycle is rejected`() {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes("CLASS GreeneryTile : CityTile", "CLASS CityTile : GreeneryTile")
     }
-    shouldThrow<PetException> { loadTypes("CLASS GreeneryTile : GreeneryTile") }
+    shouldThrow<InvalidPetDefinitionException> { loadTypes("CLASS GreeneryTile : GreeneryTile") }
   }
 
   // T2-6 Declaration order
@@ -267,8 +267,8 @@ internal class Spec02ClassesTest {
         .custom shouldBe true
 
     // A declared-but-unimplemented Custom class is rejected by the Catalog lookup itself.
-    shouldThrowIae { loadTypes(declaration) }
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> { loadTypes(declaration) }
+    shouldThrow<InvalidPetDefinitionException> {
       ClassLoader(testCatalog("CLASS Neighbor", setOf(object : CustomClass(cn("Neighbor")) {})))
           .loadEverything()
     }
@@ -276,7 +276,7 @@ internal class Spec02ClassesTest {
 
   @Test
   internal fun `T2-9 a root class rejects an unexpected implementation`() {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       ClassLoader(testCatalog("", setOf(object : CustomClass(COMPONENT) {})))
     }
   }
@@ -298,7 +298,7 @@ internal class Spec02ClassesTest {
 
           // Also proves a failed load is not cached as a success.
           repeat(2) {
-            shouldThrow<PetException> { loader.load(cn("Neighbor")) }
+            shouldThrow<InvalidPetDefinitionException> { loader.load(cn("Neighbor")) }
             loader.findClass(cn("Neighbor")) shouldBe null
           }
         }

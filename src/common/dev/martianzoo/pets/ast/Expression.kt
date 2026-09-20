@@ -11,6 +11,7 @@ import dev.martianzoo.pets.ClassParsing
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.types.ClassLoader
@@ -170,7 +171,7 @@ public data class Expression(
     public data class Has(val requirement: Requirement) : Refinement() {
       init {
         require(requirement !is Requirement.And) {
-          "a HAS clause cannot contain a top-level requirement conjunction"
+          "a `HAS` clause cannot contain a top-level requirement conjunction"
         }
       }
 
@@ -245,13 +246,37 @@ public data class Expression(
                 skipChar('>')
         val refinement = refinementParser()
 
+        fun expression(
+            clazz: ClassName,
+            args: List<Expression>?,
+            ref: Refinement?,
+        ): Expression {
+          val domain = Expression(clazz, args.orEmpty(), argumentsSpecified = args != null)
+          val boundRefinement = ref?.let {
+            object : PetTransformer() {
+                  override fun transformNode(node: PetNode): PetNode =
+                      when {
+                        node is Metric.Rank && node.selector == null ->
+                            node.copy(
+                                selector = domain,
+                                metrics = node.metrics.map(::transformMetric),
+                            )
+                        node is Expression -> node
+                        else -> transformChildren(node)
+                      }
+                }
+                .transformRefinement(it)
+          }
+          return domain.copy(refinement = boundRefinement)
+        }
+
         if (allowDerivedClass) {
           ClassName.parser() and
               optional(argumentList) and
               optional(refinement) and
               optional(ClassParsing.Declarations.derivedClassBody) map
               { (clazz, args, ref, body) ->
-                Expression(clazz, args.orEmpty(), ref, args != null).let {
+                expression(clazz, args, ref).let {
                   if (body == null) it else it.withDerivedClassBody(body)
                 }
               }
@@ -260,7 +285,7 @@ public data class Expression(
               optional(argumentList) and
               optional(refinement) map
               { (clazz, args, ref) ->
-                Expression(clazz, args.orEmpty(), ref, args != null)
+                expression(clazz, args, ref)
               }
         }
       }

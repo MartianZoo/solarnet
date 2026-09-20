@@ -29,6 +29,7 @@ internal fun testCatalog(
     petsText: String,
     customImplementations: Set<CustomClass> = emptySet(),
     moduleSelections: Map<ClassName, Set<ClassSelection>> = emptyMap(),
+    classAvailabilityModules: Map<ClassName, Set<ClassName>> = emptyMap(),
 ): Catalog {
   val explicitDeclarations = parseClasses(petsText).toSet()
   val declarations = systemClassDeclarations + explicitDeclarations
@@ -40,20 +41,20 @@ internal fun testCatalog(
         }
     override val customClasses: Set<CustomClass> = customImplementations
     override val modules: Map<ClassName, Set<ClassSelection>> = moduleSelections
+    override val classAvailabilityModules: Map<ClassName, Set<ClassName>> = classAvailabilityModules
     override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
   }
 }
 
-/** Builds the game view of [catalog] whose premise selects exactly [activeClassNames]. */
-internal fun gameView(catalog: Catalog, vararg activeClassNames: String): ClassTable =
-    ClassTable.forPremise(
-        GamePremise(
+/** Builds the game view of [catalog] whose premise selects exactly [selectedClassNames]. */
+internal fun gameView(catalog: Catalog, vararg selectedClassNames: String): ClassTable =
+    GamePremise(
             catalog,
             emptySet(),
-            activeClassNames.mapTo(linkedSetOf()) { ClassSelection(cn(it)) },
+            selectedClassNames.mapTo(linkedSetOf()) { ClassSelection(cn(it)) },
             emptySet(),
         )
-    )
+        .classTable
 
 /** Asserts that [block] rejects an argument, as cross-universe operations do. */
 internal inline fun shouldThrowIae(block: () -> Unit): IllegalArgumentException =

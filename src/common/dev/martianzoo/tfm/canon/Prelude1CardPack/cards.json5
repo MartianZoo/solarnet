@@ -7,7 +7,7 @@
           "name": "CheungShingMars",
           "tags": [ "BuildingTag" ],
           "immediate": "44 MC, PROD[3 MC]",
-          "effects": [ "PlayTag<Class<BuildingTag>>:: -2 Owed" ],
+          "effects": [ "PayingFor<Class<BuildingTag>>:: -2 Owed" ],
         },
         {
           "name": "PointLuna",
@@ -24,7 +24,7 @@
           "name": "ValleyTrust",
           "tags": [ "EarthTag" ],
           "immediate": "37 MC, RequiredAction { -> 3 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting> }",
-          "effects": [ "PlayTag<Class<ScienceTag>>:: -2 Owed" ],
+          "effects": [ "PayingFor<Class<ScienceTag>>:: -2 Owed" ],
         },
         {
           "name": "Vitor",
@@ -235,7 +235,7 @@
           "tags": [ "MicrobeTag" ],
           "actions": [ "-> Microbe<This>" ],
           "effects": [
-            "PlayTag<Class<PlantTag>>:: AcceptingFromCard<This>",
+            "PayingFor<Class<PlantTag>>:: AcceptingFromCard<This>",
             "PayFromCard<This>:: -2 Owed"
           ],
         },

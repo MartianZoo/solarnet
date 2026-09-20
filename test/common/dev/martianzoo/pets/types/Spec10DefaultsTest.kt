@@ -1,6 +1,7 @@
 package dev.martianzoo.pets.types
 
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Quantifier.AMAP
 import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
@@ -111,14 +112,14 @@ internal class Spec10DefaultsTest {
             "CLASS Both : Eager, Choosy",
         )
 
-    shouldThrow<PetException> { table.getClass(cn("Both")).defaults }
+    shouldThrow<InvalidPetDefinitionException> { table.getClass(cn("Both")).defaults }
   }
 
   // T10-3 A default names its own class
 
   @Test
   internal fun `T10-3 a DEFAULT clause must name the class that declares it`() {
-    shouldThrow<PetException> {
+    shouldThrow<PetSyntaxException> {
       loadTypes(
           "ABSTRACT CLASS Area { CLASS Tharsis_2_2 }",
           "CLASS Tile<Area> { DEFAULT Area<Tharsis_2_2> }",
@@ -200,7 +201,7 @@ internal class Spec10DefaultsTest {
                 .trimIndent()
         )
 
-    shouldThrow<PetException> { table.getClass(cn("Impossible")).defaults }
+    shouldThrow<InvalidPetDefinitionException> { table.getClass(cn("Impossible")).defaults }
   }
 
   // T10-5 `Owner` stays contextual

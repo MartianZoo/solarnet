@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.randomcards
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -39,7 +40,7 @@ internal class RandomCardGenerator(seed: Int) :
         val declaration = makeRandomNode<CardDraft>().toDeclaration(name) ?: return@repeat
         catalogWith(listOf(declaration)).card(name)
         return declaration
-      } catch (_: Exception) {
+      } catch (_: PetException) {
         // Some independently generated combinations are not legal Pets; draw another candidate.
       }
     }

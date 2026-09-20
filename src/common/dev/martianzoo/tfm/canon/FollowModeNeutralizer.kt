@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.TransformHandler
-import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.FromExpression.Full
@@ -59,7 +59,7 @@ internal object FollowModeNeutralizer : TransformHandler {
       )
 
   private fun malformed(source: PetNode): Nothing =
-      throw PetSyntaxException(
+      throw ExpressionException(
           "Unsupported ${CardOperation.TRANSFORM_KIND} card operation: $source"
       )
 

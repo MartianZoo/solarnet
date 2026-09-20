@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Transforming.replaceOwnerWith
-import dev.martianzoo.pets.api.Exceptions.KindException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
@@ -82,6 +81,6 @@ internal class TransformingTest {
     val transformer = replacer(original, expanded)
 
     transformer.transformInstructionTree(original) shouldBe expanded
-    shouldThrow<KindException> { transformer.transformInstruction(original) }
+    shouldThrow<IllegalStateException> { transformer.transformInstruction(original) }
   }
 }

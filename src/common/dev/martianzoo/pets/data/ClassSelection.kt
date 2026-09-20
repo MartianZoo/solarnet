@@ -1,18 +1,29 @@
 package dev.martianzoo.pets.data
 
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.PremiseClassTable
 
-/** One class inclusion or exclusion, optionally conditional on the full game configuration. */
+/**
+ * One signed Class selection contributed by a Module or recorded directly in a [GamePremise].
+ *
+ * Module selections may be conditional on the completed configuration. Direct premise selections
+ * are unconditional and express exact resolved content choices.
+ */
 public data class ClassSelection(
     public val className: ClassName,
     public val included: Boolean = true,
     public val requirement: Requirement? = null,
 ) {
-  /** Whether this selection applies in a premise-local namespace over its imported master. */
+  /**
+   * Whether this selection applies in a premise-local namespace over its imported master.
+   *
+   * @throws dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException if its authored
+   *   condition is not a count of one simple class
+   */
   public fun appliesTo(
       configuredClassNames: Set<ClassName>,
       classTable: PremiseClassTable,
@@ -33,8 +44,8 @@ public data class ClassSelection(
       configuredClassNames: Set<ClassName>,
       isSubtypeOf: (candidate: ClassName, superclass: ClassName) -> Boolean,
   ): Int {
-    require(metric is Count && metric.expression.simple) {
-      "Module conditions must count simple classes: $metric"
+    if (metric !is Count || !metric.expression.simple) {
+      throw InvalidPetDefinitionException("module condition must count a simple Class: `$metric`")
     }
     return configuredClassNames.count { configuredName ->
       isSubtypeOf(configuredName, metric.expression.className)

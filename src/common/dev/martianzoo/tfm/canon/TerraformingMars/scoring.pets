@@ -1,12 +1,11 @@
 "The only component to have absolutely no purpose whatsoever"
 CLASS Victory : Owned<Player> { HAS MAX 1 This }
 
-"Well it's a victory point"
 CLASS VictoryPoint : Owned<Player>
 
-"A milestone already claimed; unclaimed milestones exist only as a Class<ThatMilestoneType>"
+"A milestone that has been claimed"
 ABSTRACT CLASS Milestone : Owned<Player> {
-  HAS MAX 1 This<Player>
+  HAS MAX 1 This<Player> // TODO: get rid of this syntax
   HAS MAX 3 Milestone
   requirement = Requirement
 
@@ -14,17 +13,19 @@ ABSTRACT CLASS Milestone : Owned<Player> {
   End: 5 VictoryPoint
 }
 
-"A funded award; unfunded awards exist only as a Class<ThatAwardType>"
+"An award that has been funded"
 ABSTRACT CLASS Award {
   HAS MAX 1 This
   HAS MAX 3 Award
   metric = Metric
+
   End: MeasureAward<This>
 }
 
+// TODO: weird that these effects live as removal effects here...
 CLASS MeasureAward<Award, FinalScoringPending> : Temporary, System {
-  -This:: EACH Player(HAS =1 (RANK Player { EVAL Award.metric })) { FirstPlace<Award> }
-  -This IF 3 Player:: EACH Player(HAS =2 (RANK Player { EVAL Award.metric })) { SecondPlace<Award> }
+  -This:: EACH Player(HAS =1 (RANK { EVAL Award.metric })) { FirstPlace<Award> }
+  -This IF 3 Player:: EACH Player(HAS =2 (RANK { EVAL Award.metric })) { SecondPlace<Award> }
 }
 
 CLASS FirstPlace<Award> : Owned<Player> { This:: 5 VictoryPoint }

@@ -52,6 +52,17 @@ public object TfmWorkflow {
         if (adminOps.has("GameEndBarrier")) adminOps.beginOperation("SolarPhase FROM Phase")
         else null
 
+    /** Enters World Government Terraforming, the first expansion-specific Solar phase. */
+    public fun venusSolarPhase(): TaskResult = adminOps.beginOperation("VenusSolarPhase FROM Phase")
+
+    /** Enters colony-track production, after World Government Terraforming when both are active. */
+    public fun coloniesSolarPhase(): TaskResult =
+        adminOps.beginOperation("ColoniesSolarPhase FROM Phase")
+
+    /** Enters the Turmoil operation after every other active expansion-specific Solar phase. */
+    public fun turmoilSolarPhase(): TaskResult =
+        adminOps.beginOperation("TurmoilSolarPhase FROM Phase")
+
     public fun finalGreeneryPhase(): TaskResult =
         adminOps.runOperation("FinalGreeneryPhase FROM Phase")
 

@@ -6,7 +6,7 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
-import dev.martianzoo.pets.api.Exceptions.DependencyException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.GameConfig
@@ -59,13 +59,13 @@ internal class CatalogCompositionTest {
             initialComponentTypes =
                 setOf(
                     cn("BootstrapDependency").expression,
-                    parse<Expression>("DependentBootstrap<BootstrapDependency>"),
+                    parse<Expression>("DependentBootstrap"),
                 ),
         )
     val game = Engine.newGame(premise)
 
     game.testAgent(PLAYER1).count("BootstrapDependency") shouldBe 1
-    game.testAgent(PLAYER1).count("DependentBootstrap<BootstrapDependency>") shouldBe 1
+    game.testAgent(PLAYER1).count("DependentBootstrap") shouldBe 1
   }
 
   @Test
@@ -89,12 +89,11 @@ internal class CatalogCompositionTest {
     val premise =
         canonicalPremise(
             catalog = catalog,
-            initialComponentTypes =
-                setOf(parse<Expression>("BlockedBootstrap<MissingBootstrapDependency>")),
+            initialComponentTypes = setOf(parse<Expression>("BlockedBootstrap")),
         )
-    val failure = shouldThrow<DependencyException> { Engine.newGame(premise) }
+    val failure = shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
 
-    failure.message.orEmpty().shouldInclude("Missing dependencies: MissingBootstrapDependency")
+    failure.message.orEmpty().shouldInclude("missing dependencies: `MissingBootstrapDependency`")
   }
 
   @Test

@@ -1,8 +1,11 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Requirement
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -64,6 +67,9 @@ internal class Spec08RefinementsTest {
   internal fun `T8-2 a world that denies the requirement rejects the candidate`() {
     type("Tharsis_2_2").narrows(type("LandArea(HAS Neighbor)"), emptyWorld) shouldBe false
     type("Tharsis_2_2").narrows(type("LandArea(HAS Neighbor)"), fullWorld) shouldBe true
+    shouldThrow<NarrowingException> {
+      type("Tharsis_2_2").ensureNarrows(type("LandArea(HAS Neighbor)"), emptyWorld)
+    }
   }
 
   @Test
@@ -104,6 +110,9 @@ internal class Spec08RefinementsTest {
             world,
         ) shouldBe false
     world.questions shouldContainExactly listOf()
+    shouldThrow<NarrowingException> {
+      table.resolve(te("Rock")).ensureNarrows(table.resolve(te("Component(HAS StartToken)")), world)
+    }
   }
 
   @Test
@@ -182,6 +191,9 @@ internal class Spec08RefinementsTest {
     actors.resolve(te("Player1")).isSubtypeOf(notPlayer1) shouldBe false
     // `Player` still admits Player1, so it does not satisfy the exclusion.
     actors.resolve(te("Player")).isSubtypeOf(notPlayer1) shouldBe false
+    shouldThrow<NarrowingException> {
+      actors.resolve(te("Player1")).ensureNarrows(notPlayer1, NoGameState)
+    }
   }
 
   @Test
@@ -228,7 +240,8 @@ internal class Spec08RefinementsTest {
     table.resolve(te("GreeneryTile")).isSubtypeOf(unowned) shouldBe false
     table.resolve(te("CityTile")).isSubtypeOf(unowned) shouldBe false
     table.resolve(te("OceanTile")).isSubtypeOf(unowned) shouldBe true
-    unowned.allConcreteSubtypes().map { "$it" }.toList() shouldContainExactly listOf("OceanTile")
+    table.allConcreteSubtypes(unowned).map { "$it" }.toList() shouldContainExactly
+        listOf("OceanTile")
   }
 
   @Test
@@ -250,8 +263,12 @@ internal class Spec08RefinementsTest {
 
   @Test
   internal fun `T8-5 the excluded operand must be free of refinements, recursively`() {
-    shouldThrow<ExpressionException> { actors.resolve(te("Owner(NOT Player(HAS Marker))")) }
-    shouldThrow<ExpressionException> { actors.resolve(te("Owner(NOT Player(NOT Player1))")) }
+    shouldThrow<ExpressionException> {
+      actors.resolve(te("Owner(NOT Player(HAS Marker))"))
+    }
+    shouldThrow<ExpressionException> {
+      actors.resolve(te("Owner(NOT Player(NOT Player1))"))
+    }
     shouldThrow<ExpressionException> {
       actors.resolve(te("Marker<Player(NOT Player(HAS Marker))>"))
     }
@@ -269,7 +286,7 @@ internal class Spec08RefinementsTest {
 
     empty.refinement shouldBe te("Player1(NOT Player1)").refinement
     empty.abstract shouldBe true
-    empty.allConcreteSubtypes().toList() shouldContainExactly listOf()
+    actors.allConcreteSubtypes(empty).toList() shouldContainExactly listOf()
   }
 
   // T8-8 Refinements and narrowing
@@ -286,6 +303,15 @@ internal class Spec08RefinementsTest {
       type("Tharsis_2_2").isSubtypeOf(type("LandArea(HAS Neighbor)"))
     }
     type("Tharsis_2_2").narrows(type("LandArea(HAS Neighbor)"), fullWorld) shouldBe true
+  }
+
+  @Test
+  internal fun `T8-8 the context-free sentinel rejects every state query`() {
+    shouldThrow<IllegalStateException> { NoGameState.isAbstract(te("LandArea")) }
+    shouldThrow<IllegalStateException> {
+      NoGameState.ensureNarrows(te("LandArea"), te("Tharsis_2_2"))
+    }
+    shouldThrow<IllegalStateException> { NoGameState.has(parse<Requirement>("LandArea")) }
   }
 
   @Test
@@ -309,6 +335,9 @@ internal class Spec08RefinementsTest {
     type("LandArea(HAS Neighbor)").narrows(type("LandArea(HAS Occupant)"), fullWorld) shouldBe false
     type("LandArea(NOT Tharsis_2_2)").narrows(type("LandArea(HAS Neighbor)"), fullWorld) shouldBe
         false
+    shouldThrow<NarrowingException> {
+      type("LandArea(HAS Neighbor)").ensureNarrows(type("LandArea(HAS Occupant)"), fullWorld)
+    }
   }
 
   @Test
@@ -371,8 +400,8 @@ internal class Spec08RefinementsTest {
 
   @Test
   internal fun `T8-9 multiple NOT clauses jointly filter structural enumeration`() {
-    type("Area(NOT Tharsis_2_2, NOT WaterArea)")
-        .allConcreteSubtypes()
+    mars
+        .allConcreteSubtypes(type("Area(NOT Tharsis_2_2, NOT WaterArea)"))
         .map { "$it" }
         .toList() shouldContainExactly listOf("Tharsis_2_3")
   }

@@ -2,7 +2,7 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -58,6 +58,10 @@ internal class Spec01UniversesTest {
     shouldThrowIae { left.getClass(cn("GreeneryTile")).withAllDependencies(rightTile.dependencies) }
     shouldThrowIae { left.allSubclasses(rightArea) }
     shouldThrowIae { left.matchesConstraint(leftTile, te("Area"), rightTile, NoGameState) }
+
+    val leftPlant = loadTypes("CLASS Plant")
+    val rightPlant = loadTypes("CLASS Plant").resolve(te("Plant"))
+    shouldThrowIae { leftPlant.componentLimits.requiredLimits(listOf(rightPlant)) }
   }
 
   @Test
@@ -142,7 +146,7 @@ internal class Spec01UniversesTest {
   internal fun `T1-6 invalid authored effect shapes fail when the effect is elaborated`() {
     val table = loadTypes("CLASS Foo", "CLASS Bar", "CLASS BrokenArgument { This: Foo<Bar> }")
     val error =
-        shouldThrow<PetException> {
+        shouldThrow<InvalidPetDefinitionException> {
           PetElaborator(table).classEffects(table.getClass(cn("BrokenArgument")))
         }
     error.message!!.contains("BrokenArgument") shouldBe true
@@ -154,12 +158,14 @@ internal class Spec01UniversesTest {
   @Test
   internal fun `T1-7 catalog compilation rejects every undeclared type name`() {
     val effectError =
-        shouldThrow<ExpressionException> { loadTypes("CLASS BrokenEffect { This: Missing }") }
+        shouldThrow<InvalidPetDefinitionException> {
+          loadTypes("CLASS BrokenEffect { This: Missing }")
+        }
     effectError.message!!.contains("BrokenEffect") shouldBe true
     effectError.message!!.contains("Missing") shouldBe true
 
     val propertyError =
-        shouldThrow<ExpressionException> {
+        shouldThrow<InvalidPetDefinitionException> {
           loadTypes("CLASS BrokenProperty { score = COUNT \"Missing\" }")
         }
     propertyError.message!!.contains("BrokenProperty") shouldBe true
@@ -194,8 +200,8 @@ internal class Spec01UniversesTest {
         )
     positions.forEach { declaration ->
       withClue(declaration) {
-        shouldThrow<ExpressionException> { loadTypes(declaration) }.message shouldContain
-            "Foo names `Missing`"
+        shouldThrow<InvalidPetDefinitionException> { loadTypes(declaration) }.message shouldContain
+            "`Foo` names undeclared Class `Missing`"
       }
     }
   }
