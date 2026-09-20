@@ -132,7 +132,9 @@ internal class InitializerTest {
                 ABSTRACT CLASS Anchor {
                   HAS MAX 1 This
                   HAS =1 Marker<This>
-                  CLASS Left, Right, Absent
+                  CLASS Left
+                  CLASS Right
+                  CLASS Absent
                 }
                 CLASS Marker<Anchor>
                 """,
@@ -159,7 +161,10 @@ internal class InitializerTest {
     val premise =
         testGamePremise(
                 """
-                ABSTRACT CLASS Choice { CLASS Left, Right }
+                ABSTRACT CLASS Choice {
+                  CLASS Left
+                  CLASS Right
+                }
                 CLASS BootstrapProbe { This: Choice }
                 """,
                 players = 0,

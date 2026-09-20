@@ -13,7 +13,10 @@ internal class Spec11EnumerationTest {
           CLASS Player1 : Owner
           CLASS Player2 : Owner
           ABSTRACT CLASS Area {
-            ABSTRACT CLASS LandArea { CLASS Tharsis_2_2, Tharsis_2_3 }
+            ABSTRACT CLASS LandArea {
+              CLASS Tharsis_2_2
+              CLASS Tharsis_2_3
+            }
             ABSTRACT CLASS WaterArea { CLASS Tharsis_1_1 }
           }
           ABSTRACT CLASS Occupant<Area>
@@ -152,7 +155,7 @@ internal class Spec11EnumerationTest {
   internal fun `T11-4 a world-dependent refinement can single out one of several candidates`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Area { CLASS Tharsis_2_2, Tharsis_2_3 }",
+            "ABSTRACT CLASS Area {\nCLASS Tharsis_2_2\nCLASS Tharsis_2_3\n}",
             "CLASS Neighbor<Area>",
             "CLASS ClassNeighbor<Class<Area>>",
         )
@@ -186,7 +189,7 @@ internal class Spec11EnumerationTest {
   internal fun `T11-4 a difference is applied after dependencies are specialized`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Area { CLASS Land, Water }",
+            "ABSTRACT CLASS Area {\nCLASS Land\nCLASS Water\n}",
             "CLASS Holder<Area>",
         )
 
@@ -200,7 +203,7 @@ internal class Spec11EnumerationTest {
   internal fun `T11-4 HAS cannot choose between candidates exposed by NOT`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Choice { CLASS One, Two, Three }",
+            "ABSTRACT CLASS Choice {\nCLASS One\nCLASS Two\nCLASS Three\n}",
             "CLASS Flag<Choice>",
         )
     val onlyOneHasFlag = world("Flag<One>")
@@ -219,7 +222,7 @@ internal class Spec11EnumerationTest {
   internal fun `T11-4 an incompatible narrowing yields no candidate at all`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Area { CLASS LandArea, WaterArea }",
+            "ABSTRACT CLASS Area {\nCLASS LandArea\nCLASS WaterArea\n}",
             "ABSTRACT CLASS Tile<Area> { CLASS GreeneryTile : Tile<LandArea> }",
         )
 
@@ -230,7 +233,7 @@ internal class Spec11EnumerationTest {
   internal fun `T11-4 a subclass that already fixes the dependency is found`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Area { CLASS LandArea, WaterArea }",
+            "ABSTRACT CLASS Area {\nCLASS LandArea\nCLASS WaterArea\n}",
             """
             ABSTRACT CLASS Tile<Area> {
               CLASS GreeneryTile : Tile<LandArea>

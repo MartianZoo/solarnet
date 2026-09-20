@@ -7,8 +7,10 @@ import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -104,8 +106,17 @@ internal class TfmWorkflowTest {
   }
 
   @Test
-  internal fun startingCardDiscardsBelongToEachPlayerAgent() {
-    val game = Engine.newGame(canonicalPremise(PreludeExpansion, players = 2))
+  internal fun startingCardChoicesBelongToEachPlayerAgent() {
+    val game =
+        Engine.newGame(
+            Canon.gamePremise(
+                GameConfig(
+                    "PreludeExpansion, 4 CorporationOption",
+                    "Player1",
+                    "Player2",
+                )
+            )
+        )
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
@@ -113,14 +124,18 @@ internal class TfmWorkflowTest {
     p2.autoExecPolicy = NONE
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
     listOf(p1, p2).forEach { player ->
-      player.doTask("2 CorporationCard")
+      player.doTask("CorporationCard<Selecting> / CorporationOption")
       player.doTask("10 ProjectCard")
       player.doTask("NewTurn")
     }
 
-    shouldThrow<TaskException> { admin.doTask("-CorporationCard<Player1>") }
-    p1.doTask("-CorporationCard")
-    p2.doTask("-CorporationCard")
+    p1.count("CorporationCard<Selecting>") shouldBe 4
+    p2.count("CorporationCard<Selecting>") shouldBe 4
+    shouldThrow<TaskException> {
+      admin.doTask("CorporationCard<Player1, Hand FROM Selecting>")
+    }
+    p1.doTask("CorporationCard<Hand FROM Selecting>")
+    p2.doTask("CorporationCard<Hand FROM Selecting>")
     shouldThrow<TaskException> { admin.doTask("-2 PreludeCard<Player1>") }
     p1.doTask("-2 PreludeCard")
     p2.doTask("-2 PreludeCard")
@@ -132,10 +147,12 @@ internal class TfmWorkflowTest {
     p2.doTask("-5 ProjectCard<Selecting>")
     p2.doTask("5 ProjectCard<Hand FROM Selecting>")
 
-    p1.count("CorporationCard") shouldBe 1
+    p1.count("CorporationCard<Selecting>") shouldBe 0
+    p1.count("CorporationCard<Hand>") shouldBe 1
     p1.count("PreludeCard") shouldBe 2
     p1.count("ProjectCard<Hand>") shouldBe 7
-    p2.count("CorporationCard") shouldBe 1
+    p2.count("CorporationCard<Selecting>") shouldBe 0
+    p2.count("CorporationCard<Hand>") shouldBe 1
     p2.count("PreludeCard") shouldBe 2
     p2.count("ProjectCard<Hand>") shouldBe 5
   }

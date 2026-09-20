@@ -186,6 +186,9 @@ internal class GamePremiseTest {
       Canon.gamePremise(GameConfig("Blue, Yellow, VenusNextExpansion", "Player1"))
     }
     shouldThrow<InvalidGameConfigException> { Canon.gamePremise(GameConfig("", "MC")) }
+    shouldThrow<InvalidGameConfigException> {
+      Canon.gamePremise(GameConfig("2 Player", "Player1", "Player2"))
+    }
   }
 
   @Test

@@ -284,7 +284,7 @@ internal class Spec02ClassesTest {
   @Test
   internal fun `T2-9 a Custom class may not inherit Pets behavior`() {
     listOf(
-            "ABSTRACT CLASS Behaving { Trigger: Result }\nCLASS Trigger, Result",
+            "ABSTRACT CLASS Behaving { Trigger: Result }\nCLASS Trigger\nCLASS Result",
             "ABSTRACT CLASS Behaving { HAS MAX 1 This }",
             "ABSTRACT CLASS Behaving { DEFAULT +Behaving. }",
         )

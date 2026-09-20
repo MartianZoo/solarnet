@@ -19,6 +19,7 @@ CLASS TerraformingMars : BaseGameModule {
   This: EACH Class<ActionSlot> { ActionSlot }
 
   ModulesReady IF MAX 0 ExtendedGlobalParametersRule: StandardGpTrackRules
+  ModulesReady IF MAX 0 CorporationOption: 2 CorporationOption
 
   // TODO: get rid of
   CorporationPhase: Photosynthesis
@@ -73,6 +74,9 @@ ABSTRACT CLASS GameMode : Module {
   }
 }
 
+"One corporation card offered in the configurable standard setup path"
+CLASS CorporationOption : System
+
 "One of the actual people or bots playing Terraforming Mars"
 ABSTRACT CLASS Player : Owner, Actor {
   HAS =1 This
@@ -83,8 +87,9 @@ ABSTRACT CLASS Player : Owner, Actor {
   This: 5 ProdOffset<This, Class<MC>> BY Admin
   This: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
 
-  SetupPhase: 2 CorporationCard THEN 10 ProjectCard THEN NewTurn
-  NewTurn IF SetupPhase: -CorporationCard, \
+  // Keeping one offer lets ordinary Selecting cleanup forget the unchosen cards.
+  SetupPhase: CorporationCard<Selecting> / CorporationOption THEN 10 ProjectCard THEN NewTurn
+  NewTurn IF SetupPhase: CorporationCard<Hand FROM Selecting>, \
     ((ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>) THEN -10 ProjectCard<Selecting>? \
       THEN (ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>))
   ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards

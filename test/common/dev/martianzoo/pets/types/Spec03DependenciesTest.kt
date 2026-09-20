@@ -164,7 +164,7 @@ internal class Spec03DependenciesTest {
   internal fun `T3-4 a concrete class bound is not an argument position`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Choice { CLASS Fixed, Other }",
+            "ABSTRACT CLASS Choice {\nCLASS Fixed\nCLASS Other\n}",
             "ABSTRACT CLASS Holder<Choice>",
             "ABSTRACT CLASS FixedHolder : Holder<Fixed>",
         )
@@ -190,7 +190,7 @@ internal class Spec03DependenciesTest {
   internal fun `T3-5 order decides when two dependencies accept the same argument`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Area { CLASS Tharsis_2_2, Tharsis_2_3 }",
+            "ABSTRACT CLASS Area {\nCLASS Tharsis_2_2\nCLASS Tharsis_2_3\n}",
             "ABSTRACT CLASS Adjacency<Area, Area>",
         )
 
@@ -206,7 +206,7 @@ internal class Spec03DependenciesTest {
   internal fun `T3-5 matching skips a dependency the class already made concrete`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Choice { CLASS Fixed, Other }",
+            "ABSTRACT CLASS Choice {\nCLASS Fixed\nCLASS Other\n}",
             "ABSTRACT CLASS Pair<Choice, Choice>",
             "ABSTRACT CLASS FixedFirst : Pair<Fixed>",
         )
@@ -342,7 +342,7 @@ internal class Spec03DependenciesTest {
   internal fun `T3-8 independent dependency roots stay independent even when spelled alike`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Area { CLASS Tharsis_2_2, Tharsis_2_3 }",
+            "ABSTRACT CLASS Area {\nCLASS Tharsis_2_2\nCLASS Tharsis_2_3\n}",
             "ABSTRACT CLASS Adjacency<Area, Area>",
         )
 

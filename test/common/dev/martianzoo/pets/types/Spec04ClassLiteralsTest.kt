@@ -20,11 +20,17 @@ internal class Spec04ClassLiteralsTest {
           CLASS Player1 : Owner
           ABSTRACT CLASS StandardResource : Owned<Owner> {
             CLASS MC
-            ABSTRACT CLASS Metal { CLASS Steel, Titanium }
+            ABSTRACT CLASS Metal {
+              CLASS Steel
+              CLASS Titanium
+            }
             CLASS Plant
           }
           CLASS Production<Class<StandardResource>> : Owned<Owner>
-          ABSTRACT CLASS Tag { CLASS BuildingTag, SpaceTag }
+          ABSTRACT CLASS Tag {
+            CLASS BuildingTag
+            CLASS SpaceTag
+          }
           ABSTRACT CLASS Area { CLASS Tharsis_2_2 }
           CLASS CityTile<Area>
           """
@@ -225,7 +231,7 @@ internal class Spec04ClassLiteralsTest {
             "ABSTRACT CLASS Cardbound<CardFront<Owner>> : Owned<Owner>",
             "ABSTRACT CLASS ResourceCard<Class<CardResource>> : CardFront",
             "ABSTRACT CLASS CardResource : Cardbound<ResourceCard<Class<This>>> " +
-                "{ CLASS Animal, Microbe }",
+                "{\nCLASS Animal\nCLASS Microbe\n}",
             "CLASS Fish : ResourceCard<Class<Animal>>",
             "CLASS Ants : ResourceCard<Class<Microbe>>",
         )

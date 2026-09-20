@@ -22,7 +22,7 @@ internal fun testGamePremise(source: String = "CLASS Token", players: Int = 1): 
           """
           ABSTRACT CLASS Player : Owner, Actor {
             HAS =1 This
-            CLASS ${(1..players).joinToString { "Player$it" }}
+            ${(1..players).joinToString("\n            ") { "CLASS Player$it" }}
           }
           """
   val catalog = testCatalog("$playerDeclarations\n$source")

@@ -29,7 +29,7 @@ internal class Spec13TypeVariablesTest {
   private val resources =
       loadTypes(
           "CLASS Player1 : Owner",
-          "ABSTRACT CLASS StandardResource : Owned<Owner> { CLASS Plant, Steel }",
+          "ABSTRACT CLASS StandardResource : Owned<Owner> {\nCLASS Plant\nCLASS Steel\n}",
           "ABSTRACT CLASS Production<Class<StandardResource>> : Owned<Owner>",
           "ABSTRACT CLASS Receipt<Class<StandardResource>>",
       )
@@ -140,7 +140,7 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-2 identical nested bounds in sibling branches stay independent`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Person { CLASS Alice, Bob }",
+            "ABSTRACT CLASS Person {\nCLASS Alice\nCLASS Bob\n}",
             "ABSTRACT CLASS Box<Person>",
             "ABSTRACT CLASS Pair<Box<Person>, Box<Person>>",
             "ABSTRACT CLASS Holder<Pair<Box<Person>, Box<Person>>>",
@@ -585,7 +585,7 @@ internal class Spec13TypeVariablesTest {
 
   private val actors =
       loadTypes(
-          "ABSTRACT CLASS Player : Owner, Actor { CLASS Player1, Player2 }",
+          "ABSTRACT CLASS Player : Owner, Actor {\nCLASS Player1\nCLASS Player2\n}",
           "ABSTRACT CLASS Heat : Owned<Owner>",
           "ABSTRACT CLASS Notice<Owner>",
       )
@@ -667,7 +667,7 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-10 binding replaces only the recorded occurrences`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS StandardResource { CLASS Plant, Steel }",
+            "ABSTRACT CLASS StandardResource {\nCLASS Plant\nCLASS Steel\n}",
             "ABSTRACT CLASS Notice<StandardResource>",
         )
     val bound =
@@ -686,7 +686,7 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-10 binding omits arguments fixed by the chosen subclass`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Kind { CLASS Fixed, Other }",
+            "ABSTRACT CLASS Kind {\nCLASS Fixed\nCLASS Other\n}",
             "ABSTRACT CLASS Box<Kind>",
             "CLASS FixedBox : Box<Fixed>",
             "ABSTRACT CLASS Notice<Box<Kind>>",
@@ -836,7 +836,7 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-11 one variable cannot capture conflicting structural values`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Person { CLASS Alice, Bob }",
+            "ABSTRACT CLASS Person {\nCLASS Alice\nCLASS Bob\n}",
             "ABSTRACT CLASS Pair<Person, Person>",
         )
     val authored = parse<Expression>("Pair<Person, Person>")

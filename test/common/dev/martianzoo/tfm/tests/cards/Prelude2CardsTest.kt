@@ -17,12 +17,14 @@ import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
+import dev.martianzoo.tfm.tests.TestOption.FakeStuffBundle
 import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -130,13 +132,59 @@ internal class Prelude2CardsTest : CardTest() {
             "Player2",
         )
     )
+    val p2 = requireP2()
     p1.runOperation("$WorldGovernmentAdvisor")
+    p2.runOperation("$Aphrodite")
     admin.phase("Action")
     val startingTr = p1.count("TerraformRating")
+    val aphroditeMoney = p2.count("MC")
 
     p1.cardAction1(WorldGovernmentAdvisor) { wgt("VenusStep") }
 
     admin.count("VenusStep") shouldBe 1
+    p1.count("TerraformRating") shouldBe startingTr
+    p2.count("MC") shouldBe aphroditeMoney + 2
+  }
+
+  @Test
+  internal fun `World Government Advisor triggers effects that observe anyone placing an ocean`() {
+    newGame(
+        GameConfig(
+            "PreludeExpansion, Prelude2CardPack, TurmoilCardPack, " +
+                "Hydrologist, Builder, Engineer",
+            "Player1",
+            "Player2",
+        )
+    )
+    val p2 = requireP2()
+    p1.runOperation("$WorldGovernmentAdvisor")
+    p2.runOperation("$ArcticAlgae, $LakefrontResorts")
+    admin.phase("Action")
+    val startingPlants = p2.count("Plant")
+    val startingMoneyProduction = p2.production(cn("MC"))
+
+    p1.cardAction1(WorldGovernmentAdvisor) { wgt("OceanTile<Tharsis_1_2>") }
+
+    p2.count("Plant") shouldBe startingPlants + 2
+    p2.production(cn("MC")) shouldBe startingMoneyProduction + 1
+    p1.count("OceanCredit") shouldBe 0
+  }
+
+  @Test
+  internal fun `World Government Advisor owner places the neutral ocean awarded at zero degrees`() {
+    newGame(PreludeExpansion, Prelude2CardPack)
+    p1.runOperation("$WorldGovernmentAdvisor")
+    admin.runOperation("14 TemperatureStep")
+    admin.phase("Action")
+    val startingTr = p1.count("TerraformRating")
+
+    p1.cardAction1(WorldGovernmentAdvisor) {
+      wgt("TemperatureStep")
+      doTask("OceanTile<Tharsis_1_2> BY Admin")
+    }
+
+    admin.count("TemperatureStep") shouldBe 15
+    admin.count("OceanTile<Tharsis_1_2>") shouldBe 1
     p1.count("TerraformRating") shouldBe startingTr
   }
 
@@ -265,6 +313,40 @@ internal class Prelude2CardsTest : CardTest() {
   }
 
   @Test
+  internal fun `Suitable Infrastructure pays separately for Head Start's nested actions`() {
+    newGame(PreludeExpansion, Prelude2CardPack, FakeStuffBundle)
+    p1.runOperation("$SuitableInfrastructure")
+    admin.phase("Prelude")
+    p1.runOperation("30 MC, PreludeCard")
+    val startingMoney = p1.count("MC")
+
+    p1.turn {
+      playPrelude(FakeHeadStart) {
+        useStdProject("PowerPlantProject")
+        useStdProject("PowerPlantProject")
+      }
+    }
+
+    p1.assertProds(2 to "Energy")
+    p1.count("MC") shouldBe startingMoney - 18
+  }
+
+  // https://boardgamegeek.com/thread/3335155/article/44576777#44576777
+  @Test
+  internal fun `Suitable Infrastructure covers production from a corporation played during setup`() {
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack, VenusNextExpansion)
+    p1.runOperation("$SuitableInfrastructure")
+    admin.phase("Prelude")
+    p1.runOperation("42 MC, PreludeCard")
+    val startingMoney = p1.count("MC")
+
+    p1.playPrelude(Merger) { p1.playCorp(Manutech) }
+
+    p1.assertProds(1 to "Steel")
+    p1.count("MC") shouldBe startingMoney - 5
+  }
+
+  @Test
   internal fun `Focused Organization may gain a different resource than it spends`() {
     newGame(PreludeExpansion, Prelude2CardPack)
     p1.runOperation("$FocusedOrganization") { doTask("Steel") }
@@ -278,7 +360,7 @@ internal class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  internal fun `Early Colonization advances every track twice and Solar reuses the same operation`() {
+  internal fun `Early Colonization advances every active track twice and ignores inactive tracks`() {
     val colonyTiles = testColonyTiles(2, "Luna")
     newGame(PreludeExpansion, Prelude2CardPack, ColoniesExpansion, colonyTiles = colonyTiles)
     admin.runOperation("5 ColonyProduction<Luna>")
@@ -298,6 +380,27 @@ internal class Prelude2CardsTest : CardTest() {
     colonyTiles.forEach { tile ->
       admin.count("ColonyProduction<$tile>") shouldBe if (tile == cn("Luna")) 6 else 4
     }
+    admin.assertCounts(
+        0 to "ColonyProduction<Miranda>",
+        0 to "ColonyProduction<Titan>",
+        0 to "ColonyProduction<Enceladus>",
+    )
+  }
+
+  @Test
+  internal fun `Early Colonization is unplayable when its owner has no legal colony`() {
+    val colonyTiles = testColonyTiles(2)
+    newGame(PreludeExpansion, Prelude2CardPack, ColoniesExpansion, colonyTiles = colonyTiles)
+    admin.phase("Prelude")
+    p1.runOperation(
+        "PreludeCard, Colony<Luna>, Colony<Ceres>, Colony<Triton>, " +
+            "Colony<Ganymede>, Colony<Callisto>"
+    )
+
+    shouldThrowAny { p1.playPrelude(EarlyColonization) }
+
+    p1.count("$EarlyColonization") shouldBe 0
+    p1.count("Energy") shouldBe 0
   }
 
   @Test
@@ -462,6 +565,16 @@ internal class Prelude2CardsTest : CardTest() {
     val secondStartingProduction = p1.production(cn("MC"))
     p1.runOperation("$CloudTourism")
     p1.production(cn("MC")) shouldBe secondStartingProduction + 2
+  }
+
+  @Test
+  internal fun `Floating Refinery counts its own Venus tag`() {
+    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
+    p1.runOperation("$ForcedPrecipitation")
+
+    p1.runOperation("$FloatingRefinery")
+
+    p1.count("Floater<$FloatingRefinery>") shouldBe 2
   }
 
   // https://boardgamegeek.com/thread/3154781/do-event-tags-count-for-sagitta
