@@ -23,6 +23,7 @@ internal class TurmoilRulesTest : CardTest() {
     admin.count("Neutral") shouldBe 1
     admin.count("Delegate<Neutral>") shouldBe 3
     admin.count("Party") shouldBe 6
+    admin.count("AfterParty") shouldBe 6
     admin.count("Chairman<Neutral>") shouldBe 1
     admin.count("Ruling<Greens>") shouldBe 1
     admin.count("Ruling") shouldBe 1

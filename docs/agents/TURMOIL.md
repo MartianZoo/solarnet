@@ -24,6 +24,8 @@ Owning implementation:
 - [`TurmoilExpansion/classes.pets`](../../src/common/dev/martianzoo/tfm/canon/TurmoilExpansion/classes.pets)
   owns setup, delegates, political state, influence, government, policies, event movement, and the
   Solar operation.
+- [`PartyDistance.kt`](../../src/common/dev/martianzoo/tfm/canon/PartyDistance.kt) computes forward
+  distance through the party relation for government-formation tie breaking.
 - [`TurmoilExpansion/cards.pets`](../../src/common/dev/martianzoo/tfm/canon/TurmoilExpansion/cards.pets)
   owns its four supported corporations, all sixteen project cards, and 31 base events.
 - [`PromoCardPack/cards.pets`](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.pets)
@@ -31,7 +33,7 @@ Owning implementation:
   references make premise projection require the promo pack, Turmoil, and the applicable companion
   expansion without a special module.
 - [`turmoilExpansionBundle.kt`](../../src/common/dev/martianzoo/tfm/canon/turmoilExpansionBundle.kt)
-  is a convention-backed bundle with no custom runtime behavior.
+  is the convention-backed bundle and registers the party-distance metric.
 
 Test ownership:
 
@@ -81,16 +83,20 @@ neutral delegates are placed.
 
 - The incumbent leader wins a tied delegate count. A strictly larger delegation replaces it.
 - The incumbent dominant party wins a tied count during ordinary delegate movement.
-- After government forms, tied dominance is selected clockwise from the new ruling party.
+- After government forms, tied dominance follows the committee's party order from the new ruling
+  party.
 - Neutral uses the same owner model as players, but only a player taking the chair receives the
   rating increase, and only players contribute influence.
 
-A single rank — delegate count, then `DominancePriority`, then the incumbent `Dominant` role —
-expresses both dominance tie rules without custom Kotlin or a mirrored numeric state.
-`DominancePriority` is a one-shot token: `RecalculateDominance` spends every priority it has just
-ranked. It must be spent rather than left to `Temporary` cleanup, because a priority survives until
-the whole World goes idle and would otherwise still be outranking incumbency at the next delegate
-placement.
+Turmoil creates the six Parties in committee order. Each arrival after the first creates a permanent
+`AfterParty<Party, Party>` edge from its predecessor, and the last Party also closes the ring. Each
+Party permits at most one incoming and outgoing edge. `PartyDistance<Party, Party>` is a passive
+custom metric that walks those declared edges and returns a forward distance from zero through
+five. Government formation ranks delegate count and then `PartyDistance<Party, This>`: measuring
+back to the outgoing Party gives its immediate successor the greatest distance. Ordinary delegate
+movement instead ranks delegate count and the
+incumbent `Dominant` role. Both cases use the same ordinary rank and transmutation mechanisms, and
+no temporary priority state is created.
 
 `PartyLeader` ends when its owner's last delegate leaves that party, then reruns the ordinary leader
 rank over the remaining delegations. No caller has to retract or replace the role separately.
@@ -119,8 +125,8 @@ to one existential contribution. AMAP is not used to conceal a missing player ow
 2. Return the old chairman and the ruling party's non-leader delegates to their owners' available
    supply by removing their placed components.
 3. Move the ruling party leader into the chair, which ends that leader role.
-4. Grant one rating if the new chairman is a player, select the next dominant party clockwise, and
-   restore free lobbying for players with fewer than seven placed delegates.
+4. Grant one rating if the new chairman is a player, select the next dominant party in committee
+   order, and restore free lobbying for players with fewer than seven placed delegates.
 
 `ApplyRulingBonus` stays a separate signal rather than triggering on the `Ruling` marker, because
 Setup places `Ruling<Greens>` without paying the Greens bonus.
@@ -214,8 +220,9 @@ Corrosive Rain requiring two floaters on one card before offering that alternati
 Keep behavior on the component that makes it exist: parties own ruling bonuses, policies own their
 temporary capabilities, event cards own their delegates and effects, and event positions own only
 occupancy. Prefer existing Pets effects, metrics, ranks, signals, barriers, and module projection.
-The implemented expansion requires no Turmoil-specific Kotlin instruction, metric, workflow branch,
-or persistent duplicate of political or event state.
+The bounded `PartyDistance` metric supplies the one graph operation Pets lacks. The expansion
+requires no Turmoil-specific instruction, workflow branch, or persistent duplicate of political or
+event state.
 
 Three habits are worth naming, because each one removed a class that looked necessary:
 
