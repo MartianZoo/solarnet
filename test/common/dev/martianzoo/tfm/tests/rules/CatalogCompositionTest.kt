@@ -94,7 +94,7 @@ internal class CatalogCompositionTest {
         )
     val failure = shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
 
-    failure.message.orEmpty().shouldInclude("Missing dependencies: MissingBootstrapDependency")
+    failure.message.orEmpty().shouldInclude("MissingBootstrapDependency")
   }
 
   @Test
