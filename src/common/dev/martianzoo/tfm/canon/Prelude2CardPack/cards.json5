@@ -85,7 +85,7 @@
           "name": "FocusedOrganization",
           "immediate": "ProjectCard, StandardResource",
           "actions": [
-            "-> -ProjectCard THEN -StandardResource THEN Signal { This: ProjectCard, StandardResource }",
+            "-> -ProjectCard THEN -StandardResource THEN ProjectCard THEN StandardResource",
           ],
         },
         {

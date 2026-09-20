@@ -1154,11 +1154,6 @@ becomes the occurrence `MiningArea_SpecialTile<LandArea(HAS Neighbor<OwnedTile>)
 contain `DEFAULT` clauses or nested declarations. The generated class inherits applicable defaults
 from its supertypes like any other.
 
-> **Non-normative example — Focused Organization.** Its inline `Signal` has an effect that restores
-> the chosen project card and resource after the two costs are paid. Allowing local effects makes
-> that temporary protocol expressible; inheriting defaults keeps the local body from installing a
-> second, hidden default policy.
-
 **L11-5. Owner-local classes do not nest.** Neither a local body nor an argument of the occurrence
 may declare another one.
 
