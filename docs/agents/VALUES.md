@@ -101,25 +101,23 @@ It is not permission to implement a whole proposal without passing its stated ga
 
 ### Tier 1: active investment, in order
 
-1. **Resolve the Class-universe finish gate, then finish it only if bounded.** Begin with the
-   role-and-caller audit in [`CLASS_TABLES.md`](CLASS_TABLES.md#remaining-work-to-finish). This work
-   is first because it may prove to be a short coherent finish. At equal effort, the action lifecycle
-   below is more important; if the audit instead exposes a broad representation/API split, that
-   finish-first exception ends and the action lifecycle becomes first.
-2. **Make actions, payments, and completion one intelligible lifecycle.** This is the highest
+1. **Make actions, payments, and completion one intelligible lifecycle.** This is the highest
    enduring program priority.
-3. **Replace the Kotlin phase runner with self-running Pets scopes.** Top-level game progression
+2. **Replace the Kotlin phase runner with self-running Pets scopes.** Top-level game progression
    should follow from the declared model.
-4. **Complete the Agent boundary and policy system.** Actor-scoped access and automation that
+3. **Complete the Agent boundary and policy system.** Actor-scoped access and automation that
    preserves agency matter more than the contract, replay, and provenance programs below.
-5. **Rewrite the internal agent handbook around the settled model.** This is design infrastructure,
+4. **Rewrite the internal agent handbook around the settled model.** This is design infrastructure,
    not optional outsider-facing polish; inaccurate or sprawling guidance directly degrades future
    work.
-6. **Consolidate public contracts and failure boundaries.** Precise APIs, exceptions, and lifecycle
+5. **Consolidate public contracts and failure boundaries.** Precise APIs, exceptions, and lifecycle
    language outrank broader Pets-semantic cleanup at present.
-7. **Simplify the remaining Pets and runtime semantics.** Repair conformance and improve structural
+6. **Simplify the remaining Pets and runtime semantics.** Repair conformance and improve structural
    expression, binding, ownership, fanout, and point-event representation without treating the
    whole backlog as one migration.
+
+The bounded Class-universe finish is complete; [`CLASS_TABLES.md`](CLASS_TABLES.md) records its
+stable ownership and authority rules.
 
 Preserving existing source-backed replays remains a Tier 1 proof obligation while carrying out any
 of these programs. That constraint does not make expansion of replay coverage or provenance a

@@ -4,7 +4,6 @@
 - **abstract task:** A task whose instruction still requires an externally supplied choice. Selecting it resolves game-world-dependent parts such as metrics, but the task remains abstract until narrowing has supplied every required choice. Antonym: concrete task.
 - **abstract type:** A type that is not fully specified. It can be counted or queried but cannot be the exact type of a Component gained or removed. Antonym: concrete type.
 - **action:** (1) A Pets element, written with `->`, that combines an optional cost with an instruction and usually belongs to a card or `StandardAction`. (2) One of the actions granted to a Player on a turn: starting it seeds that Player's task queue, and it lasts until that queue drains.
-- **activation edge:** A premise-construction reference from an included Class to another Class that must also be included. Structural dependencies and a `Custom` implementation's required class names create activation edges; merely mentioning a represented Class in a `Class<...>` metric does not. Activation is construction policy, not Type meaning.
 - **Actor:** The entity credited with performing a pending or completed change. A game with N Players also has the administrative Admin Actor.
 - **ActorAccess:** The passive, permissions-aware conduit through which an agent invokes engine mutations for its Actor. Callers do not bypass the Actor's unique agent to use it.
 - **Admin:** The non-Player Actor and Component that performs neutral table activity. Admin may receive, select, and narrow ordinary tasks, including real choices made by an installed policy.
@@ -34,8 +33,7 @@
 - **class header:** The class name, declared supertypes, and newly introduced dependencies, excluding body elements such as defaults, invariants, and effects.
 - **class literal:** A type such as `Class<Steel>` that denotes the class `Steel` without depending on a `Steel` Component; its angle-bracketed argument is represented data, not a dependency target.
 - **class name:** A class's sole stable engine identity within one compatible class table. Classes use semantic English names such as `GreeneryTile`, `EarthCatapult`, and `Terraformer`. A premise-local name cannot replace a master name.
-- **class table:** An immutable set of mutually compatible Classes that resolves expressions into Types. A Catalog has one reusable master class table; each game World combines it with its premise class table and premise-selected declaration closure.
-- **class-table projection:** A game-specific class table combining one master table, one premise table, and the premise-selected declaration closure. It reuses master Classes, constructs only premise Classes, and enumerates inhabited possibilities.
+- **class table:** An immutable set of mutually compatible Classes that resolves expressions into Types. A Catalog has one reusable master class table; each game view combines it with its premise class table and premise-selected declaration closure.
 - **Component:** One immutable occurrence of a concrete type in a game world. Components have no identity or fields beyond their type, so occurrences of the same type differ only by multiplicity.
 - **component effect:** A class effect specialized for one concrete type by binding inherited dependencies and contextual placeholders. It does not yet include the fact that a corresponding Component currently exists.
 - **component graph:** The logical directed graph whose vertices are Components and whose edges are dependencies. Because a type includes the exact types of its dependency targets, the game world stores the vertices as a multiset of types rather than as separately identified objects and edges.
@@ -67,6 +65,7 @@
 - **FakeCanon:** The separate catalog of noncanonical support declarations. Tests, replays, and tools compose it with Canon only when they need fake content.
 - **follow mode:** The mode in which Solarnet calculates the state transitions for a game played elsewhere and trusts client-supplied draws, reveals, discards, and plays.
 - **game config:** Unresolved user intent: the class names to include, the class names to exclude (spelled with a leading `-`), and the Player names in seat order. A catalog applies defaults, selection policies, and validation to produce one exact game premise.
+- **game class-table view:** A game-specific class table combining one master table, one premise table, and the premise-selected declaration closure. It reuses master Classes, constructs only premise Classes, and enumerates inhabited possibilities.
 - **game premise:** The complete immutable facts needed to create equivalent game worlds: one catalog, a small table of generated or ad-hoc class declarations, the Module classes, the included and excluded other classes, and the exact concrete types initialized once.
 - **game world:** The complete live engine state of a game: its component graph, global task queue, event log, timeline, and class table, together with the catalog and immutable premise behind them. ActorAccess, agents, agent drivers, and generic pulse dispatch are configured above that state.
 - **game world revision:**
@@ -115,6 +114,7 @@
 - **Scope:** A live Component that anchors the lifetime of dependent Components. A Component belongs to a Scope by carrying a type dependency on that exact Scope Component.
 - **select-lock:** The rule that no competing game world mutation may invalidate the facts used to resolve a selected task before that task finishes.
 - **selected task:** The task the assignee has chosen to finish next. Selection sets `Task.selected` and takes the select-lock because resolution has read the current game world; the task may remain abstract and accept partial narrowing.
+- **selection edge:** A premise-construction reference from an included Class to another Class that must also be included. Structural dependencies and a `Custom` implementation's required class names create selection edges; merely mentioning a represented Class in a `Class<...>` metric does not. Selection is construction policy, not Type meaning.
 - **selection:** The client activity that chooses one pending task to finish next and causes the engine to resolve it. Selection is a promise about ordering, not a timeline commit; commit retains its transactional meaning after execution.
 - **self trigger:**
 - **sequential instruction:**
@@ -124,7 +124,6 @@
 - **SoloOpponent:** The passive Owner created by `SoloMode`; it is neither a Player nor an Actor and receives no tasks or turns.
 - **source effect:** An effect as authored in `.pets` or generated from structured content data, before class-level inheritance and transformation.
 - **state change:** An exact Component gain, removal, or transmutation that occurred in a game world.
-- **structural activation:**
 - **structured content data:** Transitional category-specific card or map data used to generate class declarations and retain metadata not yet authored in Pets. It is not a common engine representation.
 - **System:** Admin-only machinery. It extends `Hidden`, cannot be created by any Actor but Admin, and an unowned System occurrence does not implicitly restrict effect matching by its Actor.
 - **system type:** A Pets type supplied by the declarations in `SystemDeclarations.kt` because the generic engine requires it.

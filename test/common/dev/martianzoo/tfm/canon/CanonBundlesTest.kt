@@ -83,7 +83,7 @@ internal class CanonBundlesTest {
                 playerNames = listOf(cn("Player1")),
             )
         )
-    val solo = ClassTable.forPremise(premise)
+    val solo = premise.classTable
 
     solo.isInhabited(cn("Vitor")) shouldBe true
     solo.isInhabited(cn("MultiplayerMode")) shouldBe false
@@ -217,10 +217,9 @@ internal class CanonBundlesTest {
             *selectedModules,
             cn("TerraformingMars"),
         )
-    return ClassTable.forPremise(
-        Canon.gamePremise(
+    return Canon.gamePremise(
             GameConfig.create(included, playerNames = listOf(cn("Player1"), cn("Player2")))
         )
-    )
+        .classTable
   }
 }

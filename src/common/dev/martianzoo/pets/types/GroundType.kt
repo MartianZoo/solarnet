@@ -298,30 +298,6 @@ internal constructor(
   private fun toExpressionUsingSpecs(specs: List<Expression>) = className.of(specs).has(refinement)
 
   /**
-   * Enumerates every concrete structural candidate below this type's structural domain according to
-   * [rules T11-1 and T11-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
-   * A `NOT` refinement filters the candidates because it is decided structurally; a `HAS`
-   * refinement is left for a caller with a world to test. The sequence can be very large.
-   */
-  override fun allConcreteSubtypes(): Sequence<GroundType> {
-    return classTable.allConcreteSubtypes(this)
-  }
-
-  /**
-   * Returns the sole concrete narrowing in the master universe when every structural choice is
-   * unique and its refinement accepts [info], as specified by
-   * [rule T11-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
-   */
-  override fun singleConcreteSubtype(info: TypeInfo): GroundType? {
-    return classTable.singleConcreteSubtype(this, info)
-  }
-
-  /** Returns the subset of [allConcreteSubtypes] having the exact same [rootClass] as ours. */
-  // used publicly only by `desc random`
-  internal fun concreteSubtypesSameClass(): Sequence<GroundType> =
-      classTable.concreteSubtypesSameClass(this)
-
-  /**
    * Asserts the contextual narrowing relation with [that], consulting [info] only for a `HAS`
    * refinement, as specified by
    * [rules T6-1, T6-2, and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).

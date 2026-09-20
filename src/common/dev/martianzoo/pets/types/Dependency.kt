@@ -132,9 +132,6 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
     override val className: ClassName
       get() = boundClass.className
 
-    internal fun allConcreteSpecializations(): Sequence<TypeDependency> =
-        boundType.allConcreteSubtypes().map { TypeDependency(key, it) }
-
     /**
      * The canonical `key=full-bound` rendering of this dependency ([rules T3-1 and
      * T5-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies)).

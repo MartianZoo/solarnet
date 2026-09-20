@@ -11,14 +11,14 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 /**
- * Which Classes a game premise includes through activation. This is premise-construction policy
+ * Which Classes a game premise includes through its selection closure. This is construction policy
  * rather than Type meaning, so `docs/type-system-spec.md` describes inhabitance (section 12), not
  * how the declaration closure is constructed.
  */
-internal class ActivationTest {
+internal class PremiseSelectionTest {
 
   @Test
-  internal fun `custom class requirements load with the custom class only`() {
+  internal fun `custom class requirements are included with the custom class only`() {
     val declarations =
         """
         CLASS DependencySource : Custom
@@ -35,15 +35,15 @@ internal class ActivationTest {
             setOf(implementation),
         )
 
-    val inactive = gameView(catalog)
-    inactive.isIncluded(cn("RuntimeDependency")) shouldBe false
+    val unselected = gameView(catalog)
+    unselected.isIncluded(cn("RuntimeDependency")) shouldBe false
 
-    val loaded = gameView(catalog, "DependencySource")
-    loaded.isIncluded(cn("RuntimeDependency")) shouldBe true
+    val selected = gameView(catalog, "DependencySource")
+    selected.isIncluded(cn("RuntimeDependency")) shouldBe true
   }
 
   @Test
-  internal fun `dependency signatures activate available vocabulary`() {
+  internal fun `dependency signatures include available vocabulary`() {
     val catalog =
         testCatalog(
             """
@@ -65,24 +65,24 @@ internal class ActivationTest {
             ABSTRACT CLASS Domain
             CLASS Holder<Domain>
             CLASS Included : Domain
-            CLASS Inactive : Domain
+            CLASS Excluded : Domain
             """
                 .trimIndent()
         )
     val table = gameView(catalog, "Holder", "Included")
 
     table.isIncluded(cn("Holder")) shouldBe true
-    table.isIncluded(cn("Inactive")) shouldBe false
-    table.isInhabited(table.resolve(te("Holder<Domain(NOT Inactive)>"))) shouldBe true
+    table.isIncluded(cn("Excluded")) shouldBe false
+    table.isInhabited(table.resolve(te("Holder<Domain(NOT Excluded)>"))) shouldBe true
   }
 
   @Test
-  internal fun `structural dependencies activate catalog-known classes`() {
-    val catalog = testCatalog("CLASS Active<Inactive>\nCLASS Inactive")
+  internal fun `structural dependencies include catalog-known classes`() {
+    val catalog = testCatalog("CLASS Selected<Dependency>\nCLASS Dependency")
 
-    val table = gameView(catalog, "Active")
+    val table = gameView(catalog, "Selected")
 
-    table.isIncluded(cn("Inactive")) shouldBe true
+    table.isIncluded(cn("Dependency")) shouldBe true
   }
 
   @Test
@@ -98,7 +98,7 @@ internal class ActivationTest {
   }
 
   @Test
-  internal fun `premise rejects a structurally activated unrequested Module`() {
+  internal fun `premise rejects a structurally included unrequested Module`() {
     val catalog =
         testCatalog(
             """
@@ -115,32 +115,35 @@ internal class ActivationTest {
         )
     val premise = GamePremise(catalog, setOf(cn("Requested")), emptySet(), emptySet())
 
-    shouldThrow<InvalidGameConfigException> { ClassTable.forPremise(premise) }
+    shouldThrow<InvalidGameConfigException> { premise.classTable }
   }
 
   @Test
-  internal fun `premise rejects structural reactivation of an excluded class`() {
-    val catalog = testCatalog("CLASS Active<Excluded>\nCLASS Excluded")
+  internal fun `premise rejects structural inclusion of an excluded class`() {
+    val catalog = testCatalog("CLASS Selected<Excluded>\nCLASS Excluded")
     val premise =
         GamePremise(
             catalog,
             emptySet(),
-            setOf(ClassSelection(cn("Active")), ClassSelection(cn("Excluded"), included = false)),
+            setOf(
+                ClassSelection(cn("Selected")),
+                ClassSelection(cn("Excluded"), included = false),
+            ),
             emptySet(),
         )
 
-    shouldThrow<InvalidGameConfigException> { ClassTable.forPremise(premise) }
+    shouldThrow<InvalidGameConfigException> { premise.classTable }
   }
 
   @Test
-  internal fun `premise rejects structural reactivation of a conditionally excluded class`() {
+  internal fun `premise rejects structural inclusion of a conditionally excluded class`() {
     val catalog =
         testCatalog(
             """
             ABSTRACT CLASS Module
-            CLASS Requested : Module { This:: Active }
+            CLASS Requested : Module { This:: EffectTarget }
             CLASS Conditional { HAS Flag }
-            CLASS Active<Conditional>
+            CLASS EffectTarget<Conditional>
             CLASS Flag
             """
                 .trimIndent(),
@@ -152,19 +155,19 @@ internal class ActivationTest {
         )
     val premise = GamePremise(catalog, setOf(cn("Requested")), emptySet(), emptySet())
 
-    shouldThrow<InvalidGameConfigException> { ClassTable.forPremise(premise) }
+    shouldThrow<InvalidGameConfigException> { premise.classTable }
   }
 
   @Test
-  internal fun `class metrics do not activate the represented class`() {
-    val catalog = testCatalog("CLASS Querying { HAS MAX 0 Class<Inactive> }\nCLASS Inactive")
+  internal fun `class metrics do not include the represented class`() {
+    val catalog = testCatalog("CLASS Querying { HAS MAX 0 Class<Represented> }\nCLASS Represented")
     val table = gameView(catalog, "Querying")
 
-    table.isIncluded(cn("Inactive")) shouldBe false
+    table.isIncluded(cn("Represented")) shouldBe false
   }
 
   @Test
-  internal fun `premise requirements reject active abstract domains without inhabitants`() {
+  internal fun `premise requirements reject selected abstract domains without inhabitants`() {
     val catalog =
         testCatalog(
             """
@@ -192,17 +195,17 @@ internal class ActivationTest {
   }
 
   @Test
-  internal fun `reachable constructive instructions activate their destination`() {
+  internal fun `reachable constructive instructions include their destination`() {
     val catalog =
         testCatalog(
             """
-            CLASS Active { This:: Constructed }
+            CLASS Selected { This:: Constructed }
             CLASS Constructed
             """
                 .trimIndent()
         )
 
-    val table = gameView(catalog, "Active")
+    val table = gameView(catalog, "Selected")
 
     table.isIncluded(cn("Constructed")) shouldBe true
   }
@@ -230,66 +233,66 @@ internal class ActivationTest {
             emptySet(),
         )
 
-    val table = ClassTable.forPremise(premise)
+    val table = premise.classTable
 
     table.isIncluded(cn("Constructed")) shouldBe true
   }
 
   @Test
-  internal fun `bare trigger does not activate its externally issued protocol`() {
+  internal fun `bare trigger does not include its externally issued protocol`() {
     val catalog =
         testCatalog(
             """
-            CLASS Active { Protocol: Constructed }
+            CLASS Selected { Protocol: Constructed }
             CLASS Protocol
             CLASS Constructed
             """
                 .trimIndent()
         )
 
-    val table = gameView(catalog, "Active")
+    val table = gameView(catalog, "Selected")
 
     table.isIncluded(cn("Protocol")) shouldBe false
     table.isIncluded(cn("Constructed")) shouldBe false
   }
 
   @Test
-  internal fun `positive invariants activate their required inhabitants`() {
-    val catalog = testCatalog("CLASS Active { HAS =1 Required }\nCLASS Required")
+  internal fun `positive invariants include their required inhabitants`() {
+    val catalog = testCatalog("CLASS Selected { HAS =1 Required }\nCLASS Required")
 
-    val table = gameView(catalog, "Active")
+    val table = gameView(catalog, "Selected")
 
     table.isIncluded(cn("Required")) shouldBe true
   }
 
   @Test
-  internal fun `constructive instructions activate only when their trigger and gate can be reached`() {
+  internal fun `constructive instructions include only when their trigger and gate can be reached`() {
     val catalog =
         testCatalog(
             """
-            CLASS Active {
-              InactiveTrigger<InactiveTriggerArgument>: Triggered
-              This:: (Class<InactiveGate>: Gated)
+            CLASS Selected {
+              ProtocolTrigger<TriggerArgument>: Triggered
+              This:: (Class<GateProtocol>: Gated)
             }
-            CLASS InactiveTrigger<InactiveTriggerArgument>
-            CLASS InactiveTriggerArgument
+            CLASS ProtocolTrigger<TriggerArgument>
+            CLASS TriggerArgument
             CLASS Triggered
-            CLASS InactiveGate
+            CLASS GateProtocol
             CLASS Gated
             """
                 .trimIndent()
         )
 
-    val dormant = gameView(catalog, "Active")
+    val dormant = gameView(catalog, "Selected")
     val reachable =
-        gameView(catalog, "Active", "InactiveTrigger", "InactiveTriggerArgument", "InactiveGate")
+        gameView(catalog, "Selected", "ProtocolTrigger", "TriggerArgument", "GateProtocol")
 
     dormant.isIncluded(cn("Triggered")) shouldBe false
     dormant.isIncluded(cn("Gated")) shouldBe false
-    dormant.isIncluded(cn("InactiveTrigger")) shouldBe false
+    dormant.isIncluded(cn("ProtocolTrigger")) shouldBe false
     reachable.isIncluded(cn("Triggered")) shouldBe true
     reachable.isIncluded(cn("Gated")) shouldBe true
-    reachable.isIncluded(cn("InactiveTrigger")) shouldBe true
+    reachable.isIncluded(cn("ProtocolTrigger")) shouldBe true
   }
 
   @Test
@@ -298,7 +301,7 @@ internal class ActivationTest {
         testCatalog(
             """
             ABSTRACT CLASS Empty
-            CLASS Active {
+            CLASS Selected {
               Empty: Triggered
               This:: (Empty: Gated)
             }
@@ -308,7 +311,7 @@ internal class ActivationTest {
                 .trimIndent()
         )
 
-    val table = gameView(catalog, "Active", "Empty")
+    val table = gameView(catalog, "Selected", "Empty")
 
     table.isIncluded(cn("Empty")) shouldBe true
     table.isInhabited(cn("Empty")) shouldBe false
@@ -317,11 +320,11 @@ internal class ActivationTest {
   }
 
   @Test
-  internal fun `structural supertypes become active`() {
-    val catalog = testCatalog("CLASS Active : Inactive\nABSTRACT CLASS Inactive")
+  internal fun `structural supertypes become included`() {
+    val catalog = testCatalog("CLASS Selected : Base\nABSTRACT CLASS Base")
 
-    val table = gameView(catalog, "Active")
+    val table = gameView(catalog, "Selected")
 
-    table.isIncluded(cn("Inactive")) shouldBe true
+    table.isIncluded(cn("Base")) shouldBe true
   }
 }

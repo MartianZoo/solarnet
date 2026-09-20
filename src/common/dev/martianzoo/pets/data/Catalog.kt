@@ -9,7 +9,7 @@ import dev.martianzoo.pets.types.ClassTable
 
 /** One coherent catalog of everything the engine may know about a game. */
 public interface Catalog {
-  /** The one fully compiled class universe from which playable projections are formed. */
+  /** The fully compiled Catalog structure shared by its playable games. */
   public val classTable: ClassTable
 
   /** Handlers for this game's explicitly marked Pets syntax, bound to one game class table. */
