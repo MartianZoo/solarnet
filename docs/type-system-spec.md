@@ -107,8 +107,8 @@ Three neighbours are deliberately out of scope:
 
 - **How a premise selects its declaration closure.** Section 12 takes that closure as part of the
   game universe and defines inhabitance for its Types. The selection policy belongs to premise
-  construction; its behavior is pinned by `PremiseSelectionTest.kt` and described in
-  `docs/agents/OPTIONS.md`.
+  construction; its behavior is described by `GamePremise` and `ClassLoader` KDoc and pinned by
+  `PremiseSelectionTest.kt`.
 - **Component-count invariants**, except for the one rule the type system leans on (T3-9): a
   dependency may only target a type limited to a single copy.
 - **What the rest of Pets means.** Instructions, requirements, metrics, triggers and declarations

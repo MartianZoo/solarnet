@@ -12,7 +12,14 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 
-/** Exact premise checks whose proofs depend only on uninhabited Types. */
+/**
+ * Rejects selected content whose mandatory entry behavior is impossible because a required Type is
+ * uninhabited.
+ *
+ * This deliberately proves only exact empty-domain facts, such as a false play requirement or a
+ * reachable mandatory removal from an empty Type. Broader closed-world satisfiability is not part
+ * of premise construction.
+ */
 internal object PremiseViability {
   fun validate(table: ClassTable, selectedClassNames: Set<ClassName>) {
     val interpreter = InhabitanceInterpreter(classIsUninhabited = { !table.isInhabited(it) })

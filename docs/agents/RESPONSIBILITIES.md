@@ -141,7 +141,7 @@ plausibly belong elsewhere:
   presentation names. It is not part of what a source may mean. [`NAMING.md`](NAMING.md) owns naming.
 - [`Catalog.kt`](../../src/common/dev/martianzoo/pets/data/Catalog.kt),
   [`GamePremise.kt`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt) and
-  `ClassSelection` are game assembly, owned by [`OPTIONS.md`](OPTIONS.md).
+  `ClassSelection` implement game assembly rather than Pets language semantics.
 Runtime `Task`, `GameEvent`, and `TaskResult` data have moved to `:state`; their instruction-bearing
 values remain inert there, while task construction and normalization stay in `:engine`.
 
