@@ -34,6 +34,17 @@ internal class TransformHandlerTest {
   }
 
   @Test
+  internal fun transformedSequenceIsSplicedIntoItsSurroundingSequence() {
+    val dispatcher =
+        TransformHandler.dispatcher(
+            mapOf("MARK" to TransformHandler { parse<InstructionTree>("Inside THEN AlsoInside") })
+        )
+
+    dispatcher.transformInstructionTree(parse("Outside THEN MARK[Ignored]")).toString() shouldBe
+        "Outside THEN Inside THEN AlsoInside"
+  }
+
+  @Test
   internal fun cardinalityChangingTransformRequiresTheInstructionTreeEntryPoint() {
     val dispatcher = TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { it }))
     val source = parse<Instruction>("MARK[Inside, AlsoInside]")

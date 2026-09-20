@@ -1009,7 +1009,8 @@ the source, not a message to some later stage.
 category of Pets it was given: an instruction for an instruction, a metric for a metric, and so on.
 It need not be the same *kind* of node — a gain may come back a group, a requirement may come back a
 conjunction — and a block that expands into several independent instructions splices into the
-surrounding group (L6-8).
+surrounding group (L6-8). A block that expands into a sequence at the final stage of another
+sequence likewise splices into that surrounding sequence (L6-9).
 
 > **Non-normative example — Noctis City.** `PROD[-Energy, 3 MC]` expands into two independent
 > production-track changes. Splicing the returned group preserves the card's surrounding gains;
@@ -1068,6 +1069,9 @@ generated declaration is `CLASS Inventrix_RequiredAction : RequiredAction`.
 **L11-3. The body follows the complete expression.** Arguments specialize both the occurrence and
 the generated class's declared supertype; refinements constrain only the occurrence and are removed
 recursively from the supertype, because a refined type cannot be a supertype (L1-9).
+
+Within an argument, `This` still denotes the enclosing owner: the occurrence retains `This` to name
+that owner instance, while the generated class's supertype names the enclosing owner Class.
 
 ```pets
 SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {}
