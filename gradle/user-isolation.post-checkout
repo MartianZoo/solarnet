@@ -12,15 +12,41 @@ fi
 
 canonical_root=$(cd "$worktree_root" && pwd -P) || exit 0
 worktree_id=$(printf '%s' "$canonical_root" | shasum -a 256 | cut -c1-24)
-account_worktree_root="$HOME/.gradle/solarnet-builds/$worktree_id"
+
+# A worktree has only one .gradle path, so it cannot link into each accessing account's home.
+# Keep only Gradle's unavoidable pre-init cache in the Git repository's shared administrative
+# directory. The init script moves every later cache and build output into per-account storage.
+git_common_dir=$(git -C "$worktree_root" rev-parse --git-common-dir 2>/dev/null) || exit 0
+case "$git_common_dir" in
+  /*) ;;
+  *) git_common_dir="$worktree_root/$git_common_dir" ;;
+esac
+git_common_dir=$(cd "$git_common_dir" && pwd -P) || exit 0
+shared_worktree_root="$git_common_dir/solarnet-bootstrap-caches/$worktree_id"
+
+grant_shared_access() {
+  directory=$1
+  chmod g+rwx "$directory" || return
+
+  # Gradle may reset the cache directory's POSIX mode to 0700. On macOS, an inheritable ACL
+  # continues to grant the worktree's group access to the directory and everything created in it.
+  if [ "$(uname -s)" = "Darwin" ]; then
+    shared_group=$(stat -f '%Sg' "$git_common_dir") || return
+    chmod +a \
+      "group:$shared_group allow read,write,execute,delete_child,file_inherit,directory_inherit" \
+      "$directory"
+  fi
+}
 
 link_project_cache() {
   relative_root=$1
   if [ "$relative_root" = "." ]; then
-    cache_directory="$account_worktree_root/bootstrap-project-cache"
+    cache_directory="$shared_worktree_root/root"
+    legacy_cache_suffix="/.gradle/solarnet-builds/$worktree_id/bootstrap-project-cache"
     project_link="$worktree_root/.gradle"
   else
-    cache_directory="$account_worktree_root/bootstrap-project-caches/$relative_root"
+    cache_directory="$shared_worktree_root/included/$relative_root"
+    legacy_cache_suffix="/.gradle/solarnet-builds/$worktree_id/bootstrap-project-caches/$relative_root"
     project_link="$worktree_root/$relative_root/.gradle"
   fi
 
@@ -28,11 +54,23 @@ link_project_cache() {
     echo "Solarnet: cannot create Gradle project cache $cache_directory" >&2
     return
   }
+  grant_shared_access "$cache_directory" || {
+    echo "Solarnet: cannot grant shared access to Gradle project cache $cache_directory" >&2
+    return
+  }
 
   if [ -L "$project_link" ]; then
-    if [ "$(readlink "$project_link")" != "$cache_directory" ]; then
-      echo "Solarnet: $project_link already links elsewhere; leaving it unchanged" >&2
+    existing_link=$(readlink "$project_link")
+    if [ "$existing_link" = "$cache_directory" ]; then
+      return
     fi
+    case "$existing_link" in
+      /*"$legacy_cache_suffix")
+        ln -sfn "$cache_directory" "$project_link" ||
+          echo "Solarnet: cannot migrate $project_link to $cache_directory" >&2
+        ;;
+      *) echo "Solarnet: $project_link already links elsewhere; leaving it unchanged" >&2 ;;
+    esac
   elif [ -e "$project_link" ]; then
     echo "Solarnet: $project_link already exists; leaving it unchanged" >&2
   else

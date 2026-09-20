@@ -120,9 +120,10 @@ the isolation init script directly. For IntelliJ and other Tooling API clients, 
 `~/.gradle/init.d/solarnet-user-isolation.init.gradle.kts` once; that user-level bootstrap discovers
 the checked-in script in every current and future Solarnet worktree. Gradle opens `.gradle` before
 any init script runs, so also install `gradle/user-isolation.post-checkout` as the shared Git
-repository's `hooks/post-checkout`; it creates an ignored `.gradle` symlink into the same
-per-worktree home storage for every tracked Gradle build whenever Git creates or checks out a
-worktree.
+repository's `hooks/post-checkout`. Whenever Git creates or checks out a worktree, the hook creates
+an ignored `.gradle` symlink to a small per-worktree bootstrap cache under the shared Git directory.
+That cache is group-accessible because the symlink cannot vary by account; the init script moves all
+subsequent generated state into the accessing account's isolated home storage.
 Yarn's incompatible `serialize-javascript` resolution warning and “Ignored scripts due to flag”
 warning are expected: the former comes from the deliberate 7.x security pin while Mocha requests
 6.x, and the latter preserves Kotlin/JS's policy of not running package lifecycle scripts.
