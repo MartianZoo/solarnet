@@ -6,6 +6,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Derive when a card-resource or tag reference includes the current card so English can add
+  `including this` reliably; keep the current wording until the representation supplies that fact.
 - Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.
 - Decide whether `Milestone`'s per-player uniqueness constraint should use
   `HAS MAX 1 This<Player>` or a clearer way to express one instance of the concrete milestone per

@@ -618,7 +618,7 @@ internal object TerraformingMarsDescribers {
                     )
             ),
         klass("ColonyTileSelection") to
-            ComponentDescriber(changeFrame = Frame.Procedure("add", "a colony tile")),
+            ComponentDescriber(changeFrame = Frame.Procedure("add", "1 colony tile")),
         klass("WorldGovernmentTerraforming") to
             ComponentDescriber(
                 changeFrame =
@@ -710,7 +710,10 @@ internal object TerraformingMarsDescribers {
                     ComponentDescriber.ActionUse(
                         objectPhrase = "the Convert Plants standard action",
                         paymentDiscount =
-                            ComponentDescriber.PaymentDiscount("convert plants to greenery"),
+                            ComponentDescriber.PaymentDiscount(
+                                "convert plants to greenery",
+                                objectPronoun = false,
+                            ),
                     )
             ),
         klass("PowerPlantProject") to

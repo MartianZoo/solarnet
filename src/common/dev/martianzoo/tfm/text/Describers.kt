@@ -17,10 +17,17 @@ import dev.martianzoo.pets.types.inferTypeVariables
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 
 /** Looks up the English description supplied for each component Class. */
-internal class Describers(
+internal class Describers
+private constructor(
     private val classTable: ClassTable,
     private val descriptions: Map<ClassName, ComponentDescriber>,
+    private val cardContext: CardContext?,
 ) {
+  internal constructor(
+      classTable: ClassTable,
+      descriptions: Map<ClassName, ComponentDescriber>,
+  ) : this(classTable, descriptions, null)
+
   internal val expressions = ExpressionResolver(classTable)
   private val classesByName = expressions.classesByName
 
@@ -33,6 +40,19 @@ internal class Describers(
   }
 
   internal fun declaration(className: ClassName) = classesByName.getValue(className).declaration
+
+  internal fun forCard(resourceType: ClassName?): Describers =
+      Describers(classTable, descriptions, CardContext(resourceType))
+
+  internal fun unboundCardResourceDestination(resourceType: ClassName): Determiner =
+      if (
+          cardContext == null ||
+              cardContext.resourceType?.let { expressions.isSubtypeOf(it, resourceType) } == true
+      ) {
+        Determiner.ANY
+      } else {
+        Determiner.ANOTHER
+      }
 
   internal fun lowerProductionSyntax(instructionTree: InstructionTree): InstructionTree =
       productionSyntaxLowerer().transformInstructionTree(instructionTree)
@@ -348,4 +368,6 @@ internal class Describers(
       }
     }
   }
+
+  private data class CardContext(val resourceType: ClassName?)
 }

@@ -195,23 +195,38 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
 
 - Use `raise`/`lower` for global parameters and terraform rating; `increase`/`decrease` for
   production. Spell out `terraform rating`.
-- Use `pay` when standard resources are a cost for obtaining or doing something. Use `remove` for
-  card-resource costs and for standalone or involuntary reductions, including standard resources.
-  Never `spend` or `lose`. Describe substitution as `may be used as`, with no payment verb.
+- Begin every requirement with `Requires`. Prefer a terse noun phrase when it carries the full
+  meaning; use `Requires that` only for a clause. Describe temperature bounds as `warmer` or
+  `colder`, not `higher` or `lower`.
+- Use `spend` when a Resource is consumed as an action cost, including a resource held on a card.
+  Use `remove` for taking a resource from any player's card and for standalone or involuntary
+  reductions. Use `pay` for the non-action payment constructions. Describe substitution as `may be
+  used as`, with no payment verb.
 - Join a rendered action cost to its result with `to`. Refuse a costed action whose result cannot be
   an infinitive; do not split it into separately modalized sentences. A mandatory standard-resource
   removal followed by `THEN` is a payment for its result and joins with `to`.
+- Render discount effects declaratively as `you pay N M€ less`, adding `for it` when the trigger
+  supplies a clear discounted object.
 - Introduce a triggering event with `when`, never `each time`. Describe one event; express the
   result's multiplicity when one event produces several changes.
 - Render every ratio with `per`, whatever the denominator and whether or not the result is victory
   points.
-- Render an explicit unrestricted player in a counted metric as `any`; preserve shared implicit player
-  identity across a trigger and its result as `that player`.
+- Preserve shared implicit player identity across a trigger and its result as `that player`.
 - Make optional maxima explicit as `you may ... up to`, including above one.
 - Describe a card-resource location as `this card`, never `here`.
+- For an unbound card-resource destination, say `another card` when the current card cannot hold
+  that resource type; otherwise say `any card`.
+- Use an indefinite article for exactly one placed tile. Use `1` for other explicit singular
+  quantities; ordinary type references still use articles.
+- Describe unrestricted persistent counts and requirements as being `in play`; when the counted
+  objects are restricted to Mars, say `in play on Mars`. Placement triggers say only `on Mars`, and
+  player-local counts do not say `in play`.
 - Omit unconditional fixed victory-point adjustments from card regions; keep conditional and
   metric-based victory-point behavior.
 - Render `PlanetaryTag` as `planetary tag`.
+
+The representation does not currently identify every case where a card's own tag or resource must
+be called out as `including this`. Keep the current wording until that can be derived reliably.
 
 ## Evidence and verification
 

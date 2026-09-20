@@ -67,15 +67,15 @@ internal class EnglishTest {
         parse<Effect>("AnimalTag<CardFront<Anyone>, Anyone>: -2 Heat<Anyone>?")
     ) shouldBe "When any animal tag is played, you may remove up to 2 heat from that player."
     english.describe(listOf(parse<Action>("4 Energy -> 2 Steel, OxygenStep"))) shouldBe
-        "Pay 4 energy to gain 2 steel and raise oxygen 1 step."
+        "Spend 4 energy to gain 2 steel and raise oxygen 1 step."
     english.describe(listOf(parse<Action>("Animal<This, Owner> -> Steel"))) shouldBe
-        "Remove 1 animal from this card to gain 1 steel."
+        "Spend 1 animal from this card to gain 1 steel."
     english.describe(listOf(parse<Action>("X Floater<This> -> X StandardResource"))) shouldBe
-        "Remove one or more floaters from this card to gain the same number of one standard resource."
+        "Spend 1 or more floaters from this card to gain the same number of one standard resource."
     english.describe(listOf(parse<Action>("X ProjectCard -> 2X MC"))) shouldBe
-        "Discard one or more cards to gain twice that amount of M€."
+        "Discard 1 or more cards to gain twice that amount of M€."
     english.describe(listOf(parse<Action>("1 MC / (12 - VenusTag) -> VenusStep"))) shouldBe
-        "Pay 12 M€ to raise Venus 1 step. This cost is reduced by 1 M€ per Venus tag you have."
+        "Spend 12 M€ to raise Venus 1 step. This cost is reduced by 1 M€ per Venus tag you have."
     english.describe(listOf(parse<Action>("MC -> Animal<This>?"))) shouldBe "[MC -> Animal<This>?]."
     english.describe(parse<InstructionTree>("2 Plant, TemperatureStep")) shouldBe
         "Gain 2 plants. Raise temperature 1 step."
@@ -108,38 +108,37 @@ internal class EnglishTest {
     english.describe(
         parse<InstructionTree>("3 MC<Anyone> FROM MC."),
     ) shouldBe "Pay 3 M€ to any player, or as much as possible."
-    english.describe(parse<Requirement>("MAX 6 OxygenStep")) shouldBe
-        "Requires that oxygen is 6% or lower."
+    english.describe(parse<Requirement>("MAX 6 OxygenStep")) shouldBe "Requires 6% oxygen or less."
     english.describe(
         parse<Effect>("ActionBilling<ConvertPlantsAction, Action1>:: -Owed<Class<Plant>>")
-    ) shouldBe "When you convert plants to greenery, pay 1 plant less."
+    ) shouldBe "When you convert plants to greenery, you pay 1 plant less."
     english.describe(parse<Effect>("Billing<CardPlay>:: -2 Owed<>")) shouldBe
-        "When you play a card, pay 2 M€ less."
+        "When you play a card, you pay 2 M€ less for it."
     english.describe(
         parse<Effect>("CardBilling<Class<CardFront>(HAS requirement)>:: -2 Owed<>")
-    ) shouldBe "When you play a card with a requirement, pay 2 M€ less."
+    ) shouldBe "When you play a card with a requirement, you pay 2 M€ less for it."
     english.describe(parse<Effect>("PayingFor<Owner, Class<ProjectCard>>:: 2 Owed<>")) shouldBe
         "When you buy a card, pay 2 M€ extra."
     english.describe(
         parse<Effect>("UseAction<This, Action1>:: Accepting<Class<Titanium>>")
     ) shouldBe "When you pay for this action, titanium may be used."
     english.describe(parse<Effect>("PayingFor<Owner, Class<PlanetaryTag>>:: -2 Owed<>")) shouldBe
-        "When you play a planetary tag, pay 2 M€ less."
+        "When you play a planetary tag, you pay 2 M€ less for it."
     english.describe(parse<Effect>("PayingFor<Owner, Class<EarthTag>>:: -2 Owed<>")) shouldBe
-        "When you play an Earth tag, pay 2 M€ less."
+        "When you play an Earth tag, you pay 2 M€ less for it."
     english.describe(parse<InstructionTree>("ProjectCard")) shouldBe "Draw 1 card."
-    english.describe(parse<InstructionTree>("OceanTile")) shouldBe "Place 1 ocean tile."
+    english.describe(parse<InstructionTree>("OceanTile")) shouldBe "Place an ocean tile."
     english.describe(parse<InstructionTree>("CityTile")) shouldBe "Place a city tile."
     english.describe(parse<InstructionTree>("Colony<ColonyTile>")) shouldBe
-        "Place a colony (may be placed where you already have a colony)."
+        "Place 1 colony (may be placed where you already have a colony)."
     english.describe(parse<InstructionTree>("Community<LandArea(HAS MAX 0 Occupant)>")) shouldBe
-        "Place a community marker on a land area with no occupant."
+        "Place 1 community marker on a land area with no occupant."
     english.describe(
         parse<InstructionTree>(
             "Community<LandArea(HAS MAX 0 Occupant, HAS Neighbor<OwnedOccupant>)>"
         )
     ) shouldBe
-        "Place a community marker on a land area with no occupant next to a tile or community you own."
+        "Place 1 community marker on a land area with no occupant next to a tile or community you own."
     english.describe(parse<InstructionTree>("EACH Player { ProjectCard }")) shouldBe
         "Have each player draw 1 card."
     english.describe(
@@ -156,13 +155,13 @@ internal class EnglishTest {
         parse<InstructionTree>("EACH Player(HAS MAX 0 This<Anyone>) { -5 MC., PROD[-1 MC] }")
     ) shouldBe "Remove 5 M€ from each opponent and decrease their M€ production 1 step."
     english.describe(parse<Requirement>("ScienceTag")) shouldBe "Requires a science tag."
-    english.describe(parse<Requirement>("Colony")) shouldBe "Requires that you have a colony."
+    english.describe(parse<Requirement>("Colony")) shouldBe "Requires a colony."
     english.describe(parse<Requirement>("VenusTag, EarthTag, JovianTag")) shouldBe
         "Requires a Venus tag, an Earth tag, and a Jovian tag."
     english.describe(parse<Requirement>("VenusTag, PlantTag")) shouldBe
         "Requires a Venus tag and a plant tag."
     english.describe(parse<Effect>("End: VictoryPoint / Cathedral<Anyone>")) shouldBe
-        "1 VP per any cathedral."
+        "1 VP per cathedral in play."
     english.describe(
         parse<Effect>("CardFront(HAS NonNegativeIconsOf<Class<VictoryPoint>>): 3 MC")
     ) shouldBe "When you play a card with a VP icon, gain 3 M€."
@@ -276,7 +275,8 @@ internal class EnglishTest {
         .bottomText(flexibility) shouldBe
         "You may treat the global parameter requirement of the next card you play this generation as if it is 2 steps lower or higher."
     English(discount.classTable, TerraformingMarsDescribers.descriptions)
-        .bottomText(discount) shouldBe "The next card you play this generation costs 8 M€ less."
+        .bottomText(discount) shouldBe
+        "When you play the next card this generation, you pay 8 M€ less for it."
   }
 
   @Test
@@ -288,7 +288,7 @@ internal class EnglishTest {
     english.describe(listOf(parse<Action>("PROD[StandardResource] -> 4 MC"))) shouldBe
         "Decrease one of your productions 1 step to gain 4 M€."
     english.describe(parse<InstructionTree>("StandardResource THEN StandardResource")) shouldBe
-        "Gain a standard resource, then gain that resource."
+        "Gain 1 standard resource, then gain that resource."
     english.describe(parse<Effect>("Trade<ColonyTile>: ColonyProduction<ColonyTile>?")) shouldBe
         "When you trade, you may raise that colony tile track 1 step."
 
@@ -301,7 +301,7 @@ internal class EnglishTest {
             }
             """
         )
-    english.topText(unintroduced) shouldBe "Effect: When you buy a card, gain a standard resource."
+    english.topText(unintroduced) shouldBe "Effect: When you buy a card, gain 1 standard resource."
   }
 
   @Test
@@ -325,7 +325,7 @@ internal class EnglishTest {
         )
 
     english.topText(card) shouldBe
-        "Action: Pay 12 M€ (titanium may be used) to place 1 ocean tile, or remove 1 asteroid from this card to raise Venus 1 step."
+        "Action: Spend 12 M€ (titanium may be used) to place an ocean tile, or spend 1 asteroid from this card to raise Venus 1 step."
   }
 
   @Test
@@ -343,9 +343,9 @@ internal class EnglishTest {
     english.describe(parse<InstructionTree>("2 MC / Colony")) shouldBe
         "Gain 2 M€ per colony you own."
     english.describe(parse<InstructionTree>("2 MC / Colony<Anyone>")) shouldBe
-        "Gain 2 M€ per any colony."
+        "Gain 2 M€ per colony in play."
     english.describe(parse<InstructionTree>("2 MC / CityTile<Anyone>")) shouldBe
-        "Gain 2 M€ per any city tile."
+        "Gain 2 M€ per city tile in play."
   }
 
   @Test
@@ -391,7 +391,7 @@ internal class EnglishTest {
         )
 
     english.bottomText(fixedScore) shouldBe ""
-    english.bottomText(metricScore) shouldBe "1 VP per any colony."
+    english.bottomText(metricScore) shouldBe "1 VP per colony in play."
   }
 
   @Test

@@ -214,6 +214,7 @@ internal data class ComponentDescriber(
   internal data class PaymentDiscount(
       internal val predicate: String,
       internal val categoryNoun: Noun.Counted? = null,
+      internal val objectPronoun: Boolean = true,
   )
 
   internal sealed interface MinimumProperty {

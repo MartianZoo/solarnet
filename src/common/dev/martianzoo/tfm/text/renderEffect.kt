@@ -649,7 +649,11 @@ internal fun paymentDiscount(effect: Effect, describers: Describers): PaymentDis
   completeOwedReduction(effect.instruction, describers)?.let { reduction ->
     val trigger = describers.renderPaymentDiscountTrigger(effect.trigger) ?: return null
     if (!trigger.accepts(reduction)) return null
-    return PaymentDiscount(trigger.clause, reduction.copy(count = 0))
+    return PaymentDiscount(
+        trigger.clause,
+        reduction.copy(count = 0),
+        objectPronoun = trigger.objectPronoun,
+    )
   }
   owedReduction(effect.instruction, describers)?.let { reduction ->
     val actionTrigger = describers.renderPaymentDiscountTrigger(effect.trigger)
@@ -660,6 +664,7 @@ internal fun paymentDiscount(effect: Effect, describers: Describers): PaymentDis
     return PaymentDiscount(
         trigger,
         reduction,
+        objectPronoun = actionTrigger?.objectPronoun ?: trigger.hasExplicitObject(),
     )
   }
   val trigger = describers.renderPaymentDiscountTrigger(effect.trigger) ?: return null
@@ -672,6 +677,7 @@ internal fun paymentDiscount(effect: Effect, describers: Describers): PaymentDis
       trigger.clause,
       reduction,
       categoryReduction = trigger.categoryNoun != null,
+      objectPronoun = trigger.objectPronoun,
   )
 }
 
@@ -686,17 +692,29 @@ private fun renderPaymentDiscount(discounts: List<PaymentDiscount>): Rendering<S
         )
       } else if (discounts.first().categoryReduction) {
         Clause.Simple(
-            Predicate(
-                Verb("pay"),
-                Coordination.one(NounPhrase.text("${reduction.count} less ${reduction.noun}")),
-            )
+            subject = NounPhrase.you(),
+            predicate =
+                Predicate(
+                    Verb("pay"),
+                    Coordination.one(NounPhrase.text("${reduction.count} less ${reduction.noun}")),
+                    modifiers =
+                        listOfNotNull(
+                            Modifier.Phrase("for it").takeIf { discounts.first().objectPronoun }
+                        ),
+                ),
         )
       } else {
         Clause.Simple(
-            Predicate(
-                Verb("pay"),
-                Coordination.one(reduction.phrase.withModifier(Modifier.Phrase("less"))),
-            )
+            subject = NounPhrase.you(),
+            predicate =
+                Predicate(
+                    Verb("pay"),
+                    Coordination.one(reduction.phrase.withModifier(Modifier.Phrase("less"))),
+                    modifiers =
+                        listOfNotNull(
+                            Modifier.Phrase("for it").takeIf { discounts.first().objectPronoun }
+                        ),
+                ),
         )
       }
   return Sentence(Clause.Prefaced(Clause.Preface.Temporal(trigger), result)).render()
@@ -715,6 +733,16 @@ private fun coordinatePaymentTriggers(clauses: List<Clause>): Clause {
     Clause.Coordinated(Coordination(clauses, Conjunction.OR))
   }
 }
+
+private fun Clause.hasExplicitObject(): Boolean =
+    when (this) {
+      is Clause.Simple -> predicate.objects != null
+      is Clause.SharedSubject -> predicates.members.all { it.objects != null }
+      is Clause.Coordinated -> clauses.members.all(Clause::hasExplicitObject)
+      is Clause.Either -> alternatives.members.all(Clause::hasExplicitObject)
+      is Clause.Prefaced,
+      is Clause.RawPets -> false
+    }
 
 private fun renderResourcePaymentValue(
     effect: Effect,
@@ -830,6 +858,7 @@ private fun Describers.renderBillingPaymentDiscountTrigger(
       renderBillingEvent(billing) ?: return null,
       discount.categoryNoun,
       billing.resource?.className,
+      discount.objectPronoun,
   )
 }
 
@@ -843,6 +872,7 @@ private fun Describers.renderActionPaymentDiscountTrigger(
   return PaymentDiscount.Trigger(
       eventTrigger(subject = NounPhrase.you(), verb = Verb(discount.predicate)),
       discount.categoryNoun,
+      objectPronoun = discount.objectPronoun,
   )
 }
 

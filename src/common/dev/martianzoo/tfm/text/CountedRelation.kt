@@ -100,12 +100,13 @@ private fun renderParticipant(
   val placement = describers.positionedFrame(expression.className) ?: return null
   val resolved = describers.resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
+  val explicitlyUnrestricted = resolved.sourceDependency(ownerKey) == describers.anyoneExpression
   val (determiner, ownership) =
       when {
-        resolved.sourceDependency(ownerKey) == describers.anyoneExpression ->
+        explicitlyUnrestricted ->
             when (placement.anyoneOwnership ?: return null) {
               ComponentDescriber.OwnershipPhrase.IMPLICIT ->
-                  Determiner.ANY to ComponentDescriber.OwnershipPhrase.IMPLICIT
+                  placement.determiner to ComponentDescriber.OwnershipPhrase.IMPLICIT
               ComponentDescriber.OwnershipPhrase.ANYONES ->
                   Determiner.INDEFINITE to ComponentDescriber.OwnershipPhrase.ANYONES
               ComponentDescriber.OwnershipPhrase.YOURS -> return null
@@ -127,29 +128,30 @@ private fun renderParticipant(
   val noun =
       if (determiner == Determiner.THIS) placementNoun else placement.referenceNoun ?: placementNoun
   val modifiers =
-      expression.refinement
-          ?.let { refinement ->
-            val presence = refinement as? Expression.Refinement.Has ?: return null
-            val minimum = presence.requirement as? Requirement.Min ?: return null
-            val contained = (minimum.metric as? Metric.Count)?.expression ?: return null
-            if (
-                minimum.minimum != 1 ||
-                    !contained.simple ||
-                    !describers.concrete(contained.className)
-            ) {
-              return null
-            }
-            val containedNoun =
-                describers.positionedFrame(contained.className)?.singular
-                    ?: describers.componentNoun(contained.className, 1)
-            listOf(
-                Modifier.Relation(
-                    "with",
-                    NounPhrase(containedNoun, determiner = Determiner.INDEFINITE),
+      listOfNotNull(Modifier.Phrase("in play").takeIf { explicitlyUnrestricted }) +
+          expression.refinement
+              ?.let { refinement ->
+                val presence = refinement as? Expression.Refinement.Has ?: return null
+                val minimum = presence.requirement as? Requirement.Min ?: return null
+                val contained = (minimum.metric as? Metric.Count)?.expression ?: return null
+                if (
+                    minimum.minimum != 1 ||
+                        !contained.simple ||
+                        !describers.concrete(contained.className)
+                ) {
+                  return null
+                }
+                val containedNoun =
+                    describers.positionedFrame(contained.className)?.singular
+                        ?: describers.componentNoun(contained.className, 1)
+                listOf(
+                    Modifier.Relation(
+                        "with",
+                        NounPhrase(containedNoun, determiner = Determiner.INDEFINITE),
+                    )
                 )
-            )
-          }
-          .orEmpty()
+              }
+              .orEmpty()
   return CountedRelation.Participant(
       noun.singular,
       noun.plural,

@@ -40,16 +40,19 @@ internal class English(
   internal fun renderGoal(goal: Class): EnglishGoalRendering = renderGoal(goal, describers)
 
   /** Returns the best available text above [card]'s artwork. */
-  internal fun topText(card: Class): String = renderTopText(card, describers).value
+  internal fun topText(card: Class): String = renderTopText(card, cardDescribers(card)).value
 
   /** Returns the best available text below [card]'s artwork. */
-  internal fun bottomText(card: Class): String = renderBottomText(card, describers).value
+  internal fun bottomText(card: Class): String = renderBottomText(card, cardDescribers(card)).value
 
   internal fun renderCard(card: Class): EnglishCardRendering {
-    val top = renderTopText(card, describers)
-    val bottom = renderBottomText(card, describers)
+    val cardDescribers = cardDescribers(card)
+    val top = renderTopText(card, cardDescribers)
+    val bottom = renderBottomText(card, cardDescribers)
     return EnglishCardRendering(top.value, bottom.value, top.unresolved + bottom.unresolved)
   }
+
+  private fun cardDescribers(card: Class): Describers = describers.forCard(cardResourceType(card))
 
   // Of the card's Effects, only endgame scoring is printed below the artwork.
   private fun renderBottomText(

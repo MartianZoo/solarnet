@@ -195,7 +195,7 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
           .filter { !it.abstract && isSubtypeOf(it.className, className) }
           .map(Class::className)
 
-  private fun isSubtypeOf(className: ClassName, superclassName: ClassName): Boolean =
+  internal fun isSubtypeOf(className: ClassName, superclassName: ClassName): Boolean =
       classesByName.getValue(className).isSubtypeOf(classesByName.getValue(superclassName))
 
   internal val anyoneExpression = cn("Anyone").expression

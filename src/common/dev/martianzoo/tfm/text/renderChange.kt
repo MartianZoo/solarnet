@@ -401,7 +401,7 @@ private fun behaviorSubclassDeclaration(
 private fun renderNextCardEffect(
     instruction: Instruction,
     describers: Describers,
-): Clause.Simple? {
+): Clause? {
   val (className, count) = concreteMandatoryGain(instruction) ?: return null
   if (count != 1) return null
   val declaration = behaviorSubclassDeclaration(className, describers) ?: return null
@@ -409,19 +409,39 @@ private fun renderNextCardEffect(
   val effect =
       declaration.authoredEffects.singleOrNull()?.let(describers::prepareForRendering)
           ?: return null
-  val nextCard = NounPhrase.text("the next card you play this generation")
   paymentDiscount(effect, describers)?.let { discount ->
     if (discount.categoryReduction || discount.reduction.count == 0) return null
-    return Clause.Simple(
-        subject = nextCard,
-        predicate =
-            Predicate(
-                Verb("costs", "cost"),
-                Coordination.one(discount.reduction.phrase.withModifier(Modifier.Phrase("less"))),
-            ),
+    val trigger =
+        Clause.Simple(
+            subject = NounPhrase.you(),
+            predicate =
+                Predicate(
+                    Verb("play"),
+                    Coordination.one(NounPhrase.text("the next card this generation")),
+                ),
+        )
+    val result =
+        Clause.Simple(
+            subject = NounPhrase.you(),
+            predicate =
+                Predicate(
+                    Verb("pay"),
+                    Coordination.one(
+                        discount.reduction.phrase.withModifier(Modifier.Phrase("less"))
+                    ),
+                    listOf(Modifier.Phrase("for it")),
+                ),
+        )
+    return Clause.Prefaced(
+        Clause.Preface.Temporal(trigger),
+        result,
     )
   }
-  return renderRequirementFlexibilityResult(effect, describers, nextCard)
+  return renderRequirementFlexibilityResult(
+      effect,
+      describers,
+      NounPhrase.text("the next card you play this generation"),
+  )
 }
 
 private fun renderCardResourceDrawExchange(
@@ -457,11 +477,7 @@ private fun renderCountableChange(
 ): Clause? {
   concreteMandatoryGain(instruction)?.let { (className, count) ->
     val noun = describers.componentNounPhrase(className, count)
-    return clause(
-        "gain",
-        if (describers.concrete(className)) noun
-        else noun.copy(count = null, determiner = Determiner.INDEFINITE),
-    )
+    return clause("gain", noun)
   }
   (instruction as? Gain)?.let { gain ->
     if (
@@ -550,7 +566,8 @@ private fun Describers.renderEligiblePlayer(expression: Expression): NounPhrase?
       .withModifier(
           Modifier.Relation(
               "with",
-              NounPhrase("$tag tag", determiner = Determiner.INDEFINITE),
+              NounPhrase("$tag tag", determiner = Determiner.INDEFINITE)
+                  .withModifier(Modifier.Phrase("in play")),
           )
       )
 }
@@ -685,7 +702,11 @@ private fun renderCardResourceChange(
         holder != null && describers.heldResourceHasHolder(resolved, holder) ->
             describers.renderCardResourceHolder(holder) ?: return null
         resolved.sourceDependencies.isNotEmpty() -> return null
-        else -> NounPhrase("card", determiner = Determiner.ANY)
+        else ->
+            NounPhrase(
+                "card",
+                determiner = describers.unboundCardResourceDestination(expression.className),
+            )
       }
   return clause("add", noun, Modifier.Relation("to", target))
 }
@@ -789,7 +810,7 @@ private fun renderProductionConversion(
       clause(
           "decrease",
           NounPhrase.text(
-              "your ${describers.componentNoun(removing.resource, 1)} production one or more steps"
+              "your ${describers.componentNoun(removing.resource, 1)} production 1 or more steps"
           ),
       )
   val increase =

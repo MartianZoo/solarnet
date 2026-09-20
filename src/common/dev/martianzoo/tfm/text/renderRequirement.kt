@@ -263,11 +263,7 @@ private fun Describers.renderProductionRequirement(minimum: Requirement.Min): Cl
   val expression = countedExpression(minimum) ?: return null
   val production = productionExpression(expression, this) ?: return null
   if (production.owner != null) return null
-  return requirementClause(
-      NounPhrase.you(),
-      Verb.HAVE,
-      NounPhrase.text("${componentNoun(production.resource, 1)} production"),
-  )
+  return requirementClause(NounPhrase.text("${componentNoun(production.resource, 1)} production"))
 }
 
 private fun Describers.renderCardResourceRequirement(requirement: Requirement.Min): Clause? {
@@ -342,15 +338,19 @@ private fun Describers.renderThresholdBound(
 ): Clause? {
   if (!expression.simple) return null
   val value = renderRequirementValue(bound.value, target)
-  val comparison = if (direction == BoundDirection.MINIMUM) "higher" else "lower"
-  return requirementClause(
-      NounPhrase.text(bound.subject),
-      Verb.BE,
-      Coordination(
-          listOf(NounPhrase.text(value), NounPhrase.text(comparison)),
-          Conjunction.OR,
-      ),
-  )
+  val phrase =
+      when (bound.value) {
+        ComponentDescriber.Requirement.Value.PLAIN ->
+            "$value ${bound.subject.removePrefix("your ")}" +
+                if (direction == BoundDirection.MAXIMUM) " or lower" else ""
+        ComponentDescriber.Requirement.Value.PERCENT ->
+            "$value ${bound.subject}" + if (direction == BoundDirection.MAXIMUM) " or less" else ""
+        ComponentDescriber.Requirement.Value.DOUBLE_PERCENT ->
+            "${bound.subject} $value" + if (direction == BoundDirection.MAXIMUM) " or lower" else ""
+        ComponentDescriber.Requirement.Value.TEMPERATURE ->
+            "$value or ${if (direction == BoundDirection.MINIMUM) "warmer" else "colder"}"
+      }
+  return requirementClause(NounPhrase.text(phrase))
 }
 
 private fun Describers.renderCountBound(
@@ -373,38 +373,17 @@ private fun Describers.renderCountBound(
   return when (direction) {
     BoundDirection.MINIMUM ->
         when {
-          owned ->
-              requirementClause(
-                  NounPhrase.you(),
-                  Verb.HAVE,
-                  quantifiedNoun(bound.noun, target),
-              )
+          owned -> requirementClause(quantifiedNoun(bound.noun, target))
           explicitlyAnyOwner -> {
             val amount =
-                if (target == 1) {
-                  NounPhrase(noun, determiner = Determiner.ANY)
-                } else {
-                  NounPhrase.text("any $target $noun")
-                }
+                NounPhrase(bound.noun.singular, bound.noun.plural, count = target)
+                    .withModifier(Modifier.Phrase("in play"))
             requirementClause(amount)
           }
           else -> requirementClause(NounPhrase(noun, count = target))
         }
     BoundDirection.MAXIMUM ->
-        when {
-          owned ->
-              requirementClause(
-                  NounPhrase.you(),
-                  Verb.HAVE,
-                  NounPhrase.text("$target or fewer ${bound.noun.plural}"),
-              )
-          else ->
-              requirementClause(
-                  NounPhrase.plural("there"),
-                  Verb.BE,
-                  NounPhrase.text("$target or fewer ${bound.noun.plural}"),
-              )
-        }
+        requirementClause(NounPhrase.text("$target or fewer ${bound.noun.plural}"))
   }
 }
 

@@ -114,7 +114,7 @@ private fun Describers.renderSpendCost(spend: Cost.Spend): Predicate? {
     val quantity = spend.scaledEx.scalar.variableQuantity() ?: return null
     return renderResourceSpend(expression) { noun ->
       NounPhrase.text(
-          if (quantity.multiple == 1) "one or more ${noun.plural}" else "$quantity ${noun.plural}"
+          if (quantity.multiple == 1) "1 or more ${noun.plural}" else "$quantity ${noun.plural}"
       )
     }
   }
@@ -149,15 +149,16 @@ private fun Describers.renderResourceSpend(
   if (expression.refinement == null) {
     cardResourceNounPhrase(expression.className, 1)?.let { noun ->
       val resolved = resolveCardResource(expression) ?: return null
-      val holder =
+      val (holder, verb) =
           when {
-            cardResourceHasHolder(resolved, thisExpression) -> "this card"
-            resolved.hasOnlySourceDependency(Key(OWNED, 0), anyoneExpression) -> "any player's card"
-            resolved.sourceDependencies.isEmpty() -> "any of your cards"
+            cardResourceHasHolder(resolved, thisExpression) -> "this card" to "spend"
+            resolved.hasOnlySourceDependency(Key(OWNED, 0), anyoneExpression) ->
+                "any player's card" to "remove"
+            resolved.sourceDependencies.isEmpty() -> "any of your cards" to "spend"
             else -> return null
           }
       return Predicate(
-          Verb("remove"),
+          Verb(verb),
           Coordination.one(quantity(noun.copy(count = null))),
           listOf(Modifier.Phrase("from $holder")),
       )
@@ -169,7 +170,7 @@ private fun Describers.renderResourceSpend(
   }
   if (!expression.simple || plainGainNoun(expression.className, 1) == null) return null
   val noun = componentNounPhrase(expression.className, 1).copy(count = null)
-  return Predicate(Verb("pay"), Coordination.one(quantity(noun)))
+  return Predicate(Verb("spend"), Coordination.one(quantity(noun)))
 }
 
 private fun Describers.renderLinkedXAction(action: Action): RenderedAction? {
@@ -185,7 +186,7 @@ private fun Describers.renderLinkedXAction(action: Action): RenderedAction? {
   val cost =
       renderResourceSpend(spend.scaledEx.expression) { noun ->
         val quantity =
-            if (costScalar.multiple == 1) "one or more ${noun.plural}"
+            if (costScalar.multiple == 1) "1 or more ${noun.plural}"
             else "$costScalar ${noun.plural}"
         NounPhrase.text(quantity)
       } ?: return null
@@ -247,7 +248,7 @@ private fun Describers.renderDeferredPaymentAction(
   val result = renderInstructions(gated.inner, this)
   val cost =
       Predicate(
-          Verb("pay"),
+          Verb("spend"),
           Coordination.one(owed.phrase),
           listOf(Modifier.Parenthetical("${acceptance.noun} may be used")),
       )

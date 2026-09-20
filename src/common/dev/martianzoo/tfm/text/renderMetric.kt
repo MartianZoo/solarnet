@@ -333,7 +333,8 @@ private fun Describers.renderUnrestrictedOwnedComponent(
   val ownerKey = Key(OWNED, 0)
   if (!resolved.hasOnlySourceDependency(ownerKey, anyoneExpression)) return null
   return componentNounPhrase(expression.className, count ?: 1)
-      .copy(count = count, determiner = Determiner.ANY)
+      .copy(count = count)
+      .withModifier(Modifier.Phrase("in play"))
 }
 
 internal fun distinctOwnedKinds(
@@ -428,15 +429,19 @@ private fun renderTagMetric(
   val ownership =
       when {
         resolved.sourceDependencies.isEmpty() -> "you have"
-        resolved.hasOnlySourceDependency(ownerKey, describers.anyoneExpression) ->
-            "among all players"
+        resolved.hasOnlySourceDependency(ownerKey, describers.anyoneExpression) -> null
         resolved.sourceDependencies.size == 1 &&
             resolved.sourceDependency(ownerKey)?.let(describers::isNotOwner) == true ->
             "your opponents have"
         else -> return null
       }
   val plural = if (singular.endsWith("tag")) singular + "s" else singular
-  return NounPhrase(singular, plural, count = count).withOwnership(ownership, possessorEstablished)
+  val noun = NounPhrase(singular, plural, count = count)
+  return if (ownership == null) {
+    noun.withModifier(Modifier.Phrase("in play"))
+  } else {
+    noun.withOwnership(ownership, possessorEstablished)
+  }
 }
 
 private fun Describers.placementCountPhrase(
@@ -487,15 +492,11 @@ private fun Describers.placementCountPhrase(
   val referenceNoun =
       placement.referenceNoun
           ?: ComponentDescriber.Noun.Counted(placement.singular, placement.plural)
-  val determiner =
-      if (explicitlyUnrestricted && owner == ComponentDescriber.OwnershipPhrase.IMPLICIT) {
-        Determiner.ANY
-      } else {
-        null
-      }
+  val determiner = null
   val noun = NounPhrase(referenceNoun.singular, referenceNoun.plural, count, determiner)
   return listOfNotNull(
           ownerPhrase?.let(Modifier::Phrase),
+          Modifier.Phrase("in play").takeIf { explicitlyUnrestricted },
           location,
       )
       .fold(noun, NounPhrase::withModifier)
