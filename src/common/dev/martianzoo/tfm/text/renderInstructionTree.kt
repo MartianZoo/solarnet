@@ -287,7 +287,6 @@ private fun renderOpponentFanout(
           describers.resolvedRemovalModality(removal) == Modality.REQUIRED -> {
         val production = productionExpression(removal.removing, describers) ?: return null
         if (production.owner != null) return null
-        val steps = if (count == 1) "step" else "steps"
         val possessor =
             if (playersAct) "their own" else if (changes.size == 1) "each opponent's" else "their"
         Clause.Simple(
@@ -295,7 +294,7 @@ private fun renderOpponentFanout(
                 Verb("decreases", "decrease"),
                 Coordination.one(
                     NounPhrase.text(
-                        "$possessor ${describers.componentNoun(production.resource, 1)} production $count $steps"
+                        "$possessor ${describers.productionNoun(production.resource)} ${stepCount(count)}"
                     )
                 ),
             ),
@@ -694,7 +693,7 @@ private fun coalesceAdjacentChanges(
           rendered.drop(index).takeWhile { (candidate) ->
             isProductionChange(candidate, describers)
           }
-      val clauses = factorAdjacentPredicates(run.map { it.second })
+      val clauses = factorAdjacentPredicates(coalesceEqualProductionChanges(run, describers))
       result +=
           if (clauses.size == 1) clauses.single()
           else Clause.Coordinated(Coordination(clauses, Conjunction.AND))
@@ -705,6 +704,50 @@ private fun coalesceAdjacentChanges(
     index++
   }
   return factorAdjacentPredicates(result)
+}
+
+private fun coalesceEqualProductionChanges(
+    rendered: List<Pair<Instruction, Clause>>,
+    describers: Describers,
+): List<Clause> {
+  val changes = rendered.map { (instruction, clause) ->
+    simpleProductionChange(instruction, describers) to clause
+  }
+  val result = mutableListOf<Clause>()
+  var index = 0
+  while (index < changes.size) {
+    val first = changes[index].first
+    if (first == null || first.owner != null) {
+      result += changes[index].second
+      index++
+      continue
+    }
+    val matching =
+        changes.drop(index).takeWhile { (candidate) ->
+          candidate != null && candidate.owner == null && candidate.gaining == first.gaining
+        }
+    if (
+        matching.size == 1 ||
+            matching.any { (candidate) -> candidate?.count != first.count } ||
+            matching.map { (candidate) -> candidate?.resource }.distinct().size != matching.size
+    ) {
+      result += matching.map { it.second }
+      index += matching.size
+      continue
+    }
+    val productions = matching.map { (change) ->
+      NounPhrase.text("your ${describers.productionNoun(requireNotNull(change).resource)}")
+    }
+    val noun =
+        NounPhrase.coordinated(Coordination(productions, Conjunction.AND))
+            .withModifier(Modifier.Phrase("${stepCount(first.count)} each"))
+    result +=
+        Clause.Simple(
+            Predicate(Verb(if (first.gaining) "increase" else "decrease"), Coordination.one(noun))
+        )
+    index += matching.size
+  }
+  return result
 }
 
 private fun factorAdjacentPredicates(clauses: List<Clause>): List<Clause> {
@@ -815,11 +858,11 @@ internal fun Describers.renderGateCondition(requirement: Requirement): Clause? {
       }
     }
   }
-  val name = tagName(expression.className) ?: return null
+  val noun = tagNoun(expression.className) ?: return null
   return Clause.Simple(
       Predicate(
           Verb.HAVE,
-          Coordination.one(NounPhrase("$name tag", "$name tags", count = requirement.minimum)),
+          Coordination.one(NounPhrase(noun.singular, noun.plural, count = requirement.minimum)),
       ),
       NounPhrase.you(),
   )

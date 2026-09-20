@@ -195,9 +195,10 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
 
 - Use `raise`/`lower` for global parameters and terraform rating; `increase`/`decrease` for
   production. Spell out `terraform rating`.
-- Begin every requirement with `Requires`. Prefer a terse noun phrase when it carries the full
-  meaning; use `Requires that` only for a clause. Describe temperature bounds as `warmer` or
-  `colder`, not `higher` or `lower`.
+- Begin every requirement with `Requires`. Use `Requires that you have` for player-owned state such
+  as resources, production, rating, tiles, and colonies. Use a terse noun phrase for tags and global
+  counts, and `Requires that` for other clauses. Describe temperature bounds as `warmer` or `colder`,
+  not `higher` or `lower`.
 - Use `spend` when a Resource is consumed as an action cost, including a resource held on a card.
   Use `remove` for taking a resource from any player's card and for standalone or involuntary
   reductions. Use `pay` for the non-action payment constructions. Describe substitution as `may be
@@ -208,6 +209,9 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
 - Factor a shared subject and verb across adjacent instructions with distinct objects and no clause
   modifiers. Do not make independently chosen destinations look shared or collapse repeated
   operations. Keep consecutive production changes in one sentence even when their verbs differ.
+- When adjacent production changes in the same direction use the same magnitude, state the
+  magnitude once and end with `each`.
+- Describe spatial adjacency as `next to`, never `adjacent to`.
 - Render discount effects declaratively as `you pay N M€ less`, adding `for it` when the trigger
   supplies a clear discounted object.
 - Introduce a triggering event with `when`, never `each time`. Describe one event; express the

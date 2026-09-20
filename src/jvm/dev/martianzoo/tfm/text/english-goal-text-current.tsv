@@ -2,38 +2,38 @@ class_name	english_name	text
 Briber	Briber	[Briber].
 Builder	Builder	Requires 7 building tags.
 Builder8	Builder	Requires 8 building tags.
-Coastguard	Coastguard	Requires 3 tiles on areas next to at least 1 ocean tile.
+Coastguard	Coastguard	Requires that you have 3 tiles on areas next to at least 1 ocean tile.
 Diversifier	Diversifier	Requires 8 different tags.
 Ecologist	Ecologist	Requires 4 bio tags.
-Energizer	Energizer	Requires 6 energy production.
-Engineer	Engineer	Requires 10 energy production and heat production combined.
-Farmer	Farmer	Requires 5 animals and microbes combined.
-Forester	Forester	Requires 3 plant production.
-Fundraiser	Fundraiser	Requires 12 M€ production.
-Gardener	Gardener	Requires 3 greenery tiles.
-Generalist	Generalist	Requires 1 M€ production, 1 steel production, 1 titanium production, 1 plant production, 1 energy production, and 1 heat production.
-Generalist2	Generalist	Requires 2 M€ production, 2 steel production, 2 titanium production, 2 plant production, 2 energy production, and 2 heat production.
-Geologist	Geologist	Requires 3 tiles on volcanic areas and tiles next to at least 1 volcanic area combined.
-Landshaper	Landshaper	Requires 1 city tile, 1 greenery tile, and 1 special tile.
-Legend	Legend	Requires 4 cards in your event pile.
-Mayor	Mayor	Requires 3 city tiles.
-Merchant	Merchant	Requires 2 M€, 2 steel, 2 titanium, 2 plants, 2 energy, and 2 heat.
-Metallurgist	Metallurgist	Requires 6 titanium or steel production.
+Energizer	Energizer	Requires that you have 6 energy production.
+Engineer	Engineer	Requires that you have 10 energy production and heat production combined.
+Farmer	Farmer	Requires that you have 5 animals and microbes combined.
+Forester	Forester	Requires that you have 3 plant production.
+Fundraiser	Fundraiser	Requires that you have 12 M€ production.
+Gardener	Gardener	Requires that you have 3 greenery tiles.
+Generalist	Generalist	Requires that you have 1 M€ production, 1 steel production, 1 titanium production, 1 plant production, 1 energy production, and 1 heat production.
+Generalist2	Generalist	Requires that you have 2 M€ production, 2 steel production, 2 titanium production, 2 plant production, 2 energy production, and 2 heat production.
+Geologist	Geologist	Requires that you have 3 tiles on volcanic areas and tiles next to at least 1 volcanic area combined.
+Landshaper	Landshaper	Requires that you have 1 city tile, 1 greenery tile, and 1 special tile.
+Legend	Legend	Requires that you have 4 cards in your event pile.
+Mayor	Mayor	Requires that you have 3 city tiles.
+Merchant	Merchant	Requires that you have 2 M€, 2 steel, 2 titanium, 2 plants, 2 energy, and 2 heat.
+Metallurgist	Metallurgist	Requires that you have 6 titanium or steel production.
 Philantropist	Philantropist	[5 CardFront(HAS GainsOf<Class<VictoryPoint>>)].
-Pioneer	Pioneer	Requires 4 colonies.
+Pioneer	Pioneer	Requires that you have 4 colonies.
 Planetologist	Planetologist	Requires 2 Earth tags, 2 Venus tags, and 2 Jovian tags.
-Planner	Planner	Requires 16 cards in hand.
-Producer	Producer	Requires 16 standard resource production.
-Producer22	Producer	Requires 22 standard resource production.
+Planner	Planner	Requires that you have 16 cards in hand.
+Producer	Producer	Requires that you have 16 standard resource production.
+Producer22	Producer	Requires that you have 22 standard resource production.
 Researcher	Researcher	Requires 4 science tags.
 RimSettler	Rim Settler	Requires 3 Jovian tags.
 Spacefarer	Spacefarer	Requires 4 space tags.
-Sponsor	Sponsor	Requires 3 cards in play with a printed cost of 20 M€ or more.
-Tactician	Tactician	Requires 4 cards in play with requirements.
-Terraformer	Terraformer	Requires 29 terraform rating.
+Sponsor	Sponsor	Requires that you have 3 cards in play with a printed cost of 20 M€ or more.
+Tactician	Tactician	Requires that you have 4 cards in play with requirements.
+Terraformer	Terraformer	Requires that you have 29 terraform rating.
 Terran	Terran	Requires 5 Earth tags.
-Trader	Trader	Requires 3 different types of card resources.
-Tycoon	Tycoon	Requires 10 active cards in play and automated cards in play combined.
+Trader	Trader	Requires that you have 3 different types of card resources.
+Tycoon	Tycoon	Requires that you have 10 active cards in play and automated cards in play combined.
 Administrator	Administrator	Most cards in play with no tags.
 Banker	Banker	Highest M€ production.
 Benefactor	Benefactor	Highest terraform rating.

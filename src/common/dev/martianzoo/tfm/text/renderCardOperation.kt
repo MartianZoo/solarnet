@@ -298,10 +298,10 @@ private fun anyMatchingCards(criterion: CardCriterion, describers: Describers): 
 private fun matchPredicate(criterion: CardCriterion, describers: Describers): Predicate =
     when (criterion) {
       is CardCriterion.Tag -> {
-        val tag = checkNotNull(describers.tagName(criterion.className))
+        val tag = checkNotNull(describers.playedTagPhrase(criterion.className))
         Predicate(
             Verb.HAVE,
-            Coordination.one(NounPhrase("$tag tag", determiner = Determiner.INDEFINITE)),
+            Coordination.one(tag),
         )
       }
       CardCriterion.NoTags ->

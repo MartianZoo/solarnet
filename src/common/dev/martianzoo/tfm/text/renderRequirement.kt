@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.text
 
+import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
@@ -206,7 +207,8 @@ private fun Describers.renderMinimum(requirement: Requirement.Min): Clause? {
               } else {
                 relation.asRequirement()
               }
-          return requirementClause(objectPhrase)
+          return if (relation.source.ownedByYou) ownedRequirementClause(objectPhrase)
+          else requirementClause(objectPhrase)
         }
     fact(expression.className, ComponentDescriber::requirement)?.minimum?.let { bound ->
       return renderRequirementBound(expression, target, bound, BoundDirection.MINIMUM)
@@ -224,7 +226,10 @@ private fun Describers.renderDistinctKindsRequirement(
 ): Clause? {
   val expression = countedExpression(requirement) ?: return null
   val noun = distinctOwnedKinds(expression, this) ?: return null
-  return requirementClause(quantifiedNoun(noun, requirement.target))
+  val amount = quantifiedNoun(noun, requirement.target)
+  val kind = resolveExpression(expression)?.sourceDependency(Key(CLASS, 0))
+  return if (kind?.simple == true && isTag(kind.className)) requirementClause(amount)
+  else ownedRequirementClause(amount)
 }
 
 private fun Describers.renderMaximum(requirement: Requirement.Max): Clause? {
@@ -246,7 +251,7 @@ private fun Describers.renderRequirementGroup(requirement: Requirement.And): Cla
 private fun Describers.renderMetricRequirement(requirement: Requirement.Min): Clause? {
   val phrase =
       renderRequirementMetricPhrase(requirement.metric, requirement.target, this) ?: return null
-  return requirementClause(phrase)
+  return ownedRequirementClause(phrase)
 }
 
 private fun Describers.renderMetricRequirementGroup(requirement: Requirement.And): Clause? {
@@ -255,7 +260,7 @@ private fun Describers.renderMetricRequirementGroup(requirement: Requirement.And
         val minimum = child as? Requirement.Min ?: return null
         renderRequirementMetricPhrase(minimum.metric, minimum.target, this) ?: return null
       }
-  return requirementClause(Coordination(phrases, Conjunction.AND))
+  return ownedRequirementClause(Coordination(phrases, Conjunction.AND))
 }
 
 private fun Describers.renderProductionRequirement(minimum: Requirement.Min): Clause? {
@@ -263,7 +268,7 @@ private fun Describers.renderProductionRequirement(minimum: Requirement.Min): Cl
   val expression = countedExpression(minimum) ?: return null
   val production = productionExpression(expression, this) ?: return null
   if (production.owner != null) return null
-  return requirementClause(NounPhrase.text("${componentNoun(production.resource, 1)} production"))
+  return ownedRequirementClause(NounPhrase.text(productionNoun(production.resource)))
 }
 
 private fun Describers.renderCardResourceRequirement(requirement: Requirement.Min): Clause? {
@@ -276,30 +281,30 @@ private fun Describers.renderCardResourceRequirement(requirement: Requirement.Mi
       } else {
         noun
       }
-  return requirementClause(quantified)
+  return ownedRequirementClause(quantified)
 }
 
 private fun Describers.renderTagRequirement(requirement: Requirement.Min): Clause? {
-  val name = tagName(requirement) ?: return null
-  return requirementClause(
-      quantifiedNoun(
-          ComponentDescriber.Noun.Counted("$name tag", "$name tags"),
-          requirement.target,
-      )
-  )
+  val noun = tagNoun(requirement) ?: return null
+  return requirementClause(quantifiedNoun(noun, requirement.target))
 }
 
 private fun Describers.renderTagRequirementGroup(requirement: Requirement.And): Clause? {
   val tags =
       requirement.requirements.map { child ->
         val minimum = child as? Requirement.Min ?: return null
-        if (minimum.target != 1) return null
-        tagName(minimum) ?: return null
+        val noun = tagNoun(minimum) ?: return null
+        quantifiedNoun(noun, minimum.target)
       }
-  val nouns = tags.map { name ->
-    NounPhrase("$name tag", determiner = Determiner.INDEFINITE)
-  }
-  return requirementClause(Coordination(nouns, Conjunction.AND))
+  return requirementClause(Coordination(tags, Conjunction.AND))
+}
+
+private fun Describers.tagNoun(
+    requirement: Requirement.Min,
+): ComponentDescriber.Noun.Counted? {
+  val expression = countedExpression(requirement) ?: return null
+  if (!expression.simple) return null
+  return tagNoun(expression.className)
 }
 
 private fun Describers.renderOwnedPlacementRequirementGroup(requirement: Requirement.And): Clause? {
@@ -313,7 +318,7 @@ private fun Describers.renderOwnedPlacementRequirementGroup(requirement: Require
                 as? ComponentDescriber.Noun.Counted ?: return null
         quantifiedNoun(noun, minimum.target)
       }
-  return requirementClause(Coordination(nouns, Conjunction.AND))
+  return ownedRequirementClause(Coordination(nouns, Conjunction.AND))
 }
 
 private fun Describers.renderRequirementBound(
@@ -341,8 +346,7 @@ private fun Describers.renderThresholdBound(
   val phrase =
       when (bound.value) {
         ComponentDescriber.Requirement.Value.PLAIN ->
-            "$value ${bound.subject.removePrefix("your ")}" +
-                if (direction == BoundDirection.MAXIMUM) " or lower" else ""
+            "$value ${bound.subject}" + if (direction == BoundDirection.MAXIMUM) " or lower" else ""
         ComponentDescriber.Requirement.Value.PERCENT ->
             "$value ${bound.subject}" + if (direction == BoundDirection.MAXIMUM) " or less" else ""
         ComponentDescriber.Requirement.Value.DOUBLE_PERCENT ->
@@ -350,7 +354,9 @@ private fun Describers.renderThresholdBound(
         ComponentDescriber.Requirement.Value.TEMPERATURE ->
             "$value or ${if (direction == BoundDirection.MINIMUM) "warmer" else "colder"}"
       }
-  return requirementClause(NounPhrase.text(phrase))
+  val requirement = NounPhrase.text(phrase)
+  return if (isPlayerOwned(expression.className)) ownedRequirementClause(requirement)
+  else requirementClause(requirement)
 }
 
 private fun Describers.renderCountBound(
@@ -373,7 +379,7 @@ private fun Describers.renderCountBound(
   return when (direction) {
     BoundDirection.MINIMUM ->
         when {
-          owned -> requirementClause(quantifiedNoun(bound.noun, target))
+          owned -> ownedRequirementClause(quantifiedNoun(bound.noun, target))
           explicitlyAnyOwner -> {
             val amount =
                 NounPhrase(bound.noun.singular, bound.noun.plural, count = target)
@@ -383,7 +389,9 @@ private fun Describers.renderCountBound(
           else -> requirementClause(NounPhrase(noun, count = target))
         }
     BoundDirection.MAXIMUM ->
-        requirementClause(NounPhrase.text("$target or fewer ${bound.noun.plural}"))
+        NounPhrase.text("$target or fewer ${bound.noun.plural}").let { amount ->
+          if (owned) ownedRequirementClause(amount) else requirementClause(amount)
+        }
   }
 }
 
@@ -399,6 +407,12 @@ private fun requirementClause(objects: Coordination<NounPhrase>): Clause.Simple 
     Clause.Simple(
         predicate = Predicate(Verb("requires"), objects),
     )
+
+private fun ownedRequirementClause(objectPhrase: NounPhrase): Clause.Simple =
+    ownedRequirementClause(Coordination.one(objectPhrase))
+
+private fun ownedRequirementClause(objects: Coordination<NounPhrase>): Clause.Simple =
+    requirementClause(NounPhrase.you(), Verb("have"), objects)
 
 private fun requirementClause(
     subject: NounPhrase,

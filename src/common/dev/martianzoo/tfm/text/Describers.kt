@@ -243,6 +243,9 @@ private constructor(
   internal fun componentNoun(className: ClassName, count: Int): String =
       describedNoun(className, fact(className, ComponentDescriber::noun), count)
 
+  internal fun productionNoun(resource: ClassName): String =
+      "${componentNoun(resource, 1)} production"
+
   private fun usesNumericSingularChange(className: ClassName): Boolean =
       fact(className, ComponentDescriber::numericSingularChange) == true
 
@@ -328,19 +331,19 @@ private constructor(
     }
   }
 
-  internal fun tagName(requirement: Requirement.Min): String? {
-    val expression = countedExpression(requirement) ?: return null
-    if (!expression.simple) return null
-    return tagName(expression.className)
+  internal fun tagNoun(className: ClassName): ComponentDescriber.Noun.Counted? {
+    if (!isTag(className)) return null
+    val singular =
+        tagName(className)?.let { "$it tag" }
+            ?: (triggerFrame(className) as? ComponentDescriber.TriggerFrame.PlayTag)?.noun
+            ?: return null
+    val plural = if (singular.endsWith("tag")) singular + "s" else singular
+    return ComponentDescriber.Noun.Counted(singular, plural)
   }
 
   internal fun playedTagPhrase(className: ClassName): NounPhrase? {
-    tagName(className)?.let { name ->
-      return NounPhrase("$name tag", determiner = Determiner.INDEFINITE)
-    }
-    return (triggerFrame(className) as? ComponentDescriber.TriggerFrame.PlayTag)?.noun?.let {
-      NounPhrase(it, determiner = Determiner.INDEFINITE)
-    }
+    val noun = tagNoun(className) ?: return null
+    return NounPhrase(noun.singular, noun.plural, determiner = Determiner.INDEFINITE)
   }
 
   internal fun cardResourceNounPhrase(className: ClassName, count: Int): NounPhrase? {

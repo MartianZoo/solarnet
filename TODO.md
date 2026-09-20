@@ -6,6 +6,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Let English component roles default to one canonical component noun so placement, requirements,
+  and metrics do not repeat singular and plural wording.
 - Derive when a card-resource or tag reference includes the current card so English can add
   `including this` reliably; keep the current wording until the representation supplies that fact.
 - Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.

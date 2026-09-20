@@ -199,7 +199,7 @@ internal fun renderRequirementFlexibilityResult(
       describers.scaleFrame(target.className)?.subject
           ?: describers.fact(target.className, ComponentDescriber::requirementKind)
           ?: return null
-  val steps = NounPhrase("step", "steps", count).linearize()
+  val steps = stepCount(count)
   val requirement =
       NounPhrase(
               "$requirementKind requirement",
@@ -794,8 +794,7 @@ private fun Describers.renderAbstractTagTrigger(trigger: Trigger): Clause.Simple
   val tags = expressions.concreteSubclassesOf(represented.className)
   if (tags.size < 2) return null
   val objects = tags.map { tag ->
-    val name = tagName(tag) ?: return null
-    NounPhrase("$name tag", determiner = Determiner.INDEFINITE)
+    playedTagPhrase(tag) ?: return null
   }
   return Clause.Simple(
       subject = NounPhrase.you(),

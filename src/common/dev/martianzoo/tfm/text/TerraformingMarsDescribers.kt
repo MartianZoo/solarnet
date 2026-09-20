@@ -336,15 +336,13 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 spatialRelation =
                     ComponentDescriber.SpatialRelation(
-                        "next to",
-                        ComponentDescriber.Noun.Counted("tile", "tiles"),
+                        defaultTarget = ComponentDescriber.Noun.Counted("tile", "tiles"),
                     )
             ),
         klass("Adjacency") to
             ComponentDescriber(
                 spatialRelation =
                     ComponentDescriber.SpatialRelation(
-                        phrase = "adjacent to",
                         countedPair = true,
                         eventNoun = "adjacency",
                     )
@@ -493,7 +491,7 @@ internal object TerraformingMarsDescribers {
                     ComponentDescriber.Requirement(
                         minimum =
                             threshold(
-                                "your terraform rating",
+                                "terraform rating",
                             )
                     ),
             ),

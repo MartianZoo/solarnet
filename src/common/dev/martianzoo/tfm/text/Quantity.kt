@@ -22,3 +22,5 @@ internal fun Scalar.quantity(): Quantity =
 internal fun Scalar.fixedQuantity(): Int? = (quantity() as? Quantity.Fixed)?.count
 
 internal fun Scalar.variableQuantity(): Quantity.Variable? = quantity() as? Quantity.Variable
+
+internal fun stepCount(count: Int): String = "$count ${if (count == 1) "step" else "steps"}"

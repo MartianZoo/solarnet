@@ -124,11 +124,10 @@ private fun Describers.renderSpendCost(spend: Cost.Spend): Predicate? {
       }
   productionCategoryExpression(expression, this)?.let { production ->
     if (production.owner != null) return null
-    val steps = if (count == 1) "step" else "steps"
     val selectedProduction =
         if (concrete(production.resource)) {
           NounPhrase(
-              "${componentNoun(production.resource, 1)} production",
+              productionNoun(production.resource),
               determiner = Determiner.YOUR,
           )
         } else {
@@ -136,7 +135,7 @@ private fun Describers.renderSpendCost(spend: Cost.Spend): Predicate? {
         }
     return Predicate(
         Verb("decrease"),
-        Coordination.one(selectedProduction.withModifier(Modifier.Phrase("$count $steps"))),
+        Coordination.one(selectedProduction.withModifier(Modifier.Phrase(stepCount(count)))),
     )
   }
   return null

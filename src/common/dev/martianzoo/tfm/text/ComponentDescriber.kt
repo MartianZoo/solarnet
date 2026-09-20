@@ -110,11 +110,13 @@ internal data class ComponentDescriber(
   )
 
   internal data class SpatialRelation(
-      internal val phrase: String,
       internal val defaultTarget: Noun.Counted? = null,
       internal val countedPair: Boolean = false,
       internal val eventNoun: String? = null,
   ) {
+    internal val phrase: String
+      get() = "next to"
+
     init {
       require((defaultTarget != null) != countedPair) {
         "A spatial relation must describe either an implicit target or a counted pair"

@@ -29,7 +29,7 @@ internal fun Describers.renderEvent(trigger: Trigger): Event? {
           Event.Kind.RAISE,
           Event.ActorConstraint.UNRESTRICTED,
           NounPhrase.text(it.subject),
-          listOf(Modifier.Phrase("1 step")),
+          listOf(Modifier.Phrase(stepCount(1))),
       )
     }
   }
@@ -63,7 +63,7 @@ internal fun Describers.renderEvent(trigger: Trigger): Event? {
           Event.Kind.RAISE,
           Event.ActorConstraint.YOU,
           NounPhrase.text(it.subject),
-          listOf(Modifier.Phrase("1 step")),
+          listOf(Modifier.Phrase(stepCount(1))),
       )
     }
   }
@@ -96,11 +96,11 @@ internal fun Describers.renderEvent(trigger: Trigger): Event? {
     is TriggerFrame.PlayTag -> {
       if (frame.noun == null) {
         val tag = representedClass(expression) ?: return null
-        val name = tagName(tag.className) ?: return null
+        val phrase = playedTagPhrase(tag.className) ?: return null
         return Event(
             Event.Kind.PLAY,
             Event.ActorConstraint.YOU,
-            NounPhrase("$name tag", determiner = Determiner.INDEFINITE),
+            phrase,
         )
       }
     }
@@ -146,11 +146,11 @@ internal fun Describers.renderEvent(trigger: Trigger): Event? {
   }
   val resolved = resolveExpression(expression)
   if (resolved?.sourceDependencies?.isEmpty() == true && expression.refinement == null) {
-    tagName(expression.className)?.let { name ->
+    playedTagPhrase(expression.className)?.let { phrase ->
       return Event(
           Event.Kind.PLAY,
           Event.ActorConstraint.YOU,
-          NounPhrase("$name tag", determiner = Determiner.INDEFINITE),
+          phrase,
       )
     }
     cardResourceNoun(expression.className, 1)?.let {
@@ -163,11 +163,11 @@ internal fun Describers.renderEvent(trigger: Trigger): Event? {
     }
   }
   if (resolved?.hasOnlySourceDependency(Key(OWNED, 0), anyoneExpression) == true) {
-    tagName(expression.className)?.let { name ->
+    tagNoun(expression.className)?.let { noun ->
       return Event(
           Event.Kind.PLAY,
           Event.ActorConstraint.UNRESTRICTED,
-          NounPhrase("$name tag", determiner = Determiner.ANY),
+          NounPhrase(noun.singular, noun.plural, determiner = Determiner.ANY),
       )
     }
   }
@@ -180,11 +180,11 @@ private fun Describers.unrestrictedPlayedTagEvent(expression: Expression): Event
   val ownerKey = Key(OWNED, 0)
   val holderKey = Key(ClassName.cn("Tag"), 0)
   if (resolved.hasOnlySourceDependency(ownerKey, anyoneExpression)) {
-    val name = tagName(expression.className) ?: return null
+    val noun = tagNoun(expression.className) ?: return null
     return Event(
         Event.Kind.PLAY,
         Event.ActorConstraint.UNRESTRICTED,
-        NounPhrase("$name tag", determiner = Determiner.ANY),
+        NounPhrase(noun.singular, noun.plural, determiner = Determiner.ANY),
     )
   }
   val holder = resolved.sourceDependency(holderKey) ?: return null
@@ -202,11 +202,11 @@ private fun Describers.unrestrictedPlayedTagEvent(expression: Expression): Event
   ) {
     return null
   }
-  val name = tagName(expression.className) ?: return null
+  val noun = tagNoun(expression.className) ?: return null
   return Event(
       Event.Kind.PLAY,
       Event.ActorConstraint.UNRESTRICTED,
-      NounPhrase("$name tag", determiner = Determiner.ANY),
+      NounPhrase(noun.singular, noun.plural, determiner = Determiner.ANY),
   )
 }
 
@@ -359,7 +359,7 @@ private fun Describers.productionEvent(expression: Expression): Event? {
   val objectPhrase =
       if (concrete(production.resource)) {
         NounPhrase(
-            "${componentNoun(production.resource, 1)} production",
+            productionNoun(production.resource),
             determiner = Determiner.YOUR,
         )
       } else {
@@ -369,7 +369,7 @@ private fun Describers.productionEvent(expression: Expression): Event? {
       Event.Kind.INCREASE_PRODUCTION,
       Event.ActorConstraint.YOU,
       objectPhrase,
-      listOf(Modifier.Phrase("1 step")),
+      listOf(Modifier.Phrase(stepCount(1))),
   )
 }
 

@@ -87,6 +87,12 @@ internal class EnglishTest {
         "Place a delegate. Place a delegate."
     english.describe(parse<InstructionTree>("PROD[-Energy, 2 MC]")) shouldBe
         "Decrease your energy production 1 step and increase your M€ production 2 steps."
+    english.describe(parse<InstructionTree>("PROD[Plant, Energy]")) shouldBe
+        "Increase your plant production and your energy production 1 step each."
+    english.describe(parse<InstructionTree>("PROD[2 Plant, 2 Energy, 3 Heat]")) shouldBe
+        "Increase your plant production 2 steps, your energy production 2 steps, and your heat production 3 steps."
+    english.describe(parse<InstructionTree>("PROD[-MC, Plant, Energy, Heat]")) shouldBe
+        "Decrease your M€ production 1 step and increase your plant production, your energy production, and your heat production 1 step each."
     english.describe(parse<InstructionTree>("MC? / ProjectCard")) shouldBe
         "You may gain up to 1 M€ per card."
     english.describe(parse<InstructionTree>("-4 MC.")) shouldBe
@@ -164,7 +170,27 @@ internal class EnglishTest {
         parse<InstructionTree>("EACH Player(HAS MAX 0 This<Anyone>) { -5 MC., PROD[-1 MC] }")
     ) shouldBe "Remove 5 M€ from each opponent and decrease their M€ production 1 step."
     english.describe(parse<Requirement>("ScienceTag")) shouldBe "Requires a science tag."
-    english.describe(parse<Requirement>("Colony")) shouldBe "Requires a colony."
+    english.describe(parse<Requirement>("4 BioTag")) shouldBe "Requires 4 bio tags."
+    english.describe(parse<Requirement>("2 EarthTag, 2 VenusTag, 2 JovianTag")) shouldBe
+        "Requires 2 Earth tags, 2 Venus tags, and 2 Jovian tags."
+    english.describe(parse<Requirement>("8 Class<Tag>(HAS Tag<Owner>)")) shouldBe
+        "Requires 8 different tags."
+    english.describe(parse<Requirement>("Colony")) shouldBe "Requires that you have a colony."
+    english.describe(parse<Requirement>("MAX 1 Colony")) shouldBe
+        "Requires that you have 1 or fewer colonies."
+    english.describe(parse<Requirement>("3 CityTile")) shouldBe
+        "Requires that you have 3 city tiles."
+    english.describe(parse<Requirement>("2 CityTile<Anyone>")) shouldBe
+        "Requires 2 city tiles in play."
+    english.describe(parse<Requirement>("5 Floater")) shouldBe "Requires that you have 5 floaters."
+    english.describe(parse<Requirement>("PROD[Titanium]")) shouldBe
+        "Requires that you have titanium production."
+    english.describe(parse<Requirement>("25 TerraformRating")) shouldBe
+        "Requires that you have 25 terraform rating."
+    english.describe(parse<Requirement>("CityTile, Colony")) shouldBe
+        "Requires that you have a city tile and a colony."
+    english.describe(parse<Requirement>("Adjacency<CityTile, OceanTile>")) shouldBe
+        "Requires that you have a city tile next to an ocean tile."
     english.describe(parse<Requirement>("VenusTag, EarthTag, JovianTag")) shouldBe
         "Requires a Venus tag, an Earth tag, and a Jovian tag."
     english.describe(parse<Requirement>("VenusTag, PlantTag")) shouldBe
@@ -435,7 +461,7 @@ internal class EnglishTest {
   internal fun describesSpatialMetricsWithContainedMarkers() {
     english.describe(
         parse<Effect>("End: VictoryPoint / Adjacency<CityTile(HAS CapitalMarker), OceanTile>")
-    ) shouldBe "1 VP per ocean tile adjacent to your city tile with a capital marker."
+    ) shouldBe "1 VP per ocean tile next to your city tile with a capital marker."
   }
 
   @Test

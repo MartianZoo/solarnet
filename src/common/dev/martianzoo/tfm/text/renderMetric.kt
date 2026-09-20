@@ -139,7 +139,7 @@ private fun Describers.renderCountMetric(
   refinedProductionCategoryExpressions(expression, this)?.let { productions ->
     if (productions.any { it.owner != null }) return null
     val productionPhrases = productions.map { production ->
-      val noun = "${componentNoun(production.resource, 1)} production"
+      val noun = productionNoun(production.resource)
       NounPhrase(noun, noun)
     }
     val phrase =
@@ -150,7 +150,7 @@ private fun Describers.renderCountMetric(
   }
   productionCategoryExpression(expression, this)?.let { production ->
     if (production.owner != null) return null
-    val noun = "${componentNoun(production.resource, 1)} production"
+    val noun = productionNoun(production.resource)
     return MetricRendering(
         NounPhrase(noun, noun, count = count),
         MetricRendering.Ranking.HIGHEST,
@@ -271,8 +271,8 @@ private fun Describers.renderMetricFilter(
   cardCriterion(requirement)?.let { criterion ->
     return when (criterion) {
       is CardCriterion.Tag -> {
-        val tag = tagName(criterion.className) ?: return null
-        Modifier.Relation("with", NounPhrase.plural("$tag tags"))
+        val tag = tagNoun(criterion.className) ?: return null
+        Modifier.Relation("with", NounPhrase.plural(tag.plural))
       }
       CardCriterion.NoTags ->
           Modifier.Relation(
@@ -423,7 +423,7 @@ private fun renderTagMetric(
     describers: Describers,
 ): NounPhrase? {
   if (expression.refinement != null) return null
-  val singular = describers.playedTagPhrase(expression.className)?.noun() ?: return null
+  val noun = describers.tagNoun(expression.className) ?: return null
   val resolved = describers.resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
   val ownership =
@@ -435,12 +435,11 @@ private fun renderTagMetric(
             "your opponents have"
         else -> return null
       }
-  val plural = if (singular.endsWith("tag")) singular + "s" else singular
-  val noun = NounPhrase(singular, plural, count = count)
+  val nounPhrase = NounPhrase(noun.singular, noun.plural, count = count)
   return if (ownership == null) {
-    noun.withModifier(Modifier.Phrase("in play"))
+    nounPhrase.withModifier(Modifier.Phrase("in play"))
   } else {
-    noun.withOwnership(ownership, possessorEstablished)
+    nounPhrase.withOwnership(ownership, possessorEstablished)
   }
 }
 

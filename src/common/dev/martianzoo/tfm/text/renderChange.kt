@@ -559,13 +559,12 @@ private fun Describers.renderEligiblePlayer(expression: Expression): NounPhrase?
   ) {
     return null
   }
-  val tag = tagName(tagExpression.className) ?: return null
+  val tag = playedTagPhrase(tagExpression.className) ?: return null
   return NounPhrase("player", determiner = Determiner.INDEFINITE)
       .withModifier(
           Modifier.Relation(
               "with",
-              NounPhrase("$tag tag", determiner = Determiner.INDEFINITE)
-                  .withModifier(Modifier.Phrase("in play")),
+              tag.withModifier(Modifier.Phrase("in play")),
           )
       )
 }
@@ -725,18 +724,19 @@ private fun renderProductionChange(
   renderSelectedProductionChange(change, gaining, expression, describers)?.let {
     return it
   }
-  val production = productionExpression(expression, describers) ?: return null
+  val production = simpleProductionChange(change, describers) ?: return null
   val owner =
       when {
         production.owner == null -> "your"
-        !gaining && production.owner == describers.anyoneExpression -> "any player's"
+        !production.gaining && production.owner == describers.anyoneExpression -> "any player's"
         else -> return null
       }
-  val count = change.count.fixedQuantity() ?: return null
-  val steps = if (count == 1) "step" else "steps"
   val productionPhrase =
-      "$owner ${describers.componentNoun(production.resource, 1)} production $count $steps"
-  return clause(if (gaining) "increase" else "decrease", NounPhrase.text(productionPhrase))
+      "$owner ${describers.productionNoun(production.resource)} ${stepCount(production.count)}"
+  return clause(
+      if (production.gaining) "increase" else "decrease",
+      NounPhrase.text(productionPhrase),
+  )
 }
 
 private fun renderSelectedProductionChange(
@@ -760,10 +760,9 @@ private fun renderSelectedProductionChange(
   val first = refinement.requirement as? Requirement.Exact ?: return null
   if (first.target != 1 || !first.metric.isLowestStandardProductionRank(describers)) return null
   val count = change.count.fixedQuantity() ?: return null
-  val steps = if (count == 1) "step" else "steps"
   return clause(
       if (gaining) "increase" else "decrease",
-      NounPhrase.text("one of your lowest productions $count $steps"),
+      NounPhrase.text("one of your lowest productions ${stepCount(count)}"),
   )
 }
 
@@ -807,15 +806,13 @@ private fun renderProductionConversion(
   val decrease =
       clause(
           "decrease",
-          NounPhrase.text(
-              "your ${describers.componentNoun(removing.resource, 1)} production 1 or more steps"
-          ),
+          NounPhrase.text("your ${describers.productionNoun(removing.resource)} 1 or more steps"),
       )
   val increase =
       clause(
           "increase",
           NounPhrase.text(
-              "your ${describers.componentNoun(gaining.resource, 1)} production the same number of steps"
+              "your ${describers.productionNoun(gaining.resource)} the same number of steps"
           ),
       )
   return Clause.Coordinated(Coordination(listOf(decrease, increase), Conjunction.AND))
@@ -841,9 +838,9 @@ private fun renderScaleChange(
       return null
     }
     val count = instruction.count.fixedQuantity() ?: return null
-    val steps = if (count == 1) "step" else "steps"
-    val increase = clause("increase", NounPhrase.text("one ${frame.subject} $count $steps"))
-    val decrease = clause("decrease", NounPhrase.text("another ${frame.subject} $count $steps"))
+    val increase = clause("increase", NounPhrase.text("one ${frame.subject} ${stepCount(count)}"))
+    val decrease =
+        clause("decrease", NounPhrase.text("another ${frame.subject} ${stepCount(count)}"))
     return Clause.Coordinated(Coordination(listOf(increase, decrease), Conjunction.AND))
   }
   val change = instruction as? Instruction.Change ?: return null
@@ -860,7 +857,6 @@ private fun renderScaleChange(
         Modality.BEST_EFFORT -> return null
       }
   val count = change.count.fixedQuantity() ?: return null
-  val steps = if (count == 1) "step" else "steps"
   val subject =
       when {
         expression.simple -> NounPhrase.text(frame.subject)
@@ -871,7 +867,7 @@ private fun renderScaleChange(
   val predicate =
       Predicate(
           Verb(modalVerb),
-          Coordination.one(subject.withModifier(Modifier.Phrase("$count $steps"))),
+          Coordination.one(subject.withModifier(Modifier.Phrase(stepCount(count)))),
       )
   return Clause.Simple(predicate, NounPhrase.you().takeIf { modalVerb != verb })
 }
