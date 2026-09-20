@@ -5,6 +5,7 @@ import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameConfig
@@ -15,6 +16,7 @@ import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
+import dev.martianzoo.tfm.tests.TestOption.BeginnerVariant
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.TestOption.Hellas
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
@@ -107,6 +109,133 @@ internal class TfmWorkflowTest {
   }
 
   @Test
+  internal fun beginnerVariantLetsEachPlayerChooseTheirStartingPath() {
+    val game =
+        Engine.newGame(
+            Canon.gamePremise(
+                GameConfig(
+                    "BeginnerVariant, CorporateEraExpansion, PreludeExpansion, " +
+                        "4 CorporationOption",
+                    "Player1",
+                    "Player2",
+                )
+            )
+        )
+    val agents = game.testAgents()
+    val workflow = TfmWorkflow.Stepwise(agents)
+    val p1 = game.testTfm(PLAYER1).also { it.autoExecPolicy = NONE }
+    val p2 = game.testTfm(PLAYER2).also { it.autoExecPolicy = NONE }
+
+    workflow.setupPhase()
+    p1.doTask("BeginnerCorporationCard")
+    p1.doTask("10 ProjectCard")
+    p1.doTask("NewTurn")
+    p2.doTask("StandardCorporationCard<Selecting> / CorporationOption")
+    p2.doTask("10 ProjectCard")
+    p2.doTask("NewTurn")
+
+    p2.count("StandardCorporationCard<Selecting>") shouldBe 4
+    shouldThrow<TaskException> {
+      p1.doTask("StandardCorporationCard<Hand FROM Selecting>")
+    }
+    shouldThrow<TaskException> { p1.doTask("-5 ProjectCard<Selecting>") }
+    p1.doTask("-2 PreludeCard")
+    p2.doTask("StandardCorporationCard<Hand FROM Selecting>")
+    p2.doTask("-2 PreludeCard")
+    p2.doTask("10 ProjectCard<Selecting FROM Hand>")
+    p2.doTask("-5 ProjectCard<Selecting>")
+    p2.doTask("5 ProjectCard<Hand FROM Selecting>")
+
+    p1.assertCounts(
+        1 to "BeginnerCorporationCard<Hand>",
+        1 to "CorporationCard<Hand>",
+        10 to "ProjectCard<Hand>",
+        2 to "PreludeCard<Hand>",
+    )
+    p2.assertCounts(
+        0 to "BeginnerCorporationCard",
+        1 to "CorporationCard<Hand>",
+        5 to "ProjectCard<Hand>",
+        2 to "PreludeCard<Hand>",
+    )
+
+    workflow.corporationPhase()
+    p1.startTurn()
+    p1.doTask("10 ProjectCard<Selecting FROM Hand>")
+    shouldThrow<TaskException> {
+      p1.doTask("PlayCard<Class<StandardCorporationCard>, Class<CrediCor>, Hand>")
+    }
+    p1.doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation1>, Hand>")
+    p1.pay()
+    p1.doTask("42 MC")
+    p1.doTask("10 ProjectCard<Hand FROM Selecting>")
+    p1.assertCounts(
+        1 to "BeginnerCorporation1",
+        42 to "MC",
+        10 to "ProjectCard<Hand>",
+        0 to "ProjectCard<Selecting>",
+        0 to "Owed",
+    )
+
+    p2.startTurn()
+    p2.doTask("5 ProjectCard<Selecting FROM Hand>")
+    shouldThrow<TaskException> {
+      p2.doTask("PlayCard<Class<StandardCorporationCard>, Class<BeginnerCorporation2>, Hand>")
+    }
+    p2.doTask("PlayCard<Class<StandardCorporationCard>, Class<CrediCor>, Hand>")
+    p2.pay()
+    p2.doTask("57 MC")
+    p2.doTask("BuySelectedCards")
+    p2.pay(mc = 15)
+    p2.assertCounts(
+        1 to "CrediCor",
+        42 to "MC",
+        5 to "ProjectCard<Hand>",
+        0 to "ProjectCard<Selecting>",
+    )
+  }
+
+  @Test
+  internal fun beginnerCorporationCopiesLetTwoPlayersChooseTheBeginnerPath() {
+    val game = Engine.newGame(canonicalPremise(BeginnerVariant, players = 2))
+    val workflow = TfmWorkflow.Stepwise(game.testAgents())
+    val p1 = game.testTfm(PLAYER1).also { it.autoExecPolicy = NONE }
+    val p2 = game.testTfm(PLAYER2).also { it.autoExecPolicy = NONE }
+
+    workflow.setupPhase()
+    listOf(p1, p2).forEach { player ->
+      player.doTask("BeginnerCorporationCard")
+      player.doTask("10 ProjectCard")
+      player.doTask("NewTurn")
+    }
+
+    workflow.corporationPhase()
+    p1.startTurn()
+    p1.doTask("10 ProjectCard<Selecting FROM Hand>")
+    p1.doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation1>, Hand>")
+    p1.pay()
+    p1.doTask("42 MC")
+    p1.doTask("10 ProjectCard<Hand FROM Selecting>")
+
+    shouldThrow<LimitsException> { p2.runOperation("BeginnerCorporation1") }
+    p2.assertCounts(
+        0 to "BeginnerCorporation1",
+        1 to "BeginnerCorporationCard<Hand>",
+        10 to "ProjectCard<Hand>",
+    )
+
+    p2.startTurn()
+    p2.doTask("10 ProjectCard<Selecting FROM Hand>")
+    p2.doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation2>, Hand>")
+    p2.pay()
+    p2.doTask("42 MC")
+    p2.doTask("10 ProjectCard<Hand FROM Selecting>")
+
+    p1.assertCounts(1 to "BeginnerCorporation1", 42 to "MC", 10 to "ProjectCard<Hand>")
+    p2.assertCounts(1 to "BeginnerCorporation2", 42 to "MC", 10 to "ProjectCard<Hand>")
+  }
+
+  @Test
   internal fun startingCardChoicesBelongToEachPlayerAgent() {
     val game =
         Engine.newGame(
@@ -125,7 +254,7 @@ internal class TfmWorkflowTest {
     p2.autoExecPolicy = NONE
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
     listOf(p1, p2).forEach { player ->
-      player.doTask("CorporationCard<Selecting> / CorporationOption")
+      player.doTask("StandardCorporationCard<Selecting> / CorporationOption")
       player.doTask("10 ProjectCard")
       player.doTask("NewTurn")
     }
@@ -133,10 +262,10 @@ internal class TfmWorkflowTest {
     p1.count("CorporationCard<Selecting>") shouldBe 4
     p2.count("CorporationCard<Selecting>") shouldBe 4
     shouldThrow<TaskException> {
-      admin.doTask("CorporationCard<Player1, Hand FROM Selecting>")
+      admin.doTask("StandardCorporationCard<Player1, Hand FROM Selecting>")
     }
-    p1.doTask("CorporationCard<Hand FROM Selecting>")
-    p2.doTask("CorporationCard<Hand FROM Selecting>")
+    p1.doTask("StandardCorporationCard<Hand FROM Selecting>")
+    p2.doTask("StandardCorporationCard<Hand FROM Selecting>")
     shouldThrow<TaskException> { admin.doTask("-2 PreludeCard<Player1>") }
     p1.doTask("-2 PreludeCard")
     p2.doTask("-2 PreludeCard")

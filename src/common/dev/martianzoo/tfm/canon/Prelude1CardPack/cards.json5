@@ -1,7 +1,7 @@
 {
   "decks": [
     {
-      "deck": "CorporationCard",
+      "deck": "StandardCorporationCard",
       "cards": [
         {
           "name": "CheungShingMars",

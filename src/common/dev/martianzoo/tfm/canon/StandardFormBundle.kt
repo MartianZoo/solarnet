@@ -10,11 +10,12 @@ import dev.martianzoo.pets.util.toSetStrict
 /**
  * A Catalog-provider bundle built from conventionally named Pets and JSON sources.
  *
- * Every `.pets` resource supplies declarations. `cards.pets` additionally identifies the bundle's
- * card declarations, while bundle language files and compact map diagrams supply category-specific
- * metadata. A bundle identity is raw source provenance, not a Pets class, so no declaration is
- * required or synthesized for it. Callers whose resources are not in Canon's generated registry can
- * provide [resourceFilenames] and [resourceReader] directly.
+ * Every `.pets` resource supplies declarations. Generated `cards.pets` and handwritten
+ * `*.cards.pets` fragments additionally identify the bundle's card declarations, while bundle
+ * language files and compact map diagrams supply category-specific metadata. A bundle identity is
+ * raw source provenance, not a Pets class, so no declaration is required or synthesized for it.
+ * Callers whose resources are not in Canon's generated registry can provide [resourceFilenames] and
+ * [resourceReader] directly.
  */
 public class StandardFormBundle
 public constructor(
@@ -45,7 +46,7 @@ public constructor(
 
   private val cardDeclarationsByResource: Map<ResourceSet, Set<ClassDeclaration>> =
       petDeclarationsByResource.mapValues { (_, declarationsByFilename) ->
-        declarationsByFilename[CARD_PETS_FILENAME].orEmpty().toSetStrict()
+        declarationsByFilename.filterKeys(::isCardPetSourceFilename).values.flatten().toSetStrict()
       }
 
   override val cardResourceClassNames: Set<ClassName> =
@@ -103,9 +104,13 @@ public constructor(
 
   private fun isPetSourceFilename(filename: String): Boolean = filename.endsWith(PETS_SUFFIX)
 
+  private fun isCardPetSourceFilename(filename: String): Boolean =
+      filename == CARD_PETS_FILENAME || filename.endsWith(CARD_PETS_SUFFIX)
+
   private companion object {
     private const val DEFAULT_DIRECTORY = "bundles"
     private const val CARD_PETS_FILENAME = "cards.pets"
+    private const val CARD_PETS_SUFFIX = ".cards.pets"
     private const val PETS_SUFFIX = ".pets"
     private val LANGUAGE_FILENAME = Regex("language/([^/]+)\\.json5")
   }

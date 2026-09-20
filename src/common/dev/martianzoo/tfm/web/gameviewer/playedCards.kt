@@ -32,7 +32,10 @@ internal fun playedCards(game: GameWorld, player: Player): List<Type> {
 
 internal fun cardImageDirectory(card: Type): String? {
   val representedClasses =
-      card.typeDependencies.mapNotNull { it.boundType.representedClass?.className?.toString() }
+      card.typeDependencies
+          .mapNotNull { it.boundType.representedClass }
+          .flatMap { it.allSuperclasses() }
+          .map { it.className.toString() }
   return when {
     "CorporationCard" in representedClasses -> "corporations"
     "PreludeCard" in representedClasses -> "preludes"

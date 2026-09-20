@@ -1,0 +1,11 @@
+"A beginner corporation supplies 42 M€ and all ten starting project cards for free"
+ABSTRACT CLASS BeginnerCorporation : CardFront<Class<BeginnerCorporationCard>> {
+  cost = 0
+  This: 42 MC, 10 ProjectCard<Hand FROM Selecting>
+}
+
+CLASS BeginnerCorporation1 : BeginnerCorporation
+CLASS BeginnerCorporation2 : BeginnerCorporation
+CLASS BeginnerCorporation3 : BeginnerCorporation
+CLASS BeginnerCorporation4 : BeginnerCorporation
+CLASS BeginnerCorporation5 : BeginnerCorporation
