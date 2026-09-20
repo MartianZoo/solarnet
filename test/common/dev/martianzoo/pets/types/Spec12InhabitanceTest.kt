@@ -12,6 +12,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 import kotlin.test.assertSame
 
@@ -169,6 +170,24 @@ internal class Spec12InhabitanceTest {
     premise.classTable
         .getClass(cn("LocalRoot"))
         .isSubtypeOf(premise.classTable.componentClass) shouldBe true
+  }
+
+  @Test
+  internal fun `T12-2 master dependencies validate premise-local targets`() {
+    val catalog = testCatalog("ABSTRACT CLASS Target\nCLASS Holder<Target>")
+    val view =
+        GamePremise(
+                catalog = catalog,
+                modules = emptySet(),
+                classSelections =
+                    setOf(ClassSelection(cn("Holder")), ClassSelection(cn("LocalTarget"))),
+                initialComponentTypes = emptySet(),
+                premiseClassDeclarations = parseClasses("CLASS LocalTarget : Target").toSet(),
+            )
+            .classTable
+
+    shouldThrow<InvalidPetDefinitionException> { view.componentLimits }.message shouldContain
+        "Holder -> LocalTarget"
   }
 
   @Test

@@ -7,7 +7,7 @@ import io.kotest.matchers.collections.shouldContainExactly
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class ThorgateTest : CardTest() {
+internal class ThorGateTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
     newGame(retainedStartingProjects = 10)

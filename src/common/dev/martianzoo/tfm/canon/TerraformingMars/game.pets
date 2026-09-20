@@ -5,7 +5,8 @@ CLASS TerraformingMars : BaseGameModule {
   HAS =1 GameMode, =1 MarsMap
   HAS Class<Production>
   HAS Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>
-  HAS Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>, Class<End>
+  HAS Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<VenusSolarPhase>
+  HAS Class<ColoniesSolarPhase>, Class<TurmoilSolarPhase>, Class<FinalGreeneryPhase>, Class<End>
   HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
 
   This: SellPatentsProject, PowerPlantProject, AsteroidProject, AquiferProject, GreeneryProject, CityProject
@@ -120,6 +121,9 @@ ABSTRACT CLASS Phase : System {
   }
   CLASS ProductionPhase
   CLASS SolarPhase
+  CLASS VenusSolarPhase
+  CLASS ColoniesSolarPhase
+  CLASS TurmoilSolarPhase
   CLASS FinalGreeneryPhase {
     NewTurn: UseAction<ConvertPlantsAction, Action1>?
   }

@@ -12,8 +12,9 @@
 > ends.
 >
 > **Status:** `Scope`, `GenerationScope`, `TemporaryScope<Parent>`, and dependency-ordered idle
-> cleanup are implemented. Committed `TfmWorkflow.Automatic` is still a Kotlin coroutine that
-> chooses phases and waits for whole-World idleness.
+> cleanup are implemented. The Solar segment has explicit `SolarPhase`, `VenusSolarPhase`,
+> `ColoniesSolarPhase`, and `TurmoilSolarPhase` components. Committed `TfmWorkflow.Automatic` is
+> still a Kotlin coroutine that chooses their active order and waits for whole-World idleness.
 
 ## Purpose and scope
 
@@ -142,6 +143,10 @@ VenusSolarPhase belongs to Solar and is after SolarPhase
 
 ColoniesSolarPhase belongs to Solar and is after SolarPhase
 ColoniesSolarPhase is after VenusSolarPhase
+
+TurmoilSolarPhase belongs to Solar and is after SolarPhase
+TurmoilSolarPhase is after VenusSolarPhase
+TurmoilSolarPhase is after ColoniesSolarPhase
 ```
 
 Only included, inhabited Phase Classes participate. A constraint mentioning an excluded or
@@ -153,6 +158,7 @@ Solar -> Research
 Solar -> Venus Solar -> Research
 Solar -> Colonies Solar -> Research
 Solar -> Venus Solar -> Colonies Solar -> Research
+Solar -> Venus Solar -> Colonies Solar -> Turmoil Solar -> Research
 ```
 
 Prelude similarly contributes that `PreludePhase` belongs to the Corporation-to-Action segment and

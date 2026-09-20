@@ -4,7 +4,7 @@ CLASS ColoniesExpansion : Module {
   SetupPhase: EACH Player { TradeFleet }
   SetupPhase IF SoloMode, SelectedColonyTile: EACH Player { SoloColoniesSetup }
   SetupPhase IF SoloMode: PROD[-2 MC<Player>]
-  SolarPhase: AdvanceColonyTracks
+  ColoniesSolarPhase: AdvanceColonyTracks
 }
 
 "A colony tile, such as Pluto"
