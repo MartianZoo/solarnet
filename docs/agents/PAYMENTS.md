@@ -32,7 +32,7 @@ Do not add an aggregate-payment representation alongside the current protocol.
 ### Current complexity is not all forced
 
 [Terraforming Mars `payment.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets)
-currently distributes payment across `Owed`, `Billing`, `ActionBilling`, `CardBilling`,
+currently distributes payment across `Owed`, `PayingFor`, `Billing`, `ActionBilling`, `CardBilling`,
 `Accepting`, `AcceptingFromCard`, `Pay`, `PayFromCard`, and `ResourceValue`.
 [`TfmGameplay.pay`](../../src/common/dev/martianzoo/tfm/engine/TfmGameplay.kt) changes autoexecution
 policy and searches the task pool for billing, offers, and cause-related follow-up work.
@@ -42,6 +42,11 @@ tender kind separately and declines unused offers.
 That client choreography is not a game rule. Cash-only payment still creates and removes `Owed`,
 `Accepting`, `Billing`, and `Pay`; a zero-cost card still creates and removes `CardBilling`. These
 are primary simplification probes.
+
+Card pricing now separates adjustment context from payment completion. `PriceCard` emits one
+`PayingFor` event for the concrete card and one per printed tag, and project-card purchase emits one
+per purchased card. Card modifiers listen to those events; the existing `Billing` hierarchy still
+opens tender choices and gates continuation. Actions retain their provider-and-slot billing model.
 
 ### The older model was smaller but not sufficient
 
@@ -100,8 +105,8 @@ The authoritative rule remains unverified.
 
 ### 1. Inventory live requirements
 
-Classify every production listener of `Billing`, `ActionBilling`, `CardBilling`, `Accepting`,
-`Pay`, `PayFromCard`, and `ResourceValue` as one of:
+Classify every production listener of `PayingFor`, `Billing`, `ActionBilling`, `CardBilling`,
+`Accepting`, `Pay`, `PayFromCard`, and `ResourceValue` as one of:
 
 - pre-payment debt adjustment;
 - accepted tender source;

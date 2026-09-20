@@ -267,10 +267,11 @@ Some rules must modify an operation before the component that announces its resu
 discount cannot wait for the card's real Tag. The canon answer is a **committed precursor**: an
 earlier component P that the operation is already committed to converting into A.
 
-`PlayTag<Class<Tag>>` is the worked example. Card play creates one `PlayTag` per printed tag before
-payment settles; discounts and alternative payment effects subscribe there; successful card entry
-then creates the real Tags with their printed multiplicity. If the play reaches a dead end, rollback
-removes the precursor and everything it caused.
+`PayingFor<Class<Component>>` is the worked example. Card play creates one event for the concrete
+card and one per printed tag before payment settles; project-card purchase creates one per card.
+Discounts, surcharges, and alternative payment effects subscribe there. Successful card entry then
+creates the real card and Tags with their printed multiplicity. If the operation reaches a dead end,
+rollback removes the precursor and everything it caused.
 
 For precursor P and result A:
 
@@ -284,13 +285,13 @@ The P/A distinction is permanent conceptual cost, justified only when A is genui
 cannot say how it was obtained. Never let P degrade into a notification a caller may emit without
 performing A, and never duplicate A's reactions onto both.
 
-Two live families are weaker than this and should not be described as more: `UseActionN<HasActions>`
-is generic action dispatch, not a promise of a later component Type; and `BuyCard` carries
-multiplicity but not selected card identity, which is exact for the two existing price modifiers and
-should be specialized rather than extended if a third needs more. `Pay` is not a precursor at all —
-it is created in the same `FROM` instruction that removes the resource. `Accepting` is not one either;
-it exposes an optional choice. Card-play and payment lifecycles belong to
-[ACTIONS.md](ACTIONS.md) and [PAYMENTS.md](PAYMENTS.md); do not re-inventory them here.
+The project-card purchase use deliberately carries multiplicity but not selected card identity,
+which is exact for the two existing price modifiers; specialize that event rather than broadening it
+if another rule needs more. `UseActionN<HasActions>` is weaker: generic action dispatch is not a
+promise of a later component Type. `Pay` is not a precursor at all — it is created in the same
+`FROM` instruction that removes the resource. `Accepting` is not one either; it exposes an optional
+choice. Card-play and payment lifecycles belong to [ACTIONS.md](ACTIONS.md) and
+[PAYMENTS.md](PAYMENTS.md); do not re-inventory them here.
 
 ## Automatic effects
 
