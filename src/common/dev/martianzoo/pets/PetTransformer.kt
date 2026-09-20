@@ -222,7 +222,7 @@ public abstract class PetTransformer protected constructor() {
             is Metric.Constant -> node
             is Metric.Rank ->
                 Metric.Rank(
-                    transformExpression(node.selector),
+                    node.selector?.let(::transformExpression),
                     metrics(node.metrics),
                     node.candidate?.let(::transformExpression),
                 )
