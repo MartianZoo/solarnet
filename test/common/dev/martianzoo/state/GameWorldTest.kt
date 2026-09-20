@@ -22,7 +22,7 @@ internal class GameWorldTest {
       testGamePremise("CLASS Token\nCLASS Holder<Token>\nCLASS Moment : Signal", players = 0)
   private val table = premise.classTable
   private val token = table.resolve(parse<Expression>("Token")).toComponent()
-  private val holder = table.resolve(parse<Expression>("Holder<Token>")).toComponent()
+  private val holder = table.resolve(parse<Expression>("Holder")).toComponent()
   private val moment = table.resolve(parse<Expression>("Moment")).toComponent()
 
   @Test

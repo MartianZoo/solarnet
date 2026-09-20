@@ -109,7 +109,8 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
     get() = groundType.expression
 
   /**
-   * The expression containing every dependency bound in key order ([rule
+   * The expression containing every open dependency bound in key order; class-fixed bounds remain
+   * semantic but are not argument positions ([rule
    * T5-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types)).
    */
   override val expressionFull: Expression

@@ -69,9 +69,9 @@ private object TerraformingMars {
 
   internal object NonNegativeIconsOf : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
-      val (cardExpression, targetExpression) = type.expressionFull.arguments
-      val effects = cardEffects(card(cardExpression, game))
-      val target = targetExpression.arguments.single().className
+      val (cardType, targetClassType) = type.typeDependencies.map { it.boundType }
+      val effects = cardEffects(card(cardType, game))
+      val target = requireNotNull(targetClassType.representedClass).className
       return effects.sumOf { it.citationsOutsideRemoval(target) }
     }
 
@@ -97,8 +97,9 @@ private object TerraformingMars {
 
   internal object PlacementBonus : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
-      val arguments = type.expressionFull.arguments
-      val resourceName = arguments.single { it.className == CLASS }.arguments.single().className
+      val arguments = type.typeDependencies.map { it.boundType }
+      val resourceName =
+          requireNotNull(arguments.single { it.className == CLASS }.representedClass).className
       val areaName = arguments.single { it.className != CLASS }.className
       val bonus = mapDefinition(game).areas.single { it.className == areaName }.bonus ?: return 0
       return bonus.descendantsOfType<Gain>().sumOf {
@@ -228,7 +229,7 @@ private object TerraformingMars {
 
   private fun representedType(classType: Type, reader: GameReader): Type {
     require(classType.className == CLASS)
-    return reader.resolve(classType.expressionFull.arguments.single())
+    return reader.resolve(requireNotNull(classType.representedClass).className.expression)
   }
 
   private fun card(type: HasClassName, reader: GameReader): Class =

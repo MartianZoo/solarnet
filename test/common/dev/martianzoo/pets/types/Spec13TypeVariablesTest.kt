@@ -683,6 +683,33 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
+  internal fun `T13-10 binding omits arguments fixed by the chosen subclass`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Kind { CLASS Fixed, Other }",
+            "ABSTRACT CLASS Box<Kind>",
+            "CLASS FixedBox : Box<Fixed>",
+            "ABSTRACT CLASS Notice<Box<Kind>>",
+            "ABSTRACT CLASS Holder<Box<Kind>> { This: Notice<Box<Kind>> }",
+        )
+    val holder = table.getClass(cn("Holder"))
+    val bound = holder.interpretTypeVariablesIn(holder.declaration.effects.single())
+    val box = bound.typeVariables.variables.first { it.expression == te("Box<Kind>") }
+
+    bound.typeVariables
+        .bind(mapOf(box to table.resolve(te("FixedBox"))))
+        .transformEffect(bound)
+        .toString() shouldBe "This: Notice<FixedBox>"
+
+    val kind = bound.typeVariables.variables.first { it.expression == te("Kind") }
+    shouldThrow<NarrowingException> {
+      bound.typeVariables.bind(
+          mapOf(box to table.resolve(te("FixedBox")), kind to table.resolve(te("Other")))
+      )
+    }
+  }
+
+  @Test
   internal fun `T13-10 a binding must satisfy every recorded occurrence`() {
     val table =
         loadTypes(

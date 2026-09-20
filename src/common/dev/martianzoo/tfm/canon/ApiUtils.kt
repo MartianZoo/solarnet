@@ -19,8 +19,8 @@ public object ApiUtils {
   public fun getOwner(game: GameReader, component: Type): Type {
     val ownerType = game.resolve(OWNER.expression)
     val owner =
-        component.expressionFull.arguments.single { game.resolve(it).narrows(ownerType, game) }
-    return game.resolve(owner)
+        component.typeDependencies.map { it.boundType }.single { it.narrows(ownerType, game) }
+    return owner
   }
 
   /** Returns [getOwner], requiring that the component is owned by a seated [Player]. */

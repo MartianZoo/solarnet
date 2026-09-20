@@ -160,6 +160,23 @@ internal class Spec03DependenciesTest {
     shouldThrow<ExpressionException> { type("Occupant<Player1>") }
   }
 
+  @Test
+  internal fun `T3-4 a concrete class bound is not an argument position`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Choice { CLASS Fixed, Other }",
+            "ABSTRACT CLASS Holder<Choice>",
+            "ABSTRACT CLASS FixedHolder : Holder<Fixed>",
+        )
+
+    table.getClass(cn("FixedHolder")).dependencies.keys shouldContainExactly
+        listOf(Key(cn("Holder"), 0))
+    table.resolve(te("FixedHolder")).dependencies.get(Key(cn("Holder"), 0)).expressionFull shouldBe
+        te("Fixed")
+    shouldThrow<ExpressionException> { table.resolve(te("FixedHolder<Fixed>")) }
+    shouldThrow<ExpressionException> { table.resolve(te("FixedHolder<Choice>")) }
+  }
+
   // T3-5 Argument matching
 
   @Test
@@ -183,6 +200,33 @@ internal class Spec03DependenciesTest {
         te("Adjacency<Tharsis_2_2, Tharsis_2_3>")
     table.resolve(te("Adjacency<Tharsis_2_3, Tharsis_2_2>")).expressionFull shouldBe
         te("Adjacency<Tharsis_2_3, Tharsis_2_2>")
+  }
+
+  @Test
+  internal fun `T3-5 matching skips a dependency the class already made concrete`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Choice { CLASS Fixed, Other }",
+            "ABSTRACT CLASS Pair<Choice, Choice>",
+            "ABSTRACT CLASS FixedFirst : Pair<Fixed>",
+        )
+
+    table.resolve(te("FixedFirst<Other>")).expressionFull shouldBe te("FixedFirst<Other>")
+    table
+        .resolve(te("FixedFirst<Other>"))
+        .dependencies
+        .get(Key(cn("Pair"), 0))
+        .expressionFull shouldBe te("Fixed")
+    table
+        .resolve(te("FixedFirst<Other>"))
+        .dependencies
+        .get(Key(cn("Pair"), 1))
+        .expressionFull shouldBe te("Other")
+    table
+        .resolve(te("FixedFirst<Fixed>"))
+        .dependencies
+        .get(Key(cn("Pair"), 1))
+        .expressionFull shouldBe te("Fixed")
   }
 
   @Test
@@ -217,7 +261,13 @@ internal class Spec03DependenciesTest {
         te("SelfBound<Class<SelfBound>>")
     table.getClass(cn("SelfMiddle")).baseType.expressionFull shouldBe
         te("SelfMiddle<Class<SelfMiddle>>")
-    table.getClass(cn("SelfLeaf")).baseType.expressionFull shouldBe te("SelfLeaf<Class<SelfLeaf>>")
+    table.getClass(cn("SelfLeaf")).baseType.expressionFull shouldBe te("SelfLeaf")
+    table
+        .getClass(cn("SelfLeaf"))
+        .baseType
+        .dependencies
+        .get(Key(cn("Link"), 0))
+        .expressionFull shouldBe te("Class<SelfLeaf>")
   }
 
   @Test

@@ -85,8 +85,8 @@ private constructor(
           .map { it.boundType }
 
   /**
-   * The dependency identities in declaration order, as required for full rendering by
-   * [rules T3-10 and T5-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+   * The dependency identities in declaration order ([rule
+   * T3-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies)).
    */
   public val keys: List<Key> = List(deps.size) { deps[it].key }
 
@@ -228,9 +228,13 @@ private constructor(
           }
       )
 
-  internal fun specialize(specs: List<Expression>, classTable: ClassTable): DependencySet {
+  internal fun specialize(
+      specs: List<Expression>,
+      argumentKeys: List<Key> = keys,
+      classTable: ClassTable,
+  ): DependencySet {
     // This has been a bit optimized
-    val partial = matchPartial(specs, classTable)
+    val partial = subMapInOrder(argumentKeys).matchPartial(specs, classTable)
     return of(deps.map { partial.getIfPresent(it.key) ?: it })
   }
 

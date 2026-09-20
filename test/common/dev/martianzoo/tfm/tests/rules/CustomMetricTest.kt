@@ -150,7 +150,7 @@ private object AbstractAwareMetric : CustomMetric() {
 
 private object PlantCount : CustomMetric() {
   override fun count(game: GameReader, type: Type): Int {
-    val player = type.expressionFull.arguments.single()
+    val player = type.typeDependencies.single().boundType.expression
     return game.count(game.resolve(parse("Plant<$player>")))
   }
 }

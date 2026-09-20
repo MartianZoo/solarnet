@@ -306,7 +306,7 @@ internal constructor(
       val superclass = loader.getClass(sourceSupertype.className)
       val arguments = sourceSupertype.arguments
       val matched =
-          superclass.dependencies.matchPartialInOrder(arguments.map(::replaceThis), loader)
+          superclass.argumentDependencies.matchPartialInOrder(arguments.map(::replaceThis), loader)
       arguments.zip(matched).flatMap { (argument, dependency) ->
         selfBindingsIn(argument, dependency, listOf(dependency.key))
       }
@@ -322,29 +322,35 @@ internal constructor(
     if (expression == THIS.expression) return listOf(DependencyPath(path))
     if (expression.arguments.isEmpty()) return listOf()
 
-    val dependencies =
+    val boundType =
         when (dependency) {
-          is TypeDependency -> dependency.boundType.dependencies
+          is TypeDependency -> dependency.boundType
           else -> return listOf()
         }
-    val matched = dependencies.matchPartialInOrder(expression.arguments.map(::replaceThis), loader)
+    val matched =
+        boundType.argumentDependencies.matchPartialInOrder(
+            expression.arguments.map(::replaceThis),
+            loader,
+        )
     return expression.arguments.zip(matched).flatMap { (argument, nestedDependency) ->
       selfBindingsIn(argument, nestedDependency, path + nestedDependency.key)
     }
   }
 
-  private fun GroundType.bindSelfAt(paths: List<List<Key>>): Expression {
-    val pathsByKey = paths.groupBy { it.first() }
-    val arguments = dependencies.expressionsFull { dependency ->
-      val remainingPaths = pathsByKey[dependency.key]?.map { it.drop(1) }.orEmpty()
-      when {
-        remainingPaths.isEmpty() -> dependency.expressionFull
-        remainingPaths.any { it.isEmpty() } -> this@Class.className.expression
-        dependency is TypeDependency -> dependency.boundType.bindSelfAt(remainingPaths)
-        else -> error("cannot bind self within `$dependency`")
-      }
+  private fun GroundType.bindSelfAt(paths: List<List<Key>>): GroundType {
+    if (paths.any { it.isEmpty() }) {
+      check(paths.all { it.isEmpty() })
+      return this@Class.baseType
     }
-    return expressionFull.replaceArguments(arguments)
+    if (representedClass != null && paths.all { it == listOf(Key(CLASS, 0)) }) {
+      return this@Class.classType
+    }
+    val pathsByKey = paths.groupBy { it.first() }
+    val rebound = dependencies.mapWithKey { key, boundType ->
+      val remainingPaths = pathsByKey[key]?.map { it.drop(1) }.orEmpty()
+      if (remainingPaths.isEmpty()) boundType else boundType.bindSelfAt(remainingPaths)
+    }
+    return GroundType(rootClass, rebound, refinement)
   }
 
   private val inheritedDeps: Lazy<DependencySet> = lazy {
@@ -357,7 +363,7 @@ internal constructor(
             if (paths.isEmpty()) {
               boundType
             } else {
-              loader.resolve(boundType.bindSelfAt(paths))
+              boundType.bindSelfAt(paths)
             }
           }
         }
@@ -428,6 +434,10 @@ internal constructor(
    */
   public val dependencies: DependencySet
     get() = dependenciesLazy.value
+
+  /** Dependency positions whose class-declared bounds still admit specialization by an argument. */
+  internal val argumentDependencies: DependencySet
+    get() = dependencies.subMapInOrder(dependencies.keys.filter { dependencies.get(it).abstract })
 
   private data class DependencyEquality(
       val expressions: Set<Expression>,
@@ -508,7 +518,7 @@ internal constructor(
 
       fun collectArguments(expression: Expression, prefix: List<Key>, region: Int) {
         if (expression.arguments.isEmpty()) return
-        val dependencySet = loader.load(expression.className).dependencies
+        val dependencySet = loader.load(expression.className).argumentDependencies
         val arguments = expression.arguments.map(replacer(THIS, className)::transformExpression)
         val matched = dependencySet.matchPartialInOrder(arguments, loader)
         expression.arguments.zip(matched).forEach { (argument, dependency) ->
@@ -848,7 +858,7 @@ internal constructor(
   private val defaultExpressionLazy = lazy {
     val templateDependencies =
         dependencies.merge(defaults.allUsages.dependencies) { _, default -> default }
-    className.of(templateDependencies.expressionsFull())
+    className.of(templateDependencies.subMapInOrder(argumentDependencies.keys).expressionsFull())
   }
 
   /**
@@ -886,7 +896,7 @@ internal constructor(
       matchDependencyKeys(specs, loader)
 
   internal fun matchDependencyKeys(specs: List<Expression>, classTable: ClassTable): List<Key> =
-      dependencies.matchPartialInOrder(specs, classTable).map(Dependency::key)
+      argumentDependencies.matchPartialInOrder(specs, classTable).map(Dependency::key)
 
   /**
    * Returns the special *class type* for this class; for example, for the class `Resource` returns
