@@ -64,10 +64,14 @@ public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer(
     // refinements constrain only the occurrence — a refined type cannot be a supertype (L1-9).
     val loweredArguments = node.arguments.map(::transformExpression)
     val loweredRefinement = node.refinement?.let(::transformRefinement)
+    val declarationContext = Transforming.replaceThisExpressionsWith(owner.expression)
     val supertype =
         Expression(
             className = base,
-            arguments = loweredArguments.map(::withoutRefinements),
+            arguments =
+                loweredArguments
+                    .map(declarationContext::transformExpression)
+                    .map(::withoutRefinements),
         )
     val declaration = body.asDerivedDeclaration(generated, supertype)
     declarationsByBase[base] = transformDeclaration(declaration)
