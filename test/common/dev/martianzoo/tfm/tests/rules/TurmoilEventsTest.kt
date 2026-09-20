@@ -102,7 +102,8 @@ internal class TurmoilEventsTest :
     seatPlayerOneAsChairman()
     p1.runOperation("GlobalEventProbe, 7 JovianTag<GlobalEventProbe>")
 
-    admin.runOperation("ResolveCurrentGlobalEvent")
+    admin.beginOperation("TurmoilSolarOperation")
+    admin.completeOperation { doTask("CelebrityLeaders") }
 
     p1.count("Influence") shouldBe 1
     p1.count("Titanium") shouldBe 6

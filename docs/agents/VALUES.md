@@ -254,6 +254,9 @@ Keep the substantive reasoning in the owning document and keep this table to one
 - **Turmoil's `TurmoilPlayer`, `ApplyRulingBonus`, and `Class<GlobalEvent>`-keyed event positions** —
   [TURMOIL.md](TURMOIL.md). A 2026-09-19 sweep removed ten other Turmoil classes and tried to remove
   these three; each is forced by a language rule, and TURMOIL.md records which one.
+- **Turmoil's two party-arrow supertypes and two reveal requests** —
+  [TURMOIL.md](TURMOIL.md#modeling-rule). Pets needs distinct spellings for the two party roles,
+  while Coming and Distant reveal requests have different completion behavior.
 
 ### Accepted for now
 

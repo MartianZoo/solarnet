@@ -237,6 +237,13 @@ Three habits are worth naming, because each one removed a class that looked nece
   `10 MC / (9 (Class<Tag>(HAS Tag<Owner>) OR Influence) MAX 1)`; a gate inside an `EACH` body would
   fail the branch rather than pay nothing.
 
+Two pairs of similar declarations remain separate for language reasons. `GePartyDistant` and
+`GePartyCurrent` give the two printed party arrows distinct dependency paths and spellings; two
+bare `Party` dependencies on `GlobalEvent` would be independent but indistinguishable in its body.
+`RevealComingEvent` bootstraps setup by becoming `RevealDistantEvent` only after its event choice
+completes, while each later `RevealDistantEvent` simply finishes. A position-parameterized reveal
+would admit the unsupported Current position and still need these position-specific behaviors.
+
 `TurmoilExpansion` declares no `HAS Class<...>` activation list. Every class it needs is reached by
 a gain, which is a hard reference that projection closure already activates
 ([OPTIONS.md](OPTIONS.md#projection-closure)).

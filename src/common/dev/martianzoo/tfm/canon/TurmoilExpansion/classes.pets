@@ -14,7 +14,9 @@ CLASS Terraformer26 : Milestone { requirement = HAS "26 TerraformRating" }
 CLASS TurmoilSolarOperation : Temporary, System {
   HAS MAX 1 This
   This:: EACH Player { -TerraformRating. }
-  This:: ResolveCurrentGlobalEvent
+  This:: \
+    EACH Player { MeasureInfluence<Player> }, \
+    EACH Class<GlobalEvent>(HAS Current<Class<GlobalEvent>>) { ResolveGlobalEvent<Class<GlobalEvent>> }
   -This: FormGovernment THEN ChangingTimes
 }
 
@@ -53,13 +55,6 @@ CLASS RevealComingEvent : Barrier {
 CLASS RevealDistantEvent : Barrier {
   HAS MAX 1 This
   This: GlobalEvent THEN -This!
-}
-
-"Measures every player's influence and resolves the exact Current Global Event"
-CLASS ResolveCurrentGlobalEvent : Signal {
-  This:: \
-    EACH Player { MeasureInfluence<Player> }, \
-    EACH Class<GlobalEvent>(HAS Current<Class<GlobalEvent>>) { ResolveGlobalEvent<Class<GlobalEvent>> }
 }
 
 "Requests the printed effect of one Global Event"
