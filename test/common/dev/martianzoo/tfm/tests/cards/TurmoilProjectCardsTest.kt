@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -185,5 +186,20 @@ internal class TurmoilProjectCardsTest : CardTest() {
 
     admin.count("Chairman<Neutral>") shouldBe 1
     p1.count("Chairman") shouldBe 0
+  }
+
+  @Test
+  internal fun `Vote of No Confidence cannot replace a non-neutral chairman`() {
+    newGame(TurmoilExpansion)
+    repeat(2) { p1.runOperation("PartyDelegate<Greens>") }
+    admin.runOperation("Chairman<Player2> FROM Chairman<Neutral>")
+    admin.phase("Action")
+    p1.runOperation("5 MC, ProjectCard")
+
+    shouldThrow<LimitsException> { p1.playProject(VoteOfNoConfidence, 5) }
+
+    p1.count("MC") shouldBe 5
+    p1.count("Chairman") shouldBe 0
+    requireP2().count("Chairman") shouldBe 1
   }
 }
