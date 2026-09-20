@@ -5,8 +5,11 @@ import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.pets.types.Class
+import dev.martianzoo.pets.types.ClassLoader
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.PremiseClassTable
+import dev.martianzoo.pets.types.PremiseViability
 
 /**
  * The complete immutable input from which equivalent playable worlds are constructed.
@@ -31,15 +34,99 @@ public data class GamePremise(
   private val premiseClassTableLazy = lazy {
     PremiseClassTable(catalog.classTable, premiseClassDeclarations)
   }
-  public val premiseClassTable: PremiseClassTable
+  internal val premiseClassTable: PremiseClassTable
     get() = premiseClassTableLazy.value
 
   /**
    * The immutable premise-selected class-table view shared by every World built from this premise.
    */
-  private val classTableLazy = lazy { ClassTable.forPremise(this) }
+  private val classTableLazy = lazy(::createClassTable)
   public val classTable: ClassTable
     get() = classTableLazy.value
+
+  /**
+   * Forms and freezes this premise's playable view, reusing the Catalog's compiled objects as
+   * required by
+   * [rules T12-1 through T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
+   */
+  private fun createClassTable(): ClassTable {
+    val premiseTable = premiseClassTable
+    val masterTable = premiseTable.master
+    val initialClassNames =
+        initialComponentTypes.flatMap { it.descendantsOfType<ClassName>() }.toSet()
+    val configurationNames: Set<ClassName> =
+        modules +
+            classSelections.filter(ClassSelection::included).map(ClassSelection::className) +
+            playerNames +
+            initialClassNames
+    val moduleSelections = modules.flatMap { catalog.modules.getValue(it) }
+    val (applicableModuleSelections, inapplicableModuleSelections) =
+        moduleSelections.partition { selection ->
+          selection.appliesTo(configurationNames, premiseTable)
+        }
+    val moduleIncluded =
+        applicableModuleSelections
+            .filter(ClassSelection::included)
+            .mapTo(linkedSetOf(), ClassSelection::className)
+    val conditionallyExcluded =
+        inapplicableModuleSelections
+            .filter(ClassSelection::included)
+            .mapTo(hashSetOf(), ClassSelection::className) - moduleIncluded
+    val moduleExcluded =
+        applicableModuleSelections
+            .filterNot(ClassSelection::included)
+            .mapTo(hashSetOf(), ClassSelection::className) + conditionallyExcluded
+    val selectedByModules = moduleIncluded - moduleExcluded
+    val explicitlyIncluded =
+        classSelections
+            .filter(ClassSelection::included)
+            .mapTo(linkedSetOf(), ClassSelection::className)
+    val explicitlyExcluded =
+        classSelections
+            .filterNot(ClassSelection::included)
+            .mapTo(linkedSetOf(), ClassSelection::className)
+    val excluded = (moduleExcluded - explicitlyIncluded) + explicitlyExcluded
+    val roots =
+        modules +
+            ((selectedByModules - explicitlyExcluded) + explicitlyIncluded) +
+            initialClassNames +
+            actors.map(Actor::className) +
+            listOfNotNull(bootstrapClassName, premiseClassName)
+
+    val table = ClassLoader.forPremise(catalog, premiseTable, modules, classSelections)
+    table.freeze()
+    table.validateNoOkSubscriptions()
+    table.validateTransformKinds()
+    table.includeAll(roots)
+    val unexpectedModules =
+        catalog.modules.keys.filterTo(linkedSetOf()) { table.isIncluded(it) } - modules
+    if (unexpectedModules.isNotEmpty()) {
+      throw InvalidGameConfigException(
+          "structural selection included unrequested modules: `$unexpectedModules`"
+      )
+    }
+    val playerClass = masterTable.findClass(PLAYER)
+    val inhabitedPlayerClassNames =
+        playerClass
+            ?.let(table::allSubclasses)
+            .orEmpty()
+            .filterNot(Class::abstract)
+            .filter(table::isInhabited)
+            .mapTo(linkedSetOf(), Class::className)
+    if (inhabitedPlayerClassNames != playerNames.toSet()) {
+      throw InvalidGameConfigException(
+          "inhabited `Player` classes do not match occupied seats: `$inhabitedPlayerClassNames`"
+      )
+    }
+    val includedExclusions = excluded.filterTo(linkedSetOf(), table::isIncluded)
+    if (includedExclusions.isNotEmpty()) {
+      throw InvalidGameConfigException(
+          "structural selection conflicts with excluded classes: `$includedExclusions`"
+      )
+    }
+    PremiseViability.validate(table, roots)
+    return table
+  }
 
   init {
     val premiseDeclarationsByName = premiseClassTable.declarations

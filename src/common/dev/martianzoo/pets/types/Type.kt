@@ -159,20 +159,6 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
   public fun isSupertypeOf(that: Type): Boolean = that.isSubtypeOf(this)
 
   /**
-   * Enumerates every concrete narrowing in the master universe, following
-   * [rules T11-1 and T11-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
-   */
-  public fun allConcreteSubtypes(): Sequence<GroundType> = groundType.allConcreteSubtypes()
-
-  /**
-   * Returns the sole concrete narrowing in the master universe when every structural choice is
-   * unique and its refinement accepts [info], as specified by
-   * [rule T11-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
-   */
-  public fun singleConcreteSubtype(info: TypeInfo): GroundType? =
-      groundType.singleConcreteSubtype(info)
-
-  /**
    * Returns the concrete numeric value of [propertyName], under the property-reading contract of
    * [rule T9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
    */

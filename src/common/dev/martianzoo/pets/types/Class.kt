@@ -53,14 +53,14 @@ internal constructor(
     /** The class loader used while constructing this class. */
     private val loader: ClassLoader,
 
-    /** Whether resolving this declaration's immediate hierarchy activates those Classes. */
-    activateRelated: Boolean = true,
+    /** Whether resolving this declaration's immediate hierarchy includes those Classes. */
+    includeRelated: Boolean = true,
 
     /**
      * The declared direct supertypes; empty only for the root class, under
      * [rules T1-4 and T2-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
      */
-    public val directSuperclasses: List<Class> = superclasses(declaration, loader, activateRelated),
+    public val directSuperclasses: List<Class> = superclasses(declaration, loader, includeRelated),
 ) : HasClassName, Specification<Class> {
 
   /**
@@ -898,12 +898,6 @@ internal constructor(
   internal val classType: GroundType
     get() = classTypeLazy.value
 
-  /**
-   * Enumerates concrete types whose root is exactly this class, following same-class enumeration in
-   * [rule T11-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
-   */
-  public fun concreteTypes(): Sequence<GroundType> = baseType.concreteSubtypesSameClass()
-
   internal val defaultsDecl
     get() = declaration.defaultsDeclaration
 
@@ -925,7 +919,7 @@ internal constructor(
     fun superclasses(
         declaration: ClassDeclaration,
         loader: ClassLoader,
-        activateRelated: Boolean,
+        includeRelated: Boolean,
     ): List<Class> {
       return declaration.supertypes
           .classNames()
@@ -938,7 +932,7 @@ internal constructor(
             }
           }
           .ifEmpty { listOf(COMPONENT) }
-          .map { loader.loadRelated(it, include = activateRelated) }
+          .map { loader.loadRelated(it, include = includeRelated) }
     }
   }
 }

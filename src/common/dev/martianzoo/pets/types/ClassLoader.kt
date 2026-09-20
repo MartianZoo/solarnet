@@ -31,15 +31,15 @@ import dev.martianzoo.pets.data.ClassSelection
  * [rules T1-1 and T1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
  *
  * Name lookup and resolution are available while loading. [loadEverything] completes and freezes a
- * master universe. A game projection freezes its combined structural universe before computing the
- * premise's inclusion closure, so every enumeration used by that closure has a stable universe.
+ * master universe. A game table freezes its combined structural namespace before computing the
+ * premise's inclusion closure, so every enumeration used by that closure has a stable namespace.
  */
 public class ClassLoader
 private constructor(
     internal override val catalog: Catalog,
     private val masterSource: ClassTable?,
     private val premiseDeclarations: Map<ClassName, ClassDeclaration> = emptyMap(),
-    private val blockedActivations: Map<ClassName, Set<ClassName>> = emptyMap(),
+    private val unavailableClasses: Map<ClassName, Set<ClassName>> = emptyMap(),
     private val configuredModuleNames: Set<ClassName> = emptySet(),
     private val configuredClassSelections: Set<ClassSelection> = emptySet(),
 ) : ClassTable() {
@@ -256,7 +256,7 @@ private constructor(
     while (queue.isNotEmpty()) {
       while (queue.isNotEmpty()) {
         val next = queue.removeFirst()
-        blockedActivations[next]?.let { availabilityModules ->
+        unavailableClasses[next]?.let { availabilityModules ->
           val source = requestedBy.getValue(next)
           val path =
               source?.let { "`$it` requires locked Class `$next`" } ?: "Class `$next` is locked"
@@ -267,14 +267,14 @@ private constructor(
         }
         loadRelated(next, include = true)
       }
-      enqueueReachableActivationEdges()
+      enqueueReachableSelectionEdges()
     }
   }
 
-  /** Computes a game projection's inclusion closure within its completed structural universe. */
+  /** Computes a game's inclusion closure within its completed structural namespace. */
   internal fun includeAll(names: Collection<ClassName>) {
     require(masterSource != null && frozen) {
-      "a game projection must be structurally frozen before its inclusion closure is computed"
+      "a game table must be structurally frozen before its inclusion closure is computed"
     }
     loadAll(names)
   }
@@ -344,15 +344,15 @@ private constructor(
    * Rechecks every included declaration because including one Class can make a previously
    * impossible Trigger or gate reachable. The closure is monotone: Classes only become included.
    */
-  private fun enqueueReachableActivationEdges() {
+  private fun enqueueReachableSelectionEdges() {
     val includedNames = includedClassNames
     (includedNames - COMPONENT - CLASS).forEach { name ->
-      enqueue(activationEdges(knownDeclaration(name), includedNames) - THIS, name)
+      enqueue(selectionEdges(knownDeclaration(name), includedNames) - THIS, name)
     }
   }
 
   /** Returns the structurally or constructively required Classes in one live declaration. */
-  private fun activationEdges(
+  private fun selectionEdges(
       declaration: ClassDeclaration,
       includedNames: Set<ClassName>,
   ): Set<ClassName> = buildSet {
@@ -451,9 +451,9 @@ private constructor(
       findClass(name)?.also { includeClass(name) } ?: loadRelated(name, include = true)
 
   // All classes are created here (aside from Component and Class, at top).
-  private fun construct(source: ClassDeclaration, activateRelated: Boolean = true): Class {
+  private fun construct(source: ClassDeclaration, includeRelated: Boolean = true): Class {
     check(masterSource == null || source.className in premiseDeclarations) {
-      "a game projection may construct only premise Classes"
+      "a game table may construct only premise Classes"
     }
     require(!frozen) { "class table is already frozen" }
     val decl = validateCustomImplementation(source)
@@ -463,7 +463,7 @@ private constructor(
     }
     store(null) // to detect reentrancy
     try {
-      val klass = Class(decl, this, activateRelated)
+      val klass = Class(decl, this, includeRelated)
       validateCustomInheritance(klass)
       store(klass)
       return klass
@@ -536,7 +536,7 @@ private constructor(
         if (declaration.className !in loadedClasses) {
           validateClassNames(declaration)
           validateNoEffectCreatesClass(declaration)
-          construct(declaration, activateRelated = false)
+          construct(declaration, includeRelated = false)
         }
       }
       val premiseClasses =
@@ -640,7 +640,7 @@ private constructor(
   internal companion object {
     private var nextId: Int = 0
 
-    internal fun projection(
+    internal fun forPremise(
         catalog: Catalog,
         premiseTable: PremiseClassTable,
         configuredModuleNames: Set<ClassName>,
@@ -650,7 +650,7 @@ private constructor(
       require(masterTable.masterTable === masterTable) {
         "catalog class table is not a master table"
       }
-      val blocked =
+      val unavailableClasses =
           catalog.classAvailabilityModules
               .mapNotNull { (className, availabilityModules) ->
                 (className to availabilityModules).takeIf {
@@ -662,7 +662,7 @@ private constructor(
           catalog,
           masterTable,
           premiseTable.declarations,
-          blocked,
+          unavailableClasses,
           configuredModuleNames,
           configuredClassSelections,
       )

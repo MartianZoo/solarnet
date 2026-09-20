@@ -168,11 +168,11 @@ internal class Spec04ClassLiteralsTest {
 
   @Test
   internal fun `T4-8 enumeration has one literal per concrete Class with an inhabited base Type`() {
-    type("Class<Metal>").allConcreteSubtypes().map { "$it" }.toList() shouldContainExactly
+    table.allConcreteSubtypes(type("Class<Metal>")).map { "$it" }.toList() shouldContainExactly
         listOf("Class<Steel>", "Class<Titanium>")
-    type("Class<Steel>").allConcreteSubtypes().map { "$it" }.toList() shouldContainExactly
+    table.allConcreteSubtypes(type("Class<Steel>")).map { "$it" }.toList() shouldContainExactly
         listOf("Class<Steel>")
-    type("Class<Tag>").allConcreteSubtypes().map { "$it" }.toList() shouldContainExactly
+    table.allConcreteSubtypes(type("Class<Tag>")).map { "$it" }.toList() shouldContainExactly
         listOf("Class<BuildingTag>", "Class<SpaceTag>")
   }
 
@@ -180,7 +180,7 @@ internal class Spec04ClassLiteralsTest {
   internal fun `T4-8 a literal with no inhabited concrete subclass enumerates nothing`() {
     val empty = loadTypes("ABSTRACT CLASS Award")
 
-    empty.resolve(te("Class<Award>")).allConcreteSubtypes().toList().shouldBeEmpty()
+    empty.allConcreteSubtypes(empty.resolve(te("Class<Award>"))).toList().shouldBeEmpty()
   }
 
   // T4-9 `Class<This>`

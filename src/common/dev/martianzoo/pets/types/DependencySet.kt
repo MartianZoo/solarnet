@@ -72,17 +72,11 @@ private constructor(
    */
   public fun typeDependencies(): List<TypeDependency> = deps.filterIsInstance<TypeDependency>()
 
-  /**
-   * Enumerates every concrete target admitted by every component-targeting dependency, using
-   * master-universe enumeration from
-   * [rule T11-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
-   */
-  public fun concreteDependencyTargets(): Sequence<GroundType> =
-      deps
-          .asSequence()
-          .filterIsInstance<TypeDependency>()
-          .flatMap(TypeDependency::allConcreteSpecializations)
-          .map { it.boundType }
+  /** Enumerates every inhabited target admitted by every component-targeting dependency. */
+  internal fun concreteDependencyTargets(classTable: ClassTable): Sequence<GroundType> =
+      deps.asSequence().filterIsInstance<TypeDependency>().flatMap {
+        classTable.allConcreteSubtypes(it.boundType)
+      }
 
   /**
    * The dependency identities in declaration order, as required for full rendering by

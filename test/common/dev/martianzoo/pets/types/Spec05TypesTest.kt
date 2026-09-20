@@ -172,7 +172,7 @@ internal class Spec05TypesTest {
 
   @Test
   internal fun `T5-6 both forms round-trip every concrete type in the test universe`() {
-    mars.componentClass.baseType.allConcreteSubtypes().forEach { resolved ->
+    mars.allConcreteSubtypes(mars.componentClass.baseType).forEach { resolved ->
       mars.resolve(resolved.expression) shouldBe resolved
       mars.resolve(resolved.expressionFull) shouldBe resolved
     }

@@ -107,7 +107,7 @@ Three neighbours are deliberately out of scope:
 
 - **How a premise selects its declaration closure.** Section 12 takes that closure as part of the
   game universe and defines inhabitance for its Types. The selection policy belongs to premise
-  construction; its behavior is pinned by `ActivationTest.kt` and described in
+  construction; its behavior is pinned by `PremiseSelectionTest.kt` and described in
   `docs/agents/OPTIONS.md`.
 - **Component-count invariants**, except for the one rule the type system leans on (T3-9): a
   dependency may only target a type limited to a single copy.
@@ -979,14 +979,14 @@ Because a class table is closed once frozen, Pets can list the concrete possibil
 abstract type — the operation behind "which area do you want?" and behind narrowing a choice
 automatically when only one exists.
 
-These operations come in two flavours. Asked of a **type** (`someType.allConcreteSubtypes()`) they
-range over the whole master universe. Asked of a **class table**
-(`table.allConcreteSubtypes(someType)`) they range over the concrete narrowings inhabited in that
-table. For a game view, the premise-selected declaration closure determines that domain (T12-3).
-The rules below describe the shape of the operation; section 12 says which universe answers.
+These operations are asked of an explicit **class table**
+(`table.allConcreteSubtypes(someType)`). They range over the concrete narrowings inhabited in that
+table. The Catalog table is the complete catalog-wide domain; for a game table, the premise-selected
+declaration closure determines the domain (T12-3). A Type does not choose the table implicitly,
+because equal shared Types can be interpreted by several game views.
 
-**T11-1. Enumerating concrete narrowings.** `allConcreteSubtypes()` pairs every concrete subclass of
-the root class with every admissible concrete binding of every dependency:
+**T11-1. Enumerating concrete narrowings.** `ClassTable.allConcreteSubtypes(type)` pairs every
+concrete subclass of the root class with every admissible concrete binding of every dependency:
 
 ```text
 Tile              →  GreeneryTile<Tharsis_2_2>, GreeneryTile<Tharsis_2_3>, OceanTile<Tharsis_1_1>
@@ -1009,26 +1009,25 @@ tests the survivors. So `LandArea(HAS Neighbor)` enumerates every concrete land 
 > evaluate `HAS Neighbor<OceanTile>`; baking today's board into the universe would make the type
 > table change after every placement.
 
-**T11-3. Same-class enumeration.** `concreteSubtypesSameClass()` holds the root class fixed and varies
-only the dependencies. An abstract root class yields nothing.
+**T11-3. Same-class enumeration.** `ClassTable.concreteSubtypesSameClass(type)` holds the root class
+fixed and varies only the dependencies. An abstract root class yields nothing.
 
 > **Non-normative example — solo reserves.** `SoloStandardResourceReserve<Class<StandardResource>>`
 > must fan out to one reserve of the same root class for each resource kind. Whole-hierarchy
 > enumeration could instead wander into unrelated subclasses of a broader system component.
 
-**T11-4. Automatic narrowing.** `singleConcreteSubtype(info)` returns the one concrete narrowing when
-there is exactly one, and `null` otherwise. It is stricter than "one candidate matched the
-refinement": the root class and *every* dependency must each have a single concrete choice, and the
-refinement must then accept the result. Any remaining choice, anywhere, blocks it — deliberately, so
-the engine never silently makes a decision a player should have made.
+**T11-4. Automatic narrowing.** `ClassTable.singleConcreteSubtype(type, info)` returns the one
+concrete narrowing when there is exactly one, and `null` otherwise. It is stricter than "one
+candidate matched the refinement": the root class and *every* dependency must each have a single
+concrete choice, and the refinement must then accept the result. Any remaining choice, anywhere,
+blocks it — deliberately, so the engine never silently makes a decision a player should have made.
 
 Within those limits it is thorough: it sees through a `NOT`; it finds a subclass that already fixes
 the dependency (`Tile<LandArea>` narrows to `GreeneryTile` when that is the only land tile, even
 where an `OceanTile` class also exists — a concrete class incompatible with the requested type is
 not one of the choices); and it reports nothing at all when the requested narrowing is incompatible
-with every concrete class. Both flavours answer alike about the same universe. A
-`HAS` refinement can decide between candidates only where enumeration happens anyway, as with a
-refined class literal (T8-10).
+with every concrete class. A `HAS` refinement can decide between candidates only where enumeration
+happens anyway, as with a refined class literal (T8-10).
 
 This is an under-approximation, and knowingly so: a type is narrowed automatically when the
 *universe* leaves one candidate, not when the current board does. An ocean placement asking for

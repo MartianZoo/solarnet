@@ -322,8 +322,7 @@ internal class Spec03DependenciesTest {
     val cards = equalityCards()
 
     cards
-        .getClass(cn("InheritedLink"))
-        .concreteTypes()
+        .concreteSubtypesSameClass(cards.getClass(cn("InheritedLink")).baseType)
         .map { it.expressionFull.toString() }
         .toList()
         .shouldContainExactlyInAnyOrder(

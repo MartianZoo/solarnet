@@ -5,12 +5,12 @@
 > vouch for the information here.
 
 > **Read when:** changing Catalog, Module, Bundle, `GameConfig`, `GamePremise`, selection defaults,
-> projection closure, or viability classification.
+> selection closure, or viability classification.
 >
 > **Skip when:** changing live World state after premise creation; use [ENGINE.md](ENGINE.md).
 >
 > **Status:** current model except where a section is explicitly marked as settled direction.
-> Stronger closed-world viability proofs and durable projection-decision explanations are future
+> Stronger closed-world viability proofs and durable selection-decision explanations are future
 > work.
 
 ## Read only the relevant sections
@@ -20,7 +20,7 @@
 | Catalog namespace or indexes | Catalog; One master Class Table |
 | Bundle/Module composition | Module; Bundle; Invariants |
 | Config defaults or premise creation | Configuration and premise; Resolution order |
-| Inhabitation or closed-world selection | Settled projection-policy direction through Viable, unviable, and broken content |
+| Inhabitation or closed-world selection | Settled premise-selection policy through Viable, unviable, and broken content |
 | Moving Kotlin expansion knowledge | Non-Canon Kotlin expansion-coupling audit |
 
 ## Source map
@@ -36,7 +36,7 @@
 - [`FakeCanon.kt`](../../src/common/dev/martianzoo/tfm/fake/FakeCanon.kt) — inspect when changing
   noncanonical support content or its composition with Canon.
 - [`PremiseViability.kt`](../../src/common/dev/martianzoo/pets/types/PremiseViability.kt)
-  — read only for projection closure and viability.
+  — read only for selection closure and viability.
 
 ## Catalog
 
@@ -56,7 +56,7 @@ A Catalog may be assembled from internal bundles, but callers and playable games
 exactly one Catalog. Identical declarations may coalesce. Conflicting declarations for one Class
 Name or ambiguous ownership of a Module are invalid.
 
-## One master Class Table, projected per game
+## One master Class Table, reused by each game
 
 Class declarations are the Catalog's only content representation. There is no shared `Definition`
 interface or Catalog-wide registry of structured content objects. Catalog assembly requires
@@ -65,7 +65,7 @@ behaviorally supplements one from a structured record. Concrete `CardFront` subc
 card registry.
 
 Within a Catalog, every Class Name has one meaning. The Catalog loads and validates one master
-`ClassTable`. A playable game receives a projection backed by that master:
+`ClassTable`. A playable game receives a selected view backed by that master:
 
 - premise closure determines which classes are included;
 - a known Type with no concrete narrowing in that closure is uninhabited; and
@@ -103,12 +103,12 @@ World. Inherited rules keep each Module component unique and permanent. Its `aut
 `premiseRequirement` properties have meaning because the Catalog reads them. There is no separate
 Kotlin Module object or special component storage.
 
-Each Module selects classes to activate or deactivate. Selection may depend on the complete
+Each Module selects Classes to include or exclude. Selection may depend on the complete
 configuration. Module-to-Module defaults and implications are premise policy: the target's
 `autoSelectWhen` describes when it joins the selection, while the source's `premiseRequirement`
 rejects an explicit exclusion when the relationship is mandatory. Selection is fully resolved
-before class projection and before a live World exists. Other structural reachability may activate
-dependencies, but it may not activate an unselected Module or defeat an explicit exclusion.
+before class selection and before a live World exists. Other structural reachability may include
+dependencies, but it may not include an unselected Module or defeat an explicit exclusion.
 
 Module premise policy is authored with Requirement-valued Pets properties.
 `autoSelectWhen` selects an unmentioned Module when its condition holds; automatic selections
@@ -116,9 +116,9 @@ resolve to an order-independent fixed point and an explicit exclusion wins. Each
 condition is evaluated without counting that candidate itself, and an automatic selection is
 retracted when later selections make its condition false. A nonconverging set of defaults is
 invalid. A selected source's premise requirement can make an otherwise winning explicit exclusion
-invalid. `premiseRequirement` is checked against the completed projection when that Module is
+invalid. `premiseRequirement` is checked against the completed game view when that Module is
 selected. Module invariants provide the exact-count rules that are also meaningful in the live
-World. `Class<T>` representatives describe that already-fixed projection and are structurally
+World. `Class<T>` representatives describe that already-fixed game domain and are structurally
 present before history begins. Required representatives are declared with invariants, not created
 by triggered instructions.
 
@@ -270,14 +270,14 @@ Canon does not model pairwise replacement relationships or a general replacement
 
 - One game uses one Catalog.
 - One Class Name has one meaning inside that Catalog.
-- Every game table projects the Catalog's validated master table.
+- Every game table reuses the Catalog's validated master table.
 - Modules, signed class selections, seats, and exact requested initial types fully determine the
   premise.
-- Structural activation cannot select an unrequested Module or override an exclusion.
+- The structural selection closure cannot include an unrequested Module or override an exclusion.
 - Eligible availability and initial existence remain separate.
 - Given a Catalog, ambient behavior is a deterministic function of the live Module components.
 
-## Settled projection-policy direction
+## Settled premise-selection policy
 
 **Status: current.** Constructive reachability, bundle-derived ambient compatibility,
 exact-uninhabited premise viability, and explicit Module ownership of externally issued protocols
@@ -285,7 +285,7 @@ are implemented.
 
 ### Goals
 
-Projection is premise semantics, not dead-code optimization. It must simultaneously provide:
+Premise selection is game semantics, not dead-code optimization. It must simultaneously provide:
 
 1. **Isolation.** A Class unnecessary or forbidden in one game contributes no Components, behavior,
    Class representative, or subtype choice there.
@@ -310,7 +310,7 @@ map Bundle without a same-named Module uses the disjunction of its map Modules. 
 with neither has no implicit availability rule. This convention covers expansions,
 single-map Bundles without per-Class properties.
 
-Availability is not activation. Selecting `TerraformingMars` makes its ambient classes,
+Availability is not selection. Selecting `TerraformingMars` makes its ambient classes,
 including `MultiplayerMode`, available, while the selected player-count Module still decides which
 mode is active. A nonconstructive gate or Trigger may mention an available but uninhabited Class and
 go silent intentionally. This keeps mode-conditional cards such as Vitor available in Solo;
@@ -337,40 +337,40 @@ the Prelude Expansion Bundle; Valley Trust's RequiredAction reference derives it
 `PreludeCardPack`, so its draw uses exactly the selected pack or packs.
 
 Concrete milestones and awards are multiplayer-only content. Explicit selection checks that
-condition too, so solo cannot activate either kind of goal.
+condition too, so solo cannot include either kind of goal.
 
-### Projection closure
+### Selection closure
 
-For **projection closure**, classify references by what execution demands:
+For the **selection closure**, classify references by what execution demands:
 
 - Structural positions such as supertypes and Dependency bounds, constructive positions such as a
   gain or transmutation destination, deck identity, and Custom implementation dependencies are hard
-  references. A hard reference activates an available Class.
-- Counts, Metrics, Requirements, Triggers, difference refinements, and nonconstructive changes do not by
-  themselves activate their referenced Classes. An uninhabited Class contributes an exactly empty
-  domain.
+  references. A hard reference includes an available Class.
+- Counts, Metrics, Requirements, Triggers, difference refinements, and nonconstructive changes do
+  not by themselves include their referenced Classes. An uninhabited Class contributes an exactly
+  empty domain.
 - Reachability matters. A hard reference beneath a Trigger or gate that is provably false because
   of uninhabited Types is harmless; execution cannot reach it. A conservative analysis may treat
   anything it cannot prove unreachable as reachable.
 
-The loader applies this systemic role-and-reachability rule instead of treating every mention as an
-activation edge. It rechecks the closure as Classes activate and proves false gates from exact zero
-counts over uninhabited Types. Trigger positions are wholly nonconstructive: Terraforming Mars and
-Solo mode explicitly own the protocol Classes issued by workflow and gameplay APIs. A hard
-reference to an ambient Class whose owning Bundle is unavailable rejects the premise as broken.
+The loader applies this systemic role-and-reachability rule instead of treating every mention as a
+selection edge. It rechecks the closure as Classes become included and proves false gates from
+exact-zero counts over uninhabited Types. Trigger positions are wholly nonconstructive: Terraforming
+Mars and Solo mode explicitly own the protocol Classes issued by workflow and gameplay APIs. A
+hard reference to an ambient Class whose owning Bundle is unavailable rejects the premise as broken.
 
 The important cases then fall out without card-specific rules:
 
-| Reference in selected content | Projection consequence | Meaning if the Class stays uninhabited |
+| Reference in selected content | Selection consequence | Meaning if the Class stays uninhabited |
 |---|---|---|
-| Count, `MAX 5`, or Trigger | Does not activate it | Exact zero, true upper bound, or permanently silent Trigger; still viable |
-| Positive `MIN` needed to instantiate or play the content | Does not activate it | Lawful but impossible; unviable |
-| Reachable gain or other constructive use | Activates it if available | Broken if its owning Bundle keeps it unavailable |
-| Constructive use below a provably false Trigger | Does not activate it | Unreachable and therefore harmless |
+| Count, `MAX 5`, or Trigger | Does not include it | Exact zero, true upper bound, or permanently silent Trigger; still viable |
+| Positive `MIN` needed to instantiate or play the content | Does not include it | Lawful but impossible; unviable |
+| Reachable gain or other constructive use | Includes it if available | Broken if its owning Bundle keeps it unavailable |
+| Constructive use below a provably false Trigger | Does not include it | Unreachable and therefore harmless |
 
 ### Viable, unviable, and broken content
 
-Compatible selected content can still have one of three projection outcomes:
+Compatible selected content can still have one of three selection outcomes:
 
 - **Viable:** the content Class can participate faithfully. References to uninhabited Types may count
   zero, make a `MAX 5` Requirement true, or make a Trigger permanently silent.
@@ -381,16 +381,16 @@ Compatible selected content can still have one of three projection outcomes:
 - **Broken:** reachable behavior demands an ambient Class whose owning Bundle is unavailable.
 
 Premise construction rejects both unviable and broken selected content, with different diagnostics.
-It must not silently activate a locked Class or defer an inevitable failure until gameplay.
+It must not silently include a locked Class or defer an inevitable failure until gameplay.
 
 The first viability analysis reads every selected root's loaded Class declaration and exploits
-exactly empty active type domains. This includes inactive Classes and active abstract Classes with
-no active concrete narrowing. A positive `HAS` refinement is empty when its Requirement is exactly
-false, and a metric union is zero when every alternative has an empty domain. A later
+exactly empty inhabited type domains. This includes excluded Classes and selected abstract Classes
+with no inhabited concrete narrowing. A positive `HAS` refinement is empty when its Requirement is
+exactly false, and a metric union is zero when every alternative has an empty domain. A later
 closed-world extension could prove facts not directly involving them—for example, that Law Suit is
 unviable in solo because no opponent-dependent attack record can ever exist. That is the same
 semantic category but a substantially stronger satisfiability analysis, not a prerequisite for the
-projection change.
+selection change.
 
 ### Resolution order
 
@@ -400,13 +400,13 @@ The premise pipeline is:
 2. Derive content compatibility from all semantic references and filter bundle-selected
    content.
 3. Apply explicit individual content inclusions and exclusions, rejecting incompatible inclusions.
-4. Form the active closure from roots and reachable hard references, respecting Bundle availability
-   and exclusions.
+4. Form the selection closure from roots and reachable hard references, respecting Bundle
+   availability and exclusions.
 5. Leave every other Catalog-known Class uninhabited.
 6. Validate selected content for viability and report unviable and broken paths separately.
 
 A future retained analysis result should explain every decision, including which reference derived
-an automatic exclusion and the complete hard-reference path that activated or rejected a Class.
+an automatic exclusion and the complete hard-reference path that included or rejected a Class.
 Current failures identify the selected content Class or immediate hard-reference source and the
 missing owning Module.
 

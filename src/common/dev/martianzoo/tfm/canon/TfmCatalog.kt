@@ -439,8 +439,9 @@ public open class TfmCatalog : Catalog {
         SELECTED_COLONY_TILE.of(className.classExpression())
       } else {
         universe
-            .resolve(COLONY_TILE_SELECTION.of(className.classExpression()))
-            .allConcreteSubtypes()
+            .allConcreteSubtypes(
+                universe.resolve(COLONY_TILE_SELECTION.of(className.classExpression()))
+            )
             .single { it.rootClass.className != SELECTED_COLONY_TILE }
             .expression
       }
