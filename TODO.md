@@ -40,6 +40,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Reconsider Turmoil's `PartyLeader` representation and name. It currently supplements the actual
   `PartyDelegate` as a non-`Delegate` role; decide whether a clearer role name or a true delegate
   subtype can express leadership without representing or counting the physical marker twice.
+- Find a clean way to make Turmoil's `ApplyRulingBonus` player-owned without complicating the Reds
+  tied-lowest-player selection. It currently remains one global signal whose party effect fans out
+  over the players.
 - Investigate whether the three self-handling signals `CimmeriaPlacementBonus`,
   `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
   requiring authored references to generated names. Preserve Cimmeria map generation,

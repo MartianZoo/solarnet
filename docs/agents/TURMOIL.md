@@ -139,8 +139,9 @@ or less in solo play.
 
 ## Ruling policies
 
-A policy component exists only during an Action phase in which its party rules. It owns its effect
-and removes itself when that phase ends:
+A policy component exists only during an Action phase in which its party rules. Its `ActionPhase`
+dependency removes it when that phase ends; Unity's extra titanium-value components in turn depend
+on its policy:
 
 - Mars First: a player placing a tile on Mars gains one steel.
 - Scientists: pay 10 M€ to draw three cards, once per generation.
@@ -169,7 +170,8 @@ The ordinary Solar workflow performs World Government Terraforming before the Tu
 operation inside it is a completion latch for event choices: it keeps government formation from
 racing consequences created by the current event; a pending task is enough to hold it open, so the
 choices themselves need no `Barrier`. `Current`, `Coming`, and `Distant` are typed positions with at
-most one occupant, each keyed by `Class<GlobalEvent>`. The card class is the key because
+most one occupant, each keyed by `Class<GlobalEvent>`; each live event also limits its exact class to
+one position across the three. The card class is the key because
 `ChangingTimes` must name one event on both sides of a transmutation, and only an `EACH` selector
 spelling — here `Class<GlobalEvent>` — binds a concrete Type inside its body. Making the position a
 dependency of the event instead would leave the destination of `Coming FROM Distant` abstract.

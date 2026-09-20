@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
@@ -52,6 +53,21 @@ internal class TurmoilEventsTest :
     admin.count("PartyDelegate<Reds, Neutral>") shouldBe 1
     admin.count("Dominant<MarsFirst>") shouldBe 1
     admin.count("Delegate<Neutral>") shouldBe 3
+  }
+
+  @Test
+  internal fun `each event and each printed event position have at most one occupant`() {
+    newGame(TurmoilExpansion)
+    admin.runOperation("CelebrityLeaders")
+
+    shouldThrow<LimitsException> {
+      admin.runOperation("Current<Class<AquiferReleasedByPublicCouncil>>")
+    }
+    shouldThrow<LimitsException> { admin.runOperation("Coming<Class<CelebrityLeaders>>") }
+
+    admin.count("Coming<Class<AquiferReleasedByPublicCouncil>>") shouldBe 1
+    admin.count("Distant<Class<DryDeserts>>") shouldBe 1
+    admin.count("Current") shouldBe 0
   }
 
   @Test
