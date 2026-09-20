@@ -320,9 +320,9 @@ internal class Lang12ElaborationTest {
         testCatalog(
                 """
                 ABSTRACT CLASS Target
-                CLASS Good : Target
+                ABSTRACT CLASS Allowed : Target { CLASS Good }
                 CLASS Bad : Target
-                ABSTRACT CLASS Wrapper<Good>
+                CLASS Wrapper<Allowed>
                 CLASS Holder<Target> { This: Good OR Wrapper<Target> }
                 """
                     .trimIndent()

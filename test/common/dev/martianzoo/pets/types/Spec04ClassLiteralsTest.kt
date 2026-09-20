@@ -233,7 +233,7 @@ internal class Spec04ClassLiteralsTest {
     cards.getClass(cn("Animal")).baseType.expressionFull shouldBe
         te("Animal<Owner, ResourceCard<Owner, Class<Animal>>>")
     cards.resolve(te("Animal<Player1, Fish>")).expressionFull shouldBe
-        te("Animal<Player1, Fish<Player1, Class<Animal>>>")
+        te("Animal<Player1, Fish<Player1>>")
     shouldThrow<ExpressionException> { cards.resolve(te("Animal<Ants>")) }
   }
 }

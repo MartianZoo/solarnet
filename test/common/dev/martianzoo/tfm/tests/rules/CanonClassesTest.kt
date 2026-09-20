@@ -119,16 +119,14 @@ internal class CanonClassesTest {
       game.testAgent(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
       game.testAgent(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
     }
-    game.testAgent(PLAYER1).count("SoloStandardResourceReserve<SoloOpponent>") shouldBe
+    game.testAgent(PLAYER1).count("SoloStandardResourceReserve") shouldBe
         game.testAgent(PLAYER1).count("Class<StandardResource>")
-    game.testAgent(PLAYER1).count("SoloCardResourceReserve<SoloOpponent>") shouldBe
+    game.testAgent(PLAYER1).count("SoloCardResourceReserve") shouldBe
         game.testAgent(PLAYER1).count("Class<CardResource>")
-    game.testAgent(PLAYER1).count("SoloCardResourceReserve<SoloOpponent, Class<Animal>>") shouldBe 1
+    game.testAgent(PLAYER1).count("SoloCardResourceReserve<Class<Animal>>") shouldBe 1
     game
         .testAgent(PLAYER1)
-        .count(
-            "Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
-        ) shouldBe 42
+        .count("Animal<SoloOpponent, SoloCardResourceReserve<Class<Animal>>>") shouldBe 42
     val admin = game.testAgent(ADMIN) as Agent
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
@@ -143,12 +141,8 @@ internal class CanonClassesTest {
     player.runOperation("PROD[-5 Plant<SoloOpponent>]")
     player.runOperation("5 Plant<SoloOpponent>")
     player.runOperation("PROD[5 Plant<SoloOpponent>]")
-    player.runOperation(
-        "-5 Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
-    )
-    player.runOperation(
-        "5 Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
-    )
+    player.runOperation("-5 Animal<SoloOpponent, SoloCardResourceReserve<Class<Animal>>>")
+    player.runOperation("5 Animal<SoloOpponent, SoloCardResourceReserve<Class<Animal>>>")
     listOf("MC", "Steel", "Titanium", "Plant", "Energy", "Heat").forEach {
       game.testAgent(PLAYER1).count("$it<SoloOpponent>") shouldBe 42
       game.testAgent(PLAYER1).count("PROD[$it<SoloOpponent>]") shouldBe 42
@@ -156,9 +150,7 @@ internal class CanonClassesTest {
     }
     game
         .testAgent(PLAYER1)
-        .count(
-            "Animal<SoloOpponent, SoloCardResourceReserve<SoloOpponent, Class<Animal>>>"
-        ) shouldBe 42
+        .count("Animal<SoloOpponent, SoloCardResourceReserve<Class<Animal>>>") shouldBe 42
 
     admin.runOperation("End FROM Phase")
     game.testAgent(PLAYER1).count("VictoryPoint<Player1>") shouldBe 14

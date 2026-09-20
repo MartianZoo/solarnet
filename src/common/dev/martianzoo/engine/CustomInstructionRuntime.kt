@@ -20,7 +20,7 @@ internal class CustomInstructionRuntime(
 
     val type = component.type
     val implementation = catalog.customClass(type.className)
-    val args = type.expressionFull.arguments.map(reader::resolve)
+    val args = type.typeDependencies.map { it.boundType }
     val missing = args.filter { reader.countComponent(it) == 0 }
     if (missing.any()) throw DependencyException(missing)
 

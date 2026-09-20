@@ -199,7 +199,9 @@ internal constructor(
       classTable: ClassTable = this.classTable,
   ): GroundType =
       rootClass
-          .withAllDependencies(dependencies.specialize(specs, classTable))
+          .withAllDependencies(
+              dependencies.specialize(specs, argumentDependencies.keys, classTable)
+          )
           .inTable(classTable)
           .refine(refinement)
 
@@ -230,7 +232,7 @@ internal constructor(
     get() = expressionLazy.value
 
   private val expressionFullLazy = lazy {
-    toExpressionUsingSpecs(dependencies.expressionsFull())
+    toExpressionUsingSpecs(argumentDependencies.expressionsFull())
   }
   /**
    * The full round-tripping expression specified by
@@ -250,8 +252,8 @@ internal constructor(
     get() = narrowedDependenciesLazy.value
 
   private fun compactDependencyExpressions(): List<Expression> {
-    val keys = dependencies.keys
-    val expressions = dependencies.expressions()
+    val keys = argumentDependencies.keys
+    val expressions = argumentDependencies.expressions()
     val narrowed = narrowedDependencies.keys.toSet()
     val write = MutableList(keys.size) { keys[it] in narrowed }
 
@@ -294,6 +296,9 @@ internal constructor(
     }
     return compact
   }
+
+  internal val argumentDependencies: DependencySet
+    get() = dependencies.subMapInOrder(rootClass.argumentDependencies.keys)
 
   private fun toExpressionUsingSpecs(specs: List<Expression>) = className.of(specs).has(refinement)
 

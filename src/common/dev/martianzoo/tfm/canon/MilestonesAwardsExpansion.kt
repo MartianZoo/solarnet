@@ -12,9 +12,9 @@ internal val milestonesAwardsCustomClasses: Set<CustomMetric> =
 private object MilestonesAwardsExpansion {
   object GainsOf : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
-      val (cardExpression, targetExpression) = type.expressionFull.arguments
-      val effects = cardEffects(game.tfmCatalog.card(cardExpression.className))
-      val target = targetExpression.arguments.single().className
+      val (cardType, targetClassType) = type.typeDependencies.map { it.boundType }
+      val effects = cardEffects(game.tfmCatalog.card(cardType.className))
+      val target = requireNotNull(targetClassType.representedClass).className
       return effects.sumOf { effect ->
         var gains = 0
         effect.visitDescendants { node ->

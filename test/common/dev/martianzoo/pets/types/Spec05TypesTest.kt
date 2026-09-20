@@ -94,10 +94,26 @@ internal class Spec05TypesTest {
   // T5-4 Full form
 
   @Test
-  internal fun `T5-4 the full form states every dependency in key order`() {
+  internal fun `T5-4 the full form states every open dependency in key order`() {
     type("GreeneryTile").expressionFull shouldBe te("GreeneryTile<MarsArea, Owner>")
     type("GreeneryTile<Player1>").expressionFull shouldBe te("GreeneryTile<MarsArea, Player1>")
     type("Neighbor<Tharsis_2_2>").expressionFull shouldBe te("Neighbor<Tharsis_2_2, Area>")
+  }
+
+  @Test
+  internal fun `T5-4 the full form omits dependencies fixed by the class`() {
+    val table =
+        loadTypes(
+            "CLASS Player1 : Owner",
+            "ABSTRACT CLASS Choice { CLASS Fixed }",
+            "ABSTRACT CLASS Holder<Choice>",
+            "ABSTRACT CLASS FixedOwned : Holder<Fixed>, Owned<Owner>",
+        )
+
+    table.resolve(te("FixedOwned")).expressionFull shouldBe te("FixedOwned<Owner>")
+    table.resolve(te("FixedOwned<Player1>")).expressionFull shouldBe te("FixedOwned<Player1>")
+    table.resolve(table.resolve(te("FixedOwned<Player1>")).expressionFull) shouldBe
+        table.resolve(te("FixedOwned<Player1>"))
   }
 
   // T5-5 Compact form

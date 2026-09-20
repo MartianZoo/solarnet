@@ -507,7 +507,7 @@ private object TypeStructureReport {
           when {
             type.rootClass.abstract -> BigInteger.ZERO
             type.rootClass == table.classClass -> {
-              val represented = table.getClass(type.expressionFull.arguments.single().className)
+              val represented = requireNotNull(type.representedClass)
               BigInteger.valueOf(table.allSubclasses(represented).count { !it.abstract }.toLong())
             }
             !isPlain(type) || dependencyVariablePaths.getValue(type.rootClass).isNotEmpty() -> {

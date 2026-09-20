@@ -122,7 +122,10 @@ internal constructor(
       val sourceClass = classTable.getClass(source.className)
       val sourceArguments =
           source.arguments.zip(sourceClass.matchDependencyKeys(source.arguments, classTable))
-      val retainedArguments = sourceArguments.filterNot { (_, key) -> key in representedKeys }
+      val openKeys = binding.rootClass.argumentDependencies.keys.toSet()
+      val retainedArguments = sourceArguments.filter { (_, key) ->
+        key in openKeys && key !in representedKeys
+      }
       return expression.appendArguments(retainedArguments.map { it.first })
     }
   }

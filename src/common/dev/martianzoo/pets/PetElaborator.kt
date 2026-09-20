@@ -255,12 +255,7 @@ public class PetElaborator(public val classTable: ClassTable) {
                 )
 
         val receiverType = classTable.resolve(receiver)
-        val propertyType =
-            if (receiverType.rootClass === classTable.classClass) {
-              classTable.resolve(receiverType.expressionFull.arguments.single())
-            } else {
-              receiverType
-            }
+        val propertyType = receiverType.representedClass?.baseType ?: receiverType
         val propertyClass = propertyType.rootClass
         val value =
             propertyClass.properties[contextualProperty.propertyName]
@@ -703,7 +698,8 @@ public class PetElaborator(public val classTable: ClassTable) {
 
     val klass: Class = classTable.getClass(original.className)
     val dethissed: Expression = replaceThisExpressionsWith(contextCpt).transformExpression(original)
-    val match: DependencySet = klass.dependencies.matchPartial(dethissed.arguments, classTable)
+    val match: DependencySet =
+        klass.argumentDependencies.matchPartial(dethissed.arguments, classTable)
 
     val preferred: Map<Key, Expression> = match.keys.zip(original.arguments).toMap()
     val refinementBoundKey =
@@ -732,7 +728,7 @@ public class PetElaborator(public val classTable: ClassTable) {
         klass.specialize(dethissed.arguments, classTable).narrowedDependencies.keys - preferred.keys
 
     val newArgs: List<Expression> =
-        klass.dependencies.keys.mapNotNull {
+        klass.argumentDependencies.keys.mapNotNull {
           preferred[it] ?: fallbacks[it]?.takeUnless { _ -> it in inferred }
         }
 

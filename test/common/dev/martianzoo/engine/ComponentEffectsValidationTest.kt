@@ -19,9 +19,10 @@ internal class ComponentEffectsValidationTest {
       testClassTable(
           """
           ABSTRACT CLASS Target
-          CLASS Good : Target
+          ABSTRACT CLASS Allowed : Target
+          CLASS Good : Allowed
           CLASS Bad : Target
-          CLASS Wrapper<Good>
+          CLASS Wrapper<Allowed>
           CLASS Holder<Target> { This: Good OR Wrapper<Target> }
           CLASS BrokenHolder<Target> { Wrapper<Target>: Good }
           """
@@ -62,9 +63,10 @@ internal class ComponentEffectsValidationTest {
             testGamePremise(
                 """
                 ABSTRACT CLASS Target
-                CLASS Good : Target { HAS MAX 1 This }
+                ABSTRACT CLASS Allowed : Target
+                CLASS Good : Allowed { HAS MAX 1 This }
                 CLASS Bad : Target { HAS MAX 1 This }
-                CLASS Wrapper<Good>
+                CLASS Wrapper<Allowed>
                 CLASS Token { HAS MAX 1 This; Marker: Echo }
                 CLASS Marker
                 CLASS Echo

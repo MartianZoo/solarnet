@@ -305,8 +305,10 @@ bounds are intersected (`⊓`, rule T7-1). Bounds with no common narrowing are a
 > meeting their compatible constraints produces one physical card identity instead of three
 > unrelated edges.
 
-**T3-4. An argument intersects the bound; it never replaces it.** Writing a wider argument therefore
-changes nothing, and writing one outside the bound is an error.
+**T3-4. An argument intersects an open class bound; it never replaces it.** A dependency whose bound
+is already concrete in the class's base type is fixed by that class: it remains a semantic
+dependency but is not an argument position. Writing a wider argument for an open position therefore
+changes nothing, and writing an argument that matches no open position is an error.
 
 This is what makes `Anyone` work. `Anyone` is an ordinary class at the top of the ownership
 hierarchy, so `Anyone` intersected with a narrower declared bound is that narrower bound:
@@ -321,8 +323,10 @@ ProjectCard<SoloOpponent>                              →  error: not a Player
 > SpaceTag)`. `EventCard` is owned only by a `Player`; intersecting with `Anyone` preserves that
 > bound. Replacing it would also admit a `SoloOpponent`, changing who can trigger the card.
 
-**T3-5. Argument matching is greedy, left to right.** Each written argument takes the first
-not-yet-taken dependency whose bound it can intersect. An argument that matches nothing is an error.
+**T3-5. Argument matching is greedy, left to right across open dependencies.** Each written argument
+takes the first not-yet-taken dependency whose class-declared bound is abstract and whose current
+bound it can intersect. Dependencies fixed by the class are skipped. An argument that matches
+nothing is an error.
 
 A useful consequence: when the bounds are disjoint, argument order does not matter.
 `GreeneryTile<Tharsis_2_2, Player1>` and `GreeneryTile<Player1, Tharsis_2_2>` are the same type.
@@ -556,12 +560,14 @@ uninhabited when it contains none (T12-4).
 > refined type itself remains abstract; the world may narrow it to a concrete area, but cannot turn
 > a state-dependent question into component identity.
 
-**T5-4. Full form.** `expressionFull` writes every dependency, in key order. For the
+**T5-4. Full form.** `expressionFull` writes every open dependency, in key order. Dependencies whose
+bound is concrete in the class's base type remain part of the Type under T5-1 but are omitted because
+an expression cannot select them. For the
 `GreeneryTile` of rule T3-2 that is `GreeneryTile<MarsArea, Owner>`; had `Owned` been inherited
 first, the same type would be written `GreeneryTile<Owner, MarsArea>`.
 
 **T5-5. Compact form.** `expression` — also what `toString` shows — writes a round-tripping argument
-list in dependency-key order, whatever order the arguments were supplied in. It first retains an
+list in open-dependency-key order, whatever order the arguments were supplied in. It first retains an
 argument when one of these holds:
 
 - its bound differs from what the class already declares; or

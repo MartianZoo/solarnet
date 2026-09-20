@@ -606,7 +606,8 @@ internal abstract class CardTrackingFullGameTest(
     get() = actor as Player
 
   private fun Component?.isProjectCardAt(area: ClassName): Boolean =
-      this?.className == PROJECT_CARD && type.expressionFull.arguments.any { it.className == area }
+      this?.className == PROJECT_CARD &&
+          type.typeDependencies.any { it.boundType.className == area }
 
   private fun Component.trackedCardClass(): ClassName? =
       expressionFull.descendantsOfType<ClassName>().firstOrNull { it in cards }

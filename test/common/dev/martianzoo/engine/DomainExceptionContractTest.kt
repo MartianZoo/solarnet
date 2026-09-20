@@ -84,12 +84,12 @@ internal class DomainExceptionContractTest {
                 )
             )
             .testAgent(PLAYER1)
-    agent.sneak("Token!, Holder<Token>!")
+    agent.sneak("Token!, Holder!")
 
     shouldThrow<NotNowException> { agent.sneak("-Token!") }
 
     agent.count("Token") shouldBe 1
-    agent.count("Holder<Token>") shouldBe 1
+    agent.count("Holder") shouldBe 1
   }
 
   @Test
