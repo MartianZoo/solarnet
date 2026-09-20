@@ -61,7 +61,7 @@ public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer(
     }
 
     // Rule L11-3: arguments specialize both the occurrence and the generated supertype, while
-    // refinements constrain only the occurrence — a refined type cannot be a supertype (L1-9).
+    // refinements constrain only the occurrence — a refined type cannot be a supertype (L1-8).
     val loweredArguments = node.arguments.map(::transformExpression)
     val loweredRefinement = node.refinement?.let(::transformRefinement)
     val declarationContext = Transforming.replaceThisExpressionsWith(owner.expression)

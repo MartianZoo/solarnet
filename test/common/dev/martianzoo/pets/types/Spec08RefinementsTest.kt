@@ -20,7 +20,10 @@ internal class Spec08RefinementsTest {
           CLASS Player1 : Owner
           CLASS Player2 : Owner
           ABSTRACT CLASS Area {
-            ABSTRACT CLASS LandArea { CLASS Tharsis_2_2, Tharsis_2_3 }
+            ABSTRACT CLASS LandArea {
+              CLASS Tharsis_2_2
+              CLASS Tharsis_2_3
+            }
             ABSTRACT CLASS WaterArea { CLASS Tharsis_1_1 }
           }
           ABSTRACT CLASS Occupant<Area>
@@ -128,7 +131,7 @@ internal class Spec08RefinementsTest {
   internal fun `T8-3 an exact argument leaves the candidate for another compatible slot`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Area { CLASS Tharsis_2_2, Tharsis_2_3 }",
+            "ABSTRACT CLASS Area {\nCLASS Tharsis_2_2\nCLASS Tharsis_2_3\n}",
             "ABSTRACT CLASS Adjacency<Area, Area>",
         )
     val world = RecordingWorld(answer = true)
@@ -143,7 +146,7 @@ internal class Spec08RefinementsTest {
   internal fun `T8-3 a broad argument remains eligible for candidate narrowing`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Area { CLASS Tharsis_2_2, Tharsis_2_3 }",
+            "ABSTRACT CLASS Area {\nCLASS Tharsis_2_2\nCLASS Tharsis_2_3\n}",
             "ABSTRACT CLASS Adjacency<Area, Area>",
         )
     val world = RecordingWorld(answer = true)
@@ -177,7 +180,10 @@ internal class Spec08RefinementsTest {
   private val actors =
       loadTypes(
           """
-          ABSTRACT CLASS Player : Owner, Actor { CLASS Player1, Player2 }
+          ABSTRACT CLASS Player : Owner, Actor {
+            CLASS Player1
+            CLASS Player2
+          }
           CLASS Marker<Player>
           """
               .trimIndent()
@@ -413,7 +419,7 @@ internal class Spec08RefinementsTest {
     val tags =
         loadTypes(
             "CLASS Player1 : Owner",
-            "ABSTRACT CLASS Tag : Owned<Owner> { CLASS BuildingTag, SpaceTag }",
+            "ABSTRACT CLASS Tag : Owned<Owner> {\nCLASS BuildingTag\nCLASS SpaceTag\n}",
             "CLASS TagCount<Class<Tag>>",
         )
     val world = RecordingWorld(answer = true)
@@ -432,7 +438,7 @@ internal class Spec08RefinementsTest {
     val tags =
         loadTypes(
             "CLASS Player1 : Owner",
-            "ABSTRACT CLASS Tag : Owned<Owner> { CLASS BuildingTag, SpaceTag }",
+            "ABSTRACT CLASS Tag : Owned<Owner> {\nCLASS BuildingTag\nCLASS SpaceTag\n}",
         )
 
     // Same words, different meanings: for the target the predicate asks about the candidate's own

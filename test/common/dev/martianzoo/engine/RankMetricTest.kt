@@ -114,7 +114,10 @@ internal class RankMetricTest {
         Engine.newGame(
             testGamePremise(
                 """
-                ABSTRACT CLASS Kind { CLASS FirstKind, SecondKind }
+                ABSTRACT CLASS Kind {
+                  CLASS FirstKind
+                  CLASS SecondKind
+                }
                 CLASS Score<Class<Kind>>
                 CLASS Prize<Class<Kind>>
                 """

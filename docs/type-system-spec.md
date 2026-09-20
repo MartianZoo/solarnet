@@ -505,7 +505,10 @@ knows which holder can contain it:
 
 ```pets
 ABSTRACT CLASS ResourceHolder<Class<CardResource>>
-ABSTRACT CLASS CardResource<ResourceHolder<Class<This>>> { CLASS Animal, Microbe }
+ABSTRACT CLASS CardResource<ResourceHolder<Class<This>>> {
+  CLASS Animal
+  CLASS Microbe
+}
 CLASS Fish : ResourceHolder<Class<Animal>>
 ```
 

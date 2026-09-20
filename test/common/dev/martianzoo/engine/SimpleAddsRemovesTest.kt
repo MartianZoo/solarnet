@@ -24,7 +24,17 @@ internal class SimpleAddsRemovesTest {
   internal fun listReturnsExactComponentTypesAndMultiplicities() {
     val game =
         Engine.newGame(
-            testGamePremise("ABSTRACT CLASS Token { ABSTRACT CLASS Color { CLASS Red, Blue } }")
+            testGamePremise(
+                """
+                ABSTRACT CLASS Token {
+                  ABSTRACT CLASS Color {
+                    CLASS Red
+                    CLASS Blue
+                  }
+                }
+                """
+                    .trimIndent()
+            )
         )
     val p1 = game.testAgent(PLAYER1)
 

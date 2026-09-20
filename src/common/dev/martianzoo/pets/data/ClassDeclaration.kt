@@ -24,7 +24,7 @@ import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.OneDefault
  * [section 1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations).
  * A declaration is a signature — a name, an optional dependency list, and an optional supertype
  * list — plus an optional body ([rules L1-2 and
- * L1-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
+ * L1-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
  * Runtime Catalogs normally load these from `*.pets` source; tools and tests may construct them
  * directly.
  *
@@ -56,7 +56,7 @@ public data class ClassDeclaration(
 
     /**
      * Any class invariants declared with `HAS` in the class body ([rule
-     * L1-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
+     * L1-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
      */
     public val invariants: Set<Requirement> = emptySet(),
 
@@ -73,7 +73,7 @@ public data class ClassDeclaration(
      * The merged contents of any `DEFAULT` clauses in the class body. A clause names the class that
      * declares it — one naming another class is rejected — and clauses are merged into one set per
      * use kind ([rule
-     * L1-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations),
+     * L1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations),
      * [rules T10-1 and T10-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults)).
      */
     public val defaultsDeclaration: DefaultsDeclaration = DefaultsDeclaration(),
@@ -81,7 +81,7 @@ public data class ClassDeclaration(
     /**
      * Property bounds or values declared directly by this class. A name is assigned at most once
      * per body ([rule
-     * L1-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations));
+     * L1-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations));
      * what the bounds and values mean is
      * [section 9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties)
      * of the type system specification.
@@ -91,7 +91,7 @@ public data class ClassDeclaration(
     /**
      * The quoted string written on the line before `CLASS`, retained here and re-emitted when this
      * declaration is rendered ([rule
-     * L1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
+     * L1-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
      */
     public val docstring: String? = null,
     /**
@@ -127,7 +127,7 @@ public data class ClassDeclaration(
     }
     fun hasRefinement(expression: Expression): Boolean =
         expression.refinement != null || expression.arguments.any(::hasRefinement)
-    // Rule L1-9: a refined type cannot be a bound, so signature expressions carry no refinements at
+    // Rule L1-8: a refined type cannot be a bound, so signature expressions carry no refinements at
     // any depth.
     require((dependencies + supertypes).none(::hasRefinement)) {
       "class signatures cannot contain refined Types"
@@ -227,14 +227,14 @@ public data class ClassDeclaration(
 
   /**
    * Returns this declaration as standalone, parseable Pets source ([rule
-   * L1-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
+   * L1-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
    */
   override fun toString(): String = toString(oneLine = false)
 
   /**
    * Returns this declaration as parseable Pets source, multi-line or (with [oneLine]) semicolon
    * separated. Parsing either form yields an equal declaration ([rule
-   * L1-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
+   * L1-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)).
    */
   public fun toString(oneLine: Boolean): String = buildString {
     docstring?.let { append('"').append(it).append("\"\n") }
