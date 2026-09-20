@@ -19,7 +19,11 @@ ABSTRACT CLASS Resource : Owned {
   ABSTRACT CLASS CardResource<ResourceHolder<Class<This>, Owner^1>> : Owned<Owner^1> {
     DEFAULT +CardResource.
 
-    CLASS Microbe, Animal, Science, Asteroid, Floater
+    CLASS Microbe
+    CLASS Animal
+    CLASS Science
+    CLASS Asteroid
+    CLASS Floater
   }
 }
 

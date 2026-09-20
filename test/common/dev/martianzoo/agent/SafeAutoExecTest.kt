@@ -29,7 +29,18 @@ internal class SafeAutoExecTest {
 
   @Test
   internal fun safeSelectsAnAbstractSingletonWithoutChoosingItsNarrowing() {
-    val game = Engine.newGame(testGamePremise("ABSTRACT CLASS Choice { CLASS Left, Right }"))
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                ABSTRACT CLASS Choice {
+                  CLASS Left
+                  CLASS Right
+                }
+                """
+                    .trimIndent()
+            )
+        )
     val player = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
     val taskId = player.addTasks("Choice").single()
 

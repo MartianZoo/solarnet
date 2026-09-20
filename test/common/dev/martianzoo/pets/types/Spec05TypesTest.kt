@@ -15,7 +15,10 @@ internal class Spec05TypesTest {
           CLASS Player2 : Owner
           ABSTRACT CLASS Area {
             ABSTRACT CLASS MarsArea {
-              ABSTRACT CLASS LandArea { CLASS Tharsis_2_2, Tharsis_2_3 }
+              ABSTRACT CLASS LandArea {
+                CLASS Tharsis_2_2
+                CLASS Tharsis_2_3
+              }
               ABSTRACT CLASS WaterArea { CLASS Tharsis_1_1 }
             }
           }
@@ -226,7 +229,7 @@ internal class Spec05TypesTest {
   internal fun `T5-7 withAllDependencies enforces the class's declared bounds`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Area { CLASS Land, Water }",
+            "ABSTRACT CLASS Area {\nCLASS Land\nCLASS Water\n}",
             "ABSTRACT CLASS Holder<Area>",
             "ABSTRACT CLASS Narrow : Holder<Land>",
             "ABSTRACT CLASS Wide : Holder<Area>",

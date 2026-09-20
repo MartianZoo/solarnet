@@ -19,7 +19,7 @@ internal class ComponentChangeTest {
 
   @Test
   internal fun changeKindsRejectInvalidValues() {
-    val table = testClassTable("CLASS Foo, Bar, Same")
+    val table = testClassTable("CLASS Foo\nCLASS Bar\nCLASS Same")
     val foo = table.getClass(cn("Foo")).baseType.toComponent()
     val bar = table.getClass(cn("Bar")).baseType.toComponent()
     val same = table.getClass(cn("Same")).baseType.toComponent()

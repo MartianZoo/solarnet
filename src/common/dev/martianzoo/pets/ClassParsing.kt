@@ -16,13 +16,11 @@ import dev.martianzoo.pets.ClassParsing.Body.BodyElement.ActionElement
 import dev.martianzoo.pets.ClassParsing.Body.BodyElement.DefaultsElement
 import dev.martianzoo.pets.ClassParsing.Body.BodyElement.EffectElement
 import dev.martianzoo.pets.ClassParsing.Body.BodyElement.InvariantElement
-import dev.martianzoo.pets.ClassParsing.Body.BodyElement.NestedDeclGroup
+import dev.martianzoo.pets.ClassParsing.Body.BodyElement.NestedDeclaration
 import dev.martianzoo.pets.ClassParsing.Body.BodyElement.PropertyElement
 import dev.martianzoo.pets.ClassParsing.BodyElements.bodyElementExceptNestedClasses
 import dev.martianzoo.pets.ClassParsing.BodyElements.derivedClassBodyElement
 import dev.martianzoo.pets.ClassParsing.NestableDecl.IncompleteNestableDecl
-import dev.martianzoo.pets.ClassParsing.Signatures.moreSignatures
-import dev.martianzoo.pets.ClassParsing.Signatures.signature
 import dev.martianzoo.pets.Transforming.actionSelectors
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
@@ -47,39 +45,23 @@ import dev.martianzoo.pets.util.toSetStrict
 internal object ClassParsing : PetTokenizer() {
   private val nls = zeroOrMore(char('\n'))
 
-  /*
-   * These objects like [Signatures] are purely for grouping and to limit visibility of the
-   * fine-grained details never needed again.
-   */
+  private val dependencies: Parser<List<Expression>> =
+      optionalList(
+          skipChar('<') and
+              commaSeparated(Expression.parser(allowDerivedClass = false)) and
+              skipChar('>')
+      )
 
-  private object Signatures {
+  private val supertypeList: Parser<List<Expression>> =
+      optionalList(skipChar(':') and commaSeparated(Expression.parser(allowDerivedClass = false)))
 
-    private val dependencies: Parser<List<Expression>> =
-        optionalList(
-            skipChar('<') and
-                commaSeparated(Expression.parser(allowDerivedClass = false)) and
-                skipChar('>')
-        )
-
-    private val supertypeList: Parser<List<Expression>> =
-        optionalList(skipChar(':') and commaSeparated(Expression.parser(allowDerivedClass = false)))
-
-    val signature: Parser<Signature> =
-        className and
-            dependencies and
-            supertypeList map
-            { (name, deps, supes) ->
-              Signature(name, deps, supes)
-            }
-
-    // Rule L1-3: one CLASS keyword may introduce several classes, but only when there is no body,
-    // since one shared body would not say which of the generated classes its rules belong to. A
-    // comma inside a supertype list continues that list rather than starting a new signature, so
-    // only the last signature of a group can name supertypes.
-    // This should only be included in the bodiless case
-    val moreSignatures: Parser<MoreSignatures> =
-        zeroOrMore(skipChar(',') and signature) map ClassParsing::MoreSignatures
-  }
+  private val signature: Parser<Signature> =
+      className and
+          dependencies and
+          supertypeList map
+          { (name, deps, supes) ->
+            Signature(name, deps, supes)
+          }
 
   private object BodyElements {
     private val invariant: Parser<Requirement> = skip(_has) and Requirement.parser()
@@ -144,9 +126,9 @@ internal object ClassParsing : PetTokenizer() {
     private val kind: Parser<ClassKind> =
         (_abstract and _class asJust ABSTRACT) or (_class asJust CONCRETE)
 
-    private val bodyElement = parser { bodyElementExceptNestedClasses or nestedGroup }
+    private val bodyElement = parser { bodyElementExceptNestedClasses or nestedDeclaration }
 
-    // Rule L1-4: a body is brace-delimited and its elements are separated by newlines or by
+    // Rule L1-3: a body is brace-delimited and its elements are separated by newlines or by
     // semicolons. Only the newline-separated form may contain nested declarations.
     private val multilineBodyInterior: Parser<Body> =
         separatedTerms(bodyElement, oneOrMore(char('\n')), acceptZero = true) map ClassParsing::Body
@@ -160,24 +142,24 @@ internal object ClassParsing : PetTokenizer() {
 
     private val docstring: Parser<String> = quotedText
 
-    private val nestableGroup: Parser<NestableDeclGroup> =
+    private val parsedDeclaration: Parser<ParsedDeclaration> =
         skip(nls) and
             optional(docstring and skip(nls)) and
             kind and
             signature and
-            (multilineBody or oneLineBody or moreSignatures) map
-            { (doc, kind, sig, bodyOrSigs) ->
-              bodyOrSigs.convert(kind, sig, doc)
+            optional(multilineBody or oneLineBody) map
+            { (doc, kind, sig, body) ->
+              ParsedDeclaration(kind, sig, body ?: Body(), doc)
             }
 
-    // a declaration group that can be nested, that in this case *IS* nested
-    private val nestedGroup: Parser<NestedDeclGroup> = nestableGroup map ::NestedDeclGroup
+    private val nestedDeclaration: Parser<NestedDeclaration> =
+        parsedDeclaration map ::NestedDeclaration
 
-    // a declaration group that could've been nested but is *NOT*
-    val topLevelGroup: Parser<List<ClassDeclaration>> = nestableGroup map { it.finishAll() }
+    private val topLevelDeclaration: Parser<List<ClassDeclaration>> =
+        parsedDeclaration map { it.finishAll() }
 
     val declarationFile: Parser<List<ClassDeclaration>> =
-        zeroOrMore(topLevelGroup) and skip(nls) map { it.flatten() }
+        zeroOrMore(topLevelDeclaration) and skip(nls) map { it.flatten() }
 
     // Single-line and owner-local derived Class bodies
 
@@ -201,7 +183,7 @@ internal object ClassParsing : PetTokenizer() {
             signature and
             optional(oneLineBody) map
             { (kind, sig, body) ->
-              NestableDeclGroup(kind, sig, body ?: Body()).finishOnlyDecl()
+              ParsedDeclaration(kind, sig, body ?: Body()).finishOnlyDecl()
             }
   }
 
@@ -223,29 +205,8 @@ internal object ClassParsing : PetTokenizer() {
     )
   }
 
-  internal sealed class MoreSignaturesOrBody {
-    abstract fun convert(
-        kind: ClassKind,
-        firstSignature: Signature,
-        docstring: String?,
-    ): NestableDeclGroup
-  }
-
-  private class MoreSignatures(private val moreSignatures: List<Signature>) :
-      MoreSignaturesOrBody() {
-    override fun convert(kind: ClassKind, firstSignature: Signature, docstring: String?) =
-        NestableDeclGroup(
-            (firstSignature plus moreSignatures).map {
-              IncompleteNestableDecl(kind, it, docstring)
-            },
-        )
-  }
-
-  internal class Body(private val elements: KClassMultimap<BodyElement>) : MoreSignaturesOrBody() {
+  internal class Body(private val elements: KClassMultimap<BodyElement>) {
     constructor(list: List<BodyElement> = emptyList()) : this(KClassMultimap(list))
-
-    override fun convert(kind: ClassKind, firstSignature: Signature, docstring: String?) =
-        NestableDeclGroup(kind, firstSignature, this, docstring)
 
     private inline fun <reified E : BodyElement> getAll() = elements.get<E>()
 
@@ -253,13 +214,13 @@ internal object ClassParsing : PetTokenizer() {
     val defaultses = getAll<DefaultsElement>().map { it.defaults }
     val effects = getAll<EffectElement>().map { it.effect }
     val actions = getAll<ActionElement>().map { it.action }
-    // Rule L1-8: associateStrict rejects a name assigned twice in one body, so declaration order
+    // Rule L1-7: associateStrict rejects a name assigned twice in one body, so declaration order
     // never becomes an accidental override rule.
     val properties = getAll<PropertyElement>().associateStrict { it.property }
-    val nestedGroups = getAll<NestedDeclGroup>().map { it.declGroup }
+    val nestedDeclarations = getAll<NestedDeclaration>().map { it.declaration }
 
     fun asDerivedDeclaration(className: ClassName, supertype: Expression): ClassDeclaration =
-        NestableDeclGroup(
+        ParsedDeclaration(
                 CONCRETE,
                 Signature(className, emptyList(), listOf(supertype)),
                 this,
@@ -277,11 +238,11 @@ internal object ClassParsing : PetTokenizer() {
 
       class ActionElement(val action: Action) : BodyElement()
 
-      class NestedDeclGroup(val declGroup: NestableDeclGroup) : BodyElement()
+      class NestedDeclaration(val declaration: ParsedDeclaration) : BodyElement()
     }
   }
 
-  internal class NestableDeclGroup(private val declList: List<NestableDecl>) {
+  internal class ParsedDeclaration private constructor(private val declList: List<NestableDecl>) {
     constructor(
         kind: ClassKind,
         signature: Signature,
@@ -318,7 +279,7 @@ internal object ClassParsing : PetTokenizer() {
                     docstring = docstring,
                 )
             )
-        val unnested = body.nestedGroups.flatMap { it.unnestAllFrom(signature.className) }
+        val unnested = body.nestedDeclarations.flatMap { it.unnestAllFrom(signature.className) }
         return IncompleteNestableDecl(newDecl) plus unnested
       }
     }
@@ -334,17 +295,7 @@ internal object ClassParsing : PetTokenizer() {
     }
 
     data class IncompleteNestableDecl(override val decl: ClassDeclaration) : NestableDecl() {
-      constructor(
-          kind: ClassKind,
-          signature: Signature,
-          docstring: String?,
-      ) : this(
-          resolveClassTypeVariableNames(
-              signature.asDeclaration.copy(kind = kind, docstring = docstring)
-          )
-      )
-
-      // Rule L1-5: a nested declaration becomes a sibling that names its container as a supertype,
+      // Rule L1-4: a nested declaration becomes a sibling that names its container as a supertype,
       // so the readable taxonomy survives without Pets needing a namespace.
       // This returns a new NestableDecl that looks like it could be a sibling to containingClass
       // instead of nested inside it

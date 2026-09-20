@@ -60,7 +60,9 @@ ABSTRACT CLASS HasActions { HAS MAX 1 This }
 "A simple enum type to identify which action of a `HasActions` you want"
 ABSTRACT CLASS ActionSlot : System {
   HAS =1 This
-  CLASS Action1, Action2, Action3
+  CLASS Action1
+  CLASS Action2
+  CLASS Action3
 }
 
 CLASS UseAction<HasActions, ActionSlot> : Owned<Player>, Signal {

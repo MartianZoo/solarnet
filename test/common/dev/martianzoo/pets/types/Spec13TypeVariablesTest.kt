@@ -33,7 +33,7 @@ internal class Spec13TypeVariablesTest {
   private val resources =
       loadTypes(
           "CLASS Player1 : Owner",
-          "ABSTRACT CLASS StandardResource : Owned<Owner> { CLASS Plant, Steel }",
+          "ABSTRACT CLASS StandardResource : Owned<Owner> {\nCLASS Plant\nCLASS Steel\n}",
           "ABSTRACT CLASS Production<Class<StandardResource>> : Owned<Owner>",
           "ABSTRACT CLASS Receipt<Class<StandardResource>>",
       )
@@ -149,7 +149,7 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-2 nested and inherited positions declare distinct variables`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Person : Owner { CLASS Alice, Bob }",
+            "ABSTRACT CLASS Person : Owner {\nCLASS Alice\nCLASS Bob\n}",
             "ABSTRACT CLASS City : Owned<Person>",
             "ABSTRACT CLASS Cathedral<City<Person>, Person^CathedralOwner> : " +
                 "Owned<Person^CathedralOwner>",
@@ -188,7 +188,7 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-2 each sibling branch declares its own nested variables`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Person { CLASS Alice, Bob }",
+            "ABSTRACT CLASS Person {\nCLASS Alice\nCLASS Bob\n}",
             "ABSTRACT CLASS Box<Person>",
             "ABSTRACT CLASS Pair<Box<Person>, Box<Person>>",
             "ABSTRACT CLASS Holder<Pair<Box<Person>, Box<Person>>>",
@@ -924,7 +924,7 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-8 a selector variable shadows an equal Class-header marker`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Resource { CLASS Plant, Steel }",
+            "ABSTRACT CLASS Resource {\nCLASS Plant\nCLASS Steel\n}",
             "ABSTRACT CLASS Holder<Resource^1> { " +
                 "This: EACH Resource^1 { Resource^1 }, Resource^1 }",
         )
@@ -996,7 +996,7 @@ internal class Spec13TypeVariablesTest {
 
   private val actors =
       loadTypes(
-          "ABSTRACT CLASS Player : Owner, Actor { CLASS Player1, Player2 }",
+          "ABSTRACT CLASS Player : Owner, Actor {\nCLASS Player1\nCLASS Player2\n}",
           "ABSTRACT CLASS Heat : Owned<Owner>",
           "ABSTRACT CLASS Notice<Owner>",
       )
@@ -1088,7 +1088,7 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-10 binding replaces only the recorded occurrences`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS StandardResource { CLASS Plant, Steel }",
+            "ABSTRACT CLASS StandardResource {\nCLASS Plant\nCLASS Steel\n}",
             "ABSTRACT CLASS Notice<StandardResource>",
         )
     val bound =
@@ -1111,7 +1111,7 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-10 binding follows marked occurrences through copied syntax`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS StandardResource { CLASS Plant, Steel }",
+            "ABSTRACT CLASS StandardResource {\nCLASS Plant\nCLASS Steel\n}",
             "ABSTRACT CLASS Notice<StandardResource>",
         )
     val scoped =
@@ -1140,7 +1140,7 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-10 binding omits arguments fixed by the chosen subclass`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Kind { CLASS Fixed, Other }",
+            "ABSTRACT CLASS Kind {\nCLASS Fixed\nCLASS Other\n}",
             "ABSTRACT CLASS Box<Kind>",
             "CLASS FixedBox : Box<Fixed>",
             "ABSTRACT CLASS Notice<Box<Kind>>",
@@ -1329,7 +1329,7 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-11 capture follows only the selected dependency occurrence`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Person { CLASS Alice, Bob }",
+            "ABSTRACT CLASS Person {\nCLASS Alice\nCLASS Bob\n}",
             "ABSTRACT CLASS Pair<Person, Person>",
         )
     val pair = parse<Expression>("Pair<Person, Person>")

@@ -17,7 +17,10 @@ internal class Spec06SubtypingTest {
           CLASS Player2 : Owner
           ABSTRACT CLASS Area {
             ABSTRACT CLASS MarsArea {
-              ABSTRACT CLASS LandArea { CLASS Tharsis_2_2, Tharsis_2_3 }
+              ABSTRACT CLASS LandArea {
+                CLASS Tharsis_2_2
+                CLASS Tharsis_2_3
+              }
               ABSTRACT CLASS WaterArea { CLASS Tharsis_1_1 }
             }
           }
@@ -170,7 +173,7 @@ internal class Spec06SubtypingTest {
   internal fun `T6-6 matchesConstraint reads a constraint inside a domain`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Player : Owner, Actor { CLASS Player1, Player2 }",
+            "ABSTRACT CLASS Player : Owner, Actor {\nCLASS Player1\nCLASS Player2\n}",
         )
     val actor = table.resolve(te("Actor"))
 
@@ -185,7 +188,7 @@ internal class Spec06SubtypingTest {
 
   @Test
   internal fun `T6-6 a constraint may exclude part of the domain`() {
-    val table = loadTypes("ABSTRACT CLASS Player : Owner, Actor { CLASS Player1, Player2 }")
+    val table = loadTypes("ABSTRACT CLASS Player : Owner, Actor {\nCLASS Player1\nCLASS Player2\n}")
     val actor = table.resolve(te("Actor"))
 
     fun matches(candidate: String) =

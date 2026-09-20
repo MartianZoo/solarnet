@@ -45,10 +45,17 @@ internal fun <P : PetNode> roundTripAll(type: KClass<P>, sources: String) {
  */
 internal const val LANG_DECLARATIONS: String =
     """
-    ABSTRACT CLASS Player : Owner, Actor { CLASS Player1, Player2 }
+    ABSTRACT CLASS Player : Owner, Actor {
+      CLASS Player1
+      CLASS Player2
+    }
     ABSTRACT CLASS Area {
-      CLASS Mars1, Mars2
-      ABSTRACT CLASS LandArea { CLASS Land1, Land2 }
+      CLASS Mars1
+      CLASS Mars2
+      ABSTRACT CLASS LandArea {
+        CLASS Land1
+        CLASS Land2
+      }
     }
 
     CLASS Plant : Owned<Anyone>
@@ -61,7 +68,10 @@ internal const val LANG_DECLARATIONS: String =
     CLASS GreeneryTile : Tile
     CLASS OceanTile : Tile
 
-    ABSTRACT CLASS Token : Owned<Anyone> { CLASS RedToken, BlueToken }
+    ABSTRACT CLASS Token : Owned<Anyone> {
+      CLASS RedToken
+      CLASS BlueToken
+    }
 
     "Classes whose gain and removal quantifier defaults differ"
     CLASS Chit : Owned<Anyone> { DEFAULT +Chit? }

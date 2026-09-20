@@ -95,39 +95,14 @@ internal class Lang01SourceTest {
     declaration.supertypes shouldBe
         setOf(parse<Expression>("Occupant"), parse<Expression>("Owned<Owner>"))
     parseClasses("CLASS GreeneryTile").single().abstract shouldBe false
+    shouldRejectSource("CLASS Alpha, Beta")
+    shouldRejectSource("CLASS Alpha {\n  CLASS Beta, Gamma\n}")
   }
 
-  // L1-3 Several signatures under one keyword
+  // L1-3 Bodies
 
   @Test
-  internal fun `L1-3 one CLASS keyword can introduce several classes`() {
-    val declarations = parseClasses("ABSTRACT CLASS Alpha, Beta<Area>, Gamma : Root")
-
-    declarations.map { it.className } shouldContainExactly
-        listOf(cn("Alpha"), cn("Beta"), cn("Gamma"))
-    declarations.map { it.abstract } shouldBe listOf(true, true, true)
-    declarations[1].dependencies shouldContainExactly listOf(parse<Expression>("Area"))
-    declarations[2].supertypes shouldBe setOf(parse<Expression>("Root"))
-  }
-
-  @Test
-  internal fun `L1-3 a comma after a supertype list continues that list`() {
-    val declarations = parseClasses("CLASS Alpha : Root, Beta")
-
-    declarations.map { it.className } shouldContainExactly listOf(cn("Alpha"))
-    declarations.single().supertypes shouldBe
-        setOf(parse<Expression>("Root"), parse<Expression>("Beta"))
-  }
-
-  @Test
-  internal fun `L1-3 several signatures cannot share a body`() {
-    shouldThrow<PetSyntaxException> { parseClasses("CLASS Alpha, Beta { HAS Qux }") }
-  }
-
-  // L1-4 Bodies
-
-  @Test
-  internal fun `L1-4 a body holds invariants, defaults, properties, effects and actions`() {
+  internal fun `L1-3 a body holds invariants, defaults, properties, effects and actions`() {
     val declaration =
         parseClasses(
                 """
@@ -152,23 +127,23 @@ internal class Lang01SourceTest {
   }
 
   @Test
-  internal fun `L1-4 semicolons separate body elements on one line`() {
+  internal fun `L1-3 semicolons separate body elements on one line`() {
     val multiline = parseClasses("CLASS Alpha {\n  HAS MC\n  cost = 2\n}").single()
 
     parseClasses("CLASS Alpha { HAS MC; cost = 2 }").single() shouldBe multiline
   }
 
   @Test
-  internal fun `L1-4 only a newline-separated body may nest a declaration`() {
+  internal fun `L1-3 only a newline-separated body may nest a declaration`() {
     parseClasses("CLASS Alpha {\n  CLASS Beta\n}").map { it.className } shouldContainExactly
         listOf(cn("Alpha"), cn("Beta"))
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Alpha { HAS MC; CLASS Beta }") }
   }
 
-  // L1-5 Nesting
+  // L1-4 Nesting
 
   @Test
-  internal fun `L1-5 a nested declaration becomes a sibling naming its container`() {
+  internal fun `L1-4 a nested declaration becomes a sibling naming its container`() {
     val declarations =
         parseClasses(
             """
@@ -193,20 +168,20 @@ internal class Lang01SourceTest {
         )
   }
 
-  // L1-6 Docstrings
+  // L1-5 Docstrings
 
   @Test
-  internal fun `L1-6 a docstring precedes the CLASS keyword and survives rendering`() {
+  internal fun `L1-5 a docstring precedes the CLASS keyword and survives rendering`() {
     val declaration = parseClasses("\"The one root\"\nABSTRACT CLASS Component").single()
 
     declaration.docstring shouldBe "The one root"
     parseClasses(declaration.toString()).single() shouldBe declaration
   }
 
-  // L1-7 DEFAULT clauses
+  // L1-6 DEFAULT clauses
 
   @Test
-  internal fun `L1-7 a DEFAULT clause names the class declaring it`() {
+  internal fun `L1-6 a DEFAULT clause names the class declaring it`() {
     val declaration =
         parseClasses("CLASS Tile<Area> {\n  DEFAULT Tile<Owner>\n  DEFAULT +Tile<LandArea>\n}")
             .single()
@@ -219,7 +194,7 @@ internal class Lang01SourceTest {
   }
 
   @Test
-  internal fun `L1-7 compatible DEFAULT clauses merge and conflicting clauses are rejected`() {
+  internal fun `L1-6 compatible DEFAULT clauses merge and conflicting clauses are rejected`() {
     val merged =
         parseClasses(
                 """
@@ -241,17 +216,17 @@ internal class Lang01SourceTest {
     shouldRejectSource("CLASS Tile { DEFAULT +Tile?; DEFAULT +Tile! }")
   }
 
-  // L1-8 Properties
+  // L1-7 Properties
 
   @Test
-  internal fun `L1-8 a property is assigned at most once per body`() {
+  internal fun `L1-7 a property is assigned at most once per body`() {
     parseClasses("CLASS Alpha { cost = 1; score = 2 }").single().properties.keys shouldBe
         setOf(PropertyName("cost"), PropertyName("score"))
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Alpha { cost = 1; cost = 2 }") }
   }
 
   @Test
-  internal fun `L1-8 a value is a bound word, a number, or quoted Pets`() {
+  internal fun `L1-7 a value is a bound word, a number, or quoted Pets`() {
     val declaration =
         parseClasses(
                 """
@@ -290,7 +265,7 @@ internal class Lang01SourceTest {
   }
 
   @Test
-  internal fun `L1-8 other right-hand sides are rejected`() {
+  internal fun `L1-7 other right-hand sides are rejected`() {
     shouldRejectSource("CLASS Alpha { cost = -1 }")
     shouldRejectSource("CLASS Alpha { score = TemperatureStep }")
     shouldRejectSource("CLASS Alpha { score = COUNT TemperatureStep }")
@@ -298,10 +273,10 @@ internal class Lang01SourceTest {
     shouldRejectSource("""CLASS Alpha { requirement = HAS "Temperature\"Step" }""")
   }
 
-  // L1-9 Signature expressions carry no refinements
+  // L1-8 Signature expressions carry no refinements
 
   @Test
-  internal fun `L1-9 a signature expression may not be refined at any depth`() {
+  internal fun `L1-8 a signature expression may not be refined at any depth`() {
     shouldRejectSource("CLASS Alpha<Beta(HAS Qux)>")
     shouldRejectSource("CLASS Alpha<Beta(NOT Qux)>")
     shouldRejectSource("CLASS Alpha : Beta(NOT Qux)")
@@ -309,37 +284,37 @@ internal class Lang01SourceTest {
   }
 
   @Test
-  internal fun `L1-9 other malformed declaration sources are rejected too`() {
+  internal fun `L1-8 other malformed declaration sources are rejected too`() {
     shouldRejectSource("CLASS Alpha : Beta, Beta")
     shouldRejectSource("CLASS Alpha @ CLASS Beta")
     shouldRejectSource("CLASS Alpha { DEFAULT Alpha(HAS Beta) }")
     shouldRejectSource("CLASS Alpha[ALPHA]")
   }
 
-  // L1-10 Whitespace and comments
+  // L1-9 Whitespace and comments
 
   @Test
-  internal fun `L1-10 whitespace is insignificant and comments run to end of line`() {
+  internal fun `L1-9 whitespace is insignificant and comments run to end of line`() {
     parseClasses("CLASS\tAlpha\r\nCLASS  Beta  // trailing note").map {
       it.className
     } shouldContainExactly listOf(cn("Alpha"), cn("Beta"))
   }
 
   @Test
-  internal fun `L1-10 whitespace is required where two tokens would run together`() {
+  internal fun `L1-9 whitespace is required where two tokens would run together`() {
     parse<Instruction>("2 MC").toString() shouldBe "2 MC"
     shouldThrow<PetSyntaxException> { parse<Instruction>("2MC") }
   }
 
   @Test
-  internal fun `L1-10 a backslash before a line ending continues the line`() {
+  internal fun `L1-9 a backslash before a line ending continues the line`() {
     parseClasses("CLASS Alpha {\n  This: Plant\\\n OR Heat\n}")
         .single()
         .authoredEffects shouldContainExactly listOf(parse<Effect>("This: Plant OR Heat"))
   }
 
   @Test
-  internal fun `L1-10 a declaration may be spelled many ways`() {
+  internal fun `L1-9 a declaration may be spelled many ways`() {
     parseClasses("CLASS Alpha").size shouldBe 1
     parseClasses("ABSTRACT CLASS Alpha").size shouldBe 1
     parseClasses("CLASS Alpha<Beta>").size shouldBe 1
@@ -353,17 +328,17 @@ internal class Lang01SourceTest {
 
     parseClasses("CLASS Alpha {\n}").size shouldBe 1
     parseClasses("CLASS Alpha {\n  // just a comment\n}").size shouldBe 1
-    parseClasses("CLASS Alpha {\n  DEFAULT +Alpha?\n}\nCLASS Beta, Gamma").size shouldBe 3
+    parseClasses("CLASS Alpha {\n  DEFAULT +Alpha?\n}\nCLASS Beta\nCLASS Gamma").size shouldBe 3
     parseClasses("CLASS Alpha : Root {\n  Beta -> Alpha\n\n\n  Beta: Alpha\n  CLASS Beta\n\n}")
         .size shouldBe 2
     parseClasses("CLASS One {\n  CLASS Two { This: That }\n  CLASS Three { This: That }\n}")
         .size shouldBe 3
   }
 
-  // L1-11 Rendering
+  // L1-10 Rendering
 
   @Test
-  internal fun `L1-11 a declaration renders as parseable source in both shapes`() {
+  internal fun `L1-10 a declaration renders as parseable source in both shapes`() {
     val source =
         """
         "A useful class"
@@ -389,21 +364,21 @@ internal class Lang01SourceTest {
             "row = Number; column = 2; This: DoStuff }"
   }
 
-  // L1-12 One declaration on its own
+  // L1-11 One declaration on its own
 
   @Test
-  internal fun `L1-12 parseOneLinerClass reads exactly one declaration`() {
+  internal fun `L1-11 parseOneLinerClass reads exactly one declaration`() {
     val declaration: ClassDeclaration = parseOneLinerClass("CLASS Alpha : Beta { This: Qux }")
 
     declaration.className shouldBe cn("Alpha")
     declaration.authoredEffects shouldContainExactly listOf(parse<Effect>("This: Qux"))
-    shouldThrow<PetSyntaxException> { parseOneLinerClass("CLASS Alpha, Beta") }
+    shouldThrow<PetSyntaxException> { parseOneLinerClass("CLASS Alpha\nCLASS Beta") }
   }
 
-  // L1-13 The system declarations
+  // L1-12 The system declarations
 
   @Test
-  internal fun `L1-13 every catalog receives the vocabulary these rules depend on`() {
+  internal fun `L1-12 every catalog receives the vocabulary these rules depend on`() {
     val byName = systemClassDeclarations.associateBy { it.className }
 
     byName.keys shouldContainAll

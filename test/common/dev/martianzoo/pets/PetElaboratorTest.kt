@@ -50,7 +50,10 @@ internal class PetElaboratorTest {
                 ABSTRACT CLASS OwnerRule : Owner {
                   This: ContextualTile<This>
                 }
-                ABSTRACT CLASS Choice { CLASS RedChoice, BlueChoice }
+                ABSTRACT CLASS Choice {
+                  CLASS RedChoice
+                  CLASS BlueChoice
+                }
                 CLASS SequentialRule {
                   This: Choice^Selected THEN -Choice(NOT Choice^Selected)
                 }

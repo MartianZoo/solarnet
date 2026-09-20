@@ -22,13 +22,13 @@ import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
 /**
  * A base class for parsing objects. The tokens here are the lexical level of language-spec sections
  * 1 and 2: reserved keywords (L2-2), the name grammars (L2-1, L2-3, L2-4), and the whitespace,
- * comment and line-continuation rules (L1-10).
+ * comment and line-continuation rules (L1-9).
  */
 internal abstract class PetTokenizer {
 
   private val _quotedText = regex(Regex("""  "[^"]*"  """.trim()))
 
-  /** Parses quote-delimited text. Quotes cannot appear in the contents (L1-6, L1-8). */
+  /** Parses quote-delimited text. Quotes cannot appear in the contents (L1-5, L1-7). */
   internal val quotedText: Parser<String> = _quotedText map { it.text.removeSurrounding("\"") }
 
   internal val _arrow = literal("->", "arrow")
@@ -106,7 +106,7 @@ internal abstract class PetTokenizer {
   internal fun skipChar(c: Char) = skip(char(c))
 
   internal object TokenCache {
-    // Rule L1-10: horizontal whitespace is insignificant, `//` runs to end of line, and a backslash
+    // Rule L1-9: horizontal whitespace is insignificant, `//` runs to end of line, and a backslash
     // before a line ending continues the line, so one body element may span several source lines.
     // Newlines themselves are significant, as separators only, so they are not ignored here.
     private val ignoreList =
