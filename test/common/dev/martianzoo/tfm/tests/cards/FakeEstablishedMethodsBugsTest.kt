@@ -5,12 +5,13 @@ import dev.martianzoo.tfm.tests.TestOption.FakeStuffBundle
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.FakeEstablishedMethods
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 internal class FakeEstablishedMethodsBugsTest : CardTest() {
   @Test
-  internal fun `Established Methods without its note dead-ends when no second project is affordable`() {
+  internal fun `Established Methods without its note incorrectly dead-ends when no second project is affordable`() {
     newGame(PreludeExpansion, FakeStuffBundle)
     p1.phase("Prelude")
     p1.runOperation("PreludeCard")
@@ -25,5 +26,23 @@ internal class FakeEstablishedMethodsBugsTest : CardTest() {
           }
         }
     deadEnd.message shouldContain "$FakeEstablishedMethods"
+  }
+
+  @Test
+  internal fun `Fake Established Methods incorrectly permits Sell Patents`() {
+    newGame(PreludeExpansion, FakeStuffBundle)
+    p1.phase("Prelude")
+    p1.runOperation("2 ProjectCard, PreludeCard")
+
+    p1.playPrelude(FakeEstablishedMethods) {
+      repeat(2) {
+        doTask("UseAction<UseStandardProjectAction, Action1>")
+        doTask("UseAction<SellPatentsProject, Action1>")
+        doTask("MC FROM ProjectCard<Hand>!")
+      }
+    }
+
+    p1.count("ProjectCard") shouldBe 0
+    p1.count("MC") shouldBe 32
   }
 }

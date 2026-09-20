@@ -51,6 +51,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- When Turmoil policies are modeled, add Jacob Fryxelius's ruling that moving Mars Nomads does not
+  trigger the Mars First ruling policy; there is currently no policy component to observe.
+- Model WG Project, then mirror the Valley Trust case where an unplayable selected Prelude may be
+  discarded for 15 MC even when another drawn Prelude is playable.
 - Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
   with the canonical card.
 - Complete the unsupported Milestones & Awards goals: Thawer's player-attributed temperature
