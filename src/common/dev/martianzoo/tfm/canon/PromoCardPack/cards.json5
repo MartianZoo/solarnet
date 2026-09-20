@@ -1,7 +1,7 @@
 {
   "decks": [
     {
-      "deck": "CorporationCard",
+      "deck": "StandardCorporationCard",
       "cards": [
         {
           "name": "ArcadianCommunities",
@@ -137,7 +137,7 @@
         },
         {
           "name": "Merger",
-          "immediate": "4 CorporationCard<Selecting>, PlayCard<Class<CorporationCard>, Selecting>, -42 MC",
+          "immediate": "4 StandardCorporationCard<Selecting>, PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Selecting>, -42 MC",
         },
         {
           "name": "NewPartner",

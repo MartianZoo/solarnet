@@ -11,6 +11,23 @@ import kotlin.test.Test
 
 internal class CanonBundlesTest {
   @Test
+  internal fun beginnerCorporationsRequireTheBeginnerVariant() {
+    val standard = table()
+    val beginner = table(cn("BeginnerVariant"))
+    val beginnerCorporations = (1..5).map { cn("BeginnerCorporation$it") }
+
+    listOf(cn("BeginnerVariant"), cn("BeginnerCorporationCard")).forEach { className ->
+      standard.isInhabited(className) shouldBe false
+      beginner.isInhabited(className) shouldBe true
+    }
+    beginnerCorporations.forEach { corporation ->
+      standard.isInhabited(corporation) shouldBe false
+      (corporation in standard.allClassNames) shouldBe false
+      beginner.isInhabited(corporation) shouldBe true
+    }
+  }
+
+  @Test
   internal fun modulesInOneBundleRemainIndependent() {
     val utopia = table(cn("UtopiaMap"))
     val cimmeria = table(cn("CimmeriaMap"))

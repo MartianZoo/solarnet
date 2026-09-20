@@ -6,7 +6,11 @@ ABSTRACT CLASS Card : Owned<Player> {
     DEFAULT -CardBack
     autoSelectWhen = Requirement?
 
-    CLASS CorporationCard
+    ABSTRACT CLASS CorporationCard
+    CLASS BeginnerCorporationCard : CorporationCard {
+      autoSelectWhen = HAS "BeginnerVariant"
+    }
+    CLASS StandardCorporationCard : CorporationCard
     CLASS ProjectCard
   }
 

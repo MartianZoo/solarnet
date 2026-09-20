@@ -249,6 +249,13 @@ Keep the substantive reasoning in the owning document and keep this table to one
 - **The metric operator set** — [ENGINE.md](ENGINE.md#the-metric-operators-are-intentional). `Max`,
   `Subtract`, and `Or` have few authored uses, but the algebra is under-built rather than
   over-built.
+- **Handwritten `*.cards.pets` fragments** —
+  [`StandardFormBundle`](../../src/common/dev/martianzoo/tfm/canon/StandardFormBundle.kt). The
+  suffix is the smallest way to keep handwritten cards in the existing card-resource selection
+  model without another Bundle.
+- **Explicit exclusion in normal-corporation offers** — [WORKFLOW.md](WORKFLOW.md#current-foundation).
+  Standard back typing already rejects beginner faces, while `NOT BeginnerCorporation` deliberately
+  states the normal-path rule at every normal-corporation offer.
 
 ### Accepted for now
 

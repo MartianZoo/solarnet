@@ -133,6 +133,10 @@ say, and that is the number to use.
 Do not derive a qualifier by reading the Pets requirement expression. Those can carry engine
 offsets, and a name that inherits one is wrong even when it happens to match.
 
+When several identical printed components need distinct identities to preserve a per-name physical
+limit, number every copy `Name1` through `NameN` and give them the same display name. This copy
+numbering is not a rules-variant qualifier; the beginner corporations are the precedent.
+
 ### Abbreviations
 
 Spell a concept out when it stands alone; abbreviate it only where it is a *component* of a longer

@@ -57,7 +57,7 @@ CLASS FakePreservationTrLost<GenerationScope> : Cardbound<FakePreservationProgra
 }
 
 "Helion without correct Heat payment allocation"
-CLASS FakeHelion : CardFront<Class<CorporationCard>> {
+CLASS FakeHelion : CardFront<Class<StandardCorporationCard>> {
   cost = 0
 
   This:: SpaceTag<This>, BaseResourceValue<Class<Heat>>

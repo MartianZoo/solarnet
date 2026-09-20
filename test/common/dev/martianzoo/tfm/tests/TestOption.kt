@@ -11,6 +11,7 @@ internal enum class TestOption(private val configuredName: String? = null) : Tes
   StandardSoloObjective,
   Tr63SoloObjective,
   CorporateEraExpansion,
+  BeginnerVariant,
   Tharsis("TharsisMap"),
   Hellas("HellasMap"),
   Elysium("ElysiumMap"),
