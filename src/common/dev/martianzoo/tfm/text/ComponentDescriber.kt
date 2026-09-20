@@ -54,8 +54,7 @@ internal data class ComponentDescriber(
 
     public data class Positioned(
         internal val determiner: Determiner,
-        internal val singular: String,
-        internal val plural: String,
+        internal val noun: Noun.Counted,
         internal val referenceNoun: Noun.Counted? = null,
         internal val unqualifiedOwnership: OwnershipPhrase? = null,
         internal val anyoneOwnership: OwnershipPhrase? = null,
@@ -72,6 +71,7 @@ internal data class ComponentDescriber(
     public data class CountedProcedure(
         internal val verb: String,
         internal val noun: Noun.Counted,
+        internal val singularDeterminer: Determiner? = null,
     ) : ChangeFrame
 
     public data class State(
@@ -185,7 +185,7 @@ internal data class ComponentDescriber(
         internal val minimumProperties: Map<String, MinimumProperty> = emptyMap(),
     ) : TriggerFrame
 
-    public data class PlayTag(internal val noun: String? = null) : TriggerFrame
+    public data class PlayTag(internal val noun: Noun.Counted? = null) : TriggerFrame
 
     public data object UseAction : TriggerFrame
 
@@ -208,10 +208,20 @@ internal data class ComponentDescriber(
   }
 
   internal data class ActionUse(
-      internal val objectPhrase: String,
+      internal val reference: Reference,
       internal val paymentDiscount: PaymentDiscount? = null,
       internal val minimumProperties: Map<String, MinimumProperty.Threshold> = emptyMap(),
-  )
+  ) {
+    internal sealed interface Reference {
+      public val text: String
+
+      public data class Fixed(override val text: String) : Reference
+
+      public data object AnyAction : Reference {
+        override val text: String = "an action"
+      }
+    }
+  }
 
   internal data class PaymentDiscount(
       internal val predicate: String,

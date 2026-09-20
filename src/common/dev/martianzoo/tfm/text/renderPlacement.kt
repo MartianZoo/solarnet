@@ -33,8 +33,8 @@ internal fun renderPlacement(
                 describers.quantifiedComponentNounPhrase(
                     removal.removing.className,
                     count,
-                    description.singular,
-                    description.plural,
+                    description.noun.singular,
+                    description.noun.plural,
                     description.determiner,
                 )
             ),
@@ -57,12 +57,12 @@ internal fun renderPlacement(
   val noun =
       if (count == 1) {
         NounPhrase(
-            description.singular,
-            description.plural,
+            description.noun.singular,
+            description.noun.plural,
             determiner = description.determiner,
         )
       } else {
-        NounPhrase(description.singular, description.plural, count = count)
+        NounPhrase(description.noun.singular, description.noun.plural, count = count)
       }
   return placementClause(noun, siteModifiers)
 }
@@ -85,7 +85,7 @@ private fun renderRelaxedPlacementDefault(
   ) {
     return null
   }
-  val piece = NounPhrase(description.singular, determiner = description.determiner).linearize()
+  val piece = NounPhrase(description.noun.singular, determiner = description.determiner).linearize()
   return listOf(Modifier.Parenthetical("may be placed where you already have $piece"))
 }
 
@@ -293,8 +293,7 @@ private fun renderSpatialTarget(
         else -> return null
       }
   return SpatialTarget(
-      placement.referenceNoun
-          ?: ComponentDescriber.Noun.Counted(placement.singular, placement.plural),
+      placement.referenceNoun ?: placement.noun,
       ownership.asSpatialOwnership(),
       explicitlyAny = explicitlyAnyOwner,
   )

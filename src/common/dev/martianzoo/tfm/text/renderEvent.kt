@@ -40,7 +40,7 @@ internal fun Describers.renderEvent(trigger: Trigger): Event? {
     return Event(
         Event.Kind.REMOVE,
         Event.ActorConstraint.YOU,
-        NounPhrase(positioned.singular, determiner = positioned.determiner),
+        NounPhrase(positioned.noun.singular, determiner = positioned.determiner),
     )
   }
   val expression = (trigger as? OnGainOf)?.expression ?: return null
@@ -240,11 +240,11 @@ private fun Describers.relationshipParticipant(expression: Expression): NounPhra
   val ownerKey = Key(OWNED, 0)
   return when {
     resolved.sourceDependencies.isEmpty() ->
-        NounPhrase(placement.singular, determiner = Determiner.INDEFINITE)
-    resolved.hasOnlySourceDependency(ownerKey, ownerExpression) -> oneOfYour(placement.plural)
+        NounPhrase(placement.noun.singular, determiner = Determiner.INDEFINITE)
+    resolved.hasOnlySourceDependency(ownerKey, ownerExpression) -> oneOfYour(placement.noun.plural)
     resolved.sourceDependencies.size == 1 &&
         resolved.sourceDependency(ownerKey)?.let(::isNotOwner) == true ->
-        NounPhrase(placement.singular, determiner = Determiner.OPPONENT_POSSESSIVE)
+        NounPhrase(placement.noun.singular, determiner = Determiner.OPPONENT_POSSESSIVE)
     else -> null
   }
 }
@@ -253,7 +253,7 @@ internal fun Describers.renderActionUse(expression: Expression): NounPhrase? {
   val resolved = resolveExpression(expression) ?: return null
   if (resolved.sourceDependencies.isNotEmpty()) return null
   val use = fact(expression.className, ComponentDescriber::actionUse) ?: return null
-  val objectPhrase = NounPhrase.text(use.objectPhrase)
+  val objectPhrase = NounPhrase.text(use.reference.text)
   val refinement = expression.refinement ?: return objectPhrase
   if (refinement is Expression.Refinement.And) {
     if (refinement.refinements.none { it is Expression.Refinement.Has }) return null
@@ -506,9 +506,9 @@ private fun Describers.placementEvent(
   }
   val positioned = positionedFrame(expression.className)
   val placement =
-      positioned?.let {
-        ComponentDescriber.Noun.Counted(it.singular, it.plural)
-      } ?: (triggerFrame(expression.className) as? TriggerFrame.Place)?.noun ?: return null
+      positioned?.noun
+          ?: (triggerFrame(expression.className) as? TriggerFrame.Place)?.noun
+          ?: return null
   val location =
       resolvedPlacement.sites
           .singleOrNull()

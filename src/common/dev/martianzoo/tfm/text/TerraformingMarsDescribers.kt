@@ -15,6 +15,12 @@ internal object TerraformingMarsDescribers {
   private val rulingParty = Key(cn("PartyStatus"), 0)
 
   private val declarations: Map<ClassName, ComponentDescriber> = run {
+    val delegateNoun = counted("delegate", "delegates")
+    val tileNoun = counted("tile", "tiles")
+    val oceanTileNoun = counted("ocean tile", "ocean tiles")
+    val greeneryTileNoun = counted("greenery tile", "greenery tiles")
+    val cityTileNoun = counted("city tile", "city tiles")
+    val colonyNoun = counted("colony", "colonies")
     uniqueDeclarations(
         klass("Component") to
             ComponentDescriber(
@@ -61,11 +67,12 @@ internal object TerraformingMarsDescribers {
                 changeFrame =
                     Frame.CountedProcedure(
                         "place",
-                        counted("delegate", "delegates"),
+                        delegateNoun,
+                        singularDeterminer = Determiner.INDEFINITE,
                     ),
                 requirementCondition =
                     Condition.OwnedCount(
-                        counted("delegate", "delegates"),
+                        delegateNoun,
                         qualifierDependency = party,
                         qualifierRelation = "in",
                         unboundQualifier = "any party",
@@ -283,7 +290,7 @@ internal object TerraformingMarsDescribers {
             ),
         klass("Placement") to
             ComponentDescriber(
-                triggerFrame = Trigger.Place(ComponentDescriber.Noun.Counted("tile", "tiles")),
+                triggerFrame = Trigger.Place(tileNoun),
             ),
         klass("Hand") to ComponentDescriber(metricLocation = "in hand"),
         klass("RemoteArea") to
@@ -336,7 +343,7 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 spatialRelation =
                     ComponentDescriber.SpatialRelation(
-                        defaultTarget = ComponentDescriber.Noun.Counted("tile", "tiles"),
+                        defaultTarget = tileNoun,
                     )
             ),
         klass("Adjacency") to
@@ -359,23 +366,21 @@ internal object TerraformingMarsDescribers {
                 changeFrame =
                     Frame.Positioned(
                         determiner = Determiner.INDEFINITE,
-                        singular = "tile or community",
-                        plural = "tiles or communities",
+                        noun = counted("tile or community", "tiles or communities"),
                         unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
                         anyoneOwnership = ComponentDescriber.OwnershipPhrase.ANYONES,
                     )
             ),
         klass("Tile") to
             ComponentDescriber(
-                changeFrame = Frame.Positioned(Determiner.INDEFINITE, "tile", "tiles"),
+                changeFrame = Frame.Positioned(Determiner.INDEFINITE, tileNoun),
             ),
         klass("OwnedTile") to
             ComponentDescriber(
                 changeFrame =
                     Frame.Positioned(
                         Determiner.INDEFINITE,
-                        "tile",
-                        "tiles",
+                        tileNoun,
                         unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
                         anyoneOwnership = ComponentDescriber.OwnershipPhrase.ANYONES,
                     )
@@ -385,8 +390,7 @@ internal object TerraformingMarsDescribers {
                 changeFrame =
                     Frame.Positioned(
                         determiner = Determiner.THIS,
-                        singular = "tile",
-                        plural = "tiles",
+                        noun = tileNoun,
                         referenceNoun = counted("special tile", "special tiles"),
                         unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
                         anyoneOwnership = ComponentDescriber.OwnershipPhrase.IMPLICIT,
@@ -424,15 +428,23 @@ internal object TerraformingMarsDescribers {
                         "different types of resources",
                     )
             ),
-        klass("BioTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("bio tag")),
+        klass("BioTag") to
+            ComponentDescriber(triggerFrame = Trigger.PlayTag(counted("bio tag", "bio tags"))),
         klass("PlanetaryTag") to
             ComponentDescriber(
-                triggerFrame = Trigger.PlayTag("planetary tag"),
+                triggerFrame = Trigger.PlayTag(counted("planetary tag", "planetary tags")),
                 capitalizeTagName = true,
             ),
-        klass("AnimalTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("animal tag")),
-        klass("PlantTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("plant tag")),
-        klass("MicrobeTag") to ComponentDescriber(triggerFrame = Trigger.PlayTag("microbe tag")),
+        klass("AnimalTag") to
+            ComponentDescriber(
+                triggerFrame = Trigger.PlayTag(counted("animal tag", "animal tags"))
+            ),
+        klass("PlantTag") to
+            ComponentDescriber(triggerFrame = Trigger.PlayTag(counted("plant tag", "plant tags"))),
+        klass("MicrobeTag") to
+            ComponentDescriber(
+                triggerFrame = Trigger.PlayTag(counted("microbe tag", "microbe tags"))
+            ),
         klass("OxygenStep") to
             ComponentDescriber(
                 changeFrame = Frame.Scale("oxygen"),
@@ -498,11 +510,11 @@ internal object TerraformingMarsDescribers {
         klass("OceanTile") to
             ComponentDescriber(
                 numericSingularChange = true,
-                changeFrame = Frame.Positioned(Determiner.INDEFINITE, "ocean tile", "ocean tiles"),
+                changeFrame = Frame.Positioned(Determiner.INDEFINITE, oceanTileNoun),
                 requirement =
                     ComponentDescriber.Requirement(
-                        minimum = count("ocean tile", "ocean tiles"),
-                        maximum = count("ocean tile", "ocean tiles"),
+                        minimum = count(oceanTileNoun),
+                        maximum = count(oceanTileNoun),
                     ),
             ),
         klass("GreeneryTile") to
@@ -510,19 +522,11 @@ internal object TerraformingMarsDescribers {
                 changeFrame =
                     Frame.Positioned(
                         Determiner.INDEFINITE,
-                        "greenery tile",
-                        "greenery tiles",
+                        greeneryTileNoun,
                         unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
                         anyoneOwnership = ComponentDescriber.OwnershipPhrase.IMPLICIT,
                     ),
-                requirement =
-                    ComponentDescriber.Requirement(
-                        minimum =
-                            count(
-                                "greenery tile",
-                                "greenery tiles",
-                            )
-                    ),
+                requirement = ComponentDescriber.Requirement(minimum = count(greeneryTileNoun)),
             ),
         klass("DefaultGreeneryTile") to
             ComponentDescriber(changeFrame = Frame.Procedure("place", "a greenery tile")),
@@ -531,21 +535,15 @@ internal object TerraformingMarsDescribers {
                 changeFrame =
                     Frame.Positioned(
                         Determiner.INDEFINITE,
-                        "city tile",
-                        "city tiles",
+                        cityTileNoun,
                         unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
                         anyoneOwnership = ComponentDescriber.OwnershipPhrase.IMPLICIT,
                     ),
-                placementSite =
-                    ComponentDescriber.PlacementSite(counted("city tile", "city tiles")),
+                placementSite = ComponentDescriber.PlacementSite(cityTileNoun),
                 requirement =
                     ComponentDescriber.Requirement(
-                        minimum =
-                            count(
-                                "city tile",
-                                "city tiles",
-                            ),
-                        ownedCount = ComponentDescriber.Noun.Counted("city tile", "city tiles"),
+                        minimum = count(cityTileNoun),
+                        ownedCount = cityTileNoun,
                     ),
             ),
         klass("CapitalMarker") to
@@ -553,8 +551,7 @@ internal object TerraformingMarsDescribers {
                 changeFrame =
                     Frame.Positioned(
                         Determiner.INDEFINITE,
-                        "capital marker",
-                        "capital markers",
+                        counted("capital marker", "capital markers"),
                     )
             ),
         klass("Community") to
@@ -562,8 +559,7 @@ internal object TerraformingMarsDescribers {
                 changeFrame =
                     Frame.Positioned(
                         Determiner.INDEFINITE,
-                        "community marker",
-                        "community markers",
+                        counted("community marker", "community markers"),
                     )
             ),
         klass("NomadsMarker") to
@@ -571,8 +567,7 @@ internal object TerraformingMarsDescribers {
                 changeFrame =
                     Frame.Positioned(
                         Determiner.INDEFINITE,
-                        "nomads marker",
-                        "nomads markers",
+                        counted("nomads marker", "nomads markers"),
                     )
             ),
         klass("Colony") to
@@ -580,16 +575,15 @@ internal object TerraformingMarsDescribers {
                 changeFrame =
                     Frame.Positioned(
                         Determiner.INDEFINITE,
-                        "colony",
-                        "colonies",
+                        colonyNoun,
                         unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
                         anyoneOwnership = ComponentDescriber.OwnershipPhrase.IMPLICIT,
                     ),
                 requirement =
                     ComponentDescriber.Requirement(
-                        minimum = count("colony", "colonies"),
-                        maximum = count("colony", "colonies"),
-                        ownedCount = ComponentDescriber.Noun.Counted("colony", "colonies"),
+                        minimum = count(colonyNoun),
+                        maximum = count(colonyNoun),
+                        ownedCount = colonyNoun,
                     ),
             ),
         klass("PayingFor") to
@@ -691,7 +685,7 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
-                        "a standard project",
+                        ComponentDescriber.ActionUse.Reference.Fixed("a standard project"),
                         minimumProperties =
                             mapOf(
                                 "cost" to
@@ -706,7 +700,10 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
-                        objectPhrase = "the Convert Plants standard action",
+                        reference =
+                            ComponentDescriber.ActionUse.Reference.Fixed(
+                                "the Convert Plants standard action"
+                            ),
                         paymentDiscount =
                             ComponentDescriber.PaymentDiscount(
                                 "convert plants to greenery",
@@ -718,7 +715,10 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
-                        objectPhrase = "the Power Plant standard project",
+                        reference =
+                            ComponentDescriber.ActionUse.Reference.Fixed(
+                                "the Power Plant standard project"
+                            ),
                         paymentDiscount =
                             ComponentDescriber.PaymentDiscount(
                                 "use the Power Plant standard project"
@@ -729,7 +729,10 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
-                        objectPhrase = "the Claim Milestone standard action",
+                        reference =
+                            ComponentDescriber.ActionUse.Reference.Fixed(
+                                "the Claim Milestone standard action"
+                            ),
                         paymentDiscount = ComponentDescriber.PaymentDiscount("claim a milestone"),
                     )
             ),
@@ -737,7 +740,10 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
-                        objectPhrase = "the Fund Award standard action",
+                        reference =
+                            ComponentDescriber.ActionUse.Reference.Fixed(
+                                "the Fund Award standard action"
+                            ),
                         paymentDiscount = ComponentDescriber.PaymentDiscount("fund an award"),
                     )
             ),
@@ -745,7 +751,10 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
-                        objectPhrase = "the Trade standard action",
+                        reference =
+                            ComponentDescriber.ActionUse.Reference.Fixed(
+                                "the Trade standard action"
+                            ),
                         paymentDiscount =
                             ComponentDescriber.PaymentDiscount(
                                 "use the Trade standard action",
@@ -758,7 +767,7 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
-                        objectPhrase = "an action",
+                        reference = ComponentDescriber.ActionUse.Reference.AnyAction,
                         paymentDiscount = ComponentDescriber.PaymentDiscount("use an action"),
                     )
             ),
@@ -766,7 +775,7 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
-                        objectPhrase = "a card",
+                        reference = ComponentDescriber.ActionUse.Reference.Fixed("a card"),
                         paymentDiscount = ComponentDescriber.PaymentDiscount("buy a card"),
                     )
             ),
@@ -774,7 +783,7 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 actionUse =
                     ComponentDescriber.ActionUse(
-                        objectPhrase = "a card",
+                        reference = ComponentDescriber.ActionUse.Reference.Fixed("a card"),
                         paymentDiscount = ComponentDescriber.PaymentDiscount("play a card"),
                     )
             ),
@@ -823,11 +832,6 @@ internal object TerraformingMarsDescribers {
       plural: String,
   ): ComponentDescriber.Noun.Counted = ComponentDescriber.Noun.Counted(singular, plural)
 
-  private fun count(
-      singular: String,
-      plural: String,
-  ): ComponentDescriber.Requirement.Bound =
-      ComponentDescriber.Requirement.Bound.Count(
-          ComponentDescriber.Noun.Counted(singular, plural),
-      )
+  private fun count(noun: ComponentDescriber.Noun.Counted): ComponentDescriber.Requirement.Bound =
+      ComponentDescriber.Requirement.Bound.Count(noun)
 }

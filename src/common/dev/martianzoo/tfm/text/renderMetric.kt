@@ -488,9 +488,7 @@ private fun Describers.placementCountPhrase(
       } else {
         null
       }
-  val referenceNoun =
-      placement.referenceNoun
-          ?: ComponentDescriber.Noun.Counted(placement.singular, placement.plural)
+  val referenceNoun = placement.referenceNoun ?: placement.noun
   val determiner = null
   val noun = NounPhrase(referenceNoun.singular, referenceNoun.plural, count, determiner)
   return listOfNotNull(
@@ -539,8 +537,8 @@ private fun Describers.renderSpatialFilter(requirement: Requirement): Modifier? 
     return Modifier.Relation(
         "with",
         NounPhrase(
-            positioned.singular,
-            positioned.plural,
+            positioned.noun.singular,
+            positioned.noun.plural,
             determiner = Determiner.NO,
             grammaticalNumber = NounPhrase.GrammaticalNumber.PLURAL,
         ),
@@ -583,9 +581,7 @@ private fun Describers.spatialTarget(expression: Expression, count: Int): NounPh
     val resolved = resolveExpression(expression) ?: return null
     val ownerKey = Key(OWNED, 0)
     if (resolved.sourceDependencies.keys.any { it != ownerKey }) return null
-    val noun =
-        placement.referenceNoun
-            ?: ComponentDescriber.Noun.Counted(placement.singular, placement.plural)
+    val noun = placement.referenceNoun ?: placement.noun
     if (
         resolved.hasOnlySourceDependency(ownerKey, ownerExpression) ||
             (resolved.sourceDependencies.isEmpty() &&

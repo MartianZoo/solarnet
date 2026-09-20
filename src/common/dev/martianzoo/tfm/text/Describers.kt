@@ -335,10 +335,8 @@ private constructor(
     if (!isTag(className)) return null
     val singular =
         tagName(className)?.let { "$it tag" }
-            ?: (triggerFrame(className) as? ComponentDescriber.TriggerFrame.PlayTag)?.noun
-            ?: return null
-    val plural = if (singular.endsWith("tag")) singular + "s" else singular
-    return ComponentDescriber.Noun.Counted(singular, plural)
+            ?: return (triggerFrame(className) as? ComponentDescriber.TriggerFrame.PlayTag)?.noun
+    return ComponentDescriber.Noun.Counted(singular, "${singular}s")
   }
 
   internal fun playedTagPhrase(className: ClassName): NounPhrase? {

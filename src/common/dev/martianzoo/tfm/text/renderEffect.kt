@@ -483,8 +483,8 @@ private fun enabledLatchMarker(effect: Effect): Expression? {
 private fun resetsAfterAction(trigger: Trigger, describers: Describers): Boolean {
   val action = describers.actionUseEvent(trigger) ?: return false
   if (action.slot != null) return false
-  return describers.fact(action.provider.className, ComponentDescriber::actionUse)?.objectPhrase ==
-      "an action"
+  return describers.fact(action.provider.className, ComponentDescriber::actionUse)?.reference ==
+      ComponentDescriber.ActionUse.Reference.AnyAction
 }
 
 private fun resetsForPreludeAction(trigger: Trigger): Boolean {

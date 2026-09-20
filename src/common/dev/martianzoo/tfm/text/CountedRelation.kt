@@ -124,7 +124,7 @@ private fun renderParticipant(
               null -> placement.determiner to ComponentDescriber.OwnershipPhrase.IMPLICIT
             }
       }
-  val placementNoun = ComponentDescriber.Noun.Counted(placement.singular, placement.plural)
+  val placementNoun = placement.noun
   val noun =
       if (determiner == Determiner.THIS) placementNoun else placement.referenceNoun ?: placementNoun
   val modifiers =
@@ -142,7 +142,7 @@ private fun renderParticipant(
                   return null
                 }
                 val containedNoun =
-                    describers.positionedFrame(contained.className)?.singular
+                    describers.positionedFrame(contained.className)?.noun?.singular
                         ?: describers.componentNoun(contained.className, 1)
                 listOf(
                     Modifier.Relation(

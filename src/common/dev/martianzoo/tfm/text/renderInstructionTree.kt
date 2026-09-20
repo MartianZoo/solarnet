@@ -900,6 +900,6 @@ private fun Describers.renderPlacedPieceSiteCondition(
       }
   return Clause.Simple(
       Predicate(Verb.BE, modifiers = listOf(Modifier.Relation("on", sitePhrase))),
-      NounPhrase(piece.singular, determiner = piece.determiner),
+      NounPhrase(piece.noun.singular, determiner = piece.determiner),
   )
 }

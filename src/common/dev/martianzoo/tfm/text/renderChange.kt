@@ -160,8 +160,8 @@ private fun renderCountedProcedure(
       return null
   val count = gain.count.fixedQuantity() ?: return null
   val noun =
-      if (count == 1 && frame.verb == "place") {
-        NounPhrase(frame.noun.singular, frame.noun.plural, determiner = Determiner.INDEFINITE)
+      if (count == 1 && frame.singularDeterminer != null) {
+        NounPhrase(frame.noun.singular, frame.noun.plural, determiner = frame.singularDeterminer)
       } else {
         NounPhrase(frame.noun.singular, frame.noun.plural, count = count)
       }
@@ -333,10 +333,10 @@ private fun renderPositionedConversion(
   val siteDescription = describers.placementSite(site.className) ?: return null
   val siteNoun = describers.describedNoun(site.className, siteDescription.noun, 1)
   val source =
-      NounPhrase(removingFrame.singular, determiner = removingFrame.determiner)
+      NounPhrase(removingFrame.noun.singular, determiner = removingFrame.determiner)
           .withModifier(Modifier.Relation("on", NounPhrase(siteNoun, determiner = Determiner.ANY)))
   val destination =
-      NounPhrase(gainingFrame.singular, determiner = gainingFrame.determiner)
+      NounPhrase(gainingFrame.noun.singular, determiner = gainingFrame.determiner)
           .withModifier(Modifier.Relation("on", NounPhrase(siteNoun, determiner = Determiner.THAT)))
   return clause("change", source, Modifier.Relation("into", destination))
 }
