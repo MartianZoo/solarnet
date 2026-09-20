@@ -1,7 +1,8 @@
 package dev.martianzoo.pets.data
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
@@ -23,7 +24,7 @@ internal class GamePremiseTest {
             moduleSelections = mapOf(cn("OptionalModule") to emptySet()),
         )
 
-    shouldThrow<PetException> {
+    shouldThrow<InvalidGameConfigException> {
       premise(catalog, playerNames = listOf(cn("Missing")))
     }
     shouldReject(catalog, playerNames = listOf(cn("Blue"), cn("Blue")))
@@ -63,6 +64,20 @@ internal class GamePremiseTest {
     }
   }
 
+  @Test
+  internal fun rejectsConflictingPremiseDeclarationsAsInvalidConfiguration() {
+    val catalog = testCatalog("CLASS Existing")
+    val duplicateDeclarations =
+        (parseClasses("CLASS Local") + parseClasses("ABSTRACT CLASS Local")).toSet()
+
+    shouldThrow<InvalidGameConfigException> {
+      premise(catalog, premiseDeclarations = duplicateDeclarations)
+    }
+    shouldThrow<InvalidGameConfigException> {
+      premise(catalog, premiseDeclarations = parseClasses("CLASS Existing").toSet())
+    }
+  }
+
   private fun shouldReject(
       catalog: Catalog,
       modules: Set<ClassName> = emptySet(),
@@ -72,7 +87,7 @@ internal class GamePremiseTest {
       bootstrapClassName: ClassName? = null,
       premiseClassName: ClassName? = null,
   ) {
-    shouldThrow<IllegalArgumentException> {
+    shouldThrow<InvalidGameConfigException> {
       premise(
           catalog,
           modules,
@@ -93,6 +108,7 @@ internal class GamePremiseTest {
       playerNames: List<ClassName> = emptyList(),
       bootstrapClassName: ClassName? = null,
       premiseClassName: ClassName? = null,
+      premiseDeclarations: Set<ClassDeclaration> = emptySet(),
   ): GamePremise =
       GamePremise(
           catalog,
@@ -102,5 +118,6 @@ internal class GamePremiseTest {
           playerNames,
           bootstrapClassName,
           premiseClassName,
+          premiseDeclarations,
       )
 }

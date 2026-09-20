@@ -1,6 +1,6 @@
 package dev.martianzoo.pets.types
 
-import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
@@ -29,23 +29,25 @@ internal class ClassLimitTemplateTable(private val masterTable: ClassTable) {
   internal fun dependencyTargetsFor(klass: Class): List<GroundType> =
       if (klass.classTable === masterTable) {
         masterDependencyTargets.getOrPut(klass) {
-          klass.dependencies.concreteDependencyTargets().toList()
+          klass.dependencies.concreteDependencyTargets(masterTable).toList()
         }
       } else {
-        klass.dependencies.concreteDependencyTargets().toList()
+        klass.dependencies.concreteDependencyTargets(klass.classTable).toList()
       }
 
   private fun compile(klass: Class, resolutionTable: ClassTable): List<Template> =
       klass.invariants.map { invariant ->
         val counting =
             invariant as? Counting
-                ?: throw invalidPetDefinition(
-                    "Class invariant on ${klass.className} is not a counting requirement: $invariant"
+                ?: throw InvalidPetDefinitionException(
+                    "class invariant on `${klass.className}` is not a counting requirement: " +
+                        "`$invariant`"
                 )
         val expression =
             (counting.metric as? Metric.Count)?.expression
-                ?: throw invalidPetDefinition(
-                    "Class invariant on ${klass.className} must count one component expression: $invariant"
+                ?: throw InvalidPetDefinitionException(
+                    "class invariant on `${klass.className}` must count one component expression: " +
+                        "`$invariant`"
                 )
         Template(
             expression,

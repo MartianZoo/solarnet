@@ -222,7 +222,8 @@ public class ScriptSession(
             else -> "special"
           }
       val owner =
-          tile.expressionFull.arguments
+          tile.typeDependencies
+              .map { it.boundType }
               .firstOrNull { it.className in playerClassNames }
               ?.className
               ?.toString()

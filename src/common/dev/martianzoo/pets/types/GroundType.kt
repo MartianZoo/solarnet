@@ -1,7 +1,6 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.PetTransformer
-import dev.martianzoo.pets.api.Exceptions
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
@@ -73,7 +72,7 @@ internal constructor(
       resolutionTable
           ?: dependencies.classTable?.let { dependencyTable ->
             requireNotNull(rootClass.classTable.commonTable(dependencyTable)) {
-              "$rootClass and its dependencies belong to different class tables"
+              "`$rootClass` and its dependencies belong to different class tables"
             }
           }
           ?: rootClass.classTable
@@ -101,15 +100,15 @@ internal constructor(
 
   init {
     require(classTable.accepts(rootClass.classTable)) {
-      "$rootClass cannot be interpreted by $classTable"
+      "`$rootClass` cannot be interpreted by `$classTable`"
     }
     dependencies.classTable?.let { dependencyTable ->
       require(classTable.accepts(dependencyTable)) {
-        "$dependencies cannot be interpreted by $classTable"
+        "`$dependencies` cannot be interpreted by `$classTable`"
       }
     }
     require(dependencies.keys == rootClass.dependencies.keys) {
-      "expected keys ${rootClass.dependencies.keys}, got $dependencies"
+      "expected keys `${rootClass.dependencies.keys}`, found `$dependencies`"
     }
     rootClass.requireVariableEqualitiesSatisfied(dependencies)
     if (refinement != null) classTable.checkAllTypes(refinement)
@@ -150,7 +149,7 @@ internal constructor(
       when (val value = rootClass.properties.getValue(PropertyName(propertyName))) {
         AbsentRequirementValue -> null
         is RequirementValue -> value.value
-        else -> error("Property `$propertyName` is not a concrete Requirement value: $value")
+        else -> error("property `$propertyName` is not a concrete Requirement value: `$value`")
       }
 
   /**
@@ -180,7 +179,7 @@ internal constructor(
   internal fun glbIn(that: Type, classTable: ClassTable): GroundType? {
     val that = that.groundType
     require(classTable.knows(this) && classTable.knows(that)) {
-      "$this and $that cannot both be interpreted by this class table"
+      "`$this` and `$that` cannot both be interpreted by this class table"
     }
     val glbClass = classTable.glb(rootClass, that.rootClass) ?: return null
     val glbDeps = classTable.glb(dependencies, that.dependencies) ?: return null
@@ -200,7 +199,9 @@ internal constructor(
       classTable: ClassTable = this.classTable,
   ): GroundType =
       rootClass
-          .withAllDependencies(dependencies.specialize(specs, classTable))
+          .withAllDependencies(
+              dependencies.specialize(specs, argumentDependencies.keys, classTable)
+          )
           .inTable(classTable)
           .refine(refinement)
 
@@ -231,7 +232,7 @@ internal constructor(
     get() = expressionLazy.value
 
   private val expressionFullLazy = lazy {
-    toExpressionUsingSpecs(dependencies.expressionsFull())
+    toExpressionUsingSpecs(argumentDependencies.expressionsFull())
   }
   /**
    * The full round-tripping expression specified by
@@ -251,8 +252,8 @@ internal constructor(
     get() = narrowedDependenciesLazy.value
 
   private fun compactDependencyExpressions(): List<Expression> {
-    val keys = dependencies.keys
-    val expressions = dependencies.expressions()
+    val keys = argumentDependencies.keys
+    val expressions = argumentDependencies.expressions()
     val narrowed = narrowedDependencies.keys.toSet()
     val write = MutableList(keys.size) { keys[it] in narrowed }
 
@@ -296,31 +297,10 @@ internal constructor(
     return compact
   }
 
+  internal val argumentDependencies: DependencySet
+    get() = dependencies.subMapInOrder(rootClass.argumentDependencies.keys)
+
   private fun toExpressionUsingSpecs(specs: List<Expression>) = className.of(specs).has(refinement)
-
-  /**
-   * Enumerates every concrete structural candidate below this type's structural domain according to
-   * [rules T11-1 and T11-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
-   * A `NOT` refinement filters the candidates because it is decided structurally; a `HAS`
-   * refinement is left for a caller with a world to test. The sequence can be very large.
-   */
-  override fun allConcreteSubtypes(): Sequence<GroundType> {
-    return classTable.allConcreteSubtypes(this)
-  }
-
-  /**
-   * Returns the sole concrete narrowing in the master universe when every structural choice is
-   * unique and its refinement accepts [info], as specified by
-   * [rule T11-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
-   */
-  override fun singleConcreteSubtype(info: TypeInfo): GroundType? {
-    return classTable.singleConcreteSubtype(this, info)
-  }
-
-  /** Returns the subset of [allConcreteSubtypes] having the exact same [rootClass] as ours. */
-  // used publicly only by `desc random`
-  internal fun concreteSubtypesSameClass(): Sequence<GroundType> =
-      classTable.concreteSubtypesSameClass(this)
 
   /**
    * Asserts the contextual narrowing relation with [that], consulting [info] only for a `HAS`
@@ -336,19 +316,19 @@ internal constructor(
 
     that.refinement?.conjuncts()?.forEach { targetRefinement ->
       when (targetRefinement) {
-        is Refinement.And -> error("nested refinement conjunction: $targetRefinement")
+        is Refinement.And -> error("nested refinement conjunction: `$targetRefinement`")
         is Not -> {
           if (
               !alreadyGuarantees(targetRefinement) &&
                   !isDisjointFrom(targetRefinement.excluded, comparisonTable)
           ) {
-            throw NarrowingException("$this does not satisfy $targetRefinement")
+            throw NarrowingException("`$this` does not satisfy `$targetRefinement`")
           }
         }
         is Has -> {
           if (refinement != null) {
             if (!alreadyGuarantees(targetRefinement) || !readsPredicatesAlike(that)) {
-              throw NarrowingException("$this does not have refinement $targetRefinement")
+              throw NarrowingException("`$this` does not have refinement `$targetRefinement`")
             }
           } else {
             val requirement =
@@ -360,9 +340,11 @@ internal constructor(
                       comparisonTable,
                   )
                 } catch (e: ExpressionException) {
-                  throw NarrowingException("$this does not satisfy $targetRefinement", e)
+                  throw NarrowingException("`$this` does not satisfy `$targetRefinement`", e)
                 }
-            if (!info.has(requirement)) throw Exceptions.refinementNotMet(requirement)
+            if (!info.has(requirement)) {
+              throw NarrowingException("requirement not met: `$requirement`")
+            }
           }
         }
       }
@@ -383,7 +365,7 @@ internal constructor(
 
     return that.refinement?.conjuncts()?.all { targetRefinement ->
       when (targetRefinement) {
-        is Refinement.And -> error("nested refinement conjunction: $targetRefinement")
+        is Refinement.And -> error("nested refinement conjunction: `$targetRefinement`")
         is Not ->
             alreadyGuarantees(targetRefinement) ||
                 isDisjointFrom(targetRefinement.excluded, comparisonTable)
@@ -452,7 +434,7 @@ internal constructor(
 
   private fun requireSameClassTable(that: GroundType): ClassTable {
     return requireNotNull(classTable.commonTable(that.classTable)) {
-      "$this and $that belong to different class tables"
+      "`$this` and `$that` belong to different class tables"
     }
   }
 

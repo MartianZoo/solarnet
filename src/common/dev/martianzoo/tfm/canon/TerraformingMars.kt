@@ -41,7 +41,7 @@ internal val terraformingMarsCustomClasses: Set<CustomClass> =
     setOf(
         TerraformingMars.Neighbor,
         TerraformingMars.AdjustGpRequirement,
-        TerraformingMars.HandleCardTags,
+        TerraformingMars.PriceCard,
         TerraformingMars.ScoreEventVps,
         TerraformingMars.NonNegativeIconsOf,
         TerraformingMars.PlacementBonus,
@@ -69,9 +69,9 @@ private object TerraformingMars {
 
   internal object NonNegativeIconsOf : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
-      val (cardExpression, targetExpression) = type.expressionFull.arguments
-      val effects = cardEffects(card(cardExpression, game))
-      val target = targetExpression.arguments.single().className
+      val (cardType, targetClassType) = type.typeDependencies.map { it.boundType }
+      val effects = cardEffects(card(cardType, game))
+      val target = requireNotNull(targetClassType.representedClass).className
       return effects.sumOf { it.citationsOutsideRemoval(target) }
     }
 
@@ -97,8 +97,9 @@ private object TerraformingMars {
 
   internal object PlacementBonus : CustomMetric() {
     override fun count(game: GameReader, type: Type): Int {
-      val arguments = type.expressionFull.arguments
-      val resourceName = arguments.single { it.className == CLASS }.arguments.single().className
+      val arguments = type.typeDependencies.map { it.boundType }
+      val resourceName =
+          requireNotNull(arguments.single { it.className == CLASS }.representedClass).className
       val areaName = arguments.single { it.className != CLASS }.className
       val bonus = mapDefinition(game).areas.single { it.className == areaName }.bonus ?: return 0
       return bonus.descendantsOfType<Gain>().sumOf {
@@ -187,13 +188,13 @@ private object TerraformingMars {
     private val FALLBACK_UNAVAILABLE: Instruction = Gated.create(parse<Requirement>("Die"), NoOp)
   }
 
-  private val PLAY_TAG = cn("PlayTag")
+  private val PAYING_FOR = cn("PayingFor")
   private val REQUIRED = cn("Required")
   private val CHECK_REQUIREMENT = cn("CheckRequirement")
   private val GLOBAL_PARAMETER = cn("GlobalParameter")
 
-  internal object HandleCardTags : CustomClass() {
-    override val requiredClassNames: Set<ClassName> = setOf(PLAY_TAG)
+  internal object PriceCard : CustomClass() {
+    override val requiredClassNames: Set<ClassName> = setOf(PAYING_FOR)
 
     override fun translate(
         reader: GameReader,
@@ -203,8 +204,8 @@ private object TerraformingMars {
       val card = cardFromClassType(cardFrontClassType, reader)
       return Then.create(
           cardTags(card).entries.map { (tagName, count) ->
-            gain(PLAY_TAG.of(tagName.classExpression()), count)
-          }
+            gain(PAYING_FOR.of(tagName.classExpression()), count)
+          } + gain(PAYING_FOR.of(card.className.classExpression()))
       )
     }
   }
@@ -228,7 +229,7 @@ private object TerraformingMars {
 
   private fun representedType(classType: Type, reader: GameReader): Type {
     require(classType.className == CLASS)
-    return reader.resolve(classType.expressionFull.arguments.single())
+    return reader.resolve(requireNotNull(classType.representedClass).className.expression)
   }
 
   private fun card(type: HasClassName, reader: GameReader): Class =

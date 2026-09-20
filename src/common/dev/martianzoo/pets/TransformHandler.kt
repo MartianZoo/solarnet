@@ -1,6 +1,6 @@
 package dev.martianzoo.pets
 
-import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Instruction
@@ -46,13 +46,16 @@ public fun interface TransformHandler {
       val handler = handlers[kind] ?: return transformChildren(node)
       // Rule L10-5: the syntax admits PROD[PROD[...]], but a second mark could only mean what the
       // first already means, so the handler for that kind rejects it.
-      if (!activeKinds.add(kind)) throw PetSyntaxException("$kind transforms cannot be nested")
+      if (!activeKinds.add(kind)) {
+        throw ExpressionException("`$kind` transforms cannot be nested")
+      }
       return try {
         val inner = transformWithoutKindCheck(node.extract())
         val replacement = handler.transform(inner) ?: return rewrap(node, inner, kind)
         if (!accepts(node, replacement)) {
-          throw PetSyntaxException(
-              "$kind handler returned ${replacement.kind.simpleName} for ${inner.kind.simpleName}"
+          throw IllegalStateException(
+              "`$kind` handler returned `${replacement.kind.simpleName}` for " +
+                  "`${inner.kind.simpleName}`"
           )
         }
         transformWithoutKindCheck(replacement)
@@ -78,7 +81,7 @@ public fun interface TransformHandler {
           is Metric.Transform -> TransformNode.wrap(inner as Metric, kind)
           is Requirement.Transform -> TransformNode.wrap(inner as Requirement, kind)
           is Trigger.Transform -> TransformNode.wrap(inner as Trigger, kind)
-          else -> error("Unknown transform node: $zone")
+          else -> error("unknown transform node: `$zone`")
         }
   }
 }

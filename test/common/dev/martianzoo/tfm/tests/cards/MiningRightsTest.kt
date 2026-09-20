@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestOption.Cimmeria
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -47,6 +47,6 @@ internal class MiningRightsTest : CardTest() {
   @Test
   internal fun `Cannot select a card-bonus area`() {
     newGame()
-    shouldThrow<NotNowException> { p1.runOperation("$MiningRights") { placeTile(2, 1) } }
+    shouldThrow<GameplayException> { p1.runOperation("$MiningRights") { placeTile(2, 1) } }
   }
 }

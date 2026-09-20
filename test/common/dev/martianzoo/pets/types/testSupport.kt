@@ -46,16 +46,15 @@ internal fun testCatalog(
   }
 }
 
-/** Builds the game view of [catalog] whose premise selects exactly [activeClassNames]. */
-internal fun gameView(catalog: Catalog, vararg activeClassNames: String): ClassTable =
-    ClassTable.forPremise(
-        GamePremise(
+/** Builds the game view of [catalog] whose premise selects exactly [selectedClassNames]. */
+internal fun gameView(catalog: Catalog, vararg selectedClassNames: String): ClassTable =
+    GamePremise(
             catalog,
             emptySet(),
-            activeClassNames.mapTo(linkedSetOf()) { ClassSelection(cn(it)) },
+            selectedClassNames.mapTo(linkedSetOf()) { ClassSelection(cn(it)) },
             emptySet(),
         )
-    )
+        .classTable
 
 /** Asserts that [block] rejects an argument, as cross-universe operations do. */
 internal inline fun shouldThrowIae(block: () -> Unit): IllegalArgumentException =

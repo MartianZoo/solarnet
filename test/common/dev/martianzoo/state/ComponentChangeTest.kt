@@ -2,11 +2,20 @@ package dev.martianzoo.state
 
 import dev.martianzoo.engine.testClassTable
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 import kotlin.test.assertFails
 
 internal class ComponentChangeTest {
+
+  @Test
+  internal fun componentTypeMustBeConcrete() {
+    val abstractType = testClassTable("ABSTRACT CLASS Choice").getClass(cn("Choice")).baseType
+
+    shouldThrow<IllegalArgumentException> { abstractType.toComponent() }.message shouldBe
+        "component type must be concrete: `Choice`"
+  }
 
   @Test
   internal fun changeKindsRejectInvalidValues() {

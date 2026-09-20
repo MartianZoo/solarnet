@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.script.commands
 
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.util.toSetStrict
 import dev.martianzoo.tfm.script.ScriptCommand
 import dev.martianzoo.tfm.script.ScriptCompletion
@@ -69,6 +70,8 @@ internal class NewGameCommand(private val repl: ScriptSession) : ScriptCommand("
 
       return listOf("New $playerCount-player game created with options: $effectiveOptionCodes") +
           (if (purple) listOf("Purple mode: workflow active") else emptyList())
+    } catch (e: InvalidGameConfigException) {
+      throw UsageException(e.message)
     } catch (e: RuntimeException) {
       throw UsageException(e.message)
     }

@@ -50,13 +50,13 @@ public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer(
         node.immediateChildren().any { it.containsDerivedClass() } ||
             bodyNodes.any { it.containsDerivedClass() }
     ) {
-      throw PetSyntaxException("Owner-local Classes cannot contain owner-local Classes")
+      throw PetSyntaxException("owner-local Classes cannot contain owner-local Classes")
     }
     // Rule L11-6: one owner declares at most one unnamed local class per base name, so the derived
     // name stays stable rather than depending on source order.
     if (!claimedBases.add(base)) {
       throw PetSyntaxException(
-          "Owner $owner has more than one unnamed derived $base Class; declare them explicitly"
+          "owner `$owner` declares more than one unnamed derived `$base` Class"
       )
     }
 
@@ -64,10 +64,14 @@ public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer(
     // refinements constrain only the occurrence — a refined type cannot be a supertype (L1-9).
     val loweredArguments = node.arguments.map(::transformExpression)
     val loweredRefinement = node.refinement?.let(::transformRefinement)
+    val declarationContext = Transforming.replaceThisExpressionsWith(owner.expression)
     val supertype =
         Expression(
             className = base,
-            arguments = loweredArguments.map(::withoutRefinements),
+            arguments =
+                loweredArguments
+                    .map(declarationContext::transformExpression)
+                    .map(::withoutRefinements),
         )
     val declaration = body.asDerivedDeclaration(generated, supertype)
     declarationsByBase[base] = transformDeclaration(declaration)

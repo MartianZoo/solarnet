@@ -1,15 +1,7 @@
 "Expansion adding the Terraforming Committee and Global Events"
 CLASS TurmoilExpansion : Module {
-  HAS Class<RefillLobby>, Class<MeasureInfluence>, Class<ApplyRulingBonus>, Class<FormGovernment>, Class<ChangingTimes>
-  HAS Class<TurmoilSolarOperation>
-  HAS Class<ResolveCurrentGlobalEvent>, Class<ResolveGlobalEvent>
-  HAS Class<RemoveOceanForGlobalEvent>, Class<ChooseDryDesertResource>
-  HAS Class<RaiseTemperatureForGlobalEvent>, Class<RaiseTemperatureAgainForGlobalEvent>
-  HAS Class<ResolveDryDeserts>, Class<ResolveDiversity>
-  HAS Class<ResolveSponsoredProjects>, Class<ResolveCloudSocieties>
-  HAS Class<AddResourceToCard>
-  HAS Class<ChooseInfluenceFloaterCard>, Class<ResolveCorrosiveRain>
-  This: Neutral, EACH Class<Party> { Party }, LobbyAction, UseTurmoilPolicyAction
+  This: Neutral, LobbyAction, UseTurmoilPolicyAction
+  This: MarsFirst THEN Kelvinists THEN Reds THEN Greens THEN Unity THEN Scientists
   SetupPhase:: EACH Player { TurmoilPlayer, LobbyActionAvailable }
   SetupPhase:: Chairman<Neutral>, Ruling<Greens>
   SetupPhase: RevealComingEvent
@@ -22,22 +14,23 @@ CLASS Terraformer26 : Milestone { requirement = HAS "26 TerraformRating" }
 CLASS TurmoilSolarOperation : Temporary, System {
   HAS MAX 1 This
   This:: EACH Player { -TerraformRating. }
-  This:: ResolveCurrentGlobalEvent
+  This:: \
+    EACH Player { MeasureInfluence<Player> }, \
+    EACH Class<GlobalEvent>(HAS Current<Class<GlobalEvent>>) { ResolveGlobalEvent<Class<GlobalEvent>> }
   -This: FormGovernment THEN ChangingTimes
 }
 
-"A revealed Global Event card"
+"A revealed Global Event card, discarded once it leaves the Current position"
 ABSTRACT CLASS GlobalEvent {
   HAS MAX 1 This
-  This IF RevealComingEvent:: Coming<Class<This>>, PlaceDistantDelegate<Class<This>>
+  This IF RevealComingEvent:: Coming<Class<This>>
   This IF RevealDistantEvent:: Distant<Class<This>>
-  Distant<Class<This>>:: PlaceDistantDelegate<Class<This>>
   -Current<Class<This>>:: -This!
 }
 
 "The party receiving the neutral delegate printed in a Global Event's distant position"
 ABSTRACT CLASS GePartyDistant<Party> : GlobalEvent {
-  PlaceDistantDelegate<Class<This>>:: PartyDelegate<Party, Neutral>.
+  This:: PartyDelegate<Party, Neutral>.
 }
 
 "The party receiving the neutral delegate when a Global Event becomes current"
@@ -45,23 +38,12 @@ ABSTRACT CLASS GePartyCurrent<Party> : GlobalEvent {
   Current<Class<This>>:: PartyDelegate<Party, Neutral>.
 }
 
-"One Global Event card occupying its printed board position"
-ABSTRACT CLASS GlobalEventPosition<Class<GlobalEvent>>
-
-CLASS Current<Class<GlobalEvent>> : GlobalEventPosition<Class<GlobalEvent>> {
-  HAS MAX 1 Current
+"One printed board position, occupied by at most one Global Event card"
+ABSTRACT CLASS GlobalEventPosition<Class<GlobalEvent>> {
+  CLASS Current { HAS MAX 1 Current }
+  CLASS Coming { HAS MAX 1 Coming }
+  CLASS Distant { HAS MAX 1 Distant }
 }
-
-CLASS Coming<Class<GlobalEvent>> : GlobalEventPosition<Class<GlobalEvent>> {
-  HAS MAX 1 Coming
-}
-
-CLASS Distant<Class<GlobalEvent>> : GlobalEventPosition<Class<GlobalEvent>> {
-  HAS MAX 1 Distant
-}
-
-"Requests the top-left neutral delegate printed on one revealed event"
-CLASS PlaceDistantDelegate<Class<GlobalEvent>> : Signal
 
 "Requests the first revealed event and then the second setup event"
 CLASS RevealComingEvent : Barrier {
@@ -75,88 +57,31 @@ CLASS RevealDistantEvent : Barrier {
   This: GlobalEvent THEN -This!
 }
 
-"Measures every player's influence and resolves the exact Current Global Event"
-CLASS ResolveCurrentGlobalEvent : Signal {
-  This:: \
-    EACH Player { MeasureInfluence<Player> }, \
-    EACH Class<GlobalEvent>(HAS Current<Class<GlobalEvent>>) { ResolveGlobalEvent<Class<GlobalEvent>> }
-}
-
 "Requests the printed effect of one Global Event"
 CLASS ResolveGlobalEvent<Class<GlobalEvent>> : Signal
 
 "Lets the first player return one placed Ocean without reducing rating"
-CLASS RemoveOceanForGlobalEvent : Owned<Player>, Barrier {
-  HAS MAX 1 This
-  This: -OceanTile. THEN -This!
-}
+CLASS RemoveOceanForGlobalEvent : Owned<Player>, Signal { This: -OceanTile }
 
-"Lets a player choose one standard resource granted by Dry Deserts"
-CLASS ChooseDryDesertResource<Influence<Player>> : Owned<Owner>, Barrier {
-  This: StandardResource THEN -This!
-}
-
-"Creates one independent Dry Deserts choice for each of a player's influence"
+"Lets each of one player's influence choose its own Dry Deserts resource"
 CLASS ResolveDryDeserts : Owned<Player>, Signal {
-  This:: EACH Influence<Owner> { ChooseDryDesertResource<Influence> }
-}
-
-"Raises temperature twice for Admin, stopping if the first step completes the track"
-CLASS RaiseTemperatureForGlobalEvent : Owned<Player>, Signal {
-  This IF GpIncomplete<Class<TemperatureStep>>:: \
-    TemperatureStep BY Admin THEN RaiseTemperatureAgainForGlobalEvent<Owner>
-}
-
-CLASS RaiseTemperatureAgainForGlobalEvent : Owned<Player>, Signal {
-  This IF GpIncomplete<Class<TemperatureStep>>:: TemperatureStep BY Admin
-}
-
-"Pays one player for meeting Diversity's tag-type and influence threshold"
-CLASS ResolveDiversity : Owned<Player>, Signal {
-  This IF MAX 0 Influence, 9 Class<Tag>(HAS Tag<Owner>):: 10 MC
-  This IF =1 Influence, 8 Class<Tag>(HAS Tag<Owner>):: 10 MC
-  This IF =2 Influence, 7 Class<Tag>(HAS Tag<Owner>):: 10 MC
-  This IF =3 Influence, 6 Class<Tag>(HAS Tag<Owner>):: 10 MC
-}
-
-"Resolves Sponsored Projects for one player and that player's compatible cards"
-CLASS ResolveSponsoredProjects : Owned<Player>, Signal {
-  This:: EACH ResourceCard<Owner> { \
-    AddResourceToCard<ResourceCard> \
-  }
-  This:: ProjectCard / Influence
-}
-
-"Adds the resource type accepted by one compatible resource card"
-CLASS AddResourceToCard<ResourceCard<Class<CardResource>, Player>> : Owned<Player>, Signal {
-  This:: CardResource<ResourceCard>
-}
-
-"Adds Cloud Societies floaters to every compatible card, then requests one card for influence"
-CLASS ResolveCloudSocieties : Owned<Player>, Signal {
-  This IF ResourceCard<Class<Floater>>:: \
-    EACH ResourceCard<Class<Floater>, Owner> { \
-      AddResourceToCard<ResourceCard<Class<Floater>, Owner>> \
-    }, \
-    ChooseInfluenceFloaterCard<Owner>
+  This: EACH Influence<Owner> { StandardResource }
 }
 
 "Lets one player put all Cloud Societies influence floaters on a single compatible card"
-CLASS ChooseInfluenceFloaterCard : Owned<Player>, Barrier {
-  HAS MAX 1 This
-  This: Floater<ResourceCard<Class<Floater>, Owner>> / Influence THEN -This!
+CLASS ChooseInfluenceFloaterCard : Owned<Player>, Signal {
+  This: Floater<ResourceCard<Class<Floater>, Owner>> / Influence
 }
 
-"Lets a player resolve Corrosive Rain before drawing cards for influence"
-CLASS ResolveCorrosiveRain : Owned<Player>, Barrier {
-  HAS MAX 1 This
-  This: (-2 Floater! OR -10 MC.) THEN (ProjectCard / Influence, -This!)
+"Lets one player pay Corrosive Rain before drawing cards for influence"
+CLASS ResolveCorrosiveRain : Owned<Player>, Signal {
+  This: (-2 Floater! OR -10 MC.) THEN ProjectCard / Influence
 }
 
 "Moves every revealed Global Event one position and requests the next event"
 CLASS ChangingTimes : Signal {
   This:: \
-    EACH Class<GlobalEvent>(HAS Current<Class<GlobalEvent>>) { -Current<Class<GlobalEvent>>! }, \
+    -Current., \
     EACH Class<GlobalEvent>(HAS Coming<Class<GlobalEvent>>) { \
       Current<Class<GlobalEvent>> FROM Coming<Class<GlobalEvent>> \
     }, \
@@ -166,64 +91,60 @@ CLASS ChangingTimes : Signal {
     RevealDistantEvent
 }
 
-"A player participating in the Turmoil political rules"
+"A player's reserve of seven delegates, held for as long as Turmoil is in play"
 CLASS TurmoilPlayer : Owned<Player>, System {
   HAS MAX 1 This
   Delegate IF 8 Delegate:: Die
 }
 
-"The owner of gray delegates"
+"The owner of gray delegates, who holds a reserve of fourteen"
 CLASS Neutral : Owner {
   HAS =1 This, MAX 14 Delegate<This>
 }
 
 ABSTRACT CLASS Party {
   HAS MAX 1 This
+  HAS MAX 1 AfterParty<This, Party>, MAX 1 AfterParty<Party, This>
   FormGovernment IF Dominant<This>:: \
-    (MAX 0 Ruling<This>: Ruling<This> FROM Ruling) OR (Ruling<This>: Ok), \
+    -Ruling! THEN Ruling<This>, \
     ApplyRulingBonus<This>, \
     EACH Anyone(HAS Chairman) { -Chairman<Anyone> }, \
     EACH Anyone(HAS PartyDelegate<This, Anyone>) { \
       -PartyDelegate<This, Anyone> / (PartyDelegate<This, Anyone> - PartyLeader<This, Anyone>) \
     }, \
-    EACH Anyone(HAS PartyLeader<This, Anyone>) { Chairman<Anyone> FROM PartyDelegate<This, Anyone> }, \
-    EACH Player(HAS PartyLeader<This, Player>) { TerraformRating<Player> }, \
-    EACH Anyone(HAS PartyLeader<This, Anyone>) { -PartyLeader<This, Anyone>! }, \
-    SelectDominanceAfter<This>, \
+    EACH Player(HAS PartyLeader<This, Player>) { \
+      Chairman<Player> FROM PartyDelegate<This, Player> THEN TerraformRating<Player> \
+    }, \
+    EACH Neutral(HAS PartyLeader<This, Neutral>) { \
+      Chairman<Neutral> FROM PartyDelegate<This, Neutral> \
+    }, \
+    EACH Party(HAS MAX 0 Dominant, HAS =1 (RANK Party { \
+      PartyDelegate<Party, Anyone>, PartyDistance<Party, This> \
+    })) { Dominant<Party> FROM Dominant }, \
     RefillLobby
 }
 CLASS MarsFirst : Party {
-  SelectDominanceAfter<This>:: \
-    5 DominancePriority<Kelvinists>, 4 DominancePriority<Reds>, 3 DominancePriority<Greens>, \
-    2 DominancePriority<Unity>, DominancePriority<Scientists>, RecalculateDominanceClockwise
   ApplyRulingBonus<This>:: EACH Player { 1 MC / BuildingTag }
   ActionPhase IF Ruling<This>:: MarsFirstPolicy
 }
 CLASS Scientists : Party {
-  SelectDominanceAfter<This>:: \
-    5 DominancePriority<MarsFirst>, 4 DominancePriority<Kelvinists>, 3 DominancePriority<Reds>, \
-    2 DominancePriority<Greens>, DominancePriority<Unity>, RecalculateDominanceClockwise
+  This:: AfterParty<Unity, This>, AfterParty<This, MarsFirst>
   ApplyRulingBonus<This>:: EACH Player { 1 MC / ScienceTag }
   ActionPhase IF Ruling<This>:: ScientistsPolicy
 }
 CLASS Unity : Party {
-  SelectDominanceAfter<This>:: \
-    5 DominancePriority<Scientists>, 4 DominancePriority<MarsFirst>, 3 DominancePriority<Kelvinists>, \
-    2 DominancePriority<Reds>, DominancePriority<Greens>, RecalculateDominanceClockwise
+  This:: AfterParty<Greens, This>
   ApplyRulingBonus<This>:: EACH Player { 1 MC / PlanetaryTag }
   ActionPhase IF Ruling<This>:: UnityPolicy
 }
 CLASS Greens : Party {
-  SelectDominanceAfter<This>:: \
-    5 DominancePriority<Unity>, 4 DominancePriority<Scientists>, 3 DominancePriority<MarsFirst>, \
-    2 DominancePriority<Kelvinists>, DominancePriority<Reds>, RecalculateDominanceClockwise
+  This:: AfterParty<Reds, This>
   ApplyRulingBonus<This>:: EACH Player { 1 MC / BioTag }
   ActionPhase IF Ruling<This>:: GreensPolicy
 }
 CLASS Reds : Party {
-  SelectDominanceAfter<This>:: \
-    5 DominancePriority<Greens>, 4 DominancePriority<Unity>, 3 DominancePriority<Scientists>, \
-    2 DominancePriority<MarsFirst>, DominancePriority<Kelvinists>, RecalculateDominanceClockwise
+  This:: AfterParty<Kelvinists, This>
+  // Ranking is highest-first, so rank each player by everyone else's rating to find the lowest.
   ApplyRulingBonus<This> IF MAX 0 SoloMode:: EACH Player(HAS =1 (RANK Player { TerraformRating<Owner(NOT Player)> })) { \
     TerraformRating<Player> \
   }
@@ -231,9 +152,7 @@ CLASS Reds : Party {
   ActionPhase IF Ruling<This>:: RedsPolicy
 }
 CLASS Kelvinists : Party {
-  SelectDominanceAfter<This>:: \
-    5 DominancePriority<Reds>, 4 DominancePriority<Greens>, 3 DominancePriority<Unity>, \
-    2 DominancePriority<Scientists>, DominancePriority<MarsFirst>, RecalculateDominanceClockwise
+  This:: AfterParty<MarsFirst, This>
   ApplyRulingBonus<This>:: EACH Player { 1 MC / PROD[Heat] }
   ActionPhase IF Ruling<This>:: KelvinistsPolicy
 }
@@ -244,11 +163,11 @@ CLASS ApplyRulingBonus<Party> : Signal
 "Performs the complete new-government sequence for the current Dominant party"
 CLASS FormGovernment : Signal
 
-"Requests the post-government dominance choice clockwise from one party"
-CLASS SelectDominanceAfter<Party> : Signal
+"Identifies the Party immediately after another Party around the committee"
+CLASS AfterParty<Party, Party> : System { HAS MAX 1 This }
 
-"A temporary rank weight representing clockwise party order"
-CLASS DominancePriority<Party> : Temporary, Hidden
+"The forward distance from one Party to another around the committee"
+CLASS PartyDistance<Party, Party> : Custom
 
 ABSTRACT CLASS PartyStatus<Party> {
   "The party with the greatest delegate count"
@@ -262,8 +181,9 @@ ABSTRACT CLASS PartyStatus<Party> {
   }
 }
 
-"The delegate holding the committee chair"
+"One of an owner's delegates, while it is placed on the committee"
 ABSTRACT CLASS Delegate : Owned<Owner> {
+  "The delegate holding the committee chair"
   CLASS Chairman {
     HAS MAX 1 Chairman
     MeasureInfluence:: ChairmanInfluence
@@ -286,6 +206,13 @@ CLASS PartyLeader<Party> : Owned<Owner> {
   This:: EACH Anyone(HAS PartyLeader<Party, Anyone>, HAS 2 (RANK Anyone { PartyDelegate<Party, Anyone>, PartyLeader<Party, Anyone> })) { \
     -PartyLeader<Party, Anyone> \
   }
+  -PartyDelegate<Party, Owner> IF MAX 0 PartyDelegate<Party, Owner>:: \
+    -This! THEN \
+      EACH Anyone( \
+        HAS PartyDelegate<Party, Anyone>, \
+        HAS MAX 0 PartyLeader<Party, Anyone>, \
+        HAS =1 (RANK Anyone { PartyDelegate<Party, Anyone>, PartyLeader<Party, Anyone> }) \
+      ) { PartyLeader<Party, Anyone> }
   MeasureInfluence IF Dominant<Party>:: PartyLeaderInfluence
   End: VictoryPoint
 }
@@ -296,18 +223,11 @@ CLASS LobbyActionAvailable : Owned<Player>, System {
   Delegate IF 7 Delegate:: -This.
 }
 
+"Gives dominance to the largest delegation, preserving the incumbent on a tie"
 CLASS RecalculateDominance : Signal {
   This:: EACH Party(HAS MAX 0 Dominant<Party>, HAS =1 (RANK Party { PartyDelegate<Party, Anyone>, Dominant<Party> })) { \
     (Dominant: Dominant<Party> FROM Dominant) OR \
     (MAX 0 Dominant: Dominant<Party>) \
-  }
-}
-
-"Recalculates dominance with the active clockwise priorities breaking ties"
-CLASS RecalculateDominanceClockwise : Signal {
-  This:: -Dominant!
-  This:: EACH Party(HAS =1 (RANK Party { PartyDelegate<Party, Anyone>, DominancePriority<Party> })) { \
-    Dominant<Party> \
   }
 }
 
@@ -325,33 +245,12 @@ CLASS RefillLobby : Signal {
 "Requests the current political influence snapshot for one player"
 CLASS MeasureInfluence : Owned<Player>, Signal
 
-ABSTRACT CLASS Influence<GenerationScope> : Owned<Player>
-
-"One influence supplied by the committee Chairman"
-CLASS ChairmanInfluence : Influence {
+"One generation's political influence; each source below supplies at most one"
+ABSTRACT CLASS Influence<GenerationScope> : Owned<Player> {
   HAS MAX 1 This
-}
 
-"One influence supplied by leading the Dominant party"
-CLASS PartyLeaderInfluence : Influence {
-  HAS MAX 1 This
-}
-
-"One influence supplied by having one or more delegates in the Dominant party"
-CLASS DelegateInfluence : Influence {
-  HAS MAX 1 This
-}
-
-"The extra influence supplied by Event Analysts"
-CLASS EventAnalystsInfluence : Influence {
-  HAS MAX 1 This
-}
-
-"Exchanges one neutral non-leader delegate for one of the player's available delegates"
-CLASS RecruitmentExchange<Party> : Owned<Player>, Barrier {
-  HAS MAX 1 This
-  This IF MAX 0 (PartyDelegate<Party, Neutral> - PartyLeader<Party, Neutral>):: Die
-  This: -PartyDelegate<Party, Neutral> THEN PartyDelegate<Party, Owner> THEN -This!
+  // Chairman; leading the Dominant party; any delegates in it; Event Analysts
+  CLASS ChairmanInfluence, PartyLeaderInfluence, DelegateInfluence, EventAnalystsInfluence
 }
 
 "A ruling party's capability during the Action phase"

@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.Metric
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -28,6 +28,6 @@ internal class ProdTest {
   internal fun resourceDifferenceCannotChangeDependencies() {
     val source = parse<Metric>("StandardResource<Owner>(NOT MC<Player2>)")
 
-    shouldThrow<PetSyntaxException> { Prod.handler(Canon.classTable).transform(source) }
+    shouldThrow<ExpressionException> { Prod.handler(Canon.classTable).transform(source) }
   }
 }

@@ -17,7 +17,7 @@ internal fun playedCards(game: GameWorld, player: Player): List<Type> {
           .getComponents("CardFront")
           .elements
           .filter { type ->
-            type.expressionFull.arguments.any { it.className == player.className }
+            type.typeDependencies.any { it.boundType.className == player.className }
           }
           .toSet()
   return game.events

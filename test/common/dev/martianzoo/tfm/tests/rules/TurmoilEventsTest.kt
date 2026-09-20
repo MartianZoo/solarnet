@@ -16,20 +16,20 @@ private val globalEventProbeDeclarations =
     parseClasses(
             """
             CLASS GlobalEventProbe : TagHolder { HAS MAX 1 This }
-            CLASS PlayedEventProbe : EventCard<Class<ProjectCard>> { cost = 0 }
-            CLASS ActiveEventProbe : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Animal>> {
+            CLASS PlayedEventProbe : EventCard { cost = 0 }
+            CLASS ActiveEventProbe : ActiveCard, ResourceCard<Class<Animal>> {
               cost = 0
               MeasureInfluence:: Ok
             }
-            CLASS EmptyResourceProbe : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Microbe>> {
+            CLASS EmptyResourceProbe : ActiveCard, ResourceCard<Class<Microbe>> {
               cost = 0
               MeasureInfluence:: Ok
             }
-            CLASS FloaterEventProbe : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
+            CLASS FloaterEventProbe : ActiveCard, ResourceCard<Class<Floater>> {
               cost = 0
               MeasureInfluence:: Ok
             }
-            CLASS OtherFloaterEventProbe : ActiveCard<Class<ProjectCard>>, ResourceCard<Class<Floater>> {
+            CLASS OtherFloaterEventProbe : ActiveCard, ResourceCard<Class<Floater>> {
               cost = 0
               MeasureInfluence:: Ok
             }
@@ -102,7 +102,8 @@ internal class TurmoilEventsTest :
     seatPlayerOneAsChairman()
     p1.runOperation("GlobalEventProbe, 7 JovianTag<GlobalEventProbe>")
 
-    admin.runOperation("ResolveCurrentGlobalEvent")
+    admin.beginOperation("TurmoilSolarOperation")
+    admin.completeOperation { doTask("CelebrityLeaders") }
 
     p1.count("Influence") shouldBe 1
     p1.count("Titanium") shouldBe 6
@@ -443,6 +444,7 @@ internal class TurmoilEventsTest :
 
     admin.runOperation("CorrosiveRain")
     admin.runOperation("ResolveGlobalEvent<Class<CorrosiveRain>>") {
+      p1.count("ProjectCard") shouldBe 0
       p1.doTask("-2 Floater<FloaterEventProbe>")
     }
 

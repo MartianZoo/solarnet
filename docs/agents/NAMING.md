@@ -170,9 +170,9 @@ looking it up.
 
 - **Persistent components** are noun phrases: `GreeneryTile`, `TradeFleet`, `ColonyProduction`,
   `TerraformRating`. Name the *unit* you actually instantiate, not the track it sits on.
-- **Signals** are the verb phrase that completes the trigger clause a card would print. Cards cite
-  them as "when you ___": `PlayCard`, `PlayTag`, `Pay`, `BuyCard`, `AdvanceColonyTracks`. Write the
-  name so that phrase reads back.
+- **Signals** are the event phrase that completes the trigger clause a card would print. Most read
+  as "when you ___": `PlayCard`, `Pay`, `AdvanceColonyTracks`; `PayingFor` reads as "while paying
+  for ___". Write the name so that phrase reads back.
 - **Other `MustCleanUp` state** — the transient thing sitting on the table during an action, not the
   event — is a noun or a past participle: `Owed`, `Required`, `ActionBilling`, `TradeBarrier`. Do not give it
   the bare-verb shape that belongs to Signals.
@@ -198,8 +198,8 @@ looking it up.
   `Drafting`), the past participle names what was done to the card (`Revealed`).
 - **Singular vs. plural** may distinguish one-of from all-of over the same subject —
   `GainColonyBonus` (one colony) against `GainColonyBonuses` (every colony the player owns) — and
-  may distinguish a whole operation from its per-item step, as `BuySelectedCards` does over
-  `BuyCard`. It may **not** distinguish two different *kinds* of thing; give those unrelated names.
+  may distinguish a whole operation from its per-item step. It may **not** distinguish two
+  different *kinds* of thing; give those unrelated names.
 - **Do not use implementation or game-design vocabulary** as a component name. "Mechanic", "hack",
   "fake", and Pets grammar terms such as "effect" describe how we built something, not what it is in
   the game. Settled exceptions are not to be re-flagged; see

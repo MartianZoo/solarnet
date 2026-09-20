@@ -609,7 +609,8 @@ private fun renderAreaState(recording: GameRecording.Playback, area: AreaDefinit
         emptyAreaSvg(area, centerX, centerY)
       } else {
         val owner =
-            tile.expressionFull.arguments
+            tile.typeDependencies
+                .map { it.boundType }
                 .firstOrNull { it.className in playerClassNames }
                 ?.className
                 ?.let { ownerName ->

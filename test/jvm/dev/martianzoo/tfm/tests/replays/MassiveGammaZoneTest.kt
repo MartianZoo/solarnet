@@ -539,7 +539,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
         me.draw(FrontierTown)
       }
       playProject(Recruitment, 0) {
-        doTask("RecruitmentExchange<Reds>")
+        doTask("PartyDelegate<Reds, Owner FROM Neutral>")
       }
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Reds>")

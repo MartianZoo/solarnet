@@ -19,18 +19,15 @@ one of these programs.
 The authoritative rationale is in
 [`VALUES.md`](VALUES.md#current-major-plan-priority). The practical order is:
 
-1. resolve the Class-universe finish gate, then finish it only if bounded;
-2. make actions, payments, and completion one intelligible lifecycle;
-3. replace the Kotlin phase runner with self-running Pets scopes;
-4. complete the Agent boundary and policy system;
-5. rewrite the internal agent handbook around the settled model;
-6. consolidate public contracts and failure boundaries; and
-7. simplify the remaining Pets and runtime semantics.
+1. make actions, payments, and completion one intelligible lifecycle;
+2. replace the Kotlin phase runner with self-running Pets scopes;
+3. complete the Agent boundary and policy system;
+4. rewrite the internal agent handbook around the settled model;
+5. consolidate public contracts and failure boundaries; and
+6. simplify the remaining Pets and runtime semantics.
 
-These are Tier 1 programs. The first begins with the audit in
-[`CLASS_TABLES.md`](CLASS_TABLES.md#remaining-work-to-finish) and is a finish-first exception only
-if that audit confirms the remaining work is bounded; at equal effort, the action lifecycle is more
-important. Tier 2 begins with material measured performance work. Expanded replay
+These are Tier 1 programs. The bounded Class-universe finish is complete and no longer appears in
+the portfolio. Tier 2 begins with material measured performance work. Expanded replay
 evidence/provenance and deleting marginal-card machinery follow without an ordering between them.
 Preserving existing replay evidence is a proof obligation for every Tier 1 change, not a competing
 program.
@@ -65,16 +62,6 @@ migrating the game. Moving remaining bootstrap work under ordinary phase-caused 
 
 See [`WORKFLOW.md`](WORKFLOW.md#first-demonstration) and the workflow findings in
 [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md#workflow-runner-mechanics-are-general).
-
-### Finish the master/premise Class-universe model
-
-Preserve reusable compiled master facts while making every game-relative enumeration, inhabitance
-decision, and runtime boundary depend on an explicit Class universe. The master/premise delta and
-large performance win exist. Start by auditing the remaining table roles and callers; continue only
-if an honest public API and removal of superseded projection machinery form a bounded simplification.
-
-See [`CLASS_TABLES.md`](CLASS_TABLES.md#remaining-work-to-finish) and
-[`JVM_TEST_PERFORMANCE.md`](JVM_TEST_PERFORMANCE.md#priorities-suggested-by-the-data).
 
 ### Complete the Agent boundary and policy system
 
@@ -125,7 +112,7 @@ machinery. These are deliberate applications of the project's willingness to tra
 coverage for a smaller honest model.
 
 See [`VALUES.md`](VALUES.md#model-the-game-honestly) and review the affected entries in
-[`ENGINE.md`](ENGINE.md#modeling-constraints) before changing behavior.
+[`ENGINE.md`](ENGINE.md#content-must-not-compensate-for-an-engine-gap) before changing behavior.
 
 ### Strengthen replay evidence and provenance
 

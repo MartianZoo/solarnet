@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.MarsMapDefinition.AreaDefinition
@@ -18,7 +18,7 @@ internal class ArtificialLakeTest : CardTest() {
       p1.stdProject("GreeneryProject") { placeTile(area.row, area.column) }
     }
 
-    shouldThrow<NotNowException> { p1.playProject(ArtificialLake, 15) }
+    shouldThrow<GameplayException> { p1.playProject(ArtificialLake, 15) }
   }
 
   @Test

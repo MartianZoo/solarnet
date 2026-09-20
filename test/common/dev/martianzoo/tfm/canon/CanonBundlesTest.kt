@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.canon
 
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
@@ -35,7 +36,7 @@ internal class CanonBundlesTest {
     // These cover an observed standard action, a count, a direct fleet gain, and an optional trade.
     listOf("CryoSleep", "EcologyResearch", "SkyDocks", "TitanFloatingLaunchPad").forEach { cardName
       ->
-      shouldThrow<IllegalArgumentException> { table(cn(cardName)) }
+      shouldThrow<InvalidGameConfigException> { table(cn(cardName)) }
     }
   }
 
@@ -101,7 +102,7 @@ internal class CanonBundlesTest {
                 playerNames = listOf(cn("Player1")),
             )
         )
-    val solo = ClassTable.forPremise(premise)
+    val solo = premise.classTable
 
     solo.isInhabited(cn("Vitor")) shouldBe true
     solo.isInhabited(cn("MultiplayerMode")) shouldBe false
@@ -235,10 +236,9 @@ internal class CanonBundlesTest {
             *selectedModules,
             cn("TerraformingMars"),
         )
-    return ClassTable.forPremise(
-        Canon.gamePremise(
+    return Canon.gamePremise(
             GameConfig.create(included, playerNames = listOf(cn("Player1"), cn("Player2")))
         )
-    )
+        .classTable
   }
 }

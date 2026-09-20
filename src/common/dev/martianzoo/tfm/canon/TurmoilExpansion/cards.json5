@@ -73,7 +73,8 @@
           "name": "Recruitment",
           "cost": 2,
           "tags": [ "EventTag" ],
-          "immediate": "RecruitmentExchange<Party>",
+          "immediate":
+            "PartyDelegate<Party(HAS 1 (PartyDelegate<Party, Neutral> - PartyLeader<Party, Neutral>)), Owner FROM Neutral>",
         },
         {
           "name": "RedTourismWave",

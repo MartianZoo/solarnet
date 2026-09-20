@@ -8,7 +8,6 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agent.OperationBlock
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Transforming.bindXTo
-import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
@@ -194,7 +193,7 @@ public class TfmGameplay(
       payment: OperationBlock = { payInvoiceFromItsResourceIfOffered() },
       body: OperationBlock = {},
   ): TaskResult {
-    return inTfmTurn { useStdAction(stdAction, which, payment, body) }
+    return inTurn { useStdAction(stdAction, which, payment, body) }
   }
 
   /** Uses a granted standard-action slot within an enclosing operation. */
@@ -236,7 +235,9 @@ public class TfmGameplay(
   /** The standard resources this Actor's live billing accepts. */
   private fun acceptedResources(): List<ClassName> =
       reader.getComponents(resolve("Accepting<$actor>")).elements.mapNotNull {
-        it.expression.arguments.lastOrNull()?.arguments?.singleOrNull()?.className
+        it.typeDependencies.firstNotNullOfOrNull { dependency ->
+          dependency.boundType.representedClass?.className
+        }
       }
 
   public fun convertPlants(body: OperationBlock = {}): TaskResult {
@@ -354,27 +355,6 @@ public class TfmGameplay(
     body()
     if (this@TfmGameplay.count("Owed") == 0) declineUnusedPaymentOffers(fromCards = true)
     autoExecNow()
-  }
-
-  private fun inTfmTurn(body: OperationBlock): TaskResult {
-    return inTurn {
-      val preexistingTasks = game.tasks.extract { it }.associateBy { it.id }
-      body()
-      autoExecNow()
-      val newPendingTasks =
-          game.tasks
-              .extract { it }
-              .filter { task ->
-                val previous = preexistingTasks[task.id]
-                previous == null || previous.copy(selection = task.selection) != task
-              }
-      if (newPendingTasks.isNotEmpty()) {
-        if (newPendingTasks.any { it.instruction.isAbstract(game.reader) }) {
-          throw AbstractException("pending abstract tasks:\n${newPendingTasks.joinToString("\n")}")
-        }
-        throw TaskException("pending tasks:\n${newPendingTasks.joinToString("\n")}")
-      }
-    }
   }
 
   /**
@@ -582,7 +562,7 @@ public class TfmGameplay(
   public fun cardAction1(cardName: ClassName, body: OperationBlock = {}): TaskResult =
       cardAction(1, cardName, body = body)
 
-  /** Binds the action's X to positive [x] without directly executing the resulting task. */
+  /** Selects the action's variable task and binds its X to positive [x]. */
   public fun cardAction1(
       cardName: ClassName,
       x: Int,
@@ -652,7 +632,8 @@ public class TfmGameplay(
             }
     val variableTask = variableTasks.single()
     val bound = bindXTo(x).transformInstructionTree(variableTask.instruction)
-    narrowTask(variableTask.id, bound.toString())
+    selectTask(variableTask.id)
+    narrowTask(bound.toString())
     operation.autoExecNow()
   }
 

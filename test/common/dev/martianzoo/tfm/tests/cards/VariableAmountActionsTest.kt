@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.AbstractException
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
@@ -16,7 +16,7 @@ internal class VariableAmountActionsTest : CardTest() {
     admin.phase("Action")
     p1.runOperation("$PowerInfrastructure")
 
-    shouldThrow<AbstractException> { p1.cardAction1(PowerInfrastructure) }
+    shouldThrow<NotFullySpecifiedException> { p1.cardAction1(PowerInfrastructure) }
   }
 
   @Test
@@ -25,7 +25,7 @@ internal class VariableAmountActionsTest : CardTest() {
     admin.phase("Action")
     p1.runOperation("$HiTechLab")
 
-    shouldThrow<AbstractException> { p1.cardAction1(HiTechLab) }
+    shouldThrow<NotFullySpecifiedException> { p1.cardAction1(HiTechLab) }
   }
 
   @Test

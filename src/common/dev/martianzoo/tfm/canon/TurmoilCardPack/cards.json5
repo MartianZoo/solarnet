@@ -28,7 +28,7 @@
           "name": "TerralabsResearch",
           "tags": [ "ScienceTag", "EarthTag" ],
           "immediate": "14 MC, -TerraformRating",
-          "effects": [ "BuyCard:: -2 Owed" ],
+          "effects": [ "PayingFor<Class<ProjectCard>>:: -2 Owed" ],
         },
         {
           "name": "UtopiaInvest",

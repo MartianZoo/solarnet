@@ -42,12 +42,11 @@ internal class TurmoilGovernmentTest :
     p2.count("LobbyActionAvailable") shouldBe 1
     p2.count("Delegate") shouldBe 0
     admin.count("Delegate<Neutral>") shouldBe 2
-    admin.count("DominancePriority") shouldBe 0
   }
 
   @Test
-  internal fun `government dominance ties follow clockwise party order`() {
-    val clockwise =
+  internal fun `government dominance ties follow party order`() {
+    val partyOrder =
         listOf(
             "MarsFirst" to "Kelvinists",
             "Kelvinists" to "Reds",
@@ -56,9 +55,9 @@ internal class TurmoilGovernmentTest :
             "Unity" to "Scientists",
             "Scientists" to "MarsFirst",
         )
-    val parties = clockwise.map { it.first }
+    val parties = partyOrder.map { it.first }
 
-    clockwise.forEach { (former, expected) ->
+    partyOrder.forEach { (former, expected) ->
       newGame(TurmoilExpansion)
       clearSetupPolitics()
       sendNeutralDelegate(former)
@@ -69,6 +68,30 @@ internal class TurmoilGovernmentTest :
 
       admin.count("Dominant<$expected>") shouldBe 1
     }
+  }
+
+  @Test
+  internal fun `government dominance skips smaller parties in party order`() {
+    newGame(TurmoilExpansion)
+    clearSetupPolitics()
+    repeat(3) { sendNeutralDelegate("MarsFirst") }
+    repeat(2) { sendNeutralDelegate("Unity") }
+    repeat(2) { sendNeutralDelegate("Reds") }
+
+    admin.runOperation("FormGovernment")
+
+    admin.count("Dominant<Reds>") shouldBe 1
+  }
+
+  @Test
+  internal fun `government dominance advances when every party is empty`() {
+    newGame(TurmoilExpansion)
+    clearSetupPolitics()
+    admin.runOperation("Dominant<MarsFirst>")
+
+    admin.runOperation("FormGovernment")
+
+    admin.count("Dominant<Kelvinists>") shouldBe 1
   }
 
   @Test
@@ -141,7 +164,6 @@ internal class TurmoilGovernmentTest :
   private fun clearSetupPolitics() {
     listOf("MarsFirst", "Reds").forEach { party ->
       admin.runOperation("-PartyDelegate<$party, Neutral>")
-      admin.runOperation("-PartyLeader<$party, Neutral>!")
     }
     admin.runOperation("-Dominant!")
   }

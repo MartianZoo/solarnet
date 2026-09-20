@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.AbstractException
-import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.GameplayException
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -30,7 +30,7 @@ internal class LocalHeatTrappingTest : CardTest() {
   internal fun `Cannot choose abstract Animal instead of an eligible card`() {
     p1.runOperation("6 Heat, $Pets")
     p1.runOperation("$LocalHeatTrapping") {
-      shouldThrow<AbstractException> { doTask("2 Animal") }
+      shouldThrow<NotFullySpecifiedException> { doTask("2 Animal") }
       abort()
     }
   }
@@ -50,7 +50,7 @@ internal class LocalHeatTrappingTest : CardTest() {
   internal fun `Cannot evade an eligible holder by selecting an absent holder`() {
     p1.runOperation("6 Heat, $Pets")
     p1.runOperation("$LocalHeatTrapping") {
-          shouldThrow<NotNowException> { doTask("2 Animal<$Fish>") }
+          shouldThrow<GameplayException> { doTask("2 Animal<$Fish>") }
           addCardResources(Pets)
         }
         .expect("-5 Heat, 2 Animal<$Pets>")

@@ -27,8 +27,7 @@ Diagnostics have layer-specific homes:
   produced no event.
 - Agent scoping, policies, and the shared autoexecution loop keep their own opt-in logs for caller
   provenance, engine completion, policy eligibility, and declined decisions. Those records may
-  correlate with engine revisions and events but do not move policy reasoning into engine
-  diagnostics.
+  correlate with event history but do not move policy reasoning into engine diagnostics.
 
 Keeping these separate is important. The event log says what happened; the debug log can say what
 the engine considered and why it did nothing.
@@ -71,7 +70,7 @@ World:
 
 - tasks and policies considered by an Agent, including the reason each declined, in the Agent log;
 - Actor scoping and engine mutation forwarding in the Agent log;
-- engine completion, revision invalidation, and fixed-point detection in the shared-loop log;
+- engine completion, task-analysis invalidation, and fixed-point detection in the shared-loop log;
 - core task-pool assignment and legality checks in the engine log;
 - narrowing, resolution, and execution attempts;
 - assignment, Actor, and queue choices when they are computed;
@@ -80,7 +79,7 @@ World:
 
 The output should be written through a configurable sink, not unconditional `println` calls. Each
 record should include enough correlation context to join it back to game history when applicable:
-the next event ordinal or most recent event ordinal, World revision, task id, and Actor. Not every
+the next event ordinal or most recent event ordinal, task id, and Actor. Not every
 record needs every value.
 
 The debug log is allowed to be verbose and implementation-shaped. It must not affect scheduling,

@@ -1,3 +1,4 @@
 package dev.martianzoo.tfm.canon
 
-internal val turmoilExpansionBundle: StandardFormBundle = StandardFormBundle("TurmoilExpansion")
+internal val turmoilExpansionBundle: StandardFormBundle =
+    StandardFormBundle("TurmoilExpansion", customClasses = turmoilExpansionCustomClasses)

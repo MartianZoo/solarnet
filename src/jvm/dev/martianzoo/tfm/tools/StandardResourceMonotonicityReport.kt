@@ -83,7 +83,7 @@ internal object StandardResourceMonotonicityReport {
   )
 
   fun analyze(premise: GamePremise = maximalSoloPremise()): Analysis {
-    val table = ClassTable.forPremise(premise)
+    val table = premise.classTable
     val productionLowerer = table.transformDispatcher()
     val quantities = quantities(table)
     val findings = linkedSetOf<Finding>()

@@ -14,12 +14,12 @@ import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-/** Verifies which classes are active in game-specific class-table projections. */
-internal class ClassTableProjectionTest {
+/** Verifies which Catalog Classes are selected and inhabited by each game premise. */
+internal class ClassTableSelectionTest {
   // Deliberate expansion-specific omissions
 
   @Test
-  internal fun `Colonies classes stay unloaded without Colonies`() {
+  internal fun `Colonies classes stay unselected without Colonies`() {
     // Promo has a Colonies-gated card; Utopia Planitia has a Colonies-gated milestone.
     val bundle = Canon.bundles.single { it.bundleName == cn("ColoniesExpansion") }
     fun contributedNames(catalog: TfmCatalog): Set<ClassName> = buildSet {
@@ -36,39 +36,39 @@ internal class ClassTableProjectionTest {
   }
 
   @Test
-  internal fun `Corporate Era classes stay unloaded without Corporate Era`() {
-    assertNotLoaded("CopyProductionBox", withoutCorporateEra)
+  internal fun `Corporate Era classes stay unselected without Corporate Era`() {
+    assertNotSelected("CopyProductionBox", withoutCorporateEra)
   }
 
   @Test
-  internal fun `Prelude classes stay unloaded without Prelude`() {
+  internal fun `Prelude classes stay unselected without Prelude`() {
     // Promo has Prelude cards, but its ordinary selection filters them without a Prelude card pack.
     matchingClasses("prelude", promosUtopiaWithoutCorporateEra).shouldBeEmpty()
   }
 
   @Test
-  internal fun `Venus classes stay unloaded without Venus Next`() {
+  internal fun `Venus classes stay unselected without Venus Next`() {
     // Promo names VenusStep; Terra Cimmeria names VenusTag. Both definitions are Venus-gated.
-    assertNotLoaded("VenusStep", promosCimmeriaWithoutCorporateEra)
-    assertNotLoaded("VenusTag", promosCimmeriaWithoutCorporateEra)
+    assertNotSelected("VenusStep", promosCimmeriaWithoutCorporateEra)
+    assertNotSelected("VenusTag", promosCimmeriaWithoutCorporateEra)
   }
 
   // Deliberate mode-specific omissions
 
   @Test
   internal fun `player classes follow the selected seats`() {
-    assertNotLoaded("Player2", baseSolo)
-    assertNotLoaded("Player3", baseMultiplayer)
+    assertNotSelected("Player2", baseSolo)
+    assertNotSelected("Player3", baseMultiplayer)
   }
 
   @Test
-  internal fun `multiplayer standard actions stay unloaded in solo`() {
-    assertNotLoaded("ClaimMilestoneAction", baseSolo)
-    assertNotLoaded("FundAwardAction", baseSolo)
+  internal fun `multiplayer standard actions stay unselected in solo`() {
+    assertNotSelected("ClaimMilestoneAction", baseSolo)
+    assertNotSelected("FundAwardAction", baseSolo)
   }
 
   @Test
-  internal fun `concrete award classes stay unloaded in solo`() {
+  internal fun `concrete award classes stay uninhabited in solo`() {
     val award = baseSolo.classTable.getClass(cn("Award"))
 
     baseSolo.classTable.isInhabited(award) shouldBe false
@@ -78,7 +78,7 @@ internal class ClassTableProjectionTest {
   // Game-mode and player-count divisions
 
   @Test
-  internal fun `solo classes stay unloaded in multiplayer`() {
+  internal fun `solo classes stay unselected in multiplayer`() {
     matchingClasses("solo", preludeVenusMultiplayer).shouldBeEmpty()
   }
 
@@ -90,51 +90,50 @@ internal class ClassTableProjectionTest {
   }
 
   @Test
-  internal fun `Vitor does not activate the unreachable award domain in solo`() {
-    val projection = preludeSolo
+  internal fun `Vitor does not include the unreachable award domain in solo`() {
+    val gameView = preludeSolo
 
-    projection.classTable.isInhabited(cn("Vitor")) shouldBe true
-    matchingClasses("award", projection).shouldBeEmpty()
-    projection.classNames.shouldNotContain(cn("FirstPlace"))
-    projection.classNames.shouldNotContain(cn("SecondPlace"))
+    gameView.classTable.isInhabited(cn("Vitor")) shouldBe true
+    matchingClasses("award", gameView).shouldBeEmpty()
+    gameView.classNames.shouldNotContain(cn("FirstPlace"))
+    gameView.classNames.shouldNotContain(cn("SecondPlace"))
   }
 
-  private fun assertNotLoaded(className: String, projection: Projection) {
-    projection.classNames.shouldNotContain(cn(className))
+  private fun assertNotSelected(className: String, gameView: GameView) {
+    gameView.classNames.shouldNotContain(cn(className))
   }
 
-  private fun matchingClasses(pattern: String, projection: Projection) =
-      projection.classTable
+  private fun matchingClasses(pattern: String, gameView: GameView) =
+      gameView.classTable
           .allClasses()
           .map { it.className }
           .filter { Regex(pattern, RegexOption.IGNORE_CASE).containsMatchIn(it.toString()) }
 
-  private class Projection(private val config: GameConfig) {
+  private class GameView(private val config: GameConfig) {
     val classTable by lazy { Engine.newGame(Canon.gamePremise(config)).classTable }
     val classNames by lazy { classTable.allClassNames }
   }
 
-  // Compiled projections belong to this test instance, not the test worker's lifetime.
-  private val baseMultiplayer = projection("", "Player1", "Player2")
-  private val threePlayerMultiplayer = projection("", "Player1", "Player2", "Player3")
-  private val baseSolo = projection("", "Me")
-  private val preludeSolo = projection("PreludeExpansion", "Me")
-  private val withoutCorporateEra = projection("-CorporateEraExpansion", "Player1", "Player2")
+  // Compiled game views belong to this test instance, not the test worker's lifetime.
+  private val baseMultiplayer = gameView("", "Player1", "Player2")
+  private val baseSolo = gameView("", "Me")
+  private val preludeSolo = gameView("PreludeExpansion", "Me")
+  private val withoutCorporateEra = gameView("-CorporateEraExpansion", "Player1", "Player2")
   private val promosUtopiaWithoutCorporateEra =
-      projection(
+      gameView(
           "PromoCardPack, UtopiaMap, -CorporateEraExpansion",
           "Player1",
           "Player2",
       )
   private val promosCimmeriaWithoutCorporateEra =
-      projection(
+      gameView(
           "PromoCardPack, CimmeriaMap, -CorporateEraExpansion",
           "Player1",
           "Player2",
       )
   private val preludeVenusMultiplayer =
-      projection("PreludeExpansion, VenusNextExpansion", "Player1", "Player2")
+      gameView("PreludeExpansion, VenusNextExpansion", "Player1", "Player2")
 
-  private fun projection(config: String, vararg playerNames: String): Projection =
-      Projection(GameConfig(config, *playerNames))
+  private fun gameView(config: String, vararg playerNames: String): GameView =
+      GameView(GameConfig(config, *playerNames))
 }

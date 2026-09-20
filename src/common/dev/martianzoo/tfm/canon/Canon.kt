@@ -6,6 +6,7 @@ private val canonCustomClasses: Set<CustomClass> =
     terraformingMarsCustomClasses +
         promoCardPackCustomClasses +
         setOf(RepeatPlacementBonus) +
+        turmoilExpansionCustomClasses +
         milestonesAwardsCustomClasses +
         vastitasMapCustomClasses
 

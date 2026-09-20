@@ -3,13 +3,13 @@ package dev.martianzoo.pets.data
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.api.CustomMetric
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.types.ClassTable
 
 /** One coherent catalog of everything the engine may know about a game. */
 public interface Catalog {
-  /** The one fully compiled class universe from which playable projections are formed. */
+  /** The fully compiled Catalog structure shared by its playable games. */
   public val classTable: ClassTable
 
   /** Handlers for this game's explicitly marked Pets syntax, bound to one game class table. */
@@ -48,17 +48,19 @@ public interface Catalog {
   /** Returns the unique declaration having [name]. */
   public fun classDeclaration(name: ClassName): ClassDeclaration =
       allClassDeclarations[name]
-          ?: throw IllegalArgumentException("no class declaration by name $name")
+          ?: throw IllegalArgumentException("no class declaration named `$name`")
 
   /**
    * Returns the custom instruction implementation having [className].
    *
-   * @throws PetException if the Catalog declares no implementation for [className]
+   * @throws InvalidPetDefinitionException if the Catalog declares no implementation for [className]
    */
   public fun customClass(className: ClassName): CustomClass =
       customClasses.firstOrNull { it.className == className && it !is CustomMetric }
           ?: customClasses.firstOrNull { it.className == className }
-          ?: throw PetException("Custom class implementation for `$className` not found")
+          ?: throw InvalidPetDefinitionException(
+              "custom class implementation not found for `$className`"
+          )
 
   /** Returns the custom metric implementation having [className], if any. */
   public fun customMetric(className: ClassName): CustomMetric? =

@@ -107,7 +107,7 @@ Three neighbours are deliberately out of scope:
 
 - **How a premise selects its declaration closure.** Section 12 takes that closure as part of the
   game universe and defines inhabitance for its Types. The selection policy belongs to premise
-  construction; its behavior is pinned by `ActivationTest.kt` and described in
+  construction; its behavior is pinned by `PremiseSelectionTest.kt` and described in
   `docs/agents/OPTIONS.md`.
 - **Component-count invariants**, except for the one rule the type system leans on (T3-9): a
   dependency may only target a type limited to a single copy.
@@ -181,10 +181,10 @@ expressions fail at that boundary. Judgments that require a world remain deferre
 > of the completed Catalog instead of declaration order.
 
 **T1-7. Only the exact declared name resolves.** There are no abbreviations, no case folding, no
-nearest-match. An unknown name raises `ExpressionException`. Master declarations are checked
-against the master namespace and therefore cannot name premise classes. Premise declarations are
-checked against their combined master-and-premise namespace. Duplicate premise names and collisions
-with master names are rejected.
+nearest-match. An unknown name raises `ExpressionException`. Master declarations are
+checked against the master namespace and therefore cannot name premise classes. Premise
+declarations are checked against their combined master-and-premise namespace. Duplicate premise
+names and collisions with master names are rejected.
 
 ---
 
@@ -305,8 +305,10 @@ bounds are intersected (`⊓`, rule T7-1). Bounds with no common narrowing are a
 > meeting their compatible constraints produces one physical card identity instead of three
 > unrelated edges.
 
-**T3-4. An argument intersects the bound; it never replaces it.** Writing a wider argument therefore
-changes nothing, and writing one outside the bound is an error.
+**T3-4. An argument intersects an open class bound; it never replaces it.** A dependency whose bound
+is already concrete in the class's base type is fixed by that class: it remains a semantic
+dependency but is not an argument position. Writing a wider argument for an open position therefore
+changes nothing, and writing an argument that matches no open position is an error.
 
 This is what makes `Anyone` work. `Anyone` is an ordinary class at the top of the ownership
 hierarchy, so `Anyone` intersected with a narrower declared bound is that narrower bound:
@@ -321,8 +323,10 @@ ProjectCard<SoloOpponent>                              →  error: not a Player
 > SpaceTag)`. `EventCard` is owned only by a `Player`; intersecting with `Anyone` preserves that
 > bound. Replacing it would also admit a `SoloOpponent`, changing who can trigger the card.
 
-**T3-5. Argument matching is greedy, left to right.** Each written argument takes the first
-not-yet-taken dependency whose bound it can intersect. An argument that matches nothing is an error.
+**T3-5. Argument matching is greedy, left to right across open dependencies.** Each written argument
+takes the first not-yet-taken dependency whose class-declared bound is abstract and whose current
+bound it can intersect. Dependencies fixed by the class are skipped. An argument that matches
+nothing is an error.
 
 A useful consequence: when the bounds are disjoint, argument order does not matter.
 `GreeneryTile<Tharsis_2_2, Player1>` and `GreeneryTile<Player1, Tharsis_2_2>` are the same type.
@@ -414,7 +418,8 @@ narrowed below its own class's base type.
 
 **T3-11. Cycles are rejected.** Two classes may refer to each other freely, but a genuine cycle of
 dependency *bounds* — `CLASS Foo<Bar>` with `CLASS Bar<Foo>`, or `CLASS Foo<Foo>` — has no finite
-answer and raises `PetException` when the bounds are computed. A one-way chain is fine.
+answer and raises `InvalidPetDefinitionException` when the bounds are computed. A one-way chain is
+fine.
 
 ---
 
@@ -555,12 +560,14 @@ uninhabited when it contains none (T12-4).
 > refined type itself remains abstract; the world may narrow it to a concrete area, but cannot turn
 > a state-dependent question into component identity.
 
-**T5-4. Full form.** `expressionFull` writes every dependency, in key order. For the
+**T5-4. Full form.** `expressionFull` writes every open dependency, in key order. Dependencies whose
+bound is concrete in the class's base type remain part of the Type under T5-1 but are omitted because
+an expression cannot select them. For the
 `GreeneryTile` of rule T3-2 that is `GreeneryTile<MarsArea, Owner>`; had `Owned` been inherited
 first, the same type would be written `GreeneryTile<Owner, MarsArea>`.
 
 **T5-5. Compact form.** `expression` — also what `toString` shows — writes a round-tripping argument
-list in dependency-key order, whatever order the arguments were supplied in. It first retains an
+list in open-dependency-key order, whatever order the arguments were supplied in. It first retains an
 argument when one of these holds:
 
 - its bound differs from what the class already declares; or
@@ -978,14 +985,14 @@ Because a class table is closed once frozen, Pets can list the concrete possibil
 abstract type — the operation behind "which area do you want?" and behind narrowing a choice
 automatically when only one exists.
 
-These operations come in two flavours. Asked of a **type** (`someType.allConcreteSubtypes()`) they
-range over the whole master universe. Asked of a **class table**
-(`table.allConcreteSubtypes(someType)`) they range over the concrete narrowings inhabited in that
-table. For a game view, the premise-selected declaration closure determines that domain (T12-3).
-The rules below describe the shape of the operation; section 12 says which universe answers.
+These operations are asked of an explicit **class table**
+(`table.allConcreteSubtypes(someType)`). They range over the concrete narrowings inhabited in that
+table. The Catalog table is the complete catalog-wide domain; for a game table, the premise-selected
+declaration closure determines the domain (T12-3). A Type does not choose the table implicitly,
+because equal shared Types can be interpreted by several game views.
 
-**T11-1. Enumerating concrete narrowings.** `allConcreteSubtypes()` pairs every concrete subclass of
-the root class with every admissible concrete binding of every dependency:
+**T11-1. Enumerating concrete narrowings.** `ClassTable.allConcreteSubtypes(type)` pairs every
+concrete subclass of the root class with every admissible concrete binding of every dependency:
 
 ```text
 Tile              →  GreeneryTile<Tharsis_2_2>, GreeneryTile<Tharsis_2_3>, OceanTile<Tharsis_1_1>
@@ -1008,26 +1015,25 @@ tests the survivors. So `LandArea(HAS Neighbor)` enumerates every concrete land 
 > evaluate `HAS Neighbor<OceanTile>`; baking today's board into the universe would make the type
 > table change after every placement.
 
-**T11-3. Same-class enumeration.** `concreteSubtypesSameClass()` holds the root class fixed and varies
-only the dependencies. An abstract root class yields nothing.
+**T11-3. Same-class enumeration.** `ClassTable.concreteSubtypesSameClass(type)` holds the root class
+fixed and varies only the dependencies. An abstract root class yields nothing.
 
 > **Non-normative example — solo reserves.** `SoloStandardResourceReserve<Class<StandardResource>>`
 > must fan out to one reserve of the same root class for each resource kind. Whole-hierarchy
 > enumeration could instead wander into unrelated subclasses of a broader system component.
 
-**T11-4. Automatic narrowing.** `singleConcreteSubtype(info)` returns the one concrete narrowing when
-there is exactly one, and `null` otherwise. It is stricter than "one candidate matched the
-refinement": the root class and *every* dependency must each have a single concrete choice, and the
-refinement must then accept the result. Any remaining choice, anywhere, blocks it — deliberately, so
-the engine never silently makes a decision a player should have made.
+**T11-4. Automatic narrowing.** `ClassTable.singleConcreteSubtype(type, info)` returns the one
+concrete narrowing when there is exactly one, and `null` otherwise. It is stricter than "one
+candidate matched the refinement": the root class and *every* dependency must each have a single
+concrete choice, and the refinement must then accept the result. Any remaining choice, anywhere,
+blocks it — deliberately, so the engine never silently makes a decision a player should have made.
 
 Within those limits it is thorough: it sees through a `NOT`; it finds a subclass that already fixes
 the dependency (`Tile<LandArea>` narrows to `GreeneryTile` when that is the only land tile, even
 where an `OceanTile` class also exists — a concrete class incompatible with the requested type is
 not one of the choices); and it reports nothing at all when the requested narrowing is incompatible
-with every concrete class. Both flavours answer alike about the same universe. A
-`HAS` refinement can decide between candidates only where enumeration happens anyway, as with a
-refined class literal (T8-10).
+with every concrete class. A `HAS` refinement can decide between candidates only where enumeration
+happens anyway, as with a refined class literal (T8-10).
 
 This is an under-approximation, and knowingly so: a type is narrowed automatically when the
 *universe* leaves one candidate, not when the current board does. An ocean placement asking for
@@ -1360,6 +1366,8 @@ candidate was captured, so later occurrences reuse the captured type without ask
 `variableDeclaredAt`). `bindingsFrom(authored, general, specific)` captures values by walking the
 dependency keys chosen while resolving the authored expression — so a candidate that lacks the path a
 variable sits on captures nothing, rather than guessing from a coincidentally similar type.
+For `Class<T>`, the represented Class is that structural path: specializing `Class<Person>` to
+`Class<Alice>` captures `Alice` for the `Person` occurrence.
 
 > **Non-normative example — Law Suit.** The removal watchers record victim, resource class, and
 > acting player in distinct authored dependency positions; Law Suit later consumes that exact

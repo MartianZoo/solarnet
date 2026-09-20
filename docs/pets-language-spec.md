@@ -505,10 +505,13 @@ context.
 
 **L5-9. `RANK Selector { m1, m2, ... }` is a competition rank.** It denotes the highest-first
 position of one candidate among the components matching `Selector` in one state, comparing the
-listed metrics lexicographically. Authored syntax leaves the candidate open; a refinement supplies
-it. At least one metric is required, and the selector's refinement filters the field without
-becoming part of the name the metrics use. This module pins the syntax and that scoping; ranking a
-live field is realized where a world is available, and pinned by `engine/RankMetricTest.kt`.
+listed metrics lexicographically. Equal metric vectors share one rank, and the next unequal vector's
+rank skips the places occupied by the tie. Authored syntax leaves the candidate open; a refinement
+supplies it. At least one metric is required, and the selector's refinement filters the field
+without becoming part of the name the metrics use. There is no lowest-first form; subtracting the
+metric from a known upper cap expresses the inverse ordering. This module pins the syntax and that
+scoping; ranking a live field is realized where a world is available, and pinned by
+`engine/RankMetricTest.kt`.
 
 > **Non-normative example — award scoring.** Award resolution ranks every player by the selected
 > award's metric, then awards first and—when applicable—second place. Lexicographic metrics and a
@@ -768,7 +771,8 @@ never a way to do nothing. Declining belongs to `?` and `Ok` (L7-4).
 
 **L7-8. A shared type variable takes one value everywhere it appears.** Narrowing a sequence or a
 transmutation that repeats an abstract expression must supply one consistent value for it (T13-6,
-T13-7); two different values are rejected.
+T13-7); two different values are rejected. Selecting one `THEN` stage binds that value in every
+later stage, including when the selected instruction chose an arm of an `OR`.
 
 > **Non-normative example — Utopia Invest.** `PROD[StandardResource] -> 4 StandardResource` means
 > reduce one chosen production track and gain four units of that same resource. Binding the two
@@ -1009,7 +1013,8 @@ the source, not a message to some later stage.
 category of Pets it was given: an instruction for an instruction, a metric for a metric, and so on.
 It need not be the same *kind* of node — a gain may come back a group, a requirement may come back a
 conjunction — and a block that expands into several independent instructions splices into the
-surrounding group (L6-8).
+surrounding group (L6-8). A block that expands into a sequence at the final stage of another
+sequence likewise splices into that surrounding sequence (L6-9).
 
 > **Non-normative example — Noctis City.** `PROD[-Energy, 3 MC]` expands into two independent
 > production-track changes. Splicing the returned group preserves the card's surrounding gains;
@@ -1069,6 +1074,9 @@ generated declaration is `CLASS Inventrix_RequiredAction : RequiredAction`.
 the generated class's declared supertype; refinements constrain only the occurrence and are removed
 recursively from the supertype, because a refined type cannot be a supertype (L1-9).
 
+Within an argument, `This` still denotes the enclosing owner: the occurrence retains `This` to name
+that owner instance, while the generated class's supertype names the enclosing owner Class.
+
 ```pets
 SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {}
 ```
@@ -1105,10 +1113,10 @@ classes with the same natural suffix must be declared explicitly.
 > signals or special tiles must name them. Inventing `_2` would make class identity depend on source
 > order, so inserting an earlier local declaration could retarget saved components and references.
 
-**L11-7. The syntax is available only where a declaration file is being read.** `parseOneLinerClass`
-rejects it, and `Parsing.parse` parses and validates it before rejecting it with
-`NoNewClassDeclarationsException`, because a submitted instruction has no definition owner and a
-live game's class table is frozen (T1-6).
+**L11-7. The syntax is available only where a declaration file is being read.**
+`parseOneLinerClass` rejects it, and `Parsing.parse` parses and validates it before rejecting it with
+`PetSyntaxException`, because a submitted instruction has no definition owner and a live game's
+class table is frozen (T1-6).
 
 > **Non-normative implementation note — submitted moves cannot extend the game.** A player may
 > choose among classes already in the Catalog, but cannot submit `SpecialTile { ... }` to create a
