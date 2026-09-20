@@ -38,6 +38,29 @@ internal sealed interface Modifier {
   data class Purpose(val action: Clause) : Modifier {
     override fun linearize(): String = "to ${action.linearize()}"
   }
+
+  data class Steps(val amount: Amount, val distributed: Boolean = false) : Modifier {
+    constructor(count: Int, distributed: Boolean = false) : this(Amount.Fixed(count), distributed)
+
+    override fun linearize(): String =
+        listOfNotNull(amount.linearize(), "each".takeIf { distributed }).joinToString(" ")
+
+    sealed interface Amount {
+      fun linearize(): String
+
+      public data class Fixed(public val count: Int) : Amount {
+        override fun linearize(): String = stepCount(count)
+      }
+
+      public data object OneOrMore : Amount {
+        override fun linearize(): String = "1 or more steps"
+      }
+
+      public data object SameNumber : Amount {
+        override fun linearize(): String = "the same number of steps"
+      }
+    }
+  }
 }
 
 internal fun Modifier.unresolved(): List<Unresolved> =
@@ -48,5 +71,6 @@ internal fun Modifier.unresolved(): List<Unresolved> =
       is Modifier.Relation -> target.unresolved()
       is Modifier.Parenthetical,
       is Modifier.Phrase,
+      is Modifier.Steps,
       is Modifier.Supplement -> emptyList()
     }

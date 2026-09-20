@@ -114,7 +114,9 @@ private fun renderCombinedMetric(
       }
   val phrase =
       if (possessorEstablished) {
-        NounPhrase.coordinated(Coordination(members.map { it.phrase.asPlural() }, Conjunction.AND))
+        val phrases = members.map { it.phrase.asPlural() }
+        (factorSharedNounHead(phrases, Conjunction.AND)
+                ?: NounPhrase.coordinated(Coordination(phrases, Conjunction.AND)))
             .let { if (count == null) it else it.quantified(count) }
             .withModifier(Modifier.Phrase("combined"))
       } else {
@@ -142,7 +144,8 @@ private fun Describers.renderCountMetric(
       productionNounPhrase(production.resource)
     }
     val phrase =
-        NounPhrase.coordinated(Coordination(productionPhrases, Conjunction.AND))
+        (factorSharedNounHead(productionPhrases, Conjunction.AND)
+                ?: NounPhrase.coordinated(Coordination(productionPhrases, Conjunction.AND)))
             .let { if (count == null) it else it.quantified(count) }
             .withModifier(Modifier.Phrase("combined"))
     return MetricRendering(phrase, MetricRendering.Ranking.HIGHEST)

@@ -11,6 +11,7 @@ internal enum class Determiner(private val fixedText: String? = null) {
   THAT("that"),
   ANOTHER("another"),
   OPPONENT_POSSESSIVE("an opponent's"),
+  ANY_PLAYER_POSSESSIVE("any player's"),
   MOST("most"),
   HIGHEST("highest"),
   ;

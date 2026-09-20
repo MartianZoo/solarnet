@@ -5,12 +5,12 @@ internal data class NounPhrase(
     private val singular: String,
     internal val plural: String = singular,
     private val count: Int? = null,
-    private val determiner: Determiner? = null,
+    internal val determiner: Determiner? = null,
     private val modifiers: List<Modifier> = emptyList(),
     private val grammaticalNumber: GrammaticalNumber? = null,
     private val upperBounded: Boolean = false,
     private val coordinatedHead: Coordination<NounPhrase>? = null,
-    private val attributiveModifier: NounPhrase? = null,
+    internal val attributiveModifiers: Coordination<NounPhrase>? = null,
 ) {
   init {
     require(count == null || grammaticalNumber == null)
@@ -32,7 +32,7 @@ internal data class NounPhrase(
         coordinatedHead?.linearize(NounPhrase::linearize)
             ?: if (number() == GrammaticalNumber.SINGULAR) singular else plural
     return listOfNotNull(
-            attributiveModifier?.linearize(),
+            attributiveModifiers?.linearize(NounPhrase::linearize),
             head,
         )
         .joinToString(" ")
@@ -43,8 +43,17 @@ internal data class NounPhrase(
   fun withDeterminer(determiner: Determiner): NounPhrase = copy(determiner = determiner)
 
   fun withAttributiveModifier(modifier: NounPhrase): NounPhrase =
+      withAttributiveModifiers(Coordination.one(modifier))
+
+  fun withAttributiveModifiers(modifiers: Coordination<NounPhrase>): NounPhrase =
       copy(
-          attributiveModifier = modifier.copy(count = null, determiner = null, upperBounded = false)
+          attributiveModifiers =
+              Coordination(
+                  modifiers.members.map {
+                    it.copy(count = null, determiner = null, upperBounded = false)
+                  },
+                  modifiers.conjunction,
+              )
       )
 
   fun asPlural(): NounPhrase = copy(count = null, grammaticalNumber = GrammaticalNumber.PLURAL)
@@ -52,6 +61,13 @@ internal data class NounPhrase(
   fun quantified(count: Int): NounPhrase = copy(count = count, grammaticalNumber = null)
 
   fun atMost(): NounPhrase = copy(upperBounded = true)
+
+  internal fun trailingSteps(): Modifier.Steps? = modifiers.lastOrNull() as? Modifier.Steps
+
+  internal fun withoutTrailingSteps(): NounPhrase {
+    require(trailingSteps() != null)
+    return copy(modifiers = modifiers.dropLast(1))
+  }
 
   fun linearize(): String {
     val noun = noun()
@@ -70,7 +86,7 @@ internal data class NounPhrase(
 
   internal fun unresolved(): List<Unresolved> =
       coordinatedHead?.members.orEmpty().flatMap(NounPhrase::unresolved) +
-          attributiveModifier?.unresolved().orEmpty() +
+          attributiveModifiers?.members.orEmpty().flatMap(NounPhrase::unresolved) +
           modifiers.flatMap(Modifier::unresolved)
 
   companion object {

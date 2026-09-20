@@ -768,15 +768,6 @@ private fun Describers.renderEventTrigger(trigger: Trigger): Clause? {
       ?: Clause.Coordinated(Coordination(events, Conjunction.OR))
 }
 
-private fun coordinateSharedSubjectPredicates(clauses: List<Clause.Simple>): Clause.SharedSubject? {
-  val subject = clauses.firstOrNull()?.subject ?: return null
-  if (clauses.any { it.subject != subject }) return null
-  return Clause.SharedSubject(
-      subject,
-      Coordination(clauses.map(Clause.Simple::predicate), Conjunction.COMMA_OR),
-  )
-}
-
 private fun Describers.renderAbstractTagTrigger(trigger: Trigger): Clause.Simple? {
   val expression = (trigger as? OnGainOf)?.expression ?: return null
   if (expression.refinement != null) return null

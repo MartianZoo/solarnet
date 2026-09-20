@@ -248,12 +248,6 @@ private fun renderDraw(
   return clause("draw", describers.quantifiedComponentNounPhrase(gain.gaining.className, count))
 }
 
-internal fun isProductionChange(instruction: Instruction, describers: Describers): Boolean {
-  val expression =
-      (instruction as? Instruction.Change)?.let { it.gaining ?: it.removing } ?: return false
-  return describers.isProduction(expression.className)
-}
-
 internal fun standardResourceGain(
     instruction: Instruction,
     describers: Describers,
@@ -725,18 +719,19 @@ private fun renderProductionChange(
     return it
   }
   val production = simpleProductionChange(change, describers) ?: return null
-  val owner =
+  val determiner =
       when {
-        production.owner == null -> "your"
-        !production.gaining && production.owner == describers.anyoneExpression -> "any player's"
+        production.owner == null -> Determiner.YOUR
+        !production.gaining && production.owner == describers.anyoneExpression ->
+            Determiner.ANY_PLAYER_POSSESSIVE
         else -> return null
       }
-  val productionPhrase =
-      "$owner ${describers.productionNounPhrase(production.resource).linearize()} " +
-          stepCount(production.count)
   return clause(
       if (production.gaining) "increase" else "decrease",
-      NounPhrase.text(productionPhrase),
+      describers
+          .productionNounPhrase(production.resource)
+          .withDeterminer(determiner)
+          .withModifier(Modifier.Steps(production.count)),
   )
 }
 
@@ -763,7 +758,7 @@ private fun renderSelectedProductionChange(
   val count = change.count.fixedQuantity() ?: return null
   return clause(
       if (gaining) "increase" else "decrease",
-      NounPhrase.text("one of your lowest productions ${stepCount(count)}"),
+      NounPhrase.text("one of your lowest productions").withModifier(Modifier.Steps(count)),
   )
 }
 
@@ -810,7 +805,7 @@ private fun renderProductionConversion(
           describers
               .productionNounPhrase(removing.resource)
               .withDeterminer(Determiner.YOUR)
-              .withModifier(Modifier.Phrase("1 or more steps")),
+              .withModifier(Modifier.Steps(Modifier.Steps.Amount.OneOrMore)),
       )
   val increase =
       clause(
@@ -818,7 +813,7 @@ private fun renderProductionConversion(
           describers
               .productionNounPhrase(gaining.resource)
               .withDeterminer(Determiner.YOUR)
-              .withModifier(Modifier.Phrase("the same number of steps")),
+              .withModifier(Modifier.Steps(Modifier.Steps.Amount.SameNumber)),
       )
   return Clause.Coordinated(Coordination(listOf(decrease, increase), Conjunction.AND))
 }

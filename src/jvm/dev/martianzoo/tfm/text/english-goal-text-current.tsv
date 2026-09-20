@@ -6,7 +6,7 @@ Coastguard	Coastguard	Requires that you have 3 tiles on areas next to at least 1
 Diversifier	Diversifier	Requires 8 different tags.
 Ecologist	Ecologist	Requires 4 bio tags.
 Energizer	Energizer	Requires that you have 6 energy production.
-Engineer	Engineer	Requires that you have 10 energy production and heat production combined.
+Engineer	Engineer	Requires that you have 10 energy and heat production combined.
 Farmer	Farmer	Requires that you have 5 animals and microbes combined.
 Forester	Forester	Requires that you have 3 plant production.
 Fundraiser	Fundraiser	Requires that you have 12 M€ production.
@@ -56,10 +56,10 @@ Investor	Investor	Most Earth tags.
 Landlord	Landlord	Most tiles.
 Landscaper	Landscaper	Most tiles in your largest connected group of tiles.
 Magnate	Magnate	Most automated cards in play.
-Manufacturer	Manufacturer	Highest steel production and heat production combined.
+Manufacturer	Manufacturer	Highest steel and heat production combined.
 Metropolist	Metropolist	Most city tiles.
 Miner	Miner	Most titanium or steel.
-Mogul	Mogul	Highest steel production, titanium production, plant production, energy production, and heat production combined.
+Mogul	Mogul	Highest steel, titanium, plant, energy, and heat production combined.
 Promoter	Promoter	Most cards in your event pile.
 Scientist	Scientist	Most science tags.
 SpaceBaron	Space Baron	Most space tags.

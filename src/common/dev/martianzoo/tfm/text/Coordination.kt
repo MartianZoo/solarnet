@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.text
 /** Ordered conjunction or disjunction. */
 internal data class Coordination<T>(
     val members: List<T>,
-    private val conjunction: Conjunction? = null,
+    internal val conjunction: Conjunction? = null,
 ) {
   init {
     require(members.isNotEmpty())

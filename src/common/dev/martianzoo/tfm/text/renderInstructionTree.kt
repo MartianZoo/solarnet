@@ -75,7 +75,7 @@ private fun renderLoweredInstructions(
     rendered += clauses.map { instruction to it }
     index++
   }
-  return RenderedInstructions(coalesceAdjacentChanges(rendered, describers))
+  return RenderedInstructions(rewriteAdjacentClauses(rendered.map { it.second }))
 }
 
 private fun renderInstructionClauses(
@@ -350,15 +350,14 @@ private fun renderCombinedCostSequence(
       renderLoweredInstructions(instruction.continuation, describers, references)
           .clauses
           .singleOrNull() ?: return null
-  val costsWithPurpose = costs.dropLast(1) + costs.last().withModifier(Modifier.Purpose(result))
-  return Clause.Coordinated(Coordination(costsWithPurpose, Conjunction.AND))
+  return attachPurpose(costs, result)
 }
 
 private fun renderStandardResourceCostSequence(
     instruction: Instruction.Then,
     describers: Describers,
     references: TypeVariableReferences,
-): Clause.Simple? {
+): Clause? {
   val removal = instruction.stages.singleOrNull() as? Remove ?: return null
   if (
       removal.quantifier.modality() != Modality.REQUIRED ||
@@ -372,20 +371,21 @@ private fun renderStandardResourceCostSequence(
       renderLoweredInstructions(instruction.continuation, describers, references)
           .clauses
           .singleOrNull() ?: return null
-  return Clause.Simple(
-      Predicate(
-          Verb("pay"),
-          Coordination.one(describers.componentNounPhrase(removal.removing.className, count)),
-          listOf(Modifier.Purpose(result)),
+  val cost =
+      Clause.Simple(
+          Predicate(
+              Verb("pay"),
+              Coordination.one(describers.componentNounPhrase(removal.removing.className, count)),
+          )
       )
-  )
+  return attachPurpose(listOf(cost), result)
 }
 
 private fun renderDiscardCostSequence(
     instruction: Instruction.Then,
     describers: Describers,
     references: TypeVariableReferences,
-): Clause.Simple? {
+): Clause? {
   val removal = instruction.stages.singleOrNull() as? Remove ?: return null
   val discarded =
       renderChange(removal, describers, references).value as? Clause.Simple ?: return null
@@ -395,7 +395,7 @@ private fun renderDiscardCostSequence(
   val result =
       renderLoweredInstructions(instruction.continuation, describers, references)
           .asCoordinatedClause()
-  return discarded.withModifier(Modifier.Purpose(result))
+  return attachPurpose(listOf(discarded), result)
 }
 
 private fun renderSequentialThen(
@@ -415,7 +415,7 @@ private fun renderCardResourceCostSequence(
     instruction: Instruction.Then,
     describers: Describers,
     references: TypeVariableReferences,
-): Clause.Simple? {
+): Clause? {
   val removal = instruction.stages.singleOrNull() as? Remove ?: return null
   val resolved = describers.resolveCardResource(removal.removing) ?: return null
   if (
@@ -431,16 +431,15 @@ private fun renderCardResourceCostSequence(
       renderLoweredInstructions(instruction.continuation, describers, references)
           .clauses
           .singleOrNull() ?: return null
-  return Clause.Simple(
-      Predicate(
-          Verb("remove"),
-          Coordination.one(resource),
-          listOf(
-              Modifier.Phrase("from this card"),
-              Modifier.Purpose(result),
-          ),
+  val cost =
+      Clause.Simple(
+          Predicate(
+              Verb("remove"),
+              Coordination.one(resource),
+              listOf(Modifier.Phrase("from this card")),
+          )
       )
-  )
+  return attachPurpose(listOf(cost), result)
 }
 
 private fun renderCardPlaySequence(
@@ -679,108 +678,6 @@ private fun renderPlacementSiteFallback(
   return preferredClause
       .withModifier(Modifier.Phrase("if using a board that has one"))
       .withModifier(Modifier.Supplement("otherwise place it normally"))
-}
-
-private fun coalesceAdjacentChanges(
-    rendered: List<Pair<Instruction, Clause>>,
-    describers: Describers,
-): List<Clause> {
-  val result = mutableListOf<Clause>()
-  var index = 0
-  while (index < rendered.size) {
-    val (instruction, renderedClause) = rendered[index]
-    if (isProductionChange(instruction, describers)) {
-      val run =
-          rendered.drop(index).takeWhile { (candidate) ->
-            isProductionChange(candidate, describers)
-          }
-      val clauses = factorAdjacentPredicates(coalesceEqualProductionChanges(run, describers))
-      result +=
-          if (clauses.size == 1) clauses.single()
-          else Clause.Coordinated(Coordination(clauses, Conjunction.AND))
-      index += run.size
-      continue
-    }
-    result += renderedClause
-    index++
-  }
-  return factorAdjacentPredicates(result)
-}
-
-private fun coalesceEqualProductionChanges(
-    rendered: List<Pair<Instruction, Clause>>,
-    describers: Describers,
-): List<Clause> {
-  val changes = rendered.map { (instruction, clause) ->
-    simpleProductionChange(instruction, describers) to clause
-  }
-  val result = mutableListOf<Clause>()
-  var index = 0
-  while (index < changes.size) {
-    val first = changes[index].first
-    if (first == null || first.owner != null) {
-      result += changes[index].second
-      index++
-      continue
-    }
-    val matching =
-        changes.drop(index).takeWhile { (candidate) ->
-          candidate != null && candidate.owner == null && candidate.gaining == first.gaining
-        }
-    if (
-        matching.size == 1 ||
-            matching.any { (candidate) -> candidate?.count != first.count } ||
-            matching.map { (candidate) -> candidate?.resource }.distinct().size != matching.size
-    ) {
-      result += matching.map { it.second }
-      index += matching.size
-      continue
-    }
-    val productions = matching.map { (change) ->
-      describers
-          .productionNounPhrase(requireNotNull(change).resource)
-          .withDeterminer(Determiner.YOUR)
-    }
-    val noun =
-        NounPhrase.coordinated(Coordination(productions, Conjunction.AND))
-            .withModifier(Modifier.Phrase("${stepCount(first.count)} each"))
-    result +=
-        Clause.Simple(
-            Predicate(Verb(if (first.gaining) "increase" else "decrease"), Coordination.one(noun))
-        )
-    index += matching.size
-  }
-  return result
-}
-
-private fun factorAdjacentPredicates(clauses: List<Clause>): List<Clause> {
-  val result = mutableListOf<Clause>()
-  clauses.forEach { clause ->
-    val previous = result.lastOrNull() as? Clause.Simple
-    val current = clause as? Clause.Simple
-    val previousObjects = previous?.predicate?.objects
-    val currentObjects = current?.predicate?.objects
-    val factored =
-        if (
-            previous != null &&
-                current != null &&
-                previous.predicate.modifiers.isEmpty() &&
-                current.predicate.modifiers.isEmpty() &&
-                previousObjects != null &&
-                currentObjects != null &&
-                previousObjects.members.none { it in currentObjects.members }
-        ) {
-          coordinateClauseObjects(listOf(previous, current), Conjunction.AND)
-        } else {
-          null
-        }
-    if (factored != null) {
-      result[result.lastIndex] = factored
-    } else {
-      result += clause
-    }
-  }
-  return result
 }
 
 internal fun Describers.renderGateCondition(requirement: Requirement): Clause? {

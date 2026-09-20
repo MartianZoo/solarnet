@@ -78,9 +78,9 @@ The nouns it produces must be **structured, not concatenated**. `Production<Ener
 argument in Pets, so it must be head plus attributive modifier in English — never the string
 `"energy production"`. The same holds for `"$name tag"` and `"$item resource"`.
 
-`NounPhrase` now has one pre-head attributive-modifier slot, and production nouns use it. Other
-attributive compounds remain glued into noun strings. Widen the slot to structured coordination only
-when implementing head factoring; do not add an unused multi-modifier API in advance.
+`NounPhrase` now has a structured pre-head attributive-modifier slot, and production nouns use it.
+Other attributive compounds remain glued into noun strings. Structured coordination in that slot
+exists specifically for the shared-head rule below; do not generalize it into another modifier API.
 
 There is also no single named entry point for "expression to noun phrase." The real one is
 `renderCountMetric`, `private` inside `renderMetric.kt` and named for its caller — which is the
@@ -100,6 +100,11 @@ declared as data. Treat it as the template, not as a finished job.
 
 Bottom-up structural rules over the EST. A rule matches tree shape and rewrites it.
 
+The named functions in `rewriteEnglishSyntax.kt` are the current pass-2 seam. They factor shared
+heads and adjacent predicates, distribute a shared step count, and attach one purpose to coordinated
+costs. Their signatures accept only EST types. This is deliberately a handful of ordinary functions,
+not a general rewrite engine.
+
 Two hard constraints, both checkable by review:
 
 1. **A pass-2 rule may not mention a `ClassName` or read `Describers`.** If a rule needs to know it
@@ -111,8 +116,8 @@ The two rules the current output most obviously wants:
 
 - **Factor a shared head across coordination.** `Coord(N(head=P, attr=A), N(head=P, attr=B))` becomes
   `N(head=P, attr=Coord(A, B))`, turning "energy production and heat production combined" into
-  "energy and heat production combined". The pre-head slot now makes this rule implementable, but
-  the rule itself is not implemented.
+  "energy and heat production combined". This rule is implemented for structurally matching noun
+  phrases; it does not know that the current proving case is production.
 - **Drop a contextually recoverable possessor.** Build "you have" unconditionally in pass 1 and let a
   rule delete it where context supplies it. This replaces the `possessorEstablished` flag threaded
   through ten functions in `renderMetric.kt`, and settles the "Requires that you have 3 city tiles"
@@ -283,6 +288,8 @@ semantic invariant needs direct proof.
   assembly; `EnglishCardTextRenderer.kt` is the public card-text entry point.
 - `Clause.kt`, `Predicate.kt`, `Verb.kt`, `NounPhrase.kt`, `Determiner.kt`, `Modifier.kt`,
   `Coordination.kt` — English syntax and final linearization.
+- [`rewriteEnglishSyntax.kt`](../../src/common/dev/martianzoo/tfm/text/rewriteEnglishSyntax.kt) —
+  named EST-only paraphrases and structural composition helpers.
 - [`ComponentDescriber.kt`](../../src/common/dev/martianzoo/tfm/text/ComponentDescriber.kt),
   [`Describers.kt`](../../src/common/dev/martianzoo/tfm/text/Describers.kt),
   [`TerraformingMarsDescribers.kt`](../../src/common/dev/martianzoo/tfm/text/TerraformingMarsDescribers.kt)
