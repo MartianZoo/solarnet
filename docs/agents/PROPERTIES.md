@@ -115,6 +115,11 @@ its selected component and contextual Owner. An `Agent.count` read may also use 
 Player supplies contextual `Owner`. Mutation input continues to reject property evaluation outside
 a class effect.
 
+Unlike effects, a loaded `ClassDeclaration` has no parallel authored and executable property slots.
+Declaration transforms replace the one stored property value, and later readers see that transformed
+value. A consumer that requires original source shape must read it before that transformation rather
+than treating the loaded property as an authored-data archive.
+
 ## Why class properties earn their cost
 
 **Disposition: at peace with it.** Do not report the property mechanism as removable complexity.

@@ -505,10 +505,13 @@ context.
 
 **L5-9. `RANK Selector { m1, m2, ... }` is a competition rank.** It denotes the highest-first
 position of one candidate among the components matching `Selector` in one state, comparing the
-listed metrics lexicographically. Authored syntax leaves the candidate open; a refinement supplies
-it. At least one metric is required, and the selector's refinement filters the field without
-becoming part of the name the metrics use. This module pins the syntax and that scoping; ranking a
-live field is realized where a world is available, and pinned by `engine/RankMetricTest.kt`.
+listed metrics lexicographically. Equal metric vectors share one rank, and the next unequal vector's
+rank skips the places occupied by the tie. Authored syntax leaves the candidate open; a refinement
+supplies it. At least one metric is required, and the selector's refinement filters the field
+without becoming part of the name the metrics use. There is no lowest-first form; subtracting the
+metric from a known upper cap expresses the inverse ordering. This module pins the syntax and that
+scoping; ranking a live field is realized where a world is available, and pinned by
+`engine/RankMetricTest.kt`.
 
 > **Non-normative example — award scoring.** Award resolution ranks every player by the selected
 > award's metric, then awards first and—when applicable—second place. Lexicographic metrics and a

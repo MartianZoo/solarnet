@@ -112,7 +112,7 @@ machinery. These are deliberate applications of the project's willingness to tra
 coverage for a smaller honest model.
 
 See [`VALUES.md`](VALUES.md#model-the-game-honestly) and review the affected entries in
-[`ENGINE.md`](ENGINE.md#modeling-constraints) before changing behavior.
+[`ENGINE.md`](ENGINE.md#content-must-not-compensate-for-an-engine-gap) before changing behavior.
 
 ### Strengthen replay evidence and provenance
 
