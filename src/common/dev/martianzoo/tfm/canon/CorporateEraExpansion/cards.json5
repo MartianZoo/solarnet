@@ -13,7 +13,7 @@
           "name": "Teractor",
           "tags": [ "EarthTag" ],
           "immediate": "60 MC",
-          "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed" ],
+          "effects": [ "PayingFor<Class<EarthTag>>:: -3 Owed" ],
         },
       ],
     },
@@ -47,7 +47,7 @@
           "cost": 14,
           "tags": [ "ScienceTag" ],
           "effects": [
-            "Billing<CardPlay>:: -2 Owed",
+            "PayingFor<Class<CardFront>>:: -2 Owed",
             "End: 3 VictoryPoint"
           ],
         },
@@ -135,7 +135,7 @@
           "cost": 23,
           "tags": [ "EarthTag" ],
           "effects": [
-            "Billing<CardPlay>:: -2 Owed",
+            "PayingFor<Class<CardFront>>:: -2 Owed",
             "End: 2 VictoryPoint"
           ],
         },
@@ -143,7 +143,7 @@
           "name": "EarthOffice",
           "cost": 1,
           "tags": [ "EarthTag" ],
-          "effects": [ "PlayTag<Class<EarthTag>>:: -3 Owed" ],
+          "effects": [ "PayingFor<Class<EarthTag>>:: -3 Owed" ],
         },
         {
           "name": "ElectroCatapult",
@@ -199,7 +199,7 @@
           "name": "IndenturedWorkers",
           "cost": 0,
           "tags": [ "EventTag" ],
-          "immediate": "NextCardEffect { Billing<CardPlay>:: -8 Owed }",
+          "immediate": "NextCardEffect { PayingFor<Class<CardFront>>:: -8 Owed }",
           "effects": [ "End: -VictoryPoint" ],
         },
         {
@@ -277,7 +277,7 @@
           "cost": 8,
           "tags": [ "ScienceTag", "PowerTag" ],
           "immediate": "PROD[6 Energy]",
-          "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed" ],
+          "effects": [ "PayingFor<Class<SpaceTag>>:: -2 Owed" ],
         },
         {
           "name": "MediaArchives",
@@ -364,7 +364,7 @@
           "cost": 13,
           "tags": [ "ScienceTag", "PowerTag" ],
           "immediate": "PROD[4 Energy]",
-          "effects": [ "PlayTag<Class<SpaceTag>>:: -2 Owed" ],
+          "effects": [ "PayingFor<Class<SpaceTag>>:: -2 Owed" ],
         },
         {
           "name": "RadSuits",
@@ -426,7 +426,7 @@
           "cost": 10,
           "tags": [ "SpaceTag" ],
           "effects": [
-            "PlayTag<Class<SpaceTag>>:: -2 Owed",
+            "PayingFor<Class<SpaceTag>>:: -2 Owed",
             "End: VictoryPoint"
           ],
         },

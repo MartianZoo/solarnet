@@ -57,7 +57,7 @@ internal fun Then.localTypeVariableDeclarations(): List<Expression> = buildList 
     val constructDeclarations =
         when (node) {
           is Each -> node.selector.selectorTypeVariableDeclarations()
-          is Rank -> node.selector.selectorTypeVariableDeclarations()
+          is Rank -> node.selector?.selectorTypeVariableDeclarations().orEmpty()
           is Expression ->
               if (
                   node.className == dev.martianzoo.pets.api.SystemClasses.CLASS &&
@@ -113,7 +113,7 @@ internal fun PetNode.constructLocalTypeVariableDeclarations(): List<Expression> 
   visitDescendants { node ->
     when (node) {
       is Each -> addAll(node.selector.selectorTypeVariableDeclarations())
-      is Rank -> addAll(node.selector.selectorTypeVariableDeclarations())
+      is Rank -> addAll(node.selector?.selectorTypeVariableDeclarations().orEmpty())
       is Expression ->
           if (
               node.className == dev.martianzoo.pets.api.SystemClasses.CLASS &&

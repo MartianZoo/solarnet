@@ -160,7 +160,7 @@ public object Parsing {
               .trimIndent(),
           e,
       )
-    } catch (e: RuntimeException) {
+    } catch (e: IllegalArgumentException) {
       throw PetSyntaxException("invalid Pets syntax: `$source`", e)
     }
   }
@@ -197,12 +197,18 @@ public object Parsing {
       is Action ->
           parsed.visitDescendants {
             (it as? Expression)?.let(ScaledExpression::rejectIfDenominationless)
+            if (it is Metric.Rank && it.selector == null) {
+              throw PetSyntaxException("`RANK { ... }` requires an enclosing expression refinement")
+            }
             true
           }
       is PetNode -> {
         fun check(node: PetNode) {
           (node as? Expression)?.let { expression ->
             ScaledExpression.rejectIfDenominationless(expression)
+          }
+          if (node is Metric.Rank && node.selector == null) {
+            throw PetSyntaxException("`RANK { ... }` requires an enclosing expression refinement")
           }
           node.immediateChildren().forEach(::check)
         }

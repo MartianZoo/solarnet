@@ -388,8 +388,9 @@ public class PetElaborator(public val classTable: ClassTable) {
             needsContext(node.selector) ||
                 (!selectionSuppliesOwner(node.selector) && needsContext(node.body))
         is Metric.Rank ->
-            needsContext(node.selector) ||
-                (!selectionSuppliesOwner(node.selector) && node.metrics.any(::needsContext))
+            node.selector?.let(::needsContext) == true ||
+                (node.selector?.let(::selectionSuppliesOwner) != true &&
+                    node.metrics.any(::needsContext))
         else -> node.immediateChildren().any(::needsContext)
       }
     }

@@ -5,8 +5,6 @@ import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.pets.ast.Requirement.Counting
 import kotlin.Int.Companion.MAX_VALUE
 
 /**
@@ -45,7 +43,7 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
     val invalidDependencies = inhabitedConcreteClasses.mapNotNull { dependent ->
       dependent.dependencies
           .concreteDependencyTargets(classTable)
-          .firstOrNull { target -> limitsFor(target).all { it.range.last > 1 } }
+          .firstOrNull { target -> !hasSingleTargetLimit(target) }
           ?.let { dependent to it }
     }
 
@@ -58,6 +56,12 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
       )
     }
   }
+
+  private fun hasSingleTargetLimit(target: Type): Boolean =
+      restrictionsByClass[target.rootClass].orEmpty().any { restriction ->
+        restriction.range.last <= 1 &&
+            restriction.bindThisTo(target)?.let { target.isSubtypeOf(it.type) } == true
+      }
 
   /**
    * Returns every strongest component-count invariant applicable to [type], plus an unconstrained
@@ -102,14 +106,8 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
         .allClasses()
         .filter(classTable::isInhabited)
         .flatMap { klass ->
-          klass.invariants.map { invariant ->
-            val counting =
-                invariant as? Counting
-                    ?: throw InvalidPetDefinitionException(
-                        "class invariant on `${klass.className}` is not a counting requirement: " +
-                            "`$invariant`"
-                    )
-            toRestriction(counting, klass)
+          classTable.classLimitTemplates.templatesFor(klass).map { template ->
+            toRestriction(template, klass)
           }
         }
         .forEach { restriction ->
@@ -120,15 +118,10 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
     return restrictions
   }
 
-  private fun toRestriction(invariant: Counting, klass: Class): Restriction {
-    val expression =
-        (invariant.metric as? Metric.Count)?.expression
-            ?: throw InvalidPetDefinitionException(
-                "class invariant on `${klass.className}` must count one component expression: " +
-                    "`$invariant`"
-            )
+  private fun toRestriction(template: ClassLimitTemplateTable.Template, klass: Class): Restriction {
+    val expression = template.expression
     if (THIS !in expression.descendantsOfType<ClassName>()) {
-      return BoundRestriction(classTable.resolve(expression), invariant.range)
+      return BoundRestriction(template.fixedType ?: classTable.resolve(expression), template.range)
     }
     if (classTable.allConcreteSubtypes(klass.baseType).drop(1).none()) {
       val bound =
@@ -137,10 +130,10 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
           classTable.resolve(bound),
           klass,
           expression.className == THIS,
-          invariant.range,
+          template.range,
       )
     }
-    return UnboundRestriction(expression, klass, classTable, invariant.range)
+    return UnboundRestriction(expression, klass, classTable, template.range)
   }
 
   private sealed interface Restriction {

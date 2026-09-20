@@ -26,7 +26,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
   internal fun game20260730() {
     retainStartingProjects(7)
     with(me) {
-      doTask("-ColonyTileSelection<Class<Miranda>>")
+      doTask("-SelectedColonyTile<Class<Miranda>>")
 
       playCorp(CrediCor) {
         buyCards(

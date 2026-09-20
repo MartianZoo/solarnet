@@ -54,7 +54,7 @@
           "name": "ThorGate",
           "tags": [ "PowerTag" ],
           "immediate": "48 MC, PROD[Energy]",
-          "effects": [ "PlayTag<Class<PowerTag>> OR ActionBilling<PowerPlantProject>:: -3 Owed" ],
+          "effects": [ "PayingFor<Class<PowerTag>> OR ActionBilling<PowerPlantProject>:: -3 Owed" ],
         },
         {
           "name": "UnitedNationsMarsInitiative",
@@ -849,7 +849,7 @@
           "cost": 18,
           "tags": [ "ScienceTag", "CityTag", "BuildingTag" ],
           "immediate": "CityTile<LandArea(HAS MAX 0 Neighbor)>",
-          "effects": [ "Billing<CardPlay>:: -1 Owed" ],
+          "effects": [ "PayingFor<Class<CardFront>>:: -1 Owed" ],
         },
         {
           "name": "RoverConstruction",
@@ -875,7 +875,7 @@
           "tags": [ "SpaceTag" ],
           "immediate": "PROD[-Energy, 2 MC]",
           "effects": [
-            "PlayTag<Class<SpaceTag>>:: -2 Owed",
+            "PayingFor<Class<SpaceTag>>:: -2 Owed",
             "End: VictoryPoint"
           ],
         },

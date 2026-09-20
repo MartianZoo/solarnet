@@ -24,8 +24,8 @@ ABSTRACT CLASS Award {
 
 // TODO: weird that these effects live as removal effects here...
 CLASS MeasureAward<Award^1, FinalScoringPending> : Temporary, System {
-  -This:: EACH Player(HAS =1 (RANK Player { EVAL Award^1.metric })) { FirstPlace<Award^1> }
-  -This IF 3 Player:: EACH Player(HAS =2 (RANK Player { EVAL Award^1.metric })) { SecondPlace<Award^1> }
+  -This:: EACH Player(HAS =1 (RANK { EVAL Award^1.metric })) { FirstPlace<Award^1> }
+  -This IF 3 Player:: EACH Player(HAS =2 (RANK { EVAL Award^1.metric })) { SecondPlace<Award^1> }
 }
 
 CLASS FirstPlace<Award> : Owned<Player> { This:: 5 VictoryPoint }

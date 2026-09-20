@@ -44,15 +44,27 @@ public object GameRecordingJson {
     )
   }
 
-  /** Reads the premise recipe needed before the recording's typed events can be decoded. */
-  public fun config(text: String): GameConfig = config(parse(text))
+  /** Parses one recording document for premise reconstruction and typed event decoding. */
+  public fun parse(text: String): Document = Document(json.parseToJsonElement(text).jsonObject)
 
-  /** Decodes the exact event stream against its reconstructed [premise]. */
-  public fun decode(text: String, premise: GamePremise): GameRecording {
-    val source = parse(text)
-    val events = EventLogJson.decodeEvents(requiredArray(source, "events"), premise.classTable)
-    val positions = requiredArray(source, "positions").map { Checkpoint(it.jsonPrimitive.int) }
-    return GameRecording(premise, events, positions)
+  /** One parsed recording document retained across premise reconstruction and event decoding. */
+  public class Document internal constructor(private val source: JsonObject) {
+    /** The premise recipe that must be reconstructed before typed events can be decoded. */
+    public val config: GameConfig = GameRecordingJson.config(source)
+
+    /** Decodes the exact event stream against its reconstructed [premise]. */
+    public fun decode(premise: GamePremise): GameRecording {
+      val events =
+          EventLogJson.decodeEvents(
+              GameRecordingJson.requiredArray(source, "events"),
+              premise,
+          )
+      val positions =
+          GameRecordingJson.requiredArray(source, "positions").map {
+            Checkpoint(it.jsonPrimitive.int)
+          }
+      return GameRecording(premise, events, positions)
+    }
   }
 
   private fun config(source: JsonObject): GameConfig =
@@ -60,8 +72,6 @@ public object GameRecordingJson {
           requiredStrings(source, "classes").joinToString(),
           *requiredStrings(source, "players").toTypedArray(),
       )
-
-  private fun parse(text: String): JsonObject = json.parseToJsonElement(text).jsonObject
 
   private fun strings(values: Iterable<String>) = buildJsonArray {
     values.forEach { add(JsonPrimitive(it)) }

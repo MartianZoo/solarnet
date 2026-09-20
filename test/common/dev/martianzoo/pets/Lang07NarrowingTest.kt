@@ -226,6 +226,16 @@ internal class Lang07NarrowingTest {
   }
 
   @Test
+  internal fun `L7-8 selecting an OR arm binds later THEN stages`() {
+    val sequence =
+        elaborate("(Token^1 OR Plant) THEN Token^1") as dev.martianzoo.pets.ast.Instruction.Then
+    val proposal = elaborate("RedToken") as dev.martianzoo.pets.ast.Instruction
+
+    sequence.selectFirstStage(proposal, langWorld).toString() shouldBe
+        elaborate("RedToken THEN RedToken").toString()
+  }
+
+  @Test
   internal fun `L7-8 expansion matching ignores an occurrence unavailable in its universe`() {
     val table = testCatalog("ABSTRACT CLASS Shade\nCLASS Token<Shade>").classTable
     val expanded = parse<Expression>("Token<Shade>")

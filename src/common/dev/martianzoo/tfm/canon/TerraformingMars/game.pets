@@ -5,7 +5,8 @@ CLASS TerraformingMars : BaseGameModule {
   HAS =1 GameMode, =1 MarsMap
   HAS Class<Production>
   HAS Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>
-  HAS Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>, Class<End>
+  HAS Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<VenusSolarPhase>
+  HAS Class<ColoniesSolarPhase>, Class<TurmoilSolarPhase>, Class<FinalGreeneryPhase>, Class<End>
   HAS Class<UseAction>, Class<NewTurn>, Class<SecondAction>
 
   This: SellPatentsProject, PowerPlantProject, AsteroidProject, AquiferProject, GreeneryProject, CityProject
@@ -23,8 +24,8 @@ CLASS TerraformingMars : BaseGameModule {
   CorporationPhase:: EACH Class<CardWatcher^1> { CardWatcher^1 }
 
   // TODO: do we need `IF Owed` ... if so could `Accepting` just remove itself when no Owed exist?
-  PlayTag<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>
-  PlayTag<Class<SpaceTag>> IF Owed:: Accepting<Class<Titanium>>
+  PayingFor<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>
+  PayingFor<Class<SpaceTag>> IF Owed:: Accepting<Class<Titanium>>
 }
 
 "Variant rule: each player begins with 1 of each production"
@@ -66,7 +67,7 @@ ABSTRACT CLASS GameMode : Module {
     SetupPhase: EACH Player { 20 TerraformRating }
 
     // TODO: something better for this to trigger on
-    -FinalScoringPending: EACH Player(HAS =1 (RANK Player { VictoryPoint, MC })) { Victory }
+    -FinalScoringPending: EACH Player(HAS =1 (RANK { VictoryPoint, MC })) { Victory }
   }
 }
 
@@ -120,6 +121,9 @@ ABSTRACT CLASS Phase : System {
   }
   CLASS ProductionPhase
   CLASS SolarPhase
+  CLASS VenusSolarPhase
+  CLASS ColoniesSolarPhase
+  CLASS TurmoilSolarPhase
   CLASS FinalGreeneryPhase {
     NewTurn: UseAction<ConvertPlantsAction, Action1>?
   }

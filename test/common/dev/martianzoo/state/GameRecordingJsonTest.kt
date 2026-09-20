@@ -33,10 +33,10 @@ internal class GameRecordingJsonTest {
         GameRecording(premise, events, listOf(Checkpoint(0), Checkpoint(1), Checkpoint(2)))
     events.first().notes = "changed after capture"
     val text = GameRecordingJson.encode(recording)
-    val decodedConfig = GameRecordingJson.config(text)
-    val decoded = GameRecordingJson.decode(text, premise)
+    val document = GameRecordingJson.parse(text)
+    val decoded = document.decode(premise)
 
-    decodedConfig shouldBe GameConfig("Token, -Marker", "Player1")
+    document.config shouldBe GameConfig("Token, -Marker", "Player1")
     decoded.positions shouldBe recording.positions
     decoded.events shouldBe events
     GameRecordingJson.encode(decoded) shouldBe text

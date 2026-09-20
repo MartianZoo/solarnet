@@ -62,18 +62,6 @@ public interface Agent {
    */
   public fun narrowTask(narrowing: String): TaskResult
 
-  /**
-   * Narrows this Actor's task identified by [taskId]. An unselected task is replaced only when
-   * [narrowing] discards options using immutable Class and task structure; it remains unselected
-   * and is not resolved or executed. A selected task behaves as in [narrowTask].
-   *
-   * @throws [TaskException] if [taskId] is not assigned to this Actor or another task holds the
-   *   select-lock
-   * @throws [NarrowingException] if [narrowing] does not narrow the task without consulting mutable
-   *   World state
-   */
-  public fun narrowTask(taskId: TaskId, narrowing: String): TaskResult
-
   /** Tells whether [selectTask] will complete normally. */
   public fun canSelectTask(taskId: TaskId): Boolean
 

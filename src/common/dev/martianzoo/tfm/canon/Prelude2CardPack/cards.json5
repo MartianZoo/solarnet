@@ -135,7 +135,7 @@
           "tags": [ "SpaceTag" ],
           "immediate": "3 Titanium",
           "effects": [
-            "PlayTag<Class<PlanetaryTag>>:: -2 Owed",
+            "PayingFor<Class<PlanetaryTag>>:: -2 Owed",
           ],
         },
         {

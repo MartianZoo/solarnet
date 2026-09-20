@@ -28,10 +28,11 @@
           "name": "TerralabsResearch",
           "tags": [ "ScienceTag", "EarthTag" ],
           "immediate": "14 MC, -TerraformRating",
-          "effects": [ "BuyCard:: -2 Owed" ],
+          "effects": [ "PayingFor<Class<ProjectCard>>:: -2 Owed" ],
         },
         {
           "name": "UtopiaInvest",
+          "tags": [ "BuildingTag" ],
           "immediate": "40 MC, PROD[Steel, Titanium]",
           "actions": [ "PROD[StandardResource^1] -> 4 StandardResource^1" ],
         },

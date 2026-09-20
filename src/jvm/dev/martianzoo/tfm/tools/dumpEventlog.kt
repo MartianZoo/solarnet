@@ -52,7 +52,7 @@ private fun createGame(playerCount: Int): World {
     val players = game.actors.filterIsInstance<Player>()
     players.forEach { player -> agents[player].doTask("-6 ProjectCard<Selecting>") }
     if (playerCount == 1) {
-      agents.tfm(players.first()).doTask("-ColonyTileSelection<Class<${colonies.first()}>>")
+      agents.tfm(players.first()).doTask("-SelectedColonyTile<Class<${colonies.first()}>>")
     }
     TfmWorkflow.Stepwise(agents).corporationPhase()
     agents.tfm(players.first()).playCorp(cn("InterplanetaryCinematics"), buyCards = 4)
@@ -105,7 +105,8 @@ public fun main(args: Array<String>) {
   when {
     args.size == 2 && args[0].endsWith(".json") -> {
       val text = Files.readString(Path.of(args[0]))
-      val config = GameRecordingJson.config(text)
+      val document = GameRecordingJson.parse(text)
+      val config = document.config
       val catalog =
           if (cn("FakeStuffBundle") in config.includedClassNames) {
             TfmCatalog.compose(Canon, FakeCanon)
@@ -113,7 +114,7 @@ public fun main(args: Array<String>) {
             Canon
           }
       val premise = catalog.gamePremise(config)
-      val world = GameRecordingJson.decode(text, premise).open().world
+      val world = document.decode(premise).open().world
       dump(world.reader, world.events, Path.of(args[1]))
     }
     args.size == 2 -> {

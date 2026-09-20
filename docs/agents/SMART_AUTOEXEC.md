@@ -123,8 +123,8 @@ S ≈ T  implies  N(S) = N(T)
 
 A merely lossy projection does not establish this. The intended omissions have narrower existing
 arguments: components have no instance identity and equal Types are indistinguishable copies
-([ENGINE.md](ENGINE.md#component-graph)); game mechanics may not read event history
-([ENGINE.md](ENGINE.md#events-and-timeline)); and opaque task ids and ordinals may
+([ENGINE.md](ENGINE.md#concrete-state-and-its-history)); game mechanics may not read event history
+([ENGINE.md](ENGINE.md#concrete-state-and-its-history)); and opaque task ids and ordinals may
 be
 alpha-renamed only through the semantic-symmetry rule below. At minimum the candidate EGS contains:
 

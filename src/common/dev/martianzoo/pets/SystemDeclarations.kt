@@ -2,6 +2,7 @@ package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.util.toSetStrict
 
 /**
@@ -12,7 +13,8 @@ import dev.martianzoo.pets.util.toSetStrict
  * `Ok`, the impossible type `Die`, and `Atomized` and `Custom`. A catalog's own source is loaded
  * alongside them.
  *
- * Which of these a particular *game* then contains is `OPTIONS.md`'s question, not this module's.
+ * Which of these a particular game then contains is decided by [GamePremise.classTable], not this
+ * module.
  */
 // TODO: Replace this temporary tfm-canon seam with the generic Catalog contract.
 public val systemClassDeclarations: Set<ClassDeclaration> by lazy {

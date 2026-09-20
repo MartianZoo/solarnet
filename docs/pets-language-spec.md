@@ -86,7 +86,7 @@ a separate job, and every question about *how* that is done belongs to some othe
 | Action availability, costs, billing and action identity | [`ACTIONS.md`](agents/ACTIONS.md) |
 | The order in which independent effects fire | [`SEQUENCING.md`](agents/SEQUENCING.md) |
 | The event log, causes and traces | [`ENGINE.md`](agents/ENGINE.md), [`DIAGNOSTICS.md`](agents/DIAGNOSTICS.md) |
-| Which classes a particular game contains | [`OPTIONS.md`](agents/OPTIONS.md) |
+| Which classes a particular game contains | [`GamePremise`](../src/common/dev/martianzoo/pets/data/GamePremise.kt) and [`PremiseSelectionTest`](../test/common/dev/martianzoo/pets/types/PremiseSelectionTest.kt) |
 | Which name a concept gets, and its localized display names | [`NAMING.md`](agents/NAMING.md) |
 | Class-property cardinality, groups and printed tags | [`PROPERTIES.md`](agents/PROPERTIES.md) |
 
@@ -236,8 +236,8 @@ one declaration, with an optional semicolon-separated body, and rejects owner-lo
 the classes this specification and the type system depend on — `Component` and `Class` (T1-4, T1-5),
 the ownership vocabulary `Anyone`, `Owner` and `Owned`, the actor root `Actor`, the identity signal
 `Ok` (L6-4), and the impossible type `Die` (L12-14) — plus `Atomized` (L12-11) and `Custom` (T2-9).
-A catalog's own source is loaded alongside them. Which of these a *game* then contains is
-`OPTIONS.md`'s question, not this document's.
+A catalog's own source is loaded alongside them. Which of these a *game* then contains is premise
+construction's question, not this document's.
 
 > **Non-normative example — impossible and empty outcomes.** Specialization uses the built-in `Die`
 > and `Ok` terminal instructions when selected content makes a mandatory result impossible or an
@@ -523,11 +523,18 @@ context.
 
 **L5-9. `RANK Selector { m1, m2, ... }` is a competition rank.** It denotes the highest-first
 position of one candidate among the components matching `Selector` in one state, comparing the
-listed metrics lexicographically. Authored syntax leaves the candidate open; a refinement supplies
-it. At least one metric is required. `Selector^Handle` explicitly makes the candidate available
-as `SelectorRoot^Handle` in the metrics; other expressions in those metrics retain their ordinary
-meanings. This module pins the syntax and that scoping; ranking a live field is realized where a
-world is available, and pinned by `engine/RankMetricTest.kt`.
+listed metrics lexicographically. Equal metric vectors share one rank, and the next unequal vector's
+rank skips the places occupied by the tie. Authored syntax leaves the candidate open; a refinement
+supplies it. Inside a `HAS` refinement only, the selector may also be omitted from a counted rank:
+`Foo(HAS =1 (RANK { score }))` means `Foo(HAS =1 (RANK Foo { score }))`, using the unrefined
+expression that owns that refinement as the field. Outside an expression refinement there is no
+outer domain to supply that selector, so `RANK { score }` is invalid. At least one metric is
+required. `Selector^Handle` explicitly makes the candidate available as `SelectorRoot^Handle` in
+the metrics; other expressions in those metrics retain their ordinary meanings. The selector's
+refinement filters the field without becoming part of the candidate value. There is no lowest-first
+form; subtracting the metric from a known upper cap expresses the inverse ordering. This module pins
+the syntax and that scoping; ranking a live field is realized where a world is available, and pinned
+by `engine/RankMetricTest.kt`.
 
 > **Non-normative example — award scoring.** Award resolution ranks every player by the selected
 > award's metric, then awards first and—when applicable—second place. Lexicographic metrics and a
@@ -817,7 +824,8 @@ never a way to do nothing. Declining belongs to `?` and `Ok` (L7-4).
 **L7-8. A shared type variable takes one value everywhere it appears.** Narrowing a sequence,
 action, or transmutation with a shared variable must supply one consistent value for it (T13-7); two
 different values are rejected. A sequence, Action, or full transmutation marks that variable with
-the same `^Handle` at each occurrence (L6-15, L6-16, L9-8).
+the same `^Handle` at each occurrence (L6-15, L6-16, L9-8). Selecting one `THEN` stage binds that
+value in every later stage, including when the selected instruction chose an arm of an `OR`.
 
 > **Non-normative example — Utopia Invest.**
 > `PROD[StandardResource^1] -> 4 StandardResource^1` means reduce one chosen production
@@ -1077,7 +1085,8 @@ the source, not a message to some later stage.
 category of Pets it was given: an instruction for an instruction, a metric for a metric, and so on.
 It need not be the same *kind* of node — a gain may come back a group, a requirement may come back a
 conjunction — and a block that expands into several independent instructions splices into the
-surrounding group (L6-8).
+surrounding group (L6-8). A block that expands into a sequence at the final stage of another
+sequence likewise splices into that surrounding sequence (L6-9).
 
 > **Non-normative example — Noctis City.** `PROD[-Energy, 3 MC]` expands into two independent
 > production-track changes. Splicing the returned group preserves the card's surrounding gains;
@@ -1137,6 +1146,9 @@ generated declaration is `CLASS Inventrix_RequiredAction : RequiredAction`.
 **L11-3. The body follows the complete expression.** Arguments specialize both the occurrence and
 the generated class's declared supertype; refinements constrain only the occurrence and are removed
 recursively from the supertype, because a refined type cannot be a supertype (L1-9).
+
+Within an argument, `This` still denotes the enclosing owner: the occurrence retains `This` to name
+that owner instance, while the generated class's supertype names the enclosing owner Class.
 
 ```pets
 SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {}

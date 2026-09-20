@@ -47,6 +47,9 @@ internal class GameReaderImpl(
       metric.evaluate({ countExpression(it.expression) }, ::readProperty, ::countUnion, ::rank)
 
   private fun rank(metric: Rank): Int {
+    val selector =
+        metric.selector
+            ?: throw ExpressionException("RANK can only omit its selector inside a refinement")
     val candidateExpression =
         metric.candidate
             ?: throw ExpressionException(
@@ -57,10 +60,10 @@ internal class GameReaderImpl(
       throw ExpressionException("RANK candidate is abstract: ${candidate.expressionFull}")
     }
 
-    val peers = getComponents(classTable.resolve(metric.selector)).elements
+    val peers = getComponents(classTable.resolve(selector)).elements
     if (candidate !in peers) {
       throw ExpressionException(
-          "RANK candidate ${candidate.expressionFull} is not a live ${metric.selector}"
+          "RANK candidate ${candidate.expressionFull} is not a live $selector"
       )
     }
     val candidateScore = rankScore(metric, candidate)

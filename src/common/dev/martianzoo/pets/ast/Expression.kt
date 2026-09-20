@@ -11,6 +11,7 @@ import dev.martianzoo.pets.ClassParsing
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.PetTokenizer
+import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.types.ClassLoader
@@ -355,23 +356,47 @@ public data class Expression(
         val refinement = refinementParser()
         val typeVariableHandle = (ClassName.parser() map { it.asString }) or numericTypeVariableName
         val typeVariableMarker = skipChar('^') and typeVariableHandle
-        val ordinary =
+        fun expression(
+            clazz: ClassName,
+            name: String?,
+            args: List<Expression>?,
+            ref: Refinement?,
+        ): Expression {
+          val domain =
+              Expression(
+                  clazz,
+                  args.orEmpty(),
+                  argumentsSpecified = args != null,
+                  typeVariableName = name?.let { TypeVariableName.Declaration(it, clazz) },
+              )
+          val boundRefinement = ref?.let {
+            object : PetTransformer() {
+                  override fun transformNode(node: PetNode): PetNode =
+                      when {
+                        node is Metric.Rank && node.selector == null -> {
+                          val metrics = node.metrics.map(::transformMetric)
+                          node.copy(
+                              selector = domain.copy(typeVariableName = null),
+                              metrics = metrics,
+                          )
+                        }
+                        node is Expression -> node
+                        else -> transformChildren(node)
+                      }
+                }
+                .transformRefinement(it)
+          }
+          return resolveClassLiteralTypeVariableNames(domain.copy(refinement = boundRefinement))
+        }
+
+        val expression =
             ClassName.parser() and
                 optional(typeVariableMarker) and
                 optional(argumentList) and
                 optional(refinement) map
                 { (clazz, name, args, ref) ->
-                  resolveClassLiteralTypeVariableNames(
-                      Expression(
-                          clazz,
-                          args.orEmpty(),
-                          ref,
-                          args != null,
-                          name?.let { TypeVariableName.Declaration(it, clazz) },
-                      )
-                  )
+                  expression(clazz, name, args, ref)
                 }
-        val expression = ordinary
 
         if (allowDerivedClass) {
           expression and

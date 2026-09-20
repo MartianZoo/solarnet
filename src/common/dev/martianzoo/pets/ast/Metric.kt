@@ -92,8 +92,8 @@ public sealed class Metric : PetElement() {
    * world is available, and pinned by `engine/RankMetricTest.kt`.
    */
   public data class Rank(
-      /** The field being ranked. Its refinement filters that field. */
-      public val selector: Expression,
+      /** The field being ranked, or null until an enclosing refinement supplies its domain. */
+      public val selector: Expression?,
 
       /** The comparison keys, compared lexicographically. At least one is required. */
       public val metrics: List<Metric>,
@@ -107,7 +107,7 @@ public sealed class Metric : PetElement() {
 
     /** Returns the comparison metrics with marked selector occurrences bound to [candidate]. */
     public fun metricsFor(candidate: Expression): List<Metric> =
-        selectorReferenceBinder(selector, candidate).let { binder ->
+        selectorReferenceBinder(checkNotNull(selector), candidate).let { binder ->
           metrics.map(binder::transformMetric)
         }
 
@@ -116,7 +116,8 @@ public sealed class Metric : PetElement() {
       visitor.visit(metrics)
     }
 
-    override fun toString(): String = "RANK $selector { ${metrics.joinToString(", ")} }"
+    override fun toString(): String =
+        "RANK${selector?.let { " $it" }.orEmpty()} { ${metrics.joinToString(", ")} }"
 
     override fun precedence(): Int = 12
   }
@@ -328,17 +329,7 @@ public sealed class Metric : PetElement() {
     fun atomParser(): Parser<Metric> {
       return parser {
         val count: Parser<Count> = Expression.parser() map Metric::Count
-
-        val rank: Parser<Metric> =
-            skip(_rank) and
-                Expression.parser(allowDerivedClass = false) and
-                skipChar('{') and
-                commaSeparated(parser()) and
-                skipChar('}') map
-                { (selector, metrics) ->
-                  val resolved = resolveSelectorTypeVariableNames(selector, metrics)
-                  Rank(resolved[0] as Expression, resolved.drop(1).map { it as Metric })
-                }
+        val rank = rankParser()
 
         val transform: Parser<Metric> =
             transform(parser()) map { (node, transformName) -> Transform(node, transformName) }
@@ -364,6 +355,28 @@ public sealed class Metric : PetElement() {
 
         max
       }
+    }
+
+    fun rankParser(): Parser<Metric> {
+      val explicitRank: Parser<Metric> =
+          skip(_rank) and
+              Expression.parser(allowDerivedClass = false) and
+              skipChar('{') and
+              commaSeparated(parser()) and
+              skipChar('}') map
+              { (selector, metrics) ->
+                val resolved = resolveSelectorTypeVariableNames(selector, metrics)
+                Rank(resolved[0] as Expression, resolved.drop(1).map { it as Metric })
+              }
+      val implicitRank: Parser<Metric> =
+          skip(_rank) and
+              skipChar('{') and
+              commaSeparated(parser()) and
+              skipChar('}') map
+              { metrics ->
+                Rank(null, metrics)
+              }
+      return explicitRank or implicitRank
     }
   }
 }

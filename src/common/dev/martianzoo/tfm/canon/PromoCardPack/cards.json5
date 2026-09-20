@@ -221,7 +221,7 @@
           "tags": [ "ScienceTag", "BuildingTag" ],
           "effects": [
             "ScienceTag: Graphene<This>",
-            "PlayTag<Class<SpaceTag>> OR PlayTag<Class<CityTag>>:: AcceptingFromCard<This>",
+            "PayingFor<Class<SpaceTag>> OR PayingFor<Class<CityTag>>:: AcceptingFromCard<This>",
             "PayFromCard<This>:: -4 Owed",
             "End: VictoryPoint"
           ],
@@ -264,7 +264,7 @@
           "cost": 12,
           "tags": [ "ScienceTag" ],
           "effects": [
-            "CardBilling<Class<CardFront>(HAS requirement)>:: -2 Owed",
+            "PayingFor<Class<CardFront>(HAS requirement)>:: -2 Owed",
             "End: VictoryPoint"
           ],
         },
@@ -441,7 +441,7 @@
           "effects": [
             "This:: 3 GrantedResourceValue<Class<Plant>, This>",
             "This: PROD[Plant]",
-            "PlayTag<Class<BuildingTag>>:: Accepting<Class<Plant>>"
+            "PayingFor<Class<BuildingTag>>:: Accepting<Class<Plant>>"
           ],
         },
         {
@@ -604,7 +604,7 @@
           "tags": [ "EarthTag", "SpaceTag" ],
           "immediate": "2 Titanium",
           "effects": [
-            "PlayTag<Class<EarthTag>>:: -2 Owed",
+            "PayingFor<Class<EarthTag>>:: -2 Owed",
             "EventCard<Anyone>(HAS SpaceTag): ProjectCard",
             "End: VictoryPoint"
           ],

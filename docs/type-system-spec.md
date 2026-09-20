@@ -107,8 +107,8 @@ Three neighbours are deliberately out of scope:
 
 - **How a premise selects its declaration closure.** Section 12 takes that closure as part of the
   game universe and defines inhabitance for its Types. The selection policy belongs to premise
-  construction; its behavior is pinned by `PremiseSelectionTest.kt` and described in
-  `docs/agents/OPTIONS.md`.
+  construction; its behavior is described by `GamePremise` and `ClassLoader` KDoc and pinned by
+  `PremiseSelectionTest.kt`.
 - **Component-count invariants**, except for the one rule the type system leans on (T3-9): a
   dependency may only target a type limited to a single copy.
 - **What the rest of Pets means.** Instructions, requirements, metrics, triggers and declarations
@@ -1430,8 +1430,10 @@ candidate was captured, so later occurrences reuse the captured type without ask
 `isEmpty`), the current spelling of a variable or of one occurrence (`expressionsOf`,
 `expressionOf`), and which variable a given syntax node uses or declares (`variableAt`,
 `variableDeclaredAt`). `bindingsFrom(authored, general, specific)` captures values by walking the
-dependency keys chosen while resolving the authored expression. A candidate that lacks the recorded
-path captures nothing.
+dependency keys chosen while resolving the authored expression — so a candidate that lacks the path a
+variable sits on captures nothing, rather than guessing from a coincidentally similar type.
+For `Class<T>`, the represented Class is that structural path: specializing `Class<Person>` to
+`Class<Alice>` captures `Alice` for the `Person` occurrence.
 
 > **Non-normative example — Law Suit.** The removal watchers record victim, resource class, and
 > acting player in distinct authored dependency positions; Law Suit later consumes that exact

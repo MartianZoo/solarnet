@@ -165,9 +165,18 @@ ancestry is a backward walk through event ordinals, ending either at the scoped 
 event or at a null cause. Because it is derived from the event log, rollback restores it for free —
 which the No-hidden-ordering-state promise requires and a cached field would not.
 
+Scoped completion is also the smallest identified validation point for a positive lower bound that
+one automatic consequence chain may temporarily violate and repair. Validation at every
+`Timeline.atomic` exit is too early because a successful transaction may intentionally leave
+Player-choice Tasks; whole-World idleness is too late because it combines unrelated work. The
+intended rule is to keep upper bounds immediate and validate applicable lower bounds when their
+causal scope closes. This is a dependency of the selected direction, not current behavior, and must
+not broaden the first implementation slice before scoped identity and cross-Actor completion are
+settled.
+
 **One precondition, unsettled.** "The scoped component's own gain event" is not yet well defined.
 The component graph is a multiset with no instance identity, and equal Types are indistinguishable
-([ENGINE.md](ENGINE.md#component-graph)). Either every scoped concrete Type must carry a
+([ENGINE.md](ENGINE.md#concrete-state-and-its-history)). Either every scoped concrete Type must carry a
 maximum-one invariant, or scoping needs an explicit operation identity. Requiring maximum-one costs
 nothing today — `End` is bounded by `MAX 1 Phase`, `CardFront` by `MAX 1 This<Player>`, and
 `Trade<This>` by its `ColonyTile` invariant — but it has to become a stated requirement rather than
@@ -258,10 +267,11 @@ Some rules must modify an operation before the component that announces its resu
 discount cannot wait for the card's real Tag. The canon answer is a **committed precursor**: an
 earlier component P that the operation is already committed to converting into A.
 
-`PlayTag<Class<Tag>>` is the worked example. Card play creates one `PlayTag` per printed tag before
-payment settles; discounts and alternative payment effects subscribe there; successful card entry
-then creates the real Tags with their printed multiplicity. If the play reaches a dead end, rollback
-removes the precursor and everything it caused.
+`PayingFor<Class<Component>>` is the worked example. Card play creates one event for the concrete
+card and one per printed tag before payment settles; project-card purchase creates one per card.
+Discounts, surcharges, and alternative payment effects subscribe there. Successful card entry then
+creates the real card and Tags with their printed multiplicity. If the operation reaches a dead end,
+rollback removes the precursor and everything it caused.
 
 For precursor P and result A:
 
@@ -275,13 +285,13 @@ The P/A distinction is permanent conceptual cost, justified only when A is genui
 cannot say how it was obtained. Never let P degrade into a notification a caller may emit without
 performing A, and never duplicate A's reactions onto both.
 
-Two live families are weaker than this and should not be described as more: `UseActionN<HasActions>`
-is generic action dispatch, not a promise of a later component Type; and `BuyCard` carries
-multiplicity but not selected card identity, which is exact for the two existing price modifiers and
-should be specialized rather than extended if a third needs more. `Pay` is not a precursor at all —
-it is created in the same `FROM` instruction that removes the resource. `Accepting` is not one either;
-it exposes an optional choice. Card-play and payment lifecycles belong to
-[ACTIONS.md](ACTIONS.md) and [PAYMENTS.md](PAYMENTS.md); do not re-inventory them here.
+The project-card purchase use deliberately carries multiplicity but not selected card identity,
+which is exact for the two existing price modifiers; specialize that event rather than broadening it
+if another rule needs more. `UseActionN<HasActions>` is weaker: generic action dispatch is not a
+promise of a later component Type. `Pay` is not a precursor at all — it is created in the same
+`FROM` instruction that removes the resource. `Accepting` is not one either; it exposes an optional
+choice. Card-play and payment lifecycles belong to [ACTIONS.md](ACTIONS.md) and
+[PAYMENTS.md](PAYMENTS.md); do not re-inventory them here.
 
 ## Automatic effects
 

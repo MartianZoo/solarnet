@@ -49,7 +49,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | --- | --- | --- |
 | Game World ownership, passive component/task data, recordings, exports, or playback | [`GAMEWORLD.md`](GAMEWORLD.md) | Selected direction |
 | Current World construction, components, tasks, effects, or Agent | [`ENGINE.md`](ENGINE.md) | Current model |
-| Current live event, transaction, checkpoint, or rollback implementation | [`ENGINE.md`](ENGINE.md#events-and-timeline) | Current model |
+| Current live event, transaction, checkpoint, or rollback implementation | [`ENGINE.md`](ENGINE.md#concrete-state-and-its-history) | Current model |
 | Task ordering, `THEN`, automatic effects, barriers, or completion | [`SEQUENCING.md`](SEQUENCING.md) | Working rules and selected direction |
 | Admin, Actor attribution, task assignee, context owner, or delegated narrowing | [`IDENTITY.md`](IDENTITY.md) | Current model and selected direction |
 | Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) | Current engine contract |
@@ -69,7 +69,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Pets syntax, declarations, instructions, effects, actions, narrowing, owner-local Classes, or elaboration | The cited rule of [`pets-language-spec.md`](../pets-language-spec.md) | Specification, checked rule-by-rule by `pets/Lang*Test.kt` |
 | Type-variable lifetime in the engine | The matching section of [`TYPES.md`](TYPES.md) | Current model and working direction |
 | Class-property syntax, defaults, cardinality, or property groups | The matching section of [`PROPERTIES.md`](PROPERTIES.md) | Current model and working rules |
-| Catalogs, Modules, Bundles, configuration, premise resolution, or projection policy | The matching section of [`OPTIONS.md`](OPTIONS.md) | Current model and working direction |
+| Catalogs, Modules, Bundles, configuration, premise resolution, or projection policy | KDoc on [`Catalog`](../../src/common/dev/martianzoo/pets/data/Catalog.kt), [`GamePremise`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt), and [`Bundle`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt); then the matching tests | Current model |
 | Master Class identity versus game-filtered enumeration | [`CLASS_TABLES.md`](CLASS_TABLES.md) | Current model |
 | Generic component fanout (`EACH`) | [`EACH.md`](EACH.md) | Current model |
 
@@ -87,7 +87,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | --- | --- | --- |
 | Extract the Game World or remove engine code from recording playback | [`GAMEWORLD.md`](GAMEWORLD.md) | Selected direction |
 | Move runtime layers or generic versus Terraforming Mars responsibilities | The matching division in [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md) | Selected direction and audit |
-| Extract the client Agent API, Agent-owned autoexecution policies, or the shared autoexecution loop | [`API.md`](API.md), [`AUTOEXEC.md`](AUTOEXEC.md), after the Agent section of [`ENGINE.md`](ENGINE.md#current-agent-surface) | Current divergence and selected direction |
+| Extract the client Agent API, Agent-owned autoexecution policies, or the shared autoexecution loop | [`API.md`](API.md), [`AUTOEXEC.md`](AUTOEXEC.md), after the Agent section of [`ENGINE.md`](ENGINE.md#actor-engines-and-agents) | Current divergence and selected direction |
 | Reduce Kotlin visibility | [`VISIBILITY.md`](VISIBILITY.md) | Working rules and procedure |
 
 ### Verify a change

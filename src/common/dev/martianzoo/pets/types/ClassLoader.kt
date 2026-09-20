@@ -274,7 +274,16 @@ private constructor(
     }
   }
 
-  /** Computes a game's inclusion closure within its completed structural namespace. */
+  /**
+   * Computes a game's inclusion closure within its completed structural namespace.
+   *
+   * Structural references and reachable constructive instructions include their required Classes.
+   * Counts, requirements, and triggers alone do not, except that a positive lower bound in a Class
+   * invariant includes the structural domain it counts. A constructive instruction beneath a
+   * provably false gate or trigger is inert. The calculation repeats because each included Class
+   * can make another edge reachable. A required Class locked behind an unselected Module makes the
+   * premise broken rather than silently selecting that Module.
+   */
   internal fun includeAll(names: Collection<ClassName>) {
     require(masterSource != null && frozen) {
       "a game table must be structurally frozen before its inclusion closure is computed"

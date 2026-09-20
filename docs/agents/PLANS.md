@@ -112,7 +112,7 @@ machinery. These are deliberate applications of the project's willingness to tra
 coverage for a smaller honest model.
 
 See [`VALUES.md`](VALUES.md#model-the-game-honestly) and review the affected entries in
-[`ENGINE.md`](ENGINE.md#modeling-constraints) before changing behavior.
+[`ENGINE.md`](ENGINE.md#content-must-not-compensate-for-an-engine-gap) before changing behavior.
 
 ### Strengthen replay evidence and provenance
 
@@ -156,8 +156,8 @@ models and live decisions, remove migration history and agent reasoning, and kee
 their smallest owning documents rather than expanding this index.
 
 Specifically: make `ENGINE.md` and `GAMEWORLD.md` quick tours; reduce `API.md` and
-`RESPONSIBILITIES.md` to their core decisions; make `IDENTITY.md` and `OPTIONS.md` educational;
-focus `QUANTIFIERS.md`, `PROPERTIES.md`, `EACH.md`, and `TESTING.md` as references; let
+`RESPONSIBILITIES.md` to their core decisions; make `IDENTITY.md` educational; focus
+`QUANTIFIERS.md`, `PROPERTIES.md`, `EACH.md`, and `TESTING.md` as references; let
 `SEQUENCING.md` and `AUTOEXEC.md` survey their improvement directions; and rewrite
 `JVM_TEST_PERFORMANCE.md` holistically and identically on `perf` and `main`. Apply
 [`README.md`](README.md#maintain-this-collection) while performing the rewrite.

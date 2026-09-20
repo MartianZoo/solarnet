@@ -193,6 +193,16 @@ public class TfmGameplay(
       payment: OperationBlock = { payInvoiceFromItsResourceIfOffered() },
       body: OperationBlock = {},
   ): TaskResult {
+    return inTurn { useStdAction(stdAction, which, payment, body) }
+  }
+
+  /** Uses a granted standard-action slot within an enclosing operation. */
+  public fun OperationScope.useStdAction(
+      stdAction: String,
+      which: Int = 1,
+      payment: OperationBlock = { payInvoiceFromItsResourceIfOffered() },
+      body: OperationBlock = {},
+  ) {
     require(
         game.classTable
             .getClass(cn(stdAction))
@@ -200,11 +210,9 @@ public class TfmGameplay(
     ) {
       "$stdAction is not a StandardAction"
     }
-    return inTurn {
-      doTask("UseAction<$stdAction, ${whichAction(which)}>")
-      payment()
-      body()
-    }
+    doTask("UseAction<$stdAction, ${whichAction(which)}>")
+    payment()
+    body()
   }
 
   public fun claimMilestone(milestone: ClassName): TaskResult =
@@ -247,7 +255,18 @@ public class TfmGameplay(
       },
       body: OperationBlock = {},
   ): TaskResult {
-    return stdAction("UseStandardProjectAction", payment = {}) {
+    return inTurn { useStdProject(stdProject, payment, body) }
+  }
+
+  /** Uses a granted standard-action slot for a standard project within an enclosing operation. */
+  public fun OperationScope.useStdProject(
+      stdProject: String,
+      payment: OperationBlock = {
+        payAllMc()
+      },
+      body: OperationBlock = {},
+  ) {
+    useStdAction("UseStandardProjectAction", payment = {}) {
       doTask("UseAction<$stdProject, Action1>")
       payment()
       body()
@@ -533,7 +552,7 @@ public class TfmGameplay(
   public fun cardAction1(cardName: ClassName, body: OperationBlock = {}): TaskResult =
       cardAction(1, cardName, body = body)
 
-  /** Binds the action's X to positive [x] without directly executing the resulting task. */
+  /** Selects the action's variable task and binds its X to positive [x]. */
   public fun cardAction1(
       cardName: ClassName,
       x: Int,
@@ -603,7 +622,8 @@ public class TfmGameplay(
             }
     val variableTask = variableTasks.single()
     val bound = bindXTo(x).transformInstructionTree(variableTask.instruction)
-    narrowTask(variableTask.id, bound.toString())
+    selectTask(variableTask.id)
+    narrowTask(bound.toString())
     operation.autoExecNow()
   }
 
