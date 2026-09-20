@@ -3,7 +3,7 @@ package dev.martianzoo.pets.data
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.api.CustomMetric
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.types.ClassTable
 
@@ -53,12 +53,14 @@ public interface Catalog {
   /**
    * Returns the custom instruction implementation having [className].
    *
-   * @throws PetException if the Catalog declares no implementation for [className]
+   * @throws InvalidPetDefinitionException if the Catalog declares no implementation for [className]
    */
   public fun customClass(className: ClassName): CustomClass =
       customClasses.firstOrNull { it.className == className && it !is CustomMetric }
           ?: customClasses.firstOrNull { it.className == className }
-          ?: throw PetException("Custom class implementation for `$className` not found")
+          ?: throw InvalidPetDefinitionException(
+              "Custom class implementation for `$className` not found"
+          )
 
   /** Returns the custom metric implementation having [className], if any. */
   public fun customMetric(className: ClassName): CustomMetric? =

@@ -2,7 +2,7 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.CustomClass
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GamePremise
@@ -94,7 +94,7 @@ internal class ActivationTest {
             classAvailabilityModules = mapOf(cn("Locked") to setOf(cn("UnlockingModule"))),
         )
 
-    shouldThrow<PetException> { gameView(catalog, "Locked") }
+    shouldThrow<InvalidGameConfigException> { gameView(catalog, "Locked") }
   }
 
   @Test
@@ -115,7 +115,7 @@ internal class ActivationTest {
         )
     val premise = GamePremise(catalog, setOf(cn("Requested")), emptySet(), emptySet())
 
-    shouldThrow<PetException> { ClassTable.forPremise(premise) }
+    shouldThrow<InvalidGameConfigException> { ClassTable.forPremise(premise) }
   }
 
   @Test
@@ -129,7 +129,7 @@ internal class ActivationTest {
             emptySet(),
         )
 
-    shouldThrow<PetException> { ClassTable.forPremise(premise) }
+    shouldThrow<InvalidGameConfigException> { ClassTable.forPremise(premise) }
   }
 
   @Test
@@ -152,7 +152,7 @@ internal class ActivationTest {
         )
     val premise = GamePremise(catalog, setOf(cn("Requested")), emptySet(), emptySet())
 
-    shouldThrow<PetException> { ClassTable.forPremise(premise) }
+    shouldThrow<InvalidGameConfigException> { ClassTable.forPremise(premise) }
   }
 
   @Test
@@ -181,7 +181,7 @@ internal class ActivationTest {
                 .trimIndent()
         )
 
-    shouldThrow<PetException> {
+    shouldThrow<InvalidGameConfigException> {
       gameView(catalog, "Selected", "Domain", "Related", "Candidate", "OtherCandidate")
     }
 

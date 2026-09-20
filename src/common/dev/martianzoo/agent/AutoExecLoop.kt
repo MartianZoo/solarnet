@@ -4,8 +4,8 @@ import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.ActorEngine
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.state.Task.TaskId
@@ -69,7 +69,7 @@ internal class AutoExecLoop(private val world: World) {
       try {
         world.timeline.atomic { engineFor(taskId).doTask(taskId) }
         return true
-      } catch (_: AbstractException) {
+      } catch (_: NotFullySpecifiedException) {
         recoverable = true
       } catch (_: NotNowException) {
         if (allTasks.getTaskData(taskId).instruction.isAbstract(world.reader)) {

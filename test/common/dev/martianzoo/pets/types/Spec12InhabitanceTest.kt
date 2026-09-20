@@ -2,7 +2,8 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.ClassSelection
@@ -202,7 +203,7 @@ internal class Spec12InhabitanceTest {
   internal fun `T12-2 premise class names cannot replace master classes`() {
     val catalog = testCatalog("CLASS Existing")
 
-    shouldThrowIae {
+    shouldThrow<InvalidGameConfigException> {
       GamePremise(
           catalog = catalog,
           modules = emptySet(),
@@ -217,7 +218,7 @@ internal class Spec12InhabitanceTest {
   internal fun `T12-2 premise declarations cannot add broad Signal subscriptions`() {
     val catalog = testCatalog("CLASS Result")
 
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       GamePremise(
               catalog = catalog,
               modules = emptySet(),
@@ -234,7 +235,7 @@ internal class Spec12InhabitanceTest {
   internal fun `T12-2 premise declarations cannot add Signal dependency targets`() {
     val catalog = testCatalog("CLASS Result")
 
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       GamePremise(
               catalog = catalog,
               modules = emptySet(),

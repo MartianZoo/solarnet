@@ -181,10 +181,10 @@ expressions fail at that boundary. Judgments that require a world remain deferre
 > of the completed Catalog instead of declaration order.
 
 **T1-7. Only the exact declared name resolves.** There are no abbreviations, no case folding, no
-nearest-match. An unknown name raises `ExpressionException`. Master declarations are checked
-against the master namespace and therefore cannot name premise classes. Premise declarations are
-checked against their combined master-and-premise namespace. Duplicate premise names and collisions
-with master names are rejected.
+nearest-match. An unknown name raises `ExpressionException`. Master declarations are
+checked against the master namespace and therefore cannot name premise classes. Premise
+declarations are checked against their combined master-and-premise namespace. Duplicate premise
+names and collisions with master names are rejected.
 
 ---
 
@@ -414,7 +414,8 @@ narrowed below its own class's base type.
 
 **T3-11. Cycles are rejected.** Two classes may refer to each other freely, but a genuine cycle of
 dependency *bounds* — `CLASS Foo<Bar>` with `CLASS Bar<Foo>`, or `CLASS Foo<Foo>` — has no finite
-answer and raises `PetException` when the bounds are computed. A one-way chain is fine.
+answer and raises `InvalidPetDefinitionException` when the bounds are computed. A one-way chain is
+fine.
 
 ---
 

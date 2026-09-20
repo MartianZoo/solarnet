@@ -4,8 +4,9 @@ import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasClassName.Companion.classNames
 import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.SystemClasses.ANYONE
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
@@ -77,7 +78,7 @@ internal constructor(
 
   init {
     if (directSuperclasses.any { !it.abstract }) {
-      throw PetException(
+      throw InvalidPetDefinitionException(
           "$className cannot extend concrete class(es): " +
               directSuperclasses.filterNot { it.abstract }.joinToString { "${it.className}" }
       )
@@ -105,7 +106,7 @@ internal constructor(
     if (!declaration.abstract) {
       val abstractProperties = properties.filterValues { it.abstract }.keys
       if (abstractProperties.isNotEmpty()) {
-        throw PetException(
+        throw InvalidPetDefinitionException(
             "$className is concrete but has abstract properties: " +
                 abstractProperties.joinToString()
         )
@@ -122,14 +123,14 @@ internal constructor(
             when {
               existing == null || incoming == existing -> incoming
               existing.origin != incoming.origin ->
-                  throw PetException(
+                  throw InvalidPetDefinitionException(
                       "$className inherits distinct properties named $name from " +
                           "${existing.origin} and ${incoming.origin}"
                   )
               existing.lineage.isPrefixOf(incoming.lineage) -> incoming
               incoming.lineage.isPrefixOf(existing.lineage) -> existing
               else ->
-                  throw PetException(
+                  throw InvalidPetDefinitionException(
                       "$className inherits divergent narrowings for $name from " +
                           "${existing.source} and ${incoming.source}"
                   )
@@ -143,12 +144,12 @@ internal constructor(
         else -> {
           val inheritedValue = inheritedFact.value
           if (!inheritedValue.abstract) {
-            throw PetException(
+            throw InvalidPetDefinitionException(
                 "$className cannot override inherited property $name = $inheritedValue"
             )
           }
           if (!declared.narrows(inheritedValue, TypeInfo.NoGameState)) {
-            throw PetException(
+            throw InvalidPetDefinitionException(
                 "$className cannot narrow property $name = $inheritedValue with $declared"
             )
           }
@@ -364,7 +365,9 @@ internal constructor(
     inherited.reduceOrNull { left, right ->
       left.merge(right) { a, b ->
         loader.glb(a, b)
-            ?: throw PetException("$className inherits incompatible bounds for ${a.key}: $a and $b")
+            ?: throw InvalidPetDefinitionException(
+                "$className inherits incompatible bounds for ${a.key}: $a and $b"
+            )
       }
     } ?: DependencySet.of()
   }
@@ -381,7 +384,7 @@ internal constructor(
   // rejected.
   private val dependenciesLazy = lazy {
     if (resolvingDependencies) {
-      throw PetException(
+      throw InvalidPetDefinitionException(
           "$className has a circular dependency: resolving its dependency bounds requires " +
               "those same bounds"
       )
@@ -401,7 +404,7 @@ internal constructor(
             target.className == DIE || target.allSuperclasses().any { it.className == SIGNAL }
           }
           ?.let { dependency ->
-            throw PetException(
+            throw InvalidPetDefinitionException(
                 "$className dependency ${dependency.key} cannot target " +
                     "${dependency.boundType.expressionFull}; Signal types and Die cannot be " +
                     "dependency targets"
@@ -416,8 +419,9 @@ internal constructor(
    * The complete keyed dependency set inherited and narrowed according to
    * [section 3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
    *
-   * @throws PetException if two supertypes constrain one key to bounds with no common narrowing
-   *   (rule T3-3), or if the dependency bounds contain the cycle forbidden by rule T3-11.
+   * @throws InvalidPetDefinitionException if two supertypes constrain one key to bounds with no
+   *   common narrowing (rule T3-3), or if the dependency bounds contain the cycle forbidden by rule
+   *   T3-11.
    */
   public val dependencies: DependencySet
     get() = dependenciesLazy.value
@@ -437,7 +441,7 @@ internal constructor(
       }
 
   private fun equalityError(equality: DependencyEquality, dependencies: DependencySet): Nothing =
-      error(
+      throw ExpressionException(
           "Type-variable ${equality.expressions.joinToString()} dependencies disagree in " +
               className.of(dependencies.expressionsFull())
       )
@@ -686,7 +690,9 @@ internal constructor(
           }
         }
         if (matching.size > 1) {
-          throw PetException("$className uses ambiguous Class Type variable $expression in $effect")
+          throw InvalidPetDefinitionException(
+              "$className uses ambiguous Class Type variable $expression in $effect"
+          )
         }
         matching
             .singleOrNull()
@@ -920,7 +926,7 @@ internal constructor(
           .classNames()
           .also {
             if (COMPONENT in it) {
-              throw PetException(
+              throw InvalidPetDefinitionException(
                   "${declaration.className} must not name $COMPONENT as a supertype; " +
                       "every class extends it already"
               )

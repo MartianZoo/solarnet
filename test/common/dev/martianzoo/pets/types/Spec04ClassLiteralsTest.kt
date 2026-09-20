@@ -1,7 +1,7 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.Dependency.Key
 import io.kotest.assertions.throwables.shouldThrow
@@ -126,7 +126,9 @@ internal class Spec04ClassLiteralsTest {
   internal fun `T4-6 the named class must exist`() {
     shouldThrow<ExpressionException> { type("Class<Jackalope>") }
     // Including where a declaration merely counts one.
-    shouldThrow<PetException> { loadTypes("CLASS Querying { HAS MAX 0 Class<Jackalope> }") }
+    shouldThrow<InvalidPetDefinitionException> {
+      loadTypes("CLASS Querying { HAS MAX 0 Class<Jackalope> }")
+    }
     loadTypes("CLASS Querying { HAS MAX 0 Class<Jackalope> }", "CLASS Jackalope")
         .resolve(te("Class<Jackalope>"))
         .abstract shouldBe false
@@ -135,7 +137,7 @@ internal class Spec04ClassLiteralsTest {
   @Test
   internal fun `T4-6 an effect may not gain a class representative`() {
     // The one component per concrete class is fixed before any effect can run.
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes("CLASS Source { This:: Class<Target> }", "CLASS Target")
     }
   }

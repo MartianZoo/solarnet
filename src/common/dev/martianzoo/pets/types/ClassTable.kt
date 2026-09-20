@@ -4,7 +4,7 @@ import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.Exceptions
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.TypeInfo
@@ -38,8 +38,7 @@ public abstract class ClassTable {
      * master-universe objects as required by
      * [rules T12-1 through T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
      *
-     * @throws dev.martianzoo.pets.api.Exceptions.PetException if the selected configuration and its
-     *   declarations cannot form a playable view
+     * @throws InvalidGameConfigException if the selected configuration cannot form a playable view
      */
     public fun forPremise(premise: GamePremise): ClassTable {
       val premiseTable = premise.premiseClassTable
@@ -102,7 +101,7 @@ public abstract class ClassTable {
           premise.catalog.modules.keys.filterTo(linkedSetOf()) { table.isIncluded(it) } -
               premise.modules
       if (unexpectedModules.isNotEmpty()) {
-        throw invalidPetDefinition(
+        throw InvalidGameConfigException(
             "structural activation selected unrequested Modules: $unexpectedModules"
         )
       }
@@ -115,13 +114,13 @@ public abstract class ClassTable {
               .filter(table::isInhabited)
               .mapTo(linkedSetOf(), Class::className)
       if (inhabitedPlayerClassNames != premise.playerNames.toSet()) {
-        throw invalidPetDefinition(
+        throw InvalidGameConfigException(
             "inhabited Player classes do not match occupied seats: $inhabitedPlayerClassNames"
         )
       }
       val reactivated = excluded.filterTo(linkedSetOf(), table::isIncluded)
       if (reactivated.isNotEmpty()) {
-        throw invalidPetDefinition(
+        throw InvalidGameConfigException(
             "structural activation conflicts with excluded classes: $reactivated"
         )
       }

@@ -5,9 +5,9 @@ import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.DependencyException
+import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.util.toSetStrict
@@ -241,8 +241,8 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   internal fun `trade fleet cannot be reused`() {
     p1.stdAction("TradeAction", 1) { doTask("Trade<Luna>") }
 
-    shouldThrow<NotNowException> { p1.runOperation("Trade<Player1, Triton>") }
-    shouldThrow<NotNowException> { p1.runOperation("Trade<Triton>, TradeFleet") }
+    shouldThrow<GameplayException> { p1.runOperation("Trade<Player1, Triton>") }
+    shouldThrow<GameplayException> { p1.runOperation("Trade<Triton>, TradeFleet") }
     p1.assertCounts(
         1 to "Trade<Luna>",
         0 to "Trade<Triton>",

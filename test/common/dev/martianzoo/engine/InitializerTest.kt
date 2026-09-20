@@ -1,8 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.pets.api.Exceptions.PetException
-import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
@@ -78,7 +77,7 @@ internal class InitializerTest {
                 premiseClassName = cn("BrokenPremise"),
             )
 
-    val failure = shouldThrow<PetException> { Engine.newGame(premise) }
+    val failure = shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
 
     failure.message.orEmpty().shouldInclude("Player1 (found 0)")
     failure.message.orEmpty().shouldInclude("BootstrapProbe (found 0)")
@@ -103,7 +102,7 @@ internal class InitializerTest {
   internal fun completedBootstrapRejectsAMissingPositiveLowerBound() {
     val premise = testGamePremise("CLASS RequiredAtBootstrap { HAS =1 This }", players = 0)
 
-    val failure = shouldThrow<PetException> { Engine.newGame(premise) }
+    val failure = shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
 
     failure.message.orEmpty().shouldInclude("RequiredAtBootstrap (found 0, expected 1)")
   }
@@ -148,7 +147,7 @@ internal class InitializerTest {
                     )
             )
 
-    val failure = shouldThrow<PetException> { Engine.newGame(premise) }
+    val failure = shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
 
     failure.message.orEmpty().shouldInclude("Marker<Right> (found 0, expected 1)")
     failure.message.orEmpty().shouldNotInclude("Marker<Left>")
@@ -167,6 +166,9 @@ internal class InitializerTest {
             )
             .copy(initialComponentTypes = setOf(cn("BootstrapProbe").expression))
 
-    shouldThrow<TaskException> { Engine.newGame(premise) }.message.orEmpty().shouldInclude("Choice")
+    shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
+        .message
+        .orEmpty()
+        .shouldInclude("Choice")
   }
 }

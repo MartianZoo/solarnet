@@ -3,7 +3,8 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.ClassDeclaration
@@ -23,7 +24,7 @@ internal class CatalogTest {
   @Test
   internal fun configuringPlayersRequiresAPlayerDeclaration() {
     val failure =
-        shouldThrow<IllegalArgumentException> {
+        shouldThrow<InvalidGameConfigException> {
           TfmCatalog().gamePremise(GameConfig("", "Player1"))
         }
 
@@ -73,7 +74,9 @@ internal class CatalogTest {
         )
 
     val unavailable =
-        shouldThrow<PetException> { source.gamePremise(GameConfig("Selected")).classTable }
+        shouldThrow<InvalidGameConfigException> {
+          source.gamePremise(GameConfig("Selected")).classTable
+        }
 
     unavailable.message.orEmpty() shouldContain
         "unviable game premise: Selected has reachable mandatory removal Missing"
@@ -236,7 +239,7 @@ internal class CatalogTest {
     val concrete = parseOneLinerClass("CLASS Shared")
     val abstract = parseOneLinerClass("ABSTRACT CLASS Shared")
 
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       TfmCatalog.compose(catalog(concrete), catalog(abstract)).allClassDeclarations
     }
   }
@@ -477,7 +480,7 @@ internal class CatalogTest {
         )
         .forEach { card ->
           val unavailable =
-              shouldThrow<IllegalArgumentException> {
+              shouldThrow<InvalidGameConfigException> {
                 source.gamePremise(GameConfig("Base, $card"))
               }
           unavailable.message.orEmpty() shouldContain "configured content"

@@ -569,7 +569,7 @@ public class PetElaborator(public val classTable: ClassTable) {
             expression.arguments.isEmpty() &&
             !expression.argumentsSpecified
     ) {
-      throw PetSyntaxException(
+      throw ExpressionException(
           "`${expression.className}` has $kind dependency defaults; write " +
               "`${expression.className}<>` to accept them or provide dependency arguments"
       )
@@ -591,7 +591,7 @@ public class PetElaborator(public val classTable: ClassTable) {
             expression.arguments.isEmpty() &&
             default.dependencies.keys.isEmpty()
     ) {
-      throw PetSyntaxException(
+      throw ExpressionException(
           "`${expression.className}<>` has no $kind dependency defaults to accept"
       )
     }

@@ -4,7 +4,8 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.CustomClass
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
@@ -211,16 +212,22 @@ public open class TfmCatalog : Catalog {
   ): GamePremise {
     val configuredPlayerNames = config.playerNames
     if (PLAYER in allClassNames) {
-      require(configuredPlayerNames.isNotEmpty()) {
-        "a Terraforming Mars configuration must have at least one player name"
+      if (configuredPlayerNames.isEmpty()) {
+        throw InvalidGameConfigException(
+            "a Terraforming Mars configuration must have at least one player name"
+        )
       }
     } else {
-      require(configuredPlayerNames.isEmpty()) {
-        "a Catalog without Player cannot configure player names: $configuredPlayerNames"
+      if (configuredPlayerNames.isNotEmpty()) {
+        throw InvalidGameConfigException(
+            "a Catalog without Player cannot configure player names: $configuredPlayerNames"
+        )
       }
     }
-    require(additionalClassDeclarations.none(ClassDeclaration::custom)) {
-      "premise-local custom Classes require a Catalog-owned implementation"
+    if (additionalClassDeclarations.any(ClassDeclaration::custom)) {
+      throw InvalidGameConfigException(
+          "premise-local custom Classes require a Catalog-owned implementation"
+      )
     }
     val additionalNames =
         additionalClassDeclarations.mapTo(linkedSetOf(), ClassDeclaration::className)
@@ -237,8 +244,10 @@ public open class TfmCatalog : Catalog {
     val explicitlyIncluded =
         resolveConfigurationNames(config.includedClassNames) + configuredPlayerNames
     val explicitlyExcluded = resolveConfigurationNames(config.excludedClassNames)
-    require(explicitlyIncluded.intersect(explicitlyExcluded).isEmpty()) {
-      "a game configuration cannot include and exclude the same class"
+    if (explicitlyIncluded.intersect(explicitlyExcluded).isNotEmpty()) {
+      throw InvalidGameConfigException(
+          "a game configuration cannot include and exclude the same class"
+      )
     }
 
     var included = explicitlyIncluded
@@ -261,20 +270,24 @@ public open class TfmCatalog : Catalog {
       if (next == included) break
       included = next
     }
-    require(seenSelections.last() == included) {
-      "Module defaults do not converge: ${seenSelections.joinToString(" -> ")}"
+    if (seenSelections.last() != included) {
+      throw InvalidPetDefinitionException(
+          "Module defaults do not converge: ${seenSelections.joinToString(" -> ")}"
+      )
     }
 
     cards
         .filter { it.className in explicitlyIncluded }
         .forEach { card ->
           cardCompatibilityRequirement(card)?.let { requirement ->
-            require(
-                requirement.isMetBy { metric ->
+            if (
+                !requirement.isMetBy { metric ->
                   countConfigured(metric, included - card.className, configurationTable)
                 }
             ) {
-              "configured content ${card.className} is unavailable: $requirement"
+              throw InvalidGameConfigException(
+                  "configured content ${card.className} is unavailable: $requirement"
+              )
             }
           }
         }
@@ -283,12 +296,14 @@ public open class TfmCatalog : Catalog {
           .filter { it in explicitlyIncluded }
           .forEach { className ->
             contentCompatibilityRequirement(className)?.let { requirement ->
-              require(
-                  requirement.isMetBy { metric ->
+              if (
+                  !requirement.isMetBy { metric ->
                     countConfigured(metric, included - className, configurationTable)
                   }
               ) {
-                "configured content $className is unavailable: $requirement"
+                throw InvalidGameConfigException(
+                    "configured content $className is unavailable: $requirement"
+                )
               }
             }
           }
@@ -296,12 +311,14 @@ public open class TfmCatalog : Catalog {
     listOf(TfmClasses.MILESTONE, TfmClasses.AWARD).forEach { goalClass ->
       (explicitlyIncluded intersect goalClassNames(goalClass)).forEach { goalName ->
         goalCompatibilityRequirement(goalName)?.let { requirement ->
-          require(
-              requirement.isMetBy { metric ->
+          if (
+              !requirement.isMetBy { metric ->
                 countConfigured(metric, included - goalName, configurationTable)
               }
           ) {
-            "configured class $goalName is unavailable: $requirement"
+            throw InvalidGameConfigException(
+                "configured class $goalName is unavailable: $requirement"
+            )
           }
         }
       }
@@ -368,8 +385,8 @@ public open class TfmCatalog : Catalog {
             .flatMap { modules.getValue(it) }
             .filter { it.included && it.appliesTo(included, configurationTable) }
             .mapTo(hashSetOf(), ClassSelection::className)
-    require(individualNames.intersect(colonyNames).all { it in selectedByModules }) {
-      "selected ColonyTiles must be provided by a selected Module"
+    if (individualNames.intersect(colonyNames).any { it !in selectedByModules }) {
+      throw InvalidGameConfigException("selected ColonyTiles must be provided by a selected Module")
     }
     val premiseDeclaration =
         if (moduleNames.isEmpty()) {
@@ -433,8 +450,8 @@ public open class TfmCatalog : Catalog {
       configuredClassNames: Set<ClassName>,
       configurationTable: PremiseClassTable,
   ): Int {
-    require(metric is Count && metric.expression.simple) {
-      "Module defaults must count simple classes: $metric"
+    if (metric !is Count || !metric.expression.simple) {
+      throw InvalidPetDefinitionException("Module defaults must count simple classes: $metric")
     }
     return configuredClassNames.count { configuredName ->
       configurationTable.isSubtypeOf(configuredName, metric.expression.className)
@@ -481,7 +498,7 @@ public open class TfmCatalog : Catalog {
   private fun resolveConfigurationNames(names: Iterable<ClassName>): Set<ClassName> =
       names.mapTo(linkedSetOf()) { configuredName ->
         resolveConfigurationName(configuredName)
-            ?: throw IllegalArgumentException("unknown configuration class: $configuredName")
+            ?: throw InvalidGameConfigException("unknown configuration class: $configuredName")
       }
 
   private fun resolveConfigurationName(configuredName: ClassName): ClassName? {
@@ -635,7 +652,10 @@ public open class TfmCatalog : Catalog {
         declaration.className
       }
     } catch (e: IllegalArgumentException) {
-      throw PetException("Multiple class declarations must be identical: ${e.message}")
+      throw InvalidPetDefinitionException(
+          "Multiple class declarations must be identical: ${e.message}",
+          e,
+      )
     }
   }
 

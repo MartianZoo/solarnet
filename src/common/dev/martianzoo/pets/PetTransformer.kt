@@ -1,7 +1,6 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.PetTransformer.Companion.chain
-import dev.martianzoo.pets.api.Exceptions.KindException
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.ClassName
@@ -162,7 +161,7 @@ public abstract class PetTransformer protected constructor() {
   private fun <P : PetNode> transformAsKind(node: PetNode, requiredKind: KClass<P>): P {
     val transformed = transformWithoutKindCheck(node)
     if (!requiredKind.isInstance(transformed)) {
-      throw KindException(
+      throw IllegalStateException(
           "${this::class.simpleName ?: "PetTransformer"} transformed ${node::class.simpleName} " +
               "outside the ${requiredKind.simpleName} kind: $transformed"
       )

@@ -1,9 +1,10 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.data.ClassDeclaration
-import dev.martianzoo.pets.util.associateByStrict
 
 /**
  * The small declaration table owned by one game premise. It imports exactly one immutable master
@@ -19,12 +20,24 @@ public class PremiseClassTable(
 ) {
   /** Every declaration introduced only by this premise, keyed by its canonical Class Name. */
   public val declarations: Map<ClassName, ClassDeclaration> =
-      declarations.associateByStrict(ClassDeclaration::className)
+      declarations.associateBy(ClassDeclaration::className).also { byName ->
+        if (byName.size != declarations.size) {
+          val duplicates =
+              declarations.groupingBy(ClassDeclaration::className).eachCount().filterValues {
+                it > 1
+              }
+          throw InvalidGameConfigException(
+              "premise contains duplicate Class declarations: ${duplicates.keys}"
+          )
+        }
+      }
 
   init {
     val collisions = this.declarations.keys intersect master.allClassNames
-    require(collisions.isEmpty()) {
-      "premise Class Names collide with the master table: $collisions"
+    if (collisions.isNotEmpty()) {
+      throw InvalidGameConfigException(
+          "premise Class Names collide with the master table: $collisions"
+      )
     }
   }
 
@@ -35,9 +48,11 @@ public class PremiseClassTable(
     if (masterCandidate != null) {
       return masterSuperclass != null && masterCandidate.isSubtypeOf(masterSuperclass)
     }
-    require(candidate in declarations) { "unknown premise Class Name: $candidate" }
-    require(masterSuperclass != null || superclass in declarations) {
-      "unknown superclass name: $superclass"
+    if (candidate !in declarations) {
+      throw InvalidPetDefinitionException("unknown premise Class Name: $candidate")
+    }
+    if (masterSuperclass == null && superclass !in declarations) {
+      throw InvalidPetDefinitionException("unknown superclass name: $superclass")
     }
 
     fun reaches(name: ClassName, visited: Set<ClassName>): Boolean {

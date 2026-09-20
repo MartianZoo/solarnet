@@ -4,7 +4,10 @@ import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.testGamePremise
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.testsupport.PLAYER1
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -43,5 +46,29 @@ internal class AgentTest {
     agent.tryTask(taskId)
 
     agent.tasks.getTaskData(taskId) shouldBe taskBefore
+  }
+
+  @Test
+  internal fun tryDoesNotHideInvalidNarrowingsOrDeadEnds() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                ABSTRACT CLASS Choice { CLASS Left, Right }
+                CLASS Other
+                ABSTRACT CLASS Empty
+                """
+                    .trimIndent()
+            )
+        )
+    val agent = Agents(game)[PLAYER1].also { it.autoExecPolicy = NONE }
+    val choice = agent.addTasks("Choice").single()
+    val empty = agent.addTasks("Empty").single()
+
+    shouldThrow<NarrowingException> { agent.tryTask("Other", choice) }
+    val deadEnd = shouldThrow<DeadEndException> { agent.tryTask(empty) }
+
+    deadEnd.message.orEmpty().contains("uninhabited type") shouldBe true
+    agent.tasks.ids() shouldBe setOf(choice, empty)
   }
 }
