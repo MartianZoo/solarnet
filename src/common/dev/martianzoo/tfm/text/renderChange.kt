@@ -732,7 +732,8 @@ private fun renderProductionChange(
         else -> return null
       }
   val productionPhrase =
-      "$owner ${describers.productionNoun(production.resource)} ${stepCount(production.count)}"
+      "$owner ${describers.productionNounPhrase(production.resource).linearize()} " +
+          stepCount(production.count)
   return clause(
       if (production.gaining) "increase" else "decrease",
       NounPhrase.text(productionPhrase),
@@ -806,14 +807,18 @@ private fun renderProductionConversion(
   val decrease =
       clause(
           "decrease",
-          NounPhrase.text("your ${describers.productionNoun(removing.resource)} 1 or more steps"),
+          describers
+              .productionNounPhrase(removing.resource)
+              .withDeterminer(Determiner.YOUR)
+              .withModifier(Modifier.Phrase("1 or more steps")),
       )
   val increase =
       clause(
           "increase",
-          NounPhrase.text(
-              "your ${describers.productionNoun(gaining.resource)} the same number of steps"
-          ),
+          describers
+              .productionNounPhrase(gaining.resource)
+              .withDeterminer(Determiner.YOUR)
+              .withModifier(Modifier.Phrase("the same number of steps")),
       )
   return Clause.Coordinated(Coordination(listOf(decrease, increase), Conjunction.AND))
 }

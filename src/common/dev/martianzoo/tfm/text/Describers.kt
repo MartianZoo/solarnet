@@ -243,8 +243,8 @@ private constructor(
   internal fun componentNoun(className: ClassName, count: Int): String =
       describedNoun(className, fact(className, ComponentDescriber::noun), count)
 
-  internal fun productionNoun(resource: ClassName): String =
-      "${componentNoun(resource, 1)} production"
+  internal fun productionNounPhrase(resource: ClassName): NounPhrase =
+      NounPhrase("production").withAttributiveModifier(componentNounPhrase(resource, 1))
 
   private fun usesNumericSingularChange(className: ClassName): Boolean =
       fact(className, ComponentDescriber::numericSingularChange) == true

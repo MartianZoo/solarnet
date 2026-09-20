@@ -139,8 +139,7 @@ private fun Describers.renderCountMetric(
   refinedProductionCategoryExpressions(expression, this)?.let { productions ->
     if (productions.any { it.owner != null }) return null
     val productionPhrases = productions.map { production ->
-      val noun = productionNoun(production.resource)
-      NounPhrase(noun, noun)
+      productionNounPhrase(production.resource)
     }
     val phrase =
         NounPhrase.coordinated(Coordination(productionPhrases, Conjunction.AND))
@@ -150,9 +149,8 @@ private fun Describers.renderCountMetric(
   }
   productionCategoryExpression(expression, this)?.let { production ->
     if (production.owner != null) return null
-    val noun = productionNoun(production.resource)
     return MetricRendering(
-        NounPhrase(noun, noun, count = count),
+        productionNounPhrase(production.resource).copy(count = count),
         MetricRendering.Ranking.HIGHEST,
     )
   }

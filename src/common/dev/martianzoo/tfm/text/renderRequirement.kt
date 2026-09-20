@@ -268,7 +268,7 @@ private fun Describers.renderProductionRequirement(minimum: Requirement.Min): Cl
   val expression = countedExpression(minimum) ?: return null
   val production = productionExpression(expression, this) ?: return null
   if (production.owner != null) return null
-  return ownedRequirementClause(NounPhrase.text(productionNoun(production.resource)))
+  return ownedRequirementClause(productionNounPhrase(production.resource))
 }
 
 private fun Describers.renderCardResourceRequirement(requirement: Requirement.Min): Clause? {

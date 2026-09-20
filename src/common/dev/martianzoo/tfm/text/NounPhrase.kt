@@ -10,6 +10,7 @@ internal data class NounPhrase(
     private val grammaticalNumber: GrammaticalNumber? = null,
     private val upperBounded: Boolean = false,
     private val coordinatedHead: Coordination<NounPhrase>? = null,
+    private val attributiveModifier: NounPhrase? = null,
 ) {
   init {
     require(count == null || grammaticalNumber == null)
@@ -25,13 +26,26 @@ internal data class NounPhrase(
         else -> grammaticalNumber
       }
 
-  fun noun(): String =
-      coordinatedHead?.linearize(NounPhrase::linearize)
-          ?: if (number() == GrammaticalNumber.SINGULAR) singular else plural
+  /** The selected head noun together with any attributive modifier. */
+  fun noun(): String {
+    val head =
+        coordinatedHead?.linearize(NounPhrase::linearize)
+            ?: if (number() == GrammaticalNumber.SINGULAR) singular else plural
+    return listOfNotNull(
+            attributiveModifier?.linearize(),
+            head,
+        )
+        .joinToString(" ")
+  }
 
   fun withModifier(modifier: Modifier): NounPhrase = copy(modifiers = modifiers + modifier)
 
   fun withDeterminer(determiner: Determiner): NounPhrase = copy(determiner = determiner)
+
+  fun withAttributiveModifier(modifier: NounPhrase): NounPhrase =
+      copy(
+          attributiveModifier = modifier.copy(count = null, determiner = null, upperBounded = false)
+      )
 
   fun asPlural(): NounPhrase = copy(count = null, grammaticalNumber = GrammaticalNumber.PLURAL)
 
@@ -56,6 +70,7 @@ internal data class NounPhrase(
 
   internal fun unresolved(): List<Unresolved> =
       coordinatedHead?.members.orEmpty().flatMap(NounPhrase::unresolved) +
+          attributiveModifier?.unresolved().orEmpty() +
           modifiers.flatMap(Modifier::unresolved)
 
   companion object {

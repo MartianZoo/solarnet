@@ -78,11 +78,9 @@ The nouns it produces must be **structured, not concatenated**. `Production<Ener
 argument in Pets, so it must be head plus attributive modifier in English — never the string
 `"energy production"`. The same holds for `"$name tag"` and `"$item resource"`.
 
-This is the single largest concrete gap today. `NounPhrase.linearize` places every `Modifier` *after*
-the noun; there is no pre-head slot. So attributive modifiers are currently glued into the noun
-string at roughly twenty sites, and any rule that would factor them cannot be written. **Adding a
-pre-head modifier slot to `NounPhrase` is the first step**, and the shape can be derived from the
-resolved dependency rather than declared.
+`NounPhrase` now has one pre-head attributive-modifier slot, and production nouns use it. Other
+attributive compounds remain glued into noun strings. Widen the slot to structured coordination only
+when implementing head factoring; do not add an unused multi-modifier API in advance.
 
 There is also no single named entry point for "expression to noun phrase." The real one is
 `renderCountMetric`, `private` inside `renderMetric.kt` and named for its caller — which is the
@@ -113,7 +111,8 @@ The two rules the current output most obviously wants:
 
 - **Factor a shared head across coordination.** `Coord(N(head=P, attr=A), N(head=P, attr=B))` becomes
   `N(head=P, attr=Coord(A, B))`, turning "energy production and heat production combined" into
-  "energy and heat production combined". Blocked today by the missing pre-head slot.
+  "energy and heat production combined". The pre-head slot now makes this rule implementable, but
+  the rule itself is not implemented.
 - **Drop a contextually recoverable possessor.** Build "you have" unconditionally in pass 1 and let a
   rule delete it where context supplies it. This replaces the `possessorEstablished` flag threaded
   through ten functions in `renderMetric.kt`, and settles the "Requires that you have 3 city tiles"

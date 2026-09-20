@@ -126,10 +126,7 @@ private fun Describers.renderSpendCost(spend: Cost.Spend): Predicate? {
     if (production.owner != null) return null
     val selectedProduction =
         if (concrete(production.resource)) {
-          NounPhrase(
-              productionNoun(production.resource),
-              determiner = Determiner.YOUR,
-          )
+          productionNounPhrase(production.resource).withDeterminer(Determiner.YOUR)
         } else {
           oneOfYour("productions")
         }

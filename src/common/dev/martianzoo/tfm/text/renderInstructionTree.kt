@@ -294,7 +294,8 @@ private fun renderOpponentFanout(
                 Verb("decreases", "decrease"),
                 Coordination.one(
                     NounPhrase.text(
-                        "$possessor ${describers.productionNoun(production.resource)} ${stepCount(count)}"
+                        "$possessor ${describers.productionNounPhrase(production.resource).linearize()} " +
+                            stepCount(count)
                     )
                 ),
             ),
@@ -736,7 +737,9 @@ private fun coalesceEqualProductionChanges(
       continue
     }
     val productions = matching.map { (change) ->
-      NounPhrase.text("your ${describers.productionNoun(requireNotNull(change).resource)}")
+      describers
+          .productionNounPhrase(requireNotNull(change).resource)
+          .withDeterminer(Determiner.YOUR)
     }
     val noun =
         NounPhrase.coordinated(Coordination(productions, Conjunction.AND))

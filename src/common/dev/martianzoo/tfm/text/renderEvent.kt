@@ -358,10 +358,7 @@ private fun Describers.productionEvent(expression: Expression): Event? {
   if (production.owner != null) return null
   val objectPhrase =
       if (concrete(production.resource)) {
-        NounPhrase(
-            productionNoun(production.resource),
-            determiner = Determiner.YOUR,
-        )
+        productionNounPhrase(production.resource).withDeterminer(Determiner.YOUR)
       } else {
         oneOfYour("productions")
       }
