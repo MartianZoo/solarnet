@@ -31,11 +31,4 @@ internal class ExceptionsTest {
         shouldThrow<InvalidGameConfigException> { GameConfig("Plant, Plant") }
     (configuration is PetException) shouldBe false
   }
-
-  @Test
-  internal fun choicesRequireAtLeastOneRequirementFailure() {
-    shouldThrow<IllegalArgumentException> {
-      Exceptions.requirementsNotMetInChoices(emptyList())
-    }
-  }
 }

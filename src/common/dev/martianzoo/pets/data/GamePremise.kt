@@ -53,48 +53,50 @@ public data class GamePremise(
     }
     if (invalidPlayerNames.isNotEmpty()) {
       throw InvalidGameConfigException(
-          "player names must be concrete Player classes: $invalidPlayerNames"
+          "player names must be concrete `Player` classes: `$invalidPlayerNames`"
       )
     }
     if (playerNames.distinct().size != playerNames.size) {
-      throw InvalidGameConfigException(
-          "a game premise cannot seat the same player name more than once"
-      )
+      throw InvalidGameConfigException("duplicate player names: `$playerNames`")
     }
     if (modules.any { it !in catalog.modules }) {
-      throw InvalidGameConfigException("unknown Modules: ${modules - catalog.modules.keys}")
+      throw InvalidGameConfigException("unknown modules: `${modules - catalog.modules.keys}`")
     }
     if (selectedNames.distinct().size != selectedNames.size) {
-      throw InvalidGameConfigException(
-          "a game premise cannot select the same individual class more than once"
-      )
+      throw InvalidGameConfigException("duplicate individual class selections: `$selectedNames`")
     }
     if (classSelections.any { it.requirement != null }) {
-      throw InvalidGameConfigException("individual class selections must be exact, not conditional")
+      throw InvalidGameConfigException(
+          "individual class selections cannot be conditional: " +
+              "`${classSelections.filter { it.requirement != null }}`"
+      )
     }
     if (selectedNames.any { it !in allKnownNames }) {
       throw InvalidGameConfigException(
-          "individual class selections must belong to the premise Catalog: " +
-              (selectedNames - allKnownNames)
+          "individual class selections are absent from the premise catalog: " +
+              "`${selectedNames - allKnownNames}`"
       )
     }
     if (selectedNames.any { it in catalog.modules }) {
       throw InvalidGameConfigException(
-          "Modules must use the premise's Module selection: " +
-              selectedNames.filter { it in catalog.modules }
+          "modules cannot be selected as individual classes: " +
+              "`${selectedNames.filter { it in catalog.modules }}`"
       )
     }
     val initialClassNames =
         initialComponentTypes.flatMap { it.descendantsOfType<ClassName>() }.toSet()
     if (initialClassNames.any { it !in allKnownNames }) {
-      throw InvalidGameConfigException("initial component types must belong to the premise Catalog")
+      throw InvalidGameConfigException(
+          "initial component types name classes absent from the premise catalog: " +
+              "`${initialClassNames - allKnownNames}`"
+      )
     }
     premiseClassName?.let { className ->
       val declaration =
           premiseDeclarationsByName[className] ?: catalog.allClassDeclarations[className]
       if (declaration == null || declaration.abstract || declaration.dependencies.isNotEmpty()) {
         throw InvalidGameConfigException(
-            "premise class must be a concrete dependency-free Catalog Class: $className"
+            "premise class must be a concrete dependency-free catalog Class: `$className`"
         )
       }
     }
@@ -103,7 +105,7 @@ public data class GamePremise(
           premiseDeclarationsByName[className] ?: catalog.allClassDeclarations[className]
       if (declaration == null || declaration.abstract || declaration.dependencies.isNotEmpty()) {
         throw InvalidGameConfigException(
-            "bootstrap class must be a concrete dependency-free Catalog Class: $className"
+            "bootstrap class must be a concrete dependency-free catalog Class: `$className`"
         )
       }
     }

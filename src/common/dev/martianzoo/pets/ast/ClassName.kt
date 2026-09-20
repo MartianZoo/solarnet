@@ -61,9 +61,9 @@ public data class ClassName private constructor(public val asString: String) :
   }
 
   init {
-    require(asString.matches(classNameRegex)) { "Bad class name: $asString" }
+    require(asString.matches(classNameRegex)) { "invalid Class name: `$asString`" }
     require(asString !in reservedNames) {
-      "Pets keyword cannot be a class name: $asString"
+      "Pets keyword cannot be a class name: `$asString`"
     }
   }
 

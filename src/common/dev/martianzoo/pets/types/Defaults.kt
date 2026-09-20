@@ -1,6 +1,6 @@
 package dev.martianzoo.pets.types
 
-import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Quantifier
@@ -64,8 +64,8 @@ public data class Defaults(
     /** Reports the class rather than failing anonymously when supertypes disagree. */
     private fun <T> onlyOne(klass: Class, kind: String): (List<T>) -> T = { candidates ->
       candidates.singleOrNull()
-          ?: throw invalidPetDefinition(
-              "${klass.className} inherits conflicting $kind quantifier defaults: " +
+          ?: throw InvalidPetDefinitionException(
+              "`${klass.className}` inherits conflicting $kind quantifier defaults: " +
                   candidates.joinToString()
           )
     }
@@ -120,9 +120,9 @@ public data class Defaults(
                 { deps: List<Dependency> ->
                   deps.reduce { left, right ->
                     klass.classTable.glb(left, right)
-                        ?: throw invalidPetDefinition(
-                            "${klass.className} inherits incompatible defaults for $key: " +
-                                "$left and $right"
+                        ?: throw InvalidPetDefinitionException(
+                            "`${klass.className}` inherits incompatible defaults for `$key`: " +
+                                "`$left` and `$right`"
                         )
                   }
                 },

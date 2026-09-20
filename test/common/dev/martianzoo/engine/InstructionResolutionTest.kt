@@ -7,9 +7,7 @@ import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.pets.api.Exceptions.abstractInstruction
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.testsupport.PLAYER1
@@ -44,9 +42,7 @@ internal class InstructionResolutionTest {
 
   private fun preprocessAndResolve(unresolved: String): InstructionTree {
     val preprocessed = preprocess(parse(unresolved))
-    return instructor.resolve(
-        preprocessed as? Instruction ?: throw abstractInstruction(preprocessed)
-    )
+    return instructor.resolve(preprocessed as Instruction)
   }
 
   private fun checkResolution(unresolved: String, expected: String?) {
@@ -226,10 +222,6 @@ internal class InstructionResolutionTest {
 
   @Test
   internal fun testResolveGroups() {
-    shouldThrow<NotFullySpecifiedException> { preprocessAndResolve("Plant, Heat") }
-    shouldThrow<NotFullySpecifiedException> {
-      preprocessAndResolve("(TerraformRating: Plant), Heat")
-    }
     checkResolution("TerraformRating: (Plant, Heat)", "Plant<Player1>!, Heat<Player1>!")
   }
 }

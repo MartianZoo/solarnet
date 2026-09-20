@@ -246,7 +246,7 @@ public sealed class Dependency : Specification<Dependency>, HasExpression, HasCl
     internal fun validate(deps: List<Dependency>): ClassTable? {
       deps.indices.forEach { index ->
         for (previous in 0 until index) {
-          require(deps[index].key != deps[previous].key) { "duplicate dependency keys: $deps" }
+          require(deps[index].key != deps[previous].key) { "duplicate dependency keys: `$deps`" }
         }
       }
       require(deps.none { it is FakeDependency } || deps.single() is FakeDependency)

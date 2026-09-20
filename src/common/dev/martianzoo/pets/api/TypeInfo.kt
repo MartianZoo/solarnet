@@ -13,8 +13,7 @@ public interface TypeInfo {
 
   /** A context-free sentinel that fails if an operation needs a world. */
   public object NoGameState : TypeInfo {
-    private fun missing(): Nothing =
-        error("This type operation requires a world; use a GameReader as its TypeInfo")
+    private fun missing(): Nothing = error("type operation requires a World-backed TypeInfo")
 
     override fun isAbstract(e: Expression): Boolean = missing()
 

@@ -37,9 +37,9 @@ public data class InstructionGroup(val instructions: List<Instruction>) : Instru
 
   override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
     proposed as? InstructionGroup
-        ?: throw NarrowingException("$proposed does not narrow grouped instruction $this")
+        ?: throw NarrowingException("`$proposed` does not narrow instruction group `$this`")
     if (proposed.instructions.size != instructions.size) {
-      throw NarrowingException("$proposed does not narrow grouped instruction $this")
+      throw NarrowingException("`$proposed` does not narrow instruction group `$this`")
     }
     for ((wide, narrow) in instructions.zip(proposed.instructions)) {
       narrow.ensureNarrows(wide, info)
@@ -57,7 +57,7 @@ public data class InstructionGroup(val instructions: List<Instruction>) : Instru
 
   init {
     if (instructions.any { it == NoOp }) {
-      throw PetSyntaxException("Instruction groups cannot contain Ok")
+      throw PetSyntaxException("instruction groups cannot contain `Ok`")
     }
   }
 

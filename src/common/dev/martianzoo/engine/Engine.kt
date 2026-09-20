@@ -4,8 +4,8 @@ import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
-import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
@@ -142,12 +142,14 @@ public object Engine {
         if (count.expression.className == CLASS) {
           val representedClass = count.expression.arguments.singleOrNull()
           if (representedClass?.simple != true) {
-            throw invalidPetDefinition("Module Class invariants must name one simple Class: $count")
+            throw InvalidPetDefinitionException(
+                "Module Class invariants must name one simple Class: $count"
+            )
           }
           return if (classTable.isInhabited(representedClass.className)) 1 else 0
         }
         if (!count.expression.simple) {
-          throw invalidPetDefinition("Module invariants must count a simple class: $count")
+          throw InvalidPetDefinitionException("Module invariants must count a simple class: $count")
         }
         val type = classTable.findInhabitedClass(count.expression.className)?.baseType ?: return 0
         return classTable.allClasses().count { klass ->
@@ -161,15 +163,15 @@ public object Engine {
           metric.evaluate(
               ::countInhabitedClasses,
               { property ->
-                throw invalidPetDefinition(
+                throw InvalidPetDefinitionException(
                     "Module premise metrics cannot read properties: $property"
                 )
               },
               { union ->
-                throw invalidPetDefinition("Module premise metrics cannot use OR: $union")
+                throw InvalidPetDefinitionException("Module premise metrics cannot use OR: $union")
               },
               { rank ->
-                throw invalidPetDefinition("Module premise metrics cannot use RANK: $rank")
+                throw InvalidPetDefinitionException("Module premise metrics cannot use RANK: $rank")
               },
           )
 

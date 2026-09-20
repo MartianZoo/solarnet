@@ -48,7 +48,7 @@ public interface Catalog {
   /** Returns the unique declaration having [name]. */
   public fun classDeclaration(name: ClassName): ClassDeclaration =
       allClassDeclarations[name]
-          ?: throw IllegalArgumentException("no class declaration by name $name")
+          ?: throw IllegalArgumentException("no class declaration named `$name`")
 
   /**
    * Returns the custom instruction implementation having [className].
@@ -59,7 +59,7 @@ public interface Catalog {
       customClasses.firstOrNull { it.className == className && it !is CustomMetric }
           ?: customClasses.firstOrNull { it.className == className }
           ?: throw InvalidPetDefinitionException(
-              "Custom class implementation for `$className` not found"
+              "custom class implementation not found for `$className`"
           )
 
   /** Returns the custom metric implementation having [className], if any. */

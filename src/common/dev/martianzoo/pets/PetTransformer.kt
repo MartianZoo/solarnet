@@ -162,8 +162,9 @@ public abstract class PetTransformer protected constructor() {
     val transformed = transformWithoutKindCheck(node)
     if (!requiredKind.isInstance(transformed)) {
       throw IllegalStateException(
-          "${this::class.simpleName ?: "PetTransformer"} transformed ${node::class.simpleName} " +
-              "outside the ${requiredKind.simpleName} kind: $transformed"
+          "`${this::class.simpleName ?: "PetTransformer"}` transformed " +
+              "`${node::class.simpleName}` outside the `${requiredKind.simpleName}` kind: " +
+              "`$transformed`"
       )
     }
     @Suppress("UNCHECKED_CAST")

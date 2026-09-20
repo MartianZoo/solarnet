@@ -20,7 +20,7 @@ internal sealed interface Owner : HasClassName, HasExpression
 /** One occupied seat; both an [Actor] and an [Owner]. */
 public data class Player(override val className: ClassName) : Actor, Owner {
   init {
-    require(className != Actor.ADMIN.className) { "Admin is not a Player" }
+    require(className != Actor.ADMIN.className) { "`Admin` is not a Player" }
   }
 
   override val expression: Expression = className.expression
@@ -33,7 +33,7 @@ public data class Player(override val className: ClassName) : Actor, Owner {
   public companion object {
     /** Returns the conventional `Player1` through `PlayerN` identities in seat order. */
     public fun players(upTo: Int): List<Player> {
-      require(upTo >= 0) { "player count cannot be negative: $upTo" }
+      require(upTo >= 0) { "player count cannot be negative: `$upTo`" }
       return (1..upTo).map { Player(player(it)) }
     }
 

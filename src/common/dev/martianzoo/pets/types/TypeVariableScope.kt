@@ -180,7 +180,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
       specific: GroundType,
       classTable: ClassTable =
           requireNotNull(general.classTable.commonTable(specific.classTable)) {
-            "$general and $specific belong to unrelated class tables"
+            "`$general` and `$specific` belong to unrelated class tables"
           },
   ): Map<TypeVariable, GroundType> {
     val captures = mutableMapOf<TypeVariable, MutableList<GroundType>>()
@@ -233,7 +233,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     walk(authored, general, specific)
     return captures.mapValues { (variable, values) ->
       values.distinct().singleOrNull()
-          ?: error("Type variable $variable has conflicting captures: ${values.distinct()}")
+          ?: error("type variable `$variable` has conflicting captures: `${values.distinct()}`")
     }
   }
 
@@ -248,7 +248,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
       classTable: ClassTable =
           bindings.values.firstOrNull()?.classTable
               ?: entries.firstOrNull()?.variable?.bound?.classTable
-              ?: error("an empty Type-variable scope has no class table"),
+              ?: error("empty type-variable scope has no class table"),
   ): PetTransformer {
     val replacements = entries.flatMap { entry ->
       val replacement = bindings[entry.variable] ?: return@flatMap emptyList()
@@ -268,7 +268,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         val occurrenceBinding =
             classTable.glb(captured, constraint.consumeCapturedRefinement())
                 ?: throw NarrowingException(
-                    "$replacement does not satisfy Type-variable occurrence $source"
+                    "`$replacement` does not satisfy type-variable occurrence `$source`"
                 )
         val target = occurrence.expressionFor(occurrenceBinding, source, classTable)
         buildList {

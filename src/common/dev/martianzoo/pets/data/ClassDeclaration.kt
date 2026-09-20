@@ -123,14 +123,14 @@ public data class ClassDeclaration(
 
   init {
     require(defaultsDeclaration.forClass in setOf(null, className)) {
-      "$className cannot declare defaults for ${defaultsDeclaration.forClass}"
+      "`$className` cannot declare defaults for `${defaultsDeclaration.forClass}`"
     }
     fun hasRefinement(expression: Expression): Boolean =
         expression.refinement != null || expression.arguments.any(::hasRefinement)
     // Rule L1-9: a refined type cannot be a bound, so signature expressions carry no refinements at
     // any depth.
     require((dependencies + supertypes).none(::hasRefinement)) {
-      "Class signatures cannot contain refined Types"
+      "class signatures cannot contain refined Types"
     }
 
     if (custom) {
@@ -183,7 +183,7 @@ public data class ClassDeclaration(
       internal fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
         val owners = defs.mapNotNull { it.forClass }.distinct()
         require(owners.size <= 1) {
-          "DEFAULT clauses name different classes: ${owners.joinToString()}"
+          "`DEFAULT` clauses name different classes: `${owners.joinToString()}`"
         }
         return DefaultsDeclaration(
             universal = merge(defs.map { it.universal }),
@@ -196,11 +196,11 @@ public data class ClassDeclaration(
       private fun merge(ones: Collection<OneDefault>): OneDefault {
         val dependencyCandidates = ones.map(OneDefault::specs).filter { it.isNotEmpty() }.distinct()
         require(dependencyCandidates.size <= 1) {
-          "conflicting dependency defaults: ${dependencyCandidates.joinToString()}"
+          "conflicting dependency defaults: `${dependencyCandidates.joinToString()}`"
         }
         val quantifierCandidates = ones.mapNotNull(OneDefault::quantifier).distinct()
         require(quantifierCandidates.size <= 1) {
-          "conflicting quantifier defaults: ${quantifierCandidates.joinToString()}"
+          "conflicting quantifier defaults: `${quantifierCandidates.joinToString()}`"
         }
         return OneDefault(
             dependencyCandidates.singleOrNull().orEmpty(),

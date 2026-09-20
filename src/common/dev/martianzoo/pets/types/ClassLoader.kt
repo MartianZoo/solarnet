@@ -1,10 +1,8 @@
 package dev.martianzoo.pets.types
 
-import dev.martianzoo.pets.api.Exceptions
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
-import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.OK
@@ -95,7 +93,7 @@ private constructor(
   override fun findClass(name: ClassName): Class? {
     return if (name in loadedClasses) {
       loadedClasses[name]
-          ?: throw InvalidPetDefinitionException("Class-loading cycle involving $name")
+          ?: throw InvalidPetDefinitionException("class-loading cycle involving `$name`")
     } else {
       masterSource?.findClass(name)
     }
@@ -128,7 +126,7 @@ private constructor(
       fun containsRefinement(candidate: Expression): Boolean =
           candidate.refinement != null || candidate.arguments.any(::containsRefinement)
       if (containsRefinement(refinement.excluded)) {
-        throw ExpressionException("NOT operand cannot itself contain a refinement: $expression")
+        throw ExpressionException("`NOT` operand cannot contain a refinement: `$expression`")
       }
     }
     // Avoiding computeIfAbsent due to CME
@@ -139,7 +137,7 @@ private constructor(
           .refine(expression.refinement)
           .also { cache[expression] = it }
     } catch (e: RuntimeException) {
-      throw ExpressionException("can't resolve $expression", e)
+      throw ExpressionException("cannot resolve `$expression`", e)
     }
   }
 
@@ -206,9 +204,9 @@ private constructor(
       declaration.allNodes.forEach { root ->
         root.visitDescendants { node ->
           if (node is TransformNode<*> && node.transformKind !in known) {
-            throw invalidPetDefinition(
-                "${declaration.className} uses transform kind `${node.transformKind}`, " +
-                    "which this Catalog does not define: $node"
+            throw InvalidPetDefinitionException(
+                "`${declaration.className}` uses undefined transform kind " +
+                    "`${node.transformKind}` in `$node`"
             )
           }
           true
@@ -240,9 +238,9 @@ private constructor(
                   okClass.isSubtypeOf(triggerClass)
                 }
         if (forbidden != null) {
-          throw invalidPetDefinition(
-              "${declaringClass.className} effect `$effect` subscribes to $forbidden, " +
-                  "whose root is Ok or a nominal supertype of Ok"
+          throw InvalidPetDefinitionException(
+              "`${declaringClass.className}` effect `$effect` subscribes to `$forbidden`, " +
+                  "whose root is `Ok` or a nominal supertype of `Ok`"
           )
         }
       }
@@ -260,10 +258,11 @@ private constructor(
         val next = queue.removeFirst()
         blockedActivations[next]?.let { availabilityModules ->
           val source = requestedBy.getValue(next)
-          val path = source?.let { "$it requires locked Class $next" } ?: "Class $next is locked"
+          val path =
+              source?.let { "`$it` requires locked Class `$next`" } ?: "Class `$next` is locked"
           val message =
-              "broken game premise: $path; select one of its bundle Modules: $availabilityModules"
-          if (masterSource == null) throw invalidPetDefinition(message)
+              "broken game premise: $path; required bundle modules: `$availabilityModules`"
+          if (masterSource == null) throw InvalidPetDefinitionException(message)
           throw InvalidGameConfigException(message)
         }
         loadRelated(next, include = true)
@@ -302,7 +301,7 @@ private constructor(
     }
     if (next in loadedClasses) {
       return (loadedClasses[next]
-              ?: throw InvalidPetDefinitionException("Class-loading cycle involving $next"))
+              ?: throw InvalidPetDefinitionException("class-loading cycle involving `$next`"))
           .also { if (include) includeClass(next) }
     }
     val declaration = knownDeclaration(next)
@@ -316,9 +315,8 @@ private constructor(
         declaration.effects
             .flatMap { effect -> effect.instruction.descendantsOfType<Change>() }
             .firstOrNull { it.gaining?.className == CLASS } ?: return
-    throw invalidPetDefinition(
-        "Class representatives are fixed before effects run and cannot be gained by an effect: " +
-            change
+    throw InvalidPetDefinitionException(
+        "class representatives cannot be gained by an effect: `$change`"
     )
   }
 
@@ -334,8 +332,7 @@ private constructor(
         val name = it as? ClassName
         if (name != null && name != THIS && name !in knownClassNames) {
           throw InvalidPetDefinitionException(
-              "${declaration.className} names `$name`, which no declaration introduces " +
-                  "(check bundles, check spelling)"
+              "`${declaration.className}` names undeclared Class `$name`"
           )
         }
         true
@@ -458,7 +455,7 @@ private constructor(
     check(masterSource == null || source.className in premiseDeclarations) {
       "a game projection may construct only premise Classes"
     }
-    require(!frozen) { "Too late, this class table is frozen!" }
+    require(!frozen) { "class table is already frozen" }
     val decl = validateCustomImplementation(source)
 
     fun store(c: Class?) {
@@ -472,7 +469,7 @@ private constructor(
       return klass
     } catch (e: ExpressionException) {
       loadedClasses.remove(decl.className)
-      throw InvalidPetDefinitionException("Invalid definition for `${decl.className}`", e)
+      throw InvalidPetDefinitionException("invalid definition for `${decl.className}`", e)
     } catch (e: Throwable) {
       loadedClasses.remove(decl.className)
       throw e
@@ -507,7 +504,7 @@ private constructor(
     }
     if (problems.isNotEmpty()) {
       throw InvalidPetDefinitionException(
-          "${klass.className} cannot inherit Pets behavior as a Custom class: " +
+          "`${klass.className}` cannot inherit Pets behavior as a Custom class: " +
               problems.joinToString()
       )
     }
@@ -520,14 +517,14 @@ private constructor(
 
   internal override fun allSubclassesOf(klass: Class): Set<Class> {
     require(frozen) {
-      "this class table must be frozen before the subclasses of $klass can be enumerated"
+      "this class table must be frozen before the subclasses of `$klass` can be enumerated"
     }
     return checkNotNull(allSubclassesByClass).getValue(klass)
   }
 
   internal override fun directSubclassesOf(klass: Class): Set<Class> {
     require(frozen) {
-      "this class table must be frozen before the subclasses of $klass can be enumerated"
+      "this class table must be frozen before the subclasses of `$klass` can be enumerated"
     }
     return checkNotNull(directSubclassesByClass)[klass] ?: emptySet()
   }
@@ -622,7 +619,7 @@ private constructor(
       premiseDeclarations[name]
           ?: masterSource?.getClass(name)?.declaration
           ?: catalog.allClassDeclarations[name]
-          ?: throw Exceptions.classNotFound(name)
+          ?: throw ExpressionException("no class named `$name` in the current game")
 
   private fun validateCustomImplementation(decl: ClassDeclaration): ClassDeclaration {
     if (masterSource != null) return decl
@@ -631,7 +628,7 @@ private constructor(
     } else {
       if (catalog.customClasses.any { it.className == decl.className }) {
         throw InvalidPetDefinitionException(
-            "Non-custom class ${decl.className} has a custom implementation"
+            "non-custom Class `${decl.className}` has a custom implementation"
         )
       }
     }
@@ -651,7 +648,7 @@ private constructor(
     ): ClassLoader {
       val masterTable = premiseTable.master
       require(masterTable.masterTable === masterTable) {
-        "Catalog class table is not a master table"
+        "catalog class table is not a master table"
       }
       val blocked =
           catalog.classAvailabilityModules
