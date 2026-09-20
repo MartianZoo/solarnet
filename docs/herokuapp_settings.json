@@ -22,7 +22,7 @@
         "colonies": true,
         "prelude": true,
         "prelude2": true,
-        "turmoil": false,
+        "turmoil": true,
         "community": false,
         "ares": false,
         "moon": false,

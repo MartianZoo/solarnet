@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.tfm.tests.TestOption.TurmoilCardPack
+import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -8,7 +8,7 @@ import kotlin.test.Test
 internal class UtopiaInvestTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame(TurmoilCardPack)
+    newGame(TurmoilExpansion)
     playCorporationWithoutStartingProjects(p1, UtopiaInvest)
     admin.phase("Action")
   }

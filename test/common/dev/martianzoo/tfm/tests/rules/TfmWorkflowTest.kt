@@ -21,6 +21,7 @@ import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.TestOption.Hellas
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
+import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -306,6 +307,35 @@ internal class TfmWorkflowTest {
 
     p1.count("PreludeCard") shouldBe 0
     p2.count("PreludeCard") shouldBe 0
+    workflow.shutdown()
+  }
+
+  @Test
+  internal fun automaticSolarWaitsForWorldGovernmentBeforeTurmoil() {
+    val game = Engine.newGame(canonicalPremise(VenusNextExpansion, TurmoilExpansion, players = 2))
+    val admin = game.testTfm(ADMIN)
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    admin.doTask("AquiferReleasedByPublicCouncil")
+    admin.doTask("DryDeserts")
+    retainStartingProjects(game, 0, 0)
+    playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
+    playCorporationWithoutStartingProjects(p2, CrediCor)
+
+    p1.pass()
+    p2.pass()
+
+    p1.count("TerraformRating") shouldBe 20
+    p2.count("TerraformRating") shouldBe 20
+    admin.count("VenusSolarPhase") shouldBe 1
+    admin.count("TurmoilSolarOperation") shouldBe 0
+
+    p1.doTask("VenusStep! BY Admin")
+
+    p1.count("TerraformRating") shouldBe 19
+    p2.count("TerraformRating") shouldBe 19
+    admin.count("TurmoilSolarPhase") shouldBe 1
     workflow.shutdown()
   }
 

@@ -6,20 +6,20 @@ Most of the published game content is working... and mostly correctly.[^heroku-s
 
 | Product | Corps | Projects | Preludes | Maps | Tile types | Std projects | Milestones | Awards | Global params | Global events | Game phases | Other |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| TOTALS | 45 / 48 | 395 / 426 | 62 / 71 | 7 / 7 | 17 / 18 | 9 / 10 | 47 / 49 | 39 / 40 | 8 / 8 | 0 / 36 | 12 / 13 | 11 / 17 named items; no Automa |
+| TOTALS | 45 / 48 | 422 / 426 | 65 / 71 | 7 / 7 | 17 / 18 | 10 / 10 | 49 / 50 | 40 / 40 | 8 / 8 | 36 / 36 | 13 / 13 | 17 / 17 named items; no Automa |
 | Terraforming Mars | 10 / 11 | 137 / 137 | - | 1 / 1 | 10 / 10 | 7 / 7 | 5 / 5 | 5 / 5 | 3 / 3 | - | 9 / 9 | - |
 | Corporate Era | 2 / 2 | 71 / 71 | - | - | 4 / 4 | - | - | - | - | - | - | - |
 | Hellas & Elysium | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | - | - | - | - |
 | Venus Next | 5 / 5 | 49 / 49 | - | - | - | 1 / 1 | 1 / 1 | 1 / 1 | 1 / 1 | - | 1 / 1 | - |
 | Prelude | 5 / 5 | 6 / 7 | 34 / 35 | - | - | - | - | - | - | - | 1 / 1 | - |
 | Colonies | 5 / 5 | 49 / 49 | - | - | - | 1 / 1 | - | - | - | - | 1 / 1 | 11 / 11 colony tiles |
-| Turmoil | 4 / 5 | 0 / 16 | - | - | - | 0 / 1 | - | 0 / 1 | - | 0 / 31 | 0 / 1 | 0 / 6 parties |
-| Prelude 2 | 5 / 5 | 12 / 24 | 19 / 25 | - | - | - | - | - | - | - | - | - |
-| Amazonis & Vastitas | - | - | - | 2 / 2 | - | - | 9 / 10 | 10 / 10 | 4 / 4 | - | - | - |
+| Turmoil | 4 / 5 | 15 / 16 | - | - | - | 1 / 1 | 1 / 1 | - | - | 31 / 31 | 1 / 1 | 6 / 6 parties |
+| Prelude 2 | 5 / 5 | 23 / 24 | 22 / 25 | - | - | - | - | - | - | - | - | - |
+| Amazonis & Vastitas | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | 4 / 4 | - | - | - |
 | Utopia & Cimmeria | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | - | - | - | - |
 | Automa | - | - | - | - | 0 / 1 | - | - | - | - | - | - | the whole thing |
-| Milestones & Awards | - | - | - | - | - | - | 33 / 35 | 34 / 35 | - | - | - | - |
-| Promos through 2026-08 | 9 / 10 | 71 / 73 | 9 / 11 | - | 3 / 3 | - | - | - | - | 0 / 5 | - | - |
+| Milestones & Awards | - | - | - | - | - | - | 34 / 35 | 35 / 35 | - | - | - | - |
+| Promos through 2026-08 | 9 / 10 | 72 / 73 | 9 / 11 | - | 3 / 3 | - | - | - | - | 5 / 5 | - | - |
 
 Totals count each distinct published goal definition once. Product rows count the contents of that
 product, including goals reprinted from another product.
@@ -31,21 +31,17 @@ product, including goals reprinted from another product.
 | Terraforming Mars | Corporation | Helion (`B03`) | Payment rewrites |
 | Prelude | Project | Research Coordination | Wild tag |
 | Prelude | Prelude | Research Network | Wild tag |
-| Turmoil | everything | everything | Turmoil |
+| Turmoil | Corporation | Septem Tribus | Wild tag |
+| Turmoil | Project | Banned Delegate | `FakeBannedDelegate` does not update the Party Leader or Dominant party after removing a delegate |
 | Prelude 2 | Project | L1 Trade Terminal (`P78`) | Distinct |
-| Prelude 2 | Turmoil-linked cards | 11 projects and 3 preludes | Turmoil |
 | Prelude 2 | Prelude | Applied Science, Nobel Prize | Wild tags |
 | Prelude 2 | Prelude | Preservation Program (`P57`) | `FakePreservationProgram` reverses TR after the gain, so gain-triggered effects still fire |
-| Amazonis & Vastitas | Milestone | Lobbyist | Turmoil support |
 | Automa | Other | entire Automa rules | Wow that's a lot |
 | Milestones & Awards | Milestone | Thawer | `FakeThawer` retains temperature credits when global events reduce temperature |
-| Milestones & Awards | Milestone | Lobbyist | Turmoil support |
-| Milestones & Awards | Award | Politician | Turmoil support |
 | Promos through 2026-08 | Project | New Holland | Hybrid tile |
 | Promos through 2026-08 | Project | Self-Replicating Robots (`210`) | Printed tags while staged |
 | Promos through 2026-08 | Prelude | Established Methods (`X54`) | (investigate) |
 | Promos through 2026-08 | Prelude | Head Start | Immediate-action sequencing |
-| Promos through 2026-08 | Global events | All 5 | Turmoil |
 
 The two Fakes above require FakeCanon and `FakeStuffBundle`; they are not included in the canonical
 support totals or the shared Heroku card settings. `FakePreservationProgram` loses one TR after its

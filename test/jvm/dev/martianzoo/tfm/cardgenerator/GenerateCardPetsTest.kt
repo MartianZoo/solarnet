@@ -50,6 +50,14 @@ internal class GenerateCardPetsTest {
     )
   }
 
+  @Test
+  internal fun authoredSpecialCardsFollowGeneratedCardsInTheSameResource() {
+    val cards = renderCardPets("TurmoilExpansion", "CLASS ExampleGlobalEvent : GlobalEvent\n")
+
+    assertInOrder(cards, "CLASS AerialLenses :", "CLASS ExampleGlobalEvent : GlobalEvent")
+    assertTrue(cards.endsWith('\n'))
+  }
+
   private fun String.cardDeclaration(name: String): String =
       substringAfter("CLASS $name ").substringBefore("\n}")
 

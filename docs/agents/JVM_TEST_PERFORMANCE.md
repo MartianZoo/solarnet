@@ -259,6 +259,109 @@ copy gave the repository's isolation script a distinct build root. A final compl
 passed in 2m, but concurrent Gradle activity makes that wall time unsuitable for comparison with
 the earlier whole-suite snapshot.
 
+## 2026-09-17 replay-suite benchmark protocol
+
+The replay performance score runs all 38 tests selected by
+`dev.martianzoo.tfm.tests.replays.*` repeatedly inside one long-lived JVM. It uses one test fork,
+disables JUnit parallel execution, and retains the JDK's default tiered-compilation thresholds.
+Iterations 1 and 2 are warmups; the score is the median elapsed time of iterations 3, 4, and 5.
+This deliberately measures warmed compiled execution rather than Gradle startup, test-worker
+startup, or long-duration heap and host behavior.
+
+The initial OpenJDK 26 baseline ran those iterations in 29.446s, 29.093s, and 28.913s, for a
+29.093s score. The complete 15-minute series showed a faster early plateau and a separate late
+slowdown, so comparisons must use the fixed scoring iterations rather than a minimum or a selected
+later window.
+
+A follow-up set `-XX:CompileThresholdScaling=0.5`. It made the cold iteration slower and flattened
+the subsequent curve immediately, but did not improve sustained throughput. Keep the default JVM
+thresholds; compilation policy is not part of the benchmark variable.
+
+### Scoring-window profile
+
+A JFR profile covered iterations 3–5 with the default compilation thresholds. Recording overhead
+made those diagnostic iterations slower than the unprofiled score. The raw recording, iteration
+times, per-class times, and generated replay JSON are under
+`_local/performance/replay-benchmark-2026-09-17/`.
+
+The test thread allocated an estimated 395.2 GB in 119 seconds, about 132 GB per suite. G1 performed
+460 young and 72 old collections; 604 pauses totaled 3.15s of wall time, while collection consumed
+30.6 CPU-seconds. Allocation and construction work, not pause latency, is the important cost.
+
+The sampled owners below overlap; nested rows must not be added:
+
+| Owner | CPU samples | Allocation pressure |
+| --- | ---: | ---: |
+| Replay recording export | 32.0% | 33.4% |
+| Recording JSON decode | 28.2% | 29.9% |
+| Pets parsing | 26.2% | 27.6% |
+| Test setup / `Engine.newGame` | 31.2% | 33.0% |
+| Type `glb` | 30.8% | 42.8% |
+| `ClassLimitTable` compilation | 24.5% | 25.5% |
+
+Most parser samples belonged to `completedRecordingJson()` decoding and opening the event stream it
+had just encoded, not to gameplay task input. Across the 27 generated recordings, decode made
+1,288,802 typed string parses but only 69,271 inputs were distinct within their recording. Treat
+that repetition as evidence of discarded structure, not as a reason to add a parse cache.
+
+The event stream contains two concrete sources of reconstructible work:
+
+- A task removal serializes the complete task being removed, and an edit serializes both the old
+  and new task. Replaying every recording prefix showed that all 54,776 removed snapshots and all
+  68,384 pre-edit snapshots exactly matched the task state already established by preceding events,
+  with no mismatches. Those redundant snapshots occupy 25.9 MB and cause 496,017 typed parses:
+  exactly 50.0% of task-snapshot bytes and task-snapshot parses, or 38.5% of all typed parses. A
+  sequential event decoder can reconstruct the full `TaskRemovedEvent.task` and
+  `TaskEditedEvent.oldTask` values from the prior task state, preserving exact in-memory events and
+  reverse playback without putting the same state into the wire format twice.
+- Event decoding receives only a `ClassTable`, discards the premise's Actor identities, parses
+  585,426 Actor names, and constructs a new `Player` for each occurrence. There were only 83
+  distinct Actor spellings when counted separately within each recording. Supplying the owning
+  premise and resolving encoded Actor names through its Actor set removes this reconstruction at
+  its source. After accounting for Actor fields already removed with redundant task snapshots, the
+  two structural changes together make 835,123 typed parses, 64.8% of the total, unnecessary.
+
+`completedRecordingJson()` also parses every encoded recording once to recover its `GameConfig`
+and immediately parses the same text again to decode it. The recordings total 84.3 MB per suite.
+Keeping one parsed recording document through premise reconstruction and event decoding would
+remove the second parse; JFR attributes about 0.8% of CPU samples and 0.6% of allocation pressure to
+that half, so this is clear but secondary work.
+
+Premise setup is the other structural target. The 38 tests performed 43 premise setups. Their
+combined tables contained 542–1,036 Classes and 631–1,241 invariants, while only 2–5 declarations
+per setup were premise-local: 0.39% of the combined Classes in aggregate. Nevertheless,
+`ClassLimitTable` scans the whole combined table, resolves its invariants, fans restrictions across
+subclasses, and validates dependencies for every premise. That work accounts for 24.5% of CPU
+samples and 25.5% of allocation pressure, almost entirely under initial `Engine.newGame` setup.
+Follow the stable ownership boundary already selected in [CLASS_TABLES.md](CLASS_TABLES.md): compile
+master restriction and dependency-target templates with the master, then merge the small
+premise delta and perform only universe-dependent realization and validation. This is not reuse of
+a completed premise or a benchmark-iteration cache; it stops master facts from being derived at a
+short-lived premise boundary.
+
+### Structural-removal result
+
+The event encoding now writes each new task state once and reconstructs pre-edit and removed task
+values from the preceding event stream. Recording decode resolves Actors once through its premise,
+and config extraction plus typed decode share one parsed JSON document. The 27 generated recordings
+fell from 84,255,670 bytes to 57,979,410 bytes, a 31.2% reduction, while exact event and recording
+round trips still pass.
+
+Class-limit setup now gives the master table ownership of stable invariant interpretations and
+concrete dependency targets. Premises realize those templates only for their inhabited Classes and
+their small local declaration delta. Dependency uniqueness validation tests applicable restrictions
+directly instead of constructing and minimizing a public limit set for every target.
+
+Controlled five-iteration trials on the same contended host separated the changes. With the event
+change but the original class-limit setup, scored iterations were 33.228s, 33.390s, and 33.505s
+(33.390s median). Adding master-owned limit templates reduced them to 31.608s, 31.613s, and 31.659s
+(31.613s median), another 5.3%. An immediately preceding old-event control had scored iterations
+around 36.6–36.7s. These absolute values are not comparable to the cleaner 29.093s historical
+baseline; the interleaved comparisons establish the structural savings. The final complete design,
+including master-owned concrete dependency targets, scored 28.611s, 27.400s, and 27.374s (27.400s
+median) after host contention subsided. That is 5.8% below the historical score, although the
+controlled comparisons remain stronger attribution evidence than cross-load absolute times.
+
 ## 2026-09-19 class-table API finish
 
 The class-table API finish retained the same construction and cache path. Two isolated
@@ -276,3 +379,9 @@ new throughput claim; they give no performance reason to introduce another table
    even deleting the single 15.1s outlier would save under 4% of engine CPU.
 4. Trace increasing retained heap to its owners before changing memory limits. Throughput samples
    from short tests do not establish the memory needs of a long-lived suite worker.
+5. Preserve master ownership of stable limit declarations and dependency targets; do not cache
+   completed premises or tables.
+6. Preserve sequential, premise-owned event decode and its single encoded copy of each task state.
+7. Preserve the parsed recording document across config extraction and typed decode.
+8. Take a new profile before investigating any remaining repeated work; the old profile's largest
+   known structural waste has now been removed.

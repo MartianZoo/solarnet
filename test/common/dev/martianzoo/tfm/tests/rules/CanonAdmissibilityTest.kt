@@ -19,7 +19,7 @@ import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.TestOption.Tharsis
-import dev.martianzoo.tfm.tests.TestOption.TurmoilCardPack
+import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.TestOption.Utopia
 import dev.martianzoo.tfm.tests.TestOption.Vastitas
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
@@ -62,7 +62,7 @@ internal class CanonAdmissibilityTest {
             PreludeExpansion,
             Prelude2CardPack,
             ColoniesExpansion,
-            TurmoilCardPack,
+            TurmoilExpansion,
             PromoCardPack,
             WorldGovernmentRule,
         )
