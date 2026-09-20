@@ -130,7 +130,7 @@ try {
   check(projectEvents.lines.some((line) => line.includes("EarthOffice")), "project not logged");
   check(
     projectEvents.lines.some((line) =>
-      line.includes("Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1>"),
+      line.includes("Pay<Player1, Class<MC>> FROM MC<Player1>"),
     ),
     "project payment not logged",
   );
@@ -144,7 +144,7 @@ try {
   );
   const standardProjectEvents = printNewEvents();
   check(
-    standardProjectEvents.lines.some((line) => line.includes("-18 Megacredit<Player1>")),
+    standardProjectEvents.lines.some((line) => line.includes("+18 Pay<Player1, Class<MC>>")),
     "Aquifer did not charge Player 1",
   );
   check(

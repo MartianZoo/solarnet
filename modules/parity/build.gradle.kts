@@ -17,9 +17,11 @@ kotlin {
   sourceSets {
     jsMain {
       dependencies {
+        implementation(project(":agent"))
         implementation(project(":tfm-canon"))
         implementation(project(":engine"))
         implementation(project(":pets"))
+        implementation(project(":state"))
         implementation(project(":tfm-engine"))
         implementation(libs.kotlinx.serialization.json)
       }
@@ -27,6 +29,7 @@ kotlin {
     jsTest { dependencies { implementation(kotlin("test")) } }
   }
 }
+
 val typeScriptConsumerSource = layout.projectDirectory.file("src/consumerSmoke/typescript/main.ts")
 val typeScriptConsumerOutput = rootProject.layout.buildDirectory.dir("js/parity-consumer-smoke")
 val compiledTypeScriptConsumer = typeScriptConsumerOutput.map { it.file("main.js") }

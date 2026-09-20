@@ -1,26 +1,27 @@
 package dev.martianzoo.parity
 
-import dev.martianzoo.api.SystemClasses.CLASS
-import dev.martianzoo.data.Actor.Companion.ENGINE
-import dev.martianzoo.data.GameConfig
-import dev.martianzoo.data.Player
+import dev.martianzoo.agent.Agent
+import dev.martianzoo.agent.Agents
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.engine.Gameplay.OperationLayer
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.tfm.api.ApiUtils.getPlayerOwner
-import dev.martianzoo.tfm.api.ApiUtils.mapDefinition
-import dev.martianzoo.tfm.api.tfmAuthority
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.Checkpoint
+import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
+import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.tfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
-import dev.martianzoo.tfm.engine.isVisibleInLog
-import dev.martianzoo.state.Checkpoint
-import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.tfm.engine.isActionPhaseSecondAction
-import dev.martianzoo.types.Type
+import dev.martianzoo.tfm.engine.isVisibleInLog
 import kotlin.js.ExperimentalJsExport
 import kotlin.js.JsExport
 import kotlinx.serialization.json.Json
@@ -40,20 +41,23 @@ import kotlinx.serialization.json.put
 public class SolarnetSession(
     options: String,
     playerCount: Int,
+    @Suppress("UNUSED_PARAMETER")
     resourceReader: (String) -> String,
 ) {
+  private val agents: Agents
   private val game: World
-  private val workflow: TfmWorkflow.Auto
+  private val workflow: TfmWorkflow.Automatic
   private val engine: TfmGameplay
   private val players: List<Player>
+  private val corporationSelections = mutableMapOf<Player, Pair<ClassName, Int>>()
 
   init {
-    installResourceReader(resourceReader)
     val playerNames = (1..playerCount).map { "Player$it" }.toTypedArray()
     val premise = Canon.gamePremise(GameConfig(options, *playerNames))
     game = Engine.newGame(premise)
-    engine = game.tfm(ENGINE)
-    workflow = TfmWorkflow.Auto(game).launch()
+    agents = Agents(game)
+    engine = agents.tfm(ADMIN)
+    workflow = TfmWorkflow.Automatic(agents).launch()
     players = game.actors.filterIsInstance<Player>()
   }
 
@@ -62,28 +66,41 @@ public class SolarnetSession(
     val move = Json.parseToJsonElement(moveJson).jsonObject
     when (move.getValue("operation").jsonPrimitive.content) {
       "selectCorporation" -> {
+        val player = movePlayer(move)
         val corporation = cn(move.getValue("corporation").jsonPrimitive.content)
         val projectCards = move.getValue("projectCards").jsonPrimitive.int
         require(projectCards in 0..10) {
           "Initial project-card purchase count must be between 0 and 10: $projectCards"
         }
-        game.tfm(movePlayer(move)).playCorp(corporation, projectCards)
+        require(corporationSelections.put(player, corporation to projectCards) == null) {
+          "$player already selected a corporation"
+        }
+        val discarded = 10 - projectCards
+        agents[player].doTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>")
+        if (internalPhase() == "corporation") {
+          corporationSelections.forEach { (selectedPlayer, selection) ->
+            val (selectedCorporation, retainedProjects) = selection
+            if (!agents.tfm(selectedPlayer).has("CardFront<Class<CorporationCard>>")) {
+              agents.tfm(selectedPlayer).playCorp(selectedCorporation, retainedProjects)
+            }
+          }
+        }
       }
       "playProject" -> {
         val card = cardClassForPrintedId(move.getValue("cardId").jsonPrimitive.content)
         val payment = move.getValue("payment").jsonObject
-        game
+        agents
             .tfm(movePlayer(move))
             .playProject(
                 card,
-                megacredits = paymentAmount(payment, "megacredits"),
+                mc = paymentAmount(payment, "megacredits"),
                 steel = paymentAmount(payment, "steel"),
                 titanium = paymentAmount(payment, "titanium"),
             )
       }
       "cardAction" -> {
         val card = cardClassForPrintedId(move.getValue("cardId").jsonPrimitive.content)
-        game.tfm(movePlayer(move)).cardAction1(card)
+        agents.tfm(movePlayer(move)).cardAction1(card)
       }
       "buyCards" -> buyCards(move)
       "standardProject" -> startStandardProject(move)
@@ -92,8 +109,8 @@ public class SolarnetSession(
       "sellPatents" -> sellPatents(move)
       "placeTile" -> placeTile(move)
       "declineFinalGreenery" -> declineFinalGreenery(move)
-      "endTurn" -> game.tfm(movePlayer(move)).declineSecondAction()
-      "pass" -> game.tfm(movePlayer(move)).doTask("Pass")
+      "endTurn" -> agents.tfm(movePlayer(move)).declineSecondAction()
+      "pass" -> agents.tfm(movePlayer(move)).pass()
       else -> error("Unknown parity operation: ${move.getValue("operation")}")
     }
     return snapshot()
@@ -144,7 +161,7 @@ public class SolarnetSession(
       put("nextCursor", nextCursor)
       put(
           "lines",
-          buildJsonArray { lines.forEach { add(game.vocabulary.renderPets(it)) } },
+          buildJsonArray { lines.forEach { add(it.toString()) } },
       )
     }
         .toString()
@@ -153,11 +170,6 @@ public class SolarnetSession(
   /** Releases the workflow callback and any suspended workflow work. */
   public fun close() {
     workflow.shutdown()
-  }
-
-  private fun installResourceReader(resourceReader: (String) -> String) {
-    val global = js("globalThis")
-    global.solarnetResourceReader = resourceReader
   }
 
   private fun movePlayer(move: JsonObject): Player {
@@ -173,6 +185,9 @@ public class SolarnetSession(
   }
 
   private fun currentPhase(): String =
+      internalPhase().let { if (it == "setup") "corporation" else it }
+
+  private fun internalPhase(): String =
       game.reader
           .getComponents("Phase")
           .single()
@@ -188,7 +203,7 @@ public class SolarnetSession(
       if (phase != "action") {
         emptyList()
       } else {
-        players.filter { game.tfm(it).has("Pass") }.map(::playerSeat)
+        players.filter { agents.tfm(it).has("Pass") }.map(::playerSeat)
       }
 
   private fun waitingPlayerSeats(): List<Int> =
@@ -215,7 +230,7 @@ public class SolarnetSession(
   private fun seatsJson(seats: List<Int>) = buildJsonArray { seats.forEach(::add) }
 
   private fun playerSnapshot(player: Player, seat: Int): JsonObject {
-    val gameplay = game.tfm(player)
+    val gameplay = agents.tfm(player)
     return buildJsonObject {
       put("seat", seat)
       put("terraformRating", gameplay.count("TerraformRating"))
@@ -258,15 +273,14 @@ public class SolarnetSession(
         } else {
           component.className
         }
-    return printedCardId(game.reader.tfmAuthority.card(cardName).id)
+    game.reader.tfmCatalog.card(cardName)
+    return APP_CARD_ID_BY_CLASS.getValue(cardName)
   }
 
   private fun cardClassForPrintedId(printedId: String): ClassName =
-      game.reader.tfmAuthority.cardDefinitions
-          .single { printedCardId(it.id) == printedId }
-          .className
-
-  private fun printedCardId(canonId: String): String = canonId.removeSuffix("F")
+      APP_CARD_CLASS_BY_ID[printedId]
+          ?.also(game.reader.tfmCatalog::card)
+          ?: error("Unsupported app card ID: $printedId")
 
   private fun tilesSnapshot() = buildJsonArray {
     val areas = mapDefinition(game.reader).areas.rows().flatten().filterNotNull()
@@ -316,54 +330,49 @@ public class SolarnetSession(
   private fun startStandardProject(move: JsonObject) {
     val project =
         when (val semanticName = move.getValue("project").jsonPrimitive.content) {
-          "powerPlant" -> "PowerPlantSP"
-          "asteroid" -> "AsteroidSP"
-          "aquifer" -> "AquiferSP"
-          "greenery" -> "GreenerySP"
-          "city" -> "CitySP"
+          "powerPlant" -> "PowerPlantProject"
+          "asteroid" -> "AsteroidProject"
+          "aquifer" -> "AquiferProject"
+          "greenery" -> "GreeneryProject"
+          "city" -> "CityProject"
           else -> error("Unknown standard project: $semanticName")
         }
-    moveOperation(move).continueManual {
-      doTask("UseAction1<UseStandardProjectSA>")
-      doTask("UseAction1<$project>")
-    }
+    val player = movePlayer(move)
+    val gameplay = agents.tfm(player)
+    agents[player].continueOperation { gameplay.run { useStdProject(project) } }
   }
 
   private fun buyCards(move: JsonObject) {
     require(currentPhase() == "research") { "Cards can be bought here only during Research" }
     val count = move.getValue("count").jsonPrimitive.int
     require(count in 0..4) { "Research purchase count must be between 0 and 4: $count" }
-    game.tfm(movePlayer(move)).doTask(if (count == 0) "Ok" else "$count BuyCard")
+    agents.tfm(movePlayer(move)).buyCards(count)
   }
 
   private fun convertHeat(move: JsonObject) {
-    moveOperation(move).continueManual { doTask("UseAction1<ConvertHeatSA>") }
+    val player = movePlayer(move)
+    val gameplay = agents.tfm(player)
+    agents[player].continueOperation { gameplay.run { useStdAction("ConvertHeatAction") } }
   }
 
   private fun convertPlants(move: JsonObject) {
-    val gameplay = game.tfm(movePlayer(move))
-    moveOperation(move).continueManual {
-      doTask("UseAction1<ConvertPlantsSA>")
-      val plantsOwed = gameplay.count("Owed<Class<Plant>>")
-      doTask("$plantsOwed Pay<Class<Plant>> FROM Plant")
-    }
+    val player = movePlayer(move)
+    val gameplay = agents.tfm(player)
+    agents[player].continueOperation { gameplay.run { useStdAction("ConvertPlantsAction") } }
   }
 
   private fun sellPatents(move: JsonObject) {
     val count = move.getValue("count").jsonPrimitive.int
     require(count > 0) { "Patent sale count must be positive: $count" }
-    moveOperation(move).finish {
-      doTask("UseAction1<SellPatents>")
-      doTask("-$count ProjectCard THEN $count")
-    }
+    agents.tfm(movePlayer(move)).sellPatents(count)
   }
 
   private fun placeTile(move: JsonObject) {
     val area = moveArea(move)
     when (val tile = move.getValue("tile").jsonPrimitive.content) {
-      "ocean" -> moveOperation(move).finish { doTask("OceanTile<$area>") }
-      "greenery" -> moveOperation(move).finish { doTask("GreeneryTile<$area>") }
-      "city" -> moveOperation(move).finish { doTask("CityTile<$area>") }
+      "ocean" -> moveOperation(move).completeOperation { doTask("OceanTile<$area>") }
+      "greenery" -> moveOperation(move).completeOperation { doTask("GreeneryTile<$area>") }
+      "city" -> moveOperation(move).completeOperation { doTask("CityTile<$area>") }
       else -> error("Unknown tile kind: $tile")
     }
   }
@@ -372,11 +381,10 @@ public class SolarnetSession(
     require(currentPhase() == "finalGreenery") {
       "Final greenery can be declined only during Final Greenery"
     }
-    game.tfm(movePlayer(move)).doTask("Ok")
+    agents.tfm(movePlayer(move)).doTask("Ok")
   }
 
-  private fun moveOperation(move: JsonObject): OperationLayer =
-      game.gameplay(movePlayer(move)) as OperationLayer
+  private fun moveOperation(move: JsonObject): Agent = agents[movePlayer(move)]
 
   private fun moveArea(move: JsonObject): ClassName {
     val spaceId = move.getValue("spaceId").jsonPrimitive.content
@@ -392,9 +400,21 @@ public class SolarnetSession(
     const val FIRST_APP_SPACE_ID = 3
 
     private val PLAYED_EVENT: ClassName = cn("PlayedEvent")
+    private val APP_CARD_CLASS_BY_ID: Map<String, ClassName> =
+        mapOf(
+            "B01" to cn("CrediCor"),
+            "B04" to cn("InterplanetaryCinematics"),
+            "B12" to cn("Teractor"),
+            "013" to cn("SpaceElevator"),
+            "105" to cn("EarthOffice"),
+            "110" to cn("BusinessNetwork"),
+            "112" to cn("BribedCommittee"),
+        )
+    private val APP_CARD_ID_BY_CLASS: Map<ClassName, String> =
+        APP_CARD_CLASS_BY_ID.entries.associate { (id, className) -> className to id }
     private val RESOURCE_KINDS: List<Pair<String, ClassName>> =
         listOf(
-            "megacredits" to cn("Megacredit"),
+            "megacredits" to cn("MC"),
             "steel" to cn("Steel"),
             "titanium" to cn("Titanium"),
             "plants" to cn("Plant"),

@@ -1,7 +1,7 @@
 package dev.martianzoo.parity
 
-import dev.martianzoo.api.Exceptions.NarrowingException
-import dev.martianzoo.api.Exceptions.TaskException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import kotlin.js.JsNonModule
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -80,11 +80,7 @@ internal class SolarnetSessionTest {
       )
       val projectLines = projectEvents.getValue("lines").jsonArray.map { it.jsonPrimitive.content }
       assertTrue(projectLines.any { "EarthOffice" in it })
-      assertTrue(
-          projectLines.any {
-            "Pay<Player1, Class<Megacredit>> FROM Megacredit<Player1>" in it
-          }
-      )
+      assertTrue(projectLines.any { "Pay<Player1, Class<MC>> FROM MC<Player1>" in it })
 
       assertFailsWith<NarrowingException> {
         session.apply("""{"operation":"pass","player":1}""")
@@ -101,7 +97,7 @@ internal class SolarnetSessionTest {
           standardProjectEvents.getValue("nextCursor").jsonPrimitive.content.toInt()
       val standardProjectLines =
           standardProjectEvents.getValue("lines").jsonArray.map { it.jsonPrimitive.content }
-      assertTrue(standardProjectLines.any { "-18 Megacredit<Player1>" in it })
+      assertTrue(standardProjectLines.any { "+18 Pay<Player1, Class<MC>>" in it })
       assertTrue(standardProjectLines.none { ": +OceanTile<" in it })
       assertTrue(standardProjectLines.none { "NewTurn<Player2>" in it })
 
@@ -232,8 +228,8 @@ internal class SolarnetSessionTest {
               .getValue("lines")
               .jsonArray
               .map { it.jsonPrimitive.content }
-      assertTrue(lines.any { "-Steel<Player1>" in it })
-      assertTrue(lines.any { "+5 Megacredit<Player1>" in it })
+      assertTrue(lines.any { "+Pay<Player1, Class<Steel>>" in it }, lines.toString())
+      assertTrue(lines.any { "+5 MC<Player1>" in it }, lines.toString())
       assertTrue(lines.none { "Task" in it })
     } finally {
       session.close()

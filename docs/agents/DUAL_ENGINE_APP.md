@@ -72,11 +72,12 @@ Neither engine's internal representation is canonical for the other. Each side p
 small parity snapshot, and the comparator compares those snapshots. Move translation and state
 comparison remain independent: agreement in one cannot manufacture agreement in the other.
 
-### Stop at unsupported content
+### Run parity only for supported content
 
 Game creation uses a generated compatibility manifest. It admits only the intersection of selected
 Solarnet content and corresponding app content, minus Solarnet's documented gaps. Unsupported
-options are rejected before setup; they are not silently omitted after a game begins.
+options disable parity for that game before setup, leaving the app to run the game normally. They
+are not silently omitted from an active parity session.
 
 ## Existing seams
 
@@ -92,17 +93,17 @@ prototype must capture the old `waitingFor` before that call because successful 
 it, then invoke the shadow bridge only after the call returns. Rejected app inputs and undo must not
 reach Solarnet. Direct test callers of `Player.process` are intentionally outside this first hook.
 
-Solarnet exposes actor-scoped `Gameplay`, pending tasks, an event-backed `Timeline`, and
-`TfmWorkflow.Auto`. Commands are failure-atomic and automatic effects are drained before the outer
-command completes. The new JavaScript-only `parity` module exports the first deliberately narrow
+Solarnet exposes actor-scoped `Agent`s, pending tasks, an event-backed timeline, and
+`TfmWorkflow.Automatic`. Commands are failure-atomic and automatic effects are drained before the
+outer command completes. The new JavaScript-only `parity` module exports the first deliberately narrow
 external snapshot and command facade; it is a probe, not yet a stable public API. Its pull-based
 `eventsSince(cursor)` diagnostic returns a new cursor and the full Pets-rendered event lines in that
 range. Consumers poll only after a completed command; the engine has no parallel observer path.
 
-Canon and Pets still use browser XHR by default. Their JS loaders now accept one optional host
-resource-reader function, allowing the parity module to load the same packaged resources in Node.
-The existing browser smoke test proves the fallback remains intact. The existing Rego socket server
-has one mutable session and a human text protocol, so it is not the production bridge.
+Canon and Pets resources are generated into common Kotlin sources, so Node and browser use the same
+compiled catalogs without a host resource hook. The facade temporarily retains its callback
+parameter for the existing app-side package call. The existing Rego socket server has one mutable
+session and a human text protocol, so it is not the production bridge.
 
 ## Common parity snapshot
 
@@ -251,20 +252,26 @@ Undo restores the transcript cursor associated with the app save point and rebui
 cloning creates a new parity session by replaying the cloned transcript.
 
 **Verified app-side prototype:** private repository `MartianZoo/terraforming-mars-solarnet`, branch
-`codex/solarnet-terminal-feed`, commit `5c4c37392` keeps a server-only registry
-containing one Solarnet session and event cursor per app game. `SOLARNET_PARITY_PATH` opts the server
+`codex/solarnet-terminal-feed`, commit `5c4c37392` keeps an in-memory registry containing one
+Solarnet session, event cursor, and incremental ordinary-log feed per app game.
+`SOLARNET_PARITY_PATH` opts the server
 into loading the standalone development package; its absence leaves the ordinary app unchanged.
 The route captures the old `waitingFor`, calls `Player.process`, and observes only a successfully
 accepted input. Structured server-side input metadata translates the currently supported setup,
 project, Space Elevator card action, Aquifer, ocean-placement, end-turn, and pass inputs. The bridge
 suppresses construction events, advances its cursor after every command, and prints the same
 change-only, non-Hidden feed as the REPL's ordinary `log` command as
-`[solarnet <game-id>] <event>`. The complete event history never enters the HTTP model or browser.
-A printed app card ID is resolved through the active Canon definitions rather than assumed to equal
-the Solarnet class suffix; this preserves IDs such as `110` across simplified classes such as
-`Card110F`.
+`[solarnet <game-id>] <event>`. It retains those lines with the app generation in which each
+accepted input began. The app's existing generation selector can switch between its normal log and
+that live Solarnet feed; unsupported games never offer the Solarnet source.
+A deliberately narrow app-ID map resolves printed card IDs to Solarnet Classes and verifies those
+Classes against the active Catalog; it does not assume an ID such as `110` appears in the
+`BusinessNetwork` Class Name.
 A Solarnet rejection is reported after the already-accepted app input and freezes later inputs with
 a distinct server error rather than misreporting the original input as an app rejection.
+Before translating the first input, the bridge checks the deliberately narrow compatibility
+profile. A game with an unsupported option, including Prelude, never creates a Solarnet session or
+parity failure and continues as an ordinary app game.
 
 The app's complete server suite and an end-to-end smoke against the real generated Solarnet package
 pass. The smoke covers both corporation selections, Earth Office, Aquifer payment, ocean placement,
@@ -317,10 +324,10 @@ Add a Spartan compatibility notice at game creation and a parity status/diff vie
 games. Export a sanitized replay bundle containing configuration, semantic moves, normalized
 snapshots, and version pins. Never expose hidden app state through diagnostics visible to players.
 
-The first live event view belongs in the development app server's terminal: after each translated
-input completes, poll `eventsSince(cursor)` and print the returned ordinary-log lines. The full task
-and change history can expose hidden information, so do not send either feed to an ordinary player's
-browser.
+After each translated input completes, poll `eventsSince(cursor)` and print the returned
+ordinary-log lines in the development app server's terminal. The browser may show that same
+explicitly non-Hidden feed for this private experiment. The full task and change histories can
+expose hidden information and must not enter an ordinary player's browser.
 
 Only after the diagnostic system is trustworthy should we consider speculative dual execution that
 blocks a move before either live state changes. That requires disposable Solarnet worlds or another
