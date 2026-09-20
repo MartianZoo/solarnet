@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -70,14 +71,14 @@ internal class TurmoilProjectCardsTest : CardTest() {
   }
 
   @Test
-  internal fun `Recruitment cannot complete without a neutral non-leader delegate`() {
+  internal fun `Recruitment cannot be played without a neutral non-leader delegate`() {
     newGame(TurmoilExpansion)
     admin.phase("Action")
     p1.runOperation("2 MC, ProjectCard")
 
-    shouldThrow<DeadEndException> {
+    shouldThrow<NotNowException> {
       p1.playProject(Recruitment, 2) {
-        doTask("RecruitmentExchange<MarsFirst>")
+        doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
       }
     }
   }
@@ -97,7 +98,7 @@ internal class TurmoilProjectCardsTest : CardTest() {
     val neutralDelegatesBefore = admin.count("Delegate<Neutral>")
 
     p1.playProject(Recruitment, 2) {
-      doTask("RecruitmentExchange<MarsFirst>")
+      doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
     }
 
     p1.count("PartyDelegate<MarsFirst>") shouldBe 1
@@ -118,8 +119,7 @@ internal class TurmoilProjectCardsTest : CardTest() {
 
     shouldThrow<DeadEndException> {
       p1.playProject(Recruitment, 2) {
-        doTask("RecruitmentExchange<MarsFirst>")
-        doTask("-PartyDelegate<MarsFirst, Neutral>")
+        doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
       }
     }
 

@@ -89,7 +89,7 @@ internal class BugsTest : CardTest() {
     admin.phase("Action")
 
     p1.playProject(Recruitment, 2) {
-      doTask("RecruitmentExchange<MarsFirst>")
+      doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
     }
 
     p1.count("PartyLeader<MarsFirst>") shouldBe 1

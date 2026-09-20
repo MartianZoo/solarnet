@@ -14,7 +14,9 @@ CLASS CelebrityLeaders : GePartyDistant<Unity>, GePartyCurrent<Greens> {
 }
 
 CLASS Diversity : GePartyDistant<Scientists>, GePartyCurrent<Scientists> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveDiversity<Player> }
+  ResolveGlobalEvent<Class<This>>:: EACH Player { \
+    10 MC / (9 (Class<Tag>(HAS Tag<Owner>) OR Influence) MAX 1) \
+  }
 }
 
 CLASS DryDeserts : GePartyDistant<Reds>, GePartyCurrent<Unity> {
@@ -139,7 +141,8 @@ CLASS SpinOffProducts : GePartyDistant<Greens>, GePartyCurrent<Scientists> {
 }
 
 CLASS SponsoredProjects : GePartyDistant<Scientists>, GePartyCurrent<Greens> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveSponsoredProjects<Player> }
+  ResolveGlobalEvent<Class<This>>:: EACH ResourceCard<Anyone> { CardResource<ResourceCard<Anyone>> }
+  ResolveGlobalEvent<Class<This>>:: EACH Player { ProjectCard / Influence }
 }
 
 CLASS StrongSociety : GePartyDistant<Reds>, GePartyCurrent<MarsFirst> {
@@ -151,8 +154,7 @@ CLASS SuccessfulOrganisms : GePartyDistant<MarsFirst>, GePartyCurrent<Scientists
 }
 
 CLASS VolcanicEruptions : GePartyDistant<Scientists>, GePartyCurrent<Kelvinists> {
-  ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<TemperatureStep>>:: \
-    EACH Player(HAS StartToken) { RaiseTemperatureForGlobalEvent<Player> }
+  ResolveGlobalEvent<Class<This>>:: 2 TemperatureStep. BY Admin
   ResolveGlobalEvent<Class<This>>:: EACH Player { PROD[Heat / Influence] }
 }
 

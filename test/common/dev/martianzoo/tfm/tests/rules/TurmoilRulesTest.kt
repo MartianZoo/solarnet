@@ -129,6 +129,20 @@ internal class TurmoilRulesTest : CardTest() {
   }
 
   @Test
+  internal fun `removing a sole party leader promotes the remaining delegation`() {
+    newGame(TurmoilExpansion)
+    val p2 = requireP2()
+    p1.runOperation("PartyDelegate<Scientists>")
+    p2.runOperation("PartyDelegate<Scientists>")
+
+    admin.runOperation("-PartyDelegate<Scientists, Player1>")
+
+    p1.count("PartyLeader<Scientists>") shouldBe 0
+    p2.count("PartyDelegate<Scientists>") shouldBe 1
+    p2.count("PartyLeader<Scientists>") shouldBe 1
+  }
+
+  @Test
   internal fun `free then paid lobbying cannot place more than seven delegates`() {
     newGame(TurmoilExpansion)
     val p2 = requireP2()
@@ -282,7 +296,6 @@ internal class TurmoilRulesTest : CardTest() {
   private fun clearSetupPolitics() {
     listOf("MarsFirst", "Reds").forEach { party ->
       admin.runOperation("-PartyDelegate<$party, Neutral>")
-      admin.runOperation("-PartyLeader<$party, Neutral>!")
     }
     admin.runOperation("-Dominant!")
   }

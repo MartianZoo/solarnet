@@ -443,6 +443,7 @@ internal class TurmoilEventsTest :
 
     admin.runOperation("CorrosiveRain")
     admin.runOperation("ResolveGlobalEvent<Class<CorrosiveRain>>") {
+      p1.count("ProjectCard") shouldBe 0
       p1.doTask("-2 Floater<FloaterEventProbe>")
     }
 

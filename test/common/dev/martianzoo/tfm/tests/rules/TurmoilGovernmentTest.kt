@@ -141,7 +141,6 @@ internal class TurmoilGovernmentTest :
   private fun clearSetupPolitics() {
     listOf("MarsFirst", "Reds").forEach { party ->
       admin.runOperation("-PartyDelegate<$party, Neutral>")
-      admin.runOperation("-PartyLeader<$party, Neutral>!")
     }
     admin.runOperation("-Dominant!")
   }

@@ -251,6 +251,9 @@ Keep the substantive reasoning in the owning document and keep this table to one
 - **The metric operator set** — [ENGINE.md](ENGINE.md#metrics-refinements-and-limits). `Max`,
   `Subtract`, and `Or` have few authored uses, but the algebra is under-built rather than
   over-built.
+- **Turmoil's `TurmoilPlayer`, `ApplyRulingBonus`, and `Class<GlobalEvent>`-keyed event positions** —
+  [TURMOIL.md](TURMOIL.md). A 2026-09-19 sweep removed ten other Turmoil classes and tried to remove
+  these three; each is forced by a language rule, and TURMOIL.md records which one.
 
 ### Accepted for now
 

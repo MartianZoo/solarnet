@@ -59,11 +59,17 @@ Neutral begins with the chair and the two printed setup delegates introduced by 
 Distant events. Greens are the initial ruling party.
 
 `Delegate<Owner>` is the common supertype of `PartyDelegate` and `Chairman`. Only placed delegates
-are components. A player's available supply is derived from the seven-delegate limit; its
-`TurmoilPlayer` component supplies the per-player context that a normal Class invariant cannot bind.
-Neutral is itself the owner, so it directly carries the corresponding `MAX 14 Delegate<This>`
-invariant; the chairman is one of those fourteen delegates while occupying the chair.
-There is no second representation for off-board delegates, just as there is none for unplaced tiles.
+are components; there is no second representation for off-board delegates, just as there is none for
+unplaced tiles. Each owner's available supply is therefore derived from a limit on placed delegates.
+
+Neutral is itself the owner, so it states its limit directly as the invariant
+`MAX 14 Delegate<This>`; the chairman is one of those fourteen while occupying the chair. A player's
+seven cannot be written the same way, and the `TurmoilPlayer` component exists to hold the trigger
+that enforces it. Contextual `Owner` is substituted only where it is written bare inside an effect:
+an invariant on `Delegate` sees the abstract `Owner` class and so counts every owner's delegates at
+once, and a refined `Owner(NOT Neutral)` is a Type variable rather than the bearer's owner. A
+trigger on a per-player component is the only place the bearer's own owner is available.
+
 `LobbyActionAvailable` separately records whether the free Lobby placement remains available and
 removes itself when its owner places a seventh delegate. Using that placement also consumes the
 marker, and returning a delegate does not restore it. Any player placement beyond seven is
@@ -76,11 +82,18 @@ neutral delegates are placed.
 - The incumbent leader wins a tied delegate count. A strictly larger delegation replaces it.
 - The incumbent dominant party wins a tied count during ordinary delegate movement.
 - After government forms, tied dominance is selected clockwise from the new ruling party.
-- Neutral uses the same owner model as players, but only player-owned leaders receive the chairman
-  rating increase and can contribute player influence.
+- Neutral uses the same owner model as players, but only a player taking the chair receives the
+  rating increase, and only players contribute influence.
 
-Rank metrics include the incumbent role or a temporary clockwise priority. This lets ordinary
-friendly ranking express both tie rules without custom Kotlin or a mirrored numeric state.
+A single rank — delegate count, then `DominancePriority`, then the incumbent `Dominant` role —
+expresses both dominance tie rules without custom Kotlin or a mirrored numeric state.
+`DominancePriority` is a one-shot token: `RecalculateDominance` spends every priority it has just
+ranked. It must be spent rather than left to `Temporary` cleanup, because a priority survives until
+the whole World goes idle and would otherwise still be outranking incumbency at the next delegate
+placement.
+
+`PartyLeader` ends when its owner's last delegate leaves that party, then reruns the ordinary leader
+rank over the remaining delegations. No caller has to retract or replace the role separately.
 
 ## Influence and government
 
@@ -102,12 +115,15 @@ to one existential contribution. AMAP is not used to conceal a missing player ow
 
 `FormGovernment` is supplied by the dominant party and performs the complete ordered operation:
 
-1. Make that party ruling and apply its one-time bonus.
+1. Move the ruling marker to that party and apply its one-time bonus.
 2. Return the old chairman and the ruling party's non-leader delegates to their owners' available
    supply by removing their placed components.
-3. Move the ruling party leader into the chair; grant one rating if that owner is a player.
-4. Remove its leader role, select the next dominant party clockwise, and restore free lobbying for
-   players with fewer than seven placed delegates.
+3. Move the ruling party leader into the chair, which ends that leader role.
+4. Grant one rating if the new chairman is a player, select the next dominant party clockwise, and
+   restore free lobbying for players with fewer than seven placed delegates.
+
+`ApplyRulingBonus` stays a separate signal rather than triggering on the `Ruling` marker, because
+Setup places `Ruling<Greens>` without paying the Greens bonus.
 
 Ruling bonuses count only the current player's owned icons or production. Mars First, Scientists,
 Unity, Greens, and Kelvinists pay from Building, Science, planetary, bio, and heat-production
@@ -145,13 +161,18 @@ The ordinary Solar workflow performs World Government Terraforming before the Tu
 
 `TurmoilSolarPhase` orders this work after the active Venus and Colonies Solar phases. The temporary
 operation inside it is a completion latch for event choices: it keeps government formation from
-racing consequences created by the current event. `Current`, `Coming`, and `Distant` are typed
-positions with at most one occupant. A concrete event owns its printed delegates and effect while
-its position component changes. Reveal barriers request one concrete catalog event. For now,
-callers explicitly complete those Admin tasks with the event supplied by their shuffled deck or
-source record. This is a temporary integration compromise, not a game decision assigned to Admin.
-The selected direction is an installable Admin autoexecution policy that pulls the next exact event
-from an ordered list.
+racing consequences created by the current event; a pending task is enough to hold it open, so the
+choices themselves need no `Barrier`. `Current`, `Coming`, and `Distant` are typed positions with at
+most one occupant, each keyed by `Class<GlobalEvent>`. The card class is the key because
+`ChangingTimes` must name one event on both sides of a transmutation, and only an `EACH` selector
+spelling — here `Class<GlobalEvent>` — binds a concrete Type inside its body. Making the position a
+dependency of the event instead would leave the destination of `Coming FROM Distant` abstract.
+The event component itself is created once, at reveal, and discarded when it leaves Current, so its
+printed reveal-corner delegate is simply a `This::` effect. Reveal barriers request one concrete
+catalog event. For now, callers explicitly complete those Admin tasks with the event supplied by
+their shuffled deck or source record. This is a temporary integration compromise, not a game
+decision assigned to Admin. The selected direction is an installable Admin autoexecution policy
+that pulls the next exact event from an ordered list.
 
 Admin-authored global-parameter changes grant no rating or player placement bonuses. If Admin raises
 temperature through 0°C, `AdminOceanPlacement` gives the required ocean-placement choice to the
@@ -195,3 +216,20 @@ temporary capabilities, event cards own their delegates and effects, and event p
 occupancy. Prefer existing Pets effects, metrics, ranks, signals, barriers, and module projection.
 The implemented expansion requires no Turmoil-specific Kotlin instruction, metric, workflow branch,
 or persistent duplicate of political or event state.
+
+Three habits are worth naming, because each one removed a class that looked necessary:
+
+- A named Signal earns its keep only when it marks a moment the game itself has — `FormGovernment`,
+  `ApplyRulingBonus`, `ResolveGlobalEvent`. A Signal that exists only to carry a concrete Type into
+  a place that could have named it is redundant: an `EACH` selector already binds its own spelling
+  in the body, so `EACH ResourceCard<Anyone> { CardResource<ResourceCard<Anyone>> }` needs no helper.
+- An owned Signal is the way to route a choice to one player, because `EACH` cannot; but it needs to
+  be a `Barrier` only if something must wait on more than the resulting task. The Solar operation is
+  held open by the pending task itself.
+- A printed threshold belongs in the payout metric, not in a ladder of gated cases. Diversity is
+  `10 MC / (9 (Class<Tag>(HAS Tag<Owner>) OR Influence) MAX 1)`; a gate inside an `EACH` body would
+  fail the branch rather than pay nothing.
+
+`TurmoilExpansion` declares no `HAS Class<...>` activation list. Every class it needs is reached by
+a gain, which is a hard reference that projection closure already activates
+([OPTIONS.md](OPTIONS.md#projection-closure)).

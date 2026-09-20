@@ -20,7 +20,9 @@ CLASS VenusInfrastructure : GePartyDistant<MarsFirst>, GePartyCurrent<Unity> {
 CLASS CloudSocieties : GePartyDistant<Unity>, GePartyCurrent<Reds> {
   HAS Class<VenusTag>, Class<Colony>
 
-  ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveCloudSocieties<Player> }
+  ResolveGlobalEvent<Class<This>>:: \
+    EACH ResourceCard<Class<Floater>, Anyone> { Floater<ResourceCard<Class<Floater>, Anyone>> }
+  ResolveGlobalEvent<Class<This>>:: EACH Player { ChooseInfluenceFloaterCard<Player> }
 }
 
 CLASS CorrosiveRain : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
