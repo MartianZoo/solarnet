@@ -7,7 +7,14 @@ import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.types.ClassTable
 
-/** One coherent catalog of everything the engine may know about a game. */
+/**
+ * One coherent namespace containing everything the engine may know about a game.
+ *
+ * A Catalog owns one validated master [ClassTable]. That table is the reusable schema for all of
+ * its games, not a playable world: each [GamePremise] selects an inhabited view of it. Catalog
+ * implementations may use internal packaging such as bundles, but callers compose and play exactly
+ * one Catalog, in which every class name has one meaning.
+ */
 public interface Catalog {
   /** The fully compiled Catalog structure shared by its playable games. */
   public val classTable: ClassTable
@@ -16,7 +23,10 @@ public interface Catalog {
   public val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler>
     get() = emptyMap()
 
-  /** The available Modules and the class selections each one contributes. */
+  /**
+   * The available Modules and the class selections each one contributes to a resolved premise.
+   * Selected Modules are also the complete ambient-rule configuration of a live game.
+   */
   public val modules: Map<ClassName, Set<ClassSelection>>
     get() = emptyMap()
 

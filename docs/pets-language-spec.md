@@ -86,7 +86,7 @@ a separate job, and every question about *how* that is done belongs to some othe
 | Action availability, costs, billing and action identity | [`ACTIONS.md`](agents/ACTIONS.md) |
 | The order in which independent effects fire | [`SEQUENCING.md`](agents/SEQUENCING.md) |
 | The event log, causes and traces | [`ENGINE.md`](agents/ENGINE.md), [`DIAGNOSTICS.md`](agents/DIAGNOSTICS.md) |
-| Which classes a particular game contains | [`OPTIONS.md`](agents/OPTIONS.md) |
+| Which classes a particular game contains | [`GamePremise`](../src/common/dev/martianzoo/pets/data/GamePremise.kt) and [`PremiseSelectionTest`](../test/common/dev/martianzoo/pets/types/PremiseSelectionTest.kt) |
 | Which name a concept gets, and its localized display names | [`NAMING.md`](agents/NAMING.md) |
 | Class-property cardinality, groups and printed tags | [`PROPERTIES.md`](agents/PROPERTIES.md) |
 
@@ -240,8 +240,8 @@ one declaration, with an optional semicolon-separated body, and rejects owner-lo
 the classes this specification and the type system depend on — `Component` and `Class` (T1-4, T1-5),
 the ownership vocabulary `Anyone`, `Owner` and `Owned`, the actor root `Actor`, the identity signal
 `Ok` (L6-4), and the impossible type `Die` (L12-14) — plus `Atomized` (L12-11) and `Custom` (T2-9).
-A catalog's own source is loaded alongside them. Which of these a *game* then contains is
-`OPTIONS.md`'s question, not this document's.
+A catalog's own source is loaded alongside them. Which of these a *game* then contains is premise
+construction's question, not this document's.
 
 > **Non-normative example — impossible and empty outcomes.** Specialization uses the built-in `Die`
 > and `Ok` terminal instructions when selected content makes a mandatory result impossible or an

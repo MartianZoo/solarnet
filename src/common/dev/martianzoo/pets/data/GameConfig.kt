@@ -5,11 +5,11 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
 /**
- * Unresolved user intent expressed as positive and negative class-name spellings, plus concrete
- * user-facing player names in seat order.
+ * Unresolved user intent expressed as unordered positive and negative class-name selections, plus
+ * concrete user-facing player names in seat order.
  *
- * A Catalog applies defaults, selection policies, and validation to cook this into a complete
- * [GamePremise].
+ * A Catalog-specific premise factory applies defaults, selection policies, and validation to cook
+ * this into a complete [GamePremise]. The configuration itself never records inferred selections.
  *
  * @throws InvalidGameConfigException if the configuration contains invalid or contradictory user
  *   input
