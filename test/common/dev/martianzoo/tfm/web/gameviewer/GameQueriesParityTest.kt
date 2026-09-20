@@ -19,6 +19,21 @@ import kotlin.test.assertEquals
 
 internal class GameQueriesParityTest {
   @Test
+  internal fun corporationImageClassificationIncludesBothCorporationBacks() {
+    val game = Engine.newGame(Canon.gamePremise(GameConfig("BeginnerVariant", "Player1")))
+
+    mapOf(
+            "CrediCor" to "corporations",
+            "BeginnerCorporation1" to "corporations",
+            "EarthCatapult" to "projects",
+        )
+        .forEach { (cardName, directory) ->
+          val card = game.reader.resolve(parse<Expression>(cardName))
+          assertEquals(directory, cardImageDirectory(card), cardName)
+        }
+  }
+
+  @Test
   internal fun passiveActorQueriesMatchTheAgentAndTfmGameplay() {
     val game = Engine.newGame(Canon.gamePremise(GameConfig("", "Player1")))
     val agents = Agents(game)

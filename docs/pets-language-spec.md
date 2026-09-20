@@ -155,10 +155,10 @@ CLASS GreeneryTile : Tile { HAS MAX 1 This; This: OxygenStep }
 **L1-4. A nested declaration becomes a sibling that names its container as a supertype** (T2-2).
 The container is returned first, then its nested declarations in source order, recursively.
 
-> **Non-normative example — cards and locations.** `CorporationCard` and `ProjectCard` are written
-> inside `CardBack`, itself inside `Card`, but the type table needs ordinary globally named classes.
-> Lowering nesting to sibling inheritance preserves the readable taxonomy without creating a
-> namespace the rest of Pets does not have.
+> **Non-normative example — cards and locations.** The `CorporationCard` hierarchy and `ProjectCard`
+> are written inside `CardBack`, itself inside `Card`, but the type table needs ordinary globally
+> named classes. Lowering nesting to sibling inheritance preserves the readable taxonomy without
+> creating a namespace the rest of Pets does not have.
 
 **L1-5. A docstring is a quoted string on the line before `CLASS`.** It is retained on the
 declaration (T2-1) and re-emitted when the declaration is rendered.

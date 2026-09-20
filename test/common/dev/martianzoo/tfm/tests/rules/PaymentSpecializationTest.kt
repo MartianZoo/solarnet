@@ -17,7 +17,9 @@ internal class PaymentSpecializationTest {
     val player = setUpGame().testTfm(PLAYER1)
 
     shouldThrow<ExpressionException> {
-      player.beginOperation("PlayCard<Class<CorporationCard>, Class<$AcquiredCompany>, Hand>")
+      player.beginOperation(
+          "PlayCard<Class<StandardCorporationCard>, Class<$AcquiredCompany>, Hand>"
+      )
     }
   }
 

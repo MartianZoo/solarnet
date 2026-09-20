@@ -45,7 +45,7 @@ public data class CardDefinition(
 }
 
 private val CARD_NAME = Regex("[A-Za-z][A-Za-z0-9]*")
-private val CARD_DECKS = setOf("CorporationCard", "PreludeCard", "ProjectCard")
+private val CARD_DECKS = setOf("PreludeCard", "ProjectCard", "StandardCorporationCard")
 private const val PROJECT_DECK = "ProjectCard"
 private const val EVENT_TAG = "EventTag"
 private const val EVENT_CARD = "EventCard"

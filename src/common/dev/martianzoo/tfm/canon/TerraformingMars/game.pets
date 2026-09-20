@@ -85,9 +85,14 @@ ABSTRACT CLASS Player : Owner, Actor {
   This: 5 ProdOffset<This, Class<MC>> BY Admin
   This: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
 
-  // Keeping one offer lets ordinary Selecting cleanup forget the unchosen cards.
-  SetupPhase: CorporationCard<Selecting> / CorporationOption THEN 10 ProjectCard THEN NewTurn
-  NewTurn IF SetupPhase: CorporationCard<Hand FROM Selecting>, \
+  // Keeping one standard offer lets ordinary Selecting cleanup forget the unchosen cards.
+  SetupPhase IF MAX 0 BeginnerVariant: \
+    StandardCorporationCard<Selecting> / CorporationOption THEN 10 ProjectCard THEN NewTurn
+  SetupPhase IF BeginnerVariant: \
+    (BeginnerCorporationCard THEN 10 ProjectCard THEN NewTurn) OR \
+      (StandardCorporationCard<Selecting> / CorporationOption THEN 10 ProjectCard THEN NewTurn)
+  NewTurn IF SetupPhase, StandardCorporationCard<Selecting>: \
+    StandardCorporationCard<Hand FROM Selecting>, \
     ((ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>) THEN -10 ProjectCard<Selecting>? \
       THEN (ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>))
   ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
@@ -115,9 +120,13 @@ ABSTRACT CLASS Phase : System {
   CLASS BootstrapPhase
   CLASS SetupPhase { This:: Generation }
   CLASS CorporationPhase {
-    NewTurn: PlayCard<Class<CorporationCard>, Hand>, \
+    NewTurn IF StandardCorporationCard<Hand>: \
+      PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Hand>, \
       (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>)
-    -CorporationCard<Hand>: BuySelectedCards
+    NewTurn IF BeginnerCorporationCard<Hand>: \
+      PlayCard<Class<CorporationCard>, Class<BeginnerCorporation>, Hand>, \
+      (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>)
+    -StandardCorporationCard<Hand>: BuySelectedCards
   }
   CLASS ResearchPhase { This:: Generation }
   CLASS ActionPhase {

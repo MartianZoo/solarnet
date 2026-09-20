@@ -68,7 +68,7 @@ public class TfmGameplay(
       require(buyCards == retained) {
         "must buy all $retained project cards retained during setup, not $buyCards"
       }
-      doTask("PlayCard<Class<CorporationCard>, Class<$cardName>, Hand>")
+      doTask("PlayCard<Class<StandardCorporationCard>, Class<$cardName>, Hand>")
       if (hasPendingBuySelectedCards(tasks)) doTask("BuySelectedCards")
       if (this@TfmGameplay.count("Owed") > 0) payAllMc()
       body()
@@ -286,7 +286,7 @@ public class TfmGameplay(
   }
 
   public fun OperationScope.playCorp(cardName: ClassName, body: OperationBlock = {}) {
-    playCardWithinOperation(cn("CorporationCard"), cardName, body)
+    playCardWithinOperation(cn("StandardCorporationCard"), cardName, body)
   }
 
   private fun OperationScope.playCardWithinOperation(
