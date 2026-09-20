@@ -768,7 +768,8 @@ never a way to do nothing. Declining belongs to `?` and `Ok` (L7-4).
 
 **L7-8. A shared type variable takes one value everywhere it appears.** Narrowing a sequence or a
 transmutation that repeats an abstract expression must supply one consistent value for it (T13-6,
-T13-7); two different values are rejected.
+T13-7); two different values are rejected. Selecting one `THEN` stage binds that value in every
+later stage, including when the selected instruction chose an arm of an `OR`.
 
 > **Non-normative example — Utopia Invest.** `PROD[StandardResource] -> 4 StandardResource` means
 > reduce one chosen production track and gain four units of that same resource. Binding the two
