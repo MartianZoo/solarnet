@@ -4,6 +4,7 @@ import dev.martianzoo.generated.Banker
 import dev.martianzoo.generated.Benefactor
 import dev.martianzoo.generated.Botanist
 import dev.martianzoo.generated.Builder
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.ElysiumMap
 import dev.martianzoo.generated.Energizer
 import dev.martianzoo.generated.Founder
@@ -29,22 +30,23 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
   // The thresholds select the archived Builder and Terraformer variants.
   override val config =
       gameConfig(
-          modules = listOf(ElysiumMap.c, PreludeExpansion.c, PromoCardPack.c),
+          modules =
+              listOf(Class.of(ElysiumMap), Class.of(PreludeExpansion), Class.of(PromoCardPack)),
           milestones =
               listOf(
-                  Builder.c,
-                  Philantropist.c,
-                  Spacefarer.c,
-                  Terraformer.c,
-                  Energizer.c,
+                  Class.of(Builder),
+                  Class.of(Philantropist),
+                  Class.of(Spacefarer),
+                  Class.of(Terraformer),
+                  Class.of(Energizer),
               ),
           awards =
               listOf(
-                  Incorporator.c,
-                  Botanist.c,
-                  Founder.c,
-                  Benefactor.c,
-                  Banker.c,
+                  Class.of(Incorporator),
+                  Class.of(Botanist),
+                  Class.of(Founder),
+                  Class.of(Benefactor),
+                  Class.of(Banker),
               ),
           extra = "FakeStuffBundle",
           playerNames = listOf("JR", "KB", "ER"),

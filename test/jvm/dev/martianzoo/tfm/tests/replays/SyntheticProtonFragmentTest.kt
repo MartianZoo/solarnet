@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.generated.Biologist
 import dev.martianzoo.generated.Botanist
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.Collector
 import dev.martianzoo.generated.Diversifier
 import dev.martianzoo.generated.Forecaster
@@ -32,22 +33,23 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
   // three players, no Venus/Colonies/Turmoil, and these full-random milestone and award pools.
   override val config =
       gameConfig(
-          modules = listOf(HellasMap.c, PreludeExpansion.c, PromoCardPack.c),
+          modules =
+              listOf(Class.of(HellasMap), Class.of(PreludeExpansion), Class.of(PromoCardPack)),
           milestones =
               listOf(
-                  Mayor.c,
-                  Diversifier.c,
-                  Trader.c,
-                  Sponsor.c,
-                  Tycoon.c,
+                  Class.of(Mayor),
+                  Class.of(Diversifier),
+                  Class.of(Trader),
+                  Class.of(Sponsor),
+                  Class.of(Tycoon),
               ),
           awards =
               listOf(
-                  Biologist.c,
-                  SpaceBaron.c,
-                  Forecaster.c,
-                  Botanist.c,
-                  Collector.c,
+                  Class.of(Biologist),
+                  Class.of(SpaceBaron),
+                  Class.of(Forecaster),
+                  Class.of(Botanist),
+                  Class.of(Collector),
               ),
       )
   // Player-record evidence: Purple has a five-TR handicap.

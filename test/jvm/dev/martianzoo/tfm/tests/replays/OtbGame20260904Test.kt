@@ -4,6 +4,7 @@ import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.generated.Administrator
 import dev.martianzoo.generated.AmazonisMap
 import dev.martianzoo.generated.Builder
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.Diversifier
 import dev.martianzoo.generated.Excentric
 import dev.martianzoo.generated.Generalist
@@ -36,27 +37,27 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       gameConfig(
           modules =
               listOf(
-                  AmazonisMap.c,
-                  VenusNextExpansion.c,
-                  PreludeExpansion.c,
-                  Prelude2CardPack.c,
-                  PromoCardPack.c,
+                  Class.of(AmazonisMap),
+                  Class.of(VenusNextExpansion),
+                  Class.of(PreludeExpansion),
+                  Class.of(Prelude2CardPack),
+                  Class.of(PromoCardPack),
               ),
           milestones =
               listOf(
-                  Builder.c,
-                  Diversifier.c,
-                  Generalist.c,
-                  Landshaper.c,
-                  Tactician.c,
+                  Class.of(Builder),
+                  Class.of(Diversifier),
+                  Class.of(Generalist),
+                  Class.of(Landshaper),
+                  Class.of(Tactician),
               ),
           awards =
               listOf(
-                  Administrator.c,
-                  Excentric.c,
-                  Highlander.c,
-                  Promoter.c,
-                  Thermalist.c,
+                  Class.of(Administrator),
+                  Class.of(Excentric),
+                  Class.of(Highlander),
+                  Class.of(Promoter),
+                  Class.of(Thermalist),
               ),
           extra = "FakeStuffBundle",
       )

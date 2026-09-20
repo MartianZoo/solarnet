@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.ColoniesExpansion
 import dev.martianzoo.generated.PreludeExpansion
 import dev.martianzoo.generated.PromoCardPack
@@ -15,10 +16,10 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       gameConfig(
           modules =
               listOf(
-                  VenusNextExpansion.c,
-                  PreludeExpansion.c,
-                  ColoniesExpansion.c,
-                  PromoCardPack.c,
+                  Class.of(VenusNextExpansion),
+                  Class.of(PreludeExpansion),
+                  Class.of(ColoniesExpansion),
+                  Class.of(PromoCardPack),
               ),
           extra = "FakeStuffBundle, Tr63SoloObjective, Callisto, Ganymede, Luna, Miranda",
           playerNames = listOf("Me"),

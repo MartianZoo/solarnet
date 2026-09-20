@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.generated.Builder
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.Contractor
 import dev.martianzoo.generated.Diversifier
 import dev.martianzoo.generated.Energizer
@@ -36,26 +37,31 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
   override val config =
       gameConfig(
           modules =
-              listOf(HellasMap.c, VenusNextExpansion.c, PreludeExpansion.c, Prelude2CardPack.c),
+              listOf(
+                  Class.of(HellasMap),
+                  Class.of(VenusNextExpansion),
+                  Class.of(PreludeExpansion),
+                  Class.of(Prelude2CardPack),
+              ),
           milestones =
               listOf(
-                  Energizer.c,
-                  Builder.c,
-                  Generalist.c,
-                  Diversifier.c,
-                  Terraformer.c,
-                  Sponsor.c,
+                  Class.of(Energizer),
+                  Class.of(Builder),
+                  Class.of(Generalist),
+                  Class.of(Diversifier),
+                  Class.of(Terraformer),
+                  Class.of(Sponsor),
               ),
           awards =
               listOf(
-                  Scientist.c,
-                  Landscaper.c,
-                  Founder.c,
-                  Contractor.c,
-                  Forecaster.c,
-                  Incorporator.c,
+                  Class.of(Scientist),
+                  Class.of(Landscaper),
+                  Class.of(Founder),
+                  Class.of(Contractor),
+                  Class.of(Forecaster),
+                  Class.of(Incorporator),
               ),
-          cardFronts = listOf(Merger.c),
+          cardFronts = listOf(Class.of(Merger)),
           extra = "FakeStuffBundle",
           playerNames = listOf("Pink", "Green"),
       )
@@ -108,7 +114,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Green lost 5 M€ because of Pink
       playPrelude(Recession).expect("PROD[-1 MC<Green>], -5 MC<Green>")
       // Pink played Merger
-      playPrelude(Merger.className) {
+      playPrelude(Merger.name) {
             // You drew Interplanetary Cinematics,Inventrix,Sagitta Frontier Services,Teractor
             // Pink played Sagitta Frontier Services
             playCorp(SagittaFrontierServices)

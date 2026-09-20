@@ -9,9 +9,14 @@ import dev.martianzoo.agenttestsupport.testAgents as retainedTestAgents
 import dev.martianzoo.engine.World
 import dev.martianzoo.generated.ActionCard
 import dev.martianzoo.generated.CardFront
+import dev.martianzoo.generated.Class as PetsClass
+import dev.martianzoo.generated.CorporationCard
 import dev.martianzoo.generated.GlobalParameter
+import dev.martianzoo.generated.Milestone
 import dev.martianzoo.generated.Owned
 import dev.martianzoo.generated.Player
+import dev.martianzoo.generated.PreludeCard
+import dev.martianzoo.generated.ProjectCard
 import dev.martianzoo.generated.ResourceCard
 import dev.martianzoo.generated.StandardAction
 import dev.martianzoo.generated.StandardProject
@@ -85,11 +90,15 @@ internal abstract class TfmTest {
   }
 
   protected fun <P : Player> TfmGameplay<P>.addCardResources(
-      card: ResourceCard<P, *, *>
-  ): TaskResult = addCardResources(card.expression.className)
+      card: ResourceCard<P, *, *>,
+      count: Int? = null,
+  ): TaskResult = addCardResources(card.expression.className, count)
 
-  protected fun <P : Player> TypedOperationBody<P>.addCardResources(card: ResourceCard<P, *, *>) {
-    addCardResources(card.expression.className)
+  protected fun <P : Player> TypedOperationBody<P>.addCardResources(
+      card: ResourceCard<P, *, *>,
+      count: Int? = null,
+  ) {
+    addCardResources(card.expression.className, count)
   }
 
   protected fun TfmGameplay<*>.wgt(choice: String): TaskResult = doTask("$choice! BY Admin")
@@ -115,17 +124,20 @@ internal abstract class TfmTest {
       body: TypedOperationBody<P>.() -> Unit = {},
   ): TaskResult = stdProject(project.toString(), body = typedBody(body))
 
+  protected fun TfmGameplay<*>.claimMilestone(milestone: PetsClass.Root<Milestone<*>>): TaskResult =
+      claimMilestone(milestone.name)
+
   protected fun <P : Player> TypedOperationBody<P>.doTask(component: Owned<P>) {
     doTask(component.toString())
   }
 
   protected fun <P : Player> TfmGameplay<P>.playPrelude(
-      card: CardFront<P, *>,
+      card: CardFront<P, PetsClass<PreludeCard<*, *>>>,
       body: TypedOperationBody<P>.() -> Unit = {},
   ): TaskResult = playPrelude(card.expression.className, typedBody(body))
 
   protected fun <P : Player> TfmGameplay<P>.playProject(
-      card: CardFront<P, *>,
+      card: CardFront<P, PetsClass<ProjectCard<*, *>>>,
       megacredits: Int = 0,
       steel: Int = 0,
       titanium: Int = 0,
@@ -140,7 +152,7 @@ internal abstract class TfmTest {
       )
 
   protected fun <P : Player> TypedOperationBody<P>.playProject(
-      card: CardFront<P, *>,
+      card: CardFront<P, PetsClass<ProjectCard<*, *>>>,
       megacredits: Int = 0,
       steel: Int = 0,
       titanium: Int = 0,
@@ -162,10 +174,22 @@ internal abstract class TfmTest {
       body: TypedOperationBody<P>.() -> Unit = {},
   ): TaskResult = cardAction1(card.expression.className, typedBody(body))
 
+  protected fun <P : Player> TfmGameplay<P>.cardAction1(
+      card: ActionCard<P, *>,
+      x: Int,
+      body: TypedOperationBody<P>.() -> Unit = {},
+  ): TaskResult = cardAction1(card.expression.className, x, typedBody(body))
+
   protected fun <P : Player> TfmGameplay<P>.cardAction2(
       card: ActionCard<P, *>,
       body: TypedOperationBody<P>.() -> Unit = {},
   ): TaskResult = cardAction2(card.expression.className, typedBody(body))
+
+  protected fun <P : Player> TfmGameplay<P>.cardAction2(
+      card: ActionCard<P, *>,
+      x: Int,
+      body: TypedOperationBody<P>.() -> Unit = {},
+  ): TaskResult = cardAction2(card.expression.className, x, typedBody(body))
 
   protected fun <P : Player> TypedOperationBody<P>.cardAction1(
       card: ActionCard<P, *>,
@@ -225,9 +249,15 @@ internal abstract class TfmTest {
   }
 
   protected fun <P : Player> TfmGameplay<P>.playCorp(
-      card: CardFront<P, *>,
+      card: CardFront<P, PetsClass<CorporationCard<*, *>>>,
       body: TfmGameplay<P>.() -> Unit,
   ): TaskResult = playCorp(card.expression.className, body)
+
+  protected fun <P : Player> TfmGameplay<P>.playCorp(
+      card: CardFront<P, PetsClass<CorporationCard<*, *>>>,
+      buyCards: Int,
+      body: TypedOperationBody<P>.() -> Unit = {},
+  ): TaskResult = playCorp(card.expression.className, buyCards, typedBody(body))
 
   private fun <P : Player> TfmGameplay<P>.typedBody(
       body: TypedOperationBody<P>.() -> Unit

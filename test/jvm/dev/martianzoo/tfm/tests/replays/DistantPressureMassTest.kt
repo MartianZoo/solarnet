@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.ColoniesExpansion
 import dev.martianzoo.generated.Ecologist
 import dev.martianzoo.generated.Electrician
@@ -35,30 +36,30 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       gameConfig(
           modules =
               listOf(
-                  HellasMap.c,
-                  VenusNextExpansion.c,
-                  PreludeExpansion.c,
-                  Prelude2CardPack.c,
-                  ColoniesExpansion.c,
-                  PromoCardPack.c,
+                  Class.of(HellasMap),
+                  Class.of(VenusNextExpansion),
+                  Class.of(PreludeExpansion),
+                  Class.of(Prelude2CardPack),
+                  Class.of(ColoniesExpansion),
+                  Class.of(PromoCardPack),
               ),
           milestones =
               listOf(
-                  Ecologist.c,
-                  Terraformer.c,
-                  Terran.c,
-                  Mayor.c,
-                  Merchant.c,
-                  Researcher.c,
+                  Class.of(Ecologist),
+                  Class.of(Terraformer),
+                  Class.of(Terran),
+                  Class.of(Mayor),
+                  Class.of(Merchant),
+                  Class.of(Researcher),
               ),
           awards =
               listOf(
-                  Electrician.c,
-                  Industrialist.c,
-                  Highlander.c,
-                  Investor.c,
-                  Scientist.c,
-                  Manufacturer.c,
+                  Class.of(Electrician),
+                  Class.of(Industrialist),
+                  Class.of(Highlander),
+                  Class.of(Investor),
+                  Class.of(Scientist),
+                  Class.of(Manufacturer),
               ),
           extra = "FakeStuffBundle, Ceres, Ganymede, Io, Miranda, Titan",
           playerNames = listOf("Keen", "Been"),

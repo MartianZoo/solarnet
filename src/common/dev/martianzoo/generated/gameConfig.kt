@@ -10,14 +10,15 @@ public fun gameConfig(
     modules: List<Class<Module>> = emptyList(),
     milestones: List<Class<Milestone<*>>> = emptyList(),
     awards: List<Class<Award>> = emptyList(),
+    colonyTiles: List<Class<ColonyTile>> = emptyList(),
     cardFronts: List<Class<CardFront<*, *>>> = emptyList(),
     extra: String = "",
     playerNames: List<String> = emptyList(),
 ): GameConfig {
   val generatedNames =
-      sequenceOf(modules, milestones, awards, cardFronts)
+      sequenceOf(modules, milestones, awards, colonyTiles, cardFronts)
           .flatMap { classes -> classes.asSequence() }
-          .joinToString(separator = ",") { it.className.toString() }
+          .joinToString(separator = ",") { it.name.toString() }
   return GameConfig(
       listOf(generatedNames, extra).filter(String::isNotBlank).joinToString("\n"),
       *playerNames.toTypedArray(),

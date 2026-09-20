@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.engine.*
 import dev.martianzoo.generated.Briber
 import dev.martianzoo.generated.Builder
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.Engineer
 import dev.martianzoo.generated.Hydrologist
 import dev.martianzoo.generated.Legend
@@ -32,9 +33,9 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
         gameConfig(
             milestones =
                 listOf(
-                    Briber.c,
-                    Builder.c,
-                    Engineer.c,
+                    Class.of(Briber),
+                    Class.of(Builder),
+                    Class.of(Engineer),
                 ),
             playerNames = listOf("Player1", "Player2"),
         )
@@ -51,9 +52,9 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
         gameConfig(
             milestones =
                 listOf(
-                    Briber.c,
-                    Builder.c,
-                    Engineer.c,
+                    Class.of(Briber),
+                    Class.of(Builder),
+                    Class.of(Engineer),
                 ),
             playerNames = listOf("Player1", "Player2"),
         )
@@ -71,12 +72,12 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   internal fun `Philantropist counts victory point gains but not Vitor's reference`() {
     newGame(
         gameConfig(
-            modules = listOf(PreludeExpansion.c),
+            modules = listOf(Class.of(PreludeExpansion)),
             milestones =
                 listOf(
-                    Philantropist.c,
-                    Builder.c,
-                    Engineer.c,
+                    Class.of(Philantropist),
+                    Class.of(Builder),
+                    Class.of(Engineer),
                 ),
             playerNames = listOf("Player1", "Player2"),
         )
@@ -97,9 +98,9 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
             gameConfig(
                 milestones =
                     listOf(
-                        Merchant.c,
-                        Builder.c,
-                        Engineer.c,
+                        Class.of(Merchant),
+                        Class.of(Builder),
+                        Class.of(Engineer),
                     ),
                 playerNames = listOf("Player1", "Player2"),
             )
@@ -119,9 +120,9 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
         gameConfig(
             milestones =
                 listOf(
-                    Hydrologist.c,
-                    Builder.c,
-                    Engineer.c,
+                    Class.of(Hydrologist),
+                    Class.of(Builder),
+                    Class.of(Engineer),
                 ),
             playerNames = listOf("Player1", "Player2"),
         )
@@ -143,9 +144,9 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
         gameConfig(
             milestones =
                 listOf(
-                    Hydrologist.c,
-                    Builder.c,
-                    Engineer.c,
+                    Class.of(Hydrologist),
+                    Class.of(Builder),
+                    Class.of(Engineer),
                 ),
             playerNames = listOf("Player1", "Player2"),
         )
@@ -169,9 +170,9 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
             gameConfig(
                 milestones =
                     listOf(
-                        Builder.c,
-                        Legend.c,
-                        Merchant.c,
+                        Class.of(Builder),
+                        Class.of(Legend),
+                        Class.of(Merchant),
                     ),
                 playerNames = listOf("Player1", "Player2"),
             )
@@ -187,7 +188,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   private fun claimProducerOneProductionShortOfThreshold(milestone: String, modules: String) {
     newGame(
         gameConfig(
-            milestones = listOf(Builder.c, Engineer.c),
+            milestones = listOf(Class.of(Builder), Class.of(Engineer)),
             extra = "$milestone$modules",
             playerNames = listOf("Player1", "Player2"),
         )
@@ -219,9 +220,9 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
           gameConfig(
               milestones =
                   listOf(
-                      Producer.c,
-                      Builder.c,
-                      Engineer.c,
+                      Class.of(Producer),
+                      Class.of(Builder),
+                      Class.of(Engineer),
                   ),
               extra = "-CorporateEraExpansion",
               playerNames = listOf("Player1", "Player2"),
@@ -233,9 +234,9 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
           gameConfig(
               milestones =
                   listOf(
-                      Producer22.c,
-                      Builder.c,
-                      Engineer.c,
+                      Class.of(Producer22),
+                      Class.of(Builder),
+                      Class.of(Engineer),
                   ),
               playerNames = listOf("Player1", "Player2"),
           )

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.CorporateEraExpansion
 import dev.martianzoo.generated.ElysiumMap
 import dev.martianzoo.generated.QuickStartVariant
@@ -46,7 +47,7 @@ internal class QuickStartVariantTest : CardTest() {
   internal fun `Quick Start can be explicitly disabled or combined with Corporate Era`() {
     newGame(
         gameConfig(
-            modules = listOf(CorporateEraExpansion.c, QuickStartVariant.c),
+            modules = listOf(Class.of(CorporateEraExpansion), Class.of(QuickStartVariant)),
             playerNames = listOf("Player1", "Player2"),
         )
     )
@@ -80,7 +81,7 @@ internal class QuickStartVariantTest : CardTest() {
     val quickStart =
         newGame(
             gameConfig(
-                modules = listOf(ElysiumMap.c),
+                modules = listOf(Class.of(ElysiumMap)),
                 extra = "-CorporateEraExpansion",
                 playerNames = listOf("Player1", "Player2"),
             )
@@ -100,7 +101,10 @@ internal class QuickStartVariantTest : CardTest() {
 
     val corporateEra =
         newGame(
-            gameConfig(modules = listOf(ElysiumMap.c), playerNames = listOf("Player1", "Player2"))
+            gameConfig(
+                modules = listOf(Class.of(ElysiumMap)),
+                playerNames = listOf("Player1", "Player2"),
+            )
         )
     corporateEra.classTable.isInhabited(cn("Generalist")) shouldBe true
     corporateEra.classTable.isInhabited(cn("Generalist2")) shouldBe false

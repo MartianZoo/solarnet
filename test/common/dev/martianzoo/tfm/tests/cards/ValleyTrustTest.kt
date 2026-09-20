@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.ValleyTrust
 import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.api.Exceptions.RequirementException
@@ -15,7 +16,7 @@ internal class ValleyTrustTest : CardTest() {
   @Test
   internal fun `Resolves Valley Trust's starting Prelude 1 card`() {
     newGame(PreludeExpansion, retainedStartingProjects = 5)
-    p1.playCorp(ValleyTrust.className, 5).expect("22 MC")
+    p1.playCorp(ValleyTrust.name, 5).expect("22 MC")
 
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(MartianIndustries) }
@@ -47,7 +48,7 @@ internal class ValleyTrustTest : CardTest() {
   @Test
   internal fun `Must perform required action before another standard action`() {
     newGame(PreludeExpansion, retainedStartingProjects = 5)
-    p1.playCorp(ValleyTrust.className, 5)
+    p1.playCorp(ValleyTrust.name, 5)
     admin.phase("Action")
 
     shouldThrow<RequirementException> { p1.stdProject("PowerPlantProject") }
@@ -62,7 +63,7 @@ internal class ValleyTrustTest : CardTest() {
     val game =
         newGame(
             gameConfig(
-                cardFronts = listOf(ValleyTrust.c),
+                cardFronts = listOf(Class.of(ValleyTrust)),
                 extra = preludeConfiguration,
                 playerNames = listOf("Player1", "Player2"),
             ),
@@ -72,7 +73,7 @@ internal class ValleyTrustTest : CardTest() {
     game.classTable.isInhabited(selectedPrelude) shouldBe true
     game.classTable.isInhabited(otherPrelude) shouldBe otherPreludeIsAvailable
 
-    p1.playCorp(ValleyTrust.className, 5)
+    p1.playCorp(ValleyTrust.name, 5)
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(selectedPrelude) }
   }

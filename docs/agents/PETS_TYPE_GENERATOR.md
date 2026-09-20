@@ -25,7 +25,9 @@ goals are kept separate for navigation even though they are smaller. These three
 catalogs and contain only concrete classes. Their abstract vocabulary and the remaining classes are
 in the types file.
 
-Pets abstract classes become sealed interfaces and concrete classes become final classes. Resolved
+Pets abstract classes become open interfaces and concrete classes become final classes. The open
+interfaces let tests supply premise-local shadows such as a `Kevin : Player`; generated canonical
+classes remain final. Resolved
 dependency linkages collapse linked dependency paths onto the same covariant Kotlin type variable;
 independent dependency roots remain independent. When an inherited dependency is narrowed to a
 class literal for a concrete class, that resolved type is written directly into the supertypes and
@@ -36,15 +38,21 @@ derive an acronym from its class name (`MA` for `MarsArea`). A unique
 abbreviation remains unsuffixed, while independent parameters with the same abbreviation receive
 zero-based suffixes (`T0`, `T1`).
 The root generated `Component` extends `HasExpression` and exposes `val expression: Expression`.
-Every concrete companion supplies `className`, a typed `c` class literal, an `invoke` factory, and a
-`fromExpression` adapter. Calling a generated class such as `AerialMappers<Player>()` produces a
-typed component occurrence; `AerialMappers.c` identifies the unapplied card class without inventing
-an owner. `fromExpression` checks the class root and wraps an already prepared expression; it exists
-for trusted runtime boundaries. The generated `generatedPetsComponent` factory selects that adapter
-by concrete class name. The companion itself is not a Pets component.
-Every generated `Class<C>` is also a `HasClassName`; its instance `className` is the represented
-class's name rather than `Class`. Typed class-literal dependencies therefore expose their subject
-without inspecting the expression argument.
+Every generated companion is a typed `Class.Root<C>` descriptor and exposes the represented
+class's `name`. `Class.of(AerialMappers)` produces the one-level class literal
+`Class<AerialMappers<*>>` without inventing an owner. Calling a concrete generated class such as
+`AerialMappers<Player>()` instead produces a typed component occurrence. `Class` deliberately has no
+`invoke` factory: callers cannot construct specialized Kotlin forms that Pets class literals do not
+distinguish. A root descriptor is not itself a component and does not implement `HasExpression`;
+every value inhabiting a generated component type does. The shared expression builder also rejects
+a specialized `Class<Foo<Bar>>` if one is nested inside another generated occurrence. Each concrete
+companion also supplies a
+`fromExpression` adapter, which checks the class root and wraps an already prepared expression for
+trusted runtime boundaries. The generated
+`generatedPetsComponent` factory selects that adapter by concrete class name.
+Every generated `Class<C>` is also a `HasClassName`; its `name` and inherited `className` are the
+represented class's name rather than `Class`. Typed class-literal dependencies therefore expose
+their subject without inspecting the expression argument.
 Concrete payload constructors are internal. Each concrete class provides an `invoke` factory which
 uses reified Kotlin parameters and `typeOf` to build the corresponding Pets AST directly. Thus
 `CityTile<Player, Tharsis_4_4>()` has expression `CityTile<Player, Tharsis_4_4>` without accepting
@@ -80,19 +88,21 @@ The generator deliberately omits invariants, defaults, executable effects, and c
 multiplatform `generated` module treats `:codegen:generatePetsTypes` as its `commonMain` source
 producer, so ordinary JVM and JavaScript compilation generates and compiles all four files. Its
 small authored support source lives beside that generated vocabulary. The `gameConfig` factory
-accepts separately typed lists of `Class<Module>`, `Class<Milestone<*>>`, `Class<Award>`, and
-`Class<CardFront<*, *>>`; its `extra` string is reserved for exclusions, noncanonical test classes,
-and selections outside those four roles. Functional tests use this boundary without changing the
-untyped `GameConfig` data model.
+accepts separately typed lists of `Class<Module>`, `Class<Milestone<*>>`, `Class<Award>`,
+`Class<ColonyTile>`, and `Class<CardFront<*, *>>`; its `extra` string is reserved for exclusions,
+noncanonical test classes, and selections outside those roles. Functional tests use this boundary
+without changing the untyped `GameConfig` data model.
 
 Generated-value test adapters are additive: existing `ClassName` overloads remain. They are
 extensions on `TfmGameplay<P>` so Kotlin carries the same generated owner into card occurrences and
-operation bodies without a parallel gameplay wrapper. Hand-tracking operations instead accept
-`Class<CardFront<*, *>>`, because drawing or discarding a card does not create an owned occurrence.
-The broader front type is necessary because the current Pets hierarchy does not relate a card
-front to its project, corporation, or prelude back. Concrete generated player types are deliberately
-absent, so a generated owner parameter cannot name a premise-local runtime Player such as `Player1`.
-Replay code can use the abstract generated `Player` only where an adapter consumes the card's class
-root; owner-bearing selections such as `Trade<Player1, Ceres>` remain context-relative strings.
-`GeneratedPetsTypesUsageTest` is the smaller executable example of construction, properties, and
-compile-time shapes.
+operation bodies without a parallel gameplay wrapper. Full-game replay seats use the abstract
+generated `Player` as that static owner while retaining their premise-local runtime Player as the
+actual Actor. Card-play adapters distinguish corporation, Prelude, and project backs, and
+identity-only helpers such as card tracking and milestone selection accept typed root descriptors
+directly. They use `CardName.name` and do not force tests to manufacture a Pets `Class` component.
+Configuration still accepts actual class literals through `Class.of(CardName)`. Concrete generated
+player types are deliberately absent. Tests may hand-write a shadow implementing the generated
+`Player` interface when an exact owner type is useful; otherwise player-scoped APIs carry the
+abstract generated `Player`. Owner-bearing selections such as `Trade<Player1, Ceres>` may therefore
+remain context-relative strings. `GeneratedPetsTypesUsageTest` is the smaller executable example of
+construction, properties, and compile-time shapes.

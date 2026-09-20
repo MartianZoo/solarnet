@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.ColoniesExpansion
 import dev.martianzoo.generated.ElysiumMap
 import dev.martianzoo.generated.PreludeExpansion
@@ -18,11 +19,11 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
       gameConfig(
           modules =
               listOf(
-                  ElysiumMap.c,
-                  VenusNextExpansion.c,
-                  PreludeExpansion.c,
-                  ColoniesExpansion.c,
-                  PromoCardPack.c,
+                  Class.of(ElysiumMap),
+                  Class.of(VenusNextExpansion),
+                  Class.of(PreludeExpansion),
+                  Class.of(ColoniesExpansion),
+                  Class.of(PromoCardPack),
               ),
           extra = "Tr63SoloObjective, Ceres, Enceladus, Luna, Triton",
           playerNames = listOf("Me"),

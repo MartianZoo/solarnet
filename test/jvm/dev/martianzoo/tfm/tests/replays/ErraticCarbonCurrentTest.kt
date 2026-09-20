@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.Collector
 import dev.martianzoo.generated.Ecologist
 import dev.martianzoo.generated.Excentric
@@ -30,24 +31,30 @@ internal class ErraticCarbonCurrentTest :
     CardTrackingFullGameTest(requireEveryProjectCardChangeNamed = true) {
   override val config =
       gameConfig(
-          modules = listOf(HellasMap.c, VenusNextExpansion.c, PreludeExpansion.c, PromoCardPack.c),
+          modules =
+              listOf(
+                  Class.of(HellasMap),
+                  Class.of(VenusNextExpansion),
+                  Class.of(PreludeExpansion),
+                  Class.of(PromoCardPack),
+              ),
           milestones =
               listOf(
-                  RimSettler.c,
-                  Ecologist.c,
-                  Producer.c,
-                  Fundraiser.c,
-                  Philantropist.c,
-                  Terraformer.c,
+                  Class.of(RimSettler),
+                  Class.of(Ecologist),
+                  Class.of(Producer),
+                  Class.of(Fundraiser),
+                  Class.of(Philantropist),
+                  Class.of(Terraformer),
               ),
           awards =
               listOf(
-                  Traveller.c,
-                  Collector.c,
-                  Excentric.c,
-                  Investor.c,
-                  Suburbian.c,
-                  Magnate.c,
+                  Class.of(Traveller),
+                  Class.of(Collector),
+                  Class.of(Excentric),
+                  Class.of(Investor),
+                  Class.of(Suburbian),
+                  Class.of(Magnate),
               ),
           extra = "FakeStuffBundle",
           playerNames = listOf("Blue", "Pink"),

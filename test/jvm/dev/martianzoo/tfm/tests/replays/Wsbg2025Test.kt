@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.ElysiumMap
 import dev.martianzoo.generated.PreludeExpansion
 import dev.martianzoo.generated.gameConfig
@@ -24,7 +25,7 @@ import kotlin.test.assertEquals
 internal class Wsbg2025Test : AbstractFullGameTest() {
   override val config =
       gameConfig(
-          modules = listOf(ElysiumMap.c, PreludeExpansion.c),
+          modules = listOf(Class.of(ElysiumMap), Class.of(PreludeExpansion)),
           extra = "FakeStuffBundle",
           playerNames = listOf("Stanley", "Jacopo", "Jon", "Charlie"),
       )

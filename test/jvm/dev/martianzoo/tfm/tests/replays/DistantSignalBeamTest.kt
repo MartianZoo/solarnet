@@ -1,30 +1,9 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.generated.Aridor
-import dev.martianzoo.generated.Banker
-import dev.martianzoo.generated.Collector
-import dev.martianzoo.generated.ColoniesExpansion
-import dev.martianzoo.generated.Cultivator
-import dev.martianzoo.generated.Diversifier
-import dev.martianzoo.generated.Forecaster
-import dev.martianzoo.generated.Founder
-import dev.martianzoo.generated.Fundraiser
-import dev.martianzoo.generated.HellasMap
-import dev.martianzoo.generated.Manufacturer
-import dev.martianzoo.generated.Merchant
-import dev.martianzoo.generated.Prelude2CardPack
-import dev.martianzoo.generated.PreludeExpansion
-import dev.martianzoo.generated.Producer
-import dev.martianzoo.generated.PromoCardPack
-import dev.martianzoo.generated.Terraformer
-import dev.martianzoo.generated.Trader
-import dev.martianzoo.generated.VenusNextExpansion
-import dev.martianzoo.generated.gameConfig
+import dev.martianzoo.generated.*
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 // Complete database replay through the final retained save immediately before Purple resigned:
@@ -37,33 +16,40 @@ internal class DistantSignalBeamTest :
       gameConfig(
           modules =
               listOf(
-                  HellasMap.c,
-                  VenusNextExpansion.c,
-                  PreludeExpansion.c,
-                  Prelude2CardPack.c,
-                  ColoniesExpansion.c,
-                  PromoCardPack.c,
+                  Class.of(HellasMap),
+                  Class.of(VenusNextExpansion),
+                  Class.of(PreludeExpansion),
+                  Class.of(Prelude2CardPack),
+                  Class.of(ColoniesExpansion),
+                  Class.of(PromoCardPack),
               ),
           milestones =
               listOf(
-                  Diversifier.c,
-                  Merchant.c,
-                  Fundraiser.c,
-                  Terraformer.c,
-                  Producer.c,
-                  Trader.c,
+                  Class.of(Diversifier),
+                  Class.of(Merchant),
+                  Class.of(Fundraiser),
+                  Class.of(Terraformer),
+                  Class.of(Producer),
+                  Class.of(Trader),
               ),
           awards =
               listOf(
-                  Manufacturer.c,
-                  Cultivator.c,
-                  Banker.c,
-                  Collector.c,
-                  Founder.c,
-                  Forecaster.c,
+                  Class.of(Manufacturer),
+                  Class.of(Cultivator),
+                  Class.of(Banker),
+                  Class.of(Collector),
+                  Class.of(Founder),
+                  Class.of(Forecaster),
               ),
-          cardFronts = listOf(Aridor.c),
-          extra = "Ceres, Enceladus, Europa, Miranda, Triton",
+          colonyTiles =
+              listOf(
+                  Class.of(Ceres),
+                  Class.of(Enceladus),
+                  Class.of(Europa),
+                  Class.of(Miranda),
+                  Class.of(Triton),
+              ),
+          cardFronts = listOf(Class.of(Aridor)),
           playerNames = listOf("Pink", "Purple"),
       )
 
@@ -87,13 +73,17 @@ internal class DistantSignalBeamTest :
     // and one unsupported corporation; Purple's were Aridor, Ecoline, and Point Luna. Prelude
     // offers were Polar Industries, Atmospheric Enhancers, Loan, and Power Generation for Pink;
     // Biosphere Support, Focused Organization, Project Eden, and Allied Bank for Purple.
-    pink.playCorp(MorningStarInc) { buyCards(7) }
-    pink.discardUnselectedProjectCards(Insects, EcologyResearch, SecurityFleet)
+    pink.playCorp(MorningStarInc()) { buyCards(7) }
+    pink.discardUnselectedProjectCards(
+        Insects,
+        EcologyResearch,
+        SecurityFleet,
+    )
 
-    purple.playCorp(Aridor.className) { buyCards(10) }
+    purple.playCorp(Aridor()) { buyCards(10) }
 
     pink.turn {
-      playPrelude(AtmosphericEnhancers) {
+      playPrelude(AtmosphericEnhancers()) {
         // The filtered draw revealed and rejected these sixteen cards before finding two cards with
         // floater icons. Save 2 preserves the exact deck exits.
         discardProjectCardsFromDeck(
@@ -112,25 +102,30 @@ internal class DistantSignalBeamTest :
             Heather,
             EquatorialMagnetizer,
             TollStation,
-            SelfReplicatingRobots,
         )
+        // This unsupported card has no generated canonical type.
+        discardProjectCardsFromDeck(cn("SelfReplicatingRobots"))
         doTask("2 VenusStep")
       }
-      playPrelude(PolarIndustries) {
+      playPrelude(PolarIndustries()) {
         placeTile(5, 6)
       }
     }
 
     purple.turn {
-      playPrelude(ProjectEden) {
+      playPrelude(ProjectEden()) {
         // All three placement choices are pending together, so name the sourced tile types.
         doTask("OceanTile<Hellas_4_6>")
         doTask("GreeneryTile<Hellas_4_5>")
         doTask("CityTile<Hellas_4_4>")
       }
-      discard(PowerSupplyConsortium, AdaptationTechnology, BreathingFilters)
+      discard(
+          PowerSupplyConsortium,
+          AdaptationTechnology,
+          BreathingFilters,
+      )
       // Database save 4: Project Eden introduced Purple's first city and plant tags.
-      playPrelude(AlliedBank)
+      playPrelude(AlliedBank())
     }
     // Database save 5: Allied Bank introduced Purple's first Earth tag.
 
@@ -149,22 +144,22 @@ internal class DistantSignalBeamTest :
             CrashSiteCleanup,
         )
       }
-      playProject(TitanShuttles, 23)
+      playProject(TitanShuttles(), 23)
     }
     purple.turn { stdAction("DoRequiredActionsAction") { doTask("Luna") } }
 
-    pink.turn { cardAction1(TitanShuttles) { addCardResources(TitanShuttles, 2) } }
-    purple.turn { playProject(PeroxidePower, 1, steel = 3) }
+    pink.turn { cardAction1(TitanShuttles()) { addCardResources(TitanShuttles(), 2) } }
+    purple.turn { playProject(PeroxidePower(), 1, steel = 3) }
     // Database save 15: Peroxide Power introduced Purple's first power and building tags.
-    pink.turn { playProject(SulphurEatingBacteria, 6) }
-    purple.turn { playProject(Casinos, 5) }
-    pink.turn { cardAction1(SulphurEatingBacteria) }
-    purple.turn { playProject(Tardigrades, 4) }
+    pink.turn { playProject(SulphurEatingBacteria(), 6) }
+    purple.turn { playProject(Casinos(), 5) }
+    pink.turn { cardAction1(SulphurEatingBacteria()) }
+    purple.turn { playProject(Tardigrades(), 4) }
     // Database save 27: Tardigrades introduced Purple's first microbe tag.
     pink.pass()
     purple.turn {
-      cardAction1(Tardigrades)
-      playProject(RotatorImpacts, 6)
+      cardAction1(Tardigrades())
+      playProject(RotatorImpacts(), 6)
       // Database save 33: Rotator Impacts introduced Purple's first space tag.
       pass()
     }
@@ -175,7 +170,11 @@ internal class DistantSignalBeamTest :
     // The retained draft saves prove that both players saw all eight cards. Solarnet models each
     // recovered post-draft four-card set as its eventual owner's ordinary Research offer.
     pink.buyCards(1)
-    pink.discardUnselectedProjectCards(GeothermalPower, PhobosSpaceHaven, DirectedHeatUsage)
+    pink.discardUnselectedProjectCards(
+        GeothermalPower,
+        PhobosSpaceHaven,
+        DirectedHeatUsage,
+    )
     purple.buyCards(3)
     purple.discardUnselectedProjectCards(SoilFactory)
 
@@ -187,32 +186,32 @@ internal class DistantSignalBeamTest :
     assertSidebar(gen = 2, temp = -30, oxygen = 1, oceans = 3, venus = 4)
     checkHandSizes()
 
-    purple.turn { claimMilestone(cn("Fundraiser")) }
+    purple.turn { claimMilestone(Fundraiser) }
     pink.turn {
-      cardAction2(TitanShuttles, 2)
-      playProject(LagrangeObservatory, 3, titanium = 2)
+      cardAction2(TitanShuttles(), 2)
+      playProject(LagrangeObservatory(), 3, titanium = 2)
     }
     purple.turn {
-      playProject(BactoviralResearch, 10) {
-        addCardResources(Tardigrades)
+      playProject(BactoviralResearch(), 10) {
+        addCardResources(Tardigrades())
       }
       // Database save 49: Bactoviral Research introduced Purple's first science tag.
-      claimMilestone(cn("Diversifier"))
+      claimMilestone(Diversifier)
     }
     pink.turn {
-      playProject(HousePrinting, 10)
-      playProject(StaticHarvesting, 5)
+      playProject(HousePrinting(), 10)
+      playProject(StaticHarvesting(), 5)
     }
     purple.turn {
-      cardAction1(Tardigrades)
-      playProject(LocalShading, 4)
+      cardAction1(Tardigrades())
+      playProject(LocalShading(), 4)
     }
     // Database save 56: Local Shading introduced Purple's first Venus tag.
     pink.turn {
-      cardAction1(SulphurEatingBacteria)
-      playProject(MicroMills, 3)
+      cardAction1(SulphurEatingBacteria())
+      playProject(MicroMills(), 3)
     }
-    purple.turn { cardAction1(LocalShading) }
+    purple.turn { cardAction1(LocalShading()) }
     pink.pass()
     purple.pass()
     purple.wgt("OxygenStep")
@@ -223,9 +222,17 @@ internal class DistantSignalBeamTest :
     // Electro Catapult, Underground City, and Shuttles; Purple's was Red Spot Observatory, Mining
     // Colony, Outdoor Sports, and Soil Enrichment.
     pink.buyCards(1)
-    pink.discardUnselectedProjectCards(ElectroCatapult, UndergroundCity, Shuttles)
+    pink.discardUnselectedProjectCards(
+        ElectroCatapult,
+        UndergroundCity,
+        Shuttles,
+    )
     purple.buyCards(1)
-    purple.discardUnselectedProjectCards(RedSpotObservatory, OutdoorSports, SoilEnrichment)
+    purple.discardUnselectedProjectCards(
+        RedSpotObservatory,
+        OutdoorSports,
+        SoilEnrichment,
+    )
 
     // Database save 74: immediately after both Research purchases.
     pink.assertResources(m = 21, s = 1, t = 0, p = 0, e = 1, h = 5)
@@ -234,10 +241,10 @@ internal class DistantSignalBeamTest :
     purple.assertProduction(m = 16, s = 0, t = 0, p = 0, e = 1, h = 0)
     checkHandSizes()
 
-    pink.turn { cardAction1(TitanShuttles) { addCardResources(TitanShuttles, 2) } }
+    pink.turn { cardAction1(TitanShuttles()) { addCardResources(TitanShuttles(), 2) } }
     purple.turn {
-      playProject(InterplanetaryTrade, 27).expect("PROD[9 MC]")
-      claimMilestone(cn("Producer"))
+      playProject(InterplanetaryTrade(), 27).expect("PROD[9 MC]")
+      claimMilestone(Producer)
     }
 
     // Save 79 is the last retained state. User recollection supplies the subsequent resignation;
@@ -246,19 +253,18 @@ internal class DistantSignalBeamTest :
     pink.assertProduction(m = 0, s = 1, t = 0, p = 0, e = 1, h = 3)
     pink.assertCounts(23 to "TerraformRating")
     pink.assertCardResources(2 to TitanShuttles, 2 to SulphurEatingBacteria)
-    pink.cardsHand shouldBe
-        setOf(
-            Pets,
-            CloudSeeding,
-            IoSulphurResearch,
-            GhgImportFromVenus,
-            AtmoCollectors,
-            Cartel,
-            VenusSoils,
-            StratosphericExpedition,
-            HeatTrappers,
-            TerraformingContract,
-        )
+    pink.assertCardsHand(
+        Pets,
+        CloudSeeding,
+        IoSulphurResearch,
+        GhgImportFromVenus,
+        AtmoCollectors,
+        Cartel,
+        VenusSoils,
+        StratosphericExpedition,
+        HeatTrappers,
+        TerraformingContract,
+    )
 
     purple.assertResources(m = 0, s = 0, t = 0, p = 1, e = 1, h = 1)
     purple.assertProduction(m = 25, s = 0, t = 0, p = 0, e = 1, h = 0)
@@ -269,8 +275,13 @@ internal class DistantSignalBeamTest :
         1 to "Producer",
     )
     purple.assertCardResources(3 to Tardigrades, 1 to LocalShading)
-    purple.cardsHand shouldBe
-        setOf(NeutralizerFactory, FusionPower, Omnicourt, SolarReflectors, MiningColony)
+    purple.assertCardsHand(
+        NeutralizerFactory,
+        FusionPower,
+        Omnicourt,
+        SolarReflectors,
+        MiningColony,
+    )
 
     assertSidebar(gen = 3, temp = -30, oxygen = 2, oceans = 3, venus = 4)
     admin.assertCounts(5 to "Tile")
@@ -279,56 +290,58 @@ internal class DistantSignalBeamTest :
   }
 
   override val projectCardArrivalOrder =
-      mapOf(
-          cn("Pink") to
-              listOf(
-                  HousePrinting,
-                  Insects,
-                  CloudSeeding,
-                  MicroMills,
-                  Pets,
-                  LagrangeObservatory,
-                  GhgImportFromVenus,
-                  EcologyResearch,
-                  SecurityFleet,
-                  IoSulphurResearch,
-                  TitanShuttles,
-                  AtmoCollectors,
-                  Cartel,
-                  VenusSoils,
-                  SulphurEatingBacteria,
-                  StratosphericExpedition,
-                  HeatTrappers,
-                  GeothermalPower,
-                  PhobosSpaceHaven,
-                  DirectedHeatUsage,
-                  StaticHarvesting,
-                  TerraformingContract,
-                  ElectroCatapult,
-                  UndergroundCity,
-                  Shuttles,
-              ),
-          cn("Purple") to
-              listOf(
-                  RotatorImpacts,
-                  PowerSupplyConsortium,
-                  Tardigrades,
-                  InterplanetaryTrade,
-                  Casinos,
-                  AdaptationTechnology,
-                  FusionPower,
-                  BreathingFilters,
-                  PeroxidePower,
-                  NeutralizerFactory,
-                  Omnicourt,
-                  BactoviralResearch,
-                  SolarReflectors,
-                  SoilFactory,
-                  LocalShading,
-                  MiningColony,
-                  RedSpotObservatory,
-                  OutdoorSports,
-                  SoilEnrichment,
-              ),
+      generatedProjectCardArrivalOrder(
+          mapOf(
+              cn("Pink") to
+                  listOf(
+                      HousePrinting,
+                      Insects,
+                      CloudSeeding,
+                      MicroMills,
+                      Pets,
+                      LagrangeObservatory,
+                      GhgImportFromVenus,
+                      EcologyResearch,
+                      SecurityFleet,
+                      IoSulphurResearch,
+                      TitanShuttles,
+                      AtmoCollectors,
+                      Cartel,
+                      VenusSoils,
+                      SulphurEatingBacteria,
+                      StratosphericExpedition,
+                      HeatTrappers,
+                      GeothermalPower,
+                      PhobosSpaceHaven,
+                      DirectedHeatUsage,
+                      StaticHarvesting,
+                      TerraformingContract,
+                      ElectroCatapult,
+                      UndergroundCity,
+                      Shuttles,
+                  ),
+              cn("Purple") to
+                  listOf(
+                      RotatorImpacts,
+                      PowerSupplyConsortium,
+                      Tardigrades,
+                      InterplanetaryTrade,
+                      Casinos,
+                      AdaptationTechnology,
+                      FusionPower,
+                      BreathingFilters,
+                      PeroxidePower,
+                      NeutralizerFactory,
+                      Omnicourt,
+                      BactoviralResearch,
+                      SolarReflectors,
+                      SoilFactory,
+                      LocalShading,
+                      MiningColony,
+                      RedSpotObservatory,
+                      OutdoorSports,
+                      SoilEnrichment,
+                  ),
+          )
       )
 }

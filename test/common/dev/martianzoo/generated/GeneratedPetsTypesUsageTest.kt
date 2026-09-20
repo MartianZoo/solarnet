@@ -13,11 +13,12 @@ internal class GeneratedPetsTypesUsageTest {
   fun gameConfigsAreBuiltFromRichClasses() {
     val config =
         gameConfig(
-            modules = listOf(HellasMap.c, PreludeExpansion.c),
-            milestones = listOf(Gardener.c),
-            awards = listOf(Banker.c),
-            cardFronts = listOf(AerialMappers.c),
-            extra = "-WorldGovernmentRule\nCeres",
+            modules = listOf(Class.of(HellasMap), Class.of(PreludeExpansion)),
+            milestones = listOf(Class.of(Gardener)),
+            awards = listOf(Class.of(Banker)),
+            colonyTiles = listOf(Class.of(Ceres)),
+            cardFronts = listOf(Class.of(AerialMappers)),
+            extra = "-WorldGovernmentRule",
             playerNames = listOf("Blue", "Yellow"),
         )
 
@@ -51,6 +52,11 @@ internal class GeneratedPetsTypesUsageTest {
     assertExpression("GreeneryTile<Player, Tharsis_4_4>", greenery)
     assertExpression("GreeneryTile<Player, Tharsis_4_4>", acceptOwnedLandTile(greenery))
 
+    val plant: Plant<Kevin> = Plant<Kevin>()
+    assertExpression("Plant<Kevin>", plant)
+    assertExpression("Kevin", Kevin())
+    assertExpression("Class<Kevin>", Class.of(Kevin))
+
     assertExpression("Terraformer35<Player>", Terraformer35<Player>())
     val aerialMappers: ActionCard<Player, *> = AerialMappers()
     assertExpression("AerialMappers<Player>", aerialMappers)
@@ -66,9 +72,14 @@ internal class GeneratedPetsTypesUsageTest {
       AerialMappers.fromExpression(SoloOpponent().expression)
     }
     acceptPlayerActionCard(aerialMappers)
-    assertExpression("Class<AerialMappers>", AerialMappers.c)
-    assertEquals("AerialMappers", AerialMappers.className.toString())
-    assertEquals(AerialMappers.className, AerialMappers.c.className)
+    val classClass: Class<Class<*>> = Class.of(Class)
+    assertExpression("Class<Class>", classClass)
+    val projectCardClass: Class<ProjectCard<*, *>> = Class.of(ProjectCard)
+    assertExpression("Class<ProjectCard>", projectCardClass)
+    val aerialMappersClass: Class<AerialMappers<*>> = Class.of(AerialMappers)
+    assertExpression("Class<AerialMappers>", aerialMappersClass)
+    assertEquals("AerialMappers", AerialMappers.name.toString())
+    assertEquals(AerialMappers.name, aerialMappersClass.className)
     assertExpression(
         "Cathedral<Player, CityTile<Player, Tharsis_4_4>>",
         Cathedral<Player, CityTile<Player, Tharsis_4_4>>(),
@@ -112,6 +123,16 @@ internal class GeneratedPetsTypesUsageTest {
   private fun acceptCallistoSelection(
       selection: ColonyTileSelection<Class<Callisto>>
   ): HasExpression = selection
+
+  private class Kevin private constructor(override val expression: Expression) : Player {
+    override fun toString(): String = expression.toString()
+
+    companion object : Class.Root<Kevin> {
+      override val name = cn("Kevin")
+
+      operator fun invoke(): Kevin = Kevin(name.of())
+    }
+  }
 
   private fun assertExpression(expected: String, actual: HasExpression) {
     assertEquals(Parsing.parse<Expression>(expected), actual.expression)

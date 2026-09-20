@@ -6,12 +6,15 @@ import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.engine.recording
+import dev.martianzoo.generated.Class as PetsClass
+import dev.martianzoo.generated.Player as GeneratedPlayer
+import dev.martianzoo.generated.ResourceCard
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.data.Player as RuntimePlayer
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -24,9 +27,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(ReplayExportExtension::class)
 internal abstract class AbstractFullGameTest : TfmTest() {
-  protected lateinit var p1: TfmGameplay<*>
-  protected lateinit var p2: TfmGameplay<*>
-  protected lateinit var p3: TfmGameplay<*>
+  protected lateinit var p1: TfmGameplay<GeneratedPlayer>
+  protected lateinit var p2: TfmGameplay<GeneratedPlayer>
+  protected lateinit var p3: TfmGameplay<GeneratedPlayer>
   protected lateinit var gamePremise: GamePremise
     private set
 
@@ -55,9 +58,9 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   open fun commonSetup() {
     gamePremise = catalog.gamePremise(config, parseClasses(playerClassPets))
     game = Engine.newGame(gamePremise)
-    val players = game.actors.filterIsInstance<Player>()
-    fun gameplay(player: Player): TfmGameplay<Player> =
-        game.testTfm(player).let {
+    val players = game.actors.filterIsInstance<RuntimePlayer>()
+    fun gameplay(player: RuntimePlayer): TfmGameplay<GeneratedPlayer> =
+        TfmGameplay<GeneratedPlayer>(agents, player).let {
           if (requireExplicitPaymentChoices) it.requireExplicitPaymentChoices() else it
         }
     p1 = gameplay(players[0])
@@ -66,11 +69,11 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   }
 
   /** Returns fresh gameplay for the Player occupying the one-based [seat]. */
-  protected fun player(seat: Int): TfmGameplay<Player> {
+  protected fun player(seat: Int): TfmGameplay<GeneratedPlayer> {
     require(seat > 0) { "seat numbers begin at 1" }
-    val player = game.actors.filterIsInstance<Player>().getOrNull(seat - 1)
+    val player = game.actors.filterIsInstance<RuntimePlayer>().getOrNull(seat - 1)
     requireNotNull(player) { "no Player occupies seat $seat" }
-    return game.testTfm(player)
+    return TfmGameplay(agents, player)
   }
 
   private fun copyThis() {
@@ -108,6 +111,14 @@ internal abstract class AbstractFullGameTest : TfmTest() {
 
   protected fun TfmGameplay<*>.assertCardResources(vararg resources: Pair<Int, ClassName>) {
     assertCounts(*resources.map { (count, card) -> count to "CardResource<$card>" }.toTypedArray())
+  }
+
+  protected fun TfmGameplay<*>.assertCardResources(
+      first: Pair<Int, PetsClass.Root<ResourceCard<*, *, *>>>,
+      vararg remaining: Pair<Int, PetsClass.Root<ResourceCard<*, *, *>>>,
+  ) {
+    val named = (listOf(first) + remaining).map { (count, card) -> count to card.name }
+    assertCardResources(*named.toTypedArray())
   }
 
   protected fun TfmGameplay<*>.assertUnusedActionCards(vararg cardNames: ClassName) {
@@ -201,7 +212,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   // enclosing checkpoint restores both the components and tasks afterward.
   private fun dropPendingTasksForSnapshot() {
     game.actors
-        .filterIsInstance<Player>()
+        .filterIsInstance<RuntimePlayer>()
         .map { game.testTfm(it) }
         .filter { it.count("ProjectCard<Selecting>") > 0 }
         .forEach { it.buyCards(0) }

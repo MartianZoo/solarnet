@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.ElysiumMap
 import dev.martianzoo.generated.LakefrontResorts
 import dev.martianzoo.generated.PreludeExpansion
@@ -14,8 +15,8 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
   override val requireExplicitPaymentChoices = false
   override val config =
       gameConfig(
-          modules = listOf(ElysiumMap.c, PreludeExpansion.c),
-          cardFronts = listOf(LakefrontResorts.c),
+          modules = listOf(Class.of(ElysiumMap), Class.of(PreludeExpansion)),
+          cardFronts = listOf(Class.of(LakefrontResorts)),
           playerNames = listOf("Player1", "Player2"),
       )
 
@@ -24,7 +25,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
     val workflow = TfmWorkflow.Automatic(agents).launch()
     retainStartingProjects(3, 8)
 
-    p1.playCorp(LakefrontResorts.className, 3)
+    p1.playCorp(LakefrontResorts.name, 3)
     p2.playCorp(InterplanetaryCinematics, 8)
 
     p1.turn {

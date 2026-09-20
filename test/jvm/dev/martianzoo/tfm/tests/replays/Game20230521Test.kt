@@ -4,6 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.World
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.PreludeExpansion
 import dev.martianzoo.generated.PromoCardPack
 import dev.martianzoo.generated.VenusNextExpansion
@@ -18,7 +19,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
 
   override val config =
       gameConfig(
-          modules = listOf(VenusNextExpansion.c, PreludeExpansion.c, PromoCardPack.c),
+          modules =
+              listOf(
+                  Class.of(VenusNextExpansion),
+                  Class.of(PreludeExpansion),
+                  Class.of(PromoCardPack),
+              ),
           extra = "-WorldGovernmentRule",
           playerNames = listOf("Player1", "Player2"),
       )

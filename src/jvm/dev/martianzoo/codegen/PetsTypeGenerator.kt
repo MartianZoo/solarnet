@@ -134,7 +134,7 @@ internal class PetsTypeGenerator(
     val authoredEffects = generatedAuthoredEffects(klass)
     val builder =
         if (klass.abstract) {
-          TypeSpec.interfaceBuilder(klass.className.toString()).addModifiers(KModifier.SEALED)
+          TypeSpec.interfaceBuilder(klass.className.toString())
         } else {
           TypeSpec.classBuilder(klass.className.toString())
         }
@@ -179,13 +179,13 @@ internal class PetsTypeGenerator(
     authoredEffects?.let { builder.addProperty(it.first) }
     if (klass == table.classClass) {
       builder.addSuperinterface(ClassName("dev.martianzoo.pets", "HasClassName"))
+      builder.addProperty(representedNameProperty())
       builder.addProperty(representedClassNameProperty())
+      builder.addType(classRootType(kotlinClass(table.componentClass)))
     }
     val companionProperties =
         properties.mapNotNull(GeneratedProperty::companion) + listOfNotNull(authoredEffects?.second)
-    if (!klass.abstract || companionProperties.isNotEmpty()) {
-      builder.addType(companion(klass, variables.declarations, companionProperties))
-    }
+    builder.addType(companion(klass, variables.declarations, companionProperties))
     variables.declarations.forEach(builder::addTypeVariable)
     klass.directSuperclasses.forEach { superclass ->
       val resolvedSupertype = klass.baseType.asSupertype(superclass)
@@ -369,15 +369,18 @@ internal class PetsTypeGenerator(
   ): TypeSpec {
     val builder = TypeSpec.companionObjectBuilder()
     properties.forEach(builder::addProperty)
-    if (klass.abstract) return builder.build()
-
+    val representedType = starProjected(klass)
+    val classRootType =
+        kotlinClass(table.classClass).nestedClass("Root").parameterizedBy(representedType)
+    builder.addSuperinterface(classRootType)
     builder.addProperty(
-        PropertySpec.builder("className", PETS_CLASS_NAME)
-            .addModifiers(KModifier.PUBLIC)
+        PropertySpec.builder("name", PETS_CLASS_NAME)
+            .addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
             .initializer("%T.cn(%S)", PETS_CLASS_NAME, klass.className.toString())
             .build()
     )
-    val representedType = starProjected(klass)
+    if (klass.abstract) return builder.build()
+
     builder.addFunction(
         generatedExpressionAdapter(
             klass.className.toString(),
@@ -386,19 +389,16 @@ internal class PetsTypeGenerator(
             representedType,
         )
     )
-    val classLiteralType = kotlinClass(table.classClass).parameterizedBy(representedType)
-    builder.addProperty(
-        PropertySpec.builder("c", classLiteralType)
-            .addModifiers(KModifier.PUBLIC)
-            .initializer(
-                "%T(%N(%M<%T>()))",
-                classLiteralType,
-                GENERATED_EXPRESSION,
-                TYPE_OF,
-                classLiteralType,
-            )
-            .build()
-    )
+    if (klass == table.classClass) {
+      return builder
+          .addFunction(
+              classLiteralFactory(
+                  kotlinClass(table.componentClass),
+                  kotlinClass(table.classClass),
+              )
+          )
+          .build()
+    }
 
     val factoryVariables = classVariables.map { variable ->
       TypeVariableName(variable.name, variable.bounds).copy(reified = true)
@@ -447,6 +447,9 @@ internal class PetsTypeGenerator(
                     val representedName =
                         representedClass.simpleName
                             ?: error("Represented Pets class has no simple name: ${'$'}representedClass")
+                    require(representedType.arguments.all { it.type == null }) {
+                      "A Pets class literal cannot specialize ${'$'}representedType"
+                    }
                     listOf(%T.cn(representedName).of())
                   } else {
                     type.arguments.map { projection ->
@@ -723,15 +726,52 @@ private fun authoredEffectsContract(): PropertySpec {
       .build()
 }
 
-private fun representedClassNameProperty(): PropertySpec =
-    PropertySpec.builder("className", ClassName("dev.martianzoo.pets.ast", "ClassName"))
-        .addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+private fun representedNameProperty(): PropertySpec =
+    PropertySpec.builder("name", ClassName("dev.martianzoo.pets.ast", "ClassName"))
+        .addModifiers(KModifier.PUBLIC)
         .getter(
             FunSpec.getterBuilder()
                 .addStatement("return expression.arguments.single().className")
                 .build()
         )
         .build()
+
+private fun representedClassNameProperty(): PropertySpec =
+    PropertySpec.builder("className", ClassName("dev.martianzoo.pets.ast", "ClassName"))
+        .addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+        .getter(FunSpec.getterBuilder().addStatement("return name").build())
+        .build()
+
+private fun classRootType(component: ClassName): TypeSpec {
+  val className = ClassName("dev.martianzoo.pets.ast", "ClassName")
+  return TypeSpec.interfaceBuilder("Root")
+      .addModifiers(KModifier.PUBLIC)
+      .addTypeVariable(TypeVariableName("C", component, variance = KModifier.OUT))
+      .addProperty(
+          PropertySpec.builder("name", className)
+              .addModifiers(KModifier.PUBLIC, KModifier.ABSTRACT)
+              .build()
+      )
+      .build()
+}
+
+private fun classLiteralFactory(component: ClassName, generatedClass: ClassName): FunSpec {
+  val variable = TypeVariableName("C", component)
+  val result = generatedClass.parameterizedBy(variable)
+  val root = generatedClass.nestedClass("Root").parameterizedBy(variable)
+  return FunSpec.builder("of")
+      .addModifiers(KModifier.PUBLIC)
+      .addTypeVariable(variable)
+      .addParameter("root", root)
+      .returns(result)
+      .addStatement(
+          "return %T(%T.cn(%S).of(root.name.of()))",
+          result,
+          ClassName("dev.martianzoo.pets.ast", "ClassName"),
+          "Class",
+      )
+      .build()
+}
 
 private fun generatedAuthoredEffects(klass: Class): Pair<PropertySpec, PropertySpec>? {
   if (klass.abstract || klass.declaration.authoredEffects.isEmpty()) return null
@@ -789,7 +829,7 @@ private fun generatedExpressionAdapter(
       .addParameter("expression", ClassName("dev.martianzoo.pets.ast", "Expression"))
       .returns(representedType)
       .addStatement(
-          "require(expression.className == className) { %P }",
+          "require(expression.className == name) { %P }",
           "Expected $petsClassName expression, got \$expression",
       )
       .addStatement("return %T(expression)", constructorType)
@@ -800,7 +840,7 @@ private fun generatedComponentFactory(classes: List<ClassName>): FunSpec {
   val expression = "expression"
   val body = CodeBlock.builder().beginControlFlow("return when (%N.className)", expression)
   classes.forEach { type ->
-    body.addStatement("%T.className -> %T.fromExpression(%N)", type, type, expression)
+    body.addStatement("%T.name -> %T.fromExpression(%N)", type, type, expression)
   }
   body.addStatement("else -> error(%P)", "No generated Pets class for \$expression")
   body.endControlFlow()

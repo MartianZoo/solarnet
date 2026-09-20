@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.PreludeExpansion
 import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.ast.ClassName
@@ -16,7 +17,7 @@ import kotlin.test.Test
 internal class CardTrackingFullGameTestTest :
     CardTrackingFullGameTest(requireEveryProjectCardChangeNamed = true) {
   override val config =
-      gameConfig(modules = listOf(PreludeExpansion.c), playerNames = listOf("Player1"))
+      gameConfig(modules = listOf(Class.of(PreludeExpansion)), playerNames = listOf("Player1"))
   internal override val producesReplayRecording = false
 
   @Test
@@ -144,7 +145,7 @@ internal class CardTrackingFullGameTestTest :
   private class ArrivalOrderReplay(arrivals: List<ClassName>) :
       CardTrackingFullGameTest(requireEveryProjectCardChangeNamed = true) {
     override val config =
-        gameConfig(modules = listOf(PreludeExpansion.c), playerNames = listOf("Player1"))
+        gameConfig(modules = listOf(Class.of(PreludeExpansion)), playerNames = listOf("Player1"))
     override val projectCardArrivalOrder = mapOf(cn("Player1") to arrivals)
 
     fun setUp() = commonSetup()

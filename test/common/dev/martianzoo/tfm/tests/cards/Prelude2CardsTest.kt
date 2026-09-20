@@ -5,6 +5,7 @@ import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.Prelude2CardPack
 import dev.martianzoo.generated.PreludeExpansion
 import dev.martianzoo.generated.QuickStartVariant
@@ -131,9 +132,9 @@ internal class Prelude2CardsTest : CardTest() {
         gameConfig(
             modules =
                 listOf(
-                    PreludeExpansion.c,
-                    Prelude2CardPack.c,
-                    VenusNextExpansion.c,
+                    Class.of(PreludeExpansion),
+                    Class.of(Prelude2CardPack),
+                    Class.of(VenusNextExpansion),
                 ),
             extra = "-WorldGovernmentRule",
             playerNames = listOf("Player1", "Player2"),
@@ -335,9 +336,9 @@ internal class Prelude2CardsTest : CardTest() {
         gameConfig(
             modules =
                 listOf(
-                    PreludeExpansion.c,
-                    Prelude2CardPack.c,
-                    QuickStartVariant.c,
+                    Class.of(PreludeExpansion),
+                    Class.of(Prelude2CardPack),
+                    Class.of(QuickStartVariant),
                 ),
             playerNames = listOf("Player1", "Player2"),
         )

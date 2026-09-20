@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.HellasMap
 import dev.martianzoo.generated.PreludeExpansion
 import dev.martianzoo.generated.PromoCardPack
@@ -25,7 +26,13 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
 
   override val config =
       gameConfig(
-          modules = listOf(HellasMap.c, VenusNextExpansion.c, PreludeExpansion.c, PromoCardPack.c),
+          modules =
+              listOf(
+                  Class.of(HellasMap),
+                  Class.of(VenusNextExpansion),
+                  Class.of(PreludeExpansion),
+                  Class.of(PromoCardPack),
+              ),
           extra = "Tr63SoloObjective, -WorldGovernmentRule",
           playerNames = listOf("Me"),
       )

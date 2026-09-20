@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.ColoniesExpansion
 import dev.martianzoo.generated.ElysiumMap
 import dev.martianzoo.generated.PreludeExpansion
@@ -20,13 +21,13 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       gameConfig(
           modules =
               listOf(
-                  ElysiumMap.c,
-                  VenusNextExpansion.c,
-                  PreludeExpansion.c,
-                  ColoniesExpansion.c,
-                  PromoCardPack.c,
+                  Class.of(ElysiumMap),
+                  Class.of(VenusNextExpansion),
+                  Class.of(PreludeExpansion),
+                  Class.of(ColoniesExpansion),
+                  Class.of(PromoCardPack),
               ),
-          cardFronts = listOf(TerralabsResearch.c),
+          cardFronts = listOf(Class.of(TerralabsResearch)),
           extra = "Tr63SoloObjective, Ganymede, Luna, Miranda, Pluto",
           playerNames = listOf("Me"),
       )
@@ -45,7 +46,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
     with(me) {
       doTask("-ColonyTileSelection<Class<Miranda>>")
 
-      playCorp(TerralabsResearch.className) {
+      playCorp(TerralabsResearch.name) {
         buyCards(
             RadSuits,
             SoilFactory,

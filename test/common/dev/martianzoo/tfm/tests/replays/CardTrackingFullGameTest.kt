@@ -4,6 +4,7 @@ import dev.martianzoo.agent.Agent.OperationScope
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.generated.CardFront
 import dev.martianzoo.generated.Class as PetsClass
+import dev.martianzoo.generated.ProjectCard
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Player
@@ -75,6 +76,12 @@ internal abstract class CardTrackingFullGameTest(
     }
   }
 
+  protected fun TfmGameplay<*>.expectProjectCards(
+      vararg cards: PetsClass.Root<CardFront<*, PetsClass<ProjectCard<*, *>>>>
+  ) {
+    expectProjectCards(*cards.map { it.name }.toTypedArray())
+  }
+
   /** Allocates distinct replay-local identities for project cards absent from the source. */
   protected fun unknownProjectCards(count: Int): Array<ClassName> {
     require(count >= 0)
@@ -91,9 +98,21 @@ internal abstract class CardTrackingFullGameTest(
     }
   }
 
+  protected fun TfmGameplay<*>.discardProjectCardsFromDeck(
+      vararg cards: PetsClass.Root<CardFront<*, PetsClass<ProjectCard<*, *>>>>
+  ) {
+    discardProjectCardsFromDeck(*cards.map { it.name }.toTypedArray())
+  }
+
   /** Marks the named cards from the current selection as terminal. */
   protected fun TfmGameplay<*>.discardUnselectedProjectCards(vararg cardClasses: ClassName) {
     discardUnselectedProjectCards(player, cardClasses)
+  }
+
+  protected fun TfmGameplay<*>.discardUnselectedProjectCards(
+      vararg cards: PetsClass.Root<CardFront<*, PetsClass<ProjectCard<*, *>>>>
+  ) {
+    discardUnselectedProjectCards(*cards.map { it.name }.toTypedArray())
   }
 
   /** Resolves and identifies an anonymous in-operation selection discard. */
@@ -111,6 +130,12 @@ internal abstract class CardTrackingFullGameTest(
       doTask("-${cardClasses.size} ProjectCard<Selecting>")
     }
     discardUnselectedProjectCards(null, cardClasses)
+  }
+
+  protected fun OperationScope.discardUnselectedProjectCards(
+      vararg cards: PetsClass.Root<CardFront<*, PetsClass<ProjectCard<*, *>>>>
+  ) {
+    discardUnselectedProjectCards(*cards.map { it.name }.toTypedArray())
   }
 
   private fun discardUnselectedProjectCards(
@@ -212,8 +237,10 @@ internal abstract class CardTrackingFullGameTest(
     cardClasses.forEach { cardClass -> cards[cardClass] = Hand(player) }
   }
 
-  protected fun TfmGameplay<*>.draw(vararg cards: PetsClass<CardFront<*, *>>) {
-    draw(*cards.map { it.className }.toTypedArray())
+  protected fun TfmGameplay<*>.draw(
+      vararg cards: PetsClass.Root<CardFront<*, PetsClass<ProjectCard<*, *>>>>
+  ) {
+    draw(*cards.map { it.name }.toTypedArray())
   }
 
   protected fun TfmGameplay<*>.buyCards(vararg cardClasses: ClassName): TaskResult {
@@ -222,8 +249,9 @@ internal abstract class CardTrackingFullGameTest(
     return result
   }
 
-  protected fun TfmGameplay<*>.buyCards(vararg cards: PetsClass<CardFront<*, *>>): TaskResult =
-      buyCards(*cards.map { it.className }.toTypedArray())
+  protected fun TfmGameplay<*>.buyCards(
+      vararg cards: PetsClass.Root<CardFront<*, PetsClass<ProjectCard<*, *>>>>
+  ): TaskResult = buyCards(*cards.map { it.name }.toTypedArray())
 
   protected fun TfmGameplay<*>.discard(vararg cardClasses: ClassName) {
     syncCardPlays()
@@ -238,8 +266,10 @@ internal abstract class CardTrackingFullGameTest(
     cardClasses.forEach { cardClass -> move(cardClass, Hand(player), Terminal) }
   }
 
-  protected fun TfmGameplay<*>.discard(vararg cards: PetsClass<CardFront<*, *>>) {
-    discard(*cards.map { it.className }.toTypedArray())
+  protected fun TfmGameplay<*>.discard(
+      vararg cards: PetsClass.Root<CardFront<*, PetsClass<ProjectCard<*, *>>>>
+  ) {
+    discard(*cards.map { it.name }.toTypedArray())
   }
 
   protected fun TfmGameplay<*>.sellPatents(vararg cardClasses: ClassName): TaskResult {
@@ -249,8 +279,25 @@ internal abstract class CardTrackingFullGameTest(
     }
   }
 
-  protected fun TfmGameplay<*>.sellPatents(vararg cards: PetsClass<CardFront<*, *>>): TaskResult =
-      sellPatents(*cards.map { it.className }.toTypedArray())
+  protected fun TfmGameplay<*>.sellPatents(
+      vararg cards: PetsClass.Root<CardFront<*, PetsClass<ProjectCard<*, *>>>>
+  ): TaskResult = sellPatents(*cards.map { it.name }.toTypedArray())
+
+  protected fun TfmGameplay<*>.assertCardsHand(
+      vararg cards: PetsClass.Root<CardFront<*, PetsClass<ProjectCard<*, *>>>>
+  ) {
+    cardsHand shouldBe cards.mapTo(linkedSetOf()) { it.name }
+  }
+
+  protected fun generatedProjectCardArrivalOrder(
+      arrivals:
+          Map<
+              ClassName,
+              List<PetsClass.Root<CardFront<*, PetsClass<ProjectCard<*, *>>>>>,
+          >
+  ): Map<ClassName, List<ClassName>> = arrivals.mapValues { (_, cards) ->
+    cards.map { it.name }
+  }
 
   protected fun assertCardTrackingComplete() {
     syncCardPlays()

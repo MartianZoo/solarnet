@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.PreludeExpansion
 import dev.martianzoo.generated.PromoCardPack
 import dev.martianzoo.generated.VenusNextExpansion
@@ -12,7 +13,12 @@ internal class Game20260619Test : AbstractFullGameTest() {
 
   override val config =
       gameConfig(
-          modules = listOf(VenusNextExpansion.c, PreludeExpansion.c, PromoCardPack.c),
+          modules =
+              listOf(
+                  Class.of(VenusNextExpansion),
+                  Class.of(PreludeExpansion),
+                  Class.of(PromoCardPack),
+              ),
           extra = "-WorldGovernmentRule",
           playerNames = listOf("Player1", "Player2"),
       )

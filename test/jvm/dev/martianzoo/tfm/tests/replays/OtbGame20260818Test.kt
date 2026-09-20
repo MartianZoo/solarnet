@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.ColoniesExpansion
 import dev.martianzoo.generated.Constructor
 import dev.martianzoo.generated.Ecologist
@@ -41,28 +42,28 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       gameConfig(
           modules =
               listOf(
-                  UtopiaMap.c,
-                  VenusNextExpansion.c,
-                  PreludeExpansion.c,
-                  ColoniesExpansion.c,
-                  PromoCardPack.c,
+                  Class.of(UtopiaMap),
+                  Class.of(VenusNextExpansion),
+                  Class.of(PreludeExpansion),
+                  Class.of(ColoniesExpansion),
+                  Class.of(PromoCardPack),
               ),
           milestones =
               listOf(
-                  Ecologist.c,
-                  Merchant.c,
-                  Metallurgist.c,
-                  Tactician.c,
-                  Hoverlord.c,
+                  Class.of(Ecologist),
+                  Class.of(Merchant),
+                  Class.of(Metallurgist),
+                  Class.of(Tactician),
+                  Class.of(Hoverlord),
               ),
           awards =
               listOf(
-                  Constructor.c,
-                  Excentric.c,
-                  Highlander.c,
-                  Mogul.c,
-                  Traveller.c,
-                  Venuphile.c,
+                  Class.of(Constructor),
+                  Class.of(Excentric),
+                  Class.of(Highlander),
+                  Class.of(Mogul),
+                  Class.of(Traveller),
+                  Class.of(Venuphile),
               ),
           extra = "FakeStuffBundle, ${colonyTiles.joinToString()}",
           playerNames = listOf("Green", "Yellow"),

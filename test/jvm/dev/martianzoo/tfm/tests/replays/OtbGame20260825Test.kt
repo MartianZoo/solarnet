@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.generated.CimmeriaMap
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.Energizer
 import dev.martianzoo.generated.Farmer
 import dev.martianzoo.generated.Hoverlord
@@ -34,31 +35,31 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       gameConfig(
           modules =
               listOf(
-                  CimmeriaMap.c,
-                  VenusNextExpansion.c,
-                  PreludeExpansion.c,
-                  Prelude2CardPack.c,
-                  PromoCardPack.c,
+                  Class.of(CimmeriaMap),
+                  Class.of(VenusNextExpansion),
+                  Class.of(PreludeExpansion),
+                  Class.of(Prelude2CardPack),
+                  Class.of(PromoCardPack),
               ),
           milestones =
               listOf(
-                  Energizer.c,
-                  Farmer.c,
-                  Philantropist.c,
-                  Producer.c,
-                  RimSettler.c,
-                  Hoverlord.c,
+                  Class.of(Energizer),
+                  Class.of(Farmer),
+                  Class.of(Philantropist),
+                  Class.of(Producer),
+                  Class.of(RimSettler),
+                  Class.of(Hoverlord),
               ),
           awards =
               listOf(
-                  Magnate.c,
-                  Manufacturer.c,
-                  Metropolist.c,
-                  SpaceBaron.c,
-                  Suburbian.c,
-                  Venuphile.c,
+                  Class.of(Magnate),
+                  Class.of(Manufacturer),
+                  Class.of(Metropolist),
+                  Class.of(SpaceBaron),
+                  Class.of(Suburbian),
+                  Class.of(Venuphile),
               ),
-          cardFronts = listOf(TerralabsResearch.c),
+          cardFronts = listOf(Class.of(TerralabsResearch)),
           extra = "FakeStuffBundle",
           playerNames = listOf("Green", "Yellow"),
       )
@@ -75,7 +76,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     // Farmer, Philanthropist, Producer, Rim Settler, Hoverlord; Magnate, Manufacturer,
     // Metropolist, Space Baron, Suburbian, Venuphile."
     // "Terralabs research. I get 14 money and spend all 10 of it. Then I lose a TR."
-    green.playCorp(TerralabsResearch.className, 10).expect("4 MC, 10 ProjectCard, -TerraformRating")
+    green.playCorp(TerralabsResearch.name, 10).expect("4 MC, 10 ProjectCard, -TerraformRating")
     // 9:31:05 pm: "I can play Viron for 48 and I spend 15 on five cards."
     yellow.playCorp(Viron, 5).expect("33 MC")
 
@@ -463,7 +464,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
 
     green.assertCounts(
         14 to "ProjectCard",
-        1 to "${TerralabsResearch.className}",
+        1 to "${TerralabsResearch.name}",
         1 to "$FakeHeadStart",
         1 to "$FocusedOrganization",
         1 to "$Advertising",

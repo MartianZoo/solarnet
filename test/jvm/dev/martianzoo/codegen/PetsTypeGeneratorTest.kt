@@ -31,7 +31,7 @@ internal class PetsTypeGeneratorTest {
     assertEquals(table.allClasses().size, generatedTypes.size)
     assertContains(source, "Generated at 2026-08-06T12:34:56Z")
     assertFalse(source.contains("PetsClasses"))
-    assertContains(source, "public sealed interface Component : HasExpression")
+    assertContains(source, "public interface Component : HasExpression")
     assertContains(source, "public val _authoredEffects: List<Effect>")
     assertContains(source, "public override fun toString(): String")
     assertContains(source, "public class Class<out C : Component>")
@@ -44,10 +44,10 @@ internal class PetsTypeGeneratorTest {
     assertContains(source, "public class Plant<")
     assertContains(source, "public companion object")
     assertContains(source, ") : StandardResource")
-    assertContains(source, "public sealed interface Owned<out A : Anyone> : Component")
+    assertContains(source, "public interface Owned<out A : Anyone> : Component")
     assertContains(source, "public class OceanTile<out MA : MarsArea>")
     assertContains(source, "Tile<MA>")
-    assertContains(source, "public sealed interface Cardbound<")
+    assertContains(source, "public interface Cardbound<")
     assertContains(source, "CardFront<P, Class<CardBack<*, *>>>")
     assertContains(source, "public class Production<")
     assertContains(source, "Class<StandardResource<*>>")
@@ -56,22 +56,29 @@ internal class PetsTypeGeneratorTest {
     assertContains(source, "public class AerialMappers<out P : Player>")
     assertContains(source, "ResourceCard<P, Class<ProjectCard<*, *>>, Class<Floater<*, *>>>")
     assertFalse(source.contains("class AerialMappers<out P : Player, out C"))
-    assertContains(source, "public val className: ClassName = ClassName.cn(\"AerialMappers\")")
+    assertContains(source, "public val name: ClassName")
+    assertContains(source, "public override val className: ClassName")
+    assertContains(source, "public interface Root<out C : Component>")
+    assertContains(source, "public fun <C : Component> of(root: Root<C>): Class<C>")
+    assertContains(source, "A Pets class literal cannot specialize")
     assertContains(source, "public fun fromExpression(expression: Expression): AerialMappers<*>")
     assertContains(
         source,
         "public fun generatedPetsComponent(expression: Expression): HasExpression",
     )
-    assertContains(source, "public val c: Class<AerialMappers<*>>")
+    assertContains(source, "public companion object : Class.Root<AerialMappers<*>>")
+    assertContains(source, "public override val name: ClassName = ClassName.cn(\"AerialMappers\")")
+    assertFalse(source.contains("public inline operator fun <C : Component> invoke(): Class<C>"))
+    assertFalse(source.contains("public val c:"))
     assertContains(source, "public override val _authoredEffects: List<Effect>")
     assertContains(source, "Parsing.parse<Effect>(\"End: VictoryPoint / Animal<This>\")")
     assertContains(
         source,
-        "public sealed interface Adjacency<out T0 : Tile<Area>, out T1 : Tile<Area>>",
+        "public interface Adjacency<out T0 : Tile<Area>, out T1 : Tile<Area>>",
     )
     assertContains(
         source,
-        "public sealed interface DelayedColonyTile<out C0 : Class<ColonyTile>, " +
+        "public interface DelayedColonyTile<out C0 : Class<ColonyTile>, " +
             "out C1 : Class<CardResource<*, *>>> : ColonyTileSelection<C0>",
     )
     assertContains(source, "public val cost: Int")

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.generated.Benefactor
 import dev.martianzoo.generated.CimmeriaMap
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.ColoniesExpansion
 import dev.martianzoo.generated.Engineer
 import dev.martianzoo.generated.EstateDealer
@@ -33,28 +34,28 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       gameConfig(
           modules =
               listOf(
-                  CimmeriaMap.c,
-                  VenusNextExpansion.c,
-                  PreludeExpansion.c,
-                  Prelude2CardPack.c,
-                  ColoniesExpansion.c,
-                  PromoCardPack.c,
+                  Class.of(CimmeriaMap),
+                  Class.of(VenusNextExpansion),
+                  Class.of(PreludeExpansion),
+                  Class.of(Prelude2CardPack),
+                  Class.of(ColoniesExpansion),
+                  Class.of(PromoCardPack),
               ),
           milestones =
               listOf(
-                  Engineer.c,
-                  Fundraiser.c,
-                  Landshaper.c,
-                  Merchant.c,
-                  Metallurgist.c,
+                  Class.of(Engineer),
+                  Class.of(Fundraiser),
+                  Class.of(Landshaper),
+                  Class.of(Merchant),
+                  Class.of(Metallurgist),
               ),
           awards =
               listOf(
-                  Benefactor.c,
-                  EstateDealer.c,
-                  Industrialist.c,
-                  Metropolist.c,
-                  SpaceBaron.c,
+                  Class.of(Benefactor),
+                  Class.of(EstateDealer),
+                  Class.of(Industrialist),
+                  Class.of(Metropolist),
+                  Class.of(SpaceBaron),
               ),
           extra = "FakeStuffBundle, ${colonyTiles.joinToString()}",
           playerNames = listOf("Green", "Blue", "Yellow"),

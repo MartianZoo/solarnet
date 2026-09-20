@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.generated.Botanist
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.Coastguard
 import dev.martianzoo.generated.ColoniesExpansion
 import dev.martianzoo.generated.Founder
@@ -37,29 +38,29 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
       gameConfig(
           modules =
               listOf(
-                  HellasMap.c,
-                  VenusNextExpansion.c,
-                  PreludeExpansion.c,
-                  ColoniesExpansion.c,
-                  PromoCardPack.c,
+                  Class.of(HellasMap),
+                  Class.of(VenusNextExpansion),
+                  Class.of(PreludeExpansion),
+                  Class.of(ColoniesExpansion),
+                  Class.of(PromoCardPack),
               ),
           milestones =
               listOf(
-                  Coastguard.c,
-                  Landshaper.c,
-                  Mayor.c,
-                  Producer.c,
-                  Sponsor.c,
-                  Hoverlord.c,
+                  Class.of(Coastguard),
+                  Class.of(Landshaper),
+                  Class.of(Mayor),
+                  Class.of(Producer),
+                  Class.of(Sponsor),
+                  Class.of(Hoverlord),
               ),
           awards =
               listOf(
-                  Botanist.c,
-                  Founder.c,
-                  Landlord.c,
-                  Magnate.c,
-                  Metropolist.c,
-                  Venuphile.c,
+                  Class.of(Botanist),
+                  Class.of(Founder),
+                  Class.of(Landlord),
+                  Class.of(Magnate),
+                  Class.of(Metropolist),
+                  Class.of(Venuphile),
               ),
           extra = "Callisto, Luna, Triton, Miranda, Enceladus",
           playerNames = listOf("Yellow", "Green"),

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.generated.Builder
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.Engineer
 import dev.martianzoo.generated.gameConfig
 import dev.martianzoo.pets.api.Exceptions.RequirementException
@@ -14,7 +15,7 @@ internal class FakeThawerTest : CardTest() {
   internal fun `Thawer credits each player step but not other players or Admin`() {
     newGame(
         gameConfig(
-            milestones = listOf(Builder.c, Engineer.c),
+            milestones = listOf(Class.of(Builder), Class.of(Engineer)),
             extra = "FakeStuffBundle, FakeThawer",
             playerNames = listOf("Player1", "Player2"),
         )

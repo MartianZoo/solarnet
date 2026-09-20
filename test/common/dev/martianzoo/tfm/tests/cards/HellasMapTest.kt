@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.HellasMap
 import dev.martianzoo.generated.LakefrontResorts
 import dev.martianzoo.generated.gameConfig
@@ -29,13 +30,13 @@ internal class HellasMapTest : CardTest() {
   internal fun `Ocean income from the south pole bonus can fund its payment`() {
     newGame(
         gameConfig(
-            modules = listOf(HellasMap.c),
-            cardFronts = listOf(LakefrontResorts.c),
+            modules = listOf(Class.of(HellasMap)),
+            cardFronts = listOf(Class.of(LakefrontResorts)),
             playerNames = listOf("Player1", "Player2"),
         )
     )
     admin.phase("Action")
-    p1.runOperation("${LakefrontResorts.className}")
+    p1.runOperation("${LakefrontResorts.name}")
     p1.runOperation("OceanTile<Hellas_4_7>, OceanTile<Hellas_5_6>")
     p1.runOperation("-54 MC")
 

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
 import dev.martianzoo.generated.AmazonisMap
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.VenusNextExpansion
 import dev.martianzoo.generated.WorldGovernmentRule
 import dev.martianzoo.generated.gameConfig
@@ -62,7 +63,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
 
     newGame(
         gameConfig(
-            modules = listOf(VenusNextExpansion.c),
+            modules = listOf(Class.of(VenusNextExpansion)),
             extra = "-WorldGovernmentRule",
             playerNames = listOf("Player1", "Player2"),
         )
@@ -76,7 +77,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
   internal fun `World Government can be selected without Venus`() {
     newGame(
         gameConfig(
-            modules = listOf(WorldGovernmentRule.c),
+            modules = listOf(Class.of(WorldGovernmentRule)),
             playerNames = listOf("Player1", "Player2"),
         )
     )
@@ -91,7 +92,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
   internal fun `first player places a standard-track threshold ocean for World Government`() {
     newGame(
         gameConfig(
-            modules = listOf(WorldGovernmentRule.c),
+            modules = listOf(Class.of(WorldGovernmentRule)),
             playerNames = listOf("Player1", "Player2"),
         )
     )
@@ -110,7 +111,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
   internal fun `first player places an extended-track threshold ocean for World Government`() {
     newGame(
         gameConfig(
-            modules = listOf(AmazonisMap.c, WorldGovernmentRule.c),
+            modules = listOf(Class.of(AmazonisMap), Class.of(WorldGovernmentRule)),
             playerNames = listOf("Player1", "Player2"),
         )
     )

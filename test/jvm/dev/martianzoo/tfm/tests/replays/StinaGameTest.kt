@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.ElysiumMap
 import dev.martianzoo.generated.PreludeExpansion
 import dev.martianzoo.generated.gameConfig
@@ -9,7 +10,10 @@ import kotlin.test.Test
 
 internal class StinaGameTest : AbstractSoloTest(requireEveryProjectCardChangeNamed = true) {
   override val config =
-      gameConfig(modules = listOf(ElysiumMap.c, PreludeExpansion.c), playerNames = listOf("Me"))
+      gameConfig(
+          modules = listOf(Class.of(ElysiumMap), Class.of(PreludeExpansion)),
+          playerNames = listOf("Me"),
+      )
 
   override fun cityAreas() = "Elysium_5_6" to "Elysium_7_7"
 

@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.HellasMap
 import dev.martianzoo.generated.PreludeExpansion
 import dev.martianzoo.generated.PromoCardPack
@@ -21,7 +22,8 @@ import kotlin.test.Test
 internal class HellasPromoGameTest : AbstractFullGameTest() {
   override val config =
       gameConfig(
-          modules = listOf(HellasMap.c, PromoCardPack.c, PreludeExpansion.c),
+          modules =
+              listOf(Class.of(HellasMap), Class.of(PromoCardPack), Class.of(PreludeExpansion)),
           playerNames = listOf("Player1", "Player2"),
       )
 

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.generated.Banker
+import dev.martianzoo.generated.Class
 import dev.martianzoo.generated.Landlord
 import dev.martianzoo.generated.PromoCardPack
 import dev.martianzoo.generated.Visionary
@@ -101,8 +102,8 @@ internal class SelfReplicatingRobotsTest : CardTest() {
   internal fun `Staged cards remain outside hand for Visionary`() {
     newGame(
         gameConfig(
-            modules = listOf(PromoCardPack.c),
-            awards = listOf(Visionary.c, Landlord.c, Banker.c),
+            modules = listOf(Class.of(PromoCardPack)),
+            awards = listOf(Class.of(Visionary), Class.of(Landlord), Class.of(Banker)),
             extra = "FakeStuffBundle",
             playerNames = listOf("Player1", "Player2"),
         )
