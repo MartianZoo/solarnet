@@ -16,8 +16,8 @@ private object VastitasMapSupport {
       val ownedTiles = game.getComponents(game.resolve(cn("OwnedTile").of(player.expression)))
       val ownedAreas =
           ownedTiles.mapNotNullTo(linkedSetOf()) { tile ->
-            tile.expressionFull.arguments.firstNotNullOfOrNull { argument ->
-              areasByName[argument.className]
+            tile.typeDependencies.firstNotNullOfOrNull { dependency ->
+              areasByName[dependency.boundType.className]
             }
           }
       return areas.largestContiguousGroupSize(ownedAreas, { it.row }, { it.column })

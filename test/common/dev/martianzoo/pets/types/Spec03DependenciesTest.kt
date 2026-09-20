@@ -1,7 +1,7 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.DependencySet.DependencyPath
@@ -110,7 +110,7 @@ internal class Spec03DependenciesTest {
 
   @Test
   internal fun `T3-3 bounds for one key with no common narrowing are an error`() {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
           loadTypes(
               """
               ABSTRACT CLASS Area
@@ -125,7 +125,7 @@ internal class Spec03DependenciesTest {
           )
         }
         .message
-        .shouldContain("Amphibious inherits incompatible bounds for Tile_0")
+        .shouldContain("`Amphibious` inherits incompatible bounds for `Tile_0`")
   }
 
   // T3-4 Arguments intersect the bound
@@ -160,6 +160,23 @@ internal class Spec03DependenciesTest {
     shouldThrow<ExpressionException> { type("Occupant<Player1>") }
   }
 
+  @Test
+  internal fun `T3-4 a concrete class bound is not an argument position`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Choice { CLASS Fixed, Other }",
+            "ABSTRACT CLASS Holder<Choice>",
+            "ABSTRACT CLASS FixedHolder : Holder<Fixed>",
+        )
+
+    table.getClass(cn("FixedHolder")).dependencies.keys shouldContainExactly
+        listOf(Key(cn("Holder"), 0))
+    table.resolve(te("FixedHolder")).dependencies.get(Key(cn("Holder"), 0)).expressionFull shouldBe
+        te("Fixed")
+    shouldThrow<ExpressionException> { table.resolve(te("FixedHolder<Fixed>")) }
+    shouldThrow<ExpressionException> { table.resolve(te("FixedHolder<Choice>")) }
+  }
+
   // T3-5 Argument matching
 
   @Test
@@ -183,6 +200,33 @@ internal class Spec03DependenciesTest {
         te("Adjacency<Tharsis_2_2, Tharsis_2_3>")
     table.resolve(te("Adjacency<Tharsis_2_3, Tharsis_2_2>")).expressionFull shouldBe
         te("Adjacency<Tharsis_2_3, Tharsis_2_2>")
+  }
+
+  @Test
+  internal fun `T3-5 matching skips a dependency the class already made concrete`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Choice { CLASS Fixed, Other }",
+            "ABSTRACT CLASS Pair<Choice, Choice>",
+            "ABSTRACT CLASS FixedFirst : Pair<Fixed>",
+        )
+
+    table.resolve(te("FixedFirst<Other>")).expressionFull shouldBe te("FixedFirst<Other>")
+    table
+        .resolve(te("FixedFirst<Other>"))
+        .dependencies
+        .get(Key(cn("Pair"), 0))
+        .expressionFull shouldBe te("Fixed")
+    table
+        .resolve(te("FixedFirst<Other>"))
+        .dependencies
+        .get(Key(cn("Pair"), 1))
+        .expressionFull shouldBe te("Other")
+    table
+        .resolve(te("FixedFirst<Fixed>"))
+        .dependencies
+        .get(Key(cn("Pair"), 1))
+        .expressionFull shouldBe te("Fixed")
   }
 
   @Test
@@ -217,7 +261,13 @@ internal class Spec03DependenciesTest {
         te("SelfBound<Class<SelfBound>>")
     table.getClass(cn("SelfMiddle")).baseType.expressionFull shouldBe
         te("SelfMiddle<Class<SelfMiddle>>")
-    table.getClass(cn("SelfLeaf")).baseType.expressionFull shouldBe te("SelfLeaf<Class<SelfLeaf>>")
+    table.getClass(cn("SelfLeaf")).baseType.expressionFull shouldBe te("SelfLeaf")
+    table
+        .getClass(cn("SelfLeaf"))
+        .baseType
+        .dependencies
+        .get(Key(cn("Link"), 0))
+        .expressionFull shouldBe te("Class<SelfLeaf>")
   }
 
   @Test
@@ -284,7 +334,9 @@ internal class Spec03DependenciesTest {
     cards.resolve(te("Animal<Pets<Player1>>")).expressionFull shouldBe
         te("Animal<Player1, Pets<Player1>>")
     cards.resolve(te("Animal<Player1, Pets>")) shouldBe cards.resolve(te("Animal<Pets<Player1>>"))
-    shouldThrow<ExpressionException> { cards.resolve(te("Animal<Player1, Pets<Player2>>")) }
+    shouldThrow<ExpressionException> {
+      cards.resolve(te("Animal<Player1, Pets<Player2>>"))
+    }
   }
 
   @Test
@@ -321,8 +373,7 @@ internal class Spec03DependenciesTest {
     val cards = equalityCards()
 
     cards
-        .getClass(cn("InheritedLink"))
-        .concreteTypes()
+        .concreteSubtypesSameClass(cards.getClass(cn("InheritedLink")).baseType)
         .map { it.expressionFull.toString() }
         .toList()
         .shouldContainExactlyInAnyOrder(
@@ -336,7 +387,8 @@ internal class Spec03DependenciesTest {
   @Test
   internal fun `T3-9 a dependency may only target a type limited to one copy`() {
     val unlimited = loadTypes("CLASS Plant", "CLASS Holder<Plant>")
-    shouldThrow<PetException> { unlimited.componentLimits }.message shouldContain "Holder -> Plant"
+    shouldThrow<InvalidPetDefinitionException> { unlimited.componentLimits }.message shouldContain
+        "Holder -> Plant"
 
     val limited = loadTypes("CLASS Plant { HAS MAX 1 This }", "CLASS Holder<Plant>")
     limited.componentLimits.limitsFor(limited.resolve(te("Plant"))).map { it.range } shouldBe
@@ -345,22 +397,22 @@ internal class Spec03DependenciesTest {
 
   @Test
   internal fun `T3-9 Signal cannot be a dependency target`() {
-    shouldThrow<PetException> { loadTypes("CLASS Holder<Signal>") }.message shouldContain
-        "Signal types and Die cannot be dependency targets"
+    shouldThrow<InvalidPetDefinitionException> { loadTypes("CLASS Holder<Signal>") }
+        .message shouldContain "`Signal` types and `Die` cannot be dependency targets"
   }
 
   @Test
   internal fun `T3-9 a Signal subtype cannot be a dependency target`() {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
           loadTypes("CLASS Event : Signal { HAS MAX 1 This }", "CLASS Holder<Event>")
         }
-        .message shouldContain "Holder dependency Holder_0 cannot target Event"
+        .message shouldContain "`Holder` dependency `Holder_0` cannot target `Event`"
   }
 
   @Test
   internal fun `T3-9 Die cannot be a dependency target`() {
-    shouldThrow<PetException> { loadTypes("CLASS Holder<Die>") }.message shouldContain
-        "Signal types and Die cannot be dependency targets"
+    shouldThrow<InvalidPetDefinitionException> { loadTypes("CLASS Holder<Die>") }
+        .message shouldContain "`Signal` types and `Die` cannot be dependency targets"
   }
 
   @Test
@@ -398,7 +450,7 @@ internal class Spec03DependenciesTest {
             "ABSTRACT CLASS AbstractDependent<Target>",
             "CLASS ConcreteDependent<Target> : AbstractDependent<Target>",
         )
-    shouldThrow<PetException> { invalid.componentLimits }.message shouldContain
+    shouldThrow<InvalidPetDefinitionException> { invalid.componentLimits }.message shouldContain
         "ConcreteDependent -> RepeatableTarget"
   }
 
@@ -412,7 +464,7 @@ internal class Spec03DependenciesTest {
             "CLASS Dependent<InvalidInvariant>",
         )
 
-    shouldThrow<PetException> { table.componentLimits }
+    shouldThrow<InvalidPetDefinitionException> { table.componentLimits }
 
     val calculated =
         loadTypes(
@@ -421,7 +473,7 @@ internal class Spec03DependenciesTest {
             "CLASS InvalidInvariant { HAS =1 (Foo - Bar) }",
             "CLASS Dependent<InvalidInvariant>",
         )
-    shouldThrow<PetException> { calculated.componentLimits }
+    shouldThrow<InvalidPetDefinitionException> { calculated.componentLimits }
   }
 
   // T3-10 Dependency sets
@@ -472,8 +524,8 @@ internal class Spec03DependenciesTest {
 
   @Test
   internal fun `T3-11 a dependency cycle between class headers is rejected`() {
-    shouldThrow<PetException> { loadTypes("CLASS Foo<Bar>", "CLASS Bar<Foo>") }
-    shouldThrow<PetException> { loadTypes("ABSTRACT CLASS Foo<Foo>") }
+    shouldThrow<InvalidPetDefinitionException> { loadTypes("CLASS Foo<Bar>", "CLASS Bar<Foo>") }
+    shouldThrow<InvalidPetDefinitionException> { loadTypes("ABSTRACT CLASS Foo<Foo>") }
   }
 
   @Test

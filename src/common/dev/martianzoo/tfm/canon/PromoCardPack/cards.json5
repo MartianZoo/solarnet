@@ -408,7 +408,7 @@
         {
           "name": "LawSuit",
           "cost": 2,
-          "tags": [ "EventTag" ],
+          "tags": [ "EarthTag", "EventTag" ],
           "immediate": "((MyResourceWasRemoved<Owner, Player^Attacker> OR MyProductionWasDecreased<Owner, Player^Attacker>): 3 MC FROM MC<Player^Attacker>) THEN PlayedEvent<Player^Attacker, Class<This>> FROM This",
           "effects": [ "End: -VictoryPoint" ],
         },

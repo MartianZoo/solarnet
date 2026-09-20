@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.DependencyException
-import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.tfm.tests.TestOption.Cimmeria
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -50,6 +50,6 @@ internal class MiningAreaTest : CardTest() {
   internal fun `Cannot select a card-bonus area`() {
     newGame()
     p1.runOperation("CityTile<Tharsis_2_1>")
-    shouldThrow<NotNowException> { p1.runOperation("$MiningArea") { placeTile(3, 2) } }
+    shouldThrow<GameplayException> { p1.runOperation("$MiningArea") { placeTile(3, 2) } }
   }
 }

@@ -218,7 +218,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
       specific: GroundType,
       classTable: ClassTable =
           requireNotNull(general.classTable.commonTable(specific.classTable)) {
-            "$general and $specific belong to unrelated class tables"
+            "`$general` and `$specific` belong to unrelated class tables"
           },
   ): Map<TypeVariable, GroundType> {
     val captures = mutableMapOf<TypeVariable, MutableList<GroundType>>()
@@ -273,7 +273,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     walk(authored, general, specific)
     return captures.mapValues { (variable, values) ->
       values.distinct().singleOrNull()
-          ?: error("Type variable $variable has conflicting captures: ${values.distinct()}")
+          ?: error("type variable `$variable` has conflicting captures: `${values.distinct()}`")
     }
   }
 
@@ -288,27 +288,28 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
       classTable: ClassTable =
           bindings.values.firstOrNull()?.classTable
               ?: entries.firstOrNull()?.variable?.bound?.classTable
-              ?: error("an empty Type-variable scope has no class table"),
+              ?: error("empty type-variable scope has no class table"),
   ): PetTransformer {
+    fun Entry.capturedRefinement() =
+        if (variable.declaration in currentExpressions) {
+          currentExpressions.getValue(variable.declaration).refinement
+        } else {
+          variable.bound.refinement
+        }
+
+    fun GroundType.consume(refinement: Expression.Refinement?): GroundType =
+        if (this.refinement == refinement) copy(refinement = null) else this
+
     val replacements = entries.flatMap { entry ->
       val replacement = bindings[entry.variable] ?: return@flatMap emptyList()
-      val capturedRefinement =
-          if (entry.variable.declaration in entry.currentExpressions) {
-            entry.currentExpressions.getValue(entry.variable.declaration).refinement
-          } else {
-            entry.variable.bound.refinement
-          }
-
-      fun GroundType.consumeCapturedRefinement(): GroundType =
-          if (refinement == capturedRefinement) copy(refinement = null) else this
-
-      val captured = replacement.consumeCapturedRefinement()
+      val capturedRefinement = entry.capturedRefinement()
+      val captured = replacement.consume(capturedRefinement)
       entry.currentExpressions.flatMap { (occurrence, source) ->
-        val constraint = classTable.resolve(source)
+        val constraint = classTable.resolve(source).consume(capturedRefinement)
         val occurrenceBinding =
-            classTable.glb(captured, constraint.consumeCapturedRefinement())
+            classTable.glb(captured, constraint)
                 ?: throw NarrowingException(
-                    "$replacement does not satisfy Type-variable occurrence $source"
+                    "`$replacement` does not satisfy type-variable occurrence `$source`"
                 )
         val target = occurrence.expressionFor(occurrenceBinding, source, classTable)
         buildList {
@@ -324,7 +325,28 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         }
       }
     }
-    return BindingTransformer(bindings.keys, replacements, classTable)
+    val transformer =
+        BindingTransformer(
+            bindings.keys,
+            replacements,
+            classTable,
+        )
+    entries.forEach { entry ->
+      val replacement = bindings[entry.variable] ?: return@forEach
+      val capturedRefinement = entry.capturedRefinement()
+      val captured = replacement.consume(capturedRefinement)
+      entry.currentExpressions.values.forEach { source ->
+        val specializedSource = transformer.transformExpressionChildren(source)
+        val constraint = classTable.resolve(specializedSource).consume(capturedRefinement)
+        if (classTable.glb(captured, constraint) == null) {
+          throw NarrowingException(
+              "`$replacement` does not satisfy specialized type-variable occurrence " +
+                  "`$specializedSource`"
+          )
+        }
+      }
+    }
+    return transformer
   }
 
   private class BindingTransformer(
@@ -332,6 +354,9 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
       private val replacements: List<Pair<Expression, Expression>>,
       private val classTable: ClassTable,
   ) : PetTransformer() {
+    fun transformExpressionChildren(node: Expression): Expression =
+        transformChildren(node) as Expression
+
     override fun transformNode(node: PetNode): PetNode {
       if (node is Expression) {
         replacements

@@ -227,7 +227,9 @@ public class TfmGameplay(
   /** The standard resources this Actor's live billing accepts. */
   private fun acceptedResources(): List<ClassName> =
       reader.getComponents(resolve("Accepting<$actor>")).elements.mapNotNull {
-        it.expression.arguments.lastOrNull()?.arguments?.singleOrNull()?.className
+        it.typeDependencies.firstNotNullOfOrNull { dependency ->
+          dependency.boundType.representedClass?.className
+        }
       }
 
   public fun convertPlants(body: OperationBlock = {}): TaskResult {

@@ -1,7 +1,7 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Specification
-import dev.martianzoo.pets.api.Exceptions
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.types.Dependency.Companion.depsForClassType
@@ -72,21 +72,15 @@ private constructor(
    */
   public fun typeDependencies(): List<TypeDependency> = deps.filterIsInstance<TypeDependency>()
 
-  /**
-   * Enumerates every concrete target admitted by every component-targeting dependency, using
-   * master-universe enumeration from
-   * [rule T11-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
-   */
-  public fun concreteDependencyTargets(): Sequence<GroundType> =
-      deps
-          .asSequence()
-          .filterIsInstance<TypeDependency>()
-          .flatMap(TypeDependency::allConcreteSpecializations)
-          .map { it.boundType }
+  /** Enumerates every inhabited target admitted by every component-targeting dependency. */
+  internal fun concreteDependencyTargets(classTable: ClassTable): Sequence<GroundType> =
+      deps.asSequence().filterIsInstance<TypeDependency>().flatMap {
+        classTable.allConcreteSubtypes(it.boundType)
+      }
 
   /**
-   * The dependency identities in declaration order, as required for full rendering by
-   * [rules T3-10 and T5-4](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
+   * The dependency identities in declaration order ([rule
+   * T3-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies)).
    */
   public val keys: List<Key> = List(deps.size) { deps[it].key }
 
@@ -104,7 +98,8 @@ private constructor(
    * Returns the dependency identified by [key], failing when the key is absent ([rule
    * T3-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies)).
    */
-  public fun get(key: Key): Dependency = getIfPresent(key) ?: error("$key")
+  public fun get(key: Key): Dependency =
+      getIfPresent(key) ?: error("missing dependency for key `$key`")
 
   /**
    * Returns the dependency identified by [key], or null when absent ([rule
@@ -227,9 +222,13 @@ private constructor(
           }
       )
 
-  internal fun specialize(specs: List<Expression>, classTable: ClassTable): DependencySet {
+  internal fun specialize(
+      specs: List<Expression>,
+      argumentKeys: List<Key> = keys,
+      classTable: ClassTable,
+  ): DependencySet {
     // This has been a bit optimized
-    val partial = matchPartial(specs, classTable)
+    val partial = subMapInOrder(argumentKeys).matchPartial(specs, classTable)
     return of(deps.map { partial.getIfPresent(it.key) ?: it })
   }
 
@@ -241,7 +240,7 @@ private constructor(
     val selected =
         compatible.firstOrNull { narrowed -> narrowed != get(narrowed.key) }
             ?: compatible.firstOrNull()
-            ?: throw Exceptions.badExpression(candidate, toString())
+            ?: throw ExpressionException("cannot match `$candidate` to any of `$this`")
     return replaceAt(DependencyPath(selected.key), selected)
   }
 
@@ -256,7 +255,7 @@ private constructor(
       val rebuilt = rootClass.withAllDependencies(dependencies.replaceAt(path.drop(1), replacement))
       val commonTable =
           requireNotNull(classTable.commonTable(rebuilt.classTable)) {
-            "$this and $rebuilt belong to unrelated class tables"
+            "`$this` and `$rebuilt` belong to unrelated class tables"
           }
       return rebuilt.inTable(commonTable).refine(refinement)
     }
@@ -296,7 +295,7 @@ private constructor(
           }
         }
       }
-      throw Exceptions.badExpression(arg, toString())
+      throw ExpressionException("cannot match `$arg` to any of `$this`")
     }
 
     return args.map(::matchToDependency)

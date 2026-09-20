@@ -35,6 +35,10 @@ items within Tiers 1 and 2 are approximately ordered; nearby items should not be
 comparison. Some are different faces of the same design, and evidence is a proof obligation rather
 than a competing feature.
 
+[`PLANS.md`](PLANS.md) indexes the concrete programs that pursue these outcomes. The outcome tiers
+below are durable; [current major-plan priority](#current-major-plan-priority) also accounts for
+readiness and expected effort.
+
 ### Tier 1: defining and worth active investment
 
 1. An exceptionally small, clear, regular, and formally precise semantic model. Profound software
@@ -67,7 +71,9 @@ one to three minor cards deserves special scrutiny, including consideration of d
 3. Excellent parser and typechecker diagnostics, especially for mistakes authors hit commonly.
 4. Generative and property-based exploration of interactions not represented by curated examples.
 5. A polished explanation for outsiders and, later, an educational reconstruction of how the design
-   developed. The clean resulting model matters more than preserving its history during development.
+   developed. This is distinct from the internal agent handbook, whose accuracy currently protects
+   Tier 1 design work. The clean resulting model matters more than preserving its history during
+   development.
 6. Richer causal presentation when it can be derived or post-processed cheaply. Existing event logs
    already provide substantial traceability, so perfect attribution does not merit design cost.
 
@@ -86,6 +92,47 @@ major initiative of their own.
 
 Things the project does not regard as desirable are omitted rather than assigned a tier. These
 tiers do not excuse defects or authorize claims the implementation cannot support.
+
+## Current major-plan priority
+
+This is the practical order for choosing substantial work from [`PLANS.md`](PLANS.md). It combines
+enduring importance with readiness, expected effort, and the value of closing a coherent program.
+It is not permission to implement a whole proposal without passing its stated gates.
+
+### Tier 1: active investment, in order
+
+1. **Make actions, payments, and completion one intelligible lifecycle.** This is the highest
+   enduring program priority.
+2. **Replace the Kotlin phase runner with self-running Pets scopes.** Top-level game progression
+   should follow from the declared model.
+3. **Complete the Agent boundary and policy system.** Actor-scoped access and automation that
+   preserves agency matter more than the contract, replay, and provenance programs below.
+4. **Rewrite the internal agent handbook around the settled model.** This is design infrastructure,
+   not optional outsider-facing polish; inaccurate or sprawling guidance directly degrades future
+   work.
+5. **Consolidate public contracts and failure boundaries.** Precise APIs, exceptions, and lifecycle
+   language outrank broader Pets-semantic cleanup at present.
+6. **Simplify the remaining Pets and runtime semantics.** Repair conformance and improve structural
+   expression, binding, ownership, fanout, and point-event representation without treating the
+   whole backlog as one migration.
+
+The bounded Class-universe finish is complete; [`CLASS_TABLES.md`](CLASS_TABLES.md) records its
+stable ownership and authority rules.
+
+Preserving existing source-backed replays remains a Tier 1 proof obligation while carrying out any
+of these programs. That constraint does not make expansion of replay coverage or provenance a
+higher-priority program of its own.
+
+### Tier 2: worthwhile but not current initiatives, in order
+
+1. **Material measured performance work** that enables qualitatively different development or
+   analysis. Small gains still do not qualify.
+2. **Expanded replay evidence/provenance** and **deleting machinery justified only by marginal
+   content**. Neither currently warrants emphasis, and there is deliberately no priority between
+   the two.
+
+The other Tier 2 outcomes above remain opportunistic or blocker-driven. No comparison selected a
+current initiative from them.
 
 ## Let libraries attest to the design
 

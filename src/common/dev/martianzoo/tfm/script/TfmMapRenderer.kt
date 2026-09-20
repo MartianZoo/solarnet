@@ -125,8 +125,8 @@ public class TfmMapRenderer(
         }
 
     val owner =
-        tile.expressionFull.arguments.firstNotNullOfOrNull { expression ->
-          val className = game.resolve(expression).className
+        tile.typeDependencies.firstNotNullOfOrNull { dependency ->
+          val className = dependency.boundType.className
           players.singleOrNull { it.className == className }
         }
     val player = owner?.let { players.indexOf(it) + 1 }?.toString().orEmpty()

@@ -49,7 +49,7 @@ public sealed class Instruction : InstructionTree() {
         Parsers.parser() map
             {
               it as? Instruction
-                  ?: throw PetSyntaxException("Expected one instruction, got group: $it")
+                  ?: throw PetSyntaxException("expected one instruction, found group `$it`")
             }
 
     internal fun treeParser(): Parser<InstructionTree> = Parsers.parser()
@@ -82,7 +82,7 @@ public sealed class Instruction : InstructionTree() {
     override fun isAbstract(info: TypeInfo): Boolean = false
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      if (proposed != NoOp) throw NarrowingException("not Ok")
+      if (proposed != NoOp) throw NarrowingException("`$proposed` does not narrow `Ok`")
     }
 
     override fun visitChildren(visitor: Visitor): Unit = Unit
@@ -156,14 +156,20 @@ public sealed class Instruction : InstructionTree() {
     ) {
       val quantifier = authored.quantifier
       if (proposed == NoOp && quantifier == OPTIONAL) return
-      proposed as? Change ?: throw NarrowingException("$this  /  $proposed")
+      proposed as? Change
+          ?: throw NarrowingException("expected a change narrowing of `$this`, found `$proposed`")
       proposed.quantifier!!.ensureNarrows(quantifier!!, info)
       val proposedCount = proposed.count
       val authoredCount = authored.count
       if (
           quantifier == OPTIONAL && proposedCount is ActualScalar && authoredCount is ActualScalar
       ) {
-        if (proposedCount.value > authoredCount.value) throw NarrowingException("")
+        if (proposedCount.value > authoredCount.value) {
+          throw NarrowingException(
+              "change count `${proposedCount.value}` exceeds optional maximum " +
+                  "`${authoredCount.value}`"
+          )
+        }
       } else {
         proposedCount.ensureNarrows(authoredCount, info)
       }
@@ -312,7 +318,10 @@ public sealed class Instruction : InstructionTree() {
         ensureChangeIsNarrowedBy(this, proposed, info)
         return
       }
-      proposed as? Transmute ?: throw NarrowingException("$this  /  $proposed")
+      proposed as? Transmute
+          ?: throw NarrowingException(
+              "expected a transmutation narrowing of `$this`, found `$proposed`"
+          )
       (fromEx as? Compact)?.ensureRetainedArgumentsAgree(
           proposed.gaining,
           proposed.removing,
@@ -330,7 +339,7 @@ public sealed class Instruction : InstructionTree() {
         val distinct = bindings.distinct()
         if (distinct.size > 1) {
           throw NarrowingException(
-              "Can't set Type variable $variable differently: ${bindings.toSet()}"
+              "type variable `$variable` has conflicting bindings: `${bindings.toSet()}`"
           )
         }
         distinct.singleOrNull()?.let {
@@ -357,7 +366,7 @@ public sealed class Instruction : InstructionTree() {
   public data class Per(val inner: Instruction, val metric: Metric) : Instruction() {
     init {
       if (inner !is Change) {
-        throw PetSyntaxException("Per can only contain gain/remove/transmute for now")
+        throw PetSyntaxException("`PER` requires a gain, removal, or transmutation: `$inner`")
       }
     }
 
@@ -370,9 +379,9 @@ public sealed class Instruction : InstructionTree() {
     override fun isAbstract(info: TypeInfo): Boolean = inner.isAbstract(info)
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      proposed as? Per ?: throw NarrowingException("$proposed does not preserve metric $metric")
+      proposed as? Per ?: throw NarrowingException("`$proposed` does not preserve metric `$metric`")
       if (proposed.metric != metric) {
-        throw NarrowingException("can't change the metric")
+        throw NarrowingException("cannot change metric `$metric` to `${proposed.metric}`")
       }
       proposed.inner.ensureNarrows(inner, info)
     }
@@ -412,8 +421,11 @@ public sealed class Instruction : InstructionTree() {
         inner.isAbstract(info) || actor.isAbstract(info)
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      proposed as? By ?: throw NarrowingException("$proposed does not preserve performer $actor")
-      if (proposed.actor != actor) throw NarrowingException("can't change performer $actor")
+      proposed as? By
+          ?: throw NarrowingException("`$proposed` does not preserve performer `$actor`")
+      if (proposed.actor != actor) {
+        throw NarrowingException("cannot change performer `$actor` to `${proposed.actor}`")
+      }
       proposed.inner.ensureNarrows(inner, info)
     }
 
@@ -445,7 +457,8 @@ public sealed class Instruction : InstructionTree() {
     }
 
     init {
-      if (inner is Gated) throw PetSyntaxException("You don't gate a gater")
+      if (inner is Gated)
+          throw PetSyntaxException("a gated instruction cannot contain another gate")
     }
 
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(gate, inner)
@@ -455,9 +468,10 @@ public sealed class Instruction : InstructionTree() {
     override fun isAbstract(info: TypeInfo): Boolean = inner.isAbstract(info)
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      proposed as? Gated ?: throw NarrowingException("$proposed does not preserve condition $gate")
+      proposed as? Gated
+          ?: throw NarrowingException("`$proposed` does not preserve condition `$gate`")
       if (proposed.gate != gate) {
-        throw NarrowingException("can't change the condition")
+        throw NarrowingException("cannot change condition `$gate` to `${proposed.gate}`")
       }
       proposed.inner.ensureNarrows(inner, info)
     }
@@ -487,11 +501,11 @@ public sealed class Instruction : InstructionTree() {
    */
   public data class Each(val selector: Expression, val body: InstructionTree) : Instruction() {
     init {
-      if (body == NoOp) throw PetSyntaxException("EACH needs a body")
+      if (body == NoOp) throw PetSyntaxException("`EACH` requires a non-`Ok` body")
       // Nesting would make `Owner` and each selector name ambiguous between two fanouts, and no
       // rule needs it. Banning it keeps one selection in scope at a time.
       if (body.descendantsOfType<Each>().any()) {
-        throw PetSyntaxException("EACH can't contain another EACH")
+        throw PetSyntaxException("`EACH` cannot contain another `EACH`")
       }
     }
 
@@ -506,9 +520,12 @@ public sealed class Instruction : InstructionTree() {
     override fun isAbstract(info: TypeInfo): Boolean = body.isAbstract(info)
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      proposed as? Each ?: throw NarrowingException("$proposed does not preserve `EACH $selector`")
+      proposed as? Each
+          ?: throw NarrowingException("`$proposed` does not preserve `EACH $selector`")
       if (proposed.selector != selector) {
-        throw NarrowingException("can't change the EACH selector")
+        throw NarrowingException(
+            "cannot change `EACH` selector `$selector` to `${proposed.selector}`"
+        )
       }
       proposed.body.ensureNarrows(body, info)
     }
@@ -549,7 +566,7 @@ public sealed class Instruction : InstructionTree() {
     init {
       require(stages.isNotEmpty())
       if (continuation is Then) {
-        throw PetSyntaxException("Nested THEN continuations must be flattened")
+        throw PetSyntaxException("`THEN` continuation cannot contain another `THEN`")
       }
       // Every left operand must remain one task and cannot itself contain an enqueue sequence.
       if (
@@ -557,7 +574,7 @@ public sealed class Instruction : InstructionTree() {
             it.descendantsOfType<InstructionGroup>().any() || it.descendantsOfType<Then>().any()
           }
       ) {
-        throw PetSyntaxException("THEN left operands cannot contain groups or other THENs")
+        throw PetSyntaxException("`THEN` left operands cannot contain groups or other `THEN`s")
       }
     }
 
@@ -571,7 +588,8 @@ public sealed class Instruction : InstructionTree() {
 
     /** Replaces stages while preserving the authored Type variables carried by this `THEN`. */
     public fun withInstructions(instructions: List<InstructionTree>): Then {
-      val replacement = createTree(instructions) as? Then ?: error("THEN requires two stages")
+      val replacement =
+          createTree(instructions) as? Then ?: error("`THEN` requires at least two stages")
       return replacement.withTypeVariables(typeVariables)
     }
 
@@ -588,9 +606,13 @@ public sealed class Instruction : InstructionTree() {
     }
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
-      proposed as? Then ?: throw NarrowingException("Can't narrow $this to $proposed")
+      proposed as? Then
+          ?: throw NarrowingException("expected a `THEN` narrowing of `$this`, found `$proposed`")
       if (instructions.size != proposed.instructions.size) {
-        throw NarrowingException("Can't change the number of THEN stages")
+        throw NarrowingException(
+            "`THEN` stage count cannot change from `${instructions.size}` to " +
+                "`${proposed.instructions.size}`"
+        )
       }
       val specialized = bindTypeVariablesFrom(proposed, info)
       for ((wide, narrow) in specialized.instructions.zip(proposed.instructions)) {
@@ -620,7 +642,9 @@ public sealed class Instruction : InstructionTree() {
                 }
                 .distinct()
         if (bindings.size > 1) {
-          throw NarrowingException("Can't bind Type variable $variable differently: $bindings")
+          throw NarrowingException(
+              "type variable `$variable` has conflicting bindings: `$bindings`"
+          )
         }
         val binding =
             bindings.singleOrNull()
@@ -641,7 +665,8 @@ public sealed class Instruction : InstructionTree() {
                   )
                   .transformInstruction(specialized)
           specialized =
-              transformed as? Then ?: error("expression replacement changed THEN into $transformed")
+              transformed as? Then
+                  ?: error("expression replacement changed `THEN` into `$transformed`")
         }
       }
       return specialized
@@ -714,7 +739,7 @@ public sealed class Instruction : InstructionTree() {
                 }
                 if (bindings.size > 1) {
                   throw NarrowingException(
-                      "Can't bind Type variable $variable differently: ${bindings.toSet()}"
+                      "type variable `$variable` has conflicting bindings: `${bindings.toSet()}`"
                   )
                 }
                 bindings.singleOrNull()?.let { binding ->
@@ -728,7 +753,7 @@ public sealed class Instruction : InstructionTree() {
       val selectionBinding = PetTransformer.chain(loweredBinding, authoredBinding)
       val selectedFirstStage = selectionBinding.transformInstruction(firstStage)
       if (selectedFirstStage is Gated && !info.has(selectedFirstStage.gate)) {
-        throw NarrowingException("Condition is not met: ${selectedFirstStage.gate}")
+        throw NarrowingException("condition is not met: `${selectedFirstStage.gate}`")
       }
       val specialized =
           bindTypeVariablesFrom(
@@ -740,7 +765,9 @@ public sealed class Instruction : InstructionTree() {
       val fullySpecialized =
           selectedX?.let { bindXTo(it).transformInstruction(specialized) as Then } ?: specialized
       if (requireBinding && fullySpecialized == this) {
-        throw NarrowingException("The first stage does not bind this THEN's Type variable")
+        throw NarrowingException(
+            "first stage `$selectedFirstStage` does not bind this `THEN` type variable"
+        )
       }
       return fullySpecialized.withParts(
           listOf(proposed) + fullySpecialized.stages.drop(1),
@@ -802,10 +829,12 @@ public sealed class Instruction : InstructionTree() {
       }
 
       val xValues = bindings(wide, narrow)
-      if (xValues.isEmpty()) throw NarrowingException("Can't match X occurrences in $narrow")
+      if (xValues.isEmpty()) {
+        throw NarrowingException("cannot match `X` occurrences in `$narrow`")
+      }
       val concreteValues = xValues.filterNotNull()
       if (concreteValues.size > 1) {
-        throw NarrowingException("Can't set different values for X: $concreteValues")
+        throw NarrowingException("`X` has conflicting values: `$concreteValues`")
       }
       return concreteValues.singleOrNull()
     }
@@ -846,7 +875,10 @@ public sealed class Instruction : InstructionTree() {
                   else -> {
                     val leading =
                         stages.dropLast(1).map { stage ->
-                          stage as? Instruction ?: throw PetSyntaxException("Bad THEN")
+                          stage as? Instruction
+                              ?: throw PetSyntaxException(
+                                  "`THEN` left stage must be one instruction: `$stage`"
+                              )
                         }
                     Then(leading, stages.last())
                   }
@@ -912,7 +944,7 @@ public sealed class Instruction : InstructionTree() {
     init {
       require(instructions.size >= 2)
       if (instructions.distinct().size != instructions.size) {
-        throw PetSyntaxException("duplicates")
+        throw PetSyntaxException("duplicate `OR` alternatives: `$instructions`")
       }
     }
 
@@ -943,7 +975,7 @@ public sealed class Instruction : InstructionTree() {
         }
       }
       throw NarrowingException(
-          "Instruction `$proposed` doesn't narrow any arm of `$this`:\n$messages",
+          "instruction `$proposed` does not narrow any arm of `$this`:\n$messages",
       )
     }
 
@@ -1007,10 +1039,10 @@ public sealed class Instruction : InstructionTree() {
     override fun scale(factor: Int): Instruction = copy(instruction = instruction * factor)
 
     override fun isAbstract(info: TypeInfo): Boolean =
-        throw ExpressionException("unhandled instruction transform: $this")
+        throw ExpressionException("unhandled instruction transform: `$this`")
 
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo): Unit =
-        throw ExpressionException("unhandled instruction transform: $this")
+        throw ExpressionException("unhandled instruction transform: `$this`")
 
     override fun toString(): String = "$transformKind[$instruction]"
 
@@ -1043,7 +1075,7 @@ public sealed class Instruction : InstructionTree() {
 
     override fun ensureNarrows(that: Quantifier, info: TypeInfo) {
       if (that != this && that != OPTIONAL) {
-        throw NarrowingException("")
+        throw NarrowingException("quantifier `${this.symbol}` does not narrow `${that.symbol}`")
       }
     }
 

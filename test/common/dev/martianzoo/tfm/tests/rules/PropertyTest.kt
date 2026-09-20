@@ -6,7 +6,7 @@ import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
@@ -116,7 +116,9 @@ internal class PropertyTest {
     p2.count("RequirementPropertyPassed") shouldBe 1
     p2.count("RequirementPropertyFinished") shouldBe 2
 
-    shouldThrow<PetException> { p1.runOperation("RecursiveRequirementPropertyProbe") }
+    shouldThrow<InvalidPetDefinitionException> {
+          p1.runOperation("RecursiveRequirementPropertyProbe")
+        }
         .message shouldContain "is recursive"
   }
 }

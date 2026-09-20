@@ -178,8 +178,8 @@ clear coverage of these contracts matters more than preserving every current tes
    component/task events, materialized projections, history, completed recording positions, and
    independent playback views remain coherent without firing effects. Cross-module engine
    scenarios cover consequence calculation and failure atomicity: a failed operation must restore
-   present components, pending work, and recorded history together while retaining a fresh revision
-   identity. [GAMEWORLD.md](GAMEWORLD.md) owns the detailed split.
+   present components, pending work, and recorded history together. [GAMEWORLD.md](GAMEWORLD.md)
+   owns the detailed split.
 4. **Player-level card and game-rule tests.** `CardTest` scenarios count when they use actions and
    observations available to a player rather than internal state or implementation details.
    `CoreRulesTest` documents game-wide rules in this same style.

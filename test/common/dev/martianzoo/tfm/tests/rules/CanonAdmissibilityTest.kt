@@ -52,7 +52,7 @@ internal class CanonAdmissibilityTest {
   }
 
   @Test
-  internal fun representativeCompleteConfigurationBuildsOneCoherentProjection() {
+  internal fun representativeCompleteConfigurationBuildsOneCoherentGameView() {
     val colonies = testColonyTiles(players = 2)
     val selected =
         arrayOf(

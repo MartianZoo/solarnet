@@ -122,7 +122,7 @@ public object Transforming {
   // Rule L9-4: a class may offer at most three actions.
   private fun actionSelector(index1Ref: Int): ClassName =
       listOf(cn("Action1"), cn("Action2"), cn("Action3")).getOrNull(index1Ref - 1)
-          ?: throw PetSyntaxException("A component can offer only three actions: $index1Ref")
+          ?: throw PetSyntaxException("action index must be between 1 and 3: `$index1Ref`")
 
   /**
    * Returns the effect `This: instruction`, which is how a card's "do this now" section becomes an

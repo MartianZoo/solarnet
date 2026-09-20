@@ -30,7 +30,7 @@ public sealed class Metric : PetElement() {
      * omitting the meaningless wrapper when [unit] is one. A unit of zero is rejected.
      */
     public fun scaled(inner: Metric, unit: Int): Metric {
-      if (unit < 1) throw PetSyntaxException("metric can't be zero")
+      if (unit < 1) throw PetSyntaxException("metric unit must be positive: `$unit`")
       return if (unit == 1) inner else Scaled(inner, unit)
     }
 
@@ -77,8 +77,8 @@ public sealed class Metric : PetElement() {
                 0,
             )
         is Or -> countUnion(this)
-        is Eval -> error("metric property evaluation was not expanded: $this")
-        is Transform -> throw ExpressionException("unhandled metric transform: $this")
+        is Eval -> error("metric property evaluation was not expanded: `$this`")
+        is Transform -> throw ExpressionException("unhandled metric transform: `$this`")
       }
 
   /**
@@ -102,7 +102,7 @@ public sealed class Metric : PetElement() {
       public val candidate: Expression? = null,
   ) : Metric() {
     init {
-      if (metrics.isEmpty()) throw PetSyntaxException("RANK needs a metric")
+      if (metrics.isEmpty()) throw PetSyntaxException("`RANK` requires at least one metric")
     }
 
     /** Returns the comparison metrics with marked selector occurrences bound to [candidate]. */
@@ -173,7 +173,7 @@ public sealed class Metric : PetElement() {
   @ConsistentCopyVisibility
   public data class Scaled internal constructor(val inner: Metric, val unit: Int) : Metric() {
     init {
-      if (unit < 1) throw PetSyntaxException("metric can't be zero")
+      if (unit < 1) throw PetSyntaxException("metric unit must be positive: `$unit`")
     }
 
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner)
@@ -190,7 +190,9 @@ public sealed class Metric : PetElement() {
    */
   public data class Max(val inner: Metric, val maximum: Metric) : Metric() {
     init {
-      if (inner is Max) throw PetSyntaxException("what are you even doing")
+      if (inner is Max) {
+        throw PetSyntaxException("`MAX` metric cannot contain another `MAX`: `$inner`")
+      }
     }
 
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(inner, maximum)
@@ -259,7 +261,7 @@ public sealed class Metric : PetElement() {
         val counted = flattened.map {
           it as? Count
               ?: throw PetSyntaxException(
-                  "OR metric alternatives must identify components, but found: $it"
+                  "`OR` metric alternatives must identify components: `$it`"
               )
         }
         val distinct = counted.distinct()
@@ -305,7 +307,7 @@ public sealed class Metric : PetElement() {
               val authored = listOf(met) + addon
               val flattened = authored.flatMap { if (it is Or) it.metrics else listOf(it) }
               if (flattened.distinct().size != flattened.size) {
-                throw PetSyntaxException("duplicate metric OR alternative: $flattened")
+                throw PetSyntaxException("duplicate metric `OR` alternatives: `$flattened`")
               }
               if (addon.any()) Or.create(authored)!! else met
             }

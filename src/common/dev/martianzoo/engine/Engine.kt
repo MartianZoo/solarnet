@@ -1,6 +1,11 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.PetElaborator
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.GameplayException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
@@ -77,7 +82,13 @@ public object Engine {
         )
 
     internal fun createWorld(): WholeWorld {
-      initializer.initialize()
+      try {
+        initializer.initialize()
+      } catch (e: GameplayException) {
+        throw InvalidGameConfigException("game setup cannot complete: ${e.message}", e)
+      } catch (e: NotFullySpecifiedException) {
+        throw InvalidGameConfigException("game setup cannot complete: ${e.message}", e)
+      }
       recordingPositions.record(timeline.checkpoint().ordinal)
       return world
     }
@@ -102,15 +113,20 @@ public object Engine {
     }
 
     private fun validatePremise(classTable: ClassTable) {
-      require(premise.modules.isEmpty() || premise.premiseClassName != null) {
-        "a premise with Modules must provide a premise Class"
+      if (premise.modules.isNotEmpty() && premise.premiseClassName == null) {
+        throw InvalidGameConfigException("a premise with Modules must provide a premise Class")
       }
       premise.initialComponentTypes.forEach { expression ->
-        val type = classTable.resolve(expression)
-        require(
-            !type.abstract && classTable.isInhabited(type) && !type.rootClass.declaration.custom
-        ) {
-          "initial component type must be concrete, inhabited, and instantiable: $expression"
+        val type =
+            try {
+              classTable.resolve(expression)
+            } catch (e: ExpressionException) {
+              throw InvalidGameConfigException("invalid initial component type: $expression", e)
+            }
+        if (type.abstract || !classTable.isInhabited(type) || type.rootClass.declaration.custom) {
+          throw InvalidGameConfigException(
+              "initial component type must be concrete, inhabited, and instantiable: $expression"
+          )
         }
       }
 
@@ -125,12 +141,16 @@ public object Engine {
       fun countInhabitedClasses(count: Count): Int {
         if (count.expression.className == CLASS) {
           val representedClass = count.expression.arguments.singleOrNull()
-          require(representedClass?.simple == true) {
-            "Module Class invariants must name one simple Class: $count"
+          if (representedClass?.simple != true) {
+            throw InvalidPetDefinitionException(
+                "Module Class invariants must name one simple Class: $count"
+            )
           }
           return if (classTable.isInhabited(representedClass.className)) 1 else 0
         }
-        require(count.expression.simple) { "Module invariants must count a simple class: $count" }
+        if (!count.expression.simple) {
+          throw InvalidPetDefinitionException("Module invariants must count a simple class: $count")
+        }
         val type = classTable.findInhabitedClass(count.expression.className)?.baseType ?: return 0
         return classTable.allClasses().count { klass ->
           klass in inhabitedConcreteClasses &&
@@ -142,9 +162,17 @@ public object Engine {
       fun evaluateInhabitedClasses(metric: Metric): Int =
           metric.evaluate(
               ::countInhabitedClasses,
-              { property -> error("Module premise metrics cannot read properties: $property") },
-              { union -> error("Module premise metrics cannot use OR: $union") },
-              { rank -> error("Module premise metrics cannot use RANK: $rank") },
+              { property ->
+                throw InvalidPetDefinitionException(
+                    "Module premise metrics cannot read properties: $property"
+                )
+              },
+              { union ->
+                throw InvalidPetDefinitionException("Module premise metrics cannot use OR: $union")
+              },
+              { rank ->
+                throw InvalidPetDefinitionException("Module premise metrics cannot use RANK: $rank")
+              },
           )
 
       fun holds(requirement: Requirement): Boolean = requirement.isMetBy(::evaluateInhabitedClasses)
@@ -153,13 +181,19 @@ public object Engine {
           .flatMap { moduleName -> classTable.getClass(moduleName).invariants }
           .filter { requirement -> THIS !in requirement.descendantsOfType<ClassName>() }
           .forEach { requirement ->
-            require(holds(requirement)) { "game premise fails Module invariant: $requirement" }
+            if (!holds(requirement)) {
+              throw InvalidGameConfigException("game premise fails Module invariant: $requirement")
+            }
           }
 
       premise.modules.forEach { moduleName ->
         val property = classTable.getClass(moduleName).properties[PREMISE_REQUIREMENT]
         val requirement = (property as? RequirementValue)?.value ?: return@forEach
-        require(holds(requirement)) { "game premise fails $moduleName requirement: $requirement" }
+        if (!holds(requirement)) {
+          throw InvalidGameConfigException(
+              "game premise fails $moduleName requirement: $requirement"
+          )
+        }
       }
     }
 

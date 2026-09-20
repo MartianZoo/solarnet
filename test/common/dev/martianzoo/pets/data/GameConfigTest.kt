@@ -1,6 +1,6 @@
 package dev.martianzoo.pets.data
 
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
@@ -50,14 +50,14 @@ internal class GameConfigTest {
 
   @Test
   internal fun rejectsDuplicateAndNonClassEntries() {
-    shouldThrow<PetException> { GameConfig("TerraformingMars, TerraformingMars") }
-    shouldThrow<PetException> { GameConfig("TerraformingMars, -TerraformingMars") }
-    shouldThrow<PetException> { GameConfig("TerraformingMars", "Blue", "Blue") }
-    shouldThrow<PetException> { GameConfig("TerraformingMars", "TerraformingMars") }
-    shouldThrow<PetException> { GameConfig("-TerraformingMars", "TerraformingMars") }
-    shouldThrow<PetException> { GameConfig("2 Player") }
-    shouldThrow<PetException> { GameConfig("-") }
-    shouldThrow<PetException> { GameConfig("Select<Class<ColonizerTrainingCamp>>") }
-    shouldThrow<PetException> { GameConfig("", "not a player") }
+    shouldThrow<InvalidGameConfigException> { GameConfig("TerraformingMars, TerraformingMars") }
+    shouldThrow<InvalidGameConfigException> { GameConfig("TerraformingMars, -TerraformingMars") }
+    shouldThrow<InvalidGameConfigException> { GameConfig("TerraformingMars", "Blue", "Blue") }
+    shouldThrow<InvalidGameConfigException> { GameConfig("TerraformingMars", "TerraformingMars") }
+    shouldThrow<InvalidGameConfigException> { GameConfig("-TerraformingMars", "TerraformingMars") }
+    shouldThrow<InvalidGameConfigException> { GameConfig("2 Player") }
+    shouldThrow<InvalidGameConfigException> { GameConfig("-") }
+    shouldThrow<InvalidGameConfigException> { GameConfig("Select<Class<ColonizerTrainingCamp>>") }
+    shouldThrow<InvalidGameConfigException> { GameConfig("", "not a player") }
   }
 }

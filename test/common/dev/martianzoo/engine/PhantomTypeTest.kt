@@ -5,7 +5,7 @@ import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.state.GameEvent.ChangeEvent
@@ -185,6 +185,6 @@ internal class PhantomTypeTest {
             initialComponentTypes = setOf(cn("PhantomEffectProbe").expression),
         )
 
-    shouldThrow<PetException> { Engine.newGame(premise) }
+    shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
   }
 }

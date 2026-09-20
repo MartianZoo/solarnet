@@ -240,7 +240,8 @@ internal class Spec08RefinementsTest {
     table.resolve(te("GreeneryTile")).isSubtypeOf(unowned) shouldBe false
     table.resolve(te("CityTile")).isSubtypeOf(unowned) shouldBe false
     table.resolve(te("OceanTile")).isSubtypeOf(unowned) shouldBe true
-    unowned.allConcreteSubtypes().map { "$it" }.toList() shouldContainExactly listOf("OceanTile")
+    table.allConcreteSubtypes(unowned).map { "$it" }.toList() shouldContainExactly
+        listOf("OceanTile")
   }
 
   @Test
@@ -262,8 +263,12 @@ internal class Spec08RefinementsTest {
 
   @Test
   internal fun `T8-5 the excluded operand must be free of refinements, recursively`() {
-    shouldThrow<ExpressionException> { actors.resolve(te("Owner(NOT Player(HAS Marker))")) }
-    shouldThrow<ExpressionException> { actors.resolve(te("Owner(NOT Player(NOT Player1))")) }
+    shouldThrow<ExpressionException> {
+      actors.resolve(te("Owner(NOT Player(HAS Marker))"))
+    }
+    shouldThrow<ExpressionException> {
+      actors.resolve(te("Owner(NOT Player(NOT Player1))"))
+    }
     shouldThrow<ExpressionException> {
       actors.resolve(te("Marker<Player(NOT Player(HAS Marker))>"))
     }
@@ -281,7 +286,7 @@ internal class Spec08RefinementsTest {
 
     empty.refinement shouldBe te("Player1(NOT Player1)").refinement
     empty.abstract shouldBe true
-    empty.allConcreteSubtypes().toList() shouldContainExactly listOf()
+    actors.allConcreteSubtypes(empty).toList() shouldContainExactly listOf()
   }
 
   // T8-8 Refinements and narrowing
@@ -395,8 +400,8 @@ internal class Spec08RefinementsTest {
 
   @Test
   internal fun `T8-9 multiple NOT clauses jointly filter structural enumeration`() {
-    type("Area(NOT Tharsis_2_2, NOT WaterArea)")
-        .allConcreteSubtypes()
+    mars
+        .allConcreteSubtypes(type("Area(NOT Tharsis_2_2, NOT WaterArea)"))
         .map { "$it" }
         .toList() shouldContainExactly listOf("Tharsis_2_3")
   }

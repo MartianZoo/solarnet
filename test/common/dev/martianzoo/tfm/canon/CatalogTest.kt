@@ -3,12 +3,12 @@ package dev.martianzoo.tfm.canon
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.types.ClassTable
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -23,7 +23,7 @@ internal class CatalogTest {
   @Test
   internal fun configuringPlayersRequiresAPlayerDeclaration() {
     val failure =
-        shouldThrow<IllegalArgumentException> {
+        shouldThrow<InvalidGameConfigException> {
           TfmCatalog().gamePremise(GameConfig("", "Player1"))
         }
 
@@ -75,10 +75,12 @@ internal class CatalogTest {
         )
 
     val unavailable =
-        shouldThrow<PetException> { source.gamePremise(GameConfig("Selected")).classTable }
+        shouldThrow<InvalidGameConfigException> {
+          source.gamePremise(GameConfig("Selected")).classTable
+        }
 
     unavailable.message.orEmpty() shouldContain
-        "unviable game premise: Selected has reachable mandatory removal Missing"
+        "unviable game premise: `Selected` has reachable mandatory removal Missing"
   }
 
   @Test
@@ -238,7 +240,7 @@ internal class CatalogTest {
     val concrete = parseOneLinerClass("CLASS Shared")
     val abstract = parseOneLinerClass("ABSTRACT CLASS Shared")
 
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       TfmCatalog.compose(catalog(concrete), catalog(abstract)).allClassDeclarations
     }
   }
@@ -270,7 +272,7 @@ internal class CatalogTest {
               )
         }
 
-    val table = ClassTable.forPremise(source.gamePremise(GameConfig("ExampleModule")))
+    val table = source.gamePremise(GameConfig("ExampleModule")).classTable
 
     table.isInhabited(card.className) shouldBe false
   }
@@ -364,7 +366,7 @@ internal class CatalogTest {
             },
         )
 
-    val table = ClassTable.forPremise(source.gamePremise(GameConfig("CardPack")))
+    val table = source.gamePremise(GameConfig("CardPack")).classTable
 
     (cn("ExampleCard") in table.allClassNames) shouldBe true
     (cn("PassiveHelper") in table.allClassNames) shouldBe true
@@ -383,7 +385,7 @@ internal class CatalogTest {
 
     val premise = source.gamePremise(GameConfig("Base, ExampleCard"))
 
-    (cn("ExampleCard") in ClassTable.forPremise(premise).allClassNames) shouldBe true
+    (cn("ExampleCard") in premise.classTable.allClassNames) shouldBe true
   }
 
   @Test
@@ -450,7 +452,7 @@ internal class CatalogTest {
             contentPack,
         )
 
-    val filtered = ClassTable.forPremise(source.gamePremise(GameConfig("Base, ContentPack")))
+    val filtered = source.gamePremise(GameConfig("Base, ContentPack")).classTable
     filtered.isInhabited(observingCard) shouldBe false
     filtered.isInhabited(constructingCard) shouldBe false
     filtered.isInhabited(observingMaximumCard) shouldBe false
@@ -462,8 +464,7 @@ internal class CatalogTest {
     filtered.isInhabited(cn("SupportingClassCard")) shouldBe true
     filtered.isInhabited(independentCard) shouldBe true
 
-    val automatic =
-        ClassTable.forPremise(source.gamePremise(GameConfig("Base, ContentPack, Feature")))
+    val automatic = source.gamePremise(GameConfig("Base, ContentPack, Feature")).classTable
     automatic.isInhabited(observingCard) shouldBe true
     automatic.isInhabited(constructingCard) shouldBe true
     automatic.isInhabited(observingMaximumCard) shouldBe true
@@ -479,14 +480,13 @@ internal class CatalogTest {
         )
         .forEach { card ->
           val unavailable =
-              shouldThrow<IllegalArgumentException> {
+              shouldThrow<InvalidGameConfigException> {
                 source.gamePremise(GameConfig("Base, $card"))
               }
           unavailable.message.orEmpty() shouldContain "configured content"
         }
 
-    val explicitIndependent =
-        ClassTable.forPremise(source.gamePremise(GameConfig("Base, $independentCard")))
+    val explicitIndependent = source.gamePremise(GameConfig("Base, $independentCard")).classTable
     explicitIndependent.isInhabited(independentCard) shouldBe true
   }
 

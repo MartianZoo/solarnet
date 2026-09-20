@@ -1,119 +1,102 @@
 package dev.martianzoo.pets.api
 
-import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction.Change
-import dev.martianzoo.pets.ast.Instruction.Or
-import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Type
 
+/** Domain exception types shared across Pets-based APIs. */
 public object Exceptions {
+  // Authored Pets failures
 
-  // FACTORIES
+  /** A problem in authored Pets source or the definitions assembled from it. */
+  public sealed class PetException(
+      message: String,
+      cause: Throwable? = null,
+  ) : Exception(message, cause)
 
-  internal fun classNotFound(className: ClassName) =
-      ExpressionException(
-          "No class named `$className` in current game (check bundles, check spelling)",
-      )
+  /** A Pets tree violates the language's syntactic or structural rules. */
+  public class PetSyntaxException(
+      message: String,
+      cause: Throwable? = null,
+  ) : PetException(message, cause)
 
-  internal fun badExpression(specExpression: Expression, deps: String) =
-      ExpressionException("can't match `$specExpression` to any of: `$deps`")
+  /** Syntactically valid Pets cannot be interpreted under the active Catalog. */
+  public class ExpressionException(
+      message: String,
+      cause: Throwable? = null,
+  ) : PetException(message, cause)
 
-  public fun abstractComponent(type: Type, change: Change? = null): AbstractException =
-      AbstractException(
-          buildString {
-            append("${type.expression} is abstract")
-            change?.let { append(" in: `$it`") }
-          },
-      )
+  /** Authored definitions cannot form a valid Catalog. */
+  public class InvalidPetDefinitionException(
+      message: String,
+      cause: Throwable? = null,
+  ) : PetException(message, cause)
 
-  public fun abstractInstruction(instr: InstructionTree): AbstractException =
-      AbstractException("instruction is abstract: $instr")
+  // Gameplay rejections
 
-  public fun orWithoutChoice(orInstruction: Or): AbstractException =
-      AbstractException("choice required in: `$orInstruction`")
+  /** A concrete gameplay attempt was understood and correctly rejected by the game model. */
+  public sealed class GameplayException(
+      message: String,
+      cause: Throwable? = null,
+  ) : Exception(message, cause)
 
-  public fun requirementNotMet(reqt: Requirement, message: String? = null): RequirementException =
-      RequirementException("requirement not met: `$reqt` / $message")
+  /** A requested task operation is incompatible with the current task state. */
+  public class TaskException(
+      message: String,
+      cause: Throwable? = null,
+  ) : GameplayException(message, cause)
 
-  public fun requirementsNotMetInChoices(
-      failures: Collection<RequirementException>
-  ): RequirementException {
-    require(failures.isNotEmpty())
-    return RequirementException(
-        "requirements not met in every choice: " + failures.joinToString { it.message.orEmpty() }
-    )
+  /** A gameplay path cannot produce a legal outcome. */
+  public class DeadEndException(
+      message: String,
+      cause: Throwable? = null,
+  ) : GameplayException(message, cause) {
+    public constructor(cause: Throwable) : this(cause.message.orEmpty(), cause)
   }
 
-  internal fun refinementNotMet(reqt: Requirement) =
-      NarrowingException("requirement not met: `$reqt`")
+  /** A concrete gameplay attempt is unavailable in the current World. */
+  public open class NotNowException(
+      message: String,
+      cause: Throwable? = null,
+  ) : GameplayException(message, cause)
 
-  public fun invalidPetDefinition(message: String, cause: Throwable? = null): PetException =
-      PetException(message, cause)
+  /** A component cannot be removed while other components depend on it. */
+  public class ExistingDependentsException(
+      public val dependents: Collection<Type>,
+  ) : NotNowException("existing dependents: ${dependents.joinToString { "`${it.expression}`" }}")
 
-  // TOP-LEVEL EXCEPTIONS
+  /** A requirement for the attempted gameplay is not met. */
+  public class RequirementException(message: String) : NotNowException(message)
 
-  /** A problem in authored Pets, game configuration, or the definitions assembled from them. */
-  public open class PetException public constructor(message: String, cause: Throwable? = null) :
-      Exception(message, cause)
+  /** Components required by the attempted gameplay are missing. */
+  public class DependencyException(
+      public val dependencies: Collection<Type>,
+  ) :
+      NotNowException(
+          "missing dependencies: ${dependencies.joinToString { "`${it.expressionFull}`" } }"
+      )
 
-  /** Something is not a valid narrowing of something else. */
-  public class NarrowingException(message: String, cause: Throwable? = null) :
-      Exception(message, cause)
+  /** A quantity or capacity limit makes the attempted gameplay unavailable. */
+  public class LimitsException(message: String) : NotNowException(message)
+
+  /** A proposed value is not a valid narrowing of the original value. */
+  public class NarrowingException(
+      message: String,
+      cause: Throwable? = null,
+  ) : GameplayException(message, cause)
+
+  // Other domain failures
+
+  /** A structurally understandable game configuration cannot produce the requested premise. */
+  public class InvalidGameConfigException(
+      message: String,
+      cause: Throwable? = null,
+  ) : Exception(message, cause)
+
+  /** The request does not specify a concrete component, instruction, or choice to evaluate. */
+  public class NotFullySpecifiedException(message: String) : Exception(message)
 
   /** A custom Kotlin implementation failed while evaluating otherwise valid Pets input. */
-  public class CustomCodeException(message: String, cause: Throwable? = null) :
-      Exception(message, cause)
-
-  public open class RecoverableException(message: String) : Exception(message)
-
-  public open class TaskException(message: String) : Exception(message)
-
-  public open class DeadEndException(message: String, cause: Throwable? = null) :
-      Exception(message, cause) {
-    public constructor(cause: Throwable) : this(cause.message ?: "", cause)
-  }
-
-  /**
-   * An attempt was made to execute an instruction that was not fully-specified. This should be
-   * rectifiable by narrowing or resolving the instruction.
-   */
-  public class AbstractException(message: String) : RecoverableException(message)
-
-  /**
-   * Someone tried to do something that can't work against *this* world, but could potentially work
-   * later as far as we know.
-   */
-  public open class NotNowException(message: String) : RecoverableException(message)
-
-  // Subtypes (catchable)
-
-  public class PetSyntaxException(message: String, cause: Throwable? = null) :
-      PetException(message, cause)
-
-  /** Valid Pets source attempted to declare a Class after the current Class Table was built. */
-  public class NoNewClassDeclarationsException :
-      PetException("New Class declarations are not allowed after the Class Table is frozen")
-
-  /** A valid Pets tree changed into a kind that its caller cannot accept. */
-  public class KindException(message: String, cause: Throwable? = null) :
-      PetException(message, cause)
-
-  public class ExistingDependentsException(public val dependents: Collection<Type>) :
-      NotNowException("Existing dependents: ${dependents.joinToString { "${it.expression}" }}")
-
-  /** A string does not represent a valid expression. */
-  public class ExpressionException(message: String, cause: Throwable? = null) :
-      PetException(message, cause)
-
-  /** Something needed a requirement to be met and it was not. */
-  public class RequirementException internal constructor(message: String) : NotNowException(message)
-
-  public class DependencyException(public val dependencies: Collection<Type>) :
-      NotNowException(
-          "Missing dependencies: ${dependencies.joinToString { "${it.expressionFull}" } }"
-      )
-
-  public class LimitsException(message: String) : NotNowException(message)
+  public class CustomCodeException(
+      message: String,
+      cause: Throwable? = null,
+  ) : Exception(message, cause)
 }

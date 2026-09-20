@@ -96,12 +96,7 @@ internal class GameReaderImpl(
         property.receiver
             ?: throw ExpressionException("Property `${property.propertyName}` has no receiver")
     val receiverType = classTable.resolve(receiver)
-    val propertyType =
-        if (receiverType.rootClass === classTable.classClass) {
-          classTable.resolve(receiverType.expressionFull.arguments.single())
-        } else {
-          receiverType
-        }
+    val propertyType = receiverType.representedClass?.baseType ?: receiverType
     val propertyClass = propertyType.rootClass
     return when (val value = propertyClass.properties[property.propertyName]) {
       null ->

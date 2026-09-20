@@ -59,9 +59,9 @@ internal class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstr
       return MutableColumn(rows.subList(fromIndex, toIndex), columnIndex)
     }
 
-    override fun add(index: Int, element: E?) = error("fixed-size")
+    override fun add(index: Int, element: E?) = error("fixed-size column cannot add elements")
 
-    override fun removeAt(index: Int) = error("fixed-size")
+    override fun removeAt(index: Int) = error("fixed-size column cannot remove elements")
   }
 
   // zero for the main diagonal, increasing to the right
@@ -76,7 +76,7 @@ internal class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstr
 
     init {
       if (columnMinusRow <= 0 - grid.rowCount || columnMinusRow >= grid.columnCount - 0) {
-        throw IndexOutOfBoundsException("$columnMinusRow")
+        throw IndexOutOfBoundsException("diagonal offset is out of bounds: `$columnMinusRow`")
       }
     }
 
@@ -88,8 +88,8 @@ internal class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, Abstr
     override fun set(index: Int, element: E?) =
         (grid.row(index) as MutableList<E?>).set(columnMinusRow + index, element)
 
-    override fun add(index: Int, element: E?) = error("fixed-size")
+    override fun add(index: Int, element: E?) = error("fixed-size diagonal cannot add elements")
 
-    override fun removeAt(index: Int) = error("fixed-size")
+    override fun removeAt(index: Int) = error("fixed-size diagonal cannot remove elements")
   }
 }

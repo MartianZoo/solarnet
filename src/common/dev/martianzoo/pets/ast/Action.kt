@@ -98,7 +98,8 @@ public data class Action(
     // can't do non-prod per prod yet
     public data class Per(val cost: Cost, val metric: Metric) : Cost() {
       init {
-        if (cost is Per) throw PetSyntaxException("Might support in future?")
+        if (cost is Per)
+            throw PetSyntaxException("action costs cannot contain nested `PER` metrics")
       }
 
       override fun visitChildren(visitor: Visitor): Unit = visitor.visit(cost, metric)

@@ -480,7 +480,7 @@ internal class Spec13TypeVariablesTest {
           .transformEffect(effect)
     }
 
-    boundEffect("Compatible").toString() shouldBe "This: Player1Token<Player1>"
+    boundEffect("Compatible").toString() shouldBe "This: Player1Token"
     shouldThrow<NarrowingException> { boundEffect("Conflicting") }
   }
 
@@ -1134,6 +1134,38 @@ internal class Spec13TypeVariablesTest {
         .bind(mapOf(variable to table.resolve(te("Plant"))))
         .transformEffect(copied)
         .toString() shouldBe "Plant: Notice<Plant>, StandardResource"
+  }
+
+  @Test
+  internal fun `T13-10 binding omits arguments fixed by the chosen subclass`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Kind { CLASS Fixed, Other }",
+            "ABSTRACT CLASS Box<Kind>",
+            "CLASS FixedBox : Box<Fixed>",
+            "ABSTRACT CLASS Notice<Box<Kind>>",
+            "ABSTRACT CLASS Holder<Class<Box^B>, Kind^K> { " + "This: Notice<Box^B<Kind^K>> }",
+        )
+    val holder = table.getClass(cn("Holder"))
+    val bound = holder.interpretTypeVariablesIn(holder.declaration.effects.single())
+    val box = bound.typeVariables.variables.first { it.bound.rootClass.className == cn("Box") }
+    val kind = bound.typeVariables.variables.first { it.bound.rootClass.className == cn("Kind") }
+
+    bound.typeVariables
+        .bind(
+            mapOf(
+                box to table.resolve(te("FixedBox")),
+                kind to table.resolve(te("Fixed")),
+            )
+        )
+        .transformEffect(bound)
+        .toString() shouldBe "This: Notice<FixedBox>"
+
+    shouldThrow<NarrowingException> {
+      bound.typeVariables.bind(
+          mapOf(box to table.resolve(te("FixedBox")), kind to table.resolve(te("Other")))
+      )
+    }
   }
 
   @Test

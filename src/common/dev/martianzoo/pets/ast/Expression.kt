@@ -279,7 +279,7 @@ public data class Expression(
     public data class Has(val requirement: Requirement) : Refinement() {
       init {
         require(requirement !is Requirement.And) {
-          "a HAS clause cannot contain a top-level requirement conjunction"
+          "a `HAS` clause cannot contain a top-level requirement conjunction"
         }
       }
 

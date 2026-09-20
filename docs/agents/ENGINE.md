@@ -19,7 +19,7 @@
 
 | If changing | Read |
 | --- | --- |
-| Game creation or premise activation | Game construction, then Wiring details |
+| Game creation or premise selection | Game construction, then Wiring details |
 | Component state | Component graph |
 | Current event, timeline, or recording implementation | Events and timeline |
 | Tasks, assignment, selection, narrowing, resolution, or execution | Tasks are an unordered choice pool through Execution |
@@ -43,7 +43,7 @@
   only for deferred work and resolution.
 - [`EventLog.kt`](../../src/common/dev/martianzoo/state/EventLog.kt) and
   [`Timeline.kt`](../../src/common/dev/martianzoo/engine/Timeline.kt) — inspect only
-  for history, atomicity, rollback, or revisions.
+  for history, atomicity, or rollback.
  - [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) — search for
    `public interface Agent` before changing caller-facing operations.
  - [`PetElaborator.kt`](../../src/common/dev/martianzoo/pets/PetElaborator.kt),
@@ -64,7 +64,7 @@ A live Game World is a `World` containing:
 | `ComponentGraph` | Present state: a multiset of concrete components |
 | Global task queue | Deferred work and Actor choices, with one assignee on each Task |
 | `EventLog` | Applied component and task history |
-| `Timeline` | Atomicity, rollback, revision, and commit floor |
+| `Timeline` | Atomicity, rollback, and commit floor |
 | `ClassTable` | The closed vocabulary and type relationships |
 | Mutation executor | Validation and atomic calculation for direct Actor-attributed calls |
 
@@ -84,20 +84,21 @@ produce an immutable `GamePremise`. The premise contains one Catalog, selected M
 class selections, seat-ordered Player Class Names, and exact concrete types to create once. See
 [OPTIONS.md](OPTIONS.md).
 
-A premise lazily forms and retains one immutable active `ClassTable` projection. Every World built
-from that premise shares the projection and its compiled class metadata while retaining independent
-component, effect, task, event, timeline, and gameplay state.
+A premise lazily forms and retains one immutable game `ClassTable` view. Every World built from that
+premise shares the view and its compiled class metadata while retaining independent component,
+effect, task, event, timeline, and gameplay state.
 
-Each Catalog owns one validated master `ClassTable`. A game's table projects it: selected Classes
-are active and every other Catalog-known Class is uninhabited. Each configured player name is a
-concrete Player Class in the composed Catalog and an explicit projection root. Trigger positions are
-observational and do not activate their protocol Classes. Modules directly create the concrete
-standard actions and other protocols they issue; generic families use `EACH` over the structurally
-present `Class<T>` representatives only when the family itself owns the fanout.
+Each Catalog owns one validated master `ClassTable`. A game's table shares its compiled structure:
+selected Classes are included and every other Catalog-known Class is uninhabited. Each configured
+player name is a concrete Player Class in the composed Catalog and an explicit selection root.
+Trigger positions are observational and do not include their protocol Classes. Modules directly
+create the concrete standard actions and other protocols they issue; generic families use `EACH`
+over the structurally present `Class<T>` representatives only when the family itself owns the
+fanout.
 
 Module defaults and premise requirements are authored in Pets. The Catalog resolves defaults to a
 fixed point; the engine checks each selected Module's premise requirement and configuration-facing
-invariants against the resolved projection before creating the World. Ambient Class ownership
+invariants against the resolved game view before creating the World. Ambient Class ownership
 derives compatibility conditions from source declarations and lowered structured data. Bundle
 availability locks ambient Classes behind their owning Modules, and exact uninhabited-domain
 viability checks reject impossible selected content before World construction.
@@ -118,7 +119,7 @@ printed-face predicates to the client.
 card back, tags, immediate instructions, actions, effects, cost, requirement, and card-resource type
 from Pets. Concrete `CardFront` subclasses form the card registry, and each card's represented
 `Class<CardBack>` determines its deck. Card resource directories preserve Module-specific card-pool
-grouping and activate unreferenced non-card roots; ordinary Pets references activate the remaining
+grouping and include unreferenced non-card roots; ordinary Pets references include the remaining
 declarations. Domain components exist only when the premise or an explicit creator produces them.
 Promo Card Pack contributes
 three direct class exclusions for the cards its revised printings supersede; there is no general
@@ -244,13 +245,12 @@ ordinal.
 
 `GameWorld.apply` and rollback are the single exact event/state interface: application or reversal
 updates event history and the component or pending-task projection together. Each current event has
-one integer ordinal. Each forward or reverse mutation advances an opaque `WorldRevision`; unlike
-the event-count checkpoint, a revision is never reused after rollback.
+one integer ordinal.
 
 `Timeline` provides event-count checkpoints, atomic blocks, rollback, and a commit floor. An atomic
 failure reverses component state, tasks, event-backed indexes, and events.
-`AbortTransactionException` requests rollback without surfacing as a caller error. The commit floor
-prevents rollback into initialization or a workflow stage.
+`Exceptions.AbortTransactionException` requests rollback without surfacing as a caller error. The
+commit floor prevents rollback into initialization or a workflow stage.
 
 `World.recording()` captures the event sequence and selected positions around successful outermost
 Agent completion without changing the live `World`. Opening the immutable recording constructs an
@@ -514,8 +514,8 @@ instruction positions without rewriting coincidental equal Class Names.
 
 `::` effects execute inline, recursively, before queued effects from the same concrete change are
 admitted. A causal chain may contain at most eight nested automatic effects; exceeding that limit
-fails the operation atomically with `RunawayEffectChainException`, which carries the attempted
-chain. `:` effects become tasks. Use
+fails the operation atomically with `Exceptions.RunawayEffectChainException`, which carries the
+attempted chain. `:` effects become tasks. Use
 [SEQUENCING.md](SEQUENCING.md) before depending on that difference.
 
 ## Metrics, refinements, and limits
@@ -555,17 +555,17 @@ until trigger specialization, and then receives normal defaults, `Owner` binding
 lowering. Map bonuses and other computed metadata remain justified custom metrics. Distinct live tag or
 resource kinds use refined `Class<...>` Types instead.
 
-Each `Class` retains its effective inherited invariants, and each active `ClassTable` projection
-compiles them once into an immutable per-class component-limit lookup. A World's `Limiter` combines
+Each `Class` retains its effective inherited invariants, and each game `ClassTable` view compiles
+them once into an immutable per-class component-limit lookup. A World's `Limiter` combines
 that shared lookup with the live component graph to compute current headroom and footroom.
 [QUANTIFIERS.md](QUANTIFIERS.md) specifies how concrete limits, abstract domains, dependencies, and
 instruction composition determine the result.
 
-An invariant has no constructive meaning. In particular, a positive lower bound can activate its
-named Classes during projection, but it neither creates the required Components nor chooses their
-concrete Types. Bare `HAS requirement` is therefore the preferred presence statement when a
+An invariant has no constructive meaning. In particular, a positive lower bound can include its
+named Classes during game-view selection, but it neither creates the required Components nor chooses
+their concrete Types. Bare `HAS requirement` is therefore the preferred presence statement when a
 separate rule already guarantees uniqueness. Structural `Class<T>` representatives are the clearest
-case: `HAS Class<T>` says that T must be active, while `=1` would merely repeat their structural
+case: `HAS Class<T>` says that T must be included, while `=1` would merely repeat their structural
 multiplicity.
 
 ### Multiplicity audit
@@ -681,11 +681,11 @@ methods; the core engine still owns validation, contextual closing required by g
 resolution, and execution. The extraction must not let one layer elaborate a different Pets
 meaning from another.
 
-A Catalog maps transform names to handlers bound to an active `ClassTable`. The generic
+A Catalog maps transform names to handlers bound to a game `ClassTable`. The generic
 dispatcher traverses the AST, prevents same-kind nesting, and preserves unregistered transforms so
 an earlier compilation stage can handle only the syntax it owns. Terraforming Mars registers
 `PROD` lowering and follow-mode `CARDS` lowering. Card-source compilation invokes the same
-dispatcher with only `CARDS`, leaving `PROD` for the active-table stage.
+dispatcher with only `CARDS`, leaving `PROD` for the game-table stage.
 
 Source-shaped AST returned by custom implementations enters through
 `PetElaborator.elaborateCustomInstruction`. Public elaboration entry points preserve their declared

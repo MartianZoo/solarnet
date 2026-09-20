@@ -156,9 +156,14 @@ internal constructor(
           } else {
             source.arguments.zip(sourceClass.matchDependencyKeys(source.arguments, classTable))
           }
-      val retainedArguments = sourceArguments.filterNot { (_, key) -> key in representedKeys }
+      val openKeys = binding.rootClass.argumentDependencies.keys.toSet()
+      val retainedArguments = sourceArguments.filter { (_, key) ->
+        key in openKeys && key !in representedKeys
+      }
       val applied = expression.appendArguments(retainedArguments.map { it.first })
-      return if (source.argumentsSpecified && !applied.argumentsSpecified) {
+      return if (
+          source.argumentsSpecified && source.arguments.isEmpty() && !applied.argumentsSpecified
+      ) {
         applied.copy(argumentsSpecified = true)
       } else {
         applied

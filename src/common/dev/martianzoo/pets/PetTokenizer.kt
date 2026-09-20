@@ -101,7 +101,7 @@ internal abstract class PetTokenizer {
 
   internal inline fun <reified T> maybeGroup(contents: Parser<T>) = contents or group(contents)
 
-  internal fun char(c: Char): Token = characters[c] ?: error("add $c to `characters`")
+  internal fun char(c: Char): Token = characters[c] ?: error("character token is undefined: `$c`")
 
   internal fun skipChar(c: Char) = skip(char(c))
 

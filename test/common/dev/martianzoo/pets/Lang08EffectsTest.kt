@@ -1,7 +1,7 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
@@ -137,11 +137,11 @@ internal class Lang08EffectsTest {
   }
 
   private fun shouldRejectSubscription(trigger: String) {
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
           testCatalog("CLASS Result\nCLASS Listener { $trigger: Result }").classTable
         }
         .message
-        .orEmpty() shouldContain "root is Ok or a nominal supertype of Ok"
+        .orEmpty() shouldContain "root is `Ok` or a nominal supertype of `Ok`"
   }
 
   // L8-9 Class literals are not triggers

@@ -1,8 +1,7 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.api.Exceptions.KindException
-import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
@@ -38,7 +37,7 @@ internal class TransformHandlerTest {
     val dispatcher = TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { it }))
     val source = parse<Instruction>("MARK[Inside, AlsoInside]")
 
-    shouldThrow<KindException> { dispatcher.transformInstruction(source) }
+    shouldThrow<IllegalStateException> { dispatcher.transformInstruction(source) }
     dispatcher.transformInstructionTree(source).toString() shouldBe "Inside, AlsoInside"
   }
 
@@ -61,7 +60,7 @@ internal class TransformHandlerTest {
   internal fun sameTransformKindCannotBeNested() {
     val dispatcher = TransformHandler.dispatcher(mapOf("MARK" to TransformHandler { it }))
 
-    shouldThrow<PetSyntaxException> {
+    shouldThrow<ExpressionException> {
       dispatcher.transformInstructionTree(parse<InstructionTree>("MARK[MARK[Inside]]"))
     }
   }
@@ -73,7 +72,7 @@ internal class TransformHandlerTest {
             mapOf("MARK" to TransformHandler { parse<Metric>("Different") })
         )
 
-    shouldThrow<PetSyntaxException> {
+    shouldThrow<IllegalStateException> {
       dispatcher.transformInstructionTree(parse<InstructionTree>("MARK[Inside]"))
     }
   }

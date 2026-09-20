@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.AbstractException
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.cards.cardnames.PublicPlans
@@ -14,7 +14,7 @@ internal class PublicPlansTest : CardTest() {
     admin.phase("Action")
     p1.runOperation("7 MC, ProjectCard")
 
-    shouldThrow<AbstractException> { p1.playProject(PublicPlans, 7) }
+    shouldThrow<NotFullySpecifiedException> { p1.playProject(PublicPlans, 7) }
 
     p1.assertCounts(7 to "MC", 1 to "ProjectCard", 0 to "$PublicPlans")
   }

@@ -1,7 +1,7 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.Dependency.Key
 import io.kotest.assertions.throwables.shouldThrow
@@ -126,7 +126,9 @@ internal class Spec04ClassLiteralsTest {
   internal fun `T4-6 the named class must exist`() {
     shouldThrow<ExpressionException> { type("Class<Jackalope>") }
     // Including where a declaration merely counts one.
-    shouldThrow<PetException> { loadTypes("CLASS Querying { HAS MAX 0 Class<Jackalope> }") }
+    shouldThrow<InvalidPetDefinitionException> {
+      loadTypes("CLASS Querying { HAS MAX 0 Class<Jackalope> }")
+    }
     loadTypes("CLASS Querying { HAS MAX 0 Class<Jackalope> }", "CLASS Jackalope")
         .resolve(te("Class<Jackalope>"))
         .abstract shouldBe false
@@ -135,7 +137,7 @@ internal class Spec04ClassLiteralsTest {
   @Test
   internal fun `T4-6 an effect may not gain a class representative`() {
     // The one component per concrete class is fixed before any effect can run.
-    shouldThrow<PetException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes("CLASS Source { This:: Class<Target> }", "CLASS Target")
     }
   }
@@ -166,11 +168,11 @@ internal class Spec04ClassLiteralsTest {
 
   @Test
   internal fun `T4-8 enumeration has one literal per concrete Class with an inhabited base Type`() {
-    type("Class<Metal>").allConcreteSubtypes().map { "$it" }.toList() shouldContainExactly
+    table.allConcreteSubtypes(type("Class<Metal>")).map { "$it" }.toList() shouldContainExactly
         listOf("Class<Steel>", "Class<Titanium>")
-    type("Class<Steel>").allConcreteSubtypes().map { "$it" }.toList() shouldContainExactly
+    table.allConcreteSubtypes(type("Class<Steel>")).map { "$it" }.toList() shouldContainExactly
         listOf("Class<Steel>")
-    type("Class<Tag>").allConcreteSubtypes().map { "$it" }.toList() shouldContainExactly
+    table.allConcreteSubtypes(type("Class<Tag>")).map { "$it" }.toList() shouldContainExactly
         listOf("Class<BuildingTag>", "Class<SpaceTag>")
   }
 
@@ -178,7 +180,7 @@ internal class Spec04ClassLiteralsTest {
   internal fun `T4-8 a literal with no inhabited concrete subclass enumerates nothing`() {
     val empty = loadTypes("ABSTRACT CLASS Award")
 
-    empty.resolve(te("Class<Award>")).allConcreteSubtypes().toList().shouldBeEmpty()
+    empty.allConcreteSubtypes(empty.resolve(te("Class<Award>"))).toList().shouldBeEmpty()
   }
 
   // T4-9 `Class<This>`
@@ -231,7 +233,7 @@ internal class Spec04ClassLiteralsTest {
     cards.getClass(cn("Animal")).baseType.expressionFull shouldBe
         te("Animal<Owner, ResourceCard<Owner, Class<Animal>>>")
     cards.resolve(te("Animal<Player1, Fish>")).expressionFull shouldBe
-        te("Animal<Player1, Fish<Player1, Class<Animal>>>")
+        te("Animal<Player1, Fish<Player1>>")
     shouldThrow<ExpressionException> { cards.resolve(te("Animal<Ants>")) }
   }
 }

@@ -8,7 +8,6 @@ import com.github.h0tk3y.betterParse.parser.completionAtEnd
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import dev.martianzoo.pets.ClassParsing.Declarations
 import dev.martianzoo.pets.PetTokenizer.TokenCache
-import dev.martianzoo.pets.api.Exceptions.NoNewClassDeclarationsException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
@@ -90,7 +89,7 @@ public object Parsing {
       }
     }
     if (hasOwnerLocalClass) {
-      throw PetSyntaxException("Owner-local Classes are not allowed inside Class declarations")
+      throw PetSyntaxException("owner-local Classes are not allowed inside Class declarations")
     }
     return declarations
   }
@@ -100,9 +99,8 @@ public object Parsing {
    * `RAW` block. [P] can only be one of the published node kinds like [Effect], [Action],
    * [InstructionTree], [Expression], etc.
    *
-   * Owner-local derived Class syntax is parsed and validated, then rejected with
-   * [NoNewClassDeclarationsException], because a submitted element has no definition owner and a
-   * live game's class table is frozen ([rule
+   * Owner-local derived Class syntax belongs only to declaration-file grammar. A submitted element
+   * has no definition owner ([rule
    * L11-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-owner-local-classes)).
    * Parsing that far is what keeps the specific error distinct from malformed syntax.
    */
@@ -113,7 +111,9 @@ public object Parsing {
   public fun <P : PetNode> parse(expectedType: KClass<P>, elementSource: String): P {
     val lowerer = DerivedClassLowerer(ClassName.cn("Submitted"))
     val pet = parse(expectedType, elementSource, lowerer)
-    if (lowerer.declarations.isNotEmpty()) throw NoNewClassDeclarationsException()
+    if (lowerer.declarations.isNotEmpty()) {
+      throw PetSyntaxException("owner-local Classes are allowed only in declaration files")
+    }
     return pet
   }
 
@@ -130,7 +130,7 @@ public object Parsing {
     val parsed = group.parse(expectedType, elementSource, matches)
     val lowered = derivedClasses.transformWithoutKindCheck(parsed)
     check(expectedType.isInstance(lowered)) {
-      "Expected ${expectedType.simpleName} kind, got ${lowered.kind.simpleName}"
+      "expected `${expectedType.simpleName}` kind, found `${lowered.kind.simpleName}`"
     }
     @Suppress("UNCHECKED_CAST")
     return lowered as P
@@ -152,16 +152,16 @@ public object Parsing {
 
       throw PetSyntaxException(
           """
-            Expecting: $expectedTypeDesc
-            Token stream: $tokenDesc
-            Input was:
+            expected: $expectedTypeDesc
+            token stream: $tokenDesc
+            input:
             ${source.replaceIndent("  ")}
           """
               .trimIndent(),
           e,
       )
     } catch (e: RuntimeException) {
-      throw PetSyntaxException("Invalid Pets syntax: $source", e)
+      throw PetSyntaxException("invalid Pets syntax: `$source`", e)
     }
   }
 

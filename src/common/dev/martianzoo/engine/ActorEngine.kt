@@ -3,14 +3,12 @@ package dev.martianzoo.engine
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
-import dev.martianzoo.pets.api.Exceptions.AbstractException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.api.Exceptions.abstractInstruction
-import dev.martianzoo.pets.api.Exceptions.orWithoutChoice
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.api.TypeInfo
@@ -87,10 +85,12 @@ internal constructor(
 
   public fun sneak(changes: InstructionGroup, cause: Cause? = null) {
     changes.instructions.forEach {
-      if (it is Instruction.Or) throw orWithoutChoice(it)
+      if (it.isAbstract(reader)) {
+        throw NotFullySpecifiedException("instruction is abstract: $it")
+      }
       val change =
           it as? Change ?: throw ExpressionException("sneak accepts only direct changes, not: $it")
-      val count = change.count as? ActualScalar ?: throw abstractInstruction(change)
+      val count = change.count as ActualScalar
       changer.change(
           count.value,
           change.gaining?.toComponent(reader),
@@ -129,7 +129,7 @@ internal constructor(
     val pending = allTasks.extract { it }.filter { it.id !in allowedPendingTasks }
     if (pending.isNotEmpty()) {
       if (pending.any { it.instruction.isAbstract(reader) }) {
-        throw AbstractException("pending abstract tasks:\n${pending.joinToString("\n")}")
+        throw NotFullySpecifiedException("pending abstract tasks:\n${pending.joinToString("\n")}")
       }
       throw TaskException("pending tasks:\n${pending.joinToString("\n")}")
     }
@@ -196,7 +196,7 @@ internal constructor(
     if (effectiveNarrowing == task.instruction) return
     val instruction =
         effectiveNarrowing as? Instruction
-            ?: throw TaskException("one task can't be narrowed to independent tasks")
+            ?: throw NarrowingException("one task can't be narrowed to independent tasks")
     taskQueues.editTask(task.copy(instruction = instruction))
   }
 
@@ -335,9 +335,6 @@ internal constructor(
     val selected = selectTask(queue, original) ?: return original
     val selectedQueue = queueForAnyTask(selected)
     val selectedTask = selectedQueue.getTaskData(selected)
-    if (selectedTask.instruction.isAbstract(reader)) {
-      throw abstractInstruction(selectedTask.instruction)
-    }
     executeSelectedTask(selectedQueue, selected)
     return selectedTask
   }
@@ -379,7 +376,7 @@ internal constructor(
       }
       return
     }
-    throw abstractInstruction(tasks.getTaskData(id).instruction)
+    executeSelectedTask(queueForAnyTask(id), id)
   }
 
   private fun evaluatePer(instruction: InstructionTree): InstructionTree =
@@ -541,7 +538,7 @@ internal constructor(
   public fun tryTask(id: TaskId) {
     try {
       timeline.atomic { doTask(id) }
-    } catch (_: AbstractException) {
+    } catch (_: NotFullySpecifiedException) {
       // A probe that needs narrowing leaves the task and event history unchanged.
     } catch (_: NotNowException) {
       // A probe that is unavailable in the current World likewise changes nothing.
@@ -557,7 +554,7 @@ internal constructor(
     val evaluated = evaluatePer(narrowing)
     try {
       doTask(evaluated, quantifierOmitted, executeSubmittedGroup, taskId)
-    } catch (_: AbstractException) {
+    } catch (_: NotFullySpecifiedException) {
       // A probe that needs narrowing leaves the task and event history unchanged.
     } catch (_: NotNowException) {
       // A probe that is unavailable in the current World likewise changes nothing.
@@ -572,7 +569,7 @@ internal constructor(
       true
     } catch (e: NotNowException) {
       throw DeadEndException(e)
-    } catch (_: AbstractException) {
+    } catch (_: NotFullySpecifiedException) {
       false
     }
   }

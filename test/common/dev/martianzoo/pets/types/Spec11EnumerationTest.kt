@@ -28,7 +28,7 @@ internal class Spec11EnumerationTest {
 
   private fun type(s: String) = mars.resolve(te(s))
 
-  private fun subtypes(s: String) = type(s).allConcreteSubtypes().map { "$it" }.toList()
+  private fun subtypes(s: String) = mars.allConcreteSubtypes(type(s)).map { "$it" }.toList()
 
   // T11-1 Enumerating concrete narrowings
 
@@ -52,9 +52,9 @@ internal class Spec11EnumerationTest {
   internal fun `T11-1 a type with no concrete narrowing enumerates nothing`() {
     val table = loadTypes("ABSTRACT CLASS Award", "ABSTRACT CLASS Area { CLASS Tharsis_2_2 }")
 
-    table.resolve(te("Award")).allConcreteSubtypes().toList() shouldBe listOf()
+    table.allConcreteSubtypes(table.resolve(te("Award"))).toList() shouldBe listOf()
     // No area is a Landlord award, so an impossible intersection enumerates nothing.
-    table.resolve(te("Area(NOT Area)")).allConcreteSubtypes().toList() shouldBe listOf()
+    table.allConcreteSubtypes(table.resolve(te("Area(NOT Area)"))).toList() shouldBe listOf()
   }
 
   // T11-2 Refinements during enumeration
@@ -73,18 +73,16 @@ internal class Spec11EnumerationTest {
   }
 
   @Test
-  internal fun `T11-2 every enumeration API returns the same unrefined concrete candidates`() {
+  internal fun `T11-2 enumeration APIs return the same unrefined concrete candidates`() {
     val table = loadTypes("CLASS Flag", "CLASS One")
     val impossible = table.resolve(te("One(NOT One)"))
     val querying = table.resolve(te("One(HAS Flag)"))
     val one = table.resolve(te("One"))
 
-    impossible.allConcreteSubtypes().toList() shouldBe emptyList()
-    impossible.groundType.concreteSubtypesSameClass().toList() shouldBe emptyList()
+    table.allConcreteSubtypes(impossible).toList() shouldBe emptyList()
     table.concreteSubtypesSameClass(impossible).toList() shouldBe emptyList()
 
-    querying.allConcreteSubtypes().toList() shouldContainExactly listOf(one)
-    querying.groundType.concreteSubtypesSameClass().toList() shouldContainExactly listOf(one)
+    table.allConcreteSubtypes(querying).toList() shouldContainExactly listOf(one)
     table.concreteSubtypesSameClass(querying).toList() shouldContainExactly listOf(one)
   }
 
@@ -92,17 +90,13 @@ internal class Spec11EnumerationTest {
 
   @Test
   internal fun `T11-3 same-class enumeration keeps the root class fixed`() {
-    type("GreeneryTile")
-        .groundType
-        .concreteSubtypesSameClass()
-        .map { "$it" }
-        .toList() shouldContainExactly
+    mars.concreteSubtypesSameClass(type("GreeneryTile")).map { "$it" }.toList() shouldContainExactly
         listOf("GreeneryTile<Tharsis_2_2>", "GreeneryTile<Tharsis_2_3>")
   }
 
   @Test
   internal fun `T11-3 same-class enumeration of an abstract class yields nothing`() {
-    type("Tile").groundType.concreteSubtypesSameClass().toList() shouldBe listOf()
+    mars.concreteSubtypesSameClass(type("Tile")).toList() shouldBe listOf()
   }
 
   // T11-4 Automatic narrowing
@@ -115,20 +109,20 @@ internal class Spec11EnumerationTest {
             "ABSTRACT CLASS Tile<Area> { CLASS GreeneryTile }",
         )
 
-    table.resolve(te("Tile")).singleConcreteSubtype(fullWorld) shouldBe
+    table.singleConcreteSubtype(table.resolve(te("Tile")), fullWorld) shouldBe
         table.resolve(te("GreeneryTile<Tharsis_2_2>"))
   }
 
   @Test
   internal fun `T11-4 a choice anywhere blocks automatic narrowing`() {
     // Two possible classes.
-    type("Tile<Tharsis_2_2>").singleConcreteSubtype(fullWorld) shouldBe
+    mars.singleConcreteSubtype(type("Tile<Tharsis_2_2>"), fullWorld) shouldBe
         type("GreeneryTile<Tharsis_2_2>")
-    type("Tile").singleConcreteSubtype(fullWorld) shouldBe null
+    mars.singleConcreteSubtype(type("Tile"), fullWorld) shouldBe null
     // One class, but two possible areas.
-    type("GreeneryTile").singleConcreteSubtype(fullWorld) shouldBe null
+    mars.singleConcreteSubtype(type("GreeneryTile"), fullWorld) shouldBe null
     // Nothing left to choose.
-    type("GreeneryTile<Tharsis_2_2>").singleConcreteSubtype(fullWorld) shouldBe
+    mars.singleConcreteSubtype(type("GreeneryTile<Tharsis_2_2>"), fullWorld) shouldBe
         type("GreeneryTile<Tharsis_2_2>")
   }
 
@@ -141,13 +135,17 @@ internal class Spec11EnumerationTest {
             "CLASS GreeneryTile<Area>",
         )
 
-    table.resolve(te("Area(HAS Neighbor)")).singleConcreteSubtype(fullWorld) shouldBe
+    table.singleConcreteSubtype(table.resolve(te("Area(HAS Neighbor)")), fullWorld) shouldBe
         table.resolve(te("Tharsis_2_2"))
-    table.resolve(te("Area(HAS Neighbor)")).singleConcreteSubtype(emptyWorld) shouldBe null
-    table.resolve(te("GreeneryTile<Area(HAS Neighbor)>")).singleConcreteSubtype(fullWorld) shouldBe
-        table.resolve(te("GreeneryTile<Tharsis_2_2>"))
-    table.resolve(te("GreeneryTile<Area(HAS Neighbor)>")).singleConcreteSubtype(emptyWorld) shouldBe
-        null
+    table.singleConcreteSubtype(table.resolve(te("Area(HAS Neighbor)")), emptyWorld) shouldBe null
+    table.singleConcreteSubtype(
+        table.resolve(te("GreeneryTile<Area(HAS Neighbor)>")),
+        fullWorld,
+    ) shouldBe table.resolve(te("GreeneryTile<Tharsis_2_2>"))
+    table.singleConcreteSubtype(
+        table.resolve(te("GreeneryTile<Area(HAS Neighbor)>")),
+        emptyWorld,
+    ) shouldBe null
   }
 
   @Test
@@ -161,10 +159,12 @@ internal class Spec11EnumerationTest {
     val onlyOneArea = world("Tharsis_2_2")
 
     // A plain `HAS` does not enumerate, so it cannot pick between two areas...
-    table.resolve(te("Area(HAS Neighbor)")).singleConcreteSubtype(onlyOneArea) shouldBe null
+    table.singleConcreteSubtype(table.resolve(te("Area(HAS Neighbor)")), onlyOneArea) shouldBe null
     // ...but a refined class literal does enumerate and test each candidate.
-    table.resolve(te("Class<Area>(HAS ClassNeighbor)")).singleConcreteSubtype(onlyOneArea) shouldBe
-        table.resolve(te("Class<Tharsis_2_2>"))
+    table.singleConcreteSubtype(
+        table.resolve(te("Class<Area>(HAS ClassNeighbor)")),
+        onlyOneArea,
+    ) shouldBe table.resolve(te("Class<Tharsis_2_2>"))
   }
 
   @Test
@@ -176,8 +176,10 @@ internal class Spec11EnumerationTest {
             "CLASS Plant : Owned<Owner>",
         )
 
-    table.resolve(te("Plant<Owner(NOT Player1)>")).singleConcreteSubtype(fullWorld) shouldBe
-        table.resolve(te("Plant<Player2>"))
+    table.singleConcreteSubtype(
+        table.resolve(te("Plant<Owner(NOT Player1)>")),
+        fullWorld,
+    ) shouldBe table.resolve(te("Plant<Player2>"))
   }
 
   @Test
@@ -189,8 +191,9 @@ internal class Spec11EnumerationTest {
         )
 
     val requested = table.resolve(te("Holder(NOT Holder<Land>)"))
-    requested.allConcreteSubtypes().toList() shouldBe listOf(table.resolve(te("Holder<Water>")))
-    requested.singleConcreteSubtype(fullWorld) shouldBe table.resolve(te("Holder<Water>"))
+    table.allConcreteSubtypes(requested).toList() shouldBe
+        listOf(table.resolve(te("Holder<Water>")))
+    table.singleConcreteSubtype(requested, fullWorld) shouldBe table.resolve(te("Holder<Water>"))
   }
 
   @Test
@@ -202,11 +205,14 @@ internal class Spec11EnumerationTest {
         )
     val onlyOneHasFlag = world("Flag<One>")
 
-    table.resolve(te("Choice(HAS Flag, NOT Three)")).singleConcreteSubtype(onlyOneHasFlag) shouldBe
-        null
-    table
-        .resolve(te("Choice(HAS Flag, NOT Two, NOT Three)"))
-        .singleConcreteSubtype(onlyOneHasFlag) shouldBe table.resolve(te("One"))
+    table.singleConcreteSubtype(
+        table.resolve(te("Choice(HAS Flag, NOT Three)")),
+        onlyOneHasFlag,
+    ) shouldBe null
+    table.singleConcreteSubtype(
+        table.resolve(te("Choice(HAS Flag, NOT Two, NOT Three)")),
+        onlyOneHasFlag,
+    ) shouldBe table.resolve(te("One"))
   }
 
   @Test
@@ -217,7 +223,7 @@ internal class Spec11EnumerationTest {
             "ABSTRACT CLASS Tile<Area> { CLASS GreeneryTile : Tile<LandArea> }",
         )
 
-    table.resolve(te("Tile<WaterArea>")).singleConcreteSubtype(fullWorld) shouldBe null
+    table.singleConcreteSubtype(table.resolve(te("Tile<WaterArea>")), fullWorld) shouldBe null
   }
 
   @Test
@@ -234,27 +240,8 @@ internal class Spec11EnumerationTest {
                 .trimIndent(),
         )
 
-    table.resolve(te("Tile<LandArea>")).singleConcreteSubtype(fullWorld) shouldBe
-        table.resolve(te("GreeneryTile"))
-    // The class table's own overload has to agree; it is the one the engine calls.
     table.singleConcreteSubtype(table.resolve(te("Tile<LandArea>")), fullWorld) shouldBe
         table.resolve(te("GreeneryTile"))
-  }
-
-  @Test
-  internal fun `T11-4 both overloads answer alike about the same universe`() {
-    listOf(
-            "Tile",
-            "Tile<Tharsis_2_2>",
-            "GreeneryTile",
-            "GreeneryTile<Tharsis_2_2>",
-            "Occupant<Tharsis_1_1>",
-            "LandArea",
-        )
-        .forEach {
-          mars.singleConcreteSubtype(type(it), fullWorld) shouldBe
-              type(it).singleConcreteSubtype(fullWorld)
-        }
   }
 
   // T11-5 Enumerating over a caller-supplied set of targets

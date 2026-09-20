@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -173,7 +173,7 @@ public sealed interface CardOperation {
         }
 
     private fun malformed(source: InstructionTree): Nothing =
-        throw PetSyntaxException("Unsupported $TRANSFORM_KIND card operation: $source")
+        throw ExpressionException("Unsupported $TRANSFORM_KIND card operation: $source")
 
     private val BUY_SELECTED_CARDS = cn("BuySelectedCards")
     private val HAND = cn("Hand")
