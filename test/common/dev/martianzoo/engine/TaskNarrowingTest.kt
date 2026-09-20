@@ -74,27 +74,12 @@ internal class TaskNarrowingTest {
   }
 
   @Test
-  internal fun `an unselected task can be narrowed by immutable Class facts`() {
-    val taskId = initiate("StandardResource?").single()
+  internal fun `narrowing requires a selected task`() {
+    initiate("StandardResource?")
 
-    writer.narrowTask(taskId, "Plant?")
+    shouldThrow<TaskException> { writer.narrowTask("Plant?") }
 
-    val task = tasks.getTaskData(taskId)
-    task.instruction.toString() shouldBe "Plant<Player1>?"
-    task.selected shouldBe false
-    writer.count("Plant") shouldBe 0
-  }
-
-  @Test
-  internal fun `unselected narrowing cannot rely on current World state`() {
-    val taskId = initiate("WaterArea(HAS MAX 0 Tile)!").single()
-    val before = game.timeline.checkpoint()
-
-    shouldThrow<NarrowingException> { writer.narrowTask(taskId, "Tharsis_5_5!") }
-
-    tasks.getTaskData(taskId).instruction.toString() shouldBe "WaterArea(HAS MAX 0 Tile)!"
-    tasks.getTaskData(taskId).selected shouldBe false
-    events.entriesSince(before).shouldBeEmpty()
+    tasksAsText().shouldContainExactly("StandardResource<Player1>?")
   }
 
   @Test
@@ -102,22 +87,10 @@ internal class TaskNarrowingTest {
     val taskId = initiate("2 Plant?").single()
     writer.selectTask(taskId)
 
-    writer.narrowTask(taskId, "Plant!")
+    writer.narrowTask("Plant!")
 
     writer.count("Plant") shouldBe 1
     tasks.isEmpty() shouldBe true
-  }
-
-  @Test
-  internal fun `unselected narrowing cannot cut ahead of the select lock`() {
-    val selectedId = initiate("Plant?").single()
-    val otherId = initiate("Heat?").single()
-    writer.selectTask(selectedId)
-
-    shouldThrow<TaskException> { writer.narrowTask(otherId, "Heat!") }
-
-    tasks.getTaskData(selectedId).selected shouldBe true
-    tasks.getTaskData(otherId).instruction.toString() shouldBe "Heat<Player1>?"
   }
 
   @Test
@@ -476,26 +449,6 @@ internal class TaskNarrowingTest {
 
     writer.count("Steel") shouldBe 1
     writer.count("Plant") shouldBe 0
-  }
-
-  @Test
-  internal fun `unselected X binding exposes a separable THEN head without executing it`() {
-    val taskId = initiate("X Plant THEN X Heat THEN Steel").single()
-
-    writer.narrowTask(taskId, "3 Plant THEN 3 Heat THEN Steel")
-
-    val task = tasks.getTaskData(taskId)
-    task.instruction.toString() shouldBe "3 Plant<Player1>!"
-    task.then.toString() shouldBe "3 Heat<Player1>! THEN Steel<Player1>!"
-    task.selected shouldBe false
-    writer.count("Plant") shouldBe 0
-
-    writer.doTask("3 Plant")
-
-    writer.count("Plant") shouldBe 3
-    val continuation = tasks.extract { it }.single()
-    continuation.instruction.toString() shouldBe "3 Heat<Player1>!"
-    continuation.then.toString() shouldBe "Steel<Player1>!"
   }
 
   @Test

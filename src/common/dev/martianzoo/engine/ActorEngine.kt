@@ -60,7 +60,6 @@ internal constructor(
 
   private object ExecutionProbeSucceeded : RuntimeException()
 
-  private val immutableClassFacts = narrowingFacts(requirementsHold = false)
   private val possibleWorldFacts = narrowingFacts(requirementsHold = true)
 
   /** Runs one engine transaction and returns its net result. */
@@ -173,31 +172,6 @@ internal constructor(
   public fun narrowTask(narrowing: InstructionTree, quantifierOmitted: Boolean = false) {
     val taskId = tasks.selectedTask() ?: throw TaskException("$actor has no selected task")
     narrowSelectedTask(taskId, narrowing, quantifierOmitted)
-  }
-
-  public fun narrowTask(
-      taskId: TaskId,
-      narrowing: InstructionTree,
-      quantifierOmitted: Boolean = false,
-  ) {
-    val task = tasks.getTaskData(taskId)
-    if (actor != task.assignee) {
-      throw TaskException("$actor can't narrow a task assigned to ${task.assignee}")
-    }
-    enforceSelectLock(taskId)
-    if (task.selected) {
-      narrowSelectedTask(taskId, narrowing, quantifierOmitted)
-      return
-    }
-
-    val effectiveNarrowing =
-        effectiveNarrowing(narrowing, task.instruction, quantifierOmitted, immutableClassFacts)
-    effectiveNarrowing.ensureNarrows(task.instruction, immutableClassFacts)
-    if (effectiveNarrowing == task.instruction) return
-    val instruction =
-        effectiveNarrowing as? Instruction
-            ?: throw NarrowingException("one task can't be narrowed to independent tasks")
-    taskQueues.editTask(task.copy(instruction = instruction))
   }
 
   private fun narrowSelectedTask(

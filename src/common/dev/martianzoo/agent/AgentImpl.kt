@@ -231,11 +231,6 @@ internal class AgentImpl(
     engine.narrowTask(parsed.instruction, parsed.quantifierOmitted)
   }
 
-  override fun narrowTask(taskId: TaskId, narrowing: String) = atomic {
-    val parsed = parseTaskNarrowing(narrowing)
-    engine.narrowTask(taskId, parsed.instruction, parsed.quantifierOmitted)
-  }
-
   override fun canSelectTask(taskId: TaskId) = engine.canSelectTask(taskId)
 
   override fun canExecuteTask(taskId: TaskId) = engine.canExecuteTask(taskId)
