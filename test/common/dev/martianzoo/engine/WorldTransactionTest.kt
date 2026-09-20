@@ -245,11 +245,12 @@ internal class WorldTransactionTest {
 
     agent.sneak("Token")
     val taskId = agent.addTasks("-Token?").single()
-    agent.narrowTask(taskId, "-Token")
-    agent.dropTask(taskId)
+    agent.selectTask(taskId)
+    agent.narrowTask("-Token")
+    agent.dropTask(agent.addTasks("Token?").single())
 
-    completions shouldBe 4
-    agent.count("Token") shouldBe 1
+    completions shouldBe 6
+    agent.count("Token") shouldBe 0
     agent.tasks.isEmpty() shouldBe true
   }
 }
