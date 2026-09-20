@@ -89,7 +89,7 @@ public object Parsing {
       }
     }
     if (hasOwnerLocalClass) {
-      throw PetSyntaxException("Owner-local Classes are not allowed inside Class declarations")
+      throw PetSyntaxException("owner-local Classes are not allowed inside Class declarations")
     }
     return declarations
   }
@@ -112,7 +112,7 @@ public object Parsing {
     val lowerer = DerivedClassLowerer(ClassName.cn("Submitted"))
     val pet = parse(expectedType, elementSource, lowerer)
     if (lowerer.declarations.isNotEmpty()) {
-      throw PetSyntaxException("Owner-local Classes are allowed only in declaration files")
+      throw PetSyntaxException("owner-local Classes are allowed only in declaration files")
     }
     return pet
   }
@@ -130,7 +130,7 @@ public object Parsing {
     val parsed = group.parse(expectedType, elementSource, matches)
     val lowered = derivedClasses.transformWithoutKindCheck(parsed)
     check(expectedType.isInstance(lowered)) {
-      "Expected ${expectedType.simpleName} kind, got ${lowered.kind.simpleName}"
+      "expected `${expectedType.simpleName}` kind, found `${lowered.kind.simpleName}`"
     }
     @Suppress("UNCHECKED_CAST")
     return lowered as P
@@ -152,16 +152,16 @@ public object Parsing {
 
       throw PetSyntaxException(
           """
-            Expecting: $expectedTypeDesc
-            Token stream: $tokenDesc
-            Input was:
+            expected: $expectedTypeDesc
+            token stream: $tokenDesc
+            input:
             ${source.replaceIndent("  ")}
           """
               .trimIndent(),
           e,
       )
     } catch (e: RuntimeException) {
-      throw PetSyntaxException("Invalid Pets syntax: $source", e)
+      throw PetSyntaxException("invalid Pets syntax: `$source`", e)
     }
   }
 

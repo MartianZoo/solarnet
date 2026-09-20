@@ -1,7 +1,7 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
-import dev.martianzoo.pets.api.Exceptions.invalidPetDefinition
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
@@ -51,8 +51,8 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
     }
 
     if (invalidDependencies.isNotEmpty()) {
-      throw invalidPetDefinition(
-          "Dependencies must target types with maximum multiplicity 1; first violation per class:\n" +
+      throw InvalidPetDefinitionException(
+          "dependencies must target types with maximum multiplicity 1; first violation per Class:\n" +
               invalidDependencies.joinToString("\n") { (dependent, target) ->
                 "  ${dependent.className} -> ${target.expressionFull}"
               }
@@ -67,7 +67,7 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
    * [rule T3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies).
    */
   public fun limitsFor(type: Type): Set<Limit> {
-    require(classTable.knows(type)) { "$type belongs to a different Catalog" }
+    require(classTable.knows(type)) { "`$type` belongs to a different Catalog" }
     val bound = restrictionsByClass[type.rootClass].orEmpty().mapNotNull { it.bindThisTo(type) }
     val applicable = bound.filter { type.isSubtypeOf(it.type) }.toSet() + Limit(type, 0..MAX_VALUE)
     return applicable.filterTo(linkedSetOf()) { candidate ->
@@ -86,7 +86,7 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
    * `This` applies only to the declaring types present in [liveTypes].
    */
   public fun requiredLimits(liveTypes: Collection<Type>): Set<Limit> {
-    liveTypes.forEach { require(classTable.knows(it)) { "$it belongs to a different Catalog" } }
+    liveTypes.forEach { require(classTable.knows(it)) { "`$it` belongs to a different Catalog" } }
     val liveTypeSet = liveTypes.toSet()
     return restrictionsByClass.values
         .asSequence()
@@ -106,8 +106,9 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
           klass.invariants.map { invariant ->
             val counting =
                 invariant as? Counting
-                    ?: throw invalidPetDefinition(
-                        "Class invariant on ${klass.className} is not a counting requirement: $invariant"
+                    ?: throw InvalidPetDefinitionException(
+                        "class invariant on `${klass.className}` is not a counting requirement: " +
+                            "`$invariant`"
                     )
             toRestriction(counting, klass)
           }
@@ -123,8 +124,9 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
   private fun toRestriction(invariant: Counting, klass: Class): Restriction {
     val expression =
         (invariant.metric as? Metric.Count)?.expression
-            ?: throw invalidPetDefinition(
-                "Class invariant on ${klass.className} must count one component expression: $invariant"
+            ?: throw InvalidPetDefinitionException(
+                "class invariant on `${klass.className}` must count one component expression: " +
+                    "`$invariant`"
             )
     if (THIS !in expression.descendantsOfType<ClassName>()) {
       return BoundRestriction(classTable.resolve(expression), invariant.range)

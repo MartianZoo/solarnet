@@ -141,7 +141,7 @@ internal class Lang08EffectsTest {
           testCatalog("CLASS Result\nCLASS Listener { $trigger: Result }").classTable
         }
         .message
-        .orEmpty() shouldContain "root is Ok or a nominal supertype of Ok"
+        .orEmpty() shouldContain "root is `Ok` or a nominal supertype of `Ok`"
   }
 
   // L8-9 Class literals are not triggers

@@ -26,21 +26,22 @@ public abstract class CustomClass(name: String? = null) : HasClassName {
    * For a type with 0 dependencies: translates an instruction to gain this type into another
    * instruction tree that will be resolved and executed instead.
    */
-  public open fun translate(game: GameReader): InstructionTree = throw NotImplementedError()
+  public open fun translate(game: GameReader): InstructionTree =
+      throw NotImplementedError("`$className` does not implement translation with 0 dependencies")
 
   /**
    * For a type with 1 dependency: translates an instruction to gain this type into another
    * instruction tree that will be resolved and executed instead.
    */
   public open fun translate(game: GameReader, type0: Type): InstructionTree =
-      throw NotImplementedError()
+      throw NotImplementedError("`$className` does not implement translation with 1 dependency")
 
   /**
    * For a type with 2 dependencies: translates an instruction to gain this type into another
    * instruction tree that will be resolved and executed instead.
    */
   public open fun translate(game: GameReader, type0: Type, type1: Type): InstructionTree =
-      throw NotImplementedError()
+      throw NotImplementedError("`$className` does not implement translation with 2 dependencies")
 
   /**
    * For a type with 3 dependencies: translates an instruction to gain this type into another
@@ -51,7 +52,8 @@ public abstract class CustomClass(name: String? = null) : HasClassName {
       type0: Type,
       type1: Type,
       type2: Type,
-  ): InstructionTree = throw NotImplementedError()
+  ): InstructionTree =
+      throw NotImplementedError("`$className` does not implement translation with 3 dependencies")
 
   /**
    * For a type with 4 dependencies: translates an instruction to gain this type into another
@@ -63,5 +65,6 @@ public abstract class CustomClass(name: String? = null) : HasClassName {
       type1: Type,
       type2: Type,
       type3: Type,
-  ): InstructionTree = throw NotImplementedError()
+  ): InstructionTree =
+      throw NotImplementedError("`$className` does not implement translation with 4 dependencies")
 }

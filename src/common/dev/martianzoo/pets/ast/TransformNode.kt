@@ -58,7 +58,7 @@ public interface TransformNode<P : PetNode> {
 
       if (isThisKind(node)) return node
       require(node.descendantsOfType<PetNode>().none(::isThisKind)) {
-        "already has a $kind component: $node"
+        "already has a `$kind` component: `$node`"
       }
       return wrapper(node)
     }

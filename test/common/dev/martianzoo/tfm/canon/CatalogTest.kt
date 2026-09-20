@@ -79,7 +79,7 @@ internal class CatalogTest {
         }
 
     unavailable.message.orEmpty() shouldContain
-        "unviable game premise: Selected has reachable mandatory removal Missing"
+        "unviable game premise: `Selected` has reachable mandatory removal Missing"
   }
 
   @Test

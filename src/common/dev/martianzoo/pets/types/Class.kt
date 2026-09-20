@@ -79,7 +79,7 @@ internal constructor(
   init {
     if (directSuperclasses.any { !it.abstract }) {
       throw InvalidPetDefinitionException(
-          "$className cannot extend concrete class(es): " +
+          "`$className` cannot extend concrete Classes: " +
               directSuperclasses.filterNot { it.abstract }.joinToString { "${it.className}" }
       )
     }
@@ -107,7 +107,7 @@ internal constructor(
       val abstractProperties = properties.filterValues { it.abstract }.keys
       if (abstractProperties.isNotEmpty()) {
         throw InvalidPetDefinitionException(
-            "$className is concrete but has abstract properties: " +
+            "`$className` is concrete but has abstract properties: " +
                 abstractProperties.joinToString()
         )
       }
@@ -124,15 +124,15 @@ internal constructor(
               existing == null || incoming == existing -> incoming
               existing.origin != incoming.origin ->
                   throw InvalidPetDefinitionException(
-                      "$className inherits distinct properties named $name from " +
-                          "${existing.origin} and ${incoming.origin}"
+                      "`$className` inherits distinct properties named `$name` from " +
+                          "`${existing.origin}` and `${incoming.origin}`"
                   )
               existing.lineage.isPrefixOf(incoming.lineage) -> incoming
               incoming.lineage.isPrefixOf(existing.lineage) -> existing
               else ->
                   throw InvalidPetDefinitionException(
-                      "$className inherits divergent narrowings for $name from " +
-                          "${existing.source} and ${incoming.source}"
+                      "`$className` inherits divergent narrowings for `$name` from " +
+                          "`${existing.source}` and `${incoming.source}`"
                   )
             }
       }
@@ -145,12 +145,13 @@ internal constructor(
           val inheritedValue = inheritedFact.value
           if (!inheritedValue.abstract) {
             throw InvalidPetDefinitionException(
-                "$className cannot override inherited property $name = $inheritedValue"
+                "`$className` cannot override inherited property `$name = $inheritedValue`"
             )
           }
           if (!declared.narrows(inheritedValue, TypeInfo.NoGameState)) {
             throw InvalidPetDefinitionException(
-                "$className cannot narrow property $name = $inheritedValue with $declared"
+                "`$className` cannot narrow inherited property `$name = $inheritedValue` " +
+                    "with `$declared`"
             )
           }
           inherited[name] =
@@ -242,7 +243,7 @@ internal constructor(
    */
   override fun ensureNarrows(that: Class, info: TypeInfo) {
     if (!isSubtypeOf(that))
-        throw NarrowingException("${this.className} is not a subclass of ${that.className}")
+        throw NarrowingException("`${this.className}` is not a subclass of `${that.className}`")
   }
 
   /**
@@ -253,7 +254,7 @@ internal constructor(
 
   private fun requireSameClassTable(that: Class) {
     require(classTable.commonTable(that.classTable) != null) {
-      "$className and ${that.className} belong to different class tables"
+      "`$className` and `${that.className}` belong to different class tables"
     }
   }
 
@@ -340,7 +341,7 @@ internal constructor(
         remainingPaths.isEmpty() -> dependency.expressionFull
         remainingPaths.any { it.isEmpty() } -> this@Class.className.expression
         dependency is TypeDependency -> dependency.boundType.bindSelfAt(remainingPaths)
-        else -> error("can't bind self within $dependency")
+        else -> error("cannot bind self within `$dependency`")
       }
     }
     return expressionFull.replaceArguments(arguments)
@@ -366,7 +367,7 @@ internal constructor(
       left.merge(right) { a, b ->
         loader.glb(a, b)
             ?: throw InvalidPetDefinitionException(
-                "$className inherits incompatible bounds for ${a.key}: $a and $b"
+                "`$className` inherits incompatible bounds for `${a.key}`: `$a` and `$b`"
             )
       }
     } ?: DependencySet.of()
@@ -385,7 +386,7 @@ internal constructor(
   private val dependenciesLazy = lazy {
     if (resolvingDependencies) {
       throw InvalidPetDefinitionException(
-          "$className has a circular dependency: resolving its dependency bounds requires " +
+          "`$className` has a circular dependency: resolving its dependency bounds requires " +
               "those same bounds"
       )
     }
@@ -395,7 +396,9 @@ internal constructor(
           if (className == CLASS) {
             depsForClassType(loader.componentClass)
           } else {
-            inheritedDeps().merge(declaredDeps()) { _, _ -> error("unexpected") }
+            inheritedDeps().merge(declaredDeps()) { inherited, declared ->
+              error("dependency key occurs in both inherited `$inherited` and declared `$declared`")
+            }
           }
       resolved
           .typeDependencies()
@@ -405,9 +408,9 @@ internal constructor(
           }
           ?.let { dependency ->
             throw InvalidPetDefinitionException(
-                "$className dependency ${dependency.key} cannot target " +
-                    "${dependency.boundType.expressionFull}; Signal types and Die cannot be " +
-                    "dependency targets"
+                "`$className` dependency `${dependency.key}` cannot target " +
+                    "`${dependency.boundType.expressionFull}`; `Signal` types and `Die` cannot " +
+                    "be dependency targets"
             )
           }
       resolved
@@ -442,14 +445,16 @@ internal constructor(
 
   private fun equalityError(equality: DependencyEquality, dependencies: DependencySet): Nothing =
       throw ExpressionException(
-          "Type-variable ${equality.expressions.joinToString()} dependencies disagree in " +
-              className.of(dependencies.expressionsFull())
+          "type-variable `${equality.expressions.joinToString()}` dependencies disagree in " +
+              "`${className.of(dependencies.expressionsFull())}`"
       )
 
   private fun normalizeVariableEqualities(original: DependencySet): DependencySet {
     val classTable =
         original.classTable?.let {
-          requireNotNull(loader.commonTable(it)) { "$original belongs to a different class table" }
+          requireNotNull(loader.commonTable(it)) {
+            "`$original` belongs to a different class table"
+          }
         } ?: loader
     var dependencies = original
     var changed: Boolean
@@ -691,7 +696,7 @@ internal constructor(
         }
         if (matching.size > 1) {
           throw InvalidPetDefinitionException(
-              "$className uses ambiguous Class Type variable $expression in $effect"
+              "`$className` uses ambiguous Class type variable `$expression` in `$effect`"
           )
         }
         matching
@@ -797,10 +802,10 @@ internal constructor(
         if (aliases.isEmpty()) return@forEach
         val previous =
             binding.paths.map { path -> capturedAt(general, path) }.distinct().singleOrNull()
-                ?: error("Type variable ${binding.variable} has conflicting prior values")
+                ?: error("type variable `${binding.variable}` has conflicting prior values")
         val next =
             binding.paths.map { path -> capturedAt(specific, path) }.distinct().singleOrNull()
-                ?: error("Type variable ${binding.variable} has conflicting values")
+                ?: error("type variable `${binding.variable}` has conflicting values")
         // A fixed inherited dependency still has to replace its superclass's open variable.
         if (next == previous && next.abstract) return@forEach
         aliases.forEach { variable -> put(variable, next) }
@@ -818,15 +823,15 @@ internal constructor(
   public fun withAllDependencies(deps: DependencySet): GroundType {
     val projected = deps.subMapInOrder(dependencies.keys)
     require(projected.keys == dependencies.keys) {
-      "expected keys ${dependencies.keys}, got $deps"
+      "expected keys `${dependencies.keys}`, found `$deps`"
     }
     val classTable =
         projected.classTable?.let {
-          requireNotNull(loader.commonTable(it)) { "$deps belongs to a different class table" }
+          requireNotNull(loader.commonTable(it)) { "`$deps` belongs to a different class table" }
         } ?: loader
     val bounded =
         requireNotNull(classTable.glb(dependencies, projected)) {
-          "$deps does not satisfy the declared dependency bounds of $className"
+          "`$deps` does not satisfy the declared dependency bounds of `$className`"
         }
     return GroundType(this, normalizeVariableEqualities(bounded))
   }
@@ -927,7 +932,7 @@ internal constructor(
           .also {
             if (COMPONENT in it) {
               throw InvalidPetDefinitionException(
-                  "${declaration.className} must not name $COMPONENT as a supertype; " +
+                  "`${declaration.className}` must not name `$COMPONENT` as a supertype; " +
                       "every class extends it already"
               )
             }

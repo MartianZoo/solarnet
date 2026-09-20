@@ -53,9 +53,22 @@ internal class DomainExceptionContractTest {
   internal fun directChangesRejectAbstractAndNonChangeInstructionsWithDomainExceptions() {
     val agent = agent()
 
-    shouldThrow<NotFullySpecifiedException> { agent.sneak("Plant OR Heat") }
+    val incomplete = shouldThrow<NotFullySpecifiedException> { agent.sneak("Plant OR Heat") }
+    incomplete.message!!.startsWith("instruction is abstract:") shouldBe true
     shouldThrow<NotFullySpecifiedException> { agent.sneak("X Plant") }
     shouldThrow<ExpressionException> { agent.sneak("Plant: Heat") }
+  }
+
+  @Test
+  internal fun abstractPetsInputReachesTaskExecutionAndCompletionBoundaries() {
+    val agent = agent()
+    agent.beginOperation("X Plant")
+
+    val execution = shouldThrow<NotFullySpecifiedException> { agent.doTask("X Plant") }
+    execution.message!!.startsWith("instruction is abstract:") shouldBe true
+
+    val completion = shouldThrow<NotFullySpecifiedException> { agent.completeOperation() }
+    completion.message!!.startsWith("pending abstract tasks:") shouldBe true
   }
 
   @Test

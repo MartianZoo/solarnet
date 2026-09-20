@@ -201,7 +201,7 @@ internal class Spec01UniversesTest {
     positions.forEach { declaration ->
       withClue(declaration) {
         shouldThrow<InvalidPetDefinitionException> { loadTypes(declaration) }.message shouldContain
-            "Foo names `Missing`"
+            "`Foo` names undeclared Class `Missing`"
       }
     }
   }

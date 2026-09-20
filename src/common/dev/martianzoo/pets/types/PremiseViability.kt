@@ -34,7 +34,7 @@ internal object PremiseViability {
   }
 
   private fun unviable(className: ClassName, reason: String): Nothing =
-      throw InvalidGameConfigException("unviable game premise: $className has $reason")
+      throw InvalidGameConfigException("unviable game premise: `$className` has $reason")
 
   private val REQUIREMENT_PROPERTY = PropertyName("requirement")
 

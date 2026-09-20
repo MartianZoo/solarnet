@@ -17,7 +17,7 @@ public data class PropertyName(public val value: String) : PetNode() {
   }
 
   init {
-    require(value.matches(propertyNameRegex)) { "Bad property name: $value" }
+    require(value.matches(propertyNameRegex)) { "invalid property name: `$value`" }
   }
 
   override fun toString(): String = value

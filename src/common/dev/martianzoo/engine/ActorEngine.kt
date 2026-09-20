@@ -9,8 +9,6 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.api.Exceptions.abstractInstruction
-import dev.martianzoo.pets.api.Exceptions.orWithoutChoice
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.api.TypeInfo
@@ -87,10 +85,12 @@ internal constructor(
 
   public fun sneak(changes: InstructionGroup, cause: Cause? = null) {
     changes.instructions.forEach {
-      if (it is Instruction.Or) throw orWithoutChoice(it)
+      if (it.isAbstract(reader)) {
+        throw NotFullySpecifiedException("instruction is abstract: $it")
+      }
       val change =
           it as? Change ?: throw ExpressionException("sneak accepts only direct changes, not: $it")
-      val count = change.count as? ActualScalar ?: throw abstractInstruction(change)
+      val count = change.count as ActualScalar
       changer.change(
           count.value,
           change.gaining?.toComponent(reader),
@@ -335,9 +335,6 @@ internal constructor(
     val selected = selectTask(queue, original) ?: return original
     val selectedQueue = queueForAnyTask(selected)
     val selectedTask = selectedQueue.getTaskData(selected)
-    if (selectedTask.instruction.isAbstract(reader)) {
-      throw abstractInstruction(selectedTask.instruction)
-    }
     executeSelectedTask(selectedQueue, selected)
     return selectedTask
   }
@@ -379,7 +376,7 @@ internal constructor(
       }
       return
     }
-    throw abstractInstruction(tasks.getTaskData(id).instruction)
+    executeSelectedTask(queueForAnyTask(id), id)
   }
 
   private fun evaluatePer(instruction: InstructionTree): InstructionTree =

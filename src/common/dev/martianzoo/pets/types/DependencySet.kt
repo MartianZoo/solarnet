@@ -1,7 +1,7 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Specification
-import dev.martianzoo.pets.api.Exceptions
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.types.Dependency.Companion.depsForClassType
@@ -104,7 +104,8 @@ private constructor(
    * Returns the dependency identified by [key], failing when the key is absent ([rule
    * T3-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#3-dependencies)).
    */
-  public fun get(key: Key): Dependency = getIfPresent(key) ?: error("$key")
+  public fun get(key: Key): Dependency =
+      getIfPresent(key) ?: error("missing dependency for key `$key`")
 
   /**
    * Returns the dependency identified by [key], or null when absent ([rule
@@ -241,7 +242,7 @@ private constructor(
     val selected =
         compatible.firstOrNull { narrowed -> narrowed != get(narrowed.key) }
             ?: compatible.firstOrNull()
-            ?: throw Exceptions.badExpression(candidate, toString())
+            ?: throw ExpressionException("cannot match `$candidate` to any of `$this`")
     return replaceAt(DependencyPath(selected.key), selected)
   }
 
@@ -256,7 +257,7 @@ private constructor(
       val rebuilt = rootClass.withAllDependencies(dependencies.replaceAt(path.drop(1), replacement))
       val commonTable =
           requireNotNull(classTable.commonTable(rebuilt.classTable)) {
-            "$this and $rebuilt belong to unrelated class tables"
+            "`$this` and `$rebuilt` belong to unrelated class tables"
           }
       return rebuilt.inTable(commonTable).refine(refinement)
     }
@@ -296,7 +297,7 @@ private constructor(
           }
         }
       }
-      throw Exceptions.badExpression(arg, toString())
+      throw ExpressionException("cannot match `$arg` to any of `$this`")
     }
 
     return args.map(::matchToDependency)

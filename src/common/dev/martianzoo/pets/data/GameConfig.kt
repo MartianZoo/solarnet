@@ -21,16 +21,20 @@ public data class GameConfig(
 ) {
   init {
     if (playerNames.distinct().size != playerNames.size) {
+      throw InvalidGameConfigException("duplicate player names: `$playerNames`")
+    }
+    val includedAndExcluded = includedClassNames intersect excludedClassNames
+    if (includedAndExcluded.isNotEmpty()) {
       throw InvalidGameConfigException(
-          "a game configuration cannot seat the same player name more than once"
+          "class names cannot be both included and excluded: `$includedAndExcluded`"
       )
     }
-    if (
-        includedClassNames.intersect(excludedClassNames).isNotEmpty() ||
-            playerNames.any { it in includedClassNames || it in excludedClassNames }
-    ) {
+    val playerClassSelections = playerNames.filter {
+      it in includedClassNames || it in excludedClassNames
+    }
+    if (playerClassSelections.isNotEmpty()) {
       throw InvalidGameConfigException(
-          "a game configuration cannot include and exclude the same class"
+          "player names cannot also be class selections: `$playerClassSelections`"
       )
     }
   }
@@ -67,7 +71,7 @@ public data class GameConfig(
               val name = if (included) token else token.drop(1)
               if (name.isEmpty() || name.any(Char::isWhitespace)) {
                 throw InvalidGameConfigException(
-                    "expected a comma-or-newline-separated class name, got: $token"
+                    "expected a comma-or-newline-separated class name, found `$token`"
                 )
               }
               cn(name) to included
@@ -77,7 +81,7 @@ public data class GameConfig(
             entries.filterNot { it.second }.map { it.first },
         )
       } catch (e: IllegalArgumentException) {
-        throw InvalidGameConfigException("invalid game configuration: $source", e)
+        throw InvalidGameConfigException("invalid game configuration: `$source`", e)
       }
     }
 
@@ -85,7 +89,7 @@ public data class GameConfig(
         try {
           playerNames.map(::cn)
         } catch (e: IllegalArgumentException) {
-          throw InvalidGameConfigException("invalid player names: ${playerNames.joinToString()}", e)
+          throw InvalidGameConfigException("invalid player names: `$playerNames`", e)
         }
 
     private fun toSets(
@@ -93,9 +97,7 @@ public data class GameConfig(
         excluded: List<ClassName>,
     ): Pair<Set<ClassName>, Set<ClassName>> {
       if ((included + excluded).distinct().size != included.size + excluded.size) {
-        throw InvalidGameConfigException(
-            "a game configuration cannot mention the same class more than once"
-        )
+        throw InvalidGameConfigException("duplicate class selections: `${included + excluded}`")
       }
       return included.toCollection(linkedSetOf()) to excluded.toCollection(linkedSetOf())
     }

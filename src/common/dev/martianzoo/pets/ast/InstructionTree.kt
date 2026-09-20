@@ -42,12 +42,12 @@ public sealed class InstructionTree : PetElement(), Specification<InstructionTre
    */
   public override fun ensureNarrows(that: InstructionTree, info: TypeInfo) {
     if (that !is Or && this != NoOp && this::class != that::class) {
-      throw NarrowingException("`$this` can't narrow `$that` (different types)")
+      throw NarrowingException("`$this` cannot narrow `$that`: instruction types differ")
     }
     try {
       that.ensureIsNarrowedBy(this, info)
     } catch (e: NarrowingException) {
-      throw NarrowingException("$this does not narrow $that", e)
+      throw NarrowingException("`$this` does not narrow `$that`", e)
     }
   }
 

@@ -27,7 +27,7 @@ public class PremiseClassTable(
                 it > 1
               }
           throw InvalidGameConfigException(
-              "premise contains duplicate Class declarations: ${duplicates.keys}"
+              "premise contains duplicate Class declarations: `${duplicates.keys}`"
           )
         }
       }
@@ -36,7 +36,7 @@ public class PremiseClassTable(
     val collisions = this.declarations.keys intersect master.allClassNames
     if (collisions.isNotEmpty()) {
       throw InvalidGameConfigException(
-          "premise Class Names collide with the master table: $collisions"
+          "premise Class names collide with the master table: `$collisions`"
       )
     }
   }
@@ -49,10 +49,10 @@ public class PremiseClassTable(
       return masterSuperclass != null && masterCandidate.isSubtypeOf(masterSuperclass)
     }
     if (candidate !in declarations) {
-      throw InvalidPetDefinitionException("unknown premise Class Name: $candidate")
+      throw InvalidPetDefinitionException("unknown premise Class name: `$candidate`")
     }
     if (masterSuperclass == null && superclass !in declarations) {
-      throw InvalidPetDefinitionException("unknown superclass name: $superclass")
+      throw InvalidPetDefinitionException("unknown superclass name: `$superclass`")
     }
 
     fun reaches(name: ClassName, visited: Set<ClassName>): Boolean {

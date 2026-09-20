@@ -125,7 +125,7 @@ internal class Spec03DependenciesTest {
           )
         }
         .message
-        .shouldContain("Amphibious inherits incompatible bounds for Tile_0")
+        .shouldContain("`Amphibious` inherits incompatible bounds for `Tile_0`")
   }
 
   // T3-4 Arguments intersect the bound
@@ -348,7 +348,7 @@ internal class Spec03DependenciesTest {
   @Test
   internal fun `T3-9 Signal cannot be a dependency target`() {
     shouldThrow<InvalidPetDefinitionException> { loadTypes("CLASS Holder<Signal>") }
-        .message shouldContain "Signal types and Die cannot be dependency targets"
+        .message shouldContain "`Signal` types and `Die` cannot be dependency targets"
   }
 
   @Test
@@ -356,13 +356,13 @@ internal class Spec03DependenciesTest {
     shouldThrow<InvalidPetDefinitionException> {
           loadTypes("CLASS Event : Signal { HAS MAX 1 This }", "CLASS Holder<Event>")
         }
-        .message shouldContain "Holder dependency Holder_0 cannot target Event"
+        .message shouldContain "`Holder` dependency `Holder_0` cannot target `Event`"
   }
 
   @Test
   internal fun `T3-9 Die cannot be a dependency target`() {
     shouldThrow<InvalidPetDefinitionException> { loadTypes("CLASS Holder<Die>") }
-        .message shouldContain "Signal types and Die cannot be dependency targets"
+        .message shouldContain "`Signal` types and `Die` cannot be dependency targets"
   }
 
   @Test

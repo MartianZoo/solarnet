@@ -40,7 +40,7 @@ internal abstract class ParserGroup<B : Any> {
 
     override fun <T : B> parser(type: KClass<T>): Parser<T> = parser {
       @Suppress("UNCHECKED_CAST")
-      parsers[type] as? Parser<T> ?: error("unrecognized type $type")
+      parsers[type] as? Parser<T> ?: error("unrecognized parser type: `$type`")
     }
 
     internal fun finish(): ParserGroup<B> = this

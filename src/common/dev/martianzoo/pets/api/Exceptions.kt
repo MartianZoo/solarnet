@@ -1,64 +1,8 @@
 package dev.martianzoo.pets.api
 
-import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction.Change
-import dev.martianzoo.pets.ast.Instruction.Or
-import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Type
 
 public object Exceptions {
-
-  // FACTORIES
-
-  internal fun classNotFound(className: ClassName) =
-      ExpressionException(
-          "No class named `$className` in current game (check bundles, check spelling)",
-      )
-
-  internal fun badExpression(specExpression: Expression, deps: String) =
-      ExpressionException("can't match `$specExpression` to any of: `$deps`")
-
-  public fun abstractComponent(
-      type: Type,
-      change: Change? = null,
-  ): NotFullySpecifiedException =
-      NotFullySpecifiedException(
-          buildString {
-            append("${type.expression} is abstract")
-            change?.let { append(" in: `$it`") }
-          },
-      )
-
-  public fun abstractInstruction(instr: InstructionTree): NotFullySpecifiedException =
-      NotFullySpecifiedException("instruction is abstract: $instr")
-
-  public fun orWithoutChoice(orInstruction: Or): NotFullySpecifiedException =
-      NotFullySpecifiedException("choice required in: `$orInstruction`")
-
-  public fun requirementNotMet(reqt: Requirement, message: String? = null): RequirementException =
-      RequirementException("requirement not met: `$reqt` / $message")
-
-  public fun requirementsNotMetInChoices(
-      failures: Collection<RequirementException>
-  ): RequirementException {
-    require(failures.isNotEmpty())
-    return RequirementException(
-        "requirements not met in every choice: " + failures.joinToString { it.message.orEmpty() }
-    )
-  }
-
-  internal fun refinementNotMet(reqt: Requirement) =
-      NarrowingException("requirement not met: `$reqt`")
-
-  public fun invalidPetDefinition(
-      message: String,
-      cause: Throwable? = null,
-  ): InvalidPetDefinitionException = InvalidPetDefinitionException(message, cause)
-
-  // TOP-LEVEL EXCEPTIONS
-
   /** A problem in authored Pets or the definitions assembled from it. */
   public sealed class PetException(
       message: String,
@@ -114,14 +58,14 @@ public object Exceptions {
       Exception(message, cause)
 
   public class ExistingDependentsException(public val dependents: Collection<Type>) :
-      NotNowException("Existing dependents: ${dependents.joinToString { "${it.expression}" }}")
+      NotNowException("existing dependents: ${dependents.joinToString { "`${it.expression}`" }}")
 
   /** Something needed a requirement to be met and it was not. */
-  public class RequirementException internal constructor(message: String) : NotNowException(message)
+  public class RequirementException(message: String) : NotNowException(message)
 
   public class DependencyException(public val dependencies: Collection<Type>) :
       NotNowException(
-          "Missing dependencies: ${dependencies.joinToString { "${it.expressionFull}" } }"
+          "missing dependencies: ${dependencies.joinToString { "`${it.expressionFull}`" } }"
       )
 
   public class LimitsException(message: String) : NotNowException(message)
