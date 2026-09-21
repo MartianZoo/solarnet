@@ -48,11 +48,12 @@ Narrower documents own adjacent subjects:
 ## From a premise to a ready World
 
 `GameConfig` is unresolved intent. Catalog resolution produces an immutable `GamePremise`: the
-selected Catalog and Modules, seated Player Classes, class selections, and exact initial component
-Types. The premise retains one immutable game `ClassTable` view sharing its Catalog's compiled
-master structure; separate Worlds from that premise share compiled class facts but no mutable game
-state. See
-[OPTIONS.md](OPTIONS.md).
+selected Catalog and Modules, seated Player Classes, class selections, counted setup Components,
+and exact initial component Types. Counted setup Components become ordinary effects of the generated
+premise Class rather than a parallel runtime initialization path. The premise retains one immutable
+game `ClassTable` view sharing its Catalog's compiled master structure; separate Worlds from that
+premise share compiled class facts but no mutable game state. See
+[`GamePremise.kt`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt).
 
 `Engine.newGame` wires one `GameWorld` to its reader, timeline, task services, effect index,
 limiter, instructor, changer, and Actor Engines. Initialization then crosses three conceptual

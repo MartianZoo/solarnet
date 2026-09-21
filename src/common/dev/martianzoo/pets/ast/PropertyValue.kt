@@ -13,7 +13,7 @@ import dev.martianzoo.pets.api.TypeInfo
 
 /**
  * A value or abstract value type assigned to a class property by `name = value`. Per
- * [rule L1-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)
+ * [rule L1-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)
  * the right-hand side is one of the bound words `Number`, `Metric`, `Requirement` and
  * `Requirement?`, a literal non-negative number, a metric quoted after `COUNT`, or a requirement
  * quoted after `HAS`. What these bounds and values mean is

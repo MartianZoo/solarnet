@@ -86,7 +86,7 @@ a separate job, and every question about *how* that is done belongs to some othe
 | Action availability, costs, billing and action identity | [`ACTIONS.md`](agents/ACTIONS.md) |
 | The order in which independent effects fire | [`SEQUENCING.md`](agents/SEQUENCING.md) |
 | The event log, causes and traces | [`ENGINE.md`](agents/ENGINE.md), [`DIAGNOSTICS.md`](agents/DIAGNOSTICS.md) |
-| Which classes a particular game contains | [`OPTIONS.md`](agents/OPTIONS.md) |
+| Which classes a particular game contains | [`GamePremise`](../src/common/dev/martianzoo/pets/data/GamePremise.kt) and [`PremiseSelectionTest`](../test/common/dev/martianzoo/pets/types/PremiseSelectionTest.kt) |
 | Which name a concept gets, and its localized display names | [`NAMING.md`](agents/NAMING.md) |
 | Class-property cardinality, groups and printed tags | [`PROPERTIES.md`](agents/PROPERTIES.md) |
 
@@ -132,24 +132,14 @@ comments declares nothing. A source whose final declaration is incomplete is rej
 `PetSyntaxException`; there is no partial success.
 
 **L1-2. A signature is a name, an optional dependency list, and an optional supertype list.**
-`CLASS Foo` declares a concrete class and `ABSTRACT CLASS Foo` an abstract one (T2-1).
+Each declaration introduces exactly one class. `CLASS Foo` is concrete; `ABSTRACT CLASS Foo` is
+abstract (T2-1).
 
 ```pets
 ABSTRACT CLASS Tile<Area> : Occupant, Owned<Owner>
 ```
 
-**L1-3. One `CLASS` keyword may introduce several classes**, `CLASS Alpha, Beta`, but only when
-there is no body. Each gets the same kind and docstring and its own signature. A comma inside a
-supertype list continues that list rather than starting a new signature, so `CLASS Alpha : Root,
-Beta` declares one class with two supertypes, and only the last signature of a group can name
-supertypes.
-
-> **Non-normative example — the card taxonomy.** Core source declares `CorporationCard,
-> ProjectCard`, `ActiveCard, AutomatedCard`, and `Action1, Action2, Action3` in compact groups. Bodies
-> are forbidden because one shared body would make it unclear whether its rules belong to every
-> generated class or only the last signature.
-
-**L1-4. A body is brace-delimited, and its elements are separated by newlines or by semicolons.** A
+**L1-3. A body is brace-delimited, and its elements are separated by newlines or by semicolons.** A
 body element is an invariant (`HAS r`), a `DEFAULT` clause, a property assignment (`name = value`),
 an effect, or an action. A newline-separated body may also contain nested declarations; a
 semicolon-separated one may not.
@@ -162,18 +152,18 @@ CLASS GreeneryTile : Tile { HAS MAX 1 This; This: OxygenStep }
 > column, and placement bonus in one semicolon-separated body. Allowing nested declarations in that
 > form would make a “one physical space per line” record expand into invisible sibling classes.
 
-**L1-5. A nested declaration becomes a sibling that names its container as a supertype** (T2-2).
+**L1-4. A nested declaration becomes a sibling that names its container as a supertype** (T2-2).
 The container is returned first, then its nested declarations in source order, recursively.
 
-> **Non-normative example — cards and locations.** `CorporationCard` and `ProjectCard` are written
-> inside `CardBack`, itself inside `Card`, but the type table needs ordinary globally named classes.
-> Lowering nesting to sibling inheritance preserves the readable taxonomy without creating a
-> namespace the rest of Pets does not have.
+> **Non-normative example — cards and locations.** The `CorporationCard` hierarchy and `ProjectCard`
+> are written inside `CardBack`, itself inside `Card`, but the type table needs ordinary globally
+> named classes. Lowering nesting to sibling inheritance preserves the readable taxonomy without
+> creating a namespace the rest of Pets does not have.
 
-**L1-6. A docstring is a quoted string on the line before `CLASS`.** It is retained on the
+**L1-5. A docstring is a quoted string on the line before `CLASS`.** It is retained on the
 declaration (T2-1) and re-emitted when the declaration is rendered.
 
-**L1-7. `DEFAULT` clauses name the class that declares them** (T10-3) and are merged into one set
+**L1-6. `DEFAULT` clauses name the class that declares them** (T10-3) and are merged into one set
 per use kind (T10-1). Separate compatible clauses may supply the dependency arguments and quantifier
 of one use-kind default. Clauses that disagree about their class, dependency arguments or quantifier
 are rejected; declaration order never selects a winner. A clause naming another class is rejected.
@@ -182,7 +172,7 @@ are rejected; declaration order never selects a winner. A clause naming another 
 > remote class's default. Permitting it would let an unrelated expansion silently change what bare
 > `OceanTile<>` or `CardBack` means merely by being loaded later.
 
-**L1-8. A property is assigned at most once per body.** `name = value` binds one class property;
+**L1-7. A property is assigned at most once per body.** `name = value` binds one class property;
 the same name twice in one body is rejected. The right-hand side is one of the bound words `Number`,
 `Metric`, `Requirement` and `Requirement?`, a literal non-negative number, a metric quoted after
 `COUNT`, or a requirement quoted after `HAS`. Quotes may not appear inside the quoted text. What
@@ -200,7 +190,7 @@ CLASS Ants : CardFront {
 > two printed costs or two milestone requirements. Rejecting the second assignment at parse time
 > prevents declaration order from becoming an accidental override rule.
 
-**L1-9. Signature expressions carry no refinements**, at any depth. A dependency bound or supertype
+**L1-8. Signature expressions carry no refinements**, at any depth. A dependency bound or supertype
 written `Foo(HAS Bar)` or `Foo(NOT Bar)` is rejected, because a refined type cannot be a bound.
 
 > **Non-normative example — Mining Area.** The card declares a local special tile at
@@ -208,18 +198,18 @@ written `Foo(HAS Bar)` or `Foo(NOT Bar)` is rejected, because a refined type can
 > generated class extends plain `SpecialTile<LandArea>`; putting the board query in its signature
 > would make a state-dependent predicate part of permanent class identity.
 
-**L1-10. Whitespace and comments.** Horizontal whitespace separates tokens and carries no other
+**L1-9. Whitespace and comments.** Horizontal whitespace separates tokens and carries no other
 meaning: it may appear between any two of them, and no construct depends on how much of it there is.
 It is required only where two tokens would otherwise run together into one, so `2 MC` is a scalar and
 a name while `2MC` is neither. `//` begins a comment that runs to the end of the line. A backslash
 immediately before a line ending continues the line, so one element may span several source lines.
-Newlines are significant only as separators (L1-1, L1-4).
+Newlines are significant only as separators (L1-1, L1-3).
 
 > **Non-normative example — Mars Nomads.** Its action moves a marker and then pays every marked
 > area's placement bonus. A backslash lets that one action span source lines without a newline being
 > mistaken for the end of the body element.
 
-**L1-11. A declaration renders as parseable source, and round-trips.** `toString()` produces a
+**L1-10. A declaration renders as parseable source, and round-trips.** `toString()` produces a
 multi-line declaration and `toString(oneLine = true)` a semicolon-separated one; parsing either
 yields an equal declaration.
 
@@ -228,20 +218,20 @@ yields an equal declaration.
 > prevents a formatter from changing an action's grouping or turning a nested class into a body
 > element with different ownership.
 
-**L1-12. A declaration can also be parsed on its own.** `Parsing.parseOneLinerClass` accepts exactly
+**L1-11. A declaration can also be parsed on its own.** `Parsing.parseOneLinerClass` accepts exactly
 one declaration, with an optional semicolon-separated body, and rejects owner-local class syntax
 (L11-7). This is how a declaration embedded in structured card data is read.
 
 > **Non-normative implementation note — one record, one declaration.** Catalog composition accepts
-> standalone declarations supplied by structured data. Rejecting a grouped second class or a local
-> class keeps that API from smuggling additional globally named types through one record.
+> standalone declarations supplied by structured data. Rejecting trailing source or a local class
+> keeps that API from smuggling additional globally named types through one record.
 
-**L1-13. Every catalog also receives the system declarations.** `systemClassDeclarations` supplies
+**L1-12. Every catalog also receives the system declarations.** `systemClassDeclarations` supplies
 the classes this specification and the type system depend on — `Component` and `Class` (T1-4, T1-5),
 the ownership vocabulary `Anyone`, `Owner` and `Owned`, the actor root `Actor`, the identity signal
 `Ok` (L6-4), and the impossible type `Die` (L12-14) — plus `Atomized` (L12-11) and `Custom` (T2-9).
-A catalog's own source is loaded alongside them. Which of these a *game* then contains is
-`OPTIONS.md`'s question, not this document's.
+A catalog's own source is loaded alongside them. Which of these a *game* then contains is premise
+construction's question, not this document's.
 
 > **Non-normative example — impossible and empty outcomes.** Specialization uses the built-in `Die`
 > and `Ok` terminal instructions when selected content makes a mandatory result impossible or an
@@ -507,10 +497,14 @@ context.
 position of one candidate among the components matching `Selector` in one state, comparing the
 listed metrics lexicographically. Equal metric vectors share one rank, and the next unequal vector's
 rank skips the places occupied by the tie. Authored syntax leaves the candidate open; a refinement
-supplies it. At least one metric is required, and the selector's refinement filters the field
-without becoming part of the name the metrics use. There is no lowest-first form; subtracting the
-metric from a known upper cap expresses the inverse ordering. This module pins the syntax and that
-scoping; ranking a live field is realized where a world is available, and pinned by
+supplies it. Inside a `HAS` refinement only, the selector may also be omitted from a counted rank:
+`Foo(HAS =1 (RANK { score }))` means `Foo(HAS =1 (RANK Foo { score }))`, using the unrefined
+expression that owns that refinement as the field. Outside an expression refinement there is no
+outer domain to supply that selector, so `RANK { score }` is invalid. At least one metric is
+required, and the selector's refinement filters the field without becoming part of the name the
+metrics use. There is no lowest-first form; subtracting the metric from a known upper cap expresses
+the inverse ordering. This module pins the syntax and that scoping; ranking a live field is realized
+where a world is available, and pinned by
 `engine/RankMetricTest.kt`.
 
 > **Non-normative example — award scoring.** Award resolution ranks every player by the selected
@@ -1072,7 +1066,7 @@ generated declaration is `CLASS Inventrix_RequiredAction : RequiredAction`.
 
 **L11-3. The body follows the complete expression.** Arguments specialize both the occurrence and
 the generated class's declared supertype; refinements constrain only the occurrence and are removed
-recursively from the supertype, because a refined type cannot be a supertype (L1-9).
+recursively from the supertype, because a refined type cannot be a supertype (L1-8).
 
 Within an argument, `This` still denotes the enclosing owner: the occurrence retains `This` to name
 that owner instance, while the generated class's supertype names the enclosing owner Class.

@@ -2,6 +2,7 @@
 CLASS ColoniesExpansion : Module {
   This: TradeAction, BuildColonyProject
   SetupPhase: EACH Player { TradeFleet }
+  SetupPhase IF SoloMode, SelectedColonyTile: EACH Player { SoloColoniesSetup }
   SetupPhase IF SoloMode: PROD[-2 MC<Player>]
   ColoniesSolarPhase: AdvanceColonyTracks
 }
@@ -198,16 +199,16 @@ CLASS BuildColonyProject : StandardProject {
 "A selected colony tile, whether it is already in play or waiting for a compatible card"
 ABSTRACT CLASS ColonyTileSelection<Class<ColonyTile>> { HAS MAX 1 This }
 
-"A normal colony selected for this game but not put into play until setup"
-CLASS SelectedColonyTile<Class<ColonyTile>> : ColonyTileSelection<Class<ColonyTile>>, Hidden {
-  SetupPhase IF MultiplayerMode: ColonyTile FROM This
-  -SoloColoniesSetup IF SoloMode: ColonyTile FROM This
+"A colony selected by the premise but not realized until setup is complete"
+CLASS SelectedColonyTile<Class<ColonyTile>> : Hidden {
+  HAS MAX 1 This
+  CorporationPhase:: ColonyTileSelection<Class<ColonyTile>> FROM This
 }
 
 "Lets the solo player discard one selected colony tile; owned so that player makes the choice"
 CLASS SoloColoniesSetup : Owned<Player>, System {
   HAS MAX 1 This
-  SetupPhase: -ColonyTileSelection THEN -This!
+  This: -SelectedColonyTile THEN -This!
 }
 
 "A notch on the production track of a ColonyTile; note a tile has 0 to 6 of these (not 1 to 7)"

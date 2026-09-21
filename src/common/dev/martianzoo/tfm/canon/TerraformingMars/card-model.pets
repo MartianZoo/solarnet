@@ -6,7 +6,12 @@ ABSTRACT CLASS Card : Owned<Player> {
     DEFAULT -CardBack
     autoSelectWhen = Requirement?
 
-    CLASS CorporationCard, ProjectCard
+    ABSTRACT CLASS CorporationCard
+    CLASS BeginnerCorporationCard : CorporationCard {
+      autoSelectWhen = HAS "BeginnerVariant"
+    }
+    CLASS StandardCorporationCard : CorporationCard
+    CLASS ProjectCard
   }
 
   "A card in play, face-up on the table (consider rename to CardFace)"
@@ -97,9 +102,20 @@ CLASS CardLocationCleanup<CardLocation> : Temporary, Hidden {
 ABSTRACT CLASS TagHolder : Owned<Player>
 
 ABSTRACT CLASS Tag<TagHolder<Player>> : Owned<Player>, Atomized {
-  CLASS BuildingTag, SpaceTag, ScienceTag, PowerTag, CityTag
-  ABSTRACT CLASS BioTag { CLASS PlantTag, MicrobeTag, AnimalTag }
-  ABSTRACT CLASS PlanetaryTag { CLASS EarthTag, JovianTag }
+  CLASS BuildingTag
+  CLASS SpaceTag
+  CLASS ScienceTag
+  CLASS PowerTag
+  CLASS CityTag
+  ABSTRACT CLASS BioTag {
+    CLASS PlantTag
+    CLASS MicrobeTag
+    CLASS AnimalTag
+  }
+  ABSTRACT CLASS PlanetaryTag {
+    CLASS EarthTag
+    CLASS JovianTag
+  }
   "The printed event icon derived for every EventCard"
   CLASS EventTag : Tag<EventCard>
 }

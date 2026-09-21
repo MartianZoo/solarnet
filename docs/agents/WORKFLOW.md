@@ -59,10 +59,15 @@ calls the next phase operation. The selected design replaces that continuing con
 engine primitives above.
 
 Setup and Research are simultaneous player-work windows. Setup deals each Player's starting cards
-and creates one `NewTurn` whose Player-owned tasks discard one corporation, exactly two Preludes,
-and any rejected starting projects. Every Player queue may remain active together. Research likewise
-offers cards to every Player and waits for whole-World idleness rather than imposing seat order.
-Corporation and Prelude phases retain ordered turns for playing the cards kept during Setup.
+and creates one `NewTurn`. The standard path offers the configured number of corporations, keeps
+one, and gives that Player tasks for any rejected starting projects; `BeginnerVariant` instead lets
+each Player choose a beginner path that skips both choices. Prelude independently adds the task to
+discard exactly two Prelude cards to either path. Every Player queue may remain active together.
+Research likewise offers cards to every Player and waits for whole-World idleness rather than
+imposing seat order. Corporation and Prelude phases retain ordered turns for playing the cards kept
+during Setup.
+Normal-corporation offers explicitly exclude `BeginnerCorporation`; their standard card back already
+implies the same partition, but the face restriction states the normal-path rule directly.
 
 ## Runtime model
 

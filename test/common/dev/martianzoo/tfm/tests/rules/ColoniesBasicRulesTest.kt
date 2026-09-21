@@ -45,6 +45,7 @@ internal class ColoniesBasicRulesTest : TfmTest() {
 
   init {
     game = setUpGame(premise)
+    TfmWorkflow.Stepwise(game.testAgents()).corporationPhase()
   }
 
   private val p1 = game.testTfm(PLAYER1)
@@ -82,7 +83,9 @@ internal class ColoniesBasicRulesTest : TfmTest() {
             players = 4,
             colonyTiles = colonies,
         )
-    val admin = setUpGame(premise).testTfm(ADMIN)
+    val game = setUpGame(premise)
+    TfmWorkflow.Stepwise(game.testAgents()).corporationPhase()
+    val admin = game.testTfm(ADMIN)
     val p1 = admin.asPlayer(PLAYER1)
 
     admin.assertCounts(
@@ -119,17 +122,17 @@ internal class ColoniesBasicRulesTest : TfmTest() {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
 
-    admin.assertCounts(0 to "ColonyTile", 4 to "ColonyTileSelection")
+    admin.assertCounts(0 to "ColonyTile", 4 to "SelectedColonyTile")
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
-    p1.doTask("-ColonyTileSelection<Class<Luna>>")
+    p1.doTask("-SelectedColonyTile<Class<Luna>>")
     admin.assertCounts(
-        1 to "ColonyTile",
-        3 to "ColonyTileSelection",
-        1 to "Callisto",
+        0 to "ColonyTile",
+        3 to "SelectedColonyTile",
+        0 to "Callisto",
         0 to "Luna",
         0 to "ColonyProduction<Luna>",
-        1 to "DelayedMiranda",
-        1 to "DelayedTitan",
+        0 to "DelayedMiranda",
+        0 to "DelayedTitan",
     )
   }
 
@@ -143,7 +146,9 @@ internal class ColoniesBasicRulesTest : TfmTest() {
             players = 4,
             colonyTiles = colonies,
         )
-    val admin = setUpGame(premise).testTfm(ADMIN)
+    val game = setUpGame(premise)
+    TfmWorkflow.Stepwise(game.testAgents()).corporationPhase()
+    val admin = game.testTfm(ADMIN)
     val p1 = admin.asPlayer(PLAYER1)
 
     admin.phase("Action")

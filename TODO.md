@@ -44,6 +44,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Reconsider Turmoil's `PartyLeader` representation and name. It currently supplements the actual
   `PartyDelegate` as a non-`Delegate` role; decide whether a clearer role name or a true delegate
   subtype can express leadership without representing or counting the physical marker twice.
+- Find a clean way to make Turmoil's `ApplyRulingBonus` player-owned without complicating the Reds
+  tied-lowest-player selection. It currently remains one global signal whose party effect fans out
+  over the players.
 - Investigate whether the three self-handling signals `CimmeriaPlacementBonus`,
   `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
   requiring authored references to generated names. Preserve Cimmeria map generation,
@@ -60,8 +63,12 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- Render the five beginner corporation copies from their inherited modeled setup semantics.
 - Complete the three visible goal-text refusals only from modeled semantics: Briber's immediate
   claim instruction, Philantropist's `GainsOf` metric, and Suburbian's map-edge concept.
+- Add Jacob Fryxelius's ruling that moving Mars Nomads does not trigger the Mars First ruling policy.
+- Model WG Project, then mirror the Valley Trust case where an unplayable selected Prelude may be
+  discarded for 15 MC even when another drawn Prelude is playable.
 - Add canonical Prelude 2 definitions for Corridors of Power, Envoys from Venus, Special Permit,
   Red Tourism Wave, and Frontier Town, then remove their source-specific replay fixtures.
 - Repair the two declared Pets conformance gaps without adding a second representation of type

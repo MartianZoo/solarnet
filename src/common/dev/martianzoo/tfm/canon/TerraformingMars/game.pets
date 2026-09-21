@@ -18,6 +18,7 @@ CLASS TerraformingMars : BaseGameModule {
   This: EACH Class<ActionSlot> { ActionSlot }
 
   ModulesReady IF MAX 0 ExtendedGlobalParametersRule: StandardGpTrackRules
+  ModulesReady IF MAX 0 CorporationOption: 2 CorporationOption
 
   // TODO: get rid of
   CorporationPhase: Photosynthesis
@@ -67,9 +68,12 @@ ABSTRACT CLASS GameMode : Module {
     SetupPhase: EACH Player { 20 TerraformRating }
 
     // TODO: something better for this to trigger on
-    -FinalScoringPending: EACH Player(HAS =1 (RANK Player { VictoryPoint, MC })) { Victory }
+    -FinalScoringPending: EACH Player(HAS =1 (RANK { VictoryPoint, MC })) { Victory }
   }
 }
+
+"One corporation card offered in the configurable standard setup path"
+CLASS CorporationOption : System
 
 "One of the actual people or bots playing Terraforming Mars"
 ABSTRACT CLASS Player : Owner, Actor {
@@ -81,8 +85,14 @@ ABSTRACT CLASS Player : Owner, Actor {
   This: 5 ProdOffset<This, Class<MC>> BY Admin
   This: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
 
-  SetupPhase: 2 CorporationCard THEN 10 ProjectCard THEN NewTurn
-  NewTurn IF SetupPhase: -CorporationCard, \
+  // Keeping one standard offer lets ordinary Selecting cleanup forget the unchosen cards.
+  SetupPhase IF MAX 0 BeginnerVariant: \
+    StandardCorporationCard<Selecting> / CorporationOption THEN 10 ProjectCard THEN NewTurn
+  SetupPhase IF BeginnerVariant: \
+    (BeginnerCorporationCard THEN 10 ProjectCard THEN NewTurn) OR \
+      (StandardCorporationCard<Selecting> / CorporationOption THEN 10 ProjectCard THEN NewTurn)
+  NewTurn IF SetupPhase, StandardCorporationCard<Selecting>: \
+    StandardCorporationCard<Hand FROM Selecting>, \
     ((ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>) THEN -10 ProjectCard<Selecting>? \
       THEN (ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>))
   ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
@@ -110,9 +120,13 @@ ABSTRACT CLASS Phase : System {
   CLASS BootstrapPhase
   CLASS SetupPhase { This:: Generation }
   CLASS CorporationPhase {
-    NewTurn: PlayCard<Class<CorporationCard>, Hand>, \
+    NewTurn IF StandardCorporationCard<Hand>: \
+      PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Hand>, \
       (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>)
-    -CorporationCard<Hand>: BuySelectedCards
+    NewTurn IF BeginnerCorporationCard<Hand>: \
+      PlayCard<Class<CorporationCard>, Class<BeginnerCorporation>, Hand>, \
+      (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>)
+    -StandardCorporationCard<Hand>: BuySelectedCards
   }
   CLASS ResearchPhase { This:: Generation }
   CLASS ActionPhase {

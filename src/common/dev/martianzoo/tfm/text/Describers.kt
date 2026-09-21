@@ -219,6 +219,9 @@ private constructor(
 
   internal fun isProduction(className: ClassName): Boolean = expressions.isProduction(className)
 
+  internal fun isSubtypeOf(className: ClassName, superclassName: ClassName): Boolean =
+      expressions.isSubtypeOf(className, superclassName)
+
   internal fun isProductionOffset(expression: Expression): Boolean =
       expression.refinement == null &&
           fact(expression.className, ComponentDescriber::productionOffset) == true

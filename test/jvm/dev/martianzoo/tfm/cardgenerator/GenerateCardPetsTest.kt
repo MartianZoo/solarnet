@@ -10,7 +10,7 @@ internal class GenerateCardPetsTest {
   internal fun groupedDecksPreserveCardDefinitionsAndDeriveProjectKinds() {
     val cards = CardData.definitions("TerraformingMars").associateBy { it.name }
 
-    assertEquals("CorporationCard", cards.getValue("CrediCor").deck)
+    assertEquals("StandardCorporationCard", cards.getValue("CrediCor").deck)
     assertEquals(null, cards.getValue("CrediCor").projectKind)
     assertEquals("AutomatedCard", cards.getValue("DeepWellHeating").projectKind)
     assertEquals("ActiveCard", cards.getValue("ArcticAlgae").projectKind)

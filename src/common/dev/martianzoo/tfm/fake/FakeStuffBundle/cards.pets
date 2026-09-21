@@ -57,7 +57,7 @@ CLASS FakePreservationTrLost<GenerationScope> : Cardbound<FakePreservationProgra
 }
 
 "Helion without correct Heat payment allocation"
-CLASS FakeHelion : CardFront<Class<CorporationCard>> {
+CLASS FakeHelion : CardFront<Class<StandardCorporationCard>> {
   cost = 0
 
   This:: SpaceTag<This>, BaseResourceValue<Class<Heat>>
@@ -67,7 +67,7 @@ CLASS FakeHelion : CardFront<Class<CorporationCard>> {
 }
 
 "A replay-only stand-in for an unsupported upstream corporation"
-CLASS FakePolderTechDutch : CardFront<Class<CorporationCard>> {
+CLASS FakePolderTechDutch : CardFront<Class<StandardCorporationCard>> {
   cost = 0
 
   This:: EarthTag<This>
@@ -93,7 +93,7 @@ CLASS FakeBannedDelegateRemoval<Party, Anyone> : Owned<Player>, Barrier {
 }
 
 "Septem Tribus with an inert wild tag"
-CLASS FakeSeptemTribus : ActionCard<Class<CorporationCard>> {
+CLASS FakeSeptemTribus : ActionCard<Class<StandardCorporationCard>> {
   cost = 0
 
   This: 36 MC, FakeWildTag<This>

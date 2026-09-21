@@ -9,6 +9,7 @@ import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
+import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect.Trigger
@@ -241,6 +242,7 @@ public open class TfmCatalog : Catalog {
                 .toSet()
     val configurationTable =
         PremiseClassTable(universe, additionalClassDeclarations + playerDeclarations)
+    val configuredComponentCounts = resolveComponentCounts(config.componentCounts)
     val explicitlyIncluded =
         resolveConfigurationNames(config.includedClassNames) + configuredPlayerNames
     val explicitlyExcluded = resolveConfigurationNames(config.excludedClassNames)
@@ -344,7 +346,6 @@ public open class TfmCatalog : Catalog {
             configurationTable,
         )
     included = included + selectedMilestoneNames + selectedAwardNames
-    val colonyNames = colonyTileClassNames
     val individualNames = included - moduleNames
     val individualSelections = linkedMapOf<ClassName, Boolean>()
     individualNames.forEach { individualSelections[it] = true }
@@ -363,16 +364,20 @@ public open class TfmCatalog : Catalog {
         individualSelections
             .filterKeys { it !in configuredPlayerNames }
             .mapTo(linkedSetOf()) { (className, included) -> ClassSelection(className, included) }
+    val selectedByModules =
+        moduleNames
+            .flatMap { modules.getValue(it) }
+            .filter { it.included && it.appliesTo(included, configurationTable) }
+            .mapTo(hashSetOf(), ClassSelection::className)
+    if (individualNames.intersect(colonyTileClassNames).any { it !in selectedByModules }) {
+      throw InvalidGameConfigException("selected ColonyTiles must be provided by a selected Module")
+    }
     val initialTypes =
         individualNames
-            .filter { it in colonyNames }
-            .mapTo(
-                additionalInitialComponentTypes.toCollection(linkedSetOf()),
-                ::initialColonyTileType,
-            )
-    if (configuredPlayerNames.size == 1 && initialTypes.isNotEmpty()) {
-      initialTypes.add(SOLO_COLONIES_SETUP.of(configuredPlayerNames.single().expression))
-    }
+            .filter { it in colonyTileClassNames }
+            .mapTo(additionalInitialComponentTypes.toCollection(linkedSetOf())) {
+              SELECTED_COLONY_TILE.of(it.classExpression())
+            }
     configuredPlayerNames.firstOrNull()?.let { firstPlayer ->
       initialTypes.add(TfmClasses.START_TOKEN.of(firstPlayer.expression))
       configuredPlayerNames.zip(configuredPlayerNames.drop(1) + firstPlayer).mapTo(initialTypes) {
@@ -380,16 +385,8 @@ public open class TfmCatalog : Catalog {
         TfmClasses.AFTER_ME.of(player.expression, nextPlayer.expression)
       }
     }
-    val selectedByModules =
-        moduleNames
-            .flatMap { modules.getValue(it) }
-            .filter { it.included && it.appliesTo(included, configurationTable) }
-            .mapTo(hashSetOf(), ClassSelection::className)
-    if (individualNames.intersect(colonyNames).any { it !in selectedByModules }) {
-      throw InvalidGameConfigException("selected ColonyTiles must be provided by a selected Module")
-    }
     val premiseDeclaration =
-        if (moduleNames.isEmpty()) {
+        if (moduleNames.isEmpty() && configuredComponentCounts.isEmpty()) {
           null
         } else {
           val baseGameModule = universe.findClass(BASE_GAME_MODULE)
@@ -400,7 +397,12 @@ public open class TfmCatalog : Catalog {
                 moduleNames.filter { universe.getClass(it).isSubtypeOf(baseGameModule) } +
                     moduleNames.filterNot { universe.getClass(it).isSubtypeOf(baseGameModule) }
               }
-          generatedPremiseDeclaration(orderedModuleNames, configuredPlayerNames, initialTypes)
+          generatedPremiseDeclaration(
+              orderedModuleNames,
+              configuredPlayerNames,
+              initialTypes,
+              configuredComponentCounts,
+          )
         }
     return GamePremise(
         catalog = this,
@@ -412,7 +414,7 @@ public open class TfmCatalog : Catalog {
             BOOTSTRAP_PHASE.takeIf {
               moduleNames.isNotEmpty() && it in allClassNames
             },
-        premiseClassName = PREMISE_CLASS.takeIf { moduleNames.isNotEmpty() },
+        premiseClassName = PREMISE_CLASS.takeIf { premiseDeclaration != null },
         premiseClassDeclarations =
             additionalClassDeclarations + playerDeclarations + listOfNotNull(premiseDeclaration),
     )
@@ -433,18 +435,6 @@ public open class TfmCatalog : Catalog {
         additionalClassDeclarations = playerDeclarations.toSet(),
     )
   }
-
-  private fun initialColonyTileType(className: ClassName) =
-      if (universe.getClass(className).isSubtypeOf(universe.getClass(COLONY_TILE_SELECTION))) {
-        SELECTED_COLONY_TILE.of(className.classExpression())
-      } else {
-        universe
-            .allConcreteSubtypes(
-                universe.resolve(COLONY_TILE_SELECTION.of(className.classExpression()))
-            )
-            .single { it.rootClass.className != SELECTED_COLONY_TILE }
-            .expression
-      }
 
   private fun countConfigured(
       metric: Metric,
@@ -509,6 +499,28 @@ public open class TfmCatalog : Catalog {
     return configuredName.takeIf { it in allClassNames }
   }
 
+  private fun resolveComponentCounts(requestedCounts: Map<ClassName, Int>): Map<ClassName, Int> =
+      requestedCounts.entries.associateTo(linkedMapOf()) { (requestedName, count) ->
+        val name =
+            resolveConfigurationName(requestedName)
+                ?: throw InvalidGameConfigException(
+                    "unknown counted component class: $requestedName"
+                )
+        val configuredClass = universe.getClass(name)
+        if (
+            configuredClass.abstract ||
+                configuredClass.defaultType.abstract ||
+                !configuredClass.isSubtypeOf(universe.getClass(SYSTEM)) ||
+                (MODULE_CLASS in allClassNames &&
+                    configuredClass.isSubtypeOf(universe.getClass(MODULE_CLASS)))
+        ) {
+          throw InvalidGameConfigException(
+              "counted component class must be a concrete dependency-free non-Module System: $name"
+          )
+        }
+        name to count
+      }
+
   /** Returns this Catalog composed with concrete `Player1` through `PlayerN` seat Classes. */
   public fun withPlayers(playerCount: Int): TfmCatalog {
     require(playerCount > 0) { "player count must be positive: $playerCount" }
@@ -572,6 +584,7 @@ public open class TfmCatalog : Catalog {
       moduleNames: List<ClassName>,
       playerNames: List<ClassName>,
       initialComponentTypes: Set<Expression>,
+      componentCounts: Map<ClassName, Int>,
   ): ClassDeclaration {
     require(PREMISE_CLASS !in allClassNames) {
       "$PREMISE_CLASS is reserved for the resolved game configuration"
@@ -583,6 +596,9 @@ public open class TfmCatalog : Catalog {
       }
       if (initialComponentTypes.isNotEmpty()) {
         add("This:: ${initialComponentTypes.joinToString()}")
+      }
+      if (componentCounts.isNotEmpty()) {
+        add("This:: " + componentCounts.entries.joinToString { (name, count) -> "$count $name" })
       }
       if (BASE_GAME_MODULE in allClassNames && MODULES_READY in allClassNames) {
         add("This: ModulesReady")
@@ -881,7 +897,6 @@ public open class TfmCatalog : Catalog {
     private val COLONY_TILE = cn("ColonyTile")
     private val COLONY_TILE_SELECTION = cn("ColonyTileSelection")
     private val SELECTED_COLONY_TILE = cn("SelectedColonyTile")
-    private val SOLO_COLONIES_SETUP = cn("SoloColoniesSetup")
     private val MULTIPLAYER_ONLY: Requirement = parse("MultiplayerMode")
   }
 

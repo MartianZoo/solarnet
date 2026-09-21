@@ -771,7 +771,7 @@ private fun renderSelectedProductionChange(
 
 private fun Metric.isLowestStandardProductionRank(describers: Describers): Boolean {
   val rank = this as? Metric.Rank ?: return false
-  val selector = rank.selectorName
+  val selector = rank.selectorName ?: return false
   if (
       selector.className != CLASS ||
           selector.arguments.singleOrNull()?.takeIf { it.simple }?.className != STANDARD_RESOURCE ||

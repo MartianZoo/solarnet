@@ -68,7 +68,7 @@ public class TfmGameplay(
       require(buyCards == retained) {
         "must buy all $retained project cards retained during setup, not $buyCards"
       }
-      doTask("PlayCard<Class<CorporationCard>, Class<$cardName>, Hand>")
+      doTask("PlayCard<Class<StandardCorporationCard>, Class<$cardName>, Hand>")
       if (hasPendingBuySelectedCards(tasks)) doTask("BuySelectedCards")
       if (this@TfmGameplay.count("Owed") > 0) payAllMc()
       body()
@@ -255,9 +255,7 @@ public class TfmGameplay(
       },
       body: OperationBlock = {},
   ): TaskResult {
-    return stdAction("UseStandardProjectAction", payment = {}) {
-      useStdProjectWithinOperation(stdProject, payment, body)
-    }
+    return inTurn { useStdProject(stdProject, payment, body) }
   }
 
   /** Uses a granted standard-action slot for a standard project within an enclosing operation. */
@@ -269,18 +267,10 @@ public class TfmGameplay(
       body: OperationBlock = {},
   ) {
     useStdAction("UseStandardProjectAction", payment = {}) {
-      useStdProjectWithinOperation(stdProject, payment, body)
+      doTask("UseAction<$stdProject, Action1>")
+      payment()
+      body()
     }
-  }
-
-  private fun OperationScope.useStdProjectWithinOperation(
-      stdProject: String,
-      payment: OperationBlock,
-      body: OperationBlock,
-  ) {
-    doTask("UseAction<$stdProject, Action1>")
-    payment()
-    body()
   }
 
   public fun playPrelude(cardName: ClassName, body: OperationBlock = {}): TaskResult {
@@ -296,7 +286,7 @@ public class TfmGameplay(
   }
 
   public fun OperationScope.playCorp(cardName: ClassName, body: OperationBlock = {}) {
-    playCardWithinOperation(cn("CorporationCard"), cardName, body)
+    playCardWithinOperation(cn("StandardCorporationCard"), cardName, body)
   }
 
   private fun OperationScope.playCardWithinOperation(

@@ -63,7 +63,10 @@ internal class WorldGovernmentRulesTest : CardTest() {
   @Test
   internal fun `World Government is absent when unselected or disabled in Venus`() {
     newGame()
-    TfmWorkflow.Stepwise(agents).solarPhase()
+    with(TfmWorkflow.Stepwise(agents)) {
+      solarPhase()
+      venusSolarPhase()
+    }
     game.isIdle() shouldBe true
 
     newGame(
@@ -73,7 +76,10 @@ internal class WorldGovernmentRulesTest : CardTest() {
             "Player2",
         )
     )
-    TfmWorkflow.Stepwise(agents).solarPhase()
+    with(TfmWorkflow.Stepwise(agents)) {
+      solarPhase()
+      venusSolarPhase()
+    }
 
     game.isIdle() shouldBe true
   }

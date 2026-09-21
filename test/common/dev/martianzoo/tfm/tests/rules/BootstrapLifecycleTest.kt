@@ -8,8 +8,10 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.testsupport.PLAYER1
+import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
@@ -39,6 +41,7 @@ internal class BootstrapLifecycleTest {
     admin.count("Player") shouldBe 2
     admin.count("ProdOffset<Player1, Class<MC>>") shouldBe 5
     admin.count("ProdOffset<Player2, Class<MC>>") shouldBe 5
+    admin.count("CorporationOption") shouldBe 2
     admin.count("StartToken<Player1>") shouldBe 1
     admin.count("GpIncomplete") shouldBe 3
     admin.count("Class") shouldBe game.classTable.allClasses().count { !it.abstract }
@@ -49,6 +52,25 @@ internal class BootstrapLifecycleTest {
         .message
         .orEmpty()
         .shouldInclude("committed through")
+  }
+
+  @Test
+  internal fun countedConfigurationControlsCorporationOffers() {
+    val game =
+        Engine.newGame(Canon.gamePremise(GameConfig("4 CorporationOption", "Player1", "Player2")))
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    val admin = game.testAgent(ADMIN)
+    val p1 = game.testTfm(PLAYER1)
+
+    admin.count("CorporationOption") shouldBe 4
+    p1.count("CorporationCard<Selecting>") shouldBe 3
+    p1.count("CorporationCard<Hand>") shouldBe 1
+
+    retainStartingProjects(game, 0, 0)
+
+    p1.count("CorporationCard<Selecting>") shouldBe 0
+    p1.count("CorporationCard<Hand>") shouldBe 1
+    workflow.shutdown()
   }
 
   @Test
@@ -135,19 +157,70 @@ internal class BootstrapLifecycleTest {
   }
 
   @Test
-  internal fun soloColoniesSetupAutoNarrowsThePlayerOwner() {
+  internal fun soloColoniesSetupIsAbsentWithoutSelectedColonies() {
+    val game = Engine.newGame(canonicalPremise(ColoniesExpansion, players = 1))
+
+    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+
+    game.testAgent(ADMIN).count("SoloColoniesSetup") shouldBe 0
+  }
+
+  @Test
+  internal fun soloColoniesSetupRemovesOneSelectedColony() {
+    val colonies = testColonyTiles(players = 1)
     val game =
         Engine.newGame(
             canonicalPremise(
                 ColoniesExpansion,
                 players = 1,
-                colonyTiles = testColonyTiles(players = 1),
+                colonyTiles = colonies,
             )
         )
+    val admin = game.testAgent(ADMIN)
+    val player = game.testTfm(PLAYER1)
+
+    admin.count("SelectedColonyTile") shouldBe 4
+    admin.count("SoloColoniesSetup") shouldBe 0
 
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+    retainStartingProjects(game, 0)
+    admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
 
-    game.testTfm(PLAYER1).production(cn("MC")) shouldBe -2
+    admin.count("SoloColoniesSetup") shouldBe 1
+    player.doTask("-SelectedColonyTile<Class<${colonies.first()}>>")
+    admin.count("SelectedColonyTile") shouldBe 3
+    admin.count("SoloColoniesSetup") shouldBe 0
+    player.production(cn("MC")) shouldBe -2
+  }
+
+  @Test
+  internal fun selectedColoniesAreRealizedBeforeCorporationTurns() {
+    val premise =
+        canonicalPremise(
+            ColoniesExpansion,
+            colonyTiles = setOf(cn("Callisto"), cn("Enceladus")),
+        )
+    val game = Engine.newGame(premise)
+    val workflow = TfmWorkflow.Stepwise(game.testAgents())
+    val admin = game.testAgent(ADMIN)
+
+    admin.count("SelectedColonyTile") shouldBe 2
+    admin.count("Callisto") shouldBe 0
+    admin.count("DelayedEnceladus") shouldBe 0
+
+    workflow.setupPhase()
+    retainStartingProjects(game, 0, 0)
+    admin.count("SelectedColonyTile") shouldBe 2
+
+    workflow.corporationPhase()
+
+    admin.count("SelectedColonyTile") shouldBe 0
+    admin.count("Callisto") shouldBe 1
+    admin.count("DelayedEnceladus") shouldBe 1
+    admin.count("Enceladus") shouldBe 0
   }
 
   @Test

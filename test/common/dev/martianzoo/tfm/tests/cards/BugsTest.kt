@@ -4,8 +4,10 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -124,6 +126,115 @@ internal class BugsTest : CardTest() {
 
     p1.assertCounts(1 to "$DomeFarming", 0 to "PreludeCard")
     p1.count("MC") shouldBe moneyBefore + 15
+  }
+
+  // https://boardgamegeek.com/thread/3577088/playing-unexpected-application-with-0-cards-while
+  @Test
+  internal fun `Unexpected Application incorrectly requires the discard before raising Venus`() {
+    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
+    p1.runOperation("4 MC, 3 VenusStep, ProjectCard")
+    admin.phase("Action")
+
+    shouldThrowAny { p1.playProject(UnexpectedApplication, 4) }
+
+    p1.assertCounts(
+        4 to "MC",
+        3 to "VenusStep",
+        1 to "ProjectCard",
+        0 to "$UnexpectedApplication",
+    )
+  }
+
+  @Test
+  internal fun `Valley Trust incorrectly refuses to discard an unplayable choice when another is playable`() {
+    newGame(PreludeExpansion, Prelude2CardPack, retainedStartingProjects = 5)
+    val p2 = requireP2()
+    p2.runOperation("PROD[-5 MC]")
+    p1.playCorp(ValleyTrust, 5)
+    admin.phase("Action")
+    val moneyBefore = p1.count("MC")
+
+    shouldThrowAny {
+      p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(Recession) }
+    }
+
+    p1.count("RequiredAction") shouldBe 1
+    p1.count("MC") shouldBe moneyBefore
+    p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(DomeFarming) }
+    p1.assertCounts(0 to "RequiredAction", 1 to "$DomeFarming")
+  }
+
+  @Test
+  internal fun `Early Colonization incorrectly remains playable when a track cannot advance twice`() {
+    newGame(
+        PreludeExpansion,
+        Prelude2CardPack,
+        ColoniesExpansion,
+        colonyTiles = testColonyTiles(2),
+    )
+    admin.phase("Prelude")
+    p1.runOperation("PreludeCard")
+    admin.runOperation("5 ColonyProduction<Luna>")
+
+    p1.playPrelude(EarlyColonization) { doTask("Colony<Ceres>") }
+
+    p1.assertCounts(1 to "$EarlyColonization", 3 to "Energy")
+    admin.count("ColonyProduction<Luna>") shouldBe 6
+  }
+
+  // https://boardgamegeek.com/thread/3335155/article/44575973#44575973
+  @Test
+  internal fun `Sagitta incorrectly misses Merger in Head Start's nested action`() {
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack, FakeStuffBundle)
+    p1.runOperation("$BoardOfDirectors, 54 MC, 8 Heat")
+    admin.phase("Prelude")
+    p1.runOperation("2 PreludeCard")
+
+    p1.turn {
+      playPrelude(FakeHeadStart) {
+        useStdAction("UseActionOnCardAction", payment = {}) {
+          doTask("ActionUsedMarker<$BoardOfDirectors>")
+          doTask("UseAction<$BoardOfDirectors, Action1>")
+          doTask("-12 MC")
+          playPrelude(Merger) { playCorp(SagittaFrontierServices) }
+        }
+        useStdAction("ConvertHeatAction", payment = { doTask("8 Pay<Class<Heat>> FROM Heat") })
+      }
+    }
+
+    // Correct is 39: four more for the tagless Merger played in Sagitta's enclosing action.
+    p1.count("MC") shouldBe 35
+  }
+
+  // https://boardgamegeek.com/thread/2877214/rule-clarifications-sought-for-multiple-corporatio
+  @Test
+  internal fun `Fake Helion incorrectly cannot spend Stormcraft floaters on a Mons payout`() {
+    newGame(
+        ColoniesExpansion,
+        PromoCardPack,
+        FakeStuffBundle,
+        VenusNextExpansion,
+        colonyTiles = testColonyTiles(2),
+    )
+    val p2 = requireP2()
+    p1.runOperation(
+        "$MonsInsurance, $FakeHelion, $StormcraftIncorporated, " +
+            "Floater<$StormcraftIncorporated>"
+    )
+    p1.runOperation("-${p1.count("MC")} MC")
+    p2.runOperation("Plant")
+
+    shouldThrowAny {
+      p1.runOperation("-Plant<Player2>") {
+        doTask("PayFromCard<$StormcraftIncorporated> FROM Floater<$StormcraftIncorporated>")
+      }
+    }
+
+    // The real owner may elect to turn this floater into a 2 MC payment to the victim, but the
+    // rejected choice rolls the attack back.
+    p1.count("Floater<$StormcraftIncorporated>") shouldBe 1
+    p2.count("Plant") shouldBe 1
+    p2.count("MC") shouldBe 0
   }
 
   @Test

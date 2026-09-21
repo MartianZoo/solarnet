@@ -35,7 +35,7 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
     retainStartingProjects(4)
     with(me) {
       // You discarded Enceladus
-      doTask("-ColonyTileSelection<Class<Enceladus>>")
+      doTask("-SelectedColonyTile<Class<Enceladus>>")
 
       // The id of this game is gf33a06d07a1c
       // Good luck me!

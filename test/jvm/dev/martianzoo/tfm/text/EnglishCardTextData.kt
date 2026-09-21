@@ -19,7 +19,7 @@ internal object EnglishCardTextData {
           cn(columns[CLASS_NAME]) to
               Text(
                   englishName = columns[ENGLISH_NAME],
-                  bottom = columns[BOTTOM_TEXT],
+                  bottom = columns.getOrElse(BOTTOM_TEXT) { "" },
                   top = columns.getOrElse(TOP_TEXT) { "" },
               )
         }
@@ -28,7 +28,7 @@ internal object EnglishCardTextData {
   }
 
   private const val HEADER = "class_name\tenglish_name\tbottom_text\ttop_text"
-  private const val MIN_COLUMN_COUNT = 3
+  private const val MIN_COLUMN_COUNT = 2
   private const val MAX_COLUMN_COUNT = 4
   private const val CLASS_NAME = 0
   private const val ENGLISH_NAME = 1

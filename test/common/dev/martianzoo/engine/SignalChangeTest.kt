@@ -107,9 +107,17 @@ internal class SignalChangeTest {
               Moment OR -Fuel:: GainOrSourceRemoval
               Moment IF =1 Moment:: ObservedWhileLive
             }
-            CLASS Fuel, SelfGain, SelfRemoval, Token, HeardTokenWhileLive
-            CLASS ExternalGain, ExternalRemoval, FuelRemoved, EitherSignalSide
-            CLASS GainOrSourceRemoval, ObservedWhileLive
+            CLASS Fuel
+            CLASS SelfGain
+            CLASS SelfRemoval
+            CLASS Token
+            CLASS HeardTokenWhileLive
+            CLASS ExternalGain
+            CLASS ExternalRemoval
+            CLASS FuelRemoved
+            CLASS EitherSignalSide
+            CLASS GainOrSourceRemoval
+            CLASS ObservedWhileLive
             """,
             players = 0,
         )

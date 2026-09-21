@@ -43,5 +43,5 @@ combine the effects while discarding the no-ops.
 
 `./gradlew :tools:regenerateMapAreas` rewrites the generated area section in each map's `.pets` file. Map output retains each
 row exactly in a diagram comment, keeps each area declaration on one line, and separates declaration
-rows with a blank line. Card Pets use the separate build-time pipeline described in
-[`OPTIONS.md`](OPTIONS.md#card-declarations-and-views).
+rows with a blank line. Card Pets use a separate build-time pipeline: `tfm-card-data` owns
+`cards.json5`, and `tfm-card-generator` produces the declarations loaded by Canon.

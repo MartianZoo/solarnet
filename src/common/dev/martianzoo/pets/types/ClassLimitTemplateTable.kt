@@ -17,22 +17,12 @@ internal class ClassLimitTemplateTable(private val masterTable: ClassTable) {
   )
 
   private val masterTemplates = mutableMapOf<Class, List<Template>>()
-  private val masterDependencyTargets = mutableMapOf<Class, List<GroundType>>()
 
   internal fun templatesFor(klass: Class): List<Template> =
       if (klass.classTable === masterTable) {
         masterTemplates.getOrPut(klass) { compile(klass, masterTable) }
       } else {
         compile(klass, klass.classTable)
-      }
-
-  internal fun dependencyTargetsFor(klass: Class): List<GroundType> =
-      if (klass.classTable === masterTable) {
-        masterDependencyTargets.getOrPut(klass) {
-          klass.dependencies.concreteDependencyTargets(masterTable).toList()
-        }
-      } else {
-        klass.dependencies.concreteDependencyTargets(klass.classTable).toList()
       }
 
   private fun compile(klass: Class, resolutionTable: ClassTable): List<Template> =

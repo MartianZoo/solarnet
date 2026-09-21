@@ -1,7 +1,11 @@
 "Expansion adding the Terraforming Committee and Global Events"
 CLASS TurmoilExpansion : Module {
-  This: Neutral, LobbyAction, UseTurmoilPolicyAction
+  This: Neutral
+  This: LobbyAction, UseTurmoilPolicyAction
+
+  // Party derives each successor edge from this committee-order creation sequence.
   This: MarsFirst THEN Kelvinists THEN Reds THEN Greens THEN Unity THEN Scientists
+
   SetupPhase:: EACH Player { TurmoilPlayer, LobbyActionAvailable }
   SetupPhase:: Chairman<Neutral>, Ruling<Greens>
   SetupPhase: RevealComingEvent
@@ -13,16 +17,15 @@ CLASS Terraformer26 : Milestone { requirement = HAS "26 TerraformRating" }
 "Runs TR revision and the current event, then changes government and advances the event queue"
 CLASS TurmoilSolarOperation : Temporary, System {
   HAS MAX 1 This
-  This:: EACH Player { -TerraformRating. }
-  This:: \
-    EACH Player { MeasureInfluence<Player> }, \
-    EACH Class<GlobalEvent>(HAS Current<Class<GlobalEvent>>) { ResolveGlobalEvent<Class<GlobalEvent>> }
+  This:: EACH Player { -TerraformRating., MeasureInfluence }
+  This:: EACH Class<GlobalEvent>(HAS Current<Class<GlobalEvent>>) { ResolveGlobalEvent<Class<GlobalEvent>> }
   -This: FormGovernment THEN ChangingTimes
 }
 
 "A revealed Global Event card, discarded once it leaves the Current position"
 ABSTRACT CLASS GlobalEvent {
   HAS MAX 1 This
+  HAS MAX 1 GlobalEventPosition<Class<This>>
   This IF RevealComingEvent:: Coming<Class<This>>
   This IF RevealDistantEvent:: Distant<Class<This>>
   -Current<Class<This>>:: -This!
@@ -94,17 +97,20 @@ CLASS ChangingTimes : Signal {
 "A player's reserve of seven delegates, held for as long as Turmoil is in play"
 CLASS TurmoilPlayer : Owned<Player>, System {
   HAS MAX 1 This
+  // This is the TurmoilPlayer component, so only an effect has its contextual Player owner.
   Delegate IF 8 Delegate:: Die
 }
 
 "The owner of gray delegates, who holds a reserve of fourteen"
 CLASS Neutral : Owner {
-  HAS =1 This, MAX 14 Delegate<This>
+  HAS =1 This
+  HAS MAX 14 Delegate<This>
 }
 
 ABSTRACT CLASS Party {
   HAS MAX 1 This
   HAS MAX 1 AfterParty<This, Party>, MAX 1 AfterParty<Party, This>
+  This:: EACH Party(NOT This, HAS MAX 0 AfterParty<Party>) { AfterParty<Party, This> }
   FormGovernment IF Dominant<This>:: \
     -Ruling! THEN Ruling<This>, \
     ApplyRulingBonus<This>, \
@@ -128,22 +134,19 @@ CLASS MarsFirst : Party {
   ActionPhase IF Ruling<This>:: MarsFirstPolicy
 }
 CLASS Scientists : Party {
-  This:: AfterParty<Unity, This>, AfterParty<This, MarsFirst>
+  This:: AfterParty<This, MarsFirst>
   ApplyRulingBonus<This>:: EACH Player { 1 MC / ScienceTag }
   ActionPhase IF Ruling<This>:: ScientistsPolicy
 }
 CLASS Unity : Party {
-  This:: AfterParty<Greens, This>
   ApplyRulingBonus<This>:: EACH Player { 1 MC / PlanetaryTag }
   ActionPhase IF Ruling<This>:: UnityPolicy
 }
 CLASS Greens : Party {
-  This:: AfterParty<Reds, This>
   ApplyRulingBonus<This>:: EACH Player { 1 MC / BioTag }
   ActionPhase IF Ruling<This>:: GreensPolicy
 }
 CLASS Reds : Party {
-  This:: AfterParty<Kelvinists, This>
   // Ranking is highest-first, so rank each player by everyone else's rating to find the lowest.
   ApplyRulingBonus<This> IF MAX 0 SoloMode:: EACH Player(HAS =1 (RANK Player { TerraformRating<Owner(NOT Player)> })) { \
     TerraformRating<Player> \
@@ -152,7 +155,6 @@ CLASS Reds : Party {
   ActionPhase IF Ruling<This>:: RedsPolicy
 }
 CLASS Kelvinists : Party {
-  This:: AfterParty<MarsFirst, This>
   ApplyRulingBonus<This>:: EACH Player { 1 MC / PROD[Heat] }
   ActionPhase IF Ruling<This>:: KelvinistsPolicy
 }
@@ -250,13 +252,15 @@ ABSTRACT CLASS Influence<GenerationScope> : Owned<Player> {
   HAS MAX 1 This
 
   // Chairman; leading the Dominant party; any delegates in it; Event Analysts
-  CLASS ChairmanInfluence, PartyLeaderInfluence, DelegateInfluence, EventAnalystsInfluence
+  CLASS ChairmanInfluence
+  CLASS PartyLeaderInfluence
+  CLASS DelegateInfluence
+  CLASS EventAnalystsInfluence
 }
 
 "A ruling party's capability during the Action phase"
-ABSTRACT CLASS Policy<Party> {
+ABSTRACT CLASS Policy<Party, ActionPhase> {
   HAS MAX 1 Policy
-  -ActionPhase:: -This!
 }
 
 CLASS UseTurmoilPolicyAction : StandardAction {
@@ -264,41 +268,34 @@ CLASS UseTurmoilPolicyAction : StandardAction {
   -> UseAction<KelvinistsPolicy, Action1>
 }
 
-"Mars First ruling policy: tiles placed on Mars grant one steel"
 CLASS MarsFirstPolicy : Policy<MarsFirst> {
-  Tile<MarsArea> BY Player:: Steel<Player>
+  Tile<MarsArea>:: Steel
 }
 
-"Scientists ruling policy: pay 10 M€ to draw three cards, once per generation"
 CLASS ScientistsPolicy : Policy<Scientists>, HasActions {
-  10 MC -> (MAX 0 ScientistsUsedMarker: 3 ProjectCard, ScientistsUsedMarker)
+  10 MC -> 3 ProjectCard, ScientistsUsedMarker
 }
 
 CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player> {
   HAS MAX 1 This
 }
 
-"Unity ruling policy: each titanium is worth one additional M€"
 CLASS UnityPolicy : Policy<Unity> {
   This:: EACH Player { UnityTitaniumValue<Player> }
-  -This:: EACH Player { -UnityTitaniumValue<Player>! }
 }
 
-CLASS UnityTitaniumValue : ResourceValue<Class<Titanium>> {
+CLASS UnityTitaniumValue<UnityPolicy> : ResourceValue<Class<Titanium>> {
   HAS MAX 1 This
 }
 
-"Greens ruling policy: greenery placement grants 4 M€"
 CLASS GreensPolicy : Policy<Greens> {
-  GreeneryTile BY Player:: 4 MC<Player>
+  GreeneryTile BY Player:: 4 MC
 }
 
-"Reds ruling policy: each player-attributed TR step costs 3 M€"
 CLASS RedsPolicy : Policy<Reds> {
-  X TerraformRating BY Player:: -3X MC<Player>!
+  TerraformRating BY Player:: -3 MC!
 }
 
-"Kelvinists ruling policy: pay 10 M€ for one heat and one energy production"
 CLASS KelvinistsPolicy : Policy<Kelvinists>, HasActions {
   10 MC -> PROD[Heat, Energy]
 }

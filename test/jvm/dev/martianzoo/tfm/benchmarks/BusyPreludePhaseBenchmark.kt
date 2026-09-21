@@ -55,7 +55,7 @@ public open class BusyPreludePhaseBenchmark {
     workflow = TfmWorkflow.Stepwise(agents)
 
     workflow.setupPhase()
-    me.doTask("-ColonyTileSelection<Class<Ceres>>")
+    me.doTask("-SelectedColonyTile<Class<Ceres>>")
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     admin.doTask("CityTile<Tharsis_5_8, SoloOpponent>")
@@ -81,7 +81,7 @@ public open class BusyPreludePhaseBenchmark {
     }
     me.playPrelude(cn("NewPartner")) {
       me.playPrelude(cn("Merger")) {
-        doTask("PlayCard<Class<CorporationCard>, Class<ValleyTrust>, Selecting>")
+        doTask("PlayCard<Class<StandardCorporationCard>, Class<ValleyTrust>, Selecting>")
       }
     }
 

@@ -69,7 +69,7 @@ internal fun playCorporationWithoutStartingProjects(
     player: TfmGameplay,
     corporation: ClassName,
 ): TaskResult = player.inTurn {
-  doTask("PlayCard<Class<CorporationCard>, Class<$corporation>, Hand>")
+  doTask("PlayCard<Class<StandardCorporationCard>, Class<$corporation>, Hand>")
 }
 
 internal fun setUpGame(

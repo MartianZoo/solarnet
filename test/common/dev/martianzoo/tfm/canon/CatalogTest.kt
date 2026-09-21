@@ -38,7 +38,8 @@ internal class CatalogTest {
                         """
                         ABSTRACT CLASS Player : Owner {
                           HAS =1 This
-                          CLASS Player1, Player2
+                          CLASS Player1
+                          CLASS Player2
                         }
                         ABSTRACT CLASS CardFront<Player> : Owned<Player> { HAS MAX 1 This<Player> }
                         CLASS ExampleCard : CardFront
@@ -337,12 +338,12 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun aCardResourceActivatesItsUnreferencedNonCardDeclarations() {
+  internal fun cardResourceFragmentsActivateTheirCardsAndUnreferencedDeclarations() {
     val source =
         StandardFormBundle(
             name = "CardPack",
             resourceDirectory = "CardPack",
-            resourceFilenames = setOf("support.pets", "cards.pets"),
+            resourceFilenames = setOf("support.pets", "cards.pets", "handwritten.cards.pets"),
             resourceReader = { path ->
               when (path) {
                 "CardPack/support.pets" ->
@@ -359,6 +360,8 @@ internal class CatalogTest {
                     CLASS PassiveHelper
                     """
                         .trimIndent()
+                "CardPack/handwritten.cards.pets" ->
+                    "CLASS HandwrittenCard : CardFront<Class<CardBack>>"
                 else -> error("Unexpected resource $path")
               }
             },
@@ -367,6 +370,7 @@ internal class CatalogTest {
     val table = source.gamePremise(GameConfig("CardPack")).classTable
 
     (cn("ExampleCard") in table.allClassNames) shouldBe true
+    (cn("HandwrittenCard") in table.allClassNames) shouldBe true
     (cn("PassiveHelper") in table.allClassNames) shouldBe true
   }
 

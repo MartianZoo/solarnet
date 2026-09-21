@@ -61,7 +61,7 @@ internal fun renderAdjacentCardInstructions(
             play.count.fixedQuantity() != 1 ||
             play.gaining.className != PLAY_CARD ||
             play.gaining.arguments.none { it.className == SELECTING } ||
-            describers.representedClass(play.gaining)?.className != family ||
+            !playsCardFamily(play, family, describers) ||
             discarded.quantifier.modality() != Modality.REQUIRED ||
             discarded.count.fixedQuantity() != offeredCount - 1 ||
             !discarded.removing.isCardAt(family, SELECTING)
@@ -110,7 +110,7 @@ internal fun renderAdjacentCardInstructions(
             play.count.fixedQuantity() != 1 ||
             play.gaining.className != PLAY_CARD ||
             play.gaining.arguments.none { it.className == SELECTING } ||
-            describers.representedClass(play.gaining)?.className != family
+            !playsCardFamily(play, family, describers)
     ) {
       return@let
     }
@@ -131,6 +131,17 @@ internal fun renderAdjacentCardInstructions(
 
   return null
 }
+
+private fun playsCardFamily(
+    play: Gain,
+    offeredFamily: ClassName,
+    describers: Describers,
+): Boolean =
+    play.gaining.arguments
+        .mapNotNull(describers::representedClassArgument)
+        .filter { it.refinement == null }
+        .filter { describers.changeFrame(it.className) == ComponentDescriber.ChangeFrame.Deck }
+        .any { describers.isSubtypeOf(offeredFamily, it.className) }
 
 internal fun renderCardRevealAndRestore(
     sequence: Then,

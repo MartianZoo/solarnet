@@ -54,7 +54,10 @@ internal class AgentTest {
         Engine.newGame(
             testGamePremise(
                 """
-                ABSTRACT CLASS Choice { CLASS Left, Right }
+                ABSTRACT CLASS Choice {
+                  CLASS Left
+                  CLASS Right
+                }
                 CLASS Other
                 ABSTRACT CLASS Empty
                 """

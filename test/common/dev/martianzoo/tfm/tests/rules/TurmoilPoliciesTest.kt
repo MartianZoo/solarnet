@@ -65,6 +65,11 @@ internal class TurmoilPoliciesTest : CardTest() {
     p1.count("UnityTitaniumValue") shouldBe 1
     requireP2().count("UnityTitaniumValue") shouldBe 1
     p1.count("ResourceValue<Class<Titanium>>") shouldBe 4
+
+    admin.phase("Production")
+    admin.count("UnityPolicy") shouldBe 0
+    p1.count("UnityTitaniumValue") shouldBe 0
+    requireP2().count("UnityTitaniumValue") shouldBe 0
   }
 
   @Test
