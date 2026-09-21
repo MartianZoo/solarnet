@@ -22,7 +22,7 @@ ABSTRACT CLASS Award {
   End: MeasureAward<This>
 }
 
-// TODO: weird that these effects live as removal effects here...
+// TODO.md: FinalScoringPhase should own measurement instead of this removal effect
 CLASS MeasureAward<Award, FinalScoringPending> : Temporary, System {
   -This:: EACH Player(HAS =1 (RANK { EVAL Award.metric })) { FirstPlace<Award> }
   -This IF 3 Player:: EACH Player(HAS =2 (RANK { EVAL Award.metric })) { SecondPlace<Award> }
