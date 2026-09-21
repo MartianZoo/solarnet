@@ -366,12 +366,12 @@ internal class Prelude2CardsTest : CardTest() {
   internal fun `Early Colonization advances every active track twice and ignores inactive tracks`() {
     val colonyTiles = testColonyTiles(2, "Luna")
     newGame(PreludeExpansion, Prelude2CardPack, ColoniesExpansion, colonyTiles = colonyTiles)
-    admin.runOperation("5 ColonyProduction<Luna>")
+    admin.runOperation("2 ColonyProduction<Luna>")
 
     p1.runOperation("$EarlyColonization") { doTask("Colony<Luna>") }
 
     colonyTiles.forEach { tile ->
-      admin.count("ColonyProduction<$tile>") shouldBe if (tile == cn("Luna")) 6 else 3
+      admin.count("ColonyProduction<$tile>") shouldBe if (tile == cn("Luna")) 5 else 3
     }
     p1.count("Energy") shouldBe 3
 
@@ -404,6 +404,26 @@ internal class Prelude2CardsTest : CardTest() {
 
     p1.count("$EarlyColonization") shouldBe 0
     p1.count("Energy") shouldBe 0
+  }
+
+  @Test
+  internal fun `Early Colonization is unplayable when an active track cannot advance twice`() {
+    newGame(
+        PreludeExpansion,
+        Prelude2CardPack,
+        ColoniesExpansion,
+        colonyTiles = testColonyTiles(2),
+    )
+    admin.phase("Prelude")
+    p1.runOperation("PreludeCard")
+    admin.runOperation("4 ColonyProduction<Luna>")
+
+    shouldThrowAny {
+      p1.playPrelude(EarlyColonization) { doTask("Colony<Ceres>") }
+    }
+
+    p1.assertCounts(0 to "$EarlyColonization", 0 to "Energy", 0 to "Colony<Ceres>")
+    admin.count("ColonyProduction<Luna>") shouldBe 5
   }
 
   @Test
@@ -622,6 +642,23 @@ internal class Prelude2CardsTest : CardTest() {
     p2.playPrelude(SpaceLanes)
 
     p1.count("MC") shouldBe startingMoney
+  }
+
+  // https://boardgamegeek.com/thread/3577088/article/46624092#46624092
+  @Test
+  internal fun `Unexpected Application requires the discard before raising Venus`() {
+    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
+    p1.runOperation("4 MC, 3 VenusStep, ProjectCard")
+    admin.phase("Action")
+
+    shouldThrowAny { p1.playProject(UnexpectedApplication, 4) }
+
+    p1.assertCounts(
+        4 to "MC",
+        3 to "VenusStep",
+        1 to "ProjectCard",
+        0 to "$UnexpectedApplication",
+    )
   }
 
   // https://www.reddit.com/r/TerraformingMarsGame/comments/1kgksgg

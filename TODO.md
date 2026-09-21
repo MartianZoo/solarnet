@@ -6,16 +6,12 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
-- Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.
 - Decide whether `Milestone`'s per-player uniqueness constraint should use
   `HAS MAX 1 This<Player>` or a clearer way to express one instance of the concrete milestone per
   player.
-- Decide whether `NoctisArea` belongs with the Noctis City card instead of the core board model.
 - Replace the duplicated `TemperatureStep BY Player`/`BY Admin` threshold-ocean triggers and the
   synthetic `AdminOceanPlacement` signal with one rule that separates who chooses the tile from
   whose action the placement is attributed to, shared by the standard and extended tracks.
-- Discard the uncommitted typed custom-metric/code-generation experiment; it was evaluated and
-  considered an unsuccessful direction.
 - **Low priority:** [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)
   — Resolve contextual ownership correctly and display the resolved player.
 - **Low priority:** Investigate why the oxygen steps created by SoloOpponent's setup greeneries do
@@ -29,12 +25,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Reverse replacement-card references so optional packs identify what they replace rather than
   base cards naming optional packs. Deimos Down, Great Dam, and Magnetic Field Generators currently
   use `autoSelectWhen = MAX 0 PromoCardPack`.
-- Check whether Early Colonization's two `AdvanceColonyTracks` changes should be explicitly
-  mandatory.
 - **Low priority:** [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve
   hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
-- [#59: `-This` Quantifier](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether
-  self-removal should default to mandatory.
 - Give Admin an installable autoexecution policy for Global Events that pulls exact cards from an
   ordered list; until then callers explicitly complete reveal tasks.
 - Reconsider Turmoil's `PartyLeader` representation and name. It currently supplements the actual
@@ -52,18 +44,12 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ### Hypothetical Card Behavior
 
-- Make `VictoryPoint` depend on the scoring `Component`, and define a scoring-completion phase if a
-  future score depends on another score rather than directly on game state.
 - Decompose a future card's `2 CityTile` instruction into two placement choices; consider making
   `Tile` atomized ([#64](https://github.com/MartianZoo/solarnet/issues/64)).
 
 ## Autonomous Follow-ups
 
 - Add Jacob Fryxelius's ruling that moving Mars Nomads does not trigger the Mars First ruling policy.
-- Model WG Project, then mirror the Valley Trust case where an unplayable selected Prelude may be
-  discarded for 15 MC even when another drawn Prelude is playable.
-- Add canonical Prelude 2 definitions for Corridors of Power, Envoys from Venus, Special Permit,
-  Red Tourism Wave, and Frontier Town, then remove their source-specific replay fixtures.
 - Repair the two declared Pets conformance gaps without adding a second representation of type
   identity: L7-8 lets `Tile<> THEN Tile<>` stages diverge after defaults, and T8-3 can substitute a
   refinement candidate into the wrong one of several compatible dependency slots while existing
@@ -73,8 +59,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   areas and add placement rules.
 - Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
   with the canonical card.
-- Replace FakeThawer's persistent temperature credits with credits that also account for
-  global events reducing temperature.
 - Simplify `LiveEffect` actor binding by threading a binding context through subscription matching
   instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
 - Separate `Instructor`'s resolution-only capability from execution so `Changer`, `Effector`, and
