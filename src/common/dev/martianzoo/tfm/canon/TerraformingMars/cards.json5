@@ -36,7 +36,7 @@
           "name": "PhoboLog",
           "tags": [ "SpaceTag" ],
           "effects": [
-            "This:: 1 GrantedResourceValue<Class<Titanium>, This>",
+            "This:: GrantedResourceValue<Class<Titanium>, This>",
             "This: 23 MC, 10 Titanium"
           ],
         },

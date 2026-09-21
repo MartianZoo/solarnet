@@ -34,7 +34,7 @@
           "actions": [ "-> Asteroid<This> / SpaceTag" ],
           "effects": [
             "UseAction<AsteroidProject> OR UseAction<AquiferProject>:: AcceptingFromCard<This>",
-            "PayFromCard<This>:: -Owed"
+            "PayFromCard<This>:: -1 Owed"
           ],
         },
         {
@@ -461,7 +461,7 @@
           "requirement": "2 ScienceTag",
           "cost": 3,
           "tags": [ "SpaceTag" ],
-          "effects": [ "This:: 1 GrantedResourceValue<Class<Titanium>, This>" ],
+          "effects": [ "This:: GrantedResourceValue<Class<Titanium>, This>" ],
         },
         {
           "name": "MoholeLake",
@@ -554,7 +554,7 @@
           "cost": 10,
           "tags": [ "BuildingTag" ],
           "effects": [
-            "This:: 1 GrantedResourceValue<Class<Steel>, This>",
+            "This:: GrantedResourceValue<Class<Steel>, This>",
             "End: VictoryPoint"
           ],
         },

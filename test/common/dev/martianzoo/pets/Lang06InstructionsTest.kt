@@ -115,6 +115,8 @@ internal class Lang06InstructionsTest {
 
     per.inner shouldBe parse<Instruction>("Titanium")
     per.metric shouldBe parse("3 EarthTag")
+    parse<Instruction>("1 Titanium / EarthTag") shouldBe parse<Instruction>("Titanium / EarthTag")
+    parse<Instruction>("-1 Titanium / EarthTag") shouldBe parse<Instruction>("-Titanium / EarthTag")
     shouldThrow<PetSyntaxException> { parse<Instruction>("(Plant, Heat) / Steel") }
     shouldThrow<PetSyntaxException> { parse<Instruction>("(Plant OR Heat) / Steel") }
   }

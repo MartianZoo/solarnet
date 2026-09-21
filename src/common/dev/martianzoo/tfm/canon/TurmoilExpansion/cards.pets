@@ -100,7 +100,7 @@ CLASS Productivity : GePartyDistant<Scientists>, GePartyCurrent<MarsFirst> {
 
 CLASS RedInfluence : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { \
-    -3 MC. / (5 (TerraformRating - 10) MAX 5), PROD[MC / Influence] \
+    -3 MC. / (5 (TerraformRating - 10) MAX 5), PROD[1 MC / Influence] \
   }
 }
 
@@ -132,7 +132,7 @@ CLASS SabotageGlobalEvent : GePartyDistant<Unity>, GePartyCurrent<Reds> {
 }
 
 CLASS ScientificCommunity : GePartyDistant<Reds>, GePartyCurrent<Scientists> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { MC / ProjectCard, MC / Influence }
+  ResolveGlobalEvent<Class<This>>:: EACH Player { 1 MC / ProjectCard, 1 MC / Influence }
 }
 
 CLASS SnowCover : GePartyDistant<Kelvinists>, GePartyCurrent<Kelvinists> {
