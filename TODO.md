@@ -18,6 +18,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   phase-caused tasks as soon as the required runtime state can express them.
 - Let refinements reference their candidate explicitly, so a selector can relate a nested
   dependency to that candidate without repeating its complete expression.
+- Preserve a marked selector reference's complete declared structure through elaboration, so a
+  body can write a bare reference such as `Influence^Measured` without repeating
+  `Influence^Measured<Anyone>` merely to retain the selector's dependency constraints.
 - Revisit contextual `Owner` as a broad language redesign; the explicit Type-variable work leaves
   its ambient binding semantics unchanged for now.
 - Give Pets a real structural conjunction, spelled something like `Tile(IS Owned)`, and retire the
