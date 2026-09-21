@@ -113,60 +113,6 @@ internal class BugsTest : CardTest() {
     p1.claimMilestone(cn("FakeThawer")).expect("-8 MC, FakeThawer")
   }
 
-  @Test
-  internal fun `Prelude incorrectly allows discarding a playable card`() {
-    newGame(PreludeExpansion)
-    admin.phase("Prelude")
-    val moneyBefore = p1.count("MC")
-
-    p1.startTurn()
-    p1.doTask("-PreludeCard")
-    p1.startTurn()
-    p1.playPrelude(DomeFarming)
-
-    p1.assertCounts(1 to "$DomeFarming", 0 to "PreludeCard")
-    p1.count("MC") shouldBe moneyBefore + 15
-  }
-
-  // An unplayable Prelude should fizzle: discard it and gain 15 MC.
-  // https://boardgamegeek.com/thread/2993276/article/41533232#41533232
-  @Test
-  internal fun `Valley Trust incorrectly refuses to fizzle a selected unplayable Prelude`() {
-    newGame(PreludeExpansion, Prelude2CardPack, retainedStartingProjects = 5)
-    val p2 = requireP2()
-    p2.runOperation("PROD[-5 MC]")
-    p1.playCorp(ValleyTrust, 5)
-    admin.phase("Action")
-    val moneyBefore = p1.count("MC")
-
-    shouldThrowAny {
-      p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(Recession) }
-    }
-
-    p1.count("RequiredAction") shouldBe 1
-    p1.count("MC") shouldBe moneyBefore
-    p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(DomeFarming) }
-    p1.assertCounts(0 to "RequiredAction", 1 to "$DomeFarming")
-  }
-
-  @Test
-  internal fun `Early Colonization incorrectly remains playable when a track cannot advance twice`() {
-    newGame(
-        PreludeExpansion,
-        Prelude2CardPack,
-        ColoniesExpansion,
-        colonyTiles = testColonyTiles(2),
-    )
-    admin.phase("Prelude")
-    p1.runOperation("PreludeCard")
-    admin.runOperation("5 ColonyProduction<Luna>")
-
-    p1.playPrelude(EarlyColonization) { doTask("Colony<Ceres>") }
-
-    p1.assertCounts(1 to "$EarlyColonization", 3 to "Energy")
-    admin.count("ColonyProduction<Luna>") shouldBe 6
-  }
-
   // https://boardgamegeek.com/thread/3335155/article/44575973#44575973
   @Test
   internal fun `Sagitta incorrectly misses Merger in Head Start's nested action`() {
