@@ -30,7 +30,11 @@ CLASS Tycoon : Milestone { requirement = HAS "10 (ActiveCard OR AutomatedCard)" 
 
 CLASS Administrator : Award { metric = COUNT "CardFront(HAS MAX 0 Tag)" }
 CLASS Biologist : Award { metric = COUNT "BioTag" }
-// CLASS Politician : Award { metric = COUNT "PartyLeader OR Influence" }
+CLASS Politician : Award {
+  metric = COUNT "PartyLeader OR Influence"
+  MeasureAward<This>:: EACH Influence^Measured<Anyone> { -Influence^Measured<Anyone>! }
+  MeasureAward<This>:: EACH Player { MeasureInfluence }
+}
 CLASS Visionary : Award { metric = COUNT "ProjectCard<Hand>" }
 
 CLASS GainsOf<CardFront, Class<Component>> : Custom

@@ -113,6 +113,10 @@ internal class ModuleSelectionTest {
         "TurmoilCardPack, PromoCardPack",
         multiplayerWith("TurmoilCardPack", "PromoCardPack"),
     )
+    resolvesToExactly(
+        "TurmoilExpansion",
+        multiplayerWith("TurmoilExpansion", "TurmoilCardPack"),
+    )
     resolvesToExactly("QuickStartVariant", multiplayerWith("QuickStartVariant"))
   }
 
@@ -123,6 +127,7 @@ internal class ModuleSelectionTest {
             "VenusNextExpansion" to names("VenusNextExpansion, WorldGovernmentRule"),
             "PreludeExpansion" to names("PreludeExpansion, Prelude1CardPack"),
             "ColoniesExpansion" to names("ColoniesExpansion"),
+            "TurmoilExpansion" to names("TurmoilExpansion, TurmoilCardPack"),
         )
         .forEach { (expansion, additions) ->
           resolvesToExactly("$expansion, -CorporateEraExpansion", base + additions)
@@ -136,6 +141,7 @@ internal class ModuleSelectionTest {
             "VenusNextExpansion" to names("VenusNextExpansion, WorldGovernmentRule"),
             "PreludeExpansion" to names("PreludeExpansion, Prelude1CardPack"),
             "ColoniesExpansion" to names("ColoniesExpansion"),
+            "TurmoilExpansion" to names("TurmoilExpansion, TurmoilCardPack"),
         )
         .forEach { (expansion, additions) ->
           resolvesToExactly("$expansion, Tr63SoloObjective", base + additions, players = 1)

@@ -21,12 +21,15 @@ internal abstract class AbstractSoloTest(requireEveryProjectCardChangeNamed: Boo
 
     me = p1
     workflow = TfmWorkflow.Automatic(agents).launch()
+    resolveExpansionSetupTasks()
 
     admin.doTask("CityTile<${cityAreas().first}, SoloOpponent>")
     admin.doTask("GreeneryTile<${greeneryAreas().first}, SoloOpponent>")
     admin.doTask("CityTile<${cityAreas().second}, SoloOpponent>")
     admin.doTask("GreeneryTile<${greeneryAreas().second}, SoloOpponent>")
   }
+
+  protected open fun resolveExpansionSetupTasks() {}
 
   protected fun nextRound(worldGovernmentChoice: String, cardsBought: Int) {
     p1.pass()

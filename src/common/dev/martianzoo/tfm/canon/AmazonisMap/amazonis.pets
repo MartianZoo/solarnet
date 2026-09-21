@@ -29,13 +29,23 @@ CLASS Merchant3 : Milestone {
   requirement = HAS "3 MC, 3 Steel, 3 Titanium, 3 Plant, 3 Energy, 3 Heat"
 }
 CLASS Sponsor : Milestone { requirement = HAS "3 CardFront(HAS 20 cost)" }
-// CLASS Lobbyist : Milestone { requirement = HAS "7 Delegate<Owner, Party>" }
+CLASS Lobbyist : Milestone { requirement = HAS "7 Delegate" }
 
 CLASS Collector : Award { metric = COUNT "Class<Resource>(HAS Resource<Owner>)" }
 CLASS Innovator : Award { metric = COUNT "CardFront OR PlayedEvent" }
 CLASS Constructor : Award { metric = COUNT "Colony OR CityTile" }
 CLASS Manufacturer : Award { metric = COUNT "PROD[Steel OR Heat]" }
 CLASS Physicist : Award { metric = COUNT "ScienceTag OR SpaceTag" }
+
+"An Amazonis delegate placement bonus, ignored without Turmoil"
+CLASS AmazonisDelegatePlacementBonus : Signal {
+  This IF TurmoilExpansion: PartyDelegate
+}
+
+"The Olympus Mons bonus, placing two delegates in the same party when Turmoil is in use"
+CLASS AmazonisDoubleDelegatePlacementBonus : Signal {
+  This IF TurmoilExpansion: 2 PartyDelegate
+}
 
 // The map areas below are code-generated based on the following comment
 //                  LS   LSS    LS    LC   LTT    L
@@ -68,7 +78,7 @@ CLASS Amazonis_01_05 :     LandArea { row = 1; column = 5; Placement<This>: 2 Ti
 CLASS Amazonis_01_06 :     LandArea { row = 1; column = 6 }
 
 CLASS Amazonis_02_01 :    WaterArea { row = 2; column = 1 }
-CLASS Amazonis_02_02 :     LandArea { row = 2; column = 2 }
+CLASS Amazonis_02_02 :     LandArea { row = 2; column = 2; Placement<This>: AmazonisDelegatePlacementBonus }
 CLASS Amazonis_02_03 :     LandArea { row = 2; column = 3; Placement<This>: Steel }
 CLASS Amazonis_02_04 :     LandArea { row = 2; column = 4 }
 CLASS Amazonis_02_05 :     LandArea { row = 2; column = 5; Placement<This>: Plant }
@@ -126,7 +136,7 @@ CLASS Amazonis_07_07 :     LandArea { row = 7; column = 7; Placement<This>: 2 En
 CLASS Amazonis_07_08 :     LandArea { row = 7; column = 8 }
 CLASS Amazonis_07_09 :     LandArea { row = 7; column = 9; Placement<This>: Plant }
 CLASS Amazonis_07_10 :     LandArea { row = 7; column = 10; Placement<This>: Plant }
-CLASS Amazonis_07_11 : VolcanicArea { row = 7; column = 11 }
+CLASS Amazonis_07_11 : VolcanicArea { row = 7; column = 11; Placement<This>: AmazonisDelegatePlacementBonus }
 
 CLASS Amazonis_08_03 :     LandArea { row = 8; column = 3; Placement<This>: Plant }
 CLASS Amazonis_08_04 :    WaterArea { row = 8; column = 4; Placement<This>: 2 ProjectCard }
@@ -134,7 +144,7 @@ CLASS Amazonis_08_05 :     LandArea { row = 8; column = 5; Placement<This>: Plan
 CLASS Amazonis_08_06 :     LandArea { row = 8; column = 6; Placement<This>: Energy }
 CLASS Amazonis_08_07 :     LandArea { row = 8; column = 7; Placement<This>: 2 Energy }
 CLASS Amazonis_08_08 :     LandArea { row = 8; column = 8; Placement<This>: Plant }
-CLASS Amazonis_08_09 : VolcanicArea { row = 8; column = 9 }
+CLASS Amazonis_08_09 : VolcanicArea { row = 8; column = 9; Placement<This>: AmazonisDoubleDelegatePlacementBonus }
 CLASS Amazonis_08_10 :     LandArea { row = 8; column = 10; Placement<This>: Steel }
 CLASS Amazonis_08_11 :     LandArea { row = 8; column = 11 }
 

@@ -15,6 +15,11 @@ CLASS Blacksmith : Award { metric = COUNT "PROD[Metal]" }
 "Counts the tiles in a player's largest contiguous group of owned tiles"
 CLASS TileInLargestGroup : Owned<Player>, Custom
 
+"A Vastitas delegate placement bonus, ignored without Turmoil"
+CLASS VastitasDelegatePlacementBonus : Signal {
+  This IF TurmoilExpansion: PartyDelegate
+}
+
 // The map areas below are code-generated based on the following comment
 //               LP    L     VS    L     L
 //
@@ -62,7 +67,7 @@ CLASS Vastitas_4_4 :     LandArea { row = 4; column = 4; Placement<This>: Plant 
 CLASS Vastitas_4_5 :     LandArea { row = 4; column = 5 }
 CLASS Vastitas_4_6 :     LandArea { row = 4; column = 6; Placement<This>: ProjectCard }
 CLASS Vastitas_4_7 :     LandArea { row = 4; column = 7; Placement<This>: Plant }
-CLASS Vastitas_4_8 :     LandArea { row = 4; column = 8 }
+CLASS Vastitas_4_8 :     LandArea { row = 4; column = 8; Placement<This>: VastitasDelegatePlacementBonus }
 
 CLASS Vastitas_5_1 :     LandArea { row = 5; column = 1 }
 CLASS Vastitas_5_2 :     LandArea { row = 5; column = 2 }
@@ -98,7 +103,7 @@ CLASS Vastitas_8_7 :     LandArea { row = 8; column = 7; Placement<This>: Plant,
 CLASS Vastitas_8_8 :     LandArea { row = 8; column = 8; Placement<This>: Steel }
 CLASS Vastitas_8_9 :     LandArea { row = 8; column = 9; Placement<This>: Plant }
 
-CLASS Vastitas_9_5 :     LandArea { row = 9; column = 5 }
+CLASS Vastitas_9_5 :     LandArea { row = 9; column = 5; Placement<This>: VastitasDelegatePlacementBonus }
 CLASS Vastitas_9_6 :     LandArea { row = 9; column = 6 }
 CLASS Vastitas_9_7 :     LandArea { row = 9; column = 7; Placement<This>: ProjectCard }
 CLASS Vastitas_9_8 :     LandArea { row = 9; column = 8; Placement<This>: Steel }

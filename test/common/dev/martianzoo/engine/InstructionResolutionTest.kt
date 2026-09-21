@@ -155,6 +155,15 @@ internal class InstructionResolutionTest {
   }
 
   @Test
+  internal fun `a selector concretizes a full transmutation before it resolves`() {
+    checkResolution(
+        "EACH Player^Selected(HAS Plant) { " +
+            "Heat<Player^Selected> FROM Plant<Player^Selected> }",
+        "Heat<Player1> FROM Plant<Player1>!",
+    )
+  }
+
+  @Test
   internal fun testOnlyAnOwnerSelectionSuppliesTheOwnerOfItsBranch() {
     checkResolution("EACH Player { Plant }", "Plant<Player1>!, Plant<Player2>!")
     checkResolution(

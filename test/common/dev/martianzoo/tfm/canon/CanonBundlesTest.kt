@@ -78,6 +78,25 @@ internal class CanonBundlesTest {
     prelude2VenusWithoutColonies.isInhabited(cn("VenusTradeHub")) shouldBe false
     (cn("VenusTradeHub") in prelude2VenusWithoutColonies.allClassNames) shouldBe false
     prelude2VenusWithColonies.isInhabited(cn("VenusTradeHub")) shouldBe true
+
+    val prelude2TurmoilOnly =
+        table(cn("PreludeExpansion"), cn("Prelude2CardPack"), cn("TurmoilExpansion"))
+    val prelude2ColoniesOnly =
+        table(cn("PreludeExpansion"), cn("Prelude2CardPack"), cn("ColoniesExpansion"))
+    val prelude2ColoniesAndTurmoil =
+        table(
+            cn("PreludeExpansion"),
+            cn("Prelude2CardPack"),
+            cn("ColoniesExpansion"),
+            cn("TurmoilExpansion"),
+        )
+    listOf("ColonialEnvoys", "ColonialRepresentation").forEach { cardName ->
+      prelude2TurmoilOnly.isInhabited(cn(cardName)) shouldBe false
+      (cn(cardName) in prelude2TurmoilOnly.allClassNames) shouldBe false
+      prelude2ColoniesOnly.isInhabited(cn(cardName)) shouldBe false
+      (cn(cardName) in prelude2ColoniesOnly.allClassNames) shouldBe false
+      prelude2ColoniesAndTurmoil.isInhabited(cn(cardName)) shouldBe true
+    }
   }
 
   @Test

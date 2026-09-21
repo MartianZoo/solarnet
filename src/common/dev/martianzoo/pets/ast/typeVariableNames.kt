@@ -264,6 +264,9 @@ internal fun resolveTypeVariableNames(
                               } else {
                                 node.argumentsSpecified
                               },
+                          refinement =
+                              if (expandReferences) structuralDeclaration.refinement
+                              else node.refinement,
                       )
                   transformChildren(
                       referenced.copy(

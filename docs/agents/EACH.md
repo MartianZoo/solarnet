@@ -37,6 +37,11 @@ EACH Player(HAS StartToken) { ChooseOceanArea } // only the start Player gets th
 EACH Player^1(HAS StartToken) { AdminOceanPlacement<Player^1> }
 ```
 
+The marked selection is bound before nested `THEN` or full `FROM` scopes are resolved, so a matching
+handle anywhere in that body—including on both sides of a transmutation—continues to mean the
+selected concrete Type. The selector refinement filters candidates; it is not copied onto the
+reference exposed to the body.
+
 A Class selector can instead mark its represented Class. This permits a structurally present Class
 representative to create one component of the Class it represents:
 
@@ -82,9 +87,9 @@ of an `Owned` component. `This` continues to mean the surrounding effect-bearing
 The selected owner does not automatically become the actor, controller, or assignee. Every branch
 inherits attribution and task control from the surrounding effect. Use `BY Owner` when the selected
 owner must receive attribution. A fanout can produce independently narrowed choices for one
-surrounding controller. It cannot express “each player makes their own choice”; such work must
-remain on an owned component that gives the existing task-routing machinery the correct player
-context.
+surrounding controller, as Colonial Envoys does. It cannot express “each player makes their own
+choice”; such work must remain on an owned component that gives the existing task-routing machinery
+the correct player context.
 
 ## Sequencing
 
@@ -103,9 +108,9 @@ waits for one task, and `EACH` provides no fanout-wide join or additional atomic
 
 A branch corresponds to a component occurrence, even though occurrences of one concrete Type are
 otherwise indistinguishable. Multiplicity repeats the branch; it does not scale the body. This is
-observable whenever the body remains abstract: two identical project cards in
-`EACH ProjectCard<Anyone> { StandardResource }` produce two resource choices that may be narrowed
-independently, not one instruction to gain two of the same resource.
+observable whenever the body remains abstract: two identical colonies in
+`EACH Colony<Owner> { PartyDelegate }` produce two delegate choices that may be narrowed
+independently, not one instruction to place two delegates in the same party.
 
 The selected expression still records only the occurrence's concrete Type. Selector substitution,
 property evaluation, and ownership therefore behave identically in equal branches; independence is
@@ -137,3 +142,5 @@ and is not implied by `EACH`.
   — runtime semantics (`testFanout`).
 - [`Lang06InstructionsTest.kt`](../../test/common/dev/martianzoo/pets/Lang06InstructionsTest.kt) —
   syntax and static restrictions.
+- [`Prelude2CardsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/Prelude2CardsTest.kt) —
+  independently chosen Colonial Envoys for equal Colony occurrences.

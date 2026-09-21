@@ -657,11 +657,12 @@ waiting means for pending work is `SEQUENCING.md`'s subject.
 **L6-10. `EACH Selector { body }` quantifies over one state.** It denotes one independent branch of
 `body` for each component occurrence matching `Selector` present in the state. `Selector^Handle`
 explicitly makes that occurrence's concrete type available as `SelectorRoot^Handle` in the body;
-other body expressions retain their ordinary meanings. Equal occurrences produce equal but
-independent branches. A refinement on the selector filters which components take part. The selector
-may serve only as the repetition source, so the body need not name the selected component. The body
-may not be empty, fanouts do not nest, and a concrete selector is rejected where the fanout is
-resolved against a world.
+the selector's refinement filters candidates but is not part of that exposed value. The selector's
+scope includes nested sequences and full transmutations, which claim only matching handles not
+already supplied by the selector. Other body expressions retain their ordinary meanings. Equal
+occurrences produce equal but independent branches. The selector may serve only as the repetition
+source, so the body need not name the selected component. The body may not be empty, fanouts do not
+nest, and a concrete selector is rejected where the fanout is resolved against a world.
 `EACH.md` specifies how and when that world is enumerated. This module pins the syntax and scoping;
 `engine/EachSelectorOwnerTest.kt` and `engine/InstructionResolutionTest.kt` pin the rest.
 
@@ -725,8 +726,9 @@ before that supplying occurrence. Other expressions belong only to the stage whe
 `BoundClass^Handle` occurrences on the gained and removed sides use one choice. A non-observing
 marker on either side may supply that choice; the other side may use it in an observing refinement.
 The pair is settled atomically. Other expressions belong only to the side where they are written. A
-marker occurring on only one side may instead belong to an enclosing `THEN` sequence when that
-sequence also marks it.
+marker already supplied by an enclosing `EACH` or `RANK` scope remains a reference to that value;
+the full transmutation claims only otherwise-unbound matching markers. A marker occurring on only
+one side may instead belong to an enclosing `THEN` sequence when that sequence also marks it.
 
 > **Non-normative example — Kaguya Tech.**
 > `CityTile<MarsArea^1> FROM GreeneryTile<MarsArea^1>` replaces a greenery with a city in

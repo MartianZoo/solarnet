@@ -1317,6 +1317,13 @@ that occurrence need not be textually first. An unnamed Type belongs only to the
 written. A represented-Class variable may apply
 dependency arguments under T13-1.
 
+Selector scopes bind before symmetric inner constructs settle their remaining handles. Thus an
+`EACH` or `RANK` marker stays visible through a nested full transmutation or `THEN`; the inner
+construct declares only matching handles that remain unbound. Symmetric scopes themselves settle
+inside out, so a full transmutation still outranks an enclosing sequence. A selector refinement
+participates in candidate filtering, but the value exposed to its body or metrics is the selected
+concrete Type, without that refinement.
+
 | Construct | Supplying occurrence | Other marked region |
 | --- | --- | --- |
 | Action | a choosing or matching marker in the cost | the result |

@@ -20,7 +20,7 @@ internal class TerralabsTest : CardTest() {
   @Test
   internal fun `Terralabs and Polyphemos cancel each other's card-purchase modifiers`() {
     newGame(
-        TurmoilCardPack,
+        TurmoilExpansion,
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
     )

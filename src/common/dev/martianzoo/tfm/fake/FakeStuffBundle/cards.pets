@@ -66,6 +66,41 @@ CLASS FakeHelion : CardFront<Class<StandardCorporationCard>> {
   Billing<HasActions, ActionSlot, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>>
 }
 
+"A replay-only stand-in for an unsupported upstream corporation"
+CLASS FakePolderTechDutch : CardFront<Class<StandardCorporationCard>> {
+  cost = 0
+
+  This:: EarthTag<This>
+  This: 35 MC, RequiredAction { -> OceanTile<> THEN GreeneryTile<LandArea(HAS Neighbor<OceanTile>)> }
+  OceanTile: Energy
+  GreeneryTile: Plant
+}
+
+"Banned Delegate without immediate party-leader and Dominant-party changes"
+CLASS FakeBannedDelegate : EventCard {
+  cost = 0
+  requirement = HAS "Chairman"
+
+  This:: EventTag<This>
+  This: FakeBannedDelegateRemoval<Party, Anyone>. / \
+    (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1
+}
+
+"Returns one selected non-leader delegate without recalculating its party"
+CLASS FakeBannedDelegateRemoval<Party, Anyone> : Owned<Player>, Barrier {
+  HAS MAX 1 This
+  This: -PartyDelegate<Party, Anyone> THEN -This!
+}
+
+"Septem Tribus with an inert wild tag"
+CLASS FakeSeptemTribus : ActionCard<Class<StandardCorporationCard>> {
+  cost = 0
+
+  This: 36 MC, FakeWildTag<This>
+
+  -> 2 MC / Class<Party>(HAS PartyDelegate<Party, Owner>)
+}
+
 "Established Methods without its unaffordable-second-project rule"
 CLASS FakeEstablishedMethods : CardFront<Class<PreludeCard>> {
   cost = 0

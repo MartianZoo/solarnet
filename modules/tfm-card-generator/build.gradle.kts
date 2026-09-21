@@ -1,7 +1,11 @@
+import org.gradle.api.tasks.PathSensitivity
+
 plugins { id("solarnet.jvm") }
 
 val generatorSourceDirectory =
     rootProject.layout.projectDirectory.dir("src/jvm/dev/martianzoo/tfm/cardgenerator")
+val authoredCardPetsDirectory =
+    rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/canon")
 
 kotlin {
   sourceSets {
@@ -28,5 +32,8 @@ tasks.register<JavaExec>("generateCardPets") {
   mainClass.set("dev.martianzoo.tfm.cardgenerator.GenerateCardPetsKt")
   val outputDirectory = layout.buildDirectory.dir("generated/cardPets")
   outputs.dir(outputDirectory)
-  args(outputDirectory.get().asFile.absolutePath)
+  inputs
+      .files(fileTree(authoredCardPetsDirectory) { include("*/cards.pets") })
+      .withPathSensitivity(PathSensitivity.RELATIVE)
+  args(outputDirectory.get().asFile.absolutePath, authoredCardPetsDirectory.asFile.absolutePath)
 }

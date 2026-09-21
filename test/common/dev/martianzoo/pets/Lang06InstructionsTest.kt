@@ -27,6 +27,7 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
+import dev.martianzoo.pets.ast.localTypeVariableDeclarations
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -208,6 +209,10 @@ internal class Lang06InstructionsTest {
   @Test
   internal fun `L6-10 explicit selector names bind only their body references`() {
     val player = parse<Instruction>("EACH Player^1(NOT Player1) { Plant<Player^1> }") as Each
+    player.body
+        .descendantsOfType<Expression>()
+        .single { it.className == cn("Player") }
+        .refinement shouldBe null
     player.bodyFor(parse("Player2")) shouldBe parse<InstructionTree>("Plant<Player2>")
 
     val unnamed = parse<Instruction>("EACH Player { Plant<Player> }") as Each
@@ -223,6 +228,35 @@ internal class Lang06InstructionsTest {
     shouldThrow<PetSyntaxException> {
       parse<Instruction>("EACH Area^1 { Tile<Area^1<Owner>> }")
     }
+  }
+
+  @Test
+  internal fun `L6-10 a selector supplies matching markers inside a full transmutation`() {
+    val each =
+        parse<Instruction>(
+            "EACH Player^Selected { Winner<Player^Selected> FROM Candidate<Player^Selected> }"
+        )
+            as Each
+
+    each.bodyFor(parse("Player2")) shouldBe
+        parse<InstructionTree>("Winner<Player2> FROM Candidate<Player2>")
+    (each.body as Transmute).localTypeVariableDeclarations() shouldBe emptyList()
+  }
+
+  @Test
+  internal fun `L6-10 a full transmutation may still declare a differently named local variable`() {
+    val each =
+        parse<Instruction>(
+            "EACH Player^Selected { " +
+                "Winner<Player^Local> FROM Candidate<Player^Local>, Prize<Player^Selected> }"
+        )
+            as Each
+    val transmute = each.body.descendantsOfType<Transmute>().single()
+
+    transmute.localTypeVariableDeclarations().map { it.typeVariableName!!.name } shouldBe
+        listOf("Local")
+    each.bodyFor(parse("Player2")).toString() shouldBe
+        "Winner<Player^Local> FROM Candidate<Player^Local>, Prize<Player2>"
   }
 
   @Test

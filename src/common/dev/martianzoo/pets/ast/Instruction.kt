@@ -48,11 +48,41 @@ public sealed class Instruction : InstructionTree() {
     internal fun parser(): Parser<Instruction> =
         Parsers.parser() map
             {
-              it as? Instruction
-                  ?: throw PetSyntaxException("expected one instruction, found group `$it`")
+              val instruction =
+                  it as? Instruction
+                      ?: throw PetSyntaxException("expected one instruction, found group `$it`")
+              resolveLocalTypeVariableNames(instruction) as Instruction
             }
 
-    internal fun treeParser(): Parser<InstructionTree> = Parsers.parser()
+    internal fun treeParser(): Parser<InstructionTree> =
+        Parsers.parser() map ::resolveLocalTypeVariableNames
+
+    /**
+     * Resolves symmetric instruction-local scopes only after enclosing selectors have claimed their
+     * references. The traversal remains inside-out so a transmutation still outranks an enclosing
+     * sequence for names that no supplier already owns.
+     */
+    private fun resolveLocalTypeVariableNames(tree: InstructionTree): InstructionTree {
+      if (
+          tree.descendantsOfType<Transmute>().isEmpty() && tree.descendantsOfType<Then>().isEmpty()
+      ) {
+        return tree
+      }
+      return object : PetTransformer() {
+            override fun transformNode(node: PetNode): PetNode {
+              // Symmetric scopes contain instructions; leave unrelated parser-only expression
+              // metadata untouched until one of those scopes resolves its own subtree.
+              if (node is Expression) return node
+              val transformed = transformChildren(node)
+              return when (transformed) {
+                is Transmute -> Transmute.resolveTypeVariableNames(transformed)
+                is Then -> Then.resolveTypeVariableNames(transformed)
+                else -> transformed
+              }
+            }
+          }
+          .transformInstructionTree(tree)
+    }
   }
 
   /**
@@ -1107,7 +1137,7 @@ public sealed class Instruction : InstructionTree() {
                 FromExpression.parser() and
                 optional(quantifier) map
                 { (scalar, fro, int) ->
-                  Transmute.resolveTypeVariableNames(Transmute(fro, scalar ?: ActualScalar(1), int))
+                  Transmute(fro, scalar ?: ActualScalar(1), int)
                 }
 
         val perable: Parser<Instruction> = transmute or group(transmute) or gain or remove
@@ -1158,13 +1188,7 @@ public sealed class Instruction : InstructionTree() {
                   Gated.createTree(gate, ins)
                 }
 
-        val then =
-            separatedTerms(gated, _then) map
-                {
-                  Then.createTree(it).let { sequence ->
-                    if (sequence is Then) Then.resolveTypeVariableNames(sequence) else sequence
-                  }
-                }
+        val then = separatedTerms(gated, _then) map Then::createTree
 
         commaSeparated(then) map { InstructionGroup.createTree(it) }
       }
