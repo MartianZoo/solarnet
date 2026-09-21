@@ -35,6 +35,14 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
 - [#59: `-This` Quantifier](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether
   self-removal should default to mandatory.
+- Give Admin an installable autoexecution policy for Global Events that pulls exact cards from an
+  ordered list; until then callers explicitly complete reveal tasks.
+- Reconsider Turmoil's `PartyLeader` representation and name. It currently supplements the actual
+  `PartyDelegate` as a non-`Delegate` role; decide whether a clearer role name or a true delegate
+  subtype can express leadership without representing or counting the physical marker twice.
+- Find a clean way to make Turmoil's `ApplyRulingBonus` player-owned without complicating the Reds
+  tied-lowest-player selection. It currently remains one global signal whose party effect fans out
+  over the players.
 - Investigate whether the three self-handling signals `CimmeriaPlacementBonus`,
   `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
   requiring authored references to generated names. Preserve Cimmeria map generation,
@@ -51,13 +59,25 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
-- When Turmoil policies are modeled, add Jacob Fryxelius's ruling that moving Mars Nomads does not
-  trigger the Mars First ruling policy; there is currently no policy component to observe.
+- Add Jacob Fryxelius's ruling that moving Mars Nomads does not trigger the Mars First ruling policy.
 - Model WG Project, then mirror the Valley Trust case where an unplayable selected Prelude may be
   discarded for 15 MC even when another drawn Prelude is playable.
+- Add canonical Prelude 2 definitions for Corridors of Power, Envoys from Venus, Special Permit,
+  Red Tourism Wave, and Frontier Town, then remove their source-specific replay fixtures.
+- Repair the two declared Pets conformance gaps without adding a second representation of type
+  identity: L7-8 lets `Tile<> THEN Tile<>` stages diverge after defaults, and T8-3 can substitute a
+  refinement candidate into the wrong one of several compatible dependency slots while existing
+  cards still require candidate/argument merging.
+- Find a principled way for narrower dependency defaults to retain compatible refinements from
+  wider defaults, so `Tile` can own area occupancy once while its subclasses select their kinds of
+  areas and add placement rules.
 - Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
   with the canonical card.
-- Complete the unsupported Milestones & Awards goals: Thawer's player-attributed temperature
-  steps, and the Turmoil-dependent Lobbyist and Politician rules.
+- Replace FakeThawer's persistent temperature credits with credits that also account for
+  global events reducing temperature.
+- Simplify `LiveEffect` actor binding by threading a binding context through subscription matching
+  instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
+- Separate `Instructor`'s resolution-only capability from execution so `Changer`, `Effector`, and
+  the default Actor do not remain nullable solely for `InstructionResolutionTest`.
 - Replace `World.onTransactionComplete`'s mutable single callback with scoped listener registration once
   multiple workflow or monitoring observers need to coexist.

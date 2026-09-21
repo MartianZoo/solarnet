@@ -31,7 +31,7 @@ private val gameOptions: Set<ClassName> =
         cn("PreludeExpansion"),
         cn("Prelude2CardPack"),
         cn("ColoniesExpansion"),
-        cn("TurmoilCardPack"),
+        cn("TurmoilExpansion"),
         cn("PromoCardPack"),
         cn("FakeCardsCardPack"),
     )

@@ -70,6 +70,8 @@ val soloEventLogDumpOutput =
     rootProject.layout.projectDirectory.file("_local/eventlogs/solo-all-expansions-eventlog.tsv")
 val otbGame20260828EventLogDumpOutput =
     rootProject.layout.projectDirectory.file("_local/eventlogs/otb-game-20260828-eventlog.tsv")
+val otbGame20260912EventLogDumpOutput =
+    rootProject.layout.projectDirectory.file("_local/eventlogs/otb-game-20260912-eventlog.tsv")
 val replayEventLogsDirectory =
     project(":tfm-tests").layout.buildDirectory.dir("generated/replay-event-logs")
 
@@ -92,6 +94,20 @@ tasks.register<JavaExec>("dumpOtbGame20260828EventLog") {
           .map { it.file("OtbGame20260828Test.json").asFile.absolutePath }
           .get(),
       otbGame20260828EventLogDumpOutput.asFile.absolutePath,
+  )
+}
+
+tasks.register<JavaExec>("dumpOtbGame20260912EventLog") {
+  group = "reporting"
+  description = "Dumps the generated 2026-09-12 replay-test event log as TSV."
+  dependsOn(":tfm-tests:jvmTest")
+  classpath = sourceSets.main.get().runtimeClasspath
+  mainClass.set("dev.martianzoo.tools.DumpEventlogKt")
+  args(
+      replayEventLogsDirectory
+          .map { it.file("OtbGame20260912Test.json").asFile.absolutePath }
+          .get(),
+      otbGame20260912EventLogDumpOutput.asFile.absolutePath,
   )
 }
 

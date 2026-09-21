@@ -17,6 +17,7 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GameConfig
@@ -36,10 +37,18 @@ internal fun setUpGame(
 ): World =
     Engine.newGame(premise).apply {
       TfmWorkflow.Stepwise(testAgents()).setupPhase()
+      revealTurmoilSetupEvents(this)
       retainStartingProjects(
           *IntArray(actors.filterIsInstance<Player>().size) { retainedStartingProjects },
       )
     }
+
+private fun revealTurmoilSetupEvents(game: World) {
+  val admin = game.testAgent(ADMIN)
+  if (admin.count("RevealComingEvent") == 0) return
+  admin.doTask("AquiferReleasedByPublicCouncil")
+  admin.doTask("DryDeserts")
+}
 
 internal fun World.retainStartingProjects(vararg retainedCounts: Int) {
   val players = actors.filterIsInstance<Player>()

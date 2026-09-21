@@ -213,7 +213,8 @@ Most `Module` subtypes extend `Module` directly, and that is fine — they need 
 supertype just to justify a suffix. Three loose families exist today:
 
 1. **Rules and card packs** — published products contributing ambient rules use their own noun:
-   `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`, and `PreludeExpansion`.
+   `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`, `PreludeExpansion`, and
+   `TurmoilExpansion`.
    `CardPack` marks a card-only selection: `Prelude1CardPack`, `Prelude2CardPack`,
    `PromoCardPack`, and `TurmoilCardPack`. Prelude 2 contributes content through
    `Prelude2CardPack`, not a second Prelude rules Module. The Milestones & Awards product likewise
@@ -319,7 +320,7 @@ phrase, but the obvious one is taken by the `DoRequiredActionsAction` standard a
 `Has` is reserved for capabilities (`HasActions`), and `HasRaisedTr` is a record that something
 happened, which the [grammar](#grammar-by-kind-of-thing) says should read as a passive or `My` form.
 The conflict is acknowledged; the name is not yet settled. It is declared identically in
-`TerraformingMars` and `TurmoilCardPack`, so any rename must change both.
+`TerraformingMars` and `TurmoilExpansion`, so any rename must change both.
 
 ### Scope of `en.json5`
 

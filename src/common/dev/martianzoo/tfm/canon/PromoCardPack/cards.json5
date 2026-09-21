@@ -704,5 +704,17 @@
         },
       ],
     },
+    {
+      "deck": "ProjectCard",
+      "cards": [
+        {
+          "name": "PoliticalAlliance",
+          "requirement": "2 PartyLeader",
+          "cost": 4,
+          "tags": [ "EventTag" ],
+          "immediate": "TerraformRating",
+        },
+      ],
+    },
   ],
 }
