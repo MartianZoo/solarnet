@@ -50,8 +50,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 ## Autonomous Follow-ups
 
 - Add Jacob Fryxelius's ruling that moving Mars Nomads does not trigger the Mars First ruling policy.
-- Add canonical Prelude 2 definitions for Corridors of Power, Envoys from Venus, Special Permit,
-  Red Tourism Wave, and Frontier Town, then remove their source-specific replay fixtures.
 - Repair the two declared Pets conformance gaps without adding a second representation of type
   identity: L7-8 lets `Tile<> THEN Tile<>` stages diverge after defaults, and T8-3 can substitute a
   refinement candidate into the wrong one of several compatible dependency slots while existing
