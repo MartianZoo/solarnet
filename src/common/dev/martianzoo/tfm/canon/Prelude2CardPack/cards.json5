@@ -71,7 +71,7 @@
         {
           "name": "EarlyColonization",
           "tags": [ "SpaceTag" ],
-          "immediate": "Colony<>, 3 Energy, 2 AdvanceColonyTracks",
+          "immediate": "Colony<>, 3 Energy, EACH ColonyTile { 2 ColonyProduction<ColonyTile> }",
         },
         {
           "name": "FloatingTradeHub",

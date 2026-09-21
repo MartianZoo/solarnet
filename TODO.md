@@ -29,8 +29,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Reverse replacement-card references so optional packs identify what they replace rather than
   base cards naming optional packs. Deimos Down, Great Dam, and Magnetic Field Generators currently
   use `autoSelectWhen = MAX 0 PromoCardPack`.
-- Check whether Early Colonization's two `AdvanceColonyTracks` changes should be explicitly
-  mandatory.
+- **Low priority:** Support the Valley Trust edge case where all three drawn Preludes are
+  unplayable. Normal selections must choose a playable card; follow mode currently has no clean way
+  to fizzle the corporation's required action when none exists.
 - **Low priority:** [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve
   hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
 - [#59: `-This` Quantifier](https://github.com/MartianZoo/solarnet/issues/59) — Decide whether
@@ -53,8 +54,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 - When Turmoil policies are modeled, add Jacob Fryxelius's ruling that moving Mars Nomads does not
   trigger the Mars First ruling policy; there is currently no policy component to observe.
-- Model WG Project, then mirror the Valley Trust case where an unplayable selected Prelude may be
-  discarded for 15 MC even when another drawn Prelude is playable.
 - Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
   with the canonical card.
 - Complete the unsupported Milestones & Awards goals: Thawer's player-attributed temperature
