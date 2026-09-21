@@ -176,7 +176,7 @@ public object Parsing {
           ?.let {
             val marker = it.typeVariableName!!
             throw PetSyntaxException(
-                "Type-variable marker ${marker.boundClassName}^${marker.name} is not shared in a scope"
+                "Type-variable marker ${marker.authoredSpelling} is not shared in a scope"
             )
           }
       expressions
@@ -184,7 +184,7 @@ public object Parsing {
           .firstOrNull { !it.resolved }
           ?.let {
             throw PetSyntaxException(
-                "Type-variable marker ${it.boundClassName}^${it.name} has no supplying occurrence"
+                "Type-variable marker ${it.authoredSpelling} has no supplying occurrence"
             )
           }
     }

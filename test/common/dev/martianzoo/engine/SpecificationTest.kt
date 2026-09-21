@@ -97,7 +97,7 @@ internal class SpecificationTest {
 
   @Test
   internal fun transmutationBindsItsSourceBeforeTestingADestinationExclusion() {
-    val wide = "StandardResource(NOT StandardResource^Source) FROM StandardResource^Source!"
+    val wide = "StandardResource(NOT Source@StandardResource) FROM Source@StandardResource!"
 
     test(wide, "Steel FROM Plant!")
     testInvalid(wide, "Steel FROM Steel!")

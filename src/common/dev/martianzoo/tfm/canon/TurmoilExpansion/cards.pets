@@ -31,16 +31,16 @@ CLASS EcoSabotage : GePartyDistant<Greens>, GePartyCurrent<Reds> {
 
 CLASS Election : GePartyDistant<Greens>, GePartyCurrent<MarsFirst> {
   ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
-    EACH Player(HAS =1 (RANK Player^Ranked { \
-      Influence<Player^Ranked> OR \
-      BuildingTag<Player^Ranked> OR \
-      CityTile<Player^Ranked> \
+    EACH Player(HAS =1 (RANK Ranked@Player { \
+      Influence<Ranked@Player> OR \
+      BuildingTag<Ranked@Player> OR \
+      CityTile<Ranked@Player> \
     })) { 2 TerraformRating }
   ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
-    EACH Player(HAS =2 (RANK Player^Ranked { \
-      Influence<Player^Ranked> OR \
-      BuildingTag<Player^Ranked> OR \
-      CityTile<Player^Ranked> \
+    EACH Player(HAS =2 (RANK Ranked@Player { \
+      Influence<Ranked@Player> OR \
+      BuildingTag<Ranked@Player> OR \
+      CityTile<Ranked@Player> \
     })) { TerraformRating }
   ResolveGlobalEvent<Class<This>> IF SoloMode:: \
     EACH Player { TerraformRating / 5 (Influence OR BuildingTag OR CityTile) MAX 2 }
@@ -106,14 +106,14 @@ CLASS RedInfluence : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
 
 CLASS Revolution : GePartyDistant<Unity>, GePartyCurrent<MarsFirst> {
   ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
-    EACH Player(HAS 1 (EarthTag OR Influence), HAS =1 (RANK Player^Ranked { \
-      EarthTag<Player^Ranked> OR Influence<Player^Ranked> \
+    EACH Player(HAS 1 (EarthTag OR Influence), HAS =1 (RANK Ranked@Player { \
+      EarthTag<Ranked@Player> OR Influence<Ranked@Player> \
     })) { \
       -2 TerraformRating. \
     }
   ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
-    EACH Player(HAS 1 (EarthTag OR Influence), HAS =2 (RANK Player^Ranked { \
-      EarthTag<Player^Ranked> OR Influence<Player^Ranked> \
+    EACH Player(HAS 1 (EarthTag OR Influence), HAS =2 (RANK Ranked@Player { \
+      EarthTag<Ranked@Player> OR Influence<Ranked@Player> \
     })) { \
       -TerraformRating. \
     }
@@ -154,7 +154,7 @@ CLASS SpinOffProducts : GePartyDistant<Greens>, GePartyCurrent<Scientists> {
 
 CLASS SponsoredProjects : GePartyDistant<Scientists>, GePartyCurrent<Greens> {
   ResolveGlobalEvent<Class<This>>:: \
-    EACH ResourceCard^Card<Anyone> { CardResource<ResourceCard^Card<Anyone>> }
+    EACH Card@ResourceCard<Anyone> { CardResource<Card@ResourceCard<Anyone>> }
   ResolveGlobalEvent<Class<This>>:: EACH Player { ProjectCard / Influence }
 }
 

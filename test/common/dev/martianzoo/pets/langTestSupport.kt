@@ -79,7 +79,7 @@ internal const val LANG_DECLARATIONS: String =
 
     "A card, and a resource whose owner is forced to be its card's owner (T3-8)"
     ABSTRACT CLASS CardFront : Owned<Owner> { CLASS Ants }
-    ABSTRACT CLASS Cardbound<CardFront<Owner^1>> : Owned<Owner^1> { CLASS Animal }
+    ABSTRACT CLASS Cardbound<CardFront<@Owner>> : Owned<@Owner> { CLASS Animal }
 
     "A class whose removal-only default differs from its all-use default"
     CLASS Marker<Area> : Owned<Anyone> { DEFAULT -Marker<LandArea> }

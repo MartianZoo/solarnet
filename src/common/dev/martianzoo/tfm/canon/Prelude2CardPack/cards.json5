@@ -92,7 +92,7 @@
           "name": "IndustrialComplex",
           "tags": [ "BuildingTag" ],
           "effects": [
-            "This: -18 MC, EACH Class<StandardResource^1> { PROD[StandardResource^1 / (Class<StandardResource^1> OR QuickStartVariant OR ProdOffset<Class<StandardResource^1>>) - Production<Class<StandardResource^1>>] }",
+            "This: -18 MC, EACH Class<@StandardResource> { PROD[@StandardResource / (Class<@StandardResource> OR QuickStartVariant OR ProdOffset<Class<@StandardResource>>) - Production<Class<@StandardResource>>] }",
           ],
         },
         {
@@ -330,7 +330,7 @@
           "tags": [ "CityTag", "BuildingTag" ],
           "immediate": "FrontierTownBonus, PROD[-Energy], CityTile<> THEN -FrontierTownBonus.",
           "components": [
-            "CLASS FrontierTownBonus : Owned<Player>, Hidden { HAS MAX 1 This; Placement<MarsArea^Area>:: -This! THEN RepeatPlacementBonus<MarsArea^Area> }",
+            "CLASS FrontierTownBonus : Owned<Player>, Hidden { HAS MAX 1 This; Placement<Area@MarsArea>:: -This! THEN RepeatPlacementBonus<Area@MarsArea> }",
             "CLASS RepeatPlacementBonus<MarsArea> : Owned<Player>, Custom",
           ],
         },

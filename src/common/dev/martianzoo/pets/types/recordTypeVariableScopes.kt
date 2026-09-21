@@ -14,7 +14,7 @@ import dev.martianzoo.pets.ast.localTypeVariableDeclarations
 import dev.martianzoo.pets.ast.withTypeVariables
 
 /**
- * Returns a transformer that records explicitly named Type-variable scopes. It applies the region,
+ * Returns a transformer that records explicitly marked Type-variable scopes. It applies the region,
  * exclusion, and actor-selector rules in
  * [rules T13-6 through T13-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
  */
@@ -74,7 +74,7 @@ public fun ClassTable.recordTypeVariableScopes(): PetTransformer =
           constructLocalDeclarations: List<Expression> = emptyList(),
       ): P {
         val visibleIdentities = node.typeVariables.variableIdentities()
-        val namedDeclarations = declarationCandidates.filter {
+        val markedDeclarations = declarationCandidates.filter {
           it.typeVariableName is Declaration &&
               constructLocalDeclarations.none { local -> local === it } &&
               it.typeVariableName.identity !in visibleIdentities
@@ -83,7 +83,7 @@ public fun ClassTable.recordTypeVariableScopes(): PetTransformer =
             TypeVariableScope.fromDeclarations(
                 regions,
                 this@recordTypeVariableScopes,
-                namedDeclarations = namedDeclarations,
+                markedDeclarations = markedDeclarations,
             )
         requireSharedAcrossRegions(localScope, construct)
         return node.withTypeVariables(node.typeVariables + localScope)

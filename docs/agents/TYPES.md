@@ -47,7 +47,7 @@ Attaching a class-header scope copies the source Effect before recording its res
 Catalogs can share authored declarations; those declarations must not retain a compiled universe
 through a variable's bound Type or let interpretation in another Catalog overwrite an earlier scope.
 
-Explicitly named Action and `THEN` variables survive lowering and queuing. An open variable prevents
+Explicitly marked Action and `THEN` variables survive lowering and queuing. An open variable prevents
 the relevant stages from splitting into independent tasks until an earlier choice supplies its
 value. A full transmutation likewise names a destination choice used by its source. Within a compact
 atomic transmutation,
@@ -56,9 +56,9 @@ atomic transmutation,
 is stored once. The gained and removed Types remain projections of that compact tree until
 execution; no Type variable is involved.
 
-The [`EACH`](EACH.md) fanout enumerates its selector. `Selector^Handle` explicitly makes each
-selected concrete Type available through `SelectorRoot^Handle` in the body; other body expressions
-retain their ordinary meanings. Inside the body, an Owner selection supplies contextual `Owner`; a
+The [`EACH`](EACH.md) fanout enumerates its selector. A marker on the selector explicitly makes each
+selected concrete Type available through the same marker on its root in the body; other body
+expressions retain their ordinary meanings. Inside the body, an Owner selection supplies contextual `Owner`; a
 non-Owner selection retains the enclosing contextual owner. `This` is the effect-bearing component.
 The body need not use the selection.
 

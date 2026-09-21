@@ -13,16 +13,16 @@ CLASS TerraformingMars : BaseGameModule {
   This: PlayCardFromHandAction, UseStandardProjectAction, UseActionOnCardAction, ConvertPlantsAction, ConvertHeatAction
   This: DoRequiredActionsAction
   This: Hand, Selecting, Revealed, CardPurchase, CardPlay
-  This: EACH Class^1<GlobalParameter> { GpIncomplete<Class^1> }
-  This: EACH Class<RemoteArea^1> { RemoteArea^1 }
-  This: EACH Class<ActionSlot^1> { ActionSlot^1 }
+  This: EACH @Class<GlobalParameter> { GpIncomplete<@Class> }
+  This: EACH Class<@RemoteArea> { @RemoteArea }
+  This: EACH Class<@ActionSlot> { @ActionSlot }
 
   ModulesReady IF MAX 0 ExtendedGlobalParametersRule: StandardGpTrackRules
   ModulesReady IF MAX 0 CorporationOption: 2 CorporationOption
 
   // TODO: get rid of
   CorporationPhase: Photosynthesis
-  CorporationPhase:: EACH Class<CardWatcher^1> { CardWatcher^1 }
+  CorporationPhase:: EACH Class<@CardWatcher> { @CardWatcher }
 
   // TODO: do we need `IF Owed` ... if so could `Accepting` just remove itself when no Owed exist?
   PayingFor<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>
@@ -108,9 +108,9 @@ CLASS TerraformRating : Owned<Player> {
 CLASS StartToken : Owned<Player> { HAS =1 StartToken }
 
 "Identifies the Player immediately after another Player in seat order"
-CLASS AfterMe<Owner^Previous, Player^Next> : System {
+CLASS AfterMe<Previous@Owner, Next@Player> : System {
   HAS MAX 1 This
-  ResearchPhase IF StartToken<Owner^Previous>: StartToken<Player^Next FROM Owner^Previous>.
+  ResearchPhase IF StartToken<Previous@Owner>: StartToken<Next@Player FROM Previous@Owner>.
 }
 
 "The current game phase; exactly one exists from bootstrap through the terminal End phase"

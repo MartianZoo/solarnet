@@ -1,18 +1,18 @@
 "Adds official promotional project, corporation, and prelude cards"
 CLASS PromoCardPack : Module {
-  This: EACH Class^1<Resource> { ResourceRemovalWatcher<Class^1> }
-  This: EACH Class^1<StandardResource> { ProductionDecreaseWatcher<Class^1> }
+  This: EACH @Class<Resource> { ResourceRemovalWatcher<@Class> }
+  This: EACH @Class<StandardResource> { ProductionDecreaseWatcher<@Class> }
 }
 
 "Asks its owner to choose an ocean area while preserving the Player who places it"
 CLASS ChooseOceanArea : Owned, Signal {
-  This BY Actor^1: OceanTile<> BY Actor^1
+  This BY @Actor: OceanTile<> BY @Actor
 }
 
 "The moving marker placed by Mars Nomads"
-CLASS NomadsMarker : Owned<Player>, AreaPiece<LandArea^1> {
+CLASS NomadsMarker : Owned<Player>, AreaPiece<@LandArea> {
   HAS MAX 1 This
-  Tile<LandArea^1> BY Anyone:: Die
+  Tile<@LandArea> BY Anyone:: Die
 }
 
 "A durable generational resource-removal record owned by the victim and naming the attacker"
@@ -21,12 +21,12 @@ CLASS MyResourceWasRemoved<Class<Resource>, Player, GenerationScope> : Owned<Own
 "A durable generational production-decrease record owned by the victim and naming the attacker"
 CLASS MyProductionWasDecreased<Class<StandardResource>, Player, GenerationScope> : Owned<Owner>, Hidden
 
-CLASS ResourceRemovalWatcher<Class<Resource^1>> : System {
+CLASS ResourceRemovalWatcher<Class<@Resource>> : System {
   HAS =1 This
-  -X Resource^1<Owner^Victim(NOT Player^Attacker)> BY Player^Attacker:: MyResourceWasRemoved<Owner^Victim, Class<Resource^1>, Player^Attacker>.
+  -X @Resource<Victim@Owner(NOT Attacker@Player)> BY Attacker@Player:: MyResourceWasRemoved<Victim@Owner, Class<@Resource>, Attacker@Player>.
 }
 
-CLASS ProductionDecreaseWatcher<Class<StandardResource^1>> : System {
+CLASS ProductionDecreaseWatcher<Class<@StandardResource>> : System {
   HAS =1 This
-  -X Production<Owner^Victim(NOT Player^Attacker), Class<StandardResource^1>> BY Player^Attacker:: MyProductionWasDecreased<Owner^Victim, Class<StandardResource^1>, Player^Attacker>.
+  -X Production<Victim@Owner(NOT Attacker@Player), Class<@StandardResource>> BY Attacker@Player:: MyProductionWasDecreased<Victim@Owner, Class<@StandardResource>, Attacker@Player>.
 }

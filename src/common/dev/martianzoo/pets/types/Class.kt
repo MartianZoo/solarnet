@@ -713,7 +713,7 @@ internal constructor(
           seeds += target
         }
 
-    val namedVariables =
+    val markedVariables =
         seeds.filter(Seed::lexicallyDeclared).mapNotNull { seed ->
           (seed.declaration.expression.typeVariableName as? Declaration)?.identity?.let {
             it to seed
@@ -724,17 +724,17 @@ internal constructor(
             .flatMap { it.descendantsOfType<Expression>() }
             .firstOrNull { expression ->
               expression.typeVariableName is Declaration &&
-                  namedVariables.none { (_, seed) ->
+                  markedVariables.none { (_, seed) ->
                     seed.declaration.expression === expression
                   }
             }
     require(ineligibleDeclaration == null) {
       "$ineligibleDeclaration cannot declare a Class-header Type variable"
     }
-    require(namedVariables.map { it.first }.distinct().size == namedVariables.size) {
-      "$className declares the same header Type-variable bound Class and handle twice"
+    require(markedVariables.map { it.first }.distinct().size == markedVariables.size) {
+      "$className declares the same header Type-variable marker twice"
     }
-    val variablesByIdentity = namedVariables.toMap()
+    val variablesByIdentity = markedVariables.toMap()
     var bodyOrdinal = headerOccurrences().size
     declaration.effects.forEachIndexed { effectIndex, effect ->
       effect.descendantsOfType<Expression>().forEach { expression ->

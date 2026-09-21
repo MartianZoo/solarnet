@@ -272,36 +272,36 @@ internal class Lang08EffectsTest {
 
   @Test
   internal fun `L8-12 a trigger expression can name a Type variable used by the Effect`() {
-    roundTrip<Effect>("StandardResource^1: StandardResource^1")
-    roundTrip<Effect>("Production<Class<StandardResource^1>>: StandardResource^1<Owner>")
-    roundTrip<Effect>("StandardResource^1 IF StandardResource^1: StandardResource^1")
-    roundTrip<Effect>("StandardResource^1: Plant THEN StandardResource^1")
-    roundTrip<Effect>("This: StandardResource^1 THEN StandardResource^1")
+    roundTrip<Effect>("@StandardResource: @StandardResource")
+    roundTrip<Effect>("Production<Class<@StandardResource>>: @StandardResource<Owner>")
+    roundTrip<Effect>("@StandardResource IF @StandardResource: @StandardResource")
+    roundTrip<Effect>("@StandardResource: Plant THEN @StandardResource")
+    roundTrip<Effect>("This: @StandardResource THEN @StandardResource")
     roundTrip<Effect>(
-        "Notice<Owner^Victim(NOT Player^ActingPlayer)> BY Player^ActingPlayer: " +
-            "Heat<Owner^Victim>"
+        "Notice<Victim@Owner(NOT ActingPlayer@Player)> BY ActingPlayer@Player: " +
+            "Heat<Victim@Owner>"
     )
   }
 
   @Test
   internal fun `L8-12 a Type-variable marker is local to one Effect`() {
-    shouldThrow<PetSyntaxException> { parse<Effect>("StandardResource^1: Plant") }
-    shouldThrow<PetSyntaxException> { parse<Effect>("StandardResource: Plant^1") }
-    roundTrip<Effect>("StandardResource^1 OR StandardResource^1: StandardResource^1")
+    shouldThrow<PetSyntaxException> { parse<Effect>("@StandardResource: Plant") }
+    shouldThrow<PetSyntaxException> { parse<Effect>("StandardResource: @Plant") }
+    roundTrip<Effect>("@StandardResource OR @StandardResource: @StandardResource")
     shouldThrow<PetSyntaxException> {
-      parse<Effect>("StandardResource^1: StandardResource^1<Plant>")
+      parse<Effect>("@StandardResource: @StandardResource<Plant>")
     }
     shouldThrow<PetSyntaxException> {
-      parse<Effect>("Production<Class<StandardResource^1>>: StandardResource^1(HAS Marker)")
+      parse<Effect>("Production<Class<@StandardResource>>: @StandardResource(HAS Marker)")
     }
     shouldThrow<PetSyntaxException> {
-      parse<Effect>("CheckGameEnd IF 63 TerraformRating<Player^1>: Victory<Player^1>")
+      parse<Effect>("CheckGameEnd IF 63 TerraformRating<@Player>: Victory<@Player>")
     }
     shouldThrow<PetSyntaxException> {
-      parse<Effect>("Notice<Owner(NOT Player^1)> BY Player: Heat")
+      parse<Effect>("Notice<Owner(NOT @Player)> BY Player: Heat")
     }
     shouldThrow<PetSyntaxException> {
-      parse<Effect>("StandardResource^1: Plant^1 THEN StandardResource^1")
+      parse<Effect>("@StandardResource: @Plant THEN @StandardResource")
     }
   }
 }

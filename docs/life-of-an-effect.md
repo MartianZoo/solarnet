@@ -76,7 +76,7 @@ The grouping is now settled. The right side is one `OR`. Its second arm is one S
 Instruction whose first stage removes two microbes and whose second stage raises plant production.
 Parentheses affect that structure but are not retained as a separate element.
 
-This is also when matching `BoundClass^Handle` occurrences are recorded as one Effect-local Type
+This is also when matching marked occurrences are recorded as one Effect-local Type
 Variable. A `THEN` nested in the instruction similarly owns any variable it marks across its stages.
 That recognition happens before defaults or Production Box lowering.
 `This` and `Owner` are contextual bindings, not Type Variables. Recyclon has no Type Variable
@@ -299,7 +299,7 @@ The resulting Instruction is then multiplied by the matching State Change's coun
 is not a PetTransformer. Recyclon has no Trigger-shared Type Variable and its Component Effect has
 already replaced `Owner`, so only step 3 runs over its Instruction and it changes nothing. A
 Manutech Component Effect has likewise already replaced contextual `Owner` with its card owner's
-Player Type; step 1 then replaces its `(StandardResource, 1)` Type Variable with `Plant`.
+Player Type; step 1 then replaces its anonymous `@StandardResource` Type Variable with `Plant`.
 
 Now suppose Player1 plays Titanium Mine. Its printed building tag produces the exact State Change
 that gains a `BuildingTag` dependent on `TitaniumMine<Player1>`. Its Change Event matches:
@@ -325,19 +325,19 @@ expansion and component contextualization:
 
 ```pets
 // Source Effect
-PROD[StandardResource^1]: StandardResource^1
+PROD[@StandardResource]: @StandardResource
 
 // Class Effect
-Production<Owner, Class<StandardResource^1>>: StandardResource^1!
+Production<Owner, Class<@StandardResource>>: @StandardResource!
 
 // Component Effect on Manutech<Player1>
-Production<Player1, Class<StandardResource^1>>: StandardResource^1!
+Production<Player1, Class<@StandardResource>>: @StandardResource!
 
 // Triggered by gaining Production<Player1, Class<Plant>>
 Plant<Player1>!
 ```
 
-The matching `StandardResource^1` markers identify one Type Variable. The exact Trigger match
+The matching `@StandardResource` markers identify one Type Variable. The exact Trigger match
 narrows it to `Plant`, and that same choice narrows the result. Default expansion changes the
 recorded occurrence spellings without declaring another variable from the inserted `Owner`.
 Component specialization independently replaces that contextual placeholder with `Player1`.
@@ -396,11 +396,11 @@ Tasks.
 Trade Envoys illustrates why separation can sometimes wait longer:
 
 ```pets
-Trade<ColonyTile^1>:
-  ColonyProduction<ColonyTile^1>? THEN -TradeBarrier<ColonyTile^1>
+Trade<@ColonyTile>:
+  ColonyProduction<@ColonyTile>? THEN -TradeBarrier<@ColonyTile>
 ```
 
-The `(ColonyTile, 0)` pair identifies a Type Variable shared by the Trigger and first stage. The
+The anonymous `@ColonyTile` marker identifies a Type Variable shared by the Trigger and first stage. The
 Sequential Instruction must retain that link until an exact event such as `Trade<Luna>` narrows the
 first stage to `ColonyProduction<Luna>?`. Only then is the first stage safely independent of its
 continuation.

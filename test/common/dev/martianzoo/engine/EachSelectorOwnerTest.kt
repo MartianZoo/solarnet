@@ -19,7 +19,7 @@ internal class EachSelectorOwnerTest {
                 CLASS RedToken : Token
                 CLASS BlueToken : Token
                 CLASS Provider {
-                  SelectorEvent: EACH Token^1<Owner> { -Token^1 }
+                  SelectorEvent: EACH @Token<Owner> { -@Token }
                 }
                 """,
                 players = 2,

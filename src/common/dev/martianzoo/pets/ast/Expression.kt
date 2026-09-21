@@ -56,7 +56,7 @@ public data class Expression(
     val argumentsSpecified: Boolean = arguments.isNotEmpty(),
 
     /**
-     * An explicit Type-variable handle declared by this expression or referenced here. A reference
+     * An explicit Type-variable marker declared by this expression or referenced here. A reference
      * keeps the declaration's structural expression in [className], [arguments], and [refinement],
      * so ordinary Type operations remain unaware of the shorter authored spelling.
      */
@@ -119,11 +119,11 @@ public data class Expression(
   }
 
   override fun toString(): String = buildString {
-    append(className)
     val authoredMarker = typeVariableName?.takeIf {
       it is TypeVariableName.Declaration || it is TypeVariableName.Reference
     }
-    authoredMarker?.let { append('^').append(it.name) }
+    authoredMarker?.let { append(it.name.orEmpty()).append('@') }
+    append(className)
     val reference = authoredMarker as? TypeVariableName.Reference
     if (reference?.argumentsSpecified ?: argumentsSpecified) {
       append(arguments.joinToString(", ", "<", ">"))
@@ -139,14 +139,18 @@ public data class Expression(
     /** One resolved lexical variable, distinct from an equal marker in a nested scope. */
     internal class Resolution
 
-    /** The authored local handle, either an uppercase-leading identifier or a decimal integer. */
-    public abstract val name: String
+    /** The authored local name, or null when the explicit `@` marker is anonymous. */
+    public abstract val name: String?
 
-    /** The exact root Class that qualifies this handle. */
+    /** The exact root Class qualified by this marker. */
     public abstract val boundClassName: ClassName
 
-    internal val key: Pair<ClassName, String>
+    internal val key: Pair<ClassName, String?>
       get() = boundClassName to name
+
+    /** The marker as it appears before arguments or refinements in authored Pets. */
+    internal val authoredSpelling: String
+      get() = "${name.orEmpty()}@$boundClassName"
 
     internal abstract val resolution: Resolution?
 
@@ -154,14 +158,17 @@ public data class Expression(
     internal val identity: Any
       get() = resolution ?: key
 
-    /** The occurrence selected internally to supply the value shared by `Type^Handle` markers. */
+    /** The occurrence selected internally to supply the value shared by matching markers. */
     public class Declaration
     private constructor(
-        override val name: String,
+        override val name: String?,
         override val boundClassName: ClassName,
         override val resolution: Resolution?,
     ) : TypeVariableName() {
-      public constructor(name: String, boundClassName: ClassName) : this(name, boundClassName, null)
+      public constructor(
+          name: String?,
+          boundClassName: ClassName,
+      ) : this(name, boundClassName, null)
 
       internal val resolved: Boolean
         get() = resolution != null
@@ -174,16 +181,16 @@ public data class Expression(
           Declaration(name, boundClassName, resolution)
     }
 
-    /** Another `BoundClass^Handle` occurrence in the same scope. */
+    /** Another occurrence with the same marker in the same scope. */
     public class Reference
     private constructor(
-        override val name: String,
+        override val name: String?,
         override val boundClassName: ClassName,
         internal val argumentsSpecified: Boolean,
         override val resolution: Resolution?,
     ) : TypeVariableName() {
       internal constructor(
-          name: String,
+          name: String?,
           boundClassName: ClassName,
           argumentsSpecified: Boolean = false,
           resolved: Boolean = false,
@@ -218,7 +225,7 @@ public data class Expression(
 
     /** Identity retained after an explicit reference is expanded to its structural expression. */
     internal class ExpandedReference(
-        override val name: String,
+        override val name: String?,
         override val boundClassName: ClassName,
         override val resolution: Resolution?,
     ) : TypeVariableName()
@@ -341,6 +348,8 @@ public data class Expression(
   }
 
   internal companion object : PetTokenizer() {
+    private data class AuthoredTypeVariableMarker(val name: String?)
+
     internal fun refinementParser(): Parser<Refinement> {
       val has = (skip(_has) and Requirement.disjunctionParser()) map Refinement.Companion::has
       val not = (skip(_not) and parser(allowDerivedClass = false)) map { Refinement.Not(it) }
@@ -354,11 +363,13 @@ public data class Expression(
                 optionalList(commaSeparated(parser(allowDerivedClass))) and
                 skipChar('>')
         val refinement = refinementParser()
-        val typeVariableHandle = (ClassName.parser() map { it.asString }) or numericTypeVariableName
-        val typeVariableMarker = skipChar('^') and typeVariableHandle
+        val namedTypeVariableMarker =
+            ClassName.parser() and skipChar('@') map { AuthoredTypeVariableMarker(it.asString) }
+        val anonymousTypeVariableMarker = char('@') map { AuthoredTypeVariableMarker(name = null) }
+        val typeVariableMarker = namedTypeVariableMarker or anonymousTypeVariableMarker
         fun expression(
+            marker: AuthoredTypeVariableMarker?,
             clazz: ClassName,
-            name: String?,
             args: List<Expression>?,
             ref: Refinement?,
         ): Expression {
@@ -367,7 +378,7 @@ public data class Expression(
                   clazz,
                   args.orEmpty(),
                   argumentsSpecified = args != null,
-                  typeVariableName = name?.let { TypeVariableName.Declaration(it, clazz) },
+                  typeVariableName = marker?.let { TypeVariableName.Declaration(it.name, clazz) },
               )
           val boundRefinement = ref?.let {
             object : PetTransformer() {
@@ -390,12 +401,12 @@ public data class Expression(
         }
 
         val expression =
-            ClassName.parser() and
-                optional(typeVariableMarker) and
+            optional(typeVariableMarker) and
+                ClassName.parser() and
                 optional(argumentList) and
                 optional(refinement) map
-                { (clazz, name, args, ref) ->
-                  expression(clazz, name, args, ref)
+                { (marker, clazz, args, ref) ->
+                  expression(marker, clazz, args, ref)
                 }
 
         if (allowDerivedClass) {

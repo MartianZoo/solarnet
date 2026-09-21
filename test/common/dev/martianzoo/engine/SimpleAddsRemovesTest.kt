@@ -51,7 +51,7 @@ internal class SimpleAddsRemovesTest {
                 """
                 CLASS Token
                 CLASS Card : Owned { HAS MAX 1 This }
-                ABSTRACT CLASS Linked<Card<Owner^SameOwner>> : Owned<Owner^SameOwner>
+                ABSTRACT CLASS Linked<Card<SameOwner@Owner>> : Owned<SameOwner@Owner>
                 CLASS Holder : Linked {
                   HAS MAX 1 This
                   This:: Token

@@ -1,18 +1,18 @@
 "A finalized quantity still owed in one standard-resource denomination"
-CLASS Owed<Class^1<StandardResource>> : Owned<Player>, Barrier {
+CLASS Owed<@Class<StandardResource>> : Owned<Player>, Barrier {
   DEFAULT +Owed<Class<MC>>
   DEFAULT -Owed<Class<MC>>.
-  X This:: Accepting<Class^1>
+  X This:: Accepting<@Class>
 }
 
 "Identifies one aspect of a card play or purchase whose cost is being adjusted"
 CLASS PayingFor<Class<Component>> : Owned<Player>, Signal
 
 "A finalized debt; removing it signals that its denomination has been fully paid"
-ABSTRACT CLASS Billing<HasActions, ActionSlot, Class^1<StandardResource>> : Owned<Player>, Barrier {
+ABSTRACT CLASS Billing<HasActions, ActionSlot, @Class<StandardResource>> : Owned<Player>, Barrier {
   HAS MAX 1 This
-  This IF MAX 0 Owed<Class^1>:: -This!
-  -X Owed<Class^1> IF MAX 0 Owed<Class^1>:: -This!
+  This IF MAX 0 Owed<@Class>:: -This!
+  -X Owed<@Class> IF MAX 0 Owed<@Class>:: -This!
 }
 
 "The billing produced by an action with a standard-resource cost"
@@ -26,27 +26,27 @@ CLASS CardPlay : HasActions { HAS =1 This }
 "The finalized debt for playing a particular card"
 CLASS CardBilling<Class<CardFront>> : Billing<CardPlay, Action1, Class<MC>>
 
-CLASS Accepting<Class<StandardResource^1>> : Owned<Player>, MustCleanUp {
+CLASS Accepting<Class<@StandardResource>> : Owned<Player>, MustCleanUp {
   HAS MAX 1 This
   DEFAULT +Accepting.
-  Billing: X Pay<Class<StandardResource^1>> FROM StandardResource^1?
+  Billing: X Pay<Class<@StandardResource>> FROM @StandardResource?
   -X Billing:: -This!
 }
 
-CLASS Pay<Class^1<StandardResource>> : Owned<Player>, Signal {
+CLASS Pay<@Class<StandardResource>> : Owned<Player>, Signal {
   DEFAULT +Pay<Class<MC>>
-  This:: -Owed<Class^1>
+  This:: -Owed<@Class>
 }
 
 "Offers payment using the resource held by a specific card"
-CLASS AcceptingFromCard<ResourceCard^1<Class<CardResource^1>, Player^1>> : Owned<Player^1>, MustCleanUp {
+CLASS AcceptingFromCard<@ResourceCard<Class<@CardResource>, @Player>> : Owned<@Player>, MustCleanUp {
   HAS MAX 1 This
-  Billing: X PayFromCard<ResourceCard^1> FROM CardResource^1<ResourceCard^1>?
+  Billing: X PayFromCard<@ResourceCard> FROM @CardResource<@ResourceCard>?
   -X Billing:: -This!
 }
 
 "Records payment using the resource held by a specific card"
-CLASS PayFromCard<ResourceCard<Class<CardResource>, Player^1>> : Owned<Player^1>, Signal
+CLASS PayFromCard<ResourceCard<Class<CardResource>, @Player>> : Owned<@Player>, Signal
 
 "A card-owned adjustment that remains in play until the next card-play"
 ABSTRACT CLASS NextCardEffect<GenerationScope> : Owned<Player> {
@@ -54,9 +54,9 @@ ABSTRACT CLASS NextCardEffect<GenerationScope> : Owned<Player> {
 }
 
 "A component that makes a standard resource worth one M€ when paid"
-ABSTRACT CLASS ResourceValue<Class^1<StandardResource>> : Owned<Player> {
+ABSTRACT CLASS ResourceValue<@Class<StandardResource>> : Owned<Player> {
   // The resource being spent can be Steel or Titanium, but it settles the default M€ debt.
-  Pay<Class^1>:: -Owed<Class<MC>>
+  Pay<@Class>:: -Owed<Class<MC>>
 
   "One M€ of a standard resource's ordinary payment value"
   CLASS BaseResourceValue

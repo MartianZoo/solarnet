@@ -41,7 +41,7 @@
           "name": "MonsInsurance",
           "immediate": "48 MC, PROD[4 MC], EACH Player(NOT Owner) { PROD[-2 MC] BY Owner }",
           "effects": [
-            "MyResourceWasRemoved<Anyone^Victim> OR MyProductionWasDecreased<Anyone^Victim>: 3 MC<Anyone^Victim FROM Owner>.",
+            "MyResourceWasRemoved<Victim@Anyone> OR MyProductionWasDecreased<Victim@Anyone>: 3 MC<Victim@Anyone FROM Owner>.",
           ],
         },
         {
@@ -86,7 +86,7 @@
             "MicrobeTag<Anyone>: 2 MC"
           ],
           "components": [
-            "CLASS Splicer<SpliceTacticalGenomics> { MicrobeTag<CardFront^1>: Microbe<CardFront^1> OR 2 MC }"
+            "CLASS Splicer<SpliceTacticalGenomics> { MicrobeTag<@CardFront>: Microbe<@CardFront> OR 2 MC }"
           ],
         },
         {
@@ -128,7 +128,7 @@
         {
           "name": "DoubleDown",
           "immediate": "CopyPrelude",
-          "components": [ "CLASS CopyPrelude<CardFront<Player^1>> : Owned<Player^1>, Custom" ],
+          "components": [ "CLASS CopyPrelude<CardFront<@Player>> : Owned<@Player>, Custom" ],
         },
         {
           "name": "GiantSolarCollector",
@@ -271,7 +271,7 @@
         {
           "name": "CyberiaSystems",
           "cost": 16,
-          "immediate": "PROD[Steel], (BuildingTag<CardFront^First>: CopyProductionBox<CardFront^First>) THEN CopyProductionBox<CardFront(HAS BuildingTag, NOT CardFront^First)>",
+          "immediate": "PROD[Steel], (BuildingTag<First@CardFront>: CopyProductionBox<First@CardFront>) THEN CopyProductionBox<CardFront(HAS BuildingTag, NOT First@CardFront)>",
         },
         {
           "name": "DeimosDownPromo",
@@ -403,13 +403,13 @@
           "name": "KaguyaTech",
           "cost": 10,
           "tags": [ "CityTag", "PlantTag" ],
-          "immediate": "PROD[2 MC], ProjectCard, CityTile<MarsArea^1> FROM GreeneryTile<MarsArea^1>",
+          "immediate": "PROD[2 MC], ProjectCard, CityTile<@MarsArea> FROM GreeneryTile<@MarsArea>",
         },
         {
           "name": "LawSuit",
           "cost": 2,
           "tags": [ "EarthTag", "EventTag" ],
-          "immediate": "((MyResourceWasRemoved<Owner, Player^Attacker> OR MyProductionWasDecreased<Owner, Player^Attacker>): 3 MC FROM MC<Player^Attacker>) THEN PlayedEvent<Player^Attacker, Class<This>> FROM This",
+          "immediate": "((MyResourceWasRemoved<Owner, Attacker@Player> OR MyProductionWasDecreased<Owner, Attacker@Player>): 3 MC FROM MC<Attacker@Player>) THEN PlayedEvent<Attacker@Player, Class<This>> FROM This",
           "effects": [ "End: -VictoryPoint" ],
         },
         {
@@ -430,7 +430,7 @@
           "cost": 13,
           "immediate": "NomadsMarker<LandArea(HAS MAX 0 Occupant)>",
           "actions": [
-            "-> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>, NOT LandArea^Source)> FROM NomadsMarker<Owner, LandArea^Source> THEN EACH MarsArea^Destination(HAS NomadsMarker) { Placement<MarsArea^Destination> }"
+            "-> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>, NOT Source@LandArea)> FROM NomadsMarker<Owner, Source@LandArea> THEN EACH Destination@MarsArea(HAS NomadsMarker) { Placement<Destination@MarsArea> }"
           ],
         },
         {
@@ -642,7 +642,7 @@
           "components": [
             "CLASS CathedralOption : HasActions { 2 MC -> ProjectCard }",
             "CLASS CathedralOffer : Owned<Anyone>, Signal { This: UseAction<CathedralOption, ActionSlot, Owner> OR Ok }",
-            "CLASS Cathedral<CityTile<Anyone^1>> : Owned { HAS MAX 1 This; This: CathedralOffer<Anyone^1> }"
+            "CLASS Cathedral<CityTile<@Anyone>> : Owned { HAS MAX 1 This; This: CathedralOffer<@Anyone> }"
           ],
         },
         {

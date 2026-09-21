@@ -60,7 +60,7 @@ internal class RefinementQueryTest {
     admin.runOperation("Token<Player1>")
 
     admin.runOperation(
-        "EACH Player^1(HAS =1 (RANK Player { Player(HAS Token) })) { Prize<Player^1> }"
+        "EACH @Player(HAS =1 (RANK Player { Player(HAS Token) })) { Prize<@Player> }"
     )
 
     game.testAgent(PLAYER1).count("Prize") shouldBe 1

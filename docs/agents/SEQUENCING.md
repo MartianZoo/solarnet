@@ -234,7 +234,7 @@ legal completion reachable and lets no illegal result commit.
 
 Two notes on rung 3. `THEN` waits for the A *task*, not A's transitive consequences, and B receives
 no priority over unrelated work — `A1, A2, B1, B2` is a legal order for two chains. `THEN` also
-opens one explicitly named Type-variable scope, which is often the real reason to use it: Mining
+opens one explicitly marked Type-variable scope, which is often the real reason to use it: Mining
 Rights and Capital carry a chosen area or tile forward. That is a shared-variable constraint, not a
 reason to give the later work precedence. When auditing one, check both that A genuinely owns the choice
 and that the artificial order buys a readable variable relationship rather than hiding an unordered

@@ -152,8 +152,8 @@ internal class Spec05TypesTest {
         loadTypes(
             "CLASS Player1 : Owner",
             "ABSTRACT CLASS CardFront : Owned<Owner> { CLASS Pets }",
-            "ABSTRACT CLASS Cardbound<CardFront<Owner^CardOwner>> : " +
-                "Owned<Owner^CardOwner> { CLASS Animal }",
+            "ABSTRACT CLASS Cardbound<CardFront<CardOwner@Owner>> : " +
+                "Owned<CardOwner@Owner> { CLASS Animal }",
         )
 
     cards.resolve(te("Animal<Player1, Pets<Player1>>")).expression shouldBe

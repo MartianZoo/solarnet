@@ -222,7 +222,7 @@
           "requirement": "4 OceanTile",
           "cost": 26,
           "tags": [ "CityTag", "BuildingTag" ],
-          "immediate": "CityTile^1<> THEN CapitalMarker<CityTile^1>, PROD[-2 Energy, 5 MC]",
+          "immediate": "@CityTile<> THEN CapitalMarker<@CityTile>, PROD[-2 Energy, 5 MC]",
           "effects": [ "End: VictoryPoint / Adjacency<CityTile(HAS CapitalMarker), OceanTile>" ],
           "components": [ "CLASS CapitalMarker<CityTile>" ],
         },

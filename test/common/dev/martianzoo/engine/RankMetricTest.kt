@@ -31,7 +31,7 @@ internal class RankMetricTest {
 
     game
         .testAgent(ADMIN)
-        .runOperation("EACH Player^1(HAS =2 (RANK Player { Score })) { Prize<Player^1> }")
+        .runOperation("EACH @Player(HAS =2 (RANK Player { Score })) { Prize<@Player> }")
 
     game.testAgent(PLAYER1).count("Prize<Player1>") shouldBe 0
     game.testAgent(PLAYER2).count("Prize<Player2>") shouldBe 1
@@ -40,7 +40,7 @@ internal class RankMetricTest {
     game
         .testAgent(ADMIN)
         .runOperation(
-            "EACH Player^1(HAS =2 (RANK Player { Score, Cash })) { TieBreakPrize<Player^1> }"
+            "EACH @Player(HAS =2 (RANK Player { Score, Cash })) { TieBreakPrize<@Player> }"
         )
     game.testAgent(PLAYER1).count("TieBreakPrize<Player1>") shouldBe 0
     game.testAgent(PLAYER2).count("TieBreakPrize<Player2>") shouldBe 0
@@ -48,9 +48,7 @@ internal class RankMetricTest {
 
     game
         .testAgent(ADMIN)
-        .runOperation(
-            "EACH Player^1(HAS =3 (RANK Player { 99 - Score })) { InversePrize<Player^1> }"
-        )
+        .runOperation("EACH @Player(HAS =3 (RANK Player { 99 - Score })) { InversePrize<@Player> }")
     game.testAgent(PLAYER1).count("InversePrize<Player1>") shouldBe 1
     game.testAgent(PLAYER2).count("InversePrize<Player2>") shouldBe 0
     game.testAgent(PLAYER3).count("InversePrize<Player3>") shouldBe 0
@@ -58,7 +56,7 @@ internal class RankMetricTest {
     game
         .testAgent(ADMIN)
         .runOperation(
-            "EACH Player^1(HAS =1 (RANK Player^1 { Score<Owner(NOT Player^1)> })) { DifferencePrize<Player^1> }"
+            "EACH @Player(HAS =1 (RANK @Player { Score<Owner(NOT @Player)> })) { DifferencePrize<@Player> }"
         )
     game.testAgent(PLAYER1).count("DifferencePrize<Player1>") shouldBe 0
     game.testAgent(PLAYER2).count("DifferencePrize<Player2>") shouldBe 1
@@ -81,7 +79,7 @@ internal class RankMetricTest {
     game.testAgent(PLAYER2).runOperation("2 Score<Player2>")
     game.testAgent(PLAYER3).runOperation("Score<Player3>")
 
-    game.testAgent(ADMIN).runOperation("EACH Player^1(HAS =2 (RANK { Score })) { Prize<Player^1> }")
+    game.testAgent(ADMIN).runOperation("EACH @Player(HAS =2 (RANK { Score })) { Prize<@Player> }")
 
     game.testAgent(PLAYER1).count("Prize<Player1>") shouldBe 0
     game.testAgent(PLAYER2).count("Prize<Player2>") shouldBe 1
@@ -106,9 +104,7 @@ internal class RankMetricTest {
     p1.runOperation("Score, Candidate")
     p2.runOperation("2 Score, Candidate")
 
-    admin.runOperation(
-        "EACH Candidate^1(HAS =1 (RANK Candidate { Score<Owner> })) { -Candidate^1 }"
-    )
+    admin.runOperation("EACH @Candidate(HAS =1 (RANK Candidate { Score<Owner> })) { -@Candidate }")
 
     p1.count("Candidate") shouldBe 1
     p2.count("Candidate") shouldBe 0
@@ -133,7 +129,7 @@ internal class RankMetricTest {
     admin.runOperation("3 Score<Class<FirstKind>>, Score<Class<SecondKind>>")
 
     admin.runOperation(
-        "Prize<Class<Kind>(HAS =1 (RANK Class^1<Kind> { Score<Class<Kind>(NOT Class^1)> }))>"
+        "Prize<Class<Kind>(HAS =1 (RANK @Class<Kind> { Score<Class<Kind>(NOT @Class)> }))>"
     )
 
     admin.count("Prize<Class<FirstKind>>") shouldBe 0

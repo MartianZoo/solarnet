@@ -308,7 +308,7 @@ internal class Spec03DependenciesTest {
           "CLASS Player1 : Owner",
           "CLASS Player2 : Owner",
           "CLASS Card : Owned<Owner>",
-          "ABSTRACT CLASS Linked<Card<Owner^SameOwner>> : Owned<Owner^SameOwner>",
+          "ABSTRACT CLASS Linked<Card<SameOwner@Owner>> : Owned<SameOwner@Owner>",
           "CLASS InheritedLink : Linked",
       )
 
@@ -319,8 +319,8 @@ internal class Spec03DependenciesTest {
             "CLASS Player1 : Owner",
             "CLASS Player2 : Owner",
             "ABSTRACT CLASS CardFront : Owned<Owner> { CLASS Pets }",
-            "ABSTRACT CLASS Cardbound<CardFront<Owner^CardOwner>> : " +
-                "Owned<Owner^CardOwner> { CLASS Animal }",
+            "ABSTRACT CLASS Cardbound<CardFront<CardOwner@Owner>> : " +
+                "Owned<CardOwner@Owner> { CLASS Animal }",
         )
 
     cards.getClass(cn("Cardbound")).baseType.expressionFull shouldBe
@@ -494,8 +494,8 @@ internal class Spec03DependenciesTest {
         loadTypes(
             "CLASS Player1 : Owner",
             "ABSTRACT CLASS CardFront : Owned<Owner> { CLASS Pets }",
-            "ABSTRACT CLASS Cardbound<CardFront<Owner^CardOwner>> : " +
-                "Owned<Owner^CardOwner> { CLASS Animal }",
+            "ABSTRACT CLASS Cardbound<CardFront<CardOwner@Owner>> : " +
+                "Owned<CardOwner@Owner> { CLASS Animal }",
         )
     val animal = cards.resolve(te("Animal<Pets<Player1>>"))
 

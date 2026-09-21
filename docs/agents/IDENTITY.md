@@ -259,8 +259,8 @@ an Actor selector requires an explicit name.
   no wildcard carve-out, and the type-system spec's Appendix A hole closes;
 - the ownership root Class takes a name of its own, used only in headers.
 
-An explicitly named `Anyone^Name` would then co-refer as `Anyone^Name` without another carve-out,
-as Mons Insurance's `Anyone^Victim` already does through `Anyone^Victim`; no canonical
+An explicitly named `Name@Anyone` would then co-refer without another carve-out, as Mons Insurance's
+`Victim@Anyone` already does; no canonical
 `BY Anyone` effect names its wildcard, so that costs nothing today. This is a rename across canon
 plus the removal of five carve-outs, and it was deliberately **not** attempted during the
 specification review; treat it as the next piece of work here, not as settled.

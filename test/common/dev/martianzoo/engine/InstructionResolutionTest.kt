@@ -88,8 +88,8 @@ internal class InstructionResolutionTest {
   @Test
   internal fun `resolution retains an occurrence omitted by the compact resolved Type`() {
     checkResolution(
-        "CityTile<MarsArea^1> FROM GreeneryTile<MarsArea^1>",
-        "CityTile<Player1, MarsArea^1> FROM GreeneryTile<Player1, MarsArea^1>!",
+        "CityTile<@MarsArea> FROM GreeneryTile<@MarsArea>",
+        "CityTile<Player1, @MarsArea> FROM GreeneryTile<Player1, @MarsArea>!",
     )
   }
 
@@ -157,8 +157,8 @@ internal class InstructionResolutionTest {
   @Test
   internal fun `a selector concretizes a full transmutation before it resolves`() {
     checkResolution(
-        "EACH Player^Selected(HAS Plant) { " +
-            "Heat<Player^Selected> FROM Plant<Player^Selected> }",
+        "EACH Selected@Player(HAS Plant) { " +
+            "Heat<Selected@Player> FROM Plant<Selected@Player> }",
         "Heat<Player1> FROM Plant<Player1>!",
     )
   }
@@ -167,7 +167,7 @@ internal class InstructionResolutionTest {
   internal fun testOnlyAnOwnerSelectionSuppliesTheOwnerOfItsBranch() {
     checkResolution("EACH Player { Plant }", "Plant<Player1>!, Plant<Player2>!")
     checkResolution(
-        "EACH ProjectCard^1<Anyone> { -ProjectCard^1, Plant }",
+        "EACH @ProjectCard<Anyone> { -@ProjectCard, Plant }",
         List(10) { "-ProjectCard<Player1, Hand>!, Plant<Player1>!" }.joinToString(", "),
     )
     // A selector reads its enclosing context, so `Owner` there is one component, not every owner.
@@ -182,7 +182,7 @@ internal class InstructionResolutionTest {
   internal fun testFanoutRangesOverOccurrences() {
     // Player1 holds ten indistinguishable ProjectCards, and each copy contributes one branch.
     checkResolution(
-        "EACH ProjectCard^1<Anyone> { -ProjectCard^1 }",
+        "EACH @ProjectCard<Anyone> { -@ProjectCard }",
         List(10) { "-ProjectCard<Player1, Hand>!" }.joinToString(", "),
     )
     checkResolution(
@@ -193,7 +193,7 @@ internal class InstructionResolutionTest {
 
   @Test
   internal fun testFanoutOverNothingIsNoOp() {
-    checkResolution("EACH CardFront^1<Anyone> { -CardFront^1 }", "Ok")
+    checkResolution("EACH @CardFront<Anyone> { -@CardFront }", "Ok")
   }
 
   @Test

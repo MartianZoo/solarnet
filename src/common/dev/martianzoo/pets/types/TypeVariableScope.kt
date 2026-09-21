@@ -412,7 +412,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     fun fromDeclarations(
         regions: List<PetNode>,
         classTable: ClassTable,
-        namedDeclarations: List<Expression> = emptyList(),
+        markedDeclarations: List<Expression> = emptyList(),
     ): TypeVariableScope {
       data class Found(
           val expression: Expression,
@@ -461,7 +461,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
       }
 
       val entries =
-          namedDeclarations
+          markedDeclarations
               .map { expression ->
                 val declaration = occurrences.single { it.expression === expression }
                 if (declaration.observing) {

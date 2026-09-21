@@ -449,8 +449,8 @@ internal class Spec08RefinementsTest {
         .resolve(te("Class<BuildingTag>(HAS BuildingTag)"))
         .isSubtypeOf(tags.resolve(te("Class<BuildingTag>(HAS BuildingTag)"))) shouldBe true
 
-    // An explicit handle remains an equivalent spelling when another construct needs it.
-    tags.resolve(te("Class<Tag^ThatTag>(HAS Tag^ThatTag)")) shouldBe
+    // An explicit marker remains an equivalent spelling when another construct needs it.
+    tags.resolve(te("Class<ThatTag@Tag>(HAS ThatTag@Tag)")) shouldBe
         tags.resolve(te("Class<Tag>(HAS Tag)"))
   }
 

@@ -185,22 +185,22 @@ internal class Lang07NarrowingTest {
 
   @Test
   internal fun `L7-8 a named abstract expression takes one value everywhere`() {
-    narrows("Token^1 THEN Token^1", "RedToken THEN RedToken") shouldBe true
-    refuses("Token^1 THEN Token^1", "RedToken THEN BlueToken")
-    narrows("Token^1 FROM Token^1", "RedToken FROM RedToken") shouldBe true
-    refuses("Token^1 FROM Token^1", "RedToken FROM BlueToken")
+    narrows("@Token THEN @Token", "RedToken THEN RedToken") shouldBe true
+    refuses("@Token THEN @Token", "RedToken THEN BlueToken")
+    narrows("@Token FROM @Token", "RedToken FROM RedToken") shouldBe true
+    refuses("@Token FROM @Token", "RedToken FROM BlueToken")
 
     narrows(
-        "Tile^1<> THEN Tile^1",
+        "@Tile<> THEN @Tile",
         "GreeneryTile<Land1> THEN GreeneryTile<Land1>",
     ) shouldBe true
-    refuses("Tile^1<> THEN Tile^1", "GreeneryTile<Land1> THEN OceanTile<Land1>")
+    refuses("@Tile<> THEN @Tile", "GreeneryTile<Land1> THEN OceanTile<Land1>")
 
     narrows(
-        "Tile^1<LandArea> THEN Tile^1",
+        "@Tile<LandArea> THEN @Tile",
         "GreeneryTile<Land1> THEN GreeneryTile<Land1>",
     ) shouldBe true
-    refuses("Tile^1<LandArea> THEN Tile^1", "GreeneryTile<Land1> THEN OceanTile<Land1>")
+    refuses("@Tile<LandArea> THEN @Tile", "GreeneryTile<Land1> THEN OceanTile<Land1>")
   }
 
   @Test
@@ -210,7 +210,7 @@ internal class Lang07NarrowingTest {
       unbound.bindFirstStage(elaborate("Plant") as dev.martianzoo.pets.ast.Instruction, langWorld)
     }
 
-    val named = elaborate("Token^1 THEN Token^1") as dev.martianzoo.pets.ast.Instruction.Then
+    val named = elaborate("@Token THEN @Token") as dev.martianzoo.pets.ast.Instruction.Then
     shouldThrow<NarrowingException> {
       named.bindFirstStage(elaborate("Token") as dev.martianzoo.pets.ast.Instruction, langWorld)
     }
@@ -228,7 +228,7 @@ internal class Lang07NarrowingTest {
   @Test
   internal fun `L7-8 selecting an OR arm binds later THEN stages`() {
     val sequence =
-        elaborate("(Token^1 OR Plant) THEN Token^1") as dev.martianzoo.pets.ast.Instruction.Then
+        elaborate("(@Token OR Plant) THEN @Token") as dev.martianzoo.pets.ast.Instruction.Then
     val proposal = elaborate("RedToken") as dev.martianzoo.pets.ast.Instruction
 
     sequence.selectFirstStage(proposal, langWorld).toString() shouldBe

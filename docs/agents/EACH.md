@@ -12,7 +12,9 @@
 ## Contract
 
 ```pets
-EACH Selector[^Handle] { InstructionTree }
+EACH Selector { InstructionTree }
+EACH @Selector { InstructionTree }
+EACH Name@Selector { InstructionTree }
 ```
 
 `EACH` takes one snapshot of the current World, finds every existing component matching `Selector`,
@@ -29,24 +31,25 @@ Type each contribute a branch; those branches have equal text but remain indepen
 ## Selector and body scope
 
 The selector can explicitly mark each selected concrete Type for use in its body. Repeating an
-unnamed selector Type in the body is independent:
+unmarked selector Type in the body is independent:
 
 ```pets
 EACH Player { Plant }                         // each selected Player gains a Plant
 EACH Player(HAS StartToken) { ChooseOceanArea } // only the start Player gets the request
-EACH Player^1(HAS StartToken) { AdminOceanPlacement<Player^1> }
+EACH @Player(HAS StartToken) { AdminOceanPlacement<@Player> }
 ```
 
 The marked selection is bound before nested `THEN` or full `FROM` scopes are resolved, so a matching
-handle anywhere in that body—including on both sides of a transmutation—continues to mean the
-selected concrete Type. The selector refinement filters candidates; it is not copied onto the
+marker anywhere in that body—including on both sides of a transmutation—continues to mean the
+selected concrete Type. A bare marked reference retains the selector's dependency arguments during
+elaboration, but the selector refinement only filters candidates; it is not copied onto the
 reference exposed to the body.
 
 A Class selector can instead mark its represented Class. This permits a structurally present Class
 representative to create one component of the Class it represents:
 
 ```pets
-EACH Class<MarsArea^1> { MarsArea^1 }
+EACH Class<@MarsArea> { @MarsArea }
 ```
 
 The selector's main expression still reads the enclosing context. For example,
@@ -71,7 +74,7 @@ Class-property syntax in the body remains inert while the enclosing Class effect
 the fanout snapshot is selected, each branch binds its selected component and, for an Owner
 selection, contextual `Owner`, then evaluates its class properties independently. Property syntax
 in the selector instead belongs to the enclosing context; award ranking expands the funded Award's
-metric there. `RANK Selector^Handle` likewise exposes a candidate only through its qualified
+metric there. A marker on a `RANK` selector likewise exposes a candidate only through its marked
 reference:
 
 ```pets

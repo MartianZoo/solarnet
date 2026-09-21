@@ -41,7 +41,7 @@ internal class CatalogTest {
                           CLASS Player1
                           CLASS Player2
                         }
-                        ABSTRACT CLASS CardFront<Player^1> : Owned<Player^1> {
+                        ABSTRACT CLASS CardFront<@Player> : Owned<@Player> {
                           HAS MAX 1 This<Player>
                         }
                         CLASS ExampleCard : CardFront

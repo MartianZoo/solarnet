@@ -519,10 +519,10 @@ public sealed class Instruction : InstructionTree() {
    * selector is an `Owner`, so does the contextual `Owner`, so an ordinary owned body reads exactly
    * as it does on a card.
    *
-   * A selector refinement chooses which components take part. A `^Handle` marker exposes the
-   * selected component for use in [body]. A gate in [body] behaves like any other gate and fails
-   * when its requirement is unmet. Class properties in [body] are evaluated separately after each
-   * branch has bound its selection. The body may not be empty and fanouts do not nest.
+   * A selector refinement chooses which components take part. An `@` marker exposes the selected
+   * component for use in [body]. A gate in [body] behaves like any other gate and fails when its
+   * requirement is unmet. Class properties in [body] are evaluated separately after each branch has
+   * bound its selection. The body may not be empty and fanouts do not nest.
    *
    * The body need not name the selected component: the selector may serve only as the repetition
    * source. The selector is not a choice: a proposal must reproduce it exactly ([rule
@@ -941,7 +941,7 @@ public sealed class Instruction : InstructionTree() {
             }
             if (usedOutside(then)) {
               throw PetSyntaxException(
-                  "Type-variable ${declaration.typeVariableName!!.name} cannot be used outside " +
+                  "Type-variable ${declaration.typeVariableName!!.authoredSpelling} cannot be used outside " +
                       "its transmutation"
               )
             }

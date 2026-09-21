@@ -149,16 +149,31 @@ internal fun <P : PetNode> resolveTypeVariableNames(
 
 /**
  * Resolves one lexical scope. Local settlement variables expand a reference to their declared
- * structure; [expandReferences] is false when the value instead comes from a Class header or a
- * selector and binding supplies the selected structure later.
+ * structure. A Class header expands neither part because binding supplies the value later; a
+ * selector expands only dependency arguments so elaboration retains its constraints while runtime
+ * binding supplies the selected value without the selector refinement.
  */
 internal fun resolveTypeVariableNames(
     roots: List<PetNode>,
     declarations: List<Expression>,
-    expandReferences: Boolean = true,
+    expandReferenceArguments: Boolean = true,
+    expandReferenceRefinements: Boolean = true,
 ): List<PetNode> {
   if (declarations.isEmpty()) return roots
   val selectedDeclarations = declarations.distinctBy { it.typeVariableName!!.key }
+  selectedDeclarations
+      .groupBy { it.typeVariableName!!.boundClassName }
+      .values
+      .firstOrNull { sameBoundClass ->
+        sameBoundClass.size > 1 && sameBoundClass.any { it.typeVariableName!!.name == null }
+      }
+      ?.let { sameBoundClass ->
+        val anonymous = sameBoundClass.single { it.typeVariableName!!.name == null }
+        throw PetSyntaxException(
+            "Anonymous Type-variable marker ${anonymous.typeVariableName!!.authoredSpelling} " +
+                "cannot share a scope with a named variable of the same bound Class"
+        )
+      }
   val selectedByKey = selectedDeclarations.associateBy { it.typeVariableName!!.key }
   val resolutions = selectedByKey.mapValues { (_, declaration) ->
     declaration.typeVariableName!!.resolution ?: Resolution()
@@ -198,7 +213,7 @@ internal fun resolveTypeVariableNames(
           .filter { it.typeVariableName is Declaration && it.typeVariableName.key in selectedByKey }
           .associateBy { it.typeVariableName!!.key }
 
-  // `Class<Foo^1>` names the represented Class, so `Foo^1<Bar>` can instantiate the selected
+  // `Class<@Foo>` names the represented Class, so `@Foo<Bar>` can instantiate the selected
   // Class with dependency constraints. No other kind of Type-variable declaration is applicable.
   val representedClassDeclarations =
       normalizedRoots
@@ -210,13 +225,13 @@ internal fun resolveTypeVariableNames(
             }
           }
 
-  val references = mutableMapOf<Pair<ClassName, String>, Int>()
+  val references = mutableMapOf<Pair<ClassName, String?>, Int>()
   normalizedRoots
       .flatMap { it.descendantsOfType<Expression>() }
       .mapNotNull { (it.typeVariableName as? Reference)?.takeUnless(Reference::resolved)?.key }
       .filter { it in declarationsByKey }
       .forEach { key -> references[key] = references.getOrElse(key) { 0 } + 1 }
-  val resolving = mutableSetOf<Pair<ClassName, String>>()
+  val resolving = mutableSetOf<Pair<ClassName, String?>>()
   fun withoutNames(expression: Expression): Expression =
       expression.copy(
           arguments = expression.arguments.map(::withoutNames),
@@ -253,19 +268,19 @@ internal fun resolveTypeVariableNames(
                   val referenced =
                       structuralDeclaration.copy(
                           arguments =
-                              if (node.simple && expandReferences) {
+                              if (node.simple && expandReferenceArguments) {
                                 structuralDeclaration.arguments
                               } else {
                                 node.arguments
                               },
                           argumentsSpecified =
-                              if (node.simple && expandReferences) {
+                              if (node.simple && expandReferenceArguments) {
                                 structuralDeclaration.argumentsSpecified
                               } else {
                                 node.argumentsSpecified
                               },
                           refinement =
-                              if (expandReferences) structuralDeclaration.refinement
+                              if (expandReferenceRefinements) structuralDeclaration.refinement
                               else node.refinement,
                       )
                   transformChildren(
@@ -285,8 +300,9 @@ internal fun resolveTypeVariableNames(
   val resolved = normalizedRoots.map(resolver::transformWithoutKindCheck)
   declarationsByKey.keys
       .firstOrNull { references[it] == null }
-      ?.let { (boundClass, handle) ->
-        throw PetSyntaxException("Type-variable marker $boundClass^$handle is not shared")
+      ?.let { key ->
+        val marker = declarationsByKey.getValue(key).typeVariableName!!
+        throw PetSyntaxException("Type-variable marker ${marker.authoredSpelling} is not shared")
       }
   return resolved
 }
@@ -311,7 +327,7 @@ internal fun resolveSelectorTypeVariableNames(
   return resolveTypeVariableNames(
       listOf(selector) + scopedNodes,
       declarations,
-      expandReferences = false,
+      expandReferenceRefinements = false,
   )
 }
 
@@ -330,7 +346,8 @@ internal fun resolveClassLiteralTypeVariableNames(expression: Expression): Expre
       resolveTypeVariableNames(
               listOf(expression),
               listOf(declaration),
-              expandReferences = false,
+              expandReferenceArguments = false,
+              expandReferenceRefinements = false,
           )
           .single()
   return resolved as Expression
@@ -367,7 +384,7 @@ internal fun Expression.expandClassLiteralTypeVariableName(): Expression {
   )
 }
 
-/** Binds only explicitly named selector references to one selected concrete expression. */
+/** Binds only explicitly marked selector references to one selected concrete expression. */
 internal fun selectorReferenceBinder(
     selector: Expression,
     selected: Expression,
@@ -453,7 +470,8 @@ internal fun resolveClassTypeVariableNames(declaration: ClassDeclaration): Class
       resolveTypeVariableNames(
           header + body,
           declarations,
-          expandReferences = false,
+          expandReferenceArguments = false,
+          expandReferenceRefinements = false,
       )
   val dependencyCount = declaration.dependencies.size
   val headerCount = header.size
@@ -492,7 +510,7 @@ internal fun <P : PetNode> resolveTypeVariableNames(
       root.constructLocalTypeVariableDeclarations().mapTo(mutableSetOf()) {
         it.typeVariableName!!.identity
       }
-  fun Expression.markerKeyOutsideConstruct(): Pair<ClassName, String>? =
+  fun Expression.markerKeyOutsideConstruct(): Pair<ClassName, String?>? =
       typeVariableName?.takeIf { it.identity !in constructLocalIdentities }?.key
   val usageKeys =
       usageRegion

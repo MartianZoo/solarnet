@@ -137,12 +137,12 @@ internal class PetsTypeGeneratorTest {
                 ABSTRACT CLASS Award
                 ABSTRACT CLASS Person
                 ABSTRACT CLASS Separate<Person, Person>
-                ABSTRACT CLASS Shared<Person^P, Person^P>
+                ABSTRACT CLASS Shared<P@Person, P@Person>
                 ABSTRACT CLASS Box<Person>
                 ABSTRACT CLASS Pair<Person, Person>
-                ABSTRACT CLASS Across<Box<Person^P>, Box<Person^P>>
+                ABSTRACT CLASS Across<Box<P@Person>, Box<P@Person>>
                 CLASS AcrossToken : Across
-                ABSTRACT CLASS Within<Pair<Person^P, Person^P>>
+                ABSTRACT CLASS Within<Pair<P@Person, P@Person>>
                 CLASS WithinToken : Within
                 """
                     .trimIndent()

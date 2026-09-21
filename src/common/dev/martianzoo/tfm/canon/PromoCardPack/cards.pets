@@ -21,8 +21,8 @@ CLASS CloudSocieties : GePartyDistant<Unity>, GePartyCurrent<Reds> {
   HAS Class<VenusTag>, Class<Colony>
 
   ResolveGlobalEvent<Class<This>>:: \
-    EACH ResourceCard^Card<Class<Floater>, Anyone> { \
-      Floater<ResourceCard^Card<Class<Floater>, Anyone>> \
+    EACH @ResourceCard<Class<Floater>, Anyone> { \
+      Floater<@ResourceCard> \
     }
   ResolveGlobalEvent<Class<This>>:: EACH Player { ChooseInfluenceFloaterCard }
 }

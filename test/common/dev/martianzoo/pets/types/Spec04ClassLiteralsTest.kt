@@ -228,7 +228,7 @@ internal class Spec04ClassLiteralsTest {
         loadTypes(
             "CLASS Player1 : Owner",
             "ABSTRACT CLASS CardFront : Owned<Owner>",
-            "ABSTRACT CLASS Cardbound<CardFront<Owner^CardOwner>> : Owned<Owner^CardOwner>",
+            "ABSTRACT CLASS Cardbound<CardFront<CardOwner@Owner>> : Owned<CardOwner@Owner>",
             "ABSTRACT CLASS ResourceCard<Class<CardResource>> : CardFront",
             "ABSTRACT CLASS CardResource : Cardbound<ResourceCard<Class<This>>> " +
                 "{\nCLASS Animal\nCLASS Microbe\n}",

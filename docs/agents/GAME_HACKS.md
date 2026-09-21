@@ -37,8 +37,8 @@ totals, and displayed values subtract the owner's `ProdOffset` components, keepi
 equal to the printed values. A universal saturating `PositiveMoneyProd` would not be safer: it would
 erase distinctions that Banker must retain.
 
-Industrial Complex applies the same rule uniformly with `EACH Class<StandardResource^1>`:
-it writes `Class<StandardResource^1>` wherever it needs that resource's Class component, then
+Industrial Complex applies the same rule uniformly with `EACH Class<@StandardResource>`:
+it writes `Class<@StandardResource>` wherever it needs that resource's Class component, then
 combines it with the live `QuickStartVariant` component and `ProdOffset` before subtracting the
 current `Production`. Only M€ has offsets, so the expression also describes the other five tracks
 without a hardcoded exception.

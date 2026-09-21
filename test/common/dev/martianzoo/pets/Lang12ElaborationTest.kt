@@ -51,7 +51,7 @@ internal class Lang12ElaborationTest {
         )
 
     // Scope recording precedes the later elaboration stages.
-    val sequence = elaborate("Token^1 THEN Token^1") as Instruction.Then
+    val sequence = elaborate("@Token THEN @Token") as Instruction.Then
     sequence.typeVariables.isEmpty shouldBe false
   }
 
@@ -330,7 +330,7 @@ internal class Lang12ElaborationTest {
                 ABSTRACT CLASS Allowed : Target { CLASS Good }
                 CLASS Bad : Target
                 CLASS Wrapper<Allowed>
-                CLASS Holder<Target^1> { This: Good OR Wrapper<Target^1> }
+                CLASS Holder<@Target> { This: Good OR Wrapper<@Target> }
                 """
                     .trimIndent()
             )

@@ -162,23 +162,23 @@ CLASS Triton : ColonyTile, ColonyTileSelection<Class<Triton>> {
 }
 
 "One of the up-to-three colonies players can own on a ColonyTile"
-CLASS Colony<ColonyTile^1> : Owned<Player> {
+CLASS Colony<@ColonyTile> : Owned<Player> {
   DEFAULT +Colony<ColonyTile(HAS MAX 0 Colony)>
-  FinishTrade<Anyone, ColonyTile^1> OR GainColonyBonuses:: GainColonyBonus<ColonyTile^1>
+  FinishTrade<Anyone, @ColonyTile> OR GainColonyBonuses:: GainColonyBonus<@ColonyTile>
 }
 
 "A player's persistent capacity to conduct one Trade per generation"
 CLASS TradeFleet : Owned<Player>
 
 "A trade with one colony tile, retained until the next generation"
-CLASS Trade<ColonyTile^1, GenerationScope> : Owned<Player> {
-  This:: (MAX 0 (Trade - TradeFleet): TradeBarrier<ColonyTile^1>)
-  This: -TradeBarrier<ColonyTile^1>
+CLASS Trade<@ColonyTile, GenerationScope> : Owned<Player> {
+  This:: (MAX 0 (Trade - TradeFleet): TradeBarrier<@ColonyTile>)
+  This: -TradeBarrier<@ColonyTile>
 }
 
 "One unresolved barrier to completing a Trade"
-CLASS TradeBarrier<ColonyTile^1> : Owned<Player>, Barrier {
-  -This IF MAX 0 This:: FinishTrade<ColonyTile^1> BY Owner
+CLASS TradeBarrier<@ColonyTile> : Owned<Player>, Barrier {
+  -This IF MAX 0 This:: FinishTrade<@ColonyTile> BY Owner
 }
 
 "The owner-attributed event that begins a Trade's completion consequences"
@@ -200,9 +200,9 @@ CLASS BuildColonyProject : StandardProject {
 ABSTRACT CLASS ColonyTileSelection<Class<ColonyTile>> { HAS MAX 1 This }
 
 "A colony selected by the premise but not realized until setup is complete"
-CLASS SelectedColonyTile<Class<ColonyTile^1>> : Hidden {
+CLASS SelectedColonyTile<Class<@ColonyTile>> : Hidden {
   HAS MAX 1 This
-  CorporationPhase:: ColonyTileSelection<Class<ColonyTile^1>> FROM This
+  CorporationPhase:: ColonyTileSelection<Class<@ColonyTile>> FROM This
 }
 
 "Lets the solo player discard one selected colony tile; owned so that player makes the choice"
@@ -229,7 +229,7 @@ CLASS GainColonyBonuses : Owned<Player>, Signal
 "An implementation detail used to trigger a colony tile's 'white cube' to move left"
 CLASS ResetColonyProduction<ColonyTile> : Signal
 
-ABSTRACT CLASS DelayedColonyTile<Class<ColonyTile^1>, Class<CardResource>> : ColonyTileSelection<Class<ColonyTile^1>>
+ABSTRACT CLASS DelayedColonyTile<Class<@ColonyTile>, Class<CardResource>> : ColonyTileSelection<Class<@ColonyTile>>
 
 CLASS DelayedEnceladus : DelayedColonyTile<Class<Enceladus>, Class<Microbe>> {
   This IF ResourceCard<Class<Microbe>>:: Enceladus FROM This

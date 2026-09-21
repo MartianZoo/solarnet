@@ -42,8 +42,8 @@ ABSTRACT CLASS Card : Owned<Player> {
   }
 
   "A card in your played-events pile"
-  CLASS PlayedEvent<Class^1<CardFront>> {
-    End: ScoreEventVps<Class^1>
+  CLASS PlayedEvent<@Class<CardFront>> {
+    End: ScoreEventVps<@Class>
   }
 }
 
@@ -57,9 +57,9 @@ CLASS BuySelectedCards : Owned<Player>, Signal {
   This:: (3 Owed<> / ProjectCard<Selecting>) THEN (PayingFor<Class<ProjectCard>> / ProjectCard<Selecting>) THEN ActionBilling<CardPurchase, Action1>
 }
 
-CLASS PlayCard<Class<CardBack^1>, Class<CardFront^1>, CardLocation^1> : Owned<Player>, Signal {
-  This:: (EVAL CardFront^1<Class<CardBack^1>>.requirement: Ok) OR AdjustGpRequirement<Class<CardFront^1>>
-  This: Owed<> / CardFront^1.cost THEN PriceCard<Class<CardFront^1>> THEN CardBilling<Class<CardFront^1>> THEN MAX 0 Barrier: CardFront^1 FROM CardBack^1<CardLocation^1>
+CLASS PlayCard<Class<@CardBack>, Class<@CardFront>, @CardLocation> : Owned<Player>, Signal {
+  This:: (EVAL @CardFront<Class<@CardBack>>.requirement: Ok) OR AdjustGpRequirement<Class<@CardFront>>
+  This: Owed<> / @CardFront.cost THEN PriceCard<Class<@CardFront>> THEN CardBilling<Class<@CardFront>> THEN MAX 0 Barrier: @CardFront FROM @CardBack<@CardLocation>
 }
 
 "Signals that a printed global-parameter requirement produced a shortfall ready for adjustment"
@@ -93,15 +93,15 @@ ABSTRACT CLASS CardLocation : System {
 }
 
 "Resets a transient card location after all current work finishes"
-CLASS CardLocationCleanup<CardLocation^1> : Temporary, Hidden {
+CLASS CardLocationCleanup<@CardLocation> : Temporary, Hidden {
   HAS MAX 1 This
-  -This:: -CardLocation^1!
+  -This:: -@CardLocation!
 }
 
 // TODO: can this be simplified??
 ABSTRACT CLASS TagHolder : Owned<Player>
 
-ABSTRACT CLASS Tag<TagHolder<Player^1>> : Owned<Player^1>, Atomized {
+ABSTRACT CLASS Tag<TagHolder<@Player>> : Owned<@Player>, Atomized {
   CLASS BuildingTag
   CLASS SpaceTag
   CLASS ScienceTag
@@ -124,7 +124,7 @@ ABSTRACT CLASS Tag<TagHolder<Player^1>> : Owned<Player^1>, Atomized {
 "Anything that can hold a particular kind of card resource"
 ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned<Owner>
 
-ABSTRACT CLASS Cardbound<CardFront<Player^1>> : Owned<Player^1>
+ABSTRACT CLASS Cardbound<CardFront<@Player>> : Owned<@Player>
 
 "Marks an action card that has been used this generation"
 CLASS ActionUsedMarker<GenerationScope> : Cardbound<ActionCard> { HAS MAX 1 This }
@@ -133,4 +133,4 @@ CLASS ActionUsedMarker<GenerationScope> : Cardbound<ActionCard> { HAS MAX 1 This
 ABSTRACT CLASS CardWatcher : System { HAS MAX 1 This }
 
 "Copies the single immediate production box on a chosen card"
-CLASS CopyProductionBox<CardFront<Player^1>> : Owned<Player^1>, Custom
+CLASS CopyProductionBox<CardFront<@Player>> : Owned<@Player>, Custom

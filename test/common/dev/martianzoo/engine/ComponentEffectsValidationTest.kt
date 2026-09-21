@@ -23,8 +23,8 @@ internal class ComponentEffectsValidationTest {
           CLASS Good : Allowed
           CLASS Bad : Target
           CLASS Wrapper<Allowed>
-          CLASS Holder<Target^1> { This: Good OR Wrapper<Target^1> }
-          CLASS BrokenHolder<Target^1> { Wrapper<Target^1>: Good }
+          CLASS Holder<@Target> { This: Good OR Wrapper<@Target> }
+          CLASS BrokenHolder<@Target> { Wrapper<@Target>: Good }
           """
       )
   private val elaborator = PetElaborator(table)
@@ -70,7 +70,7 @@ internal class ComponentEffectsValidationTest {
                 CLASS Token { HAS MAX 1 This; Marker: Echo }
                 CLASS Marker
                 CLASS Echo
-                CLASS BrokenHolder<Target^1> { Wrapper<Target^1>: Good }
+                CLASS BrokenHolder<@Target> { Wrapper<@Target>: Good }
                 """,
                 players = 0,
             )
@@ -109,8 +109,8 @@ internal class ComponentEffectsValidationTest {
             CLASS Money : Resource
             CLASS Operation
             CLASS Debt<Class<Resource>>
-            CLASS Receipt<Class<Resource^1>, Class<Component>> {
-              This: Debt<Class<Resource^1>>
+            CLASS Receipt<Class<@Resource>, Class<Component>> {
+              This: Debt<Class<@Resource>>
             }
             """
         )

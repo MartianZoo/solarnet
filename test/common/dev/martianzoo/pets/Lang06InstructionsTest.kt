@@ -208,7 +208,7 @@ internal class Lang06InstructionsTest {
 
   @Test
   internal fun `L6-10 explicit selector names bind only their body references`() {
-    val player = parse<Instruction>("EACH Player^1(NOT Player1) { Plant<Player^1> }") as Each
+    val player = parse<Instruction>("EACH @Player(NOT Player1) { Plant<@Player> }") as Each
     player.body
         .descendantsOfType<Expression>()
         .single { it.className == cn("Player") }
@@ -218,15 +218,23 @@ internal class Lang06InstructionsTest {
     val unnamed = parse<Instruction>("EACH Player { Plant<Player> }") as Each
     unnamed.bodyFor(parse("Player2")) shouldBe parse<InstructionTree>("Plant<Player>")
 
-    val represented = parse<Instruction>("EACH Class<Area^1> { Area^1 }") as Each
+    val constrained = parse<Instruction>("EACH @Token<Anyone> { -@Token }") as Each
+    constrained.body
+        .descendantsOfType<Expression>()
+        .single { it.className == cn("Token") }
+        .arguments shouldBe listOf(parse("Anyone"))
+    constrained.bodyFor(parse("RedToken<Player2>")) shouldBe
+        parse<InstructionTree>("-RedToken<Player2>")
+
+    val represented = parse<Instruction>("EACH Class<@Area> { @Area }") as Each
     represented.bodyFor(parse("Class<MarsArea>")) shouldBe parse<InstructionTree>("MarsArea")
 
-    val applied = parse<Instruction>("EACH Class<Area^1> { Tile<Area^1<Owner>> }") as Each
+    val applied = parse<Instruction>("EACH Class<@Area> { Tile<@Area<Owner>> }") as Each
     applied.bodyFor(parse("Class<MarsArea>")) shouldBe
         parse<InstructionTree>("Tile<MarsArea<Owner>>")
 
     shouldThrow<PetSyntaxException> {
-      parse<Instruction>("EACH Area^1 { Tile<Area^1<Owner>> }")
+      parse<Instruction>("EACH @Area { Tile<@Area<Owner>> }")
     }
   }
 
@@ -234,7 +242,7 @@ internal class Lang06InstructionsTest {
   internal fun `L6-10 a selector supplies matching markers inside a full transmutation`() {
     val each =
         parse<Instruction>(
-            "EACH Player^Selected { Winner<Player^Selected> FROM Candidate<Player^Selected> }"
+            "EACH Selected@Player { Winner<Selected@Player> FROM Candidate<Selected@Player> }"
         )
             as Each
 
@@ -247,8 +255,8 @@ internal class Lang06InstructionsTest {
   internal fun `L6-10 a full transmutation may still declare a differently named local variable`() {
     val each =
         parse<Instruction>(
-            "EACH Player^Selected { " +
-                "Winner<Player^Local> FROM Candidate<Player^Local>, Prize<Player^Selected> }"
+            "EACH Selected@Player { " +
+                "Winner<Local@Player> FROM Candidate<Local@Player>, Prize<Selected@Player> }"
         )
             as Each
     val transmute = each.body.descendantsOfType<Transmute>().single()
@@ -256,7 +264,30 @@ internal class Lang06InstructionsTest {
     transmute.localTypeVariableDeclarations().map { it.typeVariableName!!.name } shouldBe
         listOf("Local")
     each.bodyFor(parse("Player2")).toString() shouldBe
-        "Winner<Player^Local> FROM Candidate<Player^Local>, Prize<Player2>"
+        "Winner<Local@Player> FROM Candidate<Local@Player>, Prize<Player2>"
+  }
+
+  @Test
+  internal fun `L6-10 nested scopes choose anonymous and named markers independently`() {
+    val anonymousOuter =
+        parse<Instruction>(
+            "EACH @Player { " +
+                "Winner<Local@Player> FROM Candidate<Local@Player>, Prize<@Player> }"
+        )
+            as Each
+    val namedInner = anonymousOuter.body.descendantsOfType<Transmute>().single()
+    namedInner.localTypeVariableDeclarations().map { it.typeVariableName!!.name } shouldBe
+        listOf("Local")
+
+    val namedOuter =
+        parse<Instruction>(
+            "EACH Selected@Player { " +
+                "Winner<@Player> FROM Candidate<@Player>, Prize<Selected@Player> }"
+        )
+            as Each
+    val anonymousInner = namedOuter.body.descendantsOfType<Transmute>().single()
+    anonymousInner.localTypeVariableDeclarations().map { it.typeVariableName!!.name } shouldBe
+        listOf(null)
   }
 
   @Test
@@ -442,58 +473,58 @@ internal class Lang06InstructionsTest {
 
   @Test
   internal fun `L6-15 a THEN stage can name a Type used by a later stage`() {
-    roundTrip<Instruction>("Plant^1 THEN Plant^1")
-    roundTrip<Instruction>("Foo<Plant^1> THEN Bar<Plant^1>")
-    roundTrip<Instruction>("Foo<Class<Plant^1>> THEN Plant^1<Owner>")
-    roundTrip<Instruction>("Plant^1 THEN Foo<Bar(HAS Baz<Plant^1>)>")
-    roundTrip<Instruction>("CityTile^1<> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile^1>)>")
+    roundTrip<Instruction>("@Plant THEN @Plant")
+    roundTrip<Instruction>("Foo<@Plant> THEN Bar<@Plant>")
+    roundTrip<Instruction>("Foo<Class<@Plant>> THEN @Plant<Owner>")
+    roundTrip<Instruction>("@Plant THEN Foo<Bar(HAS Baz<@Plant>)>")
+    roundTrip<Instruction>("@CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<@CityTile>)>")
   }
 
   @Test
   internal fun `L6-15 a THEN Type-variable marker must be shared`() {
-    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant^1 THEN Heat") }
-    roundTrip<Instruction>("Plant^1 THEN Plant^1 THEN Plant^1")
-    shouldThrow<PetSyntaxException> { parse<Instruction>("Plant^1 THEN Plant^1<Steel>") }
+    shouldThrow<PetSyntaxException> { parse<Instruction>("@Plant THEN Heat") }
+    roundTrip<Instruction>("@Plant THEN @Plant THEN @Plant")
+    shouldThrow<PetSyntaxException> { parse<Instruction>("@Plant THEN @Plant<Steel>") }
 
-    roundTrip<Instruction>("Foo<Bar^1> THEN (Qux<Bar^1>, EACH Bar^1 { Bar^1 })")
+    roundTrip<Instruction>("Foo<@Bar> THEN (Qux<@Bar>, EACH @Bar { @Bar })")
   }
 
   @Test
   internal fun `L6-15 an observing expression may precede the occurrence that supplies a variable`() {
-    roundTrip<Instruction>("Plant / Steel^1 THEN Steel^1")
-    roundTrip<Instruction>("Plant(NOT Steel^1) THEN Steel^1")
+    roundTrip<Instruction>("Plant / @Steel THEN @Steel")
+    roundTrip<Instruction>("Plant(NOT @Steel) THEN @Steel")
   }
 
   // L6-16 named Type variables across a transmutation
 
   @Test
   internal fun `L6-16 a transmutation destination can name a Type used by its source`() {
-    roundTrip<Instruction>("Foo<Plant^1> FROM Bar<Plant^1>")
-    roundTrip<Instruction>("Foo<Class<Plant^1>> FROM Plant^1<Owner>")
-    roundTrip<Effect>("Foo: Bar<Plant^1> FROM Baz<Plant^1>")
-    roundTrip<Action>("Foo -> Bar<Plant^1> FROM Baz<Plant^1>")
-    roundTrip<Instruction>("Foo<Plant^1> FROM Bar<Plant^1> THEN Baz<Heat^1> FROM Qux<Heat^1>")
+    roundTrip<Instruction>("Foo<@Plant> FROM Bar<@Plant>")
+    roundTrip<Instruction>("Foo<Class<@Plant>> FROM @Plant<Owner>")
+    roundTrip<Effect>("Foo: Bar<@Plant> FROM Baz<@Plant>")
+    roundTrip<Action>("Foo -> Bar<@Plant> FROM Baz<@Plant>")
+    roundTrip<Instruction>("Foo<@Plant> FROM Bar<@Plant> THEN Baz<@Heat> FROM Qux<@Heat>")
   }
 
   @Test
   internal fun `L6-16 an enclosing sequence can own a name declared inside a transmutation`() {
-    roundTrip<Instruction>("Foo FROM Bar<Plant^1> THEN Plant^1")
+    roundTrip<Instruction>("Foo FROM Bar<@Plant> THEN @Plant")
   }
 
   @Test
   internal fun `L6-16 a transmutation marker must be shared by its sides`() {
-    shouldThrow<PetSyntaxException> { parse<Instruction>("Foo<Plant^1> FROM Bar") }
-    roundTrip<Instruction>("Foo<Plant^1, Plant^1> FROM Bar<Plant^1>")
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Foo<@Plant> FROM Bar") }
+    roundTrip<Instruction>("Foo<@Plant, @Plant> FROM Bar<@Plant>")
     shouldThrow<PetSyntaxException> {
-      parse<Instruction>("Foo<Plant^1> FROM Bar<Plant^1> THEN Plant^1")
+      parse<Instruction>("Foo<@Plant> FROM Bar<@Plant> THEN @Plant")
     }
   }
 
   @Test
   internal fun `L6-16 an observing expression uses a source variable but cannot declare one`() {
-    roundTrip<Instruction>("Foo(HAS Baz<Plant^1>) FROM Bar<Plant^1>")
+    roundTrip<Instruction>("Foo(HAS Baz<@Plant>) FROM Bar<@Plant>")
     shouldThrow<PetSyntaxException> {
-      parse<Instruction>("Foo(HAS Baz<Plant^1>) FROM Bar(HAS Qux<Plant^1>)")
+      parse<Instruction>("Foo(HAS Baz<@Plant>) FROM Bar(HAS Qux<@Plant>)")
     }
   }
 }

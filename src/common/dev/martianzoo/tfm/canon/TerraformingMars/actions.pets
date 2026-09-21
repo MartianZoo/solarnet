@@ -4,7 +4,7 @@ ABSTRACT CLASS StandardAction : HasActions {
 
   CLASS PlayCardFromHandAction { -> PlayCard<Class<ProjectCard>, Hand> }
   CLASS UseStandardProjectAction { -> UseAction<StandardProject> }
-  CLASS UseActionOnCardAction { -> ActionUsedMarker<ActionCard^1> THEN UseAction<ActionCard^1> }
+  CLASS UseActionOnCardAction { -> ActionUsedMarker<@ActionCard> THEN UseAction<@ActionCard> }
   CLASS ConvertPlantsAction { 8 Plant -> DefaultGreeneryTile }
   CLASS ConvertHeatAction { 8 Heat -> TemperatureStep }
   CLASS ClaimMilestoneAction { 8 MC -> Milestone }

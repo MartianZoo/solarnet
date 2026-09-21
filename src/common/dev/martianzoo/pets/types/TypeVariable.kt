@@ -47,7 +47,7 @@ internal constructor(
    */
   public val declaration: Declaration = Declaration(this, declarationSite)
 
-  /** The explicit source handle written with `^`, or null for an unmarked header variable. */
+  /** The explicit source name before `@`, or null for an anonymous or unmarked variable. */
   public val name: String? = (declaration.expression.typeVariableName as? SyntaxDeclaration)?.name
 
   /**
