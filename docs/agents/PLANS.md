@@ -44,6 +44,12 @@ remains investigation-first, and scoped completion must prove that it can delete
 `TfmGameplay` bridge before it grows. Replace the persistent `CardPlay` billing host only when the
 live late-stage card-play operation has stable identity.
 
+Before adding another gameplay helper, review `TfmGameplay` as one whole public contract: classify
+its operations, query conveniences, test-only audits, and engine/Pets repair bridges; state the
+boundary in its KDoc and owning documents; and map focused contract tests plus replay evidence to
+the retained surface. Prefer deleting or relocating responsibilities to splitting the same
+choreography among more facades.
+
 This program also owns the broad task-disambiguation problem: ordinary callers should state the
 intended task semantically, using extra identity only when distinct tasks accept the same narrowing.
 Revisit the cleanup-vocabulary draft in stash commit `db9302652` only through the scoped-completion
@@ -78,7 +84,34 @@ See [`API.md`](API.md#current-implementation-divergence),
 ## Other indexed programs
 
 These directions are substantial enough not to masquerade as small TODOs. Their current priority is
-recorded above even though their detailed status differs.
+recorded above even though their detailed status differs. The remaining Tier 1 programs appear
+first in priority order. Tier 2 follows, with its final two programs alphabetized because
+[`VALUES.md`](VALUES.md#current-major-plan-priority) deliberately leaves them unordered.
+
+### Rewrite the agent handbook around the settled model
+
+Shorten the large orientation documents into focused tours, teaching documents, feature references,
+or surveys; incorporate the `perf` findings into the performance guide. Preserve stable current
+models and live decisions, remove migration history and agent reasoning, and keep detailed plans in
+their smallest owning documents rather than expanding this index.
+
+Specifically: make `ENGINE.md` and `GAMEWORLD.md` quick tours; reduce `API.md` and
+`RESPONSIBILITIES.md` to their core decisions; make `IDENTITY.md` educational; focus
+`QUANTIFIERS.md`, `PROPERTIES.md`, `EACH.md`, and `TESTING.md` as references; let
+`SEQUENCING.md` and `AUTOEXEC.md` survey their improvement directions; and rewrite
+`JVM_TEST_PERFORMANCE.md` holistically and identically on `perf` and `main`. Apply
+[`README.md`](README.md#maintain-this-collection) while performing the rewrite.
+
+### Consolidate public contracts and failure boundaries
+
+Install Kotlin binary-API validation for the public `pets`, `engine`, `agent`, `tfm-canon`, and
+`script` libraries, consolidate exception handling so domain failures remain precise while defects
+retain their stack traces, and finish removing vague runtime terms such as “operation” and
+“gameplay command” in favor of the exact lifecycle meant. Treat these as contract work, not
+compatibility preservation; there are no known clients requiring obsolete APIs.
+
+See [`API.md`](API.md#layer-responsibility), [`VISIBILITY.md`](VISIBILITY.md), and issue
+[#42](https://github.com/MartianZoo/solarnet/issues/42).
 
 ### Simplify Pets and runtime semantics
 
@@ -103,6 +136,16 @@ The specifications own the final semantics. Start with [`IDENTITY.md`](IDENTITY.
 and the relevant rules in [`type-system-spec.md`](../type-system-spec.md) and
 [`pets-language-spec.md`](../pets-language-spec.md).
 
+### Reassess performance only where it changes what work is possible
+
+Review the committed `OverlayWorld` and query-performance work on `perf`, then integrate only
+coherent measured improvements. Profile Type allocation in `ClassTable.glb`, `narrows`, and repeated
+dependency/refinement construction, and evaluate candidate-selection hooks for expensive
+`CustomMetric` refinements. Compiling Pets at build time remains conditional on one compiler
+replacing runtime work without creating a second semantic model.
+
+See [`JVM_TEST_PERFORMANCE.md`](JVM_TEST_PERFORMANCE.md) and the reusable-universe program above.
+
 ### Delete machinery justified only by marginal content
 
 Desupport Land Claim and Arcadian Communities, then remove the reservation/occupancy machinery they
@@ -126,41 +169,6 @@ meaning.
 See [`GAMEWORLD.md`](GAMEWORLD.md#serialized-events-and-exported-recordings),
 [`DIAGNOSTICS.md`](DIAGNOSTICS.md), and
 [`TESTING.md`](TESTING.md#game-replay-tests).
-
-### Consolidate public contracts and failure boundaries
-
-Install Kotlin binary-API validation for the public `pets`, `engine`, `agent`, `tfm-canon`, and
-`script` libraries, consolidate exception handling so domain failures remain precise while defects
-retain their stack traces, and finish removing vague runtime terms such as “operation” and
-“gameplay command” in favor of the exact lifecycle meant. Treat these as contract work, not
-compatibility preservation; there are no known clients requiring obsolete APIs.
-
-See [`API.md`](API.md#layer-responsibility), [`VISIBILITY.md`](VISIBILITY.md), and issue
-[#42](https://github.com/MartianZoo/solarnet/issues/42).
-
-### Reassess performance only where it changes what work is possible
-
-Review the committed `OverlayWorld` and query-performance work on `perf`, then integrate only
-coherent measured improvements. Profile Type allocation in `ClassTable.glb`, `narrows`, and repeated
-dependency/refinement construction, and evaluate candidate-selection hooks for expensive
-`CustomMetric` refinements. Compiling Pets at build time remains conditional on one compiler
-replacing runtime work without creating a second semantic model.
-
-See [`JVM_TEST_PERFORMANCE.md`](JVM_TEST_PERFORMANCE.md) and the reusable-universe program above.
-
-### Rewrite the agent handbook around the settled model
-
-Shorten the large orientation documents into focused tours, teaching documents, feature references,
-or surveys; incorporate the `perf` findings into the performance guide. Preserve stable current
-models and live decisions, remove migration history and agent reasoning, and keep detailed plans in
-their smallest owning documents rather than expanding this index.
-
-Specifically: make `ENGINE.md` and `GAMEWORLD.md` quick tours; reduce `API.md` and
-`RESPONSIBILITIES.md` to their core decisions; make `IDENTITY.md` educational; focus
-`QUANTIFIERS.md`, `PROPERTIES.md`, `EACH.md`, and `TESTING.md` as references; let
-`SEQUENCING.md` and `AUTOEXEC.md` survey their improvement directions; and rewrite
-`JVM_TEST_PERFORMANCE.md` holistically and identically on `perf` and `main`. Apply
-[`README.md`](README.md#maintain-this-collection) while performing the rewrite.
 
 ## Deliberately later or conditional directions
 
