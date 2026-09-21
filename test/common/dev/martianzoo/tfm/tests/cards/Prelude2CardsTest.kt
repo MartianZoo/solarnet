@@ -624,6 +624,23 @@ internal class Prelude2CardsTest : CardTest() {
     p1.count("MC") shouldBe startingMoney
   }
 
+  // https://boardgamegeek.com/thread/3577088/article/46624092#46624092
+  @Test
+  internal fun `Unexpected Application requires the discard before raising Venus`() {
+    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
+    p1.runOperation("4 MC, 3 VenusStep, ProjectCard")
+    admin.phase("Action")
+
+    shouldThrowAny { p1.playProject(UnexpectedApplication, 4) }
+
+    p1.assertCounts(
+        4 to "MC",
+        3 to "VenusStep",
+        1 to "ProjectCard",
+        0 to "$UnexpectedApplication",
+    )
+  }
+
   // https://www.reddit.com/r/TerraformingMarsGame/comments/1kgksgg
   @Test
   internal fun `A prelude remains playable when its global parameter is already maximized`() {

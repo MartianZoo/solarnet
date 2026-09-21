@@ -128,25 +128,10 @@ internal class BugsTest : CardTest() {
     p1.count("MC") shouldBe moneyBefore + 15
   }
 
-  // https://boardgamegeek.com/thread/3577088/playing-unexpected-application-with-0-cards-while
+  // An unplayable Prelude should fizzle: discard it and gain 15 MC.
+  // https://boardgamegeek.com/thread/2993276/article/41533232#41533232
   @Test
-  internal fun `Unexpected Application incorrectly requires the discard before raising Venus`() {
-    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
-    p1.runOperation("4 MC, 3 VenusStep, ProjectCard")
-    admin.phase("Action")
-
-    shouldThrowAny { p1.playProject(UnexpectedApplication, 4) }
-
-    p1.assertCounts(
-        4 to "MC",
-        3 to "VenusStep",
-        1 to "ProjectCard",
-        0 to "$UnexpectedApplication",
-    )
-  }
-
-  @Test
-  internal fun `Valley Trust incorrectly refuses to discard an unplayable choice when another is playable`() {
+  internal fun `Valley Trust incorrectly refuses to fizzle a selected unplayable Prelude`() {
     newGame(PreludeExpansion, Prelude2CardPack, retainedStartingProjects = 5)
     val p2 = requireP2()
     p2.runOperation("PROD[-5 MC]")
@@ -238,11 +223,12 @@ internal class BugsTest : CardTest() {
   }
 
   @Test
-  internal fun `Space Elevator incorrectly accepts payment that wastes one steel`() {
+  internal fun `Mixed-metal payment incorrectly accepts a tender that wastes one steel`() {
     newGame()
     admin.phase("Action")
     p1.runOperation("10 Steel, 10 Titanium, ProjectCard")
 
+    // Space Elevator merely supplies a 27 MC debt paid with both kinds of metal.
     p1.inTurn {
       doTask("UseAction<PlayCardFromHandAction, Action1>")
       doTask("PlayCard<Class<ProjectCard>, Class<$SpaceElevator>, Hand>")
