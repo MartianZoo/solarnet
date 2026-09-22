@@ -5,6 +5,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.text.ComponentDescriber.ChangeFrame as Frame
 import dev.martianzoo.tfm.text.ComponentDescriber.RequirementCondition as Condition
 import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as Trigger
+import dev.martianzoo.tfm.text.coloniesexpansion.coloniesEnglishDeclarations
 import dev.martianzoo.tfm.text.turmoilexpansion.turmoilEnglishDeclarations
 
 /** Terraforming Mars component descriptions supplied to the structural English renderer. */
@@ -14,7 +15,6 @@ internal object TerraformingMarsDescribers {
     val oceanTileNoun = counted("ocean tile", "ocean tiles")
     val greeneryTileNoun = counted("greenery tile", "greenery tiles")
     val cityTileNoun = counted("city tile", "city tiles")
-    val colonyNoun = counted("colony", "colonies")
     uniqueDeclarations(
         klass("Component") to
             ComponentDescriber(
@@ -242,11 +242,6 @@ internal object TerraformingMarsDescribers {
         klass("LandArea") to
             ComponentDescriber(
                 placementSite = ComponentDescriber.PlacementSite(ComponentDescriber.Noun.ClassName)
-            ),
-        klass("ColonyTile") to
-            ComponentDescriber(
-                placementSite =
-                    ComponentDescriber.PlacementSite(counted("colony tile", "colony tiles"))
             ),
         klass("Neighbor") to
             ComponentDescriber(
@@ -479,22 +474,6 @@ internal object TerraformingMarsDescribers {
                         counted("nomads marker", "nomads markers"),
                     )
             ),
-        klass("Colony") to
-            ComponentDescriber(
-                changeFrame =
-                    Frame.Positioned(
-                        Determiner.INDEFINITE,
-                        colonyNoun,
-                        unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
-                        anyoneOwnership = ComponentDescriber.OwnershipPhrase.IMPLICIT,
-                    ),
-                requirement =
-                    ComponentDescriber.Requirement(
-                        minimum = count(colonyNoun),
-                        maximum = count(colonyNoun),
-                        ownedCount = colonyNoun,
-                    ),
-            ),
         klass("PayingFor") to
             ComponentDescriber(
                 triggerFrame =
@@ -507,19 +486,6 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 changeFrame = Frame.Procedure("copy", "your other Prelude's direct effect")
             ),
-        klass("GainColonyBonuses") to
-            ComponentDescriber(changeFrame = Frame.Procedure("gain", "all your colony bonuses")),
-        klass("AdvanceColonyTracks") to
-            ComponentDescriber(
-                changeFrame =
-                    Frame.Scale(
-                        subject = "all colony tile tracks",
-                        increaseVerb = "increase",
-                        decreaseVerb = "decrease",
-                    )
-            ),
-        klass("ColonyTileSelection") to
-            ComponentDescriber(changeFrame = Frame.Procedure("add", "1 colony tile")),
         klass("WorldGovernmentTerraforming") to
             ComponentDescriber(
                 changeFrame =
@@ -559,11 +525,6 @@ internal object TerraformingMarsDescribers {
             ),
         klass("Award") to
             ComponentDescriber(changeFrame = Frame.Procedure("fund", "an award for free")),
-        klass("TradeFleet") to
-            ComponentDescriber(
-                noun = ComponentDescriber.Noun.Counted("Trade Fleet", "Trade Fleets"),
-                changeFrame = Frame.Countable,
-            ),
         klass("ProdOffset") to ComponentDescriber(productionOffset = true),
         klass("QuickStartVariant") to ComponentDescriber(productionOffset = true),
         klass("TileInLargestGroup") to
@@ -578,9 +539,6 @@ internal object TerraformingMarsDescribers {
                         unqualifiedSuffix = "",
                     )
             ),
-        klass("ColonyProduction") to
-            ComponentDescriber(changeFrame = Frame.Scale("colony tile track")),
-        klass("Trade") to ComponentDescriber(changeFrame = Frame.Procedure("trade")),
         klass("VictoryPoint") to ComponentDescriber(score = ComponentDescriber.Score("VP", "VPs")),
         klass("Die") to ComponentDescriber(deadEndSignal = true),
         klass("PlayCard") to
@@ -656,22 +614,6 @@ internal object TerraformingMarsDescribers {
                         paymentDiscount = ComponentDescriber.PaymentDiscount("fund an award"),
                     )
             ),
-        klass("TradeAction") to
-            ComponentDescriber(
-                actionUse =
-                    ComponentDescriber.ActionUse(
-                        reference =
-                            ComponentDescriber.ActionUse.Reference.Fixed(
-                                "the Trade standard action"
-                            ),
-                        paymentDiscount =
-                            ComponentDescriber.PaymentDiscount(
-                                "use the Trade standard action",
-                                categoryNoun =
-                                    ComponentDescriber.Noun.Counted("resource", "resources"),
-                            ),
-                    )
-            ),
         klass("HasActions") to
             ComponentDescriber(
                 actionUse =
@@ -714,7 +656,10 @@ internal object TerraformingMarsDescribers {
   }
 
   internal val descriptions: Map<ClassName, ComponentDescriber> =
-      uniqueDeclarations(*(declarations.toList() + turmoilEnglishDeclarations).toTypedArray())
+      uniqueDeclarations(
+          *(declarations.toList() + coloniesEnglishDeclarations + turmoilEnglishDeclarations)
+              .toTypedArray()
+      )
 
   private fun uniqueDeclarations(
       vararg entries: Pair<ClassName, ComponentDescriber>,

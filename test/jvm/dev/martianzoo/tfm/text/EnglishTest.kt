@@ -142,9 +142,6 @@ internal class EnglishTest {
     english.describe(parse<InstructionTree>("ProjectCard")) shouldBe "Draw 1 card."
     english.describe(parse<InstructionTree>("OceanTile")) shouldBe "Place an ocean tile."
     english.describe(parse<InstructionTree>("CityTile")) shouldBe "Place a city tile."
-    english.describe(parse<InstructionTree>("Colony<ColonyTile>")) shouldBe
-        "Place a colony (may be placed where you already have a colony)."
-    english.describe(parse<InstructionTree>("2 Colony<>")) shouldBe "Place 2 colonies."
     english.describe(parse<InstructionTree>("Community<LandArea(HAS MAX 0 Occupant)>")) shouldBe
         "Place a community marker on a land area with no occupant."
     english.describe(
@@ -161,8 +158,6 @@ internal class EnglishTest {
     english.describe(
         parse<InstructionTree>("EACH Player(NOT Owner) { PROD[-2 MC] BY Owner }")
     ) shouldBe "Each other player decreases their own M€ production 2 steps."
-    english.describe(parse<InstructionTree>("2 AdvanceColonyTracks")) shouldBe
-        "Increase all colony tile tracks 2 steps."
     english.describe(parse<InstructionTree>("WorldGovernmentTerraforming")) shouldBe
         "Raise 1 global parameter without gaining terraform rating or other bonuses."
     english.describe(
@@ -174,9 +169,6 @@ internal class EnglishTest {
         "Requires 2 Earth tags, 2 Venus tags, and 2 Jovian tags."
     english.describe(parse<Requirement>("8 Class<Tag>(HAS Tag<Owner>)")) shouldBe
         "Requires 8 different tags."
-    english.describe(parse<Requirement>("Colony")) shouldBe "Requires that you have a colony."
-    english.describe(parse<Requirement>("MAX 1 Colony")) shouldBe
-        "Requires that you have 1 or fewer colonies."
     english.describe(parse<Requirement>("3 CityTile")) shouldBe
         "Requires that you have 3 city tiles."
     english.describe(parse<Requirement>("2 CityTile<Anyone>")) shouldBe

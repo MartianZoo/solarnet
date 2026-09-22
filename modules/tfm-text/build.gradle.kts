@@ -2,6 +2,10 @@ plugins { id("solarnet.kmp-jvm-js") }
 
 val textSourceDirectory =
     rootProject.layout.projectDirectory.dir("src/common/dev/martianzoo/tfm/text")
+val coloniesEnglishSourceDirectory =
+    rootProject.layout.projectDirectory.dir(
+        "src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/english"
+    )
 val turmoilEnglishSourceDirectory =
     rootProject.layout.projectDirectory.dir(
         "src/common/dev/martianzoo/tfm/canon/TurmoilExpansion/english"
@@ -15,7 +19,13 @@ val randomCardEnglishComparisonOutput =
 kotlin {
   sourceSets {
     commonMain {
-      kotlin.setSrcDirs(listOf(textSourceDirectory, turmoilEnglishSourceDirectory))
+      kotlin.setSrcDirs(
+          listOf(
+              textSourceDirectory,
+              coloniesEnglishSourceDirectory,
+              turmoilEnglishSourceDirectory,
+          )
+      )
       dependencies {
         implementation(project(":pets"))
         implementation(project(":tfm-canon"))
