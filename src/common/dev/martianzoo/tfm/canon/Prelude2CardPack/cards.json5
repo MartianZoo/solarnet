@@ -374,7 +374,7 @@
           "requirement": "Ruling<Scientists> OR 2 PartyDelegate<Scientists>",
           "cost": 10,
           "tags": [ "BuildingTag", "SpaceTag" ],
-          "immediate": "1 MC / (JovianTag OR EarthTag OR VenusTag OR Colony), 2 ProjectCard",
+          "immediate": "1 MC / (PlanetaryTag OR Colony), 2 ProjectCard",
         },
         {
           "name": "WgProject",

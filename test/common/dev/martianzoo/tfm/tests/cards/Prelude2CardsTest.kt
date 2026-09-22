@@ -719,6 +719,28 @@ internal class Prelude2CardsTest : CardTest() {
   }
 
   @Test
+  internal fun `Summit Logistics counts planetary tags without Venus Next`() {
+    val game =
+        newGame(
+            PreludeExpansion,
+            Prelude2CardPack,
+            TurmoilExpansion,
+            CorporateEraExpansion,
+            ColoniesExpansion,
+            colonyTiles = testColonyTiles(1, "Luna"),
+        )
+    (cn("VenusTag") in game.classTable.allClassNames) shouldBe false
+    p1.runOperation("$EarthOffice, $VestaShipyard, Colony<Luna>")
+    val startingMoney = p1.count("MC")
+    val startingCards = p1.count("ProjectCard")
+
+    p1.runOperation("$SummitLogistics")
+
+    p1.count("MC") shouldBe startingMoney + 3
+    p1.count("ProjectCard") shouldBe startingCards + 2
+  }
+
+  @Test
   internal fun `party requirements accept two delegates`() {
     newGame(
         PreludeExpansion,
