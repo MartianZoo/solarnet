@@ -101,7 +101,6 @@
 - **quantifier:** The policy on a change instruction: mandatory (`!`), optional (`?`), or AMAP (`.`).
 - **queue position:**
 - **queued effect:** An effect written with `:`. Its triggered instruction becomes a task instead of executing inline. Antonym: automatic effect.
-- **real-card mode:**
 - **refinement:** A conjunction of `HAS` world requirements and `NOT` structural exclusions attached to an expression to restrict the matching Types or Components.
 - **refinement type:** The type denoted by an expression carrying a refinement.
 - **REgo PLastics:** Solarnet's command-line interface for driving the engine.
@@ -118,7 +117,7 @@
 - **selection:** The client activity that chooses one pending task to finish next and causes the engine to resolve it. Selection is a promise about ordering, not a timeline commit; commit retains its transactional meaning after execution.
 - **self trigger:**
 - **sequential instruction:**
-- **SetupPhase:** The Terraforming Mars phase gained by transmuting BootstrapPhase away with `SetupPhase FROM Phase`. It creates generation 1, grants starting state such as 20 `TerraformRating`, deals starting cards into each Player's `Hand`, and waits for their discards.
+- **SetupPhase:** The Terraforming Mars phase gained by transmuting BootstrapPhase away with `SetupPhase FROM Phase`. It creates generation 1, grants starting state such as 20 `TerraformRating`, and gives each Player the generic card counts and setup choices selected by the active modules.
 - **Signal:** An unscoped point event that leaves no persistent component state.
 - **singleton type:** A concrete type constrained to exactly one occurrence by an inherited `HAS =1 This` invariant. The invariant does not create the occurrence.
 - **SoloOpponent:** The passive Owner created by `SoloMode`; it is neither a Player nor an Actor and receives no tasks or turns.

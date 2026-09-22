@@ -149,7 +149,7 @@ dependency directly instead of treating this consequence of `::` versus `:` as a
 ## Committed precursors
 
 Sometimes the final event is too late for a modifier. Card discounts need printed tags before the
-real card and its real tags enter play. `PayingFor<Class<Component>>` is the established shape: it
+played face and its tags enter play. `PayingFor<Class<Component>>` is the established shape: it
 is created only after the operation commits to the eventual purchase or play, carries the
 multiplicity modifiers need, and is ordered before settlement and the final result. Rollback removes
 the precursor and everything it caused if the operation cannot complete.

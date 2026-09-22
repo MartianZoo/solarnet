@@ -12,7 +12,8 @@
         {
           "name": "Celestic",
           "tags": [ "VenusTag" ],
-          "immediate": "42 MC, RequiredAction { -> CARDS[2 SearchForCard(HAS ReferenceTo<Class<Floater>>)] }",
+          // SearchForCard(HAS ReferenceTo<Class<Floater>>)
+          "immediate": "42 MC, RequiredAction { -> 2 ProjectCard }",
           "actions": [ "-> Floater" ],
           "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
         },
@@ -25,7 +26,7 @@
         {
           "name": "MorningStarInc",
           "tags": [ "VenusTag" ],
-          "immediate": "50 MC, RequiredAction { -> CARDS[3 SearchForCard(HAS PrintedTag<Class<VenusTag>>)] }",
+          "immediate": "50 MC, RequiredAction { -> 3 SearchForCard<TagFilter<Class<VenusTag>>> }",
           "effects": [ "CheckRequirement:: -2 Required<Class<VenusStep>>" ],
         },
         {

@@ -210,7 +210,7 @@ internal class TaskNarrowingTest {
 
     selectAndNarrow("(-ProjectCard THEN ProjectCard) OR Ok", "-ProjectCard")
 
-    tasksAsText().shouldContainExactly("ProjectCard<Player1, Hand>!")
+    tasksAsText().shouldContainExactly("ProjectCard<Player1>!")
   }
 
   @Test

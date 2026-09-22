@@ -126,10 +126,6 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     agents.exMachina(actor, adjustment)
   }
 
-  protected fun retainStartingProjects(vararg retainedCounts: Int) {
-    dev.martianzoo.tfm.tests.retainStartingProjects(game, *retainedCounts)
-  }
-
   protected fun TfmGameplay.assertDashMiddle(
       played: Int,
       actions: Int? = null,
@@ -196,14 +192,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
   }
 
   // Pending choices describe future play, so a snapshot must neither execute nor count them.
-  // Unbought research cards need to leave Selecting before task removal; the
-  // enclosing checkpoint restores both the components and tasks afterward.
   private fun dropPendingTasksForSnapshot() {
-    game.actors
-        .filterIsInstance<Player>()
-        .map { game.testTfm(it) }
-        .filter { it.count("ProjectCard<Selecting>") > 0 }
-        .forEach { it.buyCards(0) }
     game.tasks
         .extract { it.id to it.assignee }
         .forEach { (id, assignee) ->

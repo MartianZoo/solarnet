@@ -84,30 +84,29 @@ internal class CardTrackingFullGameTestTest :
   }
 
   @Test
-  internal fun arrivalOrderNamesASelectionAndExplicitDiscardsDetermineTheRetainedCard() {
-    val replay = ArrivalOrderReplay(listOf(AcquiredCompany, AdaptedLichen, AsteroidMining))
+  internal fun arrivalOrderNamesCardsAsTheyEnterAndLeaveTheHand() {
+    val replay = ArrivalOrderReplay(listOf(AcquiredCompany, AdaptedLichen))
     replay.setUp()
 
-    replay.keepOneAndDiscard(AdaptedLichen, AsteroidMining)
+    replay.gainToHand(2)
+    replay.discardFromHand(AdaptedLichen)
 
     replay.hand() shouldBe setOf(AcquiredCompany)
     replay.assertComplete()
     replay.projectCardNotes() shouldBe
         listOf(
-            "Cards: AcquiredCompany, AdaptedLichen, AsteroidMining",
-            "Cards: AcquiredCompany",
-            "Cards: AdaptedLichen, AsteroidMining",
+            "Cards: AcquiredCompany, AdaptedLichen",
+            "Cards: AdaptedLichen",
         )
   }
 
   @Test
-  internal fun arrivalOrderRejectsDiscardingACardThatNeverArrived() {
+  internal fun arrivalOrderRejectsDiscardingACardThatNeverEnteredTheHand() {
     val replay = ArrivalOrderReplay(listOf(AcquiredCompany))
     replay.setUp()
     replay.gainToHand()
 
     shouldThrow<IllegalStateException> { replay.discardFromHand(AdaptedLichen) }
-    shouldThrow<IllegalStateException> { replay.rejectUnselected(AdaptedLichen) }
     replay.assertComplete()
   }
 
@@ -150,21 +149,9 @@ internal class CardTrackingFullGameTestTest :
       p1.runOperation("${if (count == 1) "" else "$count "}ProjectCard")
     }
 
-    fun keepOneAndDiscard(vararg discarded: ClassName) {
-      p1.runOperation(
-          "${discarded.size + 1} ProjectCard<Selecting>, " +
-              "ProjectCard<Hand FROM Selecting>, -${discarded.size} ProjectCard<Selecting>"
-      ) {
-        discardUnselectedProjectCards(*discarded)
-      }
-    }
-
     fun discardFromHand(card: ClassName) {
-      p1.discard(card)
-    }
-
-    fun rejectUnselected(card: ClassName) {
-      p1.discardUnselectedProjectCards(card)
+      check(card in p1.cardsHand) { "$card never entered the hand" }
+      p1.runOperation("-ProjectCard") { p1.discard(card) }
     }
 
     fun hand(): Set<ClassName> = p1.cardsHand

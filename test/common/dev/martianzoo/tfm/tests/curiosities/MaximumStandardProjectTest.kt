@@ -31,7 +31,6 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
 
   @Test
   internal fun `one greenery standard project can gain fifty one mc`() {
-    retainStartingProjects(10)
     me.playCorp(Spire, 10)
 
     me.turn {

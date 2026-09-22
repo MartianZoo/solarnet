@@ -168,7 +168,7 @@ internal class InstructionResolutionTest {
     checkResolution("EACH Player { Plant }", "Plant<Player1>!, Plant<Player2>!")
     checkResolution(
         "EACH @ProjectCard<Anyone> { -@ProjectCard, Plant }",
-        List(10) { "-ProjectCard<Player1, Hand>!, Plant<Player1>!" }.joinToString(", "),
+        List(10) { "-ProjectCard<Player1>!, Plant<Player1>!" }.joinToString(", "),
     )
     // A selector reads its enclosing context, so `Owner` there is one component, not every owner.
     shouldThrow<ExpressionException> { preprocessAndResolve("EACH Owner { Plant }") }
@@ -183,7 +183,7 @@ internal class InstructionResolutionTest {
     // Player1 holds ten indistinguishable ProjectCards, and each copy contributes one branch.
     checkResolution(
         "EACH @ProjectCard<Anyone> { -@ProjectCard }",
-        List(10) { "-ProjectCard<Player1, Hand>!" }.joinToString(", "),
+        List(10) { "-ProjectCard<Player1>!" }.joinToString(", "),
     )
     checkResolution(
         "EACH ProjectCard<Anyone> { StandardResource }",

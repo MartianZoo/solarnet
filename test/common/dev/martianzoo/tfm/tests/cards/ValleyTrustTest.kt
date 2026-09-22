@@ -15,7 +15,7 @@ import kotlin.test.Test
 internal class ValleyTrustTest : CardTest() {
   @Test
   internal fun `Resolves Valley Trust's starting Prelude 1 card`() {
-    newGame(PreludeExpansion, retainedStartingProjects = 5)
+    newGame(PreludeExpansion)
     p1.playCorp(ValleyTrust, 5).expect("22 MC")
 
     admin.phase("Action")
@@ -47,7 +47,7 @@ internal class ValleyTrustTest : CardTest() {
 
   @Test
   internal fun `Must perform required action before another standard action`() {
-    newGame(PreludeExpansion, retainedStartingProjects = 5)
+    newGame(PreludeExpansion)
     p1.playCorp(ValleyTrust, 5)
     admin.phase("Action")
 
@@ -56,7 +56,7 @@ internal class ValleyTrustTest : CardTest() {
 
   @Test
   internal fun `An unplayable selection leaves Valley Trust free to choose another Prelude`() {
-    newGame(PreludeExpansion, Prelude2CardPack, retainedStartingProjects = 5)
+    newGame(PreludeExpansion, Prelude2CardPack)
     val p2 = requireP2()
     p2.runOperation("PROD[-5 MC]")
     p1.playCorp(ValleyTrust, 5)
@@ -86,7 +86,6 @@ internal class ValleyTrustTest : CardTest() {
                 "Player1",
                 "Player2",
             ),
-            retainedStartingProjects = 5,
         )
     game.classTable.isInhabited(cn("PreludePhase")) shouldBe true
     game.classTable.isInhabited(selectedPrelude) shouldBe true

@@ -5,8 +5,8 @@
 > vouch for the information here.
 
 > **Read when:** changing context specialization, event Actor attribution, task assignment, `BY`,
-> Admin, selection-time delegated narrowing, Philares, Admin-selected hidden cards, or the
-> `Owner`/`Anyone` contextual-variable overload.
+> Admin, selection-time delegated narrowing, Philares, or the `Owner`/`Anyone`
+> contextual-variable overload.
 >
 > **Skip when:** changing ownership as a Type dependency without task routing, attribution, or the
 > contextual `Owner` spelling; read sections 3 and 10 of
@@ -56,14 +56,13 @@ Pets behavior is interpreted in context. Keep these roles separate:
 These roles often coincide. Current queued work stores its controller and contextual Actor once.
 Its three-state selection lifecycle determines which of them is the assignee. The contextual Actor
 supplies any remaining choice and is the default performer. Icy Impactors uses instruction-side
-`BY` to separate its credited Actor. Future hidden-card selection would add a new case in which
-Admin chooses without becoming the default performer.
+`BY` to separate its credited Actor.
 
 ## Admin and engine
 
 `Admin` is the concrete non-Player Actor and Component that performs neutral table activity. An
 N-Player game has those N seated Player Actors plus Admin. Admin may control, receive, select, and
-narrow tasks, including abstract choices such as a dealt card face or die result. No identity rule
+narrow tasks, including abstract choices such as a die result. No identity rule
 requires Admin's decisions to be deterministic or outcome-preserving.
 
 Kotlin `Engine` is different: it is the passive mechanism that validates an Actor mutation and
@@ -264,11 +263,3 @@ An explicitly named `Name@Anyone` would then co-refer without another carve-out,
 `BY Anyone` effect names its wildcard, so that costs nothing today. This is a rename across canon
 plus the removal of five carve-outs, and it was deliberately **not** attempted during the
 specification review; treat it as the next piece of work here, not as settled.
-
-## Future extension
-
-Real-card dealing will need a way to name Admin as the narrower without making Admin the default
-performer. A Player must control when an abstract `ProjectCard<Player, Hand>` gain is selected;
-the installed Admin policy may derive the exact face from seed and event history; and the
-originating task's Actor must retain attribution. Do not overload ownership or instruction-side
-`BY` to encode that extra role.
