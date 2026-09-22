@@ -37,7 +37,11 @@ internal fun Describers.cardCriterion(requirement: Requirement): CardCriterion? 
           return CardCriterion.Tag(tag)
         }
         REFERENCE_TO -> {
-          val resource = represented?.takeIf { cardResourceNoun(it, 1) != null } ?: return null
+          val referenced = represented ?: return null
+          fact(referenced, ComponentDescriber::requirementKind)?.let { kind ->
+            return CardCriterion.PropertyPresence("$kind requirement")
+          }
+          val resource = referenced.takeIf { cardResourceNoun(it, 1) != null } ?: return null
           return CardCriterion.ResourceIcon(resource)
         }
       }

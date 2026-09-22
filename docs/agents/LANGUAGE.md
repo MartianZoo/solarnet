@@ -156,8 +156,11 @@ construction. This multiple inheritance is part of the design. When a fact shoul
 subclasses, say so in the data with a `forSubclasses` flag resolved through `fact()` — do not add a
 second, non-inheriting accessor for one field.
 
-`TerraformingMarsDescribers` keys only authored facts by `ClassName`. `Describers` owns Class
-resolution; absent Classes fall back to structural interpretation and default naming.
+`TerraformingMarsDescribers` composes authored facts keyed by `ClassName`. Expansion-specific facts
+live with their expansion; Turmoil's are in `TurmoilExpansion/english/english.kt`. `Describers` owns
+Class resolution; absent Classes fall back to structural interpretation and default naming.
+For an opaque `Custom` requirement, `requirementKind` supplies only its English name: direct uses say
+the player must meet that named requirement, rather than duplicating its hidden gameplay definition.
 
 ### Choosing the shape of a new fact
 
@@ -305,8 +308,11 @@ semantic invariant needs direct proof.
   named EST-only paraphrases and structural composition helpers.
 - [`ComponentDescriber.kt`](../../src/common/dev/martianzoo/tfm/text/ComponentDescriber.kt),
   [`Describers.kt`](../../src/common/dev/martianzoo/tfm/text/Describers.kt),
-  [`TerraformingMarsDescribers.kt`](../../src/common/dev/martianzoo/tfm/text/TerraformingMarsDescribers.kt)
-  — lexical facts and inheritance.
+  [`TerraformingMarsDescribers.kt`](../../src/common/dev/martianzoo/tfm/text/TerraformingMarsDescribers.kt),
+  and expansion-local `english/` directories such as
+  [`TurmoilExpansion/english/english.kt`](../../src/common/dev/martianzoo/tfm/canon/TurmoilExpansion/english/english.kt)
+  — lexical facts, composition, and inheritance. The Turmoil directory is a `tfm-text` source root;
+  `tfm-canon` excludes expansion-local `english/` directories to keep module ownership acyclic.
 - [`ExpressionResolver.kt`](../../src/common/dev/martianzoo/tfm/text/ExpressionResolver.kt) — structural
   Class and dependency roles.
 - `Clause.RawPets`, `NounPhrase.rawPets`, and `EnglishText.unresolved()` — visible fallback and

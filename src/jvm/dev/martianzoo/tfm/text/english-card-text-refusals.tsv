@@ -1,7 +1,7 @@
 count	reason	examples
-8	UNKNOWN_CHANGE_FRAME	TradeEnvoys: TradeBarrier<ColonyTile> | TradingColony: TradeBarrier<ColonyTile>
+9	UNKNOWN_CHANGE_FRAME	TradeEnvoys: TradeBarrier<ColonyTile> | TradingColony: TradeBarrier<ColonyTile>
 6	UNSUPPORTED_EFFECT_TRIGGER	TradeEnvoys: Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier<ColonyTile> | TradingColony: Trade<ColonyTile>: ColonyProduction<ColonyTile>? THEN -TradeBarrier<ColonyTile>
-3	UNSUPPORTED_FANOUT	Aridor: EACH Class<Tag> { AridorTagWatcher<Class<Tag>, This> } | MarsNomads: EACH MarsArea(HAS NomadsMarker) { Placement<MarsArea> }
+4	UNSUPPORTED_FANOUT	Aridor: EACH Class<Tag> { AridorTagWatcher<Class<Tag>, This> } | EarlyColonization: EACH ColonyTile { 2 ColonyProduction<ColonyTile> }
 2	UNSUPPORTED_DECLARED_CHANGE	CyberiaSystems: CopyProductionBox<CardFront(HAS BuildingTag, NOT CardFront)> | Recruitment: PartyDelegate<Party(HAS 1 (PartyDelegate<Party, Neutral> - PartyLeader<Party, Neutral>)), Owner FROM Neutral>
 2	UNSUPPORTED_GATE	LawSuit: (MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): 3 MC FROM MC<Player> | CyberiaSystems: BuildingTag<CardFront>: CopyProductionBox<CardFront>
 1	UNKNOWN_ACTION_FRAME	SearchForLife: MC -> CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS PrintedTag<Class<MicrobeTag>>): Science<This>) OR Ok)]

@@ -1,21 +1,15 @@
 package dev.martianzoo.tfm.text
 
-import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.tfm.text.ComponentDescriber.ChangeFrame as Frame
 import dev.martianzoo.tfm.text.ComponentDescriber.RequirementCondition as Condition
 import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as Trigger
+import dev.martianzoo.tfm.text.turmoilexpansion.turmoilEnglishDeclarations
 
 /** Terraforming Mars component descriptions supplied to the structural English renderer. */
 internal object TerraformingMarsDescribers {
-  private val owner = Key(OWNED, 0)
-  private val party = Key(cn("PartyDelegate"), 0)
-  private val rulingParty = Key(cn("PartyStatus"), 0)
-
   private val declarations: Map<ClassName, ComponentDescriber> = run {
-    val delegateNoun = counted("delegate", "delegates")
     val tileNoun = counted("tile", "tiles")
     val oceanTileNoun = counted("ocean tile", "ocean tiles")
     val greeneryTileNoun = counted("greenery tile", "greenery tiles")
@@ -48,77 +42,6 @@ internal object TerraformingMarsDescribers {
             ),
         klass("NonNegativeIconsOf") to ComponentDescriber(printedIconCount = true),
         klass("SoloMode") to ComponentDescriber(presenceCondition = "this is a solo game"),
-        klass("Ruling") to
-            ComponentDescriber(
-                requirementCondition = Condition.ArgumentState(rulingParty, "is ruling"),
-            ),
-        klass("MarsFirst") to
-            ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("Mars First")),
-        klass("Scientists") to
-            ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("the Scientists party")),
-        klass("Unity") to ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("Unity")),
-        klass("Greens") to
-            ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("the Greens party")),
-        klass("Reds") to ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("the Reds party")),
-        klass("Kelvinists") to
-            ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("the Kelvinists party")),
-        klass("PartyDelegate") to
-            ComponentDescriber(
-                changeFrame =
-                    Frame.CountedProcedure(
-                        "place",
-                        delegateNoun,
-                        singularDeterminer = Determiner.INDEFINITE,
-                    ),
-                requirementCondition =
-                    Condition.OwnedCount(
-                        delegateNoun,
-                        qualifierDependency = party,
-                        qualifierRelation = "in",
-                        unboundQualifier = "any party",
-                        ownerDependency = owner,
-                        ownerAdjectives = mapOf(klass("Neutral") to "neutral"),
-                        differences =
-                            mapOf(
-                                klass("PartyLeader") to
-                                    counted("non-leader delegate", "non-leader delegates")
-                            ),
-                    ),
-            ),
-        klass("PartyLeader") to
-            ComponentDescriber(
-                triggerFrame = Trigger.Named("become", "a party leader"),
-                requirementCondition =
-                    Condition.OwnedCount(
-                        counted("party", "parties"),
-                        ownerDependency = owner,
-                        ownerAdjectives = mapOf(klass("Neutral") to "neutral"),
-                        ownerVerb = "lead",
-                    ),
-            ),
-        klass("Chairman") to
-            ComponentDescriber(
-                changeFrame =
-                    Frame.State(
-                        enter = Frame.Procedure("move", "a reserve delegate to the chair"),
-                        leave = Frame.Procedure("return", "the chairman to its owner's reserve"),
-                        ownershipTransfers =
-                            mapOf(
-                                klass("Neutral") to
-                                    Frame.Procedure(
-                                        "replace",
-                                        "the neutral chairman with one of your delegates",
-                                    )
-                            ),
-                    ),
-                requirementCondition =
-                    Condition.OwnedCount(
-                        counted("chairman", "chairmen"),
-                        ownerDependency = owner,
-                        ownerAdjectives = mapOf(klass("Neutral") to "neutral"),
-                        singleOwnerState = "are chairman",
-                    ),
-            ),
         klass("Pass") to
             ComponentDescriber(
                 requirementCondition = Condition.OwnerState("has passed"),
@@ -127,16 +50,6 @@ internal object TerraformingMarsDescribers {
         klass("FrontierTownBonus") to
             ComponentDescriber(
                 changeFrame = Frame.ScopedInstruction("and gain its placement bonus twice")
-            ),
-        klass("Influence") to
-            ComponentDescriber(
-                noun = ComponentDescriber.Noun.Fixed("influence"),
-                numericSingularChange = true,
-                changeFrame = Frame.Countable,
-            ),
-        klass("MeasureInfluence") to
-            ComponentDescriber(
-                triggerFrame = Trigger.Named("is counted", "influence", passive = true)
             ),
         klass("StandardResource") to
             ComponentDescriber(numericSingularChange = true, changeFrame = Frame.Countable),
@@ -243,10 +156,6 @@ internal object TerraformingMarsDescribers {
                                     ),
                                 "requirement" to
                                     ComponentDescriber.MinimumProperty.Presence("requirement"),
-                                "partyRequirement" to
-                                    ComponentDescriber.MinimumProperty.Presence(
-                                        "party requirement"
-                                    ),
                             )
                     ),
             ),
@@ -804,7 +713,8 @@ internal object TerraformingMarsDescribers {
     )
   }
 
-  internal val descriptions: Map<ClassName, ComponentDescriber> = declarations
+  internal val descriptions: Map<ClassName, ComponentDescriber> =
+      uniqueDeclarations(*(declarations.toList() + turmoilEnglishDeclarations).toTypedArray())
 
   private fun uniqueDeclarations(
       vararg entries: Pair<ClassName, ComponentDescriber>,

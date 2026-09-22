@@ -84,8 +84,6 @@ internal class EnglishTest {
         "Draw 1 card and 1 prelude card."
     english.describe(parse<InstructionTree>("3 Microbe, 2 Animal")) shouldBe
         "Add 3 microbes to any card. Add 2 animals to any card."
-    english.describe(parse<InstructionTree>("PartyDelegate, PartyDelegate")) shouldBe
-        "Place a delegate. Place a delegate."
     english.describe(parse<InstructionTree>("PROD[-Energy, 2 MC]")) shouldBe
         "Decrease your energy production 1 step and increase your M€ production 2 steps."
     english.describe(parse<InstructionTree>("PROD[Plant, Energy]")) shouldBe

@@ -82,7 +82,7 @@ private fun Describers.renderDescribedMinimumCondition(
       }
       Clause.Simple(Predicate(Verb(frame.predicate)), NounPhrase.you())
     }
-    null -> null
+    null -> renderNamedRequirementCondition(requirement)
   }
 }
 
@@ -182,6 +182,28 @@ private fun Describers.renderOwnedCountCondition(
 
 private fun renderMinimum(requirement: Requirement.Min, describers: Describers): Clause? =
     describers.renderMinimum(requirement)
+
+private fun Describers.renderNamedRequirementCondition(requirement: Requirement.Min): Clause? {
+  if (requirement.target != 1) return null
+  val expression = countedExpression(requirement)?.takeIf { it.refinement == null } ?: return null
+  val kind = fact(expression.className, ComponentDescriber::requirementKind) ?: return null
+  val qualifier =
+      resolveExpression(expression)?.sourceDependencies?.values?.singleOrNull()?.takeIf {
+        it.simple && concrete(it.className)
+      } ?: return null
+  val namedRequirement =
+      NounPhrase("$kind requirement", determiner = Determiner.THE)
+          .withModifier(
+              Modifier.Relation(
+                  "for",
+                  NounPhrase.text(componentNoun(qualifier.className, 1)),
+              )
+          )
+  return Clause.Simple(
+      Predicate(Verb("meet"), Coordination.one(namedRequirement)),
+      NounPhrase.you(),
+  )
+}
 
 private fun renderMaximum(requirement: Requirement.Max, describers: Describers): Clause? =
     describers.renderMaximum(requirement)

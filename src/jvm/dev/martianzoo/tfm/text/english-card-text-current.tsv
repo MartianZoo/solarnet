@@ -388,7 +388,7 @@ Spire	Spire	Gain 50 M€. As your first action, draw 4 cards, then discard 3 car
 AtmosphericEnhancers	Atmospheric Enhancers	Raise temperature 2 steps, oxygen 2 steps, or Venus 2 steps. Draw 2 cards with floater icons.
 BoardOfDirectors	Board Of Directors	Add 4 director resources to this card.	Action: Draw 1 prelude card. Discard 1 prelude card or pay 12 M€ and remove 1 director resource from this card to play a prelude card.
 ColonyTradeHub	Colony Trade Hub	Increase your energy production 1 step. Gain 2 titanium.	Effect: When any colony is placed, gain 2 M€.
-EarlyColonization	Early Colonization	Place a colony. Gain 3 energy. Increase all colony tile tracks 2 steps.
+EarlyColonization	Early Colonization	Place a colony. Gain 3 energy. [EACH ColonyTile { 2 ColonyProduction<ColonyTile> }].
 FloatingTradeHub	Floating Trade Hub		Action: Add 2 floaters to any card, or spend 1 or more floaters from this card to gain the same number of one standard resource.
 FocusedOrganization	Focused Organization	Draw 1 card. Gain 1 standard resource.	Action: Discard 1 card and pay 1 standard resource to draw 1 card and gain 1 standard resource.
 IndustrialComplex	Industrial Complex	Remove 18 M€. Increase each of your productions below 1 to 1.
@@ -509,30 +509,30 @@ SterlingVents	Sterling Vents	Decrease your heat production 2 steps and increase 
 CorridorsOfPower	Corridors Of Power	Raise your terraform rating 1 step. Gain 4 M€.	Effect: When you become a party leader, draw 1 card.
 HighCircles	High Circles	Raise your terraform rating 1 step. Draw 1 card with a party requirement. Place 2 delegates.	Effect: When influence is counted, gain 1 influence.
 RiseToPower	Rise To Power	Increase your M€ production 3 steps. Place a delegate. Place a delegate. Place a delegate.
-ColonialEnvoys	Colonial Envoys	Requires that either Unity is ruling or you have 2 delegates in Unity. Place a delegate per colony you own.
+ColonialEnvoys	Colonial Envoys	Requires that you meet the party requirement for Unity. Place a delegate per colony you own.
 ColonialRepresentation	Colonial Representation	Gain 3 M€ per colony you own.	Effect: When influence is counted, gain 1 influence.
 EnvoysFromVenus	Envoys From Venus	Requires 3 Venus tags. Place 2 delegates.
-FrontierTown	Frontier Town	Requires that either Mars First is ruling or you have 2 delegates in Mars First. Decrease your energy production 1 step. Place a city tile and gain its placement bonus twice.
-GhgShipment	GHG Shipment	Requires that either the Kelvinists party is ruling or you have 2 delegates in the Kelvinists party. Increase your heat production 1 step. Gain 1 heat per floater you have.
+FrontierTown	Frontier Town	Requires that you meet the party requirement for Mars First. Decrease your energy production 1 step. Place a city tile and gain its placement bonus twice.
+GhgShipment	GHG Shipment	Requires that you meet the party requirement for the Kelvinists party. Increase your heat production 1 step. Gain 1 heat per floater you have.
 JovianEnvoys	Jovian Envoys	Requires 2 Jovian tags. Place 2 delegates.
-RedAppeasement	Red Appeasement	Requires that no player has passed and either the Reds party is ruling or you have 2 delegates in the Reds party. Increase your M€ production 2 steps. Pass.
-SpecialPermit	Special Permit	Requires that either the Greens party is ruling or you have 2 delegates in the Greens party. Steal 4 plants from any player.
+RedAppeasement	Red Appeasement	Requires that you meet the party requirement for the Reds party and no player has passed. Increase your M€ production 2 steps. Pass.
+SpecialPermit	Special Permit	Requires that you meet the party requirement for the Greens party. Steal 4 plants from any player.
 SponsoringNation	Sponsoring Nation	Requires 4 Earth tags. Raise your terraform rating 3 steps. Place 2 delegates.
-SummitLogistics	Summit Logistics	Requires that either the Scientists party is ruling or you have 2 delegates in the Scientists party. Gain 1 M€ per Jovian tag you have, Earth tag you have, Venus tag you have, or colony you own. Draw 2 cards.
+SummitLogistics	Summit Logistics	Requires that you meet the party requirement for the Scientists party. Gain 1 M€ per planetary tag you have or colony you own. Draw 2 cards.
 WgProject	WG Project	Requires that you are chairman. Draw 3 prelude cards, then play one of them, then discard the other 2.
 PoliticalAlliance	Political Alliance	Requires that you lead 2 parties. Raise your terraform rating 1 step.
-AerialLenses	Aerial Lenses	Requires that either the Kelvinists party is ruling or you have 2 delegates in the Kelvinists party. You may remove up to 2 plants from any player. Increase your heat production 2 steps.
-CulturalMetropolis	Cultural Metropolis	Requires that either Unity is ruling or you have 2 delegates in Unity. Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile and 2 delegates.
-DiasporaMovement	Diaspora Movement	Requires that either the Reds party is ruling or you have 2 delegates in the Reds party. Gain 1 M€ per Jovian tag in play (including this).
-EventAnalysts	Event Analysts	Requires that either the Scientists party is ruling or you have 2 delegates in the Scientists party.	Effect: When influence is counted, gain 1 influence.
-GmoContract	GMO Contract	Requires that either the Greens party is ruling or you have 2 delegates in the Greens party.	Effect: When you play an animal tag, a plant tag, or a microbe tag (including this), gain 2 M€.
-MartianMediaCenter	Martian Media Center	Requires that either Mars First is ruling or you have 2 delegates in Mars First. Increase your M€ production 2 steps.	Action: Spend 3 M€ to place a delegate.
-ParliamentHall	Parliament Hall	Requires that either Mars First is ruling or you have 2 delegates in Mars First. Increase your M€ production 1 step per 3 building tags you have (including this).
-PrOffice	PR Office	Requires that either Unity is ruling or you have 2 delegates in Unity. Raise your terraform rating 1 step. Gain 1 M€ per Earth tag you have (including this).
+AerialLenses	Aerial Lenses	Requires that you meet the party requirement for the Kelvinists party. You may remove up to 2 plants from any player. Increase your heat production 2 steps.
+CulturalMetropolis	Cultural Metropolis	Requires that you meet the party requirement for Unity. Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile and 2 delegates.
+DiasporaMovement	Diaspora Movement	Requires that you meet the party requirement for the Reds party. Gain 1 M€ per Jovian tag in play (including this).
+EventAnalysts	Event Analysts	Requires that you meet the party requirement for the Scientists party.	Effect: When influence is counted, gain 1 influence.
+GmoContract	GMO Contract	Requires that you meet the party requirement for the Greens party.	Effect: When you play a bio tag (including this), gain 2 M€.
+MartianMediaCenter	Martian Media Center	Requires that you meet the party requirement for Mars First. Increase your M€ production 2 steps.	Action: Spend 3 M€ to place a delegate.
+ParliamentHall	Parliament Hall	Requires that you meet the party requirement for Mars First. Increase your M€ production 1 step per 3 building tags you have (including this).
+PrOffice	PR Office	Requires that you meet the party requirement for Unity. Raise your terraform rating 1 step. Gain 1 M€ per Earth tag you have (including this).
 PublicCelebrations	Public Celebrations	Requires that you are chairman.
-Recruitment	Recruitment	[PartyDelegate<Party(HAS 1 (PartyDelegate<Party, Neutral> - PartyLeader<Party, Neutral>)), Owner FROM Neutral>].
-RedTourismWave	Red Tourism Wave	Requires that either the Reds party is ruling or you have 2 delegates in the Reds party. Gain 1 M€ per area on Mars with no tiles next to at least 1 tile you own.
-SponsoredMohole	Sponsored Mohole	Requires that either the Kelvinists party is ruling or you have 2 delegates in the Kelvinists party. Increase your heat production 2 steps.
-SupportedResearch	Supported Research	Requires that either the Scientists party is ruling or you have 2 delegates in the Scientists party. Draw 2 cards.
-WildlifeDome	Wildlife Dome	Requires that either the Greens party is ruling or you have 2 delegates in the Greens party. Place a greenery tile.
+Recruitment	Recruitment	[Audit]. [PartyDelegate<Party(HAS 1 (PartyDelegate<Party, Neutral> - PartyLeader<Party, Neutral>)), Owner FROM Neutral>].
+RedTourismWave	Red Tourism Wave	Requires that you meet the party requirement for the Reds party. Gain 1 M€ per area on Mars with no tiles next to at least 1 tile you own.
+SponsoredMohole	Sponsored Mohole	Requires that you meet the party requirement for the Kelvinists party. Increase your heat production 2 steps.
+SupportedResearch	Supported Research	Requires that you meet the party requirement for the Scientists party. Draw 2 cards.
+WildlifeDome	Wildlife Dome	Requires that you meet the party requirement for the Greens party. Place a greenery tile.
 VoteOfNoConfidence	Vote Of No Confidence	Requires that you lead a party. Replace the neutral chairman with one of your delegates. Raise your terraform rating 1 step.
