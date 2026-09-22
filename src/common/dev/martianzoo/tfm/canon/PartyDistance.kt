@@ -6,7 +6,8 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.Type
 
-internal val turmoilExpansionCustomClasses: Set<CustomMetric> = setOf(PartyDistance)
+internal val turmoilExpansionCustomClasses: Set<CustomMetric> =
+    setOf(PartyDistance, PartyRequirement)
 
 /** Computes forward distance through the declared Party ring. */
 internal object PartyDistance : CustomMetric() {

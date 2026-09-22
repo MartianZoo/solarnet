@@ -13,9 +13,10 @@ import dev.martianzoo.state.Task.TaskId
  * selected task resolved against stale state.
  */
 public fun Agents.exMachina(adjustingActor: Actor, adjustment: String) {
+  val auditedAdjustment = "Audit<$adjustingActor>, $adjustment"
   val selectedId = world.tasks.selectedTask()
   if (selectedId == null) {
-    this[adjustingActor].sneak(adjustment)
+    this[adjustingActor].sneak(auditedAdjustment)
     return
   }
 
@@ -24,7 +25,7 @@ public fun Agents.exMachina(adjustingActor: Actor, adjustment: String) {
   selectedAgent.autoExecPolicy = NONE
   try {
     world.actorEngine(selectedAgent.actor).restoreTask(world.taskBeforeSelection(selectedId))
-    this[adjustingActor].sneak(adjustment)
+    this[adjustingActor].sneak(auditedAdjustment)
     selectedAgent.selectTask(selectedId)
   } finally {
     selectedAgent.autoExecPolicy = previousAutoExecPolicy

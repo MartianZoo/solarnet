@@ -12,6 +12,7 @@ internal class Game20260619Test : AbstractFullGameTest() {
           """
           VenusNextExpansion, PreludeExpansion, PromoCardPack
           -WorldGovernmentRule
+          Specialist, Planner
           """,
           "Player1",
           "Player2",
@@ -19,7 +20,7 @@ internal class Game20260619Test : AbstractFullGameTest() {
 
   @Test
   internal fun gameThroughGeneration5() {
-    val workflow = TfmWorkflow.Automatic(agents).launch()
+    TfmWorkflow.Automatic(agents).launch()
     retainStartingProjects(6, 3)
 
     // Game id: peae6273d6b33
@@ -333,10 +334,9 @@ internal class Game20260619Test : AbstractFullGameTest() {
 
     // KB claimed Specialist milestone
     // KB ended turn
-    // TODO: Specialist is an Elysium milestone, but this setup only loads Tharsis milestones.
-    // Stop automatic turn enforcement at this intentionally raw substitute for the logged action.
-    workflow.shutdown()
-    KB.runOperation("-8 MC, 5 VictoryPoint")
+    KB.turn {
+      stdAction("ClaimMilestoneAction") { doTask("Specialist") }
+    }
 
     // ER played Mohole Area
     // ER gained 4 heat production
@@ -366,7 +366,8 @@ internal class Game20260619Test : AbstractFullGameTest() {
     // You bought Investment Loan,Tectonic Stress Power
     // ER bought 2 card(s)
     // You bought Micro-Mills,Lava Tube Settlement
-    admin.nextGeneration(2, 2)
+    ER.buyCards(2)
+    KB.buyCards(2)
 
     with(ER) {
       assertProduction(m = 5, s = 0, t = 1, p = 2, e = 0, h = 9)

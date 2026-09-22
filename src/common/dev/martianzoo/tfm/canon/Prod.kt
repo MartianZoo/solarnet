@@ -4,19 +4,24 @@ import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.ast.Action.Cost.Spend
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.Expression.Refinement.And
 import dev.martianzoo.pets.ast.Expression.Refinement.Has
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
+import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.tfm.canon.TfmClasses.PRODUCTION
 import dev.martianzoo.tfm.canon.TfmClasses.STANDARD_RESOURCE
 
 internal object Prod {
-  /** Creates the `PROD[...]` handler for one game class table. */
+  /**
+   * Creates the `PROD[...]` handler for one game class table. Changes and action costs must target
+   * standard resources; metrics used to scale those changes remain unrestricted.
+   */
   public fun handler(classTable: ClassTable): TransformHandler =
       handler(findResourceClassNames(classTable))
 
@@ -41,6 +46,12 @@ internal object Prod {
   private fun resourceLowerer(resourceClassNames: Set<ClassName>): PetTransformer =
       object : PetTransformer() {
         override fun transformNode(node: PetNode): PetNode {
+          when (node) {
+            is Change ->
+                listOfNotNull(node.gaining, node.removing).forEach(::requireStandardResource)
+            is Spend -> requireStandardResource(node.scaledEx.expression)
+            else -> Unit
+          }
           if (node is Expression && node.className == CLASS) return node
           if (node !is Expression || node.className !in resourceClassNames) {
             return transformChildren(node)
@@ -48,6 +59,14 @@ internal object Prod {
           // Production represents its resource kind with a Class dependency, so the resource
           // selector's refinement belongs on that represented class after lowering.
           return PRODUCTION.of(node.arguments + node.toClassSelector())
+        }
+
+        private fun requireStandardResource(expression: Expression) {
+          if (expression.className !in resourceClassNames) {
+            throw ExpressionException(
+                "PROD cannot gain or remove non-standard resource `$expression`"
+            )
+          }
         }
       }
 

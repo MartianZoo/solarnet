@@ -12,6 +12,23 @@ private val rulingBonusProbeDeclarations =
 internal class TurmoilGovernmentTest :
     CardTest(additionalClassDeclarations = rulingBonusProbeDeclarations) {
   @Test
+  internal fun `party requirement counts either ruling or two of the player's delegates`() {
+    newGame(TurmoilExpansion)
+    val p2 = requireP2()
+
+    p1.count("PartyRequirement<Greens>") shouldBe 1
+    p1.count("PartyRequirement<MarsFirst>") shouldBe 0
+    p1.runOperation("PartyDelegate<MarsFirst>")
+    p1.count("PartyRequirement<MarsFirst>") shouldBe 0
+    p1.runOperation("PartyDelegate<MarsFirst>")
+    p1.count("PartyRequirement<MarsFirst>") shouldBe 1
+    p2.count("PartyRequirement<MarsFirst>") shouldBe 0
+
+    p1.runOperation("PartyDelegate<Greens>, PartyDelegate<Greens>")
+    p1.count("PartyRequirement<Greens>") shouldBe 1
+  }
+
+  @Test
   internal fun `new government resolves the complete delegate and chairman sequence`() {
     newGame(TurmoilExpansion)
     val p2 = requireP2()

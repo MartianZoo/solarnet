@@ -227,11 +227,12 @@ one declaration, with an optional semicolon-separated body, and rejects owner-lo
 > keeps that API from smuggling additional globally named types through one record.
 
 **L1-12. Every catalog also receives the system declarations.** `systemClassDeclarations` supplies
-the classes this specification and the type system depend on — `Component` and `Class` (T1-4, T1-5),
-the ownership vocabulary `Anyone`, `Owner` and `Owned`, the actor root `Actor`, the identity signal
-`Ok` (L6-4), and the impossible type `Die` (L12-14) — plus `Atomized` (L12-11) and `Custom` (T2-9).
-A catalog's own source is loaded alongside them. Which of these a *game* then contains is premise
-construction's question, not this document's.
+the universal audit signal `Audit` plus the classes this specification and the type system depend
+on — `Component` and `Class` (T1-4, T1-5), the ownership vocabulary `Anyone`, `Owner` and `Owned`,
+the actor root `Actor`, the identity signal `Ok` (L6-4), and the impossible type `Die` (L12-14) —
+plus `Atomized` (L12-11) and `Custom` (T2-9).
+A catalog's own source is loaded alongside them. Premise construction always includes `Audit` and
+decides which of the remaining system declarations a *game* contains.
 
 > **Non-normative example — impossible and empty outcomes.** Specialization uses the built-in `Die`
 > and `Ok` terminal instructions when selected content makes a mandatory result impossible or an

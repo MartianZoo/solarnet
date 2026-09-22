@@ -6,6 +6,7 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.cards.CardTest
 import dev.martianzoo.tfm.tests.cards.cardnames.WorldGovernmentAdvisor
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class FakeThawerTest : CardTest() {
@@ -16,9 +17,11 @@ internal class FakeThawerTest : CardTest() {
     requireP2().runOperation("TemperatureStep")
     admin.runOperation("TemperatureStep")
     admin.phase("Action")
+    val checkpoint = game.timeline.checkpoint()
     shouldThrow<RequirementException> { p1.claimMilestone(cn("FakeThawer")) }
     p1.runOperation("TemperatureStep")
     p1.claimMilestone(cn("FakeThawer")).expect("-8 MC, FakeThawer")
+    p1.auditGainsSince(checkpoint) shouldBe 0
   }
 
   @Test

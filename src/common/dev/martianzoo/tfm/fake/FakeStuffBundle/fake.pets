@@ -1,6 +1,10 @@
 "Explicitly selected support for incomplete game content"
 CLASS FakeStuffBundle : Module {
   X TemperatureStep BY Player IF Class<FakeThawer>:: X FakeTemperatureCredit<Player>
+  -TemperatureStep BY Admin IF Class<FakeThawer>:: \
+    EACH Player(HAS FakeTemperatureCredit) { Audit }
+  FirstPlace<Collector> IF RobotUnit:: Audit
+  SecondPlace<Collector> IF RobotUnit:: Audit
 }
 
 "Thawer whose temperature credits survive temperature reductions"
