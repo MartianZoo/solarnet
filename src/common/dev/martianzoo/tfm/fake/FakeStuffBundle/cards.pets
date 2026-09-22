@@ -53,6 +53,7 @@ CLASS FakePreservationProgram : CardFront<Class<PreludeCard>> {
 "One TR loss per generation; the original gain still triggers effects such as Terraforming Deal"
 CLASS FakePreservationTrLost<GenerationScope> : Cardbound<FakePreservationProgram> {
   HAS MAX 1 This
+  This:: Audit
   This: -TerraformRating
 }
 
@@ -82,6 +83,7 @@ CLASS FakeBannedDelegate : EventCard {
   requirement = HAS "Chairman"
 
   This:: EventTag<This>
+  This:: Audit
   This: FakeBannedDelegateRemoval<Party, Anyone>. / \
     (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1
 }
@@ -112,6 +114,7 @@ CLASS FakeEstablishedMethods : CardFront<Class<PreludeCard>> {
 CLASS FakeHeadStart : CardFront<Class<PreludeCard>> {
   cost = 0
 
+  This:: Audit
   This: 2 Steel, 2 MC / ProjectCard<Hand>, UseAction<StandardAction>!, UseAction<StandardAction>!
 }
 

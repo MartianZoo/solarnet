@@ -1,5 +1,5 @@
 "The base Terraforming Mars rules"
-CLASS TerraformingMars : BaseGameModule {
+CLASS TerraformingMars : Module {
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
   HAS =1 GameMode, =1 MarsMap
@@ -20,11 +20,6 @@ CLASS TerraformingMars : BaseGameModule {
   ModulesReady IF MAX 0 ExtendedGlobalParametersRule: StandardGpTrackRules
   ModulesReady IF MAX 0 CorporationOption: 2 CorporationOption
 
-  // TODO: get rid of
-  CorporationPhase: Photosynthesis
-  CorporationPhase:: EACH Class<@CardWatcher> { @CardWatcher }
-
-  // TODO: do we need `IF Owed` ... if so could `Accepting` just remove itself when no Owed exist?
   PayingFor<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>
   PayingFor<Class<SpaceTag>> IF Owed:: Accepting<Class<Titanium>>
 }
@@ -44,19 +39,13 @@ ABSTRACT CLASS Module : System {
   HAS =1 This
 }
 
-// TODO: why do we need this
-"The Module whose immediate setup must precede every other selected Module"
-ABSTRACT CLASS BaseGameModule : Module { HAS =1 BaseGameModule }
-
-// TODO: why do we need this
+// TODO.md: replace with BootstrapPhase entry after premise construction
 "Signals that the complete selected Module layer is live"
 CLASS ModulesReady : Signal
 
 "Exactly one player-count Module active in a playable game"
 ABSTRACT CLASS GameMode : Module {
-  HAS MAX 1 GameMode // TODO =1 ??
-  // TODO: why would we ever need this?
-  premiseRequirement = HAS "=1 TerraformingMars"
+  HAS =1 GameMode
 
   "Multiplayer rules, including the end condition that deliberately excludes Venus"
   CLASS MultiplayerMode {
@@ -67,7 +56,7 @@ ABSTRACT CLASS GameMode : Module {
     This: GpGameEndBarrier<Class<TemperatureStep>>, GpGameEndBarrier<Class<OxygenStep>>, GpGameEndBarrier<Class<OceanTile>>
     SetupPhase: EACH Player { 20 TerraformRating }
 
-    // TODO: something better for this to trigger on
+    // TODO.md: move final scoring and victory assignment into their real phase boundaries
     -FinalScoringPending: EACH Player(HAS =1 (RANK { VictoryPoint, MC })) { Victory }
   }
 }
@@ -120,6 +109,9 @@ ABSTRACT CLASS Phase : System {
   CLASS BootstrapPhase
   CLASS SetupPhase { This:: Generation }
   CLASS CorporationPhase {
+    This: Photosynthesis
+    This:: EACH Class<@CardWatcher> { @CardWatcher }
+
     NewTurn IF StandardCorporationCard<Hand>: \
       PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Hand>, \
       (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>)

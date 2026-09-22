@@ -176,7 +176,6 @@ internal constructor(
       variables: Iterable<TypeVariable>,
   ): Map<TypeVariable, GroundType> = rootClass.variableBindings(general.groundType, this, variables)
 
-  // TODO allocating 28 MB per solo game
   internal fun glbIn(that: Type, classTable: ClassTable): GroundType? {
     val that = that.groundType
     require(classTable.knows(this) && classTable.knows(that)) {
@@ -352,7 +351,6 @@ internal constructor(
     }
   }
 
-  // TODO solo game spending 19% of its time in this method, allocating over 10 MB!?
   /**
    * Tests contextual narrowing with [that], consulting [info] only for a `HAS` refinement, as
    * specified by

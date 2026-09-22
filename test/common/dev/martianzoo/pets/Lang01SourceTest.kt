@@ -388,6 +388,7 @@ internal class Lang01SourceTest {
             ANYONE,
             OWNER,
             OWNED,
+            cn("Audit"),
             OK,
             ATOMIZED,
             cn("Actor"),

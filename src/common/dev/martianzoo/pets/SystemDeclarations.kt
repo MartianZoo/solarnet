@@ -8,13 +8,13 @@ import dev.martianzoo.pets.util.toSetStrict
 /**
  * Pets runtime declarations that are available to every Catalog, as required by
  * [rule L1-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations):
- * the classes this language and the type system depend on, including `Component` and `Class`, the
- * ownership vocabulary `Anyone`, `Owner` and `Owned`, the actor root `Actor`, the identity signal
- * `Ok`, the impossible type `Die`, and `Atomized` and `Custom`. A catalog's own source is loaded
- * alongside them.
+ * the universal `Audit` signal plus the classes this language and the type system depend on,
+ * including `Component` and `Class`, the ownership vocabulary `Anyone`, `Owner` and `Owned`, the
+ * actor root `Actor`, the identity signal `Ok`, the impossible type `Die`, and `Atomized` and
+ * `Custom`. A catalog's own source is loaded alongside them.
  *
- * Which of these a particular game then contains is decided by [GamePremise.classTable], not this
- * module.
+ * [GamePremise.classTable] always roots `Audit`; it decides which of the remaining declarations a
+ * particular game contains.
  */
 // TODO: Replace this temporary tfm-canon seam with the generic Catalog contract.
 public val systemClassDeclarations: Set<ClassDeclaration> by lazy {
@@ -46,21 +46,21 @@ private val systemDeclarationsSource =
       This BY Actor(NOT Admin): Die
     }
 
-    "Anything that cannot remain once its owning operation or scope completes"
+    "Mandatory unfinished state that a completed operation may not leave behind"
     ABSTRACT CLASS MustCleanUp : Hidden
 
-    "Instances are removed at an empty task queue once no dependent Temporary or MustCleanUp remains"
+    "Removed only at a whole-World empty task pool, once no dependent Temporary or MustCleanUp remains"
     ABSTRACT CLASS Temporary
 
     "A lifetime anchor for components that depend on it"
     ABSTRACT CLASS Scope
 
-    "A child Scope removed after queued work and dependent cleanup finish"
+    "A child Scope combining whole-World idle removal with mandatory completion"
     ABSTRACT CLASS TemporaryScope<Scope> : Scope, Temporary, MustCleanUp {
       HAS MAX 1 This
     }
 
-    "Something the player must remove to unblock some other task (i.e., `MAX 0 Barrier:` is common"
+    "Mandatory unfinished state removed by its owning game rule; `MAX 0 Barrier:` is a common gate"
     ABSTRACT CLASS Barrier : MustCleanUp
 
     "An unscoped point event; `IF This` skips self-removal when no instance entered live state"
@@ -87,6 +87,9 @@ private val systemDeclarationsSource =
 
     "Gaining `Ok` is the standard 'do-nothing' instruction; can't trigger anything"
     CLASS Ok : Signal
+
+    "An owned signal recording behavior whose legality the game cannot prove"
+    CLASS Audit : Owned, Signal
 
     "A component that can never be created"
     CLASS Die { HAS MAX 0 This }

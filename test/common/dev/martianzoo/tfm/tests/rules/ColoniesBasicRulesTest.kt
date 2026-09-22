@@ -246,6 +246,19 @@ internal class ColoniesBasicRulesTest : TfmTest() {
   }
 
   @Test
+  internal fun `colony production leaves a maximum track at maximum`() {
+    admin.runOperation("5 ColonyProduction<Luna>")
+    admin.phase("Production")
+
+    with(TfmWorkflow.Stepwise(agents)) {
+      solarPhase()
+      coloniesSolarPhase()
+    }
+
+    admin.count("ColonyProduction<Luna>") shouldBe 6
+  }
+
+  @Test
   internal fun `trade fleet cannot be reused`() {
     p1.stdAction("TradeAction", 1) { doTask("Trade<Luna>") }
 

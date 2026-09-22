@@ -6,6 +6,7 @@ import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PetElement
 import dev.martianzoo.pets.data.Actor
@@ -108,6 +109,9 @@ public interface Agent {
    */
   public fun doTask(narrowing: String): TaskResult
 
+  /** Carries out [narrowing] against the task caused by a component of [contextClass]. */
+  public fun doTask(narrowing: String, contextClass: ClassName): TaskResult
+
   /** Carries out [narrowing] against the task identified by [taskId]. */
   public fun doTask(narrowing: String, taskId: TaskId): TaskResult
 
@@ -157,6 +161,8 @@ public interface Agent {
     public val reader: GameReader
 
     public fun doTask(narrowing: String)
+
+    public fun doTask(narrowing: String, contextClass: ClassName)
 
     public fun doTask(narrowing: String, taskId: TaskId)
 

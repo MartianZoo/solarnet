@@ -236,11 +236,13 @@ The engine applies dependency-ordered cleanup needed by this hierarchy:
 - repeat only if the queue remains empty; and
 - never remove an outer scope while a live inner scope or other mandatory cleanup depends on it.
 
-This is a generic cleanup rule, not workflow scheduling. It allows an Action scope to finish while
-its Turn, Phase, Generation, and Game scopes remain. The exact creation and continuation rules for
-Action and Turn scopes are intentionally deferred. It also aligns with the cleanup simplification
-in [`SEQUENCING.md`](SEQUENCING.md#cleanup-vocabulary): `Temporary` is a removal policy for one kind
-of `MustCleanUp`, not a competing statement of completion.
+This is a generic cleanup rule, not workflow scheduling. It lets nested scopes retire from the
+inside out while their parents remain, but cleanup still begins only when the whole World's task
+pool is empty. `TemporaryScope` therefore does not yet make Action completion local: unrelated work
+can delay it. The exact creation and continuation rules for Action and Turn scopes are intentionally
+deferred. [`SEQUENCING.md`](SEQUENCING.md#cleanup-vocabulary) owns the distinction: `Temporary` is a
+removal policy, `MustCleanUp` is a completion invariant, and `TemporaryScope` deliberately combines
+them.
 
 ## Phase ownership
 

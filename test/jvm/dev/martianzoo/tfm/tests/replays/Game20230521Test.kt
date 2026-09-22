@@ -1948,7 +1948,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     summ.net("Production<Player2>", "Resource<Player2>") shouldBe 187
 
     summ.net("$EarthOffice", "Owed") shouldBe -24
-    // Random automatic order may attribute fewer saturated removals here; see SEQUENCING.md.
+    // Random automatic order may attribute fewer saturated removals here; see TESTING.md.
     summ.net(
         "GrantedResourceValue<Player2, Class<Metal>, $AdvancedAlloys<Player2>>",
         "Owed",

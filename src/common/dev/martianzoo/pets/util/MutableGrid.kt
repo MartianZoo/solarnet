@@ -1,6 +1,5 @@
 package dev.martianzoo.pets.util
 
-// TODO: Replace this fixed-size mutable set/grid hybrid with a collection whose contracts match.
 internal class MutableGrid<E>(private val rows: List<List<E?>>) : Grid<E>, AbstractSet<E>() {
 
   override val rowCount: Int
