@@ -1,4 +1,4 @@
-"The only component to have absolutely no purpose whatsoever"
+"Marks the winner after final scoring"
 CLASS Victory : Owned<Player> { HAS MAX 1 This }
 
 CLASS VictoryPoint : Owned<Player>

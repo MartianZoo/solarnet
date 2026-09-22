@@ -51,6 +51,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `PlaceNeutralTiles`'s system-only ownership, and SRR's explicit card-Class selection.
 - Investigate why semantic validation during parsing throws `IllegalArgumentException` for malformed
   Pets, and whether those paths should use a parser-specific exception before translation.
+- Model Established Methods as two nonzero-cost standard projects without making the second project
+  mandatory when none is affordable. `StandardProject(HAS cost)` excludes Sell Patents and
+  non-project actions, but does not express current affordability; making the second action optional
+  would instead let a player skip it while an affordable project exists.
 
 ### Hypothetical Card Behavior
 

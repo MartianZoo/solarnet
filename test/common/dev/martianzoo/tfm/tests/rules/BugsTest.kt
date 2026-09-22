@@ -26,6 +26,7 @@ internal class BugsTest : CardTest() {
     admin.runOperation("PartyDelegate<Unity, Neutral>")
     p1.runOperation("ProjectCard")
     admin.phase("Action")
+    val checkpoint = game.timeline.checkpoint()
 
     p1.playProject(FakeBannedDelegate, 0) {
       doTask("FakeBannedDelegateRemoval<Player1, MarsFirst, Player2>")
@@ -36,6 +37,7 @@ internal class BugsTest : CardTest() {
     admin.count("Dominant<Unity>") shouldBe 0
     p1.count("PartyLeader<MarsFirst>") shouldBe 0
     p2.count("PartyLeader<MarsFirst>") shouldBe 1
+    p1.auditGainsSince(checkpoint) shouldBe 1
   }
 
   @Test
@@ -87,6 +89,7 @@ internal class BugsTest : CardTest() {
     p1.runOperation("PartyDelegate<MarsFirst>, 2 MC, ProjectCard")
     p2.runOperation("PartyDelegate<MarsFirst>, PartyDelegate<MarsFirst>")
     admin.phase("Action")
+    val checkpoint = game.timeline.checkpoint()
 
     p1.playProject(Recruitment, 2) {
       doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
@@ -95,6 +98,7 @@ internal class BugsTest : CardTest() {
     p1.count("PartyLeader<MarsFirst>") shouldBe 1
     p2.count("PartyLeader<MarsFirst>") shouldBe 1
     admin.count("PartyLeader<MarsFirst, Neutral>") shouldBe 0
+    p1.auditGainsSince(checkpoint) shouldBe 1
   }
 
   @Test

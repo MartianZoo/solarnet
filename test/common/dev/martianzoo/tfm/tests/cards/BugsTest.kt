@@ -68,6 +68,7 @@ internal class BugsTest : CardTest() {
     newGame(PreludeExpansion, FakeStuffBundle)
     p1.phase("Prelude")
     p1.runOperation("4 MC, 10 ProjectCard, PreludeCard, 10 Heat")
+    val checkpoint = game.timeline.checkpoint()
 
     p1.playPrelude(FakeHeadStart) {
       p1.assertCounts(2 to "Steel", 24 to "MC")
@@ -78,6 +79,7 @@ internal class BugsTest : CardTest() {
       doTask("18 Pay<Class<MC>> FROM MC")
       placeTile(5, 5)
     }
+    p1.auditGainsSince(checkpoint) shouldBe 1
   }
 
   @Test
@@ -86,10 +88,12 @@ internal class BugsTest : CardTest() {
     p1.phase("Prelude")
     p1.runOperation("$UnitedNationsMarsInitiative, FakePreservationProgram")
     admin.phase("Action")
+    val checkpoint = game.timeline.checkpoint()
 
     // The printed Preservation Program prevents this gain, so it should not satisfy UNMI's gate.
     p1.runOperation("TerraformRating").expect("0 TerraformRating")
     p1.cardAction1(UnitedNationsMarsInitiative).expect("-3 MC, TerraformRating")
+    p1.auditGainsSince(checkpoint) shouldBe 1
   }
 
   @Test
@@ -265,9 +269,11 @@ internal class BugsTest : CardTest() {
     }
     p1.playProject(DiversitySupport, 1).expect("TerraformRating")
     p1.fundAward(cn("Collector"), 8)
+    val checkpoint = game.timeline.checkpoint()
     admin.runOperation("End FROM Phase")
 
     p1.assertCounts(1 to "FirstPlace<Player1, Collector>")
     p2.assertCounts(0 to "FirstPlace<Player2, Collector>")
+    p1.auditGainsSince(checkpoint) shouldBe 1
   }
 }
