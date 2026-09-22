@@ -171,6 +171,9 @@ CLASS AfterParty<Party, Party> : System { HAS MAX 1 This }
 "The forward distance from one Party to another around the committee"
 CLASS PartyDistance<Party, Party> : Custom
 
+"Whether one player meets the ruling-party or two-delegate requirement for a party"
+CLASS PartyRequirement<Party> : Owned<Player>, Custom
+
 ABSTRACT CLASS PartyStatus<Party> {
   "The party with the greatest delegate count"
   CLASS Dominant {
