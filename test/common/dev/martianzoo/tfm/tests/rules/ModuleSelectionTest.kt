@@ -256,13 +256,20 @@ internal class ModuleSelectionTest {
     configurationRejects("Tr63SoloObjective")
     rejects("-StandardSoloObjective", players = 1)
 
-    rejects("Terraformer35", players = 1)
     rejects("Landlord", players = 1)
     rejects("VenusNextExpansion, MandatoryVenusVariant", players = 1)
 
     rejects("Callisto")
     configurationRejects("HellasMap, Geologist")
     configurationRejects("UtopiaMap, Geologist")
+  }
+
+  @Test
+  internal fun `explicit milestones are selectable outside their default pools`() {
+    classTable("TharsisMap, PolarExplorer").isInhabited(cn("PolarExplorer")) shouldBe true
+    classTable("ElysiumMap, Generalist2").isInhabited(cn("Generalist2")) shouldBe true
+    classTable("VenusNextExpansion, Hoverlord", players = 1).isInhabited(cn("Hoverlord")) shouldBe
+        true
   }
 
   private fun defaultMayBeExcluded(

@@ -2,10 +2,7 @@ CLASS HellasMap : MarsMap
 
 CLASS Diversifier : Milestone { requirement = HAS "8 Class<Tag>(HAS Tag<Owner>)" }
 CLASS Tactician5 : Milestone { requirement = HAS "5 CardFront(HAS requirement)" }
-CLASS PolarExplorer : Milestone {
-  HAS HellasMap
-  requirement = HAS "3 OwnedTile<MarsArea(HAS 8 row)>"
-}
+CLASS PolarExplorer : Milestone { requirement = HAS "3 OwnedTile<MarsArea(HAS 8 row)>" }
 CLASS Energizer : Milestone { requirement = HAS "PROD[6 Energy]" }
 CLASS RimSettler : Milestone { requirement = HAS "3 JovianTag" }
 

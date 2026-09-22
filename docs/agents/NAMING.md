@@ -119,10 +119,10 @@ The bare name goes to the version we consider primary:
 
 - Across reprints, the newer revision — the one the designers preferred. `Builder` (7 building tags,
   from `MilestonesAwardsExpansion`) over `Builder8` (the original Tharsis printing).
-- Across rules variants of one goal, the standard version. `Producer` (16 total production) over
-  `Producer22`, which is the goal under `QuickStartVariant`, where you begin with 6 production
-  already on the board. Likewise `Generalist` over `Generalist2`, which asks for 2 of each
-  production rather than 1.
+- Across rules variants of one goal, the standard version. `Producer` (16 total production,
+  including Quick Start production when present) over the optional Quick Start-adjusted
+  `Producer22`, whose threshold is 22. Likewise `Generalist` over `Generalist2`, which asks for 2 of
+  each production rather than 1.
 
 For thresholds, the qualifier is **the number the variant's own printing would show**: the printed
 base, adjusted the way the variant adjusts it. `Producer22` is 16 plus the 6 production

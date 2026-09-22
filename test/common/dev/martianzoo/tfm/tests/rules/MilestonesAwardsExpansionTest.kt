@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.engine.*
-import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -137,24 +136,32 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
       claimProducerOneProductionShortOfThreshold("Producer22", ", -CorporateEraExpansion")
 
   @Test
-  internal fun `Producer versions belong to opposite Quick Start modes`() {
-    shouldThrow<InvalidGameConfigException> {
-      newGame(
-          GameConfig(
-              "Producer, Builder, Engineer, -CorporateEraExpansion",
-              "Player1",
-              "Player2",
-          )
-      )
-    }
-    shouldThrow<InvalidGameConfigException> {
-      newGame(
-          GameConfig(
-              "Producer22, Builder, Engineer",
-              "Player1",
-              "Player2",
-          )
-      )
-    }
+  internal fun `Producer counts Quick Start production toward sixteen`() {
+    newGame(GameConfig("Producer, Builder, Engineer, -CorporateEraExpansion", "Player1", "Player2"))
+    p1.runOperation("8 MC")
+    p1.runOperation("PROD[3 Steel, 3 Titanium, 3 Plant]")
+    admin.phase("Action")
+
+    shouldThrow<RequirementException> { p1.runOperation("Producer") }
+
+    p1.runOperation("PROD[Energy]")
+    p1.stdAction("ClaimMilestoneAction") { doTask("Producer") }
+
+    p1.count("Producer") shouldBe 1
+  }
+
+  @Test
+  internal fun `Producer22 can be selected without Quick Start`() {
+    newGame(GameConfig("Producer22, Builder, Engineer", "Player1", "Player2"))
+    p1.runOperation("8 MC")
+    p1.runOperation("PROD[7 Steel, 7 Titanium, 7 Plant]")
+    admin.phase("Action")
+
+    shouldThrow<RequirementException> { p1.runOperation("Producer22") }
+
+    p1.runOperation("PROD[Energy]")
+    p1.stdAction("ClaimMilestoneAction") { doTask("Producer22") }
+
+    p1.count("Producer22") shouldBe 1
   }
 }
