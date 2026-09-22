@@ -37,7 +37,7 @@
           "requirement": "PartyRequirement<Greens>",
           "cost": 3,
           "tags": [ "MicrobeTag", "ScienceTag" ],
-          "effects": [ "AnimalTag OR PlantTag OR MicrobeTag: 2 MC" ],
+          "effects": [ "BioTag: 2 MC" ],
         },
         {
           "name": "MartianMediaCenter",
