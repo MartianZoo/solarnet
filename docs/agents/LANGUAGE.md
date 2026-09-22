@@ -247,8 +247,9 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   metric-based victory-point behavior.
 - Render `PlanetaryTag` as `planetary tag`.
 
-The representation does not currently identify every case where a card's own tag or resource must
-be called out as `including this`. Keep the current wording until that can be derived reliably.
+Card rendering calls out `including this` when the entering card contributes to an immediate metric
+or satisfies a supported tag or card-play trigger. It does not infer the phrase through setup
+operations or effects that the renderer cannot otherwise interpret.
 
 ## Evidence and verification
 

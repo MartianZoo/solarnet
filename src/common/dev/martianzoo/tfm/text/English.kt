@@ -61,13 +61,15 @@ internal class English(
     )
   }
 
-  private fun cardDescribers(card: Class): Describers = describers.forCard(cardResourceType(card))
+  private fun cardDescribers(card: Class): Describers =
+      describers.forCard(card, cardResourceType(card))
 
   // Of the card's Effects, only endgame scoring is printed below the artwork.
   private fun renderBottomText(
       card: Class,
       cardDescribers: Describers,
   ): EnglishText {
+    val enteringCardDescribers = cardDescribers.whileEnteringCard()
     val interpretedEffects = interpretedCardEffects(card)
     val resourceValueEffects = renderCardResourceValueEffects(interpretedEffects, cardDescribers)
     val requirement = cardRequirement(card)?.let { renderRequirement(it, cardDescribers) }
@@ -76,9 +78,10 @@ internal class English(
             interpretedEffects
                 .filterNot { it in resourceValueEffects.first }
                 .filter(::isImmediateSelfEffect),
-            cardDescribers,
+            enteringCardDescribers,
         )
-    val instructions = cardImmediate(card)?.let { renderInstructionTree(it, cardDescribers) }
+    val instructions =
+        cardImmediate(card)?.let { renderInstructionTree(it, enteringCardDescribers) }
     val scoring =
         interpretedEffects
             .filter { isEndEffect(it, cardDescribers) }

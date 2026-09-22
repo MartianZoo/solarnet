@@ -15,6 +15,7 @@ import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.types.inferTypeVariables
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
+import dev.martianzoo.tfm.canon.cardTags
 
 /** Looks up the English description supplied for each component Class. */
 internal class Describers
@@ -41,8 +42,31 @@ private constructor(
 
   internal fun declaration(className: ClassName) = classesByName.getValue(className).declaration
 
-  internal fun forCard(resourceType: ClassName?): Describers =
-      Describers(classTable, descriptions, CardContext(resourceType))
+  internal fun forCard(
+      card: Class,
+      resourceType: ClassName?,
+  ): Describers = Describers(classTable, descriptions, CardContext(card, resourceType))
+
+  internal fun whileEnteringCard(): Describers =
+      Describers(
+          classTable,
+          descriptions,
+          checkNotNull(cardContext).copy(entering = true),
+      )
+
+  internal fun enteringCardHasTag(className: ClassName): Boolean =
+      cardContext?.entering == true && cardHasTag(cardContext.card, className)
+
+  internal fun enteringCardCounts(expression: Expression): Boolean =
+      cardContext?.entering == true && counts(cardContext, expression)
+
+  internal fun currentCardMatches(trigger: Effect.Trigger): Boolean =
+      cardContext != null &&
+          when (trigger) {
+            is Effect.Trigger.OnGainOf -> matches(cardContext, trigger.expression)
+            is Effect.Trigger.Or -> trigger.triggers.any(::currentCardMatches)
+            else -> false
+          }
 
   internal fun unboundCardResourceDestination(resourceType: ClassName): Determiner =
       if (
@@ -373,5 +397,54 @@ private constructor(
     }
   }
 
-  private data class CardContext(val resourceType: ClassName?)
+  private fun matches(context: CardContext, expression: Expression): Boolean {
+    if (expression.refinement == null && isTag(expression.className)) {
+      return cardHasTag(context.card, expression.className)
+    }
+    if (triggerFrame(expression.className) !is ComponentDescriber.TriggerFrame.PlayCard) {
+      return false
+    }
+    val selectedClass = context.card.classTable.getClass(expression.className)
+    if (!context.card.isSubtypeOf(selectedClass)) return false
+    val requirement =
+        (expression.refinement as? Expression.Refinement.Has)?.requirement ?: return false
+    return matches(context, requirement)
+  }
+
+  private fun matches(context: CardContext, requirement: Requirement): Boolean {
+    val counting = requirement as? Requirement.Counting ?: return false
+    val expression = (counting.metric as? Metric.Count)?.expression ?: return false
+    if (expression.refinement != null || !isTag(expression.className)) return false
+    val actual =
+        cardTags(context.card).elements.count { tag -> isSubtypeOf(tag, expression.className) }
+    return when (counting) {
+      is Requirement.Min -> actual >= counting.target
+      is Requirement.Max -> actual <= counting.target
+      is Requirement.Exact -> actual == counting.target
+    }
+  }
+
+  private fun counts(context: CardContext, expression: Expression): Boolean {
+    val selectedClass = context.card.classTable.getClass(expression.className)
+    if (!context.card.isSubtypeOf(selectedClass)) return false
+    return when (val refinement = expression.refinement) {
+      null -> true
+      is Expression.Refinement.Has -> matches(context, refinement.requirement)
+      is Expression.Refinement.And ->
+          refinement.refinements.all {
+            val requirement = (it as? Expression.Refinement.Has)?.requirement ?: return false
+            matches(context, requirement)
+          }
+      is Expression.Refinement.Not -> false
+    }
+  }
+
+  private fun cardHasTag(card: Class, className: ClassName): Boolean =
+      cardTags(card).elements.any { tag -> isSubtypeOf(tag, className) }
+
+  private data class CardContext(
+      val card: Class,
+      val resourceType: ClassName?,
+      val entering: Boolean = false,
+  )
 }

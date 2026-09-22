@@ -83,7 +83,7 @@ private fun renderCardResourcePaymentValue(
   describers.plainGainNoun(currency.className, rate) ?: return null
   val currencyPhrase = describers.componentNounPhrase(currency.className, rate)
   val resources = describers.cardResourceNoun(resourceRemoval.removing.className, 2) ?: return null
-  val trigger = describers.renderEventTrigger(effect.trigger) ?: return null
+  val trigger = describers.renderEventTriggerWithoutCardContext(effect.trigger) ?: return null
   val result =
       Clause.Simple(
           subject = NounPhrase.plural(resources).withModifier(Modifier.Phrase("on this card")),
@@ -117,10 +117,17 @@ private fun renderLinkedPlayedTagResourceChoice(
   if (!linkedDestination) return null
   val event =
       eventTrigger(
-          subject = NounPhrase.you(),
-          verb = Verb("play"),
-          objectPhrase = tagPhrase,
-      )
+              subject = NounPhrase.you(),
+              verb = Verb("play"),
+              objectPhrase = tagPhrase,
+          )
+          .let {
+            if (describers.currentCardMatches(effect.trigger)) {
+              it.withModifier(Modifier.Parenthetical("including this"))
+            } else {
+              it
+            }
+          }
   val result = Clause.Coordinated(Coordination(clauses, Conjunction.OR))
   return Sentence(Clause.Prefaced(Clause.Preface.Temporal(event), result)).asText()
 }
@@ -222,7 +229,7 @@ private fun renderPurchaseAdjustment(
     else -> return null
   }
   if (describers.renderEvent(trigger)?.kind != Event.Kind.BUY) return null
-  val triggerClause = describers.renderEventTrigger(trigger) ?: return null
+  val triggerClause = describers.renderEventTriggerWithoutCardContext(trigger) ?: return null
   val change = effect.instruction as? Instruction.Change ?: return null
   val adjustment =
       when (change) {
@@ -269,7 +276,7 @@ private fun renderAcceptedPaymentResource(
   val noun = describers.plainGainCategoryNoun(resource.className, 2) ?: return null
   val trigger =
       describers.renderActionPaymentTrigger(effect.trigger)
-          ?: describers.renderEventTrigger(effect.trigger)
+          ?: describers.renderEventTriggerWithoutCardContext(effect.trigger)
           ?: return null
   val result =
       Clause.Simple(subject = NounPhrase.plural(noun), predicate = Predicate(Verb("may be used")))
@@ -543,7 +550,7 @@ internal fun renderAcceptedResourceValue(
   if (accepted.count != 1) return null
   if (describers.hasBasePaymentValue(resourceClassName)) return null
   val resource = describers.componentNoun(resourceClassName, 2)
-  val triggerClause = describers.renderEventTrigger(trigger) ?: return null
+  val triggerClause = describers.renderEventTriggerWithoutCardContext(trigger) ?: return null
   val result =
       Clause.Simple(
           subject = NounPhrase.plural(resource),
@@ -605,7 +612,7 @@ private fun renderAcceptedCardResourcePayment(
         )
     return Sentence(result).asText() to 2
   }
-  val trigger = describers.renderEventTrigger(acceptance.trigger) ?: return null
+  val trigger = describers.renderEventTriggerWithoutCardContext(acceptance.trigger) ?: return null
   val result =
       Clause.Simple(
           subject = NounPhrase.plural(resource).withModifier(Modifier.Phrase("on this card")),
@@ -654,7 +661,8 @@ internal fun paymentDiscount(effect: Effect, describers: Describers): PaymentDis
     if (actionTrigger?.accepts(reduction) == false) return null
     val trigger =
         actionTrigger?.clause
-            ?: (describers.renderEventTrigger(effect.trigger) as? Clause.Simple ?: return null)
+            ?: (describers.renderEventTriggerWithoutCardContext(effect.trigger) as? Clause.Simple
+                ?: return null)
     return PaymentDiscount(
         trigger,
         reduction,
@@ -751,6 +759,15 @@ private fun renderResourcePaymentValue(
 }
 
 private fun Describers.renderEventTrigger(trigger: Trigger): Clause? {
+  val rendered = renderEventTriggerWithoutCardContext(trigger) ?: return null
+  return if (currentCardMatches(trigger)) {
+    (rendered as? Clause.Simple)?.withModifier(Modifier.Parenthetical("including this")) ?: rendered
+  } else {
+    rendered
+  }
+}
+
+private fun Describers.renderEventTriggerWithoutCardContext(trigger: Trigger): Clause? {
   renderAbstractTagTrigger(trigger)?.let {
     return it
   }

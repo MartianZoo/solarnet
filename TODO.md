@@ -8,8 +8,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 - Let English component roles default to one canonical component noun so placement, requirements,
   and metrics do not repeat singular and plural wording.
-- Derive when a card-resource or tag reference includes the current card so English can add
-  `including this` reliably; keep the current wording until the representation supplies that fact.
+- Extend derived `including this` wording to setup operations and otherwise unsupported effects
+  without adding card-specific rendering rules.
 - Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.
 - Decide whether `Milestone`'s per-player uniqueness constraint should use
   `HAS MAX 1 This<Player>` or a clearer way to express one instance of the concrete milestone per

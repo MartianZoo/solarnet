@@ -5,6 +5,7 @@ import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.ClassDeclaration
@@ -427,6 +428,56 @@ internal class EnglishTest {
 
     english.bottomText(fixedScore) shouldBe ""
     english.bottomText(metricScore) shouldBe "1 VP per colony in play."
+  }
+
+  @Test
+  internal fun callsOutTheEnteringCardOnlyWhereItParticipatesImmediately() {
+    val card =
+        syntheticCard(
+            """
+            CLASS SelfCounting : ActiveCard {
+              cost = 0
+              This:: JovianTag<This>
+              This: TerraformRating / JovianTag
+              -> MC / JovianTag
+              JovianTag: 2 MC
+              End: VictoryPoint / JovianTag
+            }
+            """
+        )
+
+    english.bottomText(card) shouldBe
+        "Raise your terraform rating 1 step per Jovian tag you have (including this). " +
+            "1 VP per Jovian tag you have."
+    english.topText(card) shouldBe
+        "Action: Gain 1 M€ per Jovian tag you have. / " +
+            "Effect: When you play a Jovian tag (including this), gain 2 M€."
+
+    val noTagCard =
+        syntheticCard(
+            """
+            CLASS SelfFiltering : AutomatedCard {
+              cost = 0
+              This: PROD[MC / CardFront(HAS MAX 0 Tag)]
+            }
+            """
+        )
+    english.bottomText(noTagCard) shouldBe
+        "Increase your M€ production 1 step per card with no tags (including this)."
+
+    val outsideCountedClass =
+        syntheticCard(
+            """
+            CLASS OutsideCountedClass : AutomatedCard {
+              cost = 0
+              This:: ScienceTag<This>
+            }
+            """
+        )
+    Describers(Canon.classTable, TerraformingMarsDescribers.descriptions)
+        .forCard(outsideCountedClass, null)
+        .whileEnteringCard()
+        .enteringCardCounts(parse<Expression>("ActiveCard(HAS ScienceTag)")) shouldBe false
   }
 
   @Test

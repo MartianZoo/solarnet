@@ -214,8 +214,13 @@ private fun Describers.recognizeCountedExpression(
     return MetricRendering(relation.countedObject(count))
   }
   distinctOwnedKinds(expression, this)?.let { noun ->
-    val phrase = NounPhrase(noun.singular, noun.plural, count = count)
-    return MetricRendering(phrase.withOwnership("you have", possessorEstablished))
+    var phrase =
+        NounPhrase(noun.singular, noun.plural, count = count)
+            .withOwnership("you have", possessorEstablished)
+    if (enteringCardHasTag(expression.arguments.single().className)) {
+      phrase = phrase.withModifier(Modifier.Parenthetical("including this"))
+    }
+    return MetricRendering(phrase)
   }
   renderFilteredComponentCount(expression, count, possessorEstablished)?.let {
     return MetricRendering(it)
@@ -298,6 +303,9 @@ private fun Describers.renderFilteredComponentCount(
             ?: renderSpatialFilter(requirement)
             ?: return null
     noun = noun.withModifier(modifier)
+  }
+  if (enteringCardCounts(expression)) {
+    noun = noun.withModifier(Modifier.Parenthetical("including this"))
   }
   return noun
 }
@@ -448,18 +456,23 @@ private fun Describers.renderZeroMaximumFilter(
   val excluded = (maximum.metric as? Metric.Count)?.expression ?: return null
   if (!excluded.simple) return null
   val inner = fact(excluded.className, ComponentDescriber::countNoun) ?: return null
-  return NounPhrase(outer.singular, outer.plural, count = count)
-      .withModifier(
-          Modifier.Relation(
-              "with",
-              NounPhrase(
-                  inner.singular,
-                  inner.plural,
-                  determiner = Determiner.NO,
-                  grammaticalNumber = NounPhrase.GrammaticalNumber.PLURAL,
-              ),
+  var noun =
+      NounPhrase(outer.singular, outer.plural, count = count)
+          .withModifier(
+              Modifier.Relation(
+                  "with",
+                  NounPhrase(
+                      inner.singular,
+                      inner.plural,
+                      determiner = Determiner.NO,
+                      grammaticalNumber = NounPhrase.GrammaticalNumber.PLURAL,
+                  ),
+              )
           )
-      )
+  if (enteringCardCounts(expression)) {
+    noun = noun.withModifier(Modifier.Parenthetical("including this"))
+  }
+  return noun
 }
 
 private fun renderTagMetric(
@@ -472,21 +485,26 @@ private fun renderTagMetric(
   val noun = describers.tagNoun(expression.className) ?: return null
   val resolved = describers.resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)
-  val ownership =
+  val (ownership, includesCurrentCard) =
       when {
-        resolved.sourceDependencies.isEmpty() -> "you have"
-        resolved.hasOnlySourceDependency(ownerKey, describers.anyoneExpression) -> null
+        resolved.sourceDependencies.isEmpty() -> "you have" to true
+        resolved.hasOnlySourceDependency(ownerKey, describers.anyoneExpression) -> null to true
         resolved.sourceDependencies.size == 1 &&
             resolved.sourceDependency(ownerKey)?.let(describers::isNotOwner) == true ->
-            "your opponents have"
+            "your opponents have" to false
         else -> return null
       }
   val nounPhrase = NounPhrase(noun.singular, noun.plural, count = count)
-  return if (ownership == null) {
-    nounPhrase.withModifier(Modifier.Phrase("in play"))
-  } else {
-    nounPhrase.withOwnership(ownership, possessorEstablished)
+  var phrase =
+      if (ownership == null) {
+        nounPhrase.withModifier(Modifier.Phrase("in play"))
+      } else {
+        nounPhrase.withOwnership(ownership, possessorEstablished)
+      }
+  if (includesCurrentCard && describers.enteringCardHasTag(expression.className)) {
+    phrase = phrase.withModifier(Modifier.Parenthetical("including this"))
   }
+  return phrase
 }
 
 private fun Describers.placementCountPhrase(
