@@ -91,8 +91,8 @@ The authoritative rule remains unverified.
 
 ## Constraints on the investigation
 
-- Do not implement the proposed one-unit loop in [ACTIONS.md](ACTIONS.md). It multiplies task cycles
-  for cash, cannot validate the complete tender by itself, and still needs completion machinery.
+- Do not revive a one-unit payment loop. It multiplies task cycles for cash, cannot validate the
+  complete tender by itself, and still needs completion machinery.
 - Defer Helion, composable conversion chains, and allocation attribution.
 - Do not assume `Billing`, `ActionBilling`, `CardBilling`, `CardPlay`, `ActionSlot`, `Accepting`,
   `PayFromCard`, or per-M€ `ResourceValue` components survive.

@@ -13,6 +13,7 @@ internal class PreludeRulesTest : CardTest() {
     newGame(PreludeExpansion)
     admin.phase("Prelude")
     val moneyBefore = p1.count("MC")
+    val checkpoint = game.timeline.checkpoint()
 
     // Follow mode cannot prove that the physical Prelude was unplayable.
     p1.startTurn()
@@ -22,5 +23,6 @@ internal class PreludeRulesTest : CardTest() {
 
     p1.assertCounts(1 to "$DomeFarming", 0 to "PreludeCard")
     p1.count("MC") shouldBe moneyBefore + 15
+    p1.auditGainsSince(checkpoint) shouldBe 1
   }
 }

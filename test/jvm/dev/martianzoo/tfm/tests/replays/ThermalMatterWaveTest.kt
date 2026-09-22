@@ -378,7 +378,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       val sum = Summarizer(game)
 
       // Discounts earned
-      // Random automatic order may attribute fewer saturated removals here; see SEQUENCING.md.
+      // Random automatic order may attribute fewer saturated removals here; see TESTING.md.
       sum.net(
           "GrantedResourceValue<Player1, Class<Metal>, $AdvancedAlloys<Player1>>",
           "Owed<Player1>",

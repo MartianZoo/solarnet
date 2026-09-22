@@ -12,6 +12,7 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.api.TypeInfo
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -322,9 +323,10 @@ internal constructor(
       quantifierOmitted: Boolean = false,
       executeSubmittedGroup: Boolean = false,
       taskId: TaskId? = null,
+      contextClass: ClassName? = null,
   ) {
     val evaluated = evaluatePer(narrowing)
-    val id = matchingTask(evaluated, taskId, quantifierOmitted)
+    val id = matchingTask(evaluated, taskId, quantifierOmitted, contextClass)
     val tasksBefore = tasks.ids()
     val task = tasks.getTaskData(id)
     if (narrowsTask(evaluated, task.instruction, quantifierOmitted)) {
@@ -350,6 +352,7 @@ internal constructor(
       narrowing: InstructionTree,
       taskId: TaskId? = null,
       quantifierOmitted: Boolean = false,
+      contextClass: ClassName? = null,
   ): TaskId {
     tasks.selectedTask()?.let { selected ->
       if (taskId != null && taskId != selected) {
@@ -372,7 +375,13 @@ internal constructor(
       }
     }
 
-    val assigned = tasks.extract { it }.filter { it.assignee == actor }
+    val assigned =
+        tasks
+            .extract { it }
+            .filter {
+              it.assignee == actor &&
+                  (contextClass == null || it.cause?.context?.className == contextClass)
+            }
     val matches = assigned.filter(::weCanNarrowIt)
     if (matches.isNotEmpty()) return uniqueMatchingTask(matches)
 

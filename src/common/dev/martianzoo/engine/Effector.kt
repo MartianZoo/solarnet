@@ -57,6 +57,14 @@ internal class Effector(
   private fun liveEffects(component: Component): List<LiveEffect> =
       effects.getOrPut(component) { LiveEffect.compile(component, elaborator) }
 
+  /**
+   * Returns every matching effect of the requested kind for [triggerEvent].
+   *
+   * The complete result is materialized before the caller executes any returned effect. Trigger
+   * matching, refinements, and trigger-side conditions in one batch therefore all see the same
+   * post-event World. A changed component's own effects retain declaration order. The stable or
+   * randomized order of independent listeners is diagnostic only and must carry no game meaning.
+   */
   internal fun fire(
       triggerEvent: ChangeEvent,
       controller: Actor,

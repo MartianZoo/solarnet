@@ -95,6 +95,14 @@ public object Engine {
       return world
     }
 
+    /**
+     * Removes all copies of one eligible concrete `Temporary` Type.
+     *
+     * Cleanup is offered only while the whole task pool is empty. A Type is ineligible while any
+     * direct or indirect dependent is itself `Temporary` or `MustCleanUp`, which makes nested
+     * lifetimes retire from the inside out. Returning after one Type lets transaction settlement
+     * process removal effects and re-read both tasks and dependencies before the next attempt.
+     */
     private fun removeTemporaryComponent(): Boolean {
       if (!gameWorld.tasks.isEmpty()) return false
       val temporary = classTable.getClass(TEMPORARY).baseType

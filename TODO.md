@@ -6,6 +6,16 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Replace `ModulesReady` with entering `BootstrapPhase` only after the generated premise has created
+  the selected modules and configured components. Moving its effects to `SetupPhase` was tested and
+  fails because bootstrap validation already requires the exact-one global-parameter rule systems.
+  The smallest promising direction is to reverse premise/`BootstrapPhase` creation in `Initializer`,
+  then update its lifecycle tests and the bootstrap account in `ENGINE.md` and `WORKFLOW.md`.
+- Replace `FinalScoringPending` with a real `FinalScoringPhase`. Today `End` creates the temporary
+  marker, `MeasureAward` depends on it, and marker removal assigns `Victory`; instead final-scoring
+  effects should belong to the new phase, whose phase scope drains into terminal `End`, where victory
+  is assigned. Coordinate this with `TfmWorkflow` and the phase-scope design in `WORKFLOW.md`; do not
+  merely rename the completion marker into a phase.
 - Decide whether `Milestone`'s per-player uniqueness constraint should use
   `HAS MAX 1 This<Player>` or a clearer way to express one instance of the concrete milestone per
   player.
@@ -41,6 +51,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `PlaceNeutralTiles`'s system-only ownership, and SRR's explicit card-Class selection.
 - Investigate why semantic validation during parsing throws `IllegalArgumentException` for malformed
   Pets, and whether those paths should use a parser-specific exception before translation.
+- Model Established Methods as two nonzero-cost standard projects without making the second project
+  mandatory when none is affordable. `StandardProject(HAS cost)` excludes Sell Patents and
+  non-project actions, but does not express current affordability; making the second action optional
+  would instead let a player skip it while an affordable project exists.
 
 ### Hypothetical Card Behavior
 

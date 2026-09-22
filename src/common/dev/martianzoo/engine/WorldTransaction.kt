@@ -3,8 +3,14 @@ package dev.martianzoo.engine
 import dev.martianzoo.state.TaskResult
 
 /**
- * Coordinates nested game mutations as one transaction, settles callback-started follow-ups, and
- * reports successful completion.
+ * Coordinates nested game mutations as one failure-atomic interaction.
+ *
+ * The outermost call, and a direct reentry from its completion callback, settle configured policy,
+ * repeatedly offer the engine one eligible idle-cleanup step, and validate the caller's completion
+ * rule. The outermost call then records the resulting position and reports completion. Work started
+ * synchronously by that callback is settled and cleaned up before the final position is recorded. A
+ * cleanup step can create new work; [settleAndCleanUp] settles it before another cleanup step can
+ * be attempted.
  */
 internal class WorldTransaction(
     private val timeline: Timeline,

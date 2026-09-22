@@ -49,7 +49,14 @@ import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.toComponent
 import kotlin.math.min
 
-/** Just a cute name for "instruction handler". It resolves and executes instructions. */
+/**
+ * Resolves instructions and executes their concrete changes.
+ *
+ * For each recorded change, all matching automatic effects are executed recursively before queued
+ * effects from that change are evaluated and admitted as tasks. Automatic execution may itself
+ * produce queued work, but it never enters the task pool. [Effector.fire] owns selection of each
+ * effect batch; this class owns the automatic-before-queued execution boundary.
+ */
 internal class Instructor
 internal constructor(
     private val reader: GameReader,

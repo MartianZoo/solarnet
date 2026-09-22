@@ -383,16 +383,8 @@ public open class TfmCatalog : Catalog {
         if (moduleNames.isEmpty() && configuredComponentCounts.isEmpty()) {
           null
         } else {
-          val baseGameModule = universe.findClass(BASE_GAME_MODULE)
-          val orderedModuleNames =
-              if (baseGameModule == null) {
-                moduleNames.toList()
-              } else {
-                moduleNames.filter { universe.getClass(it).isSubtypeOf(baseGameModule) } +
-                    moduleNames.filterNot { universe.getClass(it).isSubtypeOf(baseGameModule) }
-              }
           generatedPremiseDeclaration(
-              orderedModuleNames,
+              moduleNames.toList(),
               configuredPlayerNames,
               initialTypes,
               configuredComponentCounts,
@@ -586,7 +578,7 @@ public open class TfmCatalog : Catalog {
       if (componentCounts.isNotEmpty()) {
         add("This:: " + componentCounts.entries.joinToString { (name, count) -> "$count $name" })
       }
-      if (BASE_GAME_MODULE in allClassNames && MODULES_READY in allClassNames) {
+      if (MODULES_READY in allClassNames) {
         add("This: ModulesReady")
       }
     }
@@ -871,7 +863,6 @@ public open class TfmCatalog : Catalog {
     public fun compose(vararg catalogs: TfmCatalog): TfmCatalog = Composite(*catalogs)
 
     private val BOOTSTRAP_PHASE = cn("BootstrapPhase")
-    private val BASE_GAME_MODULE = cn("BaseGameModule")
     private val MODULE_CLASS = cn("Module")
     private val MODULES_READY = cn("ModulesReady")
     private val PREMISE_CLASS = cn("Premise")
