@@ -482,6 +482,94 @@ internal class TfmWorkflowTest {
   }
 
   @Test
+  internal fun automaticPreludePhaseEndsWhenNoPreludeCardsWereRetained() {
+    val game = Engine.newGame(canonicalPremise(PreludeExpansion, players = 2))
+    val admin = game.testTfm(ADMIN)
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    game.retainStartingProjects(0, 0)
+    p1.sneak("-2 PreludeCard")
+    p2.sneak("-2 PreludeCard")
+
+    p1.playCorp(UnitedNationsMarsInitiative)
+    p2.playCorp(CrediCor)
+
+    admin.assertCounts(
+        0 to "PreludePhase",
+        0 to "PreludePhaseScope",
+        1 to "ActionPhase",
+        1 to "ActionPhaseScope",
+    )
+    workflow.shutdown()
+  }
+
+  @Test
+  internal fun preludeCompletionWaitsForCardsGrantedByTheLastPrelude() {
+    val game =
+        Engine.newGame(
+            canonicalPremise(
+                PreludeExpansion,
+                Prelude2CardPack,
+                PromoCardPack,
+                players = 2,
+            )
+        )
+    val admin = game.testTfm(ADMIN)
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    game.retainStartingProjects(0, 0)
+    p1.sneak("-PreludeCard")
+    p2.sneak("-2 PreludeCard")
+    p1.playCorp(UnitedNationsMarsInitiative)
+    p2.playCorp(CrediCor)
+
+    p1.playPrelude(NewPartner) { p1.playPrelude(Donation) }
+
+    p1.count("PreludeCard") shouldBe 0
+    admin.assertCounts(
+        0 to "PreludePhase",
+        0 to "PreludePhaseScope",
+        1 to "ActionPhase",
+        1 to "ActionPhaseScope",
+    )
+
+    p1.sneak("$BoardOfDirectors, Director<$BoardOfDirectors>")
+    p1.cardAction1(BoardOfDirectors) { doTask("-PreludeCard") }
+    admin.assertCounts(
+        1 to "ActionPhase",
+        0 to "PreludePhase",
+        0 to "PreludePhaseCompletionCheck",
+    )
+    workflow.shutdown()
+  }
+
+  @Test
+  internal fun newPartnerPlayedFirstStillUsesOneOfTwoRetainedPreludeTurns() {
+    val game = Engine.newGame(canonicalPremise(PreludeExpansion, PromoCardPack, players = 2))
+    val admin = game.testTfm(ADMIN)
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    game.retainStartingProjects(0, 0)
+    p2.sneak("-2 PreludeCard")
+    p1.playCorp(UnitedNationsMarsInitiative)
+    p2.playCorp(CrediCor)
+
+    p1.playPrelude(NewPartner) { p1.playPrelude(Donation) }
+
+    p1.count("PreludeCard") shouldBe 1
+    admin.assertCounts(1 to "PreludePhase", 1 to "PreludePhaseScope", 0 to "ActionPhase")
+
+    p1.playPrelude(MartianIndustries)
+
+    p1.count("PreludeCard") shouldBe 0
+    admin.assertCounts(0 to "PreludePhase", 1 to "ActionPhase")
+    workflow.shutdown()
+  }
+
+  @Test
   internal fun automaticSolarWaitsForWorldGovernmentBeforeTurmoil() {
     val game = Engine.newGame(canonicalPremise(VenusNextExpansion, TurmoilExpansion, players = 2))
     val admin = game.testTfm(ADMIN)

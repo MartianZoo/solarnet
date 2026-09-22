@@ -170,13 +170,14 @@ public object TfmWorkflow {
       for (player in players) grantFirstActionTo(player)
     }
 
-    // TODO: This is slightly inconsistent with the action-phase turn model; revisit.
     private suspend fun completePreludePhase() {
       for (player in players) {
         // The retained cards are the setup fact; custom and replay setups need not retain two.
-        repeat(opsFor(player).count("PreludeCard")) { grantFirstActionTo(player) }
+        repeat(opsFor(player).count("PreludeCard")) {
+          grantFirstActionTo(player)
+          if (!hasComponent("PreludePhase")) return
+        }
       }
-      adminOps.runOperation("-PreludePhaseScope.")
     }
 
     private suspend fun finalGreeneryPhase() {

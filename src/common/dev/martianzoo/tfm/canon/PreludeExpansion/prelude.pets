@@ -14,4 +14,12 @@ CLASS PreludePhase : Phase {
 }
 
 "The Prelude phase's lifetime anchor"
-CLASS PreludePhaseScope : PhaseScope<PreludePhase>
+CLASS PreludePhaseScope : PhaseScope<PreludePhase> {
+  This:: PreludePhaseCompletionCheck BY Admin
+  -PreludeCard:: PreludePhaseCompletionCheck BY Admin
+}
+
+"Checks settled Prelude-card state before ending the phase"
+CLASS PreludePhaseCompletionCheck : Continuation, System {
+  -This IF PreludePhaseScope, MAX 0 PreludeCard<Anyone>:: -PreludePhaseScope BY Admin
+}

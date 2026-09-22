@@ -15,8 +15,8 @@
 > Bootstrap-to-Setup-to-Corporation, the compiled Corporation-to-Action and Solar segments, the
 > recurring Production-to-Research-to-Action cycle, and the final transition from Final Greenery
 > to End.
-> `TfmWorkflow.Automatic` still wakes Corporation, Prelude, and Final Greenery scopes and owns
-> Action-turn rotation. The Action phase now closes itself when the last Player passes.
+> `TfmWorkflow.Automatic` still wakes Corporation and Final Greenery scopes and owns Prelude and
+> Action turn order. Prelude and Action now close from their own Pets state.
 > `GenerationScope` and dependency-ordered idle cleanup are implemented beneath that proof.
 
 ## Purpose and scope
@@ -336,9 +336,12 @@ cascade. This includes optional Production work such as Supercapacitors. Corpora
 Action, and Final Greenery scopes are deliberately not Temporary because their queues drain between
 players. The last `HaveNotPassed -> Pass` transition changes `ActionPhaseScope` into the
 `ActionPhaseComplete` continuation. The engine removes it after the passing operation validates,
-and its Pets removal effect enters Production. Kotlin still rotates Action turns, but no longer
-decides that the phase is complete or removes its scope. Corporation, Prelude, and Final Greenery
-remain explicitly woken by their sequencing.
+and its Pets removal effect enters Production. `PreludePhaseScope` creates a completion check when
+it opens and whenever a Prelude card is removed. The check waits for the operation to settle, then
+removes the scope only when no Prelude cards remain; this covers zero-card custom setups and cards
+whose consequences grant another Prelude. Kotlin still orders Prelude and Action turns, but no
+longer decides that either phase is complete or removes either scope. Corporation and Final
+Greenery remain explicitly woken by their sequencing.
 
 An Agent operation begun synchronously by the atomic-completion callback now receives its own idle
 cleanup before returning. That generic rule lets task-free terminal Production settle exactly like
@@ -383,9 +386,9 @@ The phase workflow is successful only when all of these hold:
 ## Remaining demonstrations
 
 Segment compilation is implemented for Corporation-to-Action with optional Prelude and for
-Solar-to-Research with optional Venus and Colonies phases. Action-to-Production now closes from its
-Pets-owned exact-one participation states. The remaining Kotlin role is intra-phase player
-sequencing and explicit wakeup of Corporation, Prelude, and Final Greenery.
+Solar-to-Research with optional Venus and Colonies phases. Prelude closes from its settled remaining
+cards, and Action-to-Production closes from its exact-one participation states. The remaining
+Kotlin role is intra-phase player sequencing and explicit wakeup of Corporation and Final Greenery.
 
 Do not redesign Action-turn rotation as part of the Action-to-Production proof; that is sequencing.
 If the narrow model needs phase-specific Kotlin, a literal runtime stack, or a second representation
