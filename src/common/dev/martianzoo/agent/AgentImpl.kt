@@ -10,6 +10,7 @@ import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -183,6 +184,11 @@ internal class AgentImpl(
       autoExecLoop.run()
     }
 
+    override fun doTask(narrowing: String, contextClass: ClassName) {
+      this@AgentImpl.doTask(narrowing, contextClass)
+      autoExecLoop.run()
+    }
+
     override fun doTask(narrowing: String, taskId: TaskId) {
       this@AgentImpl.doTask(narrowing, taskId)
       autoExecLoop.run()
@@ -247,6 +253,16 @@ internal class AgentImpl(
         parsed.instruction,
         parsed.quantifierOmitted,
         parsed.submittedAsGroup,
+    )
+  }
+
+  override fun doTask(narrowing: String, contextClass: ClassName) = atomic {
+    val parsed = parseTaskNarrowing(narrowing)
+    engine.doTask(
+        parsed.instruction,
+        parsed.quantifierOmitted,
+        parsed.submittedAsGroup,
+        contextClass = contextClass,
     )
   }
 

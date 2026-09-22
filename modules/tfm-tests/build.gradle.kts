@@ -20,6 +20,7 @@ kotlin {
           )
       )
       kotlin.exclude("**/replays/**")
+      kotlin.exclude("**/curiosities/**")
       dependencies {
         implementation(libs.kotest.assertions.core)
         implementation(project(":agent"))
@@ -38,6 +39,9 @@ kotlin {
               rootProject.layout.projectDirectory.dir(
                   "test/common/dev/martianzoo/tfm/tests/replays"
               ),
+              rootProject.layout.projectDirectory.dir(
+                  "test/common/dev/martianzoo/tfm/tests/curiosities"
+              ),
               rootProject.layout.projectDirectory.dir("test/js/dev/martianzoo/tfm/tests"),
           )
       )
@@ -47,6 +51,9 @@ kotlin {
           listOf(
               rootProject.layout.projectDirectory.dir(
                   "test/common/dev/martianzoo/tfm/tests/replays"
+              ),
+              rootProject.layout.projectDirectory.dir(
+                  "test/common/dev/martianzoo/tfm/tests/curiosities"
               ),
               rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tfm/tests"),
               rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tfm/randomcards"),
