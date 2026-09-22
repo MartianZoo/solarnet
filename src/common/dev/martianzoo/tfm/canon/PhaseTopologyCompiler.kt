@@ -101,9 +101,9 @@ internal object PhaseTopologyCompiler {
 
     val owners = mutableMapOf<ClassName, ClassName?>().apply { put(segment.start, null) }
     edges.forEach { edge ->
-      val previous = owners.putIfAbsent(edge.later, edge.module)
-      if (previous != null && previous != edge.module) {
-        invalid("phase ${edge.later} has constraints owned by $previous and ${edge.module}")
+      val owner = owners.getOrPut(edge.later) { edge.module }
+      if (owner != edge.module) {
+        invalid("phase ${edge.later} has constraints owned by $owner and ${edge.module}")
       }
     }
     if (owners.keys != reachable) invalid("every non-start segment phase must have an owner")
