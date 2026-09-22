@@ -160,7 +160,9 @@ public class TfmGameplay(
     return passWithoutUnusedActionCardCheck()
   }
 
-  private fun passWithoutUnusedActionCardCheck(): TaskResult = inTurn { doTask("Pass") }
+  private fun passWithoutUnusedActionCardCheck(): TaskResult = inTurn {
+    doTask("Pass FROM HaveNotPassed")
+  }
 
   /**
    * Performs the actions in one test-level turn, declining an unused second action when needed. If

@@ -23,6 +23,7 @@ public object SystemClasses {
   public val CLASS: ClassName = cn("Class")
   internal val CUSTOM: ClassName = cn("Custom")
   public val COMPONENT: ClassName = cn("Component")
+  public val CONTINUATION: ClassName = cn("Continuation")
   public val DIE: ClassName = cn("Die")
   public val HIDDEN: ClassName = cn("Hidden")
   public val OK: ClassName = cn("Ok")

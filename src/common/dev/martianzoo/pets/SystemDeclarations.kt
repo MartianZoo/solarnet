@@ -52,6 +52,9 @@ private val systemDeclarationsSource =
     "Instances are removed at an empty task queue once no dependent Temporary or MustCleanUp remains"
     ABSTRACT CLASS Temporary
 
+    "Removed after the current operation validates, so removal effects begin follow-up work"
+    ABSTRACT CLASS Continuation : Hidden
+
     "A lifetime anchor for components that depend on it"
     ABSTRACT CLASS Scope
 

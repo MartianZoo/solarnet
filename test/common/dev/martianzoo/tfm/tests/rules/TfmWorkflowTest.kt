@@ -19,6 +19,7 @@ import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.BeginnerVariant
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.TestOption.Hellas
+import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
@@ -63,7 +64,7 @@ internal class TfmWorkflowTest {
     admin.runOperation("-CorporationPhaseScope")
     val checkpoint = game.timeline.checkpoint()
 
-    admin.beginOperation("-ActionPhaseScope")
+    admin.beginOperation("ActionPhaseComplete FROM ActionPhaseScope")
 
     admin.assertCounts(
         0 to "ActionPhase",
@@ -323,9 +324,14 @@ internal class TfmWorkflowTest {
         1 to "ActionPhase",
         1 to "ActionPhaseScope",
     )
+    p1.assertCounts(1 to "ActionPhaseStatus", 1 to "HaveNotPassed", 0 to "Pass")
+    p2.assertCounts(1 to "ActionPhaseStatus", 1 to "HaveNotPassed", 0 to "Pass")
 
     p1.turn { sellPatents(1) }
     p2.pass()
+    p1.assertCounts(1 to "HaveNotPassed", 0 to "Pass")
+    p2.assertCounts(0 to "HaveNotPassed", 1 to "Pass")
+    admin.assertCounts(1 to "ActionPhase", 1 to "ActionPhaseScope")
     p1.pass()
 
     admin.assertCounts(
@@ -341,6 +347,57 @@ internal class TfmWorkflowTest {
     p2.buyCards(0)
 
     admin.assertCounts(1 to "ActionPhase", 1 to "ActionPhaseScope", 0 to "ResearchPhaseScope")
+    workflow.shutdown()
+  }
+
+  @Test
+  internal fun cardThatPassesAsASecondActionRemovesThePlayerFromRotation() {
+    val game = Engine.newGame(canonicalPremise(Prelude2CardPack, TurmoilExpansion, players = 2))
+    val admin = game.testTfm(ADMIN)
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    admin.doTask("AquiferReleasedByPublicCouncil")
+    admin.doTask("DryDeserts")
+    game.retainStartingProjects(0, 0)
+    p1.playCorp(UnitedNationsMarsInitiative)
+    p2.playCorp(CrediCor)
+    p1.sneak("2 ProjectCard, PartyDelegate<Reds>, PartyDelegate<Reds>")
+
+    p1.turn {
+      sellPatents(1)
+      playProject(RedAppeasement, 0)
+    }
+
+    p1.assertCounts(0 to "HaveNotPassed", 1 to "Pass")
+    admin.assertCounts(1 to "ActionPhase", 1 to "ActionPhaseScope")
+
+    p2.pass()
+
+    admin.assertCounts(0 to "ActionPhase", 0 to "ActionPhaseScope")
+    workflow.shutdown()
+  }
+
+  @Test
+  internal fun cardCanSupplyTheFinalPassInSoloPlay() {
+    val game = Engine.newGame(canonicalPremise(Prelude2CardPack, TurmoilExpansion, players = 1))
+    val admin = game.testTfm(ADMIN)
+    val p1 = game.testTfm(PLAYER1)
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    admin.doTask("AquiferReleasedByPublicCouncil")
+    admin.doTask("DryDeserts")
+    admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
+    admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
+    admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
+    game.retainStartingProjects(0)
+    p1.playCorp(UnitedNationsMarsInitiative)
+    p1.sneak("ProjectCard, PartyDelegate<Reds>, PartyDelegate<Reds>")
+
+    p1.playProject(RedAppeasement, 0)
+
+    p1.assertCounts(0 to "HaveNotPassed", 1 to "Pass")
+    admin.assertCounts(0 to "ActionPhase", 0 to "ActionPhaseScope")
     workflow.shutdown()
   }
 

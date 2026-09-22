@@ -744,7 +744,7 @@ internal class Prelude2CardsTest : CardTest() {
     newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion)
     admin.phase("Action")
     p1.runOperation("ProjectCard, PartyDelegate<Reds>, PartyDelegate<Reds>")
-    requireP2().runOperation("Pass")
+    requireP2().runOperation("Pass FROM HaveNotPassed")
 
     shouldThrow<RequirementException> { p1.playProject(RedAppeasement, 0) }
 

@@ -171,7 +171,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
       pink.pay(6)
       addCardResources(DirectedImpactors)
     }
-    pink.doTask("Pass")
+    pink.doTask("Pass FROM HaveNotPassed")
 
     // Game20260811-dashboards-gen3.png was taken before cards were bought.
     purple.assertResources(m = 36, s = 1, t = 0, p = 7, e = 0, h = 7)
@@ -362,7 +362,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     green.convertPlants {
       placeTile(1, 4)
     }
-    green.doTask("Pass")
+    green.doTask("Pass FROM HaveNotPassed")
 
     // Game20260811-dashboards-gen6.png was taken before cards were bought.
     purple.assertResources(m = 40, s = 5, t = 0, p = 6, e = 2, h = 7)
@@ -504,7 +504,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
       placeTile(3, 2)
     }
     green.cardAction1(WeatherBalloons)
-    green.doTask("Pass")
+    green.doTask("Pass FROM HaveNotPassed")
 
     // Game20260811-dashboards-gen8.png was taken before cards were bought.
     purple.assertResources(m = 55, s = 2, t = 0, p = 10, e = 2, h = 6)
@@ -611,7 +611,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     // (Purple already passed early)
     purple.pass()
     // (Green already passed early)
-    green.doTask("Pass")
+    green.doTask("Pass FROM HaveNotPassed")
 
     // Game20260811-dashboards-gen9.png was taken before cards were bought.
     purple.assertResources(m = 62, s = 2, t = 0, p = 12, e = 4, h = 7)

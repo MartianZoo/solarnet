@@ -161,10 +161,7 @@ public object TfmWorkflow {
       corporationPhase()
       adminOps.runOperation("-CorporationPhaseScope")
       completePreludePhase()
-      while (true) {
-        actionPhase()
-        if (!completeActionPhase()) break
-      }
+      while (hasComponent("ActionPhase")) actionPhase()
       if (!hasComponent("FinalGreeneryPhase")) return
       finalGreeneryPhase()
     }
@@ -195,26 +192,27 @@ public object TfmWorkflow {
     }
 
     private suspend fun actionPhase() {
+      val generation = adminOps.count("Generation")
       val active = ArrayDeque(rotatedByFirstPlayer())
       while (active.isNotEmpty()) {
         val player = active.first()
         grantFirstActionTo(player)
+        if (actionPhaseEnded(generation)) return
         if (hasPassed(player)) {
           active.removeFirst()
         } else {
-          if (active.size > 1) grantSecondActionTo(player)
-          active.addLast(active.removeFirst())
+          if (active.size > 1) {
+            grantSecondActionTo(player)
+            if (actionPhaseEnded(generation)) return
+          }
+          // SecondAction cannot choose Pass, but an action such as Red Appeasement can grant it.
+          if (hasPassed(player)) active.removeFirst() else active.addLast(active.removeFirst())
         }
       }
     }
 
-    private suspend fun completeActionPhase(): Boolean {
-      shutdownCheckpoint = game.timeline.checkpoint()
-      adminOps.beginOperation("-ActionPhaseScope")
-      if (!game.isIdle()) resumeSignal.receive()
-      shutdownCheckpoint = null
-      return hasComponent("ActionPhase")
-    }
+    private fun actionPhaseEnded(generation: Int): Boolean =
+        !hasComponent("ActionPhase") || adminOps.count("Generation") != generation
 
     private fun rotatedByFirstPlayer(): List<Player> {
       val token = game.reader.getComponents("StartToken").single()

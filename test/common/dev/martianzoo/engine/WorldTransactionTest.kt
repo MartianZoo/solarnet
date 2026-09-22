@@ -199,6 +199,75 @@ internal class WorldTransactionTest {
   }
 
   @Test
+  internal fun continuationStartsFollowUpOnlyAfterOperationValidation() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                CLASS ContinuePhase : Owned<Player>, Continuation {
+                  -This: Followup<Owner>
+                }
+                CLASS Followup : Owned<Player>
+                """
+            )
+        )
+    val player = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+
+    player.runOperation("ContinuePhase")
+
+    player.count("ContinuePhase") shouldBe 0
+    player.count("Followup") shouldBe 0
+    game.tasks.isEmpty() shouldBe false
+
+    player.doTask("Followup")
+
+    player.count("Followup") shouldBe 1
+    game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun continuationWaitsForDependentMandatoryCleanup() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                CLASS ContinuePhase : Continuation { HAS MAX 1 This }
+                CLASS Unfinished<ContinuePhase> : MustCleanUp
+                """
+            )
+        )
+    val player = game.testAgent(PLAYER1)
+
+    player.beginOperation("ContinuePhase, Unfinished")
+
+    player.count("ContinuePhase") shouldBe 1
+    player.count("Unfinished") shouldBe 1
+
+    player.runOperation("-Unfinished")
+
+    player.count("ContinuePhase") shouldBe 0
+    player.count("Unfinished") shouldBe 0
+  }
+
+  @Test
+  internal fun failingContinuationRollsBackTheOperationThatCreatedIt() {
+    val game =
+        Engine.newGame(
+            testGamePremise(
+                """
+                CLASS ContinuePhase : Continuation { -This:: Die! }
+                """
+            )
+        )
+    val player = game.testAgent(PLAYER1)
+
+    shouldThrow<DeadEndException> { player.runOperation("ContinuePhase") }
+
+    player.count("ContinuePhase") shouldBe 0
+    game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
   internal fun completedManualOperationRejectsMustCleanUpCreatedByIdleCleanup() {
     val game =
         Engine.newGame(

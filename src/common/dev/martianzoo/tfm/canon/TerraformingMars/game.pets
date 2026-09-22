@@ -78,10 +78,12 @@ CLASS CorporationOption : System
 "One of the actual people or bots playing Terraforming Mars"
 ABSTRACT CLASS Player : Owner, Actor {
   HAS =1 This
+  HAS =1 ActionPhaseStatus<This>
   HAS MAX 1 AfterMe<This, Anyone>, MAX 1 AfterMe<Anyone, This>
 
   // Queued `This` work gives every Player its production floor and payment values only after the
   // complete seat layer exists.
+  This:: HaveNotPassed
   This: 5 ProdOffset<This, Class<MC>> BY Admin
   This: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
 
@@ -140,8 +142,9 @@ ABSTRACT CLASS Phase : System {
     This:: Generation
   }
   CLASS ActionPhase {
-    This IF WorkflowStarted:: ActionPhaseScope
-    NewTurn: UseAction<StandardAction> OR Pass
+    This:: ActionPhaseScope
+    This:: EACH Player(HAS Pass) { HaveNotPassed FROM Pass }
+    NewTurn: UseAction<StandardAction> OR (Pass FROM HaveNotPassed)
     SecondAction: UseAction<StandardAction>?
   }
   CLASS ProductionPhase { This IF WorkflowStarted:: ProductionPhaseScope }
@@ -182,8 +185,11 @@ CLASS SetupPhaseScope : PhaseScope<SetupPhase>, Temporary {
 "The corporation phase's lifetime anchor"
 CLASS CorporationPhaseScope : PhaseScope<CorporationPhase>
 
-"The action phase's lifetime anchor and continuation"
-CLASS ActionPhaseScope : PhaseScope<ActionPhase> {
+"The open action phase's lifetime anchor"
+CLASS ActionPhaseScope : PhaseScope<ActionPhase>
+
+"The completed action phase, removed only after the operation completing it has validated"
+CLASS ActionPhaseComplete : PhaseScope<ActionPhase>, Continuation {
   -This IF WorkflowStarted:: ProductionPhase FROM ActionPhase
 }
 
@@ -209,8 +215,17 @@ CLASS NewTurn : Owned<Player>, Signal
 "The engine's signal for the second action slot in an action phase turn; no Pass option"
 CLASS SecondAction : Owned<Player>, Signal
 
-"Instead of taking an action you can gain this, and be out for the rest of the generation"
-CLASS Pass<GenerationScope> : Owned<Player> { HAS MAX 1 This }
+"A player's exhaustive Action-phase participation state, reset whenever Action begins"
+ABSTRACT CLASS ActionPhaseStatus : Owned<Player>
+
+"The player remains eligible to take a turn"
+CLASS HaveNotPassed : ActionPhaseStatus
+
+"The player is out for the remainder of this Action phase"
+CLASS Pass : ActionPhaseStatus {
+  This IF WorkflowStarted, MAX 0 HaveNotPassed<Anyone>:: \
+    ActionPhaseComplete FROM ActionPhaseScope BY Admin
+}
 
 "Tells what generation we're in"
 CLASS Generation : System {

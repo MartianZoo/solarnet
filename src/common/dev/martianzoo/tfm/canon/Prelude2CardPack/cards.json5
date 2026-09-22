@@ -353,7 +353,7 @@
           "requirement": "(Ruling<Reds> OR 2 PartyDelegate<Reds>), MAX 0 Pass<Anyone>",
           "cost": 0,
           "tags": [ "EventTag" ],
-          "immediate": "PROD[2 MC], Pass",
+          "immediate": "PROD[2 MC], Pass FROM HaveNotPassed",
         },
         {
           "name": "SpecialPermit",

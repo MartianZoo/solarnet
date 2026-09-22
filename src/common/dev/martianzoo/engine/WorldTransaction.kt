@@ -11,6 +11,7 @@ internal class WorldTransaction(
     private val onComplete: () -> Unit,
     private val recordingPositions: RecordingPositions,
     private val removeTemporaryComponent: () -> Boolean,
+    private val removeContinuation: () -> Boolean,
 ) {
   private var depth: Int = 0
   private var reportingCompletion: Boolean = false
@@ -30,6 +31,7 @@ internal class WorldTransaction(
             if (outermost || completionFollowUp) {
               settleAndCleanUp(settle)
               validateCompletion()
+              continueAfterCompletion(settle)
             }
           }
           .also {
@@ -54,5 +56,12 @@ internal class WorldTransaction(
     do {
       settle()
     } while (removeTemporaryComponent())
+  }
+
+  /** Continuations deliberately start work beyond the operation that created them. */
+  private fun continueAfterCompletion(settle: () -> Unit) {
+    while (removeContinuation()) {
+      settleAndCleanUp(settle)
+    }
   }
 }

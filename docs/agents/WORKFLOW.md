@@ -15,8 +15,8 @@
 > Bootstrap-to-Setup-to-Corporation, the compiled Corporation-to-Action and Solar segments, the
 > recurring Production-to-Research-to-Action cycle, and the final transition from Final Greenery
 > to End.
-> `TfmWorkflow.Automatic` still wakes Corporation, Prelude, Action, and Final Greenery scopes after
-> their domain sequencing finishes, and owns all intra-phase sequencing.
+> `TfmWorkflow.Automatic` still wakes Corporation, Prelude, and Final Greenery scopes and owns
+> Action-turn rotation. The Action phase now closes itself when the last Player passes.
 > `GenerationScope` and dependency-ordered idle cleanup are implemented beneath that proof.
 
 ## Purpose and scope
@@ -56,6 +56,9 @@ The required primitives already exist:
   idle cleanup after an outer operation and its automatic effects have completed. An Agent
   operation started synchronously by the completion callback also settles its ordinary idle
   cleanup before returning, while remaining part of the callback's recorded follow-up.
+- A `Continuation` is removed inside that same transaction, but only after the operation validates
+  complete. Its removal can therefore begin follow-up work without making that work an unfinished
+  obligation of the operation that created the continuation.
 - [`Engine.removeTemporaryComponent`](../../src/common/dev/martianzoo/engine/Engine.kt) removes
   one eligible `Temporary` Type at an empty task queue, deferring Types with direct or indirect
   dependent `MustCleanUp` or `Temporary`. The transaction loop settles removal effects before
@@ -221,6 +224,11 @@ precedence. The properties are authoring metadata, not live Components; the comp
 continuations are the one runtime representation. Reconsider live constraint Components only if a
 real rule needs to observe or alter phase topology during a game.
 
+The branch currently performs this lowering while `TfmCatalog` constructs its declaration set.
+That is transitional. Move topology lowering into `generateCanonSources` so the emitted Pets
+declarations are build artifacts that tools and humans can inspect, and so no topology compiler is
+shipped as part of the game runtime.
+
 By default the compiler emits a `Temporary` scope. A Phase whose domain sequencing becomes idle
 before the Phase is complete can instead declare its own direct `PhaseScope<ThatPhase>` subtype.
 The compiler adds the same continuation effects to that authored scope without changing its wake
@@ -271,8 +279,11 @@ GameScope
 
 Each child depends on its parent, and the Phase scope also depends on the current Phase. Ordinary
 state depends on the narrowest scope matching its true lifetime: an action-local invoice belongs to
-the Action scope; a passed marker belongs to the Action-phase scope; a genuinely per-generation
-marker belongs to the Generation scope; phase-local control belongs to the Phase scope.
+the Action scope; a genuinely per-generation marker belongs to the Generation scope; phase-local
+control belongs to the Phase scope. The exact-one `ActionPhaseStatus` is persistent Player state:
+every Player is either `HaveNotPassed` or `Pass`, and entering Action resets all passed Players. It
+can eventually depend on `GameScope`, but it cannot depend on the shorter Action scope while
+remaining a globally valid exact-one sum.
 
 `Signal` is the zero-duration edge of this model. It carries no lifetime-scope dependency and leaves
 no persistent state. Do not introduce a live `NoScope` sentinel: absence of a `Scope` dependency
@@ -309,7 +320,7 @@ The implemented recurring and terminal paths are:
 ```text
 CorporationPhaseScope removal -> PreludePhase when selected, or ActionPhase
 PreludePhaseScope removal -> ActionPhase
-ActionPhaseScope removal -> ProductionPhase
+last Pass -> ActionPhaseComplete; completion removal -> ProductionPhase
 ProductionPhaseScope removal -> SolarPhase, while a GameEndBarrier exists
 ProductionPhaseScope removal -> CheckGameEnd, otherwise
 SolarPhaseScope removal -> first selected optional Solar phase, or ResearchPhase
@@ -323,19 +334,22 @@ FinalGreeneryPhaseScope removal -> End
 phase work keeps cleanup from removing them; when it drains, their automatic removal effects
 cascade. This includes optional Production work such as Supercapacitors. Corporation, Prelude,
 Action, and Final Greenery scopes are deliberately not Temporary because their queues drain between
-players. `TfmWorkflow.Automatic` removes them only after the existing player sequencing observes
-phase completion. The resulting phase decisions remain Pets effects: Kotlin neither branches on
-Prelude selection nor directly enters Prelude, Action, Production, Solar, Research, Final Greenery,
-or End.
+players. The last `HaveNotPassed -> Pass` transition changes `ActionPhaseScope` into the
+`ActionPhaseComplete` continuation. The engine removes it after the passing operation validates,
+and its Pets removal effect enters Production. Kotlin still rotates Action turns, but no longer
+decides that the phase is complete or removes its scope. Corporation, Prelude, and Final Greenery
+remain explicitly woken by their sequencing.
 
 An Agent operation begun synchronously by the atomic-completion callback now receives its own idle
 cleanup before returning. That generic rule lets task-free terminal Production settle exactly like
 Production with queued work; no workflow-specific wakeup is needed. Rolling back the Action scope
-removal restores the Action phase and scope while removing the entire automatic continuation.
+completion restores the Action phase and open scope while removing the entire automatic
+continuation.
 
-Phase-scope continuations remain inert without `WorkflowStarted`. Replay VP snapshots temporarily
-remove the marker before constructing a hypothetical Production/End state, then restore the live
-workflow through rollback.
+Phase-scope continuations do not advance without `WorkflowStarted`. An Action scope and its
+participation states still exist during stepwise play, but the last Pass does not create the
+completion continuation. Replay VP snapshots temporarily remove the marker before constructing a
+hypothetical Production/End state, then restore the live workflow through rollback.
 
 The intended coarse Terraforming Mars shape is:
 
@@ -368,10 +382,10 @@ The phase workflow is successful only when all of these hold:
 
 ## Remaining demonstrations
 
-The next workflow migration is not yet selected. Segment compilation is implemented for
-Corporation-to-Action with optional Prelude and for Solar-to-Research with optional Venus and
-Colonies phases. The remaining Kotlin role is intra-phase player sequencing and explicit wakeup of
-the non-Temporary scopes whose domain completion it observes.
+Segment compilation is implemented for Corporation-to-Action with optional Prelude and for
+Solar-to-Research with optional Venus and Colonies phases. Action-to-Production now closes from its
+Pets-owned exact-one participation states. The remaining Kotlin role is intra-phase player
+sequencing and explicit wakeup of Corporation, Prelude, and Final Greenery.
 
 Do not redesign Action-turn rotation as part of the Action-to-Production proof; that is sequencing.
 If the narrow model needs phase-specific Kotlin, a literal runtime stack, or a second representation

@@ -284,6 +284,11 @@ start while a pre-existing selected Task holds the World lock. `sneak` remains a
 applies fully concrete changes through the timeline and graph but skips normal instruction
 resolution and effects.
 
+After an operation validates, the same atomic transaction removes any live `Continuation` and
+settles its removal effects. Work created there belongs to the following operation, so it is not
+rejected as unfinished work of the operation that produced the continuation. Ordinary `Temporary`
+cleanup still happens before validation and remains part of the current operation.
+
 Current autoexecution lives in `:agent`, not in the core engine. Policy selects legal Task commands;
 it does not alter their semantics. Direct engine primitives remain available to trusted workflow,
 replay-correction, test, and cheat code. Preventing those callers from reaching the primitives is

@@ -8,6 +8,7 @@ import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.CONTINUATION
 import dev.martianzoo.pets.api.SystemClasses.MUST_CLEAN_UP
 import dev.martianzoo.pets.api.SystemClasses.TEMPORARY
 import dev.martianzoo.pets.api.SystemClasses.THIS
@@ -54,6 +55,7 @@ public object Engine {
             { world.onTransactionComplete() },
             recordingPositions,
             ::removeTemporaryComponent,
+            ::removeContinuation,
         )
     private val instructor =
         Instructor(reader, limiter, changer, effector, classTable, elaborator, customClasses)
@@ -104,6 +106,22 @@ public object Engine {
           temporaryComponents.elements.firstOrNull { type ->
             !gameWorld.components.hasDependentMatching(type, mustCleanUp, reader) &&
                 !gameWorld.components.hasDependentMatching(type, temporary, reader)
+          } ?: return false
+
+      instructor
+          .execute(remove(type, reader.countComponent(type)), cause = null, actor = ADMIN)
+          .forEach(taskQueues::addTasks)
+      return true
+    }
+
+    private fun removeContinuation(): Boolean {
+      if (!gameWorld.tasks.isEmpty()) return false
+      val continuation = classTable.getClass(CONTINUATION).baseType
+      val mustCleanUp = classTable.getClass(MUST_CLEAN_UP).baseType
+      val type =
+          reader.getComponents(continuation).elements.firstOrNull { candidate ->
+            !gameWorld.components.hasDependentMatching(candidate, mustCleanUp, reader) &&
+                !gameWorld.components.hasDependentMatching(candidate, continuation, reader)
           } ?: return false
 
       instructor
