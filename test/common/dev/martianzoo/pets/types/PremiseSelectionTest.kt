@@ -18,6 +18,11 @@ import kotlin.test.Test
 internal class PremiseSelectionTest {
 
   @Test
+  internal fun `Audit is included in every premise`() {
+    gameView(testCatalog("CLASS Unselected")).isIncluded(cn("Audit")) shouldBe true
+  }
+
+  @Test
   internal fun `custom class requirements are included with the custom class only`() {
     val declarations =
         """

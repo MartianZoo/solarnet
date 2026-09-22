@@ -1,6 +1,7 @@
 package dev.martianzoo.pets.data
 
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
+import dev.martianzoo.pets.api.SystemClasses.AUDIT
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
@@ -93,7 +94,8 @@ public data class GamePremise(
             .mapTo(linkedSetOf(), ClassSelection::className)
     val excluded = (moduleExcluded - explicitlyIncluded) + explicitlyExcluded
     val roots =
-        modules +
+        setOf(AUDIT) +
+            modules +
             ((selectedByModules - explicitlyExcluded) + explicitlyIncluded) +
             initialClassNames +
             actors.map(Actor::className) +
