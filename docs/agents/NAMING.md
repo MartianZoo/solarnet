@@ -194,10 +194,6 @@ looking it up.
 - **Markers** name real physical components players handle: `ActionUsedMarker`, `Community`,
   `NomadsMarker`, `CapitalMarker`. `StartToken` keeps `Token` because the honest
   `StartPlayerMarker` is long and `StartMarker` reads wrong.
-- **Card locations** use noun phrases for places (`Hand`) and participles for
-  explicitly transient states. The two participle forms are both correct and mean different things:
-  the present participle names a stage the player is in the middle of (`Selecting`, and eventually
-  `Drafting`), the past participle names what was done to the card (`Revealed`).
 - **Singular vs. plural** may distinguish one-of from all-of over the same subject —
   `GainColonyBonus` (one colony) against `GainColonyBonuses` (every colony the player owns) — and
   may distinguish a whole operation from its per-item step. It may **not** distinguish two

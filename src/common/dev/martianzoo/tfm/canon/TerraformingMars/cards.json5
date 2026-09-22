@@ -865,7 +865,8 @@
           "requirement": "MAX 6 OxygenStep",
           "cost": 3,
           "tags": [ "ScienceTag" ],
-          "actions": [ "1 MC -> CARDS[ProjectCard<Revealed> THEN (ProjectCard<Revealed>(HAS PrintedTag<Class<MicrobeTag>>): Science<This>) OR Ok]" ],
+          // ProjectCard<Revealed> THEN (ProjectCard<Revealed>(HAS PrintedTag<Class<MicrobeTag>>): Science<This>)
+          "actions": [ "1 MC -> Science<This>?" ],
           "effects": [ "End IF Science<This>: 3 VictoryPoint" ],
         },
         {

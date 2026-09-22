@@ -54,7 +54,6 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
   @Test
   internal fun completeGame() {
     TfmWorkflow.Automatic(agents).launch()
-    retainStartingProjects(5, 6, 7, 3)
     generation1()
     generation2()
     generation3()

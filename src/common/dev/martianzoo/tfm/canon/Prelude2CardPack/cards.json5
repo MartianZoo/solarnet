@@ -27,7 +27,8 @@
         },
         {
           "name": "SagittaFrontierServices",
-          "immediate": "31 MC, PROD[Energy, 2 MC], CARDS[SearchForCard(HAS MAX 0 PrintedTag)]",
+          // SearchForCard(HAS MAX 0 PrintedTag)
+          "immediate": "31 MC, PROD[Energy, 2 MC], ProjectCard",
           "effects": [
             "CardFront(HAS =0 Tag): 4 MC",
             "CardFront(HAS =1 Tag): 1 MC",
@@ -51,14 +52,15 @@
         {
           "name": "AtmosphericEnhancers",
           "tags": [ "VenusTag" ],
-          "immediate": "2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep, CARDS[2 SearchForCard(HAS ReferenceTo<Class<Floater>>)]",
+          // SearchForCard(HAS ReferenceTo<Class<Floater>>)
+          "immediate": "2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep, 2 ProjectCard",
         },
         {
           "name": "BoardOfDirectors",
           "tags": [ "EarthTag" ],
           "immediate": "4 Director<This>",
           "actions": [
-            "-> PreludeCard, -PreludeCard OR (-12 MC THEN -Director<This> THEN PlayCard<Class<PreludeCard>, Hand>)",
+            "-> PreludeCard, -PreludeCard OR (-12 MC THEN -Director<This> THEN PlayCard<Class<PreludeCard>>)",
           ],
           "components": [ "CLASS Director : CardResource" ],
         },
@@ -113,7 +115,7 @@
         {
           "name": "PlanetaryAlliance",
           "tags": [ "EarthTag", "JovianTag", "VenusTag" ],
-          "immediate": "2 TerraformRating, CARDS[SearchForCard(HAS PrintedTag<Class<JovianTag>>)], CARDS[SearchForCard(HAS PrintedTag<Class<VenusTag>>)]",
+          "immediate": "2 TerraformRating, SearchForCard<TagFilter<Class<JovianTag>>>, SearchForCard<TagFilter<Class<VenusTag>>>",
         },
         {
           "name": "ProjectEden",
@@ -127,7 +129,7 @@
         {
           "name": "SoilBacteria",
           "tags": [ "MicrobeTag" ],
-          "immediate": "CARDS[2 SearchForCard(HAS PrintedTag<Class<MicrobeTag>>)], 3 Plant",
+          "immediate": "2 SearchForCard<TagFilter<Class<MicrobeTag>>>, 3 Plant",
           "effects": [ "PlantTag OR MicrobeTag: Plant" ],
         },
         {
@@ -158,7 +160,7 @@
         {
           "name": "VenusContract",
           "tags": [ "VenusTag" ],
-          "immediate": "CARDS[SearchForCard(HAS PrintedTag<Class<VenusTag>>)], TerraformRating",
+          "immediate": "SearchForCard<TagFilter<Class<VenusTag>>>, TerraformRating",
           "effects": [ "VenusStep: 3 MC" ],
         },
         {
@@ -208,7 +210,7 @@
           "requirement": "5 VenusStep",
           "cost": 6,
           "tags": [ "VenusTag", "EventTag" ],
-          "immediate": "3 Titanium, CARDS[2 SearchForCard(HAS PrintedTag<Class<VenusTag>>)]",
+          "immediate": "3 Titanium, 2 SearchForCard<TagFilter<Class<VenusTag>>>",
         },
         {
           "name": "MicrogravityNutrition",
@@ -228,7 +230,7 @@
           "name": "StratosphericExpedition",
           "cost": 12,
           "tags": [ "VenusTag", "SpaceTag", "EventTag" ],
-          "immediate": "2 Floater, CARDS[2 SearchForCard(HAS PrintedTag<Class<VenusTag>>)]",
+          "immediate": "2 Floater, 2 SearchForCard<TagFilter<Class<VenusTag>>>",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -248,8 +250,9 @@
           "name": "VenusOrbitalSurvey",
           "cost": 18,
           "tags": [ "VenusTag", "SpaceTag" ],
+          // 2 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>(HAS VenusTag) THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards
           "actions": [
-            "-> CARDS[2 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]",
+            "-> SearchForCard<TagFilter<Class<VenusTag>>> OR BuyCard?, SearchForCard<TagFilter<Class<VenusTag>>> OR BuyCard?",
           ],
         },
         {
@@ -285,7 +288,8 @@
         {
           "name": "HighCircles",
           "tags": [ "EarthTag" ],
-          "immediate": "TerraformRating, CARDS[SearchForCard(HAS ReferenceTo<Class<PartyRequirement>>)], 2 PartyDelegate",
+          // SearchForCard(HAS ReferenceTo<Class<PartyRequirement>>)
+          "immediate": "TerraformRating, ProjectCard, 2 PartyDelegate",
           "effects": [ "MeasureInfluence:: HighCirclesInfluence" ],
           "components": [
             "CLASS HighCirclesInfluence : Influence { HAS MAX 1 This }",
@@ -381,7 +385,8 @@
           "requirement": "Chairman",
           "cost": 9,
           "tags": [ "EarthTag" ],
-          "immediate": "3 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting> THEN -2 PreludeCard<Selecting>",
+          // 3 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting> THEN -2 PreludeCard<Selecting>
+          "immediate": "PreludeCard THEN PlayCard<Class<PreludeCard>>",
         },
       ],
     },

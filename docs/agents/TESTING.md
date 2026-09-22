@@ -295,27 +295,24 @@ workaround. Once the bug is fixed, move the useful scenario to its proper behavi
 Whole-game tests are high-value integration coverage. When translating a supplied game log:
 
 - `CardTrackingFullGameTest` is an opt-in full-game base for source archives that identify project
-  cards. Named draw, offer, purchase, discard, and return calls update one test-owned location
-  ledger and annotate the corresponding project-card events. Naming may happen immediately before
-  or after the engine change.
+  cards. Named draw, purchase, discard, and return calls update one test-owned hand ledger and
+  annotate the corresponding project-card events. Naming may happen immediately before or after the
+  engine change.
   A replay with complete source data may instead override `projectCardArrivalOrder` for each Player.
-  This is the order in which cards enter that Player's modeled Hand or Selecting state, not a claim
-  about the physical deck order. The tracker consumes the fixture according to the anonymous event
-  counts; the replay names selection discards, and the retained cards are the remainder of the known
-  offer. It rejects duplicate arrivals, an exhausted or partly unused fixture, and any attempt to
-  discard a card that never arrived or is not in the indicated Player's Hand or selection.
+  This is only the order in which cards enter that Player's modeled hand, not a claim about offers
+  or physical deck order. The tracker consumes the fixture according to anonymous hand-gain counts.
+  It rejects duplicate arrivals, an exhausted or partly unused fixture, and any attempt to discard
+  a card that never entered the indicated Player's hand.
   Strict completion requires an identity label for every card in every project-card event and
-  checks the tracked hand sizes against the World. When a source omits a rejected card's identity,
-  `unknownProjectCards()` supplies distinct replay-local `UnknownCardNN` labels; keep the source gap
-  visible beside their use. These labels prove complete accounting, not complete source knowledge.
-  The database-backed Herokuapp conversions use strict mode without unknown labels. A named discard
-  is terminal; cards do not return to the deck. For source-known direct deck exits that the model
-  omits, record the terminal exit explicitly; those cards are not arrivals.
-  Inside an operation, `discardUnselectedProjectCards()` also resolves an already-open anonymous
-  selection-removal task.
+  checks the tracked hand sizes against the World. When a source omits a hand card's identity,
+  `unknownProjectCards()` supplies distinct replay-local `UnknownCardNN` labels for cards that did
+  enter a hand; keep the source gap visible beside their use. These labels prove complete hand
+  accounting, not complete source knowledge. The database-backed Herokuapp conversions use strict
+  mode without unknown labels. A named discard is terminal unless an exact played Event later
+  returns to the hand.
   Research archives that used drafting may assign each recovered post-draft four-card set as that
-  player's ordinary deal when the tested engine does not support drafting. In an arrival-ordered
-  replay, buy only the evidenced count and name the unselected cards.
+  player's ordinary hand arrivals when the tested engine does not support drafting. Buy only the
+  evidenced count; never name cards that were not retained.
   `AbstractSoloTest` inherits this capability, but a solo test opts into tracking only by using
   the named calls.
   When a source gives only a discard count, an exact tracked hand requires the test to select

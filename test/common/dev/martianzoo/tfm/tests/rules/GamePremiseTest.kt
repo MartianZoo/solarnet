@@ -213,7 +213,6 @@ internal class GamePremiseTest {
     admin.count("SelectedColonyTile<Class<Ceres>>") shouldBe 0
 
     workflow.setupPhase()
-    retainStartingProjects(game, 0, 0)
     workflow.corporationPhase()
 
     admin.count("SelectedColonyTile") shouldBe 0

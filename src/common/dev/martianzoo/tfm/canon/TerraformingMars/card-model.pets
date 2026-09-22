@@ -1,7 +1,6 @@
 ABSTRACT CLASS Card : Owned<Player> {
   "A generic unplayed card with unknown face"
-  ABSTRACT CLASS CardBack<CardLocation> {
-    DEFAULT CardBack<Hand>
+  ABSTRACT CLASS CardBack {
     DEFAULT +CardBack
     DEFAULT -CardBack
     autoSelectWhen = Requirement?
@@ -47,19 +46,31 @@ ABSTRACT CLASS Card : Owned<Player> {
   }
 }
 
+"The payment operation that owns project-card purchases"
 CLASS CardPurchase : HasActions {
   HAS =1 This
-  -ActionBilling<This>:: ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>
+  -ActionBilling<This, Action1>:: ProjectCard / BuyCard, -BuyCard / BuyCard
 }
 
-"Triggers the purchase of every project card remaining in the player's selection"
-CLASS BuySelectedCards : Owned<Player>, Signal {
-  This:: (3 Owed<> / ProjectCard<Selecting>) THEN (PayingFor<Class<ProjectCard>> / ProjectCard<Selecting>) THEN ActionBilling<CardPurchase, Action1>
+"A requested number of externally selected project cards awaiting payment"
+CLASS BuyCard : Owned<Player>, MustCleanUp {
+  This:: 3 Owed<> THEN PayingFor<Class<ProjectCard>> THEN ActionBilling<CardPurchase, Action1>.
 }
 
-CLASS PlayCard<Class<@CardBack>, Class<@CardFront>, @CardLocation> : Owned<Player>, Signal {
+"An externally specified search criterion; the selected card is not tracked before it reaches a hand"
+ABSTRACT CLASS CardFilter : System
+
+"Carries the externally asserted printed-tag criterion"
+CLASS TagFilter<Class<Tag>> : CardFilter { HAS MAX 1 This }
+
+"Records the search criterion while adding only the externally selected card to the hand"
+CLASS SearchForCard<CardFilter> : Owned<Player>, Signal {
+  This:: ProjectCard, Audit
+}
+
+CLASS PlayCard<Class<@CardBack>, Class<@CardFront>> : Owned<Player>, Signal {
   This:: (EVAL @CardFront<Class<@CardBack>>.requirement: Ok) OR AdjustGpRequirement<Class<@CardFront>>
-  This: Owed<> / @CardFront.cost THEN PriceCard<Class<@CardFront>> THEN CardBilling<Class<@CardFront>> THEN MAX 0 Barrier: @CardFront FROM @CardBack<@CardLocation>
+  This: Owed<> / @CardFront.cost THEN PriceCard<Class<@CardFront>> THEN CardBilling<Class<@CardFront>> THEN MAX 0 Barrier: @CardFront FROM @CardBack
 }
 
 "Signals that a printed global-parameter requirement produced a shortfall ready for adjustment"
@@ -73,29 +84,6 @@ CLASS PriceCard<Class<CardFront>> : Owned<Player>, Custom
 "A temporary shortfall between a printed global requirement and the current parameter"
 CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
   DEFAULT -Required.
-}
-
-"A location that an owned unplayed card can occupy"
-ABSTRACT CLASS CardLocation : System {
-  CLASS Hand {
-    HAS =1 This
-  }
-  CLASS Selecting {
-    HAS MAX 1 This
-    CardBack<This>:: CardLocationCleanup<This>.
-    -This:: This!
-  }
-  CLASS Revealed {
-    HAS MAX 1 This
-    CardBack<This>:: CardLocationCleanup<This>.
-    -This:: This!
-  }
-}
-
-"Resets a transient card location after all current work finishes"
-CLASS CardLocationCleanup<@CardLocation> : Temporary, Hidden {
-  HAS MAX 1 This
-  -This:: -@CardLocation!
 }
 
 // TODO: can this be simplified??

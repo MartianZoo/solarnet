@@ -76,14 +76,16 @@
           "name": "BusinessContacts",
           "cost": 7,
           "tags": [ "EarthTag", "EventTag" ],
-          "immediate": "4 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>",
+          // 4 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>
+          "immediate": "2 ProjectCard",
         },
         {
           "name": "BusinessNetwork",
           "cost": 4,
           "tags": [ "EarthTag" ],
           "immediate": "PROD[-1 MC]",
-          "actions": [ "-> ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards" ],
+          // ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards
+          "actions": [ "-> BuyCard?" ],
         },
         {
           "name": "CallistoPenalMines",
@@ -220,13 +222,15 @@
           "name": "InventionContest",
           "cost": 2,
           "tags": [ "ScienceTag", "EventTag" ],
-          "immediate": "3 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>",
+          // 3 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>
+          "immediate": "ProjectCard",
         },
         {
           "name": "InventorsGuild",
           "cost": 9,
           "tags": [ "ScienceTag" ],
-          "actions": [ "-> ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards" ],
+          // ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards
+          "actions": [ "-> BuyCard?" ],
         },
         {
           "name": "InvestmentLoan",

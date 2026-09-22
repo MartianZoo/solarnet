@@ -324,10 +324,9 @@ of its own and an empty argument list on it accepts nothing: `This<>` *is* the b
 Every construct that recognizes the placeholder recognizes both spellings, even though the two are
 different expressions (L3-2).
 
-> **Non-normative example — self cleanup.** Card locations use `-This:: This!` to remove and restore
-> that exact location component. Recognizing both `This` and `This<>` as the placeholder prevents an
-> empty list from accidentally turning self cleanup into a subscription to a broad card-location
-> type.
+> **Non-normative example — self cleanup.** The system `Temporary` declaration uses `This` in its
+> own removal effect. Recognizing both `This` and `This<>` as the placeholder prevents an empty list
+> from accidentally turning self cleanup into a subscription to a broader type.
 
 **L3-6. `Owner` in an authored expression is contextual.** It stands for whoever supplies the
 context, and elaboration replaces it (L12-3). `Anyone` is an ordinary class and stands for itself
@@ -747,7 +746,6 @@ one side may instead belong to an enclosing `THEN` sequence when that sequence a
 > **Non-normative example — Market Manipulation.**
 > `ColonyProduction(NOT Source@ColonyProduction) FROM Source@ColonyProduction` chooses a source
 > colony track and excludes that same track from the destination choice.
-
 ---
 
 ## 7. Narrowing: what remains open
@@ -1304,10 +1302,9 @@ allows it and nothing otherwise, which is `!`; `.` with `?` permits only the mos
 | **`.`** | `!` | `.` | `.` |
 | **`?`** | `!` | `.` | `?` |
 
-> **Non-normative example — Public Plans.** `ProjectCard<Revealed FROM Hand>` changes a card's
-> location while retaining its contextual owner. Defaulting the gained and removed card types
-> independently preserves both locations; defaulting the transmutation as one expression could
-> overwrite the very argument that changes.
+> **Non-normative example — the starting-player marker.** `StartToken<Player FROM Owner>` changes
+> the marker's owner. Defaulting the gained and removed token types independently preserves both
+> owners; defaulting the transmutation as one expression could overwrite the argument that changes.
 
 **L12-9. Inside a `HAS` refinement, a bare dependent expression reserves a slot for the candidate.**
 It keeps the first dependency position that could accept the refined domain free, so that candidate

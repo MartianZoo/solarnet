@@ -38,7 +38,8 @@ CLASS FakeNobelPrize : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: FakeWildTag<This>
-  This: 5 MC, CARDS[2 SearchForCard(HAS requirement)]
+  // SearchForCard(HAS requirement)
+  This: 5 MC, 2 ProjectCard
   End: 2 VictoryPoint
 }
 
@@ -115,7 +116,7 @@ CLASS FakeHeadStart : CardFront<Class<PreludeCard>> {
   cost = 0
 
   This:: Audit
-  This: 2 Steel, 2 MC / ProjectCard<Hand>, UseAction<StandardAction>!, UseAction<StandardAction>!
+  This: 2 Steel, 2 MC / ProjectCard, UseAction<StandardAction>!, UseAction<StandardAction>!
 }
 
 "L1 Trade Terminal with the replay's three resource destinations fixed"
@@ -134,7 +135,7 @@ CLASS FakeL1TradeTerminal : ActiveCard {
 "One robot unit stored with a card that reduces its play cost by 1 MC"
 CLASS RobotUnit<Class<@CardFront>> : Resource, Owned<Player>, Hidden {
   ReplicateForStagedProject<Class<@CardFront>>: This!
-  PlayCard<Class<CardBack>, Class<@CardFront>, Hand>: -Owed, -This!
+  PlayCard<Class<CardBack>, Class<@CardFront>>: -Owed, -This!
 }
 
 "Self-Replicating Robots with printed-tag selection delegated in follow mode"
@@ -142,14 +143,15 @@ CLASS FakeSelfReplicatingRobots : ActionCard, ActiveCard {
   cost = 7
   requirement = HAS "2 ScienceTag"
 
-  PlayCard<Class<CardBack>, Class<CardFront>, Hand> IF RobotUnit<Class<CardFront>>: ProjectCard<Hand>
+  PlayCard<Class<CardBack>, Class<@CardFront>(HAS RobotUnit<Class<@CardFront>>)>: ProjectCard
 
-  -> CARDS[StageForReplicatedProject<Class<CardFront>(HAS PrintedTag<Class<BuildingTag>> OR PrintedTag<Class<SpaceTag>>)>]
+  // HAS PrintedTag<Class<BuildingTag>> OR PrintedTag<Class<SpaceTag>>
+  -> StageForReplicatedProject<Class<CardFront>>
   -> ReplicateForStagedProject<Class<CardFront>(HAS RobotUnit<Class<CardFront>>)>
 }
 
 CLASS StageForReplicatedProject<Class<@CardFront>> : Owned<Player>, Signal {
-  This: -ProjectCard<Hand> THEN 2 RobotUnit<Class<@CardFront>>!
+  This: -ProjectCard THEN 2 RobotUnit<Class<@CardFront>>!
 }
 
 CLASS ReplicateForStagedProject<Class<CardFront>> : Owned<Player>, Signal
