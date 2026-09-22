@@ -269,7 +269,7 @@ CLASS UseTurmoilPolicyAction : StandardAction {
 }
 
 CLASS MarsFirstPolicy : Policy<MarsFirst> {
-  Tile<MarsArea>:: Steel
+  Tile<MarsArea>: Steel
 }
 
 CLASS ScientistsPolicy : Policy<Scientists>, HasActions {
@@ -289,11 +289,11 @@ CLASS UnityTitaniumValue<UnityPolicy> : ResourceValue<Class<Titanium>> {
 }
 
 CLASS GreensPolicy : Policy<Greens> {
-  GreeneryTile BY Player:: 4 MC
+  GreeneryTile BY Player: 4 MC
 }
 
 CLASS RedsPolicy : Policy<Reds> {
-  TerraformRating BY Player:: -3 MC!
+  TerraformRating BY Player: -3 MC!
 }
 
 CLASS KelvinistsPolicy : Policy<Kelvinists>, HasActions {
