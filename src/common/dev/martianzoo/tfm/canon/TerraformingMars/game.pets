@@ -171,7 +171,21 @@ CLASS SetupPhaseScope : PhaseScope<SetupPhase>, Temporary {
 }
 
 "The corporation phase's lifetime anchor"
-CLASS CorporationPhaseScope : PhaseScope<CorporationPhase>
+CLASS CorporationPhaseScope : PhaseScope<CorporationPhase> {
+  This:: EACH @Player(HAS StartToken) { NewTurn<@Player> BY @Player }
+  -CorporationCard<Previous@Owner>:: \
+    EACH Seat@AfterMe<Previous@Owner, Anyone> { \
+      CorporationPhaseCompletionCheck<Seat@AfterMe> BY Admin \
+    }
+}
+
+"Continues corporation selection with the next player after one settled choice"
+CLASS CorporationPhaseCompletionCheck<AfterMe<Anyone, Next@Player>> : Continuation, System {
+  -This IF CorporationPhaseScope, CorporationCard<Next@Player>:: \
+    NewTurn<Next@Player> BY Next@Player
+  -This IF CorporationPhaseScope, MAX 0 CorporationCard<Anyone>:: \
+    -CorporationPhaseScope BY Admin
+}
 
 "The open action phase's lifetime anchor"
 CLASS ActionPhaseScope : PhaseScope<ActionPhase>

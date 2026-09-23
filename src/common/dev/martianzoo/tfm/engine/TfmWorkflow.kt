@@ -109,9 +109,9 @@ public object TfmWorkflow {
       get() = workflowJob?.isActive == true
 
     /**
-     * Checkpoint saved just before the workflow's most recent [Agent.beginOperation] call. Non-null
-     * only while the coroutine is suspended waiting for those tasks to drain. [shutdown] rolls back
-     * to this point to undo the pending workflow task.
+     * Checkpoint saved just before the Kotlin sequencer's most recent [Agent.beginOperation] call.
+     * Non-null only while the coroutine is suspended waiting for those tasks to drain. Pets-created
+     * tasks are authoritative GameWorld state and are not mirrored here.
      */
     private var shutdownCheckpoint: Checkpoint? = null
 
@@ -141,9 +141,9 @@ public object TfmWorkflow {
     }
 
     /**
-     * Stops the workflow cleanly and cancels its coroutine. If the coroutine is suspended waiting
-     * for a player to handle a workflow-created task (NewTurn or SecondAction), that task is rolled
-     * back so the queue is empty and the game is ready for a manual phase transition.
+     * Stops the workflow and cancels its coroutine. If the Kotlin sequencer is suspended waiting
+     * for its most recent NewTurn or SecondAction, that operation is rolled back. Tasks created by
+     * Pets remain part of the GameWorld; shutdown does not promise an empty task queue.
      */
     public fun shutdown() {
       game.onTransactionComplete = {}
@@ -158,16 +158,10 @@ public object TfmWorkflow {
     private suspend fun runGame() {
       adminOps.beginOperation("WorkflowStarted")
       awaitTasksDrained()
-      corporationPhase()
-      adminOps.runOperation("-CorporationPhaseScope")
       completePreludePhase()
       while (hasComponent("ActionPhase")) actionPhase()
       if (!hasComponent("FinalGreeneryPhase")) return
       finalGreeneryPhase()
-    }
-
-    private suspend fun corporationPhase() {
-      for (player in players) grantFirstActionTo(player)
     }
 
     private suspend fun completePreludePhase() {

@@ -34,6 +34,9 @@ internal class TfmWorkflowTest {
   internal fun explicitStartCarriesBootstrapThroughSetupToCorporation() {
     val game = Engine.newGame(canonicalPremise(players = 2))
     val admin = game.testTfm(ADMIN)
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
+    admin.sneak("StartToken<Player2> FROM StartToken<Player1>")
 
     admin.beginOperation("WorkflowStarted")
 
@@ -45,6 +48,8 @@ internal class TfmWorkflowTest {
         1 to "CorporationPhase",
         1 to "CorporationPhaseScope",
     )
+    p1.tasks.isEmpty() shouldBe true
+    p2.tasks.isEmpty() shouldBe false
   }
 
   @Test
@@ -52,7 +57,11 @@ internal class TfmWorkflowTest {
     val game = Engine.newGame(canonicalPremise(players = 2))
     val admin = game.testTfm(ADMIN)
     admin.beginOperation("WorkflowStarted")
-    admin.runOperation("-CorporationPhaseScope")
+    playCorporationWithoutStartingProjects(
+        game.testTfm(PLAYER1),
+        UnitedNationsMarsInitiative,
+    )
+    playCorporationWithoutStartingProjects(game.testTfm(PLAYER2), CrediCor)
     val checkpoint = game.timeline.checkpoint()
 
     admin.beginOperation("ActionPhaseComplete FROM ActionPhaseScope")
@@ -77,6 +86,49 @@ internal class TfmWorkflowTest {
         0 to "ResearchPhaseScope",
     )
     game.tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun rollingBackCorporationSelectionRestoresItsTurn() {
+    val game = Engine.newGame(canonicalPremise(players = 2))
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    p1.tasks.isEmpty() shouldBe false
+    p2.tasks.isEmpty() shouldBe true
+
+    playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
+    p1.tasks.isEmpty() shouldBe true
+    p2.tasks.isEmpty() shouldBe false
+    val beforeFinalCorporation = game.timeline.checkpoint()
+
+    playCorporationWithoutStartingProjects(p2, CrediCor)
+    game
+        .testTfm(ADMIN)
+        .assertCounts(
+            0 to "CorporationPhase",
+            0 to "CorporationPhaseScope",
+            1 to "ActionPhase",
+            1 to "ActionPhaseScope",
+        )
+
+    game.timeline.rollBack(beforeFinalCorporation)
+
+    game
+        .testTfm(ADMIN)
+        .assertCounts(
+            1 to "CorporationPhase",
+            1 to "CorporationPhaseScope",
+            0 to "ActionPhase",
+            0 to "ActionPhaseScope",
+        )
+    p1.assertCounts(0 to "CorporationCard", 1 to "UnitedNationsMarsInitiative")
+    p2.assertCounts(1 to "CorporationCard", 0 to "CrediCor")
+    p1.tasks.isEmpty() shouldBe true
+    p2.tasks.isEmpty() shouldBe false
+    playCorporationWithoutStartingProjects(p2, CrediCor)
+    game.testTfm(ADMIN).assertCounts(0 to "CorporationPhase", 1 to "ActionPhase")
+    workflow.shutdown()
   }
 
   @Test
