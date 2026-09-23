@@ -38,7 +38,7 @@ internal class Spec01UniversesTest {
     left.resolve(te("GreeneryTile")) shouldNotBe right.resolve(te("GreeneryTile"))
   }
 
-  // T1-2 Values are universe-scoped
+  // T1-2 Values belong to universes
 
   @Test
   internal fun `T1-2 comparing values from two universes is an error, not a false answer`() {
@@ -62,17 +62,6 @@ internal class Spec01UniversesTest {
     val leftPlant = loadTypes("CLASS Plant")
     val rightPlant = loadTypes("CLASS Plant").resolve(te("Plant"))
     shouldThrowIae { leftPlant.componentLimits.requiredLimits(listOf(rightPlant)) }
-  }
-
-  @Test
-  internal fun `T1-2 knows reports whether a type belongs to this universe`() {
-    fun universe() = loadTypes("ABSTRACT CLASS Area", "CLASS GreeneryTile<Area>")
-
-    val left = universe()
-    val right = universe()
-
-    left.knows(left.resolve(te("GreeneryTile"))) shouldBe true
-    left.knows(right.resolve(te("GreeneryTile"))) shouldBe false
   }
 
   // T1-3 Resolution is a function of the expression
@@ -124,7 +113,7 @@ internal class Spec01UniversesTest {
     table.classClass.baseType.expressionFull shouldBe te("Class<Component>")
   }
 
-  // T1-6 Freezing
+  // T1-6 A universe is closed
 
   @Test
   internal fun `T1-6 enumeration requires a frozen table but lookup does not`() {

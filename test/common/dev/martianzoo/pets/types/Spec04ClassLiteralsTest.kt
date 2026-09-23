@@ -88,7 +88,7 @@ internal class Spec04ClassLiteralsTest {
     type("Production<Class<Metal>>").isSubtypeOf(type("Production<Class<Steel>>")) shouldBe false
   }
 
-  // T4-4 Reading the represented class
+  // T4-4 A class literal represents one class
 
   @Test
   internal fun `T4-4 representedClass exposes the named class, and is absent otherwise`() {

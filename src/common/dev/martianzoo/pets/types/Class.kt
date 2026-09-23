@@ -44,10 +44,7 @@ import dev.martianzoo.pets.util.toSetStrict
  */
 public class Class
 internal constructor(
-    /**
-     * The source declaration retained under
-     * [rule T2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
-     */
+    /** The source declaration this class was compiled from. */
     public val declaration: ClassDeclaration,
 
     /** The class loader used while constructing this class. */
@@ -72,7 +69,7 @@ internal constructor(
 
   /**
    * The canonical class name that determines identity within [classTable] ([rule
-   * T2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes)).
+   * T1-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity)).
    */
   override val className: ClassName = declaration.className.also { require(it != THIS) }
 
@@ -87,7 +84,7 @@ internal constructor(
 
   /**
    * The declaration's documentation text, retained under
-   * [rule T2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+   * [rule L1-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations).
    */
   public val docstring: String?
     get() = declaration.docstring
@@ -284,9 +281,8 @@ internal constructor(
       else allSuperclasses.flatMap { split(it.declaration.invariants) }.toSet()
 
   /**
-   * Every superclass in the walk specified by
-   * [rule T2-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes),
-   * including this class.
+   * Every superclass of this class, including itself, as determined by
+   * [rule T2-7](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
    */
   public fun allSuperclasses(): Set<Class> = allSuperclasses
 
@@ -886,8 +882,9 @@ internal constructor(
   private val defaultTypeLazy = lazy { loader.resolve(defaultExpression) }
 
   /**
-   * The valid resolved interpretation of [defaultExpression], as specified by
-   * [rule T10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults).
+   * The default type of
+   * [rule T10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults):
+   * the type that [defaultExpression], the default template, denotes.
    */
   public val defaultType: GroundType
     get() = defaultTypeLazy.value
@@ -933,10 +930,7 @@ internal constructor(
   public val defaults: Defaults
     get() = defaultsLazy.value
 
-  /**
-   * Returns the canonical name required by
-   * [rule T2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
-   */
+  /** Returns [className]. */
   override fun toString(): String = "$className"
 
   private companion object {

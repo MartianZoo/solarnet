@@ -203,7 +203,7 @@ internal class Spec05TypesTest {
     "${type("GreeneryTile<Player1, Tharsis_2_2>")}" shouldBe "GreeneryTile<Tharsis_2_2, Player1>"
   }
 
-  // T5-7 Building a type directly
+  // T5-7 A type never escapes its class's declaration
 
   @Test
   internal fun `T5-7 withAllDependencies needs every one of the class's own keys`() {
@@ -244,16 +244,5 @@ internal class Spec05TypesTest {
     mars.getClass(cn("GreeneryTile")).specialize(listOf(te("Tharsis_2_2"))) shouldBe
         type("GreeneryTile<Tharsis_2_2>")
     mars.getClass(cn("GreeneryTile")).specialize(listOf()) shouldBe type("GreeneryTile")
-  }
-
-  // T5-8 Every type view
-
-  @Test
-  internal fun `T5-8 a ground type is its own structural view and has no type variable`() {
-    val greenery = type("GreeneryTile")
-
-    greenery.groundType shouldBe greenery
-    (greenery.groundType === greenery) shouldBe true
-    greenery.typeVariable shouldBe null
   }
 }

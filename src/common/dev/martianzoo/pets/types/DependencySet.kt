@@ -139,7 +139,7 @@ private constructor(
 
   /**
    * Tests componentwise context-free covariance against [that] according to
-   * [rules T6-2 and T6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rules T6-2 and T6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing).
    */
   public fun isSubtypeOf(that: DependencySet): Boolean {
     requireSameClassTable(that)
@@ -148,14 +148,14 @@ private constructor(
 
   /**
    * Tests the converse of [isSubtypeOf], including equality ([rule
-   * T6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping)).
+   * T6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing)).
    */
   public fun isSupertypeOf(that: DependencySet): Boolean = that.isSubtypeOf(this)
 
   /**
    * Asserts componentwise contextual covariance against [that], forwarding [info] to refinements
    * under
-   * [rules T6-2 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rules T6-2 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing).
    */
   override fun ensureNarrows(that: DependencySet, info: TypeInfo) {
     requireSameClassTable(that)
@@ -165,7 +165,7 @@ private constructor(
   /**
    * Tests componentwise contextual covariance against [that], forwarding [info] to refinements
    * under
-   * [rules T6-2 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rules T6-2 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing).
    */
   override fun narrows(that: DependencySet, info: TypeInfo): Boolean {
     requireSameClassTable(that)

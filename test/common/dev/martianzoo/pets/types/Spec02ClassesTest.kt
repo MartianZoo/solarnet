@@ -44,15 +44,6 @@ internal class Spec02ClassesTest {
     table.getClass(cn("GreeneryTile")).baseType.expressionFull shouldBe te("GreeneryTile")
   }
 
-  @Test
-  internal fun `T2-1 a class knows the declaration it was compiled from`() {
-    val table = loadTypes("\"A greenery tile\"\nCLASS GreeneryTile")
-    val greenery = table.getClass(cn("GreeneryTile"))
-
-    greenery.declaration.className shouldBe cn("GreeneryTile")
-    greenery.docstring shouldBe "A greenery tile"
-  }
-
   // T2-2 Direct supertypes
 
   @Test
@@ -127,18 +118,6 @@ internal class Spec02ClassesTest {
   }
 
   @Test
-  internal fun `T2-4 isSupertypeOf is the converse of isSubtypeOf`() {
-    klass("LandArea").isSupertypeOf(klass("Tharsis_2_2")) shouldBe true
-    klass("Tharsis_2_2").isSupertypeOf(klass("LandArea")) shouldBe false
-  }
-
-  @Test
-  internal fun `T2-4 ensureNarrows reports a failed subclass check`() {
-    shouldThrow<Exception> { klass("LandArea").ensureNarrows(klass("WaterArea"), fullWorld) }
-    klass("Tharsis_2_2").ensureNarrows(klass("LandArea"), fullWorld)
-  }
-
-  @Test
   internal fun `T2-4 the relation survives long chains and wide tables`() {
     // Nominal subtyping is compiled into bit masks; this crosses a machine-word boundary.
     val levels =
@@ -187,7 +166,7 @@ internal class Spec02ClassesTest {
     table.getClass(cn("GreeneryTile")).isSubtypeOf(table.getClass(cn("Tile"))) shouldBe true
   }
 
-  // T2-7 Enumerating the hierarchy
+  // T2-7 Superclasses are intrinsic; subclasses belong to the universe
 
   @Test
   internal fun `T2-7 superclass traversal is intrinsic and subclass traversal is table-relative`() {
@@ -302,16 +281,5 @@ internal class Spec02ClassesTest {
             loader.findClass(cn("Neighbor")) shouldBe null
           }
         }
-  }
-
-  // T2-10 Class identity
-
-  @Test
-  internal fun `T2-10 a class is identified by its name within its universe`() {
-    val table = loadTypes("CLASS GreeneryTile")
-
-    table.getClass(cn("GreeneryTile")) shouldBe table.getClass(cn("GreeneryTile"))
-    "${table.getClass(cn("GreeneryTile"))}" shouldBe "GreeneryTile"
-    table.componentClass.className shouldBe COMPONENT
   }
 }

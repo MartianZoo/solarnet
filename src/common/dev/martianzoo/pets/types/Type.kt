@@ -19,7 +19,7 @@ import dev.martianzoo.pets.ast.Requirement
  * Consumers interested only in resolved meaning can use [groundType]. Consumers interpreting
  * authored syntax can inspect [typeVariable] without maintaining a parallel representation. This is
  * the two-form model specified by
- * [rules T5-8 and T13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+ * [rule T13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
  */
 public interface Type : HasExpression, HasClassName, Specification<Type> {
   /**
@@ -43,8 +43,8 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
     get() = groundType.rootClass
 
   /**
-   * The canonical name of [rootClass], following
-   * [rule T2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes).
+   * The canonical name of [rootClass], which identifies it under
+   * [rule T1-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   override val className: ClassName
     get() = rootClass.className
@@ -125,7 +125,7 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
 
   /**
    * Asserts the contextual narrowing relation of
-   * [rules T6-1 and T6-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping),
+   * [rules T6-1 and T6-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing),
    * using [info] only for a state-dependent refinement.
    *
    * @throws NarrowingException if this type does not narrow [that] in [info].
@@ -136,7 +136,7 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
 
   /**
    * Tests the contextual narrowing relation of
-   * [rules T6-1 and T6-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping),
+   * [rules T6-1 and T6-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing),
    * using [info] only for a state-dependent refinement.
    *
    * @throws IllegalArgumentException if [that] belongs to another universe (rule T1-2).
@@ -146,7 +146,7 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
 
   /**
    * Tests context-free subtyping. A comparison that needs a world fails rather than guessing, per
-   * [rules T6-1 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rules T6-1 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing).
    *
    * @throws IllegalStateException if a state-dependent refinement requires a world.
    * @throws IllegalArgumentException if [that] belongs to another universe (rule T1-2).
@@ -155,7 +155,7 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
 
   /**
    * The converse of [isSubtypeOf], as defined by
-   * [rule T6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rule T6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing).
    */
   public fun isSupertypeOf(that: Type): Boolean = that.isSubtypeOf(this)
 
