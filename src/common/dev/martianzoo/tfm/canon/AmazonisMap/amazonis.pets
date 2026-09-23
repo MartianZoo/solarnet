@@ -13,14 +13,14 @@ CLASS ExtendedGlobalParametersRule : Module {
   TemperatureStep IF =9 TemperatureStep: PROD[Plant]
   TemperatureStep BY Player IF =15 TemperatureStep: OceanTile<>
   TemperatureStep BY Admin IF =15 TemperatureStep:: \
-    EACH Player(HAS StartToken) { AdminOceanPlacement<Player> }
+    EACH @Player(HAS StartToken) { AdminOceanPlacement<@Player> }
   TemperatureStep IF =22 TemperatureStep:: GpComplete<Class<TemperatureStep>>
 
   OxygenStep IF =7 OxygenStep: ProjectCard
   OxygenStep IF =11 OxygenStep: TemperatureStep
   OxygenStep IF =18 OxygenStep:: GpComplete<Class<OxygenStep>>
 
-  OceanTile<MarsArea> IF =11 OceanTile:: GpComplete<Class<OceanTile>>
+  OceanTile IF =11 OceanTile:: GpComplete<Class<OceanTile>>
 }
 
 CLASS Terran : Milestone { requirement = HAS "5 EarthTag" }

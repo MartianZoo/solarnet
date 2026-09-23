@@ -24,10 +24,8 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
-    game.retainStartingProjects(0, 0)
-
-    p1.playCorp(Ecoline)
-    game.testTfm(PLAYER2).playCorp(TharsisRepublic)
+    playCorporationWithoutStartingProjects(p1, Ecoline)
+    playCorporationWithoutStartingProjects(game.testTfm(PLAYER2), TharsisRepublic)
     p1.sneak("8 Plant")
 
     p1.convertPlants { doTask("GreeneryTile<Tharsis_3_6>") }
@@ -44,7 +42,6 @@ internal class FinalGreeneryPhaseTest {
     val workflow = TfmWorkflow.Stepwise(game.testAgents())
 
     workflow.setupPhase()
-    game.retainStartingProjects(0, 0)
     workflow.corporationPhase()
     p1.runOperation("8 Plant")
     workflow.finalGreeneryPhase()
@@ -61,13 +58,11 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
-    game.retainStartingProjects(0)
-
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
-    p1.playCorp(Ecoline)
+    playCorporationWithoutStartingProjects(p1, Ecoline)
     admin.sneak("-13 SoloGenerationsLeft")
 
     p1.pass()
@@ -89,13 +84,11 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
-    game.retainStartingProjects(0)
-
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
-    p1.playCorp(Ecoline)
+    playCorporationWithoutStartingProjects(p1, Ecoline)
     admin.sneak(
         "-13 SoloGenerationsLeft, " +
             "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
@@ -117,13 +110,11 @@ internal class FinalGreeneryPhaseTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
-    game.retainStartingProjects(0)
-
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
-    p1.playCorp(Ecoline)
+    playCorporationWithoutStartingProjects(p1, Ecoline)
     admin.sneak(
         "-13 SoloGenerationsLeft, " +
             "GpComplete<Class<TemperatureStep>> FROM GpIncomplete<Class<TemperatureStep>>, " +
@@ -148,10 +139,8 @@ internal class FinalGreeneryPhaseTest {
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
-    game.retainStartingProjects(0, 0)
-
-    p1.playCorp(Ecoline)
-    p2.playCorp(TharsisRepublic)
+    playCorporationWithoutStartingProjects(p1, Ecoline)
+    playCorporationWithoutStartingProjects(p2, TharsisRepublic)
     p1.pass()
     p2.pass()
 
@@ -169,11 +158,9 @@ internal class FinalGreeneryPhaseTest {
     val p2 = game.testTfm(PLAYER2)
     val p3 = game.testTfm(PLAYER3)
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
-    game.retainStartingProjects(0, 0, 0)
-
-    p1.playCorp(CrediCor)
-    p2.playCorp(MiningGuild)
-    p3.playCorp(InterplanetaryCinematics)
+    playCorporationWithoutStartingProjects(p1, CrediCor)
+    playCorporationWithoutStartingProjects(p2, MiningGuild)
+    playCorporationWithoutStartingProjects(p3, InterplanetaryCinematics)
     p1.sneak("8 Plant")
     p2.sneak("8 Plant")
     p3.sneak("8 Plant")
@@ -212,10 +199,8 @@ internal class FinalGreeneryPhaseTest {
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
-    game.retainStartingProjects(0, 0)
-
-    p1.playCorp(CrediCor)
-    p2.playCorp(MiningGuild)
+    playCorporationWithoutStartingProjects(p1, CrediCor)
+    playCorporationWithoutStartingProjects(p2, MiningGuild)
     p1.sneak("$Ecoline, 11 Plant")
     admin.sneak(
         "-GpGameEndBarrier<Class<TemperatureStep>>, " +
@@ -248,10 +233,8 @@ internal class FinalGreeneryPhaseTest {
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
-    game.retainStartingProjects(0, 0)
-
-    p1.playCorp(CrediCor)
-    p2.playCorp(MiningGuild)
+    playCorporationWithoutStartingProjects(p1, CrediCor)
+    playCorporationWithoutStartingProjects(p2, MiningGuild)
     p1.sneak("GreeneryTile<Elysium_4_5>")
     p2.sneak("GreeneryTile<Elysium_5_5>, GreeneryTile<Elysium_5_7>, " + "GreeneryTile<Elysium_6_6>")
     p1.sneak("$Philares, 10 Plant")
@@ -291,10 +274,8 @@ internal class FinalGreeneryPhaseTest {
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
-    game.retainStartingProjects(0, 0)
-
-    p1.playCorp(CrediCor)
-    p2.playCorp(MiningGuild)
+    playCorporationWithoutStartingProjects(p1, CrediCor)
+    playCorporationWithoutStartingProjects(p2, MiningGuild)
     p1.sneak("GreeneryTile<Elysium_4_5>")
     p2.sneak(
         "GreeneryTile<Elysium_5_5>, GreeneryTile<Elysium_5_7>, " +

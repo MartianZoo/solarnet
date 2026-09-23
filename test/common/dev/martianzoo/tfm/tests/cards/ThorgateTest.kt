@@ -10,7 +10,7 @@ import kotlin.test.Test
 internal class ThorGateTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame(retainedStartingProjects = 10)
+    newGame()
     p1.playCorp(ThorGate, 10)
     p1.runOperation("-10 MC")
     admin.phase("Action")

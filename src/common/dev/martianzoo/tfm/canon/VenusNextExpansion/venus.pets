@@ -51,7 +51,6 @@ CLASS AirScrappingProject : StandardProject {
 CLASS VenusTag : PlanetaryTag
 
 CLASS Hoverlord : Milestone {
-  HAS MultiplayerMode
   requirement = HAS "7 Floater"
 }
 

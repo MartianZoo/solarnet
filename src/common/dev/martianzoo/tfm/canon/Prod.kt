@@ -78,9 +78,10 @@ internal object Prod {
           "PROD cannot represent a resource difference with different dependencies: $this"
       )
     }
-    return className
-        .classExpression()
-        .copy(refinement = refinement?.let { toClassRefinement(it, expectedArguments) })
+    return CLASS.of(className.expression.copy(typeVariableName = typeVariableName))
+        .copy(
+            refinement = refinement?.let { toClassRefinement(it, expectedArguments) },
+        )
   }
 
   private fun toClassRefinement(

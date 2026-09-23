@@ -10,6 +10,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.Expression.Refinement.Has
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.RepresentedClassReference
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Property
@@ -396,7 +397,14 @@ internal constructor(
    * of them.
    */
   private fun readsPredicatesAlike(that: GroundType): Boolean =
-      representedClass == null || representedClass == that.representedClass
+      representedClass == null ||
+          representedClass == that.representedClass ||
+          (!namesRepresentedClass(refinement) && !namesRepresentedClass(that.refinement))
+
+  private fun namesRepresentedClass(refinement: Refinement?): Boolean =
+      refinement?.descendantsOfType<Expression>()?.any {
+        it.typeVariableName is RepresentedClassReference
+      } == true
 
   /** Whether our own refinement conjoins at least all of [target]'s requirements. */
   private fun alreadyGuarantees(target: Has): Boolean {
@@ -501,14 +509,13 @@ internal constructor(
     fun specializeRepresentedClassReferences(requirement: Requirement): Requirement {
       if (wide.className != CLASS) return requirement
       check(narrow.className == CLASS)
-      val general = wide.arguments.single().className
       val specific = narrow.arguments.single().className
       return object : PetTransformer() {
             override fun transformNode(node: PetNode): PetNode =
                 when {
                   node is Metric.Rank -> node
-                  node is Expression && node.className == general ->
-                      transformChildren(node.copy(className = specific))
+                  node is Expression && node.typeVariableName is RepresentedClassReference ->
+                      transformChildren(node.copy(className = specific, typeVariableName = null))
                   else -> transformChildren(node)
                 }
           }

@@ -215,8 +215,8 @@ public data class Effect(
     /**
      * Restricts [inner] to events performed by an actor matching [by] ([rule
      * L8-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)).
-     * Because the selector is an expression, `BY Player(NOT Owner)` filters while `BY Player` may
-     * declare an actor variable ([rule
+     * Because the selector is an expression, `BY Player(NOT Owner)` and `BY Player` filter while
+     * `BY @Player` marks an actor variable reused as `@Player` ([rule
      * T13-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables)).
      * It binds less tightly than `OR` and more tightly than `IF`.
      */
@@ -342,13 +342,22 @@ public data class Effect(
           colons and
           maybeGroup(InstructionTree.parser()) map
           { (trig, immed, instr) ->
-            Effect(
-                trigger = trig,
-                automatic = immed,
-                instruction = instr,
+            resolveTypeVariableNames(
+                Effect(
+                    trigger = trig,
+                    automatic = immed,
+                    instruction = instr,
+                )
             )
           }
     }
+
+    private fun resolveTypeVariableNames(effect: Effect): Effect =
+        resolveTypeVariableNames(
+            effect,
+            effect.trigger,
+            effect.instruction,
+        )
   }
 }
 

@@ -24,7 +24,7 @@
           "immediate": "37 MC, PROD[Steel]",
           "actions": [
             "-> MAX 0 Energy: PROD[Energy]",
-            "3 MC -> CARDS[SearchForCard(HAS PrintedTag<Class<BuildingTag>>)]"
+            "3 MC -> SearchForCard<TagFilter<Class<BuildingTag>>>"
           ],
         },
         {
@@ -34,20 +34,20 @@
           "actions": [ "-> Asteroid<This> / SpaceTag" ],
           "effects": [
             "UseAction<AsteroidProject> OR UseAction<AquiferProject>:: AcceptingFromCard<This>",
-            "PayFromCard<This>:: -Owed"
+            "PayFromCard<This>:: -1 Owed"
           ],
         },
         {
           "name": "MonsInsurance",
           "immediate": "48 MC, PROD[4 MC], EACH Player(NOT Owner) { PROD[-2 MC] BY Owner }",
           "effects": [
-            "MyResourceWasRemoved<Anyone> OR MyProductionWasDecreased<Anyone>: 3 MC<Anyone FROM Owner>.",
+            "MyResourceWasRemoved<Victim@Anyone> OR MyProductionWasDecreased<Victim@Anyone>: 3 MC<Victim@Anyone FROM Owner>.",
           ],
         },
         {
           "name": "PharmacyUnion",
           "tags": [ "MicrobeTag", "MicrobeTag" ],
-          "immediate": "CARDS[SearchForCard(HAS PrintedTag<Class<ScienceTag>>)]",
+          "immediate": "SearchForCard<TagFilter<Class<ScienceTag>>>",
           "effects": [
             // This is the only card I know of that has a double-colon effect. Without it, the engine
             // automatically tried to take the 2 disease cubes first and lose no money, then pocketed
@@ -82,18 +82,19 @@
           "tags": [ "MicrobeTag" ],
           "effects": [
             "This:: Splicer<This>",
-            "This: 44 MC, RequiredAction { -> CARDS[SearchForCard(HAS PrintedTag<Class<MicrobeTag>>)] }",
+            "This: 44 MC, RequiredAction { -> SearchForCard<TagFilter<Class<MicrobeTag>>> }",
             "MicrobeTag<Anyone>: 2 MC"
           ],
           "components": [
-            "CLASS Splicer<SpliceTacticalGenomics> { MicrobeTag<CardFront>: Microbe<CardFront> OR 2 MC }"
+            "CLASS Splicer<SpliceTacticalGenomics> { MicrobeTag<@CardFront>: Microbe<@CardFront> OR 2 MC }"
           ],
         },
         {
           "name": "TychoMagnetics",
           "tags": [ "PowerTag", "ScienceTag" ],
           "immediate": "42 MC, PROD[Energy]",
-          "actions": [ "X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>" ],
+          // X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>
+          "actions": [ "X Energy -> ProjectCard" ],
         },
       ],
     },
@@ -123,12 +124,13 @@
         {
           "name": "CorporateArchives",
           "tags": [ "ScienceTag" ],
-          "immediate": "13 MC, 7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>",
+          // 7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>
+          "immediate": "13 MC, 2 ProjectCard",
         },
         {
           "name": "DoubleDown",
           "immediate": "CopyPrelude",
-          "components": [ "CLASS CopyPrelude<CardFront<Player>> : Owned<Player>, Custom" ],
+          "components": [ "CLASS CopyPrelude<CardFront<@Player>> : Owned<@Player>, Custom" ],
         },
         {
           "name": "GiantSolarCollector",
@@ -137,11 +139,13 @@
         },
         {
           "name": "Merger",
-          "immediate": "4 StandardCorporationCard<Selecting>, PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Selecting>, -42 MC",
+          // 4 StandardCorporationCard<Selecting>, PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Selecting>
+          "immediate": "StandardCorporationCard THEN PlayCard<Class<StandardCorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>)>, -42 MC",
         },
         {
           "name": "NewPartner",
-          "immediate": "PROD[1 MC], 2 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>",
+          // 2 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>
+          "immediate": "PROD[1 MC], PreludeCard THEN PlayCard<Class<PreludeCard>>",
         },
         {
           "name": "StrategicBasePlanning",
@@ -164,7 +168,7 @@
           "requirement": "Adjacency<CityTile, OceanTile>",
           "cost": 9,
           "tags": [ "BuildingTag" ],
-          "immediate": "CARDS[3 SearchForCard(HAS PrintedTag<Class<BuildingTag>>)]",
+          "immediate": "3 SearchForCard<TagFilter<Class<BuildingTag>>>",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -172,7 +176,8 @@
           "cost": 13,
           "tags": [ "EarthTag", "SpaceTag", "BuildingTag" ],
           "immediate": "PROD[-Energy]",
-          "actions": [ "-> CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>) OR Ok)]" ],
+          // ProjectCard<Revealed> THEN (ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>)
+          "actions": [ "-> Asteroid<This>?" ],
           "effects": [
             // TODO: in what cases do we want to trigger this way vs by the AttackHappened thingies?
             // are we being consistent?
@@ -271,7 +276,7 @@
         {
           "name": "CyberiaSystems",
           "cost": 16,
-          "immediate": "PROD[Steel], (BuildingTag<CardFront>: CopyProductionBox<CardFront>) THEN CopyProductionBox<CardFront(HAS BuildingTag, NOT CardFront)>",
+          "immediate": "PROD[Steel], (BuildingTag<First@CardFront>: CopyProductionBox<First@CardFront>) THEN CopyProductionBox<CardFront(HAS BuildingTag, NOT First@CardFront)>",
         },
         {
           "name": "DeimosDownPromo",
@@ -348,7 +353,8 @@
           "name": "HiTechLab",
           "cost": 17,
           "tags": [ "ScienceTag", "BuildingTag" ],
-          "actions": [ "X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>" ],
+          // X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>
+          "actions": [ "X Energy -> ProjectCard" ],
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -403,13 +409,13 @@
           "name": "KaguyaTech",
           "cost": 10,
           "tags": [ "CityTag", "PlantTag" ],
-          "immediate": "PROD[2 MC], ProjectCard, CityTile<MarsArea> FROM GreeneryTile<MarsArea>",
+          "immediate": "PROD[2 MC], ProjectCard, CityTile<@MarsArea> FROM GreeneryTile<@MarsArea>",
         },
         {
           "name": "LawSuit",
           "cost": 2,
           "tags": [ "EarthTag", "EventTag" ],
-          "immediate": "((MyResourceWasRemoved<Owner, Player> OR MyProductionWasDecreased<Owner, Player>): 3 MC FROM MC<Player>) THEN PlayedEvent<Player, Class<This>> FROM This",
+          "immediate": "((MyResourceWasRemoved<Owner, Attacker@Player> OR MyProductionWasDecreased<Owner, Attacker@Player>): 3 MC FROM MC<Attacker@Player>) THEN PlayedEvent<Attacker@Player, Class<This>> FROM This",
           "effects": [ "End: -VictoryPoint" ],
         },
         {
@@ -430,7 +436,7 @@
           "cost": 13,
           "immediate": "NomadsMarker<LandArea(HAS MAX 0 Occupant)>",
           "actions": [
-            "-> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>, NOT LandArea)> FROM NomadsMarker<Owner, LandArea> THEN EACH MarsArea(HAS NomadsMarker) { Placement<MarsArea> }"
+            "-> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>, NOT Source@LandArea)> FROM NomadsMarker<Owner, Source@LandArea> THEN EACH Destination@MarsArea(HAS NomadsMarker) { Placement<Destination@MarsArea> }"
           ],
         },
         {
@@ -461,7 +467,7 @@
           "requirement": "2 ScienceTag",
           "cost": 3,
           "tags": [ "SpaceTag" ],
-          "effects": [ "This:: 1 GrantedResourceValue<Class<Titanium>, This>" ],
+          "effects": [ "This:: GrantedResourceValue<Class<Titanium>, This>" ],
         },
         {
           "name": "MoholeLake",
@@ -538,7 +544,8 @@
           "name": "PublicPlans",
           "cost": 7,
           "tags": [ "EventTag" ],
-          "immediate": "X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X MC",
+          // X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed>
+          "immediate": "MC? / ProjectCard",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -554,7 +561,7 @@
           "cost": 10,
           "tags": [ "BuildingTag" ],
           "effects": [
-            "This:: 1 GrantedResourceValue<Class<Steel>, This>",
+            "This:: GrantedResourceValue<Class<Steel>, This>",
             "End: VictoryPoint"
           ],
         },
@@ -634,16 +641,15 @@
           "name": "StJosephOfCupertinoMission",
           "cost": 7,
           "immediate": "CathedralOption",
-          "actions": [ "5 MC -> Cathedral<Anyone, CityTile<Anyone>>" ],
+          "actions": [ "5 MC -> Cathedral<CityTile<Anyone>>" ],
           "effects": [
             "UseAction<This>:: Accepting<Class<Steel>>",
-            "End: VictoryPoint / Cathedral<Anyone>"
+            "End: VictoryPoint / Cathedral"
           ],
-          // The city owner owns the Cathedral and therefore receives its pay-2-to-draw offer. The
-          // Mission owner still receives the endgame VP through the effect above.
           "components": [
             "CLASS CathedralOption : HasActions { 2 MC -> ProjectCard }",
-            "CLASS Cathedral<CityTile<Owner>> : Owned<Owner> { HAS MAX 1 This; This: UseAction<CathedralOption>? }"
+            "CLASS CathedralOffer : Owned<Anyone>, Signal { This: UseAction<CathedralOption, ActionSlot, Owner> OR Ok }",
+            "CLASS Cathedral<CityTile<@Anyone>> : Owned { HAS MAX 1 This; This: CathedralOffer<@Anyone> }"
           ],
         },
         {

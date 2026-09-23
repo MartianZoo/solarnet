@@ -8,7 +8,6 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Or
 import dev.martianzoo.pets.ast.Metric.Rank
-import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
 import dev.martianzoo.pets.ast.PropertyValue.MetricType
@@ -54,7 +53,7 @@ internal class GameReaderImpl(
     val candidateExpression =
         metric.candidate
             ?: throw ExpressionException(
-                "RANK can only be evaluated while testing a concrete ${metric.selectorName}"
+                "RANK can only be evaluated while testing a concrete ${metric.selector}"
             )
     val candidate = classTable.resolve(candidateExpression)
     if (candidate.isAbstract(this)) {
@@ -72,14 +71,9 @@ internal class GameReaderImpl(
   }
 
   private fun rankScore(metric: Rank, candidate: Type): List<Int> {
-    val selectorName = checkNotNull(metric.selectorName)
     val owner = candidate.toComponent().owner
-    val binding =
-        chain(
-            replacer(selectorName, candidate.expressionFull),
-            owner?.let(elaborator::contextualOwnerBinding),
-        )
-    return metric.metrics.map { score ->
+    val binding = chain(owner?.let(elaborator::contextualOwnerBinding))
+    return metric.metricsFor(candidate.expressionFull).map { score ->
       val bound = binding.transformMetric(score)
       val evaluated =
           elaborator.evaluateProperties(

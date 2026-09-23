@@ -6,6 +6,22 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Let a configuration select all applicable Content exposed by one bundle, without inventing a
+  `CardPack` Module. Resolve narrower pool requests into individual Class choices before the game
+  premise is built. Resolve eligibility before offering that choice: promo replacements still test
+  `PromoCardPack`, M&A goal invariants can use
+  non-simple Class metrics, and Venus cards/goals can become unviable when their supporting content
+  is absent. Keep Turmoil Global Events individually selectable with hard Turmoil dependencies.
+- Consider letting the Milestones & Awards bundle also provide goals identical to those supplied
+  by map bundles, enforcing identical declarations across both sources. A user selecting such a
+  goal individually would resolve it through Milestones & Awards provenance, not through a map
+  bundle; selecting a map could still include its associated goal by default. This needs a clear
+  source rule because an unqualified Class Name currently loses that provenance.
+- Decide whether individually selected Content should activate otherwise Module-local vocabulary it
+  structurally needs. The motivating case is a Venus card carrying `VenusTag`: logically the card
+  could make the tag available without `VenusNextExpansion`, while the current bundle-availability
+  lock rejects it. Catalog the analogous cases before either generalizing activation or accepting
+  this as a documented selection limitation.
 - Replace `ModulesReady` with entering `BootstrapPhase` only after the generated premise has created
   the selected modules and configured components. Moving its effects to `SetupPhase` was tested and
   fails because bootstrap validation already requires the exact-one global-parameter rule systems.
@@ -22,6 +38,26 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Replace the duplicated `TemperatureStep BY Player`/`BY Admin` threshold-ocean triggers and the
   synthetic `AdminOceanPlacement` signal with one rule that separates who chooses the tile from
   whose action the placement is attributed to, shared by the standard and extended tracks.
+- Revisit causal ownership inside `BootstrapPhase`, moving initialization work under ordinary
+  phase-caused tasks as soon as the required runtime state can express them.
+- Let refinements reference their candidate explicitly, so a selector can relate a nested
+  dependency to that candidate without repeating its complete expression.
+- Revisit contextual `Owner` as a broad language redesign; the explicit Type-variable work leaves
+  its ambient binding semantics unchanged for now.
+- Give Pets a real structural conjunction, spelled something like `Tile(IS Owned)`, and retire the
+  nominal `OwnedTile` class once `Landlord` and the other owned-tile rules can name the intersection
+  directly. Until then a master-universe Canon test checks the nominal `OwnedOccupant` and
+  `OwnedTile` relationships without depending on one active configuration.
+- Decide whether compact Type expressions must be globally shortest. They currently remove each
+  individually redundant argument, including T3-8 duplicates, without the subset search needed to
+  prove a global minimum; search only equality-related arguments if exact minimality becomes useful.
+- Separate the expression API's three intents: an object's natural available expression, a resolved
+  Type's compact expression, and its full expression. Keep syntax expressions universe-independent;
+  converting an arbitrary expression to either resolved form must take a `ClassTable` explicitly.
+- Decouple cleanup lifetime from log visibility so player-meaningful signals such as `Pay` and
+  `PayFromCard` need not inherit `Hidden` through `MustCleanUp`.
+- Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
+  the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
 - **Low priority:** [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)
   — Resolve contextual ownership correctly and display the resolved player.
 - **Low priority:** Investigate why the oxygen steps created by SoloOpponent's setup greeneries do
@@ -32,9 +68,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Derive selected singleton card watchers without explicit support-Class invariants. The current
   sites are United Nations Mars Initiative and Pristar retaining `TrWatcher`, and Hydrologist
   retaining `HydrologistWatcher`.
-- Reverse replacement-card references so optional packs identify what they replace rather than
-  base cards naming optional packs. Deimos Down, Great Dam, and Magnetic Field Generators currently
-  use `autoSelectWhen = MAX 0 PromoCardPack`.
+- Put promo replacement defaults on or near their replacement Content, so `GreatDamPromo` can
+  identify `GreatDam` instead of the original card naming `PromoCardPack`. Preserve the three
+  tested choices: original by default, promo by default with Promos, and both when the original
+  is explicitly included. Deimos Down and Magnetic Field Generators follow the same pattern.
 - **Low priority:** [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve
   hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
 - Give Admin an installable autoexecution policy for Global Events that pulls exact cards from an

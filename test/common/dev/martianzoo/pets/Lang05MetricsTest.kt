@@ -171,13 +171,32 @@ internal class Lang05MetricsTest {
   @Test
   internal fun `L5-9 RANK names a selector, a candidate expression and its metrics`() {
     val rank =
-        parse<Metric>("RANK Player(NOT Player1) { Score<Player>, MC<Player> }") as Metric.Rank
+        parse<Metric>("RANK @Player(NOT Player1) { Score<@Player>, MC<@Player> }") as Metric.Rank
 
-    rank.selector shouldBe parse("Player(NOT Player1)")
-    rank.selectorName shouldBe parse("Player")
-    rank.metrics shouldBe listOf(parse<Metric>("Score<Player>"), parse<Metric>("MC<Player>"))
+    rank.selector.toString() shouldBe "@Player(NOT Player1)"
+    rank.metricsFor(parse("Player2")) shouldBe
+        listOf(parse<Metric>("Score<Player2>"), parse<Metric>("MC<Player2>"))
+
+    val unnamed = parse<Metric>("RANK Player { Score<Player> }") as Metric.Rank
+    unnamed.metricsFor(parse("Player2")) shouldBe listOf(parse<Metric>("Score<Player>"))
+
+    val constrained = parse<Metric>("RANK @Token<Anyone> { Score<@Token> }") as Metric.Rank
+    constrained.metrics
+        .flatMap { it.descendantsOfType<Expression>() }
+        .single { it.className == cn("Token") }
+        .arguments shouldBe listOf(parse("Anyone"))
+    constrained.metricsFor(parse("RedToken<Player2>")) shouldBe
+        listOf(parse<Metric>("Score<RedToken<Player2>>"))
+
+    val represented = parse<Metric>("RANK Class<@Tag> { Score<@Tag<Owner>> }") as Metric.Rank
+    represented.metricsFor(parse("Class<BuildingTag>")) shouldBe
+        listOf(parse<Metric>("Score<BuildingTag<Owner>>"))
+
     rank.candidate shouldBe null
     shouldThrow<PetSyntaxException> { parse<Metric>("RANK Player { }") }
+    shouldThrow<PetSyntaxException> {
+      parse<Metric>("RANK @Player { Score<@Player<Owner>> }")
+    }
   }
 
   @Test

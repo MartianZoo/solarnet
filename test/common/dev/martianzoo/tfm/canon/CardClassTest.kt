@@ -84,7 +84,7 @@ internal class CardClassTest {
     val valid =
         catalogWith(
             """
-            ABSTRACT CLASS PersistentCapability<CardFront<Player>> : Owned<Player> {
+            ABSTRACT CLASS PersistentCapability<CardFront<@Player>> : Owned<@Player> {
               Generation: MC
             }
 

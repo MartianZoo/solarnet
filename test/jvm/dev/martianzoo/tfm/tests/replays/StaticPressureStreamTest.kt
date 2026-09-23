@@ -40,7 +40,6 @@ internal class StaticPressureStreamTest :
   @Test
   internal fun staticPressureStream() {
     TfmWorkflow.Automatic(agents).launch()
-    retainStartingProjects(6, 4)
     generation1()
     generation2()
     generation3()
@@ -66,20 +65,9 @@ internal class StaticPressureStreamTest :
           Supermarkets,
       )
     }
-    nor.discardUnselectedProjectCards(Insulation, RedShips, FoodFactory, PowerSupplyConsortium)
-
     vin.playCorp(CheungShingMars) {
       buyCards(FuelFactory, CarbonateProcessing, OptimalAerobraking, CloudTourism)
     }
-    vin.discardUnselectedProjectCards(
-        Decomposers,
-        StJosephOfCupertinoMission,
-        BreathingFilters,
-        IoSulphurResearch,
-        OrbitalCleanup,
-        Tardigrades,
-    )
-
     nor.turn {
       playPrelude(AlbedoPlants)
       playPrelude(ProjectEden) {
@@ -109,9 +97,7 @@ internal class StaticPressureStreamTest :
 
   private fun generation2() {
     vin.buyCards(Omnicourt, VenusShuttles)
-    vin.discardUnselectedProjectCards(LightningHarvest, OpenCity)
     nor.buyCards(StaticHarvesting, AerialMappers)
-    nor.discardUnselectedProjectCards(EquatorialMagnetizer, AerosportTournament)
     // Database save 18: immediately after both Research purchases in generation 2.
     nor.assertResources(m = 36, s = 1, t = 0, p = 8, e = 0, h = 6)
     nor.assertProduction(m = 0, s = 0, t = 0, p = 3, e = 0, h = 0)
@@ -163,9 +149,7 @@ internal class StaticPressureStreamTest :
 
   private fun generation3() {
     nor.buyCards(LocalShading, Research)
-    nor.discardUnselectedProjectCards(PublicPlans, Satellites)
     vin.buyCards(RoboticWorkforce, SmallAnimals)
-    vin.discardUnselectedProjectCards(SoilEnrichment, Meltworks)
     // Database save 47: immediately after both Research purchases in generation 3.
     nor.assertResources(m = 32, s = 0, t = 0, p = 5, e = 0, h = 6)
     nor.assertProduction(m = 0, s = 0, t = 0, p = 3, e = 0, h = 0)
@@ -205,7 +189,6 @@ internal class StaticPressureStreamTest :
 
   private fun generation4() {
     nor.buyCards(FakeResearchCoordination)
-    nor.discardUnselectedProjectCards(StratosphericExpedition, Comet, AdaptationTechnology)
     vin.buyCards(NuclearZone, MarsUniversity, SpinInducingAsteroid, Bushes)
     // Database save 75: immediately after both Research purchases in generation 4.
     nor.assertResources(m = 30, s = 0, t = 0, p = 9, e = 1, h = 6)
@@ -264,9 +247,7 @@ internal class StaticPressureStreamTest :
 
   private fun generation5() {
     vin.buyCards(Cartel, MethaneFromTitan, CloudSeeding)
-    vin.discardUnselectedProjectCards(LuxuryFoods)
     nor.buyCards(RobotPollinators, Plantation, InterplanetaryTrade)
-    nor.discardUnselectedProjectCards(Shuttles)
     // Database save 117: immediately after both Research purchases in generation 5.
     nor.assertResources(m = 27, s = 0, t = 0, p = 6, e = 0, h = 10)
     nor.assertProduction(m = 2, s = 0, t = 0, p = 5, e = 0, h = 0)
@@ -319,9 +300,7 @@ internal class StaticPressureStreamTest :
 
   private fun generation6() {
     vin.buyCards(SolarLogistics, InterstellarColonyShip, Sabotage)
-    vin.discardUnselectedProjectCards(NaturalPreserve)
     nor.buyCards(IshtarMining, Greenhouses)
-    nor.discardUnselectedProjectCards(LavaFlows, Zeppelins)
     // Database save 160: immediately after both Research purchases in generation 6.
     nor.assertResources(m = 31, s = 0, t = 0, p = 6, e = 0, h = 2)
     nor.assertProduction(m = 3, s = 0, t = 0, p = 4, e = 0, h = 0)
@@ -369,14 +348,7 @@ internal class StaticPressureStreamTest :
 
   private fun generation7() {
     nor.buyCards()
-    nor.discardUnselectedProjectCards(
-        ProjectInspection,
-        VestaShipyard,
-        VenusSoils,
-        HermeticOrderOfMars,
-    )
     vin.buyCards(GeneRepair, Thermophiles)
-    vin.discardUnselectedProjectCards(MagneticFieldGeneratorsPromo, OreProcessor)
     // Database save 201: immediately after both Research purchases in generation 7.
     nor.assertResources(m = 38, s = 0, t = 1, p = 6, e = 0, h = 5)
     nor.assertProduction(m = 3, s = 0, t = 1, p = 4, e = 0, h = 0)
@@ -431,9 +403,7 @@ internal class StaticPressureStreamTest :
 
   private fun generation8() {
     vin.buyCards(TundraFarming, VenusianAnimals)
-    vin.discardUnselectedProjectCards(PowerGrid, Hospitals)
     nor.buyCards(RoverConstruction, Trees)
-    nor.discardUnselectedProjectCards(MoholeArea, IceCapMelting)
     // Database save 246: immediately after both Research purchases in generation 8.
     nor.assertResources(m = 45, s = 0, t = 1, p = 5, e = 0, h = 5)
     nor.assertProduction(m = 14, s = 0, t = 1, p = 4, e = 0, h = 0)
@@ -493,9 +463,7 @@ internal class StaticPressureStreamTest :
 
   private fun generation9() {
     vin.buyCards(AtalantaPlanitiaLab)
-    vin.discardUnselectedProjectCards(MiningArea, CrashSiteCleanup, ArtificialLake)
     nor.buyCards(IndenturedWorkers, GiantSolarShade)
-    nor.discardUnselectedProjectCards(SelfReplicatingRobots, DomedCrater)
     // Database save 293: immediately after both Research purchases in generation 9.
     nor.assertResources(m = 47, s = 0, t = 2, p = 10, e = 1, h = 5)
     nor.assertProduction(m = 16, s = 0, t = 1, p = 4, e = 1, h = 0)
@@ -576,7 +544,6 @@ internal class StaticPressureStreamTest :
 
   private fun generation10() {
     vin.buyCards(InventorsGuild)
-    vin.discardUnselectedProjectCards(SpaceStation, CallistoPenalMines, ProtectedGrowth)
     nor.buyCards(LandClaim, FakeFloydContinuum, RadSuits, DeepWellHeating)
     // Database save 357: immediately after both Research purchases in generation 10.
     nor.assertResources(m = 53, s = 0, t = 2, p = 9, e = 0, h = 4)
@@ -662,9 +629,7 @@ internal class StaticPressureStreamTest :
 
   private fun generation11() {
     nor.buyCards(GhgProducingBacteria, OlympusConference)
-    nor.discardUnselectedProjectCards(FloatingHabs, ColonizerTrainingCamp)
     vin.buyCards(IshtarExpedition, AdvancedAlloys)
-    vin.discardUnselectedProjectCards(BlackPolarDust, Advertising)
     // Database save 417: immediately after both Research purchases in generation 11.
     nor.assertResources(m = 64, s = 0, t = 4, p = 14, e = 1, h = 4)
     nor.assertProduction(m = 21, s = 0, t = 2, p = 8, e = 1, h = 0)
@@ -707,22 +672,6 @@ internal class StaticPressureStreamTest :
     vin.turn {
       convertHeat()
       playProject(IshtarExpedition, 6) {
-        discardProjectCardsFromDeck(
-            IceAsteroid,
-            Farming,
-            UndergroundDetonations,
-            Lichen,
-            Psychrophiles,
-            Vermin,
-            DirectedImpactors,
-            NeptunianPowerConsultants,
-            Insects,
-            IndustrialMicrobes,
-            FieldCappedCity,
-            MedicalLab,
-            HomeostasisBureau,
-            ImportOfAdvancedGhg,
-        )
         draw(FreyjaBiodomes, GhgImportFromVenus)
       }
     }

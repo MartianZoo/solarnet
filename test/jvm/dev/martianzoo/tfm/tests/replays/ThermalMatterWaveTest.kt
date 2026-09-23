@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.retainStartingProjects
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -25,7 +24,6 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
 
   @Test
   internal fun game20260730() {
-    game.retainStartingProjects(7)
     with(me) {
       doTask("-SelectedColonyTile<Class<Miranda>>")
 

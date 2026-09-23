@@ -19,7 +19,7 @@
 - **automatic narrowing:** Narrowing performed without an explicit client choice because only one valid option is proved to remain. An unselected task may be narrowed only from immutable facts; resolution against the mutable game world waits for selection.
 - **bootstrap:** The shortest special prefix needed to construct a game world and establish Admin as an ordinary Actor. Once Admin can carry out assigned tasks through the normal lifecycle, bootstrap is over; later game setup remains ordinary Admin work.
 - **BootstrapPhase:** The first Terraforming Mars `Phase`, created by Admin before the generated `Premise`. Its presence names the initialization interval in which Modules, Players, and their minimum runtime machinery are established. `SetupPhase FROM Phase` transmutes it away to begin effectful game setup.
-- **bundle:** An internal grouping of catalog data for file ownership, provenance, distribution, and loading. A bundle is not itself a premise input, although a Module can select an entire content category from a named bundle.
+- **bundle:** An internal grouping of catalog declarations, data, metadata, and custom code for file ownership, provenance, distribution, and loading. A bundle may provide Modules, Content, or both, but is not itself a premise input.
 - **Canon:** The catalog implementing the project's nearly published-rules version of Terraforming Mars, assembled from official-data bundles.
 - **card back:** A Component representing a card that is not in play, such as `ProjectCard` or `PreludeCard`. Card backs and card fronts are distinct types that transmute into each other; an Owner may know a back's represented front without making that card front exist in the game world.
 - **card front:** A Component representing one specific identified card, as distinct from the card back that transmutes into it.
@@ -40,7 +40,7 @@
 - **composite instruction:** The common category for instructions containing two or more child instructions: a sequential instruction, an `OR`, or a multi-instruction.
 - **concrete task:** Antonym: abstract task.
 - **concrete type:** Antonym: abstract type.
-- **content class:** A class representing selectable game content, such as a card, milestone, award, map area, or colony tile. Its declaration may come directly from Pets or be generated from structured data; after class loading, it behaves like any rule class. Antonym: rule class.
+- **content class:** An ordinary Class treated by premise policy as individually selectable material, such as a card, milestone, award, map area, or colony tile. A Module may select associated Content by default, subject to compatibility conditions, while an explicit configuration may include or exclude one Content Class. Content is a selection role, not a Pets supertype or source format; after premise construction it behaves like every other Class.
 - **context:** The object that contains or gives meaning to a Pets object; the Pets object itself does not retain that relationship. For example, a class is the context of one of its class effects, a concrete type is the context of a component effect, and a live effect adds knowledge of the existing context Component.
 - **custom class:** A class extending `Custom`. Its types never occur as Components in a game world: a custom instruction translates an attempted gain, and a custom metric computes an attempted count.
 - **custom instruction:** A Pets instruction whose Kotlin implementation returns the instruction tree that replaces it.
@@ -80,7 +80,7 @@
 - **master class table:** The complete immutable class model compiled once from a catalog's reusable declarations. A game reuses its classes and types rather than compiling them again.
 - **metric:** A Pets expression that computes a nonnegative integer from a game world.
 - **compact form:** A round-tripping Type expression with no individually removable argument. It omits declared bounds except where needed to protect greedy argument matching, then removes redundancies proved by Type resolution, including dependency equalities.
-- **Module:** An affirmative, immutable singleton Component carrying one part of a realized game's ambient behavior. The exact Module set records the game's general behavior choices.
+- **Module:** An affirmative, immutable singleton Component carrying one part of a realized game's ambient behavior. Selecting it intrinsically selects the rule Classes reached from its declaration and, by default, the compatible Content associated with it. Associated Content remains individually overridable. The exact Module set records the game's general behavior choices.
 - **multi-instruction:** An instruction containing two or more comma-separated, unordered child instructions. It is split into separate tasks because one task cannot contain a multi-instruction.
 - **multi-requirement:** A requirement containing two or more child requirements combined as logical “and.”
 - **narrowing:** Replacing an expression, type, instruction, or selected task with a valid more specific form. For types, nominal subtyping is a static relation, while `narrows` is a contextual validity relation that can also account for refinements and linked variables. Task narrowing may fill one sub-specification at a time; each partial choice is recorded as task state rather than a state change, and resolution may reduce the choices offered for the remaining parts. An abstract task becomes executable only after it has narrowed to a concrete task.
@@ -95,13 +95,13 @@
 - **Pets:** Solarnet's specification language for types, rules, and game world changes.
 - **Player:** A seated participant that is both an Owner and an Actor.
 - **premise class table:** The small declaration delta owned by one game premise, including generated Players, the generated `Premise`, and ad-hoc test declarations. It imports one master class table; the master cannot refer back to it, and its names cannot collide with master names.
+- **premise selection:** The configuration-resolution process that chooses Modules and signed Content selections, then follows reachable selection edges to form one game's included Class closure. The resulting authority is the game class-table view. Use the qualifier when needed to distinguish this construction policy from selecting a pending task.
 - **player-relative observation:**
 - **policy-relative stable point:** A coherent game world revision at which every agent driver has inspected that revision and declined to issue another mutation. It depends on the installed policies and does not imply an empty global task queue.
 - **production box:** Terraforming Mars-specific `PROD[...]` notation that preprocessing lowers into production-Component operations.
 - **quantifier:** The policy on a change instruction: mandatory (`!`), optional (`?`), or AMAP (`.`).
 - **queue position:**
 - **queued effect:** An effect written with `:`. Its triggered instruction becomes a task instead of executing inline. Antonym: automatic effect.
-- **real-card mode:**
 - **refinement:** A conjunction of `HAS` world requirements and `NOT` structural exclusions attached to an expression to restrict the matching Types or Components.
 - **refinement type:** The type denoted by an expression carrying a refinement.
 - **REgo PLastics:** Solarnet's command-line interface for driving the engine.
@@ -109,7 +109,7 @@
 - **requirement:** A Pets predicate evaluated against a game world, used for queries, gates, invariants, and refinements.
 - **resolution:** The engine's interpretation of an instruction against the current game world. It evaluates gates and metrics, applies quantifier and limit rules, translates concrete custom instructions, and performs forced narrowing without making client choices. Resolution follows selection and repeats after each narrowing.
 - **root type:** The class at the head of an expression, before its written dependency bounds.
-- **rule class:** A class whose declaration is authored directly in Pets to express the game's reusable structure or rules, such as `GreeneryTile`. This describes provenance only; after class loading, a rule class behaves like a content class. Antonym: content class.
+- **rule class:** A Class premise policy treats as intrinsic vocabulary or behavior rather than an individually selectable piece of Content. A selected Module reaches its core rule Classes through ordinary selection edges. This is a selection role, not a Pets supertype or source format; after premise construction it behaves like every other Class. Antonym: content class.
 - **scalar:**
 - **Scope:** A live Component that anchors the lifetime of dependent Components. A Component belongs to a Scope by carrying a type dependency on that exact Scope Component.
 - **select-lock:** The rule that no competing game world mutation may invalidate the facts used to resolve a selected task before that task finishes.
@@ -118,7 +118,7 @@
 - **selection:** The client activity that chooses one pending task to finish next and causes the engine to resolve it. Selection is a promise about ordering, not a timeline commit; commit retains its transactional meaning after execution.
 - **self trigger:**
 - **sequential instruction:**
-- **SetupPhase:** The Terraforming Mars phase gained by transmuting BootstrapPhase away with `SetupPhase FROM Phase`. It creates generation 1, grants starting state such as 20 `TerraformRating`, deals starting cards into each Player's `Hand`, and waits for their discards.
+- **SetupPhase:** The Terraforming Mars phase gained by transmuting BootstrapPhase away with `SetupPhase FROM Phase`. It creates generation 1, grants starting state such as 20 `TerraformRating`, and gives each Player the generic card counts and setup choices selected by the active modules.
 - **Signal:** An unscoped point event that leaves no persistent component state.
 - **singleton type:** A concrete type constrained to exactly one occurrence by an inherited `HAS =1 This` invariant. The invariant does not create the occurrence.
 - **SoloOpponent:** The passive Owner created by `SoloMode`; it is neither a Player nor an Actor and receives no tasks or turns.

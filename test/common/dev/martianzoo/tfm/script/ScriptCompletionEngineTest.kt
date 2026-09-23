@@ -10,11 +10,6 @@ internal class ScriptCompletionEngineTest {
   private val repl = ScriptSession()
   private val completer = ScriptCompletionEngine(repl)
 
-  init {
-    repl.command("as Player1 task -10 ProjectCard<Selecting>")
-    repl.command("as Player2 task -10 ProjectCard<Selecting>")
-  }
-
   @Test
   internal fun completesCommandNames() {
     assertTrue("count" in values("co"))

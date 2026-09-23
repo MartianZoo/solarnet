@@ -8,6 +8,7 @@ junit = "5.14.4"
 kotest = "6.1.11"
 ktfmt = "0.64"
 kotlin = "2.4.10"
+kotlinpoet = "2.2.0"
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization = "1.9.0"
 shadow = "9.2.2"
@@ -21,6 +22,7 @@ jline = { module = "org.jline:jline", version.ref = "jline" }
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 kotest-assertions-core = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }

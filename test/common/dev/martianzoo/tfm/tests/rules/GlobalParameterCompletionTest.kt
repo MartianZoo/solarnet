@@ -56,4 +56,17 @@ internal class GlobalParameterCompletionTest : TfmTest() {
     p1.count("OceanTile") shouldBe 9
     p1.count("VenusStep") shouldBe 15
   }
+
+  @Test
+  internal fun extendedOceanTrackRecordsCompletionOnItsEleventhOcean() {
+    game = setUpGame(Amazonis)
+    val p1 = game.testTfm(PLAYER1)
+    val waterAreas = p1.list("WaterArea")
+
+    p1.sneak(waterAreas.take(10).joinToString { "OceanTile<$it>" })
+    p1.runOperation("OceanTile<${waterAreas.elementAt(10)}>")
+
+    p1.count("OceanTile") shouldBe 11
+    p1.count("GpComplete<Class<OceanTile>>") shouldBe 1
+  }
 }

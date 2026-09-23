@@ -82,7 +82,7 @@ internal class SpecificationTest {
   }
 
   @Test
-  internal fun compactTransmutationLinksItsUnchangedArguments() {
+  internal fun compactTransmutationRetainsItsUnchangedArguments() {
     val wide = "Production<Player, Class<Steel FROM Heat>>?"
 
     test(
@@ -97,7 +97,7 @@ internal class SpecificationTest {
 
   @Test
   internal fun transmutationBindsItsSourceBeforeTestingADestinationExclusion() {
-    val wide = "StandardResource(NOT StandardResource) FROM StandardResource!"
+    val wide = "StandardResource(NOT Source@StandardResource) FROM Source@StandardResource!"
 
     test(wide, "Steel FROM Plant!")
     testInvalid(wide, "Steel FROM Steel!")

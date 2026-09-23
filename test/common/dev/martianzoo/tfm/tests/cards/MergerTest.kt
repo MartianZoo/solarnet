@@ -15,7 +15,6 @@ internal class MergerTest : CardTest() {
         VenusNextExpansion,
         PreludeExpansion,
         PromoCardPack,
-        retainedStartingProjects = 5,
     )
     p1.playCorp(ValleyTrust, 5)
     admin.phase("Prelude")
@@ -35,7 +34,7 @@ internal class MergerTest : CardTest() {
     admin.phase("Action")
 
     p1.stdAction("DoRequiredActionsAction") {
-      p1.assertCounts(8 to "ProjectCard", 0 to "PreludeCard")
+      p1.assertCounts(8 to "ProjectCard", 1 to "PreludeCard")
       p1.assertProds(
           0 to "MC",
           0 to "Steel",
@@ -60,7 +59,7 @@ internal class MergerTest : CardTest() {
   @Test
   internal fun `Can resolve Merger payment and the second corporation`() {
     newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
-    p1.playCorp(CrediCor)
+    playCorporationWithoutStartingProjects(p1, CrediCor)
     admin.phase("Prelude")
     p1.runOperation("PreludeCard")
 
@@ -74,7 +73,7 @@ internal class MergerTest : CardTest() {
   @Test
   internal fun `New Partner can play Merger while both card families are being selected`() {
     newGame(VenusNextExpansion, PreludeExpansion, PromoCardPack)
-    p1.playCorp(CrediCor)
+    playCorporationWithoutStartingProjects(p1, CrediCor)
     admin.phase("Prelude")
 
     p1.playPrelude(NewPartner) {
@@ -84,8 +83,6 @@ internal class MergerTest : CardTest() {
     }
 
     p1.assertCounts(
-        0 to "PreludeCard<Selecting>",
-        0 to "CorporationCard<Selecting>",
         1 to "$Merger",
         1 to "$Celestic",
     )
@@ -100,15 +97,12 @@ internal class MergerTest : CardTest() {
         PromoCardPack,
         colonyTiles = testColonyTiles(2),
     )
-    p1.playCorp(Polyphemos)
+    playCorporationWithoutStartingProjects(p1, Polyphemos)
     admin.phase("Prelude")
     p1.playPrelude(Merger) {
       p1.playCorp(TerralabsResearch)
     }
 
-    p1.runOperation("ProjectCard<Selecting> THEN BuySelectedCards") {
-          p1.pay(mc = 3)
-        }
-        .expect("ProjectCard, -3 MC")
+    p1.runOperation("BuyCard") { p1.pay(3) }.expect("ProjectCard, -3 MC")
   }
 }

@@ -34,6 +34,18 @@ internal class LawSuitTest : CardTest() {
   }
 
   @Test
+  internal fun `Choosing the attacker in the first stage supplies the automatic continuation`() {
+    val p2 = requireP2()
+    p2.runOperation("5 MC, PROD[-Plant<Player1>]")
+    p1.autoExecPolicy = EAGER
+
+    p1.playProject(LawSuit, 2) { doTask("3 MC<Player1> FROM MC<Player2>") }
+
+    p1.assertCounts(0 to "PlayedEvent<Class<$LawSuit>>")
+    p2.assertCounts(1 to "PlayedEvent<Class<$LawSuit>>")
+  }
+
+  @Test
   internal fun `Can be played after an opponent removes the owner's resources`() {
     val p2 = requireP2()
     p1.runOperation("Plant")

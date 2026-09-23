@@ -8,10 +8,8 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.testsupport.PLAYER1
-import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
@@ -41,7 +39,6 @@ internal class BootstrapLifecycleTest {
     admin.count("Player") shouldBe 2
     admin.count("ProdOffset<Player1, Class<MC>>") shouldBe 5
     admin.count("ProdOffset<Player2, Class<MC>>") shouldBe 5
-    admin.count("CorporationOption") shouldBe 2
     admin.count("StartToken<Player1>") shouldBe 1
     admin.count("GpIncomplete") shouldBe 3
     admin.count("Class") shouldBe game.classTable.allClasses().count { !it.abstract }
@@ -52,25 +49,6 @@ internal class BootstrapLifecycleTest {
         .message
         .orEmpty()
         .shouldInclude("committed through")
-  }
-
-  @Test
-  internal fun countedConfigurationControlsCorporationOffers() {
-    val game =
-        Engine.newGame(Canon.gamePremise(GameConfig("4 CorporationOption", "Player1", "Player2")))
-    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
-    val admin = game.testAgent(ADMIN)
-    val p1 = game.testTfm(PLAYER1)
-
-    admin.count("CorporationOption") shouldBe 4
-    p1.count("CorporationCard<Selecting>") shouldBe 3
-    p1.count("CorporationCard<Hand>") shouldBe 1
-
-    game.retainStartingProjects(0, 0)
-
-    p1.count("CorporationCard<Selecting>") shouldBe 0
-    p1.count("CorporationCard<Hand>") shouldBe 1
-    workflow.shutdown()
   }
 
   @Test
@@ -183,7 +161,6 @@ internal class BootstrapLifecycleTest {
     admin.count("SoloColoniesSetup") shouldBe 0
 
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
-    game.retainStartingProjects(0)
     admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
     admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
@@ -212,7 +189,6 @@ internal class BootstrapLifecycleTest {
     admin.count("DelayedEnceladus") shouldBe 0
 
     workflow.setupPhase()
-    game.retainStartingProjects(0, 0)
     admin.count("SelectedColonyTile") shouldBe 2
 
     workflow.corporationPhase()
@@ -224,23 +200,19 @@ internal class BootstrapLifecycleTest {
   }
 
   @Test
-  internal fun setupRetainsStartingCardsUntilCorporationTurns() {
+  internal fun automaticSetupKeepsOnlyCardCountsUntilCorporationTurns() {
     val game = Engine.newGame(canonicalPremise(PreludeExpansion))
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     val admin = game.testAgent(ADMIN)
     val p1 = game.testTfm(PLAYER1)
 
-    admin.count("SetupPhase") shouldBe 1
-    p1.count("CorporationCard<Hand>") shouldBe 1
-    p1.count("ProjectCard<Selecting>") shouldBe 10
-    p1.count("PreludeCard<Hand>") shouldBe 2
-
-    game.retainStartingProjects(7, 5)
+    p1.count("CorporationCard") shouldBe 1
+    p1.count("ProjectCard") shouldBe 0
+    p1.count("PreludeCard") shouldBe 2
     admin.count("CorporationPhase") shouldBe 1
     p1.playCorp(cn("InterplanetaryCinematics"), 7)
 
-    p1.count("ProjectCard<Hand>") shouldBe 7
-    p1.count("ProjectCard<Selecting>") shouldBe 0
+    p1.count("ProjectCard") shouldBe 7
     workflow.shutdown()
   }
 

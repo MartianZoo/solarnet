@@ -4,7 +4,6 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.retainStartingProjects
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -33,8 +32,6 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
   @Test
   internal fun game20260819() {
     TfmWorkflow.Automatic(agents).launch()
-    game.retainStartingProjects(4, 5, 5)
-
     val JR = p1
     val KB = p2
     val ER = p3
@@ -476,7 +473,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     // Chronology: Heroku records JR's pass as a second action; defer it to this legal point.
     JR.pass()
     KB.playProject(PublicPlans, 4) {
-          doTask("14 ProjectCard<Revealed FROM Hand>")
+          doTask("14 MC")
         }
         .expect("10 MC")
     KB.playProject(Ants, 6)

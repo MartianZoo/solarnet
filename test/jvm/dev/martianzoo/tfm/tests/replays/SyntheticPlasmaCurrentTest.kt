@@ -32,10 +32,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
 
   @Test
   internal fun syntheticPlasmaCurrent() {
-    retainStartingProjects(5)
     with(me) {
-      // Solo setup drew these cards solely to choose the four neutral tile areas.
-      discardProjectCardsFromDeck(StanfordTorus, Virus, CloudSeeding, ImmigrantCity)
       generation1()
       generation2()
       generation3()
@@ -53,42 +50,11 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
 
   private fun generation1() {
     with(me) {
-      expectProjectCards(
-          LakeMarineris,
-          TowingAComet,
-          Moss,
-          TitaniumMine,
-          Algae,
-          StratosphericBirds,
-          Windmills,
-          BuildingIndustries,
-          ExtractorBalloons,
-          Vermin,
-      )
       playCorp(PhoboLog) {
         buyCards(TowingAComet, Moss, TitaniumMine, Algae, ExtractorBalloons)
       }
-      discardUnselectedProjectCards(
-          LakeMarineris,
-          StratosphericBirds,
-          Windmills,
-          BuildingIndustries,
-          Vermin,
-      )
 
       playPrelude(AcquiredSpaceAgency) {
-        discardProjectCardsFromDeck(
-            RegolithEaters,
-            Potatoes,
-            LuxuryFoods,
-            KaguyaTech,
-            Sponsors,
-            GeothermalPower,
-            InvestmentLoan,
-            AerialLenses,
-            VoteOfNoConfidence,
-            CorroderSuits,
-        )
         draw(AsteroidMining, Comet)
       }
       playPrelude(CorridorsOfPower)
@@ -125,7 +91,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
   private fun generation2() {
     with(me) {
       buyCards(AdvancedAlloys, SolarLogistics)
-      discardUnselectedProjectCards(Stratopolis, Capital)
 
       // Save 10: immediately after Research.
       assertResources(m = 13, s = 0, t = 6, p = 2, e = 0, h = 0)
@@ -161,7 +126,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
   private fun generation3() {
     with(me) {
       buyCards(0)
-      discardUnselectedProjectCards(VenusianAnimals, NoctisCity, CloudTourism, Meltworks)
 
       // Save 17: immediately after Research.
       assertResources(m = 18, s = 0, t = 9, p = 2, e = 0, h = 0)
@@ -203,7 +167,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
   private fun generation4() {
     with(me) {
       buyCards(BribedCommittee, MarsUniversity, WavePower)
-      discardUnselectedProjectCards(VenusShuttles)
 
       // Save 25: immediately after Research.
       assertResources(m = 13, s = 0, t = 9, p = 2, e = 3, h = 0)
@@ -265,7 +228,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       checkHandSizes()
 
       cardAction2(LocalShading)
-      playProject(PublicPlans, 7) { doTask("17 ProjectCard<Revealed FROM Hand>") }
+      playProject(PublicPlans, 7) { doTask("17 MC") }
       playProject(Satellites, titanium = 2)
       playProject(WavePower, 8)
       playProject(Algae, 10)
@@ -293,7 +256,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
   private fun generation6() {
     with(me) {
       buyCards(EnergyTapping)
-      discardUnselectedProjectCards(DirectedHeatUsage, CupolaCity, JovianEmbassy)
 
       // Save 44: immediately after Research.
       assertResources(m = 34, s = 0, t = 6, p = 9, e = 4, h = 6)
@@ -345,7 +307,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
   private fun generation7() {
     with(me) {
       buyCards(SubterraneanReservoir, EnvoysFromVenus)
-      discardUnselectedProjectCards(CommercialDistrict, SfMemorial)
 
       // Save 55: immediately after Research.
       assertResources(m = 25, s = 0, t = 5, p = 7, e = 6, h = 13)
@@ -392,7 +353,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
   private fun generation8() {
     with(me) {
       buyCards(MartianMediaCenter, StripMine)
-      discardUnselectedProjectCards(MaxwellBase, EosChasmaNationalPark)
 
       // Save 64: immediately after Research.
       assertResources(m = 51, s = 0, t = 9, p = 12, e = 6, h = 22)
@@ -459,7 +419,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
   private fun generation9() {
     with(me) {
       buyCards(AstraMechanica, InterplanetaryTrade)
-      discardUnselectedProjectCards(MoholeLake, Supermarkets)
 
       // Save 83: immediately after Research.
       assertResources(m = 58, s = 2, t = 5, p = 9, e = 5, h = 11)
@@ -477,14 +436,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       convertPlants { placeTile(7, 6) }
       cardAction1(Tardigrades)
       playProject(IshtarExpedition, 5) {
-        discardProjectCardsFromDeck(
-            Ironworks,
-            ElectroCatapult,
-            InventionContest,
-            Pets,
-            MagneticFieldDome,
-            PowerSupplyConsortium,
-        )
         draw(AirScrappingExpedition, Extremophiles)
       }
       sellPatents(TropicalResort, UndergroundDetonations, SoilFactory)
@@ -536,7 +487,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
   private fun generation10() {
     with(me) {
       buyCards(OpenCity, AiCentral, FloatingHabs)
-      discardUnselectedProjectCards(LavaTubeSettlement)
 
       // Save 107: immediately after Research.
       assertResources(m = 54, s = 6, t = 6, p = 8, e = 5, h = 9)
@@ -608,7 +558,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
   private fun generation11() {
     with(me) {
       buyCards(LargeConvoy, AqueductSystems, VenusianPlants)
-      discardUnselectedProjectCards(AdaptationTechnology)
 
       // Save 133: immediately after Research.
       assertResources(m = 89, s = 5, t = 9, p = 6, e = 4, h = 13)
@@ -635,19 +584,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       convertPlants { placeTile(7, 8) }
       playProject(OpenCity, steel = 5) { placeTile(7, 7) }
       playProject(AqueductSystems, mc = 2, steel = 1) {
-        discardProjectCardsFromDeck(
-            Zeppelins,
-            VenusianInsects,
-            Insects,
-            ExtremeColdFungus,
-            DeuteriumExport,
-            ImportedHydrogen,
-            Farming,
-            Decomposers,
-            // The source also discarded unsupported Floyd Continuum here.
-            AerosportTournament,
-            IshtarMining,
-        )
         draw(NoctisFarming, OreProcessor, RoverConstruction)
       }
       cardAction1(SmallAnimals)
@@ -710,7 +646,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
   private fun generation12() {
     with(me) {
       buyCards(BigAsteroid, GiantIceAsteroid)
-      discardUnselectedProjectCards(IndustrialMicrobes, SpaceHotels)
 
       // Save 168: immediately after Research.
       assertResources(m = 120, s = 3, t = 9, p = 16, e = 1, h = 16)

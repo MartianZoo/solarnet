@@ -9,7 +9,7 @@ internal class InstructionThenTest {
 
   @Test
   internal fun `an open shared choice keeps its THEN stages together`() {
-    val sharedType = elaborate("Token THEN Token") as Then
+    val sharedType = elaborate("@Token THEN @Token") as Then
     val concrete = elaborate("Plant THEN Steel") as Then
     val sharedX = elaborate("X Plant THEN X Steel") as Then
 

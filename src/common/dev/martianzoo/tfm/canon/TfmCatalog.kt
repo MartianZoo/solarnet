@@ -42,7 +42,6 @@ public open class TfmCatalog : Catalog {
   final override val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> =
       mapOf(
           TfmClasses.PROD to Prod::handler,
-          CardOperation.TRANSFORM_KIND to { FollowModeNeutralizer },
       )
 
   final override val classTable: ClassTable by lazy {
@@ -195,10 +194,11 @@ public open class TfmCatalog : Catalog {
    * defaults and selection policies.
    *
    * Structured inputs use canonical Class Names. Naming any milestones or awards selects the exact
-   * configured pool for that category. A playable Terraforming Mars Catalog requires at least one
-   * player name in seat order. Missing names and the generated concrete `Premise` Class belong to
-   * the premise-local declaration table; their immediate effects create the resolved Modules,
-   * Players, and exact starting Components without recompiling this Catalog's master table.
+   * configured pool for that category; an explicitly named milestone bypasses automatic pool
+   * preferences. A playable Terraforming Mars Catalog requires at least one player name in seat
+   * order. Missing names and the generated concrete `Premise` Class belong to the premise-local
+   * declaration table; their immediate effects create the resolved Modules, Players, and exact
+   * starting Components without recompiling this Catalog's master table.
    */
   public open fun gamePremise(
       config: GameConfig,
@@ -304,22 +304,19 @@ public open class TfmCatalog : Catalog {
             }
           }
     }
-    listOf(TfmClasses.MILESTONE, TfmClasses.AWARD).forEach { goalClass ->
-      (explicitlyIncluded intersect goalClassNames(goalClass)).forEach { goalName ->
-        goalCompatibilityRequirement(goalName)?.let { requirement ->
-          if (
-              !requirement.isMetBy { metric ->
-                countConfigured(metric, included - goalName, configurationTable)
-              }
-          ) {
-            throw InvalidGameConfigException(
-                "configured class $goalName is unavailable: $requirement"
-            )
-          }
+    (explicitlyIncluded intersect goalClassNames(TfmClasses.AWARD)).forEach { awardName ->
+      awardCompatibilityRequirement(awardName)?.let { requirement ->
+        if (
+            !requirement.isMetBy { metric ->
+              countConfigured(metric, included - awardName, configurationTable)
+            }
+        ) {
+          throw InvalidGameConfigException(
+              "configured class $awardName is unavailable: $requirement"
+          )
         }
       }
     }
-
     val moduleNames = included.filterTo(linkedSetOf()) { it in modules }
     val selectedMilestoneNames =
         selectGoalPool(
@@ -622,9 +619,7 @@ public open class TfmCatalog : Catalog {
 
   internal open val contributedClassDeclarations: List<ClassDeclaration> by lazy {
     val explicit =
-        PhaseTopologyCompiler.lower(explicitClassDeclarations)
-            .map(TfmActionLowerer::lower)
-            .map(FollowModeNeutralizer::neutralize)
+        PhaseTopologyCompiler.lower(explicitClassDeclarations).map(TfmActionLowerer::lower)
     val explicitNames = explicit.mapTo(hashSetOf(), ClassDeclaration::className)
     val requiredNames = buildSet {
       marsMapDefinitions.forEach { map ->
@@ -761,13 +756,18 @@ public open class TfmCatalog : Catalog {
   ): Requirement? =
       Requirement.join(
           Requirement.join(
-              MULTIPLAYER_ONLY,
+              Requirement.join(
+                  MULTIPLAYER_ONLY,
+                  (universe.getClass(declaration.className).properties[AUTO_SELECT_WHEN]
+                          as? RequirementValue)
+                      ?.value,
+              ),
               declaration.invariants.fold<Requirement, Requirement?>(null, Requirement::join),
           ),
           bundleCompatibilityRequirement(declaration.className, listOf(declaration)),
       )
 
-  private fun goalCompatibilityRequirement(
+  private fun awardCompatibilityRequirement(
       className: ClassName,
   ): Requirement? =
       Requirement.join(

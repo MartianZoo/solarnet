@@ -5,7 +5,6 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.retainStartingProjects
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -33,7 +32,6 @@ internal class SoloGame20230721Test : AbstractSoloTest() {
 
   @Test
   internal fun soloGame20230721() {
-    game.retainStartingProjects(4)
     with(me) {
       // You discarded Enceladus
       doTask("-SelectedColonyTile<Class<Enceladus>>")

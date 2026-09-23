@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.retainStartingProjects
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -25,7 +24,6 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
   @Test
   internal fun soloGame20230710() {
-    game.retainStartingProjects(10)
     with(me) {
       doTask("-SelectedColonyTile<Class<Miranda>>")
 
@@ -37,11 +35,11 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
       playPrelude(FakeHeadStart) {
         doTask("UseAction<PlayCardFromHandAction, Action1>")
-        doTask("PlayCard<Class<ProjectCard>, Class<$OlympusConference>, Hand>")
+        doTask("PlayCard<Class<ProjectCard>, Class<$OlympusConference>>")
         pay(4, steel = 3)
 
         doTask("UseAction<PlayCardFromHandAction, Action1>")
-        doTask("PlayCard<Class<ProjectCard>, Class<$StandardTechnology>, Hand>")
+        doTask("PlayCard<Class<ProjectCard>, Class<$StandardTechnology>>")
         pay(6)
         doTask("ProjectCard FROM Science<$OlympusConference>")
       }

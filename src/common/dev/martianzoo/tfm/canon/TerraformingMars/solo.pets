@@ -27,7 +27,7 @@ ABSTRACT CLASS SoloObjective : Module {
   CLASS Tr63SoloObjective {
     This: BufferGasProject
 
-    CheckGameEnd IF 63 TerraformRating<Player>: Victory<Player>
+    CheckGameEnd IF 63 TerraformRating: Victory
   }
 }
 
@@ -43,35 +43,35 @@ CLASS SoloGenerationsLeft : GameEndBarrier
 "The passive owner of the removable neutral stock in solo mode"
 CLASS SoloOpponent : Owner, System {
   HAS =1 This
-  This:: EACH Class<StandardResource> { SoloStandardResourceReserve<Class<StandardResource>> }
-  This:: EACH Class<CardResource> { SoloCardResourceReserve<Class<CardResource>> }
+  This:: EACH @Class<StandardResource> { SoloStandardResourceReserve<@Class> }
+  This:: EACH @Class<CardResource> { SoloCardResourceReserve<@Class> }
   SetupPhase: PlaceNeutralTiles
 }
 
 "Creates the two independent city-and-greenery placement tasks in solo setup"
 CLASS PlaceNeutralTiles : Signal, System, Owned<SoloOpponent> {
   HAS MAX 1 This
-  This: CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<>>)>
-  This: CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<CityTile<>>)>
+  This: @CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<@CityTile>)>
+  This: @CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<@CityTile>)>
 }
 
 "Creates the neutral solo stock of each standard resource and its production"
-CLASS SoloStandardResourceReserve<Class<StandardResource>> : Owned<SoloOpponent>, System {
+CLASS SoloStandardResourceReserve<Class<@StandardResource>> : Owned<SoloOpponent>, System {
   HAS =1 This
-  SetupPhase: 42 StandardResource
-  SetupPhase: PROD[42 StandardResource]
+  SetupPhase: 42 @StandardResource
+  SetupPhase: PROD[42 @StandardResource]
 
-  -StandardResource BY Player:: StandardResource BY Admin
-  StandardResource BY Player:: -StandardResource BY Admin
-  PROD[-StandardResource] BY Player:: PROD[StandardResource] BY Admin
-  PROD[StandardResource] BY Player:: PROD[-StandardResource] BY Admin
+  -@StandardResource BY Player:: @StandardResource BY Admin
+  @StandardResource BY Player:: -@StandardResource BY Admin
+  PROD[-@StandardResource] BY Player:: PROD[@StandardResource] BY Admin
+  PROD[@StandardResource] BY Player:: PROD[-@StandardResource] BY Admin
 }
 
 "A neutral solo-mode holder for each kind of removable card resource"
-CLASS SoloCardResourceReserve : ResourceHolder<Class<CardResource>>, Owned<SoloOpponent>, System {
+CLASS SoloCardResourceReserve : ResourceHolder<Class<@CardResource>>, Owned<SoloOpponent>, System {
   HAS =1 This
-  SetupPhase: 42 CardResource<This>
+  SetupPhase: 42 @CardResource<This>
 
-  -CardResource<This> BY Player:: CardResource<This> BY Admin
-  CardResource<This> BY Player:: -CardResource<This> BY Admin
+  -@CardResource<This> BY Player:: @CardResource<This> BY Admin
+  @CardResource<This> BY Player:: -@CardResource<This> BY Admin
 }

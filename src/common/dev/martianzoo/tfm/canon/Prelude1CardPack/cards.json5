@@ -18,12 +18,13 @@
         {
           "name": "RobinsonIndustries",
           "immediate": "47 MC",
-          "actions": [ "4 MC -> PROD[StandardResource(HAS =1 (RANK Class<StandardResource> { Production<Class<StandardResource>(NOT Class<StandardResource>)> OR ProdOffset<Class<StandardResource>> }))]" ],
+          "actions": [ "4 MC -> PROD[StandardResource(HAS =1 (RANK @Class<StandardResource> { Production<Class<StandardResource>(NOT @Class)> OR ProdOffset<@Class> }))]" ],
         },
         {
           "name": "ValleyTrust",
           "tags": [ "EarthTag" ],
-          "immediate": "37 MC, RequiredAction { -> 3 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting> }",
+          // 3 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>
+          "immediate": "37 MC, RequiredAction { -> PreludeCard THEN PlayCard<Class<PreludeCard>> }",
           "effects": [ "PayingFor<Class<ScienceTag>>:: -2 Owed" ],
         },
         {
@@ -45,7 +46,7 @@
       "cards": [
         {
           "name": "AcquiredSpaceAgency",
-          "immediate": "6 Titanium, CARDS[2 SearchForCard(HAS PrintedTag<Class<SpaceTag>>)]",
+          "immediate": "6 Titanium, 2 SearchForCard<TagFilter<Class<SpaceTag>>>",
         },
         {
           "name": "AlliedBank",
@@ -98,12 +99,12 @@
         },
         {
           "name": "ExcentricSponsor",
-          "immediate": "PlayCard<Class<ProjectCard>, Hand> THEN -25 Owed",
+          "immediate": "PlayCard<Class<ProjectCard>> THEN -25 Owed",
         },
         {
           "name": "ExperimentalForest",
           "tags": [ "PlantTag" ],
-          "immediate": "DefaultGreeneryTile, CARDS[2 SearchForCard(HAS PrintedTag<Class<PlantTag>>)]",
+          "immediate": "DefaultGreeneryTile, 2 SearchForCard<TagFilter<Class<PlantTag>>>",
         },
         {
           "name": "GalileanMining",

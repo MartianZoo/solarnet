@@ -166,9 +166,35 @@ public object Parsing {
   }
 
   private fun rejectUnsupportedSyntax(parsed: Any?) {
+    if (parsed is PetNode) {
+      val expressions = parsed.descendantsOfType<Expression>()
+      expressions
+          .firstOrNull {
+            it.typeVariableName is Expression.TypeVariableName.Declaration &&
+                !it.typeVariableName.resolved
+          }
+          ?.let {
+            val marker = it.typeVariableName!!
+            throw PetSyntaxException(
+                "Type-variable marker ${marker.authoredSpelling} is not shared in a scope"
+            )
+          }
+      expressions
+          .mapNotNull { it.typeVariableName as? Expression.TypeVariableName.Reference }
+          .firstOrNull { !it.resolved }
+          ?.let {
+            throw PetSyntaxException(
+                "Type-variable marker ${it.authoredSpelling} has no supplying occurrence"
+            )
+          }
+    }
     when (parsed) {
-      is ClassDeclaration -> parsed.allNodes.forEach(::rejectUnsupportedSyntax)
-      is PetNode ->
+      is ClassDeclaration ->
+          (parsed.allNodes - parsed.dependencies.toSet() - parsed.supertypes).forEach(
+              ::rejectUnsupportedSyntax
+          )
+      is Effect,
+      is Action ->
           parsed.visitDescendants {
             (it as? Expression)?.let(ScaledExpression::rejectIfDenominationless)
             if (it is Metric.Rank && it.selector == null) {
@@ -176,6 +202,18 @@ public object Parsing {
             }
             true
           }
+      is PetNode -> {
+        fun check(node: PetNode) {
+          (node as? Expression)?.let { expression ->
+            ScaledExpression.rejectIfDenominationless(expression)
+          }
+          if (node is Metric.Rank && node.selector == null) {
+            throw PetSyntaxException("`RANK { ... }` requires an enclosing expression refinement")
+          }
+          node.immediateChildren().forEach(::check)
+        }
+        check(parsed)
+      }
       is Iterable<*> -> parsed.forEach(::rejectUnsupportedSyntax)
     }
   }

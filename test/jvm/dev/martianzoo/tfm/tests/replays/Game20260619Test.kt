@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.retainStartingProjects
 import kotlin.test.Test
 
 internal class Game20260619Test : AbstractFullGameTest() {
@@ -22,8 +21,6 @@ internal class Game20260619Test : AbstractFullGameTest() {
   @Test
   internal fun gameThroughGeneration5() {
     TfmWorkflow.Automatic(agents).launch()
-    game.retainStartingProjects(6, 3)
-
     // Game id: peae6273d6b33
     // First player this generation is ER
     // Good luck ER!

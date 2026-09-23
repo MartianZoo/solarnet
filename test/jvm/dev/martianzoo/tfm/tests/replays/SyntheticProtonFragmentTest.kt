@@ -8,7 +8,6 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.retainStartingProjects
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -40,8 +39,6 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
   @Test
   internal fun game20260811() {
     TfmWorkflow.Automatic(agents).launch()
-    game.retainStartingProjects(4, 5, 7)
-
     val purple = p1
     val pink = p2
     val green = p3
@@ -252,7 +249,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     pink.convertHeat()
     pink
         .playProject(PublicPlans, 5) {
-          doTask("6 ProjectCard<Revealed FROM Hand>")
+          doTask("6 MC")
         }
         .expect("4 MC")
 

@@ -8,7 +8,6 @@ import dev.martianzoo.state.GameWorld
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.retainStartingProjects
 import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 import kotlin.test.Test
@@ -41,7 +40,6 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
   @Test
   internal fun otbGame20260818() {
     TfmWorkflow.Automatic(agents).launch()
-    game.retainStartingProjects(7, 5)
     val green = player(1)
     val yellow = player(2)
 

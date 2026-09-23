@@ -12,7 +12,6 @@ import dev.martianzoo.tfm.tests.TestOption.Hellas
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.canonicalPremise
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import dev.martianzoo.tfm.tests.retainStartingProjects
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -30,7 +29,6 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
   @Test
   internal fun hellasPromoGame() {
     val workflow = TfmWorkflow.Automatic(agents).launch()
-    game.retainStartingProjects(7, 5)
     workflow.isRunning shouldBe true
 
     p1.playCorp(InterplanetaryCinematics, 7)
@@ -157,8 +155,6 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
     val p2 = game.testTfm(PLAYER2)
 
     TfmWorkflow.Automatic(game.testAgents()).launch()
-    game.retainStartingProjects(7, 5)
-
     p1.playCorp(InterplanetaryCinematics, 7)
     p2.playCorp(PharmacyUnion, 5)
 

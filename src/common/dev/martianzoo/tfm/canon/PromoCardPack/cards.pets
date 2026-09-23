@@ -21,12 +21,14 @@ CLASS CloudSocieties : GePartyDistant<Unity>, GePartyCurrent<Reds> {
   HAS Class<VenusTag>, Class<Colony>
 
   ResolveGlobalEvent<Class<This>>:: \
-    EACH ResourceCard<Class<Floater>, Anyone> { Floater<ResourceCard<Class<Floater>, Anyone>> }
-  ResolveGlobalEvent<Class<This>>:: EACH Player { ChooseInfluenceFloaterCard<Player> }
+    EACH @ResourceCard<Class<Floater>, Anyone> { \
+      Floater<@ResourceCard> \
+    }
+  ResolveGlobalEvent<Class<This>>:: EACH Player { ChooseInfluenceFloaterCard }
 }
 
 CLASS CorrosiveRain : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
   HAS Class<VenusTag>, Class<Colony>
 
-  ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveCorrosiveRain<Player> }
+  ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveCorrosiveRain }
 }
