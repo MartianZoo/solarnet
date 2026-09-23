@@ -172,8 +172,8 @@ CLASS SetupPhaseScope : PhaseScope<SetupPhase>, Temporary {
 
 "The corporation phase's lifetime anchor"
 CLASS CorporationPhaseScope : PhaseScope<CorporationPhase> {
-  This:: EACH @Player(HAS StartToken) { NewTurn<@Player> BY @Player }
-  -CorporationCard<Previous@Owner>:: \
+  This IF WorkflowStarted:: EACH @Player(HAS StartToken) { NewTurn<@Player> BY @Player }
+  -CorporationCard<Previous@Owner> IF WorkflowStarted:: \
     EACH Seat@AfterMe<Previous@Owner, Anyone> { \
       CorporationPhaseCompletionCheck<Seat@AfterMe> BY Admin \
     }
@@ -181,14 +181,17 @@ CLASS CorporationPhaseScope : PhaseScope<CorporationPhase> {
 
 "Continues corporation selection with the next player after one settled choice"
 CLASS CorporationPhaseCompletionCheck<AfterMe<Anyone, Next@Player>> : Continuation, System {
-  -This IF CorporationPhaseScope, CorporationCard<Next@Player>:: \
+  -This IF WorkflowStarted, CorporationPhaseScope, CorporationCard<Next@Player>:: \
     NewTurn<Next@Player> BY Next@Player
-  -This IF CorporationPhaseScope, MAX 0 CorporationCard<Anyone>:: \
+  -This IF WorkflowStarted, CorporationPhaseScope, MAX 0 CorporationCard<Anyone>:: \
     -CorporationPhaseScope BY Admin
 }
 
 "The open action phase's lifetime anchor"
-CLASS ActionPhaseScope : PhaseScope<ActionPhase>
+CLASS ActionPhaseScope : PhaseScope<ActionPhase> {
+  This IF WorkflowStarted:: \
+    EACH @Player(HAS StartToken) { FirstActionTurn<@Player> BY Admin }
+}
 
 "The completed action phase, removed only after the operation completing it has validated"
 CLASS ActionPhaseComplete : PhaseScope<ActionPhase>, Continuation {
@@ -216,6 +219,48 @@ CLASS NewTurn : Owned<Player>, Signal
 
 "The engine's signal for the second action slot in an action phase turn; no Pass option"
 CLASS SecondAction : Owned<Player>, Signal
+
+"One action slot, open until its work settles"
+ABSTRACT CLASS ActionTurn : Temporary, System {
+  HAS MAX 1 ActionTurn
+}
+
+"The mandatory first action slot in a Player's turn"
+CLASS FirstActionTurn<Current@Player> : ActionTurn {
+  This:: NewTurn<Current@Player> BY Current@Player
+  -This IF WorkflowStarted, ActionPhaseScope, HaveNotPassed<Current@Player>, 2 HaveNotPassed<Anyone>:: \
+    SecondActionStart<Current@Player> BY Admin
+  -This IF WorkflowStarted, ActionPhaseScope, HaveNotPassed<Current@Player>, MAX 1 HaveNotPassed<Anyone>:: \
+    NextActionTurn<Current@Player> BY Admin
+  -This IF WorkflowStarted, ActionPhaseScope, Pass<Current@Player>:: \
+    EACH Next@Player(HAS AfterMe<Current@Player, Player>) { \
+      NextActionTurn<Next@Player> BY Admin \
+    }
+}
+
+"Starts a second action only after the first action operation validates"
+CLASS SecondActionStart<Current@Player> : Continuation, System {
+  -This IF WorkflowStarted, ActionPhaseScope:: SecondActionTurn<Current@Player> BY Admin
+}
+
+"The optional second action slot in a Player's turn"
+CLASS SecondActionTurn<Current@Player> : ActionTurn {
+  This:: SecondAction<Current@Player> BY Current@Player
+  -This IF WorkflowStarted, ActionPhaseScope:: \
+    EACH Next@Player(HAS AfterMe<Current@Player, Player>) { \
+      NextActionTurn<Next@Player> BY Admin \
+    }
+}
+
+"Finds the next Player who has not passed"
+CLASS NextActionTurn<Candidate@Player> : Continuation, System {
+  -This IF WorkflowStarted, ActionPhaseScope, HaveNotPassed<Candidate@Player>:: \
+    FirstActionTurn<Candidate@Player> BY Admin
+  -This IF WorkflowStarted, ActionPhaseScope, Pass<Candidate@Player>:: \
+    EACH Next@Player(HAS AfterMe<Candidate@Player, Player>) { \
+      NextActionTurn<Next@Player> BY Admin \
+    }
+}
 
 "A player's exhaustive Action-phase participation state, reset whenever Action begins"
 ABSTRACT CLASS ActionPhaseStatus : Owned<Player>

@@ -15,11 +15,21 @@ CLASS PreludePhase : Phase {
 
 "The Prelude phase's lifetime anchor"
 CLASS PreludePhaseScope : PhaseScope<PreludePhase> {
-  This:: PreludePhaseCompletionCheck BY Admin
-  -PreludeCard:: PreludePhaseCompletionCheck BY Admin
+  This IF WorkflowStarted:: \
+    EACH @Player(HAS StartToken) { PreludeTurnContinuation<@Player> BY Admin }
+  -PreludeCard<Previous@Owner> IF WorkflowStarted:: \
+    PreludeTurnContinuation<Previous@Owner>. BY Admin
 }
 
-"Checks settled Prelude-card state before ending the phase"
-CLASS PreludePhaseCompletionCheck : Continuation, System {
-  -This IF PreludePhaseScope, MAX 0 PreludeCard<Anyone>:: -PreludePhaseScope. BY Admin
+"Continues ordered Prelude turns after the previous choice settles"
+CLASS PreludeTurnContinuation<Current@Player> : Continuation, System {
+  HAS MAX 1 This
+  -This IF WorkflowStarted, PreludePhaseScope, PreludeCard<Current@Player>:: \
+    NewTurn<Current@Player> BY Current@Player
+  -This IF WorkflowStarted, PreludePhaseScope, MAX 0 PreludeCard<Current@Player>, PreludeCard<Anyone>:: \
+    EACH Next@Player(HAS AfterMe<Current@Player, Player>) { \
+      PreludeTurnContinuation<Next@Player> BY Admin \
+    }
+  -This IF WorkflowStarted, PreludePhaseScope, MAX 0 PreludeCard<Anyone>:: \
+    -PreludePhaseScope. BY Admin
 }

@@ -131,6 +131,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
     }
 
     workflow.shutdown()
+    p1.pass()
     TfmWorkflow.Stepwise(game.testAgents()).productionPhase()
 
     admin.assertCounts(4 to "Generation")

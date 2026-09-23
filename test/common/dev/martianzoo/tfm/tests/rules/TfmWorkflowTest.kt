@@ -56,15 +56,18 @@ internal class TfmWorkflowTest {
   internal fun rollingBackScopeRemovalRestoresItsPhaseAndContinuation() {
     val game = Engine.newGame(canonicalPremise(players = 2))
     val admin = game.testTfm(ADMIN)
-    admin.beginOperation("WorkflowStarted")
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     playCorporationWithoutStartingProjects(
-        game.testTfm(PLAYER1),
+        p1,
         UnitedNationsMarsInitiative,
     )
-    playCorporationWithoutStartingProjects(game.testTfm(PLAYER2), CrediCor)
+    playCorporationWithoutStartingProjects(p2, CrediCor)
+    p1.pass()
     val checkpoint = game.timeline.checkpoint()
 
-    admin.beginOperation("ActionPhaseComplete FROM ActionPhaseScope")
+    p2.pass()
 
     admin.assertCounts(
         0 to "ActionPhase",
@@ -85,7 +88,14 @@ internal class TfmWorkflowTest {
         0 to "ResearchPhase",
         0 to "ResearchPhaseScope",
     )
-    game.tasks.isEmpty() shouldBe true
+    p1.assertCounts(0 to "HaveNotPassed", 1 to "Pass")
+    p2.assertCounts(1 to "HaveNotPassed", 0 to "Pass")
+    p1.tasks.isEmpty() shouldBe true
+    p2.tasks.isEmpty() shouldBe false
+    admin.assertCounts(1 to "FirstActionTurn", 0 to "SecondActionTurn")
+    p2.pass()
+    admin.assertCounts(0 to "ActionPhase", 1 to "ResearchPhase", 2 to "Generation")
+    workflow.shutdown()
   }
 
   @Test
@@ -437,16 +447,64 @@ internal class TfmWorkflowTest {
   }
 
   @Test
+  internal fun rollingBackFirstActionRestoresItsTurn() {
+    val game = Engine.newGame(canonicalPremise(players = 2))
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
+    playCorporationWithoutStartingProjects(p2, CrediCor)
+    p1.sneak("ProjectCard")
+    val beforeFirstAction = game.timeline.checkpoint()
+
+    p1.sellPatents(1)
+    p1.tasks.isEmpty() shouldBe false
+    game.testTfm(ADMIN).assertCounts(0 to "FirstActionTurn", 1 to "SecondActionTurn")
+
+    game.timeline.rollBack(beforeFirstAction)
+
+    p1.assertCounts(1 to "ProjectCard", 1 to "HaveNotPassed", 0 to "Pass")
+    game.testTfm(ADMIN).assertCounts(1 to "FirstActionTurn", 0 to "SecondActionTurn")
+    p1.tasks.isEmpty() shouldBe false
+    p2.tasks.isEmpty() shouldBe true
+    p1.pass()
+    p1.tasks.isEmpty() shouldBe true
+    p2.tasks.isEmpty() shouldBe false
+    workflow.shutdown()
+  }
+
+  @Test
+  internal fun shutdownLetsTheGrantedActionFinishBeforeManualWorkflowContinues() {
+    val game = Engine.newGame(canonicalPremise(players = 2))
+    val admin = game.testTfm(ADMIN)
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
+    val agents = game.testAgents()
+    val workflow = TfmWorkflow.Automatic(agents).launch()
+    playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
+    playCorporationWithoutStartingProjects(p2, CrediCor)
+
+    workflow.shutdown()
+    p1.pass()
+
+    game.tasks.isEmpty() shouldBe true
+    admin.assertCounts(1 to "ActionPhase", 0 to "ActionTurn")
+    TfmWorkflow.Stepwise(agents).productionPhase()
+    admin.assertCounts(0 to "ActionPhase", 1 to "ProductionPhase")
+  }
+
+  @Test
   internal fun automaticPreludePhasePlaysEveryRetainedPrelude() {
     val game = Engine.newGame(canonicalPremise(PreludeExpansion, players = 2))
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
+    admin.sneak("StartToken<Player2> FROM StartToken<Player1>")
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     p1.sneak("PreludeCard")
 
-    playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
     playCorporationWithoutStartingProjects(p2, CrediCor)
+    playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
 
     admin.assertCounts(
         0 to "CorporationPhaseScope",
@@ -454,15 +512,17 @@ internal class TfmWorkflowTest {
         1 to "PreludePhaseScope",
         0 to "ActionPhase",
     )
+    p1.tasks.isEmpty() shouldBe true
+    p2.tasks.isEmpty() shouldBe false
 
+    p2.turn {
+      playPrelude(DomeFarming)
+      playPrelude(Supplier)
+    }
     p1.turn {
       playPrelude(Donation)
       playPrelude(MartianIndustries)
       playPrelude(PowerGeneration)
-    }
-    p2.turn {
-      playPrelude(DomeFarming)
-      playPrelude(Supplier)
     }
 
     p1.count("PreludeCard") shouldBe 0
@@ -473,6 +533,45 @@ internal class TfmWorkflowTest {
         1 to "ActionPhase",
         1 to "ActionPhaseScope",
     )
+    workflow.shutdown()
+  }
+
+  @Test
+  internal fun rollingBackFinalPreludeRestoresItsPhaseAndTurn() {
+    val game = Engine.newGame(canonicalPremise(PreludeExpansion, players = 2))
+    val admin = game.testTfm(ADMIN)
+    val p1 = game.testTfm(PLAYER1)
+    val p2 = game.testTfm(PLAYER2)
+    val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
+    playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
+    playCorporationWithoutStartingProjects(p2, CrediCor)
+
+    p1.playPrelude(Donation)
+    p1.playPrelude(MartianIndustries)
+    p2.playPrelude(DomeFarming)
+    val beforeFinalPrelude = game.timeline.checkpoint()
+
+    p2.playPrelude(Supplier)
+    admin.assertCounts(
+        0 to "PreludePhase",
+        0 to "PreludePhaseScope",
+        1 to "ActionPhase",
+        1 to "ActionPhaseScope",
+    )
+
+    game.timeline.rollBack(beforeFinalPrelude)
+
+    admin.assertCounts(
+        1 to "PreludePhase",
+        1 to "PreludePhaseScope",
+        0 to "ActionPhase",
+        0 to "ActionPhaseScope",
+    )
+    p1.tasks.isEmpty() shouldBe true
+    p2.tasks.isEmpty() shouldBe false
+    p2.assertCounts(1 to "PreludeCard", 0 to "$Supplier")
+    p2.playPrelude(Supplier)
+    admin.assertCounts(0 to "PreludePhase", 1 to "ActionPhase")
     workflow.shutdown()
   }
 
@@ -533,7 +632,7 @@ internal class TfmWorkflowTest {
     admin.assertCounts(
         1 to "ActionPhase",
         0 to "PreludePhase",
-        0 to "PreludePhaseCompletionCheck",
+        0 to "PreludeTurnContinuation",
     )
     workflow.shutdown()
   }

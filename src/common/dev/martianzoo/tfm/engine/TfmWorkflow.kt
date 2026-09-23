@@ -141,9 +141,11 @@ public object TfmWorkflow {
     }
 
     /**
-     * Stops the workflow and cancels its coroutine. If the Kotlin sequencer is suspended waiting
-     * for its most recent NewTurn or SecondAction, that operation is rolled back. Tasks created by
-     * Pets remain part of the GameWorld; shutdown does not promise an empty task queue.
+     * Stops the workflow and cancels its coroutine. If the Kotlin sequencer is suspended during
+     * Final Greenery waiting for its most recent NewTurn, that operation is rolled back. Tasks
+     * created by Pets remain part of the GameWorld, but removing WorkflowStarted prevents them from
+     * creating later workflow tasks. Shutdown does not promise an empty task queue; the already
+     * granted choice may still be completed before continuing manually.
      */
     public fun shutdown() {
       game.onTransactionComplete = {}
@@ -158,20 +160,8 @@ public object TfmWorkflow {
     private suspend fun runGame() {
       adminOps.beginOperation("WorkflowStarted")
       awaitTasksDrained()
-      completePreludePhase()
-      while (hasComponent("ActionPhase")) actionPhase()
       if (!hasComponent("FinalGreeneryPhase")) return
       finalGreeneryPhase()
-    }
-
-    private suspend fun completePreludePhase() {
-      for (player in players) {
-        // The retained cards are the setup fact; custom and replay setups need not retain two.
-        repeat(opsFor(player).count("PreludeCard")) {
-          grantFirstActionTo(player)
-          if (!hasComponent("PreludePhase")) return
-        }
-      }
     }
 
     private suspend fun finalGreeneryPhase() {
@@ -186,29 +176,6 @@ public object TfmWorkflow {
       adminOps.runOperation("-FinalGreeneryPhaseScope")
     }
 
-    private suspend fun actionPhase() {
-      val generation = adminOps.count("Generation")
-      val active = ArrayDeque(rotatedByFirstPlayer())
-      while (active.isNotEmpty()) {
-        val player = active.first()
-        grantFirstActionTo(player)
-        if (actionPhaseEnded(generation)) return
-        if (hasPassed(player)) {
-          active.removeFirst()
-        } else {
-          if (active.size > 1) {
-            grantSecondActionTo(player)
-            if (actionPhaseEnded(generation)) return
-          }
-          // SecondAction cannot choose Pass, but an action such as Red Appeasement can grant it.
-          if (hasPassed(player)) active.removeFirst() else active.addLast(active.removeFirst())
-        }
-      }
-    }
-
-    private fun actionPhaseEnded(generation: Int): Boolean =
-        !hasComponent("ActionPhase") || adminOps.count("Generation") != generation
-
     private fun rotatedByFirstPlayer(): List<Player> {
       val token = game.reader.getComponents("StartToken").single()
       val ownerName = token.toComponent().owner?.className
@@ -219,8 +186,6 @@ public object TfmWorkflow {
 
     private fun opsFor(player: Player) = agents[player]
 
-    private fun hasPassed(player: Player) = opsFor(player).has("Pass")
-
     private fun hasComponent(className: String): Boolean =
         game.classTable.isInhabited(cn(className)) &&
             game.reader.getComponents(className).isNotEmpty()
@@ -228,13 +193,6 @@ public object TfmWorkflow {
     private suspend fun grantFirstActionTo(player: Player) {
       shutdownCheckpoint = game.timeline.checkpoint()
       opsFor(player).beginOperation("NewTurn!")
-      if (!game.isIdle()) resumeSignal.receive()
-      shutdownCheckpoint = null
-    }
-
-    private suspend fun grantSecondActionTo(player: Player) {
-      shutdownCheckpoint = game.timeline.checkpoint()
-      opsFor(player).beginOperation("SecondAction")
       if (!game.isIdle()) resumeSignal.receive()
       shutdownCheckpoint = null
     }

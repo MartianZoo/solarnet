@@ -68,6 +68,7 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
     p1.fundAward(cn("Manufacturer"), 8).expect("Manufacturer")
 
     shutdownWorkflow()
+    p1.declineSecondAction()
     TfmWorkflow.Stepwise(agents).endPhase()
 
     p1.count("PROD[Steel OR Heat]") shouldBe 5

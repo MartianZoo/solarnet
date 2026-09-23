@@ -15,8 +15,8 @@
 > Bootstrap-to-Setup-to-Corporation, the compiled Corporation-to-Action and Solar segments, the
 > recurring Production-to-Research-to-Action cycle, and the final transition from Final Greenery
 > to End.
-> `TfmWorkflow.Automatic` still wakes Final Greenery and owns Prelude and Action turn order.
-> Corporation turn order, plus Prelude and Action completion, now follow from Pets state.
+> `TfmWorkflow.Automatic` still sequences and wakes Final Greenery. Corporation, Prelude, and Action
+> turn order, plus Action completion, now follow from Pets state.
 > `GenerationScope` and dependency-ordered idle cleanup are implemented beneath that proof.
 
 ## Purpose and scope
@@ -336,14 +336,18 @@ Action, and Final Greenery scopes are deliberately not Temporary because their q
 players. Corporation begins with the Start Token owner. Removing that Player's corporation-card
 back creates a continuation through the existing `AfterMe` seat relation; once the choice and its
 consequences settle, the continuation grants the next Player's turn or removes the Corporation
-scope when no corporation-card back remains. The last `HaveNotPassed -> Pass` transition changes
-`ActionPhaseScope` into the `ActionPhaseComplete` continuation. The engine removes it after the
-passing operation validates, and its Pets removal effect enters Production. `PreludePhaseScope`
-creates a completion check when it opens and whenever a Prelude card is removed. The check waits for
-the operation to settle, then removes the scope only when no Prelude cards remain; this covers
-zero-card custom setups and cards whose consequences grant another Prelude. Kotlin still orders
-Prelude and Action turns, but no longer decides that either phase is complete or removes either
-scope. Final Greenery remains explicitly woken by Kotlin sequencing.
+scope when no corporation-card back remains. Prelude also begins with the Start Token owner. Its
+continuation grants another turn while that Player retains a Prelude card, advances through
+`AfterMe` when they do not, and removes the scope when no Prelude cards remain. Waiting for each
+operation to settle covers zero-card custom setups and cards whose consequences grant another
+Prelude. The last `HaveNotPassed -> Pass` transition changes `ActionPhaseScope` into the
+`ActionPhaseComplete` continuation. The engine removes it after the passing operation validates,
+and its Pets removal effect enters Production. Within an open Action scope, a Temporary first- or
+second-action marker waits for the same whole-World empty task pool that the former Kotlin coroutine
+observed. Its removal creates a continuation so the current operation validates before the next
+slot begins; that continuation either starts the slot or walks `AfterMe` through passed Players. A
+sole active Player receives successive first-action slots, preserving the one-action turn rule.
+Final Greenery remains explicitly sequenced and woken by Kotlin.
 
 An Agent operation begun synchronously by the atomic-completion callback now receives its own idle
 cleanup before returning. That generic rule lets task-free terminal Production settle exactly like
@@ -355,6 +359,15 @@ Phase-scope continuations do not advance without `WorkflowStarted`. An Action sc
 participation states still exist during stepwise play, but the last Pass does not create the
 completion continuation. Replay VP snapshots temporarily remove the marker before constructing a
 hypothetical Production/End state, then restore the live workflow through rollback.
+
+This same opt-in boundary defines the manual workflow. A game started without `WorkflowStarted`, as
+in the default non-purple script path, leaves explicit `phase` and `turn` operations authoritative;
+blue mode is the access level that permits those turns, not separate workflow state. Changing the
+script's color after starting a game does not add or remove `WorkflowStarted`. Removing the Kotlin
+automatic runner therefore does not require a second phase model or a manual-workflow controller.
+Removing `WorkflowStarted` stops phase-local continuations from granting later turns. An already
+granted task remains authoritative GameWorld state and may be completed or declined; its marker then
+retires without a successor, leaving explicit manual phase control available.
 
 The intended coarse Terraforming Mars shape is:
 
@@ -388,10 +401,9 @@ The phase workflow is successful only when all of these hold:
 ## Remaining demonstrations
 
 Segment compilation is implemented for Corporation-to-Action with optional Prelude and for
-Solar-to-Research with optional Venus and Colonies phases. Prelude closes from its settled remaining
-cards, Action-to-Production closes from its exact-one participation states, and Corporation turn
-order advances through settled card choices and the seat relation. The remaining Kotlin role is
-Prelude and Action turn sequencing plus Final Greenery sequencing and wakeup.
+Solar-to-Research with optional Venus and Colonies phases. Prelude and Corporation turn order
+advance through settled card choices and the seat relation, and Action-to-Production closes from its
+exact-one participation states. The remaining Kotlin role is Final Greenery sequencing and wakeup.
 
 Do not redesign Action-turn rotation as part of the Action-to-Production proof; that is sequencing.
 If the narrow model needs phase-specific Kotlin, a literal runtime stack, or a second representation

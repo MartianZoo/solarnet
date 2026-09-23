@@ -107,6 +107,8 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
     }
     workflow.shutdown()
     workflow.isRunning shouldBe false
+    // Finish the already granted turn without starting another before manual scoring.
+    p2.pass()
 
     assertSidebar(gen = 3, temp = -30, oxygen = 0, oceans = 1)
 
