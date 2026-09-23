@@ -153,7 +153,7 @@ internal class Prelude2CardsTest : CardTest() {
   internal fun `World Government Advisor triggers effects that observe anyone placing an ocean`() {
     newGame(
         GameConfig(
-            "PreludeExpansion, Prelude2CardPack, TurmoilCardPack, " +
+            "PreludeExpansion, Prelude2CardPack, LakefrontResorts, " +
                 "Hydrologist, Builder, Engineer",
             "Player1",
             "Player2",

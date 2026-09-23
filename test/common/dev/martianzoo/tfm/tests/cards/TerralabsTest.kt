@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -9,7 +10,7 @@ internal class TerralabsTest : CardTest() {
 
   @Test
   internal fun `Buys project cards for one mc each`() {
-    newGame(TurmoilCardPack)
+    newGame(GameConfig("TerralabsResearch", "Player1", "Player2"))
     p1.playCorp(TerralabsResearch, 10)
     p1.runOperation("4 BuyCard") { p1.pay(4) }.expect("4 ProjectCard, -4 MC")
   }
