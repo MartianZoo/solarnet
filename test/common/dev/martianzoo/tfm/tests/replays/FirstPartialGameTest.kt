@@ -19,6 +19,8 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
   @Test
   internal fun fourWholeGenerations() {
     val workflow = TfmWorkflow.Automatic(agents).launch()
+    retainStartingProjects(3, 8)
+
     p1.playCorp(LakefrontResorts, 3)
     p2.playCorp(InterplanetaryCinematics, 8)
 
@@ -39,6 +41,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
       playProject(SpaceElevator, 1, steel = 13)
       cardAction1(SpaceElevator)
       playProject(InventionContest, 2)
+      assertCounts(0 to "ProjectCard<Selecting>")
       playProject(GreatEscarpmentConsortium, 6) { doTask("PROD[-Steel<Player1>]") }
     }
     p2.pass()
@@ -89,7 +92,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
       cardAction2(ElectroCatapult)
       playProject(SpaceHotels, 7, titanium = 1)
 
-      playProject(MarsUniversity, 6) { doTask("-ProjectCard! THEN ProjectCard") }
+      playProject(MarsUniversity, 6) { doTask("-ProjectCard<Hand>! THEN ProjectCard<Hand>") }
       playProject(ArtificialPhotosynthesis, 10) {
         doTask("PROD[2 Energy]")
         // Decline Mars University's discard-and-draw effect for the science tag.
@@ -157,6 +160,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
       )
 
       assertCounts(15 to "Card", 5 to "ProjectCard", 10 to "CardFront")
+      assertCounts(0 to "ProjectCard<Selecting>", 0 to "ProjectCard<Revealed>")
       assertCounts(1 to "ActiveCard", 6 to "AutomatedCard", 0 to "PlayedEvent")
 
       assertTags(but = 5, spt = 2, sct = 2, eat = 1, jot = 3, cit = 1)
@@ -185,6 +189,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
       )
 
       assertCounts(23 to "Card", 3 to "ProjectCard", 17 to "CardFront")
+      assertCounts(0 to "ProjectCard<Selecting>", 0 to "ProjectCard<Revealed>")
       assertCounts(4 to "ActiveCard", 10 to "AutomatedCard", 3 to "PlayedEvent")
 
       assertTags(but = 9, spt = 3, sct = 4, pot = 2, eat = 3, mit = 1)

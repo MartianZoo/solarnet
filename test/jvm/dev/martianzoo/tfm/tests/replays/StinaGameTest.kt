@@ -14,6 +14,7 @@ internal class StinaGameTest : AbstractSoloTest(requireEveryProjectCardChangeNam
 
   @Test
   internal fun stinaSaturnSystemsGame() {
+    retainStartingProjects(10)
     with(me) {
       // Test inference: unnamed draws are assigned in the order the cards are later played.
       playCorp(SaturnSystems) {
@@ -62,13 +63,20 @@ internal class StinaGameTest : AbstractSoloTest(requireEveryProjectCardChangeNam
             placeTile(9, 7)
           }
           .expect("0 ProjectCard")
+      // The source does not identify the cards rejected from these two offers.
+      val unknownInventionContestCards = unknownProjectCards(2)
+      expectProjectCards(ImportedGhg, *unknownInventionContestCards)
       playProject(InventionContest, 0) {
             draw(ImportedGhg, MassConverter)
+            discardUnselectedProjectCards(*unknownInventionContestCards)
             doTask("ProjectCard FROM Science<OlympusConference>")
           }
           .expect("ProjectCard, 3 MC")
+      val unknownBusinessContactsCards = unknownProjectCards(2)
+      expectProjectCards(TowingAComet, AdaptationTechnology, *unknownBusinessContactsCards)
       playProject(BusinessContacts, 1) {
             draw(TowingAComet, AdaptationTechnology)
+            discardUnselectedProjectCards(*unknownBusinessContactsCards)
           }
           .expect("ProjectCard, 2 MC")
       playProject(QuantumExtractor, 10).expect("PROD[4 Energy]")

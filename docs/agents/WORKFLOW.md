@@ -58,13 +58,16 @@ the missing phase decisions from Kotlin. It listens for idle completions, resume
 calls the next phase operation. The selected design replaces that continuing control role, not the
 engine primitives above.
 
-Setup and Research are simultaneous player-work windows. Setup gives each Player one generic
-corporation card and creates one `NewTurn`; `BeginnerVariant` lets each Player choose the beginner or
-standard card family. Prelude independently gains four generic Prelude cards and asks the Player to
-remove two. Every Player queue may remain active together. Research gives every Player four optional
-`BuyCard` requests and waits for whole-World idleness rather than imposing seat order. Corporation and
-Prelude phases retain ordered turns. The client supplies the exact corporation and Prelude faces
-when it plays those generic backs; rejected offers are outside the model.
+Setup and Research are simultaneous player-work windows. Setup deals each Player's starting cards
+and creates one `NewTurn`. The standard path offers the configured number of corporations, keeps
+one, and gives that Player tasks for any rejected starting projects; `BeginnerVariant` instead lets
+each Player choose a beginner path that skips both choices. Prelude independently adds the task to
+discard exactly two Prelude cards to either path. Every Player queue may remain active together.
+Research likewise offers cards to every Player and waits for whole-World idleness rather than
+imposing seat order. Corporation and Prelude phases retain ordered turns for playing the cards kept
+during Setup.
+Normal-corporation offers explicitly exclude `BeginnerCorporation`; their standard card back already
+implies the same partition, but the face restriction states the normal-path rule directly.
 
 ## Runtime model
 

@@ -35,7 +35,7 @@ internal class StandardTechnologyTest : CardTest() {
 
   @Test
   internal fun `Does not award the rebate after selling patents`() {
-    p1.runOperation("ProjectCard")
+    p1.runOperation("ProjectCard<Hand>")
 
     p1.sellPatents(1).expect("-ProjectCard, MC")
   }

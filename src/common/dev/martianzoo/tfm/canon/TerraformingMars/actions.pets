@@ -2,7 +2,7 @@
 ABSTRACT CLASS StandardAction : HasActions {
   HAS =1 This
 
-  CLASS PlayCardFromHandAction { -> PlayCard<Class<ProjectCard>> }
+  CLASS PlayCardFromHandAction { -> PlayCard<Class<ProjectCard>, Hand> }
   CLASS UseStandardProjectAction { -> UseAction<StandardProject> }
   CLASS UseActionOnCardAction { -> ActionUsedMarker<@ActionCard> THEN UseAction<@ActionCard> }
   CLASS ConvertPlantsAction { 8 Plant -> DefaultGreeneryTile }
@@ -25,7 +25,7 @@ ABSTRACT CLASS StandardProject : HasActions {
   "Discard cards for 1 megacredit each"
   CLASS SellPatentsProject {
     cost = 0
-    -> X MC FROM ProjectCard
+    -> X MC FROM ProjectCard<Hand>
   }
 
   CLASS PowerPlantProject {

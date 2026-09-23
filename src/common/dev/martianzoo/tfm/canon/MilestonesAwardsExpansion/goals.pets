@@ -35,7 +35,7 @@ CLASS Politician : Award {
   MeasureAward<This>:: EACH Measured@Influence<Anyone> { -Measured@Influence! }
   MeasureAward<This>:: EACH Player { MeasureInfluence }
 }
-CLASS Visionary : Award { metric = COUNT "ProjectCard" }
+CLASS Visionary : Award { metric = COUNT "ProjectCard<Hand>" }
 
 CLASS GainsOf<CardFront, Class<Component>> : Custom
 

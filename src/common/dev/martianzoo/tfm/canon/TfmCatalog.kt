@@ -42,6 +42,7 @@ public open class TfmCatalog : Catalog {
   final override val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> =
       mapOf(
           TfmClasses.PROD to Prod::handler,
+          CardOperation.TRANSFORM_KIND to { FollowModeNeutralizer },
       )
 
   final override val classTable: ClassTable by lazy {
@@ -632,7 +633,10 @@ public open class TfmCatalog : Catalog {
   // CLASS DECLARATIONS
 
   internal open val contributedClassDeclarations: List<ClassDeclaration> by lazy {
-    val explicit = explicitClassDeclarations.map(TfmActionLowerer::lower)
+    val explicit =
+        explicitClassDeclarations
+            .map(TfmActionLowerer::lower)
+            .map(FollowModeNeutralizer::neutralize)
     val explicitNames = explicit.mapTo(hashSetOf(), ClassDeclaration::className)
     val requiredNames = buildSet {
       marsMapDefinitions.forEach { map ->

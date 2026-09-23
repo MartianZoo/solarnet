@@ -24,7 +24,7 @@
           "immediate": "37 MC, PROD[Steel]",
           "actions": [
             "-> MAX 0 Energy: PROD[Energy]",
-            "3 MC -> SearchForCard<TagFilter<Class<BuildingTag>>>"
+            "3 MC -> CARDS[SearchForCard(HAS PrintedTag<Class<BuildingTag>>)]"
           ],
         },
         {
@@ -47,7 +47,7 @@
         {
           "name": "PharmacyUnion",
           "tags": [ "MicrobeTag", "MicrobeTag" ],
-          "immediate": "SearchForCard<TagFilter<Class<ScienceTag>>>",
+          "immediate": "CARDS[SearchForCard(HAS PrintedTag<Class<ScienceTag>>)]",
           "effects": [
             // This is the only card I know of that has a double-colon effect. Without it, the engine
             // automatically tried to take the 2 disease cubes first and lose no money, then pocketed
@@ -82,7 +82,7 @@
           "tags": [ "MicrobeTag" ],
           "effects": [
             "This:: Splicer<This>",
-            "This: 44 MC, RequiredAction { -> SearchForCard<TagFilter<Class<MicrobeTag>>> }",
+            "This: 44 MC, RequiredAction { -> CARDS[SearchForCard(HAS PrintedTag<Class<MicrobeTag>>)] }",
             "MicrobeTag<Anyone>: 2 MC"
           ],
           "components": [
@@ -93,8 +93,7 @@
           "name": "TychoMagnetics",
           "tags": [ "PowerTag", "ScienceTag" ],
           "immediate": "42 MC, PROD[Energy]",
-          // X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>
-          "actions": [ "X Energy -> ProjectCard" ],
+          "actions": [ "X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>" ],
         },
       ],
     },
@@ -124,8 +123,7 @@
         {
           "name": "CorporateArchives",
           "tags": [ "ScienceTag" ],
-          // 7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>
-          "immediate": "13 MC, 2 ProjectCard",
+          "immediate": "13 MC, 7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>",
         },
         {
           "name": "DoubleDown",
@@ -139,13 +137,11 @@
         },
         {
           "name": "Merger",
-          // 4 StandardCorporationCard<Selecting>, PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Selecting>
-          "immediate": "StandardCorporationCard THEN PlayCard<Class<StandardCorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>)>, -42 MC",
+          "immediate": "4 StandardCorporationCard<Selecting>, PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Selecting>, -42 MC",
         },
         {
           "name": "NewPartner",
-          // 2 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>
-          "immediate": "PROD[1 MC], PreludeCard THEN PlayCard<Class<PreludeCard>>",
+          "immediate": "PROD[1 MC], 2 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>",
         },
         {
           "name": "StrategicBasePlanning",
@@ -168,7 +164,7 @@
           "requirement": "Adjacency<CityTile, OceanTile>",
           "cost": 9,
           "tags": [ "BuildingTag" ],
-          "immediate": "3 SearchForCard<TagFilter<Class<BuildingTag>>>",
+          "immediate": "CARDS[3 SearchForCard(HAS PrintedTag<Class<BuildingTag>>)]",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -176,8 +172,7 @@
           "cost": 13,
           "tags": [ "EarthTag", "SpaceTag", "BuildingTag" ],
           "immediate": "PROD[-Energy]",
-          // ProjectCard<Revealed> THEN (ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>)
-          "actions": [ "-> Asteroid<This>?" ],
+          "actions": [ "-> CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>) OR Ok)]" ],
           "effects": [
             // TODO: in what cases do we want to trigger this way vs by the AttackHappened thingies?
             // are we being consistent?
@@ -353,8 +348,7 @@
           "name": "HiTechLab",
           "cost": 17,
           "tags": [ "ScienceTag", "BuildingTag" ],
-          // X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>
-          "actions": [ "X Energy -> ProjectCard" ],
+          "actions": [ "X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>" ],
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -544,8 +538,7 @@
           "name": "PublicPlans",
           "cost": 7,
           "tags": [ "EventTag" ],
-          // X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed>
-          "immediate": "MC? / ProjectCard",
+          "immediate": "X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X MC",
           "effects": [ "End: VictoryPoint" ],
         },
         {

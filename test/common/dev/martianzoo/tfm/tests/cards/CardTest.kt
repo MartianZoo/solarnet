@@ -21,6 +21,7 @@ import dev.martianzoo.tfm.tests.TfmTest
 import dev.martianzoo.tfm.tests.canonicalCatalog
 import dev.martianzoo.tfm.tests.canonicalPremise
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.retainStartingProjects
 import dev.martianzoo.tfm.tests.setUpGame as setUpTfmGame
 import kotlin.test.AfterTest
 
@@ -43,13 +44,17 @@ internal abstract class CardTest(
 
   private var workflow: TfmWorkflow.Automatic? = null
 
-  protected fun newGame(config: GameConfig): World = startGame(premise(config))
+  protected fun newGame(
+      config: GameConfig,
+      retainedStartingProjects: Int = 0,
+  ): World = startGame(premise(config), retainedStartingProjects)
 
   protected fun newGame(
       vararg selectedOptions: Option,
       players: Int = 2,
       colonyTiles: Set<ClassName> = emptySet(),
-  ): World = startGame(premise(selectedOptions, players, colonyTiles))
+      retainedStartingProjects: Int = 0,
+  ): World = startGame(premise(selectedOptions, players, colonyTiles), retainedStartingProjects)
 
   protected fun newGameWithAutoWorkflow(
       vararg selectedOptions: Option,
@@ -97,9 +102,9 @@ internal abstract class CardTest(
   ): TaskResult =
       dev.martianzoo.tfm.tests.playCorporationWithoutStartingProjects(player, corporation)
 
-  private fun startGame(premise: GamePremise): World {
+  private fun startGame(premise: GamePremise, retainedStartingProjects: Int): World {
     workflow?.shutdown()
-    return setUpTfmGame(premise).initializeCardTestGame()
+    return setUpTfmGame(premise, retainedStartingProjects).initializeCardTestGame()
   }
 
   private fun startAutoGame(premise: GamePremise): World {
@@ -107,6 +112,7 @@ internal abstract class CardTest(
     return Engine.newGame(premise).apply {
       bindPlayers()
       workflow = TfmWorkflow.Automatic(testAgents()).launch()
+      retainStartingProjects(this, *IntArray(actors.filterIsInstance<Player>().size))
       finishSoloSetup()
     }
   }

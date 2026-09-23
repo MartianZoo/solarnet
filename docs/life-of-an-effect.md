@@ -98,7 +98,7 @@ expressions; Class-level defaults and validity have not yet been established.
 
 ## 3. Recyclon's Class Declaration enters the Catalog
 
-**PetTransformers, in order:** none.
+**PetTransformers, in order:** `FollowModeNeutralizer`.
 
 The card generator assembles Recyclon's Class Declaration, renders it into generated `cards.pets`,
 and the Catalog source pipeline parses that declaration. Its behavior-bearing part is:
@@ -114,7 +114,9 @@ CLASS Recyclon : ResourceCard<Class<Microbe>, Class<StandardCorporationCard>> {
 
 The last line is our original Source Effect. The preceding lines are generated from the card's tags,
 immediate instruction, cost, deck, and derived resource role. Generation preserves the authored
-order of Effects. The parsed declaration enters the Catalog without a card-mode transformation.
+order of Effects. `FollowModeNeutralizer` preserves generic card-location operations while delegating
+printed-face constraints to the follow-mode client. Recyclon's Effect contains no such operation and
+is unchanged.
 
 **Postcondition:** the Effect now has a Class Declaration as its Context. The declaration says what
 Recyclon directly contributes, but remains inert: it is not yet a Class and has not inherited

@@ -27,7 +27,6 @@ internal class StinaScriptTest {
         task Ok
 
         tfm_play SaturnSystems
-        task 10 BuyCard
         task 30 Pay<Class<MC>> FROM MC
 
         tfm_play Biolab

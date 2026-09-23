@@ -11,6 +11,7 @@ internal class PolyphemosTest : CardTest() {
     newGame(
         ColoniesExpansion,
         colonyTiles = testColonyTiles(2),
+        retainedStartingProjects = 7,
     )
     p1.playCorp(Polyphemos, 7)
     admin.phase("Action")

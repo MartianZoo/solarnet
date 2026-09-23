@@ -93,6 +93,131 @@ internal class CatalogTest {
   }
 
   @Test
+  internal fun revealAndTestDelegatesThePrintedPredicateInFollowMode() {
+    val source =
+        parseClasses(
+                """
+                ABSTRACT CLASS Examiner {
+                  -> CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS MicrobeTag): Science) OR Ok)]
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+    val expected =
+        parseClasses(
+                """
+                ABSTRACT CLASS Examiner {
+                  -> ProjectCard<Revealed> THEN Science?
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+
+    val loaded = catalog(source).allClassDeclarations.getValue(cn("Examiner"))
+
+    loaded.effects shouldBe expected.effects
+    loaded.authoredActions shouldBe source.authoredActions
+  }
+
+  @Test
+  internal fun filteredCardSearchesLowerToOrdinaryFollowModeDraws() {
+    val source =
+        parseClasses(
+                """
+                ABSTRACT CLASS Searcher {
+                  This: CARDS[2 SearchForCard(HAS PrintedTag<Class<PlantTag>>)]
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+    val expected = parseClasses("ABSTRACT CLASS Searcher { This: 2 ProjectCard }").single()
+
+    val loaded = catalog(source).allClassDeclarations.getValue(cn("Searcher"))
+
+    loaded.effects shouldBe expected.effects
+    loaded.authoredEffects shouldBe source.effects
+  }
+
+  @Test
+  internal fun printedCardClassSelectionLowersToUnfilteredFollowModeSelection() {
+    val source =
+        parseClasses(
+                """
+                ABSTRACT CLASS Stager {
+                  -> CARDS[Stage<Class<CardFront>(HAS PrintedTag<Class<BuildingTag>> OR PrintedTag<Class<SpaceTag>>)>]
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+    val expected =
+        parseClasses(
+                """
+                ABSTRACT CLASS Stager {
+                  -> Stage<Class<CardFront>>
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+
+    val loaded = catalog(source).allClassDeclarations.getValue(cn("Stager"))
+
+    loaded.effects shouldBe expected.effects
+    loaded.authoredActions shouldBe source.authoredActions
+  }
+
+  @Test
+  internal fun filteredRetentionDelegatesThePrintedPredicateInFollowMode() {
+    val source =
+        parseClasses(
+                """
+                ABSTRACT CLASS Surveyor {
+                  -> CARDS[2 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards]
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+    val expected =
+        parseClasses(
+                """
+                ABSTRACT CLASS Surveyor {
+                  -> 2 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>? THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+
+    val loaded = catalog(source).allClassDeclarations.getValue(cn("Surveyor"))
+
+    loaded.effects shouldBe expected.effects
+    loaded.authoredActions shouldBe source.authoredActions
+  }
+
+  @Test
+  internal fun cardSyntaxOutsideCardsZonesIsUntouched() {
+    val source =
+        parseClasses(
+                """
+                ABSTRACT CLASS Searcher {
+                  This: SearchForCard(HAS PrintedTag<Class<PlantTag>>)
+                }
+                """
+                    .trimIndent()
+            )
+            .single()
+
+    val loaded = catalog(source).allClassDeclarations.getValue(cn("Searcher"))
+
+    loaded.effects shouldBe source.effects
+  }
+
+  @Test
   internal fun compositionRejectsAmbiguousModuleOwnership() {
     val declarations =
         "ABSTRACT CLASS Module\nCLASS SharedModule : Module"

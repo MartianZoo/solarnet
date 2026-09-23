@@ -181,7 +181,7 @@ internal class BugsTest : CardTest() {
     // Space Elevator merely supplies a 27 MC debt paid with both kinds of metal.
     p1.inTurn {
       doTask("UseAction<PlayCardFromHandAction, Action1>")
-      doTask("PlayCard<Class<ProjectCard>, Class<$SpaceElevator>>")
+      doTask("PlayCard<Class<ProjectCard>, Class<$SpaceElevator>, Hand>")
       doTask("7 Pay<Class<Steel>> FROM Steel")
       doTask("5 Pay<Class<Titanium>> FROM Titanium")
       doTask("Ok")

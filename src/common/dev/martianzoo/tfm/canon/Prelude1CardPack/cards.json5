@@ -23,8 +23,7 @@
         {
           "name": "ValleyTrust",
           "tags": [ "EarthTag" ],
-          // 3 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>
-          "immediate": "37 MC, RequiredAction { -> PreludeCard THEN PlayCard<Class<PreludeCard>> }",
+          "immediate": "37 MC, RequiredAction { -> 3 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting> }",
           "effects": [ "PayingFor<Class<ScienceTag>>:: -2 Owed" ],
         },
         {
@@ -46,7 +45,7 @@
       "cards": [
         {
           "name": "AcquiredSpaceAgency",
-          "immediate": "6 Titanium, 2 SearchForCard<TagFilter<Class<SpaceTag>>>",
+          "immediate": "6 Titanium, CARDS[2 SearchForCard(HAS PrintedTag<Class<SpaceTag>>)]",
         },
         {
           "name": "AlliedBank",
@@ -99,12 +98,12 @@
         },
         {
           "name": "ExcentricSponsor",
-          "immediate": "PlayCard<Class<ProjectCard>> THEN -25 Owed",
+          "immediate": "PlayCard<Class<ProjectCard>, Hand> THEN -25 Owed",
         },
         {
           "name": "ExperimentalForest",
           "tags": [ "PlantTag" ],
-          "immediate": "DefaultGreeneryTile, 2 SearchForCard<TagFilter<Class<PlantTag>>>",
+          "immediate": "DefaultGreeneryTile, CARDS[2 SearchForCard(HAS PrintedTag<Class<PlantTag>>)]",
         },
         {
           "name": "GalileanMining",

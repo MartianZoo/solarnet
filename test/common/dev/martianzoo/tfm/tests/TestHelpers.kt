@@ -31,10 +31,17 @@ import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.fake.FakeCanon
 import io.kotest.matchers.shouldBe
 
-internal fun setUpGame(premise: GamePremise): World =
+internal fun setUpGame(
+    premise: GamePremise,
+    retainedStartingProjects: Int = 0,
+): World =
     Engine.newGame(premise).apply {
       TfmWorkflow.Stepwise(testAgents()).setupPhase()
       revealTurmoilSetupEvents(this)
+      retainStartingProjects(
+          this,
+          *IntArray(actors.filterIsInstance<Player>().size) { retainedStartingProjects },
+      )
     }
 
 private fun revealTurmoilSetupEvents(game: World) {
@@ -44,12 +51,25 @@ private fun revealTurmoilSetupEvents(game: World) {
   admin.doTask("DryDeserts")
 }
 
+internal fun retainStartingProjects(game: World, vararg retainedCounts: Int) {
+  val players = game.actors.filterIsInstance<Player>()
+  require(retainedCounts.size == players.size) {
+    "expected one starting-project count for each of ${players.size} players"
+  }
+  players.zip(retainedCounts.asIterable()).forEach { (player, retained) ->
+    require(retained in 0..10) { "cannot retain $retained of 10 starting projects" }
+    val discarded = 10 - retained
+    game
+        .testAgent(player)
+        .doTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>")
+  }
+}
+
 internal fun playCorporationWithoutStartingProjects(
     player: TfmGameplay,
     corporation: ClassName,
 ): TaskResult = player.inTurn {
-  doTask("PlayCard<Class<StandardCorporationCard>, Class<$corporation>>")
-  doTask("Ok")
+  doTask("PlayCard<Class<StandardCorporationCard>, Class<$corporation>, Hand>")
 }
 
 internal fun setUpGame(

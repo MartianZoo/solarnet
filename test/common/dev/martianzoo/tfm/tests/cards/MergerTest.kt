@@ -15,6 +15,7 @@ internal class MergerTest : CardTest() {
         VenusNextExpansion,
         PreludeExpansion,
         PromoCardPack,
+        retainedStartingProjects = 5,
     )
     p1.playCorp(ValleyTrust, 5)
     admin.phase("Prelude")
@@ -34,7 +35,7 @@ internal class MergerTest : CardTest() {
     admin.phase("Action")
 
     p1.stdAction("DoRequiredActionsAction") {
-      p1.assertCounts(8 to "ProjectCard", 1 to "PreludeCard")
+      p1.assertCounts(8 to "ProjectCard", 0 to "PreludeCard")
       p1.assertProds(
           0 to "MC",
           0 to "Steel",
@@ -83,6 +84,8 @@ internal class MergerTest : CardTest() {
     }
 
     p1.assertCounts(
+        0 to "PreludeCard<Selecting>",
+        0 to "CorporationCard<Selecting>",
         1 to "$Merger",
         1 to "$Celestic",
     )
@@ -103,6 +106,9 @@ internal class MergerTest : CardTest() {
       p1.playCorp(TerralabsResearch)
     }
 
-    p1.runOperation("BuyCard") { p1.pay(3) }.expect("ProjectCard, -3 MC")
+    p1.runOperation("ProjectCard<Selecting> THEN BuySelectedCards") {
+          p1.pay(mc = 3)
+        }
+        .expect("ProjectCard, -3 MC")
   }
 }

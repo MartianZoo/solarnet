@@ -176,6 +176,10 @@ powers come from game state; its autonomous behavior comes from its policy confi
   Agent has selectable work that could enable it, rather than returning at the policy-relative
   stable point. No current Terraforming Mars scenario demonstrates this edge. Characterize a real
   case before changing dead-end classification.
+- `TfmGameplay.playCorp` currently depends on `EAGER`: `CONCRETE` neither opens the retained-project
+  offer nor proves the order between corporation rewards and the resulting card purchase. Do not
+  repair that ordering in the gameplay helper. Revisit it when the owning Pets or engine rule can
+  express why starting cash precedes payment for retained cards.
 - `Game20230521Test` temporarily switches Players to `EAGER` to drain mandatory production work
   that `CONCRETE` sees as several sibling tasks. This is accepted replay infrastructure, not a
   gameplay-policy precedent. Replace it when a policy can prove those tasks mandatory; meanwhile,

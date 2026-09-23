@@ -48,6 +48,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
   @Test
   internal fun otbGame20260904() {
     TfmWorkflow.Automatic(agents).launch()
+    retainStartingProjects(4, 6, 5, 4)
     val yellow = p1.requireExplicitUnusedActionCards()
     val rainbow = p2.requireExplicitUnusedActionCards()
     val blue = p3.requireExplicitUnusedActionCards()
@@ -778,8 +779,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
           }
           .expect("-16 MC, -2 Titanium, Steel, 2 Plant, PROD[3 Energy<Blue>]")
     }
-    // The printed card operation includes Media Group's 3 M€ event response, but Rainbow's app has
-    // no
+    // The real card operation includes Media Group's 3 M€ event response, but Rainbow's app has no
     // corresponding credit in entries 89–98.
     rainbow.exMachina("-3 MC")
     // 3:59:44 PM — Rainbow: "Did I pay for that?"
@@ -865,20 +865,20 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     // 2:59:32–2:59:45 PM — Spoken counts are Green 9, then machine-labeled Yellow 6, Blue 8, and
     // Rainbow 11. The later complete card flows establish Yellow 8, Blue 6, and Rainbow 12 here;
     // machine speaker labels and the off-by-one Rainbow count do not override those owned cards.
-    yellow.assertCounts(8 to "CardBack")
-    rainbow.assertCounts(12 to "CardBack")
-    blue.assertCounts(6 to "CardBack")
+    yellow.assertCounts(8 to "CardBack<Hand>")
+    rainbow.assertCounts(12 to "CardBack<Hand>")
+    blue.assertCounts(6 to "CardBack<Hand>")
 
     // board-16-07-06.jpg and all four app histories: Generation 6 before Research.
     with(yellow) {
       assertProduction(m = 3, s = 4, t = 0, p = 4, e = 1, h = 1)
       assertResources(m = 29, s = 12, t = 0, p = 4, e = 1, h = 7)
-      assertCounts(26 to "TerraformRating", 8 to "CardBack")
+      assertCounts(26 to "TerraformRating", 8 to "CardBack<Hand>")
     }
     with(rainbow) {
       assertProduction(m = 6, s = 0, t = 1, p = 1, e = 1, h = 0)
       assertResources(m = 45, s = 1, t = 2, p = 2, e = 1, h = 1)
-      assertCounts(33 to "TerraformRating", 1 to "Tactician", 12 to "CardBack")
+      assertCounts(33 to "TerraformRating", 1 to "Tactician", 12 to "CardBack<Hand>")
       assertCardResources(
           2 to FloatingRefinery,
           1 to SulphurEatingBacteria,
@@ -888,13 +888,13 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
     with(blue) {
       assertProduction(m = 4, s = 0, t = 0, p = 1, e = 10, h = 7)
       assertResources(m = 45, s = 0, t = 0, p = 5, e = 10, h = 13)
-      assertCounts(29 to "TerraformRating", 1 to "Landshaper", 6 to "CardBack")
+      assertCounts(29 to "TerraformRating", 1 to "Landshaper", 6 to "CardBack<Hand>")
       assertCardResources(4 to NeptunianPowerConsultants)
     }
     with(green) {
       assertProduction(m = 4, s = 1, t = 2, p = 0, e = 0, h = 1)
       assertResources(m = 33, s = 1, t = 2, p = 3, e = 0, h = 9)
-      assertCounts(25 to "TerraformRating", 1 to "Diversifier", 9 to "CardBack")
+      assertCounts(25 to "TerraformRating", 1 to "Diversifier", 9 to "CardBack<Hand>")
       assertCardResources(2 to Pets, 5 to CloudTourism, 2 to IcyImpactors, 1 to OlympusConference)
     }
     assertSidebar(gen = 6, temp = 2, oxygen = 4, oceans = 6, venus = 8)

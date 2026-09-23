@@ -172,8 +172,14 @@ See [`GAMEWORLD.md`](GAMEWORLD.md#serialized-events-and-exported-recordings),
 
 ## Deliberately later or conditional directions
 
-No total order has been selected for the following conditional work.
+Among the first two directions below, real-card mode has explicit priority over instruction-valued
+properties. No total order has been selected for the remaining conditional work.
 
+- **Real-card mode:** exact card Types, a dealer derived from premise plus history, Admin narrowing
+  for chance, and complete observation filtering. Follow mode remains the default, and each
+  operation family must be proved incrementally. Independently remove the current authored/effective
+  dual effect representation instead of carrying it into another mode. See
+  [`REAL_CARDS_MODE.md`](REAL_CARDS_MODE.md#clearest-future-plan).
 - **Instruction-valued properties:** investigate one source for printed facts and live
   materialization only after group, binding, and query semantics are coherent. See
   [`PROPERTIES.md`](PROPERTIES.md#instruction-and-printed-tags).

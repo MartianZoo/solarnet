@@ -6,17 +6,19 @@ import kotlin.test.Test
 
 internal class SearchForLifeTest : CardTest() {
   @Test
-  internal fun `Records a successful external search result`() {
+  internal fun `Reveals a project card before checking its microbe tag`() {
     newGame()
     admin.phase("Action")
     p1.runOperation("$SearchForLife, 1 MC")
 
     p1.cardAction1(SearchForLife) {
+      p1.assertCounts(1 to "ProjectCard<Revealed>", 0 to "ProjectCard<Hand>")
       doTask("Science<$SearchForLife>")
     }
 
     p1.assertCounts(
-        0 to "ProjectCard",
+        0 to "ProjectCard<Revealed>",
+        0 to "ProjectCard<Hand>",
         1 to "Science<$SearchForLife>",
     )
   }

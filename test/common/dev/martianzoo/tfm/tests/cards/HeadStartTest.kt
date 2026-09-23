@@ -28,7 +28,7 @@ internal class HeadStartTest : CardTest() {
 
   @Test
   internal fun `Head Start must use its first granted action to perform a required action`() {
-    newGame(PreludeExpansion, FakeStuffBundle)
+    newGame(PreludeExpansion, FakeStuffBundle, retainedStartingProjects = 5)
     p1.playCorp(ValleyTrust, 5)
     admin.phase("Prelude")
     p1.runOperation("10 ProjectCard, PreludeCard")

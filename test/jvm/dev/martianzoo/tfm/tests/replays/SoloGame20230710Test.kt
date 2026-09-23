@@ -24,6 +24,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
   @Test
   internal fun soloGame20230710() {
+    retainStartingProjects(10)
     with(me) {
       doTask("-SelectedColonyTile<Class<Miranda>>")
 
@@ -35,11 +36,11 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
       playPrelude(FakeHeadStart) {
         doTask("UseAction<PlayCardFromHandAction, Action1>")
-        doTask("PlayCard<Class<ProjectCard>, Class<$OlympusConference>>")
+        doTask("PlayCard<Class<ProjectCard>, Class<$OlympusConference>, Hand>")
         pay(4, steel = 3)
 
         doTask("UseAction<PlayCardFromHandAction, Action1>")
-        doTask("PlayCard<Class<ProjectCard>, Class<$StandardTechnology>>")
+        doTask("PlayCard<Class<ProjectCard>, Class<$StandardTechnology>, Hand>")
         pay(6)
         doTask("ProjectCard FROM Science<$OlympusConference>")
       }

@@ -8,7 +8,7 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
  * Unresolved user intent expressed as unordered positive and negative class-name selections,
  * positive counts of concrete setup Components, and concrete user-facing player names in seat
  * order. A counted entry is written as a positive integer followed by a Class Name, such as `4
- * StartingOption`.
+ * CorporationOption`.
  *
  * A Catalog-specific premise factory applies defaults, selection policies, and validation to cook
  * this into a complete [GamePremise]. The configuration itself never records inferred selections.

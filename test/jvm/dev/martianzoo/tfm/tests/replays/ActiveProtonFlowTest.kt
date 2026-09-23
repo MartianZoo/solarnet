@@ -39,9 +39,22 @@ internal class ActiveProtonFlowTest :
 
     green.autoExecPolicy = NONE
     pink.autoExecPolicy = NONE
-    pink.doTask("StandardCorporationCard")
+    pink.doTask("StandardCorporationCard<Selecting> / CorporationOption")
+    pink.doTask("10 ProjectCard")
     pink.doTask("NewTurn")
+    pink.doTask("StandardCorporationCard<Hand FROM Selecting>")
+    pink.doTask("10 ProjectCard<Selecting FROM Hand>")
+    pink.doTask("-5 ProjectCard<Selecting>")
+    pink.doTask("5 ProjectCard<Hand FROM Selecting>")
+    pink.discardUnselectedProjectCards(
+        ReleaseOfInertGases,
+        RadChemFactory,
+        RegolithEaters,
+        Greenhouses,
+        AsteroidMining,
+    )
     green.doTask("BeginnerCorporationCard")
+    green.doTask("10 ProjectCard")
     green.doTask("NewTurn")
     green.autoExecPolicy = CONCRETE
     pink.autoExecPolicy = CONCRETE
@@ -84,7 +97,8 @@ internal class ActiveProtonFlowTest :
 
   private fun generation1() {
     green.inTurn {
-      doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation1>>")
+      doTask("10 ProjectCard<Selecting FROM Hand>")
+      doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation1>, Hand>")
       green.pay()
       doTask("42 MC")
     }
@@ -128,7 +142,9 @@ internal class ActiveProtonFlowTest :
 
   private fun generation2() {
     pink.buyCards(HeatTrappers, NitrophilicMoss, BlackPolarDust)
+    pink.discardUnselectedProjectCards(Farming)
     green.buyCards(MagneticFieldGenerators, ImmigrantCity)
+    green.discardUnselectedProjectCards(Ants, LargeConvoy)
 
     // Database save 28: immediately after both generation 2 Research purchases.
     green.assertResources(m = 18, s = 1, t = 1, p = 1, e = 4, h = 4)

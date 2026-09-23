@@ -48,7 +48,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
       if (index != cards.lastIndex) nextGeneration()
     }
 
-    p1.assertCounts(0 to "ProjectCard", 10 to "RobotUnit")
+    p1.assertCounts(0 to "ProjectCard<Hand>", 10 to "RobotUnit")
     cards.forEach { card ->
       p1.count("RobotUnit<Class<$card>>") shouldBe 2
     }
@@ -78,7 +78,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
       if (index != stagedCards.lastIndex) nextGeneration()
     }
 
-    p1.assertCounts(0 to "ProjectCard", 12 to "RobotUnit")
+    p1.assertCounts(0 to "ProjectCard<Hand>", 12 to "RobotUnit")
   }
 
   @Test
@@ -88,7 +88,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     p1.runOperation("8 MC, $FakeSelfReplicatingRobots, 16 ProjectCard")
     stage(Mine)
 
-    p1.count("ProjectCard") shouldBe 15
+    p1.count("ProjectCard<Hand>") shouldBe 15
     shouldThrow<RequirementException> { p1.claimMilestone(cn("Planner")) }
   }
 
@@ -119,7 +119,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     initialize(2)
     stage(Mine)
 
-    p1.runOperation("MC / ProjectCard")
+    p1.runOperation("MC / ProjectCard<Hand>")
 
     p1.count("MC") shouldBe 1
     p1.count("RobotUnit<Class<$Mine>>") shouldBe 2
@@ -130,9 +130,9 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     initialize(3)
     stage(Mine)
 
-    p1.runOperation("-2 ProjectCard.")
+    p1.runOperation("-2 ProjectCard<Hand>.")
 
-    p1.count("ProjectCard") shouldBe 0
+    p1.count("ProjectCard<Hand>") shouldBe 0
     p1.count("RobotUnit<Class<$Mine>>") shouldBe 2
   }
 
@@ -144,7 +144,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     p1.sellPatents(1)
 
     p1.count("MC") shouldBe 1
-    p1.count("ProjectCard") shouldBe 0
+    p1.count("ProjectCard<Hand>") shouldBe 0
     p1.count("RobotUnit<Class<$Mine>>") shouldBe 2
   }
 
@@ -204,7 +204,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
 
     p1.playProject(Mine, 2)
 
-    p1.assertCounts(0 to "MC", 0 to "ProjectCard", 1 to "$Mine")
+    p1.assertCounts(0 to "MC", 0 to "ProjectCard<Hand>", 1 to "$Mine")
   }
 
   @Test
@@ -238,7 +238,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
 
     p1.assertCounts(
         1 to "$Mine",
-        0 to "ProjectCard",
+        0 to "ProjectCard<Hand>",
         0 to "RobotUnit<Class<$Mine>>",
         2 to "RobotUnit<Class<$TitaniumMine>>",
     )
@@ -256,7 +256,7 @@ internal class SelfReplicatingRobotsTest : CardTest() {
     }
 
     p1.assertCounts(
-        0 to "ProjectCard",
+        0 to "ProjectCard<Hand>",
         2 to "RobotUnit<Class<$Mine>>",
         2 to "RobotUnit<Class<$TitaniumMine>>",
     )

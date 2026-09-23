@@ -13,13 +13,16 @@ import dev.martianzoo.pets.api.Exceptions.NotNowException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.Task
+import dev.martianzoo.state.TaskQueue
 import dev.martianzoo.state.TaskResult
 
 private val MC: ClassName = cn("MC")
@@ -60,18 +63,72 @@ public class TfmGameplay(
 
   public fun playCorp(cardName: ClassName, buyCards: Int, body: OperationBlock = {}): TaskResult {
     return inTurn {
-      doTask("PlayCard<Class<StandardCorporationCard>, Class<$cardName>>")
-      doTask(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
-      if (buyCards > 0) payAllMc()
+      // TODO: Remove the EAGER dependency after Pets owns corporation reward/purchase ordering.
+      val retained = this@TfmGameplay.count("ProjectCard<Selecting>")
+      require(buyCards == retained) {
+        "must buy all $retained project cards retained during setup, not $buyCards"
+      }
+      doTask("PlayCard<Class<StandardCorporationCard>, Class<$cardName>, Hand>")
+      if (hasPendingBuySelectedCards(tasks)) doTask("BuySelectedCards")
+      if (this@TfmGameplay.count("Owed") > 0) payAllMc()
       body()
     }
   }
 
-  /** Buys the selected number of project cards and pays their adjusted M€ cost. */
-  public fun buyCards(count: Int): TaskResult = agent.continueOperation {
-    doTask(if (count == 0) "Ok" else "$count BuyCard")
+  /** Buys the selected number of offered project cards and settles their M€ debt. */
+  public fun buyCards(count: Int): TaskResult = agent.continueOperation { buySelectedCards(count) }
+
+  private fun OperationScope.buySelectedCards(count: Int) {
+    openPendingProjectCardOffer()
+    val offered = this@TfmGameplay.count("ProjectCard<Selecting>")
+    require(count in 0..offered) { "cannot buy $count of $offered selected project cards" }
+    val discardTask = tasks.extract { it }.singleOrNull { it.discardsSelectedProjectCards() }
+    if (discardTask == null) {
+      require(count == offered) { "all $offered retained project cards must be bought" }
+    } else {
+      val discarded = offered - count
+      selectTask(discardTask.id)
+      narrowTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>")
+    }
+    if (hasPendingBuySelectedCards(tasks)) doTask("BuySelectedCards")
     if (count > 0) payAllMc()
   }
+
+  /**
+   * Selects the pending task that puts project cards on offer. A task that deals them directly is
+   * preferred over one that only leads to a deal through its continuation.
+   */
+  private fun OperationScope.openPendingProjectCardOffer() {
+    if (this@TfmGameplay.count("ProjectCard<Selecting>") != 0) return
+    val offers = tasks.extract { it }.filter { it.assignee == actor && it.offersProjectCards() }
+    if (offers.isEmpty()) return
+    val dealsNow = offers.filter { it.instruction.dealsSelectedProjectCards() }
+    selectTask((dealsNow.singleOrNull() ?: offers.single()).id)
+  }
+
+  /** Whether this task, now or through its continuation, puts project cards on offer. */
+  private fun Task.offersProjectCards(): Boolean =
+      instruction.dealsSelectedProjectCards() ||
+          then?.instructions.orEmpty().any { it.dealsSelectedProjectCards() }
+
+  /** Whether this task discards from the cards already on offer. */
+  private fun Task.discardsSelectedProjectCards(): Boolean =
+      instruction.descendantsOfType<Change>().any { it.removing.isSelectedProjectCard() }
+
+  private fun InstructionTree.dealsSelectedProjectCards(): Boolean =
+      descendantsOfType<Change>().any { it.gaining.isSelectedProjectCard() }
+
+  /** Whether this instruction gains a component of class [className]. */
+  private fun InstructionTree.gains(className: ClassName): Boolean =
+      descendantsOfType<Change>().any { it.gaining?.className == className }
+
+  private fun Expression?.isSelectedProjectCard(): Boolean =
+      this != null &&
+          className == cn("ProjectCard") &&
+          cn("Selecting") in descendantsOfType<ClassName>()
+
+  private fun hasPendingBuySelectedCards(tasks: TaskQueue): Boolean =
+      tasks.extract { it }.any { it.instruction.gains(cn("BuySelectedCards")) }
 
   public fun pass(): TaskResult {
     return if (explicitUnusedActionCardsRequired) pass(unused = emptySet())
@@ -237,7 +294,8 @@ public class TfmGameplay(
       cardName: ClassName,
       body: OperationBlock,
   ) {
-    doTask("PlayCard<Class<$cardBack>, Class<$cardName>>")
+    val location = if (this@TfmGameplay.count("$cardBack<Selecting>") > 0) "Selecting" else "Hand"
+    doTask("PlayCard<Class<$cardBack>, Class<$cardName>, $location>")
     body()
   }
 
@@ -281,7 +339,7 @@ public class TfmGameplay(
       payment: OperationBlock,
       body: OperationBlock,
   ) {
-    doTask("PlayCard<Class<ProjectCard>, Class<$cardName>>")
+    doTask("PlayCard<Class<ProjectCard>, Class<$cardName>, Hand>")
 
     payment()
     body()
@@ -579,7 +637,7 @@ public class TfmGameplay(
 
   public fun sellPatents(count: Int): TaskResult =
       stdProject("SellPatentsProject") {
-        doTask("$count MC FROM ProjectCard!")
+        doTask("$count MC FROM ProjectCard<Hand>!")
       }
 
   public fun phase(phase: String, body: OperationBlock = {}) {

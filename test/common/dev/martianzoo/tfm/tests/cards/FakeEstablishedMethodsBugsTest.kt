@@ -38,7 +38,7 @@ internal class FakeEstablishedMethodsBugsTest : CardTest() {
       repeat(2) {
         doTask("UseAction<UseStandardProjectAction, Action1>")
         doTask("UseAction<SellPatentsProject, Action1>")
-        doTask("MC FROM ProjectCard!")
+        doTask("MC FROM ProjectCard<Hand>!")
       }
     }
 
