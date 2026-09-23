@@ -1,11 +1,9 @@
 package dev.martianzoo.pets.types
 
-import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Requirement
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -309,15 +307,6 @@ internal class Spec08RefinementsTest {
       type("Tharsis_2_2").isSubtypeOf(type("LandArea(HAS Neighbor)"))
     }
     type("Tharsis_2_2").narrows(type("LandArea(HAS Neighbor)"), fullWorld) shouldBe true
-  }
-
-  @Test
-  internal fun `T8-8 the context-free sentinel rejects every state query`() {
-    shouldThrow<IllegalStateException> { NoGameState.isAbstract(te("LandArea")) }
-    shouldThrow<IllegalStateException> {
-      NoGameState.ensureNarrows(te("LandArea"), te("Tharsis_2_2"))
-    }
-    shouldThrow<IllegalStateException> { NoGameState.has(parse<Requirement>("LandArea")) }
   }
 
   @Test

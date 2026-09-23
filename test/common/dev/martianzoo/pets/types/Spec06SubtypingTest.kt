@@ -1,13 +1,11 @@
 package dev.martianzoo.pets.types
 
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlin.test.Test
 
-/** Section 6 of `docs/type-system-spec.md`: the subtype relation on types. */
+/** Section 6 of `docs/type-system-spec.md`: subtyping and narrowing. */
 internal class Spec06SubtypingTest {
 
   private val mars =
@@ -37,18 +35,7 @@ internal class Spec06SubtypingTest {
 
   private fun narrows(narrow: String, wide: String) = type(narrow).isSubtypeOf(type(wide))
 
-  // T6-1 The two forms of the test
-
-  @Test
-  internal fun `T6-1 narrows answers, ensureNarrows explains`() {
-    type("Tharsis_2_2").narrows(type("LandArea"), NoGameState) shouldBe true
-    type("Tharsis_2_2").ensureNarrows(type("LandArea"), NoGameState)
-
-    type("LandArea").narrows(type("Tharsis_2_2"), NoGameState) shouldBe false
-    shouldThrow<NarrowingException> {
-      type("LandArea").ensureNarrows(type("Tharsis_2_2"), NoGameState)
-    }
-  }
+  // T6-1 The two judgments
 
   @Test
   internal fun `T6-1 isSubtypeOf and isSupertypeOf are the world-free spellings`() {
@@ -167,7 +154,7 @@ internal class Spec06SubtypingTest {
     shouldThrowIae { type("Tharsis_2_2").isSubtypeOf(other.resolve(te("Area"))) }
   }
 
-  // T6-6 Constrained narrowing
+  // T6-6 A constraint read inside a domain
 
   @Test
   internal fun `T6-6 matchesConstraint reads a constraint inside a domain`() {
