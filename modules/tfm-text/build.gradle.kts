@@ -6,9 +6,41 @@ val coloniesEnglishSourceDirectory =
     rootProject.layout.projectDirectory.dir(
         "src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/english"
     )
+val corporateEraEnglishSourceDirectory =
+    rootProject.layout.projectDirectory.dir(
+        "src/common/dev/martianzoo/tfm/canon/CorporateEraExpansion/english"
+    )
+val prelude1EnglishSourceDirectory =
+    rootProject.layout.projectDirectory.dir(
+        "src/common/dev/martianzoo/tfm/canon/Prelude1CardPack/english"
+    )
+val prelude2EnglishSourceDirectory =
+    rootProject.layout.projectDirectory.dir(
+        "src/common/dev/martianzoo/tfm/canon/Prelude2CardPack/english"
+    )
+val preludeCommonEnglishSourceDirectory =
+    rootProject.layout.projectDirectory.dir(
+        "src/common/dev/martianzoo/tfm/canon/PreludeCommon/english"
+    )
+val promoEnglishSourceDirectory =
+    rootProject.layout.projectDirectory.dir(
+        "src/common/dev/martianzoo/tfm/canon/PromoCardPack/english"
+    )
+val turmoilCardPackEnglishSourceDirectory =
+    rootProject.layout.projectDirectory.dir(
+        "src/common/dev/martianzoo/tfm/canon/TurmoilCardPack/english"
+    )
 val turmoilEnglishSourceDirectory =
     rootProject.layout.projectDirectory.dir(
         "src/common/dev/martianzoo/tfm/canon/TurmoilExpansion/english"
+    )
+val vastitasEnglishSourceDirectory =
+    rootProject.layout.projectDirectory.dir(
+        "src/common/dev/martianzoo/tfm/canon/VastitasMap/english"
+    )
+val venusNextEnglishSourceDirectory =
+    rootProject.layout.projectDirectory.dir(
+        "src/common/dev/martianzoo/tfm/canon/VenusNextExpansion/english"
     )
 val textDataDirectory = rootProject.layout.projectDirectory.dir("src/jvm/dev/martianzoo/tfm/text")
 val randomCardInput = providers.gradleProperty("randomCardInput")
@@ -23,7 +55,15 @@ kotlin {
           listOf(
               textSourceDirectory,
               coloniesEnglishSourceDirectory,
+              corporateEraEnglishSourceDirectory,
+              prelude1EnglishSourceDirectory,
+              prelude2EnglishSourceDirectory,
+              preludeCommonEnglishSourceDirectory,
+              promoEnglishSourceDirectory,
+              turmoilCardPackEnglishSourceDirectory,
               turmoilEnglishSourceDirectory,
+              vastitasEnglishSourceDirectory,
+              venusNextEnglishSourceDirectory,
           )
       )
       dependencies {

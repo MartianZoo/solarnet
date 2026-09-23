@@ -75,13 +75,9 @@ internal class EnglishTest {
         "Spend 1 or more floaters from this card to gain the same number of one standard resource."
     english.describe(listOf(parse<Action>("X ProjectCard -> 2X MC"))) shouldBe
         "Discard 1 or more cards to gain twice that amount of M€."
-    english.describe(listOf(parse<Action>("1 MC / (12 - VenusTag) -> VenusStep"))) shouldBe
-        "Spend 12 M€ to raise Venus 1 step. This cost is reduced by 1 M€ per Venus tag you have."
     english.describe(listOf(parse<Action>("MC -> Animal<This>?"))) shouldBe "[MC -> Animal<This>?]."
     english.describe(parse<InstructionTree>("2 Plant, TemperatureStep")) shouldBe
         "Gain 2 plants. Raise temperature 1 step."
-    english.describe(parse<InstructionTree>("ProjectCard, PreludeCard")) shouldBe
-        "Draw 1 card and 1 prelude card."
     english.describe(parse<InstructionTree>("3 Microbe, 2 Animal")) shouldBe
         "Add 3 microbes to any card. Add 2 animals to any card."
     english.describe(parse<InstructionTree>("PROD[-Energy, 2 MC]")) shouldBe
@@ -102,22 +98,9 @@ internal class EnglishTest {
         "Increase your M€ production 1 step per pair of Earth and Venus tags you have."
     english.describe(parse<InstructionTree>("-3 MC THEN TemperatureStep")) shouldBe
         "Pay 3 M€ to raise temperature 1 step."
-    english.describe(
-        parse<InstructionTree>(
-            "-12 MC THEN -Director<This> THEN PlayCard<Class<PreludeCard>, Hand>"
-        )
-    ) shouldBe "Pay 12 M€ and remove 1 director resource from this card to play a prelude card."
-    english.describe(
-        parse<InstructionTree>(
-            "-ProjectCard THEN -StandardResource THEN FocusedOrganization_Signal"
-        )
-    ) shouldBe
-        "Discard 1 card and pay 1 standard resource to draw 1 card and gain 1 standard resource."
     english.describe(parse<InstructionTree>("-2 Plant")) shouldBe "Remove 2 plants."
     english.describe(parse<InstructionTree>("Animal<Owner, This>?")) shouldBe
         "You may add up to 1 animal to this card."
-    english.describe(parse<InstructionTree>("-Director<This>")) shouldBe
-        "Remove 1 director resource from this card."
     english.describe(
         parse<InstructionTree>("3 MC<Anyone> FROM MC."),
     ) shouldBe "Pay 3 M€ to any player, or as much as possible."
@@ -188,18 +171,8 @@ internal class EnglishTest {
         "Requires a Venus tag and a plant tag."
     english.describe(parse<Effect>("End: VictoryPoint / Cathedral<Anyone>")) shouldBe
         "1 VP per cathedral in play."
-    english.describe(
-        parse<Effect>("CardFront(HAS NonNegativeIconsOf<Class<VictoryPoint>>): 3 MC")
-    ) shouldBe "When you play a card with a VP icon, gain 3 M€."
     english.describe(parse<Effect>("-Community: 3 MC")) shouldBe
         "When you remove a community marker, gain 3 M€."
-    english.describe(
-        parse<Effect>(
-            "MyResourceWasRemoved<Anyone> OR MyProductionWasDecreased<Anyone>: 3 MC<Anyone FROM Owner>."
-        )
-    ) shouldBe
-        "When any player has their resources removed by another player, or has their production decreased by another player, pay 3 M€ to that player, or as much as possible."
-
     english.describe(
         parse<InstructionTree>(
             "X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X MC"

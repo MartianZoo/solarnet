@@ -28,6 +28,8 @@ internal class ColoniesExpansionEnglishTest {
     english.describe(parse<InstructionTree>("GainColonyBonuses")) shouldBe
         "Gain all your colony bonuses."
     english.describe(parse<InstructionTree>("ColonyTileSelection")) shouldBe "Add 1 colony tile."
+    english.describe(parse<InstructionTree>("2 Camp<This>")) shouldBe
+        "Add 2 camp resources to this card."
   }
 
   @Test

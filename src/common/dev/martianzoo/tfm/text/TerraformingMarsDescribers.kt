@@ -6,7 +6,15 @@ import dev.martianzoo.tfm.text.ComponentDescriber.ChangeFrame as Frame
 import dev.martianzoo.tfm.text.ComponentDescriber.RequirementCondition as Condition
 import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as Trigger
 import dev.martianzoo.tfm.text.coloniesexpansion.coloniesEnglishDeclarations
+import dev.martianzoo.tfm.text.corporateeraexpansion.corporateEraEnglishDeclarations
+import dev.martianzoo.tfm.text.prelude1cardpack.prelude1EnglishDeclarations
+import dev.martianzoo.tfm.text.prelude2cardpack.prelude2EnglishDeclarations
+import dev.martianzoo.tfm.text.preludecommon.preludeEnglishDeclarations
+import dev.martianzoo.tfm.text.promocardpack.promoEnglishDeclarations
+import dev.martianzoo.tfm.text.turmoilcardpack.turmoilCardPackEnglishDeclarations
 import dev.martianzoo.tfm.text.turmoilexpansion.turmoilEnglishDeclarations
+import dev.martianzoo.tfm.text.vastitasmap.vastitasEnglishDeclarations
+import dev.martianzoo.tfm.text.venusnextexpansion.venusNextEnglishDeclarations
 
 /** Terraforming Mars component descriptions supplied to the structural English renderer. */
 internal object TerraformingMarsDescribers {
@@ -22,34 +30,11 @@ internal object TerraformingMarsDescribers {
             ),
         klass("HasRaisedTr") to
             ComponentDescriber(presenceCondition = "your terraform rating has been raised"),
-        klass("MyResourceWasRemoved") to
-            ComponentDescriber(
-                triggerFrame =
-                    Trigger.Named(
-                        "has their resources removed by another player",
-                        "any player",
-                        passive = true,
-                    )
-            ),
-        klass("MyProductionWasDecreased") to
-            ComponentDescriber(
-                triggerFrame =
-                    Trigger.Named(
-                        "has their production decreased by another player",
-                        "any player",
-                        passive = true,
-                    )
-            ),
-        klass("NonNegativeIconsOf") to ComponentDescriber(printedIconCount = true),
         klass("SoloMode") to ComponentDescriber(presenceCondition = "this is a solo game"),
         klass("Pass") to
             ComponentDescriber(
                 requirementCondition = Condition.OwnerState("has passed"),
                 changeFrame = Frame.Procedure("pass"),
-            ),
-        klass("FrontierTownBonus") to
-            ComponentDescriber(
-                changeFrame = Frame.ScopedInstruction("and gain its placement bonus twice")
             ),
         klass("StandardResource") to
             ComponentDescriber(numericSingularChange = true, changeFrame = Frame.Countable),
@@ -78,12 +63,6 @@ internal object TerraformingMarsDescribers {
         klass("CorporationCard") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("corporation card", "corporation cards"),
-                numericSingularChange = true,
-                changeFrame = Frame.Deck,
-            ),
-        klass("PreludeCard") to
-            ComponentDescriber(
-                noun = ComponentDescriber.Noun.Counted("prelude card", "prelude cards"),
                 numericSingularChange = true,
                 changeFrame = Frame.Deck,
             ),
@@ -302,21 +281,8 @@ internal object TerraformingMarsDescribers {
             ),
         klass("Animal") to ComponentDescriber(noun = counted("animal", "animals")),
         klass("Asteroid") to ComponentDescriber(noun = counted("asteroid", "asteroids")),
-        klass("Camp") to ComponentDescriber(noun = counted("camp resource", "camp resources")),
-        klass("Director") to
-            ComponentDescriber(noun = counted("director resource", "director resources")),
-        klass("Disease") to
-            ComponentDescriber(noun = counted("disease resource", "disease resources")),
-        klass("Fighter") to
-            ComponentDescriber(noun = counted("fighter resource", "fighter resources")),
         klass("Floater") to ComponentDescriber(noun = counted("floater", "floaters")),
-        klass("Graphene") to
-            ComponentDescriber(noun = counted("graphene resource", "graphene resources")),
-        klass("Hydroelectric") to
-            ComponentDescriber(noun = counted("hydroelectric resource", "hydroelectric resources")),
         klass("Microbe") to ComponentDescriber(noun = counted("microbe", "microbes")),
-        klass("Preservation") to
-            ComponentDescriber(noun = counted("preservation resource", "preservation resources")),
         klass("Science") to
             ComponentDescriber(noun = counted("science resource", "science resources")),
         klass("Tag") to
@@ -380,23 +346,6 @@ internal object TerraformingMarsDescribers {
                             threshold(
                                 "temperature",
                                 ComponentDescriber.Requirement.Value.TEMPERATURE,
-                            ),
-                    ),
-            ),
-        klass("VenusStep") to
-            ComponentDescriber(
-                changeFrame = Frame.Scale("Venus"),
-                requirement =
-                    ComponentDescriber.Requirement(
-                        minimum =
-                            threshold(
-                                "Venus",
-                                ComponentDescriber.Requirement.Value.DOUBLE_PERCENT,
-                            ),
-                        maximum =
-                            threshold(
-                                "Venus",
-                                ComponentDescriber.Requirement.Value.DOUBLE_PERCENT,
                             ),
                     ),
             ),
@@ -466,14 +415,6 @@ internal object TerraformingMarsDescribers {
                         counted("community marker", "community markers"),
                     )
             ),
-        klass("NomadsMarker") to
-            ComponentDescriber(
-                changeFrame =
-                    Frame.Positioned(
-                        Determiner.INDEFINITE,
-                        counted("nomads marker", "nomads markers"),
-                    )
-            ),
         klass("PayingFor") to
             ComponentDescriber(
                 triggerFrame =
@@ -482,26 +423,12 @@ internal object TerraformingMarsDescribers {
                         purchaseNoun = counted("card", "cards"),
                     )
             ),
-        klass("CopyPrelude") to
-            ComponentDescriber(
-                changeFrame = Frame.Procedure("copy", "your other Prelude's direct effect")
-            ),
         klass("WorldGovernmentTerraforming") to
             ComponentDescriber(
                 changeFrame =
                     Frame.Procedure(
                         "raise",
                         "1 global parameter without gaining terraform rating or other bonuses",
-                    )
-            ),
-        klass("ChooseOceanArea") to
-            ComponentDescriber(changeFrame = Frame.Procedure("choose", "an ocean area")),
-        klass("FocusedOrganization_Signal") to
-            ComponentDescriber(
-                changeFrame =
-                    Frame.Procedure(
-                        "draw",
-                        "1 card and gain 1 standard resource",
                     )
             ),
         klass("RequiredAction") to ComponentDescriber(changeFrame = Frame.RequiredAction),
@@ -527,18 +454,6 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(changeFrame = Frame.Procedure("fund", "an award for free")),
         klass("ProdOffset") to ComponentDescriber(productionOffset = true),
         klass("QuickStartVariant") to ComponentDescriber(productionOffset = true),
-        klass("TileInLargestGroup") to
-            ComponentDescriber(
-                metricCount =
-                    ComponentDescriber.MetricCount(
-                        noun =
-                            ComponentDescriber.Noun.Counted(
-                                "tile in your largest connected group of tiles",
-                                "tiles in your largest connected group of tiles",
-                            ),
-                        unqualifiedSuffix = "",
-                    )
-            ),
         klass("VictoryPoint") to ComponentDescriber(score = ComponentDescriber.Score("VP", "VPs")),
         klass("Die") to ComponentDescriber(deadEndSignal = true),
         klass("PlayCard") to
@@ -657,7 +572,17 @@ internal object TerraformingMarsDescribers {
 
   internal val descriptions: Map<ClassName, ComponentDescriber> =
       uniqueDeclarations(
-          *(declarations.toList() + coloniesEnglishDeclarations + turmoilEnglishDeclarations)
+          *(declarations.toList() +
+                  coloniesEnglishDeclarations +
+                  corporateEraEnglishDeclarations +
+                  prelude1EnglishDeclarations +
+                  prelude2EnglishDeclarations +
+                  preludeEnglishDeclarations +
+                  promoEnglishDeclarations +
+                  turmoilCardPackEnglishDeclarations +
+                  turmoilEnglishDeclarations +
+                  vastitasEnglishDeclarations +
+                  venusNextEnglishDeclarations)
               .toTypedArray()
       )
 

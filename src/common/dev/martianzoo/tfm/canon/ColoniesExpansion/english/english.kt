@@ -46,6 +46,10 @@ internal val coloniesEnglishDeclarations: List<Pair<ClassName, ComponentDescribe
             ),
         cn("ColonyTileSelection") to
             ComponentDescriber(changeFrame = Frame.Procedure("add", "1 colony tile")),
+        cn("Camp") to
+            ComponentDescriber(
+                noun = ComponentDescriber.Noun.Counted("camp resource", "camp resources")
+            ),
         cn("TradeFleet") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("Trade Fleet", "Trade Fleets"),

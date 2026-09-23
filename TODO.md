@@ -68,6 +68,14 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- Define an authored, game-neutral way for bundle compatibility inference to distinguish hard
+  dependencies from references that may safely disappear when a companion bundle is absent. Start
+  with characterization tests for Suitable Infrastructure, Constructor, Soil Studies, and Summit
+  Logistics; decide ambiguous no-op cards explicitly, and let English consume the same modeled fact
+  rather than adding a renderer-only flag.
+- Move `PreludePhase` out of `tfm-text`'s `resetsForPreludeAction` recognizer once there is a
+  principled bundle-supplied description of the phase/latch relationship; do not add a Prelude-only
+  boolean merely to relocate the class name.
 - Render the five beginner corporation copies from their inherited modeled setup semantics.
 - Complete the three visible goal-text refusals only from modeled semantics: Briber's immediate
   claim instruction, Philantropist's `GainsOf` metric, and Suburbian's map-edge concept.
