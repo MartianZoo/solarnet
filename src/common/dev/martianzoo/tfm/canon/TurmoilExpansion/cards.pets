@@ -25,6 +25,14 @@ CLASS DryDeserts : GePartyDistant<Reds>, GePartyCurrent<Unity> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveDryDeserts }
 }
 
+"Lets the first player return one placed Ocean without reducing rating"
+CLASS RemoveOceanForGlobalEvent : Owned<Player>, Signal { This: -OceanTile }
+
+"Lets each of one player's influence choose its own Dry Deserts resource"
+CLASS ResolveDryDeserts : Owned<Player>, Signal {
+  This: EACH Influence<Owner> { StandardResource }
+}
+
 CLASS EcoSabotage : GePartyDistant<Greens>, GePartyCurrent<Reds> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { -Plant! / (Plant - Influence - 3) }
 }

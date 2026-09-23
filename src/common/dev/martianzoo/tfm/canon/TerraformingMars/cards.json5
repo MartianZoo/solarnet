@@ -63,6 +63,7 @@
           "actions": [ "3 MC -> HasRaisedTr: TerraformRating" ],
           "invariants": [ "Class<TrWatcher>" ],
           "components": [
+            // Must be identical to Pristar's declarations in TurmoilExpansion.
             "CLASS HasRaisedTr<GenerationScope> : Owned { HAS MAX 1 This }",
             "CLASS TrWatcher : CardWatcher { TerraformRating:: HasRaisedTr. }"
           ],
