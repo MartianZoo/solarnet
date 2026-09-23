@@ -1233,24 +1233,7 @@ internal class Spec13TypeVariablesTest {
     world.questions.size shouldBe 1
   }
 
-  // T13-11 Scope queries
-
-  @Test
-  internal fun `T13-11 a scope reports the variables and spellings visible in it`() {
-    val trade = effect("R@StandardResource: R@StandardResource")
-    val scope = trade.typeVariables
-    val variable = scope.variables.single()
-
-    scope.isEmpty shouldBe false
-    TypeVariableScope.EMPTY.isEmpty shouldBe true
-    scope.expressionsOf(variable).map { "$it" }.toSet() shouldBe
-        setOf("R@StandardResource", "R@StandardResource")
-    "${scope.expressionOf(variable.declaration)}" shouldBe "R@StandardResource"
-    scope.variableAt(scope.expressionOf(variable.usages.single())) shouldBe variable
-    scope.variableDeclaredAt(trade.trigger.descendantsOfType<Expression>().first()) shouldBe
-        variable
-    scope.variableAt(parse<Expression>("Plant")) shouldBe null
-  }
+  // T13-11 Capture follows dependency paths
 
   @Test
   internal fun `T13-11 a scope can capture values from a specialized expression`() {

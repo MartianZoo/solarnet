@@ -25,7 +25,7 @@ import dev.martianzoo.pets.ast.Requirement.Companion.split
 /**
  * An ordinary resolved type, consisting of a [rootClass], one bound for every [dependencies] entry,
  * and an optional [refinement], as defined by
- * [rules T5-1 and T5-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
+ * [rule T5-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#5-types).
  *
  * "Ground" excludes type variables; it does not mean refinement-free. A narrowing judgment
  * involving a state-dependent refinement may need a world.
@@ -155,14 +155,14 @@ internal constructor(
 
   /**
    * Performs the context-free subtype test of
-   * [rules T6-1 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rules T6-1 and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing).
    * Comparisons that reach a state-dependent refinement fail; use [narrows] with a world for those.
    */
   override fun isSubtypeOf(that: Type): Boolean = narrows(that, NoGameState)
 
   /**
    * The converse context-free subtype test specified by
-   * [rule T6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rule T6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing).
    */
   override fun isSupertypeOf(that: Type): Boolean = that.isSubtypeOf(this)
 
@@ -305,7 +305,7 @@ internal constructor(
   /**
    * Asserts the contextual narrowing relation with [that], consulting [info] only for a `HAS`
    * refinement, as specified by
-   * [rules T6-1, T6-2, and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rules T6-1, T6-2, and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing).
    */
   override fun ensureNarrows(that: Type, info: TypeInfo) {
     val that = that.groundType
@@ -354,7 +354,7 @@ internal constructor(
   /**
    * Tests contextual narrowing with [that], consulting [info] only for a `HAS` refinement, as
    * specified by
-   * [rules T6-1, T6-2, and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rules T6-1, T6-2, and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing).
    */
   override fun narrows(that: Type, info: TypeInfo): Boolean {
     val that = that.groundType

@@ -235,7 +235,7 @@ internal class Spec03DependenciesTest {
     shouldThrow<ExpressionException> { type("Player1<Tharsis_2_2>") }
   }
 
-  // T3-6 Reporting matched keys
+  // T3-6 The key an argument fills
 
   @Test
   internal fun `T3-6 matchDependencyKeys reports the key each authored argument filled`() {
@@ -476,7 +476,7 @@ internal class Spec03DependenciesTest {
     shouldThrow<InvalidPetDefinitionException> { calculated.componentLimits }
   }
 
-  // T3-10 Dependency sets
+  // T3-10 Dependency maps and paths
 
   @Test
   internal fun `T3-10 a dependency set is keyed, and equality ignores order`() {
