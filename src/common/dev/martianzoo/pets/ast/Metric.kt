@@ -105,13 +105,11 @@ public sealed class Metric : PetElement() {
       if (metrics.isEmpty()) throw PetSyntaxException("`RANK` requires at least one metric")
     }
 
-    /**
-     * The expression used inside [metrics] to denote each candidate: [selector] without its
-     * refinement, since
-     * [rule L5-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics)
-     * keeps that filter out of the name the metrics use.
-     */
-    public val selectorName: Expression? = selector?.copy(refinement = null)
+    /** Returns the comparison metrics with marked selector occurrences bound to [candidate]. */
+    public fun metricsFor(candidate: Expression): List<Metric> =
+        selectorReferenceBinder(checkNotNull(selector), candidate).let { binder ->
+          metrics.map(binder::transformMetric)
+        }
 
     override fun visitChildren(visitor: Visitor) {
       visitor.visit(selector)
@@ -367,7 +365,8 @@ public sealed class Metric : PetElement() {
               commaSeparated(parser()) and
               skipChar('}') map
               { (selector, metrics) ->
-                Rank(selector, metrics)
+                val resolved = resolveSelectorTypeVariableNames(selector, metrics)
+                Rank(resolved[0] as Expression, resolved.drop(1).map { it as Metric })
               }
       val implicitRank: Parser<Metric> =
           skip(_rank) and

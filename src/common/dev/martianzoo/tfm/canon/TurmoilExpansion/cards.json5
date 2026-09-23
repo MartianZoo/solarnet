@@ -22,7 +22,7 @@
           "requirement": "PartyRequirement<Reds>",
           "cost": 7,
           "tags": [ "JovianTag" ],
-          "immediate": "MC / JovianTag<Anyone>",
+          "immediate": "1 MC / JovianTag<Anyone>",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -52,7 +52,7 @@
           "requirement": "PartyRequirement<MarsFirst>",
           "cost": 8,
           "tags": [ "BuildingTag" ],
-          "immediate": "PROD[MC / 3 BuildingTag]",
+          "immediate": "PROD[1 MC / 3 BuildingTag]",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -60,7 +60,7 @@
           "requirement": "PartyRequirement<Unity>",
           "cost": 7,
           "tags": [ "EarthTag" ],
-          "immediate": "TerraformRating, MC / EarthTag",
+          "immediate": "TerraformRating, 1 MC / EarthTag",
         },
         {
           "name": "PublicCelebrations",
@@ -74,14 +74,14 @@
           "cost": 2,
           "tags": [ "EventTag" ],
           "immediate":
-            "Audit, PartyDelegate<Party(HAS 1 (PartyDelegate<Party, Neutral> - PartyLeader<Party, Neutral>)), Owner FROM Neutral>",
+            "Audit, PartyDelegate<Party(HAS 1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)), Owner FROM Neutral>",
         },
         {
           "name": "RedTourismWave",
           "requirement": "PartyRequirement<Reds>",
           "cost": 3,
           "tags": [ "EarthTag", "EventTag" ],
-          "immediate": "MC / MarsArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile>)",
+          "immediate": "1 MC / MarsArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile>)",
         },
         {
           "name": "SponsoredMohole",
@@ -110,6 +110,44 @@
           "cost": 15,
           "tags": [ "AnimalTag", "PlantTag", "BuildingTag" ],
           "immediate": "GreeneryTile<>",
+        },
+      ],
+    },
+    {
+      "deck": "StandardCorporationCard",
+      "cards": [
+        {
+          "name": "LakefrontResorts",
+          "tags": [ "BuildingTag" ],
+          "immediate": "54 MC",
+          "effects": [
+            "OceanTile BY Anyone: PROD[1 MC]",
+            "Placement<@MarsArea>: 1 MC / Neighbor<OceanTile, @MarsArea>"
+          ],
+        },
+        {
+          "name": "Pristar",
+          "immediate": "53 MC, -2 TerraformRating",
+          "effects": [
+            "ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6 MC",
+            "End: VictoryPoint / Preservation<This>"
+          ],
+          "invariants": [ "Class<TrWatcher>" ],
+          "components": [
+            "CLASS Preservation : CardResource"
+          ],
+        },
+        {
+          "name": "TerralabsResearch",
+          "tags": [ "ScienceTag", "EarthTag" ],
+          "immediate": "14 MC, -TerraformRating",
+          "effects": [ "PayingFor<Class<ProjectCard>>:: -2 Owed" ],
+        },
+        {
+          "name": "UtopiaInvest",
+          "tags": [ "BuildingTag" ],
+          "immediate": "40 MC, PROD[Steel, Titanium]",
+          "actions": [ "PROD[@StandardResource] -> 4 @StandardResource" ],
         },
       ],
     },

@@ -57,4 +57,12 @@ internal val promoEnglishDeclarations: List<Pair<ClassName, ComponentDescriber>>
             ),
         cn("ChooseOceanArea") to
             ComponentDescriber(changeFrame = Frame.Procedure("choose", "an ocean area")),
+        cn("Cathedral") to
+            ComponentDescriber(
+                metricCount =
+                    ComponentDescriber.MetricCount(
+                        ComponentDescriber.Noun.Counted("cathedral", "cathedrals"),
+                        unqualifiedSuffix = "in play",
+                    )
+            ),
     )

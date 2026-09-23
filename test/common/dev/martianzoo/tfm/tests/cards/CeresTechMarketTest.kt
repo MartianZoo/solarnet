@@ -20,18 +20,18 @@ internal class CeresTechMarketTest : CardTest() {
         colonyTiles = testColonyTiles(2),
     )
     admin.phase("Action")
-    p1.runOperation("$CeresTechMarket, 4 ProjectCard<Hand>")
+    p1.runOperation("$CeresTechMarket, 4 ProjectCard")
   }
 
   @Test
   internal fun `Can discard three cards for six mc`() {
-    p1.cardAction1(CeresTechMarket, x = 3).expect("-3 ProjectCard<Hand>, 6 MC")
+    p1.cardAction1(CeresTechMarket, x = 3).expect("-3 ProjectCard, 6 MC")
   }
 
   @Test
   internal fun `Cannot discard more cards than are in hand`() {
     shouldThrow<LimitsException> { p1.cardAction1(CeresTechMarket, x = 5) }
 
-    p1.cardAction1(CeresTechMarket, x = 4).expect("-4 ProjectCard<Hand>, 8 MC")
+    p1.cardAction1(CeresTechMarket, x = 4).expect("-4 ProjectCard, 8 MC")
   }
 }

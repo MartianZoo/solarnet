@@ -36,8 +36,6 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
   @Test
   internal fun wsbg2025() {
     TfmWorkflow.Automatic(agents).launch()
-    retainStartingProjects(6, 7, 8, 7)
-
     val stanley = player(1)
     val jacopo = player(2)
     val jon = player(3)

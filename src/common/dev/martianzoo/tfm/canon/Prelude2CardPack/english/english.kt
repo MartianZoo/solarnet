@@ -15,8 +15,4 @@ internal val prelude2EnglishDeclarations: List<Pair<ClassName, ComponentDescribe
             ComponentDescriber(
                 changeFrame = Frame.ScopedInstruction("and gain its placement bonus twice")
             ),
-        cn("FocusedOrganization_Signal") to
-            ComponentDescriber(
-                changeFrame = Frame.Procedure("draw", "1 card and gain 1 standard resource")
-            ),
     )

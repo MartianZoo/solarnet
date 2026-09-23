@@ -41,7 +41,6 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
   @Test
   internal fun completeGame() {
     TfmWorkflow.Automatic(agents).launch()
-    retainStartingProjects(10, 7, 8)
     val green = p1.requireExplicitUnusedActionCards()
     val yellow = p2.requireExplicitUnusedActionCards()
     val blue = p3.requireExplicitUnusedActionCards()
@@ -730,9 +729,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
         1 to "Distant<Class<ImprovedEnergyTemplates>>",
     )
     // "Yellow, six. Blue has ten. Green has fourteen."
-    yellow.assertCounts(6 to "ProjectCard<Hand>")
-    blue.assertCounts(10 to "ProjectCard<Hand>")
-    green.assertCounts(14 to "ProjectCard<Hand>")
+    yellow.assertCounts(6 to "ProjectCard")
+    blue.assertCounts(10 to "ProjectCard")
+    green.assertCounts(14 to "ProjectCard")
 
     // Generation 5 Research after the dinner break: Yellow and Green buy three; Blue buys one.
     yellow.buyCards(3)

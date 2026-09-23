@@ -3,7 +3,7 @@ package dev.martianzoo.pets.ast
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.types.TypeVariableScope
-import dev.martianzoo.pets.types.inferTypeVariables
+import dev.martianzoo.pets.types.recordTypeVariableScopes
 
 /**
  * A "major" kind of Pets node, like an [Instruction], but not an ancillary type like
@@ -30,5 +30,5 @@ internal fun <P : PetElement> P.withTypeVariables(scope: TypeVariableScope): P =
 internal fun PetElement.typeVariablesFor(info: TypeInfo): TypeVariableScope {
   if (!typeVariables.isEmpty) return typeVariables
   val table = (info as? GameReader)?.classTable ?: return typeVariables
-  return table.inferTypeVariables().transformElement(this).typeVariables
+  return table.recordTypeVariableScopes().transformElement(this).typeVariables
 }

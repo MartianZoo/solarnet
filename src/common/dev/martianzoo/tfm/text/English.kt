@@ -81,7 +81,10 @@ internal class English(
             enteringCardDescribers,
         )
     val instructions =
-        cardImmediate(card)?.let { renderInstructionTree(it, enteringCardDescribers) }
+        cardImmediate(card)?.let {
+          cardPrintedProcedureTextByName[card.className]?.immediate?.let(EnglishText::Authored)
+              ?: renderInstructionTree(it, enteringCardDescribers)
+        }
     val scoring =
         interpretedEffects
             .filter { isEndEffect(it, cardDescribers) }
@@ -118,7 +121,10 @@ internal class English(
     val actionsWithPayment =
         cardActions
             .takeIf { it.isNotEmpty() }
-            ?.let { renderActions(it, cardDescribers, integratedPayment?.second) }
+            ?.let {
+              cardPrintedProcedureTextByName[card.className]?.actions?.let(EnglishText::Authored)
+                  ?: renderActions(it, cardDescribers, integratedPayment?.second)
+            }
     val paymentWasIntegrated = integratedPayment != null
     val actions = actionsWithPayment?.let { EnglishText.Labeled("Action: ", it) }
     val renderedPersistentEffects =

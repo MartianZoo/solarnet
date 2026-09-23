@@ -24,8 +24,14 @@ public interface Catalog {
     get() = emptyMap()
 
   /**
-   * The available Modules and the class selections each one contributes to a resolved premise.
-   * Selected Modules are also the complete ambient-rule configuration of a live game.
+   * The available Modules and the Class selections each contributes by default.
+   *
+   * A selected Module and the Classes required by its own declaration form its intrinsic ambient
+   * rules; they do not need entries here. In a Catalog that distinguishes Modules from Content, the
+   * remaining selections represent individually overridable Content offered with that Module. A
+   * conditional selection contributes its Class only when its requirement is met by the completed
+   * configuration. Selected Modules are also the complete ambient-rule configuration of a live
+   * game.
    */
   public val modules: Map<ClassName, Set<ClassSelection>>
     get() = emptyMap()

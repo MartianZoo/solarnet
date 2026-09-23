@@ -57,6 +57,7 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("card", "cards"),
                 countNoun = ComponentDescriber.Noun.Counted("card", "cards"),
+                metricLocation = "in hand",
                 numericSingularChange = true,
                 changeFrame = Frame.Deck,
             ),
@@ -180,7 +181,6 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 triggerFrame = Trigger.Place(tileNoun),
             ),
-        klass("Hand") to ComponentDescriber(metricLocation = "in hand"),
         klass("RemoteArea") to
             ComponentDescriber(
                 placementSite =

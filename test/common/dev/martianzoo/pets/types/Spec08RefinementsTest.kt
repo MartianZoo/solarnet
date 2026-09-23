@@ -434,23 +434,24 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `T8-10 two class literals do not compare their predicates as written`() {
+  internal fun `T8-10 each class literal predicate refers to its represented class`() {
     val tags =
         loadTypes(
             "CLASS Player1 : Owner",
             "ABSTRACT CLASS Tag : Owned<Owner> {\nCLASS BuildingTag\nCLASS SpaceTag\n}",
         )
 
-    // Same words, different meanings: for the target the predicate asks about the candidate's own
-    // class, so "some tag exists" does not establish "some building tag exists".
     tags
         .resolve(te("Class<BuildingTag>(HAS Tag)"))
         .isSubtypeOf(tags.resolve(te("Class<Tag>(HAS Tag)"))) shouldBe false
 
-    // For one and the same represented class the shortcut is still sound.
     tags
-        .resolve(te("Class<BuildingTag>(HAS Tag)"))
-        .isSubtypeOf(tags.resolve(te("Class<BuildingTag>(HAS Tag)"))) shouldBe true
+        .resolve(te("Class<BuildingTag>(HAS BuildingTag)"))
+        .isSubtypeOf(tags.resolve(te("Class<BuildingTag>(HAS BuildingTag)"))) shouldBe true
+
+    // An explicit marker remains an equivalent spelling when another construct needs it.
+    tags.resolve(te("Class<ThatTag@Tag>(HAS ThatTag@Tag)")) shouldBe
+        tags.resolve(te("Class<Tag>(HAS Tag)"))
   }
 
   // T8-11 Refinements inside dependencies

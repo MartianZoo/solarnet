@@ -14,17 +14,15 @@ internal class Prelude2CardPackEnglishTest {
     english.describe(parse<InstructionTree>("-Director<This>")) shouldBe
         "Remove 1 director resource from this card."
     english.describe(
-        parse<InstructionTree>(
-            "-12 MC THEN -Director<This> THEN PlayCard<Class<PreludeCard>, Hand>"
-        )
+        parse<InstructionTree>("-12 MC THEN -Director<This> THEN PlayCard<Class<PreludeCard>>")
     ) shouldBe "Pay 12 M€ and remove 1 director resource from this card to play a prelude card."
   }
 
   @Test
-  internal fun describesFocusedOrganizationSignal() {
+  internal fun describesFocusedOrganizationAction() {
     english.describe(
         parse<InstructionTree>(
-            "-ProjectCard THEN -StandardResource THEN FocusedOrganization_Signal"
+            "-ProjectCard THEN -StandardResource THEN ProjectCard THEN StandardResource"
         )
     ) shouldBe
         "Discard 1 card and pay 1 standard resource to draw 1 card and gain 1 standard resource."

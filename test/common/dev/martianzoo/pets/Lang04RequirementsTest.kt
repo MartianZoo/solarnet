@@ -10,7 +10,7 @@ import dev.martianzoo.pets.ast.Requirement.Exact
 import dev.martianzoo.pets.ast.Requirement.Max
 import dev.martianzoo.pets.ast.Requirement.Min
 import dev.martianzoo.pets.ast.Requirement.Or
-import dev.martianzoo.pets.types.inferTypeVariables
+import dev.martianzoo.pets.types.recordTypeVariableScopes
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -147,11 +147,10 @@ internal class Lang04RequirementsTest {
 
   @Test
   internal fun `L4-9 nothing inside a requirement is an open choice`() {
-    // An abstract expression repeated only inside requirements declares no variable to bind
-    // (T13-8), so the two `Player` occurrences below stay independent filters.
+    // Requirements observe their `Player` domains; neither occurrence declares a variable.
     val effect =
         langTable
-            .inferTypeVariables()
+            .recordTypeVariableScopes()
             .transformEffect(parse("Plant IF Plant<Player> : (MAX 0 Heat<Player>): Heat"))
 
     effect.typeVariables.isEmpty shouldBe true

@@ -138,7 +138,8 @@ internal class ExpressionResolver(private val classTable: ClassTable) {
   ): Boolean {
     val holderKey = heldResourceHolderKey(resolved.type.rootClass) ?: return false
     val ownerKey = Key(OWNED, 0)
-    if (resolved.sourceDependency(holderKey) != holder) return false
+    val sourceHolder = resolved.sourceDependency(holderKey) ?: return false
+    if (sourceHolder != holder && !sameNamedTypeVariable(sourceHolder, holder)) return false
     return resolved.sourceDependencies.all { (key, source) ->
       key == holderKey || (key == ownerKey && source == ownerExpression)
     }

@@ -13,7 +13,7 @@ import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.pets.types.inferTypeVariables
+import dev.martianzoo.pets.types.recordTypeVariableScopes
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
 import dev.martianzoo.tfm.canon.cardTags
 
@@ -83,20 +83,20 @@ private constructor(
 
   internal fun prepareForRendering(instructionTree: InstructionTree): InstructionTree =
       classTable
-          .inferTypeVariables()
+          .recordTypeVariableScopes()
           .transformInstructionTree(lowerProductionSyntax(instructionTree))
 
   internal fun lowerProductionSyntax(action: Action): Action =
       productionSyntaxLowerer().transformAction(action)
 
   internal fun prepareForRendering(action: Action): Action =
-      classTable.inferTypeVariables().transformAction(lowerProductionSyntax(action))
+      classTable.recordTypeVariableScopes().transformAction(lowerProductionSyntax(action))
 
   internal fun lowerProductionSyntax(effect: Effect): Effect =
       productionSyntaxLowerer().transformEffect(effect)
 
   internal fun prepareForRendering(effect: Effect): Effect =
-      classTable.inferTypeVariables().transformEffect(lowerProductionSyntax(effect))
+      classTable.recordTypeVariableScopes().transformEffect(lowerProductionSyntax(effect))
 
   internal fun lowerProductionSyntax(requirement: Requirement): Requirement =
       productionSyntaxLowerer().transformRequirement(requirement)

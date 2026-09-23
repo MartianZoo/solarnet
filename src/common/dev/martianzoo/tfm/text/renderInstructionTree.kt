@@ -54,15 +54,6 @@ private fun renderLoweredInstructions(
   var index = 0
   while (index < instructions.size) {
     val instruction = instructions[index]
-    val paired =
-        instructions.getOrNull(index + 1)?.let { next ->
-          renderAdjacentCardInstructions(instruction, next, describers)
-        }
-    if (paired != null) {
-      rendered += paired
-      index += 2
-      continue
-    }
     val clauses = lexicalizeInstruction(instruction, describers, localReferences)
     rendered += clauses.map { instruction to it }
     index++
@@ -87,9 +78,7 @@ private fun recognizeInstructionClauses(
     instruction: Instruction,
     describers: Describers,
     references: TypeVariableReferences,
-): List<Clause>? =
-    if (instruction is Instruction.Transform) renderCardOperation(instruction, describers)
-    else renderInstruction(instruction, describers, references)?.let(::listOf)
+): List<Clause>? = renderInstruction(instruction, describers, references)?.let(::listOf)
 
 private fun instructionRefusalReason(
     instruction: Instruction,
@@ -127,8 +116,7 @@ private fun renderInstruction(
       is Instruction.Per -> renderPer(instruction, describers, references)
       is Instruction.Gated -> renderGated(instruction, describers, references)
       is Instruction.Then ->
-          renderCardRevealAndRestore(instruction, describers)
-              ?: renderCardPlaySequence(instruction, describers)
+          renderCardPlaySequence(instruction, describers)
               ?: renderCombinedCostSequence(instruction, describers, references)
               ?: renderStandardResourceCostSequence(instruction, describers, references)
               ?: renderDiscardCostSequence(instruction, describers, references)
@@ -178,13 +166,26 @@ private fun renderProductionFloorFanout(
   val production = productionCategoryExpression(gain.gaining, describers) ?: return null
   if (production.owner != null || production.resource != resourceCategory.className) return null
   val remaining = per.metric as? Metric.Subtract ?: return null
-  if ((remaining.subtrahend as? Metric.Count)?.expression != gain.gaining) return null
+  val subtrahend = (remaining.subtrahend as? Metric.Count)?.expression ?: return null
+  val gainResource = gain.gaining.arguments.lastOrNull()?.arguments?.singleOrNull() ?: return null
+  val subtrahendResource =
+      subtrahend.arguments.lastOrNull()?.arguments?.singleOrNull() ?: return null
+  if (
+      subtrahend.className != gain.gaining.className ||
+          !sameNamedTypeVariable(gainResource, subtrahendResource)
+  )
+      return null
   val offsets =
       (remaining.minuend as? Metric.Or)?.metrics?.map {
         (it as? Metric.Count)?.expression ?: return null
       } ?: return null
-  if (offsets.count { it == instruction.selector } != 1) return null
-  if (offsets.filterNot { it == instruction.selector }.any { !describers.isProductionOffset(it) }) {
+  fun isSelectedClass(expression: Expression): Boolean {
+    if (expression.className != instruction.selector.className) return false
+    val use = expression.arguments.singleOrNull() ?: return false
+    return sameNamedTypeVariable(use, instruction.selector.arguments.single())
+  }
+  if (offsets.count(::isSelectedClass) != 1) return null
+  if (offsets.filterNot(::isSelectedClass).any { !describers.isProductionOffset(it) }) {
     return null
   }
   return Clause.Simple(
@@ -311,34 +312,37 @@ private fun renderCombinedCostSequence(
     describers: Describers,
     references: TypeVariableReferences,
 ): Clause? {
-  if (instruction.stages.size < 2) return null
-  val costs =
-      instruction.stages.map { stage ->
-        val removal = stage as? Remove ?: return null
-        if (removal.quantifier.modality() != Modality.REQUIRED) return null
-        val count = removal.count.fixedQuantity() ?: return null
-        when {
-          removal.removing.simple && describers.isStandardResource(removal.removing.className) ->
-              Clause.Simple(
-                  Predicate(
-                      Verb("pay"),
-                      Coordination.one(
-                          describers.componentNounPhrase(removal.removing.className, count)
-                      ),
-                  )
+  val costStages = instruction.stages.takeWhile { it is Remove }
+  if (costStages.size < 2) return null
+  val costs = costStages.map { stage ->
+    val removal = stage as? Remove ?: return null
+    if (removal.quantifier.modality() != Modality.REQUIRED) return null
+    val count = removal.count.fixedQuantity() ?: return null
+    when {
+      removal.removing.simple && describers.isStandardResource(removal.removing.className) ->
+          Clause.Simple(
+              Predicate(
+                  Verb("pay"),
+                  Coordination.one(
+                      describers.componentNounPhrase(removal.removing.className, count)
+                  ),
               )
-          describers.isCardResource(removal.removing.className) ->
-              renderChange(removal, describers, references) as? Clause.Simple ?: return null
-          describers.changeFrame(removal.removing.className) ==
-              ComponentDescriber.ChangeFrame.Deck ->
-              renderChange(removal, describers, references) as? Clause.Simple ?: return null
-          else -> return null
-        }
+          )
+      describers.isCardResource(removal.removing.className) ->
+          renderChange(removal, describers, references) as? Clause.Simple ?: return null
+      describers.changeFrame(removal.removing.className) == ComponentDescriber.ChangeFrame.Deck ->
+          renderChange(removal, describers, references) as? Clause.Simple ?: return null
+      else -> return null
+    }
+  }
+  val results =
+      instruction.instructions.drop(costStages.size).flatMap { stage ->
+        renderLoweredInstructions(stage, describers, references).clauses
       }
+  if (results.isEmpty() || results.any { it.unresolved().isNotEmpty() }) return null
   val result =
-      renderLoweredInstructions(instruction.continuation, describers, references)
-          .clauses
-          .singleOrNull() ?: return null
+      if (results.size == 1) results.single()
+      else Clause.Coordinated(Coordination(results, Conjunction.AND))
   return attachPurpose(costs, result)
 }
 

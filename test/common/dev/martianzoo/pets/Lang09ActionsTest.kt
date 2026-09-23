@@ -190,4 +190,32 @@ internal class Lang09ActionsTest {
         """
     )
   }
+
+  // L9-8 named Type variables across an Action
+
+  @Test
+  internal fun `L9-8 an Action cost can name a Type used by its result`() {
+    roundTrip<Action>("@StandardResource -> 4 @StandardResource")
+    roundTrip<Action>("Foo<@Plant> -> Bar<@Plant>")
+    roundTrip<Action>("Foo<Class<@Plant>> -> @Plant<Owner>")
+    roundTrip<Action>("@Plant -> Foo<Bar(HAS Baz<@Plant>)>")
+  }
+
+  @Test
+  internal fun `L9-8 an Action Type-variable marker must be shared`() {
+    shouldThrow<PetSyntaxException> { parse<Action>("@Plant -> Heat") }
+    roundTrip<Action>("Duo<@Plant, @Plant> -> @Plant")
+    shouldThrow<PetSyntaxException> { parse<Action>("@Plant -> @Plant<Steel>") }
+  }
+
+  @Test
+  internal fun `L9-8 an Action variable must be declared by its cost`() {
+    shouldThrow<PetSyntaxException> {
+      parse<Action>("Plant / Score<@Steel> -> @Steel")
+    }
+    shouldThrow<PetSyntaxException> { parse<Action>("Plant -> @Steel") }
+    shouldThrow<PetSyntaxException> {
+      parse<Action>("@StandardResource -> @Plant THEN @StandardResource")
+    }
+  }
 }

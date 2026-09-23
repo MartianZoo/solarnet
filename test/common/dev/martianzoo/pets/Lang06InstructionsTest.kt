@@ -27,6 +27,7 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
+import dev.martianzoo.pets.ast.localTypeVariableDeclarations
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -114,6 +115,8 @@ internal class Lang06InstructionsTest {
 
     per.inner shouldBe parse<Instruction>("Titanium")
     per.metric shouldBe parse("3 EarthTag")
+    parse<Instruction>("1 Titanium / EarthTag") shouldBe parse<Instruction>("Titanium / EarthTag")
+    parse<Instruction>("-1 Titanium / EarthTag") shouldBe parse<Instruction>("-Titanium / EarthTag")
     shouldThrow<PetSyntaxException> { parse<Instruction>("(Plant, Heat) / Steel") }
     shouldThrow<PetSyntaxException> { parse<Instruction>("(Plant OR Heat) / Steel") }
   }
@@ -206,13 +209,87 @@ internal class Lang06InstructionsTest {
   }
 
   @Test
-  internal fun `L6-10 a selector refinement filters without joining the name the body uses`() {
-    (parse<Instruction>("EACH ResourceCard(HAS CardResource) { CardResource }") as Each)
-        .selectorName shouldBe parse<Expression>("ResourceCard")
-    (parse<Instruction>("EACH Player(NOT Player1) { Plant<Player> }") as Each).selectorName shouldBe
-        parse<Expression>("Player")
-    (parse<Instruction>("EACH Class<Area> { Area }") as Each).representedSelectorName shouldBe
-        parse<Expression>("Area")
+  internal fun `L6-10 explicit selector names bind only their body references`() {
+    val player = parse<Instruction>("EACH @Player(NOT Player1) { Plant<@Player> }") as Each
+    player.body
+        .descendantsOfType<Expression>()
+        .single { it.className == cn("Player") }
+        .refinement shouldBe null
+    player.bodyFor(parse("Player2")) shouldBe parse<InstructionTree>("Plant<Player2>")
+
+    val unnamed = parse<Instruction>("EACH Player { Plant<Player> }") as Each
+    unnamed.bodyFor(parse("Player2")) shouldBe parse<InstructionTree>("Plant<Player>")
+
+    val constrained = parse<Instruction>("EACH @Token<Anyone> { -@Token }") as Each
+    constrained.body
+        .descendantsOfType<Expression>()
+        .single { it.className == cn("Token") }
+        .arguments shouldBe listOf(parse("Anyone"))
+    constrained.bodyFor(parse("RedToken<Player2>")) shouldBe
+        parse<InstructionTree>("-RedToken<Player2>")
+
+    val represented = parse<Instruction>("EACH Class<@Area> { @Area }") as Each
+    represented.bodyFor(parse("Class<MarsArea>")) shouldBe parse<InstructionTree>("MarsArea")
+
+    val applied = parse<Instruction>("EACH Class<@Area> { Tile<@Area<Owner>> }") as Each
+    applied.bodyFor(parse("Class<MarsArea>")) shouldBe
+        parse<InstructionTree>("Tile<MarsArea<Owner>>")
+
+    shouldThrow<PetSyntaxException> {
+      parse<Instruction>("EACH @Area { Tile<@Area<Owner>> }")
+    }
+  }
+
+  @Test
+  internal fun `L6-10 a selector supplies matching markers inside a full transmutation`() {
+    val each =
+        parse<Instruction>(
+            "EACH Selected@Player { Winner<Selected@Player> FROM Candidate<Selected@Player> }"
+        )
+            as Each
+
+    each.bodyFor(parse("Player2")) shouldBe
+        parse<InstructionTree>("Winner<Player2> FROM Candidate<Player2>")
+    (each.body as Transmute).localTypeVariableDeclarations() shouldBe emptyList()
+  }
+
+  @Test
+  internal fun `L6-10 a full transmutation may still declare a differently named local variable`() {
+    val each =
+        parse<Instruction>(
+            "EACH Selected@Player { " +
+                "Winner<Local@Player> FROM Candidate<Local@Player>, Prize<Selected@Player> }"
+        )
+            as Each
+    val transmute = each.body.descendantsOfType<Transmute>().single()
+
+    transmute.localTypeVariableDeclarations().map { it.typeVariableName!!.name } shouldBe
+        listOf("Local")
+    each.bodyFor(parse("Player2")).toString() shouldBe
+        "Winner<Local@Player> FROM Candidate<Local@Player>, Prize<Player2>"
+  }
+
+  @Test
+  internal fun `L6-10 nested scopes choose anonymous and named markers independently`() {
+    val anonymousOuter =
+        parse<Instruction>(
+            "EACH @Player { " +
+                "Winner<Local@Player> FROM Candidate<Local@Player>, Prize<@Player> }"
+        )
+            as Each
+    val namedInner = anonymousOuter.body.descendantsOfType<Transmute>().single()
+    namedInner.localTypeVariableDeclarations().map { it.typeVariableName!!.name } shouldBe
+        listOf("Local")
+
+    val namedOuter =
+        parse<Instruction>(
+            "EACH Selected@Player { " +
+                "Winner<@Player> FROM Candidate<@Player>, Prize<Selected@Player> }"
+        )
+            as Each
+    val anonymousInner = namedOuter.body.descendantsOfType<Transmute>().single()
+    anonymousInner.localTypeVariableDeclarations().map { it.typeVariableName!!.name } shouldBe
+        listOf(null)
   }
 
   @Test
@@ -245,6 +322,7 @@ internal class Lang06InstructionsTest {
     compact.gaining shouldBe parse<Expression>("Marker<Mars1, Player1>")
     compact.removing shouldBe parse<Expression>("Marker<Mars1, Player2>")
     (compact.fromEx is Compact) shouldBe true
+    (compact.gaining.arguments[0] === compact.removing.arguments[0]) shouldBe true
     shouldThrow<PetSyntaxException> { parse<Instruction>("Marker<Mars1 FROM Mars2, P1 FROM P2>") }
 
     parse<Instruction>("Marker<Player1> FROM Marker<Player2>").let {
@@ -391,5 +469,64 @@ internal class Lang06InstructionsTest {
     roundTrip<Action>("X Heat -> X Steel, X Plant")
     roundTrip<Effect>("X Plant: X Heat, X Steel")
     roundTrip<InstructionTree>("X Plant THEN (X Heat, X Steel)")
+  }
+
+  // L6-15 named Type variables across a sequence
+
+  @Test
+  internal fun `L6-15 a THEN stage can name a Type used by a later stage`() {
+    roundTrip<Instruction>("@Plant THEN @Plant")
+    roundTrip<Instruction>("Foo<@Plant> THEN Bar<@Plant>")
+    roundTrip<Instruction>("Foo<Class<@Plant>> THEN @Plant<Owner>")
+    roundTrip<Instruction>("@Plant THEN Foo<Bar(HAS Baz<@Plant>)>")
+    roundTrip<Instruction>("@CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<@CityTile>)>")
+  }
+
+  @Test
+  internal fun `L6-15 a THEN Type-variable marker must be shared`() {
+    shouldThrow<PetSyntaxException> { parse<Instruction>("@Plant THEN Heat") }
+    roundTrip<Instruction>("@Plant THEN @Plant THEN @Plant")
+    shouldThrow<PetSyntaxException> { parse<Instruction>("@Plant THEN @Plant<Steel>") }
+
+    roundTrip<Instruction>("Foo<@Bar> THEN (Qux<@Bar>, EACH @Bar { @Bar })")
+  }
+
+  @Test
+  internal fun `L6-15 an observing expression may precede the occurrence that supplies a variable`() {
+    roundTrip<Instruction>("Plant / @Steel THEN @Steel")
+    roundTrip<Instruction>("Plant(NOT @Steel) THEN @Steel")
+  }
+
+  // L6-16 named Type variables across a transmutation
+
+  @Test
+  internal fun `L6-16 a transmutation destination can name a Type used by its source`() {
+    roundTrip<Instruction>("Foo<@Plant> FROM Bar<@Plant>")
+    roundTrip<Instruction>("Foo<Class<@Plant>> FROM @Plant<Owner>")
+    roundTrip<Effect>("Foo: Bar<@Plant> FROM Baz<@Plant>")
+    roundTrip<Action>("Foo -> Bar<@Plant> FROM Baz<@Plant>")
+    roundTrip<Instruction>("Foo<@Plant> FROM Bar<@Plant> THEN Baz<@Heat> FROM Qux<@Heat>")
+  }
+
+  @Test
+  internal fun `L6-16 an enclosing sequence can own a name declared inside a transmutation`() {
+    roundTrip<Instruction>("Foo FROM Bar<@Plant> THEN @Plant")
+  }
+
+  @Test
+  internal fun `L6-16 a transmutation marker must be shared by its sides`() {
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Foo<@Plant> FROM Bar") }
+    roundTrip<Instruction>("Foo<@Plant, @Plant> FROM Bar<@Plant>")
+    shouldThrow<PetSyntaxException> {
+      parse<Instruction>("Foo<@Plant> FROM Bar<@Plant> THEN @Plant")
+    }
+  }
+
+  @Test
+  internal fun `L6-16 an observing expression uses a source variable but cannot declare one`() {
+    roundTrip<Instruction>("Foo(HAS Baz<@Plant>) FROM Bar<@Plant>")
+    shouldThrow<PetSyntaxException> {
+      parse<Instruction>("Foo(HAS Baz<@Plant>) FROM Bar(HAS Qux<@Plant>)")
+    }
   }
 }

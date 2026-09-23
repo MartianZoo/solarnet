@@ -33,7 +33,7 @@
 
 ## 1. Type-variable lifetime outside resolution
 
-*Type-system-spec section 13 defines what a Type variable is, where one is declared, and what
+*Type-system-spec section 13 defines what a Type variable is, where one is scoped, and what
 binding does, and language-spec L7-8 says what narrowing one requires. These are the engine-facing
 consequences.*
 
@@ -47,17 +47,20 @@ Attaching a class-header scope copies the source Effect before recording its res
 Catalogs can share authored declarations; those declarations must not retain a compiled universe
 through a variable's bound Type or let interpretation in another Catalog overwrite an earlier scope.
 
-Action and `THEN` variables survive lowering and queuing. An open variable prevents the relevant
-stages from splitting into independent tasks until an earlier choice supplies its value. Within one
-atomic transmutation, `Foo<Same, Here, To FROM From>` is compact syntax for
+Explicitly marked Action and `THEN` variables survive lowering and queuing. An open variable prevents
+the relevant stages from splitting into independent tasks until an earlier choice supplies its
+value. A full transmutation likewise names a destination choice used by its source. Within a compact
+atomic transmutation,
+`Foo<Same, Here, To FROM From>` is compact syntax for
 `Foo<Same, Here, To> FROM Foo<Same, Here, From>`; each unchanged argument occupies both roles and
-therefore uses one atomic variable.
+is stored once. The gained and removed Types remain projections of that compact tree until
+execution; no Type variable is involved.
 
-The [`EACH`](EACH.md) fanout makes its selector a declaration whose scope is its body. Each
-enumerated concrete selector Type substitutes through the recorded use paths. Inside the body, an
-Owner selection supplies contextual `Owner`; a non-Owner selection retains the enclosing contextual
-owner. `This` is the effect-bearing component. The construct rejects a body with no use of the
-selector.
+The [`EACH`](EACH.md) fanout enumerates its selector. A marker on the selector explicitly makes each
+selected concrete Type available through the same marker on its root in the body; other body
+expressions retain their ordinary meanings. Inside the body, an Owner selection supplies contextual `Owner`; a
+non-Owner selection retains the enclosing contextual owner. `This` is the effect-bearing component.
+The body need not use the selection.
 
 ## 2. Implementation direction for Type-variable identity
 

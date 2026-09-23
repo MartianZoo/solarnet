@@ -144,3 +144,7 @@ public sealed class PetNode {
     }
   }
 }
+
+/** Whether this node's children observe Type-variable values rather than declaring them. */
+internal val PetNode.startsTypeVariableObservation: Boolean
+  get() = this is Requirement || this is Metric || this is Expression.Refinement

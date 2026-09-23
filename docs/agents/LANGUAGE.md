@@ -14,11 +14,15 @@
 Pets is the specification of what a game component means. English text is one derived view of that
 specification, just as execution is another. The renderer should eventually describe every valid
 Pets element in the loaded Terraforming Mars vocabulary without consulting a stored answer for the
-card or goal that contains it.
+card or goal that contains it. Count-only card handling currently loses some printed physical-card
+procedures. `CardPrintedProcedureText.kt` is a sparse exception that owns the English wording of
+those missing procedures; other card regions still derive from Pets. Remove an entry when Pets can
+express its complete procedure again.
 
-Published text is the proving corpus, not the production data source. It is evidence for meaning and
-for good wording; incidental variation is not a rule. Prefer one clear, consistently derived
-sentence for equivalent Pets.
+Published text is normally the proving corpus, not the production data source. The sparse physical
+procedure exceptions above preserve facts absent from executable Pets. For modeled facts, published
+text is evidence for meaning and good wording; incidental variation is not a rule. Prefer one clear,
+consistently derived sentence for equivalent Pets.
 
 Incomplete support must stay honest. When the renderer cannot describe a node safely, retain its
 canonical Pets source in square brackets at the narrowest useful location. Losing coverage is better

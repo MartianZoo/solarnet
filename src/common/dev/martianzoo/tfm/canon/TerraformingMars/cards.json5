@@ -36,7 +36,7 @@
           "name": "PhoboLog",
           "tags": [ "SpaceTag" ],
           "effects": [
-            "This:: 1 GrantedResourceValue<Class<Titanium>, This>",
+            "This:: GrantedResourceValue<Class<Titanium>, This>",
             "This: 23 MC, 10 Titanium"
           ],
         },
@@ -222,7 +222,7 @@
           "requirement": "4 OceanTile",
           "cost": 26,
           "tags": [ "CityTag", "BuildingTag" ],
-          "immediate": "CityTile<> THEN CapitalMarker<CityTile<>>, PROD[-2 Energy, 5 MC]",
+          "immediate": "@CityTile<> THEN CapitalMarker<@CityTile>, PROD[-2 Energy, 5 MC]",
           "effects": [ "End: VictoryPoint / Adjacency<CityTile(HAS CapitalMarker), OceanTile>" ],
           "components": [ "CLASS CapitalMarker<CityTile>" ],
         },
@@ -865,7 +865,8 @@
           "requirement": "MAX 6 OxygenStep",
           "cost": 3,
           "tags": [ "ScienceTag" ],
-          "actions": [ "1 MC -> CARDS[ProjectCard<Revealed> THEN (ProjectCard<Revealed>(HAS PrintedTag<Class<MicrobeTag>>): Science<This>) OR Ok]" ],
+          // ProjectCard<Revealed> THEN (ProjectCard<Revealed>(HAS PrintedTag<Class<MicrobeTag>>): Science<This>)
+          "actions": [ "1 MC -> Science<This>?" ],
           "effects": [ "End IF Science<This>: 3 VictoryPoint" ],
         },
         {

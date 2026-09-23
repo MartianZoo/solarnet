@@ -29,7 +29,6 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
   @Test
   internal fun otbGame20260825() {
     TfmWorkflow.Automatic(agents).launch()
-    retainStartingProjects(10, 5)
     val green = player(1)
     val yellow = player(2)
 
@@ -60,7 +59,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
 
         // "For the other one. Advertising for 4."
         doTask("UseAction<PlayCardFromHandAction, Action1>")
-        doTask("PlayCard<Class<ProjectCard>, Class<$Advertising>, Hand>")
+        doTask("PlayCard<Class<ProjectCard>, Class<$Advertising>>")
         pay(4)
       }
     }
@@ -558,14 +557,14 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       cardAction1(GhgProducingBacteria)
     }
     green.turn {
-      // Venus Orbital Survey reveals Magnetic Field Dome and Energy Saving. Neither has a Venus
-      // tag, so Green buys both for 1 M€ apiece through Terralabs.
+      // Neither surveyed card had a Venus tag, so Green bought both for 1 M€ apiece through
+      // Terralabs.
       cardAction1(VenusOrbitalSurvey) {
-            doTask("Ok")
-            doTask("Ok")
-            green.pay(mc = 2)
+            doTask("BuyCard")
+            doTask("BuyCard")
+            pay(2)
           }
-          .expect("2 ProjectCard")
+          .expect("2 ProjectCard, -2 MC")
     }
     yellow.turn {
       // "Pay seven for Venus Magnetizer."
@@ -575,7 +574,9 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     // third M€ required by the card, then remove it from Green after reproducing the physical play.
     yellow.exMachina("MC")
     green.turn {
-      playProject(LawSuit, 2) { doTask("3 MC<Green> FROM MC<Yellow>") }
+      playProject(LawSuit, 2) {
+        doTask("3 MC<Green> FROM MC<Yellow>")
+      }
     }
     green.exMachina("-MC")
     yellow.turn {
@@ -843,11 +844,11 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "I will use Venus Orbital Survey to reveal Research Outpost and OmniCorp [sic] and pay two
       // money for them."
       cardAction1(VenusOrbitalSurvey) {
-            doTask("Ok")
-            doTask("Ok")
+            doTask("BuyCard")
+            doTask("BuyCard")
             pay(2)
           }
-          .expect("2 ProjectCard")
+          .expect("2 ProjectCard, -2 MC")
     }
     yellow.turn {
       // "Ecological Zone! Pay 12." It goes at 7,8 and gains two animals from its own two tags.
@@ -965,11 +966,11 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "I will Venus Orbital Survey. I will look at these two cards, which are Comet and Rad
       // Suits. And then I might as well buy them."
       cardAction1(VenusOrbitalSurvey) {
-            doTask("Ok")
-            doTask("Ok")
+            doTask("BuyCard")
+            doTask("BuyCard")
             pay(2)
           }
-          .expect("2 ProjectCard")
+          .expect("2 ProjectCard, -2 MC")
     }
     yellow.turn {
       // "I might as well spend 14 to fund the Manufacturer."
@@ -1120,11 +1121,11 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "Let's use the stupid Venus Orbital Survey to reveal Comet for Venus, which is not a Venus
       // card, and Jovian Embassy. I'll buy them both."
       cardAction1(VenusOrbitalSurvey) {
-            doTask("Ok")
-            doTask("Ok")
+            doTask("BuyCard")
+            doTask("BuyCard")
             pay(2)
           }
-          .expect("2 ProjectCard")
+          .expect("2 ProjectCard, -2 MC")
     }
     yellow.turn {
       // "I will remove two GHGs, which will be a temp raise up to zero ... the TR and five monies."

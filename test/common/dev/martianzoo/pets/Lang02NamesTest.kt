@@ -78,8 +78,8 @@ internal class Lang02NamesTest {
   }
 
   @Test
-  internal fun `L2-2 reserved spellings are exact, so Max and By are class names`() {
-    parse<Expression>("Has<By, Max>").toString() shouldBe "Has<By, Max>"
+  internal fun `L2-2 reserved spellings are exact, and former keywords are class names`() {
+    parse<Expression>("Has<By, Max, AS>").toString() shouldBe "Has<By, Max, AS>"
     parse<Expression>("Rank").className shouldBe cn("Rank")
   }
 
@@ -112,12 +112,11 @@ internal class Lang02NamesTest {
     shouldThrow<PetSyntaxException> { parse<Metric>("Prod[Plant]") }
   }
 
-  // L2-5 One namespace, no scoping
+  // L2-5 The global class-name namespace
 
   @Test
-  internal fun `L2-5 a name is never declared, bound or shadowed by an element`() {
-    // `Plant` inside this effect is not a binding occurrence of anything: the declaration below and
-    // the expression above are the same name, and only the class table says what it means.
+  internal fun `L2-5 a class name is never locally rebound or shadowed`() {
+    // `Plant` inside this effect remains a class name; only the class table determines its meaning.
     val declaration = parseClasses("CLASS Gardener { This: Plant<Owner> }").single()
 
     declaration.className shouldBe cn("Gardener")

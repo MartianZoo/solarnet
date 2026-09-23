@@ -267,4 +267,41 @@ internal class Lang08EffectsTest {
   internal fun `L8-11 an effect's descendant count is its whole subtree`() {
     parse<Effect>("Steel<Steel>: PROD[(1 Heat FROM Plant) OR MC]").descendantCount() shouldBe 20
   }
+
+  // L8-12 Explicit Type-variable markers
+
+  @Test
+  internal fun `L8-12 a trigger expression can name a Type variable used by the Effect`() {
+    roundTrip<Effect>("@StandardResource: @StandardResource")
+    roundTrip<Effect>("Production<Class<@StandardResource>>: @StandardResource<Owner>")
+    roundTrip<Effect>("@StandardResource IF @StandardResource: @StandardResource")
+    roundTrip<Effect>("@StandardResource: Plant THEN @StandardResource")
+    roundTrip<Effect>("This: @StandardResource THEN @StandardResource")
+    roundTrip<Effect>(
+        "Notice<Victim@Owner(NOT ActingPlayer@Player)> BY ActingPlayer@Player: " +
+            "Heat<Victim@Owner>"
+    )
+  }
+
+  @Test
+  internal fun `L8-12 a Type-variable marker is local to one Effect`() {
+    shouldThrow<PetSyntaxException> { parse<Effect>("@StandardResource: Plant") }
+    shouldThrow<PetSyntaxException> { parse<Effect>("StandardResource: @Plant") }
+    roundTrip<Effect>("@StandardResource OR @StandardResource: @StandardResource")
+    shouldThrow<PetSyntaxException> {
+      parse<Effect>("@StandardResource: @StandardResource<Plant>")
+    }
+    shouldThrow<PetSyntaxException> {
+      parse<Effect>("Production<Class<@StandardResource>>: @StandardResource(HAS Marker)")
+    }
+    shouldThrow<PetSyntaxException> {
+      parse<Effect>("CheckGameEnd IF 63 TerraformRating<@Player>: Victory<@Player>")
+    }
+    shouldThrow<PetSyntaxException> {
+      parse<Effect>("Notice<Owner(NOT @Player)> BY Player: Heat")
+    }
+    shouldThrow<PetSyntaxException> {
+      parse<Effect>("@StandardResource: @Plant THEN @StandardResource")
+    }
+  }
 }

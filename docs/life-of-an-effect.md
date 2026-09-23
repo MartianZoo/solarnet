@@ -76,10 +76,11 @@ The grouping is now settled. The right side is one `OR`. Its second arm is one S
 Instruction whose first stage removes two microbes and whose second stage raises plant production.
 Parentheses affect that structure but are not retained as a separate element.
 
-This is also when repeated authored Type Expressions that denote one choice are recorded as Type
-Variables. That recognition happens before defaults or Production Box lowering can make unrelated
-expressions look alike. `This` and `Owner` are contextual bindings, not Type Variables. Recyclon has
-no Type Variable linking its Trigger to its Instruction.
+This is also when matching marked occurrences are recorded as one Effect-local Type
+Variable. A `THEN` nested in the instruction similarly owns any variable it marks across its stages.
+That recognition happens before defaults or Production Box lowering.
+`This` and `Owner` are contextual bindings, not Type Variables. Recyclon has no Type Variable
+linking its Trigger to its Instruction.
 
 Those links belong to the complete authored region. Rendering and reparsing an isolated subtree
 creates a new region and cannot reconstruct a variable identity shared with nodes outside that
@@ -97,7 +98,7 @@ expressions; Class-level defaults and validity have not yet been established.
 
 ## 3. Recyclon's Class Declaration enters the Catalog
 
-**PetTransformers, in order:** `FollowModeNeutralizer`.
+**PetTransformers, in order:** none.
 
 The card generator assembles Recyclon's Class Declaration, renders it into generated `cards.pets`,
 and the Catalog source pipeline parses that declaration. Its behavior-bearing part is:
@@ -113,9 +114,7 @@ CLASS Recyclon : ResourceCard<Class<Microbe>, Class<StandardCorporationCard>> {
 
 The last line is our original Source Effect. The preceding lines are generated from the card's tags,
 immediate instruction, cost, deck, and derived resource role. Generation preserves the authored
-order of Effects. `FollowModeNeutralizer` preserves generic card-location operations while delegating
-printed-face constraints to the follow-mode client. Recyclon's Effect contains no such operation and
-is unchanged.
+order of Effects. The parsed declaration enters the Catalog without a card-mode transformation.
 
 **Postcondition:** the Effect now has a Class Declaration as its Context. The declaration says what
 Recyclon directly contributes, but remains inert: it is not yet a Class and has not inherited
@@ -146,7 +145,7 @@ game knows whether Recyclon is Active. These facts may now be used to form its C
 
 **PetTransformers, in order:**
 
-1. `inferTypeVariables`
+1. `recordTypeVariableScopes`
 2. `insertGainRemoveDefaults`
 3. `insertExpressionDefaults`
 4. `atomizer`
@@ -290,15 +289,15 @@ test the Live Effect against relevant Change Events for exactly as long as that 
 **PetTransformers, in order:** `PetElaborator.specializeVariables` first binds each Trigger variable from
 the matching Change Event, then builds this effective chain over the Instruction:
 
-1. binding of the Type Variable usages declared by the Trigger
+1. binding of the Type Variable occurrences shared with the Trigger
 2. `replaceOwnerWith`, only if a contextual `Owner` remains in the Trigger
 3. `invalidChangesToDie`
 
 The resulting Instruction is then multiplied by the matching State Change's count; multiplication
-is not a PetTransformer. Recyclon has no Trigger-declared Type Variable and its Component Effect has
+is not a PetTransformer. Recyclon has no Trigger-shared Type Variable and its Component Effect has
 already replaced `Owner`, so only step 3 runs over its Instruction and it changes nothing. A
 Manutech Component Effect has likewise already replaced contextual `Owner` with its card owner's
-Player Type; step 1 then replaces its `StandardResource` Type Variable with `Plant`.
+Player Type; step 1 then replaces its anonymous `@StandardResource` Type Variable with `Plant`.
 
 Now suppose Player1 plays Titanium Mine. Its printed building tag produces the exact State Change
 that gains a `BuildingTag` dependent on `TitaniumMine<Player1>`. Its Change Event matches:
@@ -324,19 +323,19 @@ expansion and component contextualization:
 
 ```pets
 // Source Effect
-PROD[StandardResource]: StandardResource
+PROD[@StandardResource]: @StandardResource
 
 // Class Effect
-Production<Owner, Class<StandardResource>>: StandardResource<Owner>!
+Production<Owner, Class<@StandardResource>>: @StandardResource!
 
 // Component Effect on Manutech<Player1>
-Production<Player1, Class<StandardResource>>: StandardResource<Player1>!
+Production<Player1, Class<@StandardResource>>: @StandardResource!
 
 // Triggered by gaining Production<Player1, Class<Plant>>
 Plant<Player1>!
 ```
 
-The two authored occurrences of `StandardResource` are one Type Variable. The exact Trigger match
+The matching `@StandardResource` markers identify one Type Variable. The exact Trigger match
 narrows it to `Plant`, and that same choice narrows the result. Default expansion changes the
 recorded occurrence spellings without declaring another variable from the inserted `Owner`.
 Component specialization independently replaces that contextual placeholder with `Player1`.
@@ -355,7 +354,7 @@ text to choose or narrow it, that input first passes through this pipeline:
 2. `rejectPropertyEvaluations`
 3. `canonicalize`
 4. `useFullNames`
-5. `inferTypeVariables`
+5. `recordTypeVariableScopes`
 6. `atomizer`
 7. `insertGainRemoveDefaults` and `insertExpressionDefaults`, together exposed as `insertDefaults`
 8. `replaceOwnerWith`, when the client is a Player
@@ -395,13 +394,14 @@ Tasks.
 Trade Envoys illustrates why separation can sometimes wait longer:
 
 ```pets
-Trade<ColonyTile>:
-  ColonyProduction<ColonyTile>? THEN -TradeBarrier<ColonyTile>
+Trade<@ColonyTile>:
+  ColonyProduction<@ColonyTile>? THEN -TradeBarrier<@ColonyTile>
 ```
 
-The repeated `ColonyTile` is a Type Variable shared by the Trigger and first stage. The Sequential
-Instruction must retain that link until an exact event such as `Trade<Luna>` narrows the first stage
-to `ColonyProduction<Luna>?`. Only then is the first stage safely independent of its continuation.
+The anonymous `@ColonyTile` marker identifies a Type Variable shared by the Trigger and first stage. The
+Sequential Instruction must retain that link until an exact event such as `Trade<Luna>` narrows the
+first stage to `ColonyProduction<Luna>?`. Only then is the first stage safely independent of its
+continuation.
 
 **Postcondition:** the selected Task is a valid narrowing of the offered Task, and any later `THEN`
 stages have been retained with the same Assignee, Cause, and Performer. No later stage can appear

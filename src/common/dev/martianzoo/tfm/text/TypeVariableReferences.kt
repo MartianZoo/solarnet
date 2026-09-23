@@ -7,6 +7,13 @@ import dev.martianzoo.pets.types.TypeVariable
 import dev.martianzoo.pets.types.TypeVariable.Occurrence
 import dev.martianzoo.pets.types.TypeVariableScope
 
+/** Matches a declaration with a reference to its named variable within one Pets construct. */
+internal fun sameNamedTypeVariable(first: Expression, second: Expression): Boolean {
+  val left = first.typeVariableName ?: return false
+  val right = second.typeVariableName ?: return false
+  return left.name == right.name && left.boundClassName == right.boundClassName
+}
+
 /** Type-variable identities available while realizing one enclosing Pets element. */
 internal class TypeVariableReferences(private val scopes: List<TypeVariableScope> = emptyList()) {
   internal fun including(element: PetElement): TypeVariableReferences {

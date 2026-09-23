@@ -55,10 +55,10 @@ internal class PetElaboratorTest {
                   CLASS BlueChoice
                 }
                 CLASS SequentialRule {
-                  This: Choice THEN -Choice(NOT Choice)
+                  This: Selected@Choice THEN -Choice(NOT Selected@Choice)
                 }
                 CLASS TransmutingRule {
-                  This: Choice(NOT Choice) FROM Choice
+                  This: Choice(NOT Source@Choice) FROM Source@Choice
                 }
                 """
                     .trimIndent(),
@@ -158,7 +158,7 @@ internal class PetElaboratorTest {
         rule.defaultType,
         effect,
         rule.defaultType.expressionFull,
-    ) shouldBe parse<Effect>("This: Choice! THEN -Choice(NOT Choice)!")
+    ) shouldBe parse<Effect>("This: Selected@Choice! THEN -Choice(NOT Selected@Choice)!")
   }
 
   @Test
@@ -172,6 +172,6 @@ internal class PetElaboratorTest {
         rule.defaultType,
         effect,
         rule.defaultType.expressionFull,
-    ) shouldBe parse<Effect>("This: Choice(NOT Choice) FROM Choice!")
+    ) shouldBe parse<Effect>("This: Choice(NOT Source@Choice) FROM Source@Choice!")
   }
 }

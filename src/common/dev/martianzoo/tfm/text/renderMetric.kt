@@ -253,6 +253,9 @@ private fun Describers.recognizeCountedExpression(
     placementCountPhrase(expression, count, possessorEstablished)?.let { phrase ->
       return MetricRendering(phrase)
     }
+    renderDeckLocationMetric(expression, count)?.let { phrase ->
+      return MetricRendering(phrase)
+    }
     fact(expression.className, ComponentDescriber::countNoun)?.let { noun ->
       return MetricRendering(NounPhrase(noun.singular, noun.plural, count = count))
     }
@@ -671,10 +674,12 @@ private fun Describers.renderDeckLocationMetric(
   if (changeFrame(expression.className) != ComponentDescriber.ChangeFrame.Deck) return null
   val resolved = resolveExpression(expression) ?: return null
   val location =
-      resolved.sourceDependencies.values.mapNotNull { dependency ->
-        if (!dependency.simple) return@mapNotNull null
-        fact(dependency.className, ComponentDescriber::metricLocation)
-      }
+      resolved.sourceDependencies.values
+          .mapNotNull { dependency ->
+            if (!dependency.simple) return@mapNotNull null
+            fact(dependency.className, ComponentDescriber::metricLocation)
+          }
+          .ifEmpty { listOfNotNull(fact(expression.className, ComponentDescriber::metricLocation)) }
   if (location.size != 1) return null
   return componentNounPhrase(expression.className, count ?: 1)
       .copy(count = count)

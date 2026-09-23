@@ -1,7 +1,7 @@
 // Published Turmoil Global Events, appended to the generated project cards.
 CLASS AquiferReleasedByPublicCouncil : GePartyDistant<MarsFirst>, GePartyCurrent<Greens> {
   ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<OceanTile>>:: \
-    EACH Player(HAS StartToken) { AdminOceanPlacement<Player> }
+    EACH Player(HAS StartToken) { AdminOceanPlacement }
   ResolveGlobalEvent<Class<This>>:: EACH Player { Plant / Influence, Steel / Influence }
 }
 
@@ -21,8 +21,8 @@ CLASS Diversity : GePartyDistant<Scientists>, GePartyCurrent<Scientists> {
 
 CLASS DryDeserts : GePartyDistant<Reds>, GePartyCurrent<Unity> {
   ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<OceanTile>>:: \
-    EACH Player(HAS StartToken) { RemoveOceanForGlobalEvent<Player> }
-  ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveDryDeserts<Player> }
+    EACH Player(HAS StartToken) { RemoveOceanForGlobalEvent }
+  ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveDryDeserts }
 }
 
 CLASS EcoSabotage : GePartyDistant<Greens>, GePartyCurrent<Reds> {
@@ -31,9 +31,17 @@ CLASS EcoSabotage : GePartyDistant<Greens>, GePartyCurrent<Reds> {
 
 CLASS Election : GePartyDistant<Greens>, GePartyCurrent<MarsFirst> {
   ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
-    EACH Player(HAS =1 (RANK Player { Influence<Player> OR BuildingTag<Player> OR CityTile<Player> })) { 2 TerraformRating }
+    EACH Player(HAS =1 (RANK Ranked@Player { \
+      Influence<Ranked@Player> OR \
+      BuildingTag<Ranked@Player> OR \
+      CityTile<Ranked@Player> \
+    })) { 2 TerraformRating }
   ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
-    EACH Player(HAS =2 (RANK Player { Influence<Player> OR BuildingTag<Player> OR CityTile<Player> })) { TerraformRating }
+    EACH Player(HAS =2 (RANK Ranked@Player { \
+      Influence<Ranked@Player> OR \
+      BuildingTag<Ranked@Player> OR \
+      CityTile<Ranked@Player> \
+    })) { TerraformRating }
   ResolveGlobalEvent<Class<This>> IF SoloMode:: \
     EACH Player { TerraformRating / 5 (Influence OR BuildingTag OR CityTile) MAX 2 }
 }
@@ -92,17 +100,21 @@ CLASS Productivity : GePartyDistant<Scientists>, GePartyCurrent<MarsFirst> {
 
 CLASS RedInfluence : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { \
-    -3 MC. / (5 (TerraformRating - 10) MAX 5), PROD[MC / Influence] \
+    -3 MC. / (5 (TerraformRating - 10) MAX 5), PROD[1 MC / Influence] \
   }
 }
 
 CLASS Revolution : GePartyDistant<Unity>, GePartyCurrent<MarsFirst> {
   ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
-    EACH Player(HAS 1 (EarthTag OR Influence), HAS =1 (RANK Player { EarthTag<Player> OR Influence<Player> })) { \
+    EACH Player(HAS 1 (EarthTag OR Influence), HAS =1 (RANK Ranked@Player { \
+      EarthTag<Ranked@Player> OR Influence<Ranked@Player> \
+    })) { \
       -2 TerraformRating. \
     }
   ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
-    EACH Player(HAS 1 (EarthTag OR Influence), HAS =2 (RANK Player { EarthTag<Player> OR Influence<Player> })) { \
+    EACH Player(HAS 1 (EarthTag OR Influence), HAS =2 (RANK Ranked@Player { \
+      EarthTag<Ranked@Player> OR Influence<Ranked@Player> \
+    })) { \
       -TerraformRating. \
     }
   ResolveGlobalEvent<Class<This>> IF SoloMode:: \
@@ -120,7 +132,7 @@ CLASS SabotageGlobalEvent : GePartyDistant<Unity>, GePartyCurrent<Reds> {
 }
 
 CLASS ScientificCommunity : GePartyDistant<Reds>, GePartyCurrent<Scientists> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { MC / ProjectCard, MC / Influence }
+  ResolveGlobalEvent<Class<This>>:: EACH Player { 1 MC / ProjectCard, 1 MC / Influence }
 }
 
 CLASS SnowCover : GePartyDistant<Kelvinists>, GePartyCurrent<Kelvinists> {
@@ -141,7 +153,8 @@ CLASS SpinOffProducts : GePartyDistant<Greens>, GePartyCurrent<Scientists> {
 }
 
 CLASS SponsoredProjects : GePartyDistant<Scientists>, GePartyCurrent<Greens> {
-  ResolveGlobalEvent<Class<This>>:: EACH ResourceCard<Anyone> { CardResource<ResourceCard<Anyone>> }
+  ResolveGlobalEvent<Class<This>>:: \
+    EACH Card@ResourceCard<Anyone> { CardResource<Card@ResourceCard<Anyone>> }
   ResolveGlobalEvent<Class<This>>:: EACH Player { ProjectCard / Influence }
 }
 

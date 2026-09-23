@@ -34,7 +34,7 @@ internal class GenerateCardPetsTest {
         promos.cardDeclaration("PharmacyUnion"),
         "This:: 54 MC",
         "This:: 2 MicrobeTag<This>",
-        "This: CARDS[SearchForCard(HAS PrintedTag<Class<ScienceTag>>)]",
+        "This: SearchForCard<TagFilter<Class<ScienceTag>>>",
         "MicrobeTag<Anyone>:",
     )
   }
@@ -45,7 +45,7 @@ internal class GenerateCardPetsTest {
     assertInOrder(
         colonies,
         "CLASS Aridor :",
-        "CLASS AridorTagWatcher<Class<Tag>> :",
+        "CLASS AridorTagWatcher<Class<@Tag>> :",
         "CLASS Arklight :",
     )
   }

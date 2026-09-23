@@ -1,6 +1,7 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration as SyntaxDeclaration
 
 /**
  * One authored type variable: a shared choice with one [declaration] and zero or more [usages],
@@ -41,19 +42,23 @@ internal constructor(
     get() = declaration.expression
 
   /**
-   * The first authored occurrence, which introduces this variable under
+   * The occurrence that introduces this variable under
    * [rule T13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
   public val declaration: Declaration = Declaration(this, declarationSite)
 
+  /** The explicit source name before `@`, or null for an anonymous or unmarked variable. */
+  public val name: String? = (declaration.expression.typeVariableName as? SyntaxDeclaration)?.name
+
   /**
-   * Every later occurrence interpreted as a use of the same choice, in authored order ([rule
+   * Every other occurrence interpreted as a use of the same choice, in authored order ([rule
    * T13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables)).
    */
   public val usages: List<Usage> = usageSites.map { Usage(this, it) }
 
   /**
-   * [declaration] followed by [usages], preserving the authored order required by
+   * [declaration] followed by [usages]. The usages preserve their authored order; an observing use
+   * may precede the declaration within the same settlement region under
    * [rule T13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
   public val occurrences: List<Occurrence> = listOf(declaration) + usages
@@ -116,17 +121,53 @@ internal constructor(
         source: Expression,
         classTable: ClassTable = binding.classTable,
     ): Expression {
-      val expression = binding.expression
+      fun retainNestedVariableNames(target: Expression, authored: Expression): Expression {
+        val targetClass = classTable.getClass(target.className)
+        val authoredClass = classTable.getClass(authored.className)
+        val authoredByKey =
+            authored.arguments
+                .zip(authoredClass.matchDependencyKeys(authored.arguments, classTable))
+                .associate { (argument, key) -> key to argument }
+        val targetArguments =
+            target.arguments
+                .zip(targetClass.matchDependencyKeys(target.arguments, classTable))
+                .map { (argument, key) ->
+                  authoredByKey[key]?.let { authoredArgument ->
+                    retainNestedVariableNames(argument, authoredArgument)
+                        .copy(
+                            typeVariableName =
+                                authoredArgument.typeVariableName ?: argument.typeVariableName
+                        )
+                  } ?: argument
+                }
+        return target.copy(arguments = targetArguments)
+      }
+
+      val expression = retainNestedVariableNames(binding.expression, source)
       val representedKeys =
           binding.rootClass.matchDependencyKeys(expression.arguments, classTable).toSet()
       val sourceClass = classTable.getClass(source.className)
       val sourceArguments =
-          source.arguments.zip(sourceClass.matchDependencyKeys(source.arguments, classTable))
+          if (
+              source.typeVariableName is Expression.TypeVariableName.Reference &&
+                  !source.argumentsSpecified
+          ) {
+            emptyList()
+          } else {
+            source.arguments.zip(sourceClass.matchDependencyKeys(source.arguments, classTable))
+          }
       val openKeys = binding.rootClass.argumentDependencies.keys.toSet()
       val retainedArguments = sourceArguments.filter { (_, key) ->
         key in openKeys && key !in representedKeys
       }
-      return expression.appendArguments(retainedArguments.map { it.first })
+      val applied = expression.appendArguments(retainedArguments.map { it.first })
+      return if (
+          source.argumentsSpecified && source.arguments.isEmpty() && !applied.argumentsSpecified
+      ) {
+        applied.copy(argumentsSpecified = true)
+      } else {
+        applied
+      }
     }
   }
 
@@ -148,5 +189,5 @@ internal constructor(
    * Returns the declaration spelling; variable identity remains its declaration and scope under
    * [rule T13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
-  override fun toString(): String = "${declaration.expression}"
+  override fun toString(): String = name ?: "${declaration.expression}"
 }

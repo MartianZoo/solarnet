@@ -4,14 +4,12 @@ import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.types.Dependency.Key
-import dev.martianzoo.tfm.canon.CardOperation
 
 internal fun renderActions(
     actions: List<Action>,
@@ -280,9 +278,7 @@ private fun renderAction(
           describers,
           TypeVariableReferences.from(lowered),
       )
-  val separateResultSentences =
-      (lowered.instruction as? Instruction.Transform)?.transformKind == CardOperation.TRANSFORM_KIND
-  return RenderedAction(cost, result, condition, separateResultSentences, reducedCost?.second)
+  return RenderedAction(cost, result, condition, costExplanation = reducedCost?.second)
       .takeIf(RenderedAction::costCanJoinResult)
 }
 

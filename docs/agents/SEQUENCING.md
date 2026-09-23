@@ -110,8 +110,8 @@ task matching, or incidental queue order.
 ## What `THEN` does
 
 `A THEN B` relates stages of one authored instruction. Task normalization normally stores A as the
-current task and B as its continuation. If an open X or Type variable must remain shared, the
-sequence stays together until narrowing binds it safely. When A finishes, B becomes ordinary
+current task and B as its continuation. If an explicitly marked Type variable must remain shared,
+the sequence stays together until narrowing binds it safely. When A finishes, B becomes ordinary
 pending work.
 
 B receives no priority over other tasks and does not wait for queued effects caused by A. For two
@@ -149,7 +149,7 @@ dependency directly instead of treating this consequence of `::` versus `:` as a
 ## Committed precursors
 
 Sometimes the final event is too late for a modifier. Card discounts need printed tags before the
-real card and its real tags enter play. `PayingFor<Class<Component>>` is the established shape: it
+played face and its tags enter play. `PayingFor<Class<Component>>` is the established shape: it
 is created only after the operation commits to the eventual purchase or play, carries the
 multiplicity modifiers need, and is ordered before settlement and the final result. Rollback removes
 the precursor and everything it caused if the operation cannot complete.

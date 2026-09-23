@@ -11,7 +11,7 @@ import kotlin.test.Test
 internal class VitorTest : CardTest() {
   @Test
   internal fun `Funds an award for free in multiplayer`() {
-    val game = newGame(PreludeExpansion, players = 2, retainedStartingProjects = 5)
+    val game = newGame(PreludeExpansion, players = 2)
     val p1 = game.testTfm(PLAYER1)
 
     p1.playCorp(Vitor, 5).expect("33 MC")
@@ -24,7 +24,7 @@ internal class VitorTest : CardTest() {
 
   @Test
   internal fun `In solo mode, plays Vitor without award funding`() {
-    newGame(PreludeExpansion, players = 1, retainedStartingProjects = 5)
+    newGame(PreludeExpansion, players = 1)
     p1.playCorp(Vitor, 5).expect("33 MC")
     p1.assertCounts(0 to "Award")
   }

@@ -17,9 +17,9 @@ import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.GameReader
-import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.OK
 import dev.martianzoo.pets.api.TypeInfo
+import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
@@ -48,11 +48,41 @@ public sealed class Instruction : InstructionTree() {
     internal fun parser(): Parser<Instruction> =
         Parsers.parser() map
             {
-              it as? Instruction
-                  ?: throw PetSyntaxException("expected one instruction, found group `$it`")
+              val instruction =
+                  it as? Instruction
+                      ?: throw PetSyntaxException("expected one instruction, found group `$it`")
+              resolveLocalTypeVariableNames(instruction) as Instruction
             }
 
-    internal fun treeParser(): Parser<InstructionTree> = Parsers.parser()
+    internal fun treeParser(): Parser<InstructionTree> =
+        Parsers.parser() map ::resolveLocalTypeVariableNames
+
+    /**
+     * Resolves symmetric instruction-local scopes only after enclosing selectors have claimed their
+     * references. The traversal remains inside-out so a transmutation still outranks an enclosing
+     * sequence for names that no supplier already owns.
+     */
+    private fun resolveLocalTypeVariableNames(tree: InstructionTree): InstructionTree {
+      if (
+          tree.descendantsOfType<Transmute>().isEmpty() && tree.descendantsOfType<Then>().isEmpty()
+      ) {
+        return tree
+      }
+      return object : PetTransformer() {
+            override fun transformNode(node: PetNode): PetNode {
+              // Symmetric scopes contain instructions; leave unrelated parser-only expression
+              // metadata untouched until one of those scopes resolves its own subtree.
+              if (node is Expression) return node
+              val transformed = transformChildren(node)
+              return when (transformed) {
+                is Transmute -> Transmute.resolveTypeVariableNames(transformed)
+                is Then -> Then.resolveTypeVariableNames(transformed)
+                else -> transformed
+              }
+            }
+          }
+          .transformInstructionTree(tree)
+    }
   }
 
   /**
@@ -271,8 +301,8 @@ public sealed class Instruction : InstructionTree() {
    * See [FromExpression] for the compact spelling available when both sides share a class ([rule
    * L6-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
    *
-   * Because both sides may repeat one abstract expression, narrowing a transmutation must supply a
-   * single consistent value for each shared type variable ([rule
+   * Either side may explicitly name a choice used by the other. Narrowing must supply a single
+   * consistent value for each such type variable ([rule
    * L7-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
    */
   public data class Transmute(
@@ -304,6 +334,15 @@ public sealed class Instruction : InstructionTree() {
 
     override fun precedence(): Int = if (fromEx is Full) 7 else 10
 
+    internal companion object {
+      fun resolveTypeVariableNames(transmute: Transmute): Transmute {
+        return dev.martianzoo.pets.ast.resolveTypeVariableNames(
+            transmute,
+            transmute.localTypeVariableDeclarations(),
+        )
+      }
+    }
+
     override fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo) {
       if (proposed == NoOp) {
         ensureChangeIsNarrowedBy(this, proposed, info)
@@ -313,6 +352,11 @@ public sealed class Instruction : InstructionTree() {
           ?: throw NarrowingException(
               "expected a transmutation narrowing of `$this`, found `$proposed`"
           )
+      (fromEx as? Compact)?.ensureRetainedArgumentsAgree(
+          proposed.gaining,
+          proposed.removing,
+          info,
+      )
       val variables = typeVariablesFor(info)
       val selected = mutableMapOf<TypeVariable, GroundType>()
       for (variable in
@@ -475,8 +519,8 @@ public sealed class Instruction : InstructionTree() {
    * selector is an `Owner`, so does the contextual `Owner`, so an ordinary owned body reads exactly
    * as it does on a card.
    *
-   * A selector refinement chooses which components take part, without becoming part of the name the
-   * body uses (see [selectorName]). A gate in [body] behaves like any other gate and fails when its
+   * A selector refinement chooses which components take part. An `@` marker exposes the selected
+   * component for use in [body]. A gate in [body] behaves like any other gate and fails when its
    * requirement is unmet. Class properties in [body] are evaluated separately after each branch has
    * bound its selection. The body may not be empty and fanouts do not nest.
    *
@@ -495,17 +539,9 @@ public sealed class Instruction : InstructionTree() {
       }
     }
 
-    /**
-     * The authored expression a body occurrence must equal in order to denote the selected
-     * component: [selector] without its refinement, since
-     * [rule L6-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)
-     * keeps that filter out of the name the body uses.
-     */
-    public val selectorName: Expression = selector.copy(refinement = null)
-
-    /** The Class name represented by a `Class<T>` selector, when this is a Class fanout. */
-    public val representedSelectorName: Expression? =
-        selectorName.arguments.singleOrNull()?.takeIf { selectorName.className == CLASS }
+    /** Returns this fanout's body with its marked selector occurrences bound to [selected]. */
+    public fun bodyFor(selected: Expression): InstructionTree =
+        selectorReferenceBinder(selector, selected).transformInstructionTree(body)
 
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(selector, body)
 
@@ -631,7 +667,8 @@ public sealed class Instruction : InstructionTree() {
             variables
                 .bindings(this, proposed, variable)
                 .filter {
-                  it != declaration && narrowsExpression(it, declaration, info)
+                  !sameAfterNameConsumption(it, declaration) &&
+                      narrowsExpression(it, declaration, info)
                 }
                 .distinct()
         if (bindings.size > 1) {
@@ -670,6 +707,9 @@ public sealed class Instruction : InstructionTree() {
         wide: Expression,
         info: TypeInfo,
     ): Boolean = narrow.narrows(wide, info)
+
+    private fun sameAfterNameConsumption(left: Expression, right: Expression): Boolean =
+        left.copy(typeVariableName = null) == right.copy(typeVariableName = null)
 
     /** Narrows the first stage and carries every shared choice into later stages. */
     public fun bindFirstStage(
@@ -714,7 +754,10 @@ public sealed class Instruction : InstructionTree() {
                 val positionalBindings =
                     variables
                         .bindings(selectableFirst, proposed, variable)
-                        .filter { it != declaration && narrowsExpression(it, declaration, info) }
+                        .filter {
+                          !sameAfterNameConsumption(it, declaration) &&
+                              narrowsExpression(it, declaration, info)
+                        }
                         .map { expression ->
                           ((info as? GameReader)?.resolve(expression)
                                   ?: variable.bound.classTable.resolve(expression))
@@ -837,7 +880,11 @@ public sealed class Instruction : InstructionTree() {
 
     /** Returns the right-associated continuation enqueued after the first stage. */
     public fun continuationAfterFirst(): InstructionGroup =
-        InstructionGroup.of(createTree(stages.drop(1) + continuation))
+        InstructionGroup.of(
+            typeVariables
+                .expandNames()
+                .transformInstructionTree(createTree(stages.drop(1) + continuation))
+        )
 
     override fun toString(): String = instructions.joinToString(" THEN ") { groupPartIfNeeded(it) }
 
@@ -867,6 +914,44 @@ public sealed class Instruction : InstructionTree() {
                   }
                 }
               }
+
+      internal fun resolveTypeVariableNames(then: Then): Then {
+        val declarations = then.localTypeVariableDeclarations()
+        then.descendantsOfType<Transmute>().forEach { transmute ->
+          transmute.localTypeVariableDeclarations().forEach { declaration ->
+            val identity = declaration.typeVariableName!!.identity
+            fun usedOutside(node: PetNode): Boolean {
+              if (node === transmute) return false
+              if (
+                  node is Transmute &&
+                      node.localTypeVariableDeclarations().any {
+                        it.typeVariableName!!.identity == identity
+                      }
+              ) {
+                return false
+              }
+              if (
+                  node is Expression &&
+                      node.typeVariableName !is Expression.TypeVariableName.Declaration &&
+                      node.typeVariableName?.identity == identity
+              ) {
+                return true
+              }
+              return node.immediateChildren().any(::usedOutside)
+            }
+            if (usedOutside(then)) {
+              throw PetSyntaxException(
+                  "Type-variable ${declaration.typeVariableName!!.authoredSpelling} cannot be used outside " +
+                      "its transmutation"
+              )
+            }
+          }
+        }
+        return dev.martianzoo.pets.ast.resolveTypeVariableNames(
+            then,
+            declarations,
+        )
+      }
     }
   }
 
@@ -1076,7 +1161,8 @@ public sealed class Instruction : InstructionTree() {
                 parser() and
                 skipChar('}') map
                 { (selector, body) ->
-                  Each(selector, body)
+                  val resolved = resolveSelectorTypeVariableNames(selector, listOf(body))
+                  Each(resolved[0] as Expression, resolved[1] as InstructionTree)
                 }
 
         val atomBase: Parser<InstructionTree> = each or maybeTransform or group(parser())
@@ -1102,7 +1188,7 @@ public sealed class Instruction : InstructionTree() {
                   Gated.createTree(gate, ins)
                 }
 
-        val then = separatedTerms(gated, _then) map { Then.createTree(it) }
+        val then = separatedTerms(gated, _then) map Then::createTree
 
         commaSeparated(then) map { InstructionGroup.createTree(it) }
       }

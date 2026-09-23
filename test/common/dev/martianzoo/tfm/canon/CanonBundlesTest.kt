@@ -160,7 +160,7 @@ internal class CanonBundlesTest {
   }
 
   @Test
-  internal fun promoModuleReplacesCardsWithoutRemovingEitherFromTheCatalog() {
+  internal fun promoReplacementDefaultsYieldToExplicitOriginalCardSelection() {
     val relevant =
         setOf(
             cn("DeimosDown"),
@@ -170,8 +170,15 @@ internal class CanonBundlesTest {
             cn("GreatDamPromo"),
             cn("MagneticFieldGeneratorsPromo"),
         )
-    val withoutPromos = table(cn("TharsisMap"))
-    val withPromos = table(cn("TharsisMap"), cn("PromoCardPack"))
+    val withoutPromos = table(cn("TharsisMap"), cn("CorporateEraExpansion"))
+    val withPromos = table(cn("TharsisMap"), cn("CorporateEraExpansion"), cn("PromoCardPack"))
+    val withPromosAndGreatDam =
+        table(
+            cn("TharsisMap"),
+            cn("CorporateEraExpansion"),
+            cn("PromoCardPack"),
+            cn("GreatDam"),
+        )
 
     relevant.filterTo(linkedSetOf(), withoutPromos::isInhabited) shouldBe
         setOf(cn("DeimosDown"), cn("GreatDam"), cn("MagneticFieldGenerators"))
@@ -181,6 +188,16 @@ internal class CanonBundlesTest {
         setOf(cn("DeimosDownPromo"), cn("GreatDamPromo"), cn("MagneticFieldGeneratorsPromo"))
     relevant.filterTo(linkedSetOf(), withPromos.allClassNames::contains) shouldBe
         setOf(cn("DeimosDownPromo"), cn("GreatDamPromo"), cn("MagneticFieldGeneratorsPromo"))
+    val greatDamVersions = setOf(cn("GreatDam"), cn("GreatDamPromo"))
+    listOf(
+            withoutPromos to setOf(cn("GreatDam")),
+            withPromos to setOf(cn("GreatDamPromo")),
+            withPromosAndGreatDam to greatDamVersions,
+        )
+        .forEach { (table, expected) ->
+          greatDamVersions.filterTo(linkedSetOf(), table::isInhabited) shouldBe expected
+          greatDamVersions.filterTo(linkedSetOf(), table.allClassNames::contains) shouldBe expected
+        }
     Canon.allClassNames.containsAll(relevant) shouldBe true
   }
 

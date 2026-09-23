@@ -50,6 +50,14 @@ private fun renderChangeOrNull(
     describers: Describers,
     references: TypeVariableReferences,
 ): Clause? {
+  if (instruction is Gain) {
+    renderCardSearch(instruction, describers)?.let {
+      return it
+    }
+    renderCardPurchase(instruction)?.let {
+      return it
+    }
+  }
   if (instruction is Transmute) {
     renderPlayedEventRecovery(instruction, describers)?.let {
       return it
@@ -91,6 +99,39 @@ private fun renderChangeOrNull(
     }
   }
   return null
+}
+
+private fun renderCardSearch(gain: Gain, describers: Describers): Clause.Simple? {
+  if (gain.quantifier.modality() != Modality.REQUIRED) return null
+  val search = gain.gaining
+  if (search.className != cn("SearchForCard") || search.refinement != null) return null
+  val filter =
+      search.arguments.singleOrNull()?.takeIf { it.className == cn("TagFilter") } ?: return null
+  val tag =
+      filter.arguments
+          .singleOrNull()
+          ?.let(describers::representedClassArgument)
+          ?.className
+          ?.takeIf(describers::isTag) ?: return null
+  val count = gain.count.fixedQuantity() ?: return null
+  return clause(
+      "draw",
+      NounPhrase.text("$count ${matchingCardNoun(CardCriterion.Tag(tag), count == 1, describers)}"),
+  )
+}
+
+private fun renderCardPurchase(gain: Gain): Clause.Simple? {
+  if (
+      gain.gaining.className != cn("BuyCard") ||
+          !gain.gaining.simple ||
+          gain.quantifier.modality() != Modality.OPTIONAL ||
+          gain.count.fixedQuantity() != 1
+  )
+      return null
+  return Clause.Simple(
+      Predicate(Verb("may buy"), Coordination.one(NounPhrase.text("a card"))),
+      NounPhrase.you(),
+  )
 }
 
 private fun renderTypeVariableResourceChange(
@@ -330,7 +371,8 @@ private fun renderPositionedConversion(
     return null
   }
   val site = gainingPlacement.sites.singleOrNull() ?: return null
-  if (removingPlacement.sites.singleOrNull() != site || !site.simple) return null
+  val sourceSite = removingPlacement.sites.singleOrNull() ?: return null
+  if (sourceSite != site && !sameNamedTypeVariable(sourceSite, site) || !site.simple) return null
   val siteDescription = describers.placementSite(site.className) ?: return null
   val siteNoun = describers.describedNoun(site.className, siteDescription.noun, 1)
   val source =
@@ -633,6 +675,8 @@ private fun renderTransferParty(
         TransferParty.ANY_PLAYER
     resolved.hasOnlySourceDependency(ownerKey, describers.playerExpression) ->
         TransferParty.THAT_PLAYER
+    resolved.sourceDependencies.size == 1 &&
+        resolved.sourceDependency(ownerKey)?.typeVariableName != null -> TransferParty.THAT_PLAYER
     else -> null
   }
 }
@@ -771,7 +815,7 @@ private fun renderSelectedProductionChange(
 
 private fun Metric.isLowestStandardProductionRank(describers: Describers): Boolean {
   val rank = this as? Metric.Rank ?: return false
-  val selector = rank.selectorName ?: return false
+  val selector = rank.selector ?: return false
   if (
       selector.className != CLASS ||
           selector.arguments.singleOrNull()?.takeIf { it.simple }?.className != STANDARD_RESOURCE ||
@@ -781,16 +825,20 @@ private fun Metric.isLowestStandardProductionRank(describers: Describers): Boole
   }
   val alternatives = (rank.metrics.singleOrNull() as? Metric.Or)?.metrics ?: return false
   if (alternatives.size != 2) return false
-  val excludedSelector = selector.copy(refinement = Expression.Refinement.Not(selector))
   val production =
       alternatives.singleOrNull { alternative ->
         val expression = alternative.expression
+        val excluded = expression.arguments.singleOrNull()
+        val exclusion = excluded?.refinement as? Expression.Refinement.Not
         describers.isProduction(expression.className) &&
-            expression.arguments == listOf(excludedSelector) &&
+            excluded?.className == selector.className &&
+            excluded.arguments == selector.arguments &&
+            exclusion != null &&
+            sameNamedTypeVariable(exclusion.excluded, selector) &&
             expression.refinement == null
       } ?: return false
   val offset = alternatives.single { it != production }.expression
-  return offset.arguments == listOf(selector) &&
+  return offset.arguments.singleOrNull()?.let { sameNamedTypeVariable(it, selector) } == true &&
       offset.refinement == null &&
       describers.fact(offset.className, ComponentDescriber::productionOffset) == true
 }
@@ -834,8 +882,8 @@ private fun renderScaleChange(
   if (instruction is Transmute) {
     val gainingAnother =
         (instruction.gaining.refinement as? Expression.Refinement.Not)?.excluded?.let { excluded ->
-          instruction.gaining.copy(refinement = null) == instruction.removing &&
-              excluded == instruction.removing
+          instruction.gaining.className == instruction.removing.className &&
+              sameNamedTypeVariable(excluded, instruction.removing)
         } == true
     if (
         instruction.quantifier.modality() != Modality.REQUIRED ||

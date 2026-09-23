@@ -12,6 +12,13 @@ internal sealed interface EnglishText {
     override fun unresolved(): List<Unresolved> = emptyList()
   }
 
+  /** Authored wording for a physical card procedure omitted by count-only Pets. */
+  data class Authored(val text: String) : EnglishText {
+    override fun linearize(): String = text
+
+    override fun unresolved(): List<Unresolved> = emptyList()
+  }
+
   data class SentenceText(val sentence: Sentence) : EnglishText {
     override fun linearize(): String = sentence.linearize()
 

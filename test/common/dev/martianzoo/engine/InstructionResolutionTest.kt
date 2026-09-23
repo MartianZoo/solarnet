@@ -86,6 +86,22 @@ internal class InstructionResolutionTest {
   }
 
   @Test
+  internal fun `resolution retains an occurrence omitted by the compact resolved Type`() {
+    checkResolution(
+        "CityTile<@MarsArea> FROM GreeneryTile<@MarsArea>",
+        "CityTile<Player1, @MarsArea> FROM GreeneryTile<Player1, @MarsArea>!",
+    )
+  }
+
+  @Test
+  internal fun `resolution retains compact FROM until both projections are concrete`() {
+    checkResolution(
+        "Production<Player1 FROM Player2, Class<StandardResource>>?",
+        "Production<Player1 FROM Player2, Class<StandardResource>>?",
+    )
+  }
+
+  @Test
   internal fun reflexiveTransmutationIsInvalidWhenMandatoryAndNoOpOtherwise() {
     shouldThrow<ExpressionException> { preprocessAndResolve("Plant FROM Plant") }
     shouldThrow<ExpressionException> { preprocessAndResolve("Plant FROM Plant!") }
@@ -139,11 +155,20 @@ internal class InstructionResolutionTest {
   }
 
   @Test
+  internal fun `a selector concretizes a full transmutation before it resolves`() {
+    checkResolution(
+        "EACH Selected@Player(HAS Plant) { " +
+            "Heat<Selected@Player> FROM Plant<Selected@Player> }",
+        "Heat<Player1> FROM Plant<Player1>!",
+    )
+  }
+
+  @Test
   internal fun testOnlyAnOwnerSelectionSuppliesTheOwnerOfItsBranch() {
     checkResolution("EACH Player { Plant }", "Plant<Player1>!, Plant<Player2>!")
     checkResolution(
-        "EACH ProjectCard<Anyone> { -ProjectCard<Anyone>, Plant }",
-        List(10) { "-ProjectCard<Player1, Hand>!, Plant<Player1>!" }.joinToString(", "),
+        "EACH @ProjectCard<Anyone> { -@ProjectCard, Plant }",
+        List(10) { "-ProjectCard<Player1>!, Plant<Player1>!" }.joinToString(", "),
     )
     // A selector reads its enclosing context, so `Owner` there is one component, not every owner.
     shouldThrow<ExpressionException> { preprocessAndResolve("EACH Owner { Plant }") }
@@ -157,8 +182,8 @@ internal class InstructionResolutionTest {
   internal fun testFanoutRangesOverOccurrences() {
     // Player1 holds ten indistinguishable ProjectCards, and each copy contributes one branch.
     checkResolution(
-        "EACH ProjectCard<Anyone> { -ProjectCard<Anyone> }",
-        List(10) { "-ProjectCard<Player1, Hand>!" }.joinToString(", "),
+        "EACH @ProjectCard<Anyone> { -@ProjectCard }",
+        List(10) { "-ProjectCard<Player1>!" }.joinToString(", "),
     )
     checkResolution(
         "EACH ProjectCard<Anyone> { StandardResource }",
@@ -168,7 +193,7 @@ internal class InstructionResolutionTest {
 
   @Test
   internal fun testFanoutOverNothingIsNoOp() {
-    checkResolution("EACH CardFront<Anyone> { -CardFront<Anyone> }", "Ok")
+    checkResolution("EACH @CardFront<Anyone> { -@CardFront }", "Ok")
   }
 
   @Test

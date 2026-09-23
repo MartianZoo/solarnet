@@ -4,13 +4,14 @@ import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.GameReader
-import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
-import dev.martianzoo.pets.ast.Metric
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.ExpandedReference
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
 import dev.martianzoo.pets.ast.PetNode
-import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.startsTypeVariableObservation
 import dev.martianzoo.pets.types.Dependency.TypeDependency
 import dev.martianzoo.pets.types.TypeVariable.Occurrence
 import dev.martianzoo.pets.types.TypeVariable.Site
@@ -72,7 +73,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     return entries.firstOrNull { it.declarationExpression() === expression }?.variable
         ?: entries
             .singleOrNull {
-              it.declarationExpression()?.sameAuthoredTypeExpressionAs(expression) == true
+              it.declarationExpression() == expression
             }
             ?.variable
   }
@@ -88,11 +89,15 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
             entry.currentExpressions.values.any { it === expression }
           }
           ?.variable
-          ?: entries
-              .singleOrNull { entry ->
-                entry.currentExpressions.values.any { it.sameAuthoredTypeExpressionAs(expression) }
-              }
-              ?.variable
+          ?: expression.typeVariableName?.let { marker ->
+            entries
+                .singleOrNull { entry ->
+                  entry.currentExpressions.values.any {
+                    it.typeVariableName?.identity == marker.identity
+                  }
+                }
+                ?.variable
+          }
 
   /**
    * Returns this scope with recorded occurrence spellings transformed alongside their owning
@@ -115,6 +120,32 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
               }
       )
 
+  /** Hides explicit names while retaining their occurrence identity outside the lexical scope. */
+  public fun expandNames(): PetTransformer {
+    val references =
+        variables
+            .mapNotNull { it.declaration.expression.typeVariableName as? Declaration }
+            .associate { marker ->
+              marker.identity to
+                  ExpandedReference(
+                      marker.name,
+                      marker.boundClassName,
+                      marker.resolution,
+                  )
+            }
+    return object : PetTransformer() {
+      override fun transformNode(node: PetNode): PetNode {
+        if (node is Expression) {
+          if (node.typeVariableName is ExpandedReference) return transformChildren(node)
+          references[node.typeVariableName?.identity]?.let { reference ->
+            return transformChildren(node.copy(typeVariableName = reference))
+          }
+        }
+        return transformChildren(node)
+      }
+    }
+  }
+
   internal operator fun plus(that: TypeVariableScope): TypeVariableScope =
       when {
         isEmpty -> that
@@ -134,11 +165,15 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
           wideNode is Expression &&
               sources.any { source ->
                 wideNode === source ||
-                    wideNode == source ||
-                    wideNode.isExpandedFrom(source, variable.bound.classTable)
+                    (source.typeVariableName != null &&
+                        wideNode.typeVariableName?.identity == source.typeVariableName.identity)
               }
       ) {
-        (narrowNode as? Expression)?.let(::add)
+        (narrowNode as? Expression)
+            ?.takeUnless {
+              wideNode.typeVariableName is Reference && it == wideNode
+            }
+            ?.let(::add)
         return
       }
       wideNode.immediateChildren().zip(narrowNode.immediateChildren()).forEach { (wide, narrow) ->
@@ -158,7 +193,10 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     val declaration = expressionOf(variable.declaration)
     return proposed
         .descendantsOfType<Expression>()
-        .filter { it != declaration && it.narrows(variable.bound.expressionFull, info) }
+        .filter {
+          it.copy(typeVariableName = null) != declaration.copy(typeVariableName = null) &&
+              it.narrows(variable.bound.expressionFull, info)
+        }
         .map { expression ->
           ((info as? GameReader)?.resolve(expression)
                   ?: variable.bound.classTable.resolve(expression))
@@ -185,24 +223,26 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
   ): Map<TypeVariable, GroundType> {
     val captures = mutableMapOf<TypeVariable, MutableList<GroundType>>()
 
+    fun Expression.matchesRecordedOccurrence(that: Expression): Boolean =
+        typeVariableName != null &&
+            typeVariableName.identity == that.typeVariableName?.identity &&
+            copy(typeVariableName = null) == that.copy(typeVariableName = null)
+
+    fun Entry.matchesRecordedOccurrence(expression: Expression): Boolean =
+        currentExpressions.values.any { it.matchesRecordedOccurrence(expression) } ||
+            currentExpressions.keys.any { occurrence ->
+              occurrence.expression.matchesRecordedOccurrence(expression)
+            }
+
     fun record(expression: Expression, captured: GroundType) {
-      entries.forEach { entry ->
-        if (
-            entry.currentExpressions.values.any { it === expression } ||
-                entry.currentExpressions.keys.any { it.expression == expression }
-        ) {
-          captures.getOrPut(entry.variable, ::mutableListOf) += captured
-        }
+      val identical = entries.filter { entry ->
+        entry.currentExpressions.values.any { it === expression }
       }
-      if (
-          entries.none { entry ->
-            entry.currentExpressions.values.any { it === expression } ||
-                entry.currentExpressions.keys.any { it.expression == expression }
-          }
-      ) {
-        val matching = entries.filter { entry -> expression in entry.currentExpressions.values }
-        if (matching.size == 1)
-            captures.getOrPut(matching.single().variable, ::mutableListOf) += captured
+      val matching = identical.ifEmpty {
+        entries.filter { it.matchesRecordedOccurrence(expression) }
+      }
+      matching.forEach { entry ->
+        captures.getOrPut(entry.variable, ::mutableListOf) += captured
       }
     }
 
@@ -324,11 +364,23 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
             ?.let {
               return transformChildren(it.second)
             }
-        val equal = replacements.filter { (source) -> source == node }.map { it.second }.distinct()
+        fun Expression.hasSameVariableIdentityAs(source: Expression): Boolean =
+            source.typeVariableName != null &&
+                typeVariableName?.identity == source.typeVariableName.identity
+
+        val equal =
+            replacements
+                .filter { (source) ->
+                  node.hasSameVariableIdentityAs(source) && source == node
+                }
+                .map { it.second }
+                .distinct()
         if (equal.size == 1) return transformChildren(equal.single())
         val expanded =
             replacements
-                .filter { (source) -> node.isExpandedFrom(source, classTable) }
+                .filter { (source) ->
+                  node.hasSameVariableIdentityAs(source) && node.isExpandedFrom(source, classTable)
+                }
                 .map { it.second }
                 .distinct()
         if (expanded.size == 1) return transformChildren(expanded.single())
@@ -357,19 +409,16 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
       return if (entries.isEmpty()) EMPTY else TypeVariableScope(entries)
     }
 
-    fun infer(
+    fun fromDeclarations(
         regions: List<PetNode>,
         classTable: ClassTable,
-        explicitDeclarations: List<Expression> = emptyList(),
-        visibleScope: TypeVariableScope = EMPTY,
+        markedDeclarations: List<Expression> = emptyList(),
     ): TypeVariableScope {
       data class Found(
           val expression: Expression,
           val region: Int,
           val ordinal: Int,
-          val ancestors: Set<Expression>,
-          val inRequirement: Boolean,
-          val directlyCounted: Boolean,
+          val observing: Boolean,
       )
 
       var ordinal = 0
@@ -377,37 +426,31 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         fun collect(
             node: PetNode,
             region: Int,
-            ancestors: Set<Expression>,
-            inRequirement: Boolean,
-            directlyCounted: Boolean,
+            observing: Boolean,
         ) {
           val expression = node as? Expression
-          val nextAncestors = expression?.let { ancestors + it } ?: ancestors
           if (expression != null) {
             add(
                 Found(
                     expression,
                     region,
                     ordinal++,
-                    ancestors,
-                    inRequirement,
-                    directlyCounted,
+                    observing,
                 )
             )
           }
+          val childrenObserve = observing || node.startsTypeVariableObservation
           node.immediateChildren().forEach { child ->
             collect(
                 child,
                 region,
-                nextAncestors,
-                inRequirement || node is Requirement,
-                node is Metric.Count && child is Expression,
+                childrenObserve,
             )
           }
         }
 
         regions.forEachIndexed { index, region ->
-          collect(region, index, emptySet(), false, false)
+          collect(region, index, false)
         }
       }
 
@@ -417,93 +460,47 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         return classTable.resolve(expression.copy(refinement = nonStructuralRefinement))
       }
 
-      val explicitIdentities = explicitDeclarations
-      val explicitEntries = explicitDeclarations.map { expression ->
-        val declaration = occurrences.single { it.expression === expression }
-        val declarationIdentity = expression
-        val usages =
-            occurrences
-                .filter { found ->
-                  found !== declaration &&
-                      found.expression.sameAuthoredTypeExpressionAs(declarationIdentity)
-                }
-                .sortedBy(Found::ordinal)
-        val variable =
-            TypeVariable(
-                classTable.resolve(expression),
-                Site(
-                    expression,
-                    declaration.region,
-                    declaration.ordinal,
-                    interpretedGroundType = classTable.resolve(expression),
-                ),
-                usages.map { usage ->
-                  Site(
-                      usage.expression,
-                      usage.region,
-                      usage.ordinal,
-                      interpretedGroundType = classTable.resolve(usage.expression),
+      val entries =
+          markedDeclarations
+              .map { expression ->
+                val declaration = occurrences.single { it.expression === expression }
+                if (declaration.observing) {
+                  throw ExpressionException(
+                      "A Type variable cannot be declared in an observing expression: $expression"
                   )
-                },
-            )
-        Entry(variable, variable.occurrences.associateWith { it.expression })
-      }
-
-      val grouped =
-          occurrences
-              .filterNot(Found::directlyCounted)
-              .filterNot { found ->
-                explicitIdentities.any(found.expression::sameAuthoredTypeExpressionAs)
-              }
-              .filterNot { visibleScope.variableAt(it.expression) != null }
-              .groupBy { it.expression.toString() }
-      val candidates =
-          grouped
-              .filter { (_, found) ->
-                val source = found.first().expression
-                source.className != THIS &&
-                    runCatching { classTable.resolve(source).abstract }.getOrDefault(false) &&
-                    found.map(Found::region).distinct().size >= 2 &&
-                    !found.all(Found::inRequirement)
-              }
-              .toList()
-              .sortedBy { (_, found) -> found.minOf { it.ancestors.size } }
-
-      val selected = linkedSetOf<String>()
-      val entries = buildList {
-        for ((_, found) in candidates) {
-          val source = found.first().expression
-          if (found.all { occurrence -> occurrence.ancestors.any { it.toString() in selected } }) {
-            continue
-          }
-          selected += source.toString()
-
-          val ordered = found.sortedBy(Found::ordinal)
-          val declarationFound = ordered.first()
-          val type = interpretedGroundType(declarationFound)
-          val variable =
-              TypeVariable(
-                  type,
-                  Site(
-                      declarationFound.expression,
-                      declarationFound.region,
-                      declarationFound.ordinal,
-                      interpretedGroundType = type,
-                  ),
-                  ordered.drop(1).map { occurrence ->
-                    Site(
-                        occurrence.expression,
-                        occurrence.region,
-                        occurrence.ordinal,
-                        interpretedGroundType = interpretedGroundType(occurrence),
+                }
+                val declarationMarker = expression.typeVariableName as Declaration
+                val usages =
+                    occurrences
+                        .filter { found ->
+                          found !== declaration &&
+                              (found.expression.typeVariableName as? Reference)?.identity ==
+                                  declarationMarker.identity
+                        }
+                        .sortedBy(Found::ordinal)
+                val declarationGroundType = interpretedGroundType(declaration)
+                val variable =
+                    TypeVariable(
+                        declarationGroundType,
+                        Site(
+                            expression,
+                            declaration.region,
+                            declaration.ordinal,
+                            interpretedGroundType = declarationGroundType,
+                        ),
+                        usages.map { usage ->
+                          Site(
+                              usage.expression,
+                              usage.region,
+                              usage.ordinal,
+                              interpretedGroundType = interpretedGroundType(usage),
+                          )
+                        },
                     )
-                  },
-              )
-          add(Entry(variable, variable.occurrences.associateWith { it.expression }))
-        }
-      }
-      val allEntries = explicitEntries + entries
-      return if (allEntries.isEmpty()) EMPTY else TypeVariableScope(allEntries)
+                Entry(variable, variable.occurrences.associateWith { it.expression })
+              }
+              .sortedBy { it.variable.declaration.ordinal }
+      return if (entries.isEmpty()) EMPTY else TypeVariableScope(entries)
     }
   }
 }

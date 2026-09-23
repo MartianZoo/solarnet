@@ -65,12 +65,13 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 
 | Concept being changed | Read | Authority |
 | --- | --- | --- |
-| Classes, Types, dependencies, refinements, implicit variables, or uninhabited types | The cited rule of [`type-system-spec.md`](../type-system-spec.md) | Specification, checked rule-by-rule by `pets/types/Spec*Test.kt` |
+| Classes, Types, dependencies, refinements, Type variables, or uninhabited types | The cited rule of [`type-system-spec.md`](../type-system-spec.md) | Specification, checked rule-by-rule by `pets/types/Spec*Test.kt` |
 | Pets syntax, declarations, instructions, effects, actions, narrowing, owner-local Classes, or elaboration | The cited rule of [`pets-language-spec.md`](../pets-language-spec.md) | Specification, checked rule-by-rule by `pets/Lang*Test.kt` |
 | Type-variable lifetime in the engine | The matching section of [`TYPES.md`](TYPES.md) | Current model and working direction |
 | Class-property syntax, defaults, cardinality, or property groups | The matching section of [`PROPERTIES.md`](PROPERTIES.md) | Current model and working rules |
 | Catalogs, Modules, Bundles, configuration, premise resolution, or projection policy | KDoc on [`Catalog`](../../src/common/dev/martianzoo/pets/data/Catalog.kt), [`GamePremise`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt), and [`Bundle`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt); then the matching tests | Current model |
 | Master Class identity versus game-filtered enumeration | [`CLASS_TABLES.md`](CLASS_TABLES.md) | Current model |
+| Generated Kotlin types for the canonical Pets vocabulary | [`PETS_TYPE_GENERATOR.md`](PETS_TYPE_GENERATOR.md) | Current tool behavior |
 | Generic component fanout (`EACH`) | [`EACH.md`](EACH.md) | Current model |
 
 ### Change content, names, or human rendering
@@ -79,8 +80,8 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | --- | --- | --- |
 | Add or change a card, corporation, rule component, or Pets declaration | [`NAMING.md`](NAMING.md), then topic-specific engine/type docs only as needed | Current vocabulary |
 | Change English rendering, renderer architecture, or card layout | [`LANGUAGE.md`](LANGUAGE.md) | Durable goal, current understanding, and ordered direction |
+| Change card backs, draws, searches, purchases, or replay card tracking | [`CARD_HANDLING.md`](CARD_HANDLING.md) | Current model and deliberate boundary |
 | Change map diagrams or generated area declarations | [`MAP_PETS_GENERATION.md`](MAP_PETS_GENERATION.md) | Procedure |
-| Design shuffle/deal, hidden cards, or chance | Select the relevant gate in [`REAL_CARDS_MODE.md`](REAL_CARDS_MODE.md) | Proposal |
 
 ### Change project structure or APIs
 

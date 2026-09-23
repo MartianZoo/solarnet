@@ -38,10 +38,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
 
   @Test
   internal fun massiveGammaZone() {
-    retainStartingProjects(5)
     with(me.requireExplicitUnusedActionCards()) {
-      // Solo setup drew these cards solely to choose the four neutral tile areas.
-      discardProjectCardsFromDeck(Tardigrades, LunarBeam, CallistoPenalMines, Decomposers)
       generation1()
       generation2()
       generation3()
@@ -59,23 +56,10 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
 
   private fun generation1() {
     with(me) {
-      expectProjectCards(
-          MeatIndustry,
-          MarsNomads,
-          RadSuits,
-          RobotPollinators,
-          MassConverter,
-          SpaceMirrors,
-          ImportedNutrients,
-          PowerGrid,
-          Mine,
-          Ants,
-      )
       // The source selected PolderTECH Dutch, which Canon does not treat as a published promo.
       playCorp(FakePolderTechDutch) {
         buyCards(MarsNomads, RobotPollinators, SpaceMirrors, MeatIndustry, Mine)
       }
-      discardUnselectedProjectCards(RadSuits, MassConverter, ImportedNutrients, PowerGrid, Ants)
 
       playPrelude(BoardOfDirectors)
       playPrelude(ProjectEden) {
@@ -188,7 +172,6 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       convertPlants { placeTile(4, 5) }
       cardAction1(BoardOfDirectors) {
         doTask("-PreludeCard")
-        me.discardProjectCardsFromDeck(IndustrialComplex)
       }
       // Applied Science's wild tag is the fifth Plant tag counted by Robot Pollinators.
       exMachina(fakeWildTags("PlantTag"))

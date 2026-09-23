@@ -10,7 +10,7 @@ import kotlin.test.Test
 internal class CelesticTest : CardTest() {
   @BeforeTest
   fun initializeGame() {
-    newGame(VenusNextExpansion, retainedStartingProjects = 5)
+    newGame(VenusNextExpansion)
     p1.playCorp(Celestic, 5)
     p1.runOperation("10 Heat")
     admin.phase("Action")

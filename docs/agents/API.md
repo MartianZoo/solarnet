@@ -130,9 +130,8 @@ A configured N-Player game has N seated Player Actors plus one Admin Actor. `Adm
 Component extending `Actor`, not another name for the engine mechanism. The application creates an
 Agent for every Actor and normally gives Admin enough policies to be fully autonomous.
 
-Admin can receive abstract tasks and make choices. Card dealing, dice, neutral setup, and similar
-rules may assign or delegate narrowing to Admin. Whether Admin policies follow a seeded dealer,
-choose adversarially, or use another legal strategy is not an engine concern.
+Admin can receive abstract tasks and make choices. Dice, neutral setup, and similar rules may assign
+or delegate narrowing to Admin. Which legal strategy an Admin policy uses is not an engine concern.
 
 ## Remaining question
 

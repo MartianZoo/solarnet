@@ -37,7 +37,7 @@ internal class ColoniesExpansionEnglishTest {
     english.describe(parse<InstructionTree>("2 TradeFleet")) shouldBe "Gain 2 Trade Fleets."
     english.describe(parse<InstructionTree>("UseAction<TradeAction>")) shouldBe
         "Use the Trade standard action."
-    english.describe(parse<Effect>("Trade<ColonyTile>: ColonyProduction<ColonyTile>?")) shouldBe
+    english.describe(parse<Effect>("Trade<@ColonyTile>: ColonyProduction<@ColonyTile>?")) shouldBe
         "When you trade, you may raise that colony tile track 1 step."
   }
 }

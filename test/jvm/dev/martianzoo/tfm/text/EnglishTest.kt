@@ -52,7 +52,7 @@ internal class EnglishTest {
     english.describe(parse<Effect>("CityTile<MarsArea, Anyone>: Steel")) shouldBe
         "When any city tile is placed on Mars, gain 1 steel."
     english.describe(
-        parse<Effect>("Placement<MarsArea>: MC / Neighbor<OceanTile, MarsArea>")
+        parse<Effect>("Placement<@MarsArea>: MC / Neighbor<OceanTile, @MarsArea>")
     ) shouldBe "When you place a tile on Mars, gain 1 M€ per ocean tile next to that area."
     english.describe(parse<Effect>("PlantTag<CardFront<Anyone>, Anyone>: Steel")) shouldBe
         "When any plant tag is played, gain 1 steel."
@@ -89,7 +89,7 @@ internal class EnglishTest {
     english.describe(parse<InstructionTree>("PROD[-MC, Plant, Energy, Heat]")) shouldBe
         "Decrease your M€ production 1 step and increase your plant production, your energy production, and your heat production 1 step each."
     english.describe(parse<InstructionTree>("MC? / ProjectCard")) shouldBe
-        "You may gain up to 1 M€ per card."
+        "You may gain up to 1 M€ per card in hand."
     english.describe(parse<InstructionTree>("-4 MC.")) shouldBe
         "Remove 4 M€, or as much as possible."
     english.describe(parse<InstructionTree>("Plant / (VenusTag OR PlantTag OR Colony)")) shouldBe
@@ -169,16 +169,10 @@ internal class EnglishTest {
         "Requires a Venus tag, an Earth tag, and a Jovian tag."
     english.describe(parse<Requirement>("VenusTag, PlantTag")) shouldBe
         "Requires a Venus tag and a plant tag."
-    english.describe(parse<Effect>("End: VictoryPoint / Cathedral<Anyone>")) shouldBe
+    english.describe(parse<Effect>("End: VictoryPoint / Cathedral")) shouldBe
         "1 VP per cathedral in play."
     english.describe(parse<Effect>("-Community: 3 MC")) shouldBe
         "When you remove a community marker, gain 3 M€."
-    english.describe(
-        parse<InstructionTree>(
-            "X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X MC"
-        )
-    ) shouldBe "Reveal any number of cards from your hand, then gain 1 M€ per revealed card."
-
     english.describe(parse<InstructionTree>("Animal")) shouldBe "Add 1 animal to any card."
     english.describe(parse<InstructionTree>("MAX 0 Plant: Steel")) shouldBe
         "If you have no plants, gain 1 steel."
@@ -186,12 +180,6 @@ internal class EnglishTest {
         "If there is 1 ocean tile, gain 1 steel."
     english.describe(parse<InstructionTree>("2 OceanTile: Steel")) shouldBe
         "If there are 2 ocean tiles, gain 1 steel."
-    english.describe(
-        parse<InstructionTree>(
-            "CARDS[ProjectCard<Revealed> THEN " +
-                "((ProjectCard<Revealed>(HAS MAX 0 Tag): Steel) OR Ok)]"
-        )
-    ) shouldBe "Reveal 1 project card. If it has no tags, gain 1 steel."
   }
 
   @Test
@@ -280,15 +268,16 @@ internal class EnglishTest {
 
   @Test
   internal fun realizesLaterTypeVariableUsesAsAntecedents() {
-    english.describe(parse<Effect>("PROD[StandardResource]: StandardResource")) shouldBe
+    english.describe(parse<Effect>("PROD[@StandardResource]: @StandardResource")) shouldBe
         "When you increase one of your productions 1 step, gain that resource."
-    english.describe(listOf(parse<Action>("PROD[StandardResource] -> 4 StandardResource"))) shouldBe
-        "Decrease one of your productions 1 step to gain 4 of that resource."
+    english.describe(
+        listOf(parse<Action>("PROD[@StandardResource] -> 4 @StandardResource"))
+    ) shouldBe "Decrease one of your productions 1 step to gain 4 of that resource."
     english.describe(listOf(parse<Action>("PROD[StandardResource] -> 4 MC"))) shouldBe
         "Decrease one of your productions 1 step to gain 4 M€."
-    english.describe(parse<InstructionTree>("StandardResource THEN StandardResource")) shouldBe
+    english.describe(parse<InstructionTree>("@StandardResource THEN @StandardResource")) shouldBe
         "Gain 1 standard resource, then gain that resource."
-    english.describe(parse<Effect>("Trade<ColonyTile>: ColonyProduction<ColonyTile>?")) shouldBe
+    english.describe(parse<Effect>("Trade<@ColonyTile>: ColonyProduction<@ColonyTile>?")) shouldBe
         "When you trade, you may raise that colony tile track 1 step."
 
     val unintroduced =

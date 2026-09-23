@@ -15,11 +15,11 @@ import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.ATOMIZED
-import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.DIE
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
+import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
@@ -36,14 +36,13 @@ import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.pets.types.inferTypeVariables
+import dev.martianzoo.pets.types.recordTypeVariableScopes
 import dev.martianzoo.state.Component.Companion.toComponent
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.toComponent
@@ -284,10 +283,10 @@ internal constructor(
     val count = (change.count as? ActualScalar)?.value ?: return change
     if (change is Transmute) {
       // An exclusion containing an open co-reference becomes meaningful only when an atomic
-      // proposal binds that variable. Generated syntax may need the ordinary inference fallback.
+      // proposal binds that explicitly named variable.
       val variables =
           change.typeVariables.takeUnless { it.isEmpty }
-              ?: classTable.inferTypeVariables().transformInstruction(change).typeVariables
+              ?: classTable.recordTypeVariableScopes().transformInstruction(change).typeVariables
       val openExclusion =
           change.descendantsOfType<Not>().any { not ->
             not.excluded.descendantsOfType<Expression>().any {
@@ -298,6 +297,10 @@ internal constructor(
     }
 
     val (g, r) = narrowChangeTypes(change, count, intens) ?: return change
+    fun retainedExpression(resolved: Type?, authored: Expression?): Expression? =
+        resolved?.expression?.let { expression ->
+          authored?.let { elaborator.retainTypeVariableNames(expression, it) } ?: expression
+        }
     if (listOfNotNull(g, r).any { !classTable.isInhabited(it) }) {
       if (intens != MANDATORY) return NoOp
       throw DeadEndException(
@@ -343,8 +346,14 @@ internal constructor(
             }
         if (!canRemove) return unavailable("max possible is 0")
       }
+      if (change is Transmute && change.fromEx is Compact) return change
       // Still abstract, don't check limits yet
-      return Change.change(g?.expression, r?.expression, count, intens)
+      return Change.change(
+          retainedExpression(g, change.gaining),
+          retainedExpression(r, change.removing),
+          count,
+          intens,
+      )
     }
 
     if (g == r && intens != MANDATORY) return NoOp
@@ -353,7 +362,14 @@ internal constructor(
     translateCustomChange(change, g, r)?.let {
       return it
     }
-    return limitChange(g, r, count, intens)
+    return limitChange(
+        g,
+        r,
+        retainedExpression(g, change.gaining),
+        retainedExpression(r, change.removing),
+        count,
+        intens,
+    )
   }
 
   private fun narrowChangeTypes(
@@ -404,6 +420,8 @@ internal constructor(
   private fun limitChange(
       gainingType: Type?,
       removingType: Type?,
+      gainingExpression: Expression?,
+      removingExpression: Expression?,
       count: Int,
       quantifier: Instruction.Quantifier,
   ): Instruction {
@@ -419,8 +437,8 @@ internal constructor(
     }
 
     return Change.change(
-        gainingType?.expression,
-        removingType?.expression,
+        gainingExpression,
+        removingExpression,
         adjusted,
         if (quantifier == AMAP) MANDATORY else quantifier,
     )
@@ -446,20 +464,13 @@ internal constructor(
 
   private fun branchFor(each: Each, selected: Expression): InstructionTree {
     val owner = selected.takeIf { elaborator.selectionSuppliesOwner(each.selector) }
-    val representedSelection =
-        each.representedSelectorName?.let {
-          check(selected.className == CLASS)
-          selected.arguments.single()
-        }
     val bind =
         PetTransformer.chain(
-            replacer(each.selectorName, selected),
-            each.representedSelectorName?.let { replacer(it, checkNotNull(representedSelection)) },
             // This selection, rather than the enclosing context, supplies Owner. The unshielded
             // replacement is intentional.
             owner?.let(Transforming::replaceOwnerWith),
         )
-    val bound = bind.transformInstructionTree(each.body)
+    val bound = bind.transformInstructionTree(each.bodyFor(selected))
     val evaluated = elaborator.evaluateProperties(bound, context = selected, owner = owner)
     return resolveTree(evaluated)
   }

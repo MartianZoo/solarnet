@@ -12,13 +12,13 @@ CLASS TerraformingMars : Module {
   This: SellPatentsProject, PowerPlantProject, AsteroidProject, AquiferProject, GreeneryProject, CityProject
   This: PlayCardFromHandAction, UseStandardProjectAction, UseActionOnCardAction, ConvertPlantsAction, ConvertHeatAction
   This: DoRequiredActionsAction
-  This: Hand, Selecting, Revealed, CardPurchase, CardPlay
-  This: EACH Class<GlobalParameter> { GpIncomplete<Class<GlobalParameter>> }
-  This: EACH Class<RemoteArea> { RemoteArea }
-  This: EACH Class<ActionSlot> { ActionSlot }
+  This: CardPurchase, CardPlay
+  This: EACH Class<@Tag> { TagFilter<Class<@Tag>> }
+  This: EACH @Class<GlobalParameter> { GpIncomplete<@Class> }
+  This: EACH Class<@RemoteArea> { @RemoteArea }
+  This: EACH Class<@ActionSlot> { @ActionSlot }
 
   ModulesReady IF MAX 0 ExtendedGlobalParametersRule: StandardGpTrackRules
-  ModulesReady IF MAX 0 CorporationOption: 2 CorporationOption
 
   PayingFor<Class<BuildingTag>> IF Owed:: Accepting<Class<Steel>>
   PayingFor<Class<SpaceTag>> IF Owed:: Accepting<Class<Titanium>>
@@ -61,9 +61,6 @@ ABSTRACT CLASS GameMode : Module {
   }
 }
 
-"One corporation card offered in the configurable standard setup path"
-CLASS CorporationOption : System
-
 "One of the actual people or bots playing Terraforming Mars"
 ABSTRACT CLASS Player : Owner, Actor {
   HAS =1 This
@@ -74,17 +71,15 @@ ABSTRACT CLASS Player : Owner, Actor {
   This: 5 ProdOffset<This, Class<MC>> BY Admin
   This: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
 
-  // Keeping one standard offer lets ordinary Selecting cleanup forget the unchosen cards.
+  // 2 CorporationOption; StandardCorporationCard<Selecting> / CorporationOption THEN 10 ProjectCard
   SetupPhase IF MAX 0 BeginnerVariant: \
-    StandardCorporationCard<Selecting> / CorporationOption THEN 10 ProjectCard THEN NewTurn
+    StandardCorporationCard THEN NewTurn
+  // (BeginnerCorporationCard THEN 10 ProjectCard) OR
+  //   (StandardCorporationCard<Selecting> / CorporationOption THEN 10 ProjectCard)
   SetupPhase IF BeginnerVariant: \
-    (BeginnerCorporationCard THEN 10 ProjectCard THEN NewTurn) OR \
-      (StandardCorporationCard<Selecting> / CorporationOption THEN 10 ProjectCard THEN NewTurn)
-  NewTurn IF SetupPhase, StandardCorporationCard<Selecting>: \
-    StandardCorporationCard<Hand FROM Selecting>, \
-    ((ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>) THEN -10 ProjectCard<Selecting>? \
-      THEN (ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>))
-  ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
+    (BeginnerCorporationCard THEN NewTurn) OR (StandardCorporationCard THEN NewTurn)
+  // 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
+  ResearchPhase: 4 BuyCard?
 }
 
 "One step on the terraform rating track; you generally start with 20 of them"
@@ -97,9 +92,9 @@ CLASS TerraformRating : Owned<Player> {
 CLASS StartToken : Owned<Player> { HAS =1 StartToken }
 
 "Identifies the Player immediately after another Player in seat order"
-CLASS AfterMe<Owner, Player> : System {
+CLASS AfterMe<Previous@Owner, Next@Player> : System {
   HAS MAX 1 This
-  ResearchPhase IF StartToken<Owner>: StartToken<Player FROM Owner>.
+  ResearchPhase IF StartToken<Previous@Owner>: StartToken<Next@Player FROM Previous@Owner>.
 }
 
 "The current game phase; exactly one exists from bootstrap through the terminal End phase"
@@ -110,15 +105,15 @@ ABSTRACT CLASS Phase : System {
   CLASS SetupPhase { This:: Generation }
   CLASS CorporationPhase {
     This: Photosynthesis
-    This:: EACH Class<CardWatcher> { CardWatcher }
+    This:: EACH Class<@CardWatcher> { @CardWatcher }
 
-    NewTurn IF StandardCorporationCard<Hand>: \
-      PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Hand>, \
-      (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>)
-    NewTurn IF BeginnerCorporationCard<Hand>: \
-      PlayCard<Class<CorporationCard>, Class<BeginnerCorporation>, Hand>, \
-      (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>)
-    -StandardCorporationCard<Hand>: BuySelectedCards
+    // NewTurn IF SetupPhase, StandardCorporationCard<Selecting>: StandardCorporationCard<Hand FROM Selecting>,
+    //   ((ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>) THEN -10 ProjectCard<Selecting>?
+    //     THEN (ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>))
+    NewTurn IF StandardCorporationCard: \
+      PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>)> THEN 10 BuyCard?
+    NewTurn IF BeginnerCorporationCard: \
+      PlayCard<Class<CorporationCard>, Class<BeginnerCorporation>>
   }
   CLASS ResearchPhase { This:: Generation }
   CLASS ActionPhase {

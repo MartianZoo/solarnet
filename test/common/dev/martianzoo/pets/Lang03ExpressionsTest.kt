@@ -10,6 +10,7 @@ import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.Expression.Refinement.And
 import dev.martianzoo.pets.ast.Expression.Refinement.Has
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -149,6 +150,27 @@ internal class Lang03ExpressionsTest {
   }
 
   @Test
+  internal fun `L3-7 a represented-Class reference preserves its explicit empty arguments`() {
+    val expression = parse<Expression>("Class<@Component>(HAS @Component<>)")
+
+    expression.toString() shouldBe "Class<@Component>(HAS @Component<>)"
+    parse<Expression>(expression.toString()) shouldBe expression
+  }
+
+  @Test
+  internal fun `L3-7 reference equality includes whether arguments were authored`() {
+    val structural = cn("Component").of(cn("Owner"))
+    val bare =
+        structural.copy(typeVariableName = Reference(null, cn("Component"), false, resolved = true))
+    val applied =
+        structural.copy(typeVariableName = Reference(null, cn("Component"), true, resolved = true))
+
+    bare shouldNotBe applied
+    bare.toString() shouldBe "@Component"
+    applied.toString() shouldBe "@Component<Owner>"
+  }
+
+  @Test
   internal fun `L3-7 an expression built through the API renders the same way`() {
     cn("Aa")
         .of(
@@ -189,5 +211,28 @@ internal class Lang03ExpressionsTest {
 
     parse<Expression>("Plant(HAS Steel, NOT Heat)") shouldBe reorderedWithDuplicate
     "$reorderedWithDuplicate" shouldBe "Plant(NOT Heat, HAS Steel)"
+  }
+
+  // L3-9 Type-variable markers
+
+  @Test
+  internal fun `L3-9 a marker precedes its complete bound expression`() {
+    roundTripAll<Expression>(
+        """
+        Class<@Component>(HAS @Component)
+        Class<C@Component>(HAS C@Component)
+        Class<@Component>(HAS @Component<Owner>)
+        """
+    )
+  }
+
+  @Test
+  internal fun `L3-9 the former suffix and numeric marker forms are rejected`() {
+    shouldThrow<PetSyntaxException> {
+      parse<Expression>("Class<Component^C>(HAS Component^C)")
+    }
+    shouldThrow<PetSyntaxException> {
+      parse<Expression>("Class<1@Component>(HAS 1@Component)")
+    }
   }
 }

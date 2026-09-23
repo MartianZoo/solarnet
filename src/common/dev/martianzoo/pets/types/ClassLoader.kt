@@ -21,6 +21,7 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.TransformNode
+import dev.martianzoo.pets.ast.expandClassLiteralTypeVariableName
 import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration
@@ -106,6 +107,8 @@ private constructor(
    * @throws ExpressionException if [expression] is invalid in this universe.
    */
   override fun resolve(expression: Expression): GroundType {
+    val expanded = expression.expandClassLiteralTypeVariableName()
+    if (expanded !== expression && expanded != expression) return resolve(expanded)
     cache[expression]?.let {
       return it
     }

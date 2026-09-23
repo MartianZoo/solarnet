@@ -30,6 +30,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.resolveClassTypeVariableNames
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.ClassKind
 import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.ABSTRACT
@@ -266,15 +267,17 @@ internal object ClassParsing : PetTokenizer() {
       ): List<NestableDecl> {
         val mergedDefaults = DefaultsDeclaration.merge(body.defaultses)
         val newDecl =
-            signature.asDeclaration.copy(
-                kind = kind,
-                invariants = body.invariants.toSetStrict(),
-                authoredEffects = body.effects,
-                authoredActions = body.actions,
-                defaultsDeclaration = mergedDefaults,
-                properties = body.properties,
-                extraNodes = actionSelectors(body.actions),
-                docstring = docstring,
+            resolveClassTypeVariableNames(
+                signature.asDeclaration.copy(
+                    kind = kind,
+                    invariants = body.invariants.toSetStrict(),
+                    authoredEffects = body.effects,
+                    authoredActions = body.actions,
+                    defaultsDeclaration = mergedDefaults,
+                    properties = body.properties,
+                    extraNodes = actionSelectors(body.actions),
+                    docstring = docstring,
+                )
             )
         val unnested = body.nestedDeclarations.flatMap { it.unnestAllFrom(signature.className) }
         return IncompleteNestableDecl(newDecl) plus unnested

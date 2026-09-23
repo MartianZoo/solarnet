@@ -153,7 +153,7 @@ internal class Prelude2CardsTest : CardTest() {
   internal fun `World Government Advisor triggers effects that observe anyone placing an ocean`() {
     newGame(
         GameConfig(
-            "PreludeExpansion, Prelude2CardPack, TurmoilCardPack, " +
+            "PreludeExpansion, Prelude2CardPack, LakefrontResorts, " +
                 "Hydrologist, Builder, Engineer",
             "Player1",
             "Player2",
@@ -261,7 +261,7 @@ internal class Prelude2CardsTest : CardTest() {
   @Test
   internal fun `Selling patents does not offer Spire science for later debts`() {
     newGame(PreludeExpansion, Prelude2CardPack)
-    p1.runOperation("$Spire, Science<$Spire>, ProjectCard<Hand>")
+    p1.runOperation("$Spire, Science<$Spire>, ProjectCard")
     p1.runOperation("-RequiredAction!")
     admin.phase("Action")
     p1.sellPatents(1)
@@ -684,7 +684,9 @@ internal class Prelude2CardsTest : CardTest() {
     admin.phase("Action")
 
     p1.cardAction1(VenusOrbitalSurvey) {
-      doTask("ProjectCard<Hand FROM Selecting>")
+      // The two modeled offers are indistinguishable; identify either before choosing the free
+      // tagged outcome, then buy the other.
+      doTask("SearchForCard<TagFilter<Class<VenusTag>>>", tasks.extract { it }.first().id)
       p1.buyCards(1)
     }
 
@@ -895,7 +897,7 @@ internal class Prelude2CardsTest : CardTest() {
   }
 
   @Test
-  internal fun `WG Project draws three preludes and plays one`() {
+  internal fun `WG Project gains and plays one prelude`() {
     newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion)
     admin.runOperation("-Chairman<Neutral>")
     p1.runOperation("Chairman, 9 MC, ProjectCard")
@@ -907,6 +909,7 @@ internal class Prelude2CardsTest : CardTest() {
       }
     }
 
-    p1.count("PreludeCard<Selecting>") shouldBe 0
+    p1.count("PreludeCard") shouldBe 2
+    p1.count("$HighCircles") shouldBe 1
   }
 }

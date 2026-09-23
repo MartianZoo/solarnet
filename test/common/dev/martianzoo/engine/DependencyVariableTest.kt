@@ -17,8 +17,8 @@ internal class DependencyVariableTest {
           CLASS Token<Owner>
           CLASS Card : Owned<Owner>
 
-          ABSTRACT CLASS Linked<Card<Owner>> : Owned<Owner> {
-            This: Token<Owner>
+          ABSTRACT CLASS Linked<Card<CardOwner@Owner>> : Owned<CardOwner@Owner> {
+            This: Token<CardOwner@Owner>
           }
           CLASS InheritedLink : Linked
 
