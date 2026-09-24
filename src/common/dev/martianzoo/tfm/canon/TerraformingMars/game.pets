@@ -114,12 +114,11 @@ ABSTRACT CLASS Phase : System {
     This:: EACH Class<@CardWatcher> { @CardWatcher }
 
     NewTurn IF StandardCorporationCard<Hand>: \
-      PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Hand>, \
-      (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>)
+      PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Hand>
     NewTurn IF BeginnerCorporationCard<Hand>: \
-      PlayCard<Class<CorporationCard>, Class<BeginnerCorporation>, Hand>, \
-      (ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>)
-    -StandardCorporationCard<Hand>: BuySelectedCards
+      PlayCard<Class<CorporationCard>, Class<BeginnerCorporation>, Hand>
+    -StandardCorporationCard<Hand>: (3 Owed<> / ProjectCard<Hand>) THEN \
+      (PayingFor<Class<ProjectCard>> / ProjectCard<Hand>) THEN ActionBilling<CardPurchase, Action1>
   }
   CLASS ResearchPhase { This:: Generation }
   CLASS ActionPhase {

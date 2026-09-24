@@ -71,7 +71,7 @@ internal class TfmGameplayTest :
     newGame()
     p1.requireExplicitPaymentChoices()
     admin.phase("Action")
-    p1.runOperation("10 MC, 2 Steel, ProjectCard")
+    p1.runOperation("10 MC, 2 Steel, ProjectCard<Class<$Mine>, Hand>")
 
     shouldThrow<IllegalArgumentException> { p1.playProject(Mine, 4) }
     p1.count("MC") shouldBe 10
@@ -82,7 +82,7 @@ internal class TfmGameplayTest :
     newGame()
     p1.requireExplicitPaymentChoices()
     admin.phase("Action")
-    p1.runOperation("10 MC, 2 Steel, ProjectCard")
+    p1.runOperation("10 MC, 2 Steel, ProjectCard<Class<$Mine>, Hand>")
     // Synthetic API test: no strategic reason; deliberate underpayment exercises the opt-in.
     p1.intentionalUnderpay()
     p1.playProject(Mine, 4)
@@ -93,7 +93,7 @@ internal class TfmGameplayTest :
     newGame()
     p1.requireExplicitPaymentChoices()
     admin.phase("Action")
-    p1.runOperation("10 MC, 2 Heat, OneToOnePaymentSource, ProjectCard")
+    p1.runOperation("10 MC, 2 Heat, OneToOnePaymentSource, ProjectCard<Class<$Mine>, Hand>")
 
     p1.playProject(Mine, 4)
 
@@ -106,7 +106,7 @@ internal class TfmGameplayTest :
     newGame()
     p1.requireExplicitPaymentChoices()
     admin.phase("Action")
-    p1.runOperation("10 MC, 2 Heat, OneToOnePaymentSource, ProjectCard")
+    p1.runOperation("10 MC, 2 Heat, OneToOnePaymentSource, ProjectCard<Class<$Mine>, Hand>")
 
     shouldThrow<IllegalArgumentException> {
       p1.turn { playProject(Mine, 2, heat = 2) }
@@ -137,7 +137,9 @@ internal class TfmGameplayTest :
     newGame()
     p1.requireExplicitPaymentChoices()
     admin.phase("Action")
-    p1.runOperation("14 MC, 2 Steel, 2 ProjectCard")
+    p1.runOperation(
+        "14 MC, 2 Steel, ProjectCard<Class<$Mine>, Hand>, ProjectCard<Class<$PowerPlant>, Hand>"
+    )
 
     // Synthetic API test: no strategic reason; deliberate underpayment exercises one-shot scope.
     p1.intentionalUnderpay()
@@ -149,7 +151,7 @@ internal class TfmGameplayTest :
   internal fun `Payment rejects a tender containing a unit that could be kept`() {
     newGame()
     admin.phase("Action")
-    p1.runOperation("3 Steel, ProjectCard")
+    p1.runOperation("3 Steel, ProjectCard<Class<$Mine>, Hand>")
 
     // Mine costs 4; two steel already settle it, so the third is returnable.
     shouldThrow<LimitsException> { p1.playProject(Mine, steel = 3) }
@@ -162,7 +164,7 @@ internal class TfmGameplayTest :
   internal fun `Payment allows excess no single unit could have avoided`() {
     newGame()
     admin.phase("Action")
-    p1.runOperation("4 Steel, ProjectCard")
+    p1.runOperation("4 Steel, ProjectCard<Class<$TitaniumMine>, Hand>")
 
     // Titanium Mine costs 7; three steel are not enough, so the fourth may waste one M€.
     p1.playProject(TitaniumMine, steel = 4)
@@ -175,7 +177,7 @@ internal class TfmGameplayTest :
   internal fun `Payment rejects mc beyond the remainder after steel`() {
     newGame()
     admin.phase("Action")
-    p1.runOperation("30 MC, 5 Steel, ProjectCard")
+    p1.runOperation("30 MC, 5 Steel, ProjectCard<Class<$AquiferPumping>, Hand>")
 
     shouldThrow<LimitsException> {
       p1.playProject(AquiferPumping, mc = 18, steel = 5)

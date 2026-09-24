@@ -423,6 +423,23 @@ internal class RealCardDrawTest {
   }
 
   @Test
+  internal fun `corporation reward draw is free while the retained exact project is purchased`() {
+    val world = Engine.newGame(canonicalPremise(PreludeExpansion))
+    val player = world.testTfm(PLAYER1)
+    world.testTfm(ADMIN).phase("Corporation")
+    player.runOperation(
+        "StandardCorporationCard<Class<PointLuna>, Hand>, ProjectCard<Class<Mine>, Hand>"
+    )
+
+    player.playCorp(cn("PointLuna"), 1)
+
+    player.count("ProjectCard<Class<Mine>, Hand>") shouldBe 1
+    player.count("ProjectCard<Hand>") shouldBe 2
+    player.count("MC") shouldBe 35
+    player.count("Owed") shouldBe 0
+  }
+
+  @Test
   internal fun `beginner setup chooses an exact beginner back while another player takes a standard offer`() {
     val world = Engine.newGame(canonicalPremise(BeginnerVariant, players = 2))
     val agents = world.testAgents()
@@ -456,6 +473,13 @@ internal class RealCardDrawTest {
     standard.count("ProjectCard<Hand>") shouldBe 1
     standard.count("ProjectCard<Selecting>") shouldBe 0
     beginner.count("DeckSpent") shouldBe 1 + 10 + 2 + 10
+
+    TfmWorkflow.Stepwise(agents).corporationPhase()
+    world.testTfm(PLAYER1).inTurn {
+      doTask("PlayCard<Class<BeginnerCorporationCard>, Class<$beginnerFace>, Hand>")
+    }
+    beginner.count("ProjectCard<Hand>") shouldBe 10
+    beginner.count("ProjectCard<Selecting>") shouldBe 0
   }
 
   @Test

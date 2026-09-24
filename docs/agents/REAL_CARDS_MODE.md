@@ -14,6 +14,8 @@ across players, backs, fronts, and played events.
 remove and gain. The existing `CardLocationCleanup` removes unchosen backs from `Selecting` and
 `Revealed` when work becomes idle. Setup offers ten exact project backs and two exact standard
 corporation backs per player. The player chooses a corporation and may keep each offered project.
+When that standard corporation is played, the corporation-phase rule bills the exact retained
+project backs already in Hand. Beginner corporations keep their ten starting project backs free.
 Research and other purchases offer one optional discard per exact selected back; the remaining
 backs are purchased. `buyCards(count)` resolves those choices in task order.
 Sell Patents and card effects that discard several cards likewise make one choice per exact back.
@@ -45,8 +47,10 @@ Pets movement cannot yet carry a selected back's represented Class into a new lo
 - A manually supplied exact card does not mark its face spent. The dealer skips it while it is in
   the World, but if it is later removed before any draw traverses it, that face can return to the
   ordered deck. Use `DrawCard` for ordinary entries.
-- Older follow-mode replay tests and helpers assume fungible backs and do not establish real-card
-  behavior. Use `RealCardDrawTest` for current exact-card scenarios.
+- Older replay and card tests assume fungible backs and currently fail under the one real-card
+  model. `RealCardDrawTest` covers focused exact-card scenarios; `ExactCardsReplayTest` covers
+  setup through corporation purchase. Port those tests to concrete backs or retire cases without
+  enough card evidence; the full `:tfm-tests:jvmTest` suite is not yet green.
 - The `CONCRETE` Agent policy opens fixed draw and `EACH` stages while leaving optional discards as
   choices. With `NONE`, a caller must explicitly open those stages before using the count-based
   purchase or patent-sale conveniences.

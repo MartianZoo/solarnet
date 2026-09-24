@@ -63,8 +63,8 @@ public class TfmGameplay(
 
   public fun playCorp(cardName: ClassName, buyCards: Int, body: OperationBlock = {}): TaskResult {
     return inTurn {
-      // TODO: Remove the EAGER dependency after Pets owns corporation reward/purchase ordering.
-      val retained = this@TfmGameplay.count("ProjectCard<Selecting>")
+      // TODO: Remove the EAGER dependency from corporation play and payment settlement.
+      val retained = this@TfmGameplay.count("ProjectCard<Hand>")
       require(buyCards == retained) {
         "must buy all $retained project cards retained during setup, not $buyCards"
       }
