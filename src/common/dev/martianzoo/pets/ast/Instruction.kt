@@ -1119,7 +1119,7 @@ public sealed class Instruction : InstructionTree() {
       return parser {
         val gain: Parser<Instruction> =
             ScaledExpression.parser() and
-                optional(quantifier) map
+                quantifier map
                 { (ste, int) ->
                   Gain.gain(ste, int)
                 }
@@ -1127,7 +1127,7 @@ public sealed class Instruction : InstructionTree() {
         val remove: Parser<Instruction> =
             skipChar('-') and
                 ScaledExpression.parser() and
-                optional(quantifier) map
+                quantifier map
                 { (ste, int) ->
                   Remove.remove(ste, int)
                 }
@@ -1135,7 +1135,7 @@ public sealed class Instruction : InstructionTree() {
         val transmute: Parser<Transmute> =
             optional(ScaledExpression.scalar()) and
                 FromExpression.parser() and
-                optional(quantifier) map
+                quantifier map
                 { (scalar, fro, int) ->
                   Transmute(fro, scalar ?: ActualScalar(1), int)
                 }
