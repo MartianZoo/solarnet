@@ -88,7 +88,7 @@ internal abstract class PetTokenizer {
           interior and
           skipChar(']') map
           { (trans, inter) ->
-            Tuple2(inter, trans.text.removeSuffix("["))
+            Tuple2(inter, trans.text)
           }
 
   internal inline fun <reified P> commaSeparated(p: Parser<P>) = separatedTerms(p, char(','))
