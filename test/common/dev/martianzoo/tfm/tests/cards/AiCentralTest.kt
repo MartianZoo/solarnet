@@ -1,5 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -10,8 +12,7 @@ import kotlin.test.Test
 internal class AiCentralTest : CardTest() {
   @Test
   internal fun `Can be played with three science tags`() {
-    newGameWithAutoWorkflow()
-    playUntilFirstActionPhase()
+    startActionGame()
     establishScienceTags(3)
     p1.stdProject("PowerPlantProject")
 
@@ -20,8 +21,7 @@ internal class AiCentralTest : CardTest() {
 
   @Test
   internal fun `Can use its action`() {
-    newGameWithAutoWorkflow()
-    playUntilFirstActionPhase()
+    startActionGame()
     playAiCentral()
 
     p1.cardAction1(AiCentral).expect("2 ProjectCard")
@@ -29,23 +29,26 @@ internal class AiCentralTest : CardTest() {
 
   @Test
   internal fun `Can use its action again next generation`() {
-    newGameWithAutoWorkflow()
-    playUntilFirstActionPhase()
+    startActionGame()
     playAiCentral()
     p1.cardAction1(AiCentral)
 
-    p1.pass()
-    p1.buyCards(0)
-    requireP2().buyCards(0)
-    requireP2().pass()
+    admin.phase("Production")
+    p1.autoExecPolicy = CONCRETE
+    requireP2().autoExecPolicy = CONCRETE
+    admin.phase("Research") {
+      p1.buyCards(0)
+      requireP2().buyCards(0)
+    }
+    admin.phase("Action")
+    p1.autoExecPolicy = EAGER
 
     p1.cardAction1(AiCentral).expect("2 ProjectCard")
   }
 
   @Test
   internal fun `Cannot be played with only two science tags`() {
-    newGameWithAutoWorkflow()
-    playUntilFirstActionPhase()
+    startActionGame()
     establishScienceTags(2)
     p1.stdProject("PowerPlantProject")
 
@@ -54,8 +57,7 @@ internal class AiCentralTest : CardTest() {
 
   @Test
   internal fun `Cannot be played without energy production`() {
-    newGameWithAutoWorkflow()
-    playUntilFirstActionPhase()
+    startActionGame()
     establishScienceTags(3)
 
     shouldThrow<LimitsException> { p1.playProject(AiCentral, 21) }
@@ -63,8 +65,7 @@ internal class AiCentralTest : CardTest() {
 
   @Test
   internal fun `Cannot use its action twice in one generation`() {
-    newGameWithAutoWorkflow()
-    playUntilFirstActionPhase()
+    startActionGame()
     playAiCentral()
     p1.cardAction1(AiCentral)
 
@@ -79,6 +80,18 @@ internal class AiCentralTest : CardTest() {
     }
     requireP2().pass()
     if (count == 3) p1.playProject(DesignedMicroorganisms, 16)
+  }
+
+  private fun startActionGame() {
+    newGame()
+    admin.phase("Action")
+    p1.runOperation(
+        "500 MC, " +
+            "ProjectCard<Class<$SearchForLife>, Hand>, " +
+            "ProjectCard<Class<$InventorsGuild>, Hand>, " +
+            "ProjectCard<Class<$DesignedMicroorganisms>, Hand>, " +
+            "ProjectCard<Class<$AiCentral>, Hand>"
+    )
   }
 
   private fun playAiCentral() {
