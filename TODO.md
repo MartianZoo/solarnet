@@ -12,6 +12,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   Mars First's inline `Policy<This> { Tile<MarsArea>: Steel }` lowers to a gain of
   `MarsFirst_Policy<This>` extending `Policy<MarsFirst>`; `MarsFirst` is fixed and no longer an
   argument position, so elaboration rejects the gain.
+- Consider allowing owner-local Class declarations only in gain instructions. They currently also
+  parse in other expression positions, including a selector's `HAS` refinement; decide the intended
+  boundary and account for existing uses before restricting the syntax.
 - Let a configuration select all applicable Content exposed by one bundle, without inventing a
   `CardPack` Module. Resolve narrower pool requests into individual Class choices before the game
   premise is built. Resolve eligibility before offering that choice: promo replacements still test
