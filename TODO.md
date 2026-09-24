@@ -106,6 +106,11 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- Review [the class-existence scenario draft](docs/class-existence-scenarios-draft.md) for
+  clarity and coverage, then consolidate `ClassDefinitionBoundaryTest` and
+  `ClassTableSelectionTest`. Keep each distinct selection boundary tested once and remove
+  repetitive assertions without losing the readable scenarios or broad module/content cases.
+
 - Add Jacob Fryxelius's ruling that moving Mars Nomads does not trigger the Mars First ruling policy.
 - Repair the two declared Pets conformance gaps without adding a second representation of type
   identity: L7-8 lets `Tile<> THEN Tile<>` stages diverge after defaults, and T8-3 can substitute a
