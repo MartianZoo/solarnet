@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
@@ -7,6 +8,7 @@ import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.testsupport.PLAYER1
@@ -124,19 +126,29 @@ internal class TfmWorkflowTest {
     val p2 = game.testTfm(PLAYER2).also { it.autoExecPolicy = NONE }
 
     workflow.setupPhase()
-    listOf(p1, p2).forEach { player ->
-      player.doTask("BeginnerCorporationCard")
-      player.doTask("10 ProjectCard")
-      player.doTask("NewTurn")
-    }
+    p1.doTask("DrawCard<Class<BeginnerCorporationCard>, Hand>")
+    // The selected setup arm lets EAGER deal its remaining ten exact project cards.
+    p1.autoExecPolicy = EAGER
+    p2.doTask("DrawCard<Class<BeginnerCorporationCard>, Hand>")
+    p2.autoExecPolicy = EAGER
+
+    // The ordered beginner deck deals its first two distinct faces in seat order.
+    p1.count("BeginnerCorporationCard<Class<BeginnerCorporation1>, Hand>") shouldBe 1
+    p2.count("BeginnerCorporationCard<Class<BeginnerCorporation2>, Hand>") shouldBe 1
+    p1.count("ProjectCard<Hand>") shouldBe 10
+    p2.count("ProjectCard<Hand>") shouldBe 10
 
     workflow.corporationPhase()
-    p1.startTurn()
-    p1.doTask("10 ProjectCard<Selecting FROM Hand>")
-    p1.doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation1>, Hand>")
-    p1.pay()
-    p1.doTask("42 MC")
-    p1.doTask("10 ProjectCard<Hand FROM Selecting>")
+    shouldThrow<LimitsException> {
+      p2.inTurn {
+        doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation3>, Hand>")
+      }
+    }
+    p2.count("BeginnerCorporation3") shouldBe 0
+    p2.count("BeginnerCorporationCard<Class<BeginnerCorporation2>, Hand>") shouldBe 1
+    p1.inTurn {
+      doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation1>, Hand>")
+    }
 
     shouldThrow<LimitsException> { p2.runOperation("BeginnerCorporation1") }
     p2.assertCounts(
@@ -145,12 +157,9 @@ internal class TfmWorkflowTest {
         10 to "ProjectCard<Hand>",
     )
 
-    p2.startTurn()
-    p2.doTask("10 ProjectCard<Selecting FROM Hand>")
-    p2.doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation2>, Hand>")
-    p2.pay()
-    p2.doTask("42 MC")
-    p2.doTask("10 ProjectCard<Hand FROM Selecting>")
+    p2.inTurn {
+      doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation2>, Hand>")
+    }
 
     p1.assertCounts(1 to "BeginnerCorporation1", 42 to "MC", 10 to "ProjectCard<Hand>")
     p2.assertCounts(1 to "BeginnerCorporation2", 42 to "MC", 10 to "ProjectCard<Hand>")
@@ -217,11 +226,18 @@ internal class TfmWorkflowTest {
 
     agents[ADMIN].beginOperation("ResearchPhase FROM Phase")
 
-    agents[PLAYER2].doTask("4 ProjectCard<Selecting>")
-    agents[PLAYER1].doTask("4 ProjectCard<Selecting>")
+    repeat(4) { agents[PLAYER2].doTask("DrawCard<Class<ProjectCard>, Selecting>") }
+    repeat(4) { agents[PLAYER1].doTask("DrawCard<Class<ProjectCard>, Selecting>") }
 
     agents[PLAYER1].count("ProjectCard<Selecting>") shouldBe 4
     agents[PLAYER2].count("ProjectCard<Selecting>") shouldBe 4
+    val offered =
+        agents[PLAYER1].list("ProjectCard<Selecting>").elements +
+            agents[PLAYER2].list("ProjectCard<Selecting>").elements
+    offered
+        .map { back -> back.arguments.single { it.className == cn("Class") }.arguments.single() }
+        .toSet()
+        .size shouldBe 8
   }
 
   @Test
