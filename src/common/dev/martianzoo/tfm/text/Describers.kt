@@ -211,7 +211,21 @@ private constructor(
       changeFrame(className) as? ComponentDescriber.ChangeFrame.Scale
 
   internal fun resolveExpression(expression: Expression): ResolvedExpression? =
-      expressions.resolve(expression)
+      expressions.resolve(implicitCurrentCardArgument(expression))
+
+  private fun implicitCurrentCardArgument(expression: Expression): Expression {
+    val card = cardContext?.card ?: return expression
+    val arguments = expression.arguments.map(::implicitCurrentCardArgument)
+    val nested =
+        if (arguments == expression.arguments) expression
+        else expression.copy(arguments = arguments)
+    if (nested.arguments != listOf(thisExpression)) return nested
+    val implicit = nested.copy(arguments = emptyList())
+    val explicit = nested.copy(arguments = listOf(card.className.expression))
+    // Only elide This when the Class already fixes that argument to the current card.
+    val implicitType = expressions.resolve(implicit)?.type ?: return nested
+    return implicit.takeIf { implicitType == expressions.resolve(explicit)?.type } ?: nested
+  }
 
   internal fun allConcreteSubtypes(type: Type) = classTable.allConcreteSubtypes(type)
 

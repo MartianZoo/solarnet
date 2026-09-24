@@ -111,8 +111,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
-- Render Capital's `CapitalTile<This>` placement and adjacency metric from the modeled
-  cardbound tile. English currently retains both expressions as visible Pets fallbacks.
 - Define an authored, game-neutral way for bundle compatibility inference to distinguish hard
   dependencies from references that may safely disappear when a companion bundle is absent. Start
   with characterization tests for Suitable Infrastructure, Constructor, Soil Studies, and Summit

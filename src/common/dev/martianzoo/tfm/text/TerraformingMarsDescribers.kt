@@ -403,8 +403,9 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 changeFrame =
                     Frame.Positioned(
-                        Determiner.INDEFINITE,
-                        counted("capital tile", "capital tiles"),
+                        Determiner.THIS,
+                        cityTileNoun,
+                        referenceNoun = counted("capital tile", "capital tiles"),
                         unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
                         anyoneOwnership = ComponentDescriber.OwnershipPhrase.IMPLICIT,
                     )

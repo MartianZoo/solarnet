@@ -18,7 +18,7 @@ DeepWellHeating	Deep Well Heating	Increase your energy production 1 step. Raise 
 CloudSeeding	Cloud Seeding	Requires 3 ocean tiles. Decrease your M€ production 1 step and any player's heat production 1 step and increase your plant production 2 steps.
 SearchForLife	Search For Life	Requires 6% oxygen or less. 3 VPs if you have 1 or more science resources on this card.	Action: [MC -> Science<This>?].
 MartianRails	Martian Rails		Action: Spend 1 energy to gain 1 M€ per city tile in play on Mars.
-Capital	Capital	Requires 4 ocean tiles. [CapitalTile<This>]. Decrease your energy production 2 steps and increase your M€ production 5 steps. 1 VP per [Adjacency<CapitalTile<This>, OceanTile>].
+Capital	Capital	Requires 4 ocean tiles. Place this city tile. Decrease your energy production 2 steps and increase your M€ production 5 steps. 1 VP per ocean tile next to this city tile.
 AsteroidCard	Asteroid	Raise temperature 1 step. Gain 2 titanium. You may remove up to 3 plants from any player.
 Comet	Comet	Raise temperature 1 step. Place an ocean tile. You may remove up to 3 plants from any player.
 BigAsteroid	Big Asteroid	Raise temperature 2 steps. Gain 4 titanium. You may remove up to 4 plants from any player.
