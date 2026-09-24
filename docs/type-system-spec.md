@@ -102,7 +102,10 @@ ABSTRACT CLASS OwnedOccupant : Owned, Occupant
 ABSTRACT CLASS Tile : Occupant
 ABSTRACT CLASS OwnedTile : OwnedOccupant, Tile {
   CLASS GreeneryTile : Tile<MarsArea>
-  CLASS CityTile { DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)> }
+  ABSTRACT CLASS CityTile {
+    DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
+    CLASS NormalCityTile
+  }
 }
 CLASS OceanTile : Tile<MarsArea> { DEFAULT +OceanTile<WaterArea(HAS MAX 0 Tile)> }
 CLASS Neighbor<AreaPiece, MarsArea> : Custom
@@ -515,9 +518,9 @@ and `@X<dependencies>` applies ordinary dependency arguments to it (T13-1). Neit
 **T4-2. Concreteness depends only on the class named,** and not on that class's dependencies:
 
 ```text
-CityTile          is abstract  — its owner and area are open
-Class<CityTile>   is concrete  — CityTile is one specific class
-Class<Metal>      is abstract  — Metal is not a concrete class
+GreeneryTile         is abstract  — its owner and area are open
+Class<GreeneryTile>  is concrete  — GreeneryTile is one concrete class
+Class<Metal>         is abstract  — Metal is not a concrete class
 ```
 
 Like every concrete type, a concrete class literal can still be uninhabited in a particular
@@ -618,10 +621,10 @@ bound. An explicit empty argument list, `GreeneryTile<>`, means the same type. T
 differ elsewhere in Pets: in an instruction, `<>` says "I accept this use's defaults on purpose".
 That rule belongs to instructions, not to types; see L3-2 and L12-5.
 
-> **Non-normative example — Capital.** Its city placement is `@CityTile<> THEN
-> CapitalMarker<@CityTile>`: place a city under the ordinary city-placement default, then mark that
-> same city. The `<>` records that the default was accepted deliberately, but as a type,
-> `CityTile<>` is `CityTile`.
+> **Non-normative example — neutral solo tiles.** Their city placement is `@CityTile<> THEN
+> GreeneryTile<LandArea(HAS Neighbor<@CityTile>)>`: place a city under the ordinary city-placement
+> default, then place greenery next to it. The `<>` records that the default was accepted
+> deliberately, but as a type, `CityTile<>` is `CityTile`.
 
 **T5-3. Abstractness.** A type is abstract if its root class is abstract, **or** any dependency
 bound is abstract, **or** it carries a refinement. Only a concrete type can be the type of a
@@ -648,8 +651,8 @@ uninhabited when it contains none (T12-4).
 > `LandArea(HAS MAX 0 Neighbor)`: a land area that, at the moment of placement, is next to no other
 > tile. The type stays abstract even when exactly one area qualifies at that moment. Placing the
 > tile narrows it to that concrete area, and from then on the tile is
-> `CityTile<Player1, Tharsis_2_3>`. Its identity says nothing about neighbours, so tiles placed next
-> to it later do not change which component it is.
+> `NormalCityTile<Player1, Tharsis_2_3>`. Its identity says nothing about neighbours, so tiles
+> placed next to it later do not change which component it is.
 
 **T5-4. Full form.** The **full form** of a type writes an argument for every open dependency, in
 key order. Fixed dependencies (T3-4) remain part of the type under T5-1, but the full form omits
@@ -931,9 +934,9 @@ components. An explicit `Class<@X>(HAS @X)` remains an equivalent spelling.
 **T8-11. Refinements inside dependencies** behave like any other refinement, and survive rendering
 and re-resolution.
 
-> **Non-normative example — Capital.** It scores at game end for each ocean adjacent to the capital
-> city: `VictoryPoint / Adjacency<CityTile(HAS CapitalMarker), OceanTile>`. Losing that nested
-> refinement during rendering would pay Capital points for every city–ocean adjacency.
+> **Non-normative example — city placement.** Its gain default requires
+> `LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)`. Losing that nested refinement during rendering
+> would allow a city next to another city.
 
 ---
 
@@ -1084,7 +1087,7 @@ dependency that both the subclass and the type admit. In a two-player Tharsis ga
 
 ```text
 GreeneryTile<Tharsis_2_2>  →  GreeneryTile<Player1, Tharsis_2_2>, GreeneryTile<Player2, Tharsis_2_2>
-Tile<Tharsis_2_2>          →  CityTile<Player1, Tharsis_2_2>, CityTile<Player2, Tharsis_2_2>, ...
+Tile<Tharsis_2_2>          →  NormalCityTile<Player1, Tharsis_2_2>, NormalCityTile<Player2, Tharsis_2_2>, ...
                               one per owned tile class and player, and OceanTile<Tharsis_2_2>
 Class<Metal>               →  Class<Steel>, Class<Titanium>
 ```
@@ -1125,6 +1128,11 @@ Within those limits it is thorough:
 
 A `HAS` clause can decide between candidates only where enumeration happens anyway, as with a
 refined class literal (T8-10).
+
+The engine can also use the current World to finish a gain after its Task is selected. That later
+step can exclude a subtype whose added dependency is absent or whose gain limit is full. If only
+one executable concrete gain remains, it may also settle the gain's area. This does not change the
+world-free type rule.
 
 This is an under-approximation, and knowingly so. A type narrows automatically when the *universe*
 leaves one candidate, not when the current state does. An ocean placement asking for
@@ -1507,9 +1515,10 @@ the same type. The one exception is the implicit represented root in a refined c
 (T8-10).
 
 An occurrence stays an occurrence when elaboration copies it or adds default arguments to it.
-Capital places `@CityTile<>`, which elaboration expands with the city's gain default. Binding
-`@CityTile` replaces that expanded declaration and the use in `CapitalMarker<@CityTile>`. An
-unmarked city expression written the same way elsewhere would be untouched.
+Neutral solo setup places `@CityTile<>`, which elaboration expands with the city's gain default.
+Binding `@CityTile` replaces that expanded declaration and the use in
+`GreeneryTile<LandArea(HAS Neighbor<@CityTile>)>`. An unmarked city expression written the same way
+elsewhere would be untouched.
 
 For a represented-class variable, binding `@CardResource` to the class `Microbe` makes
 `@CardResource<This>` mean `Microbe<This>`. If `Microbe` already narrows the dependency an argument
