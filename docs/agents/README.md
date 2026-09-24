@@ -47,7 +47,8 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 
 | Concept being changed | Read | Authority |
 | --- | --- | --- |
-| Game World ownership, passive component/task data, recordings, exports, or playback | [`GAMEWORLD.md`](GAMEWORLD.md) | Selected direction |
+| Game World ownership, passive component/task data, recording internals, or playback | [`GAMEWORLD.md`](GAMEWORLD.md) | Selected direction |
+| Exact event exports, decision exports, combined files, or game import | [`EXPORT.md`](EXPORT.md) | Current event export and decision-design record |
 | Current World construction, components, tasks, effects, or Agent | [`ENGINE.md`](ENGINE.md) | Current model |
 | Current live event, transaction, checkpoint, or rollback implementation | [`ENGINE.md`](ENGINE.md#concrete-state-and-its-history) | Current model |
 | Task ordering, `THEN`, automatic effects, barriers, or completion | [`SEQUENCING.md`](SEQUENCING.md) | Working rules and selected direction |
