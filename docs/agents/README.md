@@ -58,6 +58,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Known deliberate game representations | The matching entry in [`GAME_HACKS.md`](GAME_HACKS.md) | Current model |
 | Phase topology or replacing the Kotlin workflow | [`WORKFLOW.md`](WORKFLOW.md) | Domain rules and proposal |
 | Agent policies, shared autoexecution, or policy-relative stable points | [`AUTOEXEC.md`](AUTOEXEC.md) | Working direction and audit |
+| Stashed Admin task-routing experiment and turn-state questions | [`TASK_ROUTING_EXPERIMENT.md`](TASK_ROUTING_EXPERIMENT.md) | Research; not current behavior |
 | Proof that an automatic task command is safe | [`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md) | Research and proposal |
 | Runtime diagnostics, event metadata, or traces | [`DIAGNOSTICS.md`](DIAGNOSTICS.md) | Proposal and procedure |
 
