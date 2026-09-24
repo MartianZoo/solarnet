@@ -79,7 +79,9 @@ policy and broader confluence analyses remain optional research, not engine sema
 
 See [`API.md`](API.md#current-implementation-divergence),
 [`AUTOEXEC.md`](AUTOEXEC.md#current-implementation), and
-[`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md#validation-strategy).
+[`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md#validation-strategy). The recoverable Admin-routing prototype
+and unresolved turn-state audit are recorded in
+[`TASK_ROUTING_EXPERIMENT.md`](TASK_ROUTING_EXPERIMENT.md).
 
 ## Other indexed programs
 
