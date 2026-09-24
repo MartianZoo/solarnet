@@ -10,16 +10,16 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
 /**
  * An uppercase-leading identifier used as a class name, matching the grammar of
- * [rule L2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-names).
+ * [rule L10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-names).
  * After the initial ASCII uppercase letter, letters, digits, and underscores are allowed, so
  * `GreeneryTile`, `Tharsis_2_2`, `MC`, and `TOOLONG` are all names. Reserved keywords are rejected
  * ([rule
- * L2-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-names));
+ * L10-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-names));
  * because the reserved spellings are exact, `Max` and `Has` are perfectly good class names.
  *
  * Beyond that pattern a name is not validated here — there is one namespace and no scoping, and a
  * name means whatever the class table says it means ([rule
- * L2-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-names)).
+ * L10-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-names)).
  * Create one using the compactly-named function [cn].
  */
 @ConsistentCopyVisibility
@@ -91,7 +91,7 @@ public data class ClassName private constructor(public val asString: String) :
   /**
    * For the class name `Foo`, returns the class literal `Class<Foo>`. A class literal is written
    * with one bare class name ([rule
-   * L3-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-expressions),
+   * L1-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions),
    * [rule T4-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#4-class-literals)).
    */
   public fun classExpression(): Expression = CLASS.of(this)

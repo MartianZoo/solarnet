@@ -116,7 +116,7 @@ See [`API.md`](API.md#layer-responsibility), [`VISIBILITY.md`](VISIBILITY.md), a
 ### Simplify Pets and runtime semantics
 
 - Repair the two declared Pets conformance gaps and the compatible-refinement/default problem
-  without adding a second representation of Type identity: L7-8 stage divergence after defaults and
+  without adding a second representation of Type identity: L3-8 stage divergence after defaults and
   T8-3 substitution into the wrong compatible dependency slot.
 - Give refinements an explicit candidate when nested dependencies must relate to it, and add a real
   structural conjunction so rules can name intersections such as owned tiles without nominal proxy

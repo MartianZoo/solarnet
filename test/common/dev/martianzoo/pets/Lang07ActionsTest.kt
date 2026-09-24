@@ -14,13 +14,13 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-/** Section 9 of `docs/pets-language-spec.md`: actions a player may invoke. */
-internal class Lang09ActionsTest {
+/** Section 7 of `docs/pets-language-spec.md`: actions a player may invoke. */
+internal class Lang07ActionsTest {
 
-  // L9-1 The shape of an action
+  // L7-1 The shape of an action
 
   @Test
-  internal fun `L9-1 an action is an optional cost, an arrow and an instruction`() {
+  internal fun `L7-1 an action is an optional cost, an arrow and an instruction`() {
     val action = parse<Action>("Ore -> 5 Widget")
 
     action.cost shouldBe Cost.Spend(parse("Ore"))
@@ -29,29 +29,10 @@ internal class Lang09ActionsTest {
     parse<Action>("-> Ok").toString() shouldBe "-> Ok"
   }
 
-  // L9-2 What an action means
+  // L7-2 Cost forms
 
   @Test
-  internal fun `L9-2 an action means spend the cost, then do the result`() {
-    parse<Action>("Ore -> 5 Widget").toInstruction() shouldBe
-        parse<InstructionTree>("-Ore! THEN 5 Widget")
-    parse<Action>("-> 5 Widget").toInstruction() shouldBe parse<InstructionTree>("5 Widget")
-    parse<Action>("Ore -> Widget, Gizmo").toInstruction() shouldBe
-        parse<InstructionTree>("-Ore! THEN (Widget, Gizmo)")
-  }
-
-  @Test
-  internal fun `L9-2 the result's own sequence joins the one the arrow makes`() {
-    val lowered = parse<Action>("Ore -> Widget THEN Gizmo").toInstruction()
-
-    lowered shouldBe parse<InstructionTree>("-Ore! THEN Widget THEN Gizmo")
-    (lowered as dev.martianzoo.pets.ast.Instruction.Then).instructions.size shouldBe 3
-  }
-
-  // L9-3 Cost forms
-
-  @Test
-  internal fun `L9-3 a cost is a scaled expression, optionally per metric or transformed`() {
+  internal fun `L7-2 a cost is a scaled expression, optionally per metric or transformed`() {
     parse<Action>("2 Ore -> Widget").cost shouldBe Cost.Spend(parse("2 Ore"))
     parse<Action>("Ore / Gizmo -> Widget").cost shouldBe
         Cost.Per(Cost.Spend(parse("Ore")), parse("Gizmo"))
@@ -62,15 +43,62 @@ internal class Lang09ActionsTest {
   }
 
   @Test
-  internal fun `L9-3 alternative costs are separate actions, not one composite cost`() {
+  internal fun `L7-2 alternative costs are separate actions, not one composite cost`() {
     shouldThrow<PetSyntaxException> { parse<Action>("=0 Award: 8 Ore -> Award") }
     shouldThrow<PetSyntaxException> { parse<Action>("Ore, Gizmo -> Award") }
   }
 
-  // L9-4 Lowering to an effect
+  // L7-3 What an action means
 
   @Test
-  internal fun `L9-4 an action becomes an effect keyed to its position on its class`() {
+  internal fun `L7-3 an action means spend the cost, then do the result`() {
+    parse<Action>("Ore -> 5 Widget").toInstruction() shouldBe
+        parse<InstructionTree>("-Ore! THEN 5 Widget")
+    parse<Action>("-> 5 Widget").toInstruction() shouldBe parse<InstructionTree>("5 Widget")
+    parse<Action>("Ore -> Widget, Gizmo").toInstruction() shouldBe
+        parse<InstructionTree>("-Ore! THEN (Widget, Gizmo)")
+  }
+
+  @Test
+  internal fun `L7-3 the result's own sequence joins the one the arrow makes`() {
+    val lowered = parse<Action>("Ore -> Widget THEN Gizmo").toInstruction()
+
+    lowered shouldBe parse<InstructionTree>("-Ore! THEN Widget THEN Gizmo")
+    (lowered as dev.martianzoo.pets.ast.Instruction.Then).instructions.size shouldBe 3
+  }
+
+  // L7-4 named Type variables across an Action
+
+  @Test
+  internal fun `L7-4 an Action cost can name a Type used by its result`() {
+    roundTrip<Action>("@StandardResource -> 4 @StandardResource")
+    roundTrip<Action>("Foo<@Plant> -> Bar<@Plant>")
+    roundTrip<Action>("Foo<Class<@Plant>> -> @Plant<Owner>")
+    roundTrip<Action>("@Plant -> Foo<Bar(HAS Baz<@Plant>)>")
+  }
+
+  @Test
+  internal fun `L7-4 an Action Type-variable marker must be shared`() {
+    shouldThrow<PetSyntaxException> { parse<Action>("@Plant -> Heat") }
+    roundTrip<Action>("Duo<@Plant, @Plant> -> @Plant")
+    shouldThrow<PetSyntaxException> { parse<Action>("@Plant -> @Plant<Steel>") }
+  }
+
+  @Test
+  internal fun `L7-4 an Action variable must be declared by its cost`() {
+    shouldThrow<PetSyntaxException> {
+      parse<Action>("Plant / Score<@Steel> -> @Steel")
+    }
+    shouldThrow<PetSyntaxException> { parse<Action>("Plant -> @Steel") }
+    shouldThrow<PetSyntaxException> {
+      parse<Action>("@StandardResource -> @Plant THEN @StandardResource")
+    }
+  }
+
+  // L7-5 Lowering to an effect
+
+  @Test
+  internal fun `L7-5 an action becomes an effect keyed to its position on its class`() {
     actionListToEffects(listOf(parse("-> Widget"), parse("Ore -> 5 Gizmo"))) shouldContainExactly
         listOf(
             parse<Effect>("UseAction<This, Action1>: Widget"),
@@ -79,7 +107,7 @@ internal class Lang09ActionsTest {
   }
 
   @Test
-  internal fun `L9-4 a class offers at most three actions`() {
+  internal fun `L7-5 a class offers at most three actions`() {
     val four = List(4) { parse<Action>("-> Widget$it") }
 
     actionListToEffects(four.take(3)).size shouldBe 3
@@ -100,10 +128,10 @@ internal class Lang09ActionsTest {
     }
   }
 
-  // L9-5 A class's effects
+  // L7-6 A class's effects
 
   @Test
-  internal fun `L9-5 a class's effects are its authored effects then its lowered actions`() {
+  internal fun `L7-6 a class's effects are its authored effects then its lowered actions`() {
     val declaration = parseClasses("CLASS Bench {\n  This: Widget\n  Ore -> Gizmo\n}").single()
 
     declaration.authoredEffects shouldContainExactly listOf(parse<Effect>("This: Widget"))
@@ -114,20 +142,20 @@ internal class Lang09ActionsTest {
         )
   }
 
-  // L9-6 Immediate instructions
+  // L7-7 Immediate instructions
 
   @Test
-  internal fun `L9-6 an instruction that happens on gain is the effect This colon it`() {
+  internal fun `L7-7 an instruction that happens on gain is the effect This colon it`() {
     immediateToEffect(parse("Widget, Gizmo")) shouldBe parse<Effect>("This: Widget, Gizmo")
     immediateToEffect(parse("Ore: Widget")) shouldBe parse<Effect>("This: (Ore: Widget)")
     immediateToEffect(parse("Ok")) shouldBe null
     immediateToEffect(parse("Widget"), effectIsAutomatic = true)!!.automatic shouldBe true
   }
 
-  // L9-7 Rendering
+  // L7-8 Rendering
 
   @Test
-  internal fun `L9-7 actions round-trip`() {
+  internal fun `L7-8 actions round-trip`() {
     roundTripAll<Action>(
         """
         -> 2 MC?
@@ -189,33 +217,5 @@ internal class Lang09ActionsTest {
         Ooh -> -Plant / Ooh - Ore - 2 (Plant MAX 5) THEN Ok THEN X Plant
         """
     )
-  }
-
-  // L9-8 named Type variables across an Action
-
-  @Test
-  internal fun `L9-8 an Action cost can name a Type used by its result`() {
-    roundTrip<Action>("@StandardResource -> 4 @StandardResource")
-    roundTrip<Action>("Foo<@Plant> -> Bar<@Plant>")
-    roundTrip<Action>("Foo<Class<@Plant>> -> @Plant<Owner>")
-    roundTrip<Action>("@Plant -> Foo<Bar(HAS Baz<@Plant>)>")
-  }
-
-  @Test
-  internal fun `L9-8 an Action Type-variable marker must be shared`() {
-    shouldThrow<PetSyntaxException> { parse<Action>("@Plant -> Heat") }
-    roundTrip<Action>("Duo<@Plant, @Plant> -> @Plant")
-    shouldThrow<PetSyntaxException> { parse<Action>("@Plant -> @Plant<Steel>") }
-  }
-
-  @Test
-  internal fun `L9-8 an Action variable must be declared by its cost`() {
-    shouldThrow<PetSyntaxException> {
-      parse<Action>("Plant / Score<@Steel> -> @Steel")
-    }
-    shouldThrow<PetSyntaxException> { parse<Action>("Plant -> @Steel") }
-    shouldThrow<PetSyntaxException> {
-      parse<Action>("@StandardResource -> @Plant THEN @StandardResource")
-    }
   }
 }

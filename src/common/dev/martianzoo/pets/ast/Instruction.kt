@@ -35,7 +35,7 @@ import dev.martianzoo.pets.util.toSetStrict
 
 /**
  * A relation between a before-state and an after-state, as defined by
- * [section 6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)
+ * [section 2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)
  * — the only kind of element that denotes one. Instructions appear as the right-hand side of
  * [Action]s and [Effect]s, on map areas, in the "do this now" section of cards, in an engine's task
  * queues, and so forth.
@@ -101,10 +101,10 @@ public sealed class Instruction : InstructionTree() {
 
   /**
    * The instruction relating a state to itself, spelled `Ok` ([rule
-   * L6-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+   * L2-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * It vanishes from a group rather than appearing as an empty member, and a group left with
    * nothing in it *is* `Ok`. `Ok` narrows an optional change and nothing else ([rule
-   * L7-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * L3-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    */
   public object NoOp : Instruction() {
     override fun scale(factor: Int): Instruction = this
@@ -122,7 +122,7 @@ public sealed class Instruction : InstructionTree() {
 
   /**
    * One of the three elementary instructions of
-   * [rule L6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions):
+   * [rule L2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions):
    * a [Gain], a [Remove] or a [Transmute]. Each says that the after-state holds some number more,
    * fewer, or differently-typed components than the before-state.
    */
@@ -148,7 +148,7 @@ public sealed class Instruction : InstructionTree() {
     /**
      * How many components change: a positive integer or an `X` standing for an amount left open
      * ([rule
-     * L6-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+     * L2-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
      * Zero is rejected.
      */
     public abstract val count: Scalar
@@ -161,7 +161,7 @@ public sealed class Instruction : InstructionTree() {
 
     /**
      * How much of [count] must happen ([rule
-     * L6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)),
+     * L2-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)),
      * or null in authored Pets that has not yet been elaborated — elaboration supplies the class's
      * default ([rule
      * T10-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#10-defaults)).
@@ -210,7 +210,7 @@ public sealed class Instruction : InstructionTree() {
 
   /**
    * Says the after-state holds [scaledEx]'s count more of its expression — the `n Foo` form of
-   * [rule L6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions).
+   * [rule L2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions).
    */
   public data class Gain
   public constructor(
@@ -253,7 +253,7 @@ public sealed class Instruction : InstructionTree() {
 
   /**
    * Says the after-state holds [scaledEx]'s count fewer of its expression — the `-n Foo` form of
-   * [rule L6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions).
+   * [rule L2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions).
    */
   @ConsistentCopyVisibility
   public data class Remove
@@ -297,13 +297,13 @@ public sealed class Instruction : InstructionTree() {
   /**
    * Says that [scalar] components of one type have become that many of another — the `n Foo FROM
    * Bar` form of
-   * [rule L6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions).
+   * [rule L2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions).
    * See [FromExpression] for the compact spelling available when both sides share a class ([rule
-   * L6-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+   * L2-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    *
    * Either side may explicitly name a choice used by the other. Narrowing must supply a single
    * consistent value for each such type variable ([rule
-   * L7-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * L3-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    */
   public data class Transmute(
       val fromEx: FromExpression,
@@ -328,7 +328,7 @@ public sealed class Instruction : InstructionTree() {
     }
 
     // A transmutation written in full needs parentheses inside an OR, where its bare FROM would
-    // otherwise be ambiguous; rule L6-13 requires rendering to re-insert that grouping.
+    // otherwise be ambiguous; rule L2-16 requires rendering to re-insert that grouping.
     override fun safeToNestIn(container: PetNode): Boolean =
         super.safeToNestIn(container) && (fromEx !is Full || container !is Or)
 
@@ -388,10 +388,10 @@ public sealed class Instruction : InstructionTree() {
   /**
    * Scales [inner] by the value of [metric] — `Titanium / 3 EarthTag` grants one titanium per three
    * complete Earth tags ([rule
-   * L6-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+   * L2-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * Only an elementary [Change] may be scaled this way. The metric is not a choice: a proposal must
    * reproduce it exactly ([rule
-   * L7-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * L3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    */
   public data class Per(val inner: Instruction, val metric: Metric) : Instruction() {
     init {
@@ -421,9 +421,9 @@ public sealed class Instruction : InstructionTree() {
 
   /**
    * Carries out [inner] as the concrete [actor], independently of who narrows the task ([rule
-   * L6-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+   * L2-15](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * Like a gate or a metric, the actor is not a choice: a proposal must reproduce it exactly ([rule
-   * L7-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * L3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    * Attribution itself is `IDENTITY.md`'s subject.
    */
   public data class By(val inner: Instruction, val actor: Expression) : Instruction() {
@@ -433,7 +433,7 @@ public sealed class Instruction : InstructionTree() {
 
       /**
        * Creates a performer override, distributing it over independent instructions as
-       * [rule L6-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)
+       * [rule L2-15](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)
        * requires: `(A, B) BY Player1` is `A BY Player1, B BY Player1`.
        */
       public fun createTree(inner: InstructionTree, actor: Expression): InstructionTree =
@@ -466,10 +466,10 @@ public sealed class Instruction : InstructionTree() {
 
   /**
    * Makes [inner] available only while [gate] holds ([rule
-   * L6-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+   * L2-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * The gate is not a choice: it decides whether the result is available at all, and a proposal
    * must reproduce it exactly ([rule
-   * L7-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * L3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    * `OR` binds more tightly than a gate, so `3 PlantTag: Plant OR 4 Plant` gates both alternatives;
    * a gate does not directly contain another gate.
    */
@@ -514,7 +514,7 @@ public sealed class Instruction : InstructionTree() {
   /**
    * Fans [body] out over the components matching [selector] in one World snapshot, producing one
    * independent branch per matching component occurrence present ([rule
-   * L6-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+   * L2-14](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * In a branch, the authored [selector] expression denotes that concrete Type, and when the
    * selector is an `Owner`, so does the contextual `Owner`, so an ordinary owned body reads exactly
    * as it does on a card.
@@ -526,7 +526,7 @@ public sealed class Instruction : InstructionTree() {
    *
    * The body need not name the selected component: the selector may serve only as the repetition
    * source. The selector is not a choice: a proposal must reproduce it exactly ([rule
-   * L7-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * L3-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    * How the live world is enumerated, and when, is `EACH.md`'s subject.
    */
   public data class Each(val selector: Expression, val body: InstructionTree) : Instruction() {
@@ -565,16 +565,16 @@ public sealed class Instruction : InstructionTree() {
 
   /**
    * Says that each stage happens before the next ([rule
-   * L6-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+   * L2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * The relation is stated between the changes themselves and is right-associative, so `A THEN B
    * THEN C` is one sequence of three stages rather than nested pairs. Every stage before the last
    * must be a single instruction: a group or another sequence on the left is rejected, because
    * "before" needs one identifiable change to be before.
    *
    * A sequence is also the one place independent instructions may share an `X` ([rule
-   * L6-14](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)),
+   * L2-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)),
    * and narrowing must then give every occurrence one consistent value ([rule
-   * L7-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * L3-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    * What waiting means for pending work is `SEQUENCING.md`'s subject.
    */
   @ConsistentCopyVisibility
@@ -957,16 +957,16 @@ public sealed class Instruction : InstructionTree() {
 
   /**
    * Offers a choice among [instructions] ([rule
-   * L6-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+   * L2-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * The parser rejects duplicate authored alternatives. Construction and rewriting collapse arms
    * that have become equal; a single remaining outcome is returned without an `Or` wrapper.
    *
    * An `OR` that remains is always abstract ([rule
-   * L7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * L3-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    * It is also one of only two exceptions to a narrowing preserving node shape — the other being
    * [NoOp] narrowing an optional change: any instruction narrows an `OR` by narrowing one arm,
-   * while a proposed `OR` narrows it only when every arm does ([rules L7-2 and
-   * L7-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * while a proposed `OR` narrows it only when every arm does ([rules L3-2 and
+   * L3-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    */
   @ConsistentCopyVisibility
   public data class Or internal constructor(val instructions: List<InstructionTree>) :
@@ -1018,7 +1018,7 @@ public sealed class Instruction : InstructionTree() {
        *
        * This collapses duplicate alternatives rather than rejecting them; it is the parser that
        * enforces
-       * [rule L6-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)'s
+       * [rule L2-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)'s
        * rejection of a duplicate an author actually wrote.
        */
       public fun create(instructions: Collection<Instruction>): Instruction {
@@ -1034,7 +1034,7 @@ public sealed class Instruction : InstructionTree() {
       /**
        * Creates an OR while preserving any grouped options produced by preprocessing. Like
        * [create], this collapses duplicate alternatives rather than applying
-       * [rule L6-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)'s
+       * [rule L2-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)'s
        * rejection.
        */
       public fun createTree(instructions: Collection<InstructionTree>): InstructionTree {
@@ -1054,10 +1054,10 @@ public sealed class Instruction : InstructionTree() {
 
   /**
    * An [instruction] marked for rewriting by the handler named by [transformKind] ([rule
-   * L10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-transform-blocks)).
+   * L8-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-transform-blocks)).
    * A handler rewrites only inside its own block and must return the same kind of Pets; a block
    * expanding into several independent instructions splices into the surrounding group ([rule
-   * L10-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-transform-blocks)).
+   * L8-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-transform-blocks)).
    * Every other operation here rejects a transform that survived to it.
    */
   public data class Transform(
@@ -1081,10 +1081,10 @@ public sealed class Instruction : InstructionTree() {
 
   /**
    * How much of a [Change]'s count must actually happen ([rule
-   * L6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+   * L2-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * Only [OPTIONAL] leaves anything open; [MANDATORY] and [AMAP] are incompatible with each other,
    * so neither narrows to the other ([rule
-   * L7-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * L3-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    */
   public enum class Quantifier(public val symbol: String, public val abstract: Boolean = false) :
       Specification<Quantifier> {
@@ -1140,7 +1140,7 @@ public sealed class Instruction : InstructionTree() {
                   Transmute(fro, scalar ?: ActualScalar(1), int)
                 }
 
-        val perable: Parser<Instruction> = transmute or group(transmute) or gain or remove
+        val perable: Parser<Instruction> = transmute or gain or remove
 
         val maybePer: Parser<Instruction> =
             perable and

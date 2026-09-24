@@ -8,7 +8,7 @@ import dev.martianzoo.pets.PetTokenizer
 
 /**
  * Reads one numeric class property, spelled `receiver.name` ([rule
- * L5-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics)). A
+ * L4-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-metrics)). A
  * property with no receiver takes one from the enclosing refinement candidate or context.
  */
 public data class Property(

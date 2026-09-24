@@ -14,8 +14,8 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-/** Section 5 of `docs/pets-language-spec.md`: metrics as numbers computed from one state. */
-internal class Lang05MetricsTest {
+/** Section 4 of `docs/pets-language-spec.md`: metrics as numbers computed from one state. */
+internal class Lang04MetricsTest {
 
   /** Evaluates a metric from a table of component counts, and nothing else. */
   private fun value(source: String, vararg counts: Pair<String, Int>): Int {
@@ -31,10 +31,10 @@ internal class Lang05MetricsTest {
         )
   }
 
-  // L5-1 Only counting is world-dependent
+  // L4-1 Only counting is world-dependent
 
   @Test
-  internal fun `L5-1 scaling, capping and subtraction come from the syntax alone`() {
+  internal fun `L4-1 scaling, capping and subtraction come from the syntax alone`() {
     val asked = mutableListOf<String>()
     parse<Metric>("3 Plant MAX 4 - 2")
         .evaluate(
@@ -51,15 +51,15 @@ internal class Lang05MetricsTest {
   }
 
   @Test
-  internal fun `L5-1 a metric is never negative`() {
+  internal fun `L4-1 a metric is never negative`() {
     value("Plant - 20", "Plant" to 3) shouldBe 0
     value("Plant - Steel - Heat", "Plant" to 7, "Steel" to 3, "Heat" to 9) shouldBe 0
   }
 
-  // L5-2 Counts and constants
+  // L4-2 Counts and constants
 
   @Test
-  internal fun `L5-2 an expression counts components and a bare number is a constant`() {
+  internal fun `L4-2 an expression counts components and a bare number is a constant`() {
     parse<Metric>("Plant") shouldBe Metric.Count(parse("Plant"))
     parse<Metric>("5") shouldBe Metric.Constant(5)
     value("Plant", "Plant" to 4) shouldBe 4
@@ -67,10 +67,10 @@ internal class Lang05MetricsTest {
     value("0") shouldBe 0
   }
 
-  // L5-3 Complete groups
+  // L4-3 Complete groups
 
   @Test
-  internal fun `L5-3 n M counts complete groups of n`() {
+  internal fun `L4-3 n M counts complete groups of n`() {
     value("3 Plant", "Plant" to 6) shouldBe 2
     value("3 Plant", "Plant" to 7) shouldBe 2
     value("3 Plant", "Plant" to 8) shouldBe 2
@@ -79,26 +79,26 @@ internal class Lang05MetricsTest {
   }
 
   @Test
-  internal fun `L5-3 a unit of one is dropped and a unit of zero is rejected`() {
+  internal fun `L4-3 a unit of one is dropped and a unit of zero is rejected`() {
     Metric.scaled(Metric.Count(parse("Plant")), 1) shouldBe Metric.Count(parse("Plant"))
     parse<Metric>("1 Plant") shouldBe Metric.Count(parse("Plant"))
     shouldThrow<PetSyntaxException> { parse<Metric>("0 Plant") }
   }
 
-  // L5-4 MAX
+  // L4-4 MAX
 
   @Test
-  internal fun `L5-4 MAX is the smaller of two values, and does not stack`() {
+  internal fun `L4-4 MAX is the smaller of two values, and does not stack`() {
     value("Plant MAX Steel", "Plant" to 7, "Steel" to 3) shouldBe 3
     value("Plant MAX Steel", "Plant" to 2, "Steel" to 3) shouldBe 2
     value("Plant MAX 5", "Plant" to 9) shouldBe 5
     shouldThrow<PetSyntaxException> { parse<Metric>("Plant MAX 5 MAX 3") }
   }
 
-  // L5-5 Subtraction
+  // L4-5 Subtraction
 
   @Test
-  internal fun `L5-5 subtraction saturates at zero and is left-associative`() {
+  internal fun `L4-5 subtraction saturates at zero and is left-associative`() {
     value("Plant - Steel", "Plant" to 12, "Steel" to 3) shouldBe 9
     value("Plant - Steel - Heat", "Plant" to 12, "Steel" to 3, "Heat" to 2) shouldBe 7
     value("Plant - (Steel - Heat)", "Plant" to 12, "Steel" to 3, "Heat" to 2) shouldBe 11
@@ -107,10 +107,10 @@ internal class Lang05MetricsTest {
     parse<Metric>("Plant - (Steel - Heat)").toString() shouldBe "Plant - (Steel - Heat)"
   }
 
-  // L5-6 Unions
+  // L4-6 Unions
 
   @Test
-  internal fun `L5-6 OR counts a union of plain component counts`() {
+  internal fun `L4-6 OR counts a union of plain component counts`() {
     val union = parse<Metric>("Plant OR Steel") as Metric.Or
 
     union.metrics shouldBe listOf(Metric.Count(parse("Plant")), Metric.Count(parse("Steel")))
@@ -129,30 +129,10 @@ internal class Lang05MetricsTest {
         .transformMetric(union) shouldBe parse<Metric>("Plant")
   }
 
-  // L5-7 Precedence
+  // L4-7 Properties
 
   @Test
-  internal fun `L5-7 scaling and MAX bind tighter than subtraction, which binds tighter than OR`() {
-    value("Plant MAX 5 - Steel", "Plant" to 12, "Steel" to 3) shouldBe 2
-    value("(Plant - Steel) MAX 5", "Plant" to 12, "Steel" to 3) shouldBe 5
-    parse<Metric>("Plant MAX 5 - Steel").toString() shouldBe "Plant MAX 5 - Steel"
-    parse<Metric>("(Plant - Steel) MAX 5").toString() shouldBe "(Plant - Steel) MAX 5"
-    parse<Metric>("2 (Plant - Steel)").toString() shouldBe "2 (Plant - Steel)"
-  }
-
-  @Test
-  internal fun `L5-7 after a slash a metric union must be grouped`() {
-    parse<InstructionTree>("Heat / Plant MAX 5 - Steel").toString() shouldBe
-        "Heat / Plant MAX 5 - Steel"
-    parse<InstructionTree>("Heat / (Plant OR Steel)").toString() shouldBe "Heat / (Plant OR Steel)"
-    parse<InstructionTree>("Heat / Plant OR Steel").toString() shouldBe "Heat / Plant OR Steel"
-    (parse<InstructionTree>("Heat / Plant OR Steel") is Instruction.Or) shouldBe true
-  }
-
-  // L5-8 Properties
-
-  @Test
-  internal fun `L5-8 a property metric names a receiver, or takes one from its context`() {
+  internal fun `L4-7 a property metric names a receiver, or takes one from its context`() {
     parse<Metric>("Gardener.score") shouldBe Property(PropertyName("score"), parse("Gardener"))
     parse<Metric>("score") shouldBe Property(PropertyName("score"), null)
     parse<Metric>("EVAL Gardener.score").toString() shouldBe "EVAL Gardener.score"
@@ -161,7 +141,7 @@ internal class Lang05MetricsTest {
     }
   }
 
-  // L5-9 RANK
+  // L4-8 RANK
 
   /**
    * This module can pin `RANK`'s syntax and its scope — which expression names each candidate, and
@@ -169,7 +149,7 @@ internal class Lang05MetricsTest {
    * `test/common/dev/martianzoo/engine/RankMetricTest.kt`.
    */
   @Test
-  internal fun `L5-9 RANK names a selector, a candidate expression and its metrics`() {
+  internal fun `L4-8 RANK names a selector, a candidate expression and its metrics`() {
     val rank =
         parse<Metric>("RANK @Player(NOT Player1) { Score<@Player>, MC<@Player> }") as Metric.Rank
 
@@ -200,7 +180,7 @@ internal class Lang05MetricsTest {
   }
 
   @Test
-  internal fun `L5-9 RANK may infer its selector only from an enclosing refinement`() {
+  internal fun `L4-8 RANK may infer its selector only from an enclosing refinement`() {
     parse<Expression>("Player(HAS =1 (RANK { Score }))") shouldBe
         parse<Expression>("Player(HAS =1 (RANK Player { Score }))")
     parse<Expression>("Holder<Player>(HAS =1 (RANK { Score }))") shouldBe
@@ -214,10 +194,30 @@ internal class Lang05MetricsTest {
     shouldThrow<PetSyntaxException> { parse<Expression>("Player(HAS =1 (RANK { }))") }
   }
 
-  // L5-10 Rendering
+  // L4-9 Precedence
 
   @Test
-  internal fun `L5-10 metrics round-trip`() {
+  internal fun `L4-9 scaling and MAX bind tighter than subtraction, which binds tighter than OR`() {
+    value("Plant MAX 5 - Steel", "Plant" to 12, "Steel" to 3) shouldBe 2
+    value("(Plant - Steel) MAX 5", "Plant" to 12, "Steel" to 3) shouldBe 5
+    parse<Metric>("Plant MAX 5 - Steel").toString() shouldBe "Plant MAX 5 - Steel"
+    parse<Metric>("(Plant - Steel) MAX 5").toString() shouldBe "(Plant - Steel) MAX 5"
+    parse<Metric>("2 (Plant - Steel)").toString() shouldBe "2 (Plant - Steel)"
+  }
+
+  @Test
+  internal fun `L4-9 after a slash a metric union must be grouped`() {
+    parse<InstructionTree>("Heat / Plant MAX 5 - Steel").toString() shouldBe
+        "Heat / Plant MAX 5 - Steel"
+    parse<InstructionTree>("Heat / (Plant OR Steel)").toString() shouldBe "Heat / (Plant OR Steel)"
+    parse<InstructionTree>("Heat / Plant OR Steel").toString() shouldBe "Heat / Plant OR Steel"
+    (parse<InstructionTree>("Heat / Plant OR Steel") is Instruction.Or) shouldBe true
+  }
+
+  // L4-10 Rendering
+
+  @Test
+  internal fun `L4-10 metrics round-trip`() {
     roundTripAll<Metric>(
         """
         Xyz
@@ -302,7 +302,7 @@ internal class Lang05MetricsTest {
   }
 
   @Test
-  internal fun `L5-10 a lone scalar is a metric only where nothing else follows`() {
+  internal fun `L4-10 a lone scalar is a metric only where nothing else follows`() {
     parse<Metric>("5").toString() shouldBe "5"
     parse<Metric>("1 - Plant").toString() shouldBe "1 - Plant"
     parse<Metric>("Plant - 5").toString() shouldBe "Plant - 5"
@@ -311,7 +311,7 @@ internal class Lang05MetricsTest {
   }
 
   @Test
-  internal fun `L5-10 a metric with a class name that shadows nothing still parses`() {
+  internal fun `L4-10 a metric with a class name that shadows nothing still parses`() {
     parse<Metric>("Max").toString() shouldBe "Max"
     parse<Metric>("Marker<Mars1>").toString() shouldBe "Marker<Mars1>"
     cn("Max").expression.toString() shouldBe "Max"

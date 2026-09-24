@@ -18,20 +18,20 @@ import dev.martianzoo.pets.util.suf
 
 /**
  * A rule a player may invoke, like `Plant -> 7 MC`, as defined by
- * [section 9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-actions).
+ * [section 7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-actions).
  * In practice these are used by the Pets classes `StandardAction`, `StandardProject`, `ActionCard`,
  * and `RequiredAction`.
  *
  * An action is an optional cost, an arrow, and an instruction ([rule
- * L9-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-actions)). It
+ * L7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-actions)). It
  * means: spend the cost, then do the result — `cost -> I` denotes `-cost! THEN I`, with nothing
  * added beyond
- * [rule L6-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)'s
+ * [rule L2-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)'s
  * `THEN` ([rule
- * L9-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-actions)).
+ * L7-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-actions)).
  * Actions are eventually lowered into triggered [Effect]s keyed to the action's position on its
  * class ([rule
- * L9-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-actions)).
+ * L7-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-actions)).
  */
 public data class Action(
     /** What is given up, written without a minus sign, or null for a costless action. */
@@ -49,7 +49,7 @@ public data class Action(
   /**
    * Converts this action into the instruction performed when the action is used: `-cost! THEN
    * instruction`, or just the instruction when there is no cost ([rule
-   * L9-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-actions)).
+   * L7-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-actions)).
    */
   internal fun toInstruction(): InstructionTree {
     val lhs = cost?.toInstruction() ?: return instruction
@@ -67,7 +67,7 @@ public data class Action(
 
   /**
    * What an [Action] gives up. Per
-   * [rule L9-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-actions)
+   * [rule L7-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-actions)
    * a cost is a scaled expression, optionally scaled by a metric, optionally inside a transform
    * block — a comma-separated or gated cost is rejected, because alternative costs are written as
    * separate actions, each one thing a player can choose to do.
@@ -79,7 +79,7 @@ public data class Action(
 
     /**
      * Gives up [scaledEx]; it lowers to a mandatory removal ([rule
-     * L9-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-actions)).
+     * L7-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-actions)).
      */
     public data class Spend(val scaledEx: ScaledExpression) : Cost() {
       override fun visitChildren(visitor: Visitor): Unit = visitor.visit(scaledEx)
@@ -114,7 +114,7 @@ public data class Action(
 
     /**
      * A [cost] marked for rewriting by the handler named by [transformKind], as
-     * [rule L10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-transform-blocks)
+     * [rule L8-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-transform-blocks)
      * allows on an action cost.
      */
     public data class Transform(val cost: Cost, override val transformKind: String) :

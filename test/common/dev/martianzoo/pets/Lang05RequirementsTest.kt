@@ -15,8 +15,8 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-/** Section 4 of `docs/pets-language-spec.md`: requirements as queries over one state. */
-internal class Lang04RequirementsTest {
+/** Section 5 of `docs/pets-language-spec.md`: requirements as queries over one state. */
+internal class Lang05RequirementsTest {
 
   /** Answers a requirement from a table of component counts, and nothing else. */
   private fun ask(source: String, vararg counts: Pair<String, Int>): Boolean {
@@ -31,10 +31,10 @@ internal class Lang04RequirementsTest {
     }
   }
 
-  // L4-1 Evaluation
+  // L5-1 Evaluation
 
   @Test
-  internal fun `L4-1 a requirement is answered from the values of the metrics it names`() {
+  internal fun `L5-1 a requirement is answered from the values of the metrics it names`() {
     val asked = mutableListOf<String>()
     parse<Requirement>("3 Plant, MAX 1 Steel").isMetBy { metric ->
       asked += "$metric"
@@ -44,10 +44,10 @@ internal class Lang04RequirementsTest {
     asked shouldBe listOf("Plant", "Steel")
   }
 
-  // L4-2 The three counting forms
+  // L5-2 The three counting forms
 
   @Test
-  internal fun `L4-2 minimum, maximum and exact`() {
+  internal fun `L5-2 minimum, maximum and exact`() {
     ask("3 Plant", "Plant" to 2) shouldBe false
     ask("3 Plant", "Plant" to 3) shouldBe true
     ask("3 Plant", "Plant" to 9) shouldBe true
@@ -61,7 +61,7 @@ internal class Lang04RequirementsTest {
   }
 
   @Test
-  internal fun `L4-2 an omitted count is one`() {
+  internal fun `L5-2 an omitted count is one`() {
     parse<Requirement>("Plant") shouldBe Min(1, Metric.Count(parse("Plant")))
     ask("Plant") shouldBe false
     ask("Plant", "Plant" to 1) shouldBe true
@@ -69,19 +69,19 @@ internal class Lang04RequirementsTest {
     ask("MAX 0 Tile") shouldBe true
   }
 
-  // L4-3 Zero minimum
+  // L5-3 Zero minimum
 
   @Test
-  internal fun `L4-3 a minimum of zero is rejected, but MAX 0 and =0 are not`() {
+  internal fun `L5-3 a minimum of zero is rejected, but MAX 0 and =0 are not`() {
     shouldThrow<PetSyntaxException> { parse<Requirement>("0 Plant") }
     (parse<Requirement>("MAX 0 Plant") as Counting).range shouldBe 0..0
     (parse<Requirement>("=0 Plant") as Counting).range shouldBe 0..0
   }
 
-  // L4-4 The target is not the metric's scaling
+  // L5-4 The target is not the metric's scaling
 
   @Test
-  internal fun `L4-4 the target is independent of the metric's own scaling`() {
+  internal fun `L5-4 the target is independent of the metric's own scaling`() {
     val requirement = parse<Requirement>("MAX 2 (3 Plant)") as Max
 
     requirement.maximum shouldBe 2
@@ -92,16 +92,16 @@ internal class Lang04RequirementsTest {
   }
 
   @Test
-  internal fun `L4-4 a plain count of n does not become a scaled metric`() {
+  internal fun `L5-4 a plain count of n does not become a scaled metric`() {
     parse<Requirement>("8 Plant") shouldBe Min(8, Metric.Count(parse("Plant")))
     parse<Requirement>("MAX 8 Plant") shouldBe Max(8, Metric.Count(parse("Plant")))
     parse<Requirement>("=8 Plant") shouldBe Exact(8, Metric.Count(parse("Plant")))
   }
 
-  // L4-5 One metric atom
+  // L5-5 One metric atom
 
   @Test
-  internal fun `L4-5 a counted union or subtraction must be parenthesized`() {
+  internal fun `L5-5 a counted union or subtraction must be parenthesized`() {
     (parse<Requirement>("9 (Plant - Steel)") as Counting).metric shouldBe
         parse<Metric>("Plant - Steel")
     (parse<Requirement>("2 (Plant OR Steel)") as Counting).metric shouldBe
@@ -110,10 +110,10 @@ internal class Lang04RequirementsTest {
     ask("2 (Plant OR Steel)", "Plant" to 1, "Steel" to 1) shouldBe true
   }
 
-  // L4-6 Conjunction, disjunction, precedence
+  // L5-6 Conjunction, disjunction, precedence
 
   @Test
-  internal fun `L4-6 comma is conjunction, OR is disjunction, and OR binds tighter`() {
+  internal fun `L5-6 comma is conjunction, OR is disjunction, and OR binds tighter`() {
     val requirement = parse<Requirement>("Plant, Steel OR Heat") as And
 
     requirement.requirements[0] shouldBe parse<Requirement>("Plant")
@@ -123,30 +123,30 @@ internal class Lang04RequirementsTest {
     ask("(Plant, Steel) OR Heat", "Heat" to 1) shouldBe true
   }
 
-  // L4-7 Alternatives are a set; conjuncts are a sequence
+  // L5-7 Alternatives are a set; conjuncts are a sequence
 
   @Test
-  internal fun `L4-7 duplicate alternatives collapse and duplicate conjuncts do not`() {
+  internal fun `L5-7 duplicate alternatives collapse and duplicate conjuncts do not`() {
     parse<Requirement>("Plant OR Plant") shouldBe parse<Requirement>("Plant")
     parse<Requirement>("Plant, Plant").toString() shouldBe "Plant, Plant"
     Or.create(listOf(parse("Plant"), parse("Plant"))) shouldBe parse<Requirement>("Plant")
     And.create(listOf(parse("Plant"))) shouldBe parse<Requirement>("Plant")
   }
 
-  // L4-8 EVAL
+  // L5-8 EVAL
 
   @Test
-  internal fun `L4-8 an unexpanded EVAL has no value of its own`() {
+  internal fun `L5-8 an unexpanded EVAL has no value of its own`() {
     parse<Requirement>("EVAL Gardener.requirement").toString() shouldBe "EVAL Gardener.requirement"
     shouldThrow<IllegalStateException> {
       parse<Requirement>("EVAL Gardener.requirement").isMetBy { 0 }
     }
   }
 
-  // L4-9 A requirement observes
+  // L5-9 A requirement observes
 
   @Test
-  internal fun `L4-9 nothing inside a requirement is an open choice`() {
+  internal fun `L5-9 nothing inside a requirement is an open choice`() {
     // Requirements observe their `Player` domains; neither occurrence declares a variable.
     val effect =
         langTable
@@ -156,10 +156,10 @@ internal class Lang04RequirementsTest {
     effect.typeVariables.isEmpty shouldBe true
   }
 
-  // L4-10 Rendering
+  // L5-10 Rendering
 
   @Test
-  internal fun `L4-10 requirements round-trip`() {
+  internal fun `L5-10 requirements round-trip`() {
     roundTripAll<Requirement>(
         """
         Qux
@@ -246,7 +246,7 @@ internal class Lang04RequirementsTest {
   }
 
   @Test
-  internal fun `L4-10 grouping is re-inserted wherever re-parsing needs it`() {
+  internal fun `L5-10 grouping is re-inserted wherever re-parsing needs it`() {
     roundTrip<Requirement>("(Plant OR Steel)", "Plant OR Steel")
     roundTrip<Requirement>("Plant, (Steel OR Heat)", "Plant, Steel OR Heat")
     roundTrip<Requirement>("(Plant, Steel) OR Heat")

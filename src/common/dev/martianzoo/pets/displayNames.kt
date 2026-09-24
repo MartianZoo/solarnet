@@ -4,7 +4,7 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.data.Catalog
 
 // Pets itself has one namespace of canonical Class Names and no notion of display ([rule
-// L2-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-names));
+// L10-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-names));
 // which name a concept gets, and how it is shown to a person, is `NAMING.md`'s
 // subject, and this file implements only the lookup.
 

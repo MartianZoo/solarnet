@@ -7,7 +7,7 @@ import dev.martianzoo.pets.PetTokenizer
 /**
  * A lowerCamelCase name identifying one class property: a lowercase letter followed by letters and
  * digits ([rule
- * L2-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-names)).
+ * L10-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-names)).
  */
 public data class PropertyName(public val value: String) : PetNode() {
   internal companion object {

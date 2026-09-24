@@ -17,7 +17,7 @@ import kotlin.reflect.KClass
 /**
  * The main part of a transmutation instruction, without its scalar or quantifier — the `Foo FROM
  * Bar` of
- * [rule L6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions).
+ * [rule L2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions).
  */
 public sealed class FromExpression : PetNode() {
   override val kind: KClass<out PetNode> = FromExpression::class
@@ -54,7 +54,7 @@ public sealed class FromExpression : PetNode() {
 
   /**
    * A same-Class transmutation with exactly one changed argument — the compact spelling of
-   * [rule L6-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions),
+   * [rule L2-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions),
    * where `Foo<Same, Here, To FROM From>` means `Foo<Same, Here, To> FROM Foo<Same, Here, From>`.
    * The unchanged arguments occupy both roles.
    */
