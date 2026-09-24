@@ -68,6 +68,13 @@ internal class Lang11OwnerLocalClassesTest {
   }
 
   @Test
+  internal fun `L11-3 a plain selector may contain a local class in its HAS refinement`() {
+    parseClasses("CLASS Owner1 { This: EACH Widget(HAS Bar {}) { Prize } }").map {
+      it.className
+    } shouldContainExactly listOf(cn("Owner1"), cn("Owner1_Bar"))
+  }
+
+  @Test
   internal fun `L11-3 This in an argument names the enclosing class in the declaration`() {
     val declarations = parseClasses("CLASS Card { This: Action1<This> {} }")
 

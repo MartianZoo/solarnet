@@ -119,6 +119,7 @@ internal class Lang06InstructionsTest {
     parse<Instruction>("-1 Titanium / EarthTag") shouldBe parse<Instruction>("-Titanium / EarthTag")
     shouldThrow<PetSyntaxException> { parse<Instruction>("(Plant, Heat) / Steel") }
     shouldThrow<PetSyntaxException> { parse<Instruction>("(Plant OR Heat) / Steel") }
+    shouldThrow<PetSyntaxException> { parse<Instruction>("(Plant FROM Heat) / Steel") }
   }
 
   // L6-6 Gates
@@ -435,7 +436,7 @@ internal class Lang06InstructionsTest {
 
   @Test
   internal fun `L6-13 grouping is re-inserted wherever re-parsing needs it`() {
-    roundTrip<InstructionTree>("(Plant FROM This) / This", "Plant FROM This / This")
+    roundTrip<InstructionTree>("Plant FROM This / This")
     roundTrip<InstructionTree>("Plant: (Heat, -5 Steel)")
     roundTrip<InstructionTree>("(Plant, Heat) OR Steel")
     roundTrip<InstructionTree>("(Plant FROM Heat) OR Steel")

@@ -1140,7 +1140,7 @@ public sealed class Instruction : InstructionTree() {
                   Transmute(fro, scalar ?: ActualScalar(1), int)
                 }
 
-        val perable: Parser<Instruction> = transmute or group(transmute) or gain or remove
+        val perable: Parser<Instruction> = transmute or gain or remove
 
         val maybePer: Parser<Instruction> =
             perable and

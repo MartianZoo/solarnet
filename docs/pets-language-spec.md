@@ -118,6 +118,18 @@ A few terms are used precisely throughout:
   and does — `Plant OR Heat THEN Steel` comes back as `(Plant OR Heat) THEN Steel`. Every rule that
   says an element *round-trips* means exactly this: rendering then re-parsing is the identity.
 
+**Grammar.** Syntax is written in the EBNF notation of
+[XML 1.0, section 6](https://www.w3.org/TR/xml/#sec-notation), each production beside the rule that
+introduces it; [Appendix B](#appendix-b-grammar) collects them all. `A ::= …` defines `A`. Items
+written in a row occur in that order, `|` separates alternatives, `?`, `*` and `+` make the item
+before them optional, repeatable, or repeatable but required, and parentheses group. A quoted string
+is a literal token, `[a-z]` one character from a class and `[^"]` one from outside it, `#xA` one
+character by code point, and `A - B` whatever `A` matches except what `B` matches. The productions
+for tokens — `ClassName`, `Keyword`, `PropertyName`, `TransformKind`, `Integer`, `QuotedText`, `NL`
+and `Ignored` — spell characters; every other production is a sequence of tokens (L1-9). A numbered
+rule may reject a source the grammar admits — `Plant OR Plant` is grammatical, and L6-7 rejects
+it — but a source the grammar rejects does not parse.
+
 ---
 
 ## 1. Source and declarations
@@ -131,9 +143,19 @@ hold of them, and stops.
 comments declares nothing. A source whose final declaration is incomplete is rejected with
 `PetSyntaxException`; there is no partial success.
 
+```ebnf
+Source ::= ( NL* Declaration )* NL*
+```
+
 **L1-2. A signature is a name, an optional dependency list, and an optional supertype list.**
 Each declaration introduces exactly one class. `CLASS Foo` is concrete; `ABSTRACT CLASS Foo` is
 abstract (T2-1).
+
+```ebnf
+Declaration ::= ( QuotedText NL* )? "ABSTRACT"? "CLASS" Signature ClassBody?
+Signature   ::= ClassName ( "<" PlainExpression ( "," PlainExpression )* ">" )?
+                ( ":" PlainExpression ( "," PlainExpression )* )?
+```
 
 ```pets
 ABSTRACT CLASS Tile<Area> : Occupant, Owned<Owner>
@@ -142,7 +164,16 @@ ABSTRACT CLASS Tile<Area> : Occupant, Owned<Owner>
 **L1-3. A body is brace-delimited, and its elements are separated by newlines or by semicolons.** A
 body element is an invariant (`HAS r`), a `DEFAULT` clause, a property assignment (`name = value`),
 an effect, or an action. A newline-separated body may also contain nested declarations; a
-semicolon-separated one may not.
+semicolon-separated one may not. A body of one element is both, with the same meaning either way.
+
+```ebnf
+ClassBody     ::= MultiLineBody | OneLineBody
+MultiLineBody ::= "{" NL* ( ClassMember ( NL+ ClassMember )* )? NL* "}"
+OneLineBody   ::= "{" BodyElement ( ";" BodyElement )* "}"
+ClassMember   ::= BodyElement | Declaration
+BodyElement   ::= Invariant | DefaultClause | PropertyAssignment | Effect | Action
+Invariant     ::= "HAS" Requirement
+```
 
 ```pets
 CLASS GreeneryTile : Tile { HAS MAX 1 This; This: OxygenStep }
@@ -160,13 +191,23 @@ The container is returned first, then its nested declarations in source order, r
 > named classes. Lowering nesting to sibling inheritance preserves the readable taxonomy without
 > creating a namespace the rest of Pets does not have.
 
-**L1-5. A docstring is a quoted string on the line before `CLASS`.** It is retained on the
-declaration and re-emitted when the declaration is rendered.
+**L1-5. A docstring is a quoted string before `CLASS`.** It is retained on the declaration and
+re-emitted, on the line before `CLASS`, when the declaration is rendered.
+
+```ebnf
+QuotedText ::= '"' [^"]* '"'
+```
 
 **L1-6. `DEFAULT` clauses name the class that declares them** (T10-3) and are merged into one set
-per use kind (T10-1). Separate compatible clauses may supply the dependency arguments and quantifier
-of one use-kind default. Clauses that disagree about their class, dependency arguments or quantifier
-are rejected; declaration order never selects a winner. A clause naming another class is rejected.
+per use kind (T10-1): `DEFAULT Foo<…>` speaks to every use, while `DEFAULT +Foo<…>` speaks only to
+gains and `DEFAULT -Foo<…>` only to removals, each with an optional quantifier. Separate compatible
+clauses may supply the dependency arguments and quantifier of one use-kind default. Clauses that
+disagree about their class, dependency arguments or quantifier are rejected; declaration order never
+selects a winner. A clause naming another class is rejected.
+
+```ebnf
+DefaultClause ::= "DEFAULT" ( Expression | ( "+" | "-" ) Expression Quantifier? )
+```
 
 > **Non-normative implementation note — defaults have one source.** No card needs to install a
 > remote class's default. Permitting it would let an unrelated expansion silently change what bare
@@ -177,6 +218,14 @@ the same name twice in one body is rejected. The right-hand side is one of the b
 `Metric`, `Requirement` and `Requirement?`, a literal non-negative number, a metric quoted after
 `COUNT`, or a requirement quoted after `HAS`. Quotes may not appear inside the quoted text. What
 these bounds and values mean is T9-1 and T9-2.
+
+```ebnf
+PropertyAssignment ::= PropertyName "=" PropertyValue
+PropertyValue      ::= "Number" | "Metric" | "Requirement" "?"? | Integer
+                     | "COUNT" QuotedText
+                     | "HAS" QuotedText
+Integer            ::= "0" | [1-9] [0-9]*
+```
 
 ```pets
 CLASS Ants : CardFront {
@@ -205,6 +254,14 @@ a name while `2MC` is neither. `//` begins a comment that runs to the end of the
 immediately before a line ending continues the line, so one element may span several source lines.
 Newlines are significant only as separators (L1-1, L1-3).
 
+```ebnf
+NL      ::= #xA
+Ignored ::= [#x9#xD#x20]+ | "//" [^#xA#xD]* | "\" #xD? #xA
+```
+
+`Ignored` text may appear between any two tokens and is never written in a production. `NL` is a
+token, and appears only where a production names it.
+
 > **Non-normative example — Mars Nomads.** Its action moves a marker and then pays every marked
 > area's placement bonus. A backslash lets that one action span source lines without a newline being
 > mistaken for the end of the body element.
@@ -221,6 +278,10 @@ yields an equal declaration.
 **L1-11. A declaration can also be parsed on its own.** `Parsing.parseOneLinerClass` accepts exactly
 one declaration, with an optional semicolon-separated body, and rejects owner-local class syntax
 (L11-7). This is how a declaration embedded in structured card data is read.
+
+```ebnf
+OneLineDeclaration ::= "ABSTRACT"? "CLASS" Signature OneLineBody?
+```
 
 > **Non-normative implementation note — one record, one declaration.** Catalog composition accepts
 > standalone declarations supplied by structured data. Rejecting trailing source or a local class
@@ -246,8 +307,8 @@ decides which of the remaining system declarations a *game* contains.
 **L2-1. A class name is an uppercase-leading identifier.** After the first ASCII uppercase letter,
 ASCII letters, digits, and underscores are allowed. Formally:
 
-```text
-[A-Z][A-Za-z0-9_]*
+```ebnf
+ClassName ::= ( [A-Z] [A-Za-z0-9_]* ) - Keyword
 ```
 
 Thus `GreeneryTile`, `Tharsis_2_2`, `A_foo`, `L1TradeTerminal`, `MC`, and `TOOLONG` are names, while
@@ -264,9 +325,23 @@ with the property-value words `Metric`, `Number` and `Requirement`, are the word
 uses, and none of them may be a class name. Because the reserved spellings are exact, `Max`, `By`
 and `Has` are perfectly good class names.
 
+```ebnf
+Keyword ::= "ABSTRACT" | "BY" | "CLASS" | "COUNT" | "DEFAULT" | "EACH" | "EVAL"
+          | "FROM" | "HAS" | "IF" | "MAX" | "NOT" | "OR" | "RANK" | "THEN" | "X"
+          | "Metric" | "Number" | "Requirement"
+```
+
 **L2-3. A property name is lowerCamelCase**: a lowercase letter followed by letters and digits.
 
+```ebnf
+PropertyName ::= [a-z] [A-Za-z0-9]*
+```
+
 **L2-4. A transform-kind name is an all-caps identifier** (section 10).
+
+```ebnf
+TransformKind ::= ( [A-Z] [A-Z0-9_]* ) - Keyword
+```
 
 **L2-5. Class names are global.** A class name means whatever class the class table says it means
 (T1-1, T1-7); no construct declares a class name, and no construct gives one a different class in
@@ -300,6 +375,20 @@ appears it identifies a type.
 argument is itself an expression. What the resulting type is, and how arguments match dependencies,
 is T5-1 and T3-5.
 
+```ebnf
+Expression      ::= TypeVariableMarker? ClassName Arguments? Refinement?
+                    LocalClassBody?
+Arguments       ::= "<" ( Expression ( "," Expression )* )? ">"
+PlainExpression ::= TypeVariableMarker? ClassName PlainArguments? Refinement?
+PlainArguments  ::= "<" ( PlainExpression ( "," PlainExpression )* )? ">"
+```
+
+A `LocalClassBody` declares a class where the expression is used (section 11). A
+`PlainExpression` has no local body on itself or its arguments; it is what a class signature, a
+`NOT` clause, and an `EACH` or `RANK` selector take. Its `HAS` refinement still uses the ordinary
+requirement grammar, so an expression inside that requirement may declare a local class when a
+declaration file is parsed (L11-7).
+
 **L3-2. Writing an empty argument list is not the same as writing none.** `GreeneryTile<>` and
 `GreeneryTile` denote the same type (T5-2), but the two spellings are distinguishable, and section
 12 gives the difference its meaning: `<>` says "I accept this use's defaults on purpose" (L12-5,
@@ -314,6 +403,11 @@ its keyword: `(HAS r)` refines by a requirement and `(NOT x)` by a structural di
 top-level comma separates clauses, so a conjunction inside one `HAS` must be grouped, as in
 `(HAS (Foo, Bar) OR Baz, NOT Qux)`. Duplicate clauses collapse and order does not affect equality.
 T8-1 through T8-11 say what each clause means.
+
+```ebnf
+Refinement       ::= "(" RefinementClause ( "," RefinementClause )* ")"
+RefinementClause ::= "HAS" RequirementDisjunction | "NOT" PlainExpression
+```
 
 **L3-4. A class literal is written with one bare class name**, `Class<Steel>` (T4-1, T4-6).
 
@@ -363,6 +457,10 @@ remain on the right: `Chosen@Tile<Area>(HAS Marker)`. Matching anonymous occurre
 Class and lexical scope. Matching named occurrences share by `(BoundClass, Name)` and scope, so one
 name may be reused for different bound Classes.
 
+```ebnf
+TypeVariableMarker ::= ClassName? "@"
+```
+
 A scope may contain an anonymous variable only when it has no named variable with the same bound
 Class. If several variables share one bound Class, every one must be named. The syntax does not
 distinguish a declaration from a use or require the occurrence that supplies the choice to come
@@ -397,6 +495,17 @@ That function is the only place a world enters.
 it is at most n, and `= n M` when it is exactly n. An omitted count is 1, so `Plant` means "at least
 one plant" and `MAX 0 Tile` means "no tiles at all".
 
+```ebnf
+RequirementAtom ::= CountedMetric
+                  | "MAX" CountedMetric
+                  | "=" CountedMetric
+                  | Property
+                  | "EVAL" Property
+                  | TransformKind "[" Requirement "]"
+                  | "(" Requirement ")"
+CountedMetric   ::= Integer MetricAtom | Expression
+```
+
 > **Non-normative example — Arcadian Communities.** Its community must begin on a land area with
 > `MAX 0 Occupant`. Ordinary minimum syntax cannot express “empty”; exact zero would also work for
 > this non-negative metric, but the authored maximum form states the absence test directly.
@@ -424,6 +533,11 @@ be parenthesized where a requirement counts it: `9 (Plant - Steel)`.
 
 **L4-6. `,` is conjunction and `OR` is disjunction, and `OR` binds tighter.** So `a, b OR c` requires
 `a`, and one of `b` or `c`. Parentheses group.
+
+```ebnf
+Requirement            ::= RequirementDisjunction ( "," RequirementDisjunction )*
+RequirementDisjunction ::= RequirementAtom ( "OR" RequirementAtom )*
+```
 
 > **Non-normative example — Colonies setup.** Its premise is an `OR` of player-count/colony-count
 > conjunctions. Parenthesized pairs ensure a one-player game needs four colony tiles and a two-player
@@ -470,6 +584,16 @@ non-negative by construction.
 **L5-2. An expression counts the components matching it; a bare number is a constant.** `Plant`
 counts plants; `5` is five.
 
+```ebnf
+ScaledMetric  ::= Integer MetricOperand? | MetricOperand
+MetricOperand ::= Expression
+                | Property
+                | "EVAL" Property
+                | Rank
+                | TransformKind "[" Metric "]"
+                | "(" Metric ")"
+```
+
 **L5-3. `n M` counts complete groups of n.** Its value is M's value divided by n, rounded down, so
 `3 Plant` is 2 when there are 7 plants and also 2 when there are 8. A unit of one is meaningless and
 is dropped: `1 Plant` *is* `Plant`. A unit of zero is rejected.
@@ -480,12 +604,20 @@ is dropped: `1 Plant` *is* `Plant`. A unit of zero is rejected.
 
 **L5-4. `M MAX N` is the smaller of the two values.** A cap may not be directly capped again.
 
+```ebnf
+MetricAtom ::= ScaledMetric ( "MAX" ScaledMetric )?
+```
+
 > **Non-normative example — Jupiter Floating Station.** Its action pays 1 MC per floater, capped at
 > four. `Floater<This> MAX 4` limits the payout metric without limiting how many floaters the card may
 > hold.
 
 **L5-5. `M - N` subtracts, saturating at zero, and is left-associative.** `A - B - C` is `(A - B) -
 C`, and a metric never goes negative, so `Plant - 20` is 0 rather than a debt.
+
+```ebnf
+MetricDifference ::= MetricAtom ( "-" MetricAtom )*
+```
 
 > **Non-normative example — Venus Shuttles.** Its action cost is `1 MC / (12 - VenusTag)`. Once the
 > player has twelve or more Venus tags, the discount metric must stop at zero rather than turn into
@@ -496,6 +628,10 @@ plain component counts: subtraction discards the component identity a union need
 `Plant - Steel OR Heat` is rejected. Duplicate alternatives written by an author are rejected;
 programmatic construction and later rewrites collapse alternatives that have become equal. A
 single remaining count is no longer a union.
+
+```ebnf
+Metric ::= MetricDifference ( "OR" MetricDifference )*
+```
 
 > **Non-normative example — Geologist.** A tile can be both on a volcanic area and adjacent to one.
 > The milestone's union must count that tile once; summing the two arms would let overlapping tiles
@@ -515,6 +651,10 @@ alternative (L6-7).
 **L5-8. `receiver.name` reads a class property**, and `EVAL` includes a property's own syntax
 (L12-12). A property metric with no receiver takes one from the enclosing refinement candidate or
 context.
+
+```ebnf
+Property ::= ( Expression "." )? PropertyName
+```
 
 > **Non-normative example — card payment.** The generic `PlayCard` rule creates debt from
 > `CardFront.cost`. Supplying the chosen concrete card as receiver is what turns one generic rule
@@ -536,6 +676,10 @@ candidate value. There is no lowest-first form; subtracting the metric from a kn
 expresses the inverse ordering. This module pins the syntax and that scoping; ranking a live field
 is realized where a world is available, and pinned by `engine/RankMetricTest.kt`.
 
+```ebnf
+Rank ::= "RANK" PlainExpression? "{" Metric ( "," Metric )* "}"
+```
+
 > **Non-normative example — award scoring.** Award resolution ranks every player by the selected
 > award's metric, then awards first and—when applicable—second place. Lexicographic metrics and a
 > filtered selector let the same machinery represent ties without baking one award into the engine.
@@ -554,6 +698,13 @@ element that does.
 state holds n more components of type `Foo`; `-n Foo` that it holds n fewer; `n Foo FROM Bar` that
 n components of `Bar` have become n of `Foo`.
 
+```ebnf
+ElementaryChange ::= Gain | Removal | Transmutation
+Gain             ::= ScaledExpression Quantifier?
+Removal          ::= "-" ScaledExpression Quantifier?
+Transmutation    ::= Scalar? FromExpression Quantifier?
+```
+
 A direct gain of the system `Signal` class fires both gain and removal triggers while its count
 remains unchanged. Both changes are real — that is how a signal does its work, by what its gain and
 its removal trigger (section 8) — and no signal component remains behind. This point-event behavior
@@ -564,6 +715,11 @@ then removes itself.
 **L6-2. A count is a positive integer or `X`.** `X` denotes an amount left open, and may carry a
 coefficient: `2X Plant` is an even number of plants. A count of zero is rejected.
 
+```ebnf
+ScaledExpression ::= Scalar? Expression
+Scalar           ::= Integer | Integer? "X"
+```
+
 > **Non-normative example — Sulphur-Eating Bacteria.** `X Microbe<This> -> 3X MC` lets the player
 > choose how many microbes to spend while fixing the three-to-one exchange rate. Replacing `X` with
 > unrelated open counts would allow the paid and received amounts to drift apart.
@@ -571,6 +727,10 @@ coefficient: `2X Plant` is an even number of plants. A count of zero is rejected
 **L6-3. A quantifier says how much of the count must happen.** `!` means the whole amount, `.` as
 much of it as possible, and `?` any part of it including none. An authored change may omit the
 quantifier; elaboration then supplies the class's default (T10-2, L12-5).
+
+```ebnf
+Quantifier ::= "!" | "." | "?"
+```
 
 The three differ in *who* settles the amount, which is why later rules treat them so differently:
 
@@ -612,7 +772,12 @@ nothing left in it is `Ok`.
 > remain in a world.
 
 **L6-5. `I / M` scales a change by a metric's value.** `Titanium / 3 EarthTag` grants one titanium
-per three complete Earth tags. Only an elementary change may be scaled this way.
+per three complete Earth tags. Only an elementary change, written without parentheses, may be
+scaled this way.
+
+```ebnf
+Change ::= ElementaryChange ( "/" MetricDifference )?
+```
 
 > **Non-normative example — Community Services.** It grants MC production per card with no tags.
 > Scaling the one production change by `CardFront(HAS MAX 0 Tag)` creates the aggregate reward;
@@ -626,6 +791,10 @@ variable shared with that stage and a later `THEN` stage, resolution waits for t
 choice, substitutes it throughout the sequence, and then checks the gate before executing the
 change (T13-8).
 
+```ebnf
+GatedInstruction ::= ( RequirementAtom ":" )? InstructionChoice
+```
+
 > **Non-normative example — Factorum.** Its first action grants energy production only under
 > `MAX 0 Energy`. The requirement decides whether that result is available; it is not another arm a
 > player can narrow or waive after choosing the action.
@@ -634,6 +803,10 @@ change (T13-8).
 rejected. Programmatic construction and later rewrites collapse arms that have become equal, and a
 single remaining outcome is no longer an `OR`. An `OR` that remains is always open (L7-1), because
 the choice is the point.
+
+```ebnf
+InstructionChoice ::= AttributedInstruction ( "OR" AttributedInstruction )*
+```
 
 > **Non-normative example — Atmo Collectors.** Spending one floater offers 2 titanium, 3 energy, or
 > 4 heat. Those remain three player choices because their resulting changes are distinct. By
@@ -645,6 +818,10 @@ the choice is the point.
 which is exactly what makes them independent. Groups flatten, and a group of one renders as that
 one.
 
+```ebnf
+InstructionGroup ::= InstructionSequence ( "," InstructionSequence )*
+```
+
 > **Non-normative example — Big Asteroid.** Its two temperature steps, four titanium, and optional
 > opponent plant loss form a comma-separated group. The card does not say one waits for another;
 > interpreting commas as a sequence would invent timing and change what later triggers can observe.
@@ -655,6 +832,10 @@ nested pairs. Every stage before the last must be a single instruction: a group 
 on the left is rejected. A group is only an envelope around independent instructions (L6-8) — there
 is no shell around `(A, B)` for a `THEN` to relate to, and nothing that "before" could name. What
 waiting means for pending work is `SEQUENCING.md`'s subject.
+
+```ebnf
+InstructionSequence ::= GatedInstruction ( "THEN" GatedInstruction )*
+```
 
 > **Non-normative example — solo neutral tiles.** Each placement pairs a city with a subsequent
 > greenery adjacent to a city. `THEN` ensures the new city exists before the greenery's legal-area
@@ -675,12 +856,20 @@ world.
 `EACH.md` specifies how and when that world is enumerated. This module pins the syntax and scoping;
 `engine/EachSelectorOwnerTest.kt` and `engine/InstructionResolutionTest.kt` pin the rest.
 
+```ebnf
+Each ::= "EACH" PlainExpression "{" InstructionGroup "}"
+```
+
 > **Non-normative example — map setup.** `EACH Class<@MarsArea> { @MarsArea }` creates one
 > component of every concrete area Class. The selector explicitly exposes the represented Class to
 > the body.
 
 **L6-11. `I BY Actor` names who performs the change.** It distributes over a group, so
 `(A, B) BY Player1` is `A BY Player1, B BY Player1`. Attribution itself is `IDENTITY.md`'s subject.
+
+```ebnf
+AttributedInstruction ::= PrimaryInstruction ( "BY" Expression )?
+```
 
 > **Non-normative example — solo reserve mirroring.** When a player gains or loses a resource, the
 > neutral solo reserve performs its matching change `BY Admin`. The actor mark prevents that mirror
@@ -694,6 +883,12 @@ unchanged argument occurs once, and the gained and removed Types are projections
 Narrowing replaces a retained argument once, so the two projections cannot acquire different
 values. Execution reads the two Types only after the instruction is concrete.
 
+```ebnf
+FromExpression ::= Expression "FROM" Expression
+                 | ClassName "<" ( Expression "," )* FromExpression ( "," Expression )* ">"
+                   Refinement?
+```
+
 > **Non-normative example — Air Raid.** `5 MC<Owner FROM Anyone>` transfers five MC by changing only
 > the ownership argument. Compact transmutation preserves the resource class and amount on both
 > sides, so the card cannot accidentally remove one currency and grant another.
@@ -702,6 +897,13 @@ values. Execution reads the two Types only after the instruction is concrete.
 gate `:`, `THEN`, `,`. Parentheses group, and rendering re-inserts grouping wherever re-parsing
 would otherwise read the tree differently — including around a transmutation written in full inside
 an `OR`, whose bare `FROM` would be ambiguous.
+
+```ebnf
+PrimaryInstruction ::= Change
+                     | Each
+                     | TransformKind "[" InstructionGroup "]"
+                     | "(" InstructionGroup ")"
+```
 
 > **Non-normative example — Pharmacy Union.** Its science-tag rule combines a transmutation, a
 > state-gated fallback sequence, and an `OR`. The precedence ladder—and the renderer's extra
@@ -867,6 +1069,10 @@ rule is about; the instruction is the change the rule then requires. A trigger i
 the state its event produced — that goes for the expression it matches, for a `HAS` refinement
 inside that expression, and for an `IF` condition (L8-7) alike.
 
+```ebnf
+Effect ::= Trigger ( ":" | "::" ) InstructionGroup
+```
+
 **L8-2. `::` marks an automatic effect** — a consequence carrying no choice, which the rule intends
 to be inseparable from the event that caused it. It is greedy: every automatic consequence of one
 event is carried out before any queued (`:`) effect of that same event is even tested, so a queued
@@ -881,6 +1087,10 @@ What follows from this for pending work is `SEQUENCING.md`'s subject.
 **L8-3. There are two kinds of trigger.** `This` and `-This` are about this very component being
 gained or removed. Any other expression is a *subscription* to gains, or with a leading `-` removals,
 of components matching it.
+
+```ebnf
+TriggerChange ::= "-"? "X"? Expression
+```
 
 > **Non-normative example — Tharsis Republic.** `This` grants that corporation's starting package;
 > `CityTile<Anyone, MarsArea>` subscribes to every city placement. Confusing the two would either
@@ -915,6 +1125,13 @@ a gain of any number of plants with the same number of heat. A removal is writte
 **L8-6. `OR` joins triggers, and self and subscribed triggers may not mix.** `This OR -This` is fine;
 `This OR Plant` is not, because one is about this component and the other about the world.
 
+```ebnf
+TriggerChoice  ::= TriggerPrimary ( "OR" TriggerPrimary )*
+TriggerPrimary ::= TriggerChange
+                 | TransformKind "[" TriggerChange "]"
+                 | "(" Trigger ")"
+```
+
 > **Non-normative example — CrediCor.** Its rebate listens to either an expensive card play or use of
 > an expensive standard project. Both are subscriptions, so one effect can join them; mixing in
 > `This` would combine a one-time setup event with repeatable world events that scale differently.
@@ -924,6 +1141,10 @@ a gain of any number of plants with the same number of heat. A removal is writte
 specialized by the Actor recorded on the event. `BY @Player` explicitly makes that concrete
 Player available as `@Player` elsewhere in the Effect. An unmarked or refined selector only filters
 the event Actor (T13-9).
+
+```ebnf
+Trigger ::= TriggerChoice ( "BY" Expression )? ( "IF" Requirement )?
+```
 
 > **Non-normative example — Lakefront Resorts.** `OceanTile BY Anyone: PROD[1 MC]` pays its owner
 > whenever any player places an ocean. The actor qualifier belongs to the trigger event, while an
@@ -998,6 +1219,10 @@ An action is a rule a player may invoke: `Steel -> 5 MC` offers to turn one stee
 **L9-1. An action is an optional cost, an arrow, and an instruction.** The cost is written without a
 minus sign; it is understood to be given up.
 
+```ebnf
+Action ::= Cost? "->" InstructionGroup
+```
+
 **L9-2. An action means: spend the cost, then do the result.** `cost -> I` denotes `-cost! THEN I`,
 and a costless action denotes just `I`. The `THEN` is L6-9's, with nothing added, and the cost and
 the result share one `X` because they are its two stages (L6-14).
@@ -1016,6 +1241,13 @@ defines the form it starts from.
 **L9-3. A cost is a scaled expression, optionally scaled by a metric, optionally inside a transform
 block.** A comma-separated or gated cost is rejected — alternative costs are written as separate
 actions, so that each is one thing a player can choose to do.
+
+```ebnf
+Cost        ::= CostPrimary ( "/" MetricDifference )?
+CostPrimary ::= ScaledExpression
+              | TransformKind "[" Cost "]"
+              | "(" Cost ")"
+```
 
 > **Non-normative example — trading with a colony.** The Trade action exposes separate 9-MC,
 > 3-energy, and 3-titanium actions. Treating those as a comma or gated cost would require several
@@ -1070,6 +1302,14 @@ card uses: inside it, `Plant` means plant *production*.
 
 **L10-1. A block is an all-caps kind name, square brackets, and one node.** The kinds of node that
 accept a block are instruction, action cost, metric, requirement and trigger.
+
+| Node | Alternative | In production |
+| --- | --- | --- |
+| instruction | `TransformKind "[" InstructionGroup "]"` | `PrimaryInstruction` (L6-13) |
+| action cost | `TransformKind "[" Cost "]"` | `CostPrimary` (L9-3) |
+| metric | `TransformKind "[" Metric "]"` | `MetricOperand` (L5-2) |
+| requirement | `TransformKind "[" Requirement "]"` | `RequirementAtom` (L4-2) |
+| trigger | `TransformKind "[" TriggerChange "]"` | `TriggerPrimary` (L8-6) |
 
 > **Non-normative example — Mine.** `PROD[Steel]` marks steel as a production-track change rather
 > than a steel-cube gain. Keeping the mark around one typed node lets the production handler rewrite
@@ -1131,6 +1371,10 @@ never sees anything but ordinary declarations.
 
 **L11-1. An expression followed by a body declares a class at its point of use.**
 
+```ebnf
+LocalClassBody ::= "{" ( LocalBodyElement ( ";" LocalBodyElement )* )? "}"
+```
+
 ```pets
 CLASS Inventrix { This: RequiredAction { -> 3 ProjectCard } }
 ```
@@ -1169,6 +1413,10 @@ becomes the occurrence `MiningArea_SpecialTile<LandArea(HAS Neighbor<OwnedTile>)
 **L11-4. The local body may contain invariants, properties, effects and actions**, and may not
 contain `DEFAULT` clauses or nested declarations. The generated class inherits applicable defaults
 from its supertypes like any other.
+
+```ebnf
+LocalBodyElement ::= Invariant | PropertyAssignment | Effect | Action
+```
 
 **L11-5. Owner-local classes do not nest.** Neither a local body nor an argument of the occurrence
 may declare another one.
@@ -1390,3 +1638,206 @@ owner together, in one step.
 - **Where a transform handler comes from**, and what any particular kind such as `PROD` rewrites.
   Section 10 specifies the mark and the contract every handler owes (L10-3), not what any one kind
   means; that belongs to the Catalog defining it.
+
+---
+
+## Appendix B: Grammar
+
+This is every production from sections 1 to 11 in one place. The parts run top-down: a source,
+then what a class body holds, then what those elements are made of, down to tokens. Within a part,
+productions run from the loosest-binding operator to the tightest, so reading down a part climbs
+its precedence ladder. The comment beside each production names the rule that introduces it.
+
+### Start symbols
+
+| Start symbol | Parses | Through |
+| --- | --- | --- |
+| `Source` | a declaration file | `Parsing.parseClasses` (L1-1) |
+| `OneLineDeclaration` | one declaration embedded in card data | `Parsing.parseOneLinerClass` (L1-11) |
+| `Expression`, `Requirement`, `Metric`, `InstructionGroup`, `Effect`, `Action` | one element | `Parsing.parse` |
+
+`Parsing.parse` also accepts some smaller node kinds, such as a `Trigger` or a `Cost`, each from the
+production of the same name. Asked for one `Instruction` rather than an `InstructionTree`, it
+rejects a group of two or more (L6-8), and no element it parses may declare a local class (L11-7).
+
+### Declarations
+
+Line endings appear only in this part: around declarations and their docstrings, and between the
+members of a multi-line body. Everything inside one element is on one logical line, however
+many source lines a backslash spreads it across (L1-9).
+
+```ebnf
+Source             ::= ( NL* Declaration )* NL*                                          /* L1-1 */
+Declaration        ::= ( QuotedText NL* )? "ABSTRACT"? "CLASS" Signature ClassBody?      /* L1-2 */
+Signature          ::= ClassName ( "<" PlainExpression ( "," PlainExpression )* ">" )?   /* L1-2 */
+                       ( ":" PlainExpression ( "," PlainExpression )* )?
+
+ClassBody          ::= MultiLineBody | OneLineBody                                       /* L1-3 */
+MultiLineBody      ::= "{" NL* ( ClassMember ( NL+ ClassMember )* )? NL* "}"             /* L1-3 */
+OneLineBody        ::= "{" BodyElement ( ";" BodyElement )* "}"                          /* L1-3 */
+ClassMember        ::= BodyElement | Declaration                                         /* L1-3 */
+BodyElement        ::= Invariant | DefaultClause | PropertyAssignment | Effect | Action  /* L1-3 */
+
+Invariant          ::= "HAS" Requirement                                                 /* L1-3 */
+DefaultClause      ::= "DEFAULT" ( Expression | ( "+" | "-" ) Expression Quantifier? )   /* L1-6 */
+PropertyAssignment ::= PropertyName "=" PropertyValue                                    /* L1-7 */
+PropertyValue      ::= "Number" | "Metric" | "Requirement" "?"? | Integer                /* L1-7 */
+                     | "COUNT" QuotedText
+                     | "HAS" QuotedText
+
+OneLineDeclaration ::= "ABSTRACT"? "CLASS" Signature OneLineBody?                        /* L1-11 */
+
+LocalClassBody     ::= "{" ( LocalBodyElement ( ";" LocalBodyElement )* )? "}"           /* L11-1 */
+LocalBodyElement   ::= Invariant | PropertyAssignment | Effect | Action                  /* L11-4 */
+```
+
+### Effects
+
+Loosest first: `IF`, `BY`, `OR` (L8-7).
+
+```ebnf
+Effect         ::= Trigger ( ":" | "::" ) InstructionGroup                   /* L8-1 */
+Trigger        ::= TriggerChoice ( "BY" Expression )? ( "IF" Requirement )?  /* L8-7 */
+TriggerChoice  ::= TriggerPrimary ( "OR" TriggerPrimary )*                   /* L8-6 */
+TriggerPrimary ::= TriggerChange                                             /* L8-6 */
+                 | TransformKind "[" TriggerChange "]"
+                 | "(" Trigger ")"
+TriggerChange  ::= "-"? "X"? Expression                                      /* L8-3 */
+```
+
+### Actions
+
+A cost has no `,`, gate or `OR`; alternative costs are separate actions (L9-3).
+
+```ebnf
+Action      ::= Cost? "->" InstructionGroup            /* L9-1 */
+Cost        ::= CostPrimary ( "/" MetricDifference )?  /* L9-3 */
+CostPrimary ::= ScaledExpression                       /* L9-3 */
+              | TransformKind "[" Cost "]"
+              | "(" Cost ")"
+```
+
+### Instructions
+
+Loosest first: `,`, `THEN`, the gate `:`, `OR`, `BY`, `/`, then a change and its quantifier (L6-13).
+A parenthesized group may take `BY` (L6-11) but not `/` (L6-5).
+
+```ebnf
+InstructionGroup      ::= InstructionSequence ( "," InstructionSequence )*       /* L6-8 */
+InstructionSequence   ::= GatedInstruction ( "THEN" GatedInstruction )*          /* L6-9 */
+GatedInstruction      ::= ( RequirementAtom ":" )? InstructionChoice             /* L6-6 */
+InstructionChoice     ::= AttributedInstruction ( "OR" AttributedInstruction )*  /* L6-7 */
+AttributedInstruction ::= PrimaryInstruction ( "BY" Expression )?                /* L6-11 */
+PrimaryInstruction    ::= Change                                                 /* L6-13 */
+                        | Each
+                        | TransformKind "[" InstructionGroup "]"
+                        | "(" InstructionGroup ")"
+
+Each                  ::= "EACH" PlainExpression "{" InstructionGroup "}"        /* L6-10 */
+
+Change                ::= ElementaryChange ( "/" MetricDifference )?             /* L6-5 */
+ElementaryChange      ::= Gain | Removal | Transmutation                         /* L6-1 */
+Gain                  ::= ScaledExpression Quantifier?                           /* L6-1 */
+Removal               ::= "-" ScaledExpression Quantifier?                       /* L6-1 */
+Transmutation         ::= Scalar? FromExpression Quantifier?                     /* L6-1 */
+Quantifier            ::= "!" | "." | "?"                                        /* L6-3 */
+```
+
+### Requirements
+
+Loosest first: `,`, `OR` (L4-6). A count applies to one `MetricAtom`, so a counted union or
+difference is parenthesized (L4-5).
+
+```ebnf
+Requirement            ::= RequirementDisjunction ( "," RequirementDisjunction )*  /* L4-6 */
+RequirementDisjunction ::= RequirementAtom ( "OR" RequirementAtom )*               /* L4-6 */
+RequirementAtom        ::= CountedMetric                                           /* L4-2 */
+                         | "MAX" CountedMetric
+                         | "=" CountedMetric
+                         | Property
+                         | "EVAL" Property
+                         | TransformKind "[" Requirement "]"
+                         | "(" Requirement ")"
+CountedMetric          ::= Integer MetricAtom | Expression                         /* L4-2 */
+```
+
+### Metrics
+
+Loosest first: `OR`, `-`, then `MAX` and scaling (L5-7). After the `/` of an instruction or a
+cost, a metric is a `MetricDifference`, so a union there is parenthesized.
+
+```ebnf
+Metric           ::= MetricDifference ( "OR" MetricDifference )*             /* L5-6 */
+MetricDifference ::= MetricAtom ( "-" MetricAtom )*                          /* L5-5 */
+MetricAtom       ::= ScaledMetric ( "MAX" ScaledMetric )?                    /* L5-4 */
+ScaledMetric     ::= Integer MetricOperand? | MetricOperand                  /* L5-2 */
+MetricOperand    ::= Expression                                              /* L5-2 */
+                   | Property
+                   | "EVAL" Property
+                   | Rank
+                   | TransformKind "[" Metric "]"
+                   | "(" Metric ")"
+
+Property         ::= ( Expression "." )? PropertyName                        /* L5-8 */
+Rank             ::= "RANK" PlainExpression? "{" Metric ( "," Metric )* "}"  /* L5-9 */
+```
+
+### Expressions
+
+An `Expression` may end in a local class body (section 11); a `PlainExpression`, which
+signatures, `NOT` clauses, and `EACH` and `RANK` selectors take, omits it on itself and its
+arguments. An expression inside its `HAS` refinement may still have one.
+
+```ebnf
+Expression         ::= TypeVariableMarker? ClassName Arguments? Refinement?       /* L3-1 */
+                       LocalClassBody?
+Arguments          ::= "<" ( Expression ( "," Expression )* )? ">"                /* L3-1 */
+PlainExpression    ::= TypeVariableMarker? ClassName PlainArguments? Refinement?  /* L3-1 */
+PlainArguments     ::= "<" ( PlainExpression ( "," PlainExpression )* )? ">"      /* L3-1 */
+TypeVariableMarker ::= ClassName? "@"                                             /* L3-9 */
+
+Refinement         ::= "(" RefinementClause ( "," RefinementClause )* ")"         /* L3-3 */
+RefinementClause   ::= "HAS" RequirementDisjunction | "NOT" PlainExpression       /* L3-3 */
+
+ScaledExpression   ::= Scalar? Expression                                         /* L6-2 */
+Scalar             ::= Integer | Integer? "X"                                     /* L6-2 */
+FromExpression     ::= Expression "FROM" Expression                               /* L6-12 */
+                     | ClassName "<" ( Expression "," )* FromExpression ( "," Expression )* ">"
+                       Refinement?
+```
+
+### Tokens
+
+These productions spell characters. `Ignored` text may appear between any two tokens (L1-9),
+and a keyword is never a name (L2-2).
+
+```ebnf
+ClassName     ::= ( [A-Z] [A-Za-z0-9_]* ) - Keyword                                    /* L2-1 */
+TransformKind ::= ( [A-Z] [A-Z0-9_]* ) - Keyword                                       /* L2-4 */
+PropertyName  ::= [a-z] [A-Za-z0-9]*                                                   /* L2-3 */
+Keyword       ::= "ABSTRACT" | "BY" | "CLASS" | "COUNT" | "DEFAULT" | "EACH" | "EVAL"  /* L2-2 */
+                | "FROM" | "HAS" | "IF" | "MAX" | "NOT" | "OR" | "RANK" | "THEN" | "X"
+                | "Metric" | "Number" | "Requirement"
+Integer       ::= "0" | [1-9] [0-9]*                                                   /* L1-7 */
+QuotedText    ::= '"' [^"]* '"'                                                        /* L1-5 */
+
+NL            ::= #xA                                                                  /* L1-9 */
+Ignored       ::= [#x9#xD#x20]+ | "//" [^#xA#xD]* | "\" #xD? #xA                       /* L1-9 */
+```
+
+### What the grammar leaves to the rules
+
+The grammar is context-free. Among the rules that reject sources it admits:
+
+- `OR` alternatives are distinct in an instruction (L6-7), and in a metric, where each is also a
+  component count (L5-6).
+- Every `THEN` stage but the last is one instruction, containing no group or sequence (L6-9), and a
+  gate does not directly contain another gate (L6-6).
+- No count, minimum or metric unit is zero (L6-2, L4-3, L5-3).
+- A signature carries no refinement (L1-8), and a body assigns each property at most once (L1-7).
+- A Type-variable marker is matched by another occurrence in its scope (L3-9).
+- `RANK` omits its selector only inside a `HAS` refinement (L5-9).
+- A trigger does not mix self and subscribed triggers (L8-6), or subscribe to a static non-event
+  (L8-9).
+- A local class is declared only in a declaration file, never inside another, and at most once per
+  base name and owner (L11-5 to L11-7).
