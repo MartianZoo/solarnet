@@ -206,12 +206,12 @@ internal class TaskNarrowingTest {
 
   @Test
   internal fun `narrowing to the first stage executes it and admits its THEN continuation`() {
-    writer.runOperation("ProjectCard")
-    initiate("(-ProjectCard THEN ProjectCard) OR Ok")
+    writer.runOperation("Steel")
+    initiate("(-Steel THEN Steel) OR Ok")
 
-    selectAndNarrow("(-ProjectCard THEN ProjectCard) OR Ok", "-ProjectCard")
+    selectAndNarrow("(-Steel THEN Steel) OR Ok", "-Steel")
 
-    tasksAsText().shouldContainExactly("ProjectCard<Player1, Hand>!")
+    tasksAsText().shouldContainExactly("Steel<Player1>!")
   }
 
   @Test

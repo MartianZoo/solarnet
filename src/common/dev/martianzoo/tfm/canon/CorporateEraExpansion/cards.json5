@@ -83,7 +83,7 @@
           "cost": 4,
           "tags": [ "EarthTag" ],
           "immediate": "PROD[-1 MC]",
-          "actions": [ "-> DrawCard<Class<ProjectCard>, Selecting> THEN -ProjectCard<Selecting>? THEN BuySelectedCards" ],
+          "actions": [ "-> DrawCard<Class<ProjectCard>, Selecting> THEN EACH @ProjectCard<Selecting> { -@ProjectCard? } THEN BuySelectedCards" ],
         },
         {
           "name": "CallistoPenalMines",
@@ -226,7 +226,7 @@
           "name": "InventorsGuild",
           "cost": 9,
           "tags": [ "ScienceTag" ],
-          "actions": [ "-> DrawCard<Class<ProjectCard>, Selecting> THEN -ProjectCard<Selecting>? THEN BuySelectedCards" ],
+          "actions": [ "-> DrawCard<Class<ProjectCard>, Selecting> THEN EACH @ProjectCard<Selecting> { -@ProjectCard? } THEN BuySelectedCards" ],
         },
         {
           "name": "InvestmentLoan",

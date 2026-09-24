@@ -249,7 +249,7 @@
           "cost": 18,
           "tags": [ "VenusTag", "SpaceTag" ],
           "actions": [
-            "-> 2 DrawCard<Class<ProjectCard>, Selecting> THEN EACH @ProjectCard<Selecting> { (PrintedTagOf<@ProjectCard, Class<VenusTag>>: MoveSelectedCard<@ProjectCard>) OR (MAX 0 PrintedTagOf<@ProjectCard, Class<VenusTag>>: Ok) } THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards",
+            "-> 2 DrawCard<Class<ProjectCard>, Selecting> THEN EACH @ProjectCard<Selecting> { (PrintedTagOf<@ProjectCard, Class<VenusTag>>: MoveSelectedCard<@ProjectCard>) OR (MAX 0 PrintedTagOf<@ProjectCard, Class<VenusTag>>: Ok) } THEN EACH @ProjectCard<Selecting> { -@ProjectCard? } THEN BuySelectedCards",
           ],
         },
         {

@@ -14,6 +14,8 @@ across players, backs, fronts, and played events.
 remove and gain. The existing `CardLocationCleanup` removes unchosen backs from `Selecting` and
 `Revealed` when work becomes idle. Setup offers ten exact project backs and two exact standard
 corporation backs per player. The player chooses a corporation and may keep each offered project.
+Research and other purchases offer one optional discard per exact selected back; the remaining
+backs are purchased. `buyCards(count)` resolves those choices in task order.
 
 ## Dealer
 
@@ -43,4 +45,6 @@ Pets movement cannot yet carry a selected back's represented Class into a new lo
   ordered deck. Use `DrawCard` for ordinary entries.
 - Older follow-mode replay tests and helpers assume fungible backs and do not establish real-card
   behavior. Use `RealCardDrawTest` for current exact-card scenarios.
+- The `CONCRETE` Agent policy opens fixed draw and `EACH` stages while leaving optional discards as
+  choices. With `NONE`, a caller must explicitly open those stages before choosing each card.
 - Hidden information and DraftVariant are outside this mode's present scope.

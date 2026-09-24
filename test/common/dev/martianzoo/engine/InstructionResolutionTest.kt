@@ -33,7 +33,7 @@ internal class InstructionResolutionTest {
       )
 
   init {
-    game.testTfm(PLAYER1).sneak("Plant, 10 ProjectCard, PROD[-1 MC]")
+    game.testTfm(PLAYER1).sneak("Plant, 10 MC, PROD[-1 MC]")
   }
 
   private fun preprocess(instr: InstructionTree): InstructionTree {
@@ -80,9 +80,10 @@ internal class InstructionResolutionTest {
         "OxygenStep FROM TerraformRating!",
         "OxygenStep FROM TerraformRating<Player1>!",
     )
-    shouldThrow<ExpressionException> {
-      preprocessAndResolve("2 OxygenStep FROM TerraformRating!")
-    }
+    checkResolution(
+        "2 OxygenStep FROM TerraformRating!",
+        "OxygenStep FROM TerraformRating<Player1>!, OxygenStep FROM TerraformRating<Player1>!",
+    )
   }
 
   @Test
@@ -167,26 +168,26 @@ internal class InstructionResolutionTest {
   internal fun testOnlyAnOwnerSelectionSuppliesTheOwnerOfItsBranch() {
     checkResolution("EACH Player { Plant }", "Plant<Player1>!, Plant<Player2>!")
     checkResolution(
-        "EACH @ProjectCard<Anyone> { -@ProjectCard, Plant }",
-        List(10) { "-ProjectCard<Player1, Hand>!, Plant<Player1>!" }.joinToString(", "),
+        "EACH @MC<Anyone> { -@MC, Plant }",
+        List(10) { "-MC<Player1>!, Plant<Player1>!" }.joinToString(", "),
     )
     // A selector reads its enclosing context, so `Owner` there is one component, not every owner.
     shouldThrow<ExpressionException> { preprocessAndResolve("EACH Owner { Plant }") }
     // ...and it concretizes dependencies in a selector rooted in the enclosing owner's context.
     shouldThrow<ExpressionException> {
-      preprocessAndResolve("EACH ProjectCard<Owner> { Plant }")
+      preprocessAndResolve("EACH MC<Owner> { Plant }")
     }
   }
 
   @Test
   internal fun testFanoutRangesOverOccurrences() {
-    // Player1 holds ten indistinguishable ProjectCards, and each copy contributes one branch.
+    // Player1 holds ten indistinguishable MC, and each copy contributes one branch.
     checkResolution(
-        "EACH @ProjectCard<Anyone> { -@ProjectCard }",
-        List(10) { "-ProjectCard<Player1, Hand>!" }.joinToString(", "),
+        "EACH @MC<Anyone> { -@MC }",
+        List(10) { "-MC<Player1>!" }.joinToString(", "),
     )
     checkResolution(
-        "EACH ProjectCard<Anyone> { StandardResource }",
+        "EACH MC<Anyone> { StandardResource }",
         List(10) { "StandardResource<Player1>!" }.joinToString(", "),
     )
   }
@@ -223,7 +224,7 @@ internal class InstructionResolutionTest {
 
     checkResolution("PROD[Plant OR (3 PlantTag: 4 Plant)]", "Production<Player1, Class<Plant>>!")
     checkResolution(
-        "Steel / 2 ProjectCard OR -Titanium? OR (Plant: 5 Steel) OR Ok OR 5 Steel",
+        "Steel / 2 MC OR -Titanium? OR (Plant: 5 Steel) OR Ok OR 5 Steel",
         "5 Steel<Player1>! OR Ok",
     )
     shouldThrow<GameplayException> {

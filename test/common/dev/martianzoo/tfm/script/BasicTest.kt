@@ -18,8 +18,19 @@ internal fun setUpGame(
   val setup = OptionCodeTranslation.setup(optionCodes, players)
   return createGame(setup).apply {
     TfmWorkflow.Stepwise(testAgents()).setupPhase()
-    actors.filterIsInstance<Player>().forEach {
-      testTfm(it).doTask("-10 ProjectCard<Selecting>")
+    actors.filterIsInstance<Player>().forEach { player ->
+      val agent = testTfm(player)
+      val face =
+          agent.reader
+              .getComponents(agent.resolve("StandardCorporationCard<Selecting>"))
+              .elements
+              .first()
+              .typeDependencies
+              .mapNotNull { it.boundType.representedClass }
+              .single()
+              .className
+      agent.doTask("StandardCorporationCard<Class<$face>, Hand FROM Selecting>")
+      repeat(10) { agent.doTask("Ok") }
     }
   }
 }

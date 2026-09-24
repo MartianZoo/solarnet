@@ -82,13 +82,16 @@ public class TfmGameplay(
     openPendingProjectCardOffer()
     val offered = this@TfmGameplay.count("ProjectCard<Selecting>")
     require(count in 0..offered) { "cannot buy $count of $offered selected project cards" }
-    val discardTask = tasks.extract { it }.singleOrNull { it.discardsSelectedProjectCards() }
-    if (discardTask == null) {
+    val discardTasks = tasks.extract { it }.filter { it.discardsSelectedProjectCards() }
+    if (discardTasks.isEmpty()) {
       require(count == offered) { "all $offered retained project cards must be bought" }
     } else {
-      val discarded = offered - count
-      selectTask(discardTask.id)
-      narrowTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>")
+      require(discardTasks.size == offered) { "expected one discard choice for each offered card" }
+      discardTasks.forEachIndexed { index, task ->
+        val removing =
+            task.instruction.descendantsOfType<Change>().mapNotNull { it.removing }.single()
+        doTask(if (index < offered - count) "-$removing" else "Ok", task.id)
+      }
     }
     if (hasPendingBuySelectedCards(tasks)) doTask("BuySelectedCards")
     if (count > 0) payAllMc()

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
@@ -247,13 +248,13 @@ internal class RealCardDrawTest {
     val world =
         Engine.newGame(canonicalPremise(PreludeExpansion, Prelude2CardPack, VenusNextExpansion))
     val player = world.testTfm(PLAYER1)
+    player.autoExecPolicy = CONCRETE
     val admin = world.testTfm(ADMIN)
     admin.runOperation("GenerationScope")
     admin.phase("Action")
     player.runOperation("VenusOrbitalSurvey, 6 MC")
 
     player.cardAction1(cn("VenusOrbitalSurvey")) {
-      player.count("ProjectCard<Selecting>") shouldBe 2
       player.buyCards(2)
     }
 
@@ -261,6 +262,29 @@ internal class RealCardDrawTest {
     player.count("ProjectCard<Selecting>") shouldBe 0
     player.count("MC") shouldBe 0
     player.count("DeckSpent") shouldBe 2
+  }
+
+  @Test
+  internal fun `Venus Orbital Survey retains a Venus card before offering the other for purchase`() {
+    val world =
+        Engine.newGame(canonicalPremise(PreludeExpansion, Prelude2CardPack, VenusNextExpansion))
+    val player = world.testTfm(PLAYER1)
+    val admin = world.testTfm(ADMIN)
+    admin.runOperation("GenerationScope")
+    admin.phase("Action")
+    player.runOperation("5 DrawCard<Class<ProjectCard>, Hand>, VenusOrbitalSurvey, 3 MC")
+    player.autoExecPolicy = CONCRETE
+
+    player.cardAction1(cn("VenusOrbitalSurvey")) {
+      player.count("ProjectCard<Class<AerialMappers>, Hand>") shouldBe 1
+      player.count("ProjectCard<Selecting>") shouldBe 1
+      player.buyCards(1)
+    }
+
+    player.count("ProjectCard<Class<AerialMappers>, Hand>") shouldBe 1
+    player.count("ProjectCard<Hand>") shouldBe 7
+    player.count("ProjectCard<Selecting>") shouldBe 0
+    player.count("DeckSpent") shouldBe 7
   }
 
   @Test
@@ -368,5 +392,41 @@ internal class RealCardDrawTest {
     player.count("ProjectCard<Selecting>") shouldBe 0
     player.count("StandardCorporationCard<Class<$corporation>, Hand>") shouldBe 1
     player.count("StandardCorporationCard<Selecting>") shouldBe 0
+  }
+
+  @Test
+  internal fun `research buys from four concrete project offers`() {
+    val world = Engine.newGame(canonicalPremise(players = 1))
+    val admin = world.testTfm(ADMIN)
+    val player = world.testTfm(PLAYER1)
+    player.autoExecPolicy = CONCRETE
+    player.runOperation("6 MC")
+
+    admin.phase("Research") {
+      val offeredFaces =
+          player.reader
+              .getComponents(player.resolve("ProjectCard<Selecting>"))
+              .elements
+              .map { back ->
+                back.typeDependencies
+                    .mapNotNull { it.boundType.representedClass }
+                    .single()
+                    .className
+              }
+              .toSet()
+      offeredFaces.size shouldBe 4
+      player.buyCards(2)
+      val boughtFaces =
+          player.reader.getComponents(player.resolve("ProjectCard<Hand>")).elements.map { back ->
+            back.typeDependencies.mapNotNull { it.boundType.representedClass }.single().className
+          }
+      boughtFaces.size shouldBe 2
+      boughtFaces.all(offeredFaces::contains) shouldBe true
+    }
+
+    player.count("ProjectCard<Hand>") shouldBe 2
+    player.count("ProjectCard<Selecting>") shouldBe 0
+    player.count("MC") shouldBe 0
+    player.count("DeckSpent") shouldBe 4
   }
 }

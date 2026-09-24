@@ -58,10 +58,31 @@ internal fun retainStartingProjects(game: World, vararg retainedCounts: Int) {
   }
   players.zip(retainedCounts.asIterable()).forEach { (player, retained) ->
     require(retained in 0..10) { "cannot retain $retained of 10 starting projects" }
-    val discarded = 10 - retained
-    game
-        .testAgent(player)
-        .doTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>")
+    val agent = game.testAgent(player)
+    if (agent.count("StandardCorporationCard<Selecting>") > 0) {
+      val corporation =
+          agent.reader
+              .getComponents(agent.resolve("StandardCorporationCard<Selecting>"))
+              .elements
+              .first()
+              .typeDependencies
+              .mapNotNull { it.boundType.representedClass }
+              .single()
+              .className
+      agent.doTask("StandardCorporationCard<Class<$corporation>, Hand FROM Selecting>")
+    }
+    val faces =
+        agent.reader
+            .getComponents(agent.resolve("ProjectCard<Selecting>"))
+            .elements
+            .take(retained)
+            .map { back ->
+              back.typeDependencies.mapNotNull { it.boundType.representedClass }.single().className
+            }
+    faces.forEach { face ->
+      agent.doTask("ProjectCard<Class<$face>, Hand FROM Selecting>")
+    }
+    repeat(10 - retained) { agent.doTask("Ok") }
   }
 }
 

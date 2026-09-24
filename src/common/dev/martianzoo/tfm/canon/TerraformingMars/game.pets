@@ -85,7 +85,7 @@ ABSTRACT CLASS Player : Owner, Actor {
   NewTurn IF SetupPhase, StandardCorporationCard<Selecting>: \
     StandardCorporationCard<Hand FROM Selecting>, \
     EACH ProjectCard<Selecting> { ProjectCard<Hand FROM Selecting>? }
-  ResearchPhase: 4 DrawCard<Class<ProjectCard>, Selecting> THEN -4 ProjectCard<Selecting>? THEN BuySelectedCards
+  ResearchPhase: 4 DrawCard<Class<ProjectCard>, Selecting> THEN EACH @ProjectCard<Selecting> { -@ProjectCard? } THEN BuySelectedCards
 }
 
 "One step on the terraform rating track; you generally start with 20 of them"
