@@ -196,21 +196,30 @@ internal constructor(
    * * Evaluates a metric in a [Per] instruction, multiplying the inner instruction appropriately
    * * Resolves each option of an [Or]
    * * If gaining a *concrete* custom type, rewrites to the result of [CustomClass.translate]
+   *
+   * [worldGainNarrowing] permits current-World gain narrowing after a Task is selected.
    */
-  internal fun resolve(unresolved: Instruction): InstructionTree {
+  internal fun resolve(
+      unresolved: Instruction,
+      worldGainNarrowing: Boolean = false,
+  ): InstructionTree {
     return when (unresolved) {
       is NoOp -> NoOp
-      is Change -> resolveChange(unresolved)
-      is By -> By.createTree(resolve(unresolved.inner), actorType(unresolved).expression)
-      is Per -> resolve(unresolved.inner * reader.count(unresolved.metric))
+      is Change -> resolveChange(unresolved, worldGainNarrowing)
+      is By ->
+          By.createTree(
+              resolve(unresolved.inner, worldGainNarrowing),
+              actorType(unresolved).expression,
+          )
+      is Per -> resolve(unresolved.inner * reader.count(unresolved.metric), worldGainNarrowing)
       is Gated -> {
         if (!reader.has(unresolved.gate)) {
           throw RequirementException("requirement not met: `${unresolved.gate}` / null")
         }
-        resolveTree(unresolved.inner)
+        resolveTree(unresolved.inner, worldGainNarrowing)
       }
-      is Each -> resolveEach(unresolved)
-      is Or -> resolveOr(unresolved)
+      is Each -> resolveEach(unresolved, worldGainNarrowing)
+      is Or -> resolveOr(unresolved, worldGainNarrowing)
       is Then -> {
         val first = unresolved.first
         val gated = first as? Gated
@@ -226,15 +235,20 @@ internal constructor(
               unresolved.typeVariables.variableAt(it) in gateVariables
             } == true
         unresolved.withInstructions(
-            listOf(if (openGate) first else resolveTree(first)) + unresolved.instructions.drop(1)
+            listOf(if (openGate) first else resolveTree(first, worldGainNarrowing)) +
+                unresolved.instructions.drop(1)
         )
       }
       is Transform -> throw ExpressionException("unhandled instruction transform: $unresolved")
     }
   }
 
-  private fun resolveTree(unresolved: InstructionTree): InstructionTree =
-      if (unresolved is InstructionGroup) unresolved else resolve(unresolved as Instruction)
+  private fun resolveTree(
+      unresolved: InstructionTree,
+      worldGainNarrowing: Boolean,
+  ): InstructionTree =
+      if (unresolved is InstructionGroup) unresolved
+      else resolve(unresolved as Instruction, worldGainNarrowing)
 
   private fun actorType(instruction: By): Type {
     val type = reader.resolve(instruction.actor)
@@ -259,10 +273,10 @@ internal constructor(
     throw ExpressionException("unsupported Actor: ${type.expression}")
   }
 
-  private fun resolveChange(change: Change): InstructionTree {
+  private fun resolveChange(change: Change, worldGainNarrowing: Boolean): InstructionTree {
     val quantifier = change.quantifier ?: error("missing quantifier: $change")
     return try {
-      resolveChangeWithoutDependencyFallback(change, quantifier)
+      resolveChangeWithoutDependencyFallback(change, quantifier, worldGainNarrowing)
     } catch (e: DependencyException) {
       val gaining = change.gaining
       val canFallBackToZero =
@@ -278,6 +292,7 @@ internal constructor(
   private fun resolveChangeWithoutDependencyFallback(
       change: Change,
       intens: Instruction.Quantifier,
+      worldGainNarrowing: Boolean,
   ): InstructionTree {
     // can't resolve at all if we still have an X?
     val count = (change.count as? ActualScalar)?.value ?: return change
@@ -296,7 +311,7 @@ internal constructor(
       if (openExclusion) return change
     }
 
-    val (g, r) = narrowChangeTypes(change, count, intens) ?: return change
+    val (g, r) = narrowChangeTypes(change, count, intens, worldGainNarrowing) ?: return change
     fun retainedExpression(resolved: Type?, authored: Expression?): Expression? =
         resolved?.expression?.let { expression ->
           authored?.let { elaborator.retainTypeVariableNames(expression, it) } ?: expression
@@ -359,7 +374,7 @@ internal constructor(
     if (g == r && intens != MANDATORY) return NoOp
     if (g == r) throw ExpressionException("Can't both gain and remove ${g?.expression}")
 
-    translateCustomChange(change, g, r)?.let {
+    translateCustomChange(change, g, r, worldGainNarrowing)?.let {
       return it
     }
     return limitChange(
@@ -376,12 +391,14 @@ internal constructor(
       change: Change,
       count: Int,
       quantifier: Instruction.Quantifier,
+      worldGainNarrowing: Boolean,
   ): Pair<Type?, Type?>? {
     val narrowed =
         autoNarrowTypes(
             change.gaining,
             change.removing,
             preserveAbstractActor = quantifier == AMAP,
+            worldGainNarrowing = worldGainNarrowing,
         )
     val (gaining, removing) = narrowed
     if (
@@ -399,6 +416,7 @@ internal constructor(
       original: Change,
       gainingType: Type?,
       removingType: Type?,
+      worldGainNarrowing: Boolean,
   ): InstructionTree? {
     if (gainingType?.rootClass?.declaration?.custom != true) return null
     if (removingType != null) {
@@ -406,7 +424,7 @@ internal constructor(
     }
     val gaining = gainingType.toComponent()
     val translated = customClasses.translateInstruction(gaining, reader)
-    return resolveTree(translated)
+    return resolveTree(translated, worldGainNarrowing)
   }
 
   /** Names one change the way its error messages do: `gain 3 Plant<Player1>`. */
@@ -450,19 +468,23 @@ internal constructor(
    * candidate like any other refinement — is how "each player who..." is expressed. The resulting
    * siblings carry no game order.
    */
-  private fun resolveEach(each: Each): InstructionTree {
+  private fun resolveEach(each: Each, worldGainNarrowing: Boolean): InstructionTree {
     val selectorType = reader.resolve(each.selector)
     if (!selectorType.abstract) {
       throw ExpressionException(
           "`EACH ${each.selector}` resolves to a concrete Type; `EACH` requires an abstract selector"
       )
     }
-    val selected = reader.getComponents(selectorType).map { it.expression }
-    val branches = selected.map { branchFor(each, it) }
+    val targets = reader.getComponents(selectorType).map { it.expression }
+    val branches = targets.map { branchFor(each, it, worldGainNarrowing) }
     return InstructionGroup.createTree(branches)
   }
 
-  private fun branchFor(each: Each, selected: Expression): InstructionTree {
+  private fun branchFor(
+      each: Each,
+      selected: Expression,
+      worldGainNarrowing: Boolean,
+  ): InstructionTree {
     val owner = selected.takeIf { elaborator.selectionSuppliesOwner(each.selector) }
     val bind =
         PetTransformer.chain(
@@ -472,16 +494,16 @@ internal constructor(
         )
     val bound = bind.transformInstructionTree(each.bodyFor(selected))
     val evaluated = elaborator.evaluateProperties(bound, context = selected, owner = owner)
-    return resolveTree(evaluated)
+    return resolveTree(evaluated, worldGainNarrowing)
   }
 
   /** Resolves each arm against the same world, discarding the unavailable ones. */
-  private fun resolveOr(unresolved: Or): InstructionTree {
+  private fun resolveOr(unresolved: Or, worldGainNarrowing: Boolean): InstructionTree {
     val surviving = mutableListOf<InstructionTree>()
     val failures = mutableListOf<Exception>()
     unresolved.instructions.forEach {
       try {
-        surviving += resolveTree(it)
+        surviving += resolveTree(it, worldGainNarrowing)
       } catch (e: NotNowException) {
         failures += e
       } catch (e: DeadEndException) {
@@ -508,6 +530,7 @@ internal constructor(
       gaining: Expression?,
       removing: Expression?,
       preserveAbstractActor: Boolean,
+      worldGainNarrowing: Boolean,
   ): Pair<Type?, Type?> {
     var g = gaining?.let(reader::resolve)
     var r = removing?.let(reader::resolve)
@@ -519,7 +542,12 @@ internal constructor(
       val missing = dependencyComponents.filterNot(reader::hasAnyComponents)
       if (missing.any()) throw DependencyException(missing)
 
-      g = classTable.singleConcreteSubtype(g, reader) ?: g
+      g =
+          classTable.singleConcreteSubtype(g, reader)
+              ?: (if (worldGainNarrowing) {
+                limiter.singleConcreteGainWithPresentDependencies(g, r, reader)
+              } else null)
+              ?: g
     }
 
     val hasAbstractActorDependency =

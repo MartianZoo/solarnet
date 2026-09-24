@@ -61,6 +61,48 @@ internal class Limiter(
   private fun missingDependencies(gaining: Component?): List<Component> =
       gaining?.dependencyComponents?.filterNot { it in gameWorld.components }.orEmpty()
 
+  /**
+   * Narrows a gain using present dependency targets and applicable limits after task selection. An
+   * at-most-one nested dependency can also identify an existing target.
+   */
+  internal fun singleConcreteGainWithPresentDependencies(
+      type: Type,
+      removing: Type?,
+      info: TypeInfo,
+  ): Type? {
+    val addedGainDependency =
+        type.rootClass.abstract &&
+            classTable
+                .allSubclasses(type.rootClass)
+                .filterNot { it.abstract }
+                .any { subclass ->
+                  subclass.dependencies.typeDependencies().any { dependency ->
+                    dependency.key !in type.dependencies.keys &&
+                        (gameWorld.components.matchingTypes(dependency.boundType, info).none() ||
+                            !dependency.boundType.rootClass.abstract)
+                  }
+                }
+    val uniqueExistingDependency =
+        type.dependencies.typeDependencies().any { dependency ->
+          val target = dependency.boundType
+          target.abstract &&
+              limits.limitsFor(target).any { it.range.last <= 1 } &&
+              gameWorld.components.matchingTypes(target, info).take(2).count() == 1
+        }
+    if (!addedGainDependency && !uniqueExistingDependency) return null
+    return classTable
+        .allConcreteSubtypes(type) { dependency ->
+          gameWorld.components.matchingTypes(dependency, info)
+        }
+        .filter { it.narrows(type, info) }
+        .filter {
+          removing?.abstract == true ||
+              findLimitWithDependenciesPresent(it.toComponent(), removing?.toComponent()) > 0
+        }
+        .take(2)
+        .singleOrNull()
+  }
+
   internal fun hasExecutableConcreteGain(
       type: Type,
       minimum: Int,

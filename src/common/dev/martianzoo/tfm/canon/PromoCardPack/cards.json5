@@ -61,7 +61,6 @@
             // tags can remove the last disease and then offer the flip.
             "ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)"
           ],
-          "components": [ "CLASS Disease : CardResource" ],
         },
         {
           "name": "Philares",
@@ -277,6 +276,9 @@
           "name": "CyberiaSystems",
           "cost": 16,
           "immediate": "PROD[Steel], (BuildingTag<First@CardFront>: CopyProductionBox<First@CardFront>) THEN CopyProductionBox<CardFront(HAS BuildingTag, NOT First@CardFront)>",
+          // Copies the single immediate production box on a chosen card.
+          // Must be identical to RoboticWorkforce's declaration in CorporateEraExpansion.
+          "components": [ "CLASS CopyProductionBox<CardFront<@Player>> : Owned<@Player>, Custom" ],
         },
         {
           "name": "DeimosDownPromo",
@@ -384,6 +386,8 @@
             "Asteroid<This> -> EACH Player(HAS StartToken) { ChooseOceanArea }"
           ],
           "effects": [ "UseAction<This, Action1>:: Accepting<Class<Titanium>>" ],
+          // Chooses an ocean area while preserving the Player who places it.
+          "components": [ "CLASS ChooseOceanArea : Owned, Signal { This BY @Actor: OceanTile<> BY @Actor }" ],
         },
         {
           "name": "ImportedNutrients",

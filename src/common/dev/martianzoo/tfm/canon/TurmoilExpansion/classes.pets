@@ -67,24 +67,6 @@ CLASS RevealDistantEvent : Barrier {
 "Requests the printed effect of one Global Event"
 CLASS ResolveGlobalEvent<Class<GlobalEvent>> : Signal
 
-"Lets the first player return one placed Ocean without reducing rating"
-CLASS RemoveOceanForGlobalEvent : Owned<Player>, Signal { This: -OceanTile }
-
-"Lets each of one player's influence choose its own Dry Deserts resource"
-CLASS ResolveDryDeserts : Owned<Player>, Signal {
-  This: EACH Influence<Owner> { StandardResource }
-}
-
-"Lets one player put all Cloud Societies influence floaters on a single compatible card"
-CLASS ChooseInfluenceFloaterCard : Owned<Player>, Signal {
-  This: Floater<ResourceCard<Class<Floater>, Owner>> / Influence
-}
-
-"Lets one player pay Corrosive Rain before drawing cards for influence"
-CLASS ResolveCorrosiveRain : Owned<Player>, Signal {
-  This: (-2 Floater! OR -10 MC.) THEN ProjectCard / Influence
-}
-
 "Moves every revealed Global Event one position and requests the next event"
 CLASS ChangingTimes : Signal {
   This:: \
@@ -145,19 +127,41 @@ CLASS MarsFirst : Party {
   ApplyRulingBonus<This>:: EACH Player { 1 MC / BuildingTag }
   ActionPhase IF Ruling<This>:: MarsFirstPolicy
 }
+CLASS MarsFirstPolicy : Policy<MarsFirst> {
+  Tile<MarsArea>: Steel
+}
+
 CLASS Scientists : Party {
   This:: AfterParty<This, MarsFirst>
   ApplyRulingBonus<This>:: EACH Player { 1 MC / ScienceTag }
   ActionPhase IF Ruling<This>:: ScientistsPolicy
 }
+CLASS ScientistsPolicy : Policy<Scientists>, HasActions {
+  10 MC -> 3 ProjectCard, ScientistsUsedMarker
+}
+CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player> {
+  HAS MAX 1 This
+}
+
 CLASS Unity : Party {
   ApplyRulingBonus<This>:: EACH Player { 1 MC / PlanetaryTag }
   ActionPhase IF Ruling<This>:: UnityPolicy
 }
+CLASS UnityPolicy : Policy<Unity> {
+  This:: EACH Player { UnityTitaniumValue }
+}
+CLASS UnityTitaniumValue<UnityPolicy> : ResourceValue<Class<Titanium>> {
+  HAS MAX 1 This
+}
+
 CLASS Greens : Party {
   ApplyRulingBonus<This>:: EACH Player { 1 MC / BioTag }
   ActionPhase IF Ruling<This>:: GreensPolicy
 }
+CLASS GreensPolicy : Policy<Greens> {
+  GreeneryTile: 4 MC
+}
+
 CLASS Reds : Party {
   // Ranking is highest-first, so rank each player by everyone else's rating to find the lowest.
   ApplyRulingBonus<This> IF MAX 0 SoloMode:: EACH Lowest@Player( \
@@ -170,9 +174,16 @@ CLASS Reds : Party {
   }
   ActionPhase IF Ruling<This>:: RedsPolicy
 }
+CLASS RedsPolicy : Policy<Reds> {
+  TerraformRating: -3 MC!
+}
+
 CLASS Kelvinists : Party {
   ApplyRulingBonus<This>:: EACH Player { 1 MC / PROD[Heat] }
   ActionPhase IF Ruling<This>:: KelvinistsPolicy
+}
+CLASS KelvinistsPolicy : Policy<Kelvinists>, HasActions {
+  10 MC -> PROD[Heat, Energy]
 }
 
 "Requests the one-time bonus for the party forming the new government"
@@ -305,36 +316,4 @@ ABSTRACT CLASS Policy<Party, ActionPhase> {
 CLASS UseTurmoilPolicyAction : StandardAction {
   -> UseAction<ScientistsPolicy, Action1>
   -> UseAction<KelvinistsPolicy, Action1>
-}
-
-CLASS MarsFirstPolicy : Policy<MarsFirst> {
-  Tile<MarsArea>: Steel
-}
-
-CLASS ScientistsPolicy : Policy<Scientists>, HasActions {
-  10 MC -> 3 ProjectCard, ScientistsUsedMarker
-}
-
-CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player> {
-  HAS MAX 1 This
-}
-
-CLASS UnityPolicy : Policy<Unity> {
-  This:: EACH Player { UnityTitaniumValue }
-}
-
-CLASS UnityTitaniumValue<UnityPolicy> : ResourceValue<Class<Titanium>> {
-  HAS MAX 1 This
-}
-
-CLASS GreensPolicy : Policy<Greens> {
-  GreeneryTile BY Player: 4 MC
-}
-
-CLASS RedsPolicy : Policy<Reds> {
-  TerraformRating BY Player: -3 MC!
-}
-
-CLASS KelvinistsPolicy : Policy<Kelvinists>, HasActions {
-  10 MC -> PROD[Heat, Energy]
 }

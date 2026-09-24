@@ -125,6 +125,35 @@ internal class ClassTableSelectionTest {
   }
 
   @Test
+  internal fun `shared promo card resource follows either card without the pack`() {
+    listOf("PharmacyUnion", "Hospitals").forEach { card ->
+      assertValidView(card) { view ->
+        assertSelected(view, setOf(cn(card), cn("Disease")))
+        assertOmitted(view, setOf(cn("PromoCardPack")))
+      }
+    }
+  }
+
+  @Test
+  internal fun `card local instruction follows its card without the pack`() {
+    assertValidView("IcyImpactors") { view ->
+      assertSelected(view, setOf(cn("IcyImpactors"), cn("ChooseOceanArea")))
+      assertOmitted(view, setOf(cn("PromoCardPack")))
+    }
+  }
+
+  @Test
+  internal fun `Mars Nomads marker follows its card without the pack`() {
+    assertValidView("MarsNomads") { view ->
+      assertSelected(view, setOf(cn("MarsNomads"), cn("NomadsMarker")))
+      assertOmitted(view, setOf(cn("PromoCardPack")))
+    }
+    assertValidView("PromoCardPack, -MarsNomads") { view ->
+      assertOmitted(view, setOf(cn("MarsNomads"), cn("NomadsMarker")))
+    }
+  }
+
+  @Test
   internal fun `explicitly included dependent Content requires its module`() {
     assertSoftly {
       examples.forEach { example ->
@@ -162,6 +191,12 @@ internal class ClassTableSelectionTest {
     assertValidView("TurmoilExpansion, -AquiferReleasedByPublicCouncil") { view ->
       assertSelected(view, setOf(cn("TurmoilExpansion"), cn("GlobalEvent")))
       assertOmitted(view, setOf(cn("AquiferReleasedByPublicCouncil")))
+    }
+    assertValidView("TurmoilExpansion, -DryDeserts") { view ->
+      assertOmitted(
+          view,
+          setOf(cn("DryDeserts"), cn("RemoveOceanForGlobalEvent"), cn("ResolveDryDeserts")),
+      )
     }
   }
 

@@ -119,6 +119,3 @@ CLASS ActionUsedMarker<GenerationScope> : Cardbound<ActionCard> { HAS MAX 1 This
 
 "A singleton listener needed by selected content"
 ABSTRACT CLASS CardWatcher : System { HAS MAX 1 This }
-
-"Copies the single immediate production box on a chosen card"
-CLASS CopyProductionBox<CardFront<@Player>> : Owned<@Player>, Custom

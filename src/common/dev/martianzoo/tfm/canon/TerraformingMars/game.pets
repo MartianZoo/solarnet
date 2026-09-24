@@ -3,7 +3,7 @@ CLASS TerraformingMars : Module {
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
   HAS =1 GameMode, =1 MarsMap
-  HAS Class<Production>
+  HAS Class<Production>, Class<NormalCityTile>
   HAS Class<BootstrapPhase>, Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>, Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<FinalGreeneryPhase>, Class<End>
   HAS Class<WorkflowStarted>, Class<BootstrapPhaseScope>, Class<SetupPhaseScope>, Class<CorporationPhaseScope>, Class<ActionPhaseScope>, Class<ProductionPhaseScope>, Class<SolarPhaseScope>, Class<ResearchPhaseScope>, Class<FinalGreeneryPhaseScope>
   HAS Class<VenusSolarPhase>, Class<ColoniesSolarPhase>, Class<TurmoilSolarPhase>

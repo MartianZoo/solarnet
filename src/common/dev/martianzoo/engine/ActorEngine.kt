@@ -201,7 +201,8 @@ internal constructor(
     // A selected group completes structurally before its children resolve against successive
     // worlds.
     val replacement =
-        if (effectiveNarrowing is Instruction) instructor.resolve(effectiveNarrowing)
+        if (effectiveNarrowing is Instruction)
+            instructor.resolve(effectiveNarrowing, worldGainNarrowing = true)
         else effectiveNarrowing
     replace1WithN(tasks, task, replacement, then = continuation)
     if (taskId in allTasks) executeSelectedIfConcrete(queueForAnyTask(taskId), taskId)
@@ -255,7 +256,7 @@ internal constructor(
   private fun selectTask(queue: TaskQueue, task: Task): TaskId? {
     enforceSelectLock(task.id)
     if (task.selected) return task.id
-    val replacement = instructor.resolve(task.instruction)
+    val replacement = instructor.resolve(task.instruction, worldGainNarrowing = true)
     replace1WithN(queue, task, replacement, then = task.then)
     return task.id.takeIf { it in allTasks }
   }
