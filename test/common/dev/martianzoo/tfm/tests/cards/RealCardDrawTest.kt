@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
+import dev.martianzoo.agent.AutoExecPolicy.EAGER
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
@@ -392,6 +394,42 @@ internal class RealCardDrawTest {
     player.count("ProjectCard<Selecting>") shouldBe 0
     player.count("StandardCorporationCard<Class<$corporation>, Hand>") shouldBe 1
     player.count("StandardCorporationCard<Selecting>") shouldBe 0
+  }
+
+  @Test
+  internal fun `beginner setup chooses an exact beginner back while another player takes a standard offer`() {
+    val world = Engine.newGame(canonicalPremise(BeginnerVariant, players = 2))
+    val agents = world.testAgents()
+    val beginner = agents[PLAYER1]
+    val standard = agents[PLAYER2]
+    beginner.autoExecPolicy = NONE
+    standard.autoExecPolicy = NONE
+    fun face(back: Expression) =
+        back.arguments.single { it.className == cn("Class") }.arguments.single().className
+
+    TfmWorkflow.Stepwise(agents).setupPhase()
+    beginner.doTask("DrawCard<Class<BeginnerCorporationCard>, Hand>")
+    // The chosen setup arm fixes the path; eager settlement then deals its remaining cards.
+    beginner.autoExecPolicy = EAGER
+    standard.doTask("DrawCard<Class<StandardCorporationCard>, Selecting>")
+    standard.autoExecPolicy = EAGER
+    val standardFace = face(standard.list("StandardCorporationCard<Selecting>").elements.first())
+    standard.doTask("StandardCorporationCard<Class<$standardFace>, Hand FROM Selecting>")
+    val projectFace = face(standard.list("ProjectCard<Selecting>").elements.first())
+    standard.doTask("ProjectCard<Class<$projectFace>, Hand FROM Selecting>")
+    repeat(9) { standard.doTask("Ok") }
+
+    val beginnerFace = face(beginner.list("BeginnerCorporationCard<Hand>").elements.single())
+    beginner.count("BeginnerCorporationCard<Class<$beginnerFace>, Hand>") shouldBe 1
+    beginner.list("ProjectCard<Hand>").elements.map(::face).toSet().size shouldBe 10
+    beginner.count("StandardCorporationCard") shouldBe 0
+    beginner.count("ProjectCard<Class<$projectFace>, Hand>") shouldBe 0
+    standard.count("StandardCorporationCard<Class<$standardFace>, Hand>") shouldBe 1
+    standard.count("StandardCorporationCard<Selecting>") shouldBe 0
+    standard.count("ProjectCard<Class<$projectFace>, Hand>") shouldBe 1
+    standard.count("ProjectCard<Hand>") shouldBe 1
+    standard.count("ProjectCard<Selecting>") shouldBe 0
+    beginner.count("DeckSpent") shouldBe 1 + 10 + 2 + 10
   }
 
   @Test
