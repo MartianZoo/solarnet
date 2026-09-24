@@ -36,7 +36,7 @@
         {
           "name": "Spire",
           "tags": [ "CityTag", "EarthTag" ],
-          "immediate": "50 MC, RequiredAction { -> 4 DrawCard<Class<ProjectCard>, Hand> THEN -3 ProjectCard }",
+          "immediate": "50 MC, RequiredAction { -> 4 DrawCard<Class<ProjectCard>, Hand> THEN -ProjectCard THEN -ProjectCard THEN -ProjectCard }",
           "effects": [
             "CardFront(HAS 2 Tag): Science<This>",
             "UseAction<StandardProject(HAS cost)>:: AcceptingFromCard<This>",
@@ -118,7 +118,7 @@
         {
           "name": "ProjectEden",
           "tags": [ "CityTag", "PlantTag" ],
-          "immediate": "OceanTile<>, CityTile<>, DefaultGreeneryTile, -3 ProjectCard",
+          "immediate": "OceanTile<>, CityTile<>, DefaultGreeneryTile, (-ProjectCard THEN -ProjectCard THEN -ProjectCard)",
         },
         {
           "name": "Recession",
@@ -182,7 +182,7 @@
           "cost": 12,
           "tags": [ "ScienceTag", "SpaceTag" ],
           "immediate": "2 MC / Colony",
-          "actions": [ "X ProjectCard -> 2X MC" ],
+          "actions": [ "-> EACH @ProjectCard<Hand> { (-@ProjectCard THEN 2 MC) OR Ok }" ],
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -381,7 +381,7 @@
           "requirement": "Chairman",
           "cost": 9,
           "tags": [ "EarthTag" ],
-          "immediate": "3 DrawCard<Class<PreludeCard>, Selecting> THEN PlayCard<Class<PreludeCard>, Selecting> THEN -2 PreludeCard<Selecting>",
+          "immediate": "3 DrawCard<Class<PreludeCard>, Selecting> THEN PlayCard<Class<PreludeCard>, Selecting>",
         },
       ],
     },

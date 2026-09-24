@@ -83,6 +83,20 @@ internal fun retainStartingProjects(game: World, vararg retainedCounts: Int) {
       agent.doTask("ProjectCard<Class<$face>, Hand FROM Selecting>")
     }
     repeat(10 - retained) { agent.doTask("Ok") }
+    if (agent.count("PreludeCard<Hand>") == 4) {
+      repeat(2) {
+        val face =
+            agent.reader
+                .getComponents(agent.resolve("PreludeCard<Hand>"))
+                .elements
+                .first()
+                .typeDependencies
+                .mapNotNull { it.boundType.representedClass }
+                .single()
+                .className
+        agent.doTask("-PreludeCard<Class<$face>, Hand>")
+      }
+    }
   }
 }
 

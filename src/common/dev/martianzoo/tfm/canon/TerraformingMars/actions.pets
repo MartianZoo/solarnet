@@ -25,7 +25,7 @@ ABSTRACT CLASS StandardProject : HasActions {
   "Discard cards for 1 megacredit each"
   CLASS SellPatentsProject {
     cost = 0
-    -> X MC FROM ProjectCard<Hand>
+    -> EACH @ProjectCard<Hand> { MC FROM @ProjectCard? }
   }
 
   CLASS PowerPlantProject {

@@ -16,6 +16,8 @@ remove and gain. The existing `CardLocationCleanup` removes unchosen backs from 
 corporation backs per player. The player chooses a corporation and may keep each offered project.
 Research and other purchases offer one optional discard per exact selected back; the remaining
 backs are purchased. `buyCards(count)` resolves those choices in task order.
+Sell Patents and card effects that discard several cards likewise make one choice per exact back.
+The `sellPatents(count)` convenience method selects that many of the offered cards in task order.
 
 ## Dealer
 
@@ -46,5 +48,6 @@ Pets movement cannot yet carry a selected back's represented Class into a new lo
 - Older follow-mode replay tests and helpers assume fungible backs and do not establish real-card
   behavior. Use `RealCardDrawTest` for current exact-card scenarios.
 - The `CONCRETE` Agent policy opens fixed draw and `EACH` stages while leaving optional discards as
-  choices. With `NONE`, a caller must explicitly open those stages before choosing each card.
+  choices. With `NONE`, a caller must explicitly open those stages before using the count-based
+  purchase or patent-sale conveniences.
 - Hidden information and DraftVariant are outside this mode's present scope.

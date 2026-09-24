@@ -209,7 +209,20 @@ internal class Prelude2CardsTest : CardTest() {
     p1.runOperation("$Spire")
     admin.phase("Action")
 
-    p1.stdAction("DoRequiredActionsAction")
+    p1.stdAction("DoRequiredActionsAction") {
+      repeat(3) {
+        val face =
+            p1.reader
+                .getComponents(p1.resolve("ProjectCard<Hand>"))
+                .elements
+                .first()
+                .typeDependencies
+                .mapNotNull { it.boundType.representedClass }
+                .single()
+                .className
+        doTask("-ProjectCard<Class<$face>, Hand>")
+      }
+    }
 
     p1.count("ProjectCard") shouldBe 1
     p1.count("RequiredAction") shouldBe 0

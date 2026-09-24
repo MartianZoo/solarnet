@@ -17,6 +17,7 @@ import dev.martianzoo.tfm.canon.cardTags
 import dev.martianzoo.tfm.canon.tfmCatalog
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestOption.BeginnerVariant
+import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
@@ -91,6 +92,31 @@ internal class RealCardDrawTest {
     shouldThrow<GameplayException> {
       player.runOperation("ProjectCard<Class<$keptFace>, Selecting>")
     }
+  }
+
+  @Test
+  internal fun `unchosen Prelude backs leave selecting after one is kept`() {
+    val player = Engine.newGame(canonicalPremise(PreludeExpansion)).testAgent(PLAYER1)
+    lateinit var keptFace: String
+
+    player.runOperation("3 DrawCard<Class<PreludeCard>, Selecting>") {
+      val backs = reader.getComponents(player.resolve("PreludeCard<Selecting>")).elements
+      backs.size shouldBe 3
+      keptFace =
+          backs
+              .first()
+              .typeDependencies
+              .mapNotNull { it.boundType.representedClass }
+              .single()
+              .className
+              .toString()
+      player.addTasks("PreludeCard<Hand FROM Selecting>")
+      doTask("PreludeCard<Class<$keptFace>, Hand FROM Selecting>")
+    }
+
+    player.count("PreludeCard<Class<$keptFace>, Hand>") shouldBe 1
+    player.count("PreludeCard<Selecting>") shouldBe 0
+    player.count("DeckSpent") shouldBe 3
   }
 
   @Test
@@ -466,5 +492,59 @@ internal class RealCardDrawTest {
     player.count("ProjectCard<Selecting>") shouldBe 0
     player.count("MC") shouldBe 0
     player.count("DeckSpent") shouldBe 4
+  }
+
+  @Test
+  internal fun `selling patents consumes two distinct exact backs`() {
+    val world = Engine.newGame(canonicalPremise())
+    val admin = world.testTfm(ADMIN)
+    val player = world.testTfm(PLAYER1)
+    player.runOperation("3 DrawCard<Class<ProjectCard>, Hand>")
+    val before = player.list("ProjectCard<Hand>").elements.toSet()
+    admin.runOperation("GenerationScope")
+    admin.phase("Action")
+
+    player.sellPatents(2)
+
+    player.count("ProjectCard<Hand>") shouldBe 1
+    (player.list("ProjectCard<Hand>").elements.single() in before) shouldBe true
+    player.count("MC") shouldBe 2
+    player.count("DeckSpent") shouldBe 3
+  }
+
+  @Test
+  internal fun `Ceres Tech Market sells one chosen exact back`() {
+    val world =
+        Engine.newGame(canonicalPremise(PreludeExpansion, Prelude2CardPack, ColoniesExpansion))
+    val admin = world.testTfm(ADMIN)
+    val player = world.testTfm(PLAYER1)
+    player.runOperation("3 DrawCard<Class<ProjectCard>, Hand>, CeresTechMarket")
+    val face =
+        player
+            .list("ProjectCard<Hand>")
+            .elements
+            .first()
+            .arguments
+            .single {
+              it.className == cn("Class")
+            }
+            .arguments
+            .single()
+            .className
+    admin.runOperation("GenerationScope")
+    admin.phase("Action")
+    player.autoExecPolicy = CONCRETE
+
+    player.cardAction1(cn("CeresTechMarket")) {
+      player.doTask("-ProjectCard<Class<$face>, Hand>")
+      player.doTask("2 MC")
+      val remaining = player.tasks.extract { it }.filter { it.assignee == PLAYER1 }
+      remaining.size shouldBe 2
+      remaining.forEach { player.doTask("Ok", it.id) }
+    }
+
+    player.count("ProjectCard<Class<$face>, Hand>") shouldBe 0
+    player.count("ProjectCard<Hand>") shouldBe 2
+    player.count("MC") shouldBe 2
   }
 }

@@ -640,7 +640,24 @@ public class TfmGameplay(
 
   public fun sellPatents(count: Int): TaskResult =
       stdProject("SellPatentsProject") {
-        doTask("$count MC FROM ProjectCard<Hand>!")
+        val sales =
+            tasks
+                .extract { it }
+                .filter { task ->
+                  task.assignee == actor &&
+                      task.instruction.descendantsOfType<Change>().any { change ->
+                        val removing = change.removing
+                        change.gaining?.className == MC &&
+                            removing?.className == cn("ProjectCard") &&
+                            cn("Hand") in removing.descendantsOfType<ClassName>()
+                      }
+                }
+        require(count in 1..sales.size) { "cannot sell $count of ${sales.size} project cards" }
+        sales.forEachIndexed { index, task ->
+          val card =
+              task.instruction.descendantsOfType<Change>().mapNotNull { it.removing }.single()
+          doTask(if (index < count) "MC FROM $card" else "Ok", task.id)
+        }
       }
 
   public fun phase(phase: String, body: OperationBlock = {}) {
