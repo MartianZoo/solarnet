@@ -70,10 +70,12 @@ ABSTRACT CLASS OwnedTile : OwnedOccupant, Tile {
   }
 
   "A city tile, including Capital's"
-  CLASS CityTile {
+  ABSTRACT CLASS CityTile {
     DEFAULT +CityTile<LandArea(HAS MAX 0 Neighbor<CityTile<Anyone>>)>
 
     End: VictoryPoint / Adjacency<This, GreeneryTile<Anyone>>
+
+    CLASS NormalCityTile
   }
 
   "A brown special tile (specific subtypes are defined by each card)"

@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.Utopia
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -32,13 +34,28 @@ internal class CapitalTest : CardTest() {
     p1.playProject(Capital, 26) { placeTile(3, 3) }
 
     p1.assertCounts(1 to "CityTile<Tharsis_3_3>")
+    p1.runOperation("CityTile<Tharsis_8_8>")
+    p1.assertCounts(2 to "CityTile", 1 to "SpecialTile")
     p1.runOperation("GreeneryTile<Tharsis_2_3>")
     admin.runOperation("End FROM Phase")
     p1.assertCounts(27 to "VictoryPoint")
   }
 
   @Test
-  internal fun `Does not count toward the Manager milestone`() {
+  internal fun `Cannot place Capital beside another city`() {
+    newGame()
+    p1.runOperation(
+        "26 MC, ProjectCard, PROD[2 Energy], " + "OceanTile<Tharsis_3_2>, OceanTile<Tharsis_4_3>"
+    )
+    admin.runOperation("OceanTile<Tharsis_6_8>, OceanTile<Tharsis_9_9>")
+    p1.runOperation("CityTile<Tharsis_3_4>")
+    admin.phase("Action")
+
+    shouldThrow<NarrowingException> { p1.playProject(Capital, 26) { placeTile(3, 3) } }
+  }
+
+  @Test
+  internal fun `Counts as a special tile toward the Manager milestone`() {
     newGame(Utopia)
     p1.runOperation("8 MC, PROD[2 Energy]")
     p1.runOperation(
@@ -47,6 +64,6 @@ internal class CapitalTest : CardTest() {
     p1.runOperation("$Capital") { placeTile(1, 1) }
     admin.phase("Action")
 
-    shouldThrow<RequirementException> { p1.stdAction("ClaimMilestoneAction") { doTask("Manager") } }
+    p1.claimMilestone(cn("Manager")).expect("Manager")
   }
 }

@@ -193,7 +193,7 @@ looking it up.
   that the *victim* is the owner while the actor rides along in a separate parameter, as in
   `MyResourceWasRemoved<Class<Resource>, Player>`.
 - **Markers** name real physical components players handle: `ActionUsedMarker`, `Community`,
-  `NomadsMarker`, `CapitalMarker`. `StartToken` keeps `Token` because the honest
+  `NomadsMarker`. `StartToken` keeps `Token` because the honest
   `StartPlayerMarker` is long and `StartMarker` reads wrong.
 - **Singular vs. plural** may distinguish one-of from all-of over the same subject —
   `GainColonyBonus` (one colony) against `GainColonyBonuses` (every colony the player owns) — and

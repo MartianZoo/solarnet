@@ -156,11 +156,20 @@ not make a client choose from a Cartesian product of fully concrete Instructions
 can be narrowed independently.
 
 After selection, resolution repeatedly evaluates state-dependent structure until the first stage is
-executable. It handles metrics and gates, eliminates impossible `OR` arms, specializes abstract
-Types when unique, resolves quantifiers and limits, and translates concrete custom instructions.
+executable. It handles metrics and gates, eliminates impossible `OR` arms, narrows an abstract gain
+when only one concrete gain can execute, resolves quantifiers and limits, and translates concrete
+custom instructions. This may settle a location as well as a class, or an existing dependency whose
+declared maximum is one. The same World-based gain narrowing applies when a selected Task receives
+an explicit narrowing. `ActorEngine` separately executes a selected Task once its instruction is
+concrete.
 Resolution may leave a genuine Player choice abstract. If it exposes independent instructions, the
 selected structural Task is replaced by ordinary unselected siblings rather than transferring its
 selection to one arbitrarily.
+
+An owned context supplies `Owner` to a bare nested `CityTile`; this also applies to submitted
+narrowings. `Cathedral<CityTile<Anyone, Tharsis_4_2>>` explicitly leaves the city owner open. A
+submitted narrowing can then resolve the existing city at that area without naming its concrete
+subclass, and fails when there is no city there.
 
 The executable first-stage forms are deliberately small: no-op, fully concrete change, an Actor
 override around executable work, or `THEN` whose first stage is executable. Later `THEN` stages stay
