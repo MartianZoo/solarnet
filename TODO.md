@@ -11,6 +11,12 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Extend derived `including this` wording to setup operations and otherwise unsupported effects
   without adding card-specific rendering rules.
 - Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.
+- Implement individual Turmoil party and whole-map selection as specified in
+  [Modules and Content](docs/agents/NAMING.md#modules-and-content).
+- Make owner-local Class arguments work when specialization fixes an inherited dependency.
+  Mars First's inline `Policy<This> { Tile<MarsArea>: Steel }` lowers to a gain of
+  `MarsFirst_Policy<This>` extending `Policy<MarsFirst>`; `MarsFirst` is fixed and no longer an
+  argument position, so elaboration rejects the gain.
 - Let a configuration select all applicable Content exposed by one bundle, without inventing a
   `CardPack` Module. Resolve narrower pool requests into individual Class choices before the game
   premise is built. Resolve eligibility before offering that choice: promo replacements still test
@@ -105,6 +111,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- Render Capital's `CapitalTile<This>` placement and adjacency metric from the modeled
+  cardbound tile. English currently retains both expressions as visible Pets fallbacks.
 - Define an authored, game-neutral way for bundle compatibility inference to distinguish hard
   dependencies from references that may safely disappear when a companion bundle is absent. Start
   with characterization tests for Suitable Infrastructure, Constructor, Soil Studies, and Summit

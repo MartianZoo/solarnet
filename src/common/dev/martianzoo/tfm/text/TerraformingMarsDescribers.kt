@@ -399,12 +399,14 @@ internal object TerraformingMarsDescribers {
                         ownedCount = cityTileNoun,
                     ),
             ),
-        klass("CapitalMarker") to
+        klass("CapitalTile") to
             ComponentDescriber(
                 changeFrame =
                     Frame.Positioned(
                         Determiner.INDEFINITE,
-                        counted("capital marker", "capital markers"),
+                        counted("capital tile", "capital tiles"),
+                        unqualifiedOwnership = ComponentDescriber.OwnershipPhrase.YOURS,
+                        anyoneOwnership = ComponentDescriber.OwnershipPhrase.IMPLICIT,
                     )
             ),
         klass("Community") to

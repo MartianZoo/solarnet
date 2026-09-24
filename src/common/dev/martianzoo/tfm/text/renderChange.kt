@@ -353,7 +353,6 @@ private fun renderPositionedConversion(
   if (
       gaining.refinement != null ||
           removing.refinement != null ||
-          !describers.concrete(gaining.className) ||
           !describers.concrete(removing.className)
   ) {
     return null

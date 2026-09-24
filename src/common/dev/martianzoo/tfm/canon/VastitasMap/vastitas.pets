@@ -8,12 +8,13 @@ CLASS Farmer : Milestone { requirement = HAS "5 (Animal OR Microbe)" }
 
 CLASS Traveller : Award { metric = COUNT "JovianTag OR EarthTag" }
 CLASS Landscaper : Award { metric = COUNT "TileInLargestGroup" }
-CLASS Highlander : Award { metric = COUNT "OwnedTile<MarsArea(HAS MAX 0 Neighbor<OceanTile>)>" }
-CLASS Promoter : Award { metric = COUNT "PlayedEvent" }
-CLASS Blacksmith : Award { metric = COUNT "PROD[Metal]" }
 
 "Counts the tiles in a player's largest contiguous group of owned tiles"
 CLASS TileInLargestGroup : Owned<Player>, Custom
+
+CLASS Highlander : Award { metric = COUNT "OwnedTile<MarsArea(HAS MAX 0 Neighbor<OceanTile>)>" }
+CLASS Promoter : Award { metric = COUNT "PlayedEvent" }
+CLASS Blacksmith : Award { metric = COUNT "PROD[Metal]" }
 
 "A Vastitas delegate placement bonus, ignored without Turmoil"
 CLASS VastitasDelegatePlacementBonus : Signal {

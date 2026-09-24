@@ -12,6 +12,7 @@ import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 internal class NewPromoCardsTest : CardTest() {
@@ -205,26 +206,57 @@ internal class NewPromoCardsTest : CardTest() {
   }
 
   @Test
-  internal fun `Mission owns the Cathedral while the city owner receives its offer`() {
+  internal fun `Mission can target an opponent's normal city by area with Capital in play`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
     p1.runOperation("14 MC, ProjectCard")
-    p2.runOperation("2 MC")
+    p2.runOperation("2 MC, PROD[2 Energy]")
     p2.runOperation("CityTile<Player2, Tharsis_4_2>")
+    p2.runOperation("$Capital") { placeTile(2, 5) }
     admin.phase("Action")
 
     p1.playProject(StJosephOfCupertinoMission, 7)
     p1.cardAction1(StJosephOfCupertinoMission) {
       p1.pay(5)
-      doTask("Cathedral<Player1, CityTile<Player2, Tharsis_4_2>>")
+      val wrongOwner = shouldThrow<Exception> { doTask("Cathedral<CityTile<Tharsis_4_2>>") }
+      wrongOwner.message.orEmpty() shouldContain "missing dependencies"
+      wrongOwner.message.orEmpty() shouldContain "CityTile<Player1, Tharsis_4_2>"
+      val emptyArea = shouldThrow<Exception> { doTask("Cathedral<CityTile<Anyone, Tharsis_4_3>>") }
+      emptyArea.message.orEmpty() shouldContain "missing dependencies"
+      emptyArea.message.orEmpty() shouldContain "Tharsis_4_3"
+      p1.count("Cathedral") shouldBe 0
+      p1.count("MC") shouldBe 2
+      doTask("Cathedral<CityTile<Anyone, Tharsis_4_2>>")
       p2.doTask("UseAction<CathedralOption, Action1>")
       p2.pay(2)
     }
 
     p1.assertCounts(2 to "MC", 0 to "ProjectCard")
-    p2.assertCounts(0 to "MC", 1 to "ProjectCard")
+    p1.assertCounts(1 to "Cathedral<Player1, NormalCityTile<Player2, Tharsis_4_2>>")
+    p2.assertCounts(1 to "ProjectCard")
     admin.runOperation("End FROM Phase")
     p1.assertCounts(21 to "VictoryPoint")
+  }
+
+  @Test
+  internal fun `Mission can target Capital's city by area`() {
+    newGame(PromoCardPack)
+    val p2 = requireP2()
+    p1.runOperation("12 MC, ProjectCard")
+    p2.runOperation("2 MC, PROD[2 Energy]")
+    p2.runOperation("$Capital") { placeTile(2, 5) }
+    admin.phase("Action")
+
+    p1.playProject(StJosephOfCupertinoMission, 7)
+    p1.cardAction1(StJosephOfCupertinoMission) {
+      p1.pay(5)
+      doTask("Cathedral<CityTile<Anyone, Tharsis_2_5>>")
+      p2.doTask("UseAction<CathedralOption, Action1>")
+      p2.pay(2)
+    }
+
+    p1.assertCounts(1 to "Cathedral<Player1, CapitalTile<Player2, Tharsis_2_5>>")
+    p2.assertCounts(1 to "ProjectCard")
   }
 
   @Test
@@ -236,7 +268,7 @@ internal class NewPromoCardsTest : CardTest() {
     p1.playProject(StJosephOfCupertinoMission, 7)
     p1.cardAction1(StJosephOfCupertinoMission) {
       p1.pay(5)
-      doTask("Cathedral<Player1, CityTile<SoloOpponent, Tharsis_4_1>>")
+      doTask("Cathedral<CityTile<Anyone, Tharsis_4_1>>")
     }
 
     p1.assertCounts(1 to "Cathedral<Player1, CityTile<SoloOpponent, Tharsis_4_1>>")

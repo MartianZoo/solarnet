@@ -461,13 +461,6 @@ internal class EnglishTest {
   }
 
   @Test
-  internal fun describesSpatialMetricsWithContainedMarkers() {
-    english.describe(
-        parse<Effect>("End: VictoryPoint / Adjacency<CityTile(HAS CapitalMarker), OceanTile>")
-    ) shouldBe "1 VP per ocean tile next to your city tile with a capital marker."
-  }
-
-  @Test
   internal fun neverDropsUnsupportedExpressionRefinements() {
     val metric = "CityTile<Anyone, MarsArea(HAS Neighbor<OceanTile>, NOT NoctisArea)>"
 

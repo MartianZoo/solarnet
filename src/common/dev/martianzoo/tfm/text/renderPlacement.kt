@@ -42,7 +42,6 @@ internal fun renderPlacement(
     )
   }
   if (gain.quantifier.modality() != Modality.REQUIRED) return null
-  if (!describers.concrete(gain.gaining.className)) return null
   if (gain.gaining.refinement != null) return null
 
   val placement = resolvePlacementExpression(gain.gaining, describers) ?: return null

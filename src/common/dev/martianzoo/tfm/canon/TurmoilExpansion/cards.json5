@@ -134,7 +134,10 @@
           ],
           "invariants": [ "Class<TrWatcher>" ],
           "components": [
-            "CLASS Preservation : CardResource"
+            "CLASS Preservation : CardResource",
+            // Must be identical to UnitedNationsMarsInitiative's declarations in TerraformingMars.
+            "CLASS HasRaisedTr<GenerationScope> : Owned { HAS MAX 1 This }",
+            "CLASS TrWatcher : CardWatcher { TerraformRating:: HasRaisedTr. }"
           ],
         },
         {
