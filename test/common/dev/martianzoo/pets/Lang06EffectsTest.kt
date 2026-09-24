@@ -20,32 +20,32 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
-/** Section 8 of `docs/pets-language-spec.md`: effects as rules attached to a class. */
-internal class Lang08EffectsTest {
+/** Section 6 of `docs/pets-language-spec.md`: effects as rules attached to a class. */
+internal class Lang06EffectsTest {
 
-  // L8-1 The shape of an effect
+  // L6-1 The shape of an effect
 
   @Test
-  internal fun `L8-1 an effect is a trigger, a colon and an instruction`() {
+  internal fun `L6-1 an effect is a trigger, a colon and an instruction`() {
     val effect = parse<Effect>("CityTile: 2 MC")
 
     effect.trigger shouldBe OnGainOf.create(parse<Expression>("CityTile"))
     effect.instruction shouldBe parse<InstructionTree>("2 MC")
   }
 
-  // L8-2 Automatic effects
+  // L6-2 Automatic effects
 
   @Test
-  internal fun `L8-2 a double colon marks an automatic effect`() {
+  internal fun `L6-2 a double colon marks an automatic effect`() {
     parse<Effect>("CityTile:: 2 MC").automatic shouldBe true
     parse<Effect>("CityTile: 2 MC").automatic shouldBe false
     parse<Effect>("CityTile:: 2 MC").toString() shouldBe "CityTile:: 2 MC"
   }
 
-  // L8-3 The two kinds of trigger
+  // L6-3 The two kinds of trigger
 
   @Test
-  internal fun `L8-3 self triggers and subscriptions`() {
+  internal fun `L6-3 self triggers and subscriptions`() {
     parse<Effect>("This: Plant").trigger shouldBe WhenGain
     parse<Effect>("-This: Plant").trigger shouldBe WhenRemove
     parse<Effect>("CityTile: Plant").trigger shouldBe OnGainOf.create(parse("CityTile"))
@@ -54,10 +54,10 @@ internal class Lang08EffectsTest {
     (OnGainOf.create(parse<Expression>("CityTile")) is Trigger.SubscribedTrigger) shouldBe true
   }
 
-  // L8-4 A self trigger is not a subscription
+  // L6-4 A self trigger is not a subscription
 
   @Test
-  internal fun `L8-4 This as an expression is still the self trigger`() {
+  internal fun `L6-4 This as an expression is still the self trigger`() {
     // Writing the context expression as a subscription target collapses to the self trigger, so
     // there is no way to spell "subscribe to my own type" by accident.
     OnGainOf.create(parse<Expression>("This")) shouldBe WhenGain
@@ -65,8 +65,8 @@ internal class Lang08EffectsTest {
   }
 
   @Test
-  internal fun `L8-4 an empty argument list does not make This a subscription`() {
-    // `This<>` is the same placeholder as `This` (L3-5), even though the two are different
+  internal fun `L6-4 an empty argument list does not make This a subscription`() {
+    // `This<>` is the same placeholder as `This` (L1-5), even though the two are different
     // expressions, so it is classified structurally rather than by expression equality.
     parse<Effect>("This<>: Plant").trigger shouldBe WhenGain
     parse<Effect>("-This<>: Plant").trigger shouldBe WhenRemove
@@ -74,10 +74,10 @@ internal class Lang08EffectsTest {
         OnGainOf.create(parse<Expression>("This<Player1>"))
   }
 
-  // L8-5 X triggers
+  // L6-5 X triggers
 
   @Test
-  internal fun `L8-5 X before a trigger's expression binds the size of the change`() {
+  internal fun `L6-5 X before a trigger's expression binds the size of the change`() {
     val gained = parse<Effect>("X Plant: X Heat").trigger as XTrigger
     gained.inner shouldBe OnGainOf.create(parse<Expression>("Plant"))
     gained.toString() shouldBe "X Plant"
@@ -87,19 +87,19 @@ internal class Lang08EffectsTest {
     parse<Effect>("-X This: 5 MC!").trigger.toString() shouldBe "-X This"
   }
 
-  // L8-6 OR, and no mixing
+  // L6-6 OR, and no mixing
 
   @Test
-  internal fun `L8-6 OR joins triggers, and self and subscribed triggers may not mix`() {
+  internal fun `L6-6 OR joins triggers, and self and subscribed triggers may not mix`() {
     parse<Effect>("Plant OR -Heat: Steel").trigger.toString() shouldBe "Plant OR -Heat"
     parse<Effect>("This OR -This: Steel").trigger.toString() shouldBe "This OR -This"
     shouldThrow<PetSyntaxException> { parse<Effect>("This OR Plant: Steel") }
   }
 
-  // L8-7 BY and IF
+  // L6-7 BY and IF
 
   @Test
-  internal fun `L8-7 OR binds tighter than BY, which binds tighter than IF`() {
+  internal fun `L6-7 OR binds tighter than BY, which binds tighter than IF`() {
     val trigger = parse<Effect>("Plant OR -Heat BY Anyone IF Steel: Ore").trigger as IfTrigger
 
     ((trigger.inner as ByTrigger).inner is Trigger.Or) shouldBe true
@@ -109,22 +109,59 @@ internal class Lang08EffectsTest {
   }
 
   @Test
-  internal fun `L8-7 parentheses give one alternative its own qualifier`() {
+  internal fun `L6-7 parentheses give one alternative its own qualifier`() {
     roundTrip<Effect>("(Plant BY Player1 IF Steel) OR (-Heat BY Anyone IF Ore): Eep")
     roundTrip<Effect>("(Plant IF Steel) OR Heat BY Anyone IF Ore: Eep")
   }
 
   @Test
-  internal fun `L8-7 a BY selector is an expression`() {
+  internal fun `L6-7 a BY selector is an expression`() {
     roundTrip<Effect>("Plant BY Player(NOT Owner): Heat")
     roundTrip<Effect>("Plant BY Actor(NOT Player2): Heat")
     roundTrip<Effect>("Plant IF =3 This OR =5 This: PROD[Heat]")
   }
 
-  // L8-9 Static non-events
+  // L6-8 Explicit Type-variable markers
 
   @Test
-  internal fun `L8-9 a subscription may not be rooted at Ok or its supertypes`() {
+  internal fun `L6-8 a trigger expression can name a Type variable used by the Effect`() {
+    roundTrip<Effect>("@StandardResource: @StandardResource")
+    roundTrip<Effect>("Production<Class<@StandardResource>>: @StandardResource<Owner>")
+    roundTrip<Effect>("@StandardResource IF @StandardResource: @StandardResource")
+    roundTrip<Effect>("@StandardResource: Plant THEN @StandardResource")
+    roundTrip<Effect>("This: @StandardResource THEN @StandardResource")
+    roundTrip<Effect>(
+        "Notice<Victim@Owner(NOT ActingPlayer@Player)> BY ActingPlayer@Player: " +
+            "Heat<Victim@Owner>"
+    )
+  }
+
+  @Test
+  internal fun `L6-8 a Type-variable marker is local to one Effect`() {
+    shouldThrow<PetSyntaxException> { parse<Effect>("@StandardResource: Plant") }
+    shouldThrow<PetSyntaxException> { parse<Effect>("StandardResource: @Plant") }
+    roundTrip<Effect>("@StandardResource OR @StandardResource: @StandardResource")
+    shouldThrow<PetSyntaxException> {
+      parse<Effect>("@StandardResource: @StandardResource<Plant>")
+    }
+    shouldThrow<PetSyntaxException> {
+      parse<Effect>("Production<Class<@StandardResource>>: @StandardResource(HAS Marker)")
+    }
+    shouldThrow<PetSyntaxException> {
+      parse<Effect>("CheckGameEnd IF 63 TerraformRating<@Player>: Victory<@Player>")
+    }
+    shouldThrow<PetSyntaxException> {
+      parse<Effect>("Notice<Owner(NOT @Player)> BY Player: Heat")
+    }
+    shouldThrow<PetSyntaxException> {
+      parse<Effect>("@StandardResource: @Plant THEN @StandardResource")
+    }
+  }
+
+  // L6-10 Static non-events
+
+  @Test
+  internal fun `L6-10 a subscription may not be rooted at Ok or its supertypes`() {
     shouldRejectSubscription("Ok")
     shouldRejectSubscription("-Ok")
     shouldRejectSubscription("Signal")
@@ -132,7 +169,7 @@ internal class Lang08EffectsTest {
   }
 
   @Test
-  internal fun `L8-9 an ordinary Signal subtype remains a valid subscription`() {
+  internal fun `L6-10 an ordinary Signal subtype remains a valid subscription`() {
     testCatalog("CLASS Event : Signal\nCLASS Result\nCLASS Listener { Event: Result }").classTable
   }
 
@@ -144,27 +181,27 @@ internal class Lang08EffectsTest {
         .orEmpty() shouldContain "root is `Ok` or a nominal supertype of `Ok`"
   }
 
-  // L8-9 Class literals are not triggers
+  // L6-10 Class literals are not triggers
 
   @Test
-  internal fun `L8-9 a class literal may not be a trigger`() {
+  internal fun `L6-10 a class literal may not be a trigger`() {
     shouldThrow<PetSyntaxException> { parse<Effect>("Class<Plant>: Heat") }
     shouldThrow<PetSyntaxException> { parse<Effect>("-Class<Plant>: Heat") }
     shouldThrow<PetSyntaxException> { parse<Effect>("PROD[Class<Plant>]: Heat") }
     roundTrip<Effect>("PlayCard<Class<Plant>>: Heat")
   }
 
-  // L8-10 There is no universe-wide subscription
+  // L6-11 There is no universe-wide subscription
 
   @Test
-  internal fun `L8-10 an unqualified Component subscription is rejected without a class table`() {
+  internal fun `L6-11 an unqualified Component subscription is rejected without a class table`() {
     shouldThrow<PetSyntaxException> { parse<Effect>("Component: Heat") }
     shouldThrow<PetSyntaxException> { parse<Effect>("-Component: Heat") }
     shouldThrow<PetSyntaxException> { parse<Effect>("Plant OR Component: Heat") }
   }
 
   @Test
-  internal fun `L8-10 qualifying one parses, but L8-9 still rejects it at load`() {
+  internal fun `L6-11 qualifying one parses, but L6-10 still rejects it at load`() {
     roundTrip<Effect>("Component IF Plant: Heat")
     roundTrip<Effect>("Component BY Anyone: Heat")
     shouldRejectSubscription("Component IF Result")
@@ -174,17 +211,17 @@ internal class Lang08EffectsTest {
     roundTrip<Effect>("Owned<Player>: Heat")
   }
 
-  // L8-11 Rendering
+  // L6-12 Rendering
 
   @Test
-  internal fun `L8-11 a gated instruction is parenthesized after the colon`() {
+  internal fun `L6-12 a gated instruction is parenthesized after the colon`() {
     roundTrip<Effect>("Plant: (Heat: Steel)")
     parse<Effect>("Plant: (Heat: Steel)").instruction shouldBe parse<InstructionTree>("Heat: Steel")
     roundTrip<Effect>("Plant IF Heat, Steel: Ore", "Plant IF (Heat, Steel): Ore")
   }
 
   @Test
-  internal fun `L8-11 effects round-trip`() {
+  internal fun `L6-12 effects round-trip`() {
     roundTripAll<Effect>(
         """
         This: Ok
@@ -264,44 +301,7 @@ internal class Lang08EffectsTest {
   }
 
   @Test
-  internal fun `L8-11 an effect's descendant count is its whole subtree`() {
+  internal fun `L6-12 an effect's descendant count is its whole subtree`() {
     parse<Effect>("Steel<Steel>: PROD[(1 Heat FROM Plant) OR MC]").descendantCount() shouldBe 20
-  }
-
-  // L8-12 Explicit Type-variable markers
-
-  @Test
-  internal fun `L8-12 a trigger expression can name a Type variable used by the Effect`() {
-    roundTrip<Effect>("@StandardResource: @StandardResource")
-    roundTrip<Effect>("Production<Class<@StandardResource>>: @StandardResource<Owner>")
-    roundTrip<Effect>("@StandardResource IF @StandardResource: @StandardResource")
-    roundTrip<Effect>("@StandardResource: Plant THEN @StandardResource")
-    roundTrip<Effect>("This: @StandardResource THEN @StandardResource")
-    roundTrip<Effect>(
-        "Notice<Victim@Owner(NOT ActingPlayer@Player)> BY ActingPlayer@Player: " +
-            "Heat<Victim@Owner>"
-    )
-  }
-
-  @Test
-  internal fun `L8-12 a Type-variable marker is local to one Effect`() {
-    shouldThrow<PetSyntaxException> { parse<Effect>("@StandardResource: Plant") }
-    shouldThrow<PetSyntaxException> { parse<Effect>("StandardResource: @Plant") }
-    roundTrip<Effect>("@StandardResource OR @StandardResource: @StandardResource")
-    shouldThrow<PetSyntaxException> {
-      parse<Effect>("@StandardResource: @StandardResource<Plant>")
-    }
-    shouldThrow<PetSyntaxException> {
-      parse<Effect>("Production<Class<@StandardResource>>: @StandardResource(HAS Marker)")
-    }
-    shouldThrow<PetSyntaxException> {
-      parse<Effect>("CheckGameEnd IF 63 TerraformRating<@Player>: Victory<@Player>")
-    }
-    shouldThrow<PetSyntaxException> {
-      parse<Effect>("Notice<Owner(NOT @Player)> BY Player: Heat")
-    }
-    shouldThrow<PetSyntaxException> {
-      parse<Effect>("@StandardResource: @Plant THEN @StandardResource")
-    }
   }
 }

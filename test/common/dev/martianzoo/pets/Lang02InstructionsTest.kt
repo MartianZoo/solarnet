@@ -32,13 +32,13 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-/** Section 6 of `docs/pets-language-spec.md`: instructions as relations between two states. */
-internal class Lang06InstructionsTest {
+/** Section 2 of `docs/pets-language-spec.md`: instructions as relations between two states. */
+internal class Lang02InstructionsTest {
 
-  // L6-1 The three elementary instructions
+  // L2-1 The three elementary instructions
 
   @Test
-  internal fun `L6-1 gain, removal and transmutation`() {
+  internal fun `L2-1 gain, removal and transmutation`() {
     val gained = parse<Instruction>("4 Plant<Player2>") as Gain
     gained.count shouldBe ActualScalar(4)
     gained.gaining shouldBe parse<Expression>("Plant<Player2>")
@@ -59,22 +59,22 @@ internal class Lang06InstructionsTest {
   }
 
   @Test
-  internal fun `L6-1 programmatic changes need a type and a nonnegative count`() {
+  internal fun `L2-1 programmatic changes need a type and a nonnegative count`() {
     shouldThrow<IllegalArgumentException> {
       Instruction.Change.change(gaining = cn("Plant").expression, count = -1)
     }
     shouldThrow<NullPointerException> { Instruction.Change.change() }
   }
 
-  // L6-2 Counts
+  // L2-2 Counts
 
   @Test
-  internal fun `L6-2 a count that no integer can hold is a syntax error`() {
+  internal fun `L2-2 a count that no integer can hold is a syntax error`() {
     shouldThrow<PetSyntaxException> { parse<Instruction>("999999999999999999999999999999 Plant") }
   }
 
   @Test
-  internal fun `L6-2 a count is a positive integer or X, with an optional coefficient`() {
+  internal fun `L2-2 a count is a positive integer or X, with an optional coefficient`() {
     (parse<Instruction>("Plant") as Gain).count shouldBe ActualScalar(1)
     (parse<Instruction>("11 Plant") as Gain).count shouldBe ActualScalar(11)
     (parse<Instruction>("X Plant") as Gain).count shouldBe XScalar(1)
@@ -84,10 +84,10 @@ internal class Lang06InstructionsTest {
     shouldThrow<IllegalArgumentException> { parse<Instruction>("Plant") * -1 }
   }
 
-  // L6-3 Quantifiers
+  // L2-3 Quantifiers
 
   @Test
-  internal fun `L6-3 a quantifier says how much of the count must happen`() {
+  internal fun `L2-3 a quantifier says how much of the count must happen`() {
     (parse<Instruction>("2 Plant!") as Gain).quantifier shouldBe MANDATORY
     (parse<Instruction>("2 Plant.") as Gain).quantifier shouldBe AMAP
     (parse<Instruction>("2 Plant?") as Gain).quantifier shouldBe OPTIONAL
@@ -95,10 +95,29 @@ internal class Lang06InstructionsTest {
     shouldThrow<PetSyntaxException> { parse<Instruction>("2 Plant!?") }
   }
 
-  // L6-4 Ok
+  // L2-4 Compact transmutation
 
   @Test
-  internal fun `L6-4 Ok is the instruction that relates a state to itself`() {
+  internal fun `L2-4 a compact transmutation changes exactly one argument`() {
+    val compact = parse<Instruction>("Marker<Mars1, Player1 FROM Player2>") as Transmute
+
+    compact.gaining shouldBe parse<Expression>("Marker<Mars1, Player1>")
+    compact.removing shouldBe parse<Expression>("Marker<Mars1, Player2>")
+    (compact.fromEx is Compact) shouldBe true
+    (compact.gaining.arguments[0] === compact.removing.arguments[0]) shouldBe true
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Marker<Mars1 FROM Mars2, P1 FROM P2>") }
+
+    parse<Instruction>("Marker<Player1> FROM Marker<Player2>").let {
+      ((it as Transmute).fromEx is Full) shouldBe true
+    }
+    roundTrip<InstructionTree>("Marker<Mars1 FROM Mars2>(HAS Plant)")
+    shouldThrow<PetSyntaxException> { Compact(cn("Marker"), emptyList()) }
+  }
+
+  // L2-5 Ok
+
+  @Test
+  internal fun `L2-5 Ok is the instruction that relates a state to itself`() {
     parse<InstructionTree>("Ok") shouldBe NoOp
     NoOp.toString() shouldBe "Ok"
     parse<InstructionTree>("Ok, Plant") shouldBe parse<InstructionTree>("Plant")
@@ -107,10 +126,10 @@ internal class Lang06InstructionsTest {
     shouldThrow<PetSyntaxException> { InstructionGroup(listOf(NoOp)) }
   }
 
-  // L6-5 PER
+  // L2-6 PER
 
   @Test
-  internal fun `L6-5 a slash scales an elementary change by a metric`() {
+  internal fun `L2-6 a slash scales an elementary change by a metric`() {
     val per = parse<Instruction>("Titanium / 3 EarthTag") as Instruction.Per
 
     per.inner shouldBe parse<Instruction>("Titanium")
@@ -122,10 +141,10 @@ internal class Lang06InstructionsTest {
     shouldThrow<PetSyntaxException> { parse<Instruction>("(Plant FROM Heat) / Steel") }
   }
 
-  // L6-6 Gates
+  // L2-7 Gates
 
   @Test
-  internal fun `L6-6 a gate binds less tightly than OR and does not nest directly`() {
+  internal fun `L2-7 a gate binds less tightly than OR and does not nest directly`() {
     val gated = parse<Instruction>("3 PlantTag: Plant OR 4 Plant") as Gated
 
     (gated.inner is Or) shouldBe true
@@ -139,10 +158,10 @@ internal class Lang06InstructionsTest {
     shouldThrow<PetSyntaxException> { parse<Instruction>("Plant: Heat: Steel") }
   }
 
-  // L6-7 OR
+  // L2-8 OR
 
   @Test
-  internal fun `L6-7 authored duplicate alternatives are rejected and constructed ones collapse`() {
+  internal fun `L2-8 authored duplicate alternatives are rejected and constructed ones collapse`() {
     parse<Instruction>("Plant OR Heat").toString() shouldBe "Plant OR Heat"
     shouldThrow<PetSyntaxException> { parse<Instruction>("Plant OR Plant") }
     Or.create(listOf(parse("Plant"), parse("Plant"))) shouldBe parse("Plant")
@@ -150,17 +169,17 @@ internal class Lang06InstructionsTest {
         .transformInstruction(parse("Plant OR Heat")) shouldBe parse("Plant")
   }
 
-  // L6-8 Groups
+  // L2-9 Groups
 
   @Test
-  internal fun `L6-8 a comma makes a group, which is not one instruction`() {
+  internal fun `L2-9 a comma makes a group, which is not one instruction`() {
     parse<InstructionTree>("Plant, Heat") shouldBe
         InstructionGroup(listOf(parse("Plant"), parse("Heat")))
     shouldThrow<PetSyntaxException> { parse<Instruction>("Plant, Heat") }
   }
 
   @Test
-  internal fun `L6-8 groups flatten and a group of one is that one`() {
+  internal fun `L2-9 groups flatten and a group of one is that one`() {
     parse<InstructionTree>("(Plant)") shouldBe parse<InstructionTree>("Plant")
     InstructionGroup.of(listOf(parse<InstructionTree>("Plant, Heat"), parse("Steel")))
         .instructions shouldBe listOf(parse("Plant"), parse("Heat"), parse("Steel"))
@@ -168,10 +187,10 @@ internal class Lang06InstructionsTest {
         parse<InstructionTree>("Plant")
   }
 
-  // L6-9 THEN
+  // L2-10 THEN
 
   @Test
-  internal fun `L6-9 THEN is one right-associative sequence of stages`() {
+  internal fun `L2-10 THEN is one right-associative sequence of stages`() {
     val then = parse<Instruction>("Plant THEN Heat THEN Steel") as Then
 
     then.stages shouldBe listOf(parse<Instruction>("Plant"), parse<Instruction>("Heat"))
@@ -184,7 +203,7 @@ internal class Lang06InstructionsTest {
   }
 
   @Test
-  internal fun `L6-9 a stage before the last is one instruction`() {
+  internal fun `L2-10 a stage before the last is one instruction`() {
     shouldThrow<PetSyntaxException> { parse<Instruction>("(Plant THEN Heat) THEN Steel") }
     shouldThrow<PetSyntaxException> { parse<InstructionTree>("(Plant, Heat) THEN Steel") }
     shouldThrow<PetSyntaxException> { parse<Instruction>("((Plant THEN Heat) OR Steel) THEN Ore") }
@@ -192,7 +211,87 @@ internal class Lang06InstructionsTest {
         "Plant THEN (Heat, Steel)"
   }
 
-  // L6-10 EACH
+  // L2-11 X across one instruction
+
+  @Test
+  internal fun `L2-11 X may span a sequence`() {
+    parse<InstructionTree>("X Plant THEN 2X Heat").toString() shouldBe "X Plant THEN 2X Heat"
+  }
+
+  @Test
+  internal fun `L2-11 a group links nothing, so each member has its own X`() {
+    val group = parse<InstructionTree>("X Plant, X Heat") as InstructionGroup
+    group.size shouldBe 2
+    group.toString() shouldBe "X Plant, X Heat"
+  }
+
+  @Test
+  internal fun `L2-11 a member's X can be a use of one introduced around the group`() {
+    roundTrip<Action>("X Heat -> X Steel, X Plant")
+    roundTrip<Effect>("X Plant: X Heat, X Steel")
+    roundTrip<InstructionTree>("X Plant THEN (X Heat, X Steel)")
+  }
+
+  // L2-12 named Type variables across a sequence
+
+  @Test
+  internal fun `L2-12 a THEN stage can name a Type used by a later stage`() {
+    roundTrip<Instruction>("@Plant THEN @Plant")
+    roundTrip<Instruction>("Foo<@Plant> THEN Bar<@Plant>")
+    roundTrip<Instruction>("Foo<Class<@Plant>> THEN @Plant<Owner>")
+    roundTrip<Instruction>("@Plant THEN Foo<Bar(HAS Baz<@Plant>)>")
+    roundTrip<Instruction>("@CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<@CityTile>)>")
+  }
+
+  @Test
+  internal fun `L2-12 a THEN Type-variable marker must be shared`() {
+    shouldThrow<PetSyntaxException> { parse<Instruction>("@Plant THEN Heat") }
+    roundTrip<Instruction>("@Plant THEN @Plant THEN @Plant")
+    shouldThrow<PetSyntaxException> { parse<Instruction>("@Plant THEN @Plant<Steel>") }
+
+    roundTrip<Instruction>("Foo<@Bar> THEN (Qux<@Bar>, EACH @Bar { @Bar })")
+  }
+
+  @Test
+  internal fun `L2-12 an observing expression may precede the occurrence that supplies a variable`() {
+    roundTrip<Instruction>("Plant / @Steel THEN @Steel")
+    roundTrip<Instruction>("Plant(NOT @Steel) THEN @Steel")
+  }
+
+  // L2-13 named Type variables across a transmutation
+
+  @Test
+  internal fun `L2-13 a transmutation destination can name a Type used by its source`() {
+    roundTrip<Instruction>("Foo<@Plant> FROM Bar<@Plant>")
+    roundTrip<Instruction>("Foo<Class<@Plant>> FROM @Plant<Owner>")
+    roundTrip<Effect>("Foo: Bar<@Plant> FROM Baz<@Plant>")
+    roundTrip<Action>("Foo -> Bar<@Plant> FROM Baz<@Plant>")
+    roundTrip<Instruction>("Foo<@Plant> FROM Bar<@Plant> THEN Baz<@Heat> FROM Qux<@Heat>")
+  }
+
+  @Test
+  internal fun `L2-13 an enclosing sequence can own a name declared inside a transmutation`() {
+    roundTrip<Instruction>("Foo FROM Bar<@Plant> THEN @Plant")
+  }
+
+  @Test
+  internal fun `L2-13 a transmutation marker must be shared by its sides`() {
+    shouldThrow<PetSyntaxException> { parse<Instruction>("Foo<@Plant> FROM Bar") }
+    roundTrip<Instruction>("Foo<@Plant, @Plant> FROM Bar<@Plant>")
+    shouldThrow<PetSyntaxException> {
+      parse<Instruction>("Foo<@Plant> FROM Bar<@Plant> THEN @Plant")
+    }
+  }
+
+  @Test
+  internal fun `L2-13 an observing expression uses a source variable but cannot declare one`() {
+    roundTrip<Instruction>("Foo(HAS Baz<@Plant>) FROM Bar<@Plant>")
+    shouldThrow<PetSyntaxException> {
+      parse<Instruction>("Foo(HAS Baz<@Plant>) FROM Bar(HAS Qux<@Plant>)")
+    }
+  }
+
+  // L2-14 EACH
 
   /**
    * This module can pin the fanout's syntax and scope. Enumerating a live world and rejecting a
@@ -201,7 +300,7 @@ internal class Lang06InstructionsTest {
    * `InstructionResolutionTest.kt`.
    */
   @Test
-  internal fun `L6-10 EACH names a selector and a body`() {
+  internal fun `L2-14 EACH names a selector and a body`() {
     val each = parse<Instruction>("EACH Player { 2 Plant, Heat }") as Each
 
     each.selector shouldBe parse<Expression>("Player")
@@ -210,7 +309,7 @@ internal class Lang06InstructionsTest {
   }
 
   @Test
-  internal fun `L6-10 explicit selector names bind only their body references`() {
+  internal fun `L2-14 explicit selector names bind only their body references`() {
     val player = parse<Instruction>("EACH @Player(NOT Player1) { Plant<@Player> }") as Each
     player.body
         .descendantsOfType<Expression>()
@@ -242,7 +341,7 @@ internal class Lang06InstructionsTest {
   }
 
   @Test
-  internal fun `L6-10 a selector supplies matching markers inside a full transmutation`() {
+  internal fun `L2-14 a selector supplies matching markers inside a full transmutation`() {
     val each =
         parse<Instruction>(
             "EACH Selected@Player { Winner<Selected@Player> FROM Candidate<Selected@Player> }"
@@ -255,7 +354,7 @@ internal class Lang06InstructionsTest {
   }
 
   @Test
-  internal fun `L6-10 a full transmutation may still declare a differently named local variable`() {
+  internal fun `L2-14 a full transmutation may still declare a differently named local variable`() {
     val each =
         parse<Instruction>(
             "EACH Selected@Player { " +
@@ -271,7 +370,7 @@ internal class Lang06InstructionsTest {
   }
 
   @Test
-  internal fun `L6-10 nested scopes choose anonymous and named markers independently`() {
+  internal fun `L2-14 nested scopes choose anonymous and named markers independently`() {
     val anonymousOuter =
         parse<Instruction>(
             "EACH @Player { " +
@@ -294,49 +393,30 @@ internal class Lang06InstructionsTest {
   }
 
   @Test
-  internal fun `L6-10 a fanout body may evaluate a class property per branch`() {
+  internal fun `L2-14 a fanout body may evaluate a class property per branch`() {
     roundTrip<Instruction>("EACH Player { Score<Player> / EVAL Goal.metric }")
   }
 
   @Test
-  internal fun `L6-10 a fanout needs a body and does not nest`() {
+  internal fun `L2-14 a fanout needs a body and does not nest`() {
     shouldThrow<PetSyntaxException> { parse<Instruction>("EACH Player { Ok }") }
     shouldThrow<PetSyntaxException> { parse<Instruction>("EACH Player { EACH Area { Plant } }") }
   }
 
-  // L6-11 BY
+  // L2-15 BY
 
   @Test
-  internal fun `L6-11 BY names the performer and distributes over a group`() {
+  internal fun `L2-15 BY names the performer and distributes over a group`() {
     (parse<Instruction>("Plant BY Player1") as Instruction.By).actor shouldBe
         parse<Expression>("Player1")
     parse<InstructionTree>("(Plant, Heat) BY Player1").toString() shouldBe
         "Plant BY Player1, Heat BY Player1"
   }
 
-  // L6-12 Compact transmutation
+  // L2-16 Precedence and rendering
 
   @Test
-  internal fun `L6-12 a compact transmutation changes exactly one argument`() {
-    val compact = parse<Instruction>("Marker<Mars1, Player1 FROM Player2>") as Transmute
-
-    compact.gaining shouldBe parse<Expression>("Marker<Mars1, Player1>")
-    compact.removing shouldBe parse<Expression>("Marker<Mars1, Player2>")
-    (compact.fromEx is Compact) shouldBe true
-    (compact.gaining.arguments[0] === compact.removing.arguments[0]) shouldBe true
-    shouldThrow<PetSyntaxException> { parse<Instruction>("Marker<Mars1 FROM Mars2, P1 FROM P2>") }
-
-    parse<Instruction>("Marker<Player1> FROM Marker<Player2>").let {
-      ((it as Transmute).fromEx is Full) shouldBe true
-    }
-    roundTrip<InstructionTree>("Marker<Mars1 FROM Mars2>(HAS Plant)")
-    shouldThrow<PetSyntaxException> { Compact(cn("Marker"), emptyList()) }
-  }
-
-  // L6-13 Precedence and rendering
-
-  @Test
-  internal fun `L6-13 instructions round-trip`() {
+  internal fun `L2-16 instructions round-trip`() {
     roundTripAll<InstructionTree>(
         """
         2 MC
@@ -430,12 +510,12 @@ internal class Lang06InstructionsTest {
   }
 
   @Test
-  internal fun `L6-13 a backslash before a line ending continues an instruction`() {
+  internal fun `L2-16 a backslash before a line ending continues an instruction`() {
     roundTrip<InstructionTree>("Plant\\\r\n OR Heat", "Plant OR Heat")
   }
 
   @Test
-  internal fun `L6-13 grouping is re-inserted wherever re-parsing needs it`() {
+  internal fun `L2-16 grouping is re-inserted wherever re-parsing needs it`() {
     roundTrip<InstructionTree>("Plant FROM This / This")
     roundTrip<InstructionTree>("Plant: (Heat, -5 Steel)")
     roundTrip<InstructionTree>("(Plant, Heat) OR Steel")
@@ -449,85 +529,5 @@ internal class Lang06InstructionsTest {
         "PROD[(Ooh / MC, Foo, MC), Bar / Bar THEN MC, MC]",
         "PROD[Ooh / MC, Foo, MC, Bar / Bar THEN MC, MC]",
     )
-  }
-
-  // L6-14 X across one instruction
-
-  @Test
-  internal fun `L6-14 X may span a sequence`() {
-    parse<InstructionTree>("X Plant THEN 2X Heat").toString() shouldBe "X Plant THEN 2X Heat"
-  }
-
-  @Test
-  internal fun `L6-14 a group links nothing, so each member has its own X`() {
-    val group = parse<InstructionTree>("X Plant, X Heat") as InstructionGroup
-    group.size shouldBe 2
-    group.toString() shouldBe "X Plant, X Heat"
-  }
-
-  @Test
-  internal fun `L6-14 a member's X can be a use of one introduced around the group`() {
-    roundTrip<Action>("X Heat -> X Steel, X Plant")
-    roundTrip<Effect>("X Plant: X Heat, X Steel")
-    roundTrip<InstructionTree>("X Plant THEN (X Heat, X Steel)")
-  }
-
-  // L6-15 named Type variables across a sequence
-
-  @Test
-  internal fun `L6-15 a THEN stage can name a Type used by a later stage`() {
-    roundTrip<Instruction>("@Plant THEN @Plant")
-    roundTrip<Instruction>("Foo<@Plant> THEN Bar<@Plant>")
-    roundTrip<Instruction>("Foo<Class<@Plant>> THEN @Plant<Owner>")
-    roundTrip<Instruction>("@Plant THEN Foo<Bar(HAS Baz<@Plant>)>")
-    roundTrip<Instruction>("@CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<@CityTile>)>")
-  }
-
-  @Test
-  internal fun `L6-15 a THEN Type-variable marker must be shared`() {
-    shouldThrow<PetSyntaxException> { parse<Instruction>("@Plant THEN Heat") }
-    roundTrip<Instruction>("@Plant THEN @Plant THEN @Plant")
-    shouldThrow<PetSyntaxException> { parse<Instruction>("@Plant THEN @Plant<Steel>") }
-
-    roundTrip<Instruction>("Foo<@Bar> THEN (Qux<@Bar>, EACH @Bar { @Bar })")
-  }
-
-  @Test
-  internal fun `L6-15 an observing expression may precede the occurrence that supplies a variable`() {
-    roundTrip<Instruction>("Plant / @Steel THEN @Steel")
-    roundTrip<Instruction>("Plant(NOT @Steel) THEN @Steel")
-  }
-
-  // L6-16 named Type variables across a transmutation
-
-  @Test
-  internal fun `L6-16 a transmutation destination can name a Type used by its source`() {
-    roundTrip<Instruction>("Foo<@Plant> FROM Bar<@Plant>")
-    roundTrip<Instruction>("Foo<Class<@Plant>> FROM @Plant<Owner>")
-    roundTrip<Effect>("Foo: Bar<@Plant> FROM Baz<@Plant>")
-    roundTrip<Action>("Foo -> Bar<@Plant> FROM Baz<@Plant>")
-    roundTrip<Instruction>("Foo<@Plant> FROM Bar<@Plant> THEN Baz<@Heat> FROM Qux<@Heat>")
-  }
-
-  @Test
-  internal fun `L6-16 an enclosing sequence can own a name declared inside a transmutation`() {
-    roundTrip<Instruction>("Foo FROM Bar<@Plant> THEN @Plant")
-  }
-
-  @Test
-  internal fun `L6-16 a transmutation marker must be shared by its sides`() {
-    shouldThrow<PetSyntaxException> { parse<Instruction>("Foo<@Plant> FROM Bar") }
-    roundTrip<Instruction>("Foo<@Plant, @Plant> FROM Bar<@Plant>")
-    shouldThrow<PetSyntaxException> {
-      parse<Instruction>("Foo<@Plant> FROM Bar<@Plant> THEN @Plant")
-    }
-  }
-
-  @Test
-  internal fun `L6-16 an observing expression uses a source variable but cannot declare one`() {
-    roundTrip<Instruction>("Foo(HAS Baz<@Plant>) FROM Bar<@Plant>")
-    shouldThrow<PetSyntaxException> {
-      parse<Instruction>("Foo(HAS Baz<@Plant>) FROM Bar(HAS Qux<@Plant>)")
-    }
   }
 }

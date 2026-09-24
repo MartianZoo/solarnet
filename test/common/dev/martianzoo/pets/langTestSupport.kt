@@ -96,7 +96,7 @@ internal const val LANG_DECLARATIONS: String =
 
 /**
  * The declarations above, plus one registered transform handler so that dispatching marked syntax
- * (L10-1) is observable. `UNWRAP[x]` rewrites to `x`.
+ * (L8-1) is observable. `UNWRAP[x]` rewrites to `x`.
  */
 internal val langCatalog: Catalog by lazy {
   val base = testCatalog(LANG_DECLARATIONS.trimIndent())

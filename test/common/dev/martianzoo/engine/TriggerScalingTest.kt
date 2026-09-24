@@ -34,7 +34,7 @@ internal class TriggerScalingTest {
     }
   }
 
-  /** Rule L8-4: a self trigger scales by the number of copies that very change gained. */
+  /** Rule L6-4: a self trigger scales by the number of copies that very change gained. */
   @Test
   internal fun `a self trigger scales by the number of copies changed`() {
     val premise =

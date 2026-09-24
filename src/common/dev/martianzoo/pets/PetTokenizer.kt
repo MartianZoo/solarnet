@@ -21,14 +21,14 @@ import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
 
 /**
  * A base class for parsing objects. The tokens here are the lexical level of language-spec sections
- * 1 and 2: reserved keywords (L2-2), the name grammars (L2-1, L2-3, L2-4), and the whitespace,
- * comment and line-continuation rules (L1-9).
+ * 10 and 11: reserved keywords (L10-2), the name grammars (L10-1, L10-3, L10-4), and the
+ * whitespace, comment and line-continuation rules (L11-2).
  */
 internal abstract class PetTokenizer {
 
   private val _quotedText = regex(Regex("""  "[^"]*"  """.trim()))
 
-  /** Parses quote-delimited text. Quotes cannot appear in the contents (L1-5, L1-7). */
+  /** Parses quote-delimited text. Quotes cannot appear in the contents (L11-7, L11-9). */
   internal val quotedText: Parser<String> = _quotedText map { it.text.removeSurrounding("\"") }
 
   internal val _arrow = literal("->", "arrow")
@@ -37,7 +37,7 @@ internal abstract class PetTokenizer {
   // I simply don't want to name all of these and would rather look them up by the char itself
   private val characters = "!@^+,-./:;=?()[]{}<>\n".map { it to literal("$it") }.toMap()
 
-  // Rule L2-2: these are the words the grammar itself uses, and none may be a class name. The
+  // Rule L10-2: these are the words the grammar itself uses, and none may be a class name. The
   // spellings are exact, so `Max`, `By` and `Has` remain perfectly good class names.
   internal val _by = word("BY")
   internal val _count = word("COUNT")
@@ -62,7 +62,7 @@ internal abstract class PetTokenizer {
   internal val _requirement = regex(Regex("""Requirement\b"""), "Requirement")
 
   // regexes - could leave the `Regex()` out, but it loses IDEA syntax highlighting!
-  // Rules L2-1 (class names), L2-3 (property names), and L2-4 (transform kinds).
+  // Rules L10-1 (class names), L10-3 (property names), and L10-4 (transform kinds).
   internal val _mixedCaseClassNameRE =
       regex(
           Regex("""\b[A-Z](?=[A-Za-z0-9_]*[a-z])[A-Za-z0-9_]*\b"""),
@@ -103,7 +103,7 @@ internal abstract class PetTokenizer {
   internal fun skipChar(c: Char) = skip(char(c))
 
   internal object TokenCache {
-    // Rule L1-9: horizontal whitespace is insignificant, `//` runs to end of line, and a backslash
+    // Rule L11-2: horizontal whitespace is insignificant, `//` runs to end of line, and a backslash
     // before a line ending continues the line, so one body element may span several source lines.
     // Newlines themselves are significant, as separators only, so they are not ignored here.
     private val ignoreList =

@@ -15,13 +15,13 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-/** Section 11 of `docs/pets-language-spec.md`: declaring a class where it is used. */
-internal class Lang11OwnerLocalClassesTest {
+/** Section 12 of `docs/pets-language-spec.md`: declaring a class where it is used. */
+internal class Lang12OwnerLocalClassesTest {
 
-  // L11-1, L11-2 Declaring and naming
+  // L12-1, L12-2 Declaring and naming
 
   @Test
-  internal fun `L11-1 an expression followed by a body declares a class at its point of use`() {
+  internal fun `L12-1 an expression followed by a body declares a class at its point of use`() {
     val declarations = parseClasses("CLASS Inventrix { This: RequiredAction { -> 3 ProjectCard } }")
 
     declarations.map { it.className } shouldContainExactly
@@ -29,7 +29,7 @@ internal class Lang11OwnerLocalClassesTest {
   }
 
   @Test
-  internal fun `L11-2 the occurrence becomes the derived name and the class extends its base`() {
+  internal fun `L12-2 the occurrence becomes the derived name and the class extends its base`() {
     val declarations = parseClasses("CLASS Inventrix { This: RequiredAction { -> 3 ProjectCard } }")
 
     declarations.first().authoredEffects shouldContainExactly
@@ -40,10 +40,10 @@ internal class Lang11OwnerLocalClassesTest {
         listOf(parse<Action>("-> 3 ProjectCard"))
   }
 
-  // L11-3 The body follows the complete expression
+  // L12-3 The body follows the complete expression
 
   @Test
-  internal fun `L11-3 arguments specialize the occurrence and the declared supertype`() {
+  internal fun `L12-3 arguments specialize the occurrence and the declared supertype`() {
     val declarations =
         parseClasses("CLASS MiningArea { This: SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {} }")
 
@@ -53,7 +53,7 @@ internal class Lang11OwnerLocalClassesTest {
   }
 
   @Test
-  internal fun `L11-3 refinements are removed recursively from the declared supertype`() {
+  internal fun `L12-3 refinements are removed recursively from the declared supertype`() {
     val declarations =
         parseClasses("CLASS Owner1 { This: Base<Outer<Inner(HAS Marker)>(NOT Other)> {} }")
 
@@ -61,21 +61,21 @@ internal class Lang11OwnerLocalClassesTest {
   }
 
   @Test
-  internal fun `L11-3 parsing an outer refinement preserves an owner-local class within it`() {
+  internal fun `L12-3 parsing an outer refinement preserves an owner-local class within it`() {
     parseClasses("CLASS Owner1 { This: Widget(HAS Bar { HAS MAX 1 This }) }").map {
       it.className
     } shouldContainExactly listOf(cn("Owner1"), cn("Owner1_Bar"))
   }
 
   @Test
-  internal fun `L11-3 a plain selector may contain a local class in its HAS refinement`() {
+  internal fun `L12-3 a plain selector may contain a local class in its HAS refinement`() {
     parseClasses("CLASS Owner1 { This: EACH Widget(HAS Bar {}) { Prize } }").map {
       it.className
     } shouldContainExactly listOf(cn("Owner1"), cn("Owner1_Bar"))
   }
 
   @Test
-  internal fun `L11-3 This in an argument names the enclosing class in the declaration`() {
+  internal fun `L12-3 This in an argument names the enclosing class in the declaration`() {
     val declarations = parseClasses("CLASS Card { This: Action1<This> {} }")
 
     declarations.first().authoredEffects shouldContainExactly
@@ -83,10 +83,10 @@ internal class Lang11OwnerLocalClassesTest {
     declarations.last().supertypes shouldBe setOf(parse<Expression>("Action1<Card>"))
   }
 
-  // L11-4 What a local body may contain
+  // L12-4 What a local body may contain
 
   @Test
-  internal fun `L11-4 a local body holds invariants, properties, effects and actions`() {
+  internal fun `L12-4 a local body holds invariants, properties, effects and actions`() {
     val derived =
         parseClasses(
                 "CLASS Owner1 { This: Base { HAS MAX 1 This; cost = 3; This: Widget; Ore -> Gizmo } }"
@@ -100,27 +100,27 @@ internal class Lang11OwnerLocalClassesTest {
   }
 
   @Test
-  internal fun `L11-4 a local body holds no DEFAULT clause and no nested declaration`() {
+  internal fun `L12-4 a local body holds no DEFAULT clause and no nested declaration`() {
     shouldThrow<PetSyntaxException> {
       parseClasses("CLASS Owner1 { This: Base { DEFAULT +Base<Ore> } }")
     }
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Owner1 { This: Base { CLASS Inner } }") }
   }
 
-  // L11-5 No nesting
+  // L12-5 No nesting
 
   @Test
-  internal fun `L11-5 owner-local classes do not nest`() {
+  internal fun `L12-5 owner-local classes do not nest`() {
     shouldThrow<PetSyntaxException> {
       parseClasses("CLASS Owner1 { This: Base { This: Inner {} } }")
     }
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Owner1 { This: Base<Inner {}> {} }") }
   }
 
-  // L11-6 One per base name per owner
+  // L12-6 One per base name per owner
 
   @Test
-  internal fun `L11-6 one owner declares at most one unnamed local class per base name`() {
+  internal fun `L12-6 one owner declares at most one unnamed local class per base name`() {
     parseClasses("CLASS Owner1 {\n  This: Base {}\n  -This: Other {}\n}").map {
       it.className
     } shouldContainExactly listOf(cn("Owner1"), cn("Owner1_Base"), cn("Owner1_Other"))
@@ -129,19 +129,19 @@ internal class Lang11OwnerLocalClassesTest {
     }
   }
 
-  // L11-7 Where the syntax is available
+  // L12-7 Where the syntax is available
 
   @Test
-  internal fun `L11-7 the syntax needs a declaration file being read`() {
+  internal fun `L12-7 the syntax needs a declaration file being read`() {
     shouldThrow<PetSyntaxException> { parseOneLinerClass("CLASS Owner1 { This: Base {} }") }
     shouldThrow<PetSyntaxException> { parse<InstructionTree>("Base {}") }
     shouldThrow<PetSyntaxException> { parse<Effect>("This: Base {}") }
   }
 
-  // L11-8 The base class still means the base class
+  // L12-8 The base class still means the base class
 
   @Test
-  internal fun `L11-8 naming the base class alone stays the base class`() {
+  internal fun `L12-8 naming the base class alone stays the base class`() {
     val declarations = parseClasses("CLASS Owner1 {\n  This: Base {}\n  -This: Base\n}")
 
     declarations.first().authoredEffects shouldContainExactly

@@ -197,7 +197,7 @@ private constructor(
 
   /**
    * Rejects a transform block whose kind this Catalog defines no handler for, per
-   * [rule L10-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-transform-blocks).
+   * [rule L8-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-transform-blocks).
    * One rewriting pass may leave another pass's kind in place, but a mark no pass will ever claim
    * is a mistake in the source.
    */

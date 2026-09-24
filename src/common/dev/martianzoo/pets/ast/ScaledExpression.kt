@@ -20,7 +20,7 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 /**
  * The combination of a positive integer (or `X`) with an [Expression], as a gain or removal writes
  * it ([rule
- * L6-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+ * L2-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
  * A missing count is one.
  */
 @ConsistentCopyVisibility
@@ -76,7 +76,7 @@ private constructor(
   /**
    * How many, in a [ScaledExpression]: either a fixed [ActualScalar] or an [XScalar] left open
    * ([rule
-   * L6-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+   * L2-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * Zero is rejected wherever a count is required.
    */
   public sealed class Scalar : PetNode(), Specification<Scalar> {
@@ -107,7 +107,7 @@ private constructor(
     /**
      * A fixed amount. It narrows an [XScalar] only when it is a multiple of that scalar's
      * coefficient ([rule
-     * L7-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+     * L3-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
      */
     public data class ActualScalar(val value: Int) : Scalar() {
       init {
@@ -134,10 +134,10 @@ private constructor(
     /**
      * An amount left open, carrying the written coefficient [multiple]: `2X Plant` is an even
      * number of plants ([rule
-     * L6-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)).
+     * L2-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
      * `X` stands for at least one, never zero. Every occurrence of `X` in one instruction takes the
      * same value, each scaled by its own coefficient ([rule
-     * L7-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+     * L3-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
      */
     public data class XScalar public constructor(val multiple: Int) : Scalar() {
       init {

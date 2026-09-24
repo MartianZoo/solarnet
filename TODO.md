@@ -116,7 +116,7 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 - Add Jacob Fryxelius's ruling that moving Mars Nomads does not trigger the Mars First ruling policy.
 - Repair the two declared Pets conformance gaps without adding a second representation of type
-  identity: L7-8 lets `Tile<> THEN Tile<>` stages diverge after defaults, and T8-3 can substitute a
+  identity: L3-8 lets `Tile<> THEN Tile<>` stages diverge after defaults, and T8-3 can substitute a
   refinement candidate into the wrong one of several compatible dependency slots while existing
   cards still require candidate/argument merging.
 - Find a principled way for narrower dependency defaults to retain compatible refinements from

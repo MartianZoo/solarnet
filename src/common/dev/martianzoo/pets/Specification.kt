@@ -19,7 +19,7 @@ public interface Specification<S : Specification<S>> {
 
   /**
    * Returns whether this specification narrows [that] — the boolean form of [ensureNarrows], per
-   * [rule L7-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open).
+   * [rule L3-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing).
    * Only a narrowing failure becomes `false`; a failure caused by something else, such as an
    * unknown class or a malformed proposal, propagates, so broken input stays distinguishable from a
    * well-formed move the current state simply forbids.
