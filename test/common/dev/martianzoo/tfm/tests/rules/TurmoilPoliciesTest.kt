@@ -73,7 +73,7 @@ internal class TurmoilPoliciesTest : CardTest() {
   }
 
   @Test
-  internal fun `reds policy charges three mc for each player-attributed tr step`() {
+  internal fun `reds policy charges three mc for each tr step`() {
     newGame(TurmoilExpansion)
     admin.runOperation("Ruling<Reds> FROM Ruling")
     p1.runOperation("9 MC")

@@ -5,6 +5,7 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GameEvent
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
@@ -283,6 +284,20 @@ internal class TaskNarrowingTest {
 
     tasks.selectedTask() shouldBe null
     writer.count("OceanTile<Tharsis_1_4>") shouldBe 1
+  }
+
+  @Test
+  internal fun `selecting a task resolves a city already identified by area`() {
+    val game = Engine.newGame(canonicalPremise(cn("PromoCardPack")))
+    val p1 = game.testAgent(PLAYER1)
+    val p2 = game.testAgent(PLAYER2)
+    p1.autoExecPolicy = NONE
+    p2.runOperation("CityTile<Player2, Tharsis_4_2>")
+    p1.addTasks("Cathedral<CityTile<Anyone, Tharsis_4_2>>")
+
+    p1.selectTask("Cathedral<CityTile<Anyone, Tharsis_4_2>>")
+
+    p1.count("Cathedral<Player1, NormalCityTile<Player2, Tharsis_4_2>>") shouldBe 1
   }
 
   @Test

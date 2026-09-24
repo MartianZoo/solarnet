@@ -79,7 +79,7 @@ public abstract class ClassTable {
   /**
    * Returns the greatest lower bound of [left] and [right] in this universe, or null when absent,
    * following
-   * [rule T7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-bounds).
+   * [rule T7-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#7-greatest-lower-bounds).
    *
    * @throws IllegalArgumentException if either operand cannot be interpreted by this table (rule
    *   T1-2).
@@ -337,10 +337,12 @@ public abstract class ClassTable {
   }
 
   /**
-   * Enumerates inhabited concrete structural narrowings of [type], using [dependencyTargets]
-   * instead of the full dependency domains as permitted by
-   * [rule T11-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
-   * Each supplied target must be a concrete narrowing of the requested dependency type.
+   * Enumerates the part of [type]'s enumeration ([rule
+   * T11-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing))
+   * whose dependencies are drawn from [dependencyTargets] rather than from the full dependency
+   * domains. A caller that knows which targets exist can use this to skip narrowings that no
+   * component could have, since a component cannot exist without its dependency targets. Each
+   * supplied target must be a concrete narrowing of the requested dependency type.
    */
   public fun allConcreteSubtypes(
       type: Type,
@@ -395,8 +397,10 @@ public abstract class ClassTable {
   }
 
   /**
-   * Enumerates inhabited concrete narrowings with the same root class as [type], combining
-   * [rules T11-3 and T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
+   * Enumerates the members of [type]'s enumeration ([rules T11-1 and
+   * T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing))
+   * whose root class is [type]'s own. This is the whole enumeration when that class is concrete
+   * (rule T2-3), and nothing when it is abstract.
    */
   public fun concreteSubtypesSameClass(type: Type): Sequence<GroundType> {
     val type = type.groundType
@@ -412,7 +416,7 @@ public abstract class ClassTable {
   /**
    * Returns the sole inhabited concrete narrowing of [type] when every structural choice is unique
    * and its refinement accepts [info], combining
-   * [rules T11-4 and T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
+   * [rules T11-3 and T12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#11-enumeration-and-automatic-narrowing).
    */
   public fun singleConcreteSubtype(type: Type, info: TypeInfo): GroundType? {
     val type = type.groundType
@@ -467,7 +471,7 @@ public abstract class ClassTable {
   /**
    * Tests [candidate] against [constraint] interpreted within [domain] and [info], exactly
    * implementing constrained narrowing in
-   * [rule T6-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping).
+   * [rule T6-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing).
    */
   public fun matchesConstraint(
       candidate: Type,

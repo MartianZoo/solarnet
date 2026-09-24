@@ -47,8 +47,8 @@ internal class PropertyTest {
     val p1 = game.testTfm(PLAYER1)
 
     p1.sneak(
-        "CityTile<Player1, Hellas_7_4>, CityTile<Player1, Hellas_8_4>, " +
-            "CityTile<Player1, Hellas_8_5>, CityTile<Player1, Hellas_9_5>"
+        "NormalCityTile<Player1, Hellas_7_4>, NormalCityTile<Player1, Hellas_8_4>, " +
+            "NormalCityTile<Player1, Hellas_8_5>, NormalCityTile<Player1, Hellas_9_5>"
     )
 
     p1.count("OwnedTile<MarsArea(HAS 8 row)>") shouldBe 3

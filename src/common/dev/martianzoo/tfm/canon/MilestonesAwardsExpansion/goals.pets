@@ -10,9 +10,19 @@ CLASS Hydrologist : Milestone {
   HAS Class<HydrologistWatcher>
   requirement = HAS "4 OceanCredit"
 }
+
+"Tracks ocean placements only while Hydrologist is in the milestone pool"
+CLASS HydrologistWatcher<Class<Hydrologist>> : CardWatcher {
+  @OceanTile BY @Player: OceanCredit<@Player, @OceanTile>
+}
+
+"A player's credit for an ocean that remains on Mars"
+CLASS OceanCredit<OceanTile> : Owned<Player>
+
 CLASS Legend : Milestone { requirement = HAS "4 PlayedEvent" }
 CLASS Merchant : Milestone { requirement = HAS "2 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat" }
 CLASS Philantropist : Milestone { requirement = HAS "5 CardFront(HAS GainsOf<Class<VictoryPoint>>)" }
+CLASS GainsOf<CardFront, Class<Component>> : Custom
 CLASS Pioneer : Milestone { requirement = HAS "4 Colony" }
 CLASS Producer : Milestone {
   autoSelectWhen = HAS "MAX 0 QuickStartVariant"
@@ -36,13 +46,3 @@ CLASS Politician : Award {
   MeasureAward<This>:: EACH Player { MeasureInfluence }
 }
 CLASS Visionary : Award { metric = COUNT "ProjectCard<Hand>" }
-
-CLASS GainsOf<CardFront, Class<Component>> : Custom
-
-"Tracks ocean placements only while Hydrologist is in the milestone pool"
-CLASS HydrologistWatcher<Class<Hydrologist>> : CardWatcher {
-  @OceanTile BY @Player: OceanCredit<@Player, @OceanTile>
-}
-
-"A player's credit for an ocean that remains on Mars"
-CLASS OceanCredit<OceanTile> : Owned<Player>

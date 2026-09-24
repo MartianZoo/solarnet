@@ -1,3 +1,12 @@
+"The disease cubes used by Pharmacy Union and Hospitals"
+CLASS Disease : CardResource
+
+"The moving marker placed by Mars Nomads"
+CLASS NomadsMarker : Owned<Player>, AreaPiece<@LandArea> {
+  HAS MAX 1 This
+  Tile<@LandArea> BY Anyone:: Die
+}
+
 // Published promotional Global Events, appended to the generated cards.
 CLASS JovianTaxRights : GePartyDistant<Scientists>, GePartyCurrent<Unity> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { \
@@ -27,8 +36,18 @@ CLASS CloudSocieties : GePartyDistant<Unity>, GePartyCurrent<Reds> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { ChooseInfluenceFloaterCard }
 }
 
+"Lets one player put all Cloud Societies influence floaters on a single compatible card"
+CLASS ChooseInfluenceFloaterCard : Owned<Player>, Signal {
+  This: Floater<ResourceCard<Class<Floater>, Owner>> / Influence
+}
+
 CLASS CorrosiveRain : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
   HAS Class<VenusTag>, Class<Colony>
 
   ResolveGlobalEvent<Class<This>>:: EACH Player { ResolveCorrosiveRain }
+}
+
+"Lets one player pay Corrosive Rain before drawing cards for influence"
+CLASS ResolveCorrosiveRain : Owned<Player>, Signal {
+  This: (-2 Floater! OR -10 MC.) THEN ProjectCard / Influence
 }

@@ -161,7 +161,7 @@ The container is returned first, then its nested declarations in source order, r
 > creating a namespace the rest of Pets does not have.
 
 **L1-5. A docstring is a quoted string on the line before `CLASS`.** It is retained on the
-declaration (T2-1) and re-emitted when the declaration is rendered.
+declaration and re-emitted when the declaration is rendered.
 
 **L1-6. `DEFAULT` clauses name the class that declares them** (T10-3) and are merged into one set
 per use kind (T10-1). Separate compatible clauses may supply the dependency arguments and quantifier

@@ -621,7 +621,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
           38 to "OwnedTile",
           23 to "GreeneryTile",
           13 to "CityTile",
-          2 to "SpecialTile",
+          3 to "SpecialTile",
           1 to "GreeneryTile<Tharsis_2_3>",
           1 to "GreeneryTile<Tharsis_2_4>",
           1 to "GreeneryTile<Tharsis_3_2>",

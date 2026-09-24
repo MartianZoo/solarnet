@@ -39,11 +39,12 @@ Structured content uses globally unique semantic English names such as `Birds`, 
 award, colony, or standard-action identifier. Replacement relationships name the replaced Class
 directly.
 
-Two bundles may declare the same Class Name when the declarations are byte-identical; identical
-declarations merge, while differing declarations under one name are an error. Canon does not
-duplicate shared support declarations into an optional bundle when that bundle already requires
-the always-selected `TerraformingMars`: Turmoil's Pristar reuses the base game's `HasRaisedTr` and
-`TrWatcher` support.
+Two bundles may declare the same Class Name when the parsed declarations are equal. Identical
+declarations merge into one master Class; differing declarations under one name are an error.
+Shared content-local support may be declared beside each user in different bundles: Pristar and
+United Nations Mars Initiative both declare `HasRaisedTr` and `TrWatcher`, while Robotic Workforce
+and Cyberia Systems both declare `CopyProductionBox`. A single bundle can instead declare shared
+support once at bundle level.
 
 ## Choosing a name
 
@@ -192,7 +193,7 @@ looking it up.
   that the *victim* is the owner while the actor rides along in a separate parameter, as in
   `MyResourceWasRemoved<Class<Resource>, Player>`.
 - **Markers** name real physical components players handle: `ActionUsedMarker`, `Community`,
-  `NomadsMarker`, `CapitalMarker`. `StartToken` keeps `Token` because the honest
+  `NomadsMarker`. `StartToken` keeps `Token` because the honest
   `StartPlayerMarker` is long and `StartMarker` reads wrong.
 - **Card locations** use noun phrases for places (`Hand`) and participles for
   explicitly transient states. The two participle forms are both correct and mean different things:
@@ -209,15 +210,22 @@ looking it up.
 
 ## Modules and Content
 
-Keep three identities separate:
+Distinguish these three roles, even when one Class fills more than one:
 
 - A **Bundle** is source provenance and loading structure. It may provide Modules, Content, or
   both, but is not itself selected.
 - A **Module** is an ambient-rule choice. Selecting one intrinsically selects the rule closure
   reachable from its declaration.
-- **Content** is individually selectable material. A Module may select associated compatible
-  Content by default, and an explicit configuration may still include or exclude each Content
-  Class. Content is a premise-selection role, not a Pets supertype or source format.
+- **Content** is one authored game item intended for individual selection: a corporation card
+  (including each beginner corporation), prelude card, project card, whole map, milestone, award,
+  colony tile, global event, or party. Map areas are local to their map. Standard actions and
+  standard projects are rule vocabulary, not Content. Content is a role, not a Pets supertype.
+
+Most Content is individually selectable today. Maps currently fill both the Content and Module
+roles, and their areas are selected as separate Classes during premise construction. All six
+Turmoil parties currently enter intrinsically with Turmoil; individual party selection remains
+unimplemented. Neither current constraint changes which items count as Content. Whether maps need
+to remain Modules is unsettled.
 
 The intended user choices are an individual Content Class or all applicable Content from a bundle.
 Intermediate pool choices, such as excluding only one bundle's cards or choosing random milestones,
@@ -226,6 +234,20 @@ does not yet have a separate grouped Content choice. Named `CardPack` Classes th
 transitional Module subtypes, though a Content group should not be an ambient Module. Prelude 2
 has `Prelude2CardPack`, not a second Prelude rules Module. The Milestones & Awards bundle has no
 Module; its goals are currently selected individually.
+
+A content-local Class supplies a particular item's state or rule: map areas, special tiles, remote
+areas, watchers, markers, special placement bonuses, ruling policies, and exceptional custom metrics
+or instructions are examples. Keep it next to the item that needs it. A card's `components` field
+can hold short declarations; use `cards.pets` or `*.cards.pets` for readable multiline declarations
+such as Mars Nomads' `NomadsMarker`. A helper shared across bundles may be repeated beside each user,
+subject to the catalog's equal-declaration check. This is source ownership, not a second Class
+identity or a private namespace. Shared support within a bundle needs one declaration. For
+individually selectable cards, a shared helper in a card resource follows the cards that use it, as
+Promo's `Disease` does. Bundle-level rule helpers in ordinary `.pets` files are ambient to a
+same-named Module, as Promo's `MyResourceWasRemoved` and `MyProductionWasDecreased` are. A bundle
+can own core vocabulary without a Module, though `PromoCardPack` currently is one. `Asteroid` and
+`Floater` are core to the wider game. Turmoil's ruling bonus effects live on their Party
+declarations; each party's policy Class sits immediately below it.
 
 Most genuine `Module` subtypes extend `Module` directly, and that is fine — they need no
 intermediate supertype just to justify a suffix. Four loose families exist today:
@@ -264,7 +286,8 @@ The boundary has four useful examples and one open edge:
   selected.
 - Milestones & Awards are individually selected Content supplied by a bundle with no Module or
   pack control.
-- Whether Turmoil parties should ultimately be Content or intrinsic rule Classes remains unsettled.
+- Turmoil parties are Content even though their Classes currently enter as intrinsic Turmoil rules.
+  Individual party selection must make the committee sequence tolerate an omitted party.
 - `VenusTag` is currently Module-local vocabulary, so selecting a tagged Venus card without
   `VenusNextExpansion` is rejected. The desired model may instead let such Content activate the tag
   while keeping genuinely rule-dependent references, such as `VenusStep`, unavailable. Do not
@@ -358,10 +381,11 @@ The conflict is acknowledged; the name is not yet settled. It is declared identi
 
 ### Scope of `en.json5`
 
-Only published content — cards, corporations, preludes, milestones, awards, and the like — belongs
-in a language file. Today these files also carry entries for standard resources (`Energy`, `Plant`,
-`Steel`, `Titanium`, `Heat`), `TerraformRating`, `VictoryPoint`, standard projects (`AquiferProject`
-and the rest), standard-action doorways, `TradeAction`, and generated `_SpecialTile` classes. Decide
+Only published content — cards, maps, milestones, awards, colony tiles, global events, parties,
+and the like — belongs in a language file. Today these files also carry entries for standard
+resources (`Energy`, `Plant`, `Steel`, `Titanium`, `Heat`), `TerraformRating`, `VictoryPoint`,
+standard projects (`AquiferProject` and the rest), standard-action doorways, `TradeAction`, and
+generated `_SpecialTile` classes. Decide
 where display text for non-content classes should come from, then remove those entries. The resource
 entries also lowercase the standard resources while leaving every card resource (`Microbe`,
 `Animal`, `Floater`, ...) in Title Case, which is a second reason not to keep them here.

@@ -40,7 +40,7 @@ internal class PetsTypeGeneratorTest {
     assertContains(source, "public override val expression: Expression")
     assertContains(source, "public override fun toString(): String = expression.toString()")
     assertFalse(source.contains("val type: Type"))
-    assertContains(source, "generatedPetsExpression(typeOf<CityTile<A0, A1>>())")
+    assertContains(source, "generatedPetsExpression(typeOf<NormalCityTile<A0, A1>>())")
     assertContains(source, "public class Plant<")
     assertContains(source, "public companion object")
     assertContains(source, ") : StandardResource")

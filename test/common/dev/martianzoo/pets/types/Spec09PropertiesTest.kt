@@ -242,7 +242,7 @@ internal class Spec09PropertiesTest {
     }
   }
 
-  // T9-5 Reading a property from a type
+  // T9-5 A type's property values are its root class's
 
   @Test
   internal fun `T9-5 a type reads the concrete property values of its root class`() {

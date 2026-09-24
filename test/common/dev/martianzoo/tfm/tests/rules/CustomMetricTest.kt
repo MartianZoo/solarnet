@@ -76,7 +76,7 @@ internal class CustomMetricTest {
     p1.count("TileMetric<Tile>") shouldBe 0
     TileMetric.invocations shouldBe invocationsBefore
 
-    p1.sneak("CityTile<Player1, Tharsis_4_4>")
+    p1.sneak("NormalCityTile<Player1, Tharsis_4_4>")
     p1.count("TileMetric<Tile>") shouldBe 17
     TileMetric.invocations shouldBe invocationsBefore + 1
   }

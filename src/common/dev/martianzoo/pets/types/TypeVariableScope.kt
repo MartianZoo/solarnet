@@ -34,26 +34,19 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
    */
   public val variables: List<TypeVariable> = entries.map(Entry::variable)
 
-  /**
-   * Whether this scope contains no type variables, one of the scope queries specified by
-   * [rule T13-11](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
-   */
+  /** Whether this scope contains no type variables. */
   public val isEmpty: Boolean
     get() = entries.isEmpty()
 
   /**
-   * Returns every current spelling of [variable] after preprocessing, as specified by the scope
-   * queries in
-   * [rule T13-11](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   * Returns every current spelling of [variable] after preprocessing. Preprocessed copies of an
+   * occurrence remain occurrences under
+   * [rule T13-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
   public fun expressionsOf(variable: TypeVariable): Set<Expression> =
       entries.single { it.variable === variable }.currentExpressions.values.toSet()
 
-  /**
-   * Returns the current expression for [occurrence] after preprocessing its owning syntax, as
-   * specified by
-   * [rule T13-11](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
-   */
+  /** Returns the current expression for [occurrence] after preprocessing its owning syntax. */
   public fun expressionOf(occurrence: Occurrence): Expression =
       entries
           .single { it.variable === occurrence.typeVariable }
@@ -61,9 +54,9 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
           .getValue(occurrence)
 
   /**
-   * Returns the variable declared by this syntax node, if any; declaration is distinct from usage
-   * under
-   * [rules T13-1 and T13-11](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   * Returns the variable whose supplying occurrence is this syntax node, if any; the supplying
+   * occurrence is distinct from the others under
+   * [rule T13-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    */
   public fun variableDeclaredAt(expression: Expression): TypeVariable? {
     fun Entry.declarationExpression(): Expression? =
@@ -78,11 +71,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
             ?.variable
   }
 
-  /**
-   * Returns the visible variable used or declared by [expression], if any, following the occurrence
-   * query of
-   * [rule T13-11](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
-   */
+  /** Returns the visible variable used or declared by [expression], if any. */
   public fun variableAt(expression: Expression): TypeVariable? =
       entries
           .firstOrNull { entry ->
