@@ -1,6 +1,6 @@
-ABSTRACT CLASS Card : Owned<Player> {
-  "A generic unplayed card with unknown face"
-  ABSTRACT CLASS CardBack<CardLocation> {
+ABSTRACT CLASS Card<Class<CardFront>> : Owned<Player> {
+  "An unplayed card that retains its exact face"
+  ABSTRACT CLASS CardBack<CardLocation> : Atomized {
     DEFAULT CardBack<Hand>
     DEFAULT +CardBack
     DEFAULT -CardBack
@@ -15,8 +15,8 @@ ABSTRACT CLASS Card : Owned<Player> {
   }
 
   "A card in play, face-up on the table (consider rename to CardFace)"
-  ABSTRACT CLASS CardFront<Class<CardBack>> : TagHolder {
-    HAS MAX 1 This<Player>
+  ABSTRACT CLASS CardFront<Class<CardBack>> : Card<Class<This>>, TagHolder {
+    HAS MAX 1 Card<Player, Class<This>>
 
     cost = Number
     requirement = Requirement?
@@ -42,10 +42,23 @@ ABSTRACT CLASS Card : Owned<Player> {
   }
 
   "A card in your played-events pile"
-  CLASS PlayedEvent<@Class<CardFront>> {
-    End: ScoreEventVps<@Class>
+  CLASS PlayedEvent {
+    End: ScoreEventVps<This>
   }
 }
+
+"Deals the next concrete card from a named back's deck"
+CLASS DrawCard<Class<CardBack>, CardLocation> : Owned<Player>, Custom, Atomized
+
+"Draws from the ordered project deck until its printed predicate matches"
+CLASS SearchForCard : Owned<Player>, Custom, Atomized
+
+"Printed metadata predicates used in card-search refinements"
+ABSTRACT CLASS PrintedTag<Class<Tag>>
+ABSTRACT CLASS ReferenceTo<Class<Component>>
+
+"Records that a face has left its ordered deck, including cards skipped by a search"
+CLASS DeckSpent<Class<CardFront>> : System, Hidden { HAS MAX 1 This }
 
 CLASS CardPurchase : HasActions {
   HAS =1 This
@@ -59,7 +72,7 @@ CLASS BuySelectedCards : Owned<Player>, Signal {
 
 CLASS PlayCard<Class<@CardBack>, Class<@CardFront>, @CardLocation> : Owned<Player>, Signal {
   This:: (EVAL @CardFront<Class<@CardBack>>.requirement: Ok) OR AdjustGpRequirement<Class<@CardFront>>
-  This: Owed<> / @CardFront.cost THEN PriceCard<Class<@CardFront>> THEN CardBilling<Class<@CardFront>> THEN MAX 0 Barrier: @CardFront FROM @CardBack<@CardLocation>
+  This: Owed<> / @CardFront.cost THEN PriceCard<Class<@CardFront>> THEN CardBilling<Class<@CardFront>> THEN MAX 0 Barrier: @CardFront FROM @CardBack<Class<@CardFront>, @CardLocation>
 }
 
 "Signals that a printed global-parameter requirement produced a shortfall ready for adjustment"

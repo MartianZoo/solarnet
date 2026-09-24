@@ -3,7 +3,7 @@ CLASS TerraformingMars : Module {
   autoSelectWhen = HAS "MAX 0 TerraformingMars"
 
   HAS =1 GameMode, =1 MarsMap
-  HAS Class<Production>, Class<NormalCityTile>
+  HAS Class<Production>, Class<NormalCityTile>, Class<DrawCard>, Class<SearchForCard>, Class<DeckSpent>
   HAS Class<SetupPhase>, Class<CorporationPhase>, Class<ResearchPhase>, Class<ActionPhase>
   HAS Class<ProductionPhase>, Class<CheckGameEnd>, Class<SolarPhase>, Class<VenusSolarPhase>
   HAS Class<ColoniesSolarPhase>, Class<TurmoilSolarPhase>, Class<FinalGreeneryPhase>, Class<End>
@@ -76,14 +76,13 @@ ABSTRACT CLASS Player : Owner, Actor {
 
   // Keeping one standard offer lets ordinary Selecting cleanup forget the unchosen cards.
   SetupPhase IF MAX 0 BeginnerVariant: \
-    StandardCorporationCard<Selecting> / CorporationOption THEN 10 ProjectCard THEN NewTurn
+    StandardCorporationCard<Selecting> / CorporationOption THEN 10 ProjectCard<Selecting> THEN NewTurn
   SetupPhase IF BeginnerVariant: \
     (BeginnerCorporationCard THEN 10 ProjectCard THEN NewTurn) OR \
-      (StandardCorporationCard<Selecting> / CorporationOption THEN 10 ProjectCard THEN NewTurn)
+      (StandardCorporationCard<Selecting> / CorporationOption THEN 10 ProjectCard<Selecting> THEN NewTurn)
   NewTurn IF SetupPhase, StandardCorporationCard<Selecting>: \
     StandardCorporationCard<Hand FROM Selecting>, \
-    ((ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>) THEN -10 ProjectCard<Selecting>? \
-      THEN (ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>))
+    EACH ProjectCard<Selecting> { ProjectCard<Hand FROM Selecting>? }
   ResearchPhase: 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
 }
 

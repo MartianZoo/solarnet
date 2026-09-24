@@ -213,9 +213,13 @@ private val scoreEventVps =
       override fun translate(
           reader: GameReader,
           ignoredOwner: Type,
-          classType: Type,
+          playedEvent: Type,
       ): InstructionTree {
-        val effects = cardEffects(cardFromClassType(classType, reader))
+        val face =
+            playedEvent.typeDependencies
+                .mapNotNull { it.boundType.representedClass }
+                .single { it.isSubtypeOf(reader.classTable.getClass(cn("CardFront"))) }
+        val effects = cardEffects(reader.tfmCatalog.card(face.className))
         return InstructionGroup.of(effects.filter { it.trigger == end }.map { it.instruction })
       }
 

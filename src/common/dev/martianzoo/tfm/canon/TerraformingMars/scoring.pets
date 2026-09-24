@@ -36,4 +36,4 @@ CLASS SecondPlace<Award> : Owned<Player> { This:: 2 VictoryPoint }
 CLASS FinalScoringPending : Temporary, System { HAS MAX 1 This }
 
 "(Like anything extending Custom) an implementation detail backed by Kotlin code"
-CLASS ScoreEventVps<Class<CardFront>> : Owned<Player>, Custom
+CLASS ScoreEventVps<PlayedEvent> : Owned<Player>, Custom

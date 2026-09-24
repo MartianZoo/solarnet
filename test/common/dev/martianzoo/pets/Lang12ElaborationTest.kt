@@ -201,6 +201,20 @@ internal class Lang12ElaborationTest {
     elaborate("-3 ProjectCard") shouldBe parse<InstructionTree>("-3 ProjectCard<Player1>!")
   }
 
+  @Test
+  internal fun `L12-11 atomized gains retain their position in a THEN sequence`() {
+    elaborate("Plant THEN 3 ProjectCard THEN Plant") shouldBe
+        parse<InstructionTree>(
+            "Plant<Player1>! THEN ProjectCard<Player1>! THEN ProjectCard<Player1>! THEN " +
+                "ProjectCard<Player1>! THEN Plant<Player1>!"
+        )
+    elaborate("Plant THEN 3 ProjectCard") shouldBe
+        parse<InstructionTree>(
+            "Plant<Player1>! THEN " +
+                "(ProjectCard<Player1>!, ProjectCard<Player1>!, ProjectCard<Player1>!)"
+        )
+  }
+
   // L12-12 EVAL
 
   @Test

@@ -24,6 +24,7 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Each
+import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
@@ -234,10 +235,14 @@ internal constructor(
             gated?.inner?.descendantsOfType<Expression>()?.any {
               unresolved.typeVariables.variableAt(it) in gateVariables
             } == true
-        unresolved.withInstructions(
-            listOf(if (openGate) first else resolveTree(first, worldGainNarrowing)) +
-                unresolved.instructions.drop(1)
-        )
+        val resolvedFirst = if (openGate) first else resolveTree(first, worldGainNarrowing)
+        val stages =
+            when (resolvedFirst) {
+              is InstructionGroup -> resolvedFirst.instructions
+              is Then -> resolvedFirst.instructions
+              is Instruction -> listOf(resolvedFirst)
+            }
+        unresolved.withInstructions(stages + unresolved.instructions.drop(1))
       }
       is Transform -> throw ExpressionException("unhandled instruction transform: $unresolved")
     }
@@ -296,6 +301,18 @@ internal constructor(
   ): InstructionTree {
     // can't resolve at all if we still have an X?
     val count = (change.count as? ActualScalar)?.value ?: return change
+    val atomized = classTable.findClass(ATOMIZED)
+    if (
+        count > 1 &&
+            atomized != null &&
+            change.gaining?.let { classTable.getClass(it.className).isSubtypeOf(atomized) } == true
+    ) {
+      return InstructionGroup(
+          List(count) {
+            Change.change(change.gaining, change.removing, 1, intens)
+          }
+      )
+    }
     if (change is Transmute) {
       // An exclusion containing an open co-reference becomes meaningful only when an atomic
       // proposal binds that explicitly named variable.
@@ -311,6 +328,12 @@ internal constructor(
       if (openExclusion) return change
     }
 
+    if (change is Gain && classTable.getClass(change.gaining.className).declaration.custom) {
+      customClasses.translateGain(change, reader)?.let {
+        return resolveTree(it, worldGainNarrowing)
+      }
+    }
+
     val (g, r) = narrowChangeTypes(change, count, intens, worldGainNarrowing) ?: return change
     fun retainedExpression(resolved: Type?, authored: Expression?): Expression? =
         resolved?.expression?.let { expression ->
@@ -321,13 +344,6 @@ internal constructor(
       throw DeadEndException(
           "mandatory change uses uninhabited type: " +
               listOfNotNull(g, r).filterNot(classTable::isInhabited).joinToString()
-      )
-    }
-    val atomized = classTable.findClass(ATOMIZED)
-    if (r != null && count > 1 && atomized != null && g?.rootClass?.isSubtypeOf(atomized) == true) {
-      throw ExpressionException(
-          "Can't transmute $count components into atomized type ${g.expression}; " +
-              "split it into one-component transmutations"
       )
     }
     if (g?.className == DIE && intens == MANDATORY) {

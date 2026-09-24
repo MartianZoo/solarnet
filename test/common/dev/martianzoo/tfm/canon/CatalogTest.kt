@@ -93,7 +93,7 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun revealAndTestDelegatesThePrintedPredicateInFollowMode() {
+  internal fun revealAndTestRetainsThePrintedPredicate() {
     val source =
         parseClasses(
                 """
@@ -108,7 +108,7 @@ internal class CatalogTest {
         parseClasses(
                 """
                 ABSTRACT CLASS Examiner {
-                  -> ProjectCard<Revealed> THEN Science?
+                  -> DrawCard<Class<ProjectCard>, Revealed> THEN ((ProjectCard<Revealed>(HAS MicrobeTag): Science) OR Ok)
                 }
                 """
                     .trimIndent()
@@ -122,7 +122,7 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun filteredCardSearchesLowerToOrdinaryFollowModeDraws() {
+  internal fun filteredCardSearchesRetainTheirPredicate() {
     val source =
         parseClasses(
                 """
@@ -133,7 +133,11 @@ internal class CatalogTest {
                     .trimIndent()
             )
             .single()
-    val expected = parseClasses("ABSTRACT CLASS Searcher { This: 2 ProjectCard }").single()
+    val expected =
+        parseClasses(
+                "ABSTRACT CLASS Searcher { This: 2 SearchForCard(HAS PrintedTag<Class<PlantTag>>) }"
+            )
+            .single()
 
     val loaded = catalog(source).allClassDeclarations.getValue(cn("Searcher"))
 
@@ -142,7 +146,7 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun printedCardClassSelectionLowersToUnfilteredFollowModeSelection() {
+  internal fun printedCardClassSelectionRetainsItsPredicate() {
     val source =
         parseClasses(
                 """
@@ -157,7 +161,7 @@ internal class CatalogTest {
         parseClasses(
                 """
                 ABSTRACT CLASS Stager {
-                  -> Stage<Class<CardFront>>
+                  -> Stage<Class<CardFront>(HAS PrintedTag<Class<BuildingTag>> OR PrintedTag<Class<SpaceTag>>)>
                 }
                 """
                     .trimIndent()
@@ -171,7 +175,7 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun filteredRetentionDelegatesThePrintedPredicateInFollowMode() {
+  internal fun filteredRetentionRetainsItsPredicate() {
     val source =
         parseClasses(
                 """
@@ -186,7 +190,7 @@ internal class CatalogTest {
         parseClasses(
                 """
                 ABSTRACT CLASS Surveyor {
-                  -> 2 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>? THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards
+                  -> 2 DrawCard<Class<ProjectCard>, Selecting>, 2 ProjectCard<Hand FROM Selecting>(HAS VenusTag). THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards
                 }
                 """
                     .trimIndent()

@@ -1337,6 +1337,8 @@ occurrence. Writing `<>` still accepts the default explicitly.
 
 **L12-11. A gain of several `Atomized` components becomes several gains of one.** `3 ProjectCard`
 becomes three independent gains, because three cards are three separate things to choose.
+When a counted gain is a left stage of `THEN`, its gains become consecutive stages; a counted gain
+at the end remains a group after the preceding stage.
 
 > **Non-normative example — Inventrix.** Its required action draws three project cards. Atomizing the
 > gain creates three independent card identities and choices; a single “three-copy ProjectCard”

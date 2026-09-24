@@ -438,6 +438,20 @@ public class PetElaborator(public val classTable: ClassTable) {
 
     return object : PetTransformer() {
       override fun transformNode(node: PetNode): PetNode {
+        if (node is Instruction.Then) {
+          val stages =
+              node.stages.flatMap { stage ->
+                if (stage is Gain) {
+                  when (val transformed = transformInstructionTree(stage)) {
+                    is InstructionGroup -> transformed.instructions
+                    is Instruction -> listOf(transformed)
+                  }
+                } else {
+                  listOf(transformInstruction(stage))
+                }
+              }
+          return node.withInstructions(stages + transformInstructionTree(node.continuation))
+        }
         if (node is Gain) {
           val scex = node.scaledEx
           val sc = scex.scalar
