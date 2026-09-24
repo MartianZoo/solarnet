@@ -24,7 +24,6 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Each
-import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
@@ -326,12 +325,6 @@ internal constructor(
             }
           }
       if (openExclusion) return change
-    }
-
-    if (change is Gain && classTable.getClass(change.gaining.className).declaration.custom) {
-      customClasses.translateGain(change, reader)?.let {
-        return resolveTree(it, worldGainNarrowing)
-      }
     }
 
     val (g, r) = narrowChangeTypes(change, count, intens, worldGainNarrowing) ?: return change

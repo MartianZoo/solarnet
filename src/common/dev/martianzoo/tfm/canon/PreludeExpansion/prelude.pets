@@ -3,7 +3,7 @@ CLASS PreludeExpansion : Module {
   HAS Class<PreludePhase>
   X SoloGenerationsLeft:: -2 SoloGenerationsLeft!
 
-  SetupPhase:: EACH Player { 4 PreludeCard }
+  SetupPhase:: EACH Player { 4 DrawCard<Class<PreludeCard>, Hand> }
   NewTurn IF SetupPhase: -2 PreludeCard
 }
 

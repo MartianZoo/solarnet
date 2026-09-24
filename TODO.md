@@ -106,6 +106,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- Decide whether the exact-card dealer should shuffle or reshuffle, and whether a manually supplied
+  exact back should reserve its face after leaving the World. The current ordered-deck behavior and
+  direct-gain limit are documented in `docs/agents/REAL_CARDS_MODE.md`.
 - Add Jacob Fryxelius's ruling that moving Mars Nomads does not trigger the Mars First ruling policy.
 - Repair the two declared Pets conformance gaps without adding a second representation of type
   identity: L7-8 lets `Tile<> THEN Tile<>` stages diverge after defaults, and T8-3 can substitute a

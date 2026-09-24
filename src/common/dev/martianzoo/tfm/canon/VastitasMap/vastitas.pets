@@ -51,9 +51,9 @@ CLASS Vastitas_2_2 :     LandArea { row = 2; column = 2; Placement<This>: 2 Plan
 CLASS Vastitas_2_3 :     LandArea { row = 2; column = 3 }
 CLASS Vastitas_2_4 :     LandArea { row = 2; column = 4 }
 CLASS Vastitas_2_5 :     LandArea { row = 2; column = 5; Placement<This>: Plant }
-CLASS Vastitas_2_6 : VolcanicArea { row = 2; column = 6; Placement<This>: ProjectCard }
+CLASS Vastitas_2_6 : VolcanicArea { row = 2; column = 6; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }
 
-CLASS Vastitas_3_1 :     LandArea { row = 3; column = 1; Placement<This>: ProjectCard }
+CLASS Vastitas_3_1 :     LandArea { row = 3; column = 1; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }
 CLASS Vastitas_3_2 :    WaterArea { row = 3; column = 2; Placement<This>: 2 Plant }
 CLASS Vastitas_3_3 :    WaterArea { row = 3; column = 3; Placement<This>: 2 Plant }
 CLASS Vastitas_3_4 :     LandArea { row = 3; column = 4; Placement<This>: 2 Plant }
@@ -66,7 +66,7 @@ CLASS Vastitas_4_2 :     LandArea { row = 4; column = 2; Placement<This>: Titani
 CLASS Vastitas_4_3 :    WaterArea { row = 4; column = 3; Placement<This>: 2 Plant }
 CLASS Vastitas_4_4 :     LandArea { row = 4; column = 4; Placement<This>: Plant }
 CLASS Vastitas_4_5 :     LandArea { row = 4; column = 5 }
-CLASS Vastitas_4_6 :     LandArea { row = 4; column = 6; Placement<This>: ProjectCard }
+CLASS Vastitas_4_6 :     LandArea { row = 4; column = 6; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }
 CLASS Vastitas_4_7 :     LandArea { row = 4; column = 7; Placement<This>: Plant }
 CLASS Vastitas_4_8 :     LandArea { row = 4; column = 8; Placement<This>: VastitasDelegatePlacementBonus }
 
@@ -78,14 +78,14 @@ CLASS Vastitas_5_5 :     LandArea { row = 5; column = 5; Placement<This>: Temper
 CLASS Vastitas_5_6 :    WaterArea { row = 5; column = 6; Placement<This>: 2 Plant }
 CLASS Vastitas_5_7 :    WaterArea { row = 5; column = 7; Placement<This>: 2 Plant }
 CLASS Vastitas_5_8 :    WaterArea { row = 5; column = 8; Placement<This>: 2 Plant }
-CLASS Vastitas_5_9 :     LandArea { row = 5; column = 9; Placement<This>: 2 ProjectCard }
+CLASS Vastitas_5_9 :     LandArea { row = 5; column = 9; Placement<This>: 2 DrawCard<Class<ProjectCard>, Hand> }
 
-CLASS Vastitas_6_2 :     LandArea { row = 6; column = 2; Placement<This>: 2 ProjectCard }
+CLASS Vastitas_6_2 :     LandArea { row = 6; column = 2; Placement<This>: 2 DrawCard<Class<ProjectCard>, Hand> }
 CLASS Vastitas_6_3 :     LandArea { row = 6; column = 3 }
 CLASS Vastitas_6_4 :     LandArea { row = 6; column = 4; Placement<This>: Plant }
 CLASS Vastitas_6_5 :    WaterArea { row = 6; column = 5; Placement<This>: 2 Heat }
 CLASS Vastitas_6_6 :    WaterArea { row = 6; column = 6; Placement<This>: 2 Heat, Plant }
-CLASS Vastitas_6_7 :    WaterArea { row = 6; column = 7; Placement<This>: ProjectCard }
+CLASS Vastitas_6_7 :    WaterArea { row = 6; column = 7; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }
 CLASS Vastitas_6_8 :     LandArea { row = 6; column = 8; Placement<This>: Plant }
 CLASS Vastitas_6_9 :     LandArea { row = 6; column = 9; Placement<This>: 2 Titanium }
 
@@ -106,6 +106,6 @@ CLASS Vastitas_8_9 :     LandArea { row = 8; column = 9; Placement<This>: Plant 
 
 CLASS Vastitas_9_5 :     LandArea { row = 9; column = 5; Placement<This>: VastitasDelegatePlacementBonus }
 CLASS Vastitas_9_6 :     LandArea { row = 9; column = 6 }
-CLASS Vastitas_9_7 :     LandArea { row = 9; column = 7; Placement<This>: ProjectCard }
+CLASS Vastitas_9_7 :     LandArea { row = 9; column = 7; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }
 CLASS Vastitas_9_8 :     LandArea { row = 9; column = 8; Placement<This>: Steel }
 CLASS Vastitas_9_9 :     LandArea { row = 9; column = 9; Placement<This>: Titanium }

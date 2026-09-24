@@ -64,19 +64,19 @@ CLASS Cimmeria_4_4 :     LandArea { row = 4; column = 4 }
 CLASS Cimmeria_4_5 :     LandArea { row = 4; column = 5; Placement<This>: 2 Steel }
 CLASS Cimmeria_4_6 :     LandArea { row = 4; column = 6 }
 CLASS Cimmeria_4_7 : VolcanicArea { row = 4; column = 7; Placement<This>: 2 Titanium }
-CLASS Cimmeria_4_8 :     LandArea { row = 4; column = 8; Placement<This>: ProjectCard }
+CLASS Cimmeria_4_8 :     LandArea { row = 4; column = 8; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }
 
 CLASS Cimmeria_5_1 :     LandArea { row = 5; column = 1 }
 CLASS Cimmeria_5_2 :     LandArea { row = 5; column = 2 }
 CLASS Cimmeria_5_3 :     LandArea { row = 5; column = 3 }
 CLASS Cimmeria_5_4 :     LandArea { row = 5; column = 4; Placement<This>: Steel }
 CLASS Cimmeria_5_5 :     LandArea { row = 5; column = 5; Placement<This>: Steel }
-CLASS Cimmeria_5_6 :     LandArea { row = 5; column = 6; Placement<This>: ProjectCard }
+CLASS Cimmeria_5_6 :     LandArea { row = 5; column = 6; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }
 CLASS Cimmeria_5_7 :     LandArea { row = 5; column = 7 }
-CLASS Cimmeria_5_8 :     LandArea { row = 5; column = 8; Placement<This>: Steel, ProjectCard }
+CLASS Cimmeria_5_8 :     LandArea { row = 5; column = 8; Placement<This>: Steel, DrawCard<Class<ProjectCard>, Hand> }
 CLASS Cimmeria_5_9 :    WaterArea { row = 5; column = 9 }
 
-CLASS Cimmeria_6_2 : VolcanicArea { row = 6; column = 2; Placement<This>: 2 ProjectCard }
+CLASS Cimmeria_6_2 : VolcanicArea { row = 6; column = 2; Placement<This>: 2 DrawCard<Class<ProjectCard>, Hand> }
 CLASS Cimmeria_6_3 :     LandArea { row = 6; column = 3 }
 CLASS Cimmeria_6_4 :     LandArea { row = 6; column = 4; Placement<This>: Titanium, 2 Steel }
 CLASS Cimmeria_6_5 :     LandArea { row = 6; column = 5 }
@@ -96,7 +96,7 @@ CLASS Cimmeria_7_9 :    WaterArea { row = 7; column = 9; Placement<This>: 2 Plan
 CLASS Cimmeria_8_4 :    WaterArea { row = 8; column = 4 }
 CLASS Cimmeria_8_5 :     LandArea { row = 8; column = 5; Placement<This>: Plant }
 CLASS Cimmeria_8_6 :     LandArea { row = 8; column = 6; Placement<This>: Titanium }
-CLASS Cimmeria_8_7 :     LandArea { row = 8; column = 7; Placement<This>: ProjectCard }
+CLASS Cimmeria_8_7 :     LandArea { row = 8; column = 7; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }
 CLASS Cimmeria_8_8 :     LandArea { row = 8; column = 8; Placement<This>: 2 Plant }
 CLASS Cimmeria_8_9 :    WaterArea { row = 8; column = 9; Placement<This>: 2 Plant }
 

@@ -40,7 +40,7 @@ CLASS Utopia_1_5 :     LandArea { row = 1; column = 5 }
 CLASS Utopia_2_1 :     LandArea { row = 2; column = 1 }
 CLASS Utopia_2_2 :     LandArea { row = 2; column = 2; Placement<This>: 2 Steel }
 CLASS Utopia_2_3 :     LandArea { row = 2; column = 3; Placement<This>: 2 Energy }
-CLASS Utopia_2_4 :     LandArea { row = 2; column = 4; Placement<This>: 2 Energy, ProjectCard }
+CLASS Utopia_2_4 :     LandArea { row = 2; column = 4; Placement<This>: 2 Energy, DrawCard<Class<ProjectCard>, Hand> }
 CLASS Utopia_2_5 :     LandArea { row = 2; column = 5 }
 CLASS Utopia_2_6 :     LandArea { row = 2; column = 6 }
 
@@ -49,10 +49,10 @@ CLASS Utopia_3_2 :     LandArea { row = 3; column = 2 }
 CLASS Utopia_3_3 :     LandArea { row = 3; column = 3; Placement<This>: Steel }
 CLASS Utopia_3_4 :     LandArea { row = 3; column = 4 }
 CLASS Utopia_3_5 :     LandArea { row = 3; column = 5 }
-CLASS Utopia_3_6 :     LandArea { row = 3; column = 6; Placement<This>: 2 ProjectCard, Titanium }
+CLASS Utopia_3_6 :     LandArea { row = 3; column = 6; Placement<This>: 2 DrawCard<Class<ProjectCard>, Hand>, Titanium }
 CLASS Utopia_3_7 :     LandArea { row = 3; column = 7; Placement<This>: 2 Titanium }
 
-CLASS Utopia_4_1 :    WaterArea { row = 4; column = 1; Placement<This>: Plant, ProjectCard }
+CLASS Utopia_4_1 :    WaterArea { row = 4; column = 1; Placement<This>: Plant, DrawCard<Class<ProjectCard>, Hand> }
 CLASS Utopia_4_2 :     LandArea { row = 4; column = 2; Placement<This>: Plant }
 CLASS Utopia_4_3 :     LandArea { row = 4; column = 3; Placement<This>: Plant }
 CLASS Utopia_4_4 :     LandArea { row = 4; column = 4; Placement<This>: 2 Plant }
@@ -89,7 +89,7 @@ CLASS Utopia_7_8 :     LandArea { row = 7; column = 8 }
 CLASS Utopia_7_9 :     LandArea { row = 7; column = 9 }
 
 CLASS Utopia_8_4 :     LandArea { row = 8; column = 4 }
-CLASS Utopia_8_5 :     LandArea { row = 8; column = 5; Placement<This>: 2 ProjectCard }
+CLASS Utopia_8_5 :     LandArea { row = 8; column = 5; Placement<This>: 2 DrawCard<Class<ProjectCard>, Hand> }
 CLASS Utopia_8_6 :    WaterArea { row = 8; column = 6 }
 CLASS Utopia_8_7 :    WaterArea { row = 8; column = 7; Placement<This>: 2 Plant }
 CLASS Utopia_8_8 :     LandArea { row = 8; column = 8; Placement<This>: Steel, Titanium }

@@ -1,6 +1,6 @@
 # Real cards mode
 
-> **Read when:** changing card locations, card draws, `CARDS[...]`, or card identity.
+> **Read when:** changing card locations, exact draws, printed card queries, or card identity.
 
 ## Current representation
 
@@ -17,28 +17,30 @@ corporation backs per player. The player chooses a corporation and may keep each
 
 ## Dealer
 
-Generic gains of the four deck back families in catalog effects are lowered to `DrawCard`. Each
-draw takes the first eligible card in Class-name order from the active catalog. `DeckSpent` records
-every traversed face in the World, including nonmatching faces skipped by `SearchForCard`; those
-skipped cards never become backs. `SearchForCard` evaluates printed tags and references against
-immutable card declarations. Exact gains and transmutations retain their face. The spent marker
-also makes draws reproducible through World rollback, but it is not an in-World deck or a shuffle.
+Catalog Pets authors draws explicitly as `DrawCard<Class<Back>, Location>`. The custom instruction
+takes the first eligible face in Class-name order from the active catalog. `DeckSpent` records every
+traversed face in the World. `SearchForTag`, `SearchForReference`, and `SearchForUntaggedCard` skip
+nonmatching faces by recording them as spent without creating backs. Search exhaustion consumes the
+remaining deck and produces no back. The dealer also skips a face already present as a back, front,
+or played event. The spent marker makes these draws reproducible through World rollback.
 
 Counted Atomized gains are split before type narrowing so each draw can choose a different face.
 Counted transmutations are split at runtime so each existing back retains its own face. A `THEN`
 whose first stage expands to several instructions waits for all of them before continuing.
 
-`CARDS[...]` remains validated by `CardOperation`. The real-card lowerer preserves its authored
-face-sensitive form. Filtered searches execute through the custom `SearchForCard` instruction;
-other printed-metadata card operations still need executable lowering.
+Printed-tag reveal and offer rules use `EACH` to bind each exact back and `PrintedTagOf` to query
+its represented front's immutable tags. Pets branches on the metric; `MoveSelectedCard` transmutates
+the selected back to hand without changing its face. `RecoverPlayedEvent` transmutates a selected
+event record back to its own exact project back. These are custom instructions because ordinary
+Pets movement cannot yet carry a selected back's represented Class into a new location Type.
 
 ## Current limits
 
 - Deck order is stable Class-name order, with no shuffle or reshuffle. A spent face is unavailable
   for the rest of the game, including after an unplayed back is discarded.
-- Reveal-and-test and reveal-and-purchase still need printed-metadata evaluation against exact
-  backs. Their authored refinements currently query live components, which do not carry printed
-  tags.
+- A manually supplied exact card does not mark its face spent. The dealer skips it while it is in
+  the World, but if it is later removed before any draw traverses it, that face can return to the
+  ordered deck. Use `DrawCard` for ordinary entries.
 - Older follow-mode replay tests and helpers assume fungible backs and do not establish real-card
   behavior. Use `RealCardDrawTest` for current exact-card scenarios.
 - Hidden information and DraftVariant are outside this mode's present scope.

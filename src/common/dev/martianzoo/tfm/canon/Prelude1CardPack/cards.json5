@@ -13,7 +13,7 @@
           "name": "PointLuna",
           "tags": [ "EarthTag", "SpaceTag" ],
           "immediate": "38 MC, PROD[Titanium]",
-          "effects": [ "EarthTag: ProjectCard" ],
+          "effects": [ "EarthTag: DrawCard<Class<ProjectCard>, Hand>" ],
         },
         {
           "name": "RobinsonIndustries",
@@ -23,7 +23,7 @@
         {
           "name": "ValleyTrust",
           "tags": [ "EarthTag" ],
-          "immediate": "37 MC, RequiredAction { -> 3 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting> }",
+          "immediate": "37 MC, RequiredAction { -> 3 DrawCard<Class<PreludeCard>, Selecting> THEN PlayCard<Class<PreludeCard>, Selecting> }",
           "effects": [ "PayingFor<Class<ScienceTag>>:: -2 Owed" ],
         },
         {
@@ -45,7 +45,7 @@
       "cards": [
         {
           "name": "AcquiredSpaceAgency",
-          "immediate": "6 Titanium, CARDS[2 SearchForCard(HAS PrintedTag<Class<SpaceTag>>)]",
+          "immediate": "6 Titanium, 2 SearchForTag<Class<SpaceTag>>",
         },
         {
           "name": "AlliedBank",
@@ -65,7 +65,7 @@
         {
           "name": "Biolab",
           "tags": [ "ScienceTag" ],
-          "immediate": "PROD[Plant], 3 ProjectCard",
+          "immediate": "PROD[Plant], 3 DrawCard<Class<ProjectCard>, Hand>",
         },
         {
           "name": "BiosphereSupport",
@@ -103,7 +103,7 @@
         {
           "name": "ExperimentalForest",
           "tags": [ "PlantTag" ],
-          "immediate": "DefaultGreeneryTile, CARDS[2 SearchForCard(HAS PrintedTag<Class<PlantTag>>)]",
+          "immediate": "DefaultGreeneryTile, 2 SearchForTag<Class<PlantTag>>",
         },
         {
           "name": "GalileanMining",
@@ -121,7 +121,7 @@
         {
           "name": "IoResearchOutpost",
           "tags": [ "ScienceTag", "JovianTag" ],
-          "immediate": "PROD[Titanium], ProjectCard",
+          "immediate": "PROD[Titanium], DrawCard<Class<ProjectCard>, Hand>",
         },
         {
           "name": "Loan",
@@ -200,7 +200,7 @@
         {
           "name": "UnmiContractor",
           "tags": [ "EarthTag" ],
-          "immediate": "3 TerraformRating, ProjectCard",
+          "immediate": "3 TerraformRating, DrawCard<Class<ProjectCard>, Hand>",
         },
       ],
     },
@@ -225,7 +225,7 @@
           "requirement": "MAX 4 OxygenStep",
           "cost": 9,
           "tags": [ "ScienceTag", "EventTag" ],
-          "immediate": "2 ProjectCard",
+          "immediate": "2 DrawCard<Class<ProjectCard>, Hand>",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -243,7 +243,7 @@
           "name": "SfMemorial",
           "cost": 7,
           "tags": [ "BuildingTag" ],
-          "immediate": "ProjectCard",
+          "immediate": "DrawCard<Class<ProjectCard>, Hand>",
           "effects": [ "End: VictoryPoint" ],
         },
         {

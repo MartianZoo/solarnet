@@ -2,16 +2,21 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testAgents
+import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.tfm.canon.cardTags
 import dev.martianzoo.tfm.canon.tfmCatalog
 import dev.martianzoo.tfm.engine.TfmWorkflow
+import dev.martianzoo.tfm.tests.TestOption.BeginnerVariant
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
+import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
+import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.canonicalPremise
 import io.kotest.assertions.throwables.shouldThrow
@@ -30,6 +35,32 @@ internal class RealCardDrawTest {
       it.boundType.representedClass != null
     } shouldBe true
     player.count("DeckSpent") shouldBe 1
+  }
+
+  @Test
+  internal fun `prelude and beginner corporation draws also have exact faces`() {
+    val player =
+        Engine.newGame(canonicalPremise(PreludeExpansion, BeginnerVariant)).testAgent(PLAYER1)
+
+    player.runOperation(
+        "DrawCard<Class<PreludeCard>, Hand>, DrawCard<Class<BeginnerCorporationCard>, Hand>"
+    )
+
+    player.count("PreludeCard<Hand>") shouldBe 1
+    player.count("BeginnerCorporationCard<Hand>") shouldBe 1
+    player.reader
+        .getComponents(player.resolve("PreludeCard<Hand>"))
+        .elements
+        .single()
+        .typeDependencies
+        .any { it.boundType.representedClass != null } shouldBe true
+    player.reader
+        .getComponents(player.resolve("BeginnerCorporationCard<Hand>"))
+        .elements
+        .single()
+        .typeDependencies
+        .any { it.boundType.representedClass != null } shouldBe true
+    player.count("DeckSpent") shouldBe 2
   }
 
   @Test
@@ -88,7 +119,7 @@ internal class RealCardDrawTest {
   internal fun `filtered search skips nonmatching faces without making backs for them`() {
     val player = Engine.newGame(canonicalPremise()).testAgent(PLAYER1)
 
-    player.runOperation("SearchForCard(HAS PrintedTag<Class<ScienceTag>>)")
+    player.runOperation("SearchForTag<Class<ScienceTag>>")
 
     player.count("ProjectCard<Class<AdaptationTechnology>, Hand>") shouldBe 1
     player.count("ProjectCard<Hand>") shouldBe 1
@@ -99,7 +130,7 @@ internal class RealCardDrawTest {
   internal fun `reference search finds a card in the enabled Venus deck`() {
     val player = Engine.newGame(canonicalPremise(VenusNextExpansion)).testAgent(PLAYER1)
 
-    player.runOperation("SearchForCard(HAS ReferenceTo<Class<Floater>>)")
+    player.runOperation("SearchForReference<Class<Floater>>")
 
     player.count("ProjectCard<Class<AerialMappers>, Hand>") shouldBe 1
     player.count("ProjectCard<Hand>") shouldBe 1
@@ -109,12 +140,127 @@ internal class RealCardDrawTest {
   internal fun `tagless search skips tagged cards`() {
     val player = Engine.newGame(canonicalPremise()).testAgent(PLAYER1)
 
-    player.runOperation("SearchForCard(HAS MAX 0 PrintedTag)")
+    player.runOperation("SearchForUntaggedCard")
 
     val back = player.reader.getComponents(player.resolve("ProjectCard<Hand>")).elements.single()
     val face = back.typeDependencies.mapNotNull { it.boundType.representedClass }.single()
     cardTags(player.reader.tfmCatalog.card(face.className)).size shouldBe 0
     player.count("DeckSpent") shouldBe 23
+  }
+
+  @Test
+  internal fun `a search without any matching card exhausts the deck without creating backs`() {
+    val player = Engine.newGame(canonicalPremise()).testAgent(PLAYER1)
+
+    player.runOperation("SearchForReference<Class<DeckSpent>>")
+
+    player.count("ProjectCard<Hand>") shouldBe 0
+    val spent = player.count("DeckSpent")
+    (spent > 0) shouldBe true
+    player.runOperation("SearchForReference<Class<DeckSpent>>")
+    player.count("DeckSpent") shouldBe spent
+  }
+
+  @Test
+  internal fun `a directly supplied exact back cannot also be dealt`() {
+    val firstGame = Engine.newGame(canonicalPremise()).testAgent(PLAYER1)
+    firstGame.runOperation("DrawCard<Class<ProjectCard>, Hand>")
+    val firstFace =
+        firstGame.reader
+            .getComponents(firstGame.resolve("ProjectCard<Hand>"))
+            .elements
+            .single()
+            .typeDependencies
+            .mapNotNull { it.boundType.representedClass }
+            .single()
+            .className
+
+    val player = Engine.newGame(canonicalPremise()).testAgent(PLAYER1)
+    player.runOperation("ProjectCard<Class<$firstFace>, Hand>")
+    player.runOperation("DrawCard<Class<ProjectCard>, Hand>")
+
+    player.count("ProjectCard<Class<$firstFace>, Hand>") shouldBe 1
+    player.count("ProjectCard<Hand>") shouldBe 2
+  }
+
+  @Test
+  internal fun `printed reveal test distinguishes matching and nonmatching fronts`() {
+    val matching = Engine.newGame(canonicalPremise()).testAgent(PLAYER1)
+    matching.runOperation(
+        "ProjectCard<Class<AdaptationTechnology>, Revealed> THEN " +
+            "EACH @ProjectCard<Revealed> { " +
+            "(PrintedTagOf<@ProjectCard, Class<ScienceTag>>: MC) OR " +
+            "(MAX 0 PrintedTagOf<@ProjectCard, Class<ScienceTag>>: Ok) }"
+    )
+    matching.count("MC") shouldBe 1
+    matching.count("ProjectCard<Revealed>") shouldBe 0
+
+    val nonmatching = Engine.newGame(canonicalPremise()).testAgent(PLAYER1)
+    nonmatching.runOperation(
+        "ProjectCard<Class<AdaptationTechnology>, Revealed> THEN " +
+            "EACH @ProjectCard<Revealed> { " +
+            "(PrintedTagOf<@ProjectCard, Class<MicrobeTag>>: MC) OR " +
+            "(MAX 0 PrintedTagOf<@ProjectCard, Class<MicrobeTag>>: Ok) }"
+    )
+    nonmatching.count("MC") shouldBe 0
+    nonmatching.count("ProjectCard<Revealed>") shouldBe 0
+  }
+
+  @Test
+  internal fun `Pets can retain selected backs by their represented front's printed tag`() {
+    val player = Engine.newGame(canonicalPremise(VenusNextExpansion)).testAgent(PLAYER1)
+
+    player.runOperation(
+        "ProjectCard<Class<AerialMappers>, Selecting> THEN " +
+            "ProjectCard<Class<AdaptationTechnology>, Selecting> THEN " +
+            "EACH @ProjectCard<Selecting> { " +
+            "(PrintedTagOf<@ProjectCard, Class<VenusTag>>: " +
+            "MoveSelectedCard<@ProjectCard>) OR " +
+            "(MAX 0 PrintedTagOf<@ProjectCard, Class<VenusTag>>: Ok) }"
+    )
+
+    player.count("ProjectCard<Class<AerialMappers>, Hand>") shouldBe 1
+    player.count("ProjectCard<Hand>") shouldBe 1
+    player.count("ProjectCard<Selecting>") shouldBe 0
+  }
+
+  @Test
+  internal fun `Search for Life action reveals a concrete nonmatching card`() {
+    val world = Engine.newGame(canonicalPremise())
+    val player = world.testTfm(PLAYER1)
+    val admin = world.testTfm(ADMIN)
+    admin.runOperation("GenerationScope")
+    admin.phase("Action")
+    player.runOperation("SearchForLife, 1 MC")
+
+    player.cardAction1(cn("SearchForLife")) {
+      player.count("ProjectCard<Revealed>") shouldBe 1
+    }
+
+    player.count("Science<SearchForLife>") shouldBe 0
+    player.count("ProjectCard<Revealed>") shouldBe 0
+    player.count("DeckSpent") shouldBe 1
+  }
+
+  @Test
+  internal fun `Venus Orbital Survey offers exact backs and purchases the unretained cards`() {
+    val world =
+        Engine.newGame(canonicalPremise(PreludeExpansion, Prelude2CardPack, VenusNextExpansion))
+    val player = world.testTfm(PLAYER1)
+    val admin = world.testTfm(ADMIN)
+    admin.runOperation("GenerationScope")
+    admin.phase("Action")
+    player.runOperation("VenusOrbitalSurvey, 6 MC")
+
+    player.cardAction1(cn("VenusOrbitalSurvey")) {
+      player.count("ProjectCard<Selecting>") shouldBe 2
+      player.buyCards(2)
+    }
+
+    player.count("ProjectCard<Hand>") shouldBe 2
+    player.count("ProjectCard<Selecting>") shouldBe 0
+    player.count("MC") shouldBe 0
+    player.count("DeckSpent") shouldBe 2
   }
 
   @Test
@@ -166,6 +312,29 @@ internal class RealCardDrawTest {
 
     player.count("ProjectCard<Class<InventionContest>, Hand>") shouldBe 0
     player.count("PlayedEvent<Class<InventionContest>>") shouldBe 1
+  }
+
+  @Test
+  internal fun `recovering a played event restores the same card face`() {
+    val player = Engine.newGame(canonicalPremise(CorporateEraExpansion)).testAgent(PLAYER1)
+    player.runOperation("InventionContest") {
+      val offered = reader.getComponents(player.resolve("ProjectCard<Selecting>")).elements
+      val face =
+          offered
+              .first()
+              .typeDependencies
+              .mapNotNull { it.boundType.representedClass }
+              .single()
+              .className
+      doTask("ProjectCard<Class<$face>, Hand FROM Selecting>")
+    }
+
+    player.runOperation("RecoverPlayedEvent<PlayedEvent<Owner>>") {
+      doTask("RecoverPlayedEvent<PlayedEvent<Class<InventionContest>>>")
+    }
+
+    player.count("PlayedEvent<Class<InventionContest>>") shouldBe 0
+    player.count("ProjectCard<Class<InventionContest>, Hand>") shouldBe 1
   }
 
   @Test

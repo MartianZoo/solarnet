@@ -95,7 +95,7 @@
           "requirement": "PartyRequirement<Scientists>",
           "cost": 3,
           "tags": [ "ScienceTag" ],
-          "immediate": "2 ProjectCard",
+          "immediate": "2 DrawCard<Class<ProjectCard>, Hand>",
         },
         {
           "name": "VoteOfNoConfidence",

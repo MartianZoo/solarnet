@@ -111,7 +111,7 @@ CLASS Luna : ColonyTile, ColonyTileSelection<Class<Luna>> {
 
 CLASS Miranda : ColonyTile {
   Colony<This>: Animal
-  GainColonyBonus<This>: ProjectCard
+  GainColonyBonus<This>: DrawCard<Class<ProjectCard>, Hand>
 
   FinishTrade<This> IF =0 ColonyProduction<This>: Ok
   FinishTrade<This> IF =1 ColonyProduction<This>: Animal
@@ -123,16 +123,16 @@ CLASS Miranda : ColonyTile {
 }
 
 CLASS Pluto : ColonyTile, ColonyTileSelection<Class<Pluto>> {
-  Colony<This>: 2 ProjectCard
-  GainColonyBonus<This>: ProjectCard THEN -ProjectCard
+  Colony<This>: 2 DrawCard<Class<ProjectCard>, Hand>
+  GainColonyBonus<This>: DrawCard<Class<ProjectCard>, Hand> THEN -ProjectCard
 
   FinishTrade<This> IF =0 ColonyProduction<This>: Ok
-  FinishTrade<This> IF =1 ColonyProduction<This>: ProjectCard
-  FinishTrade<This> IF =2 ColonyProduction<This>: 2 ProjectCard
-  FinishTrade<This> IF =3 ColonyProduction<This>: 2 ProjectCard
-  FinishTrade<This> IF =4 ColonyProduction<This>: 3 ProjectCard
-  FinishTrade<This> IF =5 ColonyProduction<This>: 3 ProjectCard
-  FinishTrade<This> IF =6 ColonyProduction<This>: 4 ProjectCard
+  FinishTrade<This> IF =1 ColonyProduction<This>: DrawCard<Class<ProjectCard>, Hand>
+  FinishTrade<This> IF =2 ColonyProduction<This>: 2 DrawCard<Class<ProjectCard>, Hand>
+  FinishTrade<This> IF =3 ColonyProduction<This>: 2 DrawCard<Class<ProjectCard>, Hand>
+  FinishTrade<This> IF =4 ColonyProduction<This>: 3 DrawCard<Class<ProjectCard>, Hand>
+  FinishTrade<This> IF =5 ColonyProduction<This>: 3 DrawCard<Class<ProjectCard>, Hand>
+  FinishTrade<This> IF =6 ColonyProduction<This>: 4 DrawCard<Class<ProjectCard>, Hand>
 }
 
 CLASS Titan : ColonyTile {

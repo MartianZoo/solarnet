@@ -23,7 +23,7 @@
         {
           "name": "Inventrix",
           "tags": [ "ScienceTag" ],
-          "immediate": "45 MC, RequiredAction { -> 3 ProjectCard }",
+          "immediate": "45 MC, RequiredAction { -> 3 DrawCard<Class<ProjectCard>, Hand> }",
           "effects": [ "CheckRequirement:: -2 Required<Class<GlobalParameter>>" ],
         },
         {
@@ -257,7 +257,7 @@
           "name": "ConvoyFromEuropa",
           "cost": 15,
           "tags": [ "SpaceTag", "EventTag" ],
-          "immediate": "OceanTile<>, ProjectCard",
+          "immediate": "OceanTile<>, DrawCard<Class<ProjectCard>, Hand>",
         },
         {
           "name": "CupolaCity",
@@ -578,7 +578,7 @@
           "name": "LargeConvoy",
           "cost": 36,
           "tags": [ "EarthTag", "SpaceTag", "EventTag" ],
-          "immediate": "OceanTile<>, 2 ProjectCard, 5 Plant OR 4 Animal",
+          "immediate": "OceanTile<>, 2 DrawCard<Class<ProjectCard>, Hand>, 5 Plant OR 4 Animal",
           "effects": [ "End: 2 VictoryPoint" ],
         },
         {
@@ -867,7 +867,7 @@
           "requirement": "MAX 6 OxygenStep",
           "cost": 3,
           "tags": [ "ScienceTag" ],
-          "actions": [ "1 MC -> CARDS[ProjectCard<Revealed> THEN (ProjectCard<Revealed>(HAS PrintedTag<Class<MicrobeTag>>): Science<This>) OR Ok]" ],
+          "actions": [ "1 MC -> DrawCard<Class<ProjectCard>, Revealed> THEN EACH @ProjectCard<Revealed> { (PrintedTagOf<@ProjectCard, Class<MicrobeTag>>: Science<This>) OR (MAX 0 PrintedTagOf<@ProjectCard, Class<MicrobeTag>>: Ok) }" ],
           "effects": [ "End IF Science<This>: 3 VictoryPoint" ],
         },
         {

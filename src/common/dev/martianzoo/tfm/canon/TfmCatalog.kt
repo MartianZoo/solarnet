@@ -40,10 +40,7 @@ import dev.martianzoo.pets.util.associateByStrict
 /** A Terraforming Mars Catalog with declarations, structured card/map data, and selection rules. */
 public open class TfmCatalog : Catalog {
   final override val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> =
-      mapOf(
-          TfmClasses.PROD to Prod::handler,
-          CardOperation.TRANSFORM_KIND to { RealCardOperationLowerer },
-      )
+      mapOf(TfmClasses.PROD to Prod::handler)
 
   final override val classTable: ClassTable by lazy {
     ClassLoader(this).loadEverything().also(::validateCards)
@@ -633,11 +630,7 @@ public open class TfmCatalog : Catalog {
   // CLASS DECLARATIONS
 
   internal open val contributedClassDeclarations: List<ClassDeclaration> by lazy {
-    val explicit =
-        explicitClassDeclarations
-            .map(TfmActionLowerer::lower)
-            .map(RealCardOperationLowerer::lower)
-            .map(RealCardDrawLowerer::lower)
+    val explicit = explicitClassDeclarations.map(TfmActionLowerer::lower)
     val explicitNames = explicit.mapTo(hashSetOf(), ClassDeclaration::className)
     val requiredNames = buildSet {
       marsMapDefinitions.forEach { map ->

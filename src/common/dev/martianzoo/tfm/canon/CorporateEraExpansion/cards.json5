@@ -38,7 +38,7 @@
           "cost": 21,
           "tags": [ "ScienceTag", "BuildingTag" ],
           "immediate": "PROD[-Energy]",
-          "actions": [ "-> 2 ProjectCard" ],
+          "actions": [ "-> 2 DrawCard<Class<ProjectCard>, Hand>" ],
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -76,14 +76,14 @@
           "name": "BusinessContacts",
           "cost": 7,
           "tags": [ "EarthTag", "EventTag" ],
-          "immediate": "4 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>",
+          "immediate": "4 DrawCard<Class<ProjectCard>, Selecting> THEN 2 ProjectCard<Hand FROM Selecting>",
         },
         {
           "name": "BusinessNetwork",
           "cost": 4,
           "tags": [ "EarthTag" ],
           "immediate": "PROD[-1 MC]",
-          "actions": [ "-> ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards" ],
+          "actions": [ "-> DrawCard<Class<ProjectCard>, Selecting> THEN -ProjectCard<Selecting>? THEN BuySelectedCards" ],
         },
         {
           "name": "CallistoPenalMines",
@@ -128,7 +128,7 @@
           "name": "DevelopmentCenter",
           "cost": 11,
           "tags": [ "ScienceTag", "BuildingTag" ],
-          "actions": [ "Energy -> ProjectCard" ],
+          "actions": [ "Energy -> DrawCard<Class<ProjectCard>, Hand>" ],
         },
         {
           "name": "EarthCatapult",
@@ -220,13 +220,13 @@
           "name": "InventionContest",
           "cost": 2,
           "tags": [ "ScienceTag", "EventTag" ],
-          "immediate": "3 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>",
+          "immediate": "3 DrawCard<Class<ProjectCard>, Selecting> THEN ProjectCard<Hand FROM Selecting>",
         },
         {
           "name": "InventorsGuild",
           "cost": 9,
           "tags": [ "ScienceTag" ],
-          "actions": [ "-> ProjectCard<Selecting>, -ProjectCard<Selecting>? THEN BuySelectedCards" ],
+          "actions": [ "-> DrawCard<Class<ProjectCard>, Selecting> THEN -ProjectCard<Selecting>? THEN BuySelectedCards" ],
         },
         {
           "name": "InvestmentLoan",
@@ -245,7 +245,7 @@
           "name": "LagrangeObservatory",
           "cost": 9,
           "tags": [ "ScienceTag", "SpaceTag" ],
-          "immediate": "ProjectCard",
+          "immediate": "DrawCard<Class<ProjectCard>, Hand>",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -267,7 +267,7 @@
           "cost": 8,
           "tags": [ "ScienceTag", "BuildingTag" ],
           "effects": [
-            "ScienceTag: (-ProjectCard THEN ProjectCard) OR Ok",
+            "ScienceTag: (-ProjectCard THEN DrawCard<Class<ProjectCard>, Hand>) OR Ok",
             "End: VictoryPoint"
           ],
         },
@@ -329,7 +329,7 @@
           "cost": 10,
           "tags": [ "ScienceTag", "EarthTag", "BuildingTag" ],
           "effects": [
-            "ScienceTag: Science<This> OR (ProjectCard FROM Science<This>)",
+            "ScienceTag: Science<This> OR (-Science<This> THEN DrawCard<Class<ProjectCard>, Hand>)",
             "End: VictoryPoint"
           ],
         },
@@ -377,7 +377,7 @@
           "name": "Research",
           "cost": 11,
           "tags": [ "ScienceTag", "ScienceTag" ],
-          "immediate": "2 ProjectCard",
+          "immediate": "2 DrawCard<Class<ProjectCard>, Hand>",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -385,7 +385,7 @@
           "cost": 11,
           "tags": [ "ScienceTag" ],
           "immediate": "SpecialTile<> {}",
-          "actions": [ "2 MC -> ProjectCard" ],
+          "actions": [ "2 MC -> DrawCard<Class<ProjectCard>, Hand>" ],
         },
         {
           "name": "RoboticWorkforce",
@@ -456,7 +456,7 @@
           "name": "TechnologyDemonstration",
           "cost": 5,
           "tags": [ "ScienceTag", "SpaceTag", "EventTag" ],
-          "immediate": "2 ProjectCard",
+          "immediate": "2 DrawCard<Class<ProjectCard>, Hand>",
         },
         {
           "name": "TerraformingGanymede",

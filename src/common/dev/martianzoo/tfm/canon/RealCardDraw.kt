@@ -32,6 +32,7 @@ internal object RealCardDraw : CustomClass("DrawCard") {
       game: GameReader,
       back: Class,
       location: Expression,
+      allowExhaustion: Boolean = false,
       matches: (Class) -> Boolean,
   ): Instruction {
     val remaining =
@@ -42,9 +43,16 @@ internal object RealCardDraw : CustomClass("DrawCard") {
                   cardBack(card)?.isSubtypeOf(back) == true
             }
             .sortedBy { it.className }
-            .filter { game.count(game.resolve(DECK_SPENT.of(it.className.classExpression()))) == 0 }
+            .filter { card ->
+              val face = card.className.classExpression()
+              game.count(game.resolve(DECK_SPENT.of(face))) == 0 &&
+                  game.count(game.resolve(CARD.of(face))) == 0
+            }
             .toList()
     val matchIndex = remaining.indexOfFirst(matches)
+    if (matchIndex < 0 && allowExhaustion) {
+      return Then.create(remaining.map { spentMarker(it.className) })
+    }
     val face =
         remaining.getOrNull(matchIndex)?.className
             ?: throw NarrowingException("No cards left in the ${back.className} deck")
@@ -58,4 +66,5 @@ internal object RealCardDraw : CustomClass("DrawCard") {
       By(gain(DECK_SPENT.of(face.classExpression())), ADMIN.expression)
 
   private val DECK_SPENT = cn("DeckSpent")
+  private val CARD = cn("Card")
 }

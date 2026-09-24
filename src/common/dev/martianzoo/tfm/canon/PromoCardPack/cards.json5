@@ -24,7 +24,7 @@
           "immediate": "37 MC, PROD[Steel]",
           "actions": [
             "-> MAX 0 Energy: PROD[Energy]",
-            "3 MC -> CARDS[SearchForCard(HAS PrintedTag<Class<BuildingTag>>)]"
+            "3 MC -> SearchForTag<Class<BuildingTag>>"
           ],
         },
         {
@@ -47,7 +47,7 @@
         {
           "name": "PharmacyUnion",
           "tags": [ "MicrobeTag", "MicrobeTag" ],
-          "immediate": "CARDS[SearchForCard(HAS PrintedTag<Class<ScienceTag>>)]",
+          "immediate": "SearchForTag<Class<ScienceTag>>",
           "effects": [
             // This is the only card I know of that has a double-colon effect. Without it, the engine
             // automatically tried to take the 2 disease cubes first and lose no money, then pocketed
@@ -81,7 +81,7 @@
           "tags": [ "MicrobeTag" ],
           "effects": [
             "This:: Splicer<This>",
-            "This: 44 MC, RequiredAction { -> CARDS[SearchForCard(HAS PrintedTag<Class<MicrobeTag>>)] }",
+            "This: 44 MC, RequiredAction { -> SearchForTag<Class<MicrobeTag>> }",
             "MicrobeTag<Anyone>: 2 MC"
           ],
           "components": [
@@ -92,7 +92,7 @@
           "name": "TychoMagnetics",
           "tags": [ "PowerTag", "ScienceTag" ],
           "immediate": "42 MC, PROD[Energy]",
-          "actions": [ "X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>" ],
+          "actions": [ "X Energy -> X DrawCard<Class<ProjectCard>, Selecting> THEN ProjectCard<Hand FROM Selecting>" ],
         },
       ],
     },
@@ -122,7 +122,7 @@
         {
           "name": "CorporateArchives",
           "tags": [ "ScienceTag" ],
-          "immediate": "13 MC, 7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>",
+          "immediate": "13 MC, 7 DrawCard<Class<ProjectCard>, Selecting> THEN 2 ProjectCard<Hand FROM Selecting>",
         },
         {
           "name": "DoubleDown",
@@ -136,11 +136,11 @@
         },
         {
           "name": "Merger",
-          "immediate": "4 StandardCorporationCard<Selecting>, PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Selecting>, -42 MC",
+          "immediate": "4 DrawCard<Class<StandardCorporationCard>, Selecting> THEN PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Selecting>, -42 MC",
         },
         {
           "name": "NewPartner",
-          "immediate": "PROD[1 MC], 2 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>",
+          "immediate": "PROD[1 MC], 2 DrawCard<Class<PreludeCard>, Selecting> THEN PlayCard<Class<PreludeCard>, Selecting>",
         },
         {
           "name": "StrategicBasePlanning",
@@ -163,7 +163,7 @@
           "requirement": "Adjacency<CityTile, OceanTile>",
           "cost": 9,
           "tags": [ "BuildingTag" ],
-          "immediate": "CARDS[3 SearchForCard(HAS PrintedTag<Class<BuildingTag>>)]",
+          "immediate": "3 SearchForTag<Class<BuildingTag>>",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -171,7 +171,7 @@
           "cost": 13,
           "tags": [ "EarthTag", "SpaceTag", "BuildingTag" ],
           "immediate": "PROD[-Energy]",
-          "actions": [ "-> CARDS[ProjectCard<Revealed> THEN ((ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>) OR Ok)]" ],
+          "actions": [ "-> DrawCard<Class<ProjectCard>, Revealed> THEN EACH @ProjectCard<Revealed> { (PrintedTagOf<@ProjectCard, Class<SpaceTag>>: Asteroid<This>) OR (MAX 0 PrintedTagOf<@ProjectCard, Class<SpaceTag>>: Ok) }" ],
           "effects": [
             // TODO: in what cases do we want to trigger this way vs by the AttackHappened thingies?
             // are we being consistent?
@@ -200,13 +200,13 @@
           "name": "AstraMechanica",
           "cost": 7,
           "tags": [ "ScienceTag" ],
-          "immediate": "ProjectCard FROM PlayedEvent?, ProjectCard FROM PlayedEvent?",
+          "immediate": "(RecoverPlayedEvent<PlayedEvent<Owner>> OR Ok), (RecoverPlayedEvent<PlayedEvent<Owner>> OR Ok)",
         },
         {
           "name": "BactoviralResearch",
           "cost": 10,
           "tags": [ "MicrobeTag", "ScienceTag" ],
-          "immediate": "ProjectCard, Microbe / ScienceTag",
+          "immediate": "DrawCard<Class<ProjectCard>, Hand>, Microbe / ScienceTag",
         },
         {
           "name": "BioPrintingFacility",
@@ -350,7 +350,7 @@
           "name": "HiTechLab",
           "cost": 17,
           "tags": [ "ScienceTag", "BuildingTag" ],
-          "actions": [ "X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>" ],
+          "actions": [ "X Energy -> X DrawCard<Class<ProjectCard>, Selecting> THEN ProjectCard<Hand FROM Selecting>" ],
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -407,7 +407,7 @@
           "name": "KaguyaTech",
           "cost": 10,
           "tags": [ "CityTag", "PlantTag" ],
-          "immediate": "PROD[2 MC], ProjectCard, CityTile<@MarsArea> FROM GreeneryTile<@MarsArea>",
+          "immediate": "PROD[2 MC], DrawCard<Class<ProjectCard>, Hand>, CityTile<@MarsArea> FROM GreeneryTile<@MarsArea>",
         },
         {
           "name": "LawSuit",
@@ -609,7 +609,7 @@
           "immediate": "2 Titanium",
           "effects": [
             "PayingFor<Class<EarthTag>>:: -2 Owed",
-            "EventCard<Anyone>(HAS SpaceTag): ProjectCard",
+            "EventCard<Anyone>(HAS SpaceTag): DrawCard<Class<ProjectCard>, Hand>",
             "End: VictoryPoint"
           ],
         },
@@ -644,7 +644,7 @@
             "End: VictoryPoint / Cathedral"
           ],
           "components": [
-            "CLASS CathedralOption : HasActions { 2 MC -> ProjectCard }",
+            "CLASS CathedralOption : HasActions { 2 MC -> DrawCard<Class<ProjectCard>, Hand> }",
             "CLASS CathedralOffer : Owned<Anyone>, Signal { This: UseAction<CathedralOption, ActionSlot, Owner> OR Ok }",
             "CLASS Cathedral<CityTile<@Anyone>> : Owned { HAS MAX 1 This; This: CathedralOffer<@Anyone> }"
           ],
@@ -654,7 +654,7 @@
           "requirement": "2 ScienceTag",
           "cost": 20,
           "tags": [ "EarthTag", "ScienceTag", "BuildingTag" ],
-          "actions": [ "-> ProjectCard" ],
+          "actions": [ "-> DrawCard<Class<ProjectCard>, Hand>" ],
           "effects": [ "End: 2 VictoryPoint" ],
         },
         {
@@ -699,7 +699,7 @@
           "name": "WeatherBalloons",
           "cost": 11,
           "tags": [ "ScienceTag" ],
-          "immediate": "ProjectCard",
+          "immediate": "DrawCard<Class<ProjectCard>, Hand>",
           "actions": [
             "-> Floater<This>",
             "Floater<This> -> 1 MC / CityTile<MarsArea, Anyone>"

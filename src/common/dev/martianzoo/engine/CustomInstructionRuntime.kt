@@ -5,11 +5,8 @@ import dev.martianzoo.pets.api.Exceptions.CustomCodeException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.GameReader
-import dev.martianzoo.pets.api.SystemClasses.OWNED
-import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.data.Catalog
-import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.state.Component
 
 /** Engine runtime for Kotlin-provided instruction behavior of Pets custom classes. */
@@ -17,18 +14,6 @@ internal class CustomInstructionRuntime(
     private val catalog: Catalog,
     private val elaborator: PetElaborator,
 ) {
-  internal fun translateGain(gain: Gain, reader: GameReader): InstructionTree? {
-    val implementation = catalog.customClass(gain.gaining.className)
-    val translated = implementation.translateGain(reader, gain) ?: return null
-    val owner =
-        reader
-            .resolve(gain.gaining.copy(refinement = null))
-            .typeDependencies
-            .singleOrNull { it.key == Key(OWNED, 0) }
-            ?.boundType
-    return elaborator.elaborateCustomInstruction(translated, owner)
-  }
-
   internal fun translateInstruction(component: Component, reader: GameReader): InstructionTree {
     require(component.isCustom)
     require(elaborator.classTable.isInhabited(component.type))

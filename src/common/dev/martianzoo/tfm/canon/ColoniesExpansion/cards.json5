@@ -271,10 +271,10 @@
           "requirement": "3 ScienceTag",
           "cost": 17,
           "tags": [ "ScienceTag", "JovianTag" ],
-          "immediate": "2 ProjectCard",
+          "immediate": "2 DrawCard<Class<ProjectCard>, Hand>",
           "actions": [
             "-> Floater<This>",
-            "Floater<This> -> ProjectCard"
+            "Floater<This> -> DrawCard<Class<ProjectCard>, Hand>"
           ],
           "effects": [ "End: 2 VictoryPoint" ],
         },
@@ -290,7 +290,7 @@
           "name": "ResearchColony",
           "cost": 20,
           "tags": [ "ScienceTag", "SpaceTag" ],
-          "immediate": "Colony<ColonyTile>, 2 ProjectCard",
+          "immediate": "Colony<ColonyTile>, 2 DrawCard<Class<ProjectCard>, Hand>",
         },
         {
           "name": "RimFreighters",
@@ -313,7 +313,7 @@
           "name": "SolarProbe",
           "cost": 9,
           "tags": [ "ScienceTag", "SpaceTag", "EventTag" ],
-          "immediate": "ProjectCard / 3 ScienceTag", // should be in play at the time
+          "immediate": "DrawCard<Class<ProjectCard>, Hand> / 3 ScienceTag", // should be in play at the time
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -342,7 +342,7 @@
           "cost": 10,
           "tags": [ "BuildingTag" ],
           "immediate": "PROD[2 MC]",
-          "effects": [ "CardFront(HAS 20 cost): ProjectCard" ],
+          "effects": [ "CardFront(HAS 20 cost): DrawCard<Class<ProjectCard>, Hand>" ],
         },
         {
           "name": "SubZeroSaltFish",

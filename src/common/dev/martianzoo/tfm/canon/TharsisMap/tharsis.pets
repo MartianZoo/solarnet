@@ -36,7 +36,7 @@ CLASS Miner : Award { metric = COUNT "Metal" }
 CLASS Tharsis_1_1 :     LandArea { row = 1; column = 1; Placement<This>: 2 Steel }
 CLASS Tharsis_1_2 :    WaterArea { row = 1; column = 2; Placement<This>: 2 Steel }
 CLASS Tharsis_1_3 :     LandArea { row = 1; column = 3 }
-CLASS Tharsis_1_4 :    WaterArea { row = 1; column = 4; Placement<This>: ProjectCard }
+CLASS Tharsis_1_4 :    WaterArea { row = 1; column = 4; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }
 CLASS Tharsis_1_5 :    WaterArea { row = 1; column = 5 }
 
 CLASS Tharsis_2_1 :     LandArea { row = 2; column = 1 }
@@ -44,9 +44,9 @@ CLASS Tharsis_2_2 : VolcanicArea { row = 2; column = 2; Placement<This>: Steel }
 CLASS Tharsis_2_3 :     LandArea { row = 2; column = 3 }
 CLASS Tharsis_2_4 :     LandArea { row = 2; column = 4 }
 CLASS Tharsis_2_5 :     LandArea { row = 2; column = 5 }
-CLASS Tharsis_2_6 :    WaterArea { row = 2; column = 6; Placement<This>: 2 ProjectCard }
+CLASS Tharsis_2_6 :    WaterArea { row = 2; column = 6; Placement<This>: 2 DrawCard<Class<ProjectCard>, Hand> }
 
-CLASS Tharsis_3_1 : VolcanicArea { row = 3; column = 1; Placement<This>: ProjectCard }
+CLASS Tharsis_3_1 : VolcanicArea { row = 3; column = 1; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }
 CLASS Tharsis_3_2 :     LandArea { row = 3; column = 2 }
 CLASS Tharsis_3_3 :     LandArea { row = 3; column = 3 }
 CLASS Tharsis_3_4 :     LandArea { row = 3; column = 4 }
@@ -92,8 +92,8 @@ CLASS Tharsis_7_9 :     LandArea { row = 7; column = 9 }
 
 CLASS Tharsis_8_4 :     LandArea { row = 8; column = 4; Placement<This>: 2 Steel }
 CLASS Tharsis_8_5 :     LandArea { row = 8; column = 5 }
-CLASS Tharsis_8_6 :     LandArea { row = 8; column = 6; Placement<This>: ProjectCard }
-CLASS Tharsis_8_7 :     LandArea { row = 8; column = 7; Placement<This>: ProjectCard }
+CLASS Tharsis_8_6 :     LandArea { row = 8; column = 6; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }
+CLASS Tharsis_8_7 :     LandArea { row = 8; column = 7; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }
 CLASS Tharsis_8_8 :     LandArea { row = 8; column = 8 }
 CLASS Tharsis_8_9 :     LandArea { row = 8; column = 9; Placement<This>: Titanium }
 

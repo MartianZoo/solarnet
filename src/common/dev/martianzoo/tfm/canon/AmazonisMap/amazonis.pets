@@ -16,7 +16,7 @@ CLASS ExtendedGlobalParametersRule : Module {
     EACH @Player(HAS StartToken) { AdminOceanPlacement<@Player> }
   TemperatureStep IF =22 TemperatureStep:: GpComplete<Class<TemperatureStep>>
 
-  OxygenStep IF =7 OxygenStep: ProjectCard
+  OxygenStep IF =7 OxygenStep: DrawCard<Class<ProjectCard>, Hand>
   OxygenStep IF =11 OxygenStep: TemperatureStep
   OxygenStep IF =18 OxygenStep:: GpComplete<Class<OxygenStep>>
 
@@ -73,7 +73,7 @@ CLASS AmazonisDoubleDelegatePlacementBonus : Signal {
 CLASS Amazonis_01_01 :     LandArea { row = 1; column = 1; Placement<This>: Steel }
 CLASS Amazonis_01_02 :     LandArea { row = 1; column = 2; Placement<This>: 2 Steel }
 CLASS Amazonis_01_03 :     LandArea { row = 1; column = 3; Placement<This>: Steel }
-CLASS Amazonis_01_04 :     LandArea { row = 1; column = 4; Placement<This>: ProjectCard }
+CLASS Amazonis_01_04 :     LandArea { row = 1; column = 4; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }
 CLASS Amazonis_01_05 :     LandArea { row = 1; column = 5; Placement<This>: 2 Titanium }
 CLASS Amazonis_01_06 :     LandArea { row = 1; column = 6 }
 
@@ -87,7 +87,7 @@ CLASS Amazonis_02_07 :    WaterArea { row = 2; column = 7; Placement<This>: 2 Ti
 
 CLASS Amazonis_03_01 :    WaterArea { row = 3; column = 1; Placement<This>: 2 Steel }
 CLASS Amazonis_03_02 :     LandArea { row = 3; column = 2 }
-CLASS Amazonis_03_03 :     LandArea { row = 3; column = 3; Placement<This>: 2 ProjectCard }
+CLASS Amazonis_03_03 :     LandArea { row = 3; column = 3; Placement<This>: 2 DrawCard<Class<ProjectCard>, Hand> }
 CLASS Amazonis_03_04 :     LandArea { row = 3; column = 4 }
 CLASS Amazonis_03_05 :     LandArea { row = 3; column = 5; Placement<This>: Plant }
 CLASS Amazonis_03_06 :    WaterArea { row = 3; column = 6 }
@@ -102,13 +102,13 @@ CLASS Amazonis_04_05 :     LandArea { row = 4; column = 5; Placement<This>: Plan
 CLASS Amazonis_04_06 :     LandArea { row = 4; column = 6; Placement<This>: Plant }
 CLASS Amazonis_04_07 :     LandArea { row = 4; column = 7; Placement<This>: 2 Plant }
 CLASS Amazonis_04_08 :     LandArea { row = 4; column = 8; Placement<This>: Plant }
-CLASS Amazonis_04_09 :     LandArea { row = 4; column = 9; Placement<This>: Plant, ProjectCard }
+CLASS Amazonis_04_09 :     LandArea { row = 4; column = 9; Placement<This>: Plant, DrawCard<Class<ProjectCard>, Hand> }
 
 CLASS Amazonis_05_01 : VolcanicArea { row = 5; column = 1; Placement<This>: 2 Steel }
 CLASS Amazonis_05_02 :     LandArea { row = 5; column = 2; Placement<This>: Plant }
 CLASS Amazonis_05_03 :     LandArea { row = 5; column = 3; Placement<This>: StandardResource }
 CLASS Amazonis_05_04 :     LandArea { row = 5; column = 4; Placement<This>: Plant }
-CLASS Amazonis_05_05 :    WaterArea { row = 5; column = 5; Placement<This>: ProjectCard }
+CLASS Amazonis_05_05 :    WaterArea { row = 5; column = 5; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }
 CLASS Amazonis_05_06 :     LandArea { row = 5; column = 6; Placement<This>: Plant }
 CLASS Amazonis_05_07 :     LandArea { row = 5; column = 7; Placement<This>: 2 Plant }
 CLASS Amazonis_05_08 :     LandArea { row = 5; column = 8; Placement<This>: Plant }
@@ -125,7 +125,7 @@ CLASS Amazonis_06_07 :     LandArea { row = 6; column = 7; Placement<This>: Stee
 CLASS Amazonis_06_08 :     LandArea { row = 6; column = 8; Placement<This>: Plant }
 CLASS Amazonis_06_09 :     LandArea { row = 6; column = 9 }
 CLASS Amazonis_06_10 :     LandArea { row = 6; column = 10; Placement<This>: Plant }
-CLASS Amazonis_06_11 :    WaterArea { row = 6; column = 11; Placement<This>: ProjectCard }
+CLASS Amazonis_06_11 :    WaterArea { row = 6; column = 11; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }
 
 CLASS Amazonis_07_02 :     LandArea { row = 7; column = 2; Placement<This>: Plant }
 CLASS Amazonis_07_03 :     LandArea { row = 7; column = 3; Placement<This>: 2 Plant }
@@ -139,7 +139,7 @@ CLASS Amazonis_07_10 :     LandArea { row = 7; column = 10; Placement<This>: Pla
 CLASS Amazonis_07_11 : VolcanicArea { row = 7; column = 11; Placement<This>: AmazonisDelegatePlacementBonus }
 
 CLASS Amazonis_08_03 :     LandArea { row = 8; column = 3; Placement<This>: Plant }
-CLASS Amazonis_08_04 :    WaterArea { row = 8; column = 4; Placement<This>: 2 ProjectCard }
+CLASS Amazonis_08_04 :    WaterArea { row = 8; column = 4; Placement<This>: 2 DrawCard<Class<ProjectCard>, Hand> }
 CLASS Amazonis_08_05 :     LandArea { row = 8; column = 5; Placement<This>: Plant }
 CLASS Amazonis_08_06 :     LandArea { row = 8; column = 6; Placement<This>: Energy }
 CLASS Amazonis_08_07 :     LandArea { row = 8; column = 7; Placement<This>: 2 Energy }
@@ -170,4 +170,4 @@ CLASS Amazonis_11_07 :     LandArea { row = 11; column = 7; Placement<This>: Ste
 CLASS Amazonis_11_08 :     LandArea { row = 11; column = 8; Placement<This>: 2 Steel }
 CLASS Amazonis_11_09 :     LandArea { row = 11; column = 9 }
 CLASS Amazonis_11_10 :     LandArea { row = 11; column = 10; Placement<This>: Plant }
-CLASS Amazonis_11_11 :     LandArea { row = 11; column = 11; Placement<This>: ProjectCard }
+CLASS Amazonis_11_11 :     LandArea { row = 11; column = 11; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }

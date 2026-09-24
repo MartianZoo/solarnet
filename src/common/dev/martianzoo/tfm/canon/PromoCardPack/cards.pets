@@ -49,5 +49,5 @@ CLASS CorrosiveRain : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {
 
 "Lets one player pay Corrosive Rain before drawing cards for influence"
 CLASS ResolveCorrosiveRain : Owned<Player>, Signal {
-  This: (-2 Floater! OR -10 MC.) THEN ProjectCard / Influence
+  This: (-2 Floater! OR -10 MC.) THEN DrawCard<Class<ProjectCard>, Hand> / Influence
 }

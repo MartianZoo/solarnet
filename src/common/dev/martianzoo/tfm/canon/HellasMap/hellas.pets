@@ -50,7 +50,7 @@ CLASS Hellas_3_3 :     LandArea { row = 3; column = 3; Placement<This>: Steel }
 CLASS Hellas_3_4 :     LandArea { row = 3; column = 4; Placement<This>: Steel }
 CLASS Hellas_3_5 :     LandArea { row = 3; column = 5 }
 CLASS Hellas_3_6 :     LandArea { row = 3; column = 6; Placement<This>: 2 Plant }
-CLASS Hellas_3_7 :     LandArea { row = 3; column = 7; Placement<This>: Plant, ProjectCard }
+CLASS Hellas_3_7 :     LandArea { row = 3; column = 7; Placement<This>: Plant, DrawCard<Class<ProjectCard>, Hand> }
 
 CLASS Hellas_4_1 :    WaterArea { row = 4; column = 1; Placement<This>: Plant }
 CLASS Hellas_4_2 :     LandArea { row = 4; column = 2; Placement<This>: Plant }
@@ -61,12 +61,12 @@ CLASS Hellas_4_6 :    WaterArea { row = 4; column = 6; Placement<This>: Plant }
 CLASS Hellas_4_7 :    WaterArea { row = 4; column = 7; Placement<This>: Plant }
 CLASS Hellas_4_8 :     LandArea { row = 4; column = 8; Placement<This>: Plant }
 
-CLASS Hellas_5_1 :     LandArea { row = 5; column = 1; Placement<This>: ProjectCard }
+CLASS Hellas_5_1 :     LandArea { row = 5; column = 1; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }
 CLASS Hellas_5_2 :     LandArea { row = 5; column = 2 }
 CLASS Hellas_5_3 :     LandArea { row = 5; column = 3 }
 CLASS Hellas_5_4 :     LandArea { row = 5; column = 4; Placement<This>: 2 Steel }
 CLASS Hellas_5_5 :     LandArea { row = 5; column = 5 }
-CLASS Hellas_5_6 :    WaterArea { row = 5; column = 6; Placement<This>: ProjectCard }
+CLASS Hellas_5_6 :    WaterArea { row = 5; column = 6; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }
 CLASS Hellas_5_7 :    WaterArea { row = 5; column = 7; Placement<This>: 3 Heat }
 CLASS Hellas_5_8 :    WaterArea { row = 5; column = 8 }
 CLASS Hellas_5_9 :     LandArea { row = 5; column = 9; Placement<This>: Plant }
@@ -83,13 +83,13 @@ CLASS Hellas_6_9 :     LandArea { row = 6; column = 9 }
 CLASS Hellas_7_3 :    WaterArea { row = 7; column = 3; Placement<This>: 2 Titanium }
 CLASS Hellas_7_4 :     LandArea { row = 7; column = 4 }
 CLASS Hellas_7_5 :     LandArea { row = 7; column = 5 }
-CLASS Hellas_7_6 :     LandArea { row = 7; column = 6; Placement<This>: ProjectCard }
+CLASS Hellas_7_6 :     LandArea { row = 7; column = 6; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }
 CLASS Hellas_7_7 :     LandArea { row = 7; column = 7 }
 CLASS Hellas_7_8 :     LandArea { row = 7; column = 8 }
 CLASS Hellas_7_9 :     LandArea { row = 7; column = 9; Placement<This>: Titanium }
 
 CLASS Hellas_8_4 :     LandArea { row = 8; column = 4; Placement<This>: Steel }
-CLASS Hellas_8_5 :     LandArea { row = 8; column = 5; Placement<This>: ProjectCard }
+CLASS Hellas_8_5 :     LandArea { row = 8; column = 5; Placement<This>: DrawCard<Class<ProjectCard>, Hand> }
 CLASS Hellas_8_6 :     LandArea { row = 8; column = 6; Placement<This>: 2 Heat }
 CLASS Hellas_8_7 :     LandArea { row = 8; column = 7; Placement<This>: 2 Heat }
 CLASS Hellas_8_8 :     LandArea { row = 8; column = 8; Placement<This>: Titanium }

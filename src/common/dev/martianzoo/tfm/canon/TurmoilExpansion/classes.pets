@@ -135,7 +135,7 @@ CLASS Scientists : Party {
   ActionPhase IF Ruling<This>:: ScientistsPolicy
 }
 CLASS ScientistsPolicy : Policy<Scientists>, HasActions {
-  10 MC -> 3 ProjectCard, ScientistsUsedMarker
+  10 MC -> 3 DrawCard<Class<ProjectCard>, Hand>, ScientistsUsedMarker
 }
 CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player> {
   HAS MAX 1 This

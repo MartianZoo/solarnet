@@ -50,19 +50,30 @@ ABSTRACT CLASS Card<Class<CardFront>> : Owned<Player> {
 "Deals the next concrete card from a named back's deck"
 CLASS DrawCard<Class<CardBack>, CardLocation> : Owned<Player>, Custom, Atomized
 
-"Draws from the ordered project deck until its printed predicate matches"
-CLASS SearchForCard : Owned<Player>, Custom, Atomized
+"Draws from the ordered project deck until a printed tag matches"
+CLASS SearchForTag<Class<Tag>> : Owned<Player>, Custom, Atomized
 
-"Printed metadata predicates used in card-search refinements"
-ABSTRACT CLASS PrintedTag<Class<Tag>>
-ABSTRACT CLASS ReferenceTo<Class<Component>>
+"Draws from the ordered project deck until a printed reference matches"
+CLASS SearchForReference<Class<Component>> : Owned<Player>, Custom, Atomized
+
+"Draws from the ordered project deck until a tagless card appears"
+CLASS SearchForUntaggedCard : Owned<Player>, Custom, Atomized
+
+"The number of a tag printed on a represented card face"
+CLASS PrintedTagOf<CardBack, Class<Tag>> : Custom
+
+"Moves the exact selected project back from Selecting into its owner's hand"
+CLASS MoveSelectedCard<ProjectCard<Selecting>> : Custom
+
+"Recovers one selected played event as its exact project back"
+CLASS RecoverPlayedEvent<PlayedEvent> : Custom
 
 "Records that a face has left its ordered deck, including cards skipped by a search"
 CLASS DeckSpent<Class<CardFront>> : System, Hidden { HAS MAX 1 This }
 
 CLASS CardPurchase : HasActions {
   HAS =1 This
-  -ActionBilling<This>:: ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>
+  -ActionBilling<This>:: EACH @ProjectCard<Selecting> { MoveSelectedCard<@ProjectCard> }
 }
 
 "Triggers the purchase of every project card remaining in the player's selection"

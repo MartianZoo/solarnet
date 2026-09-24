@@ -12,7 +12,7 @@
         {
           "name": "Celestic",
           "tags": [ "VenusTag" ],
-          "immediate": "42 MC, RequiredAction { -> CARDS[2 SearchForCard(HAS ReferenceTo<Class<Floater>>)] }",
+          "immediate": "42 MC, RequiredAction { -> 2 SearchForReference<Class<Floater>> }",
           "actions": [ "-> Floater" ],
           "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
         },
@@ -25,7 +25,7 @@
         {
           "name": "MorningStarInc",
           "tags": [ "VenusTag" ],
-          "immediate": "50 MC, RequiredAction { -> CARDS[3 SearchForCard(HAS PrintedTag<Class<VenusTag>>)] }",
+          "immediate": "50 MC, RequiredAction { -> 3 SearchForTag<Class<VenusTag>> }",
           "effects": [ "CheckRequirement:: -2 Required<Class<VenusStep>>" ],
         },
         {
@@ -45,7 +45,7 @@
           "tags": [ "VenusTag" ],
           "actions": [
             "-> Floater",
-            "Floater<This> -> ProjectCard"
+            "Floater<This> -> DrawCard<Class<ProjectCard>, Hand>"
           ],
           "effects": [ "End: VictoryPoint" ],
         },
@@ -68,7 +68,7 @@
           "requirement": "3 ScienceTag",
           "cost": 10,
           "tags": [ "VenusTag", "ScienceTag" ],
-          "immediate": "2 ProjectCard",
+          "immediate": "2 DrawCard<Class<ProjectCard>, Hand>",
           "effects": [ "End: 2 VictoryPoint" ],
         },
         {
@@ -189,7 +189,7 @@
           "name": "IoSulphurResearch",
           "cost": 17,
           "tags": [ "ScienceTag", "JovianTag" ],
-          "immediate": "ProjectCard OR (3 VenusTag: 3 ProjectCard)",
+          "immediate": "DrawCard<Class<ProjectCard>, Hand> OR (3 VenusTag: 3 DrawCard<Class<ProjectCard>, Hand>)",
           "effects": [ "End: 2 VictoryPoint" ],
         },
         {
@@ -288,7 +288,7 @@
           "name": "Solarnet",
           "requirement": "VenusTag, EarthTag, JovianTag",
           "cost": 7,
-          "immediate": "2 ProjectCard",
+          "immediate": "2 DrawCard<Class<ProjectCard>, Hand>",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -302,7 +302,7 @@
           "name": "SponsoredAcademies",
           "cost": 9,
           "tags": [ "ScienceTag", "EarthTag" ],
-          "immediate": "-ProjectCard THEN 3 ProjectCard, EACH Player(NOT Owner) { ProjectCard }",
+          "immediate": "-ProjectCard THEN 3 DrawCard<Class<ProjectCard>, Hand>, EACH Player(NOT Owner) { DrawCard<Class<ProjectCard>, Hand> }",
           "effects": [ "End: VictoryPoint" ],
         },
         {

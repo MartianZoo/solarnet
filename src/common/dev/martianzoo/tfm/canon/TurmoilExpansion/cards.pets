@@ -145,7 +145,7 @@ CLASS ScientificCommunity : GePartyDistant<Reds>, GePartyCurrent<Scientists> {
 
 CLASS SnowCover : GePartyDistant<Kelvinists>, GePartyCurrent<Kelvinists> {
   ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<TemperatureStep>>:: -2 TemperatureStep. BY Admin
-  ResolveGlobalEvent<Class<This>>:: EACH Player { ProjectCard / Influence }
+  ResolveGlobalEvent<Class<This>>:: EACH Player { DrawCard<Class<ProjectCard>, Hand> / Influence }
 }
 
 CLASS SolarFlare : GePartyDistant<Unity>, GePartyCurrent<Kelvinists> {
@@ -163,7 +163,7 @@ CLASS SpinOffProducts : GePartyDistant<Greens>, GePartyCurrent<Scientists> {
 CLASS SponsoredProjects : GePartyDistant<Scientists>, GePartyCurrent<Greens> {
   ResolveGlobalEvent<Class<This>>:: \
     EACH Card@ResourceCard<Anyone> { CardResource<Card@ResourceCard<Anyone>> }
-  ResolveGlobalEvent<Class<This>>:: EACH Player { ProjectCard / Influence }
+  ResolveGlobalEvent<Class<This>>:: EACH Player { DrawCard<Class<ProjectCard>, Hand> / Influence }
 }
 
 CLASS StrongSociety : GePartyDistant<Reds>, GePartyCurrent<MarsFirst> {

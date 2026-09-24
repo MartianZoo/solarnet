@@ -9,7 +9,12 @@ import dev.martianzoo.tfm.canon.vastitasmap.customClasses as vastitasMapCustomCl
 private val canonCustomClasses: Set<CustomClass> =
     terraformingMarsCustomClasses +
         RealCardDraw +
-        RealCardSearch +
+        SearchForTag +
+        SearchForReference +
+        SearchForUntaggedCard +
+        PrintedTagOf +
+        MoveSelectedCard +
+        RecoverPlayedEvent +
         promoCardPackCustomClasses +
         setOf(RepeatPlacementBonus) +
         turmoilExpansionCustomClasses +
