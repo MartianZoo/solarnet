@@ -192,6 +192,46 @@ internal class Spec04ClassLiteralsTest {
   // T4-9 `Class<This>`
 
   @Test
+  internal fun `T4-9 a Class of This limit is fixed across the class's owned specializations`() {
+    val cards =
+        loadTypes(
+            "CLASS Player1 : Owner { HAS MAX 1 This }",
+            "CLASS Player2 : Owner { HAS MAX 1 This }",
+            "CLASS Token<Class<Face>>",
+            "ABSTRACT CLASS Face : Owned<Owner> { HAS MAX 1 Token<Class<This>> }",
+            "CLASS Alpha : Face",
+            "CLASS Beta : Face",
+        )
+
+    val alphaToken = cards.resolve(te("Token<Class<Alpha>>"))
+    val betaToken = cards.resolve(te("Token<Class<Beta>>"))
+    cards.componentLimits.limitsFor(alphaToken) shouldBe
+        setOf(ClassLimitTable.Limit(alphaToken, 0..1))
+    cards.componentLimits.limitsFor(betaToken) shouldBe
+        setOf(ClassLimitTable.Limit(betaToken, 0..1))
+  }
+
+  @Test
+  internal fun `T4-9 an ordinary This keeps a mixed limit bound to one specialization`() {
+    val cards =
+        loadTypes(
+            "CLASS Player1 : Owner { HAS MAX 1 This }",
+            "CLASS Player2 : Owner { HAS MAX 1 This }",
+            "CLASS Token<Face, Class<Face>>",
+            "ABSTRACT CLASS Face : Owned<Owner> { " +
+                "HAS MAX 1 This, MAX 1 Token<This, Class<This>> }",
+            "CLASS Alpha : Face",
+        )
+
+    val player1Token = cards.resolve(te("Token<Alpha<Player1>, Class<Alpha>>"))
+    val player2Token = cards.resolve(te("Token<Alpha<Player2>, Class<Alpha>>"))
+    cards.componentLimits.limitsFor(player1Token) shouldBe
+        setOf(ClassLimitTable.Limit(player1Token, 0..1))
+    cards.componentLimits.limitsFor(player2Token) shouldBe
+        setOf(ClassLimitTable.Limit(player2Token, 0..1))
+  }
+
+  @Test
   internal fun `T4-9 a Class-of-This literal in a declared dependency names the inheriting class`() {
     val table =
         loadTypes(

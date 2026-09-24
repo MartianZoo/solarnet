@@ -603,6 +603,10 @@ ABSTRACT CLASS CardResource<ResourceHolder<Class<This>, @Owner>> : Owned<@Owner>
 and `Animal<Ants>` are errors. Writing `ResourceHolder<Class<CardResource>>` literally would put
 microbes on Fish.
 
+The same class substitution applies in an inherited component-count invariant. When `This` appears
+only inside `Class<This>`, the limit covers that class across its owner specializations. An ordinary
+`This` elsewhere in the invariant keeps the limit specific to the concrete Type.
+
 > **Non-normative example — played events.** An event card's rules move it to its owner's
 > played-events pile as `PlayedEvent<Class<This>>`. That `This` is in an effect, not a header, and
 > elaboration replaces it the same way (L12-2): playing Asteroid records `Class<AsteroidCard>`.

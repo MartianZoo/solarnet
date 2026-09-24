@@ -2,6 +2,7 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
+import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
@@ -123,7 +124,14 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
     if (THIS !in expression.descendantsOfType<ClassName>()) {
       return BoundRestriction(template.fixedType ?: classTable.resolve(expression), template.range)
     }
-    if (classTable.allConcreteSubtypes(klass.baseType).drop(1).none()) {
+    val expressions = expression.descendantsOfType<Expression>()
+    // Class<This> depends on the inheriting Class, not on its owner or other Type arguments.
+    val onlyClassOfThis =
+        expression.descendantsOfType<ClassName>().count { it == THIS } ==
+            expressions.count {
+              it.className == CLASS && it.arguments.singleOrNull()?.isBare(THIS) == true
+            }
+    if (onlyClassOfThis || classTable.allConcreteSubtypes(klass.baseType).drop(1).none()) {
       val bound =
           replaceThisExpressionsWith(klass.className.expression).transformExpression(expression)
       return ScopedBoundRestriction(
