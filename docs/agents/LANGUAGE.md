@@ -268,8 +268,9 @@ Use evidence in this order:
 4. `english-card-text-current.tsv` / `english-goal-text-current.tsv`, as generated characterization —
    never a production answer source.
 
-The goals files may cover a selected proving corpus rather than every loaded card or goal. Current
-refusals are recorded mechanically in the generated `*-refusals.tsv`; do not restate them here.
+The goals files may cover a selected proving corpus rather than every loaded card or goal. The
+current snapshots cover every loaded card and concrete goal. Current refusals are recorded
+mechanically in the generated `*-refusals.tsv`; do not restate them here.
 
 After an intentional output change, run:
 

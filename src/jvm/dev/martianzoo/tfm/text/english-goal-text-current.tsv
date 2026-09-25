@@ -68,3 +68,24 @@ Thermalist	Thermalist	Most heat.
 Traveller	Traveller	Most Jovian tags and Earth tags combined.
 Visionary	Visionary	Most cards in hand.
 Zoologist	Zoologist	Most animals and microbes combined.
+Agronomist	Agronomist	Requires 4 plant tags.
+Architect	Architect	Requires 3 city tags.
+Blacksmith	Blacksmith	Highest titanium or steel production.
+DesertSettler	Desert Settler	[OwnedTile<MarsArea(HAS 6 row)>].
+Hoverlord	Hoverlord	Requires that you have 7 floaters.
+Hydrologist	Hydrologist	[4 OceanCredit].
+Innovator	Innovator	Most cards in play and cards in your event pile combined.
+Legend5	Legend	Requires that you have 5 cards in your event pile.
+Lobbyist	Lobbyist	[7 Delegate].
+Manager	Manager	Requires that you have 3 special tiles.
+Merchant3	Merchant	Requires that you have 3 M€, 3 steel, 3 titanium, 3 plants, 3 energy, and 3 heat.
+Physicist	Physicist	Most science tags and space tags combined.
+Pioneer3	Pioneer	Requires that you have 3 colonies.
+PolarExplorer	Polar Explorer	[3 OwnedTile<MarsArea(HAS 8 row)>].
+Politician	Politician	[PartyLeader OR Influence].
+Specialist	Specialist	[PROD[10 (MC - ProdOffset<Class<MC>>) OR 10 Steel OR 10 Titanium OR 10 Plant OR 10 Energy OR 10 Heat]].
+Tactician5	Tactician	Requires that you have 5 cards in play with requirements.
+Terraformer26	Terraformer	Requires that you have 26 terraform rating.
+Terraformer35	Terraformer	Requires that you have 35 terraform rating.
+Tycoon15	Tycoon	Requires that you have 15 active cards in play and automated cards in play combined.
+Venuphile	Venuphile	Most Venus tags.

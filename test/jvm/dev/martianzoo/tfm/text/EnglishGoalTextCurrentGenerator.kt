@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.displayName
 import dev.martianzoo.tfm.canon.Canon
 import java.io.File
 
@@ -10,11 +12,21 @@ private object EnglishGoalTextCurrentGenerator {
     require(args.size == 2)
     val output = File(args[0])
     val refusalOutput = File(args[1])
-    val targets = EnglishGoalTextData.parse(readEnglishCardText("english-goal-text-goals.tsv"))
+    val previousOrder = EnglishGoalTextData.parse(output.readText()).keys
     val english = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
-    val renderings = targets.map { (className, target) ->
-      val rendering = english.renderGoal(Canon.classTable.getClass(className))
-      GoalRow(className, target.englishName, rendering)
+    val milestone = Canon.classTable.getClass(cn("Milestone"))
+    val award = Canon.classTable.getClass(cn("Award"))
+    val goals =
+        Canon.classTable.allClassNames
+            .map(Canon.classTable::getClass)
+            .filter { !it.abstract && (it.isSubtypeOf(milestone) || it.isSubtypeOf(award)) }
+            .associateBy { it.className }
+    val orderedNames =
+        previousOrder.filter(goals::containsKey) +
+            goals.keys.filterNot(previousOrder::contains).sortedBy { it.toString() }
+    val renderings = orderedNames.map { className ->
+      val rendering = english.renderGoal(goals.getValue(className))
+      GoalRow(className, displayName(Canon, className), rendering)
     }
     val rows = renderings.map { row ->
       listOf(row.className.toString(), row.englishName, row.rendering.text)

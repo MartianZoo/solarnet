@@ -125,6 +125,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Render the five beginner corporation copies from their inherited modeled setup semantics.
 - Complete the three visible goal-text refusals only from modeled semantics: Briber's immediate
   claim instruction, Philantropist's `GainsOf` metric, and Suburbian's map-edge concept.
+- Extend `docs/english-card-text-comparison.md` after corporations with projects, preludes,
+  milestones, and awards in release order, using verified printed wording for missing entries.
 - Review [the class-existence scenario draft](docs/class-existence-scenarios-draft.md) for
   clarity and coverage, then consolidate `ClassDefinitionBoundaryTest` and
   `ClassTableSelectionTest`. Keep each distinct selection boundary tested once and remove
