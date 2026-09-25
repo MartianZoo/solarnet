@@ -17,13 +17,13 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import kotlin.test.Test
 
-/** Section 3 of `docs/pets-language-spec.md`: how an expression is written. */
-internal class Lang03ExpressionsTest {
+/** Section 1 of `docs/pets-language-spec.md`: how an expression is written. */
+internal class Lang01ExpressionsTest {
 
-  // L3-1 The shape of an expression
+  // L1-1 The shape of an expression
 
   @Test
-  internal fun `L3-1 a class name, optional arguments, optional refinement`() {
+  internal fun `L1-1 a class name, optional arguments, optional refinement`() {
     val simple = parse<Expression>("Plant")
     simple.className shouldBe cn("Plant")
     simple.arguments.shouldContainExactly(emptyList())
@@ -38,15 +38,15 @@ internal class Lang03ExpressionsTest {
   }
 
   @Test
-  internal fun `L3-1 arguments are themselves expressions, to any depth`() {
+  internal fun `L1-1 arguments are themselves expressions, to any depth`() {
     parse<Expression>("Aa<Bb<Cc<Dd, Ee, Ff<Gg<Hh<Me>>, Jj>>, Kk>>").toString() shouldBe
         "Aa<Bb<Cc<Dd, Ee, Ff<Gg<Hh<Me>>, Jj>>, Kk>>"
   }
 
-  // L3-2 The empty argument list
+  // L1-2 The empty argument list
 
   @Test
-  internal fun `L3-2 an empty argument list is a different spelling from none`() {
+  internal fun `L1-2 an empty argument list is a different spelling from none`() {
     val empty = parse<Expression>("OceanTile<>")
     val absent = parse<Expression>("OceanTile")
 
@@ -57,17 +57,17 @@ internal class Lang03ExpressionsTest {
     empty shouldNotBe absent
   }
 
-  // L3-3 Refinements
+  // L1-3 Refinements
 
   @Test
-  internal fun `L3-3 there are two kinds of refinement clause`() {
+  internal fun `L1-3 there are two kinds of refinement clause`() {
     (parse<Refinement>("(HAS Plant)") as Has).requirement shouldBe parse("Plant")
     (parse<Refinement>("(NOT Player1)") as Not).excluded shouldBe parse("Player1")
     parse<Expression>("Owner(NOT Player1)").toString() shouldBe "Owner(NOT Player1)"
   }
 
   @Test
-  internal fun `L3-3 a refinement conjoins its clauses`() {
+  internal fun `L1-3 a refinement conjoins its clauses`() {
     val refinement = parse<Refinement>("(HAS Plant, NOT Player1)") as And
     refinement.refinements.map { it::class } shouldBe listOf(Has::class, Not::class)
 
@@ -75,22 +75,22 @@ internal class Lang03ExpressionsTest {
   }
 
   @Test
-  internal fun `L3-3 a top-level comma separates clauses`() {
+  internal fun `L1-3 a top-level comma separates clauses`() {
     shouldThrow<PetSyntaxException> { parse<Expression>("Owner(HAS Plant, Steel)") }
     parse<Expression>("Owner(HAS (Plant, Steel) OR Heat, NOT Player1)").toString() shouldBe
         "Owner(HAS (Plant, Steel) OR Heat, NOT Player1)"
   }
 
   @Test
-  internal fun `L3-3 a refinement may appear inside an argument`() {
+  internal fun `L1-3 a refinement may appear inside an argument`() {
     parse<Expression>("Marker<Player(NOT Player1)>").toString() shouldBe
         "Marker<Player(NOT Player1)>"
   }
 
-  // L3-4 Class literals
+  // L1-4 Class literals
 
   @Test
-  internal fun `L3-4 a class literal wraps one bare class name`() {
+  internal fun `L1-4 a class literal wraps one bare class name`() {
     parse<Expression>("Class<Steel>") shouldBe cn("Steel").classExpression()
     parse<Expression>("Class<Component>") shouldBe COMPONENT.classExpression()
     parse<Expression>("Class<Class>") shouldBe CLASS.classExpression()
@@ -98,17 +98,17 @@ internal class Lang03ExpressionsTest {
         listOf(cn("Steel").classExpression())
   }
 
-  // L3-5 This
+  // L1-5 This
 
   @Test
-  internal fun `L3-5 This is an expression and may take arguments`() {
+  internal fun `L1-5 This is an expression and may take arguments`() {
     parse<Expression>("This").className shouldBe cn("This")
     parse<Expression>("This<Player1>").toString() shouldBe "This<Player1>"
     parse<Expression>("Marker<This>").arguments shouldContainExactly listOf(parse("This"))
   }
 
   @Test
-  internal fun `L3-5 an empty argument list on This accepts nothing`() {
+  internal fun `L1-5 an empty argument list on This accepts nothing`() {
     val bound = Transforming.replaceThisExpressionsWith(parse("Ants<Player1>"))
 
     bound.transformExpression(parse("This<>")) shouldBe parse<Expression>("Ants<Player1>")
@@ -116,18 +116,61 @@ internal class Lang03ExpressionsTest {
     bound.transformExpression(parse("This<Steel>")) shouldBe parse<Expression>("Ants<Steel>")
   }
 
-  // L3-6 Owner
+  // L1-6 Owner
 
   @Test
-  internal fun `L3-6 Owner and Anyone are ordinary expressions here`() {
+  internal fun `L1-6 Owner and Anyone are ordinary expressions here`() {
     parse<Expression>("Plant<Owner>").arguments shouldContainExactly listOf(parse("Owner"))
     parse<Expression>("Plant<Anyone>").arguments shouldContainExactly listOf(parse("Anyone"))
   }
 
-  // L3-7 Rendering
+  // L1-7 Type-variable markers
 
   @Test
-  internal fun `L3-7 an expression renders exactly as authored`() {
+  internal fun `L1-7 a marker precedes its complete bound expression`() {
+    roundTripAll<Expression>(
+        """
+        Class<@Component>(HAS @Component)
+        Class<C@Component>(HAS C@Component)
+        Class<@Component>(HAS @Component<Owner>)
+        """
+    )
+  }
+
+  @Test
+  internal fun `L1-7 the former suffix and numeric marker forms are rejected`() {
+    shouldThrow<PetSyntaxException> {
+      parse<Expression>("Class<Component^C>(HAS Component^C)")
+    }
+    shouldThrow<PetSyntaxException> {
+      parse<Expression>("Class<1@Component>(HAS 1@Component)")
+    }
+  }
+
+  // L1-8 Equality of expressions
+
+  @Test
+  internal fun `L1-8 two expressions are equal when their spellings agree`() {
+    parse<Expression>(" Marker < Mars1 , Player1 > ") shouldBe
+        cn("Marker").of(cn("Mars1"), cn("Player1"))
+    parse<Expression>("Marker<Player1, Mars1>") shouldNotBe
+        parse<Expression>("Marker<Mars1, Player1>")
+    langTable.resolve(parse("Marker<Player1, Mars1>")) shouldBe
+        langTable.resolve(parse("Marker<Mars1, Player1>"))
+  }
+
+  @Test
+  internal fun `L1-8 refinement clause order and duplication do not affect equality`() {
+    val reorderedWithDuplicate = parse<Expression>("Plant(NOT Heat, HAS Steel, HAS Steel)")
+
+    parse<Expression>("Plant(HAS Steel, NOT Heat)") shouldBe reorderedWithDuplicate
+    "$reorderedWithDuplicate" shouldBe "Plant(NOT Heat, HAS Steel)"
+  }
+
+  // L1-9 Rendering
+
+  @Test
+  internal fun `L1-9 an expression renders exactly as authored`() {
     roundTripAll<Expression>(
         """
         Plant
@@ -150,7 +193,7 @@ internal class Lang03ExpressionsTest {
   }
 
   @Test
-  internal fun `L3-7 a represented-Class reference preserves its explicit empty arguments`() {
+  internal fun `L1-9 a represented-Class reference preserves its explicit empty arguments`() {
     val expression = parse<Expression>("Class<@Component>(HAS @Component<>)")
 
     expression.toString() shouldBe "Class<@Component>(HAS @Component<>)"
@@ -158,7 +201,7 @@ internal class Lang03ExpressionsTest {
   }
 
   @Test
-  internal fun `L3-7 reference equality includes whether arguments were authored`() {
+  internal fun `L1-9 reference equality includes whether arguments were authored`() {
     val structural = cn("Component").of(cn("Owner"))
     val bare =
         structural.copy(typeVariableName = Reference(null, cn("Component"), false, resolved = true))
@@ -171,7 +214,7 @@ internal class Lang03ExpressionsTest {
   }
 
   @Test
-  internal fun `L3-7 an expression built through the API renders the same way`() {
+  internal fun `L1-9 an expression built through the API renders the same way`() {
     cn("Aa")
         .of(
             cn("Bb").expression,
@@ -183,7 +226,7 @@ internal class Lang03ExpressionsTest {
   }
 
   @Test
-  internal fun `L3-7 an authored expression is not rewritten into a canonical form`() {
+  internal fun `L1-9 an authored expression is not rewritten into a canonical form`() {
     val bare = parse<Expression>("Tile")
     val explicit = parse<Expression>("Tile<Area>")
 
@@ -191,48 +234,5 @@ internal class Lang03ExpressionsTest {
     explicit.toString() shouldBe "Tile<Area>"
     bare shouldNotBe explicit
     langTable.resolve(bare) shouldBe langTable.resolve(explicit)
-  }
-
-  // L3-8 Equality of expressions
-
-  @Test
-  internal fun `L3-8 two expressions are equal when their spellings agree`() {
-    parse<Expression>(" Marker < Mars1 , Player1 > ") shouldBe
-        cn("Marker").of(cn("Mars1"), cn("Player1"))
-    parse<Expression>("Marker<Player1, Mars1>") shouldNotBe
-        parse<Expression>("Marker<Mars1, Player1>")
-    langTable.resolve(parse("Marker<Player1, Mars1>")) shouldBe
-        langTable.resolve(parse("Marker<Mars1, Player1>"))
-  }
-
-  @Test
-  internal fun `L3-8 refinement clause order and duplication do not affect equality`() {
-    val reorderedWithDuplicate = parse<Expression>("Plant(NOT Heat, HAS Steel, HAS Steel)")
-
-    parse<Expression>("Plant(HAS Steel, NOT Heat)") shouldBe reorderedWithDuplicate
-    "$reorderedWithDuplicate" shouldBe "Plant(NOT Heat, HAS Steel)"
-  }
-
-  // L3-9 Type-variable markers
-
-  @Test
-  internal fun `L3-9 a marker precedes its complete bound expression`() {
-    roundTripAll<Expression>(
-        """
-        Class<@Component>(HAS @Component)
-        Class<C@Component>(HAS C@Component)
-        Class<@Component>(HAS @Component<Owner>)
-        """
-    )
-  }
-
-  @Test
-  internal fun `L3-9 the former suffix and numeric marker forms are rejected`() {
-    shouldThrow<PetSyntaxException> {
-      parse<Expression>("Class<Component^C>(HAS Component^C)")
-    }
-    shouldThrow<PetSyntaxException> {
-      parse<Expression>("Class<1@Component>(HAS 1@Component)")
-    }
   }
 }

@@ -20,23 +20,23 @@ import kotlin.reflect.KClass
 
 /**
  * The noun of the Pets language: a particular *representation* of a type, as defined by
- * [section 3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-expressions).
+ * [section 1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions).
  * It appears in every other element, and everywhere it appears it identifies a type.
  *
  * An expression is a class name, an optional argument list and an optional refinement ([rule
- * L3-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-expressions)).
+ * L1-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions)).
  * Each argument (like `Ants` in `Microbe<Player1, Ants>`) is itself an expression; a refinement is
  * a conjunction of state-aware requirements (as in `Card(HAS VenusTag)`) and structural differences
  * (as in `Owner(NOT Player1)`) ([rule
- * L3-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-expressions)).
+ * L1-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions)).
  *
  * Two expressions are equal only when their spellings agree ([rule
- * L3-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-expressions)),
+ * L1-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions)),
  * so a single type has many unequal representations: `Microbe<This, Player1>` and `Microbe<Player1,
  * This>` are different expressions, as are `Tile` and `Tile<Area>`. The type system, not the
  * syntax, is the authority on identity — [ClassLoader] resolves all four into their [Type]s,
  * collapsing the distinctions the syntax deliberately keeps ([rule
- * L3-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-expressions)).
+ * L1-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions)).
  */
 public data class Expression(
     override val className: ClassName,
@@ -51,7 +51,7 @@ public data class Expression(
      * Whether the source wrote angle brackets, including an explicit empty `<>`. Writing an empty
      * argument list is not the same as writing none: the two denote one type but stay
      * distinguishable, because `<>` says "I accept this use's defaults on purpose" ([rule
-     * L3-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-expressions)).
+     * L1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions)).
      */
     val argumentsSpecified: Boolean = arguments.isNotEmpty(),
 
@@ -271,7 +271,7 @@ public data class Expression(
   /**
    * One clause of an expression's refinement, or a conjunction of them. Each clause repeats its own
    * keyword, so a top-level comma separates clauses rather than continuing one ([rule
-   * L3-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-expressions));
+   * L1-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions));
    * what a clause *means* is
    * [section 8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#8-refinements)
    * of the type system specification.
@@ -282,7 +282,7 @@ public data class Expression(
     /**
      * Admits only the components of the outer domain meeting [requirement]. A conjunction inside
      * one `HAS` must be grouped, since a bare comma would start the next clause instead ([rule
-     * L3-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-expressions)).
+     * L1-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions)).
      */
     public data class Has(val requirement: Requirement) : Refinement() {
       init {
@@ -305,7 +305,7 @@ public data class Expression(
 
     /**
      * Admits only what every one of [refinements] admits — the comma-separated conjunction of
-     * [rule L3-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-expressions).
+     * [rule L1-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions).
      * Conjunctions do not nest; build one through [create].
      */
     @ConsistentCopyVisibility

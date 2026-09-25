@@ -13,7 +13,7 @@ stop.
 The specification is divided into **sections**, numbered 1 to 13. Each section states a series of
 numbered **rules**. A rule is written `T4-2` — `T` for the type system, then "section 4, rule 2" —
 and it is the unit you cite. Its peer document, [the Pets language
-specification](pets-language-spec.md), numbers its rules `L4-2` the same way, so one rule id belongs
+specification](pets-language-spec.md), numbers its rules `L5-2` the same way, so one rule id belongs
 to exactly one document.
 
 Every rule is checked by conformance tests whose names begin with the same id, in
@@ -50,7 +50,7 @@ content; a **Non-normative design note** explains why an otherwise surprising pr
 | `A ⊓ B` | the greatest lower bound, or meet, of A and B (T7-1); it may be absent |
 | `CLASS Foo` | Pets source for a class declaration |
 | `Foo<Bar>` | Pets source for a type expression |
-| `L6-9` | rule 9 of section 6 of [the Pets language specification](pets-language-spec.md) |
+| `L2-10` | rule 10 of section 2 of [the PETS language specification](pets-language-spec.md) |
 
 ### Terms
 
@@ -158,7 +158,7 @@ input. The world is the environment for that judgment. It does not complete an o
 type.
 
 Not every type is legal in every role. A component's identity is one concrete type, which cannot
-carry a refinement (T5-3), and class signatures accept only structural types (L1-8). Those
+carry a refinement (T5-3), and class signatures accept only structural types (L11-4). Those
 restrictions do not make refinement types a separate kind of expression.
 
 ### What this document does not cover
@@ -170,7 +170,7 @@ restrictions do not make refinement types a separate kind of expression.
   dependency may only target a type limited to a single copy.
 - **What the rest of Pets means.** Instructions, requirements, metrics, triggers and declarations
   are the subject of [the Pets language specification](pets-language-spec.md), whose rules are cited
-  here as `L6-9`. How an engine brings a change about is outside both documents.
+  here as `L2-10`. How an engine brings a change about is outside both documents.
 
 ---
 
@@ -229,7 +229,7 @@ A universe is well formed only if its declarations obey the rules of this specif
 to them: every name they write is declared (T1-7), every class's dependencies and base type are
 consistent (sections 2 to 4), and its properties and defaults are consistent (sections 9 and 10). A
 type written inside an effect or action is also checked
-against its argument positions (T3-5). That check happens when the effect is elaborated (L12-13),
+against its argument positions (T3-5). That check happens when the effect is elaborated (L9-13),
 where its class and game context are known, and a failure there invalidates that effect. Nothing
 that needs a world is part of well-formedness.
 
@@ -387,7 +387,7 @@ ProjectCard<SoloOpponent>                                     →   error: not a
 
 > **Non-normative example — Solar Logistics.** It draws a card whenever any player plays a space
 > event, and its trigger is `EventCard<Anyone>(HAS SpaceTag)`. Bare `EventCard` would receive the
-> contextual-owner default and see only its own owner's events (L12-4). `Anyone` removes that
+> contextual-owner default and see only its own owner's events (L9-4). `Anyone` removes that
 > restriction, and intersecting it with `EventCard`'s `Player` bound gives `EventCard<Player>`.
 > Replacing the bound would make the trigger a type its class cannot have (T5-7).
 
@@ -605,7 +605,7 @@ microbes on Fish.
 
 > **Non-normative example — played events.** An event card's rules move it to its owner's
 > played-events pile as `PlayedEvent<Class<This>>`. That `This` is in an effect, not a header, and
-> elaboration replaces it the same way (L12-2): playing Asteroid records `Class<AsteroidCard>`.
+> elaboration replaces it the same way (L9-2): playing Asteroid records `Class<AsteroidCard>`.
 > Keeping the abstract `EventCard` class would lose which event was played.
 
 ---
@@ -619,7 +619,7 @@ each was written.
 **T5-2. A bare class name means that class's base type**, which supplies each dependency's declared
 bound. An explicit empty argument list, `GreeneryTile<>`, means the same type. The two spellings
 differ elsewhere in Pets: in an instruction, `<>` says "I accept this use's defaults on purpose".
-That rule belongs to instructions, not to types; see L3-2 and L12-5.
+That rule belongs to instructions, not to types; see L1-2 and L9-5.
 
 > **Non-normative example — neutral solo tiles.** Their city placement is `@CityTile<> THEN
 > GreeneryTile<LandArea(HAS Neighbor<@CityTile>)>`: place a city under the ordinary city-placement
@@ -750,7 +750,7 @@ constraint that cannot meet the domain at all accepts nothing.
 
 > **Non-normative example — actor constraints.** Protected Habitats forbids removal
 > `BY Player(NOT Owner)`: a player, other than the card's owner, performing the change. By contrast,
-> `BY Anyone` is the spelling that removes a trigger's usual actor restriction (L8-8) altogether, so
+> `BY Anyone` is the spelling that removes a trigger's usual actor restriction (L6-9) altogether, so
 > Aphrodite's `VenusStep BY Anyone: 2 MC` also reacts to a Venus step performed by Admin. That
 > wildcard is not the ownership class `Anyone` read inside `Actor`.
 
@@ -1010,7 +1010,7 @@ expression *resolves*. It never changes which types exist.
 (`DEFAULT Foo<...>`), for gains (`DEFAULT +Foo<...>`) and for removals (`DEFAULT -Foo<...>`). A
 class's all-uses defaults give it a **default template**, its base type written with those
 defaults filled in, and a **default type**, the type that template denotes. The two differ only as
-T10-5 says. Instructions consume the gain and removal sets (L12-5); resolution does not.
+T10-5 says. Instructions consume the gain and removal sets (L9-5); resolution does not.
 
 ```pets
 ABSTRACT CLASS SpecialTile : Tile<MarsArea> {
@@ -1057,7 +1057,7 @@ class's own bound for the key, records nothing at all.
 
 **T10-5. `Owner` in a default stays as written.** This is the one deliberate exception to T10-4. A
 literal `Owner` written in a default is *not* intersected with the class's bound, so it can later
-be replaced by whichever player supplies the context (L12-3).
+be replaced by whichever player supplies the context (L9-3).
 
 The visible consequence is that a class's default template may lie outside its own bounds. `Owned`
 declares `DEFAULT Owned<Owner>`, and `TerraformRating : Owned<Player>` inherits it. The base type
@@ -1067,7 +1067,7 @@ it still respects the class's bounds (T5-7).
 
 > **Non-normative example — setting up terraform rating.** Multiplayer setup runs
 > `EACH Player { 20 TerraformRating }`, and inside that body `Owner` is the player selected for the
-> branch (L12-3). If the default were normalized early to `TerraformRating<Player>`, the body would
+> branch (L9-3). If the default were normalized early to `TerraformRating<Player>`, the body would
 > name "some player's" rating instead of the selected player's.
 
 ---
@@ -1211,7 +1211,7 @@ happens to contain no matching components, has no remaining capacity, or answers
 in the negative.
 
 An uninhabited type counts zero, contributes no concrete choices and no class representative, and
-cannot be the type of a component or fire a trigger. L12-14 says what becomes of a change to one.
+cannot be the type of a component or fire a trigger. L9-14 says what becomes of a change to one.
 Its nominal meaning remains available for resolution, subtyping, meets, differences and diagnostics.
 
 `Die` is a different case. It is a concrete, final class whose invariant allows it no component in
@@ -1274,7 +1274,7 @@ type, so an occurrence may apply dependency arguments to it. `SoloCardResourceRe
 bound to `Microbe`, that occurrence is `Microbe<This>`. The applied expression follows the ordinary
 rules: arguments match keys under T3-5, intersect bounds under T3-4, and must agree with
 dependencies the selected class already fixes. An explicit empty list, `@X<>`, keeps its normal
-meaning of accepting that occurrence's defaults (L3-2). Only a represented-class variable may vary
+meaning of accepting that occurrence's defaults (L1-2). Only a represented-class variable may vary
 its argument list between occurrences, and an occurrence that does not supply the variable may not
 add a refinement.
 
@@ -1337,7 +1337,7 @@ action-used marker belongs to the player whose card it marks.
 **T13-3. Occurrences in the class's own body are marked explicitly.** A marker on an eligible header
 occurrence and matching marked occurrences in the class's authored effects or actions share one
 variable. An unmarked type in the body is an ordinary expression, not an occurrence of a header
-variable. A marker is anonymous or has a class-name-shaped local name (L3-9), and every marked
+variable. A marker is anonymous or has a class-name-shaped local name (L1-7), and every marked
 header variable must recur. A represented-class header variable follows T13-1, so the body of a
 class declaring `Class<@CardResource>` may write `@CardResource<This>`.
 
@@ -1383,7 +1383,7 @@ position does supply a value. `CardBilling : Billing<CardPlay, Action1, Class<MC
 and the instruction are one variable. A matching trigger occurrence supplies its complete
 structural expression. A requirement, metric or refinement may observe that variable but cannot
 supply it, and the observing occurrence may nevertheless come first in the source. The marker is
-anonymous or has a class-name-shaped local name (L3-9). At least one occurrence must be in the
+anonymous or has a class-name-shaped local name (L1-7). At least one occurrence must be in the
 instruction, since repetitions confined to the trigger do not connect the trigger's matched value to
 the effect's result. Only a represented-class occurrence may apply dependency arguments (T13-1), and
 an occurrence that does not supply the variable may not add a refinement.
@@ -1430,13 +1430,13 @@ without that refinement.
 
 The first two are **settlement sites**: parts of one rule that are settled separately, across which
 "the same one" is worth saying. An action's two regions are the two stages its arrow lowers to
-(L9-2), and `X` is shared across exactly the same regions (L6-14).
+(L7-3), and `X` is shared across exactly the same regions (L2-11).
 
 A full transmutation is different: its sides are settled together as one atomic pair. Matching
 markers on its gained and removed sides share one choice. A non-observing marker on either side can
 supply that choice, so the destination may use the selected source in a refinement just as the
 source may use the selected destination. Compact `FROM` has its own instruction syntax and declares
-no variable (L6-12).
+no variable (L2-4).
 
 > **Non-normative example — Market Manipulation.**
 > `ColonyProduction(NOT Source@ColonyProduction) FROM Source@ColonyProduction` moves one step to a

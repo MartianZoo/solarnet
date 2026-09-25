@@ -15,11 +15,11 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 /**
- * Section 7 of `docs/pets-language-spec.md`: which more specific instruction is an acceptable way
- * of carrying out a more general one. Every instruction here is elaborated first (L12-1), because
- * an authored change carries no quantifier to compare until it is.
+ * Section 3 of `docs/pets-language-spec.md`: which more specific instruction is an acceptable way
+ * of carrying out a more general one. Every instruction here is elaborated first (L9-1), because an
+ * authored change carries no quantifier to compare until it is.
  */
-internal class Lang07NarrowingTest {
+internal class Lang03NarrowingTest {
 
   private object BrokenSpecification : Specification<BrokenSpecification> {
     override fun isAbstract(info: TypeInfo): Boolean = false
@@ -37,10 +37,10 @@ internal class Lang07NarrowingTest {
 
   private fun abstract(source: String): Boolean = elaborate(source).isAbstract(langWorld)
 
-  // L7-1 What counts as open
+  // L3-1 What counts as open
 
   @Test
-  internal fun `L7-1 an instruction is abstract when something is still open`() {
+  internal fun `L3-1 an instruction is abstract when something is still open`() {
     abstract("2 Plant!") shouldBe false
     abstract("2 Plant?") shouldBe true
     abstract("X Plant!") shouldBe true
@@ -51,17 +51,17 @@ internal class Lang07NarrowingTest {
   }
 
   @Test
-  internal fun `L7-1 an abstract part anywhere makes the whole thing abstract`() {
+  internal fun `L3-1 an abstract part anywhere makes the whole thing abstract`() {
     abstract("Plant, Tile<>") shouldBe true
     abstract("Plant THEN Tile<>") shouldBe true
     abstract("MAX 0 Heat: Tile<>") shouldBe true
     abstract("Plant / Heat") shouldBe false
   }
 
-  // L7-2 Shape
+  // L3-2 Shape
 
   @Test
-  internal fun `L7-2 a narrowing preserves the kind of node`() {
+  internal fun `L3-2 a narrowing preserves the kind of node`() {
     refuses("2 Plant", "-2 Plant")
     refuses("Plant THEN Heat", "Plant")
     refuses("MAX 0 Heat: Plant", "Plant")
@@ -69,22 +69,30 @@ internal class Lang07NarrowingTest {
   }
 
   @Test
-  internal fun `L7-2 programmatic values reject incompatible narrowings`() {
+  internal fun `L3-2 programmatic values reject incompatible narrowings`() {
     shouldThrow<NarrowingException> { XScalar(1).ensureNarrows(ActualScalar(1), langWorld) }
     shouldThrow<NarrowingException> { NumberValue(1).ensureNarrows(NumberValue(2), langWorld) }
   }
 
   @Test
-  internal fun `L7-2 a narrowing preserves the number of stages and the size of a group`() {
+  internal fun `L3-2 a narrowing preserves the number of stages and the size of a group`() {
     refuses("Plant THEN Heat", "Plant THEN Heat THEN Steel")
     refuses("Plant, Heat", "Plant, Heat, Steel")
     narrows("Plant THEN Heat", "Plant THEN Heat") shouldBe true
   }
 
-  // L7-3 Changes
+  // L3-3 Groups
 
   @Test
-  internal fun `L7-3 a count may not grow, and shrinks only under an optional quantifier`() {
+  internal fun `L3-3 groups narrow elementwise and by position`() {
+    narrows("Tile<>, Plant", "GreeneryTile<Land1>, Plant") shouldBe true
+    refuses("Tile<>, Plant", "Plant, GreeneryTile<Land1>")
+  }
+
+  // L3-4 Changes
+
+  @Test
+  internal fun `L3-4 a count may not grow, and shrinks only under an optional quantifier`() {
     narrows("2 Plant!", "2 Plant!") shouldBe true
     refuses("2 Plant!", "3 Plant!")
     refuses("2 Plant!", "Plant!")
@@ -94,7 +102,7 @@ internal class Lang07NarrowingTest {
   }
 
   @Test
-  internal fun `L7-3 an optional quantifier may become anything, and mandatory and AMAP may not`() {
+  internal fun `L3-4 an optional quantifier may become anything, and mandatory and AMAP may not`() {
     narrows("2 Plant?", "2 Plant!") shouldBe true
     narrows("2 Plant?", "2 Plant.") shouldBe true
     narrows("2 Plant?", "2 Plant?") shouldBe true
@@ -103,7 +111,7 @@ internal class Lang07NarrowingTest {
   }
 
   @Test
-  internal fun `L7-3 both changes must be elaborated before narrowing`() {
+  internal fun `L3-4 both changes must be elaborated before narrowing`() {
     val authored = parse<InstructionTree>("Plant")
     val elaborated = elaborate("Plant")
 
@@ -112,7 +120,7 @@ internal class Lang07NarrowingTest {
   }
 
   @Test
-  internal fun `L7-3 each written expression must narrow the authored one`() {
+  internal fun `L3-4 each written expression must narrow the authored one`() {
     narrows("Tile<>", "GreeneryTile<Land1>") shouldBe true
     narrows("Tile<Land1>", "GreeneryTile<Land1>") shouldBe true
     refuses("Tile<Land1>", "GreeneryTile<Land2>")
@@ -120,51 +128,34 @@ internal class Lang07NarrowingTest {
     narrows("Plant FROM Heat", "Plant FROM Heat") shouldBe true
   }
 
-  // L7-4 Ok
+  // L3-5 Ok
 
   @Test
-  internal fun `L7-4 Ok narrows an optional change and nothing else`() {
+  internal fun `L3-5 Ok narrows an optional change and nothing else`() {
     narrows("2 Plant?", "Ok") shouldBe true
     refuses("2 Plant!", "Ok")
     refuses("2 Plant.", "Ok")
   }
 
-  // L7-5 What is not a choice
+  // L3-6 OR
 
   @Test
-  internal fun `L7-5 a gate, a metric, an actor and a selector must be reproduced exactly`() {
-    narrows("MAX 0 Heat: Tile<>", "MAX 0 Heat: GreeneryTile<Land1>") shouldBe true
-    refuses("MAX 0 Heat: Tile<>", "MAX 0 Plant: GreeneryTile<Land1>")
-
-    narrows("Tile<> / Heat", "GreeneryTile<Land1> / Heat") shouldBe true
-    refuses("Tile<> / Heat", "GreeneryTile<Land1> / Plant")
-
-    narrows("Tile<> BY Player1", "GreeneryTile<Land1> BY Player1") shouldBe true
-    refuses("Tile<> BY Player1", "GreeneryTile<Land1> BY Player2")
-
-    narrows("EACH Player { Tile<> }", "EACH Player { GreeneryTile<Land1> }") shouldBe true
-    refuses("EACH Player { Tile<> }", "EACH Area { GreeneryTile<Land1> }")
-  }
-
-  // L7-6 OR
-
-  @Test
-  internal fun `L7-6 a proposal narrows an OR by narrowing any one arm`() {
+  internal fun `L3-6 a proposal narrows an OR by narrowing any one arm`() {
     narrows("Plant! OR Heat!", "Plant!") shouldBe true
     narrows("Plant! OR Heat!", "Heat!") shouldBe true
     refuses("Plant! OR Heat!", "Steel!")
   }
 
   @Test
-  internal fun `L7-6 an OR narrows an OR only when every arm does`() {
+  internal fun `L3-6 an OR narrows an OR only when every arm does`() {
     narrows("Tile<>! OR Plant!", "GreeneryTile<Land1>! OR Plant!") shouldBe true
     refuses("Tile<>! OR Plant!", "GreeneryTile<Land1>! OR Steel!")
   }
 
-  // L7-7 X
+  // L3-7 X
 
   @Test
-  internal fun `L7-7 X takes one value everywhere, scaled by each coefficient`() {
+  internal fun `L3-7 X takes one value everywhere, scaled by each coefficient`() {
     narrows("X Plant THEN X Heat", "3 Plant THEN 3 Heat") shouldBe true
     narrows("X Plant THEN 2X Heat", "3 Plant THEN 6 Heat") shouldBe true
     refuses("X Plant THEN 2X Heat", "3 Plant THEN 5 Heat")
@@ -174,17 +165,32 @@ internal class Lang07NarrowingTest {
   }
 
   @Test
-  internal fun `L7-7 shared X follows the selected OR arm across THEN`() {
+  internal fun `L3-7 shared X follows the selected OR arm across THEN`() {
     narrows("(X Plant OR X Heat) THEN X Steel", "3 Plant THEN 3 Steel") shouldBe true
     narrows("(X Plant OR X Heat) THEN X Steel", "3 Heat THEN 3 Steel") shouldBe true
     refuses("(X Plant OR X Heat) THEN X Steel", "3 Plant THEN 2 Steel")
     narrows("(X Plant OR 2X Plant) THEN X Steel", "4 Plant THEN 2 Steel") shouldBe true
   }
 
-  // L7-8 Shared type variables
+  @Test
+  internal fun `L3-7 X is at least one`() {
+    // A written zero is already rejected when parsed (L2-2), so this is the only way to propose
+    // one.
+    shouldThrow<NarrowingException> { ActualScalar(0).ensureNarrows(XScalar(1), langWorld) }
+    ActualScalar(3).ensureNarrows(XScalar(1), langWorld)
+  }
 
   @Test
-  internal fun `L7-8 a named abstract expression takes one value everywhere`() {
+  internal fun `L3-7 one X around a group settles every member of it`() {
+    narrows("-X Heat! THEN (X Steel!, X Plant!)", "-3 Heat! THEN (3 Steel!, 3 Plant!)") shouldBe
+        true
+    refuses("-X Heat! THEN (X Steel!, X Plant!)", "-3 Heat! THEN (3 Steel!, 2 Plant!)")
+  }
+
+  // L3-8 Shared type variables
+
+  @Test
+  internal fun `L3-8 a named abstract expression takes one value everywhere`() {
     narrows("@Token THEN @Token", "RedToken THEN RedToken") shouldBe true
     refuses("@Token THEN @Token", "RedToken THEN BlueToken")
     narrows("@Token FROM @Token", "RedToken FROM RedToken") shouldBe true
@@ -204,7 +210,7 @@ internal class Lang07NarrowingTest {
   }
 
   @Test
-  internal fun `L7-8 binding a THEN stage requires a binding and a met gate`() {
+  internal fun `L3-8 binding a THEN stage requires a binding and a met gate`() {
     val unbound = elaborate("Plant THEN Heat") as dev.martianzoo.pets.ast.Instruction.Then
     shouldThrow<NarrowingException> {
       unbound.bindFirstStage(elaborate("Plant") as dev.martianzoo.pets.ast.Instruction, langWorld)
@@ -226,7 +232,7 @@ internal class Lang07NarrowingTest {
   }
 
   @Test
-  internal fun `L7-8 selecting an OR arm binds later THEN stages`() {
+  internal fun `L3-8 selecting an OR arm binds later THEN stages`() {
     val sequence =
         elaborate("(@Token OR Plant) THEN @Token") as dev.martianzoo.pets.ast.Instruction.Then
     val proposal = elaborate("RedToken") as dev.martianzoo.pets.ast.Instruction
@@ -236,7 +242,7 @@ internal class Lang07NarrowingTest {
   }
 
   @Test
-  internal fun `L7-8 expansion matching ignores an occurrence unavailable in its universe`() {
+  internal fun `L3-8 expansion matching ignores an occurrence unavailable in its universe`() {
     val table = testCatalog("ABSTRACT CLASS Shade\nCLASS Token<Shade>").classTable
     val expanded = parse<Expression>("Token<Shade>")
     val unavailable = parse<Expression>("Token<PremiseShade>")
@@ -244,41 +250,35 @@ internal class Lang07NarrowingTest {
     expanded.isExpandedFrom(unavailable, table) shouldBe false
   }
 
-  // L7-9 The two spellings
+  // L3-9 What is not a choice
 
   @Test
-  internal fun `L7-9 narrows answers and ensureNarrows explains`() {
+  internal fun `L3-9 a gate, a metric, an actor and a selector must be reproduced exactly`() {
+    narrows("MAX 0 Heat: Tile<>", "MAX 0 Heat: GreeneryTile<Land1>") shouldBe true
+    refuses("MAX 0 Heat: Tile<>", "MAX 0 Plant: GreeneryTile<Land1>")
+
+    narrows("Tile<> / Heat", "GreeneryTile<Land1> / Heat") shouldBe true
+    refuses("Tile<> / Heat", "GreeneryTile<Land1> / Plant")
+
+    narrows("Tile<> BY Player1", "GreeneryTile<Land1> BY Player1") shouldBe true
+    refuses("Tile<> BY Player1", "GreeneryTile<Land1> BY Player2")
+
+    narrows("EACH Player { Tile<> }", "EACH Player { GreeneryTile<Land1> }") shouldBe true
+    refuses("EACH Player { Tile<> }", "EACH Area { GreeneryTile<Land1> }")
+  }
+
+  // L3-10 The two spellings
+
+  @Test
+  internal fun `L3-10 narrows answers and ensureNarrows explains`() {
     narrows("2 Plant!", "3 Plant!") shouldBe false
     refuses("2 Plant!", "3 Plant!").message!!.contains("does not narrow") shouldBe true
   }
 
   @Test
-  internal fun `L7-9 narrows propagates failures other than a narrowing refusal`() {
+  internal fun `L3-10 narrows propagates failures other than a narrowing refusal`() {
     shouldThrow<IllegalStateException> {
       BrokenSpecification.narrows(BrokenSpecification, langWorld)
     }
-  }
-
-  @Test
-  internal fun `L7-7 X is at least one`() {
-    // A written zero is already rejected when parsed (L6-2), so this is the only way to propose
-    // one.
-    shouldThrow<NarrowingException> { ActualScalar(0).ensureNarrows(XScalar(1), langWorld) }
-    ActualScalar(3).ensureNarrows(XScalar(1), langWorld)
-  }
-
-  @Test
-  internal fun `L7-7 one X around a group settles every member of it`() {
-    narrows("-X Heat! THEN (X Steel!, X Plant!)", "-3 Heat! THEN (3 Steel!, 3 Plant!)") shouldBe
-        true
-    refuses("-X Heat! THEN (X Steel!, X Plant!)", "-3 Heat! THEN (3 Steel!, 2 Plant!)")
-  }
-
-  // L7-10 Groups
-
-  @Test
-  internal fun `L7-10 groups narrow elementwise and by position`() {
-    narrows("Tile<>, Plant", "GreeneryTile<Land1>, Plant") shouldBe true
-    refuses("Tile<>, Plant", "Plant, GreeneryTile<Land1>")
   }
 }

@@ -47,7 +47,8 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 
 | Concept being changed | Read | Authority |
 | --- | --- | --- |
-| Game World ownership, passive component/task data, recordings, exports, or playback | [`GAMEWORLD.md`](GAMEWORLD.md) | Selected direction |
+| Game World ownership, passive component/task data, recording internals, or playback | [`GAMEWORLD.md`](GAMEWORLD.md) | Selected direction |
+| Exact event exports, decision exports, combined files, or game import | [`EXPORT.md`](EXPORT.md) | Current event export and decision-design record |
 | Current World construction, components, tasks, effects, or Agent | [`ENGINE.md`](ENGINE.md) | Current model |
 | Current live event, transaction, checkpoint, or rollback implementation | [`ENGINE.md`](ENGINE.md#concrete-state-and-its-history) | Current model |
 | Task ordering, `THEN`, automatic effects, barriers, or completion | [`SEQUENCING.md`](SEQUENCING.md) | Working rules and selected direction |
@@ -58,6 +59,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Known deliberate game representations | The matching entry in [`GAME_HACKS.md`](GAME_HACKS.md) | Current model |
 | Phase topology or replacing the Kotlin workflow | [`WORKFLOW.md`](WORKFLOW.md) | Domain rules and proposal |
 | Agent policies, shared autoexecution, or policy-relative stable points | [`AUTOEXEC.md`](AUTOEXEC.md) | Working direction and audit |
+| Stashed Admin task-routing experiment and turn-state questions | [`TASK_ROUTING_EXPERIMENT.md`](TASK_ROUTING_EXPERIMENT.md) | Research; not current behavior |
 | Proof that an automatic task command is safe | [`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md) | Research and proposal |
 | Runtime diagnostics, event metadata, or traces | [`DIAGNOSTICS.md`](DIAGNOSTICS.md) | Proposal and procedure |
 

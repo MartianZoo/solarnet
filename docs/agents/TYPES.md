@@ -12,7 +12,7 @@
 > defaults, enumeration, inhabitance, and Type variables. [`docs/pets-language-spec.md`](../pets-language-spec.md)
 > is the authority for the language — declarations, expressions, requirements, metrics, instructions,
 > narrowing, effects, actions, transform blocks, owner-local Classes, and elaboration, including how
-> an authored instruction receives its defaults. Rules are numbered `T4-2` and `L4-2` and each is
+> an authored instruction receives its defaults. Rules are numbered `T4-2` and `L5-2` and each is
 > checked by the identically named test under `test/common/dev/martianzoo/pets/`.
 >
 > **Status:** the residue — the parts of the Pets type story that other modules own.
@@ -34,7 +34,7 @@
 ## 1. Type-variable lifetime outside resolution
 
 *Type-system-spec section 13 defines what a Type variable is, where one is scoped, and what
-binding does, and language-spec L7-8 says what narrowing one requires. These are the engine-facing
+binding does, and language-spec L3-8 says what narrowing one requires. These are the engine-facing
 consequences.*
 
 Class-scoped variables survive inheritance and enumeration. Component specialization substitutes

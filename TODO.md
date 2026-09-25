@@ -17,6 +17,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   Mars First's inline `Policy<This> { Tile<MarsArea>: Steel }` lowers to a gain of
   `MarsFirst_Policy<This>` extending `Policy<MarsFirst>`; `MarsFirst` is fixed and no longer an
   argument position, so elaboration rejects the gain.
+- Consider allowing owner-local Class declarations only in gain instructions. They currently also
+  parse in other expression positions, including a selector's `HAS` refinement; decide the intended
+  boundary and account for existing uses before restricting the syntax.
 - Let a configuration select all applicable Content exposed by one bundle, without inventing a
   `CardPack` Module. Resolve narrower pool requests into individual Class choices before the game
   premise is built. Resolve eligibility before offering that choice: promo replacements still test
@@ -122,9 +125,13 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Render the five beginner corporation copies from their inherited modeled setup semantics.
 - Complete the three visible goal-text refusals only from modeled semantics: Briber's immediate
   claim instruction, Philantropist's `GainsOf` metric, and Suburbian's map-edge concept.
+- Review [the class-existence scenario draft](docs/class-existence-scenarios-draft.md) for
+  clarity and coverage, then consolidate `ClassDefinitionBoundaryTest` and
+  `ClassTableSelectionTest`. Keep each distinct selection boundary tested once and remove
+  repetitive assertions without losing the readable scenarios or broad module/content cases.
 - Add Jacob Fryxelius's ruling that moving Mars Nomads does not trigger the Mars First ruling policy.
 - Repair the two declared Pets conformance gaps without adding a second representation of type
-  identity: L7-8 lets `Tile<> THEN Tile<>` stages diverge after defaults, and T8-3 can substitute a
+  identity: L3-8 lets `Tile<> THEN Tile<>` stages diverge after defaults, and T8-3 can substitute a
   refinement candidate into the wrong one of several compatible dependency slots while existing
   cards still require candidate/argument merging.
 - Find a principled way for narrower dependency defaults to retain compatible refinements from

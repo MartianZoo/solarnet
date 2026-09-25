@@ -18,17 +18,17 @@ import dev.martianzoo.pets.util.iff
 
 /**
  * A rule attached to a class, like `CityTile: 2 MC`, as defined by
- * [section 8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects).
+ * [section 6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects).
  * Every component of that class carries the rule for as long as it exists.
  *
  * An effect is a trigger, a colon, and an instruction ([rule
- * L8-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)):
+ * L6-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects)):
  * the trigger says which event the rule is about, and the instruction says how the state after that
  * event relates to the state before it.
  *
  * An effect round-trips, and rendering parenthesizes a gated instruction after the colon so that
  * the effect's own colon stays unambiguous ([rule
- * L8-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)).
+ * L6-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects)).
  */
 public data class Effect(
     /** The event this rule is about. */
@@ -40,13 +40,13 @@ public data class Effect(
     /**
      * Whether this effect was written `::` rather than `:`, marking a consequence that carries no
      * choice and that the rule intends to be inseparable from the event causing it ([rule
-     * L8-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)).
+     * L6-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects)).
      * When that distinction matters is `SEQUENCING.md`'s subject.
      */
     val automatic: Boolean = false,
 ) : PetElement() {
   init {
-    // A bare Component subscription watches everything and states nothing; rule L8-10 requires it
+    // A bare Component subscription watches everything and states nothing; rule L6-11 requires it
     // to
     // say what it is actually watching for.
     trigger.unqualifiedBroadSubscription()?.let {
@@ -66,7 +66,7 @@ public data class Effect(
    * The left-hand side of an [Effect]; the kind of event the rule is about. There are two kinds: a
    * [SelfTrigger] about this very component, and a [SubscribedTrigger] about matching changes
    * anywhere ([rule
-   * L8-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)).
+   * L6-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects)).
    */
   public sealed class Trigger : PetNode() {
     override val kind: kotlin.reflect.KClass<out PetNode> = Trigger::class
@@ -94,10 +94,10 @@ public data class Effect(
 
     /**
      * Fires when any of [triggers] does. Self and subscribed triggers may not mix ([rule
-     * L8-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)):
+     * L6-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects)):
      * `This OR -This` is fine, but `This OR Plant` is not, because one is about this component and
      * the other about the world. `OR` binds most tightly of the trigger operators ([rule
-     * L8-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)).
+     * L6-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects)).
      */
     public data class Or(val triggers: List<Trigger>) : Trigger() {
       init {
@@ -136,13 +136,13 @@ public data class Effect(
         /**
          * Returns the trigger for gains of [expression], which is [WhenGain] when [expression] is
          * the bare `This` placeholder however its empty argument list was written ([rules
-         * L8-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)
+         * L6-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects)
          * and
-         * [L3-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-expressions)).
+         * [L1-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions)).
          *
          * @throws PetSyntaxException if [expression] is a class literal, which nothing ever gains
          *   ([rule
-         *   L8-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects),
+         *   L6-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects),
          *   [rule T4-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#4-class-literals))
          */
         public fun create(expression: Expression): BasicTrigger {
@@ -174,13 +174,13 @@ public data class Effect(
         /**
          * Returns the trigger for removals of [expression], which is [WhenRemove] when [expression]
          * is the bare `This` placeholder however its empty argument list was written ([rules
-         * L8-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)
+         * L6-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects)
          * and
-         * [L3-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-expressions)).
+         * [L1-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions)).
          *
          * @throws PetSyntaxException if [expression] is a class literal, which nothing ever removes
          *   ([rule
-         *   L8-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects),
+         *   L6-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects),
          *   [rule T4-6](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#4-class-literals))
          */
         public fun create(expression: Expression): BasicTrigger {
@@ -214,7 +214,7 @@ public data class Effect(
 
     /**
      * Restricts [inner] to events performed by an actor matching [by] ([rule
-     * L8-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)).
+     * L6-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects)).
      * Because the selector is an expression, `BY Player(NOT Owner)` and `BY Player` filter while
      * `BY @Player` marks an actor variable reused as `@Player` ([rule
      * T13-9](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables)).
@@ -234,7 +234,7 @@ public data class Effect(
 
     /**
      * Restricts [inner] to events occurring while [condition] holds ([rule
-     * L8-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects))
+     * L6-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects))
      * — a question about state, where a [ByTrigger] asks who acted. It binds least tightly of the
      * trigger operators.
      */
@@ -251,7 +251,7 @@ public data class Effect(
     /**
      * Binds the size of the change [inner] watches for, so that `X Plant: X Heat` reacts to a gain
      * of any number of plants with the same number of heat ([rule
-     * L8-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)).
+     * L6-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects)).
      * A removal is written `-X Plant`.
      */
     public data class XTrigger(override val inner: BasicTrigger) : WrappingTrigger() {
@@ -267,7 +267,7 @@ public data class Effect(
 
     /**
      * An [inner] trigger marked for rewriting by the handler named by [transformKind]. Per
-     * [rule L10-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-transform-blocks)
+     * [rule L8-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-transform-blocks)
      * the mark applies to the event being watched, so it wraps only a gain or removal — never `OR`,
      * `BY` or `IF`.
      */
@@ -364,7 +364,7 @@ public data class Effect(
 /**
  * Returns a `Component` subscription reached without passing through an `IF` or `BY`, or null if
  * there is none.
- * [Rule L8-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)
+ * [Rule L6-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects)
  * rejects such an unqualified universe-wide watcher.
  */
 private fun Effect.Trigger.unqualifiedBroadSubscription(qualified: Boolean = false): Expression? =

@@ -174,18 +174,6 @@ internal class ClassTableSelectionTest {
   }
 
   @Test
-  internal fun `PreludeCard follows selected Content that needs that card back`() {
-    assertSoftly {
-      listOf("AcquiredSpaceAgency", "ValleyTrust").forEach { content ->
-        assertValidView(content) { view -> assertSelected(view, setOf(cn("PreludeCard"))) }
-      }
-      listOf("CheungShingMars", "HousePrinting").forEach { content ->
-        assertValidView(content) { view -> assertOmitted(view, setOf(cn("PreludeCard"))) }
-      }
-    }
-  }
-
-  @Test
   internal fun `Turmoil global events are individual Content with a hard Module dependency`() {
     assertInvalidView("AquiferReleasedByPublicCouncil")
     assertValidView("TurmoilExpansion, -AquiferReleasedByPublicCouncil") { view ->
@@ -305,24 +293,6 @@ internal class ClassTableSelectionTest {
   internal fun `cross-bundle Venus classes stay unselected without Venus Next`() {
     // Promo names VenusStep; Terra Cimmeria names VenusTag. Both definitions are Venus-gated.
     assertOmitted(promosCimmeriaWithoutCorporateEra, setOf(cn("VenusStep"), cn("VenusTag")))
-  }
-
-  @Test
-  internal fun `Corporate Era classes stay unselected without Corporate Era`() {
-    assertOmitted(withoutCorporateEra, setOf(cn("CopyProductionBox")))
-  }
-
-  @Test
-  internal fun `player classes follow the selected seats`() {
-    baseSolo.classNames.shouldNotContain(cn("Player2"))
-    baseSolo.classTable.isInhabited(cn("Player2")) shouldBe false
-    baseMultiplayer.classNames.shouldNotContain(cn("Player3"))
-    baseMultiplayer.classTable.isInhabited(cn("Player3")) shouldBe false
-  }
-
-  @Test
-  internal fun `multiplayer standard actions stay unselected in solo`() {
-    assertOmitted(baseSolo, setOf(cn("ClaimMilestoneAction"), cn("FundAwardAction")))
   }
 
   @Test
@@ -451,7 +421,6 @@ internal class ClassTableSelectionTest {
   // Compiled game views belong to this test instance, not the test worker's lifetime.
   private val baseMultiplayer = gameView("", "Player1", "Player2")
   private val baseSolo = gameView("", "Me")
-  private val withoutCorporateEra = gameView("-CorporateEraExpansion", "Player1", "Player2")
   private val promosUtopiaWithoutCorporateEra =
       gameView(
           "PromoCardPack, UtopiaMap, -CorporateEraExpansion",

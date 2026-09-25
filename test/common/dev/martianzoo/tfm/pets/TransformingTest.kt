@@ -21,7 +21,7 @@ import kotlin.test.Test
 
 /**
  * The [dev.martianzoo.pets.PetTransformer] contract. What the individual transformations *mean* is
- * `docs/pets-language-spec.md` (L9-4, L9-6, L12-2).
+ * `docs/pets-language-spec.md` (L7-5, L7-7, L9-2).
  */
 internal class TransformingTest {
 

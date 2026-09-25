@@ -143,7 +143,7 @@ unsupported; it is separate from per-branch class-property evaluation and is not
   binding and contextual-owner shielding (`selectionSuppliesOwner`).
 - [`InstructionResolutionTest.kt`](../../test/common/dev/martianzoo/engine/InstructionResolutionTest.kt)
   — runtime semantics (`testFanout`).
-- [`Lang06InstructionsTest.kt`](../../test/common/dev/martianzoo/pets/Lang06InstructionsTest.kt) —
+- [`Lang02InstructionsTest.kt`](../../test/common/dev/martianzoo/pets/Lang02InstructionsTest.kt) —
   syntax and static restrictions.
 - [`Prelude2CardsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/Prelude2CardsTest.kt) —
   independently chosen Colonial Envoys for equal Colony occurrences.
