@@ -410,7 +410,7 @@ internal class ClassTableSelectionTest {
                   setOf(
                       cn("LakefrontResorts"),
                       cn("Pristar"),
-                      cn("TerralabsResearch"),
+                      cn("TerraLabsResearch"),
                       cn("UtopiaInvest"),
                   ),
               moduleDependentContent = setOf(cn("AerialLenses")),
