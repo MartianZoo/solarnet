@@ -30,7 +30,7 @@ StormcraftIncorporated	Stormcraft Incorporated	Gain 48 M€.	Action: Add 1 float
 LakefrontResorts	Lakefront Resorts	Gain 54 M€.	Effect: When any ocean tile is placed, increase your M€ production 1 step. When you place a tile on Mars, gain 1 M€ per ocean tile next to that area.
 Pristar	Pristar	Gain 53 M€. Lower your terraform rating 2 steps. 1 VP per preservation resource on this card.	Effect: [ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6 MC].
 FakeSeptemTribus	Septem Tribus	Gain 36 M€. [FakeWildTag<This>].	Action: [2 MC / Class<Party>(HAS PartyDelegate<Party, Owner>)].
-TerralabsResearch	Terralabs Research	Gain 14 M€. Lower your terraform rating 1 step.	Effect: When you buy a card, you pay 2 M€ less for it.
+TerraLabsResearch	TerraLabs Research	Gain 14 M€. Lower your terraform rating 1 step.	Effect: When you buy a card, you pay 2 M€ less for it.
 UtopiaInvest	Utopia Invest	Gain 40 M€. Increase your steel production and your titanium production 1 step each.	Action: Decrease one of your productions 1 step to gain 4 of that resource.
 Ecotec	Ecotec	Gain 42 M€. Increase your plant production 1 step.	Effect: When you play a bio tag (including this), gain 1 plant or add 1 microbe to another card.
 NirgalEnterprises	Nirgal Enterprises	Gain 30 M€. Increase your energy production, your plant production, and your steel production 1 step each.	Effect: When you claim a milestone or fund an award, the cost is 0 M€.

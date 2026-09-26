@@ -286,7 +286,7 @@ one region are separated by semicolons.
 | Generated text | Gain 53 M€. Lower your terraform rating 2 steps. 1 VP per preservation resource on this card. | Effect: \[ProductionPhase IF MAX 0 HasRaisedTr: Preservation\<This\>, 6 MC\]. |
 | Raw PETS text | `This: 53 MC, -2 TerraformRating`; `End: VictoryPoint / Preservation<This>` | `ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6 MC` |
 
-### Terralabs Research
+### TerraLabs Research
 
 |  | Bottom | Top |
 | --- | --- | --- |
