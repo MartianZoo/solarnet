@@ -75,7 +75,10 @@ kotlin {
       kotlin.setSrcDirs(
           listOf(rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tfm/text"))
       )
-      dependencies { implementation(libs.kotest.assertions.core) }
+      dependencies {
+        implementation(project(":tfm-fake"))
+        implementation(libs.kotest.assertions.core)
+      }
     }
   }
 }
@@ -91,7 +94,7 @@ val jvmTestCompilation = kotlin.targets.getByName("jvm").compilations.getByName(
 
 tasks.register<JavaExec>("writeEnglishCardTextCurrent") {
   group = "verification"
-  description = "Writes the English renderer's current canonical-card output snapshot."
+  description = "Writes the English renderer's current published-card output snapshot."
   dependsOn(jvmTestCompilation.compileTaskProvider)
   classpath = files(jvmTestCompilation.output.allOutputs, jvmTestCompilation.runtimeDependencyFiles)
   mainClass = "dev.martianzoo.tfm.text.EnglishCardTextCurrentGenerator"

@@ -1,9 +1,11 @@
 count	reason	examples
-9	UNKNOWN_CHANGE_FRAME	TradeEnvoys: TradeBarrier<@ColonyTile> | TradingColony: TradeBarrier<@ColonyTile>
-6	UNSUPPORTED_EFFECT_TRIGGER	TradeEnvoys: Trade<@ColonyTile>: ColonyProduction<@ColonyTile>? THEN -TradeBarrier<@ColonyTile> | TradingColony: Trade<@ColonyTile>: ColonyProduction<@ColonyTile>? THEN -TradeBarrier<@ColonyTile>
+19	UNKNOWN_CHANGE_FRAME	FakeSeptemTribus: FakeWildTag<This> | SpliceTacticalGenomics: Splicer<This>
+10	UNSUPPORTED_EFFECT_TRIGGER	FakeHelion: Billing<HasActions, ActionSlot, Class<MC>> IF Owed<Class<MC>>:: Accepting<Class<Heat>> | Pristar: ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6 MC
 4	UNSUPPORTED_FANOUT	Aridor: EACH @Class<Tag> { AridorTagWatcher<@Class, This> } | EarlyColonization: EACH @ColonyTile { 2 ColonyProduction<@ColonyTile> }
-2	UNSUPPORTED_DECLARED_CHANGE	CyberiaSystems: CopyProductionBox<CardFront(HAS BuildingTag, NOT First@CardFront)> | Recruitment: PartyDelegate<Party(HAS 1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)), Owner FROM Neutral>
+3	UNSUPPORTED_CARD_RESOURCE_CHANGE	FakeL1TradeTerminal: Floater<FloatingHabs> | FakeL1TradeTerminal: Floater<AerialMappers>
+2	UNSUPPORTED_DECLARED_CHANGE	Recruitment: PartyDelegate<Party(HAS 1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)), Owner FROM Neutral> | CyberiaSystems: CopyProductionBox<CardFront(HAS BuildingTag, NOT First@CardFront)>
 2	UNSUPPORTED_GATE	LawSuit: (MyResourceWasRemoved<Owner, Attacker@Player> OR MyProductionWasDecreased<Owner, Attacker@Player>): 3 MC FROM MC<Attacker@Player> | CyberiaSystems: BuildingTag<First@CardFront>: CopyProductionBox<First@CardFront>
+2	UNSUPPORTED_SCALING	FakeSeptemTribus: 2 MC / Class<Party>(HAS PartyDelegate<Party, Owner>) | FakeBannedDelegate: FakeBannedDelegateRemoval<Party, Anyone>. / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1
 1	UNKNOWN_ACTION_FRAME	SearchForLife: MC -> Science<This>?
 1	UNKNOWN_REQUIREMENT_FRAME	CrashSiteCleanup: MyResourceWasRemoved<Anyone, Class<Plant>, Owner>
 1	UNSUPPORTED_END_EFFECT	Vermin: End IF 10 Animal<This>: EACH Player { -VictoryPoint / CityTile }

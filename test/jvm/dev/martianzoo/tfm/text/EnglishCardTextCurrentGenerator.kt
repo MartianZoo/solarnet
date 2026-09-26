@@ -1,7 +1,8 @@
 package dev.martianzoo.tfm.text
 
-import dev.martianzoo.pets.displayName
 import dev.martianzoo.tfm.canon.Canon
+import dev.martianzoo.tfm.canon.TfmCatalog
+import dev.martianzoo.tfm.fake.FakeCanon
 import java.io.File
 
 private object EnglishCardTextCurrentGenerator {
@@ -10,17 +11,16 @@ private object EnglishCardTextCurrentGenerator {
     require(args.size == 2)
     val output = File(args[0])
     val refusalOutput = File(args[1])
-    val english = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
-    val cardsByName = Canon.cards.associateBy { it.className }
-    val previousOrder = EnglishCardTextData.parse(output.readText()).keys
-    val orderedCards =
-        previousOrder.mapNotNull(cardsByName::get) +
-            Canon.cards.filter { it.className !in previousOrder }
+    val catalog = TfmCatalog.compose(Canon, FakeCanon)
+    val english = English(catalog.classTable, TerraformingMarsDescribers.descriptions)
+    val published =
+        EnglishCardTextData.parse(readEnglishCardText("english-published-wording-evidence.tsv"))
+    val orderedCards = published.keys.map(catalog.classTable::getClass)
     val renderedCards = orderedCards.map { card -> card to english.renderCard(card) }
     val rows = renderedCards.map { (card, rendering) ->
       listOf(
               card.className.toString(),
-              displayName(Canon, card.className),
+              published.getValue(card.className).englishName,
               rendering.bottom,
               rendering.top,
           )

@@ -9,32 +9,42 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.ClassDeclaration
-import dev.martianzoo.pets.displayName
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
+import dev.martianzoo.tfm.fake.FakeCanon
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class EnglishTest {
+  private val catalog = TfmCatalog.compose(Canon, FakeCanon)
   private val english = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
+  private val publishedEnglish =
+      English(catalog.classTable, TerraformingMarsDescribers.descriptions)
   private val cardsByClassName = Canon.cards.associateBy { it.className }
+  private val published =
+      EnglishCardTextData.parse(readEnglishCardText("english-published-wording-evidence.tsv"))
+  private val corrected =
+      EnglishCardTextData.parse(readEnglishCardText("english-corrected-wording-evidence.tsv"))
   private val goals = EnglishCardTextData.parse(readEnglishCardText("english-card-text-goals.tsv"))
   private val current =
       EnglishCardTextData.parse(readEnglishCardText("english-card-text-current.tsv"))
 
-  // This characterization is deliberately the sole wording test for every canonical derivation
+  // This characterization is deliberately the sole wording test for every published card
   // shape. The separate goals file is reviewed target text, not an answer source or test oracle.
   @Test
   internal fun allCardTextMatchesCurrentSnapshot() {
     goals.keys shouldBe cardsByClassName.keys
-    current.keys shouldBe cardsByClassName.keys
+    current.keys.toList() shouldBe published.keys.toList()
+    corrected.keys.toList() shouldBe published.keys.toList()
     current.forEach { (cardFront, expected) ->
       withClue(cardFront.toString()) {
-        val card = requireNotNull(cardsByClassName[cardFront])
-        val rendering = english.renderCard(card)
-        expected.englishName shouldBe displayName(Canon, cardFront)
+        val card = catalog.classTable.getClass(cardFront)
+        val rendering = publishedEnglish.renderCard(card)
+        expected.englishName shouldBe published.getValue(cardFront).englishName
+        expected.englishName shouldBe corrected.getValue(cardFront).englishName
+        expected.englishName.contains("Fake", ignoreCase = true) shouldBe false
         rendering.top shouldBe expected.top
         rendering.bottom shouldBe expected.bottom
         countRenderedPetsFallbacks(rendering.top) +

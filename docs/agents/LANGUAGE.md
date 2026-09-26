@@ -269,8 +269,9 @@ Use evidence in this order:
    never a production answer source.
 
 The goals files may cover a selected proving corpus rather than every loaded card or goal. The
-current snapshots cover every loaded card and concrete goal. Current refusals are recorded
-mechanically in the generated `*-refusals.tsv`; do not restate them here.
+card current snapshot follows the published wording evidence, including replay-only cards and the
+abstract Beginner Corporation. The goal current snapshot covers every concrete goal. Current
+refusals are recorded mechanically in the generated `*-refusals.tsv`; do not restate them here.
 
 After an intentional output change, run:
 
