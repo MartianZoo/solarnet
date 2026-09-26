@@ -290,6 +290,16 @@ Use evidence in this order:
 4. `english-card-text-current.tsv` / `english-goal-text-current.tsv`, as generated characterization —
    never a production answer source.
 
+`english-global-event-published-wording-evidence.tsv` records the 31 Turmoil and five promotional
+Global Events in spreadsheet order. Its effect text comes from the
+[Global Events sheet](https://docs.google.com/spreadsheets/d/12FF6VyIKr8HArRR9zjkaIR-PEUql6QnNBbngvI3Fzjo/edit?gid=418375937#gid=418375937),
+visually checked against all 36 [Hadronikle scans](https://tm.hadronikle.com/) on 2026-09-25.
+Line wrapping and the outer reminder-text parentheses are omitted; internal punctuation is retained,
+including the scan's comma in Riots' `(max 5, then reduced by influence)`. Names use the spreadsheet's
+capitalization and spelling (the Successful Organisms scan misspells its title `SUCESSFUL`). Upper
+titles, flavor text, icons, and spreadsheet notes are outside this effect-text corpus; Dry Deserts'
+upper title is `Minimal Impact Policy` on the scan, not the sheet's `Free Academia Treaty`.
+
 The card goals cover the same corpus as the card current and corrected files. That corpus follows
 the published wording evidence, including replay-only cards and the abstract Beginner Corporation.
 Retain supported printed constraints in reviewed goals even when Pets does not yet enforce them;

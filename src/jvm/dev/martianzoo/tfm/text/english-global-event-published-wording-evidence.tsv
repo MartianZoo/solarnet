@@ -1,0 +1,37 @@
+class_name	english_name	published_text
+AquiferReleasedByPublicCouncil	Aquifer Released By Public Council	First player places an ocean tile. Gain 1 plant and 1 steel per influence.
+AsteroidMiningGlobalEvent	Asteroid Mining	Gain 1 titanium for each Jovian tag (max 5) and influence.
+CelebrityLeaders	Celebrity Leaders	Gain 2 M€ for each event played (max 5) and influence.
+Diversity	Diversity	Gain 10 M€ if you have 9 or more different tags. Influence counts as unique tags.
+DryDeserts	Dry Deserts	First player removes 1 ocean tile from the gameboard. Gain 1 standard resource per influence.
+EcoSabotage	Eco Sabotage	Lose all plants except 3 + influence.
+Election	Election	Count your influence plus building tags and city tiles (no limits). The player with most (or 10 in solo) gains 2 TR, the 2nd (or counting 5 in solo) gains 1 TR (ties are friendly).
+GenerousFunding	Generous Funding	Gain 2 M€ for each influence and each complete set of 5 TR over 15 (max 5 sets).
+GlobalDustStorm	Global Dust Storm	Lose all heat. Lose 2 M€ for each building tag (max 5, then reduced by influence).
+HomeworldSupport	Homeworld Support	Gain 2 M€ for each Earth tag (max 5) and influence.
+ImprovedEnergyTemplates	Improved Energy Templates	Increase energy production 1 step per 2 power tags (no limit). Influence counts as power tags.
+InterplanetaryTradeGlobalEvent	Interplanetary Trade	Gain 2 M€ for each space tag (max 5) and influence.
+MinersOnStrike	Miners On Strike	Lose 1 titanium for each Jovian tag (max 5, then reduced by influence).
+MudSlides	Mud Slides	Lose 4 M€ for each tile adjacent to ocean (max 5, then reduced by influence).
+Pandemic	Pandemic	Lose 3 M€ for each building tag (max 5, then reduced by influence).
+ParadigmBreakdown	Paradigm Breakdown	Discard 2 cards from hand. Gain 2 M€ per influence.
+Productivity	Productivity	Gain 1 steel for each steel production (max 5) and influence.
+RedInfluence	Red Influence	Lose 3 M€ for each set of 5 TR over 10 (max 5 sets). Increase M€ production 1 step per influence.
+Revolution	Revolution	Count Earth tags and ADD(!) influence. The player(s) with most (at least 1) loses 2 TR, and 2nd most (at least 1) loses 1 TR. SOLO: Lose 2 TR if the sum is 4 or more.
+Riots	Riots	Lose 4 M€ for each city tile (max 5, then reduced by influence).
+SabotageGlobalEvent	Sabotage	Decrease steel and energy production 1 step each. Gain 1 steel per influence.
+ScientificCommunity	Scientific Community	Gain 1 M€ for each card in hand (no limit) and influence.
+SnowCover	Snow Cover	Decrease temperature 2 steps. Draw 1 card per influence.
+SolarFlare	Solar Flare	Lose 3 M€ for each space tag (max 5, then reduced by influence).
+SolarnetShutdown	Solarnet Shutdown	Lose 3 M€ for each blue card (max 5, then reduced by influence).
+SpinOffProducts	Spin-Off Products	Gain 2 M€ for each science tag (max 5) and influence.
+SponsoredProjects	Sponsored Projects	All cards with resources on them gain 1 resource. Draw 1 card for each influence.
+StrongSociety	Strong Society	Gain 2 M€ for each city tile (max 5) and influence.
+SuccessfulOrganisms	Successful Organisms	Gain 1 plant per plant production (max 5) and influence.
+VolcanicEruptions	Volcanic Eruptions	Increase temperature 2 steps. Increase heat production 1 step per influence.
+WarOnEarth	War On Earth	Reduce TR 4 steps. Each influence prevents 1 step.
+VenusInfrastructure	Venus Infrastructure	Gain 2 M€ per Venus tag (max 5) and influence.
+CloudSocieties	Cloud Societies	Add a floater to each card that can collect floaters. Add 1 floater for each influence to a card.
+CorrosiveRain	Corrosive Rain	Lose 2 floaters from a card, or lose 10 M€. Draw 1 card for each influence.
+JovianTaxRights	Jovian Tax Rights	Increase M€ production 1 step for each colony. Gain 1 titanium for each influence.
+MicrogravityHealthProblems	Microgravity Health Problems	Lose 3 M€ for each colony (max 5), then reduced by influence.
