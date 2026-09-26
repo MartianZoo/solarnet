@@ -88,15 +88,21 @@ REgo PLastics, an extremely bad command-line UI to the engine.
 
 ### <a href="web/dev.martianzoo.tfm.web.webrepl/index.html">dev.martianzoo.tfm.web.webrepl</a>
 
-An early rough browser version of REgo PLastics. The same module also supplies Pets Almanac, a
-searchable viewer for Canon's normalized Pets declarations and detailed type information.
+An early rough browser version of REgo PLastics.
+
+## module ALMANAC
+
+### <a href="almanac/dev.martianzoo.tfm.web.classviewer/index.html">dev.martianzoo.tfm.web.classviewer</a>
+
+Pets Almanac, a searchable viewer for Canon's normalized Pets declarations, type information, and
+derived card text.
 
 ## module GAME-VIEWER
 
 ### <a href="game-viewer/dev.martianzoo.tfm.web.gameviewer/index.html">dev.martianzoo.tfm.web.gameviewer</a>
 
 An engine-free browser viewer that discovers generated replay-test recordings and navigates their
-event-log timelines through passive state playback. Both browser applications use assets owned by
+event-log timelines through passive state playback. The REPL and game viewer use assets owned by
 `dev/martianzoo/tfm/web/shared`.
 
 ## module TOOLS

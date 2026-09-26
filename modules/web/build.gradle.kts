@@ -5,8 +5,6 @@ plugins {
 
 val webReplSourceDirectory =
     rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/web/webrepl")
-val classViewerSourceDirectory =
-    rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/web/classviewer")
 val sharedSourceDirectory =
     rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/web/shared")
 
@@ -18,13 +16,12 @@ kotlin {
 
   sourceSets {
     jsMain {
-      kotlin.setSrcDirs(listOf(webReplSourceDirectory, classViewerSourceDirectory))
+      kotlin.setSrcDirs(listOf(webReplSourceDirectory))
       dependencies {
         implementation(project(":engine"))
         implementation(project(":pets"))
         implementation(project(":script"))
         implementation(project(":tfm-canon"))
-        implementation(project(":tfm-text"))
         implementation(npm("jquery", "3.7.1"))
         implementation(npm("jquery.terminal", "2.46.1"))
         implementation(devNpm("tslib", "2.8.1"))
@@ -39,7 +36,6 @@ kotlin {
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/testsupport"),
               rootProject.layout.projectDirectory.dir("test/common/dev/martianzoo/tfm/tests"),
               rootProject.layout.projectDirectory.dir("test/js/dev/martianzoo/tfm/pets"),
-              rootProject.layout.projectDirectory.dir("test/js/dev/martianzoo/tfm/web/classviewer"),
               rootProject.layout.projectDirectory.dir("test/js/dev/martianzoo/tfm/web/webrepl"),
           )
       )
@@ -62,7 +58,6 @@ tasks.named<org.gradle.api.tasks.testing.AbstractTestTask>("jsBrowserTest") {
     filter.includeTestsMatching("dev.martianzoo.tfm.web.webrepl.BrowserHistoryTest")
   } else {
     filter.includeTestsMatching("dev.martianzoo.tfm.pets.BrowserPetsTest")
-    filter.includeTestsMatching("dev.martianzoo.tfm.web.classviewer.EnglishCardTextBrowserTest")
     filter.includeTestsMatching("dev.martianzoo.tfm.web.webrepl.BrowserHistoryTest")
     filter.includeTestsMatching(
         "dev.martianzoo.tfm.tests.replays.OtbGame20260828Test.otbGame20260828"
@@ -78,9 +73,5 @@ tasks.register("test") {
 
 tasks.named<ProcessResources>("jsProcessResources") {
   from(webReplSourceDirectory) { include("*.html", "*.css") }
-  from(classViewerSourceDirectory) {
-    include("*.html", "*.css")
-    into("classviewer")
-  }
   from(sharedSourceDirectory) { into("assets") }
 }

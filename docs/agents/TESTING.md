@@ -48,8 +48,8 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   by the scope of the change or explicitly requested.
 - `./gradlew test` runs every repository JVM test suite, every browser-specific test, and the
   `OtbGame20260828Test` replay once in a browser. The multiplatform modules' JVM test tasks are named
-  `jvmTest`; their generated browser tasks are inert outside the one intentionally commented-out
-  full-browser target in the root build.
+  `jvmTest`; browser tasks other than Web and Almanac are inert outside the one intentionally
+  commented-out full-browser target in the root build.
 - `./gradlew :tfm-tests:jvmTest` runs the replay tests and writes one opaque JSON recording per
   successful `AbstractFullGameTest` subclass under that module's
   `generated/replay-event-logs` build directory. The browser viewer applies those recordings through
@@ -150,8 +150,8 @@ Detekt, Dokka, and test logging. `solarnet.jvm` adds the JVM plugin and the repo
 Kotlin/JUnit 5 test dependencies. `solarnet.kmp-jvm-js` configures the JVM and browser targets, adds
 shared `kotlin.test`, and exposes each module's `jvmTest` as `test`.
 Module build scripts under `modules/` keep only module-specific configuration and select their
-non-overlapping package roots from the repository-wide `src/` and `test/` trees; the JavaScript-only
-application configures its target directly. Repository-wide formatting and Yarn policy remain in
+non-overlapping package roots from the repository-wide `src/` and `test/` trees; JavaScript-only
+applications configure their targets directly. Repository-wide formatting and Yarn policy remain in
 the root build.
 Dependency and plugin versions are declared in `gradle/libs.versions.toml`, while dependency
 repositories are declared centrally in `settings.gradle.kts`; JitPack is restricted to the pinned

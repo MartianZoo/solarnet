@@ -30,6 +30,7 @@ val modules =
         "tfm-canon",
         "tfm-fake",
         "web",
+        "almanac",
         "game-viewer",
         "tools",
         "codegen",

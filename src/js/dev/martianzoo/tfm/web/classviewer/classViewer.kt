@@ -2,7 +2,6 @@
 
 package dev.martianzoo.tfm.web.classviewer
 
-import dev.martianzoo.engine.TypeDescription
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Instruction.Gain
@@ -15,7 +14,6 @@ import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.displayName
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassTable
-import dev.martianzoo.pets.types.Type
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.text.EnglishCardTextRenderer
 import kotlin.js.JSON
@@ -50,7 +48,7 @@ private data class CardImage(val thumbnail: String, val full: String)
 
 private typealias UsageIndex = Map<ClassName, Map<String, Set<ClassName>>>
 
-internal fun classViewerMain() {
+public fun main() {
   val fullClassTable = Canon.classTable
   val classes = fullClassTable.allClasses().sortedBy { it.className.toString().lowercase() }
   val classesByName = classes.associateBy { it.className.toString() }
@@ -309,7 +307,6 @@ private fun renderColumn(
           .trimIndent()
 
   column.querySelector(".dismiss-column")?.addEventListener("click", { dismiss() })
-  val description = TypeDescription(classTable, klass.defaultType)
   fun linked(field: String, value: String) {
     renderLinkedText(column.field(field), value, classesByName, openClass)
   }
@@ -318,12 +315,15 @@ private fun renderColumn(
   if (klass.className in cardClassNames) {
     renderCardText(column, klass, cardTextRenderer)
   }
-  description.docstring?.takeIf(String::isNotBlank)?.let { docstring ->
+  klass.docstring?.takeIf(String::isNotBlank)?.let { docstring ->
     linked("docstring", docstring)
     column.field("docstring-panel").removeAttribute("hidden")
   }
   linked("source", klass.declaration.copy(docstring = null).toString())
-  val supertypes = description.supertypes.map(Type::expressionFull)
+  val supertypes =
+      klass.allSuperclasses().map {
+        it.withAllDependencies(klass.defaultType.dependencies).expressionFull
+      }
   column.field("supertypes-heading").textContent = "Supertypes (${supertypes.size})"
   renderOptionalList(
       column,
@@ -348,14 +348,14 @@ private fun renderColumn(
       column,
       "invariants",
       "invariants-panel",
-      description.classInvariants,
+      klass.invariants,
       classesByName,
       openClass,
   )
   renderUsages(
       column.field("usages"),
       klass,
-      description,
+      classTable,
       usageIndex,
       classesByName,
       openClass,
@@ -378,14 +378,19 @@ internal fun renderCardText(
 private fun renderUsages(
     container: Element,
     klass: Class,
-    description: TypeDescription,
+    classTable: ClassTable,
     usageIndex: UsageIndex,
     classesByName: Map<String, Class>,
     openClass: (Class) -> Unit,
 ) {
   container.innerHTML = ""
+  val subclasses =
+      classTable
+          .allSubclasses(klass)
+          .sortedWith(compareBy({ -classTable.allSubclasses(it).size }, { it.className }))
+          .mapTo(linkedSetOf(), Class::className) - klass.className
   val groups =
-      listOf("Subclasses" to (description.subclassNames - klass.className)) +
+      listOf("Subclasses" to subclasses) +
           usageCategories.map { category ->
             "Usages: $category" to usageIndex[klass.className]?.get(category).orEmpty()
           }
