@@ -141,7 +141,7 @@
           ],
         },
         {
-          "name": "TerralabsResearch",
+          "name": "TerraLabsResearch",
           "tags": [ "ScienceTag", "EarthTag" ],
           "immediate": "14 MC, -TerraformRating",
           "effects": [ "PayingFor<Class<ProjectCard>>:: -2 Owed" ],

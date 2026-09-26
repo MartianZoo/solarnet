@@ -335,12 +335,17 @@ The supported names that do not follow ordinary title casing are settled individ
 | `PhoboLog` | `PhoboLog` | The [base-game rulebook](https://fryxgames.se/wp-content/uploads/2023/04/TMRULESFINAL.pdf) repeatedly uses this spelling in both setup and play examples. |
 | `ThorGate` | `ThorGate` | The same rulebook repeatedly uses this spelling in both setup and play examples. |
 | `AstroDrill` | `AstroDrill` | The corporation card's own flavor prose names AstroDrill; later digital-store prose regularizes it to “Astrodrill.” |
+| `TerraLabs Research` | `TerraLabsResearch` | The [Turmoil corporation card's flavor prose](https://cards.hadronikle.com/corporations/Turmoil%20-%20TerraLabs%20Research.png) explicitly names TerraLabs. |
 
-`Ecoline` is ordinary title case. `Ecotec` and `Terralabs Research` are also ordinary title case:
-the publisher's [Automa corporation rules](https://fryxgames.se/wp-content/uploads/2024/09/TM-Automa-rulebook-B-08-15-2023.pdf)
-use `Ecoline` and `Ecotec` in prose, and the official [Dice Game rulebook](https://fryxgames.se/wp-content/uploads/2023/10/TMDG_RULES_ENGi.pdf)
-uses `Terralabs`. `Ecotec` and `TerraLabs` have no comparably direct prose support and must not be
-inferred from all-caps wordmarks, OCR artifacts, or third-party databases.
+`Ecoline` and `Ecotec` are ordinary title case: the publisher's
+[Automa corporation rules](https://fryxgames.se/wp-content/uploads/2024/09/TM-Automa-rulebook-B-08-15-2023.pdf)
+use both spellings in prose. Do not infer internal capitals from all-caps wordmarks, OCR artifacts,
+or third-party databases.
+
+`TerraLabs Research` follows the Turmoil corporation card's own flavor prose, which explicitly
+names `TerraLabs`. Jacob's forum posts and the official
+[Dice Game rulebook](https://fryxgames.se/wp-content/uploads/2023/10/TMDG_RULES_ENGi.pdf) use
+`Terralabs`, but the printed Turmoil card is the closest evidence for this corporation.
 
 ## Pending naming work
 

@@ -16,7 +16,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       GameConfig(
           """
           CimmeriaMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, PromoCardPack, TerralabsResearch
+          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, PromoCardPack, TerraLabsResearch
           FakeStuffBundle
 
           Energizer, Farmer, Philantropist, Producer, RimSettler, Hoverlord
@@ -37,7 +37,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     // Farmer, Philanthropist, Producer, Rim Settler, Hoverlord; Magnate, Manufacturer,
     // Metropolist, Space Baron, Suburbian, Venuphile."
     // "Terralabs research. I get 14 money and spend all 10 of it. Then I lose a TR."
-    green.playCorp(TerralabsResearch, 10).expect("4 MC, 10 ProjectCard, -TerraformRating")
+    green.playCorp(TerraLabsResearch, 10).expect("4 MC, 10 ProjectCard, -TerraformRating")
     // 9:31:05 pm: "I can play Viron for 48 and I spend 15 on five cards."
     yellow.playCorp(Viron, 5).expect("33 MC")
 
@@ -135,7 +135,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 2, temp = -30, oxygen = 1, oceans = 3, venus = 0)
 
-    // 9:47:18 pm: Green's direct Terralabs buttons record four one-M€ purchases; Yellow's app
+    // 9:47:18 pm: Green's direct TerraLabs buttons record four one-M€ purchases; Yellow's app
     // records two ordinary purchases for six M€.
     yellow.buyCards(2)
     green.buyCards(4)
@@ -425,7 +425,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
 
     green.assertCounts(
         14 to "ProjectCard",
-        1 to "$TerralabsResearch",
+        1 to "$TerraLabsResearch",
         1 to "$FakeHeadStart",
         1 to "$FocusedOrganization",
         1 to "$Advertising",
@@ -492,7 +492,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       assertResources(m = 32, s = 0, t = 4, p = 4, e = 1, h = 4)
     }
 
-    // 12:21:20 pm on Aug 26: Yellow buys two cards. Terralabs lets Green buy all four for 1 M€
+    // 12:21:20 pm on Aug 26: Yellow buys two cards. TerraLabs lets Green buy all four for 1 M€
     // apiece.
     yellow.buyCards(2)
     green.buyCards(4)
@@ -558,7 +558,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     }
     green.turn {
       // Neither surveyed card had a Venus tag, so Green bought both for 1 M€ apiece through
-      // Terralabs.
+      // TerraLabs.
       cardAction1(VenusOrbitalSurvey) {
             doTask("BuyCard")
             doTask("BuyCard")
@@ -636,7 +636,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     }
     assertSidebar(gen = 7, temp = -18, oxygen = 8, oceans = 9, venus = 12)
 
-    // 12:45:28 pm: Green's Terralabs research costs 1 M€ per card; Yellow buys all four at the
+    // 12:45:28 pm: Green's TerraLabs research costs 1 M€ per card; Yellow buys all four at the
     // ordinary 3-M€ rate.
     green.buyCards(4)
     yellow.buyCards(4)
@@ -779,7 +779,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     yellow.exMachina("-MC")
 
     // "It's gen eight, which would make it my start ... let me get my absolute barrage of cards."
-    // Green's Terralabs research costs one M€ per card; Yellow's app records two cards bought for 6
+    // Green's TerraLabs research costs one M€ per card; Yellow's app records two cards bought for 6
     // M€.
     green.buyCards(4)
     yellow.buyCards(2)
