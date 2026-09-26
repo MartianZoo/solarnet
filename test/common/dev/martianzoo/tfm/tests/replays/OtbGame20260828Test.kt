@@ -1316,9 +1316,12 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     }
     yellow.turn {
       // "Pay four titanium and thirteen real money for L1 Trade Terminal."
-      // The fake card's cost includes the four M€ of applicable discounts Yellow ignored.
       // "I add one to Floating Habs ... and add Aerial Mapper, add Floating Refineries."
-      playProject(FakeL1TradeTerminal, 13, titanium = 4)
+      playProject(L1TradeTerminal, 13, titanium = 4) {
+        addCardResources(FloatingHabs)
+        addCardResources(AerialMappers)
+        addCardResources(FloatingRefinery)
+      }
     }
     green.turn {
       // "Use my Space Elevator to destroy one steel and gain five real."

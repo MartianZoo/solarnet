@@ -246,7 +246,8 @@ Synthetic card scenarios pass their card and supporting `ClassDeclaration`s to t
 constructor; they are composed with Canon and selected in that test's premise.
 Use `placeTile(row, column)`, `addCardResources(card)`, and `wgt(choice)` instead of spelling their
 routine task expressions. The tile and card-resource helpers require a single matching pending
-choice; keep raw `doTask()` calls where multiple placements are pending.
+choice; card-resource matching includes the destination card, so offers for different cards can
+coexist. Keep raw `doTask()` calls where multiple placements are pending.
 When unrelated optional tasks are pending, pass the pending instruction to `declineTask(instruction)`.
 Inside an existing operation that directly offers a repeated card action, such as Project Inspection,
 use `cardAction1()` or `cardAction2()`; the operation-body overload selects and pays that action
