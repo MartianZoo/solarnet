@@ -6,6 +6,7 @@ import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
@@ -49,32 +50,33 @@ internal class Prelude2CardsTest : CardTest() {
 
     shouldThrow<DeadEndException> {
       p1.playProject(L1TradeTerminal, 25) {
-        doTask("Floater<$AerialMappers> FROM L1Gift")
-        doTask("Floater<$FloatingRefinery> FROM L1Gift")
-        p1.selectTask("Floater<$CloudTourism> FROM L1Gift?")
-        // Decline Cloud Tourism, then the remaining Floating Habs.
-        doTask("Ok")
+        addCardResources(AerialMappers)
+        addCardResources(FloatingRefinery)
+        declineTask("Floater<$CloudTourism>?")
+        // Decline the remaining Floating Habs.
         doTask("Ok")
       }
     }
 
-    shouldThrow<TaskException> {
+    shouldThrow<GameplayException> {
       p1.playProject(L1TradeTerminal, 25) {
-        doTask("Floater<$AerialMappers> FROM L1Gift")
-        doTask("Floater<$FloatingRefinery> FROM L1Gift")
-        doTask("Floater<$CloudTourism> FROM L1Gift")
-        doTask("Floater<$FloatingHabs> FROM L1Gift")
+        addCardResources(AerialMappers)
+        addCardResources(FloatingRefinery)
+        addCardResources(CloudTourism)
+        doTask("Floater<$FloatingHabs>")
       }
     }
     p1.count("$L1TradeTerminal") shouldBe 0
 
     p1.playProject(L1TradeTerminal, 25) {
           shouldThrow<TaskException> {
-            doTask("Floater<Player2, $JetStreamMicroscrappers<Player2>> FROM L1Gift")
+            doTask("Floater<Player2, $JetStreamMicroscrappers<Player2>>")
           }
-          doTask("Floater<$AerialMappers> FROM L1Gift")
-          doTask("Floater<$FloatingRefinery> FROM L1Gift")
-          doTask("Floater<$CloudTourism> FROM L1Gift")
+          addCardResources(AerialMappers)
+          addCardResources(FloatingRefinery)
+          addCardResources(CloudTourism)
+          // Decline the remaining Floating Habs.
+          declineTask()
         }
         .expect("Floater<$AerialMappers>, Floater<$FloatingRefinery>, Floater<$CloudTourism>")
 
@@ -82,6 +84,9 @@ internal class Prelude2CardsTest : CardTest() {
     p1.count("Floater<$FloatingTradeHub>") shouldBe 0
     p2.count("Floater<$JetStreamMicroscrappers>") shouldBe 1
     p1.count("L1Gift") shouldBe 0
+
+    p1.cardAction1(FloatingHabs, 2) { addCardResources(FloatingHabs) }
+        .expect("Floater<$FloatingHabs>")
   }
 
   @Test
@@ -95,7 +100,7 @@ internal class Prelude2CardsTest : CardTest() {
     }
 
     p1.playProject(L1TradeTerminal, 25) {
-          doTask("Floater<$FloatingHabs> FROM L1Gift")
+          addCardResources(FloatingHabs)
         }
         .expect("Floater<$FloatingHabs>")
 
@@ -115,16 +120,16 @@ internal class Prelude2CardsTest : CardTest() {
 
     shouldThrow<DeadEndException> {
       p1.playProject(L1TradeTerminal, 25) {
-        doTask("Floater<$FloatingHabs> FROM L1Gift")
-        doTask("Microbe<$VenusianInsects> FROM L1Gift")
+        addCardResources(FloatingHabs)
+        addCardResources(VenusianInsects)
         doTask("Ok")
       }
     }
 
     p1.playProject(L1TradeTerminal, 25) {
-          doTask("Floater<$FloatingHabs> FROM L1Gift")
-          doTask("Microbe<$VenusianInsects> FROM L1Gift")
-          doTask("Floater<$AerialMappers> FROM L1Gift")
+          addCardResources(FloatingHabs)
+          addCardResources(VenusianInsects)
+          addCardResources(AerialMappers)
         }
         .expect("Floater<$FloatingHabs>, Microbe<$VenusianInsects>, Floater<$AerialMappers>")
 
@@ -144,22 +149,22 @@ internal class Prelude2CardsTest : CardTest() {
 
     shouldThrow<NarrowingException> {
       p1.playProject(L1TradeTerminal, 25) {
-        doTask("Floater<$FloatingHabs> FROM L1Gift")
-        doTask("Floater<$FloatingHabs> FROM L1Gift")
+        addCardResources(FloatingHabs)
+        doTask("Floater<$FloatingHabs>")
       }
     }
     p1.count("$L1TradeTerminal") shouldBe 0
 
     shouldThrow<DeadEndException> {
       p1.playProject(L1TradeTerminal, 25) {
-        doTask("Floater<$FloatingHabs> FROM L1Gift")
+        addCardResources(FloatingHabs)
         doTask("Ok")
       }
     }
 
     p1.playProject(L1TradeTerminal, 25) {
-          doTask("Floater<$FloatingHabs> FROM L1Gift")
-          doTask("Microbe<$VenusianInsects> FROM L1Gift")
+          addCardResources(FloatingHabs)
+          addCardResources(VenusianInsects)
         }
         .expect("Floater<$FloatingHabs>, Microbe<$VenusianInsects>")
 

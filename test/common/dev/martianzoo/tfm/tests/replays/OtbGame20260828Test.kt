@@ -1318,9 +1318,9 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Pay four titanium and thirteen real money for L1 Trade Terminal."
       // "I add one to Floating Habs ... and add Aerial Mapper, add Floating Refineries."
       playProject(L1TradeTerminal, 13, titanium = 4) {
-        doTask("Floater<$FloatingHabs> FROM L1Gift")
-        doTask("Floater<$AerialMappers> FROM L1Gift")
-        doTask("Floater<$FloatingRefinery> FROM L1Gift")
+        addCardResources(FloatingHabs)
+        addCardResources(AerialMappers)
+        addCardResources(FloatingRefinery)
       }
     }
     green.turn {
