@@ -6,6 +6,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Resolve L1 Trade Terminal's trade bonus at the colony track limit: the current exact-two-or-zero
+  choice cannot advance from 5 to 6. The intended partial advancement is under investigation.
 - Implement individual Turmoil party and whole-map selection as specified in
   [Modules and Content](docs/agents/NAMING.md#modules-and-content).
 - Make owner-local Class arguments work when specialization fixes an inherited dependency.
@@ -122,8 +124,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Find a principled way for narrower dependency defaults to retain compatible refinements from
   wider defaults, so `Tile` can own area occupancy once while its subclasses select their kinds of
   areas and add placement rules.
-- Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
-  with the canonical card.
 - Simplify `LiveEffect` actor binding by threading a binding context through subscription matching
   instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
 - Separate `Instructor`'s resolution-only capability from execution so `Changer`, `Effector`, and

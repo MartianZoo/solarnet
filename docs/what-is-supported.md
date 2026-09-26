@@ -6,7 +6,7 @@ Most of the published game content is working... and mostly correctly.[^heroku-s
 
 | Product | Corps | Projects | Preludes | Maps | Tile types | Std projects | Milestones | Awards | Global params | Global events | Game phases | Other |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| TOTALS | 45 / 48 | 422 / 426 | 65 / 71 | 7 / 7 | 17 / 18 | 10 / 10 | 49 / 50 | 40 / 40 | 8 / 8 | 36 / 36 | 13 / 13 | 17 / 17 named items; no Automa |
+| TOTALS | 45 / 48 | 423 / 426 | 65 / 71 | 7 / 7 | 17 / 18 | 10 / 10 | 49 / 50 | 40 / 40 | 8 / 8 | 36 / 36 | 13 / 13 | 17 / 17 named items; no Automa |
 | Terraforming Mars | 10 / 11 | 137 / 137 | - | 1 / 1 | 10 / 10 | 7 / 7 | 5 / 5 | 5 / 5 | 3 / 3 | - | 9 / 9 | - |
 | Corporate Era | 2 / 2 | 71 / 71 | - | - | 4 / 4 | - | - | - | - | - | - | - |
 | Hellas & Elysium | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | - | - | - | - |
@@ -14,7 +14,7 @@ Most of the published game content is working... and mostly correctly.[^heroku-s
 | Prelude | 5 / 5 | 6 / 7 | 34 / 35 | - | - | - | - | - | - | - | 1 / 1 | - |
 | Colonies | 5 / 5 | 49 / 49 | - | - | - | 1 / 1 | - | - | - | - | 1 / 1 | 11 / 11 colony tiles |
 | Turmoil | 4 / 5 | 15 / 16 | - | - | - | 1 / 1 | 1 / 1 | - | - | 31 / 31 | 1 / 1 | 6 / 6 parties |
-| Prelude 2 | 5 / 5 | 23 / 24 | 22 / 25 | - | - | - | - | - | - | - | - | - |
+| Prelude 2 | 5 / 5 | 24 / 24 | 22 / 25 | - | - | - | - | - | - | - | - | - |
 | Amazonis & Vastitas | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | 4 / 4 | - | - | - |
 | Utopia & Cimmeria | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | - | - | - | - |
 | Automa | - | - | - | - | 0 / 1 | - | - | - | - | - | - | the whole thing |
@@ -33,7 +33,6 @@ product, including goals reprinted from another product.
 | Prelude | Prelude | Research Network | Wild tag |
 | Turmoil | Corporation | Septem Tribus | Wild tag |
 | Turmoil | Project | Banned Delegate | `FakeBannedDelegate` does not update the Party Leader or Dominant party after removing a delegate |
-| Prelude 2 | Project | L1 Trade Terminal (`P78`) | Distinct |
 | Prelude 2 | Prelude | Applied Science, Nobel Prize | Wild tags |
 | Prelude 2 | Prelude | Preservation Program (`P57`) | `FakePreservationProgram` reverses TR after the gain, so gain-triggered effects still fire |
 | Automa | Other | entire Automa rules | Wow that's a lot |

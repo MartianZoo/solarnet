@@ -7,6 +7,7 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -32,6 +33,155 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class Prelude2CardsTest : CardTest() {
+  @Test
+  internal fun `L1 Trade Terminal chooses three distinct cards when more are eligible`() {
+    newGame(Prelude2CardPack, ColoniesExpansion, VenusNextExpansion)
+    p1.runOperation(
+        "$FloatingHabs, Floater<$FloatingHabs>, " +
+            "$AerialMappers, Floater<$AerialMappers>, " +
+            "$FloatingRefinery, Floater<$FloatingRefinery>, " +
+            "$CloudTourism, Floater<$CloudTourism>, $FloatingTradeHub, " +
+            "50 MC, ProjectCard"
+    )
+    val p2 = requireP2()
+    p2.runOperation("$JetStreamMicroscrappers, Floater<$JetStreamMicroscrappers>")
+    admin.phase("Action")
+
+    shouldThrow<DeadEndException> {
+      p1.playProject(L1TradeTerminal, 25) {
+        doTask("Floater<$AerialMappers> FROM L1Gift")
+        doTask("Floater<$FloatingRefinery> FROM L1Gift")
+        p1.selectTask("Floater<$CloudTourism> FROM L1Gift?")
+        // Decline Cloud Tourism, then the remaining Floating Habs.
+        doTask("Ok")
+        doTask("Ok")
+      }
+    }
+
+    shouldThrow<TaskException> {
+      p1.playProject(L1TradeTerminal, 25) {
+        doTask("Floater<$AerialMappers> FROM L1Gift")
+        doTask("Floater<$FloatingRefinery> FROM L1Gift")
+        doTask("Floater<$CloudTourism> FROM L1Gift")
+        doTask("Floater<$FloatingHabs> FROM L1Gift")
+      }
+    }
+    p1.count("$L1TradeTerminal") shouldBe 0
+
+    p1.playProject(L1TradeTerminal, 25) {
+          shouldThrow<TaskException> {
+            doTask("Floater<Player2, $JetStreamMicroscrappers<Player2>> FROM L1Gift")
+          }
+          doTask("Floater<$AerialMappers> FROM L1Gift")
+          doTask("Floater<$FloatingRefinery> FROM L1Gift")
+          doTask("Floater<$CloudTourism> FROM L1Gift")
+        }
+        .expect("Floater<$AerialMappers>, Floater<$FloatingRefinery>, Floater<$CloudTourism>")
+
+    p1.count("Floater<$FloatingHabs>") shouldBe 1
+    p1.count("Floater<$FloatingTradeHub>") shouldBe 0
+    p2.count("Floater<$JetStreamMicroscrappers>") shouldBe 1
+    p1.count("L1Gift") shouldBe 0
+  }
+
+  @Test
+  internal fun `L1 Trade Terminal must give to its sole eligible card`() {
+    newGame(Prelude2CardPack, ColoniesExpansion, VenusNextExpansion)
+    p1.runOperation("$FloatingHabs, Floater<$FloatingHabs>, 25 MC, ProjectCard")
+    admin.phase("Action")
+
+    shouldThrow<DeadEndException> {
+      p1.playProject(L1TradeTerminal, 25) { doTask("Ok") }
+    }
+
+    p1.playProject(L1TradeTerminal, 25) {
+          doTask("Floater<$FloatingHabs> FROM L1Gift")
+        }
+        .expect("Floater<$FloatingHabs>")
+
+    p1.count("Floater<$FloatingHabs>") shouldBe 2
+    p1.count("L1Gift") shouldBe 0
+  }
+
+  @Test
+  internal fun `L1 Trade Terminal must give to all three eligible cards`() {
+    newGame(Prelude2CardPack, ColoniesExpansion, VenusNextExpansion)
+    p1.runOperation(
+        "$FloatingHabs, Floater<$FloatingHabs>, " +
+            "$AerialMappers, Floater<$AerialMappers>, " +
+            "$VenusianInsects, Microbe<$VenusianInsects>, 50 MC, ProjectCard"
+    )
+    admin.phase("Action")
+
+    shouldThrow<DeadEndException> {
+      p1.playProject(L1TradeTerminal, 25) {
+        doTask("Floater<$FloatingHabs> FROM L1Gift")
+        doTask("Microbe<$VenusianInsects> FROM L1Gift")
+        doTask("Ok")
+      }
+    }
+
+    p1.playProject(L1TradeTerminal, 25) {
+          doTask("Floater<$FloatingHabs> FROM L1Gift")
+          doTask("Microbe<$VenusianInsects> FROM L1Gift")
+          doTask("Floater<$AerialMappers> FROM L1Gift")
+        }
+        .expect("Floater<$FloatingHabs>, Microbe<$VenusianInsects>, Floater<$AerialMappers>")
+
+    p1.count("Floater<$AerialMappers>") shouldBe 2
+    p1.count("L1Gift") shouldBe 0
+  }
+
+  @Test
+  internal fun `L1 Trade Terminal cannot give twice to one card or skip one of two`() {
+    newGame(Prelude2CardPack, ColoniesExpansion, VenusNextExpansion)
+    p1.runOperation(
+        "$FloatingHabs, Floater<$FloatingHabs>, " +
+            "$VenusianInsects, Microbe<$VenusianInsects>, " +
+            "$FloatingTradeHub, 50 MC, ProjectCard"
+    )
+    admin.phase("Action")
+
+    shouldThrow<NarrowingException> {
+      p1.playProject(L1TradeTerminal, 25) {
+        doTask("Floater<$FloatingHabs> FROM L1Gift")
+        doTask("Floater<$FloatingHabs> FROM L1Gift")
+      }
+    }
+    p1.count("$L1TradeTerminal") shouldBe 0
+
+    shouldThrow<DeadEndException> {
+      p1.playProject(L1TradeTerminal, 25) {
+        doTask("Floater<$FloatingHabs> FROM L1Gift")
+        doTask("Ok")
+      }
+    }
+
+    p1.playProject(L1TradeTerminal, 25) {
+          doTask("Floater<$FloatingHabs> FROM L1Gift")
+          doTask("Microbe<$VenusianInsects> FROM L1Gift")
+        }
+        .expect("Floater<$FloatingHabs>, Microbe<$VenusianInsects>")
+
+    p1.count("Microbe<$VenusianInsects>") shouldBe 2
+    p1.count("Floater<$FloatingTradeHub>") shouldBe 0
+    p1.count("L1Gift") shouldBe 0
+  }
+
+  @Test
+  internal fun `L1 Trade Terminal can be played without an eligible card`() {
+    newGame(Prelude2CardPack, ColoniesExpansion)
+    p1.runOperation("25 MC, ProjectCard")
+    val p2 = requireP2()
+    p2.runOperation("$FloatingTradeHub, Floater<$FloatingTradeHub>")
+    admin.phase("Action")
+
+    p1.playProject(L1TradeTerminal, 25).expect("$L1TradeTerminal")
+
+    p1.count("L1Gift") shouldBe 0
+    p2.count("Floater<$FloatingTradeHub>") shouldBe 1
+  }
+
   @Test
   internal fun `Nirgal pays nothing for milestones and awards`() {
     newGame(PreludeExpansion, Prelude2CardPack)
