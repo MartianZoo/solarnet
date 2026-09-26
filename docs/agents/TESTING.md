@@ -145,8 +145,8 @@ Detekt, Dokka, and test logging. `solarnet.jvm` adds the JVM plugin and the repo
 Kotlin/JUnit 5 test dependencies. `solarnet.kmp-jvm-js` configures the JVM and browser targets, adds
 shared `kotlin.test`, and exposes each module's `jvmTest` as `test`.
 Module build scripts under `modules/` keep only module-specific configuration and select their
-non-overlapping package roots from the repository-wide `src/` and `test/` trees; the JavaScript-only
-application configures its target directly. Repository-wide formatting and Yarn policy remain in
+non-overlapping package roots from the repository-wide `src/` and `test/` trees; JavaScript-only
+applications configure their targets directly. Repository-wide formatting and Yarn policy remain in
 the root build.
 Dependency and plugin versions are declared in `gradle/libs.versions.toml`, while dependency
 repositories are declared centrally in `settings.gradle.kts`; JitPack is restricted to the pinned
