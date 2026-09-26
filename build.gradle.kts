@@ -100,6 +100,7 @@ dependencies {
   dokka(project(":tfm-canon"))
   dokka(project(":tfm-fake"))
   dokka(project(":web"))
+  dokka(project(":almanac"))
   dokka(project(":game-viewer"))
 }
 

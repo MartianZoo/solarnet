@@ -6,6 +6,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Reconcile `OtbGame20260912Test` with the original physical-game evidence. Verify Summit
+  Logistics' printed Colonies requirement and model its inclusion without enabling unused
+  Colonies gameplay if the card is legal without that expansion. Verify the reported extra Prelude
+  per player and Blue's three-TR handicap, then express the evidenced setup in the correct order.
 - Implement individual Turmoil party and whole-map selection as specified in
   [Modules and Content](docs/agents/NAMING.md#modules-and-content).
 - Make owner-local Class arguments work when specialization fixes an inherited dependency.

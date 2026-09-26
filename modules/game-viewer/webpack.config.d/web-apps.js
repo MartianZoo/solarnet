@@ -19,9 +19,9 @@ if (process.env.WEBPACK_SERVE) {
     {
       route: "classviewer",
       title: "Pets Almanac",
-      entry: path.resolve(__dirname, "../solarnet-web/kotlin/solarnet-web.js"),
-      bundle: "class-viewer.js",
-      resources: path.resolve(__dirname, "../solarnet-web/kotlin/classviewer"),
+      entry: path.resolve(__dirname, "../solarnet-almanac/kotlin/solarnet-almanac.js"),
+      bundle: "almanac.js",
+      resources: path.resolve(__dirname, "../solarnet-almanac/kotlin"),
     },
   ];
 

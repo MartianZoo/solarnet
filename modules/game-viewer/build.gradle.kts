@@ -73,7 +73,13 @@ tasks.named<ProcessResources>("jsProcessResources") {
 }
 
 // The game viewer's development server is the shared browser-app host. Its webpack configuration
-// also bundles and serves the browser REPL, so make that application available before webpack runs.
+// also bundles and serves the browser REPL and Almanac, so make those applications available before
+// webpack runs.
 tasks.named("jsBrowserDevelopmentRun") {
-  dependsOn(":web:jsDevelopmentExecutableCompileSync", ":web:jsProcessResources")
+  dependsOn(
+      ":web:jsDevelopmentExecutableCompileSync",
+      ":web:jsProcessResources",
+      ":almanac:jsDevelopmentExecutableCompileSync",
+      ":almanac:jsProcessResources",
+  )
 }
