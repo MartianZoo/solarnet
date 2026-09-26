@@ -314,6 +314,13 @@ first-player, and Admin attribution. Effect bodies use the shared instruction re
 `EnglishTextCurrentGenerator` writes goal and Global Event snapshots and refusal reports; event
 names and order follow the published evidence, while effect wording derives only from Pets.
 
+The category reports in [`docs/english-wording-comparisons/`](../english-wording-comparisons/README.md)
+compare the published evidence with live renderer output and serialized authored Pets declarations.
+Regenerate them with `./gradlew :tfm-text:writeEnglishTextComparisons`. They enumerate every canonical
+card and concrete goal/event, plus evidence-backed replay card models and replay-only goals; missing
+printed transcriptions and replay provenance remain explicit. No saved current-text snapshot is used
+as input to these reports.
+
 After an intentional output change, run:
 
 ```text

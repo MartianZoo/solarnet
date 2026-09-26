@@ -142,8 +142,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   Revolution, resource-card fanout in Sponsored Projects and Cloud Societies, and the procedure
   bodies used by Dry Deserts, Cloud Societies, and Corrosive Rain. Keep unsupported nodes visible;
   do not replace these with copied card wording or new gameplay APIs.
-- Extend `docs/english-card-text-comparison.md` after corporations with projects, preludes,
-  milestones, and awards in release order, using verified printed wording for missing entries.
+- Fill the missing printed transcriptions identified in
+  [the wording comparisons](docs/english-wording-comparisons/README.md) from verified printed evidence.
 - Review [the class-existence scenario draft](docs/class-existence-scenarios-draft.md) for
   clarity and coverage, then consolidate `ClassDefinitionBoundaryTest` and
   `ClassTableSelectionTest`. Keep each distinct selection boundary tested once and remove

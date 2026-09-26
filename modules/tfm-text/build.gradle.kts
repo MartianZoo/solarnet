@@ -133,6 +133,21 @@ tasks.register<JavaExec>("writeEnglishGlobalEventTextCurrent") {
   outputs.upToDateWhen { false }
 }
 
+tasks.register<JavaExec>("writeEnglishTextComparisons") {
+  group = "documentation"
+  description = "Writes printed, generated, and Pets wording comparisons for each category."
+  dependsOn(jvmTestCompilation.compileTaskProvider)
+  classpath = files(jvmTestCompilation.output.allOutputs, jvmTestCompilation.runtimeDependencyFiles)
+  mainClass = "dev.martianzoo.tfm.text.EnglishTextComparisonGenerator"
+  args(
+      rootProject.layout.projectDirectory
+          .dir("docs/english-wording-comparisons")
+          .asFile
+          .absolutePath
+  )
+  outputs.upToDateWhen { false }
+}
+
 tasks.register<JavaExec>("writeRandomCardEnglishText") {
   group = "verification"
   description = "Writes top and bottom English text for a saved random-card PETS report."
