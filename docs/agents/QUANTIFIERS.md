@@ -81,8 +81,8 @@ AMAP. An explicit symbol always wins.
 
 For `Gaining FROM Removing` with no explicit quantifier, the gain and removal defaults are combined
 into the transmutation's one quantifier: it permits exactly the counts both defaults permit, which
-works out to mandatory beating AMAP and AMAP beating optional (L12-8). That is a combination of two
-policies, not a ranking — narrowing still treats mandatory and AMAP as incomparable (L7-3). Each
+works out to mandatory beating AMAP and AMAP beating optional (L9-8). That is a combination of two
+policies, not a ranking — narrowing still treats mandatory and AMAP as incomparable (L3-4). Each
 side still supplies its own dependency defaults before the Types are resolved.
 
 ## Concrete pure gains
@@ -129,9 +129,9 @@ missing destination dependency makes the pair unavailable for every quantifier; 
 do not convert it to `Ok`. If source footroom is zero, however, optional and AMAP do become `Ok`.
 
 Transmuting a concrete Type into itself is `Ok` when optional or AMAP and is an
-`ExpressionException` when mandatory. This is the ordinary reflexive-transmutation rule (L6-3),
+`ExpressionException` when mandatory. This is the ordinary reflexive-transmutation rule (L2-3),
 including when the Type is a Signal subtype; only a direct Signal gain has the distinct point-event
-semantics of L6-1. A zero AMAP transmutation can still bind Type Variables in a following `THEN`;
+semantics of L2-1. A zero AMAP transmutation can still bind Type Variables in a following `THEN`;
 target selection and component movement are separate consequences of that stage.
 
 ## Abstract pure gains and removals

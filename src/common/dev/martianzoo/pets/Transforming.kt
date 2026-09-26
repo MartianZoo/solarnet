@@ -30,7 +30,7 @@ public object Transforming {
    * `Class<This>` with the class literal for the context's class as well. An explicitly specialized
    * `This<Foo>` keeps its authored arguments and adopts the context's class, becoming (for example)
    * `Bar<Foo>`. This is
-   * [rule L12-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-elaboration).
+   * [rule L9-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration).
    */
   public fun replaceThisExpressionsWith(contextType: Expression): PetTransformer =
       chain(
@@ -53,9 +53,9 @@ public object Transforming {
    * subtree [shielded] accepts. An Owner-selecting fanout shields its body because the selection
    * supplies the owner there instead, so an ordinary owned body reads on a card exactly as it does
    * anywhere else ([rules
-   * L3-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-expressions)
+   * L1-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions)
    * and
-   * [L12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-elaboration)).
+   * [L9-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration)).
    * `Anyone` is an ordinary class and stands for itself.
    */
   public fun replaceOwnerWith(
@@ -86,7 +86,7 @@ public object Transforming {
    * Replaces every authored X scalar with [value], retaining written coefficients: `X Plant THEN 2X
    * Heat` bound to 3 becomes `3 Plant THEN 6 Heat`, since `X` takes one value everywhere it appears
    * ([rule
-   * L7-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-narrowing-what-remains-open)).
+   * L3-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#3-narrowing)).
    */
   public fun bindXTo(value: Int): PetTransformer =
       object : PetTransformer() {
@@ -104,7 +104,7 @@ public object Transforming {
   /**
    * Lowers each of [actions] to the effect keyed by its position on the class: the nth action is
    * triggered by `UseAction<This, ActionN>` ([rule
-   * L9-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-actions)).
+   * L7-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-actions)).
    */
   public fun actionListToEffects(actions: Collection<Action>): List<Effect> =
       actions.mapIndexed { index0Ref, action ->
@@ -119,7 +119,7 @@ public object Transforming {
   public fun actionSelectors(actions: Collection<Action>): Set<ClassName> =
       actions.indices.mapTo(linkedSetOf()) { actionSelector(it + 1) }
 
-  // Rule L9-4: a class may offer at most three actions.
+  // Rule L7-5: a class may offer at most three actions.
   private fun actionSelector(index1Ref: Int): ClassName =
       listOf(cn("Action1"), cn("Action2"), cn("Action3")).getOrNull(index1Ref - 1)
           ?: throw PetSyntaxException("action index must be between 1 and 3: `$index1Ref`")
@@ -127,7 +127,7 @@ public object Transforming {
   /**
    * Returns the effect `This: instruction`, which is how a card's "do this now" section becomes an
    * ordinary rule ([rule
-   * L9-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-actions)).
+   * L7-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#7-actions)).
    * An immediate `Ok` produces no effect at all, so this returns null for one.
    */
   public fun immediateToEffect(

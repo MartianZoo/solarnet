@@ -139,7 +139,7 @@ order or retry the original batch against a mutated World.
 Use trigger-side `IF` when the requirement qualifies the original event or cannot change before
 resolution. A requirement inside the queued instruction is decided later, so use that form only
 when intervening work is meant to decide availability. `A: (R: B) OR Ok` additionally makes B
-declinable and is correct only when declining is legal. Language rule L8 owns the exact semantics.
+declinable and is correct only when declining is legal. Language rule L6 owns the exact semantics.
 
 One current fragility is worth retaining: gaining a `Colony` performs the track adjustment
 automatically and queues its placement bonus. The bonus therefore sees the adjusted track only

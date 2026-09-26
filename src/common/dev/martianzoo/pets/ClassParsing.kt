@@ -128,7 +128,7 @@ internal object ClassParsing : PetTokenizer() {
 
     private val bodyElement = parser { bodyElementExceptNestedClasses or nestedDeclaration }
 
-    // Rule L1-3: a body is brace-delimited and its elements are separated by newlines or by
+    // Rule L11-5: a body is brace-delimited and its elements are separated by newlines or by
     // semicolons. Only the newline-separated form may contain nested declarations.
     private val multilineBodyInterior: Parser<Body> =
         separatedTerms(bodyElement, oneOrMore(char('\n')), acceptZero = true) map ClassParsing::Body
@@ -172,7 +172,7 @@ internal object ClassParsing : PetTokenizer() {
             skipChar('}') map
             ClassParsing::Body
 
-    // Rule L11-4: an owner-local body may contain invariants, properties, effects and actions, but
+    // Rule L12-4: an owner-local body may contain invariants, properties, effects and actions, but
     // not DEFAULT clauses or nested declarations; see `derivedClassBodyElement`.
     val derivedClassBody: Parser<Body> by lazy {
       oneLineBodyParser(derivedClassBodyElement, acceptZero = true)
@@ -214,7 +214,7 @@ internal object ClassParsing : PetTokenizer() {
     val defaultses = getAll<DefaultsElement>().map { it.defaults }
     val effects = getAll<EffectElement>().map { it.effect }
     val actions = getAll<ActionElement>().map { it.action }
-    // Rule L1-7: associateStrict rejects a name assigned twice in one body, so declaration order
+    // Rule L11-9: associateStrict rejects a name assigned twice in one body, so declaration order
     // never becomes an accidental override rule.
     val properties = getAll<PropertyElement>().associateStrict { it.property }
     val nestedDeclarations = getAll<NestedDeclaration>().map { it.declaration }
@@ -295,7 +295,7 @@ internal object ClassParsing : PetTokenizer() {
     }
 
     data class IncompleteNestableDecl(override val decl: ClassDeclaration) : NestableDecl() {
-      // Rule L1-4: a nested declaration becomes a sibling that names its container as a supertype,
+      // Rule L11-6: a nested declaration becomes a sibling that names its container as a supertype,
       // so the readable taxonomy survives without Pets needing a namespace.
       // This returns a new NestableDecl that looks like it could be a sibling to containingClass
       // instead of nested inside it

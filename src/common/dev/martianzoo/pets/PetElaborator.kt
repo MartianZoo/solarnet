@@ -65,13 +65,13 @@ import dev.martianzoo.pets.util.invoke
 
 /**
  * Applies Class-table-dependent elaboration packages to authored Pets, as defined by
- * [section 12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-elaboration).
+ * [section 9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration).
  * Elaboration fills in what a physical game leaves implicit — that a tile goes on a land area, that
  * a resource belongs to the player doing the thing, that "gain 3 cards" means three separate cards.
  * It changes how a source *reads*; it never changes which types exist.
  *
  * The stages are fixed ([rule
- * L12-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-elaboration)):
+ * L9-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration)):
  * record Type-variable scopes, split atomized gains, insert defaults, bind the contextual owner,
  * dispatch transform blocks, expand property evaluations. The entry points supply different
  * contexts and permit different property forms while preserving that shared ordering.
@@ -88,14 +88,14 @@ public class PetElaborator(public val classTable: ClassTable) {
   /**
    * Elaborates one dynamically typed, session-authored Pets element for execution in [owner]'s
    * context. Per
-   * [rule L12-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-elaboration),
+   * [rule L9-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration),
    * a submitted element defaults against `This`, atomizes before defaulting, and binds the
    * contextual owner to the submitting player. An Instruction is treated as the broader
    * InstructionTree family, so its cardinality may change.
    *
    * Property evaluation is rejected here, because an ordinary submitted instruction has no receiver
    * context to expand against ([rule
-   * L12-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-elaboration));
+   * L9-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration));
    * see [elaborateMetricInput], which does.
    */
   public fun elaborateInput(
@@ -116,7 +116,7 @@ public class PetElaborator(public val classTable: ClassTable) {
    * Elaborates a session-authored Metric, including explicit Class-property evaluation — a
    * submitted *metric* is given a receiver context, so unlike a submitted instruction it may carry
    * `EVAL` ([rule
-   * L12-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-elaboration)).
+   * L9-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration)).
    */
   public fun elaborateMetricInput(
       input: Metric,
@@ -159,7 +159,7 @@ public class PetElaborator(public val classTable: ClassTable) {
 
   /**
    * Effects inherited by [klass], processed as far as possible without a concrete component. Per
-   * [rule L12-13](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-elaboration)
+   * [rule L9-13](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration)
    * a class's effects are elaborated against that class's own context and gathered from every
    * superclass; the contextual owner is left open here, and [specializeEffect] closes each one over
    * an exact component later.
@@ -203,7 +203,7 @@ public class PetElaborator(public val classTable: ClassTable) {
 
   /**
    * Rejects property evaluation syntax outside a class effect ([rule
-   * L12-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-elaboration)).
+   * L9-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration)).
    */
   private fun rejectPropertyEvaluations(): PetTransformer =
       object : PetTransformer() {
@@ -218,7 +218,7 @@ public class PetElaborator(public val classTable: ClassTable) {
 
   /**
    * Expands Class-property evaluations that are concrete in the supplied instruction context ([rule
-   * L12-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-elaboration)).
+   * L9-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration)).
    * One whose receiver is still abstract stays unexpanded until it is not.
    */
   public fun evaluateProperties(
@@ -347,7 +347,7 @@ public class PetElaborator(public val classTable: ClassTable) {
 
   /**
    * Returns a deferred binding for the contextual `Owner` placeholder. Per
-   * [rule L12-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-elaboration)
+   * [rule L9-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration)
    * it binds everywhere except inside the body of an Owner-selecting fanout, where the selection
    * supplies the Owner instead; the selector itself is not shielded, and a `RANK` selector shields
    * nothing.
@@ -400,7 +400,7 @@ public class PetElaborator(public val classTable: ClassTable) {
   /**
    * Adds icon-grammar `BY Owner` when an ownerless Effect's result needs its event's Player — how a
    * rule on a class that is neither an owner nor owned learns whose event it is reacting to ([rule
-   * L12-13](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-elaboration)).
+   * L9-13](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration)).
    */
   private fun fixEffectForUnownedContext(klass: Class): PetTransformer? {
     if (klass.allSuperclasses().any { it.className == OWNED || it.className == OWNER }) return null
@@ -430,8 +430,8 @@ public class PetElaborator(public val classTable: ClassTable) {
       }
 
   /**
-   * Rule L12-11: a gain of several `Atomized` components becomes several gains of one, because
-   * three cards are three separate things to choose.
+   * Rule L9-11: a gain of several `Atomized` components becomes several gains of one, because three
+   * cards are three separate things to choose.
    */
   private fun atomizer(): PetTransformer {
     val atomized = classTable.findClass(ATOMIZED) ?: return noOp()
@@ -561,7 +561,7 @@ public class PetElaborator(public val classTable: ClassTable) {
         }
       }
 
-      // Rule L12-8: the gained and removed projections are defaulted independently, and where the
+      // Rule L9-8: the gained and removed projections are defaulted independently, and where the
       // transmutation writes no quantifier, the projections' defaults are intersected.
       private fun handleTransmute(node: Transmute): Transmute {
         val gainDefault = defaultFor(node.gaining, { it.gainOnly }, gain = true)
@@ -605,7 +605,7 @@ public class PetElaborator(public val classTable: ClassTable) {
             expression
           } else insertDefaultsIntoExpr(expression, default.dependencies, context, classTable)
 
-      /** The stricter of the two, per rule L12-8: mandatory beats AMAP, which beats optional. */
+      /** The stricter of the two, per rule L9-8: mandatory beats AMAP, which beats optional. */
       private fun intersectQuantifiers(
           gainQuantifier: Instruction.Quantifier?,
           removeQuantifier: Instruction.Quantifier?,
@@ -624,9 +624,9 @@ public class PetElaborator(public val classTable: ClassTable) {
   }
 
   /**
-   * Rule L12-5: a gain must opt in. Where a class has gain dependency defaults, a gain may not
-   * leave its argument list implicit — `OceanTile<>` accepts them — so a defaulted placement stays
-   * visible at the point of use. A removal declines by writing nothing instead (L12-6), so this is
+   * Rule L9-5: a gain must opt in. Where a class has gain dependency defaults, a gain may not leave
+   * its argument list implicit — `OceanTile<>` accepts them — so a defaulted placement stays
+   * visible at the point of use. A removal declines by writing nothing instead (L9-6), so this is
    * not applied to one.
    */
   private fun requireExplicitDependencyDefaults(
@@ -647,7 +647,7 @@ public class PetElaborator(public val classTable: ClassTable) {
   }
 
   /**
-   * Rule L12-7: `Foo<>` is invalid where that use has no dependency defaults to accept. An empty
+   * Rule L9-7: `Foo<>` is invalid where that use has no dependency defaults to accept. An empty
    * list is an acceptance, not merely a second spelling, so `Plant<>` cannot honestly mean
    * anything.
    */
@@ -668,9 +668,9 @@ public class PetElaborator(public val classTable: ClassTable) {
   }
 
   /**
-   * Rule L12-6: a removal declines its use-specific defaults by writing nothing. An implicit
+   * Rule L9-6: a removal declines its use-specific defaults by writing nothing. An implicit
    * argument list on a removal is not an error — it simply does not receive the removal-only
-   * defaults, though all-use defaults (L12-4) still apply.
+   * defaults, though all-use defaults (L9-4) still apply.
    */
   private fun hasUnacceptedDependencyDefaults(
       expression: Expression,
@@ -681,12 +681,12 @@ public class PetElaborator(public val classTable: ClassTable) {
           !expression.argumentsSpecified
 
   /**
-   * Rule L12-4: every expression receives its class's all-use dependency defaults, recursively.
+   * Rule L9-4: every expression receives its class's all-use dependency defaults, recursively.
    *
    * Inside a refinement two of those insertions are held back so that candidate substitution can
    * bind them instead: a bare dependent expression reserves the first slot that could accept the
-   * refined domain (L12-9), and a default whose dependency is a direct use of a class-header type
-   * variable is deferred (L12-10). Writing `<>` still accepts the default explicitly in both cases.
+   * refined domain (L9-9), and a default whose dependency is a direct use of a class-header type
+   * variable is deferred (L9-10). Writing `<>` still accepts the default explicitly in both cases.
    */
   private fun insertExpressionDefaults(context: Expression): PetTransformer {
     var refinementDepth = 0
@@ -842,7 +842,7 @@ public class PetElaborator(public val classTable: ClassTable) {
   /**
    * Closes one Class Effect over its exact component Type, `This` context, and contextual owner, in
    * one step ([rule
-   * L12-15](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-elaboration),
+   * L9-15](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration),
    * [rule T13-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables)).
    */
   public fun specializeEffect(
@@ -963,7 +963,7 @@ public class PetElaborator(public val classTable: ClassTable) {
   }
 
   /**
-   * Rule L12-14: a change to a type this game cannot hold becomes `Die` or `Ok`. An invalid
+   * Rule L9-14: a change to a type this game cannot hold becomes `Die` or `Ok`. An invalid
    * post-specialization type becomes `Die`. A resolved but uninhabited type becomes `Die` when the
    * change is mandatory and `Ok` when it permits zero.
    */

@@ -104,7 +104,7 @@ example, `OceanTile` on that card means `OceanTile BY Owner`; writing `OceanTile
 explicitly cancels the filter. This is trigger matching, not task attribution and not an authored
 Type variable.
 
-That rule is now stated as language rule L8-8, together with its two other cases: a watched type
+That rule is now stated as language rule L6-9, together with its two other cases: a watched type
 that carries its own ownership says whose events it means by ownership instead, and a `System` type
 is exempt because its events are the table's own. This document keeps only the attribution half —
 who is credited with the change that results.

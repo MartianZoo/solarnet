@@ -38,7 +38,6 @@ product, including goals reprinted from another product.
 | Prelude 2 | Prelude | Preservation Program (`P57`) | `FakePreservationProgram` reverses TR after the gain, so gain-triggered effects still fire |
 | Automa | Other | entire Automa rules | Wow that's a lot |
 | Milestones & Awards | Milestone | Thawer | `FakeThawer` retains temperature credits when global events reduce temperature |
-| Promos through 2026-08 | Project | New Holland | Hybrid tile |
 | Promos through 2026-08 | Project | Self-Replicating Robots (`210`) | Printed tags while staged |
 | Promos through 2026-08 | Prelude | Established Methods (`X54`) | (investigate) |
 | Promos through 2026-08 | Prelude | Head Start | Immediate-action sequencing |

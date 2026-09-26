@@ -15,7 +15,7 @@ import kotlin.math.min
 
 /**
  * A non-negative integer computed from one game state, as defined by
- * [section 5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics).
+ * [section 4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-metrics).
  * Metrics appear after the `/` of an instruction, inside counting [Requirement]s, and as
  * class-property values.
  *
@@ -26,7 +26,7 @@ public sealed class Metric : PetElement() {
   public companion object {
     /**
      * Returns [inner] scaled by [unit] per
-     * [rule L5-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics),
+     * [rule L4-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-metrics),
      * omitting the meaningless wrapper when [unit] is one. A unit of zero is rejected.
      */
     public fun scaled(inner: Metric, unit: Int): Metric {
@@ -49,7 +49,7 @@ public sealed class Metric : PetElement() {
    * [countUnion] for the union semantics of an [Or], and [rank] for a [Rank].
    *
    * Per
-   * [rule L5-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics),
+   * [rule L4-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-metrics),
    * those callbacks are the only world-dependent part: scaling, capping and subtraction are
    * computed from the syntax itself.
    */
@@ -84,7 +84,7 @@ public sealed class Metric : PetElement() {
   /**
    * The highest-first competition rank of [candidate] among the live [selector] matches, comparing
    * [metrics] lexicographically — `RANK Selector { m1, m2 }`, per
-   * [rule L5-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics).
+   * [rule L4-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-metrics).
    * Authored syntax leaves [candidate] null; specializing a selector refinement supplies the
    * concrete candidate whose rank is being tested.
    *
@@ -124,7 +124,7 @@ public sealed class Metric : PetElement() {
 
   /**
    * Includes a concrete Metric property's syntax in the surrounding class effect, per
-   * [rule L5-8](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics).
+   * [rule L4-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-metrics).
    * Until elaboration expands it, an `EVAL` has no value of its own, and [evaluate] treats a
    * request for one as a programming error.
    */
@@ -138,7 +138,7 @@ public sealed class Metric : PetElement() {
 
   /**
    * Counts the components matching [expression] — the base case of
-   * [rule L5-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics),
+   * [rule L4-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-metrics),
    * and the only form an [Or] alternative may take.
    */
   public data class Count(val expression: Expression) : Metric() {
@@ -151,7 +151,7 @@ public sealed class Metric : PetElement() {
 
   /**
    * A fixed non-negative value: `5` is five, per
-   * [rule L5-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics).
+   * [rule L4-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-metrics).
    */
   public data class Constant public constructor(val value: Int) : Metric() {
     init {
@@ -167,7 +167,7 @@ public sealed class Metric : PetElement() {
 
   /**
    * Counts one for each complete group of [unit] counted by [inner], per
-   * [rule L5-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics):
+   * [rule L4-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-metrics):
    * `3 Plant` is 2 at seven plants and also 2 at eight. Construct one through [scaled], which drops
    * a meaningless unit of one.
    */
@@ -186,7 +186,7 @@ public sealed class Metric : PetElement() {
 
   /**
    * The smaller of [inner] and [maximum], per
-   * [rule L5-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics).
+   * [rule L4-4](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-metrics).
    * A cap may not be directly capped again.
    */
   public data class Max(val inner: Metric, val maximum: Metric) : Metric() {
@@ -207,7 +207,7 @@ public sealed class Metric : PetElement() {
   /**
    * Subtracts [subtrahend] from [minuend], saturating at zero so that a metric never goes negative,
    * per
-   * [rule L5-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics).
+   * [rule L4-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-metrics).
    * Subtraction is left-associative, so `A - B - C` is `(A - B) - C`.
    */
   public data class Subtract(val minuend: Metric, val subtrahend: Metric) : Metric() {
@@ -228,13 +228,13 @@ public sealed class Metric : PetElement() {
   /**
    * Counts the union of [metrics] without double-counting a component that matches more than one,
    * per
-   * [rule L5-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics).
+   * [rule L4-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-metrics).
    * The alternatives must be plain [Count]s, because subtraction discards the component identity a
    * union needs. The parser rejects duplicate authored alternatives; construction and rewriting
    * collapse alternatives that have become equal.
    *
    * `OR` binds least tightly of all metric operators ([rule
-   * L5-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics)),
+   * L4-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-metrics)),
    * so after the `/` of an instruction it must be grouped — a bare `OR` there begins an instruction
    * alternative instead.
    */
@@ -252,7 +252,7 @@ public sealed class Metric : PetElement() {
        *
        * This collapses duplicate alternatives rather than rejecting them; it is the parser that
        * enforces
-       * [rule L5-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics)'s
+       * [rule L4-6](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-metrics)'s
        * rejection of a duplicate an author actually wrote.
        *
        * @throws PetSyntaxException if any alternative is not a plain [Count]
@@ -286,7 +286,7 @@ public sealed class Metric : PetElement() {
 
   /**
    * An [inner] metric marked for rewriting by the handler named by [transformKind], as
-   * [rule L10-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#10-transform-blocks)
+   * [rule L8-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-transform-blocks)
    * allows on any metric. [evaluate] rejects one that survived to evaluation.
    */
   public data class Transform(val inner: Metric, override val transformKind: String) :

@@ -14,13 +14,13 @@ import kotlin.reflect.KClass
  * node. "Enough" is not "the fewest" — see [precedence] and [safeToNestIn]. Every rule of
  * [the language specification](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md)
  * saying an element *round-trips* means exactly that: rendering then re-parsing is the identity —
- * [rule L1-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations)
+ * [rule L11-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations)
  * for a declaration,
- * [L4-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-requirements),
- * [L5-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-metrics),
- * [L6-13](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-instructions)
+ * [L5-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#5-requirements),
+ * [L4-10](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-metrics),
+ * [L2-16](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)
  * and
- * [L8-11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#8-effects)
+ * [L6-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#6-effects)
  * for the elements.
  */
 public sealed class PetNode {

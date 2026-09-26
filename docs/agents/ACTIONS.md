@@ -230,7 +230,7 @@ delete a real client bridge before it grows into a general scope mechanism.
 ## Evidence to inspect
 
 - [`Action.kt`](../../src/common/dev/martianzoo/pets/ast/Action.kt),
-  [`Transforming.kt`](../../src/common/dev/martianzoo/pets/Transforming.kt), and action rules L9 in
+  [`Transforming.kt`](../../src/common/dev/martianzoo/pets/Transforming.kt), and action rules L7 in
   the [Pets language specification](../pets-language-spec.md) define current generic lowering.
 - [`TfmActionLowerer.kt`](../../src/common/dev/martianzoo/tfm/canon/TfmActionLowerer.kt),
   [Terraforming Mars `actions.pets`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/actions.pets),

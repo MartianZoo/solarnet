@@ -84,7 +84,7 @@ internal constructor(
 
   /**
    * The declaration's documentation text, retained under
-   * [rule L1-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-source-and-declarations).
+   * [rule L11-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations).
    */
   public val docstring: String?
     get() = declaration.docstring

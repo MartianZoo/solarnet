@@ -79,7 +79,9 @@ policy and broader confluence analyses remain optional research, not engine sema
 
 See [`API.md`](API.md#current-implementation-divergence),
 [`AUTOEXEC.md`](AUTOEXEC.md#current-implementation), and
-[`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md#validation-strategy).
+[`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md#validation-strategy). The recoverable Admin-routing prototype
+and unresolved turn-state audit are recorded in
+[`TASK_ROUTING_EXPERIMENT.md`](TASK_ROUTING_EXPERIMENT.md).
 
 ## Other indexed programs
 
@@ -116,7 +118,7 @@ See [`API.md`](API.md#layer-responsibility), [`VISIBILITY.md`](VISIBILITY.md), a
 ### Simplify Pets and runtime semantics
 
 - Repair the two declared Pets conformance gaps and the compatible-refinement/default problem
-  without adding a second representation of Type identity: L7-8 stage divergence after defaults and
+  without adding a second representation of Type identity: L3-8 stage divergence after defaults and
   T8-3 substitution into the wrong compatible dependency slot.
 - Give refinements an explicit candidate when nested dependencies must relate to it, and add a real
   structural conjunction so rules can name intersections such as owned tiles without nominal proxy

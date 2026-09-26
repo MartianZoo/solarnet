@@ -5,8 +5,6 @@ plugins {
 
 val webReplSourceDirectory =
     rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/web/webrepl")
-val classViewerSourceDirectory =
-    rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/web/classviewer")
 val sharedSourceDirectory =
     rootProject.layout.projectDirectory.dir("src/js/dev/martianzoo/tfm/web/shared")
 
@@ -18,7 +16,7 @@ kotlin {
 
   sourceSets {
     jsMain {
-      kotlin.setSrcDirs(listOf(webReplSourceDirectory, classViewerSourceDirectory))
+      kotlin.setSrcDirs(listOf(webReplSourceDirectory))
       dependencies {
         implementation(project(":engine"))
         implementation(project(":pets"))
@@ -75,9 +73,5 @@ tasks.register("test") {
 
 tasks.named<ProcessResources>("jsProcessResources") {
   from(webReplSourceDirectory) { include("*.html", "*.css") }
-  from(classViewerSourceDirectory) {
-    include("*.html", "*.css")
-    into("classviewer")
-  }
   from(sharedSourceDirectory) { into("assets") }
 }
