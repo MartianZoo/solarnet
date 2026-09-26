@@ -46,7 +46,7 @@ internal val cardPrintedProcedureTextByName: Map<ClassName, CardPrintedProcedure
             ),
         cn("TychoMagnetics") to
             CardPrintedProcedureText(
-                actions = "Spend 1 or more energy to look at X project cards and draw one of them."
+                actions = "Spend 1 or more energy to look at that many cards. Draw 1 of them."
             ),
         cn("CorporateArchives") to
             CardPrintedProcedureText(
@@ -64,7 +64,7 @@ internal val cardPrintedProcedureTextByName: Map<ClassName, CardPrintedProcedure
             ),
         cn("HiTechLab") to
             CardPrintedProcedureText(
-                actions = "Spend 1 or more energy to look at X project cards and draw one of them."
+                actions = "Spend 1 or more energy to look at that many cards. Draw 1 of them."
             ),
         cn("AsteroidDeflectionSystem") to
             CardPrintedProcedureText(

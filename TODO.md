@@ -6,6 +6,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Replace the custom `PartyRequirement` metric with its expanded Pets condition (the party is
+  ruling or you have at least 2 delegates there), so execution and English can use that condition
+  directly. Preserve ownership and the grouping of combined requirements.
 - Let English component roles default to one canonical component noun so placement, requirements,
   and metrics do not repeat singular and plural wording.
 - Extend derived `including this` wording to setup operations and otherwise unsupported effects
@@ -118,6 +121,12 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- Make resource costs inside actions use `spend` consistently whether Pets expresses them before
+  `->` or in a `THEN` sequence; Focused Organization and Board of Directors still expose the split.
+  Preserve `pay` for non-action payments.
+- Reconcile Astra Mechanica's printed instruction to return 2 event cards that do not place special
+  tiles with its two optional, unrestricted `ProjectCard FROM PlayedEvent?` instructions. The local
+  Fryxelius archive has no Astra Mechanica ruling; current tests permit returning zero cards.
 - Define an authored, game-neutral way for bundle compatibility inference to distinguish hard
   dependencies from references that may safely disappear when a companion bundle is absent. Start
   with characterization tests for Suitable Infrastructure, Constructor, Soil Studies, and Summit

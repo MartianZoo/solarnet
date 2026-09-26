@@ -182,13 +182,7 @@ private fun Describers.renderLinkedXAction(action: Action): RenderedAction? {
   if (!gaining.simple || !isStandardResource(gaining.className)) {
     return null
   }
-  val cost =
-      renderResourceSpend(spend.scaledEx.expression) { noun ->
-        val quantity =
-            if (costScalar.multiple == 1) "1 or more ${noun.plural}"
-            else "$costScalar ${noun.plural}"
-        NounPhrase.text(quantity)
-      } ?: return null
+  val cost = renderSpendCost(spend) ?: return null
   val noun = fact(gaining.className, ComponentDescriber::noun)
   val resultQuantity =
       when {
@@ -338,16 +332,6 @@ private data class RenderedAction(
 }
 
 private fun RenderedInstructions.asActionResultInfinitive(): Clause? = takeIf {
-  clauses.all(Clause::canBeInfinitive)
+  clauses.all(::canBeInfinitive)
 }
     ?.asCoordinatedClause()
-
-private fun Clause.canBeInfinitive(): Boolean =
-    when (this) {
-      is Clause.Simple -> subject == null
-      is Clause.Coordinated -> clauses.members.all(Clause::canBeInfinitive)
-      is Clause.RawPets -> true
-      is Clause.Either,
-      is Clause.Prefaced,
-      is Clause.SharedSubject -> false
-    }

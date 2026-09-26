@@ -71,6 +71,17 @@ internal sealed interface Clause {
   }
 }
 
+/** Whether a clause can follow a modal or purpose verb without introducing another subject. */
+internal fun canBeInfinitive(clause: Clause): Boolean =
+    when (clause) {
+      is Clause.Simple -> clause.subject == null
+      is Clause.Coordinated -> clause.clauses.members.all(::canBeInfinitive)
+      is Clause.RawPets -> true
+      is Clause.Either,
+      is Clause.Prefaced,
+      is Clause.SharedSubject -> false
+    }
+
 internal fun Clause.unresolved(): List<Unresolved> =
     when (this) {
       is Clause.RawPets -> refusals

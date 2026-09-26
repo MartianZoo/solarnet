@@ -592,6 +592,18 @@ private fun renderAlternatives(
   renderPlacementSiteFallback(instruction, describers)?.let {
     return it
   }
+  val choices = instruction.instructions.filterNot { InstructionGroup.of(it).isEmpty() }
+  if (choices.isNotEmpty() && choices.size < instruction.instructions.size) {
+    val choice =
+        renderLoweredInstructions(Instruction.Or.createTree(choices), describers, references)
+            .asCoordinatedClause()
+    if (canBeInfinitive(choice) && choice.unresolved().isEmpty()) {
+      return Clause.Simple(
+          Predicate(Verb("may"), complement = Predicate.Complement.BareInfinitive(choice)),
+          NounPhrase.you(),
+      )
+    }
+  }
   val alternatives =
       instruction.instructions.map { option ->
         renderLoweredInstructions(option, describers, references).clauses.singleOrNull()

@@ -214,16 +214,34 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
 
 ## Wording decisions
 
+- Describe starting resources as `Gain ...` and starting production as an `Increase ... production`
+  instruction, rather than using the printed `You start with ...` construction.
+- Describe reveal-until-matching-card searches as `Draw N [kind] cards` in card goals, consistently
+  across that search family. Tag names can modify `cards` directly (`Draw 2 plant cards`); other
+  criteria must stay explicit (`Draw 2 cards with floater icons`, never `floater cards`).
+- Describe looking at several cards and keeping some as `Look at N cards. Draw K of them.` Omit
+  the routine discard instruction. Buying from a revealed selection can likewise use `You may buy`.
+- Normally describe variable amounts as `1 or more`, followed by `that amount`, `the same number`,
+  `twice that amount`, or `triple that amount`, as appropriate. Use X notation when a multiplied
+  cost must precede the base amount, as in `Spend 2X M€ to gain X energy`. This distinction depends
+  on the quantities, not the card. Preserve genuinely zero-inclusive choices separately.
+- Keep permission to use special payment resources concise: `Spend 8 M€ (steel may be used)`.
+- In reviewed goals that draw several cards and play one, describe the common selection as draw,
+  discard the others, then play the remaining card.
 - Use `raise`/`lower` for global parameters and terraform rating; `increase`/`decrease` for
   production. Spell out `terraform rating`.
+- Omit the routine oxygen reminder from greenery placement text. If a reminder is included, use
+  the parenthetical form `(and raise oxygen 1 step)`.
 - Begin every requirement with `Requires`. Use `Requires that you have` for player-owned state such
   as resources, production, rating, tiles, and colonies. Use a terse noun phrase for tags and global
   counts, and `Requires that` for other clauses. Describe temperature bounds as `warmer` or `colder`,
   not `higher` or `lower`.
-- Use `spend` when a Resource is consumed as an action cost, including a resource held on a card.
-  Use `remove` for taking a resource from any player's card and for standalone or involuntary
-  reductions. Use `pay` for the non-action payment constructions. Describe substitution as `may be
-  used as`, with no payment verb.
+- In reviewed card goals, spell out a party requirement as the named party ruling or the player
+  having 2 delegates there.
+- Use `spend` when a standard resource or one of your card resources is consumed as an action cost.
+  Use `remove` for taking resources from any player's card and for standalone or involuntary
+  reductions. Use `decrease` for production costs. Use `pay` for
+  non-action payment constructions. Describe substitution as `may be used as`, with no payment verb.
 - Join a rendered action cost to its result with `to`. Refuse a costed action whose result cannot be
   an infinitive; do not split it into separately modalized sentences. A mandatory standard-resource
   removal followed by `THEN` is a payment for its result and joins with `to`.
@@ -241,6 +259,9 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   points.
 - Preserve shared implicit player identity across a trigger and its result as `that player`.
 - Make optional maxima explicit as `you may ... up to`, including above one.
+- Express an operation with an unconditional option to do nothing as `you may ...`. Keep the
+  operation's costs and results within that permission; preserve all-or-nothing quantities and
+  conditional restrictions on declining.
 - Describe a card-resource location as `this card`, never `here`.
 - For an unbound card-resource destination, say `another card` when the current card cannot hold
   that resource type; otherwise say `any card`.
@@ -255,8 +276,9 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
 - Render `PlanetaryTag` as `planetary tag`.
 
 Card rendering calls out `including this` when the entering card contributes to an immediate metric
-or satisfies a supported tag or card-play trigger. It does not infer the phrase through setup
-operations or effects that the renderer cannot otherwise interpret.
+or satisfies a supported tag or card-play trigger and the reader could reasonably be unsure whether
+it counts. It does not infer the phrase through setup operations or effects that the renderer cannot
+otherwise interpret.
 
 ## Evidence and verification
 
@@ -268,10 +290,13 @@ Use evidence in this order:
 4. `english-card-text-current.tsv` / `english-goal-text-current.tsv`, as generated characterization —
    never a production answer source.
 
-The goals files may cover a selected proving corpus rather than every loaded card or goal. The
-card current snapshot follows the published wording evidence, including replay-only cards and the
-abstract Beginner Corporation. The goal current snapshot covers every concrete goal. Current
-refusals are recorded mechanically in the generated `*-refusals.tsv`; do not restate them here.
+The card goals cover the same corpus as the card current and corrected files. That corpus follows
+the published wording evidence, including replay-only cards and the abstract Beginner Corporation.
+Retain supported printed constraints in reviewed goals even when Pets does not yet enforce them;
+record the model gap separately. Such a target is not permission to invent a renderer special case.
+The goal-text goals may cover a selected proving corpus; the goal current snapshot covers every
+concrete goal. Current refusals are recorded mechanically in the generated `*-refusals.tsv`; do not
+restate them here.
 
 After an intentional output change, run:
 

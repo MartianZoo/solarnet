@@ -35,7 +35,7 @@ internal class EnglishTest {
   // shape. The separate goals file is reviewed target text, not an answer source or test oracle.
   @Test
   internal fun allCardTextMatchesCurrentSnapshot() {
-    goals.keys shouldBe cardsByClassName.keys
+    goals.keys.toList() shouldBe published.keys.toList()
     current.keys.toList() shouldBe published.keys.toList()
     corrected.keys.toList() shouldBe published.keys.toList()
     current.forEach { (cardFront, expected) ->
@@ -85,6 +85,8 @@ internal class EnglishTest {
         "Spend 1 or more floaters from this card to gain the same number of one standard resource."
     english.describe(listOf(parse<Action>("X ProjectCard -> 2X MC"))) shouldBe
         "Discard 1 or more cards to gain twice that amount of M€."
+    english.describe(listOf(parse<Action>("2X Steel -> 4X Titanium"))) shouldBe
+        "Spend 2X steel to gain 4X titanium."
     english.describe(listOf(parse<Action>("MC -> Animal<This>?"))) shouldBe "[MC -> Animal<This>?]."
     english.describe(parse<InstructionTree>("2 Plant, TemperatureStep")) shouldBe
         "Gain 2 plants. Raise temperature 1 step."
@@ -190,6 +192,24 @@ internal class EnglishTest {
         "If there is 1 ocean tile, gain 1 steel."
     english.describe(parse<InstructionTree>("2 OceanTile: Steel")) shouldBe
         "If there are 2 ocean tiles, gain 1 steel."
+  }
+
+  @Test
+  internal fun optionalAlternativesPreserveQuantitiesAndCostScope() {
+    english.describe(parse<InstructionTree>("2 Steel OR Ok")) shouldBe
+        "You may gain 2 steel."
+    english.describe(parse<InstructionTree>("Ok OR (-ProjectCard THEN ProjectCard)")) shouldBe
+        "You may discard 1 card to draw 1 card."
+    english.describe(parse<InstructionTree>("(2 Plant, OxygenStep) OR Ok")) shouldBe
+        "You may gain 2 plants and raise oxygen 1 step."
+    english.describe(parse<InstructionTree>("2 Steel OR 3 Plant OR Ok")) shouldBe
+        "You may gain 2 steel or 3 plants."
+  }
+
+  @Test
+  internal fun aConditionalDeclineDoesNotMakeTheOperationOptional() {
+    english.describe(parse<InstructionTree>("Steel OR (2 OceanTile: Ok)")) shouldBe
+        "Gain 1 steel, or if there are 2 ocean tiles, do nothing."
   }
 
   @Test

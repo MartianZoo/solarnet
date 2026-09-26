@@ -26,7 +26,7 @@ Aridor	Aridor	[EACH @Class<Tag> { AridorTagWatcher<@Class, This> }]. Gain 40 M�
 Arklight	Arklight	Gain 45 M€. Increase your M€ production 2 steps. 1 VP per 2 animals on this card.	Effect: When you play an animal tag or a plant tag (including this), add 1 animal to this card.
 Polyphemos	Polyphemos	Gain 50 M€ and 5 titanium. Increase your M€ production 5 steps.	Effect: When you buy a card, pay 2 M€ extra.
 Poseidon	Poseidon	Gain 45 M€. As your first action, place a colony.	Effect: When any colony is placed, increase your M€ production 1 step.
-StormcraftIncorporated	Stormcraft Incorporated	Gain 48 M€.	Action: Add 1 floater to any card. / Effect: You may use floaters on this card as 2 heat each. When you play a local heat trapping, remove 1 floater from this card to gain 2 heat, or remove 2 floaters from this card to gain 4 heat, or remove 3 floaters from this card to gain 5 heat, or do nothing.
+StormcraftIncorporated	Stormcraft Incorporated	Gain 48 M€.	Action: Add 1 floater to any card. / Effect: You may use floaters on this card as 2 heat each. When you play a local heat trapping, you may remove 1 floater from this card to gain 2 heat, remove 2 floaters from this card to gain 4 heat, or remove 3 floaters from this card to gain 5 heat.
 LakefrontResorts	Lakefront Resorts	Gain 54 M€.	Effect: When any ocean tile is placed, increase your M€ production 1 step. When you place a tile on Mars, gain 1 M€ per ocean tile next to that area.
 Pristar	Pristar	Gain 53 M€. Lower your terraform rating 2 steps. 1 VP per preservation resource on this card.	Effect: [ProductionPhase IF MAX 0 HasRaisedTr: Preservation<This>, 6 MC].
 FakeSeptemTribus	Septem Tribus	Gain 36 M€. [FakeWildTag<This>].	Action: [2 MC / Class<Party>(HAS PartyDelegate<Party, Owner>)].
@@ -46,7 +46,7 @@ Philares	Philares	Gain 47 M€. As your first action, place a greenery tile.	Eff
 AstroDrill	AstroDrill	Gain 35 M€. Add 3 asteroids to this card.	Action: Add 1 asteroid to any card or gain 1 standard resource, or spend 1 asteroid from this card to gain 3 titanium.
 PharmacyUnion	Pharmacy Union	Gain 54 M€. Draw 1 science card.	Effect: [MicrobeTag<Anyone>: Disease<This>! OR (MAX 0 This: Ok), -4 MC.]. [ScienceTag: (TerraformRating FROM Disease<This>!) OR (MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)].
 KuiperCooperative	Kuiper Cooperative	Gain 33 M€. Increase your titanium production 1 step.	Action: Add 1 asteroid to this card per space tag you have. / Effect: When you use a standard project or a standard project, asteroids on this card may be used as 1 M€ each.
-TychoMagnetics	Tycho Magnetics	Gain 42 M€. Increase your energy production 1 step.	Action: Spend 1 or more energy to look at X project cards and draw one of them.
+TychoMagnetics	Tycho Magnetics	Gain 42 M€. Increase your energy production 1 step.	Action: Spend 1 or more energy to look at that many cards. Draw 1 of them.
 AlliedBank	Allied Bank	Increase your M€ production 4 steps. Gain 3 M€.
 AquiferTurbines	Aquifer Turbines	Place an ocean tile. Increase your energy production 2 steps. Remove 3 M€.
 Biofuels	Biofuels	Increase your plant production and your energy production 1 step each. Gain 2 plants.
@@ -277,7 +277,7 @@ Sponsors	Sponsors	Increase your M€ production 2 steps.
 ElectroCatapult	Electro Catapult	Requires 8% oxygen or less. Decrease your energy production 1 step.	Action: Spend 1 plant to gain 7 M€, or spend 1 steel to gain 7 M€.
 EarthCatapult	Earth Catapult		Effect: When you play a card, you pay 2 M€ less for it.
 AdvancedAlloys	Advanced Alloys		Effect: Each titanium or steel you pay is worth 1 M€ extra.
-MarsUniversity	Mars University		Effect: When you play a science tag (including this), discard 1 card to draw 1 card, or do nothing.
+MarsUniversity	Mars University		Effect: When you play a science tag (including this), you may discard 1 card to draw 1 card.
 ViralEnhancers	Viral Enhancers		Effect: When you play a bio tag (including this), gain 1 plant or add 1 resource to that card.
 QuantumExtractor	Quantum Extractor	Requires 4 science tags. Increase your energy production 4 steps.	Effect: When you play a space tag, you pay 2 M€ less for it.
 CallistoPenalMines	Callisto Penal Mines	Increase your M€ production 3 steps.
@@ -478,7 +478,7 @@ Penguins	Penguins	Requires 8 ocean tiles. 1 VP per animal on this card.	Action: 
 DuskLaserMining	Dusk Laser Mining	Requires 2 science tags. Decrease your energy production 1 step and increase your titanium production 1 step. Gain 4 titanium.
 ProjectInspection	Project Inspection	Use an action from an action card that has an action-used marker.
 EnergyMarket	Energy Market		Action: Spend 2X M€ to gain X energy, or decrease your energy production 1 step to gain 8 M€.
-HiTechLab	Hi-Tech Lab		Action: Spend 1 or more energy to look at X project cards and draw one of them.
+HiTechLab	Hi-Tech Lab		Action: Spend 1 or more energy to look at that many cards. Draw 1 of them.
 InterplanetaryTrade	Interplanetary Trade	Increase your M€ production 1 step per different tag you have (including this).
 LawSuit	Law Suit	[(MyResourceWasRemoved<Owner, Attacker@Player> OR MyProductionWasDecreased<Owner, Attacker@Player>): 3 MC FROM MC<Attacker@Player>], then [PlayedEvent<Attacker@Player, Class<This>> FROM This].
 MercurianAlloys	Mercurian Alloys	Requires 2 science tags.	Effect: Each titanium you pay is worth 1 M€ extra.
