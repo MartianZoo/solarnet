@@ -1,0 +1,37 @@
+class_name	english_name	text
+AquiferReleasedByPublicCouncil	Aquifer Released By Public Council	If not all oceans have been placed, the first player must place an ocean tile without gaining terraform rating or other bonuses. Gain 1 plant and 1 steel per influence.
+AsteroidMiningGlobalEvent	Asteroid Mining	Gain 1 titanium per Jovian tag you have (max 5). Gain 1 titanium per influence.
+CelebrityLeaders	Celebrity Leaders	Gain 2 M€ per card in your event pile (max 5). Gain 2 M€ per influence.
+Diversity	Diversity	If you have at least 9 different tags and influence combined, gain 10 M€.
+DryDeserts	Dry Deserts	If not all oceans have been placed, the first player must remove an ocean tile. [ResolveDryDeserts].
+EcoSabotage	Eco Sabotage	Remove all plants except 3 plus influence.
+Election	Election	If this is a multiplayer game, [EACH Player(HAS =1 (RANK Ranked@Player { Influence<Ranked@Player> OR BuildingTag<Ranked@Player> OR CityTile<Ranked@Player> })) { 2 TerraformRating }]. If this is a multiplayer game, [EACH Player(HAS =2 (RANK Ranked@Player { Influence<Ranked@Player> OR BuildingTag<Ranked@Player> OR CityTile<Ranked@Player> })) { TerraformRating }]. If this is a solo game, raise your terraform rating 1 step per complete set of 5 influence, building tags, and city tiles combined (max 2).
+GenerousFunding	Generous Funding	Gain 2 M€ per complete set of 5 steps of your terraform rating in excess of 15 (max 5). Gain 2 M€ per influence.
+GlobalDustStorm	Global Dust Storm	Remove all heat. Remove 2 M€ per building tag you have (max 5) in excess of influence, or as much as possible.
+HomeworldSupport	Homeworld Support	Gain 2 M€ per Earth tag you have (max 5). Gain 2 M€ per influence.
+ImprovedEnergyTemplates	Improved Energy Templates	Increase your energy production 1 step per complete set of 2 power tags and influence combined.
+InterplanetaryTradeGlobalEvent	Interplanetary Trade	Gain 2 M€ per space tag you have (max 5). Gain 2 M€ per influence.
+MinersOnStrike	Miners On Strike	Remove 1 titanium per Jovian tag you have (max 5) in excess of influence, or as much as possible.
+MudSlides	Mud Slides	Remove 4 M€ per tile you own on areas next to at least 1 ocean tile (max 5) in excess of influence, or as much as possible.
+Pandemic	Pandemic	Remove 3 M€ per building tag you have (max 5) in excess of influence, or as much as possible.
+ParadigmBreakdown	Paradigm Breakdown	Discard 2 cards, or as much as possible. Gain 2 M€ per influence.
+Productivity	Productivity	Gain 1 steel per steel production (max 5). Gain 1 steel per influence.
+RedInfluence	Red Influence	Remove 3 M€ per complete set of 5 steps of your terraform rating in excess of 10 (max 5), or as much as possible. Increase your M€ production 1 step per influence.
+Revolution	Revolution	If this is a multiplayer game, [EACH Player(HAS 1 (EarthTag OR Influence), HAS =1 (RANK Ranked@Player { EarthTag<Ranked@Player> OR Influence<Ranked@Player> })) { -2 TerraformRating. }]. If this is a multiplayer game, [EACH Player(HAS 1 (EarthTag OR Influence), HAS =2 (RANK Ranked@Player { EarthTag<Ranked@Player> OR Influence<Ranked@Player> })) { -TerraformRating. }]. If this is a solo game, [EACH Player(HAS 4 (EarthTag OR Influence)) { -2 TerraformRating. }].
+Riots	Riots	Remove 4 M€ per city tile you own (max 5) in excess of influence, or as much as possible.
+SabotageGlobalEvent	Sabotage	Decrease your steel production 1 step, or as much as possible. Decrease your energy production 1 step, or as much as possible. Gain 1 steel per influence.
+ScientificCommunity	Scientific Community	Gain 1 M€ per card in hand. Gain 1 M€ per influence.
+SnowCover	Snow Cover	If temperature has not reached its maximum, lower temperature 2 steps without gaining terraform rating or other bonuses, or as much as possible. Draw 1 card per influence.
+SolarFlare	Solar Flare	Remove 3 M€ per space tag you have (max 5) in excess of influence, or as much as possible.
+SolarnetShutdown	Solarnet Shutdown	Remove 3 M€ per active card in play (max 5) in excess of influence, or as much as possible.
+SpinOffProducts	Spin-Off Products	Gain 2 M€ per science tag you have (max 5). Gain 2 M€ per influence.
+SponsoredProjects	Sponsored Projects	[EACH Card@ResourceCard<Anyone> { CardResource<Card@ResourceCard<Anyone>> }]. Draw 1 card per influence.
+StrongSociety	Strong Society	Gain 2 M€ per city tile you own (max 5). Gain 2 M€ per influence.
+SuccessfulOrganisms	Successful Organisms	Gain 1 plant per plant production (max 5). Gain 1 plant per influence.
+VolcanicEruptions	Volcanic Eruptions	Raise temperature 2 steps without gaining terraform rating or other bonuses, or as much as possible. Increase your heat production 1 step per influence.
+WarOnEarth	War On Earth	Lower your terraform rating 1 step per unit by which influence falls short of 4, or as much as possible.
+VenusInfrastructure	Venus Infrastructure	Gain 2 M€ per Venus tag you have (max 5). Gain 2 M€ per influence.
+CloudSocieties	Cloud Societies	[EACH @ResourceCard<Class<Floater>, Anyone> { Floater<@ResourceCard> }]. [ChooseInfluenceFloaterCard].
+CorrosiveRain	Corrosive Rain	[ResolveCorrosiveRain].
+JovianTaxRights	Jovian Tax Rights	Increase your M€ production 1 step per colony you own (max 5). Gain 1 titanium per influence.
+MicrogravityHealthProblems	Microgravity Health Problems	Remove 3 M€ per colony you own (max 5) in excess of influence, or as much as possible.

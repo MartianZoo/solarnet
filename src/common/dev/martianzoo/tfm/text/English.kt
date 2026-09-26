@@ -14,6 +14,7 @@ import dev.martianzoo.tfm.canon.cardEffects
 import dev.martianzoo.tfm.canon.cardImmediate
 import dev.martianzoo.tfm.canon.cardRequirement
 import dev.martianzoo.tfm.canon.cardResourceType
+import dev.martianzoo.tfm.text.turmoilexpansion.renderGlobalEvent
 
 /** English Pets text using one structural vocabulary and its sparse component descriptions. */
 internal class English(
@@ -38,9 +39,15 @@ internal class English(
       renderRequirement(requirement, describers).linearize()
 
   /** Returns the best available English text describing [goal]. */
-  internal fun renderGoal(goal: Class): EnglishGoalRendering {
+  internal fun renderGoal(goal: Class): EnglishRendering {
     val rendered = renderGoal(goal, describers)
-    return EnglishGoalRendering(rendered.linearize(), rendered.unresolved())
+    return EnglishRendering(rendered.linearize(), rendered.unresolved())
+  }
+
+  /** Returns the resolution text addressed to each player for one global event. */
+  internal fun renderGlobalEvent(event: Class): EnglishRendering {
+    val rendered = renderGlobalEvent(event, describers)
+    return EnglishRendering(rendered.linearize(), rendered.unresolved())
   }
 
   /** Returns the best available text above [card]'s artwork. */

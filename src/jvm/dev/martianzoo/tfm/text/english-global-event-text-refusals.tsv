@@ -1,0 +1,3 @@
+count	reason	examples
+7	UNSUPPORTED_FANOUT	Election: EACH Player(HAS =1 (RANK Ranked@Player { Influence<Ranked@Player> OR BuildingTag<Ranked@Player> OR CityTile<Ranked@Player> })) { 2 TerraformRating } | Election: EACH Player(HAS =2 (RANK Ranked@Player { Influence<Ranked@Player> OR BuildingTag<Ranked@Player> OR CityTile<Ranked@Player> })) { TerraformRating }
+3	UNKNOWN_CHANGE_FRAME	DryDeserts: ResolveDryDeserts | CloudSocieties: ChooseInfluenceFloaterCard

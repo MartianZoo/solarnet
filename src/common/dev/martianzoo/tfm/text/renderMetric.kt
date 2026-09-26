@@ -93,7 +93,37 @@ private fun renderMetric(
         ) {
           renderMetric(metric.minuend, describers, possessorEstablished, count)
         } else {
-          null
+          val left =
+              (metric.minuend as? Metric.Constant)?.let {
+                MetricRendering(NounPhrase.text(it.value.toString()))
+              } ?: renderMetric(metric.minuend, describers, possessorEstablished, count)
+          val right =
+              (metric.subtrahend as? Metric.Constant)?.let {
+                MetricRendering(NounPhrase.text(it.value.toString()))
+              } ?: renderMetric(metric.subtrahend, describers, possessorEstablished)
+          if (
+              left == null ||
+                  right == null ||
+                  metric.minuend is Metric.Subtract ||
+                  metric.subtrahend is Metric.Subtract
+          )
+              null
+          else if (metric.minuend is Metric.Constant)
+              MetricRendering(
+                  NounPhrase.text("unit")
+                      .withModifier(
+                          Modifier.Relation(
+                              "by which",
+                              right.phrase.withModifier(
+                                  Modifier.Relation("falls short of", left.phrase)
+                              ),
+                          )
+                      )
+              )
+          else
+              left.copy(
+                  phrase = left.phrase.withModifier(Modifier.Relation("in excess of", right.phrase))
+              )
         }
     is Metric.Constant,
     is Metric.Eval,
@@ -163,7 +193,27 @@ private fun renderScaledCountPhrase(
     describers: Describers,
     possessorEstablished: Boolean,
 ): MetricRendering? {
-  return renderMetric(metric.inner, describers, possessorEstablished, metric.unit)
+  val inner = metric.inner
+  if (
+      inner !is Metric.Count &&
+          inner !is Metric.Or &&
+          !(inner is Metric.Subtract &&
+              inner.minuend is Metric.Count &&
+              inner.subtrahend is Metric.Constant)
+  )
+      return null
+  val rendered =
+      if (inner is Metric.Or) {
+        renderCombinedMetric(inner, describers, possessorEstablished = true, count = metric.unit)
+      } else {
+        renderMetric(metric.inner, describers, possessorEstablished, metric.unit)
+      } ?: return null
+  return if (inner is Metric.Count) rendered
+  else
+      rendered.copy(
+          phrase =
+              NounPhrase.text("complete set").withModifier(Modifier.Relation("of", rendered.phrase))
+      )
 }
 
 /** The sole count-expression-to-noun-phrase lexicalization protocol. */
@@ -205,7 +255,10 @@ private fun Describers.recognizeCountedExpression(
         val subject =
             if (!possessorEstablished) scale.subject else scale.subject.removePrefix("your ")
         return MetricRendering(
-            NounPhrase.text(subject),
+            if (count == null) NounPhrase.text(subject)
+            else
+                NounPhrase("step", "steps", count = count)
+                    .withModifier(Modifier.Relation("of", NounPhrase.text(subject))),
             MetricRendering.Ranking.HIGHEST,
         )
       }
@@ -222,13 +275,13 @@ private fun Describers.recognizeCountedExpression(
     }
     return MetricRendering(phrase)
   }
-  renderFilteredComponentCount(expression, count, possessorEstablished)?.let {
+  renderFilteredComponentCount(expression, count)?.let {
     return MetricRendering(it)
   }
   renderZeroMaximumFilter(expression, count)?.let {
     return MetricRendering(it)
   }
-  renderComponentCount(expression, count, possessorEstablished)?.let {
+  renderComponentCount(expression, count)?.let {
     return MetricRendering(it)
   }
   renderFilteredPlacementCount(expression, count, possessorEstablished)?.let {
@@ -294,12 +347,9 @@ private fun Describers.renderFilteredPlacementCount(
 private fun Describers.renderFilteredComponentCount(
     expression: Expression,
     count: Int?,
-    possessorEstablished: Boolean,
 ): NounPhrase? {
   val requirements = expression.refinement?.hasRequirementsOrNull() ?: return null
-  var noun =
-      renderComponentCount(expression.copy(refinement = null), count, possessorEstablished)
-          ?: return null
+  var noun = renderComponentCount(expression.copy(refinement = null), count) ?: return null
   requirements.forEach { requirement ->
     val modifier =
         renderMetricFilter(expression.className, requirement)
@@ -424,15 +474,8 @@ internal fun distinctOwnedKinds(
 private fun Describers.renderComponentCount(
     expression: Expression,
     count: Int?,
-    possessorEstablished: Boolean,
 ): NounPhrase? {
   if (expression.refinement != null) return null
-  if (
-      !possessorEstablished &&
-          triggerFrame(expression.className) is ComponentDescriber.TriggerFrame.PlayCard
-  ) {
-    return null
-  }
   val description = metricCount(expression.className) ?: return null
   val resolved = resolveExpression(expression) ?: return null
   val ownerKey = Key(OWNED, 0)

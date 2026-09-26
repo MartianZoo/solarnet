@@ -196,8 +196,7 @@ internal class EnglishTest {
 
   @Test
   internal fun optionalAlternativesPreserveQuantitiesAndCostScope() {
-    english.describe(parse<InstructionTree>("2 Steel OR Ok")) shouldBe
-        "You may gain 2 steel."
+    english.describe(parse<InstructionTree>("2 Steel OR Ok")) shouldBe "You may gain 2 steel."
     english.describe(parse<InstructionTree>("Ok OR (-ProjectCard THEN ProjectCard)")) shouldBe
         "You may discard 1 card to draw 1 card."
     english.describe(parse<InstructionTree>("(2 Plant, OxygenStep) OR Ok")) shouldBe
@@ -445,7 +444,7 @@ internal class EnglishTest {
             """
         )
     english.bottomText(noTagCard) shouldBe
-        "Increase your M€ production 1 step per card with no tags (including this)."
+        "Increase your M€ production 1 step per card in play with no tags (including this)."
 
     val outsideCountedClass =
         syntheticCard(

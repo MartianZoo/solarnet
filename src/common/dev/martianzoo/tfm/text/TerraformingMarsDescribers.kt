@@ -31,6 +31,16 @@ internal object TerraformingMarsDescribers {
         klass("HasRaisedTr") to
             ComponentDescriber(presenceCondition = "your terraform rating has been raised"),
         klass("SoloMode") to ComponentDescriber(presenceCondition = "this is a solo game"),
+        klass("MultiplayerMode") to
+            ComponentDescriber(presenceCondition = "this is a multiplayer game"),
+        klass("AdminOceanPlacement") to
+            ComponentDescriber(
+                changeFrame =
+                    Frame.Procedure(
+                        "place",
+                        "an ocean tile without gaining terraform rating or other bonuses",
+                    )
+            ),
         klass("Pass") to
             ComponentDescriber(
                 requirementCondition = Condition.OwnerState("has passed"),

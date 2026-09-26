@@ -143,8 +143,8 @@ private fun factorAdjacentPredicates(clauses: List<Clause>): List<Clause> {
         if (
             previous != null &&
                 current != null &&
-                previous.predicate.modifiers.isEmpty() &&
-                current.predicate.modifiers.isEmpty() &&
+                previous.predicate.modifiers.all { it is Modifier.Per } &&
+                current.predicate.modifiers.all { it is Modifier.Per } &&
                 previousObjects != null &&
                 currentObjects != null &&
                 previousObjects.members.none { it in currentObjects.members }

@@ -511,6 +511,12 @@ private fun renderPer(
     describers: Describers,
     references: TypeVariableReferences,
 ): Clause? {
+  renderThresholdReward(instruction, describers, references)?.let {
+    return it
+  }
+  renderRemainingRemoval(instruction, describers)?.let {
+    return it
+  }
   renderCappedProcedure(instruction, describers)?.let {
     return it
   }
@@ -523,7 +529,76 @@ private fun renderPer(
             renderCountedRelationToAntecedent(it, describers, references)
           }
           ?: return null
-  return (clause as? Clause.Simple)?.withModifier(Modifier.Per(metric))
+  val simple = clause as? Clause.Simple ?: return null
+  val modifiers = simple.predicate.modifiers
+  return simple.copy(
+      predicate =
+          simple.predicate.copy(
+              modifiers =
+                  modifiers.filterNot { it is Modifier.Supplement } +
+                      Modifier.Per(metric) +
+                      modifiers.filterIsInstance<Modifier.Supplement>()
+          )
+  )
+}
+
+/** A count divided into sets and capped at one is a one-time threshold. */
+private fun renderThresholdReward(
+    instruction: Instruction.Per,
+    describers: Describers,
+    references: TypeVariableReferences,
+): Clause? {
+  val capped = instruction.metric as? Metric.Max ?: return null
+  if ((capped.maximum as? Metric.Constant)?.value != 1) return null
+  val scaled = capped.inner as? Metric.Scaled ?: return null
+  val amount = renderRequirementMetricPhrase(scaled.inner, scaled.unit, describers) ?: return null
+  val result =
+      renderLoweredInstructions(instruction.inner, describers, references).asCoordinatedClause()
+  val condition =
+      Clause.Simple(Predicate(Verb("have at least"), Coordination.one(amount)), NounPhrase.you())
+  return Clause.Prefaced(Clause.Preface.Conditional(condition), result)
+}
+
+/** Removing one item per item above a retained amount means removing all but that amount. */
+private fun renderRemainingRemoval(
+    instruction: Instruction.Per,
+    describers: Describers,
+): Clause.Simple? {
+  val removal = instruction.inner as? Remove ?: return null
+  if (
+      removal.count.fixedQuantity() != 1 ||
+          removal.quantifier.modality() != Modality.REQUIRED ||
+          !removal.removing.simple ||
+          !describers.isStandardResource(removal.removing.className)
+  )
+      return null
+  var remaining = instruction.metric
+  val retained = mutableListOf<NounPhrase>()
+  while (remaining is Metric.Subtract) {
+    retained +=
+        (remaining.subtrahend as? Metric.Constant)?.let { NounPhrase.text(it.value.toString()) }
+            ?: renderMetricPhrase(remaining.subtrahend, describers)
+            ?: return null
+    remaining = remaining.minuend
+  }
+  if ((remaining as? Metric.Count)?.expression != removal.removing) return null
+  val resources =
+      describers
+          .componentNounPhrase(removal.removing.className, 2)
+          .asPlural()
+          .withDeterminer(Determiner.ALL)
+  val modifiers =
+      if (retained.isEmpty()) emptyList()
+      else
+          listOf(
+              Modifier.Relation(
+                  "except",
+                  retained.reduce { left, right ->
+                    left.withModifier(Modifier.Relation("plus", right))
+                  },
+              )
+          )
+  return Clause.Simple(Predicate(Verb("remove"), Coordination.one(resources), modifiers))
 }
 
 private fun renderCappedProcedure(

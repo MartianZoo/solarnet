@@ -27,7 +27,21 @@ internal fun renderChange(
         is Transmute -> instruction.gaining
         else -> return null
       }
-  return renderChangeOrNull(instruction, expression, describers, references)
+  renderChangeOrNull(instruction, expression, describers, references)?.let {
+    return it
+  }
+  val change = instruction as? Instruction.Change ?: return null
+  if (change.quantifier.modality() != Modality.BEST_EFFORT) return null
+  val mandatory =
+      when (change) {
+        is Gain -> change.copy(quantifier = Instruction.Quantifier.MANDATORY)
+        is Remove -> Remove.remove(change.scaledEx, Instruction.Quantifier.MANDATORY)
+        is Transmute -> change.copy(quantifier = Instruction.Quantifier.MANDATORY)
+      }
+  val rendered =
+      renderChangeOrNull(mandatory, expression, describers, references) as? Clause.Simple
+          ?: return null
+  return rendered.withModifier(Modifier.Supplement("or as much as possible"))
 }
 
 internal fun changeRefusalReason(

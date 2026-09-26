@@ -138,6 +138,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Render the five beginner corporation copies from their inherited modeled setup semantics.
 - Complete the three visible goal-text refusals only from modeled semantics: Briber's immediate
   claim instruction, Philantropist's `GainsOf` metric, and Suburbian's map-edge concept.
+- Finish Global Event text from modeled semantics: ranked player selections in Election and
+  Revolution, resource-card fanout in Sponsored Projects and Cloud Societies, and the procedure
+  bodies used by Dry Deserts, Cloud Societies, and Corrosive Rain. Keep unsupported nodes visible;
+  do not replace these with copied card wording or new gameplay APIs.
 - Extend `docs/english-card-text-comparison.md` after corporations with projects, preludes,
   milestones, and awards in release order, using verified printed wording for missing entries.
 - Review [the class-existence scenario draft](docs/class-existence-scenarios-draft.md) for

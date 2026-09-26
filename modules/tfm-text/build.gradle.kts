@@ -110,10 +110,25 @@ tasks.register<JavaExec>("writeEnglishGoalTextCurrent") {
   description = "Writes the English renderer's current milestone and award output snapshot."
   dependsOn(jvmTestCompilation.compileTaskProvider)
   classpath = files(jvmTestCompilation.output.allOutputs, jvmTestCompilation.runtimeDependencyFiles)
-  mainClass = "dev.martianzoo.tfm.text.EnglishGoalTextCurrentGenerator"
+  mainClass = "dev.martianzoo.tfm.text.EnglishTextCurrentGenerator"
   args(
       textDataDirectory.file("english-goal-text-current.tsv").asFile.absolutePath,
       textDataDirectory.file("english-goal-text-refusals.tsv").asFile.absolutePath,
+      "goals",
+  )
+  outputs.upToDateWhen { false }
+}
+
+tasks.register<JavaExec>("writeEnglishGlobalEventTextCurrent") {
+  group = "verification"
+  description = "Writes the English renderer's current global event output snapshot."
+  dependsOn(jvmTestCompilation.compileTaskProvider)
+  classpath = files(jvmTestCompilation.output.allOutputs, jvmTestCompilation.runtimeDependencyFiles)
+  mainClass = "dev.martianzoo.tfm.text.EnglishTextCurrentGenerator"
+  args(
+      textDataDirectory.file("english-global-event-text-current.tsv").asFile.absolutePath,
+      textDataDirectory.file("english-global-event-text-refusals.tsv").asFile.absolutePath,
+      "global-events",
   )
   outputs.upToDateWhen { false }
 }

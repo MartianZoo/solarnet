@@ -4,6 +4,7 @@ package dev.martianzoo.tfm.text
 internal enum class Determiner(private val fixedText: String? = null) {
   INDEFINITE,
   ANY("any"),
+  ALL("all"),
   YOUR("your"),
   NO("no"),
   THE("the"),

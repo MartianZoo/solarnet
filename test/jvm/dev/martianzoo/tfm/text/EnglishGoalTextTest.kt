@@ -8,8 +8,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class EnglishGoalTextTest {
-  private val current =
-      EnglishGoalTextData.parse(readEnglishCardText("english-goal-text-current.tsv"))
+  private val current = EnglishTextData.parse(readEnglishCardText("english-goal-text-current.tsv"))
   private val english = English(Canon.classTable, TerraformingMarsDescribers.descriptions)
 
   @Test
