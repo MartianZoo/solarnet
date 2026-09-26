@@ -335,18 +335,22 @@ internal class TurmoilEventsTest :
   }
 
   @Test
-  internal fun `sponsored projects adds to every compatible resource card then draws for influence`() {
+  internal fun `sponsored projects adds only to cards with resources then draws for influence`() {
     newGame(TurmoilExpansion)
     seatPlayerOneAsChairman()
+    val p2 = requireP2()
     p1.runOperation("ActiveEventProbe, Animal<ActiveEventProbe>, EmptyResourceProbe")
+    p2.runOperation("FloaterEventProbe, 2 Floater<FloaterEventProbe>, OtherFloaterEventProbe")
     admin.runOperation("MeasureInfluence<Player1>")
 
     resolve("SponsoredProjects")
 
     p1.count("Animal<ActiveEventProbe>") shouldBe 2
-    p1.count("Microbe<EmptyResourceProbe>") shouldBe 1
+    p1.count("Microbe<EmptyResourceProbe>") shouldBe 0
+    p2.count("Floater<OtherFloaterEventProbe>") shouldBe 0
+    p2.count("Floater<FloaterEventProbe>") shouldBe 3
     p1.count("ProjectCard") shouldBe 1
-    requireP2().count("ProjectCard") shouldBe 0
+    p2.count("ProjectCard") shouldBe 0
   }
 
   @Test
