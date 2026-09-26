@@ -205,7 +205,9 @@
           "name": "AstraMechanica",
           "cost": 7,
           "tags": [ "ScienceTag" ],
-          "immediate": "ProjectCard FROM PlayedEvent?, ProjectCard FROM PlayedEvent?",
+          // Separate transfers allow choosing two differently named events.
+          "immediate": "ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)>?, ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)>?",
+          "components": [ "CLASS GainsOf<Class<CardFront>, Class<Component>> : Custom" ],
         },
         {
           "name": "BactoviralResearch",

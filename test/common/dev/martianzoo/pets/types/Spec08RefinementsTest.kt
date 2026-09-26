@@ -173,6 +173,98 @@ internal class Spec08RefinementsTest {
     world.questions shouldContainExactly listOf("MAX 9 Ants.cost")
   }
 
+  private val cardMetrics =
+      loadTypes(
+          """
+          CLASS Player1 : Owner
+          ABSTRACT CLASS CardFront : Owned<Owner> {
+            CLASS Ants
+            CLASS Birds
+          }
+          CLASS PrintedCost<Class<CardFront>>
+          CLASS CardValue<Class<CardFront>, CardFront>
+          CLASS SystemMetric<System>
+          CLASS ClassMetric<Class<System>>
+          CLASS VictoryPoint
+          CLASS Gains<Class<CardFront>, Class<Component>>
+          """
+              .trimIndent()
+      )
+
+  @Test
+  internal fun `T8-3 a component candidate can supply its class to a class-bound metric`() {
+    val world = RecordingWorld(answer = true)
+    val componentRequirement = cardMetrics.resolve(te("CardFront(HAS PrintedCost)"))
+    val classRequirement = cardMetrics.resolve(te("Class<CardFront>(HAS PrintedCost)"))
+
+    cardMetrics.resolve(te("Ants<Player1>")).narrows(componentRequirement, world) shouldBe true
+    cardMetrics.resolve(te("Class<Ants>")).narrows(classRequirement, world) shouldBe true
+    cardMetrics.resolve(te("CardFront<Player1>")).narrows(componentRequirement, world) shouldBe true
+    world.questions shouldContainExactly
+        listOf(
+            "PrintedCost<Class<Ants>>",
+            "PrintedCost<Class<Ants>>",
+            "PrintedCost<Class<CardFront>>",
+        )
+    cardMetrics.resolve(te("Ants<Player1>")).narrows(componentRequirement, emptyWorld) shouldBe
+        false
+  }
+
+  @Test
+  internal fun `T8-3 a match of the original candidate takes precedence even when unchanged`() {
+    val world = RecordingWorld(answer = true)
+
+    listOf("CardValue", "CardValue<Ants<Player1>>").forEach { metric ->
+      cardMetrics
+          .resolve(te("Ants<Player1>"))
+          .narrows(cardMetrics.resolve(te("CardFront(HAS $metric)")), world) shouldBe true
+    }
+    world.questions shouldContainExactly List(2) { "CardValue<Class<CardFront>, Ants<Player1>>" }
+  }
+
+  @Test
+  internal fun `T8-3 class fallback requires a compatible class slot`() {
+    val world = RecordingWorld(answer = true)
+
+    listOf("PrintedCost<Class<Birds>>", "SystemMetric").forEach { metric ->
+      cardMetrics
+          .resolve(te("Ants<Player1>"))
+          .narrows(cardMetrics.resolve(te("CardFront(HAS $metric)")), world) shouldBe false
+    }
+    world.questions shouldContainExactly listOf()
+    // This conversion belongs to refinement binding, not ordinary type arguments.
+    shouldThrow<ExpressionException> { cardMetrics.resolve(te("PrintedCost<Ants<Player1>>")) }
+  }
+
+  @Test
+  internal fun `T8-3 class fallback uses the ordinary selection order across class slots`() {
+    val world = RecordingWorld(answer = true)
+
+    listOf("Gains<Class<VictoryPoint>>", "Gains", "Gains<Class<Birds>>", "Gains<Class<Ants>>")
+        .forEach { metric ->
+          cardMetrics
+              .resolve(te("Ants<Player1>"))
+              .narrows(cardMetrics.resolve(te("CardFront(HAS $metric)")), world) shouldBe true
+        }
+    world.questions shouldContainExactly
+        listOf(
+            "Gains<Class<Ants>, Class<VictoryPoint>>",
+            "Gains<Class<Ants>, Class<Component>>",
+            "Gains<Class<Birds>, Class<Ants>>",
+            "Gains<Class<Ants>, Class<Ants>>",
+        )
+  }
+
+  @Test
+  internal fun `T8-3 a class literal candidate is never wrapped again`() {
+    val world = RecordingWorld(answer = true)
+
+    cardMetrics
+        .resolve(te("Class<Ants>"))
+        .narrows(cardMetrics.resolve(te("Component(HAS ClassMetric)")), world) shouldBe false
+    world.questions shouldContainExactly listOf()
+  }
+
   // T8-4, T8-5, T8-6, T8-7 Difference
 
   private val actors =

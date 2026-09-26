@@ -823,16 +823,27 @@ any land area has a neighbour, not whether every one does.
 
 **T8-3. How the candidate is substituted.** Each outermost expression inside `R` receives the
 candidate. Expressions nested in its arguments do not, because they say what that expression is
-about rather than which candidate is being tested. The candidate takes the first compatible
-dependency whose bound it *strictly* narrows, so a position already holding exactly that type is
-left alone. If it strictly narrows none of the compatible dependencies, it takes the first
-compatible one. A bare class property receives the candidate as its receiver:
+about rather than which candidate is being tested. Matching intersects the candidate with each
+dependency bound (T3-4). The first compatible dependency whose intersection strictly narrows its
+bound receives that intersection; if none strictly narrows, the first compatible dependency does.
+A bare class property receives the candidate as its receiver:
 `CardFront(HAS 20 cost)` tested against `Ants<Player1>` asks `20 Ants<Player1>.cost`.
 
-If no expression in `R` can accept the candidate, the refinement fails without asking the world.
-That is not an error; it is the answer. `Component(HAS StartToken)` can only ever match a player,
-since a player is what a `StartToken` depends on, so testing `Tharsis_2_2` against it is simply
-false.
+If no dependency accepts the candidate as written, and the candidate is not itself a class literal,
+matching instead uses `Class<C>`, where `C` is the candidate's root class. Only dependencies whose
+bounds are class literals, refined or not, participate in this fallback. The same intersection and
+selection rules apply. A match of the original candidate takes precedence even if it leaves a bound
+unchanged. The projection drops the candidate's dependency bounds, including ownership; an abstract
+root remains abstract and is not enumerated by this step. Thus `CardFront<Player1>` supplies
+`Class<CardFront>`, without restricting the class query to Player1's played cards. For example,
+`CardFront(HAS PrintedCost)` tested against `Ants<Player1>` asks `PrintedCost<Class<Ants>>` when
+`PrintedCost` depends on `Class<CardFront>`. Class-literal candidates are never wrapped again, and
+ordinary type arguments are not implicitly converted.
+
+If any outermost expression in `R` still cannot accept the candidate, the refinement fails without
+asking the world, except for the class-literal domains described in T8-10. That is not an error; it
+is the answer. `Component(HAS StartToken)` can only ever match a player, since a player is what a
+`StartToken` depends on, so testing `Tharsis_2_2` against it is simply false.
 
 A written argument *constrains* the candidate in the position it occupies. It does not reserve the
 position away from it. Testing `Player1` against `Player(HAS PartyLeader<MarsFirst, Player>)`
@@ -926,6 +937,11 @@ represents (T4-4). Within that refinement, an occurrence rooted at `X` means the
 candidate automatically. Testing `Class<BuildingTag>` against `Class<Tag>(HAS Tag<Player1>)`
 therefore asks `BuildingTag<Player1, TagHolder<Player1>>`: it counts tag classes, not tag
 components. An explicit `Class<@X>(HAS @X)` remains an equivalent spelling.
+
+Within a class-literal refinement, an expression that cannot accept the class-literal candidate as
+a dependency is left unchanged after represented-class substitution. It is still evaluated as part
+of the requirement; unlike an ordinary component refinement (T8-3), the unmatched binding does not
+make the refinement fail.
 
 > **Non-normative example — Diversifier.** The milestone requires `8 Class<Tag>(HAS Tag<Owner>)`:
 > eight distinct kinds of tag the player has, not eight tags. Testing the represented class is what
