@@ -309,6 +309,10 @@ text is Title Case with **every** word capitalized, including articles and prepo
 including the word after a hyphen: `Import Of Advanced GHG`, `Board Of Directors`,
 `Anti-Desertification Techniques`.
 
+Preserve punctuation from the printed card scans, even when ordinary English might suggest a
+different hyphenation. Use [the card scans](https://tm.hadronikle.com/), rather than transcribed
+database titles, as the evidence.
+
 **Two classes may share display text, and often must.** Whenever a Class Name was qualified to break
 a collision, the display name drops the qualifier and goes back to the printed title, so the clash
 reappears on purpose: `Trade` and `TradeAction` both display "Trade", `PowerPlant` and `PowerPlantProject`
