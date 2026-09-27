@@ -1,11 +1,13 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
+import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
@@ -193,5 +195,52 @@ internal class MonsInsuranceTest : CardTest() {
     p1.runOperation("$MonsInsurance, Plant, 10 MC")
 
     p2.runOperation("-Plant<Player1>").expect("-Plant<Player1>")
+  }
+
+  @Test
+  internal fun `Recessions active player can compensate Player 3 before exhausting Mons funds`() {
+    recessionLossOrder(true)
+  }
+
+  @Test
+  internal fun `Recessions active player can exhaust Mons funds before compensating Player 3`() {
+    recessionLossOrder(false)
+  }
+
+  private fun recessionLossOrder(compensateFirst: Boolean) {
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack, players = 3)
+    val p2 = requireP2()
+    val p3 = game.testTfm(PLAYER3)
+    p1.playCorp(MonsInsurance, 0)
+    p1.runOperation("-${p1.count("MC") - 5} MC")
+    p3.runOperation("5 MC")
+    admin.phase("Prelude")
+    p1.count("StartToken") shouldBe 1
+    p1.autoExecPolicy = CONCRETE
+    p2.autoExecPolicy = CONCRETE
+    p3.autoExecPolicy = CONCRETE
+
+    p2.playPrelude(Recession) {
+      doTask("EACH Player(NOT Player2) { -5 MC<Owner>., PROD[-1 MC<Owner>] }")
+      if (compensateFirst) {
+        doTask("-5 MC<Player3>")
+        doTask("3 MC<Player3> FROM MC<Player1>")
+        doTask("-2 MC<Player1>")
+      } else {
+        doTask("-5 MC<Player1>")
+      }
+      doTask("3 MC<Player1> FROM MC<Player1>.")
+      if (!compensateFirst) {
+        doTask("-5 MC<Player3>")
+        doTask("3 MC<Player3> FROM MC<Player1>.")
+      }
+      doTask("PROD[-MC<Player1>]")
+      doTask("3 MC<Player1> FROM MC<Player1>.")
+      doTask("PROD[-MC<Player3>]")
+      doTask("3 MC<Player3> FROM MC<Player1>.")
+    }
+
+    p3.count("MC") shouldBe if (compensateFirst) 3 else 0
+    p1.count("MC") shouldBe 0
   }
 }

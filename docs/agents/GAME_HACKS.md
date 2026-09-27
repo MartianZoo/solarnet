@@ -82,6 +82,11 @@ rejects zero or multiple matches.
 
 Any new card eligible to be copied must encode its entire printed production box as one `PROD[...]`
 group, even when equivalent independent production instructions would otherwise be valid Pets.
+Bindings and conditions needed by the copied instruction must be inside that group: Industrial
+Complex places `EACH Class<@StandardResource>` inside `PROD[...]`, keeping its conditional production
+calculation copyable without its separate payment.
+Copying rejects `PROD` nested inside `EACH` with a diagnostic explaining this authoring requirement.
+Preserving the surrounding context instead is tracked in `TODO.md`.
 
 ## Initialization and coordinates
 

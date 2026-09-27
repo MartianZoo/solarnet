@@ -24,7 +24,7 @@
           "name": "ValleyTrust",
           "tags": [ "EarthTag" ],
           // 3 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>
-          "immediate": "37 MC, RequiredAction { -> PreludeCard THEN PlayCard<Class<PreludeCard>> }",
+          "immediate": "37 MC, RequiredAction { -> PreludeCard THEN PlayOrFizzle }",
           "effects": [ "PayingFor<Class<ScienceTag>>:: -2 Owed" ],
         },
         {

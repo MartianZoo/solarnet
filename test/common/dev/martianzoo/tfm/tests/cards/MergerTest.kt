@@ -105,4 +105,13 @@ internal class MergerTest : CardTest() {
 
     p1.runOperation("BuyCard") { p1.pay(3) }.expect("ProjectCard, -3 MC")
   }
+
+  @Test
+  internal fun `Merger makes Pharmacy Union starting money available for its diseases`() {
+    newGame(PreludeExpansion, PromoCardPack, CorporateEraExpansion)
+    p1.playCorp(SaturnSystems, 0)
+    admin.phase("Prelude")
+
+    p1.playPrelude(Merger) { p1.playCorp(PharmacyUnion) }.expect("4 MC, 2 Disease<$PharmacyUnion>")
+  }
 }

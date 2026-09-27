@@ -6,6 +6,7 @@ import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 

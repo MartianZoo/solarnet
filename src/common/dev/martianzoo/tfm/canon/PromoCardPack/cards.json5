@@ -144,7 +144,7 @@
         {
           "name": "NewPartner",
           // 2 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>
-          "immediate": "PROD[1 MC], PreludeCard THEN PlayCard<Class<PreludeCard>>",
+          "immediate": "PROD[1 MC], PreludeCard THEN PlayOrFizzle",
         },
         {
           "name": "StrategicBasePlanning",
