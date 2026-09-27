@@ -332,7 +332,9 @@ public sealed class Metric : PetElement() {
         val rank = rankParser()
 
         val transform: Parser<Metric> =
-            transform(parser()) map { (node, transformName) -> Transform(node, transformName) }
+            locatedNode(
+                transform(parser()) map { (node, transformName) -> Transform(node, transformName) }
+            )
 
         val eval: Parser<Metric> = skip(_eval) and Property.parser() map ::Eval
 

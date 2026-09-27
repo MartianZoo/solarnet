@@ -171,7 +171,8 @@ internal fun resolveTypeVariableNames(
         val anonymous = sameBoundClass.single { it.typeVariableName!!.name == null }
         throw PetSyntaxException(
             "Anonymous Type-variable marker ${anonymous.typeVariableName!!.authoredSpelling} " +
-                "cannot share a scope with a named variable of the same bound Class"
+                "cannot share a scope with a named variable of the same bound Class",
+            sourceLocation = anonymous.sourceLocation,
         )
       }
   val selectedByKey = selectedDeclarations.associateBy { it.typeVariableName!!.key }
@@ -187,20 +188,24 @@ internal fun resolveTypeVariableNames(
             if (marker.resolved && node !== selected) return transformChildren(node)
             if (node === selected && !marker.resolved) {
               return transformChildren(
-                  node.copy(typeVariableName = marker.resolved(resolutions.getValue(marker.key)))
-              )
+                      node.copy(
+                          typeVariableName = marker.resolved(resolutions.getValue(marker.key))
+                      )
+                  )
+                  .also { it.sourceLocation = node.sourceLocation }
             }
             if (selected != null && node !== selected) {
               return transformChildren(
-                  node.copy(
-                      typeVariableName =
-                          Reference(
-                              marker.name,
-                              marker.boundClassName,
-                              argumentsSpecified = node.argumentsSpecified,
-                          )
+                      node.copy(
+                          typeVariableName =
+                              Reference(
+                                  marker.name,
+                                  marker.boundClassName,
+                                  argumentsSpecified = node.argumentsSpecified,
+                              )
+                      )
                   )
-              )
+                  .also { it.sourceLocation = node.sourceLocation }
             }
           }
           return transformChildren(node)
@@ -302,7 +307,12 @@ internal fun resolveTypeVariableNames(
       .firstOrNull { references[it] == null }
       ?.let { key ->
         val marker = declarationsByKey.getValue(key).typeVariableName!!
-        throw PetSyntaxException("Type-variable marker ${marker.authoredSpelling} is not shared")
+        throw PetSyntaxException(
+            "Type-variable marker ${marker.authoredSpelling} is not shared; use it again in the same scope or remove the marker",
+            sourceLocation =
+                declarationsByKey.getValue(key).sourceLocation
+                    ?: marker.boundClassName.sourceLocation,
+        )
       }
   return resolved
 }

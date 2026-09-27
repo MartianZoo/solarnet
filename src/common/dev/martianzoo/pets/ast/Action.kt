@@ -132,7 +132,8 @@ public data class Action(
       fun parser(): Parser<Cost> {
         return parser {
           val spend = ScaledExpression.parser() map Cost::Spend
-          val transform = transform(parser()) map { (node, tname) -> Transform(node, tname) }
+          val transform =
+              locatedNode(transform(parser()) map { (node, tname) -> Transform(node, tname) })
           val atomCost = transform or spend or group(parser())
 
           val perCost =

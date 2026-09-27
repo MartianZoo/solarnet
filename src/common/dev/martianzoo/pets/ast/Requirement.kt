@@ -314,13 +314,14 @@ public sealed class Requirement : PetElement() {
     fun atomParser(): Parser<Requirement> {
       return parser {
         val scaledEx = parser {
-          val scalarAndOptionalExpression = rawScalar and optional(Expression.parser())
-          val optionalScalarAndExpression = optional(rawScalar) and Expression.parser()
+          val numeric = locatedNode(rawScalar map ::ActualScalar)
+          val scalarAndOptionalExpression = numeric and optional(Expression.parser())
+          val optionalScalarAndExpression = optional(numeric) and Expression.parser()
 
           scalarAndOptionalExpression or
               optionalScalarAndExpression map
               { (scalar, expression) ->
-                val resolvedScalar = ActualScalar(scalar ?: 1)
+                val resolvedScalar = scalar ?: ActualScalar(1)
                 if (expression == null) ScaledExpression.denominationless(resolvedScalar)
                 else scaledEx(expression, resolvedScalar)
               }
@@ -331,8 +332,8 @@ public sealed class Requirement : PetElement() {
         val propertyMin: Parser<Requirement> = Property.parser() map { Min(1, it) }
         val min =
             propertyMin or
-                (countedMetric map { (target, metric) -> Min(target, metric) }) or
-                (scaledEx map Requirement::Min)
+                mapLocated(countedMetric) { (target, metric) -> Min(target, metric) } or
+                mapLocated(scaledEx, Requirement::Min)
         val max =
             skip(_max) and
                 ((countedMetric map { (target, metric) -> Max(target, metric) }) or
@@ -342,7 +343,9 @@ public sealed class Requirement : PetElement() {
                 ((countedMetric map { (target, metric) -> Exact(target, metric) }) or
                     (scaledEx map Requirement::Exact))
         val transform =
-            transform(parser()) map { (node, transformName) -> Transform(node, transformName) }
+            locatedNode(
+                transform(parser()) map { (node, transformName) -> Transform(node, transformName) }
+            )
         val eval: Parser<Requirement> = skip(_eval) and Property.parser() map ::Eval
         eval or transform or min or max or exact or group(parser())
       }

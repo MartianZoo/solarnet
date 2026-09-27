@@ -11,13 +11,21 @@ import com.github.h0tk3y.betterParse.combinators.separatedTerms
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.lexer.DefaultTokenizer
 import com.github.h0tk3y.betterParse.lexer.Token
+import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
 import com.github.h0tk3y.betterParse.lexer.literalToken
+import com.github.h0tk3y.betterParse.parser.ParseResult
+import com.github.h0tk3y.betterParse.parser.Parsed
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.utils.Tuple2
+import dev.martianzoo.pets.api.Exceptions.PetException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.SourceLocation
 import dev.martianzoo.pets.ast.Instruction.Quantifier.AMAP
 import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
 import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
+import dev.martianzoo.pets.ast.PetNode
+import kotlin.reflect.KClass
 
 /**
  * A base class for parsing objects. The tokens here are the lexical level of language-spec sections
@@ -25,6 +33,70 @@ import dev.martianzoo.pets.ast.Instruction.Quantifier.OPTIONAL
  * whitespace, comment and line-continuation rules (L11-2).
  */
 internal abstract class PetTokenizer {
+  internal fun location(token: TokenMatch): SourceLocation =
+      SourceLocation(token.input.toString(), token.offset, token.length)
+
+  internal val sourcePosition: Parser<SourceLocation?> =
+      object : Parser<SourceLocation?> {
+        override fun tryParse(
+            tokens: TokenMatchesSequence,
+            fromPosition: Int,
+        ): ParseResult<SourceLocation?> =
+            object : Parsed<SourceLocation?>() {
+              override val value: SourceLocation? =
+                  tokens.getNotIgnored(fromPosition)?.let(::location)
+              override val nextPosition: Int = fromPosition
+            }
+      }
+
+  /** Keep validation at a grammar production's authored start without hiding its grammar. */
+  internal inline fun <reified T, R> mapLocated(
+      parser: Parser<T>,
+      crossinline transform: (T) -> R,
+  ): Parser<R> =
+      sourcePosition and
+          parser map
+          { (location, value) ->
+            try {
+              transform(value)
+            } catch (e: PetException) {
+              if (e.sourceLocation == null) e.sourceLocation = location
+              throw e
+            } catch (e: IllegalArgumentException) {
+              throw PetSyntaxException(e.message ?: "invalid Pets syntax", e, location)
+            }
+          }
+
+  internal inline fun <reified P : PetNode> locatedNode(parser: Parser<P>): Parser<P> =
+      sourcePosition and
+          parser map
+          { (location, node) ->
+            node.also { it.sourceLocation = location }
+          }
+
+  internal fun <P : PetNode> quotedPet(type: KClass<P>): Parser<P> =
+      _quotedText map
+          { token ->
+            val source = token.text.removeSurrounding("\"")
+            fun rebase(location: SourceLocation): SourceLocation =
+                location.copy(
+                    source = token.input.toString(),
+                    offset = token.offset + 1 + location.offset,
+                )
+            try {
+              Parsing.parse(type, source).also { parsed ->
+                parsed.visitDescendants { node ->
+                  node.sourceLocation
+                      ?.takeIf { it.source == source }
+                      ?.let { node.sourceLocation = rebase(it) }
+                  true
+                }
+              }
+            } catch (e: PetException) {
+              e.sourceLocation = e.sourceLocation?.let(::rebase) ?: location(token)
+              throw e
+            }
+          }
 
   private val _quotedText = regex(Regex("""  "[^"]*"  """.trim()))
 
@@ -72,7 +144,15 @@ internal abstract class PetTokenizer {
   internal val _lowerCamelRE = regex(Regex("""\b[a-z][A-Za-z0-9]*\b"""), "lowerCamel")
   private val _scalarRE = regex(Regex("""\b(0|[1-9][0-9]*)"""), "scalar")
 
-  internal val rawScalar: Parser<Int> = _scalarRE map { it.text.toInt() }
+  internal val rawScalar: Parser<Int> =
+      _scalarRE map
+          {
+            it.text.toIntOrNull()
+                ?: throw PetSyntaxException(
+                    "integer `${it.text}` exceeds the maximum supported value ${Int.MAX_VALUE}",
+                    sourceLocation = location(it),
+                )
+          }
 
   internal val quantifier =
       optional(

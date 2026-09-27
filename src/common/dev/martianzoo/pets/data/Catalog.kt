@@ -13,7 +13,8 @@ import dev.martianzoo.pets.types.ClassTable
  * A Catalog owns one validated master [ClassTable]. That table is the reusable schema for all of
  * its games, not a playable world: each [GamePremise] selects an inhabited view of it. Catalog
  * implementations may use internal packaging such as bundles, but callers compose and play exactly
- * one Catalog, in which every class name has one meaning.
+ * one Catalog, in which every class name has one meaning. Assemblers can use
+ * [ClassDeclaration.indexByName] to merge identical contributions and diagnose conflicting names.
  */
 public interface Catalog {
   /** The fully compiled Catalog structure shared by its playable games. */

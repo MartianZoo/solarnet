@@ -48,11 +48,17 @@ private constructor(
     internal fun parser(): Parser<ScaledExpression> = Parsers.parser()
 
     internal fun denominationless(scalar: Scalar): ScaledExpression =
-        ScaledExpression(denominationlessExpression, scalar)
+        ScaledExpression(
+            denominationlessExpression.copy().also { it.sourceLocation = scalar.sourceLocation },
+            scalar,
+        )
 
     internal fun rejectIfDenominationless(expression: Expression) {
       if (expression.className === denominationlessClass) {
-        throw PetSyntaxException(denominationlessAmountMessage)
+        throw PetSyntaxException(
+            denominationlessAmountMessage,
+            sourceLocation = expression.sourceLocation,
+        )
       }
     }
   }
@@ -100,7 +106,11 @@ private constructor(
 
     internal companion object {
       internal fun checkNonzero(s: Scalar) {
-        if (s == ActualScalar(0)) throw PetSyntaxException("instruction count cannot be zero")
+        if (s == ActualScalar(0))
+            throw PetSyntaxException(
+                "count must be positive; found 0",
+                sourceLocation = s.sourceLocation,
+            )
       }
     }
 
@@ -158,7 +168,7 @@ private constructor(
 
   private object Parsers : PetTokenizer() {
     fun scalar(): Parser<Scalar> {
-      val actual: Parser<ActualScalar> = rawScalar map ::ActualScalar
+      val actual: Parser<ActualScalar> = locatedNode(rawScalar map ::ActualScalar)
       val xScalar: Parser<XScalar> = optional(rawScalar) and skip(_x) map { XScalar(it ?: 1) }
       return xScalar or actual
     }

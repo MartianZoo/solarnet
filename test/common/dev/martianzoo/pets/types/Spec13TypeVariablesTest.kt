@@ -627,11 +627,11 @@ internal class Spec13TypeVariablesTest {
                   "@StandardResource, Other@StandardResource"
           )
         }
-        .message shouldBe message
+        .detail shouldBe message
     shouldThrow<PetSyntaxException> {
           parseClasses("ABSTRACT CLASS Holder<@StandardResource, Other@StandardResource>")
         }
-        .message shouldBe message
+        .detail shouldBe message
   }
 
   @Test

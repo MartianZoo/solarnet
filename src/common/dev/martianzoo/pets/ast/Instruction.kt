@@ -31,7 +31,6 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.pets.types.GroundType
 import dev.martianzoo.pets.types.TypeVariable
 import dev.martianzoo.pets.util.invoke
-import dev.martianzoo.pets.util.toSetStrict
 
 /**
  * A relation between a before-state and an after-state, as defined by
@@ -1150,7 +1149,7 @@ public sealed class Instruction : InstructionTree() {
                 }
 
         val transform: Parser<Transform> =
-            transform(parser()) map { (node, tname) -> Transform(node, tname) }
+            locatedNode(transform(parser()) map { (node, tname) -> Transform(node, tname) })
 
         val maybeTransform: Parser<InstructionTree> = transform or maybePer
 
@@ -1177,8 +1176,20 @@ public sealed class Instruction : InstructionTree() {
         val orInstr: Parser<InstructionTree> =
             separatedTerms(atom, _or) map
                 {
-                  val set = it.toSetStrict().toList()
-                  Or.createTree(set)
+                  val seen = mutableSetOf<InstructionTree>()
+                  it.firstOrNull { !seen.add(it) }
+                      ?.let { duplicate ->
+                        throw PetSyntaxException(
+                            "duplicate OR alternative `$duplicate`; remove the repeated alternative",
+                            sourceLocation =
+                                duplicate.sourceLocation
+                                    ?: duplicate
+                                        .descendantsOfType<Expression>()
+                                        .firstOrNull()
+                                        ?.sourceLocation,
+                        )
+                      }
+                  Or.createTree(it)
                 }
 
         val gated: Parser<InstructionTree> =

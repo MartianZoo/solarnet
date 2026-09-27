@@ -8,7 +8,9 @@ import com.github.h0tk3y.betterParse.parser.completionAtEnd
 import com.github.h0tk3y.betterParse.parser.parseToEnd
 import dev.martianzoo.pets.ClassParsing.Declarations
 import dev.martianzoo.pets.PetTokenizer.TokenCache
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
+import dev.martianzoo.pets.api.SourceLocation
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.ClassName
@@ -145,23 +147,56 @@ public object Parsing {
     try {
       return parser.parseToEnd(matches).also(::rejectUnsupportedSyntax)
     } catch (e: ParseException) {
-      val tokenDesc =
-          matches
-              .filterNot { it.type.ignored }
-              .joinToString(" ") { it.type.name?.replace("\n", "\\n") ?: "NULL" }
-
+      val completion = parser.completionAtEnd(matches)
+      val found = matches.getNotIgnored(completion.farthestPosition)
+      val location =
+          found?.let { SourceLocation(source, it.offset, it.length) }
+              ?: SourceLocation(source, source.length, 0)
+      val expected =
+          completion.expectedTokens
+              .map { token ->
+                when (val name = token.name) {
+                  "ALLCAPS",
+                  "mixed-case class name" -> "a class name"
+                  "lowerCamel" -> "a property name"
+                  "scalar" -> "a non-negative integer"
+                  "\n" -> "a newline"
+                  "\"[^\"]*\"" -> "quoted text"
+                  "arrow" -> "`->`"
+                  "doubleColon" -> "`::`"
+                  else -> "`$name`"
+                }
+              }
+              .distinct()
+              .sorted()
+              .joinToString(" or ")
+              .ifEmpty { "end of input" }
+      val actual =
+          when (found?.text) {
+            null -> "end of input"
+            "\n" -> "a newline"
+            else -> "`${found.text}`"
+          }
       throw PetSyntaxException(
-          """
-            expected: $expectedTypeDesc
-            token stream: $tokenDesc
-            input:
-            ${source.replaceIndent("  ")}
-          """
-              .trimIndent(),
+          when {
+            found?.type?.name == "no token matched" && found.text.startsWith('"') ->
+                "unterminated quoted text; expected a closing double quote"
+            found?.type?.name == "no token matched" ->
+                "unrecognized character `${found.text.first()}`"
+            else -> "expected $expected; found $actual"
+          },
           e,
+          location,
       )
     } catch (e: IllegalArgumentException) {
-      throw PetSyntaxException("invalid Pets syntax: `$source`", e)
+      throw PetSyntaxException(
+          e.message ?: "invalid $expectedTypeDesc",
+          e,
+          SourceLocation(source, 0),
+      )
+    } catch (e: PetException) {
+      if (e.sourceLocation == null) e.sourceLocation = SourceLocation(source, 0)
+      throw e
     }
   }
 
@@ -176,7 +211,8 @@ public object Parsing {
           ?.let {
             val marker = it.typeVariableName!!
             throw PetSyntaxException(
-                "Type-variable marker ${marker.authoredSpelling} is not shared in a scope"
+                "Type-variable marker ${marker.authoredSpelling} is not shared in a scope; use it again in that scope or remove the marker",
+                sourceLocation = it.sourceLocation ?: it.className.sourceLocation,
             )
           }
       expressions
@@ -184,7 +220,8 @@ public object Parsing {
           .firstOrNull { !it.resolved }
           ?.let {
             throw PetSyntaxException(
-                "Type-variable marker ${it.authoredSpelling} has no supplying occurrence"
+                "Type-variable marker ${it.authoredSpelling} has no supplying occurrence",
+                sourceLocation = it.boundClassName.sourceLocation,
             )
           }
     }

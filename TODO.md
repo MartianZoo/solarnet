@@ -101,8 +101,15 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
   requiring authored references to generated names. Preserve Cimmeria map generation,
   `PlaceNeutralTiles`'s system-only ownership, and SRR's explicit card-Class selection.
-- Investigate why semantic validation during parsing throws `IllegalArgumentException` for malformed
-  Pets, and whether those paths should use a parser-specific exception before translation.
+- Carry resource/file names through Pets parsing and generated catalog inputs so diagnostic spans
+  identify the original file as well as the submitted text, line, and column.
+- Preserve `PetException.detail` and `sourceLocation` through game-time error wrappers such as
+  `PetElaborator.classEffects`, which currently embed the rendered message in another explanation.
+  Keep this follow-up separate from parsing and catalog-compilation diagnostics.
+- Clarify T10-4 when an inherited dependency default is disjoint from a subclass's bound. The
+  compiler currently drops that default; `MoholeArea_SpecialTile` relies on this for its WaterArea
+  bound versus SpecialTile's LandArea default. Keep this semantic question separate from diagnostic
+  improvements.
 - Model Established Methods as two nonzero-cost standard projects without making the second project
   mandatory when none is affordable. `StandardProject(HAS cost)` excludes Sell Patents and
   non-project actions, but does not express current affordability; making the second action optional

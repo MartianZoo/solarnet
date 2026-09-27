@@ -357,70 +357,77 @@ public data class Expression(
     }
 
     fun parser(allowDerivedClass: Boolean = true): Parser<Expression> {
-      return parser {
-        val argumentList =
-            skipChar('<') and
-                optionalList(commaSeparated(parser(allowDerivedClass))) and
-                skipChar('>')
-        val refinement = refinementParser()
-        val namedTypeVariableMarker =
-            ClassName.parser() and skipChar('@') map { AuthoredTypeVariableMarker(it.asString) }
-        val anonymousTypeVariableMarker = char('@') map { AuthoredTypeVariableMarker(name = null) }
-        val typeVariableMarker = namedTypeVariableMarker or anonymousTypeVariableMarker
-        fun expression(
-            marker: AuthoredTypeVariableMarker?,
-            clazz: ClassName,
-            args: List<Expression>?,
-            ref: Refinement?,
-        ): Expression {
-          val domain =
-              Expression(
-                  clazz,
-                  args.orEmpty(),
-                  argumentsSpecified = args != null,
-                  typeVariableName = marker?.let { TypeVariableName.Declaration(it.name, clazz) },
-              )
-          val boundRefinement = ref?.let {
-            object : PetTransformer() {
-                  override fun transformNode(node: PetNode): PetNode =
-                      when {
-                        node is Metric.Rank && node.selector == null -> {
-                          val metrics = node.metrics.map(::transformMetric)
-                          node.copy(
-                              selector = domain.copy(typeVariableName = null),
-                              metrics = metrics,
-                          )
-                        }
-                        node is Expression -> node
-                        else -> transformChildren(node)
-                      }
-                }
-                .transformRefinement(it)
-          }
-          return resolveClassLiteralTypeVariableNames(domain.copy(refinement = boundRefinement))
-        }
-
-        val expression =
-            optional(typeVariableMarker) and
-                ClassName.parser() and
-                optional(argumentList) and
-                optional(refinement) map
-                { (marker, clazz, args, ref) ->
-                  expression(marker, clazz, args, ref)
-                }
-
-        if (allowDerivedClass) {
-          expression and
-              optional(ClassParsing.Declarations.derivedClassBody) map
-              { (parsed, body) ->
-                parsed.let {
-                  if (body == null) it else it.withDerivedClassBody(body)
-                }
+      return locatedNode(
+          parser {
+            val argumentList =
+                skipChar('<') and
+                    optionalList(commaSeparated(parser(allowDerivedClass))) and
+                    skipChar('>')
+            val refinement = refinementParser()
+            val namedTypeVariableMarker =
+                ClassName.parser() and skipChar('@') map { AuthoredTypeVariableMarker(it.asString) }
+            val anonymousTypeVariableMarker =
+                char('@') map { AuthoredTypeVariableMarker(name = null) }
+            val typeVariableMarker = namedTypeVariableMarker or anonymousTypeVariableMarker
+            fun expression(
+                marker: AuthoredTypeVariableMarker?,
+                clazz: ClassName,
+                args: List<Expression>?,
+                ref: Refinement?,
+            ): Expression {
+              val domain =
+                  Expression(
+                      clazz,
+                      args.orEmpty(),
+                      argumentsSpecified = args != null,
+                      typeVariableName =
+                          marker?.let { TypeVariableName.Declaration(it.name, clazz) },
+                  )
+              val boundRefinement = ref?.let {
+                object : PetTransformer() {
+                      override fun transformNode(node: PetNode): PetNode =
+                          when {
+                            node is Metric.Rank && node.selector == null -> {
+                              val metrics = node.metrics.map(::transformMetric)
+                              node.copy(
+                                  selector = domain.copy(typeVariableName = null),
+                                  metrics = metrics,
+                              )
+                            }
+                            node is Expression -> node
+                            else -> transformChildren(node)
+                          }
+                    }
+                    .transformRefinement(it)
               }
-        } else {
-          expression
-        }
-      }
+              return resolveClassLiteralTypeVariableNames(domain.copy(refinement = boundRefinement))
+                  .also {
+                    it.sourceLocation = clazz.sourceLocation
+                  }
+            }
+
+            val expression =
+                optional(typeVariableMarker) and
+                    ClassName.parser() and
+                    optional(argumentList) and
+                    optional(refinement) map
+                    { (marker, clazz, args, ref) ->
+                      expression(marker, clazz, args, ref)
+                    }
+
+            if (allowDerivedClass) {
+              expression and
+                  optional(ClassParsing.Declarations.derivedClassBody) map
+                  { (parsed, body) ->
+                    parsed.let {
+                      if (body == null) it else it.withDerivedClassBody(body)
+                    }
+                  }
+            } else {
+              expression
+            }
+          }
+      )
     }
   }
 }

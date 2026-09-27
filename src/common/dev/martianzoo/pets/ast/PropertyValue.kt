@@ -5,7 +5,6 @@ import com.github.h0tk3y.betterParse.combinators.map
 import com.github.h0tk3y.betterParse.combinators.or
 import com.github.h0tk3y.betterParse.combinators.skip
 import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
@@ -114,7 +113,11 @@ public sealed class PropertyValue : PetNode(), Specification<PropertyValue> {
 
   private object Parsers : PetTokenizer() {
     val requirement: Parser<PropertyValue> =
-        _has and quotedText map { (_, source) -> RequirementValue(parse<Requirement>(source)) }
+        _has and
+            quotedPet(Requirement::class) map
+            { (_, requirement) ->
+              RequirementValue(requirement)
+            }
 
     val parser: Parser<PropertyValue> =
         (_metric map { MetricType }) or
@@ -122,7 +125,7 @@ public sealed class PropertyValue : PetNode(), Specification<PropertyValue> {
             (_requirement and skipChar('?') map { OptionalRequirementType }) or
             (_requirement map { RequirementType }) or
             requirement or
-            (skip(_count) and quotedText map { MetricValue(parse<Metric>(it)) }) or
+            (skip(_count) and quotedPet(Metric::class) map { MetricValue(it) }) or
             (rawScalar map { NumberValue(it) })
   }
 }

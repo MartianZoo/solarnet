@@ -109,8 +109,13 @@ public data class ClassName private constructor(public val asString: String) :
   override fun compareTo(other: ClassName): Int = asString.compareTo(other.asString)
 
   internal object Parsing : PetTokenizer() {
-    private val mixedCaseName = _mixedCaseClassNameRE map { cn(it.text) }
-    private val allCapsName = _allCapsWordRE map { cn(it.text) }
+    private val mixedCaseName =
+        _mixedCaseClassNameRE map
+            {
+              cn(it.text).also { name -> name.sourceLocation = location(it) }
+            }
+    private val allCapsName =
+        _allCapsWordRE map { cn(it.text).also { name -> name.sourceLocation = location(it) } }
     val className = mixedCaseName or allCapsName
   }
 }
