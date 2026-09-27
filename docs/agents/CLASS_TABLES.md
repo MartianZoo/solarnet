@@ -86,6 +86,16 @@ it by reverse navigation.
 
 ## Identity and integrity
 
+Catalog compilation forces base types and all three default sets, so invalid dependency arguments
+and conflicting defaults fail before a master table is returned. `ClassDeclaration.indexByName`
+merges identical contributions and rejects conflicting declarations; both `TfmCatalog` and the
+small-catalog test helper use it. Game-view component multiplicity and runtime invariant-limit
+checks remain separate.
+
+See [`Exceptions.PetException`](../../src/common/dev/martianzoo/pets/api/Exceptions.kt) and
+[`CatalogDiagnosticsTest`](../../test/common/dev/martianzoo/pets/data/CatalogDiagnosticsTest.kt)
+for diagnostic categories, messages, and authored source spans.
+
 Classes and Types from different masters are incomparable. A master value and a premise value are
 comparable through that premise's combined table. Premise values from two sibling games are
 incomparable even when they have the same written declaration.

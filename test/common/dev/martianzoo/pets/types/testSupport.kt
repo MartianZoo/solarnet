@@ -36,9 +36,7 @@ internal fun testCatalog(
   return object : Catalog {
     override val explicitClassDeclarations: Set<ClassDeclaration> = explicitDeclarations
     override val allClassDeclarations: Map<ClassName, ClassDeclaration> =
-        declarations.associateBy(ClassDeclaration::className).also {
-          require(it.size == declarations.size) { "duplicate test Class declaration" }
-        }
+        ClassDeclaration.indexByName(declarations)
     override val customClasses: Set<CustomClass> = customImplementations
     override val modules: Map<ClassName, Set<ClassSelection>> = moduleSelections
     override val classAvailabilityModules: Map<ClassName, Set<ClassName>> = classAvailabilityModules

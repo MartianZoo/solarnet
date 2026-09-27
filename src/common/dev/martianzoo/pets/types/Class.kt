@@ -75,9 +75,15 @@ internal constructor(
 
   init {
     if (directSuperclasses.any { !it.abstract }) {
+      val concrete = directSuperclasses.filterNot { it.abstract }
       throw InvalidPetDefinitionException(
           "`$className` cannot extend concrete Classes: " +
-              directSuperclasses.filterNot { it.abstract }.joinToString { "${it.className}" }
+              concrete.joinToString { "${it.className}" } +
+              "; declare the superclass ABSTRACT if it is intended to be extended",
+          sourceLocation =
+              declaration.supertypes
+                  .firstOrNull { it.className == concrete.first().className }
+                  ?.sourceLocation ?: className.sourceLocation,
       )
     }
   }
@@ -105,7 +111,11 @@ internal constructor(
       if (abstractProperties.isNotEmpty()) {
         throw InvalidPetDefinitionException(
             "`$className` is concrete but has abstract properties: " +
-                abstractProperties.joinToString()
+                abstractProperties.joinToString() +
+                "; supply values or declare `$className` ABSTRACT",
+            sourceLocation =
+                declaration.properties.keys.firstOrNull { it in abstractProperties }?.sourceLocation
+                    ?: className.sourceLocation,
         )
       }
     }
@@ -122,14 +132,16 @@ internal constructor(
               existing.origin != incoming.origin ->
                   throw InvalidPetDefinitionException(
                       "`$className` inherits distinct properties named `$name` from " +
-                          "`${existing.origin}` and `${incoming.origin}`"
+                          "`${existing.origin}` and `${incoming.origin}`",
+                      sourceLocation = className.sourceLocation,
                   )
               existing.lineage.isPrefixOf(incoming.lineage) -> incoming
               incoming.lineage.isPrefixOf(existing.lineage) -> existing
               else ->
                   throw InvalidPetDefinitionException(
                       "`$className` inherits divergent narrowings for `$name` from " +
-                          "`${existing.source}` and `${incoming.source}`"
+                          "`${existing.source}` (${existing.value}) and `${incoming.source}` (${incoming.value})",
+                      sourceLocation = className.sourceLocation,
                   )
             }
       }
@@ -142,13 +154,15 @@ internal constructor(
           val inheritedValue = inheritedFact.value
           if (!inheritedValue.abstract) {
             throw InvalidPetDefinitionException(
-                "`$className` cannot override inherited property `$name = $inheritedValue`"
+                "`$className` cannot override inherited property `$name = $inheritedValue` from `${inheritedFact.source}` with `$declared`",
+                sourceLocation = name.sourceLocation,
             )
           }
           if (!declared.narrows(inheritedValue, TypeInfo.NoGameState)) {
             throw InvalidPetDefinitionException(
                 "`$className` cannot narrow inherited property `$name = $inheritedValue` " +
-                    "with `$declared`"
+                    "from `${inheritedFact.source}` with `$declared`",
+                sourceLocation = name.sourceLocation,
             )
           }
           inherited[name] =
@@ -369,7 +383,8 @@ internal constructor(
       left.merge(right) { a, b ->
         loader.glb(a, b)
             ?: throw InvalidPetDefinitionException(
-                "`$className` inherits incompatible bounds for `${a.key}`: `$a` and `$b`"
+                "`$className` inherits incompatible bounds for `${a.key}`: `$a` and `$b`",
+                sourceLocation = className.sourceLocation,
             )
       }
     } ?: DependencySet.of()
@@ -389,7 +404,9 @@ internal constructor(
     if (resolvingDependencies) {
       throw InvalidPetDefinitionException(
           "`$className` has a circular dependency: resolving its dependency bounds requires " +
-              "those same bounds"
+              "those same bounds",
+          sourceLocation =
+              declaration.dependencies.firstOrNull()?.sourceLocation ?: className.sourceLocation,
       )
     }
     resolvingDependencies = true
@@ -412,7 +429,11 @@ internal constructor(
             throw InvalidPetDefinitionException(
                 "`$className` dependency `${dependency.key}` cannot target " +
                     "`${dependency.boundType.expressionFull}`; `Signal` types and `Die` cannot " +
-                    "be dependency targets"
+                    "be dependency targets",
+                sourceLocation =
+                    declaration.dependencies
+                        .firstOrNull { it.className == dependency.boundType.rootClass.className }
+                        ?.sourceLocation ?: className.sourceLocation,
             )
           }
       resolved
@@ -429,7 +450,7 @@ internal constructor(
    *   T3-11.
    */
   public val dependencies: DependencySet
-    get() = dependenciesLazy.value
+    get() = loader.inDefinition(declaration) { dependenciesLazy.value }
 
   /** Dependency positions whose class-declared bounds still admit specialization by an argument. */
   internal val argumentDependencies: DependencySet
@@ -652,8 +673,11 @@ internal constructor(
         .sortedBy { occurrences -> occurrences.minOf(HeaderOccurrence::ordinal) }
         .forEach { occurrences ->
           val named = occurrences.filter { it.expression.typeVariableName is Declaration }
-          require(named.size <= 1) {
-            "$className declares the same header Type variable more than once"
+          if (named.size > 1) {
+            throw InvalidPetDefinitionException(
+                "`$className` declares the same header Type variable more than once",
+                sourceLocation = named[1].expression.sourceLocation,
+            )
           }
           val first = named.singleOrNull() ?: occurrences.minBy(HeaderOccurrence::ordinal)
           fun localSite() =
@@ -724,11 +748,19 @@ internal constructor(
                     seed.declaration.expression === expression
                   }
             }
-    require(ineligibleDeclaration == null) {
-      "$ineligibleDeclaration cannot declare a Class-header Type variable"
+    if (ineligibleDeclaration != null) {
+      throw InvalidPetDefinitionException(
+          "`$ineligibleDeclaration` cannot declare a Class-header Type variable; its bound must be abstract",
+          sourceLocation =
+              ineligibleDeclaration.sourceLocation
+                  ?: ineligibleDeclaration.className.sourceLocation,
+      )
     }
-    require(markedVariables.map { it.first }.distinct().size == markedVariables.size) {
-      "$className declares the same header Type-variable marker twice"
+    if (markedVariables.map { it.first }.distinct().size != markedVariables.size) {
+      throw InvalidPetDefinitionException(
+          "`$className` declares the same header Type-variable marker twice",
+          sourceLocation = className.sourceLocation,
+      )
     }
     val variablesByIdentity = markedVariables.toMap()
     var bodyOrdinal = headerOccurrences().size
@@ -945,7 +977,11 @@ internal constructor(
             if (COMPONENT in it) {
               throw InvalidPetDefinitionException(
                   "`${declaration.className}` must not name `$COMPONENT` as a supertype; " +
-                      "every class extends it already"
+                      "every class extends it already",
+                  sourceLocation =
+                      declaration.supertypes
+                          .firstOrNull { it.className == COMPONENT }
+                          ?.sourceLocation,
               )
             }
           }

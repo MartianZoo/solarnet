@@ -8,27 +8,38 @@ public object Exceptions {
 
   /** A problem in authored Pets source or the definitions assembled from it. */
   public sealed class PetException(
-      message: String,
+      public val detail: String,
       cause: Throwable? = null,
-  ) : Exception(message, cause)
+      sourceLocation: SourceLocation? = null,
+  ) : Exception(detail, cause) {
+    /** The most specific authored occurrence known, absent for programmatically built input. */
+    public var sourceLocation: SourceLocation? = sourceLocation
+      internal set
+
+    override val message: String?
+      get() = sourceLocation?.describe(detail) ?: detail
+  }
 
   /** A Pets tree violates the language's syntactic or structural rules. */
   public class PetSyntaxException(
       message: String,
       cause: Throwable? = null,
-  ) : PetException(message, cause)
+      sourceLocation: SourceLocation? = null,
+  ) : PetException(message, cause, sourceLocation)
 
   /** Syntactically valid Pets cannot be interpreted under the active Catalog. */
   public class ExpressionException(
       message: String,
       cause: Throwable? = null,
-  ) : PetException(message, cause)
+      sourceLocation: SourceLocation? = null,
+  ) : PetException(message, cause, sourceLocation)
 
   /** Authored definitions cannot form a valid Catalog. */
   public class InvalidPetDefinitionException(
       message: String,
       cause: Throwable? = null,
-  ) : PetException(message, cause)
+      sourceLocation: SourceLocation? = null,
+  ) : PetException(message, cause, sourceLocation)
 
   // Gameplay rejections
 

@@ -105,14 +105,13 @@ internal class Spec10DefaultsTest {
 
   @Test
   internal fun `T10-2 supertypes that disagree about a quantifier are an error`() {
-    val table =
-        loadTypes(
-            "ABSTRACT CLASS Eager { DEFAULT +Eager. }",
-            "ABSTRACT CLASS Choosy { DEFAULT +Choosy? }",
-            "CLASS Both : Eager, Choosy",
-        )
-
-    shouldThrow<InvalidPetDefinitionException> { table.getClass(cn("Both")).defaults }
+    shouldThrow<InvalidPetDefinitionException> {
+      loadTypes(
+          "ABSTRACT CLASS Eager { DEFAULT +Eager. }",
+          "ABSTRACT CLASS Choosy { DEFAULT +Choosy? }",
+          "CLASS Both : Eager, Choosy",
+      )
+    }
   }
 
   // T10-3 A default names its own class
@@ -125,7 +124,7 @@ internal class Spec10DefaultsTest {
           "CLASS Tile<Area> { DEFAULT Area<Tharsis_2_2> }",
       )
     }
-    shouldThrow<IllegalArgumentException> {
+    shouldThrow<PetSyntaxException> {
       ClassDeclaration(
           cn("Tile"),
           CONCRETE,
@@ -186,22 +185,21 @@ internal class Spec10DefaultsTest {
 
   @Test
   internal fun `T10-4 supertypes with no common narrowing for one default are an error`() {
-    val table =
-        loadTypes(
-            """
-            ABSTRACT CLASS Area {
-              ABSTRACT CLASS LandArea
-              ABSTRACT CLASS WaterArea
-            }
-            ABSTRACT CLASS Tile<Area>
-            ABSTRACT CLASS LandTile : Tile { DEFAULT +LandTile<LandArea> }
-            ABSTRACT CLASS WaterTile : Tile { DEFAULT +WaterTile<WaterArea> }
-            CLASS Impossible : LandTile, WaterTile
-            """
-                .trimIndent()
-        )
-
-    shouldThrow<InvalidPetDefinitionException> { table.getClass(cn("Impossible")).defaults }
+    shouldThrow<InvalidPetDefinitionException> {
+      loadTypes(
+          """
+          ABSTRACT CLASS Area {
+            ABSTRACT CLASS LandArea
+            ABSTRACT CLASS WaterArea
+          }
+          ABSTRACT CLASS Tile<Area>
+          ABSTRACT CLASS LandTile : Tile { DEFAULT +LandTile<LandArea> }
+          ABSTRACT CLASS WaterTile : Tile { DEFAULT +WaterTile<WaterArea> }
+          CLASS Impossible : LandTile, WaterTile
+          """
+              .trimIndent()
+      )
+    }
   }
 
   // T10-5 `Owner` stays contextual

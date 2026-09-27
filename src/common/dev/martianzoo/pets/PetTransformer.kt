@@ -357,6 +357,10 @@ public abstract class PetTransformer protected constructor() {
             is Cost.Per -> Cost.Per(transformCost(node.cost), transformMetric(node.metric))
             is Cost.Transform -> Cost.Transform(transformCost(node.cost), node.transformKind)
           }
+    }.also { transformed ->
+      if (transformed !== node && transformed.sourceLocation == null) {
+        transformed.sourceLocation = node.sourceLocation
+      }
     }
   }
 }

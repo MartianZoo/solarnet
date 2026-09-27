@@ -2,6 +2,7 @@ package dev.martianzoo.pets.ast
 
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.PetTransformer.Companion.noOp
+import dev.martianzoo.pets.api.SourceLocation
 import dev.martianzoo.pets.ast.Instruction.Gain
 import kotlin.reflect.KClass
 
@@ -24,6 +25,10 @@ import kotlin.reflect.KClass
  * for the elements.
  */
 public sealed class PetNode {
+  /** Diagnostic provenance, excluded from structural equality and rendered Pets. */
+  public var sourceLocation: SourceLocation? = null
+    internal set
+
   /**
    * This node's primary API kind: the stable abstraction clients should rely on, rather than its
    * concrete implementation type. For example, a [Gain] has kind [Instruction], not [Gain]. A node

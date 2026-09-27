@@ -298,18 +298,22 @@ private constructor(
       args: List<Expression>,
       classTable: ClassTable = requireNotNull(this.classTable),
   ): List<Dependency> {
-    val alreadyMatched = mutableSetOf<Dependency>()
+    val alreadyMatched = mutableMapOf<Dependency, Expression>()
 
     fun matchToDependency(arg: Expression): Dependency {
       deps.forEach { dependency ->
         if (dependency !in alreadyMatched) {
           dependency.intersect(arg, classTable)?.let {
-            alreadyMatched += dependency
+            alreadyMatched[dependency] = arg
             return it
           }
         }
       }
-      throw ExpressionException("cannot match `$arg` to any of `$this`")
+      throw ExpressionException(
+          "argument `$arg` does not match an available dependency; declared bounds: `$this`; " +
+              "already supplied: ${alreadyMatched.entries.joinToString { "`${it.key.key} <- ${it.value}`" }.ifEmpty { "none" }}",
+          sourceLocation = arg.sourceLocation ?: arg.className.sourceLocation,
+      )
     }
 
     return args.map(::matchToDependency)

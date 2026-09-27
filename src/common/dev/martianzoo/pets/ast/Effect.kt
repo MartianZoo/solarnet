@@ -50,7 +50,10 @@ public data class Effect(
     // to
     // say what it is actually watching for.
     trigger.unqualifiedBroadSubscription()?.let {
-      throw PetSyntaxException("`$it` trigger requires `IF` or `BY`")
+      throw PetSyntaxException(
+          "`$it` trigger requires `IF` or `BY`",
+          sourceLocation = trigger.descendantsOfType<Expression>().firstOrNull()?.sourceLocation,
+      )
     }
   }
 
@@ -147,7 +150,10 @@ public data class Effect(
          */
         public fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
-            throw PetSyntaxException("effect trigger cannot be a Class type: `$expression`")
+            throw PetSyntaxException(
+                "effect trigger cannot be a Class type: `$expression`",
+                sourceLocation = expression.sourceLocation,
+            )
           }
           return if (expression.isBare(THIS)) {
             WhenGain
@@ -185,7 +191,10 @@ public data class Effect(
          */
         public fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
-            throw PetSyntaxException("effect trigger cannot be a Class type: `-$expression`")
+            throw PetSyntaxException(
+                "effect trigger cannot be a Class type: `-$expression`",
+                sourceLocation = expression.sourceLocation,
+            )
           }
           return if (expression.isBare(THIS)) {
             WhenRemove
@@ -310,7 +319,7 @@ public data class Effect(
                   Trigger::XTrigger
 
           val atom: Parser<Trigger> = exxedGain or exxedRemove or onGainOf or onRemoveOf
-          val transform = transform(atom) map { (node, name) -> Transform(node, name) }
+          val transform = locatedNode(transform(atom) map { (node, name) -> Transform(node, name) })
           val unmodified = transform or atom
           val primary = unmodified or group(parser())
           val alternatives =

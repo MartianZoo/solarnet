@@ -27,6 +27,10 @@ public data class PropertyName(public val value: String) : PetNode() {
   override fun visitChildren(visitor: Visitor): Unit = Unit
 
   private object Parsing : PetTokenizer() {
-    val parser: Parser<PropertyName> = _lowerCamelRE map { PropertyName(it.text) }
+    val parser: Parser<PropertyName> =
+        _lowerCamelRE map
+            {
+              PropertyName(it.text).also { name -> name.sourceLocation = location(it) }
+            }
   }
 }

@@ -22,6 +22,7 @@ import dev.martianzoo.pets.ClassParsing.BodyElements.bodyElementExceptNestedClas
 import dev.martianzoo.pets.ClassParsing.BodyElements.derivedClassBodyElement
 import dev.martianzoo.pets.ClassParsing.NestableDecl.IncompleteNestableDecl
 import dev.martianzoo.pets.Transforming.actionSelectors
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Parsing.className
@@ -38,7 +39,6 @@ import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.OneDefault
 import dev.martianzoo.pets.util.KClassMultimap
-import dev.martianzoo.pets.util.associateStrict
 import dev.martianzoo.pets.util.plus
 import dev.martianzoo.pets.util.toSetStrict
 
@@ -56,22 +56,19 @@ internal object ClassParsing : PetTokenizer() {
       optionalList(skipChar(':') and commaSeparated(Expression.parser(allowDerivedClass = false)))
 
   private val signature: Parser<Signature> =
-      className and
-          dependencies and
-          supertypeList map
-          { (name, deps, supes) ->
-            Signature(name, deps, supes)
-          }
+      mapLocated(className and dependencies and supertypeList) { (name, deps, supes) ->
+        Signature(name, deps, supes)
+      }
 
   private object BodyElements {
-    private val invariant: Parser<Requirement> = skip(_has) and Requirement.parser()
+    private val invariant: Parser<Requirement> = skip(_has) and locatedNode(Requirement.parser())
 
     private val gainOnlyDefaults: Parser<DefaultsDeclaration> =
         skipChar('+') and
             Expression.parser() and
             quantifier map
             { (expr, int) ->
-              require(expr.refinement == null)
+              rejectRefinedDefault(expr)
               DefaultsDeclaration(
                   gainOnly = OneDefault(expr.arguments, int),
                   forClass = expr.className,
@@ -83,7 +80,7 @@ internal object ClassParsing : PetTokenizer() {
             Expression.parser() and
             quantifier map
             { (expr, int) ->
-              require(expr.refinement == null)
+              rejectRefinedDefault(expr)
               DefaultsDeclaration(
                   removeOnly = OneDefault(expr.arguments, int),
                   forClass = expr.className,
@@ -93,13 +90,21 @@ internal object ClassParsing : PetTokenizer() {
     private val allCasesDefault: Parser<DefaultsDeclaration> by lazy {
       Expression.parser() map
           {
-            require(it.refinement == null)
+            rejectRefinedDefault(it)
             DefaultsDeclaration(universal = OneDefault(it.arguments), forClass = it.className)
           }
     }
 
     private val default: Parser<DefaultsDeclaration> =
         skip(_default) and (gainOnlyDefaults or removeOnlyDefaults or allCasesDefault)
+
+    private fun rejectRefinedDefault(expression: Expression) {
+      if (expression.refinement != null)
+          throw PetSyntaxException(
+              "DEFAULT must name an unrefined class expression; found `$expression`",
+              sourceLocation = expression.sourceLocation,
+          )
+    }
 
     private val property: Parser<Pair<PropertyName, PropertyValue>> =
         PropertyName.parser() and
@@ -112,8 +117,8 @@ internal object ClassParsing : PetTokenizer() {
     private val invariantElement = invariant map ::InvariantElement
     private val defaultsElement = default map ::DefaultsElement
     private val propertyElement = property map ::PropertyElement
-    private val effectElement = Effect.parser() map { EffectElement(it) }
-    private val actionElement = Action.parser() map { ActionElement(it) }
+    private val effectElement = locatedNode(Effect.parser()) map { EffectElement(it) }
+    private val actionElement = locatedNode(Action.parser()) map { ActionElement(it) }
 
     val bodyElementExceptNestedClasses: Parser<BodyElement> =
         invariantElement or defaultsElement or propertyElement or effectElement or actionElement
@@ -131,7 +136,10 @@ internal object ClassParsing : PetTokenizer() {
     // Rule L11-5: a body is brace-delimited and its elements are separated by newlines or by
     // semicolons. Only the newline-separated form may contain nested declarations.
     private val multilineBodyInterior: Parser<Body> =
-        separatedTerms(bodyElement, oneOrMore(char('\n')), acceptZero = true) map ClassParsing::Body
+        mapLocated(
+            separatedTerms(bodyElement, oneOrMore(char('\n')), acceptZero = true),
+            ClassParsing::Body,
+        )
 
     private val multilineBody: Parser<Body> =
         skipChar('{') and skip(nls) and multilineBodyInterior and skip(nls) and skipChar('}')
@@ -143,14 +151,15 @@ internal object ClassParsing : PetTokenizer() {
     private val docstring: Parser<String> = quotedText
 
     private val parsedDeclaration: Parser<ParsedDeclaration> =
-        skip(nls) and
-            optional(docstring and skip(nls)) and
-            kind and
-            signature and
-            optional(multilineBody or oneLineBody) map
-            { (doc, kind, sig, body) ->
-              ParsedDeclaration(kind, sig, body ?: Body(), doc)
-            }
+        mapLocated(
+            skip(nls) and
+                optional(docstring and skip(nls)) and
+                kind and
+                signature and
+                optional(multilineBody or oneLineBody)
+        ) { (doc, kind, sig, body) ->
+          ParsedDeclaration(kind, sig, body ?: Body(), doc)
+        }
 
     private val nestedDeclaration: Parser<NestedDeclaration> =
         parsedDeclaration map ::NestedDeclaration
@@ -167,10 +176,12 @@ internal object ClassParsing : PetTokenizer() {
         bodyElement: Parser<BodyElement>,
         acceptZero: Boolean,
     ): Parser<Body> =
-        skipChar('{') and
-            separatedTerms(bodyElement, char(';'), acceptZero = acceptZero) and
-            skipChar('}') map
-            ClassParsing::Body
+        mapLocated(
+            skipChar('{') and
+                separatedTerms(bodyElement, char(';'), acceptZero = acceptZero) and
+                skipChar('}'),
+            ClassParsing::Body,
+        )
 
     // Rule L12-4: an owner-local body may contain invariants, properties, effects and actions, but
     // not DEFAULT clauses or nested declarations; see `derivedClassBodyElement`.
@@ -200,7 +211,16 @@ internal object ClassParsing : PetTokenizer() {
             className = className,
             kind = ABSTRACT, // needs to be overwritten!
             dependencies = dependencies,
-            supertypes = supertypes.toSetStrict(),
+            supertypes =
+                buildSet {
+                  supertypes.forEach { supertype ->
+                    if (!add(supertype))
+                        throw PetSyntaxException(
+                            "duplicate supertype `$supertype` on `$className`",
+                            sourceLocation = supertype.sourceLocation,
+                        )
+                  }
+                },
         ),
     )
   }
@@ -214,9 +234,19 @@ internal object ClassParsing : PetTokenizer() {
     val defaultses = getAll<DefaultsElement>().map { it.defaults }
     val effects = getAll<EffectElement>().map { it.effect }
     val actions = getAll<ActionElement>().map { it.action }
-    // Rule L11-9: associateStrict rejects a name assigned twice in one body, so declaration order
+    // Rule L11-9: reject a name assigned twice in one body, so declaration order
     // never becomes an accidental override rule.
-    val properties = getAll<PropertyElement>().associateStrict { it.property }
+    val properties = buildMap {
+      getAll<PropertyElement>().forEach { element ->
+        val (name, value) = element.property
+        if (name in this)
+            throw PetSyntaxException(
+                "property `$name` is assigned twice: `${get(name)}` and `$value`",
+                sourceLocation = name.sourceLocation,
+            )
+        put(name, value)
+      }
+    }
     val nestedDeclarations = getAll<NestedDeclaration>().map { it.declaration }
 
     fun asDerivedDeclaration(className: ClassName, supertype: Expression): ClassDeclaration =
@@ -270,7 +300,16 @@ internal object ClassParsing : PetTokenizer() {
             resolveClassTypeVariableNames(
                 signature.asDeclaration.copy(
                     kind = kind,
-                    invariants = body.invariants.toSetStrict(),
+                    invariants =
+                        buildSet {
+                          body.invariants.forEach { invariant ->
+                            if (!add(invariant))
+                                throw PetSyntaxException(
+                                    "duplicate invariant `HAS $invariant` on `${signature.className}`",
+                                    sourceLocation = invariant.sourceLocation,
+                                )
+                          }
+                        },
                     authoredEffects = body.effects,
                     authoredActions = body.actions,
                     defaultsDeclaration = mergedDefaults,
