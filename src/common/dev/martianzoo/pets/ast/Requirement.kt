@@ -1,14 +1,5 @@
 package dev.martianzoo.pets.ast
 
-import com.github.h0tk3y.betterParse.combinators.and
-import com.github.h0tk3y.betterParse.combinators.map
-import com.github.h0tk3y.betterParse.combinators.optional
-import com.github.h0tk3y.betterParse.combinators.or
-import com.github.h0tk3y.betterParse.combinators.separatedTerms
-import com.github.h0tk3y.betterParse.combinators.skip
-import com.github.h0tk3y.betterParse.grammar.parser
-import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Effect.Trigger.IfTrigger
@@ -54,13 +45,6 @@ public sealed class Requirement : PetElement() {
         else -> And(x.toList())
       }
     }
-
-    internal fun parser(): Parser<Requirement> = Parsers.parser()
-
-    /** Parses one top-level disjunction, leaving a following comma to its container. */
-    internal fun disjunctionParser(): Parser<Requirement> = Parsers.disjunctionParser()
-
-    internal fun atomParser(): Parser<Requirement> = Parsers.atomParser()
   }
 
   override fun safeToNestIn(container: PetNode): Boolean =
@@ -300,61 +284,6 @@ public sealed class Requirement : PetElement() {
   }
 
   override val kind: kotlin.reflect.KClass<out PetNode> = Requirement::class
-
-  private object Parsers : PetTokenizer() {
-    fun parser(): Parser<Requirement> {
-      return parser {
-        commaSeparated(disjunctionParser()) map And.Companion::create
-      }
-    }
-
-    fun disjunctionParser(): Parser<Requirement> =
-        separatedTerms(atomParser(), _or) map { Or.create(it.toSet()) }
-
-    /**
-     * A requirement suitable for being nested directly in something else. Used by gated
-     * instructions and conditional triggers.
-     */
-    fun atomParser(): Parser<Requirement> {
-      return parser {
-        val scaledEx = parser {
-          val numeric = locatedNode(rawScalar map ::ActualScalar)
-          val scalarAndOptionalExpression = numeric and optional(Expression.parser())
-          val optionalScalarAndExpression = optional(numeric) and Expression.parser()
-
-          scalarAndOptionalExpression or
-              optionalScalarAndExpression map
-              { (scalar, expression) ->
-                val resolvedScalar = scalar ?: ActualScalar(1)
-                if (expression == null) ScaledExpression.denominationless(resolvedScalar)
-                else scaledEx(expression, resolvedScalar)
-              }
-        }
-
-        val countedMetric = rawScalar and Metric.atomParser()
-
-        val propertyMin: Parser<Requirement> = Property.parser() map { Min(1, it) }
-        val min =
-            propertyMin or
-                mapLocated(countedMetric) { (target, metric) -> Min(target, metric) } or
-                mapLocated(scaledEx, Requirement::Min)
-        val max =
-            skip(_max) and
-                ((countedMetric map { (target, metric) -> Max(target, metric) }) or
-                    (scaledEx map Requirement::Max))
-        val exact =
-            skipChar('=') and
-                ((countedMetric map { (target, metric) -> Exact(target, metric) }) or
-                    (scaledEx map Requirement::Exact))
-        val transform =
-            locatedNode(
-                transform(parser()) map { (node, transformName) -> Transform(node, transformName) }
-            )
-        val eval: Parser<Requirement> = locatedNode(skip(_eval) and Property.parser() map ::Eval)
-        eval or transform or min or max or exact or group(parser())
-      }
-    }
-  }
 }
 
 private fun ScaledExpression.actualScalar(): Int =

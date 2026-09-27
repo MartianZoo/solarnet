@@ -1,13 +1,5 @@
 package dev.martianzoo.pets.ast
 
-import com.github.h0tk3y.betterParse.combinators.and
-import com.github.h0tk3y.betterParse.combinators.map
-import com.github.h0tk3y.betterParse.combinators.optional
-import com.github.h0tk3y.betterParse.combinators.or
-import com.github.h0tk3y.betterParse.combinators.skip
-import com.github.h0tk3y.betterParse.grammar.parser
-import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Instruction.Per
 import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
@@ -127,42 +119,5 @@ public data class Action(
 
       override fun extract(): Cost = cost
     }
-
-    internal companion object : PetTokenizer() {
-      fun parser(): Parser<Cost> {
-        return parser {
-          val spend = ScaledExpression.parser() map Cost::Spend
-          val transform =
-              locatedNode(transform(parser()) map { (node, tname) -> Transform(node, tname) })
-          val atomCost = transform or spend or group(parser())
-
-          val perCost =
-              atomCost and
-                  optional(skipChar('/') and Metric.subtractionParser()) map
-                  { (cost, met) ->
-                    if (met == null) cost else Per(cost, met)
-                  }
-
-          perCost
-        }
-      }
-    }
-  }
-
-  internal companion object : PetTokenizer() {
-    fun parser(): Parser<Action> =
-        optional(Cost.parser()) and
-            skip(_arrow) and
-            InstructionTree.parser() map
-            { (c, i) ->
-              resolveTypeVariableNames(Action(c, i))
-            }
-
-    private fun resolveTypeVariableNames(action: Action): Action =
-        dev.martianzoo.pets.ast.resolveTypeVariableNames(
-            action,
-            action.cost,
-            action.instruction,
-        )
   }
 }

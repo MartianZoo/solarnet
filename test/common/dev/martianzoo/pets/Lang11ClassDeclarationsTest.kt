@@ -230,6 +230,28 @@ internal class Lang11ClassDeclarationsTest {
         )
   }
 
+  @Test
+  internal fun `L11-6 nesting preserves an explicit parent specialization`() {
+    val declarations =
+        parseClasses(
+            """
+            ABSTRACT CLASS Area<Owner> {
+              CLASS MarsArea : Area<Player> {
+                CLASS Mars1
+              }
+            }
+            """
+                .trimIndent()
+        )
+
+    declarations.map { it.supertypes } shouldContainExactly
+        listOf(
+            emptySet(),
+            setOf(parse<Expression>("Area<Player>")),
+            setOf(parse<Expression>("MarsArea")),
+        )
+  }
+
   // L11-7 Docstrings
 
   @Test

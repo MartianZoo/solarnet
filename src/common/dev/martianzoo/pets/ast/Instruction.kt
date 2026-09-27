@@ -1,15 +1,6 @@
 package dev.martianzoo.pets.ast
 
-import com.github.h0tk3y.betterParse.combinators.and
-import com.github.h0tk3y.betterParse.combinators.map
-import com.github.h0tk3y.betterParse.combinators.optional
-import com.github.h0tk3y.betterParse.combinators.or
-import com.github.h0tk3y.betterParse.combinators.separatedTerms
-import com.github.h0tk3y.betterParse.combinators.skip
-import com.github.h0tk3y.betterParse.grammar.parser
-import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.pets.HasExpression
-import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.Transforming.bindXTo
@@ -43,47 +34,6 @@ import dev.martianzoo.pets.util.invoke
  * while scheduling, choice presentation and attribution belong to the engine.
  */
 public sealed class Instruction : InstructionTree() {
-  internal companion object {
-    internal fun parser(): Parser<Instruction> =
-        Parsers.parser() map
-            {
-              val instruction =
-                  it as? Instruction
-                      ?: throw PetSyntaxException("expected one instruction, found group `$it`")
-              resolveLocalTypeVariableNames(instruction) as Instruction
-            }
-
-    internal fun treeParser(): Parser<InstructionTree> =
-        Parsers.parser() map ::resolveLocalTypeVariableNames
-
-    /**
-     * Resolves symmetric instruction-local scopes only after enclosing selectors have claimed their
-     * references. The traversal remains inside-out so a transmutation still outranks an enclosing
-     * sequence for names that no supplier already owns.
-     */
-    private fun resolveLocalTypeVariableNames(tree: InstructionTree): InstructionTree {
-      if (
-          tree.descendantsOfType<Transmute>().isEmpty() && tree.descendantsOfType<Then>().isEmpty()
-      ) {
-        return tree
-      }
-      return object : PetTransformer() {
-            override fun transformNode(node: PetNode): PetNode {
-              // Symmetric scopes contain instructions; leave unrelated parser-only expression
-              // metadata untouched until one of those scopes resolves its own subtree.
-              if (node is Expression) return node
-              val transformed = transformChildren(node)
-              return when (transformed) {
-                is Transmute -> Transmute.resolveTypeVariableNames(transformed)
-                is Then -> Then.resolveTypeVariableNames(transformed)
-                else -> transformed
-              }
-            }
-          }
-          .transformInstructionTree(tree)
-    }
-  }
-
   /**
    * Returns an instruction that (in essence) does this instruction [factor] times. The [factor]
    * must be non-negative, and if zero, [NoOp] is returned.
@@ -1111,99 +1061,6 @@ public sealed class Instruction : InstructionTree() {
 
     private companion object {
       private fun from(symbol: String) = entries.first { it.symbol == symbol }
-    }
-  }
-
-  private object Parsers : PetTokenizer() {
-    internal fun parser(): Parser<InstructionTree> {
-      return parser {
-        val gain: Parser<Instruction> =
-            ScaledExpression.parser() and
-                quantifier map
-                { (ste, int) ->
-                  Gain.gain(ste, int)
-                }
-
-        val remove: Parser<Instruction> =
-            skipChar('-') and
-                ScaledExpression.parser() and
-                quantifier map
-                { (ste, int) ->
-                  Remove.remove(ste, int)
-                }
-
-        val transmute: Parser<Transmute> =
-            optional(ScaledExpression.scalar()) and
-                FromExpression.parser() and
-                quantifier map
-                { (scalar, fro, int) ->
-                  Transmute(fro, scalar ?: ActualScalar(1), int)
-                }
-
-        val perable: Parser<Instruction> = locatedNode(transmute or gain or remove)
-
-        val maybePer: Parser<Instruction> =
-            perable and
-                optional(skipChar('/') and Metric.subtractionParser()) map
-                { (instr, metric) ->
-                  if (metric == null) instr else Per(instr, metric)
-                }
-
-        val transform: Parser<Transform> =
-            locatedNode(transform(parser()) map { (node, tname) -> Transform(node, tname) })
-
-        val maybeTransform: Parser<InstructionTree> = transform or maybePer
-
-        val each: Parser<Instruction> =
-            skip(_each) and
-                Expression.parser(allowDerivedClass = false) and
-                skipChar('{') and
-                parser() and
-                skipChar('}') map
-                { (selector, body) ->
-                  val resolved = resolveSelectorTypeVariableNames(selector, listOf(body))
-                  Each(resolved[0] as Expression, resolved[1] as InstructionTree)
-                }
-
-        val atomBase: Parser<InstructionTree> = each or maybeTransform or group(parser())
-
-        val atom: Parser<InstructionTree> =
-            atomBase and
-                optional(skip(_by) and Expression.parser()) map
-                { (instruction, actor) ->
-                  if (actor == null) instruction else By.createTree(instruction, actor)
-                }
-
-        val orInstr: Parser<InstructionTree> =
-            separatedTerms(atom, _or) map
-                {
-                  val seen = mutableSetOf<InstructionTree>()
-                  it.firstOrNull { !seen.add(it) }
-                      ?.let { duplicate ->
-                        throw PetSyntaxException(
-                            "duplicate `OR` alternative `$duplicate`; remove the repeated alternative",
-                            sourceLocation =
-                                duplicate.sourceLocation
-                                    ?: duplicate
-                                        .descendantsOfType<Expression>()
-                                        .firstOrNull()
-                                        ?.sourceLocation,
-                        )
-                      }
-                  Or.createTree(it)
-                }
-
-        val gated: Parser<InstructionTree> =
-            optional(Requirement.atomParser() and skipChar(':')) and
-                orInstr map
-                { (gate, ins) ->
-                  Gated.createTree(gate, ins)
-                }
-
-        val then = separatedTerms(locatedNode(gated), _then) map Then::createTree
-
-        commaSeparated(then) map { InstructionGroup.createTree(it) }
-      }
     }
   }
 }
