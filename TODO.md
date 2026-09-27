@@ -9,6 +9,13 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Resolve Landshaper's distinct-tile requirement before changing its behavior. The suspected bug
   where Capital plus one greenery suffices is quarantined in `cards/BugsTest.kt`; audit R01 leaves
   this combination open even though Capital's city and special-tile classifications are confirmed.
+- Investigate choosing the Lobby delegate whenever an action or card takes from the reserve,
+  even when other reserve delegates remain.
+  [Jacob's supply ruling](https://boardgamegeek.com/thread/2570071/article/36719863#36719863)
+  counts the Lobby as reserve and states no selection priority; we read this as allowing either
+  source. The current model preserves free lobbying on other reserve placements until all seven
+  delegates are placed; it offers no choice to consume the Lobby delegate earlier. See
+  `TurmoilRulesTest.kt` for the supported paid-lobbying case with only the Lobby delegate remaining.
 - Replace the fake wild-tag assignment model when a clean rule representation is available.
   A normal Earth-tag gain incorrectly draws for Point Luna, now characterized in `cards/BugsTest.kt`.
   Do not suppress triggers to make this model look correct; historical replays still use explicit
@@ -17,8 +24,12 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   [`cards/BugsTest.kt`](test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt):
   Double Down's copied resource destination; Mining Rights/Area and Mining Guild on wild placement
   bonuses; Sponsored Projects adding resources to SRR's hosted cards; and Constructor remaining
-  usable without Colonies. Preserve the external-card-selection boundary when addressing copied
-  Merger commitment after new information is revealed.
+  usable without Colonies. Double Down currently leaves copied `This` unresolved; substituting
+  `DoubleDown` still makes `Director<DoubleDown>` an invalid dependency type, which AMAP does not
+  turn into zero. Resolve the copying/type semantics instead of filtering those gains in Kotlin.
+  Constructor's combined city/colony metric is treated as a hard Colonies dependency by the shared
+  content-compatibility filter. Preserve the external-card-selection boundary when addressing
+  copied Merger commitment after new information is revealed.
 - Investigate whether production-box copying can preserve enclosing bindings and conditions so
   Industrial Complex's former `EACH ... { PROD[...] }` spelling would work. For now, copying
   rejects a `PROD` nested inside `EACH` with an authoring diagnostic; the working form puts
