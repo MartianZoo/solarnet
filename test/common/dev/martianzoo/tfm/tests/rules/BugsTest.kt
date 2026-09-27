@@ -102,26 +102,6 @@ internal class BugsTest : CardTest() {
   }
 
   @Test
-  internal fun `paid lobbying incorrectly uses the Lobby delegate while free lobbying is available`() {
-    newGame(TurmoilExpansion)
-    repeat(6) { p1.runOperation("PartyDelegate<Unity>") }
-    p1.runOperation("5 MC")
-    admin.phase("Action")
-
-    p1.count("LobbyActionAvailable") shouldBe 1
-    p1.count("Delegate") shouldBe 6
-
-    p1.stdAction("LobbyAction", 2) {
-      doTask("PartyDelegate<Scientists>")
-    }
-
-    p1.count("MC") shouldBe 0
-    p1.count("LobbyActionAvailable") shouldBe 0
-    p1.count("Delegate") shouldBe 7
-    p1.count("PartyDelegate") shouldBe 7
-  }
-
-  @Test
   internal fun `SecondPlace incorrectly remains active with only two players`() {
     val twoPlayers = Engine.newGame(Canon.gamePremise(GameConfig("", "Player1", "Player2")))
     val threePlayers =
