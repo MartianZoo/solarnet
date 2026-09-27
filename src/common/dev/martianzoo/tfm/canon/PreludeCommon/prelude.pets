@@ -2,3 +2,8 @@
 ABSTRACT CLASS PreludeCardPack : Module
 
 CLASS PreludeCard : CardBack
+
+"Play the selected Prelude, or declare it unplayable and receive the fizzle compensation"
+CLASS PlayOrFizzle : Owned<Player>, Signal {
+  This: PlayCard<Class<PreludeCard>> OR (-PreludeCard THEN Audit THEN 15 MC)
+}

@@ -284,4 +284,25 @@ internal class NewPromoCardsTest : CardTest() {
 
     p1.cardAction1(RedShips).expect("2 MC")
   }
+
+  @Test
+  internal fun `Kaguya creates a new Philares adjacency without renewing an Arcadian reservation`() {
+    newGame(PromoCardPack)
+    val p2 = requireP2()
+    p1.playCorp(ArcadianCommunities, 1)
+    p2.playCorp(Philares, 0)
+    admin.phase("Action")
+    p1.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_4_2>") }
+    p2.stdAction("DoRequiredActionsAction") { placeTile(4, 1) }
+    p1.stdProject("GreeneryProject") {
+      placeTile(4, 2)
+      p2.doTask("Steel")
+    }
+    p1.count("Community<Tharsis_4_2>") shouldBe 0
+    p1.playProject(KaguyaTech, 10) {
+          doTask("CityTile<Tharsis_4_2> FROM GreeneryTile<Tharsis_4_2>")
+          p2.doTask("Titanium")
+        }
+        .expect("-10 MC, Titanium<Player2>")
+  }
 }

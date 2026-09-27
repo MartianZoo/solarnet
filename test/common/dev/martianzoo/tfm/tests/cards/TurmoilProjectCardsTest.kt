@@ -3,6 +3,10 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
+import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
+import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
+import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -201,5 +205,32 @@ internal class TurmoilProjectCardsTest : CardTest() {
     p1.count("MC") shouldBe 5
     p1.count("Chairman") shouldBe 0
     requireP2().count("Chairman") shouldBe 1
+  }
+
+  @Test
+  internal fun `Influence from Event Analysts stacks beyond four`() {
+    newGame(
+        PreludeExpansion,
+        Prelude2CardPack,
+        TurmoilExpansion,
+        ColoniesExpansion,
+        colonyTiles = testColonyTiles(2),
+    )
+    p1.playCorp(CrediCor, 3)
+    admin.phase("Prelude")
+    p1.playPrelude(HighCircles) { doTask("2 PartyDelegate<Scientists>") }
+    p1.playPrelude(Donation)
+    admin.phase("Action")
+    p1.playProject(EventAnalysts, 5)
+    p1.playProject(VoteOfNoConfidence, 5)
+    p1.stdProject("BuildColonyProject") { doTask("Colony<Luna>") }
+    p1.playProject(ColonialRepresentation, 10)
+    admin.runOperation("MeasureInfluence<Player1>")
+
+    p1.count("Influence") shouldBe 6
+    admin.runOperation("SponsoredProjects")
+    admin
+        .runOperation("ResolveGlobalEvent<Class<SponsoredProjects>>")
+        .expect("6 ProjectCard<Player1>")
   }
 }

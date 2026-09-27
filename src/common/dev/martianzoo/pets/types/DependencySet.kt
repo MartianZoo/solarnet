@@ -2,6 +2,7 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.types.Dependency.Companion.depsForClassType
@@ -232,11 +233,24 @@ private constructor(
     return of(deps.map { partial.getIfPresent(it.key) ?: it })
   }
 
+  /**
+   * Binds a refinement candidate according to
+   * [rule T8-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#8-refinements).
+   */
   internal fun specializeRefinementCandidate(
       candidate: Expression,
       classTable: ClassTable,
   ): DependencySet {
-    val compatible = deps.mapNotNull { it.intersect(candidate, classTable) }
+    val compatible =
+        deps
+            .mapNotNull { it.intersect(candidate, classTable) }
+            .ifEmpty {
+              if (candidate.className == CLASS) return@ifEmpty emptyList()
+              val classLiteral = candidate.className.classExpression()
+              deps
+                  .filter { it is TypeDependency && it.boundType.representedClass != null }
+                  .mapNotNull { it.intersect(classLiteral, classTable) }
+            }
     val selected =
         compatible.firstOrNull { narrowed -> narrowed != get(narrowed.key) }
             ?: compatible.firstOrNull()

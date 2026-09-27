@@ -6,6 +6,23 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Resolve Landshaper's distinct-tile requirement before changing its behavior. The suspected bug
+  where Capital plus one greenery suffices is quarantined in `cards/BugsTest.kt`; audit R01 leaves
+  this combination open even though Capital's city and special-tile classifications are confirmed.
+- Replace the fake wild-tag assignment model when a clean rule representation is available.
+  A normal Earth-tag gain incorrectly draws for Point Luna, now characterized in `cards/BugsTest.kt`.
+  Do not suppress triggers to make this model look correct; historical replays still use explicit
+  external adjustments for their unsupported wild-tag choices.
+- Follow through on the FAQ-audit defects characterized in
+  [`cards/BugsTest.kt`](test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt):
+  Double Down's copied resource destination; Mining Rights/Area and Mining Guild on wild placement
+  bonuses; Sponsored Projects adding resources to SRR's hosted cards; and Constructor remaining
+  usable without Colonies. Preserve the external-card-selection boundary when addressing copied
+  Merger commitment after new information is revealed.
+- Investigate whether production-box copying can preserve enclosing bindings and conditions so
+  Industrial Complex's former `EACH ... { PROD[...] }` spelling would work. For now, copying
+  rejects a `PROD` nested inside `EACH` with an authoring diagnostic; the working form puts
+  `EACH` inside `PROD`.
 - Resolve L1 Trade Terminal's trade bonus at the colony track limit: the current exact-two-or-zero
   choice cannot advance from 5 to 6. The intended partial advancement is under investigation.
 - Reconcile `OtbGame20260912Test` with the original physical-game evidence. Verify Summit

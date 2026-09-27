@@ -8,10 +8,12 @@ import kotlin.test.Test
 internal class EnergyTappingTest : CardTest() {
   // With no other energy-production target, the increase makes the decrease executable.
   @Test
-  internal fun `Can be played when Manutech offsets its production loss`() {
+  internal fun `Can gain the energy production it must then lose and still pay Manutech`() {
     newGame(VenusNextExpansion)
-    p1.runOperation("$Manutech")
-    p1.runOperation("$EnergyTapping").expect("Energy")
-    p1.assertProds(0 to "Energy")
+    p1.playCorp(Manutech, 1)
+    admin.phase("Action")
+
+    p1.playProject(EnergyTapping, 3).expect("Energy, PROD[0 Energy]")
+    requireP2().assertProds(0 to "Energy")
   }
 }

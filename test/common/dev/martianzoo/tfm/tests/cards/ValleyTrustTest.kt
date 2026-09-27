@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -8,7 +9,6 @@ import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.assertions.throwables.shouldThrowAny
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -54,25 +54,6 @@ internal class ValleyTrustTest : CardTest() {
     shouldThrow<RequirementException> { p1.stdProject("PowerPlantProject") }
   }
 
-  @Test
-  internal fun `An unplayable selection leaves Valley Trust free to choose another Prelude`() {
-    newGame(PreludeExpansion, Prelude2CardPack)
-    val p2 = requireP2()
-    p2.runOperation("PROD[-5 MC]")
-    p1.playCorp(ValleyTrust, 5)
-    admin.phase("Action")
-    val moneyBefore = p1.count("MC")
-
-    shouldThrowAny {
-      p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(Recession) }
-    }
-
-    p1.count("RequiredAction") shouldBe 1
-    p1.count("MC") shouldBe moneyBefore
-    p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(DomeFarming) }
-    p1.assertCounts(0 to "RequiredAction", 1 to "$DomeFarming")
-  }
-
   private fun resolveValleyTrustPrelude(
       preludeConfiguration: String,
       selectedPrelude: ClassName,
@@ -94,5 +75,28 @@ internal class ValleyTrustTest : CardTest() {
     p1.playCorp(ValleyTrust, 5)
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(selectedPrelude) }
+  }
+
+  @Test
+  internal fun `Valley Trust fizzles an unaffordable Industrial Complex`() {
+    newGame(PreludeExpansion, Prelude2CardPack)
+    p1.playCorp(ValleyTrust, 8)
+    admin.phase("Prelude")
+    p1.playPrelude(PowerGeneration)
+    p1.playPrelude(Biolab)
+    admin.phase("Action")
+    shouldThrow<LimitsException> {
+      p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(IndustrialComplex) }
+    }
+
+    val checkpoint = game.timeline.checkpoint()
+    p1.stdAction("DoRequiredActionsAction") { doTask("-PreludeCard") }.expect("15 MC")
+    p1.assertCounts(
+        28 to "MC",
+        0 to "RequiredAction",
+        0 to "$IndustrialComplex",
+        0 to "PreludeCard",
+    )
+    p1.auditGainsSince(checkpoint) shouldBe 1
   }
 }

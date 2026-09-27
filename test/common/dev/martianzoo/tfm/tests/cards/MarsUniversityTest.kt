@@ -26,4 +26,14 @@ internal class MarsUniversityTest : CardTest() {
         }
         .expect("2 ProjectCard")
   }
+
+  @Test
+  internal fun `Mars University may decline its discard even with another project in hand`() {
+    newGame(CorporateEraExpansion)
+    p1.playCorp(CrediCor, 3)
+    admin.phase("Action")
+    p1.playProject(MarsUniversity, 8) { declineTask() }
+
+    p1.playProject(SearchForLife, 3) { declineTask() }.expect("-ProjectCard")
+  }
 }

@@ -208,6 +208,14 @@ clear coverage of these contracts matters more than preserving every current tes
 This list does not itself decide which current tests should be retained. Test-deletion proposals
 are a separate review.
 
+Give each scenario variant its own named test, using a private helper for shared steps. Do not put
+variants in a `for` loop inside one test: the failing test name should identify the case.
+Build the cards, production, and tiles the behavior under test depends on through gameplay.
+Use normal operations for incidental setup, including initial money, anonymous card budgets, and
+explicitly acknowledged stand-ins such as `fakeWildTags`; their triggers must still run.
+Use `CONCRETE` when ordering choices matter; reserve `NONE` for tests that must control otherwise
+unambiguous automatic steps.
+
 Prefer tests that exercise several pieces together. Do not mirror a production list or data object
 in a test just to detect that the list changed. Test observable behavior through the normal
 test-facing layer: test the card, rule, or workflow result rather than a private transformation,
@@ -241,9 +249,12 @@ belongs in player-level scenarios.
 Keep scenarios minimal and legible. Card tests use the base game and two players by default unless
 the behavior requires something else, add only relevant options and components, and consistently
 name the gameplay objects `p1` and `p2`. Use `runOperation()` when only the resulting setup matters instead
-of replaying an irrelevant play-card sequence. Avoid `sneak`: it can create impossible states.
+of replaying an irrelevant play-card sequence. Do not use `sneak` in card or rule scenarios: it
+bypasses triggers and can make a broken rule appear to pass.
 Synthetic card scenarios pass their card and supporting `ClassDeclaration`s to the `CardTest`
 constructor; they are composed with Canon and selected in that test's premise.
+When a custom instruction reads authored card metadata from the catalog, compose the synthetic
+card into a fixture `TfmCatalog`; premise-only declarations do not populate that metadata.
 Use `placeTile(row, column)`, `addCardResources(card)`, and `wgt(choice)` instead of spelling their
 routine task expressions. The tile and card-resource helpers require a single matching pending
 choice; card-resource matching includes the destination card, so offers for different cards can
@@ -280,10 +291,9 @@ Cover meaningful interfaces, negative cases, non-targets, and option combination
 the happy path. A filtering or Type-variable test should include several tempting Components that must not
 match. Preserve this coverage during refactoring.
 
-Assert a particular exception subclass only when callers or game semantics depend on that
-classification. Otherwise assert that the command is rejected, state and history remain atomic, and
-the diagnostic identifies the problem. The current distinction among task, abstractness, and
-narrowing exceptions is provisional and should not make an otherwise behavioral test brittle.
+Assert the actual exception type with `shouldThrow<ExpectedException>`; do not use `shouldThrowAny`
+or a catch-all superclass. An unrelated failure must not satisfy a rejection test. Also check the
+relevant unchanged state and, when useful, the diagnostic identifying the problem.
 
 ### Known-defect tests
 

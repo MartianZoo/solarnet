@@ -1,9 +1,12 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
+import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -54,5 +57,17 @@ internal class EcologyExpertsTest : CardTest() {
     }
 
     p1.assertCounts(1 to "$DustSeals")
+  }
+
+  @Test
+  internal fun `Ecology Experts does not waive a political requirement`() {
+    newGame(PreludeExpansion, TurmoilExpansion)
+    admin.phase("Prelude")
+    p1.runOperation("20 MC, ProjectCard")
+
+    shouldThrow<RequirementException> {
+      with(p1) { playPrelude(EcologyExperts) { playProject(SupportedResearch, 3) } }
+    }
+    p1.assertCounts(0 to "$EcologyExperts", 0 to "$SupportedResearch", 1 to "ProjectCard")
   }
 }

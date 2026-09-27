@@ -49,4 +49,20 @@ internal class RoboticWorkforceTest : CardTest() {
       abort()
     }
   }
+
+  // https://boardgamegeek.com/thread/3430226/article/45396575#45396575
+  @Test
+  internal fun `Robotic Workforce does Industrial Complex production adjustment again without its cost`() {
+    newGame(PreludeExpansion, Prelude2CardPack)
+    p1.playCorp(ThorGate, 3)
+    admin.phase("Prelude")
+    p1.playPrelude(IndustrialComplex)
+    p1.playPrelude(Donation)
+    admin.phase("Action")
+    p1.playProject(ImmigrantCity, 13) { placeTile(4, 4) }
+    p1.playProject(PowerPlant, 1)
+
+    p1.playProject(RoboticWorkforce, 9) { doTask("CopyProductionBox<$IndustrialComplex>") }
+        .expect("-9 MC, PROD[MC, 0 Steel, 0 Energy]")
+  }
 }

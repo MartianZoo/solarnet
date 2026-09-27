@@ -24,6 +24,11 @@ generic back and creates the concrete face supplied by the caller. Solarnet trus
 
 ## Count-only procedures
 
+Prelude plays use `PlayOrFizzle`: play the chosen face, or discard its anonymous back, record an
+`Audit`, and gain 15 M€. The caller verifies that the selected Prelude is unplayable. This same
+signal serves the Prelude phase and additional Prelude plays granted by cards. Offered and rejected
+cards remain external, including Valley Trust's two unselected Preludes.
+
 Only cards that reach a Player's hand enter the World. An ordinary draw or an inspect-and-keep
 instruction therefore gains the retained `ProjectCard` count directly. Searches skip unretained
 faces entirely.

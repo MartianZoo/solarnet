@@ -1,18 +1,139 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.assertions.throwables.shouldThrowAny
+import dev.martianzoo.tfm.tests.fakeWildTags
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 /** Passing characterizations of known incorrect behavior. */
 internal class BugsTest : CardTest() {
+  @Test
+  internal fun `A fake wild Earth tag incorrectly gives Point Luna an extra draw`() {
+    newGame(PreludeExpansion, CorporateEraExpansion, FakeStuffBundle)
+    p1.playCorp(PointLuna, 1)
+    admin.phase("Action")
+    p1.playProject(FakeResearchCoordination, 4)
+
+    // Both the supplied tag and Cartel's printed tag trigger Point Luna. Only Cartel should draw;
+    // after consuming its project card, the correct net card gain would be zero.
+    with(p1) {
+      runOperation("${fakeWildTags("EarthTag")}, NewTurn") {
+            useStdAction("PlayCardFromHandAction", payment = {}) { playProject(Cartel, 8) }
+          }
+          .expect("ProjectCard, PROD[3 MC]")
+    }
+    p1.count("FakeWildTagUse") shouldBe 0
+  }
+
+  // Suspected bug: Landshaper should require three distinct tiles. Audit R01 confirms Capital's
+  // two classifications, but leaves their application to this milestone unresolved.
+  @Test
+  internal fun `Landshaper incorrectly accepts only Capital and one greenery`() {
+    newGame(Amazonis, PreludeExpansion, CorporateEraExpansion)
+    p1.playCorp(CrediCor, 1)
+    requireP2().runOperation("72 MC")
+    admin.phase("Prelude")
+    p1.playPrelude(PowerGeneration)
+    p1.playPrelude(Donation)
+    admin.phase("Action")
+    requireP2().stdProject("AquiferProject") { placeTile(2, 1) }
+    requireP2().stdProject("AquiferProject") { placeTile(2, 6) }
+    requireP2().stdProject("AquiferProject") { placeTile(3, 1) }
+    requireP2().stdProject("AquiferProject") { placeTile(3, 6) }
+    p1.playProject(Capital, 26) { placeTile(5, 1) }
+    shouldThrow<RequirementException> { p1.claimMilestone(cn("Landshaper")) }
+    p1.stdProject("GreeneryProject") { placeTile(5, 2) }
+
+    p1.claimMilestone(cn("Landshaper")).expect("Landshaper")
+    p1.count("OwnedTile") shouldBe 2
+  }
+
+  // Audit N27: the absent colony category should contribute zero, leaving city scoring available.
+  @Test
+  internal fun `Constructor incorrectly cannot be funded without Colonies`() {
+    newGame(Amazonis)
+    p1.playCorp(CrediCor, 0)
+    admin.phase("Action")
+    p1.stdProject("CityProject") { placeTile(5, 1) }
+
+    shouldThrow<DeadEndException> { p1.fundAward(cn("Constructor"), 8) }
+    p1.count("MC") shouldBe 36
+    admin.count("Award") shouldBe 0
+  }
+
+  // Audit N02: the copied directors would be unusable on Double Down and should be ignored.
+  @Test
+  internal fun `Double Down incorrectly rejects copying Board of Directors`() {
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
+    admin.phase("Prelude")
+    p1.playPrelude(BoardOfDirectors)
+
+    shouldThrow<ExpressionException> {
+      p1.playPrelude(DoubleDown) { doTask("CopyPrelude<$BoardOfDirectors>") }
+    }
+    p1.assertCounts(0 to "$DoubleDown", 4 to "Director<$BoardOfDirectors>", 1 to "PreludeCard")
+  }
+
+  // Audit N13: choosing a metal from Amazonis's wild bonus should make this legal.
+  @Test
+  internal fun `Mining Rights incorrectly cannot use a wild placement bonus`() {
+    newGame(Amazonis)
+    p1.runOperation("9 MC, ProjectCard")
+    admin.phase("Action")
+
+    shouldThrow<RequirementException> {
+      p1.playProject(MiningRights, 9) {
+        placeTile(5, 3)
+        doTask("Steel")
+        doTask("PROD[Steel]")
+      }
+    }
+    p1.assertCounts(9 to "MC", 1 to "ProjectCard", 0 to "MiningRights_SpecialTile")
+  }
+
+  @Test
+  internal fun `Mining Guild incorrectly ignores metal chosen from a wild placement bonus`() {
+    newGame(Amazonis)
+    p1.playCorp(MiningGuild, 0)
+    admin.phase("Action")
+    p1.stdProject("GreeneryProject") {
+          placeTile(5, 3)
+          doTask("Titanium")
+        }
+        .expect("Titanium, PROD[0 Steel]")
+  }
+
+  // Audit S09: these cubes belong to the unplayed card hosted on SRR, which is eligible.
+  @Test
+  internal fun `Sponsored Projects incorrectly misses resources on a card hosted by Fake SRR`() {
+    newGame(TurmoilExpansion, CorporateEraExpansion, PromoCardPack, FakeStuffBundle)
+    p1.playCorp(CrediCor, 3)
+    admin.phase("Action")
+    p1.playProject(Research, 11)
+    p1.playProject(FakeSelfReplicatingRobots, 7)
+    p1.playProject(Pets, 10)
+    p1.cardAction1(FakeSelfReplicatingRobots) {
+      doTask("StageForReplicatedProject<Class<$Mine>>")
+    }
+    admin.runOperation("SponsoredProjects")
+
+    admin
+        .runOperation("ResolveGlobalEvent<Class<SponsoredProjects>>")
+        .expect("0 RobotUnit<Player1, Class<$Mine>>, Animal<Player1, $Pets>")
+    p1.count("RobotUnit<Class<$Mine>>") shouldBe 2
+  }
+
   @Test
   internal fun `Ecology Experts incorrectly does not trigger Viral Enhancers with its own tags`() {
     newGame(PreludeExpansion, CorporateEraExpansion)
@@ -159,7 +280,7 @@ internal class BugsTest : CardTest() {
     p1.runOperation("-${p1.count("MC")} MC")
     p2.runOperation("Plant")
 
-    shouldThrowAny {
+    shouldThrow<TaskException> {
       p1.runOperation("-Plant<Player2>") {
         doTask("PayFromCard<$StormcraftIncorporated> FROM Floater<$StormcraftIncorporated>")
       }
@@ -207,73 +328,5 @@ internal class BugsTest : CardTest() {
     p1.playProject(CeosFavoriteProject, 0)
 
     p1.assertCounts(1 to "PlayedEvent<Class<$CeosFavoriteProject>>")
-  }
-
-  @Test
-  internal fun `Corroder Suits incorrectly ignores a Venus card staged on Fake SRR`() {
-    newGame(VenusNextExpansion, PromoCardPack, FakeStuffBundle)
-    admin.phase("Action")
-    p1.runOperation("$FakeSelfReplicatingRobots, ProjectCard")
-    p1.cardAction1(FakeSelfReplicatingRobots) {
-      doTask("StageForReplicatedProject<Class<$VenusWaystation>>")
-    }
-
-    p1.runOperation("$CorroderSuits")
-
-    p1.assertCounts(
-        1 to "$CorroderSuits",
-        2 to "RobotUnit<Class<$VenusWaystation>>",
-    )
-  }
-
-  @Test
-  internal fun `Astra Mechanica incorrectly takes back Lava Flows and Deimos Down promo`() {
-    newGameWithAutoWorkflow(PromoCardPack)
-    playUntilFirstActionPhase()
-
-    p1.turn {
-      playProject(LavaFlows, 18) { placeTile(2, 2) }
-      playProject(DeimosDownPromo, 31) { placeTile(4, 5) }
-    }
-    requireP2().pass()
-
-    p1.playProject(AstraMechanica, 7) {
-          doWithoutAutoExec(p1) {
-            doTask("ProjectCard FROM PlayedEvent<Class<$LavaFlows>>")
-            doTask("ProjectCard FROM PlayedEvent<Class<$DeimosDownPromo>>")
-          }
-        }
-        .expect(
-            "$AstraMechanica, ProjectCard, " +
-                "-PlayedEvent<Class<$LavaFlows>>, -PlayedEvent<Class<$DeimosDownPromo>>"
-        )
-  }
-
-  @Test
-  internal fun `Fake SRR robot units incorrectly count as resource types and for Collector`() {
-    newGame(Amazonis, VenusNextExpansion, PromoCardPack, FakeStuffBundle)
-    val p2 = requireP2()
-    admin.phase("Action")
-    val standardResources = "MC, Steel, Titanium, Plant, Energy, Heat"
-    p1.runOperation(
-        "9 MC, 2 ProjectCard, $FakeSelfReplicatingRobots, $standardResources, " +
-            "$Pets, $Decomposers, Animal<$Pets>, Microbe<$Decomposers>"
-    )
-    p2.runOperation(
-        "$standardResources, $Predators, $RegolithEaters, " +
-            "Animal<$Predators>, Microbe<$RegolithEaters>"
-    )
-
-    p1.cardAction1(FakeSelfReplicatingRobots) {
-      doTask("StageForReplicatedProject<Class<$AerialMappers>>")
-    }
-    p1.playProject(DiversitySupport, 1).expect("TerraformRating")
-    p1.fundAward(cn("Collector"), 8)
-    val checkpoint = game.timeline.checkpoint()
-    admin.runOperation("End FROM Phase")
-
-    p1.assertCounts(1 to "FirstPlace<Player1, Collector>")
-    p2.assertCounts(0 to "FirstPlace<Player2, Collector>")
-    p1.auditGainsSince(checkpoint) shouldBe 1
   }
 }
