@@ -143,7 +143,7 @@ public data class ClassDeclaration(
     // any depth.
     (dependencies + supertypes).firstOrNull(::hasRefinement)?.let {
       throw PetSyntaxException(
-          "class signatures cannot contain refined Types: `$it`",
+          "class signatures cannot contain refined types: `$it`",
           sourceLocation = it.sourceLocation,
       )
     }
@@ -158,7 +158,7 @@ public data class ClassDeclaration(
           }
       if (behavior != null)
           throw PetSyntaxException(
-              "Custom class `$className` cannot declare Pets $behavior; its behavior comes from its Kotlin implementation",
+              "custom class `$className` cannot declare Pets $behavior; its behavior comes from its Kotlin implementation",
               sourceLocation =
                   invariants.firstOrNull()?.sourceLocation
                       ?: effects.firstOrNull()?.sourceLocation
@@ -238,7 +238,7 @@ public data class ClassDeclaration(
         val owners = defs.mapNotNull { it.forClass }.distinct()
         if (owners.size > 1) {
           throw PetSyntaxException(
-              "`DEFAULT` clauses name different classes: `${owners.joinToString()}`",
+              "`DEFAULT` clauses name different classes: ${owners.joinToString { "`$it`" }}",
               sourceLocation = owners[1].sourceLocation,
           )
         }
@@ -249,7 +249,7 @@ public data class ClassDeclaration(
               merged = merge(listOf(merged, definition.default(kind)))
             } catch (e: IllegalArgumentException) {
               throw PetSyntaxException(
-                  "${owners.singleOrNull()}: ${e.message}",
+                  "invalid defaults for `${owners.singleOrNull()}`: ${e.message}",
                   e,
                   definition.forClass?.sourceLocation,
               )
@@ -268,11 +268,11 @@ public data class ClassDeclaration(
       private fun merge(ones: Collection<OneDefault>): OneDefault {
         val dependencyCandidates = ones.map(OneDefault::specs).filter { it.isNotEmpty() }.distinct()
         require(dependencyCandidates.size <= 1) {
-          "conflicting dependency defaults: `${dependencyCandidates.joinToString()}`"
+          "conflicting dependency defaults: ${dependencyCandidates.joinToString { "`${it.joinToString(", ", "<", ">")}`" }}"
         }
         val quantifierCandidates = ones.mapNotNull(OneDefault::quantifier).distinct()
         require(quantifierCandidates.size <= 1) {
-          "conflicting quantifier defaults: `${quantifierCandidates.joinToString { it.symbol }}`"
+          "conflicting quantifier defaults: ${quantifierCandidates.joinToString { "`${it.symbol}`" }}"
         }
         return OneDefault(
             dependencyCandidates.singleOrNull().orEmpty(),

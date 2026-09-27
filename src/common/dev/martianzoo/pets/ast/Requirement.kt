@@ -84,7 +84,11 @@ public sealed class Requirement : PetElement() {
         is Or -> requirements.any { it.isMetBy(count) }
         is And -> requirements.all { it.isMetBy(count) }
         is Eval -> error("requirement property evaluation was not expanded: `$this`")
-        is Transform -> throw ExpressionException("unhandled requirement transform: `$this`")
+        is Transform ->
+            throw ExpressionException(
+                "unhandled requirement transform: `$this`",
+                sourceLocation = sourceLocation,
+            )
       }
 
   /**
@@ -346,7 +350,7 @@ public sealed class Requirement : PetElement() {
             locatedNode(
                 transform(parser()) map { (node, transformName) -> Transform(node, transformName) }
             )
-        val eval: Parser<Requirement> = skip(_eval) and Property.parser() map ::Eval
+        val eval: Parser<Requirement> = locatedNode(skip(_eval) and Property.parser() map ::Eval)
         eval or transform or min or max or exact or group(parser())
       }
     }

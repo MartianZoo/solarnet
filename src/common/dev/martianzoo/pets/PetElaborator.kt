@@ -18,6 +18,7 @@ import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
 import dev.martianzoo.pets.ast.Expression
@@ -168,6 +169,7 @@ public class PetElaborator(public val classTable: ClassTable) {
     require(classTable.isIncluded(klass)) { "`$klass` is not included in this game" }
     return effectsByClass.getOrPut(klass) {
       val scopeRecorder = classTable.recordTypeVariableScopes()
+      val evaluator = propertyEvaluator(context = klass.defaultExpression, deferAbstract = true)
       fun directClassEffects(source: Class) =
           source.declaration
               .let { declaration ->
@@ -184,20 +186,17 @@ public class PetElaborator(public val classTable: ClassTable) {
                 try {
                   attachToClassTransformer(source)
                       .transformEffect(source.interpretTypeVariablesIn(effect))
+                      .let(evaluator::transformEffect)
                 } catch (e: PetException) {
                   throw InvalidPetDefinitionException(
-                      "invalid effect declared by `${source.className}`: `$effect`: ${e.message}",
+                      "invalid effect declared by `${source.className}`: `$effect`: ${e.detail}",
                       e,
+                      e.sourceLocation ?: effect.sourceLocation ?: source.className.sourceLocation,
                   )
                 }
               }
 
-      val evaluator =
-          propertyEvaluator(
-              context = klass.defaultExpression,
-              deferAbstract = true,
-          )
-      klass.allSuperclasses().flatMap(::directClassEffects).map(evaluator::transformEffect)
+      klass.allSuperclasses().flatMap(::directClassEffects)
     }
   }
 
@@ -211,7 +210,10 @@ public class PetElaborator(public val classTable: ClassTable) {
             when (node) {
               is Metric.Eval,
               is Requirement.Eval ->
-                  throw PetSyntaxException("`EVAL` is valid only inside a Class effect")
+                  throw PetSyntaxException(
+                      "`EVAL` is valid only in a class effect or a submitted metric; it cannot appear in a submitted instruction",
+                      sourceLocation = node.sourceLocation,
+                  )
               else -> transformChildren(node)
             }
       }
@@ -266,8 +268,9 @@ public class PetElaborator(public val classTable: ClassTable) {
         val contextualProperty = contextualizer.transformProperty(property)
         val receiver =
             contextualProperty.receiver
-                ?: throw InvalidPetDefinitionException(
-                    "evaluated property `${contextualProperty.propertyName}` has no receiver"
+                ?: throw ExpressionException(
+                    "evaluated property `${contextualProperty.propertyName}` has no receiver",
+                    sourceLocation = property.sourceLocation,
                 )
 
         val receiverType = classTable.resolve(receiver)
@@ -275,9 +278,12 @@ public class PetElaborator(public val classTable: ClassTable) {
         val propertyClass = propertyType.rootClass
         val value =
             propertyClass.properties[contextualProperty.propertyName]
-                ?: throw InvalidPetDefinitionException(
+                ?: throw ExpressionException(
                     "class `${propertyClass.className}` has no property " +
-                        "`${contextualProperty.propertyName}`"
+                        "`${contextualProperty.propertyName}`; available properties: " +
+                        propertyClass.properties.keys.joinToString { "`$it`" }.ifEmpty { "none" },
+                    sourceLocation =
+                        property.propertyName.sourceLocation ?: property.sourceLocation,
                 )
         if (deferAbstract && (value.abstract || (propertyType.abstract && THIS in value)))
             return node
@@ -288,9 +294,11 @@ public class PetElaborator(public val classTable: ClassTable) {
                     is MetricValue -> value.value
                     is NumberValue -> contextualProperty
                     else ->
-                        throw InvalidPetDefinitionException(
-                            "property `${contextualProperty.propertyName}` is not a concrete Metric on " +
-                                "`${propertyClass.className}`"
+                        throw ExpressionException(
+                            "property `${contextualProperty.propertyName}` is not a concrete metric on " +
+                                "`${propertyClass.className}`; found `$value`",
+                            sourceLocation =
+                                property.propertyName.sourceLocation ?: property.sourceLocation,
                         )
                   }
               is Requirement.Eval ->
@@ -298,9 +306,11 @@ public class PetElaborator(public val classTable: ClassTable) {
                     AbsentRequirementValue -> Min(scaledEx(COMPONENT, 1))
                     is RequirementValue -> value.value
                     else ->
-                        throw InvalidPetDefinitionException(
-                            "property `${contextualProperty.propertyName}` is not a concrete Requirement on " +
-                                "`${propertyClass.className}`"
+                        throw ExpressionException(
+                            "property `${contextualProperty.propertyName}` is not a concrete requirement on " +
+                                "`${propertyClass.className}`; found `$value`",
+                            sourceLocation =
+                                property.propertyName.sourceLocation ?: property.sourceLocation,
                         )
                   }
               else -> error("unsupported property evaluation syntax: `${node::class.simpleName}`")
@@ -308,9 +318,13 @@ public class PetElaborator(public val classTable: ClassTable) {
 
         val key = propertyType.expressionFull to contextualProperty.propertyName
         if (!expanding.add(key)) {
-          throw InvalidPetDefinitionException(
+          throw ExpressionException(
               "property `${contextualProperty.propertyName}` is recursive on " +
-                  "`${propertyType.expressionFull}`"
+                  "`${propertyType.expressionFull}`; expansion: " +
+                  (expanding.toList() + key).joinToString(" -> ") { (receiver, name) ->
+                    "`$receiver.$name`"
+                  },
+              sourceLocation = property.propertyName.sourceLocation ?: property.sourceLocation,
           )
         }
         val expanded: PetNode =
@@ -422,7 +436,9 @@ public class PetElaborator(public val classTable: ClassTable) {
       object : PetTransformer() {
         override fun transformNode(node: PetNode): PetNode {
           return if (node is ClassName) {
-            classTable.resolve(node.expression).className
+            val resolved = classTable.resolve(node.expression).className
+            if (resolved == node) node
+            else cn(resolved.toString()).also { it.sourceLocation = node.sourceLocation }
           } else {
             transformChildren(node)
           }
@@ -537,6 +553,7 @@ public class PetElaborator(public val classTable: ClassTable) {
             } else {
               transformChildren(node)
             }
+        if (result !== node) result.sourceLocation = node.sourceLocation
         return result
       }
 
@@ -641,7 +658,8 @@ public class PetElaborator(public val classTable: ClassTable) {
     ) {
       throw ExpressionException(
           "`${expression.className}` has $kind dependency defaults; write " +
-              "`${expression.className}<>` to accept them or provide dependency arguments"
+              "`${expression.className}<>` to accept them or provide dependency arguments",
+          sourceLocation = expression.sourceLocation,
       )
     }
   }
@@ -662,7 +680,8 @@ public class PetElaborator(public val classTable: ClassTable) {
             default.dependencies.keys.isEmpty()
     ) {
       throw ExpressionException(
-          "`${expression.className}<>` has no $kind dependency defaults to accept"
+          "`${expression.className}<>` has no $kind dependency defaults to accept",
+          sourceLocation = expression.sourceLocation,
       )
     }
   }
@@ -768,13 +787,19 @@ public class PetElaborator(public val classTable: ClassTable) {
         if (node !is Expression) return transformChildren(node)
         if (leaveItAlone(node)) return node
 
-        val shell = transformChildren(node.copy(refinement = null)) as Expression
+        val shell =
+            transformChildren(
+                node.copy(refinement = null).also { it.sourceLocation = node.sourceLocation }
+            )
+                as Expression
         val defaulted = defaultShell(shell)
         val refinement =
             node.refinement?.let {
               transformRefinementForCandidate(it, defaulted.copy(refinement = null))
             }
-        return defaulted.copy(refinement = refinement)
+        return defaulted.copy(refinement = refinement).also {
+          it.sourceLocation = node.sourceLocation
+        }
       }
     }
   }
@@ -833,6 +858,7 @@ public class PetElaborator(public val classTable: ClassTable) {
             argumentsSpecified = original.argumentsSpecified || newArgs.isNotEmpty(),
         )
         .also {
+          it.sourceLocation = original.sourceLocation
           require(it.className == original.className)
           require(it.refinement == original.refinement)
           require(it.arguments.containsAll(original.arguments))
@@ -898,16 +924,16 @@ public class PetElaborator(public val classTable: ClassTable) {
   }
 
   /**
-   * Retains the explicitly authored Type-variable occurrences when Type resolution rebuilds
-   * [resolved] in compact form. Arguments are matched by dependency key, and an authored variable
-   * argument omitted only because it equals the Class default remains present.
+   * Retains source provenance and explicitly authored Type-variable occurrences when Type
+   * resolution rebuilds [resolved] in compact form. Arguments are matched by dependency key, and an
+   * authored variable argument omitted only because it equals the Class default remains present.
    */
   public fun retainTypeVariableNames(
       resolved: Expression,
       authored: Expression,
   ): Expression {
     if (authored.descendantsOfType<Expression>().none { it.typeVariableName != null }) {
-      return resolved
+      return resolved.copy().also { it.sourceLocation = authored.sourceLocation }
     }
 
     fun retainAtRepresentedDependencies(

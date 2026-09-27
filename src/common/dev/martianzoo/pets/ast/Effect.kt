@@ -151,7 +151,7 @@ public data class Effect(
         public fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
             throw PetSyntaxException(
-                "effect trigger cannot be a Class type: `$expression`",
+                "effect trigger cannot be a class type: `$expression`",
                 sourceLocation = expression.sourceLocation,
             )
           }
@@ -192,7 +192,7 @@ public data class Effect(
         public fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
             throw PetSyntaxException(
-                "effect trigger cannot be a Class type: `-$expression`",
+                "effect trigger cannot be a class type: `-$expression`",
                 sourceLocation = expression.sourceLocation,
             )
           }

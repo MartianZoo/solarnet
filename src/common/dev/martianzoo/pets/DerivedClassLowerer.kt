@@ -51,7 +51,7 @@ public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer(
             bodyNodes.any { it.containsDerivedClass() }
     ) {
       throw PetSyntaxException(
-          "owner-local Classes cannot contain owner-local Classes",
+          "owner-local classes cannot contain owner-local classes",
           sourceLocation = node.sourceLocation,
       )
     }
@@ -59,7 +59,7 @@ public class DerivedClassLowerer(private val owner: ClassName) : PetTransformer(
     // name stays stable rather than depending on source order.
     if (!claimedBases.add(base)) {
       throw PetSyntaxException(
-          "owner `$owner` declares more than one unnamed derived `$base` Class",
+          "owner `$owner` declares more than one unnamed derived `$base` class",
           sourceLocation = node.sourceLocation,
       )
     }

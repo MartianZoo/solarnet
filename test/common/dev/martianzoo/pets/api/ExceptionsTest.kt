@@ -25,7 +25,9 @@ internal class ExceptionsTest {
     val definition =
         shouldThrow<InvalidPetDefinitionException> { loadTypes("CLASS Broken : Missing") }
 
-    listOf(syntax, expression, definition).forEach { it.shouldBeInstanceOf<PetException>() }
+    syntax.shouldBeInstanceOf<PetException>()
+    expression.shouldBeInstanceOf<PetException>()
+    definition.shouldBeInstanceOf<PetException>()
 
     val configuration: Exception =
         shouldThrow<InvalidGameConfigException> { GameConfig("Plant, Plant") }

@@ -86,10 +86,14 @@ internal constructor(
   public fun sneak(changes: InstructionGroup, cause: Cause? = null) {
     changes.instructions.forEach {
       if (it.isAbstract(reader)) {
-        throw NotFullySpecifiedException("instruction is abstract: $it")
+        throw NotFullySpecifiedException("instruction is abstract: `$it`", it.sourceLocation)
       }
       val change =
-          it as? Change ?: throw ExpressionException("sneak accepts only direct changes, not: $it")
+          it as? Change
+              ?: throw ExpressionException(
+                  "sneak accepts only direct changes; found `$it`",
+                  sourceLocation = it.sourceLocation,
+              )
       val count = change.count as ActualScalar
       changer.change(
           count.value,
@@ -117,8 +121,8 @@ internal constructor(
     val current = tasks.getTaskData(task.id)
     if (task.assignee != current.assignee) {
       throw TaskException(
-          "can't restore task ${task.id} assigned to ${task.assignee} over its current " +
-              "${current.assignee} assignment"
+          "cannot restore task ${task.id} assigned to `${task.assignee}` over its current " +
+              "`${current.assignee}` assignment"
       )
     }
     taskQueues.editTask(task)
@@ -171,7 +175,7 @@ internal constructor(
   // TASK COMMANDS
 
   public fun narrowTask(narrowing: InstructionTree, quantifierOmitted: Boolean = false) {
-    val taskId = tasks.selectedTask() ?: throw TaskException("$actor has no selected task")
+    val taskId = tasks.selectedTask() ?: throw TaskException("`$actor` has no selected task")
     narrowSelectedTask(taskId, narrowing, quantifierOmitted)
   }
 
@@ -182,7 +186,7 @@ internal constructor(
   ) {
     val task = tasks.getTaskData(taskId)
     if (actor != task.assignee) {
-      throw TaskException("$actor can't narrow a task assigned to ${task.assignee}")
+      throw TaskException("`$actor` cannot narrow a task assigned to `${task.assignee}`")
     }
 
     val effectiveNarrowing = effectiveNarrowing(narrowing, task.instruction, quantifierOmitted)
@@ -196,7 +200,7 @@ internal constructor(
     if (selectedThen == null) effectiveNarrowing.ensureNarrows(task.instruction, reader)
 
     if (selectedThen != null && task.then != null) {
-      throw TaskException("can't select the first stage of a THEN with an outer continuation")
+      throw TaskException("cannot select the first stage of a `THEN` with an outer continuation")
     }
     val continuation = selectedThen?.continuationAfterFirst() ?: task.then
 
@@ -243,7 +247,7 @@ internal constructor(
   public fun selectTask(taskId: TaskId) {
     val task = tasks.getTaskData(taskId)
     if (actor != task.assignee) {
-      throw TaskException("$actor can't select a task assigned to ${task.assignee}")
+      throw TaskException("`$actor` cannot select a task assigned to `${task.assignee}`")
     }
     selectAndExecuteIfConcrete(tasks, taskId)
   }
@@ -510,12 +514,16 @@ internal constructor(
   private fun uniqueMatchingTask(matches: List<Task>): TaskId {
     val first =
         matches.firstOrNull()
-            ?: throw TaskException("there wasn't exactly one matching task; tasks are:\n$tasks")
+            ?: throw TaskException(
+                "no matching task; available tasks: ${if (tasks.isEmpty()) "none" else "\n$tasks"}"
+            )
     // Origin metadata does not distinguish choices that otherwise present and behave identically.
     if (matches.map { it.copy(id = first.id, cause = first.cause) }.distinct().size == 1) {
       return first.id
     }
-    throw TaskException("there wasn't exactly one matching task; tasks are:\n$tasks")
+    throw TaskException(
+        "${matches.size} matching tasks are ambiguous; select one by its task ID:\n${matches.joinToString("\n")}"
+    )
   }
 
   /** Tries [id], leaving it pending when it needs a choice or is unavailable. */

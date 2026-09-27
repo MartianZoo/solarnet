@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.pets.api.Exceptions.CustomCodeException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
@@ -14,6 +15,7 @@ import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlin.test.Test
 
 /** Passing characterizations of known incorrect behavior. */
@@ -79,9 +81,12 @@ internal class BugsTest : CardTest() {
     admin.phase("Prelude")
     p1.playPrelude(BoardOfDirectors)
 
-    shouldThrow<ExpressionException> {
-      p1.playPrelude(DoubleDown) { doTask("CopyPrelude<$BoardOfDirectors>") }
-    }
+    val error =
+        shouldThrow<CustomCodeException> {
+          p1.playPrelude(DoubleDown) { doTask("CopyPrelude<$BoardOfDirectors>") }
+        }
+    error.cause.shouldBeInstanceOf<ExpressionException>().detail shouldBe
+        "no class named `This` in the current game"
     p1.assertCounts(0 to "$DoubleDown", 4 to "Director<$BoardOfDirectors>", 1 to "PreludeCard")
   }
 

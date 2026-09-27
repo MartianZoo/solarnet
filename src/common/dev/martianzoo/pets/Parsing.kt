@@ -91,7 +91,7 @@ public object Parsing {
       }
     }
     if (hasOwnerLocalClass) {
-      throw PetSyntaxException("owner-local Classes are not allowed inside Class declarations")
+      throw PetSyntaxException("owner-local classes are not allowed inside class declarations")
     }
     return declarations
   }
@@ -114,7 +114,7 @@ public object Parsing {
     val lowerer = DerivedClassLowerer(ClassName.cn("Submitted"))
     val pet = parse(expectedType, elementSource, lowerer)
     if (lowerer.declarations.isNotEmpty()) {
-      throw PetSyntaxException("owner-local Classes are allowed only in declaration files")
+      throw PetSyntaxException("owner-local classes are allowed only in declaration files")
     }
     return pet
   }
@@ -211,7 +211,7 @@ public object Parsing {
           ?.let {
             val marker = it.typeVariableName!!
             throw PetSyntaxException(
-                "Type-variable marker ${marker.authoredSpelling} is not shared in a scope; use it again in that scope or remove the marker",
+                "type variable marker `${marker.authoredSpelling}` is not shared in a scope; use it again in that scope or remove the marker",
                 sourceLocation = it.sourceLocation ?: it.className.sourceLocation,
             )
           }
@@ -220,7 +220,7 @@ public object Parsing {
           .firstOrNull { !it.resolved }
           ?.let {
             throw PetSyntaxException(
-                "Type-variable marker ${it.authoredSpelling} has no supplying occurrence",
+                "type variable marker `${it.authoredSpelling}` has no supplying occurrence",
                 sourceLocation = it.boundClassName.sourceLocation,
             )
           }
@@ -235,7 +235,10 @@ public object Parsing {
           parsed.visitDescendants {
             (it as? Expression)?.let(ScaledExpression::rejectIfDenominationless)
             if (it is Metric.Rank && it.selector == null) {
-              throw PetSyntaxException("`RANK { ... }` requires an enclosing expression refinement")
+              throw PetSyntaxException(
+                  "`RANK { ... }` requires an enclosing expression refinement",
+                  sourceLocation = it.sourceLocation,
+              )
             }
             true
           }
@@ -245,7 +248,10 @@ public object Parsing {
             ScaledExpression.rejectIfDenominationless(expression)
           }
           if (node is Metric.Rank && node.selector == null) {
-            throw PetSyntaxException("`RANK { ... }` requires an enclosing expression refinement")
+            throw PetSyntaxException(
+                "`RANK { ... }` requires an enclosing expression refinement",
+                sourceLocation = node.sourceLocation,
+            )
           }
           node.immediateChildren().forEach(::check)
         }

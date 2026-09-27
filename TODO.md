@@ -131,9 +131,12 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `PlaceNeutralTiles`'s system-only ownership, and SRR's explicit card-Class selection.
 - Carry resource/file names through Pets parsing and generated catalog inputs so diagnostic spans
   identify the original file as well as the submitted text, line, and column.
-- Preserve `PetException.detail` and `sourceLocation` through game-time error wrappers such as
-  `PetElaborator.classEffects`, which currently embed the rendered message in another explanation.
-  Keep this follow-up separate from parsing and catalog-compilation diagnostics.
+- Preserve authored provenance when runtime narrowing and task normalization synthesize new trees.
+  Definition, query, and direct-change diagnostics retain available spans; some generated tasks and
+  failures computed solely from component Types still have no authored location.
+- Improve the specific caret targets and related-source context recorded beside message assertions
+  in `CatalogDiagnosticsTest` and `PostCatalogDiagnosticsTest`; consider rendering span widths as
+  well as their starting positions.
 - Clarify T10-4 when an inherited dependency default is disjoint from a subclass's bound. The
   compiler currently drops that default; `MoholeArea_SpecialTile` relies on this for its WaterArea
   bound versus SpecialTile's LandArea default. Keep this semantic question separate from diagnostic

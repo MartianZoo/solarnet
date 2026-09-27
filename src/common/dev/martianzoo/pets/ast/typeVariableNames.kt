@@ -170,8 +170,8 @@ internal fun resolveTypeVariableNames(
       ?.let { sameBoundClass ->
         val anonymous = sameBoundClass.single { it.typeVariableName!!.name == null }
         throw PetSyntaxException(
-            "Anonymous Type-variable marker ${anonymous.typeVariableName!!.authoredSpelling} " +
-                "cannot share a scope with a named variable of the same bound Class",
+            "anonymous type variable marker `${anonymous.typeVariableName!!.authoredSpelling}` " +
+                "cannot share a scope with a named variable of the same bound class",
             sourceLocation = anonymous.sourceLocation,
         )
       }
@@ -259,13 +259,13 @@ internal fun resolveTypeVariableNames(
                         node.refinement == declaration.refinement
                 if (!node.simple && !representedApplication && !repeatedStructure) {
                   throw PetSyntaxException(
-                      "Type-variable reference $node cannot have arguments or a refinement"
+                      "type variable reference `$node` cannot have arguments or a refinement"
                   )
                 }
                 references[reference.key] = references.getOrElse(reference.key) { 0 } + 1
                 if (!resolving.add(reference.key)) {
                   throw PetSyntaxException(
-                      "Type-variable declarations cannot refer to each other cyclically"
+                      "type variable declarations cannot refer to each other cyclically"
                   )
                 }
                 return try {
@@ -308,7 +308,7 @@ internal fun resolveTypeVariableNames(
       ?.let { key ->
         val marker = declarationsByKey.getValue(key).typeVariableName!!
         throw PetSyntaxException(
-            "Type-variable marker ${marker.authoredSpelling} is not shared; use it again in the same scope or remove the marker",
+            "type variable marker `${marker.authoredSpelling}` is not shared; use it again in the same scope or remove the marker",
             sourceLocation =
                 declarationsByKey.getValue(key).sourceLocation
                     ?: marker.boundClassName.sourceLocation,
@@ -568,7 +568,7 @@ internal fun <P : PetNode> resolveTypeVariableNames(
       when (restoredRoot) {
         is Effect -> restoredRoot.trigger
         is Action -> restoredRoot.cost
-        else -> error("Unexpected local Type-variable scope: $restoredRoot")
+        else -> error("Unexpected local type variable scope: $restoredRoot")
       }
   val restoredDeclarations =
       restoredDeclarationRegion

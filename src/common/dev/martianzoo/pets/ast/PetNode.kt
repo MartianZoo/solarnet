@@ -27,7 +27,20 @@ import kotlin.reflect.KClass
 public sealed class PetNode {
   /** Diagnostic provenance, excluded from structural equality and rendered Pets. */
   public var sourceLocation: SourceLocation? = null
-    internal set
+    internal set(value) {
+      // Shared syntax objects have no individual authored occurrence.
+      when (this) {
+        Instruction.NoOp,
+        Effect.Trigger.WhenGain,
+        Effect.Trigger.WhenRemove,
+        PropertyValue.MetricType,
+        PropertyValue.NumberType,
+        PropertyValue.RequirementType,
+        PropertyValue.OptionalRequirementType,
+        PropertyValue.AbsentRequirementValue -> Unit
+        else -> field = value
+      }
+    }
 
   /**
    * This node's primary API kind: the stable abstraction clients should rely on, rather than its
