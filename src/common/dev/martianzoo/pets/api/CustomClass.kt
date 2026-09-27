@@ -1,6 +1,7 @@
 package dev.martianzoo.pets.api
 
 import dev.martianzoo.pets.HasClassName
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.InstructionTree
@@ -9,7 +10,8 @@ import dev.martianzoo.pets.types.Type
 /**
  * Implementation for a "custom class" (of the form `CLASS Foo : Custom`). By default its Pets class
  * name is the implementation's Kotlin simple name. Instruction translations may return one
- * instruction, a group of independent instructions, or a no-op.
+ * instruction, a group of independent instructions, or a no-op. An unimplemented translation arity
+ * rejects the request with [ExpressionException]; a metric-only implementation need not translate.
  */
 public abstract class CustomClass(name: String? = null) : HasClassName {
   public constructor(className: ClassName) : this(className.toString())
@@ -26,22 +28,21 @@ public abstract class CustomClass(name: String? = null) : HasClassName {
    * For a type with 0 dependencies: translates an instruction to gain this type into another
    * instruction tree that will be resolved and executed instead.
    */
-  public open fun translate(game: GameReader): InstructionTree =
-      throw NotImplementedError("`$className` does not implement translation with 0 dependencies")
+  public open fun translate(game: GameReader): InstructionTree = noInstructionBehavior(0)
 
   /**
    * For a type with 1 dependency: translates an instruction to gain this type into another
    * instruction tree that will be resolved and executed instead.
    */
   public open fun translate(game: GameReader, type0: Type): InstructionTree =
-      throw NotImplementedError("`$className` does not implement translation with 1 dependency")
+      noInstructionBehavior(1)
 
   /**
    * For a type with 2 dependencies: translates an instruction to gain this type into another
    * instruction tree that will be resolved and executed instead.
    */
   public open fun translate(game: GameReader, type0: Type, type1: Type): InstructionTree =
-      throw NotImplementedError("`$className` does not implement translation with 2 dependencies")
+      noInstructionBehavior(2)
 
   /**
    * For a type with 3 dependencies: translates an instruction to gain this type into another
@@ -52,8 +53,7 @@ public abstract class CustomClass(name: String? = null) : HasClassName {
       type0: Type,
       type1: Type,
       type2: Type,
-  ): InstructionTree =
-      throw NotImplementedError("`$className` does not implement translation with 3 dependencies")
+  ): InstructionTree = noInstructionBehavior(3)
 
   /**
    * For a type with 4 dependencies: translates an instruction to gain this type into another
@@ -65,6 +65,11 @@ public abstract class CustomClass(name: String? = null) : HasClassName {
       type1: Type,
       type2: Type,
       type3: Type,
-  ): InstructionTree =
-      throw NotImplementedError("`$className` does not implement translation with 4 dependencies")
+  ): InstructionTree = noInstructionBehavior(4)
+
+  private fun noInstructionBehavior(dependencies: Int): Nothing =
+      throw ExpressionException(
+          "custom class `$className` has no instruction implementation for $dependencies " +
+              if (dependencies == 1) "dependency" else "dependencies"
+      )
 }

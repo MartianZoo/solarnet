@@ -114,7 +114,7 @@ internal class TfmActionCommandTest {
     val output = repl.command("tfm_action ElectroCatapult 1, 1 Energy")
 
     assertTrue(
-        output.single().contains("there wasn't exactly one matching task"),
+        output.single().contains("no matching task"),
         output.joinToString("\n"),
     )
     assertEquals(0, repl.agent.count("ActionUsedMarker<ElectroCatapult>"))

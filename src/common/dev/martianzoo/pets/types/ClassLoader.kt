@@ -114,7 +114,7 @@ private constructor(
             (expression.arguments.size > 1 || expression.arguments.any { !it.simple })
     ) {
       throw ExpressionException(
-          "a Class literal accepts one bare class name; found `$expression`",
+          "a class literal accepts one bare class name; found `$expression`",
           sourceLocation =
               expression.arguments.firstOrNull { !it.simple }?.sourceLocation
                   ?: expression.arguments.getOrNull(1)?.sourceLocation
@@ -141,7 +141,12 @@ private constructor(
       fun containsRefinement(candidate: Expression): Boolean =
           candidate.refinement != null || candidate.arguments.any(::containsRefinement)
       if (containsRefinement(refinement.excluded)) {
-        throw ExpressionException("`NOT` operand cannot contain a refinement: `$expression`")
+        throw ExpressionException(
+            "`NOT` operand cannot contain a refinement: `$expression`",
+            sourceLocation =
+                refinement.excluded.refinement?.sourceLocation
+                    ?: refinement.excluded.sourceLocation,
+        )
       }
     }
     // Avoiding computeIfAbsent due to CME
@@ -199,17 +204,19 @@ private constructor(
   public fun loadEverything(): ClassTable {
     knownClassNames.forEach(::loadSingle)
     val completed = freeze()
-    knownClassNames.forEach { name ->
-      val declaration = knownDeclaration(name)
-      inDefinition(declaration) {
-        val klass = getClass(name)
+    validateBaseTypesAndDefaults(knownClassNames.mapTo(linkedSetOf(), ::getClass))
+    validateNoOkSubscriptions()
+    validateTransformKinds()
+    return completed
+  }
+
+  private fun validateBaseTypesAndDefaults(classes: Set<Class>) {
+    classes.forEach { klass ->
+      inDefinition(klass.declaration) {
         klass.baseType
         klass.defaults
       }
     }
-    validateNoOkSubscriptions()
-    validateTransformKinds()
-    return completed
   }
 
   /** The classes this load is responsible for checking: a master's own, or a premise's delta. */
@@ -292,9 +299,9 @@ private constructor(
         unavailableClasses[next]?.let { availabilityModules ->
           val source = requestedBy.getValue(next)
           val path =
-              source?.let { "`$it` requires locked Class `$next`" } ?: "Class `$next` is locked"
+              source?.let { "`$it` requires locked class `$next`" } ?: "class `$next` is locked"
           val message =
-              "broken game premise: $path; required bundle modules: `$availabilityModules`"
+              "broken game premise: $path; required bundle modules: ${availabilityModules.joinToString { "`$it`" }}"
           if (masterSource == null) throw InvalidPetDefinitionException(message)
           throw InvalidGameConfigException(message)
         }
@@ -378,9 +385,9 @@ private constructor(
         if (name != null && name != THIS && name !in knownClassNames) {
           throw InvalidPetDefinitionException(
               if (name.sourceLocation == null)
-                  "`${declaration.className}` requires undeclared Class `$name`"
+                  "`${declaration.className}` requires undeclared class `$name`"
               else
-                  "`${declaration.className}` names undeclared Class `$name`; declare it or correct the name",
+                  "`${declaration.className}` names undeclared class `$name`; declare it or correct the name",
               sourceLocation = name.sourceLocation,
           )
         }
@@ -502,7 +509,7 @@ private constructor(
   // All classes are created here (aside from Component and Class, at top).
   private fun construct(source: ClassDeclaration, includeRelated: Boolean = true): Class {
     check(masterSource == null || source.className in premiseDeclarations) {
-      "a game table may construct only premise Classes"
+      "a game table may construct only premise classes"
     }
     require(!frozen) { "class table is already frozen" }
     val decl = validateCustomImplementation(source)
@@ -576,7 +583,7 @@ private constructor(
     }
     if (problems.isNotEmpty()) {
       throw InvalidPetDefinitionException(
-          "`${klass.className}` cannot inherit Pets behavior as a Custom class: " +
+          "`${klass.className}` cannot inherit Pets behavior as a custom class: " +
               problems.joinToString()
       )
     }
@@ -606,9 +613,11 @@ private constructor(
     if (masterSource != null) {
       premiseDeclarations.values.forEach { declaration ->
         if (declaration.className !in loadedClasses) {
-          validateClassNames(declaration)
-          validateNoEffectCreatesClass(declaration)
-          construct(declaration, includeRelated = false)
+          inDefinition(declaration) {
+            validateClassNames(declaration)
+            validateNoEffectCreatesClass(declaration)
+            construct(declaration, includeRelated = false)
+          }
         }
       }
       val premiseClasses =
@@ -625,7 +634,7 @@ private constructor(
       }
       frozenClasses = includedClassNames.mapTo(linkedSetOf(), ::getClass)
       frozen = true
-      premiseClasses.forEach { it.baseType }
+      validateBaseTypesAndDefaults(premiseClasses)
       return this
     }
     knownClassNames.forEach { name ->
@@ -700,7 +709,7 @@ private constructor(
     } else {
       if (catalog.customClasses.any { it.className == decl.className }) {
         throw InvalidPetDefinitionException(
-            "non-custom Class `${decl.className}` has a custom implementation"
+            "non-custom class `${decl.className}` has a custom implementation"
         )
       }
     }

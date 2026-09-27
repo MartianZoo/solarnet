@@ -78,7 +78,11 @@ public sealed class Metric : PetElement() {
             )
         is Or -> countUnion(this)
         is Eval -> error("metric property evaluation was not expanded: `$this`")
-        is Transform -> throw ExpressionException("unhandled metric transform: `$this`")
+        is Transform ->
+            throw ExpressionException(
+                "unhandled metric transform: `$this`",
+                sourceLocation = sourceLocation,
+            )
       }
 
   /**
@@ -336,7 +340,7 @@ public sealed class Metric : PetElement() {
                 transform(parser()) map { (node, transformName) -> Transform(node, transformName) }
             )
 
-        val eval: Parser<Metric> = skip(_eval) and Property.parser() map ::Eval
+        val eval: Parser<Metric> = locatedNode(skip(_eval) and Property.parser() map ::Eval)
 
         val nonconstant: Parser<Metric> =
             rank or eval or transform or Property.parser() or count or group(parser())
@@ -378,7 +382,7 @@ public sealed class Metric : PetElement() {
               { metrics ->
                 Rank(null, metrics)
               }
-      return explicitRank or implicitRank
+      return locatedNode(explicitRank or implicitRank)
     }
   }
 }

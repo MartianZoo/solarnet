@@ -113,12 +113,12 @@ public sealed class FromExpression : PetNode() {
         val proposedGain =
             correspondingExpression(toExpression, proposedTo, unchanged.expression)
                 ?: throw NarrowingException(
-                    "Can't preserve compact argument ${unchanged.expression}"
+                    "cannot preserve compact argument `${unchanged.expression}`"
                 )
         val proposedRemoval =
             correspondingExpression(fromExpression, proposedFrom, unchanged.expression)
                 ?: throw NarrowingException(
-                    "Can't preserve compact argument ${unchanged.expression}"
+                    "cannot preserve compact argument `${unchanged.expression}`"
                 )
         proposedGain.ensureNarrows(proposedRemoval, info)
         proposedRemoval.ensureNarrows(proposedGain, info)

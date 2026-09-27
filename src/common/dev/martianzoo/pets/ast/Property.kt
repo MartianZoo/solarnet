@@ -38,6 +38,6 @@ public data class Property(
               Property(name, receiver)
             }
 
-    val parser: Parser<Property> = explicit or (PropertyName.parser() map ::Property)
+    val parser: Parser<Property> = locatedNode(explicit or (PropertyName.parser() map ::Property))
   }
 }

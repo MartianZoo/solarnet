@@ -87,7 +87,8 @@ it by reverse navigation.
 ## Identity and integrity
 
 Catalog compilation forces base types and all three default sets, so invalid dependency arguments
-and conflicting defaults fail before a master table is returned. `ClassDeclaration.indexByName`
+and conflicting defaults fail before a master table is returned. Premise-added declarations receive
+the same checks when their combined table is frozen. `ClassDeclaration.indexByName`
 merges identical contributions and rejects conflicting declarations; both `TfmCatalog` and the
 small-catalog test helper use it. Game-view component multiplicity and runtime invariant-limit
 checks remain separate.

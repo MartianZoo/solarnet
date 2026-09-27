@@ -8,9 +8,12 @@ import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.GameplayException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.ACTOR
@@ -111,7 +114,10 @@ internal constructor(
       controller: Actor,
   ) {
     if (resolved !is Then && resolved.isAbstract(reader)) {
-      throw NotFullySpecifiedException("instruction is abstract: $resolved")
+      throw NotFullySpecifiedException(
+          "instruction is abstract: `$resolved`",
+          resolved.sourceLocation,
+      )
     }
     when (resolved) {
       is Change -> executeChange(resolved, cause, deferred, actor, controller)
@@ -214,7 +220,11 @@ internal constructor(
       is Per -> resolve(unresolved.inner * reader.count(unresolved.metric), worldGainNarrowing)
       is Gated -> {
         if (!reader.has(unresolved.gate)) {
-          throw RequirementException("requirement not met: `${unresolved.gate}` / null")
+          throw RequirementException(
+              "requirement `${unresolved.gate}` is not met for `${unresolved.inner}`",
+              unresolved.gate.sourceLocation
+                  ?: unresolved.gate.descendantsOfType<Expression>().firstOrNull()?.sourceLocation,
+          )
         }
         resolveTree(unresolved.inner, worldGainNarrowing)
       }
@@ -239,7 +249,11 @@ internal constructor(
                 unresolved.instructions.drop(1)
         )
       }
-      is Transform -> throw ExpressionException("unhandled instruction transform: $unresolved")
+      is Transform ->
+          throw ExpressionException(
+              "unhandled instruction transform: `$unresolved`",
+              sourceLocation = unresolved.sourceLocation,
+          )
     }
   }
 
@@ -253,10 +267,16 @@ internal constructor(
   private fun canonicalActorExpression(instruction: By): Expression {
     val type = reader.resolve(instruction.actor)
     if (!type.rootClass.isSubtypeOf(classTable.getClass(ACTOR))) {
-      throw ExpressionException("BY requires an Actor, not ${instruction.actor}")
+      throw ExpressionException(
+          "`BY` requires an `Actor`; `${instruction.actor}` is not an `Actor`",
+          sourceLocation = instruction.actor.sourceLocation,
+      )
     }
     if (type.abstract) {
-      throw ExpressionException("BY requires one concrete Actor, not ${instruction.actor}")
+      throw ExpressionException(
+          "`BY` requires one concrete `Actor`; `${instruction.actor}` is abstract",
+          sourceLocation = instruction.actor.sourceLocation,
+      )
     }
     return type.expression
   }
@@ -264,7 +284,10 @@ internal constructor(
   private fun actorFor(instruction: By): Actor {
     val type = reader.resolve(instruction.actor)
     if (reader.countComponent(type) != 1) {
-      throw ExpressionException("BY requires a participating Actor, not ${type.expression}")
+      throw ExpressionException(
+          "`BY` requires a participating `Actor`; `${type.expression}` has no component in this world",
+          sourceLocation = instruction.actor.sourceLocation,
+      )
     }
     if (type.className == ADMIN.className) return ADMIN
     if (type.rootClass.isSubtypeOf(classTable.getClass(PLAYER))) {
@@ -312,6 +335,12 @@ internal constructor(
     }
 
     val (g, r) = narrowChangeTypes(change, count, intens, worldGainNarrowing) ?: return change
+    if (r?.rootClass?.declaration?.custom == true) {
+      throw ExpressionException(
+          "custom class `${r.className}` has no components to remove; custom instructions can only be gains",
+          sourceLocation = change.removing?.sourceLocation,
+      )
+    }
     fun retainedExpression(resolved: Type?, authored: Expression?): Expression? =
         resolved?.expression?.let { expression ->
           authored?.let { elaborator.retainTypeVariableNames(expression, it) } ?: expression
@@ -320,18 +349,24 @@ internal constructor(
       if (intens != MANDATORY) return NoOp
       throw DeadEndException(
           "mandatory change uses uninhabited type: " +
-              listOfNotNull(g, r).filterNot(classTable::isInhabited).joinToString()
+              listOfNotNull(g, r).filterNot(classTable::isInhabited).joinToString {
+                "`${it.expression}`"
+              },
+          sourceLocation = change.sourceLocation,
       )
     }
     val atomized = classTable.findClass(ATOMIZED)
     if (r != null && count > 1 && atomized != null && g?.rootClass?.isSubtypeOf(atomized) == true) {
       throw ExpressionException(
-          "Can't transmute $count components into atomized type ${g.expression}; " +
+          "cannot transmute $count components into atomized type `${g.expression}`; " +
               "split it into one-component transmutations"
       )
     }
     if (g?.className == DIE && intens == MANDATORY) {
-      throw DeadEndException("a Die instruction was reached")
+      throw DeadEndException(
+          "a `Die` instruction was reached",
+          sourceLocation = change.sourceLocation,
+      )
     }
 
     if (listOfNotNull(g, r).any { it.abstract }) {
@@ -339,7 +374,7 @@ internal constructor(
       val required = if (intens == MANDATORY) count else 1
 
       fun unavailable(reason: String): InstructionTree {
-        if (intens == MANDATORY) throw LimitsException("Can't ${describe(g, r, count)}: $reason")
+        if (intens == MANDATORY) throw LimitsException("cannot ${describe(g, r, count)}: $reason")
         return NoOp
       }
 
@@ -359,7 +394,7 @@ internal constructor(
             } else {
               limiter.hasExecutableConcreteRemoval(r, required, reader)
             }
-        if (!canRemove) return unavailable("max possible is 0")
+        if (!canRemove) return unavailable("maximum available is 0")
       }
       if (change is Transmute && change.fromEx is Compact) return change
       // Still abstract, don't check limits yet
@@ -372,7 +407,11 @@ internal constructor(
     }
 
     if (g == r && intens != MANDATORY) return NoOp
-    if (g == r) throw ExpressionException("Can't both gain and remove ${g?.expression}")
+    if (g == r)
+        throw ExpressionException(
+            "cannot both gain and remove `${g?.expression}`",
+            sourceLocation = change.sourceLocation,
+        )
 
     translateCustomChange(change, g, r, worldGainNarrowing)?.let {
       return it
@@ -420,19 +459,28 @@ internal constructor(
   ): InstructionTree? {
     if (gainingType?.rootClass?.declaration?.custom != true) return null
     if (removingType != null) {
-      throw ExpressionException("custom class instructions can only be pure gains: $original")
+      throw ExpressionException("custom class instructions can only be pure gains: `$original`")
     }
     val gaining = gainingType.toComponent()
-    val translated = customClasses.translateInstruction(gaining, reader)
+    val translated =
+        try {
+          customClasses.translateInstruction(gaining, reader)
+        } catch (e: ExpressionException) {
+          throw ExpressionException(
+              e.detail,
+              e,
+              e.sourceLocation ?: original.gaining?.sourceLocation,
+          )
+        }
     return resolveTree(translated, worldGainNarrowing)
   }
 
   /** Names one change the way its error messages do: `gain 3 Plant<Player1>`. */
   private fun describe(gaining: Type?, removing: Type?, count: Int): String =
       when {
-        gaining == null -> "remove $count ${removing!!.expression}"
-        removing == null -> "gain $count ${gaining.expression}"
-        else -> "transmute $count ${removing.expression} into ${gaining.expression}"
+        gaining == null -> "remove $count `${removing!!.expression}`"
+        removing == null -> "gain $count `${gaining.expression}`"
+        else -> "transmute $count `${removing.expression}` into `${gaining.expression}`"
       }
 
   private fun limitChange(
@@ -450,7 +498,8 @@ internal constructor(
 
     if (quantifier == MANDATORY && adjusted != count) {
       throw LimitsException(
-          "Can't ${describe(gainingType, removingType, count)}: max possible is $adjusted"
+          "cannot ${describe(gainingType, removingType, count)}: maximum available is $adjusted",
+          gainingExpression?.sourceLocation ?: removingExpression?.sourceLocation,
       )
     }
 
@@ -493,14 +542,23 @@ internal constructor(
             owner?.let(Transforming::replaceOwnerWith),
         )
     val bound = bind.transformInstructionTree(each.bodyFor(selected))
-    val evaluated = elaborator.evaluateProperties(bound, context = selected, owner = owner)
+    val evaluated =
+        try {
+          elaborator.evaluateProperties(bound, context = selected, owner = owner)
+        } catch (e: PetException) {
+          throw InvalidPetDefinitionException(
+              "invalid `EACH` body for `$selected`: ${e.detail}",
+              e,
+              e.sourceLocation ?: each.body.sourceLocation,
+          )
+        }
     return resolveTree(evaluated, worldGainNarrowing)
   }
 
   /** Resolves each arm against the same world, discarding the unavailable ones. */
   private fun resolveOr(unresolved: Or, worldGainNarrowing: Boolean): InstructionTree {
     val surviving = mutableListOf<InstructionTree>()
-    val failures = mutableListOf<Exception>()
+    val failures = mutableListOf<GameplayException>()
     unresolved.instructions.forEach {
       try {
         surviving += resolveTree(it, worldGainNarrowing)
@@ -513,16 +571,19 @@ internal constructor(
     if (surviving.any()) return Or.createTree(surviving)
 
     // No arm survived, so report the strongest applicable failure rather than becoming `Ok`.
-    val why = failures.joinToString { it.message.orEmpty() }
-    if (failures.any { it is DeadEndException }) throw DeadEndException("no choice remains: $why")
+    val why = failures.joinToString { it.detail }
+    val location = unresolved.sourceLocation ?: failures.firstOrNull()?.sourceLocation
+    if (failures.any { it is DeadEndException })
+        throw DeadEndException("no choice remains: $why", sourceLocation = location)
     val unmet = failures.filterIsInstance<RequirementException>()
     if (unmet.size == failures.size) {
       require(unmet.isNotEmpty())
       throw RequirementException(
-          "requirements not met in every choice: " + unmet.joinToString { it.message.orEmpty() }
+          "requirements not met in every choice: " + unmet.joinToString { it.detail },
+          location,
       )
     }
-    throw NotNowException("all options impossible: $why")
+    throw NotNowException("no alternative is possible: $why", sourceLocation = location)
   }
 
   // Still spending 25% of solo game time in this method

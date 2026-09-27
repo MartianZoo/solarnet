@@ -101,7 +101,7 @@ internal object ClassParsing : PetTokenizer() {
     private fun rejectRefinedDefault(expression: Expression) {
       if (expression.refinement != null)
           throw PetSyntaxException(
-              "DEFAULT must name an unrefined class expression; found `$expression`",
+              "`DEFAULT` must name an unrefined class expression; found `$expression`",
               sourceLocation = expression.sourceLocation,
           )
     }

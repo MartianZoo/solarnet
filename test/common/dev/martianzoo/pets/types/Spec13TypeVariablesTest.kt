@@ -619,8 +619,8 @@ internal class Spec13TypeVariablesTest {
   @Test
   internal fun `T13-6 anonymous and named variables of one bound Class cannot mix`() {
     val message =
-        "Anonymous Type-variable marker @StandardResource cannot share a scope with a named " +
-            "variable of the same bound Class"
+        "anonymous type variable marker `@StandardResource` cannot share a scope with a named " +
+            "variable of the same bound class"
     shouldThrow<PetSyntaxException> {
           effect(
               "(@StandardResource OR Other@StandardResource): " +

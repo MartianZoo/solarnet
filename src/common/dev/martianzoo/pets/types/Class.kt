@@ -77,9 +77,9 @@ internal constructor(
     if (directSuperclasses.any { !it.abstract }) {
       val concrete = directSuperclasses.filterNot { it.abstract }
       throw InvalidPetDefinitionException(
-          "`$className` cannot extend concrete Classes: " +
-              concrete.joinToString { "${it.className}" } +
-              "; declare the superclass ABSTRACT if it is intended to be extended",
+          "`$className` cannot extend concrete classes: " +
+              concrete.joinToString { "`${it.className}`" } +
+              "; declare the superclass `ABSTRACT` if it is intended to be extended",
           sourceLocation =
               declaration.supertypes
                   .firstOrNull { it.className == concrete.first().className }
@@ -111,8 +111,8 @@ internal constructor(
       if (abstractProperties.isNotEmpty()) {
         throw InvalidPetDefinitionException(
             "`$className` is concrete but has abstract properties: " +
-                abstractProperties.joinToString() +
-                "; supply values or declare `$className` ABSTRACT",
+                abstractProperties.joinToString { "`$it`" } +
+                "; supply values or declare `$className` `ABSTRACT`",
             sourceLocation =
                 declaration.properties.keys.firstOrNull { it in abstractProperties }?.sourceLocation
                     ?: className.sourceLocation,
@@ -750,7 +750,7 @@ internal constructor(
             }
     if (ineligibleDeclaration != null) {
       throw InvalidPetDefinitionException(
-          "`$ineligibleDeclaration` cannot declare a Class-header Type variable; its bound must be abstract",
+          "`$ineligibleDeclaration` cannot declare a class-header type variable; its bound must be abstract",
           sourceLocation =
               ineligibleDeclaration.sourceLocation
                   ?: ineligibleDeclaration.className.sourceLocation,
@@ -758,7 +758,7 @@ internal constructor(
     }
     if (markedVariables.map { it.first }.distinct().size != markedVariables.size) {
       throw InvalidPetDefinitionException(
-          "`$className` declares the same header Type-variable marker twice",
+          "`$className` declares the same header type variable marker twice",
           sourceLocation = className.sourceLocation,
       )
     }

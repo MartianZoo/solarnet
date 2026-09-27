@@ -150,7 +150,7 @@ internal constructor(
       when (val value = rootClass.properties.getValue(PropertyName(propertyName))) {
         AbsentRequirementValue -> null
         is RequirementValue -> value.value
-        else -> error("property `$propertyName` is not a concrete Requirement value: `$value`")
+        else -> error("property `$propertyName` is not a concrete requirement value: `$value`")
       }
 
   /**

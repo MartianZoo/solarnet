@@ -123,7 +123,7 @@ internal class AgentImpl(
           allowedPendingTasks = allTasks.ids()
           allTasks.selectedTask()?.let {
             throw TaskException(
-                "can't start a manual operation while task $it holds the select-lock"
+                "cannot start a manual operation while task $it holds the select-lock"
             )
           }
           addInitialTasks(parseInstructionGroup(initialInstructions))

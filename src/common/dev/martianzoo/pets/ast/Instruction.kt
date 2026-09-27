@@ -91,7 +91,8 @@ public sealed class Instruction : InstructionTree() {
   final override operator fun times(factor: Int): Instruction {
     if (factor == 0) return NoOp
     require(factor > 0)
-    return scale(factor)
+    if (factor == 1) return this
+    return scale(factor).also { it.sourceLocation = sourceLocation }
   }
 
   override val kind: kotlin.reflect.KClass<out PetNode> = Instruction::class
@@ -940,7 +941,7 @@ public sealed class Instruction : InstructionTree() {
             }
             if (usedOutside(then)) {
               throw PetSyntaxException(
-                  "Type-variable ${declaration.typeVariableName!!.authoredSpelling} cannot be used outside " +
+                  "type variable `${declaration.typeVariableName!!.authoredSpelling}` cannot be used outside " +
                       "its transmutation"
               )
             }
@@ -1139,7 +1140,7 @@ public sealed class Instruction : InstructionTree() {
                   Transmute(fro, scalar ?: ActualScalar(1), int)
                 }
 
-        val perable: Parser<Instruction> = transmute or gain or remove
+        val perable: Parser<Instruction> = locatedNode(transmute or gain or remove)
 
         val maybePer: Parser<Instruction> =
             perable and
@@ -1180,7 +1181,7 @@ public sealed class Instruction : InstructionTree() {
                   it.firstOrNull { !seen.add(it) }
                       ?.let { duplicate ->
                         throw PetSyntaxException(
-                            "duplicate OR alternative `$duplicate`; remove the repeated alternative",
+                            "duplicate `OR` alternative `$duplicate`; remove the repeated alternative",
                             sourceLocation =
                                 duplicate.sourceLocation
                                     ?: duplicate
@@ -1199,7 +1200,7 @@ public sealed class Instruction : InstructionTree() {
                   Gated.createTree(gate, ins)
                 }
 
-        val then = separatedTerms(gated, _then) map Then::createTree
+        val then = separatedTerms(locatedNode(gated), _then) map Then::createTree
 
         commaSeparated(then) map { InstructionGroup.createTree(it) }
       }

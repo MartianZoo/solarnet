@@ -55,7 +55,11 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
       is Change if tree.gaining != DIE.expression -> tree
       is Change ->
           if (tree.quantifier == OPTIONAL || tree.quantifier == AMAP) NoOp
-          else throw DeadEndException("a Die instruction was reached")
+          else
+              throw DeadEndException(
+                  "a `Die` instruction was reached",
+                  sourceLocation = tree.sourceLocation,
+              )
       is By -> {
         val inner = normalizeForTask(tree.inner)
         when (inner) {
@@ -79,7 +83,9 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
           tree.copy(
               inner =
                   inner as? Instruction
-                      ?: throw TaskException("PER normalized to independent instructions: $inner")
+                      ?: throw TaskException(
+                          "`PER` normalized to independent instructions: `$inner`"
+                      )
           )
         }
       }
@@ -92,7 +98,7 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
                 null
               }
             }
-        if (liveOptions.isEmpty()) throw DeadEndException("every choice reaches Die")
+        if (liveOptions.isEmpty()) throw DeadEndException("every choice reaches `Die`")
         Or.createTree(liveOptions)
       }
       is Then -> {
@@ -104,7 +110,11 @@ private fun normalizeForTask(tree: InstructionTree): InstructionTree =
         }
       }
       is NoOp -> NoOp
-      is Transform -> throw ExpressionException("unhandled transform in task: $tree")
+      is Transform ->
+          throw ExpressionException(
+              "unhandled instruction transform: `$tree`",
+              sourceLocation = tree.sourceLocation,
+          )
     }
 
 /**
@@ -119,7 +129,7 @@ internal fun normalizeTask(
   val instruction =
       normalizeForTask(task.instruction) as? Instruction
           ?: throw TaskException(
-              "task input must be split into individual instructions: ${task.instruction}"
+              "task input must be split into individual instructions: `${task.instruction}`"
           )
   val then = task.then?.let(::normalizeForTask)?.let(InstructionGroup::of)?.takeIf { !it.isEmpty() }
   val normalized = task.copy(instruction = instruction, then = then)

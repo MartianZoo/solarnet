@@ -296,7 +296,7 @@ private constructor(
         }
       }
       throw ExpressionException(
-          "argument `$arg` does not match an available dependency; declared bounds: `$this`; " +
+          "argument `$arg` does not match an available dependency; declared bounds: ${deps.joinToString { "`$it`" }.ifEmpty { "none" }}; " +
               "already supplied: ${alreadyMatched.entries.joinToString { "`${it.key.key} <- ${it.value}`" }.ifEmpty { "none" }}",
           sourceLocation = arg.sourceLocation ?: arg.className.sourceLocation,
       )

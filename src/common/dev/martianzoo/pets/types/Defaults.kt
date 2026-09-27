@@ -63,14 +63,15 @@ public data class Defaults(
     }
 
     /** Reports the class rather than failing anonymously when supertypes disagree. */
-    private fun <T> onlyOne(klass: Class, kind: String): (List<T>) -> T = { candidates ->
-      candidates.singleOrNull()
-          ?: throw InvalidPetDefinitionException(
-              "`${klass.className}` inherits conflicting $kind quantifier defaults: " +
-                  candidates.joinToString(),
-              sourceLocation = klass.className.sourceLocation,
-          )
-    }
+    private fun onlyOne(klass: Class, kind: String): (List<Quantifier>) -> Quantifier =
+        { candidates ->
+          candidates.singleOrNull()
+              ?: throw InvalidPetDefinitionException(
+                  "`${klass.className}` inherits conflicting $kind quantifier defaults: " +
+                      candidates.joinToString { "`${it.symbol}`" },
+                  sourceLocation = klass.className.sourceLocation,
+              )
+        }
 
     private fun <T> inheritDefault(
         klass: Class,

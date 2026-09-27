@@ -137,7 +137,7 @@ internal class ScriptCompletionEngineTest {
 
     val output = repl.command("task Ok")
 
-    assertTrue(output.single().contains("there wasn't exactly one matching task"))
+    assertTrue(output.single().contains("2 matching tasks are ambiguous"))
     assertEquals(2, repl.game.tasks.ids().size)
   }
 

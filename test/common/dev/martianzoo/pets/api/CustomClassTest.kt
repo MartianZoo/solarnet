@@ -1,6 +1,7 @@
 package dev.martianzoo.pets.api
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
@@ -27,13 +28,13 @@ internal class CustomClassTest {
     val customClass = object : CustomClass("Unimplemented") {}
     val type = loadTypes("CLASS Argument").resolve(parse("Argument"))
 
-    shouldThrow<NotImplementedError> { customClass.translate(UnusedGameReader) }
-    shouldThrow<NotImplementedError> { customClass.translate(UnusedGameReader, type) }
-    shouldThrow<NotImplementedError> { customClass.translate(UnusedGameReader, type, type) }
-    shouldThrow<NotImplementedError> {
+    shouldThrow<ExpressionException> { customClass.translate(UnusedGameReader) }
+    shouldThrow<ExpressionException> { customClass.translate(UnusedGameReader, type) }
+    shouldThrow<ExpressionException> { customClass.translate(UnusedGameReader, type, type) }
+    shouldThrow<ExpressionException> {
       customClass.translate(UnusedGameReader, type, type, type)
     }
-    shouldThrow<NotImplementedError> {
+    shouldThrow<ExpressionException> {
       customClass.translate(UnusedGameReader, type, type, type, type)
     }
   }
