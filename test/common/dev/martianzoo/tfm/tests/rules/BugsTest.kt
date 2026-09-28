@@ -30,7 +30,6 @@ internal class BugsTest : CardTest() {
 
     p1.playProject(FakeBannedDelegate, 0) {
       doTask("FakeBannedDelegateRemoval<Player1, MarsFirst, Player2>")
-      doTask("-PartyDelegate<MarsFirst, Player2>")
     }
 
     admin.count("Dominant<MarsFirst>") shouldBe 1
@@ -52,7 +51,6 @@ internal class BugsTest : CardTest() {
 
     p1.playProject(FakeBannedDelegate, 0) {
       doTask("FakeBannedDelegateRemoval<Player1, MarsFirst, Player2>")
-      doTask("-PartyDelegate<MarsFirst, Player2>")
     }
 
     admin.count("Dominant<MarsFirst>") shouldBe 1
@@ -73,7 +71,6 @@ internal class BugsTest : CardTest() {
 
     p1.playProject(FakeBannedDelegate, 0) {
       doTask("FakeBannedDelegateRemoval<Player1, Scientists, Player2>")
-      doTask("-PartyDelegate<Scientists, Player2>")
     }
 
     p1.count("PartyLeader<Scientists>") shouldBe 0

@@ -160,6 +160,14 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- Preserve shared Type-variable constraints when partially narrowing a whole `THEN` instruction.
+  An unmarked proposal can discard an earlier refinement on a later choice; `engine/BugsTest`
+  characterizes this independently of Flooding.
+- Correct defaulted Type-variable references: `pets/BugsTest` shows bare references incorrectly
+  inheriting their supplier's `<>`.
+- Restrict Flooding's victim to an owner adjacent to the ocean actually placed by the card.
+  `cards/FloodingBugsTest` characterizes invalid victims through both direct and staged choices.
+
 - Revisit aligning multiplatform JVM tests with the repository JUnit BOM. The newer runner
   skips the inherited setup annotation on `ActiveVacuumCoreTest.commonSetup`; retain the current
   runner until lifecycle compatibility is addressed and the full replay suite passes.
