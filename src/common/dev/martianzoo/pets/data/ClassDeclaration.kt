@@ -233,8 +233,8 @@ public data class ClassDeclaration(
           REMOVE_ONLY -> removeOnly
         }
 
-    internal companion object {
-      internal fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
+    public companion object {
+      public fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
         val owners = defs.mapNotNull { it.forClass }.distinct()
         if (owners.size > 1) {
           throw PetSyntaxException(

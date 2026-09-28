@@ -237,10 +237,19 @@ internal fun resolveTypeVariableNames(
       .filter { it in declarationsByKey }
       .forEach { key -> references[key] = references.getOrElse(key) { 0 } + 1 }
   val resolving = mutableSetOf<Pair<ClassName, String?>>()
-  fun withoutNames(expression: Expression): Expression =
+  fun expandedStructure(expression: Expression): Expression =
       expression.copy(
-          arguments = expression.arguments.map(::withoutNames),
-          typeVariableName = null,
+          arguments = expression.arguments.map(::expandedStructure),
+          typeVariableName =
+              expression.typeVariableName?.let { marker ->
+                if (marker is Declaration)
+                    Expression.TypeVariableName.ExpandedReference(
+                        marker.name,
+                        marker.boundClassName,
+                        marker.resolution,
+                    )
+                else marker
+              },
       )
   val resolver =
       object : PetTransformer() {
@@ -269,7 +278,7 @@ internal fun resolveTypeVariableNames(
                   )
                 }
                 return try {
-                  val structuralDeclaration = withoutNames(declaration)
+                  val structuralDeclaration = expandedStructure(declaration)
                   val referenced =
                       structuralDeclaration.copy(
                           arguments =
@@ -328,7 +337,7 @@ internal fun Expression.selectorTypeVariableDeclarations(): List<Expression> =
     )
 
 /** Resolves selector markers in the selector and the nodes evaluated for each selection. */
-internal fun resolveSelectorTypeVariableNames(
+public fun resolveSelectorTypeVariableNames(
     selector: Expression,
     scopedNodes: List<PetNode>,
 ): List<PetNode> {
@@ -342,7 +351,7 @@ internal fun resolveSelectorTypeVariableNames(
 }
 
 /** Resolves an explicit represented-class name inside one refined class literal. */
-internal fun resolveClassLiteralTypeVariableNames(expression: Expression): Expression {
+public fun resolveClassLiteralTypeVariableNames(expression: Expression): Expression {
   if (
       expression.className != dev.martianzoo.pets.api.SystemClasses.CLASS ||
           expression.refinement == null
@@ -445,7 +454,7 @@ internal fun selectorReferenceBinder(
 /**
  * Resolves names declared in a Class header throughout that header and the Class's authored body.
  */
-internal fun resolveClassTypeVariableNames(declaration: ClassDeclaration): ClassDeclaration {
+public fun resolveClassTypeVariableNames(declaration: ClassDeclaration): ClassDeclaration {
   val header = declaration.dependencies + declaration.supertypes
   val declarations =
       header
@@ -502,7 +511,7 @@ internal fun resolveClassTypeVariableNames(declaration: ClassDeclaration): Class
 }
 
 /** Resolves a scope whose declarations belong in [declarationRegion] and uses in [usageRegion]. */
-internal fun <P : PetNode> resolveTypeVariableNames(
+public fun <P : PetNode> resolveTypeVariableNames(
     root: P,
     declarationRegion: PetNode?,
     usageRegion: PetNode,

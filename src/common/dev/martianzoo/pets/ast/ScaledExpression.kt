@@ -5,7 +5,6 @@ import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.TypeInfo
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 
@@ -22,11 +21,6 @@ private constructor(
     val scalar: Scalar,
 ) : PetNode() {
   public companion object {
-    // Identity, rather than the name, makes this parse-only marker impossible to author.
-    private val denominationlessClass = cn("Denominationless")
-    private val denominationlessExpression = denominationlessClass.expression
-    private const val denominationlessAmountMessage = "money amounts must name `MC` explicitly"
-
     /** Returns [expression] scaled by [scalar]. */
     public fun scaledEx(expression: HasExpression, scalar: Scalar): ScaledExpression =
         ScaledExpression(expression.expression, scalar)
@@ -34,21 +28,6 @@ private constructor(
     /** Returns [expression] scaled by [count]. */
     public fun scaledEx(expression: HasExpression, count: Int = 1): ScaledExpression =
         scaledEx(expression, ActualScalar(count))
-
-    internal fun denominationless(scalar: Scalar): ScaledExpression =
-        ScaledExpression(
-            denominationlessExpression.copy().also { it.sourceLocation = scalar.sourceLocation },
-            scalar,
-        )
-
-    internal fun rejectIfDenominationless(expression: Expression) {
-      if (expression.className === denominationlessClass) {
-        throw PetSyntaxException(
-            denominationlessAmountMessage,
-            sourceLocation = expression.sourceLocation,
-        )
-      }
-    }
   }
 
   override fun visitChildren(visitor: Visitor): Unit = visitor.visit(scalar, expression)

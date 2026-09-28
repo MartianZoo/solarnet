@@ -23,14 +23,13 @@ import com.github.h0tk3y.betterParse.parser.Parsed
 import com.github.h0tk3y.betterParse.parser.Parser
 import com.github.h0tk3y.betterParse.parser.completionAtEnd
 import com.github.h0tk3y.betterParse.parser.parseToEnd
-import dev.martianzoo.pets.Parsing.Body.BodyElement
-import dev.martianzoo.pets.Parsing.Body.BodyElement.ActionElement
-import dev.martianzoo.pets.Parsing.Body.BodyElement.DefaultsElement
-import dev.martianzoo.pets.Parsing.Body.BodyElement.EffectElement
-import dev.martianzoo.pets.Parsing.Body.BodyElement.InvariantElement
-import dev.martianzoo.pets.Parsing.Body.BodyElement.NestedDeclaration
-import dev.martianzoo.pets.Parsing.Body.BodyElement.PropertyElement
-import dev.martianzoo.pets.Transforming.actionSelectors
+import dev.martianzoo.pets.ClassBody.Element
+import dev.martianzoo.pets.ClassBody.Element.ActionElement
+import dev.martianzoo.pets.ClassBody.Element.DefaultsElement
+import dev.martianzoo.pets.ClassBody.Element.EffectElement
+import dev.martianzoo.pets.ClassBody.Element.InvariantElement
+import dev.martianzoo.pets.ClassBody.Element.NestedDeclaration
+import dev.martianzoo.pets.ClassBody.Element.PropertyElement
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SourceLocation
@@ -68,6 +67,7 @@ import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.ABSTRACT
 import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration.OneDefault
+import dev.martianzoo.pets.util.toSetStrict
 import kotlin.reflect.KClass
 
 /**
@@ -75,8 +75,15 @@ import kotlin.reflect.KClass
  * is
  * [section 11](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations)
  * of the Pets language specification.
+ *
+ * Every entry point extracts owner-local declarations with a real owner or rejects that syntax.
+ * Returned nodes contain only ordinary expressions, with their lexical scopes resolved.
  */
 public object Parsing {
+  // A bare amount survives grammar alternatives so the final diagnostic can explain the missing
+  // denomination. Identity makes this source-only sentinel impossible to author by name.
+  private val denominationlessClass = ClassName.cn("Denominationless")
+
   /**
    * Parses a series of Pets class declarations, returning one [ClassDeclaration] per declared
    * class, in source order ([rule
@@ -115,14 +122,9 @@ public object Parsing {
    * L12-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#12-owner-local-classes)).
    */
   public fun parseOneLinerClass(declarationSource: String): ClassDeclaration =
-      parse(PetsGrammar.oneLineDeclaration, declarationSource).also { declaration ->
-        if (
-            declaration.allNodes.any { node ->
-              node.descendantsOfType<Expression>().any { it.derivedClassBody != null }
-            }
-        ) {
-          throw PetSyntaxException("owner-local classes are not allowed inside class declarations")
-        }
+      parse(PetsGrammar.oneLineDeclaration, declarationSource).let { declaration ->
+        declaration.allNodes.forEach(::rejectOwnerLocalClasses)
+        completeDeclaration(declaration)
       }
 
   /**
@@ -139,30 +141,47 @@ public object Parsing {
       parse(P::class, elementSource)
 
   /** Non-reified form of [parse]. */
-  public fun <P : PetNode> parse(expectedType: KClass<P>, elementSource: String): P {
-    val lowerer = DerivedClassLowerer(ClassName.cn("Submitted"))
-    val pet = parse(expectedType, elementSource, lowerer)
-    if (lowerer.declarations.isNotEmpty()) {
-      throw PetSyntaxException("owner-local classes are allowed only in declaration files")
-    }
-    return pet
-  }
+  public fun <P : PetNode> parse(expectedType: KClass<P>, elementSource: String): P =
+      parseNode(expectedType, elementSource)
 
   // TODO: Contract this temporary tfm-canon seam.
   public fun <P : PetNode> parse(
       expectedType: KClass<P>,
       elementSource: String,
       derivedClasses: DerivedClassLowerer,
+  ): P = parseNode(expectedType, elementSource, derivedClasses)
+
+  private fun <P : PetNode> parseNode(
+      expectedType: KClass<P>,
+      elementSource: String,
+      derivedClasses: DerivedClassLowerer? = null,
   ): P {
     require(expectedType != PetNode::class) { "missing type info" }
-
     val parsed = parse(nodeParser(expectedType), elementSource, expectedType.simpleName)
-    val lowered = derivedClasses.transformWithoutKindCheck(parsed)
-    check(expectedType.isInstance(lowered)) {
-      "expected `${expectedType.simpleName}` kind, found `${lowered.kind.simpleName}`"
+    val ordinary =
+        if (derivedClasses == null) {
+          parsed.also(::rejectOwnerLocalClasses)
+        } else {
+          derivedClasses.transformWithoutKindCheck(parsed)
+        }
+    val completed = completeNode(ordinary)
+    check(expectedType.isInstance(completed)) {
+      "expected `${expectedType.simpleName}` kind, found `${completed.kind.simpleName}`"
     }
     @Suppress("UNCHECKED_CAST")
-    return lowered as P
+    return completed as P
+  }
+
+  private fun rejectOwnerLocalClasses(node: PetNode) {
+    node
+        .descendantsOfType<Expression>()
+        .firstOrNull { it is SourceExpression }
+        ?.let {
+          throw PetSyntaxException(
+              "owner-local classes are allowed only in declaration files",
+              sourceLocation = it.sourceLocation,
+          )
+        }
   }
 
   private fun <T> parse(
@@ -172,7 +191,7 @@ public object Parsing {
   ): T {
     val matches = PetsGrammar.tokenizer.tokenize(source)
     try {
-      return parser.parseToEnd(matches).also(::rejectUnsupportedSyntax)
+      return parser.parseToEnd(matches)
     } catch (e: ParseException) {
       val completion = parser.completionAtEnd(matches)
       val found = matches.getNotIgnored(completion.farthestPosition)
@@ -227,13 +246,158 @@ public object Parsing {
     }
   }
 
+  /** Source-only expressions must be extracted before selectors or local scopes copy nodes. */
+  private fun completeNode(node: PetNode): PetNode =
+      localScopeNormalizer
+          .transformWithoutKindCheck(selectorNormalizer.transformWithoutKindCheck(node))
+          .also(::rejectUnsupportedSyntax)
+
+  private val selectorNormalizer =
+      object : PetTransformer() {
+        override fun transformNode(node: PetNode): PetNode {
+          val transformed = transformChildren(node)
+          return when (transformed) {
+            is Expression -> {
+              val domain = transformed.copy(refinement = null, typeVariableName = null)
+              val refinement =
+                  transformed.refinement?.let {
+                    object : PetTransformer() {
+                          override fun transformNode(node: PetNode): PetNode =
+                              when {
+                                node is Expression -> node
+                                node is Metric.Rank && node.selector == null ->
+                                    node.copy(
+                                        selector = domain,
+                                        metrics = node.metrics.map(::transformMetric),
+                                    )
+                                else -> transformChildren(node)
+                              }
+                        }
+                        .transformRefinement(it)
+                  }
+              resolveClassLiteralTypeVariableNames(transformed.copy(refinement = refinement))
+            }
+            is Instruction.Each -> {
+              val resolved =
+                  resolveSelectorTypeVariableNames(transformed.selector, listOf(transformed.body))
+              Instruction.Each(resolved[0] as Expression, resolved[1] as InstructionTree)
+            }
+            is Metric.Rank -> {
+              val selector = transformed.selector
+              if (selector == null) transformed
+              else {
+                val resolved = resolveSelectorTypeVariableNames(selector, transformed.metrics)
+                transformed.copy(
+                    selector = resolved[0] as Expression,
+                    metrics = resolved.drop(1).map { it as Metric },
+                )
+              }
+            }
+            else -> transformed
+          }.also { it.sourceLocation = node.sourceLocation }
+        }
+      }
+
+  private val localScopeNormalizer =
+      object : PetTransformer() {
+        override fun transformNode(node: PetNode): PetNode {
+          if (node is Expression) return node
+          val transformed = transformChildren(node)
+          return when (transformed) {
+            is Instruction.Transmute -> Instruction.Transmute.resolveTypeVariableNames(transformed)
+            is Instruction.Then -> Instruction.Then.resolveTypeVariableNames(transformed)
+            is Action ->
+                resolveTypeVariableNames(transformed, transformed.cost, transformed.instruction)
+            is Effect ->
+                resolveTypeVariableNames(transformed, transformed.trigger, transformed.instruction)
+            else -> transformed
+          }.also { it.sourceLocation = node.sourceLocation }
+        }
+      }
+
+  internal fun completeDeclaration(
+      declaration: ClassDeclaration,
+      generated: Boolean = false,
+  ): ClassDeclaration {
+    val selected = transformDeclaration(declaration, selectorNormalizer)
+    // Explicit selectors shadow class parameters; settlement scopes do not. Keep parameters used
+    // outside a selector before settlement binding can temporarily give those uses another scope.
+    val signature = if (generated) pruneUnusedGeneratedMarkers(selected) else selected
+    val normalized = transformDeclaration(signature, localScopeNormalizer)
+    return resolveClassTypeVariableNames(normalized).also(::rejectUnsupportedSyntax)
+  }
+
+  private fun pruneUnusedGeneratedMarkers(declaration: ClassDeclaration): ClassDeclaration {
+    fun key(expression: Expression) =
+        expression.typeVariableName?.let { it.boundClassName to it.name }
+    val counts =
+        (declaration.dependencies + declaration.supertypes)
+            .flatMap { it.descendantsOfType<Expression>() }
+            .mapNotNull(::key)
+            .groupingBy { it }
+            .eachCount()
+    val bodyKeys =
+        (declaration.authoredEffects + declaration.authoredActions)
+            .flatMap { it.descendantsOfType<Expression>() }
+            .filter {
+              (it.typeVariableName as? Expression.TypeVariableName.Declaration)?.resolved == false
+            }
+            .mapNotNull(::key)
+            .toSet()
+    // Repeated header markers still express a shared constraint even when the body never uses it.
+    val unneeded = counts.filter { (key, count) -> count == 1 && key !in bodyKeys }.keys
+    val pruner =
+        object : PetTransformer() {
+          override fun transformNode(node: PetNode): PetNode =
+              transformChildren(
+                  if (node is Expression && key(node) in unneeded)
+                      node.copy(typeVariableName = null)
+                  else node
+              )
+        }
+    return declaration.copy(
+        dependencies = declaration.dependencies.map(pruner::transformExpression),
+        supertypes = declaration.supertypes.map(pruner::transformExpression).toSet(),
+    )
+  }
+
+  /** Visits authored declaration fields during source extraction and subsequent normalization. */
+  internal fun transformDeclaration(
+      declaration: ClassDeclaration,
+      transformer: PetTransformer,
+  ): ClassDeclaration {
+    fun transformDefault(one: OneDefault) =
+        one.copy(specs = one.specs.map(transformer::transformExpression))
+    val defaults = declaration.defaultsDeclaration
+    return declaration.copy(
+        dependencies = declaration.dependencies.map(transformer::transformExpression),
+        supertypes = declaration.supertypes.map(transformer::transformExpression).toSetStrict(),
+        invariants = declaration.invariants.map(transformer::transformRequirement).toSetStrict(),
+        authoredEffects = declaration.authoredEffects.map(transformer::transformEffect),
+        authoredActions = declaration.authoredActions.map(transformer::transformAction),
+        defaultsDeclaration =
+            defaults.copy(
+                universal = transformDefault(defaults.universal),
+                gainOnly = transformDefault(defaults.gainOnly),
+                removeOnly = transformDefault(defaults.removeOnly),
+            ),
+        properties =
+            declaration.properties.entries.associate {
+              transformer.transformPropertyName(it.key) to
+                  transformer.transformPropertyValue(it.value)
+            },
+        extraNodes =
+            declaration.extraNodes.map(transformer::transformWithoutKindCheck).toSetStrict(),
+    )
+  }
+
   private fun rejectUnsupportedSyntax(parsed: Any?) {
     if (parsed is PetNode) {
       val expressions = parsed.descendantsOfType<Expression>()
       expressions
           .firstOrNull {
-            it.typeVariableName is Expression.TypeVariableName.Declaration &&
-                !it.typeVariableName.resolved
+            val marker = it.typeVariableName
+            marker is Expression.TypeVariableName.Declaration && !marker.resolved
           }
           ?.let {
             val marker = it.typeVariableName!!
@@ -259,7 +423,12 @@ public object Parsing {
           )
       is PetNode ->
           parsed.visitDescendants {
-            (it as? Expression)?.let(ScaledExpression::rejectIfDenominationless)
+            if (it is Expression && it.className === denominationlessClass) {
+              throw PetSyntaxException(
+                  "money amounts must name `MC` explicitly",
+                  sourceLocation = it.sourceLocation,
+              )
+            }
             if (it is Metric.Rank && it.selector == null) {
               throw PetSyntaxException(
                   "`RANK { ... }` requires an enclosing expression refinement",
@@ -446,7 +615,7 @@ public object Parsing {
             base and
                 optional(parser { derivedClassBody }) map
                 { (parsed, body) ->
-                  if (body == null) parsed else parsed.withDerivedClassBody(body)
+                  if (body == null) parsed else SourceExpression(parsed, body)
                 }
           } else base
       )
@@ -470,8 +639,12 @@ public object Parsing {
         ((amount and optional(expression)) or (optional(amount) and expression)) map
             { (scalar, expression) ->
               val resolved = scalar ?: ActualScalar(1)
-              if (expression == null) ScaledExpression.denominationless(resolved)
-              else ScaledExpression.scaledEx(expression, resolved)
+              val denomination =
+                  expression
+                      ?: denominationlessClass.expression.copy().also {
+                        it.sourceLocation = resolved.sourceLocation
+                      }
+              ScaledExpression.scaledEx(denomination, resolved)
             }
 
     private val unchangedFromArgument by expression map FromExpression::Unchanged
@@ -508,8 +681,7 @@ public object Parsing {
             commaSeparated(parser { metric }) and
             skip(rbrace) map
             { (selector, metrics) ->
-              val resolved = resolveSelectorTypeVariableNames(selector, metrics)
-              Metric.Rank(resolved[0] as Expression, resolved.drop(1).map { it as Metric })
+              Metric.Rank(selector, metrics)
             }
     private val implicitRank by
         skip(rankKeyword) and
@@ -629,8 +801,7 @@ public object Parsing {
             parser { instructionSyntax } and
             skip(rbrace) map
             { (selector, body) ->
-              val resolved = resolveSelectorTypeVariableNames(selector, listOf(body))
-              Instruction.Each(resolved[0] as Expression, resolved[1] as InstructionTree)
+              Instruction.Each(selector, body)
             }
     private val instructionPrimary: Parser<InstructionTree> by
         each or instructionTransform or perInstruction or group(parser { instructionSyntax })
@@ -670,17 +841,16 @@ public object Parsing {
         separatedTerms(gatedInstruction, thenKeyword) map Instruction.Then::createTree
     private val instructionSyntax: Parser<InstructionTree> by
         commaSeparated(instructionSequence) map InstructionGroup::createTree
-    // Resolve symmetric local scopes only after the complete tree's enclosing selectors have
-    // claimed their references. Recursive grammar references must use instructionSyntax.
-    val instructionTree: Parser<InstructionTree> by
-        instructionSyntax map ::resolveLocalTypeVariableNames
+    // Keep grammar values raw until owner-local declarations have been extracted. Selector
+    // scopes and then symmetric scopes are resolved by completion after extraction.
+    val instructionTree: Parser<InstructionTree> by instructionSyntax
     val instruction: Parser<Instruction> by
         instructionSyntax map
             {
               val instruction =
                   it as? Instruction
                       ?: throw PetSyntaxException("expected one instruction, found group `$it`")
-              resolveLocalTypeVariableNames(instruction) as Instruction
+              instruction
             }
 
     // Costs and actions.
@@ -701,7 +871,7 @@ public object Parsing {
             skip(arrow) and
             instructionTree map
             { (cost, instruction) ->
-              resolveTypeVariableNames(Action(cost, instruction), cost, instruction)
+              Action(cost, instruction)
             }
 
     // Triggers and effects.
@@ -743,11 +913,7 @@ public object Parsing {
             effectSeparator and
             instructionTree map
             { (trigger, automatic, instruction) ->
-              resolveTypeVariableNames(
-                  Effect(trigger = trigger, automatic = automatic, instruction = instruction),
-                  trigger,
-                  instruction,
-              )
+              Effect(trigger = trigger, automatic = automatic, instruction = instruction)
             }
 
     // Property values and class declarations.
@@ -791,7 +957,7 @@ public object Parsing {
             expression and
             quantifier map
             { (expression, quantifier) ->
-              rejectRefinedDefault(expression)
+              rejectInvalidDefaultRoot(expression)
               DefaultsDeclaration(
                   gainOnly = OneDefault(expression.arguments, quantifier),
                   forClass = expression.className,
@@ -802,7 +968,7 @@ public object Parsing {
             expression and
             quantifier map
             { (expression, quantifier) ->
-              rejectRefinedDefault(expression)
+              rejectInvalidDefaultRoot(expression)
               DefaultsDeclaration(
                   removeOnly = OneDefault(expression.arguments, quantifier),
                   forClass = expression.className,
@@ -811,7 +977,7 @@ public object Parsing {
     private val universalDefault by
         expression map
             {
-              rejectRefinedDefault(it)
+              rejectInvalidDefaultRoot(it)
               DefaultsDeclaration(universal = OneDefault(it.arguments), forClass = it.className)
             }
     private val defaults by
@@ -827,9 +993,9 @@ public object Parsing {
             }
     private val effectElement by locatedNode(effect) map ::EffectElement
     private val actionElement by locatedNode(action) map ::ActionElement
-    private val bodyElementExceptNestedClasses: Parser<BodyElement> by
+    private val bodyElementExceptNestedClasses: Parser<Element> by
         invariant or defaults or propertyAssignment or effectElement or actionElement
-    private val derivedClassBodyElement: Parser<BodyElement> by
+    private val derivedClassBodyElement: Parser<Element> by
         invariant or propertyAssignment or effectElement or actionElement
     private val nestedDeclaration by parser { declaration } map ::NestedDeclaration
     private val bodyElement by bodyElementExceptNestedClasses or nestedDeclaration
@@ -837,7 +1003,7 @@ public object Parsing {
     private val multilineBodyInterior by
         mapLocated(
             separatedTerms(bodyElement, oneOrMore(newline), acceptZero = true),
-            ::Body,
+            ::ClassBody,
         )
     private val multilineBody by
         skip(lbrace) and
@@ -853,7 +1019,7 @@ public object Parsing {
                 signature and
                 optional(multilineBody or oneLineBody)
         ) { (doc, signature, body) ->
-          (body ?: Body()).toDeclarations(signature, doc)
+          (body ?: ClassBody()).toDeclarations(signature, doc)
         }
     // Pass this production directly to completionAtEnd: its analyzer understands combinators,
     // while a Grammar wrapper would fall back to executing the parser and its semantic maps.
@@ -865,50 +1031,26 @@ public object Parsing {
         signature and
             optional(oneLineBody) map
             { (signature, body) ->
-              (body ?: Body()).toDeclarations(signature).single()
+              (body ?: ClassBody()).toDeclarations(signature).single()
             }
 
-    private fun oneLineBody(element: Parser<BodyElement>, acceptZero: Boolean): Parser<Body> =
+    private fun oneLineBody(element: Parser<Element>, acceptZero: Boolean): Parser<ClassBody> =
         mapLocated(
             skip(lbrace) and separatedTerms(element, semicolon, acceptZero) and skip(rbrace),
-            ::Body,
+            ::ClassBody,
         )
 
-    private fun rejectRefinedDefault(expression: Expression) {
+    private fun rejectInvalidDefaultRoot(expression: Expression) {
+      if (expression is SourceExpression)
+          throw PetSyntaxException(
+              "a `DEFAULT` root names its declaring class and cannot declare an owner-local class",
+              sourceLocation = expression.sourceLocation,
+          )
       if (expression.refinement != null)
           throw PetSyntaxException(
               "`DEFAULT` must name an unrefined class expression; found `$expression`",
               sourceLocation = expression.sourceLocation,
           )
-    }
-
-    /**
-     * Resolves symmetric instruction-local scopes only after enclosing selectors have claimed their
-     * references. The traversal remains inside-out so a transmutation still outranks an enclosing
-     * sequence for names that no supplier already owns.
-     */
-    private fun resolveLocalTypeVariableNames(tree: InstructionTree): InstructionTree {
-      if (
-          tree.descendantsOfType<Instruction.Transmute>().isEmpty() &&
-              tree.descendantsOfType<Instruction.Then>().isEmpty()
-      ) {
-        return tree
-      }
-      return object : PetTransformer() {
-            override fun transformNode(node: PetNode): PetNode {
-              // Symmetric scopes contain instructions; leave unrelated parser-only expression
-              // metadata untouched until one of those scopes resolves its own subtree.
-              if (node is Expression) return node
-              val transformed = transformChildren(node)
-              return when (transformed) {
-                is Instruction.Transmute ->
-                    Instruction.Transmute.resolveTypeVariableNames(transformed)
-                is Instruction.Then -> Instruction.Then.resolveTypeVariableNames(transformed)
-                else -> transformed
-              }
-            }
-          }
-          .transformInstructionTree(tree)
     }
 
     private data class AuthoredTypeVariableMarker(val name: String?)
@@ -919,31 +1061,15 @@ public object Parsing {
         args: List<Expression>?,
         ref: Refinement?,
     ): Expression {
-      val domain =
-          Expression(
+      return Expression(
               clazz,
               args.orEmpty(),
+              ref,
               argumentsSpecified = args != null,
               typeVariableName =
                   marker?.let { Expression.TypeVariableName.Declaration(it.name, clazz) },
           )
-      val boundRefinement = ref?.let {
-        object : PetTransformer() {
-              override fun transformNode(node: PetNode): PetNode =
-                  when {
-                    node is Metric.Rank && node.selector == null -> {
-                      val metrics = node.metrics.map(::transformMetric)
-                      node.copy(selector = domain.copy(typeVariableName = null), metrics = metrics)
-                    }
-                    node is Expression -> node
-                    else -> transformChildren(node)
-                  }
-            }
-            .transformRefinement(it)
-      }
-      return resolveClassLiteralTypeVariableNames(domain.copy(refinement = boundRefinement)).also {
-        it.sourceLocation = clazz.sourceLocation
-      }
+          .also { it.sourceLocation = clazz.sourceLocation }
     }
 
     // Keep regex matching anchored on every runtime. The pinned better-parse JS regex token
@@ -1017,87 +1143,5 @@ public object Parsing {
                 throw e
               }
             }
-  }
-
-  // Declaration assembly: retain nested bodies until their enclosing class is known.
-  internal class Body(elements: List<BodyElement> = emptyList()) {
-    private val invariants = elements.filterIsInstance<InvariantElement>().map { it.invariant }
-    private val defaults = elements.filterIsInstance<DefaultsElement>().map { it.defaults }
-    private val effects = elements.filterIsInstance<EffectElement>().map { it.effect }
-    private val actions = elements.filterIsInstance<ActionElement>().map { it.action }
-    // Rule L11-9: reject a name assigned twice in one body, so declaration order
-    // never becomes an accidental override rule.
-    private val properties = buildMap {
-      elements.filterIsInstance<PropertyElement>().forEach { element ->
-        val (name, value) = element.property
-        if (name in this)
-            throw PetSyntaxException(
-                "property `$name` is assigned twice: `${get(name)}` and `$value`",
-                sourceLocation = name.sourceLocation,
-            )
-        put(name, value)
-      }
-    }
-    private val nestedDeclarations = elements.filterIsInstance<NestedDeclaration>()
-
-    fun asDerivedDeclaration(className: ClassName, supertype: Expression): ClassDeclaration =
-        toDeclarations(ClassDeclaration(className, CONCRETE, supertypes = setOf(supertype)))
-            .single()
-
-    /** Container first, followed by its descendants in source order. */
-    fun toDeclarations(
-        header: ClassDeclaration,
-        docstring: String? = null,
-    ): List<ClassDeclaration> {
-      val mergedDefaults = DefaultsDeclaration.merge(defaults)
-      val declaration =
-          resolveClassTypeVariableNames(
-              header.copy(
-                  invariants =
-                      buildSet {
-                        invariants.forEach { invariant ->
-                          if (!add(invariant))
-                              throw PetSyntaxException(
-                                  "duplicate invariant `HAS $invariant` on `${header.className}`",
-                                  sourceLocation = invariant.sourceLocation,
-                              )
-                        }
-                      },
-                  authoredEffects = effects,
-                  authoredActions = actions,
-                  defaultsDeclaration = mergedDefaults,
-                  properties = properties,
-                  extraNodes = actionSelectors(actions),
-                  docstring = docstring,
-              )
-          )
-      return buildList {
-        add(declaration)
-        nestedDeclarations.forEach { nested ->
-          val child = nested.declarations.first()
-          // L11-6: attach only the immediate child to this container. Its descendants already
-          // name their own containers; preserve an explicitly supplied parent specialization.
-          add(
-              if (child.supertypes.any { it.className == header.className }) child
-              else child.copy(supertypes = setOf(header.className.expression) + child.supertypes)
-          )
-          addAll(nested.declarations.drop(1))
-        }
-      }
-    }
-
-    sealed class BodyElement {
-      class InvariantElement(val invariant: Requirement) : BodyElement()
-
-      class DefaultsElement(val defaults: DefaultsDeclaration) : BodyElement()
-
-      class PropertyElement(val property: Pair<PropertyName, PropertyValue>) : BodyElement()
-
-      class EffectElement(val effect: Effect) : BodyElement()
-
-      class ActionElement(val action: Action) : BodyElement()
-
-      class NestedDeclaration(val declarations: List<ClassDeclaration>) : BodyElement()
-    }
   }
 }

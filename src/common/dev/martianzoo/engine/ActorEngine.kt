@@ -140,7 +140,7 @@ internal constructor(
     if (!reader.has(parse("MAX 0 $MUST_CLEAN_UP"))) {
       throw DeadEndException(
           "components requiring cleanup remained after the operation: " +
-              reader.getComponents("MustCleanUp").elements
+              reader.getComponents(MUST_CLEAN_UP.expression).elements
       )
     }
   }
