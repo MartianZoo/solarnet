@@ -50,6 +50,12 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   `OtbGame20260828Test` replay once in a browser. The multiplatform modules' JVM test tasks are named
   `jvmTest`; their generated browser tasks are inert outside the one intentionally commented-out
   full-browser target in the root build.
+- Temporarily uncomment `allBrowserTests` in the root build and run
+  `./gradlew allBrowserTests --rerun-tasks` to exercise every shared and browser-specific suite,
+  including all portable replay scenarios. The browser replay source set also reads the legacy
+  `test/jvm/dev/martianzoo/tfm/tests/replays` directory, excluding only its JUnit file-export hook.
+  JVM-only tools and filesystem/terminal tests remain outside this target. Comment the target back
+  out after a successful run.
 - `./gradlew :tfm-tests:jvmTest` runs the replay tests and writes one opaque JSON recording per
   successful `AbstractFullGameTest` subclass under that module's
   `generated/replay-event-logs` build directory. The browser viewer applies those recordings through

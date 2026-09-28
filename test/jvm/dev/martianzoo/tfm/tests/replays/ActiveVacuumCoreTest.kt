@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 // Complete public-state replay: Active Vacuum Core (g62d89e349c97), save 626.
@@ -47,6 +48,7 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
 
   private lateinit var purple: TfmGameplay
 
+  @BeforeTest
   override fun commonSetup() {
     super.commonSetup()
     purple = player(4).requireExplicitPaymentChoices()

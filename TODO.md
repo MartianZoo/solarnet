@@ -160,9 +160,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
-- Revisit aligning multiplatform JVM tests with the repository JUnit BOM. The newer runner
-  skips the inherited setup annotation on `ActiveVacuumCoreTest.commonSetup`; retain the current
-  runner until lifecycle compatibility is addressed and the full replay suite passes.
+- Revisit aligning multiplatform JVM tests with the repository JUnit BOM. Setup overrides now
+  explicitly declare `@BeforeTest`, including `ActiveVacuumCoreTest.commonSetup`. Verify lifecycle
+  compatibility and the full replay suite before changing the runner.
 
 - Revisit Dokka's transitive Jackson 2.15.3, jsoup 1.16.1, and FreeMarker 2.3.32 advisory
   matches when a stable Dokka update is available. These documentation-time dependencies remain
