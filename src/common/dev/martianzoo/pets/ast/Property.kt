@@ -1,11 +1,5 @@
 package dev.martianzoo.pets.ast
 
-import com.github.h0tk3y.betterParse.combinators.and
-import com.github.h0tk3y.betterParse.combinators.map
-import com.github.h0tk3y.betterParse.combinators.or
-import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.pets.PetTokenizer
-
 /**
  * Reads one numeric class property, spelled `receiver.name` ([rule
  * L4-7](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#4-metrics)). A
@@ -18,9 +12,6 @@ public data class Property(
     /** Whose property to read, or null to take one from the enclosing candidate or context. */
     public val receiver: Expression? = null,
 ) : Metric() {
-  internal companion object {
-    internal fun parser(): Parser<Property> = Parsing.parser
-  }
 
   override fun visitChildren(visitor: Visitor): Unit = visitor.visit(propertyName, receiver)
 
@@ -28,16 +19,4 @@ public data class Property(
       if (receiver == null) "$propertyName" else "$receiver.$propertyName"
 
   override fun precedence(): Int = 12
-
-  private object Parsing : PetTokenizer() {
-    private val explicit: Parser<Property> =
-        Expression.parser() and
-            skipChar('.') and
-            PropertyName.parser() map
-            { (receiver, name) ->
-              Property(name, receiver)
-            }
-
-    val parser: Parser<Property> = locatedNode(explicit or (PropertyName.parser() map ::Property))
-  }
 }

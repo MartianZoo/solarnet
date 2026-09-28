@@ -129,6 +129,13 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
   requiring authored references to generated names. Preserve Cimmeria map generation,
   `PlaceNeutralTiles`'s system-only ownership, and SRR's explicit card-Class selection.
+- Report an unrecognized character inside an optional Pets production at that character:
+  `Foo<~ Bar>` currently points at `<` rather than `~`. The better-parse completion analyzer drops
+  `NoMatchingToken` failures; address that diagnostic separately from grammar organization.
+- Investigate replacing standalone Pets parsing's synthetic `Submitted` owner and lowering pass
+  with direct rejection of owner-local bodies. Verify AST/scope normalization is preserved and
+  decide whether malformed-local-class diagnostics should still precede the declaration-file-only
+  error before removing that path.
 - Carry resource/file names through Pets parsing and generated catalog inputs so diagnostic spans
   identify the original file as well as the submitted text, line, and column.
 - Preserve authored provenance when runtime narrowing and task normalization synthesize new trees.
@@ -152,6 +159,14 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `Tile` atomized ([#64](https://github.com/MartianZoo/solarnet/issues/64)).
 
 ## Autonomous Follow-ups
+
+- Revisit aligning multiplatform JVM tests with the repository JUnit BOM. The newer runner
+  skips the inherited setup annotation on `ActiveVacuumCoreTest.commonSetup`; retain the current
+  runner until lifecycle compatibility is addressed and the full replay suite passes.
+
+- Revisit Dokka's transitive Jackson 2.15.3, jsoup 1.16.1, and FreeMarker 2.3.32 advisory
+  matches when a stable Dokka update is available. These documentation-time dependencies remain
+  unchanged to avoid maintaining unverified overrides.
 
 - Review [the class-existence scenario draft](docs/class-existence-scenarios-draft.md) for
   clarity and coverage, then consolidate `ClassDefinitionBoundaryTest` and

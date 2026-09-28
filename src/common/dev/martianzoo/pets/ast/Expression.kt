@@ -1,17 +1,8 @@
 package dev.martianzoo.pets.ast
 
-import com.github.h0tk3y.betterParse.combinators.and
-import com.github.h0tk3y.betterParse.combinators.map
-import com.github.h0tk3y.betterParse.combinators.optional
-import com.github.h0tk3y.betterParse.combinators.or
-import com.github.h0tk3y.betterParse.combinators.skip
-import com.github.h0tk3y.betterParse.grammar.parser
-import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.pets.ClassParsing
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasExpression
-import dev.martianzoo.pets.PetTokenizer
-import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.types.ClassLoader
@@ -65,7 +56,7 @@ public data class Expression(
   // Expressions are immutable after parsing; zero is the uncached sentinel.
   private var cachedHashCode: Int = 0
 
-  internal var derivedClassBody: ClassParsing.Body? = null
+  internal var derivedClassBody: Parsing.Body? = null
     private set
 
   /**
@@ -73,7 +64,7 @@ public data class Expression(
    * most once, before the expression can enter an AST collection, and removed before a parsed AST
    * leaves [dev.martianzoo.pets.Parsing].
    */
-  internal fun withDerivedClassBody(body: ClassParsing.Body): Expression = apply {
+  internal fun withDerivedClassBody(body: Parsing.Body): Expression = apply {
     check(derivedClassBody == null)
     derivedClassBody = body
     cachedHashCode = 0
@@ -345,89 +336,5 @@ public data class Expression(
 
     internal fun retaining(predicate: (Refinement) -> Boolean): Refinement? =
         conjuncts().filter(predicate).takeIf { it.isNotEmpty() }?.let(Companion::create)
-  }
-
-  internal companion object : PetTokenizer() {
-    private data class AuthoredTypeVariableMarker(val name: String?)
-
-    internal fun refinementParser(): Parser<Refinement> {
-      val has = (skip(_has) and Requirement.disjunctionParser()) map Refinement.Companion::has
-      val not = (skip(_not) and parser(allowDerivedClass = false)) map { Refinement.Not(it) }
-      return group(commaSeparated(has or not) map Refinement.Companion::create)
-    }
-
-    fun parser(allowDerivedClass: Boolean = true): Parser<Expression> {
-      return locatedNode(
-          parser {
-            val argumentList =
-                skipChar('<') and
-                    optionalList(commaSeparated(parser(allowDerivedClass))) and
-                    skipChar('>')
-            val refinement = refinementParser()
-            val namedTypeVariableMarker =
-                ClassName.parser() and skipChar('@') map { AuthoredTypeVariableMarker(it.asString) }
-            val anonymousTypeVariableMarker =
-                char('@') map { AuthoredTypeVariableMarker(name = null) }
-            val typeVariableMarker = namedTypeVariableMarker or anonymousTypeVariableMarker
-            fun expression(
-                marker: AuthoredTypeVariableMarker?,
-                clazz: ClassName,
-                args: List<Expression>?,
-                ref: Refinement?,
-            ): Expression {
-              val domain =
-                  Expression(
-                      clazz,
-                      args.orEmpty(),
-                      argumentsSpecified = args != null,
-                      typeVariableName =
-                          marker?.let { TypeVariableName.Declaration(it.name, clazz) },
-                  )
-              val boundRefinement = ref?.let {
-                object : PetTransformer() {
-                      override fun transformNode(node: PetNode): PetNode =
-                          when {
-                            node is Metric.Rank && node.selector == null -> {
-                              val metrics = node.metrics.map(::transformMetric)
-                              node.copy(
-                                  selector = domain.copy(typeVariableName = null),
-                                  metrics = metrics,
-                              )
-                            }
-                            node is Expression -> node
-                            else -> transformChildren(node)
-                          }
-                    }
-                    .transformRefinement(it)
-              }
-              return resolveClassLiteralTypeVariableNames(domain.copy(refinement = boundRefinement))
-                  .also {
-                    it.sourceLocation = clazz.sourceLocation
-                  }
-            }
-
-            val expression =
-                optional(typeVariableMarker) and
-                    ClassName.parser() and
-                    optional(argumentList) and
-                    optional(refinement) map
-                    { (marker, clazz, args, ref) ->
-                      expression(marker, clazz, args, ref)
-                    }
-
-            if (allowDerivedClass) {
-              expression and
-                  optional(ClassParsing.Declarations.derivedClassBody) map
-                  { (parsed, body) ->
-                    parsed.let {
-                      if (body == null) it else it.withDerivedClassBody(body)
-                    }
-                  }
-            } else {
-              expression
-            }
-          }
-      )
-    }
   }
 }

@@ -1,10 +1,7 @@
 package dev.martianzoo.pets.ast
 
-import com.github.h0tk3y.betterParse.combinators.map
-import com.github.h0tk3y.betterParse.combinators.or
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.HasExpression.Companion.expressions
-import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 
@@ -55,9 +52,6 @@ public data class ClassName private constructor(public val asString: String) :
 
     private const val CLASS_NAME_PATTERN = "[A-Z][A-Za-z0-9_]*"
     private val classNameRegex = Regex(CLASS_NAME_PATTERN)
-
-    internal fun parser(): com.github.h0tk3y.betterParse.parser.Parser<ClassName> =
-        Parsing.className
   }
 
   init {
@@ -107,15 +101,4 @@ public data class ClassName private constructor(public val asString: String) :
   override fun toString(): String = asString
 
   override fun compareTo(other: ClassName): Int = asString.compareTo(other.asString)
-
-  internal object Parsing : PetTokenizer() {
-    private val mixedCaseName =
-        _mixedCaseClassNameRE map
-            {
-              cn(it.text).also { name -> name.sourceLocation = location(it) }
-            }
-    private val allCapsName =
-        _allCapsWordRE map { cn(it.text).also { name -> name.sourceLocation = location(it) } }
-    val className = mixedCaseName or allCapsName
-  }
 }

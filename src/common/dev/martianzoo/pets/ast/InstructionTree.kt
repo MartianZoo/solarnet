@@ -1,6 +1,5 @@
 package dev.martianzoo.pets.ast
 
-import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo
@@ -54,8 +53,4 @@ public sealed class InstructionTree : PetElement(), Specification<InstructionTre
   protected abstract fun ensureIsNarrowedBy(proposed: InstructionTree, info: TypeInfo)
 
   override val kind: kotlin.reflect.KClass<out PetNode> = InstructionTree::class
-
-  internal companion object {
-    internal fun parser(): Parser<InstructionTree> = Instruction.treeParser()
-  }
 }

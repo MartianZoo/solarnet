@@ -1,14 +1,5 @@
 package dev.martianzoo.pets.ast
 
-import com.github.h0tk3y.betterParse.combinators.and
-import com.github.h0tk3y.betterParse.combinators.map
-import com.github.h0tk3y.betterParse.combinators.optional
-import com.github.h0tk3y.betterParse.combinators.or
-import com.github.h0tk3y.betterParse.combinators.skip
-import com.github.h0tk3y.betterParse.combinators.zeroOrMore
-import com.github.h0tk3y.betterParse.grammar.parser
-import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.TypeInfo
@@ -122,38 +113,6 @@ public sealed class FromExpression : PetNode() {
                 )
         proposedGain.ensureNarrows(proposedRemoval, info)
         proposedRemoval.ensureNarrows(proposedGain, info)
-      }
-    }
-  }
-
-  internal companion object : PetTokenizer() {
-    fun parser(): Parser<FromExpression> {
-      return parser {
-        val unchanged = Expression.parser() map FromExpression::Unchanged
-        val full =
-            Expression.parser() and
-                skip(_from) and
-                Expression.parser() map
-                { (to, from) ->
-                  Full(to, from)
-                }
-
-        val argumentList =
-            zeroOrMore(unchanged and skipChar(',')) and
-                parser() and
-                zeroOrMore(skipChar(',') and unchanged) map
-                { (before, from, after) ->
-                  before + from + after
-                }
-        val compact =
-            ClassName.parser() and
-                (skipChar('<') and argumentList and skipChar('>')) and
-                optional(Expression.refinementParser()) map
-                { (name, arguments, refinement) ->
-                  Compact(name, arguments, refinement)
-                }
-
-        full or compact
       }
     }
   }
