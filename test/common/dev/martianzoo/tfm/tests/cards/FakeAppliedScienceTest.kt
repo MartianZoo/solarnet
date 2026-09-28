@@ -60,4 +60,26 @@ internal class FakeAppliedScienceTest : CardTest() {
     }
     p1.count("Director<$BoardOfDirectors>") shouldBe 0
   }
+
+  @Test
+  internal fun `Spending the last science leaves only the standard resource option`() {
+    newGame(PreludeExpansion, Prelude2CardPack, FakeStuffBundle)
+    p1.playCorp(CrediCor, 0)
+    admin.phase("Prelude")
+    p1.playPrelude(FakeAppliedScience)
+    admin.phase("Action")
+    repeat(5) {
+      p1.cardAction1(FakeAppliedScience) { doTask("Steel") }
+      admin.runOperation("Generation")
+    }
+    p1.count("Science<$FakeAppliedScience>") shouldBe 1
+
+    p1.cardAction1(FakeAppliedScience) {
+          shouldThrow<NarrowingException> {
+            doTask("Science<$FakeAppliedScience>")
+          }
+          doTask("Steel")
+        }
+        .expect("-Science<$FakeAppliedScience>, Steel")
+  }
 }

@@ -165,14 +165,16 @@ internal class MonsInsuranceTest : CardTest() {
   internal fun `Declining an optional removal avoids compensation`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.runOperation("$MonsInsurance, 10 MC")
+    playCorporationWithoutStartingProjects(p1, MonsInsurance)
+    p1.runOperation("ProjectCard")
     p2.runOperation("Plant")
+    admin.phase("Action")
 
-    p1.runOperation("-Plant<Player2>?") {
-          // Decline removing Player 2's plant.
+    p1.playProject(AsteroidCard, 14) {
+          // Choose zero plants even though Player 2 has a plant to remove.
           declineTask()
         }
-        .expect("0 Plant<Player2>, 0 MC<Player1>, 0 MC<Player2>")
+        .expect("0 Plant<Player2>, -14 MC<Player1>, 0 MC<Player2>")
   }
 
   @Test
