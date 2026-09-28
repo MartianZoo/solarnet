@@ -38,7 +38,7 @@
 
 The wrapper supports and directly uses the JDK selected by `JAVA_HOME` from 17 through 26. JVM code
 targets the Java 17 bytecode and API surface, while Kotlin source and standard-library APIs target
-Kotlin 2.2. Contributors do not need another JDK installed.
+Kotlin 2.2. CI uses Temurin 25 LTS. Contributors do not need another JDK installed.
 
 Start with the smallest test or build task that verifies the changed behavior. Expand verification
 only when the change crosses a wider scope or the narrower result leaves a material risk.
@@ -146,8 +146,8 @@ Kotlin/JUnit 5 test dependencies. `solarnet.kmp-jvm-js` configures the JVM and b
 shared `kotlin.test`, and exposes each module's `jvmTest` as `test`.
 Module build scripts under `modules/` keep only module-specific configuration and select their
 non-overlapping package roots from the repository-wide `src/` and `test/` trees; JavaScript-only
-applications configure their targets directly. Repository-wide formatting and Yarn policy remain in
-the root build.
+applications configure their targets directly. Repository-wide formatting, the Node.js version, and
+Yarn policy remain in the root build.
 Dependency and plugin versions are declared in `gradle/libs.versions.toml`, while dependency
 repositories are declared centrally in `settings.gradle.kts`; JitPack is restricted to the pinned
 better-parse fork.

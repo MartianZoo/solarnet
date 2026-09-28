@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.carddata
 
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -34,7 +33,6 @@ public object CardData {
 
   @Serializable private data class DeckDefinition(val deck: String, val cards: List<JsonObject>)
 
-  @OptIn(ExperimentalSerializationApi::class)
   private val JSON5 = Json {
     allowComments = true
     allowTrailingComma = true

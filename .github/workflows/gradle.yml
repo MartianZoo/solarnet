@@ -16,14 +16,14 @@ jobs:
   CI:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 26
-      uses: actions/setup-java@v4
+    - uses: actions/checkout@v6.1.0
+    - name: Set up JDK 25 LTS
+      uses: actions/setup-java@v5.7.0
       with:
         distribution: temurin
-        java-version: 26
+        java-version: 25
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
+      uses: gradle/actions/setup-gradle@v5.0.2
     - name: Check formatting
       run: ./gradlew spotlessCheck
     - name: Build with Gradle
@@ -31,7 +31,7 @@ jobs:
     - name: Build REPL jar
       run: ./gradlew :repl:shadowJar
     - name: Upload REPL jar
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6.0.0
       with:
         name: 'repl-all.jar'
         path: 'modules/repl/build/libs/repl-all.jar'
