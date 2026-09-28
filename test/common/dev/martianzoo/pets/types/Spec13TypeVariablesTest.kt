@@ -7,6 +7,7 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -1231,6 +1232,194 @@ internal class Spec13TypeVariablesTest {
         .transformEffect(bound)
         .toString() shouldBe "Plant: Token<Plant>"
     world.questions.size shouldBe 1
+  }
+
+  @Test
+  internal fun `T13-10 nested selection predicates are consumed along their dependency paths`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Place { CLASS Spot }",
+            "CLASS Marker<Place>",
+            "CLASS Box<Place>",
+            "CLASS Outer<Box<Place>>",
+            "CLASS Notice<Outer<Box<Place>>>",
+        )
+    val scoped =
+        table
+            .recordTypeVariableScopes()
+            .transformEffect(parse<Effect>("@Outer<Box<Place(HAS Marker)>>: Notice<@Outer>"))
+    val variable = scoped.typeVariables.variables.single()
+    val chosen = table.resolve(te("Outer<Box<Spot>>"))
+    val before = RecordingWorld(answer = true)
+
+    chosen.narrows(variable.bound, before) shouldBe true
+    before.questions shouldContainExactly listOf("Marker<Spot>")
+
+    val bound = scoped.typeVariables.bind(mapOf(variable to chosen)).transformEffect(scoped)
+    bound.toString() shouldBe "Outer<Box<Spot>>: Notice<Outer<Box<Spot>>>"
+
+    val after = RecordingWorld(answer = false)
+    chosen.narrows(
+        table.resolve(bound.trigger.descendantsOfType<Expression>().first()),
+        after,
+    ) shouldBe true
+    after.questions.size shouldBe 0
+  }
+
+  @Test
+  internal fun `T13-10 consuming predicates preserves other paths and structural exclusions`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Place {\nCLASS First\nCLASS Second\nCLASS Forbidden\n}",
+            "CLASS Marker<Place>",
+            "CLASS OtherMarker<Place>",
+            "CLASS Box<Place, Place>",
+            "CLASS Notice<Box<Place, Place>>",
+        )
+    val scoped =
+        table
+            .recordTypeVariableScopes()
+            .transformEffect(
+                parse<Effect>("@Box<Place(HAS Marker), Place(NOT Forbidden)>: Notice<@Box>")
+            )
+    val variable = scoped.typeVariables.variables.single()
+
+    scoped.typeVariables
+        .bind(
+            mapOf(variable to table.resolve(te("Box<First(HAS OtherMarker), Second(HAS Marker)>")))
+        )
+        .transformEffect(scoped)
+        .toString() shouldBe
+        "Box<First(HAS OtherMarker), Second(HAS Marker)>: Notice<Box<First(HAS OtherMarker), Second(HAS Marker)>>"
+
+    val forbidden = table.resolve(te("Box<First, Forbidden>"))
+    val excluded = scoped.typeVariables.bind(mapOf(variable to forbidden)).transformEffect(scoped)
+    forbidden.narrows(
+        table.resolve(excluded.trigger.descendantsOfType<Expression>().first()),
+        RecordingWorld(),
+    ) shouldBe false
+  }
+
+  @Test
+  internal fun `T13-10 a partial THEN binding retains unchecked nested selection predicates`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Place {\nCLASS First\nCLASS Second\n}",
+            "CLASS Marker<Place>",
+            "CLASS Box<Place, Place>",
+            "CLASS Notice<Box<Place, Place>>",
+        )
+    val scoped =
+        table
+            .recordTypeVariableScopes()
+            .transformInstruction(
+                parse<Instruction>("@Box<Place(HAS Marker), Place>! THEN Notice<@Box>!")
+            ) as Then
+    val world = RecordingWorld(answer = false)
+    val info =
+        object : TypeInfo by world {
+          override fun isAbstract(e: Expression): Boolean = table.resolve(e).abstract
+
+          override fun ensureNarrows(wide: Expression, narrow: Expression) {
+            table.resolve(narrow).ensureNarrows(table.resolve(wide), this)
+          }
+        }
+
+    val bound = scoped.bindFirstStage(parse<Instruction>("Box<Place(HAS Marker), First>!"), info)
+    bound.toString() shouldBe
+        "Box<Place(HAS Marker), First>! THEN Notice<Box<Place(HAS Marker), First>>!"
+    world.questions.size shouldBe 0
+
+    parse<Instruction>("Notice<Box<Second, First>>!").narrows(bound.continuation, info) shouldBe
+        false
+    world.questions shouldContainExactly listOf("Marker<Second>")
+  }
+
+  @Test
+  internal fun `T13-10 an abstract binding retains unchecked root selection predicates`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Place { CLASS Spot }",
+            "CLASS Marker<Place>",
+            "CLASS Notice<Place>",
+        )
+    val scoped =
+        table
+            .recordTypeVariableScopes()
+            .transformEffect(parse<Effect>("@Place(HAS Marker): Notice<@Place>"))
+    val variable = scoped.typeVariables.variables.single()
+    val chosen = table.resolve(te("Place(HAS Marker)"))
+    val world = RecordingWorld(answer = false)
+
+    chosen.narrows(variable.bound, world) shouldBe true
+    world.questions.size shouldBe 0
+
+    scoped.typeVariables.bind(mapOf(variable to chosen)).transformEffect(scoped).toString() shouldBe
+        "Place(HAS Marker): Notice<Place(HAS Marker)>"
+  }
+
+  @Test
+  internal fun `T13-10 partial binding consumes only checked dependency predicates`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Place { CLASS First }",
+            "CLASS Marker<Place>",
+            "CLASS Box<Place, Place>",
+            "CLASS Notice<Box<Place, Place>>",
+        )
+    val scoped =
+        table
+            .recordTypeVariableScopes()
+            .transformEffect(
+                parse<Effect>("@Box<Place(HAS Marker), Place(HAS Marker)>: Notice<@Box>")
+            )
+    val variable = scoped.typeVariables.variables.single()
+    val chosen = table.resolve(te("Box<First, Place(HAS Marker)>"))
+    val world = RecordingWorld(answer = true)
+
+    chosen.narrows(variable.bound, world) shouldBe true
+    world.questions shouldContainExactly listOf("Marker<First>")
+
+    scoped.typeVariables.bind(mapOf(variable to chosen)).transformEffect(scoped).toString() shouldBe
+        "Box<First, Place(HAS Marker)>: Notice<Box<First, Place(HAS Marker)>>"
+  }
+
+  @Test
+  internal fun `T13-10 an abstract choice without a predicate retains its selection constraint`() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Place {
+              CLASS First
+              ABSTRACT CLASS Sub { CLASS Spot }
+            }
+            """,
+            "CLASS Marker<Place>",
+            "CLASS Box<Place, Place>",
+            "CLASS Notice<Box<Place, Place>>",
+        )
+    val scoped =
+        table
+            .recordTypeVariableScopes()
+            .transformEffect(parse<Effect>("@Box<Place(HAS Marker), Place>: Notice<@Box>"))
+    val variable = scoped.typeVariables.variables.single()
+    val chosen = table.resolve(te("Box<Sub, First>"))
+    val before = RecordingWorld(answer = true)
+
+    chosen.narrows(variable.bound, before) shouldBe true
+    before.questions shouldContainExactly listOf("Marker<Sub>")
+
+    val bound = scoped.typeVariables.bind(mapOf(variable to chosen)).transformEffect(scoped)
+    bound.toString() shouldBe "Box<Sub(HAS Marker), First>: Notice<Box<Sub(HAS Marker), First>>"
+
+    val after = RecordingWorld(answer = false)
+    table
+        .resolve(te("Notice<Box<Spot, First>>"))
+        .narrows(
+            table.resolve(bound.instruction.descendantsOfType<Expression>().first()),
+            after,
+        ) shouldBe false
+    after.questions shouldContainExactly listOf("Marker<Spot>")
   }
 
   // T13-11 Capture follows dependency paths

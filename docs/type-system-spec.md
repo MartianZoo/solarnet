@@ -1542,8 +1542,12 @@ matches, the two constraints intersect as usual, and a conflict is an error. App
 ordinary type expression. It does not create the invalid class literal `Class<Microbe<This>>`, and
 `Class<@CardResource>` written separately still denotes the literal for `Microbe`.
 
-A refinement on the supplying occurrence is consumed by binding. It was already tested when the
-value was chosen, so the other occurrences reuse the chosen type without asking the world again.
+A `HAS` predicate on the supplying occurrence, including one nested in its dependencies, is
+consumed by binding at that dependency path only when the chosen root Class and dependencies are
+concrete and the chosen type no longer carries it. Narrowing already checked it when the value was
+chosen, so other occurrences reuse the value without asking the world again. A partial binding
+retains predicates on paths still awaiting a concrete choice. Structural constraints and predicates
+absent from the supplying occurrence at that path remain in force.
 
 > **Non-normative example — Turmoil's new chairman.** When a party takes power, its rules run:
 >

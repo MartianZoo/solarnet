@@ -6,6 +6,7 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement.Has
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.ExpandedReference
@@ -268,8 +269,8 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
 
   /**
    * Returns a transformer that applies captured [bindings] only at recorded occurrences. Each
-   * occurrence retains its own arguments, and a declaration refinement already checked during
-   * capture is consumed, exactly as specified by
+   * occurrence retains its own arguments. Checked supplier `HAS` predicates are consumed only at
+   * matching paths with concrete chosen Classes and dependencies; other constraints remain, per
    * [rule T13-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    * Callers with no [bindings] must supply [classTable] explicitly.
    */
@@ -279,24 +280,40 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
           bindings.values.firstOrNull()?.classTable
               ?: error("empty bindings require an explicit class table"),
   ): PetTransformer {
-    fun Entry.capturedRefinement() =
-        if (variable.declaration in currentExpressions) {
-          currentExpressions.getValue(variable.declaration).refinement
-        } else {
-          variable.bound.refinement
-        }
+    fun capturedType(entry: Entry): GroundType =
+        entry.currentExpressions[entry.variable.declaration]?.let(classTable::resolve)
+            ?: entry.variable.bound
 
-    fun GroundType.consume(refinement: Expression.Refinement?): GroundType =
-        if (this.refinement == refinement) copy(refinement = null) else this
+    fun consume(type: GroundType, supplier: GroundType, chosen: GroundType): GroundType =
+        type.copy(
+            refinement =
+                type.refinement?.retaining {
+                  it !is Has ||
+                      it !in supplier.refinement?.conjuncts().orEmpty() ||
+                      it in chosen.refinement?.conjuncts().orEmpty() ||
+                      chosen.rootClass.abstract ||
+                      chosen.dependencies.abstract
+                },
+            dependencies =
+                type.dependencies.mapWithKey { key, bound ->
+                  val supplierDependency =
+                      supplier.dependencies.getIfPresent(key) as? TypeDependency
+                  val chosenDependency = chosen.dependencies.getIfPresent(key) as? TypeDependency
+                  if (supplierDependency != null && chosenDependency != null) {
+                    consume(bound, supplierDependency.boundType, chosenDependency.boundType)
+                  } else {
+                    bound
+                  }
+                },
+        )
 
     val replacements = entries.flatMap { entry ->
       val replacement = bindings[entry.variable] ?: return@flatMap emptyList()
-      val capturedRefinement = entry.capturedRefinement()
-      val captured = replacement.consume(capturedRefinement)
+      val supplyingType = capturedType(entry)
       entry.currentExpressions.flatMap { (occurrence, source) ->
-        val constraint = classTable.resolve(source).consume(capturedRefinement)
+        val constraint = consume(classTable.resolve(source), supplyingType, replacement)
         val occurrenceBinding =
-            classTable.glb(captured, constraint)
+            classTable.glb(replacement, constraint)
                 ?: throw NarrowingException(
                     "`$replacement` does not satisfy type-variable occurrence `$source`"
                 )
@@ -322,12 +339,11 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         )
     entries.forEach { entry ->
       val replacement = bindings[entry.variable] ?: return@forEach
-      val capturedRefinement = entry.capturedRefinement()
-      val captured = replacement.consume(capturedRefinement)
+      val supplyingType = capturedType(entry)
       entry.currentExpressions.values.forEach { source ->
         val specializedSource = transformer.transformExpressionChildren(source)
-        val constraint = classTable.resolve(specializedSource).consume(capturedRefinement)
-        if (classTable.glb(captured, constraint) == null) {
+        val constraint = consume(classTable.resolve(specializedSource), supplyingType, replacement)
+        if (classTable.glb(replacement, constraint) == null) {
           throw NarrowingException(
               "`$replacement` does not satisfy specialized type-variable occurrence " +
                   "`$specializedSource`"

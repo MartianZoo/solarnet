@@ -74,6 +74,9 @@ When use-specific defaults expand a recorded occurrence, narrowing recognizes th
 its unchanged dependency-key assignments. This preserves the authored variable through elaboration
 without adding occurrence tokens or provenance to `Expression`.
 
+For binding's predicate-consumption rule, see
+[T13-10](../type-system-spec.md#13-type-variables).
+
 The card-owned `Splicer<SpliceTacticalGenomics>` component is a working content mechanism, not
 unfinished Type-variable infrastructure. Further changes to its ownership or task assignment would
 be optional content cleanup.
