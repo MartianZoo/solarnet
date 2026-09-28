@@ -6,6 +6,7 @@ import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -61,5 +62,29 @@ internal class CrashSiteCleanupTest : CardTest() {
 
     shouldThrow<RequirementException> { p3.playProject(CrashSiteCleanup, 4) }
     p1.playProject(CrashSiteCleanup, 4) { doTask("2 Steel") }.expect("2 Steel")
+  }
+
+  @Test
+  internal fun `Declining an asteroid plant attack does not qualify for cleanup`() {
+    p1.runOperation("14 MC, ProjectCard")
+    p1.playProject(AsteroidCard, 14) {
+          // Choose zero plants even though the opponent has one.
+          declineTask()
+        }
+        .expect("0 Plant<Player2>")
+    shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
+    requireP2().count("Plant") shouldBe 1
+    p1.count("MC") shouldBe 4
+    p1.count("ProjectCard") shouldBe 1
+  }
+
+  @Test
+  internal fun `An asteroid with no plants to remove does not qualify for cleanup`() {
+    requireP2().runOperation("-Plant")
+    p1.runOperation("14 MC, ProjectCard")
+    p1.playProject(AsteroidCard, 14).expect("0 Plant<Player2>")
+    shouldThrow<RequirementException> { p1.playProject(CrashSiteCleanup, 4) }
+    p1.count("MC") shouldBe 4
+    p1.count("ProjectCard") shouldBe 1
   }
 }

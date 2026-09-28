@@ -233,4 +233,16 @@ internal class TurmoilProjectCardsTest : CardTest() {
         .runOperation("ResolveGlobalEvent<Class<SponsoredProjects>>")
         .expect("6 ProjectCard<Player1>")
   }
+
+  @Test
+  internal fun `Diaspora Movement counts its own Jovian tag without an including this reminder`() {
+    newGame(TurmoilExpansion)
+    p1.playCorp(CrediCor, 5)
+    admin.phase("Action")
+    p1.runOperation("2 PartyDelegate<Reds>")
+    requireP2().runOperation("8 MC, ProjectCard")
+    requireP2().playProject(ColonizerTrainingCamp, 8)
+
+    p1.playProject(DiasporaMovement, 7).expect("-5 MC")
+  }
 }
