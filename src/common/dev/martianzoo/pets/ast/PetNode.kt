@@ -27,7 +27,7 @@ import kotlin.reflect.KClass
 public sealed class PetNode {
   /** Diagnostic provenance, excluded from structural equality and rendered Pets. */
   public var sourceLocation: SourceLocation? = null
-    internal set(value) {
+    set(value) {
       // Shared syntax objects have no individual authored occurrence.
       when (this) {
         Instruction.NoOp,

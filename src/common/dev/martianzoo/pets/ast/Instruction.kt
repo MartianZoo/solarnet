@@ -284,8 +284,9 @@ public sealed class Instruction : InstructionTree() {
 
     override fun precedence(): Int = if (fromEx is Full) 7 else 10
 
-    internal companion object {
-      fun resolveTypeVariableNames(transmute: Transmute): Transmute {
+    public companion object {
+      /** Resolves shared named variables across both sides of a constructed transmutation. */
+      public fun resolveTypeVariableNames(transmute: Transmute): Transmute {
         return dev.martianzoo.pets.ast.resolveTypeVariableNames(
             transmute,
             transmute.localTypeVariableDeclarations(),
@@ -865,7 +866,8 @@ public sealed class Instruction : InstructionTree() {
                 }
               }
 
-      internal fun resolveTypeVariableNames(then: Then): Then {
+      /** Resolves shared named variables after the complete sequence has been constructed. */
+      public fun resolveTypeVariableNames(then: Then): Then {
         val declarations = then.localTypeVariableDeclarations()
         then.descendantsOfType<Transmute>().forEach { transmute ->
           transmute.localTypeVariableDeclarations().forEach { declaration ->

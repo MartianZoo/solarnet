@@ -15,7 +15,6 @@ public object Exceptions {
   ) : Exception(detail, cause) {
     /** The most specific authored occurrence known, absent for programmatically built input. */
     public var sourceLocation: SourceLocation? = sourceLocation
-      internal set
 
     override val message: String?
       get() = sourceLocation?.describe(detail) ?: detail

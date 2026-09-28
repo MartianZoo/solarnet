@@ -165,7 +165,7 @@ public sealed class Requirement : PetElement() {
    */
   public data class Max(val maximum: Int, val countedMetric: Metric) :
       Counting(maximum, countedMetric) {
-    internal constructor(
+    public constructor(
         scaledEx: ScaledExpression
     ) : this(scaledEx.actualScalar(), Metric.Count(scaledEx.expression))
 
@@ -180,7 +180,7 @@ public sealed class Requirement : PetElement() {
    */
   public data class Exact(public val expected: Int, public val countedMetric: Metric) :
       Counting(expected, countedMetric) {
-    internal constructor(
+    public constructor(
         scaledEx: ScaledExpression
     ) : this(scaledEx.actualScalar(), Metric.Count(scaledEx.expression))
 

@@ -129,13 +129,16 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
   requiring authored references to generated names. Preserve Cimmeria map generation,
   `PlaceNeutralTiles`'s system-only ownership, and SRR's explicit card-Class selection.
+- Extract `Parsing`, `DerivedClassLowerer`, and the parsed system-declaration provider into an
+  optional parser module. The model construction API supports independent parsers; keep the
+  better-parse dependency with source input. Canonical content still needs a separate build-time
+  conversion to typed declarations before its consumers can omit runtime parsing entirely.
 - Report an unrecognized character inside an optional Pets production at that character:
   `Foo<~ Bar>` currently points at `<` rather than `~`. The better-parse completion analyzer drops
   `NoMatchingToken` failures; address that diagnostic separately from grammar organization.
-- Investigate replacing standalone Pets parsing's synthetic `Submitted` owner and lowering pass
-  with direct rejection of owner-local bodies. Verify AST/scope normalization is preserved and
-  decide whether malformed-local-class diagnostics should still precede the declaration-file-only
-  error before removing that path.
+- Reject type-variable markers on a `DEFAULT` root instead of silently discarding them when the
+  clause records its declaring class and argument specs. Keep this diagnostic change separate from
+  owner-local declaration extraction.
 - Carry resource/file names through Pets parsing and generated catalog inputs so diagnostic spans
   identify the original file as well as the submitted text, line, and column.
 - Preserve authored provenance when runtime narrowing and task normalization synthesize new trees.

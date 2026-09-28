@@ -148,12 +148,15 @@ internal class GamePremiseTest {
     Canon.classTable.findClass(blue) shouldBe null
     game.classTable.isInhabited(blue) shouldBe true
     game.actors.shouldContainExactly(Player(blue), Player(yellow), ADMIN)
-    game.reader.getComponents("Player").map { it.className }.toSet() shouldBe setOf(blue, yellow)
+    game.reader.getComponents(cn("Player").expression).map { it.className }.toSet() shouldBe
+        setOf(blue, yellow)
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
     game.testAgent(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
     game.testAgent(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
-    getPlayerOwner(game.reader, game.reader.getComponents("StartToken").single()) shouldBe
-        Player(blue)
+    getPlayerOwner(
+        game.reader,
+        game.reader.getComponents(cn("StartToken").expression).single(),
+    ) shouldBe Player(blue)
   }
 
   @Test

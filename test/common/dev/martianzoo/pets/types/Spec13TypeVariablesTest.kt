@@ -15,6 +15,7 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Then
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
@@ -1540,5 +1541,16 @@ internal class Spec13TypeVariablesTest {
             table.resolve(parse("Pair<Alice, Bob>")),
         )
         .map { (variable, value) -> "$variable=$value" } shouldContainExactly listOf("P=Alice")
+  }
+
+  @Test
+  internal fun nestedSelectorReferencesSurviveOrdinarySettlementExpansion() {
+    val each =
+        parse<InstructionTree>("EACH P@Person { A@Wrapper<Base<P@Person>> FROM A@Wrapper }")
+            as Instruction.Each
+    val bound = each.bodyFor(cn("Alice").expression) as Instruction.Transmute
+    bound.gaining.expression.arguments.single().arguments.single().className shouldBe cn("Alice")
+    bound.removing.expression.arguments.single().arguments.single().className shouldBe cn("Alice")
+    parse<InstructionTree>(each.toString()) shouldBe each
   }
 }

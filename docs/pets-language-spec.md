@@ -1362,7 +1362,12 @@ class where it is used, and derives the name.
 This is source-level lowering: it happens while the declaration file is parsed, so the type system
 never sees anything but ordinary declarations.
 
-**L12-1. An expression followed by a body declares a class at its point of use.**
+**L12-1. An expression followed by a body declares a class at its point of use.** Its root must
+name a base Class, rather than the `This` placeholder, and must not carry a Type-variable marker.
+Markers within its arguments follow their ordinary scope rules.
+
+A `DEFAULT` root names its declaring Class (L11-8), so it cannot declare a local Class. Its argument
+occurrences may declare one.
 
 ```ebnf
 LocalClassBody ::= "{" ( LocalBodyElement ( ";" LocalBodyElement )* )? "}"
