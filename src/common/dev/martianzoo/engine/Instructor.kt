@@ -406,13 +406,6 @@ internal constructor(
       )
     }
 
-    if (g == r && intens != MANDATORY) return NoOp
-    if (g == r)
-        throw ExpressionException(
-            "cannot both gain and remove `${g?.expression}`",
-            sourceLocation = change.sourceLocation,
-        )
-
     translateCustomChange(change, g, r, worldGainNarrowing)?.let {
       return it
     }

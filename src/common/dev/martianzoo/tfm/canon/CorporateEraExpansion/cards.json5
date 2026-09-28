@@ -271,7 +271,7 @@
           "cost": 8,
           "tags": [ "ScienceTag", "BuildingTag" ],
           "effects": [
-            "ScienceTag: (-ProjectCard THEN ProjectCard) OR Ok",
+            "ScienceTag: ProjectCard FROM ProjectCard OR Ok",
             "End: VictoryPoint"
           ],
         },

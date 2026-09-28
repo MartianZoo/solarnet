@@ -35,6 +35,9 @@ internal class Limiter(
       removing: Component?,
   ): Int {
 
+    // A same-Type exchange leaves every invariant unchanged, but requires the source count.
+    if (gaining != null && gaining == removing) return gameWorld.components.countComponent(gaining)
+
     // We must ignore any that are in common; the transmutation must hold them constant
     val (gainInvars, removeInvars) =
         run {

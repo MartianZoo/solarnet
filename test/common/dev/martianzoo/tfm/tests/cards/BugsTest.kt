@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.CustomCodeException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -165,27 +164,6 @@ internal class BugsTest : CardTest() {
     }
 
     p1.assertCounts(2 to "Animal<$EcologicalZone>")
-  }
-
-  @Test
-  internal fun `Mars University incorrectly allows two discards before either draw`() {
-    newGame(CorporateEraExpansion)
-    p1.runOperation(
-        "5 ProjectCard, $MarsUniversity"
-    ) { /* Decline Mars University's discard-and-draw effect. */
-      declineTask()
-    }
-    val manual = p1.also { it.autoExecPolicy = NONE }
-
-    manual
-        .runOperation("$Research") {
-          doTask("2 ProjectCard")
-          doTask("-ProjectCard")
-          doTask("-ProjectCard")
-          doTask("ProjectCard")
-          doTask("ProjectCard")
-        }
-        .expect("2 ProjectCard")
   }
 
   // https://boardgamegeek.com/thread/3361875/questions-about-the-head-start

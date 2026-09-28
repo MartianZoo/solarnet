@@ -227,11 +227,12 @@ read off a state rather than written down. Narrowing can settle a choice (L3); o
 resolution against a state can settle a `.`.
 
 After both sides have narrowed to concrete Types, a transmutation is **reflexive** when those Types
-are equal (T5-1), regardless of how they were spelled. A mandatory reflexive transmutation is
-invalid; an optional or as-much-as-possible one resolves to `Ok` and produces no change event. The
-same rule applies whether its quantifier was written or supplied by elaboration. An empty argument
-list affects default acceptance and authored spelling (L1-2); it cannot make equal resolved Types
-non-reflexive.
+are equal (T5-1), regardless of how they were spelled. A reflexive transmutation exchanges existing
+components for the same count of that Type: it records both gain and removal and fires both trigger
+directions without changing the component count. Its limit is the available source count; shared
+invariants remain unchanged. Quantifiers apply normally, whether written or supplied by elaboration.
+An empty argument list affects default acceptance and authored spelling (L1-2); it cannot make equal
+resolved Types non-reflexive.
 
 > **Non-normative examples — Artificial Lake and asteroid attacks.** Artificial Lake's special
 > ocean placement is `!`: choosing that arm requires the exceptional land placement to succeed in
@@ -412,8 +413,8 @@ AttributedInstruction ::= PrimaryInstruction ( "BY" Expression )?
 
 **L2-16. Precedence, tightest first:** a scaled expression and its quantifier, `/`, `BY`, `OR`, the
 gate `:`, `THEN`, `,`. Parentheses group, and rendering re-inserts grouping wherever re-parsing
-would otherwise read the tree differently — including around a transmutation written in full inside
-an `OR`, whose bare `FROM` would be ambiguous.
+would otherwise read the tree differently. A transmutation written in full binds tighter than
+`OR`, so `Plant FROM Heat OR Steel` chooses between the transmutation and gaining Steel.
 
 ```ebnf
 PrimaryInstruction ::= Change

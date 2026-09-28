@@ -74,7 +74,7 @@ public sealed class Instruction : InstructionTree() {
    * One of the three elementary instructions of
    * [rule L2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions):
    * a [Gain], a [Remove] or a [Transmute]. Each says that the after-state holds some number more,
-   * fewer, or differently-typed components than the before-state.
+   * fewer, or exchanged components relative to the before-state.
    */
   public sealed class Change : Instruction() {
     public companion object {
@@ -103,10 +103,12 @@ public sealed class Instruction : InstructionTree() {
      */
     public abstract val count: Scalar
 
-    /** What the after-state holds more of, or null for a pure removal. */
+    /**
+     * The gained Type, or null for a pure removal; a same-Type exchange has no net count change.
+     */
     public abstract val gaining: Expression?
 
-    /** What the after-state holds fewer of, or null for a pure gain. */
+    /** The removed Type, or null for a pure gain; a same-Type exchange has no net count change. */
     public abstract val removing: Expression?
 
     /**
@@ -276,11 +278,6 @@ public sealed class Instruction : InstructionTree() {
     init {
       checkNonzero(count)
     }
-
-    // A transmutation written in full needs parentheses inside an OR, where its bare FROM would
-    // otherwise be ambiguous; rule L2-16 requires rendering to re-insert that grouping.
-    override fun safeToNestIn(container: PetNode): Boolean =
-        super.safeToNestIn(container) && (fromEx !is Full || container !is Or)
 
     override fun precedence(): Int = if (fromEx is Full) 7 else 10
 

@@ -60,8 +60,10 @@ that machinery merely to make those predicates executable.
 
 `CardTrackingFullGameTest` may maintain an exact-name ledger outside the World for stronger replay
 evidence. Named draws, buys, discards, plays, and returns annotate the matching generic card-count
-events. `projectCardArrivalOrder` contains only cards that actually enter the indicated Player's
-hand, in arrival order. Rejected offers and searched-past cards do not appear in the fixture.
+events. An atomic `ProjectCard FROM ProjectCard` exchange names its gained and removed cards
+separately; strict tracking requires both sides. `projectCardArrivalOrder` contains only cards that
+actually enter the indicated Player's hand, in arrival order. Rejected offers and searched-past cards
+do not appear in the fixture.
 
 Strict tracking verifies that every hand-count change is named and that the external ledger agrees
 with each Player's `ProjectCard` count. This test-only evidence does not change production semantics.

@@ -293,7 +293,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
         // Green drew 1 card(s)
         // You drew House Printing
         draw(HousePrinting)
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
       }
       // Green ended turn
     }
@@ -744,7 +744,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
         // Green drew 1 card(s)
         // You drew Space Mirrors
         draw(SpaceMirrors)
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
       }
       // Green ended turn
     }
@@ -1030,8 +1030,8 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
         // Green drew 1 card(s)
         // You drew Venus Soils
         draw(VenusSoils)
-        doTask("-ProjectCard")
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
       }
     }
     pink.turn {

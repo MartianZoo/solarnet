@@ -242,12 +242,10 @@ automatic-listener permutation test comparing normalized state and task multiset
 experiment that permutes representative legal player-task orders through the next stable point.
 Exact event order need not match.
 
-Three content cases remain evidence for missing or unsettled semantics, not invitations to build
+Two content cases remain evidence for missing or unsettled semantics, not invitations to build
 one-off machinery:
 
 - Head Start's two action tasks can interleave; settle it through the general action lifecycle.
-- Two Mars University activations can perform both discards before either draw; authoritative rules
-  evidence must decide whether each exchange is indivisible.
 - Candidate draw/select/play chains do not isolate or force the selected candidates; any repair
   should use one operation-scoped candidate representation.
 

@@ -148,7 +148,7 @@ internal class ErraticCarbonCurrentTest :
     blue.turn { playProject(HermeticOrderOfMars, 9) }
     pink.turn {
       playProject(MarsUniversity, steel = 4) {
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(NoctisCity)
       }
     }
@@ -390,7 +390,7 @@ internal class ErraticCarbonCurrentTest :
     pink.turn {
       cardAction1(BusinessNetwork) { buyCards(0) }
       playProject(CarbonNanosystems, steel = 7) {
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(Plantation)
       }
     }
@@ -438,7 +438,7 @@ internal class ErraticCarbonCurrentTest :
           doTask("ProjectCard FROM PlayedEvent<Class<$Harvest>>")
           returnToHand(Harvest)
         }
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(Decomposers)
       }
     }

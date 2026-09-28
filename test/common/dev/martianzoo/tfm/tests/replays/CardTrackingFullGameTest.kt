@@ -21,7 +21,7 @@ internal abstract class CardTrackingFullGameTest(
   private val cards = linkedMapOf<ClassName, CardState>()
   private val arrivalOffsets = mutableMapOf<ClassName, Int>()
   private val projectCardEvents = mutableListOf<ChangeEvent>()
-  private val eventCards = mutableMapOf<ChangeEvent, MutableList<ClassName>>()
+  private val eventCards = mutableMapOf<Pair<ChangeEvent, Boolean>, MutableList<ClassName>>()
   private val recentProjectCardStarts = mutableMapOf<Player, Int>()
   private val pendingAnnotations = mutableListOf<PendingAnnotation>()
   private var nextUnknownProjectCard = 1
@@ -99,7 +99,7 @@ internal abstract class CardTrackingFullGameTest(
       event.ordinal >= earliestOrdinal &&
           event.change.gaining?.className == PROJECT_CARD &&
           event.projectCardPlayer() == player &&
-          cardClass in eventCards[event].orEmpty()
+          cardClass in eventCards[event to true].orEmpty()
     }
   }
 
@@ -191,17 +191,16 @@ internal abstract class CardTrackingFullGameTest(
         val cardClass = checkNotNull(removing.trackedCardClass())
         val player = event.playerOwner(gaining)
         cards[cardClass] = Hand(player)
-        event.noteCards(listOf(cardClass))
+        event.noteCards(listOf(cardClass), gaining = true)
       }
-      gaining?.className == PROJECT_CARD && removing?.className != PROJECT_CARD ->
-          observeProjectCardArrival(event)
+      gaining?.className == PROJECT_CARD -> observeProjectCardArrival(event)
       removing?.className == PROJECT_CARD && gaining?.className != null -> {
         val cardClass = gaining.className
         val player = event.playerOwner(removing)
         val state = cards[cardClass] ?: return
         check(state == Hand(player)) { "$player played $cardClass from $state" }
         cards[cardClass] = Played(player)
-        event.noteCards(listOf(cardClass))
+        event.noteCards(listOf(cardClass), gaining = false)
       }
       gaining?.className == PLAYED_EVENT -> {
         val cardClass = checkNotNull(gaining.trackedCardClass())
@@ -225,7 +224,7 @@ internal abstract class CardTrackingFullGameTest(
     arrivingCards.forEach { cardClass ->
       check(cards.put(cardClass, Hand(player)) == null) { "$cardClass has already left the deck" }
     }
-    event.noteCards(arrivingCards)
+    event.noteCards(arrivingCards, gaining = true)
     arrivalOffsets[player.className] = end
   }
 
@@ -237,16 +236,15 @@ internal abstract class CardTrackingFullGameTest(
     val matches: (ChangeEvent) -> Boolean = { event ->
       event.projectCardPlayer() == player &&
           if (gaining) {
-            event.change.gaining?.className == PROJECT_CARD &&
-                event.change.removing?.className != PROJECT_CARD
+            event.change.gaining?.className == PROJECT_CARD
           } else {
-            event.change.removing?.className == PROJECT_CARD &&
-                event.change.gaining?.className != PROJECT_CARD
+            event.change.removing?.className == PROJECT_CARD
           }
     }
     val annotation =
         PendingAnnotation(
             cardClasses,
+            gaining,
             recentProjectCardStarts[player] ?: trackingStartOrdinal,
             matches,
         )
@@ -267,27 +265,34 @@ internal abstract class CardTrackingFullGameTest(
 
   private fun applyAnnotation(annotation: PendingAnnotation): Boolean {
     val selected =
-        selectEvents(annotation.cardClasses.size, annotation.earliestOrdinal, annotation.matches)
-            ?: return false
-    annotateSelectedEvents(selected, annotation.cardClasses)
+        selectEvents(
+            annotation.cardClasses.size,
+            annotation.earliestOrdinal,
+            annotation.gaining,
+            annotation.matches,
+        ) ?: return false
+    annotateSelectedEvents(selected, annotation.cardClasses, annotation.gaining)
     return true
   }
 
   private fun selectEvents(
       cardCount: Int,
       earliestOrdinal: Int,
+      gaining: Boolean,
       matches: (ChangeEvent) -> Boolean,
   ): List<EventAllocation>? {
     val matching =
         projectCardEvents
             .filter { event ->
-              event.ordinal >= earliestOrdinal && event.remainingCardCapacity > 0 && matches(event)
+              event.ordinal >= earliestOrdinal &&
+                  remainingCardCapacity(event, gaining) > 0 &&
+                  matches(event)
             }
             .asReversed()
     val selected = mutableListOf<EventAllocation>()
     var remaining = cardCount
     for (event in matching) {
-      val assigned = minOf(event.remainingCardCapacity, remaining)
+      val assigned = minOf(remainingCardCapacity(event, gaining), remaining)
       selected += EventAllocation(event, assigned)
       remaining -= assigned
       if (remaining == 0) break
@@ -298,10 +303,11 @@ internal abstract class CardTrackingFullGameTest(
   private fun annotateSelectedEvents(
       selected: List<EventAllocation>,
       cardClasses: List<ClassName>,
+      gaining: Boolean,
   ) {
     var cardIndex = 0
     selected.forEach { (event, count) ->
-      event.noteCards(cardClasses.slice(cardIndex until cardIndex + count))
+      event.noteCards(cardClasses.slice(cardIndex until cardIndex + count), gaining)
       cardIndex += count
     }
   }
@@ -317,8 +323,8 @@ internal abstract class CardTrackingFullGameTest(
   private fun ChangeEvent.involvesProjectCard(): Boolean =
       change.gaining?.className == PROJECT_CARD || change.removing?.className == PROJECT_CARD
 
-  private fun ChangeEvent.noteCards(cardClasses: List<ClassName>) {
-    val notedCards = eventCards.getOrPut(this) { mutableListOf() }
+  private fun ChangeEvent.noteCards(cardClasses: List<ClassName>, gaining: Boolean) {
+    val notedCards = eventCards.getOrPut(this to gaining) { mutableListOf() }
     val previousCardNote = trackedCardNote
     cardClasses.filterNotTo(notedCards) { it in notedCards }
     check(notedCards.size <= change.count) { "$notedCards exceed project-card count in $this" }
@@ -337,14 +343,24 @@ internal abstract class CardTrackingFullGameTest(
   }
 
   private fun ChangeEvent.hasCompleteCardNote(): Boolean =
-      remainingCardCapacity == 0 &&
+      (change.gaining?.className != PROJECT_CARD || remainingCardCapacity(this, true) == 0) &&
+          (change.removing?.className != PROJECT_CARD || remainingCardCapacity(this, false) == 0) &&
           trackedCardNote?.let { expected -> notes?.lineSequence()?.any { it == expected } } == true
 
   private val ChangeEvent.trackedCardNote: String?
-    get() = eventCards[this]?.takeIf { it.isNotEmpty() }?.let { "Cards: ${it.joinToString()}" }
+    get() {
+      val gained = eventCards[this to true].orEmpty()
+      val removed = eventCards[this to false].orEmpty()
+      if (gained.isEmpty() && removed.isEmpty()) return null
+      return if (gained.isNotEmpty() && removed.isNotEmpty()) {
+        "Cards: ${gained.joinToString()} FROM ${removed.joinToString()}"
+      } else {
+        "Cards: ${(gained + removed).joinToString()}"
+      }
+    }
 
-  private val ChangeEvent.remainingCardCapacity: Int
-    get() = change.count - eventCards[this].orEmpty().size
+  private fun remainingCardCapacity(event: ChangeEvent, gaining: Boolean): Int =
+      event.change.count - eventCards[event to gaining].orEmpty().size
 
   private fun ChangeEvent.playerOwner(component: Component): Player =
       checkNotNull(
@@ -379,6 +395,7 @@ internal abstract class CardTrackingFullGameTest(
 
   private data class PendingAnnotation(
       val cardClasses: List<ClassName>,
+      val gaining: Boolean,
       val earliestOrdinal: Int,
       val matches: (ChangeEvent) -> Boolean,
   )

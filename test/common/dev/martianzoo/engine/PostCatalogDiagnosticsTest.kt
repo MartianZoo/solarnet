@@ -2493,18 +2493,17 @@ internal class PostCatalogDiagnosticsTest {
   }
 
   @Test
-  internal fun transmuteToSameType() {
+  internal fun sameTypeTransmutationRequiresAnExistingSource() {
     val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
     val error =
-        assertFailsWith<ExpressionException> {
+        assertFailsWith<LimitsException> {
           agent.runOperation("Rose FROM Rose")
         }
 
-    assertEquals("cannot both gain and remove `Rose`", error.detail)
-    // Prefer highlighting the source `Rose` after `FROM`, which repeats the destination type.
+    assertEquals("cannot transmute 1 `Rose` into `Rose`: maximum available is 0", error.detail)
     assertEquals(
         """
-        |cannot both gain and remove `Rose` at 1:1
+        |cannot transmute 1 `Rose` into `Rose`: maximum available is 0 at 1:1
         |Rose FROM Rose
         |^
         """

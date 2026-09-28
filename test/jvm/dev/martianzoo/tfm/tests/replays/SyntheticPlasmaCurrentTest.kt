@@ -268,14 +268,14 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       stdAction("UseTurmoilPolicyAction", 2)
       convertPlants { placeTile(6, 6) }
       playProject(MarsUniversity, 8) {
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(DawnCity)
         draw(SulphurExports)
       }
       playProject(ResearchOutpost, 18) {
         placeTile(8, 6)
         draw(Worms)
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(Worms)
         draw(AtalantaPlanitiaLab)
       }
@@ -323,7 +323,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       }
       playProject(AtalantaPlanitiaLab, 9) {
         draw(IshtarExpedition, FueledGenerators)
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(HiTechLab)
         draw(TropicalResort)
       }
@@ -455,7 +455,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           doTask("ProjectCard FROM PlayedEvent<Class<$Comet>>")
           returnToHand(Comet)
         }
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(ProtectedHabitats)
         draw(SmallAnimals)
       }
@@ -506,14 +506,14 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(Omnicourt, mc = 2, steel = 2)
       playProject(GhgFactories, mc = 2, steel = 2)
       playProject(AiCentral, mc = 4, steel = 4) {
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(NewHolland)
         draw(CaretakerContract)
       }
       cardAction1(AiCentral) { draw(BactoviralResearch, OlympusConference) }
       cardAction2(LocalShading)
       playProject(OlympusConference, 7) {
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(CaretakerContract)
         draw(Heather)
       }
@@ -573,7 +573,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(AntiGravityTechnology, 13) {
         doTask("ProjectCard FROM Science<$OlympusConference>")
         draw(Plantation)
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(MartianMediaCenter)
         draw(KelpFarming)
       }
@@ -590,7 +590,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(RoverConstruction, mc = 1, steel = 1)
       playProject(BactoviralResearch, 7) {
         draw(AdaptedLichen)
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(AdaptedLichen)
         draw(Bushes)
         addCardResources(NitriteReducingBacteria, 9)

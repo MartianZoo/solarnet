@@ -91,9 +91,10 @@ Removing the final target cascades through existing dependents before the reques
 retried. The graph owns the reverse-dependency index, while the engine owns the decision to cascade.
 
 Every live mutation is an exact gain, removal, or transmutation. A transmutation removes before it
-gains. A direct Signal is represented as a self-transmutation so both trigger directions can observe
-it without changing resting multiplicity. `Custom` Classes never become components: their Kotlin
-implementations calculate metrics or translate instructions.
+gains. A same-Type transmutation records both directions without changing multiplicity and requires
+an existing source. A direct Signal uses the same paired event without requiring an existing source.
+`Custom` Classes never become components: their Kotlin implementations calculate metrics or translate
+instructions.
 
 The event log contains:
 

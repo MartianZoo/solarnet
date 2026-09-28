@@ -392,7 +392,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     }
     ER.playProject(MarsUniversity, 2, steel = 2) {
       ER.draw(AqueductSystems)
-      doTask("-ProjectCard")
+      doTask("ProjectCard FROM ProjectCard")
       ER.discard(Meltworks)
     }
     JR.playProject(RobotPollinators, 9)
@@ -411,7 +411,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.playProject(GhgFactories, steel = 4)
     ER.playProject(RoboticWorkforce, 9) {
       ER.draw(LakeMarineris)
-      doTask("-ProjectCard")
+      doTask("ProjectCard FROM ProjectCard")
       ER.discard(AqueductSystems)
       doTask("CopyProductionBox<$GhgFactories>")
     }
@@ -421,7 +421,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.playProject(Tardigrades, 1)
     ER.playProject(GeneRepair, 12) {
       ER.draw(PowerGrid)
-      doTask("-ProjectCard")
+      doTask("ProjectCard FROM ProjectCard")
       ER.discard(LakeMarineris)
     }
     ER.cardAction1(RedShips)
