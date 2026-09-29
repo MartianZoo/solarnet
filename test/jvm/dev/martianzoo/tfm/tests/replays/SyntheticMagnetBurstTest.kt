@@ -14,14 +14,14 @@ import kotlin.test.Test
 internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
   // Player-record evidence: Hellas, Corporate Era, Venus, Prelude, Prelude 2, drafting, World
   // Government, two players, and these full-random milestone and award pools.
-  // Unsupported component: Builder and Sponsor substitute for unsupported Thawer and Briber.
+  // This replay still uses Builder and Sponsor stand-ins for Thawer and Briber.
   // Player-record evidence: Merger was dealt despite promo cards being disabled, so it is included
   // individually without enabling PromoCardPack.
   override val config =
       GameConfig(
           """
           HellasMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, Merger
+          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, Merger, SagittaFrontierServices, Unsafe
           FakeStuffBundle
 
           Energizer, Builder, Generalist, Diversifier, Terraformer, Sponsor

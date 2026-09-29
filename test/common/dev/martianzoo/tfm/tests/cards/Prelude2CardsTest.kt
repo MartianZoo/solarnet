@@ -294,10 +294,12 @@ internal class Prelude2CardsTest : CardTest() {
   @Test
   internal fun `Sky Docks discounts a project played through Board of Directors and Ecology Experts`() {
     newGame(
-        PreludeExpansion,
-        Prelude2CardPack,
-        ColoniesExpansion,
-        colonyTiles = testColonyTiles(2),
+        GameConfig(
+            "PreludeExpansion, Prelude2CardPack, ColoniesExpansion, EcologyExperts, Unsafe, " +
+                testColonyTiles(2).joinToString(),
+            "Player1",
+            "Player2",
+        )
     )
     admin.phase("Action")
     p1.runOperation("13 MC, PreludeCard, ProjectCard, $BoardOfDirectors, $SkyDocks")
@@ -884,12 +886,13 @@ internal class Prelude2CardsTest : CardTest() {
   @Test
   internal fun `Sagitta treats the event icon as an additional printed tag`() {
     newGame(
-        PreludeExpansion,
-        Prelude2CardPack,
-        CorporateEraExpansion,
-        ColoniesExpansion,
-        PromoCardPack,
-        colonyTiles = testColonyTiles(2),
+        GameConfig(
+            "PreludeExpansion, Prelude2CardPack, CorporateEraExpansion, " +
+                "ColoniesExpansion, PromoCardPack, SagittaFrontierServices, " +
+                testColonyTiles(2).joinToString(),
+            "Player1",
+            "Player2",
+        )
     )
     val p2 = requireP2()
 
@@ -1120,7 +1123,17 @@ internal class Prelude2CardsTest : CardTest() {
   }
 
   private fun highCirclesEnablesProject(prelude: ClassName) {
-    newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion)
+    if (prelude == EcologyExperts) {
+      newGame(
+          GameConfig(
+              "PreludeExpansion, Prelude2CardPack, TurmoilExpansion, EcologyExperts, Unsafe",
+              "Player1",
+              "Player2",
+          )
+      )
+    } else {
+      newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion)
+    }
     admin.phase("Prelude")
     p1.runOperation("20 MC, ProjectCard")
     p1.playPrelude(HighCircles) { doTask("2 PartyDelegate<Scientists>") }

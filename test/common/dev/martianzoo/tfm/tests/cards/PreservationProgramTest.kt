@@ -29,7 +29,7 @@ internal class PreservationProgramTest :
   ) {
     newGame(
         *if (baseOnly) emptyArray()
-        else arrayOf(PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack),
+        else arrayOf(PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack, Unsafe),
         *extraOptions,
         players = players,
     )

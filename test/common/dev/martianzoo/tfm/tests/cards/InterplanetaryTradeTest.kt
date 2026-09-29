@@ -1,10 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
-import dev.martianzoo.tfm.tests.TestOption.FakeStuffBundle
-import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
+import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
-import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
@@ -43,10 +40,15 @@ internal class InterplanetaryTradeTest : CardTest() {
   }
 
   private fun interplanetaryTradeWithWildEvent(venus: Boolean) {
-    val options =
-        mutableListOf(PreludeExpansion, PromoCardPack, CorporateEraExpansion, FakeStuffBundle)
-    if (venus) options += VenusNextExpansion
-    newGame(*options.toTypedArray())
+    newGame(
+        GameConfig(
+            "PreludeExpansion, PromoCardPack, CorporateEraExpansion, FakeStuffBundle, " +
+                "EcologyExperts, Unsafe" +
+                if (venus) ", VenusNextExpansion" else "",
+            "Player1",
+            "Player2",
+        )
+    )
     p1.playCorp(SaturnSystems, 0)
     p1.runOperation("200 MC, 10 ProjectCard")
     admin.phase("Prelude")

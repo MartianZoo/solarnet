@@ -6,10 +6,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
-- Enforce declared incompatible content pairs at the external game-selection boundary. Preservation
-  Program must not share a game with Terraforming Deal or the Reds ruling policy under the selected
-  gain-then-remove model. These exclusions are documented and characterized in BugsTest; automatic
-  selection rejection is not implemented.
 - Resolve Landshaper's distinct-tile requirement before changing its behavior. The suspected bug
   where Capital plus one greenery suffices is quarantined in `cards/BugsTest.kt`; audit R01 leaves
   this combination open even though Capital's city and special-tile classifications are confirmed.
@@ -27,9 +23,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Keep Fake Self-Replicating Robots permanently in `:tfm-fake`. Move its bug characterizations,
   including the SRR cases mixed into `cards/BugsTest.kt`, into that module and consolidate duplicate
   Sponsored Projects coverage. Reuse existing test-support sources before considering a fixture API.
-- Promote Thawer after enforcing its permanent incompatibility with Snow Cover in normal selection.
-  Include both only when the configuration explicitly names both individual items. First try the
-  existing default-selection conditions, including the global-event selection path.
 - Follow through on the FAQ-audit defects characterized in
   [`cards/BugsTest.kt`](test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt):
   Double Down's copied resource destination; Mining Rights/Area and Mining Guild on wild placement

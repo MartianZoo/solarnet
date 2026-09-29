@@ -142,6 +142,7 @@
         },
         {
           "name": "Merger",
+          "autoSelectWhen": "Unsafe OR MAX 0 SagittaFrontierServices",
           // 4 StandardCorporationCard<Selecting>, PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Selecting>
           "immediate": "StandardCorporationCard THEN PlayCard<Class<StandardCorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>)>, -42 MC",
         },

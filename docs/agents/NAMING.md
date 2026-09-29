@@ -231,6 +231,12 @@ transitional Module subtypes, though a Content group should not be an ambient Mo
 has `Prelude2CardPack`, not a second Prelude rules Module. The Milestones & Awards bundle has no
 Module; its goals are currently selected individually.
 
+Known incompatible Content pairs are checked against the complete game Class table by
+`TerraformingMars.premiseRequirement`. The non-default `Unsafe` Module permits those pairs.
+`autoSelectWhen` on cards and goals supplies ordinary pool preferences. Explicit Content
+selection overrides a preference but still fails the final requirement unless `Unsafe` is selected.
+Ecology Experts is individually selectable but absent from the normal Prelude 1 pool.
+
 A content-local Class supplies a particular item's state or rule: map areas, special tiles, remote
 areas, watchers, markers, special placement bonuses, ruling policies, and exceptional custom metrics
 or instructions are examples. Keep it next to the item that needs it. A card's `components` field

@@ -27,6 +27,7 @@
         },
         {
           "name": "SagittaFrontierServices",
+          "autoSelectWhen": "Unsafe OR (MAX 0 PromoCardPack, MAX 0 Merger)",
           // SearchForCard(HAS MAX 0 PrintedTag)
           "immediate": "31 MC, PROD[Energy, 2 MC], ProjectCard",
           "effects": [
@@ -119,6 +120,8 @@
         },
         {
           "name": "PreservationProgram",
+          // Terraforming Deal defaults with this pack; keep PP individually selectable.
+          "autoSelectWhen": "Unsafe OR MAX 0 Prelude2CardPack",
           "immediate": "5 TerraformRating",
           "invariants": [ "Class<PreservationTrWatcher>" ],
           "effects": [

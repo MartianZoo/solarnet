@@ -13,11 +13,11 @@ CLASS Hydrologist : Milestone {
 
 "Tracks ocean placements only while Hydrologist is in the milestone pool"
 CLASS HydrologistWatcher<Class<Hydrologist>> : CardWatcher {
-  @OceanTile BY @Player: OceanCredit<@Player, @OceanTile>
+  OceanTile BY @Player: OceanCredit<@Player>
 }
 
-"A player's credit for an ocean that remains on Mars"
-CLASS OceanCredit<OceanTile> : Owned<Player>
+"A player's credit for placing an ocean"
+CLASS OceanCredit : Owned<Player>
 
 CLASS Legend : Milestone { requirement = HAS "4 PlayedEvent" }
 CLASS Merchant : Milestone { requirement = HAS "2 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat" }
@@ -34,8 +34,19 @@ CLASS Producer22 : Milestone {
 }
 CLASS Tactician : Milestone { requirement = HAS "4 CardFront(HAS requirement)" }
 CLASS Terraformer : Milestone { requirement = HAS "29 TerraformRating" }
-// Requires recording owned temperature increases.
-// CLASS Thawer : Milestone { requirement = HAS "5 TemperatureStep" }
+"Counts temperature increases made by the claiming player"
+CLASS Thawer : Milestone {
+  HAS Class<ThawerWatcher>
+  requirement = HAS "5 ThawerCredit"
+}
+
+CLASS ThawerWatcher<Class<Thawer>> : CardWatcher {
+  TemperatureStep BY @Player: ThawerCredit<@Player>
+  Thawer:: -This!
+}
+
+CLASS ThawerCredit : Owned<Player>
+
 CLASS Tycoon : Milestone { requirement = HAS "10 (ActiveCard OR AutomatedCard)" }
 
 CLASS Administrator : Award { metric = COUNT "CardFront(HAS MAX 0 Tag)" }

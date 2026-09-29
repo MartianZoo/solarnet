@@ -93,7 +93,7 @@ internal class BugsTest : CardTest() {
   // Audit N13: choosing a metal from Amazonis's wild bonus should make this legal.
   @Test
   internal fun `Mining Rights incorrectly cannot use a wild placement bonus`() {
-    newGame(Amazonis)
+    newGame(Amazonis, Unsafe)
     p1.runOperation("9 MC, ProjectCard")
     admin.phase("Action")
 
@@ -109,7 +109,7 @@ internal class BugsTest : CardTest() {
 
   @Test
   internal fun `Mining Guild incorrectly ignores metal chosen from a wild placement bonus`() {
-    newGame(Amazonis)
+    newGame(Amazonis, Unsafe)
     p1.playCorp(MiningGuild, 0)
     admin.phase("Action")
     p1.stdProject("GreeneryProject") {
@@ -141,7 +141,13 @@ internal class BugsTest : CardTest() {
 
   @Test
   internal fun `Ecology Experts incorrectly does not trigger Viral Enhancers with its own tags`() {
-    newGame(PreludeExpansion, CorporateEraExpansion)
+    newGame(
+        GameConfig(
+            "PreludeExpansion, CorporateEraExpansion, EcologyExperts, Unsafe",
+            "Player1",
+            "Player2",
+        )
+    )
     admin.phase("Prelude")
     p1.runOperation("9 MC, ProjectCard, PreludeCard")
 
@@ -154,7 +160,7 @@ internal class BugsTest : CardTest() {
 
   @Test
   internal fun `Ecology Experts incorrectly does not trigger Ecological Zone with its plant tag`() {
-    newGame(PreludeExpansion)
+    newGame(GameConfig("PreludeExpansion, EcologyExperts, Unsafe", "Player1", "Player2"))
     admin.phase("Prelude")
     p1.runOperation("12 MC, ProjectCard, PreludeCard, GreeneryTile<Tharsis_4_4>")
 
@@ -188,12 +194,12 @@ internal class BugsTest : CardTest() {
   }
 
   // These pairings are unfixable under PP's gain-then-remove model.
-  // Do not combine Preservation Program with Terraforming Deal or the Reds ruling policy.
+  // These characterizations explicitly opt into the unsupported pairings.
   private fun startPreservationGeneration(
       corporation: String = "$PhoboLog",
       deal: Boolean = false,
   ) {
-    newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack)
+    newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack, Unsafe)
     admin.phase("Prelude")
     p1.runOperation(
         "$corporation, PreservationProgram, 100 MC" + if (deal) ", $TerraformingDeal" else ""
@@ -290,7 +296,7 @@ internal class BugsTest : CardTest() {
 
   @Test
   internal fun `Reds and Terraforming Deal incorrectly count PP's reversed TR when Valley Trust plays it`() {
-    newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack)
+    newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack, Unsafe)
     p1.playCorp(ValleyTrust, 0)
     admin.phase("Prelude")
     p1.playPrelude(TerraformingDeal)
@@ -328,7 +334,14 @@ internal class BugsTest : CardTest() {
 
   @Test
   internal fun `Terraforming Deal incorrectly pays for PP's reversed TR from Venus`() {
-    newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack, VenusNextExpansion)
+    newGame(
+        PreludeExpansion,
+        Prelude2CardPack,
+        TurmoilExpansion,
+        PromoCardPack,
+        VenusNextExpansion,
+        Unsafe,
+    )
     admin.phase("Prelude")
     p1.runOperation("$PhoboLog, PreservationProgram, $TerraformingDeal, 100 MC")
     admin.phase("Action")
@@ -338,20 +351,10 @@ internal class BugsTest : CardTest() {
     p1.stdProject("AsteroidProject").expect("TerraformRating, -12 MC")
   }
 
-  @Test
-  internal fun `Fake Thawer incorrectly retains credits after temperature reductions`() {
-    newGame(GameConfig("FakeStuffBundle, FakeThawer, Builder, Engineer", "Player1", "Player2"))
-    p1.runOperation("8 MC, 5 TemperatureStep")
-    admin.runOperation("-TemperatureStep")
-    admin.phase("Action")
-    // Unlike markers on the printed track, these credits cannot identify the removed step.
-    p1.claimMilestone(cn("FakeThawer")).expect("-8 MC, FakeThawer")
-  }
-
   // https://boardgamegeek.com/thread/3335155/article/44575973#44575973
   @Test
   internal fun `Sagitta incorrectly misses Merger in Head Start's nested action`() {
-    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack, FakeStuffBundle)
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack, FakeStuffBundle, Unsafe)
     p1.runOperation("$BoardOfDirectors, 54 MC, 8 Heat")
     admin.phase("Prelude")
     p1.runOperation("2 PreludeCard")
@@ -370,6 +373,18 @@ internal class BugsTest : CardTest() {
 
     // Correct is 39: four more for the tagless Merger played in Sagitta's enclosing action.
     p1.count("MC") shouldBe 35
+  }
+
+  @Test
+  internal fun `Sagitta misses Merger without Head Start too`() {
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack, Unsafe)
+    p1.runOperation("54 MC")
+    admin.phase("Prelude")
+
+    p1.turn { playPrelude(Merger) { playCorp(SagittaFrontierServices) } }
+
+    // Jacob rules that Sagitta earns 4 MC for the tagless Merger as well as for itself.
+    p1.count("MC") shouldBe 47
   }
 
   // https://boardgamegeek.com/thread/2877214/rule-clarifications-sought-for-multiple-corporatio

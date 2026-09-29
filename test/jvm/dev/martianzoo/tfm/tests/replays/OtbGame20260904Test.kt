@@ -21,7 +21,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
   override val config =
       GameConfig(
           """
-          AmazonisMap
+          AmazonisMap, Unsafe
           VenusNextExpansion, PreludeExpansion, Prelude2CardPack, PromoCardPack
           FakeStuffBundle
 

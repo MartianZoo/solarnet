@@ -358,7 +358,7 @@ With the excerpt's declarations, `GreeneryTile` has keys `[Owned_0, AreaPiece_0]
 `GreeneryTile<Anyone, MarsArea>`. Its first supertype is its enclosing `OwnedTile` (T2-2), which has
 `Owned_0` before `AreaPiece_0` because it names `OwnedOccupant` first, and `OwnedOccupant` names
 `Owned` first. `Tile<MarsArea>` then narrows the area edge; nothing copies or renames it.
-`CLASS OceanCredit<OceanTile> : Owned<Player>` has keys `[Owned_0, OceanCredit_0]`.
+`CLASS OceanCredit : Owned<Player>` has only the inherited key `[Owned_0]`.
 
 **T3-3. Several supertypes, one key.** When more than one supertype constrains the same key, the
 bounds are intersected (`⊓`, T7-1). Bounds with no common narrowing are an error.
@@ -1512,7 +1512,7 @@ other player whose resource it was. This keeps "anyone but the actor" distinct f
 other player this event was about".
 
 > **Non-normative examples — Hydrologist and Aphrodite.** The Hydrologist milestone's watcher says
-> `@OceanTile BY @Player: OceanCredit<@Player, @OceanTile>`. When Player 2 places an ocean,
+> `OceanTile BY @Player: OceanCredit<@Player>`. When Player 2 places an ocean,
 > `@Player` is bound to `Player2`, so the credit belongs to the placer. Aphrodite says
 > `VenusStep BY Anyone: 2 MC`. It does not name the wildcard, so the wildcard only removes the actor
 > restriction, and the money goes to Aphrodite's owner.

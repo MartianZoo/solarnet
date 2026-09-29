@@ -1,16 +1,5 @@
 "Explicitly selected support for incomplete game content"
 CLASS FakeStuffBundle : Module {
-  TemperatureStep BY @Player IF Class<FakeThawer>:: FakeTemperatureCredit<@Player>
-  -TemperatureStep BY Admin IF Class<FakeThawer>:: \
-    EACH Player(HAS FakeTemperatureCredit) { Audit }
   FirstPlace<Collector> IF RobotUnit:: Audit
   SecondPlace<Collector> IF RobotUnit:: Audit
 }
-
-"Thawer whose temperature credits survive temperature reductions"
-CLASS FakeThawer : Milestone {
-  requirement = HAS "5 FakeTemperatureCredit"
-}
-
-"A temperature increase credited to a player, independent of the current temperature"
-CLASS FakeTemperatureCredit : Owned<Player>

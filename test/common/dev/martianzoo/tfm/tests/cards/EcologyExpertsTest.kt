@@ -1,10 +1,8 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
-import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -13,7 +11,7 @@ import kotlin.test.Test
 internal class EcologyExpertsTest : CardTest() {
   @Test
   internal fun `Plays Decomposers while ignoring its global requirement`() {
-    newGame(PreludeExpansion)
+    newGame(GameConfig("PreludeExpansion, EcologyExperts, Unsafe", "Player1", "Player2"))
     admin.phase("Prelude")
     p1.runOperation("10 MC, ProjectCard, PreludeCard")
 
@@ -29,7 +27,9 @@ internal class EcologyExpertsTest : CardTest() {
 
   @Test
   internal fun `Splice money from Ecology Experts tags can pay for Decomposers`() {
-    newGame(PreludeExpansion, PromoCardPack)
+    newGame(
+        GameConfig("PreludeExpansion, PromoCardPack, EcologyExperts, Unsafe", "Player1", "Player2")
+    )
     val p2 = requireP2()
     p2.runOperation("$SpliceTacticalGenomics")
     admin.phase("Prelude")
@@ -48,7 +48,7 @@ internal class EcologyExpertsTest : CardTest() {
 
   @Test
   internal fun `Can play a card without a bio tag`() {
-    newGame(PreludeExpansion)
+    newGame(GameConfig("PreludeExpansion, EcologyExperts, Unsafe", "Player1", "Player2"))
     admin.phase("Prelude")
     p1.runOperation("2 MC, ProjectCard, PreludeCard")
 
@@ -61,7 +61,13 @@ internal class EcologyExpertsTest : CardTest() {
 
   @Test
   internal fun `Ecology Experts does not waive a political requirement`() {
-    newGame(PreludeExpansion, TurmoilExpansion)
+    newGame(
+        GameConfig(
+            "PreludeExpansion, TurmoilExpansion, EcologyExperts, Unsafe",
+            "Player1",
+            "Player2",
+        )
+    )
     admin.phase("Prelude")
     p1.runOperation("20 MC, ProjectCard")
 

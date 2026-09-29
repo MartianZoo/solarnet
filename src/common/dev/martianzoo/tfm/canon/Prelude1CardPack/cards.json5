@@ -94,6 +94,7 @@
         },
         {
           "name": "EcologyExperts",
+          "autoSelectWhen": "MAX 0 Prelude1CardPack",
           "tags": [ "PlantTag", "MicrobeTag" ],
           "immediate": "PROD[Plant], PlayCard THEN -Required / Required",
         },

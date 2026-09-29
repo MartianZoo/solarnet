@@ -95,7 +95,7 @@ internal class DoubleDownTest : CardTest() {
 
   @Test
   internal fun `Double Down repeats Preservation Program TR without adding another skip`() {
-    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack, Unsafe)
     p1.playCorp(CrediCor, 1)
     admin.phase("Prelude")
     p1.playPrelude(PreservationProgram)
