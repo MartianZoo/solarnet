@@ -6,6 +6,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Fix Turmoil's delegate-removal status updates in `rules/BugsTest.kt`. Banned Delegate can
+  leave leadership and dominance stale; resolving a removal tie must use the active player's seat
+  order. Verify the physical replay's direct delegate-color reconciliation when changing the current
+  global election.
 - Enforce declared incompatible content pairs at the external game-selection boundary. Preservation
   Program must not share a game with Terraforming Deal or the Reds ruling policy under the selected
   gain-then-remove model. These exclusions are documented and characterized in BugsTest; automatic
