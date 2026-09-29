@@ -196,6 +196,9 @@ CLASS AfterParty<Party, Party> : System { HAS MAX 1 This }
 "The forward distance from one Party to another around the committee"
 CLASS PartyDistance<Party, Party> : Custom
 
+"The clockwise seat distance between owners, with unseated owners last"
+CLASS PlayerDistance<Owner, Owner> : Custom
+
 "Whether one player meets the ruling-party or two-delegate requirement for a party"
 CLASS PartyRequirement<Party> : Owned<Player>, Custom
 
@@ -222,11 +225,14 @@ ABSTRACT CLASS Delegate : Owned<Owner> {
 
   "A delegate currently assigned to one political party"
   CLASS PartyDelegate<Delegation@Party> {
+    // Preserve the incumbent on a count tie. For a player gain, choose the nearest tied
+    // challenger clockwise from that player; Neutral and other unseated owners rank last.
     X This:: EACH Leader@Anyone( \
       HAS MAX 0 PartyLeader<Delegation@Party, Anyone>, \
       HAS =1 (RANK Ranked@Anyone { \
         PartyDelegate<Delegation@Party, Ranked@Anyone>, \
-        PartyLeader<Delegation@Party, Ranked@Anyone> \
+        PartyLeader<Delegation@Party, Ranked@Anyone>, \
+        Player - PlayerDistance<Owner, Ranked@Anyone> \
       }) \
     ) { \
       PartyLeader<Delegation@Party, Leader@Anyone> \
