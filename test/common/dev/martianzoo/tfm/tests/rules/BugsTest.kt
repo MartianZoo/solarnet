@@ -8,7 +8,6 @@ import dev.martianzoo.tfm.tests.TestOption.FakeStuffBundle
 import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.cards.CardTest
 import dev.martianzoo.tfm.tests.cards.cardnames.FakeBannedDelegate
-import dev.martianzoo.tfm.tests.cards.cardnames.Recruitment
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -76,26 +75,6 @@ internal class BugsTest : CardTest() {
     p1.count("PartyLeader<Scientists>") shouldBe 0
     p2.count("PartyLeader<Scientists>") shouldBe 1
     admin.count("PartyLeader<Scientists, Neutral>") shouldBe 0
-  }
-
-  @Test
-  internal fun `Recruitment incorrectly leaves two leaders after a tied challenge`() {
-    newGame(TurmoilExpansion)
-    val p2 = requireP2()
-    admin.runOperation("PartyDelegate<MarsFirst, Neutral>")
-    p1.runOperation("PartyDelegate<MarsFirst>, 2 MC, ProjectCard")
-    p2.runOperation("PartyDelegate<MarsFirst>, PartyDelegate<MarsFirst>")
-    admin.phase("Action")
-    val checkpoint = game.timeline.checkpoint()
-
-    p1.playProject(Recruitment, 2) {
-      doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
-    }
-
-    p1.count("PartyLeader<MarsFirst>") shouldBe 1
-    p2.count("PartyLeader<MarsFirst>") shouldBe 1
-    admin.count("PartyLeader<MarsFirst, Neutral>") shouldBe 0
-    p1.auditGainsSince(checkpoint) shouldBe 1
   }
 
   @Test

@@ -14,6 +14,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Extend derived `including this` wording to setup operations and otherwise unsupported effects
   without adding card-specific rendering rules.
 - Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.
+- Fix Turmoil's delegate-removal status updates in `rules/BugsTest.kt`. Banned Delegate can
+  leave leadership and dominance stale; resolving a removal tie must use the active player's seat
+  order. Verify the physical replay's direct delegate-color reconciliation when changing the current
+  global election.
 - Resolve Landshaper's distinct-tile requirement before changing its behavior. The suspected bug
   where Capital plus one greenery suffices is quarantined in `cards/BugsTest.kt`; audit R01 leaves
   this combination open even though Capital's city and special-tile classifications are confirmed.
