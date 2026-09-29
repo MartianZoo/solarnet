@@ -30,7 +30,6 @@ internal class BugsTest : CardTest() {
 
     p1.playProject(FakeBannedDelegate, 0) {
       doTask("FakeBannedDelegateRemoval<Player1, MarsFirst, Player2>")
-      doTask("-PartyDelegate<MarsFirst, Player2>")
     }
 
     admin.count("Dominant<MarsFirst>") shouldBe 1
@@ -52,7 +51,6 @@ internal class BugsTest : CardTest() {
 
     p1.playProject(FakeBannedDelegate, 0) {
       doTask("FakeBannedDelegateRemoval<Player1, MarsFirst, Player2>")
-      doTask("-PartyDelegate<MarsFirst, Player2>")
     }
 
     admin.count("Dominant<MarsFirst>") shouldBe 1
@@ -73,7 +71,6 @@ internal class BugsTest : CardTest() {
 
     p1.playProject(FakeBannedDelegate, 0) {
       doTask("FakeBannedDelegateRemoval<Player1, Scientists, Player2>")
-      doTask("-PartyDelegate<Scientists, Player2>")
     }
 
     p1.count("PartyLeader<Scientists>") shouldBe 0
@@ -99,26 +96,6 @@ internal class BugsTest : CardTest() {
     p2.count("PartyLeader<MarsFirst>") shouldBe 1
     admin.count("PartyLeader<MarsFirst, Neutral>") shouldBe 0
     p1.auditGainsSince(checkpoint) shouldBe 1
-  }
-
-  @Test
-  internal fun `paid lobbying incorrectly uses the Lobby delegate while free lobbying is available`() {
-    newGame(TurmoilExpansion)
-    repeat(6) { p1.runOperation("PartyDelegate<Unity>") }
-    p1.runOperation("5 MC")
-    admin.phase("Action")
-
-    p1.count("LobbyActionAvailable") shouldBe 1
-    p1.count("Delegate") shouldBe 6
-
-    p1.stdAction("LobbyAction", 2) {
-      doTask("PartyDelegate<Scientists>")
-    }
-
-    p1.count("MC") shouldBe 0
-    p1.count("LobbyActionAvailable") shouldBe 0
-    p1.count("Delegate") shouldBe 7
-    p1.count("PartyDelegate") shouldBe 7
   }
 
   @Test

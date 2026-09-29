@@ -87,7 +87,7 @@ ABSTRACT CLASS Player : Owner, Actor {
 }
 
 "One step on the terraform rating track; you generally start with 20 of them"
-CLASS TerraformRating : Owned<Player> {
+CLASS TerraformRating : Owned<Player>, Atomized {
   ProductionPhase: 1 MC
   End: VictoryPoint
 }

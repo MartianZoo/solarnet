@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.fakeWildTags
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -979,7 +980,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I'm going to discard this one to draw a new card because of my Mars University effect.
       // Thanks. That is better."
       playProject(RedSpotObservatory, 17) {
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
       }
     }
     yellow.turn {
@@ -1316,9 +1317,12 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     }
     yellow.turn {
       // "Pay four titanium and thirteen real money for L1 Trade Terminal."
-      // The fake card's cost includes the four M€ of applicable discounts Yellow ignored.
       // "I add one to Floating Habs ... and add Aerial Mapper, add Floating Refineries."
-      playProject(FakeL1TradeTerminal, 13, titanium = 4)
+      playProject(L1TradeTerminal, 13, titanium = 4) {
+        addCardResources(FloatingHabs)
+        addCardResources(AerialMappers)
+        addCardResources(FloatingRefinery)
+      }
     }
     green.turn {
       // "Use my Space Elevator to destroy one steel and gain five real."
@@ -1545,7 +1549,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "For 10 money, I'm going to play Bacto Viral Research. ... discard a card from hand to draw
       // a card. ... add all six of mine to my nitrate reducing bacteria."
       playProject(BactoviralResearch, 10) {
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         addCardResources(NitriteReducingBacteria)
       }
     }

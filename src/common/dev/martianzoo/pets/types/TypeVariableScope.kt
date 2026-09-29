@@ -3,13 +3,16 @@ package dev.martianzoo.pets.types
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Expression.Refinement.Has
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.ExpandedReference
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
+import dev.martianzoo.pets.ast.Instruction.Or
+import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.startsTypeVariableObservation
 import dev.martianzoo.pets.types.Dependency.TypeDependency
@@ -135,6 +138,9 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     }
   }
 
+  internal fun retaining(variables: Set<TypeVariable>): TypeVariableScope =
+      TypeVariableScope(entries.filter { it.variable in variables })
+
   internal operator fun plus(that: TypeVariableScope): TypeVariableScope =
       when {
         isEmpty -> that
@@ -146,52 +152,128 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
       wide: PetNode,
       narrow: PetNode,
       variable: TypeVariable,
-  ): List<Expression> = buildList {
-    val sources = entries.single { it.variable === variable }.currentExpressions.values
+      info: TypeInfo,
+      classTable: ClassTable = variable.bound.classTable,
+  ): List<Expression> {
+    fun structural(type: GroundType): GroundType =
+        type.copy(
+            refinement = type.refinement?.retaining { it !is Has },
+            dependencies = type.dependencies.mapWithKey { _, bound -> structural(bound) },
+        )
+    val shapeInfo =
+        object : TypeInfo by info {
+          override fun ensureNarrows(wide: Expression, narrow: Expression) {
+            structural(classTable.resolve(narrow))
+                .ensureNarrows(structural(classTable.resolve(wide)), this)
+          }
 
-    fun collect(wideNode: PetNode, narrowNode: PetNode) {
-      if (
-          wideNode is Expression &&
-              sources.any { source ->
-                wideNode === source ||
-                    (source.typeVariableName != null &&
-                        wideNode.typeVariableName?.identity == source.typeVariableName.identity)
-              }
-      ) {
-        (narrowNode as? Expression)
-            ?.takeUnless {
-              wideNode.typeVariableName is Reference && it == wideNode
-            }
-            ?.let(::add)
-        return
+          override fun ensureSelectionNarrows(wide: Expression, narrow: Expression) =
+              ensureNarrows(wide, narrow)
+
+          override fun has(requirement: dev.martianzoo.pets.ast.Requirement): Boolean = true
+        }
+    fun collect(w: PetNode, n: PetNode): List<Expression> {
+      if (w is Or) {
+        val proposals = if (n is Or) n.instructions else listOf(n)
+        return proposals.flatMap { proposal ->
+          val instruction = proposal as? InstructionTree ?: return@flatMap emptyList()
+          val alternatives =
+              w.instructions
+                  .filter { instruction.narrows(it, shapeInfo) }
+                  .map { collect(it, proposal).distinct() }
+          if (alternatives.map { it.toSet() }.distinct().size > 1) {
+            throw NarrowingException("ambiguous `OR` binding for type variable `$variable`")
+          }
+          alternatives.firstOrNull().orEmpty()
+        }
       }
-      wideNode.immediateChildren().zip(narrowNode.immediateChildren()).forEach { (wide, narrow) ->
-        collect(wide, narrow)
+      if (w is Expression && n is Expression) {
+        return listOfNotNull(
+            bindingsFrom(w, classTable.resolve(w), classTable.resolve(n), classTable)[variable]
+                ?.expression
+        )
+      }
+      if (w::class != n::class) return emptyList()
+      return w.immediateChildren().zip(n.immediateChildren()).flatMap { (wc, nc) ->
+        collect(wc, nc)
       }
     }
-
-    collect(wide, narrow)
+    return collect(wide, narrow)
   }
 
-  /** Ground Types supplied for [variable] by narrowing expressions inside [proposed]. */
-  internal fun bindingsIn(
-      proposed: PetNode,
-      variable: TypeVariable,
+  private fun matchingExpressions(
+      wide: PetNode,
+      narrow: PetNode,
       info: TypeInfo,
-  ): List<GroundType> {
-    val declaration = expressionOf(variable.declaration)
-    return proposed
-        .descendantsOfType<Expression>()
-        .filter {
-          it.copy(typeVariableName = null) != declaration.copy(typeVariableName = null) &&
-              it.narrows(variable.bound.expressionFull, info)
+      visit: (Expression, Expression) -> Unit,
+  ) {
+    if (wide is Or) {
+      val proposals = if (narrow is Or) narrow.instructions else listOf(narrow)
+      for (proposal in proposals) {
+        val instruction = proposal as? InstructionTree ?: continue
+        wide.instructions
+            .filter { instruction.narrows(it, info) }
+            .forEach {
+              matchingExpressions(it, proposal, info, visit)
+            }
+      }
+    } else if (wide is Expression && narrow is Expression) {
+      visit(wide, narrow)
+    } else if (wide::class == narrow::class) {
+      wide.immediateChildren().zip(narrow.immediateChildren()).forEach { (w, n) ->
+        matchingExpressions(w, n, info, visit)
+      }
+    }
+  }
+
+  /** Unsettled choices keep their aliases and predicates in a proposal that remains pending. */
+  internal fun ensureChoicesRetained(
+      wide: PetNode,
+      narrow: PetNode,
+      info: TypeInfo,
+      classTable: ClassTable,
+      liveVariables: Set<TypeVariable>,
+  ) {
+    fun check(w: Expression, n: Expression) {
+      if (variableAt(w) in liveVariables && w.typeVariableName?.key != n.typeVariableName?.key) {
+        throw NarrowingException("unsettled type-variable occurrence `$w` must retain its marker")
+      }
+      val wideType = classTable.resolve(w)
+      val narrowType = classTable.resolve(n)
+      val narrowClauses = n.refinement?.conjuncts().orEmpty()
+      w.refinement?.conjuncts()?.forEach { clause ->
+        val observesChoice =
+            clause.descendantsOfType<Expression>().any {
+              variableAt(it) in liveVariables
+            }
+        val retained = narrowClauses.firstOrNull {
+          it.withoutChoiceNames() == clause.withoutChoiceNames()
         }
-        .map { expression ->
-          ((info as? GameReader)?.resolve(expression)
-                  ?: variable.bound.classTable.resolve(expression))
-              .groundType
+        if (observesChoice && retained == null) {
+          throw NarrowingException("unsettled choice `$n` must retain `$clause`")
         }
-        .distinct()
+        if (observesChoice) {
+          retained?.let {
+            matchingExpressions(clause, it, info, ::check)
+          }
+        }
+      }
+      val narrowArguments =
+          n.arguments
+              .zip(narrowType.rootClass.matchDependencyKeys(n.arguments, classTable))
+              .associate { (argument, key) -> key to argument }
+      w.arguments.zip(wideType.rootClass.matchDependencyKeys(w.arguments, classTable)).forEach {
+          (argument, key) ->
+        val corresponding =
+            narrowArguments[key]
+                ?: (narrowType.dependencies.getIfPresent(key) as? TypeDependency)
+                    ?.boundType
+                    ?.expression
+                ?: return@forEach
+        check(argument, corresponding)
+      }
+    }
+    matchingExpressions(wide, narrow, info, ::check)
   }
 
   /**
@@ -212,26 +294,10 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
   ): Map<TypeVariable, GroundType> {
     val captures = mutableMapOf<TypeVariable, MutableList<GroundType>>()
 
-    fun Expression.matchesRecordedOccurrence(that: Expression): Boolean =
-        typeVariableName != null &&
-            typeVariableName.identity == that.typeVariableName?.identity &&
-            copy(typeVariableName = null) == that.copy(typeVariableName = null)
-
-    fun Entry.matchesRecordedOccurrence(expression: Expression): Boolean =
-        currentExpressions.values.any { it.matchesRecordedOccurrence(expression) } ||
-            currentExpressions.keys.any { occurrence ->
-              occurrence.expression.matchesRecordedOccurrence(expression)
-            }
-
     fun record(expression: Expression, captured: GroundType) {
-      val identical = entries.filter { entry ->
-        entry.currentExpressions.values.any { it === expression }
-      }
-      val matching = identical.ifEmpty {
-        entries.filter { it.matchesRecordedOccurrence(expression) }
-      }
-      matching.forEach { entry ->
-        captures.getOrPut(entry.variable, ::mutableListOf) += captured
+      variableAt(expression)?.let { variable ->
+        captures.getOrPut(variable, ::mutableListOf) +=
+            if (variable.selectsClass) captured.rootClass.baseType else captured
       }
     }
 
@@ -262,14 +328,16 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     walk(authored, general, specific)
     return captures.mapValues { (variable, values) ->
       values.distinct().singleOrNull()
-          ?: error("type variable `$variable` has conflicting captures: `${values.distinct()}`")
+          ?: throw NarrowingException(
+              "type variable `$variable` has conflicting captures: `${values.distinct()}`"
+          )
     }
   }
 
   /**
    * Returns a transformer that applies captured [bindings] only at recorded occurrences. Each
-   * occurrence retains its own arguments, and a declaration refinement already checked during
-   * capture is consumed, exactly as specified by
+   * occurrence retains its own arguments. Checked supplier `HAS` predicates are consumed only at
+   * matching paths with concrete chosen Classes and dependencies; other constraints remain, per
    * [rule T13-10](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
    * Callers with no [bindings] must supply [classTable] explicitly.
    */
@@ -279,28 +347,59 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
           bindings.values.firstOrNull()?.classTable
               ?: error("empty bindings require an explicit class table"),
   ): PetTransformer {
-    fun Entry.capturedRefinement() =
-        if (variable.declaration in currentExpressions) {
-          currentExpressions.getValue(variable.declaration).refinement
-        } else {
-          variable.bound.refinement
-        }
+    val selectedBindings = bindings.mapValues { (variable, value) ->
+      if (variable.selectsClass) value.rootClass.baseType else value
+    }
+    fun settled(variable: TypeVariable, value: GroundType): Boolean =
+        if (variable.selectsClass) !value.rootClass.abstract else !value.abstract
 
-    fun GroundType.consume(refinement: Expression.Refinement?): GroundType =
-        if (this.refinement == refinement) copy(refinement = null) else this
+    fun capturedType(entry: Entry): GroundType =
+        entry.currentExpressions[entry.variable.declaration]?.let(classTable::resolve)
+            ?: entry.variable.bound
+
+    fun consume(type: GroundType, supplier: GroundType, chosen: GroundType): GroundType =
+        type.copy(
+            refinement =
+                type.refinement?.retaining {
+                  it !is Has ||
+                      it !in supplier.refinement?.conjuncts().orEmpty() ||
+                      it in chosen.refinement?.conjuncts().orEmpty() ||
+                      chosen.rootClass.abstract ||
+                      chosen.dependencies.abstract
+                },
+            dependencies =
+                type.dependencies.mapWithKey { key, bound ->
+                  val supplierDependency =
+                      supplier.dependencies.getIfPresent(key) as? TypeDependency
+                  val chosenDependency = chosen.dependencies.getIfPresent(key) as? TypeDependency
+                  if (supplierDependency != null && chosenDependency != null) {
+                    consume(bound, supplierDependency.boundType, chosenDependency.boundType)
+                  } else {
+                    bound
+                  }
+                },
+        )
 
     val replacements = entries.flatMap { entry ->
-      val replacement = bindings[entry.variable] ?: return@flatMap emptyList()
-      val capturedRefinement = entry.capturedRefinement()
-      val captured = replacement.consume(capturedRefinement)
+      val replacement = selectedBindings[entry.variable] ?: return@flatMap emptyList()
+      val supplyingType = capturedType(entry)
       entry.currentExpressions.flatMap { (occurrence, source) ->
-        val constraint = classTable.resolve(source).consume(capturedRefinement)
+        val constraint = consume(classTable.resolve(source), supplyingType, replacement)
         val occurrenceBinding =
-            classTable.glb(captured, constraint)
+            classTable.glb(replacement, constraint)
                 ?: throw NarrowingException(
                     "`$replacement` does not satisfy type-variable occurrence `$source`"
                 )
-        val target = occurrence.expressionFor(occurrenceBinding, source, classTable)
+        val target =
+            occurrence.expressionFor(occurrenceBinding, source, classTable).let { applied ->
+              val marker = source.typeVariableName
+              if (!settled(entry.variable, replacement) && marker != null) {
+                applied.copy(
+                    typeVariableName =
+                        ExpandedReference(marker.name, marker.boundClassName, marker.resolution)
+                )
+              } else applied
+            }
         buildList {
           add(source to target)
           if (occurrence.expression != source) {
@@ -316,18 +415,17 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     }
     val transformer =
         BindingTransformer(
-            bindings.keys,
+            selectedBindings.filter { (variable, value) -> settled(variable, value) }.keys,
             replacements,
             classTable,
         )
     entries.forEach { entry ->
-      val replacement = bindings[entry.variable] ?: return@forEach
-      val capturedRefinement = entry.capturedRefinement()
-      val captured = replacement.consume(capturedRefinement)
+      val replacement = selectedBindings[entry.variable] ?: return@forEach
+      val supplyingType = capturedType(entry)
       entry.currentExpressions.values.forEach { source ->
         val specializedSource = transformer.transformExpressionChildren(source)
-        val constraint = classTable.resolve(specializedSource).consume(capturedRefinement)
-        if (classTable.glb(captured, constraint) == null) {
+        val constraint = consume(classTable.resolve(specializedSource), supplyingType, replacement)
+        if (classTable.glb(replacement, constraint) == null) {
           throw NarrowingException(
               "`$replacement` does not satisfy specialized type-variable occurrence " +
                   "`$specializedSource`"
@@ -348,6 +446,18 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
 
     override fun transformNode(node: PetNode): PetNode {
       if (node is Expression) {
+        if (node.className == CLASS && node.arguments.singleOrNull()?.typeVariableName != null) {
+          val transformed = transformChildren(node) as Expression
+          val represented =
+              transformed.arguments
+                  .single()
+                  .copy(
+                      arguments = emptyList(),
+                      argumentsSpecified = false,
+                      refinement = null,
+                  )
+          return transformed.copy(arguments = listOf(represented))
+        }
         replacements
             .firstOrNull { (source) -> source === node }
             ?.let {
@@ -408,6 +518,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
           val region: Int,
           val ordinal: Int,
           val observing: Boolean,
+          val representedClass: Boolean,
       )
 
       var ordinal = 0
@@ -416,6 +527,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
             node: PetNode,
             region: Int,
             observing: Boolean,
+            representedClass: Boolean = false,
         ) {
           val expression = node as? Expression
           if (expression != null) {
@@ -425,6 +537,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
                     region,
                     ordinal++,
                     observing,
+                    representedClass,
                 )
             )
           }
@@ -434,6 +547,9 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
                 child,
                 region,
                 childrenObserve,
+                node is Expression &&
+                    node.className == CLASS &&
+                    child === node.arguments.singleOrNull(),
             )
           }
         }
@@ -476,6 +592,7 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
                             declaration.region,
                             declaration.ordinal,
                             interpretedGroundType = declarationGroundType,
+                            representedClass = declaration.representedClass,
                         ),
                         usages.map { usage ->
                           Site(

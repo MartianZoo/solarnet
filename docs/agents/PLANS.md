@@ -7,8 +7,9 @@
 > **Read when:** choosing a substantial next project, comparing programs of work, or deciding where
 > a newly discovered large change belongs.
 >
-> **Status:** prioritized portfolio summary. The owner documents linked below remain authoritative
-> about current behavior, decisions, prerequisites, and acceptance criteria.
+> **Status:** portfolio index without a definitive execution order. The owner documents linked
+> below remain authoritative about current behavior, decisions, prerequisites, and acceptance
+> criteria.
 
 [`VALUES.md`](VALUES.md) says what outcomes matter. This page says which major changes could pursue
 them. [`TODO.md`](../../TODO.md) is reserved for bounded miscellaneous work that does not belong to
@@ -16,23 +17,37 @@ one of these programs.
 
 ## Priority
 
-The authoritative rationale is in
-[`VALUES.md`](VALUES.md#current-major-plan-priority). The practical order is:
-
-1. make actions, payments, and completion one intelligible lifecycle;
-2. replace the Kotlin phase runner with self-running Pets scopes;
-3. complete the Agent boundary and policy system;
-4. rewrite the internal agent handbook around the settled model;
-5. consolidate public contracts and failure boundaries; and
-6. simplify the remaining Pets and runtime semantics.
-
-These are Tier 1 programs. The bounded Class-universe finish is complete and no longer appears in
-the portfolio. Tier 2 begins with material measured performance work. Expanded replay
-evidence/provenance and deleting marginal-card machinery follow without an ordering between them.
-Preserving existing replay evidence is a proof obligation for every Tier 1 change, not a competing
-program.
+[VALUES.md](VALUES.md#current-major-plan-priority) owns the current emphasis. No definitive sequence
+has been selected among card tracking, decision export/import, autoexec improvement, payment
+simplification, and the card trifecta, or between these and the other programs below. The order of
+this index does not establish one. Preserving existing replay evidence is a proof obligation for
+changes, not a competing program.
 
 ## Selected programs
+
+### Reach the single-source card trifecta
+
+Bring roughly 300 cards to correct behavior, good English instructions, and good iconographic
+depictions from one semantic source. This is a concrete milestone; individual rendering work and
+current card coverage must not be mistaken for its completion.
+
+See [VALUES.md](VALUES.md#tier-1-defining-and-worth-active-investment).
+
+### Restore a coherent middle-ground card-tracking game-playing API
+
+Track card locations outside the engine, building on the approach demonstrated by the card-tracking
+test harness. Keep engine card counts and avoid restoring the full real-card mode. End-to-end solo
+play should use the same capabilities for a human or a computer; the public API design remains open.
+
+See [CARD_HANDLING.md](CARD_HANDLING.md#selected-game-playing-direction).
+
+### Make decision export and import faithful and clean
+
+Establish confidence that the format accurately represents player decisions without incidental
+engine implementation detail. Reconstructing a played game must not rely on choices omitted from
+the file. Saving and resuming partial games is not a priority or an acceptance gate.
+
+See [EXPORT.md](EXPORT.md#goal-and-the-three-views-of-one-game).
 
 ### Make actions, payments, and completion one intelligible lifecycle
 
@@ -85,10 +100,9 @@ and unresolved turn-state audit are recorded in
 
 ## Other indexed programs
 
-These directions are substantial enough not to masquerade as small TODOs. Their current priority is
-recorded above even though their detailed status differs. The remaining Tier 1 programs appear
-first in priority order. Tier 2 follows, with its final two programs alphabetized because
-[`VALUES.md`](VALUES.md#current-major-plan-priority) deliberately leaves them unordered.
+These directions are substantial enough not to masquerade as small TODOs. Their detailed status and
+prerequisites differ; listing them here does not resolve their priority relative to the current
+emphasis above.
 
 ### Rewrite the agent handbook around the settled model
 
@@ -130,7 +144,7 @@ See [`API.md`](API.md#layer-responsibility), [`VISIBILITY.md`](VISIBILITY.md), a
 - Resolve the contextual `Owner`/ownership-Class overload and remove its Kotlin carve-outs; simplify
   `LiveEffect` Actor binding and separate `Instructor`'s resolution capability from execution.
 - Represent direct point-event `Signal`s honestly rather than as self-transmutations, preserving
-  their paired gain/removal triggers while authored reflexive transmutations remain invalid; and
+  their paired gain/removal triggers and distinguishing them from source-requiring exchanges; and
   separate cleanup lifetime from log visibility.
 
 The specifications own the final semantics. Start with [`IDENTITY.md`](IDENTITY.md#open-audit),

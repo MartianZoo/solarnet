@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.Engine
@@ -145,41 +146,55 @@ internal abstract class CardTest(
       vararg corporations: ClassName,
       startingMc: Int = 500,
   ) {
-    playCorporations(corporations.toList())
+    val previousPolicy = p1.autoExecPolicy
+    playCorporations(corporations.toList()) { p1.autoExecPolicy = NONE }
     check(admin.count("PreludePhase") == 1) { "This game has no Prelude phase" }
     p1.topOffMoney(startingMc)
+    p1.autoExecPolicy = previousPolicy
+    p1.autoExecNow()
   }
 
   protected fun playUntilFirstActionPhase(
       vararg corporations: ClassName,
       startingMc: Int = 500,
   ) {
-    playCorporations(corporations.toList())
+    val previousPolicy = p1.autoExecPolicy
+    playCorporations(corporations.toList()) {
+      if (admin.count("PreludeExpansion") == 0) p1.autoExecPolicy = NONE
+    }
     if (admin.count("PreludePhase") == 1) {
       val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
-      players.zip(BORING_PRELUDES).forEach { (player, preludes) ->
-        player.turn { preludes.forEach { playPrelude(it) } }
+      players.zip(BORING_PRELUDES).forEachIndexed { index, (player, preludes) ->
+        player.turn {
+          preludes.forEach { playPrelude(it) }
+          if (index == players.lastIndex) p1.autoExecPolicy = NONE
+        }
       }
     }
     check(admin.count("ActionPhase") == 1) { "The game did not reach its first Action phase" }
     p1.topOffMoney(startingMc)
+    p1.autoExecPolicy = previousPolicy
+    p1.autoExecNow()
   }
 
-  private fun playCorporations(requested: List<ClassName>) {
+  private fun playCorporations(requested: List<ClassName>, beforeNextPhase: () -> Unit) {
     check(admin.count("CorporationPhase") == 1) { "The Corporation phase has already ended" }
     val players = game.actors.filterIsInstance<Player>().map { game.testTfm(it) }
     val corporations = if (requested.isEmpty()) BORING_CORPORATIONS else requested
     require(corporations.size >= players.size) { "Provide one corporation per player" }
-    players.zip(corporations).forEach { (player, corporation) ->
-      playCorporationWithoutStartingProjects(player, corporation)
-      player.sneak("5 ProjectCard, -15 MC")
+    players.zip(corporations).forEachIndexed { index, (player, corporation) ->
+      player.playCorp(corporation, 5) {
+        // Defer even the unambiguous NewTurn so incidental setup can run with triggers enabled
+        // before a workflow choice is selected. The caller restores the previous policy afterward.
+        if (index == players.lastIndex) beforeNextPhase()
+      }
     }
   }
 
   private fun TfmGameplay.topOffMoney(target: Int) {
     val amount = target - count("MC")
     require(amount >= 0) { "$actor already has more than $target MC" }
-    if (amount > 0) sneak("$amount MC")
+    if (amount > 0) runOperation("$amount MC")
   }
 
   @AfterTest

@@ -132,6 +132,10 @@
           "components": [ "CLASS CopyPrelude<CardFront<@Player>> : Owned<@Player>, Custom" ],
         },
         {
+          "name": "EstablishedMethods",
+          "immediate": "30 MC, UseAction<StandardProject(HAS cost)>!, UseAction<StandardProject(HAS cost)>!",
+        },
+        {
           "name": "GiantSolarCollector",
           "tags": [ "PowerTag", "SpaceTag" ],
           "immediate": "PROD[2 Energy], VenusStep",
@@ -144,7 +148,7 @@
         {
           "name": "NewPartner",
           // 2 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>
-          "immediate": "PROD[1 MC], PreludeCard THEN PlayCard<Class<PreludeCard>>",
+          "immediate": "PROD[1 MC], PreludeCard THEN PlayOrFizzle",
         },
         {
           "name": "StrategicBasePlanning",
@@ -205,7 +209,9 @@
           "name": "AstraMechanica",
           "cost": 7,
           "tags": [ "ScienceTag" ],
-          "immediate": "ProjectCard FROM PlayedEvent?, ProjectCard FROM PlayedEvent?",
+          // Separate transfers allow choosing two differently named events.
+          "immediate": "ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)>?, ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)>?",
+          "components": [ "CLASS GainsOf<Class<CardFront>, Class<Component>> : Custom" ],
         },
         {
           "name": "BactoviralResearch",

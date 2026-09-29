@@ -49,10 +49,11 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
 
     if (invalidDependencies.isNotEmpty()) {
       throw InvalidPetDefinitionException(
-          "dependencies must target types with maximum multiplicity 1; first violation per Class:\n" +
+          "dependencies must target types with maximum multiplicity 1; first violation per class:\n" +
               invalidDependencies.joinToString("\n") { (dependent, target) ->
-                "  ${dependent.className} -> ${target.expressionFull}"
-              }
+                "  `${dependent.className}` -> `${target.expressionFull}`"
+              },
+          sourceLocation = invalidDependencies.first().first.className.sourceLocation,
       )
     }
   }

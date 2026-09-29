@@ -388,7 +388,7 @@ internal class Spec03DependenciesTest {
   internal fun `T3-9 a dependency may only target a type limited to one copy`() {
     val unlimited = loadTypes("CLASS Plant", "CLASS Holder<Plant>")
     shouldThrow<InvalidPetDefinitionException> { unlimited.componentLimits }.message shouldContain
-        "Holder -> Plant"
+        "`Holder` -> `Plant`"
 
     val limited = loadTypes("CLASS Plant { HAS MAX 1 This }", "CLASS Holder<Plant>")
     limited.componentLimits.limitsFor(limited.resolve(te("Plant"))).map { it.range } shouldBe
@@ -451,7 +451,7 @@ internal class Spec03DependenciesTest {
             "CLASS ConcreteDependent<Target> : AbstractDependent<Target>",
         )
     shouldThrow<InvalidPetDefinitionException> { invalid.componentLimits }.message shouldContain
-        "ConcreteDependent -> RepeatableTarget"
+        "`ConcreteDependent` -> `RepeatableTarget`"
   }
 
   @Test

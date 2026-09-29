@@ -232,6 +232,10 @@ private constructor(
     return of(deps.map { partial.getIfPresent(it.key) ?: it })
   }
 
+  /**
+   * Binds a refinement candidate according to
+   * [rule T8-3](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#8-refinements).
+   */
   internal fun specializeRefinementCandidate(
       candidate: Expression,
       classTable: ClassTable,
@@ -284,18 +288,22 @@ private constructor(
       args: List<Expression>,
       classTable: ClassTable = requireNotNull(this.classTable),
   ): List<Dependency> {
-    val alreadyMatched = mutableSetOf<Dependency>()
+    val alreadyMatched = mutableMapOf<Dependency, Expression>()
 
     fun matchToDependency(arg: Expression): Dependency {
       deps.forEach { dependency ->
         if (dependency !in alreadyMatched) {
           dependency.intersect(arg, classTable)?.let {
-            alreadyMatched += dependency
+            alreadyMatched[dependency] = arg
             return it
           }
         }
       }
-      throw ExpressionException("cannot match `$arg` to any of `$this`")
+      throw ExpressionException(
+          "argument `$arg` does not match an available dependency; declared bounds: ${deps.joinToString { "`$it`" }.ifEmpty { "none" }}; " +
+              "already supplied: ${alreadyMatched.entries.joinToString { "`${it.key.key} <- ${it.value}`" }.ifEmpty { "none" }}",
+          sourceLocation = arg.sourceLocation ?: arg.className.sourceLocation,
+      )
     }
 
     return args.map(::matchToDependency)

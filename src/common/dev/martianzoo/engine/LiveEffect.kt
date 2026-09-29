@@ -6,7 +6,9 @@ import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.Transforming.bindXTo
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.ANYONE
@@ -113,13 +115,21 @@ private constructor(
         ) ?: return null
     val cause = Cause(context.expression, triggerEvent.ordinal)
     val instruction =
-        elaborator.evaluateProperties(
-            effect.typeVariables
-                .expandNames()
-                .transformInstructionTree(hit.specialize(effect.instruction)),
-            context.expression,
-            contextualOwner,
-        )
+        try {
+          elaborator.evaluateProperties(
+              effect.typeVariables
+                  .expandNames()
+                  .transformInstructionTree(hit.specialize(effect.instruction)),
+              context.expression,
+              contextualOwner,
+          )
+        } catch (e: PetException) {
+          throw InvalidPetDefinitionException(
+              "invalid effect for component `${context.expression}`: `$effect`: ${e.detail}",
+              e,
+              e.sourceLocation ?: effect.sourceLocation,
+          )
+        }
     return PendingTask(
         controller = taskController,
         actor = defaultActor,
@@ -198,8 +208,9 @@ private constructor(
                 )
               } catch (e: NarrowingException) {
                 throw ExpressionException(
-                    "invalid component effect for ${component.type.expressionFull}: ${e.message}",
+                    "invalid effect for component `${component.type.expressionFull}`: ${e.detail}",
                     e,
+                    effect.sourceLocation,
                 )
               }
           try {
@@ -207,8 +218,12 @@ private constructor(
             bound
           } catch (e: ExpressionException) {
             throw ExpressionException(
-                "invalid component effect for ${component.type.expressionFull}: $bound",
+                "invalid effect for component `${component.type.expressionFull}`: `$bound`: ${e.detail}",
                 e,
+                effect.trigger.sourceLocation
+                    ?: effect.trigger.descendantsOfType<Expression>().firstOrNull()?.sourceLocation
+                    ?: effect.sourceLocation
+                    ?: e.sourceLocation,
             )
           }
         }
@@ -405,13 +420,17 @@ private constructor(
           // role as a contextual variable without treating that Owner as the executing Actor.
           val ownerForBinding = contextualOwner?.takeIf { OWNER in match }
           val binder =
-              elaborator.specializeVariables(
-                  matchType,
-                  changeType,
-                  match,
-                  typeVariables,
-                  ownerForBinding,
-              )
+              try {
+                elaborator.specializeVariables(
+                    matchType,
+                    changeType,
+                    match,
+                    typeVariables,
+                    ownerForBinding,
+                )
+              } catch (_: NarrowingException) {
+                return null
+              }
           Hit(listOf(binder), change.count)
         } else {
           null

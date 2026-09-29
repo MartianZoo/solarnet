@@ -6,6 +6,7 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -160,7 +161,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     }
     keen.turn {
       playProject(MarsUniversity, 4, steel = 2) {
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(CaretakerContract)
         draw(KelpFarming)
       }
@@ -310,7 +311,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     keen.turn {
       playProject(RestrictedArea, 9) {
         placeTile(3, 6)
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(OreProcessor)
         draw(IceMoonColony)
       }
@@ -490,7 +491,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     keen.turn {
       cardAction1(WaterSplittingPlant)
       playProject(MolecularPrinting, 9) {
-            doTask("-ProjectCard")
+            doTask("ProjectCard FROM ProjectCard")
             discard(MoholeArea)
             draw(SpacePort)
           }
@@ -500,7 +501,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       }
       playProject(Hackers, 1) { doTask("PROD[-2 MC<Been>]") }.expect("PROD[2 MC, -Energy], 3 MC")
       playProject(BreathingFilters, 7) {
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(SpacePort)
         draw(VenusMagnetizer)
       }
@@ -564,7 +565,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
         buyCards(0)
       }
       playProject(AdvancedAlloys, 7) {
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(CyberiaSystems)
         draw(SymbioticFungus)
       }
@@ -576,7 +577,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
       keen.exMachina(fakeWildTags("ScienceTag", 2))
       playProject(SolarProbe, 7) {
             draw(Algae, CloudTourism, SpinInducingAsteroid)
-            doTask("-ProjectCard")
+            doTask("ProjectCard FROM ProjectCard")
             discard(SpinInducingAsteroid)
             draw(Trees)
           }
@@ -606,7 +607,7 @@ internal class DistantPressureMassTest : CardTrackingFullGameTest() {
     been.pass()
     keen.turn {
       playProject(SpecialDesign, 2) {
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(SymbioticFungus)
         draw(Capital)
       }

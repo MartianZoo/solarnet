@@ -150,7 +150,7 @@ internal constructor(
       when (val value = rootClass.properties.getValue(PropertyName(propertyName))) {
         AbsentRequirementValue -> null
         is RequirementValue -> value.value
-        else -> error("property `$propertyName` is not a concrete Requirement value: `$value`")
+        else -> error("property `$propertyName` is not a concrete requirement value: `$value`")
       }
 
   /**
@@ -303,6 +303,29 @@ internal constructor(
   private fun toExpressionUsingSpecs(specs: List<Expression>) = className.of(specs).has(refinement)
 
   /**
+   * Checks a pending instruction's choice. Aggregate `HAS` answers do not discharge predicates
+   * while a candidate's root or dependencies remain abstract (language rule L3-4).
+   */
+  public fun ensureSelectionNarrows(that: Type, info: TypeInfo) {
+    fun retain(narrow: GroundType, wide: GroundType) {
+      if (narrow.rootClass.abstract || narrow.dependencies.abstract) {
+        wide.refinement?.conjuncts()?.filterIsInstance<Has>()?.forEach { predicate ->
+          if (!narrow.alreadyGuarantees(predicate) || !narrow.readsPredicatesAlike(wide)) {
+            throw NarrowingException("unsettled choice `$narrow` must retain `$predicate`")
+          }
+        }
+      }
+      wide.typeDependencies.forEach { dependency ->
+        val selected =
+            narrow.dependencies.getIfPresent(dependency.key) as? Dependency.TypeDependency
+        if (selected != null) retain(selected.boundType, dependency.boundType)
+      }
+    }
+    retain(this, that.groundType)
+    ensureNarrows(that, info)
+  }
+
+  /**
    * Asserts the contextual narrowing relation with [that], consulting [info] only for a `HAS`
    * refinement, as specified by
    * [rules T6-1, T6-2, and T8-8](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#6-subtyping-and-narrowing).
@@ -410,16 +433,17 @@ internal constructor(
   private fun alreadyGuarantees(target: Has): Boolean {
     val own =
         refinement
+            ?.withoutChoiceNames()
             ?.conjuncts()
             ?.filterIsInstance<Has>()
             ?.flatMap { split(it.requirement) }
             .orEmpty()
-    return own.containsAll(split(target.requirement))
+    return own.containsAll(split((target.withoutChoiceNames() as Has).requirement))
   }
 
   /** Whether our own refinement explicitly includes [target]. */
   private fun alreadyGuarantees(target: Not): Boolean =
-      refinement?.conjuncts()?.contains(target) == true
+      refinement?.withoutChoiceNames()?.conjuncts()?.contains(target.withoutChoiceNames()) == true
 
   /** Whether this entire structural domain has no member in common with [excludedExpression]. */
   private fun isDisjointFrom(

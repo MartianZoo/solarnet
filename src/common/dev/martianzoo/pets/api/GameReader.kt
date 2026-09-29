@@ -1,6 +1,5 @@
 package dev.martianzoo.pets.api
 
-import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
@@ -45,6 +44,7 @@ public interface GameReader : TypeInfo {
   /** Returns the distinct component types that directly depend on [component]. */
   public fun getDependents(component: Type): Set<Type>
 
-  /** Returns the types of all concrete components matching the Pets type expression [type]. */
-  public fun getComponents(type: String): Multiset<Type> = getComponents(resolve(parse(type)))
+  /** Returns the types of all concrete components matching [expression] in this world. */
+  public fun getComponents(expression: Expression): Multiset<Type> =
+      getComponents(resolve(expression))
 }

@@ -8,6 +8,7 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.fake.FakeCanon
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -391,7 +392,7 @@ internal class StaticPressureStreamTest :
       vin.assertCounts(0 to "FakeWildTagUse")
       convertHeat()
       playProject(MarsUniversity, 6) {
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(PhysicsComplex)
         draw(VenusGovernor)
       }
@@ -592,7 +593,7 @@ internal class StaticPressureStreamTest :
     nor.turn { playProject(LandClaim, 0) { doTask("Community<Tharsis_2_2>") } }
     vin.turn {
       playProject(VenusianAnimals, 15) {
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(CloudSeeding)
         draw(Gyropolis)
       }
@@ -604,7 +605,7 @@ internal class StaticPressureStreamTest :
       vin.exMachina(fakeWildTags("ScienceTag"))
       playProject(AtalantaPlanitiaLab, 10) {
         draw(WaterSplittingPlant, Algae)
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(WaterSplittingPlant)
         draw(NoctisCity)
       }
@@ -721,7 +722,7 @@ internal class StaticPressureStreamTest :
     vin.turn {
       playProject(RestrictedArea, 11) {
         placeTile(7, 8)
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(TundraFarming)
         draw(CorporateStronghold)
       }
@@ -731,7 +732,7 @@ internal class StaticPressureStreamTest :
     nor.pass()
     vin.turn {
       playProject(GeneRepair, 12) {
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(MagneticFieldDome)
         draw(Teslaract)
       }

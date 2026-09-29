@@ -197,7 +197,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       playProject(MarsUniversity, 2, steel = 2) {
         discard(OutdoorSports)
         draw(Comet)
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
       }
       stdAction("TradeAction", 1) { doTask("Trade<Triton>") }
       playProject(Comet, 1, titanium = 5) {
@@ -221,7 +221,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       playProject(MedicalLab, 1, steel = 4) {
         discard(Predators)
         draw(AsteroidRights)
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
       }
       playProject(AsteroidRights, 10)
       cardAction2(AsteroidRights) { doTask("2 Titanium") }
@@ -238,7 +238,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       playProject(SearchForLife, 3) {
         discard(SpaceHotels)
         draw(AirScrappingExpedition)
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
       }
       cardAction2(AsteroidRights) { doTask("2 Titanium") }
       cardAction1(SaturnSurfing)
@@ -280,8 +280,8 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       cardAction1(DevelopmentCenter) { draw(PioneerSettlement) }
       playProject(Research, 11) {
         draw(Shuttles, Atmoscoop)
-        doTask("-ProjectCard")
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(Trees, TransNeptuneProbe)
         draw(GanymedeColony, HiTechLab)
       }
@@ -312,7 +312,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       playProject(FloaterPrototypes, 2) {
         discard(AirScrappingExpedition)
         draw(AsteroidCard)
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         addCardResources(TitanShuttles)
       }
       cardAction2(TitanShuttles) {
@@ -332,7 +332,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       playProject(HiTechLab, 5, steel = 4) {
         discard(DustSeals)
         draw(Windmills)
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
       }
       cardAction1(ElectroCatapult)
       playProject(AsteroidCard, 12) { /* Decline removing an opponent's plants. */

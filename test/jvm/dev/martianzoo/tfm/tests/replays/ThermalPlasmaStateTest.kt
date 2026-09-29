@@ -14,7 +14,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       GameConfig(
           """
           ElysiumMap
-          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TerralabsResearch, PromoCardPack
+          VenusNextExpansion, PreludeExpansion, ColoniesExpansion, TerraLabsResearch, PromoCardPack
           Tr63SoloObjective
           Ganymede, Luna, Miranda, Pluto
           """,
@@ -34,7 +34,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
     with(me) {
       doTask("-SelectedColonyTile<Class<Miranda>>")
 
-      playCorp(TerralabsResearch) {
+      playCorp(TerraLabsResearch) {
         buyCards(
             RadSuits,
             SoilFactory,

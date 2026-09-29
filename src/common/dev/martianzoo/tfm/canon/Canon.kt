@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.api.CustomClass
-import dev.martianzoo.tfm.canon.milestonesawardsexpansion.customClasses as milestonesAwardsCustomClasses
 import dev.martianzoo.tfm.canon.promocardpack.customClasses as promoCardPackCustomClasses
 import dev.martianzoo.tfm.canon.terraformingmars.customClasses as terraformingMarsCustomClasses
 import dev.martianzoo.tfm.canon.vastitasmap.customClasses as vastitasMapCustomClasses
@@ -9,9 +8,8 @@ import dev.martianzoo.tfm.canon.vastitasmap.customClasses as vastitasMapCustomCl
 private val canonCustomClasses: Set<CustomClass> =
     terraformingMarsCustomClasses +
         promoCardPackCustomClasses +
-        setOf(RepeatPlacementBonus) +
+        setOf(RepeatPlacementBonus, GainsOf) +
         turmoilExpansionCustomClasses +
-        milestonesAwardsCustomClasses +
         vastitasMapCustomClasses
 
 private val canonBundles: Array<TfmCatalog> =

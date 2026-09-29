@@ -4,6 +4,8 @@ import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.cards.CardTest
+import dev.martianzoo.tfm.tests.cards.cardnames.CrediCor
+import dev.martianzoo.tfm.tests.cards.cardnames.ThorGate
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -69,5 +71,24 @@ internal class AdditionalGoalsTest : CardTest() {
     admin.runOperation("End FROM Phase")
     p1.count("FirstPlace<Politician>") shouldBe 1
     requireP2().count("FirstPlace<Politician>") shouldBe 1
+  }
+
+  @Test
+  internal fun `Politician counts dominant leadership as both leadership and influence`() {
+    newGame(GameConfig("TurmoilExpansion, Politician, Thermalist, Miner", "Player1", "Player2"))
+    val p2 = requireP2()
+    p1.playCorp(CrediCor, 0)
+    p2.playCorp(ThorGate, 0)
+    admin.phase("Action")
+    p1.stdAction("LobbyAction") { doTask("PartyDelegate<Scientists>") }
+    p1.stdAction("LobbyAction", 2) { doTask("PartyDelegate<Scientists>") }
+    p2.stdAction("LobbyAction") { doTask("PartyDelegate<Unity>") }
+    p2.stdAction("LobbyAction", 2) { doTask("PartyDelegate<Kelvinists>") }
+    p1.fundAward(cn("Politician"), 8)
+
+    admin.runOperation("End FROM Phase")
+    // Three points for P1: one leader, plus leader and delegate influence. P2 has two leaders.
+    p1.count("FirstPlace<Politician>") shouldBe 1
+    p2.count("FirstPlace<Politician>") shouldBe 0
   }
 }

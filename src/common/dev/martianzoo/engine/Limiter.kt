@@ -35,6 +35,9 @@ internal class Limiter(
       removing: Component?,
   ): Int {
 
+    // A same-Type exchange leaves every invariant unchanged, but requires the source count.
+    if (gaining != null && gaining == removing) return gameWorld.components.countComponent(gaining)
+
     // We must ignore any that are in common; the transmutation must hold them constant
     val (gainInvars, removeInvars) =
         run {
@@ -108,7 +111,6 @@ internal class Limiter(
       minimum: Int,
       info: TypeInfo,
   ): Boolean {
-    require(type.abstract)
     require(minimum > 0)
     return classTable
         .allConcreteSubtypes(type) { dependency ->
@@ -125,7 +127,6 @@ internal class Limiter(
       minimum: Int,
       info: TypeInfo,
   ): Boolean {
-    require(type.abstract)
     require(minimum > 0)
     return gameWorld.components.matchingTypes(type, info).any { candidate ->
       findLimit(null, candidate.toComponent()) >= minimum

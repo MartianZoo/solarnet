@@ -333,4 +333,24 @@ internal class SelfReplicatingRobotsTest : CardTest() {
 
   private val stagedCards =
       listOf(Mine, TitaniumMine, MartianRails, SpaceStation, PowerPlant, VestaShipyard)
+
+  @Test
+  internal fun `Mars University cannot discard a hosted card when a staged science card is played`() {
+    newGame(CorporateEraExpansion, PromoCardPack, FakeStuffBundle)
+    p1.playCorp(CrediCor, 5)
+    admin.phase("Action")
+    p1.runOperation("20 MC")
+    p1.playProject(MarsUniversity, 8) { declineTask() }
+    p1.playProject(SearchForLife, 3) { declineTask() }
+    p1.playProject(FakeSelfReplicatingRobots, 7)
+    stage(Mine)
+    nextGeneration()
+    stage(ResearchOutpost)
+    p1.stdProject("PowerPlantProject")
+    p1.count("ProjectCard") shouldBe 0
+
+    p1.playProject(ResearchOutpost, 16) { placeTile(4, 2) }
+        .expect("0 ProjectCard, 0 RobotUnit<Class<$Mine>>")
+    p1.count("RobotUnit<Class<$Mine>>") shouldBe 2
+  }
 }

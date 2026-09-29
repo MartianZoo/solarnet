@@ -9,6 +9,9 @@ current task, read its “Read when” note and named sections, then inspect the
 For a portfolio-level index of substantial proposed and selected work, see
 [`PLANS.md`](PLANS.md); do not read every owning document merely because it is indexed there.
 
+When discussing features or design questions with the owner, explain the concrete user actions and
+consequences before relying on internal labels or shorthand.
+
 ## Authority labels
 
 - **Current model:** a map of committed behavior. Source and tests win when details differ.
@@ -81,7 +84,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Task | Read | Authority |
 | --- | --- | --- |
 | Add or change a card, corporation, rule component, or Pets declaration | [`NAMING.md`](NAMING.md), then topic-specific engine/type docs only as needed | Current vocabulary |
-| Change card backs, draws, searches, purchases, or replay card tracking | [`CARD_HANDLING.md`](CARD_HANDLING.md) | Current model and deliberate boundary |
+| Change card backs, draws, searches, purchases, or replay/game-playing card tracking | [`CARD_HANDLING.md`](CARD_HANDLING.md) | Current engine model and selected external-tracking direction |
 | Change map diagrams or generated area declarations | [`MAP_PETS_GENERATION.md`](MAP_PETS_GENERATION.md) | Procedure |
 
 ### Change project structure or APIs

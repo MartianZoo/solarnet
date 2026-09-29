@@ -148,7 +148,7 @@ internal abstract class AbstractFullGameTest : TfmTest() {
     )
     if (
         game.classTable.isInhabited(cn("ColoniesExpansion")) &&
-            game.reader.getComponents("ColoniesExpansion").isNotEmpty()
+            game.reader.getComponents(cn("ColoniesExpansion").expression).isNotEmpty()
     ) {
       assertCounts(colonies to "Colony")
     }

@@ -60,7 +60,7 @@
           "tags": [ "EarthTag" ],
           "immediate": "4 Director<This>",
           "actions": [
-            "-> PreludeCard, -PreludeCard OR (-12 MC THEN -Director<This> THEN PlayCard<Class<PreludeCard>>)",
+            "-> PreludeCard, -PreludeCard OR (-12 MC THEN -Director<This> THEN PlayOrFizzle)",
           ],
           "components": [ "CLASS Director : CardResource" ],
         },
@@ -94,7 +94,7 @@
           "name": "IndustrialComplex",
           "tags": [ "BuildingTag" ],
           "effects": [
-            "This: -18 MC, EACH Class<@StandardResource> { PROD[@StandardResource / (Class<@StandardResource> OR QuickStartVariant OR ProdOffset<Class<@StandardResource>>) - Production<Class<@StandardResource>>] }",
+            "This: -18 MC, PROD[EACH Class<@StandardResource> { @StandardResource / (Class<@StandardResource> OR QuickStartVariant OR ProdOffset<Class<@StandardResource>>) - Production<Class<@StandardResource>> }]",
           ],
         },
         {
@@ -116,6 +116,18 @@
           "name": "PlanetaryAlliance",
           "tags": [ "EarthTag", "JovianTag", "VenusTag" ],
           "immediate": "2 TerraformRating, SearchForCard<TagFilter<Class<JovianTag>>>, SearchForCard<TagFilter<Class<VenusTag>>>",
+        },
+        {
+          "name": "PreservationProgram",
+          "immediate": "5 TerraformRating",
+          "invariants": [ "Class<PreservationTrWatcher>" ],
+          "effects": [
+            "X TerraformRating IF ActionPhase, MAX 0 ActionPhaseTrGain:: -TerraformRating",
+          ],
+          "components": [
+            "CLASS PreservationTrWatcher : CardWatcher { TerraformRating IF ActionPhase:: ActionPhaseTrGain. }",
+            "CLASS ActionPhaseTrGain<GenerationScope> : Owned { HAS MAX 1 This }",
+          ],
         },
         {
           "name": "ProjectEden",
@@ -211,6 +223,20 @@
           "cost": 6,
           "tags": [ "VenusTag", "EventTag" ],
           "immediate": "3 Titanium, 2 SearchForCard<TagFilter<Class<VenusTag>>>",
+        },
+        {
+          "name": "L1TradeTerminal",
+          "cost": 25,
+          "tags": [ "SpaceTag" ],
+          "immediate": "L1GiftWatcher THEN EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }",
+          "effects": [
+            "Trade<@ColonyTile>:: TradeBarrier<@ColonyTile>",
+            "Trade<@ColonyTile>: (2 ColonyProduction<@ColonyTile> OR Ok) THEN -TradeBarrier<@ColonyTile>",
+            "End: 2 VictoryPoint",
+          ],
+          "components": [
+            "CLASS L1Gift : Owned<Player>, MustCleanUp",
+          ],
         },
         {
           "name": "MicrogravityNutrition",
@@ -386,7 +412,7 @@
           "cost": 9,
           "tags": [ "EarthTag" ],
           // 3 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting> THEN -2 PreludeCard<Selecting>
-          "immediate": "PreludeCard THEN PlayCard<Class<PreludeCard>>",
+          "immediate": "PreludeCard THEN PlayOrFizzle",
         },
       ],
     },

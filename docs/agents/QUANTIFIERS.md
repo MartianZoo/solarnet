@@ -128,11 +128,11 @@ When the destination dependency exists, the concrete limit table above applies t
 missing destination dependency makes the pair unavailable for every quantifier; optional and AMAP
 do not convert it to `Ok`. If source footroom is zero, however, optional and AMAP do become `Ok`.
 
-Transmuting a concrete Type into itself is `Ok` when optional or AMAP and is an
-`ExpressionException` when mandatory. This is the ordinary reflexive-transmutation rule (L2-3),
-including when the Type is a Signal subtype; only a direct Signal gain has the distinct point-event
-semantics of L2-1. A zero AMAP transmutation can still bind Type Variables in a following `THEN`;
-target selection and component movement are separate consequences of that stage.
+Transmuting a concrete Type into itself records one paired gain/removal event without changing
+its count. Its limit is the available source count, and ordinary quantifier rules apply (L2-3).
+This includes Signal subtypes; only a direct Signal gain has the distinct point-event semantics
+of L2-1 and needs no existing source. A zero AMAP transmutation can still bind Type Variables in a
+following `THEN`; target selection and component movement are separate consequences of that stage.
 
 ## Abstract pure gains and removals
 
@@ -199,7 +199,8 @@ When a `PER` metric or other scalar calculation makes the requested count zero, 
 - `requirement: A`: the requirement is checked before `A`. Failure makes that arm unavailable; it
   does not change `A`'s quantifier.
 - `A / metric`: the metric is evaluated first and multiplies `A`'s requested count. Zero becomes
-  `Ok`; a positive result follows the normal rules.
+  `Ok`; a positive gain of an `Atomized` type splits into independent gains of one before resolving
+  their choices and limits. Other changes follow the normal rules.
 - `A BY actor`: `BY` changes the performer, not the target domain, count, or limit.
 - `PROD[A]`: production lowering changes the component Types first; the resulting changes
   then follow this specification.

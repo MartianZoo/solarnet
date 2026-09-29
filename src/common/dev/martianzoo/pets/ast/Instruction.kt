@@ -1,15 +1,6 @@
 package dev.martianzoo.pets.ast
 
-import com.github.h0tk3y.betterParse.combinators.and
-import com.github.h0tk3y.betterParse.combinators.map
-import com.github.h0tk3y.betterParse.combinators.optional
-import com.github.h0tk3y.betterParse.combinators.or
-import com.github.h0tk3y.betterParse.combinators.separatedTerms
-import com.github.h0tk3y.betterParse.combinators.skip
-import com.github.h0tk3y.betterParse.grammar.parser
-import com.github.h0tk3y.betterParse.parser.Parser
 import dev.martianzoo.pets.HasExpression
-import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.Transforming.bindXTo
@@ -31,10 +22,10 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.pets.types.GroundType
 import dev.martianzoo.pets.types.TypeVariable
 import dev.martianzoo.pets.util.invoke
-import dev.martianzoo.pets.util.toSetStrict
 
 /**
- * A relation between a before-state and an after-state, as defined by
+ * A transition between a before-state and an after-state, including gain and removal events, as
+ * defined by
  * [section 2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)
  * — the only kind of element that denotes one. Instructions appear as the right-hand side of
  * [Action]s and [Effect]s, on map areas, in the "do this now" section of cards, in an engine's task
@@ -44,47 +35,6 @@ import dev.martianzoo.pets.util.toSetStrict
  * while scheduling, choice presentation and attribution belong to the engine.
  */
 public sealed class Instruction : InstructionTree() {
-  internal companion object {
-    internal fun parser(): Parser<Instruction> =
-        Parsers.parser() map
-            {
-              val instruction =
-                  it as? Instruction
-                      ?: throw PetSyntaxException("expected one instruction, found group `$it`")
-              resolveLocalTypeVariableNames(instruction) as Instruction
-            }
-
-    internal fun treeParser(): Parser<InstructionTree> =
-        Parsers.parser() map ::resolveLocalTypeVariableNames
-
-    /**
-     * Resolves symmetric instruction-local scopes only after enclosing selectors have claimed their
-     * references. The traversal remains inside-out so a transmutation still outranks an enclosing
-     * sequence for names that no supplier already owns.
-     */
-    private fun resolveLocalTypeVariableNames(tree: InstructionTree): InstructionTree {
-      if (
-          tree.descendantsOfType<Transmute>().isEmpty() && tree.descendantsOfType<Then>().isEmpty()
-      ) {
-        return tree
-      }
-      return object : PetTransformer() {
-            override fun transformNode(node: PetNode): PetNode {
-              // Symmetric scopes contain instructions; leave unrelated parser-only expression
-              // metadata untouched until one of those scopes resolves its own subtree.
-              if (node is Expression) return node
-              val transformed = transformChildren(node)
-              return when (transformed) {
-                is Transmute -> Transmute.resolveTypeVariableNames(transformed)
-                is Then -> Then.resolveTypeVariableNames(transformed)
-                else -> transformed
-              }
-            }
-          }
-          .transformInstructionTree(tree)
-    }
-  }
-
   /**
    * Returns an instruction that (in essence) does this instruction [factor] times. The [factor]
    * must be non-negative, and if zero, [NoOp] is returned.
@@ -92,7 +42,8 @@ public sealed class Instruction : InstructionTree() {
   final override operator fun times(factor: Int): Instruction {
     if (factor == 0) return NoOp
     require(factor > 0)
-    return scale(factor)
+    if (factor == 1) return this
+    return scale(factor).also { it.sourceLocation = sourceLocation }
   }
 
   override val kind: kotlin.reflect.KClass<out PetNode> = Instruction::class
@@ -100,7 +51,7 @@ public sealed class Instruction : InstructionTree() {
   protected abstract fun scale(factor: Int): Instruction
 
   /**
-   * The instruction relating a state to itself, spelled `Ok` ([rule
+   * The instruction leaving a state unchanged without events, spelled `Ok` ([rule
    * L2-5](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
    * It vanishes from a group rather than appearing as an empty member, and a group left with
    * nothing in it *is* `Ok`. `Ok` narrows an optional change and nothing else ([rule
@@ -124,7 +75,7 @@ public sealed class Instruction : InstructionTree() {
    * One of the three elementary instructions of
    * [rule L2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions):
    * a [Gain], a [Remove] or a [Transmute]. Each says that the after-state holds some number more,
-   * fewer, or differently-typed components than the before-state.
+   * fewer, or exchanged components relative to the before-state.
    */
   public sealed class Change : Instruction() {
     public companion object {
@@ -153,10 +104,12 @@ public sealed class Instruction : InstructionTree() {
      */
     public abstract val count: Scalar
 
-    /** What the after-state holds more of, or null for a pure removal. */
+    /**
+     * The gained Type, or null for a pure removal; a same-Type exchange has no net count change.
+     */
     public abstract val gaining: Expression?
 
-    /** What the after-state holds fewer of, or null for a pure gain. */
+    /** The removed Type, or null for a pure gain; a same-Type exchange has no net count change. */
     public abstract val removing: Expression?
 
     /**
@@ -203,8 +156,8 @@ public sealed class Instruction : InstructionTree() {
       } else {
         proposedCount.ensureNarrows(authoredCount, info)
       }
-      authored.gaining?.let { proposed.gaining!!.ensureNarrows(it, info) }
-      authored.removing?.let { proposed.removing!!.ensureNarrows(it, info) }
+      authored.gaining?.let { info.ensureSelectionNarrows(it, proposed.gaining!!) }
+      authored.removing?.let { info.ensureSelectionNarrows(it, proposed.removing!!) }
     }
   }
 
@@ -327,15 +280,11 @@ public sealed class Instruction : InstructionTree() {
       checkNonzero(count)
     }
 
-    // A transmutation written in full needs parentheses inside an OR, where its bare FROM would
-    // otherwise be ambiguous; rule L2-16 requires rendering to re-insert that grouping.
-    override fun safeToNestIn(container: PetNode): Boolean =
-        super.safeToNestIn(container) && (fromEx !is Full || container !is Or)
-
     override fun precedence(): Int = if (fromEx is Full) 7 else 10
 
-    internal companion object {
-      fun resolveTypeVariableNames(transmute: Transmute): Transmute {
+    public companion object {
+      /** Resolves shared named variables across both sides of a constructed transmutation. */
+      public fun resolveTypeVariableNames(transmute: Transmute): Transmute {
         return dev.martianzoo.pets.ast.resolveTypeVariableNames(
             transmute,
             transmute.localTypeVariableDeclarations(),
@@ -363,9 +312,10 @@ public sealed class Instruction : InstructionTree() {
           variables.variables.filter {
             info.isAbstract(variables.expressionOf(it.declaration))
           }) {
+        val classTable = (info as? GameReader)?.classTable ?: variable.bound.classTable
         val bindings =
-            variables.bindings(gaining, proposed.gaining, variable) +
-                variables.bindings(removing, proposed.removing, variable)
+            variables.bindings(gaining, proposed.gaining, variable, info, classTable) +
+                variables.bindings(removing, proposed.removing, variable, info, classTable)
         val distinct = bindings.distinct()
         if (distinct.size > 1) {
           throw NarrowingException(
@@ -373,15 +323,25 @@ public sealed class Instruction : InstructionTree() {
           )
         }
         distinct.singleOrNull()?.let {
-          selected[variable] = variable.bound.classTable.resolve(it).groundType
+          selected[variable] = classTable.resolve(it).groundType
         }
       }
-      if (selected.isNotEmpty()) {
-        val specialized = variables.bind(selected).transformInstruction(this) as Transmute
-        ensureChangeIsNarrowedBy(specialized, proposed, info)
-        return
+      val table =
+          (info as? GameReader)?.classTable ?: variables.variables.firstOrNull()?.bound?.classTable
+      val scoped = copy().withTypeVariables(variables)
+      val specialized =
+          if (selected.isEmpty()) scoped
+          else variables.bind(selected).transformInstruction(scoped) as Transmute
+      if (table != null) {
+        specialized.typeVariables.ensureChoicesRetained(
+            specialized,
+            proposed,
+            info,
+            table,
+            specialized.typeVariables.variables.toSet(),
+        )
       }
-      ensureChangeIsNarrowedBy(this, proposed, info)
+      ensureChangeIsNarrowedBy(specialized, proposed, info)
     }
   }
 
@@ -644,11 +604,65 @@ public sealed class Instruction : InstructionTree() {
                 "`${proposed.instructions.size}`"
         )
       }
+      val values = narrowingXValues(proposed, info, hasSharedX()).filterNotNull().toSet()
+      if (values.size > 1) throw NarrowingException("`X` has conflicting values: `$values`")
+    }
+
+    private fun narrowingXValues(proposed: Then, info: TypeInfo, sharedX: Boolean): Set<Int?> {
+      fun firstChoice(wide: PetNode, narrow: PetNode): Pair<Or, InstructionTree>? {
+        if (wide is Or) return (narrow as? InstructionTree)?.let { wide to it }
+        if (wide::class != narrow::class) return null
+        return wide.immediateChildren().zip(narrow.immediateChildren()).firstNotNullOfOrNull {
+            (w, n) ->
+          firstChoice(w, n)
+        }
+      }
+      fun replacing(root: Then, target: InstructionTree, replacement: InstructionTree): Then =
+          object : PetTransformer() {
+                override fun transformNode(node: PetNode): PetNode =
+                    if (node === target) replacement else transformChildren(node)
+              }
+              .transformInstruction(root) as Then
+
+      val alternatives = firstChoice(this, proposed)
+      if (alternatives != null) {
+        val (choice, selected) = alternatives
+        val proposals = if (selected is Or) selected.instructions else listOf(selected)
+        return proposals
+            .flatMap { proposal ->
+              val narrower = replacing(proposed, selected, proposal)
+              val accepted =
+                  choice.instructions.flatMap { arm ->
+                    val candidate = replacing(this, choice, arm)
+                    try {
+                      candidate.narrowingXValues(narrower, info, sharedX)
+                    } catch (_: NarrowingException) {
+                      emptySet()
+                    }
+                  }
+              if (accepted.isEmpty())
+                  throw NarrowingException("no `OR` arm preserves this sequence's shared choices")
+              accepted
+            }
+            .toSet()
+      }
       val specialized = bindTypeVariablesFrom(proposed, info)
+      val variables = typeVariablesFor(info)
+      val table =
+          (info as? GameReader)?.classTable ?: variables.variables.firstOrNull()?.bound?.classTable
+      if (table != null) {
+        val live =
+            specialized.typeVariables.variables
+                .filter { variable ->
+                  variables.bindings(this, proposed, variable, info, table).isNotEmpty()
+                }
+                .toSet()
+        specialized.typeVariables.ensureChoicesRetained(specialized, proposed, info, table, live)
+      }
       for ((wide, narrow) in specialized.instructions.zip(proposed.instructions)) {
         narrow.ensureNarrows(wide, info)
       }
-      if (hasSharedX()) sharedXValue(this, proposed, info)
+      return setOf(if (sharedX) sharedXValue(specialized, proposed, info) else null)
     }
 
     private fun bindTypeVariablesFrom(
@@ -656,8 +670,8 @@ public sealed class Instruction : InstructionTree() {
         info: TypeInfo,
         fallback: PetTransformer? = null,
     ): Then {
-      var specialized = this
       val variables = typeVariablesFor(info)
+      val captures = mutableMapOf<TypeVariable, GroundType>()
       for (variable in
           variables.variables.filter {
             info.isAbstract(variables.expressionOf(it.declaration))
@@ -665,10 +679,15 @@ public sealed class Instruction : InstructionTree() {
         val declaration = variables.expressionOf(variable.declaration)
         val bindings =
             variables
-                .bindings(this, proposed, variable)
+                .bindings(
+                    this,
+                    proposed,
+                    variable,
+                    info,
+                    (info as? GameReader)?.classTable ?: variable.bound.classTable,
+                )
                 .filter {
-                  !sameAfterNameConsumption(it, declaration) &&
-                      narrowsExpression(it, declaration, info)
+                  !sameAfterNameConsumption(it, declaration)
                 }
                 .distinct()
         if (bindings.size > 1) {
@@ -676,60 +695,45 @@ public sealed class Instruction : InstructionTree() {
               "type variable `$variable` has conflicting bindings: `$bindings`"
           )
         }
+        val lowered = fallback?.transformExpression(declaration)?.takeIf { it != declaration }
         val binding =
-            bindings.singleOrNull()
-                ?: fallback
-                    ?.takeIf { bindings.isEmpty() }
-                    ?.transformExpression(declaration)
-                    ?.takeIf { it != declaration }
+            lowered?.takeIf { candidate -> bindings.all { candidate.narrows(it, info) } }
+                ?: bindings.singleOrNull()
         binding?.let {
           val captured =
               ((info as? GameReader)?.resolve(binding)
                       ?: variable.bound.classTable.resolve(binding))
                   .groundType
-          val transformed =
-              variables
-                  .bind(
-                      mapOf(variable to captured),
-                      (info as? GameReader)?.classTable ?: captured.classTable,
-                  )
-                  .transformInstruction(specialized)
-          specialized =
-              transformed as? Then
-                  ?: error("expression replacement changed `THEN` into `$transformed`")
+          captures[variable] = captured
         }
       }
-      return specialized
+      val scoped = withParts(stages, continuation).withTypeVariables(variables)
+      if (captures.isEmpty()) return scoped
+      val transformer =
+          variables.bind(
+              captures,
+              (info as? GameReader)?.classTable ?: captures.values.first().classTable,
+          )
+      for ((variable, captured) in captures) {
+        if (!captured.abstract) {
+          val constraint =
+              transformer.transformExpression(
+                  variables.expressionOf(variable.declaration).copy(typeVariableName = null)
+              )
+          captured.expression.ensureNarrows(constraint, info)
+        }
+      }
+      return transformer.transformInstruction(scoped) as Then
     }
-
-    private fun narrowsExpression(
-        narrow: Expression,
-        wide: Expression,
-        info: TypeInfo,
-    ): Boolean = narrow.narrows(wide, info)
 
     private fun sameAfterNameConsumption(left: Expression, right: Expression): Boolean =
         left.copy(typeVariableName = null) == right.copy(typeVariableName = null)
 
-    /** Narrows the first stage and carries every shared choice into later stages. */
-    public fun bindFirstStage(
-        proposed: Instruction,
-        info: TypeInfo,
-        loweredBinding: PetTransformer? = null,
-    ): Then = replaceFirstStage(proposed, info, loweredBinding, requireBinding = true)
-
-    /** Selects and narrows the first stage, including when no cross-stage type is specialized. */
+    /** Selects the first stage after every shared Type it uses has been chosen. */
     public fun selectFirstStage(
         proposed: Instruction,
         info: TypeInfo,
         loweredBinding: PetTransformer? = null,
-    ): Then = replaceFirstStage(proposed, info, loweredBinding, requireBinding = false)
-
-    private fun replaceFirstStage(
-        proposed: Instruction,
-        info: TypeInfo,
-        loweredBinding: PetTransformer?,
-        requireBinding: Boolean,
     ): Then {
       val firstStage = first
       val selectableFirst =
@@ -738,71 +742,56 @@ public sealed class Instruction : InstructionTree() {
           } else {
             firstStage
           }
-      proposed.ensureNarrows(selectableFirst, info)
-      val partial = withParts(listOf(proposed) + stages.drop(1), continuation)
-      val variables = typeVariablesFor(info)
-      val authoredBinding =
-          PetTransformer.chain(
-              variables.variables.mapNotNull { variable ->
-                val declaration = variables.expressionOf(variable.declaration)
-                if (
-                    loweredBinding != null &&
-                        loweredBinding.transformExpression(declaration) != declaration
-                ) {
-                  return@mapNotNull null
-                }
-                val positionalBindings =
-                    variables
-                        .bindings(selectableFirst, proposed, variable)
-                        .filter {
-                          !sameAfterNameConsumption(it, declaration) &&
-                              narrowsExpression(it, declaration, info)
-                        }
-                        .map { expression ->
-                          ((info as? GameReader)?.resolve(expression)
-                                  ?: variable.bound.classTable.resolve(expression))
-                              .groundType
-                        }
-                        .distinct()
-                val bindings = positionalBindings.ifEmpty {
-                  variables.bindingsIn(proposed, variable, info)
-                }
-                if (bindings.size > 1) {
-                  throw NarrowingException(
-                      "type variable `$variable` has conflicting bindings: `${bindings.toSet()}`"
-                  )
-                }
-                bindings.singleOrNull()?.let { binding ->
-                  variables.bind(
-                      mapOf(variable to binding),
-                      (info as? GameReader)?.classTable ?: binding.classTable,
-                  )
-                }
-              }
-          )
-      val selectionBinding = PetTransformer.chain(loweredBinding, authoredBinding)
-      val selectedFirstStage = selectionBinding.transformInstruction(firstStage)
+      if (
+          proposed.descendantsOfType<Then>().isNotEmpty() ||
+              proposed.descendantsOfType<InstructionGroup>().isNotEmpty()
+      ) {
+        throw NarrowingException("a first-stage selection cannot contain a sequence or group")
+      }
+      val proposedFirst = if (firstStage is Gated) firstStage.copy(inner = proposed) else proposed
+      val partial = withParts(listOf(proposedFirst) + stages.drop(1), continuation)
+      val specialized = bindTypeVariablesFrom(partial, info, loweredBinding)
+      val selectedFirstStage = specialized.first
+      val selectable =
+          if (selectedFirstStage is Gated) selectedFirstStage.inner else selectedFirstStage
+      proposed.ensureNarrows(selectable, info)
       if (selectedFirstStage is Gated && !info.has(selectedFirstStage.gate)) {
         throw NarrowingException("condition is not met: `${selectedFirstStage.gate}`")
       }
-      val specialized =
-          bindTypeVariablesFrom(
-              partial,
-              info,
-              selectionBinding,
-          )
-      val selectedX = if (hasSharedX()) sharedXValue(first, proposed, info) else null
+      val selectedX = if (hasSharedX()) sharedXValue(selectableFirst, proposed, info) else null
       val fullySpecialized =
           selectedX?.let { bindXTo(it).transformInstruction(specialized) as Then } ?: specialized
-      if (requireBinding && fullySpecialized == this) {
-        throw NarrowingException(
-            "first stage `$selectedFirstStage` does not bind this `THEN` type variable"
+      val variables = typeVariablesFor(info)
+      val table =
+          (info as? GameReader)?.classTable ?: variables.variables.firstOrNull()?.bound?.classTable
+      val live =
+          variables.variables
+              .filter { variable ->
+                variables
+                    .bindings(this, partial, variable, info, table ?: variable.bound.classTable)
+                    .isNotEmpty()
+              }
+              .toSet()
+      if (table != null) {
+        fullySpecialized.typeVariables.ensureChoicesRetained(
+            fullySpecialized,
+            partial,
+            info,
+            table,
+            live,
         )
       }
-      return fullySpecialized.withParts(
-          listOf(proposed) + fullySpecialized.stages.drop(1),
-          fullySpecialized.continuation,
-      )
+      val selected =
+          fullySpecialized
+              .withParts(
+                  listOf(proposed) + fullySpecialized.stages.drop(1),
+                  fullySpecialized.continuation,
+              )
+              .withTypeVariables(fullySpecialized.typeVariables.retaining(live))
+      if (selected.mustRemainOneTask(info::isAbstract)) {
+        throw NarrowingException("first stage still uses an unsettled shared choice")
+      }
+      return selected
     }
 
     private fun sharedXValue(
@@ -871,20 +860,24 @@ public sealed class Instruction : InstructionTree() {
 
     /** Whether task admission must retain this complete sequence as one pending instruction. */
     public fun mustRemainOneTask(isAbstract: ((Expression) -> Boolean)?): Boolean =
-        hasSharedX() ||
+        (hasSharedX() && first.descendantsOfType<XScalar>().isNotEmpty()) ||
             isAbstract?.let { check ->
               typeVariables.variables.any { variable ->
-                check(typeVariables.expressionOf(variable.declaration))
+                first.descendantsOfType<Expression>().any {
+                  typeVariables.variableAt(it) === variable
+                } && check(typeVariables.expressionOf(variable.declaration))
               }
             } == true
 
     /** Returns the right-associated continuation enqueued after the first stage. */
-    public fun continuationAfterFirst(): InstructionGroup =
-        InstructionGroup.of(
-            typeVariables
-                .expandNames()
-                .transformInstructionTree(createTree(stages.drop(1) + continuation))
-        )
+    public fun continuationAfterFirst(): InstructionGroup {
+      val expander = typeVariables.expandNames()
+      val remaining = expander.transformInstructionTree(createTree(stages.drop(1) + continuation))
+      return InstructionGroup.of(
+          if (remaining == NoOp) remaining
+          else remaining.withTypeVariables(typeVariables.transformedBy(expander))
+      )
+    }
 
     override fun toString(): String = instructions.joinToString(" THEN ") { groupPartIfNeeded(it) }
 
@@ -915,7 +908,8 @@ public sealed class Instruction : InstructionTree() {
                 }
               }
 
-      internal fun resolveTypeVariableNames(then: Then): Then {
+      /** Resolves shared named variables after the complete sequence has been constructed. */
+      public fun resolveTypeVariableNames(then: Then): Then {
         val declarations = then.localTypeVariableDeclarations()
         then.descendantsOfType<Transmute>().forEach { transmute ->
           transmute.localTypeVariableDeclarations().forEach { declaration ->
@@ -941,7 +935,7 @@ public sealed class Instruction : InstructionTree() {
             }
             if (usedOutside(then)) {
               throw PetSyntaxException(
-                  "Type-variable ${declaration.typeVariableName!!.authoredSpelling} cannot be used outside " +
+                  "type variable `${declaration.typeVariableName!!.authoredSpelling}` cannot be used outside " +
                       "its transmutation"
               )
             }
@@ -1111,87 +1105,6 @@ public sealed class Instruction : InstructionTree() {
 
     private companion object {
       private fun from(symbol: String) = entries.first { it.symbol == symbol }
-    }
-  }
-
-  private object Parsers : PetTokenizer() {
-    internal fun parser(): Parser<InstructionTree> {
-      return parser {
-        val gain: Parser<Instruction> =
-            ScaledExpression.parser() and
-                quantifier map
-                { (ste, int) ->
-                  Gain.gain(ste, int)
-                }
-
-        val remove: Parser<Instruction> =
-            skipChar('-') and
-                ScaledExpression.parser() and
-                quantifier map
-                { (ste, int) ->
-                  Remove.remove(ste, int)
-                }
-
-        val transmute: Parser<Transmute> =
-            optional(ScaledExpression.scalar()) and
-                FromExpression.parser() and
-                quantifier map
-                { (scalar, fro, int) ->
-                  Transmute(fro, scalar ?: ActualScalar(1), int)
-                }
-
-        val perable: Parser<Instruction> = transmute or gain or remove
-
-        val maybePer: Parser<Instruction> =
-            perable and
-                optional(skipChar('/') and Metric.subtractionParser()) map
-                { (instr, metric) ->
-                  if (metric == null) instr else Per(instr, metric)
-                }
-
-        val transform: Parser<Transform> =
-            transform(parser()) map { (node, tname) -> Transform(node, tname) }
-
-        val maybeTransform: Parser<InstructionTree> = transform or maybePer
-
-        val each: Parser<Instruction> =
-            skip(_each) and
-                Expression.parser(allowDerivedClass = false) and
-                skipChar('{') and
-                parser() and
-                skipChar('}') map
-                { (selector, body) ->
-                  val resolved = resolveSelectorTypeVariableNames(selector, listOf(body))
-                  Each(resolved[0] as Expression, resolved[1] as InstructionTree)
-                }
-
-        val atomBase: Parser<InstructionTree> = each or maybeTransform or group(parser())
-
-        val atom: Parser<InstructionTree> =
-            atomBase and
-                optional(skip(_by) and Expression.parser()) map
-                { (instruction, actor) ->
-                  if (actor == null) instruction else By.createTree(instruction, actor)
-                }
-
-        val orInstr: Parser<InstructionTree> =
-            separatedTerms(atom, _or) map
-                {
-                  val set = it.toSetStrict().toList()
-                  Or.createTree(set)
-                }
-
-        val gated: Parser<InstructionTree> =
-            optional(Requirement.atomParser() and skipChar(':')) and
-                orInstr map
-                { (gate, ins) ->
-                  Gated.createTree(gate, ins)
-                }
-
-        val then = separatedTerms(gated, _then) map Then::createTree
-
-        commaSeparated(then) map { InstructionGroup.createTree(it) }
-      }
     }
   }
 }

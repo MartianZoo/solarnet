@@ -37,7 +37,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   }
 
   @Test
-  internal fun `Philantropist counts victory point gains but not Vitor's reference`() {
+  internal fun `Philantropist counts own scoring cards but not Vitor's reference`() {
     newGame(
         GameConfig(
             "PreludeExpansion, Philantropist, Builder, Engineer",
@@ -46,7 +46,11 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
         )
     )
     p1.runOperation("$Vitor, $SearchForLife, $Tardigrades, $ColonizerTrainingCamp, $DustSeals")
+    requireP2().runOperation("$Trees")
 
+    // Counting played card classes is equivalent to counting cards: CardFront permits at most
+    // one played instance of each concrete class, across all owners. Vitor's class reference is
+    // not a played card, and Player2's Trees is outside Player1's requirement.
     shouldThrow<RequirementException> { p1.runOperation("Philantropist") }
 
     p1.runOperation("$SpaceElevator")

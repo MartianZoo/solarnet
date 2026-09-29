@@ -63,11 +63,14 @@ internal constructor(
    */
   public val occurrences: List<Occurrence> = listOf(declaration) + usages
 
+  internal val selectsClass: Boolean = declarationSite.representedClass
+
   internal data class Site(
       val expression: Expression,
       val region: Int,
       val ordinal: Int,
       val interpretedGroundType: GroundType? = null,
+      val representedClass: Boolean = false,
   )
 
   /**

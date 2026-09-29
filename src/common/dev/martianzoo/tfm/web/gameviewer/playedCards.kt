@@ -14,7 +14,7 @@ import dev.martianzoo.tfm.canon.tfmCatalog
 internal fun playedCards(game: GameWorld, player: Player): List<Type> {
   val current =
       game.reader
-          .getComponents("CardFront")
+          .getComponents(cn("CardFront").expression)
           .elements
           .filter { type ->
             type.typeDependencies.any { it.boundType.className == player.className }
@@ -62,7 +62,7 @@ internal fun hasActionUsedMarker(reader: GameReader, player: Player, card: Type)
 
 /** Event cards in this player's played-event pile, retaining their play order. */
 internal fun playedEventCards(game: GameWorld, player: Player): List<ClassName> {
-  val current = game.reader.getComponents("PlayedEvent").elements.toSet()
+  val current = game.reader.getComponents(cn("PlayedEvent").expression).elements.toSet()
   return game.events
       .changesSince(Checkpoint(0))
       .asSequence()

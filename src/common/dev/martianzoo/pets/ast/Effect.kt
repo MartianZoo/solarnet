@@ -1,14 +1,5 @@
 package dev.martianzoo.pets.ast
 
-import com.github.h0tk3y.betterParse.combinators.and
-import com.github.h0tk3y.betterParse.combinators.map
-import com.github.h0tk3y.betterParse.combinators.optional
-import com.github.h0tk3y.betterParse.combinators.or
-import com.github.h0tk3y.betterParse.combinators.separatedTerms
-import com.github.h0tk3y.betterParse.combinators.skip
-import com.github.h0tk3y.betterParse.grammar.parser
-import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
@@ -50,7 +41,10 @@ public data class Effect(
     // to
     // say what it is actually watching for.
     trigger.unqualifiedBroadSubscription()?.let {
-      throw PetSyntaxException("`$it` trigger requires `IF` or `BY`")
+      throw PetSyntaxException(
+          "`$it` trigger requires `IF` or `BY`",
+          sourceLocation = trigger.descendantsOfType<Expression>().firstOrNull()?.sourceLocation,
+      )
     }
   }
 
@@ -147,7 +141,10 @@ public data class Effect(
          */
         public fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
-            throw PetSyntaxException("effect trigger cannot be a Class type: `$expression`")
+            throw PetSyntaxException(
+                "effect trigger cannot be a class type: `$expression`",
+                sourceLocation = expression.sourceLocation,
+            )
           }
           return if (expression.isBare(THIS)) {
             WhenGain
@@ -185,7 +182,10 @@ public data class Effect(
          */
         public fun create(expression: Expression): BasicTrigger {
           if (expression.className == CLASS) {
-            throw PetSyntaxException("effect trigger cannot be a Class type: `-$expression`")
+            throw PetSyntaxException(
+                "effect trigger cannot be a class type: `-$expression`",
+                sourceLocation = expression.sourceLocation,
+            )
           }
           return if (expression.isBare(THIS)) {
             WhenRemove
@@ -291,73 +291,6 @@ public data class Effect(
           is Or -> triggers.first().selfMode()
           is WrappingTrigger -> inner.selfMode()
         }
-
-    internal companion object : PetTokenizer() {
-      fun parser(): Parser<Trigger> {
-        return parser {
-          val onGainOf: Parser<BasicTrigger> = Expression.parser() map OnGainOf.Companion::create
-
-          val exxedGain: Parser<XTrigger> = skip(_x) and onGainOf map Trigger::XTrigger
-
-          val onRemoveOf: Parser<BasicTrigger> =
-              skipChar('-') and Expression.parser() map OnRemoveOf.Companion::create
-
-          val exxedRemove: Parser<XTrigger> =
-              skipChar('-') and
-                  skip(_x) and
-                  Expression.parser() map
-                  OnRemoveOf.Companion::create map
-                  Trigger::XTrigger
-
-          val atom: Parser<Trigger> = exxedGain or exxedRemove or onGainOf or onRemoveOf
-          val transform = transform(atom) map { (node, name) -> Transform(node, name) }
-          val unmodified = transform or atom
-          val primary = unmodified or group(parser())
-          val alternatives =
-              separatedTerms(primary, _or) map { if (it.size == 1) it.first() else Or(it) }
-          val byClause: Parser<Expression> = skip(_by) and Expression.parser()
-          val byTrigger =
-              alternatives and
-                  optional(byClause) map
-                  { (inner, by) ->
-                    if (by == null) inner else ByTrigger(inner, by)
-                  }
-          val ifClause: Parser<Requirement> = skip(_if) and Requirement.parser()
-
-          byTrigger and
-              optional(ifClause) map
-              { (inner, condition) ->
-                if (condition == null) inner else IfTrigger(inner, condition)
-              }
-        }
-      }
-    }
-  }
-
-  internal companion object : PetTokenizer() {
-    fun parser(): Parser<Effect> {
-      val colons = _doubleColon or char(':') map { it.text == "::" }
-
-      return Trigger.parser() and
-          colons and
-          maybeGroup(InstructionTree.parser()) map
-          { (trig, immed, instr) ->
-            resolveTypeVariableNames(
-                Effect(
-                    trigger = trig,
-                    automatic = immed,
-                    instruction = instr,
-                )
-            )
-          }
-    }
-
-    private fun resolveTypeVariableNames(effect: Effect): Effect =
-        resolveTypeVariableNames(
-            effect,
-            effect.trigger,
-            effect.instruction,
-        )
   }
 }
 

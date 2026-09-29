@@ -186,7 +186,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         // You discarded Physics Complex
         // Player2 drew 1 card(s)
         // You drew Virus
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
       }
     }
 
@@ -316,7 +316,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         // You discarded Virus
         // Player2 drew 1 card(s)
         // You drew Local Heat Trapping
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
       }
       // Player2 used Rotator Impacts action
       cardAction1(RotatorImpacts) {
@@ -416,7 +416,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         // You discarded Jovian Embassy
         // Player2 drew 1 card(s)
         // You drew Local Shading
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
       }
     }
 
@@ -837,8 +837,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
             // You discarded Gyropolis
             // Player2 drew 1 card(s)
             // You drew Titanium Mine
-            doTask("-ProjectCard")
-            doTask("ProjectCard")
+            doTask("ProjectCard FROM ProjectCard")
           }
           .expect("1 Card, 1 PlayedEvent") // no hand or table cards
     }
@@ -964,7 +963,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
             // You discarded Medical Lab
             // Player2 drew 1 card(s)
             // You drew Aerosport Tournament
-            doTask("-ProjectCard")
+            doTask("ProjectCard FROM ProjectCard")
           }
           .expect("-1 ProjectCard")
       // Player2 played AI Central
@@ -974,8 +973,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         // You discarded Aerosport Tournament
         // Player2 drew 1 card(s)
         // You drew Ishtar Mining
-        doTask("-ProjectCard")
-        doTask("PROD[-Energy]")
+        doTask("ProjectCard FROM ProjectCard")
       }
     }
 
@@ -1295,12 +1293,11 @@ internal class Game20230521Test : AbstractFullGameTest() {
         // You discarded Herbivores
         // Player2 drew 1 card(s)
         // You drew Thermophiles
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         // Player2 placed Natural Preserve tile on row 3 position 1
         // Player2 drew 1 card(s)
         // You drew Black Polar Dust
         placeTile(3, 1)
-        doTask("ProjectCard")
         doTask("ProjectCard")
       }
     }
@@ -1495,7 +1492,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       playProject(NitrogenRichAsteroid, 26, titanium = 1) {
             doTask("PROD[4 Plant]")
-            doTask("2 TerraformRating")
+            repeat(2) { doTask("TerraformRating") }
             doTask("TemperatureStep")
             doTask("3 MC")
             doTask("3 Heat")
@@ -1757,7 +1754,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
             // Player2's plants amount increased by 1
             doTask("PROD[-4 Energy]")
             doTask("PROD[2 Plant]")
-            doTask("3 TerraformRating")
+            repeat(3) { doTask("TerraformRating") }
             repeat(3) { doTask("2 MC") }
           }
           .expect("PROD[-4 Energy, 2 Plant], 3 TerraformRating, Plant")
@@ -1797,8 +1794,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         // You discarded Cloud Seeding
         // Player2 drew 1 card(s)
         // You drew Corroder Suits
-        doTask("-ProjectCard")
-        doTask("2 ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
       }
       // Player2 used Sell Patents standard project
       // Player2 sold 3 patents

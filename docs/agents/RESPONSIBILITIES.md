@@ -145,6 +145,41 @@ plausibly belong elsewhere:
 Runtime `Task`, `GameEvent`, and `TaskResult` data have moved to `:state`; their instruction-bearing
 values remain inert there, while task construction and normalization stay in `:engine`.
 
+### Pets source input and model construction
+
+`Parsing`, `DerivedClassLowerer`, and the parsed `systemClassDeclarations` provider own source
+input and owner-local lowering. The selected extraction puts these in an optional parser module
+that depends on the Pets model; the model must not depend on that source reader or better-parse.
+The Gradle modules have not yet been split.
+
+`ClassBody` and `SourceExpression` are internal source-reader implementation details. A source
+expression carries its authored local body until extraction emits an ordinary `ClassDeclaration`
+and replaces the occurrence with an ordinary `Expression`. The model has no class-body attachment
+or copying policy. `Expression` permits source-only subtypes; its structural operations remain
+final, and equality distinguishes their runtime classes.
+
+The grammar builds raw nodes. Completion extracts local declarations before selector binding and
+implicit `RANK` domain binding can copy expressions. Generated headers retain markers shared by
+several header positions or used by the generated body's own scope. This decision follows selector
+binding, which can shadow a header name, and precedes settlement binding, which a class-header
+variable supersedes. Class-header resolution and syntax validation finish the ordinary AST.
+One internal declaration traversal serves extraction and both normalization passes.
+
+Local roots cannot carry a type-variable marker or use the `This` placeholder. A `DEFAULT` root
+names its declaring class and cannot declare another one, though its argument occurrences may.
+Ownerless entry points reject local bodies directly instead of inventing a `Submitted` owner.
+Separate model/parser compilation succeeds with no better-parse dependency in the model and no
+friend paths. The real Gradle extraction remains follow-up work.
+
+Public AST constructors, source-location setters, and scope-resolution functions support
+independently compiled parsers. `GameReader` accepts `Expression` or resolved `Type` queries;
+callers own any conversion from text.
+
+Canonical content still parses Pets at runtime, including the system-declaration provider and some
+generated Kotlin initializers. Parser-free analysis of supplied objects does not require changing
+that content pipeline; a parser-free canonical-content executable would require prebuilt typed
+content as a separate change.
+
 ## Already-correct dependencies
 
 Do not reopen these without new evidence:

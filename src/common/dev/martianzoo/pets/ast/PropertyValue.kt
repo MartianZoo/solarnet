@@ -1,12 +1,5 @@
 package dev.martianzoo.pets.ast
 
-import com.github.h0tk3y.betterParse.combinators.and
-import com.github.h0tk3y.betterParse.combinators.map
-import com.github.h0tk3y.betterParse.combinators.or
-import com.github.h0tk3y.betterParse.combinators.skip
-import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo
@@ -21,9 +14,6 @@ import dev.martianzoo.pets.api.TypeInfo
  * of the type system specification.
  */
 public sealed class PropertyValue : PetNode(), Specification<PropertyValue> {
-  internal companion object {
-    internal fun parser(): Parser<PropertyValue> = Parsers.parser
-  }
 
   /** Whether this is an abstract property type rather than a concrete value. */
   public val abstract: Boolean
@@ -111,18 +101,4 @@ public sealed class PropertyValue : PetNode(), Specification<PropertyValue> {
         is MetricValue -> visitor.visit(value)
         is RequirementValue -> visitor.visit(value)
       }
-
-  private object Parsers : PetTokenizer() {
-    val requirement: Parser<PropertyValue> =
-        _has and quotedText map { (_, source) -> RequirementValue(parse<Requirement>(source)) }
-
-    val parser: Parser<PropertyValue> =
-        (_metric map { MetricType }) or
-            (_number map { NumberType }) or
-            (_requirement and skipChar('?') map { OptionalRequirementType }) or
-            (_requirement map { RequirementType }) or
-            requirement or
-            (skip(_count) and quotedText map { MetricValue(parse<Metric>(it)) }) or
-            (rawScalar map { NumberValue(it) })
-  }
 }

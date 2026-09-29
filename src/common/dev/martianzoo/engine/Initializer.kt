@@ -126,12 +126,12 @@ internal class Initializer(
             .sortedBy { (limit, _) -> limit.type.expressionFull.toString() }
     if (invalidLimits.isNotEmpty()) {
       throw InvalidGameConfigException(
-          "Completed bootstrap violates required component counts: " +
+          "game setup violates required component counts: " +
               invalidLimits.joinToString { (limit, count) ->
                 val expected =
                     if (limit.range.first == limit.range.last) "${limit.range.first}"
                     else "${limit.range}"
-                "${limit.type.expressionFull} (found $count, expected $expected)"
+                "`${limit.type.expressionFull}` (found $count, expected $expected)"
               }
       )
     }
@@ -168,12 +168,12 @@ internal class Initializer(
             remaining.joinToString(separator = "\n") { type ->
               val reason =
                   missingByType[type]?.let { dependencies ->
-                    "requires " + dependencies.joinToString { "${it.expressionFull}" }
+                    "requires " + dependencies.joinToString { "`${it.expressionFull}`" }
                   } ?: "could not be created"
-              "  ${type.expressionFull} $reason"
+              "  `${type.expressionFull}` $reason"
             }
         throw InvalidGameConfigException(
-            "Could not create $description components; dependencies remain missing:\n$diagnostic"
+            "cannot create $description components; dependencies remain missing:\n$diagnostic"
         )
       }
     }

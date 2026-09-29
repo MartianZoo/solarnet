@@ -10,7 +10,7 @@ CLASS PreludeExpansion : Module {
 }
 
 CLASS PreludePhase : Phase {
-  NewTurn: PlayCard<Class<PreludeCard>> OR (-PreludeCard THEN Audit THEN 15 MC)
+  NewTurn: PlayOrFizzle
 }
 
 "The Prelude phase's lifetime anchor"

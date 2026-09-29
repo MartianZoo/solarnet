@@ -6,8 +6,6 @@ import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
-import dev.martianzoo.pets.api.SystemClasses.CLASS
-import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.ClassName
@@ -636,31 +634,7 @@ public open class TfmCatalog : Catalog {
 
   final override val allClassDeclarations: Map<ClassName, ClassDeclaration> by lazy {
     val declarations = systemClassDeclarations.toList() + contributedClassDeclarations
-    try {
-      declarations.distinct().associateByStrict { declaration ->
-        validateSystemDeclaration(declaration)
-        declaration.className
-      }
-    } catch (e: IllegalArgumentException) {
-      throw InvalidPetDefinitionException(
-          "Multiple class declarations must be identical: ${e.message}",
-          e,
-      )
-    }
-  }
-
-  private fun validateSystemDeclaration(declaration: ClassDeclaration) {
-    when (declaration.className) {
-      COMPONENT -> {
-        require(declaration.abstract)
-        require(declaration.supertypes.none())
-        require(declaration.dependencies.none())
-      }
-      CLASS -> {
-        require(!declaration.abstract)
-        require(declaration.dependencies.single() == COMPONENT.expression)
-      }
-    }
+    ClassDeclaration.indexByName(declarations)
   }
 
   // MODULES

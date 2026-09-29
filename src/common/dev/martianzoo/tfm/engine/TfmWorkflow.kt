@@ -177,7 +177,7 @@ public object TfmWorkflow {
     }
 
     private fun rotatedByFirstPlayer(): List<Player> {
-      val token = game.reader.getComponents("StartToken").single()
+      val token = game.reader.getComponents(cn("StartToken").expression).single()
       val ownerName = token.toComponent().owner?.className
       val firstPlayer = players.single { it.className == ownerName }
       val firstPlayerIndex = players.indexOf(firstPlayer)
@@ -188,7 +188,7 @@ public object TfmWorkflow {
 
     private fun hasComponent(className: String): Boolean =
         game.classTable.isInhabited(cn(className)) &&
-            game.reader.getComponents(className).isNotEmpty()
+            game.reader.getComponents(cn(className).expression).isNotEmpty()
 
     private suspend fun grantFirstActionTo(player: Player) {
       shutdownCheckpoint = game.timeline.checkpoint()

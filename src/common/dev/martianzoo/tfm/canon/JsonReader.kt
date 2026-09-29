@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.canon
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
@@ -15,7 +14,6 @@ internal object JsonReader {
 
   private inline fun <reified T : Any> fromJson5(input: String): T = JSON5.decodeFromString(input)
 
-  @OptIn(ExperimentalSerializationApi::class)
   private val JSON5 = Json {
     allowComments = true
     allowTrailingComma = true

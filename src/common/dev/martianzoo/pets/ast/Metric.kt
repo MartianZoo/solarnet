@@ -1,14 +1,5 @@
 package dev.martianzoo.pets.ast
 
-import com.github.h0tk3y.betterParse.combinators.and
-import com.github.h0tk3y.betterParse.combinators.map
-import com.github.h0tk3y.betterParse.combinators.optional
-import com.github.h0tk3y.betterParse.combinators.or
-import com.github.h0tk3y.betterParse.combinators.skip
-import com.github.h0tk3y.betterParse.combinators.zeroOrMore
-import com.github.h0tk3y.betterParse.grammar.parser
-import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.pets.PetTokenizer
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import kotlin.math.min
@@ -33,13 +24,6 @@ public sealed class Metric : PetElement() {
       if (unit < 1) throw PetSyntaxException("metric unit must be positive: `$unit`")
       return if (unit == 1) inner else Scaled(inner, unit)
     }
-
-    internal fun parser(): Parser<Metric> = Parsers.parser()
-
-    /** Parses Metric subtraction but leaves a top-level `OR` to the enclosing Pets kind. */
-    internal fun subtractionParser(): Parser<Metric> = Parsers.subtractionParser()
-
-    internal fun atomParser(): Parser<Metric> = Parsers.atomParser()
   }
 
   override val kind: kotlin.reflect.KClass<out PetNode> = Metric::class
@@ -78,7 +62,11 @@ public sealed class Metric : PetElement() {
             )
         is Or -> countUnion(this)
         is Eval -> error("metric property evaluation was not expanded: `$this`")
-        is Transform -> throw ExpressionException("unhandled metric transform: `$this`")
+        is Transform ->
+            throw ExpressionException(
+                "unhandled metric transform: `$this`",
+                sourceLocation = sourceLocation,
+            )
       }
 
   /**
@@ -296,87 +284,5 @@ public sealed class Metric : PetElement() {
     override fun toString(): String = "$transformKind[$inner]"
 
     override fun extract(): Metric = inner
-  }
-
-  private object Parsers : PetTokenizer() {
-    fun parser(): Parser<Metric> {
-      return parser {
-        val subtraction = subtractionParser()
-        subtraction and
-            zeroOrMore(skip(_or) and subtraction) map
-            { (met, addon) ->
-              val authored = listOf(met) + addon
-              val flattened = authored.flatMap { if (it is Or) it.metrics else listOf(it) }
-              if (flattened.distinct().size != flattened.size) {
-                throw PetSyntaxException("duplicate metric `OR` alternatives: `$flattened`")
-              }
-              if (addon.any()) Or.create(authored)!! else met
-            }
-      }
-    }
-
-    fun subtractionParser(): Parser<Metric> {
-      return parser {
-        atomParser() and
-            zeroOrMore(skipChar('-') and atomParser()) map
-            { (first, rest) ->
-              rest.fold(first, ::Subtract)
-            }
-      }
-    }
-
-    /** One capped/scaled Metric operand; composites require their own delimiters here. */
-    fun atomParser(): Parser<Metric> {
-      return parser {
-        val count: Parser<Count> = Expression.parser() map Metric::Count
-        val rank = rankParser()
-
-        val transform: Parser<Metric> =
-            transform(parser()) map { (node, transformName) -> Transform(node, transformName) }
-
-        val eval: Parser<Metric> = skip(_eval) and Property.parser() map ::Eval
-
-        val nonconstant: Parser<Metric> =
-            rank or eval or transform or Property.parser() or count or group(parser())
-
-        val scaled: Parser<Metric> =
-            rawScalar and nonconstant map { (unit, met) -> scaled(met, unit) }
-
-        val constant: Parser<Metric> = rawScalar map ::Constant
-
-        val primary: Parser<Metric> = scaled or nonconstant or constant
-
-        val max: Parser<Metric> =
-            primary and
-                optional(skip(_max) and primary) map
-                { (met, limit) ->
-                  limit?.let { Max(met, it) } ?: met
-                }
-
-        max
-      }
-    }
-
-    fun rankParser(): Parser<Metric> {
-      val explicitRank: Parser<Metric> =
-          skip(_rank) and
-              Expression.parser(allowDerivedClass = false) and
-              skipChar('{') and
-              commaSeparated(parser()) and
-              skipChar('}') map
-              { (selector, metrics) ->
-                val resolved = resolveSelectorTypeVariableNames(selector, metrics)
-                Rank(resolved[0] as Expression, resolved.drop(1).map { it as Metric })
-              }
-      val implicitRank: Parser<Metric> =
-          skip(_rank) and
-              skipChar('{') and
-              commaSeparated(parser()) and
-              skipChar('}') map
-              { metrics ->
-                Rank(null, metrics)
-              }
-      return explicitRank or implicitRank
-    }
   }
 }

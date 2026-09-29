@@ -4,8 +4,11 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
+import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
+import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
 import dev.martianzoo.pets.types.isExpandedFrom
@@ -128,6 +131,14 @@ internal class Lang03NarrowingTest {
     narrows("Plant FROM Heat", "Plant FROM Heat") shouldBe true
   }
 
+  @Test
+  internal fun `L3-4 an abstract instruction choice must retain its HAS predicates`() {
+    refuses("GreeneryTile<LandArea(HAS Marker)>!", "GreeneryTile<LandArea>!")
+    narrows("GreeneryTile<LandArea(HAS Marker)>!", "GreeneryTile<Land1>!") shouldBe true
+    narrows("GreeneryTile<LandArea(HAS Marker)>!", "GreeneryTile<LandArea(HAS Marker)>!") shouldBe
+        true
+  }
+
   // L3-5 Ok
 
   @Test
@@ -210,15 +221,15 @@ internal class Lang03NarrowingTest {
   }
 
   @Test
-  internal fun `L3-8 binding a THEN stage requires a binding and a met gate`() {
+  internal fun `L3-8 first-stage selection requires its shared choices and a met gate`() {
     val unbound = elaborate("Plant THEN Heat") as dev.martianzoo.pets.ast.Instruction.Then
-    shouldThrow<NarrowingException> {
-      unbound.bindFirstStage(elaborate("Plant") as dev.martianzoo.pets.ast.Instruction, langWorld)
-    }
+    unbound
+        .selectFirstStage(elaborate("Plant") as dev.martianzoo.pets.ast.Instruction, langWorld)
+        .toString() shouldBe elaborate("Plant THEN Heat").toString()
 
     val named = elaborate("@Token THEN @Token") as dev.martianzoo.pets.ast.Instruction.Then
     shouldThrow<NarrowingException> {
-      named.bindFirstStage(elaborate("Token") as dev.martianzoo.pets.ast.Instruction, langWorld)
+      named.selectFirstStage(elaborate("Token") as dev.martianzoo.pets.ast.Instruction, langWorld)
     }
 
     val gated =
@@ -248,6 +259,195 @@ internal class Lang03NarrowingTest {
     val unavailable = parse<Expression>("Token<PremiseShade>")
 
     expanded.isExpandedFrom(unavailable, table) shouldBe false
+  }
+
+  @Test
+  internal fun `L3-8 a later OR supplier is bound before its earlier observer is tested`() {
+    val authored =
+        elaborate("Heat<Player(HAS Selected@Token)> THEN (Selected@Token OR 2 Selected@Token)")
+    val info =
+        object : TypeInfo by langWorld {
+          override fun has(requirement: Requirement): Boolean = "RedToken" in requirement.toString()
+
+          override fun ensureNarrows(wide: Expression, narrow: Expression) {
+            langTable.resolve(narrow).ensureNarrows(langTable.resolve(wide), this)
+          }
+
+          override fun ensureSelectionNarrows(wide: Expression, narrow: Expression) {
+            langTable.resolve(narrow).ensureSelectionNarrows(langTable.resolve(wide), this)
+          }
+        }
+    elaborate("Heat<Player1> THEN RedToken").narrows(authored, info) shouldBe true
+    elaborate("Heat<Player1> THEN BlueToken").narrows(authored, info) shouldBe false
+  }
+
+  @Test
+  internal fun `L3-8 abstract proposals keep every surviving shared occurrence`() {
+    refuses("Chosen@Token THEN Chosen@Token", "Token THEN Token")
+    narrows("Chosen@Token THEN Chosen@Token", "Chosen@Token THEN Chosen@Token") shouldBe true
+    refuses(
+        "Heat<Player(HAS Chosen@Token)> THEN Chosen@Token THEN Chosen@Token",
+        "Heat<Player1> THEN Chosen@Token THEN Chosen@Token",
+    )
+    narrows("Heat<Player(HAS Chosen@Token)> THEN Chosen@Token", "Heat<Player1> THEN Ok") shouldBe
+        false
+    narrows("Heat<Player(HAS Chosen@Token)> THEN Chosen@Token?", "Heat<Player1> THEN Ok") shouldBe
+        true
+  }
+
+  @Test
+  internal fun `L3-8 a full proposal can disambiguate OR capture through its other stages`() {
+    val source = "(Heat<Chosen@Player> OR Heat<Player1>) THEN Steel<Chosen@Player>"
+    narrows(source, "Heat<Player1> THEN Steel<Player1>") shouldBe true
+    narrows(source, "Heat<Player1> THEN Steel<Player2>") shouldBe true
+    narrows(
+        "(Plant: (Heat<Chosen@Player> OR Heat<Player1>)) THEN Steel<Chosen@Player>",
+        "(Plant: Heat<Player1>) THEN Steel<Player2>",
+    ) shouldBe true
+    val sequence = elaborate(source) as Then
+    shouldThrow<NarrowingException> {
+      sequence.selectFirstStage(elaborate("Heat<Player1>") as Instruction, langWorld)
+    }
+  }
+
+  @Test
+  internal fun `L3-8 partial binding keeps shared identity through subsequent choices`() {
+    val table =
+        testCatalog(
+                """
+                ABSTRACT CLASS Place {
+                  CLASS First
+                  CLASS Second
+                }
+                CLASS Pair<Place, Place>
+                CLASS Notice<Pair<Place, Place>>
+                """
+                    .trimIndent()
+            )
+            .classTable
+    val elaborator = PetElaborator(table)
+    fun instruction(source: String) = elaborator.elaborateInput(parse<InstructionTree>(source))
+    val authored = instruction("Chosen@Pair<Place, Place> THEN Notice<Chosen@Pair>") as Then
+    val variable = authored.typeVariables.variables.single()
+    val partial =
+        authored.typeVariables
+            .bind(mapOf(variable to table.resolve(parse("Pair<Place, First>"))))
+            .transformInstruction(authored) as Then
+    val info = TableWorld(table)
+    partial.typeVariables.variables.single() shouldBe variable
+    instruction("Pair<First, First> THEN Notice<Pair<Second, First>>")
+        .narrows(partial, info) shouldBe false
+    instruction("Pair<First, First> THEN Notice<Pair<First, First>>")
+        .narrows(partial, info) shouldBe true
+    instruction("Chosen@Pair<Place, First> THEN Notice<Chosen@Pair>")
+        .narrows(authored, info) shouldBe true
+    instruction("Pair<Place, First> THEN Notice<Pair<Place, First>>")
+        .narrows(authored, info) shouldBe false
+  }
+
+  @Test
+  internal fun `L3-8 conflicting captures within one expression are narrowing refusals`() {
+    val table =
+        testCatalog(
+                """
+                ABSTRACT CLASS Place {
+                  CLASS First
+                  CLASS Second
+                }
+                CLASS Pair<Place, Place>
+                CLASS Notice<Place>
+                """
+                    .trimIndent()
+            )
+            .classTable
+    val elaborator = PetElaborator(table)
+    val authored =
+        elaborator.elaborateInput(
+            parse<InstructionTree>("Pair<Chosen@Place, Chosen@Place> THEN Notice<Chosen@Place>")
+        )
+    val proposed =
+        elaborator.elaborateInput(parse<InstructionTree>("Pair<First, Second> THEN Notice<First>"))
+    proposed.narrows(authored, TableWorld(table)) shouldBe false
+    shouldThrow<NarrowingException> { proposed.ensureNarrows(authored, TableWorld(table)) }
+  }
+
+  @Test
+  internal fun `L3-8 OR compatibility does not test an unbound aggregate HAS MAX predicate`() {
+    val table =
+        testCatalog(
+                """
+                ABSTRACT CLASS Place {
+                  CLASS First
+                  CLASS Second
+                }
+                CLASS Marker<Place>
+                CLASS Notice<Place>
+                CLASS Other
+                """
+                    .trimIndent()
+            )
+            .classTable
+    val elaborator = PetElaborator(table)
+    val authored =
+        elaborator.elaborateInput(
+            parse<InstructionTree>(
+                "(Chosen@Place(HAS MAX 0 Marker) OR Other) THEN Notice<Chosen@Place>"
+            )
+        )
+    val proposed = elaborator.elaborateInput(parse<InstructionTree>("Second THEN Notice<Second>"))
+    val info =
+        object : TypeInfo by TableWorld(table) {
+          override fun has(requirement: Requirement): Boolean =
+              "Marker<Second>" in requirement.toString()
+
+          override fun ensureNarrows(wide: Expression, narrow: Expression) {
+            table.resolve(narrow).ensureNarrows(table.resolve(wide), this)
+          }
+
+          override fun ensureSelectionNarrows(wide: Expression, narrow: Expression) {
+            table.resolve(narrow).ensureSelectionNarrows(table.resolve(wide), this)
+          }
+        }
+    proposed.narrows(authored, info) shouldBe true
+  }
+
+  @Test
+  internal fun `L3-8 predicates involving another choice are checked after all captures`() {
+    val authored =
+        elaborate(
+            "Heat<Chosen@Player(HAS MAX 0 Selected@Token)> THEN Selected@Token THEN Steel<Chosen@Player>"
+        )
+    val proposed = elaborate("Heat<Player1> THEN BlueToken THEN Steel<Player1>")
+    val info =
+        object : TypeInfo by langWorld {
+          override fun has(requirement: Requirement): Boolean =
+              "MAX 0 BlueToken<Player1>" == requirement.toString()
+
+          override fun ensureNarrows(wide: Expression, narrow: Expression) {
+            langTable.resolve(narrow).ensureNarrows(langTable.resolve(wide), this)
+          }
+
+          override fun ensureSelectionNarrows(wide: Expression, narrow: Expression) {
+            langTable.resolve(narrow).ensureSelectionNarrows(langTable.resolve(wide), this)
+          }
+        }
+    proposed.narrows(authored, info) shouldBe true
+  }
+
+  @Test
+  internal fun `L3-8 a full transmutation cannot erase an unsettled shared alias`() {
+    refuses("Chosen@Token FROM Chosen@Token", "Token FROM Token")
+    narrows("Chosen@Token FROM Chosen@Token", "Chosen@Token FROM Chosen@Token") shouldBe true
+    narrows("Chosen@Token FROM Chosen@Token", "RedToken FROM RedToken") shouldBe true
+    refuses("Chosen@Token FROM Chosen@Token", "RedToken FROM BlueToken")
+  }
+
+  @Test
+  internal fun `L3-8 a partial proposal preserves a structural observer's shared alias`() {
+    narrows(
+        "Chosen@Token THEN Token(NOT Chosen@Token)",
+        "Chosen@Token THEN Token(NOT Chosen@Token)",
+    ) shouldBe true
   }
 
   // L3-9 What is not a choice

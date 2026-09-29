@@ -16,11 +16,11 @@ import kotlin.test.assertFailsWith
 internal class ScaledExpressionTest {
   @Test
   internal fun testParse() {
-    parse(ScaledExpression.scalar(), "2")
-    parse(ScaledExpression.scalar(), "0")
-    parse(ScaledExpression.scalar(), "X")
-    parse(ScaledExpression.scalar(), "1X")
-    parse(ScaledExpression.scalar(), "2X")
+    parse<ScaledExpression.Scalar>("2")
+    parse<ScaledExpression.Scalar>("0")
+    parse<ScaledExpression.Scalar>("X")
+    parse<ScaledExpression.Scalar>("1X")
+    parse<ScaledExpression.Scalar>("2X")
 
     testRoundTrip<ScaledExpression>("Foo")
     testRoundTrip<ScaledExpression>("0 Foo")

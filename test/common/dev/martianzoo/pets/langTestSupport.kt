@@ -124,6 +124,9 @@ internal class TableWorld(
   override fun ensureNarrows(wide: Expression, narrow: Expression): Unit =
       table.resolve(narrow).ensureNarrows(table.resolve(wide), this)
 
+  override fun ensureSelectionNarrows(wide: Expression, narrow: Expression): Unit =
+      table.resolve(narrow).ensureSelectionNarrows(table.resolve(wide), this)
+
   override fun has(requirement: Requirement): Boolean = answer
 }
 

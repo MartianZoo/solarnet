@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsEnvSpec
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsPlugin
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootEnvSpec
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
@@ -46,7 +48,7 @@ val pinnedYarnResolutions =
         "browserslist" to "4.28.8",
         "diff" to "8.0.3",
         "fast-uri" to "3.1.6",
-        "js-yaml" to "4.3.1",
+        "js-yaml" to "4.3.2",
         "nanoid" to "3.3.18",
         "qs" to "6.16.0",
         "serialize-javascript" to "7.0.5",
@@ -55,6 +57,10 @@ val pinnedYarnResolutions =
         "webpack" to "5.104.1",
         "webpack-dev-server" to "5.2.6",
     )
+
+allprojects.forEach { target ->
+  target.plugins.withType<NodeJsPlugin> { target.the<NodeJsEnvSpec>().version.set("24.21.0") }
+}
 
 plugins.withType<YarnPlugin> {
   the<YarnRootEnvSpec>().version.set("1.22.22")

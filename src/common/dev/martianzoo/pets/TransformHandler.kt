@@ -47,7 +47,10 @@ public fun interface TransformHandler {
       // Rule L8-5: the syntax admits PROD[PROD[...]], but a second mark could only mean what the
       // first already means, so the handler for that kind rejects it.
       if (!activeKinds.add(kind)) {
-        throw ExpressionException("`$kind` transforms cannot be nested")
+        throw ExpressionException(
+            "`$kind` transforms cannot be nested",
+            sourceLocation = node.sourceLocation,
+        )
       }
       return try {
         val inner = transformWithoutKindCheck(node.extract())

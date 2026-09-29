@@ -639,7 +639,7 @@ internal class PetsCardTutorialTest {
             "SkyDocks",
             "SpaceStation",
             "Teractor",
-            "TerralabsResearch",
+            "TerraLabsResearch",
             "VenusWaystation",
             "WarpDrive",
         ),

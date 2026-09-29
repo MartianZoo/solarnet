@@ -4,6 +4,7 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -86,13 +87,9 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
             draw(ResearchOutpost, RestrictedArea, AcquiredCompany)
           }
           .expect("PROD[1 MC], FakeWildTag")
-      // Unsupported component: Fake Established Methods models the archived card's two standard
-      // projects, but not its unused unaffordable-second-project fallback.
-      playPrelude(FakeEstablishedMethods) {
-            doTask("UseAction<UseStandardProjectAction, Action1>")
+      playPrelude(EstablishedMethods) {
             doTask("UseAction<PowerPlantProject, Action1>")
             pay(11)
-            doTask("UseAction<UseStandardProjectAction, Action1>")
             doTask("UseAction<PowerPlantProject, Action1>")
             pay(11)
           }
@@ -391,7 +388,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     }
     ER.playProject(MarsUniversity, 2, steel = 2) {
       ER.draw(AqueductSystems)
-      doTask("-ProjectCard")
+      doTask("ProjectCard FROM ProjectCard")
       ER.discard(Meltworks)
     }
     JR.playProject(RobotPollinators, 9)
@@ -410,7 +407,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     ER.playProject(GhgFactories, steel = 4)
     ER.playProject(RoboticWorkforce, 9) {
       ER.draw(LakeMarineris)
-      doTask("-ProjectCard")
+      doTask("ProjectCard FROM ProjectCard")
       ER.discard(AqueductSystems)
       doTask("CopyProductionBox<$GhgFactories>")
     }
@@ -420,7 +417,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.playProject(Tardigrades, 1)
     ER.playProject(GeneRepair, 12) {
       ER.draw(PowerGrid)
-      doTask("-ProjectCard")
+      doTask("ProjectCard FROM ProjectCard")
       ER.discard(LakeMarineris)
     }
     ER.cardAction1(RedShips)

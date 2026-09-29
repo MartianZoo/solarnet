@@ -98,7 +98,9 @@ public object Transforming {
     val whichAction = actionSelector(index1Ref)
     val instruction = action.toInstruction()
     val trigger = OnGainOf.create(USE_ACTION.of(THIS, whichAction))
-    return Effect(trigger, instruction, automatic = false)
+    return Effect(trigger, instruction, automatic = false).also {
+      it.sourceLocation = action.sourceLocation
+    }
   }
 
   /**

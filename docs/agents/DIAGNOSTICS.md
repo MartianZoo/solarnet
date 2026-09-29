@@ -18,6 +18,50 @@
 Make one small reproduction explain what the engine actually did. An investigator should normally
 read captured runtime evidence before reconstructing execution from source searches.
 
+## Current exception contract
+
+[`Exceptions.DomainException`](../../src/common/dev/martianzoo/pets/api/Exceptions.kt) provides
+unrendered `detail`, optional `sourceLocation`, and a message with a source excerpt when available.
+Messages are composed where the relevant context is known. The broad categories distinguish
+malformed Pets (`PetSyntaxException`), expressions that cannot be interpreted (`ExpressionException`),
+faulty declarations (`InvalidPetDefinitionException`), invalid setup (`InvalidGameConfigException`),
+expected gameplay rejection (`GameplayException`), unfinished choices (`NotFullySpecifiedException`),
+and faulty Kotlin implementations (`CustomCodeException`). Requesting unavailable custom instruction
+or metric behavior is an expression error; a crash or `TODO()` inside a supplied implementation is
+a custom-code failure. Invalid Pets returned by custom translation also identifies the custom
+implementation, preserving the generated syntax's source span when available. Custom classes cannot
+be removed as components.
+
+Invalid definitions may be discovered after catalog construction: invariant compilation, effect
+elaboration, and property expansion still need game context. During class-effect elaboration, the
+wrapper names the declaring class, retains the original cause and source span, and wraps `detail`
+rather than rendering the excerpt twice. Deferred evaluations name the concrete component when an
+effect fires or the selected type when an `EACH` body is bound.
+A submitted property evaluation instead reports an expression error. Specialization
+failures identify the concrete component and authored trigger; invalid specialized instruction
+branches still become `Die` under L9-14. Gameplay subtype payloads used by recovery logic remain
+intact. Missing source means no reliable authored occurrence survived; generated tasks must not
+invent a declaration location.
+
+[`PostCatalogDiagnosticsTest`](../../test/common/dev/martianzoo/engine/PostCatalogDiagnosticsTest.kt)
+covers premise selection, setup, queries, effects, custom implementations, and task use after
+a valid catalog exists. Named tests assert the rendered message, including its caret and source
+excerpt, rather than separately asserting source offsets. Comments beside imperfect diagnostics
+record the preferred span or missing related declaration. The renderer currently draws one caret,
+so these expectations verify its starting position, not a highlighted range's width.
+
+Author-facing messages use lower-case sentence fragments without a trailing period. Quote Pets
+names, expressions, and keywords in backticks; quote list items individually instead of dumping
+Kotlin collections or enum names. State the problem first, followed by relevant values and a
+concrete correction when one is known. Parser messages use `expected ...; found ...`. Wrappers keep
+the underlying explanation after a contextual prefix; messages from custom Kotlin causes retain
+their original wording.
+
+Parsing recognizes generic expression structure; resolution checks the catalog's names and bounds,
+as well as the type-system restrictions on class-literal operands (T4-6) and excluded refinements
+(T8-5). The resolution tests parse their inputs before entering the failure assertion so this
+boundary is explicit.
+
 Diagnostics have layer-specific homes:
 
 - Game World `GameEvent`s remain the durable account of changes and task lifecycle. We may add a

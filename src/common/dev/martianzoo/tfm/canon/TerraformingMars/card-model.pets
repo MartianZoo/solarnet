@@ -104,8 +104,8 @@ ABSTRACT CLASS Tag<TagHolder<@Player>> : Owned<@Player>, Atomized {
     CLASS EarthTag
     CLASS JovianTag
   }
-  "The printed event icon derived for every EventCard"
-  CLASS EventTag : Tag<EventCard>
+  "The printed event icon, also available when choosing a wild tag type"
+  CLASS EventTag
 }
 
 // TODO: can this be simplified?

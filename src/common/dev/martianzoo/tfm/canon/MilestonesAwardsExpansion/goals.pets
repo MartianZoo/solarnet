@@ -21,8 +21,8 @@ CLASS OceanCredit<OceanTile> : Owned<Player>
 
 CLASS Legend : Milestone { requirement = HAS "4 PlayedEvent" }
 CLASS Merchant : Milestone { requirement = HAS "2 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat" }
-CLASS Philantropist : Milestone { requirement = HAS "5 CardFront(HAS GainsOf<Class<VictoryPoint>>)" }
-CLASS GainsOf<CardFront, Class<Component>> : Custom
+CLASS Philantropist : Milestone { requirement = HAS "5 Class<CardFront>(HAS CardFront<Owner>, HAS GainsOf<Class<VictoryPoint>>)" }
+CLASS GainsOf<Class<CardFront>, Class<Component>> : Custom
 CLASS Pioneer : Milestone { requirement = HAS "4 Colony" }
 CLASS Producer : Milestone {
   autoSelectWhen = HAS "MAX 0 QuickStartVariant"

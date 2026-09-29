@@ -5,6 +5,7 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -147,7 +148,7 @@ internal class ErraticCarbonCurrentTest :
     blue.turn { playProject(HermeticOrderOfMars, 9) }
     pink.turn {
       playProject(MarsUniversity, steel = 4) {
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(NoctisCity)
       }
     }
@@ -389,7 +390,7 @@ internal class ErraticCarbonCurrentTest :
     pink.turn {
       cardAction1(BusinessNetwork) { buyCards(0) }
       playProject(CarbonNanosystems, steel = 7) {
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(Plantation)
       }
     }
@@ -437,7 +438,7 @@ internal class ErraticCarbonCurrentTest :
           doTask("ProjectCard FROM PlayedEvent<Class<$Harvest>>")
           returnToHand(Harvest)
         }
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
         discard(Decomposers)
       }
     }

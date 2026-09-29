@@ -289,9 +289,9 @@ internal class Lang06EffectsTest {
         PROD[-Steel] BY Plant:: MC / Plant MAX 5, Plant(HAS MC)
         Bar(NOT Foo): -MC / Foo, Ooh FROM Bar, 5 MC!, Abc OR Qux
         Bar IF MAX 2 Bar: X Abc / Qux<Eep> OR PROD[MC] BY Bar<Xyz>
-        PROD[Foo]:: (2 Qux FROM Foo) OR (-Foo, MC), 2 Qux FROM Ahh.
+        PROD[Foo]:: 2 Qux FROM Foo OR (-Foo, MC), 2 Qux FROM Ahh.
         PROD[Foo] OR PROD[Bar]:: -5X MC, 2 MC THEN Foo<Qux> FROM Foo
-        PROD[Eep]:: -5 MC, -2 Ooh<Abc>, (Foo: 2 MC) OR (Qux FROM Foo)
+        PROD[Eep]:: -5 MC, -2 Ooh<Abc>, (Foo: 2 MC) OR Qux FROM Foo
         PROD[X This]: MC: MC, Abc / Bar<Bar<Bar>> OR 2 Foo., -2X Qux.
         (This BY Heat) BY Steel: Plant(NOT Plant<Plant>), MC!, MC: X MC.
         Ahh<Foo>: (Qux<Qux, Foo>, MC / 2 Bar OR 2 MC) OR Abc / PROD[Abc]

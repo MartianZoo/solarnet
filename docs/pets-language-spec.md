@@ -172,8 +172,10 @@ T5-5).
 
 ## 2. Instructions
 
-An instruction denotes a relation between a before-state and an after-state. It is the only kind of
-element that does.
+An instruction denotes a transition from a before-state to an after-state together with its gain
+and removal events. It is the only kind of element that does. Projecting away those events gives a
+relation between component multisets, but that relation alone does not distinguish `Ok` from a
+reflexive exchange (L2-3): both leave the multiset unchanged, and only the exchange fires triggers.
 
 **L2-1. The elementary instructions are gain, removal and transmutation.** `n Foo` says the after
 state holds n more components of type `Foo`; `-n Foo` that it holds n fewer; `n Foo FROM Bar` that
@@ -227,11 +229,12 @@ read off a state rather than written down. Narrowing can settle a choice (L3); o
 resolution against a state can settle a `.`.
 
 After both sides have narrowed to concrete Types, a transmutation is **reflexive** when those Types
-are equal (T5-1), regardless of how they were spelled. A mandatory reflexive transmutation is
-invalid; an optional or as-much-as-possible one resolves to `Ok` and produces no change event. The
-same rule applies whether its quantifier was written or supplied by elaboration. An empty argument
-list affects default acceptance and authored spelling (L1-2); it cannot make equal resolved Types
-non-reflexive.
+are equal (T5-1), regardless of how they were spelled. A reflexive transmutation exchanges existing
+components for the same count of that Type: it records both gain and removal and fires both trigger
+directions without changing the component count. Its limit is the available source count; shared
+invariants remain unchanged. Quantifiers apply normally, whether written or supplied by elaboration.
+An empty argument list affects default acceptance and authored spelling (L1-2); it cannot make equal
+resolved Types non-reflexive.
 
 > **Non-normative examples — Artificial Lake and asteroid attacks.** Artificial Lake's special
 > ocean placement is `!`: choosing that arm requires the exceptional land placement to succeed in
@@ -255,18 +258,18 @@ FromExpression ::= Expression "FROM" Expression
 > the ownership argument. Compact transmutation preserves the resource class and amount on both
 > sides, so the card cannot accidentally remove one currency and grant another.
 
-**L2-5. `Ok` is the instruction that relates a state to itself.** Gaining `Ok` denotes no change at
-all; it vanishes from a group (L2-9) rather than appearing as an empty member, and a group with
+**L2-5. `Ok` leaves a state unchanged and emits no gain or removal event.** Gaining `Ok` denotes
+no change at all; it vanishes from a group (L2-9) rather than appearing as an empty member, and a group with
 nothing left in it is `Ok`.
 
 > **Non-normative example — Local Heat Trapping.** Its owner may spend one, two, or three floaters
 > for different heat payouts, or choose `Ok` and do nothing. Treating `Ok` as a physical component
 > would leave a meaningless token behind instead of representing the legitimate no-change arm.
 
-> **Non-normative design note — identity and impossibility.** Instructions denote relations between
-> states, so they need both an identity relation and an impossible relation. `Ok` is the identity:
-> composing with it changes nothing. `Die` (L9-14) is the impossible relation: it has no legal
-> after-state. Giving both ordinary PETS names lets choices and rewrites retain the icon grammar
+> **Non-normative design note — identity and impossibility.** Instructions need both an identity
+> transition and an impossible one. `Ok` is the identity: composing with it changes neither state
+> nor events. `Die` (L9-14) has no legal transition. Giving both ordinary PETS names lets choices
+> and rewrites retain the icon grammar
 > instead of introducing a separate control-flow notation; neither denotes a component that can
 > remain in a world.
 
@@ -412,8 +415,8 @@ AttributedInstruction ::= PrimaryInstruction ( "BY" Expression )?
 
 **L2-16. Precedence, tightest first:** a scaled expression and its quantifier, `/`, `BY`, `OR`, the
 gate `:`, `THEN`, `,`. Parentheses group, and rendering re-inserts grouping wherever re-parsing
-would otherwise read the tree differently — including around a transmutation written in full inside
-an `OR`, whose bare `FROM` would be ambiguous.
+would otherwise read the tree differently. A transmutation written in full binds tighter than
+`OR`, so `Plant FROM Heat OR Steel` chooses between the transmutation and gaining Steel.
 
 ```ebnf
 PrimaryInstruction ::= Change
@@ -434,8 +437,9 @@ PrimaryInstruction ::= Change
 An authored instruction usually leaves something open — an abstract type, an unfixed count, a choice
 between alternatives. **Narrowing** is the relation "this more specific instruction is an acceptable
 way of carrying out that more general one": P narrows Q when every change P can bring about is one Q
-could have brought about, and every choice P still leaves open is one Q left open. The rules below
-are that relation, decided from the two instructions alone.
+could have brought about, and every choice P still leaves open retains Q's constraints and shared
+relationships. The rules below define that relation; discharging a `HAS` condition also consults
+the world in which the choice is made.
 
 **Narrowing is not resolution.** Settling `3 Plant.` against a state with room for two yields
 `2 Plant!`, and that is not a narrowing: nothing in the two instructions says so, and in another
@@ -468,7 +472,15 @@ A group is not itself pending work — its members become independent tasks, eac
 — so this rule reaches only a group nested inside an `OR` arm or a `THEN` stage.
 
 **L3-4. A change may narrow its count, its quantifier and its types.** The count may not grow, and
-may shrink only under `?`. Each written expression must narrow the authored one (T6-2).
+may shrink only under `?`. Each written expression must narrow the authored one (T6-2). At every
+dependency path, a candidate whose root Class or dependencies remain abstract must retain the
+`HAS` predicates of that position. A concrete candidate may discharge them by satisfying them in
+the selection world. This applies to all instruction choices, with or without a shared variable;
+it does not change the aggregate Type queries of T8-2.
+
+For example, `Tile<Place(HAS Marker)>` may narrow to `Tile<First>` when First has a marker, or remain
+`Tile<Place(HAS Marker)>`. It cannot narrow to `Tile<Place>` merely because some place has a marker:
+a later choice would otherwise be free to select an unmarked place.
 
 Only `?` leaves a choice, so only `?` narrows: it may become `!`, `.` or a smaller count. `!` and
 `.` leave no choice at all, so neither narrows to the other (L2-3). In particular a proposal may not
@@ -503,11 +515,36 @@ never a way to do nothing. Declining belongs to `?` and `Ok` (L3-5).
 > … energy. A three-MC proposal cannot be reconciled with the coefficient and must not round into a
 > transaction the card never offers.
 
-**L3-8. A shared type variable takes one value everywhere it appears.** Narrowing a sequence,
-action, or transmutation with a shared variable must supply one consistent value for it (T13-7); two
-different values are rejected. A sequence, Action, or full transmutation marks that variable with
-the same marker at each occurrence (L2-12, L2-13, L7-4). Selecting one `THEN` stage binds that
-value in every later stage, including when the selected instruction chose an arm of an `OR`.
+**L3-8. A shared type variable takes one value everywhere it appears.** A sequence, Action, or
+full transmutation marks that variable at each occurrence (L2-12, L2-13, L7-4). Narrowing captures
+from corresponding choosing or matching positions (T13-11), and all captures of a variable must
+agree. Captures are applied together before checking predicates that may observe another variable.
+
+A fully concrete selected value replaces its marked occurrences; for a represented-class variable,
+this requires a concrete root Class, not concrete component dependencies (T4-2). An abstract restriction keeps the
+shared choice open. A partial proposal must preserve the authored marker spelling at every
+surviving unresolved occurrence, including observers, and preserve unchecked predicates (L3-4).
+A kept marker retains its bound Class spelling; its dependencies and refinements may narrow.
+Proposal markers have their own lexical scope; their corresponding positions and spellings must
+preserve the authored relationships. Replacing linked occurrences with equal unmarked abstract
+domains is rejected, since those domains could later choose different members. If every choosing
+occurrence of a variable is declined through `Ok`, its remaining observers query the authored
+domain rather than a selected member.
+
+A full-sequence proposal tests matching `OR` arms together with its other stages; each proposed arm
+must have a consistent realization of the complete sequence. Captures within that realization must
+agree. Selecting only the first stage uses structural compatibility before querying `HAS`
+predicates. Its compatible arms must agree on every shared binding, including whether one is
+captured; otherwise a full-sequence proposal is required to distinguish them. No binding is
+inferred from an unselected or unrelated expression. Shared `X` must have one consistent value
+across all accepted realizations.
+
+A stage may be carried out only after every shared variable it uses, including in its requirements,
+metrics, or refinements, has a concrete selected value. That selection may commit a value supplied
+by a later change before the current observer is evaluated. An unrelated earlier stage need not
+wait. Selecting the first stage carries the shared scope and the selected values into its
+continuation; later independent choices may remain open. Shared `X` obeys the same availability
+rule. Predicates discharged by selecting a value describe the selection world (T13-10).
 
 > **Non-normative example — Utopia Invest.**
 > `PROD[@StandardResource] -> 4 @StandardResource` means reduce one chosen production
@@ -1362,7 +1399,12 @@ class where it is used, and derives the name.
 This is source-level lowering: it happens while the declaration file is parsed, so the type system
 never sees anything but ordinary declarations.
 
-**L12-1. An expression followed by a body declares a class at its point of use.**
+**L12-1. An expression followed by a body declares a class at its point of use.** Its root must
+name a base Class, rather than the `This` placeholder, and must not carry a Type-variable marker.
+Markers within its arguments follow their ordinary scope rules.
+
+A `DEFAULT` root names its declaring Class (L11-8), so it cannot declare a local Class. Its argument
+occurrences may declare one.
 
 ```ebnf
 LocalClassBody ::= "{" ( LocalBodyElement ( ";" LocalBodyElement )* )? "}"

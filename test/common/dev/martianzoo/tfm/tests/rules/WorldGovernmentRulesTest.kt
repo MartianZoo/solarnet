@@ -95,6 +95,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
     p1.doTask("TemperatureStep! BY Admin")
 
     p1.count("TemperatureStep") shouldBe 1
+    p1.count("TerraformRating") shouldBe 20
   }
 
   @Test

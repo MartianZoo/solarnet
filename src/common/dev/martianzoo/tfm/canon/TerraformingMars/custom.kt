@@ -6,6 +6,7 @@ import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.api.CustomMetric
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.CLASS
@@ -50,6 +51,16 @@ private val copyProductionBox =
                 ?: throw NarrowingException("card ${card.className} has no immediate instruction")
         val matches =
             immediate.descendantsOfType<InstructionTransform>().filter { it.transformKind == PROD }
+
+        if (
+            immediate.descendantsOfType<Instruction.Each>().any { each ->
+              each.descendantsOfType<InstructionTransform>().any { it.transformKind == PROD }
+            }
+        ) {
+          throw ExpressionException(
+              "Card ${card.className} has PROD inside EACH; move EACH inside PROD so copying preserves its bindings"
+          )
+        }
 
         return when (matches.size) {
           0 -> throw NarrowingException("must choose a card that has an immediate PROD box")
