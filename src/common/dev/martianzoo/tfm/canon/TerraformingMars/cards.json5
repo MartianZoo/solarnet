@@ -65,7 +65,8 @@
           "components": [
             // Must be identical to Pristar's declarations in TurmoilExpansion.
             "CLASS HasRaisedTr<GenerationScope> : Owned { HAS MAX 1 This }",
-            "CLASS TrWatcher : CardWatcher { TerraformRating:: HasRaisedTr. }"
+            // The first Action-phase gain removed by PP must not count toward this history.
+            "CLASS TrWatcher : CardWatcher { TerraformRating IF (MAX 0 ActionPhase OR MAX 0 PreservationProgram OR ActionPhaseTrGain):: HasRaisedTr. }"
           ],
         },
       ],

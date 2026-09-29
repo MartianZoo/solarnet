@@ -4,6 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.CustomCodeException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -208,29 +209,155 @@ internal class BugsTest : CardTest() {
     p1.auditGainsSince(checkpoint) shouldBe 1
   }
 
-  @Test
-  internal fun `Fake Preservation Program incorrectly enables UNMI after reversing its TR gain`() {
-    newGame(PreludeExpansion, Prelude2CardPack, FakeStuffBundle)
-    p1.phase("Prelude")
-    p1.runOperation("$UnitedNationsMarsInitiative, FakePreservationProgram")
+  // These pairings are unfixable under PP's gain-then-remove model.
+  // Do not combine Preservation Program with Terraforming Deal or the Reds ruling policy.
+  private fun startPreservationGeneration(
+      corporation: String = "$PhoboLog",
+      deal: Boolean = false,
+  ) {
+    newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack)
+    admin.phase("Prelude")
+    p1.runOperation(
+        "$corporation, PreservationProgram, 100 MC" + if (deal) ", $TerraformingDeal" else ""
+    )
     admin.phase("Action")
-    val checkpoint = game.timeline.checkpoint()
-
-    // The printed Preservation Program prevents this gain, so it should not satisfy UNMI's gate.
-    p1.runOperation("TerraformRating").expect("0 TerraformRating")
-    p1.cardAction1(UnitedNationsMarsInitiative).expect("-3 MC, TerraformRating")
-    p1.auditGainsSince(checkpoint) shouldBe 1
+    admin.nextGeneration(0, 0)
   }
 
   @Test
-  internal fun `Fake Preservation Program incorrectly triggers Terraforming Deal on reversed TR`() {
-    newGame(PreludeExpansion, Prelude2CardPack, FakeStuffBundle)
-    p1.phase("Prelude")
-    p1.runOperation("FakePreservationProgram, TerraformingDeal")
-    admin.phase("Action")
+  internal fun `Terraforming Deal incorrectly pays for the TR reversed by Preservation Program`() {
+    startPreservationGeneration(deal = true)
+    p1.runOperation("ProjectCard, PROD[4 Energy]")
+    p1.playProject(MagneticFieldGeneratorsPromo, 22) { placeTile(2, 4) }
+        .expect("2 TerraformRating, -16 MC")
+    p1.stdProject("AsteroidProject").expect("TerraformRating, -12 MC")
+  }
 
-    // The printed Preservation Program prevents the gain, and therefore this rebate.
-    p1.runOperation("TerraformRating").expect("0 TerraformRating, 2 MC")
+  @Test
+  internal fun `Reds incorrectly charges for the TR reversed by Preservation Program`() {
+    startPreservationGeneration()
+    admin.runOperation("Ruling<Reds> FROM Ruling")
+    admin.phase("Production")
+    admin.phase("Action")
+    p1.stdProject("AsteroidProject").expect("0 TerraformRating, -17 MC")
+    p1.stdProject("AsteroidProject").expect("TerraformRating, -17 MC")
+  }
+
+  @Test
+  internal fun `Reds and Terraforming Deal incorrectly count PP's reversed TR for both payments`() {
+    startPreservationGeneration(deal = true)
+    admin.runOperation("Ruling<Reds> FROM Ruling")
+    admin.phase("Production")
+    admin.phase("Action")
+    p1.runOperation("ProjectCard, PROD[4 Energy]")
+    p1.playProject(MagneticFieldGeneratorsPromo, 22) { placeTile(2, 4) }
+        .expect("2 TerraformRating, -25 MC")
+  }
+
+  @Test
+  internal fun `Reds incorrectly requires money for PP's reversed TR after an unaffordable attempt`() {
+    startPreservationGeneration()
+    admin.runOperation("Ruling<Reds> FROM Ruling")
+    admin.phase("Production")
+    admin.phase("Action")
+    p1.runOperation("-MC / MC")
+    shouldThrow<LimitsException> { p1.runOperation("TerraformRating") }
+    p1.runOperation("3 MC")
+    p1.runOperation("TerraformRating").expect("0 TerraformRating, -3 MC")
+    shouldThrow<LimitsException> { p1.runOperation("TerraformRating") }
+    p1.runOperation("3 MC")
+    p1.runOperation("TerraformRating").expect("TerraformRating, -3 MC")
+  }
+
+  @Test
+  internal fun `Reds incorrectly rejects an affordable two step gain when PP reverses one`() {
+    startPreservationGeneration()
+    admin.runOperation("Ruling<Reds> FROM Ruling")
+    admin.phase("Production")
+    admin.phase("Action")
+    p1.runOperation("-MC / MC")
+    p1.runOperation("3 MC")
+    val rating = p1.count("TerraformRating")
+    shouldThrow<LimitsException> { p1.runOperation("2 TerraformRating") }
+    p1.count("TerraformRating") shouldBe rating
+    p1.count("MC") shouldBe 3
+    p1.runOperation("TerraformRating").expect("0 TerraformRating, -3 MC")
+    p1.runOperation("3 MC")
+    p1.runOperation("TerraformRating").expect("TerraformRating, -3 MC")
+  }
+
+  @Test
+  internal fun `Terraforming Deal incorrectly pays for PP's reversed TR after a chairman award`() {
+    startPreservationGeneration(deal = true)
+    p1.runOperation("2 PartyDelegate<Scientists>")
+    admin.phase("Solar")
+    admin.runOperation("FormGovernment").expect("TerraformRating<Player1>, 2 MC<Player1>")
+    admin.phase("Research") {
+      p1.buyCards(0)
+      requireP2().buyCards(0)
+    }
+    admin.phase("Action")
+    p1.stdProject("AsteroidProject").expect("0 TerraformRating, -12 MC")
+  }
+
+  @Test
+  internal fun `Terraforming Deal incorrectly pays for PP's reversed TR after the Reds ruling bonus`() {
+    startPreservationGeneration(deal = true)
+    p1.runOperation("-10 TerraformRating")
+    admin.phase("Solar")
+    admin.runOperation("ApplyRulingBonus<Reds>").expect("TerraformRating<Player1>, 2 MC<Player1>")
+    admin.phase("Action")
+    p1.stdProject("AsteroidProject").expect("0 TerraformRating, -12 MC")
+  }
+
+  @Test
+  internal fun `Reds and Terraforming Deal incorrectly count PP's reversed TR when Valley Trust plays it`() {
+    newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack)
+    p1.playCorp(ValleyTrust, 0)
+    admin.phase("Prelude")
+    p1.playPrelude(TerraformingDeal)
+    p1.playPrelude(Donation)
+    admin.runOperation("Ruling<Reds> FROM Ruling")
+    admin.phase("Action")
+    p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(PreservationProgram) }
+        .expect("4 TerraformRating, -5 MC")
+    p1.stdProject("AsteroidProject").expect("TerraformRating, -15 MC")
+  }
+
+  @Test
+  internal fun `Terraforming Deal incorrectly pays for PP's reversed TR when Pharmacy Union flips`() {
+    startPreservationGeneration("$PharmacyUnion", deal = true)
+    p1.runOperation("ProjectCard, -2 Disease<$PharmacyUnion>")
+    p1.playProject(PhysicsComplex, 12) {
+          doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
+        }
+        .expect("2 TerraformRating, -6 MC")
+    p1.count("$PharmacyUnion") shouldBe 0
+    p1.count("PlayedEvent<Class<$PharmacyUnion>>") shouldBe 1
+  }
+
+  @Test
+  internal fun `Terraforming Deal incorrectly pays for PP's reversed TR in a multiple gain`() {
+    startPreservationGeneration(deal = true)
+    admin.runOperation("7 OxygenStep, 14 TemperatureStep")
+    p1.runOperation("8 Plant")
+    p1.convertPlants {
+          doTask("GreeneryTile<Tharsis_2_4>")
+          placeTile(1, 2)
+        }
+        .expect("OxygenStep, TemperatureStep, OceanTile, 2 TerraformRating, 10 MC")
+  }
+
+  @Test
+  internal fun `Terraforming Deal incorrectly pays for PP's reversed TR from Venus`() {
+    newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack, VenusNextExpansion)
+    admin.phase("Prelude")
+    p1.runOperation("$PhoboLog, PreservationProgram, $TerraformingDeal, 100 MC")
+    admin.phase("Action")
+    admin.nextGeneration(0, 0)
+    admin.runOperation("7 VenusStep")
+    p1.stdProject("AirScrappingProject").expect("VenusStep, TerraformRating, -11 MC")
+    p1.stdProject("AsteroidProject").expect("TerraformRating, -12 MC")
   }
 
   @Test

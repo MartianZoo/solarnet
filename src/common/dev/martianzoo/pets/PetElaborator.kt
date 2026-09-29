@@ -449,6 +449,9 @@ public class PetElaborator(public val classTable: ClassTable) {
    * Rule L9-11: a gain of several `Atomized` components becomes several gains of one, because three
    * cards are three separate things to choose.
    */
+  public fun atomizeGains(input: InstructionTree): InstructionTree =
+      atomizer().transformInstructionTree(input)
+
   private fun atomizer(): PetTransformer {
     val atomized = classTable.findClass(ATOMIZED) ?: return noOp()
 

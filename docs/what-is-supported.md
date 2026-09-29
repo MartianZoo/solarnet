@@ -6,7 +6,7 @@ Most of the published game content is working... and mostly correctly.[^heroku-s
 
 | Product | Corps | Projects | Preludes | Maps | Tile types | Std projects | Milestones | Awards | Global params | Global events | Game phases | Other |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| TOTALS | 45 / 48 | 423 / 426 | 65 / 71 | 7 / 7 | 17 / 18 | 10 / 10 | 49 / 50 | 40 / 40 | 8 / 8 | 36 / 36 | 13 / 13 | 17 / 17 named items; no Automa |
+| TOTALS | 45 / 48 | 423 / 426 | 66 / 71 | 7 / 7 | 17 / 18 | 10 / 10 | 49 / 50 | 40 / 40 | 8 / 8 | 36 / 36 | 13 / 13 | 17 / 17 named items; no Automa |
 | Terraforming Mars | 10 / 11 | 137 / 137 | - | 1 / 1 | 10 / 10 | 7 / 7 | 5 / 5 | 5 / 5 | 3 / 3 | - | 9 / 9 | - |
 | Corporate Era | 2 / 2 | 71 / 71 | - | - | 4 / 4 | - | - | - | - | - | - | - |
 | Hellas & Elysium | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | - | - | - | - |
@@ -14,7 +14,7 @@ Most of the published game content is working... and mostly correctly.[^heroku-s
 | Prelude | 5 / 5 | 6 / 7 | 34 / 35 | - | - | - | - | - | - | - | 1 / 1 | - |
 | Colonies | 5 / 5 | 49 / 49 | - | - | - | 1 / 1 | - | - | - | - | 1 / 1 | 11 / 11 colony tiles |
 | Turmoil | 4 / 5 | 15 / 16 | - | - | - | 1 / 1 | 1 / 1 | - | - | 31 / 31 | 1 / 1 | 6 / 6 parties |
-| Prelude 2 | 5 / 5 | 24 / 24 | 22 / 25 | - | - | - | - | - | - | - | - | - |
+| Prelude 2 | 5 / 5 | 24 / 24 | 23 / 25 | - | - | - | - | - | - | - | - | - |
 | Amazonis & Vastitas | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | 4 / 4 | - | - | - |
 | Utopia & Cimmeria | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | - | - | - | - |
 | Automa | - | - | - | - | 0 / 1 | - | - | - | - | - | - | the whole thing |
@@ -34,25 +34,43 @@ product, including goals reprinted from another product.
 | Turmoil | Corporation | Septem Tribus | Wild tag |
 | Turmoil | Project | Banned Delegate | `FakeBannedDelegate` does not update the Party Leader or Dominant party after removing a delegate |
 | Prelude 2 | Prelude | Applied Science, Nobel Prize | Wild tags |
-| Prelude 2 | Prelude | Preservation Program (`P57`) | `FakePreservationProgram` reverses TR after the gain, so gain-triggered effects still fire |
 | Automa | Other | entire Automa rules | Wow that's a lot |
 | Milestones & Awards | Milestone | Thawer | `FakeThawer` retains temperature credits when global events reduce temperature |
 | Promos through 2026-08 | Project | Self-Replicating Robots (`210`) | Printed tags while staged |
 | Promos through 2026-08 | Prelude | Established Methods (`X54`) | (investigate) |
 | Promos through 2026-08 | Prelude | Head Start | Immediate-action sequencing |
 
-The two Fakes above require FakeCanon and `FakeStuffBundle`; they are not included in the canonical
-support totals or the shared Heroku card settings. `FakePreservationProgram` loses one TR after its
-owner's first TR gain in each generation's action phase. `FakeThawer` counts successful
-player-attributed temperature increases and can be selected explicitly as a milestone.
+The Fakes above require FakeCanon and `FakeStuffBundle`; they are not included in the canonical
+support totals or the shared Heroku card settings. `FakeThawer` counts successful player-attributed
+temperature increases and can be selected explicitly as a milestone.
 
 ## Solarnet's supported variant
 
 Teeechnically what Solarnet implements is a variant rule set. The differences are extremely minor, though.
 
-### Contradictions of official rules
+### Incompatibilities
 
-* If EcologyExperts plays Decomposers, you get 1 microbe, not 3.
+| Content | Incompatible with | What goes wrong | Severity |
+| --- | --- | --- | --- |
+| Fake wild-tag assignments | Point Luna | Using a wild tag as Earth for a tag count wrongly draws an extra Point Luna card. | Medium |
+| Fake Thawer | Snow Cover | Snow Cover lowers the temperature, but the fake milestone keeps counting the temperature steps that were lost. | Medium |
+| Double Down | Board of Directors | Copying Board of Directors fails with an error. It should succeed without giving any directors. | Medium |
+| Constructor (award) | Games without Colonies | Game setup rejects the award even when you explicitly choose it. | Low |
+| Amazonis Planitia | Mining Rights, Mining Area, Mining Guild | Mining Rights and Mining Area cannot use wild-bonus spaces. Choosing steel or titanium there does not give Mining Guild its extra steel production. | Medium |
+| Ecology Experts | Viral Enhancers, Ecological Zone, Decomposers, GMO Contract | The card it plays misses rewards from Ecology Experts' own plant and microbe tags. Decomposers gets 1 microbe instead of 3. GMO Contract is expected to miss 4 M€; that case has not been separately tested. | Medium |
+| Preservation Program | Terraforming Deal | The TR increase that Preservation Program prevents still earns 2 M€. | Medium |
+| Preservation Program | Reds ruling policy | Reds still charges 3 M€ for the prevented TR increase, and can block a legal gain when you cannot pay. | High |
+| Landshaper | Capital | Capital counts as both a city and a special tile, so adding one greenery is enough to claim the milestone. We expect three distinct tiles to be required, but that ruling remains unconfirmed. | Medium; suspected |
+
+To implement Preservation Program, Solarnet gives you the first Action-phase TR increase and then
+immediately takes it back. Terraforming Deal and Reds still react to that temporary gain, so these
+two pairings must never be used in the same game.
+
+UNMI, Pristar, Valley Trust, Board of Directors, Double Down, Pharmacy Union, and World Government
+Advisor remain compatible with Preservation Program. The shared Heroku presets omit it because
+they include Terraforming Deal and Turmoil. Custom game selection must enforce these two
+exclusions; the engine currently allows the combinations so `BugsTest` can characterize their
+incorrect behavior.
 
 ### Our interpretations
 

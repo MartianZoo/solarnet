@@ -1492,7 +1492,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       playProject(NitrogenRichAsteroid, 26, titanium = 1) {
             doTask("PROD[4 Plant]")
-            doTask("2 TerraformRating")
+            repeat(2) { doTask("TerraformRating") }
             doTask("TemperatureStep")
             doTask("3 MC")
             doTask("3 Heat")
@@ -1754,7 +1754,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
             // Player2's plants amount increased by 1
             doTask("PROD[-4 Energy]")
             doTask("PROD[2 Plant]")
-            doTask("3 TerraformRating")
+            repeat(3) { doTask("TerraformRating") }
             repeat(3) { doTask("2 MC") }
           }
           .expect("PROD[-4 Energy, 2 Plant], 3 TerraformRating, Plant")
