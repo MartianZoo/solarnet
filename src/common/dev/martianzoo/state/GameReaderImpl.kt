@@ -41,6 +41,9 @@ internal class GameReaderImpl(
   override fun ensureNarrows(wide: Expression, narrow: Expression) =
       resolve(narrow).ensureNarrows(resolve(wide), this)
 
+  override fun ensureSelectionNarrows(wide: Expression, narrow: Expression) =
+      resolve(narrow).groundType.ensureSelectionNarrows(resolve(wide), this)
+
   override fun has(requirement: Requirement): Boolean = requirement.isMetBy(::count)
 
   override fun count(metric: Metric): Int =

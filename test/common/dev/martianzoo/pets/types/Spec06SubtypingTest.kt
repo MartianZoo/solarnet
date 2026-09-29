@@ -132,13 +132,26 @@ internal class Spec06SubtypingTest {
   }
 
   @Test
-  internal fun `T6-4 narrowing with a world is only a preorder`() {
+  internal fun `T6-4 contextual narrowing is not antisymmetric`() {
     // In a world where every land area has a neighbour, these two narrow each other...
     type("LandArea").narrows(type("LandArea(HAS Neighbor)"), fullWorld) shouldBe true
     type("LandArea(HAS Neighbor)").narrows(type("LandArea"), fullWorld) shouldBe true
 
     // ...while remaining distinct types, so antisymmetry fails.
     type("LandArea") shouldNotBe type("LandArea(HAS Neighbor)")
+  }
+
+  @Test
+  internal fun `T6-4 aggregate contextual narrowing is not transitive`() {
+    val table =
+        loadTypes("ABSTRACT CLASS Place {\nCLASS First\nCLASS Second\n}", "CLASS Marker<Place>")
+    val info = world("Marker<Place>")
+    val concrete = table.resolve(te("Second"))
+    val domain = table.resolve(te("Place"))
+    val refined = table.resolve(te("Place(HAS Marker)"))
+    concrete.narrows(domain, info) shouldBe true
+    domain.narrows(refined, info) shouldBe true
+    concrete.narrows(refined, info) shouldBe false
   }
 
   // T6-5 Universe safety

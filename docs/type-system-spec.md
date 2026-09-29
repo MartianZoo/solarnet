@@ -730,14 +730,14 @@ and titanium-value components; it is not one component that accepts either.
 
 **T6-4. Shape of the relations.** Over structural types, both judgments are reflexive, transitive
 and antisymmetric: two structural types that narrow each other are the same type. With refinements
-and a world, antisymmetry is lost. In a state where every land area has a neighbouring tile,
-`LandArea` and `LandArea(HAS Neighbor)` narrow each other while remaining distinct types. Narrowing
-is a preorder, not an order.
+and a world, contextual narrowing need not be antisymmetric or transitive. If `First` and `Second`
+are places and only First has a marker, `Second` narrows `Place`, and `Place` narrows
+`Place(HAS Marker)` through the aggregate query `Marker<Place>`, but `Second` does not narrow
+`Place(HAS Marker)`. Thus contextual narrowing is not a preorder. Its answer concerns the candidate
+as written in that world, not every member of an abstract candidate's domain.
 
-> **Non-normative example — Hermetic Order of Mars.** When it is played, it pays 1 MC for each Mars
-> area that is empty and next to one of its owner's tiles *at that moment*. In a particular state
-> that set can coincide with an unrefined one, but the two types must stay distinct, since the next
-> tile placed can separate them.
+Instruction narrowing additionally preserves predicates on unfinished choices (L3-4). An aggregate
+answer cannot erase a condition from a pending instruction.
 
 **T6-5. Cross-universe comparisons are errors**, per T1-2.
 
@@ -814,7 +814,10 @@ Neighbor)`.
 `Tharsis_2_2` against `LandArea(HAS Neighbor<CityTile>)` asks
 `Neighbor<CityTile<Anyone, Area>, Tharsis_2_2>`. When the candidate is abstract, the question is
 about that abstract type as written. `LandArea` tested against `LandArea(HAS Neighbor)` asks whether
-any land area has a neighbour, not whether every one does.
+any land area has a neighbour, not whether every one does. This is an aggregate query, not a general
+existential interpretation: `LandArea(HAS MAX 0 Neighbor)` tests whether the entire land-area domain
+has no neighbours. It can fail even when an individual land area satisfies the condition. Type
+queries do not commit a choice; instruction narrowing follows the additional rule in L3-4.
 
 > **Non-normative example — the standard greenery placement.** A player placing a greenery must, if
 > possible, choose a land area next to one of their own tiles:
@@ -829,18 +832,13 @@ bound receives that intersection; if none strictly narrows, the first compatible
 A bare class property receives the candidate as its receiver:
 `CardFront(HAS 20 cost)` tested against `Ants<Player1>` asks `20 Ants<Player1>.cost`.
 
-If no dependency accepts the candidate as written, and the candidate is not itself a class literal,
-matching instead uses `Class<C>`, where `C` is the candidate's root class. Only dependencies whose
-bounds are class literals, refined or not, participate in this fallback. The same intersection and
-selection rules apply. A match of the original candidate takes precedence even if it leaves a bound
-unchanged. The projection drops the candidate's dependency bounds, including ownership; an abstract
-root remains abstract and is not enumerated by this step. Thus `CardFront<Player1>` supplies
-`Class<CardFront>`, without restricting the class query to Player1's played cards. For example,
-`CardFront(HAS PrintedCost)` tested against `Ants<Player1>` asks `PrintedCost<Class<Ants>>` when
-`PrintedCost` depends on `Class<CardFront>`. Class-literal candidates are never wrapped again, and
-ordinary type arguments are not implicitly converted.
+A component candidate is not implicitly converted to its Class. A class-bound metric must be
+queried with a class-literal candidate. For example,
+`Class<CardFront>(HAS CardFront<Player1>, HAS PrintedCost)` selects card classes that Player1 has
+played and whose class-bound printed-cost query holds. `CardFront(HAS PrintedCost)` cannot fill a
+`Class<CardFront>` dependency with a card component.
 
-If any outermost expression in `R` still cannot accept the candidate, the refinement fails without
+If any outermost expression in `R` cannot accept the candidate, the refinement fails without
 asking the world, except for the class-literal domains described in T8-10. That is not an error; it
 is the answer. `Component(HAS StartToken)` can only ever match a player, since a player is what a
 `StartToken` depends on, so testing `Tharsis_2_2` against it is simply false.
@@ -1478,8 +1476,10 @@ but cannot introduce one.
 | A concrete expression, or `This` | it has no open choice to bind |
 
 The three observing rows are the first property in T13-1: an occurrence that only looks never
-introduces a variable, but may use one whose choice is available in the same settlement region or
-an earlier one. That is why the gate in Cyberia Systems'
+introduces a variable, but may use one supplied anywhere in its enclosing construct's scope.
+Source order is not availability: the value must be selected before the observing stage is carried
+out (L3-8), even when the supplying change will occur later. An earlier stage that does not use the
+variable need not await that selection. That is why the gate in Cyberia Systems'
 `(BuildingTag<First@CardFront>: CopyProductionBox<First@CardFront>) THEN ...` speaks about the same
 card its stage chooses, rather than ranging over cards of its own.
 
@@ -1540,14 +1540,26 @@ For a represented-class variable, binding `@CardResource` to the class `Microbe`
 `@CardResource<This>` mean `Microbe<This>`. If `Microbe` already narrows the dependency an argument
 matches, the two constraints intersect as usual, and a conflict is an error. Application produces an
 ordinary type expression. It does not create the invalid class literal `Class<Microbe<This>>`, and
-`Class<@CardResource>` written separately still denotes the literal for `Microbe`.
+`Class<@CardResource>` written separately still denotes the literal for `Microbe`. A represented-class
+choice is settled once its root Class is concrete (T4-2), even when that Class's component dependencies
+remain open. Occurrence-specific arguments do not become part of the shared class value. A class-literal
+use of an ordinary type variable likewise projects its selected type to its root Class.
 
 A `HAS` predicate on the supplying occurrence, including one nested in its dependencies, is
 consumed by binding at that dependency path only when the chosen root Class and dependencies are
 concrete and the chosen type no longer carries it. Narrowing already checked it when the value was
 chosen, so other occurrences reuse the value without asking the world again. A partial binding
-retains predicates on paths still awaiting a concrete choice. Structural constraints and predicates
-absent from the supplying occurrence at that path remain in force.
+retains predicates on paths still awaiting a concrete choice. It also retains the variable's scoped
+identity at every occurrence: restricting a domain does not choose one of its members, and later
+narrowing must still give all occurrences the same value. Only a fully concrete binding removes
+that identity; for a represented-class variable, concreteness is that of the selected Class, not its
+component base type (T4-2). Structural constraints and predicates absent from the supplying occurrence
+at that path remain in force.
+
+Predicates are facts about the world in which the value is selected, not about the later world in
+which another occurrence executes. A whole-sequence proposal selects its supplied concrete values
+before its first stage; any supplier predicates it discharges are checked in that selection world.
+Predicates retained on an unfinished choice are checked when that choice is eventually selected.
 
 > **Non-normative example — Turmoil's new chairman.** When a party takes power, its rules run:
 >
@@ -1569,6 +1581,10 @@ variable sits on captures nothing, rather than a guess drawn from a coincidental
 `Class<X>`, the represented class is that path: specializing `Class<@StandardResource>` to
 `Class<Steel>` captures `Steel`. Only the paths of the variable's own occurrences are read. An
 unmarked position elsewhere in the same type contributes nothing, even when its bound is the same.
+Captures of a represented-class variable compare their root Classes; the dependencies applied at
+each use remain local to that occurrence (T13-1). Conflicting captures of one variable refuse a proposed narrowing. In an event trigger they mean
+that the trigger does not match; in Class specialization they mean that the specialization is
+invalid.
 
 > **Non-normative example — Law Suit.** The removal watchers record the victim, the resource class
 > and the attacker in distinct dependency positions, and Law Suit later reads that exact record.

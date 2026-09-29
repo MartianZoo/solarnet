@@ -955,6 +955,8 @@ public class PetElaborator(public val classTable: ClassTable) {
           }
       return target.copy(
           arguments = targetArguments,
+          refinement =
+              if (target.refinement == source.refinement) source.refinement else target.refinement,
           typeVariableName = source.typeVariableName ?: target.typeVariableName,
       )
     }

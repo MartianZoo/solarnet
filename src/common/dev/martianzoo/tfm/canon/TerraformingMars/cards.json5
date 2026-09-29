@@ -373,7 +373,7 @@
           "name": "Flooding",
           "cost": 7,
           "tags": [ "EventTag" ],
-          "immediate": "OceanTile<> OR (OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<Anyone>>)>! THEN -4 MC<Anyone>?)",
+          "immediate": "OceanTile<> OR (OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>! THEN -4 MC<@Anyone>?)",
           "effects": [ "End: -VictoryPoint" ],
         },
         {

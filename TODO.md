@@ -163,13 +163,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
-- Preserve shared Type-variable constraints when partially narrowing a whole `THEN` instruction.
-  An unmarked proposal can discard an earlier refinement on a later choice; `engine/BugsTest`
-  characterizes this independently of Flooding.
 - Correct defaulted Type-variable references: `pets/BugsTest` shows bare references incorrectly
   inheriting their supplier's `<>`.
-- Restrict Flooding's victim to an owner adjacent to the ocean actually placed by the card.
-  `cards/FloodingBugsTest` characterizes invalid victims through both direct and staged choices.
 
 - Revisit aligning multiplatform JVM tests with the repository JUnit BOM. Setup overrides now
   explicitly declare `@BeforeTest`, including `ActiveVacuumCoreTest.commonSetup`. Verify lifecycle
@@ -185,10 +180,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   repetitive assertions without losing the readable scenarios or broad module/content cases.
 
 - Add Jacob Fryxelius's ruling that moving Mars Nomads does not trigger the Mars First ruling policy.
-- Repair the two declared Pets conformance gaps without adding a second representation of type
-  identity: L3-8 lets `Tile<> THEN Tile<>` stages diverge after defaults, and T8-3 can substitute a
-  refinement candidate into the wrong one of several compatible dependency slots while existing
-  cards still require candidate/argument merging.
 - Find a principled way for narrower dependency defaults to retain compatible refinements from
   wider defaults, so `Tile` can own area occupancy once while its subclasses select their kinds of
   areas and add placement rules.

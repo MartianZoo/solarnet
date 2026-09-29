@@ -192,22 +192,18 @@ internal class Spec08RefinementsTest {
       )
 
   @Test
-  internal fun `T8-3 a component candidate can supply its class to a class-bound metric`() {
+  internal fun `T8-3 class-bound metrics require an explicit class-literal candidate`() {
     val world = RecordingWorld(answer = true)
     val componentRequirement = cardMetrics.resolve(te("CardFront(HAS PrintedCost)"))
-    val classRequirement = cardMetrics.resolve(te("Class<CardFront>(HAS PrintedCost)"))
-
-    cardMetrics.resolve(te("Ants<Player1>")).narrows(componentRequirement, world) shouldBe true
-    cardMetrics.resolve(te("Class<Ants>")).narrows(classRequirement, world) shouldBe true
-    cardMetrics.resolve(te("CardFront<Player1>")).narrows(componentRequirement, world) shouldBe true
-    world.questions shouldContainExactly
-        listOf(
-            "PrintedCost<Class<Ants>>",
-            "PrintedCost<Class<Ants>>",
-            "PrintedCost<Class<CardFront>>",
-        )
-    cardMetrics.resolve(te("Ants<Player1>")).narrows(componentRequirement, emptyWorld) shouldBe
+    cardMetrics.resolve(te("Ants<Player1>")).narrows(componentRequirement, world) shouldBe false
+    cardMetrics.resolve(te("CardFront<Player1>")).narrows(componentRequirement, world) shouldBe
         false
+    world.questions shouldContainExactly listOf()
+    cardMetrics
+        .resolve(te("Class<Ants>"))
+        .narrows(cardMetrics.resolve(te("Class<CardFront>(HAS PrintedCost)")), world) shouldBe true
+    world.questions shouldContainExactly listOf("PrintedCost<Class<Ants>>")
+    shouldThrow<ExpressionException> { cardMetrics.resolve(te("PrintedCost<Ants<Player1>>")) }
   }
 
   @Test
@@ -223,7 +219,7 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `T8-3 class fallback requires a compatible class slot`() {
+  internal fun `T8-3 a component candidate cannot fill a class slot`() {
     val world = RecordingWorld(answer = true)
 
     listOf("PrintedCost<Class<Birds>>", "SystemMetric").forEach { metric ->
@@ -237,25 +233,6 @@ internal class Spec08RefinementsTest {
   }
 
   @Test
-  internal fun `T8-3 class fallback uses the ordinary selection order across class slots`() {
-    val world = RecordingWorld(answer = true)
-
-    listOf("Gains<Class<VictoryPoint>>", "Gains", "Gains<Class<Birds>>", "Gains<Class<Ants>>")
-        .forEach { metric ->
-          cardMetrics
-              .resolve(te("Ants<Player1>"))
-              .narrows(cardMetrics.resolve(te("CardFront(HAS $metric)")), world) shouldBe true
-        }
-    world.questions shouldContainExactly
-        listOf(
-            "Gains<Class<Ants>, Class<VictoryPoint>>",
-            "Gains<Class<Ants>, Class<Component>>",
-            "Gains<Class<Birds>, Class<Ants>>",
-            "Gains<Class<Ants>, Class<Ants>>",
-        )
-  }
-
-  @Test
   internal fun `T8-3 a class literal candidate is never wrapped again`() {
     val world = RecordingWorld(answer = true)
 
@@ -263,6 +240,16 @@ internal class Spec08RefinementsTest {
         .resolve(te("Class<Ants>"))
         .narrows(cardMetrics.resolve(te("Component(HAS ClassMetric)")), world) shouldBe false
     world.questions shouldContainExactly listOf()
+  }
+
+  @Test
+  internal fun `T8-2 an abstract HAS MAX query is an aggregate rather than an existential choice`() {
+    val table =
+        loadTypes("ABSTRACT CLASS Place {\nCLASS First\nCLASS Second\n}", "CLASS Marker<Place>")
+    val info = world("MAX 0 Marker<Second>")
+    val refined = table.resolve(te("Place(HAS MAX 0 Marker)"))
+    table.resolve(te("Second")).narrows(refined, info) shouldBe true
+    table.resolve(te("Place")).narrows(refined, info) shouldBe false
   }
 
   // T8-4, T8-5, T8-6, T8-7 Difference

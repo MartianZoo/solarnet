@@ -420,13 +420,17 @@ private constructor(
           // role as a contextual variable without treating that Owner as the executing Actor.
           val ownerForBinding = contextualOwner?.takeIf { OWNER in match }
           val binder =
-              elaborator.specializeVariables(
-                  matchType,
-                  changeType,
-                  match,
-                  typeVariables,
-                  ownerForBinding,
-              )
+              try {
+                elaborator.specializeVariables(
+                    matchType,
+                    changeType,
+                    match,
+                    typeVariables,
+                    ownerForBinding,
+                )
+              } catch (_: NarrowingException) {
+                return null
+              }
           Hit(listOf(binder), change.count)
         } else {
           null

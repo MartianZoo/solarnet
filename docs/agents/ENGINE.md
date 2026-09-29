@@ -139,8 +139,9 @@ delegation. These identities are independent; use [IDENTITY.md](IDENTITY.md) bef
 
 Queue admission normalizes an `InstructionGroup` into one Task per independent member. `A THEN B`
 stores A as current work and B as a continuation; completing A admits B as ordinary work with no
-priority over unrelated Tasks. If an open linked variable prevents safe splitting, normalization can
-defer the split until narrowing binds it.
+priority over unrelated Tasks. If the first stage uses an open shared variable, normalization
+defers its split until narrowing selects that value. Unrelated earlier stages can split, retaining
+the shared scope in their continuation.
 
 An Actor advances work by selecting a Task or narrowing one of its remaining choices. Selection
 locks the entire World against competing mutation until that Task finishes. It is an ordering

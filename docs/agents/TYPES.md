@@ -47,9 +47,28 @@ Attaching a class-header scope copies the source Effect before recording its res
 Catalogs can share authored declarations; those declarations must not retain a compiled universe
 through a variable's bound Type or let interpretation in another Catalog overwrite an earlier scope.
 
-Explicitly marked Action and `THEN` variables survive lowering and queuing. An open variable prevents
-the relevant stages from splitting into independent tasks until an earlier choice supplies its
-value. A full transmutation likewise names a destination choice used by its source. Within a compact
+Explicitly marked Action and `THEN` variables survive lowering and queuing. A sequence remains
+joint while its first stage uses an unresolved shared choice, including in an observer; unrelated
+earlier stages can run. Its continuation retains the authored scope. Concrete binding removes the
+variable; partial binding restricts its domain and retains its identity. A represented-class choice
+is settled when its root Class is concrete; its uses keep their own component arguments, and
+class-literal uses project to the selected root Class. Whole-sequence partial
+proposals preserve the corresponding markers at every surviving unresolved occurrence. Captures
+follow dependency paths. Full-sequence proposals check `OR` arms jointly with the other stages;
+first-stage-only selection requires compatible arms to agree on their bindings. Substitution is
+simultaneous, followed by predicate checks. Optional quantities and
+independent Types may remain open after shared values are selected.
+
+Instruction selection uses `GroundType.ensureSelectionNarrows` through `TypeInfo`: an abstract
+candidate retains its `HAS` predicates, while a concrete candidate can discharge them in the
+selection world. Ordinary contextual Type narrowing retains the aggregate-query meaning in T8-2.
+First-stage selection uses existing forced concrete-type resolution before binding a uniquely
+determined Type. Resolution leaves a stage's shared observers intact until their choices are bound. It may reject
+an impossible first change using the existing limiter over its domain with predicates removed;
+that broader domain gives an upper bound without querying an unresolved observer.
+The engine owns neither a blanket concreteness guard nor a card-specific exception.
+
+A full transmutation likewise names a destination choice used by its source. Within a compact
 atomic transmutation,
 `Foo<Same, Here, To FROM From>` is compact syntax for
 `Foo<Same, Here, To> FROM Foo<Same, Here, From>`; each unchanged argument occupies both roles and

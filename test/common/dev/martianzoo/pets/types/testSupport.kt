@@ -78,6 +78,8 @@ private class FixedWorld(private val answer: (Requirement) -> Boolean) : TypeInf
   override fun ensureNarrows(wide: Expression, narrow: Expression): Unit =
       error("unused by the type system")
 
+  override fun ensureSelectionNarrows(wide: Expression, narrow: Expression): Unit = error("unused")
+
   override fun has(requirement: Requirement): Boolean = answer(requirement)
 }
 
@@ -89,6 +91,8 @@ internal class RecordingWorld(private val answer: Boolean = true) : TypeInfo {
 
   override fun ensureNarrows(wide: Expression, narrow: Expression): Unit =
       error("unused by the type system")
+
+  override fun ensureSelectionNarrows(wide: Expression, narrow: Expression): Unit = error("unused")
 
   override fun has(requirement: Requirement): Boolean {
     questions += "$requirement"

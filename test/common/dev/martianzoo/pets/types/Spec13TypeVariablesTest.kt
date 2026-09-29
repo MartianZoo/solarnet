@@ -263,6 +263,9 @@ internal class Spec13TypeVariablesTest {
 
           override fun ensureNarrows(wide: Expression, narrow: Expression): Unit = error("unused")
 
+          override fun ensureSelectionNarrows(wide: Expression, narrow: Expression): Unit =
+              error("unused")
+
           override fun has(requirement: Requirement): Boolean = error("unused")
 
           override fun count(metric: Metric): Int = error("unused")
@@ -343,12 +346,15 @@ internal class Spec13TypeVariablesTest {
     val variable = holder.typeVariables.single { it.name == "P" }
     val effect = holder.interpretTypeVariablesIn(holder.declaration.effects.single())
     val specialized = table.resolve(te("Holder<Class<Alice>>"))
+    table.resolve(te("Alice")).abstract shouldBe true
 
     variable.usages.map { "${it.expression}" } shouldContainExactly listOf("P@Person<Player1>")
-    effect.typeVariables
-        .bind(specialized.variableBindingsFrom(holder.defaultType, listOf(variable)))
-        .transformEffect(effect)
-        .toString() shouldBe "This: Alice<Player1>"
+    val bound =
+        effect.typeVariables
+            .bind(specialized.variableBindingsFrom(holder.defaultType, listOf(variable)))
+            .transformEffect(effect)
+    bound.toString() shouldBe "This: Alice<Player1>"
+    bound.typeVariables.isEmpty shouldBe true
   }
 
   @Test
@@ -1129,6 +1135,59 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
+  internal fun `T13-10 selecting a represented class settles its choice with component dependencies open`() {
+    val scoped = effect("Production<Class<R@StandardResource>>: R@StandardResource<Player1>")
+    val variable = scoped.typeVariables.variables.single()
+    val plant = resources.resolve(te("Plant"))
+    plant.abstract shouldBe true
+
+    val bound = scoped.typeVariables.bind(mapOf(variable to plant)).transformEffect(scoped)
+
+    bound.toString() shouldBe "Production<Class<Plant>>: Plant<Player1>"
+    bound.typeVariables.isEmpty shouldBe true
+  }
+
+  @Test
+  internal fun `T13-10 a class literal projects the selected component type to its root class`() {
+    val scoped = effect("R@StandardResource: Receipt<Class<R@StandardResource>>")
+    val variable = scoped.typeVariables.variables.single()
+
+    val bound =
+        scoped.typeVariables
+            .bind(mapOf(variable to resources.resolve(te("Plant<Player1>"))))
+            .transformEffect(scoped)
+
+    bound.toString() shouldBe "Plant<Player1>: Receipt<Class<Plant>>"
+    bound.typeVariables.isEmpty shouldBe true
+  }
+
+  @Test
+  internal fun `T13-11 represented-class captures agree while occurrence arguments differ`() {
+    val table =
+        loadTypes(
+            "CLASS Player1 : Owner",
+            "CLASS Player2 : Owner",
+            "ABSTRACT CLASS Resource : Owned<Owner> { CLASS Plant }",
+            "CLASS Pair<Class<Resource>, Resource>",
+        )
+    val scoped =
+        table
+            .recordTypeVariableScopes()
+            .transformEffect(
+                parse<Effect>("Pair<Class<R@Resource>, R@Resource<Player1>>: R@Resource<Player2>")
+            )
+    val captured =
+        scoped.typeVariables.bindingsFrom(
+            (scoped.trigger as Effect.Trigger.OnGainOf).expression,
+            table.resolve(te("Pair<Class<Resource>, Resource<Player1>>")),
+            table.resolve(te("Pair<Class<Plant>, Plant<Player1>>")),
+        )
+
+    scoped.typeVariables.bind(captured).transformEffect(scoped).toString() shouldBe
+        "Pair<Class<Plant>, Plant<Player1>>: Plant<Player2>"
+  }
+
+  @Test
   internal fun `T13-10 binding follows marked occurrences through copied syntax`() {
     val table =
         loadTypes(
@@ -1324,9 +1383,21 @@ internal class Spec13TypeVariablesTest {
           override fun ensureNarrows(wide: Expression, narrow: Expression) {
             table.resolve(narrow).ensureNarrows(table.resolve(wide), this)
           }
+
+          override fun ensureSelectionNarrows(wide: Expression, narrow: Expression) {
+            table.resolve(narrow).ensureSelectionNarrows(table.resolve(wide), this)
+          }
         }
 
-    val bound = scoped.bindFirstStage(parse<Instruction>("Box<Place(HAS Marker), First>!"), info)
+    val bound =
+        scoped.typeVariables
+            .bind(
+                mapOf(
+                    scoped.typeVariables.variables.single() to
+                        table.resolve(te("Box<Place(HAS Marker), First>"))
+                )
+            )
+            .transformInstruction(scoped) as Then
     bound.toString() shouldBe
         "Box<Place(HAS Marker), First>! THEN Notice<Box<Place(HAS Marker), First>>!"
     world.questions.size shouldBe 0
