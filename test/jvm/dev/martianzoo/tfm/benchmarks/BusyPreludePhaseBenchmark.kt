@@ -29,7 +29,7 @@ import org.openjdk.jmh.annotations.TearDown
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 public open class BusyPreludePhaseBenchmark {
-  private val fakeEstablishedMethods = cn("FakeEstablishedMethods")
+  private val fakeHeadStart = cn("FakeHeadStart")
   private lateinit var game: World
   private lateinit var me: TfmGameplay
   private lateinit var workflow: TfmWorkflow.Stepwise
@@ -71,7 +71,7 @@ public open class BusyPreludePhaseBenchmark {
     me.playCorp(cn("Teractor"), 10)
 
     workflow.preludePhase()
-    me.playPrelude(fakeEstablishedMethods) {
+    me.playPrelude(fakeHeadStart) {
       doTask("UseAction<PlayCardFromHandAction, Action1>")
       doTask("PlayCard<Class<ProjectCard>, Class<EarthOffice>>")
       me.pay(0)
@@ -90,7 +90,7 @@ public open class BusyPreludePhaseBenchmark {
     // https://boardgamegeek.com/thread/3055761/article/41996773#41996773
     me.stdAction("DoRequiredActionsAction") {
       me.playPrelude(cn("DoubleDown")) {
-        doTask("CopyPrelude<$fakeEstablishedMethods>")
+        doTask("CopyPrelude<$fakeHeadStart>")
         doTask("UseAction<PlayCardFromHandAction, Action1>")
         doTask("PlayCard<Class<ProjectCard>, Class<LunaGovernor>>")
         me.pay(0)
@@ -107,7 +107,7 @@ public open class BusyPreludePhaseBenchmark {
     // Teractor + Valley Trust, four Preludes, and four projects.
     check(me.count("CardFront") == 10)
     val mc = me.count("MC")
-    check(mc == 89) { "expected 89 MC, found $mc" }
+    check(mc == 65) { "expected 65 MC, found $mc" }
     game.timeline.rollBack(beforeCorporationPhase)
   }
 }

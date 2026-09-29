@@ -87,13 +87,9 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
             draw(ResearchOutpost, RestrictedArea, AcquiredCompany)
           }
           .expect("PROD[1 MC], FakeWildTag")
-      // Unsupported component: Fake Established Methods models the archived card's two standard
-      // projects, but not its unused unaffordable-second-project fallback.
-      playPrelude(FakeEstablishedMethods) {
-            doTask("UseAction<UseStandardProjectAction, Action1>")
+      playPrelude(EstablishedMethods) {
             doTask("UseAction<PowerPlantProject, Action1>")
             pay(11)
-            doTask("UseAction<UseStandardProjectAction, Action1>")
             doTask("UseAction<PowerPlantProject, Action1>")
             pay(11)
           }

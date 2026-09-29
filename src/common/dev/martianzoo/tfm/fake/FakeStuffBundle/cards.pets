@@ -90,13 +90,6 @@ CLASS FakeSeptemTribus : ActionCard<Class<StandardCorporationCard>> {
   -> 2 MC / Class<Party>(HAS PartyDelegate<Party, Owner>)
 }
 
-"Established Methods without its unaffordable-second-project rule"
-CLASS FakeEstablishedMethods : CardFront<Class<PreludeCard>> {
-  cost = 0
-
-  This: 30 MC, UseAction<StandardAction>!, UseAction<StandardAction>!
-}
-
 "Head Start with independently interleavable immediate actions"
 CLASS FakeHeadStart : CardFront<Class<PreludeCard>> {
   cost = 0

@@ -20,10 +20,16 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   source. The current model preserves free lobbying on other reserve placements until all seven
   delegates are placed; it offers no choice to consume the Lobby delegate earlier. See
   `TurmoilRulesTest.kt` for the supported paid-lobbying case with only the Lobby delegate remaining.
-- Replace the fake wild-tag assignment model when a clean rule representation is available.
-  A normal Earth-tag gain incorrectly draws for Point Luna, now characterized in `cards/BugsTest.kt`.
-  Do not suppress triggers to make this model look correct; historical replays still use explicit
-  external adjustments for their unsupported wild-tag choices.
+- Fix Point Luna's played-Earth-tag response so a temporary assigned tag still counts for Cartel
+  but does not cause a card draw. First try the existing card-holder distinction; do not bypass
+  trigger execution. Full wild-tag assignment remains deferred until a clean rule representation is
+  available; historical replays still use explicit adjustments for unsupported choices.
+- Keep Fake Self-Replicating Robots permanently in `:tfm-fake`. Move its bug characterizations,
+  including the SRR cases mixed into `cards/BugsTest.kt`, into that module and consolidate duplicate
+  Sponsored Projects coverage. Reuse existing test-support sources before considering a fixture API.
+- Promote Thawer after enforcing its permanent incompatibility with Snow Cover in normal selection.
+  Include both only when the configuration explicitly names both individual items. First try the
+  existing default-selection conditions, including the global-event selection path.
 - Follow through on the FAQ-audit defects characterized in
   [`cards/BugsTest.kt`](test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt):
   Double Down's copied resource destination; Mining Rights/Area and Mining Guild on wild placement
@@ -38,8 +44,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   Industrial Complex's former `EACH ... { PROD[...] }` spelling would work. For now, copying
   rejects a `PROD` nested inside `EACH` with an authoring diagnostic; the working form puts
   `EACH` inside `PROD`.
-- Resolve L1 Trade Terminal's trade bonus at the colony track limit: the current exact-two-or-zero
-  choice cannot advance from 5 to 6. The intended partial advancement is under investigation.
 - Reconcile `OtbGame20260912Test` with the original physical-game evidence. Verify Summit
   Logistics' printed Colonies requirement and model its inclusion without enabling unused
   Colonies gameplay if the card is legal without that expansion. Verify the reported extra Prelude
@@ -155,10 +159,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   compiler currently drops that default; `MoholeArea_SpecialTile` relies on this for its WaterArea
   bound versus SpecialTile's LandArea default. Keep this semantic question separate from diagnostic
   improvements.
-- Model Established Methods as two nonzero-cost standard projects without making the second project
-  mandatory when none is affordable. `StandardProject(HAS cost)` excludes Sell Patents and
-  non-project actions, but does not express current affordability; making the second action optional
-  would instead let a player skip it while an affordable project exists.
 
 ### Hypothetical Card Behavior
 

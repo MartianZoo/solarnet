@@ -132,6 +132,10 @@
           "components": [ "CLASS CopyPrelude<CardFront<@Player>> : Owned<@Player>, Custom" ],
         },
         {
+          "name": "EstablishedMethods",
+          "immediate": "30 MC, UseAction<StandardProject(HAS cost)>!, UseAction<StandardProject(HAS cost)>!",
+        },
+        {
           "name": "GiantSolarCollector",
           "tags": [ "PowerTag", "SpaceTag" ],
           "immediate": "PROD[2 Energy], VenusStep",

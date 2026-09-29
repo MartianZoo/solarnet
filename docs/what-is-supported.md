@@ -4,7 +4,7 @@ Almost all the published game content except Automa works.
 
 | Product | Corps | Projects | Preludes | Maps | Tile types | Std projects | Milestones | Awards | Global params | Global events | Game phases | Other |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|
-| TOTALS | 45 / 48 | 423 / 426 | 66 / 71 | 7 / 7 | 17 / 18 | 10 / 10 | 49 / 50 | 40 / 40 | 8 / 8 | 36 / 36 | 13 / 13 | 17 / 17 named items; no Automa |
+| TOTALS | 46 / 48 | 423 / 426 | 67 / 71 | 7 / 7 | 17 / 18 | 10 / 10 | 49 / 50 | 40 / 40 | 8 / 8 | 36 / 36 | 13 / 13 | 17 / 17 named items; no Automa |
 | Terraforming Mars | 10 / 11 | 137 / 137 | - | 1 / 1 | 10 / 10 | 7 / 7 | 5 / 5 | 5 / 5 | 3 / 3 | - | 9 / 9 | - |
 | Corporate Era | 2 / 2 | 71 / 71 | - | - | 4 / 4 | - | - | - | - | - | - | - |
 | Hellas & Elysium | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | - | - | - | - |
@@ -16,7 +16,7 @@ Almost all the published game content except Automa works.
 | Amazonis & Vastitas | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | 4 / 4 | - | - | - |
 | Utopia & Cimmeria | - | - | - | 2 / 2 | - | - | 10 / 10 | 10 / 10 | - | - | - | - |
 | Milestones & Awards | - | - | - | - | - | - | 34 / 35 | 35 / 35 | - | - | - | - |
-| Promos through 2026-08 | 9 / 10 | 72 / 73 | 9 / 11 | - | 3 / 3 | - | - | - | - | 5 / 5 | - | - |
+| Promos through 2026-08 | 10 / 10 | 72 / 73 | 10 / 11 | - | 3 / 3 | - | - | - | - | 5 / 5 | - | - |
 | Automa | - | - | - | - | 0 / 1 | - | - | - | - | - | - | the whole thing |
 
 ## Still to implement
@@ -27,10 +27,11 @@ Almost all the published game content except Automa works.
 | Prelude | Project | Research Coordination | Wild tag |
 | Prelude | Prelude | Research Network | Wild tag |
 | Turmoil | Corporation | Septem Tribus | Wild tag |
+| Turmoil | Project | Banned Delegate | Party leadership and dominance after delegate removal |
 | Prelude 2 | Prelude | Applied Science, Nobel Prize | Wild tag |
 | Promos through 2026-08 | Project | Self-Replicating Robots (`210`) | Several problems |
-| Promos through 2026-08 | Prelude | Established Methods (`X54`) | Deadlocks if can't afford second project |
 | Promos through 2026-08 | Prelude | Head Start | Immediate-action sequencing |
+| Milestones & Awards | Milestone | Thawer | Safe selection excluding Snow Cover is pending |
 | Automa | Other | entire Automa rules | Wow that's a lot |
 
 ### Incompatibilities

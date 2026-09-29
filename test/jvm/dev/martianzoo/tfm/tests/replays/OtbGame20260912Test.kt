@@ -91,9 +91,12 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       playPrelude(FakeAppliedScience)
       // "Established methods. Gain 30 monies." "Wow." "I'm gonna greenery for 23. I'm gonna put
       // it here for two cards... And that gave me the temperatura."
-      playPrelude(FakeEstablishedMethods) {
-        useStdProject("GreeneryProject") { placeTile(5, 9) }
-        useStdProject("AsteroidProject")
+      playPrelude(EstablishedMethods) {
+        doTask("UseAction<GreeneryProject, Action1>")
+        yellow.pay(23)
+        placeTile(5, 9)
+        doTask("UseAction<AsteroidProject, Action1>")
+        yellow.pay(14)
       }
       // The players acknowledged this initial Greens-policy payout during Prelude as the same rule
       // mistake. Yellow nevertheless took 4 M€ here (transcript and Yellow ledger entry 15).
