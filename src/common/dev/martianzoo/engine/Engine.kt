@@ -85,9 +85,17 @@ public object Engine {
       try {
         initializer.initialize()
       } catch (e: GameplayException) {
-        throw InvalidGameConfigException("game setup cannot complete: ${e.message}", e)
+        throw InvalidGameConfigException(
+            "game setup cannot complete: ${e.detail}",
+            e,
+            e.sourceLocation,
+        )
       } catch (e: NotFullySpecifiedException) {
-        throw InvalidGameConfigException("game setup cannot complete: ${e.message}", e)
+        throw InvalidGameConfigException(
+            "game setup cannot complete: ${e.detail}",
+            e,
+            e.sourceLocation,
+        )
       }
       recordingPositions.record(timeline.checkpoint().ordinal)
       return world
@@ -122,18 +130,31 @@ public object Engine {
 
     private fun validatePremise(classTable: ClassTable) {
       if (premise.modules.isNotEmpty() && premise.premiseClassName == null) {
-        throw InvalidGameConfigException("a premise with Modules must provide a premise Class")
+        throw InvalidGameConfigException("a premise with modules must provide a premise class")
       }
       premise.initialComponentTypes.forEach { expression ->
         val type =
             try {
               classTable.resolve(expression)
             } catch (e: ExpressionException) {
-              throw InvalidGameConfigException("invalid initial component type: $expression", e)
+              throw InvalidGameConfigException(
+                  "invalid initial component type `$expression`: ${e.detail}",
+                  e,
+                  e.sourceLocation ?: expression.sourceLocation,
+              )
             }
         if (type.abstract || !classTable.isInhabited(type) || type.rootClass.declaration.custom) {
+          val reason =
+              when {
+                type.rootClass.declaration.custom ->
+                    "is a custom class; custom behavior cannot be stored as a component"
+                !classTable.isInhabited(type) ->
+                    "has no realizable concrete type in this game's selected classes"
+                else -> "is abstract; specify one concrete type"
+              }
           throw InvalidGameConfigException(
-              "initial component type must be concrete, inhabited, and instantiable: $expression"
+              "initial component type `$expression` $reason",
+              sourceLocation = expression.sourceLocation,
           )
         }
       }
@@ -151,13 +172,17 @@ public object Engine {
           val representedClass = count.expression.arguments.singleOrNull()
           if (representedClass?.simple != true) {
             throw InvalidPetDefinitionException(
-                "Module Class invariants must name one simple Class: $count"
+                "module class invariants must name one simple class: `$count`",
+                sourceLocation = count.sourceLocation,
             )
           }
           return if (classTable.isInhabited(representedClass.className)) 1 else 0
         }
         if (!count.expression.simple) {
-          throw InvalidPetDefinitionException("Module invariants must count a simple class: $count")
+          throw InvalidPetDefinitionException(
+              "module invariants must count a simple class: `$count`",
+              sourceLocation = count.sourceLocation,
+          )
         }
         val type = classTable.findInhabitedClass(count.expression.className)?.baseType ?: return 0
         return classTable.allClasses().count { klass ->
@@ -172,14 +197,21 @@ public object Engine {
               ::countInhabitedClasses,
               { property ->
                 throw InvalidPetDefinitionException(
-                    "Module premise metrics cannot read properties: $property"
+                    "module premise metrics cannot read properties: `$property`",
+                    sourceLocation = property.sourceLocation,
                 )
               },
               { union ->
-                throw InvalidPetDefinitionException("Module premise metrics cannot use OR: $union")
+                throw InvalidPetDefinitionException(
+                    "module premise metrics cannot use `OR`: `$union`",
+                    sourceLocation = union.sourceLocation,
+                )
               },
               { rank ->
-                throw InvalidPetDefinitionException("Module premise metrics cannot use RANK: $rank")
+                throw InvalidPetDefinitionException(
+                    "module premise metrics cannot use `RANK`: `$rank`",
+                    sourceLocation = rank.sourceLocation,
+                )
               },
           )
 
@@ -190,7 +222,10 @@ public object Engine {
           .filter { requirement -> THIS !in requirement.descendantsOfType<ClassName>() }
           .forEach { requirement ->
             if (!holds(requirement)) {
-              throw InvalidGameConfigException("game premise fails Module invariant: $requirement")
+              throw InvalidGameConfigException(
+                  "game premise fails module invariant: `$requirement`",
+                  sourceLocation = requirement.sourceLocation,
+              )
             }
           }
 
@@ -199,7 +234,8 @@ public object Engine {
         val requirement = (property as? RequirementValue)?.value ?: return@forEach
         if (!holds(requirement)) {
           throw InvalidGameConfigException(
-              "game premise fails $moduleName requirement: $requirement"
+              "game premise fails `$moduleName` requirement: `$requirement`",
+              sourceLocation = requirement.sourceLocation,
           )
         }
       }

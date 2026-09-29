@@ -463,13 +463,13 @@ Class: `SponsoredProjects`
 | | Text |
 | --- | --- |
 | Printed text | All cards with resources on them gain 1 resource. Draw 1 card for each influence. |
-| Generated text | \[EACH Card@ResourceCard&lt;Anyone&gt; { CardResource&lt;Card@ResourceCard&lt;Anyone&gt;&gt; }\]. Draw 1 card per influence. |
+| Generated text | \[EACH Card@ResourceCard&lt;Anyone&gt;(HAS CardResource) { CardResource&lt;Card@ResourceCard&gt; }\]. Draw 1 card per influence. |
 
 Pets declaration:
 
 ```pets
 CLASS SponsoredProjects : GePartyCurrent<Greens>, GePartyDistant<Scientists> {
-  ResolveGlobalEvent<Class<This>>:: EACH Card@ResourceCard<Anyone> { CardResource<Card@ResourceCard<Anyone>> }
+  ResolveGlobalEvent<Class<This>>:: EACH Card@ResourceCard<Anyone>(HAS CardResource) { CardResource<Card@ResourceCard> }
   ResolveGlobalEvent<Class<This>>:: EACH Player { ProjectCard / Influence }
 }
 ```

@@ -50,6 +50,44 @@ internal class CardTrackingFullGameTestTest :
   }
 
   @Test
+  internal fun oneExchangeEventNamesItsDrawAndDiscard() {
+    p1.runOperation("ProjectCard") { p1.draw(AcquiredCompany) }
+    val checkpoint = game.timeline.checkpoint()
+
+    p1.runOperation("ProjectCard FROM ProjectCard") {
+      p1.discard(AcquiredCompany)
+      p1.draw(AdaptedLichen)
+    }
+
+    p1.cardsHand shouldBe setOf(AdaptedLichen)
+    assertCardTrackingComplete()
+    game.events.changesSince(checkpoint).single { it.isProjectCardChange() }.notes shouldBe
+        "Cards: AdaptedLichen FROM AcquiredCompany"
+  }
+
+  @Test
+  internal fun strictCompletionRequiresBothExchangeSidesToBeNamed() {
+    p1.runOperation("ProjectCard") { p1.draw(AcquiredCompany) }
+    p1.runOperation("ProjectCard FROM ProjectCard")
+
+    shouldThrow<IllegalStateException> { assertCardTrackingComplete() }
+  }
+
+  @Test
+  internal fun arrivalOrderNamesTheGainInAnExchangeEvent() {
+    val replay = ArrivalOrderReplay(listOf(AcquiredCompany, AdaptedLichen))
+    replay.setUp()
+    replay.gainToHand()
+
+    replay.exchangeFromHand(AcquiredCompany)
+
+    replay.hand() shouldBe setOf(AdaptedLichen)
+    replay.assertComplete()
+    replay.projectCardNotes() shouldBe
+        listOf("Cards: AcquiredCompany", "Cards: AdaptedLichen FROM AcquiredCompany")
+  }
+
+  @Test
   internal fun cardNamesCanBeRecordedBeforeTheCorrespondingChange() {
     val checkpoint = game.timeline.checkpoint()
 
@@ -152,6 +190,10 @@ internal class CardTrackingFullGameTestTest :
     fun discardFromHand(card: ClassName) {
       check(card in p1.cardsHand) { "$card never entered the hand" }
       p1.runOperation("-ProjectCard") { p1.discard(card) }
+    }
+
+    fun exchangeFromHand(card: ClassName) {
+      p1.runOperation("ProjectCard FROM ProjectCard") { p1.discard(card) }
     }
 
     fun hand(): Set<ClassName> = p1.cardsHand

@@ -19,6 +19,7 @@ import dev.martianzoo.tfm.engine.*
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.matchers.types.shouldNotBeInstanceOf
 import kotlin.test.Test
 
 internal class DomainExceptionContractTest {
@@ -101,8 +102,8 @@ internal class DomainExceptionContractTest {
 
     selection.shouldBeInstanceOf<GameplayException>()
     deadEnd.shouldBeInstanceOf<GameplayException>()
-    isPetException(selection) shouldBe false
-    isPetException(deadEnd) shouldBe false
+    selection.shouldNotBeInstanceOf<PetException>()
+    deadEnd.shouldNotBeInstanceOf<PetException>()
   }
 
   @Test
@@ -117,7 +118,7 @@ internal class DomainExceptionContractTest {
         .shouldBeInstanceOf<GameplayException>()
     val incomplete: Exception = shouldThrow<NotFullySpecifiedException> { agent().sneak("X Plant") }
     (incomplete is GameplayException) shouldBe false
-    isPetException(incomplete) shouldBe false
+    incomplete.shouldNotBeInstanceOf<PetException>()
   }
 
   @Test
@@ -128,6 +129,4 @@ internal class DomainExceptionContractTest {
 
     shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
   }
-
-  private fun isPetException(exception: Exception): Boolean = exception is PetException
 }

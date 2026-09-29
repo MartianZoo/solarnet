@@ -2,7 +2,10 @@ package dev.martianzoo.pets.data
 
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.Transforming.actionListToEffects
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
+import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SystemClasses.CUSTOM
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect
@@ -122,28 +125,78 @@ public data class ClassDeclaration(
   public val custom: Boolean = CUSTOM.expression in supertypes
 
   init {
-    require(defaultsDeclaration.forClass in setOf(null, className)) {
-      "`$className` cannot declare defaults for `${defaultsDeclaration.forClass}`"
+    if (className == THIS)
+        throw PetSyntaxException(
+            "`This` refers to the enclosing class and cannot be declared as a class name",
+            sourceLocation = className.sourceLocation,
+        )
+    if (defaultsDeclaration.forClass !in setOf(null, className)) {
+      throw PetSyntaxException(
+          "`$className` cannot declare defaults for `${defaultsDeclaration.forClass}`; name `$className` instead",
+          sourceLocation = defaultsDeclaration.forClass?.sourceLocation,
+      )
     }
     fun hasRefinement(expression: Expression): Boolean =
         expression.refinement != null || expression.arguments.any(::hasRefinement)
     // Rule L11-4: a refined type cannot be a bound, so signature expressions carry no refinements
     // at
     // any depth.
-    require((dependencies + supertypes).none(::hasRefinement)) {
-      "class signatures cannot contain refined Types"
+    (dependencies + supertypes).firstOrNull(::hasRefinement)?.let {
+      throw PetSyntaxException(
+          "class signatures cannot contain refined types: `$it`",
+          sourceLocation = it.sourceLocation,
+      )
     }
 
     if (custom) {
-      require(invariants.none())
-      require(effects.none())
-      require(defaultsDeclaration == DefaultsDeclaration())
+      val behavior =
+          when {
+            invariants.isNotEmpty() -> "invariants"
+            effects.isNotEmpty() -> "effects or actions"
+            defaultsDeclaration != DefaultsDeclaration() -> "defaults"
+            else -> null
+          }
+      if (behavior != null)
+          throw PetSyntaxException(
+              "custom class `$className` cannot declare Pets $behavior; its behavior comes from its Kotlin implementation",
+              sourceLocation =
+                  invariants.firstOrNull()?.sourceLocation
+                      ?: effects.firstOrNull()?.sourceLocation
+                      ?: defaultsDeclaration.forClass?.sourceLocation
+                      ?: className.sourceLocation,
+          )
     }
   }
 
   public enum class ClassKind {
     CONCRETE,
     ABSTRACT,
+  }
+
+  public companion object {
+    /**
+     * Indexes a Catalog's declarations, allowing identical contributions but rejecting conflicts.
+     */
+    public fun indexByName(
+        declarations: Iterable<ClassDeclaration>
+    ): Map<ClassName, ClassDeclaration> = buildMap {
+      declarations.forEach { declaration ->
+        val previous = get(declaration.className)
+        if (previous != null && previous != declaration) {
+          val firstLocation = previous.className.sourceLocation
+          val first =
+              firstLocation
+                  ?.takeIf { it.source == declaration.className.sourceLocation?.source }
+                  ?.let { " at ${it.line}:${it.column}" }
+                  .orEmpty()
+          throw InvalidPetDefinitionException(
+              "conflicting declarations of `${declaration.className}`; first declared$first as `${previous.copy(docstring = null).toString(oneLine = true)}`",
+              sourceLocation = declaration.className.sourceLocation,
+          )
+        }
+        if (previous == null) put(declaration.className, declaration)
+      }
+    }
   }
 
   public val abstract: Boolean = kind == ABSTRACT
@@ -180,16 +233,34 @@ public data class ClassDeclaration(
           REMOVE_ONLY -> removeOnly
         }
 
-    internal companion object {
-      internal fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
+    public companion object {
+      public fun merge(defs: Collection<DefaultsDeclaration>): DefaultsDeclaration {
         val owners = defs.mapNotNull { it.forClass }.distinct()
-        require(owners.size <= 1) {
-          "`DEFAULT` clauses name different classes: `${owners.joinToString()}`"
+        if (owners.size > 1) {
+          throw PetSyntaxException(
+              "`DEFAULT` clauses name different classes: ${owners.joinToString { "`$it`" }}",
+              sourceLocation = owners[1].sourceLocation,
+          )
+        }
+        fun mergeKind(kind: DefaultKind): OneDefault {
+          var merged = OneDefault()
+          defs.forEach { definition ->
+            try {
+              merged = merge(listOf(merged, definition.default(kind)))
+            } catch (e: IllegalArgumentException) {
+              throw PetSyntaxException(
+                  "invalid defaults for `${owners.singleOrNull()}`: ${e.message}",
+                  e,
+                  definition.forClass?.sourceLocation,
+              )
+            }
+          }
+          return merged
         }
         return DefaultsDeclaration(
-            universal = merge(defs.map { it.universal }),
-            gainOnly = merge(defs.map { it.gainOnly }),
-            removeOnly = merge(defs.map { it.removeOnly }),
+            universal = mergeKind(ALL_USAGES),
+            gainOnly = mergeKind(GAIN_ONLY),
+            removeOnly = mergeKind(REMOVE_ONLY),
             forClass = owners.singleOrNull(),
         )
       }
@@ -197,11 +268,11 @@ public data class ClassDeclaration(
       private fun merge(ones: Collection<OneDefault>): OneDefault {
         val dependencyCandidates = ones.map(OneDefault::specs).filter { it.isNotEmpty() }.distinct()
         require(dependencyCandidates.size <= 1) {
-          "conflicting dependency defaults: `${dependencyCandidates.joinToString()}`"
+          "conflicting dependency defaults: ${dependencyCandidates.joinToString { "`${it.joinToString(", ", "<", ">")}`" }}"
         }
         val quantifierCandidates = ones.mapNotNull(OneDefault::quantifier).distinct()
         require(quantifierCandidates.size <= 1) {
-          "conflicting quantifier defaults: `${quantifierCandidates.joinToString()}`"
+          "conflicting quantifier defaults: ${quantifierCandidates.joinToString { "`${it.symbol}`" }}"
         }
         return OneDefault(
             dependencyCandidates.singleOrNull().orEmpty(),

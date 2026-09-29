@@ -54,6 +54,26 @@ internal class TurmoilRulesTest : CardTest() {
   }
 
   @Test
+  internal fun `paid lobbying may use the Lobby delegate when it is the only reserve delegate`() {
+    newGame(TurmoilExpansion)
+    repeat(6) { p1.runOperation("PartyDelegate<Unity>") }
+    p1.runOperation("5 MC")
+    admin.phase("Action")
+
+    p1.count("LobbyActionAvailable") shouldBe 1
+    p1.count("Delegate") shouldBe 6
+
+    p1.stdAction("LobbyAction", 2) {
+      doTask("PartyDelegate<Scientists>")
+    }
+
+    p1.count("MC") shouldBe 0
+    p1.count("LobbyActionAvailable") shouldBe 0
+    p1.count("Delegate") shouldBe 7
+    p1.count("PartyDelegate") shouldBe 7
+  }
+
+  @Test
   internal fun `paid lobbying preserves a tied incumbent and transfers a strict lead`() {
     newGame(TurmoilExpansion)
     val p2 = requireP2()

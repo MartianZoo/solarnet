@@ -1,17 +1,7 @@
 package dev.martianzoo.pets.ast
 
-import com.github.h0tk3y.betterParse.combinators.and
-import com.github.h0tk3y.betterParse.combinators.map
-import com.github.h0tk3y.betterParse.combinators.optional
-import com.github.h0tk3y.betterParse.combinators.or
-import com.github.h0tk3y.betterParse.combinators.skip
-import com.github.h0tk3y.betterParse.grammar.parser
-import com.github.h0tk3y.betterParse.parser.Parser
-import dev.martianzoo.pets.ClassParsing
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.HasExpression
-import dev.martianzoo.pets.PetTokenizer
-import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Specification
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.types.ClassLoader
@@ -38,14 +28,16 @@ import kotlin.reflect.KClass
  * collapsing the distinctions the syntax deliberately keeps ([rule
  * L1-9](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions)).
  */
-public data class Expression(
-    override val className: ClassName,
+// A parser may attach source-only information through a subtype and extract it before returning
+// an AST. Structural operations and copy always describe the ordinary expression.
+public open class Expression(
+    final override val className: ClassName,
 
     /** The written argument list, each argument an expression in its own right. */
-    val arguments: List<Expression> = emptyList(),
+    public val arguments: List<Expression> = emptyList(),
 
     /** The written refinement, or null if none was written. */
-    val refinement: Refinement? = null,
+    public val refinement: Refinement? = null,
 
     /**
      * Whether the source wrote angle brackets, including an explicit empty `<>`. Writing an empty
@@ -53,41 +45,36 @@ public data class Expression(
      * distinguishable, because `<>` says "I accept this use's defaults on purpose" ([rule
      * L1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions)).
      */
-    val argumentsSpecified: Boolean = arguments.isNotEmpty(),
+    public val argumentsSpecified: Boolean = arguments.isNotEmpty(),
 
     /**
      * An explicit Type-variable marker declared by this expression or referenced here. A reference
      * keeps the declaration's structural expression in [className], [arguments], and [refinement],
      * so ordinary Type operations remain unaware of the shorter authored spelling.
      */
-    val typeVariableName: TypeVariableName? = null,
+    public val typeVariableName: TypeVariableName? = null,
 ) : PetElement(), HasClassName, HasExpression, Specification<Expression> {
   // Expressions are immutable after parsing; zero is the uncached sentinel.
   private var cachedHashCode: Int = 0
 
-  internal var derivedClassBody: ClassParsing.Body? = null
-    private set
-
-  /**
-   * Adds parser-only source information while this expression is being constructed. It is set at
-   * most once, before the expression can enter an AST collection, and removed before a parsed AST
-   * leaves [dev.martianzoo.pets.Parsing].
-   */
-  internal fun withDerivedClassBody(body: ClassParsing.Body): Expression = apply {
-    check(derivedClassBody == null)
-    derivedClassBody = body
-    cachedHashCode = 0
-  }
+  /** Returns this expression with the specified structural members changed. */
+  public fun copy(
+      className: ClassName = this.className,
+      arguments: List<Expression> = this.arguments,
+      refinement: Refinement? = this.refinement,
+      argumentsSpecified: Boolean = this.argumentsSpecified,
+      typeVariableName: TypeVariableName? = this.typeVariableName,
+  ): Expression = Expression(className, arguments, refinement, argumentsSpecified, typeVariableName)
 
   override fun equals(other: Any?): Boolean =
       this === other ||
           (other is Expression &&
+              this::class == other::class &&
               className == other.className &&
               arguments == other.arguments &&
               refinement == other.refinement &&
               argumentsSpecified == other.argumentsSpecified &&
-              equalityTypeVariableName == other.equalityTypeVariableName &&
-              derivedClassBody == other.derivedClassBody)
+              equalityTypeVariableName == other.equalityTypeVariableName)
 
   private val equalityTypeVariableName: TypeVariableName?
     get() = typeVariableName.takeUnless { it is TypeVariableName.ExpandedReference }
@@ -99,26 +86,25 @@ public data class Expression(
     result = 31 * result + (refinement?.hashCode() ?: 0)
     result = 31 * result + argumentsSpecified.hashCode()
     result = 31 * result + (equalityTypeVariableName?.hashCode() ?: 0)
-    result = 31 * result + (derivedClassBody?.hashCode() ?: 0)
     cachedHashCode = result
     return result
   }
 
-  override val expression: Expression
+  final override val expression: Expression
     get() = this
 
-  override fun isAbstract(info: TypeInfo): Boolean = info.isAbstract(this)
+  final override fun isAbstract(info: TypeInfo): Boolean = info.isAbstract(this)
 
-  override fun ensureNarrows(that: Expression, info: TypeInfo): Unit =
+  final override fun ensureNarrows(that: Expression, info: TypeInfo): Unit =
       info.ensureNarrows(that, this)
 
-  override fun visitChildren(visitor: Visitor) {
+  final override fun visitChildren(visitor: Visitor) {
     visitor.visit(className)
     visitor.visit(arguments)
     visitor.visit(refinement)
   }
 
-  override fun toString(): String = buildString {
+  final override fun toString(): String = buildString {
     val authoredMarker = typeVariableName?.takeIf {
       it is TypeVariableName.Declaration || it is TypeVariableName.Reference
     }
@@ -132,7 +118,7 @@ public data class Expression(
   }
 
   /** Does this expression consist only of a class name, with no arguments and no refinement? */
-  val simple: Boolean = arguments.isEmpty() && refinement == null && !argumentsSpecified
+  public val simple: Boolean = arguments.isEmpty() && refinement == null && !argumentsSpecified
 
   /** The internal roles assigned to occurrences of one explicit Type-variable marker. */
   public sealed class TypeVariableName {
@@ -149,7 +135,7 @@ public data class Expression(
       get() = boundClassName to name
 
     /** The marker as it appears before arguments or refinements in authored Pets. */
-    internal val authoredSpelling: String
+    public val authoredSpelling: String
       get() = "${name.orEmpty()}@$boundClassName"
 
     internal abstract val resolution: Resolution?
@@ -170,7 +156,8 @@ public data class Expression(
           boundClassName: ClassName,
       ) : this(name, boundClassName, null)
 
-      internal val resolved: Boolean
+      /** Whether this occurrence has been assigned to a lexical scope. */
+      public val resolved: Boolean
         get() = resolution != null
 
       override fun equals(other: Any?): Boolean = other is Declaration && key == other.key
@@ -201,7 +188,8 @@ public data class Expression(
           if (resolved) Resolution() else null,
       )
 
-      internal val resolved: Boolean
+      /** Whether this occurrence has been assigned to a lexical scope. */
+      public val resolved: Boolean
         get() = resolution != null
 
       override fun equals(other: Any?): Boolean =
@@ -266,7 +254,7 @@ public data class Expression(
     return if (refinement != null) copy(refinement = Refinement.has(refinement)) else this
   }
 
-  override val kind: KClass<out PetNode> = Expression::class
+  final override val kind: KClass<out PetNode> = Expression::class
 
   /**
    * One clause of an expression's refinement, or a conjunction of them. Each clause repeats its own
@@ -277,6 +265,19 @@ public data class Expression(
    * of the type system specification.
    */
   public sealed class Refinement : PetNode() {
+    /** A predicate's bound meaning does not depend on a local choice's syntax marker. */
+    internal fun withoutChoiceNames(): Refinement =
+        object : dev.martianzoo.pets.PetTransformer() {
+              override fun transformNode(node: PetNode): PetNode =
+                  if (
+                      node is Expression &&
+                          node.typeVariableName !is TypeVariableName.RepresentedClassReference
+                  )
+                      transformChildren(node.copy(typeVariableName = null))
+                  else transformChildren(node)
+            }
+            .transformRefinement(this)
+
     override val kind: KClass<out PetNode> = Refinement::class
 
     /**
@@ -337,7 +338,8 @@ public data class Expression(
         return if (flattened.size == 1) flattened.single() else And(flattened)
       }
 
-      internal fun has(requirement: Requirement): Refinement =
+      /** Builds and normalizes a HAS refinement from a requirement. */
+      public fun has(requirement: Requirement): Refinement =
           create(Requirement.split(requirement).map(::Has))
     }
 
@@ -345,82 +347,5 @@ public data class Expression(
 
     internal fun retaining(predicate: (Refinement) -> Boolean): Refinement? =
         conjuncts().filter(predicate).takeIf { it.isNotEmpty() }?.let(Companion::create)
-  }
-
-  internal companion object : PetTokenizer() {
-    private data class AuthoredTypeVariableMarker(val name: String?)
-
-    internal fun refinementParser(): Parser<Refinement> {
-      val has = (skip(_has) and Requirement.disjunctionParser()) map Refinement.Companion::has
-      val not = (skip(_not) and parser(allowDerivedClass = false)) map { Refinement.Not(it) }
-      return group(commaSeparated(has or not) map Refinement.Companion::create)
-    }
-
-    fun parser(allowDerivedClass: Boolean = true): Parser<Expression> {
-      return parser {
-        val argumentList =
-            skipChar('<') and
-                optionalList(commaSeparated(parser(allowDerivedClass))) and
-                skipChar('>')
-        val refinement = refinementParser()
-        val namedTypeVariableMarker =
-            ClassName.parser() and skipChar('@') map { AuthoredTypeVariableMarker(it.asString) }
-        val anonymousTypeVariableMarker = char('@') map { AuthoredTypeVariableMarker(name = null) }
-        val typeVariableMarker = namedTypeVariableMarker or anonymousTypeVariableMarker
-        fun expression(
-            marker: AuthoredTypeVariableMarker?,
-            clazz: ClassName,
-            args: List<Expression>?,
-            ref: Refinement?,
-        ): Expression {
-          val domain =
-              Expression(
-                  clazz,
-                  args.orEmpty(),
-                  argumentsSpecified = args != null,
-                  typeVariableName = marker?.let { TypeVariableName.Declaration(it.name, clazz) },
-              )
-          val boundRefinement = ref?.let {
-            object : PetTransformer() {
-                  override fun transformNode(node: PetNode): PetNode =
-                      when {
-                        node is Metric.Rank && node.selector == null -> {
-                          val metrics = node.metrics.map(::transformMetric)
-                          node.copy(
-                              selector = domain.copy(typeVariableName = null),
-                              metrics = metrics,
-                          )
-                        }
-                        node is Expression -> node
-                        else -> transformChildren(node)
-                      }
-                }
-                .transformRefinement(it)
-          }
-          return resolveClassLiteralTypeVariableNames(domain.copy(refinement = boundRefinement))
-        }
-
-        val expression =
-            optional(typeVariableMarker) and
-                ClassName.parser() and
-                optional(argumentList) and
-                optional(refinement) map
-                { (marker, clazz, args, ref) ->
-                  expression(marker, clazz, args, ref)
-                }
-
-        if (allowDerivedClass) {
-          expression and
-              optional(ClassParsing.Declarations.derivedClassBody) map
-              { (parsed, body) ->
-                parsed.let {
-                  if (body == null) it else it.withDerivedClassBody(body)
-                }
-              }
-        } else {
-          expression
-        }
-      }
-    }
   }
 }

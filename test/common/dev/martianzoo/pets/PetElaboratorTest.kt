@@ -4,6 +4,7 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
@@ -89,6 +90,28 @@ internal class PetElaboratorTest {
 
     elaborator.elaborateInput(source, player1) shouldBe
         parse<InstructionTree>("Pulse!, Pulse!, Token<Player1>!")
+  }
+
+  @Test
+  internal fun resolvingACachedPredicateRetainsTheCurrentVariablesScope() {
+    val source = "Token<Player(HAS @Choice)>! THEN @Choice!"
+    elaborator.elaborateInput(parse<InstructionTree>(source), player1)
+    val second = elaborator.elaborateInput(parse<InstructionTree>(source), player1) as Then
+    val variable = second.typeVariables.variables.single()
+
+    val bound =
+        second.typeVariables
+            .bind(
+                mapOf(variable to table.resolve(parse<Expression>("BlueChoice"))),
+                table,
+            )
+            .transformInstruction(second)
+
+    bound shouldBe
+        elaborator.elaborateInput(
+            parse<InstructionTree>("Token<Player(HAS BlueChoice)>! THEN BlueChoice!"),
+            player1,
+        )
   }
 
   @Test

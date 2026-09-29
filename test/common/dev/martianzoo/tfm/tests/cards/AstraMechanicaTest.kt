@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
-import dev.martianzoo.tfm.tests.cards.cardnames.AstraMechanica
-import dev.martianzoo.tfm.tests.cards.cardnames.InvestmentLoan
-import dev.martianzoo.tfm.tests.cards.cardnames.MineralDeposit
+import dev.martianzoo.tfm.tests.cards.cardnames.*
+import io.kotest.assertions.throwables.shouldThrowAny
 import kotlin.test.Test
 
 internal class AstraMechanicaTest : CardTest() {
@@ -43,5 +43,83 @@ internal class AstraMechanicaTest : CardTest() {
             "$AstraMechanica, ProjectCard, " +
                 "-PlayedEvent<Class<$MineralDeposit>>, -PlayedEvent<Class<$InvestmentLoan>>"
         )
+  }
+
+  @Test
+  internal fun `Cannot recover Lava Flows or Deimos Down promo`() {
+    newGame(PromoCardPack)
+    admin.phase("Action")
+    p1.runOperation("$LavaFlows") { placeTile(2, 2) }
+    p1.runOperation("$DeimosDownPromo") { placeTile(4, 5) }
+    p1.runOperation("7 MC, ProjectCard")
+
+    p1.playProject(AstraMechanica, 7) {
+          doWithoutAutoExec(p1) {
+            shouldThrowAny { doTask("ProjectCard FROM PlayedEvent<Class<$LavaFlows>>") }
+            shouldThrowAny { doTask("ProjectCard FROM PlayedEvent<Class<$DeimosDownPromo>>") }
+            // Neither retrieval has an eligible event.
+            doTask("Ok")
+            doTask("Ok")
+          }
+        }
+        .expect("0 PlayedEvent, 0 SpecialTile")
+  }
+
+  @Test
+  internal fun `Cannot recover flipped Pharmacy Union`() {
+    newGame(PromoCardPack, CorporateEraExpansion)
+    admin.phase("Action")
+    p1.runOperation("$PharmacyUnion")
+    p1.runOperation("$Research")
+    p1.runOperation("$PhysicsComplex") {
+      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating")
+    }
+
+    p1.playProject(AstraMechanica, 7) {
+          doWithoutAutoExec(p1) {
+            shouldThrowAny { doTask("ProjectCard FROM PlayedEvent<Class<$PharmacyUnion>>") }
+            // The flipped corporation is ineligible for either retrieval.
+            doTask("Ok")
+            doTask("Ok")
+          }
+        }
+        .expect("0 PlayedEvent<Class<$PharmacyUnion>>")
+  }
+
+  @Test
+  internal fun `Cannot recover another player's event`() {
+    newGame(PromoCardPack)
+    admin.phase("Action")
+    requireP2().runOperation("$MineralDeposit")
+    p1.runOperation("7 MC, ProjectCard")
+
+    p1.playProject(AstraMechanica, 7) {
+          doWithoutAutoExec(p1) {
+            shouldThrowAny {
+              doTask("ProjectCard FROM PlayedEvent<Player2, Class<$MineralDeposit>>")
+            }
+            // Neither retrieval has an event belonging to this player.
+            doTask("Ok")
+            doTask("Ok")
+          }
+        }
+        .expect("0 PlayedEvent<Player2, Class<$MineralDeposit>>")
+  }
+
+  @Test
+  internal fun `Can recover an ocean event`() {
+    newGame(PromoCardPack)
+    admin.phase("Action")
+    p1.runOperation("$Flooding") { placeTile(5, 5) }
+    p1.runOperation("7 MC, ProjectCard")
+
+    p1.playProject(AstraMechanica, 7) {
+          doWithoutAutoExec(p1) {
+            doTask("ProjectCard FROM PlayedEvent<Class<$Flooding>>")
+            // There is only one event to recover.
+            doTask("Ok")
+          }
+        }
+        .expect("0 OceanTile")
   }
 }

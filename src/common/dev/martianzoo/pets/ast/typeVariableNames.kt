@@ -170,8 +170,9 @@ internal fun resolveTypeVariableNames(
       ?.let { sameBoundClass ->
         val anonymous = sameBoundClass.single { it.typeVariableName!!.name == null }
         throw PetSyntaxException(
-            "Anonymous Type-variable marker ${anonymous.typeVariableName!!.authoredSpelling} " +
-                "cannot share a scope with a named variable of the same bound Class"
+            "anonymous type variable marker `${anonymous.typeVariableName!!.authoredSpelling}` " +
+                "cannot share a scope with a named variable of the same bound class",
+            sourceLocation = anonymous.sourceLocation,
         )
       }
   val selectedByKey = selectedDeclarations.associateBy { it.typeVariableName!!.key }
@@ -187,20 +188,24 @@ internal fun resolveTypeVariableNames(
             if (marker.resolved && node !== selected) return transformChildren(node)
             if (node === selected && !marker.resolved) {
               return transformChildren(
-                  node.copy(typeVariableName = marker.resolved(resolutions.getValue(marker.key)))
-              )
+                      node.copy(
+                          typeVariableName = marker.resolved(resolutions.getValue(marker.key))
+                      )
+                  )
+                  .also { it.sourceLocation = node.sourceLocation }
             }
             if (selected != null && node !== selected) {
               return transformChildren(
-                  node.copy(
-                      typeVariableName =
-                          Reference(
-                              marker.name,
-                              marker.boundClassName,
-                              argumentsSpecified = node.argumentsSpecified,
-                          )
+                      node.copy(
+                          typeVariableName =
+                              Reference(
+                                  marker.name,
+                                  marker.boundClassName,
+                                  argumentsSpecified = node.argumentsSpecified,
+                              )
+                      )
                   )
-              )
+                  .also { it.sourceLocation = node.sourceLocation }
             }
           }
           return transformChildren(node)
@@ -232,10 +237,19 @@ internal fun resolveTypeVariableNames(
       .filter { it in declarationsByKey }
       .forEach { key -> references[key] = references.getOrElse(key) { 0 } + 1 }
   val resolving = mutableSetOf<Pair<ClassName, String?>>()
-  fun withoutNames(expression: Expression): Expression =
+  fun expandedStructure(expression: Expression): Expression =
       expression.copy(
-          arguments = expression.arguments.map(::withoutNames),
-          typeVariableName = null,
+          arguments = expression.arguments.map(::expandedStructure),
+          typeVariableName =
+              expression.typeVariableName?.let { marker ->
+                if (marker is Declaration)
+                    Expression.TypeVariableName.ExpandedReference(
+                        marker.name,
+                        marker.boundClassName,
+                        marker.resolution,
+                    )
+                else marker
+              },
       )
   val resolver =
       object : PetTransformer() {
@@ -254,17 +268,17 @@ internal fun resolveTypeVariableNames(
                         node.refinement == declaration.refinement
                 if (!node.simple && !representedApplication && !repeatedStructure) {
                   throw PetSyntaxException(
-                      "Type-variable reference $node cannot have arguments or a refinement"
+                      "type variable reference `$node` cannot have arguments or a refinement"
                   )
                 }
                 references[reference.key] = references.getOrElse(reference.key) { 0 } + 1
                 if (!resolving.add(reference.key)) {
                   throw PetSyntaxException(
-                      "Type-variable declarations cannot refer to each other cyclically"
+                      "type variable declarations cannot refer to each other cyclically"
                   )
                 }
                 return try {
-                  val structuralDeclaration = withoutNames(declaration)
+                  val structuralDeclaration = expandedStructure(declaration)
                   val referenced =
                       structuralDeclaration.copy(
                           arguments =
@@ -302,7 +316,12 @@ internal fun resolveTypeVariableNames(
       .firstOrNull { references[it] == null }
       ?.let { key ->
         val marker = declarationsByKey.getValue(key).typeVariableName!!
-        throw PetSyntaxException("Type-variable marker ${marker.authoredSpelling} is not shared")
+        throw PetSyntaxException(
+            "type variable marker `${marker.authoredSpelling}` is not shared; use it again in the same scope or remove the marker",
+            sourceLocation =
+                declarationsByKey.getValue(key).sourceLocation
+                    ?: marker.boundClassName.sourceLocation,
+        )
       }
   return resolved
 }
@@ -318,7 +337,7 @@ internal fun Expression.selectorTypeVariableDeclarations(): List<Expression> =
     )
 
 /** Resolves selector markers in the selector and the nodes evaluated for each selection. */
-internal fun resolveSelectorTypeVariableNames(
+public fun resolveSelectorTypeVariableNames(
     selector: Expression,
     scopedNodes: List<PetNode>,
 ): List<PetNode> {
@@ -332,7 +351,7 @@ internal fun resolveSelectorTypeVariableNames(
 }
 
 /** Resolves an explicit represented-class name inside one refined class literal. */
-internal fun resolveClassLiteralTypeVariableNames(expression: Expression): Expression {
+public fun resolveClassLiteralTypeVariableNames(expression: Expression): Expression {
   if (
       expression.className != dev.martianzoo.pets.api.SystemClasses.CLASS ||
           expression.refinement == null
@@ -435,7 +454,7 @@ internal fun selectorReferenceBinder(
 /**
  * Resolves names declared in a Class header throughout that header and the Class's authored body.
  */
-internal fun resolveClassTypeVariableNames(declaration: ClassDeclaration): ClassDeclaration {
+public fun resolveClassTypeVariableNames(declaration: ClassDeclaration): ClassDeclaration {
   val header = declaration.dependencies + declaration.supertypes
   val declarations =
       header
@@ -492,7 +511,7 @@ internal fun resolveClassTypeVariableNames(declaration: ClassDeclaration): Class
 }
 
 /** Resolves a scope whose declarations belong in [declarationRegion] and uses in [usageRegion]. */
-internal fun <P : PetNode> resolveTypeVariableNames(
+public fun <P : PetNode> resolveTypeVariableNames(
     root: P,
     declarationRegion: PetNode?,
     usageRegion: PetNode,
@@ -558,7 +577,7 @@ internal fun <P : PetNode> resolveTypeVariableNames(
       when (restoredRoot) {
         is Effect -> restoredRoot.trigger
         is Action -> restoredRoot.cost
-        else -> error("Unexpected local Type-variable scope: $restoredRoot")
+        else -> error("Unexpected local type variable scope: $restoredRoot")
       }
   val restoredDeclarations =
       restoredDeclarationRegion

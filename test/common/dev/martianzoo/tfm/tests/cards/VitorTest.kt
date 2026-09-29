@@ -1,10 +1,13 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -54,5 +57,29 @@ internal class VitorTest : CardTest() {
   private fun initializeVitor() {
     newGame(PreludeExpansion, players = 1)
     p1.runOperation("$Vitor")
+  }
+
+  // https://boardgamegeek.com/thread/2993276/article/41548927#41548927
+  @Test
+  internal fun `Vitor acquired through Merger funds a fourth award`() {
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
+    p1.playCorp(CrediCor, 0)
+    val p2 = requireP2()
+    p2.runOperation("100 MC")
+    p1.runOperation("54 MC")
+    admin.phase("Prelude")
+    p1.playPrelude(BoardOfDirectors)
+    admin.phase("Action")
+    p2.fundAward(cn("Landlord"), 8)
+    p2.fundAward(cn("Banker"), 14)
+    p2.fundAward(cn("Scientist"), 20)
+    p1.cardAction1(BoardOfDirectors) {
+      doTask("-12 MC")
+      p1.playPrelude(Merger) { p1.playCorp(Vitor) }
+    }
+
+    p1.stdAction("DoRequiredActionsAction") { doTask("Thermalist") }.expect("Thermalist, 0 MC")
+    admin.count("Award") shouldBe 4
+    shouldThrow<RequirementException> { p2.stdAction("FundAwardAction", 3) { doTask("Miner") } }
   }
 }

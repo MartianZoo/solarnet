@@ -37,7 +37,7 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   }
 
   @Test
-  internal fun `Philantropist counts victory point gains but not Vitor's reference`() {
+  internal fun `Philantropist counts own scoring cards but not Vitor's reference`() {
     newGame(
         GameConfig(
             "PreludeExpansion, Philantropist, Builder, Engineer",
@@ -46,7 +46,11 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
         )
     )
     p1.runOperation("$Vitor, $SearchForLife, $Tardigrades, $ColonizerTrainingCamp, $DustSeals")
+    requireP2().runOperation("$Trees")
 
+    // Counting played card classes is equivalent to counting cards: CardFront permits at most
+    // one played instance of each concrete class, across all owners. Vitor's class reference is
+    // not a played card, and Player2's Trees is outside Player1's requirement.
     shouldThrow<RequirementException> { p1.runOperation("Philantropist") }
 
     p1.runOperation("$SpaceElevator")
@@ -88,18 +92,18 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   }
 
   @Test
-  internal fun `Removing an ocean removes its placement credit`() {
-    newGame(GameConfig("Hydrologist, Builder, Engineer", "Player1", "Player2"))
-    val oceans = p1.list("WaterArea").take(4)
+  internal fun `Dry Deserts does not erase Hydrologist credit for a removed ocean`() {
+    newGame(GameConfig("TurmoilExpansion, Hydrologist, Builder, Engineer", "Player1", "Player2"))
+    val oceans = p1.list("WaterArea").take(3)
+    p1.runOperation("OceanTile<${oceans.first()}>")
+
+    admin.runOperation("ResolveGlobalEvent<Class<DryDeserts>>")
+
+    admin.count("OceanTile") shouldBe 0
     oceans.forEach { p1.runOperation("OceanTile<$it>") }
-    p1.count("OceanCredit") shouldBe 4
-    oceans.forEach { p1.count("OceanCredit<OceanTile<$it>>") shouldBe 1 }
-
-    requireP2().runOperation("-OceanTile<${oceans.first()}>")
-
-    p1.count("OceanCredit") shouldBe 3
-    p1.count("OceanCredit<OceanTile<${oceans.first()}>>") shouldBe 0
-    shouldThrow<RequirementException> { p1.runOperation("Hydrologist") }
+    admin.count("OceanTile") shouldBe 3
+    p1.runOperation("Hydrologist")
+    p1.count("Hydrologist") shouldBe 1
   }
 
   @Test

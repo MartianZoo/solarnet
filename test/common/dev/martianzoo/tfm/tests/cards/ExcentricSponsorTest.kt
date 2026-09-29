@@ -1,7 +1,11 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.fakeWildTags
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -27,5 +31,24 @@ internal class ExcentricSponsorTest : CardTest() {
       playPrelude(ExcentricSponsor) { playProject(GhgImportFromVenus, 0) }
           .expect("PROD[3 Heat], TerraformRating")
     }
+  }
+
+  @Test
+  internal fun `An assigned wild science tag satisfies Excentric Sponsor during the Prelude phase`() {
+    newGame(PreludeExpansion, VenusNextExpansion, FakeStuffBundle)
+    p1.playCorp(Inventrix, 0)
+    admin.phase("Prelude")
+    p1.playPrelude(FakeResearchNetwork)
+    shouldThrow<RequirementException> {
+      with(p1) { playPrelude(ExcentricSponsor) { playProject(FloatingHabs, 0) } }
+    }
+
+    with(p1) {
+      runOperation("${fakeWildTags("ScienceTag")}, NewTurn") {
+            playPrelude(ExcentricSponsor) { playProject(FloatingHabs, 0) }
+          }
+          .expect("$FloatingHabs, 0 MC")
+    }
+    p1.count("FakeWildTagUse") shouldBe 0
   }
 }

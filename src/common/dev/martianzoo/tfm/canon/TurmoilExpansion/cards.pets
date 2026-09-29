@@ -162,7 +162,7 @@ CLASS SpinOffProducts : GePartyDistant<Greens>, GePartyCurrent<Scientists> {
 
 CLASS SponsoredProjects : GePartyDistant<Scientists>, GePartyCurrent<Greens> {
   ResolveGlobalEvent<Class<This>>:: \
-    EACH Card@ResourceCard<Anyone> { CardResource<Card@ResourceCard<Anyone>> }
+    EACH Card@ResourceCard<Anyone>(HAS CardResource) { CardResource<Card@ResourceCard> }
   ResolveGlobalEvent<Class<This>>:: EACH Player { ProjectCard / Influence }
 }
 

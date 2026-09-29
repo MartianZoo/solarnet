@@ -503,7 +503,7 @@ internal class Lang02InstructionsTest {
         Qux / 2 Abc<Bar>, MC OR (Foo, Qux, MC), -Foo, 2 Bar FROM Wau?
         Wau<Foo> FROM Foo!, (MC: 2 MC) OR (MC, 2 MC / Foo) OR -Qux / Foo
         (Plant OR Heat): (Ok BY Plant(NOT Steel)) BY Heat<Plant<Steel<Heat>>>
-        -X Wau<Ahh<Ahh>, Bar(NOT Foo<Abc>)>, PROD[-MC OR (Foo FROM Qux<Abc>)]
+        -X Wau<Ahh<Ahh>, Bar(NOT Foo<Abc>)>, PROD[-MC OR Foo FROM Qux<Abc>]
         Steel<Heat> FROM Plant!, (Heat: 2 Heat) OR (Heat, 2 Heat / Plant) OR -Steel / Plant
         """
     )
@@ -519,7 +519,10 @@ internal class Lang02InstructionsTest {
     roundTrip<InstructionTree>("Plant FROM This / This")
     roundTrip<InstructionTree>("Plant: (Heat, -5 Steel)")
     roundTrip<InstructionTree>("(Plant, Heat) OR Steel")
-    roundTrip<InstructionTree>("(Plant FROM Heat) OR Steel")
+    roundTrip<InstructionTree>("(Plant FROM Heat) OR Steel", "Plant FROM Heat OR Steel")
+    roundTrip<InstructionTree>("Plant FROM Heat OR Steel")
+    roundTrip<InstructionTree>("Plant OR Heat FROM Steel")
+    roundTrip<Effect>("ScienceTag: ProjectCard FROM ProjectCard OR Ok")
     roundTrip<InstructionTree>("Plant OR Heat THEN Steel", "(Plant OR Heat) THEN Steel")
     roundTrip<InstructionTree>(
         "PROD[MC, -MC., PROD[MC: -MC], (MC, (Bar, 5 Foo))]",

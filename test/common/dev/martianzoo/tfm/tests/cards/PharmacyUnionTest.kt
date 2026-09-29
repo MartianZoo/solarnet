@@ -58,7 +58,7 @@ internal class PharmacyUnionTest : CardTest() {
     manual.runOperation("$Research") {
       doTask("TerraformRating FROM Disease<$PharmacyUnion>")
       doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
-      doTask("3 TerraformRating")
+      repeat(3) { doTask("TerraformRating") }
       doTask("2 ProjectCard")
     }
 
@@ -80,7 +80,7 @@ internal class PharmacyUnionTest : CardTest() {
 
     manual.runOperation("$Research") {
       doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
-      doTask("3 TerraformRating")
+      repeat(3) { doTask("TerraformRating") }
       // Decline the second science tag's attempt to flip Pharmacy Union again.
       declineTask()
       doTask("2 ProjectCard")
@@ -100,7 +100,7 @@ internal class PharmacyUnionTest : CardTest() {
 
     manual.runOperation("$PhysicsComplex") {
       doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
-      doTask("3 TerraformRating")
+      repeat(3) { doTask("TerraformRating") }
     }
 
     p1.count("MC") shouldBe moneyBefore
@@ -120,7 +120,7 @@ internal class PharmacyUnionTest : CardTest() {
 
     manual.runOperation("$RegolithEaters") {
       doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
-      doTask("3 TerraformRating")
+      repeat(3) { doTask("TerraformRating") }
       doTask("-4 MC")
       // Decline placing disease after Pharmacy Union has left play.
       declineTask()

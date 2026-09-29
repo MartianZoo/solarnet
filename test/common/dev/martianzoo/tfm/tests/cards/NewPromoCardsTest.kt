@@ -5,6 +5,7 @@ import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
@@ -283,5 +284,80 @@ internal class NewPromoCardsTest : CardTest() {
     p1.runOperation("MiningRights_SpecialTile<Tharsis_2_2>")
 
     p1.cardAction1(RedShips).expect("2 MC")
+  }
+
+  @Test
+  internal fun `Kaguya creates a new Philares adjacency without renewing an Arcadian reservation`() {
+    newGame(PromoCardPack)
+    val p2 = requireP2()
+    p1.playCorp(ArcadianCommunities, 1)
+    p2.playCorp(Philares, 0)
+    admin.phase("Action")
+    p1.stdAction("DoRequiredActionsAction") { doTask("Community<Tharsis_4_2>") }
+    p2.stdAction("DoRequiredActionsAction") { placeTile(4, 1) }
+    p1.stdProject("GreeneryProject") {
+      placeTile(4, 2)
+      p2.doTask("Steel")
+    }
+    p1.count("Community<Tharsis_4_2>") shouldBe 0
+    p1.playProject(KaguyaTech, 10) {
+          doTask("CityTile<Tharsis_4_2> FROM GreeneryTile<Tharsis_4_2>")
+          p2.doTask("Titanium")
+        }
+        .expect("-10 MC, Titanium<Player2>")
+  }
+
+  @Test
+  internal fun `Neptunian Power Consultants may decline an affordable ocean bonus`() {
+    declineNeptunianBonus(5)
+  }
+
+  @Test
+  internal fun `An unaffordable Neptunian bonus does not block an opponent's ocean`() {
+    declineNeptunianBonus(0)
+  }
+
+  private fun declineNeptunianBonus(spareMc: Int) {
+    newGame(PromoCardPack)
+    val p2 = requireP2()
+    admin.phase("Action")
+    p1.runOperation("${14 + spareMc} MC, ProjectCard")
+    p2.runOperation("18 MC")
+    p1.playProject(NeptunianPowerConsultants, 14)
+
+    p2.stdProject("AquiferProject") {
+          placeTile(1, 2)
+          p1.declineTask()
+        }
+        .expect(
+            "OceanTile, TerraformRating<Player2>, PROD[0 Energy<Player1>], " +
+                "0 Hydroelectric<Player1>, 0 MC<Player1>"
+        )
+  }
+
+  @Test
+  internal fun `Cathedrals allow steel payment and an optional draw but do not score as resources`() {
+    newGame(Hellas, PromoCardPack)
+    val p2 = requireP2()
+    p1.playCorp(CrediCor, 1)
+    p2.playCorp(MiningGuild, 1)
+    admin.phase("Action")
+    p1.runOperation("2 Steel")
+    p1.stdProject("CityProject") { placeTile(4, 2) }
+    p2.playProject(Pets, 10)
+    p1.playProject(StJosephOfCupertinoMission, 7)
+
+    p1.cardAction1(StJosephOfCupertinoMission) {
+          p1.pay(mc = 1, steel = 2)
+          doTask("Cathedral<CityTile<Anyone, Hellas_4_2>>")
+          // Decline paying 2 MC for the city owner's card draw.
+          declineTask()
+        }
+        .expect("Cathedral, -2 Steel, -1 MC, 0 ProjectCard")
+
+    p1.fundAward(cn("Excentric"), 8)
+    admin.runOperation("End FROM Phase")
+    p1.count("FirstPlace<Excentric>") shouldBe 0
+    p2.count("FirstPlace<Excentric>") shouldBe 1
   }
 }

@@ -233,6 +233,12 @@ transitional Module subtypes, though a Content group should not be an ambient Mo
 has `Prelude2CardPack`, not a second Prelude rules Module. The Milestones & Awards bundle has no
 Module; its goals are currently selected individually.
 
+Known incompatible Content pairs are checked against the complete game Class table by
+`TerraformingMars.premiseRequirement`. The non-default `Unsafe` Module permits those pairs.
+`autoSelectWhen` on cards and goals supplies ordinary pool preferences. Explicit Content
+selection overrides a preference but still fails the final requirement unless `Unsafe` is selected.
+Ecology Experts is individually selectable but absent from the normal Prelude 1 pool.
+
 A content-local Class supplies a particular item's state or rule: map areas, special tiles, remote
 areas, watchers, markers, special placement bonuses, ruling policies, and exceptional custom metrics
 or instructions are examples. Keep it next to the item that needs it. A card's `components` field
@@ -310,6 +316,10 @@ Printed card titles are typeset in all caps and carry no case information. Engli
 text is Title Case with **every** word capitalized, including articles and prepositions and
 including the word after a hyphen: `Import Of Advanced GHG`, `Board Of Directors`,
 `Anti-Desertification Techniques`.
+
+Preserve punctuation from the printed card scans, even when ordinary English might suggest a
+different hyphenation. Use [the card scans](https://tm.hadronikle.com/), rather than transcribed
+database titles, as the evidence.
 
 **Two classes may share display text, and often must.** Whenever a Class Name was qualified to break
 a collision, the display name drops the qualifier and goes back to the printed title, so the clash

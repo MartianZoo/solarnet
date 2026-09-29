@@ -4,6 +4,7 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -13,14 +14,14 @@ import kotlin.test.Test
 internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
   // Player-record evidence: Hellas, Corporate Era, Venus, Prelude, Prelude 2, drafting, World
   // Government, two players, and these full-random milestone and award pools.
-  // Unsupported component: Builder and Sponsor substitute for unsupported Thawer and Briber.
+  // This replay still uses Builder and Sponsor stand-ins for Thawer and Briber.
   // Player-record evidence: Merger was dealt despite promo cards being disabled, so it is included
   // individually without enabling PromoCardPack.
   override val config =
       GameConfig(
           """
           HellasMap
-          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, Merger
+          VenusNextExpansion, PreludeExpansion, Prelude2CardPack, Merger, SagittaFrontierServices, Unsafe
           FakeStuffBundle
 
           Energizer, Builder, Generalist, Diversifier, Terraformer, Sponsor
@@ -292,7 +293,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
         // Green drew 1 card(s)
         // You drew House Printing
         draw(HousePrinting)
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
       }
       // Green ended turn
     }
@@ -743,7 +744,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
         // Green drew 1 card(s)
         // You drew Space Mirrors
         draw(SpaceMirrors)
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
       }
       // Green ended turn
     }
@@ -1029,8 +1030,8 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
         // Green drew 1 card(s)
         // You drew Venus Soils
         draw(VenusSoils)
-        doTask("-ProjectCard")
-        doTask("-ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
+        doTask("ProjectCard FROM ProjectCard")
       }
     }
     pink.turn {

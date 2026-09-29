@@ -348,7 +348,7 @@ private fun renderDashboard(recording: GameRecording.Playback, player: Player) {
       corporation?.className,
       corporation?.let { displayName(game.reader.catalog, it.className) },
   )
-  val phase = game.reader.getComponents("Phase").singleOrNull()
+  val phase = game.reader.getComponents(cn("Phase").expression).singleOrNull()
   setClassValue(
       "phase",
       phase?.className,

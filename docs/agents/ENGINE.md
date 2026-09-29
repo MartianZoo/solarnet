@@ -91,9 +91,10 @@ Removing the final target cascades through existing dependents before the reques
 retried. The graph owns the reverse-dependency index, while the engine owns the decision to cascade.
 
 Every live mutation is an exact gain, removal, or transmutation. A transmutation removes before it
-gains. A direct Signal is represented as a self-transmutation so both trigger directions can observe
-it without changing resting multiplicity. `Custom` Classes never become components: their Kotlin
-implementations calculate metrics or translate instructions.
+gains. A same-Type transmutation records both directions without changing multiplicity and requires
+an existing source. A direct Signal uses the same paired event without requiring an existing source.
+`Custom` Classes never become components: their Kotlin implementations calculate metrics or translate
+instructions.
 
 The event log contains:
 
@@ -138,8 +139,9 @@ delegation. These identities are independent; use [IDENTITY.md](IDENTITY.md) bef
 
 Queue admission normalizes an `InstructionGroup` into one Task per independent member. `A THEN B`
 stores A as current work and B as a continuation; completing A admits B as ordinary work with no
-priority over unrelated Tasks. If an open linked variable prevents safe splitting, normalization can
-defer the split until narrowing binds it.
+priority over unrelated Tasks. If the first stage uses an open shared variable, normalization
+defers its split until narrowing selects that value. Unrelated earlier stages can split, retaining
+the shared scope in their continuation.
 
 An Actor advances work by selecting a Task or narrowing one of its remaining choices. Selection
 locks the entire World against competing mutation until that Task finishes. It is an ordering

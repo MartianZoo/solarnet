@@ -187,7 +187,7 @@ internal class Spec12InhabitanceTest {
             .classTable
 
     shouldThrow<InvalidPetDefinitionException> { view.componentLimits }.message shouldContain
-        "Holder -> LocalTarget"
+        "`Holder` -> `LocalTarget`"
   }
 
   @Test

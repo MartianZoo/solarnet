@@ -116,6 +116,10 @@ defines that optional guarantee. A caller may instead install a policy with no s
 
 ## Replay identity preservation
 
+The broader selected external card-tracking direction is owned by
+[CARD_HANDLING.md](CARD_HANDLING.md#selected-game-playing-direction). This replay-specific proposal
+does not define that production API.
+
 > **Proposal:** Source-backed Terraforming Mars replays need a policy that preserves choices whose
 > anonymous engine representation would otherwise erase source-known card identity.
 

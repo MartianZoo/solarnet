@@ -145,15 +145,16 @@ internal abstract class TfmTest {
         requireNotNull(cardResourceType(reader.tfmCatalog.card(card))) {
           "$card does not hold card resources"
         }
+    val resourceClass = reader.resolve(resourceType.expression).rootClass
+    val cardClass = reader.resolve(card.expression).rootClass
     val gain =
         tasks
             .flatMap { it.instruction.descendantsOfType<Gain>() }
             .single {
+              val gaining = reader.resolve(it.gaining)
               (count == null || it.count == ActualScalar(count)) &&
-                  reader
-                      .resolve(resourceType.expression)
-                      .rootClass
-                      .isSubtypeOf(reader.resolve(it.gaining).rootClass)
+                  resourceClass.isSubtypeOf(gaining.rootClass) &&
+                  cardClass.isSubtypeOf(gaining.typeDependencies.last().boundType.rootClass)
             }
     val arguments = gain.gaining.arguments.toMutableList()
     if (arguments.isEmpty()) arguments += card.expression

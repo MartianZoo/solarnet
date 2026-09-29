@@ -1,6 +1,7 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.PetTransformer.Companion.chain
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.ClassName
@@ -156,7 +157,13 @@ public abstract class PetTransformer protected constructor() {
 
   /** Transforms heterogeneous infrastructure data without promising or checking a result kind. */
   // TODO: Contract this temporary tfm-canon seam.
-  public fun transformWithoutKindCheck(node: PetNode): PetNode = transformNode(node)
+  public fun transformWithoutKindCheck(node: PetNode): PetNode =
+      try {
+        transformNode(node)
+      } catch (e: PetException) {
+        if (e.sourceLocation == null) e.sourceLocation = node.sourceLocation
+        throw e
+      }
 
   private fun <P : PetNode> transformAsKind(node: PetNode, requiredKind: KClass<P>): P {
     val transformed = transformWithoutKindCheck(node)
@@ -357,6 +364,10 @@ public abstract class PetTransformer protected constructor() {
             is Cost.Per -> Cost.Per(transformCost(node.cost), transformMetric(node.metric))
             is Cost.Transform -> Cost.Transform(transformCost(node.cost), node.transformKind)
           }
+    }.also { transformed ->
+      if (transformed !== node && transformed.sourceLocation == null) {
+        transformed.sourceLocation = node.sourceLocation
+      }
     }
   }
 }

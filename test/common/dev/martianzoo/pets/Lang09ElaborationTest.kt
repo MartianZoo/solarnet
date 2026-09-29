@@ -2,7 +2,6 @@ package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
-import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -222,7 +221,7 @@ internal class Lang09ElaborationTest {
   }
 
   @Test
-  internal fun `L9-12 invalid property evaluations explain the invalid definition`() {
+  internal fun `L9-12 invalid property evaluations explain the invalid expression`() {
     val table =
         testCatalog(
                 """
@@ -238,22 +237,22 @@ internal class Lang09ElaborationTest {
             .classTable
     val elaborator = PetElaborator(table)
 
-    shouldThrow<InvalidPetDefinitionException> {
+    shouldThrow<ExpressionException> {
       elaborator.evaluateProperties(parse<Metric>("EVAL score"), parse("Holder"))
     }
-    shouldThrow<InvalidPetDefinitionException> {
+    shouldThrow<ExpressionException> {
       elaborator.evaluateProperties(parse<Metric>("EVAL Holder.missing"), parse("Holder"))
     }
-    shouldThrow<InvalidPetDefinitionException> {
+    shouldThrow<ExpressionException> {
       elaborator.evaluateProperties(parse<Metric>("EVAL Holder.requirement"), parse("Holder"))
     }
-    shouldThrow<InvalidPetDefinitionException> {
+    shouldThrow<ExpressionException> {
       elaborator.evaluateProperties(
           parse<InstructionTree>("EVAL Holder.score: Plant"),
           parse("Holder"),
       )
     }
-    shouldThrow<InvalidPetDefinitionException> {
+    shouldThrow<ExpressionException> {
       elaborator.evaluateProperties(parse<Metric>("EVAL Recursive.score"), parse("Recursive"))
     }
   }

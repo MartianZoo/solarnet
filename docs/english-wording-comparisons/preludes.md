@@ -209,6 +209,7 @@ Pets declaration:
 ```pets
 CLASS EcologyExperts : CardFront<Class<PreludeCard>> {
   cost = 0
+  autoSelectWhen = HAS "MAX 0 Prelude1CardPack"
   This:: PlantTag<This>, MicrobeTag<This>
   This: PROD[Plant], PlayCard THEN -Required / Required
 }
@@ -741,6 +742,24 @@ CLASS DoubleDown : CardFront<Class<PreludeCard>> {
 }
 ```
 
+### Established Methods
+
+Class: `EstablishedMethods`
+
+| | Bottom | Top |
+| --- | --- | --- |
+| Printed text | Gain 30 M€. Then immediately pay and perform 2 standard projects. | — |
+| Generated text | Gain 30 M€. Use a standard project with a positive printed cost. Use a standard project with a positive printed cost. | — |
+
+Pets declaration:
+
+```pets
+CLASS EstablishedMethods : CardFront<Class<PreludeCard>> {
+  cost = 0
+  This: 30 MC, UseAction<StandardProject(HAS cost)>!, UseAction<StandardProject(HAS cost)>!
+}
+```
+
 ### Giant Solar Collector
 
 Class: `GiantSolarCollector`
@@ -774,6 +793,7 @@ Pets declaration:
 ```pets
 CLASS Merger : CardFront<Class<PreludeCard>> {
   cost = 0
+  autoSelectWhen = HAS "Unsafe OR MAX 0 SagittaFrontierServices"
   This: StandardCorporationCard THEN PlayCard<Class<StandardCorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>)>, -42 MC
 }
 ```
@@ -792,7 +812,7 @@ Pets declaration:
 ```pets
 CLASS NewPartner : CardFront<Class<PreludeCard>> {
   cost = 0
-  This: PROD[MC], PreludeCard THEN PlayCard<Class<PreludeCard>>
+  This: PROD[MC], PreludeCard THEN PlayOrFizzle
 }
 ```
 
@@ -843,7 +863,7 @@ Class: `BoardOfDirectors`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Add 4 director resources here. | Action: DRAW 1 PRELUDE CARD: EITHER DISCARD IT, OR PAY 12 M€ AND REMOVE 1 DIRECTOR RESOURCE FROM HERE TO PLAY IT |
-| Generated text | Add 4 director resources to this card. | Action: Draw 1 prelude card. Discard 1 prelude card or pay 12 M€ and remove 1 director resource from this card to play a prelude card. |
+| Generated text | Add 4 director resources to this card. | Action: Draw 1 prelude card. Discard 1 prelude card or remove 12 M€, then remove 1 director resource from this card, then \[PlayOrFizzle\]. |
 
 Pets declaration:
 
@@ -852,7 +872,7 @@ CLASS BoardOfDirectors : ActionCard, ResourceCard<Class<Director>, Class<Prelude
   cost = 0
   This:: EarthTag<This>
   This: 4 Director<This>
-  -> PreludeCard, -PreludeCard OR (-12 MC THEN -Director<This> THEN PlayCard<Class<PreludeCard>>)
+  -> PreludeCard, -PreludeCard OR (-12 MC THEN -Director<This> THEN PlayOrFizzle)
 }
 ```
 
@@ -949,7 +969,7 @@ Pets declaration:
 CLASS IndustrialComplex : CardFront<Class<PreludeCard>> {
   cost = 0
   This:: BuildingTag<This>
-  This: -18 MC, EACH Class<@StandardResource> { PROD[@StandardResource / (Class<@StandardResource> OR QuickStartVariant OR ProdOffset<Class<@StandardResource>>) - Production<Class<@StandardResource>>] }
+  This: -18 MC, PROD[EACH Class<@StandardResource> { @StandardResource / (Class<@StandardResource> OR QuickStartVariant OR ProdOffset<Class<@StandardResource>>) - Production<Class<@StandardResource>> }]
 }
 ```
 
@@ -1010,6 +1030,27 @@ CLASS PlanetaryAlliance : CardFront<Class<PreludeCard>> {
   cost = 0
   This:: EarthTag<This>, JovianTag<This>, VenusTag<This>
   This: 2 TerraformRating, SearchForCard<TagFilter<Class<JovianTag>>>, SearchForCard<TagFilter<Class<VenusTag>>>
+}
+```
+
+### Preservation Program
+
+Class: `PreservationProgram`
+
+| | Bottom | Top |
+| --- | --- | --- |
+| Printed text | Raise your TR 5 steps. | Effect: SKIP THE FIRST TR YOU GAIN IN EACH GENERATION'S ACTION PHASE |
+| Generated text | Raise your terraform rating 5 steps. | Effect: \[X TerraformRating IF (ActionPhase, MAX 0 ActionPhaseTrGain):: -TerraformRating\]. |
+
+Pets declaration:
+
+```pets
+CLASS PreservationProgram : CardFront<Class<PreludeCard>> {
+  HAS Class<PreservationTrWatcher>
+  cost = 0
+  autoSelectWhen = HAS "Unsafe OR MAX 0 Prelude2CardPack"
+  This: 5 TerraformRating
+  X TerraformRating IF (ActionPhase, MAX 0 ActionPhaseTrGain):: -TerraformRating
 }
 ```
 
@@ -1325,44 +1366,5 @@ CLASS FakeNobelPrize : CardFront<Class<PreludeCard>> {
   This:: FakeWildTag<This>
   This: 5 MC, 2 ProjectCard
   End: 2 VictoryPoint
-}
-```
-
-### Preservation Program
-
-Class: `FakePreservationProgram`
-
-| | Bottom | Top |
-| --- | --- | --- |
-| Printed text | Raise your TR 5 steps. | Effect: SKIP THE FIRST TR YOU GAIN IN EACH GENERATION'S ACTION PHASE |
-| Generated text | Raise your terraform rating 5 steps. | Effect: \[TerraformRating IF ActionPhase:: FakePreservationTrLost&lt;This&gt;.\]. |
-
-Pets declaration:
-
-```pets
-"Preservation Program that reverses the first action-phase TR gain instead of preventing it"
-CLASS FakePreservationProgram : CardFront<Class<PreludeCard>> {
-  cost = 0
-  This: 5 TerraformRating
-  TerraformRating IF ActionPhase:: FakePreservationTrLost<This>.
-}
-```
-
-### Established Methods
-
-Class: `FakeEstablishedMethods`
-
-| | Bottom | Top |
-| --- | --- | --- |
-| Printed text | Gain 30 M€. Then immediately pay and perform 2 standard projects. | — |
-| Generated text | Gain 30 M€. Use an action. Use an action. | — |
-
-Pets declaration:
-
-```pets
-"Established Methods without its unaffordable-second-project rule"
-CLASS FakeEstablishedMethods : CardFront<Class<PreludeCard>> {
-  cost = 0
-  This: 30 MC, UseAction<StandardAction>!, UseAction<StandardAction>!
 }
 ```

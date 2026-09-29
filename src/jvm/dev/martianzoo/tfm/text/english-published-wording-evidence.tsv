@@ -101,7 +101,7 @@ MainBeltAsteroids	Main Belt Asteroids	Lose 5 M€. 1 VP per 2 asteroids here.	Ac
 FakeNobelPrize	Nobel Prize	Gain 5 M€. Draw 2 cards with requirements.	
 OldMiningColony	Old Mining Colony	Increase your titanium production 1 step. Place 1 colony. Discard 1 card.	
 PlanetaryAlliance	Planetary Alliance	Raise your TR 2 steps. Draw 1 Jovian card and 1 Venus card.	
-FakePreservationProgram	Preservation Program	Raise your TR 5 steps.	Effect: SKIP THE FIRST TR YOU GAIN IN EACH GENERATION'S ACTION PHASE
+PreservationProgram	Preservation Program	Raise your TR 5 steps.	Effect: SKIP THE FIRST TR YOU GAIN IN EACH GENERATION'S ACTION PHASE
 ProjectEden	Project Eden	Place 1 ocean tile, 1 city tile, and 1 greenery tile. Discard 3 cards.	
 Recession	Recession	EACH OPPONENT loses 5 M€ and decreases their M€ production 1 step. You gain 10 M€.	
 RiseToPower	Rise To Power	Increase your M€ production 3 steps and place 3 delegates. YOU MAY PLACE THEM IN SEPARATE PARTIES.	
@@ -113,7 +113,7 @@ VenusContract	Venus Contract	Draw 1 Venus card. Raise your TR 1 step.	Effect: Ea
 VenusL1Shade	Venus L1 Shade	Raise Venus 3 steps.	
 WorldGovernmentAdvisor	World Government Advisor	Raise your TR 2 steps. Draw 1 card.	Action: RAISE 1 GLOBAL PARAMETER WITHOUT GETTING ANY TR OR OTHER BONUSES
 AntiDesertificationTechniques	Anti Desertification Techniques	Increase your plant and steel production 1 step each. Gain 3 M€.	
-FakeEstablishedMethods	Established Methods	Gain 30 M€. Then immediately pay and perform 2 standard projects.	
+EstablishedMethods	Established Methods	Gain 30 M€. Then immediately pay and perform 2 standard projects.
 GiantSolarCollector	Giant Solar Collector	Increase your energy production 2 steps. Raise Venus 1 step.	
 StrategicBasePlanning	Strategic Base Planning	Requires that you spend 3 M€. Place 1 colony and 1 city tile.	
 AlbedoPlants	Albedo Plants	Increase plant production 1 step. Gain 1 plant.	Effect: When you play a plant tag, including this, gain 3 heat.
@@ -457,7 +457,7 @@ FrontierTown	Frontier Town	Requires that Mars First is ruling or that you have 2
 GhgShipment	GHG Shipment	Requires that the Kelvinists are ruling or that you have 2 delegates there. Increase your heat production 1 step and gain 1 heat for each floater you have.	
 IshtarExpedition	Ishtar Expedition	Requires Venus 10%. Gain 3 titanium and draw 2 Venus cards.	
 JovianEnvoys	Jovian Envoys	Requires 2 Jovian tags. Place 2 delegates in 1 party.	
-FakeL1TradeTerminal	L1 Trade Terminal	Add a resource to 3 different cards that already have resources.	Effect: When you trade, you may first increase that colony track 2 steps.
+L1TradeTerminal	L1 Trade Terminal	Add a resource to 3 different cards that already have resources.	Effect: When you trade, you may first increase that colony track 2 steps.
 MicrogravityNutrition	Microgravity Nutrition	Increase your M€ production 1 step for each colony you have.	
 RedAppeasement	Red Appeasement	Requires that Reds are ruling or that you have 2 delegates there, AND THAT NO OTHER PLAYER HAS PASSED. Increase M€ production 2 steps. THIS COUNTS AS PASSING; you get no more turns this generation.	
 SoilStudies	Soil Studies	Requires that temperature is -4°C or colder. Gain 1 plant for each Venus tag, plant tag (including this), and colony you have.	

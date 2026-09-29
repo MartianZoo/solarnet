@@ -73,6 +73,9 @@ private fun renderChangeOrNull(
     }
   }
   if (instruction is Transmute) {
+    renderCardBackExchange(instruction, describers)?.let {
+      return it
+    }
     renderPlayedEventRecovery(instruction, describers)?.let {
       return it
     }
@@ -495,6 +498,29 @@ private fun renderNextCardEffect(
       effect,
       describers,
       NounPhrase.text("the next card you play this generation"),
+  )
+}
+
+private fun renderCardBackExchange(
+    transmute: Transmute,
+    describers: Describers,
+): Clause? {
+  if (transmute.quantifier.modality() != Modality.REQUIRED) return null
+  val count = transmute.count.fixedQuantity() ?: return null
+  val gained = transmute.gaining
+  val removed = transmute.removing
+  if (!gained.simple || !removed.simple) return null
+  if (
+      describers.changeFrame(gained.className) != ComponentDescriber.ChangeFrame.Deck ||
+          describers.changeFrame(removed.className) != ComponentDescriber.ChangeFrame.Deck ||
+          !describers.concrete(gained.className) ||
+          !describers.concrete(removed.className)
+  ) {
+    return null
+  }
+  return attachPurpose(
+      listOf(clause("discard", describers.quantifiedComponentNounPhrase(removed.className, count))),
+      clause("draw", describers.quantifiedComponentNounPhrase(gained.className, count)),
   )
 }
 

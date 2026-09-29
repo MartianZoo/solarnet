@@ -104,7 +104,7 @@ internal class InitializerTest {
 
     val failure = shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
 
-    failure.message.orEmpty().shouldInclude("RequiredAtBootstrap (found 0, expected 1)")
+    failure.message.orEmpty().shouldInclude("`RequiredAtBootstrap` (found 0, expected 1)")
   }
 
   @Test
@@ -151,7 +151,7 @@ internal class InitializerTest {
 
     val failure = shouldThrow<InvalidGameConfigException> { Engine.newGame(premise) }
 
-    failure.message.orEmpty().shouldInclude("Marker<Right> (found 0, expected 1)")
+    failure.message.orEmpty().shouldInclude("`Marker<Right>` (found 0, expected 1)")
     failure.message.orEmpty().shouldNotInclude("Marker<Left>")
     failure.message.orEmpty().shouldNotInclude("Marker<Absent>")
   }

@@ -53,15 +53,8 @@ private object EnglishTextComparisonGenerator {
         candidate?.isSubtypeOf(catalog.classTable.getClass(cn(category.superclass))) == true
       }
     }
-    // The evidence retains Thawer's printed identity; only its replay variant is modeled.
-    val evidenceNames = mapOf(cn("FakeThawer") to cn("Thawer"))
     val missingComponents =
-        (cards.keys + goals.keys + events.keys) -
-            components
-                .flatMap {
-                  listOf(it.className, evidenceNames[it.className] ?: it.className)
-                }
-                .toSet()
+        (cards.keys + goals.keys + events.keys) - components.map { it.className }.toSet()
     require(missingComponents.isEmpty()) { "Evidence has unlisted components: $missingComponents" }
     val bundleNames =
         listOf(
@@ -134,9 +127,7 @@ private object EnglishTextComparisonGenerator {
                   .forEach { component ->
                     val name = component.className
                     val printedCard = cards[name]
-                    val printedText =
-                        (if (category.id == "global-events") events else goals)[
-                            evidenceNames[name] ?: name]
+                    val printedText = (if (category.id == "global-events") events else goals)[name]
                     val printedName = printedCard?.englishName ?: printedText?.englishName
                     val title = printedName ?: displayName(catalog, name)
                     val hasEvidence =
@@ -198,7 +189,7 @@ private object EnglishTextComparisonGenerator {
               )
               appendLine()
               appendLine(
-                  "Coverage includes every canonical card, milestone, award, and global event, plus the abstract Beginner Corporation, replay-only card models named in the published evidence, and replay-only goals. Thawer’s printed evidence is paired with `FakeThawer`, its only modeled variant. Replay-only models are listed separately; they may deliberately differ from the physical cards. Classes distinguish names shared by different milestone or award variants."
+                  "Coverage includes every canonical card, milestone, award, and global event, plus the abstract Beginner Corporation and replay-only card models named in the published evidence. Replay-only models are listed separately; they may deliberately differ from the physical cards. Classes distinguish names shared by different milestone or award variants."
               )
               appendLine()
               appendLine(

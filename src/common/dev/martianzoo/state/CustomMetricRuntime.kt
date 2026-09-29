@@ -2,6 +2,7 @@ package dev.martianzoo.state
 
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.CustomCodeException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.types.Type
@@ -35,8 +36,16 @@ internal class CustomMetricRuntime(
     val count =
         try {
           implementation.countAbstract(reader, type)
+        } catch (e: NotImplementedError) {
+          throw CustomCodeException(
+              "custom metric failed for `${type.expressionFull}`: ${e.message}",
+              e,
+          )
         } catch (e: RuntimeException) {
-          throw CustomCodeException("Custom metric failed for ${type.expressionFull}", e)
+          throw CustomCodeException(
+              "custom metric failed for `${type.expressionFull}`: ${e.message}",
+              e,
+          )
         }
     count?.let { requireValidCount(type, it) }
     return count
@@ -46,8 +55,16 @@ internal class CustomMetricRuntime(
     val count =
         try {
           implementationFor(type).count(reader, type)
+        } catch (e: NotImplementedError) {
+          throw CustomCodeException(
+              "custom metric failed for `${type.expressionFull}`: ${e.message}",
+              e,
+          )
         } catch (e: RuntimeException) {
-          throw CustomCodeException("Custom metric failed for ${type.expressionFull}", e)
+          throw CustomCodeException(
+              "custom metric failed for `${type.expressionFull}`: ${e.message}",
+              e,
+          )
         }
     requireValidCount(type, count)
     return count
@@ -55,13 +72,13 @@ internal class CustomMetricRuntime(
 
   private fun implementationFor(type: Type) =
       catalog.customMetric(type.className)
-          ?: throw CustomCodeException(
-              "Custom class `${type.className}` has no metric implementation"
+          ?: throw ExpressionException(
+              "custom class `${type.className}` has no metric implementation"
           )
 
   private fun requireValidCount(type: Type, count: Int) {
     if (count < 0) {
-      throw CustomCodeException("Custom metric `${type.expressionFull}` returned $count")
+      throw CustomCodeException("custom metric `${type.expressionFull}` returned $count")
     }
   }
 }

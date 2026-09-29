@@ -419,13 +419,13 @@ Class: `Philantropist`
 | | Text |
 | --- | --- |
 | Printed text | 5 cards with non-negative VP. (Cards that count 1 VP per 2 microbes or similar cards also count.) |
-| Generated text | \[5 CardFront(HAS GainsOf&lt;Class&lt;VictoryPoint&gt;&gt;)\]. |
+| Generated text | \[5 Class&lt;CardFront&gt;(HAS CardFront&lt;Owner&gt;, HAS GainsOf&lt;Class&lt;VictoryPoint&gt;&gt;)\]. |
 
 Pets declaration:
 
 ```pets
 CLASS Philantropist : Milestone {
-  requirement = HAS "5 CardFront(HAS GainsOf<Class<VictoryPoint>>)"
+  requirement = HAS "5 Class<CardFront>(HAS CardFront<Owner>, HAS GainsOf<Class<VictoryPoint>>)"
 }
 ```
 
@@ -513,6 +513,25 @@ Pets declaration:
 ```pets
 CLASS Terraformer : Milestone {
   requirement = HAS "29 TerraformRating"
+}
+```
+
+### Thawer
+
+Class: `Thawer`
+
+| | Text |
+| --- | --- |
+| Printed text | Having raised temperature 5 times. (Mark with your player marker on the temperature track each time you raise temperature until claimed.) |
+| Generated text | \[5 ThawerCredit\]. |
+
+Pets declaration:
+
+```pets
+"Counts temperature increases made by the claiming player"
+CLASS Thawer : Milestone {
+  HAS Class<ThawerWatcher>
+  requirement = HAS "5 ThawerCredit"
 }
 ```
 
@@ -878,25 +897,5 @@ Pets declaration:
 ```pets
 CLASS Fundraiser : Milestone {
   requirement = HAS "PROD[12 (MC - ProdOffset<Class<MC>>)]"
-}
-```
-
-## Replay-only models
-
-### Thawer
-
-Class: `FakeThawer`
-
-| | Text |
-| --- | --- |
-| Printed text | Having raised temperature 5 times. (Mark with your player marker on the temperature track each time you raise temperature until claimed.) |
-| Generated text | \[5 FakeTemperatureCredit\]. |
-
-Pets declaration:
-
-```pets
-"Thawer whose temperature credits survive temperature reductions"
-CLASS FakeThawer : Milestone {
-  requirement = HAS "5 FakeTemperatureCredit"
 }
 ```

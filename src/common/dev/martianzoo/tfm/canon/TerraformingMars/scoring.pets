@@ -17,7 +17,7 @@ ABSTRACT CLASS Milestone : Owned<Player> {
 "An award that has been funded"
 ABSTRACT CLASS Award {
   HAS MAX 1 This
-  HAS MAX 3 Award
+  // HAS MAX 3 Award - actually it is only the FundAward standard action that can't fund a 4th award
   metric = Metric
 
   End: MeasureAward<This>

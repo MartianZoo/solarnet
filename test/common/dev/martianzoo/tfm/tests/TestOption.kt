@@ -28,7 +28,8 @@ internal enum class TestOption(private val configuredName: String? = null) : Tes
   PromoCardPack,
   FakeStuffBundle,
   WorldGovernmentRule,
-  MandatoryVenusVariant;
+  MandatoryVenusVariant,
+  Unsafe;
 
   internal val className: ClassName = cn(configuredName ?: name)
 }

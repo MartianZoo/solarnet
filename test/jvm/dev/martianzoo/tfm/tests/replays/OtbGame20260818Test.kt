@@ -8,8 +8,8 @@ import dev.martianzoo.state.GameWorld
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.matchers.shouldBe
-import java.nio.file.Files
 import kotlin.test.Test
 
 /** Live game begun Tue 2026-08-18. Quoted evidence is verbatim from the supplied transcripts. */
@@ -292,7 +292,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     green.turn {
       // "Then I play Mars University for eight... discard one and draw one."
-      playProject(MarsUniversity, 8) { doTask("-ProjectCard") }
+      playProject(MarsUniversity, 8) { doTask("ProjectCard FROM ProjectCard") }
     }
 
     yellow.turn {
@@ -1042,7 +1042,8 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
 
     green.turn {
       // "I'm gonna play advanced alloys." "It costs me nine." "No discounts."
-      playProject(AdvancedAlloys, 9) { doTask("-ProjectCard") }.expect("-ProjectCard")
+      playProject(AdvancedAlloys, 9) { doTask("ProjectCard FROM ProjectCard") }
+          .expect("-ProjectCard")
       // "I am gonna go ahead and play Solar Logistics." "But I spend four titanium on that." "I get
       // two titanium from it. I get a minimal on Martian Zoo. I get a card."
       playProject(SolarLogistics, titanium = 4).expect("-2 Titanium, Animal<$MartianZoo>")
@@ -1347,7 +1348,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // they were in that order."
       sellPatents(1).expect("1 MC, -ProjectCard")
       playProject(RoboticWorkforce, 9) {
-            doTask("-ProjectCard")
+            doTask("ProjectCard FROM ProjectCard")
             doTask("CopyProductionBox<$IndustrialMicrobes>")
           }
           .expect("-9 MC, -ProjectCard, PROD[Steel, Energy]")
@@ -1660,22 +1661,16 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     }
 
     val originalEvents = game.events.entriesSince(Checkpoint(0))
-    val eventLogFile = Files.createTempFile("solarnet-events-", ".json")
-    try {
-      Files.writeString(eventLogFile, EventLogJson.encode(originalEvents))
-      val decodedEvents = EventLogJson.decode(Files.readString(eventLogFile), game.classTable)
-      val reconstructed = GameWorld(gamePremise, decodedEvents)
-      val allComponents = game.classTable.componentClass.baseType
+    val decodedEvents = EventLogJson.decode(EventLogJson.encode(originalEvents), game.classTable)
+    val reconstructed = GameWorld(gamePremise, decodedEvents)
+    val allComponents = game.classTable.componentClass.baseType
 
-      decodedEvents shouldBe originalEvents
-      decodedEvents.map { it.notes } shouldBe originalEvents.map { it.notes }
-      reconstructed.events.entriesSince(Checkpoint(0)) shouldBe originalEvents
-      reconstructed.tasks.extract { it } shouldBe game.tasks.extract { it }
-      reconstructed.components.getAll(allComponents, NoGameState).entries shouldBe
-          game.components.getAll(allComponents, NoGameState).entries
-    } finally {
-      Files.deleteIfExists(eventLogFile)
-    }
+    decodedEvents shouldBe originalEvents
+    decodedEvents.map { it.notes } shouldBe originalEvents.map { it.notes }
+    reconstructed.events.entriesSince(Checkpoint(0)) shouldBe originalEvents
+    reconstructed.tasks.extract { it } shouldBe game.tasks.extract { it }
+    reconstructed.components.getAll(allComponents, NoGameState).entries shouldBe
+        game.components.getAll(allComponents, NoGameState).entries
 
     // "So I'm going to 1-2 and 1-3."
     green.convertPlants { placeTile(1, 2) }.expect("-8 Plant")

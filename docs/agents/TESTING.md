@@ -38,7 +38,7 @@
 
 The wrapper supports and directly uses the JDK selected by `JAVA_HOME` from 17 through 26. JVM code
 targets the Java 17 bytecode and API surface, while Kotlin source and standard-library APIs target
-Kotlin 2.2. Contributors do not need another JDK installed.
+Kotlin 2.2. CI uses Temurin 25 LTS. Contributors do not need another JDK installed.
 
 Start with the smallest test or build task that verifies the changed behavior. Expand verification
 only when the change crosses a wider scope or the narrower result leaves a material risk.
@@ -50,6 +50,12 @@ only when the change crosses a wider scope or the narrower result leaves a mater
   `OtbGame20260828Test` replay once in a browser. The multiplatform modules' JVM test tasks are named
   `jvmTest`; browser tasks other than Web and Almanac are inert outside the one intentionally
   commented-out full-browser target in the root build.
+- Temporarily uncomment `allBrowserTests` in the root build and run
+  `./gradlew allBrowserTests --rerun-tasks` to exercise every shared and browser-specific suite,
+  including all portable replay scenarios. The browser replay source set also reads the legacy
+  `test/jvm/dev/martianzoo/tfm/tests/replays` directory, excluding only its JUnit file-export hook.
+  JVM-only tools and filesystem/terminal tests remain outside this target. Comment the target back
+  out after a successful run.
 - `./gradlew :tfm-tests:jvmTest` runs the replay tests and writes one opaque JSON recording per
   successful `AbstractFullGameTest` subclass under that module's
   `generated/replay-event-logs` build directory. The browser viewer applies those recordings through
@@ -151,8 +157,8 @@ Kotlin/JUnit 5 test dependencies. `solarnet.kmp-jvm-js` configures the JVM and b
 shared `kotlin.test`, and exposes each module's `jvmTest` as `test`.
 Module build scripts under `modules/` keep only module-specific configuration and select their
 non-overlapping package roots from the repository-wide `src/` and `test/` trees; JavaScript-only
-applications configure their targets directly. Repository-wide formatting and Yarn policy remain in
-the root build.
+applications configure their targets directly. Repository-wide formatting, the Node.js version, and
+Yarn policy remain in the root build.
 Dependency and plugin versions are declared in `gradle/libs.versions.toml`, while dependency
 repositories are declared centrally in `settings.gradle.kts`; JitPack is restricted to the pinned
 better-parse fork.
@@ -213,6 +219,14 @@ clear coverage of these contracts matters more than preserving every current tes
 This list does not itself decide which current tests should be retained. Test-deletion proposals
 are a separate review.
 
+Give each scenario variant its own named test, using a private helper for shared steps. Do not put
+variants in a `for` loop inside one test: the failing test name should identify the case.
+Build the cards, production, and tiles the behavior under test depends on through gameplay.
+Use normal operations for incidental setup, including initial money, anonymous card budgets, and
+explicitly acknowledged stand-ins such as `fakeWildTags`; their triggers must still run.
+Use `CONCRETE` when ordering choices matter; reserve `NONE` for tests that must control otherwise
+unambiguous automatic steps.
+
 Prefer tests that exercise several pieces together. Do not mirror a production list or data object
 in a test just to detect that the list changed. Test observable behavior through the normal
 test-facing layer: test the card, rule, or workflow result rather than a private transformation,
@@ -246,12 +260,16 @@ belongs in player-level scenarios.
 Keep scenarios minimal and legible. Card tests use the base game and two players by default unless
 the behavior requires something else, add only relevant options and components, and consistently
 name the gameplay objects `p1` and `p2`. Use `runOperation()` when only the resulting setup matters instead
-of replaying an irrelevant play-card sequence. Avoid `sneak`: it can create impossible states.
+of replaying an irrelevant play-card sequence. Do not use `sneak` in card or rule scenarios: it
+bypasses triggers and can make a broken rule appear to pass.
 Synthetic card scenarios pass their card and supporting `ClassDeclaration`s to the `CardTest`
 constructor; they are composed with Canon and selected in that test's premise.
+When a custom instruction reads authored card metadata from the catalog, compose the synthetic
+card into a fixture `TfmCatalog`; premise-only declarations do not populate that metadata.
 Use `placeTile(row, column)`, `addCardResources(card)`, and `wgt(choice)` instead of spelling their
 routine task expressions. The tile and card-resource helpers require a single matching pending
-choice; keep raw `doTask()` calls where multiple placements are pending.
+choice; card-resource matching includes the destination card, so offers for different cards can
+coexist. Keep raw `doTask()` calls where multiple placements are pending.
 When unrelated optional tasks are pending, pass the pending instruction to `declineTask(instruction)`.
 Inside an existing operation that directly offers a repeated card action, such as Project Inspection,
 use `cardAction1()` or `cardAction2()`; the operation-body overload selects and pays that action
@@ -284,10 +302,9 @@ Cover meaningful interfaces, negative cases, non-targets, and option combination
 the happy path. A filtering or Type-variable test should include several tempting Components that must not
 match. Preserve this coverage during refactoring.
 
-Assert a particular exception subclass only when callers or game semantics depend on that
-classification. Otherwise assert that the command is rejected, state and history remain atomic, and
-the diagnostic identifies the problem. The current distinction among task, abstractness, and
-narrowing exceptions is provisional and should not make an otherwise behavioral test brittle.
+Assert the actual exception type with `shouldThrow<ExpectedException>`; do not use `shouldThrowAny`
+or a catch-all superclass. An unrelated failure must not satisfy a rejection test. Also check the
+relevant unchanged state and, when useful, the diagnostic identifying the problem.
 
 ### Known-defect tests
 

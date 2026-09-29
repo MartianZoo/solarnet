@@ -36,9 +36,7 @@ internal fun testCatalog(
   return object : Catalog {
     override val explicitClassDeclarations: Set<ClassDeclaration> = explicitDeclarations
     override val allClassDeclarations: Map<ClassName, ClassDeclaration> =
-        declarations.associateBy(ClassDeclaration::className).also {
-          require(it.size == declarations.size) { "duplicate test Class declaration" }
-        }
+        ClassDeclaration.indexByName(declarations)
     override val customClasses: Set<CustomClass> = customImplementations
     override val modules: Map<ClassName, Set<ClassSelection>> = moduleSelections
     override val classAvailabilityModules: Map<ClassName, Set<ClassName>> = classAvailabilityModules
@@ -80,6 +78,8 @@ private class FixedWorld(private val answer: (Requirement) -> Boolean) : TypeInf
   override fun ensureNarrows(wide: Expression, narrow: Expression): Unit =
       error("unused by the type system")
 
+  override fun ensureSelectionNarrows(wide: Expression, narrow: Expression): Unit = error("unused")
+
   override fun has(requirement: Requirement): Boolean = answer(requirement)
 }
 
@@ -91,6 +91,8 @@ internal class RecordingWorld(private val answer: Boolean = true) : TypeInfo {
 
   override fun ensureNarrows(wide: Expression, narrow: Expression): Unit =
       error("unused by the type system")
+
+  override fun ensureSelectionNarrows(wide: Expression, narrow: Expression): Unit = error("unused")
 
   override fun has(requirement: Requirement): Boolean {
     questions += "$requirement"

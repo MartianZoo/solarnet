@@ -102,13 +102,19 @@ internal class InstructionResolutionTest {
   }
 
   @Test
-  internal fun reflexiveTransmutationIsInvalidWhenMandatoryAndNoOpOtherwise() {
-    shouldThrow<ExpressionException> { preprocessAndResolve("Plant FROM Plant") }
-    shouldThrow<ExpressionException> { preprocessAndResolve("Plant FROM Plant!") }
-    shouldThrow<ExpressionException> { preprocessAndResolve("Plant<Owner> FROM Plant!") }
-    checkResolution("Plant FROM Plant?", "Ok")
-    checkResolution("Plant FROM Plant.", "Ok")
-    checkResolution("Plant<Owner> FROM Plant?", "Ok")
+  internal fun reflexiveTransmutationUsesAvailableSourceCount() {
+    checkResolution("Plant FROM Plant", "Plant<Player1> FROM Plant<Player1>!")
+    checkResolution("Plant<Owner> FROM Plant!", "Plant<Player1> FROM Plant<Player1>!")
+    checkResolution("2 Plant FROM Plant?", "Plant<Player1> FROM Plant<Player1>?")
+    checkResolution("2 Plant FROM Plant.", "Plant<Player1> FROM Plant<Player1>!")
+    shouldThrow<LimitsException> { preprocessAndResolve("2 Plant FROM Plant!") }
+  }
+
+  @Test
+  internal fun reflexiveTransmutationCannotExchangeAnAbsentSource() {
+    shouldThrow<LimitsException> { preprocessAndResolve("Heat FROM Heat!") }
+    checkResolution("Heat FROM Heat?", "Ok")
+    checkResolution("Heat FROM Heat.", "Ok")
   }
 
   @Test

@@ -19,7 +19,7 @@ Legend	Legend	Requires that you have 4 cards in your event pile.
 Mayor	Mayor	Requires that you have 3 city tiles.
 Merchant	Merchant	Requires that you have 2 M€, 2 steel, 2 titanium, 2 plants, 2 energy, and 2 heat.
 Metallurgist	Metallurgist	Requires that you have 6 titanium or steel production.
-Philantropist	Philantropist	[5 CardFront(HAS GainsOf<Class<VictoryPoint>>)].
+Philantropist	Philantropist	[5 Class<CardFront>(HAS CardFront<Owner>, HAS GainsOf<Class<VictoryPoint>>)].
 Pioneer	Pioneer	Requires that you have 4 colonies.
 Planetologist	Planetologist	Requires 2 Earth tags, 2 Venus tags, and 2 Jovian tags.
 Planner	Planner	Requires that you have 16 cards in hand.
@@ -89,3 +89,4 @@ Terraformer26	Terraformer	Requires that you have 26 terraform rating.
 Terraformer35	Terraformer	Requires that you have 35 terraform rating.
 Tycoon15	Tycoon	Requires that you have 15 active cards in play and automated cards in play combined.
 Venuphile	Venuphile	Most Venus tags.
+Thawer	Thawer	[5 ThawerCredit].

@@ -151,7 +151,11 @@ public abstract class ClassTable {
    * @throws ExpressionException if [name] is unknown.
    */
   public fun getClass(name: ClassName): Class =
-      findClass(name) ?: throw ExpressionException("no class named `$name` in the current game")
+      findClass(name)
+          ?: throw ExpressionException(
+              "no class named `$name` in the current game",
+              sourceLocation = name.sourceLocation,
+          )
 
   /**
    * Returns the class with canonical [name] when its base Type is inhabited in this universe, or

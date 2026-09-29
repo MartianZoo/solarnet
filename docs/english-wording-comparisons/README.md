@@ -15,7 +15,7 @@ Printed wording, current generated English, and authored Pets, grouped by catego
 
 **Not transcribed** means there is no row for that class in the published evidence corpus. An em dash means an existing row or generated region has no text. Square-bracketed Pets in generated text are unresolved renderer fragments, not printed wording.
 
-Coverage includes every canonical card, milestone, award, and global event, plus the abstract Beginner Corporation, replay-only card models named in the published evidence, and replay-only goals. Thawer’s printed evidence is paired with `FakeThawer`, its only modeled variant. Replay-only models are listed separately; they may deliberately differ from the physical cards. Classes distinguish names shared by different milestone or award variants.
+Coverage includes every canonical card, milestone, award, and global event, plus the abstract Beginner Corporation and replay-only card models named in the published evidence. Replay-only models are listed separately; they may deliberately differ from the physical cards. Classes distinguish names shared by different milestone or award variants.
 
 Card tables retain the bottom/top text regions. Costs, tags, fixed victory-point icons, and other icon-only information are outside those text regions. Global events compare resolution text only. Pets blocks serialize each authored class declaration with normalized formatting; they are not transcriptions of the physical component. Inherited behavior is declared on the named superclass (including the five Beginner Corporation copies).
 

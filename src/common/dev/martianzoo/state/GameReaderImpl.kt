@@ -41,6 +41,9 @@ internal class GameReaderImpl(
   override fun ensureNarrows(wide: Expression, narrow: Expression) =
       resolve(narrow).ensureNarrows(resolve(wide), this)
 
+  override fun ensureSelectionNarrows(wide: Expression, narrow: Expression) =
+      resolve(narrow).groundType.ensureSelectionNarrows(resolve(wide), this)
+
   override fun has(requirement: Requirement): Boolean = requirement.isMetBy(::count)
 
   override fun count(metric: Metric): Int =
@@ -49,21 +52,25 @@ internal class GameReaderImpl(
   private fun rank(metric: Rank): Int {
     val selector =
         metric.selector
-            ?: throw ExpressionException("RANK can only omit its selector inside a refinement")
+            ?: throw ExpressionException(
+                "`RANK` can only omit its selector inside a refinement",
+                sourceLocation = metric.sourceLocation,
+            )
     val candidateExpression =
         metric.candidate
             ?: throw ExpressionException(
-                "RANK can only be evaluated while testing a concrete ${metric.selector}"
+                "`RANK` can only be evaluated while testing a concrete `${metric.selector}`",
+                sourceLocation = metric.sourceLocation,
             )
     val candidate = classTable.resolve(candidateExpression)
     if (candidate.isAbstract(this)) {
-      throw ExpressionException("RANK candidate is abstract: ${candidate.expressionFull}")
+      throw ExpressionException("`RANK` candidate is abstract: `${candidate.expressionFull}`")
     }
 
     val peers = getComponents(classTable.resolve(selector)).elements
     if (candidate !in peers) {
       throw ExpressionException(
-          "RANK candidate ${candidate.expressionFull} is not a live $selector"
+          "`RANK` candidate `${candidate.expressionFull}` is not a live `$selector`"
       )
     }
     val candidateScore = rankScore(metric, candidate)
@@ -97,26 +104,33 @@ internal class GameReaderImpl(
   private fun readProperty(property: Property): Int {
     val receiver =
         property.receiver
-            ?: throw ExpressionException("Property `${property.propertyName}` has no receiver")
+            ?: throw ExpressionException(
+                "property `${property.propertyName}` has no receiver; qualify it with a class name",
+                sourceLocation = property.sourceLocation,
+            )
     val receiverType = classTable.resolve(receiver)
     val propertyType = receiverType.representedClass?.baseType ?: receiverType
     val propertyClass = propertyType.rootClass
     return when (val value = propertyClass.properties[property.propertyName]) {
       null ->
           throw ExpressionException(
-              "Class `${propertyClass.className}` has no property `${property.propertyName}`"
+              "class `${propertyClass.className}` has no property `${property.propertyName}`; available properties: " +
+                  propertyClass.properties.keys.joinToString { "`$it`" }.ifEmpty { "none" },
+              sourceLocation = property.propertyName.sourceLocation ?: property.sourceLocation,
           )
       MetricType,
       NumberType,
       OptionalRequirementType,
       RequirementType ->
           throw ExpressionException(
-              "Property `${property.propertyName}` is abstract on `${propertyClass.className}`"
+              "property `${property.propertyName}` is abstract on `${propertyClass.className}`; query a concrete class that supplies its value",
+              sourceLocation = property.propertyName.sourceLocation ?: property.sourceLocation,
           )
       is NumberValue -> value.value
       is MetricValue ->
           throw ExpressionException(
-              "Metric property `${property.propertyName}` must be evaluated in a class effect"
+              "metric property `${property.propertyName}` contains syntax; use `EVAL $property` to evaluate it",
+              sourceLocation = property.propertyName.sourceLocation ?: property.sourceLocation,
           )
       AbsentRequirementValue -> 0
       is RequirementValue -> 1
@@ -138,7 +152,8 @@ internal class GameReaderImpl(
         if (!classTable.isInhabited(type)) return@let HashMultiset<Component>()
         if (type.rootClass.declaration.custom) {
           throw ExpressionException(
-              "Custom metrics cannot be alternatives in an OR metric: ${type.expressionFull}"
+              "custom metrics cannot be alternatives in an `OR` metric: `${type.expressionFull}`",
+              sourceLocation = expression.sourceLocation,
           )
         }
         gameWorld.components.getAll(type, this)
@@ -148,7 +163,11 @@ internal class GameReaderImpl(
     val type = classTable.resolve(expression)
     if (!classTable.isInhabited(type)) return 0
     if (!type.rootClass.declaration.custom) return gameWorld.components.count(type, this)
-    return customMetrics.count(type, this)
+    return try {
+      customMetrics.count(type, this)
+    } catch (e: ExpressionException) {
+      throw ExpressionException(e.detail, e, e.sourceLocation ?: expression.sourceLocation)
+    }
   }
 
   override fun count(type: Type) = gameWorld.components.count(type, this)

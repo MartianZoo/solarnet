@@ -4,31 +4,51 @@ import dev.martianzoo.pets.types.Type
 
 /** Domain exception types shared across Pets-based APIs. */
 public object Exceptions {
+  /**
+   * A diagnosed domain failure, optionally tied to an authored occurrence. Subtypes distinguish
+   * expected gameplay rejection from invalid definitions, requests, and custom code failures.
+   */
+  public sealed class DomainException(
+      public val detail: String,
+      cause: Throwable? = null,
+      sourceLocation: SourceLocation? = null,
+  ) : Exception(detail, cause) {
+    /** The most specific authored occurrence known, absent for programmatically built input. */
+    public var sourceLocation: SourceLocation? = sourceLocation
+
+    override val message: String?
+      get() = sourceLocation?.describe(detail) ?: detail
+  }
+
   // Authored Pets failures
 
   /** A problem in authored Pets source or the definitions assembled from it. */
   public sealed class PetException(
       message: String,
       cause: Throwable? = null,
-  ) : Exception(message, cause)
+      sourceLocation: SourceLocation? = null,
+  ) : DomainException(message, cause, sourceLocation)
 
   /** A Pets tree violates the language's syntactic or structural rules. */
   public class PetSyntaxException(
       message: String,
       cause: Throwable? = null,
-  ) : PetException(message, cause)
+      sourceLocation: SourceLocation? = null,
+  ) : PetException(message, cause, sourceLocation)
 
   /** Syntactically valid Pets cannot be interpreted under the active Catalog. */
   public class ExpressionException(
       message: String,
       cause: Throwable? = null,
-  ) : PetException(message, cause)
+      sourceLocation: SourceLocation? = null,
+  ) : PetException(message, cause, sourceLocation)
 
-  /** Authored definitions cannot form a valid Catalog. */
+  /** An authored definition is invalid, whether discovered during compilation or later use. */
   public class InvalidPetDefinitionException(
       message: String,
       cause: Throwable? = null,
-  ) : PetException(message, cause)
+      sourceLocation: SourceLocation? = null,
+  ) : PetException(message, cause, sourceLocation)
 
   // Gameplay rejections
 
@@ -36,7 +56,8 @@ public object Exceptions {
   public sealed class GameplayException(
       message: String,
       cause: Throwable? = null,
-  ) : Exception(message, cause)
+      sourceLocation: SourceLocation? = null,
+  ) : DomainException(message, cause, sourceLocation)
 
   /** A requested task operation is incompatible with the current task state. */
   public class TaskException(
@@ -48,15 +69,23 @@ public object Exceptions {
   public class DeadEndException(
       message: String,
       cause: Throwable? = null,
-  ) : GameplayException(message, cause) {
-    public constructor(cause: Throwable) : this(cause.message.orEmpty(), cause)
+      sourceLocation: SourceLocation? = null,
+  ) : GameplayException(message, cause, sourceLocation) {
+    public constructor(
+        cause: Throwable
+    ) : this(
+        (cause as? DomainException)?.detail ?: cause.message.orEmpty(),
+        cause,
+        (cause as? DomainException)?.sourceLocation,
+    )
   }
 
   /** A concrete gameplay attempt is unavailable in the current World. */
   public open class NotNowException(
       message: String,
       cause: Throwable? = null,
-  ) : GameplayException(message, cause)
+      sourceLocation: SourceLocation? = null,
+  ) : GameplayException(message, cause, sourceLocation)
 
   /** A component cannot be removed while other components depend on it. */
   public class ExistingDependentsException(
@@ -64,7 +93,8 @@ public object Exceptions {
   ) : NotNowException("existing dependents: ${dependents.joinToString { "`${it.expression}`" }}")
 
   /** A requirement for the attempted gameplay is not met. */
-  public class RequirementException(message: String) : NotNowException(message)
+  public class RequirementException(message: String, sourceLocation: SourceLocation? = null) :
+      NotNowException(message, sourceLocation = sourceLocation)
 
   /** Components required by the attempted gameplay are missing. */
   public class DependencyException(
@@ -75,7 +105,8 @@ public object Exceptions {
       )
 
   /** A quantity or capacity limit makes the attempted gameplay unavailable. */
-  public class LimitsException(message: String) : NotNowException(message)
+  public class LimitsException(message: String, sourceLocation: SourceLocation? = null) :
+      NotNowException(message, sourceLocation = sourceLocation)
 
   /** A proposed value is not a valid narrowing of the original value. */
   public class NarrowingException(
@@ -89,14 +120,17 @@ public object Exceptions {
   public class InvalidGameConfigException(
       message: String,
       cause: Throwable? = null,
-  ) : Exception(message, cause)
+      sourceLocation: SourceLocation? = null,
+  ) : DomainException(message, cause, sourceLocation)
 
   /** The request does not specify a concrete component, instruction, or choice to evaluate. */
-  public class NotFullySpecifiedException(message: String) : Exception(message)
+  public class NotFullySpecifiedException(message: String, sourceLocation: SourceLocation? = null) :
+      DomainException(message, sourceLocation = sourceLocation)
 
   /** A custom Kotlin implementation failed while evaluating otherwise valid Pets input. */
   public class CustomCodeException(
       message: String,
       cause: Throwable? = null,
-  ) : Exception(message, cause)
+      sourceLocation: SourceLocation? = null,
+  ) : DomainException(message, cause, sourceLocation)
 }

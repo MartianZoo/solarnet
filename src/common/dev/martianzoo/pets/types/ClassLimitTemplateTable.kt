@@ -31,13 +31,15 @@ internal class ClassLimitTemplateTable(private val masterTable: ClassTable) {
             invariant as? Counting
                 ?: throw InvalidPetDefinitionException(
                     "class invariant on `${klass.className}` is not a counting requirement: " +
-                        "`$invariant`"
+                        "`$invariant`",
+                    sourceLocation = invariant.sourceLocation,
                 )
         val expression =
             (counting.metric as? Metric.Count)?.expression
                 ?: throw InvalidPetDefinitionException(
                     "class invariant on `${klass.className}` must count one component expression: " +
-                        "`$invariant`"
+                        "`$invariant`",
+                    sourceLocation = counting.metric.sourceLocation ?: invariant.sourceLocation,
                 )
         Template(
             expression,

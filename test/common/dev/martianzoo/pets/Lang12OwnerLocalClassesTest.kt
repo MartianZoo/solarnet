@@ -8,7 +8,9 @@ import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
@@ -45,7 +47,14 @@ internal class Lang12OwnerLocalClassesTest {
   @Test
   internal fun `L12-3 arguments specialize the occurrence and the declared supertype`() {
     val declarations =
-        parseClasses("CLASS MiningArea { This: SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {} }")
+        parseClasses(
+            """
+            CLASS MiningArea {
+              This: SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {}
+            }
+            """
+                .trimIndent()
+        )
 
     declarations.first().authoredEffects shouldContainExactly
         listOf(parse<Effect>("This: MiningArea_SpecialTile<LandArea(HAS Neighbor<OwnedTile>)>"))
@@ -89,7 +98,12 @@ internal class Lang12OwnerLocalClassesTest {
   internal fun `L12-4 a local body holds invariants, properties, effects and actions`() {
     val derived =
         parseClasses(
-                "CLASS Owner1 { This: Base { HAS MAX 1 This; cost = 3; This: Widget; Ore -> Gizmo } }"
+                """
+                CLASS Owner1 {
+                  This: Base { HAS MAX 1 This; cost = 3; This: Widget; Ore -> Gizmo }
+                }
+                """
+                    .trimIndent()
             )
             .last()
 
@@ -121,11 +135,28 @@ internal class Lang12OwnerLocalClassesTest {
 
   @Test
   internal fun `L12-6 one owner declares at most one unnamed local class per base name`() {
-    parseClasses("CLASS Owner1 {\n  This: Base {}\n  -This: Other {}\n}").map {
-      it.className
-    } shouldContainExactly listOf(cn("Owner1"), cn("Owner1_Base"), cn("Owner1_Other"))
+    parseClasses(
+            """
+            CLASS Owner1 {
+              This: Base {}
+              -This: Other {}
+            }
+            """
+                .trimIndent()
+        )
+        .map {
+          it.className
+        } shouldContainExactly listOf(cn("Owner1"), cn("Owner1_Base"), cn("Owner1_Other"))
     shouldThrow<PetSyntaxException> {
-      parseClasses("CLASS Owner1 {\n  This: Base {}\n  -This: Base {}\n}")
+      parseClasses(
+          """
+          CLASS Owner1 {
+            This: Base {}
+            -This: Base {}
+          }
+          """
+              .trimIndent()
+      )
     }
   }
 
@@ -142,9 +173,131 @@ internal class Lang12OwnerLocalClassesTest {
 
   @Test
   internal fun `L12-8 naming the base class alone stays the base class`() {
-    val declarations = parseClasses("CLASS Owner1 {\n  This: Base {}\n  -This: Base\n}")
+    val declarations =
+        parseClasses(
+            """
+            CLASS Owner1 {
+              This: Base {}
+              -This: Base
+            }
+            """
+                .trimIndent()
+        )
 
     declarations.first().authoredEffects shouldContainExactly
         listOf(parse<Effect>("This: Owner1_Base"), parse<Effect>("-This: Base"))
+  }
+
+  // Extraction precedes ordinary AST normalization.
+
+  @Test
+  internal fun publishedDeclarationsContainOnlyOrdinaryExpressions() {
+    val declarations =
+        parseClasses(
+            """
+            CLASS Owner1 {
+              This: EACH P@Person { Base<P@Person> { -> A@Widget FROM A@Widget } }
+            }
+            """
+                .trimIndent()
+        )
+    declarations
+        .flatMap { it.allNodes }
+        .flatMap { it.descendantsOfType<Expression>() }
+        .all { it::class == Expression::class } shouldBe true
+    parseClasses(declarations.joinToString("\n")) shouldBe declarations
+  }
+
+  @Test
+  internal fun implicitRankCopiesAnAlreadyExtractedLocalArgument() {
+    val declarations =
+        parseClasses("CLASS Owner1 { This: Wrapper<Base {}>(HAS =1 (RANK { Score })) }")
+    declarations.map { it.className } shouldBe listOf(cn("Owner1"), cn("Owner1_Base"))
+    val rank =
+        declarations.first().authoredEffects.single().descendantsOfType<Metric.Rank>().single()
+    rank.selector!!.arguments.single().className shouldBe cn("Owner1_Base")
+    parseClasses(declarations.joinToString("\n")) shouldBe declarations
+  }
+
+  @Test
+  internal fun compactFromSharesAnAlreadyExtractedLocalArgument() {
+    val declarations = parseClasses("CLASS Owner1 { This: Wrapper<Base {}, Item FROM Other> }")
+    declarations.map { it.className } shouldBe listOf(cn("Owner1"), cn("Owner1_Base"))
+    val transmute =
+        declarations.first().authoredEffects.single().instruction as Instruction.Transmute
+    transmute.gaining.expression.arguments.first().className shouldBe cn("Owner1_Base")
+    transmute.removing.expression.arguments.first().className shouldBe cn("Owner1_Base")
+    parseClasses(declarations.joinToString("\n")) shouldBe declarations
+  }
+
+  @Test
+  internal fun rejectsMarkedLocalRootsAtEitherTransmutationOccurrence() {
+    listOf(
+            "CLASS Owner1 { This: A@Base {} FROM A@Base }",
+            "CLASS Owner1 { This: A@Base FROM A@Base {} }",
+            "CLASS Owner1 { This: @Base {} FROM @Base }",
+            "CLASS Owner1 { This: @Base FROM @Base {} }",
+        )
+        .forEach { source ->
+          shouldThrow<PetSyntaxException> { parseClasses(source) }.detail shouldBe
+              "owner-local class expressions cannot have a type-variable marker on their root; declare the class separately"
+        }
+  }
+
+  @Test
+  internal fun aDefaultCannotDeclareAClassAtItsRoot() {
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Owner1 { DEFAULT Owner1 {} }") }
+  }
+
+  @Test
+  internal fun aDefaultArgumentCanDeclareALocalClass() {
+    parseClasses("CLASS Owner1 { DEFAULT Owner1<Base {}> }") shouldBe
+        parseClasses(
+            """
+            CLASS Owner1 {
+              DEFAULT Owner1<Owner1_Base>
+            }
+            CLASS Owner1_Base : Base
+            """
+                .trimIndent()
+        )
+  }
+
+  @Test
+  internal fun aNormalTriggerCanDeclareALocalClass() {
+    parseClasses("CLASS Owner1 { Base {}: Widget }") shouldBe
+        parseClasses(
+            """
+            CLASS Owner1 {
+              Owner1_Base: Widget
+            }
+            CLASS Owner1_Base : Base
+            """
+                .trimIndent()
+        )
+  }
+
+  @Test
+  internal fun ownerlessParsingRejectsBodiesBeforeTryingToCompleteGeneratedClasses() {
+    listOf("Base {}, Base {}", "Base { This: P@Person }").forEach { source ->
+      shouldThrow<PetSyntaxException> {
+            parse<InstructionTree>(source)
+          }
+          .detail shouldBe "owner-local classes are allowed only in declaration files"
+    }
+  }
+
+  @Test
+  internal fun extractionDoesNotSilentlyMergeDistinctAuthoredInvariants() {
+    shouldThrow<IllegalArgumentException> {
+      parseClasses("CLASS Owner1 { HAS Owner1_Base; HAS Base {} }")
+    }
+  }
+
+  @Test
+  internal fun aSelfTriggerCannotDiscardALocalBody() {
+    listOf("This", "This<>", "-This", "-This<>").forEach { trigger ->
+      shouldThrow<PetSyntaxException> { parseClasses("CLASS Owner1 { $trigger {}: Widget }") }
+    }
   }
 }

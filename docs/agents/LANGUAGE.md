@@ -219,6 +219,8 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
 - Describe reveal-until-matching-card searches as `Draw N [kind] cards` in card goals, consistently
   across that search family. Tag names can modify `cards` directly (`Draw 2 plant cards`); other
   criteria must stay explicit (`Draw 2 cards with floater icons`, never `floater cards`).
+- Describe a direct exchange of anonymous card backs as `Discard N cards to draw N cards`.
+  An unconditional choice to decline the exchange makes the complete action optional.
 - Describe looking at several cards and keeping some as `Look at N cards. Draw K of them.` Omit
   the routine discard instruction. Buying from a revealed selection can likewise use `You may buy`.
 - Normally describe variable amounts as `1 or more`, followed by `that amount`, `the same number`,

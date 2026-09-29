@@ -29,7 +29,7 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
   @Test
   internal fun `Amazonis Merchant needs three of each resource after paying the claim cost`() {
     newGameWithAutoWorkflow(Amazonis)
-    playUntilFirstActionPhase(startingMc = 127)
+    playUntilFirstActionPhase(UnitedNationsMarsInitiative, PhoboLog, startingMc = 127)
 
     p1.turn {
       playProject(MineralDeposit, 5)
@@ -56,7 +56,7 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
   internal fun `Amazonis Manufacturer uses the corrected production metric`() {
     newGameWithAutoWorkflow(Amazonis, PreludeExpansion)
     val p2 = requireP2()
-    playUntilPreludePhase()
+    playUntilPreludePhase(UnitedNationsMarsInitiative, PhoboLog)
     p1.turn {
       playPrelude(MiningOperations)
       playPrelude(MoholeExcavation)
@@ -71,7 +71,7 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
     TfmWorkflow.Stepwise(agents).endPhase()
 
     p1.count("PROD[Steel OR Heat]") shouldBe 5
-    p2.count("PROD[Steel OR Heat]") shouldBe 4
+    p2.count("PROD[Steel OR Heat]") shouldBe 3
     p1.count("FirstPlace<Player1, Manufacturer>") shouldBe 1
     p2.count("FirstPlace<Player2, Manufacturer>") shouldBe 0
   }
@@ -79,7 +79,7 @@ internal class AmazonisVastitasExpansionTest : CardTest() {
   @Test
   internal fun `Amazonis delegate bonuses are ignored without Turmoil`() {
     newGameWithAutoWorkflow(Amazonis)
-    playUntilFirstActionPhase()
+    playUntilFirstActionPhase(UnitedNationsMarsInitiative, PhoboLog)
 
     p1.turn {
       stdProject("CityProject") { placeTile(1, 4) }.expect("ProjectCard")

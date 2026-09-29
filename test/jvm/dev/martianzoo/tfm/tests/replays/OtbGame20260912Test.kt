@@ -7,6 +7,7 @@ import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import dev.martianzoo.tfm.tests.fakeWildTags
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -90,9 +91,12 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       playPrelude(FakeAppliedScience)
       // "Established methods. Gain 30 monies." "Wow." "I'm gonna greenery for 23. I'm gonna put
       // it here for two cards... And that gave me the temperatura."
-      playPrelude(FakeEstablishedMethods) {
-        useStdProject("GreeneryProject") { placeTile(5, 9) }
-        useStdProject("AsteroidProject")
+      playPrelude(EstablishedMethods) {
+        doTask("UseAction<GreeneryProject, Action1>")
+        yellow.pay(23)
+        placeTile(5, 9)
+        doTask("UseAction<AsteroidProject, Action1>")
+        yellow.pay(14)
       }
       // The players acknowledged this initial Greens-policy payout during Prelude as the same rule
       // mistake. Yellow nevertheless took 4 M€ here (transcript and Yellow ledger entry 15).
@@ -718,6 +722,8 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     // the automatic Turmoil phase then advances Spin-Off Products and Diversity. The newly drawn
     // card is Improved Energy Templates, headed "Second Energy Crisis" in the physical deck.
     green.wgt("OxygenStep").expect("OxygenStep")
+    // At 6:38:48 pm, the table notes that Search for Life has no science to receive a bonus.
+    yellow.assertCardResources(0 to SearchForLife)
     admin.doTask("ImprovedEnergyTemplates")
 
     assertSidebar(gen = 5, temp = -24, oxygen = 5, oceans = 2, venus = 2)
@@ -1485,13 +1491,12 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     green.declineTask()
     // Once Diaspora Movement receives the two evidenced wild Jovian tags above, Green reaches the
     // photographed final cash without any residual adjustment.
-    // The final photograph has one fewer Search for Life science and one more Decomposers microbe
-    // than the action record. Moving a cube while building the Bactoviral pile is the simplest
-    // conservation explanation, but separate earlier missed removal/addition events cannot be
-    // excluded. It also has twelve animals although the final Mohole Lake action explicitly adds an
-    // "eagle" to Ecological Zone; an animal was missed or removed sometime after Ecological Zone's
-    // Generation 6 play, but the surviving records cannot identify the responsible trigger.
-    yellow.exMachina("Microbe<$Decomposers>, -Science<$SearchForLife>, -Animal<$EcologicalZone>")
+    // The final photograph has one more Decomposers microbe than the action record; the surviving
+    // records do not locate this difference. It also has twelve animals although the final Mohole
+    // Lake action explicitly adds an "eagle" to Ecological Zone; an animal was missed or removed
+    // sometime after Ecological Zone's Generation 6 play, but the surviving records cannot identify
+    // the responsible trigger.
+    yellow.exMachina("Microbe<$Decomposers>, -Animal<$EcologicalZone>")
 
     with(green) {
       assertProduction(m = 16, s = 0, t = 0, p = 7, e = 8, h = 7)

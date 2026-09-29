@@ -1,10 +1,12 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class RequirementAdjustmentCardsTest : CardTest() {
@@ -67,5 +69,28 @@ internal class RequirementAdjustmentCardsTest : CardTest() {
 
     p1.playProject(RotatorImpacts, 6)
     shouldThrow<RequirementException> { p1.playProject(Algae, 10) }
+  }
+
+  @Test
+  internal fun `Special Design expires when the next card has no requirement`() {
+    expireSpecialDesignWith(Mine, 4)
+  }
+
+  @Test
+  internal fun `Special Design expires when the next requirement is already satisfied`() {
+    expireSpecialDesignWith(DustSeals, 2)
+  }
+
+  private fun expireSpecialDesignWith(card: ClassName, cost: Int) {
+    newGame()
+    p1.playCorp(CrediCor, 5)
+    admin.phase("Action")
+    p1.runOperation("11 TemperatureStep")
+    p1.playProject(SpecialDesign, 4)
+    p1.playProject(card, cost)
+
+    shouldThrow<RequirementException> { p1.playProject(ArcticAlgae, 12) }
+    p1.count("$ArcticAlgae") shouldBe 0
+    p1.count("ProjectCard") shouldBe 3
   }
 }

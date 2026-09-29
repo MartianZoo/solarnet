@@ -14,6 +14,37 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Extend derived `including this` wording to setup operations and otherwise unsupported effects
   without adding card-specific rendering rules.
 - Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.
+- Resolve Landshaper's distinct-tile requirement before changing its behavior. The suspected bug
+  where Capital plus one greenery suffices is quarantined in `cards/BugsTest.kt`; audit R01 leaves
+  this combination open even though Capital's city and special-tile classifications are confirmed.
+- Investigate choosing the Lobby delegate whenever an action or card takes from the reserve,
+  even when other reserve delegates remain.
+  [Jacob's supply ruling](https://boardgamegeek.com/thread/2570071/article/36719863#36719863)
+  counts the Lobby as reserve and states no selection priority; we read this as allowing either
+  source. The current model preserves free lobbying on other reserve placements until all seven
+  delegates are placed; it offers no choice to consume the Lobby delegate earlier. See
+  `TurmoilRulesTest.kt` for the supported paid-lobbying case with only the Lobby delegate remaining.
+- Fix Point Luna's played-Earth-tag response so a temporary assigned tag still counts for Cartel
+  but does not cause a card draw. First try the existing card-holder distinction; do not bypass
+  trigger execution. Full wild-tag assignment remains deferred until a clean rule representation is
+  available; historical replays still use explicit adjustments for unsupported choices.
+- Keep Fake Self-Replicating Robots permanently in `:tfm-fake`. Move its bug characterizations,
+  including the SRR cases mixed into `cards/BugsTest.kt`, into that module and consolidate duplicate
+  Sponsored Projects coverage. Reuse existing test-support sources before considering a fixture API.
+- Follow through on the FAQ-audit defects characterized in
+  [`cards/BugsTest.kt`](test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt):
+  Double Down's copied resource destination; Mining Rights/Area and Mining Guild on wild placement
+  bonuses; Sponsored Projects adding resources to SRR's hosted cards; and Constructor remaining
+  usable without Colonies. Double Down currently leaves copied `This` unresolved; substituting
+  `DoubleDown` still makes `Director<DoubleDown>` an invalid dependency type, which AMAP does not
+  turn into zero. Resolve the copying/type semantics instead of filtering those gains in Kotlin.
+  Constructor's combined city/colony metric is treated as a hard Colonies dependency by the shared
+  content-compatibility filter. Preserve the external-card-selection boundary when addressing
+  copied Merger commitment after new information is revealed.
+- Investigate whether production-box copying can preserve enclosing bindings and conditions so
+  Industrial Complex's former `EACH ... { PROD[...] }` spelling would work. For now, copying
+  rejects a `PROD` nested inside `EACH` with an authoring diagnostic; the working form puts
+  `EACH` inside `PROD`.
 - Reconcile `OtbGame20260912Test` with the original physical-game evidence. Verify Summit
   Logistics' printed Colonies requirement and model its inclusion without enabling unused
   Colonies gameplay if the card is legal without that expansion. Verify the reported extra Prelude
@@ -107,12 +138,28 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
   requiring authored references to generated names. Preserve Cimmeria map generation,
   `PlaceNeutralTiles`'s system-only ownership, and SRR's explicit card-Class selection.
-- Investigate why semantic validation during parsing throws `IllegalArgumentException` for malformed
-  Pets, and whether those paths should use a parser-specific exception before translation.
-- Model Established Methods as two nonzero-cost standard projects without making the second project
-  mandatory when none is affordable. `StandardProject(HAS cost)` excludes Sell Patents and
-  non-project actions, but does not express current affordability; making the second action optional
-  would instead let a player skip it while an affordable project exists.
+- Extract `Parsing`, `DerivedClassLowerer`, and the parsed system-declaration provider into an
+  optional parser module. The model construction API supports independent parsers; keep the
+  better-parse dependency with source input. Canonical content still needs a separate build-time
+  conversion to typed declarations before its consumers can omit runtime parsing entirely.
+- Report an unrecognized character inside an optional Pets production at that character:
+  `Foo<~ Bar>` currently points at `<` rather than `~`. The better-parse completion analyzer drops
+  `NoMatchingToken` failures; address that diagnostic separately from grammar organization.
+- Reject type-variable markers on a `DEFAULT` root instead of silently discarding them when the
+  clause records its declaring class and argument specs. Keep this diagnostic change separate from
+  owner-local declaration extraction.
+- Carry resource/file names through Pets parsing and generated catalog inputs so diagnostic spans
+  identify the original file as well as the submitted text, line, and column.
+- Preserve authored provenance when runtime narrowing and task normalization synthesize new trees.
+  Definition, query, and direct-change diagnostics retain available spans; some generated tasks and
+  failures computed solely from component Types still have no authored location.
+- Improve the specific caret targets and related-source context recorded beside message assertions
+  in `CatalogDiagnosticsTest` and `PostCatalogDiagnosticsTest`; consider rendering span widths as
+  well as their starting positions.
+- Clarify T10-4 when an inherited dependency default is disjoint from a subclass's bound. The
+  compiler currently drops that default; `MoholeArea_SpecialTile` relies on this for its WaterArea
+  bound versus SpecialTile's LandArea default. Keep this semantic question separate from diagnostic
+  improvements.
 
 ### Hypothetical Card Behavior
 
@@ -132,6 +179,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   with characterization tests for Suitable Infrastructure, Constructor, Soil Studies, and Summit
   Logistics; decide ambiguous no-op cards explicitly, and let English consume the same modeled fact
   rather than adding a renderer-only flag.
+- Render the shared `PlayOrFizzle` signal as a structured play-or-fizzle choice, including
+  its 15 M€ compensation when unplayable. Keep the Pets fallback visible until the choice can be
+  expressed without putting a clause into a lexical noun phrase.
 - Move `PreludePhase` out of `tfm-text`'s `resetsForPreludeAction` recognizer once there is a
   principled bundle-supplied description of the phase/latch relationship; do not add a Prelude-only
   boolean merely to relocate the class name.
@@ -144,20 +194,25 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   do not replace these with copied card wording or new gameplay APIs.
 - Fill the missing printed transcriptions identified in
   [the wording comparisons](docs/english-wording-comparisons/README.md) from verified printed evidence.
+- Correct defaulted Type-variable references: `pets/BugsTest` shows bare references incorrectly
+  inheriting their supplier's `<>`.
+
+- Revisit aligning multiplatform JVM tests with the repository JUnit BOM. Setup overrides now
+  explicitly declare `@BeforeTest`, including `ActiveVacuumCoreTest.commonSetup`. Verify lifecycle
+  compatibility and the full replay suite before changing the runner.
+
+- Revisit Dokka's transitive Jackson 2.15.3, jsoup 1.16.1, and FreeMarker 2.3.32 advisory
+  matches when a stable Dokka update is available. These documentation-time dependencies remain
+  unchanged to avoid maintaining unverified overrides.
+
 - Review [the class-existence scenario draft](docs/class-existence-scenarios-draft.md) for
   clarity and coverage, then consolidate `ClassDefinitionBoundaryTest` and
   `ClassTableSelectionTest`. Keep each distinct selection boundary tested once and remove
   repetitive assertions without losing the readable scenarios or broad module/content cases.
 - Add Jacob Fryxelius's ruling that moving Mars Nomads does not trigger the Mars First ruling policy.
-- Repair the two declared Pets conformance gaps without adding a second representation of type
-  identity: L3-8 lets `Tile<> THEN Tile<>` stages diverge after defaults, and T8-3 can substitute a
-  refinement candidate into the wrong one of several compatible dependency slots while existing
-  cards still require candidate/argument merging.
 - Find a principled way for narrower dependency defaults to retain compatible refinements from
   wider defaults, so `Tile` can own area occupancy once while its subclasses select their kinds of
   areas and add placement rules.
-- Model L1 Trade Terminal's three-distinct-card resource choice, then replace `FakeL1TradeTerminal`
-  with the canonical card.
 - Simplify `LiveEffect` actor binding by threading a binding context through subscription matching
   instead of maintaining parallel `Subscription.transform()` implementations and `Hit.before()`.
 - Separate `Instructor`'s resolution-only capability from execution so `Changer`, `Effector`, and

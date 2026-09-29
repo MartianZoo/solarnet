@@ -817,7 +817,7 @@ Class: `Flooding`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Place an ocean tile. IF THERE ARE TILES ADJACENT TO THIS OCEAN TILE, YOU MAY REMOVE 4 M€ FROM THE OWNER OF ONE OF THOSE TILES. | — |
-| Generated text | Place an ocean tile or place an ocean tile on an area reserved for ocean next to a tile anyone owns, then you may remove up to 4 M€ from any player. | — |
+| Generated text | Place an ocean tile or \[OceanTile&lt;WaterArea(HAS MAX 0 Tile, HAS Neighbor&lt;OwnedTile&lt;@Anyone&gt;&gt;)&gt;!\], then \[-4 MC&lt;@Anyone&gt;?\]. | — |
 
 Pets declaration:
 
@@ -825,7 +825,7 @@ Pets declaration:
 CLASS Flooding : EventCard {
   cost = 7
   This:: EventTag<This>
-  This: OceanTile<> OR (OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<Anyone>>)>! THEN -4 MC<Anyone>?)
+  This: OceanTile<> OR (OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>! THEN -4 MC<@Anyone>?)
   End: -VictoryPoint
 }
 ```
@@ -1671,6 +1671,7 @@ Pets declaration:
 ```pets
 CLASS MiningRights : AutomatedCard {
   cost = 9
+  autoSelectWhen = HAS "Unsafe OR MAX 0 AmazonisMap"
   This:: BuildingTag<This>
   This: MiningRights_SpecialTile<> THEN PROD[(LandArea(HAS MiningRights_SpecialTile, HAS PlacementBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningRights_SpecialTile, HAS PlacementBonus<Class<Titanium>>): Titanium)]
 }
@@ -3440,7 +3441,7 @@ Pets declaration:
 CLASS MarsUniversity : ActiveCard {
   cost = 8
   This:: ScienceTag<This>, BuildingTag<This>
-  ScienceTag: (-ProjectCard THEN ProjectCard) OR Ok
+  ScienceTag: ProjectCard FROM ProjectCard OR Ok
   End: VictoryPoint
 }
 ```
@@ -3576,6 +3577,7 @@ Pets declaration:
 ```pets
 CLASS MiningArea : AutomatedCard {
   cost = 4
+  autoSelectWhen = HAS "Unsafe OR MAX 0 AmazonisMap"
   This:: BuildingTag<This>
   This: MiningArea_SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> THEN PROD[(LandArea(HAS MiningArea_SpecialTile, HAS PlacementBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningArea_SpecialTile, HAS PlacementBonus<Class<Titanium>>): Titanium)]
 }
@@ -3616,7 +3618,7 @@ Pets declaration:
 CLASS OlympusConference : ActiveCard, ResourceCard<Class<Science>> {
   cost = 10
   This:: ScienceTag<This>, EarthTag<This>, BuildingTag<This>
-  ScienceTag: Science<This> OR (ProjectCard FROM Science<This>)
+  ScienceTag: Science<This> OR ProjectCard FROM Science<This>
   End: VictoryPoint
 }
 ```
@@ -6648,7 +6650,7 @@ Class: `AstraMechanica`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | CHOOSE 2 PROJECT CARDS FROM YOUR EVENT PILE AND TAKE THEM TO HAND. IT MAY NOT BE CARDS THAT PLACE SPECIAL TILES. | — |
-| Generated text | You may return up to one of your played event cards to your hand. You may return up to one of your played event cards to your hand. | — |
+| Generated text | \[ProjectCard FROM PlayedEvent&lt;Class&lt;EventCard&gt;(HAS MAX 0 GainsOf&lt;Class&lt;SpecialTile&gt;&gt;)&gt;?\]. \[ProjectCard FROM PlayedEvent&lt;Class&lt;EventCard&gt;(HAS MAX 0 GainsOf&lt;Class&lt;SpecialTile&gt;&gt;)&gt;?\]. | — |
 
 Pets declaration:
 
@@ -6656,7 +6658,7 @@ Pets declaration:
 CLASS AstraMechanica : AutomatedCard {
   cost = 7
   This:: ScienceTag<This>
-  This: ProjectCard FROM PlayedEvent?, ProjectCard FROM PlayedEvent?
+  This: ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)>?, ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)>?
 }
 ```
 
@@ -8065,6 +8067,28 @@ CLASS IshtarExpedition : EventCard {
 }
 ```
 
+### L1 Trade Terminal
+
+Class: `L1TradeTerminal`
+
+| | Bottom | Top |
+| --- | --- | --- |
+| Printed text | Add a resource to 3 different cards that already have resources. | Effect: When you trade, you may first increase that colony track 2 steps. |
+| Generated text | \[L1GiftWatcher\], then \[EACH @ResourceCard(HAS CardResource) { CardResource&lt;@ResourceCard&gt;? }\]. | Effect: When you trade, \[TradeBarrier&lt;@ColonyTile&gt;\]. \[Trade&lt;@ColonyTile&gt;: (2 ColonyProduction&lt;@ColonyTile&gt; OR Ok) THEN -TradeBarrier&lt;@ColonyTile&gt;\]. |
+
+Pets declaration:
+
+```pets
+CLASS L1TradeTerminal : ActiveCard {
+  cost = 25
+  This:: SpaceTag<This>
+  This: L1GiftWatcher THEN EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }
+  Trade<@ColonyTile>:: TradeBarrier<@ColonyTile>
+  Trade<@ColonyTile>: (2 ColonyProduction<@ColonyTile> OR Ok) THEN -TradeBarrier<@ColonyTile>
+  End: 2 VictoryPoint
+}
+```
+
 ### Microgravity Nutrition
 
 Class: `MicrogravityNutrition`
@@ -8439,7 +8463,7 @@ CLASS WgProject : AutomatedCard {
   cost = 9
   requirement = HAS "Chairman"
   This:: EarthTag<This>
-  This: PreludeCard THEN PlayCard<Class<PreludeCard>>
+  This: PreludeCard THEN PlayOrFizzle
 }
 ```
 
@@ -8482,29 +8506,6 @@ CLASS FakeBannedDelegate : EventCard {
   This:: EventTag<This>
   This:: Audit
   This: FakeBannedDelegateRemoval<Party, Anyone>. / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1
-}
-```
-
-### L1 Trade Terminal
-
-Class: `FakeL1TradeTerminal`
-
-| | Bottom | Top |
-| --- | --- | --- |
-| Printed text | Add a resource to 3 different cards that already have resources. | Effect: When you trade, you may first increase that colony track 2 steps. |
-| Generated text | \[Floater&lt;FloatingHabs&gt;\]. \[Floater&lt;AerialMappers&gt;\]. \[Floater&lt;FloatingRefinery&gt;\]. | Effect: When you trade, \[TradeBarrier&lt;@ColonyTile&gt;\]. \[Trade&lt;@ColonyTile&gt;: (2 ColonyProduction&lt;@ColonyTile&gt; OR Ok) THEN -TradeBarrier&lt;@ColonyTile&gt;\]. |
-
-Pets declaration:
-
-```pets
-"L1 Trade Terminal with the replay's three resource destinations fixed"
-CLASS FakeL1TradeTerminal : ActiveCard {
-  cost = 25
-  This:: SpaceTag<This>
-  This: Floater<FloatingHabs>, Floater<AerialMappers>, Floater<FloatingRefinery>
-  Trade<@ColonyTile>:: TradeBarrier<@ColonyTile>
-  Trade<@ColonyTile>: (2 ColonyProduction<@ColonyTile> OR Ok) THEN -TradeBarrier<@ColonyTile>
-  End: 2 VictoryPoint
 }
 ```
 

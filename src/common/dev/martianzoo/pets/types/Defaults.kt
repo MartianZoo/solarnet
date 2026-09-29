@@ -1,5 +1,6 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.ast.Expression
@@ -62,13 +63,15 @@ public data class Defaults(
     }
 
     /** Reports the class rather than failing anonymously when supertypes disagree. */
-    private fun <T> onlyOne(klass: Class, kind: String): (List<T>) -> T = { candidates ->
-      candidates.singleOrNull()
-          ?: throw InvalidPetDefinitionException(
-              "`${klass.className}` inherits conflicting $kind quantifier defaults: " +
-                  candidates.joinToString()
-          )
-    }
+    private fun onlyOne(klass: Class, kind: String): (List<Quantifier>) -> Quantifier =
+        { candidates ->
+          candidates.singleOrNull()
+              ?: throw InvalidPetDefinitionException(
+                  "`${klass.className}` inherits conflicting $kind quantifier defaults: " +
+                      candidates.joinToString { "`${it.symbol}`" },
+                  sourceLocation = klass.className.sourceLocation,
+              )
+        }
 
     private fun <T> inheritDefault(
         klass: Class,
@@ -103,14 +106,26 @@ public data class Defaults(
         return resolved.merge(DependencySet.of(setOf(owner))) { _, contextual -> contextual }
       }
 
+      // Validate even declarations on classes with no dependency keys. Computing this once also
+      // avoids resolving the same authored default separately for every inherited key.
+      val declared =
+          klass.allSuperclasses().associateWith { origin ->
+            try {
+              toDependencyMap(origin, origin.defaultsDecl.default(kind).specs)
+            } catch (e: ExpressionException) {
+              throw InvalidPetDefinitionException(
+                  "invalid defaults for `${origin.className}`: ${e.detail}",
+                  e,
+                  e.sourceLocation ?: origin.className.sourceLocation,
+              )
+            }
+          }
       val deps: List<Dependency> =
           klass.dependencies.keys.mapNotNull { key ->
             inheritDefault(
                 klass,
                 { origin ->
-                  val inherited =
-                      toDependencyMap(origin, origin.defaultsDecl.default(kind).specs)
-                          .getIfPresent(key)
+                  val inherited = declared.getValue(origin).getIfPresent(key)
                   if (inherited?.expression == OWNER.expression) {
                     inherited
                   } else {
@@ -122,7 +137,8 @@ public data class Defaults(
                     klass.classTable.glb(left, right)
                         ?: throw InvalidPetDefinitionException(
                             "`${klass.className}` inherits incompatible defaults for `$key`: " +
-                                "`$left` and `$right`"
+                                "`$left` and `$right`",
+                            sourceLocation = klass.className.sourceLocation,
                         )
                   }
                 },

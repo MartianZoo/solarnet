@@ -43,8 +43,11 @@ kotlin {
                   "test/common/dev/martianzoo/tfm/tests/curiosities"
               ),
               rootProject.layout.projectDirectory.dir("test/js/dev/martianzoo/tfm/tests"),
+              rootProject.layout.projectDirectory.dir("test/jvm/dev/martianzoo/tfm/tests/replays"),
           )
       )
+      // The replay scenarios are portable; their JUnit file-export hook is JVM-only.
+      kotlin.exclude("ReplayExportExtension.kt")
     }
     jvmTest {
       kotlin.setSrcDirs(

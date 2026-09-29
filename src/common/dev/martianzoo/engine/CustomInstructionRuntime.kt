@@ -4,6 +4,7 @@ import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.CustomCodeException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.data.Catalog
@@ -34,20 +35,30 @@ internal class CustomInstructionRuntime(
             4 -> implementation.translate(reader, args[0], args[1], args[2], args[3])
             else ->
                 throw ExpressionException(
-                    "Custom instruction types with ${args.size} dependencies are not supported: " +
-                        type.expressionFull
+                    "custom instruction types with ${args.size} dependencies are not supported: " +
+                        "`${type.expressionFull}`"
                 )
           }
         } catch (e: NotImplementedError) {
-          throw ExpressionException(
-              "Custom type ${type.expressionFull} has no instruction behavior for " +
-                  "${args.size} dependencies",
+          throw CustomCodeException(
+              "custom instruction failed for `${type.expressionFull}`: ${e.message}",
               e,
           )
         } catch (e: RuntimeException) {
-          throw CustomCodeException("Custom instruction failed for ${type.expressionFull}", e)
+          throw CustomCodeException(
+              "custom instruction failed for `${type.expressionFull}`: ${e.message}",
+              e,
+          )
         }
 
-    return elaborator.elaborateCustomInstruction(translated, component.owner)
+    return try {
+      elaborator.elaborateCustomInstruction(translated, component.owner)
+    } catch (e: PetException) {
+      throw CustomCodeException(
+          "custom instruction for `${type.expressionFull}` returned invalid Pets `$translated`: ${e.detail}",
+          e,
+          e.sourceLocation,
+      )
+    }
   }
 }

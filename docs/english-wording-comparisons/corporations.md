@@ -194,6 +194,7 @@ Pets declaration:
 ```pets
 CLASS MiningGuild : CardFront<Class<StandardCorporationCard>> {
   cost = 0
+  autoSelectWhen = HAS "Unsafe OR MAX 0 AmazonisMap"
   This:: 2 BuildingTag<This>
   This: 30 MC, 5 Steel, PROD[Steel]
   Tile<MarsArea(HAS PlacementBonus<Class<Metal>>)>: PROD[Steel]
@@ -829,7 +830,7 @@ Class: `PharmacyUnion`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | You start with 54 M€. Draw a science card. | Effect: When ANY microbe tag is played, including these 2, add a disease here and lose 4 M€ or as much as possible. When you play a science tag, remove 1 disease from here and raise your TR 1 step, OR, if there are no diseases here, you may raise your TR 3 steps and place this card in your event pile. It now counts as a played event. |
-| Generated text | Gain 54 M€. Draw 1 science card. | Effect: \[MicrobeTag&lt;Anyone&gt;: Disease&lt;This&gt;! OR (MAX 0 This: Ok), -4 MC.\]. \[ScienceTag: (TerraformRating FROM Disease&lt;This&gt;!) OR (MAX 0 Disease: (PlayedEvent&lt;Class&lt;This&gt;&gt; FROM This THEN 3 TerraformRating) OR Ok)\]. |
+| Generated text | Gain 54 M€. Draw 1 science card. | Effect: \[MicrobeTag&lt;Anyone&gt;: Disease&lt;This&gt;! OR (MAX 0 This: Ok), -4 MC.\]. \[ScienceTag: TerraformRating FROM Disease&lt;This&gt;! OR (MAX 0 Disease: (PlayedEvent&lt;Class&lt;This&gt;&gt; FROM This THEN 3 TerraformRating) OR Ok)\]. |
 
 Pets declaration:
 
@@ -840,7 +841,7 @@ CLASS PharmacyUnion : ResourceCard<Class<Disease>, Class<StandardCorporationCard
   This:: 2 MicrobeTag<This>
   This: SearchForCard<TagFilter<Class<ScienceTag>>>
   MicrobeTag<Anyone>: Disease<This>! OR (MAX 0 This: Ok), -4 MC.
-  ScienceTag: (TerraformRating FROM Disease<This>!) OR (MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)
+  ScienceTag: TerraformRating FROM Disease<This>! OR (MAX 0 Disease: (PlayedEvent<Class<This>> FROM This THEN 3 TerraformRating) OR Ok)
 }
 ```
 
@@ -1003,6 +1004,7 @@ Pets declaration:
 ```pets
 CLASS SagittaFrontierServices : CardFront<Class<StandardCorporationCard>> {
   cost = 0
+  autoSelectWhen = HAS "Unsafe OR (MAX 0 PromoCardPack, MAX 0 Merger)"
   This: 31 MC, PROD[Energy, 2 MC], ProjectCard
   CardFront(HAS =0 Tag): 4 MC
   CardFront(HAS =1 Tag): MC

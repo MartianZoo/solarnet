@@ -4,6 +4,7 @@ import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.tfm.canon.Canon
@@ -263,6 +264,120 @@ internal class ModuleSelectionTest {
     classTable("ElysiumMap, Generalist2").isInhabited(cn("Generalist2")) shouldBe true
     classTable("VenusNextExpansion, Hoverlord", players = 1).isInhabited(cn("Hoverlord")) shouldBe
         true
+  }
+
+  @Test
+  internal fun `Amazonis excludes Mining Guild unless Unsafe is selected`() {
+    classTable("AmazonisMap").isInhabited(cn("MiningGuild")) shouldBe false
+    rejects("AmazonisMap, MiningGuild")
+    classTable("AmazonisMap, Unsafe").isInhabited(cn("MiningGuild")) shouldBe true
+  }
+
+  @Test
+  internal fun `Amazonis excludes Mining Rights unless Unsafe is selected`() {
+    classTable("AmazonisMap").isInhabited(cn("MiningRights")) shouldBe false
+    rejects("AmazonisMap, MiningRights")
+    classTable("AmazonisMap, Unsafe").isInhabited(cn("MiningRights")) shouldBe true
+  }
+
+  @Test
+  internal fun `Amazonis excludes Mining Area unless Unsafe is selected`() {
+    classTable("AmazonisMap").isInhabited(cn("MiningArea")) shouldBe false
+    rejects("AmazonisMap, MiningArea")
+    classTable("AmazonisMap, Unsafe").isInhabited(cn("MiningArea")) shouldBe true
+  }
+
+  @Test
+  internal fun `Terraforming Deal stays in the normal Prelude 2 pool`() {
+    val safe = classTable("Prelude2CardPack, TurmoilExpansion")
+    safe.isInhabited(cn("TerraformingDeal")) shouldBe true
+    safe.isInhabited(cn("PreservationProgram")) shouldBe false
+
+    rejects("Prelude2CardPack, PreservationProgram")
+    rejects("TurmoilExpansion, PreservationProgram")
+    classTable("Prelude2CardPack, PreservationProgram, -TerraformingDeal")
+        .isInhabited(cn("PreservationProgram")) shouldBe true
+    classTable("Prelude2CardPack, TurmoilExpansion, Unsafe")
+        .isInhabited(cn("PreservationProgram")) shouldBe true
+  }
+
+  @Test
+  internal fun `Merger takes precedence when Sagitta is also available`() {
+    val normal = classTable("PromoCardPack, Prelude2CardPack")
+    normal.isInhabited(cn("Merger")) shouldBe true
+    normal.isInhabited(cn("SagittaFrontierServices")) shouldBe false
+
+    val explicitSagitta = classTable("PromoCardPack, Prelude2CardPack, SagittaFrontierServices")
+    explicitSagitta.isInhabited(cn("SagittaFrontierServices")) shouldBe true
+    explicitSagitta.isInhabited(cn("Merger")) shouldBe false
+
+    rejects("PromoCardPack, Prelude2CardPack, Merger, SagittaFrontierServices")
+    val unsafe = classTable("PromoCardPack, Prelude2CardPack, Unsafe")
+    unsafe.isInhabited(cn("Merger")) shouldBe true
+    unsafe.isInhabited(cn("SagittaFrontierServices")) shouldBe true
+  }
+
+  @Test
+  internal fun `Ecology Experts is absent from normal Prelude 1 selection`() {
+    classTable("Prelude1CardPack").isInhabited(cn("EcologyExperts")) shouldBe false
+    classTable("Prelude1CardPack, Unsafe").isInhabited(cn("EcologyExperts")) shouldBe false
+    classTable("Prelude1CardPack, EcologyExperts, Unsafe")
+        .isInhabited(cn("EcologyExperts")) shouldBe true
+  }
+
+  @Test
+  internal fun `Ecology Experts and Viral Enhancers require Unsafe`() {
+    rejects("Prelude1CardPack, EcologyExperts, -EcologicalZone, -Decomposers, -GmoContract")
+  }
+
+  @Test
+  internal fun `Ecology Experts and Ecological Zone require Unsafe`() {
+    rejects("Prelude1CardPack, EcologyExperts, -ViralEnhancers, -Decomposers, -GmoContract")
+  }
+
+  @Test
+  internal fun `Ecology Experts and Decomposers require Unsafe`() {
+    rejects("Prelude1CardPack, EcologyExperts, -ViralEnhancers, -EcologicalZone, -GmoContract")
+  }
+
+  @Test
+  internal fun `Ecology Experts and GMO Contract require Unsafe`() {
+    rejects(
+        "Prelude1CardPack, TurmoilExpansion, EcologyExperts, -ViralEnhancers, " +
+            "-EcologicalZone, -Decomposers"
+    )
+  }
+
+  @Test
+  internal fun `Ecology Experts is usable when all four listeners are absent`() {
+    classTable(
+            "Prelude1CardPack, EcologyExperts, -ViralEnhancers, -EcologicalZone, " +
+                "-Decomposers, -GmoContract"
+        )
+        .isInhabited(cn("EcologyExperts")) shouldBe true
+  }
+
+  @Test
+  internal fun `Thawer and Snow Cover are compatible in the normal pool`() {
+    val normal = classTable("TurmoilExpansion, Thawer, Builder, Engineer")
+    normal.isInhabited(cn("Thawer")) shouldBe true
+    normal.isInhabited(cn("SnowCover")) shouldBe true
+  }
+
+  @Test
+  internal fun `a copied premise still checks the completed content pool`() {
+    val ordinary = premise("Prelude2CardPack", players = 2)
+    val altered =
+        ordinary.copy(
+            classSelections = ordinary.classSelections + ClassSelection(cn("PreservationProgram"))
+        )
+
+    shouldThrow<InvalidGameConfigException> { Engine.newGame(altered) }
+  }
+
+  @Test
+  internal fun `Unsafe does not override map exclusivity`() {
+    rejects("Unsafe, HellasMap, ElysiumMap")
   }
 
   private fun defaultMayBeExcluded(
