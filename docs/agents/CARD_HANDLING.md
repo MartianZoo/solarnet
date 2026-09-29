@@ -1,16 +1,17 @@
-# Count-only card handling
+# Card handling and external tracking
 
 > **NOTE:** This document is maintained for coding agents. A human did not write it.
 
-> **Read when:** changing card backs, card play, draws, searches, purchases, or card-tracked
-> replays.
+> **Read when:** changing card backs, card play, draws, searches, purchases, card-tracked replays,
+> or the card-tracking game-playing API.
 >
-> **Status:** current model and deliberate boundary.
+> **Status:** current count-only engine model and selected external-tracking direction. The
+> production card-tracking API remains to be designed.
 
 ## World model
 
-Solarnet follows an external Terraforming Mars game. It records only the number of generic card
-backs owned by each Player:
+The engine follows externally supplied Terraforming Mars card decisions. Before play, it records
+only the number of generic card backs owned by each Player:
 
 - `ProjectCard` is the count in that Player's hand;
 - `CorporationCard` and `PreludeCard` are analogous setup/phase counts;
@@ -44,8 +45,9 @@ card, card-specific modifiers adjust that debt through `PayingFor<Class<ProjectC
 the one `CardPurchase` billing converts the request count into the same number of generic
 `ProjectCard`s. The workflow represents no card identity or selection pool.
 
-Do not add state or syntax for cards that were offered, revealed, searched past, rejected, or left
-in an external deck. Do not infer a face before play.
+Do not add engine state or syntax for cards that were offered, revealed, searched past, rejected,
+or left in an external deck. Do not infer hand identities from anonymous counts; known names are
+supplied and tracked outside the engine.
 
 When executable Pets omits a physical offer size, search predicate, reveal condition, or look/keep
 relationship, preserve the missing fragment of the former expression beside it as a comment. Do this
@@ -58,19 +60,37 @@ that machinery merely to make those predicates executable.
 
 ## Replay tracking
 
-`CardTrackingFullGameTest` may maintain an exact-name ledger outside the World for stronger replay
-evidence. Named draws, buys, discards, plays, and returns annotate the matching generic card-count
-events. An atomic `ProjectCard FROM ProjectCard` exchange names its gained and removed cards
-separately; strict tracking requires both sides. `projectCardArrivalOrder` contains only cards that
-actually enter the indicated Player's hand, in arrival order. Rejected offers and searched-past cards
-do not appear in the fixture.
+[CardTrackingFullGameTest.kt](../../test/common/dev/martianzoo/tfm/tests/replays/CardTrackingFullGameTest.kt)
+maintains an exact-name ledger outside the World for stronger replay evidence. Named draws, buys,
+discards, plays, and returns annotate the matching generic card-count events. An atomic
+`ProjectCard FROM ProjectCard` exchange names its gained and removed cards separately; strict
+tracking requires both sides. `projectCardArrivalOrder` contains only cards that actually enter the
+indicated Player's hand, in arrival order. Rejected offers and searched-past cards do not appear in
+the fixture. Replay-local unknown names can stand in for hand cards whose faces are absent from the
+source evidence.
 
-Strict tracking verifies that every hand-count change is named and that the external ledger agrees
-with each Player's `ProjectCard` count. This test-only evidence does not change production semantics.
+When enabled, strict tracking verifies that every hand-count change is named and that the external
+ledger agrees with each Player's `ProjectCard` count. The focused scenarios in
+[CardTrackingFullGameTestTest.kt](../../test/jvm/dev/martianzoo/tfm/tests/replays/CardTrackingFullGameTestTest.kt)
+exercise named arrivals, plays, returns, discards, and tracking failures. This is implemented test
+support, not yet a production game-playing API.
 
-## Deliberate non-goal
+## Selected game-playing direction
 
-Solarnet does not plan to become the card dealer or model real-card mode. Shuffle/deal, deck order,
-hidden information, and unplayed face identity remain the responsibility of the external game or
-client. Reintroducing any of them requires a new explicit design decision; do not preserve or add
-scaffolding for that hypothetical mode.
+Restore a coherent middle-ground card-tracking game-playing API, with card locations tracked
+**outside the engine**, along the lines demonstrated by the test harness. Known identities of cards
+that enter a hand or play matter; identities of cards that never enter either do not. The anonymous
+engine counts and the external tracking must agree.
+
+This direction does not select a public API shape, require copying the test harness literally, or
+authorize restoring the old location machinery wholesale. Find the smallest coherent contract for
+normal named-card play; do not reintroduce the broader real-card branch. Human-directed and
+autonomous solo play should use the same game-playing capabilities.
+
+## Deliberate boundaries
+
+Hidden-information handling, player-specific universes, and drafting are not selected goals. Exact
+hand tracking outside the engine is selected; hiding those names from other readers is not required.
+Shuffle/deal policy, deck order, and identities of cards never entering a hand or play do not belong
+in the engine. Do not build scaffolding for a full dealer or real-card mode as a prerequisite for
+this narrower tracking API.

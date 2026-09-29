@@ -199,7 +199,8 @@ When a `PER` metric or other scalar calculation makes the requested count zero, 
 - `requirement: A`: the requirement is checked before `A`. Failure makes that arm unavailable; it
   does not change `A`'s quantifier.
 - `A / metric`: the metric is evaluated first and multiplies `A`'s requested count. Zero becomes
-  `Ok`; a positive result follows the normal rules.
+  `Ok`; a positive gain of an `Atomized` type splits into independent gains of one before resolving
+  their choices and limits. Other changes follow the normal rules.
 - `A BY actor`: `BY` changes the performer, not the target domain, count, or limit.
 - `PROD[A]`: production lowering changes the component Types first; the resulting changes
   then follow this specification.

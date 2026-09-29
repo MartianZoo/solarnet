@@ -218,7 +218,11 @@ internal constructor(
               resolve(unresolved.inner, worldGainNarrowing),
               canonicalActorExpression(unresolved),
           )
-      is Per -> resolve(unresolved.inner * reader.count(unresolved.metric), worldGainNarrowing)
+      is Per ->
+          resolveTree(
+              elaborator.atomizeGains(unresolved.inner * reader.count(unresolved.metric)),
+              worldGainNarrowing,
+          )
       is Gated -> {
         if (!reader.has(unresolved.gate)) {
           throw RequirementException(

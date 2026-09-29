@@ -3,7 +3,6 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -95,16 +94,16 @@ internal class DoubleDownTest : CardTest() {
   }
 
   @Test
-  internal fun `Double Down repeats Fake Preservation Program TR without its ongoing penalty`() {
-    newGame(PreludeExpansion, PromoCardPack, FakeStuffBundle)
+  internal fun `Double Down repeats Preservation Program TR without adding another skip`() {
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
     p1.playCorp(CrediCor, 1)
     admin.phase("Prelude")
-    p1.playPrelude(cn("FakePreservationProgram"))
-    p1.playPrelude(DoubleDown) { doTask("CopyPrelude<FakePreservationProgram>") }
+    p1.playPrelude(PreservationProgram)
+    p1.playPrelude(DoubleDown) { doTask("CopyPrelude<$PreservationProgram>") }
         .expect("5 TerraformRating")
     admin.phase("Action")
 
-    // Only the original stand-in reverses a TR gain. Double Down adds no second penalty.
+    // Double Down repeats the benefit without adding a second skip.
     p1.playProject(Comet, 21) { placeTile(1, 2) }.expect("TerraformRating")
   }
 }

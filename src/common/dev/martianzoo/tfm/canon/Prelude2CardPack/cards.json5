@@ -118,6 +118,18 @@
           "immediate": "2 TerraformRating, SearchForCard<TagFilter<Class<JovianTag>>>, SearchForCard<TagFilter<Class<VenusTag>>>",
         },
         {
+          "name": "PreservationProgram",
+          "immediate": "5 TerraformRating",
+          "invariants": [ "Class<PreservationTrWatcher>" ],
+          "effects": [
+            "X TerraformRating IF ActionPhase, MAX 0 ActionPhaseTrGain:: -TerraformRating",
+          ],
+          "components": [
+            "CLASS PreservationTrWatcher : CardWatcher { TerraformRating IF ActionPhase:: ActionPhaseTrGain. }",
+            "CLASS ActionPhaseTrGain<GenerationScope> : Owned { HAS MAX 1 This }",
+          ],
+        },
+        {
           "name": "ProjectEden",
           "tags": [ "CityTag", "PlantTag" ],
           "immediate": "OceanTile<>, CityTile<>, DefaultGreeneryTile, -3 ProjectCard",

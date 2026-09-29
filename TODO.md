@@ -6,6 +6,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Enforce declared incompatible content pairs at the external game-selection boundary. Preservation
+  Program must not share a game with Terraforming Deal or the Reds ruling policy under the selected
+  gain-then-remove model. These exclusions are documented and characterized in BugsTest; automatic
+  selection rejection is not implemented.
 - Resolve Landshaper's distinct-tile requirement before changing its behavior. The suspected bug
   where Capital plus one greenery suffices is quarantined in `cards/BugsTest.kt`; audit R01 leaves
   this combination open even though Capital's city and special-tile classifications are confirmed.
