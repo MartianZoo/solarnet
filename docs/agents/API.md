@@ -30,6 +30,9 @@
 - [GAMEWORLD.md](GAMEWORLD.md) owns task data and recording navigation;
   [RESPONSIBILITIES.md](RESPONSIBILITIES.md#selected-runtime-dependency-direction) owns the target
   dependency direction; [AUTOEXEC.md](AUTOEXEC.md) owns Agent policies and stable points.
+- [CARD_HANDLING.md](CARD_HANDLING.md#selected-game-playing-direction) owns the selected Terraforming
+  Mars card-tracking API direction outside the engine; that API is not implemented by the generic
+  Agent contract described here.
 
 ## Core mutation surface
 
@@ -87,7 +90,8 @@ object would add no present responsibility and is not planned.
 `Agent.reader` is a `ScopedGameReader`. In Player scope, contextual input such as `Plant` is
 interpreted as `Plant<that Player>`, matching the current contextual `Owner` substitution.
 `agent.reader.unscoped` returns the underlying `GameReader` so callers can deliberately inspect the
-whole game without leaving the Agent API.
+whole game without leaving the Agent API. This scoping supplies contextual input; it does not
+require hidden-information views or player-specific universes.
 
 An Agent owns the policies that may autonomously choose further actions for its Actor. This makes
 human and artificial players one model: a human-directed Agent may have no active policies, while

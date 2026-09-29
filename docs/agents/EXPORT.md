@@ -13,6 +13,15 @@
 
 ## Goal and the three views of one game
 
+Success means confidence that the decision format faithfully and accurately represents a list of
+player decisions, without incidental engine implementation detail. A short syntax is insufficient
+if it loses a choice, substitutes consequences for the decision that caused them, or needs a replay
+script to fill in missing information.
+
+Saving an unfinished game and resuming it later is **not a priority** and is not an acceptance gate
+for decision export/import. Comparisons at intermediate positions can still test reconstruction
+correctness without creating that product requirement.
+
 The goal is a **pure file** containing the necessary and sufficient information to reconstruct a
 played game, given the same game declarations and implementation. It must not depend on the
 exporter's live World or a replay script that supplies omitted choices. The compact decision form
@@ -89,11 +98,13 @@ mandatory `!`; the reader restores it directly, without consulting component def
 may omit an Actor's own `<Pink>` argument only when reparsing in Pink's context restores exactly
 the same instruction. These are syntax reductions, not lost choices.
 
-Card tracking was deliberately deferred in the first card-tracked-game experiment. Later, any card
-identity or other external outcome that the unchanged engine cannot infer must be supplied by the
-file. A compact decision stream still needs a premise recipe and a workflow-start boundary; the
-stashed experiment's text stream relies on its caller to supply those. An unstarted World is not
-equivalent to one whose workflow has launched.
+The first card-tracked-game experiment deferred card tracking. The selected
+[external card-tracking direction](CARD_HANDLING.md#selected-game-playing-direction) makes known
+card identities and externally supplied outcomes part of the reconstruction problem: information
+needed to reproduce the played game that the engine cannot infer must be supplied by the file. The
+encoding for those facts has not been selected. A compact decision stream still needs a premise
+recipe and a workflow-start boundary; the stashed experiment's text stream relies on its caller to
+supply those. An unstarted World is not equivalent to one whose workflow has launched.
 
 ### Custom instruction boundary
 
@@ -158,6 +169,7 @@ For the next experiment, temporarily report the unlaunched-game and Admin-schedu
 explicit exclusions while repairing task stages and backtracking. Do not count exclusions as
 successful imports. A completed-game-only importer may require every queue to be empty, but tests
 of a partial game must compare full pending tasks rather than accept matching components alone.
+That is a reconstruction correctness check, not a requirement to save and resume unfinished games.
 Direct `sneak` and task injection still need an explicit boundary if a source test uses them.
 
 The combined format should be tested by opening its exact events without an engine and,
