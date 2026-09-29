@@ -110,9 +110,9 @@ task matching, or incidental queue order.
 ## What `THEN` does
 
 `A THEN B` relates stages of one authored instruction. Task normalization normally stores A as the
-current task and B as its continuation. If an explicitly marked Type variable must remain shared,
-the sequence stays together until narrowing binds it safely. When A finishes, B becomes ordinary
-pending work.
+current task and B as its continuation. If A uses an unresolved shared Type variable, including in
+an observer, the sequence stays together until narrowing selects that value. An unrelated A can run
+while B retains its shared scope. When A finishes, B becomes ordinary pending work.
 
 B receives no priority over other tasks and does not wait for queued effects caused by A. For two
 chains, `A1, A2, B1, B2` can therefore be legal. A selected A does exclude competing gameplay while

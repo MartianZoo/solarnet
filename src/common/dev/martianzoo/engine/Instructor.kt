@@ -39,6 +39,7 @@ import dev.martianzoo.pets.ast.Instruction.Transform
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
+import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
@@ -232,20 +233,46 @@ internal constructor(
       is Or -> resolveOr(unresolved, worldGainNarrowing)
       is Then -> {
         val first = unresolved.first
-        val gated = first as? Gated
-        val gateVariables =
-            gated
-                ?.gate
-                ?.descendantsOfType<Expression>()
-                ?.mapNotNull(unresolved.typeVariables::variableAt)
-                ?.toSet()
-                .orEmpty()
-        val openGate =
-            gated?.inner?.descendantsOfType<Expression>()?.any {
-              unresolved.typeVariables.variableAt(it) in gateVariables
-            } == true
+        val openChoice =
+            first.descendantsOfType<Expression>().any { expression ->
+              unresolved.typeVariables.variableAt(expression)?.let { variable ->
+                reader.isAbstract(unresolved.typeVariables.expressionOf(variable.declaration))
+              } == true
+            }
+        if (
+            openChoice &&
+                first is Change &&
+                first.count is ActualScalar &&
+                first.quantifier != OPTIONAL
+        ) {
+          // Removing predicates gives an upper bound on possible targets. A shared observer may
+          // await selection, but it cannot make an otherwise impossible physical change possible.
+          val broad =
+              object : PetTransformer() {
+                override fun transformNode(node: PetNode): PetNode =
+                    if (node is Expression) transformChildren(node.copy(refinement = null))
+                    else transformChildren(node)
+              }
+          val required =
+              if (first.quantifier == MANDATORY) (first.count as ActualScalar).value else 1
+          val gain = first.gaining?.let { reader.resolve(broad.transformExpression(it)) }
+          val removal = first.removing?.let { reader.resolve(broad.transformExpression(it)) }
+          val possible =
+              when {
+                gain != null && removal == null && !gain.rootClass.declaration.custom ->
+                    limiter.hasExecutableConcreteGain(gain, required, reader)
+                gain == null && removal != null ->
+                    limiter.hasExecutableConcreteRemoval(removal, required, reader)
+                else -> true
+              }
+          if (!possible) {
+            if (first.quantifier == MANDATORY)
+                throw LimitsException("no concrete narrowing of `$first` can execute")
+            return unresolved.withInstructions(listOf(NoOp) + unresolved.instructions.drop(1))
+          }
+        }
         unresolved.withInstructions(
-            listOf(if (openGate) first else resolveTree(first, worldGainNarrowing)) +
+            listOf(if (openChoice) first else resolveTree(first, worldGainNarrowing)) +
                 unresolved.instructions.drop(1)
         )
       }

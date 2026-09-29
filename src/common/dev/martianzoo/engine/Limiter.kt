@@ -111,7 +111,6 @@ internal class Limiter(
       minimum: Int,
       info: TypeInfo,
   ): Boolean {
-    require(type.abstract)
     require(minimum > 0)
     return classTable
         .allConcreteSubtypes(type) { dependency ->
@@ -128,7 +127,6 @@ internal class Limiter(
       minimum: Int,
       info: TypeInfo,
   ): Boolean {
-    require(type.abstract)
     require(minimum > 0)
     return gameWorld.components.matchingTypes(type, info).any { candidate ->
       findLimit(null, candidate.toComponent()) >= minimum

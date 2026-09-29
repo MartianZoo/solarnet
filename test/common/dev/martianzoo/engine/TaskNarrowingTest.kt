@@ -6,6 +6,7 @@ import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GameEvent
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
@@ -567,6 +568,337 @@ internal class TaskNarrowingTest {
 
     writer.count("MC") shouldBe 3
     tasks.extract { it }.shouldHaveSize(1)
+  }
+
+  @Test
+  internal fun `Partial narrowing cannot discard a shared observing refinement`() {
+    writer.runOperation("Heat")
+    val id =
+        initiate("MC<Player(HAS Selected@StandardResource)> THEN Selected@StandardResource")
+            .single()
+    writer.selectTask(id)
+
+    shouldThrow<NarrowingException> {
+      writer.narrowTask("MC<Player1> THEN StandardResource")
+    }
+    shouldThrow<NarrowingException> { writer.narrowTask("MC<Player1>") }
+    shouldThrow<NarrowingException> { writer.narrowTask("MC<Player1> THEN Steel") }
+    writer.narrowTask("MC<Player1> THEN Heat")
+    writer.doTask("Heat")
+
+    writer.count("MC") shouldBe 1
+    writer.count("Heat") shouldBe 2
+    writer.count("Steel") shouldBe 0
+  }
+
+  @Test
+  internal fun `Selecting a THEN head through OR cannot discard its shared observer`() {
+    writer.runOperation("Heat")
+    val id =
+        initiate(
+                "(MC<Player(HAS Selected@StandardResource)> THEN Selected@StandardResource) OR Energy"
+            )
+            .single()
+    writer.selectTask(id)
+
+    shouldThrow<NarrowingException> { writer.narrowTask("MC<Player1>") }
+    writer.narrowTask("MC<Player1> THEN Heat")
+    writer.doTask("Heat")
+
+    writer.count("MC") shouldBe 1
+    writer.count("Heat") shouldBe 2
+    writer.count("Energy") shouldBe 0
+  }
+
+  @Test
+  internal fun `Resolving the same predicate in another scope preserves its shared choice`() {
+    writer.runOperation("Heat")
+    val first =
+        initiate("MC<Player(HAS Selected@StandardResource)> THEN Selected@StandardResource")
+            .single()
+    writer.selectTask(first)
+    writer.narrowTask("MC<Player1> THEN Heat")
+    writer.doTask("Heat")
+
+    val second =
+        initiate("MC<Player(HAS Selected@StandardResource)> THEN Selected@StandardResource")
+            .single()
+    writer.selectTask(second)
+    shouldThrow<NarrowingException> { writer.narrowTask("MC<Player1> THEN Steel") }
+    writer.narrowTask("MC<Player1> THEN Heat")
+    writer.doTask("Heat")
+
+    writer.count("MC") shouldBe 2
+    writer.count("Heat") shouldBe 3
+    writer.count("Steel") shouldBe 0
+  }
+
+  @Test
+  internal fun `Declining a supplier still works after an earlier NoOp is normalized away`() {
+    writer.runOperation("Heat")
+    val id =
+        initiate(
+                "Die? THEN MC<Player(HAS Selected@StandardResource)> THEN Selected@StandardResource?"
+            )
+            .single()
+    writer.selectTask(id)
+    writer.narrowTask("MC<Player1> THEN Ok")
+
+    writer.count("MC") shouldBe 1
+    writer.count("Heat") shouldBe 1
+    tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun `An outer gate preserves the shared choice when selecting its sequence`() {
+    writer.runOperation("Heat")
+    val id =
+        initiate("Heat: (MC<Player(HAS Selected@StandardResource)> THEN Selected@StandardResource)")
+            .single()
+    writer.selectTask(id)
+    shouldThrow<NarrowingException> { writer.narrowTask("MC<Player1> THEN Steel") }
+    writer.narrowTask("MC<Player1> THEN Heat")
+    writer.doTask("Heat")
+
+    writer.count("MC") shouldBe 1
+    writer.count("Heat") shouldBe 2
+    writer.count("Steel") shouldBe 0
+  }
+
+  @Test
+  internal fun `An unselected gated task cannot erase its unresolved shared choice`() {
+    writer.runOperation("Heat")
+    val id =
+        initiate("Heat: (MC<Player(HAS Selected@StandardResource)> THEN Selected@StandardResource)")
+            .single()
+
+    shouldThrow<TaskException> {
+      writer.doTask("Heat: (MC<Player1> THEN StandardResource)")
+    }
+    writer.count("MC") shouldBe 0
+    writer.count("Heat") shouldBe 1
+    tasks.extract { it }.shouldHaveSize(1)
+
+    writer.selectTask(id)
+    writer.narrowTask("MC<Player1> THEN Heat")
+    writer.doTask("Heat")
+    writer.count("MC") shouldBe 1
+    writer.count("Heat") shouldBe 2
+  }
+
+  @Test
+  internal fun `An unrelated first stage runs while later shared choices stay correlated`() {
+    val id = initiate("Heat THEN Chosen@StandardResource THEN Chosen@StandardResource").single()
+    writer.selectTask(id)
+    writer.count("Heat") shouldBe 1
+
+    writer.selectTask(tasks.ids().single())
+    shouldThrow<NarrowingException> { writer.narrowTask("Steel THEN Plant") }
+    writer.narrowTask("Steel THEN Steel")
+    writer.doTask("Steel")
+    writer.count("Steel") shouldBe 2
+    tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun `A concrete shared choice can retain an abstract existence query in a later gate`() {
+    writer.runOperation("Heat")
+    val id = initiate("MC<Chosen@Player> THEN (StandardResource: Heat<Chosen@Player>)").single()
+    writer.selectTask(id)
+    writer.narrowTask("MC<Player1> THEN (StandardResource: Heat<Player1>)")
+    writer.doTask("Heat")
+
+    writer.count("MC") shouldBe 1
+    writer.count("Heat") shouldBe 2
+  }
+
+  @Test
+  internal fun `Binding an outer variable cannot discard an inner shared predicate`() {
+    writer.runOperation("Heat")
+    val id =
+        initiate(
+                "MC<Chosen@Player(HAS Selected@StandardResource)> " +
+                    "THEN Selected@StandardResource THEN Heat<Chosen@Player>"
+            )
+            .single()
+    writer.selectTask(id)
+    shouldThrow<NarrowingException> {
+      writer.narrowTask("MC<Player1> THEN Steel THEN Heat<Player1>")
+    }
+    writer.narrowTask("MC<Player1> THEN Heat THEN Heat<Player1>")
+    writer.doTask("Heat")
+    writer.doTask("Heat")
+
+    writer.count("MC") shouldBe 1
+    writer.count("Heat") shouldBe 3
+    writer.count("Steel") shouldBe 0
+  }
+
+  @Test
+  internal fun `A selected shared owner leaves an independent resource choice open`() {
+    val id = initiate("Heat<Chosen@Player> THEN StandardResource<Chosen@Player>").single()
+    writer.selectTask(id)
+    writer.narrowTask("Heat<Player1> THEN StandardResource<Player1>")
+    writer.count("Heat") shouldBe 1
+    writer.doTask("Steel<Player1>")
+    writer.count("Steel") shouldBe 1
+    tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun `A later OR supplier must satisfy its earlier observer`() {
+    writer.runOperation("Heat")
+    val id =
+        initiate(
+                "MC<Player(HAS Selected@StandardResource)> THEN (Selected@StandardResource OR 2 Selected@StandardResource)"
+            )
+            .single()
+    writer.selectTask(id)
+    shouldThrow<NarrowingException> { writer.narrowTask("MC<Player1> THEN Steel") }
+    writer.narrowTask("MC<Player1> THEN Heat")
+    writer.doTask("Heat")
+    writer.count("MC") shouldBe 1
+    writer.count("Heat") shouldBe 2
+    writer.count("Steel") shouldBe 0
+  }
+
+  @Test
+  internal fun `An unmarked abstract placement cannot erase its current HAS condition`() {
+    val fixture =
+        Engine.newGame(
+            testGamePremise(
+                """
+                ABSTRACT CLASS Place {
+                  CLASS First { HAS MAX 1 This }
+                  CLASS Second { HAS MAX 1 This }
+                }
+                CLASS Marker<Place>
+                CLASS Tile<Place>
+                """
+                    .trimIndent(),
+                players = 0,
+            )
+        )
+    val agent = fixture.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    agent.runOperation("First, Second, Marker<First>")
+    val id = agent.addTasks("Tile<Place(HAS Marker)>").single()
+    agent.selectTask(id)
+    shouldThrow<NarrowingException> { agent.narrowTask("Tile<Place>") }
+    shouldThrow<NarrowingException> { agent.narrowTask("Tile<Second>") }
+    agent.narrowTask("Tile<First>")
+    agent.count("Tile<First>") shouldBe 1
+    agent.count("Tile<Second>") shouldBe 0
+  }
+
+  @Test
+  internal fun `Conflicting repeated trigger captures are a non-match`() {
+    val fixture =
+        Engine.newGame(
+            testGamePremise(
+                """
+                ABSTRACT CLASS Place {
+                  CLASS First { HAS MAX 1 This }
+                  CLASS Second { HAS MAX 1 This }
+                }
+                CLASS Pair<Place, Place>
+                CLASS Notice<Place>
+                CLASS Watcher { Pair<Chosen@Place, Chosen@Place>: Notice<Chosen@Place> }
+                """
+                    .trimIndent(),
+                players = 0,
+            )
+        )
+    val agent = fixture.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    agent.runOperation("First, Second, Watcher")
+    agent.runOperation("Pair<First, Second>")
+    agent.count("Notice") shouldBe 0
+    agent.runOperation("Pair<First, First>") { doTask("Notice<First>") }
+    agent.count("Notice<First>") shouldBe 1
+    agent.count("Notice<Second>") shouldBe 0
+  }
+
+  @Test
+  internal fun `A normalized partial proposal can retain an unsettled observer`() {
+    writer.runOperation("Heat")
+    val id =
+        initiate("MC<Player(HAS Selected@StandardResource)>? THEN Selected@StandardResource")
+            .single()
+    writer.selectTask(id)
+    writer.narrowTask("MC<Player(HAS Selected@StandardResource)>! THEN Selected@StandardResource")
+    writer.count("MC") shouldBe 0
+    shouldThrow<NarrowingException> { writer.narrowTask("MC<Player1> THEN Steel") }
+    writer.narrowTask("MC<Player1> THEN Heat")
+    writer.doTask("Heat")
+    writer.count("MC") shouldBe 1
+    writer.count("Heat") shouldBe 2
+  }
+
+  @Test
+  internal fun `Declining the only supplier leaves an aggregate observer`() {
+    writer.runOperation("Heat")
+    initiate("Chosen@StandardResource? THEN MC<Player(HAS Chosen@StandardResource)>")
+    writer.doTask("Ok")
+    writer.doTask("MC<Player1>")
+    writer.count("MC") shouldBe 1
+    writer.count("Heat") shouldBe 1
+    tasks.isEmpty() shouldBe true
+  }
+
+  @Test
+  internal fun `A first-stage gate can observe a value supplied by a later stage`() {
+    writer.runOperation("Heat")
+    val id = initiate("(Selected@StandardResource: MC) THEN Selected@StandardResource").single()
+    writer.selectTask(id)
+    writer.count("MC") shouldBe 0
+    writer.narrowTask("(Heat: MC) THEN Heat")
+    writer.doTask("Heat")
+    writer.count("MC") shouldBe 1
+    writer.count("Heat") shouldBe 2
+  }
+
+  @Test
+  internal fun `A first-stage alias captures a uniquely determined concrete subtype`() {
+    val fixture =
+        Engine.newGame(
+            testGamePremise(
+                """
+                ABSTRACT CLASS Kind {
+                  ABSTRACT CLASS Shape { CLASS Only { HAS MAX 1 This } }
+                  CLASS Other { HAS MAX 1 This }
+                }
+                CLASS Notice<Kind>
+                """
+                    .trimIndent(),
+                players = 0,
+            )
+        )
+    val agent = fixture.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    agent.runOperation("Other")
+    agent.addTasks("Chosen@Shape THEN Notice<Chosen@Shape>")
+    agent.doTask("Shape")
+    agent.count("Only") shouldBe 1
+    shouldThrow<TaskException> { agent.doTask("Notice<Other>") }
+    agent.doTask("Notice<Only>")
+    agent.count("Notice<Only>") shouldBe 1
+    agent.count("Notice<Other>") shouldBe 0
+  }
+
+  @Test
+  internal fun `A feasible removal still checks its shared predicate before execution`() {
+    writer.runOperation("2 MC, Heat")
+    val id =
+        initiate("-MC<Player(HAS Selected@StandardResource)> THEN Selected@StandardResource")
+            .single()
+    writer.selectTask(id)
+
+    shouldThrow<NarrowingException> { writer.narrowTask("-MC<Player1> THEN Steel") }
+    writer.count("MC") shouldBe 2
+    writer.count("Steel") shouldBe 0
+
+    writer.narrowTask("-MC<Player1> THEN Heat")
+    writer.doTask("Heat")
+    writer.count("MC") shouldBe 1
+    writer.count("Heat") shouldBe 2
   }
 
   private fun initiate(ins: String) = writer.addTasks(ins)

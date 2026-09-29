@@ -607,6 +607,7 @@ internal constructor(
                 binding.variable.declaration.region,
                 binding.variable.declaration.ordinal,
                 interpretedGroundType = binding.variable.declaration.groundType,
+                representedClass = binding.variable.selectsClass,
             ),
             mutableListOf(),
             (binding.aliases + binding.variable).toMutableSet(),
@@ -686,6 +687,7 @@ internal constructor(
                   first.region,
                   first.ordinal,
                   interpretedGroundType = loader.resolve(first.expression),
+                  representedClass = first.path.keyList.last().declaringClass == CLASS,
               )
 
           val paths = occurrences.mapTo(mutableSetOf(), HeaderOccurrence::path)

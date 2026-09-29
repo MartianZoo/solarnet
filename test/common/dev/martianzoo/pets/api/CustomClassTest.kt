@@ -57,6 +57,9 @@ internal class CustomClassTest {
 
     override fun ensureNarrows(wide: Expression, narrow: Expression): Unit = error("unused")
 
+    override fun ensureSelectionNarrows(wide: Expression, narrow: Expression): Unit =
+        error("unused")
+
     override fun has(requirement: Requirement): Boolean = error("unused")
 
     override fun count(metric: Metric): Int = error("unused")

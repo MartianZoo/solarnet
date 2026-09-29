@@ -120,6 +120,10 @@ internal class FloodingTest : CardTest() {
             "OceanTile<Tharsis_5_6>, OceanTile<Tharsis_6_7>"
     )
     p1.playProject(Flooding, 7) {
+          p1.selectTask(tasks.ids().single())
+          shouldThrow<NarrowingException> {
+            doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Player4>!")
+          }
           doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Player2>!")
         }
         .expect("OceanTile, TerraformRating, -4 MC<Player2>, 0 MC<Player4>")
@@ -146,7 +150,7 @@ internal class FloodingTest : CardTest() {
   internal fun `Further narrowing cannot switch the chosen victim`() {
     arrangeFlooding()
     p1.playProject(Flooding, 7) {
-          doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Anyone>?")
+          doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Player2>?")
           p1.selectTask(tasks.ids().single())
           p1.narrowTask("-4 MC<Player2>?")
           shouldThrow<NarrowingException> { doTask("-4 MC<Player4>!") }
@@ -191,6 +195,86 @@ internal class FloodingTest : CardTest() {
         }
         .expect("0 MC<Player2>, 0 MC<Player3>, 0 MC<Player4>")
     admin.count("OceanTile") shouldBe 9
+  }
+
+  @Test
+  internal fun `Cannot charge a non-neighboring owner`() {
+    arrangeFlooding()
+    p1.playProject(Flooding, 7) {
+          shouldThrow<NarrowingException> {
+            doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Player4>!")
+          }
+          doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Player2>!")
+        }
+        .expect("-4 MC<Player2>, 0 MC<Player3>, 0 MC<Player4>")
+  }
+
+  @Test
+  internal fun `Cannot qualify the victim through a different ocean area`() {
+    arrangeFlooding()
+    p1.playProject(Flooding, 7) {
+          shouldThrow<NarrowingException> {
+            doTask("OceanTile<Tharsis_1_2>! THEN -4 MC<Player2>!")
+          }
+          doTask("OceanTile<Tharsis_1_2>! THEN -4 MC<Player4>!")
+        }
+        .expect("0 MC<Player2>, 0 MC<Player3>, -4 MC<Player4>")
+  }
+
+  @Test
+  internal fun `Partial narrowing cannot discard the shared victim`() {
+    arrangeFlooding()
+    p1.playProject(Flooding, 7) {
+          p1.selectTask(tasks.ids().single())
+          shouldThrow<NarrowingException> {
+            p1.narrowTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Anyone>?")
+          }
+          shouldThrow<NarrowingException> {
+            p1.narrowTask("OceanTile<WaterArea>! THEN -4 MC<Player2>?")
+          }
+          p1.count("OceanTile") shouldBe 0
+          doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Player2>!")
+        }
+        .expect("-4 MC<Player2>, 0 MC<Player3>, 0 MC<Player4>")
+  }
+
+  @Test
+  internal fun `Selecting an unresolved attack arm cannot start the placement`() {
+    arrangeFlooding()
+    p1.playProject(Flooding, 7) {
+          p1.selectTask(tasks.ids().single())
+          shouldThrow<NarrowingException> {
+            p1.narrowTask(
+                "OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<Anyone>>)>! " +
+                    "THEN -4 MC<Anyone>?"
+            )
+          }
+          p1.count("OceanTile") shouldBe 0
+          shouldThrow<NarrowingException> {
+            doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Player4>!")
+          }
+          doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Player2>!")
+        }
+        .expect("-4 MC<Player2>, 0 MC<Player3>, 0 MC<Player4>")
+  }
+
+  @Test
+  internal fun `Can decline the loss in a complete placement choice`() {
+    arrangeFlooding()
+    p1.playProject(Flooding, 7) {
+          doTask("OceanTile<Tharsis_5_4>! THEN Ok")
+        }
+        .expect("0 MC<Player2>, 0 MC<Player3>, 0 MC<Player4>")
+  }
+
+  @Test
+  internal fun `Can choose a smaller optional loss while selecting the victim`() {
+    arrangeFlooding()
+    p1.playProject(Flooding, 7) {
+          doTask("OceanTile<Tharsis_5_4>! THEN -2 MC<Player2>?")
+          doTask("-2 MC<Player2>!")
+        }
+        .expect("-2 MC<Player2>, 0 MC<Player3>, 0 MC<Player4>")
   }
 
   private fun playFlooding(owner: String, expectedCharge: String) {

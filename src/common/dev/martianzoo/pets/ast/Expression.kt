@@ -268,6 +268,19 @@ public data class Expression(
    * of the type system specification.
    */
   public sealed class Refinement : PetNode() {
+    /** A predicate's bound meaning does not depend on a local choice's syntax marker. */
+    internal fun withoutChoiceNames(): Refinement =
+        object : dev.martianzoo.pets.PetTransformer() {
+              override fun transformNode(node: PetNode): PetNode =
+                  if (
+                      node is Expression &&
+                          node.typeVariableName !is TypeVariableName.RepresentedClassReference
+                  )
+                      transformChildren(node.copy(typeVariableName = null))
+                  else transformChildren(node)
+            }
+            .transformRefinement(this)
+
     override val kind: KClass<out PetNode> = Refinement::class
 
     /**

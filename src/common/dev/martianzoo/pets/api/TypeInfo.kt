@@ -9,6 +9,9 @@ public interface TypeInfo {
 
   public fun ensureNarrows(wide: Expression, narrow: Expression)
 
+  /** Instruction choices retain predicates on candidates whose structure is still abstract. */
+  public fun ensureSelectionNarrows(wide: Expression, narrow: Expression)
+
   public fun has(requirement: Requirement): Boolean
 
   /** A context-free sentinel that fails if an operation needs a world. */
@@ -18,6 +21,8 @@ public interface TypeInfo {
     override fun isAbstract(e: Expression): Boolean = missing()
 
     override fun ensureNarrows(wide: Expression, narrow: Expression): Unit = missing()
+
+    override fun ensureSelectionNarrows(wide: Expression, narrow: Expression): Unit = missing()
 
     override fun has(requirement: Requirement): Boolean = missing()
   }

@@ -71,11 +71,15 @@ internal constructor(
   ): TaskResult = worldTransaction.run(block, validateCompletion, settle)
 
   private fun narrowingFacts(requirementsHold: Boolean): TypeInfo =
-      object : TypeInfo {
+      object : GameReader by reader {
         override fun isAbstract(e: Expression): Boolean = reader.resolve(e).isAbstract(this)
 
         override fun ensureNarrows(wide: Expression, narrow: Expression) {
           reader.resolve(narrow).ensureNarrows(reader.resolve(wide), this)
+        }
+
+        override fun ensureSelectionNarrows(wide: Expression, narrow: Expression) {
+          reader.resolve(narrow).groundType.ensureSelectionNarrows(reader.resolve(wide), this)
         }
 
         override fun has(requirement: Requirement): Boolean = requirementsHold
@@ -475,21 +479,25 @@ internal constructor(
   ): Then? {
     if (narrowing is Then) return null
     val revisedInstruction = narrowing as? Instruction ?: return null
-    val candidates: List<Pair<Then, Boolean>> =
+    val candidates: List<Then> =
         when (instruction) {
-          is Then -> listOf(instruction to false)
-          is Or -> instruction.instructions.filterIsInstance<Then>().map { it to true }
+          is Then -> listOf(instruction)
+          is Or -> instruction.instructions.filterIsInstance<Then>()
           else -> emptyList()
         }
+    val firstStageInfo =
+        object : GameReader by reader {
+          override fun ensureSelectionNarrows(wide: Expression, narrow: Expression) {
+            val type = reader.resolve(narrow)
+            val selected = reader.classTable.singleConcreteSubtype(type, reader) ?: type
+            selected.groundType.ensureSelectionNarrows(reader.resolve(wide), this)
+          }
+        }
     return candidates
-        .mapNotNull { (then, selectedFromOr) ->
+        .mapNotNull { then ->
           try {
-            val loweredBinding = loweredRemovalBinding(then, revisedInstruction)
-            if (selectedFromOr) {
-              then.selectFirstStage(revisedInstruction, reader, loweredBinding)
-            } else {
-              then.bindFirstStage(revisedInstruction, reader, loweredBinding)
-            }
+            val loweredBinding = loweredTypeBinding(then, revisedInstruction)
+            then.selectFirstStage(revisedInstruction, firstStageInfo, loweredBinding)
           } catch (_: NarrowingException) {
             null
           }
@@ -497,14 +505,23 @@ internal constructor(
         .singleOrNull()
   }
 
-  private fun loweredRemovalBinding(then: Then, narrow: Instruction): PetTransformer? {
-    val general = (then.first as? Change)?.removing ?: return null
-    val specific = (narrow as? Change)?.removing ?: return null
-    return elaborator.specializeVariables(
-        reader.resolve(general),
-        reader.resolve(specific),
-        general,
-        then.typeVariables,
+  private fun loweredTypeBinding(then: Then, narrow: Instruction): PetTransformer? {
+    val general = then.first as? Change ?: return null
+    val specific = narrow as? Change ?: return null
+    return PetTransformer.chain(
+        listOf(general.gaining to specific.gaining, general.removing to specific.removing)
+            .mapNotNull { (authored, proposed) ->
+              if (authored == null || proposed == null) return@mapNotNull null
+              val proposedType = reader.resolve(proposed)
+              val selected =
+                  reader.classTable.singleConcreteSubtype(proposedType, reader) ?: proposedType
+              elaborator.specializeVariables(
+                  reader.resolve(authored),
+                  selected,
+                  authored,
+                  then.typeVariables,
+              )
+            }
     )
   }
 
