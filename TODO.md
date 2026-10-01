@@ -29,11 +29,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   Sponsored Projects coverage. Reuse existing test-support sources before considering a fixture API.
 - Follow through on the FAQ-audit defects characterized in
   [`cards/BugsTest.kt`](test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt):
-  Double Down's copied resource destination; Mining Rights/Area and Mining Guild on wild placement
-  bonuses; Sponsored Projects adding resources to SRR's hosted cards; and Constructor remaining
-  usable without Colonies. Double Down currently leaves copied `This` unresolved; substituting
-  `DoubleDown` still makes `Director<DoubleDown>` an invalid dependency type, which AMAP does not
-  turn into zero. Resolve the copying/type semantics instead of filtering those gains in Kotlin.
+  Mining Rights/Area and Mining Guild on wild placement bonuses; Sponsored Projects adding
+  resources to SRR's hosted cards; and Constructor remaining usable without Colonies.
   Constructor's combined city/colony metric is treated as a hard Colonies dependency by the shared
   content-compatibility filter. Preserve the external-card-selection boundary when addressing
   copied Merger commitment after new information is revealed.

@@ -1,8 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.CustomCodeException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
-import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.api.Exceptions.TaskException
@@ -15,7 +13,6 @@ import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
 import kotlin.test.Test
 
 /** Passing characterizations of known incorrect behavior. */
@@ -72,22 +69,6 @@ internal class BugsTest : CardTest() {
     shouldThrow<DeadEndException> { p1.fundAward(cn("Constructor"), 8) }
     p1.count("MC") shouldBe 36
     admin.count("Award") shouldBe 0
-  }
-
-  // Audit N02: the copied directors would be unusable on Double Down and should be ignored.
-  @Test
-  internal fun `Double Down incorrectly rejects copying Board of Directors`() {
-    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
-    admin.phase("Prelude")
-    p1.playPrelude(BoardOfDirectors)
-
-    val error =
-        shouldThrow<CustomCodeException> {
-          p1.playPrelude(DoubleDown) { doTask("CopyPrelude<$BoardOfDirectors>") }
-        }
-    error.cause.shouldBeInstanceOf<ExpressionException>().detail shouldBe
-        "no class named `This` in the current game"
-    p1.assertCounts(0 to "$DoubleDown", 4 to "Director<$BoardOfDirectors>", 1 to "PreludeCard")
   }
 
   // Audit N13: choosing a metal from Amazonis's wild bonus should make this legal.
