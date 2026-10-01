@@ -2,11 +2,14 @@
 
 package dev.martianzoo.tfm.canon.promocardpack
 
+import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.api.CustomInstruction
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
+import dev.martianzoo.pets.ast.Effect.Trigger.WhenGain
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.types.Type
@@ -26,7 +29,17 @@ internal val customClasses: Set<CustomClass> =
             if (card.className == cn("DoubleDown")) {
               throw NarrowingException("Cute, but Double Down can't copy itself")
             }
-            return cardImmediate(card) ?: NoOp
+            val immediate = cardImmediate(card) ?: return NoOp
+            // Bind copied `This` to Double Down; unusable AMAP resources then become `Ok`.
+            return PetElaborator(reader.classTable)
+                .specializeEffect(
+                    card.defaultType,
+                    card.defaultType,
+                    Effect(WhenGain, immediate),
+                    cn("DoubleDown").expression,
+                    owner,
+                )
+                .instruction
           }
         }
     )
