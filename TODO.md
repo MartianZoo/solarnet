@@ -6,10 +6,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
-- Fix Turmoil's delegate-removal status updates in `rules/BugsTest.kt`. Banned Delegate can
-  leave leadership and dominance stale; resolving a removal tie must use the active player's seat
-  order. Verify the physical replay's direct delegate-color reconciliation when changing the current
-  global election.
+- Consider a shared party-leader recalculation helper for the ranking repeated on delegate gains
+  and Banned Delegate. Keep it only if it simplifies the Pets model overall and preserves leadership
+  through Recruitment's neutral-delegate transfer.
 - Fix Landshaper counting Capital as both its city and special tile when the player also owns one
   or two greeneries. Each of Landshaper's three requirements needs a distinct physical tile;
   `rules/BugsTest.kt` characterizes both incorrect successes.
