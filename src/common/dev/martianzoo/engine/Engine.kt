@@ -41,7 +41,7 @@ public object Engine {
     private val gameWorld = GameWorld(premise)
 
     // Effect compilation needs the reader, but no effect is read until state begins changing.
-    private val effector: Effector = Effector(elaborator) { reader }
+    private val effector: Effector = Effector(elaborator, customClasses) { reader }
     private val taskQueues = TaskQueues(gameWorld, classTable)
     private val recordingPositions = RecordingPositions()
     private val reader: GameReader = gameWorld.reader
@@ -55,8 +55,7 @@ public object Engine {
             recordingPositions,
             ::removeTemporaryComponent,
         )
-    private val instructor =
-        Instructor(reader, limiter, changer, effector, classTable, elaborator, customClasses)
+    private val instructor = Instructor(reader, limiter, changer, effector, classTable, elaborator)
     private val actorEngines: Map<Actor, ActorEngine> =
         premise.actors.associateWith(::createActorEngine)
     private val initializer =
@@ -143,11 +142,15 @@ public object Engine {
                   e.sourceLocation ?: expression.sourceLocation,
               )
             }
-        if (type.abstract || !classTable.isInhabited(type) || type.rootClass.declaration.custom) {
+        if (
+            type.abstract ||
+                !classTable.isInhabited(type) ||
+                type.rootClass.declaration.customMetric
+        ) {
           val reason =
               when {
-                type.rootClass.declaration.custom ->
-                    "is a custom class; custom behavior cannot be stored as a component"
+                type.rootClass.declaration.customMetric ->
+                    "is a virtual custom metric; it cannot be stored as a component"
                 !classTable.isInhabited(type) ->
                     "has no realizable concrete type in this game's selected classes"
                 else -> "is abstract; specify one concrete type"

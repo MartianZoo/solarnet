@@ -492,9 +492,9 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       convertPlants { placeTile(7, 4) }
       convertPlants { placeTile(2, 4) }
       playProject(OpenCity, 19) { placeTile(5, 1) }
-      playProject(ViralEnhancers, 7)
-      playProject(Farming, 12)
-      playProject(TundraFarming, 12)
+      playProject(ViralEnhancers, 7) { doTask("Plant") }
+      playProject(Farming, 12) { doTask("Plant") }
+      playProject(TundraFarming, 12) { doTask("Plant") }
       convertPlants { placeTile(7, 3) }
       stdProject("AsteroidProject")
       stdProject("AsteroidProject")

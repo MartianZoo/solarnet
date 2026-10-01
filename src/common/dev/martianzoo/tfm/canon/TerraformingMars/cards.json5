@@ -48,7 +48,7 @@
           "effects": [
             "CityTile<Anyone, MarsArea>: PROD[1 MC]",
             "CityTile: 3 MC",
-            "This IF SoloMode: PROD[2 MC]",
+            "This IF SoloMode, CorporationPhase: PROD[2 MC]",
           ],
         },
         {

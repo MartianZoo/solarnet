@@ -47,10 +47,10 @@ internal class Lang11ClassDeclarationsTest {
 
   @Test
   internal fun customClassesCannotDeclareOrdinaryClassBehavior() {
-    shouldThrow<PetSyntaxException> { parseClasses("CLASS Broken : Custom { HAS Broken }") }
-    shouldThrow<PetSyntaxException> { parseClasses("CLASS Broken : Custom { This: Ok }") }
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Broken : CustomMetric { HAS Broken }") }
+    shouldThrow<PetSyntaxException> { parseClasses("CLASS Broken : CustomMetric { This: Ok }") }
     shouldThrow<PetSyntaxException> {
-      parseClasses("CLASS Broken : Custom { DEFAULT Broken }")
+      parseClasses("CLASS Broken : CustomMetric { DEFAULT Broken }")
     }
   }
 
@@ -415,7 +415,7 @@ internal class Lang11ClassDeclarationsTest {
             ATOMIZED,
             cn("Actor"),
             cn("Die"),
-            cn("Custom"),
+            cn("CustomMetric"),
         )
     byName.getValue(COMPONENT).abstract shouldBe true
     byName.getValue(COMPONENT).supertypes.shouldBeEmpty()

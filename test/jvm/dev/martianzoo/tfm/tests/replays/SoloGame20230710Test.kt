@@ -119,7 +119,10 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       playProject(AsteroidRights, 10)
       cardAction2(AsteroidRights) { doTask("2 Titanium") }
       convertHeat()
-      playProject(ViralEnhancers, 9) { doTask("ProjectCard FROM Science<$OlympusConference>") }
+      playProject(ViralEnhancers, 9) {
+        doTask("Plant")
+        doTask("ProjectCard FROM Science<$OlympusConference>")
+      }
       playProject(QuantumExtractor, 13)
       playProject(SoilFactory, 3, steel = 2)
 

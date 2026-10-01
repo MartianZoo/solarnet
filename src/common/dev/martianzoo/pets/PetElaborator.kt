@@ -993,11 +993,7 @@ public class PetElaborator(public val classTable: ClassTable) {
     }
   }
 
-  /**
-   * Rule L9-14: a change to a type this game cannot hold becomes `Die` or `Ok`. An invalid
-   * post-specialization type becomes `Die`. A resolved but uninhabited type becomes `Die` when the
-   * change is mandatory and `Ok` when it permits zero.
-   */
+  /** Rule L9-14: a change to a type this game cannot hold becomes `Die` or `Ok`. */
   private fun invalidChangesToDie(openVariables: () -> TypeVariableScope): PetTransformer {
     return object : PetTransformer() {
       private val remainingVariables by lazy(LazyThreadSafetyMode.NONE, openVariables)
@@ -1044,7 +1040,7 @@ public class PetElaborator(public val classTable: ClassTable) {
             }
           }
         } catch (_: ExpressionException) {
-          return gain(DIE)
+          return if (specialized.quantifier == MANDATORY) gain(DIE) else NoOp
         }
         return specialized
       }

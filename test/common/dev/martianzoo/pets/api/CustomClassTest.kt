@@ -20,12 +20,12 @@ internal class CustomClassTest {
   @Test
   internal fun classNameDefaultsToKotlinSimpleName() {
     assertEquals(cn("AutomaticallyNamed"), AutomaticallyNamed.className)
-    shouldThrow<IllegalArgumentException> { object : CustomClass() {} }
+    shouldThrow<IllegalArgumentException> { object : CustomInstruction() {} }
   }
 
   @Test
   internal fun unimplementedTranslationArityFailsExplicitly() {
-    val customClass = object : CustomClass("Unimplemented") {}
+    val customClass = object : CustomInstruction("Unimplemented") {}
     val type = loadTypes("CLASS Argument").resolve(parse("Argument"))
 
     shouldThrow<ExpressionException> { customClass.translate(UnusedGameReader) }
@@ -39,7 +39,7 @@ internal class CustomClassTest {
     }
   }
 
-  private object AutomaticallyNamed : CustomClass()
+  private object AutomaticallyNamed : CustomInstruction()
 
   private object UnusedGameReader : GameReader {
     override val actors: List<Actor>

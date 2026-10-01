@@ -3,6 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -359,5 +360,30 @@ internal class NewPromoCardsTest : CardTest() {
     admin.runOperation("End FROM Phase")
     p1.count("FirstPlace<Excentric>") shouldBe 0
     p2.count("FirstPlace<Excentric>") shouldBe 1
+  }
+
+  @Test
+  internal fun `CEO's Favorite Project cannot add a resource to a Cathedral marker`() {
+    newGame(PromoCardPack, VenusNextExpansion)
+    p1.runOperation(
+        "$StJosephOfCupertinoMission, $SearchForLife, Science<$SearchForLife>, " +
+            "CityTile<Tharsis_4_2>, 5 MC"
+    )
+    admin.phase("Action")
+    p1.cardAction1(StJosephOfCupertinoMission) {
+      p1.pay(5)
+      doTask("Cathedral<CityTile<Anyone, Tharsis_4_2>>")
+      declineTask()
+    }
+
+    p1.runOperation("$CeosFavoriteProject") {
+      shouldThrow<ExpressionException> {
+        doTask("CardResource<$StJosephOfCupertinoMission>")
+      }
+      doTask("Science<$SearchForLife>")
+    }
+
+    p1.count("Cathedral") shouldBe 1
+    p1.count("Science<$SearchForLife>") shouldBe 2
   }
 }

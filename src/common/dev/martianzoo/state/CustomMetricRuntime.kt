@@ -13,7 +13,7 @@ internal class CustomMetricRuntime(
     private val elaborator: PetElaborator,
 ) {
   internal fun count(type: Type, reader: GameReaderImpl): Int {
-    require(type.rootClass.declaration.custom)
+    require(type.rootClass.declaration.customMetric)
     require(elaborator.classTable.isInhabited(type))
 
     if (type.abstract) {
@@ -72,9 +72,7 @@ internal class CustomMetricRuntime(
 
   private fun implementationFor(type: Type) =
       catalog.customMetric(type.className)
-          ?: throw ExpressionException(
-              "custom class `${type.className}` has no metric implementation"
-          )
+          ?: throw ExpressionException("custom metric `${type.className}` has no implementation")
 
   private fun requireValidCount(type: Type, count: Int) {
     if (count < 0) {

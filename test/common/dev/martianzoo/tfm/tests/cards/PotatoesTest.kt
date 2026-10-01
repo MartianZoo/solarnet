@@ -28,9 +28,9 @@ internal class PotatoesTest : CardTest() {
     newGame(PromoCardPack, CorporateEraExpansion)
     p1.playCorp(CrediCor, 5)
     admin.phase("Action")
-    p1.playProject(ViralEnhancers, 9).expect("Plant")
+    p1.playProject(ViralEnhancers, 9) { doTask("Plant") }.expect("Plant")
 
-    p1.playProject(Potatoes, 2).expect("-Plant, PROD[2 MC]")
+    p1.playProject(Potatoes, 2) { doTask("Plant") }.expect("-Plant, PROD[2 MC]")
   }
 
   @Test

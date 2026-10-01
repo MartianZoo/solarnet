@@ -232,6 +232,22 @@ internal class TurmoilProjectCardsTest : CardTest() {
 
     p1.count("PartyDelegate<Greens>") shouldBe 1
     p1.count("Delegate") shouldBe 1
+    p1.count("LobbyActionAvailable") shouldBe 1
+    p1.count("MC") shouldBe 0
+  }
+
+  @Test
+  internal fun `Martian Media Center may spend the last unplaced Lobby delegate`() {
+    newGame(TurmoilExpansion)
+    p1.runOperation("$MartianMediaCenter, 3 MC")
+    repeat(6) { p1.runOperation("PartyDelegate<Unity>") }
+    admin.phase("Action")
+
+    p1.cardAction1(MartianMediaCenter) { doTask("PartyDelegate<Greens>") }
+
+    p1.count("PartyDelegate<Greens>") shouldBe 1
+    p1.count("Delegate") shouldBe 7
+    p1.count("LobbyActionAvailable") shouldBe 0
     p1.count("MC") shouldBe 0
   }
 

@@ -1,7 +1,9 @@
 package dev.martianzoo.pets.types
 
-import dev.martianzoo.pets.api.CustomClass
+import dev.martianzoo.pets.api.CustomInstruction
+import dev.martianzoo.pets.api.CustomMetric
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
+import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import io.kotest.assertions.throwables.shouldThrow
@@ -233,22 +235,40 @@ internal class Spec02ClassesTest {
     table.glb(table.getClass(cn("Owned")), table.getClass(cn("Tile"))) shouldBe null
   }
 
-  // T2-9 Custom classes
+  // T2-9 Kotlin-backed classes
 
   @Test
-  internal fun `T2-9 a Custom class must have a Kotlin implementation, and only a Custom class may`() {
-    val declaration = "CLASS Neighbor : Custom"
+  internal fun `T2-9 a CustomInstruction must have a Kotlin implementation, and only a CustomInstruction may`() {
+    val declaration = "CLASS Neighbor : CustomInstruction"
 
-    ClassLoader(testCatalog(declaration, setOf(object : CustomClass(cn("Neighbor")) {})))
+    ClassLoader(testCatalog(declaration, setOf(object : CustomInstruction(cn("Neighbor")) {})))
         .loadEverything()
         .getClass(cn("Neighbor"))
         .declaration
-        .custom shouldBe true
+        .customMetric shouldBe false
 
-    // A declared-but-unimplemented Custom class is rejected by the Catalog lookup itself.
+    // A declared-but-unimplemented CustomInstruction is rejected by the Catalog lookup itself.
     shouldThrow<InvalidPetDefinitionException> { loadTypes(declaration) }
     shouldThrow<InvalidPetDefinitionException> {
-      ClassLoader(testCatalog("CLASS Neighbor", setOf(object : CustomClass(cn("Neighbor")) {})))
+      ClassLoader(
+              testCatalog("CLASS Neighbor", setOf(object : CustomInstruction(cn("Neighbor")) {}))
+          )
+          .loadEverything()
+    }
+    val wrongKind =
+        object : CustomMetric("Neighbor") {
+          override fun count(game: GameReader, type: Type): Int = 0
+        }
+    shouldThrow<InvalidPetDefinitionException> {
+      ClassLoader(testCatalog(declaration, setOf(wrongKind))).loadEverything()
+    }
+    shouldThrow<InvalidPetDefinitionException> {
+      ClassLoader(
+              testCatalog(
+                  "CLASS Neighbor : CustomMetric",
+                  setOf(object : CustomInstruction("Neighbor") {}),
+              )
+          )
           .loadEverything()
     }
   }
@@ -256,12 +276,22 @@ internal class Spec02ClassesTest {
   @Test
   internal fun `T2-9 a root class rejects an unexpected implementation`() {
     shouldThrow<InvalidPetDefinitionException> {
-      ClassLoader(testCatalog("", setOf(object : CustomClass(COMPONENT) {})))
+      ClassLoader(testCatalog("", setOf(object : CustomInstruction(COMPONENT) {})))
     }
   }
 
   @Test
-  internal fun `T2-9 a Custom class may not inherit Pets behavior`() {
+  internal fun `T2-9 a computed Signal has one implementation`() {
+    val first = object : CustomInstruction("Neighbor") {}
+    val second = object : CustomInstruction("Neighbor") {}
+    shouldThrow<InvalidPetDefinitionException> {
+      ClassLoader(testCatalog("CLASS Neighbor : CustomInstruction", setOf(first, second)))
+          .loadEverything()
+    }
+  }
+
+  @Test
+  internal fun `T2-9 a CustomMetric may not inherit Pets behavior`() {
     listOf(
             "ABSTRACT CLASS Behaving { Trigger: Result }\nCLASS Trigger\nCLASS Result",
             "ABSTRACT CLASS Behaving { HAS MAX 1 This }",
@@ -270,8 +300,12 @@ internal class Spec02ClassesTest {
         .forEach { parent ->
           val catalog =
               testCatalog(
-                  "$parent\nCLASS Neighbor : Behaving, Custom",
-                  setOf(object : CustomClass(cn("Neighbor")) {}),
+                  "$parent\nCLASS Neighbor : Behaving, CustomMetric",
+                  setOf(
+                      object : CustomMetric("Neighbor") {
+                        override fun count(game: GameReader, type: Type): Int = 0
+                      }
+                  ),
               )
           val loader = ClassLoader(catalog)
 

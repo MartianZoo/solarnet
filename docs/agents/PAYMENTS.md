@@ -44,9 +44,10 @@ That client choreography is not a game rule. Cash-only payment still creates and
 are primary simplification probes.
 
 Card pricing now separates adjustment context from payment completion. `PriceCard` emits one
-`PayingFor` event for the concrete card and one per printed tag, and project-card purchase emits one
-per purchased card. Card modifiers listen to those events; the existing `Billing` hierarchy still
-opens tender choices and gates continuation. Actions retain their provider-and-slot billing model.
+`PayingFor` event for the concrete project card and one per printed tag; corporation and Prelude plays
+emit none. Project-card purchase emits one per purchased card. Card modifiers listen to those events;
+the existing `Billing` hierarchy still opens payment choices and gates continuation. Actions retain
+their provider-and-slot billing model.
 
 ### The older model was smaller but not sufficient
 

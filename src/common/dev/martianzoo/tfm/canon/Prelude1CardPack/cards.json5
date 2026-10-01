@@ -36,7 +36,7 @@
             "CardFront(HAS NonNegativeIconsOf<Class<VictoryPoint>>): 3 MC"
           ],
           "components": [
-            "CLASS NonNegativeIconsOf<CardFront, Class<Component>> : Custom",
+            "CLASS NonNegativeIconsOf<CardFront, Class<Component>> : CustomMetric",
           ],
         },
       ],

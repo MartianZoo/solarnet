@@ -74,7 +74,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
         IceAsteroid,
         CyberiaSystems,
     )
-    green.playCorp(SpliceTacticalGenomics, 7)
+    green.playCorp(SpliceTacticalGenomics, 7) { doTask("2 MC") }
 
     purple.turn {
       playPrelude(AlbedoPlants).expect("PROD[Plant], Plant, 3 Heat")
@@ -152,7 +152,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
         }
         .expect("6 MC")
 
-    green.playProject(Archaebacteria, 6)
+    green.playProject(Archaebacteria, 6) { doTask("2 MC") }
     green.declineSecondAction()
     purple.pass()
 
@@ -410,7 +410,12 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
       green.playProject(DesignedMicroorganisms, 9)
     }
     // Viral Enhancers reacts to its own tag.
-    green.playProject(ViralEnhancers, 9).expect("Plant")
+    green
+        .playProject(ViralEnhancers, 9) {
+          doTask("Plant")
+          doTask("2 MC")
+        }
+        .expect("Plant")
     green.cardAction2(WeatherBalloons)
 
     purple.cardAction1(Psychrophiles)
@@ -476,7 +481,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     pink.convertHeat()
 
     green.playProject(SterlingVents, 1, steel = 2).expect("PROD[2 Energy, -2 Heat]")
-    green.playProject(Algae, 10).expect("PROD[2 Plant], 2 Plant")
+    green.playProject(Algae, 10) { doTask("Plant") }.expect("PROD[2 Plant], 2 Plant")
 
     purple
         .playProject(Supercapacitors, 4) {
@@ -493,7 +498,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     // Test inference: the log gives only the count; Cyberia Systems is never played later.
     green.sellPatents(CyberiaSystems)
-    green.playProject(Grass, 11).expect("PROD[Plant], 4 Plant")
+    green.playProject(Grass, 11) { doTask("Plant") }.expect("PROD[Plant], 4 Plant")
 
     purple.pass()
     pink.pass()
@@ -663,6 +668,8 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     green.playProject(Windmills, 4, steel = 1)
     green.playProject(BactoviralResearch, 10) {
       green.draw(Potatoes)
+      doTask("Plant")
+      doTask("2 MC")
       addCardResources(Ants)
     }
 

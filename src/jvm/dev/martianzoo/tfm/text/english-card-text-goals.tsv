@@ -432,7 +432,7 @@ TradingColony	Trading Colony	Place a colony.	Effect: When you trade, you may fir
 UrbanDecomposers	Urban Decomposers	Requires that you have a city tile and a colony. Increase your plant production 1 step. Add 2 microbes to another card.
 WarpDrive	Warp Drive	Requires 5 science tags.	Effect: When you play a space tag, you pay 4 M€ less for it.
 AerialLenses	Aerial Lenses	Requires that Kelvinists are ruling or you have 2 delegates there. You may remove up to 2 plants from any player. Increase your heat production 2 steps.
-FakeBannedDelegate	Banned Delegate	Requires that you are chairman. Remove 1 delegate that is not a party leader.
+BannedDelegate	Banned Delegate	Requires that you are chairman. Remove 1 delegate that is not a party leader.
 CulturalMetropolis	Cultural Metropolis	Requires that Unity is ruling or you have 2 delegates there. Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile. Place 2 delegates in the same party.
 DiasporaMovement	Diaspora Movement	Requires that Reds are ruling or you have 2 delegates there. Gain 1 M€ per Jovian tag in play (including this).
 EventAnalysts	Event Analysts	Requires that Scientists are ruling or you have 2 delegates there.	Effect: When influence is counted, gain 1 influence.

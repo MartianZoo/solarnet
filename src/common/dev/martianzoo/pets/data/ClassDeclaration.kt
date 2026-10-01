@@ -4,7 +4,7 @@ import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.Transforming.actionListToEffects
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
-import dev.martianzoo.pets.api.SystemClasses.CUSTOM
+import dev.martianzoo.pets.api.SystemClasses.CUSTOM_METRIC
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
@@ -44,8 +44,8 @@ public data class ClassDeclaration(
     override val className: ClassName,
 
     /**
-     * Is this class declared to be `ABSTRACT`, `CUSTOM`, or regular? `CLASS Foo` declares a
-     * concrete class and `ABSTRACT CLASS Foo` an abstract one ([rule
+     * Is this class declared to be `ABSTRACT` or regular? `CLASS Foo` declares a concrete class and
+     * `ABSTRACT CLASS Foo` an abstract one ([rule
      * L11-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations),
      * [rule T2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#2-classes)).
      */
@@ -122,7 +122,7 @@ public data class ClassDeclaration(
   public val effects: List<Effect>
     get() = executableEffects ?: authoredEffectsWithActions
 
-  public val custom: Boolean = CUSTOM.expression in supertypes
+  public val customMetric: Boolean = CUSTOM_METRIC.expression in supertypes
 
   init {
     if (className == THIS)
@@ -148,7 +148,7 @@ public data class ClassDeclaration(
       )
     }
 
-    if (custom) {
+    if (customMetric) {
       val behavior =
           when {
             invariants.isNotEmpty() -> "invariants"
@@ -158,7 +158,7 @@ public data class ClassDeclaration(
           }
       if (behavior != null)
           throw PetSyntaxException(
-              "custom class `$className` cannot declare Pets $behavior; its behavior comes from its Kotlin implementation",
+              "custom metric `$className` cannot declare Pets $behavior; its behavior comes from its Kotlin implementation",
               sourceLocation =
                   invariants.firstOrNull()?.sourceLocation
                       ?: effects.firstOrNull()?.sourceLocation

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tools
 
 import dev.martianzoo.pets.api.SystemClasses.CLASS
+import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.api.SystemClasses.USE_ACTION
 import dev.martianzoo.pets.ast.ClassName
@@ -385,13 +386,13 @@ internal object StandardResourceMonotonicityReport {
     when (node) {
       is Metric.Count -> {
         val countedClass = table.findClass(node.expression.className) ?: return null
-        if (!countedClass.declaration.custom) return null
+        if (!countedClass.declaration.customMetric) return null
         kind = "custom metric"
         evidence = node.toString()
       }
       is Instruction.Gain -> {
         val gainedClass = table.findClass(node.gaining.className) ?: return null
-        if (!gainedClass.declaration.custom) return null
+        if (!gainedClass.isSubtypeOf(table.getClass(CUSTOM_INSTRUCTION))) return null
         kind = "custom instruction"
         evidence = node.toString()
       }

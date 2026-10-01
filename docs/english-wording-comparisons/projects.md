@@ -4108,7 +4108,7 @@ Pets declaration:
 CLASS ViralEnhancers : ActiveCard {
   cost = 9
   This:: ScienceTag<This>, MicrobeTag<This>
-  BioTag<@CardFront>: Plant OR CardResource<@CardFront>!
+  BioTag<@CardFront>: Plant OR CardResource<@CardFront>
 }
 ```
 
@@ -6253,6 +6253,26 @@ CLASS AerialLenses : AutomatedCard {
   requirement = HAS "PartyRequirement<Kelvinists>"
   This: -2 Plant<Anyone>?, PROD[2 Heat]
   End: -VictoryPoint
+}
+```
+
+### Banned Delegate
+
+Class: `BannedDelegate`
+
+| | Bottom | Top |
+| --- | --- | --- |
+| Printed text | Requires that you are Chairman. Remove any NON-LEADER delegate. | — |
+| Generated text | Requires that you are chairman. \[BannedDelegateRemoval&lt;Party, Anyone&gt;. / (PartyDelegate&lt;Party, Anyone&gt; - PartyLeader&lt;Party, Anyone&gt;) MAX 1\]. | — |
+
+Pets declaration:
+
+```pets
+CLASS BannedDelegate : EventCard {
+  cost = 0
+  requirement = HAS "Chairman"
+  This:: EventTag<This>
+  This: BannedDelegateRemoval<Party, Anyone>. / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1
 }
 ```
 
@@ -8484,28 +8504,6 @@ Pets declaration:
 CLASS FakeResearchCoordination : AutomatedCard {
   cost = 4
   This:: FakeWildTag<This>
-}
-```
-
-### Banned Delegate
-
-Class: `FakeBannedDelegate`
-
-| | Bottom | Top |
-| --- | --- | --- |
-| Printed text | Requires that you are Chairman. Remove any NON-LEADER delegate. | — |
-| Generated text | Requires that you are chairman. \[Audit\]. \[FakeBannedDelegateRemoval&lt;Party, Anyone&gt;. / (PartyDelegate&lt;Party, Anyone&gt; - PartyLeader&lt;Party, Anyone&gt;) MAX 1\]. | — |
-
-Pets declaration:
-
-```pets
-"Banned Delegate without immediate party-leader and Dominant-party changes"
-CLASS FakeBannedDelegate : EventCard {
-  cost = 0
-  requirement = HAS "Chairman"
-  This:: EventTag<This>
-  This:: Audit
-  This: FakeBannedDelegateRemoval<Party, Anyone>. / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1
 }
 ```
 

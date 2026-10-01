@@ -760,6 +760,10 @@ private fun renderPlacementSiteFallback(
 }
 
 internal fun Describers.renderGateCondition(requirement: Requirement): Clause? {
+  if (requirement is Requirement.And) {
+    val conditions = requirement.requirements.map { renderGateCondition(it) ?: return null }
+    return Clause.Coordinated(Coordination(conditions, Conjunction.AND))
+  }
   val counting = requirement as? Requirement.Counting ?: return null
   val metric = counting.metric as? Metric.Count ?: return null
   val expression = metric.expression

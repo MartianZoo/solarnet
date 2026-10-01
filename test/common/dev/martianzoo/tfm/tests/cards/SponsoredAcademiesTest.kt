@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -23,6 +24,17 @@ internal class SponsoredAcademiesTest : CardTest() {
 
     p1.playProject(SponsoredAcademies, 9)
         .expect("ProjectCard<Player1>, ProjectCard<Player2>, ProjectCard<Player3>")
+  }
+
+  @Test
+  internal fun `Point Luna draw supplies the mandatory discard when Sponsored Academies is the only hand card`() {
+    newGame(VenusNextExpansion, PreludeExpansion, players = 3)
+    p1.playCorp(PointLuna, 0)
+    admin.phase("Action")
+    p1.count("ProjectCard") shouldBe 1
+
+    p1.playProject(SponsoredAcademies, 9)
+        .expect("2 ProjectCard<Player1>, ProjectCard<Player2>, ProjectCard<Player3>")
   }
 
   @Test

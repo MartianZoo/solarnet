@@ -3,6 +3,8 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
+import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -79,6 +81,22 @@ internal class RequirementAdjustmentCardsTest : CardTest() {
   @Test
   internal fun `Special Design expires when the next requirement is already satisfied`() {
     expireSpecialDesignWith(DustSeals, 2)
+  }
+
+  @Test
+  internal fun `Intervening Prelude leaves Special Design for the next project card`() {
+    newGame(PreludeExpansion, Prelude2CardPack)
+    admin.phase("Prelude")
+    p1.playPrelude(BoardOfDirectors)
+    admin.phase("Action")
+    p1.runOperation("50 MC, 2 ProjectCard, 13 TemperatureStep, $AdaptationTechnology")
+
+    p1.playProject(SpecialDesign, 4)
+    p1.cardAction1(BoardOfDirectors) {
+      doTask("-12 MC")
+      p1.playPrelude(Donation)
+    }
+    p1.playProject(Farming, 16).expect("2 Plant, PROD[2 Plant]")
   }
 
   private fun expireSpecialDesignWith(card: ClassName, cost: Int) {

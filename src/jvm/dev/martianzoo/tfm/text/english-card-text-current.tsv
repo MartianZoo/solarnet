@@ -7,7 +7,7 @@ InterplanetaryCinematics	Interplanetary Cinematics	Gain 30 M€ and 20 steel.	Ef
 Inventrix	Inventrix	Gain 45 M€. As your first action, draw 3 cards.	Effect: When you play a card, you may treat a global parameter requirement as if it is 2 steps lower or higher.
 MiningGuild	Mining Guild	Gain 30 M€ and 5 steel. Increase your steel production 1 step.	Effect: When you place a tile on an area with a titanium or steel placement bonus, increase your steel production 1 step.
 PhoboLog	PhoboLog	Gain 23 M€ and 10 titanium.	Effect: Each titanium you pay is worth 1 M€ extra.
-TharsisRepublic	Tharsis Republic	If this is a solo game, increase your M€ production 2 steps. Gain 40 M€. As your first action, place a city tile.	Effect: When any city tile is placed on Mars, increase your M€ production 1 step. When you place a city tile, gain 3 M€.
+TharsisRepublic	Tharsis Republic	If this is a solo game and the corporation phase is active, increase your M€ production 2 steps. Gain 40 M€. As your first action, place a city tile.	Effect: When any city tile is placed on Mars, increase your M€ production 1 step. When you place a city tile, gain 3 M€.
 ThorGate	ThorGate	Gain 48 M€. Increase your energy production 1 step.	Effect: When you play a power tag or use the Power Plant standard project, you pay 3 M€ less for it.
 UnitedNationsMarsInitiative	United Nations Mars Initiative	Gain 40 M€.	Action: If your terraform rating has been raised this generation, spend 3 M€ to raise your terraform rating 1 step.
 SaturnSystems	Saturn Systems	Gain 42 M€. Increase your titanium production 1 step.	Effect: When any Jovian tag is played (including this), increase your M€ production 1 step.
@@ -432,7 +432,7 @@ TradingColony	Trading Colony	Place a colony.	Effect: When you trade, [TradeBarri
 UrbanDecomposers	Urban Decomposers	Requires that you have a city tile and a colony. Increase your plant production 1 step. Add 2 microbes to another card.
 WarpDrive	Warp Drive	Requires 5 science tags.	Effect: When you play a space tag, you pay 4 M€ less for it.
 AerialLenses	Aerial Lenses	Requires that you meet the party requirement for the Kelvinists party. You may remove up to 2 plants from any player. Increase your heat production 2 steps.
-FakeBannedDelegate	Banned Delegate	Requires that you are chairman. [Audit]. [FakeBannedDelegateRemoval<Party, Anyone>. / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1].
+BannedDelegate	Banned Delegate	Requires that you are chairman. [BannedDelegateRemoval<Party, Anyone>. / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1].
 CulturalMetropolis	Cultural Metropolis	Requires that you meet the party requirement for Unity. Decrease your energy production 1 step and increase your M€ production 3 steps. Place a city tile and 2 delegates.
 DiasporaMovement	Diaspora Movement	Requires that you meet the party requirement for the Reds party. Gain 1 M€ per Jovian tag in play (including this).
 EventAnalysts	Event Analysts	Requires that you meet the party requirement for the Scientists party.	Effect: When influence is counted, gain 1 influence.

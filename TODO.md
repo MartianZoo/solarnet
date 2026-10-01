@@ -14,20 +14,21 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Extend derived `including this` wording to setup operations and otherwise unsupported effects
   without adding card-specific rendering rules.
 - Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.
-- Fix Turmoil's delegate-removal status updates in `rules/BugsTest.kt`. Banned Delegate can
-  leave leadership and dominance stale; resolving a removal tie must use the active player's seat
-  order. Verify the physical replay's direct delegate-color reconciliation when changing the current
-  global election.
-- Resolve Landshaper's distinct-tile requirement before changing its behavior. The suspected bug
-  where Capital plus one greenery suffices is quarantined in `cards/BugsTest.kt`; audit R01 leaves
-  this combination open even though Capital's city and special-tile classifications are confirmed.
-- Investigate choosing the Lobby delegate whenever an action or card takes from the reserve,
-  even when other reserve delegates remain.
-  [Jacob's supply ruling](https://boardgamegeek.com/thread/2570071/article/36719863#36719863)
-  counts the Lobby as reserve and states no selection priority; we read this as allowing either
-  source. The current model preserves free lobbying on other reserve placements until all seven
-  delegates are placed; it offers no choice to consume the Lobby delegate earlier. See
-  `TurmoilRulesTest.kt` for the supported paid-lobbying case with only the Lobby delegate remaining.
+- Consider a shared party-leader recalculation helper for the ranking repeated on delegate gains
+  and Banned Delegate. Keep it only if it simplifies the Pets model overall and preserves leadership
+  through Recruitment's neutral-delegate transfer.
+- Fix Landshaper counting Capital as both its city and special tile when the player also owns one
+  or two greeneries. Each of Landshaper's three requirements needs a distinct physical tile;
+  `rules/BugsTest.kt` characterizes both incorrect successes.
+- Place the neutral solo tiles immediately after the original corporation play, then remove Tharsis
+  Republic's solo-only +2 M€ production effect. Its normal city-placement effect should grant the
+  two production steps; verify that neutral greeneries still do not raise oxygen and that a
+  Tharsis acquired later through Merger receives no setup bonus.
+- Find realistic setups for impossible original first actions of Tharsis, Philares, Arcadian
+  Communities, and Aridor; only Poseidon has a focused characterization. Do not fill a map
+  synthetically just to manufacture the failure.
+- Clarify how Thawer markers behave when Snow Cover lowers a marked temperature step and that step
+  is raised again. A generic count of temperature increases cannot prove which physical step is marked.
 - Fix Point Luna's played-Earth-tag response so a temporary assigned tag still counts for Cartel
   but does not cause a card draw. First try the existing card-holder distinction; do not bypass
   trigger execution. Full wild-tag assignment remains deferred until a clean rule representation is
@@ -37,11 +38,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   Sponsored Projects coverage. Reuse existing test-support sources before considering a fixture API.
 - Follow through on the FAQ-audit defects characterized in
   [`cards/BugsTest.kt`](test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt):
-  Double Down's copied resource destination; Mining Rights/Area and Mining Guild on wild placement
-  bonuses; Sponsored Projects adding resources to SRR's hosted cards; and Constructor remaining
-  usable without Colonies. Double Down currently leaves copied `This` unresolved; substituting
-  `DoubleDown` still makes `Director<DoubleDown>` an invalid dependency type, which AMAP does not
-  turn into zero. Resolve the copying/type semantics instead of filtering those gains in Kotlin.
+  Mining Rights/Area and Mining Guild on wild placement bonuses; Sponsored Projects adding
+  resources to SRR's hosted cards; and Constructor remaining usable without Colonies.
   Constructor's combined city/colony metric is treated as a hard Colonies dependency by the shared
   content-compatibility filter. Preserve the external-card-selection boundary when addressing
   copied Merger commitment after new information is revealed.

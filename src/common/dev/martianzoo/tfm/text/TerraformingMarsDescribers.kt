@@ -31,6 +31,8 @@ internal object TerraformingMarsDescribers {
         klass("HasRaisedTr") to
             ComponentDescriber(presenceCondition = "your terraform rating has been raised"),
         klass("SoloMode") to ComponentDescriber(presenceCondition = "this is a solo game"),
+        klass("CorporationPhase") to
+            ComponentDescriber(presenceCondition = "the corporation phase is active"),
         klass("MultiplayerMode") to
             ComponentDescriber(presenceCondition = "this is a multiplayer game"),
         klass("AdminOceanPlacement") to

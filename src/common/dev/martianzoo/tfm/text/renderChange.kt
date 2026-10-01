@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.text
 
+import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
 import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -442,7 +443,8 @@ private fun behaviorSubclassDeclaration(
   val supertype = declaration.supertypes.singleOrNull()
   if (
       declaration.kind != ClassDeclaration.ClassKind.CONCRETE ||
-          declaration.custom ||
+          declaration.customMetric ||
+          declaration.supertypes.any { it.className == CUSTOM_INSTRUCTION } ||
           declaration.dependencies.isNotEmpty() ||
           supertype?.simple != true ||
           supertype.className != superclass.className ||

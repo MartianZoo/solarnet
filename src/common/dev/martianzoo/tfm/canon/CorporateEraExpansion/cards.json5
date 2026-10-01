@@ -395,7 +395,7 @@
           "immediate": "CopyProductionBox<CardFront(HAS BuildingTag)>",
           // Copies the single immediate production box on a chosen card.
           // Must be identical to CyberiaSystems' declaration in PromoCardPack.
-          "components": [ "CLASS CopyProductionBox<CardFront<@Player>> : Owned<@Player>, Custom" ],
+          "components": [ "CLASS CopyProductionBox<CardFront<@Player>> : Owned<@Player>, CustomInstruction" ],
         },
         {
           "name": "Sabotage",
@@ -502,7 +502,7 @@
           "name": "ViralEnhancers",
           "cost": 9,
           "tags": [ "ScienceTag", "MicrobeTag" ],
-          "effects": [ "BioTag<@CardFront>: Plant OR CardResource<@CardFront>!" ],
+          "effects": [ "BioTag<@CardFront>: Plant OR CardResource<@CardFront>" ],
         },
         {
           "name": "Virus",

@@ -31,13 +31,14 @@ internal class EcologyExpertsTest : CardTest() {
         GameConfig("PreludeExpansion, PromoCardPack, EcologyExperts, Unsafe", "Player1", "Player2")
     )
     val p2 = requireP2()
-    p2.runOperation("$SpliceTacticalGenomics")
+    p2.runOperation("$SpliceTacticalGenomics") { doTask("2 MC") }
     admin.phase("Prelude")
     p1.runOperation("4 MC, ProjectCard, PreludeCard")
     val spliceMoney = p2.count("MC")
 
     with(p1) {
       playPrelude(EcologyExperts) {
+        doTask("2 MC<Player1>")
         playProject(Decomposers, 5) { doTask("2 MC<Player1>") }
       }
     }

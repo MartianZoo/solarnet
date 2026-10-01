@@ -252,6 +252,8 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   operations. Keep consecutive production changes in one sentence even when their verbs differ.
 - When adjacent production changes in the same direction use the same magnitude, state the
   magnitude once and end with `each`.
+- State every renderable condition in a compound gate; retain a phase condition when it
+  restricts an effect to that phase.
 - Describe spatial adjacency as `next to`, never `adjacent to`.
 - Render discount effects declaratively as `you pay N M€ less`, adding `for it` when the trigger
   supplies a clear discounted object.

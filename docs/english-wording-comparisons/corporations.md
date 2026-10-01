@@ -228,7 +228,7 @@ Class: `TharsisRepublic`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | You start with 40 M€. As your first action in the game, place a city tile. | Effect: When any city tile is placed ON MARS, increase your M€ production 1 step. When you place a city tile, gain 3 M€. |
-| Generated text | If this is a solo game, increase your M€ production 2 steps. Gain 40 M€. As your first action, place a city tile. | Effect: When any city tile is placed on Mars, increase your M€ production 1 step. When you place a city tile, gain 3 M€. |
+| Generated text | If this is a solo game and the corporation phase is active, increase your M€ production 2 steps. Gain 40 M€. As your first action, place a city tile. | Effect: When any city tile is placed on Mars, increase your M€ production 1 step. When you place a city tile, gain 3 M€. |
 
 Pets declaration:
 
@@ -239,7 +239,7 @@ CLASS TharsisRepublic : CardFront<Class<StandardCorporationCard>> {
   This: 40 MC, TharsisRepublic_RequiredAction
   CityTile<Anyone, MarsArea>: PROD[MC]
   CityTile: 3 MC
-  This IF SoloMode: PROD[2 MC]
+  This IF (SoloMode, CorporationPhase): PROD[2 MC]
 }
 ```
 

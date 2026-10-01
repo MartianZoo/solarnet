@@ -191,15 +191,6 @@ internal class MonsInsuranceTest : CardTest() {
   }
 
   @Test
-  internal fun `An attack on the Mons owner requires no transfer`() {
-    newGame(PromoCardPack)
-    val p2 = requireP2()
-    p1.runOperation("$MonsInsurance, Plant, 10 MC")
-
-    p2.runOperation("-Plant<Player1>").expect("-Plant<Player1>")
-  }
-
-  @Test
   internal fun `Recessions active player can compensate Player 3 before exhausting Mons funds`() {
     recessionLossOrder(true)
   }
@@ -244,5 +235,14 @@ internal class MonsInsuranceTest : CardTest() {
 
     p3.count("MC") shouldBe if (compensateFirst) 3 else 0
     p1.count("MC") shouldBe 0
+  }
+
+  @Test
+  internal fun `Attack on Mons Insurance owner makes no transfer`() {
+    newGame(PromoCardPack)
+    val p2 = requireP2()
+    p1.runOperation("$MonsInsurance, Plant, 10 MC")
+
+    p2.runOperation("-Plant<Player1>").expect("-Plant<Player1>, 0 MC<Player1>")
   }
 }

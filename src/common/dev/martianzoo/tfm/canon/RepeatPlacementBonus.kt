@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.pets.api.CustomClass
+import dev.martianzoo.pets.api.CustomInstruction
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.InstructionGroup
@@ -8,7 +8,7 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 
-internal object RepeatPlacementBonus : CustomClass() {
+internal object RepeatPlacementBonus : CustomInstruction() {
   override fun translate(game: GameReader, type0: Type, type1: Type): InstructionTree {
     val map = mapDefinition(game)
     val areaNames = map.areas.mapTo(hashSetOf()) { it.className }
