@@ -163,9 +163,9 @@ of the candidate with the largest limit and does not distribute one count among 
 A missing concrete dependency remains unavailable because it does not name an existing target;
 zero capacity on an existing eligible target is different and resolves to `Ok`.
 
-Abstract custom gains are not searched using pure-gain feasibility. They narrow normally; after a
-concrete custom target is chosen, it translates to its instructions. Custom removal and
-custom transmutation are unsupported.
+Abstract `CustomInstruction` gains use ordinary pure-gain feasibility. After a concrete target is
+gained, its event queues the Kotlin-produced instruction tree. Virtual `CustomMetric` types cannot
+be gained, removed, or transmuted.
 
 ## Abstract transmutations
 

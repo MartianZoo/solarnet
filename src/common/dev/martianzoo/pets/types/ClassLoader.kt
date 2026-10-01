@@ -1,11 +1,14 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.api.CustomInstruction
+import dev.martianzoo.pets.api.CustomMetric
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
+import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
 import dev.martianzoo.pets.api.SystemClasses.OK
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
@@ -465,10 +468,13 @@ private constructor(
         .forEach { collectInstruction(it.instruction) }
     declaration.allNodes
         .flatMap { it.descendantsOfType<ClassName>() }
-        .filter { it != THIS && it in knownClassNames && knownDeclaration(it).custom }
+        .filter { it != THIS && it in knownClassNames && knownDeclaration(it).customMetric }
         .forEach(::add)
     declaration.extraNodes.forEach { node -> node.descendantsOfType<ClassName>().forEach(::add) }
-    if (declaration.custom) {
+    if (
+        declaration.customMetric ||
+            declaration.supertypes.any { it.className == CUSTOM_INSTRUCTION }
+    ) {
       addAll(catalog.customClass(declaration.className).requiredClassNames)
     }
   }
@@ -556,7 +562,7 @@ private constructor(
       }
 
   private fun validateCustomInheritance(klass: Class) {
-    if (!klass.declaration.custom) return
+    if (!klass.declaration.customMetric) return
 
     val inheritedEffects = klass.properSuperclasses().filter { it.declaration.effects.isNotEmpty() }
     val inheritedInvariants =
@@ -583,7 +589,7 @@ private constructor(
     }
     if (problems.isNotEmpty()) {
       throw InvalidPetDefinitionException(
-          "`${klass.className}` cannot inherit Pets behavior as a custom class: " +
+          "`${klass.className}` cannot inherit Pets behavior as a custom metric: " +
               problems.joinToString()
       )
     }
@@ -704,8 +710,22 @@ private constructor(
 
   private fun validateCustomImplementation(decl: ClassDeclaration): ClassDeclaration {
     if (masterSource != null) return decl
-    if (decl.custom) {
-      catalog.customClass(decl.className)
+    val customInstruction = decl.supertypes.any { it.className == CUSTOM_INSTRUCTION }
+    if (decl.customMetric && customInstruction) {
+      throw InvalidPetDefinitionException(
+          "`${decl.className}` cannot be both a virtual metric and a Signal"
+      )
+    }
+    if (decl.customMetric || customInstruction) {
+      val implementation = catalog.customClass(decl.className)
+      if (
+          decl.customMetric && implementation !is CustomMetric ||
+              customInstruction && implementation !is CustomInstruction
+      ) {
+        throw InvalidPetDefinitionException(
+            "`${decl.className}` must use a matching Kotlin implementation"
+        )
+      }
     } else {
       if (catalog.customClasses.any { it.className == decl.className }) {
         throw InvalidPetDefinitionException(

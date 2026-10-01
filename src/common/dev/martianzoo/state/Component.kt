@@ -21,9 +21,6 @@ public value class Component public constructor(public val type: Type) : HasExpr
     require(!type.abstract) { "component type must be concrete: `${type.expression}`" }
   }
 
-  public val isCustom: Boolean
-    get() = type.rootClass.declaration.custom
-
   /**
    * The full list of dependency instances of this component; *this* component cannot exist in a
    * [ComponentGraph] unless *all* of the returned components do. Note that a class type like

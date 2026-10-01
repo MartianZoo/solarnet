@@ -40,7 +40,6 @@ import dev.martianzoo.pets.types.TypeVariable
 import dev.martianzoo.pets.types.TypeVariableScope
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameEvent.ChangeEvent
-import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.toComponent
 
 /** One specialized component effect ready for subscription matching and firing. */
@@ -84,26 +83,12 @@ private constructor(
       resolvedChange: ResolvedChange,
       isSelf: Boolean,
   ): PendingTask? {
-    // An owned effect belongs to the Player owning the component that carries it. That Player is
-    // the default performer and eventual narrower, while the triggering operation's controller
-    // retains the task until selection. This is intentionally Player-only: no accepted
-    // SoloOpponent rule gives a passive Owner triggered choices or pending work.
-
-    // An unowned effect can still be reacting to a Player-owned component. Retaining that Player
-    // lets generic output such as `Plant<Owner>` bind to the component's Owner instead of the
-    // Agent scope that happens to execute the effect. A passive Owner is ignored here because
-    // ownership alone must not give SoloOpponent task or Agent authority.
+    // An unowned effect can still react to a Player-owned component. Retaining that Player lets
+    // output such as `Plant<Owner>` bind to the component's Owner. Passive Owners are excluded.
     val changedComponentPlayer = resolvedChange.changedComponentPlayer
 
-    // If neither the effect nor the changed component supplies ownership, a Player Actor is the
-    // last legitimate source for contextual `Owner`. Admin is deliberately excluded: it is an
-    // Actor but not an Owner, so treating it as one would manufacture invalid owned components.
+    // The triggering Player Actor is the last source for contextual Owner. Admin is not an Owner.
     val contextualOwner = effectOwner ?: changedComponentPlayer ?: (triggerEvent.actor as? Player)
-    val defaultActor =
-        effectOwner ?: changedComponentPlayer.takeUnless { automatic } ?: triggerEvent.actor
-    val taskController =
-        (controller as? Player) ?: effectOwner ?: changedComponentPlayer ?: triggerEvent.actor
-
     val hit =
         subscription.checkForHit(
             triggerEvent,
@@ -113,7 +98,6 @@ private constructor(
             reader,
             elaborator,
         ) ?: return null
-    val cause = Cause(context.expression, triggerEvent.ordinal)
     val instruction =
         try {
           elaborator.evaluateProperties(
@@ -130,11 +114,13 @@ private constructor(
               e.sourceLocation ?: effect.sourceLocation,
           )
         }
-    return PendingTask(
-        controller = taskController,
-        actor = defaultActor,
+    return PendingTask.fromEffect(
+        context = context,
+        triggerEvent = triggerEvent,
+        controller = controller,
+        changedComponentPlayer = changedComponentPlayer,
+        automatic = automatic,
         instruction = InstructionGroup.of(instruction),
-        cause = cause,
     )
   }
 

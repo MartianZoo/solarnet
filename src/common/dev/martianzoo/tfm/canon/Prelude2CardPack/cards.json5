@@ -364,7 +364,7 @@
           "immediate": "FrontierTownBonus, PROD[-Energy], CityTile<> THEN -FrontierTownBonus.",
           "components": [
             "CLASS FrontierTownBonus : Owned<Player>, Hidden { HAS MAX 1 This; Placement<Area@MarsArea>:: -This! THEN RepeatPlacementBonus<Area@MarsArea> }",
-            "CLASS RepeatPlacementBonus<MarsArea> : Owned<Player>, Custom",
+            "CLASS RepeatPlacementBonus<MarsArea> : Owned<Player>, CustomInstruction",
           ],
         },
         {

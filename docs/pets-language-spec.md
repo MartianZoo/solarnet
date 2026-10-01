@@ -1379,7 +1379,7 @@ OneLineDeclaration ::= "ABSTRACT"? "CLASS" Signature OneLineBody?
 the universal audit signal `Audit` plus the classes this specification and the type system depend
 on — `Component` and `Class` (T1-4, T1-5), the ownership vocabulary `Anyone`, `Owner` and `Owned`,
 the actor root `Actor`, the identity signal `Ok` (L2-5), and the impossible type `Die` (L9-14) —
-plus `Atomized` (L9-11) and `Custom` (T2-9).
+plus `Atomized` (L9-11), `CustomMetric`, and `CustomInstruction` (T2-9).
 A game's own declarations join these. Its premise always includes `Audit` and determines which of
 the remaining system declarations that game contains.
 

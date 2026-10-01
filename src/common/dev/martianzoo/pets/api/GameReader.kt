@@ -28,7 +28,7 @@ public interface GameReader : TypeInfo {
 
   /**
    * Evaluates the fully contextualized [metric] in the current world. A count whose root is a
-   * custom class is computed by that Kotlin implementation rather than from components.
+   * virtual `CustomMetric` is computed by its Kotlin implementation rather than from components.
    */
   public fun count(metric: Metric): Int
 

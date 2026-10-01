@@ -20,7 +20,10 @@ internal class InstructionResolutionTest {
   private val game: World = setUpGame(canonicalPremise())
   private val gameWorld = (game as WholeWorld).gameWorld
   private val elaborator = PetElaborator(game.classTable)
-  private val effector = Effector(elaborator) { game.reader }
+  private val effector =
+      Effector(elaborator, CustomInstructionRuntime(game.reader.catalog, elaborator)) {
+        game.reader
+      }
   private val instructor: Instructor =
       Instructor(
           game.reader,
@@ -29,7 +32,6 @@ internal class InstructionResolutionTest {
           effector,
           game.classTable,
           elaborator,
-          CustomInstructionRuntime(game.reader.catalog, elaborator),
       )
 
   init {

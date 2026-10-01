@@ -150,7 +150,7 @@ internal class GameReaderImpl(
   private fun componentsMatching(expression: Expression) =
       classTable.resolve(expression).let { type ->
         if (!classTable.isInhabited(type)) return@let HashMultiset<Component>()
-        if (type.rootClass.declaration.custom) {
+        if (type.rootClass.declaration.customMetric) {
           throw ExpressionException(
               "custom metrics cannot be alternatives in an `OR` metric: `${type.expressionFull}`",
               sourceLocation = expression.sourceLocation,
@@ -162,7 +162,7 @@ internal class GameReaderImpl(
   private fun countExpression(expression: Expression): Int {
     val type = classTable.resolve(expression)
     if (!classTable.isInhabited(type)) return 0
-    if (!type.rootClass.declaration.custom) return gameWorld.components.count(type, this)
+    if (!type.rootClass.declaration.customMetric) return gameWorld.components.count(type, this)
     return try {
       customMetrics.count(type, this)
     } catch (e: ExpressionException) {

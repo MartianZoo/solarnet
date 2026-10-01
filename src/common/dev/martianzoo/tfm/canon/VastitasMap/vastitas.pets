@@ -10,7 +10,7 @@ CLASS Traveller : Award { metric = COUNT "JovianTag OR EarthTag" }
 CLASS Landscaper : Award { metric = COUNT "TileInLargestGroup" }
 
 "Counts the tiles in a player's largest contiguous group of owned tiles"
-CLASS TileInLargestGroup : Owned<Player>, Custom
+CLASS TileInLargestGroup : Owned<Player>, CustomMetric
 
 CLASS Highlander : Award { metric = COUNT "OwnedTile<MarsArea(HAS MAX 0 Neighbor<OceanTile>)>" }
 CLASS Promoter : Award { metric = COUNT "PlayedEvent" }

@@ -194,13 +194,13 @@ CLASS FormGovernment : Signal
 CLASS AfterParty<Party, Party> : System { HAS MAX 1 This }
 
 "The forward distance from one Party to another around the committee"
-CLASS PartyDistance<Party, Party> : Custom
+CLASS PartyDistance<Party, Party> : CustomMetric
 
 "The clockwise seat distance between owners, with unseated owners last"
-CLASS PlayerDistance<Owner, Owner> : Custom
+CLASS PlayerDistance<Owner, Owner> : CustomMetric
 
 "Whether one player meets the ruling-party or two-delegate requirement for a party"
-CLASS PartyRequirement<Party> : Owned<Player>, Custom
+CLASS PartyRequirement<Party> : Owned<Player>, CustomMetric
 
 ABSTRACT CLASS PartyStatus<Party> {
   "The party with the greatest delegate count"
