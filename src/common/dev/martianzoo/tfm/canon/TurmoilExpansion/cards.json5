@@ -82,7 +82,7 @@
           "cost": 2,
           "tags": [ "EventTag" ],
           "immediate":
-            "Audit, PartyDelegate<Party(HAS 1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)), Owner FROM Neutral>",
+            "PartyDelegate<Party(HAS 1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)), Owner FROM Neutral>",
         },
         {
           "name": "RedTourismWave",

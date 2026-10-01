@@ -5,11 +5,9 @@ import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.Amazonis
 import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.cards.CardTest
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -53,19 +51,6 @@ internal class BugsTest : CardTest() {
 
     p1.claimMilestone(cn("Landshaper")).expect("Landshaper")
     p1.count("OwnedTile") shouldBe 3
-  }
-
-  // BGG exact zero-reveal question (unsettled):
-  // https://boardgamegeek.com/thread/3556036/article/46461394#46461394
-  @Test
-  internal fun `Public Plans incorrectly accepts zero other revealed cards`() {
-    newGame(PromoCardPack)
-    admin.phase("Action")
-    p1.runOperation("7 MC, ProjectCard")
-
-    p1.playProject(PublicPlans, 7)
-
-    p1.assertCounts(0 to "MC", 0 to "ProjectCard", 1 to "PlayedEvent<Class<$PublicPlans>>")
   }
 
   private fun setupLandshaperCapital() {

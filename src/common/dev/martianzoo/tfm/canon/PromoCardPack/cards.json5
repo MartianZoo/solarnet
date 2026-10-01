@@ -556,7 +556,7 @@
           "cost": 7,
           "tags": [ "EventTag" ],
           // X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed>
-          "immediate": "MC? / ProjectCard",
+          "immediate": "ProjectCard: MC, MC? / (ProjectCard - 1)",
           "effects": [ "End: VictoryPoint" ],
         },
         {
