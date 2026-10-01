@@ -1,7 +1,7 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.api.CustomClass
+import dev.martianzoo.pets.api.CustomInstruction
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.ClassSelection
@@ -26,12 +26,12 @@ internal class PremiseSelectionTest {
   internal fun `custom class requirements are included with the custom class only`() {
     val declarations =
         """
-        CLASS DependencySource : Custom
+        CLASS DependencySource : CustomInstruction
         CLASS RuntimeDependency
         """
             .trimIndent()
     val implementation =
-        object : CustomClass(cn("DependencySource")) {
+        object : CustomInstruction(cn("DependencySource")) {
           override val requiredClassNames = setOf(cn("RuntimeDependency"))
         }
     val catalog =

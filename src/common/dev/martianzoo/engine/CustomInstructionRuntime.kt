@@ -1,6 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.PetElaborator
+import dev.martianzoo.pets.api.CustomInstruction
 import dev.martianzoo.pets.api.Exceptions.CustomCodeException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -10,17 +11,16 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.state.Component
 
-/** Engine runtime for Kotlin-provided instruction behavior of Pets custom classes. */
+/** Engine runtime for Kotlin-provided instructions of computed Signals. */
 internal class CustomInstructionRuntime(
     private val catalog: Catalog,
     private val elaborator: PetElaborator,
 ) {
   internal fun translateInstruction(component: Component, reader: GameReader): InstructionTree {
-    require(component.isCustom)
     require(elaborator.classTable.isInhabited(component.type))
 
     val type = component.type
-    val implementation = catalog.customClass(type.className)
+    val implementation = catalog.customClass(type.className) as CustomInstruction
     val args = type.typeDependencies.map { it.boundType }
     val missing = args.filter { reader.countComponent(it) == 0 }
     if (missing.any()) throw DependencyException(missing)

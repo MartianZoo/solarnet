@@ -108,19 +108,10 @@ supply those. An unstarted World is not equivalent to one whose workflow has lau
 
 ### Custom instruction boundary
 
-The selected direction is to stop when resolving a custom instruction replaces it with concrete
-work. For example, performing `CopyProductionBox<Mine>` translates that task into
-`Production<Class<Steel>>`; it must leave production pending. The owner's autoexec policy may then
-execute production, or a later explicit line may do it. A policy of `NONE` must leave it waiting.
-This is why the plain two-line example above is preferable to `CHOOSE CopyProductionBox<Mine>`:
-the first line actually performs the custom translation, while the second performs its result.
-
-The current engine does not yet honor that boundary: selecting or narrowing a task can immediately
-execute its concrete replacement. A systemic repair should make selection and narrowing stop at
-the produced task and make `doTask` complete no more than the stage it was asked to perform. Do not
-special-case Robotic Workforce. Recording must use those semantic stage boundaries; inspecting
-all events produced before an outer command returns is unreliable because autoexec may already
-have performed a second stage by then.
+Performing `CopyProductionBox<Mine>` now gains a Signal and queues its Kotlin-produced
+`Production<Class<Steel>>` instruction. A policy of `NONE` leaves production pending; autoexec may
+subsequently perform it. The Signal gain and later production are separate causal events. An outer
+command's events still cannot by themselves identify one user decision when autoexec runs afterward.
 
 ### Importing without task ids in the file
 
@@ -154,9 +145,8 @@ tests passed without exercising the probe. All 29 games encoded, but 13 of the 3
 failed the opt-in import or comparison. This is evidence for the stashed experiment, not for the
 current clean branch. Important remaining causes were:
 
-- Custom translation and immediate execution could erase the `CopyProductionBox` card choice and
-  leave only the derived `Production` line. Retaining both under current execution semantics would
-  execute production twice.
+- The older virtual custom-translation path erased the `CopyProductionBox` card choice and left
+  only derived production. `CustomInstruction` now records that choice before queuing production.
 - Greedy task matching could accept an early line against the wrong pending task and fail later.
 - Autoexec could select an abstract Admin Global Event before the imported Player decisions,
   despite a different source ordering. One source test had never launched its workflow, while the

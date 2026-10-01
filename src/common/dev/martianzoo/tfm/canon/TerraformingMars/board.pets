@@ -102,10 +102,10 @@ CLASS Photosynthesis : System {
 }
 
 "A bonus icon of a particular resource type printed on a map area"
-CLASS PlacementBonus<Class<Resource>, MarsArea> : Custom
+CLASS PlacementBonus<Class<Resource>, MarsArea> : CustomMetric
 
 "Each geometric neighbor relation between a component and an adjacent area"
-CLASS Neighbor<AreaPiece, MarsArea> : Hidden, Custom
+CLASS Neighbor<AreaPiece, MarsArea> : Hidden, CustomMetric
 
 "A single step along a global parameter track"
 ABSTRACT CLASS GlobalParameter : Atomized {

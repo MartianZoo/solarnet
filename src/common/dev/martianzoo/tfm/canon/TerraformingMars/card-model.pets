@@ -69,17 +69,30 @@ CLASS SearchForCard<CardFilter> : Owned<Player>, Signal {
 }
 
 CLASS PlayCard<Class<@CardBack>, Class<@CardFront>> : Owned<Player>, Signal {
-  This:: (EVAL @CardFront<Class<@CardBack>>.requirement: Ok) OR AdjustGpRequirement<Class<@CardFront>>
+  This:: (EVAL @CardFront<Class<@CardBack>>.requirement: Ok) OR \
+    (GpRequirementShortfall<Class<@CardFront>, Class<GlobalParameter>>: \
+      EACH @Class<GlobalParameter> { \
+        Required<@Class> / GpRequirementShortfall<Class<@CardFront>, @Class> \
+          THEN CheckRequirement<Class<@CardFront>> / \
+            (GpRequirementShortfall<Class<@CardFront>, @Class> MAX 1) \
+      })
   This: Owed<> / @CardFront.cost THEN PriceCard<Class<@CardFront>> THEN CardBilling<Class<@CardFront>> THEN MAX 0 Barrier: @CardFront FROM @CardBack
 }
 
 "Signals that a printed global-parameter requirement produced a shortfall ready for adjustment"
 CLASS CheckRequirement<Class<CardFront>> : Owned<Player>, Signal
 
-CLASS AdjustGpRequirement<Class<CardFront>> : Owned<Player>, Custom
+"How far one printed global-parameter requirement is from the current track value"
+CLASS GpRequirementShortfall<Class<CardFront>, Class<GlobalParameter>> : CustomMetric
 
 "Emits payment-adjustment events for a project card and each of its printed tags"
-CLASS PriceCard<Class<CardFront>> : Owned<Player>, Custom
+CLASS PriceCard<Class<@CardFront>> : Owned<Player>, Signal {
+  This:: EACH @Class<Tag> { PayingFor<@Class> / PriceAspectCount<Class<@CardFront>, @Class> }
+  This:: PayingFor<Class<@CardFront>> / PriceAspectCount<Class<@CardFront>, Class<@CardFront>>
+}
+
+"Number of payment-adjustment events for one aspect of a project card"
+CLASS PriceAspectCount<Class<CardFront>, Class<Component>> : CustomMetric
 
 "A temporary shortfall between a printed global requirement and the current parameter"
 CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {

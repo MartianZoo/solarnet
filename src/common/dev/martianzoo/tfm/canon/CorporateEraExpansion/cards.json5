@@ -399,7 +399,7 @@
           "immediate": "CopyProductionBox<CardFront(HAS BuildingTag)>",
           // Copies the single immediate production box on a chosen card.
           // Must be identical to CyberiaSystems' declaration in PromoCardPack.
-          "components": [ "CLASS CopyProductionBox<CardFront<@Player>> : Owned<@Player>, Custom" ],
+          "components": [ "CLASS CopyProductionBox<CardFront<@Player>> : Owned<@Player>, CustomInstruction" ],
         },
         {
           "name": "Sabotage",

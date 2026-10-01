@@ -3,6 +3,7 @@
 package dev.martianzoo.tfm.canon.promocardpack
 
 import dev.martianzoo.pets.api.CustomClass
+import dev.martianzoo.pets.api.CustomInstruction
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -16,7 +17,7 @@ import dev.martianzoo.tfm.canon.tfmCatalog
 
 internal val customClasses: Set<CustomClass> =
     setOf(
-        object : CustomClass("CopyPrelude") {
+        object : CustomInstruction("CopyPrelude") {
           override fun translate(reader: GameReader, owner: Type, cardType: Type): InstructionTree {
             val card = reader.tfmCatalog.card(cardType.className)
             if (cardBack(card)?.className != TfmClasses.PRELUDE_CARD) {

@@ -108,7 +108,7 @@ ABSTRACT CLASS OwnedTile : OwnedOccupant, Tile {
   }
 }
 CLASS OceanTile : Tile<MarsArea> { DEFAULT +OceanTile<WaterArea(HAS MAX 0 Tile)> }
-CLASS Neighbor<AreaPiece, MarsArea> : Custom
+CLASS Neighbor<AreaPiece, MarsArea> : CustomMetric
 ABSTRACT CLASS Adjacency<Tile<Area>, Tile<Area>>
 ```
 
@@ -311,19 +311,17 @@ well. If a catalog also declared a class extending both `Tile` and `Owned` outsi
 `Tile ⊓ Owned` would be absent. Pets does not manufacture a conjunction class; it only recognizes
 one a catalog declared.
 
-**T2-9. Custom classes.** A class with `Custom` among its supertypes is a **custom class**. No
-component of it ever exists. Instead, the Catalog's host code supplies what gaining it means (an
-instruction) or what counting it means (a metric). A Catalog must supply that meaning for exactly
-its custom classes. A custom class without it is rejected, and so is host meaning supplied for a
-class that is not custom, `Component` and `Class` included. A custom class may not inherit Pets
-behavior: no superclass of it other than `Component` may declare effects, invariants, or default
-quantifiers (T10-2).
+**T2-9. Kotlin-backed classes.** A class directly extending `CustomMetric` is a virtual metric: no
+component of it exists, and Catalog host code supplies its count. It cannot declare or inherit Pets
+behavior. A class directly extending `CustomInstruction` is an ordinary Signal that may declare Pets
+behavior. On its gain, Catalog host code supplies an instruction tree queued as an additional
+effect. The Catalog must supply exactly one implementation of the matching kind for each such class
+and must not supply one for an ordinary class, `Component` and `Class` included (T10-2).
 
 > **Non-normative example — Robotic Workforce.** It gains
-> `CopyProductionBox<CardFront(HAS BuildingTag)>`, a custom instruction whose host code copies the
-> chosen building card's production box. `Neighbor` is a custom metric: the board's geometry, not
-> any component, says which areas are adjacent. The agreement checks keep opaque host meaning from
-> being loaded as ordinary Pets behavior, and the reverse.
+> `CopyProductionBox<CardFront(HAS BuildingTag)>`, a `CustomInstruction` whose host code queues the
+> chosen building card's production box. `Neighbor` is a `CustomMetric`: the board's geometry,
+> not any component, says which areas are adjacent.
 
 ---
 

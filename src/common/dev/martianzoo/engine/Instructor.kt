@@ -4,7 +4,6 @@ import dev.martianzoo.engine.Exceptions.RunawayEffectChainException
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.Transforming
-import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -68,7 +67,6 @@ internal constructor(
     private val effector: Effector,
     private val classTable: ClassTable,
     private val elaborator: PetElaborator,
-    private val customClasses: CustomInstructionRuntime,
 ) {
   private val automaticEffectStack = mutableListOf<PendingTask>()
 
@@ -202,7 +200,6 @@ internal constructor(
    * * Validates and removes "gates"
    * * Evaluates a metric in a [Per] instruction, multiplying the inner instruction appropriately
    * * Resolves each option of an [Or]
-   * * If gaining a *concrete* custom type, rewrites to the result of [CustomClass.translate]
    *
    * [worldGainNarrowing] permits current-World gain narrowing after a Task is selected.
    */
@@ -263,7 +260,7 @@ internal constructor(
           val removal = first.removing?.let { reader.resolve(broad.transformExpression(it)) }
           val possible =
               when {
-                gain != null && removal == null && !gain.rootClass.declaration.custom ->
+                gain != null && removal == null && !gain.rootClass.declaration.customMetric ->
                     limiter.hasExecutableConcreteGain(gain, required, reader)
                 gain == null && removal != null ->
                     limiter.hasExecutableConcreteRemoval(removal, required, reader)
@@ -338,7 +335,7 @@ internal constructor(
               gaining != null &&
               change.removing == null &&
               (quantifier == OPTIONAL || reader.resolve(gaining).abstract) &&
-              !classTable.getClass(gaining.className).declaration.custom
+              !classTable.getClass(gaining.className).declaration.customMetric
       if (canFallBackToZero) NoOp else throw e
     }
   }
@@ -366,10 +363,16 @@ internal constructor(
     }
 
     val (g, r) = narrowChangeTypes(change, count, intens, worldGainNarrowing) ?: return change
-    if (r?.rootClass?.declaration?.custom == true) {
+    if (r?.rootClass?.declaration?.customMetric == true) {
       throw ExpressionException(
-          "custom class `${r.className}` has no components to remove; custom instructions can only be gains",
+          "custom metric `${r.className}` cannot be removed",
           sourceLocation = change.removing?.sourceLocation,
+      )
+    }
+    if (g?.rootClass?.declaration?.customMetric == true) {
+      throw ExpressionException(
+          "custom metric `${g.className}` cannot be gained",
+          sourceLocation = change.gaining?.sourceLocation,
       )
     }
     fun retainedExpression(resolved: Type?, authored: Expression?): Expression? =
@@ -413,7 +416,7 @@ internal constructor(
           g?.abstract == true &&
               r == null &&
               intens != OPTIONAL &&
-              !g.rootClass.declaration.custom &&
+              !g.rootClass.declaration.customMetric &&
               !limiter.hasExecutableConcreteGain(g, required, reader)
       ) {
         return unavailable("no concrete narrowing can execute")
@@ -437,9 +440,6 @@ internal constructor(
       )
     }
 
-    translateCustomChange(change, g, r, worldGainNarrowing)?.let {
-      return it
-    }
     return limitChange(
         g,
         r,
@@ -473,30 +473,6 @@ internal constructor(
       return null
     }
     return narrowed
-  }
-
-  private fun translateCustomChange(
-      original: Change,
-      gainingType: Type?,
-      removingType: Type?,
-      worldGainNarrowing: Boolean,
-  ): InstructionTree? {
-    if (gainingType?.rootClass?.declaration?.custom != true) return null
-    if (removingType != null) {
-      throw ExpressionException("custom class instructions can only be pure gains: `$original`")
-    }
-    val gaining = gainingType.toComponent()
-    val translated =
-        try {
-          customClasses.translateInstruction(gaining, reader)
-        } catch (e: ExpressionException) {
-          throw ExpressionException(
-              e.detail,
-              e,
-              e.sourceLocation ?: original.gaining?.sourceLocation,
-          )
-        }
-    return resolveTree(translated, worldGainNarrowing)
   }
 
   /** Names one change the way its error messages do: `gain 3 Plant<Player1>`. */

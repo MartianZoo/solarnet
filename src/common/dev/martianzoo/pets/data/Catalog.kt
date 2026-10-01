@@ -58,7 +58,7 @@ public interface Catalog {
    */
   public val explicitClassDeclarations: Set<ClassDeclaration>
 
-  /** Every exceptional Kotlin implementation for this Catalog's `Custom` classes. */
+  /** Kotlin implementations for this Catalog's virtual metrics and computed Signals. */
   public val customClasses: Set<CustomClass>
 
   /** Returns the unique declaration having [name]. */
@@ -67,16 +67,23 @@ public interface Catalog {
           ?: throw IllegalArgumentException("no class declaration named `$name`")
 
   /**
-   * Returns the custom instruction implementation having [className].
+   * Returns the sole Kotlin implementation having [className].
    *
-   * @throws InvalidPetDefinitionException if the Catalog declares no implementation for [className]
+   * @throws InvalidPetDefinitionException unless the Catalog declares exactly one implementation
+   *   for [className]
    */
-  public fun customClass(className: ClassName): CustomClass =
-      customClasses.firstOrNull { it.className == className && it !is CustomMetric }
-          ?: customClasses.firstOrNull { it.className == className }
-          ?: throw InvalidPetDefinitionException(
+  public fun customClass(className: ClassName): CustomClass {
+    val matches = customClasses.filter { it.className == className }
+    return when (matches.size) {
+      1 -> matches.single()
+      0 ->
+          throw InvalidPetDefinitionException(
               "custom class implementation not found for `$className`"
           )
+      else ->
+          throw InvalidPetDefinitionException("multiple custom implementations for `$className`")
+    }
+  }
 
   /** Returns the custom metric implementation having [className], if any. */
   public fun customMetric(className: ClassName): CustomMetric? =

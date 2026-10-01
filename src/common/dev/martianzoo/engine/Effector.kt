@@ -2,6 +2,8 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
+import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.HashMultiset
@@ -14,6 +16,7 @@ import dev.martianzoo.state.toComponent
 /** Maintains the live-effect index and fires matching effects for component changes. */
 internal class Effector(
     private val elaborator: PetElaborator,
+    private val customInstructions: CustomInstructionRuntime,
     readerProvider: () -> GameReader,
 ) {
   private val reader: Lazy<GameReader> = lazy(readerProvider)
@@ -87,18 +90,41 @@ internal class Effector(
     }
   }
 
+  /** The Kotlin output is one queued self-effect of the gained CustomInstruction. */
+  private fun customInstructionEffect(triggerEvent: ChangeEvent, controller: Actor): PendingTask? {
+    val component = triggerEvent.change.gaining ?: return null
+    if (!component.type.rootClass.isSubtypeOf(elaborator.classTable.getClass(CUSTOM_INSTRUCTION))) {
+      return null
+    }
+    val instruction = customInstructions.translateInstruction(component, reader())
+    return PendingTask.fromEffect(
+        context = component,
+        triggerEvent = triggerEvent,
+        controller = controller,
+        changedComponentPlayer = component.playerOwner,
+        automatic = false,
+        instruction = InstructionGroup.of(instruction) * triggerEvent.change.count,
+    )
+  }
+
   private fun fireSelfEffects(
       triggerEvent: ChangeEvent,
       controller: Actor,
       automatic: Boolean? = null,
       resolvedChange: LiveEffect.ResolvedChange,
-  ): List<PendingTask> =
-      listOfNotNull(resolvedChange.gaining, resolvedChange.removing)
-          .distinct()
-          .map(Type::toComponent)
-          .flatMap { liveEffects(it) }
-          .filter { automatic == null || it.automatic == automatic }
-          .mapNotNull { it.onChangeToSelf(triggerEvent, controller, reader(), resolvedChange) }
+  ): List<PendingTask> {
+    val authored =
+        listOfNotNull(resolvedChange.gaining, resolvedChange.removing)
+            .distinct()
+            .map(Type::toComponent)
+            .flatMap { liveEffects(it) }
+            .filter { automatic == null || it.automatic == automatic }
+            .mapNotNull { it.onChangeToSelf(triggerEvent, controller, reader(), resolvedChange) }
+    val computed =
+        if (automatic != true) listOfNotNull(customInstructionEffect(triggerEvent, controller))
+        else emptyList()
+    return authored + computed
+  }
 
   private fun fireOtherEffects(
       triggerEvent: ChangeEvent,

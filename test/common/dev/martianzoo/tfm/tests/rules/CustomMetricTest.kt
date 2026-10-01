@@ -6,12 +6,12 @@ import dev.martianzoo.engine.Engine
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.CustomClass
+import dev.martianzoo.pets.api.CustomInstruction
 import dev.martianzoo.pets.api.CustomMetric
 import dev.martianzoo.pets.api.Exceptions.CustomCodeException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.data.GamePremise
@@ -27,19 +27,18 @@ import kotlin.test.Test
 
 internal class CustomMetricTest {
   @Test
-  internal fun instructionAndMetricCapabilitiesCanShareOrSplitImplementations() {
+  internal fun instructionSignalsAndVirtualMetricsHaveSeparateClasses() {
     val game = Engine.newGame(customClassSetup())
     val p1 = game.testTfm(PLAYER1)
 
     p1.count("BothBehavior") shouldBe 7
     shouldThrow<ExpressionException> { p1.sneak("BothBehavior") }
-    p1.runOperation("BothBehavior")
-    p1.count("Plant") shouldBe 1
+    shouldThrow<ExpressionException> { p1.runOperation("BothBehavior") }
 
     p1.count("SplitBehavior") shouldBe 9
-    p1.runOperation("SplitBehavior")
+    p1.runOperation("SplitBehaviorSignal")
     p1.count("Heat") shouldBe 1
-    p1.count("Plant") shouldBe 2
+    p1.count("Plant") shouldBe 1
   }
 
   @Test
@@ -111,13 +110,11 @@ internal class CustomMetricTest {
 }
 
 private object BothBehavior : CustomMetric() {
-  override fun translate(game: GameReader): Instruction = parse("Plant<Player1>")
-
   override fun count(game: GameReader, type: Type): Int = 7
 }
 
 private object SplitInstructionImplementation {
-  object SplitBehavior : CustomClass() {
+  object SplitBehaviorSignal : CustomInstruction() {
     override fun translate(game: GameReader): InstructionGroup =
         InstructionGroup(listOf(parse("Heat<Player1>"), parse("Plant<Player1>")))
   }
@@ -169,7 +166,7 @@ private object BrokenMetric : CustomMetric() {
   override fun count(game: GameReader, type: Type): Int = error("broken metric")
 }
 
-private object BrokenInstruction : CustomClass() {
+private object BrokenInstruction : CustomInstruction() {
   override fun translate(game: GameReader): InstructionTree = error("broken instruction")
 }
 
@@ -177,14 +174,15 @@ private object CustomClassDeclarations : TfmCatalog() {
   override val explicitClassDeclarations =
       parseClasses(
               """
-              CLASS BothBehavior : Custom
-              CLASS SplitBehavior : Custom
-              CLASS ConcreteOnlyMetric<Player> : Custom
-              CLASS AbstractAwareMetric<Player> : Custom
-              CLASS PlantCount<Player> : Custom
-              CLASS TileMetric<Tile<MarsArea>> : Custom
-              CLASS BrokenMetric : Custom
-              CLASS BrokenInstruction : Custom
+              CLASS BothBehavior : CustomMetric
+              CLASS SplitBehavior : CustomMetric
+              CLASS SplitBehaviorSignal : CustomInstruction
+              CLASS ConcreteOnlyMetric<Player> : CustomMetric
+              CLASS AbstractAwareMetric<Player> : CustomMetric
+              CLASS PlantCount<Player> : CustomMetric
+              CLASS TileMetric<Tile<MarsArea>> : CustomMetric
+              CLASS BrokenMetric : CustomMetric
+              CLASS BrokenInstruction : CustomInstruction
               CLASS MetricTriggerObserver {
                 HAS =1 This
                 PlantCount<Player1>: Heat<Player1>
@@ -197,7 +195,7 @@ private object CustomClassDeclarations : TfmCatalog() {
   override val customClasses: Set<CustomClass> =
       setOf(
           BothBehavior,
-          SplitInstructionImplementation.SplitBehavior,
+          SplitInstructionImplementation.SplitBehaviorSignal,
           SplitMetricImplementation.SplitBehavior,
           ConcreteOnlyMetric,
           AbstractAwareMetric,
