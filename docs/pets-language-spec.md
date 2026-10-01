@@ -1161,10 +1161,10 @@ it is reacting to.
 > trigger captures that actor instead of leaving the reward ownerless or assigning it to the area.
 
 **L9-14. Changes to uninhabited Types become `Die` or `Ok`.** After specialization, a change whose
-Type expression violates a dependency bound (T3-4, T3-5) becomes a gain of `Die`. A valid change
-whose Type is uninhabited (T12-4) becomes `Die` when mandatory and `Ok` when its quantifier permits
-zero. An expression containing an open Type variable is not tested for inhabitance until that
-variable is bound; specialization may give the expression a nonempty domain (T8-7).
+Type expression violates a dependency bound (T3-4, T3-5), or whose valid Type is uninhabited
+(T12-4), becomes `Die` when mandatory and `Ok` when its quantifier permits zero. An expression
+containing an open Type variable is not tested for inhabitance until that variable is bound;
+specialization may give the expression a nonempty domain (T8-7).
 
 > **Non-normative example — cross-expansion branches.** Cimmeria grants a colony only in a game
 > containing the Colonies expansion. If specialization reaches that branch in another game, a

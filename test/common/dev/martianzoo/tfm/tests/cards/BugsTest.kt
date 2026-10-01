@@ -152,7 +152,7 @@ internal class BugsTest : CardTest() {
     p1.runOperation("9 MC, ProjectCard, PreludeCard")
 
     with(p1) {
-      playPrelude(EcologyExperts) { playProject(ViralEnhancers, 9) }
+      playPrelude(EcologyExperts) { playProject(ViralEnhancers, 9) { doTask("Plant") } }
     }
 
     p1.assertCounts(1 to "Plant")

@@ -1612,10 +1612,10 @@ internal class OtbGame20260809Test : AbstractFullGameTest() {
     // "Be brave. Try playing Viral Enhancers first. That cost me seven. And it gives me a plant,
     // right?"
     green.turn {
-      playProject(ViralEnhancers, 7).expect("Plant")
+      playProject(ViralEnhancers, 7) { doTask("Plant") }.expect("Plant")
 
       // "I play Advanced Ecosystems for nine. It gives me three plants."
-      playProject(AdvancedEcosystems, 9).expect("3 Plant")
+      playProject(AdvancedEcosystems, 9) { repeat(3) { doTask("Plant") } }.expect("3 Plant")
     }
     green.assertCounts(1 to "MC") // ledger entry 266
 
