@@ -13,13 +13,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Resolve Landshaper's distinct-tile requirement before changing its behavior. The suspected bug
   where Capital plus one greenery suffices is quarantined in `cards/BugsTest.kt`; audit R01 leaves
   this combination open even though Capital's city and special-tile classifications are confirmed.
-- Investigate choosing the Lobby delegate whenever an action or card takes from the reserve,
-  even when other reserve delegates remain.
-  [Jacob's supply ruling](https://boardgamegeek.com/thread/2570071/article/36719863#36719863)
-  counts the Lobby as reserve and states no selection priority; we read this as allowing either
-  source. The current model preserves free lobbying on other reserve placements until all seven
-  delegates are placed; it offers no choice to consume the Lobby delegate earlier. See
-  `TurmoilRulesTest.kt` for the supported paid-lobbying case with only the Lobby delegate remaining.
 - Fix Point Luna's played-Earth-tag response so a temporary assigned tag still counts for Cartel
   but does not cause a card draw. First try the existing card-holder distinction; do not bypass
   trigger execution. Full wild-tag assignment remains deferred until a clean rule representation is
