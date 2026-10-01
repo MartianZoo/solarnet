@@ -221,9 +221,10 @@ discarded when it is an arm of `OR`. The fallback comes from `OR`, not from AMAP
   AMAP placement is `Ok`.
 - Atmoscoop authors separate concrete AMAP global-parameter arms. A maxed arm resolves to `Ok` and
   remains selectable because it is an explicit arm; Atmoscoop is not one abstract parameter domain.
-- Viral Enhancers authors `Plant OR CardResource<CardFront>!`. When the entering bio card cannot
-  hold a resource, the concrete mandatory resource arm has a missing dependency and is discarded,
-  forcing Plant. This is an engine characterization, not a claim about an official ruling.
+- Viral Enhancers authors `Plant OR CardResource<CardFront>`. When the entering bio card cannot
+  hold a resource, the AMAP resource arm specializes to `Ok`, leaving a real choice between a plant
+  and no resource. Splice's microbe-or-MC choice behaves the same way for a card that cannot hold
+  microbes.
 - Pharmacy Union does not rely on AMAP treating a vanished card as zero. Its microbe effect
   explicitly chooses between adding Disease while Pharmacy Union exists and `Ok` after it has
   flipped; its independent 4 M€ loss remains pending either way.
@@ -237,9 +238,9 @@ not rediscover one locally and accidentally change unrelated cards.
 
 This would make Pharmacy Union's stale Disease task disappear without special Pets, but it would
 also make concrete references implicit weak references. Local Heat Trapping could select absent
-Fish even while Pets can receive animals. Viral Enhancers could retain an `Ok` resource arm and let
-the player avoid the otherwise forced Plant. Misspelled, stale, or incorrectly specialized targets
-would silently succeed. Pharmacy Union instead states its genuine lifetime exception explicitly.
+Fish even while Pets can receive animals. A once-valid target removed before a concrete AMAP gain
+resolves would silently succeed. Pharmacy Union instead states its genuine lifetime exception
+explicitly.
 
 ### Require the globally largest target
 

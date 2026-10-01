@@ -13,7 +13,7 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
   @Test
   internal fun `Splicer depends on Splice`() {
     newGame(PromoCardPack)
-    p1.runOperation("$SpliceTacticalGenomics")
+    addSpliceChoosingMoney()
     p1.count("Splicer<$SpliceTacticalGenomics>") shouldBe 1
 
     p1.runOperation("-$SpliceTacticalGenomics")
@@ -22,10 +22,15 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
   }
 
   @Test
-  internal fun `Splice pays itself because it is not a microbe card`() {
+  internal fun `Splice can choose money when it cannot hold microbes`() {
     newGame(PromoCardPack)
 
-    playCorporationWithoutStartingProjects(p1, SpliceTacticalGenomics).expect("48 MC")
+    p1.inTurn {
+          doTask("PlayCard<Class<StandardCorporationCard>, Class<$SpliceTacticalGenomics>>")
+          doTask("2 MC")
+          doTask("Ok")
+        }
+        .expect("48 MC")
 
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction").expect("ProjectCard")
@@ -35,7 +40,7 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
   internal fun `When another player plays a microbe tag, Splice pays both players`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.runOperation("$SpliceTacticalGenomics")
+    addSpliceChoosingMoney()
     val manual = p2.also { it.autoExecPolicy = NONE }
     val p1MoneyBefore = p1.count("MC")
     val p2MoneyBefore = p2.count("MC")
@@ -55,10 +60,10 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
   internal fun `Pharmacy Union triggers Splice twice`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.runOperation("$SpliceTacticalGenomics")
+    addSpliceChoosingMoney()
     val before = p1.count("MC")
 
-    p2.runOperation("$PharmacyUnion")
+    p2.runOperation("$PharmacyUnion") { repeat(2) { doTask("2 MC") } }
 
     p1.count("MC") shouldBe before + 4
   }
@@ -67,7 +72,7 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
   internal fun `Can take a microbe instead of mc`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.runOperation("$SpliceTacticalGenomics")
+    addSpliceChoosingMoney()
 
     p2.runOperation("$Decomposers") { addCardResources(Decomposers) }
         .expect("2 MC<Player1>, 2 Microbe<$Decomposers>")
@@ -77,7 +82,7 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
   internal fun `Must add the microbe to the card just played`() {
     newGame(PromoCardPack)
     val p2 = requireP2()
-    p1.runOperation("$SpliceTacticalGenomics")
+    addSpliceChoosingMoney()
     p2.runOperation("$RegolithEaters") { doTask("2 MC") }.expect("2 MC<Player1>, 2 MC")
 
     p2.runOperation("$Decomposers") {
@@ -85,5 +90,19 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
           addCardResources(Decomposers)
         }
         .expect("2 MC<Player1>, 2 Microbe<$Decomposers>")
+  }
+
+  @Test
+  internal fun `Can choose a microbe for a card that cannot hold it and gain nothing`() {
+    newGame(PromoCardPack)
+    val p2 = requireP2()
+    addSpliceChoosingMoney()
+
+    p2.runOperation("$IndustrialMicrobes") { declineTask() }
+        .expect("2 MC<Player1>, PROD[Energy, Steel], 0 Microbe, 0 MC")
+  }
+
+  private fun addSpliceChoosingMoney() {
+    p1.runOperation("$SpliceTacticalGenomics") { doTask("2 MC") }
   }
 }

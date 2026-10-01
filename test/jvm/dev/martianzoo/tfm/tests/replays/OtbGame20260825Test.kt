@@ -246,7 +246,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "I'll just get my optimal arrow breaking down. For two titanium and one real."
       playProject(OptimalAerobraking, 1, titanium = 2)
       // Viral Enhancers costs 9 M€ and gives Green a plant.
-      playProject(ViralEnhancers, 9)
+      playProject(ViralEnhancers, 9) { doTask("Plant") }
     }
     green.turn {
       // "Let us sell one card." The sold card is Hermetic Order of Mars.
@@ -373,7 +373,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       cardAction1(GhgProducingBacteria)
     }
     green.turn {
-      playProject(ExtremeColdFungus, 13)
+      playProject(ExtremeColdFungus, 13) { doTask("Plant") }
       cardAction2(ExtremeColdFungus) { doTask("2 Microbe<$SulphurEatingBacteria>") }
     }
     yellow.turn {
@@ -858,7 +858,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "I'm going to play Symbiotic Fungus, which costs two money. It has a microbial tag, so
       // that means it would give me a microbe, but it doesn't actually take microbes. So I get a
       // plant. And then I'll use its action to add a microbe to Sulphur-Eating Bacteria."
-      playProject(SymbioticFungus, 2).expect("Plant")
+      playProject(SymbioticFungus, 2) { doTask("Plant") }.expect("Plant")
       cardAction1(SymbioticFungus) { doTask("Microbe<$SulphurEatingBacteria>") }
     }
     yellow.turn {
@@ -898,7 +898,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
 
       // "I have four money, so let's build Heather. That costs all four of my money ... Viral
       // Enhancers gives me a plant, and then it gives me a plant production and a plant."
-      playProject(Heather, 4).expect("PROD[Plant], 2 Plant")
+      playProject(Heather, 4) { doTask("Plant") }.expect("PROD[Plant], 2 Plant")
       pass()
     }
     // "Production. Your World Government choice." The following exchange and app checkpoint
@@ -1011,7 +1011,10 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // gain two energy production and then I lose one of them again ... for Freyja Biodomes."
       playProject(BiomassCombustors, 2) { doTask("PROD[-Plant<Yellow>]") }
           .expect("PROD[2 Energy, -Plant<Yellow>]")
-      playProject(FreyjaBiodomes, 12) { addCardResources(StratosphericBirds) }
+      playProject(FreyjaBiodomes, 12) {
+            doTask("Plant")
+            addCardResources(StratosphericBirds)
+          }
           .expect("PROD[-Energy, 2 MC], Plant, 2 Animal<$StratosphericBirds>")
     }
     yellow.turn {
@@ -1289,7 +1292,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
     green.turn {
       // "All right, let's have some fun. Let's do Bushes of Love. It'll also help me with the
       // bigger lead on Magnate. Bushes of Love cost me eight, and it gives me a planta."
-      playProject(Bushes, 8)
+      playProject(Bushes, 8) { doTask("Plant") }
       // "Robot Pollinators cost me seven ... it gives me a plant production, and since I have
       // three plant tags now, it also gives me three plants."
       playProject(RobotPollinators, 7)
