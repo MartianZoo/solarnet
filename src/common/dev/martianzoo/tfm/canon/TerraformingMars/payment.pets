@@ -48,7 +48,7 @@ CLASS AcceptingFromCard<@ResourceCard<Class<@CardResource>, @Player>> : Owned<@P
 "Records payment using the resource held by a specific card"
 CLASS PayFromCard<ResourceCard<Class<CardResource>, @Player>> : Owned<@Player>, Signal
 
-"A card-owned adjustment that remains in play until the next card-play"
+"A card-owned adjustment that remains in play until the next project card play"
 ABSTRACT CLASS NextCardEffect<GenerationScope> : Owned<Player> {
   PayingFor<Class<CardFront>>:: -This!
 }

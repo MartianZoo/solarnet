@@ -36,6 +36,8 @@ import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
+import dev.martianzoo.tfm.canon.TfmClasses.PROJECT_CARD
+import dev.martianzoo.tfm.canon.cardBack
 import dev.martianzoo.tfm.canon.cardEffects
 import dev.martianzoo.tfm.canon.cardImmediate
 import dev.martianzoo.tfm.canon.cardTags
@@ -203,7 +205,7 @@ private val adjustGpRequirement =
 
 private val priceCard =
     object : CustomClass("PriceCard") {
-      override val requiredClassNames: Set<ClassName> = setOf(PAYING_FOR)
+      override val requiredClassNames: Set<ClassName> = setOf(PAYING_FOR, PROJECT_CARD)
 
       override fun translate(
           reader: GameReader,
@@ -211,6 +213,7 @@ private val priceCard =
           cardFrontClassType: Type,
       ): Instruction {
         val card = cardFromClassType(cardFrontClassType, reader)
+        if (cardBack(card)?.isSubtypeOf(card.classTable.getClass(PROJECT_CARD)) != true) return NoOp
         return Then.create(
             cardTags(card).entries.map { (tagName, count) ->
               gain(PAYING_FOR.of(tagName.classExpression()), count)

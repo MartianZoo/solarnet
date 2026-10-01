@@ -10,9 +10,13 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   leave leadership and dominance stale; resolving a removal tie must use the active player's seat
   order. Verify the physical replay's direct delegate-color reconciliation when changing the current
   global election.
-- Resolve Landshaper's distinct-tile requirement before changing its behavior. The suspected bug
-  where Capital plus one greenery suffices is quarantined in `cards/BugsTest.kt`; audit R01 leaves
-  this combination open even though Capital's city and special-tile classifications are confirmed.
+- Fix Landshaper counting Capital as both its city and special tile when the player also owns one
+  or two greeneries. Each of Landshaper's three requirements needs a distinct physical tile;
+  `rules/BugsTest.kt` characterizes both incorrect successes.
+- Place the neutral solo tiles immediately after the original corporation play, then remove Tharsis
+  Republic's solo-only +2 M€ production effect. Its normal city-placement effect should grant the
+  two production steps; verify that neutral greeneries still do not raise oxygen and that a
+  Tharsis acquired later through Merger receives no setup bonus.
 - Investigate choosing the Lobby delegate whenever an action or card takes from the reserve,
   even when other reserve delegates remain.
   [Jacob's supply ruling](https://boardgamegeek.com/thread/2570071/article/36719863#36719863)
@@ -20,6 +24,11 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   source. The current model preserves free lobbying on other reserve placements until all seven
   delegates are placed; it offers no choice to consume the Lobby delegate earlier. See
   `TurmoilRulesTest.kt` for the supported paid-lobbying case with only the Lobby delegate remaining.
+- Find realistic setups for impossible original first actions of Tharsis, Philares, Arcadian
+  Communities, and Aridor; only Poseidon has a focused characterization. Do not fill a map
+  synthetically just to manufacture the failure.
+- Clarify how Thawer markers behave when Snow Cover lowers a marked temperature step and that step
+  is raised again. A generic count of temperature increases cannot prove which physical step is marked.
 - Fix Point Luna's played-Earth-tag response so a temporary assigned tag still counts for Cartel
   but does not cause a card draw. First try the existing card-holder distinction; do not bypass
   trigger execution. Full wild-tag assignment remains deferred until a clean rule representation is

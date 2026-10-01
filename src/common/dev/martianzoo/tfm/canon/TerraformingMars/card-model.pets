@@ -78,7 +78,7 @@ CLASS CheckRequirement<Class<CardFront>> : Owned<Player>, Signal
 
 CLASS AdjustGpRequirement<Class<CardFront>> : Owned<Player>, Custom
 
-"Emits one payment-adjustment event for the card and one for each of its printed tags"
+"Emits payment-adjustment events for a project card and each of its printed tags"
 CLASS PriceCard<Class<CardFront>> : Owned<Player>, Custom
 
 "A temporary shortfall between a printed global requirement and the current parameter"

@@ -873,6 +873,16 @@ internal class Prelude2CardsTest : CardTest() {
   }
 
   @Test
+  internal fun `Planetary Alliance makes both tagged searches`() {
+    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
+    admin.phase("Prelude")
+    p1.playPrelude(PlanetaryAlliance)
+
+    p1.count("ProjectCard") shouldBe 2
+    p1.count("TerraformRating") shouldBe 22
+  }
+
+  @Test
   internal fun `Floating Refinery counts its own Venus tag`() {
     newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
     p1.runOperation("$ForcedPrecipitation")

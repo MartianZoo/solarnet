@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class ViralEnhancersTest : CardTest() {
@@ -56,5 +57,23 @@ internal class ViralEnhancersTest : CardTest() {
     newGame()
     p1.runOperation("$ViralEnhancers")
     p1.runOperation("$NitriteReducingBacteria") { doTask("Plant") }
+  }
+
+  @Test
+  internal fun `Viral Enhancers responds twice to Pharmacy Union acquired through Merger`() {
+    newGame(PreludeExpansion, PromoCardPack)
+    playCorporationWithoutStartingProjects(p1, CrediCor)
+    p1.runOperation("$ViralEnhancers")
+    admin.phase("Prelude")
+    p1.runOperation("PreludeCard")
+
+    p1.playPrelude(Merger) {
+          p1.playCorp(PharmacyUnion) {
+            doTask("Plant")
+            doTask("Plant")
+          }
+        }
+        .expect("2 Plant, 2 Disease<$PharmacyUnion>")
+    p1.count("Plant") shouldBe 3
   }
 }
