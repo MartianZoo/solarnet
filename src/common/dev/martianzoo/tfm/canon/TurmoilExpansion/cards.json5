@@ -11,6 +11,14 @@
           "effects": [ "End: -VictoryPoint" ],
         },
         {
+          "name": "BannedDelegate",
+          "requirement": "Chairman",
+          "cost": 0,
+          "tags": [ "EventTag" ],
+          "immediate":
+            "BannedDelegateRemoval<Party, Anyone>. / (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1",
+        },
+        {
           "name": "CulturalMetropolis",
           "requirement": "PartyRequirement<Unity>",
           "cost": 20,

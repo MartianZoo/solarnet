@@ -237,7 +237,7 @@ ABSTRACT CLASS Delegate : Owned<Owner> {
     ) { \
       PartyLeader<Delegation@Party, Leader@Anyone> \
     }
-    X This:: RecalculateDominance
+    X This OR -X This:: RecalculateDominance<Delegation@Party>
     MeasureInfluence IF Dominant<Delegation@Party>, \
       1 (PartyDelegate<Delegation@Party, Owner> - PartyLeader<Delegation@Party, Owner>):: \
       DelegateInfluence.
@@ -277,10 +277,11 @@ CLASS LobbyActionAvailable : Owned<Player>, System {
   Delegate IF 7 Delegate:: -This.
 }
 
-"Gives dominance to the largest delegation, preserving the incumbent on a tie"
-CLASS RecalculateDominance : Signal {
+"Gives dominance to the largest delegation, then incumbency and committee order"
+CLASS RecalculateDominance<Source@Party> : Signal {
   This:: EACH Next@Party(HAS MAX 0 Dominant, HAS =1 (RANK Ranked@Party { \
-    PartyDelegate<Ranked@Party, Anyone>, Dominant<Ranked@Party> \
+    PartyDelegate<Ranked@Party, Anyone>, Dominant<Ranked@Party>, \
+    Party - PartyDistance<Source@Party, Ranked@Party> \
   })) { \
     (Dominant<Party>: Dominant<Next@Party FROM Party>) OR \
     (MAX 0 Dominant<Party>: Dominant<Next@Party>) \
