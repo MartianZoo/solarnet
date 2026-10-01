@@ -271,7 +271,7 @@ CLASS PartyLeader<Delegation@Party> : Owned<Owner> {
   End: VictoryPoint
 }
 
-"Marks that a player has not used their free lobbying action this generation"
+"The unspent Lobby delegate, used by other placements only after the Delegate Reserve is empty"
 CLASS LobbyActionAvailable : Owned<Player>, System {
   HAS MAX 1 This
   Delegate IF 7 Delegate:: -This.
@@ -291,7 +291,7 @@ CLASS RecalculateDominance<Source@Party> : Signal {
 "The repeatable lobbying action, free from the Lobby or costing 5 M€"
 CLASS LobbyAction : StandardAction {
   LobbyActionAvailable -> PartyDelegate
-  5 MC -> PartyDelegate
+  5 MC -> MAX 6 (Delegate OR LobbyActionAvailable): PartyDelegate
 }
 
 "Restores free lobbying for each player who has an available delegate"

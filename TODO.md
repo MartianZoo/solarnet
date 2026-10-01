@@ -16,13 +16,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   Republic's solo-only +2 M€ production effect. Its normal city-placement effect should grant the
   two production steps; verify that neutral greeneries still do not raise oxygen and that a
   Tharsis acquired later through Merger receives no setup bonus.
-- Investigate choosing the Lobby delegate whenever an action or card takes from the reserve,
-  even when other reserve delegates remain.
-  [Jacob's supply ruling](https://boardgamegeek.com/thread/2570071/article/36719863#36719863)
-  counts the Lobby as reserve and states no selection priority; we read this as allowing either
-  source. The current model preserves free lobbying on other reserve placements until all seven
-  delegates are placed; it offers no choice to consume the Lobby delegate earlier. See
-  `TurmoilRulesTest.kt` for the supported paid-lobbying case with only the Lobby delegate remaining.
 - Find realistic setups for impossible original first actions of Tharsis, Philares, Arcadian
   Communities, and Aridor; only Poseidon has a focused characterization. Do not fill a map
   synthetically just to manufacture the failure.

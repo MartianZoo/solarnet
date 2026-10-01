@@ -1222,11 +1222,8 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       playProject(MagneticFieldGeneratorsPromo, 20, steel = 1) { placeTile(5, 4) }
     }
     green.turn {
-      stdAction("LobbyAction", 2) { doTask("PartyDelegate<MarsFirst>") }
-      // Green explicitly says "pay five" for this Mars First delegate. The app remains at 57 M€
-      // until Frontier Town's nine-M€ payment, so the player placed the delegate but failed to
-      // decrease the phone balance.
-      exMachina("5 MC")
+      // Green says this is a Lobby delegate; the app stays at 57 M€ until Frontier Town.
+      stdAction("LobbyAction", 1) { doTask("PartyDelegate<MarsFirst>") }
       // Frontier Town repeats the temperature/-4 M€ bonus printed at 5-5 and crosses the
       // zero-degree ocean threshold; the table placed that ocean at 3-3.
       intentionalUnderpay()
