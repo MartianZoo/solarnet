@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
@@ -16,38 +15,6 @@ import kotlin.test.Test
 
 /** Passing characterizations of known incorrect behavior. */
 internal class BugsTest : CardTest() {
-  // Resolved FAQ: Hired Raiders may steal less than its maximum, but must steal at least one.
-  @Test
-  internal fun `Hired Raiders incorrectly permits stealing nothing`() {
-    newGame(CorporateEraExpansion)
-    p1.runOperation("MC, ProjectCard")
-    requireP2().runOperation("2 Steel, 3 MC")
-    admin.phase("Action")
-
-    p1.playProject(HiredRaiders, 1) {
-          // The implementation incorrectly accepts declining the steal altogether.
-          declineTask()
-        }
-        .expect("0 Steel<Player1>, 0 Steel<Player2>, 0 MC<Player2>")
-    p1.count("PlayedEvent<Class<$HiredRaiders>>") shouldBe 1
-  }
-
-  // Resolved FAQ: an unavailable animal option permits declining even on a microbe card.
-  @Test
-  internal fun `Viral Enhancers incorrectly forces a bonus on a card that can hold microbes`() {
-    newGame(CorporateEraExpansion)
-    p1.runOperation("22 MC, 2 ProjectCard")
-    admin.phase("Action")
-    p1.playProject(ViralEnhancers, 9) { doTask("Plant") }
-
-    p1.playProject(RegolithEaters, 13) {
-          shouldThrow<NarrowingException> { declineTask() }
-          p1.assertCounts(0 to "Microbe<$RegolithEaters>", 1 to "Plant")
-          addCardResources(RegolithEaters)
-        }
-        .expect("Microbe<$RegolithEaters>, 0 Plant")
-  }
-
   // BGG wild-tag ruling: https://boardgamegeek.com/thread/2030851/article/29611733#29611733
   @Test
   internal fun `A fake wild Earth tag incorrectly gives Point Luna an extra draw`() {
@@ -438,44 +405,6 @@ internal class BugsTest : CardTest() {
     p1.playProject(CeosFavoriteProject, 0)
 
     p1.assertCounts(1 to "PlayedEvent<Class<$CeosFavoriteProject>>")
-  }
-
-  // Resolved FAQ: Viral Enhancers offers animals or microbes, never disease resources.
-  @Test
-  internal fun `Viral Enhancers incorrectly adds diseases to Pharmacy Union acquired through Merger`() {
-    newGame(PreludeExpansion, PromoCardPack)
-    playCorporationWithoutStartingProjects(p1, CrediCor)
-    p1.runOperation("$ViralEnhancers") { doTask("Plant") }
-    admin.phase("Prelude")
-    p1.runOperation("PreludeCard")
-
-    p1.playPrelude(Merger) {
-          p1.playCorp(PharmacyUnion) {
-            doTask("CardResource<$PharmacyUnion>")
-            doTask("CardResource<$PharmacyUnion>")
-          }
-        }
-        .expect("4 Disease<$PharmacyUnion>, 0 Plant")
-  }
-
-  // Resolved FAQ: Advisor may choose a completed parameter to do nothing.
-  // Earlier discussion: https://boardgamegeek.com/thread/3348438/article/44693194#44693194
-  @Test
-  internal fun `World Government Advisor incorrectly rejects a completed parameter while another is available`() {
-    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
-    p1.runOperation("$WorldGovernmentAdvisor")
-    admin.runOperation("15 VenusStep")
-    admin.phase("Action")
-    val trBefore = p1.count("TerraformRating")
-
-    shouldThrow<LimitsException> {
-      p1.cardAction1(WorldGovernmentAdvisor) { wgt("VenusStep") }
-    }
-    p1.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 0
-    p1.count("TerraformRating") shouldBe trBefore
-    admin.count("VenusStep") shouldBe 15
-    p1.cardAction1(WorldGovernmentAdvisor) { wgt("TemperatureStep") }
-    admin.count("TemperatureStep") shouldBe 1
   }
 
   // Resolved FAQ: a corporation acquired after Prelude must take its first action immediately.

@@ -173,11 +173,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
-- Implement resolved FAQ behavior characterized in `cards/BugsTest`: Viral Enhancers offers only
-  animals or microbes and always allows an uncollectible choice; World Government Advisor may
-  choose a completed parameter; corporations acquired through Merger after Prelude resolve their
-  first action immediately (an impossible one must invalidate the Prelude play); Hired Raiders
-  must steal at least one resource.
+- Implement the resolved FAQ behavior characterized in `cards/BugsTest`: corporations acquired
+  through Merger after Prelude resolve their first action immediately (an impossible one must
+  invalidate the Prelude play).
 - Extend the Mining Rights/Area wild-resource regression after placement is fixed: Robotic
   Workforce and Cyberia Systems may choose either originally available metal production even if
   the placement awarded a nonmetal resource. No remembered resource choice is required.

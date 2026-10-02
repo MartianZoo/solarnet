@@ -22,6 +22,19 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class WorldGovernmentRulesTest : CardTest() {
+  // Resolved FAQ: Advisor may choose a completed parameter to do nothing.
+  @Test
+  internal fun `Advisor may choose a completed parameter while another is available`() {
+    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
+    p1.runOperation("$WorldGovernmentAdvisor")
+    admin.runOperation("15 VenusStep")
+    admin.phase("Action")
+
+    p1.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep BY Admin") }
+        .expect("0 VenusStep, 0 TemperatureStep, 0 TerraformRating")
+    p1.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1
+  }
+
   @Test
   internal fun `Solar phase World Government cannot choose a completed parameter`() {
     newGame(VenusNextExpansion)
@@ -177,7 +190,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
     fillSelectedColonySlots()
     admin.phase("Action")
 
-    p1.cardAction1(WorldGovernmentAdvisor) { wgt("VenusStep") }
+    p1.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep BY Admin") }
     admin.count("VenusStep") shouldBe 8
     p1.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1
     p1.count("Colony") shouldBe 0
@@ -197,7 +210,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
     admin.runOperation("7 VenusStep")
     admin.phase("Action")
 
-    p1.cardAction1(WorldGovernmentAdvisor) { wgt("VenusStep") }
+    p1.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep BY Admin") }
 
     admin.count("VenusStep") shouldBe 8
     p1.count("Colony") shouldBe 0

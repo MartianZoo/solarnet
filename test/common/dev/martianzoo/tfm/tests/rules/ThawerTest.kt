@@ -47,7 +47,7 @@ internal class ThawerTest : CardTest() {
     p1.runOperation("8 MC, 4 TemperatureStep, $WorldGovernmentAdvisor")
     admin.phase("Action")
 
-    p1.cardAction1(WorldGovernmentAdvisor) { wgt("TemperatureStep") }
+    p1.cardAction1(WorldGovernmentAdvisor) { doTask("TemperatureStep BY Admin") }
 
     shouldThrow<RequirementException> { p1.claimMilestone(cn("Thawer")) }
   }

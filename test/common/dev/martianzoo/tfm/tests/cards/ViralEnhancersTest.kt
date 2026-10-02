@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -8,6 +9,19 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class ViralEnhancersTest : CardTest() {
+  // Resolved FAQ: the uncollectible animal option permits taking nothing on a microbe card.
+  @Test
+  internal fun `Can choose the animal option to take nothing on a microbe collector`() {
+    newGame(CorporateEraExpansion)
+    p1.runOperation("22 MC, 2 ProjectCard")
+    admin.phase("Action")
+    p1.playProject(ViralEnhancers, 9) { doTask("Plant") }
+
+    // The uncollectible animal branch resolves to Ok, selected through declineTask().
+    p1.playProject(RegolithEaters, 13) { declineTask() }
+        .expect("0 Microbe<$RegolithEaters>, 0 Plant, 0 Animal")
+  }
+
   @Test
   internal fun `When Viral Enhancers enters play, adds a plant`() {
     newGame()
@@ -81,7 +95,7 @@ internal class ViralEnhancersTest : CardTest() {
   }
 
   @Test
-  internal fun `Viral Enhancers responds twice to Pharmacy Union acquired through Merger`() {
+  internal fun `Viral Enhancers responds twice to Pharmacy Union but cannot add diseases`() {
     newGame(PreludeExpansion, PromoCardPack)
     playCorporationWithoutStartingProjects(p1, CrediCor)
     p1.runOperation("$ViralEnhancers") { doTask("Plant") }
@@ -91,6 +105,7 @@ internal class ViralEnhancersTest : CardTest() {
     p1.playPrelude(Merger) {
           p1.playCorp(PharmacyUnion) {
             doTask("Plant")
+            shouldThrow<TaskException> { doTask("Disease<$PharmacyUnion>") }
             doTask("Plant")
           }
         }
