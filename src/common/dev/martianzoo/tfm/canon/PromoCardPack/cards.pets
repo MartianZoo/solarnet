@@ -38,7 +38,7 @@ CLASS CloudSocieties : GePartyDistant<Unity>, GePartyCurrent<Reds> {
 
 "Lets one player put all Cloud Societies influence floaters on a single compatible card"
 CLASS ChooseInfluenceFloaterCard : Owned<Player>, Signal {
-  This: Floater<ResourceCard<Class<Floater>, Owner>> / Influence
+  This: Floater<ResourceCard<Class<Floater>>> / Influence
 }
 
 CLASS CorrosiveRain : GePartyDistant<Kelvinists>, GePartyCurrent<Greens> {

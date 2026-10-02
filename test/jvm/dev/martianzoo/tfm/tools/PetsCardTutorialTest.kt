@@ -517,7 +517,6 @@ internal class PetsCardTutorialTest {
             "Penguins",
             "PhysicsComplex",
             "PublicBaths",
-            "PublicPlans",
             "RedSpotObservatory",
             "RefugeeCamps",
             "Research",

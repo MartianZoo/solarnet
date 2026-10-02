@@ -338,7 +338,7 @@
           "requirement": "PartyRequirement<Unity>",
           "cost": 4,
           "tags": [ "EventTag" ],
-          "immediate": "EACH Colony<Owner> { PartyDelegate }",
+          "immediate": "EACH Colony { PartyDelegate }",
         },
         {
           "name": "ColonialRepresentation",

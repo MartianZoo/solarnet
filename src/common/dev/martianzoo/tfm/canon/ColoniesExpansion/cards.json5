@@ -38,7 +38,7 @@
           "immediate": "48 MC",
           "actions": [ "-> Floater" ],
           "effects": [
-            "Billing<HasActions, ActionSlot, Class<Heat>>:: AcceptingFromCard<This>",
+            "Billing<Class<Heat>>:: AcceptingFromCard<This>",
             "PayFromCard<This>:: -2 Owed<Class<Heat>>",
             // Local Heat Trapping is the sole heat payment that does not use Billing. Converting the
             // selected floaters during its resolution has the same net resource result.

@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
@@ -291,7 +292,7 @@ internal class TurmoilEventsTest :
     resolve("Diversity")
     resolve("ImprovedEnergyTemplates")
 
-    p1.count("Class<Tag>(HAS Tag<Player1>)") shouldBe 8
+    p1.count("Class<@Tag>(HAS @Tag<Player1>)") shouldBe 8
     p1.count("MC") shouldBe 10
     p1.count("PROD[Energy]") shouldBe 2
     requireP2().count("MC") shouldBe 0
@@ -453,14 +454,18 @@ internal class TurmoilEventsTest :
         "20 MC, FloaterEventProbe, OtherFloaterEventProbe, " +
             "ChairmanInfluence, PartyLeaderInfluence"
     )
+    val p2 = requireP2()
+    p2.runOperation("TitanShuttles")
 
     admin.runOperation("CloudSocieties")
     admin.runOperation("ResolveGlobalEvent<Class<CloudSocieties>>") {
+      shouldThrow<DependencyException> { p1.doTask("2 Floater<TitanShuttles>") }
       p1.doTask("2 Floater<FloaterEventProbe>")
     }
 
     p1.count("Floater<FloaterEventProbe>") shouldBe 3
     p1.count("Floater<OtherFloaterEventProbe>") shouldBe 1
+    p2.count("Floater<TitanShuttles>") shouldBe 1
 
     admin.runOperation("CorrosiveRain")
     admin.runOperation("ResolveGlobalEvent<Class<CorrosiveRain>>") {

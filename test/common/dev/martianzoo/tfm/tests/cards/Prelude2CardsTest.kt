@@ -1207,6 +1207,7 @@ internal class Prelude2CardsTest : CardTest() {
         colonyTiles = testColonyTiles(2, "Luna", "Io"),
     )
     p1.runOperation("2 Colony<Luna>")
+    requireP2().runOperation("Colony<Io>")
     val startingMoney = p1.count("MC")
 
     p1.runOperation("$ColonialRepresentation")
