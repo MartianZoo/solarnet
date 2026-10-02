@@ -34,3 +34,5 @@ Type `help <ClassName>` or, for the gruesome details, `desc <ClassName>`.
 * `X Microbe<This> -> 3X MC` means to spend one or more microbes from this card to get 3 MC each
 * `CityTile<Anyone>: PROD[1 MC]` is a triggered effect, meaning when anyone gains a city tile, you get a money production
 * A requirement of `MAX 5 OxygenStep` means the oxygen level must be 5% or lower to do the thing
+
+For less obvious authoring idioms, see [Pets tricks, hacks, and cheats](pets-tricks-hacks-cheats.md).

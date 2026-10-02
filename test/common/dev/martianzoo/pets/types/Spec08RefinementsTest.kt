@@ -495,14 +495,14 @@ internal class Spec08RefinementsTest {
     tags
         .resolve(te("Class<BuildingTag>"))
         .narrows(
-            tags.resolve(te("Class<Tag>(HAS Tag<Player1>)")),
+            tags.resolve(te("Class<@Tag>(HAS @Tag<Player1>)")),
             world,
         ) shouldBe true
     world.questions shouldContainExactly listOf("BuildingTag<Player1>")
   }
 
   @Test
-  internal fun `T8-10 each class literal predicate refers to its represented class`() {
+  internal fun `T8-10 only a marked class literal predicate refers to its represented class`() {
     val tags =
         loadTypes(
             "CLASS Player1 : Owner",
@@ -510,16 +510,21 @@ internal class Spec08RefinementsTest {
         )
 
     tags
-        .resolve(te("Class<BuildingTag>(HAS Tag)"))
-        .isSubtypeOf(tags.resolve(te("Class<Tag>(HAS Tag)"))) shouldBe false
+        .resolve(te("Class<@BuildingTag>(HAS @BuildingTag)"))
+        .isSubtypeOf(tags.resolve(te("Class<@Tag>(HAS @Tag)"))) shouldBe false
 
     tags
         .resolve(te("Class<BuildingTag>(HAS BuildingTag)"))
         .isSubtypeOf(tags.resolve(te("Class<BuildingTag>(HAS BuildingTag)"))) shouldBe true
 
-    // An explicit marker remains an equivalent spelling when another construct needs it.
     tags.resolve(te("Class<ThatTag@Tag>(HAS ThatTag@Tag)")) shouldBe
-        tags.resolve(te("Class<Tag>(HAS Tag)"))
+        tags.resolve(te("Class<@Tag>(HAS @Tag)"))
+
+    val world = RecordingWorld(answer = true)
+    tags
+        .resolve(te("Class<BuildingTag>"))
+        .narrows(tags.resolve(te("Class<Tag>(HAS Tag<Player1>)")), world) shouldBe true
+    world.questions shouldContainExactly listOf("Tag<Player1>")
   }
 
   // T8-11 Refinements inside dependencies

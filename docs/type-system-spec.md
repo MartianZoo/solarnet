@@ -558,7 +558,7 @@ Class<Oxygen>                  no such class (the class is OxygenStep)
 exist even where an expression merely counts one, as in `HAS MAX 0 Class<Oxygen>`. An instruction
 may not gain a class literal: its components are fixed by the universe, not created by play.
 
-> **Non-normative example — the Collector award.** It counts `Class<Resource>(HAS Resource<Owner>)`,
+> **Non-normative example — the Collector award.** It counts `Class<@Resource>(HAS @Resource<Owner>)`,
 > the resource kinds a player holds. Allowing an argument-bearing operand such as
 > `Class<Resource<Player1>>` would turn the global representative of a kind into player-specific
 > data with no defined component identity.
@@ -832,7 +832,7 @@ A bare class property receives the candidate as its receiver:
 
 A component candidate is not implicitly converted to its Class. A class-bound metric must be
 queried with a class-literal candidate. For example,
-`Class<CardFront>(HAS CardFront<Player1>, HAS PrintedCost)` selects card classes that Player1 has
+`Class<@CardFront>(HAS @CardFront<Player1>, HAS PrintedCost)` selects card classes that Player1 has
 played and whose class-bound printed-cost query holds. `CardFront(HAS PrintedCost)` cannot fill a
 `Class<CardFront>` dependency with a card component.
 
@@ -913,8 +913,8 @@ domain (T6-2) and satisfies every one of B's clauses. The clauses are decided as
 - A `NOT` clause is satisfied by an identical clause in A, or by the structural test of T8-4.
 - These comparisons read the two predicates *as written*. That is meaningful only when both types
   substitute the same candidate into them. Two class literals for different classes do not (T8-10),
-  so neither shortcut applies to them. `Class<BuildingTag>(HAS Tag)` does not narrow
-  `Class<Tag>(HAS Tag)`, because for each type the predicate is about its own represented class.
+  so neither shortcut applies to them. `Class<@BuildingTag>(HAS @BuildingTag)` does not narrow
+  `Class<@Tag>(HAS @Tag)`, because each predicate refers to its own represented class.
 
 > **Non-normative example — Cyberia Systems.** It copies the production boxes of two different
 > building cards: `(BuildingTag<First@CardFront>: CopyProductionBox<First@CardFront>) THEN
@@ -929,17 +929,18 @@ equality. A rendering lists distinct clauses in the order they were first met. S
 `Area(NOT Tharsis_2_2) ⊓ Area(NOT WaterArea)` is `Area(NOT Tharsis_2_2, NOT WaterArea)`.
 
 **T8-10. Refined class literals.** A refinement on `Class<X>` tests the class the candidate
-represents (T4-4). Within that refinement, an occurrence rooted at `X` means the represented
-candidate automatically. Testing `Class<BuildingTag>` against `Class<Tag>(HAS Tag<Player1>)`
-therefore asks `BuildingTag<Player1, TagHolder<Player1>>`: it counts tag classes, not tag
-components. An explicit `Class<@X>(HAS @X)` remains an equivalent spelling.
+represents (T4-4). To refer to that represented class inside the refinement, mark both the operand
+and its uses: `Class<@X>(HAS @X)`. Testing `Class<BuildingTag>` against
+`Class<@Tag>(HAS @Tag<Player1>)` therefore asks `BuildingTag<Player1, TagHolder<Player1>>`: it
+counts tag classes, not tag components. An unmarked `Tag` inside `Class<Tag>(HAS Tag<Player1>)`
+is not linked by its root name; it follows ordinary candidate substitution (T8-3).
 
 Within a class-literal refinement, an expression that cannot accept the class-literal candidate as
-a dependency is left unchanged after represented-class substitution. It is still evaluated as part
+a dependency is left unchanged after explicit represented-class substitution. It is still evaluated as part
 of the requirement; unlike an ordinary component refinement (T8-3), the unmatched binding does not
 make the refinement fail.
 
-> **Non-normative example — Diversifier.** The milestone requires `8 Class<Tag>(HAS Tag<Owner>)`:
+> **Non-normative example — Diversifier.** The milestone requires `8 Class<@Tag>(HAS @Tag<Owner>)`:
 > eight distinct kinds of tag the player has, not eight tags. Testing the represented class is what
 > makes five Earth tags count as one kind.
 
@@ -1470,7 +1471,7 @@ but cannot introduce one.
 | A metric | it ranges over a domain rather than picking one member |
 | A refinement | it tests a candidate chosen or matched outside it |
 | An `EACH` or `RANK` selector | a marker exposes its selected value to the body or metrics |
-| A represented class inside a refined `Class<T>` literal | its selected class is exposed to the refinement |
+| A represented class inside a refined `Class<T>` literal | a marker exposes its selected class to the refinement |
 | A concrete expression, or `This` | it has no open choice to bind |
 
 The three observing rows are the first property in T13-1: an occurrence that only looks never
@@ -1525,8 +1526,7 @@ other player this event was about".
 **T13-10. Binding replaces the variable's occurrences and nothing else.** Binding a variable to a
 value substitutes the value at each occurrence of the variable, and each occurrence keeps its own
 arguments. Every unmarked expression stays outside the variable's scope, even one that resolves to
-the same type. The one exception is the implicit represented root in a refined class literal
-(T8-10).
+the same type. This includes an unmarked root inside a refined class literal (T8-10).
 
 An occurrence stays an occurrence when elaboration copies it or adds default arguments to it.
 Neutral solo setup places `@CityTile<>`, which elaboration expands with the city's gain default.

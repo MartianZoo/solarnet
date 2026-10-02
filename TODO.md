@@ -151,6 +151,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Reject type-variable markers on a `DEFAULT` root instead of silently discarding them when the
   clause records its declaring class and argument specs. Keep this diagnostic change separate from
   owner-local declaration extraction.
+- Consider rejecting `@` markers on concrete types, such as `Class<@BuildingTag>`, where the
+  represented class is already fixed. Decide whether this should be an authoring error.
 - Carry resource/file names through Pets parsing and generated catalog inputs so diagnostic spans
   identify the original file as well as the submitted text, line, and column.
 - Preserve authored provenance when runtime narrowing and task normalization synthesize new trees.

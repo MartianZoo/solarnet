@@ -18,7 +18,7 @@ CLASS Terraformer26 : Milestone { requirement = HAS "26 TerraformRating" }
 CLASS TurmoilSolarOperation : Temporary, System {
   HAS MAX 1 This
   This:: EACH Player { -TerraformRating., MeasureInfluence }
-  This:: EACH Event@Class<GlobalEvent>(HAS Current<Class<GlobalEvent>>) { \
+  This:: EACH Event@Class<GlobalEvent>(HAS Current) { \
     ResolveGlobalEvent<Event@Class> \
   }
   -This: FormGovernment THEN ChangingTimes
@@ -69,10 +69,10 @@ CLASS ResolveGlobalEvent<Class<GlobalEvent>> : Signal
 CLASS ChangingTimes : Signal {
   This:: \
     -Current., \
-    EACH Event@Class<GlobalEvent>(HAS Coming<Class<GlobalEvent>>) { \
+    EACH Event@Class<GlobalEvent>(HAS Coming) { \
       Current<Event@Class> FROM Coming<Event@Class> \
     }, \
-    EACH Event@Class<GlobalEvent>(HAS Distant<Class<GlobalEvent>>) { \
+    EACH Event@Class<GlobalEvent>(HAS Distant) { \
       Coming<Event@Class> FROM Distant<Event@Class> \
     }, \
     RevealDistantEvent

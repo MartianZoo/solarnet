@@ -25,7 +25,7 @@ internal class GenerateCardPetsTest {
         colonies.cardDeclaration("StormcraftIncorporated"),
         "This:: JovianTag<This>",
         "This: 48 MC",
-        "Billing<HasActions, ActionSlot, Class<Heat>>:: AcceptingFromCard<This>",
+        "Billing<Class<Heat>>:: AcceptingFromCard<This>",
         "PayFromCard<This>:: -2 Owed<Class<Heat>>",
     )
 
