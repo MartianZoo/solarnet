@@ -41,10 +41,6 @@ directly.
 
 Two bundles may declare the same Class Name when the parsed declarations are equal. Identical
 declarations merge into one master Class; differing declarations under one name are an error.
-Shared content-local support may be declared beside each user in different bundles: Pristar and
-United Nations Mars Initiative both declare `HasRaisedTr` and `TrWatcher`, while Robotic Workforce
-and Cyberia Systems both declare `CopyProductionBox`. A single bundle can instead declare shared
-support once at bundle level.
 
 ## Choosing a name
 
@@ -204,52 +200,10 @@ looking it up.
   the game. Settled exceptions are not to be re-flagged; see
   [Known and accepted](#known-and-accepted).
 
-## Modules and Content
+## Module names
 
-Distinguish these three roles, even when one Class fills more than one:
-
-- A **Bundle** is source provenance and loading structure. It may provide Modules, Content, or
-  both, but is not itself selected.
-- A **Module** is an ambient-rule choice. Selecting one intrinsically selects the rule closure
-  reachable from its declaration.
-- **Content** is one authored game item intended for individual selection: a corporation card
-  (including each beginner corporation), prelude card, project card, whole map, milestone, award,
-  colony tile, global event, or party. Map areas are local to their map. Standard actions and
-  standard projects are rule vocabulary, not Content. Content is a role, not a Pets supertype.
-
-Most Content is individually selectable today. Maps currently fill both the Content and Module
-roles, and their areas are selected as separate Classes during premise construction. All six
-Turmoil parties currently enter intrinsically with Turmoil; individual party selection remains
-unimplemented. Neither current constraint changes which items count as Content. Whether maps need
-to remain Modules is unsettled.
-
-The intended user choices are an individual Content Class or all applicable Content from a bundle.
-Intermediate pool choices, such as excluding only one bundle's cards or choosing random milestones,
-belong to configuration resolution before a game premise is constructed. The configuration model
-does not yet have a separate grouped Content choice. Named `CardPack` Classes therefore remain
-transitional Module subtypes, though a Content group should not be an ambient Module. Prelude 2
-has `Prelude2CardPack`, not a second Prelude rules Module. The Milestones & Awards bundle has no
-Module; its goals are currently selected individually.
-
-Known incompatible Content pairs are checked against the complete game Class table by
-`TerraformingMars.premiseRequirement`. The non-default `Unsafe` Module permits those pairs.
-`autoSelectWhen` on cards and goals supplies ordinary pool preferences. Explicit Content
-selection overrides a preference but still fails the final requirement unless `Unsafe` is selected.
-Ecology Experts is individually selectable but absent from the normal Prelude 1 pool.
-
-A content-local Class supplies a particular item's state or rule: map areas, special tiles, remote
-areas, watchers, markers, special placement bonuses, ruling policies, and exceptional custom metrics
-or instructions are examples. Keep it next to the item that needs it. A card's `components` field
-can hold short declarations; use `cards.pets` or `*.cards.pets` for readable multiline declarations
-such as Mars Nomads' `NomadsMarker`. A helper shared across bundles may be repeated beside each user,
-subject to the catalog's equal-declaration check. This is source ownership, not a second Class
-identity or a private namespace. Shared support within a bundle needs one declaration. For
-individually selectable cards, a shared helper in a card resource follows the cards that use it, as
-Promo's `Disease` does. Bundle-level rule helpers in ordinary `.pets` files are ambient to a
-same-named Module, as Promo's `MyResourceWasRemoved` and `MyProductionWasDecreased` are. A bundle
-can own core vocabulary without a Module, though `PromoCardPack` currently is one. `Asteroid` and
-`Floater` are core to the wider game. Turmoil's ruling bonus effects live on their Party
-declarations; each party's policy Class sits immediately below it.
+[Content selection and expansion eligibility](CONTENT_SELECTION.md) defines the Bundle, Module, and
+Content roles and their selection rules. The conventions here concern their Class Names.
 
 Most genuine `Module` subtypes extend `Module` directly, and that is fine — they need no
 intermediate supertype just to justify a suffix. Four loose families exist today:
@@ -258,7 +212,8 @@ intermediate supertype just to justify a suffix. Four loose families exist today
    `CorporateEraExpansion`, `ColoniesExpansion`, `VenusNextExpansion`, `PreludeExpansion`, and
    `TurmoilExpansion`.
 2. **Content-group controls** — `Prelude1CardPack`, `Prelude2CardPack`, and `PromoCardPack` use
-   the transitional Module representation described above.
+   the transitional Module representation described in
+   [Content selection and expansion eligibility](CONTENT_SELECTION.md).
 3. **Exclusive choices** — a closed set behind an abstract supertype, exactly one selected. These
    already borrow the supertype's word, which reads well: `MultiplayerMode` and `SoloMode` under
    `GameMode`; `TharsisMap` and `HellasMap` under `MarsMap`; `StandardSoloObjective` and
@@ -270,30 +225,9 @@ The third family currently uses two words for one kind. **A convention for choos
 deferred**; nothing here is a violation until we settle one, and no new abstract supertype is wanted
 just to supply the word.
 
-A Module whose Class Name equals its bundle name currently associates that bundle's cards and
-colony tiles as default Content. Other Modules do not claim resource Content; Content needing its
-own group control therefore lives in a separate same-named resource group. This coincidence is
-load-bearing, not decorative — check
-[`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) before renaming a Module or moving
-its Content.
-
-The boundary has four useful examples and one open edge:
-
-- `PreludeCard` is support vocabulary required by both Prelude's intrinsic setup and phase rules
-  and some selected Content. A Prelude face reaches it through `CardFront<Class<PreludeCard>>`;
-  Valley Trust reaches it through its constructive instruction. Excluding Prelude Content must
-  not remove the card back while Prelude rules remain selected.
-- Colony tiles and Turmoil Global Events are individually selectable non-card Content associated
-  with their rules Modules. A resolved choice excluding only project cards should leave these
-  selected.
-- Milestones & Awards are individually selected Content supplied by a bundle with no Module or
-  pack control.
-- Turmoil parties are Content even though their Classes currently enter as intrinsic Turmoil rules.
-  Individual party selection must make the committee sequence tolerate an omitted party.
-- `VenusTag` is currently Module-local vocabulary, so selecting a tagged Venus card without
-  `VenusNextExpansion` is rejected. The desired model may instead let such Content activate the tag
-  while keeping genuinely rule-dependent references, such as `VenusStep`, unavailable. Do not
-  generalize that activation until the analogous cases have been cataloged.
+A Module whose Class Name equals its bundle name currently selects that bundle's cards and colony
+tiles by default. Check [`Bundle.kt`](../../src/common/dev/martianzoo/tfm/canon/Bundle.kt) before
+renaming either side; the coincidence has a selection consequence.
 
 ## Display names and localization
 

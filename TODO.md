@@ -39,12 +39,22 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   Industrial Complex's former `EACH ... { PROD[...] }` spelling would work. For now, copying
   rejects a `PROD` nested inside `EACH` with an authoring diagnostic; the working form puts
   `EACH` inside `PROD`.
-- Reconcile `OtbGame20260912Test` with the original physical-game evidence. Verify Summit
-  Logistics' printed Colonies requirement and model its inclusion without enabling unused
-  Colonies gameplay if the card is legal without that expansion. Verify the reported extra Prelude
-  per player and Blue's three-TR handicap, then express the evidenced setup in the correct order.
+- Reconcile `OtbGame20260912Test` with the original physical-game evidence. Summit Logistics lacks
+  a printed Colonies dependency icon; model its inclusion without enabling unused Colonies gameplay
+  while allowing the smaller payout. Verify the reported extra Prelude per player and Blue's
+  three-TR handicap, then express the evidenced setup in the correct order.
+- Audit Prelude-card draws without `PreludeExpansion` for Valley Trust, Board of Directors,
+  WG Project, and New Partner. In particular, selecting WG Project must make the Prelude 1 card
+  pool available for its draw even when that pool otherwise mostly sits unused; do not infer that
+  selecting the pool starts the Prelude phase. Check explicit pool exclusions separately.
+- Check the remaining Prelude-related content outside the Prelude expansion: Suitable
+  Infrastructure should retain its standard-action response when the Prelude-phase response is
+  absent, and Double Down should depend on whether a Prelude was actually played rather than on
+  the expansion switch alone. Keep these cases out of the
+  [value-dependency inventory](https://docs.google.com/spreadsheets/d/13WRf7ljJLuy3iwTr5caQgKhTPhNugPKJuGx1ikALshY/edit?gid=0#gid=0)
+  for now.
 - Implement individual Turmoil party and whole-map selection as specified in
-  [Modules and Content](docs/agents/NAMING.md#modules-and-content).
+  [Content selection and expansion eligibility](docs/agents/CONTENT_SELECTION.md#roles-and-current-selection).
 - Make owner-local Class arguments work when specialization fixes an inherited dependency.
   Mars First's inline `Policy<This> { Tile<MarsArea>: Steel }` lowers to a gain of
   `MarsFirst_Policy<This>` extending `Policy<MarsFirst>`; `MarsFirst` is fixed and no longer an
@@ -63,11 +73,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   goal individually would resolve it through Milestones & Awards provenance, not through a map
   bundle; selecting a map could still include its associated goal by default. This needs a clear
   source rule because an unqualified Class Name currently loses that provenance.
-- Decide whether individually selected Content should activate otherwise Module-local vocabulary it
-  structurally needs. The motivating case is a Venus card carrying `VenusTag`: logically the card
-  could make the tag available without `VenusNextExpansion`, while the current bundle-availability
-  lock rejects it. Catalog the analogous cases before either generalizing activation or accepting
-  this as a documented selection limitation.
 - Replace `ModulesReady` with entering `BootstrapPhase` only after the generated premise has created
   the selected modules and configured components. Moving its effects to `SetupPhase` was tested and
   fails because bootstrap validation already requires the exact-one global-parameter rule systems.
