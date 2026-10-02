@@ -207,12 +207,14 @@ attribution, features, and unresolved rule questions. Related symptoms are group
    `Policy<This> { Tile<MarsArea>: Steel }` produces `MarsFirst_Policy<This>` extending
    `Policy<MarsFirst>`. The argument survives after its dependency position disappears, so
    elaboration rejects the gain. Reproduced during review. See
-   [DerivedClassLowerer](src/common/dev/martianzoo/pets/DerivedClassLowerer.kt).
+   [DerivedClassLowerer](src/common/dev/martianzoo/pets/DerivedClassLowerer.kt) and the owner-local
+   specialization characterization in [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
 
 3. **Autoexecution throws instead of waiting for another player.** An automated player's currently
    blocked task causes an exception even when a nonautomated player has a legal task that enables
    it. Reproduced generically; no normal Mars scenario was identified. See the zero-options fallback
-   in [AutoExecLoop](src/common/dev/martianzoo/agent/AutoExecLoop.kt).
+   in [AutoExecLoop](src/common/dev/martianzoo/agent/AutoExecLoop.kt) and the waiting characterization
+   in [Agent BugsTest](test/common/dev/martianzoo/agent/BugsTest.kt).
 
 4. **Expansion compatibility rejects usable content.** Constructor, Summit Logistics, and Molecular
    Printing are blocked without Colonies; Suitable Infrastructure is blocked without Prelude rules
@@ -236,18 +238,21 @@ attribution, features, and unresolved rule questions. Related symptoms are group
    Trust, Board of Directors, and New Partner don't bring in the required pool. Configuration probes
    confirmed the missing default pool. Selecting WG Project must make the Prelude 1 pool available
    for its draw even when that pool otherwise mostly sits unused; selecting the pool must not start
-   the Prelude phase. Check explicit pool exclusions separately.
+   the Prelude phase. Check explicit pool exclusions separately. The WG Project draw is
+   characterized in [cards BugsTest](test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt).
 
 7. **`DEFAULT` silently discards a root type-variable marker.** For example,
    `DEFAULT +@Piece<First>` becomes an ordinary default without reporting the invalid marker.
    Reproduced during review. Reject the marker when recording the declaring class and argument
    specs; keep this diagnostic change separate from owner-local declaration extraction. See
-   [Parsing](src/common/dev/martianzoo/pets/Parsing.kt), `rejectInvalidDefaultRoot`.
+   [Parsing](src/common/dev/martianzoo/pets/Parsing.kt), `rejectInvalidDefaultRoot`, and the marker
+   characterization in [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
 
 8. **Parser errors can identify the wrong character.** `Foo<~ Bar>` blames `<` rather than the
    invalid `~`, misleading the author about what needs fixing. Reproduced during review. The
    better-parse completion analyzer drops `NoMatchingToken` failures; address that diagnostic
-   separately from grammar organization.
+   separately from grammar organization. The misplaced diagnostic is characterized in
+   [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
 
 9. **Active maintenance guidance still reports repaired semantic bugs.**
    [PLANS](docs/agents/PLANS.md#simplify-pets-and-runtime-semantics) still schedules the old L3-8

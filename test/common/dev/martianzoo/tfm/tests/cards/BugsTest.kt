@@ -11,10 +11,26 @@ import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 /** Passing characterizations of known incorrect behavior. */
 internal class BugsTest : CardTest() {
+  @Test
+  internal fun `WG Project incorrectly cannot play a drawn Prelude without selecting its pool`() {
+    newGame(GameConfig("WgProject, TurmoilExpansion", "Player1", "Player2"))
+    admin.runOperation("-Chairman<Neutral>")
+    admin.phase("Action")
+    p1.runOperation("9 MC, ProjectCard, Chairman")
+
+    // WG Project should make the Prelude 1 pool available without enabling the Prelude phase.
+    shouldThrow<DeadEndException> {
+          p1.playProject(WgProject, 9) { p1.playPrelude(Donation) }
+        }
+        .detail shouldContain "$Donation"
+    p1.assertCounts(9 to "MC", 1 to "ProjectCard", 0 to "$WgProject", 0 to "PreludeCard")
+  }
+
   // BGG wild-tag ruling: https://boardgamegeek.com/thread/2030851/article/29611733#29611733
   @Test
   internal fun `A fake wild Earth tag incorrectly gives Point Luna an extra draw`() {
