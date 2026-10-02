@@ -130,6 +130,13 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Find a clean way to make Turmoil's `ApplyRulingBonus` player-owned without complicating the Reds
   tied-lowest-player selection. It currently remains one global signal whose party effect fans out
   over the players.
+- Make Preservation Program compatible with Turmoil's Reds without making the card require Turmoil.
+  A trial `3 MC / Ruling<Reds>` rebate on its automatic first-TR correction removed the observed
+  Reds overcharge and affordability failures, but the catalog treats that reference as a hard
+  Turmoil dependency even when a separate rebate trigger has `IF TurmoilExpansion`. Investigate an
+  optional count reference or a Turmoil-owned rule without adding a card-specific gameplay helper.
+  If resolved, update the premise compatibility gate, `ModuleSelectionTest`, and
+  `docs/what-is-supported.md`; Terraforming Deal's payout for reversed TR remains a separate defect.
 - Investigate whether the three self-handling signals `CimmeriaPlacementBonus`,
   `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
   requiring authored references to generated names. Preserve Cimmeria map generation,
