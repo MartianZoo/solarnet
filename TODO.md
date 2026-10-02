@@ -173,9 +173,17 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
-- Fix the two-colony Pluto and Titan trades characterized in `rules/BugsTest`: Solarnet currently
-  gives both Pluto card draws before either discard and combines Titan's two floater bonuses into
-  one batch. Preserve each colony's separate bonus resolution.
+- Implement resolved FAQ behavior characterized in `cards/BugsTest`: Viral Enhancers offers only
+  animals or microbes and always allows an uncollectible choice; World Government Advisor may
+  choose a completed parameter; corporations acquired through Merger after Prelude resolve their
+  first action immediately (an impossible one must invalidate the Prelude play); Hired Raiders
+  must steal at least one resource.
+- Extend the Mining Rights/Area wild-resource regression after placement is fixed: Robotic
+  Workforce and Cyberia Systems may choose either originally available metal production even if
+  the placement awarded a nonmetal resource. No remembered resource choice is required.
+- Fix the two-colony Pluto trade characterized in `rules/BugsTest`: separate draw/discard bonuses
+  can still interleave, allowing both draws before either discard. Each bonus must finish before
+  the next begins.
 - Correct defaulted Type-variable references: `pets/BugsTest` shows bare references incorrectly
   inheriting their supplier's `<>`.
 

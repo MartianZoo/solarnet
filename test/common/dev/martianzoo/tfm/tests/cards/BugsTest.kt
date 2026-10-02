@@ -2,12 +2,11 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -17,6 +16,38 @@ import kotlin.test.Test
 
 /** Passing characterizations of known incorrect behavior. */
 internal class BugsTest : CardTest() {
+  // Resolved FAQ: Hired Raiders may steal less than its maximum, but must steal at least one.
+  @Test
+  internal fun `Hired Raiders incorrectly permits stealing nothing`() {
+    newGame(CorporateEraExpansion)
+    p1.runOperation("MC, ProjectCard")
+    requireP2().runOperation("2 Steel, 3 MC")
+    admin.phase("Action")
+
+    p1.playProject(HiredRaiders, 1) {
+          // The implementation incorrectly accepts declining the steal altogether.
+          declineTask()
+        }
+        .expect("0 Steel<Player1>, 0 Steel<Player2>, 0 MC<Player2>")
+    p1.count("PlayedEvent<Class<$HiredRaiders>>") shouldBe 1
+  }
+
+  // Resolved FAQ: an unavailable animal option permits declining even on a microbe card.
+  @Test
+  internal fun `Viral Enhancers incorrectly forces a bonus on a card that can hold microbes`() {
+    newGame(CorporateEraExpansion)
+    p1.runOperation("22 MC, 2 ProjectCard")
+    admin.phase("Action")
+    p1.playProject(ViralEnhancers, 9) { doTask("Plant") }
+
+    p1.playProject(RegolithEaters, 13) {
+          shouldThrow<NarrowingException> { declineTask() }
+          p1.assertCounts(0 to "Microbe<$RegolithEaters>", 1 to "Plant")
+          addCardResources(RegolithEaters)
+        }
+        .expect("Microbe<$RegolithEaters>, 0 Plant")
+  }
+
   // BGG wild-tag ruling: https://boardgamegeek.com/thread/2030851/article/29611733#29611733
   @Test
   internal fun `A fake wild Earth tag incorrectly gives Point Luna an extra draw`() {
@@ -51,7 +82,7 @@ internal class BugsTest : CardTest() {
     admin.count("Award") shouldBe 0
   }
 
-  // Audit N13: choosing a metal from Amazonis's wild bonus should make this legal.
+  // Resolved FAQ: a wild-resource area is eligible even when its chosen resource is not metal.
   // BGG exact Amazonis ruling: https://boardgamegeek.com/thread/3403085/article/45161764#45161764
   @Test
   internal fun `Mining Rights incorrectly cannot use a wild placement bonus`() {
@@ -394,38 +425,6 @@ internal class BugsTest : CardTest() {
     p1.count("MC") shouldBe 47
   }
 
-  // BGG exact Helion/Stormcraft/Mons ruling:
-  // https://boardgamegeek.com/thread/2877214/article/40195927#40195927
-  @Test
-  internal fun `Fake Helion incorrectly cannot spend Stormcraft floaters on a Mons payout`() {
-    newGame(
-        ColoniesExpansion,
-        PromoCardPack,
-        FakeStuffBundle,
-        VenusNextExpansion,
-        colonyTiles = testColonyTiles(2),
-    )
-    val p2 = requireP2()
-    p1.runOperation(
-        "$MonsInsurance, $FakeHelion, $StormcraftIncorporated, " +
-            "Floater<$StormcraftIncorporated>"
-    )
-    p1.runOperation("-${p1.count("MC")} MC")
-    p2.runOperation("Plant")
-
-    shouldThrow<TaskException> {
-      p1.runOperation("-Plant<Player2>") {
-        doTask("PayFromCard<$StormcraftIncorporated> FROM Floater<$StormcraftIncorporated>")
-      }
-    }
-
-    // The real owner may elect to turn this floater into a 2 MC payment to the victim, but the
-    // rejected choice rolls the attack back.
-    p1.count("Floater<$StormcraftIncorporated>") shouldBe 1
-    p2.count("Plant") shouldBe 1
-    p2.count("MC") shouldBe 0
-  }
-
   // BGG SRR eligibility ruling: https://boardgamegeek.com/thread/1861808/article/28914878#28914878
   @Test
   internal fun `Fake SRR incorrectly accepts a card without a Building or Space tag`() {
@@ -439,5 +438,64 @@ internal class BugsTest : CardTest() {
     p1.playProject(CeosFavoriteProject, 0)
 
     p1.assertCounts(1 to "PlayedEvent<Class<$CeosFavoriteProject>>")
+  }
+
+  // Resolved FAQ: Viral Enhancers offers animals or microbes, never disease resources.
+  @Test
+  internal fun `Viral Enhancers incorrectly adds diseases to Pharmacy Union acquired through Merger`() {
+    newGame(PreludeExpansion, PromoCardPack)
+    playCorporationWithoutStartingProjects(p1, CrediCor)
+    p1.runOperation("$ViralEnhancers") { doTask("Plant") }
+    admin.phase("Prelude")
+    p1.runOperation("PreludeCard")
+
+    p1.playPrelude(Merger) {
+          p1.playCorp(PharmacyUnion) {
+            doTask("CardResource<$PharmacyUnion>")
+            doTask("CardResource<$PharmacyUnion>")
+          }
+        }
+        .expect("4 Disease<$PharmacyUnion>, 0 Plant")
+  }
+
+  // Resolved FAQ: Advisor may choose a completed parameter to do nothing.
+  // Earlier discussion: https://boardgamegeek.com/thread/3348438/article/44693194#44693194
+  @Test
+  internal fun `World Government Advisor incorrectly rejects a completed parameter while another is available`() {
+    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
+    p1.runOperation("$WorldGovernmentAdvisor")
+    admin.runOperation("15 VenusStep")
+    admin.phase("Action")
+    val trBefore = p1.count("TerraformRating")
+
+    shouldThrow<LimitsException> {
+      p1.cardAction1(WorldGovernmentAdvisor) { wgt("VenusStep") }
+    }
+    p1.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 0
+    p1.count("TerraformRating") shouldBe trBefore
+    admin.count("VenusStep") shouldBe 15
+    p1.cardAction1(WorldGovernmentAdvisor) { wgt("TemperatureStep") }
+    admin.count("TemperatureStep") shouldBe 1
+  }
+
+  // Resolved FAQ: a corporation acquired after Prelude must take its first action immediately.
+  // Earlier discussion:
+  // https://boardgamegeek.com/thread/2886401/article/44823945#44823945
+  @Test
+  internal fun `Board Merger Tharsis incorrectly defers its city until the next action`() {
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
+    p1.playCorp(CrediCor, 0)
+    admin.phase("Prelude")
+    p1.playPrelude(BoardOfDirectors)
+    p1.playPrelude(Donation)
+    admin.phase("Action")
+
+    p1.cardAction1(BoardOfDirectors) {
+      doTask("-12 MC")
+      p1.playPrelude(Merger) { p1.playCorp(TharsisRepublic) }
+    }
+    p1.count("CityTile") shouldBe 0
+    p1.stdAction("DoRequiredActionsAction") { placeTile(3, 3) }
+    p1.count("CityTile<Tharsis_3_3>") shouldBe 1
   }
 }

@@ -7,7 +7,7 @@ import kotlin.test.Test
 
 internal class TharsisRepublicTest : CardTest() {
   @Test
-  internal fun `Gains two mc production in solo mode`() {
+  internal fun `Original solo corporation gains production for the two opponent cities`() {
     newGame(players = 1)
 
     p1.playCorp(TharsisRepublic, 1).expect("PROD[2 MC]")

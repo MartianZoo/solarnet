@@ -8,9 +8,14 @@ import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
+import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.CardTest
+import dev.martianzoo.tfm.tests.cards.cardnames.Dirigibles
+import dev.martianzoo.tfm.tests.cards.cardnames.ExtractorBalloons
+import dev.martianzoo.tfm.tests.cards.cardnames.ForcedPrecipitation
 import dev.martianzoo.tfm.tests.cards.cardnames.NitriteReducingBacteria
 import dev.martianzoo.tfm.tests.cards.cardnames.RegolithEaters
+import dev.martianzoo.tfm.tests.cards.cardnames.ResearchColony
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -99,5 +104,46 @@ internal class ColoniesRulesTest : CardTest() {
     p2.stdAction("TradeAction", 2) { doTask("Trade<Enceladus>") }.expect("0 Microbe<Anyone>")
 
     p2.count("Trade<Enceladus>") shouldBe 1
+  }
+
+  @Test
+  internal fun `Two Titan colonies can put their bonus floaters on different cards`() {
+    newGame(
+        ColoniesExpansion,
+        VenusNextExpansion,
+        colonyTiles = testColonyTiles(players = 2, "Titan"),
+    )
+    val p2 = requireP2()
+    p1.runOperation("66 MC, 3 ProjectCard")
+    p2.runOperation("11 MC, ProjectCard, 3 Energy")
+    admin.phase("Action")
+    p1.playProject(ForcedPrecipitation, 8)
+    p1.playProject(ExtractorBalloons, 21)
+    p1.stdProject("BuildColonyProject") {
+      doTask("Colony<Titan>")
+      addCardResources(ForcedPrecipitation, 3)
+    }
+    p1.playProject(ResearchColony, 20) {
+      doTask("Colony<Titan>")
+      addCardResources(ExtractorBalloons, 3)
+    }
+    p2.playProject(Dirigibles, 11)
+    val precipitationBefore = p1.count("Floater<$ForcedPrecipitation>")
+    val balloonsBefore = p1.count("Floater<$ExtractorBalloons>")
+
+    p2.stdAction("TradeAction", 2) {
+      doWithoutAutoExec(p2) {
+        doTask("Trade<Titan>")
+        doTask("-TradeBarrier<Titan>")
+        doTask("Floater<$Dirigibles>")
+        doTask("Floater<Player1>")
+        p1.addCardResources(ForcedPrecipitation)
+        doTask("Floater<Player1>")
+        p1.addCardResources(ExtractorBalloons)
+      }
+    }
+
+    p1.count("Floater<$ForcedPrecipitation>") shouldBe precipitationBefore + 1
+    p1.count("Floater<$ExtractorBalloons>") shouldBe balloonsBefore + 1
   }
 }

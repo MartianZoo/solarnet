@@ -29,6 +29,7 @@ internal class MiningRightsTest : CardTest() {
 
   @Test
   internal fun `Robotic Workforce re-evaluates its production box instead of remembering steel`() {
+    // Resolved FAQ: copying allows any originally available metal, regardless of the first choice.
     // https://boardgamegeek.com/thread/2663453/rule-opinions-mining-rights-robotic-workforce
     newGame(Cimmeria)
 

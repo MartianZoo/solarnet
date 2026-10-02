@@ -97,4 +97,25 @@ internal class ViralEnhancersTest : CardTest() {
         .expect("2 Plant, 2 Disease<$PharmacyUnion>")
     p1.count("Plant") shouldBe 3
   }
+
+  @Test
+  internal fun `Viral Enhancers may choose a plant for a card that cannot hold animals or microbes`() {
+    newGame(CorporateEraExpansion)
+    p1.runOperation("21 MC, 2 ProjectCard")
+    admin.phase("Action")
+    p1.playProject(ViralEnhancers, 9) { doTask("Plant") }
+    p1.playProject(IndustrialMicrobes, 12) { doTask("Plant") }.expect("PROD[Energy, Steel], Plant")
+  }
+
+  // Resolved FAQ: choosing an uncollectible animal or microbe may yield nothing.
+  @Test
+  internal fun `Viral Enhancers may choose nothing even when a plant is available`() {
+    newGame(CorporateEraExpansion)
+    p1.runOperation("21 MC, 2 ProjectCard")
+    admin.phase("Action")
+    p1.playProject(ViralEnhancers, 9) { doTask("Plant") }
+    // Choose the uncollectible bonus instead of the available plant.
+    p1.playProject(IndustrialMicrobes, 12) { declineTask() }
+        .expect("PROD[Energy, Steel], 0 Plant, 0 CardResource")
+  }
 }
