@@ -12,6 +12,42 @@ import kotlin.test.Test
 
 /** Current behavior for questions whose rule target is not settled. */
 internal class UnknownRulesTest : CardTest() {
+  @Test
+  internal fun `Viral Enhancers currently permits declining its choice when a plant is available`() {
+    newGame(CorporateEraExpansion)
+    p1.runOperation("21 MC, 2 ProjectCard")
+    admin.phase("Action")
+    p1.playProject(ViralEnhancers, 9) { doTask("Plant") }
+    p1.playProject(IndustrialMicrobes, 12) { doTask("Plant") }.expect("PROD[Energy, Steel], Plant")
+
+    newGame(CorporateEraExpansion)
+    p1.runOperation("21 MC, 2 ProjectCard")
+    admin.phase("Action")
+    p1.playProject(ViralEnhancers, 9) { doTask("Plant") }
+    // Decline Viral Enhancers' plant-or-resource choice triggered by Industrial Microbes.
+    p1.playProject(IndustrialMicrobes, 12) { declineTask() }
+        .expect("PROD[Energy, Steel], 0 Plant, 0 CardResource")
+  }
+
+  // Viral Enhancers says "resource to that card"; its printed symbol may intend only animals and
+  // microbes, while Pharmacy Union stores disease resources. The rule target remains unsettled.
+  @Test
+  internal fun `Viral Enhancers currently adds diseases to Pharmacy Union acquired through Merger`() {
+    newGame(PreludeExpansion, PromoCardPack)
+    playCorporationWithoutStartingProjects(p1, CrediCor)
+    p1.runOperation("$ViralEnhancers") { doTask("Plant") }
+    admin.phase("Prelude")
+    p1.runOperation("PreludeCard")
+
+    p1.playPrelude(Merger) {
+          p1.playCorp(PharmacyUnion) {
+            doTask("CardResource<$PharmacyUnion>")
+            doTask("CardResource<$PharmacyUnion>")
+          }
+        }
+        .expect("4 Disease<$PharmacyUnion>, 0 Plant")
+  }
+
   // BGG overpayment discussion (no designer ruling):
   // https://boardgamegeek.com/thread/3443958/article/45511890#45511890
   @Test

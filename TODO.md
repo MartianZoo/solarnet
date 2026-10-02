@@ -173,6 +173,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- Fix the two-colony Pluto and Titan trades characterized in `rules/BugsTest`: Solarnet currently
+  gives both Pluto card draws before either discard and combines Titan's two floater bonuses into
+  one batch. Preserve each colony's separate bonus resolution.
 - Correct defaulted Type-variable references: `pets/BugsTest` shows bare references incorrectly
   inheriting their supplier's `<>`.
 

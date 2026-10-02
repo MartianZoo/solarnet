@@ -66,4 +66,38 @@ internal class ColoniesRulesTest : CardTest() {
     p1.count("ProjectCard") shouldBe 0
     p2.count("ProjectCard") shouldBe 1
   }
+
+  @Test
+  internal fun `Europa can be colonized after the last ocean is placed`() {
+    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(players = 2, "Europa"))
+    p1.runOperation("17 MC")
+    val waterAreas = p1.list("WaterArea").take(9)
+    p1.runOperation(waterAreas.joinToString { "OceanTile<$it>" })
+    admin.phase("Action")
+    val ratingBefore = p1.count("TerraformRating")
+
+    p1.stdProject("BuildColonyProject") { doTask("Colony<Europa>") }
+        .expect("Colony<Europa>, 0 OceanTile")
+
+    p1.count("TerraformRating") shouldBe ratingBefore
+    admin.count("OceanTile") shouldBe 9
+  }
+
+  @Test
+  internal fun `A player can trade with Enceladus without a card that stores microbes`() {
+    newGame(
+        ColoniesExpansion,
+        PromoCardPack,
+        colonyTiles = testColonyTiles(players = 2, "Enceladus"),
+    )
+    val p2 = requireP2()
+    p1.runOperation("13 MC, ProjectCard")
+    p2.runOperation("3 Energy")
+    admin.phase("Action")
+    p1.playProject(RegolithEaters, 13)
+
+    p2.stdAction("TradeAction", 2) { doTask("Trade<Enceladus>") }.expect("0 Microbe<Anyone>")
+
+    p2.count("Trade<Enceladus>") shouldBe 1
+  }
 }

@@ -15,19 +15,39 @@ internal class ViralEnhancersTest : CardTest() {
   }
 
   @Test
-  internal fun `Can choose a resource for a bio card that cannot hold it and gain nothing`() {
-    newGame()
-    p1.runOperation("$ViralEnhancers") { doTask("Plant") }
-    p1.runOperation("$IndustrialMicrobes") { declineTask() }
-        .expect("PROD[Energy, Steel], 0 Plant, 0 CardResource")
-  }
-
-  @Test
   internal fun `Triggers once for each bio tag on a card`() {
     newGame()
     p1.runOperation("$ViralEnhancers") { doTask("Plant") }
 
     p1.runOperation("$AdvancedEcosystems") { repeat(3) { doTask("Plant") } }.expect("3 Plant")
+  }
+
+  @Test
+  internal fun `Each Ecological Zone tag may choose a different Viral Enhancers bonus`() {
+    newGame(CorporateEraExpansion)
+    p1.runOperation("21 MC, 2 ProjectCard, GreeneryTile<Tharsis_4_4>")
+    admin.phase("Action")
+    p1.playProject(ViralEnhancers, 9) { doTask("Plant") }
+
+    p1.playProject(EcologicalZone, 12) {
+          placeTile(4, 5)
+          doTask("Plant")
+          doTask("Animal<$EcologicalZone>")
+        }
+        // One plant from Viral Enhancers and two from the Tharsis 4,5 placement bonus.
+        .expect("3 Plant, 3 Animal<$EcologicalZone>")
+  }
+
+  @Test
+  internal fun `Viral Enhancers plant can pay for Moss played with no plants`() {
+    newGame(CorporateEraExpansion)
+    admin.runOperation("OceanTile<Tharsis_1_2>, OceanTile<Tharsis_1_4>, OceanTile<Tharsis_1_5>")
+    p1.runOperation("13 MC, 2 ProjectCard")
+    admin.phase("Action")
+    p1.playProject(ViralEnhancers, 9) { doTask("Plant") }
+    p1.runOperation("-Plant")
+
+    p1.playProject(Moss, 4) { doTask("Plant") }.expect("PROD[Plant], 0 Plant")
   }
 
   @Test
