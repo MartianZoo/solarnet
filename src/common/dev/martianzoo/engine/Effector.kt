@@ -80,13 +80,16 @@ internal class Effector(
         )
     val selfEffects = fireSelfEffects(triggerEvent, controller, automatic, resolvedChange)
     val otherEffects = fireOtherEffects(triggerEvent, controller, automatic, resolvedChange)
-    val pending = selfEffects + otherEffects
-    return when {
-      automatic != true -> pending
-      // A component's own effects retain their authored order. Only independent listeners are
-      // siblings for diagnostic randomization and stable display ordering.
-      randomAutomaticEffectOrderEnabled -> selfEffects + otherEffects.shuffled()
-      else -> selfEffects + otherEffects.sortedWith(stableAutomaticOrder)
+    val pending =
+        when {
+          automatic != true -> selfEffects + otherEffects
+          // A component's own effects retain their authored order. Only independent listeners are
+          // siblings for diagnostic randomization and stable display ordering.
+          randomAutomaticEffectOrderEnabled -> selfEffects + otherEffects.shuffled()
+          else -> selfEffects + otherEffects.sortedWith(stableAutomaticOrder)
+        }
+    return pending.map { task ->
+      task.copy(instruction = InstructionGroup.of(elaborator.atomizeGains(task.instruction)))
     }
   }
 

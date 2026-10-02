@@ -195,7 +195,7 @@
           "name": "HiredRaiders",
           "cost": 1,
           "tags": [ "EventTag" ],
-          "immediate": "2 Steel<Owner FROM Anyone>? OR 3 MC<Owner FROM Anyone>?",
+          "immediate": "Steel<Owner FROM Anyone> OR 2 Steel<Owner FROM Anyone> OR MC<Owner FROM Anyone> OR 2 MC<Owner FROM Anyone> OR 3 MC<Owner FROM Anyone>",
         },
         {
           "name": "IndenturedWorkers",
@@ -506,7 +506,7 @@
           "name": "ViralEnhancers",
           "cost": 9,
           "tags": [ "ScienceTag", "MicrobeTag" ],
-          "effects": [ "BioTag<@CardFront>: Plant OR CardResource<@CardFront>" ],
+          "effects": [ "BioTag<@CardFront>: Plant OR Animal<@CardFront> OR Microbe<@CardFront>" ],
         },
         {
           "name": "Virus",

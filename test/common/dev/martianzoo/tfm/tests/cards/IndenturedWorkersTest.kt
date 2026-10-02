@@ -7,7 +7,7 @@ import kotlin.test.Test
 
 internal class IndenturedWorkersTest : CardTest() {
   @Test
-  internal fun `Discounts the next card played`() {
+  internal fun `Discounts the next project card played`() {
     initializeGame("27 MC, 2 ProjectCard")
     p1.playProject(IndenturedWorkers, 0)
     p1.playProject(Soletta, 27).expect("-27 MC")
@@ -24,7 +24,7 @@ internal class IndenturedWorkersTest : CardTest() {
   }
 
   @Test
-  internal fun `Discounts only one card`() {
+  internal fun `Discounts only one project card`() {
     initializeGame("36 MC, 3 ProjectCard")
     p1.playProject(IndenturedWorkers, 0)
     p1.playProject(Soletta, 27)

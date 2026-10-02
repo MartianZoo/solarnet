@@ -31,52 +31,8 @@ internal class UnknownRulesTest : CardTest() {
     p1.assertCounts(3 to "Steel", 5 to "Titanium", 0 to "ProjectCard", 1 to "$SpaceElevator")
   }
 
-  // BGG Advisor context; the max-choice question remains open:
-  // https://boardgamegeek.com/thread/3348438/article/44693194#44693194
-  @Test
-  internal fun `Advisor currently rejects a completed parameter while another is available`() {
-    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
-    p1.runOperation("$WorldGovernmentAdvisor")
-    admin.runOperation("15 VenusStep")
-    admin.phase("Action")
-    val trBefore = p1.count("TerraformRating")
-
-    shouldThrow<LimitsException> {
-      p1.cardAction1(WorldGovernmentAdvisor) { wgt("VenusStep") }
-    }
-    p1.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 0
-    p1.count("TerraformRating") shouldBe trBefore
-    admin.count("VenusStep") shouldBe 15
-    p1.cardAction1(WorldGovernmentAdvisor) { wgt("TemperatureStep") }
-    admin.count("TemperatureStep") shouldBe 1
-  }
-
-  // BGG Advisor context; the all-maxed case remains open:
-  // https://boardgamegeek.com/thread/3348438/article/44693194#44693194
-  @Test
-  internal fun `Advisor action currently can be spent when every global parameter is complete`() {
-    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
-    p1.runOperation("$WorldGovernmentAdvisor")
-    admin.runOperation("19 TemperatureStep") {
-      p1.doTask("OceanTile<Tharsis_1_2> BY Admin")
-    }
-    admin.runOperation("15 VenusStep, 14 OxygenStep")
-    listOf("1_3", "1_4", "1_5", "2_1", "2_6", "3_2", "4_3", "4_8").forEach {
-      admin.runOperation("OceanTile<Tharsis_$it>")
-    }
-    admin.phase("Action")
-    val trBefore = p1.count("TerraformRating")
-
-    p1.cardAction1(WorldGovernmentAdvisor)
-    p1.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1
-    p1.count("TerraformRating") shouldBe trBefore
-    admin.count("VenusStep") shouldBe 15
-    admin.count("TemperatureStep") shouldBe 19
-    admin.count("OxygenStep") shouldBe 14
-    admin.count("OceanTile") shouldBe 9
-  }
-
-  // BGG Valley Trust/Merger first-action ruling:
+  // The resolved late-Merger ruling does not settle first-action timing during Prelude.
+  // BGG Valley Trust/Merger first-action discussion:
   // https://boardgamegeek.com/thread/2874012/article/40859020#40859020
   @Test
   internal fun `Valley Trust Merger Tharsis currently places the city in the first required action`() {
@@ -91,26 +47,6 @@ internal class UnknownRulesTest : CardTest() {
     }
     p1.count("CityTile<Tharsis_3_3>") shouldBe 1
     p1.count("RequiredAction") shouldBe 0
-  }
-
-  // BGG late-corporation first-action ruling:
-  // https://boardgamegeek.com/thread/2886401/article/44823945#44823945
-  @Test
-  internal fun `Board Merger Tharsis currently places its city on the next action`() {
-    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
-    p1.playCorp(CrediCor, 0)
-    admin.phase("Prelude")
-    p1.playPrelude(BoardOfDirectors)
-    p1.playPrelude(Donation)
-    admin.phase("Action")
-
-    p1.cardAction1(BoardOfDirectors) {
-      doTask("-12 MC")
-      p1.playPrelude(Merger) { p1.playCorp(TharsisRepublic) }
-    }
-    p1.count("CityTile") shouldBe 0
-    p1.stdAction("DoRequiredActionsAction") { placeTile(3, 3) }
-    p1.count("CityTile<Tharsis_3_3>") shouldBe 1
   }
 
   // BGG Head Start first-action ruling:

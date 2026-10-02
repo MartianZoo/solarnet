@@ -22,8 +22,21 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class WorldGovernmentRulesTest : CardTest() {
+  // Resolved FAQ: Advisor may choose a completed parameter to do nothing.
   @Test
-  internal fun `A completed parameter is not a legal World Government choice`() {
+  internal fun `Advisor may choose a completed parameter while another is available`() {
+    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
+    p1.runOperation("$WorldGovernmentAdvisor")
+    admin.runOperation("15 VenusStep")
+    admin.phase("Action")
+
+    p1.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep BY Admin") }
+        .expect("0 VenusStep, 0 TemperatureStep, 0 TerraformRating")
+    p1.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1
+  }
+
+  @Test
+  internal fun `Solar phase World Government cannot choose a completed parameter`() {
     newGame(VenusNextExpansion)
     p1.runOperation("15 VenusStep")
     with(TfmWorkflow.Stepwise(agents)) {
@@ -177,7 +190,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
     fillSelectedColonySlots()
     admin.phase("Action")
 
-    p1.cardAction1(WorldGovernmentAdvisor) { wgt("VenusStep") }
+    p1.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep BY Admin") }
     admin.count("VenusStep") shouldBe 8
     p1.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1
     p1.count("Colony") shouldBe 0
@@ -197,7 +210,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
     admin.runOperation("7 VenusStep")
     admin.phase("Action")
 
-    p1.cardAction1(WorldGovernmentAdvisor) { wgt("VenusStep") }
+    p1.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep BY Admin") }
 
     admin.count("VenusStep") shouldBe 8
     p1.count("Colony") shouldBe 0
@@ -209,5 +222,30 @@ internal class WorldGovernmentRulesTest : CardTest() {
     listOf("Luna", "Ceres", "Triton", "Ganymede", "Callisto").forEach { track ->
       repeat(3) { p2.runOperation("Colony<$track>") }
     }
+  }
+
+  // Resolved FAQ: Advisor remains usable even when every parameter is complete.
+  // Earlier discussion: https://boardgamegeek.com/thread/3348438/article/44693194#44693194
+  @Test
+  internal fun `Advisor action can be spent when every global parameter is complete`() {
+    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
+    p1.runOperation("$WorldGovernmentAdvisor")
+    admin.runOperation("19 TemperatureStep") {
+      p1.doTask("OceanTile<Tharsis_1_2> BY Admin")
+    }
+    admin.runOperation("15 VenusStep, 14 OxygenStep")
+    listOf("1_3", "1_4", "1_5", "2_1", "2_6", "3_2", "4_3", "4_8").forEach {
+      admin.runOperation("OceanTile<Tharsis_$it>")
+    }
+    admin.phase("Action")
+    val trBefore = p1.count("TerraformRating")
+
+    p1.cardAction1(WorldGovernmentAdvisor)
+    p1.count("ActionUsedMarker<$WorldGovernmentAdvisor>") shouldBe 1
+    p1.count("TerraformRating") shouldBe trBefore
+    admin.count("VenusStep") shouldBe 15
+    admin.count("TemperatureStep") shouldBe 19
+    admin.count("OxygenStep") shouldBe 14
+    admin.count("OceanTile") shouldBe 9
   }
 }

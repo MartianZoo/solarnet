@@ -47,7 +47,7 @@ internal class RequirementAdjustmentCardsTest : CardTest() {
   }
 
   @Test
-  internal fun `Requirement adjustments stack and Special Design expires on the next card`() {
+  internal fun `Requirement adjustments stack and Special Design expires on the next project card`() {
     newGame()
     playCorporationWithoutStartingProjects(p1, Inventrix)
     admin.phase("Action")
@@ -74,7 +74,7 @@ internal class RequirementAdjustmentCardsTest : CardTest() {
   }
 
   @Test
-  internal fun `Special Design expires when the next card has no requirement`() {
+  internal fun `Special Design expires when the next project card has no requirement`() {
     expireSpecialDesignWith(Mine, 4)
   }
 

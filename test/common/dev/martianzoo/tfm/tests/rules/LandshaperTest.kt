@@ -12,7 +12,8 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class LandshaperTest : CardTest() {
-  // BGG exact question (no written designer answer):
+  // Resolved FAQ: the city, greenery, and special tile must be three distinct tiles.
+  // Earlier question:
   // https://boardgamegeek.com/thread/3512556/article/46088087#46088087
   @Test
   internal fun `Capital and one greenery do not satisfy Landshaper`() {
