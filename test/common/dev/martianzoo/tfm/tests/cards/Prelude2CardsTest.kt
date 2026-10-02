@@ -730,6 +730,18 @@ internal class Prelude2CardsTest : CardTest() {
   }
 
   @Test
+  internal fun `Double Down copies Industrial Complex's direct benefit`() {
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
+    admin.phase("Prelude")
+    p1.runOperation("36 MC, PROD[-5 MC], 2 PreludeCard")
+    p1.playPrelude(IndustrialComplex)
+    p1.runOperation("PROD[-Steel]")
+
+    p1.playPrelude(DoubleDown) { doTask("CopyPrelude<$IndustrialComplex>") }
+        .expect("-18 MC, PROD[Steel]")
+  }
+
+  @Test
   internal fun `Recession applies each opponent loss as much as possible`() {
     newGame(PreludeExpansion, Prelude2CardPack, players = 3)
     val p2 = requireP2()

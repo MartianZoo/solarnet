@@ -6,6 +6,11 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Find a small, exact way for Ecology Experts' plant and microbe tags to trigger a newly played
+  bio listener without replaying those tags or rewarding an older copy of that listener. Double
+  Down copies the Prelude's immediate instruction but not its effects, so the solution must also
+  cover that path. Until then, keep the four affected combinations Unsafe-only; `BugsTest`
+  characterizes the Viral Enhancers and Ecological Zone outcomes.
 - Consider a shared party-leader recalculation helper for the ranking repeated on delegate gains
   and Banned Delegate. Keep it only if it simplifies the Pets model overall and preserves leadership
   through Recruitment's neutral-delegate transfer.
