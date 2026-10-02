@@ -9,9 +9,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Consider a shared party-leader recalculation helper for the ranking repeated on delegate gains
   and Banned Delegate. Keep it only if it simplifies the Pets model overall and preserves leadership
   through Recruitment's neutral-delegate transfer.
-- Fix Landshaper counting Capital as both its city and special tile when the player also owns one
-  or two greeneries. Each of Landshaper's three requirements needs a distinct physical tile;
-  `rules/BugsTest.kt` characterizes both incorrect successes.
 - Place the neutral solo tiles immediately after the original corporation play, then remove Tharsis
   Republic's solo-only +2 M€ production effect. Its normal city-placement effect should grant the
   two production steps; verify that neutral greeneries still do not raise oxygen and that a

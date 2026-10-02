@@ -249,7 +249,8 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     pink.convertHeat()
     pink
         .playProject(PublicPlans, 5) {
-          doTask("6 MC")
+          // One of the six logged M€ is mandatory; choose the other five.
+          doTask("5 MC")
         }
         .expect("4 MC")
 

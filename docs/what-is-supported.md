@@ -49,7 +49,7 @@ Deal nor Turmoil is present.
 | Merger | Sagitta Frontier Services | When Merger plays Sagitta, Sagitta misses 4 M€ for Merger's lack of tags. |
 | Terraforming Deal | Preservation Program | Terraforming Deal pays 2 M€ for TR that Preservation Program reverses. |
 | Turmoil expansion | Preservation Program | Reds Party charges 3 M€ for TR that Preservation Program reverses. |
-| Amazonis Planitia | Mining Guild | Choosing metal for a wild-resource placement bonus does not grant steel production. |
+| Amazonis Planitia | Mining Guild | A wild-resource placement grants steel production and an Audit even when the chosen resource is not metal. |
 | Amazonis Planitia | Mining Rights | Cannot place its tile on a wild-resource area. |
 | Amazonis Planitia | Mining Area | Cannot place its tile on a wild-resource area. |
 

@@ -69,18 +69,20 @@ internal class BugsTest : CardTest() {
     p1.assertCounts(9 to "MC", 1 to "ProjectCard", 0 to "MiningRights_SpecialTile")
   }
 
-  // BGG exact Mining Guild ruling:
-  // https://boardgamegeek.com/thread/3403085/article/45161178#45161178
+  // The Audit records this unverified choice, but does not prevent the incorrect production.
   @Test
-  internal fun `Mining Guild incorrectly ignores metal chosen from a wild placement bonus`() {
+  internal fun `Mining Guild incorrectly gains steel production for a nonmetal wild bonus`() {
     newGame(Amazonis, Unsafe)
     p1.playCorp(MiningGuild, 0)
     admin.phase("Action")
+    val checkpoint = game.timeline.checkpoint()
+
     p1.stdProject("GreeneryProject") {
           placeTile(5, 3)
-          doTask("Titanium")
+          doTask("Plant")
         }
-        .expect("Titanium, PROD[0 Steel]")
+        .expect("Plant, PROD[Steel]")
+    p1.auditGainsSince(checkpoint) shouldBe 1
   }
 
   // Audit S09: these cubes belong to the unplayed card hosted on SRR, which is eligible.

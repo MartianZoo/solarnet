@@ -24,7 +24,10 @@ CLASS ExtendedGlobalParametersRule : Module {
 }
 
 CLASS Terran : Milestone { requirement = HAS "5 EarthTag" }
-CLASS Landshaper : Milestone { requirement = HAS "CityTile, GreeneryTile, SpecialTile" }
+// The extra term prevents counting Capital's tile twice as a city and a special tile.
+CLASS Landshaper : Milestone {
+  requirement = HAS "CityTile, GreeneryTile, SpecialTile, 2 (CityTile OR SpecialTile)"
+}
 CLASS Merchant3 : Milestone {
   requirement = HAS "3 MC, 3 Steel, 3 Titanium, 3 Plant, 3 Energy, 3 Heat"
 }
