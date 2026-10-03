@@ -101,7 +101,7 @@ public data class GamePremise(
             actors.map(Actor::className) +
             listOfNotNull(bootstrapClassName, premiseClassName)
 
-    val table = ClassLoader.forPremise(catalog, premiseTable, modules, classSelections)
+    val table = ClassLoader.forPremise(catalog, premiseTable, modules, classSelections, playerNames)
     table.freeze()
     table.validateNoOkSubscriptions()
     table.validateTransformKinds()
