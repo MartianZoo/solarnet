@@ -344,7 +344,7 @@ public object Parsing {
             }
             .mapNotNull(::key)
             .toSet()
-    // Repeated header markers still express a shared constraint even when the body never uses it.
+    // A marker carried from an enclosing scope is not automatically a generated Class's name.
     val unneeded = counts.filter { (key, count) -> count == 1 && key !in bodyKeys }.keys
     val pruner =
         object : PetTransformer() {
@@ -391,8 +391,8 @@ public object Parsing {
     )
   }
 
-  private fun rejectUnsupportedSyntax(parsed: Any?) {
-    if (parsed is PetNode) {
+  private fun rejectUnsupportedSyntax(parsed: Any?, inheritedNamesPossible: Boolean = false) {
+    if (parsed is PetNode && !inheritedNamesPossible) {
       val expressions = parsed.descendantsOfType<Expression>()
       expressions
           .firstOrNull {
@@ -418,9 +418,10 @@ public object Parsing {
     }
     when (parsed) {
       is ClassDeclaration ->
-          (parsed.allNodes - parsed.dependencies.toSet() - parsed.supertypes).forEach(
-              ::rejectUnsupportedSyntax
-          )
+          (parsed.allNodes - parsed.dependencies.toSet() - parsed.supertypes).forEach {
+            // Class loading resolves inherited header names in effects and actions only.
+            rejectUnsupportedSyntax(it, parsed.supertypes.isNotEmpty() && it is Effect)
+          }
       is PetNode ->
           parsed.visitDescendants {
             if (it is Expression && it.className === denominationlessClass) {
@@ -437,7 +438,7 @@ public object Parsing {
             }
             true
           }
-      is Iterable<*> -> parsed.forEach(::rejectUnsupportedSyntax)
+      is Iterable<*> -> parsed.forEach { rejectUnsupportedSyntax(it, inheritedNamesPossible) }
     }
   }
 

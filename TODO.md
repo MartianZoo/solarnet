@@ -90,8 +90,12 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   phase-caused tasks as soon as the required runtime state can express them.
 - Let refinements reference their candidate explicitly, so a selector can relate a nested
   dependency to that candidate without repeating its complete expression.
-- Revisit contextual `Owner` as a broad language redesign; the explicit Type-variable work leaves
-  its ambient binding semantics unchanged for now.
+- Prototype the lexical `Me` ownership model in the
+  [identity audit](docs/agents/IDENTITY.md#lexical-me-owner-context-experiment). Review the
+  inherited-header-name prototype's parse/load split, then test `Owned<Me@Owner>` and one
+  Owned-specific insertion rule, including `Owner` classes that own themselves. Delete the old
+  default, substitution, and trigger rules the new binding makes redundant.
+  Do not leave both mechanisms in place as the result.
 - Give Pets a real structural conjunction, spelled something like `Tile(IS Owned)`, and retire the
   nominal `OwnedTile` class once `Landlord` and the other owned-tile rules can name the intersection
   directly. Until then a master-universe Canon test checks the nominal `OwnedOccupant` and

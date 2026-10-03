@@ -3,6 +3,7 @@ package dev.martianzoo.pets.types
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
@@ -369,10 +370,22 @@ internal class Spec13TypeVariablesTest {
   }
 
   @Test
-  internal fun `T13-3 a Class-header variable name must be used`() {
-    shouldThrow<PetSyntaxException> {
-      parseClasses("ABSTRACT CLASS Person\nABSTRACT CLASS Holder<P@Person>")
-    }
+  internal fun `T13-3 a header name can be used by a subclass`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person { CLASS Alice }",
+            "ABSTRACT CLASS Token<Person>",
+            "ABSTRACT CLASS Holder<P@Person>",
+            "CLASS Gift : Holder { This: Token<P@Person> }",
+        )
+    val gift = table.getClass(cn("Gift"))
+    val effect = gift.interpretTypeVariablesIn(gift.declaration.effects.single())
+    val specialized = table.resolve(te("Gift<Alice>"))
+
+    effect.typeVariables
+        .bind(specialized.variableBindingsFrom(gift.defaultType, effect.typeVariables.variables))
+        .transformEffect(effect)
+        .toString() shouldBe "This: Token<Alice>"
   }
 
   @Test
@@ -401,6 +414,319 @@ internal class Spec13TypeVariablesTest {
     table.getClass(cn("Badge")).typeVariables.map { "$it" } shouldContainExactly listOf("P")
     table.getClass(cn("Middle")).typeVariables.map { "$it" } shouldContainExactly listOf()
     table.getClass(cn("Leaf")).typeVariables.map { "$it" } shouldContainExactly listOf()
+  }
+
+  @Test
+  internal fun `T13-4 a diamond shares a named dependency`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person { CLASS Alice }",
+            "ABSTRACT CLASS Token<Person>",
+            "ABSTRACT CLASS Root<P@Person>",
+            "ABSTRACT CLASS Left : Root",
+            "ABSTRACT CLASS Right : Root",
+            "CLASS Diamond : Left, Right { This: Token<P@Person> }",
+        )
+    val diamond = table.getClass(cn("Diamond"))
+    val effect = diamond.interpretTypeVariablesIn(diamond.declaration.effects.single())
+    val specialized = table.resolve(te("Diamond<Alice>"))
+
+    diamond.dependencies.keys.size shouldBe 1
+    effect.typeVariables
+        .bind(specialized.variableBindingsFrom(diamond.defaultType, effect.typeVariables.variables))
+        .transformEffect(effect)
+        .toString() shouldBe "This: Token<Alice>"
+  }
+
+  @Test
+  internal fun `T13-4 names introduced on two paths to one dependency agree`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person { CLASS Alice }",
+            "ABSTRACT CLASS Token<Person>",
+            "ABSTRACT CLASS Root<Person>",
+            "ABSTRACT CLASS Left : Root<P@Person>",
+            "ABSTRACT CLASS Right : Root<P@Person>",
+            "CLASS Diamond : Left, Right { This: Token<P@Person> }",
+        )
+    val diamond = table.getClass(cn("Diamond"))
+    val effect = diamond.interpretTypeVariablesIn(diamond.declaration.effects.single())
+    val specialized = table.resolve(te("Diamond<Alice>"))
+
+    diamond.dependencies.keys.size shouldBe 1
+    effect.typeVariables
+        .bind(specialized.variableBindingsFrom(diamond.defaultType, effect.typeVariables.variables))
+        .transformEffect(effect)
+        .toString() shouldBe "This: Token<Alice>"
+  }
+
+  @Test
+  internal fun `T13-4 different inherited names can denote one dependency`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person { CLASS Alice }",
+            "ABSTRACT CLASS Token<Person>",
+            "ABSTRACT CLASS Root<P@Person>",
+            "ABSTRACT CLASS Alias : Root<Q@Person>",
+            "CLASS Leaf : Alias { This: Token<P@Person> THEN Token<Q@Person> }",
+        )
+    val leaf = table.getClass(cn("Leaf"))
+    val effect = leaf.interpretTypeVariablesIn(leaf.declaration.effects.single())
+    val specialized = table.resolve(te("Leaf<Alice>"))
+
+    leaf.dependencies.keys.size shouldBe 1
+    effect.typeVariables.variables.size shouldBe 1
+    effect.typeVariables
+        .bind(specialized.variableBindingsFrom(leaf.defaultType, effect.typeVariables.variables))
+        .transformEffect(effect)
+        .toString() shouldBe "This: Token<Alice> THEN Token<Alice>"
+  }
+
+  @Test
+  internal fun `T13-4 an inherited name scopes both sides of an effect`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person { CLASS Alice }",
+            "ABSTRACT CLASS Token<Person>",
+            "ABSTRACT CLASS Holder<P@Person>",
+            "CLASS Gift : Holder { Token<P@Person>: Token<P@Person> }",
+        )
+    val gift = table.getClass(cn("Gift"))
+    val effect = gift.interpretTypeVariablesIn(gift.declaration.effects.single())
+    val specialized = table.resolve(te("Gift<Alice>"))
+
+    effect.typeVariables
+        .bind(specialized.variableBindingsFrom(gift.defaultType, effect.typeVariables.variables))
+        .transformEffect(effect)
+        .toString() shouldBe "Token<Alice>: Token<Alice>"
+  }
+
+  @Test
+  internal fun `T13-4 an inherited name scopes both sides of an action`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person { CLASS Alice }",
+            "ABSTRACT CLASS Token<Person>",
+            "ABSTRACT CLASS HasActions",
+            "ABSTRACT CLASS ActionSlot",
+            "CLASS Action1 : ActionSlot",
+            "CLASS UseAction<HasActions, ActionSlot>",
+            "ABSTRACT CLASS Holder<P@Person>",
+            "CLASS Gift : Holder, HasActions { Token<P@Person> -> Token<P@Person> }",
+        )
+    val gift = table.getClass(cn("Gift"))
+    val effect = gift.interpretTypeVariablesIn(gift.declaration.effects.single())
+    val specialized = table.resolve(te("Gift<Alice>"))
+
+    effect.typeVariables
+        .bind(specialized.variableBindingsFrom(gift.defaultType, effect.typeVariables.variables))
+        .transformEffect(effect)
+        .toString() shouldBe "UseAction<This, Action1>: -Token<Alice>! THEN Token<Alice>"
+  }
+
+  @Test
+  internal fun `T13-4 a card inherits Me without redeclaring it`() {
+    val table =
+        loadTypes(
+            "CLASS Joe : Owner",
+            "ABSTRACT CLASS OwnedLike<Me@Owner>",
+            "ABSTRACT CLASS Plant : OwnedLike",
+            "ABSTRACT CLASS CardFront : OwnedLike",
+            "CLASS FooCard : CardFront { This: Plant<Me@Owner> }",
+        )
+    val card = table.getClass(cn("FooCard"))
+    val effect = card.interpretTypeVariablesIn(card.declaration.effects.single())
+    val specialized = table.resolve(te("FooCard<Joe>"))
+
+    effect.typeVariables
+        .bind(specialized.variableBindingsFrom(card.defaultType, effect.typeVariables.variables))
+        .transformEffect(effect)
+        .toString() shouldBe "This: Plant<Joe>"
+  }
+
+  @Test
+  internal fun `T13-4 executable effects can use an inherited name`() {
+    val base =
+        testCatalog(
+            """
+            ABSTRACT CLASS Person { CLASS Alice }
+            ABSTRACT CLASS Token<Person>
+            ABSTRACT CLASS Holder<P@Person>
+            CLASS Gift : Holder { This: Token<P@Person> }
+            """
+                .trimIndent()
+        )
+    val giftSource = base.classDeclaration(cn("Gift"))
+    val giftDeclaration = giftSource.copy(executableEffects = giftSource.authoredEffects)
+    val catalog =
+        object : Catalog by base {
+          override val allClassDeclarations =
+              base.allClassDeclarations + (cn("Gift") to giftDeclaration)
+          override val explicitClassDeclarations =
+              base.explicitClassDeclarations.filterNot { it.className == cn("Gift") }.toSet() +
+                  giftDeclaration
+          override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
+        }
+    val table = catalog.classTable
+    val gift = table.getClass(cn("Gift"))
+    val effect = gift.interpretTypeVariablesIn(gift.declaration.effects.single())
+    val specialized = table.resolve(te("Gift<Alice>"))
+
+    effect.typeVariables
+        .bind(specialized.variableBindingsFrom(gift.defaultType, effect.typeVariables.variables))
+        .transformEffect(effect)
+        .toString() shouldBe "This: Token<Alice>"
+  }
+
+  @Test
+  internal fun `T13-4 a name survives a Class-of-This header`() {
+    val table =
+        loadTypes(
+            "CLASS Player1 : Owner",
+            "ABSTRACT CLASS Token<Owner>",
+            "ABSTRACT CLASS CardFront : Owned<Owner>",
+            "ABSTRACT CLASS Cardbound<CardFront<CardOwner@Owner>> : Owned<CardOwner@Owner>",
+            "ABSTRACT CLASS ResourceCard<Class<CardResource>> : CardFront",
+            "ABSTRACT CLASS CardResource : Cardbound<ResourceCard<Class<This>>>",
+            "CLASS Observer : CardResource { This: Token<CardOwner@Owner> }",
+        )
+    val observer = table.getClass(cn("Observer"))
+    val effect = observer.interpretTypeVariablesIn(observer.declaration.effects.single())
+    val specialized = table.resolve(te("Observer<Player1>"))
+
+    effect.typeVariables
+        .bind(
+            specialized.variableBindingsFrom(observer.defaultType, effect.typeVariables.variables)
+        )
+        .transformEffect(effect)
+        .toString() shouldBe "This: Token<Player1>"
+  }
+
+  @Test
+  internal fun `T13-4 an explicit EACH marker shadows an inherited name`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person",
+            "ABSTRACT CLASS Token<Person>",
+            "ABSTRACT CLASS Holder<P@Person>",
+            "CLASS Gift : Holder { This: EACH P@Person { Token<P@Person> } }",
+        )
+    val gift = table.getClass(cn("Gift"))
+    val effect = gift.interpretTypeVariablesIn(gift.declaration.effects.single())
+
+    effect.typeVariables.isEmpty shouldBe true
+    val each = effect.instruction.descendantsOfType<Instruction.Each>().single()
+    each.bodyFor(cn("Person").expression).toString() shouldBe "Token<Person>"
+  }
+
+  @Test
+  internal fun `T13-4 independent inherited names are ambiguous only when used`() {
+    val declarations =
+        listOf(
+            "ABSTRACT CLASS Person",
+            "ABSTRACT CLASS Token<Person>",
+            "ABSTRACT CLASS Left<P@Person> { This: Token<P@Person> }",
+            "ABSTRACT CLASS Right<P@Person> { This: Token<P@Person> }",
+        )
+    val ambiguous = declarations + "CLASS Ambiguous : Left, Right { This: Token<P@Person> }"
+    loadTypes(*(declarations + "CLASS Combined : Left, Right").toTypedArray())
+    shouldThrow<InvalidPetDefinitionException> { loadTypes(*ambiguous.toTypedArray()) }
+        .detail shouldBe "`Ambiguous` inherits ambiguous type variable `P@Person`"
+  }
+
+  @Test
+  internal fun `T13-4 effects inherited under one name keep their own bindings`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person {\nCLASS Alice\nCLASS Bob\n}",
+            "ABSTRACT CLASS Token<Person>",
+            "ABSTRACT CLASS Left<P@Person> { This: Token<P@Person> }",
+            "ABSTRACT CLASS Right<P@Person> { This: Token<P@Person> }",
+            "CLASS Combined : Left, Right",
+        )
+    val combined = table.getClass(cn("Combined"))
+    val specialized = table.resolve(te("Combined<Alice, Bob>"))
+
+    fun inheritedFrom(parent: String): String {
+      val klass = table.getClass(cn(parent))
+      val effect = klass.interpretTypeVariablesIn(klass.declaration.effects.single())
+      val variables = effect.typeVariables.variables
+      return effect.typeVariables
+          .bind(specialized.variableBindingsFrom(combined.defaultType, variables))
+          .transformEffect(effect)
+          .toString()
+    }
+
+    inheritedFrom("Left") shouldBe "This: Token<Alice>"
+    inheritedFrom("Right") shouldBe "This: Token<Bob>"
+  }
+
+  @Test
+  internal fun `T13-4 a header cannot reuse an inherited name for another dependency`() {
+    shouldThrow<InvalidPetDefinitionException> {
+          loadTypes(
+              "ABSTRACT CLASS Person",
+              "ABSTRACT CLASS Root<P@Person>",
+              "ABSTRACT CLASS Mid<P@Person> : Root",
+          )
+        }
+        .detail shouldBe "`Mid` reuses inherited type variable `P@Person` for another dependency"
+  }
+
+  @Test
+  internal fun `T13-4 a header can mark an inherited binding again`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person { CLASS Alice }",
+            "ABSTRACT CLASS Token<Person>",
+            "ABSTRACT CLASS Root<P@Person>",
+            "ABSTRACT CLASS Mid : Root<P@Person>",
+            "CLASS Leaf : Mid { This: Token<P@Person> }",
+        )
+    val leaf = table.getClass(cn("Leaf"))
+    val effect = leaf.interpretTypeVariablesIn(leaf.declaration.effects.single())
+    val specialized = table.resolve(te("Leaf<Alice>"))
+
+    leaf.dependencies.keys.size shouldBe 1
+    effect.typeVariables
+        .bind(specialized.variableBindingsFrom(leaf.defaultType, effect.typeVariables.variables))
+        .transformEffect(effect)
+        .toString() shouldBe "This: Token<Alice>"
+  }
+
+  @Test
+  internal fun `T13-4 an inherited name can appear only in a trigger`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person { CLASS Alice }",
+            "ABSTRACT CLASS Token<Person>",
+            "ABSTRACT CLASS Holder<P@Person>",
+            "CLASS Gift : Holder { Token<P@Person>: Ok }",
+        )
+    val gift = table.getClass(cn("Gift"))
+    val effect = gift.interpretTypeVariablesIn(gift.declaration.effects.single())
+    val specialized = table.resolve(te("Gift<Alice>"))
+
+    effect.typeVariables
+        .bind(specialized.variableBindingsFrom(gift.defaultType, effect.typeVariables.variables))
+        .transformEffect(effect)
+        .toString() shouldBe "Token<Alice>: Ok"
+  }
+
+  @Test
+  internal fun `T13-4 a subclass invariant marker must still be shared`() {
+    shouldThrow<PetSyntaxException> {
+          parseClasses(
+              """
+              ABSTRACT CLASS Person
+              ABSTRACT CLASS Base
+              CLASS Foo : Base { HAS P@Person }
+              """
+                  .trimIndent()
+          )
+        }
+        .detail shouldBe
+        "type variable marker `P@Person` is not shared in a scope; use it again in that scope or remove the marker"
   }
 
   @Test
