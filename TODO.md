@@ -6,6 +6,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Make L1 Trade Terminal's resource allowance count only its own gifts, not resource gains from
+  other cards reacting to them. First reproduce the interaction with a literal `Microbe: Animal`
+  fan-card effect, then find the smallest correction that preserves the Terminal's required
+  distribution across eligible cards. See [game hack #7](docs/agents/GAME_HACKS.md#7-l1-trade-terminals-quota-counts-unrelated-resource-gains).
 - Find a small, exact way for Ecology Experts' plant and microbe tags to trigger a newly played
   bio listener without replaying those tags or rewarding an older copy of that listener. Double
   Down copies the Prelude's immediate instruction but not its effects, so the solution must also
@@ -100,9 +104,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
 - **Low priority:** [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)
   — Resolve contextual ownership correctly and display the resolved player.
-- **Low priority:** Investigate why the oxygen steps created by SoloOpponent's setup greeneries do
-  not award it TR, and whether adding and then removing those steps has any other observable
-  consequences.
 - Consider requirement-gated action costs, using United Nations Mars Initiative to make
   `HasRaisedTr` a prerequisite to paying its 3 M€ rather than a gate around the result.
 - Derive selected singleton card watchers without explicit support-Class invariants. The current

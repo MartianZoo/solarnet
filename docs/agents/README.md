@@ -59,7 +59,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) | Current engine contract |
 | Action costs, billing, or action identity | [`ACTIONS.md`](ACTIONS.md) | Current divergence and selected direction |
 | Payment excess, tender value, or attribution | [`PAYMENTS.md`](PAYMENTS.md) | Audit and proposal |
-| Known deliberate game representations | The matching entry in [`GAME_HACKS.md`](GAME_HACKS.md) | Current model |
+| Truthful representations, observable game cheats, or extension hazards | The matching entry in [`GAME_HACKS.md`](GAME_HACKS.md) | Current source audit |
 | Phase topology or replacing the Kotlin workflow | [`WORKFLOW.md`](WORKFLOW.md) | Domain rules and proposal |
 | Agent policies, shared autoexecution, or policy-relative stable points | [`AUTOEXEC.md`](AUTOEXEC.md) | Working direction and audit |
 | Stashed Admin task-routing experiment and turn-state questions | [`TASK_ROUTING_EXPERIMENT.md`](TASK_ROUTING_EXPERIMENT.md) | Research; not current behavior |
