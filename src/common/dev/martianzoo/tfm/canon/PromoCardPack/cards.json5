@@ -129,7 +129,7 @@
         {
           "name": "DoubleDown",
           "immediate": "CopyPrelude",
-          "components": [ "CLASS CopyPrelude<CardFront<@Player>> : Owned<@Player>, Custom" ],
+          "components": [ "CLASS CopyPrelude<CardFront<@Player>> : Owned<@Player>, CustomInstruction" ],
         },
         {
           "name": "EstablishedMethods",
@@ -142,6 +142,7 @@
         },
         {
           "name": "Merger",
+          "autoSelectWhen": "Unsafe OR MAX 0 SagittaFrontierServices",
           // 4 StandardCorporationCard<Selecting>, PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Selecting>
           "immediate": "StandardCorporationCard THEN PlayCard<Class<StandardCorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>)>, -42 MC",
         },
@@ -211,7 +212,7 @@
           "tags": [ "ScienceTag" ],
           // Separate transfers allow choosing two differently named events.
           "immediate": "ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)>?, ProjectCard FROM PlayedEvent<Class<EventCard>(HAS MAX 0 GainsOf<Class<SpecialTile>>)>?",
-          "components": [ "CLASS GainsOf<Class<CardFront>, Class<Component>> : Custom" ],
+          "components": [ "CLASS GainsOf<Class<CardFront>, Class<Component>> : CustomMetric" ],
         },
         {
           "name": "BactoviralResearch",
@@ -284,7 +285,7 @@
           "immediate": "PROD[Steel], (BuildingTag<First@CardFront>: CopyProductionBox<First@CardFront>) THEN CopyProductionBox<CardFront(HAS BuildingTag, NOT First@CardFront)>",
           // Copies the single immediate production box on a chosen card.
           // Must be identical to RoboticWorkforce's declaration in CorporateEraExpansion.
-          "components": [ "CLASS CopyProductionBox<CardFront<@Player>> : Owned<@Player>, Custom" ],
+          "components": [ "CLASS CopyProductionBox<CardFront<@Player>> : Owned<@Player>, CustomInstruction" ],
         },
         {
           "name": "DeimosDownPromo",
@@ -309,7 +310,7 @@
         },
         {
           "name": "DiversitySupport",
-          "requirement": "9 Class<Resource>(HAS Resource<Owner>)",
+          "requirement": "9 Class<@Resource>(HAS @Resource<Owner>)",
           "cost": 1,
           "tags": [ "EventTag" ],
           "immediate": "TerraformRating",
@@ -405,7 +406,7 @@
           "name": "InterplanetaryTrade",
           "cost": 27,
           "tags": [ "SpaceTag" ],
-          "immediate": "PROD[1 MC / Class<Tag>(HAS Tag<Owner>)]",
+          "immediate": "PROD[1 MC / Class<@Tag>(HAS @Tag<Owner>)]",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -555,7 +556,7 @@
           "cost": 7,
           "tags": [ "EventTag" ],
           // X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed>
-          "immediate": "MC? / ProjectCard",
+          "immediate": "ProjectCard: MC, MC? / (ProjectCard - 1)",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -658,7 +659,7 @@
           ],
           "components": [
             "CLASS CathedralOption : HasActions { 2 MC -> ProjectCard }",
-            "CLASS CathedralOffer : Owned<Anyone>, Signal { This: UseAction<CathedralOption, ActionSlot, Owner> OR Ok }",
+            "CLASS CathedralOffer : Owned<Anyone>, Signal { This: UseAction<CathedralOption>? }",
             "CLASS Cathedral<CityTile<@Anyone>> : Owned { HAS MAX 1 This; This: CathedralOffer<@Anyone> }"
           ],
         },

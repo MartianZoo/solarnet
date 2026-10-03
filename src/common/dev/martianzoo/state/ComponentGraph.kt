@@ -169,9 +169,9 @@ public class ComponentGraph internal constructor(private val classTable: ClassTa
       if (!classTable.isInhabited(it.type)) {
         throw ExpressionException("uninhabited type has no components: ${it.type}")
       }
-      if (it.isCustom) {
+      if (it.type.rootClass.declaration.customMetric) {
         throw ExpressionException(
-            "Custom component `${it.expressionFull}` cannot enter ComponentGraph"
+            "Custom metric `${it.expressionFull}` cannot enter ComponentGraph"
         )
       }
     }

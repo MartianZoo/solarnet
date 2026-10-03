@@ -1,10 +1,13 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -107,11 +110,46 @@ internal class MergerTest : CardTest() {
   }
 
   @Test
+  internal fun `New corporation cash alone can fund the Merger payment`() {
+    newGame(PreludeExpansion, PromoCardPack)
+    p1.playCorp(PhoboLog, 0)
+    p1.runOperation("-${p1.count("MC")} MC")
+    admin.phase("Prelude")
+    p1.count("MC") shouldBe 0
+
+    p1.playPrelude(Merger) { p1.playCorp(PharmacyUnion) }.expect("4 MC, 2 Disease<$PharmacyUnion>")
+    p1.assertCounts(1 to "$PharmacyUnion", 4 to "MC")
+  }
+
+  @Test
   internal fun `Merger makes Pharmacy Union starting money available for its diseases`() {
     newGame(PreludeExpansion, PromoCardPack, CorporateEraExpansion)
     p1.playCorp(SaturnSystems, 0)
     admin.phase("Prelude")
 
     p1.playPrelude(Merger) { p1.playCorp(PharmacyUnion) }.expect("4 MC, 2 Disease<$PharmacyUnion>")
+  }
+
+  @Test
+  internal fun `Pharmacy Union loss makes Board Merger Recyclon unaffordable and rolls back`() {
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
+    p1.playCorp(PharmacyUnion, 0)
+    admin.phase("Prelude")
+    p1.playPrelude(BoardOfDirectors)
+    p1.runOperation("-${p1.count("MC") - 17} MC")
+    admin.phase("Action")
+    p1.count("MC") shouldBe 17
+
+    shouldThrow<LimitsException> {
+      p1.cardAction1(BoardOfDirectors) {
+        doTask("-12 MC")
+        p1.playPrelude(Merger) { p1.playCorp(Recyclon) }
+      }
+    }
+    p1.count("MC") shouldBe 17
+    p1.count("Disease<$PharmacyUnion>") shouldBe 2
+    p1.count("Director<$BoardOfDirectors>") shouldBe 4
+    p1.count("$Recyclon") shouldBe 0
+    p1.count("$Merger") shouldBe 0
   }
 }

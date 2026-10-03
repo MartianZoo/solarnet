@@ -7,6 +7,7 @@ import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.CustomClass
+import dev.martianzoo.pets.api.CustomInstruction
 import dev.martianzoo.pets.api.CustomMetric
 import dev.martianzoo.pets.api.Exceptions.CustomCodeException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
@@ -1570,7 +1571,7 @@ internal class PostCatalogDiagnosticsTest {
   internal fun unprovidedCustomInstructionArity() {
     val source =
         """
-        CLASS Unimplemented : Custom
+        CLASS Unimplemented : CustomInstruction
         CLASS Water
         """
             .trimIndent()
@@ -1579,7 +1580,7 @@ internal class PostCatalogDiagnosticsTest {
           override val explicitClassDeclarations = parseClasses(source).toSet()
           override val allClassDeclarations =
               ClassDeclaration.indexByName(systemClassDeclarations + explicitClassDeclarations)
-          override val customClasses = setOf(object : CustomClass("Unimplemented") {})
+          override val customClasses = setOf(object : CustomInstruction("Unimplemented") {})
           override val classTable by lazy { ClassLoader(this).loadEverything() }
         }
     catalog.classTable
@@ -1598,26 +1599,17 @@ internal class PostCatalogDiagnosticsTest {
         }
 
     assertEquals(
-        "custom class `Unimplemented` has no instruction implementation for 0 dependencies",
+        "custom instruction `Unimplemented` has no implementation for 0 dependencies",
         error.detail,
     )
-    assertIs<ExpressionException>(error.cause)
-    assertEquals(
-        """
-        |custom class `Unimplemented` has no instruction implementation for 0 dependencies at 1:1
-        |Unimplemented
-        |^
-        """
-            .trimMargin(),
-        error.message,
-    )
+    assertEquals(error.detail, error.message)
   }
 
   @Test
   internal fun metricOnlyClassUsedAsInstruction() {
     val source =
         """
-        CLASS Negative : Custom
+        CLASS Negative : CustomMetric
         CLASS Water
         """
             .trimIndent()
@@ -1649,13 +1641,12 @@ internal class PostCatalogDiagnosticsTest {
         }
 
     assertEquals(
-        "custom class `Negative` has no instruction implementation for 0 dependencies",
+        "custom metric `Negative` cannot be gained",
         error.detail,
     )
-    assertIs<ExpressionException>(error.cause)
     assertEquals(
         """
-        |custom class `Negative` has no instruction implementation for 0 dependencies at 1:1
+        |custom metric `Negative` cannot be gained at 1:1
         |Negative
         |^
         """
@@ -1668,7 +1659,7 @@ internal class PostCatalogDiagnosticsTest {
   internal fun unfinishedCustomInstruction() {
     val source =
         """
-        CLASS Unfinished : Custom
+        CLASS Unfinished : CustomInstruction
         CLASS Water
         """
             .trimIndent()
@@ -1679,7 +1670,7 @@ internal class PostCatalogDiagnosticsTest {
               ClassDeclaration.indexByName(systemClassDeclarations + explicitClassDeclarations)
           override val customClasses =
               setOf(
-                  object : CustomClass("Unfinished") {
+                  object : CustomInstruction("Unfinished") {
                     override fun translate(game: GameReader): InstructionTree =
                         TODO("finish translation")
                   }
@@ -1716,7 +1707,7 @@ internal class PostCatalogDiagnosticsTest {
   internal fun unfinishedCustomMetric() {
     val source =
         """
-        CLASS UnfinishedMetric : Custom
+        CLASS UnfinishedMetric : CustomMetric
         CLASS Water
         """
             .trimIndent()
@@ -1764,7 +1755,7 @@ internal class PostCatalogDiagnosticsTest {
   internal fun customInstructionImplementationCrashes() {
     val source =
         """
-        CLASS Broken : Custom
+        CLASS Broken : CustomInstruction
         CLASS Water
         """
             .trimIndent()
@@ -1775,7 +1766,7 @@ internal class PostCatalogDiagnosticsTest {
               ClassDeclaration.indexByName(systemClassDeclarations + explicitClassDeclarations)
           override val customClasses =
               setOf(
-                  object : CustomClass("Broken") {
+                  object : CustomInstruction("Broken") {
                     override fun translate(game: GameReader): InstructionTree =
                         error("translator forgot its rule")
                   }
@@ -1805,10 +1796,10 @@ internal class PostCatalogDiagnosticsTest {
   }
 
   @Test
-  internal fun instructionOnlyClassUsedAsMetric() {
+  internal fun customInstructionIsCountedAsAnOrdinaryComponent() {
     val source =
         """
-        CLASS InstructionOnly : Custom
+        CLASS InstructionOnly : CustomInstruction
         CLASS Water
         """
             .trimIndent()
@@ -1819,7 +1810,7 @@ internal class PostCatalogDiagnosticsTest {
               ClassDeclaration.indexByName(systemClassDeclarations + explicitClassDeclarations)
           override val customClasses =
               setOf(
-                  object : CustomClass("InstructionOnly") {
+                  object : CustomInstruction("InstructionOnly") {
                     override fun translate(game: GameReader): InstructionTree = parse("Water")
                   }
               )
@@ -1835,28 +1826,17 @@ internal class PostCatalogDiagnosticsTest {
                 setOf(ClassSelection(cn("InstructionOnly")), ClassSelection(cn("Water"))),
         )
     val agent = Engine.newGame(premise).testAgent(ADMIN)
-    val error =
-        assertFailsWith<ExpressionException> {
-          agent.count("InstructionOnly")
-        }
-
-    assertEquals("custom class `InstructionOnly` has no metric implementation", error.detail)
-    assertEquals(
-        """
-        |custom class `InstructionOnly` has no metric implementation at 1:1
-        |InstructionOnly
-        |^
-        """
-            .trimMargin(),
-        error.message,
-    )
+    assertEquals(0, agent.count("InstructionOnly"))
+    agent.runOperation("InstructionOnly")
+    assertEquals(0, agent.count("InstructionOnly"))
+    assertEquals(1, agent.count("Water"))
   }
 
   @Test
   internal fun customInstructionReturnsInvalidPets() {
     val source =
         """
-        CLASS InvalidOutput : Custom
+        CLASS InvalidOutput : CustomInstruction
         CLASS Water
         """
             .trimIndent()
@@ -1867,7 +1847,7 @@ internal class PostCatalogDiagnosticsTest {
               ClassDeclaration.indexByName(systemClassDeclarations + explicitClassDeclarations)
           override val customClasses =
               setOf(
-                  object : CustomClass("InvalidOutput") {
+                  object : CustomInstruction("InvalidOutput") {
                     override fun translate(game: GameReader): InstructionTree = parse("Water<>")
                   }
               )
@@ -1909,7 +1889,7 @@ internal class PostCatalogDiagnosticsTest {
   internal fun customMetricInAComponentUnion() {
     val source =
         """
-        CLASS Negative : Custom
+        CLASS Negative : CustomMetric
         CLASS Water
         """
             .trimIndent()
@@ -1959,7 +1939,7 @@ internal class PostCatalogDiagnosticsTest {
   internal fun negativeCustomMetric() {
     val source =
         """
-        CLASS Negative : Custom
+        CLASS Negative : CustomMetric
         CLASS Water
         """
             .trimIndent()
@@ -1996,10 +1976,10 @@ internal class PostCatalogDiagnosticsTest {
   }
 
   @Test
-  internal fun removeCustomInstruction() {
+  internal fun removeCustomMetric() {
     val source =
         """
-        CLASS Unimplemented : Custom
+        CLASS Unimplemented : CustomMetric
         CLASS Water
         """
             .trimIndent()
@@ -2008,7 +1988,12 @@ internal class PostCatalogDiagnosticsTest {
           override val explicitClassDeclarations = parseClasses(source).toSet()
           override val allClassDeclarations =
               ClassDeclaration.indexByName(systemClassDeclarations + explicitClassDeclarations)
-          override val customClasses = setOf(object : CustomClass("Unimplemented") {})
+          override val customClasses =
+              setOf(
+                  object : CustomMetric("Unimplemented") {
+                    override fun count(game: GameReader, type: Type): Int = 0
+                  }
+              )
           override val classTable by lazy { ClassLoader(this).loadEverything() }
         }
     catalog.classTable
@@ -2027,13 +2012,13 @@ internal class PostCatalogDiagnosticsTest {
         }
 
     assertEquals(
-        "custom class `Unimplemented` has no components to remove; custom instructions can only be gains",
+        "custom metric `Unimplemented` cannot be removed",
         error.detail,
     )
     // Prefer pointing at the removal operator `-`, which is unsupported for custom behavior.
     assertEquals(
         """
-        |custom class `Unimplemented` has no components to remove; custom instructions can only be gains at 1:2
+        |custom metric `Unimplemented` cannot be removed at 1:2
         |-Unimplemented
         | ^
         """
@@ -2688,8 +2673,10 @@ internal class PostCatalogDiagnosticsTest {
   internal fun implementedCustomInstructionRunsSuccessfully() {
     val source =
         """
-        CLASS InstructionOnly : Custom
+        CLASS InstructionOnly : CustomInstruction { This:: Blue; This: Green }
         CLASS Water
+        CLASS Green
+        CLASS Blue
         """
             .trimIndent()
     val catalog =
@@ -2699,7 +2686,7 @@ internal class PostCatalogDiagnosticsTest {
               ClassDeclaration.indexByName(systemClassDeclarations + explicitClassDeclarations)
           override val customClasses =
               setOf(
-                  object : CustomClass("InstructionOnly") {
+                  object : CustomInstruction("InstructionOnly") {
                     override fun translate(game: GameReader): InstructionTree = parse("Water")
                   }
               )
@@ -2712,11 +2699,25 @@ internal class PostCatalogDiagnosticsTest {
             modules = emptySet(),
             initialComponentTypes = emptySet(),
             classSelections =
-                setOf(ClassSelection(cn("InstructionOnly")), ClassSelection(cn("Water"))),
+                setOf(
+                    ClassSelection(cn("InstructionOnly")),
+                    ClassSelection(cn("Water")),
+                    ClassSelection(cn("Green")),
+                    ClassSelection(cn("Blue")),
+                ),
         )
-    val agent = Engine.newGame(premise).testAgent(ADMIN)
+    val game = Engine.newGame(premise)
+    val agent = game.testAgent(ADMIN)
     agent.runOperation("InstructionOnly")
     assertEquals(1, agent.count("Water"))
+    assertEquals(1, agent.count("Green"))
+    assertEquals(1, agent.count("Blue"))
+    assertEquals(
+        1,
+        game.events.changesSinceSetup().count {
+          it.change.gaining?.className == cn("InstructionOnly")
+        },
+    )
   }
 
   @Test

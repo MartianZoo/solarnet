@@ -10,6 +10,7 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class PharmacyUnionTest : CardTest() {
+  // Resolved FAQ: the starting money must precede the loss; its deeper rationale remains open.
   @Test
   internal fun `Starting money precedes both mandatory microbe-tag losses`() {
     newGame(PromoCardPack)

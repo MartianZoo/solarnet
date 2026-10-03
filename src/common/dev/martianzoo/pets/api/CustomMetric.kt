@@ -3,7 +3,7 @@ package dev.martianzoo.pets.api
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.types.Type
 
-/** Metric behavior for a Pets [CustomClass]. */
+/** Kotlin count behavior for a Pets `CustomMetric` class. */
 public abstract class CustomMetric(name: String? = null) : CustomClass(name) {
   private constructor(className: ClassName) : this(className.toString())
 

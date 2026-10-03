@@ -5,28 +5,23 @@ package dev.martianzoo.tfm.canon.terraformingmars
 import dev.martianzoo.pets.HasClassName
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.CustomClass
+import dev.martianzoo.pets.api.CustomInstruction
 import dev.martianzoo.pets.api.CustomMetric
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Gain
-import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
-import dev.martianzoo.pets.ast.Instruction.Gated
-import dev.martianzoo.pets.ast.Instruction.NoOp
-import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transform as InstructionTransform
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PropertyName
-import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.Requirement.Counting
 import dev.martianzoo.pets.ast.Requirement.Exact
 import dev.martianzoo.pets.ast.Requirement.Max
@@ -36,6 +31,8 @@ import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 import dev.martianzoo.tfm.canon.TfmClasses.PROD
+import dev.martianzoo.tfm.canon.TfmClasses.PROJECT_CARD
+import dev.martianzoo.tfm.canon.cardBack
 import dev.martianzoo.tfm.canon.cardEffects
 import dev.martianzoo.tfm.canon.cardImmediate
 import dev.martianzoo.tfm.canon.cardTags
@@ -43,7 +40,7 @@ import dev.martianzoo.tfm.canon.tfmCatalog
 import kotlin.math.abs
 
 private val copyProductionBox =
-    object : CustomClass("CopyProductionBox") {
+    object : CustomInstruction("CopyProductionBox") {
       override fun translate(reader: GameReader, owner: Type, cardType: Type): Instruction {
         val card = reader.tfmCatalog.card(cardType.className)
         val immediate =
@@ -102,6 +99,19 @@ private val nonNegativeIconsOf =
 
 private val placementBonus =
     object : CustomMetric("PlacementBonus") {
+      override fun countAbstract(game: GameReader, type: Type): Int? {
+        val arguments = type.typeDependencies.map { it.boundType }
+        val area = arguments.single { it.className != CLASS }
+        if (area.abstract) return null
+        val resource = requireNotNull(arguments.single { it.className == CLASS }.representedClass)
+        val bonus = mapDefinition(game).areas.single { it.className == area.className }.bonus
+        return bonus?.descendantsOfType<Gain>()?.sumOf {
+          if (game.classTable.getClass(it.gaining.className).isSubtypeOf(resource))
+              (it.count as ActualScalar).value
+          else 0
+        } ?: 0
+      }
+
       override fun count(game: GameReader, type: Type): Int {
         val arguments = type.typeDependencies.map { it.boundType }
         val resourceName =
@@ -148,80 +158,42 @@ private val neighbor =
       }
     }
 
-private val PAYING_FOR = cn("PayingFor")
-private val REQUIRED = cn("Required")
-private val CHECK_REQUIREMENT = cn("CheckRequirement")
-private val GLOBAL_PARAMETER = cn("GlobalParameter")
-
-private val adjustGpRequirement =
-    object : CustomClass("AdjustGpRequirement") {
-      override val requiredClassNames: Set<ClassName> =
-          setOf(REQUIRED, CHECK_REQUIREMENT, GLOBAL_PARAMETER)
-
-      override fun translate(
-          reader: GameReader,
-          ignoredOwner: Type,
-          cardClassType: Type,
-      ): Instruction {
+private val gpRequirementShortfall =
+    object : CustomMetric("GpRequirementShortfall") {
+      override fun count(game: GameReader, type: Type): Int {
+        val (cardClassType, parameterClassType) = type.typeDependencies.map { it.boundType }
         val requirement =
-            representedType(cardClassType, reader).getRequirementPropertyValue("requirement")
-                ?: return FALLBACK_UNAVAILABLE
-        return globalParameterShortfall(requirement, reader)?.let { (parameter, count) ->
-          Then.create(
-              listOf(
-                  gain(REQUIRED.of(CLASS.of(parameter)), count),
-                  gain(CHECK_REQUIREMENT.of(cardClassType.expression)),
-              )
-          )
-        } ?: FALLBACK_UNAVAILABLE
+            representedType(cardClassType, game).getRequirementPropertyValue("requirement")
+                as? Counting ?: return 0
+        val counted = requirement.metric as? Metric.Count ?: return 0
+        if (game.resolve(counted.expression).rootClass != parameterClassType.representedClass) {
+          return 0
+        }
+
+        val actual = game.count(counted)
+        return when (requirement) {
+          is Min -> (requirement.target - actual).coerceAtLeast(0)
+          is Max -> (actual - requirement.target).coerceAtLeast(0)
+          is Exact -> abs(actual - requirement.target)
+        }
       }
-
-      private fun globalParameterShortfall(
-          requirement: Requirement,
-          reader: GameReader,
-      ): Pair<Expression, Int>? {
-        val counting = requirement as? Counting ?: return null
-        val counted = counting.metric as? Metric.Count ?: return null
-        val parameter = counted.expression
-        val isGlobalParameter =
-            reader.resolve(parameter).rootClass.allSuperclasses().any {
-              it.className == GLOBAL_PARAMETER
-            }
-        if (!isGlobalParameter) return null
-
-        val actual = reader.count(counting.metric)
-        val shortfall =
-            when (counting) {
-              is Min -> counting.target - actual
-              is Max -> actual - counting.target
-              is Exact -> kotlin.math.abs(actual - counting.target)
-            }
-        return if (shortfall > 0) parameter to shortfall else null
-      }
-
-      private val FALLBACK_UNAVAILABLE: Instruction = Gated.create(parse<Requirement>("Die"), NoOp)
     }
 
-private val priceCard =
-    object : CustomClass("PriceCard") {
-      override val requiredClassNames: Set<ClassName> = setOf(PAYING_FOR)
+private val priceAspectCount =
+    object : CustomMetric("PriceAspectCount") {
+      override val requiredClassNames: Set<ClassName> = setOf(PROJECT_CARD)
 
-      override fun translate(
-          reader: GameReader,
-          owner: Type,
-          cardFrontClassType: Type,
-      ): Instruction {
-        val card = cardFromClassType(cardFrontClassType, reader)
-        return Then.create(
-            cardTags(card).entries.map { (tagName, count) ->
-              gain(PAYING_FOR.of(tagName.classExpression()), count)
-            } + gain(PAYING_FOR.of(card.className.classExpression()))
-        )
+      override fun count(game: GameReader, type: Type): Int {
+        val (cardClassType, aspectClassType) = type.typeDependencies.map { it.boundType }
+        val card = cardFromClassType(cardClassType, game)
+        if (cardBack(card)?.isSubtypeOf(card.classTable.getClass(PROJECT_CARD)) != true) return 0
+        val aspect = requireNotNull(aspectClassType.representedClass)
+        return if (aspect.className == card.className) 1 else cardTags(card).count(aspect.className)
       }
     }
 
 private val scoreEventVps =
-    object : CustomClass("ScoreEventVps") {
+    object : CustomInstruction("ScoreEventVps") {
       override fun translate(
           reader: GameReader,
           ignoredOwner: Type,
@@ -249,8 +221,8 @@ private fun card(type: HasClassName, reader: GameReader): Class =
 internal val customClasses: Set<CustomClass> =
     setOf(
         neighbor,
-        adjustGpRequirement,
-        priceCard,
+        gpRequirementShortfall,
+        priceAspectCount,
         scoreEventVps,
         nonNegativeIconsOf,
         placementBonus,

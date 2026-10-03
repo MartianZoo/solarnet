@@ -27,6 +27,7 @@ internal class Wsbg2025Test : AbstractFullGameTest() {
           ElysiumMap
           PreludeExpansion
           FakeStuffBundle
+          EcologyExperts, Unsafe
           """,
           "Stanley",
           "Jacopo",

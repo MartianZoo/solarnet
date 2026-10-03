@@ -93,8 +93,8 @@ retried. The graph owns the reverse-dependency index, while the engine owns the 
 Every live mutation is an exact gain, removal, or transmutation. A transmutation removes before it
 gains. A same-Type transmutation records both directions without changing multiplicity and requires
 an existing source. A direct Signal uses the same paired event without requiring an existing source.
-`Custom` Classes never become components: their Kotlin implementations calculate metrics or translate
-instructions.
+`CustomMetric` types never become components. `CustomInstruction` classes are ordinary Signals:
+their gains are recorded, their Pets effects run, and Kotlin supplies one additional queued effect.
 
 The event log contains:
 
@@ -177,8 +177,8 @@ The executable first-stage forms are deliberately small: no-op, fully concrete c
 override around executable work, or `THEN` whose first stage is executable. Later `THEN` stages stay
 as Pets until earlier state changes have happened. Execution removes the completed Task, admits its
 continuation, and routes changes through the ordinary mutation/effect path. `Gated`, `Per`, `Or`,
-gains of `Custom` Classes, marked transforms, and instruction groups cannot reach execution as a
-first stage; resolution must consume, translate, choose, or split them first.
+gains of virtual `CustomMetric` types, marked transforms, and instruction groups cannot reach execution
+as a first stage; resolution must consume, reject, choose, or split them first.
 
 ## One instruction becomes events in stages
 
@@ -221,6 +221,9 @@ Self triggers respond to the changed copies of their exact effect-bearing Type; 
 copies do not multiply the response. Other subscriptions multiply by the number of live
 effect-bearing components. Normal triggers scale with the matching change count, while `X` means
 one response to any positive count.
+
+After effect scaling, `Effector` reapplies gain atomization so `Atomized` gains remain separate
+even when their counts come from trigger matching or repeated live components.
 
 An owned effect listening to an unowned event defaults to its Owner unless it explicitly says
 `BY Anyone`. Trigger-side `BY` filters the triggering Actor. Instruction-side `BY` changes the Actor

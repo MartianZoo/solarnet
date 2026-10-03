@@ -294,10 +294,12 @@ internal class Prelude2CardsTest : CardTest() {
   @Test
   internal fun `Sky Docks discounts a project played through Board of Directors and Ecology Experts`() {
     newGame(
-        PreludeExpansion,
-        Prelude2CardPack,
-        ColoniesExpansion,
-        colonyTiles = testColonyTiles(2),
+        GameConfig(
+            "PreludeExpansion, Prelude2CardPack, ColoniesExpansion, EcologyExperts, Unsafe, " +
+                testColonyTiles(2).joinToString(),
+            "Player1",
+            "Player2",
+        )
     )
     admin.phase("Action")
     p1.runOperation("13 MC, PreludeCard, ProjectCard, $BoardOfDirectors, $SkyDocks")
@@ -351,7 +353,7 @@ internal class Prelude2CardsTest : CardTest() {
     admin.phase("Action")
     val startingTr = p2.count("TerraformRating")
 
-    p2.cardAction1(WorldGovernmentAdvisor) { wgt("TemperatureStep") }
+    p2.cardAction1(WorldGovernmentAdvisor) { doTask("TemperatureStep BY Admin") }
 
     admin.count("TemperatureStep") shouldBe 1
     p2.count("TerraformRating") shouldBe startingTr
@@ -373,7 +375,7 @@ internal class Prelude2CardsTest : CardTest() {
     val startingTr = p1.count("TerraformRating")
     val aphroditeMoney = p2.count("MC")
 
-    p1.cardAction1(WorldGovernmentAdvisor) { wgt("VenusStep") }
+    p1.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep BY Admin") }
 
     admin.count("VenusStep") shouldBe 1
     p1.count("TerraformRating") shouldBe startingTr
@@ -397,7 +399,7 @@ internal class Prelude2CardsTest : CardTest() {
     val startingPlants = p2.count("Plant")
     val startingMoneyProduction = p2.production(cn("MC"))
 
-    p1.cardAction1(WorldGovernmentAdvisor) { wgt("OceanTile<Tharsis_1_2>") }
+    p1.cardAction1(WorldGovernmentAdvisor) { doTask("OceanTile<Tharsis_1_2> BY Admin") }
 
     p2.count("Plant") shouldBe startingPlants + 2
     p2.production(cn("MC")) shouldBe startingMoneyProduction + 1
@@ -413,7 +415,7 @@ internal class Prelude2CardsTest : CardTest() {
     val startingTr = p1.count("TerraformRating")
 
     p1.cardAction1(WorldGovernmentAdvisor) {
-      wgt("TemperatureStep")
+      doTask("TemperatureStep BY Admin")
       doTask("OceanTile<Tharsis_1_2> BY Admin")
     }
 
@@ -432,7 +434,7 @@ internal class Prelude2CardsTest : CardTest() {
     admin.phase("Action")
     p1.playProject(HomeostasisBureau, 16)
 
-    p1.cardAction1(WorldGovernmentAdvisor) { wgt("TemperatureStep") }
+    p1.cardAction1(WorldGovernmentAdvisor) { doTask("TemperatureStep BY Admin") }
         .expect("TemperatureStep, 0 TerraformRating, 0 MC")
     p1.stdProject("AsteroidProject").expect("TemperatureStep, TerraformRating, -11 MC")
   }
@@ -728,6 +730,18 @@ internal class Prelude2CardsTest : CardTest() {
   }
 
   @Test
+  internal fun `Double Down copies Industrial Complex's direct benefit`() {
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
+    admin.phase("Prelude")
+    p1.runOperation("36 MC, PROD[-5 MC], 2 PreludeCard")
+    p1.playPrelude(IndustrialComplex)
+    p1.runOperation("PROD[-Steel]")
+
+    p1.playPrelude(DoubleDown) { doTask("CopyPrelude<$IndustrialComplex>") }
+        .expect("-18 MC, PROD[Steel]")
+  }
+
+  @Test
   internal fun `Recession applies each opponent loss as much as possible`() {
     newGame(PreludeExpansion, Prelude2CardPack, players = 3)
     val p2 = requireP2()
@@ -871,6 +885,16 @@ internal class Prelude2CardsTest : CardTest() {
   }
 
   @Test
+  internal fun `Planetary Alliance makes both tagged searches`() {
+    newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
+    admin.phase("Prelude")
+    p1.playPrelude(PlanetaryAlliance)
+
+    p1.count("ProjectCard") shouldBe 2
+    p1.count("TerraformRating") shouldBe 22
+  }
+
+  @Test
   internal fun `Floating Refinery counts its own Venus tag`() {
     newGame(PreludeExpansion, Prelude2CardPack, VenusNextExpansion)
     p1.runOperation("$ForcedPrecipitation")
@@ -884,12 +908,13 @@ internal class Prelude2CardsTest : CardTest() {
   @Test
   internal fun `Sagitta treats the event icon as an additional printed tag`() {
     newGame(
-        PreludeExpansion,
-        Prelude2CardPack,
-        CorporateEraExpansion,
-        ColoniesExpansion,
-        PromoCardPack,
-        colonyTiles = testColonyTiles(2),
+        GameConfig(
+            "PreludeExpansion, Prelude2CardPack, CorporateEraExpansion, " +
+                "ColoniesExpansion, PromoCardPack, SagittaFrontierServices, " +
+                testColonyTiles(2).joinToString(),
+            "Player1",
+            "Player2",
+        )
     )
     val p2 = requireP2()
 
@@ -1120,7 +1145,17 @@ internal class Prelude2CardsTest : CardTest() {
   }
 
   private fun highCirclesEnablesProject(prelude: ClassName) {
-    newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion)
+    if (prelude == EcologyExperts) {
+      newGame(
+          GameConfig(
+              "PreludeExpansion, Prelude2CardPack, TurmoilExpansion, EcologyExperts, Unsafe",
+              "Player1",
+              "Player2",
+          )
+      )
+    } else {
+      newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion)
+    }
     admin.phase("Prelude")
     p1.runOperation("20 MC, ProjectCard")
     p1.playPrelude(HighCircles) { doTask("2 PartyDelegate<Scientists>") }
@@ -1172,6 +1207,7 @@ internal class Prelude2CardsTest : CardTest() {
         colonyTiles = testColonyTiles(2, "Luna", "Io"),
     )
     p1.runOperation("2 Colony<Luna>")
+    requireP2().runOperation("Colony<Io>")
     val startingMoney = p1.count("MC")
 
     p1.runOperation("$ColonialRepresentation")

@@ -335,6 +335,19 @@ internal class SelfReplicatingRobotsTest : CardTest() {
       listOf(Mine, TitaniumMine, MartianRails, SpaceStation, PowerPlant, VestaShipyard)
 
   @Test
+  internal fun `Sponsored Academies cannot discard a card hosted on Self-Replicating Robots`() {
+    initialize(2, VenusNextExpansion)
+    p1.runOperation("9 MC")
+    stage(Mine)
+    p1.count("ProjectCard") shouldBe 1
+
+    shouldThrow<LimitsException> { p1.playProject(SponsoredAcademies, 9) }
+    p1.count("ProjectCard") shouldBe 1
+    p1.count("RobotUnit<Class<$Mine>>") shouldBe 2
+    p1.count("MC") shouldBe 9
+  }
+
+  @Test
   internal fun `Mars University cannot discard a hosted card when a staged science card is played`() {
     newGame(CorporateEraExpansion, PromoCardPack, FakeStuffBundle)
     p1.playCorp(CrediCor, 5)

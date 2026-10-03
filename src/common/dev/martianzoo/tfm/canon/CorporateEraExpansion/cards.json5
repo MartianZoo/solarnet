@@ -195,7 +195,7 @@
           "name": "HiredRaiders",
           "cost": 1,
           "tags": [ "EventTag" ],
-          "immediate": "2 Steel<Owner FROM Anyone>? OR 3 MC<Owner FROM Anyone>?",
+          "immediate": "Steel<Owner FROM Anyone> OR 2 Steel<Owner FROM Anyone> OR MC<Owner FROM Anyone> OR 2 MC<Owner FROM Anyone> OR 3 MC<Owner FROM Anyone>",
         },
         {
           "name": "IndenturedWorkers",
@@ -271,7 +271,7 @@
           "cost": 8,
           "tags": [ "ScienceTag", "BuildingTag" ],
           "effects": [
-            "ScienceTag: ProjectCard FROM ProjectCard OR Ok",
+            "ScienceTag: ProjectCard FROM ProjectCard?",
             "End: VictoryPoint"
           ],
         },
@@ -316,6 +316,7 @@
         },
         {
           "name": "MiningArea",
+          "autoSelectWhen": "Unsafe OR MAX 0 AmazonisMap",
           "cost": 4,
           "tags": [ "BuildingTag" ],
           "immediate": "MiningArea_SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> THEN PROD[(LandArea(HAS MiningArea_SpecialTile, HAS PlacementBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningArea_SpecialTile, HAS PlacementBonus<Class<Titanium>>): Titanium)]",
@@ -398,7 +399,7 @@
           "immediate": "CopyProductionBox<CardFront(HAS BuildingTag)>",
           // Copies the single immediate production box on a chosen card.
           // Must be identical to CyberiaSystems' declaration in PromoCardPack.
-          "components": [ "CLASS CopyProductionBox<CardFront<@Player>> : Owned<@Player>, Custom" ],
+          "components": [ "CLASS CopyProductionBox<CardFront<@Player>> : Owned<@Player>, CustomInstruction" ],
         },
         {
           "name": "Sabotage",
@@ -505,7 +506,7 @@
           "name": "ViralEnhancers",
           "cost": 9,
           "tags": [ "ScienceTag", "MicrobeTag" ],
-          "effects": [ "BioTag<@CardFront>: Plant OR CardResource<@CardFront>!" ],
+          "effects": [ "BioTag<@CardFront>: Plant OR Animal<@CardFront> OR Microbe<@CardFront>" ],
         },
         {
           "name": "Virus",

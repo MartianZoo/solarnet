@@ -28,9 +28,14 @@
         },
         {
           "name": "MiningGuild",
+          "autoSelectWhen": "Unsafe OR MAX 0 AmazonisMap",
           "tags": [ "BuildingTag", "BuildingTag" ],
           "immediate": "30 MC, 5 Steel, PROD[Steel]",
-          "effects": [ "Tile<MarsArea(HAS PlacementBonus<Class<Metal>>)>: PROD[Steel]" ],
+          "effects": [
+            "Tile<MarsArea(HAS PlacementBonus<Class<Metal>>)>: PROD[Steel]",
+            // Subtract printed resource bonuses to leave only the wild StandardResource icon.
+            "Tile<MarsArea(HAS 1 (PlacementBonus<Class<StandardResource>> - PlacementBonus<Class<MC>> - PlacementBonus<Class<Metal>> - PlacementBonus<Class<Plant>> - PlacementBonus<Class<Energy>> - PlacementBonus<Class<Heat>>), HAS MAX 0 PlacementBonus<Class<Metal>>)>: PROD[Steel], Audit",
+          ],
         },
         {
           "name": "PhoboLog",
@@ -47,7 +52,7 @@
           "effects": [
             "CityTile<Anyone, MarsArea>: PROD[1 MC]",
             "CityTile: 3 MC",
-            "This IF SoloMode: PROD[2 MC]",
+            "This IF SoloMode, CorporationPhase: PROD[2 MC]",
           ],
         },
         {
@@ -665,6 +670,7 @@
         },
         {
           "name": "MiningRights",
+          "autoSelectWhen": "Unsafe OR MAX 0 AmazonisMap",
           "cost": 9,
           "tags": [ "BuildingTag" ],
           "immediate": "MiningRights_SpecialTile<> THEN PROD[(LandArea(HAS MiningRights_SpecialTile, HAS PlacementBonus<Class<Steel>>): Steel) OR (LandArea(HAS MiningRights_SpecialTile, HAS PlacementBonus<Class<Titanium>>): Titanium)]",

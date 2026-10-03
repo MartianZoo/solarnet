@@ -11,7 +11,7 @@ import dev.martianzoo.pets.util.toSetStrict
  * the universal `Audit` signal plus the classes this language and the type system depend on,
  * including `Component` and `Class`, the ownership vocabulary `Anyone`, `Owner` and `Owned`, the
  * actor root `Actor`, the identity signal `Ok`, the impossible type `Die`, and `Atomized` and
- * `Custom`. A catalog's own source is loaded alongside them.
+ * `CustomMetric` and `CustomInstruction`. A catalog's own source is loaded alongside them.
  *
  * [GamePremise.classTable] always roots `Audit`; it decides which of the remaining declarations a
  * particular game contains.
@@ -32,8 +32,8 @@ private val systemDeclarationsSource =
     "Magic rules: only a class name can go inside `<>`; `Class<Foo>` is concrete iff `Foo` is"
     CLASS Class<Component> : System { HAS =1 This }
 
-    "Instances of this type never exist; Kotlin can instead define its instruction or metric behavior"
-    ABSTRACT CLASS Custom
+    "Virtual metrics computed by Kotlin rather than stored as Components"
+    ABSTRACT CLASS CustomMetric
 
     "Extend this to have plural instructions automatically split into individual instructions"
     ABSTRACT CLASS Atomized
@@ -70,6 +70,9 @@ private val systemDeclarationsSource =
     ABSTRACT CLASS Signal : MustCleanUp {
       This IF This:: -This!
     }
+
+    "A Signal whose gain also queues an instruction computed by Kotlin"
+    ABSTRACT CLASS CustomInstruction : Signal
 
     "An entity that can initiate or continue game operations"
     ABSTRACT CLASS Actor

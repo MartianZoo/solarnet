@@ -6,6 +6,7 @@ import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
+import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
 import dev.martianzoo.pets.ast.ClassName
@@ -217,7 +218,12 @@ public open class TfmCatalog : Catalog {
         )
       }
     }
-    if (additionalClassDeclarations.any(ClassDeclaration::custom)) {
+    if (
+        additionalClassDeclarations.any { declaration ->
+          declaration.customMetric ||
+              declaration.supertypes.any { it.className == CUSTOM_INSTRUCTION }
+        }
+    ) {
       throw InvalidGameConfigException(
           "premise-local custom Classes require a Catalog-owned implementation"
       )

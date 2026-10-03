@@ -1,7 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
-import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
+import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
 import dev.martianzoo.tfm.tests.cards.CardTest
 import io.kotest.assertions.throwables.shouldThrow
@@ -54,20 +54,38 @@ internal class TurmoilRulesTest : CardTest() {
   }
 
   @Test
-  internal fun `paid lobbying may use the Lobby delegate when it is the only reserve delegate`() {
+  internal fun `paid lobbying cannot spend the last lobby delegate but free lobbying can`() {
     newGame(TurmoilExpansion)
-    repeat(6) { p1.runOperation("PartyDelegate<Unity>") }
-    p1.runOperation("5 MC")
+    repeat(5) { p1.runOperation("PartyDelegate<Unity>") }
+    p1.runOperation("10 MC")
     admin.phase("Action")
 
     p1.count("LobbyActionAvailable") shouldBe 1
-    p1.count("Delegate") shouldBe 6
+    p1.count("Delegate") shouldBe 5
 
     p1.stdAction("LobbyAction", 2) {
       doTask("PartyDelegate<Scientists>")
     }
 
-    p1.count("MC") shouldBe 0
+    p1.count("MC") shouldBe 5
+    p1.count("LobbyActionAvailable") shouldBe 1
+    p1.count("Delegate") shouldBe 6
+
+    shouldThrow<RequirementException> {
+      p1.stdAction("LobbyAction", 2) {
+        doTask("PartyDelegate<Scientists>")
+      }
+    }
+
+    p1.count("MC") shouldBe 5
+    p1.count("LobbyActionAvailable") shouldBe 1
+    p1.count("Delegate") shouldBe 6
+
+    p1.stdAction("LobbyAction", 1) {
+      doTask("PartyDelegate<Scientists>")
+    }
+
+    p1.count("MC") shouldBe 5
     p1.count("LobbyActionAvailable") shouldBe 0
     p1.count("Delegate") shouldBe 7
     p1.count("PartyDelegate") shouldBe 7
@@ -190,7 +208,7 @@ internal class TurmoilRulesTest : CardTest() {
     p1.count("PartyDelegate") shouldBe 7
     p1.count("LobbyActionAvailable") shouldBe 0
     p1.count("MC") shouldBe 5
-    shouldThrow<DeadEndException> {
+    shouldThrow<RequirementException> {
       p1.stdAction("LobbyAction", 2) {
         doTask("PartyDelegate<MarsFirst>")
       }
@@ -218,7 +236,7 @@ internal class TurmoilRulesTest : CardTest() {
     p1.runOperation("5 MC")
     admin.phase("Action")
 
-    shouldThrow<DeadEndException> {
+    shouldThrow<RequirementException> {
       p1.stdAction("LobbyAction", 2) {
         doTask("PartyDelegate<Scientists>")
       }

@@ -28,9 +28,10 @@ faulty declarations (`InvalidPetDefinitionException`), invalid setup (`InvalidGa
 expected gameplay rejection (`GameplayException`), unfinished choices (`NotFullySpecifiedException`),
 and faulty Kotlin implementations (`CustomCodeException`). Requesting unavailable custom instruction
 or metric behavior is an expression error; a crash or `TODO()` inside a supplied implementation is
-a custom-code failure. Invalid Pets returned by custom translation also identifies the custom
-implementation, preserving the generated syntax's source span when available. Custom classes cannot
-be removed as components.
+a custom-code failure. Invalid Pets returned by a `CustomInstruction` implementation also identifies
+the implementation, preserving the generated syntax's source span when available. Virtual
+`CustomMetric` types cannot be gained or removed as components; `CustomInstruction` follows ordinary
+Signal rules.
 
 Invalid definitions may be discovered after catalog construction: invariant compilation, effect
 elaboration, and property expansion still need game context. During class-effect elaboration, the

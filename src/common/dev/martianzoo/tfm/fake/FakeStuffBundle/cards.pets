@@ -63,31 +63,13 @@ CLASS FakePolderTechDutch : CardFront<Class<StandardCorporationCard>> {
   GreeneryTile: Plant
 }
 
-"Banned Delegate without immediate party-leader and Dominant-party changes"
-CLASS FakeBannedDelegate : EventCard {
-  cost = 0
-  requirement = HAS "Chairman"
-
-  This:: EventTag<This>
-  This:: Audit
-  This: FakeBannedDelegateRemoval<Party, Anyone>. / \
-    (PartyDelegate<Party, Anyone> - PartyLeader<Party, Anyone>) MAX 1
-}
-
-"Returns one selected non-leader delegate without recalculating its party"
-CLASS FakeBannedDelegateRemoval<@Party, @Anyone> : Owned<Player>, Barrier {
-  HAS MAX 1 This
-  This IF MAX 0 (PartyDelegate<@Party, @Anyone> - PartyLeader<@Party, @Anyone>):: Die
-  This: -PartyDelegate<@Party, @Anyone> THEN -This!
-}
-
 "Septem Tribus with an inert wild tag"
 CLASS FakeSeptemTribus : ActionCard<Class<StandardCorporationCard>> {
   cost = 0
 
   This: 36 MC, FakeWildTag<This>
 
-  -> 2 MC / Class<Party>(HAS PartyDelegate<Party, Owner>)
+  -> 2 MC / Class<@Party>(HAS PartyDelegate<@Party, Owner>)
 }
 
 "Head Start with independently interleavable immediate actions"
@@ -113,7 +95,7 @@ CLASS FakeSelfReplicatingRobots : ActionCard, ActiveCard {
 
   // HAS PrintedTag<Class<BuildingTag>> OR PrintedTag<Class<SpaceTag>>
   -> StageForReplicatedProject<Class<CardFront>>
-  -> ReplicateForStagedProject<Class<CardFront>(HAS RobotUnit<Class<CardFront>>)>
+  -> ReplicateForStagedProject<Class<CardFront>(HAS RobotUnit)>
 }
 
 CLASS StageForReplicatedProject<Class<@CardFront>> : Owned<Player>, Signal {

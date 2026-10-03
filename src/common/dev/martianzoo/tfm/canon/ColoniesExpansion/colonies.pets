@@ -219,7 +219,7 @@ CLASS ColonyProduction<ColonyTile> {
 }
 
 "An implementation detail used to trigger colony bonuses to be paid out"
-CLASS GainColonyBonus<ColonyTile> : Owned<Player>, Signal
+CLASS GainColonyBonus<ColonyTile> : Owned<Player>, Signal, Atomized
 
 "Advances every colony tile track one step during colony production"
 CLASS AdvanceColonyTracks : Signal

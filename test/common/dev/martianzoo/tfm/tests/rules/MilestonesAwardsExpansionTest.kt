@@ -92,18 +92,18 @@ internal class MilestonesAwardsExpansionTest : CardTest() {
   }
 
   @Test
-  internal fun `Removing an ocean removes its placement credit`() {
-    newGame(GameConfig("Hydrologist, Builder, Engineer", "Player1", "Player2"))
-    val oceans = p1.list("WaterArea").take(4)
+  internal fun `Dry Deserts does not erase Hydrologist credit for a removed ocean`() {
+    newGame(GameConfig("TurmoilExpansion, Hydrologist, Builder, Engineer", "Player1", "Player2"))
+    val oceans = p1.list("WaterArea").take(3)
+    p1.runOperation("OceanTile<${oceans.first()}>")
+
+    admin.runOperation("ResolveGlobalEvent<Class<DryDeserts>>")
+
+    admin.count("OceanTile") shouldBe 0
     oceans.forEach { p1.runOperation("OceanTile<$it>") }
-    p1.count("OceanCredit") shouldBe 4
-    oceans.forEach { p1.count("OceanCredit<OceanTile<$it>>") shouldBe 1 }
-
-    requireP2().runOperation("-OceanTile<${oceans.first()}>")
-
-    p1.count("OceanCredit") shouldBe 3
-    p1.count("OceanCredit<OceanTile<${oceans.first()}>>") shouldBe 0
-    shouldThrow<RequirementException> { p1.runOperation("Hydrologist") }
+    admin.count("OceanTile") shouldBe 3
+    p1.runOperation("Hydrologist")
+    p1.count("Hydrologist") shouldBe 1
   }
 
   @Test

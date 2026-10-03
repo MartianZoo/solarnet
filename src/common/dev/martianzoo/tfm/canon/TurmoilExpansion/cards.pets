@@ -1,4 +1,22 @@
-// Published Turmoil Global Events, appended to the generated project cards.
+// Turmoil declarations that accompany the generated project cards.
+
+"Returns one selected non-leader delegate and resolves its party leadership"
+CLASS BannedDelegateRemoval<@Party, @Anyone> : Owned<Player>, Barrier {
+  HAS MAX 1 This
+  This IF MAX 0 (PartyDelegate<@Party, @Anyone> - PartyLeader<@Party, @Anyone>):: Die
+  This: -PartyDelegate<@Party, @Anyone> THEN -This!
+  // A transfer also removes a delegate; leadership changes only after this selected removal.
+  -This:: EACH Next@Anyone( \
+    HAS MAX 0 PartyLeader<@Party, Anyone>, \
+    HAS =1 (RANK Ranked@Anyone { \
+      PartyDelegate<@Party, Ranked@Anyone>, \
+      PartyLeader<@Party, Ranked@Anyone>, \
+      Player - PlayerDistance<Owner, Ranked@Anyone> \
+    }) \
+  ) { PartyLeader<@Party, Next@Anyone> FROM PartyLeader<@Party, Anyone> }
+}
+
+// Published Turmoil Global Events.
 CLASS AquiferReleasedByPublicCouncil : GePartyDistant<MarsFirst>, GePartyCurrent<Greens> {
   ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<OceanTile>>:: \
     EACH Player(HAS StartToken) { AdminOceanPlacement }
@@ -15,7 +33,7 @@ CLASS CelebrityLeaders : GePartyDistant<Unity>, GePartyCurrent<Greens> {
 
 CLASS Diversity : GePartyDistant<Scientists>, GePartyCurrent<Scientists> {
   ResolveGlobalEvent<Class<This>>:: EACH Player { \
-    10 MC / (9 (Class<Tag>(HAS Tag<Owner>) OR Influence) MAX 1) \
+    10 MC / (9 (Class<@Tag>(HAS @Tag<Owner>) OR Influence) MAX 1) \
   }
 }
 

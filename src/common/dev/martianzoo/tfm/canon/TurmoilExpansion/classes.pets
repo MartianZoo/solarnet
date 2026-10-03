@@ -20,7 +20,7 @@ CLASS Terraformer26 : Milestone { requirement = HAS "26 TerraformRating" }
 CLASS TurmoilSolarOperation : Temporary, System {
   HAS MAX 1 This
   This:: EACH Player { -TerraformRating., MeasureInfluence }
-  This:: EACH Event@Class<GlobalEvent>(HAS Current<Class<GlobalEvent>>) { \
+  This:: EACH Event@Class<GlobalEvent>(HAS Current) { \
     ResolveGlobalEvent<Event@Class> \
   }
   -This: FormGovernment THEN ChangingTimes
@@ -71,10 +71,10 @@ CLASS ResolveGlobalEvent<Class<GlobalEvent>> : Signal
 CLASS ChangingTimes : Signal {
   This:: \
     -Current., \
-    EACH Event@Class<GlobalEvent>(HAS Coming<Class<GlobalEvent>>) { \
+    EACH Event@Class<GlobalEvent>(HAS Coming) { \
       Current<Event@Class> FROM Coming<Event@Class> \
     }, \
-    EACH Event@Class<GlobalEvent>(HAS Distant<Class<GlobalEvent>>) { \
+    EACH Event@Class<GlobalEvent>(HAS Distant) { \
       Coming<Event@Class> FROM Distant<Event@Class> \
     }, \
     RevealDistantEvent
@@ -196,10 +196,13 @@ CLASS FormGovernment : Signal
 CLASS AfterParty<Party, Party> : System { HAS MAX 1 This }
 
 "The forward distance from one Party to another around the committee"
-CLASS PartyDistance<Party, Party> : Custom
+CLASS PartyDistance<Party, Party> : CustomMetric
+
+"The clockwise seat distance between owners, with unseated owners last"
+CLASS PlayerDistance<Owner, Owner> : CustomMetric
 
 "Whether one player meets the ruling-party or two-delegate requirement for a party"
-CLASS PartyRequirement<Party> : Owned<Player>, Custom
+CLASS PartyRequirement<Party> : Owned<Player>, CustomMetric
 
 ABSTRACT CLASS PartyStatus<Party> {
   "The party with the greatest delegate count"
@@ -224,16 +227,19 @@ ABSTRACT CLASS Delegate : Owned<Owner> {
 
   "A delegate currently assigned to one political party"
   CLASS PartyDelegate<Delegation@Party> {
+    // Preserve the incumbent on a count tie. For a player gain, choose the nearest tied
+    // challenger clockwise from that player; Neutral and other unseated owners rank last.
     X This:: EACH Leader@Anyone( \
       HAS MAX 0 PartyLeader<Delegation@Party, Anyone>, \
       HAS =1 (RANK Ranked@Anyone { \
         PartyDelegate<Delegation@Party, Ranked@Anyone>, \
-        PartyLeader<Delegation@Party, Ranked@Anyone> \
+        PartyLeader<Delegation@Party, Ranked@Anyone>, \
+        Player - PlayerDistance<Owner, Ranked@Anyone> \
       }) \
     ) { \
       PartyLeader<Delegation@Party, Leader@Anyone> \
     }
-    X This:: RecalculateDominance
+    X This OR -X This:: RecalculateDominance<Delegation@Party>
     MeasureInfluence IF Dominant<Delegation@Party>, \
       1 (PartyDelegate<Delegation@Party, Owner> - PartyLeader<Delegation@Party, Owner>):: \
       DelegateInfluence.
@@ -267,16 +273,17 @@ CLASS PartyLeader<Delegation@Party> : Owned<Owner> {
   End: VictoryPoint
 }
 
-"Marks that a player has not used their free lobbying action this generation"
+"The unspent Lobby delegate, used by other placements only after the Delegate Reserve is empty"
 CLASS LobbyActionAvailable : Owned<Player>, System {
   HAS MAX 1 This
   Delegate IF 7 Delegate:: -This.
 }
 
-"Gives dominance to the largest delegation, preserving the incumbent on a tie"
-CLASS RecalculateDominance : Signal {
+"Gives dominance to the largest delegation, then incumbency and committee order"
+CLASS RecalculateDominance<Source@Party> : Signal {
   This:: EACH Next@Party(HAS MAX 0 Dominant, HAS =1 (RANK Ranked@Party { \
-    PartyDelegate<Ranked@Party, Anyone>, Dominant<Ranked@Party> \
+    PartyDelegate<Ranked@Party, Anyone>, Dominant<Ranked@Party>, \
+    Party - PartyDistance<Source@Party, Ranked@Party> \
   })) { \
     (Dominant<Party>: Dominant<Next@Party FROM Party>) OR \
     (MAX 0 Dominant<Party>: Dominant<Next@Party>) \
@@ -286,7 +293,7 @@ CLASS RecalculateDominance : Signal {
 "The repeatable lobbying action, free from the Lobby or costing 5 M€"
 CLASS LobbyAction : StandardAction {
   LobbyActionAvailable -> PartyDelegate
-  5 MC -> PartyDelegate
+  5 MC -> MAX 6 (Delegate OR LobbyActionAvailable): PartyDelegate
 }
 
 "Restores free lobbying for each player who has an available delegate"

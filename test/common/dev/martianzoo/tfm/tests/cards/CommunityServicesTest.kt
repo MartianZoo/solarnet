@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -19,9 +20,12 @@ internal class CommunityServicesTest : CardTest() {
   @Test
   internal fun `Ecology Experts is not tagless after playing its selected card`() {
     newGame(
-        PreludeExpansion,
-        ColoniesExpansion,
-        colonyTiles = testColonyTiles(2),
+        GameConfig(
+            "PreludeExpansion, ColoniesExpansion, EcologyExperts, Unsafe, " +
+                testColonyTiles(2).joinToString(),
+            "Player1",
+            "Player2",
+        )
     )
     admin.phase("Prelude")
     p1.runOperation("5 MC, ProjectCard, PreludeCard")

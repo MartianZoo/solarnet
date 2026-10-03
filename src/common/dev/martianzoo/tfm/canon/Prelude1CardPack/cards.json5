@@ -36,7 +36,7 @@
             "CardFront(HAS NonNegativeIconsOf<Class<VictoryPoint>>): 3 MC"
           ],
           "components": [
-            "CLASS NonNegativeIconsOf<CardFront, Class<Component>> : Custom",
+            "CLASS NonNegativeIconsOf<CardFront, Class<Component>> : CustomMetric",
           ],
         },
       ],
@@ -94,8 +94,9 @@
         },
         {
           "name": "EcologyExperts",
+          "autoSelectWhen": "MAX 0 Prelude1CardPack",
           "tags": [ "PlantTag", "MicrobeTag" ],
-          "immediate": "PROD[Plant], PlayCard THEN -Required / Required",
+          "immediate": "PROD[Plant], PlayCard<Class<ProjectCard>> THEN -Required / Required",
         },
         {
           "name": "ExcentricSponsor",

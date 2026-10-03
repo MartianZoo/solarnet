@@ -1,25 +1,37 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.CustomCodeException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
-import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeInstanceOf
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 /** Passing characterizations of known incorrect behavior. */
 internal class BugsTest : CardTest() {
+  @Test
+  internal fun `WG Project incorrectly cannot play a drawn Prelude without selecting its pool`() {
+    newGame(GameConfig("WgProject, TurmoilExpansion", "Player1", "Player2"))
+    admin.runOperation("-Chairman<Neutral>")
+    admin.phase("Action")
+    p1.runOperation("9 MC, ProjectCard, Chairman")
+
+    // WG Project should make the Prelude 1 pool available without enabling the Prelude phase.
+    shouldThrow<DeadEndException> {
+          p1.playProject(WgProject, 9) { p1.playPrelude(Donation) }
+        }
+        .detail shouldContain "$Donation"
+    p1.assertCounts(9 to "MC", 1 to "ProjectCard", 0 to "$WgProject", 0 to "PreludeCard")
+  }
+
+  // BGG wild-tag ruling: https://boardgamegeek.com/thread/2030851/article/29611733#29611733
   @Test
   internal fun `A fake wild Earth tag incorrectly gives Point Luna an extra draw`() {
     newGame(PreludeExpansion, CorporateEraExpansion, FakeStuffBundle)
@@ -38,30 +50,9 @@ internal class BugsTest : CardTest() {
     p1.count("FakeWildTagUse") shouldBe 0
   }
 
-  // Suspected bug: Landshaper should require three distinct tiles. Audit R01 confirms Capital's
-  // two classifications, but leaves their application to this milestone unresolved.
-  @Test
-  internal fun `Landshaper incorrectly accepts only Capital and one greenery`() {
-    newGame(Amazonis, PreludeExpansion, CorporateEraExpansion)
-    p1.playCorp(CrediCor, 1)
-    requireP2().runOperation("72 MC")
-    admin.phase("Prelude")
-    p1.playPrelude(PowerGeneration)
-    p1.playPrelude(Donation)
-    admin.phase("Action")
-    requireP2().stdProject("AquiferProject") { placeTile(2, 1) }
-    requireP2().stdProject("AquiferProject") { placeTile(2, 6) }
-    requireP2().stdProject("AquiferProject") { placeTile(3, 1) }
-    requireP2().stdProject("AquiferProject") { placeTile(3, 6) }
-    p1.playProject(Capital, 26) { placeTile(5, 1) }
-    shouldThrow<RequirementException> { p1.claimMilestone(cn("Landshaper")) }
-    p1.stdProject("GreeneryProject") { placeTile(5, 2) }
-
-    p1.claimMilestone(cn("Landshaper")).expect("Landshaper")
-    p1.count("OwnedTile") shouldBe 2
-  }
-
   // Audit N27: the absent colony category should contribute zero, leaving city scoring available.
+  // BGG exact Constructor ruling:
+  // https://boardgamegeek.com/thread/3242831/article/43755615#43755615
   @Test
   internal fun `Constructor incorrectly cannot be funded without Colonies`() {
     newGame(Amazonis)
@@ -74,26 +65,11 @@ internal class BugsTest : CardTest() {
     admin.count("Award") shouldBe 0
   }
 
-  // Audit N02: the copied directors would be unusable on Double Down and should be ignored.
-  @Test
-  internal fun `Double Down incorrectly rejects copying Board of Directors`() {
-    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
-    admin.phase("Prelude")
-    p1.playPrelude(BoardOfDirectors)
-
-    val error =
-        shouldThrow<CustomCodeException> {
-          p1.playPrelude(DoubleDown) { doTask("CopyPrelude<$BoardOfDirectors>") }
-        }
-    error.cause.shouldBeInstanceOf<ExpressionException>().detail shouldBe
-        "no class named `This` in the current game"
-    p1.assertCounts(0 to "$DoubleDown", 4 to "Director<$BoardOfDirectors>", 1 to "PreludeCard")
-  }
-
-  // Audit N13: choosing a metal from Amazonis's wild bonus should make this legal.
+  // Resolved FAQ: a wild-resource area is eligible even when its chosen resource is not metal.
+  // BGG exact Amazonis ruling: https://boardgamegeek.com/thread/3403085/article/45161764#45161764
   @Test
   internal fun `Mining Rights incorrectly cannot use a wild placement bonus`() {
-    newGame(Amazonis)
+    newGame(Amazonis, Unsafe)
     p1.runOperation("9 MC, ProjectCard")
     admin.phase("Action")
 
@@ -107,19 +83,25 @@ internal class BugsTest : CardTest() {
     p1.assertCounts(9 to "MC", 1 to "ProjectCard", 0 to "MiningRights_SpecialTile")
   }
 
+  // The Audit records this unverified choice, but does not prevent the incorrect production.
   @Test
-  internal fun `Mining Guild incorrectly ignores metal chosen from a wild placement bonus`() {
-    newGame(Amazonis)
+  internal fun `Mining Guild incorrectly gains steel production for a nonmetal wild bonus`() {
+    newGame(Amazonis, Unsafe)
     p1.playCorp(MiningGuild, 0)
     admin.phase("Action")
+    val checkpoint = game.timeline.checkpoint()
+
     p1.stdProject("GreeneryProject") {
           placeTile(5, 3)
-          doTask("Titanium")
+          doTask("Plant")
         }
-        .expect("Titanium, PROD[0 Steel]")
+        .expect("Plant, PROD[Steel]")
+    p1.auditGainsSince(checkpoint) shouldBe 1
   }
 
   // Audit S09: these cubes belong to the unplayed card hosted on SRR, which is eligible.
+  // BGG Sponsored Projects/SRR ruling:
+  // https://boardgamegeek.com/thread/2334454/article/33634574#33634574
   @Test
   internal fun `Sponsored Projects incorrectly misses resources on a card hosted by Fake SRR`() {
     newGame(TurmoilExpansion, CorporateEraExpansion, PromoCardPack, FakeStuffBundle)
@@ -139,22 +121,32 @@ internal class BugsTest : CardTest() {
     p1.count("RobotUnit<Class<$Mine>>") shouldBe 2
   }
 
+  // BGG Ecology Experts tag timing:
+  // https://boardgamegeek.com/thread/2096075/article/30501757#30501757
   @Test
   internal fun `Ecology Experts incorrectly does not trigger Viral Enhancers with its own tags`() {
-    newGame(PreludeExpansion, CorporateEraExpansion)
+    newGame(
+        GameConfig(
+            "PreludeExpansion, CorporateEraExpansion, EcologyExperts, Unsafe",
+            "Player1",
+            "Player2",
+        )
+    )
     admin.phase("Prelude")
     p1.runOperation("9 MC, ProjectCard, PreludeCard")
 
     with(p1) {
-      playPrelude(EcologyExperts) { playProject(ViralEnhancers, 9) }
+      playPrelude(EcologyExperts) { playProject(ViralEnhancers, 9) { doTask("Plant") } }
     }
 
     p1.assertCounts(1 to "Plant")
   }
 
+  // BGG Ecology Experts tag timing:
+  // https://boardgamegeek.com/thread/2096075/article/30501757#30501757
   @Test
   internal fun `Ecology Experts incorrectly does not trigger Ecological Zone with its plant tag`() {
-    newGame(PreludeExpansion)
+    newGame(GameConfig("PreludeExpansion, EcologyExperts, Unsafe", "Player1", "Player2"))
     admin.phase("Prelude")
     p1.runOperation("12 MC, ProjectCard, PreludeCard, GreeneryTile<Tharsis_4_4>")
 
@@ -167,7 +159,8 @@ internal class BugsTest : CardTest() {
     p1.assertCounts(2 to "Animal<$EcologicalZone>")
   }
 
-  // https://boardgamegeek.com/thread/3361875/questions-about-the-head-start
+  // BGG Head Start action separation:
+  // https://boardgamegeek.com/thread/3335155/article/44575973#44575973
   @Test
   internal fun `Head Start incorrectly allows its two actions to interleave`() {
     newGame(PreludeExpansion, FakeStuffBundle)
@@ -188,12 +181,12 @@ internal class BugsTest : CardTest() {
   }
 
   // These pairings are unfixable under PP's gain-then-remove model.
-  // Do not combine Preservation Program with Terraforming Deal or the Reds ruling policy.
+  // These characterizations explicitly opt into the unsupported pairings.
   private fun startPreservationGeneration(
       corporation: String = "$PhoboLog",
       deal: Boolean = false,
   ) {
-    newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack)
+    newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack, Unsafe)
     admin.phase("Prelude")
     p1.runOperation(
         "$corporation, PreservationProgram, 100 MC" + if (deal) ", $TerraformingDeal" else ""
@@ -202,6 +195,9 @@ internal class BugsTest : CardTest() {
     admin.nextGeneration(0, 0)
   }
 
+  // BGG PP first-TR timing: https://boardgamegeek.com/thread/3353355/article/44740462#44740462
+  // BGG TD effect is always active:
+  // https://boardgamegeek.com/thread/3343166/article/44660687#44660687
   @Test
   internal fun `Terraforming Deal incorrectly pays for the TR reversed by Preservation Program`() {
     startPreservationGeneration(deal = true)
@@ -211,6 +207,8 @@ internal class BugsTest : CardTest() {
     p1.stdProject("AsteroidProject").expect("TerraformRating, -12 MC")
   }
 
+  // BGG PP first-TR timing: https://boardgamegeek.com/thread/3353355/article/44740462#44740462
+  // BGG Reds payment ruling: https://boardgamegeek.com/thread/2196388/article/31885882#31885882
   @Test
   internal fun `Reds incorrectly charges for the TR reversed by Preservation Program`() {
     startPreservationGeneration()
@@ -221,6 +219,10 @@ internal class BugsTest : CardTest() {
     p1.stdProject("AsteroidProject").expect("TerraformRating, -17 MC")
   }
 
+  // BGG PP first-TR timing: https://boardgamegeek.com/thread/3353355/article/44740462#44740462
+  // BGG Reds payment ruling: https://boardgamegeek.com/thread/2196388/article/31885882#31885882
+  // BGG TD effect is always active:
+  // https://boardgamegeek.com/thread/3343166/article/44660687#44660687
   @Test
   internal fun `Reds and Terraforming Deal incorrectly count PP's reversed TR for both payments`() {
     startPreservationGeneration(deal = true)
@@ -232,6 +234,8 @@ internal class BugsTest : CardTest() {
         .expect("2 TerraformRating, -25 MC")
   }
 
+  // BGG PP first-TR timing: https://boardgamegeek.com/thread/3353355/article/44740462#44740462
+  // BGG Reds payment ruling: https://boardgamegeek.com/thread/2196388/article/31885882#31885882
   @Test
   internal fun `Reds incorrectly requires money for PP's reversed TR after an unaffordable attempt`() {
     startPreservationGeneration()
@@ -247,6 +251,8 @@ internal class BugsTest : CardTest() {
     p1.runOperation("TerraformRating").expect("TerraformRating, -3 MC")
   }
 
+  // BGG PP first-TR timing: https://boardgamegeek.com/thread/3353355/article/44740462#44740462
+  // BGG Reds payment ruling: https://boardgamegeek.com/thread/2196388/article/31885882#31885882
   @Test
   internal fun `Reds incorrectly rejects an affordable two step gain when PP reverses one`() {
     startPreservationGeneration()
@@ -264,6 +270,9 @@ internal class BugsTest : CardTest() {
     p1.runOperation("TerraformRating").expect("TerraformRating, -3 MC")
   }
 
+  // BGG PP first-TR timing: https://boardgamegeek.com/thread/3353355/article/44740462#44740462
+  // BGG TD effect outside Action:
+  // https://boardgamegeek.com/thread/3343166/article/44660753#44660753
   @Test
   internal fun `Terraforming Deal incorrectly pays for PP's reversed TR after a chairman award`() {
     startPreservationGeneration(deal = true)
@@ -278,6 +287,9 @@ internal class BugsTest : CardTest() {
     p1.stdProject("AsteroidProject").expect("0 TerraformRating, -12 MC")
   }
 
+  // BGG PP first-TR timing: https://boardgamegeek.com/thread/3353355/article/44740462#44740462
+  // BGG TD effect outside Action:
+  // https://boardgamegeek.com/thread/3343166/article/44660753#44660753
   @Test
   internal fun `Terraforming Deal incorrectly pays for PP's reversed TR after the Reds ruling bonus`() {
     startPreservationGeneration(deal = true)
@@ -288,9 +300,13 @@ internal class BugsTest : CardTest() {
     p1.stdProject("AsteroidProject").expect("0 TerraformRating, -12 MC")
   }
 
+  // BGG PP acquired later: https://boardgamegeek.com/thread/3353355/article/44740462#44740462
+  // BGG Reds payment ruling: https://boardgamegeek.com/thread/2196388/article/31885882#31885882
+  // BGG TD effect is always active:
+  // https://boardgamegeek.com/thread/3343166/article/44660687#44660687
   @Test
   internal fun `Reds and Terraforming Deal incorrectly count PP's reversed TR when Valley Trust plays it`() {
-    newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack)
+    newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack, Unsafe)
     p1.playCorp(ValleyTrust, 0)
     admin.phase("Prelude")
     p1.playPrelude(TerraformingDeal)
@@ -302,6 +318,9 @@ internal class BugsTest : CardTest() {
     p1.stdProject("AsteroidProject").expect("TerraformRating, -15 MC")
   }
 
+  // BGG PP first-TR timing: https://boardgamegeek.com/thread/3353355/article/44740462#44740462
+  // BGG TD effect is always active:
+  // https://boardgamegeek.com/thread/3343166/article/44660687#44660687
   @Test
   internal fun `Terraforming Deal incorrectly pays for PP's reversed TR when Pharmacy Union flips`() {
     startPreservationGeneration("$PharmacyUnion", deal = true)
@@ -314,6 +333,9 @@ internal class BugsTest : CardTest() {
     p1.count("PlayedEvent<Class<$PharmacyUnion>>") shouldBe 1
   }
 
+  // BGG PP first-TR timing: https://boardgamegeek.com/thread/3353355/article/44740462#44740462
+  // BGG TD effect is always active:
+  // https://boardgamegeek.com/thread/3343166/article/44660687#44660687
   @Test
   internal fun `Terraforming Deal incorrectly pays for PP's reversed TR in a multiple gain`() {
     startPreservationGeneration(deal = true)
@@ -326,9 +348,19 @@ internal class BugsTest : CardTest() {
         .expect("OxygenStep, TemperatureStep, OceanTile, 2 TerraformRating, 10 MC")
   }
 
+  // BGG PP first-TR timing: https://boardgamegeek.com/thread/3353355/article/44740462#44740462
+  // BGG TD effect is always active:
+  // https://boardgamegeek.com/thread/3343166/article/44660687#44660687
   @Test
   internal fun `Terraforming Deal incorrectly pays for PP's reversed TR from Venus`() {
-    newGame(PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack, VenusNextExpansion)
+    newGame(
+        PreludeExpansion,
+        Prelude2CardPack,
+        TurmoilExpansion,
+        PromoCardPack,
+        VenusNextExpansion,
+        Unsafe,
+    )
     admin.phase("Prelude")
     p1.runOperation("$PhoboLog, PreservationProgram, $TerraformingDeal, 100 MC")
     admin.phase("Action")
@@ -338,20 +370,11 @@ internal class BugsTest : CardTest() {
     p1.stdProject("AsteroidProject").expect("TerraformRating, -12 MC")
   }
 
-  @Test
-  internal fun `Fake Thawer incorrectly retains credits after temperature reductions`() {
-    newGame(GameConfig("FakeStuffBundle, FakeThawer, Builder, Engineer", "Player1", "Player2"))
-    p1.runOperation("8 MC, 5 TemperatureStep")
-    admin.runOperation("-TemperatureStep")
-    admin.phase("Action")
-    // Unlike markers on the printed track, these credits cannot identify the removed step.
-    p1.claimMilestone(cn("FakeThawer")).expect("-8 MC, FakeThawer")
-  }
-
+  // BGG exact nested Sagitta ruling:
   // https://boardgamegeek.com/thread/3335155/article/44575973#44575973
   @Test
   internal fun `Sagitta incorrectly misses Merger in Head Start's nested action`() {
-    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack, FakeStuffBundle)
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack, FakeStuffBundle, Unsafe)
     p1.runOperation("$BoardOfDirectors, 54 MC, 8 Heat")
     admin.phase("Prelude")
     p1.runOperation("2 PreludeCard")
@@ -372,60 +395,20 @@ internal class BugsTest : CardTest() {
     p1.count("MC") shouldBe 35
   }
 
-  // https://boardgamegeek.com/thread/2877214/rule-clarifications-sought-for-multiple-corporatio
+  // BGG Sagitta/Merger ruling: https://boardgamegeek.com/thread/3335155/article/44575973#44575973
   @Test
-  internal fun `Fake Helion incorrectly cannot spend Stormcraft floaters on a Mons payout`() {
-    newGame(
-        ColoniesExpansion,
-        PromoCardPack,
-        FakeStuffBundle,
-        VenusNextExpansion,
-        colonyTiles = testColonyTiles(2),
-    )
-    val p2 = requireP2()
-    p1.runOperation(
-        "$MonsInsurance, $FakeHelion, $StormcraftIncorporated, " +
-            "Floater<$StormcraftIncorporated>"
-    )
-    p1.runOperation("-${p1.count("MC")} MC")
-    p2.runOperation("Plant")
+  internal fun `Sagitta misses Merger without Head Start too`() {
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack, Unsafe)
+    p1.runOperation("54 MC")
+    admin.phase("Prelude")
 
-    shouldThrow<TaskException> {
-      p1.runOperation("-Plant<Player2>") {
-        doTask("PayFromCard<$StormcraftIncorporated> FROM Floater<$StormcraftIncorporated>")
-      }
-    }
+    p1.turn { playPrelude(Merger) { playCorp(SagittaFrontierServices) } }
 
-    // The real owner may elect to turn this floater into a 2 MC payment to the victim, but the
-    // rejected choice rolls the attack back.
-    p1.count("Floater<$StormcraftIncorporated>") shouldBe 1
-    p2.count("Plant") shouldBe 1
-    p2.count("MC") shouldBe 0
+    // Jacob rules that Sagitta earns 4 MC for the tagless Merger as well as for itself.
+    p1.count("MC") shouldBe 47
   }
 
-  @Test
-  internal fun `Mixed-metal payment incorrectly accepts a tender that wastes one steel`() {
-    newGame()
-    admin.phase("Action")
-    p1.runOperation("10 Steel, 10 Titanium, ProjectCard")
-
-    // Space Elevator merely supplies a 27 MC debt paid with both kinds of metal.
-    p1.inTurn {
-      doTask("UseAction<PlayCardFromHandAction, Action1>")
-      doTask("PlayCard<Class<ProjectCard>, Class<$SpaceElevator>>")
-      doTask("7 Pay<Class<Steel>> FROM Steel")
-      doTask("5 Pay<Class<Titanium>> FROM Titanium")
-      doTask("Ok")
-    }
-
-    p1.assertCounts(
-        3 to "Steel",
-        5 to "Titanium",
-        0 to "ProjectCard",
-        1 to "$SpaceElevator",
-    )
-  }
-
+  // BGG SRR eligibility ruling: https://boardgamegeek.com/thread/1861808/article/28914878#28914878
   @Test
   internal fun `Fake SRR incorrectly accepts a card without a Building or Space tag`() {
     newGame(PromoCardPack, FakeStuffBundle)
@@ -438,5 +421,26 @@ internal class BugsTest : CardTest() {
     p1.playProject(CeosFavoriteProject, 0)
 
     p1.assertCounts(1 to "PlayedEvent<Class<$CeosFavoriteProject>>")
+  }
+
+  // Resolved FAQ: a corporation acquired after Prelude must take its first action immediately.
+  // Earlier discussion:
+  // https://boardgamegeek.com/thread/2886401/article/44823945#44823945
+  @Test
+  internal fun `Board Merger Tharsis incorrectly defers its city until the next action`() {
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
+    p1.playCorp(CrediCor, 0)
+    admin.phase("Prelude")
+    p1.playPrelude(BoardOfDirectors)
+    p1.playPrelude(Donation)
+    admin.phase("Action")
+
+    p1.cardAction1(BoardOfDirectors) {
+      doTask("-12 MC")
+      p1.playPrelude(Merger) { p1.playCorp(TharsisRepublic) }
+    }
+    p1.count("CityTile") shouldBe 0
+    p1.stdAction("DoRequiredActionsAction") { placeTile(3, 3) }
+    p1.count("CityTile<Tharsis_3_3>") shouldBe 1
   }
 }

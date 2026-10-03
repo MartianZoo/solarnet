@@ -115,6 +115,93 @@ internal class TurmoilProjectCardsTest : CardTest() {
   }
 
   @Test
+  internal fun `Recruitment makes only the recruiting player leader after a tied challenge`() {
+    newGame(TurmoilExpansion)
+    val p2 = requireP2()
+    admin.runOperation("PartyDelegate<MarsFirst, Neutral>")
+    p1.runOperation("PartyDelegate<MarsFirst>, 2 MC, ProjectCard")
+    p2.runOperation("PartyDelegate<MarsFirst>, PartyDelegate<MarsFirst>")
+    admin.phase("Action")
+
+    p1.playProject(Recruitment, 2) {
+          doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
+        }
+        .expect(
+            "PartyLeader<MarsFirst>, -PartyLeader<MarsFirst, Neutral>, 0 PartyLeader<MarsFirst, Player2>"
+        )
+  }
+
+  @Test
+  internal fun `Recruitment promotes another player with the sole largest delegation`() {
+    newGame(TurmoilExpansion)
+    val p2 = requireP2()
+    admin.runOperation("2 PartyDelegate<MarsFirst, Neutral>")
+    p1.runOperation("PartyDelegate<MarsFirst>, 2 MC, ProjectCard")
+    p2.runOperation("3 PartyDelegate<MarsFirst>")
+    admin.phase("Action")
+
+    p1.playProject(Recruitment, 2) {
+          doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
+        }
+        .expect(
+            "PartyLeader<MarsFirst, Player2>, -PartyLeader<MarsFirst, Neutral>, 0 PartyLeader<MarsFirst>"
+        )
+  }
+
+  @Test
+  internal fun `Recruitment preserves a tied player incumbent`() {
+    newGame(TurmoilExpansion)
+    val p2 = requireP2()
+    admin.runOperation("PartyDelegate<MarsFirst, Neutral>")
+    p2.runOperation("3 PartyDelegate<MarsFirst>")
+    p1.runOperation("2 PartyDelegate<MarsFirst>, 2 MC, ProjectCard")
+    admin.phase("Action")
+
+    p1.playProject(Recruitment, 2) {
+          doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
+        }
+        .expect("0 PartyLeader<MarsFirst>, 0 PartyLeader<MarsFirst, Player2>")
+  }
+
+  @Test
+  internal fun `Recruitment chooses the nearest clockwise challenger when the recruiter trails`() {
+    newGame(TurmoilExpansion, players = 3)
+    val p2 = requireP2()
+    admin.runOperation("2 PartyDelegate<MarsFirst, Neutral>")
+    p1.runOperation("PartyDelegate<MarsFirst>, 2 MC, ProjectCard")
+    p2.runOperation("3 PartyDelegate<MarsFirst>")
+    admin.runOperation("3 PartyDelegate<MarsFirst, Player3>")
+    admin.phase("Action")
+
+    p1.playProject(Recruitment, 2) {
+          doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
+        }
+        .expect(
+            "PartyLeader<MarsFirst, Player2>, 0 PartyLeader<MarsFirst, Player3>, " +
+                "-PartyLeader<MarsFirst, Neutral>, 0 PartyLeader<MarsFirst>"
+        )
+  }
+
+  @Test
+  internal fun `Recruitment measures clockwise order from the recruiting player`() {
+    newGame(TurmoilExpansion, players = 3)
+    val p2 = requireP2()
+    admin.runOperation("2 PartyDelegate<MarsFirst, Neutral>")
+    p2.runOperation("PartyDelegate<MarsFirst>, 2 MC, ProjectCard")
+    p1.runOperation("3 PartyDelegate<MarsFirst>")
+    admin.runOperation("3 PartyDelegate<MarsFirst, Player3>")
+    admin.phase("Action")
+
+    p2.playProject(Recruitment, 2) {
+          doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
+        }
+        .expect(
+            "PartyLeader<MarsFirst, Player3>, 0 PartyLeader<MarsFirst, Player1>, " +
+                "-PartyLeader<MarsFirst, Neutral>, 0 PartyLeader<MarsFirst, Player2>"
+        )
+  }
+
+  @Test
   internal fun `Recruitment cannot be played without an available owned delegate`() {
     newGame(TurmoilExpansion)
     admin.runOperation("PartyDelegate<MarsFirst, Neutral>")
@@ -142,6 +229,22 @@ internal class TurmoilProjectCardsTest : CardTest() {
 
     p1.count("PartyDelegate<Greens>") shouldBe 1
     p1.count("Delegate") shouldBe 1
+    p1.count("LobbyActionAvailable") shouldBe 1
+    p1.count("MC") shouldBe 0
+  }
+
+  @Test
+  internal fun `Martian Media Center may spend the last unplaced Lobby delegate`() {
+    newGame(TurmoilExpansion)
+    p1.runOperation("$MartianMediaCenter, 3 MC")
+    repeat(6) { p1.runOperation("PartyDelegate<Unity>") }
+    admin.phase("Action")
+
+    p1.cardAction1(MartianMediaCenter) { doTask("PartyDelegate<Greens>") }
+
+    p1.count("PartyDelegate<Greens>") shouldBe 1
+    p1.count("Delegate") shouldBe 7
+    p1.count("LobbyActionAvailable") shouldBe 0
     p1.count("MC") shouldBe 0
   }
 

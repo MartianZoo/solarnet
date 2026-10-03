@@ -6,20 +6,23 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
-- Enforce declared incompatible content pairs at the external game-selection boundary. Preservation
-  Program must not share a game with Terraforming Deal or the Reds ruling policy under the selected
-  gain-then-remove model. These exclusions are documented and characterized in BugsTest; automatic
-  selection rejection is not implemented.
-- Resolve Landshaper's distinct-tile requirement before changing its behavior. The suspected bug
-  where Capital plus one greenery suffices is quarantined in `cards/BugsTest.kt`; audit R01 leaves
-  this combination open even though Capital's city and special-tile classifications are confirmed.
-- Investigate choosing the Lobby delegate whenever an action or card takes from the reserve,
-  even when other reserve delegates remain.
-  [Jacob's supply ruling](https://boardgamegeek.com/thread/2570071/article/36719863#36719863)
-  counts the Lobby as reserve and states no selection priority; we read this as allowing either
-  source. The current model preserves free lobbying on other reserve placements until all seven
-  delegates are placed; it offers no choice to consume the Lobby delegate earlier. See
-  `TurmoilRulesTest.kt` for the supported paid-lobbying case with only the Lobby delegate remaining.
+- Find a small, exact way for Ecology Experts' plant and microbe tags to trigger a newly played
+  bio listener without replaying those tags or rewarding an older copy of that listener. Double
+  Down copies the Prelude's immediate instruction but not its effects, so the solution must also
+  cover that path. Until then, keep the four affected combinations Unsafe-only; `BugsTest`
+  characterizes the Viral Enhancers and Ecological Zone outcomes.
+- Consider a shared party-leader recalculation helper for the ranking repeated on delegate gains
+  and Banned Delegate. Keep it only if it simplifies the Pets model overall and preserves leadership
+  through Recruitment's neutral-delegate transfer.
+- Place the neutral solo tiles immediately after the original corporation play, then remove Tharsis
+  Republic's solo-only +2 M€ production effect. Its normal city-placement effect should grant the
+  two production steps; verify that neutral greeneries still do not raise oxygen and that a
+  Tharsis acquired later through Merger receives no setup bonus.
+- Find realistic setups for impossible original first actions of Tharsis, Philares, Arcadian
+  Communities, and Aridor; only Poseidon has a focused characterization. Do not fill a map
+  synthetically just to manufacture the failure.
+- Clarify how Thawer markers behave when Snow Cover lowers a marked temperature step and that step
+  is raised again. A generic count of temperature increases cannot prove which physical step is marked.
 - Fix Point Luna's played-Earth-tag response so a temporary assigned tag still counts for Cartel
   but does not cause a card draw. First try the existing card-holder distinction; do not bypass
   trigger execution. Full wild-tag assignment remains deferred until a clean rule representation is
@@ -27,33 +30,24 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Keep Fake Self-Replicating Robots permanently in `:tfm-fake`. Move its bug characterizations,
   including the SRR cases mixed into `cards/BugsTest.kt`, into that module and consolidate duplicate
   Sponsored Projects coverage. Reuse existing test-support sources before considering a fixture API.
-- Promote Thawer after enforcing its permanent incompatibility with Snow Cover in normal selection.
-  Include both only when the configuration explicitly names both individual items. First try the
-  existing default-selection conditions, including the global-event selection path.
 - Follow through on the FAQ-audit defects characterized in
   [`cards/BugsTest.kt`](test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt):
-  Double Down's copied resource destination; Mining Rights/Area and Mining Guild on wild placement
-  bonuses; Sponsored Projects adding resources to SRR's hosted cards; and Constructor remaining
-  usable without Colonies. Double Down currently leaves copied `This` unresolved; substituting
-  `DoubleDown` still makes `Director<DoubleDown>` an invalid dependency type, which AMAP does not
-  turn into zero. Resolve the copying/type semantics instead of filtering those gains in Kotlin.
-  Constructor's combined city/colony metric is treated as a hard Colonies dependency by the shared
-  content-compatibility filter. Preserve the external-card-selection boundary when addressing
+  Mining Rights/Area and Mining Guild on wild placement bonuses; Sponsored Projects adding
+  resources to SRR's hosted cards. Preserve the external-card-selection boundary when addressing
   copied Merger commitment after new information is revealed.
 - Investigate whether production-box copying can preserve enclosing bindings and conditions so
   Industrial Complex's former `EACH ... { PROD[...] }` spelling would work. For now, copying
   rejects a `PROD` nested inside `EACH` with an authoring diagnostic; the working form puts
   `EACH` inside `PROD`.
-- Reconcile `OtbGame20260912Test` with the original physical-game evidence. Verify Summit
-  Logistics' printed Colonies requirement and model its inclusion without enabling unused
-  Colonies gameplay if the card is legal without that expansion. Verify the reported extra Prelude
-  per player and Blue's three-TR handicap, then express the evidenced setup in the correct order.
+- Reconcile `OtbGame20260912Test` with the original physical-game evidence. Verify the reported
+  extra Prelude per player and Blue's three-TR handicap, then express the evidenced setup in the
+  correct order.
+- Check Double Down outside the Prelude expansion: it should depend on whether a Prelude was
+  actually played rather than on the expansion switch alone. Keep this case out of the
+  [value-dependency inventory](https://docs.google.com/spreadsheets/d/13WRf7ljJLuy3iwTr5caQgKhTPhNugPKJuGx1ikALshY/edit?gid=0#gid=0)
+  for now.
 - Implement individual Turmoil party and whole-map selection as specified in
-  [Modules and Content](docs/agents/NAMING.md#modules-and-content).
-- Make owner-local Class arguments work when specialization fixes an inherited dependency.
-  Mars First's inline `Policy<This> { Tile<MarsArea>: Steel }` lowers to a gain of
-  `MarsFirst_Policy<This>` extending `Policy<MarsFirst>`; `MarsFirst` is fixed and no longer an
-  argument position, so elaboration rejects the gain.
+  [Content selection and expansion eligibility](docs/agents/CONTENT_SELECTION.md#roles-and-current-selection).
 - Consider allowing owner-local Class declarations only in gain instructions. They currently also
   parse in other expression positions, including a selector's `HAS` refinement; decide the intended
   boundary and account for existing uses before restricting the syntax.
@@ -68,11 +62,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   goal individually would resolve it through Milestones & Awards provenance, not through a map
   bundle; selecting a map could still include its associated goal by default. This needs a clear
   source rule because an unqualified Class Name currently loses that provenance.
-- Decide whether individually selected Content should activate otherwise Module-local vocabulary it
-  structurally needs. The motivating case is a Venus card carrying `VenusTag`: logically the card
-  could make the tag available without `VenusNextExpansion`, while the current bundle-availability
-  lock rejects it. Catalog the analogous cases before either generalizing activation or accepting
-  this as a documented selection limitation.
 - Replace `ModulesReady` with entering `BootstrapPhase` only after the generated premise has created
   the selected modules and configured components. Moving its effects to `SetupPhase` was tested and
   fails because bootstrap validation already requires the exact-one global-parameter rule systems.
@@ -136,6 +125,13 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Find a clean way to make Turmoil's `ApplyRulingBonus` player-owned without complicating the Reds
   tied-lowest-player selection. It currently remains one global signal whose party effect fans out
   over the players.
+- Make Preservation Program compatible with Turmoil's Reds without making the card require Turmoil.
+  A trial `3 MC / Ruling<Reds>` rebate on its automatic first-TR correction removed the observed
+  Reds overcharge and affordability failures, but the catalog treats that reference as a hard
+  Turmoil dependency even when a separate rebate trigger has `IF TurmoilExpansion`. Investigate an
+  optional count reference or a Turmoil-owned rule without adding a card-specific gameplay helper.
+  If resolved, update the premise compatibility gate, `ModuleSelectionTest`, and
+  `docs/what-is-supported.md`; Terraforming Deal's payout for reversed TR remains a separate defect.
 - Investigate whether the three self-handling signals `CimmeriaPlacementBonus`,
   `PlaceNeutralTiles`, and `StageForReplicatedProject` can avoid named helper Classes without
   requiring authored references to generated names. Preserve Cimmeria map generation,
@@ -144,12 +140,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   optional parser module. The model construction API supports independent parsers; keep the
   better-parse dependency with source input. Canonical content still needs a separate build-time
   conversion to typed declarations before its consumers can omit runtime parsing entirely.
-- Report an unrecognized character inside an optional Pets production at that character:
-  `Foo<~ Bar>` currently points at `<` rather than `~`. The better-parse completion analyzer drops
-  `NoMatchingToken` failures; address that diagnostic separately from grammar organization.
-- Reject type-variable markers on a `DEFAULT` root instead of silently discarding them when the
-  clause records its declaring class and argument specs. Keep this diagnostic change separate from
-  owner-local declaration extraction.
+- Consider rejecting `@` markers on concrete types, such as `Class<@BuildingTag>`, where the
+  represented class is already fixed. Decide whether this should be an authoring error.
 - Carry resource/file names through Pets parsing and generated catalog inputs so diagnostic spans
   identify the original file as well as the submitted text, line, and column.
 - Preserve authored provenance when runtime narrowing and task normalization synthesize new trees.
@@ -170,8 +162,12 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
-- Correct defaulted Type-variable references: `pets/BugsTest` shows bare references incorrectly
-  inheriting their supplier's `<>`.
+- Extend the Mining Rights/Area wild-resource regression after placement is fixed: Robotic
+  Workforce and Cyberia Systems may choose either originally available metal production even if
+  the placement awarded a nonmetal resource. No remembered resource choice is required.
+- Fix the two-colony Pluto trade characterized in `rules/BugsTest`: separate draw/discard bonuses
+  can still interleave, allowing both draws before either discard. Each bonus must finish before
+  the next begins.
 
 - Revisit aligning multiplatform JVM tests with the repository JUnit BOM. Setup overrides now
   explicitly declare `@BeforeTest`, including `ActiveVacuumCoreTest.commonSetup`. Verify lifecycle
@@ -196,3 +192,74 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   the default Actor do not remain nullable solely for `InstructionResolutionTest`.
 - Replace `World.onTransactionComplete`'s mutable single callback with scoped listener registration once
   multiple workflow or monitoring observers need to coexist.
+
+## Ranked bug report — 2026-10-02
+
+Review of `work1` at `9b26e816c`, using source, tests, open issues, historical audits, and temporary
+reproduction probes. This ranking weights foundational semantics and reliable replay evidence above
+isolated card coverage, following [VALUES.md](docs/agents/VALUES.md). It excludes fakecanon-only bugs,
+Unsafe-only incompatible pairings, simple over-permissiveness that records the expected `Audit`,
+attribution, features, and unresolved rule questions. Related symptoms are grouped.
+
+1. **Defaulted type variables reject valid references.** A supplier accepting `<>` incorrectly
+   makes its bare references demand defaults too. This breaks gains, removals, transmutations, and
+   forward references—a basic compositionality defect. See
+   [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
+
+2. **Owner-local classes fail when specialization fixes a dependency.** Mars First's inline
+   `Policy<This> { Tile<MarsArea>: Steel }` produces `MarsFirst_Policy<This>` extending
+   `Policy<MarsFirst>`. The argument survives after its dependency position disappears, so
+   elaboration rejects the gain. Reproduced during review. See
+   [DerivedClassLowerer](src/common/dev/martianzoo/pets/DerivedClassLowerer.kt) and the owner-local
+   specialization characterization in [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
+
+3. **Autoexecution throws instead of waiting for another player.** An automated player's currently
+   blocked task causes an exception even when a nonautomated player has a legal task that enables
+   it. Reproduced generically; no normal Mars scenario was identified. See the zero-options fallback
+   in [AutoExecLoop](src/common/dev/martianzoo/agent/AutoExecLoop.kt) and the waiting characterization
+   in [Agent BugsTest](test/common/dev/martianzoo/agent/BugsTest.kt).
+
+4. **Expansion compatibility rejects usable content.** Constructor, Summit Logistics, and Molecular
+   Printing are blocked without Colonies; Suitable Infrastructure is blocked without Prelude rules
+   despite its surviving standard-action effect. Configuration probes confirmed these rejections.
+   Constructor's combined city/colony metric is treated as a hard Colonies dependency. This also
+   forces an inaccurate Colonies setting into `OtbGame20260912Test`: Summit Logistics lacks a
+   printed Colonies dependency icon and should allow its smaller payout without enabling unused
+   Colonies gameplay. See
+   [the dependency analysis](docs/agents/CONTENT_SELECTION.md#inclusion-when-an-expansion-is-absent).
+   Keep Suitable Infrastructure out of the
+   [value-dependency inventory](https://docs.google.com/spreadsheets/d/13WRf7ljJLuy3iwTr5caQgKhTPhNugPKJuGx1ikALshY/edit?gid=0#gid=0)
+   for now.
+
+5. **Corporations acquired after Prelude defer their mandatory first action.** Board of Directors
+   → Merger → Tharsis leaves the city placement for another action instead of resolving it
+   immediately. This changes action timing and available intervening choices. Implement the resolved
+   FAQ behavior: an impossible first action must invalidate the Prelude play. See the Board/Merger/
+   Tharsis characterization in [cards BugsTest](test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt).
+
+6. **Prelude-drawing content can be selected without a usable Prelude pool.** WG Project, Valley
+   Trust, Board of Directors, and New Partner don't bring in the required pool. Configuration probes
+   confirmed the missing default pool. Selecting WG Project must make the Prelude 1 pool available
+   for its draw even when that pool otherwise mostly sits unused; selecting the pool must not start
+   the Prelude phase. Check explicit pool exclusions separately. The WG Project draw is
+   characterized in [cards BugsTest](test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt).
+
+7. **`DEFAULT` silently discards a root type-variable marker.** For example,
+   `DEFAULT +@Piece<First>` becomes an ordinary default without reporting the invalid marker.
+   Reproduced during review. Reject the marker when recording the declaring class and argument
+   specs; keep this diagnostic change separate from owner-local declaration extraction. See
+   [Parsing](src/common/dev/martianzoo/pets/Parsing.kt), `rejectInvalidDefaultRoot`, and the marker
+   characterization in [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
+
+8. **Parser errors can identify the wrong character.** `Foo<~ Bar>` blames `<` rather than the
+   invalid `~`, misleading the author about what needs fixing. Reproduced during review. The
+   better-parse completion analyzer drops `NoMatchingToken` failures; address that diagnostic
+   separately from grammar organization. The misplaced diagnostic is characterized in
+   [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
+
+9. **Active maintenance guidance still reports repaired semantic bugs.**
+   [PLANS](docs/agents/PLANS.md#simplify-pets-and-runtime-semantics) still schedules the old L3-8
+   stage-divergence and T8-3 substitution repairs, despite current regression coverage passing.
+   That can direct future work toward unnecessary engine changes. See
+   [Lang03NarrowingTest](test/common/dev/martianzoo/pets/Lang03NarrowingTest.kt) and
+   [Spec08RefinementsTest](test/common/dev/martianzoo/pets/types/Spec08RefinementsTest.kt).

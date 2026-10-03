@@ -29,7 +29,7 @@ internal class PreservationProgramTest :
   ) {
     newGame(
         *if (baseOnly) emptyArray()
-        else arrayOf(PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack),
+        else arrayOf(PreludeExpansion, Prelude2CardPack, TurmoilExpansion, PromoCardPack, Unsafe),
         *extraOptions,
         players = players,
     )
@@ -305,7 +305,7 @@ internal class PreservationProgramTest :
     startLaterGeneration()
     p1.runOperation("$WorldGovernmentAdvisor")
     admin.nextGeneration(0, 0)
-    p1.cardAction1(WorldGovernmentAdvisor) { wgt("TemperatureStep") }
+    p1.cardAction1(WorldGovernmentAdvisor) { doTask("TemperatureStep BY Admin") }
         .expect("TemperatureStep, 0 TerraformRating")
     p1.stdProject("AsteroidProject").expect("0 TerraformRating")
   }

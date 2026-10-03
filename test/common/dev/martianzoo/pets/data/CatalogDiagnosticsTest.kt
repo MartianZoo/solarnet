@@ -830,19 +830,19 @@ internal class CatalogDiagnosticsTest {
 
   @Test
   internal fun customInvariant() {
-    val source = "CLASS Garden : Custom { HAS MAX 1 This }"
+    val source = "CLASS Garden : CustomMetric { HAS MAX 1 This }"
     val error = assertFailsWith<PetSyntaxException> { loadTypes(source) }
 
     assertEquals(
-        "custom class `Garden` cannot declare Pets invariants; its behavior comes from its Kotlin implementation",
+        "custom metric `Garden` cannot declare Pets invariants; its behavior comes from its Kotlin implementation",
         error.detail,
     )
     // Prefer highlighting the forbidden `HAS MAX 1 This` clause, starting at `HAS`.
     assertEquals(
         """
-        |custom class `Garden` cannot declare Pets invariants; its behavior comes from its Kotlin implementation at 1:29
-        |CLASS Garden : Custom { HAS MAX 1 This }
-        |                            ^
+        |custom metric `Garden` cannot declare Pets invariants; its behavior comes from its Kotlin implementation at 1:35
+        |CLASS Garden : CustomMetric { HAS MAX 1 This }
+        |                                  ^
         """
             .trimMargin(),
         error.message,
@@ -851,18 +851,18 @@ internal class CatalogDiagnosticsTest {
 
   @Test
   internal fun customEffect() {
-    val source = "CLASS Garden : Custom { This: Plant }"
+    val source = "CLASS Garden : CustomMetric { This: Plant }"
     val error = assertFailsWith<PetSyntaxException> { loadTypes(source) }
 
     assertEquals(
-        "custom class `Garden` cannot declare Pets effects or actions; its behavior comes from its Kotlin implementation",
+        "custom metric `Garden` cannot declare Pets effects or actions; its behavior comes from its Kotlin implementation",
         error.detail,
     )
     assertEquals(
         """
-        |custom class `Garden` cannot declare Pets effects or actions; its behavior comes from its Kotlin implementation at 1:25
-        |CLASS Garden : Custom { This: Plant }
-        |                        ^
+        |custom metric `Garden` cannot declare Pets effects or actions; its behavior comes from its Kotlin implementation at 1:31
+        |CLASS Garden : CustomMetric { This: Plant }
+        |                              ^
         """
             .trimMargin(),
         error.message,
@@ -871,19 +871,19 @@ internal class CatalogDiagnosticsTest {
 
   @Test
   internal fun customDefault() {
-    val source = "CLASS Garden : Custom { DEFAULT Garden }"
+    val source = "CLASS Garden : CustomMetric { DEFAULT Garden }"
     val error = assertFailsWith<PetSyntaxException> { loadTypes(source) }
 
     assertEquals(
-        "custom class `Garden` cannot declare Pets defaults; its behavior comes from its Kotlin implementation",
+        "custom metric `Garden` cannot declare Pets defaults; its behavior comes from its Kotlin implementation",
         error.detail,
     )
     // Prefer highlighting the entire forbidden `DEFAULT Garden` clause, starting at `DEFAULT`.
     assertEquals(
         """
-        |custom class `Garden` cannot declare Pets defaults; its behavior comes from its Kotlin implementation at 1:33
-        |CLASS Garden : Custom { DEFAULT Garden }
-        |                                ^
+        |custom metric `Garden` cannot declare Pets defaults; its behavior comes from its Kotlin implementation at 1:39
+        |CLASS Garden : CustomMetric { DEFAULT Garden }
+        |                                      ^
         """
             .trimMargin(),
         error.message,
@@ -1653,16 +1653,16 @@ internal class CatalogDiagnosticsTest {
 
   @Test
   internal fun missingCustomImplementation() {
-    val source = "CLASS Garden : Custom"
+    val source = "CLASS Garden : CustomMetric"
     val error = assertFailsWith<InvalidPetDefinitionException> { loadTypes(source) }
 
     assertEquals("custom class implementation not found for `Garden`", error.detail)
-    // Prefer also highlighting `Custom`, which makes this declaration require a Kotlin
+    // Prefer also highlighting `CustomMetric`, which makes this declaration require a Kotlin
     // implementation.
     assertEquals(
         """
         |custom class implementation not found for `Garden` at 1:7
-        |CLASS Garden : Custom
+        |CLASS Garden : CustomMetric
         |      ^
         """
             .trimMargin(),

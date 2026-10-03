@@ -34,6 +34,24 @@ internal class ExcentricSponsorTest : CardTest() {
   }
 
   @Test
+  internal fun `Double Down copies its project play and discount`() {
+    newGame(PreludeExpansion, PromoCardPack)
+    admin.phase("Prelude")
+    p1.runOperation("2 ProjectCard, 2 PreludeCard")
+
+    with(p1) {
+      playPrelude(ExcentricSponsor) { playProject(DustSeals, 0) }
+      playPrelude(DoubleDown) {
+        doTask("CopyPrelude<$ExcentricSponsor>")
+        playProject(Mine, 0)
+      }
+    }
+
+    p1.count("$Mine") shouldBe 1
+    p1.count("PROD[Steel]") shouldBe 1
+  }
+
+  @Test
   internal fun `An assigned wild science tag satisfies Excentric Sponsor during the Prelude phase`() {
     newGame(PreludeExpansion, VenusNextExpansion, FakeStuffBundle)
     p1.playCorp(Inventrix, 0)
