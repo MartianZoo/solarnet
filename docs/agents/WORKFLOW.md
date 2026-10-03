@@ -36,9 +36,9 @@ must survive the ordinary empty-queue moments between turns and wake only when t
 actually complete, such as when every Player has passed. Raw `TaskQueue.isEmpty()` is therefore not
 a universal definition of scope completion.
 
-This document selects the phase-level model. It deliberately does not decide how actions within an
-Action phase, second actions within a turn, or player rotation work. Those later designs must
-compose through nested scopes rather than add phase-specific control to the workflow.
+The current proof also sequences Corporation, Prelude, and Action turns through Pets components.
+Phase transitions and within-phase sequencing remain separate responsibilities; further sequencing
+work must compose with the phase scopes rather than add control to the Kotlin runner.
 
 ## Current foundation
 
@@ -59,10 +59,11 @@ The required primitives already exist:
 - A `Continuation` is removed inside that same transaction, but only after the operation validates
   complete. Its removal can therefore begin follow-up work without making that work an unfinished
   obligation of the operation that created the continuation.
-- [`Engine.removeTemporaryComponent`](../../src/common/dev/martianzoo/engine/Engine.kt) removes
-  one eligible `Temporary` Type at an empty task queue, deferring Types with direct or indirect
-  dependent `MustCleanUp` or `Temporary`. The transaction loop settles removal effects before
-  checking the live queue and dependencies for another removal.
+- [`Engine.removeIdleComponent`](../../src/common/dev/martianzoo/engine/Engine.kt) removes
+  one eligible Type from the requested cleanup class at an empty task queue, deferring Types with
+  direct or indirect dependent `MustCleanUp` or that same cleanup class. `WorldTransaction` offers
+  `Temporary` cleanup before validation and `Continuation` cleanup afterward, settling effects
+  and rechecking the live queue and dependencies after each removal.
 - `GenerationScope` is a singleton lifetime anchor created naturally by the first `Generation` and
   replaced by each later one; generation-local state depends on it instead of listening
   independently for the next Generation.
@@ -88,8 +89,7 @@ when it plays those generic backs; rejected offers are outside the model.
 A Phase remains the visible statement of where the game is. A `PhaseScope` is the lifetime anchor
 for work belonging to that occurrence of the Phase. It is parameterized by the Phase it belongs to,
 not by its successor. The successor is behavior on the concrete scope, so conditional successors
-remain ordinary `-This IF ...` effects instead of becoming part of type identity. The declaration
-can be expressed approximately as follows; final syntax may differ:
+remain ordinary `-This IF ...` effects instead of becoming part of type identity. For example:
 
 ```pets
 "The lifetime anchor for the current Phase"
@@ -221,10 +221,9 @@ precedence. The properties are authoring metadata, not live Components; the comp
 continuations are the one runtime representation. Reconsider live constraint Components only if a
 real rule needs to observe or alter phase topology during a game.
 
-The branch currently performs this lowering while `TfmCatalog` constructs its declaration set.
-That is transitional. Move topology lowering into `generateCanonSources` so the emitted Pets
-declarations are build artifacts that tools and humans can inspect, and so no topology compiler is
-shipped as part of the game runtime.
+Lowering currently runs while `TfmCatalog` constructs its declaration set. The deferred move into
+`generateCanonSources` would make the emitted Pets declarations inspectable build artifacts and
+keep the topology compiler out of the game runtime.
 
 By default the compiler emits a `Temporary` scope. A Phase whose domain sequencing becomes idle
 before the Phase is complete can instead declare its own direct `PhaseScope<ThatPhase>` subtype.
@@ -405,6 +404,6 @@ Solar-to-Research with optional Venus and Colonies phases. Prelude and Corporati
 advance through settled card choices and the seat relation, and Action-to-Production closes from its
 exact-one participation states. The remaining Kotlin role is Final Greenery sequencing and wakeup.
 
-Do not redesign Action-turn rotation as part of the Action-to-Production proof; that is sequencing.
-If the narrow model needs phase-specific Kotlin, a literal runtime stack, or a second representation
-of the next phase, stop and reconsider it rather than expanding the machinery.
+Further migration is separate from reviewing and simplifying the current proof. If it needs a
+literal runtime stack or a second representation of the next phase, stop and reconsider the model
+rather than expanding the machinery.

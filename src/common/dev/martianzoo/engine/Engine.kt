@@ -54,8 +54,8 @@ public object Engine {
             timeline,
             { world.onTransactionComplete() },
             recordingPositions,
-            ::removeTemporaryComponent,
-            ::removeContinuation,
+            { removeIdleComponent(TEMPORARY) },
+            { removeIdleComponent(CONTINUATION) },
         )
     private val instructor = Instructor(reader, limiter, changer, effector, classTable, elaborator)
     private val actorEngines: Map<Actor, ActorEngine> =
@@ -103,40 +103,21 @@ public object Engine {
     }
 
     /**
-     * Removes all copies of one eligible concrete `Temporary` Type.
+     * Removes all copies of one eligible concrete Type in [cleanupClass].
      *
      * Cleanup is offered only while the whole task pool is empty. A Type is ineligible while any
-     * direct or indirect dependent is itself `Temporary` or `MustCleanUp`, which makes nested
+     * direct or indirect dependent belongs to the same cleanup class or `MustCleanUp`, so nested
      * lifetimes retire from the inside out. Returning after one Type lets transaction settlement
      * process removal effects and re-read both tasks and dependencies before the next attempt.
      */
-    private fun removeTemporaryComponent(): Boolean {
+    private fun removeIdleComponent(cleanupClass: ClassName): Boolean {
       if (!gameWorld.tasks.isEmpty()) return false
-      val temporary = classTable.getClass(TEMPORARY).baseType
-      val temporaryComponents = reader.getComponents(temporary)
-      if (temporaryComponents.isEmpty()) return false
-
+      val cleanupType = classTable.getClass(cleanupClass).baseType
       val mustCleanUp = classTable.getClass(MUST_CLEAN_UP).baseType
       val type =
-          temporaryComponents.elements.firstOrNull { type ->
+          reader.getComponents(cleanupType).elements.firstOrNull { type ->
             !gameWorld.components.hasDependentMatching(type, mustCleanUp, reader) &&
-                !gameWorld.components.hasDependentMatching(type, temporary, reader)
-          } ?: return false
-
-      instructor
-          .execute(remove(type, reader.countComponent(type)), cause = null, actor = ADMIN)
-          .forEach(taskQueues::addTasks)
-      return true
-    }
-
-    private fun removeContinuation(): Boolean {
-      if (!gameWorld.tasks.isEmpty()) return false
-      val continuation = classTable.getClass(CONTINUATION).baseType
-      val mustCleanUp = classTable.getClass(MUST_CLEAN_UP).baseType
-      val type =
-          reader.getComponents(continuation).elements.firstOrNull { candidate ->
-            !gameWorld.components.hasDependentMatching(candidate, mustCleanUp, reader) &&
-                !gameWorld.components.hasDependentMatching(candidate, continuation, reader)
+                !gameWorld.components.hasDependentMatching(type, cleanupType, reader)
           } ?: return false
 
       instructor

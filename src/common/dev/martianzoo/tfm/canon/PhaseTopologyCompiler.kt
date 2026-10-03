@@ -162,25 +162,17 @@ internal object PhaseTopologyCompiler {
       owners: Map<ClassName, ClassName?>,
       endpoint: ClassName,
   ): ClassDeclaration {
-    val transitions = mutableListOf<String>()
-    for (targetIndex in index + 1 until order.size) {
-      val target = order[targetIndex]
-      val requirements = mutableListOf("WorkflowStarted")
-      owners.getValue(target)?.let { module -> requirements.add(module.toString()) }
-      order.subList(index + 1, targetIndex).mapNotNull(owners::getValue).distinct().mapTo(
-          requirements
-      ) { module ->
-        "MAX 0 $module"
-      }
-      transitions += "-This IF ${requirements.distinct().joinToString()}:: $target FROM $phase"
-    }
-    val endpointRequirements = mutableListOf("WorkflowStarted")
-    order.subList(index + 1, order.size).mapNotNull(owners::getValue).distinct().mapTo(
-        endpointRequirements
-    ) { module ->
-      "MAX 0 $module"
-    }
-    transitions += "-This IF ${endpointRequirements.joinToString()}:: $endpoint FROM $phase"
+    val following = order.drop(index + 1)
+    val transitions =
+        (following + endpoint).mapIndexed { skipped, target ->
+          val requirements = mutableListOf("WorkflowStarted")
+          owners[target]?.let { module -> requirements.add(module.toString()) }
+          following.take(skipped).mapNotNull(owners::getValue).distinct().mapTo(requirements) {
+              module ->
+            "MAX 0 $module"
+          }
+          "-This IF ${requirements.distinct().joinToString()}:: $target FROM $phase"
+        }
     return parseClasses(
             """
             "The compiled lifetime anchor and continuation for $phase"

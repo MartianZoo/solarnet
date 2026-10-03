@@ -36,7 +36,7 @@ internal class TfmWorkflowTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    admin.sneak("StartToken<Player2> FROM StartToken<Player1>")
+    admin.runOperation("StartToken<Player2> FROM StartToken<Player1>")
 
     admin.beginOperation("WorkflowStarted")
 
@@ -305,8 +305,8 @@ internal class TfmWorkflowTest {
     agents[PLAYER1].autoExecPolicy = NONE
     agents[PLAYER2].autoExecPolicy = NONE
 
-    game.testTfm(PLAYER1).sneak("20 MC")
-    game.testTfm(PLAYER2).sneak("20 MC")
+    game.testTfm(PLAYER1).runOperation("20 MC")
+    game.testTfm(PLAYER2).runOperation("20 MC")
     agents[ADMIN].beginOperation("ResearchPhase FROM Phase")
 
     agents[PLAYER2].doTask("2 BuyCard")
@@ -367,12 +367,12 @@ internal class TfmWorkflowTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
+    p1.runOperation("2 ProjectCard, PartyDelegate<Reds>, PartyDelegate<Reds>")
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     admin.doTask("AquiferReleasedByPublicCouncil")
     admin.doTask("DryDeserts")
     playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
     playCorporationWithoutStartingProjects(p2, CrediCor)
-    p1.sneak("2 ProjectCard, PartyDelegate<Reds>, PartyDelegate<Reds>")
 
     p1.turn {
       sellPatents(1)
@@ -393,6 +393,7 @@ internal class TfmWorkflowTest {
     val game = Engine.newGame(canonicalPremise(Prelude2CardPack, TurmoilExpansion, players = 1))
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
+    p1.runOperation("ProjectCard, PartyDelegate<Reds>, PartyDelegate<Reds>")
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     admin.doTask("AquiferReleasedByPublicCouncil")
     admin.doTask("DryDeserts")
@@ -401,7 +402,6 @@ internal class TfmWorkflowTest {
     admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
     admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
     playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
-    p1.sneak("ProjectCard, PartyDelegate<Reds>, PartyDelegate<Reds>")
 
     p1.playProject(RedAppeasement, 0)
 
@@ -451,10 +451,10 @@ internal class TfmWorkflowTest {
     val game = Engine.newGame(canonicalPremise(players = 2))
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
+    p1.runOperation("ProjectCard")
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)
     playCorporationWithoutStartingProjects(p2, CrediCor)
-    p1.sneak("ProjectCard")
     val beforeFirstAction = game.timeline.checkpoint()
 
     p1.sellPatents(1)
@@ -499,9 +499,9 @@ internal class TfmWorkflowTest {
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
     val p2 = game.testTfm(PLAYER2)
-    admin.sneak("StartToken<Player2> FROM StartToken<Player1>")
+    admin.runOperation("StartToken<Player2> FROM StartToken<Player1>")
+    p1.runOperation("PreludeCard")
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
-    p1.sneak("PreludeCard")
 
     playCorporationWithoutStartingProjects(p2, CrediCor)
     playCorporationWithoutStartingProjects(p1, UnitedNationsMarsInitiative)

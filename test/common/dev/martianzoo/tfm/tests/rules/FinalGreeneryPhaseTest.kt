@@ -23,10 +23,10 @@ internal class FinalGreeneryPhaseTest {
     val game = Engine.newGame(canonicalPremise())
     val admin = game.testTfm(ADMIN)
     val p1 = game.testTfm(PLAYER1)
+    p1.runOperation("8 Plant")
     val workflow = TfmWorkflow.Automatic(game.testAgents()).launch()
     playCorporationWithoutStartingProjects(p1, Ecoline)
     playCorporationWithoutStartingProjects(game.testTfm(PLAYER2), TharsisRepublic)
-    p1.sneak("8 Plant")
 
     p1.convertPlants { doTask("GreeneryTile<Tharsis_3_6>") }
 

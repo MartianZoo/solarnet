@@ -34,7 +34,7 @@ public object TfmWorkflow {
    */
   public class Stepwise(agents: Agents) {
 
-    internal val adminOps: Agent = agents[ADMIN]
+    private val adminOps: Agent = agents[ADMIN]
 
     /** Starts fully effectful game setup by replacing the initial bootstrap phase. */
     public fun setupPhase(): TaskResult = adminOps.beginOperation("SetupPhase FROM Phase")
@@ -73,8 +73,7 @@ public object TfmWorkflow {
   }
 
   /**
-   * Coordinates the full Terraforming Mars game flow using a single coroutine, so each phase's
-   * player work can be written as straight-line sequential code. Pets scopes own phase transitions.
+   * Starts Pets-driven phase progression and sequences Final Greenery's remaining player work.
    *
    * The coroutine suspends whenever the game has outstanding tasks (choosing cards, placing tiles,
    * etc.), and resumes once the task queue drains. Synchronization uses [resumeSignal], a
@@ -85,9 +84,7 @@ public object TfmWorkflow {
   public class Automatic(private val agents: Agents) {
 
     private val game: World = agents.world
-    private val m = Stepwise(agents)
-    private val adminOps: Agent
-      get() = m.adminOps
+    private val adminOps: Agent = agents[ADMIN]
 
     /** Human players in seat order, excluding ADMIN. */
     private val players: List<Player> = game.actors.filterIsInstance<Player>()
@@ -160,7 +157,7 @@ public object TfmWorkflow {
     private suspend fun runGame() {
       adminOps.beginOperation("WorkflowStarted")
       awaitTasksDrained()
-      if (!hasComponent("FinalGreeneryPhase")) return
+      if (!adminOps.has("FinalGreeneryPhase")) return
       finalGreeneryPhase()
     }
 
@@ -185,10 +182,6 @@ public object TfmWorkflow {
     }
 
     private fun opsFor(player: Player) = agents[player]
-
-    private fun hasComponent(className: String): Boolean =
-        game.classTable.isInhabited(cn(className)) &&
-            game.reader.getComponents(cn(className).expression).isNotEmpty()
 
     private suspend fun grantFirstActionTo(player: Player) {
       shutdownCheckpoint = game.timeline.checkpoint()

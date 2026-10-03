@@ -162,6 +162,11 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- Replace the remaining trigger-bypassing setup in `TfmWorkflowTest` and `FinalGreeneryPhaseTest`.
+  Start the workflow through its real operation and reach final greenery through normal parameter
+  gains instead of editing completion flags. Preserve the existing scenario coverage without adding
+  gameplay helpers solely for these fixtures.
+
 - Extend the Mining Rights/Area wild-resource regression after placement is fixed: Robotic
   Workforce and Cyberia Systems may choose either originally available metal production even if
   the placement awarded a nonmetal resource. No remembered resource choice is required.

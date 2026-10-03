@@ -259,9 +259,9 @@ of replaying an irrelevant play-card sequence. Do not use `sneak` in card or rul
 bypasses triggers and can make a broken rule appear to pass.
 Synthetic card scenarios pass their card and supporting `ClassDeclaration`s to the `CardTest`
 constructor; they are composed with Canon and selected in that test's premise.
-Use `player.playCorp(corporation)` when setup already resolved the starting project cards, and
-`player.playCorp(corporation, retainedCount)` when their purchase is part of the scenario. Setup
-code records those earlier choices as `game.retainStartingProjects(...)`.
+Use `player.playCorp(corporation, retainedCount)` when the starting project-card purchase is part
+of the scenario. The no-count overload leaves any starting purchase to the caller; it also supports
+corporations acquired later when no such purchase is offered.
 When a custom instruction reads authored card metadata from the catalog, compose the synthetic
 card into a fixture `TfmCatalog`; premise-only declarations do not populate that metadata.
 Use `placeTile(row, column)`, `addCardResources(card)`, and `wgt(choice)` instead of spelling their
