@@ -119,6 +119,11 @@ chains, `A1, A2, B1, B2` can therefore be legal. A selected A does exclude compe
 A itself is being narrowed and executed; that lock ends with the task, not with all causal
 descendants.
 
+Pluto's colony bonuses combine `THEN` with a maximum-one `PlutoLock` per owner. Each bonus acquires
+the lock before drawing and releases it after discarding, preventing that owner's bonuses from
+overlapping while leaving other owners' bonuses independent. `ColoniesRulesTest` covers both the
+blocked second draw and successful completion.
+
 This distinction also applies to fanout. `EACH Player { A THEN B }` creates one continuation per
 branch. `EACH Player { A } THEN B` does not join the branches or wait for their descendants; see
 [EACH.md](EACH.md#sequencing).

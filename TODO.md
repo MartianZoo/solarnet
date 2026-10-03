@@ -163,9 +163,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Extend the Mining Rights/Area wild-resource regression after placement is fixed: Robotic
   Workforce and Cyberia Systems may choose either originally available metal production even if
   the placement awarded a nonmetal resource. No remembered resource choice is required.
-- Fix the two-colony Pluto trade characterized in `rules/BugsTest`: separate draw/discard bonuses
-  can still interleave, allowing both draws before either discard. Each bonus must finish before
-  the next begins.
 
 - Revisit aligning multiplatform JVM tests with the repository JUnit BOM. Setup overrides now
   explicitly declare `@BeforeTest`, including `ActiveVacuumCoreTest.commonSetup`. Verify lifecycle

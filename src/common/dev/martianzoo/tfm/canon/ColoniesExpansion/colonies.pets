@@ -124,7 +124,7 @@ CLASS Miranda : ColonyTile {
 
 CLASS Pluto : ColonyTile, ColonyTileSelection<Class<Pluto>> {
   Colony<This>: 2 ProjectCard
-  GainColonyBonus<This>: ProjectCard THEN -ProjectCard
+  GainColonyBonus<This>: PlutoLock! THEN ProjectCard THEN -ProjectCard THEN -PlutoLock!
 
   FinishTrade<This> IF =0 ColonyProduction<This>: Ok
   FinishTrade<This> IF =1 ColonyProduction<This>: ProjectCard
@@ -134,6 +134,8 @@ CLASS Pluto : ColonyTile, ColonyTileSelection<Class<Pluto>> {
   FinishTrade<This> IF =5 ColonyProduction<This>: 3 ProjectCard
   FinishTrade<This> IF =6 ColonyProduction<This>: 4 ProjectCard
 }
+
+CLASS PlutoLock : Owned<Player> { HAS MAX 1 This }
 
 CLASS Titan : ColonyTile {
   Colony<This>: 3 Floater
