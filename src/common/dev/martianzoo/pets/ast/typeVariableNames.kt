@@ -158,6 +158,7 @@ internal fun resolveTypeVariableNames(
     declarations: List<Expression>,
     expandReferenceArguments: Boolean = true,
     expandReferenceRefinements: Boolean = true,
+    requireSharedUse: Boolean = true,
 ): List<PetNode> {
   if (declarations.isEmpty()) return roots
   val selectedDeclarations = declarations.distinctBy { it.typeVariableName!!.key }
@@ -312,17 +313,19 @@ internal fun resolveTypeVariableNames(
         }
       }
   val resolved = normalizedRoots.map(resolver::transformWithoutKindCheck)
-  declarationsByKey.keys
-      .firstOrNull { references[it] == null }
-      ?.let { key ->
-        val marker = declarationsByKey.getValue(key).typeVariableName!!
-        throw PetSyntaxException(
-            "type variable marker `${marker.authoredSpelling}` is not shared; use it again in the same scope or remove the marker",
-            sourceLocation =
-                declarationsByKey.getValue(key).sourceLocation
-                    ?: marker.boundClassName.sourceLocation,
-        )
-      }
+  if (requireSharedUse) {
+    declarationsByKey.keys
+        .firstOrNull { references[it] == null }
+        ?.let { key ->
+          val marker = declarationsByKey.getValue(key).typeVariableName!!
+          throw PetSyntaxException(
+              "type variable marker `${marker.authoredSpelling}` is not shared; use it again in the same scope or remove the marker",
+              sourceLocation =
+                  declarationsByKey.getValue(key).sourceLocation
+                      ?: marker.boundClassName.sourceLocation,
+          )
+        }
+  }
   return resolved
 }
 
@@ -484,6 +487,7 @@ public fun resolveClassTypeVariableNames(declaration: ClassDeclaration): ClassDe
           declarations,
           expandReferenceArguments = false,
           expandReferenceRefinements = false,
+          requireSharedUse = false,
       )
   val dependencyCount = declaration.dependencies.size
   val headerCount = header.size

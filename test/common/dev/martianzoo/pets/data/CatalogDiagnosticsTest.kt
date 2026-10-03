@@ -891,31 +891,6 @@ internal class CatalogDiagnosticsTest {
   }
 
   @Test
-  internal fun unusedTypeVariable() {
-    val source =
-        """
-        ABSTRACT CLASS Plant
-        CLASS Garden<P@Plant>
-        """
-            .trimIndent()
-    val error = assertFailsWith<PetSyntaxException> { loadTypes(source) }
-
-    assertEquals(
-        "type variable marker `P@Plant` is not shared; use it again in the same scope or remove the marker",
-        error.detail,
-    )
-    assertEquals(
-        """
-        |type variable marker `P@Plant` is not shared; use it again in the same scope or remove the marker at 2:14
-        |CLASS Garden<P@Plant>
-        |             ^
-        """
-            .trimMargin(),
-        error.message,
-    )
-  }
-
-  @Test
   internal fun unsuppliedTypeVariable() {
     val source = "CLASS Garden { This: P@Plant }"
     val error = assertFailsWith<PetSyntaxException> { loadTypes(source) }

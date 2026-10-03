@@ -1313,9 +1313,10 @@ Three properties hold of every variable, and most of the rules below follow from
    different bound classes, or in nested scopes. An `EACH` or `RANK` selector exposes its selected
    value through a marker. A refined class literal supplies its represented candidate to matching
    roots in its own predicate automatically (T8-10).
-3. **Inheritance passes values, not names.** Inherited effects keep their superclass's variable
-   scope. A subclass supplies values for those variables when it or a component fixes them (T13-4,
-   T13-5).
+3. **Header names follow inherited dependencies.** A class's header scope includes the header
+   names it inherits along with their dependencies. Inherited effects keep their superclass's
+   variable scope. A subclass supplies values for those variables when it or a component fixes
+   them (T13-4, T13-5).
 
 ### Class-header variables
 
@@ -1323,8 +1324,8 @@ Three properties hold of every variable, and most of the rules below follow from
 **eligible** when it is not `This` and it resolves to an abstract type. Each unmarked eligible
 occurrence supplies its own variable, and matching marked occurrences join one shared variable.
 `ABSTRACT CLASS Adjacency<Tile<Area>, Tile<Area>>` declares four variables: each `Tile<Area>`, and
-the `Area` nested inside each. An abstract bound is enough; only the variables the class body uses
-need a marker (T13-3).
+the `Area` nested inside each. An abstract bound is enough; a marker names a variable for the
+class body or its descendants (T13-3, T13-4).
 
 A class literal written as a declared dependency supplies one variable, not two. It is the
 represented class, as `StandardResource` in `CLASS Production<Class<@StandardResource>>`. If the
@@ -1350,20 +1351,35 @@ action-used marker belongs to the player whose card it marks.
 **T13-3. Occurrences in the class's own body are marked explicitly.** A marker on an eligible header
 occurrence and matching marked occurrences in the class's authored effects or actions share one
 variable. An unmarked type in the body is an ordinary expression, not an occurrence of a header
-variable. A marker is anonymous or has a class-name-shaped local name (L1-7), and every marked
-header variable must recur. A represented-class header variable follows T13-1, so the body of a
-class declaring `Class<@CardResource>` may write `@CardResource<This>`.
+variable. A marker is anonymous or has a class-name-shaped local name (L1-7). A class-header marker
+may be declared for descendants without a use in the declaring class's body. A represented-class
+header variable follows T13-1, so the body of a class declaring `Class<@CardResource>` may write
+`@CardResource<This>`.
+
+A header name takes precedence over the variable that an effect, action, `THEN` sequence, or full
+transmutation would otherwise declare for a matching marker (T13-6, T13-7). An explicitly marked
+`EACH` or `RANK` selector, or the represented class of a refined class literal, declares a new
+variable that shadows the header name within its scope.
 
 > **Non-normative example — production.** `CLASS Production<Class<@StandardResource>>` says
 > `ProductionPhase: @StandardResource`: during the production phase, a steel production creates
 > steel. An unmarked `StandardResource` there would be an independent type, satisfied by any
 > resource.
 
-**T13-4. Inheritance.** A subclass does not redeclare an inherited variable, and effects inherited
-from a superclass keep that superclass's scope.
+**T13-4. Inheritance.** A subclass inherits each header name along with the dependency binding it
+names, and the name joins the subclass's header scope (T13-3). The subclass's own effects and
+actions can use it without redeclaring it. Effects inherited from a superclass keep that
+superclass's scope.
 
-An explicit supertype argument supplies the value of an inherited variable. If that value is still
-abstract and the subclass's own body uses it, the argument must mark it, as
+Several names can denote one binding. Inheritance paths that reach one ancestor's dependency merge
+into one binding, and every name given to that dependency on any of those paths, or by marking it
+again in a supertype argument, denotes it. A class header cannot give an inherited name to a
+different dependency. A class may inherit one name for distinct bindings from different
+superclasses; their inherited effects keep their own scopes, but a use of that name in the class's
+own body is ambiguous and fails.
+
+An explicit supertype argument supplies the value of an inherited variable. A subclass may mark
+that argument to name a previously unmarked dependency, as
 `SoloCardResourceReserve : ResourceHolder<Class<@CardResource>>` does so that its body can gain
 `@CardResource<This>`. An unmarked `CardResource` in the body would be a separate, ordinary choice.
 A concrete value needs no variable to be spelled. Pets is a `ResourceCard<Class<Animal>>`, and its

@@ -1,6 +1,7 @@
 package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parseClasses
+import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Each
@@ -212,18 +213,19 @@ internal class Spec13OwnerLocalTypeVariablesTest {
 
   @Test
   internal fun extractedClassCannotCaptureAnEnclosingSelectorWithoutAnArgument() {
-    shouldThrow<PetSyntaxException> {
-          parseClasses(
+    shouldThrow<InvalidPetDefinitionException> {
+          loadTypes(
+              "ABSTRACT CLASS Person",
+              "ABSTRACT CLASS Base",
               """
               CLASS Owner1 {
                 This: EACH P@Person { P@Person, Base { This: P@Person } }
               }
               """
-                  .trimIndent()
+                  .trimIndent(),
           )
         }
-        .detail shouldBe
-        "type variable marker `P@Person` is not shared in a scope; use it again in that scope or remove the marker"
+        .detail shouldBe "`Owner1_Base` has no inherited type variable `P@Person`"
   }
 
   @Test
