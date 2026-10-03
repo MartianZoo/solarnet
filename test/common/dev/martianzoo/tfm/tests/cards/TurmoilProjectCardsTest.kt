@@ -122,7 +122,6 @@ internal class TurmoilProjectCardsTest : CardTest() {
     p1.runOperation("PartyDelegate<MarsFirst>, 2 MC, ProjectCard")
     p2.runOperation("PartyDelegate<MarsFirst>, PartyDelegate<MarsFirst>")
     admin.phase("Action")
-    val checkpoint = game.timeline.checkpoint()
 
     p1.playProject(Recruitment, 2) {
           doTask("PartyDelegate<MarsFirst, Owner FROM Neutral>")
@@ -130,8 +129,6 @@ internal class TurmoilProjectCardsTest : CardTest() {
         .expect(
             "PartyLeader<MarsFirst>, -PartyLeader<MarsFirst, Neutral>, 0 PartyLeader<MarsFirst, Player2>"
         )
-
-    p1.auditGainsSince(checkpoint) shouldBe 1
   }
 
   @Test

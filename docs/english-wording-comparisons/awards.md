@@ -373,7 +373,7 @@ Pets declaration:
 
 ```pets
 CLASS Collector : Award {
-  metric = COUNT "Class<Resource>(HAS Resource<Owner>)"
+  metric = COUNT "Class<@Resource>(HAS @Resource<Owner>)"
 }
 ```
 

@@ -307,7 +307,7 @@
         },
         {
           "name": "DiversitySupport",
-          "requirement": "9 Class<Resource>(HAS Resource<Owner>)",
+          "requirement": "9 Class<@Resource>(HAS @Resource<Owner>)",
           "cost": 1,
           "tags": [ "EventTag" ],
           "immediate": "TerraformRating",
@@ -402,7 +402,7 @@
           "name": "InterplanetaryTrade",
           "cost": 27,
           "tags": [ "SpaceTag" ],
-          "immediate": "PROD[1 MC / Class<Tag>(HAS Tag<Owner>)]",
+          "immediate": "PROD[1 MC / Class<@Tag>(HAS @Tag<Owner>)]",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -551,7 +551,8 @@
           "name": "PublicPlans",
           "cost": 7,
           "tags": [ "EventTag" ],
-          "immediate": "MC? / ProjectCard",
+          // X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed>
+          "immediate": "ProjectCard: MC, MC? / (ProjectCard - 1)",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -654,7 +655,7 @@
           ],
           "components": [
             "CLASS CathedralOption : HasActions { 2 MC -> ProjectCard }",
-            "CLASS CathedralOffer : Owned<Anyone>, Signal { This: UseAction<CathedralOption, ActionSlot, Owner> OR Ok }",
+            "CLASS CathedralOffer : Owned<Anyone>, Signal { This: UseAction<CathedralOption>? }",
             "CLASS Cathedral<CityTile<@Anyone>> : Owned { HAS MAX 1 This; This: CathedralOffer<@Anyone> }"
           ],
         },

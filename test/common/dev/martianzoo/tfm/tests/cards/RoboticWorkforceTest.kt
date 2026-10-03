@@ -65,4 +65,40 @@ internal class RoboticWorkforceTest : CardTest() {
     p1.playProject(RoboticWorkforce, 9) { doTask("CopyProductionBox<$IndustrialComplex>") }
         .expect("-9 MC, PROD[MC, 0 Steel, 0 Energy]")
   }
+
+  @Test
+  internal fun `Copying Medical Lab counts building tags present when copied`() {
+    newGame(CorporateEraExpansion)
+    p1.runOperation("50 MC, 5 ProjectCard")
+    admin.phase("Action")
+    p1.playProject(MedicalLab, 13)
+    p1.playProject(Mine, 4)
+    p1.playProject(IndustrialMicrobes, 12)
+    p1.playProject(TitaniumMine, 7)
+    p1.assertProds(0 to "MC")
+
+    p1.playProject(RoboticWorkforce, 9) { doTask("CopyProductionBox<$MedicalLab>") }
+        .expect("PROD[2 MC]")
+  }
+
+  @Test
+  internal fun `Copying Heat Trappers may target a different player`() {
+    newGame(CorporateEraExpansion)
+    val p2 = requireP2()
+    p1.runOperation("PROD[2 Heat], 30 MC, 2 ProjectCard")
+    p2.runOperation("PROD[2 Heat]")
+    admin.phase("Action")
+    p1.playProject(HeatTrappers, 6) { doTask("PROD[-2 Heat<Player2>]") }
+    p2.assertProds(0 to "Heat")
+    p2.runOperation("PROD[2 Heat]")
+
+    p1.playProject(RoboticWorkforce, 9) {
+          doTask("CopyProductionBox<$HeatTrappers>")
+          doTask("PROD[-2 Heat<Player1>]")
+        }
+        .expect("PROD[-2 Heat<Player1>, Energy<Player1>, 0 Heat<Player2>]")
+
+    p1.assertProds(0 to "Heat", 2 to "Energy")
+    p2.assertProds(2 to "Heat")
+  }
 }

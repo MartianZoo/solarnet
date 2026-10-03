@@ -228,7 +228,8 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       checkHandSizes()
 
       cardAction2(LocalShading)
-      playProject(PublicPlans, 7) { doTask("17 MC") }
+      // One of the 17 logged M€ is mandatory; choose the other 16.
+      playProject(PublicPlans, 7) { doTask("16 MC") }
       playProject(Satellites, titanium = 2)
       playProject(WavePower, 8)
       playProject(Algae, 10)

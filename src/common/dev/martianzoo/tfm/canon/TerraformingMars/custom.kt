@@ -100,6 +100,19 @@ private val nonNegativeIconsOf =
 
 private val placementBonus =
     object : CustomMetric("PlacementBonus") {
+      override fun countAbstract(game: GameReader, type: Type): Int? {
+        val arguments = type.typeDependencies.map { it.boundType }
+        val area = arguments.single { it.className != CLASS }
+        if (area.abstract) return null
+        val resource = requireNotNull(arguments.single { it.className == CLASS }.representedClass)
+        val bonus = mapDefinition(game).areas.single { it.className == area.className }.bonus
+        return bonus?.descendantsOfType<Gain>()?.sumOf {
+          if (game.classTable.getClass(it.gaining.className).isSubtypeOf(resource))
+              (it.count as ActualScalar).value
+          else 0
+        } ?: 0
+      }
+
       override fun count(game: GameReader, type: Type): Int {
         val arguments = type.typeDependencies.map { it.boundType }
         val resourceName =

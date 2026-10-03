@@ -1,18 +1,14 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.Engine
-import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.canon.Canon
-import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
-import dev.martianzoo.tfm.tests.TestOption.Amazonis
-import dev.martianzoo.tfm.tests.TestOption.CorporateEraExpansion
-import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
-import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
+import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
+import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
 import dev.martianzoo.tfm.tests.cards.CardTest
-import dev.martianzoo.tfm.tests.cards.cardnames.*
-import io.kotest.assertions.throwables.shouldThrow
+import dev.martianzoo.tfm.tests.cards.cardnames.ResearchColony
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -31,56 +27,33 @@ internal class BugsTest : CardTest() {
     threePlayers.classTable.allClassNames.shouldContain(cn("SecondPlace"))
   }
 
-  // BGG exact question (no written designer answer):
-  // https://boardgamegeek.com/thread/3512556/article/46088087#46088087
   @Test
-  internal fun `Landshaper incorrectly counts Capital as two tiles`() {
-    setupLandshaperCapital()
-    p1.stdProject("GreeneryProject") { placeTile(5, 2) }
-
-    p1.claimMilestone(cn("Landshaper")).expect("Landshaper")
-    p1.count("OwnedTile") shouldBe 2
-  }
-
-  // BGG exact question (no written designer answer):
-  // https://boardgamegeek.com/thread/3512556/article/46088087#46088087
-  @Test
-  internal fun `Landshaper incorrectly counts Capital twice even with two greeneries`() {
-    setupLandshaperCapital()
-    p1.runOperation("20 MC")
-    p1.stdProject("GreeneryProject") { placeTile(5, 2) }
-    p1.stdProject("GreeneryProject") { placeTile(6, 1) }
-
-    p1.claimMilestone(cn("Landshaper")).expect("Landshaper")
-    p1.count("OwnedTile") shouldBe 3
-  }
-
-  // BGG exact zero-reveal question (unsettled):
-  // https://boardgamegeek.com/thread/3556036/article/46461394#46461394
-  @Test
-  internal fun `Public Plans incorrectly accepts zero other revealed cards`() {
-    newGame(PromoCardPack)
+  internal fun `Two Pluto colonies incorrectly allow both draws before either discard`() {
+    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(players = 2, "Pluto"))
+    val p2 = requireP2()
+    p1.runOperation("37 MC, ProjectCard")
+    p2.runOperation("3 Energy")
     admin.phase("Action")
-    p1.runOperation("7 MC, ProjectCard")
+    p1.stdProject("BuildColonyProject") { doTask("Colony<Pluto>") }
+    p1.playProject(ResearchColony, 20) { doTask("Colony<Pluto>") }
+    p1.runOperation("-${p1.count("ProjectCard")} ProjectCard")
+    p1.count("ProjectCard") shouldBe 0
+    p1.autoExecPolicy = NONE
 
-    p1.playProject(PublicPlans, 7)
+    p2.stdAction("TradeAction", 2) {
+      doWithoutAutoExec(p2) {
+        doTask("Trade<Pluto>")
+        doTask("-TradeBarrier<Pluto>")
+        doTask("2 ProjectCard")
+        doTask("ProjectCard<Player1>")
+        doTask("ProjectCard<Player1>")
+        p1.count("ProjectCard") shouldBe 2
+        doTask("-ProjectCard<Player1>")
+        doTask("-ProjectCard<Player1>")
+      }
+    }
 
-    p1.assertCounts(0 to "MC", 0 to "ProjectCard", 1 to "PlayedEvent<Class<$PublicPlans>>")
-  }
-
-  private fun setupLandshaperCapital() {
-    newGame(Amazonis, PreludeExpansion, CorporateEraExpansion)
-    p1.playCorp(CrediCor, 1)
-    requireP2().runOperation("72 MC")
-    admin.phase("Prelude")
-    p1.playPrelude(PowerGeneration)
-    p1.playPrelude(Donation)
-    admin.phase("Action")
-    requireP2().stdProject("AquiferProject") { placeTile(2, 1) }
-    requireP2().stdProject("AquiferProject") { placeTile(2, 6) }
-    requireP2().stdProject("AquiferProject") { placeTile(3, 1) }
-    requireP2().stdProject("AquiferProject") { placeTile(3, 6) }
-    p1.playProject(Capital, 26) { placeTile(5, 1) }
-    shouldThrow<RequirementException> { p1.claimMilestone(cn("Landshaper")) }
+    p1.count("ProjectCard") shouldBe 0
+    p2.count("ProjectCard") shouldBe 2
   }
 }

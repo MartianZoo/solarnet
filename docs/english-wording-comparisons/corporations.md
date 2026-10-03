@@ -187,7 +187,7 @@ Class: `MiningGuild`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | You start with 30 M€, 5 steel, and 1 steel production. | Effect: Each time you place a tile on an area with steel or titanium placement bonus, increase your steel production 1 step. |
-| Generated text | Gain 30 M€ and 5 steel. Increase your steel production 1 step. | Effect: When you place a tile on an area with a titanium or steel placement bonus, increase your steel production 1 step. |
+| Generated text | Gain 30 M€ and 5 steel. Increase your steel production 1 step. | Effect: When you place a tile on an area with a titanium or steel placement bonus, increase your steel production 1 step. \[Tile&lt;MarsArea(HAS 1 (PlacementBonus&lt;Class&lt;StandardResource&gt;&gt; - PlacementBonus&lt;Class&lt;MC&gt;&gt; - PlacementBonus&lt;Class&lt;Metal&gt;&gt; - PlacementBonus&lt;Class&lt;Plant&gt;&gt; - PlacementBonus&lt;Class&lt;Energy&gt;&gt; - PlacementBonus&lt;Class&lt;Heat&gt;&gt;), HAS MAX 0 PlacementBonus&lt;Class&lt;Metal&gt;&gt;)&gt;: PROD\[Steel\], Audit\]. |
 
 Pets declaration:
 
@@ -198,6 +198,7 @@ CLASS MiningGuild : CardFront<Class<StandardCorporationCard>> {
   This:: 2 BuildingTag<This>
   This: 30 MC, 5 Steel, PROD[Steel]
   Tile<MarsArea(HAS PlacementBonus<Class<Metal>>)>: PROD[Steel]
+  Tile<MarsArea(HAS 1 (PlacementBonus<Class<StandardResource>> - PlacementBonus<Class<MC>> - PlacementBonus<Class<Metal>> - PlacementBonus<Class<Plant>> - PlacementBonus<Class<Energy>> - PlacementBonus<Class<Heat>>), HAS MAX 0 PlacementBonus<Class<Metal>>)>: PROD[Steel], Audit
 }
 ```
 
@@ -627,7 +628,7 @@ CLASS StormcraftIncorporated : ActionCard, ResourceCard<Class<Floater>, Class<St
   cost = 0
   This:: JovianTag<This>
   This: 48 MC
-  Billing<HasActions, ActionSlot, Class<Heat>>:: AcceptingFromCard<This>
+  Billing<Class<Heat>>:: AcceptingFromCard<This>
   PayFromCard<This>:: -2 Owed<Class<Heat>>
   LocalHeatTrapping: (-Floater<This> THEN 2 Heat) OR (-2 Floater<This> THEN 4 Heat) OR (-3 Floater<This> THEN 5 Heat) OR Ok
   -> Floater
@@ -1063,7 +1064,7 @@ Class: `FakeSeptemTribus`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | You start with 36 M€. When you perform an action, the wild tag counts as any tag of your choice. | Action: Gain 2 M€ for EACH PARTY WHERE YOU HAVE AT LEAST 1 DELEGATE. |
-| Generated text | Gain 36 M€. \[FakeWildTag&lt;This&gt;\]. | Action: \[2 MC / Class&lt;Party&gt;(HAS PartyDelegate&lt;Party, Owner&gt;)\]. |
+| Generated text | Gain 36 M€. \[FakeWildTag&lt;This&gt;\]. | Action: \[2 MC / Class&lt;@Party&gt;(HAS PartyDelegate&lt;@Party, Owner&gt;)\]. |
 
 Pets declaration:
 
@@ -1072,6 +1073,6 @@ Pets declaration:
 CLASS FakeSeptemTribus : ActionCard<Class<StandardCorporationCard>> {
   cost = 0
   This: 36 MC, FakeWildTag<This>
-  -> 2 MC / Class<Party>(HAS PartyDelegate<Party, Owner>)
+  -> 2 MC / Class<@Party>(HAS PartyDelegate<@Party, Owner>)
 }
 ```

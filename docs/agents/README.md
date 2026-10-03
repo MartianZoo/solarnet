@@ -83,7 +83,8 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 
 | Task | Read | Authority |
 | --- | --- | --- |
-| Add or change a card, corporation, rule component, or Pets declaration | [`NAMING.md`](NAMING.md), then topic-specific engine/type docs only as needed | Current vocabulary |
+| Add or change a card, corporation, rule component, or Pets declaration | [`NAMING.md`](NAMING.md) for names and [`CONTENT_SELECTION.md`](CONTENT_SELECTION.md#declaration-placement) for placement, then topic-specific engine/type docs as needed | Current vocabulary and placement |
+| Select Content, separate it from Modules, or decide whether it can be included without an expansion | [`CONTENT_SELECTION.md`](CONTENT_SELECTION.md), then the Catalog/Bundle KDoc route above for current mechanics | Current model, working boundaries, and proposal |
 | Change English rendering, renderer architecture, or card layout | [`LANGUAGE.md`](LANGUAGE.md) | Durable goal, current understanding, and ordered direction |
 | Change card backs, draws, searches, purchases, or replay/game-playing card tracking | [`CARD_HANDLING.md`](CARD_HANDLING.md) | Current engine model and selected external-tracking direction |
 | Change map diagrams or generated area declarations | [`MAP_PETS_GENERATION.md`](MAP_PETS_GENERATION.md) | Procedure |

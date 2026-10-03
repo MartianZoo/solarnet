@@ -69,7 +69,7 @@ CLASS FakeSeptemTribus : ActionCard<Class<StandardCorporationCard>> {
 
   This: 36 MC, FakeWildTag<This>
 
-  -> 2 MC / Class<Party>(HAS PartyDelegate<Party, Owner>)
+  -> 2 MC / Class<@Party>(HAS PartyDelegate<@Party, Owner>)
 }
 
 "Head Start with independently interleavable immediate actions"
@@ -95,7 +95,7 @@ CLASS FakeSelfReplicatingRobots : ActionCard, ActiveCard {
 
   // HAS PrintedTag<Class<BuildingTag>> OR PrintedTag<Class<SpaceTag>>
   -> StageForReplicatedProject<Class<CardFront>>
-  -> ReplicateForStagedProject<Class<CardFront>(HAS RobotUnit<Class<CardFront>>)>
+  -> ReplicateForStagedProject<Class<CardFront>(HAS RobotUnit)>
 }
 
 CLASS StageForReplicatedProject<Class<@CardFront>> : Owned<Player>, Signal {

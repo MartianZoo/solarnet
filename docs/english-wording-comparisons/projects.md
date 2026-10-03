@@ -3217,7 +3217,7 @@ Class: `HiredRaiders`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Steal up to 2 steel, or 3 M€ from any player. | — |
-| Generated text | You may steal up to 2 steel or up to 3 M€ from any player. | — |
+| Generated text | Steal 1 steel, 2 steel, 1 M€, 2 M€, or 3 M€ from any player. | — |
 
 Pets declaration:
 
@@ -3225,7 +3225,7 @@ Pets declaration:
 CLASS HiredRaiders : EventCard {
   cost = 1
   This:: EventTag<This>
-  This: 2 Steel<Owner FROM Anyone>? OR 3 MC<Owner FROM Anyone>?
+  This: Steel<Owner FROM Anyone> OR 2 Steel<Owner FROM Anyone> OR MC<Owner FROM Anyone> OR 2 MC<Owner FROM Anyone> OR 3 MC<Owner FROM Anyone>
 }
 ```
 
@@ -3433,7 +3433,7 @@ Class: `MarsUniversity`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | — | Effect: When you play a science tag, including this, you may discard a card from hand to draw a card. |
-| Generated text | — | Effect: When you play a science tag (including this), you may discard 1 card to draw 1 card. |
+| Generated text | — | Effect: When you play a science tag (including this), \[ProjectCard FROM ProjectCard?\]. |
 
 Pets declaration:
 
@@ -3441,7 +3441,7 @@ Pets declaration:
 CLASS MarsUniversity : ActiveCard {
   cost = 8
   This:: ScienceTag<This>, BuildingTag<This>
-  ScienceTag: ProjectCard FROM ProjectCard OR Ok
+  ScienceTag: ProjectCard FROM ProjectCard?
   End: VictoryPoint
 }
 ```
@@ -4100,7 +4100,7 @@ Class: `ViralEnhancers`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | — | Effect: When you play a plant, microbe, or an animal tag, including this, gain 1 plant or add 1 resource TO THAT CARD. |
-| Generated text | — | Effect: When you play a bio tag (including this), gain 1 plant or add 1 resource to that card. |
+| Generated text | — | Effect: When you play a bio tag (including this), gain 1 plant, add 1 animal to that card, or add 1 microbe to that card. |
 
 Pets declaration:
 
@@ -4108,7 +4108,7 @@ Pets declaration:
 CLASS ViralEnhancers : ActiveCard {
   cost = 9
   This:: ScienceTag<This>, MicrobeTag<This>
-  BioTag<@CardFront>: Plant OR CardResource<@CardFront>
+  BioTag<@CardFront>: Plant OR Animal<@CardFront> OR Microbe<@CardFront>
 }
 ```
 
@@ -6446,7 +6446,7 @@ Class: `Recruitment`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Exchange one NEUTRAL NON-LEADER delegate with one of your own from the reserve. | — |
-| Generated text | \[Audit\]. \[PartyDelegate&lt;Party(HAS 1 (PartyDelegate&lt;Neutral&gt; - PartyLeader&lt;Neutral&gt;)), Owner FROM Neutral&gt;\]. | — |
+| Generated text | \[PartyDelegate&lt;Party(HAS 1 (PartyDelegate&lt;Neutral&gt; - PartyLeader&lt;Neutral&gt;)), Owner FROM Neutral&gt;\]. | — |
 
 Pets declaration:
 
@@ -6454,7 +6454,7 @@ Pets declaration:
 CLASS Recruitment : EventCard {
   cost = 2
   This:: EventTag<This>
-  This: Audit, PartyDelegate<Party(HAS 1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)), Owner FROM Neutral>
+  This: PartyDelegate<Party(HAS 1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)), Owner FROM Neutral>
 }
 ```
 
@@ -6934,7 +6934,7 @@ Pets declaration:
 ```pets
 CLASS DiversitySupport : EventCard {
   cost = 1
-  requirement = HAS "9 Class<Resource>(HAS Resource<Owner>)"
+  requirement = HAS "9 Class<@Resource>(HAS @Resource<Owner>)"
   This:: EventTag<This>
   This: TerraformRating
 }
@@ -7176,7 +7176,7 @@ Pets declaration:
 CLASS InterplanetaryTrade : AutomatedCard {
   cost = 27
   This:: SpaceTag<This>
-  This: PROD[MC / Class<Tag>(HAS Tag<Owner>)]
+  This: PROD[MC / Class<@Tag>(HAS @Tag<Owner>)]
   End: VictoryPoint
 }
 ```
@@ -7574,7 +7574,7 @@ Pets declaration:
 CLASS PublicPlans : EventCard {
   cost = 7
   This:: EventTag<This>
-  This: MC? / ProjectCard
+  This: ProjectCard: MC, MC? / ProjectCard - 1
   End: VictoryPoint
 }
 ```
@@ -8275,7 +8275,7 @@ Class: `ColonialEnvoys`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Requires that Unity is ruling or that you have 2 delegates there. Place 1 delegate for each colony you have. YOU MAY PLACE THEM IN SEPARATE PARTIES. | — |
-| Generated text | Requires that you meet the party requirement for Unity. Place a delegate per colony you own. | — |
+| Generated text | Requires that you meet the party requirement for Unity. \[EACH Colony { PartyDelegate }\]. | — |
 
 Pets declaration:
 
@@ -8284,7 +8284,7 @@ CLASS ColonialEnvoys : EventCard {
   cost = 4
   requirement = HAS "PartyRequirement<Unity>"
   This:: EventTag<This>
-  This: EACH Colony<Owner> { PartyDelegate }
+  This: EACH Colony { PartyDelegate }
 }
 ```
 
@@ -8514,7 +8514,7 @@ Class: `FakeSelfReplicatingRobots`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Requires 2 science tags. | Action: Reveal and place a SPACE OR BUILDING card here from hand, and place 2 resources on it, OR double the resourses on a card here. Effect: Cards here may be played as if from hand with its cost reduced by the number of resources on it. |
-| Generated text | Requires 2 science tags. | Action: \[StageForReplicatedProject&lt;Class&lt;CardFront&gt;&gt;\], or \[ReplicateForStagedProject&lt;Class&lt;CardFront&gt;(HAS RobotUnit&lt;Class&lt;CardFront&gt;&gt;)&gt;\]. / Effect: \[PlayCard&lt;Class&lt;CardBack&gt;, Class&lt;@CardFront&gt;(HAS RobotUnit&lt;Class&lt;@CardFront&gt;&gt;)&gt;: ProjectCard\]. |
+| Generated text | Requires 2 science tags. | Action: \[StageForReplicatedProject&lt;Class&lt;CardFront&gt;&gt;\], or \[ReplicateForStagedProject&lt;Class&lt;CardFront&gt;(HAS RobotUnit)&gt;\]. / Effect: \[PlayCard&lt;Class&lt;CardBack&gt;, Class&lt;@CardFront&gt;(HAS RobotUnit&lt;Class&lt;@CardFront&gt;&gt;)&gt;: ProjectCard\]. |
 
 Pets declaration:
 
@@ -8525,6 +8525,6 @@ CLASS FakeSelfReplicatingRobots : ActionCard, ActiveCard {
   requirement = HAS "2 ScienceTag"
   PlayCard<Class<CardBack>, Class<@CardFront>(HAS RobotUnit<Class<@CardFront>>)>: ProjectCard
   -> StageForReplicatedProject<Class<CardFront>>
-  -> ReplicateForStagedProject<Class<CardFront>(HAS RobotUnit<Class<CardFront>>)>
+  -> ReplicateForStagedProject<Class<CardFront>(HAS RobotUnit)>
 }
 ```

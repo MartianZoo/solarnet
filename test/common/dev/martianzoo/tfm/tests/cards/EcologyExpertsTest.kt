@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -9,6 +10,21 @@ import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
 internal class EcologyExpertsTest : CardTest() {
+  @Test
+  internal fun `Cannot choose another Prelude card`() {
+    newGame(GameConfig("PreludeExpansion, EcologyExperts, Unsafe", "Player1", "Player2"))
+    admin.phase("Prelude")
+    p1.runOperation("ProjectCard, 2 PreludeCard")
+    val unplayedPreludes = p1.count("PreludeCard")
+
+    shouldThrow<NarrowingException> {
+      with(p1) { playPrelude(EcologyExperts) { playPrelude(ExcentricSponsor) } }
+    }
+
+    p1.assertCounts(0 to "$EcologyExperts", 0 to "$ExcentricSponsor")
+    p1.count("PreludeCard") shouldBe unplayedPreludes
+  }
+
   @Test
   internal fun `Plays Decomposers while ignoring its global requirement`() {
     newGame(GameConfig("PreludeExpansion, EcologyExperts, Unsafe", "Player1", "Player2"))
@@ -58,6 +74,25 @@ internal class EcologyExpertsTest : CardTest() {
     }
 
     p1.assertCounts(1 to "$DustSeals")
+  }
+
+  @Test
+  internal fun `Double Down copies Ecology Experts project play and requirement waiver`() {
+    newGame(
+        GameConfig("PreludeExpansion, PromoCardPack, EcologyExperts, Unsafe", "Player1", "Player2")
+    )
+    admin.phase("Prelude")
+    p1.runOperation("7 MC, 2 ProjectCard, 2 PreludeCard")
+
+    with(p1) {
+      playPrelude(EcologyExperts) { playProject(DustSeals, 2) }
+      playPrelude(DoubleDown) {
+        doTask("CopyPrelude<$EcologyExperts>")
+        playProject(Decomposers, 5)
+      }
+    }
+
+    p1.assertCounts(1 to "$DustSeals", 1 to "$Decomposers")
   }
 
   @Test

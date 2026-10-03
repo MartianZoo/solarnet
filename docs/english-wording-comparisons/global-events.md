@@ -72,7 +72,7 @@ Pets declaration:
 
 ```pets
 CLASS Diversity : GePartyCurrent<Scientists>, GePartyDistant<Scientists> {
-  ResolveGlobalEvent<Class<This>>:: EACH Player { 10 MC / 9 (Class<Tag>(HAS Tag<Owner>) OR Influence) MAX 1 }
+  ResolveGlobalEvent<Class<This>>:: EACH Player { 10 MC / 9 (Class<@Tag>(HAS @Tag<Owner>) OR Influence) MAX 1 }
 }
 ```
 

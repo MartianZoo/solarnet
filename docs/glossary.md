@@ -107,7 +107,7 @@
 - **refinement:** A conjunction of `HAS` world requirements and `NOT` structural exclusions attached to an expression to restrict the matching Types or Components.
 - **refinement type:** The type denoted by an expression carrying a refinement.
 - **REgo PLastics:** Solarnet's command-line interface for driving the engine.
-- **represented-type variable:** Inside a refined class literal such as `Class<Tag>(HAS Tag<Player1>)`, the represented class argument declares the variable used by matching root-class occurrences in the requirement. Testing `Class<SpaceTag>` therefore tests for `SpaceTag<Player1>` without treating the class token as an owned Component.
+- **represented-type variable:** Inside a refined class literal such as `Class<@Tag>(HAS @Tag<Player1>)`, the marked operand and use share the represented class. Testing `Class<SpaceTag>` therefore tests for `SpaceTag<Player1>` without treating the class token as an owned Component.
 - **requirement:** A Pets predicate evaluated against a game world, used for queries, gates, invariants, and refinements.
 - **resolution:** The engine's interpretation of an instruction against the current game world. It evaluates gates and metrics, applies quantifier and limit rules, translates concrete custom instructions, and performs forced narrowing without making client choices. Resolution follows selection and repeats after each narrowing.
 - **root type:** The class at the head of an expression, before its written dependency bounds.

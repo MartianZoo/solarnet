@@ -470,7 +470,8 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     // Chronology: Heroku records JR's pass as a second action; defer it to this legal point.
     JR.pass()
     KB.playProject(PublicPlans, 4) {
-          doTask("14 MC")
+          // One of the 14 logged M€ is mandatory; choose the other 13.
+          doTask("13 MC")
         }
         .expect("10 MC")
     KB.playProject(Ants, 6)

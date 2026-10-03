@@ -222,6 +222,9 @@ copies do not multiply the response. Other subscriptions multiply by the number 
 effect-bearing components. Normal triggers scale with the matching change count, while `X` means
 one response to any positive count.
 
+After effect scaling, `Effector` reapplies gain atomization so `Atomized` gains remain separate
+even when their counts come from trigger matching or repeated live components.
+
 An owned effect listening to an unowned event defaults to its Owner unless it explicitly says
 `BY Anyone`. Trigger-side `BY` filters the triggering Actor. Instruction-side `BY` changes the Actor
 recorded on resulting work.

@@ -107,7 +107,7 @@ Pets declaration:
 
 ```pets
 CLASS Diversifier : Milestone {
-  requirement = HAS "8 Class<Tag>(HAS Tag<Owner>)"
+  requirement = HAS "8 Class<@Tag>(HAS @Tag<Owner>)"
 }
 ```
 
@@ -419,13 +419,13 @@ Class: `Philantropist`
 | | Text |
 | --- | --- |
 | Printed text | 5 cards with non-negative VP. (Cards that count 1 VP per 2 microbes or similar cards also count.) |
-| Generated text | \[5 Class&lt;CardFront&gt;(HAS CardFront&lt;Owner&gt;, HAS GainsOf&lt;Class&lt;VictoryPoint&gt;&gt;)\]. |
+| Generated text | \[5 Class&lt;@CardFront&gt;(HAS @CardFront&lt;Owner&gt;, HAS GainsOf&lt;Class&lt;VictoryPoint&gt;&gt;)\]. |
 
 Pets declaration:
 
 ```pets
 CLASS Philantropist : Milestone {
-  requirement = HAS "5 Class<CardFront>(HAS CardFront<Owner>, HAS GainsOf<Class<VictoryPoint>>)"
+  requirement = HAS "5 Class<@CardFront>(HAS @CardFront<Owner>, HAS GainsOf<Class<VictoryPoint>>)"
 }
 ```
 
@@ -578,13 +578,13 @@ Class: `Landshaper`
 | | Text |
 | --- | --- |
 | Printed text | 1 city, 1 greenery, and 1 special tile. |
-| Generated text | Requires that you have 1 city tile, 1 greenery tile, and 1 special tile. |
+| Generated text | Requires that you have 1 city tile, 1 greenery tile, 1 special tile, and 2 city tiles and special tiles combined. |
 
 Pets declaration:
 
 ```pets
 CLASS Landshaper : Milestone {
-  requirement = HAS "CityTile, GreeneryTile, SpecialTile"
+  requirement = HAS "CityTile, GreeneryTile, SpecialTile, 2 (CityTile OR SpecialTile)"
 }
 ```
 
@@ -775,7 +775,7 @@ Pets declaration:
 
 ```pets
 CLASS Trader : Milestone {
-  requirement = HAS "3 Class<CardResource>(HAS CardResource<Owner>)"
+  requirement = HAS "3 Class<@CardResource>(HAS @CardResource<Owner>)"
 }
 ```
 

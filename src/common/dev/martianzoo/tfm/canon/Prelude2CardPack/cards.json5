@@ -186,7 +186,7 @@
           "name": "WorldGovernmentAdvisor",
           "tags": [ "EarthTag" ],
           "immediate": "2 TerraformRating, ProjectCard",
-          "actions": [ "-> WorldGovernmentTerraforming" ],
+          "actions": [ "-> GlobalParameter BY Admin" ],
         },
       ],
     },
@@ -335,7 +335,7 @@
           "requirement": "PartyRequirement<Unity>",
           "cost": 4,
           "tags": [ "EventTag" ],
-          "immediate": "EACH Colony<Owner> { PartyDelegate }",
+          "immediate": "EACH Colony { PartyDelegate }",
         },
         {
           "name": "ColonialRepresentation",

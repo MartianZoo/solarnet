@@ -211,7 +211,7 @@ CLASS EcologyExperts : CardFront<Class<PreludeCard>> {
   cost = 0
   autoSelectWhen = HAS "MAX 0 Prelude1CardPack"
   This:: PlantTag<This>, MicrobeTag<This>
-  This: PROD[Plant], PlayCard THEN -Required / Required
+  This: PROD[Plant], PlayCard<Class<ProjectCard>> THEN -Required / Required
 }
 ```
 
@@ -1217,7 +1217,7 @@ Class: `WorldGovernmentAdvisor`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Raise your TR 2 steps. Draw 1 card. | Action: RAISE 1 GLOBAL PARAMETER WITHOUT GETTING ANY TR OR OTHER BONUSES |
-| Generated text | Raise your terraform rating 2 steps. Draw 1 card. | Action: Raise 1 global parameter without gaining terraform rating or other bonuses. |
+| Generated text | Raise your terraform rating 2 steps. Draw 1 card. | Action: \[GlobalParameter BY Admin\]. |
 
 Pets declaration:
 
@@ -1226,7 +1226,7 @@ CLASS WorldGovernmentAdvisor : ActionCard<Class<PreludeCard>> {
   cost = 0
   This:: EarthTag<This>
   This: 2 TerraformRating, ProjectCard
-  -> WorldGovernmentTerraforming
+  -> GlobalParameter BY Admin
 }
 ```
 

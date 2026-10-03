@@ -25,6 +25,7 @@ internal class MiningAreaTest : CardTest() {
 
   @Test
   internal fun `Robotic Workforce re-evaluates its production box instead of remembering steel`() {
+    // Resolved FAQ: copying allows any originally available metal, regardless of the first choice.
     newGame(Cimmeria)
     p1.runOperation("CityTile<Cimmeria_5_4>")
     p1.runOperation("$MiningArea") {

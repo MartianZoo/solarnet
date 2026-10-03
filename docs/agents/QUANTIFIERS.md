@@ -221,10 +221,10 @@ discarded when it is an arm of `OR`. The fallback comes from `OR`, not from AMAP
   AMAP placement is `Ok`.
 - Atmoscoop authors separate concrete AMAP global-parameter arms. A maxed arm resolves to `Ok` and
   remains selectable because it is an explicit arm; Atmoscoop is not one abstract parameter domain.
-- Viral Enhancers authors `Plant OR CardResource<CardFront>`. When the entering bio card cannot
-  hold a resource, the AMAP resource arm specializes to `Ok`, leaving a real choice between a plant
-  and no resource. Splice's microbe-or-MC choice behaves the same way for a card that cannot hold
-  microbes.
+- Viral Enhancers authors separate plant, animal, and microbe choices. An uncollectible
+  animal or microbe arm specializes to `Ok`, allowing no bonus even when the entering bio card
+  can hold the other resource. Only animals and microbes are eligible; diseases are excluded.
+  Splice's microbe-or-MC choice behaves the same way for a card that cannot hold microbes.
 - Pharmacy Union does not rely on AMAP treating a vanished card as zero. Its microbe effect
   explicitly chooses between adding Disease while Pharmacy Union exists and `Ok` after it has
   flipped; its independent 4 M€ loss remains pending either way.

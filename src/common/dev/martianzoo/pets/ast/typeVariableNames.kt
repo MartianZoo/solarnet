@@ -359,8 +359,9 @@ public fun resolveClassLiteralTypeVariableNames(expression: Expression): Express
     return expression
   }
   val declaration =
-      expression.arguments.singleOrNull()?.takeIf { it.typeVariableName is Declaration }
-          ?: return expression
+      expression.arguments.singleOrNull()?.takeIf {
+        (it.typeVariableName as? Declaration)?.resolved == false
+      } ?: return expression
   val resolved =
       resolveTypeVariableNames(
               listOf(expression),
@@ -372,24 +373,16 @@ public fun resolveClassLiteralTypeVariableNames(expression: Expression): Express
   return resolved as Expression
 }
 
-/** Erases a refined class literal's lexical alias while retaining its candidate references. */
+/** Erases a refined class literal's explicit alias while retaining its candidate references. */
 internal fun Expression.expandClassLiteralTypeVariableName(): Expression {
   if (className != dev.martianzoo.pets.api.SystemClasses.CLASS || refinement == null) return this
   val represented = arguments.singleOrNull() ?: return this
-  val declaration = represented.takeIf { it.typeVariableName is Declaration }
-  val identity = declaration?.typeVariableName?.identity
+  val identity = (represented.typeVariableName as? Declaration)?.identity ?: return this
   val representedClass = represented.className
   val expander =
       object : PetTransformer() {
         override fun transformNode(node: PetNode): PetNode {
-          if (
-              node is Expression &&
-                  ((identity != null &&
-                      (node.typeVariableName as? Reference)?.identity == identity) ||
-                      (identity == null &&
-                          node.typeVariableName == null &&
-                          node.className == representedClass))
-          ) {
+          if (node is Expression && (node.typeVariableName as? Reference)?.identity == identity) {
             return transformChildren(
                 node.copy(typeVariableName = RepresentedClassReference(representedClass))
             )

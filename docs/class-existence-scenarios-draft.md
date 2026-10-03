@@ -2,6 +2,9 @@
 
 This is a guide to **tested class-selection boundaries**, not an inventory of the catalog. A class *exists* here when it is included in a configured game's class table. That does not mean a card has been drawn or a component has been created. A class may be known to the catalog while absent from a particular game.
 
+For Content selection policy and the proposed expansion-eligibility test, see
+[Content selection and expansion eligibility](agents/CONTENT_SELECTION.md).
+
 Examples use two players unless they say **solo**. An empty configuration means the default game. A minus sign, as in `-RefugeeCamps`, explicitly excludes something. Each group names the test that checks its statements.
 
 ## 1. The starting game and its players

@@ -54,7 +54,7 @@ internal class TurmoilRulesTest : CardTest() {
   }
 
   @Test
-  internal fun `paid lobbying uses the reserve while free lobbying remains and stops when it is empty`() {
+  internal fun `paid lobbying cannot spend the last lobby delegate but free lobbying can`() {
     newGame(TurmoilExpansion)
     repeat(5) { p1.runOperation("PartyDelegate<Unity>") }
     p1.runOperation("10 MC")

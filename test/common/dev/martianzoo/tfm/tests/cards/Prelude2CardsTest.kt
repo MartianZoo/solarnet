@@ -353,7 +353,7 @@ internal class Prelude2CardsTest : CardTest() {
     admin.phase("Action")
     val startingTr = p2.count("TerraformRating")
 
-    p2.cardAction1(WorldGovernmentAdvisor) { wgt("TemperatureStep") }
+    p2.cardAction1(WorldGovernmentAdvisor) { doTask("TemperatureStep BY Admin") }
 
     admin.count("TemperatureStep") shouldBe 1
     p2.count("TerraformRating") shouldBe startingTr
@@ -375,7 +375,7 @@ internal class Prelude2CardsTest : CardTest() {
     val startingTr = p1.count("TerraformRating")
     val aphroditeMoney = p2.count("MC")
 
-    p1.cardAction1(WorldGovernmentAdvisor) { wgt("VenusStep") }
+    p1.cardAction1(WorldGovernmentAdvisor) { doTask("VenusStep BY Admin") }
 
     admin.count("VenusStep") shouldBe 1
     p1.count("TerraformRating") shouldBe startingTr
@@ -399,7 +399,7 @@ internal class Prelude2CardsTest : CardTest() {
     val startingPlants = p2.count("Plant")
     val startingMoneyProduction = p2.production(cn("MC"))
 
-    p1.cardAction1(WorldGovernmentAdvisor) { wgt("OceanTile<Tharsis_1_2>") }
+    p1.cardAction1(WorldGovernmentAdvisor) { doTask("OceanTile<Tharsis_1_2> BY Admin") }
 
     p2.count("Plant") shouldBe startingPlants + 2
     p2.production(cn("MC")) shouldBe startingMoneyProduction + 1
@@ -415,7 +415,7 @@ internal class Prelude2CardsTest : CardTest() {
     val startingTr = p1.count("TerraformRating")
 
     p1.cardAction1(WorldGovernmentAdvisor) {
-      wgt("TemperatureStep")
+      doTask("TemperatureStep BY Admin")
       doTask("OceanTile<Tharsis_1_2> BY Admin")
     }
 
@@ -434,7 +434,7 @@ internal class Prelude2CardsTest : CardTest() {
     admin.phase("Action")
     p1.playProject(HomeostasisBureau, 16)
 
-    p1.cardAction1(WorldGovernmentAdvisor) { wgt("TemperatureStep") }
+    p1.cardAction1(WorldGovernmentAdvisor) { doTask("TemperatureStep BY Admin") }
         .expect("TemperatureStep, 0 TerraformRating, 0 MC")
     p1.stdProject("AsteroidProject").expect("TemperatureStep, TerraformRating, -11 MC")
   }
@@ -727,6 +727,18 @@ internal class Prelude2CardsTest : CardTest() {
         2 to "Energy",
         2 to "Heat",
     )
+  }
+
+  @Test
+  internal fun `Double Down copies Industrial Complex's direct benefit`() {
+    newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
+    admin.phase("Prelude")
+    p1.runOperation("36 MC, PROD[-5 MC], 2 PreludeCard")
+    p1.playPrelude(IndustrialComplex)
+    p1.runOperation("PROD[-Steel]")
+
+    p1.playPrelude(DoubleDown) { doTask("CopyPrelude<$IndustrialComplex>") }
+        .expect("-18 MC, PROD[Steel]")
   }
 
   @Test
@@ -1195,6 +1207,7 @@ internal class Prelude2CardsTest : CardTest() {
         colonyTiles = testColonyTiles(2, "Luna", "Io"),
     )
     p1.runOperation("2 Colony<Luna>")
+    requireP2().runOperation("Colony<Io>")
     val startingMoney = p1.count("MC")
 
     p1.runOperation("$ColonialRepresentation")

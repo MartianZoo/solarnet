@@ -14,12 +14,12 @@ Gardener	Gardener	Requires that you have 3 greenery tiles.
 Generalist	Generalist	Requires that you have 1 M€ production, 1 steel production, 1 titanium production, 1 plant production, 1 energy production, and 1 heat production.
 Generalist2	Generalist	Requires that you have 2 M€ production, 2 steel production, 2 titanium production, 2 plant production, 2 energy production, and 2 heat production.
 Geologist	Geologist	Requires that you have 3 tiles on volcanic areas and tiles next to at least 1 volcanic area combined.
-Landshaper	Landshaper	Requires that you have 1 city tile, 1 greenery tile, and 1 special tile.
+Landshaper	Landshaper	Requires that you have 1 city tile, 1 greenery tile, 1 special tile, and 2 city tiles and special tiles combined.
 Legend	Legend	Requires that you have 4 cards in your event pile.
 Mayor	Mayor	Requires that you have 3 city tiles.
 Merchant	Merchant	Requires that you have 2 M€, 2 steel, 2 titanium, 2 plants, 2 energy, and 2 heat.
 Metallurgist	Metallurgist	Requires that you have 6 titanium or steel production.
-Philantropist	Philantropist	[5 Class<CardFront>(HAS CardFront<Owner>, HAS GainsOf<Class<VictoryPoint>>)].
+Philantropist	Philantropist	[5 Class<@CardFront>(HAS @CardFront<Owner>, HAS GainsOf<Class<VictoryPoint>>)].
 Pioneer	Pioneer	Requires that you have 4 colonies.
 Planetologist	Planetologist	Requires 2 Earth tags, 2 Venus tags, and 2 Jovian tags.
 Planner	Planner	Requires that you have 16 cards in hand.
