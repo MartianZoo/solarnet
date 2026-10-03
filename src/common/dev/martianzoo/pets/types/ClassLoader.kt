@@ -10,6 +10,7 @@ import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
 import dev.martianzoo.pets.api.SystemClasses.OK
+import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
@@ -47,6 +48,7 @@ private constructor(
     private val unavailableClasses: Map<ClassName, Set<ClassName>> = emptyMap(),
     private val configuredModuleNames: Set<ClassName> = emptySet(),
     private val configuredClassSelections: Set<ClassSelection> = emptySet(),
+    private val configuredPlayerNames: List<ClassName> = emptyList(),
 ) : ClassTable() {
   /**
    * Begins compiling [catalog]'s master universe; call [loadEverything] before enumeration ([rules
@@ -482,6 +484,11 @@ private constructor(
   private fun configuredCount(expression: Expression): Int? {
     if (masterSource == null || !expression.simple || expression.className == THIS) return null
     val countedClass = loadRelated(expression.className, include = false)
+    if (findClass(PLAYER)?.let(countedClass::isSubtypeOf) == true) {
+      return configuredPlayerNames.count { name ->
+        loadRelated(name, include = false).isSubtypeOf(countedClass)
+      }
+    }
     val masterSubclasses =
         if (countedClass.classTable === masterSource) masterSource.allSubclasses(countedClass)
         else emptySet()
@@ -746,6 +753,7 @@ private constructor(
         premiseTable: PremiseClassTable,
         configuredModuleNames: Set<ClassName>,
         configuredClassSelections: Set<ClassSelection>,
+        configuredPlayerNames: List<ClassName>,
     ): ClassLoader {
       val masterTable = premiseTable.master
       require(masterTable.masterTable === masterTable) {
@@ -766,6 +774,7 @@ private constructor(
           unavailableClasses,
           configuredModuleNames,
           configuredClassSelections,
+          configuredPlayerNames,
       )
     }
   }

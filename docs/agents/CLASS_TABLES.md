@@ -127,6 +127,10 @@ Only the included-name set and caches derived from it grow during this internal 
 game view is immutable when returned. Master compilation performs all reusable construction and
 hierarchy compilation once for the Catalog.
 
+Inclusion guards use the configured seats for exact counts of unrefined `Player` Types, including
+subclasses. Thus the existing `IF 3 Player` scoring guard leaves `SecondPlace` unselected in a
+two-player game.
+
 ## Access interface
 
 Game runtime code receives the selected table from `World.classTable`; it must not recover the

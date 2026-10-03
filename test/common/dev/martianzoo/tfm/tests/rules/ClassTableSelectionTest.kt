@@ -267,6 +267,21 @@ internal class ClassTableSelectionTest {
   // Other deliberate configuration omissions
 
   @Test
+  internal fun `two-player games omit SecondPlace`() {
+    val view = gameView("", "Green", "Yellow")
+
+    assertSelected(view, setOf(cn("FirstPlace")))
+    assertOmitted(view, setOf(cn("SecondPlace")))
+  }
+
+  @Test
+  internal fun `three-player games include SecondPlace`() {
+    val view = gameView("", "Green", "Yellow", "Blue")
+
+    assertSelected(view, setOf(cn("FirstPlace"), cn("SecondPlace")))
+  }
+
+  @Test
   internal fun `cross-bundle Colonies classes stay unselected without Colonies`() {
     // Promo has a Colonies-gated card; Utopia Planitia has a Colonies-gated milestone.
     val bundle = Canon.bundles.single { it.bundleName == cn("ColoniesExpansion") }
