@@ -12,7 +12,7 @@ CLASS ExtendedGlobalParametersRule : Module {
   TemperatureStep IF =5 TemperatureStep: PROD[Heat]
   TemperatureStep IF =9 TemperatureStep: PROD[Plant]
   TemperatureStep BY Player IF =15 TemperatureStep: OceanTile<>
-  TemperatureStep BY Admin IF =15 TemperatureStep:: \
+  TemperatureStep BY Admin IF =15 TemperatureStep: \
     EACH Starter@Player(HAS StartToken) { AdminOceanPlacement<Starter@Player> }
   TemperatureStep IF =22 TemperatureStep:: GpComplete<Class<TemperatureStep>>
 

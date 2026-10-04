@@ -77,9 +77,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           current = "Riots",
           coming = "Revolution",
       )
-      admin
-          .doTask("SponsoredProjects")
-          .expect("SponsoredProjects, Distant<Class<SponsoredProjects>>")
+      admin.doTask("SponsoredProjects").expect("SponsoredProjects, Distant<SponsoredProjects>")
     }
   }
 
@@ -111,7 +109,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           current = "Revolution",
           coming = "SponsoredProjects",
       )
-      admin.doTask("StrongSociety").expect("StrongSociety, Distant<Class<StrongSociety>>")
+      admin.doTask("StrongSociety").expect("StrongSociety, Distant<StrongSociety>")
     }
   }
 
@@ -149,7 +147,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           current = "SponsoredProjects",
           coming = "StrongSociety",
       )
-      admin.doTask("SnowCover").expect("SnowCover, Distant<Class<SnowCover>>")
+      admin.doTask("SnowCover").expect("SnowCover, Distant<SnowCover>")
     }
   }
 
@@ -193,7 +191,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       )
       admin
           .doTask("ScientificCommunity")
-          .expect("ScientificCommunity, Distant<Class<ScientificCommunity>>")
+          .expect("ScientificCommunity, Distant<ScientificCommunity>")
     }
   }
 
@@ -229,7 +227,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           current = "SnowCover",
           coming = "ScientificCommunity",
       )
-      admin.doTask("HomeworldSupport").expect("HomeworldSupport, Distant<Class<HomeworldSupport>>")
+      admin.doTask("HomeworldSupport").expect("HomeworldSupport, Distant<HomeworldSupport>")
     }
   }
 
@@ -269,7 +267,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           current = "ScientificCommunity",
           coming = "HomeworldSupport",
       )
-      admin.doTask("Pandemic").expect("Pandemic, Distant<Class<Pandemic>>")
+      admin.doTask("Pandemic").expect("Pandemic, Distant<Pandemic>")
       // FAQ v1.8 p.100 awards the solo Reds bonus only at 20 TR or below. The archived server
       // nevertheless awarded it at 21 after annual revision; retain that source result explicitly.
       exMachina("TerraformRating")
@@ -312,7 +310,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           current = "HomeworldSupport",
           coming = "Pandemic",
       )
-      admin.doTask("CelebrityLeaders").expect("CelebrityLeaders, Distant<Class<CelebrityLeaders>>")
+      admin.doTask("CelebrityLeaders").expect("CelebrityLeaders, Distant<CelebrityLeaders>")
     }
   }
 
@@ -367,9 +365,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       )
       admin
           .doTask("InterplanetaryTradeGlobalEvent")
-          .expect(
-              "InterplanetaryTradeGlobalEvent, " + "Distant<Class<InterplanetaryTradeGlobalEvent>>"
-          )
+          .expect("InterplanetaryTradeGlobalEvent, " + "Distant<InterplanetaryTradeGlobalEvent>")
     }
   }
 
@@ -429,7 +425,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           current = "CelebrityLeaders",
           coming = "InterplanetaryTradeGlobalEvent",
       )
-      admin.doTask("SpinOffProducts").expect("SpinOffProducts, Distant<Class<SpinOffProducts>>")
+      admin.doTask("SpinOffProducts").expect("SpinOffProducts, Distant<SpinOffProducts>")
     }
   }
 
@@ -492,7 +488,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       )
       admin
           .doTask("SuccessfulOrganisms")
-          .expect("SuccessfulOrganisms, Distant<Class<SuccessfulOrganisms>>")
+          .expect("SuccessfulOrganisms, Distant<SuccessfulOrganisms>")
     }
   }
 
@@ -565,9 +561,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           current = "SpinOffProducts",
           coming = "SuccessfulOrganisms",
       )
-      admin
-          .doTask("VolcanicEruptions")
-          .expect("VolcanicEruptions, Distant<Class<VolcanicEruptions>>")
+      admin.doTask("VolcanicEruptions").expect("VolcanicEruptions, Distant<VolcanicEruptions>")
     }
   }
 
@@ -667,9 +661,9 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       )
 
       admin.assertCounts(
-          1 to "Current<Class<$SpinOffProducts>>",
-          1 to "Coming<Class<$SuccessfulOrganisms>>",
-          1 to "Distant<Class<$VolcanicEruptions>>",
+          1 to "Current<$SpinOffProducts>",
+          1 to "Coming<$SuccessfulOrganisms>",
+          1 to "Distant<$VolcanicEruptions>",
           1 to "Ruling<MarsFirst>",
           1 to "Dominant<Unity>",
           1 to "Chairman<Neutral>",
@@ -703,8 +697,8 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
     val expected =
         mutableListOf(
             1 to "Ruling<$ruling>",
-            1 to "Current<Class<$current>>",
-            1 to "Coming<Class<$coming>>",
+            1 to "Current<$current>",
+            1 to "Coming<$coming>",
         )
     dominant?.let { expected += 1 to "Dominant<$it>" }
     chairman?.let { expected += 1 to "Chairman<$it>" }

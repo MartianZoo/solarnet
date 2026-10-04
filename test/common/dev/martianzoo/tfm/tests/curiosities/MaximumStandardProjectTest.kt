@@ -187,6 +187,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
     // 27 ocean adjacency + 6 Terraforming Deal + 4 CrediCor + 4 Greens + 3 each
     // from Standard Technology and Homeostasis Bureau + 2 each from Suitable Infrastructure and
     // Meat Industry.
+    val previousPolicy = me.autoExecPolicy
     me.autoExecPolicy = NONE
     me.stdProject(
             "GreeneryProject",
@@ -234,7 +235,8 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
           doTask("TerraformRating", cn("OceanTile"))
           doTask("2 MC", TerraformingDeal)
           doTask("PROD[1 MC]", LakefrontResorts)
-          // Suitable Infrastructure: 2 MC (automatic)
+          // Finish the ordinary history and Suitable Infrastructure effects.
+          me.autoExecPolicy = previousPolicy
         }
         .expect("51 MC, OxygenStep, TemperatureStep, OceanTile, 3 TerraformRating")
 

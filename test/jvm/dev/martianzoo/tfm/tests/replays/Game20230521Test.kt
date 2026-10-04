@@ -286,6 +286,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         declineTask()
         doTask("TemperatureStep")
         doTask("TerraformRating")
+        doTask("2 Titanium")
       }
     }
 
@@ -406,6 +407,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         placeTile(2, 6)
         doTask("TerraformRating")
         doTask("2 ProjectCard")
+        doTask("2 Plant")
       }
       // Player2 played Search For Life
       playProject(SearchForLife, 3) {
@@ -651,6 +653,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         placeTile(8, 7) // r-5 + c
         doTask("OxygenStep")
         doTask("TerraformRating")
+        doTask("ProjectCard")
       }
       // Player2 used Factorum action
       // 3 card(s) were discarded
@@ -1009,6 +1012,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
       playProject(SulphurExports, 13, titanium = 2) {
             doTask("VenusStep")
             doTask("TerraformRating")
+            doTask("PROD[8 MC]")
+            doTask("8 MC")
           }
           .expect("PROD[8 MC], -5 MC, VenusStep")
       // Player1 used Extractor Balloons action
@@ -1157,7 +1162,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
         doTask("4 Steel")
         doTask("Plant<Player2>")
         doTask("2 Plant<Player2>")
-        repeat(4) { doTask("TerraformRating") }
+        doTask("TerraformRating")
+        doTask("HasRaisedTr")
+        repeat(3) { doTask("TerraformRating") }
         repeat(2) { doTask("2 MC") }
       }
       // Player2 used AI Central action
@@ -1623,6 +1630,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         doTask("TerraformRating")
         doTask("4 Plant")
         doTask("3 MC")
+        doTask("3 Heat")
       }
       // Player1 used Development Center action
       // Player1 drew 1 card(s)
@@ -1663,6 +1671,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         doTask("TerraformRating")
         doTask("2 Steel")
         doTask("3 MC")
+        doTask("TemperatureStep")
       }
     }
     // Player1 used Power Infrastructure action
