@@ -51,8 +51,10 @@ The target runtime has three library responsibilities with one-way dependencies:
    correction, cheats, and tests; it does not try to prevent clients from using them.
 3. **Agent:** depends on engine and is the normal client API. It creates exactly one Agent per Actor,
    gives each Agent an Actor-scoped reader with deliberate access to the unscoped reader, and keeps
-   task selection and narrowing small. Each Agent owns its optional autoexecution policies. Shared
-   wiring repeatedly gives all Agents a chance to act after an engine mutation until none does.
+   task selection and narrowing small. It creates caller-held drafts of an Actor's unsubmitted
+   task choices and uses read-only engine validation to continue them; the engine still validates
+   every submitted narrowing. Each Agent owns its optional autoexecution policies. Shared wiring
+   repeatedly gives all Agents a chance to act after an engine mutation until none does.
 
 Applications compose those libraries and add game-specific workflow and presentation. Agent
 construction returns one `Agents`, pairing a World with its immutable set of Agents; its shared loop

@@ -232,6 +232,21 @@ internal class AgentImpl(
   // This layer is only usable if you have a running workflow, so that >0 players always have a
   // task in their queue at any given time
 
+  override fun taskDraft(taskId: TaskId): TaskDraft =
+      TaskDraft(taskId, tasks.getTaskData(taskId).instruction, this)
+
+  internal fun prepareDraftNarrowing(taskId: TaskId, narrowing: String): InstructionTree {
+    val parsed = parseTaskNarrowing(narrowing)
+    return engine.prepareTaskNarrowing(taskId, parsed.instruction, parsed.quantifierOmitted)
+  }
+
+  internal fun recheckDraft(taskId: TaskId, narrowing: InstructionTree): InstructionTree =
+      engine.prepareTaskNarrowing(taskId, narrowing)
+
+  internal fun commitDraft(taskId: TaskId, narrowing: InstructionTree): TaskResult = atomic {
+    engine.narrowTask(taskId, narrowing)
+  }
+
   override fun narrowTask(narrowing: String) = atomic {
     val parsed = parseTaskNarrowing(narrowing)
     engine.narrowTask(parsed.instruction, parsed.quantifierOmitted)

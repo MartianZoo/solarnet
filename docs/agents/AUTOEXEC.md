@@ -58,6 +58,10 @@ An Agent policy can choose anything the same Agent could issue for an explicit c
 including strategically bad or peculiar actions. The engine enforces validity, not strategy.
 Stronger promises belong to a named policy and its tests.
 
+Refining an unsubmitted task draft makes no engine mutation and does not invoke the shared
+autoexecution loop. Future assistance with an unambiguous draft step should behave the same way.
+Committing a choice still uses the ordinary Agent-to-engine path and may trigger policies afterward.
+
 ## Shared autoexecution loop
 
 The engine knows nothing about Agents, policies, or autonomy. After one engine mutation has
