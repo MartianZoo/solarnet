@@ -80,7 +80,7 @@ public open class BusyPreludePhaseBenchmark {
       me.pay(0)
     }
     me.playPrelude(cn("NewPartner")) {
-      me.playPrelude(cn("Merger"), location = cn("Selecting")) {
+      me.playPrelude(cn("Merger")) {
         doTask("PlayCard<Class<StandardCorporationCard>, Class<ValleyTrust>, Selecting>")
       }
     }

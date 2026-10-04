@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
@@ -24,8 +25,8 @@ internal class BugsTest : CardTest() {
     p1.runOperation("9 MC, ProjectCard, Chairman")
 
     // WG Project should make the Prelude 1 pool available without enabling the Prelude phase.
-    shouldThrow<DeadEndException> {
-          p1.playProject(WgProject, 9) { p1.playPrelude(Donation, location = cn("Selecting")) }
+    shouldThrow<NarrowingException> {
+          p1.playProject(WgProject, 9) { p1.playPrelude(Donation) }
         }
         .detail shouldContain "$Donation"
     p1.assertCounts(9 to "MC", 1 to "ProjectCard", 0 to "$WgProject", 0 to "PreludeCard")
@@ -314,7 +315,7 @@ internal class BugsTest : CardTest() {
     admin.runOperation("Ruling<Reds> FROM Ruling")
     admin.phase("Action")
     p1.stdAction("DoRequiredActionsAction") {
-          p1.playPrelude(PreservationProgram, location = cn("Selecting"))
+          p1.playPrelude(PreservationProgram)
         }
         .expect("4 TerraformRating, -5 MC")
     p1.stdProject("AsteroidProject").expect("TerraformRating, -15 MC")
@@ -387,7 +388,7 @@ internal class BugsTest : CardTest() {
           doTask("ActionUsedMarker<$BoardOfDirectors>")
           doTask("UseAction<$BoardOfDirectors, Action1>")
           doTask("-12 MC")
-          playPrelude(Merger) { playCorp(SagittaFrontierServices, location = cn("Selecting")) }
+          playPrelude(Merger) { playCorp(SagittaFrontierServices) }
         }
         useStdAction("ConvertHeatAction", payment = { doTask("8 Pay<Class<Heat>> FROM Heat") })
       }
@@ -405,7 +406,7 @@ internal class BugsTest : CardTest() {
     admin.phase("Prelude")
 
     p1.turn {
-      playPrelude(Merger) { playCorp(SagittaFrontierServices, location = cn("Selecting")) }
+      playPrelude(Merger) { playCorp(SagittaFrontierServices) }
     }
 
     // Jacob rules that Sagitta earns 4 MC for the tagless Merger as well as for itself.
@@ -441,7 +442,7 @@ internal class BugsTest : CardTest() {
 
     p1.cardAction1(BoardOfDirectors) {
       doTask("-12 MC")
-      p1.playPrelude(Merger) { p1.playCorp(TharsisRepublic, location = cn("Selecting")) }
+      p1.playPrelude(Merger) { p1.playCorp(TharsisRepublic) }
     }
     p1.count("CityTile") shouldBe 0
     p1.stdAction("DoRequiredActionsAction") { placeTile(3, 3) }

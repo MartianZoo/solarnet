@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.DeadEndException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.TestOption.TurmoilExpansion
@@ -15,7 +15,7 @@ internal class PoliticalAllianceTest : CardTest() {
     admin.phase("Action")
     p1.runOperation("4 MC, ProjectCard")
 
-    shouldThrow<DeadEndException> { p1.playProject(PoliticalAlliance, 4) }
+    shouldThrow<NarrowingException> { p1.playProject(PoliticalAlliance, 4) }
   }
 
   @Test

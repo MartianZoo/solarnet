@@ -104,12 +104,11 @@ internal abstract class TfmTest {
 
   protected fun TfmGameplay.playCorp(
       cardName: ClassName,
-      location: ClassName? = null,
       body: TfmGameplay.() -> Unit = {},
   ): TaskResult {
     val player = this
     return inTurn {
-      playCorp(cardName, location = location)
+      playCorp(cardName)
       player.body()
     }
   }

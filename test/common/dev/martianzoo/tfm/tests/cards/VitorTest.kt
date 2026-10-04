@@ -75,7 +75,7 @@ internal class VitorTest : CardTest() {
     p2.fundAward(cn("Scientist"), 20)
     p1.cardAction1(BoardOfDirectors) {
       doTask("-12 MC")
-      p1.playPrelude(Merger) { p1.playCorp(Vitor, location = cn("Selecting")) }
+      p1.playPrelude(Merger) { p1.playCorp(Vitor) }
     }
 
     p1.stdAction("DoRequiredActionsAction") { doTask("Thermalist") }.expect("Thermalist, 0 MC")

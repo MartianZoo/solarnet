@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.replays
 
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -31,7 +30,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       playCorp(PharmacyUnion, 10).expect("16 MC, 11 ProjectCard")
 
       playPrelude(Merger) {
-        playCorp(Manutech, location = cn("Selecting"))
+        playCorp(Manutech)
       }
 
       playPrelude(FakeHeadStart) {

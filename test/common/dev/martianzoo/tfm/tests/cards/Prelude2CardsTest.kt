@@ -282,12 +282,12 @@ internal class Prelude2CardsTest : CardTest() {
     with(p1) {
       cardAction1(BoardOfDirectors) {
         doTask("-12 MC")
-        playPrelude(Merger) { playCorp(ValleyTrust, location = cn("Selecting")) }
+        playPrelude(Merger) { playCorp(ValleyTrust) }
       }
     }
     shouldThrow<RequirementException> { p1.stdProject("PowerPlantProject") }
     p1.stdAction("DoRequiredActionsAction") {
-          p1.playPrelude(DomeFarming, location = cn("Selecting"))
+          p1.playPrelude(DomeFarming)
         }
         .expect("PROD[Plant, 2 MC]")
     p1.stdProject("PowerPlantProject").expect("PROD[Energy]")
@@ -560,7 +560,7 @@ internal class Prelude2CardsTest : CardTest() {
     val startingMoney = p1.count("MC")
 
     p1.stdAction("DoRequiredActionsAction") {
-      p1.playPrelude(DomeFarming, location = cn("Selecting"))
+      p1.playPrelude(DomeFarming)
     }
 
     p1.assertProds(2 to "MC", 1 to "Plant")
@@ -595,7 +595,7 @@ internal class Prelude2CardsTest : CardTest() {
     p1.runOperation("42 MC, PreludeCard")
     val startingMoney = p1.count("MC")
 
-    p1.playPrelude(Merger) { p1.playCorp(Manutech, location = cn("Selecting")) }
+    p1.playPrelude(Merger) { p1.playCorp(Manutech) }
 
     p1.assertProds(1 to "Steel")
     p1.count("MC") shouldBe startingMoney - 5
@@ -1036,7 +1036,7 @@ internal class Prelude2CardsTest : CardTest() {
     admin.phase("Action")
     p1.runOperation("10 MC, ProjectCard")
 
-    shouldThrow<DeadEndException> { p1.playProject(SummitLogistics, 10) }
+    shouldThrow<NarrowingException> { p1.playProject(SummitLogistics, 10) }
   }
 
   @Test
@@ -1258,7 +1258,7 @@ internal class Prelude2CardsTest : CardTest() {
 
     val result =
         p1.playProject(WgProject, 9) {
-          p1.playPrelude(HighCircles, location = cn("Selecting")) {
+          p1.playPrelude(HighCircles) {
             doTask("2 PartyDelegate<Unity>")
           }
         }
@@ -1286,7 +1286,7 @@ internal class Prelude2CardsTest : CardTest() {
     p1.count("MC") shouldBe 19
     shouldThrow<LimitsException> {
       p1.playProject(WgProject, 9) {
-        p1.playPrelude(IndustrialComplex, location = cn("Selecting"))
+        p1.playPrelude(IndustrialComplex)
       }
     }
 

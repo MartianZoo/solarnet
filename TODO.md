@@ -154,6 +154,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Preserve authored provenance when runtime narrowing and task normalization synthesize new trees.
   Definition, query, and direct-change diagnostics retain available spans; some generated tasks and
   failures computed solely from component Types still have no authored location.
+- Preserve the empty-intersection reason when rejecting a partial task submission. For an
+  unavailable Type, the current fallback can misleadingly blame an omitted dependency instead.
 - Improve the specific caret targets and related-source context recorded beside message assertions
   in `CatalogDiagnosticsTest` and `PostCatalogDiagnosticsTest`; consider rendering span widths as
   well as their starting positions.
