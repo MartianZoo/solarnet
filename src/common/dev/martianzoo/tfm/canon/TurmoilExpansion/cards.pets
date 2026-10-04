@@ -1,7 +1,7 @@
 // Turmoil declarations that accompany the generated project cards.
 
 "Returns one selected non-leader delegate and resolves its party leadership"
-CLASS BannedDelegateRemoval<@Party, @Anyone> : Owned<Player>, Barrier {
+CLASS BannedDelegateRemoval<@Party, @Anyone> : Owned<Player>, Barrier, Hidden {
   HAS MAX 1 This
   This IF MAX 0 (PartyDelegate<@Party, @Anyone> - PartyLeader<@Party, @Anyone>):: Die
   This: -PartyDelegate<@Party, @Anyone> THEN -This!

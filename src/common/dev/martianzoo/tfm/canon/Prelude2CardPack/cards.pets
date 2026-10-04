@@ -1,4 +1,4 @@
-CLASS L1GiftWatcher : Owned<Player>, Temporary {
+CLASS L1GiftWatcher : Owned<Player>, Temporary, Hidden {
   This:: L1Gift / (ResourceCard(HAS CardResource) MAX 3)
   CardResource:: -L1Gift
 }

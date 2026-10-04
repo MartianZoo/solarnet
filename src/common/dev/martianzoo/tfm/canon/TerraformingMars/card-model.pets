@@ -53,7 +53,7 @@ CLASS CardPurchase : HasActions {
 }
 
 "A requested number of externally selected project cards awaiting payment"
-CLASS BuyCard : Owned<Player>, MustCleanUp {
+CLASS BuyCard : Owned<Player>, MustCleanUp, Hidden {
   This:: 3 Owed<> THEN PayingFor<Class<ProjectCard>> THEN ActionBilling<CardPurchase, Action1>.
 }
 
@@ -61,7 +61,7 @@ CLASS BuyCard : Owned<Player>, MustCleanUp {
 ABSTRACT CLASS CardFilter : System
 
 "Carries the externally asserted printed-tag criterion"
-CLASS TagFilter<Class<Tag>> : CardFilter { HAS MAX 1 This }
+CLASS TagFilter<Class<Tag>> : CardFilter, Hidden { HAS MAX 1 This }
 
 "Records the search criterion while adding only the externally selected card to the hand"
 CLASS SearchForCard<CardFilter> : Owned<Player>, Signal {
@@ -95,7 +95,7 @@ CLASS PriceCard<Class<@CardFront>> : Owned<Player>, Signal {
 CLASS PriceAspectCount<Class<CardFront>, Class<Component>> : CustomMetric
 
 "A temporary shortfall between a printed global requirement and the current parameter"
-CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
+CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier, Hidden {
   DEFAULT -Required.
 }
 
@@ -131,4 +131,4 @@ ABSTRACT CLASS Cardbound<CardFront<@Player>> : Owned<@Player>
 CLASS ActionUsedMarker<GenerationScope> : Cardbound<ActionCard> { HAS MAX 1 This }
 
 "A singleton listener needed by selected content"
-ABSTRACT CLASS CardWatcher : System { HAS MAX 1 This }
+ABSTRACT CLASS CardWatcher : System, Hidden { HAS MAX 1 This }

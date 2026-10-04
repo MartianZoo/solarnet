@@ -10,12 +10,12 @@ CLASS MyResourceWasRemoved<Class<Resource>, Player, GenerationScope> : Owned<Own
 "A durable generational production-decrease record owned by the victim and naming the attacker"
 CLASS MyProductionWasDecreased<Class<StandardResource>, Player, GenerationScope> : Owned<Owner>, Hidden
 
-CLASS ResourceRemovalWatcher<Class<@Resource>> : System {
+CLASS ResourceRemovalWatcher<Class<@Resource>> : System, Hidden {
   HAS =1 This
   -X @Resource<Victim@Owner(NOT Attacker@Player)> BY Attacker@Player:: MyResourceWasRemoved<Victim@Owner, Class<@Resource>, Attacker@Player>.
 }
 
-CLASS ProductionDecreaseWatcher<Class<@StandardResource>> : System {
+CLASS ProductionDecreaseWatcher<Class<@StandardResource>> : System, Hidden {
   HAS =1 This
   -X Production<Victim@Owner(NOT Attacker@Player), Class<@StandardResource>> BY Attacker@Player:: MyProductionWasDecreased<Victim@Owner, Class<@StandardResource>, Attacker@Player>.
 }

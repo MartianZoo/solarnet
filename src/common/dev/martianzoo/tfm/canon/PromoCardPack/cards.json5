@@ -499,7 +499,7 @@
           ],
           "components": [
             "CLASS Hydroelectric : CardResource",
-            "CLASS NeptunianOption : Cardbound, HasActions { 5 MC -> PROD[Energy], Hydroelectric<NeptunianPowerConsultants>; UseAction<This>:: Accepting<Class<Steel>> }"
+            "CLASS NeptunianOption : Cardbound, HasActions, Hidden { 5 MC -> PROD[Energy], Hydroelectric<NeptunianPowerConsultants>; UseAction<This>:: Accepting<Class<Steel>> }"
           ],
         },
         {
@@ -658,7 +658,7 @@
             "End: VictoryPoint / Cathedral"
           ],
           "components": [
-            "CLASS CathedralOption : HasActions { 2 MC -> ProjectCard }",
+            "CLASS CathedralOption : HasActions, Hidden { 2 MC -> ProjectCard }",
             "CLASS CathedralOffer : Owned<Anyone>, Signal { This: UseAction<CathedralOption>? }",
             "CLASS Cathedral<CityTile<@Anyone>> : Owned { HAS MAX 1 This; This: CathedralOffer<@Anyone> }"
           ],

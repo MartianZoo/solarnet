@@ -9,7 +9,7 @@ CLASS VenusNextExpansion : Module {
 CLASS VenusStep : GlobalParameter
 
 "Enforces the limit, rewards, and completion step printed on the standard Venus track"
-CLASS StandardVenusTrackRules : System {
+CLASS StandardVenusTrackRules : System, Hidden {
   HAS =1 This
   HAS MAX 15 VenusStep
 
@@ -19,7 +19,7 @@ CLASS StandardVenusTrackRules : System {
 }
 
 "Enforces the extended Venus track when the extended global parameters are active"
-CLASS ExtendedVenusTrackRules : System {
+CLASS ExtendedVenusTrackRules : System, Hidden {
   HAS =1 This
   HAS MAX 18 VenusStep
 

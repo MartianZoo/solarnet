@@ -238,7 +238,7 @@
             "End: 2 VictoryPoint",
           ],
           "components": [
-            "CLASS L1Gift : Owned<Player>, MustCleanUp",
+            "CLASS L1Gift : Owned<Player>, MustCleanUp, Hidden",
           ],
         },
         {

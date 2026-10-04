@@ -35,7 +35,7 @@ CLASS Production<Class<@StandardResource>> : Owned {
 }
 
 "TODO: consider rename to ProductionBasement"
-CLASS ProdOffset<Class<@StandardResource>> : Owned<Player>, System {
+CLASS ProdOffset<Class<@StandardResource>> : Owned<Player>, System, Hidden {
   This:: PROD[@StandardResource]
   ProductionPhase: -@StandardResource
 }
