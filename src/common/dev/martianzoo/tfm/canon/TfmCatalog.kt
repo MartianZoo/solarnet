@@ -29,9 +29,9 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.ModuleProperties.AUTO_SELECT_WHEN
 import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.data.createClassLoader
 import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.pets.types.Class as PetClass
-import dev.martianzoo.pets.types.ClassLoader
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.PremiseClassTable
 import dev.martianzoo.pets.util.associateByStrict
@@ -44,7 +44,7 @@ public open class TfmCatalog : Catalog {
       )
 
   final override val classTable: ClassTable by lazy {
-    ClassLoader(this).loadEverything().also(::validateCards)
+    createClassLoader(this).loadEverything().also(::validateCards)
   }
 
   private val universe: ClassTable

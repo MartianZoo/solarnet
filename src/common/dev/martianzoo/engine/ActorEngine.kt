@@ -71,7 +71,7 @@ internal constructor(
   ): TaskResult = worldTransaction.run(block, validateCompletion, settle)
 
   private fun narrowingFacts(requirementsHold: Boolean): TypeInfo =
-      object : GameReader by reader {
+      object : TypeInfo by reader {
         override fun isAbstract(e: Expression): Boolean = reader.resolve(e).isAbstract(this)
 
         override fun ensureNarrows(wide: Expression, narrow: Expression) {
@@ -524,7 +524,7 @@ internal constructor(
           else -> emptyList()
         }
     val firstStageInfo =
-        object : GameReader by reader {
+        object : TypeInfo by reader {
           override fun ensureSelectionNarrows(wide: Expression, narrow: Expression) {
             val type = reader.resolve(narrow)
             val selected = reader.classTable.singleConcreteSubtype(type, reader) ?: type

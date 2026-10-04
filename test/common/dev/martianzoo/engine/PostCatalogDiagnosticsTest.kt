@@ -37,8 +37,8 @@ import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.data.createClassLoader
 import dev.martianzoo.pets.systemClassDeclarations
-import dev.martianzoo.pets.types.ClassLoader
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.state.Task
 import dev.martianzoo.state.Task.TaskId
@@ -1458,7 +1458,7 @@ internal class PostCatalogDiagnosticsTest {
               ClassDeclaration.indexByName(systemClassDeclarations + explicitClassDeclarations)
           override val customClasses = emptySet<CustomClass>()
           override val modules = mapOf(cn("Rules") to emptySet<ClassSelection>())
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1494,7 +1494,7 @@ internal class PostCatalogDiagnosticsTest {
               ClassDeclaration.indexByName(systemClassDeclarations + explicitClassDeclarations)
           override val customClasses = emptySet<CustomClass>()
           override val modules = mapOf(cn("Rules") to emptySet<ClassSelection>())
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1538,7 +1538,7 @@ internal class PostCatalogDiagnosticsTest {
               ClassDeclaration.indexByName(systemClassDeclarations + explicitClassDeclarations)
           override val customClasses = emptySet<CustomClass>()
           override val modules = mapOf(cn("Rules") to emptySet<ClassSelection>())
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1581,7 +1581,7 @@ internal class PostCatalogDiagnosticsTest {
           override val allClassDeclarations =
               ClassDeclaration.indexByName(systemClassDeclarations + explicitClassDeclarations)
           override val customClasses = setOf(object : CustomInstruction("Unimplemented") {})
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1624,7 +1624,7 @@ internal class PostCatalogDiagnosticsTest {
                     override fun count(game: GameReader, type: Type): Int = -1
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1675,7 +1675,7 @@ internal class PostCatalogDiagnosticsTest {
                         TODO("finish translation")
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1722,7 +1722,7 @@ internal class PostCatalogDiagnosticsTest {
                     override fun count(game: GameReader, type: Type): Int = TODO("finish count")
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1771,7 +1771,7 @@ internal class PostCatalogDiagnosticsTest {
                         error("translator forgot its rule")
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1814,7 +1814,7 @@ internal class PostCatalogDiagnosticsTest {
                     override fun translate(game: GameReader): InstructionTree = parse("Water")
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1851,7 +1851,7 @@ internal class PostCatalogDiagnosticsTest {
                     override fun translate(game: GameReader): InstructionTree = parse("Water<>")
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1904,7 +1904,7 @@ internal class PostCatalogDiagnosticsTest {
                     override fun count(game: GameReader, type: Type): Int = -1
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1954,7 +1954,7 @@ internal class PostCatalogDiagnosticsTest {
                     override fun count(game: GameReader, type: Type): Int = -1
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -1994,7 +1994,7 @@ internal class PostCatalogDiagnosticsTest {
                     override fun count(game: GameReader, type: Type): Int = 0
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =
@@ -2690,7 +2690,7 @@ internal class PostCatalogDiagnosticsTest {
                     override fun translate(game: GameReader): InstructionTree = parse("Water")
                   }
               )
-          override val classTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable by lazy { createClassLoader(this).loadEverything() }
         }
     catalog.classTable
     val premise =

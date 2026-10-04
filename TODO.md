@@ -6,6 +6,12 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Before the [game-assembly move to state](docs/agents/RESPONSIBILITIES.md#presentation-and-assembly-data-sit-inside-pets),
+  consolidate GamePremise's internal loader calls behind one construction entrypoint and relocate
+  the affected assembly tests. Do not expose individual loader internals to accomplish the move.
+- Review derived lookups on delegated Catalogs: `customClass`, `customMetric`, `classDeclaration`,
+  and `allClassNames` use the delegate's properties even when the wrapper overrides them. Keep this
+  existing issue separate from the class-loading boundary cleanup.
 - Look for a small way to evaluate the existing `CardFilter` criteria against a card Class in Pets.
   Replay tracking currently checks them in Kotlin; avoid adding engine card identities or a new
   processing stage just for this. Named-header specialization of Requirement properties and

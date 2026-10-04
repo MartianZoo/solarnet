@@ -18,7 +18,7 @@ public interface GameReader : TypeInfo {
   public val catalog: Catalog
 
   /** The complete class universe selected for this game. */
-  public val classTable: ClassTable
+  override val classTable: ClassTable
 
   /** Returns the type represented by the fully contextualized [expression]. */
   public fun resolve(expression: Expression): Type

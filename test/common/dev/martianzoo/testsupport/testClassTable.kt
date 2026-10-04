@@ -8,8 +8,8 @@ import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GamePremise
+import dev.martianzoo.pets.data.createClassLoader
 import dev.martianzoo.pets.systemClassDeclarations
-import dev.martianzoo.pets.types.ClassLoader
 import dev.martianzoo.pets.types.ClassTable
 
 internal fun testClassTable(source: String): ClassTable = testCatalog(source).classTable
@@ -47,7 +47,7 @@ private fun testCatalog(source: String): Catalog {
               require(it.size == declarations.size) { "duplicate test Class declaration" }
             }
         override val customClasses: Set<CustomClass> = emptySet()
-        override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
+        override val classTable: ClassTable by lazy { createClassLoader(this).loadEverything() }
       }
   return catalog
 }

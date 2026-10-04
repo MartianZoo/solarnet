@@ -1,6 +1,5 @@
 package dev.martianzoo.pets.ast
 
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.types.TypeVariableScope
 import dev.martianzoo.pets.types.recordTypeVariableScopes
@@ -29,6 +28,5 @@ internal fun <P : PetElement> P.withTypeVariables(scope: TypeVariableScope): P =
 
 internal fun PetElement.typeVariablesFor(info: TypeInfo): TypeVariableScope {
   if (!typeVariables.isEmpty) return typeVariables
-  val table = (info as? GameReader)?.classTable ?: return typeVariables
-  return table.recordTypeVariableScopes().transformElement(this).typeVariables
+  return info.classTable.recordTypeVariableScopes().transformElement(this).typeVariables
 }

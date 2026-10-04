@@ -10,7 +10,7 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.types.ClassLoader
+import dev.martianzoo.pets.data.createClassLoader
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.testCatalog
 import io.kotest.assertions.throwables.shouldThrow
@@ -77,7 +77,9 @@ internal class PetElaboratorTest {
                   },
           )
 
-      override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
+      override val classTable: ClassTable by lazy {
+        createClassLoader(this).loadEverything()
+      }
     }
   }
   private val table = catalog.classTable

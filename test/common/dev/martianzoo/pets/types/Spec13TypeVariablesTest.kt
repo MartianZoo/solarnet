@@ -3,11 +3,11 @@ package dev.martianzoo.pets.types
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.PetTransformer
+import dev.martianzoo.pets.TableWorld
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -17,14 +17,12 @@ import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
-import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.typeVariablesFor
-import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Catalog
+import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.util.Multiset
+import dev.martianzoo.pets.data.createClassLoader
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -225,7 +223,9 @@ internal class Spec13TypeVariablesTest {
         )
     val secondCatalog =
         object : Catalog by firstCatalog {
-          override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable: ClassTable by lazy {
+            createClassLoader(this).loadEverything()
+          }
         }
     val firstTable = firstCatalog.classTable
     val secondTable = secondCatalog.classTable
@@ -252,36 +252,38 @@ internal class Spec13TypeVariablesTest {
             initialComponentTypes = emptySet(),
             premiseClassDeclarations = parseClasses("ABSTRACT CLASS Local").toSet(),
         )
-    val reader =
-        object : GameReader {
-          override val actors: List<Actor> = emptyList()
-          override val catalog: Catalog = sourceCatalog
-          override val classTable: ClassTable = premise.classTable
-
-          override fun resolve(expression: Expression): Type = classTable.resolve(expression)
-
-          override fun isAbstract(e: Expression): Boolean = error("unused")
-
-          override fun ensureNarrows(wide: Expression, narrow: Expression): Unit = error("unused")
-
-          override fun ensureSelectionNarrows(wide: Expression, narrow: Expression): Unit =
-              error("unused")
-
-          override fun has(requirement: Requirement): Boolean = error("unused")
-
-          override fun count(metric: Metric): Int = error("unused")
-
-          override fun count(type: Type): Int = error("unused")
-
-          override fun countComponent(concreteType: Type): Int = error("unused")
-
-          override fun getComponents(type: Type): Multiset<Type> = error("unused")
-
-          override fun getDependents(component: Type): Set<Type> = error("unused")
-        }
+    val info = object : TypeInfo by TableWorld(premise.classTable) {}
     val instruction = parse<Instruction>("L@Local THEN L@Local")
 
-    names(instruction.typeVariablesFor(reader)) shouldContainExactly listOf("L")
+    names(instruction.typeVariablesFor(info)) shouldContainExactly listOf("L")
+  }
+
+  @Test
+  internal fun `T13-3 narrowing shared master variables uses the delegated premise universe`() {
+    val catalog = testCatalog("ABSTRACT CLASS Piece\nCLASS Box<Piece>")
+    val premise =
+        GamePremise(
+            catalog = catalog,
+            modules = emptySet(),
+            classSelections =
+                setOf(
+                    ClassSelection(cn("LocalPiece")),
+                    ClassSelection(cn("OtherPiece")),
+                    ClassSelection(cn("Box")),
+                ),
+            initialComponentTypes = emptySet(),
+            premiseClassDeclarations =
+                parseClasses("CLASS LocalPiece : Piece\nCLASS OtherPiece : Piece").toSet(),
+        )
+    val instruction =
+        catalog.classTable
+            .recordTypeVariableScopes()
+            .transformInstruction(parse<Instruction>("Chosen@Piece! THEN Box<Chosen@Piece>!"))
+    val info = object : TypeInfo by TableWorld(premise.classTable) {}
+
+    parse<Instruction>("LocalPiece! THEN Box<LocalPiece>!").narrows(instruction, info) shouldBe true
+    parse<Instruction>("LocalPiece! THEN Box<OtherPiece>!").narrows(instruction, info) shouldBe
+        false
   }
 
   @Test
@@ -565,7 +567,9 @@ internal class Spec13TypeVariablesTest {
           override val explicitClassDeclarations =
               base.explicitClassDeclarations.filterNot { it.className == cn("Gift") }.toSet() +
                   giftDeclaration
-          override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
+          override val classTable: ClassTable by lazy {
+            createClassLoader(this).loadEverything()
+          }
         }
     val table = catalog.classTable
     val gift = table.getClass(cn("Gift"))
@@ -1704,6 +1708,8 @@ internal class Spec13TypeVariablesTest {
     val world = RecordingWorld(answer = false)
     val info =
         object : TypeInfo by world {
+          override val classTable: ClassTable = table
+
           override fun isAbstract(e: Expression): Boolean = table.resolve(e).abstract
 
           override fun ensureNarrows(wide: Expression, narrow: Expression) {
