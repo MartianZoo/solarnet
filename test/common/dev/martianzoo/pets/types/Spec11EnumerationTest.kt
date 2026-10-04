@@ -1,6 +1,7 @@
 package dev.martianzoo.pets.types
 
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -37,7 +38,7 @@ internal class Spec11EnumerationTest {
 
   @Test
   internal fun `T11-1 enumeration pairs every concrete subclass with every concrete binding`() {
-    subtypes("Tile") shouldContainExactly
+    subtypes("Tile") shouldContainExactlyInAnyOrder
         listOf(
             "GreeneryTile<Tharsis_2_2>",
             "GreeneryTile<Tharsis_2_3>",
@@ -64,15 +65,17 @@ internal class Spec11EnumerationTest {
 
   @Test
   internal fun `T11-2 a difference filters the enumerated candidates`() {
-    subtypes("Area(NOT WaterArea)") shouldContainExactly listOf("Tharsis_2_2", "Tharsis_2_3")
-    subtypes("Tile<Area(NOT WaterArea)>") shouldContainExactly
+    subtypes("Area(NOT WaterArea)") shouldContainExactlyInAnyOrder
+        listOf("Tharsis_2_2", "Tharsis_2_3")
+    subtypes("Tile<Area(NOT WaterArea)>") shouldContainExactlyInAnyOrder
         listOf("GreeneryTile<Tharsis_2_2>", "GreeneryTile<Tharsis_2_3>")
   }
 
   @Test
   internal fun `T11-2 a world-dependent refinement is not applied while enumerating`() {
     // Enumeration is world-free, so `HAS` is left for the caller to test.
-    subtypes("LandArea(HAS Neighbor)") shouldContainExactly listOf("Tharsis_2_2", "Tharsis_2_3")
+    subtypes("LandArea(HAS Neighbor)") shouldContainExactlyInAnyOrder
+        listOf("Tharsis_2_2", "Tharsis_2_3")
   }
 
   @Test

@@ -300,7 +300,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
     var drySpell = 0
     while (set.size < count && drySpell < stopAtDrySpell) {
       val node = makeRandomNode<T>()
-      if (node.descendantCount() <= depthLimit && set.add(node)) {
+      if (node.descendantsOfType<PetNode>().size <= depthLimit && set.add(node)) {
         drySpell = 0
       } else {
         drySpell++
