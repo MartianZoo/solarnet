@@ -7,6 +7,7 @@ import dev.martianzoo.pets.types.Dependency.Key
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -174,12 +175,16 @@ internal class Spec04ClassLiteralsTest {
 
   @Test
   internal fun `T4-8 enumeration has one literal per concrete Class with an inhabited base Type`() {
-    table.allConcreteSubtypes(type("Class<Metal>")).map { "$it" }.toList() shouldContainExactly
-        listOf("Class<Steel>", "Class<Titanium>")
+    table
+        .allConcreteSubtypes(type("Class<Metal>"))
+        .map { "$it" }
+        .toList() shouldContainExactlyInAnyOrder listOf("Class<Steel>", "Class<Titanium>")
     table.allConcreteSubtypes(type("Class<Steel>")).map { "$it" }.toList() shouldContainExactly
         listOf("Class<Steel>")
-    table.allConcreteSubtypes(type("Class<Tag>")).map { "$it" }.toList() shouldContainExactly
-        listOf("Class<BuildingTag>", "Class<SpaceTag>")
+    table
+        .allConcreteSubtypes(type("Class<Tag>"))
+        .map { "$it" }
+        .toList() shouldContainExactlyInAnyOrder listOf("Class<BuildingTag>", "Class<SpaceTag>")
   }
 
   @Test

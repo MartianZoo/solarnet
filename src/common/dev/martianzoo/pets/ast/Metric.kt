@@ -235,8 +235,8 @@ public sealed class Metric : PetElement() {
 
     public companion object {
       /**
-       * Returns the union of [metrics], flattening nested unions, or null if [metrics] is empty. A
-       * single remaining alternative is returned as itself rather than as an `Or`.
+       * Returns the union of the nonempty [metrics], flattening nested unions. A single remaining
+       * alternative is returned as itself rather than as an `Or`.
        *
        * This collapses duplicate alternatives rather than rejecting them; it is the parser that
        * enforces
@@ -245,7 +245,7 @@ public sealed class Metric : PetElement() {
        *
        * @throws PetSyntaxException if any alternative is not a plain [Count]
        */
-      public fun create(metrics: Iterable<Metric>): Metric? {
+      public fun create(metrics: Iterable<Metric>): Metric {
         val flattened = metrics.flatMap { if (it is Or) it.metrics else listOf(it) }
         val counted = flattened.map {
           it as? Count
@@ -254,15 +254,8 @@ public sealed class Metric : PetElement() {
               )
         }
         val distinct = counted.distinct()
-        return when (distinct.size) {
-          0 -> null
-          1 -> distinct.single()
-          else -> Or(distinct)
-        }
+        return if (distinct.size == 1) distinct.single() else Or(distinct)
       }
-
-      private fun create(first: Metric, vararg rest: Metric) =
-          if (rest.none()) first else create(listOf(first) + rest)
     }
 
     override fun visitChildren(visitor: Visitor): Unit = visitor.visit(metrics)

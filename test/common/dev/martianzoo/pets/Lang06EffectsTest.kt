@@ -299,9 +299,4 @@ internal class Lang06EffectsTest {
         """
     )
   }
-
-  @Test
-  internal fun `L6-12 an effect's descendant count is its whole subtree`() {
-    parse<Effect>("Steel<Steel>: PROD[(1 Heat FROM Plant) OR MC]").descendantCount() shouldBe 20
-  }
 }

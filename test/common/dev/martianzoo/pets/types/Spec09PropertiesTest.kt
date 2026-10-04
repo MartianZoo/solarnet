@@ -2,7 +2,6 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
-import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PropertyName
@@ -122,18 +121,17 @@ internal class Spec09PropertiesTest {
 
   @Test
   internal fun `T9-2 a subclass may not widen or sidestep an inherited bound`() {
-    shouldThrow<PetSyntaxException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
-          "ABSTRACT CLASS TemperatureStep",
-          "ABSTRACT CLASS Area { row = Number }",
-          "CLASS Tharsis_2_2 : Area { row = TemperatureStep }",
+          "ABSTRACT CLASS CardFront { cost = Number }",
+          "ABSTRACT CLASS DiscountedCard : CardFront { cost = Metric }",
       )
     }
-    shouldThrow<PetSyntaxException> {
+    shouldThrow<InvalidPetDefinitionException> {
       loadTypes(
-          "ABSTRACT CLASS TemperatureStep",
+          "CLASS Plant",
           "ABSTRACT CLASS Milestone { requirement = Requirement }",
-          "CLASS Gardener : Milestone { requirement = TemperatureStep }",
+          "CLASS Gardener : Milestone { requirement = COUNT \"Plant\" }",
       )
     }
     shouldThrow<InvalidPetDefinitionException> {
@@ -266,7 +264,8 @@ internal class Spec09PropertiesTest {
     val area = table.resolve(te("Tharsis_2_2"))
 
     area.getNumberPropertyValue("row") shouldBe 8
-    area.getMetricPropertyValue("score") shouldBe parse<Metric>("TemperatureStep")
+    area.rootClass.properties[PropertyName("score")] shouldBe
+        MetricValue(parse<Metric>("TemperatureStep"))
     area.getRequirementPropertyValue("requirement") shouldBe parse<Requirement>("TemperatureStep")
   }
 

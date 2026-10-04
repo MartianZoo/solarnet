@@ -16,7 +16,6 @@ import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Property
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.AbsentRequirementValue
-import dev.martianzoo.pets.ast.PropertyValue.MetricValue
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
@@ -133,13 +132,6 @@ internal constructor(
    */
   override fun getNumberPropertyValue(propertyName: String): Int =
       (rootClass.properties.getValue(PropertyName(propertyName)) as NumberValue).value
-
-  /**
-   * Returns the concrete metric value of [propertyName], as specified by
-   * [rule T9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
-   */
-  override fun getMetricPropertyValue(propertyName: String): Metric =
-      (rootClass.properties.getValue(PropertyName(propertyName)) as MetricValue).value
 
   /**
    * Returns the concrete requirement value of [propertyName], or null for an absent optional, as

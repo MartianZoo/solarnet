@@ -139,6 +139,15 @@ internal class Lang03NarrowingTest {
         true
   }
 
+  @Test
+  internal fun `L2-4 a compact transmutation retains one value for each unchanged argument`() {
+    // L2-4: the retained owner is one choice shared by the gained and removed projections.
+    val compact = "Marker<Anyone, Mars1 FROM Mars2>!"
+
+    narrows(compact, "Marker<Player1, Mars1> FROM Marker<Player1, Mars2>!") shouldBe true
+    refuses(compact, "Marker<Player1, Mars1> FROM Marker<Player2, Mars2>!")
+  }
+
   // L3-5 Ok
 
   @Test

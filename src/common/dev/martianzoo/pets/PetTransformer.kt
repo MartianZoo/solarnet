@@ -246,7 +246,7 @@ public abstract class PetTransformer protected constructor() {
                     transformMetric(node.minuend),
                     transformMetric(node.subtrahend),
                 )
-            is Metric.Or -> Metric.Or.create(metrics(node.metrics))!!
+            is Metric.Or -> Metric.Or.create(metrics(node.metrics))
             is Metric.Eval -> Metric.Eval(transformProperty(node.property))
             is Metric.Transform -> Metric.Transform(transformMetric(node.inner), node.transformKind)
           }

@@ -10,6 +10,7 @@ import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GamePremise
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
@@ -65,7 +66,8 @@ internal class Spec12InhabitanceTest {
   @Test
   internal fun `T12-2 a view shares the master's classes and types`() {
     (view.getClass(cn("Gardener")) === master.getClass(cn("Gardener"))) shouldBe true
-    (view.resolve(te("Gardener")) === master.resolve(te("Gardener"))) shouldBe true
+    view.resolve(te("Gardener")) shouldBe master.resolve(te("Gardener"))
+    master.knows(view.resolve(te("Gardener"))) shouldBe true
     view.knows(master.resolve(te("Gardener"))) shouldBe true
   }
 
@@ -148,12 +150,13 @@ internal class Spec12InhabitanceTest {
     assertSame(master.getClass(cn("Holder")), view.getClass(cn("Holder")))
     view.getClass(cn("LocalFeature")).isSubtypeOf(master.getClass(cn("Feature"))) shouldBe true
     view.resolve(te("Holder<LocalFeature>")).classTable shouldBe view
-    view.allSubclasses(master.getClass(cn("Feature"))).map { it.className } shouldContainExactly
-        listOf(cn("Feature"), cn("LocalFeature"))
+    view.allSubclasses(master.getClass(cn("Feature"))).map {
+      it.className
+    } shouldContainExactlyInAnyOrder listOf(cn("Feature"), cn("LocalFeature"))
     val masterPlayer = master.getClass(cn("Player"))
     master.allSubclasses(masterPlayer).map { it.className } shouldContainExactly
         listOf(cn("Player"))
-    view.allSubclasses(masterPlayer).map { it.className } shouldContainExactly
+    view.allSubclasses(masterPlayer).map { it.className } shouldContainExactlyInAnyOrder
         listOf(cn("Player"), cn("Player1"))
     view.directSubclasses(masterPlayer).map { it.className } shouldContainExactly
         listOf(cn("Player1"))
@@ -314,9 +317,10 @@ internal class Spec12InhabitanceTest {
 
   @Test
   internal fun `T12-3 subclass enumeration follows the premise closure`() {
-    master.allSubclasses(master.getClass(cn("Milestone"))).map { "$it" } shouldContainExactly
-        listOf("Gardener", "Terraformer", "Milestone")
-    view.allSubclasses(view.getClass(cn("Milestone"))).map { "$it" } shouldContainExactly
+    master.allSubclasses(master.getClass(cn("Milestone"))).map {
+      "$it"
+    } shouldContainExactlyInAnyOrder listOf("Gardener", "Terraformer", "Milestone")
+    view.allSubclasses(view.getClass(cn("Milestone"))).map { "$it" } shouldContainExactlyInAnyOrder
         listOf("Gardener", "Milestone")
     view.directSubclasses(view.getClass(cn("Milestone"))).map { "$it" } shouldContainExactly
         listOf("Gardener")
@@ -327,7 +331,7 @@ internal class Spec12InhabitanceTest {
     master
         .allConcreteSubtypes(master.resolve(te("Milestone")))
         .map { "$it" }
-        .toList() shouldContainExactly listOf("Gardener<Player1>", "Terraformer<Player1>")
+        .toList() shouldContainExactlyInAnyOrder listOf("Gardener<Player1>", "Terraformer<Player1>")
     view
         .allConcreteSubtypes(view.resolve(te("Milestone")))
         .map { "$it" }
@@ -387,6 +391,23 @@ internal class Spec12InhabitanceTest {
 
     table.isInhabited(table.resolve(te("SelfLink"))) shouldBe true
     table.isInhabited(table.resolve(te("Class<SelfLink>"))) shouldBe true
+  }
+
+  @Test
+  internal fun `T12-4 missing inhabitants propagate through represented-class dependencies`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS CardResource : Owned<Owner> { CLASS Animal }",
+            "ABSTRACT CLASS ResourceHolder<Class<CardResource>>",
+            "CLASS Pets : ResourceHolder<Class<Animal>>",
+        )
+
+    // ResourceHolder omits canon's Owned superclass so only its resource dependency excludes Pets.
+    // With no player, no animal can exist. Its class representative is then absent, so Pets
+    // cannot exist either; the representative of Pets must disappear in turn.
+    table.isInhabited(table.resolve(te("Animal"))) shouldBe false
+    table.isInhabited(table.resolve(te("Pets"))) shouldBe false
+    table.isInhabited(table.resolve(te("Class<Pets>"))) shouldBe false
   }
 
   @Test

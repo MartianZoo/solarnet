@@ -104,7 +104,6 @@ internal class Lang02InstructionsTest {
     compact.gaining shouldBe parse<Expression>("Marker<Mars1, Player1>")
     compact.removing shouldBe parse<Expression>("Marker<Mars1, Player2>")
     (compact.fromEx is Compact) shouldBe true
-    (compact.gaining.arguments[0] === compact.removing.arguments[0]) shouldBe true
     shouldThrow<PetSyntaxException> { parse<Instruction>("Marker<Mars1 FROM Mars2, P1 FROM P2>") }
 
     parse<Instruction>("Marker<Player1> FROM Marker<Player2>").let {

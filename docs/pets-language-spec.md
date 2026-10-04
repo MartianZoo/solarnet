@@ -1,7 +1,9 @@
 # PETS language specification
 
 PETS is a family of small languages for describing game states and how they change. This document
-defines their shared notation and the rules of each language.
+defines their shared notation and the rules of each language. Each element expresses a
+specification: the choices, observations, and changes it permits or requires. These rules define
+that meaning, not an algorithm for carrying it out or an interface for representing it.
 
 ## How to read this
 
@@ -39,6 +41,10 @@ may supply what a physical component leaves implicit.
 **Types.** This document says how a type expression is *written* and where one may appear. What one
 *means* — which components it admits, when one narrows another, how arguments match dependencies —
 is the [type system specification](type-system-spec.md), cited here as `T5-2` and never restated.
+
+**Execution.** How a game presents choices, schedules work, or applies changes is outside this
+document. A rule about states, events, or their ordering states an obligation of the represented
+specification; it does not prescribe an execution procedure.
 
 ### Notation
 
@@ -288,9 +294,9 @@ Change ::= ElementaryChange ( "/" MetricDifference )?
 requirement fails, the instruction cannot be carried out. `OR` binds tighter than a gate, so
 `3 PlantTag: Plant OR 4 Plant` gates both alternatives, and a gate on one alternative alone must be
 parenthesized. A gate does not directly contain another gate. When a first-stage gate uses a type
-variable shared with that stage and a later `THEN` stage, resolution waits for the first-stage
-choice, substitutes it throughout the sequence, and then checks the gate before executing the
-change (T13-8).
+variable shared with that stage and a later `THEN` stage, the gate observes the same selected value
+as those stages. The first-stage change is permitted only when the gate holds with that binding
+(T13-8).
 
 ```ebnf
 GatedInstruction ::= ( RequirementAtom ":" )? InstructionChoice
@@ -443,9 +449,9 @@ the world in which the choice is made.
 
 **Narrowing is not resolution.** Settling `3 Plant.` against a state with room for two yields
 `2 Plant!`, and that is not a narrowing: nothing in the two instructions says so, and in another
-state the same `.` settles differently. Narrowing is what a settler may choose; resolution is what a
-state decides. Every rule here is state-independent, except where a `HAS` refinement asks a world
-about a candidate (T8-8).
+state the same `.` settles differently. Narrowing restricts an open choice; resolution determines
+the change permitted by a state. Every narrowing rule here is state-independent, except where a
+`HAS` refinement asks a world about a candidate (T8-8).
 
 This section is about *elaborated* instructions. An authored change carries no quantifier until
 elaboration supplies one (L2-3), and narrowing has nothing to compare until it does.
@@ -468,8 +474,8 @@ much less.
 > Permitting arbitrary shape changes would let a proposal keep the attractive half of that sequence.
 
 **L3-3. Groups narrow elementwise.** Members are matched by position, and the sizes must agree.
-A group is not itself pending work — its members become independent tasks, each narrowed on its own
-— so this rule reaches only a group nested inside an `OR` arm or a `THEN` stage.
+The positional correspondence identifies which authored member each proposal narrows; it imposes
+no ordering between the changes denoted by those members (L2-9).
 
 **L3-4. A change may narrow its count, its quantifier and its types.** The count may not grow, and
 may shrink only under `?`. Each written expression must narrow the authored one (T6-2). At every
@@ -518,7 +524,7 @@ never a way to do nothing. Declining belongs to `?` and `Ok` (L3-5).
 **L3-8. A shared type variable takes one value everywhere it appears.** A sequence, Action, or
 full transmutation marks that variable at each occurrence (L2-12, L2-13, L7-4). Narrowing captures
 from corresponding choosing or matching positions (T13-11), and all captures of a variable must
-agree. Captures are applied together before checking predicates that may observe another variable.
+agree. Predicates that observe these variables refer to their jointly selected values.
 
 A fully concrete selected value replaces its marked occurrences; for a represented-class variable,
 this requires a concrete root Class, not concrete component dependencies (T4-2). An abstract restriction keeps the
@@ -539,12 +545,12 @@ captured; otherwise a full-sequence proposal is required to distinguish them. No
 inferred from an unselected or unrelated expression. Shared `X` must have one consistent value
 across all accepted realizations.
 
-A stage may be carried out only after every shared variable it uses, including in its requirements,
-metrics, or refinements, has a concrete selected value. That selection may commit a value supplied
-by a later change before the current observer is evaluated. An unrelated earlier stage need not
-wait. Selecting the first stage carries the shared scope and the selected values into its
-continuation; later independent choices may remain open. Shared `X` obeys the same availability
-rule. Predicates discharged by selecting a value describe the selection world (T13-10).
+A stage is permitted only after every shared variable it uses has a concrete selected value,
+including variables in its requirements, metrics, or refinements. The supplying change may occur
+later than an observation of its selected value. A stage that uses none of those variables places no such requirement on them.
+A first-stage selection constrains the remaining sequence to the same shared values; later
+independent choices may remain open. Shared `X` obeys the same availability rule. Predicates
+discharged by selecting a value describe the selection world (T13-10).
 
 > **Non-normative example — Utopia Invest.**
 > `PROD[@StandardResource] -> 4 @StandardResource` means reduce one chosen production
@@ -775,11 +781,11 @@ inside that expression, and for an `IF` condition (L6-7) alike.
 Effect ::= Trigger ( ":" | "::" ) InstructionGroup
 ```
 
-**L6-2. `::` marks an automatic effect** — a consequence carrying no choice, which the rule intends
-to be inseparable from the event that caused it. It is greedy: every automatic consequence of one
-event is carried out before any queued (`:`) effect of that same event is even tested, so a queued
-trigger is decided against a state in which the automatic consequences have already happened. That
-is also why an automatic effect can observe an intermediate state that no queued effect ever sees.
+**L6-2. `::` marks an automatic effect** — a consequence carrying no choice, inseparable from the
+event that caused it. Every automatic consequence of an event precedes matching that event's
+ordinary (`:`) triggers, including their `IF` conditions. An ordinary trigger observes the state
+including those automatic consequences. An automatic trigger may observe an intermediate state that the ordinary
+triggers do not observe.
 
 > **Non-normative example — Birds.** `This:: AnimalTag<This>` installs the printed animal tag as an
 > automatic consequence of the card entering play. Making it an ordinary `:` effect would present a
@@ -1020,13 +1026,14 @@ what the first already means.
 resource belongs to the player doing the thing, and "gain 3 cards" means three separate cards. It
 changes how a source reads without changing which types exist (T10).
 
-**L9-1. Elaboration is one rewriting, in one order, of an element against a context.** The stages
-are, in this order: record Type-variable scopes (T13-6 through T13-9); split atomized gains (L9-11);
+**L9-1. Elaboration defines a rewritten element relative to a context.** Its result is the
+composition, in this order, of the following rewritings: record Type-variable scopes (T13-6 through
+T13-9); split atomized gains (L9-11);
 insert defaults (L9-4 through L9-10); bind the contextual owner (L9-3); dispatch transform blocks
 (L8); expand property evaluations (L9-12).
 
-Where the PETS came from does not change that order. It supplies the context, and two things follow
-from the context rather than from a different pipeline:
+This order defines the resulting element, not how the rewritings must be computed. Where the PETS
+came from supplies the context:
 
 | | An element a player submits | A class's own effects |
 | --- | --- | --- |

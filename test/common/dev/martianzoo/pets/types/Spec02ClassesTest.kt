@@ -10,6 +10,7 @@ import dev.martianzoo.pets.data.createClassLoader
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -173,11 +174,11 @@ internal class Spec02ClassesTest {
 
   @Test
   internal fun `T2-7 superclass traversal is intrinsic and subclass traversal is table-relative`() {
-    klass("LandArea").allSuperclasses().map { "$it" } shouldContainExactly
+    klass("LandArea").allSuperclasses().map { "$it" } shouldContainExactlyInAnyOrder
         listOf("Component", "Area", "MarsArea", "LandArea")
-    mars.allSubclasses(klass("LandArea")).map { "$it" } shouldContainExactly
+    mars.allSubclasses(klass("LandArea")).map { "$it" } shouldContainExactlyInAnyOrder
         listOf("Tharsis_2_2", "VolcanicArea", "Tharsis_5_5", "LandArea")
-    mars.directSubclasses(klass("LandArea")).map { "$it" } shouldContainExactly
+    mars.directSubclasses(klass("LandArea")).map { "$it" } shouldContainExactlyInAnyOrder
         listOf("Tharsis_2_2", "VolcanicArea")
   }
 

@@ -311,16 +311,17 @@ well. If a catalog also declared a class extending both `Tile` and `Owned` outsi
 `Tile ⊓ Owned` would be absent. Pets does not manufacture a conjunction class; it only recognizes
 one a catalog declared.
 
-**T2-9. Kotlin-backed classes.** A class directly extending `CustomMetric` is a virtual metric: no
-component of it exists, and Catalog host code supplies its count. It cannot declare or inherit Pets
-behavior. A class directly extending `CustomInstruction` is an ordinary Signal that may declare Pets
-behavior. On its gain, Catalog host code supplies an instruction tree queued as an additional
-effect. The Catalog must supply exactly one implementation of the matching kind for each such class
-and must not supply one for an ordinary class, `Component` and `Class` included (T10-2).
+**T2-9. Externally defined meanings.** A class directly extending `CustomMetric` is a virtual
+metric: no component of it exists, and its count is defined outside Pets. It cannot declare or
+inherit Pets behavior. A class directly extending `CustomInstruction` is an ordinary Signal that
+may declare Pets behavior. Its gain specifies an additional ordinary effect whose instruction is
+externally defined from the gained component and the state. Each such class has exactly one
+external definition of the matching kind. Ordinary classes, including `Component` and `Class`,
+have no external definitions (T10-2).
 
 > **Non-normative example — Robotic Workforce.** It gains
-> `CopyProductionBox<CardFront(HAS BuildingTag)>`, a `CustomInstruction` whose host code queues the
-> chosen building card's production box. `Neighbor` is a `CustomMetric`: the board's geometry,
+> `CopyProductionBox<CardFront(HAS BuildingTag)>`, a `CustomInstruction` whose additional consequence
+> is the chosen building card's production box. `Neighbor` is a `CustomMetric`: the board's geometry,
 > not any component, says which areas are adjacent.
 
 ---
@@ -1114,9 +1115,9 @@ enumerates nothing.
 > operation to tiles and other dependent components.
 
 **T11-2. Refinements during enumeration.** Every `NOT` clause filters the candidates, because it can
-be decided structurally. `HAS` clauses are **not** applied: enumeration is world-free, and whoever
-enumerates tests the survivors against a state. So `LandArea(HAS Neighbor<OwnedTile>)` enumerates
-every land area.
+be decided structurally. `HAS` clauses are **not** applied: enumeration is world-free, and satisfying
+those predicates is a separate, state-dependent condition. So `LandArea(HAS Neighbor<OwnedTile>)`
+enumerates every land area.
 
 > **Non-normative example — the standard greenery placement.** The legal areas are the land areas
 > next to one of the player's tiles at the moment of placement. Enumeration lists every land area,
@@ -1127,8 +1128,8 @@ every land area.
 is its only choice in every respect. Its root class must have exactly one inhabited concrete
 subclass compatible with it, every dependency must in turn have exactly one concrete choice, and the
 type's refinement must accept the result. This is stricter than "one candidate satisfies the
-refinement". Any remaining choice, anywhere, prevents it, deliberately, so that a decision a player
-should make is never made silently.
+refinement": any remaining structural choice, anywhere, prevents it, subject to the refined
+class-literal exception below.
 
 Within those limits it is thorough:
 
@@ -1139,25 +1140,17 @@ Within those limits it is thorough:
   because a microbe cannot live on Pets.
 - It yields nothing when the requested type is incompatible with every concrete class.
 
-A `HAS` clause can decide between candidates only where enumeration happens anyway, as with a
-refined class literal (T8-10).
+A refined class literal is the exception: its `HAS` clauses may distinguish its enumerated
+candidates (T8-10).
 
-The engine can also use the current World to finish a gain after its Task is selected. That later
-step can exclude a subtype whose added dependency is absent or whose gain limit is full. If only
-one executable concrete gain remains, it may also settle the gain's area. This does not change the
-world-free type rule.
+For other types, this is an under-approximation of uniqueness in a state. If the universe contains
+several water areas, `WaterArea(HAS MAX 0 Tile)` does not narrow automatically merely because only
+one satisfies the requirement in the current state. The judgment leaves the same structural choice
+open regardless of how many of those areas currently hold tiles.
 
-This is an under-approximation, and knowingly so. A type narrows automatically when the *universe*
-leaves one candidate, not when the current state does. An ocean placement asking for
-`WaterArea(HAS MAX 0 Tile)` never narrows automatically, however few empty water areas remain,
-because the map declares many water areas and only a state can say which of them are empty. Asking
-a world about every candidate on every resolution would cost more than it saves, and the answer
-would change under the player's feet.
-
-> **Non-normative example — Aquifer.** Late in a game only one ocean area may still be empty, and
-> Aquifer's ocean is still an ordinary choice. What automatic narrowing does settle is a choice the
-> universe itself has reduced to one: `MarsMap` in a game on one map (T12-3), or which of two
-> players is "the other one".
+> **Non-normative example — Aquifer.** Late in a game only one ocean area may still be empty, but
+> that state alone does not establish automatic narrowing under T11-3. The universe does establish
+> a unique `MarsMap` in a game on one map (T12-3), or which of two players is "the other one".
 
 ---
 
