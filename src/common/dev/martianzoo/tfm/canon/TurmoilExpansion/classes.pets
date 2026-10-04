@@ -94,6 +94,7 @@ CLASS Neutral : Anyone {
 ABSTRACT CLASS Party {
   HAS MAX 1 This
   HAS MAX 1 AfterParty<This, Party>, MAX 1 AfterParty<Party, This>
+  HAS MAX 1 PartyLeader<This, Anyone>
   This:: EACH Previous@Party( \
     NOT This, HAS MAX 0 AfterParty<Party> \
   ) { AfterParty<Previous@Party, This> }
@@ -118,7 +119,7 @@ ABSTRACT CLASS Party {
     }, \
     EACH Next@Party(HAS MAX 0 Dominant, HAS =1 (RANK Ranked@Party { \
       PartyDelegate<Ranked@Party, Anyone>, PartyDistance<Ranked@Party, This> \
-    })) { Dominant<Next@Party> FROM Dominant }, \
+    })) { Dominant<Next@Party> }, \
     RefillLobby
 }
 CLASS MarsFirst : Party {
@@ -206,6 +207,7 @@ ABSTRACT CLASS PartyStatus<Party> {
   "The party with the greatest delegate count"
   CLASS Dominant {
     HAS MAX 1 Dominant
+    This:: -Dominant(NOT This).
   }
 
   "The party whose policy and bonus govern the current generation"
@@ -247,15 +249,7 @@ ABSTRACT CLASS Delegate : Owned {
 
 "The owner whose delegate occupies one party's leader seat"
 CLASS PartyLeader<Delegation@Party> : Owned {
-  This:: EACH FormerLeader@Anyone( \
-    HAS PartyLeader<Delegation@Party, Anyone>, \
-    HAS 2 (RANK Ranked@Anyone { \
-      PartyDelegate<Delegation@Party, Ranked@Anyone>, \
-      PartyLeader<Delegation@Party, Ranked@Anyone> \
-    }) \
-  ) { \
-    -PartyLeader<Delegation@Party, FormerLeader@Anyone> \
-  }
+  This:: -PartyLeader<Delegation@Party, Anyone>(NOT This).
   -PartyDelegate<Delegation@Party, Me@Anyone> \
     IF MAX 0 PartyDelegate<Delegation@Party, Me@Anyone>:: \
     -This! THEN \
@@ -283,8 +277,7 @@ CLASS RecalculateDominance<Source@Party> : Signal {
     PartyDelegate<Ranked@Party, Anyone>, Dominant<Ranked@Party>, \
     Party - PartyDistance<Source@Party, Ranked@Party> \
   })) { \
-    (Dominant<Party>: Dominant<Next@Party FROM Party>) OR \
-    (MAX 0 Dominant<Party>: Dominant<Next@Party>) \
+    Dominant<Next@Party> \
   }
 }
 

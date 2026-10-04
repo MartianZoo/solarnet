@@ -66,6 +66,7 @@ internal constructor(
     private val effector: Effector,
     private val classTable: ClassTable,
     private val elaborator: PetElaborator,
+    private val timeline: Timeline,
 ) {
   private val automaticEffectStack = mutableListOf<PendingTask>()
 
@@ -147,6 +148,7 @@ internal constructor(
     val gaining = instruction.gaining?.toComponent(reader)
     val removing = instruction.removing?.toComponent(reader)
 
+    val checkpoint = timeline.checkpoint()
     while (true) {
       val (result, done) =
           changer.change(
@@ -164,6 +166,17 @@ internal constructor(
       }
       deferred += effector.fire(result, controller, automatic = false)
       if (done) break
+    }
+    if (automaticEffectStack.isEmpty()) {
+      try {
+        limiter.checkInvariantsSince(checkpoint)
+      } catch (e: LimitsException) {
+        e.sourceLocation =
+            instruction.sourceLocation
+                ?: instruction.gaining?.sourceLocation
+                ?: instruction.removing?.sourceLocation
+        throw e
+      }
     }
   }
 
@@ -260,9 +273,19 @@ internal constructor(
           val possible =
               when {
                 gain != null && removal == null && !gain.rootClass.declaration.customMetric ->
-                    limiter.hasExecutableConcreteGain(gain, required, reader)
+                    limiter.hasAvailableConcreteGain(
+                        gain,
+                        required,
+                        reader,
+                        invariants = first.quantifier != MANDATORY,
+                    )
                 gain == null && removal != null ->
-                    limiter.hasExecutableConcreteRemoval(removal, required, reader)
+                    limiter.hasAvailableConcreteRemoval(
+                        removal,
+                        required,
+                        reader,
+                        invariants = first.quantifier != MANDATORY,
+                    )
                 else -> true
               }
           if (!possible) {
@@ -416,7 +439,12 @@ internal constructor(
               r == null &&
               intens != OPTIONAL &&
               !g.rootClass.declaration.customMetric &&
-              !limiter.hasExecutableConcreteGain(g, required, reader)
+              !limiter.hasAvailableConcreteGain(
+                  g,
+                  required,
+                  reader,
+                  invariants = intens != MANDATORY,
+              )
       ) {
         return unavailable("no concrete narrowing can execute")
       }
@@ -425,7 +453,12 @@ internal constructor(
             if (intens == OPTIONAL) {
               reader.hasAnyComponents(r)
             } else {
-              limiter.hasExecutableConcreteRemoval(r, required, reader)
+              limiter.hasAvailableConcreteRemoval(
+                  r,
+                  required,
+                  reader,
+                  invariants = intens != MANDATORY,
+              )
             }
         if (!canRemove) return unavailable("maximum available is 0")
       }
@@ -492,7 +525,7 @@ internal constructor(
   ): Instruction {
     val gaining = gainingType?.toComponent()
     val removing = removingType?.toComponent()
-    val limit = limiter.findLimit(gaining, removing)
+    val limit = limiter.findLimit(gaining, removing, invariants = quantifier != MANDATORY)
     val adjusted: Int = min(count, limit)
 
     if (quantifier == MANDATORY && adjusted != count) {
@@ -598,7 +631,7 @@ internal constructor(
       g =
           classTable.singleConcreteSubtype(g, reader)
               ?: (if (worldGainNarrowing) {
-                limiter.singleConcreteGainWithPresentDependencies(g, r, reader)
+                limiter.singleConcreteGainWithPresentDependencies(g, reader)
               } else null)
               ?: g
     }

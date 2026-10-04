@@ -157,12 +157,13 @@ not make a client choose from a Cartesian product of fully concrete Instructions
 can be narrowed independently.
 
 After selection, resolution repeatedly evaluates state-dependent structure until the first stage is
-executable. It handles metrics and gates, eliminates impossible `OR` arms, narrows an abstract gain
-when only one concrete gain can execute, resolves quantifiers and limits, and translates concrete
-custom instructions. This may settle a location as well as a class, or an existing dependency whose
-declared maximum is one. The same World-based gain narrowing applies when a selected Task receives
-an explicit narrowing. `ActorEngine` separately executes a selected Task once its instruction is
-concrete.
+executable. It handles metrics and gates, eliminates `OR` arms whose immediate prerequisites fail,
+narrows an abstract gain when present dependencies identify one target, resolves quantities, and
+translates concrete custom instructions. Mandatory resolution checks physical
+availability and dependencies; AMAP and optional quantities also use current count bounds. This may
+settle a location as well as a class, or an existing dependency whose declared maximum is one. The
+same World-based gain narrowing applies when a selected Task receives an explicit narrowing.
+`ActorEngine` separately executes a selected Task once its instruction is concrete.
 Resolution may leave a genuine Player choice abstract. If it exposes independent instructions, the
 selected structural Task is replaced by ordinary unselected siblings rather than transferring its
 selection to one arbitrarily.
@@ -241,27 +242,37 @@ dependencies normally specialize only through live dependency targets, not the f
 cross-product.
 
 The game `ClassTable` view compiles inherited invariants into immutable per-Class limits. Each
-World's `Limiter` combines those facts with live multiplicity. An invariant constrains legal state
-but does not create its required components or choose concrete Types.
+World's `Limiter` combines those facts with live multiplicity. An invariant constrains the state at
+operation completion but does not create its required components or choose concrete Types.
 
 Completed-state validation instantiates a self-count for every inhabited concrete specialization.
 A dependent count containing `This` is instantiated only for live declaring Types, so an absent
 owner does not itself require dependent state.
 
-Upper bounds are checked on gains and lower bounds on removals. Initialization verifies applicable
-positive lower bounds, but an exact-one declaration alone does not prove that every intermediate or
-resting state is repaired. Prefer atomic transmutation when two faces share a stable invariant, and
-do not invent a second marker representation merely to bridge a transient absence. Until scoped
-completion can validate repaired state, use maximum one for lifecycle state where zero is a valid
-in-progress condition; reserve exact one for state whose creator and current execution path already
-make absence non-resting. See [QUANTIFIERS.md](QUANTIFIERS.md) for the count contract and
-[SEQUENCING.md](SEQUENCING.md#selected-direction-scoped-completion) for the proposed validation
-boundary.
+For component-count validation, a full operation is one initiating change and all its recursive
+automatic effects. Intermediate counts may cross declared bounds; the completed operation must
+satisfy them. Source availability and dependency integrity remain immediate. Resolution never
+executes consequences to predict a choice's outcome; failure at completion uses the existing
+transaction rollback path. [QUANTIFIERS.md](QUANTIFIERS.md#invariants-at-operation-completion) owns
+the bounds and choice-resolution contract.
+Initialization still audits all applicable positive minimums after constructing the initial world.
+
+Prefer atomic transmutation when two faces share a stable invariant. Separate queued tasks and
+`THEN` stages outside the initiating automatic cascade cannot repair a completed operation: lifecycle
+state that may legitimately remain absent between operations still needs maximum one rather than
+exact one. Completion spanning queued work remains a separate
+[sequencing proposal](SEQUENCING.md#selected-direction-scoped-completion).
 
 A locally legal choice can discover later that its remaining work cannot complete. This is a
 recoverable dead end: `DeadEndException` rolls the encompassing transaction back so another branch
 can be tried. A broad choice is not a correctness bug merely because one branch fails late; it is a
-bug if an illegal result can commit or no branch can reach a legal result.
+bug if an illegal result can commit. An offered choice need not contain a successful branch; a client
+can roll back farther when the whole choice leads to dead ends.
+
+The engine can leave a mandatory choice available even when its count invariants will fail.
+Client-facing exploration and pruning belong to Agents. Engine resolution uses current source and
+dependency prerequisites, authored gates, and AMAP/optional capacity, without predicting repairs or
+pruning mandatory choices by count bounds.
 
 ### The metric operators are intentional
 

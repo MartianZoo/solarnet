@@ -1799,7 +1799,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // a
       // city actually."
       // 6:08:59 PM — Green: "Okay, on six nine."
-      stdProject("CityProject") { placeTile(6, 9) }
+      stdProject("CityProject") { doTask("NormalCityTile<Amazonis_06_09>") }
     }
     rainbow.turn {
       // 6:09:38 PM — Rainbow: "You need other fish. Okay. Exactly. Um okay, so I am going to take

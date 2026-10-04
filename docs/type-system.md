@@ -105,7 +105,7 @@ A type is abstract if *either* its root type (class) is abstract, *or* if any de
 
 This can be slightly confusing. The *class* `OceanTile` is a concrete class. Yet the *type* `OceanTile`, being an abbreviation for `OceanTile<MarsArea>`, is abstract (because `MarsArea` is abstract). So "is `OceanTile` concrete?" is an ambiguous question.
 
-(Aside: a Pets instruction like `3 Animal<CardFront>` is valid even though the `Animal<CardFront>` type is abstract. It simply cannot be *executed* in that form. It must be narrowed to a concrete type first, such as `3 Animal<Player3, Predators<Player3>>`. There is no way to break it up into, say, `2 Animal<Predators>, 1 Animal<Fish>`. Conveniently, this simple constraint makes the game rules work correctly in a variety of ways. If a card says `-6 Plant<Anyone>?`, can you remove 4 from one player and 2 from another? No, you can't. There are a few automatic "narrowing" steps, but for the most part an abstract type left in an instruction allows the player to choose how they want to narrow it. For example, in `CityTile<VolcanicArea>`, the player can narrow it to `CityTile<Tharsis_2_2>`. Since that is concrete, however, they cannot choose to *further* narrow it to `CapitalTile<Tharsis_2_2>`. Okay, enough digression.)
+(Aside: a Pets instruction like `3 Animal<CardFront>` is valid even though the `Animal<CardFront>` type is abstract. It simply cannot be *executed* in that form. It must be narrowed to a concrete type first, such as `3 Animal<Player3, Predators<Player3>>`. There is no way to break it up into, say, `2 Animal<Predators>, 1 Animal<Fish>`. Conveniently, this simple constraint makes the game rules work correctly in a variety of ways. If a card says `-6 Plant<Anyone>?`, can you remove 4 from one player and 2 from another? No, you can't. There are a few automatic "narrowing" steps, but for the most part an abstract type left in an instruction allows the player to choose how they want to narrow it. For example, `CityTile<VolcanicArea>` can narrow to `NormalCityTile<Tharsis_2_2>`. Choosing just `CityTile<Tharsis_2_2>` may still leave a subtype choice when that player has Capital. Okay, enough digression.)
 
 ### Effects and narrowing
 
@@ -130,11 +130,39 @@ One possible way to think of this is that `PlantProduction<Player>` both specifi
 
 The effects inside a class declaration can use the special class name `This`. It is a placeholder for the *specific concrete type* of whatever component inherits it.
 
+### Invariants and operation completion
+
+A class-declared count invariant states what must be true when a full operation completes. For this
+check, an operation includes one initiating component change and all its recursive automatic (`::`)
+consequences. Intermediate counts may be outside the declared bounds. For example, a mandatory gain
+can add a new member of a maximum-one family whose automatic effect removes the old member. The
+engine validates the resulting counts before completing the operation; if they still violate an
+invariant, it rolls back the transaction, including its changes, tasks, and events.
+
+An invariant does not create components or arrange repairs. Authors supply those consequences and
+express their causal dependencies. Queued (`:`) work and separate initiating changes must satisfy
+invariants at their own completion boundaries; a later task cannot repair an earlier operation.
+`THEN` stages inside automatic consequences belong to the same operation, but `THEN` between queued
+tasks does not combine their invariant checks. Bootstrap validates required counts after constructing
+the initial world.
+
+Physical source availability and dependency integrity are checked immediately: a removal needs its
+source components, and a gain needs its dependency components to exist already. AMAP and optional
+quantities still use the current invariant bounds, with negative headroom or footroom clamped to
+zero. Effects can observe intermediate states. Automatic listeners in each trigger batch match
+against the same post-change snapshot. See the
+[quantifier contract](agents/QUANTIFIERS.md#invariants-at-operation-completion) for resolution details.
+
+An available choice is not a promise that the operation will succeed. The engine can offer a
+mandatory change that will fail its count invariants at completion; the failed attempt rolls back.
+Resolution does not execute consequences to predict that result or use count bounds to remove
+mandatory alternatives. Clients and agents may explore and prune these dead ends for the player.
+
 ### Singleton types
 
-A class invariant such as `HAS =1 This` constrains every concrete type rooted in that class or its subclasses to exactly one occurrence. It does not create that occurrence. A component that must exist needs an explicit creator, such as the premise, a Module, or another component's instruction.
+A class invariant such as `HAS =1 This` constrains every inhabited concrete type rooted in that class or its subclasses to exactly one occurrence at operation completion. It does not create that occurrence. A component that must exist needs an explicit creator, such as the premise, a Module, or another component's instruction.
 
-For example, `Area` has an exact-one invariant. The selected `MarsMap` uses `EACH Class<Area> { Area }` to create every inhabited concrete Area, after which the invariant prevents duplicates or removal.
+For example, `Area` has an exact-one invariant. The selected `MarsMap` uses `EACH Class<Area> { Area }` to create every inhabited concrete Area. Each subsequent operation must leave exactly one of each, including when its automatic consequences change intermediate counts.
 
 ### Class types
 

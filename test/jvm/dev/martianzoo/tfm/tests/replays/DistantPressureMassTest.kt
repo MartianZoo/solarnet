@@ -628,7 +628,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
     }
     been.pass()
     keen.turn {
-      stdProject("CityProject") { placeTile(3, 2) }
+      stdProject("CityProject") { doTask("NormalCityTile<Hellas_3_2>") }
       convertPlants { placeTile(4, 2) }
       playProject(PeroxidePower, 2, steel = 1)
       cardAction1(SearchForLife) {
@@ -657,7 +657,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
     }
     keen.turn {
       convertHeat()
-      stdProject("CityProject") { placeTile(7, 5) }
+      stdProject("CityProject") { doTask("NormalCityTile<Hellas_7_5>") }
     }
     been.turn {
       stdAction("TradeAction", 2) { doTask("Trade<Ganymede>") }
@@ -667,7 +667,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       convertPlants {
         placeTile(7, 6)
       }
-      stdProject("CityProject") { placeTile(8, 8) }
+      stdProject("CityProject") { doTask("NormalCityTile<Hellas_8_8>") }
     }
     been.turn {
       playProject(Plantation, 15) { placeTile(1, 2) }

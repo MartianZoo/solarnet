@@ -4,6 +4,7 @@ import dev.martianzoo.pets.DerivedClassLowerer
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.Transforming.immediateToEffect
+import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName
@@ -21,6 +22,7 @@ import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.NumberValue
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
 import dev.martianzoo.pets.ast.Requirement
+import dev.martianzoo.pets.ast.Requirement.Exact
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassDeclaration.ClassKind.CONCRETE
 import dev.martianzoo.tfm.carddata.CardData
@@ -44,7 +46,7 @@ internal object CardPetsGenerator {
         .trimEnd() + '\n'
   }
 
-  private class GeneratedCard(private val data: CardDefinition) {
+  internal class GeneratedCard(private val data: CardDefinition) {
     private val className = cn(data.name)
     private val derivedClasses = DerivedClassLowerer(className)
 
@@ -65,17 +67,18 @@ internal object CardPetsGenerator {
       !it.node.automatic && it.node.trigger == Effect.Trigger.WhenGain
     }
     private val otherEffects = effects.filter { it.node.trigger != Effect.Trigger.WhenGain }
-    private val generatedTagEffect =
-        immediateToEffect(
-            InstructionGroup.createTree(
-                data.tags.groupingBy(::cn).eachCount().map { (tag, count) ->
-                  gain(tag.of(THIS), count, quantifier = null)
-                }
-            ),
-            true,
-        )
+    private val tagCounts = data.tags.groupingBy(::cn).eachCount()
+    private val invariants =
+        (data.invariants + tagCounts.map { (tag, count) -> "=$count $tag<This>" })
+            .map { parseOwned<Requirement>(it) }
+            .distinctBy { it.node }
+    private val generatedAttachmentEffects =
+        invariants
+            .mapNotNull { initialGain(it.node) }
+            .groupBy { it.gaining.className in tagCounts }
+            .values
+            .mapNotNull { immediateToEffect(InstructionGroup.createTree(it), true) }
     private val componentClasses = data.components.map(::parseOneLinerClass)
-    private val invariants = data.invariants.map { parseOwned<Requirement>(it) }
     private val requirement: Requirement? =
         data.requirement?.let { parseOwned<Requirement>(it).node }
     private val autoSelectWhen: Requirement? =
@@ -109,10 +112,16 @@ internal object CardPetsGenerator {
           className = className,
           kind = CONCRETE,
           supertypes = supertypes,
-          invariants = invariants.mapTo(linkedSetOf(), Parsed<Requirement>::node),
+          invariants =
+              setOfNotNull(
+                  invariants
+                      .map(Parsed<Requirement>::node)
+                      .takeIf { it.isNotEmpty() }
+                      ?.let(Requirement.And::create)
+              ),
           authoredEffects =
               authoredAutomaticThisEffects.map(Parsed<Effect>::node) +
-                  listOfNotNull(generatedTagEffect) +
+                  generatedAttachmentEffects +
                   onPlayEffects +
                   authoredThisEffects.map(Parsed<Effect>::node) +
                   otherEffects.map(Parsed<Effect>::node),
@@ -131,10 +140,12 @@ internal object CardPetsGenerator {
       declaration.supertypes.sortedBy(Expression::toString).joinTo(this, ", ", " : ")
       appendLine(" {")
       declaration.properties.forEach { (name, value) -> appendLine("  $name = $value") }
-      invariants.forEach { appendLine("  HAS ${it.render()}") }
+      if (invariants.isNotEmpty()) {
+        appendLine(invariants.joinToString(", ", "  HAS ") { it.render() })
+      }
       val renderedEffects = buildList {
         authoredAutomaticThisEffects.mapTo(this) { it.render() }
-        generatedTagEffect?.let { add(it.toString()) }
+        generatedAttachmentEffects.mapTo(this) { it.toString() }
         immediate?.let { add("This: ${it.render()}") }
         authoredThisEffects.mapTo(this) { it.render() }
         otherEffects.mapTo(this) { it.render() }
@@ -148,6 +159,27 @@ internal object CardPetsGenerator {
 
     internal val supportingDeclarations: List<ClassDeclaration>
       get() = componentClasses
+
+    /** Card-data shorthand only: a fixed, positive count of a direct attachment creates it. */
+    private fun initialGain(requirement: Requirement): Gain? {
+      val exact = requirement as? Exact ?: return null
+      val expression = (exact.countedMetric as? Count)?.expression ?: return null
+      if (
+          exact.expected == 0 ||
+              expression.className == CLASS ||
+              THIS.expression !in expression.arguments
+      ) {
+        return null
+      }
+      if (
+          expression.descendantsOfType<Expression>().any {
+            it.refinement != null || it.typeVariableName != null
+          }
+      ) {
+        return null
+      }
+      return gain(expression, exact.expected) as? Gain
+    }
 
     /** A card holds a resource exactly when its own instructions can meaningfully use it. */
     private fun deriveResourceTypeCandidates(): Set<ClassName> {

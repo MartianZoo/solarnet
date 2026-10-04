@@ -32,6 +32,7 @@ internal class InstructionResolutionTest {
           effector,
           game.classTable,
           elaborator,
+          TimelineImpl(gameWorld, Changer(game.reader, gameWorld, effector), RecordingPositions()),
       )
 
   init {
