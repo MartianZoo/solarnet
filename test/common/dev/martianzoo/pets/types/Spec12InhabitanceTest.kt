@@ -394,6 +394,23 @@ internal class Spec12InhabitanceTest {
   }
 
   @Test
+  internal fun `T12-4 missing inhabitants propagate through represented-class dependencies`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS CardResource : Owned<Owner> { CLASS Animal }",
+            "ABSTRACT CLASS ResourceHolder<Class<CardResource>>",
+            "CLASS Pets : ResourceHolder<Class<Animal>>",
+        )
+
+    // ResourceHolder omits canon's Owned superclass so only its resource dependency excludes Pets.
+    // With no player, no animal can exist. Its class representative is then absent, so Pets
+    // cannot exist either; the representative of Pets must disappear in turn.
+    table.isInhabited(table.resolve(te("Animal"))) shouldBe false
+    table.isInhabited(table.resolve(te("Pets"))) shouldBe false
+    table.isInhabited(table.resolve(te("Class<Pets>"))) shouldBe false
+  }
+
+  @Test
   internal fun `T12-4 a structurally empty difference is uninhabited`() {
     val table = loadTypes("CLASS Rabbit")
 

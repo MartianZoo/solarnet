@@ -485,7 +485,10 @@ internal class Spec03DependenciesTest {
     tile.dependencies.get(Key(cn("Occupant"), 0)).expressionFull shouldBe te("Tharsis_2_2")
     tile.dependencies.get(Key(cn("Owned"), 0)).expressionFull shouldBe te("Player1")
     tile.dependencies.getIfPresent(Key(cn("Tile"), 0)) shouldBe null
-    tile.dependencies shouldBe type("GreeneryTile<Player1, Tharsis_2_2>").dependencies
+    val reversed = DependencySet.of(tile.dependencies.keys.reversed().map(tile.dependencies::get))
+    reversed.keys shouldBe listOf(Key(cn("Owned"), 0), Key(cn("Occupant"), 0))
+    tile.dependencies shouldBe reversed
+    tile.dependencies.hashCode() shouldBe reversed.hashCode()
   }
 
   @Test
