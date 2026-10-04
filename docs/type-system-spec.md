@@ -79,11 +79,10 @@ rule here depends on, but what it shows matches canon:
 
 ```pets
 ABSTRACT CLASS Anyone
-ABSTRACT CLASS Owner : Anyone
 ABSTRACT CLASS Actor
-ABSTRACT CLASS Player : Owner, Actor
+ABSTRACT CLASS Player : Anyone, Actor
 CLASS Admin : Actor
-ABSTRACT CLASS Owned<Anyone> { DEFAULT Owned<Owner> }
+ABSTRACT CLASS Owned<Me@Anyone>
 
 ABSTRACT CLASS Area {
   ABSTRACT CLASS MarsArea {
@@ -374,8 +373,8 @@ argument is an error. A dependency whose bound is already concrete in the class'
 argument position. `Pets` fixes both its card back and the resource it holds, so its one argument
 position is its owner: `Pets<Player1>`.
 
-This is what makes `Anyone` work. `Anyone` is an ordinary class at the top of the ownership
-hierarchy, so `Anyone` intersected with a narrower bound is that narrower bound:
+`Anyone` is the ordinary root of the ownership hierarchy. Intersecting it with a narrower bound
+gives that narrower bound:
 
 ```text
 ProjectCard : Owned<Player>        →  ProjectCard<Anyone>     is  ProjectCard<Player>
@@ -385,9 +384,11 @@ ProjectCard<SoloOpponent>                                     →   error: not a
 ```
 
 > **Non-normative example — Solar Logistics.** It draws a card whenever any player plays a space
-> event, and its trigger is `EventCard<Anyone>(HAS SpaceTag)`. Bare `EventCard` would receive the
-> contextual-owner default and see only its own owner's events (L9-4). `Anyone` removes that
-> restriction, and intersecting it with `EventCard`'s `Player` bound gives `EventCard<Player>`.
+> event, and its trigger is `EventCard<Anyone>(HAS SpaceTag)`. Bare `EventCard` receives the
+> enclosing lexical `Me` (L9-3) and sees only its own owner's events. The literal `Anyone` removes
+> that restriction, and intersecting it with `EventCard`'s `Player` bound gives `EventCard<Player>`.
+> The `HAS` candidate supplies `SpaceTag`'s card dependency, so its owner follows the selected
+> event card.
 > Replacing the bound would make the trigger a type its class cannot have (T5-7).
 
 > **Non-normative example — Protected Valley.** It places `GreeneryTile<WaterArea>`. The written
@@ -405,15 +406,15 @@ Order *is* meaningful when two bounds overlap. In `Adjacency<Tile<Area>, Tile<Ar
 open.
 
 > **Non-normative example — Law Suit.** The removal record its trigger matches is written
-> `MyResourceWasRemoved<Owner, Attacker@Player>`. The record's dependencies are the victim
-> (`Owned_0`, bound `Owner`), the resource class, the attacker (bound `Player`) and the generation.
-> `Owner` takes the victim position. The attacker skips the resource-class position, which cannot
+> `MyResourceWasRemoved<Anyone, Attacker@Player>`. The record's dependencies are the victim
+> (`Owned_0`, bound `Anyone`), the resource class, the attacker (bound `Player`) and the generation.
+> `Anyone` takes the victim position. The attacker skips the resource-class position, which cannot
 > hold a player, and takes the attacker position. Written `MyResourceWasRemoved<Attacker@Player,
-> Owner>`, the attacker would take the victim position, which accepts any owner, and the two parties
+> Anyone>`, the attacker would take the victim position, which accepts any owner, and the two parties
 > would swap.
 
 > **Non-normative example — Turmoil.** Party rules write
-> `PartyDelegate<This, DelegateOwner@Anyone>`, party first, although the inherited owner key
+> `PartyDelegate<This, DelegateHolder@Anyone>`, party first, although the inherited owner key
 > precedes the party key. Because the two bounds are disjoint, each argument lands in the one
 > position it can occupy.
 
@@ -444,14 +445,14 @@ two dependency paths of a class header (T13-2), resolving a type of that class p
 from either position into the other:
 
 ```pets
-ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned<Owner>
-ABSTRACT CLASS CardResource<ResourceHolder<Class<This>, @Owner>> : Owned<@Owner> {
+ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned<Anyone>
+ABSTRACT CLASS CardResource<ResourceHolder<Class<This>, @Anyone>> : Owned<@Anyone> {
   CLASS Animal
   CLASS Microbe
 }
 ```
 
-The marker `@Owner` makes the holder's owner and the resource's own owner one variable. An animal's
+The marker `@Anyone` makes the holder's owner and the resource's own owner one variable. An animal's
 owner is therefore necessarily the owner of the card it lives on:
 
 ```text
@@ -465,7 +466,7 @@ The two tiles of `Adjacency<Tile<Area>, Tile<Area>>` are independent. `Adjacency
 would require them to be the same tile.
 
 > **Non-normative example — Pets.** An animal on Player 1's Pets card must also be owned by
-> Player 1. Without propagation between the two occurrences of `@Owner`, it could acquire Player 2
+> Player 1. Without propagation between the two occurrences of `@Anyone`, it could acquire Player 2
 > as its independent owner, and Player 2 could spend it.
 
 **T3-9. A dependency may only target a type limited to one copy.** An edge names its target by
@@ -561,7 +562,7 @@ Class<Oxygen>                  no such class (the class is OxygenStep)
 exist even where an expression merely counts one, as in `HAS MAX 0 Class<Oxygen>`. An instruction
 may not gain a class literal: its components are fixed by the universe, not created by play.
 
-> **Non-normative example — the Collector award.** It counts `Class<@Resource>(HAS @Resource<Owner>)`,
+> **Non-normative example — the Collector award.** It counts `Class<@Resource>(HAS @Resource<Me@Player>)`,
 > the resource kinds a player holds. Allowing an argument-bearing operand such as
 > `Class<Resource<Player1>>` would turn the global representative of a kind into player-specific
 > data with no defined component identity.
@@ -591,8 +592,8 @@ nothing.
 resource knows which cards can hold it:
 
 ```pets
-ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned<Owner>
-ABSTRACT CLASS CardResource<ResourceHolder<Class<This>, @Owner>> : Owned<@Owner> {
+ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned<Anyone>
+ABSTRACT CLASS CardResource<ResourceHolder<Class<This>, @Anyone>> : Owned<@Anyone> {
   CLASS Animal
   CLASS Microbe
 }
@@ -750,10 +751,10 @@ intersection an argument undergoes (T3-4). With domain `Actor`, the constraint `
 constraint that cannot meet the domain at all accepts nothing.
 
 > **Non-normative example — actor constraints.** Protected Habitats forbids removal
-> `BY Player(NOT Owner)`: a player, other than the card's owner, performing the change. By contrast,
-> `BY Anyone` is the spelling that removes a trigger's usual actor restriction (L6-9) altogether, so
-> Aphrodite's `VenusStep BY Anyone: 2 MC` also reacts to a Venus step performed by Admin. That
-> wildcard is not the ownership class `Anyone` read inside `Actor`.
+> `BY Player(NOT Me@Anyone)`: a player, other than the card's owner, performing the change. By contrast,
+> `BY Actor` is the spelling that removes a trigger's usual actor restriction (L6-9) altogether, so
+> Aphrodite's `VenusStep BY Actor: 2 MC` also reacts to a Venus step performed by Admin. That
+> broad actor constraint is distinct from the ownership class `Anyone`.
 
 ---
 
@@ -859,16 +860,16 @@ narrows the written `Player` to `Player1` and asks `PartyLeader<Player1, MarsFir
 candidate satisfies it only when its **entire** structural extension avoids `X`:
 
 ```text
-Player2 <: Owner(NOT Player1)     yes
-Player1 <: Owner(NOT Player1)     no
-Player  <: Owner(NOT Player1)     no — abstract Player still admits Player1
+Player2 <: Anyone(NOT Player1)     yes
+Player1 <: Anyone(NOT Player1)     no
+Player  <: Anyone(NOT Player1)     no — abstract Player still admits Player1
 ```
 
 The exclusion need not narrow the domain; the difference is taken through their structural overlap.
-`Actor(NOT Owner)` excludes the players, who are both actors and owners, and keeps `Admin`. Overlap
+`Actor(NOT Anyone)` excludes the players, who are both actors and owners, and keeps `Admin`. Overlap
 is detected even where the two have no unique greatest common subclass (T2-8), and only concrete
 overlap counts: an abstract class below both is not evidence of overlap. The test never consults a
-world, and works the same inside a dependency, as in `Plant<Owner(NOT Player1)>`.
+world, and works the same inside a dependency, as in `Plant<Anyone(NOT Player1)>`.
 
 > **Non-normative example — Protected Habitats.** After specialization for its owner, its selector
 > is `Player(NOT Player1)`. That must mean "a player other than Player1" by type, whatever the state
@@ -876,7 +877,7 @@ world, and works the same inside a dependency, as in `Plant<Owner(NOT Player1)>`
 > board.
 
 **T8-5. The excluded operand must be refinement-free, recursively.** Neither
-`Owner(NOT Player(HAS StartToken))` nor a nested `NOT` is accepted. This keeps the difference
+`Anyone(NOT Player(HAS StartToken))` nor a nested `NOT` is accepted. This keeps the difference
 decidable without a world, and prevents negating a world query.
 
 > **Non-normative design note — a deliberate language boundary.** No canonical card needs to negate
@@ -897,7 +898,7 @@ refinement, is abstract, and enumerates nothing. It stays representable because 
 variable may be specialized later, making the difference non-empty again.
 
 > **Non-normative example — resource-removal watchers.** Their victim is
-> `Victim@Owner(NOT Attacker@Player)` until the attacker is bound. Before then it excludes every
+> `Victim@Anyone(NOT Attacker@Player)` until the attacker is bound. Before then it excludes every
 > player, and in a game with no other owners it excludes everything. Discarding it early would lose
 > the restriction that the victim is someone other than the attacker (T13-9).
 
@@ -943,7 +944,7 @@ a dependency is left unchanged after explicit represented-class substitution. It
 of the requirement; unlike an ordinary component refinement (T8-3), the unmatched binding does not
 make the refinement fail.
 
-> **Non-normative example — Diversifier.** The milestone requires `8 Class<@Tag>(HAS @Tag<Owner>)`:
+> **Non-normative example — Diversifier.** The milestone requires `8 Class<@Tag>(HAS @Tag<Me@Anyone>)`:
 > eight distinct kinds of tag the player has, not eight tags. Testing the represented class is what
 > makes five Earth tags count as one kind.
 
@@ -1072,20 +1073,14 @@ class's own bound for the key, records nothing at all.
 > Had the tile been declared `SpecialTile<VolcanicArea>`, the inherited default would have narrowed
 > to `VolcanicArea` with it.
 
-**T10-5. `Owner` in a default stays as written.** This is the one deliberate exception to T10-4. A
-literal `Owner` written in a default is *not* intersected with the class's bound, so it can later
-be replaced by whichever player supplies the context (L9-3).
-
-The visible consequence is that a class's default template may lie outside its own bounds. `Owned`
-declares `DEFAULT Owned<Owner>`, and `TerraformRating : Owned<Player>` inherits it. The base type
-and the default type are both `TerraformRating<Player>`, but the default template is
-`TerraformRating<Owner>`. The template deliberately awaits a context, while every type formed from
-it still respects the class's bounds (T5-7).
+**T10-5. `Anyone` in a declared default obeys T10-4.** It is an ordinary class expression and is
+intersected with the class's bound. `Card : Owned<Player> { DEFAULT Card<Anyone> }` therefore has
+`Card<Player>` as its default expression and type. `Owned` itself declares no dependency default;
+omitted owners are inserted during elaboration by L9-3.
 
 > **Non-normative example — setting up terraform rating.** Multiplayer setup runs
-> `EACH Player { 20 TerraformRating }`, and inside that body `Owner` is the player selected for the
-> branch (L9-3). If the default were normalized early to `TerraformRating<Player>`, the body would
-> name "some player's" rating instead of the selected player's.
+> `EACH Me@Player { 20 TerraformRating }`. The selected player supplies the bare rating's omitted
+> owner argument; no class default stands for that player.
 
 ---
 
@@ -1136,7 +1131,7 @@ class-literal exception below.
 
 Within those limits it is thorough:
 
-- It sees through a `NOT`. In a two-player game, `Owner(NOT Player1)` narrows automatically to
+- It sees through a `NOT`. In a two-player game, `Anyone(NOT Player1)` narrows automatically to
   `Player2`; in a three-player game it does not.
 - It skips a concrete class whose bounds are incompatible with the requested type. That class is
   not one of the choices. `CardResource<Pets<Player1>>` narrows to `Animal<Player1, Pets<Player1>>`,
@@ -1241,8 +1236,8 @@ its refinement and still rejects bare `Left`. Only enumeration under it is restr
 closure (T12-3).
 
 A game universe adds classes, so a difference can bite in a game where it could not in the catalog.
-The catalog declares no concrete player class. In the catalog universe, `Owner(NOT Player)` cannot
-bite and resolves to plain `Owner` (T8-6); in a game universe it keeps its refinement. An expression
+The catalog declares no concrete player class. In the catalog universe, `Anyone(NOT Player)` cannot
+bite and resolves to plain `Anyone` (T8-6); in a game universe it keeps its refinement. An expression
 that writes a difference means what the universe resolving it says (T1-3).
 
 > **Non-normative example — Viron.** Its action reuses another card's action:
@@ -1340,7 +1335,7 @@ ABSTRACT CLASS Cardbound<CardFront<@Player>> : Owned<@Player>
 action-used marker belongs to the player whose card it marks.
 
 > **Non-normative example — separate parties.** Law Suit's removal record is
-> `CLASS MyResourceWasRemoved<Class<Resource>, Player, GenerationScope> : Owned<Owner>`. Its owner
+> `CLASS MyResourceWasRemoved<Class<Resource>, Player, GenerationScope> : Owned<Anyone>`. Its owner
 > is the victim and its `Player` dependency the attacker. They are separate variables, as they must
 > be: the record exists precisely because two different players are involved.
 
@@ -1351,6 +1346,12 @@ variable. A marker is anonymous or has a class-name-shaped local name (L1-7). A 
 may be declared for descendants without a use in the declaring class's body. A represented-class
 header variable follows T13-1, so the body of a class declaring `Class<@CardResource>` may write
 `@CardResource<This>`.
+
+A represented-class header reference can take arguments for the selected class's dependencies. For
+example, `Production<Class<@StandardResource>> : Owned` may write
+`ProductionPhase: @StandardResource<Me@Anyone>`: the resource kind comes from the represented class
+variable, while its owner comes from the inherited `Me`. L9-3 inserts that owner argument when it
+is omitted.
 
 A header name takes precedence over the variable that an effect, action, `THEN` sequence, or full
 transmutation would otherwise declare for a matching marker (T13-6, T13-7). An explicitly marked
@@ -1370,9 +1371,15 @@ superclass's scope.
 Several names can denote one binding. Inheritance paths that reach one ancestor's dependency merge
 into one binding, and every name given to that dependency on any of those paths, or by marking it
 again in a supertype argument, denotes it. A class header cannot give an inherited name to a
-different dependency. A class may inherit one name for distinct bindings from different
-superclasses; their inherited effects keep their own scopes, but a use of that name in the class's
-own body is ambiguous and fails.
+different dependency. If a class inherits one name for distinct bindings from different
+superclasses, its declaration fails even when its own body does not use the name. Repeated paths to
+one ancestor's dependency still agree.
+
+A use may state a narrower bound while retaining the inherited name: `Me@Player` uses an inherited
+`Me@Anyone` binding when `Player` is a subtype of `Anyone`. The narrower expression constrains that
+use; it does not declare another variable. A wider or unrelated bound cannot reuse the name this
+way. Two independent inherited bindings with that name remain ambiguous; repeated paths to one
+ancestor's binding are not.
 
 An explicit supertype argument supplies the value of an inherited variable. A subclass may mark
 that argument to name a previously unmarked dependency, as
@@ -1504,29 +1511,28 @@ event. An unmarked selector is only a filter. A marker joins the selector to oth
 variable, whose value the event's concrete actor supplies. That value is bound before the inner
 trigger is matched.
 
-Other selectors do not become declarations merely by following `BY`. `BY Anyone` alone is the
-unrestricted wildcard (T6-6), and a refined selector alone is a constraint. A selector exposes its
-actor elsewhere in the effect only through an explicit marker, as `BY @Player` referenced as
-`@Player`. `BY Anyone` stays a wildcard unless it is marked.
+Other selectors do not become declarations merely by following `BY`. `BY Actor` is an ordinary
+constraint accepting every actor, including Admin. A selector exposes its actor elsewhere in the
+effect only through an explicit marker, as `BY @Player` referenced as `@Player`.
 
 Where an actor variable is visible, an exclusion may use it, and the difference is tested only
 after the actor is bound. The canonical resource-removal watcher is:
 
 ```text
--X @Resource<Victim@Owner(NOT Attacker@Player)> BY Attacker@Player::
-    MyResourceWasRemoved<Victim@Owner, Class<@Resource>, Attacker@Player>.
+-X @Resource<Victim@Anyone(NOT Attacker@Player)> BY Attacker@Player::
+    MyResourceWasRemoved<Victim@Anyone, Class<@Resource>, Attacker@Player>.
 ```
 
 When Player1 removes a resource, `Attacker@Player` is bound to `Player1`, giving
-`@Resource<Victim@Owner(NOT Player1)> BY Player1`. `Victim@Owner` then captures the particular
+`@Resource<Victim@Anyone(NOT Player1)> BY Player1`. `Victim@Anyone` then captures the particular
 other player whose resource it was. This keeps "anyone but the actor" distinct from "the particular
 other player this event was about".
 
 > **Non-normative examples — Hydrologist and Aphrodite.** The Hydrologist milestone's watcher says
 > `OceanTile BY @Player: OceanCredit<@Player>`. When Player 2 places an ocean,
 > `@Player` is bound to `Player2`, so the credit belongs to the placer. Aphrodite says
-> `VenusStep BY Anyone: 2 MC`. It does not name the wildcard, so the wildcard only removes the actor
-> restriction, and the money goes to Aphrodite's owner.
+> `VenusStep BY Actor: 2 MC`. The broad actor constraint removes the usual actor restriction, and
+> the money goes to Aphrodite's owner through its inherited `Me`.
 
 > **Non-normative design note — `BY` supplies an explicitly marked value.** `BY` identifies the
 > event field that supplies the value, and matching markers identify where it is reused. Binding it
@@ -1598,7 +1604,7 @@ invalid.
 
 > **Non-normative example — Law Suit.** The removal watchers record the victim, the resource class
 > and the attacker in distinct dependency positions, and Law Suit later reads that exact record.
-> Path-aware capture leaves the unrelated `Player` and `Owner` positions alone.
+> Path-aware capture leaves the unrelated `Player` and `Anyone` positions alone.
 
 ---
 

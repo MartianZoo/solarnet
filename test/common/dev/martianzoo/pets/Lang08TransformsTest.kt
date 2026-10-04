@@ -134,7 +134,7 @@ internal class Lang08TransformsTest {
     parse<Effect>("PROD[-Plant]: Heat").toString() shouldBe "PROD[-Plant]: Heat"
     parse<Effect>("PROD[X Plant]: Heat").toString() shouldBe "PROD[X Plant]: Heat"
     shouldThrow<PetSyntaxException> { parse<Effect>("PROD[Plant OR Heat]: Steel") }
-    shouldThrow<PetSyntaxException> { parse<Effect>("PROD[Plant BY Anyone]: Steel") }
+    shouldThrow<PetSyntaxException> { parse<Effect>("PROD[Plant BY Actor]: Steel") }
     parse<Effect>("PROD[Plant] OR PROD[Heat]: Steel").toString() shouldBe
         "PROD[Plant] OR PROD[Heat]: Steel"
   }

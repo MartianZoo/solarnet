@@ -116,10 +116,14 @@ public sealed class Metric : PetElement() {
    * Until elaboration expands it, an `EVAL` has no value of its own, and [evaluate] treats a
    * request for one as a programming error.
    */
-  public data class Eval(val property: Property) : Metric() {
-    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(property)
+  public data class Eval(
+      val property: Property,
+      /** Lexical ownership captured at the evaluation site; rendered as `EVAL<Me>`. */
+      val me: Expression? = null,
+  ) : Metric() {
+    override fun visitChildren(visitor: Visitor): Unit = visitor.visit(property, me)
 
-    override fun toString(): String = "EVAL $property"
+    override fun toString(): String = "EVAL${me?.let { "<$it>" }.orEmpty()} $property"
 
     override fun precedence(): Int = 12
   }

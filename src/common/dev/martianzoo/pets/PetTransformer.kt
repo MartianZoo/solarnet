@@ -247,7 +247,8 @@ public abstract class PetTransformer protected constructor() {
                     transformMetric(node.subtrahend),
                 )
             is Metric.Or -> Metric.Or.create(metrics(node.metrics))
-            is Metric.Eval -> Metric.Eval(transformProperty(node.property))
+            is Metric.Eval ->
+                Metric.Eval(transformProperty(node.property), node.me?.let(::transformExpression))
             is Metric.Transform -> Metric.Transform(transformMetric(node.inner), node.transformKind)
           }
       is Requirement ->
@@ -257,7 +258,11 @@ public abstract class PetTransformer protected constructor() {
             is Requirement.Exact -> Requirement.Exact(node.target, transformMetric(node.metric))
             is Requirement.Or -> Requirement.Or(requirements(node.requirements))
             is Requirement.And -> Requirement.And(requirements(node.requirements))
-            is Requirement.Eval -> Requirement.Eval(transformProperty(node.property))
+            is Requirement.Eval ->
+                Requirement.Eval(
+                    transformProperty(node.property),
+                    node.me?.let(::transformExpression),
+                )
             is Requirement.Transform ->
                 Requirement.Transform(transformRequirement(node.requirement), node.transformKind)
           }

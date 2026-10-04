@@ -285,7 +285,7 @@ overload in `CardTest` uses the same resolution path.
 
 `CardTest` and the full-game tests provide `TaskResult.expect()`. Expectations are partial net
 deltas: name only changes that matter to the behavior under test. Unqualified owned Types are scoped
-to the Player inferred from the result's ordered change events; qualify an Owner explicitly when
+to the Player inferred from the result's ordered change events; qualify the owner explicitly when
 checking another Player or an intentionally cross-player total. Do not restate costs, test setup,
 literal `doTask()` choices, or every incidental resource movement. In source-backed whole-game
 tests, include explicitly narrated gains/removals and interesting automatic effects, even when the

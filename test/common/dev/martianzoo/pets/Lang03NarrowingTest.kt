@@ -217,10 +217,10 @@ internal class Lang03NarrowingTest {
     refuses("@Token FROM @Token", "RedToken FROM BlueToken")
 
     narrows(
-        "@Tile<> THEN @Tile",
+        "@Tile<LandArea> THEN @Tile<LandArea>",
         "GreeneryTile<Land1> THEN GreeneryTile<Land1>",
     ) shouldBe true
-    refuses("@Tile<> THEN @Tile", "GreeneryTile<Land1> THEN OceanTile<Land1>")
+    refuses("@Tile<LandArea> THEN @Tile<LandArea>", "GreeneryTile<Land1> THEN OceanTile<Land1>")
 
     narrows(
         "@Tile<LandArea> THEN @Tile",

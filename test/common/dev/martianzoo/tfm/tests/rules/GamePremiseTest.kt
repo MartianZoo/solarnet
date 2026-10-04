@@ -13,7 +13,7 @@ import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.util.toSetStrict
-import dev.martianzoo.tfm.canon.ApiUtils.getPlayerOwner
+import dev.martianzoo.tfm.canon.ApiUtils.getOwningPlayer
 import dev.martianzoo.tfm.canon.Bundle
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -153,7 +153,7 @@ internal class GamePremiseTest {
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
     game.testAgent(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
     game.testAgent(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
-    getPlayerOwner(
+    getOwningPlayer(
         game.reader,
         game.reader.getComponents(cn("StartToken").expression).single(),
     ) shouldBe Player(blue)

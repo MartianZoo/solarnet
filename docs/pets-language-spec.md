@@ -125,13 +125,14 @@ different expressions (L1-2).
 > own removal effect. Recognizing both `This` and `This<>` as the placeholder prevents an empty list
 > from accidentally turning self cleanup into a subscription to a broader type.
 
-**L1-6. `Owner` in an authored expression is contextual.** It stands for whoever supplies the
-context, and elaboration replaces it (L9-3). `Anyone` is an ordinary class and stands for itself
-(T3-4).
+**L1-6. `Anyone` is an ordinary class.** It names every component that can own another component.
+It is never replaced with the current player. A bare expression of an `Owned` class instead gets
+its owner argument from lexical `Me` or the supplied input context (L9-3). Write an explicit
+`<Anyone>` when the type should accept every owner (T3-4).
 
 > **Non-normative example — CrediCor.** Its setup says `This: 57 MC` without naming a player.
-> Contextual `Owner` lets that bare money gain belong to the player who received CrediCor, while
-> `Anyone` remains available for genuinely unrestricted theft or payment.
+> The bare money gain takes its owner from the player's input context. `MC<Anyone>` instead names
+> money belonging to any owner.
 
 **L1-7. An `@` marker before an expression marks a Type variable where the enclosing construct
 permits one.** `@Type` is anonymous; `Name@Type` gives it a class-name-shaped local discriminator
@@ -260,7 +261,7 @@ FromExpression ::= Expression "FROM" Expression
                    Refinement?
 ```
 
-> **Non-normative example — Air Raid.** `5 MC<Owner FROM Anyone>` transfers five MC by changing only
+> **Non-normative example — Air Raid.** `5 MC<Me@Anyone FROM Anyone>` transfers five MC by changing only
 > the ownership argument. Compact transmutation preserves the resource class and amount on both
 > sides, so the card cannot accidentally remove one currency and grant another.
 
@@ -585,7 +586,7 @@ counts plants; `5` is five.
 ScaledMetric  ::= Integer MetricOperand? | MetricOperand
 MetricOperand ::= Expression
                 | Property
-                | "EVAL" Property
+                | "EVAL" [ "<" Expression ">" ] Property
                 | Rank
                 | TransformKind "[" Metric "]"
                 | "(" Metric ")"
@@ -702,7 +703,7 @@ RequirementAtom ::= CountedMetric
                   | "MAX" CountedMetric
                   | "=" CountedMetric
                   | Property
-                  | "EVAL" Property
+                  | "EVAL" [ "<" Expression ">" ] Property
                   | TransformKind "[" Requirement "]"
                   | "(" Requirement ")"
 CountedMetric   ::= Integer MetricAtom | Expression
@@ -853,7 +854,7 @@ the event Actor (T13-9).
 Trigger ::= TriggerChoice ( "BY" Expression )? ( "IF" Requirement )?
 ```
 
-> **Non-normative example — Lakefront Resorts.** `OceanTile BY Anyone: PROD[1 MC]` pays its owner
+> **Non-normative example — Lakefront Resorts.** `OceanTile BY Actor: PROD[1 MC]` pays its owner
 > whenever any player places an ocean. The actor qualifier belongs to the trigger event, while an
 > `IF` would ask about board state rather than attribute who performed the placement.
 
@@ -866,24 +867,23 @@ variable's bound.
 For example, Manutech writes `PROD[@StandardResource]: @StandardResource`: the production
 increase supplies the resource kind, and the instruction shares that choice.
 
-**L6-9. An unqualified subscription on an owned component watches its owner's events.** A rule
-printed on a player's card means what the icon means: *yours*. How that is said depends on whether
-the watched type has an owner of its own.
+**L6-9. An unqualified subscription on an owned component watches its owner's events.** Elaboration
+or effect compilation makes this restriction explicit. How it is expressed depends on whether the
+watched type has an owner dependency.
 
-- When it does, ownership says it, and no actor restriction is added. `CityTile` on a player's card
-  is already `CityTile<Owner>` by L9-4, so it watches that player's cities however they arose.
+- When it does, the bare watched type gains `<Me@Anyone>` (L9-3), and no actor restriction is added.
 - When it does not, there is no ownership to say it with, so the rule watches only events that
   player performed: `OceanTile` on a card reacts to the oceans its owner places, not an opponent's.
 - A `System` type is exempt: `ProductionPhase` and other Admin-only machinery are the table's own
   events, belonging to no player, and every owner's rule sees them.
 
-Writing any `BY` selector replaces this implicit restriction, which is what `BY Anyone` is for
-(L6-7): it says the rule watches everyone's events, including the table's. A rule on a component
-with no owner has no such restriction to begin with, and takes its event's Actor instead where its
-result needs a player (L9-13).
+Writing any `BY` selector replaces this implicit restriction. `BY Actor` accepts every event actor,
+including Admin. A rule on a component with no owner has no such restriction to begin with. When
+its result needs a player, elaboration introduces `Me@Player` in its owned trigger or a `BY`
+selector (L9-13).
 
 > **Non-normative example — Arctic Algae and Tharsis Republic.** Arctic Algae writes
-> `OceanTile BY Anyone: 2 Plant` because it must react to everyone's oceans; without the marking it
+> `OceanTile BY Actor: 2 Plant` because it must react to everyone's oceans; without the marking it
 > would react only to its owner's. Tharsis Republic needs no such marking on
 > `CityTile<Anyone, MarsArea>`: it says whose cities it watches by naming the owner it accepts.
 
@@ -897,7 +897,7 @@ which that trigger could fire.
 
 **L6-11. There is no universe-wide subscription.** `Component: Bar` is rejected when it is parsed,
 and qualifying it changes nothing: `Component` is a supertype of `Ok`, so `Component IF Foo: Bar`
-and `Component BY Anyone: Bar` are rejected when the declaration is loaded, by L6-10.
+and `Component BY Actor: Bar` are rejected when the declaration is loaded, by L6-10.
 
 **L6-12. Effects round-trip, and a gated instruction is parenthesized after the colon** so that the
 effect's own colon stays unambiguous.
@@ -1026,19 +1026,20 @@ what the first already means.
 resource belongs to the player doing the thing, and "gain 3 cards" means three separate cards. It
 changes how a source reads without changing which types exist (T10).
 
-**L9-1. Elaboration defines a rewritten element relative to a context.** Its result is the
-composition, in this order, of the following rewritings: record Type-variable scopes (T13-6 through
-T13-9); split atomized gains (L9-11);
-insert defaults (L9-4 through L9-10); bind the contextual owner (L9-3); dispatch transform blocks
-(L8); expand property evaluations (L9-12).
+**L9-1. Elaboration rewrites an element against a context.** It splits atomized gains (L9-11)
+before inserting declared defaults (L9-4 through L9-10), dispatches transform blocks (L8), records
+the resulting Type-variable scopes (T13-6 through T13-9), inserts omitted `Owned` owner arguments
+(L9-3), and expands property evaluations when their receiver is concrete (L9-12). Scopes may be
+recorded earlier to resolve authored names, but final recording follows structural transforms: a
+resource variable inside `PROD[...]` represents a Class after the block is dispatched.
 
-This order defines the resulting element, not how the rewritings must be computed. Where the PETS
-came from supplies the context:
+This order defines the resulting element, not how the rewritings must be computed. The source
+of the Pets supplies the context:
 
 | | An element a player submits | A class's own effects |
 | --- | --- | --- |
 | The context is | `This` — the submitting player's own scope | the class's own context |
-| Contextual owner | bound to the submitting player | left open, and `BY Owner` added where the result needs one (L9-13) |
+| Source of `Me` | the submitting player | the inherited header name, an explicit selector, or an effect-local trigger binding (L9-13) |
 | Property evaluations | rejected, except in a metric (L9-12) | expanded once the receiver is concrete |
 
 > **Non-normative example — player setup.** `10 ProjectCard` must become ten independent card gains,
@@ -1053,21 +1054,30 @@ the context's class, and `This<Foo>` keeps its own arguments while adopting the 
 > `Class<AsteroidCard>`, while ordinary `This` occurrences still close over the exact owned card
 > component.
 
-**L9-3. `Owner` is replaced by the context owner**, everywhere except inside the body of an `EACH`
-whose selector is itself an owner — there the selection supplies the owner instead, so an ordinary
-owned body reads on a card exactly as it does anywhere else. The selector itself is not shielded: it
-names components in the enclosing context, so `EACH ProjectCard<Owner> { ... }` means the cards the
-enclosing owner holds. A `RANK` selector shields nothing.
+**L9-3. A bare `Owned` expression receives its omitted owner argument from lexical `Me`.** An
+`Owned` class inherits `Me@Anyone` from its supertype (T13-4). An explicitly named `EACH Me@Player`
+or `RANK Me@Player` selector rebinds `Me` in its body or metrics. An unnamed `EACH` or `RANK` lets
+the outer binding propagate. A named rank selector supplies each candidate as `Me` while scoring
+its comparison keys, including property syntax expanded for that candidate. A submitted instruction
+takes `Me` from the submitting player. Explicit
+arguments, including literal `<Anyone>`, remain as written. This insertion is a special case of
+elaboration, not a general `DEFAULT` declaration on `Owned`.
 
-> **Non-normative example — Sponsored Academies.** `EACH Player { ProjectCard }` gives a card to each
-> selected player. If the enclosing card's owner replaced `Owner` inside that body, every branch
-> would give its card to the same player instead of the player selected for that branch.
+An `@` or named Type-variable occurrence chooses a whole Type. An omitted owner on its declaration
+receives lexical `Me`, just as an unmarked expression does. A marked reference keeps the choice
+captured by its declaration; it does not acquire a different owner from its reference site.
+Represented-Class references that name a resource kind still receive the lexical owner on the
+resulting owned component.
+An `Anyone` class does not bind `Me` to `This` merely because it is an Anyone; its effects must name
+that relationship where they need it.
+
+> **Non-normative example — Sponsored Academies.** `EACH Me@Player { ProjectCard }` gives a card to
+> each selected player. `EACH Player { ProjectCard }` retains the enclosing `Me` instead.
 
 **L9-4. Every expression receives its class's all-use dependency defaults** (T10-1), recursively.
 
-> **Non-normative example — Ecoline.** Its starting `3 Plant` omits an owner because ordinary owned
-> resources default recursively to the corporation's player. Without all-use defaults, the gain
-> would remain an abstract pile of plants belonging to nobody.
+> **Non-normative example — Ecoline.** Its starting `3 Plant` omits an owner because L9-3 supplies
+> the corporation's player. Ordinary class defaults are independent of this ownership rule.
 
 **L9-5. A gain or removal also receives the defaults for its use kind**, and a gain must opt in.
 When a class has gain dependency defaults, a gain may not leave its argument list implicit: write
@@ -1091,7 +1101,8 @@ all-use defaults (L9-4) still apply. `-Marker<>` accepts them.
 > placement defaults. There is no placement left to choose when a component is removed.
 
 **L9-7. `Foo<>` is invalid where that use has no dependency defaults to accept.** An empty list is
-an acceptance, not merely a second spelling of the same expression.
+an acceptance, not merely a second spelling of the same expression. A later bare reference to a
+marked `Foo<>` does not repeat that acceptance.
 
 **L9-8. The gained and removed projections of `A FROM B` are defaulted independently.** Compact
 syntax remains compact; defaulting its two projections does not duplicate a retained argument.
@@ -1110,35 +1121,20 @@ allows it and nothing otherwise, which is `!`; `.` with `?` permits only the mos
 | **`.`** | `!` | `.` | `.` |
 | **`?`** | `!` | `.` | `?` |
 
-> **Non-normative example — the starting-player marker.** `StartToken<Player FROM Owner>` changes
+> **Non-normative example — the starting-player marker.** `StartToken<Player FROM Anyone>` changes
 > the marker's owner. Defaulting the gained and removed token types independently preserves both
 > owners; defaulting the transmutation as one expression could overwrite the argument that changes.
 
-**L9-9. Inside a `HAS` refinement, a bare dependent expression reserves a slot for the candidate.**
-It keeps the first dependency position that could accept the refined domain free, so that candidate
-substitution (T8-3) binds it: `Player(HAS StartToken)` asks `StartToken<p>` of each candidate `p`,
-even though `StartToken` inherits a contextual owner default. The explicit spellings remain
-available: `StartToken<Owner>` requests the contextual owner and `StartToken<>` accepts the default.
+**L9-9. A `HAS` candidate binds a compatible omitted dependency before lexical ownership fills
+it.** `EACH Starter@Player(HAS StartToken)` tests each candidate's own token. A candidate CardFront
+also fills the card dependency of `CardFront(HAS BioTag)`. If the candidate cannot fill the owner
+or a dependency that determines it, L9-3 supplies lexical `Me`. Explicit arguments retain their
+meaning: `<Anyone>` stays broad, and `StartToken<>` is invalid without a declared default (L9-7).
 
-> **Non-normative example — the starting-player marker.** `Player(HAS StartToken)` must test each
-> candidate player's own marker. Reserving the owner slot lets candidate substitution fill it;
-> eagerly inserting the enclosing owner would ask whether every candidate has one particular
-> player's token.
-
-**L9-10. Inside a refinement, a default is deferred when its dependency is a direct use of a
-class-header type variable** (T13-2), so that candidate substitution can bind it through that
-occurrence. Writing `<>` still accepts the default explicitly.
-
-> **Non-normative example — CEO's Favorite Project.** `CardFront(HAS CardResource)` asks whether each
-> candidate card can hold a resource. Deferring the resource holder's header-variable default lets
-> the candidate card fill that slot; eager owner defaulting would ask about a generic resource owned
-> by the enclosing player instead.
-
-> **Non-normative design note — candidate binding precedes defaulting.** Rules L9-9 and L9-10 are
-> consequences of one precedence: a refinement first reads its requirement about the candidate, and
-> only then may omitted dependency context receive a default. The candidate is not concrete until the
-> refinement is tested, so elaboration implements that precedence by reserving or deferring the
-> affected slot. This is staging of one implicit-argument rule, not a second meaning for refinements.
+**L9-10. Inside a refinement, an ordinary declared default is deferred when its dependency is a
+direct use of a class-header type variable** (T13-2), so candidate substitution can bind it through
+that occurrence. Candidate binding also precedes omitted-owner insertion under L9-9. Writing `<>`
+accepts a declared default explicitly; it cannot accept a default that does not exist.
 
 **L9-11. A gain of several `Atomized` components becomes several gains of one.** `3 ProjectCard`
 becomes three independent gains, because three cards are three separate things to choose.
@@ -1152,20 +1148,30 @@ expands to the metric that class's `score` property holds, with `This` inside it
 property's class. It needs a receiver context, so it is expanded in a class effect and in a
 submitted *metric*, which is given one, and rejected in an ordinary submitted instruction, which is
 not. An evaluation whose receiver is still abstract stays unexpanded until it is not, and a property
-that would expand into itself is rejected.
+that would expand into itself is rejected. When expanded, its bare owned types use the lexical `Me`
+at the evaluation site; an unrelated event or selection does not supply one.
+
+Elaboration captures that lexical binding on the evaluation itself. `EVAL<Player1> Goal.score`
+spells an evaluation whose `Me` is Player1; ordinary `EVAL Goal.score` captures the surrounding
+binding. The capture is part of the syntax and survives rendering, reparsing, and Type-variable
+specialization. Unnamed `EACH` and `RANK` selectors preserve it; selectors explicitly named `Me`
+capture their own selection instead.
 
 > **Non-normative example — Landlord scoring.** The generic award rule uses `EVAL Award.metric`.
 > Once Landlord is selected, elaboration inserts its `COUNT "OwnedTile"` syntax with the award's
 > context; evaluating too early would have only the abstract `Metric` property bound.
 
 **L9-13. A class's effects are elaborated against that class's own context.** They are gathered from
-every superclass, and an effect on a class that is neither an owner nor owned, whose instruction
-needs an owner, has `BY Owner` added to its trigger — that is how an unowned rule learns whose event
-it is reacting to.
+every superclass. If an effect has no inherited `Me` and its instruction contains a bare `Owned`
+type, elaboration declares effect-local `Me@Player` in an owned trigger when possible, or adds
+`BY Me@Player` to its trigger. The instruction then uses that same variable. The event or changed
+component does not implicitly replace an unmarked `Anyone`.
+An `OR` trigger cannot supply that binding from just one arm; an effect that needs `Me` must bind
+it around the whole trigger and name it in the instruction.
 
 > **Non-normative example — placement bonuses.** A map area is neither a player nor owned, yet its
-> `Placement<This>: Plant` rule must give the plant to whoever placed there. Adding `BY Owner` to the
-> trigger captures that actor instead of leaving the reward ownerless or assigning it to the area.
+> `Placement<This>: Plant` rule must give the plant to whoever placed there. An effect-local
+> `Me@Player` in the trigger captures that player for the reward.
 
 **L9-14. Changes to uninhabited Types become `Die` or `Ok`.** After specialization, a change whose
 Type expression violates a dependency bound (T3-4, T3-5), or whose valid Type is uninhabited
@@ -1178,7 +1184,7 @@ specialization may give the expression a nonempty domain (T8-7).
 > mandatory colony gain becomes `Die`, while an optional gain becomes `Ok`.
 
 **L9-15. Specializing an effect closes it over one exact component.** The component's type binds
-the class's type variables (T13-5), the `This` context, and the contextual owner together.
+the class's inherited type variables, including `Me` when present (T13-5), and its `This` context.
 
 > **Non-normative example — Tharsis Republic.** Its generic city trigger belongs to one concrete
 > corporation component. Closing over that component and its owner ensures the MC production and
@@ -1240,7 +1246,7 @@ shadow:
 | Construct | What it binds | Where |
 | --- | --- | --- |
 | `This` | the component the declaration is about | the whole declaration (L1-5) |
-| `Owner` | the context's owner | the whole declaration, except inside an `EACH` whose selector is an owner (L9-3) |
+| inherited `Me@Anyone` | the component's owner dependency | the class and its descendants, unless a selector explicitly shadows it (L9-3, T13-4) |
 | `X` | one open amount | one instruction, across the stages of a `THEN` (L2-11) |
 | `@Type` or `Name@Type` in an `EACH` or `RANK` selector | each selected component | that construct's body or metrics (L2-14, L4-8) |
 | a refinement's domain | the candidate | that refinement (T8-3) |
@@ -1292,7 +1298,7 @@ Signature   ::= ClassName ( "<" PlainExpression ( "," PlainExpression )* ">" )?
 ```
 
 ```pets
-ABSTRACT CLASS Tile<Area> : Occupant, Owned<Owner>
+ABSTRACT CLASS Tile<Area> : Occupant, Owned<Anyone>
 ```
 
 **L11-4. Signature expressions carry no refinements**, at any depth. A dependency bound or supertype
@@ -1384,7 +1390,7 @@ OneLineDeclaration ::= "ABSTRACT"? "CLASS" Signature OneLineBody?
 
 **L11-12. Every class catalog includes the system declarations:**
 the universal audit signal `Audit` plus the classes this specification and the type system depend
-on — `Component` and `Class` (T1-4, T1-5), the ownership vocabulary `Anyone`, `Owner` and `Owned`,
+on — `Component` and `Class` (T1-4, T1-5), the ownership vocabulary `Anyone` and `Owned`,
 the actor root `Actor`, the identity signal `Ok` (L2-5), and the impossible type `Die` (L9-14) —
 plus `Atomized` (L9-11), `CustomMetric`, and `CustomInstruction` (T2-9).
 A game's own declarations join these. Its premise always includes `Audit` and determines which of
@@ -1397,7 +1403,7 @@ the remaining system declarations that game contains.
 
 ---
 
-## 12. Owner-local classes
+## 12. Inline derived classes
 
 A card often needs a class of its own — one required action, one special tile, one remote area —
 that no other card will ever mention. Rather than force a name, PETS lets the definition declare the
@@ -1465,14 +1471,14 @@ from its supertypes like any other.
 LocalBodyElement ::= Invariant | PropertyAssignment | Effect | Action
 ```
 
-**L12-5. Owner-local classes do not nest.** Neither a local body nor an argument of the occurrence
+**L12-5. Inline derived classes do not nest.** Neither a local body nor an argument of the occurrence
 may declare another one.
 
 **L12-6. One owner declares at most one unnamed local class per base name.** A second is rejected
 rather than distinguished by an ordinal, so the derived name stays stable and meaningful. Two local
 classes with the same natural suffix must be declared explicitly.
 
-**L12-7. Owner-local classes appear only in declaration files.** A standalone declaration or
+**L12-7. Inline derived classes appear only in declaration files.** A standalone declaration or
 submitted instruction cannot introduce one: a submitted instruction has no definition owner, and a
 live game's class table is fixed (T1-6).
 
@@ -1496,7 +1502,7 @@ comment beside each production names the rule that introduces it.
 `Expression`, `InstructionGroup`, `Metric`, `Requirement`, `Effect`, and `Action` each describe a
 complete element. `Source` describes a `.pets` declaration file; `OneLineDeclaration` describes one
 standalone declaration. Smaller forms such as `Trigger` and `Cost` follow their named productions.
-Owner-local classes are permitted only in declaration-file sources (L12-7).
+Inline derived classes are permitted only in declaration-file sources (L12-7).
 
 ### Expressions
 
@@ -1560,7 +1566,7 @@ MetricAtom       ::= ScaledMetric ( "MAX" ScaledMetric )?                    /* 
 ScaledMetric     ::= Integer MetricOperand? | MetricOperand                  /* L4-2 */
 MetricOperand    ::= Expression                                              /* L4-2 */
                    | Property
-                   | "EVAL" Property
+                   | "EVAL" [ "<" Expression ">" ] Property
                    | Rank
                    | TransformKind "[" Metric "]"
                    | "(" Metric ")"
@@ -1581,7 +1587,7 @@ RequirementAtom        ::= CountedMetric                                        
                          | "MAX" CountedMetric
                          | "=" CountedMetric
                          | Property
-                         | "EVAL" Property
+                         | "EVAL" [ "<" Expression ">" ] Property
                          | TransformKind "[" Requirement "]"
                          | "(" Requirement ")"
 CountedMetric          ::= Integer MetricAtom | Expression                         /* L5-2 */

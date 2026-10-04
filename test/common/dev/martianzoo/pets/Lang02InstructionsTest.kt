@@ -237,7 +237,7 @@ internal class Lang02InstructionsTest {
   internal fun `L2-12 a THEN stage can name a Type used by a later stage`() {
     roundTrip<Instruction>("@Plant THEN @Plant")
     roundTrip<Instruction>("Foo<@Plant> THEN Bar<@Plant>")
-    roundTrip<Instruction>("Foo<Class<@Plant>> THEN @Plant<Owner>")
+    roundTrip<Instruction>("Foo<Class<@Plant>> THEN @Plant<Anyone>")
     roundTrip<Instruction>("@Plant THEN Foo<Bar(HAS Baz<@Plant>)>")
     roundTrip<Instruction>("@CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<@CityTile>)>")
   }
@@ -262,7 +262,7 @@ internal class Lang02InstructionsTest {
   @Test
   internal fun `L2-13 a transmutation destination can name a Type used by its source`() {
     roundTrip<Instruction>("Foo<@Plant> FROM Bar<@Plant>")
-    roundTrip<Instruction>("Foo<Class<@Plant>> FROM @Plant<Owner>")
+    roundTrip<Instruction>("Foo<Class<@Plant>> FROM @Plant<Anyone>")
     roundTrip<Effect>("Foo: Bar<@Plant> FROM Baz<@Plant>")
     roundTrip<Action>("Foo -> Bar<@Plant> FROM Baz<@Plant>")
     roundTrip<Instruction>("Foo<@Plant> FROM Bar<@Plant> THEN Baz<@Heat> FROM Qux<@Heat>")
@@ -295,7 +295,7 @@ internal class Lang02InstructionsTest {
   /**
    * This module can pin the fanout's syntax and scope. Enumerating a live world and rejecting a
    * concrete selector happen where the fanout is resolved:
-   * `test/common/dev/martianzoo/engine/EachSelectorOwnerTest.kt` and
+   * `test/common/dev/martianzoo/engine/EachSelectorBindingTest.kt` and
    * `InstructionResolutionTest.kt`.
    */
   @Test
@@ -330,12 +330,12 @@ internal class Lang02InstructionsTest {
     val represented = parse<Instruction>("EACH Class<@Area> { @Area }") as Each
     represented.bodyFor(parse("Class<MarsArea>")) shouldBe parse<InstructionTree>("MarsArea")
 
-    val applied = parse<Instruction>("EACH Class<@Area> { Tile<@Area<Owner>> }") as Each
+    val applied = parse<Instruction>("EACH Class<@Area> { Tile<@Area<Anyone>> }") as Each
     applied.bodyFor(parse("Class<MarsArea>")) shouldBe
-        parse<InstructionTree>("Tile<MarsArea<Owner>>")
+        parse<InstructionTree>("Tile<MarsArea<Anyone>>")
 
     shouldThrow<PetSyntaxException> {
-      parse<Instruction>("EACH @Area { Tile<@Area<Owner>> }")
+      parse<Instruction>("EACH @Area { Tile<@Area<Anyone>> }")
     }
   }
 

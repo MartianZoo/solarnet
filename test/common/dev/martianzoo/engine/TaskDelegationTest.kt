@@ -90,11 +90,11 @@ internal class TaskDelegationTest {
                 CLASS RewardB
               }
               CLASS ConcreteReactor : Owned<Player> {
-                This: Result<Owner>
+                This: Result
               }
               CLASS AbstractReactor : Owned<Player> {
-                This: Reward<Owner>
-                Reward<Owner>: FollowUp
+                This: Reward
+                Reward: FollowUp
               }
               CLASS Observer {
                 Result<Player2> BY Player1: Wrong

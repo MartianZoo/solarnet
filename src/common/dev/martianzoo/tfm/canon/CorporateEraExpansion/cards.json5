@@ -193,7 +193,7 @@
           "name": "HiredRaiders",
           "cost": 1,
           "tags": [ "EventTag" ],
-          "immediate": "Steel<Owner FROM Anyone> OR 2 Steel<Owner FROM Anyone> OR MC<Owner FROM Anyone> OR 2 MC<Owner FROM Anyone> OR 3 MC<Owner FROM Anyone>",
+          "immediate": "Steel<Me@Anyone FROM Anyone> OR 2 Steel<Me@Anyone FROM Anyone> OR MC<Me@Anyone FROM Anyone> OR 2 MC<Me@Anyone FROM Anyone> OR 3 MC<Me@Anyone FROM Anyone>",
         },
         {
           "name": "IndenturedWorkers",
@@ -357,7 +357,7 @@
         {
           "name": "ProtectedHabitats",
           "cost": 5,
-          "effects": [ "-Plant OR -Animal OR -Microbe BY Player(NOT Owner):: Die" ],
+          "effects": [ "-Plant OR -Animal OR -Microbe BY Player(NOT Me@Anyone):: Die" ],
         },
         {
           "name": "QuantumExtractor",
@@ -476,7 +476,7 @@
           "name": "TollStation",
           "cost": 12,
           "tags": [ "SpaceTag" ],
-          "immediate": "PROD[1 MC / SpaceTag<Player(NOT Owner)>]",
+          "immediate": "PROD[1 MC / SpaceTag<Player(NOT Me@Anyone)>]",
         },
         {
           "name": "TransNeptuneProbe",

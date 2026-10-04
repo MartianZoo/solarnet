@@ -11,7 +11,6 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.gameView
 import dev.martianzoo.pets.types.testCatalog
@@ -41,8 +40,8 @@ internal class Lang09ElaborationTest {
             player1,
         )
 
-    // The atomized gain split; the gain default and the all-use owner default were inserted;
-    // contextual `Owner` was bound; and the marked syntax was dispatched away.
+    // The atomized gain split; the gain default and the owned context were inserted; and the
+    // marked syntax was dispatched away.
     submitted shouldBe
         parse<InstructionTree>(
             "ProjectCard<Player1>!, ProjectCard<Player1>!, Tile<Player1, LandArea>!"
@@ -55,10 +54,11 @@ internal class Lang09ElaborationTest {
 
   @Test
   internal fun `L9-1 a class's own effects go through a different set of stages`() {
-    // With no contextual owner, an ownerless class keeps `Owner` open and takes it from the event
-    // instead (L9-13). Defaults and atomizing still run.
+    // An ownerless class binds `Me` from the trigger. Defaults and atomizing still run.
     classEffects("SimpleRule").single() shouldBe
-        parse<Effect>("This BY Owner: ProjectCard<Owner>!, ProjectCard<Owner>!, Plant<Owner>!")
+        parse<Effect>(
+            "This BY Me@Player: ProjectCard<Me@Player>!, ProjectCard<Me@Player>!, Plant<Me@Player>!"
+        )
   }
 
   // L9-2 This
@@ -76,36 +76,37 @@ internal class Lang09ElaborationTest {
         "-Ooh<Plant<Xyz, It<Worked>, Gizmo>>: 5 It<Worked>?, =0 It<Worked>: -Widget"
   }
 
-  // L9-3 Owner
+  // L9-3 Owned context
 
   @Test
-  internal fun `L9-3 Owner is replaced by the context owner`() {
-    elaborate("Plant<Owner>") shouldBe parse<InstructionTree>("Plant<Player1>!")
+  internal fun `L9-3 bare Owned takes the supplied context and Anyone stays literal`() {
     elaborate("Plant") shouldBe parse<InstructionTree>("Plant<Player1>!")
     elaborate("Plant<Anyone>") shouldBe parse<InstructionTree>("Plant<Anyone>!")
   }
 
   @Test
-  internal fun `L9-3 an owner-selecting fanout shields its body but not its selector`() {
-    elaborate("EACH Player { Plant<Owner> }") shouldBe
-        parse<InstructionTree>("EACH Player { Plant<Owner>! }")
-    elaborate("EACH Area { Plant<Owner> }") shouldBe
+  internal fun `L9-3 an explicitly named selector rebinds Me in its body`() {
+    elaborate("EACH Me@Player { Plant }") shouldBe
+        parse<InstructionTree>("EACH Me@Player { Plant<Me@Player>! }")
+    elaborate("EACH Area { Plant }") shouldBe
         parse<InstructionTree>("EACH Area { Plant<Player1>! }")
-    elaborate("EACH Token<Owner> { Plant<Owner> }") shouldBe
-        parse<InstructionTree>("EACH Token<Player1> { Plant<Player1>! }")
+    elaborate("EACH Token<Anyone> { Plant }") shouldBe
+        parse<InstructionTree>("EACH Token<Anyone> { Plant<Player1>! }")
   }
 
   @Test
-  internal fun `L9-3 a RANK selector shields nothing`() {
+  internal fun `L9-3 a RANK selector can rebind Me`() {
+    metric("RANK Player { Plant }") shouldBe parse<Metric>("RANK Player { Plant<Player1> }")
     metric("RANK Player { Plant<Player> }") shouldBe parse<Metric>("RANK Player { Plant<Player> }")
-    metric("RANK Player { Plant<Owner> }") shouldBe parse<Metric>("RANK Player { Plant<Player1> }")
+    metric("RANK Me@Player { Plant }") shouldBe parse<Metric>("RANK Me@Player { Plant<Me@Player> }")
+    metric("RANK Player { Plant<Anyone> }") shouldBe parse<Metric>("RANK Player { Plant<Anyone> }")
   }
 
   // L9-4 All-use defaults
 
   @Test
   internal fun `L9-4 every expression receives its class's all-use defaults`() {
-    // `Owned` declares `DEFAULT Owned<Owner>`, so every owned expression gets an owner, at depth.
+    // Bare Owned expressions take the supplied lexical context, at depth.
     metric("Plant") shouldBe parse<Metric>("Plant<Player1>")
     metric("Marker<Land1>") shouldBe parse<Metric>("Marker<Player1, Land1>")
     metric("Area(HAS Marker<Land1>)") shouldBe parse<Metric>("Area(HAS Marker<Player1, Land1>)")
@@ -124,7 +125,7 @@ internal class Lang09ElaborationTest {
 
   @Test
   internal fun `L9-6 a removal with no argument list declines its removal-only defaults`() {
-    // `Marker` declares `DEFAULT -Marker<LandArea>`; only the all-use owner default lands here.
+    // `Marker` declares `DEFAULT -Marker<LandArea>`; a bare removal declines it.
     elaborate("-Marker") shouldBe parse<InstructionTree>("-Marker<Player1>!")
     elaborate("-Marker<>") shouldBe parse<InstructionTree>("-Marker<Player1, LandArea>!")
     elaborate("-Marker<Mars1>") shouldBe parse<InstructionTree>("-Marker<Player1, Mars1>!")
@@ -158,8 +159,8 @@ internal class Lang09ElaborationTest {
     val table =
         testCatalog(
                 """
-                CLASS Player1 : Owner
-                CLASS Player2 : Owner
+                CLASS Player1 : Anyone
+                CLASS Player2 : Anyone
                 ABSTRACT CLASS Area {
                   CLASS Land1
                   CLASS Land2
@@ -193,22 +194,22 @@ internal class Lang09ElaborationTest {
   // L9-9 Reserving a slot for the refinement candidate
 
   @Test
-  internal fun `L9-9 a bare dependent expression in a HAS refinement reserves a slot`() {
+  internal fun `L9-9 a HAS candidate fills a compatible omitted dependency first`() {
     metric("Player(HAS StartToken)") shouldBe parse<Metric>("Player(HAS StartToken)")
-    metric("Player(HAS StartToken<Owner>)") shouldBe
-        parse<Metric>("Player(HAS StartToken<Player1>)")
-    metric("Player(HAS StartToken<>)") shouldBe parse<Metric>("Player(HAS StartToken<Player1>)")
+    metric("Player(HAS StartToken<Anyone>)") shouldBe
+        parse<Metric>("Player(HAS StartToken<Anyone>)")
+    shouldThrow<ExpressionException> { metric("Player(HAS StartToken<>)") }
     metric("StartToken") shouldBe parse<Metric>("StartToken<Player1>")
+    metric("LandArea(HAS StartToken)") shouldBe parse<Metric>("LandArea(HAS StartToken<Player1>)")
   }
 
   // L9-10 Deferring a class-header variable's default
 
   @Test
-  internal fun `L9-10 a default is deferred inside a refinement for a header variable`() {
+  internal fun `L9-10 a nested HAS candidate takes precedence over lexical ownership`() {
     metric("Animal") shouldBe parse<Metric>("Animal<Player1>")
     metric("CardFront(HAS Animal)") shouldBe parse<Metric>("CardFront<Player1>(HAS Animal)")
-    metric("CardFront(HAS Animal<>)") shouldBe
-        parse<Metric>("CardFront<Player1>(HAS Animal<Player1>)")
+    shouldThrow<ExpressionException> { metric("CardFront(HAS Animal<>)") }
   }
 
   // L9-11 Atomized gains
@@ -228,7 +229,7 @@ internal class Lang09ElaborationTest {
   @Test
   internal fun `L9-12 EVAL includes a class property's own syntax`() {
     classEffects("Gardener") shouldBe
-        listOf(parse<Effect>("This BY Owner: Plant<Owner>! / 2 Plant<Owner>"))
+        listOf(parse<Effect>("This BY Me@Player: Plant<Me@Player>! / 2 Plant<Me@Player>"))
   }
 
   @Test
@@ -303,7 +304,7 @@ internal class Lang09ElaborationTest {
   @Test
   internal fun `L9-13 effects are gathered from every superclass and elaborated in context`() {
     classEffects("SimpleRule").size shouldBe 1
-    classEffects("OwnedRule").single() shouldBe parse<Effect>("This: Plant<Owner>!")
+    classEffects("OwnedRule").single().toString() shouldBe "This: Plant<Me@Anyone>!"
   }
 
   @Test
@@ -317,9 +318,9 @@ internal class Lang09ElaborationTest {
   }
 
   @Test
-  internal fun `L9-13 an unowned class whose result needs an owner gets BY Owner`() {
-    // `Rule` is neither an `Owner` nor `Owned`, so its instruction has no owner of its own.
-    classEffects("SimpleRule").single().trigger.toString() shouldBe "This BY Owner"
+  internal fun `L9-13 an unowned class whose result needs an owner binds Me in the trigger`() {
+    // `Rule` is neither an `Anyone` nor `Owned`, so its instruction has no owner of its own.
+    classEffects("SimpleRule").single().trigger.toString() shouldBe "This BY Me@Player"
     classEffects("OwnedRule").single().trigger.toString() shouldBe "This"
   }
 
@@ -330,7 +331,7 @@ internal class Lang09ElaborationTest {
     val catalog =
         testCatalog(
             """
-            ABSTRACT CLASS Seat : Owner, Actor { CLASS Seat1 }
+            ABSTRACT CLASS Seat : Anyone, Actor { CLASS Seat1 }
             ABSTRACT CLASS Empty
             CLASS Plant : Owned<Anyone>
             CLASS Steel : Owned<Anyone>
@@ -340,14 +341,13 @@ internal class Lang09ElaborationTest {
     val view: ClassTable = gameView(catalog, "Seat1", "Empty", "Plant")
     val elaborator = PetElaborator(view)
     val bearer = view.getClass(parse("Plant")).defaultType
-    val seat1 = Player(parse("Seat1"))
 
     view.isInhabited(cn("Plant")) shouldBe true
     view.isInhabited(cn("Steel")) shouldBe false
     view.isInhabited(cn("Empty")) shouldBe false
 
     fun specialize(effect: String): Effect =
-        elaborator.specializeEffect(bearer, bearer, parse(effect), parse("Plant"), seat1)
+        elaborator.specializeEffect(bearer, bearer, parse(effect), parse("Plant"))
 
     specialize("This: Steel<Seat1>!").instruction shouldBe parse<InstructionTree>("Die!")
     specialize("This: Steel<Seat1>?").instruction shouldBe parse<InstructionTree>("Ok")
@@ -405,7 +405,6 @@ internal class Lang09ElaborationTest {
         component,
         authored,
         component.expressionFull,
-        Player(parse("Player2")),
     ) shouldBe parse<Effect>("This: Plant<Player2>!")
   }
 }

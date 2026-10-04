@@ -7,7 +7,7 @@
           "name": "Aphrodite",
           "tags": [ "VenusTag", "PlantTag" ],
           "immediate": "47 MC, PROD[Plant]",
-          "effects": [ "VenusStep BY Anyone: 2 MC" ],
+          "effects": [ "VenusStep BY Actor: 2 MC" ],
         },
         {
           "name": "Celestic",
@@ -83,7 +83,7 @@
           "name": "CometForVenus",
           "cost": 11,
           "tags": [ "SpaceTag", "EventTag" ],
-          "immediate": "VenusStep, -4 MC<Anyone(HAS VenusTag)>?",
+          "immediate": "VenusStep, -4 MC<Anyone(HAS VenusTag<Anyone>)>?",
         },
         {
           "name": "CorroderSuits",
@@ -302,7 +302,7 @@
           "name": "SponsoredAcademies",
           "cost": 9,
           "tags": [ "ScienceTag", "EarthTag" ],
-          "immediate": "-ProjectCard THEN 3 ProjectCard, EACH Player(NOT Owner) { ProjectCard }",
+          "immediate": "-ProjectCard THEN 3 ProjectCard, EACH Other@Player(NOT Me@Anyone) { ProjectCard<Other@Player> }",
           "effects": [ "End: VictoryPoint" ],
         },
         {

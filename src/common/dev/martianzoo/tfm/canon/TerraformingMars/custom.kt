@@ -196,7 +196,7 @@ private val scoreEventVps =
     object : CustomInstruction("ScoreEventVps") {
       override fun translate(
           reader: GameReader,
-          ignoredOwner: Type,
+          ignoredOwningType: Type,
           classType: Type,
       ): InstructionTree {
         val effects = cardEffects(cardFromClassType(classType, reader))

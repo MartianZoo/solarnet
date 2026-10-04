@@ -141,13 +141,16 @@ See [`API.md`](API.md#layer-responsibility), [`VISIBILITY.md`](VISIBILITY.md), a
   players-by-standard-resources production as the concrete proof case.
 - Separate the expression API's natural, compact resolved, and full resolved intents, with an
   explicit `ClassTable` for resolution.
-- Resolve the contextual `Owner`/ownership-Class overload and remove its Kotlin carve-outs; simplify
-  `LiveEffect` Actor binding and separate `Instructor`'s resolution capability from execution.
+- Assess whether a future `OWN[...]` transform can subsume the current Owned-specific insertion
+  and implicit trigger-actor filter without worsening authored Pets. Lexical `Me`, inherited header
+  names, and ordinary `Anyone` are the current model; [`IDENTITY.md`](IDENTITY.md#lexical-ownership-model)
+  records the remaining property-evaluation boundary. Separately, divide `Instructor`'s resolution
+  capability from execution.
 - Represent direct point-event `Signal`s honestly rather than as self-transmutations, preserving
   their paired gain/removal triggers and distinguishing them from source-requiring exchanges; and
   separate cleanup lifetime from log visibility.
 
-The specifications own the final semantics. Start with [`IDENTITY.md`](IDENTITY.md#open-audit),
+The specifications own the final semantics. Start with [`IDENTITY.md`](IDENTITY.md#lexical-ownership-model),
 [`TYPES.md`](TYPES.md), [`PROPERTIES.md`](PROPERTIES.md#design-constraints-for-future-extensions),
 and the relevant rules in [`type-system-spec.md`](../type-system-spec.md) and
 [`pets-language-spec.md`](../pets-language-spec.md).

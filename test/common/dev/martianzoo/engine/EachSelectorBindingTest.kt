@@ -7,9 +7,9 @@ import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class EachSelectorOwnerTest {
+internal class EachSelectorBindingTest {
   @Test
-  internal fun selectorOwnerComesFromTheEnclosingEvent() {
+  internal fun selectedHolderComesFromTheEnclosingEvent() {
     val game =
         Engine.newGame(
             testGamePremise(
@@ -19,7 +19,7 @@ internal class EachSelectorOwnerTest {
                 CLASS RedToken : Token
                 CLASS BlueToken : Token
                 CLASS Provider {
-                  SelectorEvent: EACH @Token<Owner> { -@Token }
+                  SelectorEvent BY Me@Player: EACH @Token<Me@Player> { -@Token }
                 }
                 """,
                 players = 2,

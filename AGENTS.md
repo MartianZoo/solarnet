@@ -64,10 +64,15 @@ is necessary, but an implementation that merely works can still be a design fail
 Optimize for the smallest coherent design, not the first implementation that passes tests.
 Simplicity is an acceptance criterion, not a later cleanup step.
 
+For cross-cutting work, choose scope by a coherent rule, not an example component. A rule selected
+from a larger redesign should be carried through all affected components, with superseded machinery
+removed. When the user asks to explore a wholesale replacement, let the experiment reveal its full
+consequences.
+
 - Begin by looking for code or concepts that can be removed, then try to compose existing
   mechanisms before adding another one.
-- Set a complexity budget appropriate to the request. Treat a disproportionate diff as evidence
-  against the approach even when tests pass.
+- Set a complexity budget appropriate to the request. Judge permanent conceptual cost before diff
+  size; a broad replacement can require a broad diff even when it simplifies the model.
 - Treat a second representation of the same fact as a signal to stop and reconsider the design.
 - Pause before introducing a new processing phase, representation, or cross-module protocol.
   Report the design pressure and propose the smallest promising alternative before proceeding.

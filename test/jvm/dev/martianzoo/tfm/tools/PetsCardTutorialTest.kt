@@ -584,7 +584,7 @@ internal class PetsCardTutorialTest {
         candidateMatches(
             deckClassNames =
                 setOf(cn("PreludeCard"), cn("ProjectCard"), cn("StandardCorporationCard")),
-            extraClassNames = setOf(cn("Anyone")),
+            extraClassNames = setOf(cn("Actor"), cn("Anyone")),
             allowByTrigger = true,
             allowRequirement = { requirement ->
               isRequirementOnlyAboutTags(requirement) ||

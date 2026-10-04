@@ -17,7 +17,7 @@ import kotlin.reflect.KClass
  * L1-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions)).
  * Each argument (like `Ants` in `Microbe<Player1, Ants>`) is itself an expression; a refinement is
  * a conjunction of state-aware requirements (as in `Card(HAS VenusTag)`) and structural differences
- * (as in `Owner(NOT Player1)`) ([rule
+ * (as in `Anyone(NOT Player1)`) ([rule
  * L1-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#1-expressions)).
  *
  * Two expressions are equal only when their spellings agree ([rule

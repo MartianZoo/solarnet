@@ -31,12 +31,12 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun specializedThisInvariantCanLimitOneConcreteClassAcrossOwners() {
+  internal fun specializedThisInvariantCanLimitOneConcreteClassAcrossPlayers() {
     val table =
         catalog(
                 *parseClasses(
                         """
-                        ABSTRACT CLASS Player : Owner {
+                        ABSTRACT CLASS Player : Anyone {
                           HAS =1 This
                           CLASS Player1
                           CLASS Player2
@@ -93,7 +93,7 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun compositionRejectsAmbiguousModuleOwnership() {
+  internal fun compositionRejectsAmbiguousModuleSelection() {
     val declarations =
         "ABSTRACT CLASS Module\nCLASS SharedModule : Module"
             .lines()
@@ -268,7 +268,7 @@ internal class CatalogTest {
   }
 
   @Test
-  internal fun bundleOwnershipFiltersAndRejectsDependentContent() {
+  internal fun bundleSelectionFiltersAndRejectsDependentContent() {
     val base =
         bundle(
             "Base",

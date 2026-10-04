@@ -19,7 +19,7 @@ internal class SponsoredAcademiesTest : CardTest() {
   }
 
   @Test
-  internal fun `Owner discards one and draws two while every opponent draws one`() {
+  internal fun `Anyone discards one and draws two while every opponent draws one`() {
     p1.runOperation("ProjectCard")
 
     p1.playProject(SponsoredAcademies, 9)

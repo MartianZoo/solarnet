@@ -150,7 +150,7 @@ ABSTRACT CLASS Tag<TagHolder<@Player>> : Owned<@Player>, Atomized {
 
 // TODO: can this be simplified?
 "Anything that can hold a particular kind of card resource"
-ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned<Owner>
+ABSTRACT CLASS ResourceHolder<Class<CardResource>> : Owned
 
 ABSTRACT CLASS Cardbound<CardFront<@Player>> : Owned<@Player>
 

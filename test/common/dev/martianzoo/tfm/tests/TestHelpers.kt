@@ -155,7 +155,7 @@ object TestHelpers {
       game: World,
       expectedAsInstructions: String,
   ) {
-    val inferredOwner = result.inferredExpectationOwner(game)
+    val inferredHolder = result.inferredExpectationHolder(game)
     val elaborator = PetElaborator(game.classTable)
     // Gain/Remove are only signed-count notation in this assertion DSL. Elaborating the whole
     // instruction would wrongly apply mutation defaults and atomization, so elaborate each queried
@@ -167,7 +167,7 @@ object TestHelpers {
             object : PetTransformer() {
               override fun transformNode(node: PetNode): PetNode =
                   if (node is Expression) {
-                    elaborator.elaborateInput(node, inferredOwner)
+                    elaborator.elaborateInput(node, inferredHolder)
                   } else {
                     transformChildren(node)
                   }
@@ -220,7 +220,7 @@ object TestHelpers {
 
   private fun Int.expectedCount(): Int = if (this == ZERO_SCALAR_SENTINEL) 0 else this
 
-  private fun TaskResult.inferredExpectationOwner(game: World): Player? {
+  private fun TaskResult.inferredExpectationHolder(game: World): Player? {
     // The first change normally retains the agent caller. An explicit `BY Admin` loses that
     // signal, so fall back only when every owned change points to the same Player.
     (changes.firstOrNull()?.actor as? Player)?.let {

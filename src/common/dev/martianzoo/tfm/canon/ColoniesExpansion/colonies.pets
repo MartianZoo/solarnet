@@ -1,8 +1,8 @@
 "Expansion adding colony tiles, player colonies, and trade fleets"
 CLASS ColoniesExpansion : Module {
   This: TradeAction, BuildColonyProject
-  SetupPhase: EACH Player { TradeFleet }
-  SetupPhase IF SoloMode, SelectedColonyTile: EACH Player { SoloColoniesSetup }
+  SetupPhase: EACH Me@Player { TradeFleet }
+  SetupPhase IF SoloMode, SelectedColonyTile: EACH Me@Player { SoloColoniesSetup }
   SetupPhase IF SoloMode: PROD[-2 MC<Player>]
   ColoniesSolarPhase: AdvanceColonyTracks
 }
@@ -180,7 +180,7 @@ CLASS Trade<@ColonyTile, GenerationScope> : Owned<Player> {
 
 "One unresolved barrier to completing a Trade"
 CLASS TradeBarrier<@ColonyTile> : Owned<Player>, Barrier, Hidden {
-  -This IF MAX 0 This:: FinishTrade<@ColonyTile> BY Owner
+  -This IF MAX 0 This:: FinishTrade<@ColonyTile> BY Me@Anyone
 }
 
 "The owner-attributed event that begins a Trade's completion consequences"

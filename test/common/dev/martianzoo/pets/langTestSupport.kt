@@ -45,7 +45,7 @@ internal fun <P : PetNode> roundTripAll(type: KClass<P>, sources: String) {
  */
 internal const val LANG_DECLARATIONS: String =
     """
-    ABSTRACT CLASS Player : Owner, Actor {
+    ABSTRACT CLASS Player : Anyone, Actor {
       CLASS Player1
       CLASS Player2
     }
@@ -78,8 +78,8 @@ internal const val LANG_DECLARATIONS: String =
     CLASS Slug : Owned<Anyone> { DEFAULT -Slug. }
 
     "A card, and a resource whose owner is forced to be its card's owner (T3-8)"
-    ABSTRACT CLASS CardFront : Owned<Owner> { CLASS Ants }
-    ABSTRACT CLASS Cardbound<CardFront<@Owner>> : Owned<@Owner> { CLASS Animal }
+    ABSTRACT CLASS CardFront : Owned<Anyone> { CLASS Ants }
+    ABSTRACT CLASS Cardbound<CardFront<@Anyone>> : Owned<@Anyone> { CLASS Animal }
 
     "A class whose removal-only default differs from its all-use default"
     CLASS Marker<Area> : Owned<Anyone> { DEFAULT -Marker<LandArea> }

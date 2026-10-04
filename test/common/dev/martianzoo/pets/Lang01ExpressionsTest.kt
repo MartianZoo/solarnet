@@ -63,7 +63,7 @@ internal class Lang01ExpressionsTest {
   internal fun `L1-3 there are two kinds of refinement clause`() {
     (parse<Refinement>("(HAS Plant)") as Has).requirement shouldBe parse("Plant")
     (parse<Refinement>("(NOT Player1)") as Not).excluded shouldBe parse("Player1")
-    parse<Expression>("Owner(NOT Player1)").toString() shouldBe "Owner(NOT Player1)"
+    parse<Expression>("Anyone(NOT Player1)").toString() shouldBe "Anyone(NOT Player1)"
   }
 
   @Test
@@ -71,14 +71,14 @@ internal class Lang01ExpressionsTest {
     val refinement = parse<Refinement>("(HAS Plant, NOT Player1)") as And
     refinement.refinements.map { it::class } shouldBe listOf(Has::class, Not::class)
 
-    shouldThrow<PetSyntaxException> { parse<Expression>("Owner(NOT Player1)(HAS Plant)") }
+    shouldThrow<PetSyntaxException> { parse<Expression>("Anyone(NOT Player1)(HAS Plant)") }
   }
 
   @Test
   internal fun `L1-3 a top-level comma separates clauses`() {
-    shouldThrow<PetSyntaxException> { parse<Expression>("Owner(HAS Plant, Steel)") }
-    parse<Expression>("Owner(HAS (Plant, Steel) OR Heat, NOT Player1)").toString() shouldBe
-        "Owner(HAS (Plant, Steel) OR Heat, NOT Player1)"
+    shouldThrow<PetSyntaxException> { parse<Expression>("Anyone(HAS Plant, Steel)") }
+    parse<Expression>("Anyone(HAS (Plant, Steel) OR Heat, NOT Player1)").toString() shouldBe
+        "Anyone(HAS (Plant, Steel) OR Heat, NOT Player1)"
   }
 
   @Test
@@ -116,11 +116,11 @@ internal class Lang01ExpressionsTest {
     bound.transformExpression(parse("This<Steel>")) shouldBe parse<Expression>("Ants<Steel>")
   }
 
-  // L1-6 Owner
+  // L1-6 Anyone
 
   @Test
-  internal fun `L1-6 Owner and Anyone are ordinary expressions here`() {
-    parse<Expression>("Plant<Owner>").arguments shouldContainExactly listOf(parse("Owner"))
+  internal fun `L1-6 Anyone and Anyone are ordinary expressions here`() {
+    parse<Expression>("Plant<Anyone>").arguments shouldContainExactly listOf(parse("Anyone"))
     parse<Expression>("Plant<Anyone>").arguments shouldContainExactly listOf(parse("Anyone"))
   }
 
@@ -132,7 +132,7 @@ internal class Lang01ExpressionsTest {
         """
         Class<@Component>(HAS @Component)
         Class<C@Component>(HAS C@Component)
-        Class<@Component>(HAS @Component<Owner>)
+        Class<@Component>(HAS @Component<Anyone>)
         """
     )
   }
@@ -202,7 +202,7 @@ internal class Lang01ExpressionsTest {
 
   @Test
   internal fun `L1-9 reference equality includes whether arguments were authored`() {
-    val structural = cn("Component").of(cn("Owner"))
+    val structural = cn("Component").of(cn("Anyone"))
     val bare =
         structural.copy(typeVariableName = Reference(null, cn("Component"), false, resolved = true))
     val applied =
@@ -210,7 +210,7 @@ internal class Lang01ExpressionsTest {
 
     bare shouldNotBe applied
     bare.toString() shouldBe "@Component"
-    applied.toString() shouldBe "@Component<Owner>"
+    applied.toString() shouldBe "@Component<Anyone>"
   }
 
   @Test

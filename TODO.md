@@ -115,12 +115,8 @@ effects. Review each repair with Opus/high before committing it.
   phase-caused tasks as soon as the required runtime state can express them.
 - Let refinements reference their candidate explicitly, so a selector can relate a nested
   dependency to that candidate without repeating its complete expression.
-- Prototype the lexical `Me` ownership model in the
-  [identity audit](docs/agents/IDENTITY.md#lexical-me-owner-context-experiment). Review the
-  inherited-header-name prototype's parse/load split, then test `Owned<Me@Owner>` and one
-  Owned-specific insertion rule, including `Owner` classes that own themselves. Delete the old
-  default, substitution, and trigger rules the new binding makes redundant.
-  Do not leave both mechanisms in place as the result.
+- Make `PROD[@StandardResource]` retain its represented-Class marker through lowering; Utopia
+  Invest currently writes `Production<Class<@StandardResource>>` in its action for this reason.
 - Give Pets a real structural conjunction, spelled something like `Tile(IS Owned)`, and retire the
   nominal `OwnedTile` class once `Landlord` and the other owned-tile rules can name the intersection
   directly. Until then a master-universe Canon test checks the nominal `OwnedOccupant` and
@@ -135,7 +131,7 @@ effects. Review each repair with Opus/high before committing it.
   `PayFromCard` need not inherit `Hidden` through `MustCleanUp`.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
-- **Low priority:** [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)
+- **Low priority:** [#54: ownership-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)
   — Resolve contextual ownership correctly and display the resolved player.
 - Consider requirement-gated action costs, using United Nations Mars Initiative to make
   `HasRaisedTr` a prerequisite to paying its 3 M€ rather than a gate around the result.
@@ -148,6 +144,8 @@ effects. Review each repair with Opus/high before committing it.
   is explicitly included. Deimos Down and Magnetic Field Generators follow the same pattern.
 - **Low priority:** [#41: `list`](https://github.com/MartianZoo/solarnet/issues/41) — Improve
   hierarchy/dependency descent, grouping, depth, concrete subtypes, and explicit `<Anyone>` display.
+- Replace the [archived Life of an Effect walkthrough](docs/archive/life-of-an-effect.md) with a
+  current account of lexical `Me` and the transformation pipeline.
 - Give Admin an installable autoexecution policy for Global Events that pulls exact cards from an
   ordered list; until then callers explicitly complete reveal tasks.
 - Reconsider Turmoil's `PartyLeader` representation and name. It currently supplements the actual

@@ -20,8 +20,8 @@ internal class Spec03DependenciesTest {
   private val mars =
       loadTypes(
           """
-          CLASS Player1 : Owner
-          CLASS Player2 : Owner
+          CLASS Player1 : Anyone
+          CLASS Player2 : Anyone
           ABSTRACT CLASS Area {
             ABSTRACT CLASS MarsArea {
               ABSTRACT CLASS LandArea { CLASS Tharsis_2_2 }
@@ -30,7 +30,7 @@ internal class Spec03DependenciesTest {
           }
           ABSTRACT CLASS Occupant<Area>
           ABSTRACT CLASS Tile : Occupant
-          ABSTRACT CLASS OwnedTile : Tile, Owned<Owner>
+          ABSTRACT CLASS OwnedTile : Tile, Owned<Anyone>
           CLASS GreeneryTile : OwnedTile, Tile<MarsArea>
           CLASS OceanTile : Tile<WaterArea>
           """
@@ -70,7 +70,7 @@ internal class Spec03DependenciesTest {
   @Test
   internal fun `T3-2 a supertype expression narrows the inherited bound`() {
     klass("Occupant").baseType.expressionFull shouldBe te("Occupant<Area>")
-    klass("GreeneryTile").baseType.expressionFull shouldBe te("GreeneryTile<MarsArea, Owner>")
+    klass("GreeneryTile").baseType.expressionFull shouldBe te("GreeneryTile<MarsArea, Anyone>")
     klass("OceanTile").baseType.expressionFull shouldBe te("OceanTile<WaterArea>")
   }
 
@@ -133,22 +133,22 @@ internal class Spec03DependenciesTest {
   @Test
   internal fun `T3-4 an argument intersects the declared bound rather than replacing it`() {
     type("GreeneryTile<Area>") shouldBe type("GreeneryTile")
-    type("GreeneryTile<Area>").expressionFull shouldBe te("GreeneryTile<MarsArea, Owner>")
-    type("GreeneryTile<LandArea>").expressionFull shouldBe te("GreeneryTile<LandArea, Owner>")
+    type("GreeneryTile<Area>").expressionFull shouldBe te("GreeneryTile<MarsArea, Anyone>")
+    type("GreeneryTile<LandArea>").expressionFull shouldBe te("GreeneryTile<LandArea, Anyone>")
   }
 
   @Test
   internal fun `T3-4 Anyone names the widest ownership without widening a narrowed bound`() {
     val table =
         loadTypes(
-            "CLASS SoloOpponent : Owner",
-            "ABSTRACT CLASS Player : Owner { CLASS Player1 }",
+            "CLASS SoloOpponent : Anyone",
+            "ABSTRACT CLASS Player : Anyone { CLASS Player1 }",
             "ABSTRACT CLASS Card : Owned<Player> { CLASS ProjectCard }",
-            "ABSTRACT CLASS Resource : Owned<Owner> { CLASS Plant }",
+            "ABSTRACT CLASS Resource : Owned<Anyone> { CLASS Plant }",
         )
 
     table.resolve(te("ProjectCard<Anyone>")).expressionFull shouldBe te("ProjectCard<Player>")
-    table.resolve(te("Plant<Anyone>")).expressionFull shouldBe te("Plant<Owner>")
+    table.resolve(te("Plant<Anyone>")).expressionFull shouldBe te("Plant<Anyone>")
     table.resolve(te("ProjectCard<Player1>")).abstract shouldBe false
     table.resolve(te("Plant<SoloOpponent>")).abstract shouldBe false
     shouldThrow<ExpressionException> { table.resolve(te("ProjectCard<SoloOpponent>")) }
@@ -305,10 +305,10 @@ internal class Spec03DependenciesTest {
 
   private fun equalityCards() =
       loadTypes(
-          "CLASS Player1 : Owner",
-          "CLASS Player2 : Owner",
-          "CLASS Card : Owned<Owner>",
-          "ABSTRACT CLASS Linked<Card<SameOwner@Owner>> : Owned<SameOwner@Owner>",
+          "CLASS Player1 : Anyone",
+          "CLASS Player2 : Anyone",
+          "CLASS Card : Owned<Anyone>",
+          "ABSTRACT CLASS Linked<Card<SharedHolder@Anyone>> : Owned<SharedHolder@Anyone>",
           "CLASS InheritedLink : Linked",
       )
 
@@ -316,15 +316,15 @@ internal class Spec03DependenciesTest {
   internal fun `T3-8 one header variable used twice forces its two positions to agree`() {
     val cards =
         loadTypes(
-            "CLASS Player1 : Owner",
-            "CLASS Player2 : Owner",
-            "ABSTRACT CLASS CardFront : Owned<Owner> { CLASS Pets }",
-            "ABSTRACT CLASS Cardbound<CardFront<CardOwner@Owner>> : " +
-                "Owned<CardOwner@Owner> { CLASS Animal }",
+            "CLASS Player1 : Anyone",
+            "CLASS Player2 : Anyone",
+            "ABSTRACT CLASS CardFront : Owned<Anyone> { CLASS Pets }",
+            "ABSTRACT CLASS Cardbound<CardFront<CardHolder@Anyone>> : " +
+                "Owned<CardHolder@Anyone> { CLASS Animal }",
         )
 
     cards.getClass(cn("Cardbound")).baseType.expressionFull shouldBe
-        te("Cardbound<Owner, CardFront<Owner>>")
+        te("Cardbound<Anyone, CardFront<Anyone>>")
     cards.getClass(cn("Cardbound")).isEqualityConstrainedDependency(Key(cn("Owned"), 0)) shouldBe
         true
 
@@ -507,10 +507,10 @@ internal class Spec03DependenciesTest {
   internal fun `T3-10 flatten walks nested dependency paths`() {
     val cards =
         loadTypes(
-            "CLASS Player1 : Owner",
-            "ABSTRACT CLASS CardFront : Owned<Owner> { CLASS Pets }",
-            "ABSTRACT CLASS Cardbound<CardFront<CardOwner@Owner>> : " +
-                "Owned<CardOwner@Owner> { CLASS Animal }",
+            "CLASS Player1 : Anyone",
+            "ABSTRACT CLASS CardFront : Owned<Anyone> { CLASS Pets }",
+            "ABSTRACT CLASS Cardbound<CardFront<CardHolder@Anyone>> : " +
+                "Owned<CardHolder@Anyone> { CLASS Animal }",
         )
     val animal = cards.resolve(te("Animal<Pets<Player1>>"))
 

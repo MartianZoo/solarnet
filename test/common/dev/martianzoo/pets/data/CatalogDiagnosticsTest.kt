@@ -1409,7 +1409,7 @@ internal class CatalogDiagnosticsTest {
   internal fun tooManyArguments() {
     val source =
         """
-        CLASS Alice : Owner
+        CLASS Alice : Anyone
         CLASS Garden : Owned<Alice, Alice>
         """
             .trimIndent()
@@ -1432,18 +1432,18 @@ internal class CatalogDiagnosticsTest {
 
   @Test
   internal fun parameterizedClassLiteral() {
-    val source = "CLASS Garden<Class<Owned<Owner>>>"
+    val source = "CLASS Garden<Class<Owned<Anyone>>>"
     val error = assertFailsWith<InvalidPetDefinitionException> { loadTypes(source) }
 
     assertEquals(
-        "invalid definition for `Garden`: a class literal accepts one bare class name; found `Class<Owned<Owner>>`",
+        "invalid definition for `Garden`: a class literal accepts one bare class name; found `Class<Owned<Anyone>>`",
         error.detail,
     )
-    // Prefer highlighting the forbidden `<Owner>` arguments on the represented class `Owned`.
+    // Prefer highlighting the forbidden `<Anyone>` arguments on the represented class `Owned`.
     assertEquals(
         """
-        |invalid definition for `Garden`: a class literal accepts one bare class name; found `Class<Owned<Owner>>` at 1:20
-        |CLASS Garden<Class<Owned<Owner>>>
+        |invalid definition for `Garden`: a class literal accepts one bare class name; found `Class<Owned<Anyone>>` at 1:20
+        |CLASS Garden<Class<Owned<Anyone>>>
         |                   ^
         """
             .trimMargin(),
@@ -1453,19 +1453,19 @@ internal class CatalogDiagnosticsTest {
 
   @Test
   internal fun multipleClassLiteralOperands() {
-    val source = "CLASS Garden<Class<Owner, Owned>>"
+    val source = "CLASS Garden<Class<Anyone, Owned>>"
     val error = assertFailsWith<InvalidPetDefinitionException> { loadTypes(source) }
 
     assertEquals(
-        "invalid definition for `Garden`: a class literal accepts one bare class name; found `Class<Owner, Owned>`",
+        "invalid definition for `Garden`: a class literal accepts one bare class name; found `Class<Anyone, Owned>`",
         error.detail,
     )
     // Prefer highlighting `, Owned`, including the comma that introduces the extra argument.
     assertEquals(
         """
-        |invalid definition for `Garden`: a class literal accepts one bare class name; found `Class<Owner, Owned>` at 1:27
-        |CLASS Garden<Class<Owner, Owned>>
-        |                          ^
+        |invalid definition for `Garden`: a class literal accepts one bare class name; found `Class<Anyone, Owned>` at 1:28
+        |CLASS Garden<Class<Anyone, Owned>>
+        |                           ^
         """
             .trimMargin(),
         error.message,
@@ -1991,7 +1991,7 @@ internal class CatalogDiagnosticsTest {
   }
 
   @Test
-  internal fun unknownNameInAnOwnerLocalDeclaration() {
+  internal fun unknownNameInAnInlineDeclaration() {
     val source =
         """
         ABSTRACT CLASS Plant
@@ -2233,19 +2233,19 @@ internal class CatalogDiagnosticsTest {
 
   @Test
   internal fun nestedClassLiteral() {
-    val source = "CLASS Garden<Class<Class<Owner>>>"
+    val source = "CLASS Garden<Class<Class<Anyone>>>"
     val error = assertFailsWith<InvalidPetDefinitionException> { loadTypes(source) }
 
     assertEquals(
-        "invalid definition for `Garden`: a class literal accepts one bare class name; found `Class<Class<Owner>>`",
+        "invalid definition for `Garden`: a class literal accepts one bare class name; found `Class<Class<Anyone>>`",
         error.detail,
     )
-    // Prefer highlighting the complete nested `Class<Owner>` operand, which is not a bare class
+    // Prefer highlighting the complete nested `Class<Anyone>` operand, which is not a bare class
     // name.
     assertEquals(
         """
-        |invalid definition for `Garden`: a class literal accepts one bare class name; found `Class<Class<Owner>>` at 1:20
-        |CLASS Garden<Class<Class<Owner>>>
+        |invalid definition for `Garden`: a class literal accepts one bare class name; found `Class<Class<Anyone>>` at 1:20
+        |CLASS Garden<Class<Class<Anyone>>>
         |                   ^
         """
             .trimMargin(),
@@ -2345,7 +2345,7 @@ internal class CatalogDiagnosticsTest {
               score = COUNT "Rose<Gardener>"
               This: Rose<Gardener>
             }
-            CLASS Gardener : Owner
+            CLASS Gardener : Anyone
             """
                 .trimIndent()
         )

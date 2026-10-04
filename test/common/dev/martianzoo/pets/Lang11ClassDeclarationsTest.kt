@@ -10,7 +10,6 @@ import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.OK
 import dev.martianzoo.pets.api.SystemClasses.OWNED
-import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
@@ -131,13 +130,13 @@ internal class Lang11ClassDeclarationsTest {
 
   @Test
   internal fun `L11-3 a signature carries a kind, dependencies and supertypes`() {
-    val declaration = parseClasses("ABSTRACT CLASS Tile<Area> : Occupant, Owned<Owner>").single()
+    val declaration = parseClasses("ABSTRACT CLASS Tile<Area> : Occupant, Owned<Anyone>").single()
 
     declaration.className shouldBe cn("Tile")
     declaration.abstract shouldBe true
     declaration.dependencies shouldContainExactly listOf(parse<Expression>("Area"))
     declaration.supertypes shouldBe
-        setOf(parse<Expression>("Occupant"), parse<Expression>("Owned<Owner>"))
+        setOf(parse<Expression>("Occupant"), parse<Expression>("Owned<Anyone>"))
     parseClasses("CLASS GreeneryTile").single().abstract shouldBe false
     shouldRejectSource("CLASS Alpha, Beta")
     shouldRejectSource("CLASS Alpha {\n  CLASS Beta, Gamma\n}")
@@ -235,7 +234,7 @@ internal class Lang11ClassDeclarationsTest {
     val declarations =
         parseClasses(
             """
-            ABSTRACT CLASS Area<Owner> {
+            ABSTRACT CLASS Area<Anyone> {
               CLASS MarsArea : Area<Player> {
                 CLASS Mars1
               }
@@ -267,11 +266,11 @@ internal class Lang11ClassDeclarationsTest {
   @Test
   internal fun `L11-8 a DEFAULT clause names the class declaring it`() {
     val declaration =
-        parseClasses("CLASS Tile<Area> {\n  DEFAULT Tile<Owner>\n  DEFAULT +Tile<LandArea>\n}")
+        parseClasses("CLASS Tile<Area> {\n  DEFAULT Tile<Anyone>\n  DEFAULT +Tile<LandArea>\n}")
             .single()
 
     declaration.defaultsDeclaration.universal.specs shouldContainExactly
-        listOf(parse<Expression>("Owner"))
+        listOf(parse<Expression>("Anyone"))
     declaration.defaultsDeclaration.gainOnly.specs shouldContainExactly
         listOf(parse<Expression>("LandArea"))
     shouldThrow<PetSyntaxException> { parseClasses("CLASS Tile<Area> { DEFAULT Other<LandArea> }") }
@@ -408,7 +407,6 @@ internal class Lang11ClassDeclarationsTest {
             COMPONENT,
             CLASS,
             ANYONE,
-            OWNER,
             OWNED,
             cn("Audit"),
             OK,
@@ -419,8 +417,7 @@ internal class Lang11ClassDeclarationsTest {
         )
     byName.getValue(COMPONENT).abstract shouldBe true
     byName.getValue(COMPONENT).supertypes.shouldBeEmpty()
-    byName.getValue(OWNED).defaultsDeclaration.universal.specs shouldContainExactly
-        listOf(parse<Expression>("Owner"))
+    byName.getValue(OWNED).defaultsDeclaration.universal.specs.shouldBeEmpty()
     byName.getValue(OK).abstract shouldBe false
   }
 }

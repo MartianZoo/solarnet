@@ -3,7 +3,6 @@ package dev.martianzoo.engine
 import dev.martianzoo.engine.Exceptions.RunawayEffectChainException
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
-import dev.martianzoo.pets.Transforming
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -534,17 +533,10 @@ internal constructor(
       selected: Expression,
       worldGainNarrowing: Boolean,
   ): InstructionTree {
-    val owner = selected.takeIf { elaborator.selectionSuppliesOwner(each.selector) }
-    val bind =
-        PetTransformer.chain(
-            // This selection, rather than the enclosing context, supplies Owner. The unshielded
-            // replacement is intentional.
-            owner?.let(Transforming::replaceOwnerWith),
-        )
-    val bound = bind.transformInstructionTree(each.bodyFor(selected))
+    val bound = each.bodyFor(selected)
     val evaluated =
         try {
-          elaborator.evaluateProperties(bound, context = selected, owner = owner)
+          elaborator.evaluateProperties(bound, context = selected)
         } catch (e: PetException) {
           throw InvalidPetDefinitionException(
               "invalid `EACH` body for `$selected`: ${e.detail}",

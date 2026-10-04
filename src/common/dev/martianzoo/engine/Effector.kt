@@ -104,7 +104,7 @@ internal class Effector(
         context = component,
         triggerEvent = triggerEvent,
         controller = controller,
-        changedComponentPlayer = component.playerOwner,
+        changedComponentPlayer = component.owningPlayer,
         automatic = false,
         instruction = InstructionGroup.of(instruction) * triggerEvent.change.count,
     )

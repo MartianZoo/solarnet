@@ -37,7 +37,6 @@ internal val customClasses: Set<CustomClass> =
                     card.defaultType,
                     Effect(WhenGain, immediate),
                     cn("DoubleDown").expression,
-                    owner,
                 )
                 .instruction
           }

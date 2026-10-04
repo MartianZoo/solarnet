@@ -318,7 +318,9 @@ public sealed class Instruction : InstructionTree() {
         val bindings =
             variables.bindings(gaining, proposed.gaining, variable, info, classTable) +
                 variables.bindings(removing, proposed.removing, variable, info, classTable)
-        val distinct = bindings.distinct()
+        val declaration = variables.expressionOf(variable.declaration).copy(typeVariableName = null)
+        val distinct =
+            bindings.filter { it.copy(typeVariableName = null) != declaration }.distinct()
         if (distinct.size > 1) {
           throw NarrowingException(
               "type variable `$variable` has conflicting bindings: `${bindings.toSet()}`"
@@ -474,9 +476,8 @@ public sealed class Instruction : InstructionTree() {
    * Fans [body] out over the components matching [selector] in one World snapshot, producing one
    * independent branch per matching component occurrence present ([rule
    * L2-14](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions)).
-   * In a branch, the authored [selector] expression denotes that concrete Type, and when the
-   * selector is an `Owner`, so does the contextual `Owner`, so an ordinary owned body reads exactly
-   * as it does on a card.
+   * In a branch, a marked [selector] exposes that concrete Type to the body. `Me@Player` explicitly
+   * rebinds lexical ownership; an unmarked selector preserves the enclosing `Me`.
    *
    * A selector refinement chooses which components take part. An `@` marker exposes the selected
    * component for use in [body]. A gate in [body] behaves like any other gate and fails when its
@@ -491,7 +492,7 @@ public sealed class Instruction : InstructionTree() {
   public data class Each(val selector: Expression, val body: InstructionTree) : Instruction() {
     init {
       if (body == NoOp) throw PetSyntaxException("`EACH` requires a non-`Ok` body")
-      // Nesting would make `Owner` and each selector name ambiguous between two fanouts, and no
+      // Nesting would make `Anyone` and each selector name ambiguous between two fanouts, and no
       // rule needs it. Banning it keeps one selection in scope at a time.
       if (body.descendantsOfType<Each>().any()) {
         throw PetSyntaxException("`EACH` cannot contain another `EACH`")

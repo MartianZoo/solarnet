@@ -16,7 +16,7 @@ internal class PreservationProgramTest :
                 """
         CLASS TrAttributionProbe : Owned<Player> {
           TerraformRating BY Admin:: Plant
-          TerraformRating BY Owner:: Heat
+          TerraformRating BY Me@Player:: Heat
         }
         """
             )

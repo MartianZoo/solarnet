@@ -18,8 +18,8 @@ internal class Spec04ClassLiteralsTest {
   private val table =
       loadTypes(
           """
-          CLASS Player1 : Owner
-          ABSTRACT CLASS StandardResource : Owned<Owner> {
+          CLASS Player1 : Anyone
+          ABSTRACT CLASS StandardResource : Owned<Anyone> {
             CLASS MC
             ABSTRACT CLASS Metal {
               CLASS Steel
@@ -27,7 +27,7 @@ internal class Spec04ClassLiteralsTest {
             }
             CLASS Plant
           }
-          CLASS Production<Class<StandardResource>> : Owned<Owner>
+          CLASS Production<Class<StandardResource>> : Owned<Anyone>
           ABSTRACT CLASS Tag {
             CLASS BuildingTag
             CLASS SpaceTag
@@ -231,9 +231,9 @@ internal class Spec04ClassLiteralsTest {
   internal fun `T4-9 a Class-of-This literal in a header names the inheriting class`() {
     val cards =
         loadTypes(
-            "CLASS Player1 : Owner",
-            "ABSTRACT CLASS CardFront : Owned<Owner>",
-            "ABSTRACT CLASS Cardbound<CardFront<CardOwner@Owner>> : Owned<CardOwner@Owner>",
+            "CLASS Player1 : Anyone",
+            "ABSTRACT CLASS CardFront : Owned<Anyone>",
+            "ABSTRACT CLASS Cardbound<CardFront<CardHolder@Anyone>> : Owned<CardHolder@Anyone>",
             "ABSTRACT CLASS ResourceCard<Class<CardResource>> : CardFront",
             "ABSTRACT CLASS CardResource : Cardbound<ResourceCard<Class<This>>> " +
                 "{\nCLASS Animal\nCLASS Microbe\n}",
@@ -242,7 +242,7 @@ internal class Spec04ClassLiteralsTest {
         )
 
     cards.getClass(cn("Animal")).baseType.expressionFull shouldBe
-        te("Animal<Owner, ResourceCard<Owner, Class<Animal>>>")
+        te("Animal<Anyone, ResourceCard<Anyone, Class<Animal>>>")
     cards.resolve(te("Animal<Player1, Fish>")).expressionFull shouldBe
         te("Animal<Player1, Fish<Player1>>")
     shouldThrow<ExpressionException> { cards.resolve(te("Animal<Ants>")) }

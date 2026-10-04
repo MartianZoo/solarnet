@@ -52,7 +52,7 @@ internal class AutomaticEffectDepthTest {
                       """
                       CLASS ChainA { This:: ChainB }
                       CLASS ChainB { This:: ChainA }
-                      ABSTRACT CLASS Player : Owner, Actor
+                      ABSTRACT CLASS Player : Anyone, Actor
                       """
                           .trimIndent()
                   )

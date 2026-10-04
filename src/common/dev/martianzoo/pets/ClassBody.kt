@@ -24,8 +24,8 @@ import dev.martianzoo.pets.data.ClassDeclaration.DefaultsDeclaration
  *
  * Members of each kind retain source order; duplicate property assignments are rejected.
  * Declaration construction checks invariants and defaults and attaches nested declarations to their
- * immediate container. Owner-local expressions carry this body until extraction supplies their
- * generated class name; scope resolution follows extraction.
+ * immediate container. Inline derived-class expressions carry this body until extraction supplies
+ * their generated class name; scope resolution follows extraction.
  */
 internal class ClassBody(elements: List<Element> = emptyList()) {
   private val invariants = elements.filterIsInstance<InvariantElement>().map { it.invariant }
