@@ -59,6 +59,27 @@ and merge it when needed. Reassess assumptions as the code evolves.
 These are places the audit found friction, not a prescribed sequence or a claim that the problem
 still exists. Establish the present behavior and decide what, if anything, deserves a change.
 
+### If time is limited
+
+Prioritize consequences and reach. The strongest leads from this pass were:
+
+- **Highest expected value: preserving authored meaning.** Declaration order, round trips, and
+  preservation of bindings and predicates deserve early attention. A silent change here can corrupt
+  the specification handed to every consumer while leaving apparently valid Pets nodes behind.
+- **Also high value: core semantic decisions and their contracts.** Type meets, inherited-default
+  precedence, property evaluation, and partial binding determine which specifications are admitted
+  and what information they retain. Distinguishing an implementation defect from an inaccurate spec
+  claim is worthwhile even when the eventual repair is small.
+- **Usually lower priority: isolated API promises and machinery cleanup.** Incidental ordering,
+  redundant guards, and unused paths can wait when they do not affect meaning or obscure a core
+  contract. Reconsider that ranking if current callers or tests reveal wider consequences.
+
+These priorities concern what to investigate, not how much complexity to spend fixing it. A useful
+characterization of a consequential discrepancy can be more valuable than several minor cleanups;
+the bounded-repair rule still applies. Re-rank these leads using current evidence.
+
+### Questions to explore
+
 - **Declaration order and round trips.** Can rendering, equality, or normalization change the
   meaning of inherited dependency positions? Which ordering distinctions are semantic, and which
   are incidental?
