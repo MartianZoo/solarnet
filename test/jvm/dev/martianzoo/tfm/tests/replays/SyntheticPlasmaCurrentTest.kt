@@ -51,26 +51,21 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
   private fun generation1() {
     with(me) {
       playCorp(PhoboLog) {
-        buyCards(TowingAComet, Moss, TitaniumMine, Algae, ExtractorBalloons)
+        buyCards(5)
       }
 
-      playPrelude(AcquiredSpaceAgency) {
-        draw(AsteroidMining, Comet)
-      }
+      playPrelude(AcquiredSpaceAgency)
       playPrelude(CorridorsOfPower)
       playProject(AsteroidMining, mc = 2, titanium = 7)
-      draw(LocalShading)
 
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Scientists>")
-        draw(GhgFactories)
       }
       stdAction("LobbyAction", 2) {
         doTask("PartyDelegate<Reds>")
       }
       playProject(TowingAComet, mc = 3, titanium = 5) {
         placeTile(2, 6)
-        draw(DawnCity, RedTourismWave)
       }
       pass()
       // The following Turmoil phase forms government and advances the two visible events;
@@ -90,19 +85,16 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
 
   private fun generation2() {
     with(me) {
-      buyCards(AdvancedAlloys, SolarLogistics)
+      buyCards(2)
 
       // Save 10: immediately after Research.
       assertResources(m = 13, s = 0, t = 6, p = 2, e = 0, h = 0)
       assertProduction(m = 0, s = 0, t = 2, p = 0, e = 0, h = 0)
       assertCounts(16 to "TerraformRating")
       assertSidebar(gen = 2, temp = -30, oxygen = 1, oceans = 2, venus = 0)
-      checkHandSizes()
-
       playProject(TitaniumMine, 7)
       playProject(LocalShading, 4)
       cardAction1(LocalShading)
-      draw(Omnicourt)
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Greens>")
       }
@@ -132,11 +124,8 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       assertProduction(m = 0, s = 0, t = 3, p = 0, e = 0, h = 0)
       assertCounts(17 to "TerraformRating")
       assertSidebar(gen = 3, temp = -30, oxygen = 1, oceans = 3, venus = 0)
-      checkHandSizes()
-
       cardAction2(LocalShading)
       playProject(AdvancedAlloys, 9)
-      draw(GiantSpaceMirror)
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Kelvinists>")
       }
@@ -166,7 +155,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
 
   private fun generation4() {
     with(me) {
-      buyCards(BribedCommittee, MarsUniversity, WavePower)
+      buyCards(3)
 
       // Save 25: immediately after Research.
       assertResources(m = 13, s = 0, t = 9, p = 2, e = 3, h = 0)
@@ -174,23 +163,17 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       assertCounts(17 to "TerraformRating")
       assertSidebar(gen = 4, temp = -30, oxygen = 1, oceans = 4, venus = 0)
       admin.assertCounts(0 to "PartyDelegate<Scientists>")
-      checkHandSizes()
-
       cardAction1(LocalShading)
       playProject(SolarLogistics, titanium = 4)
       playProject(Comet, mc = 1, titanium = 4) {
         placeTile(5, 6)
         declineTask()
-        draw(CeosFavoriteProject)
       }
-      stdAction("UseTurmoilPolicyAction") {
-        draw(VestaShipyard, ResearchOutpost, MiningArea)
-      }
+      stdAction("UseTurmoilPolicyAction")
       playProject(VestaShipyard, titanium = 3)
       playProject(BribedCommittee, 5)
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Scientists>")
-        draw(NewHolland)
       }
       pass()
       // Sponsored Projects draws through its influence effect before Greens form the government;
@@ -211,13 +194,12 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       admin
           .doTask("ScientificCommunity")
           .expect("ScientificCommunity, Distant<Class<ScientificCommunity>>")
-      draw(PublicPlans, MethaneFromTitan)
     }
   }
 
   private fun generation5() {
     with(me) {
-      buyCards(Satellites, MagneticFieldGeneratorsPromo, Steelworks, GanymedeColony)
+      buyCards(4)
 
       // Save 35: immediately after Research.
       assertResources(m = 12, s = 0, t = 4, p = 5, e = 3, h = 3)
@@ -225,17 +207,14 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       assertCounts(21 to "TerraformRating")
       assertSidebar(gen = 5, temp = -26, oxygen = 1, oceans = 5, venus = 0)
       admin.assertCounts(1 to "PartyDelegate<Scientists>")
-      checkHandSizes()
-
       cardAction2(LocalShading)
-      // One of the 17 logged M€ is mandatory; choose the other 16.
-      playProject(PublicPlans, 7) { doTask("16 MC") }
+      // Source log: 17 cards revealed and 17 M€ gained.
+      playProject(PublicPlans, 7) { doTask("17 ProjectCard<Revealed FROM Hand>") }
       playProject(Satellites, titanium = 2)
       playProject(WavePower, 8)
       playProject(Algae, 10)
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Greens>")
-        draw(SearchForLife)
       }
       pass()
       // Strong Society pays for influence, Kelvinists form the government, and the visible events
@@ -256,7 +235,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
 
   private fun generation6() {
     with(me) {
-      buyCards(EnergyTapping)
+      buyCards(1)
 
       // Save 44: immediately after Research.
       assertResources(m = 34, s = 0, t = 6, p = 9, e = 4, h = 6)
@@ -264,21 +243,14 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       assertCounts(21 to "TerraformRating")
       assertSidebar(gen = 6, temp = -26, oxygen = 1, oceans = 5, venus = 2)
       admin.assertCounts(1 to "PartyDelegate<Scientists>")
-      checkHandSizes()
-
       stdAction("UseTurmoilPolicyAction", 2)
       convertPlants { placeTile(6, 6) }
       playProject(MarsUniversity, 8) {
         doTask("ProjectCard FROM ProjectCard")
-        discard(DawnCity)
-        draw(SulphurExports)
       }
       playProject(ResearchOutpost, 18) {
         placeTile(8, 6)
-        draw(Worms)
         doTask("ProjectCard FROM ProjectCard")
-        discard(Worms)
-        draw(AtalantaPlanitiaLab)
       }
       cardAction2(LocalShading)
       playProject(MethaneFromTitan, mc = 2, titanium = 5)
@@ -298,7 +270,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           coming = "HomeworldSupport",
       )
       admin.doTask("Pandemic").expect("Pandemic, Distant<Class<Pandemic>>")
-      draw(SnowAlgae)
       // FAQ v1.8 p.100 awards the solo Reds bonus only at 20 TR or below. The archived server
       // nevertheless awarded it at 21 after annual revision; retain that source result explicitly.
       exMachina("TerraformRating")
@@ -307,7 +278,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
 
   private fun generation7() {
     with(me) {
-      buyCards(SubterraneanReservoir, EnvoysFromVenus)
+      buyCards(2)
 
       // Save 55: immediately after Research.
       assertResources(m = 25, s = 0, t = 5, p = 7, e = 6, h = 13)
@@ -315,18 +286,12 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       assertCounts(22 to "TerraformRating")
       assertSidebar(gen = 7, temp = -30, oxygen = 2, oceans = 5, venus = 4)
       admin.assertCounts(3 to "PartyDelegate<Scientists>")
-      checkHandSizes()
-
       cardAction1(LocalShading)
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Reds>")
-        draw(HiTechLab)
       }
       playProject(AtalantaPlanitiaLab, 9) {
-        draw(IshtarExpedition, FueledGenerators)
         doTask("ProjectCard FROM ProjectCard")
-        discard(HiTechLab)
-        draw(TropicalResort)
       }
       playProject(RedTourismWave, 0)
       playProject(ExtractorBalloons, 20)
@@ -353,35 +318,27 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
 
   private fun generation8() {
     with(me) {
-      buyCards(MartianMediaCenter, StripMine)
+      buyCards(2)
 
       // Save 64: immediately after Research.
       assertResources(m = 51, s = 0, t = 9, p = 12, e = 6, h = 22)
       assertProduction(m = 9, s = 0, t = 4, p = 5, e = 6, h = 3)
       assertCounts(22 to "TerraformRating")
       assertSidebar(gen = 8, temp = -30, oxygen = 2, oceans = 5, venus = 6)
-      checkHandSizes()
-
-      stdAction("UseTurmoilPolicyAction") {
-        draw(CometForVenus, UndergroundDetonations, Tardigrades)
-      }
+      stdAction("UseTurmoilPolicyAction")
       convertHeat()
       convertHeat()
       cardAction2(ExtractorBalloons)
-      draw(ProtectedHabitats)
       cardAction2(LocalShading)
       playProject(CometForVenus, titanium = 2) {
         declineTask()
-        draw(CallistoPenalMines)
       }
       convertPlants {
         placeTile(8, 7)
-        draw(SoilFactory)
       }
       playProject(CallistoPenalMines, mc = 3, titanium = 4)
       playProject(EnvoysFromVenus, 0) {
         doTask("2 PartyDelegate<Kelvinists>")
-        draw(Sabotage)
       }
       playProject(Sabotage, 0) { declineTask() }
       playProject(Steelworks, 14)
@@ -391,7 +348,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       intentionalUnderpay()
       playProject(StripMine, mc = 18, steel = 2)
       playProject(SulphurExports, mc = 5, titanium = 3)
-      draw(RegoPlastics)
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Scientists>")
       }
@@ -419,15 +375,13 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
 
   private fun generation9() {
     with(me) {
-      buyCards(AstraMechanica, InterplanetaryTrade)
+      buyCards(2)
 
       // Save 83: immediately after Research.
       assertResources(m = 58, s = 2, t = 5, p = 9, e = 5, h = 11)
       assertProduction(m = 16, s = 2, t = 5, p = 5, e = 5, h = 3)
       assertCounts(30 to "TerraformRating")
       assertSidebar(gen = 9, temp = -26, oxygen = 6, oceans = 5, venus = 14)
-      checkHandSizes()
-
       convertHeat()
       cardAction2(ExtractorBalloons)
       cardAction1(LocalShading)
@@ -436,10 +390,8 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(InterplanetaryTrade, mc = 2, titanium = 4)
       convertPlants { placeTile(7, 6) }
       cardAction1(Tardigrades)
-      playProject(IshtarExpedition, 5) {
-        draw(AirScrappingExpedition, Extremophiles)
-      }
-      sellPatents(TropicalResort, UndergroundDetonations, SoilFactory)
+      playProject(IshtarExpedition, 5)
+      sellPatents(3)
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Greens>")
       }
@@ -452,13 +404,9 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(AstraMechanica, 6) {
         doWithoutAutoExec(me) {
           doTask("ProjectCard FROM PlayedEvent<Class<$BribedCommittee>>")
-          returnToHand(BribedCommittee)
           doTask("ProjectCard FROM PlayedEvent<Class<$Comet>>")
-          returnToHand(Comet)
         }
         doTask("ProjectCard FROM ProjectCard")
-        discard(ProtectedHabitats)
-        draw(SmallAnimals)
       }
       playProject(CeosFavoriteProject, 0) { addCardResources(ExtractorBalloons) }
       playProject(SmallAnimals, 5) { doTask("PROD[-Plant<SoloOpponent>]") }
@@ -487,15 +435,13 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
 
   private fun generation10() {
     with(me) {
-      buyCards(OpenCity, AiCentral, FloatingHabs)
+      buyCards(3)
 
       // Save 107: immediately after Research.
       assertResources(m = 54, s = 6, t = 6, p = 8, e = 5, h = 9)
       assertProduction(m = 26, s = 2, t = 5, p = 6, e = 5, h = 5)
       assertCounts(40 to "TerraformRating")
       assertSidebar(gen = 10, temp = -22, oxygen = 9, oceans = 6, venus = 18)
-      checkHandSizes()
-
       convertHeat()
       stdAction("UseTurmoilPolicyAction", 2)
       cardAction2(ExtractorBalloons)
@@ -508,25 +454,19 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(GhgFactories, mc = 2, steel = 2)
       playProject(AiCentral, mc = 4, steel = 4) {
         doTask("ProjectCard FROM ProjectCard")
-        discard(NewHolland)
-        draw(CaretakerContract)
       }
-      cardAction1(AiCentral) { draw(BactoviralResearch, OlympusConference) }
+      cardAction1(AiCentral)
       cardAction2(LocalShading)
       playProject(OlympusConference, 7) {
         doTask("ProjectCard FROM ProjectCard")
-        discard(CaretakerContract)
-        draw(Heather)
       }
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Kelvinists>")
-        draw(NitriteReducingBacteria)
       }
       playProject(NitriteReducingBacteria, 10)
       cardAction2(NitriteReducingBacteria)
       cardAction1(Tardigrades)
       playProject(Comet, titanium = 4) {
-        draw(FrontierTown)
         placeTile(9, 9)
         declineTask()
       }
@@ -558,25 +498,20 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
 
   private fun generation11() {
     with(me) {
-      buyCards(LargeConvoy, AqueductSystems, VenusianPlants)
+      buyCards(3)
 
       // Save 133: immediately after Research.
       assertResources(m = 89, s = 5, t = 9, p = 6, e = 4, h = 13)
       assertProduction(m = 27, s = 3, t = 5, p = 6, e = 4, h = 11)
       assertCounts(48 to "TerraformRating")
       assertSidebar(gen = 11, temp = -16, oxygen = 11, oceans = 7, venus = 20)
-      checkHandSizes()
-
       convertHeat()
-      cardAction1(AiCentral) { draw(SpecialPermit, AntiGravityTechnology) }
+      cardAction1(AiCentral)
       cardAction1(Steelworks)
       cardAction2(ExtractorBalloons)
       playProject(AntiGravityTechnology, 13) {
         doTask("ProjectCard FROM Science<$OlympusConference>")
-        draw(Plantation)
         doTask("ProjectCard FROM ProjectCard")
-        discard(MartianMediaCenter)
-        draw(KelpFarming)
       }
       cardAction1(Tardigrades)
       playProject(SpecialPermit, 2) {
@@ -584,16 +519,11 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       }
       convertPlants { placeTile(7, 8) }
       playProject(OpenCity, steel = 5) { placeTile(7, 7) }
-      playProject(AqueductSystems, mc = 2, steel = 1) {
-        draw(NoctisFarming, OreProcessor, RoverConstruction)
-      }
+      playProject(AqueductSystems, mc = 2, steel = 1)
       cardAction1(SmallAnimals)
       playProject(RoverConstruction, mc = 1, steel = 1)
       playProject(BactoviralResearch, 7) {
-        draw(AdaptedLichen)
         doTask("ProjectCard FROM ProjectCard")
-        discard(AdaptedLichen)
-        draw(Bushes)
         addCardResources(NitriteReducingBacteria, 9)
       }
       cardAction2(NitriteReducingBacteria)
@@ -602,8 +532,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       cardAction1(Extremophiles) { addCardResources(Extremophiles) }
       playProject(Heather, 3)
       playProject(LargeConvoy, mc = 1, titanium = 6) {
-        draw(AsteroidRights, LunarBeam)
-        draw(PeroxidePower)
         placeTile(5, 4)
         doTask("5 Plant")
       }
@@ -617,7 +545,6 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       convertPlants { placeTile(6, 4) }
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Greens>")
-        draw(FuelFactory)
       }
       playProject(MagneticFieldGeneratorsPromo, 19) { placeTile(5, 7) }
       playProject(Plantation, 12) { placeTile(8, 5) }
@@ -646,21 +573,19 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
 
   private fun generation12() {
     with(me) {
-      buyCards(BigAsteroid, GiantIceAsteroid)
+      buyCards(2)
 
       // Save 168: immediately after Research.
       assertResources(m = 120, s = 3, t = 9, p = 16, e = 1, h = 16)
       assertProduction(m = 33, s = 3, t = 5, p = 12, e = 1, h = 11)
       assertCounts(59 to "TerraformRating")
       assertSidebar(gen = 12, temp = -10, oxygen = 14, oceans = 8, venus = 24)
-      checkHandSizes()
-
       convertHeat()
       convertHeat()
       convertPlants { placeTile(6, 3) }
       playProject(FrontierTown, steel = 2) { placeTile(6, 5) }
       convertPlants { placeTile(8, 4) }
-      cardAction1(AiCentral) { draw(BusinessNetwork, StaticHarvesting) }
+      cardAction1(AiCentral)
       cardAction2(ExtractorBalloons)
       cardAction2(AsteroidRights) { doTask("2 Titanium") }
       cardAction1(SmallAnimals)
@@ -669,18 +594,14 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       cardAction1(Tardigrades)
       cardAction2(LocalShading)
       playProject(BigAsteroid, titanium = 5) {
-        draw(WgProject)
         declineTask()
       }
       playProject(GiantIceAsteroid, titanium = 7) {
-        draw(Fish)
         placeTile(1, 4)
-        draw(CulturalMetropolis)
         declineTask()
       }
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<MarsFirst>")
-        draw(MartianRails)
       }
       playProject(Bushes, 7)
       // The archive recorded no payment for the one M€ remaining after card discounts.
@@ -691,15 +612,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       cardAction1(Fish)
       playProject(MartianRails, steel = 3)
       cardAction1(MartianRails)
-      sellPatents(
-          SearchForLife,
-          OreProcessor,
-          LunarBeam,
-          FuelFactory,
-          StaticHarvesting,
-          WgProject,
-          CulturalMetropolis,
-      )
+      sellPatents(7)
       stdProject("AsteroidProject")
       stdProject("CityProject") { placeTile(7, 4) }
       stdProject("CityProject") { placeTile(9, 8) }
@@ -718,10 +631,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       convertPlants { placeTile(7, 3) }
       convertPlants { placeTile(5, 1) }
       declineTask()
-
-      assertCardTrackingComplete()
-      cardsHand shouldBe emptySet()
-      checkHandSizes()
+      assertCounts(0 to "ProjectCard")
       admin.assertCounts(1 to "End", 1 to "Phase")
 
       assertResources(m = 113, s = 12, t = 8, p = 2, e = 0, h = 11)

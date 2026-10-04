@@ -2,7 +2,7 @@
 ABSTRACT CLASS StandardAction : HasActions {
   HAS =1 This
 
-  CLASS PlayCardFromHandAction { -> PlayCard<Class<ProjectCard>> }
+  CLASS PlayCardFromHandAction { -> PlayCard<Class<ProjectCard>, Class<CardFront>, Hand> }
   CLASS UseStandardProjectAction { -> UseAction<StandardProject> }
   CLASS UseActionOnCardAction { -> ActionUsedMarker<@ActionCard> THEN UseAction<@ActionCard> }
   CLASS ConvertPlantsAction { 8 Plant -> DefaultGreeneryTile }

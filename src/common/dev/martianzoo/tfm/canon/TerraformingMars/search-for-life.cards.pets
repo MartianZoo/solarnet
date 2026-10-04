@@ -1,0 +1,4 @@
+"Claims the externally checked Search for Life reward"
+CLASS ClaimSearchForLife : Owned<Player>, Signal {
+  This:: Science<SearchForLife> / ProjectCard<Revealed>, Audit / ProjectCard<Revealed>
+}

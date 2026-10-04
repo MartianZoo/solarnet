@@ -25,7 +25,7 @@ internal class BugsTest : CardTest() {
 
     // WG Project should make the Prelude 1 pool available without enabling the Prelude phase.
     shouldThrow<DeadEndException> {
-          p1.playProject(WgProject, 9) { p1.playPrelude(Donation) }
+          p1.playProject(WgProject, 9) { p1.playPrelude(Donation, location = cn("Selecting")) }
         }
         .detail shouldContain "$Donation"
     p1.assertCounts(9 to "MC", 1 to "ProjectCard", 0 to "$WgProject", 0 to "PreludeCard")
@@ -313,7 +313,9 @@ internal class BugsTest : CardTest() {
     p1.playPrelude(Donation)
     admin.runOperation("Ruling<Reds> FROM Ruling")
     admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(PreservationProgram) }
+    p1.stdAction("DoRequiredActionsAction") {
+          p1.playPrelude(PreservationProgram, location = cn("Selecting"))
+        }
         .expect("4 TerraformRating, -5 MC")
     p1.stdProject("AsteroidProject").expect("TerraformRating, -15 MC")
   }
@@ -385,7 +387,7 @@ internal class BugsTest : CardTest() {
           doTask("ActionUsedMarker<$BoardOfDirectors>")
           doTask("UseAction<$BoardOfDirectors, Action1>")
           doTask("-12 MC")
-          playPrelude(Merger) { playCorp(SagittaFrontierServices) }
+          playPrelude(Merger) { playCorp(SagittaFrontierServices, location = cn("Selecting")) }
         }
         useStdAction("ConvertHeatAction", payment = { doTask("8 Pay<Class<Heat>> FROM Heat") })
       }
@@ -402,7 +404,9 @@ internal class BugsTest : CardTest() {
     p1.runOperation("54 MC")
     admin.phase("Prelude")
 
-    p1.turn { playPrelude(Merger) { playCorp(SagittaFrontierServices) } }
+    p1.turn {
+      playPrelude(Merger) { playCorp(SagittaFrontierServices, location = cn("Selecting")) }
+    }
 
     // Jacob rules that Sagitta earns 4 MC for the tagless Merger as well as for itself.
     p1.count("MC") shouldBe 47
@@ -437,7 +441,7 @@ internal class BugsTest : CardTest() {
 
     p1.cardAction1(BoardOfDirectors) {
       doTask("-12 MC")
-      p1.playPrelude(Merger) { p1.playCorp(TharsisRepublic) }
+      p1.playPrelude(Merger) { p1.playCorp(TharsisRepublic, location = cn("Selecting")) }
     }
     p1.count("CityTile") shouldBe 0
     p1.stdAction("DoRequiredActionsAction") { placeTile(3, 3) }

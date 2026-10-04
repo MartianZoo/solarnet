@@ -1,6 +1,11 @@
 "The disease cubes used by Pharmacy Union and Hospitals"
 CLASS Disease : CardResource
 
+"Claims the externally checked Asteroid Deflection System reward"
+CLASS ClaimAsteroidDeflection : Owned<Player>, Signal {
+  This:: Asteroid<AsteroidDeflectionSystem> / ProjectCard<Revealed>, Audit / ProjectCard<Revealed>
+}
+
 "The moving marker placed by Mars Nomads"
 CLASS NomadsMarker : Owned<Player>, AreaPiece<@LandArea> {
   HAS MAX 1 This

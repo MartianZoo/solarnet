@@ -4,6 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
 import dev.martianzoo.agenttestsupport.testTfm
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER3
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
@@ -44,7 +45,7 @@ internal class MonsInsuranceTest : CardTest() {
     val moneyBefore = p1.count("MC")
 
     p1.playPrelude(Merger) {
-      p1.playCorp(MonsInsurance)
+      p1.playCorp(MonsInsurance, location = cn("Selecting"))
     }
 
     p1.count("MC") shouldBe moneyBefore + 10 // -42 + 48 starting money + 4 from Manutech

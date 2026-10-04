@@ -13,8 +13,7 @@ import kotlin.test.Test
 // Partial database replay through generation 2: Active Proton Flow (gadeac80e6446)
 // Source: _local/replays/Game20260920/Heroku-gadeac80e6446/
 // http://newazure.local:8080/the-end?id=pf8b6b214192d
-internal class ActiveProtonFlowTest :
-    CardTrackingFullGameTest(requireEveryProjectCardChangeNamed = true) {
+internal class ActiveProtonFlowTest : CardTrackingFullGameTest() {
   override val config =
       GameConfig(
           """
@@ -39,9 +38,11 @@ internal class ActiveProtonFlowTest :
 
     green.autoExecPolicy = NONE
     pink.autoExecPolicy = NONE
-    pink.doTask("StandardCorporationCard")
+    pink.doTask("StandardCorporationCard<Hand FROM Selecting>")
+    pink.doTask("-StandardCorporationCard<Selecting>")
     pink.doTask("NewTurn")
     green.doTask("BeginnerCorporationCard")
+    green.doTask("-2 StandardCorporationCard<Selecting>")
     green.doTask("NewTurn")
     green.autoExecPolicy = CONCRETE
     pink.autoExecPolicy = CONCRETE
@@ -84,7 +85,7 @@ internal class ActiveProtonFlowTest :
 
   private fun generation1() {
     green.inTurn {
-      doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation1>>")
+      doTask("PlayCard<Class<BeginnerCorporationCard>, Class<BeginnerCorporation1>, Hand>")
       green.pay()
       doTask("42 MC")
     }

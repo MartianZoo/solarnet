@@ -12,8 +12,7 @@
         {
           "name": "Celestic",
           "tags": [ "VenusTag" ],
-          // SearchForCard(HAS ReferenceTo<Class<Floater>>)
-          "immediate": "42 MC, RequiredAction { -> 2 ProjectCard }",
+          "immediate": "42 MC, RequiredAction { -> 2 SearchForCard<ReferenceFilter<Class<Floater>>> }",
           "actions": [ "-> Floater" ],
           "effects": [ "End: VictoryPoint / 3 Floater<This>" ],
         },

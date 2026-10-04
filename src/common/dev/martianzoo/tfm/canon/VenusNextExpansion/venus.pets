@@ -1,5 +1,5 @@
 CLASS VenusNextExpansion : Module {
-  This: AirScrappingProject
+  This: AirScrappingProject, ReferenceFilter<Class<Floater>>
 
   ModulesReady IF MAX 0 ExtendedGlobalParametersRule: StandardVenusTrackRules
   ModulesReady IF ExtendedGlobalParametersRule: ExtendedVenusTrackRules

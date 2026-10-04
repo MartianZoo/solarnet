@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
@@ -103,7 +104,7 @@ internal class ViralEnhancersTest : CardTest() {
     p1.runOperation("PreludeCard")
 
     p1.playPrelude(Merger) {
-          p1.playCorp(PharmacyUnion) {
+          p1.playCorp(PharmacyUnion, location = cn("Selecting")) {
             doTask("Plant")
             shouldThrow<TaskException> { doTask("Disease<$PharmacyUnion>") }
             doTask("Plant")

@@ -10,6 +10,20 @@ import kotlin.test.Test
 
 internal class AsteroidDeflectionSystemTest : CardTest() {
   @Test
+  internal fun `Asteroids added by another card do not claim a revealed card`() {
+    newGame(PromoCardPack)
+    admin.phase("Action")
+    p1.runOperation("PROD[Energy]")
+    p1.runOperation("$AsteroidDeflectionSystem, $AsteroidRights, MC")
+
+    val checkpoint = game.timeline.checkpoint()
+    p1.cardAction1(AsteroidRights) { doTask("Asteroid<$AsteroidDeflectionSystem>") }
+
+    p1.count("Asteroid<$AsteroidDeflectionSystem>") shouldBe 1
+    p1.auditGainsSince(checkpoint) shouldBe 0
+  }
+
+  @Test
   internal fun `Reveals cards through Asteroid Deflection System when plants are protected`() {
     newGameWithAutoWorkflow(PromoCardPack)
     val p2 = requireP2()
@@ -36,8 +50,17 @@ internal class AsteroidDeflectionSystemTest : CardTest() {
       sellPatents(1)
     }
 
-    p1.cardAction1(AsteroidDeflectionSystem) { addCardResources(AsteroidDeflectionSystem) }
-        .expect("Asteroid<$AsteroidDeflectionSystem>")
+    val checkpoint = game.timeline.checkpoint()
+    val reveal =
+        p1.cardAction1(AsteroidDeflectionSystem) {
+          doTask("ClaimAsteroidDeflection")
+        }
+    reveal.expect("Asteroid<$AsteroidDeflectionSystem>")
+    reveal.changes
+        .filter { it.change.gaining?.type == p1.resolve("ProjectCard<Revealed>") }
+        .sumOf { it.change.count } shouldBe 1
+    p1.count("ProjectCard<Revealed>") shouldBe 0
+    p1.auditGainsSince(checkpoint) shouldBe 1
 
     shutdownWorkflow()
     TfmWorkflow.Stepwise(agents).endPhase()

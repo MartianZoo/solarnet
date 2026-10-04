@@ -92,8 +92,7 @@
           "name": "TychoMagnetics",
           "tags": [ "PowerTag", "ScienceTag" ],
           "immediate": "42 MC, PROD[Energy]",
-          // X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>
-          "actions": [ "X Energy -> ProjectCard" ],
+          "actions": [ "X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting> THEN -X ProjectCard<Selecting>." ],
         },
       ],
     },
@@ -123,8 +122,7 @@
         {
           "name": "CorporateArchives",
           "tags": [ "ScienceTag" ],
-          // 7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>
-          "immediate": "13 MC, 2 ProjectCard",
+          "immediate": "13 MC, 7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>, -5 ProjectCard<Selecting>",
         },
         {
           "name": "DoubleDown",
@@ -143,13 +141,11 @@
         {
           "name": "Merger",
           "autoSelectWhen": "Unsafe OR MAX 0 SagittaFrontierServices",
-          // 4 StandardCorporationCard<Selecting>, PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Selecting>
-          "immediate": "StandardCorporationCard THEN PlayCard<Class<StandardCorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>)>, -42 MC",
+          "immediate": "4 StandardCorporationCard<Selecting> THEN PlayCard<Class<StandardCorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Selecting> THEN -3 StandardCorporationCard<Selecting>, -42 MC",
         },
         {
           "name": "NewPartner",
-          // 2 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>
-          "immediate": "PROD[1 MC], PreludeCard THEN PlayOrFizzle",
+          "immediate": "PROD[1 MC], 2 PreludeCard<Selecting> THEN PlayOrFizzle<Selecting> THEN -PreludeCard<Selecting>",
         },
         {
           "name": "StrategicBasePlanning",
@@ -180,8 +176,7 @@
           "cost": 13,
           "tags": [ "EarthTag", "SpaceTag", "BuildingTag" ],
           "immediate": "PROD[-Energy]",
-          // ProjectCard<Revealed> THEN (ProjectCard<Revealed>(HAS SpaceTag): Asteroid<This>)
-          "actions": [ "-> Asteroid<This>?" ],
+          "actions": [ "-> ProjectCard<Revealed> THEN ClaimAsteroidDeflection OR Ok THEN -ProjectCard<Revealed>" ],
           "effects": [
             // TODO: in what cases do we want to trigger this way vs by the AttackHappened thingies?
             // are we being consistent?
@@ -362,8 +357,7 @@
           "name": "HiTechLab",
           "cost": 17,
           "tags": [ "ScienceTag", "BuildingTag" ],
-          // X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>
-          "actions": [ "X Energy -> ProjectCard" ],
+          "actions": [ "X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting> THEN -X ProjectCard<Selecting>." ],
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -555,8 +549,7 @@
           "name": "PublicPlans",
           "cost": 7,
           "tags": [ "EventTag" ],
-          // X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed>
-          "immediate": "ProjectCard: MC, MC? / (ProjectCard - 1)",
+          "immediate": "X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X MC",
           "effects": [ "End: VictoryPoint" ],
         },
         {
