@@ -55,7 +55,7 @@ CLASS PlaceNeutralTiles : Signal, System, Owned<SoloOpponent> {
 }
 
 "Creates the neutral solo stock of each standard resource and its production"
-CLASS SoloStandardResourceReserve<Class<@StandardResource>> : Owned<SoloOpponent>, System {
+CLASS SoloStandardResourceReserve<Class<@StandardResource>> : Owned<SoloOpponent>, System, Hidden {
   HAS =1 This
   SetupPhase: 42 @StandardResource
   SetupPhase: PROD[42 @StandardResource]
@@ -67,7 +67,7 @@ CLASS SoloStandardResourceReserve<Class<@StandardResource>> : Owned<SoloOpponent
 }
 
 "A neutral solo-mode holder for each kind of removable card resource"
-CLASS SoloCardResourceReserve : ResourceHolder<Class<@CardResource>>, Owned<SoloOpponent>, System {
+CLASS SoloCardResourceReserve : ResourceHolder<Class<@CardResource>>, Owned<SoloOpponent>, System, Hidden {
   HAS =1 This
   SetupPhase: 42 @CardResource<This>
 

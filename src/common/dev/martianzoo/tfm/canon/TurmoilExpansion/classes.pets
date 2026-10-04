@@ -15,7 +15,7 @@ CLASS TurmoilExpansion : Module {
 CLASS Terraformer26 : Milestone { requirement = HAS "26 TerraformRating" }
 
 "Runs TR revision and the current event, then changes government and advances the event queue"
-CLASS TurmoilSolarOperation : Temporary, System {
+CLASS TurmoilSolarOperation : Temporary, System, Hidden {
   HAS MAX 1 This
   This:: EACH Player { -TerraformRating., MeasureInfluence }
   This:: EACH Event@Class<GlobalEvent>(HAS Current) { \
@@ -51,13 +51,13 @@ ABSTRACT CLASS GlobalEventPosition<Class<GlobalEvent>> {
 }
 
 "Requests the first revealed event and then the second setup event"
-CLASS RevealComingEvent : Barrier {
+CLASS RevealComingEvent : Barrier, Hidden {
   HAS MAX 1 This
   This: GlobalEvent THEN RevealDistantEvent FROM This
 }
 
 "Requests the next event for the Distant position"
-CLASS RevealDistantEvent : Barrier {
+CLASS RevealDistantEvent : Barrier, Hidden {
   HAS MAX 1 This
   This: GlobalEvent THEN -This!
 }
@@ -79,7 +79,7 @@ CLASS ChangingTimes : Signal {
 }
 
 "A player's reserve of seven delegates, held for as long as Turmoil is in play"
-CLASS TurmoilPlayer : Owned<Player>, System {
+CLASS TurmoilPlayer : Owned<Player>, System, Hidden {
   HAS MAX 1 This
   // This is the TurmoilPlayer component, so only an effect has its contextual Player owner.
   Delegate IF 8 Delegate:: Die
@@ -191,7 +191,7 @@ CLASS ApplyRulingBonus<Party> : Signal
 CLASS FormGovernment : Signal
 
 "Identifies the Party immediately after another Party around the committee"
-CLASS AfterParty<Party, Party> : System { HAS MAX 1 This }
+CLASS AfterParty<Party, Party> : System, Hidden { HAS MAX 1 This }
 
 "The forward distance from one Party to another around the committee"
 CLASS PartyDistance<Party, Party> : CustomMetric
@@ -272,7 +272,7 @@ CLASS PartyLeader<Delegation@Party> : Owned<Owner> {
 }
 
 "The unspent Lobby delegate, used by other placements only after the Delegate Reserve is empty"
-CLASS LobbyActionAvailable : Owned<Player>, System {
+CLASS LobbyActionAvailable : Owned<Player>, System, Hidden {
   HAS MAX 1 This
   Delegate IF 7 Delegate:: -This.
 }

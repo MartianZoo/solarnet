@@ -96,7 +96,7 @@ CLASS DefaultGreeneryTile : Owned, Signal {
     (MAX 0 Neighbor<OwnedTile, LandArea(HAS MAX 0 Tile)>: GreeneryTile<LandArea>)
 }
 
-CLASS Photosynthesis : System {
+CLASS Photosynthesis : System, Hidden {
   HAS MAX 1 This
   FinalGreeneryPhase: -This!
 }
@@ -128,7 +128,7 @@ ABSTRACT CLASS GlobalParameter : Atomized {
 }
 
 "Enforces the limits, rewards, and completion steps printed on the standard global-parameter tracks"
-CLASS StandardGpTrackRules : System {
+CLASS StandardGpTrackRules : System, Hidden {
   HAS =1 This
 
   // TODO: redundant info
@@ -160,7 +160,7 @@ CLASS GpComplete<Class<@GlobalParameter>> : Hidden {
 }
 
 "An obstacle to the game ending"
-CLASS GpGameEndBarrier<@Class<GlobalParameter>> : GameEndBarrier, System {
+CLASS GpGameEndBarrier<@Class<GlobalParameter>> : GameEndBarrier, System, Hidden {
   HAS MAX 1 This
   GpComplete<@Class>:: -This!
 }

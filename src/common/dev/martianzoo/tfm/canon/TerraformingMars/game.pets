@@ -97,7 +97,7 @@ CLASS TerraformRating : Owned<Player>, Atomized {
 CLASS StartToken : Owned<Player> { HAS =1 StartToken }
 
 "Identifies the Player immediately after another Player in seat order"
-CLASS AfterMe<Previous@Owner, Next@Player> : System {
+CLASS AfterMe<Previous@Owner, Next@Player> : System, Hidden {
   HAS MAX 1 This
   ResearchPhase IF StartToken<Previous@Owner>: StartToken<Next@Player FROM Previous@Owner>.
 }
@@ -156,7 +156,7 @@ CLASS Generation : System {
 }
 
 "The lifetime anchor for components that exist only during the current generation"
-CLASS GenerationScope : Scope, System {
+CLASS GenerationScope : Scope, System, Hidden {
   HAS MAX 1 This
   Generation:: -This! THEN This!
 }

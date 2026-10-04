@@ -58,7 +58,7 @@ ABSTRACT CLASS StandardProject : HasActions {
 ABSTRACT CLASS HasActions { HAS MAX 1 This }
 
 "A simple enum type to identify which action of a `HasActions` you want"
-ABSTRACT CLASS ActionSlot : System {
+ABSTRACT CLASS ActionSlot : System, Hidden {
   HAS =1 This
   CLASS Action1
   CLASS Action2

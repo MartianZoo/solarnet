@@ -42,12 +42,12 @@ private val systemDeclarationsSource =
     ABSTRACT CLASS Hidden
 
     "No one but Admin can create these"
-    ABSTRACT CLASS System : Hidden {
+    ABSTRACT CLASS System {
       This BY Actor(NOT Admin): Die
     }
 
     "Mandatory unfinished state that a completed operation may not leave behind"
-    ABSTRACT CLASS MustCleanUp : Hidden
+    ABSTRACT CLASS MustCleanUp
 
     "Removed only at a whole-World empty task pool, once no dependent Temporary or MustCleanUp remains"
     ABSTRACT CLASS Temporary
@@ -64,7 +64,7 @@ private val systemDeclarationsSource =
     ABSTRACT CLASS Barrier : MustCleanUp
 
     "An unscoped point event; `IF This` skips self-removal when no instance entered live state"
-    ABSTRACT CLASS Signal : MustCleanUp {
+    ABSTRACT CLASS Signal : MustCleanUp, Hidden {
       This IF This:: -This!
     }
 

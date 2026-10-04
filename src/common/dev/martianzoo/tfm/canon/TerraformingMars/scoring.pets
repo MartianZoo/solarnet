@@ -24,7 +24,7 @@ ABSTRACT CLASS Award {
 }
 
 // TODO.md: FinalScoringPhase should own measurement instead of this removal effect
-CLASS MeasureAward<@Award, FinalScoringPending> : Temporary, System {
+CLASS MeasureAward<@Award, FinalScoringPending> : Temporary, System, Hidden {
   -This:: EACH Player(HAS =1 (RANK { EVAL @Award.metric })) { FirstPlace<@Award> }
   -This IF 3 Player:: EACH Player(HAS =2 (RANK { EVAL @Award.metric })) { SecondPlace<@Award> }
 }
@@ -33,7 +33,7 @@ CLASS FirstPlace<Award> : Owned<Player> { This:: 5 VictoryPoint }
 CLASS SecondPlace<Award> : Owned<Player> { This:: 2 VictoryPoint }
 
 "A marker removed after every final-scoring task has completed"
-CLASS FinalScoringPending : Temporary, System { HAS MAX 1 This }
+CLASS FinalScoringPending : Temporary, System, Hidden { HAS MAX 1 This }
 
 "A scoring Signal whose instruction is computed from a played event's printed effects"
 CLASS ScoreEventVps<Class<CardFront>> : Owned<Player>, CustomInstruction

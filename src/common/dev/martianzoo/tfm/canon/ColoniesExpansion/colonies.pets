@@ -179,7 +179,7 @@ CLASS Trade<@ColonyTile, GenerationScope> : Owned<Player> {
 }
 
 "One unresolved barrier to completing a Trade"
-CLASS TradeBarrier<@ColonyTile> : Owned<Player>, Barrier {
+CLASS TradeBarrier<@ColonyTile> : Owned<Player>, Barrier, Hidden {
   -This IF MAX 0 This:: FinishTrade<@ColonyTile> BY Owner
 }
 
@@ -208,7 +208,7 @@ CLASS SelectedColonyTile<Class<@ColonyTile>> : Hidden {
 }
 
 "Lets the solo player discard one selected colony tile; owned so that player makes the choice"
-CLASS SoloColoniesSetup : Owned<Player>, System {
+CLASS SoloColoniesSetup : Owned<Player>, System, Hidden {
   HAS MAX 1 This
   This: -SelectedColonyTile THEN -This!
 }

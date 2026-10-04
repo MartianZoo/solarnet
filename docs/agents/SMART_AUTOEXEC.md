@@ -55,6 +55,11 @@ The word *proves* is essential. A successful speculative execution, a pattern th
 one replay, or the absence of a known counterexample yields `UNKNOWN`, not permission to act. The
 policy may be incomplete. It must be sound.
 
+The ultimate goal is to leave choices to Players exactly when those choices can matter. Soundness
+is the admission rule; completeness is the direction of improvement. An `UNKNOWN` is unresolved
+analysis, not evidence of a meaningful choice. Use corpus analysis freely to discover useful proof
+conditions and measure unnecessary prompts, while deriving safety from the declared semantics.
+
 Solarnet still needs its own theorem. Its transition vocabulary is reconstructed dynamically from
 task schemas and legal narrowings, and enabledness depends on the component graph and task queue.
 After that reconstruction, Antti Valmari's
@@ -230,6 +235,55 @@ the queue shape plus the first failed proof premise: remaining choice, multiple 
 trigger, shared read/write domain, continuation, created task family, or proof bound. Report the
 working rule that succeeds and the `UNKNOWN` reason when none does. The resulting histogram is the
 gate for the deferred section.
+
+### Replay leaderboard: prioritize useful progress in mixed queues
+
+The local [queue study](../../_local/replay-task-queue-2026-10-01/README.md) contains 231 sampled
+moments and 1,357 concrete-task appearances, excluding Production and End. Recounting its
+`moments.jsonl` gives these overlapping opportunities, **not proven coverage**:
+
+| Candidate family | Appearances | Moments containing it |
+| --- | ---: | ---: |
+| Positive standard-resource gains | 730 | 202 |
+| Positive production gains | 88 | 71 |
+| Terraform Rating gains | 285 | 137 |
+| Oxygen and temperature increases | 97 | 78 |
+| Science, Animal, and Microbe gains | 43 | 38 |
+
+Only two filtered queues contain exclusively standard-resource gains; both include a `PER`.
+Forty-seven MC appearances contain `PER`, leaving 683 standard-resource appearances without it,
+still spanning 202 moments. Closed simple batches alone therefore look too restrictive. The first
+ordering investigation should target one independent mandatory gain inside a mixed queue: other
+tasks may retain choices while that gain proceeds.
+
+A sufficient candidate certificate specializes the persistent-action rule: the gain must finish
+before the chosen boundary; its exact target and amount remain fixed; dependencies and headroom
+remain adequate; and it commutes, preserving enabledness and agency, with every command that can
+precede it. Include abstract narrowings, spawned work, continuations, automatic effects, and
+subscription changes. Begin with gains emitting no work or continuation. Other exact additions to
+the same resource can commute; mutable metrics, resource losses, and payments require their own
+argument. A `PER` gain can qualify when its metric is invariant throughout that region.
+
+Investigate the higher-interaction families next:
+
+- **TR and production:** account for their listeners and any reachable Production/End events.
+  Source examples include `RedsPolicy` in `TurmoilExpansion/classes.pets`, `Manutech` in
+  `VenusNextExpansion/cards.json5`, and `TerraformingDeal` in `Prelude2CardPack/cards.json5`.
+  A harmless effect should eventually be proved harmless, rather than permanently disqualifying
+  the gain merely because it emits work.
+- **Track increases:** prove cap allocation, threshold rewards, Actor attribution, and all created
+  work equivalent; `StandardGpTrackRules` in `TerraformingMars/board.pets` supplies concrete hazards.
+- **Card resources:** prove the AMAP amount stable, preserve the holder, and inspect supertype
+  listeners such as `L1GiftWatcher` in `Prelude2CardPack/cards.pets`.
+- **Card gains/searches:** distinguish anonymous engine counts from externally tracked identities
+  before claiming Player-choice safety; see [CARD_HANDLING.md](CARD_HANDLING.md).
+
+These are proof targets, not a type-name allowlist. Compile facts from Pets and the active premise;
+use recordings to prioritize them. The study omits abstract tasks and task metadata, repeats
+persisting tasks, and samples intermediate removals. Recover full World/task state at actual policy
+invocations before reporting success rates. Measure proven commands, remaining Player interventions,
+proof cost, and `UNKNOWN` reasons, including smaller queues. The bounded mixed-queue investigation
+remains open; this count analysis implements no certificate.
 
 ## Working proof rules
 
@@ -454,6 +508,7 @@ premises and expose unsound certificates.
   application command boundary.
 
 The first milestone is diagnostic coverage plus a small proof kernel for selected-concrete and
-common-forced-narrowing commands. The first ordering milestone is the same-assignee, closed,
-trigger-free batch. Let coverage data, not theoretical reach, decide whether a persistent-action or
-bounded-search implementation follows.
+common-forced-narrowing commands. Closed trigger-free batches remain a simple proof baseline;
+the leaderboard above motivates investigating a bounded independent-gain certificate in mixed
+queues alongside it. Measure actual proof coverage before committing to a general persistent-action
+analyzer or bounded search.
