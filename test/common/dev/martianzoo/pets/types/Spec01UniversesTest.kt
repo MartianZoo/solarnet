@@ -130,7 +130,7 @@ internal class Spec01UniversesTest {
     val tile = loader.load(cn("GreeneryTile"))
     loader.findClass(cn("GreeneryTile")) shouldBe tile
 
-    val table = loader.freeze()
+    val table = loader.loadEverything()
     table.getClass(cn("GreeneryTile")) shouldBe tile
     table.allClassNames shouldBe declarations.keys
   }

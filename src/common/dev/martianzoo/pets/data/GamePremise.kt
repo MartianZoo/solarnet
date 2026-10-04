@@ -104,16 +104,12 @@ public data class GamePremise(
 
     val table =
         ClassLoader.forPremise(
-            masterTable = masterTable,
-            declarations = premiseTable.declarations,
+            premiseTable = premiseTable,
+            roots = roots,
             additionalRequiredClasses = { requiredClassNames(catalog, it) },
             checkAvailability = ::checkAvailability,
             exactCount = ::configuredCount,
         )
-    table.freeze()
-    table.validateNoOkSubscriptions()
-    table.validateTransformKinds()
-    table.includeAll(roots)
     val unexpectedModules =
         catalog.modules.keys.filterTo(linkedSetOf()) { table.isIncluded(it) } - modules
     if (unexpectedModules.isNotEmpty()) {

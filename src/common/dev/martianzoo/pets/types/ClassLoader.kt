@@ -244,7 +244,7 @@ private constructor(
    * One rewriting pass may leave another pass's kind in place, but a mark no pass will ever claim
    * is a mistake in the source.
    */
-  internal fun validateTransformKinds() {
+  private fun validateTransformKinds() {
     val known = transformHandlerFactories.keys
     declaringClassesToValidate().map(Class::declaration).forEach { declaration ->
       declaration.allNodes.forEach { root ->
@@ -268,7 +268,7 @@ private constructor(
   /**
    * Rejects subscriptions rooted at `Ok` or a nominal supertype, which are statically forbidden.
    */
-  internal fun validateNoOkSubscriptions() {
+  private fun validateNoOkSubscriptions() {
     val okClass = getClass(OK)
     declaringClassesToValidate().forEach { declaringClass ->
       declaringClass.declaration.effects.forEach { effect ->
@@ -302,7 +302,7 @@ private constructor(
   private val requestedBy = mutableMapOf<ClassName, ClassName?>()
 
   /** Loads [names] together, advancing their inclusion closure one complete frontier at a time. */
-  internal fun loadAll(names: Collection<ClassName>) {
+  private fun loadAll(names: Collection<ClassName>) {
     enqueue(names, requestedByClass = null)
     while (queue.isNotEmpty()) {
       while (queue.isNotEmpty()) {
@@ -324,7 +324,7 @@ private constructor(
    * can make another edge reachable. A required Class locked behind an unselected Module makes the
    * premise broken rather than silently selecting that Module.
    */
-  internal fun includeAll(names: Collection<ClassName>) {
+  private fun includeAll(names: Collection<ClassName>) {
     require(masterSource != null && frozen) {
       "a game table must be structurally frozen before its inclusion closure is computed"
     }
@@ -579,7 +579,7 @@ private constructor(
     return checkNotNull(directSubclassesByClass)[klass] ?: emptySet()
   }
 
-  internal fun freeze(): ClassTable {
+  private fun freeze(): ClassTable {
     require(!frozen)
     if (masterSource != null) {
       declarations.values.forEach { declaration ->
@@ -674,28 +674,46 @@ private constructor(
 
   private val id = nextId++
 
-  internal companion object {
+  public companion object {
     private var nextId: Int = 0
 
-    internal fun forPremise(
-        masterTable: ClassTable,
-        declarations: Map<ClassName, ClassDeclaration>,
-        additionalRequiredClasses: (ClassDeclaration) -> Set<ClassName>,
-        checkAvailability: (ClassName, ClassName?) -> Unit,
-        exactCount: (Expression, ClassTable) -> Int?,
-    ): ClassLoader {
+    /**
+     * Compiles and validates [premiseTable]'s declarations, freezes the combined namespace, and
+     * returns the completed inclusion closure of [roots]. Master Classes and Types are reused. The
+     * returned view is immutable; game-specific configuration validation belongs to its caller.
+     *
+     * [additionalRequiredClasses] supplies dependencies absent from Pets source.
+     * [checkAvailability] may reject a required Class and receives the Class that required it, or
+     * null for a root. [exactCount] supplies known configuration counts, returning null for unknown
+     * counts; its table has a complete structural namespace but an inclusion set still being
+     * computed.
+     */
+    public fun forPremise(
+        premiseTable: PremiseClassTable,
+        roots: Collection<ClassName>,
+        additionalRequiredClasses: (ClassDeclaration) -> Set<ClassName> = { emptySet() },
+        checkAvailability: (ClassName, ClassName?) -> Unit = { _, _ -> },
+        exactCount: (Expression, ClassTable) -> Int? = { _, _ -> null },
+    ): ClassTable {
+      val masterTable = premiseTable.master
       require(masterTable.masterTable === masterTable) {
         "catalog class table is not a master table"
       }
       return ClassLoader(
-          declarations,
-          masterTable.transformHandlerFactories,
-          {},
-          additionalRequiredClasses,
-          masterTable,
-          checkAvailability,
-          exactCount,
-      )
+              premiseTable.declarations,
+              masterTable.transformHandlerFactories,
+              {},
+              additionalRequiredClasses,
+              masterTable,
+              checkAvailability,
+              exactCount,
+          )
+          .apply {
+            freeze()
+            validateNoOkSubscriptions()
+            validateTransformKinds()
+            includeAll(roots)
+          }
     }
   }
 }

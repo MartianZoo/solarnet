@@ -127,6 +127,12 @@ Only the included-name set and caches derived from it grow during this internal 
 game view is immutable when returned. Master compilation performs all reusable construction and
 hierarchy compilation once for the Catalog.
 
+`ClassLoader.forPremise` accepts the premise declaration table, inclusion roots, and callbacks and
+returns a completed `ClassTable`. Freezing, declaration validation, and inclusion growth remain
+private to the loader. `GamePremise` then validates configuration policy and premise viability.
+[`ClassTableConstructionTest`](../../test/common/dev/martianzoo/state/ClassTableConstructionTest.kt)
+exercises this public construction boundary from `:state` without a Catalog or GamePremise.
+
 `GamePremise` supplies availability checks and exact configuration counts to the loader. It owns
 the interpretation of occupied seats, selected Modules, and signed Class selections; the loader
 owns the inclusion closure. Inclusion guards use the configured seats for exact counts of
@@ -292,9 +298,9 @@ inhabited/public operations keep those roles distinct without another representa
   narrowing uses the explicitly supplied `TypeInfo.classTable`. A Type has no enumeration or
   automatic-narrowing operation.
 
-`ClassLoader.loadEverything` and master `freeze` construct role 1. `GamePremise` privately bridges
-roles 2--4: it freezes the combined namespace, grows the selected declaration closure, and validates
-the inhabited result. No client can invoke that bridge directly. Master-only expressions resolved
+`ClassLoader.loadEverything` constructs role 1. `ClassLoader.forPremise` bridges roles 2--4 by
+freezing the combined namespace and growing the selected declaration closure. `GamePremise`
+validates the inhabited result against its configuration. Master-only expressions resolved
 by a game still reuse the equal master Type; because enumeration is table-owned, that representation
 choice cannot silently choose an inhabited domain.
 
@@ -340,9 +346,9 @@ namespace containing premise Classes, which is a separate axis from inhabitance.
 
 Completion is a bounded net simplification once whole-Catalog access is recognized as legitimate.
 No representation split is required. The finish consists of deleting implicit `Type`/`Class`
-enumeration, routing game-relative callers through an explicit table, internalizing the premise
-construction bridge, and using selection/game-view terminology. It adds no cache, phase, table
-type, or compiled object.
+enumeration, routing game-relative callers through an explicit table, keeping premise construction
+stages private behind one complete entrypoint, and using selection/game-view terminology. It adds no
+cache, phase, table type, or compiled object.
 
 Preserve these final constraints:
 
