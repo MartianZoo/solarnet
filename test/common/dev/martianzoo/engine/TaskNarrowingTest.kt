@@ -157,10 +157,11 @@ internal class TaskNarrowingTest {
   @Test
   internal fun `a draft of a THEN first stage retains its continuation`() {
     val id = initiate("Chosen@StandardResource THEN Chosen@StandardResource").single()
+    val before = tasks.getTaskData(id).instruction
     val draft = writer.taskDraft(id)
     draft.narrow("Steel")
 
-    tasksAsText().shouldContainExactly("StandardResource<Player1>! THEN StandardResource<Player1>!")
+    tasks.getTaskData(id).instruction shouldBe before
     draft.commit()
 
     writer.count("Steel") shouldBe 1
