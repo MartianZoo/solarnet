@@ -40,8 +40,8 @@
         {
           "name": "PhoboLog",
           "tags": [ "SpaceTag" ],
+          "invariants": [ "=1 GrantedResourceValue<Class<Titanium>, This>" ],
           "effects": [
-            "This:: GrantedResourceValue<Class<Titanium>, This>",
             "This: 23 MC, 10 Titanium"
           ],
         },
@@ -151,7 +151,7 @@
           "requirement": "12 TemperatureStep",
           "cost": 15,
           "tags": [ "BuildingTag" ],
-          "immediate": "OceanTile<LandArea>! OR (9 OceanTile: Ok)",
+          "immediate": "(GpIncomplete<Class<OceanTile>>: OceanTile<LandArea>!) OR (GpComplete<Class<OceanTile>>: Ok)",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -379,7 +379,7 @@
           "name": "Flooding",
           "cost": 7,
           "tags": [ "EventTag" ],
-          "immediate": "OceanTile<> OR (OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>! THEN -4 MC<@Anyone>?)",
+          "immediate": "OceanTile<> OR (GpIncomplete<Class<OceanTile>>: (OceanTile<WaterArea(HAS MAX 0 Tile, HAS Neighbor<OwnedTile<@Anyone>>)>! THEN -4 MC<@Anyone>?))",
           "effects": [ "End: -VictoryPoint" ],
         },
         {

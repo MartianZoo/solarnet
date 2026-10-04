@@ -9,7 +9,7 @@
 - **Admin:** The non-Player Actor and Component that performs neutral table activity. Admin may receive, select, and narrow ordinary tasks, including real choices made by an installed policy.
 - **agent:** The unique mutation issuer for one Actor in one configured game world. Explicit client requests and autonomous decisions both pass through it; its private agent driver chooses the latter. It is not a task queue or core-engine concept.
 - **agent driver:** The private part of an agent that autonomously chooses further legal actions according to installed policies.
-- **AMAP:** The `.` quantifier, meaning “as much as possible.” Resolution calculates the greatest currently possible amount and makes that amount mandatory.
+- **AMAP:** The `.` quantifier, meaning “as much as possible.” Resolution caps the requested amount by current invariant bounds and source availability, clamps negative capacity to zero, and makes that amount mandatory.
 - **Anyone:** The Pets class used as the ownership bound where an expression does not constrain who the Owner is. `Owner` is its only direct subtype; `Actor` is a separate root class, not a kind of `Anyone`.
 - **assignee:** The Actor permitted by game state to select and narrow a task. The assignee chooses among its filtered view of the global task queue and normally makes any optional narrowing; an instruction-level `BY` may assign the resulting state changes to a different performer without changing the assignee. This is why Philares and Enceladus can give a choice to an effect's owner, while World Government Terraforming gives its assignee a choice that Admin performs.
 - **atomicity:** Indivisibility with respect to a stated scope. One `FROM` is a single transmutation state change, so its removal and gain cannot be observed separately. A timeline operation is failure-atomic: all of its events commit or all are rolled back. An instruction, task, or chain of automatic effects is not thereby one indivisible gameplay event; intermediate state changes may fire effects and be observed by them. Unrelated to atomize, which splits an instruction apart.
@@ -75,8 +75,8 @@
 - **Hidden:** A presentation classification for types normally omitted from user-visible output. It concerns rendering only, not information concealed from Players.
 - **immediate instruction:** An on-create instruction expressed with `This:`, or supplied by transitional card data's `immediate` field.
 - **instruction:** A Pets specification of work that may change a game world.
-- **invariant:** A class-declared requirement with no constructive meaning: it does not create a Component. Selected Module requirements also participate in premise validation.
-- **limit:** A counting invariant that places a minimum, maximum, or exact bound on matching Components, such as `HAS MAX 1 This`. Applicable limits determine how much of a change instruction is legal.
+- **invariant:** A class-declared requirement. Component-count invariants must hold at [operation completion](type-system.md#invariants-and-operation-completion); they do not create Components. Selected Module requirements also participate in premise validation.
+- **limit:** A counting invariant that places a minimum, maximum, or exact bound on matching Components, such as `HAS MAX 1 This`. Limits constrain completed operations and also bound AMAP and optional quantities in the current World.
 - **live effect:** A component effect paired with its existing context Component, so that it can respond to change events. It counts according to the multiplicity of that type.
 - **manual:** Initiated by a Solarnet client rather than caused by an effect or workflow. Selecting or narrowing an already pending task is not a new manual action. With fully automatic workflow, a game can contain no manual operations.
 - **master class table:** The complete immutable class model compiled once from a catalog's reusable declarations. A game reuses its classes and types rather than compiling them again.
@@ -87,7 +87,7 @@
 - **multi-requirement:** A requirement containing two or more child requirements combined as logical “and.”
 - **narrowing:** Replacing an expression, type, instruction, or selected task with a valid more specific form. For types, nominal subtyping is a static relation, while `narrows` is a contextual validity relation that can also account for refinements and linked variables. Task narrowing may fill one sub-specification at a time; each partial choice is recorded as task state rather than a state change, and resolution may reduce the choices offered for the remaining parts. An abstract task becomes executable only after it has narrowed to a concrete task.
 - **Ok:** A Signal whose gain is the standard do-nothing instruction. It always succeeds, leaves no observable state behind, and cannot trigger anything.
-- **operation:**
+- **operation:** A unit of work with a defined completion boundary. For component-count invariants, one initiating change and all its recursive automatic (`::`) consequences form a full operation. A game action or client transaction may contain several such operations; queued work does not postpone their checks.
 - **origin indicator:**
 - **Owned:** The root class for Components whose type carries an ownership dependency.
 - **Owner:** An entity that may own Components. Components expose their concrete Owner as a resolved Pets type; Kotlin runtime identities implement `Owner` only when the entity must participate directly. Pets also uses `Owner` as a contextual placeholder that must be bound before execution.
@@ -109,7 +109,7 @@
 - **REgo PLastics:** Solarnet's command-line interface for driving the engine.
 - **represented-type variable:** Inside a refined class literal such as `Class<@Tag>(HAS @Tag<Player1>)`, the marked operand and use share the represented class. Testing `Class<SpaceTag>` therefore tests for `SpaceTag<Player1>` without treating the class token as an owned Component.
 - **requirement:** A Pets predicate evaluated against a game world, used for queries, gates, invariants, and refinements.
-- **resolution:** The engine's interpretation of an instruction against the current game world. It evaluates gates and metrics, applies quantifier and limit rules, translates concrete custom instructions, and performs forced narrowing without making client choices. Resolution follows selection and repeats after each narrowing.
+- **resolution:** The engine's interpretation of an instruction against the current game world. It evaluates gates and metrics, checks immediate prerequisites, bounds AMAP and optional quantities, translates concrete custom instructions, and performs forced narrowing without making client choices or predicting final invariant satisfaction. Resolution follows selection and repeats after each narrowing.
 - **root type:** The class at the head of an expression, before its written dependency bounds.
 - **rule class:** A Class expressing general game vocabulary or behavior, including standard actions and standard projects. A selected Module reaches its intrinsic rule Classes through ordinary selection edges. This is a role, not a Pets supertype or the opposite of Content: named content such as a party or map can carry rules too.
 - **scalar:**
@@ -122,7 +122,7 @@
 - **sequential instruction:**
 - **SetupPhase:** The Terraforming Mars phase gained by transmuting BootstrapPhase away with `SetupPhase FROM Phase`. It creates generation 1, grants starting state such as 20 `TerraformRating`, and gives each Player the generic card counts and setup choices selected by the active modules.
 - **Signal:** An unscoped point event that leaves no persistent component state.
-- **singleton type:** A concrete type constrained to exactly one occurrence by an inherited `HAS =1 This` invariant. The invariant does not create the occurrence.
+- **singleton type:** A concrete type constrained to exactly one occurrence at operation completion by an inherited `HAS =1 This` invariant. The invariant does not create the occurrence.
 - **SoloOpponent:** The passive Owner created by `SoloMode`; it is neither a Player nor an Actor and receives no tasks or turns.
 - **source effect:** An effect as authored in `.pets` or generated from structured content data, before class-level inheritance and transformation.
 - **state change:** An exact Component gain, removal, or transmutation that occurred in a game world.

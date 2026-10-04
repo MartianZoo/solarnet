@@ -1,11 +1,13 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.api.Exceptions.DependencyException
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.types.ClassLimitTable
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameWorld
 import dev.martianzoo.state.toComponent
@@ -17,22 +19,60 @@ internal class Limiter(
 ) {
   private val limits: ClassLimitTable = classTable.componentLimits
 
-  internal fun findLimit(gaining: Component?, removing: Component?): Int {
+  // Bootstrap constructs an incomplete world and audits all required counts when it finishes.
+  internal var checkRequiredCounts: Boolean = false
+
+  internal fun checkInvariantsSince(checkpoint: Checkpoint) {
+    val changed =
+        gameWorld.events
+            .changesSince(checkpoint)
+            .flatMap { event ->
+              listOfNotNull(event.change.gaining, event.change.removing)
+            }
+            .toSet()
+    val required =
+        if (checkRequiredCounts) {
+          // A requirement can belong to any live ancestor of a changed or removed component.
+          // Include new owners even when none of their required dependents was created.
+          val scopes = mutableSetOf<Component>()
+          fun addScope(component: Component) {
+            if (scopes.add(component)) component.dependencyComponents.forEach(::addScope)
+          }
+          changed.forEach(::addScope)
+          val liveScopes = scopes.filter { it in gameWorld.components }.map { it.type }
+          limits.requiredLimits(liveScopes)
+        } else {
+          emptySet()
+        }
+    val touched = changed.flatMap { limitsFor(it) }.toSet()
+    for (limit in touched + required) {
+      if (limit.range.first == 0 && limit.range.last == MAX_VALUE) continue
+      val count = gameWorld.components.count(limit.type, NoGameState)
+      if (count > limit.range.last || (limit in required && count < limit.range.first)) {
+        throw LimitsException(
+            "component count invariant violated: `${limit.type.expression}` " +
+                "(found $count, expected ${limit.range})"
+        )
+      }
+    }
+  }
+
+  /** Physical capacity, also bounded by current count invariants for AMAP/optional quantities. */
+  internal fun findLimit(
+      gaining: Component?,
+      removing: Component?,
+      invariants: Boolean,
+  ): Int {
     val missingDeps = missingDependencies(gaining)
     if (missingDeps.any()) throw DependencyException(missingDeps.map { it.type })
 
-    return findLimitWithDependenciesPresent(gaining, removing)
-  }
-
-  internal fun findLimitOrNull(gaining: Component?, removing: Component?): Int? {
-    if (missingDependencies(gaining).any()) return null
-
-    return findLimitWithDependenciesPresent(gaining, removing)
+    return findLimitWithDependenciesPresent(gaining, removing, invariants)
   }
 
   private fun findLimitWithDependenciesPresent(
       gaining: Component?,
       removing: Component?,
+      invariants: Boolean,
   ): Int {
 
     // A same-Type exchange leaves every invariant unchanged, but requires the source count.
@@ -41,8 +81,8 @@ internal class Limiter(
     // We must ignore any that are in common; the transmutation must hold them constant
     val (gainInvars, removeInvars) =
         run {
-          val g = limitsFor(gaining)
-          val r = limitsFor(removing)
+          val g = if (invariants) limitsFor(gaining) else emptySet()
+          val r = if (invariants) limitsFor(removing) else emptySet()
           (g - r) to (r - g)
         }
 
@@ -58,19 +98,19 @@ internal class Limiter(
             ?.filter { it == removing }
             ?.map { gameWorld.components.countComponent(it) - 1 }
             .orEmpty()
-    return (headroom + footroom + dependencyFootroom).minOrNull() ?: MAX_VALUE
+    val available = removing?.let(gameWorld.components::countComponent) ?: MAX_VALUE
+    return (headroom + footroom + dependencyFootroom + available).min().coerceAtLeast(0)
   }
 
   private fun missingDependencies(gaining: Component?): List<Component> =
       gaining?.dependencyComponents?.filterNot { it in gameWorld.components }.orEmpty()
 
   /**
-   * Narrows a gain using present dependency targets and applicable limits after task selection. An
-   * at-most-one nested dependency can also identify an existing target.
+   * Narrows a gain when present dependencies identify one target after task selection. Declared
+   * count capacity does not select a target; an at-most-one dependency can identify a live target.
    */
   internal fun singleConcreteGainWithPresentDependencies(
       type: Type,
-      removing: Type?,
       info: TypeInfo,
   ): Type? {
     val addedGainDependency =
@@ -98,18 +138,15 @@ internal class Limiter(
           gameWorld.components.matchingTypes(dependency, info)
         }
         .filter { it.narrows(type, info) }
-        .filter {
-          removing?.abstract == true ||
-              findLimitWithDependenciesPresent(it.toComponent(), removing?.toComponent()) > 0
-        }
         .take(2)
         .singleOrNull()
   }
 
-  internal fun hasExecutableConcreteGain(
+  internal fun hasAvailableConcreteGain(
       type: Type,
       minimum: Int,
       info: TypeInfo,
+      invariants: Boolean,
   ): Boolean {
     require(minimum > 0)
     return classTable
@@ -118,18 +155,19 @@ internal class Limiter(
         }
         .any { candidate ->
           candidate.narrows(type, info) &&
-              findLimitWithDependenciesPresent(candidate.toComponent(), null) >= minimum
+              findLimitWithDependenciesPresent(candidate.toComponent(), null, invariants) >= minimum
         }
   }
 
-  internal fun hasExecutableConcreteRemoval(
+  internal fun hasAvailableConcreteRemoval(
       type: Type,
       minimum: Int,
       info: TypeInfo,
+      invariants: Boolean,
   ): Boolean {
     require(minimum > 0)
     return gameWorld.components.matchingTypes(type, info).any { candidate ->
-      findLimit(null, candidate.toComponent()) >= minimum
+      findLimit(null, candidate.toComponent(), invariants) >= minimum
     }
   }
 

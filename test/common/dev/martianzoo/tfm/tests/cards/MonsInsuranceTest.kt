@@ -149,7 +149,7 @@ internal class MonsInsuranceTest : CardTest() {
     val pharmacyMoneyBefore = p2.count("MC")
     val checkpoint = game.timeline.checkpoint()
 
-    p1.runOperation("MicrobeTag<$Decomposers>")
+    p1.runOperation("$NitriteReducingBacteria")
 
     p1.count("MC") shouldBe monsMoneyBefore
     p2.count("MC") shouldBe pharmacyMoneyBefore - 4

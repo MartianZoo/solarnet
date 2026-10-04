@@ -37,6 +37,8 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
   )
 
   private val restrictionsByClass: Map<Class, List<Restriction>> = compileRestrictions()
+  private val scopedRequiredRestrictions: List<Restriction>
+  private val unscopedRequiredLimits: Set<Limit>
 
   init {
     val inhabitedConcreteClasses = classTable.allInhabitedConcreteClasses()
@@ -56,6 +58,15 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
           sourceLocation = invalidDependencies.first().first.className.sourceLocation,
       )
     }
+
+    val (scoped, unscoped) =
+        restrictionsByClass.values
+            .flatten()
+            .distinct()
+            .filter { it.range.first > 0 }
+            .partition { it.requiredLimits(emptySet()).none() }
+    scopedRequiredRestrictions = scoped
+    unscopedRequiredLimits = unscoped.flatMap { it.requiredLimits(emptySet()) }.toSet()
   }
 
   private fun hasSingleTargetLimit(target: Type): Boolean =
@@ -92,13 +103,8 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
   public fun requiredLimits(liveTypes: Collection<Type>): Set<Limit> {
     liveTypes.forEach { require(classTable.knows(it)) { "`$it` belongs to a different Catalog" } }
     val liveTypeSet = liveTypes.toSet()
-    return restrictionsByClass.values
-        .asSequence()
-        .flatten()
-        .distinct()
-        .filter { it.range.first > 0 }
-        .flatMap { it.requiredLimits(liveTypeSet) }
-        .toSet()
+    return unscopedRequiredLimits +
+        scopedRequiredRestrictions.asSequence().flatMap { it.requiredLimits(liveTypeSet) }.toSet()
   }
 
   private fun compileRestrictions(): Map<Class, List<Restriction>> {

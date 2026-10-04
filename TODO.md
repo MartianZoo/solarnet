@@ -30,6 +30,9 @@ effects. Review each repair with Opus/high before committing it.
 - Review derived lookups on delegated Catalogs: `customClass`, `customMetric`, `classDeclaration`,
   and `allClassNames` use the delegate's properties even when the wrapper overrides them. Keep this
   existing issue separate from the class-loading boundary cleanup.
+- Try to simplify Flooding and Artificial Lake's ocean instructions without engine prediction.
+  Preserve full-track no-placement behavior (including Amazonis), Artificial Lake's required
+  placement below the cap, and Flooding's linked placement and victim choice.
 - Look for a small way to evaluate the existing `CardFilter` criteria against a card Class in Pets.
   Replay tracking currently checks them in Kotlin; avoid adding engine card identities or a new
   processing stage just for this. Named-header specialization of Requirement properties and
@@ -45,8 +48,8 @@ effects. Review each repair with Opus/high before committing it.
   cover that path. Until then, keep the four affected combinations Unsafe-only; `BugsTest`
   characterizes the Viral Enhancers and Ecological Zone outcomes.
 - Consider a shared party-leader recalculation helper for the ranking repeated on delegate gains
-  and Banned Delegate. Keep it only if it simplifies the Pets model overall and preserves leadership
-  through Recruitment's neutral-delegate transfer.
+  and Banned Delegate. Replacement cleanup belongs to `PartyLeader`; share the remaining winner
+  selection only if it simplifies the model overall and preserves Recruitment's transfer semantics.
 - Place the neutral solo tiles immediately after the original corporation play, then remove Tharsis
   Republic's solo-only +2 M€ production effect. Its normal city-placement effect should grant the
   two production steps; verify that neutral greeneries still do not raise oxygen and that a
@@ -198,10 +201,6 @@ effects. Review each repair with Opus/high before committing it.
 - Extend instruction intersection to preserve unresolved shared aliases and unnamed Type unions.
   These currently require a more specific submitted choice; keep task matching conservative and
   never substitute `Ok` for an unrepresentable nonempty intersection.
-
-- Align `tryTask(String)` with the task-ID probe's rollback behavior: catching an incomplete or
-  unavailable execution currently retains selection edits made inside the string overload, despite
-  its engine comment promising unchanged task history. Keep this separate from task intersection.
 
 - Extend the Mining Rights/Area wild-resource regression after placement is fixed: Robotic
   Workforce and Cyberia Systems may choose either originally available metal production even if

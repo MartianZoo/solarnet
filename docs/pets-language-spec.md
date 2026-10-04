@@ -1321,6 +1321,13 @@ Invariant     ::= "HAS" Requirement
 CLASS GreeneryTile : Tile { HAS MAX 1 This; This: OxygenStep }
 ```
 
+> **Non-normative note — invariant enforcement.** A counting invariant constrains the result of a
+> full operation: one initiating change and all its recursive automatic (`::`) consequences. It does
+> not create Components. Intermediate counts may cross its bounds, while source availability and
+> dependency integrity are checked immediately. See
+> [invariants and operation completion](type-system.md#invariants-and-operation-completion) for the
+> runtime contract.
+
 > **Non-normative example — map spaces.** Generated map declarations such as `Hellas_1_4` keep row,
 > column, and placement bonus in one semicolon-separated body. Allowing nested declarations in that
 > form would make a “one physical space per line” record expand into invisible sibling classes.

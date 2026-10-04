@@ -30,7 +30,7 @@
           "name": "AdvancedAlloys",
           "cost": 9,
           "tags": [ "ScienceTag" ],
-          "effects": [ "This:: 1 GrantedResourceValue<Class<Titanium>, This>, 1 GrantedResourceValue<Class<Steel>, This>" ],
+          "invariants": [ "=1 GrantedResourceValue<Class<Titanium>, This>", "=1 GrantedResourceValue<Class<Steel>, This>" ],
         },
         {
           "name": "AiCentral",

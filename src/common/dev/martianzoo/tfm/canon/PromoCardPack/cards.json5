@@ -79,8 +79,8 @@
         {
           "name": "SpliceTacticalGenomics",
           "tags": [ "MicrobeTag" ],
+          "invariants": [ "=1 Splicer<This>" ],
           "effects": [
-            "This:: Splicer<This>",
             "This: 44 MC, RequiredAction { -> SearchForCard<TagFilter<Class<MicrobeTag>>> }",
             "MicrobeTag<Anyone>: 2 MC"
           ],
@@ -449,8 +449,8 @@
           "requirement": "2 GreeneryTile",
           "cost": 6,
           "tags": [ "BuildingTag", "PlantTag" ],
+          "invariants": [ "=3 GrantedResourceValue<Class<Plant>, This>" ],
           "effects": [
-            "This:: 3 GrantedResourceValue<Class<Plant>, This>",
             "This: PROD[Plant]",
             "PayingFor<Class<BuildingTag>>:: Accepting<Class<Plant>>"
           ],
@@ -472,7 +472,7 @@
           "requirement": "2 ScienceTag",
           "cost": 3,
           "tags": [ "SpaceTag" ],
-          "effects": [ "This:: GrantedResourceValue<Class<Titanium>, This>" ],
+          "invariants": [ "=1 GrantedResourceValue<Class<Titanium>, This>" ],
         },
         {
           "name": "MoholeLake",
@@ -486,8 +486,8 @@
           "name": "NeptunianPowerConsultants",
           "cost": 14,
           "tags": [ "PowerTag" ],
+          "invariants": [ "=1 NeptunianOption<This>" ],
           "effects": [
-            "This:: NeptunianOption<This>",
             "OceanTile BY Anyone: UseAction<NeptunianOption<This>>?",
             "End: VictoryPoint / Hydroelectric<This>"
           ],
@@ -564,8 +564,8 @@
           "name": "RegoPlastics",
           "cost": 10,
           "tags": [ "BuildingTag" ],
+          "invariants": [ "=1 GrantedResourceValue<Class<Steel>, This>" ],
           "effects": [
-            "This:: GrantedResourceValue<Class<Steel>, This>",
             "End: VictoryPoint"
           ],
         },

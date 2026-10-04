@@ -4,6 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -121,6 +122,20 @@ internal class NewPromoCardsTest : CardTest() {
           doTask("Pay<Class<Plant>> FROM Plant")
         }
         .expect("-Plant")
+  }
+
+  @Test
+  internal fun `Neptunian option remains required until its card leaves play`() {
+    newGame(PromoCardPack)
+    p1.runOperation("$NeptunianPowerConsultants")
+
+    shouldThrow<LimitsException> {
+      p1.runOperation("-NeptunianOption<$NeptunianPowerConsultants>!")
+    }
+    p1.count("NeptunianOption<$NeptunianPowerConsultants>") shouldBe 1
+
+    p1.runOperation("-$NeptunianPowerConsultants")
+    p1.count("NeptunianOption") shouldBe 0
   }
 
   @Test
