@@ -183,30 +183,66 @@ internal constructor(
     narrowSelectedTask(taskId, narrowing, quantifierOmitted)
   }
 
+  /** Validates a proposed narrowing without changing the task or selecting it. */
+  public fun prepareTaskNarrowing(
+      taskId: TaskId,
+      narrowing: InstructionTree,
+      quantifierOmitted: Boolean = false,
+  ): InstructionTree =
+      prepareNarrowing(taskId, narrowing, quantifierOmitted).let {
+        it.selectedThen ?: it.effective
+      }
+
+  private data class PreparedNarrowing(
+      val effective: InstructionTree,
+      val selectedThen: Then?,
+  )
+
+  private fun prepareNarrowing(
+      taskId: TaskId,
+      narrowing: InstructionTree,
+      quantifierOmitted: Boolean,
+  ): PreparedNarrowing {
+    val task = tasks.getTaskData(taskId)
+    if (actor != task.assignee) {
+      throw TaskException("`$actor` cannot narrow a task assigned to `${task.assignee}`")
+    }
+    val effective = effectiveNarrowing(narrowing, task.instruction, quantifierOmitted)
+    if (effective.narrows(task.instruction, reader)) return PreparedNarrowing(effective, null)
+    val selectedThen = selectFirstStageOrNull(task.instruction, effective)
+    if (selectedThen != null) {
+      if (task.then != null) {
+        throw TaskException("cannot select the first stage of a `THEN` with an outer continuation")
+      }
+      return PreparedNarrowing(effective, selectedThen)
+    }
+    effective.ensureNarrows(task.instruction, reader)
+    return PreparedNarrowing(effective, null)
+  }
+
+  /** Commits a narrowing of this Actor's task, selecting it if necessary. */
+  public fun narrowTask(
+      taskId: TaskId,
+      narrowing: InstructionTree,
+      quantifierOmitted: Boolean = false,
+  ) {
+    enforceSelectLock(taskId)
+    narrowSelectedTask(taskId, narrowing, quantifierOmitted)
+  }
+
   private fun narrowSelectedTask(
       taskId: TaskId,
       narrowing: InstructionTree,
       quantifierOmitted: Boolean,
   ) {
     val task = tasks.getTaskData(taskId)
-    if (actor != task.assignee) {
-      throw TaskException("`$actor` cannot narrow a task assigned to `${task.assignee}`")
-    }
-
-    val effectiveNarrowing = effectiveNarrowing(narrowing, task.instruction, quantifierOmitted)
+    val prepared = prepareNarrowing(taskId, narrowing, quantifierOmitted)
+    val effectiveNarrowing = prepared.effective
     if (effectiveNarrowing == task.instruction) {
       selectAndExecuteIfConcrete(tasks, taskId)
       return
     }
-    val directlyNarrows = effectiveNarrowing.narrows(task.instruction, reader)
-    val selectedThen =
-        if (directlyNarrows) null else selectFirstStageOrNull(task.instruction, effectiveNarrowing)
-    if (selectedThen == null) effectiveNarrowing.ensureNarrows(task.instruction, reader)
-
-    if (selectedThen != null && task.then != null) {
-      throw TaskException("cannot select the first stage of a `THEN` with an outer continuation")
-    }
-    val continuation = selectedThen?.continuationAfterFirst() ?: task.then
+    val continuation = prepared.selectedThen?.continuationAfterFirst() ?: task.then
 
     // A selected group completes structurally before its children resolve against successive
     // worlds.

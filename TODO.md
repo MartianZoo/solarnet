@@ -202,6 +202,10 @@ effects. Review each repair with Opus/high before committing it.
   These currently require a more specific submitted choice; keep task matching conservative and
   never substitute `Ok` for an unrepresentable nonempty intersection.
 
+- Add choice enumeration over caller-held `TaskDraft`s, one sub-Specification at a time, using
+  read-only engine analysis. Cover `OR`, abstract targets, transmutation pairs, linked Type choices
+  across `THEN`, nested wrappers, and bounded `X`; account for AMAP, optional changes, and
+  zero-capacity targets.
 - Extend the Mining Rights/Area wild-resource regression after placement is fixed: Robotic
   Workforce and Cyberia Systems may choose either originally available metal production even if
   the placement awarded a nonmetal resource. No remembered resource choice is required.
