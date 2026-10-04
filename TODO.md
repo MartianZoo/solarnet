@@ -11,6 +11,7 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Add scenario saving and reloading to [Mars Playground](PLAYGROUND.md) after the initial version.
 - For the [game-assembly move to state](docs/agents/RESPONSIBILITIES.md#presentation-and-assembly-data-sit-inside-pets),
   relocate the affected assembly tests with their production owners. Use the completed
   `ClassLoader.forPremise` construction entrypoint; keep individual loader internals private.
