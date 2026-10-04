@@ -24,6 +24,8 @@ effects. Review each repair with Opus/high before committing it.
 
 ## User Ideas and Agreed Directions
 
+- When preparing the [PETS repository draft](docs/pets-repo-draft.md) for publication, decide
+  whether to include Sponsored Academies, currently retained as a draft note after the gallery.
 - For the [game-assembly move to state](docs/agents/RESPONSIBILITIES.md#presentation-and-assembly-data-sit-inside-pets),
   relocate the affected assembly tests with their production owners. Use the completed
   `ClassLoader.forPremise` construction entrypoint; keep individual loader internals private.
