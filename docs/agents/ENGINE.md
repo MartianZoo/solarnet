@@ -146,24 +146,34 @@ An Actor advances work by selecting a Task or narrowing one of its remaining cho
 locks the entire World against competing mutation until that Task finishes. It is an ordering
 promise, not a timeline commit.
 
-Unselected Task narrowing is intentionally weaker: it may discard options only by compositional,
-immutable class facts and does not execute. Selected narrowing is state-aware. Each accepted
-choice is stored by a `TaskEditedEvent`, so a client need not maintain a parallel record of partial
-choices.
+The current engine admits committed narrowing of a selected Task. It resolves that proposal against
+the live World, and each accepted partial choice becomes a `TaskEditedEvent`. It also validates a
+proposed narrowing without changing an unselected or selected Task, and can commit a narrowing by
+TaskId, selecting that Task if necessary. `Agent.narrowTask` still requires an already selected Task.
 
-Choice enumeration should use the same compositional granularity: expose useful narrowings for one
-remaining sub-Specification, record that choice, resolve again, and only then expose the next. Do
-not make a client choose from a Cartesian product of fully concrete Instructions when their parts
-can be narrowed independently.
+An Agent-created, caller-held object keeps a disposable narrowing draft before or after task
+selection. The engine's stored instruction remains authoritative. Future read-only analysis can
+calculate the next choices against the draft and current World without editing that task. For an
+unselected task, those choices may become stale before submission; every committed narrowing is
+checked against the then-current task and World. A draft does not claim the select-lock or change
+assignment, queue shape, or state. A real split or other game consequence still goes through engine
+task events. The engine may simplify tasks itself but need not perform every unambiguous narrowing
+to support progressive Agent assistance. [API.md](API.md#committed-narrowing-and-agent-drafts) owns the client
+lifecycle and privacy boundary.
 
-After selection, resolution repeatedly evaluates state-dependent structure until the first stage is
-executable. It handles metrics and gates, eliminates `OR` arms whose immediate prerequisites fail,
-narrows an abstract gain when present dependencies identify one target, resolves quantities, and
-translates concrete custom instructions. Mandatory resolution checks physical
-availability and dependencies; AMAP and optional quantities also use current count bounds. This may
-settle a location as well as a class, or an existing dependency whose declared maximum is one. The
-same World-based gain narrowing applies when a selected Task receives an explicit narrowing.
-`ActorEngine` separately executes a selected Task once its instruction is concrete.
+Choice analysis should proceed one remaining sub-Specification at a time, so the Agent can update
+its draft and ask again. It need not offer a Cartesian product of fully concrete Instructions.
+
+After selection, resolution repeatedly evaluates state-dependent structure until it reaches a
+remaining choice or the first stage is executable. It handles metrics and gates, eliminates `OR`
+arms whose immediate prerequisites fail, narrows an abstract gain when present dependencies
+identify one target, resolves quantities, and translates concrete custom instructions. Mandatory
+resolution checks physical availability and dependencies; AMAP and optional quantities also use
+current count bounds. This may settle a location as well as a class, or an existing dependency
+whose declared maximum is one. The same World-based gain narrowing applies when a selected Task
+receives an explicit narrowing. `ActorEngine` separately executes a selected Task once its
+instruction is concrete.
+
 Resolution may leave a genuine Player choice abstract. If it exposes independent instructions, the
 selected structural Task is replaced by ordinary unselected siblings rather than transferring its
 selection to one arbitrarily.
