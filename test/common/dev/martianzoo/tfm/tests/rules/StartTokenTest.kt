@@ -86,7 +86,7 @@ internal class StartTokenTest {
   }
 
   @Test
-  internal fun autoWorkflowReadsTheTokenOwner() {
+  internal fun autoWorkflowReadsTheTokenHolder() {
     val setup = canonicalPremise(Hellas, PromoCardPack, players = 2)
     val game = Engine.newGame(setup)
     val admin = game.testTfm(ADMIN)

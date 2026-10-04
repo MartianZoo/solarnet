@@ -31,7 +31,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
   // Player-record evidence: Purple has a five-TR handicap.
   override val playerClassPets =
       """
-      CLASS Player1 : Player { SetupPhase: 5 TerraformRating }
+      CLASS Player1 : Player { SetupPhase: 5 TerraformRating<This> }
       CLASS Player2 : Player
       CLASS Player3 : Player
       """

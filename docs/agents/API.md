@@ -100,7 +100,7 @@ with no active autoexecution policy is a thin Actor-scoped client facade; a sepa
 object would add no present responsibility and is not planned.
 
 `Agent.reader` is a `ScopedGameReader`. In Player scope, contextual input such as `Plant` is
-interpreted as `Plant<that Player>`, matching the current contextual `Owner` substitution.
+interpreted as `Plant<that Player>` through the Owned-specific lexical insertion rule.
 `agent.reader.unscoped` returns the underlying `GameReader` so callers can deliberately inspect the
 whole game without leaving the Agent API. This scoping supplies contextual input; it does not
 require hidden-information views or player-specific universes.

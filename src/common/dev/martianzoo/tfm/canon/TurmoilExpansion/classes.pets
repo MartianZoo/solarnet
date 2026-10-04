@@ -6,7 +6,7 @@ CLASS TurmoilExpansion : Module {
   // Party derives each successor edge from this committee-order creation sequence.
   This: MarsFirst THEN Kelvinists THEN Reds THEN Greens THEN Unity THEN Scientists
 
-  SetupPhase:: EACH Player { TurmoilPlayer, LobbyActionAvailable }
+  SetupPhase:: EACH Me@Player { TurmoilPlayer, LobbyActionAvailable }
   SetupPhase:: Chairman<Neutral>, Ruling<Greens>
   SetupPhase: RevealComingEvent
   TurmoilSolarPhase: TurmoilSolarOperation
@@ -17,7 +17,7 @@ CLASS Terraformer26 : Milestone { requirement = HAS "26 TerraformRating" }
 "Runs TR revision and the current event, then changes government and advances the event queue"
 CLASS TurmoilSolarOperation : Temporary, System, Hidden {
   HAS MAX 1 This
-  This:: EACH Player { -TerraformRating., MeasureInfluence }
+  This:: EACH Me@Player { -TerraformRating., MeasureInfluence }
   This:: EACH Event@Class<GlobalEvent>(HAS Current) { \
     ResolveGlobalEvent<Event@Class> \
   }
@@ -34,13 +34,13 @@ ABSTRACT CLASS GlobalEvent {
 }
 
 "The party receiving the neutral delegate printed in a Global Event's distant position"
-ABSTRACT CLASS GePartyDistant<EventParty@Party> : GlobalEvent {
-  This:: PartyDelegate<EventParty@Party, Neutral>.
+ABSTRACT CLASS GePartyDistant<DistantParty@Party> : GlobalEvent {
+  This:: PartyDelegate<DistantParty@Party, Neutral>.
 }
 
 "The party receiving the neutral delegate when a Global Event becomes current"
-ABSTRACT CLASS GePartyCurrent<EventParty@Party> : GlobalEvent {
-  Current<Class<This>>:: PartyDelegate<EventParty@Party, Neutral>.
+ABSTRACT CLASS GePartyCurrent<CurrentParty@Party> : GlobalEvent {
+  Current<Class<This>>:: PartyDelegate<CurrentParty@Party, Neutral>.
 }
 
 "One printed board position, occupied by at most one Global Event card"
@@ -81,12 +81,12 @@ CLASS ChangingTimes : Signal {
 "A player's reserve of seven delegates, held for as long as Turmoil is in play"
 CLASS TurmoilPlayer : Owned<Player>, System, Hidden {
   HAS MAX 1 This
-  // This is the TurmoilPlayer component, so only an effect has its contextual Player owner.
+  // This is the TurmoilPlayer component, whose effect inherits its lexical Me.
   Delegate IF 8 Delegate:: Die
 }
 
 "The owner of gray delegates, who holds a reserve of fourteen"
-CLASS Neutral : Owner {
+CLASS Neutral : Anyone {
   HAS =1 This
   HAS MAX 14 Delegate<This>
 }
@@ -103,10 +103,10 @@ ABSTRACT CLASS Party {
     EACH FormerChairman@Anyone(HAS Chairman<Anyone>) { \
       -Chairman<FormerChairman@Anyone> \
     }, \
-    EACH DelegateOwner@Anyone(HAS PartyDelegate<This, Anyone>) { \
-      -PartyDelegate<This, DelegateOwner@Anyone> / ( \
-        PartyDelegate<This, DelegateOwner@Anyone> - \
-        PartyLeader<This, DelegateOwner@Anyone> \
+    EACH DelegateHolder@Anyone(HAS PartyDelegate<This, Anyone>) { \
+      -PartyDelegate<This, DelegateHolder@Anyone> / ( \
+        PartyDelegate<This, DelegateHolder@Anyone> - \
+        PartyLeader<This, DelegateHolder@Anyone> \
       ) \
     }, \
     EACH Leader@Player(HAS PartyLeader<This, Player>) { \
@@ -122,7 +122,7 @@ ABSTRACT CLASS Party {
     RefillLobby
 }
 CLASS MarsFirst : Party {
-  ApplyRulingBonus<This>:: EACH Player { 1 MC / BuildingTag }
+  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / BuildingTag }
   ActionPhase IF Ruling<This>:: MarsFirstPolicy
 }
 CLASS MarsFirstPolicy : Policy<MarsFirst> {
@@ -131,7 +131,7 @@ CLASS MarsFirstPolicy : Policy<MarsFirst> {
 
 CLASS Scientists : Party {
   This:: AfterParty<This, MarsFirst>
-  ApplyRulingBonus<This>:: EACH Player { 1 MC / ScienceTag }
+  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / ScienceTag }
   ActionPhase IF Ruling<This>:: ScientistsPolicy
 }
 CLASS ScientistsPolicy : Policy<Scientists>, HasActions {
@@ -142,18 +142,18 @@ CLASS ScientistsUsedMarker<GenerationScope> : Owned<Player> {
 }
 
 CLASS Unity : Party {
-  ApplyRulingBonus<This>:: EACH Player { 1 MC / PlanetaryTag }
+  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / PlanetaryTag }
   ActionPhase IF Ruling<This>:: UnityPolicy
 }
 CLASS UnityPolicy : Policy<Unity> {
-  This:: EACH Player { UnityTitaniumValue }
+  This:: EACH Me@Player { UnityTitaniumValue }
 }
 CLASS UnityTitaniumValue<UnityPolicy> : ResourceValue<Class<Titanium>> {
   HAS MAX 1 This
 }
 
 CLASS Greens : Party {
-  ApplyRulingBonus<This>:: EACH Player { 1 MC / BioTag }
+  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / BioTag }
   ActionPhase IF Ruling<This>:: GreensPolicy
 }
 CLASS GreensPolicy : Policy<Greens> {
@@ -163,11 +163,11 @@ CLASS GreensPolicy : Policy<Greens> {
 CLASS Reds : Party {
   // Ranking is highest-first, so rank each player by everyone else's rating to find the lowest.
   ApplyRulingBonus<This> IF MAX 0 SoloMode:: EACH Lowest@Player( \
-    HAS =1 (RANK Ranked@Player { TerraformRating<Owner(NOT Ranked@Player)> }) \
+    HAS =1 (RANK Ranked@Player { TerraformRating<Anyone(NOT Ranked@Player)> }) \
   ) { \
     TerraformRating<Lowest@Player> \
   }
-  ApplyRulingBonus<This> IF SoloMode:: EACH Player(HAS MAX 20 TerraformRating) { \
+  ApplyRulingBonus<This> IF SoloMode:: EACH Me@Player(HAS MAX 20 TerraformRating) { \
     TerraformRating \
   }
   ActionPhase IF Ruling<This>:: RedsPolicy
@@ -177,7 +177,7 @@ CLASS RedsPolicy : Policy<Reds> {
 }
 
 CLASS Kelvinists : Party {
-  ApplyRulingBonus<This>:: EACH Player { 1 MC / PROD[Heat] }
+  ApplyRulingBonus<This>:: EACH Me@Player { 1 MC / PROD[Heat] }
   ActionPhase IF Ruling<This>:: KelvinistsPolicy
 }
 CLASS KelvinistsPolicy : Policy<Kelvinists>, HasActions {
@@ -197,7 +197,7 @@ CLASS AfterParty<Party, Party> : System, Hidden { HAS MAX 1 This }
 CLASS PartyDistance<Party, Party> : CustomMetric
 
 "The clockwise seat distance between owners, with unseated owners last"
-CLASS PlayerDistance<Owner, Owner> : CustomMetric
+CLASS PlayerDistance<Anyone, Anyone> : CustomMetric
 
 "Whether one player meets the ruling-party or two-delegate requirement for a party"
 CLASS PartyRequirement<Party> : Owned<Player>, CustomMetric
@@ -215,7 +215,7 @@ ABSTRACT CLASS PartyStatus<Party> {
 }
 
 "One of an owner's delegates, while it is placed on the committee"
-ABSTRACT CLASS Delegate : Owned<Owner> {
+ABSTRACT CLASS Delegate : Owned {
   "The delegate holding the committee chair"
   CLASS Chairman {
     HAS MAX 1 Chairman
@@ -232,21 +232,21 @@ ABSTRACT CLASS Delegate : Owned<Owner> {
       HAS =1 (RANK Ranked@Anyone { \
         PartyDelegate<Delegation@Party, Ranked@Anyone>, \
         PartyLeader<Delegation@Party, Ranked@Anyone>, \
-        Player - PlayerDistance<Owner, Ranked@Anyone> \
+        Player - PlayerDistance<Me@Anyone, Ranked@Anyone> \
       }) \
     ) { \
       PartyLeader<Delegation@Party, Leader@Anyone> \
     }
     X This OR -X This:: RecalculateDominance<Delegation@Party>
     MeasureInfluence IF Dominant<Delegation@Party>, \
-      1 (PartyDelegate<Delegation@Party, Owner> - PartyLeader<Delegation@Party, Owner>):: \
+      1 (PartyDelegate<Delegation@Party, Me@Anyone> - PartyLeader<Delegation@Party, Me@Anyone>):: \
       DelegateInfluence.
   }
 }
 
 
 "The owner whose delegate occupies one party's leader seat"
-CLASS PartyLeader<Delegation@Party> : Owned<Owner> {
+CLASS PartyLeader<Delegation@Party> : Owned {
   This:: EACH FormerLeader@Anyone( \
     HAS PartyLeader<Delegation@Party, Anyone>, \
     HAS 2 (RANK Ranked@Anyone { \
@@ -256,8 +256,8 @@ CLASS PartyLeader<Delegation@Party> : Owned<Owner> {
   ) { \
     -PartyLeader<Delegation@Party, FormerLeader@Anyone> \
   }
-  -PartyDelegate<Delegation@Party, Owner> \
-    IF MAX 0 PartyDelegate<Delegation@Party, Owner>:: \
+  -PartyDelegate<Delegation@Party, Me@Anyone> \
+    IF MAX 0 PartyDelegate<Delegation@Party, Me@Anyone>:: \
     -This! THEN \
       EACH Leader@Anyone( \
         HAS PartyDelegate<Delegation@Party, Anyone>, \
@@ -296,7 +296,7 @@ CLASS LobbyAction : StandardAction {
 
 "Restores free lobbying for each player who has an available delegate"
 CLASS RefillLobby : Signal {
-  This:: EACH Player(HAS MAX 6 Delegate) { LobbyActionAvailable. }
+  This:: EACH Me@Player(HAS MAX 6 Delegate) { LobbyActionAvailable. }
 }
 
 "Requests the current political influence snapshot for one player"

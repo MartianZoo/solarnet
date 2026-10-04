@@ -15,10 +15,10 @@ public sealed interface Actor : HasClassName, HasExpression {
 }
 
 /** A runtime identity that can own game-state components. */
-internal sealed interface Owner : HasClassName, HasExpression
+internal sealed interface Anyone : HasClassName, HasExpression
 
-/** One occupied seat; both an [Actor] and an [Owner]. */
-public data class Player(override val className: ClassName) : Actor, Owner {
+/** One occupied seat; both an [Actor] and an [Anyone]. */
+public data class Player(override val className: ClassName) : Actor, Anyone {
   init {
     require(className != Actor.ADMIN.className) { "`Admin` is not a Player" }
   }

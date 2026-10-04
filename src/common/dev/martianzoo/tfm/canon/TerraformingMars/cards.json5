@@ -144,7 +144,7 @@
           "cost": 12,
           "tags": [ "PlantTag" ],
           "immediate": "Plant",
-          "effects": [ "OceanTile BY Anyone: 2 Plant" ],
+          "effects": [ "OceanTile BY Actor: 2 Plant" ],
         },
         {
           "name": "ArtificialLake",

@@ -151,11 +151,11 @@ private object RequirementPropertyProbeCatalog : TfmCatalog() {
               """
               ABSTRACT CLASS RequirementPropertyProbe : Owned<Player> {
                 requirement = Requirement?
-                This: RequirementPropertyStarted<Owner>? THEN (EVAL This.requirement: RequirementPropertyPassed<Owner>?, RequirementPropertyFinished<Owner>?)
+                This: RequirementPropertyStarted? THEN (EVAL This.requirement: RequirementPropertyPassed?, RequirementPropertyFinished?)
               }
               CLASS OptionalRequirementPropertyProbe : RequirementPropertyProbe
               CLASS RequiredRequirementPropertyProbe : RequirementPropertyProbe {
-                requirement = HAS "This, RequirementPropertyMarker<Owner>"
+                requirement = HAS "This, RequirementPropertyMarker"
               }
               CLASS RecursiveRequirementPropertyProbe : RequirementPropertyProbe {
                 requirement = HAS "EVAL This.requirement"

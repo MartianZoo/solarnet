@@ -61,7 +61,7 @@
           "name": "AirRaid",
           "cost": 0,
           "tags": [ "EventTag" ],
-          "immediate": "-Floater, 5 MC<Owner FROM Anyone>",
+          "immediate": "-Floater, 5 MC<Me@Anyone FROM Anyone>",
         },
         {
           "name": "AtmoCollectors",
@@ -97,7 +97,7 @@
           "name": "CryoSleep",
           "cost": 10,
           "tags": [ "ScienceTag" ],
-          "effects": [ "ActionBilling<TradeAction>:: -1 Owed", "End: VictoryPoint" ],
+          "effects": [ "ActionBilling<TradeAction>:: -1 Owed<Class<StandardResource>>", "End: VictoryPoint" ],
         },
         {
           "name": "EarthElevator",
@@ -296,7 +296,7 @@
           "name": "RimFreighters",
           "cost": 4,
           "tags": [ "SpaceTag" ],
-          "effects": [ "ActionBilling<TradeAction>:: -1 Owed" ],
+          "effects": [ "ActionBilling<TradeAction>:: -1 Owed<Class<StandardResource>>" ],
         },
         {
           "name": "SkyDocks",

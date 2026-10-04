@@ -154,9 +154,7 @@ internal class NewPromoCardsTest : CardTest() {
 
     p2.stdProject("AquiferProject") {
       doTask("OceanTile<Tharsis_1_2>")
-      p2.selectTask(
-          "UseAction<Player1, " + "NeptunianOption<Player1, NeptunianPowerConsultants<Player1>>>?"
-      )
+      p2.selectTask("UseAction<Player1, NeptunianOption<NeptunianPowerConsultants<Player1>>>?")
       p1.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
       p1.pay(5)
       p2.autoExecPolicy = EAGER
@@ -220,9 +218,9 @@ internal class NewPromoCardsTest : CardTest() {
     p1.playProject(StJosephOfCupertinoMission, 7)
     p1.cardAction1(StJosephOfCupertinoMission) {
       p1.pay(5)
-      val wrongOwner = shouldThrow<Exception> { doTask("Cathedral<CityTile<Tharsis_4_2>>") }
-      wrongOwner.message.orEmpty() shouldContain "missing dependencies"
-      wrongOwner.message.orEmpty() shouldContain "CityTile<Player1, Tharsis_4_2>"
+      val wrongHolder = shouldThrow<Exception> { doTask("Cathedral<CityTile<Tharsis_4_2>>") }
+      wrongHolder.message.orEmpty() shouldContain "missing dependencies"
+      wrongHolder.message.orEmpty() shouldContain "CityTile<Player1, Tharsis_4_2>"
       val emptyArea = shouldThrow<Exception> { doTask("Cathedral<CityTile<Anyone, Tharsis_4_3>>") }
       emptyArea.message.orEmpty() shouldContain "missing dependencies"
       emptyArea.message.orEmpty() shouldContain "Tharsis_4_3"

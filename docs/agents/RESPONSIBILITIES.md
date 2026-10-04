@@ -167,7 +167,7 @@ One internal declaration traversal serves extraction and both normalization pass
 
 Local roots cannot carry a type-variable marker or use the `This` placeholder. A `DEFAULT` root
 names its declaring class and cannot declare another one, though its argument occurrences may.
-Ownerless entry points reject local bodies directly instead of inventing a `Submitted` owner.
+WithoutEnclosingClass entry points reject local bodies directly instead of inventing a `Submitted` owner.
 Separate model/parser compilation succeeds with no better-parse dependency in the model and no
 friend paths. The real Gradle extraction remains follow-up work.
 

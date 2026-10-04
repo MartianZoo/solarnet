@@ -204,6 +204,7 @@ internal class Lang05RequirementsTest {
         Plant, Steel, MAX 1 Heat
         6 PROD[Steel OR Titanium]
         EVAL Gardener.requirement
+        EVAL<Player1> Gardener.requirement
         MAX 1 MC, Xyz OR Xyz<Foo>
         =1 (RANK Player { Score })
         PROD[11 Bar(HAS MAX 1 MC)]

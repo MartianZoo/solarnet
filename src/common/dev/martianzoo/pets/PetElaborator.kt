@@ -3,7 +3,6 @@ package dev.martianzoo.pets
 import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.PetTransformer.Companion.noOp
 import dev.martianzoo.pets.Transforming.actionToEffect
-import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.Transforming.replaceThisExpressionsWith
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
@@ -15,15 +14,18 @@ import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.SystemClasses.DIE
 import dev.martianzoo.pets.api.SystemClasses.OK
 import dev.martianzoo.pets.api.SystemClasses.OWNED
-import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger.ByTrigger
+import dev.martianzoo.pets.ast.Effect.Trigger.OnGainOf
+import dev.martianzoo.pets.ast.Effect.Trigger.OnRemoveOf
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Has
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.Resolution
 import dev.martianzoo.pets.ast.FromExpression.Compact
 import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.FromExpression.Unchanged
@@ -71,11 +73,11 @@ import dev.martianzoo.pets.util.invoke
  * a resource belongs to the player doing the thing, that "gain 3 cards" means three separate cards.
  * It changes how a source *reads*; it never changes which types exist.
  *
- * The stages are fixed ([rule
- * L9-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration)):
- * record Type-variable scopes, split atomized gains, insert defaults, bind the contextual owner,
- * dispatch transform blocks, expand property evaluations. The entry points supply different
- * contexts and permit different property forms while preserving that shared ordering.
+ * Rule
+ * [L9-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration)
+ * fixes the meaningful order: split atomized gains before defaults, dispatch transform blocks
+ * before final Type-variable scope recording, then insert lexical ownership. Entry points supply
+ * different contexts and property-evaluation policies.
  *
  * Runtime binding operations return [PetTransformer] only where the engine must retain one deferred
  * binding across several AST families.
@@ -90,9 +92,9 @@ public class PetElaborator(public val classTable: ClassTable) {
    * Elaborates one dynamically typed, session-authored Pets element for execution in [owner]'s
    * context. Per
    * [rule L9-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration),
-   * a submitted element defaults against `This`, atomizes before defaulting, and binds the
-   * contextual owner to the submitting player. An Instruction is treated as the broader
-   * InstructionTree family, so its cardinality may change.
+   * a submitted element defaults against `This`, atomizes before defaulting, and binds the lexical
+   * `Me` to the submitting player. An Instruction is treated as the broader InstructionTree family,
+   * so its cardinality may change.
    *
    * Property evaluation is rejected here, because an ordinary submitted instruction has no receiver
    * context to expand against ([rule
@@ -127,7 +129,7 @@ public class PetElaborator(public val classTable: ClassTable) {
       chain(
               normalizeInput(),
               finishAuthoredSyntax(context, owner),
-              propertyEvaluator(context, owner),
+              propertyEvaluator(context),
           )
           .transformMetric(input)
 
@@ -154,21 +156,22 @@ public class PetElaborator(public val classTable: ClassTable) {
       chain(
           atomizer(),
           insertDefaults(context),
-          owner?.let(::contextualOwnerBinding),
+          bindFreeMe(owner),
           transformDispatcher(),
+          classTable.recordTypeVariableScopes(),
+          insertOwnedContext(owner?.className?.expression, context),
       )
 
   /**
    * Effects inherited by [klass], processed as far as possible without a concrete component. Per
    * [rule L9-13](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration)
    * a class's effects are elaborated against that class's own context and gathered from every
-   * superclass; the contextual owner is left open here, and [specializeEffect] closes each one over
+   * superclass; inherited lexical names are bound when [specializeEffect] closes each effect over
    * an exact component later.
    */
   public fun classEffects(klass: Class): List<Effect> {
     require(classTable.isIncluded(klass)) { "`$klass` is not included in this game" }
     return effectsByClass.getOrPut(klass) {
-      val scopeRecorder = classTable.recordTypeVariableScopes()
       val evaluator = propertyEvaluator(context = klass.defaultExpression, deferAbstract = true)
       fun directClassEffects(source: Class) =
           source.declaration
@@ -176,17 +179,20 @@ public class PetElaborator(public val classTable: ClassTable) {
                 declaration.executableEffects
                     ?: declaration.authoredEffects +
                         declaration.authoredActions.mapIndexed { index, action ->
-                          actionToEffect(
-                              scopeRecorder.transformAction(action),
-                              index + 1,
-                          )
+                          actionToEffect(action, index + 1)
                         }
               }
               .map { effect ->
                 try {
-                  attachToClassTransformer(source)
-                      .transformEffect(source.interpretTypeVariablesIn(effect))
-                      .let(evaluator::transformEffect)
+                  val lowered =
+                      attachToClassTransformer(source)
+                          .transformEffect(source.interpretTypeVariablesIn(effect))
+                  val expanded = refreshClassScope(source, lowered).let(evaluator::transformEffect)
+                  val me = lexicalMe(source) ?: triggerMe(expanded.trigger)
+                  refreshClassScope(
+                      source,
+                      insertOwnedContext(me, source.className.expression).transformEffect(expanded),
+                  )
                 } catch (e: PetException) {
                   throw InvalidPetDefinitionException(
                       "invalid effect declared by `${source.className}`: `$effect`: ${e.detail}",
@@ -226,15 +232,13 @@ public class PetElaborator(public val classTable: ClassTable) {
   public fun evaluateProperties(
       input: InstructionTree,
       context: Expression,
-      owner: HasClassName? = null,
-  ): InstructionTree = propertyEvaluator(context, owner).transformInstructionTree(input)
+  ): InstructionTree = propertyEvaluator(context).transformInstructionTree(input)
 
   /** Expands Class-property evaluations that are concrete in the supplied Metric context. */
   public fun evaluateProperties(
       input: Metric,
       context: Expression,
-      owner: HasClassName? = null,
-  ): Metric = propertyEvaluator(context, owner).transformMetric(input)
+  ): Metric = propertyEvaluator(context).transformMetric(input)
 
   /**
    * Expands explicit property evaluations after their receivers have become concrete, deferring
@@ -242,15 +246,10 @@ public class PetElaborator(public val classTable: ClassTable) {
    */
   private fun propertyEvaluator(
       context: Expression,
-      owner: HasClassName? = null,
       deferAbstract: Boolean = false,
   ): PetTransformer {
     val expanding = mutableSetOf<Pair<Expression, PropertyName>>()
-    val contextualizer =
-        chain(
-            replaceThisExpressionsWith(context),
-            owner?.let(::contextualOwnerBinding),
-        )
+    val contextualizer = replaceThisExpressionsWith(context)
     return object : PetTransformer() {
       override fun transformNode(node: PetNode): PetNode {
         // The selected component supplies a fanout branch's context, so its property evaluations
@@ -259,13 +258,29 @@ public class PetElaborator(public val classTable: ClassTable) {
         if (node is Each) {
           return Each(transformExpression(node.selector), node.body)
         }
+        // A RANK key is evaluated once per candidate. Expanding its properties before then
+        // loses the candidate that supplies a lexical Me to the property's value.
+        if (node is Metric.Rank) {
+          if (deferAbstract) return node
+          return node
+              .copy(selector = node.selector?.let(::transformExpression))
+              .withTypeVariables(node.typeVariables)
+              .also { it.sourceLocation = node.sourceLocation }
+        }
         val property =
             when (node) {
               is Metric.Eval -> node.property
               is Requirement.Eval -> node.property
               else -> return transformChildren(node)
             }
-        val contextualProperty = contextualizer.transformProperty(property)
+        val me =
+            when (node) {
+              is Metric.Eval -> node.me
+              is Requirement.Eval -> node.me
+              else -> error("unsupported property evaluation syntax")
+            }
+        val contextualProperty =
+            bindFreeMe(me).transformProperty(contextualizer.transformProperty(property))
         val receiver =
             contextualProperty.receiver
                 ?: throw ExpressionException(
@@ -316,6 +331,16 @@ public class PetElaborator(public val classTable: ClassTable) {
               else -> error("unsupported property evaluation syntax: `${node::class.simpleName}`")
             }
 
+        if (
+            deferAbstract &&
+                syntax.descendantsOfType<Expression>().any {
+                  it.typeVariableName?.let { marker ->
+                    marker.name == "Me" && marker.resolution == null
+                  } == true
+                }
+        )
+            return node
+
         val key = propertyType.expressionFull to contextualProperty.propertyName
         if (!expanding.add(key)) {
           throw ExpressionException(
@@ -332,7 +357,8 @@ public class PetElaborator(public val classTable: ClassTable) {
               val transformer =
                   chain(
                       replaceThisExpressionsWith(propertyType.expressionFull),
-                      owner?.let(::contextualOwnerBinding),
+                      bindFreeMe(me),
+                      insertOwnedContext(me, propertyType.expressionFull),
                   )
               when (syntax) {
                 is Metric -> transformMetric(transformer.transformMetric(syntax))
@@ -347,8 +373,9 @@ public class PetElaborator(public val classTable: ClassTable) {
             chain(
                 atomizer(),
                 insertDefaults(context),
-                owner?.let(::contextualOwnerBinding),
+                bindFreeMe(me),
                 transformDispatcher(),
+                insertOwnedContext(me, context),
             )
         return when (expanded) {
           is Metric -> finishing.transformMetric(expanded)
@@ -359,75 +386,401 @@ public class PetElaborator(public val classTable: ClassTable) {
     }
   }
 
-  /**
-   * Returns a deferred binding for the contextual `Owner` placeholder. Per
-   * [rule L9-3](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration)
-   * it binds everywhere except inside the body of an Owner-selecting fanout, where the selection
-   * supplies the Owner instead; the selector itself is not shielded, and a `RANK` selector shields
-   * nothing.
-   *
-   * This raw-transformer seam lets runtime matching accumulate one binding before its eventual AST
-   * family is known.
-   */
-  public fun contextualOwnerBinding(owner: HasClassName): PetTransformer =
-      replaceOwnerWith(owner, ::shieldsContextualOwner)
-
-  /** Whether [node] is a fanout whose Owner selection supplies its body's contextual owner. */
-  private fun shieldsContextualOwner(node: PetNode): Boolean =
-      node is Each && selectionSuppliesOwner(node.selector)
-
-  /** Whether an `EACH` selector's matches are themselves Owners. */
-  public fun selectionSuppliesOwner(selector: Expression): Boolean {
-    val klass = classTable.findClass(selector.className) ?: return false
-    return classTable.findClass(OWNER)?.let(klass::isSubtypeOf) == true
+  /** A property may use the explicitly named `Me` supplied by its evaluation site. */
+  private fun bindFreeMe(owner: HasClassName?): PetTransformer {
+    if (owner == null) return noOp()
+    val selected = owner.className.expression
+    return object : PetTransformer() {
+      override fun transformNode(node: PetNode): PetNode {
+        if (node is Expression) {
+          val marker = node.typeVariableName
+          if (marker?.name == "Me" && marker.resolution == null) {
+            val bound = classTable.getClass(marker.boundClassName)
+            if (!classTable.getClass(owner.className).isSubtypeOf(bound)) {
+              throw ExpressionException("`$selected` cannot supply `${marker.authoredSpelling}`")
+            }
+            return selected
+                .copy(
+                    arguments = node.arguments,
+                    refinement = node.refinement,
+                    argumentsSpecified = node.argumentsSpecified,
+                )
+                .also { it.sourceLocation = node.sourceLocation }
+          }
+        }
+        return transformChildren(node)
+      }
+    }
   }
 
   private fun attachToClassTransformer(klass: Class): PetTransformer {
     val context = klass.className.has(Min(scaledEx(OK, 1)))
+    val representedClassMarkers =
+        klass.typeVariables
+            .filter { it.selectsClass }
+            .mapNotNull { it.declaration.expression.typeVariableName?.identity }
+            .toSet()
     return chain(
-        classTable.recordTypeVariableScopes(),
         atomizer(),
         insertDefaults(context),
         transformDispatcher(),
-        fixEffectForUnownedContext(klass),
+        classTable.recordTypeVariableScopes(),
+        insertOwnedContext(lexicalMe(klass), klass.className.expression, representedClassMarkers),
+        classTable.recordTypeVariableScopes(),
     )
   }
 
-  /** Whether an `Owner` occurrence outside a candidate-owned scope needs a value from the event. */
-  private fun ownerNeedsContext(instruction: InstructionTree): Boolean {
-    fun needsContext(node: PetNode): Boolean {
-      if (node is Expression && node.className == OWNER) return true
-      return when (node) {
-        is Each ->
-            needsContext(node.selector) ||
-                (!selectionSuppliesOwner(node.selector) && needsContext(node.body))
-        is Metric.Rank ->
-            node.selector?.let(::needsContext) == true ||
-                (node.selector?.let(::selectionSuppliesOwner) != true &&
-                    node.metrics.any(::needsContext))
-        else -> node.immediateChildren().any(::needsContext)
-      }
-    }
-    return needsContext(instruction)
+  private fun lexicalMe(klass: Class): Expression? {
+    val named = klass.typeVariables.filter { it.name == "Me" }
+    if (named.isEmpty()) return null
+    val declared =
+        named
+            .firstOrNull { candidate ->
+              val bound = classTable.getClass(candidate.declaration.expression.className)
+              named.all { other ->
+                bound.isSubtypeOf(classTable.getClass(other.declaration.expression.className))
+              }
+            }
+            ?.declaration
+            ?.expression
+            ?: throw ExpressionException(
+                "`${klass.className}` has no single narrowest `Me` binding"
+            )
+    val marker = requireNotNull(declared.typeVariableName as? Declaration)
+    return declared.copy(
+        typeVariableName =
+            Reference(marker.name, marker.boundClassName)
+                .resolved(requireNotNull(marker.resolution))
+    )
   }
 
-  /**
-   * Adds icon-grammar `BY Owner` when an ownerless Effect's result needs its event's Player — how a
-   * rule on a class that is neither an owner nor owned learns whose event it is reacting to ([rule
-   * L9-13](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration)).
-   */
-  private fun fixEffectForUnownedContext(klass: Class): PetTransformer? {
-    if (klass.allSuperclasses().any { it.className == OWNED || it.className == OWNER }) return null
-    return object : PetTransformer() {
-      override fun transformNode(node: PetNode): PetNode {
-        if (shieldsContextualOwner(node)) return node
-        return if (
-            node is Effect && ownerNeedsContext(node.instruction) && OWNER !in node.trigger
-        ) {
-          node.copy(trigger = ByTrigger(node.trigger, OWNER))
-        } else {
-          transformChildren(node)
+  private fun triggerMe(trigger: Effect.Trigger): Expression? {
+    val declaration =
+        trigger
+            .descendantsOfType<Expression>()
+            .mapNotNull { it.typeVariableName as? Declaration }
+            .firstOrNull { it.name == "Me" } ?: return null
+    return Expression(
+        declaration.boundClassName,
+        typeVariableName =
+            Reference(declaration.name, declaration.boundClassName)
+                .resolved(requireNotNull(declaration.resolution)),
+    )
+  }
+
+  /** Re-observes header names introduced by lowering, without losing effect-local choices. */
+  private fun refreshClassScope(source: Class, effect: Effect): Effect {
+    val header = source.typeVariablesIn(effect)
+    fun markerIdentity(variable: dev.martianzoo.pets.types.TypeVariable): Any =
+        variable.declaration.expression.typeVariableName?.identity ?: variable
+    val headerIdentities = header.variables.mapTo(mutableSetOf(), ::markerIdentity)
+    val locals =
+        effect.typeVariables.retaining(
+            effect.typeVariables.variables
+                .filter { markerIdentity(it) !in headerIdentities }
+                .toSet()
+        )
+    val refreshed = TypeVariableScope.containing((header + locals).variables, effect)
+    return classTable
+        .recordTypeVariableScopes()
+        .transformEffect(effect.copy().withTypeVariables(refreshed))
+  }
+
+  /** Inserts the owner dependency from the nearest lexical `Me`, including an effect's trigger. */
+  private fun insertOwnedContext(
+      outerMe: Expression?,
+      context: Expression,
+      representedClassMarkers: Set<Any> = emptySet(),
+  ): PetTransformer {
+    val owned = classTable.findClass(OWNED) ?: return noOp()
+    val ownerKey = owned.dependencies.keys.single()
+    var activeRepresentedClassMarkers = representedClassMarkers
+    val refinementCandidates = mutableListOf<Pair<Expression, Int>>()
+    var rankDepth = 0
+
+    fun matchedKeys(expression: Expression): List<Key> {
+      val klass = classTable.getClass(expression.className)
+      val contextualArguments =
+          expression.arguments.map { argument ->
+            replaceThisExpressionsWith(context).transformExpression(argument)
+          }
+      return klass.argumentDependencies.matchPartial(contextualArguments, classTable).keys
+    }
+
+    fun missingOwningArgument(expression: Expression): Boolean {
+      val klass = classTable.findClass(expression.className) ?: return false
+      if (!klass.isSubtypeOf(owned)) return false
+      val marker = expression.typeVariableName
+      if (
+          marker != null &&
+              !(marker is Reference && marker.identity in activeRepresentedClassMarkers) &&
+              marker !is Declaration
+      )
+          return false
+      if (ownerKey !in klass.argumentDependencies.keys) return false
+      val supplied = matchedKeys(expression)
+      if (ownerKey in supplied || klass.dependencyDeterminedBy(ownerKey, supplied)) return false
+      val candidate =
+          refinementCandidates.lastOrNull()?.takeIf { (_, depth) -> depth == rankDepth }?.first
+              ?: return true
+      val candidateKey =
+          try {
+            klass.matchDependencyKeys(listOf(candidate), classTable).single()
+          } catch (_: ExpressionException) {
+            return true
+          }
+      return ownerKey != candidateKey &&
+          !klass.dependencyDeterminedBy(ownerKey, supplied + candidateKey)
+    }
+
+    fun insert(expression: Expression, me: Expression): Expression {
+      if (!missingOwningArgument(expression)) return expression
+      val klass = classTable.getClass(expression.className)
+      val existing = matchedKeys(expression).zip(expression.arguments).toMap()
+      val arguments =
+          klass.argumentDependencies.keys.mapNotNull { key ->
+            existing[key] ?: me.takeIf { key == ownerKey }
+          }
+      val marker = expression.typeVariableName
+      val insertedMarker =
+          if (marker is Reference) {
+            Reference(marker.name, marker.boundClassName, argumentsSpecified = true)
+                .resolved(requireNotNull(marker.resolution))
+          } else marker
+      return expression
+          .copy(
+              arguments = arguments,
+              argumentsSpecified = true,
+              typeVariableName = insertedMarker,
+          )
+          .also {
+            it.sourceLocation = expression.sourceLocation
+          }
+    }
+
+    fun selectedMe(selector: Expression): Expression? {
+      val marker = selector.typeVariableName as? Declaration ?: return null
+      if (marker.name != "Me") return null
+      return selector.copy(
+          refinement = null,
+          typeVariableName =
+              Reference(marker.name, marker.boundClassName)
+                  .resolved(requireNotNull(marker.resolution)),
+      )
+    }
+
+    fun representedInTrigger(trigger: Effect.Trigger): Set<Any> =
+        trigger
+            .descendantsOfType<Expression>()
+            .filter { it.className == CLASS }
+            .flatMap { it.arguments }
+            .mapNotNull { it.typeVariableName?.identity }
+            .toSet()
+
+    fun transformRefinementForCandidate(
+        transformer: PetTransformer,
+        refinement: Expression.Refinement,
+        candidate: Expression,
+    ): Expression.Refinement =
+        when (refinement) {
+          is Expression.Refinement.And ->
+              Expression.Refinement.create(
+                  refinement.refinements.map {
+                    transformRefinementForCandidate(transformer, it, candidate)
+                  }
+              )
+          is Has -> {
+            refinementCandidates += candidate to rankDepth
+            try {
+              transformer.transformRefinement(refinement)
+            } finally {
+              refinementCandidates.removeLast()
+            }
+          }
+          is Expression.Refinement.Not -> transformer.transformRefinement(refinement)
         }
+
+    fun needsMe(node: PetNode, available: Boolean = false): Boolean {
+      if (node is Each) {
+        val selected = available || selectedMe(node.selector) != null
+        return needsMe(node.selector, selected) || needsMe(node.body, selected)
+      }
+      if (node is Metric.Rank) {
+        val selected = available || node.selector?.let(::selectedMe) != null
+        rankDepth++
+        return try {
+          (node.selector?.let { needsMe(it, selected) } ?: false) ||
+              node.metrics.any { needsMe(it, selected) }
+        } finally {
+          rankDepth--
+        }
+      }
+      if (node is Expression) {
+        if (node.className == CLASS) {
+          return node.refinement?.let { needsMe(it, available) } ?: false
+        }
+        if (missingOwningArgument(node) && !available) return true
+        if (node.arguments.any { needsMe(it, available) }) return true
+        val candidate = node.copy(refinement = null)
+        fun needsMeInRefinement(refinement: Expression.Refinement): Boolean =
+            when (refinement) {
+              is Expression.Refinement.And -> refinement.refinements.any(::needsMeInRefinement)
+              is Has -> {
+                refinementCandidates += candidate to rankDepth
+                try {
+                  needsMe(refinement.requirement, available)
+                } finally {
+                  refinementCandidates.removeLast()
+                }
+              }
+              is Expression.Refinement.Not -> needsMe(refinement.excluded, available)
+            }
+        return node.refinement?.let(::needsMeInRefinement) ?: false
+      }
+      return node.immediateChildren().any { needsMe(it, available) }
+    }
+
+    fun supplyFromTrigger(trigger: Effect.Trigger): Pair<Effect.Trigger, Expression> {
+      if (trigger.descendantsOfType<Effect.Trigger.Or>().any()) {
+        throw PetSyntaxException(
+            "an OR trigger cannot implicitly supply `Me`; bind `Me` around the whole trigger",
+            sourceLocation = trigger.sourceLocation,
+        )
+      }
+      val resolution = Resolution()
+      val declaration =
+          Expression(
+              dev.martianzoo.pets.api.SystemClasses.PLAYER,
+              typeVariableName =
+                  Declaration("Me", dev.martianzoo.pets.api.SystemClasses.PLAYER)
+                      .resolved(resolution),
+          )
+      val me =
+          Expression(
+              dev.martianzoo.pets.api.SystemClasses.PLAYER,
+              typeVariableName =
+                  Reference("Me", dev.martianzoo.pets.api.SystemClasses.PLAYER)
+                      .resolved(resolution),
+          )
+      var supplied = false
+      val marked =
+          object : PetTransformer() {
+                override fun transformNode(node: PetNode): PetNode {
+                  if (!supplied && node is OnGainOf && missingOwningArgument(node.expression)) {
+                    supplied = true
+                    return OnGainOf.create(insert(node.expression, declaration))
+                  }
+                  if (!supplied && node is OnRemoveOf && missingOwningArgument(node.expression)) {
+                    supplied = true
+                    return OnRemoveOf.create(insert(node.expression, declaration))
+                  }
+                  return transformChildren(node)
+                }
+              }
+              .transformTrigger(trigger)
+      return (if (supplied) marked else ByTrigger(marked, declaration)) to me
+    }
+
+    return object : PetTransformer() {
+      private var me: Expression? = outerMe
+
+      override fun transformNode(node: PetNode): PetNode {
+        if (node is Effect) {
+          val declaredInTrigger = if (me == null) triggerMe(node.trigger) else null
+          val supplied =
+              if (me == null && declaredInTrigger == null && needsMe(node.instruction))
+                  supplyFromTrigger(node.trigger)
+              else null
+          val previous = me
+          val previousRepresented = activeRepresentedClassMarkers
+          me = supplied?.second ?: declaredInTrigger ?: previous
+          activeRepresentedClassMarkers =
+              previousRepresented +
+                  node.typeVariables.variables
+                      .filter { it.selectsClass }
+                      .mapNotNull { it.declaration.expression.typeVariableName?.identity } +
+                  representedInTrigger(node.trigger)
+          return try {
+            val trigger = transformTrigger(supplied?.first ?: node.trigger)
+            node
+                .copy(trigger = trigger, instruction = transformInstructionTree(node.instruction))
+                .withTypeVariables(node.typeVariables.transformedBy(this))
+          } finally {
+            me = previous
+            activeRepresentedClassMarkers = previousRepresented
+          }
+        }
+        if (node is Metric.Eval) {
+          return node.copy(property = transformProperty(node.property), me = node.me ?: me).also {
+            it.sourceLocation = node.sourceLocation
+          }
+        }
+        if (node is Requirement.Eval) {
+          return node.copy(property = transformProperty(node.property), me = node.me ?: me).also {
+            it.sourceLocation = node.sourceLocation
+          }
+        }
+        if (node is Each) {
+          val previous = me
+          me = selectedMe(node.selector) ?: previous
+          return try {
+            val selector = transformExpression(node.selector)
+            Each(selector, transformInstructionTree(node.body))
+                .withTypeVariables(node.typeVariables)
+                .also {
+                  it.sourceLocation = node.sourceLocation
+                }
+          } finally {
+            me = previous
+          }
+        }
+        if (node is Metric.Rank) {
+          val previous = me
+          rankDepth++
+          return try {
+            val selector = node.selector?.let(::transformExpression)
+            me = selector?.let(::selectedMe) ?: previous
+            node
+                .copy(
+                    selector = selector,
+                    metrics = node.metrics.map(::transformMetric),
+                )
+                .withTypeVariables(node.typeVariables)
+                .also {
+                  it.sourceLocation = node.sourceLocation
+                }
+          } finally {
+            me = previous
+            rankDepth--
+          }
+        }
+        if (node is Compact) {
+          val transformed = transformChildren(node) as Compact
+          val currentMe = me ?: return transformed
+          if (!missingOwningArgument(transformed.toExpression)) return transformed
+          val klass = classTable.getClass(transformed.className)
+          val byKey = matchedKeys(transformed.toExpression).zip(transformed.arguments).toMap()
+          return transformed.copy(
+              arguments =
+                  klass.argumentDependencies.keys.mapNotNull { key ->
+                    byKey[key] ?: Unchanged(currentMe).takeIf { key == ownerKey }
+                  }
+          )
+        }
+        if (node is Expression) {
+          val shell =
+              if (node.className == CLASS) node.copy(refinement = null)
+              else transformChildren(node.copy(refinement = null)) as Expression
+          val ownedShell = me?.let { insert(shell, it) } ?: shell
+          val refinement =
+              node.refinement?.let {
+                transformRefinementForCandidate(this, it, ownedShell)
+              }
+          return ownedShell.copy(refinement = refinement).also {
+            it.sourceLocation = node.sourceLocation
+          }
+        }
+        return transformChildren(node)
       }
     }
   }
@@ -678,9 +1031,11 @@ public class PetElaborator(public val classTable: ClassTable) {
       kind: String,
   ) {
     if (
-        expression.argumentsSpecified &&
+        ((expression.typeVariableName as? Reference)?.argumentsSpecified
+            ?: expression.argumentsSpecified) &&
             expression.arguments.isEmpty() &&
-            default.dependencies.keys.isEmpty()
+            default.dependencies.keys.isEmpty() &&
+            classTable.getClass(expression.className).defaults.allUsages.dependencies.keys.isEmpty()
     ) {
       throw ExpressionException(
           "`${expression.className}<>` has no $kind dependency defaults to accept",
@@ -869,8 +1224,7 @@ public class PetElaborator(public val classTable: ClassTable) {
   }
 
   /**
-   * Closes one Class Effect over its exact component Type, `This` context, and contextual owner, in
-   * one step ([rule
+   * Closes one Class Effect over its exact component Type and `This` context, in one step ([rule
    * L9-15](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#9-elaboration),
    * [rule T13-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables)).
    */
@@ -879,11 +1233,9 @@ public class PetElaborator(public val classTable: ClassTable) {
       specific: Type,
       effect: Effect,
       context: Expression,
-      owner: HasClassName? = null,
   ): Effect {
     val contextualizer =
         chain(
-            owner?.let(::contextualOwnerBinding),
             replaceThisExpressionsWith(context),
         )
     val scope = effect.typeVariables
@@ -907,7 +1259,6 @@ public class PetElaborator(public val classTable: ClassTable) {
       specific: Type,
       authoredGeneral: Expression,
       typeVariables: TypeVariableScope,
-      owner: HasClassName? = null,
   ): PetTransformer {
     val bindings =
         typeVariables.bindingsFrom(
@@ -916,13 +1267,10 @@ public class PetElaborator(public val classTable: ClassTable) {
             specific.groundType,
             classTable,
         )
-    val contextualizer = chain(owner?.let(::contextualOwnerBinding))
-    val contextualScope = typeVariables.transformedBy(contextualizer)
-    val binder = contextualScope.bind(bindings, classTable)
+    val binder = typeVariables.bind(bindings, classTable)
     return chain(
-        contextualizer,
         binder,
-        invalidChangesToDie { contextualScope.transformedBy(binder) },
+        invalidChangesToDie { typeVariables.transformedBy(binder) },
     )
   }
 

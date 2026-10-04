@@ -26,7 +26,7 @@ ABSTRACT CLASS SoloObjective : Module {
   CLASS Tr63SoloObjective {
     This: BufferGasProject
 
-    CheckGameEnd IF 63 TerraformRating: Victory
+    CheckGameEnd IF 63 TerraformRating: EACH Me@Player { Victory }
   }
 }
 
@@ -40,7 +40,7 @@ CLASS BufferGasProject : StandardProject {
 CLASS SoloGenerationsLeft : GameEndBarrier
 
 "The passive owner of the removable neutral stock in solo mode"
-CLASS SoloOpponent : Owner, System {
+CLASS SoloOpponent : Anyone, System {
   HAS =1 This
   This:: EACH @Class<StandardResource> { SoloStandardResourceReserve<@Class> }
   This:: EACH @Class<CardResource> { SoloCardResourceReserve<@Class> }

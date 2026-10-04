@@ -35,11 +35,10 @@ Narrower documents own adjacent subjects:
 
 - [GAMEWORLD.md](GAMEWORLD.md) owns passive state, recordings, and the selected extraction boundary.
 - [SEQUENCING.md](SEQUENCING.md) owns ordering, `THEN`, barriers, and completion scopes.
-- [IDENTITY.md](IDENTITY.md) owns controller, assignee, Actor, Owner, Admin, and attribution roles.
+- [IDENTITY.md](IDENTITY.md) owns controller, assignee, Actor, Anyone, Admin, and attribution roles.
 - [QUANTIFIERS.md](QUANTIFIERS.md) owns instruction counts and limit behavior.
 - [type-system-spec.md](../type-system-spec.md) and
-  [pets-language-spec.md](../pets-language-spec.md) own static Types and authored Pets semantics;
-  [life-of-an-effect.md](../life-of-an-effect.md) follows the transformation pipeline in detail.
+  [pets-language-spec.md](../pets-language-spec.md) own static Types and authored Pets semantics.
 - [RESPONSIBILITIES.md](RESPONSIBILITIES.md#selected-runtime-dependency-direction) owns the selected
   dependency direction among the runtime layers.
 - [AUTOEXEC.md](AUTOEXEC.md), [API.md](API.md), and [WORKFLOW.md](WORKFLOW.md) own their selected
@@ -168,8 +167,8 @@ Resolution may leave a genuine Player choice abstract. If it exposes independent
 selected structural Task is replaced by ordinary unselected siblings rather than transferring its
 selection to one arbitrarily.
 
-An owned context supplies `Owner` to a bare nested `CityTile`; this also applies to submitted
-narrowings. `Cathedral<CityTile<Anyone, Tharsis_4_2>>` explicitly leaves the city owner open. A
+An owned context supplies lexical `Me` to a bare nested `CityTile`; a Player-submitted narrowing
+uses that Player for omitted ownership. `Cathedral<CityTile<Anyone, Tharsis_4_2>>` explicitly leaves the city owner open. A
 submitted narrowing can then resolve the existing city at that area without naming its concrete
 subclass, and fails when there is no city there.
 
@@ -203,12 +202,11 @@ resubmitted data must traverse normal elaboration again. Do not treat an already
 as the declaration's source form.
 
 `This` is contextual declaration syntax, not a free-standing runtime Type. By component-effect
-compilation, ordinary `This` occurrences have become the exact effect-bearing Type. Contextual
-`Owner` should likewise be bound when a scope supplies one; an intentionally open Owner choice is a
-different meaning and must not arise accidentally from a missed binding.
+compilation, ordinary `This` occurrences have become the exact effect-bearing Type. Bare `Owned`
+expressions receive the nearest lexical `Me` where the rule supplies one; literal `Anyone` stays broad.
 
 String input submitted through a Player Agent resolves names, atomizes, supplies dependency
-defaults, binds that Player as contextual Owner, and applies Catalog-registered syntax transforms.
+defaults, inserts that Player for omitted `Owned` owners, and applies Catalog-registered syntax transforms.
 It may remain abstract because a Task can intentionally ask for a later choice.
 
 ## Effects are derived behavior
@@ -225,8 +223,8 @@ one response to any positive count.
 After effect scaling, `Effector` reapplies gain atomization so `Atomized` gains remain separate
 even when their counts come from trigger matching or repeated live components.
 
-An owned effect listening to an unowned event defaults to its Owner unless it explicitly says
-`BY Anyone`. Trigger-side `BY` filters the triggering Actor. Instruction-side `BY` changes the Actor
+An owned effect listening to an unowned event defaults to its Player owner unless it explicitly says
+`BY Actor`. Trigger-side `BY` filters the triggering Actor. Instruction-side `BY` changes the Actor
 recorded on resulting work.
 
 Queued `:` effects produce pending Tasks. Automatic `::` effects execute recursively before queued

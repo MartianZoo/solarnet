@@ -188,6 +188,9 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
         }
       }
       if (w is Expression && n is Expression) {
+        // Retaining a reference leaves its declaration's choice open, including inserted defaults.
+        if (w == n && w.descendantsOfType<Expression>().any { variableAt(it) === variable })
+            return listOf(expressionOf(variable.declaration))
         return listOfNotNull(
             bindingsFrom(w, classTable.resolve(w), classTable.resolve(n), classTable)[variable]
                 ?.expression
@@ -497,13 +500,49 @@ public class TypeVariableScope private constructor(private val entries: List<Ent
     ): TypeVariableScope {
       val expressions = root.descendantsOfType<Expression>().toList()
       val entries = variables.mapNotNull { variable ->
-        val current =
-            variable.occurrences
-                .filter { occurrence ->
-                  expressions.any { it === occurrence.expression }
-                }
-                .associateWith { it.expression }
-        current.takeIf { it.isNotEmpty() }?.let { Entry(variable, it) }
+        val identity = variable.declaration.expression.typeVariableName?.identity
+        val recorded = variable.occurrences.map { it.expression }
+        val present = expressions.filter { expression ->
+          recorded.any { it === expression } ||
+              (identity != null && expression.typeVariableName?.identity == identity)
+        }
+        if (present.isEmpty()) return@mapNotNull null
+        if (present.all { expression -> recorded.any { it === expression } }) {
+          val current =
+              variable.occurrences
+                  .filter { occurrence -> present.any { it === occurrence.expression } }
+                  .associateWith { it.expression }
+          Entry(variable, current)
+        } else {
+          // Elaboration may introduce a new use of an inherited header name. Its lexical
+          // identity is the header marker's identity, even though no authored Site existed yet.
+          val origin = variable.declaration
+          val declarationExpression =
+              present.firstOrNull {
+                it.typeVariableName is Declaration && it.typeVariableName?.identity == identity
+              } ?: origin.expression
+          val usages = present.filterNot { it === declarationExpression }
+          val extended =
+              TypeVariable(
+                  variable.bound,
+                  TypeVariable.Site(
+                      declarationExpression,
+                      origin.region,
+                      origin.ordinal,
+                      interpretedGroundType = origin.groundType,
+                      representedClass = variable.selectsClass,
+                  ),
+                  usages.mapIndexed { index, expression ->
+                    TypeVariable.Site(expression, region = 1, ordinal = index)
+                  },
+              )
+          Entry(
+              extended,
+              extended.occurrences
+                  .filter { occurrence -> present.any { it === occurrence.expression } }
+                  .associateWith { it.expression },
+          )
+        }
       }
       return if (entries.isEmpty()) EMPTY else TypeVariableScope(entries)
     }

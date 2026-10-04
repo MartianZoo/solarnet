@@ -154,7 +154,7 @@ pays its owner when someone trades — Productive Outpost says "gain all your co
 
 ### Derived and card-local classes
 
-The `{}` sugar generates a derived class named `<OwnerName>_<SupertypeName>`, as in
+The `{}` sugar generates a derived class named `<EnclosingClassName>_<SupertypeName>`, as in
 `NaturalPreserve_SpecialTile`. The underscore is the marker of a structurally derived class and is
 intentional. A hand-written declaration that fills the same slot uses the same spelling, as
 `LavaFlows_SpecialTile` does.

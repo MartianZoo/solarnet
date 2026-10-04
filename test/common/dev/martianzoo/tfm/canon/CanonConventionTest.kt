@@ -7,7 +7,7 @@ import kotlin.test.Test
 
 internal class CanonConventionTest {
   @Test
-  internal fun concreteOwnedClassesPutOwnershipFirst() {
+  internal fun concreteOwnedClassesPutPossessionFirst() {
     val table = Canon.classTable
     val owned = table.getClass(OWNED)
     val ownership = Key(OWNED, 0)

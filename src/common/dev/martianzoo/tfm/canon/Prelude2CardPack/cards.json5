@@ -137,7 +137,7 @@
         },
         {
           "name": "Recession",
-          "immediate": "10 MC, EACH Player(NOT Owner) { -5 MC., PROD[-1 MC] }",
+          "immediate": "10 MC, EACH Other@Player(NOT Me@Anyone) { -5 MC<Other@Player>., PROD[-1 MC<Other@Player>] }",
         },
         {
           "name": "SoilBacteria",
@@ -229,7 +229,7 @@
           "name": "L1TradeTerminal",
           "cost": 25,
           "tags": [ "SpaceTag" ],
-          "immediate": "L1GiftWatcher THEN EACH @ResourceCard(HAS CardResource) { CardResource<@ResourceCard>? }",
+          "immediate": "L1GiftWatcher THEN EACH @ResourceCard<Me@Anyone>(HAS CardResource) { CardResource<@ResourceCard>? }",
           "effects": [
             "Trade<@ColonyTile>:: TradeBarrier<@ColonyTile>",
             "Trade<@ColonyTile>: (2 ColonyProduction<@ColonyTile> OR Ok) THEN -TradeBarrier<@ColonyTile>",
@@ -390,7 +390,7 @@
           "requirement": "PartyRequirement<Greens>",
           "cost": 5,
           "tags": [ "PlantTag", "EventTag" ],
-          "immediate": "4 Plant<Owner FROM Anyone>",
+          "immediate": "4 Plant<Me@Anyone FROM Anyone>",
         },
         {
           "name": "SponsoringNation",

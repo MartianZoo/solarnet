@@ -168,14 +168,14 @@ internal class Lang04MetricsTest {
     constrained.metricsFor(parse("RedToken<Player2>")) shouldBe
         listOf(parse<Metric>("Score<RedToken<Player2>>"))
 
-    val represented = parse<Metric>("RANK Class<@Tag> { Score<@Tag<Owner>> }") as Metric.Rank
+    val represented = parse<Metric>("RANK Class<@Tag> { Score<@Tag<Anyone>> }") as Metric.Rank
     represented.metricsFor(parse("Class<BuildingTag>")) shouldBe
-        listOf(parse<Metric>("Score<BuildingTag<Owner>>"))
+        listOf(parse<Metric>("Score<BuildingTag<Anyone>>"))
 
     rank.candidate shouldBe null
     shouldThrow<PetSyntaxException> { parse<Metric>("RANK Player { }") }
     shouldThrow<PetSyntaxException> {
-      parse<Metric>("RANK @Player { Score<@Player<Owner>> }")
+      parse<Metric>("RANK @Player { Score<@Player<Anyone>> }")
     }
   }
 
@@ -243,6 +243,7 @@ internal class Lang04MetricsTest {
         PROD[2 Abc MAX 11]
         Bar<Abc> MAX 11 - 3
         EVAL Gardener.score
+        EVAL<Player1> Gardener.score
         PROD[PROD[PROD[Xyz]]]
         Plant(HAS Steel) - 11
         2 Bar - EVAL Ahh.score

@@ -33,9 +33,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
   // Tycho Magnetics and the initial project purchase.
   override val playerClassPets =
       """
-      CLASS Green : Player { SetupPhase: PreludeCard }
-      CLASS Yellow : Player { SetupPhase: PreludeCard }
-      CLASS Blue : Player { SetupPhase: 3 TerraformRating, PreludeCard }
+      CLASS Green : Player { SetupPhase: PreludeCard<This> }
+      CLASS Yellow : Player { SetupPhase: PreludeCard<This> }
+      CLASS Blue : Player { SetupPhase: 3 TerraformRating<This>, PreludeCard<This> }
       """
           .trimIndent()
 
@@ -309,7 +309,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     green.turn {
       // "Recruitment in the Greens ... I become the party leader. I paid two for that."
       playProject(Recruitment, 2) {
-        doTask("PartyDelegate<Greens, Owner FROM Neutral>")
+        doTask("PartyDelegate<Greens, Green FROM Neutral>")
       }
     }
 

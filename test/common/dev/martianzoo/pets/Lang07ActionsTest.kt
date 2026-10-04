@@ -73,7 +73,7 @@ internal class Lang07ActionsTest {
   internal fun `L7-4 an Action cost can name a Type used by its result`() {
     roundTrip<Action>("@StandardResource -> 4 @StandardResource")
     roundTrip<Action>("Foo<@Plant> -> Bar<@Plant>")
-    roundTrip<Action>("Foo<Class<@Plant>> -> @Plant<Owner>")
+    roundTrip<Action>("Foo<Class<@Plant>> -> @Plant<Anyone>")
     roundTrip<Action>("@Plant -> Foo<Bar(HAS Baz<@Plant>)>")
   }
 

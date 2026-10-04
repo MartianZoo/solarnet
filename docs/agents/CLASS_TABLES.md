@@ -40,7 +40,7 @@ Reject a design before implementation if it would:
 - make a structural operation depend on premise inclusion without accepting game context; or
 - mutate canonical vocabulary to represent one game's configured players or options.
 
-## Ownership model
+## Model of ownership
 
 A Catalog owns one immutable master class table with exactly one `Class` per reusable declaration.
 A `GamePremise` owns a `PremiseClassTable` containing only its generated Players, generated

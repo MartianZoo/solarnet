@@ -23,8 +23,8 @@ internal class Spec12InhabitanceTest {
   private val catalog =
       testCatalog(
           """
-          CLASS Player1 : Owner
-          ABSTRACT CLASS Milestone : Owned<Owner> {
+          CLASS Player1 : Anyone
+          ABSTRACT CLASS Milestone : Owned<Anyone> {
             CLASS Gardener
             CLASS Terraformer
           }
@@ -53,7 +53,7 @@ internal class Spec12InhabitanceTest {
   internal fun `T12-1 a known Class retains its nominal meaning when its base Type is uninhabited`() {
     val terraformer = view.getClass(cn("Terraformer"))
 
-    view.resolve(te("Terraformer")).expressionFull shouldBe te("Terraformer<Owner>")
+    view.resolve(te("Terraformer")).expressionFull shouldBe te("Terraformer<Anyone>")
     terraformer.isSubtypeOf(view.getClass(cn("Milestone"))) shouldBe true
     view.resolve(te("Terraformer<Player1>")).isSubtypeOf(view.resolve(te("Milestone"))) shouldBe
         true
@@ -408,7 +408,7 @@ internal class Spec12InhabitanceTest {
 
   @Test
   internal fun `T12-5 nested differences see premise-only realizations`() {
-    val catalog = testCatalog("ABSTRACT CLASS Player : Owner\nCLASS Holder<Owner>")
+    val catalog = testCatalog("ABSTRACT CLASS Player : Anyone\nCLASS Holder<Anyone>")
     val view =
         GamePremise(
                 catalog = catalog,
@@ -420,16 +420,16 @@ internal class Spec12InhabitanceTest {
             )
             .classTable
 
-    val otherOwner = view.resolve(te("Holder<Owner(NOT Player)>"))
+    val otherHolder = view.resolve(te("Holder<Anyone(NOT Player)>"))
 
-    otherOwner.expressionFull shouldBe te("Holder<Owner(NOT Player)>")
-    otherOwner.classTable shouldBe view
-    view.resolve(te("Holder<Player1>")).isSubtypeOf(otherOwner) shouldBe false
+    otherHolder.expressionFull shouldBe te("Holder<Anyone(NOT Player)>")
+    otherHolder.classTable shouldBe view
+    view.resolve(te("Holder<Player1>")).isSubtypeOf(otherHolder) shouldBe false
   }
 
   @Test
   internal fun `T12-5 master candidates use the shared universe for premise differences`() {
-    val catalog = testCatalog("ABSTRACT CLASS Player : Owner\nCLASS SoloOpponent : Owner")
+    val catalog = testCatalog("ABSTRACT CLASS Player : Anyone\nCLASS SoloOpponent : Anyone")
     val master = catalog.classTable
     val view =
         GamePremise(
@@ -441,7 +441,7 @@ internal class Spec12InhabitanceTest {
                 premiseClassDeclarations = parseClasses("CLASS Player1 : Player").toSet(),
             )
             .classTable
-    val otherThanPlayer1 = view.resolve(te("Owner(NOT Player1)"))
+    val otherThanPlayer1 = view.resolve(te("Anyone(NOT Player1)"))
 
     master.resolve(te("SoloOpponent")).isSubtypeOf(otherThanPlayer1) shouldBe true
     view.resolve(te("Player1")).isSubtypeOf(otherThanPlayer1) shouldBe false

@@ -39,9 +39,9 @@
         },
         {
           "name": "MonsInsurance",
-          "immediate": "48 MC, PROD[4 MC], EACH Player(NOT Owner) { PROD[-2 MC] BY Owner }",
+          "immediate": "48 MC, PROD[4 MC], EACH Other@Player(NOT Me@Anyone) { PROD[-2 MC<Other@Player>] BY Other@Player }",
           "effects": [
-            "MyResourceWasRemoved<Victim@Anyone> OR MyProductionWasDecreased<Victim@Anyone>: 3 MC<Victim@Anyone FROM Owner>.",
+            "MyResourceWasRemoved<Victim@Anyone> OR MyProductionWasDecreased<Victim@Anyone>: 3 MC<Victim@Anyone FROM Me@Anyone>.",
           ],
         },
         {
@@ -67,7 +67,7 @@
           "tags": [ "BuildingTag" ],
           "immediate": "47 MC, RequiredAction { -> DefaultGreeneryTile }",
           "effects": [
-            "Adjacency<OwnedTile<Owner>, OwnedTile<Anyone(NOT Owner)>> BY Anyone: StandardResource",
+            "Adjacency<OwnedTile<Me@Anyone>, OwnedTile<Anyone(NOT Me@Anyone)>> BY Actor: StandardResource",
           ],
         },
         {
@@ -180,7 +180,7 @@
           "effects": [
             // TODO: in what cases do we want to trigger this way vs by the AttackHappened thingies?
             // are we being consistent?
-            "-Plant BY Player(NOT Owner):: Die",
+            "-Plant BY Player(NOT Me@Anyone):: Die",
             "End: VictoryPoint / Asteroid<This>"
           ],
         },
@@ -259,7 +259,7 @@
         },
         {
           "name": "CrashSiteCleanup",
-          "requirement": "MyResourceWasRemoved<Anyone, Class<Plant>, Owner>",
+          "requirement": "MyResourceWasRemoved<Anyone, Class<Plant>, Me@Anyone>",
           "cost": 4,
           "tags": [ "EventTag" ],
           "immediate": "Titanium OR 2 Steel",
@@ -305,7 +305,7 @@
         },
         {
           "name": "DiversitySupport",
-          "requirement": "9 Class<@Resource>(HAS @Resource<Owner>)",
+          "requirement": "9 Class<@Resource>(HAS @Resource<Me@Anyone>)",
           "cost": 1,
           "tags": [ "EventTag" ],
           "immediate": "TerraformRating",
@@ -384,7 +384,7 @@
           "tags": [ "SpaceTag" ],
           "actions": [
             "10 MC -> 2 Asteroid<This>",
-            "Asteroid<This> -> EACH Player(HAS StartToken) { ChooseOceanArea }"
+            "Asteroid<This> -> EACH Starter@Player(HAS StartToken) { ChooseOceanArea<Starter@Player> }"
           ],
           "effects": [ "UseAction<This, Action1>:: Accepting<Class<Titanium>>" ],
           // Chooses an ocean area while preserving the Player who places it.
@@ -400,7 +400,7 @@
           "name": "InterplanetaryTrade",
           "cost": 27,
           "tags": [ "SpaceTag" ],
-          "immediate": "PROD[1 MC / Class<@Tag>(HAS @Tag<Owner>)]",
+          "immediate": "PROD[1 MC / Class<@Tag>(HAS @Tag<Me@Anyone>)]",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -420,7 +420,7 @@
           "name": "LawSuit",
           "cost": 2,
           "tags": [ "EarthTag", "EventTag" ],
-          "immediate": "((MyResourceWasRemoved<Owner, Attacker@Player> OR MyProductionWasDecreased<Owner, Attacker@Player>): 3 MC FROM MC<Attacker@Player>) THEN PlayedEvent<Attacker@Player, Class<This>> FROM This",
+          "immediate": "((MyResourceWasRemoved<Me@Anyone, Attacker@Player> OR MyProductionWasDecreased<Me@Anyone, Attacker@Player>): 3 MC FROM MC<Attacker@Player>) THEN PlayedEvent<Attacker@Player, Class<This>> FROM This",
           "effects": [ "End: -VictoryPoint" ],
         },
         {
@@ -441,7 +441,7 @@
           "cost": 13,
           "immediate": "NomadsMarker<LandArea(HAS MAX 0 Occupant)>",
           "actions": [
-            "-> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Owner>>, NOT Source@LandArea)> FROM NomadsMarker<Owner, Source@LandArea> THEN EACH Destination@MarsArea(HAS NomadsMarker) { Placement<Destination@MarsArea> }"
+            "-> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Me@Anyone>>, NOT Source@LandArea)> FROM NomadsMarker<Me@Anyone, Source@LandArea> THEN EACH Destination@MarsArea(HAS NomadsMarker) { Placement<Destination@MarsArea> }"
           ],
         },
         {
@@ -488,7 +488,7 @@
           "tags": [ "PowerTag" ],
           "effects": [
             "This:: NeptunianOption<This>",
-            "OceanTile BY Anyone: UseAction<NeptunianOption<This>>?",
+            "OceanTile BY Actor: UseAction<NeptunianOption<This>>?",
             "End: VictoryPoint / Hydroelectric<This>"
           ],
           "components": [
@@ -699,7 +699,7 @@
           "actions": [ "-> Animal<This> OR Microbe" ],
           "effects": [
             "CityTile<Anyone>: Animal<This>",
-            "End IF 10 Animal<This>: EACH Player { -VictoryPoint / CityTile }"
+            "End IF 10 Animal<This>: EACH Me@Player { -VictoryPoint / CityTile }"
           ],
         },
         {

@@ -491,8 +491,8 @@ internal class Prelude2CardsTest : CardTest() {
     p1.stdProject(
             "PowerPlantProject",
             payment = {
-              doTask("PayFromCard FROM Science<$Spire>")
-              doTask("Pay<> FROM MC / Owed<>")
+              doTask("PayFromCard<$Spire> FROM Science<$Spire>")
+              doTask("Pay<Class<MC>> FROM MC / Owed")
             },
         )
         .expect("-Science<$Spire>, -9 MC, PROD[Energy]")
@@ -539,14 +539,14 @@ internal class Prelude2CardsTest : CardTest() {
     p1.runOperation("NewTurn") {
       doTask("UseAction<UseStandardProjectAction, Action1>")
       doTask("UseAction<PowerPlantProject, Action1>")
-      doTask("Pay<> FROM MC / Owed<>")
+      doTask("Pay<Class<MC>> FROM MC / Owed")
     }
     p1.count("MC") shouldBe startingMoney - 9
 
     p1.runOperation("SecondAction") {
       doTask("UseAction<UseStandardProjectAction, Action1>")
       doTask("UseAction<PowerPlantProject, Action1>")
-      doTask("Pay<> FROM MC / Owed<>")
+      doTask("Pay<Class<MC>> FROM MC / Owed")
     }
 
     p1.count("MC") shouldBe startingMoney - 18
@@ -840,7 +840,7 @@ internal class Prelude2CardsTest : CardTest() {
 
     p1.playPrelude(Recession) {
       p1.autoExecPolicy = NONE
-      doTask("EACH Player(NOT Player1) { -5 MC<Owner>., PROD[-1 MC<Owner>] }")
+      doTask("EACH Other@Player(NOT Player1) { -5 MC<Other@Player>., PROD[-1 MC<Other@Player>] }")
       doTask("-5 MC<Player2>")
       doTask("PROD[-1 MC<Player2>]")
       doTask("3 MC<Player2> FROM MC<Player2>")

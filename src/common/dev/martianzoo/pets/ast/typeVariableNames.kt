@@ -350,6 +350,7 @@ public fun resolveSelectorTypeVariableNames(
       listOf(selector) + scopedNodes,
       declarations,
       expandReferenceRefinements = false,
+      requireSharedUse = false,
   )
 }
 

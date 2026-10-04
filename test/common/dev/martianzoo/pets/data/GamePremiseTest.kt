@@ -16,7 +16,7 @@ internal class GamePremiseTest {
     val catalog =
         testCatalog(
             """
-            ABSTRACT CLASS Player : Owner, Actor { CLASS Blue }
+            ABSTRACT CLASS Player : Anyone, Actor { CLASS Blue }
             CLASS Ordinary
             CLASS OptionalModule
             """

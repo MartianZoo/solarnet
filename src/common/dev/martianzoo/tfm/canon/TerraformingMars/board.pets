@@ -46,8 +46,8 @@ CLASS Placement<MarsArea> : Signal
 
 "A player cube placed on an area by LandClaim or ArcadianCommunities"
 CLASS Community : OwnedOccupant<@LandArea> {
-  Tile<@LandArea> BY Player(NOT Owner):: Die
-  Tile<@LandArea> BY Owner:: -This!
+  Tile<@LandArea> BY Player(NOT Me@Anyone):: Die
+  Tile<@LandArea> BY Me@Anyone:: -This!
 }
 
 "A hexagonal tile in play"
@@ -60,8 +60,6 @@ ABSTRACT CLASS Tile : Occupant {
   // OceanTile is declared below with the other global parameters.
 }
 
-// IMPL: This should narrow ownership to Owner, but bare owned-tile expressions rely on the Owned
-// default inserting an explicit contextual Owner variable, which a declared Owner bound erases.
 "A tile that is owned by someone"
 ABSTRACT CLASS OwnedTile : OwnedOccupant, Tile {
   CLASS GreeneryTile : Tile<MarsArea> {
@@ -140,7 +138,7 @@ CLASS StandardGpTrackRules : System, Hidden {
   TemperatureStep IF =5 TemperatureStep: PROD[Heat]
   TemperatureStep BY Player IF =15 TemperatureStep: OceanTile<>
   TemperatureStep BY Admin IF =15 TemperatureStep:: \
-    EACH @Player(HAS StartToken) { AdminOceanPlacement<@Player> }
+    EACH Starter@Player(HAS StartToken) { AdminOceanPlacement<Starter@Player> }
   TemperatureStep IF =19 TemperatureStep:: GpComplete<Class<TemperatureStep>>
 
   OxygenStep IF =8 OxygenStep: TemperatureStep

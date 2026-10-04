@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.testlib
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.PetException
-import dev.martianzoo.pets.api.SystemClasses.OWNER
+import dev.martianzoo.pets.api.SystemClasses.ANYONE
 import dev.martianzoo.pets.ast.Action
 import dev.martianzoo.pets.ast.Action.Cost
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
@@ -198,7 +198,7 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register {
         Trigger.ByTrigger(
             recurse(),
-            choose(1 to OWNER.expression, 1 to PLAYER2.className.expression, 2 to recurse()),
+            choose(1 to ANYONE.expression, 1 to PLAYER2.className.expression, 2 to recurse()),
         )
       }
       register { Trigger.IfTrigger(recurse(), recurse()) }

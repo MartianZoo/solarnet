@@ -1,7 +1,6 @@
 package dev.martianzoo.state
 
 import dev.martianzoo.pets.PetElaborator
-import dev.martianzoo.pets.PetTransformer.Companion.chain
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Expression
@@ -78,15 +77,11 @@ internal class GameReaderImpl(
   }
 
   private fun rankScore(metric: Rank, candidate: Type): List<Int> {
-    val owner = candidate.toComponent().owner
-    val binding = chain(owner?.let(elaborator::contextualOwnerBinding))
     return metric.metricsFor(candidate.expressionFull).map { score ->
-      val bound = binding.transformMetric(score)
       val evaluated =
           elaborator.evaluateProperties(
-              bound,
+              score,
               context = candidate.expressionFull,
-              owner = owner,
           )
       count(evaluated)
     }

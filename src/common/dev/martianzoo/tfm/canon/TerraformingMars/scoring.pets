@@ -25,8 +25,8 @@ ABSTRACT CLASS Award {
 
 // TODO.md: FinalScoringPhase should own measurement instead of this removal effect
 CLASS MeasureAward<@Award, FinalScoringPending> : Temporary, System, Hidden {
-  -This:: EACH Player(HAS =1 (RANK { EVAL @Award.metric })) { FirstPlace<@Award> }
-  -This IF 3 Player:: EACH Player(HAS =2 (RANK { EVAL @Award.metric })) { SecondPlace<@Award> }
+  -This:: EACH Me@Player(HAS =1 (RANK Me@Player { EVAL @Award.metric })) { FirstPlace<@Award> }
+  -This IF 3 Player:: EACH Me@Player(HAS =2 (RANK Me@Player { EVAL @Award.metric })) { SecondPlace<@Award> }
 }
 
 CLASS FirstPlace<Award> : Owned<Player> { This:: 5 VictoryPoint }

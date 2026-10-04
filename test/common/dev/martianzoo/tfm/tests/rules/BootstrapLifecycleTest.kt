@@ -5,6 +5,7 @@ import dev.martianzoo.agenttestsupport.testAgents
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.engine.*
 import dev.martianzoo.engine.Engine
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
@@ -132,6 +133,25 @@ internal class BootstrapLifecycleTest {
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
 
     game.testAgent(ADMIN).count("TerraformRating<Player1>") shouldBe 14
+  }
+
+  @Test
+  internal fun soloNeutralCitiesCannotBePlacedNextToEachOther() {
+    val game = Engine.newGame(canonicalPremise(players = 1))
+    val admin = game.testAgent(ADMIN)
+    TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
+
+    admin.doTask("CityTile<Tharsis_4_1>")
+    admin.doTask("GreeneryTile<Tharsis_5_1>")
+    shouldThrow<NarrowingException> { admin.doTask("CityTile<Tharsis_4_2>") }
+    admin.count("CityTile") shouldBe 1
+    admin.count("Occupant<Tharsis_4_2>") shouldBe 0
+
+    admin.doTask("CityTile<Tharsis_2_2>")
+    shouldThrow<NarrowingException> { admin.doTask("GreeneryTile<Tharsis_4_2>") }
+    admin.doTask("GreeneryTile<Tharsis_2_3>")
+    admin.count("CityTile<SoloOpponent>") shouldBe 2
+    admin.count("GreeneryTile<SoloOpponent>") shouldBe 2
   }
 
   @Test

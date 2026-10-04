@@ -117,10 +117,10 @@ internal class Lang10NamesTest {
   @Test
   internal fun `L10-5 a class name is never locally rebound or shadowed`() {
     // `Plant` inside this effect remains a class name; only the class table determines its meaning.
-    val declaration = parseClasses("CLASS Gardener { This: Plant<Owner> }").single()
+    val declaration = parseClasses("CLASS Gardener { This: Plant<Anyone> }").single()
 
     declaration.className shouldBe cn("Gardener")
-    parse<Expression>("Plant<Owner>").className shouldBe cn("Plant")
+    parse<Expression>("Plant<Anyone>").className shouldBe cn("Plant")
     langTable.getClass(cn("Plant")).className shouldBe cn("Plant")
   }
 }

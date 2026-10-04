@@ -30,10 +30,10 @@ internal class ActiveVacuumCoreTest : AbstractFullGameTest() {
 
   override val playerClassPets =
       """
-      CLASS Blue : Player { SetupPhase: 4 TerraformRating }
+      CLASS Blue : Player { SetupPhase: 4 TerraformRating<This> }
       CLASS Pink : Player
       CLASS Green : Player
-      CLASS Purple : Player { SetupPhase: 2 TerraformRating }
+      CLASS Purple : Player { SetupPhase: 2 TerraformRating<This> }
       """
           .trimIndent()
 

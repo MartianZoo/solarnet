@@ -2,8 +2,8 @@ package dev.martianzoo.state
 
 import dev.martianzoo.pets.HasExpression
 import dev.martianzoo.pets.api.GameReader
+import dev.martianzoo.pets.api.SystemClasses.ANYONE
 import dev.martianzoo.pets.api.SystemClasses.OWNED
-import dev.martianzoo.pets.api.SystemClasses.OWNER
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.ClassName
@@ -33,14 +33,14 @@ public value class Component public constructor(public val type: Type) : HasExpr
   /** The concrete Pets type in this component's direct ownership dependency, if it has one. */
   public val owner: Type?
     get() =
-        if (type.rootClass.isSubtypeOf(type.rootClass.classTable.getClass(OWNER))) {
+        if (type.rootClass.isSubtypeOf(type.rootClass.classTable.getClass(ANYONE))) {
           type
         } else {
           type.typeDependencies.singleOrNull { it.key == Key(OWNED, 0) }?.boundType
         }
 
   /** This component's owner when that owner is a seated Player. */
-  public val playerOwner: Player?
+  public val owningPlayer: Player?
     get() =
         owner
             ?.takeIf { owner ->

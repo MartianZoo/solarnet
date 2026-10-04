@@ -1,4 +1,7 @@
-# Life of an Effect
+# Life of an Effect (archived historical walkthrough)
+
+> This walkthrough predates lexical `Me` ownership. Its `Owner` substitution stages describe the
+> previous engine; see the [language specification](../pets-language-spec.md) for current semantics.
 
 This document follows one Effect in an authored canonical card declaration until its Instructions
 produce recorded State Changes. The example is Recyclon because it passes through most of the

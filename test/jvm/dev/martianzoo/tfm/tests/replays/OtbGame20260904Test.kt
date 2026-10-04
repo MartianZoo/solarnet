@@ -40,8 +40,8 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
   override val playerClassPets =
       """
       CLASS Yellow : Player
-      CLASS Rainbow : Player { SetupPhase: 4 TerraformRating }
-      CLASS Blue : Player { SetupPhase: 2 TerraformRating }
+      CLASS Rainbow : Player { SetupPhase: 4 TerraformRating<This> }
+      CLASS Blue : Player { SetupPhase: 2 TerraformRating<This> }
       CLASS Green : Player
       """
           .trimIndent()
@@ -755,7 +755,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
             // two plants."
             placeTile(7, 4)
             autoExecNow()
-            selectTask("UseAction<Blue, NeptunianOption<Blue, NeptunianPowerConsultants<Blue>>>?")
+            selectTask("UseAction<Blue, NeptunianOption<NeptunianPowerConsultants<Blue>>>?")
             blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             blue.pay(5)
             // 3:59:00 PM — Green: "All right this would be nine four."
@@ -764,7 +764,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
             // one? Only two money or two plants. Do I need another card? Do I need another card?"
             placeTile(9, 4)
             autoExecNow()
-            selectTask("UseAction<Blue, NeptunianOption<Blue, NeptunianPowerConsultants<Blue>>>?")
+            selectTask("UseAction<Blue, NeptunianOption<NeptunianPowerConsultants<Blue>>>?")
             blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             blue.pay(5)
             // Crossing 0°C supplies Amazonis's temperature-track ocean bonus.
@@ -772,7 +772,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
             // events."
             placeTile(6, 11)
             autoExecNow()
-            selectTask("UseAction<Blue, NeptunianOption<Blue, NeptunianPowerConsultants<Blue>>>?")
+            selectTask("UseAction<Blue, NeptunianOption<NeptunianPowerConsultants<Blue>>>?")
             blue.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
             blue.pay(5)
             doTask("-5 Plant<Yellow>!")
@@ -1142,7 +1142,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       cardAction2(IcyImpactors) {
         rainbow.doTask("OceanTile<Amazonis_02_01> BY Green")
         green.doTask("TerraformRating")
-        selectTask("UseAction<Blue, NeptunianOption<Blue, NeptunianPowerConsultants<Blue>>>?")
+        selectTask("UseAction<Blue, NeptunianOption<NeptunianPowerConsultants<Blue>>>?")
         blue.narrowTask("Ok")
       }
     }

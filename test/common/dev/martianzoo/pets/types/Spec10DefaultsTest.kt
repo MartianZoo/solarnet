@@ -23,14 +23,14 @@ internal class Spec10DefaultsTest {
   private val mars =
       loadTypes(
           """
-          CLASS Player1 : Owner
+          CLASS Player1 : Anyone
           ABSTRACT CLASS Area {
             ABSTRACT CLASS MarsArea {
               ABSTRACT CLASS LandArea { CLASS Tharsis_2_2 }
               ABSTRACT CLASS WaterArea { CLASS Tharsis_1_1 }
             }
           }
-          ABSTRACT CLASS Tile<Area> : Owned<Owner> {
+          ABSTRACT CLASS Tile<Area> : Owned<Anyone> {
             DEFAULT +Tile<LandArea>
           }
           CLASS GreeneryTile : Tile<MarsArea>
@@ -50,33 +50,31 @@ internal class Spec10DefaultsTest {
   internal fun `T10-1 defaults are gathered separately for all uses, gains and removals`() {
     val tile = defaults("Tile")
 
-    tile.allUsages.dependencies.keys shouldContainExactly listOf(Key(cn("Owned"), 0))
+    tile.allUsages.dependencies.keys.shouldBeEmpty()
     tile.gainOnly.dependencies.keys shouldContainExactly listOf(Key(cn("Tile"), 0))
     tile.removeOnly.dependencies.keys.shouldBeEmpty()
   }
 
   @Test
-  internal fun `T10-1 an all-uses default supplies a bound wherever the type is written`() {
-    // The system class `Owned` declares `DEFAULT Owned<Owner>`.
-    defaults("Plant").allUsages.dependencies.get(Key(cn("Owned"), 0)).expressionFull shouldBe
-        te("Owner")
-    mars.getClass(cn("Plant")).defaultType.expressionFull shouldBe te("Plant<Owner>")
+  internal fun `T10-1 Owned supplies a bound without a dependency default`() {
+    defaults("Plant").allUsages.dependencies.keys.shouldBeEmpty()
+    mars.getClass(cn("Plant")).defaultType.expressionFull shouldBe te("Plant<Anyone>")
   }
 
   @Test
   internal fun `T10-1 defaultType is the base type with the all-uses defaults applied`() {
     // Inherited dependencies come first, so `Owned_0` precedes `Tile_0`.
     mars.getClass(cn("GreeneryTile")).baseType.expressionFull shouldBe
-        te("GreeneryTile<Owner, MarsArea>")
+        te("GreeneryTile<Anyone, MarsArea>")
     mars.getClass(cn("GreeneryTile")).defaultType.expressionFull shouldBe
-        te("GreeneryTile<Owner, MarsArea>")
+        te("GreeneryTile<Anyone, MarsArea>")
   }
 
   @Test
   internal fun `T10-1 defaults never change which types exist`() {
     // The gain default names LandArea, but the type `GreeneryTile` still admits any MarsArea.
     mars.resolve(te("GreeneryTile<Tharsis_1_1>")).expressionFull shouldBe
-        te("GreeneryTile<Owner, Tharsis_1_1>")
+        te("GreeneryTile<Anyone, Tharsis_1_1>")
   }
 
   // T10-2 Quantifiers
@@ -202,39 +200,19 @@ internal class Spec10DefaultsTest {
     }
   }
 
-  // T10-5 `Owner` stays contextual
+  // T10-5 Anyone is an ordinary default argument
 
   @Test
-  internal fun `T10-5 Owner written in a default is kept as written, not resolved to the bound`() {
+  internal fun `T10-5 Anyone written in a default is intersected with the declared bound`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Player : Owner { CLASS Player1 }",
-            "ABSTRACT CLASS Card : Owned<Player> { DEFAULT Card<Owner> \n CLASS ProjectCard }",
+            "ABSTRACT CLASS Player : Anyone { CLASS Player1 }",
+            "ABSTRACT CLASS Card : Owned<Player> { DEFAULT Card<Anyone> \n CLASS ProjectCard }",
         )
 
     table.getClass(cn("Card")).baseType.expressionFull shouldBe te("Card<Player>")
-    // The default deliberately keeps the wider `Owner`, so that a context can supply the value.
-    table
-        .getClass(cn("Card"))
-        .defaults
-        .allUsages
-        .dependencies
-        .get(Key(cn("Owned"), 0))
-        .expressionFull shouldBe te("Owner")
-    table.getClass(cn("ProjectCard")).defaultExpression shouldBe te("ProjectCard<Owner>")
+    table.getClass(cn("Card")).defaults.allUsages.dependencies.keys.shouldBeEmpty()
+    table.getClass(cn("ProjectCard")).defaultExpression shouldBe te("ProjectCard<Player>")
     table.getClass(cn("ProjectCard")).defaultType.expressionFull shouldBe te("ProjectCard<Player>")
-  }
-
-  @Test
-  internal fun `T10-5 the default template is not a constructed type outside its class bounds`() {
-    val table =
-        loadTypes(
-            "ABSTRACT CLASS Player : Owner { CLASS Player1 }",
-            "ABSTRACT CLASS Card : Owned<Player> { DEFAULT Card<Owner> \n CLASS ProjectCard }",
-        )
-    val projectCard = table.getClass(cn("ProjectCard"))
-
-    projectCard.defaultExpression shouldBe te("ProjectCard<Owner>")
-    projectCard.defaultType.isSubtypeOf(projectCard.baseType) shouldBe true
   }
 }

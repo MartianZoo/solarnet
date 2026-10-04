@@ -12,15 +12,15 @@ import kotlin.test.Test
 
 internal class ActorTest {
   @Test
-  internal fun actorOwnerAndPlayerRolesAreDistinct() {
+  internal fun actorAnyoneAndPlayerRolesAreDistinct() {
     val player: Actor = PLAYER1
     Player.players(2).shouldContainExactly(PLAYER1, PLAYER2)
     Player.players(6).last() shouldBe Player(cn("Player6"))
-    (player is Owner) shouldBe true
+    (player is Anyone) shouldBe true
     Player(cn("Player1")) shouldBe PLAYER1
     Player(cn("Yellow")).className shouldBe cn("Yellow")
     (ADMIN is Player) shouldBe false
-    (ADMIN is Owner) shouldBe false
+    (ADMIN is Anyone) shouldBe false
     assertFails { Player(cn("Admin")) }
     shouldThrow<IllegalArgumentException> { Player.players(-1) }
   }

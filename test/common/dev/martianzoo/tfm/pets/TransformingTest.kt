@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.pets
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.Transforming.replaceOwnerWith
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
@@ -35,8 +34,8 @@ internal class TransformingTest {
   @Test
   internal fun instructionTransformDeduplicatesCollapsedOrArms() {
     val transformed =
-        replaceOwnerWith(cn("Player1").expression)
-            .transformInstructionTree(parse("Foo<Owner> OR Foo<Player1>"))
+        replacer(cn("Anyone").expression, cn("Player1").expression)
+            .transformInstructionTree(parse("Foo<Anyone> OR Foo<Player1>"))
 
     transformed shouldBe parse<Instruction>("Foo<Player1>")
   }

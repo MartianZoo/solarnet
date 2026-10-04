@@ -215,7 +215,7 @@ internal class MonsInsuranceTest : CardTest() {
     p3.autoExecPolicy = CONCRETE
 
     p2.playPrelude(Recession) {
-      doTask("EACH Player(NOT Player2) { -5 MC<Owner>., PROD[-1 MC<Owner>] }")
+      doTask("EACH Other@Player(NOT Player2) { -5 MC<Other@Player>., PROD[-1 MC<Other@Player>] }")
       if (compensateFirst) {
         doTask("-5 MC<Player3>")
         doTask("3 MC<Player3> FROM MC<Player1>")

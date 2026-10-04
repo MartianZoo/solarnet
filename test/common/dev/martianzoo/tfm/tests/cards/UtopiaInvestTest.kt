@@ -17,6 +17,7 @@ internal class UtopiaInvestTest : CardTest() {
   internal fun `Decreases and gains the same standard resource`() {
     p1.runOperation("PROD[2 Plant]")
 
-    p1.cardAction1(UtopiaInvest) { doTask("PROD[-Plant]") }.expect("PROD[-Plant], 4 Plant")
+    p1.cardAction1(UtopiaInvest) { doTask("PROD[-Plant] THEN 4 Plant") }
+        .expect("PROD[-Plant], 4 Plant")
   }
 }

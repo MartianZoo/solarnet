@@ -33,7 +33,7 @@ internal class TypesApiTest {
             CLASS GreeneryTile : Tile<LandArea>
             CLASS OceanTile : Tile<WaterArea>
           }
-          ABSTRACT CLASS StandardResource : Owned<Owner> {
+          ABSTRACT CLASS StandardResource : Owned<Anyone> {
             CLASS Plant
             CLASS Steel
           }

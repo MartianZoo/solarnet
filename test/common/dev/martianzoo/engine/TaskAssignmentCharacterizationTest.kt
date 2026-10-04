@@ -25,10 +25,10 @@ internal class TaskAssignmentCharacterizationTest {
       Engine.newGame(
           testGamePremise(
               """
-              CLASS Token<Owner>
-              CLASS Marker<Owner>
+              CLASS Token<Anyone>
+              CLASS Marker<Anyone>
               CLASS AdminToken
-              CLASS Blocked<Owner> { HAS MAX 0 This }
+              CLASS Blocked<Anyone> { HAS MAX 0 This }
               """,
               players = 2,
           )
