@@ -18,14 +18,14 @@ import kotlin.test.Test
 /** Section 5 of `docs/pets-language-spec.md`: requirements as queries over one state. */
 internal class Lang05RequirementsTest {
 
-  /** Answers a requirement from a table of component counts, and nothing else. */
+  /** Answers a requirement from supplied counts, including any observed union count. */
   private fun ask(source: String, vararg counts: Pair<String, Int>): Boolean {
     val table = counts.toMap()
     return parse<Requirement>(source).isMetBy { metric ->
       metric.evaluate(
           count = { table[it.expression.toString()] ?: 0 },
           readProperty = { error("no properties here: $it") },
-          countUnion = { or -> or.metrics.sumOf { table[it.expression.toString()] ?: 0 } },
+          countUnion = { table[it.toString()] ?: error("no union observation supplied: $it") },
           rank = { error("no ranks here: $it") },
       )
     }
@@ -107,7 +107,7 @@ internal class Lang05RequirementsTest {
     (parse<Requirement>("2 (Plant OR Steel)") as Counting).metric shouldBe
         parse<Metric>("Plant OR Steel")
     shouldThrow<PetSyntaxException> { parse<Requirement>("9 Plant - Steel") }
-    ask("2 (Plant OR Steel)", "Plant" to 1, "Steel" to 1) shouldBe true
+    ask("2 (Plant OR Steel)", "Plant OR Steel" to 2) shouldBe true
   }
 
   // L5-6 Conjunction, disjunction, precedence

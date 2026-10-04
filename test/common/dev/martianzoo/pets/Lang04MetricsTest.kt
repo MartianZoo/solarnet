@@ -24,9 +24,7 @@ internal class Lang04MetricsTest {
         .evaluate(
             count = { table[it.expression.toString()] ?: 0 },
             readProperty = { error("no properties here: $it") },
-            countUnion = { or ->
-              or.metrics.maxOfOrNull { table[it.expression.toString()] ?: 0 } ?: 0
-            },
+            countUnion = { error("no union observation supplied: $it") },
             rank = { error("no ranks here: $it") },
         )
   }
