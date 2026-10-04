@@ -197,7 +197,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // raised production it gives me two money can't complain about that [Rainbow]'s turn"
       playProject(RoboticWorkforce, 9) {
             doTask("CopyProductionBox<$TitaniumMine>")
-            doTask("ProjectCard FROM Science<$OlympusConference>")
+            doTask("ProjectCard FROM Science")
           }
           .expect("PROD[Titanium], -7 MC, -Science<$OlympusConference>, 0 ProjectCard")
     }
@@ -1608,7 +1608,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // tag removes my only science resource from Olympus conference and gives me this guy it's
       // actually reasonable That's actually useful in this circumstance, I don't believe it."
       playProject(FusionPower, 10, steel = 2) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
       }
     }
     yellow.turn {
@@ -1921,7 +1921,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 9:20:50 PM — Yellow: "I pay for it because it has space tag and then science tag adds
       // carbon nano back oh right and I use University pitch and drop"
       playProject(TransNeptuneProbe, 2) {
-            doTask("PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>")
+            doTask("PayFromCard FROM Graphene<$CarbonNanosystems>")
             doTask("ProjectCard FROM ProjectCard")
           }
           .expect("-2 MC")
@@ -2079,7 +2079,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       playProject(
               ImportedHydrogen,
               payment = {
-                doTask("2 PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>")
+                doTask("2 PayFromCard FROM Graphene<$CarbonNanosystems>")
                 assertCardResources(0 to CarbonNanosystems)
                 pay(8)
               },

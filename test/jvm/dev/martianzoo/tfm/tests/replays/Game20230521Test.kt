@@ -850,7 +850,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player1's energy production increased by 4
       playProject(QuantumExtractor, 13) {
             // Decline spending an Olympus Conference science resource to draw a card.
-            doTask("Science<$OlympusConference>")
+            doTask("Science")
           }
           .expect("-13 MC, PROD[4 Energy], 4 Energy")
     }
@@ -1779,7 +1779,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player1 drew 1 card(s)
       // You drew Zeppelins
       playProject(StandardTechnology, 6) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
       }
     }
     // Player2 played Atalanta Planitia Lab
@@ -1893,7 +1893,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
     p1.turn {
       playProject(GeneRepair, 12) {
             doTask("PROD[2 MC]")
-            doTask("Science<$OlympusConference>")
+            doTask("Science")
           }
           .expect("PROD[2 MC]")
     }

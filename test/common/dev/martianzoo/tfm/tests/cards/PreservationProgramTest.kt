@@ -385,7 +385,7 @@ internal class PreservationProgramTest :
     startLaterGeneration("$PharmacyUnion")
     p1.runOperation("ProjectCard, -2 Disease<$PharmacyUnion>")
     p1.playProject(PhysicsComplex, 12) {
-          doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
+          doTask("PlayedEvent FROM $PharmacyUnion")
         }
         .expect("2 TerraformRating, -12 MC")
     p1.count("$PharmacyUnion") shouldBe 0

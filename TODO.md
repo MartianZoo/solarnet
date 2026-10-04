@@ -164,6 +164,14 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- Extend instruction intersection to preserve unresolved shared aliases and unnamed Type unions.
+  These currently require a more specific submitted choice; keep task matching conservative and
+  never substitute `Ok` for an unrepresentable nonempty intersection.
+
+- Align `tryTask(String)` with the task-ID probe's rollback behavior: catching an incomplete or
+  unavailable execution currently retains selection edits made inside the string overload, despite
+  its engine comment promising unchanged task history. Keep this separate from task intersection.
+
 - Extend the Mining Rights/Area wild-resource regression after placement is fixed: Robotic
   Workforce and Cyberia Systems may choose either originally available metal production even if
   the placement awarded a nonmetal resource. No remembered resource choice is required.

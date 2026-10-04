@@ -303,7 +303,7 @@ internal class ErraticCarbonCurrentTest :
       // Research Outpost and Olympus Conference supply the other two science tags.
       blue.exMachina(fakeWildTags("ScienceTag", 2))
       playProject(AiCentral, 20) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
       }
     }
     pink.turn {

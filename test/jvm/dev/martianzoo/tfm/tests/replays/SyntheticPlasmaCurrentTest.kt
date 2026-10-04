@@ -572,7 +572,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       cardAction1(Steelworks)
       cardAction2(ExtractorBalloons)
       playProject(AntiGravityTechnology, 13) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
         draw(Plantation)
         doTask("ProjectCard FROM ProjectCard")
         discard(MartianMediaCenter)

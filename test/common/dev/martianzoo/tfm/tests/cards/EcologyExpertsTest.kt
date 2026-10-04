@@ -32,7 +32,7 @@ internal class EcologyExpertsTest : CardTest() {
     p1.runOperation("10 MC, ProjectCard, PreludeCard")
 
     p1.playPrelude(EcologyExperts) {
-      doTask("PlayCard<Class<ProjectCard>, Class<$Decomposers>>")
+      doTask("PlayCard<Class<$Decomposers>>")
       p1.pay(mc = 5)
     }
 

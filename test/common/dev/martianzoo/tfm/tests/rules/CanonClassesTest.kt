@@ -128,10 +128,10 @@ internal class CanonClassesTest {
         .testAgent(PLAYER1)
         .count("Animal<SoloOpponent, SoloCardResourceReserve<Class<Animal>>>") shouldBe 42
     val admin = game.testAgent(ADMIN) as Agent
-    admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_4_1>")
+    admin.doTask("GreeneryTile<Tharsis_5_1>")
+    admin.doTask("CityTile<Tharsis_2_2>")
+    admin.doTask("GreeneryTile<Tharsis_2_3>")
     admin.runOperation("OceanTile<Tharsis_1_2>")
     game.testAgent(PLAYER1).count("CityTile<SoloOpponent>") shouldBe 2
     game.testAgent(PLAYER1).count("GreeneryTile<SoloOpponent>") shouldBe 2

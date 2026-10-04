@@ -12,7 +12,7 @@ internal class SearchForLifeTest : CardTest() {
     p1.runOperation("$SearchForLife, 1 MC")
 
     p1.cardAction1(SearchForLife) {
-      doTask("Science<$SearchForLife>")
+      doTask("Science")
     }
 
     p1.assertCounts(
@@ -26,7 +26,7 @@ internal class SearchForLifeTest : CardTest() {
     newGame()
     admin.phase("Action")
     p1.runOperation("$SearchForLife, 1 MC")
-    p1.cardAction1(SearchForLife) { doTask("Science<$SearchForLife>") }
+    p1.cardAction1(SearchForLife) { doTask("Science") }
     admin.runOperation("End FROM Phase")
     p1.assertCounts(23 to "VictoryPoint")
   }

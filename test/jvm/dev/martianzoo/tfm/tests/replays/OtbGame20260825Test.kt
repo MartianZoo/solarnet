@@ -59,7 +59,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
 
         // "For the other one. Advertising for 4."
         doTask("UseAction<PlayCardFromHandAction, Action1>")
-        doTask("PlayCard<Class<ProjectCard>, Class<$Advertising>>")
+        doTask("PlayCard<Class<$Advertising>>")
         pay(4)
       }
     }

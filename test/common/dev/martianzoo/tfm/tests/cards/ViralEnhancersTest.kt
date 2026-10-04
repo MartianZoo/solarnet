@@ -46,7 +46,7 @@ internal class ViralEnhancersTest : CardTest() {
     p1.playProject(EcologicalZone, 12) {
           placeTile(4, 5)
           doTask("Plant")
-          doTask("Animal<$EcologicalZone>")
+          doTask("Animal")
         }
         // One plant from Viral Enhancers and two from the Tharsis 4,5 placement bonus.
         .expect("3 Plant, 3 Animal<$EcologicalZone>")

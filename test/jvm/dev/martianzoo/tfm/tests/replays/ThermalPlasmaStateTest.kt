@@ -188,7 +188,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       convertPlants { placeTile(4, 8) }
       playProject(AtalantaPlanitiaLab, 10) {
         draw(Trees, MinorityRefuge)
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
         draw(TowingAComet)
       }
       playProject(ImportedGhg, 1, titanium = 2).expect("2 MC")
@@ -281,7 +281,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       convertHeat()
       cardAction1(AiCentral) { draw(AtmoCollectors, InventionContest) }
       playProject(InventionContest, 2) {
-            doTask("ProjectCard FROM Science<$OlympusConference>")
+            doTask("ProjectCard FROM Science")
             draw(CityParks, IoSulphurResearch)
           }
           .expect("1 MC")
@@ -333,7 +333,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
           EcologicalZone,
       )
       playProject(FusionPower, 2, steel = 6) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
         draw(Advertising)
       }
       playProject(InventorsGuild, 9)
@@ -345,7 +345,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
           .expect("8 MC")
       playProject(BactoviralResearch, 10) {
         draw(Insulation)
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
         draw(Mangrove)
         addCardResources(SulphurEatingBacteria)
       }

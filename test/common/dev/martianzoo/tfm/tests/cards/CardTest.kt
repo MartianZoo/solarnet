@@ -132,8 +132,8 @@ internal abstract class CardTest(
         }
 
     cities.zip(greeneries).forEach { (city, greenery) ->
-      admin.doTask("CityTile<$city, SoloOpponent>")
-      admin.doTask("GreeneryTile<$greenery, SoloOpponent>")
+      admin.doTask("CityTile<$city>")
+      admin.doTask("GreeneryTile<$greenery>")
     }
   }
 

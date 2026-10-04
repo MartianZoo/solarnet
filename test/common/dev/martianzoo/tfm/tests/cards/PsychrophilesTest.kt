@@ -46,7 +46,7 @@ internal class PsychrophilesTest : CardTest() {
   internal fun `Can spend a microbe toward a plant-tag card`() {
     p1.runOperation("$Psychrophiles, Microbe<$Psychrophiles>")
     p1.playProject(AdaptedLichen, 7) {
-          doTask("PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
+          doTask("PayFromCard FROM Microbe<$Psychrophiles>")
         }
         .expect("-Microbe<$Psychrophiles>, PROD[Plant]")
   }
@@ -55,7 +55,7 @@ internal class PsychrophilesTest : CardTest() {
   internal fun `Can spend five microbes toward a nine-cost card`() {
     p1.runOperation("$Psychrophiles, 5 Microbe<$Psychrophiles>")
     p1.playProject(AdaptedLichen, 0) {
-          doTask("5 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
+          doTask("5 PayFromCard FROM Microbe<$Psychrophiles>")
         }
         .expect("-5 Microbe<$Psychrophiles>, PROD[Plant]")
   }

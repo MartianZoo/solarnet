@@ -5,6 +5,7 @@ import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
+import dev.martianzoo.pets.types.ClassTable
 
 /**
  * A complete Pets instruction syntax tree. Most engine code should use [Instruction] when it needs
@@ -23,6 +24,22 @@ public sealed class InstructionTree : PetElement(), Specification<InstructionTre
    * quantifier until elaboration supplies one.
    */
   public abstract override fun isAbstract(info: TypeInfo): Boolean
+
+  /**
+   * Combines the choices constrained by both trees, using [table] for Type intersections. Returns
+   * null when no common narrowing can be represented. Fixed structure (including gates, metrics,
+   * performers and stage counts) must agree; this does not resolve instructions or choose among the
+   * remaining alternatives. Surviving alternatives are checked against both operands' narrowing
+   * rules, including shared choices within sequences and transmutations. An overlapping Type domain
+   * without a single expressible bound, or a combined tree unable to retain shared choices, throws
+   * [NarrowingException] rather than guessing or treating the inputs as disjoint. The caller must
+   * supply a more specific choice.
+   */
+  public fun intersect(
+      that: InstructionTree,
+      table: ClassTable,
+      info: TypeInfo,
+  ): InstructionTree? = InstructionIntersection(table, info).intersect(this, that)
 
   /**
    * Ensures that this tree is a valid narrowing of [that] — an acceptable way of carrying out the

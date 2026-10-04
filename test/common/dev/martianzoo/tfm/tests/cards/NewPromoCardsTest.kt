@@ -106,7 +106,7 @@ internal class NewPromoCardsTest : CardTest() {
     p1.runOperation("Graphene<$CarbonNanosystems>")
 
     p1.playProject(IcyImpactors, 7) {
-          doTask("2 PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>")
+          doTask("2 PayFromCard FROM Graphene<$CarbonNanosystems>")
         }
         .expect("-2 Graphene<$CarbonNanosystems>")
   }

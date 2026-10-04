@@ -166,7 +166,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.exMachina(fakeWildTags("ScienceTag"))
     KB.playProject(QuantumExtractor, 12) {
       KB.draw(EarthOffice)
-      doTask("ProjectCard FROM Science<$OlympusConference>")
+      doTask("ProjectCard FROM Science")
     }
     KB.playProject(EarthOffice, 0)
     // Chronology: Heroku records JR's pass as a second action; defer it to this legal point.
@@ -192,7 +192,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     KB.cardAction1(RestrictedArea) { KB.draw(Capital) }
     KB.playProject(StandardTechnology, 5) {
       KB.draw(Hackers)
-      doTask("ProjectCard FROM Science<$OlympusConference>")
+      doTask("ProjectCard FROM Science")
     }
     ER.cardAction1(InventorsGuild) { /* Decline buying the revealed card. */
       ER.buyCards(0)
@@ -451,7 +451,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     JR.stdProject("GreeneryProject") { placeTile(3, 2) }
     KB.playProject(Research, 8) {
       KB.draw(PublicPlans, InventionContest, RegoPlastics)
-      doTask("ProjectCard FROM Science<$OlympusConference>")
+      doTask("ProjectCard FROM Science")
     }
     KB.cardAction1(EquatorialMagnetizer)
     ER.playProject(BioPrintingFacility, 1, steel = 2)
@@ -460,7 +460,7 @@ internal class SolarFusionStreamTest : CardTrackingFullGameTest() {
     JR.declineSecondAction()
     KB.playProject(InventionContest, mc = 0) {
       KB.draw(MartianRails, ImportedNutrients)
-      doTask("ProjectCard FROM Science<$OlympusConference>")
+      doTask("ProjectCard FROM Science")
     }
     KB.cardAction1(Tardigrades)
     // Payment reconstruction: ER spent a second steel for the remaining two so the later Callisto

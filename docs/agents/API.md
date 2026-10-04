@@ -57,9 +57,21 @@ narrowing, and error handling. `runOperation`, turn, and phase conveniences comp
 addition with ordinary task action. None justifies a universal request type or
 `engine.submit(actor, request)`.
 
-`doTask` and `tryTask` normally match the submitted narrowing semantically. `doTask` can additionally
-require the exact Class name of the effect-context component that caused the task, which keeps
-source-facing calls readable when otherwise matching consequences have distinct origins. Their
+`doTask` and `tryTask` intersect the submitted constraints with each eligible task. The task and
+submission can constrain different Type dependencies or choices; the resulting instruction retains
+both. Matching includes every intersecting task, even when another task accepts the submission as
+a strict narrowing. Distinct matching tasks are ambiguous; fully identical tasks remain
+interchangeable. The intersection does not select among remaining alternatives or relax fixed
+structure, incompatible counts, or explicit incompatible quantifiers. An omitted quantifier can
+inherit the task's quantifier, but cannot turn an incompatible Type or count into an optional skip.
+`InstructionTree.intersect` composes existing Type greatest lower bounds and instruction structure,
+and checks the result against the ordinary narrowing rules. A Type overlap with no single expressible
+bound requires a more specific input; it must not be mistaken for disjointness during task matching.
+`narrowTask` itself remains strict.
+
+`doTask` can additionally require the exact Class name of the effect-context component that caused
+the task, which keeps source-facing calls readable when otherwise matching consequences have
+distinct origins. Their
 `TaskId` overloads remain the explicit identity escape hatch; no engine API accepts a presentation
 index.
 

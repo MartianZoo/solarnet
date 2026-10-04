@@ -142,8 +142,13 @@ public sealed class Instruction : InstructionTree() {
       proposed as? Change
           ?: throw NarrowingException("expected a change narrowing of `$this`, found `$proposed`")
       proposed.quantifier!!.ensureNarrows(quantifier!!, info)
-      val proposedCount = proposed.count
-      val authoredCount = authored.count
+      authored.ensureCountIsNarrowedBy(proposed.count, info)
+      authored.gaining?.let { info.ensureSelectionNarrows(it, proposed.gaining!!) }
+      authored.removing?.let { info.ensureSelectionNarrows(it, proposed.removing!!) }
+    }
+
+    internal fun ensureCountIsNarrowedBy(proposedCount: Scalar, info: TypeInfo) {
+      val authoredCount = count
       if (
           quantifier == OPTIONAL && proposedCount is ActualScalar && authoredCount is ActualScalar
       ) {
@@ -156,8 +161,6 @@ public sealed class Instruction : InstructionTree() {
       } else {
         proposedCount.ensureNarrows(authoredCount, info)
       }
-      authored.gaining?.let { info.ensureSelectionNarrows(it, proposed.gaining!!) }
-      authored.removing?.let { info.ensureSelectionNarrows(it, proposed.removing!!) }
     }
   }
 
@@ -591,7 +594,7 @@ public sealed class Instruction : InstructionTree() {
 
     override fun isAbstract(info: TypeInfo): Boolean = instructions.any { it.isAbstract(info) }
 
-    private val hasSharedX: Lazy<Boolean> = lazy {
+    internal val hasSharedX: Lazy<Boolean> = lazy {
       instructions.count { it.descendantsOfType<XScalar>().isNotEmpty() } >= 2
     }
 

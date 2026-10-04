@@ -44,7 +44,7 @@ internal class ColoniesRulesTest : CardTest() {
     p2.stdAction("TradeAction", 1) {
       doWithoutAutoExec(p2) {
         doTask("Trade<Enceladus>")
-        doTask("-TradeBarrier<Enceladus>")
+        doTask("-TradeBarrier")
         doTask("Microbe<$RegolithEaters>")
         shouldThrow<TaskException> { p1.doTask("Microbe<$NitriteReducingBacteria>") }
         p2.selectTask("Microbe<Player1>.")
@@ -91,7 +91,7 @@ internal class ColoniesRulesTest : CardTest() {
     p2.stdAction("TradeAction", 2) {
       doWithoutAutoExec(p2) {
         doTask("Trade<Pluto>")
-        doTask("-TradeBarrier<Pluto>")
+        doTask("-TradeBarrier")
         doTask("2 ProjectCard")
         doTask("PlutoLock<Player1>!")
         doTask("ProjectCard<Player1>")
@@ -197,7 +197,7 @@ internal class ColoniesRulesTest : CardTest() {
     p2.stdAction("TradeAction", 2) {
       doWithoutAutoExec(p2) {
         doTask("Trade<Titan>")
-        doTask("-TradeBarrier<Titan>")
+        doTask("-TradeBarrier")
         doTask("Floater<$Dirigibles>")
         doTask("Floater<Player1>")
         p1.addCardResources(ForcedPrecipitation)

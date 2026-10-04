@@ -489,8 +489,8 @@ internal class Prelude2CardsTest : CardTest() {
     p1.stdProject(
             "PowerPlantProject",
             payment = {
-              doTask("PayFromCard<$Spire> FROM Science<$Spire>")
-              doTask("Pay<Class<MC>> FROM MC / Owed<>")
+              doTask("PayFromCard FROM Science<$Spire>")
+              doTask("Pay<> FROM MC / Owed<>")
             },
         )
         .expect("-Science<$Spire>, -9 MC, PROD[Energy]")
@@ -502,7 +502,7 @@ internal class Prelude2CardsTest : CardTest() {
     p1.runOperation("$Spire, Science<$Spire>")
 
     shouldThrow<TaskException> {
-      p1.runOperation("10 Owed<>") { doTask("PayFromCard<$Spire> FROM Science<$Spire>") }
+      p1.runOperation("10 Owed<>") { doTask("PayFromCard FROM Science<$Spire>") }
     }
   }
 
@@ -515,7 +515,7 @@ internal class Prelude2CardsTest : CardTest() {
     p1.sellPatents(1)
 
     shouldThrow<TaskException> {
-      p1.runOperation("10 Owed<>") { doTask("PayFromCard<$Spire> FROM Science<$Spire>") }
+      p1.runOperation("10 Owed<>") { doTask("PayFromCard FROM Science<$Spire>") }
     }
   }
 
@@ -537,14 +537,14 @@ internal class Prelude2CardsTest : CardTest() {
     p1.runOperation("NewTurn") {
       doTask("UseAction<UseStandardProjectAction, Action1>")
       doTask("UseAction<PowerPlantProject, Action1>")
-      doTask("Pay<Class<MC>> FROM MC / Owed<>")
+      doTask("Pay<> FROM MC / Owed<>")
     }
     p1.count("MC") shouldBe startingMoney - 9
 
     p1.runOperation("SecondAction") {
       doTask("UseAction<UseStandardProjectAction, Action1>")
       doTask("UseAction<PowerPlantProject, Action1>")
-      doTask("Pay<Class<MC>> FROM MC / Owed<>")
+      doTask("Pay<> FROM MC / Owed<>")
     }
 
     p1.count("MC") shouldBe startingMoney - 18

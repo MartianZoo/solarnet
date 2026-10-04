@@ -53,7 +53,7 @@ internal class StinaGameTest : AbstractSoloTest(requireEveryProjectCardChangeNam
       playProject(OlympusConference, 1, steel = 2)
       playProject(AdvancedAlloys, 7) {
             draw(TechnologyDemonstration)
-            doTask("ProjectCard FROM Science<OlympusConference>")
+            doTask("ProjectCard FROM Science")
           }
           .expect("0 ProjectCard")
       playProject(MineralDeposit, 3).expect("5 Steel")
@@ -64,7 +64,7 @@ internal class StinaGameTest : AbstractSoloTest(requireEveryProjectCardChangeNam
           .expect("0 ProjectCard")
       playProject(InventionContest, 0) {
             draw(ImportedGhg, MassConverter)
-            doTask("ProjectCard FROM Science<OlympusConference>")
+            doTask("ProjectCard FROM Science")
           }
           .expect("ProjectCard, 3 MC")
       playProject(BusinessContacts, 1) {
@@ -79,7 +79,7 @@ internal class StinaGameTest : AbstractSoloTest(requireEveryProjectCardChangeNam
       // replacement card, and places an ocean.
       playProject(TechnologyDemonstration, 0) {
             draw(SpecialDesign, Shuttles, LagrangeObservatory)
-            doTask("ProjectCard FROM Science<OlympusConference>")
+            doTask("ProjectCard FROM Science")
           }
           .expect("2 ProjectCard, 6 MC, 3 Heat")
       playProject(ImportOfAdvancedGhg, 0).expect("PROD[2 Heat], 6 MC, 3 Heat")
@@ -94,7 +94,7 @@ internal class StinaGameTest : AbstractSoloTest(requireEveryProjectCardChangeNam
       }
       playProject(SpecialDesign, 1) {
             draw(ConvoyFromEuropa)
-            doTask("ProjectCard FROM Science<OlympusConference>")
+            doTask("ProjectCard FROM Science")
           }
           .expect("2 MC, 0 ProjectCard")
       playProject(Shuttles, 1).expect("PROD[-Energy, 2 MC]")

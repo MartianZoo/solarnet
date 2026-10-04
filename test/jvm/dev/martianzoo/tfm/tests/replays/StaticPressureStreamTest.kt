@@ -678,7 +678,7 @@ internal class StaticPressureStreamTest :
     }
     nor.turn {
       playProject(GhgProducingBacteria, 7) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
         draw(MoholeLake)
       }
       playProject(MoholeLake, 30)
