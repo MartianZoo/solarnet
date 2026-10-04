@@ -438,7 +438,6 @@ public object Parsing {
             }
             true
           }
-      is Iterable<*> -> parsed.forEach { rejectUnsupportedSyntax(it, inheritedNamesPossible) }
     }
   }
 
@@ -496,7 +495,6 @@ public object Parsing {
     private val doubleColon by literalToken("doubleColon", "::")
     private val bang by literalToken("!", "!")
     private val at by literalToken("@", "@")
-    private val caret by literalToken("^", "^")
     private val plus by literalToken("+", "+")
     private val comma by literalToken(",", ",")
     private val minus by literalToken("-", "-")
@@ -723,7 +721,7 @@ public object Parsing {
               if (flattened.distinct().size != flattened.size) {
                 throw PetSyntaxException("duplicate metric `OR` alternatives: `$flattened`")
               }
-              if (authored.size == 1) authored.single() else Metric.Or.create(authored)!!
+              if (authored.size == 1) authored.single() else Metric.Or.create(authored)
             }
 
     // Requirements: atom, OR, comma conjunction. An atom is also the gate of an instruction.

@@ -529,11 +529,6 @@ public class PetElaborator(public val classTable: ClassTable) {
         )
       }
     }
-    if (arguments.count { it !is Unchanged } != 1) {
-      throw PetSyntaxException(
-          "Defaulting cannot change more than one dependency of compact transmutation $original"
-      )
-    }
     return Compact(original.className, arguments, gaining.refinement)
   }
 

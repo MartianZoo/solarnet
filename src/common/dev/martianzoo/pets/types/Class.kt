@@ -742,22 +742,17 @@ internal constructor(
 
     val occurrenceGroups = mutableListOf<MutableList<HeaderOccurrence>>()
     headerOccurrences().forEach { occurrence ->
-      val matching = occurrenceGroups.filter { group ->
+      val matching = occurrenceGroups.firstOrNull { group ->
         group.any { prior ->
           val priorIdentity = prior.expression.typeVariableName?.identity
           val occurrenceIdentity = occurrence.expression.typeVariableName?.identity
           priorIdentity != null && priorIdentity == occurrenceIdentity
         }
       }
-      if (matching.isEmpty()) {
+      if (matching == null) {
         occurrenceGroups += mutableListOf(occurrence)
       } else {
-        val merged = matching.first()
-        matching.drop(1).forEach {
-          merged += it
-          occurrenceGroups.remove(it)
-        }
-        merged += occurrence
+        matching += occurrence
       }
     }
 

@@ -264,7 +264,8 @@ internal class Spec09PropertiesTest {
     val area = table.resolve(te("Tharsis_2_2"))
 
     area.getNumberPropertyValue("row") shouldBe 8
-    area.getMetricPropertyValue("score") shouldBe parse<Metric>("TemperatureStep")
+    area.rootClass.properties[PropertyName("score")] shouldBe
+        MetricValue(parse<Metric>("TemperatureStep"))
     area.getRequirementPropertyValue("requirement") shouldBe parse<Requirement>("TemperatureStep")
   }
 

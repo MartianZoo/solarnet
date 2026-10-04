@@ -8,7 +8,6 @@ import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
 
 /**
@@ -165,13 +164,6 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
    */
   public fun getNumberPropertyValue(propertyName: String): Int =
       groundType.getNumberPropertyValue(propertyName)
-
-  /**
-   * Returns the concrete metric value of [propertyName], under the property-reading contract of
-   * [rule T9-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#9-class-properties).
-   */
-  public fun getMetricPropertyValue(propertyName: String): Metric =
-      groundType.getMetricPropertyValue(propertyName)
 
   /**
    * Returns the concrete requirement value of [propertyName], or null for an absent optional, under
