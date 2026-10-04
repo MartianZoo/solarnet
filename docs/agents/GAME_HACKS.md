@@ -128,8 +128,8 @@ and `Community` in [board.pets](../../src/common/dev/martianzoo/tfm/canon/Terraf
 animal consumes another Terminal allowance. A valid three-card distribution can then dead-end,
 or the player can satisfy the counter with fewer Terminal gifts than the card requires.
 
-**Source:** [Prelude 2 cards.pets](../../src/common/dev/martianzoo/tfm/canon/Prelude2CardPack/cards.pets),
-`L1TradeTerminal` in [Prelude 2 cards](../../src/common/dev/martianzoo/tfm/canon/Prelude2CardPack/cards.json5),
+**Source:** `L1TradeTerminal` and its `L1GiftWatcher` component in
+[Prelude 2 cards](../../src/common/dev/martianzoo/tfm/canon/Prelude2CardPack/cards.json5),
 and the L1 scenarios in [Prelude2CardsTest](../../test/common/dev/martianzoo/tfm/tests/cards/Prelude2CardsTest.kt).
 
 ## Acquisition events standing in for particular game actions
