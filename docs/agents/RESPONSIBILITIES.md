@@ -134,14 +134,23 @@ classes. They are too small to drive an architecture change. Move them only with
 
 `docs/pets-language-spec.md` deliberately stops at the language: source, declarations, expressions,
 requirements, metrics, instructions, narrowing, effects, actions, transform blocks, owner-local
-Classes, and elaboration. Four surfaces in `dev.martianzoo.pets` are outside that line and would
+Classes, and elaboration. Several surfaces in `dev.martianzoo.pets` are outside that line and would
 plausibly belong elsewhere:
 
 - [`displayNames.kt`](../../src/common/dev/martianzoo/pets/displayNames.kt) provides stateless
   presentation names. It is not part of what a source may mean. [`NAMING.md`](NAMING.md) owns naming.
 - [`Catalog.kt`](../../src/common/dev/martianzoo/pets/data/Catalog.kt),
+  [`GameConfig.kt`](../../src/common/dev/martianzoo/pets/data/GameConfig.kt),
   [`GamePremise.kt`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt) and
   `ClassSelection` implement game assembly rather than Pets language semantics.
+
+The loading boundary accepts data and callbacks supplied by Catalog and GamePremise; it has no
+dependency on either. `TypeInfo` supplies the active class table without a `GameReader` downcast.
+[CLASS_TABLES.md](CLASS_TABLES.md#game-view-shape) owns those construction contracts. The remaining
+package extraction should move the rich reader and custom runtime APIs with game assembly into
+`:state`. A Catalog provider supplying custom runtime behavior may depend on `:state`; Pets need
+not know the Kotlin implementation types. This module move is still pending.
+
 Runtime `Task`, `GameEvent`, and `TaskResult` data have moved to `:state`; their instruction-bearing
 values remain inert there, while task construction and normalization stay in `:engine`.
 

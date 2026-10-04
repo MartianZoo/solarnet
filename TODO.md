@@ -24,6 +24,12 @@ effects. Review each repair with Opus/high before committing it.
 
 ## User Ideas and Agreed Directions
 
+- For the [game-assembly move to state](docs/agents/RESPONSIBILITIES.md#presentation-and-assembly-data-sit-inside-pets),
+  relocate the affected assembly tests with their production owners. Use the completed
+  `ClassLoader.forPremise` construction entrypoint; keep individual loader internals private.
+- Review derived lookups on delegated Catalogs: `customClass`, `customMetric`, `classDeclaration`,
+  and `allClassNames` use the delegate's properties even when the wrapper overrides them. Keep this
+  existing issue separate from the class-loading boundary cleanup.
 - Look for a small way to evaluate the existing `CardFilter` criteria against a card Class in Pets.
   Replay tracking currently checks them in Kotlin; avoid adding engine card identities or a new
   processing stage just for this. Named-header specialization of Requirement properties and
@@ -172,6 +178,8 @@ effects. Review each repair with Opus/high before committing it.
 - Preserve authored provenance when runtime narrowing and task normalization synthesize new trees.
   Definition, query, and direct-change diagnostics retain available spans; some generated tasks and
   failures computed solely from component Types still have no authored location.
+- Preserve the empty-intersection reason when rejecting a partial task submission. For an
+  unavailable Type, the current fallback can misleadingly blame an omitted dependency instead.
 - Improve the specific caret targets and related-source context recorded beside message assertions
   in `CatalogDiagnosticsTest` and `PostCatalogDiagnosticsTest`; consider rendering span widths as
   well as their starting positions.

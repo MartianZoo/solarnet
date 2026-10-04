@@ -4,7 +4,6 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -68,7 +67,7 @@ internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
 
     green.turn {
       playPrelude(Merger) {
-        playCorp(Inventrix, location = cn("Selecting"))
+        playCorp(Inventrix)
       }
       playPrelude(MoholeExcavation).expect("PROD[Steel, 2 Heat], 2 Heat")
     }

@@ -8,7 +8,7 @@ import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.types.ClassLoader
+import dev.martianzoo.pets.data.createClassLoader
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.testCatalog
 import io.kotest.matchers.shouldBe
@@ -104,7 +104,9 @@ internal val langCatalog: Catalog by lazy {
     override val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> =
         mapOf("UNWRAP" to { _ -> TransformHandler { inner -> inner } })
 
-    override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
+    override val classTable: ClassTable by lazy {
+      createClassLoader(this).loadEverything()
+    }
   }
 }
 
@@ -114,18 +116,18 @@ internal val langElaborator: PetElaborator by lazy { PetElaborator(langTable) }
 
 internal val player1: Player = Player(parse("Player1"))
 
-/** A world that resolves types in [table] and answers [answer] to every requirement. */
+/** A world that resolves types in [classTable] and answers [answer] to every requirement. */
 internal class TableWorld(
-    private val table: ClassTable,
+    override val classTable: ClassTable,
     private val answer: Boolean = true,
 ) : TypeInfo {
-  override fun isAbstract(e: Expression): Boolean = table.resolve(e).abstract
+  override fun isAbstract(e: Expression): Boolean = classTable.resolve(e).abstract
 
   override fun ensureNarrows(wide: Expression, narrow: Expression): Unit =
-      table.resolve(narrow).ensureNarrows(table.resolve(wide), this)
+      classTable.resolve(narrow).ensureNarrows(classTable.resolve(wide), this)
 
   override fun ensureSelectionNarrows(wide: Expression, narrow: Expression): Unit =
-      table.resolve(narrow).ensureSelectionNarrows(table.resolve(wide), this)
+      classTable.resolve(narrow).ensureSelectionNarrows(classTable.resolve(wide), this)
 
   override fun has(requirement: Requirement): Boolean = answer
 }

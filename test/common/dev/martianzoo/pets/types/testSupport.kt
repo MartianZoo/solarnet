@@ -12,6 +12,7 @@ import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.data.ClassSelection
 import dev.martianzoo.pets.data.GamePremise
+import dev.martianzoo.pets.data.createClassLoader
 import dev.martianzoo.pets.systemClassDeclarations
 import io.kotest.assertions.throwables.shouldThrow
 
@@ -40,7 +41,7 @@ internal fun testCatalog(
     override val customClasses: Set<CustomClass> = customImplementations
     override val modules: Map<ClassName, Set<ClassSelection>> = moduleSelections
     override val classAvailabilityModules: Map<ClassName, Set<ClassName>> = classAvailabilityModules
-    override val classTable: ClassTable by lazy { ClassLoader(this).loadEverything() }
+    override val classTable: ClassTable by lazy { createClassLoader(this).loadEverything() }
   }
 }
 
@@ -73,6 +74,9 @@ internal fun world(vararg truths: String): TypeInfo = FixedWorld { requirement -
 }
 
 private class FixedWorld(private val answer: (Requirement) -> Boolean) : TypeInfo {
+  override val classTable: ClassTable
+    get() = error("unused by resolved type judgments")
+
   override fun isAbstract(e: Expression): Boolean = error("unused by the type system")
 
   override fun ensureNarrows(wide: Expression, narrow: Expression): Unit =
@@ -85,6 +89,9 @@ private class FixedWorld(private val answer: (Requirement) -> Boolean) : TypeInf
 
 /** A world that records every requirement it is asked about, in order. */
 internal class RecordingWorld(private val answer: Boolean = true) : TypeInfo {
+  override val classTable: ClassTable
+    get() = error("unused by resolved type judgments")
+
   val questions: MutableList<String> = mutableListOf()
 
   override fun isAbstract(e: Expression): Boolean = error("unused by the type system")

@@ -34,8 +34,8 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
     me.playCorp(Spire, 10)
 
     me.turn {
-      playPrelude(Merger) { me.playCorp(LakefrontResorts, location = cn("Selecting")) }
-      playPrelude(NewPartner) { playPrelude(BoardOfDirectors, location = cn("Selecting")) }
+      playPrelude(Merger) { me.playCorp(LakefrontResorts) }
+      playPrelude(NewPartner) { playPrelude(BoardOfDirectors) }
     }
 
     me.count("MC") shouldBe 32
@@ -46,7 +46,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
         doTask("-12 MC")
         playPrelude(DoubleDown) {
           doTask("CopyPrelude<$Merger>")
-          me.playCorp(CrediCor, location = cn("Selecting"))
+          me.playCorp(CrediCor)
         }
       }
       playProject(MediaGroup, 6)

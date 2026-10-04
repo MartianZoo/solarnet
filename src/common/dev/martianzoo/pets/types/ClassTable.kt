@@ -10,7 +10,6 @@ import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.PetNode
-import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Dependency.TypeDependency
 
@@ -26,8 +25,8 @@ import dev.martianzoo.pets.types.Dependency.TypeDependency
  *   [section 1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
  */
 public abstract class ClassTable {
-  /** The Catalog whose compiled class universe backs this table. */
-  internal abstract val catalog: Catalog
+  /** Language transformations bound separately to each class universe. */
+  internal abstract val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler>
 
   /**
    * Creates a dispatcher for the selected catalog-defined syntax transformations. The table gives
@@ -36,7 +35,7 @@ public abstract class ClassTable {
    * transformation semantics are outside the type-system specification.
    */
   public fun transformDispatcher(): PetTransformer {
-    val handlers = catalog.transformHandlerFactories.mapValues { (_, factory) -> factory(this) }
+    val handlers = transformHandlerFactories.mapValues { (_, factory) -> factory(this) }
     return TransformHandler.dispatcher(handlers)
   }
 

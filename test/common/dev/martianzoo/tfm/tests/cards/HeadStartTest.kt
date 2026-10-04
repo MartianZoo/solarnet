@@ -39,7 +39,7 @@ internal class HeadStartTest : CardTest() {
     p1.turn {
       playPrelude(FakeHeadStart) {
         useStdAction("DoRequiredActionsAction", payment = {}) {
-          p1.playPrelude(MartianIndustries, location = cn("Selecting")) {
+          p1.playPrelude(MartianIndustries) {
             useStdProject("PowerPlantProject")
           }
         }

@@ -6,6 +6,7 @@ import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.createClassLoader
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
@@ -242,7 +243,9 @@ internal class Spec02ClassesTest {
   internal fun `T2-9 a CustomInstruction must have a Kotlin implementation, and only a CustomInstruction may`() {
     val declaration = "CLASS Neighbor : CustomInstruction"
 
-    ClassLoader(testCatalog(declaration, setOf(object : CustomInstruction(cn("Neighbor")) {})))
+    createClassLoader(
+            testCatalog(declaration, setOf(object : CustomInstruction(cn("Neighbor")) {}))
+        )
         .loadEverything()
         .getClass(cn("Neighbor"))
         .declaration
@@ -251,7 +254,7 @@ internal class Spec02ClassesTest {
     // A declared-but-unimplemented CustomInstruction is rejected by the Catalog lookup itself.
     shouldThrow<InvalidPetDefinitionException> { loadTypes(declaration) }
     shouldThrow<InvalidPetDefinitionException> {
-      ClassLoader(
+      createClassLoader(
               testCatalog("CLASS Neighbor", setOf(object : CustomInstruction(cn("Neighbor")) {}))
           )
           .loadEverything()
@@ -261,10 +264,10 @@ internal class Spec02ClassesTest {
           override fun count(game: GameReader, type: Type): Int = 0
         }
     shouldThrow<InvalidPetDefinitionException> {
-      ClassLoader(testCatalog(declaration, setOf(wrongKind))).loadEverything()
+      createClassLoader(testCatalog(declaration, setOf(wrongKind))).loadEverything()
     }
     shouldThrow<InvalidPetDefinitionException> {
-      ClassLoader(
+      createClassLoader(
               testCatalog(
                   "CLASS Neighbor : CustomMetric",
                   setOf(object : CustomInstruction("Neighbor") {}),
@@ -277,7 +280,7 @@ internal class Spec02ClassesTest {
   @Test
   internal fun `T2-9 a root class rejects an unexpected implementation`() {
     shouldThrow<InvalidPetDefinitionException> {
-      ClassLoader(testCatalog("", setOf(object : CustomInstruction(COMPONENT) {})))
+      createClassLoader(testCatalog("", setOf(object : CustomInstruction(COMPONENT) {})))
     }
   }
 
@@ -286,7 +289,7 @@ internal class Spec02ClassesTest {
     val first = object : CustomInstruction("Neighbor") {}
     val second = object : CustomInstruction("Neighbor") {}
     shouldThrow<InvalidPetDefinitionException> {
-      ClassLoader(testCatalog("CLASS Neighbor : CustomInstruction", setOf(first, second)))
+      createClassLoader(testCatalog("CLASS Neighbor : CustomInstruction", setOf(first, second)))
           .loadEverything()
     }
   }
@@ -308,7 +311,7 @@ internal class Spec02ClassesTest {
                       }
                   ),
               )
-          val loader = ClassLoader(catalog)
+          val loader = createClassLoader(catalog)
 
           // Also proves a failed load is not cached as a success.
           repeat(2) {

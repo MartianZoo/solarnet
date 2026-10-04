@@ -3,6 +3,7 @@ package dev.martianzoo.pets.data
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.SystemClasses.AUDIT
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
+import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
@@ -101,11 +102,14 @@ public data class GamePremise(
             actors.map(Actor::className) +
             listOfNotNull(bootstrapClassName, premiseClassName)
 
-    val table = ClassLoader.forPremise(catalog, premiseTable, modules, classSelections, playerNames)
-    table.freeze()
-    table.validateNoOkSubscriptions()
-    table.validateTransformKinds()
-    table.includeAll(roots)
+    val table =
+        ClassLoader.forPremise(
+            premiseTable = premiseTable,
+            roots = roots,
+            additionalRequiredClasses = { requiredClassNames(catalog, it) },
+            checkAvailability = ::checkAvailability,
+            exactCount = ::configuredCount,
+        )
     val unexpectedModules =
         catalog.modules.keys.filterTo(linkedSetOf()) { table.isIncluded(it) } - modules
     if (unexpectedModules.isNotEmpty()) {
@@ -134,6 +138,52 @@ public data class GamePremise(
     }
     PremiseViability.validate(table, roots)
     return table
+  }
+
+  private fun checkAvailability(className: ClassName, requiredBy: ClassName?) {
+    val availabilityModules = catalog.classAvailabilityModules[className] ?: return
+    if (availabilityModules.intersect(modules).isNotEmpty()) return
+    val path =
+        requiredBy?.let { "`$it` requires locked class `$className`" }
+            ?: "class `$className` is locked"
+    throw InvalidGameConfigException(
+        "broken game premise: $path; required bundle modules: ${availabilityModules.joinToString { "`$it`" }}"
+    )
+  }
+
+  private fun configuredCount(expression: Expression, table: ClassTable): Int? {
+    if (!expression.simple || expression.className == THIS) return null
+    val countedClass = table.getClass(expression.className)
+    if (table.findClass(PLAYER)?.let(countedClass::isSubtypeOf) == true) {
+      return playerNames.count { name ->
+        table.getClass(name).isSubtypeOf(countedClass)
+      }
+    }
+    val masterSubclasses =
+        if (countedClass.classTable === catalog.classTable)
+            catalog.classTable.allSubclasses(countedClass)
+        else emptySet()
+    val premiseSubclasses =
+        premiseClassTable.declarations.keys
+            .asSequence()
+            .map { name -> table.getClass(name) }
+            .filter { candidate -> candidate.isSubtypeOf(countedClass) }
+            .toSet()
+    val concreteSubclassNames =
+        (masterSubclasses + premiseSubclasses)
+            .filterNot(Class::abstract)
+            .mapTo(linkedSetOf(), Class::className)
+    if (concreteSubclassNames.isEmpty()) return null
+    if (catalog.modules.keys.containsAll(concreteSubclassNames)) {
+      return modules.count { moduleName ->
+        table.getClass(moduleName).isSubtypeOf(countedClass)
+      }
+    }
+    val selections = classSelections.associateBy(ClassSelection::className)
+    if (!selections.keys.containsAll(concreteSubclassNames)) return null
+    return selections.values.count { selection ->
+      selection.included && table.getClass(selection.className).isSubtypeOf(countedClass)
+    }
   }
 
   init {

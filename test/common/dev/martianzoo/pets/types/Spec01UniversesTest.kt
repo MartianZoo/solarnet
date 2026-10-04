@@ -1,11 +1,14 @@
 package dev.martianzoo.pets.types
 
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.systemClassDeclarations
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -117,8 +120,9 @@ internal class Spec01UniversesTest {
 
   @Test
   internal fun `T1-6 enumeration requires a frozen table but lookup does not`() {
-    val catalog = testCatalog("CLASS GreeneryTile")
-    val loader = ClassLoader(catalog)
+    val declarations =
+        ClassDeclaration.indexByName(systemClassDeclarations + parseClasses("CLASS GreeneryTile"))
+    val loader = ClassLoader(declarations)
 
     loader.findClass(cn("GreeneryTile")) shouldBe null
     shouldThrowIae { loader.allClasses() }
@@ -126,9 +130,9 @@ internal class Spec01UniversesTest {
     val tile = loader.load(cn("GreeneryTile"))
     loader.findClass(cn("GreeneryTile")) shouldBe tile
 
-    val table = loader.freeze()
+    val table = loader.loadEverything()
     table.getClass(cn("GreeneryTile")) shouldBe tile
-    table.allClassNames shouldBe catalog.allClassNames
+    table.allClassNames shouldBe declarations.keys
   }
 
   @Test

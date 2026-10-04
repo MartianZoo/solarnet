@@ -51,10 +51,10 @@ cards in the fixed Valley Trust, New Partner, WG Project, and Merger offers are 
 without names.
 Setup likewise counts both offered standard corporations in `Selecting`; the chosen one enters
 `Hand`, or both are discarded if the Player chooses the beginner corporation.
-Gameplay callers pass `location = cn("Selecting")` for a direct selected play; the gameplay helper
-otherwise requests `Hand` explicitly. `PlayCard` has no location default: a bare partial proposal
-does not inherit `Selecting` from the pending task under the current narrowing rule. This remains
-a gap for a future gameplay API that should derive authorized choices from pending work.
+Gameplay callers choose the card face without repeating its location. `PlayCard` has no location
+default: `doTask` intersects the caller's choice with the pending task, which supplies the authorized
+source (`Hand` for ordinary plays, `Selecting` for direct offered plays). An explicit conflicting
+source is rejected even when that location contains another card.
 
 An ordinary draw adds `ProjectCard<Hand>` directly. Fixed-size project-card offers, including buys,
 gain the full offer as `ProjectCard<Selecting>`. Look-and-keep effects move only retained backs to
