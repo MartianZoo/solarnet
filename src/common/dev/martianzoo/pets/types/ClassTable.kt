@@ -15,13 +15,14 @@ import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Dependency.TypeDependency
 
 /**
- * Either the complete immutable class universe compiled from one catalog or a playable view that
- * includes the subset selected by one premise. Identity and structural operations remain
- * master-wide; concrete enumeration through a view is limited to that subset, as specified by
+ * Either the complete immutable class universe compiled from one catalog or a game universe that
+ * includes that catalog's classes and the game's own declarations. Catalog classes keep their
+ * identity; structural judgments use the interpreting universe, while concrete enumeration follows
+ * the selected closure, as specified by
  * [sections 1 and 12](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#12-inhabitance).
  *
- * @constructor Creates a table implementation for one master universe or one of its views, under
- *   the identity rules in
+ * @constructor Creates a table implementation for a catalog universe or a game universe, under the
+ *   identity rules in
  *   [section 1](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
  */
 public abstract class ClassTable {

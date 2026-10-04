@@ -470,9 +470,11 @@ would require them to be the same tile.
 
 **T3-9. A dependency may only target a type limited to one copy.** An edge names its target by
 exact type alone, so a type that admitted two identical components could not say which one it
-meant. Every concrete type a dependency bound admits must therefore carry an applicable `MAX 1` or
-`=1` invariant. A game universe that breaks this is ill-formed. This is the only place
-component-count invariants enter this specification.
+meant. For each inhabited concrete class, every inhabited concrete type admitted by one of its
+dependency bounds must therefore have an applicable invariant limiting it to at most one copy.
+An upper bound of zero also satisfies this uniqueness condition. An abstract class may leave a
+broader bound; the rule applies to its inhabited concrete subclasses. A game universe that breaks
+this is ill-formed. This is the only place component-count invariants enter this specification.
 
 `Signal` and all its subclasses, and `Die`, are never valid dependency targets, whatever their
 invariants. A signal is a point event removed immediately after it happens, and `Die` has no legal
@@ -1024,7 +1026,8 @@ expression *resolves*. It never changes which types exist.
 (`DEFAULT Foo<...>`), for gains (`DEFAULT +Foo<...>`) and for removals (`DEFAULT -Foo<...>`). A
 class's all-uses defaults give it a **default template**, its base type written with those
 defaults filled in, and a **default type**, the type that template denotes. The two differ only as
-T10-5 says. Instructions consume the gain and removal sets (L9-5); resolution does not.
+T10-5 says. Elaboration applies defaults according to the expression's use (L9-4 through L9-8);
+resolution alone applies none of the three sets.
 
 ```pets
 ABSTRACT CLASS SpecialTile : Tile<MarsArea> {

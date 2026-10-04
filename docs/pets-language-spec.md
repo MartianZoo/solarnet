@@ -1440,6 +1440,11 @@ recursively from the supertype, because a refined type cannot be a supertype (L1
 Within an argument, `This` still denotes the enclosing owner: the occurrence retains `This` to name
 that owner instance, while the generated class's supertype names the enclosing owner Class.
 
+The generated class has its own header and body scopes (T13-2 through T13-4). A marked argument
+referenced by the local body names a header variable of that generated class. A body marker cannot
+capture an enclosing selector's variable without such an argument. Selectors inside the local body
+follow the ordinary shadowing rules.
+
 ```pets
 SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {}
 ```

@@ -162,6 +162,8 @@ internal constructor(
    * Values supplied to selected class-header [variables] when this type specializes [general].
    * Variables unrelated to the header are omitted, following
    * [rule T13-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   *
+   * @throws IllegalArgumentException if [general] and this type have different root classes.
    */
   override fun variableBindingsFrom(
       general: Type,

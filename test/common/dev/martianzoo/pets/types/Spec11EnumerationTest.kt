@@ -107,6 +107,13 @@ internal class Spec11EnumerationTest {
   }
 
   @Test
+  internal fun `T11-3 an unrefined class literal narrows only when one represented class remains`() {
+    mars.singleConcreteSubtype(type("Class<WaterArea>"), fullWorld) shouldBe
+        type("Class<Tharsis_1_1>")
+    mars.singleConcreteSubtype(type("Class<LandArea>"), fullWorld) shouldBe null
+  }
+
+  @Test
   internal fun `T11-3 a choice anywhere blocks automatic narrowing`() {
     // Two possible classes.
     mars.singleConcreteSubtype(type("Tile<Tharsis_2_2>"), fullWorld) shouldBe

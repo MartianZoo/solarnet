@@ -49,8 +49,8 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
     get() = rootClass.className
 
   /**
-   * The master universe to which this type belongs. Type-system operations reject values from
-   * different universes as specified by
+   * The universe interpreting this type. It may be a catalog table or a game table; operations
+   * reject values that have no common interpreting universe, as specified by
    * [rule T1-2](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#1-universes-and-identity).
    */
   public val classTable: ClassTable
@@ -176,6 +176,8 @@ public interface Type : HasExpression, HasClassName, Specification<Type> {
    * Captures the values this type supplies for selected class-header [variables] when specializing
    * [general], following
    * [rule T13-5](https://github.com/MartianZoo/solarnet/blob/main/docs/type-system-spec.md#13-type-variables).
+   *
+   * @throws IllegalArgumentException if [general] and this type have different root classes.
    */
   public fun variableBindingsFrom(
       general: Type,

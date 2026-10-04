@@ -396,6 +396,18 @@ internal class Spec03DependenciesTest {
   }
 
   @Test
+  internal fun `T3-9 a zero upper bound also makes a dependency target unambiguous`() {
+    val table =
+        loadTypes(
+            "CLASS CardFront { HAS MAX 0 This }",
+            "CLASS ActionUsedMarker<CardFront>",
+        )
+
+    table.componentLimits.limitsFor(table.resolve(te("CardFront"))).map { it.range } shouldBe
+        listOf(0..0)
+  }
+
+  @Test
   internal fun `T3-9 Signal cannot be a dependency target`() {
     shouldThrow<InvalidPetDefinitionException> { loadTypes("CLASS Holder<Signal>") }
         .message shouldContain "`Signal` types and `Die` cannot be dependency targets"

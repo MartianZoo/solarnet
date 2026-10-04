@@ -229,17 +229,34 @@ internal class Spec13OwnerLocalTypeVariablesTest {
   }
 
   @Test
-  internal fun extractedClassBodyCanDeclareItsOwnScopeWithTheSameSpelling() {
-    val declarations =
-        parseClasses(
+  internal fun `L12-3 an extracted class selector shadows its own header variable`() {
+    val table =
+        loadTypes(
             """
-            CLASS Owner1 {
-              This: EACH P@Person { Base<P@Person> { This: EACH P@Person { P@Person } } }
+            ABSTRACT CLASS StandardResource {
+              CLASS Plant
+              CLASS Steel
+            }
+            """,
+            "ABSTRACT CLASS ResourceReserve<StandardResource>",
+            """
+            CLASS SoloSetup {
+              This: EACH R@StandardResource { ResourceReserve<R@StandardResource> { This: EACH R@StandardResource { R@StandardResource }, R@StandardResource } }
             }
             """
-                .trimIndent()
+                .trimIndent(),
         )
-    parseClasses(declarations.joinToString("\n")) shouldBe declarations
+    val reserve = table.getClass(cn("SoloSetup_ResourceReserve"))
+    val effect = reserve.interpretTypeVariablesIn(reserve.declaration.authoredEffects.single())
+    val bound =
+        effect.typeVariables
+            .bind(mapOf(reserve.typeVariables.single() to table.resolve(te("Steel"))))
+            .transformEffect(effect)
+
+    bound.toString() shouldBe "This: EACH R@StandardResource { R@StandardResource }, Steel"
+    val each = bound.instruction.descendantsOfType<Each>().single()
+    each.bodyFor(cn("Plant").expression).toString() shouldBe "Plant"
+    parseClasses(reserve.declaration.toString()).single() shouldBe reserve.declaration
   }
 
   @Test

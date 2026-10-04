@@ -155,9 +155,9 @@ internal class Spec02ClassesTest {
   @Test
   internal fun `T2-5 a supertype cycle is rejected`() {
     shouldThrow<InvalidPetDefinitionException> {
-      loadTypes("CLASS GreeneryTile : CityTile", "CLASS CityTile : GreeneryTile")
+      loadTypes("ABSTRACT CLASS Area : MarsArea", "ABSTRACT CLASS MarsArea : Area")
     }
-    shouldThrow<InvalidPetDefinitionException> { loadTypes("CLASS GreeneryTile : GreeneryTile") }
+    shouldThrow<InvalidPetDefinitionException> { loadTypes("ABSTRACT CLASS Area : Area") }
   }
 
   // T2-6 Declaration order

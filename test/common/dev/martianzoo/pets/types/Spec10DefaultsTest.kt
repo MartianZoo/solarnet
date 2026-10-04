@@ -65,11 +65,23 @@ internal class Spec10DefaultsTest {
 
   @Test
   internal fun `T10-1 defaultType is the base type with the all-uses defaults applied`() {
-    // Inherited dependencies come first, so `Owned_0` precedes `Tile_0`.
-    mars.getClass(cn("GreeneryTile")).baseType.expressionFull shouldBe
-        te("GreeneryTile<Owner, MarsArea>")
-    mars.getClass(cn("GreeneryTile")).defaultType.expressionFull shouldBe
-        te("GreeneryTile<Owner, MarsArea>")
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS CardLocation {
+              CLASS Hand
+              CLASS Discard
+            }
+            """,
+            "ABSTRACT CLASS CardBack<CardLocation> { DEFAULT CardBack<Hand> }",
+            "CLASS ProjectCard : CardBack",
+        )
+    val projectCard = table.getClass(cn("ProjectCard"))
+
+    projectCard.baseType.expressionFull shouldBe te("ProjectCard<CardLocation>")
+    projectCard.defaultExpression shouldBe te("ProjectCard<Hand>")
+    projectCard.defaultType.expressionFull shouldBe te("ProjectCard<Hand>")
+    table.resolve(te("ProjectCard")) shouldBe projectCard.baseType
   }
 
   @Test
@@ -165,6 +177,33 @@ internal class Spec10DefaultsTest {
 
     table
         .getClass(cn("CityTile"))
+        .defaults
+        .gainOnly
+        .dependencies
+        .get(Key(cn("Tile"), 0))
+        .expressionFull shouldBe te("LandArea")
+  }
+
+  @Test
+  internal fun `T10-4 compatible defaults from separate inheritance paths intersect`() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS Area {
+              ABSTRACT CLASS MarsArea {
+                ABSTRACT CLASS LandArea { CLASS Tharsis_2_2 }
+              }
+            }
+            ABSTRACT CLASS Tile<Area>
+            ABSTRACT CLASS MarsTile : Tile { DEFAULT +MarsTile<MarsArea> }
+            ABSTRACT CLASS LandTile : Tile { DEFAULT +LandTile<LandArea> }
+            CLASS GreeneryTile : LandTile, MarsTile
+            """
+                .trimIndent()
+        )
+
+    table
+        .getClass(cn("GreeneryTile"))
         .defaults
         .gainOnly
         .dependencies
