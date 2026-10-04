@@ -1,7 +1,6 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -40,11 +39,11 @@ internal class UnknownRulesTest : CardTest() {
     newGame(PreludeExpansion, PromoCardPack)
     p1.playCorp(ValleyTrust, 5)
     admin.phase("Prelude")
-    p1.playPrelude(Merger) { p1.playCorp(TharsisRepublic, location = cn("Selecting")) }
+    p1.playPrelude(Merger) { p1.playCorp(TharsisRepublic) }
     admin.phase("Action")
 
     p1.stdAction("DoRequiredActionsAction") {
-      p1.playPrelude(Donation, location = cn("Selecting")) { placeTile(3, 3) }
+      p1.playPrelude(Donation) { placeTile(3, 3) }
     }
     p1.count("CityTile<Tharsis_3_3>") shouldBe 1
     p1.count("RequiredAction") shouldBe 0
@@ -65,7 +64,7 @@ internal class UnknownRulesTest : CardTest() {
           doTask("ActionUsedMarker<$BoardOfDirectors>")
           doTask("UseAction<$BoardOfDirectors, Action1>")
           doTask("-12 MC")
-          playPrelude(Merger) { playCorp(TharsisRepublic, location = cn("Selecting")) }
+          playPrelude(Merger) { playCorp(TharsisRepublic) }
         }
         useStdAction("DoRequiredActionsAction", payment = {}) {
           placeTile(3, 3)
@@ -98,7 +97,7 @@ internal class UnknownRulesTest : CardTest() {
     newGame(PreludeExpansion, PromoCardPack, ColoniesExpansion, colonyTiles = testColonyTiles(2))
     playCorporationWithoutStartingProjects(p1, CrediCor)
     admin.phase("Prelude")
-    p1.playPrelude(Merger) { p1.playCorp(Poseidon, location = cn("Selecting")) }
+    p1.playPrelude(Merger) { p1.playCorp(Poseidon) }
     val moneyAfterMerger = p1.count("MC")
     fillSelectedColonySlots()
     admin.phase("Action")

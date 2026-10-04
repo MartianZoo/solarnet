@@ -2,13 +2,15 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestOption.Prelude2CardPack
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
+import dev.martianzoo.tfm.tests.cards.cardnames.CrediCor
+import dev.martianzoo.tfm.tests.cards.cardnames.Donation
 import dev.martianzoo.tfm.tests.cards.cardnames.IndustrialComplex
 import dev.martianzoo.tfm.tests.cards.cardnames.NewPartner
+import dev.martianzoo.tfm.tests.cards.cardnames.PowerGeneration
 import dev.martianzoo.tfm.tests.cards.cardnames.ValleyTrust
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -17,19 +19,33 @@ import kotlin.test.Test
 internal class NewPartnerTest : CardTest() {
 
   @Test
+  internal fun `New Partner plays the offered Prelude and leaves the other hand card alone`() {
+    newGame(PreludeExpansion, PromoCardPack)
+    p1.playCorp(CrediCor, 0)
+    admin.phase("Prelude")
+
+    shouldThrow<NarrowingException> {
+      p1.playPrelude(NewPartner) {
+        p1.assertCounts(1 to "PreludeCard<Hand>")
+        doTask("PlayCard<Class<PreludeCard>, Class<$Donation>, Hand>")
+      }
+    }
+
+    p1.playPrelude(NewPartner) { p1.playPrelude(Donation) }.expect("21 MC, PROD[MC]")
+    p1.assertCounts(1 to "PreludeCard<Hand>", 0 to "PreludeCard<Selecting>", 1 to "$Donation")
+
+    p1.playPrelude(PowerGeneration).expect("PROD[3 Energy]")
+    p1.assertCounts(0 to "PreludeCard<Hand>", 0 to "PreludeCard<Selecting>")
+  }
+
+  @Test
   internal fun `New Partner can fizzle an unaffordable Industrial Complex`() {
     newGame(PreludeExpansion, Prelude2CardPack, PromoCardPack)
     p1.playCorp(ValleyTrust, 8)
     admin.phase("Prelude")
-    shouldThrow<NarrowingException> {
-      p1.playPrelude(NewPartner) {
-        p1.assertCounts(1 to "PreludeCard<Hand>")
-        p1.playPrelude(IndustrialComplex)
-      }
-    }
     shouldThrow<LimitsException> {
       p1.playPrelude(NewPartner) {
-        p1.playPrelude(IndustrialComplex, location = cn("Selecting"))
+        p1.playPrelude(IndustrialComplex)
       }
     }
 

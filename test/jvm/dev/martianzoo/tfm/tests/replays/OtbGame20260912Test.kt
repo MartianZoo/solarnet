@@ -1076,7 +1076,7 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
       convertPlants { placeTile(7, 9) }
     }
     yellow.turn {
-      playProject(WgProject, 9) { playPrelude(CorporateArchives, location = cn("Selecting")) }
+      playProject(WgProject, 9) { playPrelude(CorporateArchives) }
     }
     blue.turn {
       // The phone call obscures this play in the transcript. Blue's continuous ledger records its

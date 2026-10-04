@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.NONE
-import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -194,7 +193,7 @@ internal class MassiveGammaZoneTest : AbstractSoloTest() {
       buyCards(2)
       cardAction1(BoardOfDirectors) {
         doTask("-12 MC")
-        playPrelude(Merger) { playCorp(LakefrontResorts, location = cn("Selecting")) }
+        playPrelude(Merger) { playCorp(LakefrontResorts) }
       }
       cardAction1(FakeAppliedScience) { addCardResources(BoardOfDirectors) }
       stdProject("AquiferProject") { placeTile(6, 7) }
