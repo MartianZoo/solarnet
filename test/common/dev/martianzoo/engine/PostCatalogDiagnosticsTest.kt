@@ -2451,10 +2451,13 @@ internal class PostCatalogDiagnosticsTest {
           agent.runOperation("Rose")
         }
 
-    assertEquals("cannot gain 1 `Rose`: maximum available is 0", error.detail)
+    assertEquals(
+        "component count invariant violated: `Rose` (found 2, expected 0..1)",
+        error.detail,
+    )
     assertEquals(
         """
-        |cannot gain 1 `Rose`: maximum available is 0 at 1:1
+        |component count invariant violated: `Rose` (found 2, expected 0..1) at 1:1
         |Rose
         |^
         """

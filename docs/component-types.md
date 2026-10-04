@@ -32,13 +32,17 @@ Each area has a supertype that is one of `RemoteArea`, `WaterArea`, `LandArea`, 
 
 All areas except for `RemoteArea`s have the supertype `MarsArea`, so that cards like `Martian Rails` can work, and so that tiles except `CityTile`s can be restricted to those areas.
 
-Areas don't get created for maps you aren't using in that game. So for example if the board is Hellas then the requirement `MAX 0 VolcanicArea` evalutes to true. That's handy for Lava Tube Settlement: `CityTile<VolcanicArea> OR (MAX 0 VolcanicArea: CityTile)`.
+Areas don't get created for maps you aren't using in that game. So for example if the board is Hellas then the requirement `MAX 0 VolcanicArea` evalutes to true. That's handy for Lava Tube Settlement: `CityTile<VolcanicArea> OR (MAX 0 VolcanicArea: CityTile<>)`.
 
 ### Tiles
 
 `Tile` is declared as `ABSTRACT CLASS Tile<Area>` which gives it a dependency onto `Area`. This means no tile can ever exist without having a specific `Area` that it relates to. Of course, tiles that aren't on the board yet are treated as simply not existing.
 
-Area, by the way, was declared with `HAS MAX 1 Tile<This>`. That's our first example of an *invariant*; the engine will ensure that no 2 distinct Tile instances will ever relate to the same Area.
+Area, by the way, was declared with `HAS MAX 1 Tile<This>`. That's our first example of an
+*invariant*: a completed operation may leave at most one Tile on each Area. The engine checks the
+initiating change together with all its recursive automatic consequences; effects can still observe
+intermediate counts. See
+[invariants and operation completion](type-system.md#invariants-and-operation-completion).
 
 As for tile subtypes, we mentioned `OceanTile`, but will get to the rest in the player-specific section below.
 
@@ -53,8 +57,8 @@ money and puts an `OceanTile` instruction on the player's task queue.
 
 ### Phases
 
-After Admin creates `BootstrapPhase`, exactly one Phase instance exists at all times. It becomes
-`SetupPhase` when effectful setup starts and continues through
+After Admin creates `BootstrapPhase`, the Phase invariant requires exactly one instance at each
+operation's completion. It becomes `SetupPhase` when effectful setup starts and continues through
 `CorporationPhase`, `ResearchPhase`, `ProductionPhase`, and the other ordinary phases. A signal
 called `End` triggers victory point payouts (it has such a short name because it has to be written
 on MANY cards!).

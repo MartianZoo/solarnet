@@ -166,7 +166,8 @@ restrictions do not make refinement types a separate kind of expression.
   of the game universe and defines inhabitance relative to it. Which classes a premise selects is
   decided when the premise is constructed, not by the type system.
 - **Component-count invariants**, except for the one rule the type system leans on (T3-9): a
-  dependency may only target a type limited to a single copy.
+  dependency may only target a type limited to a single copy. Runtime enforcement at
+  [operation completion](type-system.md#invariants-and-operation-completion) belongs to the engine.
 - **What the rest of Pets means.** Instructions, requirements, metrics, triggers and declarations
   are the subject of [the Pets language specification](pets-language-spec.md), whose rules are cited
   here as `L2-10`. How an engine brings a change about is outside both documents.

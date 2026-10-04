@@ -231,7 +231,7 @@ pruning machinery.
 `Die` is concrete and therefore final, but `HAS MAX 0 This` gives it zero component capacity in
 every World. That differs honestly from a structurally uninhabited Type, which has no concrete
 narrowing in a particular universe. The engine may derive the same terminal result from either
-fact: a mandatory gain cannot execute, while a nonmandatory gain resolves to no change. `Die`
+fact: a mandatory gain cannot complete, while a nonmandatory gain resolves to no change. `Die`
 retains named task normalization because it is the canonical impossible instruction and can be
 recognized before World-relative resolution.
 

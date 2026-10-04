@@ -22,7 +22,9 @@ public data class CardDefinition(
       when {
         deck != PROJECT_DECK -> null
         tags.lastOrNull() == EVENT_TAG -> EVENT_CARD
-        actions.isNotEmpty() || effects.any { !it.isScoringEffect() } -> ACTIVE_CARD
+        actions.isNotEmpty() ||
+            invariants.any { it.startsWith("=") } ||
+            effects.any { !it.isScoringEffect() } -> ACTIVE_CARD
         else -> AUTOMATED_CARD
       }
 

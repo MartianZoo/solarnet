@@ -55,7 +55,8 @@ public object Engine {
             recordingPositions,
             ::removeTemporaryComponent,
         )
-    private val instructor = Instructor(reader, limiter, changer, effector, classTable, elaborator)
+    private val instructor =
+        Instructor(reader, limiter, changer, effector, classTable, elaborator, timeline)
     private val actorEngines: Map<Actor, ActorEngine> =
         premise.actors.associateWith(::createActorEngine)
     private val initializer =
@@ -83,6 +84,7 @@ public object Engine {
     internal fun createWorld(): WholeWorld {
       try {
         initializer.initialize()
+        limiter.checkRequiredCounts = true
       } catch (e: GameplayException) {
         throw InvalidGameConfigException(
             "game setup cannot complete: ${e.detail}",

@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -14,6 +15,11 @@ internal class SpliceTacticalGenomicsTest : CardTest() {
   internal fun `Splicer depends on Splice`() {
     newGame(PromoCardPack)
     addSpliceChoosingMoney()
+    p1.count("Splicer<$SpliceTacticalGenomics>") shouldBe 1
+
+    shouldThrow<LimitsException> {
+      p1.runOperation("-Splicer<$SpliceTacticalGenomics>!")
+    }
     p1.count("Splicer<$SpliceTacticalGenomics>") shouldBe 1
 
     p1.runOperation("-$SpliceTacticalGenomics")

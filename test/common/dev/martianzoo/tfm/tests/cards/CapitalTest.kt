@@ -38,7 +38,9 @@ internal class CapitalTest : CardTest() {
     p1.playProject(Capital, 26) { placeTile(3, 3) }
 
     p1.assertCounts(1 to "CityTile<Tharsis_3_3>")
-    p1.runOperation("CityTile<Tharsis_8_8>")
+    p1.runOperation("PROD[Energy]")
+    // Capital makes CityTile ambiguous; choose the ordinary subtype explicitly.
+    p1.runOperation("$CupolaCity") { doTask("NormalCityTile<Tharsis_8_8>") }
     p1.assertCounts(2 to "CityTile", 1 to "SpecialTile")
     p1.runOperation("GreeneryTile<Tharsis_2_3>")
     admin.runOperation("End FROM Phase")

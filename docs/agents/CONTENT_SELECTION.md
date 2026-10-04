@@ -83,6 +83,25 @@ can own core vocabulary without a Module, though `PromoCardPack` currently is on
 `Floater` are core to the wider game. Turmoil's ruling bonus effects live on their Party
 declarations; each party's policy Class sits immediately below it.
 
+## Card-data compilation
+
+`CardPetsGenerator` treats a card-data invariant of the form `=n Attachment<..., This>` as
+construction shorthand when `n` is positive, `This` is a direct argument, and the expression has no
+refinements or Type variables. It emits both `HAS =n ...` and a mandatory `This:: n ...!` gain.
+Class literals, other bounds, global counts, and indirect dependencies remain constraints only.
+This is card-data sugar; ordinary Pets invariants still do not create components. Authors must
+ensure the generated gain needs no choice; the compiler does not infer targets or dependency order.
+
+Printed tags become exact-count invariants and use the same creation path, preserving repeated tag
+counts. Explicit attachment invariants precede generated tag invariants; identical requirements are
+deduplicated. Generated gains are comma-grouped, with tags in a separate effect from other
+attachments so tag and behavior inspection remain separate. Authored
+automatic `This` effects run before these generated effects, then ordinary on-play instructions
+follow. This lets Splice's attachment observe its own tag and preserves
+Pharmacy Union's starting money before its tag consequences. Authored exact-count invariants count
+as ongoing behavior when deriving a blue project card; generated tag invariants do not change color.
+Initial spendable resources, choices, and shared-state changes remain ordinary instructions.
+
 ## Inclusion when an expansion is absent
 
 **Working distinctions.** A Content item's bundle establishes provenance, not its dependencies.

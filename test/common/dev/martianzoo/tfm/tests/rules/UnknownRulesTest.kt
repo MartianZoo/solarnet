@@ -85,7 +85,9 @@ internal class UnknownRulesTest : CardTest() {
     fillSelectedColonySlots()
     admin.phase("Action")
 
-    shouldThrow<LimitsException> { p1.stdAction("DoRequiredActionsAction") }
+    shouldThrow<LimitsException> {
+      p1.stdAction("DoRequiredActionsAction") { doTask("Colony<Luna>") }
+    }
     p1.count("RequiredAction") shouldBe 1
     p1.count("Colony") shouldBe 0
   }
@@ -102,7 +104,9 @@ internal class UnknownRulesTest : CardTest() {
     fillSelectedColonySlots()
     admin.phase("Action")
 
-    shouldThrow<LimitsException> { p1.stdAction("DoRequiredActionsAction") }
+    shouldThrow<LimitsException> {
+      p1.stdAction("DoRequiredActionsAction") { doTask("Colony<Luna>") }
+    }
     p1.count("$Poseidon") shouldBe 1
     p1.count("$Merger") shouldBe 1
     p1.count("MC") shouldBe moneyAfterMerger

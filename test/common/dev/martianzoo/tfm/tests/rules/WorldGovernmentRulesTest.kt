@@ -170,7 +170,7 @@ internal class WorldGovernmentRulesTest : CardTest() {
     admin.runOperation("7 VenusStep")
     fillSelectedColonySlots()
 
-    shouldThrow<LimitsException> { p1.runOperation("VenusStep") }
+    shouldThrow<LimitsException> { p1.runOperation("VenusStep") { doTask("Colony<Luna>") } }
     admin.count("VenusStep") shouldBe 7
     p1.count("Colony") shouldBe 0
   }

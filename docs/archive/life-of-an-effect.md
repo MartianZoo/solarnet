@@ -10,7 +10,8 @@ interesting stages without making any one of them unusually difficult:
 ```pets
 CLASS Recyclon : ResourceCard<Class<Microbe>, Class<StandardCorporationCard>> {
   cost = 0
-  This:: MicrobeTag<This>, BuildingTag<This>
+  HAS =1 MicrobeTag<This>, =1 BuildingTag<This>
+  This:: MicrobeTag<This>!, BuildingTag<This>!
   This: 38 MC, PROD[Steel]
   BuildingTag: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])
 }
@@ -109,15 +110,17 @@ and the Catalog source pipeline parses that declaration. Its behavior-bearing pa
 ```pets
 CLASS Recyclon : ResourceCard<Class<Microbe>, Class<StandardCorporationCard>> {
   cost = 0
-  This:: MicrobeTag<This>, BuildingTag<This>
+  HAS =1 MicrobeTag<This>, =1 BuildingTag<This>
+  This:: MicrobeTag<This>!, BuildingTag<This>!
   This: 38 MC, PROD[Steel]
   BuildingTag: Microbe<This> OR (-2 Microbe<This> THEN PROD[Plant])
 }
 ```
 
 The last line is our original Source Effect. The preceding lines are generated from the card's tags,
-immediate instruction, cost, deck, and derived resource role. Generation preserves the authored
-order of Effects. The parsed declaration enters the Catalog without a card-mode transformation.
+immediate instruction, cost, deck, and derived resource role. Tags use the same exact-count invariant
+and automatic creation path as fixed card attachments. Generation preserves the authored order of
+Effects. The parsed declaration enters the Catalog without a card-mode transformation.
 
 **Postcondition:** the Effect now has a Class Declaration as its Context. The declaration says what
 Recyclon directly contributes, but remains inert: it is not yet a Class and has not inherited
@@ -282,7 +285,7 @@ now paired with an existing Component and is ready to respond to matching Change
 
 The number of Components matters. One existing Component contributes one live copy of each Effect;
 removing that Component removes its live behavior. Recyclon's Invariant permits at most one
-matching copy, but the general rule is not card-specific.
+matching copy at operation completion, but live Effects track intermediate counts as well.
 
 **Postcondition:** there is an existing context Component for this Effect, and the Game World will
 test the Live Effect against relevant Change Events for exactly as long as that Component exists.
@@ -424,11 +427,13 @@ least two microbes on Recyclon, it becomes the Selected Task for exactly:
 -2 Microbe<Recyclon<Player1>>!
 ```
 
-Resolution has checked the current counts and applicable Invariants and applied every
-Game-World-dependent calculation. The Selected Task is locked as the next Task to finish, because
-those conclusions were drawn from the current World. Here there is no remaining choice.
+Resolution has checked that the source microbes exist and applied every Game-World-dependent
+calculation. The Selected Task is locked as the next Task to finish, because those conclusions were
+drawn from the current World. Here there is no remaining choice.
 
-The engine therefore executes it, and the client observes:
+The engine executes the removal and all its recursive automatic consequences, then validates the
+applicable count Invariants to complete the operation. A failed check rolls back the transaction.
+Here the operation succeeds, and the client observes:
 
 - the count of `Microbe<Recyclon<Player1>>` has decreased by two;
 - a Change Event records that exact removal, its Performer, and the Task's Cause; and
@@ -456,7 +461,10 @@ The engine executes it, and the client observes the final State Change: one
 `Production<Player1, Class<Plant>>` Component has been gained, with a corresponding Change Event.
 
 Nothing in `THEN` makes this gain part of the same State Change as the microbe removal. They are two
-separate, observable changes, and other Effects may respond between them.
+separate, observable changes, and other Effects may respond between them. Each selected Task here
+initiates its own operation, including its recursive automatic consequences, and must satisfy count
+Invariants at that operation's completion. The queued production gain cannot repair an invariant
+violation left by the removal.
 
 **Postcondition:** the plant-production Component exists, its gain is recorded, and Recyclon's
 Triggered Instruction has no remaining Task or continuation.

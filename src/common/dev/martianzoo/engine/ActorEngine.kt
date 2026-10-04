@@ -600,7 +600,7 @@ internal constructor(
   ) {
     val evaluated = evaluatePer(narrowing)
     try {
-      doTask(evaluated, quantifierOmitted, executeSubmittedGroup, taskId)
+      timeline.atomic { doTask(evaluated, quantifierOmitted, executeSubmittedGroup, taskId) }
     } catch (_: NotFullySpecifiedException) {
       // A probe that needs narrowing leaves the task and event history unchanged.
     } catch (_: NotNowException) {

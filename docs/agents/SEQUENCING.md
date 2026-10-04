@@ -38,6 +38,9 @@ The current implementation provides these structural guarantees:
   triggering event as its cause.
 - **Automatic coherence:** all automatic consequences of one change run before queued effects of
   that change are evaluated.
+- **Invariant completion:** declared component-count bounds hold when an initiating change and all
+  its recursive automatic consequences complete. This is the full operation for
+  [count validation](QUANTIFIERS.md#invariants-at-operation-completion).
 - **Trigger snapshot:** every automatic listener in one batch decides whether it matches, including
   trigger-side conditions, against the same post-change World.
 - **Failure atomicity:** an exception or dead end restores components, tasks, history, and derived
@@ -45,8 +48,9 @@ The current implementation provides these structural guarantees:
 - **Selection integrity:** only one task may be selected across the World, and authored Pets cannot
   edit, cancel, or reprioritize another task.
 
-Trigger snapshot is enforced by the eager construction of `Effector.fire`'s result, but no focused
-regression test currently pins it.
+Trigger snapshot is enforced by the eager construction of `Effector.fire`'s result;
+`automaticSiblingsRetainTheirOriginalTriggerSnapshot` pins observation of intermediate counts
+before operation completion.
 
 Two broader rules are design obligations rather than mechanically proved properties:
 
@@ -166,9 +170,11 @@ already-resolved A; the precursor remains an ordinary recorded change with an ho
 
 ## The missing rule: when an operation is over
 
-The engine can represent current components, pending tasks, point events, and intervals represented
-by live components. It cannot yet derive that one particular interval is finished when all work
-caused by that interval is gone.
+An initiating component change and its recursive automatic consequences already have a defined
+completion boundary for count invariants. The missing rule concerns broader game operations that
+span queued work. The engine can represent current components, pending tasks, point events, and
+intervals represented by live components. It cannot yet derive that one particular interval is
+finished when all work caused by that interval is gone.
 
 The existing approximations measure different things:
 
@@ -205,8 +211,11 @@ lifecycle and delete one client bridge that currently recognizes its tasks. Do n
 `Temporary`, add a task cache, or introduce a general scope framework in that slice. If it cannot be
 done with one narrow lifetime marker and its completion consequence, stop and reassess the model.
 
-A later benefit may be a correct validation point for positive lower bounds temporarily broken and
-repaired by one causal operation. That possibility must not broaden the first slice.
+Component-count invariants are already enforced at
+[operation completion](QUANTIFIERS.md#invariants-at-operation-completion), where the operation is
+one initiating change and its recursive automatic consequences. Extending that boundary across
+queued work in one causal operation is a separate possible benefit; it must not broaden the first
+slice.
 
 ## Cleanup vocabulary
 
@@ -242,9 +251,9 @@ completion exists.
 
 ## Open evidence and rule questions
 
-The most valuable missing checks are a direct trigger-snapshot regression, a seeded
-automatic-listener permutation test comparing normalized state and task multisets, and a replay
-experiment that permutes representative legal player-task orders through the next stable point.
+The most valuable missing checks are a seeded automatic-listener permutation test comparing
+normalized state and task multisets, and a replay experiment that permutes representative legal
+player-task orders through the next stable point.
 Exact event order need not match.
 
 Two content cases remain evidence for missing or unsettled semantics, not invitations to build
