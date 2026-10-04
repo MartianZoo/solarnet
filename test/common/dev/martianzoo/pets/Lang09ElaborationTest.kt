@@ -215,9 +215,26 @@ internal class Lang09ElaborationTest {
 
   @Test
   internal fun `L9-12 an evaluation stays unexpanded while its receiver is abstract`() {
-    // `Scored.score` is only a bound, so nothing can be substituted for it yet.
-    classEffects("SimpleRule").single() shouldBe
-        parse<Effect>("This BY Owner: ProjectCard<Owner>!, ProjectCard<Owner>!, Plant<Owner>!")
+    // Simplified from Award.metric and Landlord: the selected award supplies the scoring metric.
+    val table =
+        testCatalog(
+                """
+                CLASS VictoryPoint
+                CLASS OwnedTile
+                ABSTRACT CLASS Award {
+                  metric = Metric
+                  This: VictoryPoint / EVAL This.metric
+                }
+                CLASS Landlord : Award { metric = COUNT "OwnedTile" }
+                """
+            )
+            .classTable
+    val elaborator = PetElaborator(table)
+
+    elaborator.classEffects(table.getClass(cn("Award"))).single() shouldBe
+        parse<Effect>("This: VictoryPoint! / EVAL This.metric")
+    elaborator.classEffects(table.getClass(cn("Landlord"))).single() shouldBe
+        parse<Effect>("This: VictoryPoint! / OwnedTile")
   }
 
   @Test

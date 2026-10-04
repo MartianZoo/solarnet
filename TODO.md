@@ -4,6 +4,24 @@
 
 Issue links provide background. Inline TODOs should be brief context pointers.
 
+## Pets specification fidelity audit
+
+The audit follows the language and type specifications, their conformance tests, Kotlin KDoc, and
+Pets implementation together. Constructs specify obligations for consumers; execution witnesses
+remain in state/engine tests. Prefer bounded fidelity repairs, using simplification only when it
+helps. Preserve optimizations after checking semantic equivalence and mark missing benchmark
+evidence. Characterize discrepancies in `BugsTest` when a repair develops disproportionate ripple
+effects. Review each repair with Opus/high before committing it.
+
+- [ ] Audit language rules and examples against tests of the information their constructs retain.
+- [ ] Audit type rules and examples against meaningful conformance assertions.
+- [ ] Remove Kotlin implementation details from the mathematical specifications; put justified
+  API-only contracts in KDoc with appropriate tests.
+- [ ] Check implementation complexity with bounded removal experiments and retain evidence for
+  necessary behavior; distinguish known defects from conformance.
+- [ ] Review the final contracts and test doubles for accidental promises or duplicated runtime
+  semantics, and record any remaining bounded discrepancies below.
+
 ## User Ideas and Agreed Directions
 
 - Look for a small way to evaluate the existing `CardFilter` criteria against a card Class in Pets.
