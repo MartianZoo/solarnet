@@ -85,7 +85,7 @@ internal class HellasPromoGameTest : AbstractFullGameTest() {
 
     p1.turn {
       playProject(DevelopmentCenter, 1, steel = 4) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
       }
       playProject(GeothermalPower, 1, steel = 4)
       playProject(MirandaResort, 10) // 1 VP<Player1>

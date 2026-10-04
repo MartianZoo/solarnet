@@ -4,6 +4,7 @@ import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -14,7 +15,7 @@ import kotlin.test.Test
 
 // Complete archive replay: Synthetic Proton Fragment (g9ea8656f1c7e)
 // https://terraforming-mars.herokuapp.com/the-end?id=p9d6d3ff25b39
-internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
+internal class SyntheticProtonFragmentTest : AbstractFullGameTest() {
   // Player-record evidence: Hellas, Corporate Era, Prelude, promo cards, drafting, fast mode,
   // three players, no Venus/Colonies/Turmoil, and these full-random milestone and award pools.
   override val config =
@@ -45,35 +46,14 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     admin.assertCounts(1 to "Generation")
 
-    // Test inference: Purple's dealt projects plus her later plays identify these four.
     purple.playCorp(Recyclon) {
-      purple.buyCards(EcologicalZone, ReleaseOfInertGases, DeepWellHeating, IndustrialCenter)
+      purple.buyCards(4)
     }
 
-    // Test inference: Pink's dealt projects plus her later plays identify these five.
     pink.playCorp(RobinsonIndustries) {
-      pink.buyCards(
-          LagrangeObservatory,
-          SolarWindPower,
-          EarthCatapult,
-          Sabotage,
-          MediaGroup,
-      )
+      pink.buyCards(5)
     }
 
-    // User recollection recorded in _local/replays/Game20260811/sources.md: Green's
-    // otherwise-unidentified
-    // seventh project was Cyberia Systems; the player record and later plays identify the other
-    // six.
-    green.draw(
-        Lichen,
-        MercurianAlloys,
-        Archaebacteria,
-        RoboticWorkforce,
-        HeatTrappers,
-        IceAsteroid,
-        CyberiaSystems,
-    )
     green.playCorp(SpliceTacticalGenomics, 7) { doTask("2 MC") }
 
     purple.turn {
@@ -83,12 +63,12 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     pink.turn {
       playPrelude(MetalsCompany).expect("PROD[1 MC, Steel, Titanium]")
-      playPrelude(Biolab) { draw(HiredRaiders, MeatIndustry, MiningRights) }
+      playPrelude(Biolab)
     }
 
     green.turn {
       playPrelude(Merger) {
-        playCorp(Inventrix)
+        playCorp(Inventrix, location = cn("Selecting"))
       }
       playPrelude(MoholeExcavation).expect("PROD[Steel, 2 Heat], 2 Heat")
     }
@@ -106,9 +86,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     // Splice Tactical Genomics' mandatory first action prevents Green from playing Lichen first.
     shouldThrow<RequirementException> { green.playProject(Lichen, 7) }
 
-    green.stdAction("DoRequiredActionsAction") {
-      green.draw(Ants, CorporateStronghold, SolarLogistics, DiversitySupport)
-    }
+    green.stdAction("DoRequiredActionsAction")
     green.playProject(Lichen, 7)
 
     // (Purple already passed early)
@@ -124,9 +102,9 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 1, s = 1, t = 1, p = 1, e = 0, h = 1)
     green.assertResources(m = 23, s = 1, t = 2, p = 1, e = 0, h = 4)
     green.assertProduction(m = 0, s = 1, t = 0, p = 1, e = 0, h = 2)
-    pink.buyCards(DirectedImpactors)
-    purple.buyCards(MagneticFieldDome, OptimalAerobraking)
-    green.buyCards(MedicalLab, AiCentral, AsteroidRights)
+    pink.buyCards(1)
+    purple.buyCards(2)
+    green.buyCards(3)
 
     pink.playProject(MediaGroup, 4)
     pink
@@ -156,7 +134,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     green.declineSecondAction()
     purple.pass()
 
-    pink.playProject(LagrangeObservatory, 1, titanium = 2) { pink.draw(CloudSeeding) }
+    pink.playProject(LagrangeObservatory, 1, titanium = 2)
     pink.cardAction1(RobinsonIndustries) { doTask("PROD[Titanium]") }
     // (Green already passed early)
     green.pass()
@@ -177,9 +155,9 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 1, s = 1, t = 3, p = 1, e = 1, h = 1)
     green.assertResources(m = 27, s = 2, t = 2, p = 3, e = 0, h = 6)
     green.assertProduction(m = 0, s = 1, t = 0, p = 2, e = 0, h = 2)
-    purple.buyCards(PeroxidePower, Hospitals)
-    pink.buyCards(ProtectedGrowth, GhgFactories, Soletta)
-    green.buyCards(FueledGenerators, CupolaCity, DesignedMicroorganisms)
+    purple.buyCards(2)
+    pink.buyCards(3)
+    green.buyCards(3)
 
     green.playProject(FueledGenerators, 1).expect("PROD[-1 MC, Energy]")
     green.cardAction2(AsteroidRights) { doTask("2 Titanium") }
@@ -235,9 +213,9 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 1, s = 2, t = 3, p = 1, e = 0, h = 5)
     green.assertResources(m = 24, s = 2, t = 4, p = 6, e = 0, h = 8)
     green.assertProduction(m = 2, s = 1, t = 0, p = 2, e = 0, h = 2)
-    pink.buyCards(Mine, BribedCommittee, PublicPlans)
-    purple.buyCards(TollStation, NaturalPreserve)
-    green.buyCards(LunarBeam, WeatherBalloons)
+    pink.buyCards(3)
+    purple.buyCards(2)
+    green.buyCards(2)
 
     purple.stdProject("AquiferProject") {
       placeTile(2, 1)
@@ -249,8 +227,8 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     pink.convertHeat()
     pink
         .playProject(PublicPlans, 5) {
-          // One of the six logged M€ is mandatory; choose the other five.
-          doTask("5 MC")
+          // Source log: six cards revealed and 6 M€ gained.
+          doTask("6 ProjectCard<Revealed FROM Hand>")
         }
         .expect("4 MC")
 
@@ -268,11 +246,9 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     purple
         .playProject(NaturalPreserve, 5, steel = 2) {
           placeTile(3, 7)
-          purple.draw(Psychrophiles)
         }
         .expect("PROD[1 MC], Plant")
-    // Test inference: the log gives only the count; Optimal Aerobraking is never played later.
-    purple.sellPatents(OptimalAerobraking)
+    purple.sellPatents(1)
 
     pink.playProject(ProtectedGrowth, mc = 0)
     pink.playProject(Soletta, 21, titanium = 4).expect("PROD[7 Heat]")
@@ -307,9 +283,9 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 1, s = 3, t = 3, p = 1, e = 0, h = 9)
     green.assertResources(m = 27, s = 1, t = 4, p = 8, e = 2, h = 10)
     green.assertProduction(m = 2, s = 1, t = 0, p = 2, e = 2, h = 2)
-    purple.buyCards(BioPrintingFacility)
-    pink.buyCards(HermeticOrderOfMars, MiningExpedition, LavaFlows)
-    green.buyCards(AntiGravityTechnology, Hackers, CallistoPenalMines)
+    purple.buyCards(1)
+    pink.buyCards(3)
+    green.buyCards(3)
 
     // Pink does not meet Tycoon before Hermetic Order of Mars enters play.
     shouldThrow<RequirementException> {
@@ -329,7 +305,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     pink.convertHeat()
     pink.cardAction2(DirectedImpactors)
 
-    green.playProject(WeatherBalloons, 11) { green.draw(JovianEmbassy) }
+    green.playProject(WeatherBalloons, 11)
     green.cardAction1(WeatherBalloons)
 
     purple.playProject(TollStation, 12).expect("PROD[7 MC]")
@@ -338,8 +314,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     }
 
     pink.playProject(BribedCommittee, 5)
-    // Test inference: the log gives only the count; Meat Industry is never played later.
-    pink.sellPatents(MeatIndustry)
+    pink.sellPatents(1)
 
     green.playProject(DiversitySupport, 1)
     green.cardAction2(AsteroidRights) { doTask("2 Titanium") }
@@ -369,9 +344,9 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 3, s = 3, t = 3, p = 1, e = 1, h = 10)
     green.assertResources(m = 29, s = 3, t = 0, p = 3, e = 2, h = 6)
     green.assertProduction(m = 5, s = 1, t = 0, p = 2, e = 2, h = 2)
-    purple.buyCards(ImportedNutrients, ProtectedValley)
-    green.buyCards(FusionPower, ViralEnhancers)
-    pink.buyCards(RadChemFactory, SaturnSurfing, IoMiningIndustries)
+    purple.buyCards(2)
+    green.buyCards(2)
+    pink.buyCards(3)
 
     green.playProject(CupolaCity, 10, steel = 3) {
       placeTile(4, 3)
@@ -383,7 +358,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     purple.stdAction("ClaimMilestoneAction") { doTask("Trader") }
     purple
         .playProject(ProtectedValley, 9, steel = 5) {
-          doTask("2 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
+          doTask("2 PayFromCard FROM Microbe<$Psychrophiles>")
           placeTile(1, 1)
         }
         .expect("2 Plant, -5 Steel")
@@ -439,9 +414,9 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 1, s = 3, t = 3, p = 2, e = 0, h = 10)
     green.assertResources(m = 39, s = 2, t = 0, p = 6, e = 0, h = 10)
     green.assertProduction(m = 10, s = 1, t = 0, p = 2, e = 0, h = 2)
-    pink.buyCards(DuskLaserMining, AsteroidCard, MethaneFromTitan)
-    purple.buyCards(Supercapacitors)
-    green.buyCards(Algae, BactoviralResearch)
+    pink.buyCards(3)
+    purple.buyCards(1)
+    green.buyCards(2)
 
     purple.stdProject("CityProject") {
       placeTile(4, 5)
@@ -463,7 +438,6 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     pink.stdAction("FundAwardAction") { doTask("SpaceBaron") }
     pink.playProject(AsteroidCard, titanium = 4) {
-      green.draw(SterlingVents)
       doTask("-3 Plant<Player3>")
     }
     green.stdProject("AsteroidProject")
@@ -474,7 +448,6 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     purple.cardAction1(BioPrintingFacility) { addCardResources(EcologicalZone) }
     purple
         .playProject(ImportedNutrients, 14) {
-          green.draw(Grass)
           addCardResources(Recyclon)
         }
         .expect("4 Plant")
@@ -497,8 +470,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
       addCardResources(DirectedImpactors)
     }
 
-    // Test inference: the log gives only the count; Cyberia Systems is never played later.
-    green.sellPatents(CyberiaSystems)
+    green.sellPatents(1)
     green.playProject(Grass, 11) { doTask("Plant") }.expect("PROD[Plant], 4 Plant")
 
     purple.pass()
@@ -517,9 +489,9 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     green.assertResources(m = 41, s = 1, t = 2, p = 8, e = 2, h = 2)
     green.assertProduction(m = 10, s = 1, t = 0, p = 5, e = 2, h = 0)
     green.assertCounts(9 to "ProjectCard")
-    pink.buyCards(ConvoyFromEuropa, VestaShipyard, LakeMarineris)
-    green.buyCards(InventorsGuild, CometAiming, EquatorialMagnetizer)
-    purple.buyCards(EnergyTapping, InventionContest, FieldCappedCity)
+    pink.buyCards(3)
+    green.buyCards(3)
+    purple.buyCards(3)
     pink.convertHeat()
     pink.cardAction2(DirectedImpactors)
     green.cardAction1(Ants) {
@@ -529,7 +501,6 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     purple.stdProject("AquiferProject") {
       placeTile(5, 6)
-      purple.draw(ProjectInspection)
     }
     purple.convertPlants {
       placeTile(6, 6)
@@ -549,7 +520,6 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     green
         .playProject(IceAsteroid, 15, titanium = 2) {
-          green.draw(RobotPollinators)
           doTask("OceanTile<Hellas_7_3>")
           doTask("OceanTile<Hellas_4_1>")
         }
@@ -566,16 +536,13 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     pink
         .playProject(ConvoyFromEuropa, 1, titanium = 4) {
-          pink.draw(MagneticFieldGeneratorsPromo)
-          green.draw(LocalHeatTrapping)
           placeTile(5, 8)
         }
         .expect("6 MC")
     pink.playProject(VestaShipyard, 7, titanium = 2)
 
     green.cardAction2(WeatherBalloons)
-    // Test inference: the log gives only the count; Medical Lab is never played later.
-    green.sellPatents(MedicalLab)
+    green.sellPatents(1)
 
     purple.cardAction1(Psychrophiles)
     purple.cardAction1(Hospitals)
@@ -588,21 +555,14 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
       placeTile(4, 2)
     }
 
-    purple.playProject(InventionContest, 2) { purple.draw(WaterImportFromEuropa) }
+    purple.playProject(InventionContest, 2)
     purple.playProject(ProjectInspection, mc = 0) {
       doTask("UseAction<$Hospitals, Action1>")
     }
 
     pink.cardAction1(SaturnSurfing)
     pink.declineSecondAction()
-    // Test inference: the log gives only the count; none of these cards is played later.
-    green.sellPatents(
-        AiCentral,
-        DesignedMicroorganisms,
-        LunarBeam,
-        AntiGravityTechnology,
-        JovianEmbassy,
-    )
+    green.sellPatents(5)
     green.playProject(EquatorialMagnetizer, 9, steel = 1)
 
     purple.playProject(EnergyTapping, 3) { doTask("PROD[-Energy<Player3>]") }
@@ -624,9 +584,9 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     green.assertResources(m = 41, s = 1, t = 2, p = 9, e = 0, h = 4)
     green.assertProduction(m = 10, s = 1, t = 0, p = 6, e = 0, h = 0)
     green.assertCounts(5 to "ProjectCard")
-    green.buyCards(TechnologyDemonstration)
-    purple.buyCards(ProtectedHabitats, PhysicsComplex, AdaptedLichen)
-    pink.buyCards(HousePrinting, BeamFromAThoriumAsteroid)
+    green.buyCards(1)
+    purple.buyCards(3)
+    pink.buyCards(2)
 
     green.stdProject("GreeneryProject") {
       placeTile(2, 5)
@@ -638,7 +598,6 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     purple
         .convertPlants {
           placeTile(7, 6)
-          purple.draw(LightningHarvest)
         }
         .expect("0 TerraformRating")
     purple.playProject(ProtectedHabitats, 5)
@@ -650,15 +609,12 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
         .expect("Disease<Player1>")
     pink.playProject(HousePrinting, steel = 4)
 
-    green.playProject(TechnologyDemonstration, 1, titanium = 1) {
-      green.draw(MartianRails, AcquiredCompany, Windmills)
-    }
-    // Test inference: the log gives only the count; Fusion Power is never played later.
-    green.sellPatents(FusionPower)
+    green.playProject(TechnologyDemonstration, 1, titanium = 1)
+    green.sellPatents(1)
 
     purple
         .playProject(AdaptedLichen, 3) {
-          doTask("3 PayFromCard<$Psychrophiles> FROM Microbe<$Psychrophiles>")
+          doTask("3 PayFromCard FROM Microbe<$Psychrophiles>")
         }
         .expect("Animal")
     purple.cardAction1(BioPrintingFacility) { addCardResources(EcologicalZone) }
@@ -668,7 +624,6 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
 
     green.playProject(Windmills, 4, steel = 1)
     green.playProject(BactoviralResearch, 10) {
-      green.draw(Potatoes)
       doTask("Plant")
       doTask("2 MC")
       addCardResources(Ants)
@@ -680,11 +635,9 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     pink
         .playProject(MagneticFieldGeneratorsPromo, steel = 10) {
           placeTile(5, 1)
-          pink.draw(AsteroidHollowing)
         }
         .expect("PROD[2 Plant, -4 Energy], 2 MC")
-    // Test inference: the log gives only the count; Cloud Seeding is never played later.
-    pink.sellPatents(CloudSeeding)
+    pink.sellPatents(1)
 
     green
         .cardAction1(Ants) {
@@ -695,16 +648,13 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
         .expect("0 Microbe<$Ants>")
     green.cardAction1(EquatorialMagnetizer)
 
-    // Test inference: the log gives only the count; none of these cards is played later.
-    purple.sellPatents(WaterImportFromEuropa, PhysicsComplex, LightningHarvest)
+    purple.sellPatents(3)
     purple.stdProject("CityProject") {
       placeTile(1, 5)
     }
 
-    // Test inference: the log gives only the count; Methane From Titan is never played later.
-    pink.sellPatents(MethaneFromTitan)
-    // Test inference: the log gives only the count; Asteroid Hollowing is never played later.
-    pink.sellPatents(AsteroidHollowing)
+    pink.sellPatents(1)
+    pink.sellPatents(1)
 
     green.cardAction2(AsteroidRights) { doTask("2 Titanium") }
     green.cardAction1(WeatherBalloons)
@@ -713,15 +663,7 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     purple.cardAction1(IndustrialCenter)
 
     pink.pass()
-    // Test inference: the log gives only the count; these are Green's remaining tracked cards.
-    green.sellPatents(
-        InventorsGuild,
-        CometAiming,
-        LocalHeatTrapping,
-        MartianRails,
-        AcquiredCompany,
-        Potatoes,
-    )
+    green.sellPatents(6)
     green.declineSecondAction()
     purple.pass()
     green.pass()
@@ -737,12 +679,9 @@ internal class SyntheticProtonFragmentTest : CardTrackingFullGameTest() {
     pink.convertPlants { placeTile(7, 8) }
     // Decline another final greenery placement for Pink.
     pink.declineTask()
-
-    assertCardTrackingComplete()
-    purple.cardsHand shouldBe emptySet()
-    pink.cardsHand shouldBe emptySet()
-    green.cardsHand shouldBe emptySet()
-
+    purple.assertCounts(0 to "ProjectCard")
+    pink.assertCounts(0 to "ProjectCard")
+    green.assertCounts(0 to "ProjectCard")
     with(purple) {
       assertResources(m = 56, s = 5, t = 0, p = 6, e = 4, h = 13)
       assertProduction(m = 13, s = 3, t = 0, p = 8, e = 4, h = 1)

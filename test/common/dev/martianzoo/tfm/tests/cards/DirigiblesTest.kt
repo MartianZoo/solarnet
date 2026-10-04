@@ -14,7 +14,7 @@ internal class DirigiblesTest : CardTest() {
     p1.runOperation("ProjectCard, $Dirigibles, 2 Floater<$Dirigibles>, 5 MC")
 
     p1.playProject(AerialMappers, 5) {
-          doTask("2 PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>")
+          doTask("2 PayFromCard FROM Floater<$Dirigibles>")
         }
         .expect("-2 Floater<$Dirigibles>, $AerialMappers")
   }

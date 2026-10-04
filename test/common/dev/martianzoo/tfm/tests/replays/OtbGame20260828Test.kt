@@ -728,7 +728,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // Stratopolis."
       // "You are the floater queen."
       playProject(Stratopolis, 16) {
-        doTask("2 PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>")
+        doTask("2 PayFromCard FROM Floater<$Dirigibles>")
       }
     }
     yellow.turn {
@@ -838,7 +838,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       playProject(
           Extremophiles,
           payment = {
-            doTask("PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>")
+            doTask("PayFromCard FROM Floater<$Dirigibles>")
           },
       )
       // "Awesome. Okay, I'm going to use my Extremophiles action to add one microbe to Nitrite
@@ -860,7 +860,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       playProject(
           VenusTradeHub,
           payment = {
-            doTask("4 PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>")
+            doTask("4 PayFromCard FROM Floater<$Dirigibles>")
           },
       )
       pass(unused = emptySet())
@@ -1087,7 +1087,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Use it tonight."
       // "Yeah, that's not bad. I'll pay three for that."
       playProject(InventorsGuild, 7) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
       }
       cardAction1(InventorsGuild) { buyCards(1) }
     }
@@ -1189,7 +1189,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
           2,
           payment = {
             pay(2)
-            doTask("PayFromCard<$Dirigibles> FROM Floater<$Dirigibles>")
+            doTask("PayFromCard FROM Floater<$Dirigibles>")
           },
       )
     }
@@ -1295,7 +1295,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     green.turn {
       // "Quantum Extractor. That costs me 11. It gives me four energy production."
       playProject(QuantumExtractor, 11) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
       }
     }
     blue.turn {
@@ -1371,7 +1371,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // Quantum Extractor, Molecular Printing, and Research Coordination's wild tag.
       green.exMachina(fakeWildTags("ScienceTag"))
       playProject(AntiGravityTechnology, 12) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
       }
     }
     blue.turn {
@@ -1645,7 +1645,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I'm going to play a Trans-Neptune Probe ... it's free. ... remove a science resource from
       // Olympus Conference and I draw a card."
       playProject(TransNeptuneProbe, 0) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
       }
     }
     blue.turn {
@@ -1970,7 +1970,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       playProject(CarbonNanosystems, 6, steel = 4)
       // "Vesta's Shipyard ... three titanium ... Carbon Nano is worth four ... my two real."
       playProject(VestaShipyard, 2, titanium = 3) {
-        doTask("PayFromCard<$CarbonNanosystems> FROM Graphene<$CarbonNanosystems>")
+        doTask("PayFromCard FROM Graphene<$CarbonNanosystems>")
       }
       // Yellow's app ledger records one final M€ after Vesta and before Pass.
       sellPatents(1)

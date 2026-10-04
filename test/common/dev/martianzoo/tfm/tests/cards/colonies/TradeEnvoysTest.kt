@@ -14,7 +14,7 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
 
     p1.stdAction("TradeAction") {
       doTask("Trade<Luna>")
-      doTask("ColonyProduction<Luna>")
+      doTask("ColonyProduction")
     }
 
     p1.assertCounts(
@@ -32,7 +32,7 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
 
     p1.cardAction2(TitanFloatingLaunchPad) {
       doTask("Trade<Luna>")
-      doTask("ColonyProduction<Luna>")
+      doTask("ColonyProduction")
     }
 
     p1.assertCounts(
@@ -88,7 +88,7 @@ internal class TradeEnvoysTest : ColoniesCardTest() {
 
     p1.stdAction("TradeAction") {
       doTask("Trade<Luna>")
-      doTask("ColonyProduction<Luna>")
+      doTask("ColonyProduction")
       // Decline Trade Envoys' additional optional Luna colony-track increase.
       declineTask()
     }

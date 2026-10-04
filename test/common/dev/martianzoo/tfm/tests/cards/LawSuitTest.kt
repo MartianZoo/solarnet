@@ -39,7 +39,7 @@ internal class LawSuitTest : CardTest() {
     p2.runOperation("5 MC, PROD[-Plant<Player1>]")
     p1.autoExecPolicy = EAGER
 
-    p1.playProject(LawSuit, 2) { doTask("3 MC<Player1> FROM MC<Player2>") }
+    p1.playProject(LawSuit, 2) { doTask("3 MC FROM MC<Player2>") }
 
     p1.assertCounts(0 to "PlayedEvent<Class<$LawSuit>>")
     p2.assertCounts(1 to "PlayedEvent<Class<$LawSuit>>")
@@ -73,7 +73,7 @@ internal class LawSuitTest : CardTest() {
 
     p1.playProject(LawSuit, 2) {
           choosePlayer2()
-          doTask("3 MC<Player1>")
+          doTask("3 MC")
         }
         .expect("4 MC<Player1>, -3 MC<Player2>")
   }
@@ -157,7 +157,7 @@ internal class LawSuitTest : CardTest() {
 
     shouldThrow<TaskException> {
       p1.playProject(LawSuit, 2) {
-        doTask("3 MC<Player1> FROM MC<Player3>")
+        doTask("3 MC FROM MC<Player3>")
         doTask("PlayedEvent<Player3, Class<$LawSuit>> FROM $LawSuit<Player1>")
       }
     }
@@ -183,7 +183,7 @@ internal class LawSuitTest : CardTest() {
   }
 
   private val choosePlayer2: OperationBlock = {
-    doTask("3 MC<Player1> FROM MC<Player2>")
-    doTask("PlayedEvent<Player2, Class<$LawSuit>> FROM $LawSuit<Player1>")
+    doTask("3 MC FROM MC<Player2>")
+    doTask("PlayedEvent<Player2> FROM $LawSuit")
   }
 }

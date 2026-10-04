@@ -60,10 +60,10 @@ internal class StartTokenTest {
     val game = setUpGame(players = 1)
     val admin = game.testTfm(ADMIN)
 
-    admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_4_1>")
+    admin.doTask("GreeneryTile<Tharsis_5_1>")
+    admin.doTask("CityTile<Tharsis_2_2>")
+    admin.doTask("GreeneryTile<Tharsis_2_3>")
     admin.nextGeneration(0)
 
     admin.assertCounts(
@@ -77,12 +77,12 @@ internal class StartTokenTest {
   internal fun `solo setup links each greenery to its own city`() {
     val admin = setUpGame(players = 1).testTfm(ADMIN)
 
-    admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    admin.doTask("CityTile<Tharsis_5_8, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_4_1>")
+    admin.doTask("GreeneryTile<Tharsis_5_1>")
+    admin.doTask("CityTile<Tharsis_5_8>")
 
     // This area neighbors the first city, but not the selected second city.
-    shouldThrow<NarrowingException> { admin.doTask("GreeneryTile<Tharsis_3_1, SoloOpponent>") }
+    shouldThrow<NarrowingException> { admin.doTask("GreeneryTile<Tharsis_3_1>") }
   }
 
   @Test

@@ -35,7 +35,7 @@ internal class AirRaidTest : CardTest() {
     p3.turn { playProject(SearchForLife, 3) }
 
     p1.playProject(AirRaid, 0) {
-          doTask("5 MC<Player1> FROM MC<Player3>")
+          doTask("5 MC FROM MC<Player3>")
           doTask("-Floater<$AtmoCollectors>")
         }
         .expect("-Floater<$AtmoCollectors>, 5 MC<Player1>, -5 MC<Player3>")
@@ -49,7 +49,7 @@ internal class AirRaidTest : CardTest() {
     p3.turn { playProject(Tardigrades, 4) }
 
     shouldThrow<LimitsException> {
-      p1.playProject(AirRaid, 0) { doTask("5 MC<Player1> FROM MC<Player2>") }
+      p1.playProject(AirRaid, 0) { doTask("5 MC FROM MC<Player2>") }
     }
   }
 }

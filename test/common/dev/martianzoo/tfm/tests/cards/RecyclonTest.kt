@@ -24,7 +24,7 @@ internal class RecyclonTest : CardTest() {
     p1.runOperation("$Recyclon")
     p1.runOperation("2 Microbe<$Recyclon>")
 
-    p1.runOperation("$TitaniumMine") { doTask("-2 Microbe<$Recyclon> THEN PROD[Plant]") }
+    p1.runOperation("$TitaniumMine") { doTask("-2 Microbe THEN PROD[Plant]") }
         .expect("-2 Microbe, PROD[Plant]")
   }
 }

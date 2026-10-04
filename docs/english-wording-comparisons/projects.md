@@ -2219,7 +2219,7 @@ Class: `SearchForLife`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Oxygen must be 6% or less. 3 VPs if you have one or more science resources here. | Action: Spend 1 M€ to reveal and discard the top card of the draw deck. If that card has a microbe tag, add a science resource here. |
-| Generated text | Requires 6% oxygen or less. 3 VPs if you have 1 or more science resources on this card. | Action: \[MC -&gt; Science&lt;This&gt;?\]. |
+| Generated text | Requires 6% oxygen or less. 3 VPs if you have 1 or more science resources on this card. | Action: Spend 1 M€ to \[ProjectCard&lt;Revealed&gt;\], then \[ClaimCardReward&lt;TagFilter&lt;Class&lt;MicrobeTag&gt;&gt;, This&gt;\], or do nothing, then \[-ProjectCard&lt;Revealed&gt;\]. |
 
 Pets declaration:
 
@@ -2229,7 +2229,7 @@ CLASS SearchForLife : ActionCard, ActiveCard, ResourceCard<Class<Science>> {
   requirement = HAS "MAX 6 OxygenStep"
   This:: ScienceTag<This>
   End IF Science<This>: 3 VictoryPoint
-  MC -> Science<This>?
+  MC -> ProjectCard<Revealed> THEN (ClaimCardReward<TagFilter<Class<MicrobeTag>>, This> OR Ok) THEN -ProjectCard<Revealed>
 }
 ```
 
@@ -2882,7 +2882,7 @@ Class: `BusinessContacts`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | LOOK AT THE TOP 4 CARDS FROM THE DECK. TAKE 2 OF THEM INTO HAND AND DISCARD THE OTHER 2 | — |
-| Generated text | Look at 4 project cards. Draw 2 of them. | — |
+| Generated text | \[4 ProjectCard&lt;Selecting&gt;\]. \[2 ProjectCard&lt;Hand FROM Selecting&gt;\]. \[-2 ProjectCard&lt;Selecting&gt;\]. | — |
 
 Pets declaration:
 
@@ -2890,7 +2890,7 @@ Pets declaration:
 CLASS BusinessContacts : EventCard {
   cost = 7
   This:: EarthTag<This>, EventTag<This>
-  This: 2 ProjectCard
+  This: 4 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>, -2 ProjectCard<Selecting>
 }
 ```
 
@@ -2901,7 +2901,7 @@ Class: `BusinessNetwork`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Decrease your M€ production 1 step. | Action: LOOK AT THE TOP CARD AND EITHER BUY IT OR DISCARD IT |
-| Generated text | Decrease your M€ production 1 step. | Action: Look at 1 project card. You may buy it. |
+| Generated text | Decrease your M€ production 1 step. | Action: \[ProjectCard&lt;Selecting&gt;\], then \[-ProjectCard&lt;Selecting&gt;?\], then \[BuySelectedCards\]. |
 
 Pets declaration:
 
@@ -2910,7 +2910,7 @@ CLASS BusinessNetwork : ActionCard, ActiveCard {
   cost = 4
   This:: EarthTag<This>
   This: PROD[-MC]
-  -> BuyCard?
+  -> ProjectCard<Selecting> THEN -ProjectCard<Selecting>? THEN BuySelectedCards
 }
 ```
 
@@ -3296,7 +3296,7 @@ Class: `InventionContest`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | LOOK AT THE TOP 3 CARDS FROM THE DECK. TAKE 1 OF THEM INTO HAND AND DISCARD THE OTHER 2 | — |
-| Generated text | Look at 3 project cards. Draw one of them. | — |
+| Generated text | \[3 ProjectCard&lt;Selecting&gt;\]. \[ProjectCard&lt;Hand FROM Selecting&gt;\]. \[-2 ProjectCard&lt;Selecting&gt;\]. | — |
 
 Pets declaration:
 
@@ -3304,7 +3304,7 @@ Pets declaration:
 CLASS InventionContest : EventCard {
   cost = 2
   This:: ScienceTag<This>, EventTag<This>
-  This: ProjectCard
+  This: 3 ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting>, -2 ProjectCard<Selecting>
 }
 ```
 
@@ -3315,7 +3315,7 @@ Class: `InventorsGuild`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | — | Action: LOOK AT THE TOP CARD AND EITHER BUY IT OR DISCARD IT |
-| Generated text | — | Action: Look at 1 project card. You may buy it. |
+| Generated text | — | Action: \[ProjectCard&lt;Selecting&gt;\], then \[-ProjectCard&lt;Selecting&gt;?\], then \[BuySelectedCards\]. |
 
 Pets declaration:
 
@@ -3323,7 +3323,7 @@ Pets declaration:
 CLASS InventorsGuild : ActionCard, ActiveCard {
   cost = 9
   This:: ScienceTag<This>
-  -> BuyCard?
+  -> ProjectCard<Selecting> THEN -ProjectCard<Selecting>? THEN BuySelectedCards
 }
 ```
 
@@ -6607,7 +6607,7 @@ Class: `AsteroidDeflectionSystem`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Decrease energy production 1 step. 1 VP per asteroid on this card. | Action: REVEAL AND DISCARD the top card of the deck. If it has a space tag, add an asteroid here. OPPONENTS MAY NOT REMOVE YOUR PLANTS |
-| Generated text | Decrease your energy production 1 step. 1 VP per asteroid on this card. | Action: Reveal 1 project card. If it has a space tag, add 1 asteroid to this card. / Effect: Opponents may not remove your plants. |
+| Generated text | Decrease your energy production 1 step. 1 VP per asteroid on this card. | Action: \[ProjectCard&lt;Revealed&gt;\], then \[ClaimCardReward&lt;TagFilter&lt;Class&lt;SpaceTag&gt;&gt;, This&gt;\], or do nothing, then \[-ProjectCard&lt;Revealed&gt;\]. / Effect: Opponents may not remove your plants. |
 
 Pets declaration:
 
@@ -6618,7 +6618,7 @@ CLASS AsteroidDeflectionSystem : ActionCard, ActiveCard, ResourceCard<Class<Aste
   This: PROD[-Energy]
   -Plant BY Player(NOT Owner):: Die
   End: VictoryPoint / Asteroid<This>
-  -> Asteroid<This>?
+  -> ProjectCard<Revealed> THEN (ClaimCardReward<TagFilter<Class<SpaceTag>>, This> OR Ok) THEN -ProjectCard<Revealed>
 }
 ```
 
@@ -7066,7 +7066,7 @@ Class: `HiTechLab`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | — | Action: Spend any amount of energy to draw the same number of cards. TAKE 1 INTO HAND AND DISCARD THE REST |
-| Generated text | — | Action: Spend 1 or more energy to look at that many cards. Draw 1 of them. |
+| Generated text | — | Action: Spend 1 or more energy to \[X ProjectCard&lt;Selecting&gt;\] and \[ProjectCard&lt;Hand FROM Selecting&gt;\], then \[-X ProjectCard&lt;Selecting&gt;.\]. |
 
 Pets declaration:
 
@@ -7075,7 +7075,7 @@ CLASS HiTechLab : ActionCard, ActiveCard {
   cost = 17
   This:: ScienceTag<This>, BuildingTag<This>
   End: VictoryPoint
-  X Energy -> ProjectCard
+  X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting> THEN -X ProjectCard<Selecting>.
 }
 ```
 
@@ -7566,7 +7566,7 @@ Class: `PublicPlans`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | REVEAL ANY NUMBER OF OTHER CARDS FROM YOUR HAND (YOUR OPPONENTS MAY INSPECT THEM). GAIN 1 M€ FOR EACH REVEALED CARD. | — |
-| Generated text | Reveal any number of cards from your hand, then gain 1 M€ per revealed card. | — |
+| Generated text | \[X ProjectCard&lt;Revealed FROM Hand&gt;\], then \[X ProjectCard&lt;Hand FROM Revealed&gt;\], then \[X MC\]. | — |
 
 Pets declaration:
 
@@ -7574,7 +7574,7 @@ Pets declaration:
 CLASS PublicPlans : EventCard {
   cost = 7
   This:: EventTag<This>
-  This: ProjectCard: MC, MC? / ProjectCard - 1
+  This: X ProjectCard<Revealed FROM Hand> THEN X ProjectCard<Hand FROM Revealed> THEN X MC
   End: VictoryPoint
 }
 ```
@@ -8215,7 +8215,7 @@ Class: `VenusOrbitalSurvey`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | — | Action: REVEAL THE TOP 2 CARDS, TAKE ANY VENUS CARDS TO HAND FOR FREE. ANY OTHER CARD YOU EITHER BUY OR DISCARD |
-| Generated text | — | Action: Reveal 2 project cards. Draw any Venus cards for free. You may buy each other card. |
+| Generated text | — | Action: \[2 ProjectCard&lt;Selecting&gt;\], then \[2 TakeSelectedCard&lt;TagFilter&lt;Class&lt;VenusTag&gt;&gt;&gt;?\], then \[-2 ProjectCard&lt;Selecting&gt;?\], then \[BuySelectedCards\]. |
 
 Pets declaration:
 
@@ -8223,7 +8223,7 @@ Pets declaration:
 CLASS VenusOrbitalSurvey : ActionCard, ActiveCard {
   cost = 18
   This:: VenusTag<This>, SpaceTag<This>
-  -> SearchForCard<TagFilter<Class<VenusTag>>> OR BuyCard?, SearchForCard<TagFilter<Class<VenusTag>>> OR BuyCard?
+  -> 2 ProjectCard<Selecting> THEN 2 TakeSelectedCard<TagFilter<Class<VenusTag>>>? THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards
 }
 ```
 
@@ -8474,7 +8474,7 @@ Class: `WgProject`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Requires that you are chairman. DRAW 3 PRELUDE CARDS AND PLAY 1 OF THEM. Discard the other 2. | — |
-| Generated text | Requires that you are chairman. Draw 3 prelude cards, then play one of them, then discard the other 2. | — |
+| Generated text | Requires that you are chairman. \[3 PreludeCard&lt;Selecting&gt;\], then \[PlayOrFizzle&lt;Selecting&gt;\], then \[-2 PreludeCard&lt;Selecting&gt;\]. | — |
 
 Pets declaration:
 
@@ -8483,7 +8483,7 @@ CLASS WgProject : AutomatedCard {
   cost = 9
   requirement = HAS "Chairman"
   This:: EarthTag<This>
-  This: PreludeCard THEN PlayOrFizzle
+  This: 3 PreludeCard<Selecting> THEN PlayOrFizzle<Selecting> THEN -2 PreludeCard<Selecting>
 }
 ```
 

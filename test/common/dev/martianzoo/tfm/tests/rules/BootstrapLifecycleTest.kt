@@ -161,10 +161,10 @@ internal class BootstrapLifecycleTest {
     admin.count("SoloColoniesSetup") shouldBe 0
 
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
-    admin.doTask("CityTile<Tharsis_4_1, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_5_1, SoloOpponent>")
-    admin.doTask("CityTile<Tharsis_2_2, SoloOpponent>")
-    admin.doTask("GreeneryTile<Tharsis_2_3, SoloOpponent>")
+    admin.doTask("CityTile<Tharsis_4_1>")
+    admin.doTask("GreeneryTile<Tharsis_5_1>")
+    admin.doTask("CityTile<Tharsis_2_2>")
+    admin.doTask("GreeneryTile<Tharsis_2_3>")
 
     admin.count("SoloColoniesSetup") shouldBe 1
     player.doTask("-SelectedColonyTile<Class<${colonies.first()}>>")

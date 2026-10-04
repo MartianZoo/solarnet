@@ -1,8 +1,7 @@
 ABSTRACT CLASS Card : Owned<Player> {
   "A generic unplayed card with unknown face"
-  ABSTRACT CLASS CardBack {
-    DEFAULT +CardBack
-    DEFAULT -CardBack
+  ABSTRACT CLASS CardBack<CardLocation> {
+    DEFAULT CardBack<Hand>
     autoSelectWhen = Requirement?
 
     ABSTRACT CLASS CorporationCard
@@ -52,23 +51,44 @@ CLASS CardPurchase : HasActions {
   -ActionBilling<This, Action1>:: ProjectCard / BuyCard, -BuyCard / BuyCard
 }
 
-"A requested number of externally selected project cards awaiting payment"
-CLASS BuyCard : Owned<Player>, MustCleanUp {
+"A selected project card awaiting payment"
+CLASS BuyCard : Owned<Player>, MustCleanUp, Hidden {
   This:: 3 Owed<> THEN PayingFor<Class<ProjectCard>> THEN ActionBilling<CardPurchase, Action1>.
+}
+
+"Buys every project card left in this Player's selection"
+CLASS BuySelectedCards : Owned<Player>, Signal {
+  This:: BuyCard FROM ProjectCard<Selecting> / ProjectCard<Selecting>
 }
 
 "An externally specified search criterion; the selected card is not tracked before it reaches a hand"
 ABSTRACT CLASS CardFilter : System
 
 "Carries the externally asserted printed-tag criterion"
-CLASS TagFilter<Class<Tag>> : CardFilter { HAS MAX 1 This }
+CLASS TagFilter<Class<Tag>> : CardFilter, Hidden { HAS MAX 1 This }
+
+"Carries the externally asserted absence of printed tags"
+CLASS NoTagsFilter : CardFilter, Hidden { HAS MAX 1 This }
+
+"Carries the externally asserted reference to a game concept"
+CLASS ReferenceFilter<Class<Component>> : CardFilter, Hidden { HAS MAX 1 This }
 
 "Records the search criterion while adding only the externally selected card to the hand"
 CLASS SearchForCard<CardFilter> : Owned<Player>, Signal {
   This:: ProjectCard, Audit
 }
 
-CLASS PlayCard<Class<@CardBack>, Class<@CardFront>> : Owned<Player>, Signal {
+"Keeps an offered project card that externally satisfies the filter"
+CLASS TakeSelectedCard<CardFilter> : Owned<Player>, Signal {
+  This:: ProjectCard<Hand FROM Selecting>, Audit
+}
+
+"Claims a card resource when the revealed card externally satisfies the filter"
+CLASS ClaimCardReward<CardFilter, @ResourceCard<Class<@CardResource>, @Player>> : Owned<@Player>, Signal {
+  This:: @CardResource<@ResourceCard> / ProjectCard<Revealed>, Audit / ProjectCard<Revealed>
+}
+
+CLASS PlayCard<Class<@CardBack>, Class<@CardFront>, @CardLocation> : Owned<Player>, Signal {
   This:: (EVAL @CardFront<Class<@CardBack>>.requirement: Ok) OR \
     (GpRequirementShortfall<Class<@CardFront>, Class<GlobalParameter>>: \
       EACH @Class<GlobalParameter> { \
@@ -76,7 +96,7 @@ CLASS PlayCard<Class<@CardBack>, Class<@CardFront>> : Owned<Player>, Signal {
           THEN CheckRequirement<Class<@CardFront>> / \
             (GpRequirementShortfall<Class<@CardFront>, @Class> MAX 1) \
       })
-  This: Owed<> / @CardFront.cost THEN PriceCard<Class<@CardFront>> THEN CardBilling<Class<@CardFront>> THEN MAX 0 Barrier: @CardFront FROM @CardBack
+  This: Owed<> / @CardFront.cost THEN PriceCard<Class<@CardFront>> THEN CardBilling<Class<@CardFront>> THEN MAX 0 Barrier: @CardFront FROM @CardBack<@CardLocation>
 }
 
 "Signals that a printed global-parameter requirement produced a shortfall ready for adjustment"
@@ -95,8 +115,15 @@ CLASS PriceCard<Class<@CardFront>> : Owned<Player>, Signal {
 CLASS PriceAspectCount<Class<CardFront>, Class<Component>> : CustomMetric
 
 "A temporary shortfall between a printed global requirement and the current parameter"
-CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier {
+CLASS Required<Class<GlobalParameter>> : Owned<Player>, Barrier, Hidden {
   DEFAULT -Required.
+}
+
+"The current place of an anonymous unplayed card associated with a Player"
+ABSTRACT CLASS CardLocation : System {
+  CLASS Hand { HAS =1 This }
+  CLASS Selecting { HAS =1 This }
+  CLASS Revealed { HAS =1 This }
 }
 
 // TODO: can this be simplified??
@@ -131,4 +158,4 @@ ABSTRACT CLASS Cardbound<CardFront<@Player>> : Owned<@Player>
 CLASS ActionUsedMarker<GenerationScope> : Cardbound<ActionCard> { HAS MAX 1 This }
 
 "A singleton listener needed by selected content"
-ABSTRACT CLASS CardWatcher : System { HAS MAX 1 This }
+ABSTRACT CLASS CardWatcher : System, Hidden { HAS MAX 1 This }

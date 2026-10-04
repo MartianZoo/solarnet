@@ -69,7 +69,7 @@
           "invariants": [ "Class<TrWatcher>" ],
           "components": [
             // Must be identical to Pristar's declarations in TurmoilExpansion.
-            "CLASS HasRaisedTr<GenerationScope> : Owned { HAS MAX 1 This }",
+            "CLASS HasRaisedTr<GenerationScope> : Owned, Hidden { HAS MAX 1 This }",
             // The first Action-phase gain removed by PP must not count toward this history.
             "CLASS TrWatcher : CardWatcher { TerraformRating IF (MAX 0 ActionPhase OR MAX 0 PreservationProgram OR ActionPhaseTrGain):: HasRaisedTr. }"
           ],
@@ -874,8 +874,7 @@
           "requirement": "MAX 6 OxygenStep",
           "cost": 3,
           "tags": [ "ScienceTag" ],
-          // ProjectCard<Revealed> THEN (ProjectCard<Revealed>(HAS PrintedTag<Class<MicrobeTag>>): Science<This>)
-          "actions": [ "1 MC -> Science<This>?" ],
+          "actions": [ "1 MC -> ProjectCard<Revealed> THEN ClaimCardReward<TagFilter<Class<MicrobeTag>>, This> OR Ok THEN -ProjectCard<Revealed>" ],
           "effects": [ "End IF Science<This>: 3 VictoryPoint" ],
         },
         {

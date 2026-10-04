@@ -14,15 +14,12 @@
 Pets is the specification of what a game component means. English text is one derived view of that
 specification, just as execution is another. The renderer should eventually describe every valid
 Pets element in the loaded Terraforming Mars vocabulary without consulting a stored answer for the
-card or goal that contains it. Count-only card handling currently loses some printed physical-card
-procedures. `CardPrintedProcedureText.kt` is a sparse exception that owns the English wording of
-those missing procedures; other card regions still derive from Pets. Remove an entry when Pets can
-express its complete procedure again.
+card or goal that contains it. Card procedures must derive from Pets' anonymous card locations,
+offers, and filters; incomplete interpretation remains visible as bracketed Pets.
 
-Published text is normally the proving corpus, not the production data source. The sparse physical
-procedure exceptions above preserve facts absent from executable Pets. For modeled facts, published
-text is evidence for meaning and good wording; incidental variation is not a rule. Prefer one clear,
-consistently derived sentence for equivalent Pets.
+Published text is normally the proving corpus, not the production data source. It is evidence for
+meaning and good wording; incidental variation is not a rule. Prefer one clear, consistently derived
+sentence for equivalent Pets.
 
 Incomplete support must stay honest. When the renderer cannot describe a node safely, retain its
 canonical Pets source in square brackets at the narrowest useful location. Losing coverage is better
@@ -223,6 +220,9 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   An unconditional choice to decline the exchange makes the complete action optional.
 - Describe looking at several cards and keeping some as `Look at N cards. Draw K of them.` Omit
   the routine discard instruction. Buying from a revealed selection can likewise use `You may buy`.
+- Transitions through `Selecting` and `Revealed`, and their multi-step choices, are not yet
+  interpreted as English; their Pets remain bracketed. Derive the offer, keep, discard, and play
+  relationships from the sequence when adding support, rather than restoring card-specific wording.
 - Normally describe variable amounts as `1 or more`, followed by `that amount`, `the same number`,
   `twice that amount`, or `triple that amount`, as appropriate. Use X notation when a multiplied
   cost must precede the base amount, as in `Spend 2X M€ to gain X energy`. This distinction depends

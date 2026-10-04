@@ -28,8 +28,7 @@
         {
           "name": "SagittaFrontierServices",
           "autoSelectWhen": "Unsafe OR (MAX 0 PromoCardPack, MAX 0 Merger)",
-          // SearchForCard(HAS MAX 0 PrintedTag)
-          "immediate": "31 MC, PROD[Energy, 2 MC], ProjectCard",
+          "immediate": "31 MC, PROD[Energy, 2 MC], SearchForCard<NoTagsFilter>",
           "effects": [
             "CardFront(HAS =0 Tag): 4 MC",
             "CardFront(HAS =1 Tag): 1 MC",
@@ -53,7 +52,7 @@
         {
           "name": "AtmosphericEnhancers",
           "tags": [ "VenusTag" ],
-          "immediate": "2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep, 2 ProjectCard",
+          "immediate": "2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep, 2 SearchForCard<ReferenceFilter<Class<Floater>>>",
         },
         {
           "name": "BoardOfDirectors",
@@ -237,7 +236,8 @@
             "End: 2 VictoryPoint",
           ],
           "components": [
-            "CLASS L1Gift : Owned<Player>, MustCleanUp",
+            "CLASS L1GiftWatcher : Owned<Player>, Temporary, Hidden { This:: L1Gift / (ResourceCard(HAS CardResource) MAX 3); CardResource:: -L1Gift }",
+            "CLASS L1Gift : Owned<Player>, MustCleanUp, Hidden",
           ],
         },
         {
@@ -279,7 +279,7 @@
           "cost": 18,
           "tags": [ "VenusTag", "SpaceTag" ],
           "actions": [
-            "-> SearchForCard<TagFilter<Class<VenusTag>>> OR BuyCard?, SearchForCard<TagFilter<Class<VenusTag>>> OR BuyCard?",
+            "-> 2 ProjectCard<Selecting> THEN 2 TakeSelectedCard<TagFilter<Class<VenusTag>>>? THEN -2 ProjectCard<Selecting>? THEN BuySelectedCards",
           ],
         },
         {
@@ -315,7 +315,7 @@
         {
           "name": "HighCircles",
           "tags": [ "EarthTag" ],
-          "immediate": "TerraformRating, ProjectCard, 2 PartyDelegate",
+          "immediate": "TerraformRating, SearchForCard<ReferenceFilter<Class<PartyRequirement>>>, 2 PartyDelegate",
           "effects": [ "MeasureInfluence:: HighCirclesInfluence" ],
           "components": [
             "CLASS HighCirclesInfluence : Influence { HAS MAX 1 This }",
@@ -411,8 +411,7 @@
           "requirement": "Chairman",
           "cost": 9,
           "tags": [ "EarthTag" ],
-          // 3 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting> THEN -2 PreludeCard<Selecting>
-          "immediate": "PreludeCard THEN PlayOrFizzle",
+          "immediate": "3 PreludeCard<Selecting> THEN PlayOrFizzle<Selecting> THEN -2 PreludeCard<Selecting>",
         },
       ],
     },

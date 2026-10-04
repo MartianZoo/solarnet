@@ -99,10 +99,12 @@ public interface Agent {
    * *automatic* effects, enqueues tasks for queued effects and any contents of [Task.then], and
    * removes the original task from the game's task queue. Throws an exception if any of this fails.
    *
-   * A selected task always wins. Otherwise, the narrowing must match exactly one task, except that
-   * fully identical tasks are interchangeable. When the narrowing omits a quantifier and its Class
-   * default would weaken the pending task's quantifier, the pending quantifier is retained; an
-   * explicitly written quantifier must narrow normally.
+   * The submitted constraints are intersected with the task: each can supply choices left open by
+   * the other. A selected task always wins. Otherwise, exactly one distinct task must intersect,
+   * including tasks the submission would not strictly narrow; fully identical tasks remain
+   * interchangeable. When the narrowing omits a quantifier and its Class default would weaken the
+   * pending task's quantifier, the pending quantifier is retained; an explicitly written quantifier
+   * must be compatible with the task's quantifier.
    *
    * @throws [NotFullySpecifiedException] if the task is abstract
    * @throws [NotNowException] if the task can't currently be resolved

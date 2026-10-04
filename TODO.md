@@ -14,6 +14,15 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Extend derived `including this` wording to setup operations and otherwise unsupported effects
   without adding card-specific rendering rules.
 - Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.
+- Look for a small way to evaluate the existing `CardFilter` criteria against a card Class in Pets.
+  Replay tracking currently checks them in Kotlin; avoid adding engine card identities or a new
+  processing stage just for this. Named-header specialization of Requirement properties and
+  inspecting authored references are the current obstacles (see
+  [card handling](docs/agents/CARD_HANDLING.md#external-offer-procedures)).
+- Make L1 Trade Terminal's resource allowance count only its own gifts, not resource gains from
+  other cards reacting to them. First reproduce the interaction with a literal `Microbe: Animal`
+  fan-card effect, then find the smallest correction that preserves the Terminal's required
+  distribution across eligible cards. See [game hack #7](docs/agents/GAME_HACKS.md#7-l1-trade-terminals-quota-counts-unrelated-resource-gains).
 - Find a small, exact way for Ecology Experts' plant and microbe tags to trigger a newly played
   bio listener without replaying those tags or rewarding an older copy of that listener. Double
   Down copies the Prelude's immediate instruction but not its effects, so the solution must also
@@ -90,8 +99,12 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   phase-caused tasks as soon as the required runtime state can express them.
 - Let refinements reference their candidate explicitly, so a selector can relate a nested
   dependency to that candidate without repeating its complete expression.
-- Revisit contextual `Owner` as a broad language redesign; the explicit Type-variable work leaves
-  its ambient binding semantics unchanged for now.
+- Prototype the lexical `Me` ownership model in the
+  [identity audit](docs/agents/IDENTITY.md#lexical-me-owner-context-experiment). Review the
+  inherited-header-name prototype's parse/load split, then test `Owned<Me@Owner>` and one
+  Owned-specific insertion rule, including `Owner` classes that own themselves. Delete the old
+  default, substitution, and trigger rules the new binding makes redundant.
+  Do not leave both mechanisms in place as the result.
 - Give Pets a real structural conjunction, spelled something like `Tile(IS Owned)`, and retire the
   nominal `OwnedTile` class once `Landlord` and the other owned-tile rules can name the intersection
   directly. Until then a master-universe Canon test checks the nominal `OwnedOccupant` and
@@ -108,9 +121,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
 - **Low priority:** [#54: Owner-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)
   — Resolve contextual ownership correctly and display the resolved player.
-- **Low priority:** Investigate why the oxygen steps created by SoloOpponent's setup greeneries do
-  not award it TR, and whether adding and then removing those steps has any other observable
-  consequences.
 - Consider requirement-gated action costs, using United Nations Mars Initiative to make
   `HasRaisedTr` a prerequisite to paying its 3 M€ rather than a gate around the result.
 - Derive selected singleton card watchers without explicit support-Class invariants. The current
@@ -195,12 +205,17 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   [the wording comparisons](docs/english-wording-comparisons/README.md) from verified printed evidence.
 - Correct defaulted Type-variable references: `pets/BugsTest` shows bare references incorrectly
   inheriting their supplier's `<>`.
+- Extend instruction intersection to preserve unresolved shared aliases and unnamed Type unions.
+  These currently require a more specific submitted choice; keep task matching conservative and
+  never substitute `Ok` for an unrepresentable nonempty intersection.
+
+- Align `tryTask(String)` with the task-ID probe's rollback behavior: catching an incomplete or
+  unavailable execution currently retains selection edits made inside the string overload, despite
+  its engine comment promising unchanged task history. Keep this separate from task intersection.
+
 - Extend the Mining Rights/Area wild-resource regression after placement is fixed: Robotic
   Workforce and Cyberia Systems may choose either originally available metal production even if
   the placement awarded a nonmetal resource. No remembered resource choice is required.
-- Fix the two-colony Pluto trade characterized in `rules/BugsTest`: separate draw/discard bonuses
-  can still interleave, allowing both draws before either discard. Each bonus must finish before
-  the next begins.
 
 - Revisit aligning multiplatform JVM tests with the repository JUnit BOM. Setup overrides now
   explicitly declare `@BeforeTest`, including `ActiveVacuumCoreTest.commonSetup`. Verify lifecycle

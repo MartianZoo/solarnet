@@ -14,6 +14,7 @@ import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Instruction.Change
+import dev.martianzoo.pets.ast.Instruction.Gain
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
@@ -24,6 +25,7 @@ import dev.martianzoo.state.TaskResult
 
 private val MC: ClassName = cn("MC")
 private val STANDARD_ACTION: ClassName = cn("StandardAction")
+private val BUY_SELECTED_CARDS: ClassName = cn("BuySelectedCards")
 
 /**
  * Wraps and extends an [Agent] to provide much more convenient functions specific to *Terraforming
@@ -60,16 +62,33 @@ public class TfmGameplay(
 
   public fun playCorp(cardName: ClassName, buyCards: Int, body: OperationBlock = {}): TaskResult {
     return inTurn {
-      doTask("PlayCard<Class<StandardCorporationCard>, Class<$cardName>>")
-      doTask(if (buyCards == 0) "Ok" else "$buyCards BuyCard")
-      if (buyCards > 0) payAllMc()
+      doTask("PlayCard<Class<StandardCorporationCard>, Class<$cardName>, Hand>")
+      buyOfferedCards(buyCards)
       body()
     }
   }
 
   /** Buys the selected number of project cards and pays their adjusted M€ cost. */
   public fun buyCards(count: Int): TaskResult = agent.continueOperation {
-    doTask(if (count == 0) "Ok" else "$count BuyCard")
+    buyOfferedCards(count)
+  }
+
+  /** Shares the operation-scoped discard, confirmation, and payment sequence across all buys. */
+  private fun OperationScope.buyOfferedCards(count: Int) {
+    val offered = this@TfmGameplay.count("ProjectCard<Selecting>")
+    require(count in 0..offered) { "Cannot buy $count of $offered offered project cards" }
+    val discarded = offered - count
+    doTask(if (discarded == 0) "Ok" else "-$discarded ProjectCard<Selecting>")
+    if (
+        tasks
+            .extract { it }
+            .any { task ->
+              val instruction = task.instruction
+              instruction is Gain && instruction.gaining.className == BUY_SELECTED_CARDS
+            }
+    ) {
+      doTask("BuySelectedCards")
+    }
     if (count > 0) payAllMc()
   }
 
@@ -216,28 +235,45 @@ public class TfmGameplay(
     }
   }
 
-  public fun playPrelude(cardName: ClassName, body: OperationBlock = {}): TaskResult {
-    return inTurn { playPreludeWithinOperation(cardName, body) }
+  public fun playPrelude(
+      cardName: ClassName,
+      location: ClassName? = null,
+      body: OperationBlock = {},
+  ): TaskResult {
+    return inTurn { playPreludeWithinOperation(cardName, location, body) }
   }
 
-  public fun OperationScope.playPrelude(cardName: ClassName, body: OperationBlock = {}) {
-    playPreludeWithinOperation(cardName, body)
+  public fun OperationScope.playPrelude(
+      cardName: ClassName,
+      location: ClassName? = null,
+      body: OperationBlock = {},
+  ) {
+    playPreludeWithinOperation(cardName, location, body)
   }
 
-  private fun OperationScope.playPreludeWithinOperation(cardName: ClassName, body: OperationBlock) {
-    playCardWithinOperation(cn("PreludeCard"), cardName, body)
+  private fun OperationScope.playPreludeWithinOperation(
+      cardName: ClassName,
+      location: ClassName?,
+      body: OperationBlock,
+  ) {
+    playCardWithinOperation(cn("PreludeCard"), cardName, location, body)
   }
 
-  public fun OperationScope.playCorp(cardName: ClassName, body: OperationBlock = {}) {
-    playCardWithinOperation(cn("StandardCorporationCard"), cardName, body)
+  public fun OperationScope.playCorp(
+      cardName: ClassName,
+      location: ClassName? = null,
+      body: OperationBlock = {},
+  ) {
+    playCardWithinOperation(cn("StandardCorporationCard"), cardName, location, body)
   }
 
   private fun OperationScope.playCardWithinOperation(
       cardBack: ClassName,
       cardName: ClassName,
+      location: ClassName?,
       body: OperationBlock,
   ) {
-    doTask("PlayCard<Class<$cardBack>, Class<$cardName>>")
+    doTask("PlayCard<Class<$cardBack>, Class<$cardName>, ${location ?: cn("Hand")}>")
     body()
   }
 
@@ -281,7 +317,7 @@ public class TfmGameplay(
       payment: OperationBlock,
       body: OperationBlock,
   ) {
-    doTask("PlayCard<Class<ProjectCard>, Class<$cardName>>")
+    doTask("PlayCard<Class<ProjectCard>, Class<$cardName>, Hand>")
 
     payment()
     body()

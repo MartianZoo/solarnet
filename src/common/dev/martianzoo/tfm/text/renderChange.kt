@@ -123,18 +123,12 @@ private fun renderCardSearch(gain: Gain, describers: Describers): Clause.Simple?
   if (gain.quantifier.modality() != Modality.REQUIRED) return null
   val search = gain.gaining
   if (search.className != cn("SearchForCard") || search.refinement != null) return null
-  val filter =
-      search.arguments.singleOrNull()?.takeIf { it.className == cn("TagFilter") } ?: return null
-  val tag =
-      filter.arguments
-          .singleOrNull()
-          ?.let(describers::representedClassArgument)
-          ?.className
-          ?.takeIf(describers::isTag) ?: return null
+  val filter = search.arguments.singleOrNull() ?: return null
+  val criterion = describers.cardFilterCriterion(filter) ?: return null
   val count = gain.count.fixedQuantity() ?: return null
   return clause(
       "draw",
-      NounPhrase.text("$count ${matchingCardNoun(CardCriterion.Tag(tag), count == 1, describers)}"),
+      NounPhrase.text("$count ${matchingCardNoun(criterion, count == 1, describers)}"),
   )
 }
 

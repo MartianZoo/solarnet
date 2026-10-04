@@ -20,6 +20,23 @@ internal sealed interface CardCriterion {
   data class PrintedIcon(val className: ClassName) : CardCriterion
 }
 
+internal fun Describers.cardFilterCriterion(filter: Expression): CardCriterion? {
+  if (filter.refinement != null) return null
+  return when (filter.className) {
+    cn("TagFilter") -> {
+      val tag = filter.arguments.singleOrNull()?.let(::representedClassArgument)?.className
+      tag?.takeIf(::isTag)?.let(CardCriterion::Tag)
+    }
+    cn("NoTagsFilter") -> CardCriterion.NoTags.takeIf { filter.simple }
+    cn("ReferenceFilter") -> {
+      val referenced =
+          filter.arguments.singleOrNull()?.let(::representedClassArgument)?.className ?: return null
+      referenceCriterion(referenced)
+    }
+    else -> null
+  }
+}
+
 internal fun Describers.cardCriterion(requirement: Requirement): CardCriterion? {
   val counting = requirement as? Requirement.Counting ?: return null
   if (counting is Requirement.Min && counting.target == 1) {
@@ -38,11 +55,7 @@ internal fun Describers.cardCriterion(requirement: Requirement): CardCriterion? 
         }
         REFERENCE_TO -> {
           val referenced = represented ?: return null
-          fact(referenced, ComponentDescriber::requirementKind)?.let { kind ->
-            return CardCriterion.PropertyPresence("$kind requirement")
-          }
-          val resource = referenced.takeIf { cardResourceNoun(it, 1) != null } ?: return null
-          return CardCriterion.ResourceIcon(resource)
+          return referenceCriterion(referenced)
         }
       }
     }
@@ -76,6 +89,11 @@ internal fun Describers.cardCriterion(requirement: Requirement): CardCriterion? 
   }
   return null
 }
+
+private fun Describers.referenceCriterion(referenced: ClassName): CardCriterion? =
+    fact(referenced, ComponentDescriber::requirementKind)?.let { kind ->
+      CardCriterion.PropertyPresence("$kind requirement")
+    } ?: referenced.takeIf { cardResourceNoun(it, 1) != null }?.let(CardCriterion::ResourceIcon)
 
 internal fun Describers.cardSelector(expression: Expression): NounPhrase? {
   if (

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -30,22 +31,22 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       playCorp(PharmacyUnion, 10).expect("16 MC, 11 ProjectCard")
 
       playPrelude(Merger) {
-        playCorp(Manutech)
+        playCorp(Manutech, location = cn("Selecting"))
       }
 
       playPrelude(FakeHeadStart) {
         doTask("UseAction<PlayCardFromHandAction, Action1>")
-        doTask("PlayCard<Class<ProjectCard>, Class<$OlympusConference>>")
+        doTask("PlayCard<Class<ProjectCard>, Class<$OlympusConference>, Hand>")
         pay(4, steel = 3)
 
         doTask("UseAction<PlayCardFromHandAction, Action1>")
-        doTask("PlayCard<Class<ProjectCard>, Class<$StandardTechnology>>")
+        doTask("PlayCard<Class<ProjectCard>, Class<$StandardTechnology>, Hand>")
         pay(6)
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
       }
 
       playProject(AdvancedAlloys, 9) {
-        doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion THEN 3 TerraformRating")
+        doTask("PlayedEvent FROM $PharmacyUnion THEN 3 TerraformRating")
       }
       playProject(IndustrialMicrobes, 12).expect("Steel, Energy, PROD[Steel, Energy]")
 
@@ -121,7 +122,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       convertHeat()
       playProject(ViralEnhancers, 9) {
         doTask("Plant")
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
       }
       playProject(QuantumExtractor, 13)
       playProject(SoilFactory, 3, steel = 2)
@@ -152,7 +153,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
 
       convertHeat()
       playProject(ResearchOutpost, 6, steel = 4) {
-        doTask("ProjectCard FROM Science<$OlympusConference>")
+        doTask("ProjectCard FROM Science")
         placeTile(8, 6)
       }
       playProject(IceMoonColony, 20) {
@@ -210,7 +211,7 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       playProject(IceCapMelting, 4) { placeTile(1, 4) }
 
       stdAction("TradeAction", 2) { doTask("Trade<Luna>") }
-      playProject(TransNeptuneProbe, 3) { doTask("ProjectCard FROM Science<$OlympusConference>") }
+      playProject(TransNeptuneProbe, 3) { doTask("ProjectCard FROM Science") }
       stdProject("CityProject") { placeTile(6, 5) }
       playProject(UrbanizedArea, steel = 3) { placeTile(7, 5) }
       convertPlants { placeTile(8, 5) }

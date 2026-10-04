@@ -41,7 +41,7 @@ internal class PharmacyUnionTest : CardTest() {
       shouldThrow<TaskException> { p1.doTask("Disease<$PharmacyUnion>") }
       doTask("Disease<$PharmacyUnion<Player1>>!")
       doTask("-4 MC<Player1>")
-      doTask("Microbe<$Decomposers>")
+      doTask("Microbe")
     }
 
     p1.count("Disease<$PharmacyUnion>") shouldBe diseaseBefore + 1
@@ -57,8 +57,8 @@ internal class PharmacyUnionTest : CardTest() {
     val manual = p1.also { it.autoExecPolicy = NONE }
 
     manual.runOperation("$Research") {
-      doTask("TerraformRating FROM Disease<$PharmacyUnion>")
-      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
+      doTask("TerraformRating FROM Disease")
+      doTask("PlayedEvent FROM $PharmacyUnion")
       repeat(3) { doTask("TerraformRating") }
       doTask("2 ProjectCard")
     }
@@ -80,7 +80,7 @@ internal class PharmacyUnionTest : CardTest() {
     val manual = p1.also { it.autoExecPolicy = NONE }
 
     manual.runOperation("$Research") {
-      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
+      doTask("PlayedEvent FROM $PharmacyUnion")
       repeat(3) { doTask("TerraformRating") }
       // Decline the second science tag's attempt to flip Pharmacy Union again.
       declineTask()
@@ -100,7 +100,7 @@ internal class PharmacyUnionTest : CardTest() {
     val manual = p1.also { it.autoExecPolicy = NONE }
 
     manual.runOperation("$PhysicsComplex") {
-      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
+      doTask("PlayedEvent FROM $PharmacyUnion")
       repeat(3) { doTask("TerraformRating") }
     }
 
@@ -120,7 +120,7 @@ internal class PharmacyUnionTest : CardTest() {
     val manual = p1.also { it.autoExecPolicy = NONE }
 
     manual.runOperation("$RegolithEaters") {
-      doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
+      doTask("PlayedEvent FROM $PharmacyUnion")
       repeat(3) { doTask("TerraformRating") }
       doTask("-4 MC")
       // Decline placing disease after Pharmacy Union has left play.

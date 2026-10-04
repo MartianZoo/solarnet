@@ -229,7 +229,7 @@ That single overload is the common cause of a scattered set of workarounds:
 The former watcher limitation is resolved: explicit `Owner(NOT Player)` differences preserve the
 concrete victim, so `MyResourceWasRemoved` and `MyProductionWasDecreased` now declare `Owned<Owner>`.
 
-The direction to investigate is giving the contextual owner a spelling distinct from the Class name,
+One direction to investigate is giving the contextual owner a spelling distinct from the Class name,
 so `Anyone` and the carve-outs can go and a class can declare `Owner` as a real bound.
 
 #### What the 2026-09-17 review added
@@ -262,4 +262,73 @@ An explicitly named `Name@Anyone` would then co-refer without another carve-out,
 `Victim@Anyone` already does; no canonical
 `BY Anyone` effect names its wildcard, so that costs nothing today. This is a rename across canon
 plus the removal of five carve-outs, and it was deliberately **not** attempted during the
-specification review; treat it as the next piece of work here, not as settled.
+specification review; treat it as a candidate, not as settled.
+
+#### Lexical `Me` owner-context experiment
+
+An alternative worth testing is `ABSTRACT CLASS Owned<Me@Owner>` plus one Owned-specific rule
+that inserts the nearest lexical `Me` into a bare owned expression. An owned component's inherited
+owner dependency would supply the outer binding. `EACH Me@Player { Plant }` would rebind it to each
+selected Player; `EACH Player { Plant }` would retain an enclosing `Me`. With no enclosing binding,
+a bare owned expression must obtain one from an explicit trigger or `BY` binding, or be rejected. A
+Player binding satisfies an Owner dependency by subtyping; Owned-specific insertion would use the
+actual `Me@Player` expression, not try to match it textually with `Me@Owner` under today's
+marker-key rule.
+
+Disposable Pets and engine experiments establish the existing pieces: an explicit header variable
+specializes to the card's concrete owner, an explicit marked `EACH` selector can supply a selected
+Player, and an explicit outer header variable remains bound across an unmarked `EACH`. Trigger-side
+and `BY` variables can separately capture a changed component's Player owner and the event Actor.
+
+The inherited-header prototype permits a class-header marker with no local body use and makes
+an inherited header name available in a subclass's own effects and actions. It uses the existing
+header binding paths and aliases: a diamond shares one binding, a body use of a name that parents
+supply for distinct bindings is rejected as ambiguous, a header that gives an inherited name to
+another dependency is rejected, and an `EACH` selector can shadow an inherited name. Local
+construct markers still require their existing sharing. Parsing defers unresolved effect and
+action markers for classes with explicit supertypes; class loading rejects a name no ancestor
+supplies. Invariants and other class nodes are still checked while parsing. This moves
+some errors from parsing to compilation. `EACH Me@Player { Plant }` still needs Owned-specific
+insertion before selector scope validation can recognize its body use.
+Generated card expansion likewise has to expose marker uses before declaration scope validation; a
+late Catalog transform cannot supply them. `Player` and other `Owner` classes do not inherit
+`Owned_0`, although their existing effects take themselves as contextual owner: they need an
+explicit self-binding or an account of that remaining special case.
+
+The implemented name rule is general: a marked dependency name (or unambiguous anonymous marker)
+remains available in subclass bodies and follows the dependency it names. A subclass can also
+name an inherited, previously unmarked dependency with an explicit supertype argument, such as
+`GiftBox : Box<Chosen@Item>`.
+
+The type-variable tests confirm the structural distinction: a diamond through one ancestor retains
+one dependency key, while two independent parents retain two. Another test covers two branches
+that independently give the same name to one inherited dependency. The prototype accepts that
+composition and rejects a same-name use only when the names point to separate bindings.
+
+Existing header bindings already merge dependency paths through a diamond and retain aliases.
+The prototype inherits a marker's existing lexical identity to resolve a subclass use without
+forcing dependency binding while the class table is still loading. Once bindings are available,
+it checks that all inherited markers with that spelling refer to one binding. This avoids a
+second dependency-identity map, though the inherited-name lookup itself is an added cost to
+review. A local marker on an inherited slot should name the same binding, not create a second
+variable. `Me@Player` could narrow an inherited
+`Me@Owner` when its explicit supertype argument targets that slot. A subclass that fixes the slot
+exposes the fixed value; one that leaves it open binds it when its component type is specialized.
+
+If that scope rule works, remove the old machinery rather than retain it beside `Me`: the
+`DEFAULT Owned<Owner>` declaration and special `Owner` preservation in `Defaults`, contextual
+substitution and `EACH` shielding in `Transforming` and `PetElaborator`, submitted-query binding in
+`Instructor`, and the unowned-effect `BY Owner` insertion. The parser's
+`pruneUnusedGeneratedMarkers` must remain for now: owner-local class extraction can copy an outer
+selector marker into a generated header where it does not declare that class's variable. Removing
+the pruning broke three existing scope tests. Then test whether explicit trigger/`BY` variables
+also replace `LiveEffect`'s contextual owner fallback, trigger-side compatibility binding,
+and special unbound `BY Owner` handling. The implicit Actor filter for ownerless triggers on
+Player-owned components needs an explicit `BY Me` representation, potentially from card
+generation; simply moving that rule within `LiveEffect` would not remove it.
+
+Keep structural `Component.owner` and `PendingTask` controller/Actor routing until their separate
+uses are accounted for. Also check Player versus passive Owner, `EACH` migration, and standard
+resource action-cost lowering before claiming that the ambient `Owner` rules are gone. The
+`BY Anyone` Actor wildcard is a separate overload to evaluate when the Class-name ambiguity is
+removed.

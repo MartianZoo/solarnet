@@ -348,12 +348,17 @@ internal constructor(
     val id = matchingTask(evaluated, taskId, quantifierOmitted, contextClass)
     val tasksBefore = tasks.ids()
     val task = tasks.getTaskData(id)
-    if (narrowsTask(evaluated, task.instruction, quantifierOmitted)) {
+    val intersection = intersectTask(evaluated, task.instruction, quantifierOmitted)
+    if (intersection != null) {
       enforceSelectLock(id)
-      narrowSelectedTask(id, evaluated, quantifierOmitted)
+      narrowSelectedTask(id, intersection, quantifierOmitted)
     } else {
-      selectTask(tasks, task) ?: return
-      narrowTask(evaluated, quantifierOmitted)
+      val selected = selectTask(tasks, task) ?: return
+      val instruction = queueForAnyTask(selected).getTaskData(selected).instruction
+      narrowTask(
+          intersectTask(evaluated, instruction, quantifierOmitted) ?: evaluated,
+          quantifierOmitted,
+      )
     }
     if (id !in tasks) {
       if (executeSubmittedGroup) {
@@ -385,10 +390,10 @@ internal constructor(
     fun weCanNarrowIt(taskData: Task): Boolean {
       if (taskData.assignee != actor) return false
       val instruction = taskData.instruction
-      if (narrowsTask(narrowing, instruction, quantifierOmitted)) return true
+      if (intersectTask(narrowing, instruction, quantifierOmitted) != null) return true
       if (targetsThenFirstStage(narrowing, instruction, quantifierOmitted)) return false
       return try {
-        narrowsTask(narrowing, instructor.resolve(instruction), quantifierOmitted)
+        intersectTask(narrowing, instructor.resolve(instruction), quantifierOmitted) != null
       } catch (_: NotNowException) {
         false
       }
@@ -401,16 +406,19 @@ internal constructor(
               it.assignee == actor &&
                   (contextClass == null || it.cause?.context?.className == contextClass)
             }
-    val matches = assigned.filter(::weCanNarrowIt)
-    if (matches.isNotEmpty()) return uniqueMatchingTask(matches)
+    try {
+      val matches = assigned.filter(::weCanNarrowIt)
+      if (matches.isNotEmpty()) return uniqueMatchingTask(matches)
 
-    // A failed live refinement can still identify the intended task. Let normal narrowing report
-    // which requirement failed instead of replacing that reason with a generic no-task match.
-    val possibleMatches = assigned.filter { task ->
-      effectiveNarrowing(narrowing, task.instruction, quantifierOmitted, possibleWorldFacts)
-          .narrows(task.instruction, possibleWorldFacts)
+      // A failed live refinement can still identify the intended task. Let normal narrowing report
+      // which requirement failed instead of replacing that reason with a generic no-task match.
+      val possibleMatches = assigned.filter { task ->
+        intersectTask(narrowing, task.instruction, quantifierOmitted, possibleWorldFacts) != null
+      }
+      return uniqueMatchingTask(possibleMatches)
+    } catch (e: NarrowingException) {
+      throw TaskException("cannot identify a task for `$narrowing`: ${e.message}", e)
     }
-    return uniqueMatchingTask(possibleMatches)
   }
 
   private fun targetsThenFirstStage(
@@ -433,14 +441,35 @@ internal constructor(
     }
   }
 
-  private fun narrowsTask(
+  private fun intersectTask(
       narrowing: InstructionTree,
       existing: InstructionTree,
       quantifierOmitted: Boolean,
-  ): Boolean {
-    val effectiveNarrowing = effectiveNarrowing(narrowing, existing, quantifierOmitted)
-    return effectiveNarrowing.narrows(existing, reader) ||
-        selectFirstStageOrNull(existing, effectiveNarrowing) != null
+      info: TypeInfo = reader,
+  ): InstructionTree? {
+    val effective =
+        effectiveNarrowing(narrowing, existing, quantifierOmitted, info, intersect = true)
+    effective.intersect(existing, reader.classTable, info)?.let {
+      return it
+    }
+    if (selectFirstStageOrNull(existing, effective) != null) return effective
+    val sequences =
+        when (existing) {
+          is Then -> listOf(existing)
+          is Or -> existing.instructions.filterIsInstance<Then>()
+          else -> emptyList()
+        }
+    return sequences
+        .mapNotNull { then ->
+          val first = then.first
+          val selectable = if (first is Gated) first.inner else first
+          val head =
+              effectiveNarrowing(narrowing, selectable, quantifierOmitted, info, intersect = true)
+                  .intersect(selectable, reader.classTable, info)
+          head?.takeIf { selectFirstStageOrNull(existing, it) != null }
+        }
+        .distinct()
+        .singleOrNull()
   }
 
   private fun effectiveNarrowing(
@@ -448,9 +477,13 @@ internal constructor(
       existing: InstructionTree,
       quantifierOmitted: Boolean,
       info: TypeInfo = reader,
+      intersect: Boolean = false,
   ): InstructionTree {
     if (!quantifierOmitted || narrowing !is Change) return narrowing
-    if (narrowing.narrows(existing, info)) return narrowing
+    fun matches(proposed: InstructionTree, instruction: InstructionTree): Boolean =
+        if (intersect) proposed.intersect(instruction, reader.classTable, info) != null
+        else proposed.narrows(instruction, info)
+    if (matches(narrowing, existing)) return narrowing
 
     fun inheritQuantifier(change: Change): InstructionTree =
         when (narrowing) {
@@ -467,7 +500,12 @@ internal constructor(
         }
     return choices
         .mapNotNull { choice ->
-          inheritQuantifier(choice).takeIf { inherited -> inherited.narrows(choice, info) }
+          // Inheritance repairs a quantifier mismatch, not incompatible Types or counts. In
+          // particular, do not turn an unrelated mandatory request into an optional Ok match.
+          if (intersect && narrowing.quantifier!!.narrows(choice.quantifier!!, info)) {
+            return@mapNotNull null
+          }
+          inheritQuantifier(choice).takeIf { inherited -> matches(inherited, choice) }
         }
         .distinct()
         .singleOrNull() ?: narrowing

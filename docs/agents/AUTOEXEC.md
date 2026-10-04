@@ -125,7 +125,7 @@ does not define that production API.
 
 Do not lower the replay Player's whole autoexecution level for this purpose. A replay policy should
 otherwise make the same eager choices as the ordinary first-choice policy, but decline a task that
-would purely remove a `ProjectCard`. The replay then performs that removal explicitly with the
+would purely remove a `ProjectCard<Hand>`. The replay then performs that removal explicitly with the
 sourced card names and can associate those names with the exact resulting events. Playing a project
 card is not such a removal: its transmutation into the named card preserves the identity needed by
 the replay.

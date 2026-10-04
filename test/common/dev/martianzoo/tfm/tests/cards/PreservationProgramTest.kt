@@ -75,7 +75,9 @@ internal class PreservationProgramTest :
     p1.playPrelude(UnmiContractor)
     p1.playPrelude(Donation)
     admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(PreservationProgram) }
+    p1.stdAction("DoRequiredActionsAction") {
+          p1.playPrelude(PreservationProgram, location = cn("Selecting"))
+        }
         .expect("4 TerraformRating")
     p1.stdProject("AsteroidProject").expect("TerraformRating")
   }
@@ -85,7 +87,9 @@ internal class PreservationProgramTest :
     setUpProgramGame()
     p1.playCorp(ValleyTrust, 0)
     admin.phase("Action")
-    p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(PreservationProgram) }
+    p1.stdAction("DoRequiredActionsAction") {
+          p1.playPrelude(PreservationProgram, location = cn("Selecting"))
+        }
         .expect("4 TerraformRating")
     p1.stdProject("AsteroidProject").expect("TerraformRating")
   }
@@ -268,7 +272,9 @@ internal class PreservationProgramTest :
     admin.phase("Action")
 
     p1.stdAction("DoRequiredActionsAction") {
-          p1.playPrelude(DoubleDown) { doTask("CopyPrelude<PreservationProgram>") }
+          p1.playPrelude(DoubleDown, location = cn("Selecting")) {
+            doTask("CopyPrelude<PreservationProgram>")
+          }
         }
         .expect("4 TerraformRating")
     p1.stdProject("AsteroidProject").expect("TerraformRating")
@@ -385,7 +391,7 @@ internal class PreservationProgramTest :
     startLaterGeneration("$PharmacyUnion")
     p1.runOperation("ProjectCard, -2 Disease<$PharmacyUnion>")
     p1.playProject(PhysicsComplex, 12) {
-          doTask("PlayedEvent<Class<$PharmacyUnion>> FROM $PharmacyUnion")
+          doTask("PlayedEvent FROM $PharmacyUnion")
         }
         .expect("2 TerraformRating, -12 MC")
     p1.count("$PharmacyUnion") shouldBe 0

@@ -34,8 +34,8 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
     me.playCorp(Spire, 10)
 
     me.turn {
-      playPrelude(Merger) { me.playCorp(LakefrontResorts) }
-      playPrelude(NewPartner) { playPrelude(BoardOfDirectors) }
+      playPrelude(Merger) { me.playCorp(LakefrontResorts, location = cn("Selecting")) }
+      playPrelude(NewPartner) { playPrelude(BoardOfDirectors, location = cn("Selecting")) }
     }
 
     me.count("MC") shouldBe 32
@@ -46,7 +46,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
         doTask("-12 MC")
         playPrelude(DoubleDown) {
           doTask("CopyPrelude<$Merger>")
-          me.playCorp(CrediCor)
+          me.playCorp(CrediCor, location = cn("Selecting"))
         }
       }
       playProject(MediaGroup, 6)
@@ -158,8 +158,8 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
       stdProject(
           "AquiferProject",
           payment = {
-            doTask("6 PayFromCard<Spire> FROM Science<Spire>")
-            doTask("6 Pay<Class<MC>> FROM MC")
+            doTask("6 PayFromCard FROM Science<Spire>")
+            doTask("6 Pay<> FROM MC")
           },
       ) {
         placeTile(1, 1)
@@ -197,7 +197,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
                   "ActionBilling<GreeneryProject, Action1, Class<MC>>",
                   cn("GreeneryProject"),
               )
-              doTask("12 PayFromCard<Spire> FROM Science<Spire>")
+              doTask("12 PayFromCard FROM Science<Spire>")
               // Twelve science are worth 24 MC; decline the unused MC tender after overpaying by
               // one.
               declineTask()
@@ -212,7 +212,7 @@ internal class MaximumStandardProjectTest : AbstractSoloTest() {
           doTask("2 MC", cn("OceanTile"))
           doTask("2 MC", cn("OceanTile"))
           doTask("2 MC", cn("OceanTile"))
-          doTask("Animal<Herbivores>", Herbivores)
+          doTask("Animal", Herbivores)
           doTask("2 MC", MeatIndustry)
           doTask("OxygenStep", cn("GreeneryTile"))
           doTask("TerraformRating", cn("OxygenStep"))

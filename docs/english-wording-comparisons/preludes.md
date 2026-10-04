@@ -202,7 +202,7 @@ Class: `EcologyExperts`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Increase your plant production 1 step. PLAY A CARD FROM HAND, IGNORING GLOBAL REQUIREMENTS | — |
-| Generated text | Increase your plant production 1 step. Play a card from hand, ignoring global requirements. | — |
+| Generated text | Increase your plant production 1 step. \[PlayCard&lt;Class&lt;ProjectCard&gt;, Class&lt;CardFront&gt;, Hand&gt;\], then \[-Required / Required\]. | — |
 
 Pets declaration:
 
@@ -211,7 +211,7 @@ CLASS EcologyExperts : CardFront<Class<PreludeCard>> {
   cost = 0
   autoSelectWhen = HAS "MAX 0 Prelude1CardPack"
   This:: PlantTag<This>, MicrobeTag<This>
-  This: PROD[Plant], PlayCard<Class<ProjectCard>> THEN -Required / Required
+  This: PROD[Plant], PlayCard<Class<ProjectCard>, Class<CardFront>, Hand> THEN -Required / Required
 }
 ```
 
@@ -222,14 +222,14 @@ Class: `ExcentricSponsor`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | PLAY A CARD FROM HAND, REDUCING ITS COST BY 25 M€ | — |
-| Generated text | Play a card from hand, reducing its cost by 25 M€. | — |
+| Generated text | \[PlayCard&lt;Class&lt;ProjectCard&gt;, Class&lt;CardFront&gt;, Hand&gt;\], then \[-25 Owed\]. | — |
 
 Pets declaration:
 
 ```pets
 CLASS ExcentricSponsor : CardFront<Class<PreludeCard>> {
   cost = 0
-  This: PlayCard<Class<ProjectCard>> THEN -25 Owed
+  This: PlayCard<Class<ProjectCard>, Class<CardFront>, Hand> THEN -25 Owed
 }
 ```
 
@@ -712,7 +712,7 @@ Class: `CorporateArchives`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Gain 13 M€. LOOK AT THE TOP 7 CARDS FROM THE DECK. TAKE 2 OF THEM INTO HAND AND DISCARD THE OTHER 5 | — |
-| Generated text | Gain 13 M€. Look at 7 project cards. Draw 2 of them. | — |
+| Generated text | Gain 13 M€. \[7 ProjectCard&lt;Selecting&gt;\]. \[2 ProjectCard&lt;Hand FROM Selecting&gt;\]. \[-5 ProjectCard&lt;Selecting&gt;\]. | — |
 
 Pets declaration:
 
@@ -720,7 +720,7 @@ Pets declaration:
 CLASS CorporateArchives : CardFront<Class<PreludeCard>> {
   cost = 0
   This:: ScienceTag<This>
-  This: 13 MC, 2 ProjectCard
+  This: 13 MC, 7 ProjectCard<Selecting>, 2 ProjectCard<Hand FROM Selecting>, -5 ProjectCard<Selecting>
 }
 ```
 
@@ -786,7 +786,7 @@ Class: `Merger`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Draw 4 corporation cards. Play one of them and discard the other 3. Then pay 42 M€. | — |
-| Generated text | Draw 4 corporation cards, then discard 3 corporation cards, then play a corporation card. Remove 42 M€. | — |
+| Generated text | \[4 StandardCorporationCard&lt;Selecting&gt;\], then \[PlayCard&lt;Class&lt;StandardCorporationCard&gt;, Class&lt;CardFront&gt;(NOT Class&lt;BeginnerCorporation&gt;), Selecting&gt;\], then \[-3 StandardCorporationCard&lt;Selecting&gt;\]. Remove 42 M€. | — |
 
 Pets declaration:
 
@@ -794,7 +794,7 @@ Pets declaration:
 CLASS Merger : CardFront<Class<PreludeCard>> {
   cost = 0
   autoSelectWhen = HAS "Unsafe OR MAX 0 SagittaFrontierServices"
-  This: StandardCorporationCard THEN PlayCard<Class<StandardCorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>)>, -42 MC
+  This: 4 StandardCorporationCard<Selecting> THEN PlayCard<Class<StandardCorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Selecting> THEN -3 StandardCorporationCard<Selecting>, -42 MC
 }
 ```
 
@@ -805,14 +805,14 @@ Class: `NewPartner`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Raise your M€ production 1 step. Immediately draw 2 Prelude cards. Play 1 of them, and discard the other. | — |
-| Generated text | Increase your M€ production 1 step. Draw 2 prelude cards, then discard 1 prelude card, then play a prelude card. | — |
+| Generated text | Increase your M€ production 1 step. \[2 PreludeCard&lt;Selecting&gt;\], then \[PlayOrFizzle&lt;Selecting&gt;\], then \[-PreludeCard&lt;Selecting&gt;\]. | — |
 
 Pets declaration:
 
 ```pets
 CLASS NewPartner : CardFront<Class<PreludeCard>> {
   cost = 0
-  This: PROD[MC], PreludeCard THEN PlayOrFizzle
+  This: PROD[MC], 2 PreludeCard<Selecting> THEN PlayOrFizzle<Selecting> THEN -PreludeCard<Selecting>
 }
 ```
 
@@ -852,7 +852,7 @@ Pets declaration:
 CLASS AtmosphericEnhancers : CardFront<Class<PreludeCard>> {
   cost = 0
   This:: VenusTag<This>
-  This: 2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep, 2 ProjectCard
+  This: 2 TemperatureStep OR 2 OxygenStep OR 2 VenusStep, 2 SearchForCard<ReferenceFilter<Class<Floater>>>
 }
 ```
 
@@ -1265,7 +1265,7 @@ Pets declaration:
 CLASS HighCircles : CardFront<Class<PreludeCard>> {
   cost = 0
   This:: EarthTag<This>
-  This: TerraformRating, ProjectCard, 2 PartyDelegate
+  This: TerraformRating, SearchForCard<ReferenceFilter<Class<PartyRequirement>>>, 2 PartyDelegate
   MeasureInfluence:: HighCirclesInfluence
 }
 ```

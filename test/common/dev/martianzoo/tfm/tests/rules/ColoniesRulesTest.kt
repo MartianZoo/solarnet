@@ -1,6 +1,8 @@
 package dev.martianzoo.tfm.tests.rules
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.*
+import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.engine.*
@@ -42,7 +44,7 @@ internal class ColoniesRulesTest : CardTest() {
     p2.stdAction("TradeAction", 1) {
       doWithoutAutoExec(p2) {
         doTask("Trade<Enceladus>")
-        doTask("-TradeBarrier<Enceladus>")
+        doTask("-TradeBarrier")
         doTask("Microbe<$RegolithEaters>")
         shouldThrow<TaskException> { p1.doTask("Microbe<$NitriteReducingBacteria>") }
         p2.selectTask("Microbe<Player1>.")
@@ -70,6 +72,67 @@ internal class ColoniesRulesTest : CardTest() {
 
     p1.count("ProjectCard") shouldBe 0
     p2.count("ProjectCard") shouldBe 1
+  }
+
+  @Test
+  internal fun `Pluto bonuses finish one at a time per owner`() {
+    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(players = 2, "Pluto"))
+    val p2 = requireP2()
+    p1.runOperation("37 MC, ProjectCard")
+    p2.runOperation("3 Energy, Colony<Pluto>")
+    p2.runOperation("-2 ProjectCard")
+    admin.phase("Action")
+    p1.stdProject("BuildColonyProject") { doTask("Colony<Pluto>") }
+    p1.playProject(ResearchColony, 20) { doTask("Colony<Pluto>") }
+    p1.runOperation("-${p1.count("ProjectCard")} ProjectCard")
+    p1.count("ProjectCard") shouldBe 0
+    p1.autoExecPolicy = NONE
+
+    p2.stdAction("TradeAction", 2) {
+      doWithoutAutoExec(p2) {
+        doTask("Trade<Pluto>")
+        doTask("-TradeBarrier")
+        doTask("2 ProjectCard")
+        doTask("PlutoLock<Player1>!")
+        doTask("ProjectCard<Player1>")
+        shouldThrow<LimitsException> { doTask("PlutoLock<Player1>!") }
+        shouldThrow<TaskException> { doTask("ProjectCard<Player1>") }
+        p1.count("ProjectCard") shouldBe 1
+
+        // Another owner's bonus remains available while Player1 must discard.
+        doTask("PlutoLock<Player2>!")
+        doTask("ProjectCard<Player2>")
+        p2.count("ProjectCard") shouldBe 3
+        doTask("-ProjectCard<Player2>")
+        doTask("-PlutoLock<Player2>!")
+
+        doTask("-ProjectCard<Player1>")
+        doTask("-PlutoLock<Player1>!")
+        doTask("PlutoLock<Player1>!")
+        doTask("ProjectCard<Player1>")
+        p1.count("ProjectCard") shouldBe 1
+        doTask("-ProjectCard<Player1>")
+        doTask("-PlutoLock<Player1>!")
+      }
+    }
+
+    p1.count("ProjectCard") shouldBe 0
+    p2.count("ProjectCard") shouldBe 2
+    admin.count("PlutoLock<Anyone>") shouldBe 0
+  }
+
+  @Test
+  internal fun `Two Pluto bonuses complete with normal autoexecution`() {
+    newGame(ColoniesExpansion, colonyTiles = testColonyTiles(players = 2, "Pluto"))
+    val p2 = requireP2()
+    p1.runOperation("37 MC, ProjectCard")
+    p2.runOperation("3 Energy")
+    admin.phase("Action")
+    p1.stdProject("BuildColonyProject") { doTask("Colony<Pluto>") }
+    p1.playProject(ResearchColony, 20) { doTask("Colony<Pluto>") }
+
+    p2.stdAction("TradeAction", 2) { doTask("Trade<Pluto>") }
+        .expect("0 ProjectCard<Player1>, 2 ProjectCard<Player2>, 0 PlutoLock<Anyone>")
   }
 
   @Test
@@ -134,7 +197,7 @@ internal class ColoniesRulesTest : CardTest() {
     p2.stdAction("TradeAction", 2) {
       doWithoutAutoExec(p2) {
         doTask("Trade<Titan>")
-        doTask("-TradeBarrier<Titan>")
+        doTask("-TradeBarrier")
         doTask("Floater<$Dirigibles>")
         doTask("Floater<Player1>")
         p1.addCardResources(ForcedPrecipitation)

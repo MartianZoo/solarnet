@@ -498,7 +498,7 @@ Class: `ValleyTrust`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | You start with 37 M€. As your first action, draw 3 Prelude cards, and play one of them. Discard the other two. | Effect: When you play a science tag, you pay 2 M€ less for it. |
-| Generated text | Gain 37 M€. As your first action, draw 3 prelude cards, then discard 2 prelude cards, then play a prelude card. | Effect: When you play a science tag, you pay 2 M€ less for it. |
+| Generated text | Gain 37 M€. As your first action, \[3 PreludeCard&lt;Selecting&gt;\], then \[PlayOrFizzle&lt;Selecting&gt;\], then \[-2 PreludeCard&lt;Selecting&gt;\]. | Effect: When you play a science tag, you pay 2 M€ less for it. |
 
 Pets declaration:
 
@@ -914,7 +914,7 @@ Class: `TychoMagnetics`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | You start with 42 M€. Increase your energy production 1 step. | Action: Spend any number of energy to draw that many cards. Keep 1 and discard the rest. |
-| Generated text | Gain 42 M€. Increase your energy production 1 step. | Action: Spend 1 or more energy to look at that many cards. Draw 1 of them. |
+| Generated text | Gain 42 M€. Increase your energy production 1 step. | Action: Spend 1 or more energy to \[X ProjectCard&lt;Selecting&gt;\] and \[ProjectCard&lt;Hand FROM Selecting&gt;\], then \[-X ProjectCard&lt;Selecting&gt;.\]. |
 
 Pets declaration:
 
@@ -923,7 +923,7 @@ CLASS TychoMagnetics : ActionCard<Class<StandardCorporationCard>> {
   cost = 0
   This:: PowerTag<This>, ScienceTag<This>
   This: 42 MC, PROD[Energy]
-  X Energy -> ProjectCard
+  X Energy -> X ProjectCard<Selecting>, ProjectCard<Hand FROM Selecting> THEN -X ProjectCard<Selecting>.
 }
 ```
 
@@ -1006,7 +1006,7 @@ Pets declaration:
 CLASS SagittaFrontierServices : CardFront<Class<StandardCorporationCard>> {
   cost = 0
   autoSelectWhen = HAS "Unsafe OR (MAX 0 PromoCardPack, MAX 0 Merger)"
-  This: 31 MC, PROD[Energy, 2 MC], ProjectCard
+  This: 31 MC, PROD[Energy, 2 MC], SearchForCard<NoTagsFilter>
   CardFront(HAS =0 Tag): 4 MC
   CardFront(HAS =1 Tag): MC
 }

@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -42,9 +43,12 @@ internal class SoloGame20230611Test : AbstractSoloTest() {
       assertSidebar(gen = 1, temp = -30, oxygen = 0, oceans = 0, venus = 0)
 
       playPrelude(Biolab).expect("3 Card")
-      playPrelude(NewPartner) { playPrelude(BusinessEmpire) }.expect("PROD[7 MC]")
+      playPrelude(NewPartner) { playPrelude(BusinessEmpire, location = cn("Selecting")) }
+          .expect("PROD[7 MC]")
 
-      stdAction("DoRequiredActionsAction") { playPrelude(GalileanMining) }
+      stdAction("DoRequiredActionsAction") {
+            playPrelude(GalileanMining, location = cn("Selecting"))
+          }
           .expect("PROD[2 Titanium]")
       playProject(IndenturedWorkers, 0)
       playProject(IndustrialMicrobes, 4).expect("PROD[Steel, Energy], MicrobeTag")

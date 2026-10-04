@@ -13,7 +13,8 @@ CLASS TerraformingMars : Module {
   This: SellPatentsProject, PowerPlantProject, AsteroidProject, AquiferProject, GreeneryProject, CityProject
   This: PlayCardFromHandAction, UseStandardProjectAction, UseActionOnCardAction, ConvertPlantsAction, ConvertHeatAction
   This: DoRequiredActionsAction
-  This: CardPurchase, CardPlay
+  This: Hand, Selecting, Revealed, CardPurchase, CardPlay
+  This: NoTagsFilter
   This: EACH Class<@Tag> { TagFilter<Class<@Tag>> }
   This: EACH @Class<GlobalParameter> { GpIncomplete<@Class> }
   This: EACH Class<@RemoteArea> { @RemoteArea }
@@ -75,15 +76,15 @@ ABSTRACT CLASS Player : Owner, Actor {
   This: 5 ProdOffset<This, Class<MC>> BY Admin
   This: 2 BaseResourceValue<Class<Steel>>, 3 BaseResourceValue<Class<Titanium>>
 
-  // 2 CorporationOption; StandardCorporationCard<Selecting> / CorporationOption THEN 10 ProjectCard
   SetupPhase IF MAX 0 BeginnerVariant: \
-    StandardCorporationCard THEN NewTurn
-  // (BeginnerCorporationCard THEN 10 ProjectCard) OR
-  //   (StandardCorporationCard<Selecting> / CorporationOption THEN 10 ProjectCard)
+    2 StandardCorporationCard<Selecting> THEN StandardCorporationCard<Hand FROM Selecting> \
+      THEN -StandardCorporationCard<Selecting> THEN NewTurn
   SetupPhase IF BeginnerVariant: \
-    (BeginnerCorporationCard THEN NewTurn) OR (StandardCorporationCard THEN NewTurn)
-  // 4 ProjectCard<Selecting>, -4 ProjectCard<Selecting>? THEN BuySelectedCards
-  ResearchPhase: 4 BuyCard?
+    2 StandardCorporationCard<Selecting> THEN \
+      ((BeginnerCorporationCard THEN -2 StandardCorporationCard<Selecting> THEN NewTurn) OR \
+        (StandardCorporationCard<Hand FROM Selecting> \
+          THEN -StandardCorporationCard<Selecting> THEN NewTurn))
+  ResearchPhase: 4 ProjectCard<Selecting> THEN -4 ProjectCard<Selecting>? THEN BuySelectedCards
 }
 
 "One step on the terraform rating track; you generally start with 20 of them"
@@ -96,7 +97,7 @@ CLASS TerraformRating : Owned<Player>, Atomized {
 CLASS StartToken : Owned<Player> { HAS =1 StartToken }
 
 "Identifies the Player immediately after another Player in seat order"
-CLASS AfterMe<Previous@Owner, Next@Player> : System {
+CLASS AfterMe<Previous@Owner, Next@Player> : System, Hidden {
   HAS MAX 1 This
   ResearchPhase IF StartToken<Previous@Owner>: StartToken<Next@Player FROM Previous@Owner>.
 }
@@ -112,12 +113,13 @@ ABSTRACT CLASS Phase : System {
     This:: EACH Class<@CardWatcher> { @CardWatcher }
 
     // NewTurn IF SetupPhase, StandardCorporationCard<Selecting>: StandardCorporationCard<Hand FROM Selecting>,
-    //   ((ProjectCard<Selecting FROM Hand> / ProjectCard<Hand>) THEN -10 ProjectCard<Selecting>?
+    //   ((ProjectCard<Selecting FROM Hand> / ProjectCard) THEN -10 ProjectCard<Selecting>?
     //     THEN (ProjectCard<Hand FROM Selecting> / ProjectCard<Selecting>))
     NewTurn IF StandardCorporationCard: \
-      PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>)> THEN 10 BuyCard?
+      PlayCard<Class<CorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Hand> \
+        THEN 10 ProjectCard<Selecting> THEN -10 ProjectCard<Selecting>? THEN BuySelectedCards
     NewTurn IF BeginnerCorporationCard: \
-      PlayCard<Class<CorporationCard>, Class<BeginnerCorporation>>
+      PlayCard<Class<CorporationCard>, Class<BeginnerCorporation>, Hand>
   }
   CLASS ResearchPhase { This:: Generation }
   CLASS ActionPhase {
@@ -154,7 +156,7 @@ CLASS Generation : System {
 }
 
 "The lifetime anchor for components that exist only during the current generation"
-CLASS GenerationScope : Scope, System {
+CLASS GenerationScope : Scope, System, Hidden {
   HAS MAX 1 This
   Generation:: -This! THEN This!
 }

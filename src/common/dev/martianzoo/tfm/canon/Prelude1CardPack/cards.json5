@@ -23,8 +23,7 @@
         {
           "name": "ValleyTrust",
           "tags": [ "EarthTag" ],
-          // 3 PreludeCard<Selecting>, PlayCard<Class<PreludeCard>, Selecting>
-          "immediate": "37 MC, RequiredAction { -> PreludeCard THEN PlayOrFizzle }",
+          "immediate": "37 MC, RequiredAction { -> 3 PreludeCard<Selecting> THEN PlayOrFizzle<Selecting> THEN -2 PreludeCard<Selecting> }",
           "effects": [ "PayingFor<Class<ScienceTag>>:: -2 Owed" ],
         },
         {
@@ -96,11 +95,11 @@
           "name": "EcologyExperts",
           "autoSelectWhen": "MAX 0 Prelude1CardPack",
           "tags": [ "PlantTag", "MicrobeTag" ],
-          "immediate": "PROD[Plant], PlayCard<Class<ProjectCard>> THEN -Required / Required",
+          "immediate": "PROD[Plant], PlayCard<Class<ProjectCard>, Class<CardFront>, Hand> THEN -Required / Required",
         },
         {
           "name": "ExcentricSponsor",
-          "immediate": "PlayCard<Class<ProjectCard>> THEN -25 Owed",
+          "immediate": "PlayCard<Class<ProjectCard>, Class<CardFront>, Hand> THEN -25 Owed",
         },
         {
           "name": "ExperimentalForest",

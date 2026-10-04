@@ -23,7 +23,7 @@ internal class HiredRaidersTest : CardTest() {
     p1.playProject(HiredRaiders, 1) {
           shouldThrow<NarrowingException> { declineTask() }
           p2.assertCounts(2 to "Steel", 3 to "MC")
-          doTask("3 MC<Player1> FROM MC<Player2>")
+          doTask("3 MC FROM MC<Player2>")
         }
         .expect("0 Steel<Player1>, 0 Steel<Player2>, -3 MC<Player2>")
   }
@@ -40,7 +40,7 @@ internal class HiredRaidersTest : CardTest() {
     p3.runOperation("2 Steel")
 
     p1.playProject(HiredRaiders, 1) {
-          doTask("Steel<Player1> FROM Steel<Player3>")
+          doTask("Steel FROM Steel<Player3>")
         }
         .expect("Steel<Player1>, -Steel<Player3>")
 
