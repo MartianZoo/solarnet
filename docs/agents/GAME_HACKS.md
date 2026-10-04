@@ -300,23 +300,20 @@ This is a limitation of restoring an event's scoring rule, not a criticism of sc
 
 ## Deliberately omitted card information
 
-### 19. Card-count outcomes replace reveals, selections, and named hand cards
+### 19. Anonymous card locations omit printed traits before play
 
-**Hack/boundary:** the World retains hand counts, not card identities or reveal/selection events.
-Public Plans pays money without representing its reveal; inspect-and-keep cards gain only retained
-cards. External selection can give correct current outcomes without supplying observers of those
-omitted events.
-
-**Fan card — Open Research Grants:** “Whenever you reveal a project card from your hand, gain
-1 M€.” Public Plans should activate it, but no reveal event exists. The fan reward is literal;
-its trigger requires a missing observation and cannot presently be expressed honestly inside Pets.
+**Hack/boundary:** the World records anonymous counts and movements through `Hand`, `Selecting`,
+and `Revealed`, but does not know an unplayed card's identity or printed traits. Public Plans emits
+a reveal-from-hand movement that other rules can observe. Fixed offers count rejected backs; searches
+do not count cards skipped before finding the matching card. External claims of printed traits can
+produce the intended result, but another rule cannot independently inspect those traits.
 
 **Fan card — Exobiology Contract:** “Reveal an Animal-tagged card from your hand to gain 2 M€.”
-The hand count cannot establish eligibility, even when the named card was previously selected by
-an Animal-tag search. Again, external verification could implement the rule, but the World does
+The hand count and locations cannot establish eligibility, even when the named card was previously
+selected by an Animal-tag search. External verification could implement the rule, but the World does
 not retain the fact needed to compose it internally.
 
-These are examples of information loss, not separate entries for every card sharing the boundary.
+This illustrates the remaining information loss for unplayed cards.
 
 **Source:** `PublicPlans` in [promo cards](../../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.json5),
 `CardBack` and `SearchForCard` in [card-model.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets),

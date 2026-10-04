@@ -282,11 +282,13 @@ internal class Prelude2CardsTest : CardTest() {
     with(p1) {
       cardAction1(BoardOfDirectors) {
         doTask("-12 MC")
-        playPrelude(Merger) { playCorp(ValleyTrust) }
+        playPrelude(Merger) { playCorp(ValleyTrust, location = cn("Selecting")) }
       }
     }
     shouldThrow<RequirementException> { p1.stdProject("PowerPlantProject") }
-    p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(DomeFarming) }
+    p1.stdAction("DoRequiredActionsAction") {
+          p1.playPrelude(DomeFarming, location = cn("Selecting"))
+        }
         .expect("PROD[Plant, 2 MC]")
     p1.stdProject("PowerPlantProject").expect("PROD[Energy]")
   }
@@ -557,7 +559,9 @@ internal class Prelude2CardsTest : CardTest() {
     admin.phase("Action")
     val startingMoney = p1.count("MC")
 
-    p1.stdAction("DoRequiredActionsAction") { p1.playPrelude(DomeFarming) }
+    p1.stdAction("DoRequiredActionsAction") {
+      p1.playPrelude(DomeFarming, location = cn("Selecting"))
+    }
 
     p1.assertProds(2 to "MC", 1 to "Plant")
     p1.count("MC") shouldBe startingMoney + 2
@@ -591,7 +595,7 @@ internal class Prelude2CardsTest : CardTest() {
     p1.runOperation("42 MC, PreludeCard")
     val startingMoney = p1.count("MC")
 
-    p1.playPrelude(Merger) { p1.playCorp(Manutech) }
+    p1.playPrelude(Merger) { p1.playCorp(Manutech, location = cn("Selecting")) }
 
     p1.assertProds(1 to "Steel")
     p1.count("MC") shouldBe startingMoney - 5
@@ -1000,9 +1004,8 @@ internal class Prelude2CardsTest : CardTest() {
     admin.phase("Action")
 
     p1.cardAction1(VenusOrbitalSurvey) {
-      // The two modeled offers are indistinguishable; identify either before choosing the free
-      // tagged outcome, then buy the other.
-      doTask("SearchForCard<TagFilter<Class<VenusTag>>>", tasks.extract { it }.first().id)
+      // One of the two offered cards has a Venus tag and is kept free.
+      doTask("TakeSelectedCard<TagFilter<Class<VenusTag>>>")
       p1.buyCards(1)
     }
 
@@ -1253,12 +1256,17 @@ internal class Prelude2CardsTest : CardTest() {
     p1.runOperation("Chairman, 9 MC, ProjectCard")
     admin.phase("Action")
 
-    p1.playProject(WgProject, 9) {
-      p1.playPrelude(HighCircles) {
-        doTask("2 PartyDelegate<Unity>")
-      }
-    }
+    val result =
+        p1.playProject(WgProject, 9) {
+          p1.playPrelude(HighCircles, location = cn("Selecting")) {
+            doTask("2 PartyDelegate<Unity>")
+          }
+        }
 
+    result.changes
+        .filter { it.change.gaining?.type == p1.resolve("PreludeCard<Selecting>") }
+        .sumOf { it.change.count } shouldBe 3
+    p1.assertCounts(0 to "PreludeCard<Selecting>")
     p1.count("PreludeCard") shouldBe 2
     p1.count("$HighCircles") shouldBe 1
   }
@@ -1277,11 +1285,13 @@ internal class Prelude2CardsTest : CardTest() {
     // WG Project leaves too little money to pay Industrial Complex.
     p1.count("MC") shouldBe 19
     shouldThrow<LimitsException> {
-      p1.playProject(WgProject, 9) { p1.playPrelude(IndustrialComplex) }
+      p1.playProject(WgProject, 9) {
+        p1.playPrelude(IndustrialComplex, location = cn("Selecting"))
+      }
     }
 
     val checkpoint = game.timeline.checkpoint()
-    p1.playProject(WgProject, 9) { doTask("-PreludeCard") }.expect("6 MC")
+    p1.playProject(WgProject, 9) { doTask("-PreludeCard<Selecting>") }.expect("6 MC")
     p1.assertCounts(25 to "MC", 0 to "PreludeCard", 0 to "$IndustrialComplex", 1 to "$WgProject")
     p1.auditGainsSince(checkpoint) shouldBe 1
   }

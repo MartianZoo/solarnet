@@ -4,6 +4,7 @@ import dev.martianzoo.agent.AutoExecPolicy.CONCRETE
 import dev.martianzoo.agent.AutoExecPolicy.EAGER
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.World
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -48,7 +49,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
             // Player1 played UNMI Contractor
             // Player1 drew 1 card(s)
             // You drew Ganymede Colony
-            playPrelude(UnmiContractor)
+            playPrelude(UnmiContractor, location = cn("Selecting"))
           }
           .expect("PROD[1 MC], 1 MC, ProjectCard, 3 TerraformRating")
 
@@ -830,6 +831,9 @@ internal class Game20230521Test : AbstractFullGameTest() {
       // Player2 drew 1 card(s)
       // You drew Aerial Mappers
       playProject(InventionContest, 0) {
+            doTask("3 ProjectCard<Selecting>")
+            doTask("ProjectCard<Hand FROM Selecting>")
+            doTask("-2 ProjectCard<Selecting>")
             // Player2 is using their Mars University effect to draw a card by discarding a card.
             // You discarded Gyropolis
             // Player2 drew 1 card(s)

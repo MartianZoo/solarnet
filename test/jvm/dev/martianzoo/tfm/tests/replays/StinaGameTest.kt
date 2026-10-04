@@ -1,16 +1,27 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 
-internal class StinaGameTest : AbstractSoloTest(requireEveryProjectCardChangeNamed = true) {
+internal class StinaGameTest : CardTrackingFullGameTest() {
   override val config = GameConfig("ElysiumMap, PreludeExpansion", "Me")
 
-  override fun cityAreas() = "Elysium_5_6" to "Elysium_7_7"
+  private val me
+    get() = p1
 
-  override fun greeneryAreas() = "Elysium_5_5" to "Elysium_7_6"
+  @BeforeTest
+  override fun commonSetup() {
+    super.commonSetup()
+    TfmWorkflow.Automatic(agents).launch()
+    admin.doTask("CityTile<Elysium_5_6, SoloOpponent>")
+    admin.doTask("GreeneryTile<Elysium_5_5, SoloOpponent>")
+    admin.doTask("CityTile<Elysium_7_7, SoloOpponent>")
+    admin.doTask("GreeneryTile<Elysium_7_6, SoloOpponent>")
+  }
 
   @Test
   internal fun stinaSaturnSystemsGame() {

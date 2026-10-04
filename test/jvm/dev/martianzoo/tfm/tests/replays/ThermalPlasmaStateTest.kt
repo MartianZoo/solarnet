@@ -35,16 +35,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       doTask("-SelectedColonyTile<Class<Miranda>>")
 
       playCorp(TerraLabsResearch) {
-        buyCards(
-            RadSuits,
-            SoilFactory,
-            FueledGenerators,
-            NeptunianPowerConsultants,
-            AiCentral,
-            Research,
-            SecurityFleet,
-            ImportOfAdvancedGhg,
-        )
+        buyCards(8)
       }
       playPrelude(BusinessEmpire).expect("PROD[6 MC], -6 MC")
       playPrelude(MetalsCompany).expect("PROD[MC]")
@@ -52,47 +43,38 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       assertCounts(0 to "MC")
       pass()
       wgt("VenusStep")
-      buyCards(Solarnet)
+      buyCards(1)
 
       assertCounts(17 to "MC")
       pass()
       wgt("VenusStep")
-      buyCards(LunarBeam, VestaShipyard)
+      buyCards(2)
 
       playProject(FueledGenerators, 1).expect("PROD[-MC, Energy]")
-      playProject(Research, 11) { draw(MediaGroup, EosChasmaNationalPark) }
+      playProject(Research, 11)
       playProject(AiCentral, 17, steel = 2)
-      cardAction1(AiCentral) { draw(Stratopolis, RotatorImpacts) }
-      // The source gives only sale counts; unused-card identities at each sale are test
-      // inference.
-      sellPatents(
-          EosChasmaNationalPark,
-          RadSuits,
-          SoilFactory,
-          NeptunianPowerConsultants,
-          SecurityFleet,
-      )
+      cardAction1(AiCentral)
+      sellPatents(5)
       playProject(VestaShipyard, 9, titanium = 2)
 
       assertCounts(0 to "MC")
       pass()
       wgt("VenusStep")
-      buyCards(ArtificialPhotosynthesis, Steelworks, SolarWindPower)
+      buyCards(3)
 
-      cardAction1(AiCentral) { draw(GeothermalPower, BuildingIndustries) }
+      cardAction1(AiCentral)
       playProject(SolarWindPower, 5, titanium = 2)
       playProject(GeothermalPower, 9, steel = 1)
 
       assertCounts(0 to "MC")
       pass()
       wgt("TemperatureStep")
-      buyCards(AcquiredCompany, LavaTubeSettlement, Conscription)
+      buyCards(3)
 
-      cardAction1(AiCentral) { draw(ForcedPrecipitation, ProjectInspection) }
+      cardAction1(AiCentral)
       playProject(MediaGroup, 6)
       playProject(ProjectInspection, 0) {
             doTask("UseAction<$AiCentral, Action1>")
-            draw(GreatEscarpmentConsortium, RestrictedArea)
           }
           .expect("3 MC")
       playProject(RotatorImpacts, titanium = 2)
@@ -100,49 +82,35 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("13 MC")
       playProject(RestrictedArea, 11) {
         placeTile(3, 7)
-        draw(CallistoPenalMines, Shuttles, Extremophiles)
       }
-      cardAction1(RestrictedArea) { draw(LocalShading) }
-      sellPatents(
-          Stratopolis,
-          BuildingIndustries,
-          GreatEscarpmentConsortium,
-          CallistoPenalMines,
-          LocalShading,
-      )
+      cardAction1(RestrictedArea)
+      sellPatents(5)
       playProject(Conscription, 5).expect("-2 MC")
       playProject(LunarBeam, 0).expect("PROD[-2 MC]")
       playProject(ArtificialPhotosynthesis, 12) { doTask("PROD[2 Energy]") }
-      sellPatents(Shuttles)
+      sellPatents(1)
       playProject(Extremophiles, 3)
       cardAction1(Extremophiles) { addCardResources(Extremophiles) }
 
       assertCounts(0 to "MC")
       pass()
       wgt("TemperatureStep")
-      buyCards(SulphurEatingBacteria, IndenturedWorkers, Harvest, StaticHarvesting)
+      buyCards(4)
 
-      cardAction1(RestrictedArea) { draw(SoilEnrichment) }
-      cardAction1(AiCentral) { draw(TransNeptuneProbe, ProtectedGrowth) }
-      cardAction2(RotatorImpacts) { draw(Worms) }
+      cardAction1(RestrictedArea)
+      cardAction1(AiCentral)
+      cardAction2(RotatorImpacts)
       stdAction("TradeAction", 2) {
         doTask("Trade<Pluto>")
-        draw(IndustrialCenter, BigAsteroid, MethaneFromTitan, WeatherBalloons)
       }
       playProject(IndenturedWorkers, 0).expect("3 MC")
       playProject(ForcedPrecipitation, 0)
       cardAction1(ForcedPrecipitation)
-      sellPatents(
-          TransNeptuneProbe,
-          IndustrialCenter,
-          MethaneFromTitan,
-          WeatherBalloons,
-          AcquiredCompany,
-      )
+      sellPatents(5)
       playProject(Steelworks, 11, steel = 2)
       cardAction1(Steelworks)
       playProject(ImportOfAdvancedGhg, 3, titanium = 2).expect("0 MC")
-      sellPatents(LavaTubeSettlement, Harvest)
+      sellPatents(2)
       playProject(SulphurEatingBacteria, 6)
       cardAction1(SulphurEatingBacteria)
       cardAction1(Extremophiles) { addCardResources(SulphurEatingBacteria) }
@@ -150,16 +118,16 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       assertCounts(0 to "MC")
       pass()
       wgt("OceanTile<Elysium_3_6>")
-      buyCards(LunaGovernor, JetStreamMicroscrappers, InvestmentLoan, TundraFarming)
+      buyCards(4)
 
-      cardAction1(AiCentral) { draw(UrbanizedArea, MedicalLab) }
-      cardAction1(RestrictedArea) { draw(BlackPolarDust) }
+      cardAction1(AiCentral)
+      cardAction1(RestrictedArea)
       cardAction1(Steelworks)
       stdAction("TradeAction", 2) { doTask("Trade<Ganymede>") }
       cardAction1(Extremophiles) { addCardResources(SulphurEatingBacteria) }
       cardAction1(ForcedPrecipitation)
       playProject(InvestmentLoan, 3).expect("PROD[-MC], 10 MC")
-      playProject(Solarnet, 7) { draw(AirScrappingExpedition, VenusGovernor) }
+      playProject(Solarnet, 7)
       cardAction2(SulphurEatingBacteria) { doTask("-3 Microbe<$SulphurEatingBacteria> THEN 9 MC") }
           .expect("9 MC")
       playProject(BigAsteroid, 21, titanium = 2) { /* Decline removing an opponent's plants. */
@@ -167,17 +135,17 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
           }
           .expect("-18 MC")
       cardAction1(RotatorImpacts) { pay(titanium = 2) }
-      sellPatents(UrbanizedArea, MedicalLab, VenusGovernor)
+      sellPatents(3)
       playProject(LunaGovernor, 4).expect("PROD[2 MC], -4 MC")
 
       assertCounts(2 to "MC")
       pass()
       wgt("OceanTile<Elysium_2_4>")
-      buyCards(RegolithEaters, Satellites)
+      buyCards(2)
 
       convertHeat()
-      cardAction1(AiCentral) { draw(ImportedGhg, OlympusConference) }
-      cardAction1(RestrictedArea) { draw(AtalantaPlanitiaLab) }
+      cardAction1(AiCentral)
+      cardAction1(RestrictedArea)
       cardAction2(ForcedPrecipitation)
       cardAction2(RotatorImpacts)
       cardAction1(Steelworks)
@@ -187,31 +155,29 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       playProject(ProtectedGrowth, 2).expect("1 MC")
       convertPlants { placeTile(4, 8) }
       playProject(AtalantaPlanitiaLab, 10) {
-        draw(Trees, MinorityRefuge)
         doTask("ProjectCard FROM Science")
-        draw(TowingAComet)
       }
       playProject(ImportedGhg, 1, titanium = 2).expect("2 MC")
       cardAction1(SulphurEatingBacteria)
       playProject(RegolithEaters, 13)
       cardAction1(RegolithEaters)
       cardAction1(Extremophiles) { addCardResources(RegolithEaters) }
-      sellPatents(Trees, MinorityRefuge)
+      sellPatents(2)
       playProject(Worms, 8)
-      sellPatents(JetStreamMicroscrappers, TundraFarming)
+      sellPatents(2)
 
       assertCounts(2 to "MC")
       pass()
       wgt("TemperatureStep")
-      buyCards(MineralDeposit, BusinessNetwork, FuelFactory)
+      buyCards(3)
 
       convertHeat()
-      cardAction1(AiCentral) { draw(TradeEnvoys, RegoPlastics) }
-      cardAction1(RestrictedArea) { draw(ExtractorBalloons) }
+      cardAction1(AiCentral)
+      cardAction1(RestrictedArea)
       cardAction1(Steelworks)
-      sellPatents(TradeEnvoys, RegoPlastics, Satellites)
+      sellPatents(3)
       playProject(BusinessNetwork, 4).expect("PROD[-MC], -4 MC")
-      cardAction1(BusinessNetwork) { buyCards(Thermophiles) }
+      cardAction1(BusinessNetwork) { buyCards(1) }
       cardAction1(RotatorImpacts) { pay(titanium = 2) }
       playProject(AirScrappingExpedition, 13) { addCardResources(ForcedPrecipitation) }
           .expect("-10 MC")
@@ -221,25 +187,20 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       cardAction1(SulphurEatingBacteria)
       playProject(SoilEnrichment, 6) { doTask("-Microbe<$Extremophiles>") }.expect("-3 MC")
       convertPlants { placeTile(5, 8) }
-      sellPatents(FuelFactory)
+      sellPatents(1)
       playProject(Thermophiles, 9)
       cardAction1(Thermophiles) { addCardResources(Thermophiles) }
 
       assertCounts(0 to "MC")
       pass()
       wgt("TemperatureStep")
-      buyCards(
-          DirectedHeatUsage,
-          CarbonateProcessing,
-          PioneerSettlement,
-          InterstellarColonyShip,
-      )
+      buyCards(4)
 
       convertHeat()
       convertHeat()
-      cardAction1(AiCentral) { draw(Windmills, AdaptationTechnology) }
-      cardAction1(RestrictedArea) { draw(SpaceMirrors) }
-      cardAction1(BusinessNetwork) { buyCards(FusionPower) }
+      cardAction1(AiCentral)
+      cardAction1(RestrictedArea)
+      cardAction1(BusinessNetwork) { buyCards(1) }
       cardAction2(RotatorImpacts)
       cardAction1(Steelworks)
       cardAction1(Extremophiles) { addCardResources(RegolithEaters) }
@@ -250,23 +211,14 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       playProject(CarbonateProcessing, steel = 3)
       stdAction("TradeAction", 2) {
         doTask("Trade<Pluto>")
-        draw(BusinessContacts, DomedCrater, LavaFlows)
       }
-      sellPatents(
-          AdaptationTechnology,
-          SpaceMirrors,
-          DomedCrater,
-          DirectedHeatUsage,
-          PioneerSettlement,
-          InterstellarColonyShip,
-      )
+      sellPatents(6)
       playProject(BlackPolarDust, 15) {
             placeTile(1, 3)
-            draw(BribedCommittee)
           }
           .expect("PROD[-2 MC], -13 MC")
       playProject(BribedCommittee, 7).expect("-4 MC")
-      playProject(BusinessContacts, 7) { draw(BactoviralResearch, JovianEmbassy) }.expect("-4 MC")
+      playProject(BusinessContacts, 7).expect("-4 MC")
       playProject(JovianEmbassy, steel = 7)
       playProject(MineralDeposit, 5).expect("-2 MC")
       playProject(Windmills, steel = 3)
@@ -274,26 +226,25 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       assertCounts(6 to "MC")
       pass()
       wgt("VenusStep")
-      buyCards(Airliners)
+      buyCards(1)
 
       stdAction("TradeAction", 2) { doTask("Trade<Luna>") }.expect("7 MC")
-      cardAction1(RestrictedArea) { draw(ReleaseOfInertGases) }
+      cardAction1(RestrictedArea)
       convertHeat()
-      cardAction1(AiCentral) { draw(AtmoCollectors, InventionContest) }
+      cardAction1(AiCentral)
       playProject(InventionContest, 2) {
             doTask("ProjectCard FROM Science")
-            draw(CityParks, IoSulphurResearch)
           }
           .expect("1 MC")
       playProject(TowingAComet, 5, titanium = 6) { placeTile(4, 6) }.expect("0 MC")
       playProject(LavaFlows, 18) { placeTile(3, 1) }.expect("-15 MC")
       stdProject("AsteroidProject") { placeTile(4, 7) }.expect("-10 MC")
       convertPlants { placeTile(5, 7) }.expect("4 MC")
-      cardAction1(BusinessNetwork) { buyCards(NuclearPower) }
+      cardAction1(BusinessNetwork) { buyCards(1) }
       cardAction2(ForcedPrecipitation)
       cardAction1(RegolithEaters)
       cardAction2(Thermophiles)
-      sellPatents(AtmoCollectors, CityParks, NuclearPower)
+      sellPatents(3)
       cardAction1(RotatorImpacts) { pay(titanium = 2) }
       cardAction1(Extremophiles) { addCardResources(Thermophiles) }
       cardAction1(SulphurEatingBacteria)
@@ -305,15 +256,15 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       assertCounts(0 to "MC")
       pass()
       wgt("OceanTile<Elysium_4_4>")
-      buyCards(InventorsGuild)
+      buyCards(1)
 
       convertHeat()
       convertPlants { placeTile(5, 6) }.expect("2 MC")
       convertHeat()
       convertHeat()
-      cardAction1(AiCentral) { draw(MartianRails, Supercapacitors) }
-      cardAction1(RestrictedArea) { draw(HydrogenToVenus) }
-      cardAction1(BusinessNetwork) { buyCards(Algae) }
+      cardAction1(AiCentral)
+      cardAction1(RestrictedArea)
+      cardAction1(BusinessNetwork) { buyCards(1) }
       cardAction2(ForcedPrecipitation)
       cardAction2(RotatorImpacts)
       cardAction1(ExtractorBalloons)
@@ -323,33 +274,23 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       cardAction1(Thermophiles) { addCardResources(SulphurEatingBacteria) }
       playProject(IoSulphurResearch, 17) {
         doTask("3 ProjectCard")
-        draw(AerosportTournament, EcologicalZone, VenusMagnetizer)
       }
-      sellPatents(
-          MartianRails,
-          Supercapacitors,
-          HydrogenToVenus,
-          AerosportTournament,
-          EcologicalZone,
-      )
+      sellPatents(5)
       playProject(FusionPower, 2, steel = 6) {
         doTask("ProjectCard FROM Science")
-        draw(Advertising)
       }
       playProject(InventorsGuild, 9)
-      cardAction1(InventorsGuild) { buyCards(AirRaid) }
+      cardAction1(InventorsGuild) { buyCards(1) }
       playProject(AirRaid, 0) {
             // The app omitted Air Raid's 5 M€ transfer from the log.
             doTask("5 MC<Me> FROM MC<SoloOpponent>")
           }
           .expect("8 MC")
       playProject(BactoviralResearch, 10) {
-        draw(Insulation)
         doTask("ProjectCard FROM Science")
-        draw(Mangrove)
         addCardResources(SulphurEatingBacteria)
       }
-      sellPatents(VenusMagnetizer, Advertising, Insulation)
+      sellPatents(3)
       cardAction2(SulphurEatingBacteria) {
             doTask("-19 Microbe<$SulphurEatingBacteria> THEN 57 MC")
           }
@@ -368,9 +309,7 @@ internal class ThermalPlasmaStateTest : AbstractSoloTest() {
       pass()
       // Decline the final greenery placement.
       declineTask()
-
-      assertCardTrackingComplete()
-      cardsHand shouldBe emptySet()
+      assertCounts(0 to "ProjectCard")
       // Final state and score come from /api/player?id=pb64886c6e682.
       assertProduction(m = 3, s = 1, t = 2, p = 4, e = 11, h = 13)
       assertResources(m = 70, s = 1, t = 4, p = 4, e = 11, h = 14)

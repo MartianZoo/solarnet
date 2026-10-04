@@ -47,10 +47,7 @@ private fun revealTurmoilSetupEvents(game: World) {
 internal fun playCorporationWithoutStartingProjects(
     player: TfmGameplay,
     corporation: ClassName,
-): TaskResult = player.inTurn {
-  doTask("PlayCard<Class<$corporation>>")
-  doTask("Ok")
-}
+): TaskResult = player.playCorp(corporation, 0)
 
 internal fun setUpGame(
     vararg selectedOptions: TestSelection,

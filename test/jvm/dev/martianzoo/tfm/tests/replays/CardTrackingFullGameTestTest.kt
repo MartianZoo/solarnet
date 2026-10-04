@@ -12,8 +12,7 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
-internal class CardTrackingFullGameTestTest :
-    CardTrackingFullGameTest(requireEveryProjectCardChangeNamed = true) {
+internal class CardTrackingFullGameTestTest : CardTrackingFullGameTest() {
   override val config = GameConfig("PreludeExpansion", "Player1")
   internal override val producesReplayRecording = false
 
@@ -63,6 +62,38 @@ internal class CardTrackingFullGameTestTest :
     assertCardTrackingComplete()
     game.events.changesSince(checkpoint).single { it.isProjectCardChange() }.notes shouldBe
         "Cards: AdaptedLichen FROM AcquiredCompany"
+  }
+
+  @Test
+  internal fun revealingHandCardsRequiresNamesForBothMovements() {
+    p1.runOperation("2 ProjectCard") { p1.draw(AcquiredCompany, AdaptedLichen) }
+    val checkpoint = game.timeline.checkpoint()
+
+    p1.runOperation("2 ProjectCard<Revealed FROM Hand>")
+    p1.runOperation("2 ProjectCard<Hand FROM Revealed>")
+
+    p1.cardsHand shouldBe setOf(AcquiredCompany, AdaptedLichen)
+    shouldThrow<IllegalStateException> { assertCardTrackingComplete() }
+    p1.nameRevealedCards(AcquiredCompany, AdaptedLichen)
+    assertCardTrackingComplete()
+    game.events
+        .changesSince(checkpoint)
+        .filter { it.isProjectCardChange() }
+        .map { it.notes } shouldBe
+        listOf(
+            "Cards: AcquiredCompany, AdaptedLichen",
+            "Cards: AcquiredCompany, AdaptedLichen",
+        )
+  }
+
+  @Test
+  internal fun onlyTheKeptCardInASelectionNeedsAnIdentity() {
+    p1.runOperation("3 ProjectCard<Selecting>")
+    p1.runOperation("ProjectCard<Hand FROM Selecting>") { p1.draw(AcquiredCompany) }
+    p1.runOperation("-2 ProjectCard<Selecting>")
+
+    p1.cardsHand shouldBe setOf(AcquiredCompany)
+    assertCardTrackingComplete()
   }
 
   @Test
@@ -122,6 +153,24 @@ internal class CardTrackingFullGameTestTest :
   }
 
   @Test
+  internal fun arrivalOrderChecksFilteredDraws() {
+    val replay = ArrivalOrderReplay(listOf(AdaptedLichen))
+    replay.setUp()
+    replay.gainToHand(filter = "TagFilter<Class<PlantTag>>")
+
+    replay.assertComplete()
+  }
+
+  @Test
+  internal fun arrivalOrderRejectsACardThatDoesNotMatchTheFilter() {
+    val replay = ArrivalOrderReplay(listOf(AcquiredCompany))
+    replay.setUp()
+    replay.gainToHand(filter = "TagFilter<Class<PlantTag>>")
+
+    shouldThrow<IllegalStateException> { replay.assertComplete() }
+  }
+
+  @Test
   internal fun arrivalOrderNamesCardsAsTheyEnterAndLeaveTheHand() {
     val replay = ArrivalOrderReplay(listOf(AcquiredCompany, AdaptedLichen))
     replay.setUp()
@@ -176,15 +225,15 @@ internal class CardTrackingFullGameTestTest :
   private fun ChangeEvent.isProjectCardChange(): Boolean =
       change.gaining?.className == PROJECT_CARD || change.removing?.className == PROJECT_CARD
 
-  private class ArrivalOrderReplay(arrivals: List<ClassName>) :
-      CardTrackingFullGameTest(requireEveryProjectCardChangeNamed = true) {
+  private class ArrivalOrderReplay(arrivals: List<ClassName>) : CardTrackingFullGameTest() {
     override val config = GameConfig("PreludeExpansion", "Player1")
     override val projectCardArrivalOrder = mapOf(cn("Player1") to arrivals)
 
     fun setUp() = commonSetup()
 
-    fun gainToHand(count: Int = 1) {
-      p1.runOperation("${if (count == 1) "" else "$count "}ProjectCard")
+    fun gainToHand(count: Int = 1, filter: String? = null) {
+      val draw = if (filter == null) "ProjectCard" else "SearchForCard<$filter>"
+      p1.runOperation("$count $draw")
     }
 
     fun discardFromHand(card: ClassName) {

@@ -28,15 +28,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       doTask("-SelectedColonyTile<Class<Miranda>>")
 
       playCorp(CrediCor) {
-        buyCards(
-            CryoSleep,
-            SolarReflectors,
-            TerraformingGanymede,
-            AdvancedAlloys,
-            TitanShuttles,
-            IndustrialMicrobes,
-            SaturnSurfing,
-        )
+        buyCards(7)
       }
 
       playPrelude(SocietySupport).expect("PROD[-1 MC, Plant, Energy, Heat]")
@@ -51,7 +43,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
 
       pass()
       wgt("VenusStep")
-      buyCards(CorroderSuits, TowingAComet, StripMine)
+      buyCards(3)
 
       cardAction1(TitanShuttles) {
         addCardResources(TitanShuttles)
@@ -59,7 +51,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
 
       pass()
       wgt("VenusStep")
-      buyCards(HousePrinting, CorporateStronghold)
+      buyCards(2)
 
       convertHeat()
       cardAction1(TitanShuttles) {
@@ -70,7 +62,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
 
       pass()
       wgt("VenusStep")
-      buyCards(DevelopmentCenter)
+      buyCards(1)
 
       convertHeat()
       playProject(CryoSleep, 10)
@@ -85,7 +77,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
 
       pass()
       wgt("OceanTile<Tharsis_6_7>")
-      buyCards(SterlingVents, DesignedMicroorganisms, ElectroCatapult)
+      buyCards(3)
 
       // This temperature step also raises heat production.
       convertHeat().expect("PROD[Heat]")
@@ -100,7 +92,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
 
       pass()
       wgt("OceanTile<Tharsis_6_9>")
-      buyCards(RotatorImpacts)
+      buyCards(1)
 
       convertHeat()
       cardAction1(ElectroCatapult)
@@ -116,11 +108,11 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
 
       pass()
       wgt("OceanTile<Tharsis_4_8>")
-      buyCards(Tardigrades)
+      buyCards(1)
 
       cardAction1(ElectroCatapult)
       playProject(DevelopmentCenter, 2, steel = 3)
-      cardAction1(DevelopmentCenter) { draw(DeimosDownPromo) }
+      cardAction1(DevelopmentCenter)
       playProject(CorporateStronghold, 2, steel = 3) {
             placeTile(5, 8)
           }
@@ -130,7 +122,7 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       }
       cardAction1(TitanShuttles) { addCardResources(SaturnSurfing) }
       cardAction1(SaturnSurfing)
-      cardAction2(RotatorImpacts) { draw(SpinOffDepartment) }
+      cardAction2(RotatorImpacts)
       stdAction("TradeAction", 3) { doTask("Trade<Io>") }.expect("-2 Titanium, 13 Heat")
       convertHeat()
       convertHeat()
@@ -141,7 +133,6 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       // required to reproduce the later archived balance without a state adjustment.
       intentionalUnderpay()
       playProject(DeimosDownPromo, 23, titanium = 2) {
-            draw(DawnCity)
             // Decline removing an opponent's plants.
             declineTask()
             placeTile(7, 8)
@@ -151,9 +142,9 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
 
       pass()
       wgt("VenusStep")
-      buyCards(PowerSupplyConsortium, BribedCommittee)
+      buyCards(2)
 
-      cardAction1(DevelopmentCenter) { draw(ReleaseOfInertGases) }
+      cardAction1(DevelopmentCenter)
       convertPlants {
         placeTile(4, 7)
       }
@@ -168,9 +159,9 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
 
       pass()
       wgt("OceanTile<Tharsis_5_5>")
-      buyCards(ForcedPrecipitation, VenusSoils)
+      buyCards(2)
 
-      cardAction1(DevelopmentCenter) { draw(InterplanetaryTrade) }
+      cardAction1(DevelopmentCenter)
       convertHeat()
       cardAction2(ElectroCatapult)
       cardAction2(RotatorImpacts)
@@ -178,30 +169,25 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       cardAction1(SaturnSurfing)
       cardAction1(Tardigrades)
       playProject(VenusSoils, 20) {
-        draw(ImportedNutrients)
         addCardResources(Tardigrades)
       }
       // Payment reconstruction: using the retained titanium here avoids the earlier two-unit
       // overpayment and is required by the later archived balance.
-      playProject(InterplanetaryTrade, 19, titanium = 2) { draw(IoMiningIndustries) }
-          .expect("PROD[10 MC]")
+      playProject(InterplanetaryTrade, 19, titanium = 2).expect("PROD[10 MC]")
       playProject(ForcedPrecipitation, 8)
       cardAction1(ForcedPrecipitation)
       stdProject("AirScrappingProject")
 
       pass()
       wgt("OceanTile<Tharsis_1_5>")
-      buyCards(Penguins, MarsUniversity, MedicalLab, Gyropolis)
+      buyCards(4)
 
-      cardAction1(DevelopmentCenter) { draw(OutdoorSports) }
+      cardAction1(DevelopmentCenter)
       playProject(MarsUniversity, 2, steel = 2) {
-        discard(OutdoorSports)
-        draw(Comet)
         doTask("ProjectCard FROM ProjectCard")
       }
       stdAction("TradeAction", 1) { doTask("Trade<Triton>") }
       playProject(Comet, 1, titanium = 5) {
-        draw(SolarPower, Predators, EquatorialMagnetizer)
         // Decline removing an opponent's plants.
         declineTask()
         placeTile(2, 6)
@@ -209,18 +195,14 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       cardAction1(SaturnSurfing)
       cardAction1(TitanShuttles) { addCardResources(TitanShuttles) }
       cardAction2(ElectroCatapult)
-      playProject(IoMiningIndustries, 41) { draw(OptimalAerobraking) }
-          .expect("PROD[2 MC, 2 Titanium]")
+      playProject(IoMiningIndustries, 41).expect("PROD[2 MC, 2 Titanium]")
       playProject(SolarPower, 2, steel = 3)
       playProject(Gyropolis, 2, steel = 6) {
-            draw(SpaceHotels)
             placeTile(3, 7)
           }
           .expect("PROD[4 MC, -2 Energy]")
       // Payment reconstruction: the steel retained on Solar Power is worth its full value here.
       playProject(MedicalLab, 1, steel = 4) {
-        discard(Predators)
-        draw(AsteroidRights)
         doTask("ProjectCard FROM ProjectCard")
       }
       playProject(AsteroidRights, 10)
@@ -232,12 +214,10 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
 
       pass()
       wgt("OxygenStep")
-      buyCards(Thermophiles, TitanFloatingLaunchPad, MagneticShield, SixteenPsyche)
+      buyCards(4)
 
-      cardAction1(DevelopmentCenter) { draw(SearchForLife) }
+      cardAction1(DevelopmentCenter)
       playProject(SearchForLife, 3) {
-        discard(SpaceHotels)
-        draw(AirScrappingExpedition)
         doTask("ProjectCard FROM ProjectCard")
       }
       cardAction2(AsteroidRights) { doTask("2 Titanium") }
@@ -245,8 +225,10 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       // Payment reconstruction: retain one titanium for Magnetic Shield, where it avoids the
       // Rotator Impacts overpayment and receives full value.
       intentionalUnderpay()
-      playProject(SixteenPsyche, 11, titanium = 5) { draw(Trees) }.expect("PROD[2 Titanium]")
-      cardAction1(SearchForLife) { doTask("Science<$SearchForLife>") }
+      playProject(SixteenPsyche, 11, titanium = 5).expect("PROD[2 Titanium]")
+      cardAction1(SearchForLife) {
+        doTask("ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>")
+      }
       cardAction1(Tardigrades)
       cardAction2(ForcedPrecipitation)
       cardAction2(RotatorImpacts)
@@ -254,17 +236,15 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       cardAction1(TitanShuttles) { addCardResources(TitanShuttles) }
       // Payment reconstruction: the titanium retained on Rotator Impacts is worth its full value
       // here, avoiding the action's two-unit overpayment.
-      playProject(MagneticShield, 8, titanium = 4) { draw(BeamFromAThoriumAsteroid) }
-      playProject(BeamFromAThoriumAsteroid, 32) { draw(Research) }.expect("PROD[3 Energy, 3 Heat]")
+      playProject(MagneticShield, 8, titanium = 4)
+      playProject(BeamFromAThoriumAsteroid, 32).expect("PROD[3 Energy, 3 Heat]")
       cardAction2(ElectroCatapult)
       playProject(Thermophiles, 9)
       convertPlants {
         placeTile(8, 9)
       }
       playProject(OptimalAerobraking, 3, titanium = 1)
-      // Test inference: the archive gives only the number sold; Penguins is the unplayed card
-      // available at this point that is not needed later.
-      sellPatents(Penguins)
+      sellPatents(1)
       playProject(ImportedNutrients, 14) {
             addCardResources(Thermophiles)
           }
@@ -275,15 +255,12 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
 
       pass()
       wgt("TemperatureStep")
-      buyCards(FloaterPrototypes, TransNeptuneProbe, ConvoyFromEuropa)
+      buyCards(3)
 
-      cardAction1(DevelopmentCenter) { draw(PioneerSettlement) }
+      cardAction1(DevelopmentCenter)
       playProject(Research, 11) {
-        draw(Shuttles, Atmoscoop)
         doTask("ProjectCard FROM ProjectCard")
         doTask("ProjectCard FROM ProjectCard")
-        discard(Trees, TransNeptuneProbe)
-        draw(GanymedeColony, HiTechLab)
       }
       convertHeat() { placeTile(5, 6) }
       convertPlants {
@@ -305,13 +282,10 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       // Ganymede, where it receives full value.
       intentionalUnderpay()
       playProject(Atmoscoop, 8, titanium = 3) {
-        draw(MediaArchives)
         doTask("2 VenusStep")
         addCardResources(TitanShuttles)
       }
       playProject(FloaterPrototypes, 2) {
-        discard(AirScrappingExpedition)
-        draw(AsteroidCard)
         doTask("ProjectCard FROM ProjectCard")
         addCardResources(TitanShuttles)
       }
@@ -321,17 +295,14 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       // Payment reconstruction: retain one titanium for Terraforming Ganymede rather than
       // overpaying for Ganymede Colony.
       intentionalUnderpay()
-      playProject(GanymedeColony, 2, titanium = 4) { draw(Ants) }
+      playProject(GanymedeColony, 2, titanium = 4)
       playProject(ConvoyFromEuropa, titanium = 4) {
-        draw(DustSeals)
         placeTile(9, 9)
       }
       // Payment reconstruction: the titanium retained on Pioneer Settlement and Ganymede Colony
       // is worth its full value here, avoiding three units of combined overpayment.
-      playProject(TerraformingGanymede, 7, titanium = 6) { draw(ProjectInspection) }
+      playProject(TerraformingGanymede, 7, titanium = 6)
       playProject(HiTechLab, 5, steel = 4) {
-        discard(DustSeals)
-        draw(Windmills)
         doTask("ProjectCard FROM ProjectCard")
       }
       cardAction1(ElectroCatapult)
@@ -355,16 +326,12 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       cardAction2(RotatorImpacts)
       cardAction1(Tardigrades)
       playProject(Windmills, 6)
-      // Test inference: the archive gives only the number sold; Ants is the remaining unplayed
-      // project card.
-      sellPatents(Ants)
+      sellPatents(1)
 
       pass()
       // Decline the final greenery placement.
       declineTask()
-
-      assertCardTrackingComplete()
-      cardsHand shouldBe emptySet()
+      assertCounts(0 to "ProjectCard")
 
       assertResources(m = 106, s = 4, t = 6, p = 4, e = 1, h = 17)
       assertProduction(m = 27, s = 4, t = 6, p = 4, e = 1, h = 9)

@@ -5,58 +5,98 @@
 > **Read when:** changing card backs, card play, draws, searches, purchases, card-tracked replays,
 > or the card-tracking game-playing API.
 >
-> **Status:** current count-only engine model and selected external-tracking direction. The
-> production card-tracking API remains to be designed.
+> **Status:** current anonymous count-and-location model and selected external-tracking direction.
+> The production card-tracking API remains to be designed.
 
 ## World model
 
 The engine follows externally supplied Terraforming Mars card decisions. Before play, it records
-only the number of generic card backs owned by each Player:
+generic card backs by Player and location, never by printed identity:
 
-- `ProjectCard` is the count in that Player's hand;
-- `CorporationCard` and `PreludeCard` are analogous setup/phase counts;
+- `ProjectCard<Hand>` is the count in that Player's hand; `Hand` is the default card location in
+  instructions and queries;
+- `CorporationCard<Hand>` and `PreludeCard<Hand>` are analogous setup/phase counts;
+- `Selecting` temporarily holds anonymous backs for project-card look-and-keep effects and the
+  modeled corporation and Prelude offers. Retained project cards move to `Hand`; selected Prelude
+  and Merger corporation cards are played directly from `Selecting`. The effect removes the rest;
+- `Revealed` temporarily holds an already owned card for Public Plans, or one anonymous card
+  revealed from outside the World for Asteroid Deflection System and Search for Life;
 - a concrete `CardFront<Class<CardBack>>` is an exact face in play; and
 - `PlayedEvent<Class<CardFront>>` preserves the exact face of a completed Event because published
   scoring and recovery rules query it.
 
-There are no card-location arguments, offer or reveal pools, deck or discard Components, hidden
-faces, physical-copy identities, shuffle state, or dealer policy. Playing a card consumes one
-generic back and creates the concrete face supplied by the caller. Solarnet trusts that declaration.
+The modeled selection and reveal effects explicitly empty their temporary locations. A card left in
+`Selecting` after its selection is resolved is always a bug. The selected invariant is zero
+`Selecting` backs for a Player whenever that Player has no active selection, including between
+turns. Setup and Prelude selections also count as active selections even though they occur outside
+action-phase turns. No general check enforces this invariant yet; implementing one requires a
+reliable selection-completion boundary. The existing `MustCleanUp` check runs only for operations
+that declare themselves complete. Do not treat leftover backs as a valid resting state or silently
+discard them to conceal a missing decision.
 
-## Count-only procedures
+Fixed-size project-card purchase offers enter `Selecting` first. Searches intentionally have no
+selection pool: the matching card enters the hand directly, and skipped cards have no relevant
+count or movement.
+There is no deck or discard Component, hidden face, physical-copy identity, shuffle state, or
+dealer policy. Playing a card consumes one generic back from its stated location and creates the
+concrete face supplied by the caller. Solarnet trusts that declaration.
+
+## External offer procedures
 
 Prelude plays use `PlayOrFizzle`: play the chosen face, or discard its anonymous back, record an
 `Audit`, and gain 15 M€. The caller verifies that the selected Prelude is unplayable. This same
 signal serves the Prelude phase and additional Prelude plays granted by cards. Offered and rejected
-cards remain external, including Valley Trust's two unselected Preludes.
+cards in the fixed Valley Trust, New Partner, WG Project, and Merger offers are counted in
+`Selecting`; their chosen back is played directly from there and the rejected backs are removed
+without names.
+Setup likewise counts both offered standard corporations in `Selecting`; the chosen one enters
+`Hand`, or both are discarded if the Player chooses the beginner corporation.
+Gameplay callers pass `location = cn("Selecting")` for a direct selected play; the gameplay helper
+otherwise requests `Hand` explicitly. `PlayCard` has no location default: a bare partial proposal
+does not inherit `Selecting` from the pending task under the current narrowing rule. This remains
+a gap for a future gameplay API that should derive authorized choices from pending work.
 
-Only cards that reach a Player's hand enter the World. An ordinary draw or an inspect-and-keep
-instruction therefore gains the retained `ProjectCard` count directly. Searches skip unretained
-faces entirely.
-For a retained card known to have a particular printed tag,
-`SearchForCard<TagFilter<Class<Tag>>>` records that externally verified criterion as a transient
-audited event and adds an anonymous `ProjectCard`; the tag does not become hand state. One generic
-`TagFilter` Class serves every tag, with its singleton Components supplied by the rule Module.
-Its `Class<Tag>` dependency is the criterion; it has no `criteria` property because Requirement
-properties do not currently specialize named header variables.
-Reveal-and-test cards ask the client only for the optional
-outcome. A chosen `BuyCard` count enters the normal payment workflow: it creates 3 M€ of debt per
-card, card-specific modifiers adjust that debt through `PayingFor<Class<ProjectCard>>`, and settling
-the one `CardPurchase` billing converts the request count into the same number of generic
-`ProjectCard`s. The workflow represents no card identity or selection pool.
+An ordinary draw adds `ProjectCard<Hand>` directly. Fixed-size project-card offers, including buys,
+gain the full offer as `ProjectCard<Selecting>`. Look-and-keep effects move only retained backs to
+`Hand` and remove the remainder. For a buy, the Player removes unwanted backs, then
+`BuySelectedCards` converts every remaining selected back into a `BuyCard` payment request. Settling
+the purchase billing moves each paid request to `Hand`. Zero buys leave no selected backs. Neither
+the World nor the replay ledger names rejected cards. Searches create only the matching hand card;
+there is no count of cards searched past. `SearchForCard<CardFilter>` records the externally
+verified criterion as a transient audited event. `TagFilter`, `NoTagsFilter`, and
+`ReferenceFilter` cover the supported tag, no-printed-tag, and reference criteria. The selected
+card's printed properties do not become hand state. One generic `TagFilter` Class serves every
+tag, with its singleton Components supplied by the rule Module. Its `Class<Tag>` dependency is the
+criterion; it has no `criteria` property because Requirement properties do not currently
+specialize named header variables.
 
-Do not add engine state or syntax for cards that were offered, revealed, searched past, rejected,
-or left in an external deck. Do not infer hand identities from anonymous counts; known names are
-supplied and tracked outside the engine.
+Venus Orbital Survey offers two anonymous backs in `Selecting`. The caller may keep each
+Venus-tagged card for free through the externally asserted `TakeSelectedCard<TagFilter>` signal,
+discard any unwanted remainder, and buy every back still selected. The World records the counts
+and movements but cannot inspect those cards' printed tags. Asteroid Deflection System and Search
+for Life each count one anonymous card entering and leaving `Revealed`. Each card's action supplies
+its filter and resource-card destination to `ClaimCardReward<CardFilter, ResourceCard>`. The claim
+derives the resource type from the destination card and scales both the reward and `Audit` by the
+revealed-card count, currently one. The caller verifies the printed tag externally. The `OR Ok`
+branch lets the caller decline when the card lacks the tag;
+once the metric can test the revealed card's printed tag, that branch can be removed. Each `BuyCard`
+creates 3 M€ of debt, card-specific modifiers adjust that debt through
+`PayingFor<Class<ProjectCard>>`, and settling the `CardPurchase` billing moves its selected back to
+`Hand` without assigning a printed identity.
 
-When executable Pets omits a physical offer size, search predicate, reveal condition, or look/keep
+Do not add engine identities for cards that were offered, revealed from a deck, searched past, rejected,
+or left in an external deck without entering a hand. Anonymous selection counts belong in Pets
+when the offer size and retain choice are part of the executable rule. Do not infer hand identities
+from anonymous counts; known names are supplied and tracked outside the engine.
+
+When executable Pets omits a physical offer size or look/keep
 relationship, preserve the missing fragment of the former expression beside it as a comment. Do this
-only for a fact absent from the executable form; `SearchForCard<TagFilter<Class<Tag>>>` already
-records its tag criterion.
-The comment records an unmodeled rule fact, not dormant implementation.
-Non-tag searches still use a direct `ProjectCard` gain and keep their former predicates as comments;
-their old `PrintedTag` and `ReferenceTo` vocabulary was removed with real-card mode. Do not recreate
-that machinery merely to make those predicates executable.
+only for a fact absent from the executable form; the `SearchForCard` filter records a search
+criterion. The comment records an unmodeled rule fact, not dormant implementation.
+
+The World has no general check for an abandoned `Selecting` pool. Each currently modeled effect
+drains its own pool explicitly; a future operation-completion check should detect a missed decision
+without silently discarding its leftovers.
 
 ## Replay tracking
 
@@ -69,23 +109,41 @@ indicated Player's hand, in arrival order. Rejected offers and searched-past car
 the fixture. Replay-local unknown names can stand in for hand cards whose faces are absent from the
 source evidence.
 
-When enabled, strict tracking verifies that every hand-count change is named and that the external
-ledger agrees with each Player's `ProjectCard` count. The focused scenarios in
+Tracking verifies that every modeled project-card movement into or out of `Hand` is named and that
+the external ledger agrees with each Player's `ProjectCard<Hand>` count. A temporary
+`Hand`–`Revealed`–`Hand` cycle consumes no new arrival names, but strict tracking requires the caller
+to name both movements of the already held cards. `Selecting` gains and rejections consume no
+names; only a move from `Selecting` into `Hand` does. The focused scenarios in
 [CardTrackingFullGameTestTest.kt](../../test/jvm/dev/martianzoo/tfm/tests/replays/CardTrackingFullGameTestTest.kt)
 exercise named arrivals, plays, returns, discards, and tracking failures. This is implemented test
 support, not yet a production game-playing API.
+At strict completion, the tracker also checks the named arrivals produced by `SearchForCard` and
+`TakeSelectedCard` against their filters. Its test-only matcher uses `cardTags` for printed tags
+(including the event icon) and the card's Pets declaration for references to game concepts.
+Search for Life and Asteroid Deflection System successes require a matching card identity supplied
+with `nameFlippedCard(actionResult, cardName)`. This annotation never enters the hand ledger.
+The tracker reads the filter from the recorded `ClaimCardReward` choice offered by Pets, including
+when it was declined; it contains no card-specific mapping of claim names, rewards, or tags.
+Failed flips may remain unnamed; when named, their card must lack the relevant tag. If the source
+does not identify a successful flip, use a matching stand-in and explicitly comment that it is faked.
+`CardTrackingCriteriaTest` covers valid and invalid criteria and flip outcomes.
+The tracker cannot detect a missing offer or reveal event, and does not track
+corporation or Prelude card identities. Its success is not proof that all physical card movements
+were modeled; skipped search cards are intentionally outside the modeled movements.
+The four database-backed conversions and `StinaGameTest` use this strict base. Other full-game and
+solo replays use ordinary follow-mode test bases without a card ledger.
 
 ## Selected game-playing direction
 
-Restore a coherent middle-ground card-tracking game-playing API, with card locations tracked
+Build a coherent middle-ground card-tracking game-playing API, with exact hand membership tracked
 **outside the engine**, along the lines demonstrated by the test harness. Known identities of cards
 that enter a hand or play matter; identities of cards that never enter either do not. The anonymous
 engine counts and the external tracking must agree.
 
 This direction does not select a public API shape, require copying the test harness literally, or
-authorize restoring the old location machinery wholesale. Find the smallest coherent contract for
-normal named-card play; do not reintroduce the broader real-card branch. Human-directed and
-autonomous solo play should use the same game-playing capabilities.
+authorize restoring the old offer-location machinery wholesale. Find the smallest coherent
+contract for normal named-card play; do not reintroduce the broader real-card branch.
+Human-directed and autonomous solo play should use the same game-playing capabilities.
 
 ## Deliberate boundaries
 

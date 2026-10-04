@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -11,7 +12,7 @@ import kotlin.test.Test
 // Partial archive replay through the generation-10 World Government action:
 // Synthetic Magnet Burst (ga5237bd2fb08)
 // https://terraforming-mars.herokuapp.com/the-end?id=pa9f45e80d897
-internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
+internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
   // Player-record evidence: Hellas, Corporate Era, Venus, Prelude, Prelude 2, drafting, World
   // Government, two players, and these full-random milestone and award pools.
   // This replay still uses Builder and Sponsor stand-ins for Thawer and Briber.
@@ -48,15 +49,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     // Pink played Tharsis Republic
     pink.playCorp(TharsisRepublic) {
       // Pink kept 7 project cards
-      buyCards(
-          Mine,
-          RoboticWorkforce,
-          GreatEscarpmentConsortium,
-          DesignedMicroorganisms,
-          ImmigrantCity,
-          Sponsors,
-          OrbitalReflectors,
-      )
+      buyCards(7)
     }
 
     // Green rejected Ecoline and Morning Star Inc.; Project Eden and Floating Trade Hub; and
@@ -67,7 +60,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     // Green gained 1 energy production
     // Green kept 4 project cards
     green.playCorp(NirgalEnterprises) {
-      buyCards(MineralDeposit, AquiferPumping, TectonicStressPower, RotatorImpacts)
+      buyCards(4)
     }
 
     pink.turn {
@@ -80,12 +73,11 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       playPrelude(Merger) {
             // You drew Interplanetary Cinematics,Inventrix,Sagitta Frontier Services,Teractor
             // Pink played Sagitta Frontier Services
-            playCorp(SagittaFrontierServices)
+            playCorp(SagittaFrontierServices, location = cn("Selecting"))
             // Pink gained 2 M€ production
             // Pink gained 1 energy production
             /* Discarded 49 cards Freyja Biodomes,Atalanta Planitia Lab,Adaptation Technology,Mining Rights,Urbanized Area,Lichen,Extractor Balloons,Forced Precipitation,Luna Metropolis,Sister Planet Support,Ants,Corroder Suits,Artificial Photosynthesis,Cloud Tourism,Sulphur-Eating Bacteria,Strip Mine,Imported Nitrogen,Standard Technology,Trans-Neptune Probe,Quantum Extractor,Mass Converter,Nitrophilic Moss,Carbonate Processing,Psychrophiles,Mining Area,Towing A Comet,Rover Construction,Extreme-Cold Fungus,Spin-Inducing Asteroid,Indentured Workers,Worms,Immigration Shuttles,Symbiotic Fungus,Livestock,Local Heat Trapping,Underground Detonations,Corporate Stronghold,SF Memorial,Nitrogen-Rich Asteroid,Io Sulphur Research,Imported GHG,Cupola City,Biomass Combustors,Special Design,Inventors' Guild,Comet,Greenhouses,Methane From Titan,Advanced Alloys */
             // Pink drew Micro-Mills
-            draw(MicroMills)
             // Pink gained 4 M€ for playing Sagitta Frontier Services, which has no tags.
           }
           .expect("PROD[2 MC, Energy], ProjectCard, -7 MC")
@@ -97,7 +89,6 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
             // Green gained 5 M€
             /* Discarded 6 cards Dirigibles,Asteroid Mining,Viral Enhancers,Soletta,Sabotage,Big Asteroid */
             // Green drew Insects,Stratopolis
-            draw(Insects, Stratopolis)
           }
           .expect("5 MC, 2 ProjectCard")
       // Green played Suitable Infrastructure
@@ -114,7 +105,6 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
             placeTile(5, 6)
             // Pink drew 1 card(s)
             // You drew Industrial Center
-            draw(IndustrialCenter)
             // Pink gained 3 M€
             // Pink gained 1 M€ production
           }
@@ -192,7 +182,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     // First player this generation is Green
     // Green bought 4 card(s)
     // You bought Giant Ice Asteroid,Investment Loan,Earth Office,Power Supply Consortium
-    green.buyCards(GiantIceAsteroid, InvestmentLoan, EarthOffice, PowerSupplyConsortium)
+    green.buyCards(4)
 
     // Game20260820-dashboards-gen2.png was taken after Green's generation 2 purchase and
     // before Pink's.
@@ -201,11 +191,9 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 5, s = 3, t = 0, p = 0, e = 1, h = 1)
     green.assertResources(m = 15, s = 0, t = 2, p = 1, e = 1, h = 0)
     green.assertProduction(m = -1, s = 0, t = 0, p = 1, e = 1, h = 0)
-    checkHandSizes()
-
     // Pink bought 4 card(s)
     // You bought Invention Contest,Decomposers,Colonizer Training Camp,Imported Hydrogen
-    pink.buyCards(InventionContest, Decomposers, ColonizerTrainingCamp, ImportedHydrogen)
+    pink.buyCards(4)
 
     green.turn {
       // Green played Earth Office
@@ -263,10 +251,10 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     // First player this generation is Pink
     // Green bought 3 card(s)
     // You bought Mars University,Neutralizer Factory,Great Dam
-    green.buyCards(MarsUniversity, NeutralizerFactory, GreatDam)
+    green.buyCards(3)
     // Pink bought 2 card(s)
     // You bought Hackers,ArchaeBacteria
-    pink.buyCards(Hackers, Archaebacteria)
+    pink.buyCards(2)
 
     // Game20260820-dashboards-gen3.png was taken after generation 3 purchases and before
     // the first action.
@@ -275,13 +263,11 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 5, s = 3, t = 0, p = 2, e = 0, h = 1)
     green.assertResources(m = 20, s = 0, t = 0, p = 2, e = 2, h = 4)
     green.assertProduction(m = -2, s = 0, t = 0, p = 1, e = 2, h = 0)
-    checkHandSizes()
-
     pink.turn {
       // Pink played Invention Contest
       // Pink drew 1 card(s)
       // You drew Ishtar Mining
-      playProject(InventionContest, 2) { draw(IshtarMining) }
+      playProject(InventionContest, 2)
       // Pink ended turn
     }
     green.turn {
@@ -289,10 +275,8 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       playProject(MarsUniversity, 8, steel = 0) {
         // Green is using their Mars University effect to draw a card by discarding a card.
         // Green discarded Stratopolis
-        discard(Stratopolis)
         // Green drew 1 card(s)
         // You drew House Printing
-        draw(HousePrinting)
         doTask("ProjectCard FROM ProjectCard")
       }
       // Green ended turn
@@ -331,10 +315,10 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     // First player this generation is Green
     // Pink bought 2 card(s)
     // You bought Titanium Mine,Ecological Zone
-    pink.buyCards(TitaniumMine, EcologicalZone)
+    pink.buyCards(2)
     // Green bought 4 card(s)
     // You bought Media Group,Ironworks,Research,Miranda Resort
-    green.buyCards(MediaGroup, Ironworks, Research, MirandaResort)
+    green.buyCards(4)
 
     green.turn {
       // Green played Media Group
@@ -346,7 +330,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink gained 2 heat production
       // Pink drew 1 card(s)
       // You drew Water Splitting Plant
-      playProject(OrbitalReflectors, 26) { draw(WaterSplittingPlant) }
+      playProject(OrbitalReflectors, 26)
       // Pink played Ishtar Mining
       // Pink gained 1 titanium production
       // Pink gained 1 M€ for playing Ishtar Mining, which has exactly 1 tag.
@@ -388,14 +372,12 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 5, s = 3, t = 2, p = 3, e = 0, h = 3)
     green.assertResources(m = 30, s = 0, t = 0, p = 5, e = 2, h = 8)
     green.assertProduction(m = 1, s = 0, t = 0, p = 1, e = 2, h = 0)
-    checkHandSizes()
-
     // Green bought 3 card(s)
     // You bought Thermophiles,Rad-Chem Factory,GHG Factories
-    green.buyCards(Thermophiles, RadChemFactory, GhgFactories)
+    green.buyCards(3)
     // Pink bought 3 card(s)
     // You bought Floating Habs,Nuclear Zone,Space Elevator
-    pink.buyCards(FloatingHabs, NuclearZone, SpaceElevator)
+    pink.buyCards(3)
 
     pink.turn {
       // Pink used Convert Plants standard action
@@ -444,7 +426,6 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // You drew Earth Catapult
       playProject(NuclearZone, 10) {
             placeTile(3, 7)
-            draw(EarthCatapult)
           }
           .expect("Plant")
       // Pink gained 1 M€ for playing Nuclear Zone, which has exactly 1 tag.
@@ -459,10 +440,10 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     // First player this generation is Green
     // Pink bought 2 card(s)
     // You bought Solar Wind Power,Aerobraked Ammonia Asteroid
-    pink.buyCards(SolarWindPower, AerobrakedAmmoniaAsteroid)
+    pink.buyCards(2)
     // Green bought 2 card(s)
     // You bought Asteroid,Nitrite Reducing Bacteria
-    green.buyCards(AsteroidCard, NitriteReducingBacteria)
+    green.buyCards(2)
 
     green.turn {
       // Green used Convert Heat standard action
@@ -532,7 +513,6 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // You drew Zeppelins
       playProject(EcologicalZone, 10) {
             placeTile(7, 6)
-            draw(Zeppelins)
           }
           .expect("2 Microbe<$Decomposers>, 2 Animal<$EcologicalZone>")
     }
@@ -552,9 +532,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     green.pass()
     pink.turn {
       // Pink used Sell Patents standard project
-      // The log names only the count; selling Water Splitting Plant is test inference because it
-      // is the only card in Pink's tracked hand that never appears in the final tableau.
-      sellPatents(WaterSplittingPlant)
+      sellPatents(1)
       // Pink sold 1 patents
       // Pink used Floating Habs action
       cardAction1(FloatingHabs) { addCardResources(FloatingHabs) }
@@ -569,10 +547,10 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     // First player this generation is Pink
     // Pink bought 3 card(s)
     // You bought Lagrange Observatory,Advanced Ecosystems,Deimos Down
-    pink.buyCards(LagrangeObservatory, AdvancedEcosystems, DeimosDown)
+    pink.buyCards(3)
     // Green bought 2 card(s)
     // You bought Terraforming Contract,Sponsored Academies
-    green.buyCards(TerraformingContract, SponsoredAcademies)
+    green.buyCards(2)
 
     // Game20260820-dashboards-gen7.png was taken after generation 7 purchases and before actions.
     assertSidebar(gen = 7, temp = -18, oxygen = 4, oceans = 6, venus = 10)
@@ -580,8 +558,6 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 7, s = 3, t = 3, p = 3, e = 0, h = 4)
     green.assertResources(m = 25, s = 1, t = 2, p = 7, e = 4, h = 3)
     green.assertProduction(m = -1, s = 0, t = 0, p = 1, e = 4, h = 1)
-    checkHandSizes()
-
     pink.turn {
       // Pink played Deimos Down
       // Pink gained 4 steel
@@ -615,7 +591,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink played Lagrange Observatory
       // Pink drew 1 card(s)
       // You drew Gyropolis
-      playProject(LagrangeObservatory, 7) { draw(Gyropolis) }
+      playProject(LagrangeObservatory, 7)
       // Pink ended turn
     }
     green.turn {
@@ -662,14 +638,12 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 7, s = 3, t = 3, p = 3, e = 0, h = 4)
     green.assertResources(m = 39, s = 0, t = 0, p = 1, e = 7, h = 4)
     green.assertProduction(m = 3, s = 0, t = 0, p = 1, e = 7, h = 1)
-    checkHandSizes()
-
     // Green bought 2 card(s)
     // You bought Ishtar Expedition,Lava Tube Settlement
-    green.buyCards(IshtarExpedition, LavaTubeSettlement)
+    green.buyCards(2)
     // Pink bought 3 card(s)
     // You bought Rad-Suits,Geothermal Power,Gene Repair
-    pink.buyCards(RadSuits, GeothermalPower, GeneRepair)
+    pink.buyCards(3)
 
     green.turn {
       // Green played Ishtar Expedition
@@ -677,8 +651,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       /* Discarded 5 cards Magnetic Field Generators,Mangrove,Domed Crater,Mohole Area,Medical Lab */
       // Green drew Stratospheric Birds,Floating Refinery
       // Green gained 3 M€
-      playProject(IshtarExpedition, 6) { draw(StratosphericBirds, FloatingRefinery) }
-          .expect("3 Titanium, -3 MC")
+      playProject(IshtarExpedition, 6).expect("3 Titanium, -3 MC")
       // Green played Giant Ice Asteroid
       playProject(GiantIceAsteroid, 27, titanium = 3) {
             // Green placed ocean tile at 43
@@ -728,22 +701,15 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     }
     green.turn {
       // Green played Sponsored Academies
-      // The card's unnamed mandatory discard is inferred to be GHG Factories, which was never
-      // played and does not appear in the final hand.
-      discard(GhgFactories)
       // Green drew 3 card(s)
       // You drew Commercial District,Cloud Seeding,Solarnet
-      draw(CommercialDistrict, CloudSeeding, Solarnet)
       // Pink drew 1 card(s)
       // You drew GHG Producing Bacteria
-      pink.draw(GhgProducingBacteria)
       playProject(SponsoredAcademies, 6) {
         // Green is using their Mars University effect to draw a card by discarding a card.
         // Green discarded Floating Refinery
-        discard(FloatingRefinery)
         // Green drew 1 card(s)
         // You drew Space Mirrors
-        draw(SpaceMirrors)
         doTask("ProjectCard FROM ProjectCard")
       }
       // Green ended turn
@@ -803,10 +769,10 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     // First player this generation is Pink
     // Green bought 2 card(s)
     // You bought Land Claim,Bribed Committee
-    green.buyCards(LandClaim, BribedCommittee)
+    green.buyCards(2)
     // Pink bought 3 card(s)
     // You bought Herbivores,Dawn City,Beam From A Thorium Asteroid
-    pink.buyCards(Herbivores, DawnCity, BeamFromAThoriumAsteroid)
+    pink.buyCards(3)
 
     pink.turn {
       // Pink used Greenery standard project
@@ -838,8 +804,6 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 10, s = 3, t = 3, p = 4, e = 1, h = 7)
     green.assertResources(m = 41, s = 0, t = 0, p = 2, e = 6, h = 0)
     green.assertProduction(m = 3, s = 0, t = 0, p = 1, e = 6, h = 1)
-    checkHandSizes()
-
     green.turn {
       // Green used Ironworks action
       // Green gained 1 steel
@@ -923,14 +887,12 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     pink.pass()
     green.turn {
       // Green used Sell Patents standard project
-      // These are the two tracked cards that never appear in the final tableau or a named later
-      // discard; assigning them to this unnamed sale is test inference.
-      sellPatents(Thermophiles, NitriteReducingBacteria)
+      sellPatents(2)
       // Green sold 2 patents
       // Green played Solarnet
       // Green drew 2 card(s)
       // You drew Water to Venus,Noctis City
-      playProject(Solarnet, 7) { draw(WaterToVenus, NoctisCity) }.expect("ProjectCard")
+      playProject(Solarnet, 7).expect("ProjectCard")
       // Green passed
       pass()
     }
@@ -941,8 +903,6 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 13, s = 3, t = 4, p = 4, e = 0, h = 6)
     green.assertResources(m = 47, s = 1, t = 0, p = 5, e = 6, h = 3)
     green.assertProduction(m = 2, s = 0, t = 0, p = 3, e = 6, h = 1)
-    checkHandSizes()
-
     // Pink acted as World Government and increased oxygen level
     pink.wgt("OxygenStep")
 
@@ -950,10 +910,10 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     // First player this generation is Green
     // Green bought 1 card(s)
     // You bought Business Network
-    green.buyCards(BusinessNetwork)
+    green.buyCards(1)
     // Pink bought 2 card(s)
     // You bought CEO's Favorite Project,Fusion Power
-    pink.buyCards(CeosFavoriteProject, FusionPower)
+    pink.buyCards(2)
 
     green.turn {
       // Green used Ironworks action
@@ -970,7 +930,6 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink gained 1 M€ production
       playProject(LavaTubeSettlement, 11, steel = 2) {
             placeTile(8, 5)
-            draw(VenusianInsects)
           }
           .expect("PROD[2 MC<Pink>]")
     }
@@ -1017,19 +976,14 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       playProject(Research, 11) {
         // Green drew 2 card(s)
         // You drew Energy Tapping,Ice Cap Melting
-        draw(EnergyTapping, IceCapMelting)
         // Green is using their Mars University effect to draw a card by discarding a card.
         // Green discarded Ice Cap Melting
-        discard(IceCapMelting)
         // Green drew 1 card(s)
         // You drew Venus Shuttles
-        draw(VenusShuttles)
         // Green is using their Mars University effect to draw a card by discarding a card.
         // Green discarded Venusian Insects
-        discard(VenusianInsects)
         // Green drew 1 card(s)
         // You drew Venus Soils
-        draw(VenusSoils)
         doTask("ProjectCard FROM ProjectCard")
         doTask("ProjectCard FROM ProjectCard")
       }
@@ -1066,9 +1020,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     }
     green.turn {
       // Green used Sell Patents standard project
-      // Selling Space Mirrors is test inference because it is a tracked card that never appears in
-      // the final tableau or a later named discard.
-      sellPatents(SpaceMirrors)
+      sellPatents(1)
       // Green sold 1 patents
       // Green played Water to Venus
       // Green gained 3 M€
@@ -1098,8 +1050,6 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     pink.assertProduction(m = 23, s = 3, t = 4, p = 4, e = 1, h = 6)
     green.assertResources(m = 54, s = 1, t = 0, p = 9, e = 5, h = 6)
     green.assertProduction(m = 3, s = 1, t = 0, p = 4, e = 5, h = 1)
-    checkHandSizes()
-
     // Green acted as World Government and increased Venus scale
     green.wgt("VenusStep")
 
@@ -1107,10 +1057,10 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     // First player this generation is Pink
     // Pink bought 2 card(s)
     // You bought Technology Demonstration,Birds
-    pink.buyCards(TechnologyDemonstration, Birds)
+    pink.buyCards(2)
     // Green bought 2 card(s)
     // You bought Giant Solar Shade,Algae
-    green.buyCards(GiantSolarShade, Algae)
+    green.buyCards(2)
 
     pink.turn {
       // Pink used Greenery standard project
@@ -1141,7 +1091,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink played Technology Demonstration
       // Pink drew 2 card(s)
       // You drew Toll Station,Fueled Generators
-      playProject(TechnologyDemonstration, titanium = 1) { draw(TollStation, FueledGenerators) }
+      playProject(TechnologyDemonstration, titanium = 1)
       // Pink funded Founder award
       stdAction("FundAwardAction", which = 3) { doTask("Founder") }.expect("Award")
     }
@@ -1166,9 +1116,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     }
     green.turn {
       // Green used Sell Patents standard project
-      // The five named Green cards sold this generation, and their division among the four unnamed
-      // sales, are test inference from the exact tracked hand and final empty hand.
-      sellPatents(StratosphericBirds)
+      sellPatents(1)
       // Green sold 1 patents
       // Green ended turn
     }
@@ -1180,7 +1128,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     }
     green.turn {
       // Green used Sell Patents standard project
-      sellPatents(EnergyTapping)
+      sellPatents(1)
       // Green sold 1 patents
       // Green ended turn
     }
@@ -1203,15 +1151,13 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     }
     green.turn {
       // Green used Sell Patents standard project
-      sellPatents(VenusShuttles)
+      sellPatents(1)
       // Green sold 1 patents
       // Green ended turn
     }
     pink.turn {
       // Pink used Sell Patents standard project
-      // The three named Pink cards sold this generation, and their order, are test inference from
-      // the exact tracked hand and final empty hand.
-      sellPatents(BeamFromAThoriumAsteroid)
+      sellPatents(1)
       // Pink sold 1 patents
       // Pink ended turn
     }
@@ -1229,13 +1175,13 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     }
     pink.turn {
       // Pink used Sell Patents standard project
-      sellPatents(TollStation)
+      sellPatents(1)
       // Pink sold 1 patents
       // Pink ended turn
     }
     green.turn {
       // Green used Sell Patents standard project
-      sellPatents(VenusSoils, Algae)
+      sellPatents(2)
       // Green sold 2 patents
       // Green passed
       // Green declared this pass early after one action; Solarnet executes it on Green's next turn.
@@ -1258,7 +1204,7 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
       // Pink added 1 Animal to Birds
       // Pink gained 1 M€ for playing CEO's Favorite Project, which has exactly 1 tag.
       // Pink used Sell Patents standard project
-      sellPatents(FueledGenerators)
+      sellPatents(1)
       // Pink sold 1 patents
       // Pink passed
       pass()
@@ -1271,11 +1217,10 @@ internal class SyntheticMagnetBurstTest : CardTrackingFullGameTest() {
     pink.declineTask()
     // Green declines the final greenery placement.
     green.declineTask()
+    pink.assertCounts(0 to "ProjectCard")
+    green.assertCounts(0 to "ProjectCard")
 
     // This game id was ga5237bd2fb08
-    assertCardTrackingComplete()
-    pink.cardsHand shouldBe emptySet()
-    green.cardsHand shouldBe emptySet()
     admin.assertCounts(1 to "End", 1 to "Phase")
 
     pink.assertCounts(

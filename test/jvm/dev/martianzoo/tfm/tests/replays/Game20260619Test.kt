@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -50,7 +51,7 @@ internal class Game20260619Test : AbstractFullGameTest() {
         // ER gained 1 plant production
         // ER gained 1 energy production
         // ER gained 2 plants
-        playPrelude(Biofuels)
+        playPrelude(Biofuels, location = cn("Selecting"))
       }
 
       // ER played Dome Farming

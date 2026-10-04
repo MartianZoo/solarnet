@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.replays
 
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -30,16 +31,16 @@ internal class SoloGame20230710Test : AbstractSoloTest() {
       playCorp(PharmacyUnion, 10).expect("16 MC, 11 ProjectCard")
 
       playPrelude(Merger) {
-        playCorp(Manutech)
+        playCorp(Manutech, location = cn("Selecting"))
       }
 
       playPrelude(FakeHeadStart) {
         doTask("UseAction<PlayCardFromHandAction, Action1>")
-        doTask("PlayCard<Class<$OlympusConference>>")
+        doTask("PlayCard<Class<ProjectCard>, Class<$OlympusConference>, Hand>")
         pay(4, steel = 3)
 
         doTask("UseAction<PlayCardFromHandAction, Action1>")
-        doTask("PlayCard<Class<$StandardTechnology>>")
+        doTask("PlayCard<Class<ProjectCard>, Class<$StandardTechnology>, Hand>")
         pay(6)
         doTask("ProjectCard FROM Science")
       }

@@ -59,7 +59,7 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
 
         // "For the other one. Advertising for 4."
         doTask("UseAction<PlayCardFromHandAction, Action1>")
-        doTask("PlayCard<Class<$Advertising>>")
+        doTask("PlayCard<Class<ProjectCard>, Class<$Advertising>, Hand>")
         pay(4)
       }
     }
@@ -560,9 +560,8 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // Neither surveyed card had a Venus tag, so Green bought both for 1 M€ apiece through
       // TerraLabs.
       cardAction1(VenusOrbitalSurvey) {
-            doTask("BuyCard")
-            doTask("BuyCard")
-            pay(2)
+            doTask("Ok") // Neither offered card has a Venus tag.
+            buyCards(2)
           }
           .expect("2 ProjectCard, -2 MC")
     }
@@ -844,9 +843,8 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "I will use Venus Orbital Survey to reveal Research Outpost and OmniCorp [sic] and pay two
       // money for them."
       cardAction1(VenusOrbitalSurvey) {
-            doTask("BuyCard")
-            doTask("BuyCard")
-            pay(2)
+            doTask("Ok") // Neither offered card has a Venus tag.
+            buyCards(2)
           }
           .expect("2 ProjectCard, -2 MC")
     }
@@ -966,9 +964,8 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "I will Venus Orbital Survey. I will look at these two cards, which are Comet and Rad
       // Suits. And then I might as well buy them."
       cardAction1(VenusOrbitalSurvey) {
-            doTask("BuyCard")
-            doTask("BuyCard")
-            pay(2)
+            doTask("Ok") // Neither offered card has a Venus tag.
+            buyCards(2)
           }
           .expect("2 ProjectCard, -2 MC")
     }
@@ -1124,9 +1121,8 @@ internal class OtbGame20260825Test : AbstractFullGameTest() {
       // "Let's use the stupid Venus Orbital Survey to reveal Comet for Venus, which is not a Venus
       // card, and Jovian Embassy. I'll buy them both."
       cardAction1(VenusOrbitalSurvey) {
-            doTask("BuyCard")
-            doTask("BuyCard")
-            pay(2)
+            doTask("Ok") // Neither offered card has a Venus tag.
+            buyCards(2)
           }
           .expect("2 ProjectCard, -2 MC")
     }

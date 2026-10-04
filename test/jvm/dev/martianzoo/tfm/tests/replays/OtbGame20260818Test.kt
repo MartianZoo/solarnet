@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.EventLogJson
@@ -77,7 +78,9 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
     yellow.turn {
       // "I use Valley Trust and I get Double Down, which I play... copy Martian Industries."
       stdAction("DoRequiredActionsAction") {
-            playPrelude(DoubleDown) { doTask("CopyPrelude<$MartianIndustries>") }
+            playPrelude(DoubleDown, location = cn("Selecting")) {
+              doTask("CopyPrelude<$MartianIndustries>")
+            }
           }
           .expect("PROD[Steel, Energy], 6 MC")
       // "I spend two money to play Psychrophiles."

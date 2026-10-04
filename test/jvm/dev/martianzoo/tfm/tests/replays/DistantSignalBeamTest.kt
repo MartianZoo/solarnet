@@ -12,8 +12,7 @@ import kotlin.test.Test
 // Distant Signal Beam (g1ddd59fe5633), save 79, generation 3.
 // Source: _local/replays/Game20260905/game-g1ddd59fe5633.sqlite
 // https://terraforming-mars.herokuapp.com/the-end?id=p35d2aed733c5
-internal class DistantSignalBeamTest :
-    CardTrackingFullGameTest(requireEveryProjectCardChangeNamed = true) {
+internal class DistantSignalBeamTest : CardTrackingFullGameTest() {
   override val config =
       GameConfig(
           """

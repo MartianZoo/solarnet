@@ -1,6 +1,7 @@
 package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.*
@@ -22,7 +23,7 @@ internal class UnknownRulesTest : CardTest() {
 
     p1.inTurn {
       doTask("UseAction<PlayCardFromHandAction, Action1>")
-      doTask("PlayCard<Class<$SpaceElevator>>")
+      doTask("PlayCard<Class<ProjectCard>, Class<$SpaceElevator>, Hand>")
       doTask("7 Pay<Class<Steel>> FROM Steel")
       doTask("5 Pay<Class<Titanium>> FROM Titanium")
       doTask("Ok")
@@ -39,11 +40,11 @@ internal class UnknownRulesTest : CardTest() {
     newGame(PreludeExpansion, PromoCardPack)
     p1.playCorp(ValleyTrust, 5)
     admin.phase("Prelude")
-    p1.playPrelude(Merger) { p1.playCorp(TharsisRepublic) }
+    p1.playPrelude(Merger) { p1.playCorp(TharsisRepublic, location = cn("Selecting")) }
     admin.phase("Action")
 
     p1.stdAction("DoRequiredActionsAction") {
-      p1.playPrelude(Donation) { placeTile(3, 3) }
+      p1.playPrelude(Donation, location = cn("Selecting")) { placeTile(3, 3) }
     }
     p1.count("CityTile<Tharsis_3_3>") shouldBe 1
     p1.count("RequiredAction") shouldBe 0
@@ -64,7 +65,7 @@ internal class UnknownRulesTest : CardTest() {
           doTask("ActionUsedMarker<$BoardOfDirectors>")
           doTask("UseAction<$BoardOfDirectors, Action1>")
           doTask("-12 MC")
-          playPrelude(Merger) { playCorp(TharsisRepublic) }
+          playPrelude(Merger) { playCorp(TharsisRepublic, location = cn("Selecting")) }
         }
         useStdAction("DoRequiredActionsAction", payment = {}) {
           placeTile(3, 3)
@@ -97,7 +98,7 @@ internal class UnknownRulesTest : CardTest() {
     newGame(PreludeExpansion, PromoCardPack, ColoniesExpansion, colonyTiles = testColonyTiles(2))
     playCorporationWithoutStartingProjects(p1, CrediCor)
     admin.phase("Prelude")
-    p1.playPrelude(Merger) { p1.playCorp(Poseidon) }
+    p1.playPrelude(Merger) { p1.playCorp(Poseidon, location = cn("Selecting")) }
     val moneyAfterMerger = p1.count("MC")
     fillSelectedColonySlots()
     admin.phase("Action")

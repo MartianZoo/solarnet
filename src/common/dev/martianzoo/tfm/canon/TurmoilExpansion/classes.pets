@@ -1,6 +1,6 @@
 "Expansion adding the Terraforming Committee and Global Events"
 CLASS TurmoilExpansion : Module {
-  This: Neutral
+  This: Neutral, ReferenceFilter<Class<PartyRequirement>>
   This: LobbyAction, UseTurmoilPolicyAction
 
   // Party derives each successor edge from this committee-order creation sequence.

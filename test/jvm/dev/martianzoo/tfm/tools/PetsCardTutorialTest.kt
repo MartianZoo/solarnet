@@ -424,10 +424,7 @@ internal class PetsCardTutorialTest {
         setOf(
             "BactoviralResearch",
             "Biolab",
-            "BusinessContacts",
-            "CorporateArchives",
             "DevelopmentCenter",
-            "InventionContest",
             "IoResearchOutpost",
             "TechnologyDemonstration",
             "UnmiContractor",
@@ -439,7 +436,6 @@ internal class PetsCardTutorialTest {
             "ArtificialPhotosynthesis",
             "AsteroidRights",
             "AtmoCollectors",
-            "AtmosphericEnhancers",
             "BioPrintingFacility",
             "DirectedHeatUsage",
             "LocalHeatTrapping",

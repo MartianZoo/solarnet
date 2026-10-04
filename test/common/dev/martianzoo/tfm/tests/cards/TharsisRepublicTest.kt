@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.tfm.tests.TestOption.PreludeExpansion
 import dev.martianzoo.tfm.tests.TestOption.PromoCardPack
 import dev.martianzoo.tfm.tests.cards.cardnames.*
@@ -27,6 +28,7 @@ internal class TharsisRepublicTest : CardTest() {
     admin.phase("Prelude")
     p1.runOperation("PreludeCard")
 
-    p1.playPrelude(Merger) { p1.playCorp(TharsisRepublic) }.expect("PROD[0 MC]")
+    p1.playPrelude(Merger) { p1.playCorp(TharsisRepublic, location = cn("Selecting")) }
+        .expect("PROD[0 MC]")
   }
 }
