@@ -304,7 +304,7 @@ internal constructor(
     fun retain(narrow: GroundType, wide: GroundType) {
       if (narrow.rootClass.abstract || narrow.dependencies.abstract) {
         wide.refinement?.conjuncts()?.filterIsInstance<Has>()?.forEach { predicate ->
-          if (!narrow.alreadyGuarantees(predicate) || !narrow.readsPredicatesAlike(wide)) {
+          if (!narrow.alreadyGuarantees(predicate)) {
             throw NarrowingException("unsettled choice `$narrow` must retain `$predicate`")
           }
         }
@@ -344,7 +344,7 @@ internal constructor(
         }
         is Has -> {
           if (refinement != null) {
-            if (!alreadyGuarantees(targetRefinement) || !readsPredicatesAlike(that)) {
+            if (!alreadyGuarantees(targetRefinement)) {
               throw NarrowingException("`$this` does not have refinement `$targetRefinement`")
             }
           } else {
@@ -387,7 +387,7 @@ internal constructor(
                 isDisjointFrom(targetRefinement.excluded, comparisonTable)
         is Has -> {
           if (refinement != null) {
-            alreadyGuarantees(targetRefinement) && readsPredicatesAlike(that)
+            alreadyGuarantees(targetRefinement)
           } else {
             val requirement =
                 try {
@@ -406,22 +406,6 @@ internal constructor(
       }
     } ?: true
   }
-
-  /**
-   * Whether comparing our predicate with [that]'s as written is meaningful. It is, unless the two
-   * are class literals for different classes: a refined class literal rewrites its own represented
-   * class into its predicate before testing it, so the same words say different things about each
-   * of them.
-   */
-  private fun readsPredicatesAlike(that: GroundType): Boolean =
-      representedClass == null ||
-          representedClass == that.representedClass ||
-          (!namesRepresentedClass(refinement) && !namesRepresentedClass(that.refinement))
-
-  private fun namesRepresentedClass(refinement: Refinement?): Boolean =
-      refinement?.descendantsOfType<Expression>()?.any {
-        it.typeVariableName is RepresentedClassReference
-      } == true
 
   /** Whether our own refinement conjoins at least all of [target]'s requirements. */
   private fun alreadyGuarantees(target: Has): Boolean {

@@ -11,7 +11,8 @@ Pets implementation together. Constructs specify obligations for consumers; exec
 remain in state/engine tests. Prefer bounded fidelity repairs, using simplification only when it
 helps. Preserve optimizations after checking semantic equivalence and mark missing benchmark
 evidence. Characterize discrepancies in `BugsTest` when a repair develops disproportionate ripple
-effects. Review each repair with Opus/high before committing it.
+effects. Review each repair before committing it; use independent agent reviews while Opus/high
+is quota-limited, then return to Opus/high when available.
 
 - [ ] Audit language rules and examples against tests of the information their constructs retain.
 - [ ] Audit type rules and examples against meaningful conformance assertions.

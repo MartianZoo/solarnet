@@ -915,10 +915,6 @@ domain (T6-2) and satisfies every one of B's clauses. The clauses are decided as
 - An *unrefined* type is tested against a `HAS` clause by asking the world (T8-2). Without a world
   there is no answer (T6-1).
 - A `NOT` clause is satisfied by an identical clause in A, or by the structural test of T8-4.
-- These comparisons read the two predicates *as written*. That is meaningful only when both types
-  substitute the same candidate into them. Two class literals for different classes do not (T8-10),
-  so neither shortcut applies to them. `Class<@BuildingTag>(HAS @BuildingTag)` does not narrow
-  `Class<@Tag>(HAS @Tag)`, because each predicate refers to its own represented class.
 
 > **Non-normative example — Cyberia Systems.** It copies the production boxes of two different
 > building cards: `(BuildingTag<First@CardFront>: CopyProductionBox<First@CardFront>) THEN
