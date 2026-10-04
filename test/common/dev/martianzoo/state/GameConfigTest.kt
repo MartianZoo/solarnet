@@ -1,6 +1,7 @@
-package dev.martianzoo.pets.data
+package dev.martianzoo.state
 
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
+import dev.martianzoo.pets.api.Exceptions.PetException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
@@ -67,5 +68,12 @@ internal class GameConfigTest {
     shouldThrow<InvalidGameConfigException> { GameConfig("-") }
     shouldThrow<InvalidGameConfigException> { GameConfig("Select<Class<ColonizerTrainingCamp>>") }
     shouldThrow<InvalidGameConfigException> { GameConfig("", "not a player") }
+  }
+
+  @Test
+  internal fun `configuration errors are distinct from Pets errors`() {
+    val configuration: Exception =
+        shouldThrow<InvalidGameConfigException> { GameConfig("Plant, Plant") }
+    (configuration is PetException) shouldBe false
   }
 }

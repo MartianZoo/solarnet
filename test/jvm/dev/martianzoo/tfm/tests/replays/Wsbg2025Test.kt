@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.engine.TfmWorkflow
 import dev.martianzoo.tfm.script.TfmMapRenderer
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts

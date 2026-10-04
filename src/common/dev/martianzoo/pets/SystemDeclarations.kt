@@ -2,7 +2,6 @@ package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.data.ClassDeclaration
-import dev.martianzoo.pets.data.GamePremise
 import dev.martianzoo.pets.util.toSetStrict
 
 /**
@@ -13,7 +12,7 @@ import dev.martianzoo.pets.util.toSetStrict
  * `Actor`, the identity signal `Ok`, the impossible type `Die`, and `Atomized` and `CustomMetric`
  * and `CustomInstruction`. A catalog's own source is loaded alongside them.
  *
- * [GamePremise.classTable] always roots `Audit`; it decides which of the remaining declarations a
+ * `GamePremise.classTable` always roots `Audit`; it decides which of the remaining declarations a
  * particular game contains.
  */
 // TODO: Replace this temporary tfm-canon seam with the generic Catalog contract.

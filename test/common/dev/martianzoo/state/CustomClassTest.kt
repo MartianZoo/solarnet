@@ -1,4 +1,4 @@
-package dev.martianzoo.pets.api
+package dev.martianzoo.state
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
@@ -6,11 +6,8 @@ import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
-import dev.martianzoo.pets.types.loadTypes
 import dev.martianzoo.pets.util.Multiset
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -26,7 +23,7 @@ internal class CustomClassTest {
   @Test
   internal fun unimplementedTranslationArityFailsExplicitly() {
     val customClass = object : CustomInstruction("Unimplemented") {}
-    val type = loadTypes("CLASS Argument").resolve(parse("Argument"))
+    val type = testCatalog("CLASS Argument").classTable.resolve(parse("Argument"))
 
     shouldThrow<ExpressionException> { customClass.translate(UnusedGameReader) }
     shouldThrow<ExpressionException> { customClass.translate(UnusedGameReader, type) }

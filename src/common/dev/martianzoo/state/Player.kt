@@ -1,21 +1,8 @@
-package dev.martianzoo.pets.data
+package dev.martianzoo.state
 
-import dev.martianzoo.pets.HasClassName
-import dev.martianzoo.pets.HasExpression
-import dev.martianzoo.pets.api.SystemClasses
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-
-/** An identity that can initiate or continue game operations. */
-public sealed interface Actor : HasClassName, HasExpression {
-  public companion object {
-    public val ADMIN: Actor = AdminActor
-  }
-}
-
-/** A runtime identity that can own game-state components. */
-internal sealed interface Anyone : HasClassName, HasExpression
 
 /** One occupied seat; both an [Actor] and an [Anyone]. */
 public data class Player(override val className: ClassName) : Actor, Anyone {
@@ -39,14 +26,4 @@ public data class Player(override val className: ClassName) : Actor, Anyone {
 
     private fun player(seat: Int) = cn("Player$seat").also { require(seat > 0) }
   }
-}
-
-private data object AdminActor : Actor {
-  override val className = SystemClasses.ADMIN
-  override val expression: Expression = className.expression
-
-  override val expressionFull: Expression
-    get() = expression
-
-  override fun toString() = className.toString()
 }

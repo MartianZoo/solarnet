@@ -1,4 +1,4 @@
-package dev.martianzoo.pets.data
+package dev.martianzoo.state
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
@@ -6,7 +6,7 @@ import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.types.testCatalog
+import dev.martianzoo.pets.data.ClassDeclaration
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 

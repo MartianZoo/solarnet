@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.web.gameviewer
 
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.HIDDEN
 import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.GameReader
 
 /**
  * Viewer copy of the ordinary player-facing event-log rule, guarded by a cross-module parity test.

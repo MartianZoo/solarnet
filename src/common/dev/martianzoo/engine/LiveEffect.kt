@@ -9,7 +9,6 @@ import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.PetException
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.ACTOR
 import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.api.SystemClasses.SYSTEM
@@ -32,13 +31,14 @@ import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.types.TypeVariable
 import dev.martianzoo.pets.types.TypeVariableScope
+import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.GameReader
+import dev.martianzoo.state.Player
 import dev.martianzoo.state.toComponent
 
 /** One specialized component effect ready for subscription matching and firing. */

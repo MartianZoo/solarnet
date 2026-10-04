@@ -1,10 +1,9 @@
-package dev.martianzoo.pets.data
+package dev.martianzoo.state
 
 import dev.martianzoo.pets.TransformHandler
-import dev.martianzoo.pets.api.CustomClass
-import dev.martianzoo.pets.api.CustomMetric
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.ast.ClassName
+import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.types.ClassTable
 
 /**

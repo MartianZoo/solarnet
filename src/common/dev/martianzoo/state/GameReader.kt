@@ -1,10 +1,9 @@
-package dev.martianzoo.pets.api
+package dev.martianzoo.state
 
+import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.util.Multiset

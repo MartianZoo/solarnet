@@ -1,4 +1,4 @@
-package dev.martianzoo.pets.data
+package dev.martianzoo.state
 
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.SystemClasses.AUDIT
@@ -6,12 +6,12 @@ import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.ClassLoader
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.PremiseClassTable
-import dev.martianzoo.pets.types.PremiseViability
+import dev.martianzoo.state.Actor.Companion.ADMIN
 
 /**
  * The complete immutable, resolved input from which equivalent playable worlds are constructed.
@@ -111,7 +111,7 @@ public data class GamePremise(
             exactCount = ::configuredCount,
         )
     val unexpectedModules =
-        catalog.modules.keys.filterTo(linkedSetOf()) { table.isIncluded(it) } - modules
+        catalog.modules.keys.filterTo(linkedSetOf()) { it in table.allClassNames } - modules
     if (unexpectedModules.isNotEmpty()) {
       throw InvalidGameConfigException(
           "structural selection included unrequested modules: ${unexpectedModules.joinToString { "`$it`" }}"
@@ -130,7 +130,7 @@ public data class GamePremise(
           "inhabited `Player` classes do not match occupied seats: ${inhabitedPlayerClassNames.joinToString { "`$it`" }}"
       )
     }
-    val includedExclusions = excluded.filterTo(linkedSetOf(), table::isIncluded)
+    val includedExclusions = excluded.filterTo(linkedSetOf(), table.allClassNames::contains)
     if (includedExclusions.isNotEmpty()) {
       throw InvalidGameConfigException(
           "structural selection conflicts with excluded classes: ${includedExclusions.joinToString { "`$it`" }}"

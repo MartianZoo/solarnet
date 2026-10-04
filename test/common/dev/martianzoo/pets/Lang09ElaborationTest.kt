@@ -13,7 +13,7 @@ import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.gameView
-import dev.martianzoo.pets.types.testCatalog
+import dev.martianzoo.pets.types.loadTypes
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -157,8 +157,8 @@ internal class Lang09ElaborationTest {
   @Test
   internal fun `L9-8 defaults cannot introduce a second changed compact argument`() {
     val table =
-        testCatalog(
-                """
+        loadTypes(
+            """
                 CLASS Player1 : Anyone
                 CLASS Player2 : Anyone
                 ABSTRACT CLASS Area {
@@ -170,8 +170,7 @@ internal class Lang09ElaborationTest {
                   DEFAULT -Marker<Land2>
                 }
                 """
-            )
-            .classTable
+        )
 
     shouldThrow<PetSyntaxException> {
       PetElaborator(table).elaborateInput(parse<Instruction>("Marker<Player1 FROM Player2>"))
@@ -242,8 +241,8 @@ internal class Lang09ElaborationTest {
   internal fun `L9-12 an evaluation stays unexpanded while its receiver is abstract`() {
     // Simplified from Award.metric and Landlord: the selected award supplies the scoring metric.
     val table =
-        testCatalog(
-                """
+        loadTypes(
+            """
                 CLASS VictoryPoint
                 CLASS OwnedTile
                 ABSTRACT CLASS Award {
@@ -252,8 +251,7 @@ internal class Lang09ElaborationTest {
                 }
                 CLASS Landlord : Award { metric = COUNT "OwnedTile" }
                 """
-            )
-            .classTable
+        )
     val elaborator = PetElaborator(table)
 
     elaborator.classEffects(table.getClass(cn("Award"))).single() shouldBe
@@ -265,18 +263,17 @@ internal class Lang09ElaborationTest {
   @Test
   internal fun `L9-12 invalid property evaluations explain the invalid expression`() {
     val table =
-        testCatalog(
-                """
-                CLASS Plant
-                CLASS Holder {
-                  score = 1
-                  requirement = HAS "Plant"
-                }
-                CLASS Recursive { score = COUNT "EVAL This.score" }
-                """
-                    .trimIndent()
-            )
-            .classTable
+        loadTypes(
+            """
+            CLASS Plant
+            CLASS Holder {
+              score = 1
+              requirement = HAS "Plant"
+            }
+            CLASS Recursive { score = COUNT "EVAL This.score" }
+            """
+                .trimIndent()
+        )
     val elaborator = PetElaborator(table)
 
     shouldThrow<ExpressionException> {
@@ -309,8 +306,8 @@ internal class Lang09ElaborationTest {
 
   @Test
   internal fun `L9-13 effects are available only for an included class`() {
-    val catalog = testCatalog("CLASS Included\nCLASS Excluded")
-    val table = gameView(catalog, "Included")
+    val universe = loadTypes("CLASS Included\nCLASS Excluded")
+    val table = gameView(universe, "Included")
 
     shouldThrow<IllegalArgumentException> {
       PetElaborator(table).classEffects(table.getClass(cn("Excluded")))
@@ -328,8 +325,8 @@ internal class Lang09ElaborationTest {
 
   @Test
   internal fun `L9-14 changes to uninhabited Types become Die or Ok`() {
-    val catalog =
-        testCatalog(
+    val universe =
+        loadTypes(
             """
             ABSTRACT CLASS Seat : Anyone, Actor { CLASS Seat1 }
             ABSTRACT CLASS Empty
@@ -338,7 +335,7 @@ internal class Lang09ElaborationTest {
             """
                 .trimIndent()
         )
-    val view: ClassTable = gameView(catalog, "Seat1", "Empty", "Plant")
+    val view: ClassTable = gameView(universe, "Seat1", "Empty", "Plant")
     val elaborator = PetElaborator(view)
     val bearer = view.getClass(parse("Plant")).defaultType
 
@@ -366,17 +363,16 @@ internal class Lang09ElaborationTest {
   @Test
   internal fun `L9-14 a change invalidated by dependency specialization becomes Die`() {
     val table =
-        testCatalog(
-                """
-                ABSTRACT CLASS Target
-                ABSTRACT CLASS Allowed : Target { CLASS Good }
-                CLASS Bad : Target
-                CLASS Wrapper<Allowed>
-                CLASS Holder<@Target> { This: Good OR Wrapper<@Target> }
-                """
-                    .trimIndent()
-            )
-            .classTable
+        loadTypes(
+            """
+            ABSTRACT CLASS Target
+            ABSTRACT CLASS Allowed : Target { CLASS Good }
+            CLASS Bad : Target
+            CLASS Wrapper<Allowed>
+            CLASS Holder<@Target> { This: Good OR Wrapper<@Target> }
+            """
+                .trimIndent()
+        )
     val elaborator = PetElaborator(table)
     val holderClass = table.getClass(parse("Holder"))
     val specific = table.resolve(parse("Holder<Bad>"))

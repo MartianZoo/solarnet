@@ -1,4 +1,4 @@
-package dev.martianzoo.pets.api
+package dev.martianzoo.state
 
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.ast.ClassName

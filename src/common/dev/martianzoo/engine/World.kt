@@ -1,13 +1,13 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.state.Actor
 import dev.martianzoo.state.ComponentGraph
 import dev.martianzoo.state.EventLog
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.state.TaskQueue
 
 /**

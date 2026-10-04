@@ -1,10 +1,9 @@
-package dev.martianzoo.pets.data
+package dev.martianzoo.state
 
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
-import dev.martianzoo.tfm.testlib.assertFails
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -21,7 +20,7 @@ internal class ActorTest {
     Player(cn("Yellow")).className shouldBe cn("Yellow")
     (ADMIN is Player) shouldBe false
     (ADMIN is Anyone) shouldBe false
-    assertFails { Player(cn("Admin")) }
+    shouldThrow<RuntimeException> { Player(cn("Admin")) }
     shouldThrow<IllegalArgumentException> { Player.players(-1) }
   }
 }

@@ -1,16 +1,16 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.pets.api.CustomClass
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
-import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.data.createClassLoader
 import dev.martianzoo.pets.systemClassDeclarations
 import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.state.Catalog
+import dev.martianzoo.state.ClassSelection
+import dev.martianzoo.state.CustomClass
+import dev.martianzoo.state.GamePremise
+import dev.martianzoo.state.createClassLoader
 
 internal fun testClassTable(source: String): ClassTable = testCatalog(source).classTable
 

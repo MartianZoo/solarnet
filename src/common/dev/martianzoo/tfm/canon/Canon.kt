@@ -1,6 +1,6 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.pets.api.CustomClass
+import dev.martianzoo.state.CustomClass
 import dev.martianzoo.tfm.canon.promocardpack.customClasses as promoCardPackCustomClasses
 import dev.martianzoo.tfm.canon.terraformingmars.customClasses as terraformingMarsCustomClasses
 import dev.martianzoo.tfm.canon.vastitasmap.customClasses as vastitasMapCustomClasses

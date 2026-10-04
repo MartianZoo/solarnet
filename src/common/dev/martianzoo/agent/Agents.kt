@@ -2,7 +2,7 @@ package dev.martianzoo.agent
 
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.PetElaborator
-import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.state.Actor
 
 /**
  * A [World] together with the Agents that act on it: exactly one stable [Agent] per Actor, sharing

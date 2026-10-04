@@ -1,10 +1,10 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.pets.api.CustomMetric
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.CustomMetric
+import dev.martianzoo.state.GameReader
 
 internal val turmoilExpansionCustomClasses: Set<CustomMetric> =
     setOf(PartyDistance, PartyRequirement, PlayerDistance)

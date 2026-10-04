@@ -1,14 +1,12 @@
 package dev.martianzoo.state
 
 import dev.martianzoo.pets.HasExpression
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.ANYONE
 import dev.martianzoo.pets.api.SystemClasses.OWNED
 import dev.martianzoo.pets.api.SystemClasses.PLAYER
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.Player
 import dev.martianzoo.pets.types.Class
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.Type

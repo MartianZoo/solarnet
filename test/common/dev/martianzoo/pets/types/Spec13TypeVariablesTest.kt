@@ -19,10 +19,8 @@ import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.typeVariablesFor
-import dev.martianzoo.pets.data.Catalog
-import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.data.createClassLoader
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.systemClassDeclarations
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
@@ -213,22 +211,19 @@ internal class Spec13TypeVariablesTest {
 
   @Test
   internal fun `T13-3 interpreting shared source in another universe preserves earlier scope`() {
-    val firstCatalog =
-        testCatalog(
-            """
-            ABSTRACT CLASS Person { CLASS Alice }
-            ABSTRACT CLASS Token<Person>
-            ABSTRACT CLASS Holder<P@Person> { This: Token<P@Person> }
-            """
+    val declarations =
+        ClassDeclaration.indexByName(
+            systemClassDeclarations +
+                parseClasses(
+                    """
+                    ABSTRACT CLASS Person { CLASS Alice }
+                    ABSTRACT CLASS Token<Person>
+                    ABSTRACT CLASS Holder<P@Person> { This: Token<P@Person> }
+                    """
+                )
         )
-    val secondCatalog =
-        object : Catalog by firstCatalog {
-          override val classTable: ClassTable by lazy {
-            createClassLoader(this).loadEverything()
-          }
-        }
-    val firstTable = firstCatalog.classTable
-    val secondTable = secondCatalog.classTable
+    val firstTable = ClassLoader(declarations).loadEverything()
+    val secondTable = ClassLoader(declarations).loadEverything()
     val firstHolder = firstTable.getClass(cn("Holder"))
     val secondHolder = secondTable.getClass(cn("Holder"))
     val source = firstHolder.declaration.effects.single()
@@ -243,16 +238,14 @@ internal class Spec13TypeVariablesTest {
 
   @Test
   internal fun `T13-3 scope recording uses the game universe for premise Classes`() {
-    val sourceCatalog = testCatalog("ABSTRACT CLASS Master")
+    val sourceUniverse = loadTypes("ABSTRACT CLASS Master")
     val premise =
-        GamePremise(
-            catalog = sourceCatalog,
-            modules = emptySet(),
-            classSelections = emptySet(),
-            initialComponentTypes = emptySet(),
-            premiseClassDeclarations = parseClasses("ABSTRACT CLASS Local").toSet(),
+        ClassLoader.forPremise(
+            premiseTable =
+                PremiseClassTable(sourceUniverse, parseClasses("ABSTRACT CLASS Local").toSet()),
+            roots = emptySet(),
         )
-    val info = object : TypeInfo by TableWorld(premise.classTable) {}
+    val info = object : TypeInfo by TableWorld(premise) {}
     val instruction = parse<Instruction>("L@Local THEN L@Local")
 
     names(instruction.typeVariablesFor(info)) shouldContainExactly listOf("L")
@@ -260,26 +253,21 @@ internal class Spec13TypeVariablesTest {
 
   @Test
   internal fun `T13-3 narrowing shared master variables uses the delegated premise universe`() {
-    val catalog = testCatalog("ABSTRACT CLASS Piece\nCLASS Box<Piece>")
+    val universe = loadTypes("ABSTRACT CLASS Piece\nCLASS Box<Piece>")
     val premise =
-        GamePremise(
-            catalog = catalog,
-            modules = emptySet(),
-            classSelections =
-                setOf(
-                    ClassSelection(cn("LocalPiece")),
-                    ClassSelection(cn("OtherPiece")),
-                    ClassSelection(cn("Box")),
+        ClassLoader.forPremise(
+            premiseTable =
+                PremiseClassTable(
+                    universe,
+                    parseClasses("CLASS LocalPiece : Piece\nCLASS OtherPiece : Piece").toSet(),
                 ),
-            initialComponentTypes = emptySet(),
-            premiseClassDeclarations =
-                parseClasses("CLASS LocalPiece : Piece\nCLASS OtherPiece : Piece").toSet(),
+            roots = setOf(cn("LocalPiece"), cn("OtherPiece"), cn("Box")),
         )
     val instruction =
-        catalog.classTable
+        universe
             .recordTypeVariableScopes()
             .transformInstruction(parse<Instruction>("Chosen@Piece! THEN Box<Chosen@Piece>!"))
-    val info = object : TypeInfo by TableWorld(premise.classTable) {}
+    val info = object : TypeInfo by TableWorld(premise) {}
 
     parse<Instruction>("LocalPiece! THEN Box<LocalPiece>!").narrows(instruction, info) shouldBe true
     parse<Instruction>("LocalPiece! THEN Box<OtherPiece>!").narrows(instruction, info) shouldBe
@@ -568,30 +556,22 @@ internal class Spec13TypeVariablesTest {
 
   @Test
   internal fun `T13-4 executable effects can use an inherited name`() {
-    val base =
-        testCatalog(
-            """
-            ABSTRACT CLASS Person { CLASS Alice }
-            ABSTRACT CLASS Token<Person>
-            ABSTRACT CLASS Holder<P@Person>
-            CLASS Gift : Holder { This: Token<P@Person> }
-            """
-                .trimIndent()
+    val declarations =
+        ClassDeclaration.indexByName(
+            systemClassDeclarations +
+                parseClasses(
+                    """
+                    ABSTRACT CLASS Person { CLASS Alice }
+                    ABSTRACT CLASS Token<Person>
+                    ABSTRACT CLASS Holder<P@Person>
+                    CLASS Gift : Holder { This: Token<P@Person> }
+                    """
+                        .trimIndent()
+                )
         )
-    val giftSource = base.classDeclaration(cn("Gift"))
+    val giftSource = declarations.getValue(cn("Gift"))
     val giftDeclaration = giftSource.copy(executableEffects = giftSource.authoredEffects)
-    val catalog =
-        object : Catalog by base {
-          override val allClassDeclarations =
-              base.allClassDeclarations + (cn("Gift") to giftDeclaration)
-          override val explicitClassDeclarations =
-              base.explicitClassDeclarations.filterNot { it.className == cn("Gift") }.toSet() +
-                  giftDeclaration
-          override val classTable: ClassTable by lazy {
-            createClassLoader(this).loadEverything()
-          }
-        }
-    val table = catalog.classTable
+    val table = ClassLoader(declarations + (cn("Gift") to giftDeclaration)).loadEverything()
     val gift = table.getClass(cn("Gift"))
     val effect = gift.interpretTypeVariablesIn(gift.declaration.effects.single())
     val specialized = table.resolve(te("Gift<Alice>"))

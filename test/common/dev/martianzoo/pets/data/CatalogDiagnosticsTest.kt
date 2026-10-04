@@ -1627,25 +1627,6 @@ internal class CatalogDiagnosticsTest {
   }
 
   @Test
-  internal fun missingCustomImplementation() {
-    val source = "CLASS Garden : CustomMetric"
-    val error = assertFailsWith<InvalidPetDefinitionException> { loadTypes(source) }
-
-    assertEquals("custom class implementation not found for `Garden`", error.detail)
-    // Prefer also highlighting `CustomMetric`, which makes this declaration require a Kotlin
-    // implementation.
-    assertEquals(
-        """
-        |custom class implementation not found for `Garden` at 1:7
-        |CLASS Garden : CustomMetric
-        |      ^
-        """
-            .trimMargin(),
-        error.message,
-    )
-  }
-
-  @Test
   internal fun unknownTransform() {
     val source =
         """

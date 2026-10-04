@@ -1,7 +1,7 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.testsupport.PLAYER1
 import dev.martianzoo.testsupport.PLAYER2
 import dev.martianzoo.testsupport.PLAYER3

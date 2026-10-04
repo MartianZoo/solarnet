@@ -1,11 +1,11 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.pets.ast.InstructionGroup
-import dev.martianzoo.pets.data.Actor
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
+import dev.martianzoo.state.Player
 
 /** Triggered work that has not yet been admitted to a task queue. */
 internal data class PendingTask(

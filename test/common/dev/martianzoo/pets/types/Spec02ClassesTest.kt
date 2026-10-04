@@ -1,12 +1,10 @@
 package dev.martianzoo.pets.types
 
-import dev.martianzoo.pets.api.CustomInstruction
-import dev.martianzoo.pets.api.CustomMetric
+import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
-import dev.martianzoo.pets.api.GameReader
-import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.createClassLoader
+import dev.martianzoo.pets.data.ClassDeclaration
+import dev.martianzoo.pets.systemClassDeclarations
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
@@ -238,61 +236,7 @@ internal class Spec02ClassesTest {
   }
 
   // T2-9 Kotlin-backed classes
-
-  @Test
-  internal fun `T2-9 a CustomInstruction must have a Kotlin implementation, and only a CustomInstruction may`() {
-    val declaration = "CLASS Neighbor : CustomInstruction"
-
-    createClassLoader(
-            testCatalog(declaration, setOf(object : CustomInstruction(cn("Neighbor")) {}))
-        )
-        .loadEverything()
-        .getClass(cn("Neighbor"))
-        .declaration
-        .customMetric shouldBe false
-
-    // A declared-but-unimplemented CustomInstruction is rejected by the Catalog lookup itself.
-    shouldThrow<InvalidPetDefinitionException> { loadTypes(declaration) }
-    shouldThrow<InvalidPetDefinitionException> {
-      createClassLoader(
-              testCatalog("CLASS Neighbor", setOf(object : CustomInstruction(cn("Neighbor")) {}))
-          )
-          .loadEverything()
-    }
-    val wrongKind =
-        object : CustomMetric("Neighbor") {
-          override fun count(game: GameReader, type: Type): Int = 0
-        }
-    shouldThrow<InvalidPetDefinitionException> {
-      createClassLoader(testCatalog(declaration, setOf(wrongKind))).loadEverything()
-    }
-    shouldThrow<InvalidPetDefinitionException> {
-      createClassLoader(
-              testCatalog(
-                  "CLASS Neighbor : CustomMetric",
-                  setOf(object : CustomInstruction("Neighbor") {}),
-              )
-          )
-          .loadEverything()
-    }
-  }
-
-  @Test
-  internal fun `T2-9 a root class rejects an unexpected implementation`() {
-    shouldThrow<InvalidPetDefinitionException> {
-      createClassLoader(testCatalog("", setOf(object : CustomInstruction(COMPONENT) {})))
-    }
-  }
-
-  @Test
-  internal fun `T2-9 a computed Signal has one implementation`() {
-    val first = object : CustomInstruction("Neighbor") {}
-    val second = object : CustomInstruction("Neighbor") {}
-    shouldThrow<InvalidPetDefinitionException> {
-      createClassLoader(testCatalog("CLASS Neighbor : CustomInstruction", setOf(first, second)))
-          .loadEverything()
-    }
-  }
+  // External implementation checks live in state/CustomImplementationValidationTest.kt.
 
   @Test
   internal fun `T2-9 a CustomMetric may not inherit Pets behavior`() {
@@ -302,16 +246,13 @@ internal class Spec02ClassesTest {
             "ABSTRACT CLASS Behaving { DEFAULT +Behaving. }",
         )
         .forEach { parent ->
-          val catalog =
-              testCatalog(
-                  "$parent\nCLASS Neighbor : Behaving, CustomMetric",
-                  setOf(
-                      object : CustomMetric("Neighbor") {
-                        override fun count(game: GameReader, type: Type): Int = 0
-                      }
-                  ),
+          val loader =
+              ClassLoader(
+                  ClassDeclaration.indexByName(
+                      systemClassDeclarations +
+                          parseClasses("$parent\nCLASS Neighbor : Behaving, CustomMetric")
+                  )
               )
-          val loader = createClassLoader(catalog)
 
           // Also proves a failed load is not cached as a success.
           repeat(2) {

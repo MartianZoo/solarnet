@@ -3,8 +3,8 @@ package dev.martianzoo.engine
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionGroup
-import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.state.Actor
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.state.GameEvent.TaskEditedEvent

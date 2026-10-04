@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tools
 
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.ClassSelection
+import dev.martianzoo.state.ClassSelection
 import dev.martianzoo.tfm.canon.TfmCatalog
 import kotlin.test.Test
 import kotlin.test.assertTrue

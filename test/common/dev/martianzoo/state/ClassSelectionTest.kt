@@ -1,10 +1,9 @@
-package dev.martianzoo.pets.data
+package dev.martianzoo.state
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.PremiseClassTable
-import dev.martianzoo.pets.types.testCatalog
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 

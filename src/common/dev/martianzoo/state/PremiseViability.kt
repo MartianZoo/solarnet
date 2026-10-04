@@ -1,4 +1,4 @@
-package dev.martianzoo.pets.types
+package dev.martianzoo.state
 
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName
@@ -11,6 +11,8 @@ import dev.martianzoo.pets.ast.Instruction.Quantifier.MANDATORY
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PropertyName
 import dev.martianzoo.pets.ast.PropertyValue.RequirementValue
+import dev.martianzoo.pets.types.ClassTable
+import dev.martianzoo.pets.types.InhabitanceInterpreter
 
 /**
  * Rejects selected content whose mandatory entry behavior is impossible because a required Type is

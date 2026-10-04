@@ -1,9 +1,9 @@
 package dev.martianzoo.tfm.canon.vastitasmap
 
-import dev.martianzoo.pets.api.CustomMetric
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.CustomMetric
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.tfm.canon.ApiUtils.getOwningPlayer
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 

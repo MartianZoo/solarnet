@@ -16,7 +16,7 @@
 
 ## Source map
 
-- [`Identities.kt`](../../src/common/dev/martianzoo/pets/data/Identities.kt) — search
+- [`Actor.kt`](../../src/common/dev/martianzoo/state/Actor.kt) — search
   for `public sealed interface Actor` for the operation identity mechanism.
 - [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt) — inspect `controller`, the derived
   `assignee`, `actor`, and selection state before changing queued work.

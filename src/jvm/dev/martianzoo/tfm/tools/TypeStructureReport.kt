@@ -7,12 +7,12 @@ import dev.martianzoo.pets.api.SystemClasses.THIS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
-import dev.martianzoo.pets.data.GameConfig
 import dev.martianzoo.pets.types.Class as PetsClass
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.pets.types.DependencySet.DependencyPath
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.canon.Canon
 import java.math.BigInteger
 import java.util.Locale

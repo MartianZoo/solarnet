@@ -2,7 +2,7 @@ package dev.martianzoo.tfm.tests.rules
 
 import dev.martianzoo.pets.api.Exceptions.RequirementException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
+import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.tests.cards.CardTest
 import dev.martianzoo.tfm.tests.cards.cardnames.WorldGovernmentAdvisor
 import io.kotest.assertions.throwables.shouldThrow

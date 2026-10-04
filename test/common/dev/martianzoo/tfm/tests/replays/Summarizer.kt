@@ -2,7 +2,6 @@ package dev.martianzoo.tfm.tests.replays
 
 import dev.martianzoo.engine.World
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.api.SystemClasses.CUSTOM_INSTRUCTION
 import dev.martianzoo.pets.api.SystemClasses.SIGNAL
 import dev.martianzoo.pets.ast.Expression
@@ -11,6 +10,7 @@ import dev.martianzoo.state.Component
 import dev.martianzoo.state.ComponentChange
 import dev.martianzoo.state.EventLog
 import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.GameReader
 
 internal class Summarizer
 internal constructor(

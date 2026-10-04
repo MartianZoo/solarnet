@@ -3,7 +3,7 @@ package dev.martianzoo.agenttestsupport
 import dev.martianzoo.agent.Agent
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.state.Actor
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 

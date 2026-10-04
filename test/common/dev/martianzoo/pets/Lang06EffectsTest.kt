@@ -14,7 +14,7 @@ import dev.martianzoo.pets.ast.Effect.Trigger.WhenRemove
 import dev.martianzoo.pets.ast.Effect.Trigger.XTrigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionTree
-import dev.martianzoo.pets.types.testCatalog
+import dev.martianzoo.pets.types.loadTypes
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -170,12 +170,12 @@ internal class Lang06EffectsTest {
 
   @Test
   internal fun `L6-10 an ordinary Signal subtype remains a valid subscription`() {
-    testCatalog("CLASS Event : Signal\nCLASS Result\nCLASS Listener { Event: Result }").classTable
+    loadTypes("CLASS Event : Signal\nCLASS Result\nCLASS Listener { Event: Result }")
   }
 
   private fun shouldRejectSubscription(trigger: String) {
     shouldThrow<InvalidPetDefinitionException> {
-          testCatalog("CLASS Result\nCLASS Listener { $trigger: Result }").classTable
+          loadTypes("CLASS Result\nCLASS Listener { $trigger: Result }")
         }
         .message
         .orEmpty() shouldContain "root is `Ok` or a nominal supertype of `Ok`"

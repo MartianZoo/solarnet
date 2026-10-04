@@ -2,7 +2,7 @@ package dev.martianzoo.agent
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.engine.World
-import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.GameEvent.TaskEditedEvent
 import dev.martianzoo.state.Task
