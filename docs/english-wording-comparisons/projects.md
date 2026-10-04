@@ -2219,7 +2219,7 @@ Class: `SearchForLife`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Oxygen must be 6% or less. 3 VPs if you have one or more science resources here. | Action: Spend 1 M€ to reveal and discard the top card of the draw deck. If that card has a microbe tag, add a science resource here. |
-| Generated text | Requires 6% oxygen or less. 3 VPs if you have 1 or more science resources on this card. | Action: Spend 1 M€ to \[ProjectCard&lt;Revealed&gt;\], then \[ClaimCardReward&lt;TagFilter&lt;Class&lt;MicrobeTag&gt;&gt;, This&gt;\], or do nothing, then \[-ProjectCard&lt;Revealed&gt;\]. |
+| Generated text | Requires 6% oxygen or less. 3 VPs if you have 1 or more science resources on this card. | Action: Spend 1 M€ to reveal a card, then add 1 science resource to this card if it has a microbe tag, then discard the revealed card. |
 
 Pets declaration:
 
@@ -2882,7 +2882,7 @@ Class: `BusinessContacts`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | LOOK AT THE TOP 4 CARDS FROM THE DECK. TAKE 2 OF THEM INTO HAND AND DISCARD THE OTHER 2 | — |
-| Generated text | \[4 ProjectCard&lt;Selecting&gt;\]. \[2 ProjectCard&lt;Hand FROM Selecting&gt;\]. \[-2 ProjectCard&lt;Selecting&gt;\]. | — |
+| Generated text | Look at 4 cards, then keep 2 of them, then discard the rest. | — |
 
 Pets declaration:
 
@@ -2901,7 +2901,7 @@ Class: `BusinessNetwork`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Decrease your M€ production 1 step. | Action: LOOK AT THE TOP CARD AND EITHER BUY IT OR DISCARD IT |
-| Generated text | Decrease your M€ production 1 step. | Action: \[ProjectCard&lt;Selecting&gt;\], then \[-ProjectCard&lt;Selecting&gt;?\], then \[BuySelectedCards\]. |
+| Generated text | Decrease your M€ production 1 step. | Action: Look at 1 card, then buy or discard it. |
 
 Pets declaration:
 
@@ -3296,7 +3296,7 @@ Class: `InventionContest`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | LOOK AT THE TOP 3 CARDS FROM THE DECK. TAKE 1 OF THEM INTO HAND AND DISCARD THE OTHER 2 | — |
-| Generated text | \[3 ProjectCard&lt;Selecting&gt;\]. \[ProjectCard&lt;Hand FROM Selecting&gt;\]. \[-2 ProjectCard&lt;Selecting&gt;\]. | — |
+| Generated text | Look at 3 cards, then keep 1 of them, then discard the rest. | — |
 
 Pets declaration:
 
@@ -3315,7 +3315,7 @@ Class: `InventorsGuild`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | — | Action: LOOK AT THE TOP CARD AND EITHER BUY IT OR DISCARD IT |
-| Generated text | — | Action: \[ProjectCard&lt;Selecting&gt;\], then \[-ProjectCard&lt;Selecting&gt;?\], then \[BuySelectedCards\]. |
+| Generated text | — | Action: Look at 1 card, then buy or discard it. |
 
 Pets declaration:
 
@@ -6607,7 +6607,7 @@ Class: `AsteroidDeflectionSystem`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Decrease energy production 1 step. 1 VP per asteroid on this card. | Action: REVEAL AND DISCARD the top card of the deck. If it has a space tag, add an asteroid here. OPPONENTS MAY NOT REMOVE YOUR PLANTS |
-| Generated text | Decrease your energy production 1 step. 1 VP per asteroid on this card. | Action: \[ProjectCard&lt;Revealed&gt;\], then \[ClaimCardReward&lt;TagFilter&lt;Class&lt;SpaceTag&gt;&gt;, This&gt;\], or do nothing, then \[-ProjectCard&lt;Revealed&gt;\]. / Effect: Opponents may not remove your plants. |
+| Generated text | Decrease your energy production 1 step. 1 VP per asteroid on this card. | Action: Reveal a card, then add 1 asteroid to this card if it has a space tag, then discard the revealed card. / Effect: Opponents may not remove your plants. |
 
 Pets declaration:
 
@@ -7066,7 +7066,7 @@ Class: `HiTechLab`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | — | Action: Spend any amount of energy to draw the same number of cards. TAKE 1 INTO HAND AND DISCARD THE REST |
-| Generated text | — | Action: Spend 1 or more energy to \[X ProjectCard&lt;Selecting&gt;\] and \[ProjectCard&lt;Hand FROM Selecting&gt;\], then \[-X ProjectCard&lt;Selecting&gt;.\]. |
+| Generated text | — | Action: Spend 1 or more energy to look at that many cards, then keep 1 of them, then discard the rest. |
 
 Pets declaration:
 
@@ -7566,7 +7566,7 @@ Class: `PublicPlans`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | REVEAL ANY NUMBER OF OTHER CARDS FROM YOUR HAND (YOUR OPPONENTS MAY INSPECT THEM). GAIN 1 M€ FOR EACH REVEALED CARD. | — |
-| Generated text | \[X ProjectCard&lt;Revealed FROM Hand&gt;\], then \[X ProjectCard&lt;Hand FROM Revealed&gt;\], then \[X MC\]. | — |
+| Generated text | Reveal 1 or more cards from your hand, then return them to your hand, then gain 1 M€ for each card revealed. | — |
 
 Pets declaration:
 
@@ -8215,7 +8215,7 @@ Class: `VenusOrbitalSurvey`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | — | Action: REVEAL THE TOP 2 CARDS, TAKE ANY VENUS CARDS TO HAND FOR FREE. ANY OTHER CARD YOU EITHER BUY OR DISCARD |
-| Generated text | — | Action: \[2 ProjectCard&lt;Selecting&gt;\], then \[2 TakeSelectedCard&lt;TagFilter&lt;Class&lt;VenusTag&gt;&gt;&gt;?\], then \[-2 ProjectCard&lt;Selecting&gt;?\], then \[BuySelectedCards\]. |
+| Generated text | — | Action: Look at 2 cards, then take any Venus cards into your hand for free, then buy or discard each remaining card. |
 
 Pets declaration:
 
@@ -8474,7 +8474,7 @@ Class: `WgProject`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Requires that you are chairman. DRAW 3 PRELUDE CARDS AND PLAY 1 OF THEM. Discard the other 2. | — |
-| Generated text | Requires that you are chairman. \[3 PreludeCard&lt;Selecting&gt;\], then \[PlayOrFizzle&lt;Selecting&gt;\], then \[-2 PreludeCard&lt;Selecting&gt;\]. | — |
+| Generated text | Requires that you are chairman. Look at 3 Prelude cards, then discard 2 of them, then either play the other or discard it for 15 M€ if it cannot be played. | — |
 
 Pets declaration:
 
@@ -8483,7 +8483,7 @@ CLASS WgProject : AutomatedCard {
   cost = 9
   requirement = HAS "Chairman"
   This:: EarthTag<This>
-  This: 3 PreludeCard<Selecting> THEN PlayOrFizzle<Selecting> THEN -2 PreludeCard<Selecting>
+  This: 3 PreludeCard<Selecting> THEN -2 PreludeCard<Selecting> THEN PlayOrFizzle<Selecting>
 }
 ```
 

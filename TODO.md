@@ -177,6 +177,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- Model when a Prelude may fizzle instead of relying on the caller's honor. `PlayOrFizzle` Pets
+  declares the play or discard choice and 15 M€ compensation, but does not gate the discard branch
+  on unplayability; English currently states that caller-verified rule.
 - Make resource costs inside actions use `spend` consistently whether Pets expresses them before
   `->` or in a `THEN` sequence; Focused Organization and Board of Directors still expose the split.
   Preserve `pay` for non-action payments.
@@ -188,9 +191,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   with characterization tests for Suitable Infrastructure, Constructor, Soil Studies, and Summit
   Logistics; decide ambiguous no-op cards explicitly, and let English consume the same modeled fact
   rather than adding a renderer-only flag.
-- Render the shared `PlayOrFizzle` signal as a structured play-or-fizzle choice, including
-  its 15 M€ compensation when unplayable. Keep the Pets fallback visible until the choice can be
-  expressed without putting a clause into a lexical noun phrase.
 - Move `PreludePhase` out of `tfm-text`'s `resetsForPreludeAction` recognizer once there is a
   principled bundle-supplied description of the phase/latch relationship; do not add a Prelude-only
   boolean merely to relocate the class name.

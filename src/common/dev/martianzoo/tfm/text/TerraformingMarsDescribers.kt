@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.text
 
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.types.Dependency.Key
 import dev.martianzoo.tfm.text.ComponentDescriber.ChangeFrame as Frame
 import dev.martianzoo.tfm.text.ComponentDescriber.RequirementCondition as Condition
 import dev.martianzoo.tfm.text.ComponentDescriber.TriggerFrame as Trigger
@@ -65,6 +66,11 @@ internal object TerraformingMarsDescribers {
         klass("MC") to ComponentDescriber(noun = ComponentDescriber.Noun.Fixed("M€")),
         klass("Plant") to
             ComponentDescriber(noun = ComponentDescriber.Noun.Counted("plant", "plants")),
+        klass("CardBack") to
+            ComponentDescriber(
+                changeFrame = Frame.Deck,
+                cardLocationDependency = Key(klass("CardBack"), 0),
+            ),
         klass("ProjectCard") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("card", "cards"),
@@ -73,6 +79,17 @@ internal object TerraformingMarsDescribers {
                 numericSingularChange = true,
                 changeFrame = Frame.Deck,
             ),
+        klass("Hand") to ComponentDescriber(cardLocation = ComponentDescriber.CardLocation.HAND),
+        klass("Selecting") to
+            ComponentDescriber(cardLocation = ComponentDescriber.CardLocation.SELECTING),
+        klass("Revealed") to
+            ComponentDescriber(cardLocation = ComponentDescriber.CardLocation.REVEALED),
+        klass("BuySelectedCards") to
+            ComponentDescriber(cardProcedure = ComponentDescriber.CardProcedure.BUY_SELECTED),
+        klass("TakeSelectedCard") to
+            ComponentDescriber(cardProcedure = ComponentDescriber.CardProcedure.TAKE_MATCHING),
+        klass("ClaimCardReward") to
+            ComponentDescriber(cardProcedure = ComponentDescriber.CardProcedure.CLAIM_REWARD),
         klass("CorporationCard") to
             ComponentDescriber(
                 noun = ComponentDescriber.Noun.Counted("corporation card", "corporation cards"),
@@ -475,6 +492,7 @@ internal object TerraformingMarsDescribers {
             ComponentDescriber(
                 changeFrame = Frame.Play,
                 triggerFrame = Trigger.PlayCard(),
+                cardLocationDependency = Key(klass("PlayCard"), 2),
             ),
         klass("CheckRequirement") to ComponentDescriber(triggerFrame = Trigger.PlayCard()),
         klass("UseAction") to ComponentDescriber(triggerFrame = Trigger.UseAction),

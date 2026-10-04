@@ -218,18 +218,21 @@ conflicting incomparable providers. Permitting both is more truthful than a lowe
   criteria must stay explicit (`Draw 2 cards with floater icons`, never `floater cards`).
 - Describe a direct exchange of anonymous card backs as `Discard N cards to draw N cards`.
   An unconditional choice to decline the exchange makes the complete action optional.
-- Describe looking at several cards and keeping some as `Look at N cards. Draw K of them.` Omit
-  the routine discard instruction. Buying from a revealed selection can likewise use `You may buy`.
-- Transitions through `Selecting` and `Revealed`, and their multi-step choices, are not yet
-  interpreted as English; their Pets remain bracketed. Derive the offer, keep, discard, and play
-  relationships from the sequence when adding support, rather than restoring card-specific wording.
+- Describe a fixed offer, hand transfer, and cleanup together as `Look at N cards, then keep K of
+  them, then discard the rest.` The renderer checks that the counts balance. A variable offer that
+  keeps one card uses `that many` when it follows a matching action cost.
+- `Selecting` and `Revealed` are temporary card locations. Gaining card backs into `Selecting`
+  means looking at them. Gaining them into hand means drawing them. Interpret the subsequent offer,
+  purchase, play, reward, and return procedures together from Pets. In selected Prelude and
+  corporation offers, describe the rejected cards before playing the remaining one. The selected
+  Prelude's play-or-discard choice and 15 M€ compensation are read from `PlayOrFizzle` Pets wherever
+  that signal is used. The `if it cannot be played` qualifier describes a caller-verified rule;
+  `PlayOrFizzle` Pets does not gate its discard branch on unplayability.
 - Normally describe variable amounts as `1 or more`, followed by `that amount`, `the same number`,
   `twice that amount`, or `triple that amount`, as appropriate. Use X notation when a multiplied
   cost must precede the base amount, as in `Spend 2X M€ to gain X energy`. This distinction depends
   on the quantities, not the card. Preserve genuinely zero-inclusive choices separately.
 - Keep permission to use special payment resources concise: `Spend 8 M€ (steel may be used)`.
-- In reviewed goals that draw several cards and play one, describe the common selection as draw,
-  discard the others, then play the remaining card.
 - Use `raise`/`lower` for global parameters and terraform rating; `increase`/`decrease` for
   production. Spell out `terraform rating`.
 - Omit the routine oxygen reminder from greenery placement text. If a reminder is included, use

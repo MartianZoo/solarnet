@@ -476,6 +476,12 @@ internal class EnglishTest {
   }
 
   @Test
+  internal fun describesCardsEnteringSelectingAsLookedAt() {
+    english.describe(parse<InstructionTree>("2 ProjectCard<Selecting>")) shouldBe "Look at 2 cards."
+    english.describe(parse<InstructionTree>("2 ProjectCard")) shouldBe "Draw 2 cards."
+  }
+
+  @Test
   internal fun retainsUnsupportedPetsWithinPaymentResults() {
     val instruction = parse<InstructionTree>("-2 Steel THEN 3 VictoryPoint")
     val rendering =

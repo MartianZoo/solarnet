@@ -47,8 +47,8 @@ Prelude plays use `PlayOrFizzle`: play the chosen face, or discard its anonymous
 `Audit`, and gain 15 M€. The caller verifies that the selected Prelude is unplayable. This same
 signal serves the Prelude phase and additional Prelude plays granted by cards. Offered and rejected
 cards in the fixed Valley Trust, New Partner, WG Project, and Merger offers are counted in
-`Selecting`; their chosen back is played directly from there and the rejected backs are removed
-without names.
+`Selecting`; the rejected backs are removed without names before the chosen back is played directly
+from there.
 Setup likewise counts both offered standard corporations in `Selecting`; the chosen one enters
 `Hand`, or both are discarded if the Player chooses the beginner corporation.
 Gameplay callers pass `location = cn("Selecting")` for a direct selected play; the gameplay helper

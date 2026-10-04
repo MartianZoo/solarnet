@@ -53,6 +53,12 @@ private fun renderLoweredInstructions(
   val rendered = mutableListOf<Pair<Instruction, Clause>>()
   var index = 0
   while (index < instructions.size) {
+    val cardOffer = renderCardOffer(instructions, index, describers)
+    if (cardOffer != null) {
+      rendered += instructions[index] to cardOffer.second
+      index += cardOffer.first
+      continue
+    }
     val instruction = instructions[index]
     val clauses = lexicalizeInstruction(instruction, describers, localReferences)
     rendered += clauses.map { instruction to it }
@@ -116,7 +122,8 @@ private fun renderInstruction(
       is Instruction.Per -> renderPer(instruction, describers, references)
       is Instruction.Gated -> renderGated(instruction, describers, references)
       is Instruction.Then ->
-          renderCardPlaySequence(instruction, describers)
+          renderCardOfferSequence(instruction, describers)
+              ?: renderCardPlaySequence(instruction, describers)
               ?: renderCombinedCostSequence(instruction, describers, references)
               ?: renderStandardResourceCostSequence(instruction, describers, references)
               ?: renderDiscardCostSequence(instruction, describers, references)

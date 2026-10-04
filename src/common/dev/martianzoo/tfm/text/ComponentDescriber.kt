@@ -31,7 +31,23 @@ internal data class ComponentDescriber(
     internal val countNoun: Noun.Counted? = null,
     internal val metricCount: MetricCount? = null,
     internal val printedIconCount: Boolean? = null,
+    internal val cardLocation: CardLocation? = null,
+    internal val cardProcedure: CardProcedure? = null,
+    internal val cardLocationDependency: Key? = null,
 ) {
+  internal enum class CardLocation {
+    HAND,
+    SELECTING,
+    REVEALED,
+  }
+
+  internal enum class CardProcedure {
+    PLAY_OR_FIZZLE,
+    BUY_SELECTED,
+    TAKE_MATCHING,
+    CLAIM_REWARD,
+  }
+
   internal sealed interface Noun {
     public data object ClassName : Noun
 

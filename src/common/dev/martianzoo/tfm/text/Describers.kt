@@ -78,6 +78,9 @@ private constructor(
         Determiner.ANOTHER
       }
 
+  internal fun currentCardResourceNoun(): String? =
+      cardContext?.resourceType?.let { cardResourceNoun(it, 1) }
+
   internal fun lowerProductionSyntax(instructionTree: InstructionTree): InstructionTree =
       productionSyntaxLowerer().transformInstructionTree(instructionTree)
 
@@ -170,6 +173,9 @@ private constructor(
             ComponentDescriber::countNoun,
             ComponentDescriber::metricCount,
             ComponentDescriber::printedIconCount,
+            ComponentDescriber::cardLocation,
+            ComponentDescriber::cardProcedure,
+            ComponentDescriber::cardLocationDependency,
         )
     classesByName.values.forEach { componentClass ->
       facts.forEach { fact ->

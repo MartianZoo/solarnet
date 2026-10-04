@@ -712,7 +712,7 @@ Class: `CorporateArchives`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Gain 13 M€. LOOK AT THE TOP 7 CARDS FROM THE DECK. TAKE 2 OF THEM INTO HAND AND DISCARD THE OTHER 5 | — |
-| Generated text | Gain 13 M€. \[7 ProjectCard&lt;Selecting&gt;\]. \[2 ProjectCard&lt;Hand FROM Selecting&gt;\]. \[-5 ProjectCard&lt;Selecting&gt;\]. | — |
+| Generated text | Gain 13 M€. Look at 7 cards, then keep 2 of them, then discard the rest. | — |
 
 Pets declaration:
 
@@ -786,7 +786,7 @@ Class: `Merger`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Draw 4 corporation cards. Play one of them and discard the other 3. Then pay 42 M€. | — |
-| Generated text | \[4 StandardCorporationCard&lt;Selecting&gt;\], then \[PlayCard&lt;Class&lt;StandardCorporationCard&gt;, Class&lt;CardFront&gt;(NOT Class&lt;BeginnerCorporation&gt;), Selecting&gt;\], then \[-3 StandardCorporationCard&lt;Selecting&gt;\]. Remove 42 M€. | — |
+| Generated text | Look at 4 corporation cards, then discard 3 of them, then play the other. Remove 42 M€. | — |
 
 Pets declaration:
 
@@ -794,7 +794,7 @@ Pets declaration:
 CLASS Merger : CardFront<Class<PreludeCard>> {
   cost = 0
   autoSelectWhen = HAS "Unsafe OR MAX 0 SagittaFrontierServices"
-  This: 4 StandardCorporationCard<Selecting> THEN PlayCard<Class<StandardCorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Selecting> THEN -3 StandardCorporationCard<Selecting>, -42 MC
+  This: 4 StandardCorporationCard<Selecting> THEN -3 StandardCorporationCard<Selecting> THEN PlayCard<Class<StandardCorporationCard>, Class<CardFront>(NOT Class<BeginnerCorporation>), Selecting>, -42 MC
 }
 ```
 
@@ -805,14 +805,14 @@ Class: `NewPartner`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Raise your M€ production 1 step. Immediately draw 2 Prelude cards. Play 1 of them, and discard the other. | — |
-| Generated text | Increase your M€ production 1 step. \[2 PreludeCard&lt;Selecting&gt;\], then \[PlayOrFizzle&lt;Selecting&gt;\], then \[-PreludeCard&lt;Selecting&gt;\]. | — |
+| Generated text | Increase your M€ production 1 step. Look at 2 Prelude cards, then discard 1 of them, then either play the other or discard it for 15 M€ if it cannot be played. | — |
 
 Pets declaration:
 
 ```pets
 CLASS NewPartner : CardFront<Class<PreludeCard>> {
   cost = 0
-  This: PROD[MC], 2 PreludeCard<Selecting> THEN PlayOrFizzle<Selecting> THEN -PreludeCard<Selecting>
+  This: PROD[MC], 2 PreludeCard<Selecting> THEN -PreludeCard<Selecting> THEN PlayOrFizzle<Selecting>
 }
 ```
 
@@ -863,7 +863,7 @@ Class: `BoardOfDirectors`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | Add 4 director resources here. | Action: DRAW 1 PRELUDE CARD: EITHER DISCARD IT, OR PAY 12 M€ AND REMOVE 1 DIRECTOR RESOURCE FROM HERE TO PLAY IT |
-| Generated text | Add 4 director resources to this card. | Action: Draw 1 prelude card. Discard 1 prelude card or remove 12 M€, then remove 1 director resource from this card, then \[PlayOrFizzle\]. |
+| Generated text | Add 4 director resources to this card. | Action: Draw 1 Prelude card. Discard 1 Prelude card or pay 12 M€ and remove 1 director resource from this card to either play the selected Prelude card or discard it for 15 M€ if it cannot be played. |
 
 Pets declaration:
 

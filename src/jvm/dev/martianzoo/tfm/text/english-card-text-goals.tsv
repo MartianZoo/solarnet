@@ -20,7 +20,7 @@ Viron	Viron	Gain 48 M€.	Action: Use an action from an action card that has an 
 CheungShingMars	Cheung Shing Mars	Gain 44 M€. Increase your M€ production 3 steps.	Effect: When you play a building tag, you pay 2 M€ less for it.
 PointLuna	Point Luna	Gain 38 M€. Increase your titanium production 1 step.	Effect: When you play an Earth tag (including this), draw 1 card.
 RobinsonIndustries	Robinson Industries	Gain 47 M€.	Action: Spend 4 M€ to increase one of your lowest productions 1 step.
-ValleyTrust	Valley Trust	Gain 37 M€. As your first action, draw 3 prelude cards, discard 2, then play the remaining card.	Effect: When you play a science tag, you pay 2 M€ less for it.
+ValleyTrust	Valley Trust	Gain 37 M€. As your first action, look at 3 Prelude cards, discard 2 of them, and play the other (if impossible, discard it for 15 M€).	Effect: When you play a science tag, you pay 2 M€ less for it.
 Vitor	Vitor	As your first action, fund an award for free. Gain 45 M€.	Effect: When you play a card with a non-negative VP icon (including this), gain 3 M€.
 Aridor	Aridor	Gain 40 M€. As your first action, add 1 colony tile of your choice.	Effect: When you get a new type of tag in play, increase your M€ production 1 step. Event cards do not count.
 Arklight	Arklight	Gain 45 M€. Increase your M€ production 2 steps. 1 VP per 2 animals on this card.	Effect: When you play an animal tag or a plant tag (including this), add 1 animal to this card.
@@ -82,8 +82,8 @@ Supplier	Supplier	Increase your energy production 2 steps. Gain 4 steel.
 SupplyDrop	Supply Drop	Gain 3 titanium, 8 steel, and 3 plants.
 UnmiContractor	UNMI Contractor	Raise your terraform rating 3 steps. Draw 1 card.
 AcquiredSpaceAgency	Acquired Space Agency	Gain 6 titanium. Draw 2 space cards.
-NewPartner	New Partner	Increase your M€ production 1 step. Draw 2 prelude cards, discard 1, then play the remaining card.
-Merger	Merger	Draw 4 corporation cards, discard 3, then play the remaining card. Pay 42 M€.
+NewPartner	New Partner	Increase your M€ production 1 step. Look at 2 Prelude cards, discard 1 of them, and play the other (if impossible, discard it for 15 M€).
+Merger	Merger	Look at 4 corporation cards, discard 3 of them, then play the other. Pay 42 M€.
 CorporateArchives	Corporate Archives	Gain 13 M€. Look at 7 cards. Draw 2 of them.
 DoubleDown	Double Down	Copy your other Prelude's direct effect.
 FakeHeadStart	Head Start	Gain 2 steel and 2 M€ per project card in your hand. Immediately take 2 actions.
@@ -470,7 +470,7 @@ VenusAllies	Venus Allies	Raise Venus 2 steps. Gain 4 M€ per colony you own.
 VenusOrbitalSurvey	Venus Orbital Survey		Action: Reveal 2 cards. Draw any Venus cards for free. You may buy each other card.
 VenusShuttles	Venus Shuttles	Add 2 floaters to a Venus card.	Action: Spend 12 M€ to raise Venus 1 step. This cost is reduced by 1 M€ per Venus tag you have.
 VenusTradeHub	Venus Trade Hub	Requires 2 Venus tags.	Effect: When you trade, gain 3 M€.
-WgProject	WG Project	Requires that you are chairman. Draw 3 prelude cards, discard 2, then play the remaining card.
+WgProject	WG Project	Requires that you are chairman. Look at 3 Prelude cards, discard 2 of them, and play the other (if impossible, discard it for 15 M€).
 SmallAsteroid	Small Asteroid	Raise temperature 1 step. You may remove up to 2 plants from any player.
 FakeSelfReplicatingRobots	Self-Replicating Robots	Requires 2 science tags.	Action: Reveal a space or building card from your hand and place it on this card with 2 resources on it, or double the resources on one of the cards placed on this card. / Effect: You may play cards placed on this card as if they were in your hand, paying 1 M€ less per resource on them.
 SnowAlgae	Snow Algae	Requires 2 ocean tiles. Increase your plant production and your heat production 1 step each.

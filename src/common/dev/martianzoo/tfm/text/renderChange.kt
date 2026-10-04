@@ -66,6 +66,9 @@ private fun renderChangeOrNull(
     references: TypeVariableReferences,
 ): Clause? {
   if (instruction is Gain) {
+    renderPlayOrFizzle(instruction, describers)?.let {
+      return it
+    }
     renderCardSearch(instruction, describers)?.let {
       return it
     }
@@ -104,7 +107,7 @@ private fun renderChangeOrNull(
       is ComponentDescriber.ChangeFrame.Positioned ->
           renderPlacement(instruction, frame, describers)
       ComponentDescriber.ChangeFrame.Deck ->
-          renderDiscard(instruction, describers) ?: renderDraw(instruction, describers)
+          renderDiscard(instruction, describers) ?: renderCardDrawOrLook(instruction, describers)
       is ComponentDescriber.ChangeFrame.Procedure -> renderProcedure(instruction, frame, describers)
       is ComponentDescriber.ChangeFrame.CountedProcedure ->
           renderCountedProcedure(instruction, frame, describers)
@@ -292,11 +295,22 @@ private fun renderDiscard(
   )
 }
 
-private fun renderDraw(
+private fun renderCardDrawOrLook(
     instruction: Instruction,
     describers: Describers,
 ): Clause.Simple? {
   val gain = instruction as? Gain ?: return null
+  if (
+      gain.quantifier.modality() == Modality.REQUIRED &&
+          gain.gaining.refinement == null &&
+          describers.location(gain.gaining) == ComponentDescriber.CardLocation.SELECTING
+  ) {
+    val count = gain.count.fixedQuantity() ?: return null
+    return clause(
+        "look at",
+        NounPhrase.text("$count ${describers.componentNoun(gain.gaining.className, count)}"),
+    )
+  }
   if (
       gain.quantifier.modality() != Modality.REQUIRED ||
           !gain.gaining.simple ||

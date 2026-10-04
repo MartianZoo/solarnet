@@ -498,7 +498,7 @@ Class: `ValleyTrust`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | You start with 37 M€. As your first action, draw 3 Prelude cards, and play one of them. Discard the other two. | Effect: When you play a science tag, you pay 2 M€ less for it. |
-| Generated text | Gain 37 M€. As your first action, \[3 PreludeCard&lt;Selecting&gt;\], then \[PlayOrFizzle&lt;Selecting&gt;\], then \[-2 PreludeCard&lt;Selecting&gt;\]. | Effect: When you play a science tag, you pay 2 M€ less for it. |
+| Generated text | Gain 37 M€. As your first action, look at 3 Prelude cards, then discard 2 of them, then either play the other or discard it for 15 M€ if it cannot be played. | Effect: When you play a science tag, you pay 2 M€ less for it. |
 
 Pets declaration:
 
@@ -914,7 +914,7 @@ Class: `TychoMagnetics`
 | | Bottom | Top |
 | --- | --- | --- |
 | Printed text | You start with 42 M€. Increase your energy production 1 step. | Action: Spend any number of energy to draw that many cards. Keep 1 and discard the rest. |
-| Generated text | Gain 42 M€. Increase your energy production 1 step. | Action: Spend 1 or more energy to \[X ProjectCard&lt;Selecting&gt;\] and \[ProjectCard&lt;Hand FROM Selecting&gt;\], then \[-X ProjectCard&lt;Selecting&gt;.\]. |
+| Generated text | Gain 42 M€. Increase your energy production 1 step. | Action: Spend 1 or more energy to look at that many cards, then keep 1 of them, then discard the rest. |
 
 Pets declaration:
 
