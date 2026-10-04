@@ -6,26 +6,14 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Pets specification fidelity audit
 
-The audit follows the language and type specifications, their conformance tests, Kotlin KDoc, and
-Pets implementation together. Constructs specify obligations for consumers; execution witnesses
-remain in state/engine tests. Prefer bounded fidelity repairs, using simplification only when it
-helps. Preserve optimizations after checking semantic equivalence and mark missing benchmark
-evidence. Characterize discrepancies in `BugsTest` when a repair develops disproportionate ripple
-effects. Review each repair with Opus/high before committing it.
-
-- [ ] Audit language rules and examples against tests of the information their constructs retain.
-- [ ] Audit type rules and examples against meaningful conformance assertions.
-- [ ] Remove Kotlin implementation details from the mathematical specifications; put justified
-  API-only contracts in KDoc with appropriate tests.
-- [ ] Check implementation complexity with bounded removal experiments and retain evidence for
-  necessary behavior; distinguish known defects from conformance.
-- [ ] Review the final contracts and test doubles for accidental promises or duplicated runtime
-  semantics, and record any remaining bounded discrepancies below.
+- [ ] Continue the Pets fidelity audit using the principles and investigation leads in
+  [SPEC_FIDELITY.md](docs/agents/SPEC_FIDELITY.md), reassessing them against the current code.
 
 ## User Ideas and Agreed Directions
 
 - When preparing the [PETS repository draft](docs/pets-repo-draft.md) for publication, decide
   whether to include Sponsored Academies, currently retained as a draft note after the gallery.
+- Add scenario saving and reloading to [Mars Playground](PLAYGROUND.md) after the initial version.
 - For the [game-assembly move to state](docs/agents/RESPONSIBILITIES.md#presentation-and-assembly-data-sit-inside-pets),
   relocate the affected assembly tests with their production owners. Use the completed
   `ClassLoader.forPremise` construction entrypoint; keep individual loader internals private.

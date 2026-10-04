@@ -70,6 +70,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 
 | Concept being changed | Read | Authority |
 | --- | --- | --- |
+| Auditing agreement among Pets specs, conformance tests, KDoc/API, and implementation | [`SPEC_FIDELITY.md`](SPEC_FIDELITY.md) | Audit procedure and unfinished-work handoff |
 | Classes, Types, dependencies, refinements, Type variables, or uninhabited types | The cited rule of [`type-system-spec.md`](../type-system-spec.md) | Specification, checked rule-by-rule by `pets/types/Spec*Test.kt` |
 | Pets syntax, declarations, instructions, effects, actions, narrowing, owner-local Classes, or elaboration | The cited rule of [`pets-language-spec.md`](../pets-language-spec.md) | Specification, checked rule-by-rule by `pets/Lang*Test.kt` |
 | Type-variable lifetime in the engine | The matching section of [`TYPES.md`](TYPES.md) | Current model and working direction |

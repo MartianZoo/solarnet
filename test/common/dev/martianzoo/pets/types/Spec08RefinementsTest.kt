@@ -480,6 +480,18 @@ internal class Spec08RefinementsTest {
         .toList() shouldContainExactly listOf("Tharsis_2_3")
   }
 
+  @Test
+  internal fun `T8-9 a class-literal meet retains its represented-class predicate`() {
+    val tags = loadTypes("ABSTRACT CLASS Tag { CLASS BuildingTag }")
+    val refined = tags.resolve(te("Class<@Tag>(HAS @Tag)"))
+    val building = tags.resolve(te("Class<BuildingTag>"))
+    val intersection = tags.glb(refined, building)!!
+
+    // T7-1: specializing the represented class must keep a meet below both operands.
+    intersection.isSubtypeOf(refined) shouldBe true
+    intersection.isSubtypeOf(building) shouldBe true
+  }
+
   // T8-10 Refined class literals
 
   @Test
