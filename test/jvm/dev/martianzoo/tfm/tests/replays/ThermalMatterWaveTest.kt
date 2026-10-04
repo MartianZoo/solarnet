@@ -226,7 +226,9 @@ internal class ThermalMatterWaveTest : AbstractSoloTest() {
       // Rotator Impacts overpayment and receives full value.
       intentionalUnderpay()
       playProject(SixteenPsyche, 11, titanium = 5).expect("PROD[2 Titanium]")
-      cardAction1(SearchForLife) { doTask("ClaimSearchForLife") }
+      cardAction1(SearchForLife) {
+        doTask("ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>")
+      }
       cardAction1(Tardigrades)
       cardAction2(ForcedPrecipitation)
       cardAction2(RotatorImpacts)

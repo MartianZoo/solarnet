@@ -83,6 +83,11 @@ CLASS TakeSelectedCard<CardFilter> : Owned<Player>, Signal {
   This:: ProjectCard<Hand FROM Selecting>, Audit
 }
 
+"Claims a card resource when the revealed card externally satisfies the filter"
+CLASS ClaimCardReward<CardFilter, @ResourceCard<Class<@CardResource>, @Player>> : Owned<@Player>, Signal {
+  This:: @CardResource<@ResourceCard> / ProjectCard<Revealed>, Audit / ProjectCard<Revealed>
+}
+
 CLASS PlayCard<Class<@CardBack>, Class<@CardFront>, @CardLocation> : Owned<Player>, Signal {
   This:: (EVAL @CardFront<Class<@CardBack>>.requirement: Ok) OR \
     (GpRequirementShortfall<Class<@CardFront>, Class<GlobalParameter>>: \

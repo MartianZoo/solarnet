@@ -153,6 +153,24 @@ internal class CardTrackingFullGameTestTest : CardTrackingFullGameTest() {
   }
 
   @Test
+  internal fun arrivalOrderChecksFilteredDraws() {
+    val replay = ArrivalOrderReplay(listOf(AdaptedLichen))
+    replay.setUp()
+    replay.gainToHand(filter = "TagFilter<Class<PlantTag>>")
+
+    replay.assertComplete()
+  }
+
+  @Test
+  internal fun arrivalOrderRejectsACardThatDoesNotMatchTheFilter() {
+    val replay = ArrivalOrderReplay(listOf(AcquiredCompany))
+    replay.setUp()
+    replay.gainToHand(filter = "TagFilter<Class<PlantTag>>")
+
+    shouldThrow<IllegalStateException> { replay.assertComplete() }
+  }
+
+  @Test
   internal fun arrivalOrderNamesCardsAsTheyEnterAndLeaveTheHand() {
     val replay = ArrivalOrderReplay(listOf(AcquiredCompany, AdaptedLichen))
     replay.setUp()
@@ -213,8 +231,9 @@ internal class CardTrackingFullGameTestTest : CardTrackingFullGameTest() {
 
     fun setUp() = commonSetup()
 
-    fun gainToHand(count: Int = 1) {
-      p1.runOperation("${if (count == 1) "" else "$count "}ProjectCard")
+    fun gainToHand(count: Int = 1, filter: String? = null) {
+      val draw = if (filter == null) "ProjectCard" else "SearchForCard<$filter>"
+      p1.runOperation("$count $draw")
     }
 
     fun discardFromHand(card: ClassName) {

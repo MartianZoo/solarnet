@@ -6,6 +6,11 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Look for a small way to evaluate the existing `CardFilter` criteria against a card Class in Pets.
+  Replay tracking currently checks them in Kotlin; avoid adding engine card identities or a new
+  processing stage just for this. Named-header specialization of Requirement properties and
+  inspecting authored references are the current obstacles (see
+  [card handling](docs/agents/CARD_HANDLING.md#external-offer-procedures)).
 - Make L1 Trade Terminal's resource allowance count only its own gifts, not resource gains from
   other cards reacting to them. First reproduce the interaction with a literal `Microbe: Animal`
   fan-card effect, then find the smallest correction that preserves the Terminal's required

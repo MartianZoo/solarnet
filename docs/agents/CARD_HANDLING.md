@@ -74,15 +74,17 @@ Venus Orbital Survey offers two anonymous backs in `Selecting`. The caller may k
 Venus-tagged card for free through the externally asserted `TakeSelectedCard<TagFilter>` signal,
 discard any unwanted remainder, and buy every back still selected. The World records the counts
 and movements but cannot inspect those cards' printed tags. Asteroid Deflection System and Search
-for Life each count one anonymous card entering and leaving `Revealed`. Their claim signals scale
-both the reward and `Audit` by that revealed-card count, currently one. The caller verifies the
-printed tag externally. The `OR Ok` branch lets the caller decline when the card lacks the tag;
+for Life each count one anonymous card entering and leaving `Revealed`. Each card's action supplies
+its filter and resource-card destination to `ClaimCardReward<CardFilter, ResourceCard>`. The claim
+derives the resource type from the destination card and scales both the reward and `Audit` by the
+revealed-card count, currently one. The caller verifies the printed tag externally. The `OR Ok`
+branch lets the caller decline when the card lacks the tag;
 once the metric can test the revealed card's printed tag, that branch can be removed. Each `BuyCard`
 creates 3 M€ of debt, card-specific modifiers adjust that debt through
 `PayingFor<Class<ProjectCard>>`, and settling the `CardPurchase` billing moves its selected back to
 `Hand` without assigning a printed identity.
 
-Do not add identities for cards that were offered, revealed from a deck, searched past, rejected,
+Do not add engine identities for cards that were offered, revealed from a deck, searched past, rejected,
 or left in an external deck without entering a hand. Anonymous selection counts belong in Pets
 when the offer size and retain choice are part of the executable rule. Do not infer hand identities
 from anonymous counts; known names are supplied and tracked outside the engine.
@@ -115,6 +117,16 @@ names; only a move from `Selecting` into `Hand` does. The focused scenarios in
 [CardTrackingFullGameTestTest.kt](../../test/jvm/dev/martianzoo/tfm/tests/replays/CardTrackingFullGameTestTest.kt)
 exercise named arrivals, plays, returns, discards, and tracking failures. This is implemented test
 support, not yet a production game-playing API.
+At strict completion, the tracker also checks the named arrivals produced by `SearchForCard` and
+`TakeSelectedCard` against their filters. Its test-only matcher uses `cardTags` for printed tags
+(including the event icon) and the card's Pets declaration for references to game concepts.
+Search for Life and Asteroid Deflection System successes require a matching card identity supplied
+with `nameFlippedCard(actionResult, cardName)`. This annotation never enters the hand ledger.
+The tracker reads the filter from the recorded `ClaimCardReward` choice offered by Pets, including
+when it was declined; it contains no card-specific mapping of claim names, rewards, or tags.
+Failed flips may remain unnamed; when named, their card must lack the relevant tag. If the source
+does not identify a successful flip, use a matching stand-in and explicitly comment that it is faked.
+`CardTrackingCriteriaTest` covers valid and invalid criteria and flip outcomes.
 The tracker cannot detect a missing offer or reveal event, and does not track
 corporation or Prelude card identities. Its success is not proof that all physical card movements
 were modeled; skipped search cards are intentionally outside the modeled movements.

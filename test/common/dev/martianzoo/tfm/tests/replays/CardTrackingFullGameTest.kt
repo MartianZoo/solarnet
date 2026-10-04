@@ -3,11 +3,14 @@ package dev.martianzoo.tfm.tests.replays
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.data.Player
 import dev.martianzoo.state.Checkpoint
 import dev.martianzoo.state.Component
 import dev.martianzoo.state.GameEvent.ChangeEvent
+import dev.martianzoo.state.GameEvent.TaskAddedEvent
 import dev.martianzoo.state.TaskResult
+import dev.martianzoo.tfm.canon.cardTags
 import dev.martianzoo.tfm.engine.TfmGameplay
 import io.kotest.matchers.shouldBe
 import kotlin.test.BeforeTest
@@ -157,6 +160,102 @@ internal abstract class CardTrackingFullGameTest : AbstractFullGameTest() {
     check(unnamedEvents.isEmpty()) {
       "project-card events without every card name: " +
           unnamedEvents.joinToString { "${it.ordinal}: ${it.change}" }
+    }
+    assertCardCriteria()
+  }
+
+  /** Names the deck card flipped by this action without adding it to the hand ledger. */
+  protected fun nameFlippedCard(result: TaskResult, cardClass: ClassName) {
+    val reveal =
+        result.changes.single {
+          it.change.gaining.isProjectCardAt(REVEALED) && !it.movesBetweenHandAndReveal()
+        }
+    check(eventCards[reveal to true].isNullOrEmpty()) { "flip already named: $reveal" }
+    reveal.noteCards(listOf(cardClass), gaining = true)
+  }
+
+  private fun assertCardCriteria() {
+    val events = game.events.entriesSince(Checkpoint(trackingStartOrdinal))
+    val changes = events.filterIsInstance<ChangeEvent>()
+    changes.forEachIndexed { index, event ->
+      val context = event.cause?.context ?: return@forEachIndexed
+      if (
+          event.change.gaining.isProjectCardAt(HAND) &&
+              context.className in setOf(cn("SearchForCard"), cn("TakeSelectedCard"))
+      ) {
+        val filter = cardFilter(context)
+        eventCards[event to true].orEmpty().forEach { card ->
+          check(cardMatchesFilter(card, filter)) {
+            "$card does not satisfy $filter at event ${event.ordinal}"
+          }
+        }
+      }
+      if (!event.change.gaining.isProjectCardAt(REVEALED) || event.movesBetweenHandAndReveal()) {
+        return@forEachIndexed
+      }
+      val player = event.projectCardPlayer()
+      val following = changes.drop(index + 1)
+      val end = following.indexOfFirst {
+        it.projectCardPlayer() == player && it.change.removing.isProjectCardAt(REVEALED)
+      }
+      check(end >= 0) { "flipped card was not discarded: $event" }
+      // Read the actual offered choice, so even a declined claim carries its Pets criterion.
+      val claim =
+          events
+              .filterIsInstance<TaskAddedEvent>()
+              .filter {
+                it.ordinal > event.ordinal &&
+                    it.ordinal < following[end].ordinal &&
+                    it.task.assignee == player
+              }
+              .flatMap { it.task.instruction.descendantsOfType<Expression>() }
+              .filter { it.className == cn("ClaimCardReward") }
+              .distinct()
+              .single()
+      val filter = cardFilter(claim)
+      val claimed =
+          following.take(end).any {
+            it.change.gaining?.className == claim.className &&
+                it.playerOwner(checkNotNull(it.change.gaining)) == player
+          }
+      val names = eventCards[event to true].orEmpty()
+      check(!claimed || names.size == event.change.count) {
+        "$claim requires the flipped card's identity at event ${event.ordinal}"
+      }
+      names.forEach { card ->
+        check(cardMatchesFilter(card, filter) == claimed) {
+          "$card ${if (claimed) "does not satisfy" else "satisfies"} $filter, but claim=$claimed at event ${event.ordinal}"
+        }
+      }
+    }
+  }
+
+  private fun cardFilter(expression: Expression): Expression =
+      expression.arguments.single {
+        game.classTable
+            .getClass(it.className)
+            .isSubtypeOf(game.classTable.getClass(cn("CardFilter")))
+      }
+
+  private fun cardMatchesFilter(cardClass: ClassName, filter: Expression): Boolean {
+    val card = catalog.card(cardClass)
+    return when (filter.className) {
+      cn("TagFilter") -> {
+        val tag =
+            catalog.classTable.getClass(filter.arguments.single().arguments.single().className)
+        cardTags(card).elements.any { catalog.classTable.getClass(it).isSubtypeOf(tag) }
+      }
+      cn("NoTagsFilter") -> cardTags(card).isEmpty()
+      cn("ReferenceFilter") -> {
+        val reference =
+            catalog.classTable.getClass(filter.arguments.single().arguments.single().className)
+        card.declaration.allNodes.any { node ->
+          node.descendantsOfType<ClassName>().any {
+            catalog.classTable.findClass(it)?.isSubtypeOf(reference) == true
+          }
+        }
+      }
+      else -> error("unrecognized card filter: $filter")
     }
   }
 

@@ -27,7 +27,7 @@ internal class SearchForLifeTest : CardTest() {
     val checkpoint = game.timeline.checkpoint()
     val result =
         p1.cardAction1(SearchForLife) {
-          doTask("ClaimSearchForLife")
+          doTask("ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>")
         }
 
     result.changes
@@ -61,7 +61,7 @@ internal class SearchForLifeTest : CardTest() {
     admin.phase("Action")
     p1.runOperation("$SearchForLife, 1 MC")
     p1.cardAction1(SearchForLife) {
-      doTask("ClaimSearchForLife")
+      doTask("ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>")
     }
     admin.runOperation("End FROM Phase")
     p1.assertCounts(23 to "VictoryPoint")

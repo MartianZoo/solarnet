@@ -53,7 +53,7 @@ internal class AsteroidDeflectionSystemTest : CardTest() {
     val checkpoint = game.timeline.checkpoint()
     val reveal =
         p1.cardAction1(AsteroidDeflectionSystem) {
-          doTask("ClaimAsteroidDeflection")
+          doTask("ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>")
         }
     reveal.expect("Asteroid<$AsteroidDeflectionSystem>")
     reveal.changes

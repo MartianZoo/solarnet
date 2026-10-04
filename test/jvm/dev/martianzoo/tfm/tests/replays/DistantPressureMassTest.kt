@@ -36,7 +36,8 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
   private val been
     get() = p2
 
-  private val optionalSearchForLifeClaim = "ClaimSearchForLife OR Ok"
+  private val optionalSearchForLifeClaim =
+      "ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife<Keen>> OR Ok"
 
   @Test
   internal fun distantPressureMass() {

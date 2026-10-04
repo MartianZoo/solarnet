@@ -775,7 +775,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     green.turn { cardAction1(FakeSeptemTribus).expect("8 MC") }
     yellow.turn {
       // Symbiotic Fungus is revealed, so Search for Life succeeds.
-      cardAction1(SearchForLife) { doTask("ClaimSearchForLife") }
+      cardAction1(SearchForLife) {
+        doTask("ClaimCardReward<TagFilter<Class<MicrobeTag>>, SearchForLife>")
+      }
     }
     blue.turn { cardAction1(Stratopolis) { addCardResources(Stratopolis, 2) } }
     green.turn {
@@ -945,7 +947,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.turn { playProject(DiversitySupport, 1) }
     blue.turn {
       // Stanford Tours has a Space tag, so the reveal adds an asteroid.
-      cardAction1(AsteroidDeflectionSystem) { doTask("ClaimAsteroidDeflection") }
+      cardAction1(AsteroidDeflectionSystem) {
+        doTask("ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>")
+      }
     }
     green.turn {
       // "Remove a floater ... and gain an energy production." This is Deuterium Export's second
@@ -1259,7 +1263,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     yellow.turn { cardAction1(SecurityFleet) }
     blue.turn {
       // The revealed project has a Space tag, so Asteroid Deflection System succeeds.
-      cardAction1(AsteroidDeflectionSystem) { doTask("ClaimAsteroidDeflection") }
+      cardAction1(AsteroidDeflectionSystem) {
+        doTask("ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>")
+      }
     }
     green.turn {
       playProject(TundraFarming, 14)
@@ -1435,7 +1441,9 @@ internal class OtbGame20260912Test : AbstractFullGameTest() {
     green.turn { cardAction1(FakeSeptemTribus).expect("8 MC") }
     yellow.turn { cardAction2(EnergyMarket).expect("PROD[-Energy], 8 MC") }
     blue.turn {
-      cardAction1(AsteroidDeflectionSystem) { doTask("ClaimAsteroidDeflection") }
+      cardAction1(AsteroidDeflectionSystem) {
+        doTask("ClaimCardReward<TagFilter<Class<SpaceTag>>, AsteroidDeflectionSystem>")
+      }
     }
     green.turn { fundAward(cn("Politician"), 20) }
     yellow.turn { playProject(PhobosSpaceHaven, 12, titanium = 3) }

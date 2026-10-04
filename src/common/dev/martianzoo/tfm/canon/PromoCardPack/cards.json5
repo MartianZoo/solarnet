@@ -176,7 +176,7 @@
           "cost": 13,
           "tags": [ "EarthTag", "SpaceTag", "BuildingTag" ],
           "immediate": "PROD[-Energy]",
-          "actions": [ "-> ProjectCard<Revealed> THEN ClaimAsteroidDeflection OR Ok THEN -ProjectCard<Revealed>" ],
+          "actions": [ "-> ProjectCard<Revealed> THEN ClaimCardReward<TagFilter<Class<SpaceTag>>, This> OR Ok THEN -ProjectCard<Revealed>" ],
           "effects": [
             // TODO: in what cases do we want to trigger this way vs by the AttackHappened thingies?
             // are we being consistent?
