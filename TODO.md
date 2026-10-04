@@ -6,9 +6,8 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Pets specification fidelity audit
 
-- [ ] Resume the audit from [SPEC_FIDELITY.md](docs/agents/SPEC_FIDELITY.md), which owns the process,
-  committed checkpoint, evidence limits, and prioritized remaining work. The 2026-10-04 handoff is
-  intentionally incomplete; do not reapply the saved aggregate patch.
+- [ ] Continue the Pets fidelity audit using the principles and investigation leads in
+  [SPEC_FIDELITY.md](docs/agents/SPEC_FIDELITY.md), reassessing them against the current code.
 
 ## User Ideas and Agreed Directions
 
