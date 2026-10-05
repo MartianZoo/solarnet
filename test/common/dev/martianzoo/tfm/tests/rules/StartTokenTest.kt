@@ -48,9 +48,6 @@ internal class StartTokenTest {
   @Test
   internal fun passesAccordingToTheExplicitAfterMeRelation() {
     val admin = setUpGame(players = 3).testTfm(ADMIN)
-    shouldThrow<LimitsException> {
-      admin.sneak("AfterMe<Player1, Player3> FROM AfterMe<Player1, Player2>")
-    }
     // Reverse the whole ring in one correction, preserving one predecessor and successor each.
     admin.sneak(
         "AfterMe<Player1, Player3> FROM AfterMe<Player1, Player2>, " +

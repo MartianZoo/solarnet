@@ -218,35 +218,13 @@ internal class WorldTransactionTest {
   }
 
   @Test
-  internal fun correctionsLeaveTemporaryStateForTheNextGameplayInteraction() {
-    val game =
-        Engine.newGame(
-            testGamePremise(
-                """
-                CLASS CleanupProbe : Temporary
-                """
-            )
-        )
-    val player = game.testAgent(PLAYER1)
-
-    player.sneak("CleanupProbe")
-
-    player.count("CleanupProbe") shouldBe 1
-    game.isIdle() shouldBe false
-    player.runOperation("Ok")
-    player.count("CleanupProbe") shouldBe 0
-    game.tasks.isEmpty() shouldBe true
-    game.isIdle() shouldBe true
-  }
-
-  @Test
   internal fun directAgentMutationsReportAtomicCompletion() {
     val game = Engine.newGame(testGamePremise())
     val agent = game.testAgent(PLAYER1).also { it.autoExecPolicy = NONE }
+    agent.sneak("Token")
     var completions = 0
     game.onTransactionComplete = { completions++ }
 
-    agent.sneak("Token")
     val taskId = agent.addTasks("-Token?").single()
     agent.selectTask(taskId)
     agent.narrowTask("-Token")

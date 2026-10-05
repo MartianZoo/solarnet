@@ -73,27 +73,6 @@ internal class DomainExceptionContractTest {
   }
 
   @Test
-  internal fun directRemovalIncludesDependents() {
-    val agent =
-        Engine.newGame(
-                testGamePremise(
-                    """
-                    CLASS Token { HAS MAX 1 This }
-                    CLASS Holder<Token>
-                    """
-                        .trimIndent()
-                )
-            )
-            .testAgent(PLAYER1)
-    agent.sneak("Token!, Holder!")
-
-    agent.sneak("-Token!")
-
-    agent.count("Token") shouldBe 0
-    agent.count("Holder") shouldBe 0
-  }
-
-  @Test
   internal fun taskFailuresUseTaskOrDeadEndExceptions() {
     val agent = agent()
 

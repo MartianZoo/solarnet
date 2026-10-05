@@ -30,7 +30,8 @@ Fake canon is outside this audit. Counts describe the audited snapshot, not futu
 - Report concrete awkward consequences and remaining inconsistencies; do not invent another effect
   category merely to avoid them. Ordinary mandatory work can reject an illegal operation too.
 - Do not implement a new mechanism merely to make an unrestricted direct-edit API work.
-- Reject direct `System` and `Hidden` corrections; required derived changes to them remain possible.
+- Reject direct `System`, `Hidden`, and `MustCleanUp` corrections; required derived changes remain
+  possible, provided they do not leave new unfinished work.
 - Pharmacy Union may retain automatic starting money, including during corrections, to avoid an
   ordering framework or a special case for its own tags. Both printed tags use its ordinary effect.
 - Removing St Joseph removes its action provider and scoring. Placed Cathedrals remain as markers
@@ -71,10 +72,11 @@ and resumes the selection under the
 existing policy. That whole lifecycle is failure-atomic, preserving the selected task on rejection.
 Resumed pre-existing gameplay may still execute normally; queued effects of the correction are suppressed.
 
-Evidence: [CorrectionTest](../../test/common/dev/martianzoo/agent/CorrectionTest.kt),
-[InvariantCompletionTest](../../test/common/dev/martianzoo/engine/InvariantCompletionTest.kt),
-[DirectCorrectionTest](../../test/common/dev/martianzoo/tfm/tests/rules/DirectCorrectionTest.kt),
-and [WorldTransactionTest](../../test/common/dev/martianzoo/engine/WorldTransactionTest.kt).
+Shared construction and gameplay transaction coverage lives in
+[InvariantCompletionTest](../../test/common/dev/martianzoo/engine/InvariantCompletionTest.kt) and
+[WorldTransactionTest](../../test/common/dev/martianzoo/engine/WorldTransactionTest.kt).
+Correction-only behavior is intentionally not given dedicated tests; see
+[TESTING.md](TESTING.md#test-design).
 
 Production entry points: [exMachina](../../src/common/dev/martianzoo/agent/exMachina.kt),
 [Instructor](../../src/common/dev/martianzoo/engine/Instructor.kt),
@@ -195,9 +197,9 @@ Some Types represent doing something rather than a lasting fact to correct:
   Directly creating `Trade` with current `::` installs a barrier whose removal is queued `:` work.
 - **Events and scoring:** live `EventCard` is temporary, with tags only while resolving;
   `PlayedEvent` is the lasting record. Idle removal normally creates that record. Clients correct
-  `PlayedEvent` directly; `exMachina` rejects the temporary live event. Low-level `sneak` retains
-  its automatic conversion on removal. `MeasureAward`/`FinalScoringPending` similarly cause scoring
-  when removed through the lower-level API.
+  `PlayedEvent` directly. A live event is accepted unless its derived state violates the correction
+  boundary; it remains until ordinary idle cleanup converts it to `PlayedEvent`.
+  `MeasureAward`/`FinalScoringPending` similarly cause scoring when removed through the lower-level API.
 - **Workflow:** all `Phase`s, `Generation`, `NewTurn`, `SecondAction`, `Pass`, `RequiredAction`,
   `Photosynthesis`, `CheckGameEnd`, `TurmoilSolarOperation`, `FormGovernment`, `ChangingTimes`,
   reveal requests, `BannedDelegateRemoval`, and scope/temporary/cleanup components. Mutating these
@@ -252,9 +254,8 @@ Retained automatic behavior has these concrete consequences:
 | Lower a completed global parameter | The existing automatic guard rejects the change and the transaction rolls back. |
 | Create a trade or another visible component that introduces unresolved barriers | `exMachina` rejects new `MustCleanUp` state; automatic execution does not manufacture the missing gameplay choices. |
 
-The Pharmacy Union, PP, and completed-track cases have direct correction tests. The other entries
-follow the remaining authored automatic effects; they are not promises that correcting a count
-rewrites its whole history.
+These entries follow the retained authored automatic effects; they are not promises that
+correcting a count rewrites its whole history.
 
 PP's existing gain-then-remove model still has the separately recorded Terraforming Deal/Reds normal
 play defects. They are not reasons to suppress PP's automatic behavior during corrections. Its
@@ -276,10 +277,7 @@ placement rewards. It does not listen to an ocean placed by a placement reward. 
 cleanup racing that reaction. Correcting a city while the bonus is pending leaves it available for
 the actual placement.
 
-[DirectCorrectionTest](../../test/common/dev/martianzoo/tfm/tests/rules/DirectCorrectionTest.kt)
-exercises event movement/swaps/removal, rejected Party removal, and corrections while these history
-watchers and bonuses are live. Normal card tests and replays
-remain necessary evidence that ordinary gameplay still performs its consequences.
+Normal card tests and replays verify that ordinary gameplay still performs its consequences.
 
 ## Remaining boundaries
 
