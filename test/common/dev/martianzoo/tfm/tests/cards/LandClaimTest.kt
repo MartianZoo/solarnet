@@ -1,6 +1,5 @@
 package dev.martianzoo.tfm.tests.cards
 
-import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -17,7 +16,7 @@ internal class LandClaimTest : CardTest() {
 
     p1.runOperation("$LandClaim") { doTask("Community<Tharsis_1_1>") }
 
-    shouldThrow<DeadEndException> { p2.runOperation("CityTile<Tharsis_1_1>") }
+    shouldThrow<LimitsException> { p2.runOperation("CityTile<Tharsis_1_1>") }
     p1.runOperation("GreeneryTile<Tharsis_1_1>")
     p1.assertCounts(0 to "Community<Tharsis_1_1>")
   }
@@ -28,7 +27,7 @@ internal class LandClaimTest : CardTest() {
     val p2 = requireP2()
     p1.runOperation("$LandClaim") { doTask("Community<Tharsis_1_3>") }
 
-    shouldThrow<DeadEndException> { p2.runOperation("$ArtificialLake") { placeTile(1, 3) } }
+    shouldThrow<LimitsException> { p2.runOperation("$ArtificialLake") { placeTile(1, 3) } }
     p1.runOperation("$ArtificialLake") { placeTile(1, 3) }
     p1.assertCounts(1 to "OceanTile<Tharsis_1_3>")
   }
@@ -65,9 +64,36 @@ internal class LandClaimTest : CardTest() {
     p2.runOperation("CityTile<Tharsis_2_1>")
     p2.runOperation("$LandClaim") { doTask("Community<Tharsis_2_2>") }
 
-    shouldThrow<DeadEndException> { p1.runOperation("GreeneryTile<Tharsis_2_2>") }
-    p1.runOperation("GreeneryTile<Tharsis_9_7>")
-    p1.assertCounts(1 to "GreeneryTile<Tharsis_9_7>")
+    shouldThrow<LimitsException> {
+      p1.runOperation("DefaultGreeneryTile") { placeTile(2, 2) }
+    }
+    p1.runOperation("DefaultGreeneryTile") { placeTile(9, 7) }.expect("GreeneryTile<Tharsis_9_7>")
+  }
+
+  @Test
+  internal fun `An own claim on the only adjacent area does not enable greenery fallback`() {
+    newGame(CorporateEraExpansion)
+    p1.runOperation("GreeneryTile<Tharsis_1_1>")
+    requireP2().runOperation("CityTile<Tharsis_2_1>")
+    p1.runOperation("$LandClaim") { doTask("Community<Tharsis_2_2>") }
+
+    shouldThrow<NarrowingException> {
+      p1.runOperation("DefaultGreeneryTile") { placeTile(9, 7) }
+    }
+    p1.runOperation("DefaultGreeneryTile") { placeTile(2, 2) }
+        .expect("GreeneryTile<Tharsis_2_2>, -Community")
+  }
+
+  @Test
+  internal fun `An opposing claim does not enable fallback while adjacent land remains available`() {
+    newGame(CorporateEraExpansion)
+    p1.runOperation("GreeneryTile<Tharsis_1_1>")
+    requireP2().runOperation("$LandClaim") { doTask("Community<Tharsis_2_2>") }
+
+    shouldThrow<NarrowingException> {
+      p1.runOperation("DefaultGreeneryTile") { placeTile(9, 7) }
+    }
+    p1.runOperation("DefaultGreeneryTile") { placeTile(2, 1) }.expect("GreeneryTile<Tharsis_2_1>")
   }
 
   @Test
@@ -76,11 +102,11 @@ internal class LandClaimTest : CardTest() {
     val p2 = requireP2()
     p1.runOperation("GreeneryTile<Tharsis_1_1>")
 
-    shouldThrow<NarrowingException> {
+    shouldThrow<LimitsException> {
       p1.runOperation("$LandClaim") { doTask("Community<Tharsis_1_1>") }
     }
     p1.runOperation("$LandClaim") { doTask("Community<Tharsis_1_3>") }
-    shouldThrow<NarrowingException> {
+    shouldThrow<LimitsException> {
       p2.runOperation("$LandClaim") { doTask("Community<Tharsis_1_3>") }
     }
   }
@@ -95,5 +121,16 @@ internal class LandClaimTest : CardTest() {
 
     p1.assertCounts(1 to "Community<Tharsis_1_3>")
     p2.assertCounts(0 to "Community<Tharsis_1_3>")
+  }
+
+  @Test
+  internal fun `A tile intrinsically excludes communities and other tiles`() {
+    newGame(CorporateEraExpansion)
+    p1.runOperation("GreeneryTile<Tharsis_1_1>")
+
+    shouldThrow<LimitsException> { p1.runOperation("Community<Tharsis_1_1>") }
+    shouldThrow<LimitsException> { p1.runOperation("CityTile<Tharsis_1_1>") }
+
+    p1.assertCounts(1 to "GreeneryTile<Tharsis_1_1>", 0 to "Community", 0 to "CityTile")
   }
 }

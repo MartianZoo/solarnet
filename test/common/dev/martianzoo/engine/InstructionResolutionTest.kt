@@ -180,7 +180,7 @@ internal class InstructionResolutionTest {
         List(10) { "-ProjectCard<Player1, Hand>!, Plant<Player1>!" }.joinToString(", "),
     )
     // An unnamed selector leaves the enclosing owner in force.
-    checkResolution("EACH Anyone { Plant }", "Plant<Player1>!, Plant<Player1>!")
+    checkResolution("EACH Owner { Plant }", "Plant<Player1>!, Plant<Player1>!")
     checkResolution(
         "EACH ProjectCard<Anyone> { Plant }",
         List(10) { "Plant<Player1>!" }.joinToString(", "),

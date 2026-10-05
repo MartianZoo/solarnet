@@ -116,7 +116,7 @@ internal fun canonicalCatalog(config: GameConfig): TfmCatalog =
 internal fun canonicalCatalog(includeFakeCards: Boolean): TfmCatalog =
     if (includeFakeCards) CANON_WITH_FAKE_CARDS else Canon
 
-private val CANON_WITH_FAKE_CARDS: TfmCatalog by lazy { TfmCatalog.compose(Canon, FakeCanon) }
+private val CANON_WITH_FAKE_CARDS: TfmCatalog by lazy { TfmCatalog(Canon, FakeCanon) }
 
 private fun canonicalOptions(vararg selectedOptions: TestOption): Set<TestOption> {
   val selectedMaps = selectedOptions.filterTo(linkedSetOf()) { it in MAP_OPTIONS }

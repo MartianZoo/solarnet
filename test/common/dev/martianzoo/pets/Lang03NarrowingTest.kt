@@ -176,9 +176,12 @@ internal class Lang03NarrowingTest {
 
   @Test
   internal fun `L3-7 X takes one value everywhere, scaled by each coefficient`() {
+    narrows("X Plant THEN X Heat", "X Plant THEN X Heat") shouldBe true
+    narrows("X Tile<> THEN X Heat", "X GreeneryTile<Land1> THEN X Heat") shouldBe true
     narrows("X Plant THEN X Heat", "3 Plant THEN 3 Heat") shouldBe true
     narrows("X Plant THEN 2X Heat", "3 Plant THEN 6 Heat") shouldBe true
     refuses("X Plant THEN 2X Heat", "3 Plant THEN 5 Heat")
+    refuses("X Plant THEN X Heat", "3 Plant THEN X Heat")
     refuses("2X Plant THEN Heat", "3 Plant THEN Heat")
     refuses("X Plant THEN X Heat", "3 Plant THEN 2 Heat")
     refuses("(X Plant? OR 2X Plant?) THEN X Steel?", "4 Plant? THEN Ok")

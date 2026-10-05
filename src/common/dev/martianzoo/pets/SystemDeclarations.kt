@@ -8,9 +8,10 @@ import dev.martianzoo.pets.util.toSetStrict
  * Pets runtime declarations that are available to every Catalog, as required by
  * [rule L11-12](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#11-class-declarations):
  * the universal `Audit` signal plus the classes this language and the type system depend on,
- * including `Component` and `Class`, the ownership vocabulary `Anyone` and `Owned`, the actor root
- * `Actor`, the identity signal `Ok`, the impossible type `Die`, and `Atomized` and `CustomMetric`
- * and `CustomInstruction`. A catalog's own source is loaded alongside them.
+ * including `Component` and `Class`, the identity root `Anyone`, ownership vocabulary `Owner` and
+ * `Owned`, the actor root `Actor`, the identity signal `Ok`, the impossible type `Die`, and
+ * `Atomized` and `CustomMetric` and `CustomInstruction`. A catalog's own source is loaded alongside
+ * them.
  *
  * `GamePremise.classTable` always roots `Audit`; it decides which of the remaining declarations a
  * particular game contains.
@@ -73,14 +74,17 @@ private val systemDeclarationsSource =
     "A Signal whose gain also queues an instruction computed by Kotlin"
     ABSTRACT CLASS CustomInstruction : Signal
 
-    "An entity that can initiate or continue game operations"
-    ABSTRACT CLASS Actor
-
-    "An entity that can own Components"
+    "An identity that can own components or perform operations"
     ABSTRACT CLASS Anyone
 
+    "An entity that can initiate or continue game operations"
+    ABSTRACT CLASS Actor : Anyone
+
+    "An entity that can own Components"
+    ABSTRACT CLASS Owner : Anyone
+
     "A Component whose Type carries an ownership dependency"
-    ABSTRACT CLASS Owned<Me@Anyone>
+    ABSTRACT CLASS Owned<Me@Owner>
 
     "The neutral table administrator created first to perform system operations"
     CLASS Admin : System, Actor { HAS =1 This }

@@ -78,6 +78,6 @@ internal class TriggerScalingTest {
                   .toSet()
         }
 
-    val catalog = TfmCatalog.Composite(Canon, declarations)
+    val catalog = TfmCatalog(Canon, declarations)
   }
 }

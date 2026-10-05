@@ -11,8 +11,8 @@ internal class Spec11EnumerationTest {
   private val mars =
       loadTypes(
           """
-          CLASS Player1 : Anyone
-          CLASS Player2 : Anyone
+          CLASS Player1 : Owner
+          CLASS Player2 : Owner
           ABSTRACT CLASS Area {
             ABSTRACT CLASS LandArea {
               CLASS Tharsis_2_2
@@ -171,9 +171,9 @@ internal class Spec11EnumerationTest {
   internal fun `T11-3 automatic narrowing sees through a difference`() {
     val table =
         loadTypes(
-            "CLASS Player1 : Anyone",
-            "CLASS Player2 : Anyone",
-            "CLASS Plant : Owned<Anyone>",
+            "CLASS Player1 : Owner",
+            "CLASS Player2 : Owner",
+            "CLASS Plant : Owned",
         )
 
     table.singleConcreteSubtype(

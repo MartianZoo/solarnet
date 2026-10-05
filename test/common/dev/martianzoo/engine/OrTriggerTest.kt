@@ -73,7 +73,7 @@ internal class OrTriggerTest {
   }
 }
 
-private object OrProbeCatalog : TfmCatalog.Composite(Canon, OrProbeDeclarations)
+private object OrProbeCatalog : TfmCatalog(Canon, OrProbeDeclarations)
 
 private object OrProbeDeclarations : TfmCatalog() {
   override val explicitClassDeclarations =

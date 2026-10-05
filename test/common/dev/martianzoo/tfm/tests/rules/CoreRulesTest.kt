@@ -3,12 +3,14 @@ package dev.martianzoo.tfm.tests.rules
 import dev.martianzoo.agent.AutoExecPolicy
 import dev.martianzoo.engine.*
 import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.Actor.Companion.ADMIN
 import dev.martianzoo.tfm.engine.*
 import dev.martianzoo.tfm.tests.*
 import dev.martianzoo.tfm.tests.TestHelpers.testColonyTiles
 import dev.martianzoo.tfm.tests.TestOption.ColoniesExpansion
+import dev.martianzoo.tfm.tests.TestOption.Hellas
 import dev.martianzoo.tfm.tests.TestOption.VenusNextExpansion
 import dev.martianzoo.tfm.tests.cards.CardTest
 import io.kotest.assertions.throwables.shouldThrow
@@ -79,6 +81,35 @@ internal class CoreRulesTest : CardTest() {
 
     p1.convertPlants { doTask("GreeneryTile<Tharsis_3_3>") }
         .expect("-8 Plant, GreeneryTile, OxygenStep, TerraformRating")
+  }
+
+  @Test
+  internal fun `An unaffordable adjacent area does not permit greenery fallback`() {
+    newGame(Hellas)
+    p1.runOperation("CityTile<Hellas_9_6>")
+    requireP2()
+        .runOperation(
+            "GreeneryTile<Hellas_9_5>, GreeneryTile<Hellas_8_5>, GreeneryTile<Hellas_8_6>"
+        )
+
+    shouldThrow<NarrowingException> {
+      p1.runOperation("DefaultGreeneryTile") { doTask("GreeneryTile<Hellas_1_1>") }
+    }
+    shouldThrow<LimitsException> {
+      p1.runOperation("DefaultGreeneryTile") {
+        doTask("GreeneryTile<Hellas_9_7>")
+        doTask("OceanTile<Hellas_6_7>")
+        doTask("-6 MC")
+      }
+    }
+    p1.count("GreeneryTile") shouldBe 0
+
+    p1.runOperation("6 MC")
+    p1.runOperation("DefaultGreeneryTile") {
+          doTask("GreeneryTile<Hellas_9_7>")
+          doTask("OceanTile<Hellas_6_7>")
+        }
+        .expect("GreeneryTile<Hellas_9_7>, -6 MC, OceanTile<Hellas_6_7>")
   }
 
   @Test

@@ -36,7 +36,7 @@ internal class CopyProductionBoxTest : TfmTest() {
                   )
                   .toSet()
         }
-    game = setUpGame(canonicalPremise(catalog = TfmCatalog.compose(Canon.withPlayers(2), fixture)))
+    game = setUpGame(canonicalPremise(catalog = TfmCatalog(Canon.withPlayers(2), fixture)))
     val p1 = game.testTfm(PLAYER1)
     p1.runOperation("9 MC, 2 ProjectCard")
     admin.phase("Action")

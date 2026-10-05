@@ -4,7 +4,7 @@ CLASS Disease : CardResource
 "The moving marker placed by Mars Nomads"
 CLASS NomadsMarker : Owned<Player>, AreaPiece<@LandArea> {
   HAS MAX 1 This
-  Tile<@LandArea> BY Actor: Die
+  Tile<@LandArea> BY Anyone: Die
 }
 
 // Published promotional Global Events, appended to the generated cards.

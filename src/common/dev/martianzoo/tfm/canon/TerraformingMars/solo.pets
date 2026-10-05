@@ -41,7 +41,7 @@ CLASS BufferGasProject : StandardProject {
 CLASS SoloGenerationsLeft : GameEndBarrier
 
 "The passive owner of the removable neutral stock in solo mode"
-CLASS SoloOpponent : Anyone, System {
+CLASS SoloOpponent : Owner, System {
   HAS =1 This
   This:: EACH @Class<StandardResource> { SoloStandardResourceReserve<@Class> }
   This:: EACH @Class<CardResource> { SoloCardResourceReserve<@Class> }

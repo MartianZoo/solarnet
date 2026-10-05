@@ -417,6 +417,22 @@ internal constructor(
     }
   }
 
+  /** The current capacity of a concrete change, or null when its destination is absent. */
+  internal fun changeLimit(change: Change): Int? {
+    val gain = change.gaining?.let(reader::resolve)
+    val removal = change.removing?.let(reader::resolve)
+    require(listOfNotNull(gain, removal).none(Type::abstract))
+    return try {
+      limiter.findLimit(
+          gain?.toComponent(),
+          removal?.toComponent(),
+          invariants = change.quantifier != MANDATORY,
+      )
+    } catch (_: DependencyException) {
+      null
+    }
+  }
+
   private fun resolveTree(
       unresolved: InstructionTree,
       worldGainNarrowing: Boolean,
@@ -561,7 +577,7 @@ internal constructor(
       if (g == null && r?.abstract == true) {
         val canRemove =
             if (intens == OPTIONAL) {
-              reader.hasAnyComponents(r)
+              limiter.hasComponents(r, reader)
             } else {
               limiter.hasAvailableConcreteRemoval(
                   r,
@@ -735,7 +751,7 @@ internal constructor(
 
     if (g?.abstract == true) { // I guess otherwise it'll fail somewhere else...
       val dependencyComponents = g.dependencies.typeDependencies().map { it.boundType }
-      val missing = dependencyComponents.filterNot(reader::hasAnyComponents)
+      val missing = dependencyComponents.filterNot { limiter.hasComponents(it, reader) }
       if (missing.any()) throw DependencyException(missing)
 
       g =
@@ -761,5 +777,3 @@ internal constructor(
 }
 
 private const val MAX_AUTOMATIC_EFFECT_DEPTH = 8
-
-private fun GameReader.hasAnyComponents(type: Type): Boolean = getComponents(type).isNotEmpty()

@@ -87,7 +87,7 @@ CLASS TurmoilPlayer : Owned<Player>, System, Hidden {
 }
 
 "The owner of gray delegates, who holds a reserve of fourteen"
-CLASS Neutral : Anyone {
+CLASS Neutral : Owner {
   HAS =1 This
   HAS MAX 14 Delegate<This>
 }
@@ -102,10 +102,10 @@ ABSTRACT CLASS Party {
   FormGovernment IF Dominant<This>:: \
     -Ruling! THEN Ruling<This>, \
     ApplyRulingBonus<This>, \
-    EACH FormerChairman@Anyone(HAS Chairman<Anyone>) { \
+    EACH FormerChairman@Owner(HAS Chairman<Anyone>) { \
       -Chairman<FormerChairman@> \
     }, \
-    EACH DelegateHolder@Anyone(HAS PartyDelegate<This, Anyone>) { \
+    EACH DelegateHolder@Owner(HAS PartyDelegate<This, Anyone>) { \
       -PartyDelegate<This, DelegateHolder@> / ( \
         PartyDelegate<This, DelegateHolder@> - \
         PartyLeader<This, DelegateHolder@> \
@@ -199,7 +199,7 @@ CLASS AfterParty<Party, Party> : System, Hidden { HAS MAX 1 This }
 CLASS PartyDistance<Party, Party> : CustomMetric
 
 "The clockwise seat distance between owners, with unseated owners last"
-CLASS PlayerDistance<Anyone, Anyone> : CustomMetric
+CLASS PlayerDistance<Owner, Owner> : CustomMetric
 
 "Whether one player meets the ruling-party or two-delegate requirement for a party"
 CLASS PartyRequirement<Party> : Owned<Player>, CustomMetric
@@ -230,9 +230,9 @@ ABSTRACT CLASS Delegate : Owned {
   CLASS PartyDelegate<Delegation@Party> {
     // Preserve the incumbent on a count tie. For a player gain, choose the nearest tied
     // challenger clockwise from that player; Neutral and other unseated owners rank last.
-    X This:: EACH Leader@Anyone( \
+    X This:: EACH Leader@Owner( \
       HAS MAX 0 PartyLeader<Delegation@, Anyone>, \
-      HAS =1 (RANK Ranked@Anyone { \
+      HAS =1 (RANK Ranked@Owner { \
         PartyDelegate<Delegation@, Ranked@>, \
         PartyLeader<Delegation@, Ranked@>, \
         Player - PlayerDistance<Me@, Ranked@> \
@@ -254,10 +254,10 @@ CLASS PartyLeader<Delegation@Party> : Owned {
   -PartyDelegate<Delegation@> \
     IF MAX 0 PartyDelegate<Delegation@>:: \
     -This! THEN \
-      EACH Leader@Anyone( \
+      EACH Leader@Owner( \
         HAS PartyDelegate<Delegation@, Anyone>, \
         HAS MAX 0 PartyLeader<Delegation@, Anyone>, \
-        HAS =1 (RANK Ranked@Anyone { \
+        HAS =1 (RANK Ranked@Owner { \
           PartyDelegate<Delegation@, Ranked@>, \
           PartyLeader<Delegation@, Ranked@> \
         }) \

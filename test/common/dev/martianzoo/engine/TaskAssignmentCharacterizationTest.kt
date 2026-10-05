@@ -25,8 +25,8 @@ internal class TaskAssignmentCharacterizationTest {
       Engine.newGame(
           testGamePremise(
               """
-              CLASS Token<Anyone>
-              CLASS Marker<Anyone>
+              CLASS Token<Owner>
+              CLASS Marker<Owner>
               CLASS AdminToken
               """,
               players = 2,

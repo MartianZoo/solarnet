@@ -92,8 +92,8 @@ it by reverse navigation.
 Catalog compilation forces base types and all three default sets, so invalid dependency arguments
 and conflicting defaults fail before a master table is returned. Premise-added declarations receive
 the same checks when their combined table is frozen. `ClassDeclaration.indexByName`
-merges identical contributions and rejects conflicting declarations; both `TfmCatalog` and the
-small-catalog test helper use it. Game-view component multiplicity and runtime invariant-limit
+merges identical contributions and rejects conflicting declarations; `Catalog` owns that assembly
+for generic fixtures and `TfmCatalog` alike. Game-view component multiplicity and runtime invariant-limit
 checks remain separate.
 
 See [`Exceptions.PetException`](../../src/common/dev/martianzoo/pets/api/Exceptions.kt) and
@@ -157,7 +157,8 @@ master through `GameReader.catalog`. `Catalog.classTable` is intentionally publi
 work spans the complete Catalog, including validation, metadata, reporting, and the class viewer.
 Production master-table use is concentrated at three structural constraints:
 
-- `TfmCatalog` compiles configuration and Module selection against its private `universe` handle;
+- `GamePremiseBuilder` resolves generic configuration against the Catalog master and its
+  premise-local declarations; `TfmCatalog` adds content policies against that same namespace;
 - internal premise construction acquires the Catalog table once to construct a game view; and
 - canonical language metadata and the class viewer deliberately use `Catalog.classTable`.
 
@@ -278,7 +279,7 @@ inhabited/public operations keep those roles distinct without another representa
 | Role | Current owner | APIs and compiled work | Callers |
 | --- | --- | --- | --- |
 | Reusable master structure and compiled facts | `Catalog.classTable`; a master `ClassLoader`; master `Class` and `Type` objects | Master declaration lookup and resolution; upward hierarchy and nominal subtyping; dependencies, properties, defaults, invariants, effects, and base/default/class Types; master downward indexes; transform/custom-Class metadata | `TfmCatalog` validation, configuration, cards, and colony metadata; the full Catalog class viewer; `GamePremise` construction; test Catalogs and type-specification tests |
-| Premise-local declaration compilation | Internal `GamePremise.premiseClassTable` and `PremiseClassTable` | Premise declaration ownership, collision checks, and name-level subtyping used before premise Classes are compiled | `GamePremise` validation; `ClassSelection.appliesTo`; internal game-table construction; `TfmCatalog` configuration before a premise exists |
+| Premise-local declaration compilation | Internal `GamePremise.premiseClassTable` and `PremiseClassTable` | Premise declaration ownership, collision checks, and name-level subtyping used before premise Classes are compiled | `GamePremise` validation; `ClassSelection.appliesTo`; internal game-table construction; `GamePremiseBuilder` and `TfmCatalog` configuration before a premise exists |
 | One game's complete structural namespace | The game `ClassLoader`, its `masterTable`, every premise `Class`, and combined `GroundType.resolutionTable` values | `findClass`/`getClass`, `resolve`, `checkAllTypes`, `knows`, `commonTable`/`accepts`, every `glb`, structural subclass and concrete-Type enumeration, `NOT` overlap, and constraint interpretation | Premise-Class compilation and validation; `Class`, `GroundType`, `DependencySet`, defaults, and type-variable operations; `PetElaborator`; engine effect and instruction interpretation; event-log decoding and diagnostics |
 | One game's selected, inhabited enumeration view | The same game `ClassLoader`, selected-name set, inhabitance/subclass caches, and `ClassLimitTable` | `allClasses`, `allClassNames`, `isIncluded`, `findInhabitedClass`, every `isInhabited` overload, `allInhabitedConcreteClasses`, public subclass enumeration, public concrete-Type enumeration, automatic narrowing, component limits, and view-bound transform handlers | Engine setup, mutation, limiting, narrowing, and effect admission; `ComponentGraph` and `GameReaderImpl`; TfM workflow and `Prod`; scripts, game viewer, reports, and game/specification tests |
 

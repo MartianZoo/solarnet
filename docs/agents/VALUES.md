@@ -258,6 +258,7 @@ Keep the substantive reasoning in the owning document and keep this table to one
 
 ### Accepted for now
 
+- **Claims through shared occupancy** — [PLANS.md](PLANS.md#retain-claims-through-shared-occupancy).
 - **Refinements as Types** — [type-system-spec.md](../type-system-spec.md#refinements-are-types).
   One recursive Type model preserves refinements in dependency positions and Type variables without
   a parallel resolved-expression representation. A separate structural Type model would be more

@@ -1391,12 +1391,12 @@ internal class CatalogDiagnosticsTest {
     val error = assertFailsWith<InvalidPetDefinitionException> { loadTypes(source) }
 
     assertEquals(
-        "invalid definition for `Garden`: argument `Plant` does not match an available dependency; declared bounds: `Owned_0=Anyone`; already supplied: none",
+        "invalid definition for `Garden`: argument `Plant` does not match an available dependency; declared bounds: `Owned_0=Owner`; already supplied: none",
         error.detail,
     )
     assertEquals(
         """
-        |invalid definition for `Garden`: argument `Plant` does not match an available dependency; declared bounds: `Owned_0=Anyone`; already supplied: none at 2:22
+        |invalid definition for `Garden`: argument `Plant` does not match an available dependency; declared bounds: `Owned_0=Owner`; already supplied: none at 2:22
         |CLASS Garden : Owned<Plant>
         |                     ^
         """
@@ -1409,19 +1409,19 @@ internal class CatalogDiagnosticsTest {
   internal fun tooManyArguments() {
     val source =
         """
-        CLASS Alice : Anyone
+        CLASS Alice : Owner
         CLASS Garden : Owned<Alice, Alice>
         """
             .trimIndent()
     val error = assertFailsWith<InvalidPetDefinitionException> { loadTypes(source) }
 
     assertEquals(
-        "invalid definition for `Garden`: argument `Alice` does not match an available dependency; declared bounds: `Owned_0=Anyone`; already supplied: `Owned_0 <- Alice`",
+        "invalid definition for `Garden`: argument `Alice` does not match an available dependency; declared bounds: `Owned_0=Owner`; already supplied: `Owned_0 <- Alice`",
         error.detail,
     )
     assertEquals(
         """
-        |invalid definition for `Garden`: argument `Alice` does not match an available dependency; declared bounds: `Owned_0=Anyone`; already supplied: `Owned_0 <- Alice` at 2:29
+        |invalid definition for `Garden`: argument `Alice` does not match an available dependency; declared bounds: `Owned_0=Owner`; already supplied: `Owned_0 <- Alice` at 2:29
         |CLASS Garden : Owned<Alice, Alice>
         |                            ^
         """
@@ -1779,12 +1779,12 @@ internal class CatalogDiagnosticsTest {
     val error = assertFailsWith<InvalidPetDefinitionException> { loadTypes(source) }
 
     assertEquals(
-        "invalid defaults for `Garden`: argument `Plant` does not match an available dependency; declared bounds: `Owned_0=Anyone`; already supplied: none",
+        "invalid defaults for `Garden`: argument `Plant` does not match an available dependency; declared bounds: `Owned_0=Owner`; already supplied: none",
         error.detail,
     )
     assertEquals(
         """
-        |invalid defaults for `Garden`: argument `Plant` does not match an available dependency; declared bounds: `Owned_0=Anyone`; already supplied: none at 2:39
+        |invalid defaults for `Garden`: argument `Plant` does not match an available dependency; declared bounds: `Owned_0=Owner`; already supplied: none at 2:39
         |CLASS Garden : Owned { DEFAULT Garden<Plant> }
         |                                      ^
         """
@@ -2326,7 +2326,7 @@ internal class CatalogDiagnosticsTest {
               score = COUNT "Rose<Gardener>"
               This: Rose<Gardener>
             }
-            CLASS Gardener : Anyone
+            CLASS Gardener : Owner
             """
                 .trimIndent()
         )

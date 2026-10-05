@@ -29,7 +29,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
           "Nor",
           "Vin",
       )
-  override val catalog = TfmCatalog.compose(Canon, FakeCanon)
+  override val catalog = TfmCatalog(Canon, FakeCanon)
 
   private val nor
     get() = p1

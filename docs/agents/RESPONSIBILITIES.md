@@ -106,19 +106,27 @@ another caller needs it.
 
 ## Reusable behavior inside `tfm`
 
-### `TfmCatalog` contains a generic Catalog implementation
+### Catalog assembly and configuration live in `state`
 
-System-declaration aggregation, duplicate checking, core declaration validation, Class loading,
-display-name merging, and custom implementation composition are generic Catalog assembly tasks.
-Card, milestone, award, map, standard-action, and colony registries are Terraforming Mars
-responsibilities.
+[`Catalog`](../../src/common/dev/martianzoo/state/Catalog.kt) is the concrete, extensible Catalog
+implementation. It aggregates system and contributed declarations, checks duplicate names, loads
+and validates the master table, composes custom implementations and display names, and adds concrete
+Player Classes. Construct `Catalog(first, second)` to combine generic contributions; construct
+`TfmCatalog(first, second)` to apply Terraforming Mars policies to the combined declarations.
 
-The module-organization audit found no useful implementation split today. The generic contract
-already lives in `state`, while Terraforming Mars content selection is absent from it. There is only
-one production assembler. Card and map lowering now happens outside runtime in the JVM generator;
-`TfmCatalog` receives only explicit declarations. Do not introduce a generic base implementation
-until a real second implementation reveals a coherent reusable unit. Do not redesign premise
-resolution as part of that extraction.
+[`GamePremiseBuilder`](../../src/common/dev/martianzoo/state/GamePremiseBuilder.kt) resolves explicit
+configuration names, counted setup Components, premise-local Player declarations, and convergent
+Module defaults. A game-specific Catalog can adjust its content selections and initial Components
+before `build()` creates the exact `GamePremise` and its ordinary Pets initialization declaration.
+This working configuration never replaces or recompiles the Catalog's master table.
+
+`TfmCatalog` owns card validation and action lowering, bundle provenance, card/map/colony registries,
+expansion compatibility, milestone and award pools, seat-order Components, and the Terraforming Mars
+bootstrap signals. Its Module registry is derived from the assembled declarations and bundle content;
+bundles need not compile independently. Generic Catalog composition combines explicit Module maps.
+
+Generic assembly and configuration tests live in `:state`; generic setup execution is covered in
+`:engine`. Terraforming Mars content selection and full-game scenarios remain in their domain suites.
 
 ### Phase and turn progression
 
@@ -214,11 +222,10 @@ cleanup, the dependencies suggest this order:
    game-specific language profile.
 2. Decide whether turn/action signaling is a generic protocol or Terraforming Mars behavior, and
    move the narrow standard-resource lowering with it.
-3. Split generic Catalog assembly/validation from Terraforming Mars registries.
-4. Separate the reusable script command shell from Terraforming Mars application wiring.
-5. Separate the reusable JLine adapter from REgo branding and launcher behavior.
-6. Extract generic workflow lifecycle mechanics only as part of the native-workflow project.
-7. Clean up dependency directions made visible by those moves.
+3. Separate the reusable script command shell from Terraforming Mars application wiring.
+4. Separate the reusable JLine adapter from REgo branding and launcher behavior.
+5. Extract generic workflow lifecycle mechanics only as part of the native-workflow project.
+6. Clean up dependency directions made visible by those moves.
 
 Do not perform this sequence solely to make an unrelated board game theoretically possible. Each
 step must be independently valuable to Solarnet.

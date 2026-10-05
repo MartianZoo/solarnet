@@ -6,7 +6,7 @@ ABSTRACT CLASS MarsMap : Module {
 "Any single hexagonal area where a tile can go"
 ABSTRACT CLASS Area {
   HAS =1 This
-  HAS MAX 1 Tile<This>
+  HAS MAX 1 Occupant<This>
 
   "One of the (usually) 61 areas available on the planet's surface"
   ABSTRACT CLASS MarsArea {
@@ -17,8 +17,6 @@ ABSTRACT CLASS Area {
 
     "An unreserved area"
     ABSTRACT CLASS LandArea {
-      HAS MAX 1 Community<This>
-
       ABSTRACT CLASS VolcanicArea
     }
 
@@ -46,7 +44,6 @@ CLASS Placement<MarsArea> : Signal
 
 "A player cube placed on an area by LandClaim or ArcadianCommunities"
 CLASS Community : OwnedOccupant<@LandArea> {
-  Tile<@LandArea> BY Player(NOT Me@): Die
   Tile<@LandArea> BY Me@:: -This!
 }
 
@@ -91,7 +88,8 @@ ABSTRACT CLASS Adjacency<Tile<Area>, Tile<Area>> : Hidden {
 "A signal to place a greenery tile according to the default rules"
 CLASS DefaultGreeneryTile : Owned, Signal {
   This: GreeneryTile<LandArea(HAS Neighbor<OwnedTile>)> OR \
-    (MAX 0 Neighbor<OwnedTile, LandArea(HAS MAX 0 Tile)>: GreeneryTile<LandArea>)
+    (MAX 0 Neighbor<OwnedTile, LandArea(HAS MAX 0 (Tile OR OwnedOccupant<Anyone(NOT Me@)>))>: \
+      GreeneryTile<LandArea>)
 }
 
 CLASS Photosynthesis : System, Hidden {

@@ -10,7 +10,7 @@
 - **agent:** The unique mutation issuer for one Actor in one configured game world. Explicit client requests and autonomous decisions both pass through it; its private agent driver chooses the latter. It is not a task queue or core-engine concept.
 - **agent driver:** The private part of an agent that autonomously chooses further legal actions according to installed policies.
 - **AMAP:** The `.` quantifier, meaning “as much as possible.” Resolution caps the requested amount by current invariant bounds and source availability, clamps negative capacity to zero, and makes that amount mandatory.
-- **Anyone:** The ordinary Pets class for an entity that may own Components. `Player` and `SoloOpponent` extend it. An explicit `Anyone` type accepts any owner; the inherited `Me@Anyone` variable on `Owned` names a particular owner.
+- **Anyone:** The ordinary common supertype of `Owner` and `Actor`. `<Anyone>` accepts every eligible owner through the dependency’s bound; trigger-side `BY Anyone` accepts every Actor, including Admin.
 - **assignee:** The Actor permitted by game state to select and narrow a task. The assignee chooses among its filtered view of the global task queue and normally makes any optional narrowing; an instruction-level `BY` may assign the resulting state changes to a different performer without changing the assignee. This is why Philares and Enceladus can give a choice to an effect's owner, while World Government Terraforming gives its assignee a choice that Admin performs.
 - **atomicity:** Indivisibility with respect to a stated scope. One `FROM` is a single transmutation state change, so its removal and gain cannot be observed separately. A timeline operation is failure-atomic: all of its events commit or all are rolled back. An instruction, task, or chain of automatic effects is not thereby one indivisible gameplay event; intermediate state changes may fire effects and be observed by them. Unrelated to atomize, which splits an instruction apart.
 - **atomize:** To split one counted instruction into one instruction per unit so that each unit is handled and triggers effects separately. For example, `3 TemperatureStep` is atomized, while `3 Plant` is not. Unrelated to atomicity, which is about indivisibility.
@@ -21,7 +21,7 @@
 - **BootstrapPhase:** The first Terraforming Mars `Phase`, created by Admin before the generated `Premise`. Its presence names the initialization interval in which Modules, Players, and their minimum runtime machinery are established. `SetupPhase FROM Phase` transmutes it away to begin effectful game setup.
 - **bundle:** An internal grouping of catalog declarations, data, metadata, and custom code for file ownership, provenance, distribution, and loading. A bundle may provide Modules, Content, or both, but is not itself a premise input.
 - **Canon:** The catalog implementing the project's nearly published-rules version of Terraforming Mars, assembled from official-data bundles.
-- **card back:** A Component representing a card that is not in play, such as `ProjectCard` or `PreludeCard`. Card backs and card fronts are distinct types that transmute into each other; an Anyone may know a back's represented front without making that card front exist in the game world.
+- **card back:** A Component representing a card that is not in play, such as `ProjectCard` or `PreludeCard`. Card backs and card fronts are distinct types that transmute into each other; an owner may know a back's represented front without making that card front exist in the game world.
 - **card front:** A Component representing one specific identified card, as distinct from the card back that transmutes into it.
 - **catalog:** One coherent rule catalog: the reusable class declarations, structured data, display names, premise rules, and exceptional Kotlin implementations available to a game. A game selects exactly one catalog. `Canon` is the catalog for the project's almost-published-rules version of Terraforming Mars; a rebalance would be a different catalog.
 - **cause:** Attribution attached to non-manual tasks and copied to the resulting change events. It pairs the type of the context Component whose effect fired with the ordinal of the triggering change event. Those pointers explain the causal chain but do not uniquely identify which of several matching effects fired, so a cause is attribution rather than a complete derivation proof.
@@ -52,7 +52,7 @@
 - **dependency:** A directed existence relationship from one Component to another, encoded in the dependent Component's type. A game world cannot contain the dependent occurrence unless the exact target Component also exists.
 - **dependency bound:** The type that constrains the valid targets of one dependency at a particular point in a class hierarchy. A subtype may narrow an inherited bound, and the same dependency key identifies that relationship throughout the hierarchy.
 - **dependency key:** The internal stable identity of a dependency: its declaring class plus its declaration ordinal.
-- **dependency path:** An ordered sequence of dependency keys locating a direct or nested dependency within a type. For example, it can identify either a card's Anyone dependency or a dependency inside the card type used as a resource holder.
+- **dependency path:** An ordered sequence of dependency keys locating a direct or nested dependency within a type. For example, it can identify either a card's Owner dependency or a dependency inside the card type used as a resource holder.
 - **dependent removal:** Automatic removal of Components that depend on a Component being removed, performed first and cascading as necessary.
 - **Die:** A concrete, final Type with the invariant `HAS MAX 0 This`. A mandatory gain is a dead
   end; a nonmandatory gain can resolve to no change.
@@ -89,12 +89,13 @@
 - **Ok:** A Signal whose gain is the standard do-nothing instruction. It always succeeds, leaves no observable state behind, and cannot trigger anything.
 - **operation:** A unit of work with a defined completion boundary. For component-count invariants, one initiating change and all its recursive automatic (`::`) consequences form a full operation. A game action or client transaction may contain several such operations; queued work does not postpone their checks.
 - **origin indicator:**
+- **Owner:** An identity that can own Components, including `Player`, `SoloOpponent`, and `Neutral`. The inherited `Me@Owner` variable on `Owned` names a particular owner.
 - **Owned:** The root class for Components whose type carries an ownership dependency.
 - **pending task:** A task offered in an assignee's task queue but not currently selected.
 - **per:**
 - **performer:** The Actor credited on an instruction's state changes. Normally this is the task's stored Actor, but an instruction-level `BY` can override the performer without changing the task's assignee.
 - **Pets:** Solarnet's specification language for types, rules, and game world changes.
-- **Player:** A seated participant that is both an Anyone and an Actor.
+- **Player:** A seated participant that is both an Owner and an Actor.
 - **premise class table:** The small declaration delta owned by one game premise, including generated Players, the generated `Premise`, and ad-hoc test declarations. It imports one master class table; the master cannot refer back to it, and its names cannot collide with master names.
 - **premise selection:** The configuration-resolution process that chooses Modules and signed Class selections, then follows reachable selection edges to form one game's included Class closure. The resulting authority is the game class-table view. Use the qualifier when needed to distinguish this construction policy from selecting a pending task.
 - **player-relative observation:**
@@ -122,7 +123,7 @@
 - **SetupPhase:** The Terraforming Mars phase gained by transmuting BootstrapPhase away with `SetupPhase FROM Phase`. It creates generation 1, grants starting state such as 20 `TerraformRating`, and gives each Player the generic card counts and setup choices selected by the active modules.
 - **Signal:** An unscoped point event that leaves no persistent component state.
 - **singleton type:** A concrete type constrained to exactly one occurrence at operation completion by an inherited `HAS =1 This` invariant. The invariant does not create the occurrence.
-- **SoloOpponent:** The passive Anyone created by `SoloMode`; it is neither a Player nor an Actor and receives no tasks or turns.
+- **SoloOpponent:** The passive Owner created by `SoloMode`; it is neither a Player nor an Actor and receives no tasks or turns.
 - **source effect:** An effect as authored in `.pets` or generated from structured content data, before class-level inheritance and transformation.
 - **state change:** An exact Component gain, removal, or transmutation that occurred in a game world.
 - **structured content data:** Transitional category-specific card or map data used to generate class declarations and retain metadata not yet authored in Pets. It is not a common engine representation.

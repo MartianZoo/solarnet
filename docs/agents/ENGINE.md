@@ -35,7 +35,7 @@ Narrower documents own adjacent subjects:
 
 - [GAMEWORLD.md](GAMEWORLD.md) owns passive state, recordings, and the selected extraction boundary.
 - [SEQUENCING.md](SEQUENCING.md) owns ordering, `THEN`, barriers, and completion scopes.
-- [IDENTITY.md](IDENTITY.md) owns controller, assignee, Actor, Anyone, Admin, and attribution roles.
+- [IDENTITY.md](IDENTITY.md) owns controller, assignee, Actor, Owner, Anyone, Admin, and attribution roles.
 - [QUANTIFIERS.md](QUANTIFIERS.md) owns instruction counts and limit behavior.
 - [type-system-spec.md](../type-system-spec.md) and
   [pets-language-spec.md](../pets-language-spec.md) own static Types and authored Pets semantics.
@@ -235,7 +235,7 @@ After effect scaling, `Effector` reapplies gain atomization so `Atomized` gains 
 even when their counts come from trigger matching or repeated live components.
 
 An owned effect listening to an unowned event defaults to its Player owner unless it explicitly says
-`BY Actor`. Trigger-side `BY` filters the triggering Actor. Instruction-side `BY` changes the Actor
+`BY Anyone`. Trigger-side `BY` filters the triggering Actor. Instruction-side `BY` changes the Actor
 recorded on resulting work.
 
 Queued `:` effects produce pending Tasks. Automatic `::` effects execute recursively before queued
@@ -250,6 +250,8 @@ current graph. A metric union is a multiset union: for each concrete Type it ret
 matching multiplicity rather than double-counting overlapping arms. Custom metrics over abstract
 dependencies normally specialize only through live dependency targets, not the full structural
 cross-product.
+Resolution's component-existence checks use `Limiter` to query the graph directly, stopping at the
+first match without constructing a result collection. Refinements still use the current World.
 
 The game `ClassTable` view compiles inherited invariants into immutable per-Class limits. Each
 World's `Limiter` combines those facts with live multiplicity. An invariant constrains the state at
@@ -288,6 +290,10 @@ executes consequences to predict a choice's outcome; failure at completion uses 
 transaction rollback path. [QUANTIFIERS.md](QUANTIFIERS.md#invariants-at-operation-completion) owns
 the bounds and choice-resolution contract.
 Initialization still audits all applicable positive minimums after constructing the initial world.
+Ordinary gameplay selects global minimum checks through the changed components' existing per-Class
+limit index. It still checks required dependents of live affected owners, including absent parts;
+unchanged global counts need no recheck. Initialization and direct corrections retain the full
+invariant query.
 
 Prefer atomic transmutation when two faces share a stable invariant. Separate queued tasks and
 `THEN` stages outside the initiating automatic cascade cannot repair a completed operation: lifecycle

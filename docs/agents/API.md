@@ -79,7 +79,7 @@ The current flat Agent exposes narrowing only for its selected task and one expl
 removal. It has no arbitrary task replacement or bulk task-removal command. Internal task-data edits
 remain engine bookkeeping, including restoration around an evidenced replay correction.
 
-## Committed narrowing and Agent drafts
+## Committed narrowing and Agent forms
 
 Narrowing is allowed to discard options. That is a legitimate Actor decision, not a defect. A
 candidate is valid only when the engine proves it narrows the stored task and cannot introduce an
@@ -89,32 +89,54 @@ option the task did not already permit.
 narrowing resolves live World facts. `Agent.narrowTask(narrowing)` applies only to the selected task;
 callers that need to identify a task first use `selectTask(taskId)`. Each accepted partial narrowing
 edits the engine's task. A partial result remains selected, while a concrete result executes before
-the call returns. `Agent.taskDraft(taskId)` creates an independent, caller-held `TaskDraft`.
-`draft.narrow(narrowing)` keeps a provisional instruction in that object; `draft.instruction`
-revalidates it against the current task and World; `draft.commit()` submits it to the engine,
-selecting the task if necessary. Dropping the object forgets the draft. Drafting itself makes no
-game event. There is no choice enumeration yet.
+the call returns. `Agent.fillInTask(taskId)` creates an independent, caller-held `TaskForm`.
+`form.narrow(narrowing)` keeps a provisional instruction in that object; `form.instruction`
+revalidates it against the current task and World; `form.commit()` submits it to the engine,
+selecting the task if necessary. Dropping the object forgets its choices. Filling in a form makes no
+game event. `form.decisions()` currently identifies at most one next decision. For an abstract
+target it points to the first reason the type is abstract: its root Class, then the first open
+dependency, recursively. A sole intermediate abstract subclass is skipped within that same root
+choice, without combining dependency choices. A `Class<Foo>` literal chooses represented subclasses
+of `Foo`, not the
+dependencies of an instance of `Foo`. `form.options(decision)` offers only that part's options,
+such as `Luna` instead of a whole `Colony<Green, Luna>` instruction.
+`form.choose(decision, "Luna")` remembers that choice; another decision can then open up. Each option
+list avoids the Cartesian product of later decisions. Current coverage includes `OR`, stepwise target selection, optional counts, and `X`
+amounts, including a shared `X` in a `THEN` first stage. Shared Type choices update every
+occurrence together, retaining markers while the choice is still abstract. A supplying occurrence
+is chosen before interpreting a target constraint that observes it, such as a destination excluding
+a transmutation's source. `BY`, gates, and mandatory `PER` changes preserve their wrappers. Broad
+options do not resolve partial candidates to filter them: a failed
+resolution of a partial candidate does not prove that every later narrowing fails. The type
+enumerator drops structurally uninhabited branches. For nonoptional changes, component-dependency
+choices also require an existing matching component. That existence check ignores refinements,
+whose meaning may change after further narrowing, but retains structural bounds such as the owner
+and resource kind. Optional changes retain absent-dependency choices because a later zero choice
+can still be legal. Class literals enumerate classes without requiring instances of those classes.
+Amount bounds are applied after the target is concrete. These checks cannot exclude an option that a later voluntary narrowing would make
+workable in the same World. Unselected forms must re-query after World changes. Unsupported
+abstract shapes throw rather than silently claiming there is no decision.
 
-**Selected direction:** A caller may keep a disposable draft narrowing for one of its Actor's tasks
-without submitting it. This works for selected and unselected tasks. Future read-only choice
-analysis can use that draft and the current World to offer another narrowing, while the engine
-still stores the last committed task instruction. A draft is the client's chosen restriction, not a
+**Selected direction:** A caller may keep a disposable, partly filled form for one of its Actor's
+tasks without submitting it. This works for selected and unselected tasks. Read-only choice analysis
+uses that form and the current World to offer another narrowing, while the engine still stores the
+last committed task instruction. A form is the client's chosen restriction, not a
 resolved instruction: state-dependent results such as `3 Plant.` becoming `2 Plant!` are derived
 for display or execution and need not narrow the original instruction.
 
-The client calls `draft.commit()` when the next game action needs the narrowed task, such as a real
+The client calls `form.commit()` when the next game action needs the narrowed task, such as a real
 split or execution. The engine validates the submission against its current task, then records any
 task edits and consequences. It remains free to accept earlier partial submissions or perform sound
 simplifications itself, but progressive Agent assistance must not depend on the engine recording
 every intermediate step.
 
-An unselected draft does not select or lock its task. Other actions may change the World, the task,
-or its assignee; the draft rechecks against them before reading its instruction or submitting it.
-If the task is reassigned to another Actor, the former assignee's draft has no game effect and can
+An unselected form does not select or lock its task. Other actions may change the World, the task,
+or its assignee; the form rechecks against them before reading its instruction or submitting it.
+If the task is reassigned to another Actor, the former assignee's form has no game effect and can
 be discarded.
 
-A selected task's World lock makes its draft more stable, but the engine still validates submission.
-Drafts may be discarded when stale, on rollback, or when the caller drops them. They are absent from
+A selected task's World lock makes its form more stable, but the engine still validates submission.
+Forms may be discarded when stale, on rollback, or when the caller drops them. They are absent from
 the shared task queue, event log, and recordings. This keeps tentative choices outside the public
 game record; actual opponent privacy also requires the application to restrict access to each Agent.
 
@@ -124,7 +146,7 @@ A configured Game World has exactly one Agent per Actor, including Admin. Every 
 chosen autonomously or explicitly requested by an interactive client enters through that Actor's
 Agent. Replay correction, tests, and workflows may deliberately use the lower-level engine API.
 The Agent serializes its requests and calls the engine's Actor-attributed methods directly. It can
-create caller-held drafts without retaining them or making them game state or an autoexecution
+create caller-held forms without retaining them or making them game state or an autoexecution
 policy. A separate passive access object is not planned.
 
 `Agent.reader` is a `ScopedGameReader`. In Player scope, contextual input such as `Plant` is
@@ -180,7 +202,7 @@ or delegate narrowing to Admin. Which legal strategy an Admin policy uses is not
 ## Remaining question
 
 - Whether the engine performs a provably forced narrowing during task admission remains open. It
-  is not required for progressive Agent drafts. Agent assistance with an unambiguous draft step
+  is not required for progressive Agent forms. Agent assistance with an unambiguous form step
   does not itself commit an Actor mutation or need an autoexecution policy.
 
 ## Current implementation divergence
@@ -207,8 +229,12 @@ setting rather than the planned attachable policy system. Remaining extraction w
 3. reduce the normal Agent surface while keeping direct engine cheats explicit; and
 4. replace the legacy global queue drain with the policy-relative shared loop in [AUTOEXEC.md](AUTOEXEC.md).
 
-Choice enumeration and read-only resolution of drafts still need implementation without copying
-engine legality rules.
+Enumeration still needs `EACH` and some nested shapes. In particular,
+an optional change inside `PER` cannot currently offer `Ok` as a pre-resolution narrowing: `PER`
+requires a change child and its narrowing rule requires the metric wrapper to remain. The Agent
+reports that shape as unsupported until the language or task lifecycle gives it a coherent choice.
+An unresolved state-dependent refinement with no remaining class or dependency choice is also
+reported as unsupported when a count choice still depends on resolving it.
 
 Do not retain obsolete aliases simply to preserve the current public API. User-visible script
 syntax must be migrated deliberately.

@@ -29,7 +29,7 @@ internal class CatalogCompositionTest {
           override val explicitClassDeclarations =
               setOf(parseOneLinerClass("CLASS CompositionProbe"))
         }
-    val catalog = TfmCatalog.compose(Canon, extension)
+    val catalog = TfmCatalog(Canon, extension)
 
     val game = setUpGame(canonicalPremise(catalog = catalog))
 
@@ -51,7 +51,7 @@ internal class CatalogCompositionTest {
                   )
                   .toSet()
         }
-    val catalog = TfmCatalog.compose(Canon, extension)
+    val catalog = TfmCatalog(Canon, extension)
 
     val premise =
         canonicalPremise(
@@ -84,7 +84,7 @@ internal class CatalogCompositionTest {
                   )
                   .toSet()
         }
-    val catalog = TfmCatalog.compose(Canon, extension)
+    val catalog = TfmCatalog(Canon, extension)
 
     val premise =
         canonicalPremise(
@@ -112,7 +112,7 @@ internal class CatalogCompositionTest {
                   )
                   .toSet()
         }
-    val catalog = TfmCatalog.compose(Canon, extension)
+    val catalog = TfmCatalog(Canon, extension)
     val premise = catalog.gamePremise(GameConfig("BootstrapSource", "Player1", "Player2"))
 
     val game = Engine.newGame(premise)

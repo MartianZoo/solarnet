@@ -738,7 +738,7 @@ internal class RandomCardGenerator(seed: Int) :
           object : TfmCatalog() {
             override val explicitClassDeclarations: Set<ClassDeclaration> = declarations.toSet()
           }
-      return TfmCatalog.compose(Canon, additions)
+      return TfmCatalog(Canon, additions)
     }
 
     @JvmStatic

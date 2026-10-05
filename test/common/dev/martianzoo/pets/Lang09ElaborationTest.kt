@@ -110,7 +110,7 @@ internal class Lang09ElaborationTest {
   internal fun `L9-3 an ownerless rule supplies an owner for a class literal predicate`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Player : Anyone",
+            "ABSTRACT CLASS Player : Owner",
             "ABSTRACT CLASS Token : Owned",
             "CLASS Counted",
             "CLASS Rule { This: Counted / Class<@Token>(HAS @Token) }",
@@ -194,13 +194,13 @@ internal class Lang09ElaborationTest {
     val table =
         loadTypes(
             """
-                CLASS Player1 : Anyone
-                CLASS Player2 : Anyone
+                CLASS Player1 : Owner
+                CLASS Player2 : Owner
                 ABSTRACT CLASS Area {
                   CLASS Land1
                   CLASS Land2
                 }
-                CLASS Marker<Area> : Owned<Anyone> {
+                CLASS Marker<Area> : Owned {
                   DEFAULT +Marker<Land1>
                   DEFAULT -Marker<Land2>
                 }
@@ -386,7 +386,7 @@ internal class Lang09ElaborationTest {
   @Test
   internal fun `L9-13 effects are gathered from every superclass and elaborated in context`() {
     classEffects("SimpleRule").size shouldBe 1
-    classEffects("OwnedRule").single().toString() shouldBe "This: Plant<Me@Anyone>!"
+    classEffects("OwnedRule").single().toString() shouldBe "This: Plant<Me@Owner>!"
   }
 
   @Test
@@ -413,10 +413,10 @@ internal class Lang09ElaborationTest {
     val universe =
         loadTypes(
             """
-            ABSTRACT CLASS Seat : Anyone, Actor { CLASS Seat1 }
+            ABSTRACT CLASS Seat : Owner, Actor { CLASS Seat1 }
             ABSTRACT CLASS Empty
-            CLASS Plant : Owned<Anyone>
-            CLASS Steel : Owned<Anyone>
+            CLASS Plant : Owned
+            CLASS Steel : Owned
             """
                 .trimIndent()
         )

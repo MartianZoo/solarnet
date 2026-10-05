@@ -172,6 +172,9 @@ internal constructor(
         it.selectedThen ?: it.effective
       }
 
+  /** Current executable capacity for a concrete change; null means a missing destination. */
+  public fun changeLimit(change: Change): Int? = instructor.changeLimit(change)
+
   private data class PreparedNarrowing(
       val effective: InstructionTree,
       val selectedThen: Then?,
