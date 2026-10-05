@@ -39,7 +39,7 @@ public open class BusyPreludePhaseBenchmark {
   public fun setUp() {
     game =
         Engine.newGame(
-            TfmCatalog.compose(Canon, FakeCanon)
+            TfmCatalog(Canon, FakeCanon)
                 .gamePremise(
                     GameConfig(
                         "TerraformingMars, TharsisMap, PreludeExpansion, " +

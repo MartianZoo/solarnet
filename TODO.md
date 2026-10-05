@@ -43,6 +43,18 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Try to simplify Flooding and Artificial Lake's ocean instructions without engine prediction.
   Preserve full-track no-placement behavior (including Amazonis), Artificial Lake's required
   placement below the cap, and Flooding's linked placement and victim choice.
+- Shorten `DefaultGreeneryTile` using existing Pets. Keep it independent of `Community`, preserve
+  own and opposing claims' different effects on fallback, and do not treat unaffordable placement
+  consequences as permitting fallback. This is a local expression simplification, not an `ELSE`
+  language or execution-search project.
+- Fix greenery fallback when Mars Nomads blocks the last adjacent land area. `BugsTest` records
+  that both the blocked placement and a distant placement currently fail. Keep promo-specific
+  names out of the core greenery rule.
+- Prefer the positive Arcadian Communities reward trigger `Tile<LandArea(HAS Community)>: 3 MC`
+  when it can observe the claim before automatic ejection while keeping the reward queued.
+  Currently ordinary trigger matching sees the area after ejection; making the reward automatic
+  would also pay during corrections. Until a small solution exists, retain
+  `-Community<LandArea(HAS Tile)>: 3 MC`.
 - Look for a small way to evaluate the existing `CardFilter` criteria against a card Class in Pets.
   Replay tracking currently checks them in Kotlin; avoid adding engine card identities or a new
   processing stage just for this. Named-header specialization of Requirement properties and
@@ -234,14 +246,26 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   [the wording comparisons](docs/english-wording-comparisons/README.md) from verified printed evidence.
 - Correct defaulted Type-variable references: `pets/BugsTest` shows bare references incorrectly
   inheriting their supplier's `<>`.
+- If more busy Prelude performance work is needed, investigate selecting scoped required-count
+  checks through their declaring classes instead of scanning every scoped restriction. Preserve
+  newly created owners' absent required parts, surviving ancestors' requirements, and owner removal.
+  Profiles and the completed probe/existence improvements are in
+  `_local/benchmarks/2026-10-04-autoexec-performance/`.
 - Extend instruction intersection to preserve unresolved shared aliases and unnamed Type unions.
   These currently require a more specific submitted choice; keep task matching conservative and
   never substitute `Ok` for an unrepresentable nonempty intersection.
-
-- Add choice enumeration over caller-held `TaskDraft`s, one sub-Specification at a time, using
-  read-only engine analysis. Cover `OR`, abstract targets, transmutation pairs, linked Type choices
-  across `THEN`, nested wrappers, and bounded `X`; account for AMAP, optional changes, and
-  zero-capacity targets.
+- Complete `TaskForm` decision and option enumeration for `EACH` and nested instruction shapes.
+  Decide how a form should offer `Ok` for an optional change
+  inside `PER`, whose current narrowing rule requires a change child until state resolution removes
+  the wrapper. In the Generation 4 replay, Power Infrastructure's `X` task exposes an `Anyone`
+  target decision before its amount even though the existing action helper can bind `X`; settle how
+  a form recognizes a forced type resolution before offering the amount.
+- Express card-face/card-back compatibility in the selectable `PlayCard` specification so generic
+  forms can restrict Prelude faces without interpreting later card-playing effects. Its independent
+  class-literal parameters currently leave `CardFront` options broader than the selected card back.
+- If clients need options proved completable, add a separate analysis of the same one-step options.
+  Report inconclusive searches explicitly; keep broad option enumeration independent of speculative
+  engine resolution.
 - Extend the Mining Rights/Area wild-resource regression after placement is fixed: Robotic
   Workforce and Cyberia Systems may choose either originally available metal production even if
   the placement awarded a nonmetal resource. No remembered resource choice is required.

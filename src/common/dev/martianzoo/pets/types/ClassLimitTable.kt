@@ -99,11 +99,31 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
    * Returns every positive-lower-bound limit that must hold for a completed component set.
    * Self-counts apply to every inhabited concrete specialization; a dependent count containing
    * `This` applies only to the declaring types present in [liveTypes].
+   *
+   * When [changedTypes] is supplied, global requirements are restricted to those applicable to a
+   * changed component. Requirements of [liveTypes] still include dependents that are absent.
    */
-  public fun requiredLimits(liveTypes: Collection<Type>): Set<Limit> {
+  public fun requiredLimits(
+      liveTypes: Collection<Type>,
+      changedTypes: Collection<Type>? = null,
+  ): Set<Limit> {
     liveTypes.forEach { require(classTable.knows(it)) { "`$it` belongs to a different Catalog" } }
+    val unscoped =
+        if (changedTypes == null) unscopedRequiredLimits
+        else {
+          changedTypes.flatMapTo(linkedSetOf()) { type ->
+            require(classTable.knows(type)) { "`$type` belongs to a different Catalog" }
+            restrictionsByClass[type.rootClass]
+                .orEmpty()
+                .asSequence()
+                .filter { it.range.first > 0 }
+                .mapNotNull { it.bindThisTo(type) }
+                .filter { it in unscopedRequiredLimits }
+                .toList()
+          }
+        }
     val liveTypeSet = liveTypes.toSet()
-    return unscopedRequiredLimits +
+    return unscoped +
         scopedRequiredRestrictions.asSequence().flatMap { it.requiredLimits(liveTypeSet) }.toSet()
   }
 

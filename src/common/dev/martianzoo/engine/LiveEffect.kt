@@ -247,8 +247,8 @@ private constructor(
             elaborator.classTable.checkAllTypes(bound)
             bound
           } catch (e: ExpressionException) {
-            // An Anyone-only component can inherit an effect whose output is Player-bound. The
-            // source effect is valid, but it does not apply to that Anyone; for example, the
+            // An Owner-only component can inherit an effect whose output is Player-bound. The
+            // source effect is valid, but it does not apply to that Owner; for example, the
             // starting tiles owned by SoloOpponent do not score VictoryPoint<Player> components.
             val sourceEffect =
                 replaceThisExpressionsWith(component.type.rootClass.className.expression)

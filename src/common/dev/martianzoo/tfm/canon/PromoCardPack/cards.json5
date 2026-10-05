@@ -5,9 +5,9 @@
       "cards": [
         {
           "name": "ArcadianCommunities",
-          "immediate": "40 MC, 10 Steel, RequiredAction { -> Community<LandArea(HAS MAX 0 Occupant)> }",
-          "actions": [ "-> Community<LandArea(HAS MAX 0 Occupant, HAS Neighbor<OwnedOccupant>)>" ],
-          "effects": [ "-Community: 3 MC" ],
+          "immediate": "40 MC, 10 Steel, RequiredAction { -> Community }",
+          "actions": [ "-> Community<LandArea(HAS Neighbor<OwnedOccupant>)>" ],
+          "effects": [ "-Community<LandArea(HAS Tile)>: 3 MC" ],
         },
         {
           "name": "AstroDrill",
@@ -67,7 +67,7 @@
           "tags": [ "BuildingTag" ],
           "immediate": "47 MC, RequiredAction { -> DefaultGreeneryTile }",
           "effects": [
-            "Adjacency<OwnedTile, OwnedTile<Anyone(NOT Me@)>> BY Actor: StandardResource",
+            "Adjacency<OwnedTile, OwnedTile<Anyone(NOT Me@)>> BY Anyone: StandardResource",
           ],
         },
         {
@@ -488,7 +488,7 @@
           "tags": [ "PowerTag" ],
           "invariants": [ "=1 NeptunianOption<This>" ],
           "effects": [
-            "OceanTile BY Actor: UseAction<NeptunianOption<This>>?",
+            "OceanTile BY Anyone: UseAction<NeptunianOption<This>>?",
             "End: VictoryPoint / Hydroelectric<This>"
           ],
           "components": [

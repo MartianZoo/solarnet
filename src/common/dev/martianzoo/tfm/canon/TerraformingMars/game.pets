@@ -67,7 +67,7 @@ ABSTRACT CLASS GameMode : Module {
 }
 
 "One of the actual people or bots playing Terraforming Mars"
-ABSTRACT CLASS Player : Anyone, Actor {
+ABSTRACT CLASS Player : Owner, Actor {
   HAS =1 This
   HAS MAX 1 AfterMe<This, Anyone>, MAX 1 AfterMe<Anyone, This>
 
@@ -98,7 +98,7 @@ CLASS TerraformRating : Owned<Player>, Atomized {
 CLASS StartToken : Owned<Player> { HAS =1 StartToken }
 
 "Identifies the Player immediately after another Player in seat order"
-CLASS AfterMe<Previous@Anyone, Next@Player> : System, Hidden {
+CLASS AfterMe<Previous@Owner, Next@Player> : System, Hidden {
   HAS MAX 1 This
   ResearchPhase IF StartToken<Previous@>: StartToken<Next@ FROM Previous@>.
 }

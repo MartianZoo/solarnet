@@ -13,7 +13,7 @@ import dev.martianzoo.state.ClassSelection
 import dev.martianzoo.state.GameConfig
 import dev.martianzoo.state.GamePremise
 import dev.martianzoo.state.Player
-import dev.martianzoo.tfm.canon.ApiUtils.getOwningPlayer
+import dev.martianzoo.state.toComponent
 import dev.martianzoo.tfm.canon.Bundle
 import dev.martianzoo.tfm.canon.Canon
 import dev.martianzoo.tfm.canon.TfmCatalog
@@ -124,7 +124,7 @@ internal class GamePremiseTest {
                   )
                   .toSetStrict()
         }
-    val catalog = TfmCatalog.compose(Canon, observers)
+    val catalog = TfmCatalog(Canon, observers)
     val premise = catalog.gamePremise(GameConfig("ObserverA, ObserverB", "Player1", "Player2"))
 
     val game = Engine.newGame(premise)
@@ -153,10 +153,11 @@ internal class GamePremiseTest {
     TfmWorkflow.Stepwise(game.testAgents()).setupPhase()
     game.testAgent(Player(blue)).count("TerraformRating<Blue>") shouldBe 20
     game.testAgent(Player(yellow)).count("TerraformRating<Yellow>") shouldBe 20
-    getOwningPlayer(
-        game.reader,
-        game.reader.getComponents(cn("StartToken").expression).single(),
-    ) shouldBe Player(blue)
+    game.reader
+        .getComponents(cn("StartToken").expression)
+        .single()
+        .toComponent()
+        .owningPlayer shouldBe Player(blue)
   }
 
   @Test

@@ -129,7 +129,7 @@
           "tags": [ "BuildingTag" ],
           "immediate": "54 MC",
           "effects": [
-            "OceanTile BY Actor: PROD[1 MC]",
+            "OceanTile BY Anyone: PROD[1 MC]",
             "Placement<@MarsArea>: 1 MC / Neighbor<OceanTile, @MarsArea>"
           ],
         },

@@ -44,7 +44,7 @@ internal class GameWorldAtomicityTest {
                       """
                       CLASS Marker
                       CLASS Decision
-                      ABSTRACT CLASS Player : Anyone, Actor
+                      ABSTRACT CLASS Player : Owner, Actor
                       """
                           .trimIndent()
                   )

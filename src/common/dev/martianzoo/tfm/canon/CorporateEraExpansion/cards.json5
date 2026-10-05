@@ -252,7 +252,7 @@
           "name": "LandClaim",
           "cost": 1,
           "tags": [ "EventTag" ],
-          "immediate": "Community<LandArea(HAS MAX 0 Occupant)>",
+          "immediate": "Community",
         },
         {
           "name": "LightningHarvest",

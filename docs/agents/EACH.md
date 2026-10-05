@@ -63,7 +63,7 @@ rebinding `Me` to that candidate.
 Selector refinements decide participation using requirement semantics:
 
 ```pets
-EACH Other@Player(NOT Me@Anyone) { PROD[-2 MC<Other@Player>] BY Other@Player }
+EACH Other@Player(NOT Me@Owner) { PROD[-2 MC<Other@Player>] BY Other@Player }
 ```
 
 An unmet gate inside the body fails normally; it does not omit that branch. The body need not name
@@ -84,8 +84,9 @@ EACH Me@Player(HAS =1 (RANK Me@Player { EVAL @Award.metric })) { FirstPlace<@Awa
 ## Lexical binding and attribution
 
 An unnamed selector leaves the enclosing lexical `Me` in scope. `EACH Me@Player` explicitly
-rebinds it to each selected player. Literal `Anyone` remains the broad ownership class. `This`
-continues to mean the surrounding effect-bearing component.
+rebinds it to each selected player. Literal `Anyone` remains the common identity supertype;
+ownership dependencies intersect it with their bound. `This` continues to mean the surrounding
+effect-bearing component.
 
 The selected owner does not automatically become the actor, controller, or assignee. Every branch
 inherits attribution and task control from the surrounding effect. Use `BY Me@Player` when the

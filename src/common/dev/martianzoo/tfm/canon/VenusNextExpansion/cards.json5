@@ -7,7 +7,7 @@
           "name": "Aphrodite",
           "tags": [ "VenusTag", "PlantTag" ],
           "immediate": "47 MC, PROD[Plant]",
-          "effects": [ "VenusStep BY Actor: 2 MC" ],
+          "effects": [ "VenusStep BY Anyone: 2 MC" ],
         },
         {
           "name": "Celestic",

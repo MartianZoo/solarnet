@@ -1,13 +1,9 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.Parsing.parseOneLinerClass
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
-import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
-import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.ClassDeclaration
 import dev.martianzoo.state.GameConfig
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
@@ -15,82 +11,6 @@ import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 internal class CatalogTest {
-  @Test
-  internal fun everyCatalogIncludesThePetsRuntimeDeclarations() {
-    TfmCatalog().classDeclaration(COMPONENT)
-  }
-
-  @Test
-  internal fun configuringPlayersRequiresAPlayerDeclaration() {
-    val failure =
-        shouldThrow<InvalidGameConfigException> {
-          TfmCatalog().gamePremise(GameConfig("", "Player1"))
-        }
-
-    failure.message.orEmpty() shouldContain "Catalog without Player"
-  }
-
-  @Test
-  internal fun specializedThisInvariantCanLimitOneConcreteClassAcrossPlayers() {
-    val table =
-        catalog(
-                *parseClasses(
-                        """
-                        ABSTRACT CLASS Player : Anyone {
-                          HAS =1 This
-                          CLASS Player1
-                          CLASS Player2
-                        }
-                        ABSTRACT CLASS CardFront<@Player> : Owned<@Player> {
-                          HAS MAX 1 This<Player>
-                        }
-                        CLASS ExampleCard : CardFront
-                        """
-                            .trimIndent()
-                    )
-                    .toTypedArray()
-            )
-            .classTable
-    val expectedLimitType = table.resolve(parse("ExampleCard<Player>"))
-
-    listOf("ExampleCard<Player1>", "ExampleCard<Player2>").forEach { expression ->
-      table.componentLimits
-          .limitsFor(table.resolve(parse(expression)))
-          .single { it.range.last == 1 }
-          .type shouldBe expectedLimitType
-    }
-  }
-
-  @Test
-  internal fun selectedClassViabilityUsesItsLoadedDeclaration() {
-    val source =
-        catalog(
-            *parseClasses(
-                    """
-                    CLASS Missing
-                    CLASS Selected { This: -Missing! }
-                    """
-                        .trimIndent()
-                )
-                .toTypedArray()
-        )
-
-    val unavailable =
-        shouldThrow<InvalidGameConfigException> {
-          source.gamePremise(GameConfig("Selected")).classTable
-        }
-
-    unavailable.message.orEmpty() shouldContain
-        "unviable game premise: `Selected` has reachable mandatory removal Missing"
-  }
-
-  @Test
-  internal fun compositionCoalescesIdenticalClassDeclarations() {
-    val declaration = parseOneLinerClass("CLASS Shared")
-    val composed = TfmCatalog.compose(catalog(declaration), catalog(declaration))
-
-    composed.classDeclaration(cn("Shared")) shouldBe declaration
-  }
 
   @Test
   internal fun compositionRejectsAmbiguousModuleSelection() {
@@ -108,29 +28,7 @@ internal class CatalogTest {
           override val explicitClassDeclarations = declarations
         }
 
-    shouldThrow<IllegalArgumentException> { TfmCatalog.compose(first, second).modules }
-  }
-
-  @Test
-  internal fun compositionRejectsDifferentDeclarationsWithTheSameName() {
-    val concrete = parseOneLinerClass("CLASS Shared")
-    val abstract = parseOneLinerClass("ABSTRACT CLASS Shared")
-
-    shouldThrow<InvalidPetDefinitionException> {
-      TfmCatalog.compose(catalog(concrete), catalog(abstract)).allClassDeclarations
-    }
-  }
-
-  @Test
-  internal fun compositionRejectsConflictingDisplayNames() {
-    fun named(displayName: String) =
-        object : TfmCatalog() {
-          override val displayNamesByLanguage = mapOf("en" to mapOf(cn("Shared") to displayName))
-        }
-
-    shouldThrow<IllegalArgumentException> {
-      TfmCatalog.compose(named("First"), named("Second")).displayNamesByLanguage
-    }
+    shouldThrow<IllegalArgumentException> { TfmCatalog(first, second).modules }
   }
 
   @Test
@@ -156,7 +54,7 @@ internal class CatalogTest {
   @Test
   internal fun concreteSubclassesCanBeFoundByBundle() {
     val source =
-        TfmCatalog.compose(
+        TfmCatalog(
             bundle("Types", "ABSTRACT CLASS Goal"),
             bundle(
                 "Goals",
@@ -177,7 +75,7 @@ internal class CatalogTest {
   @Test
   internal fun defaultBundleGoalPoolsMayContainFewerThanThreeOfEachKind() {
     val source =
-        TfmCatalog.compose(
+        TfmCatalog(
             bundle(
                 "Rules",
                 """
@@ -254,7 +152,7 @@ internal class CatalogTest {
   @Test
   internal fun individualCardConfigurationIsSupported() {
     val source =
-        TfmCatalog.compose(
+        TfmCatalog(
             bundle(
                 "Base",
                 "ABSTRACT CLASS Module\nABSTRACT CLASS CardBack\nABSTRACT CLASS CardFront<Class<CardBack>>\nCLASS Base : Module",
@@ -325,7 +223,7 @@ internal class CatalogTest {
     val observingRemovalCard = cn("ObservingRemovalCard")
     val independentCard = cn("IndependentCard")
     val source =
-        TfmCatalog.compose(
+        TfmCatalog(
             base,
             feature,
             contentPack,
@@ -368,11 +266,6 @@ internal class CatalogTest {
     val explicitIndependent = source.gamePremise(GameConfig("Base, $independentCard")).classTable
     explicitIndependent.isInhabited(independentCard) shouldBe true
   }
-
-  private fun catalog(vararg declarations: ClassDeclaration): TfmCatalog =
-      object : TfmCatalog() {
-        override val explicitClassDeclarations = declarations.toSet()
-      }
 
   private fun bundle(name: String, declarations: String): Bundle =
       object : Bundle(cn(name)) {

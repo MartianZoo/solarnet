@@ -158,5 +158,5 @@ images/pets-repo-draft.
 Nested samp elements give captions an intermediate font size under GitHub
 Markdown styling without code-block copy controls.
 Sponsored Academies remains a reserved candidate:
-This: -ProjectCard THEN 3 ProjectCard, EACH Other@Player(NOT Me@Anyone) { ProjectCard<Other@Player> }
+This: -ProjectCard THEN 3 ProjectCard, EACH Other@Player(NOT Me@Owner) { ProjectCard<Other@Player> }
 -->

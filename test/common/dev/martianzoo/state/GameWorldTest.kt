@@ -26,6 +26,45 @@ internal class GameWorldTest {
   private val moment = table.resolve(parse<Expression>("Moment")).toComponent()
 
   @Test
+  internal fun componentExistenceFollowsLiveRefinementsAndRollback() {
+    val world =
+        GameWorld(
+            testGamePremise(
+                """
+                ABSTRACT CLASS Space {
+                  CLASS Left
+                  CLASS Right
+                }
+                CLASS Occupant<Space>
+                """
+                    .trimIndent(),
+                players = 0,
+            )
+        )
+    val left = world.reader.resolve(parse("Left")).toComponent()
+    val right = world.reader.resolve(parse("Right")).toComponent()
+    val occupant = world.reader.resolve(parse("Occupant<Right>")).toComponent()
+    val occupied = world.reader.resolve(parse("Space(HAS Occupant)"))
+    world.components.containsAny(right.type, world.reader) shouldBe false
+
+    world.apply(changeEvent(world, ComponentChange.Gain(component = left)))
+    world.apply(changeEvent(world, ComponentChange.Gain(component = right)))
+
+    world.components.containsAny(right.type, world.reader) shouldBe true
+    world.components.containsAny(occupant.type, world.reader) shouldBe false
+    world.components.containsAny(occupied, world.reader) shouldBe false
+
+    world.apply(changeEvent(world, ComponentChange.Gain(component = occupant)))
+
+    world.components.containsAny(occupied, world.reader) shouldBe true
+    world.rollBackTo(2)
+    world.components.containsAny(occupied, world.reader) shouldBe false
+    world.components.containsAny(right.type, world.reader) shouldBe true
+    world.rollBackTo(0)
+    world.components.containsAny(right.type, world.reader) shouldBe false
+  }
+
+  @Test
   internal fun appliesAndReversesOnlyExactConcreteChanges() {
     val world = GameWorld(premise)
     val tokenGain = changeEvent(world, ComponentChange.Gain(component = token))

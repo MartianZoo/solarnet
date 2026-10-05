@@ -23,14 +23,14 @@ internal class Spec10DefaultsTest {
   private val mars =
       loadTypes(
           """
-          CLASS Player1 : Anyone
+          CLASS Player1 : Owner
           ABSTRACT CLASS Area {
             ABSTRACT CLASS MarsArea {
               ABSTRACT CLASS LandArea { CLASS Tharsis_2_2 }
               ABSTRACT CLASS WaterArea { CLASS Tharsis_1_1 }
             }
           }
-          ABSTRACT CLASS Tile<Area> : Owned<Anyone> {
+          ABSTRACT CLASS Tile<Area> : Owned {
             DEFAULT +Tile<LandArea>
           }
           CLASS GreeneryTile : Tile<MarsArea>
@@ -58,7 +58,7 @@ internal class Spec10DefaultsTest {
   @Test
   internal fun `T10-1 Owned supplies a bound without a dependency default`() {
     defaults("Plant").allUsages.dependencies.keys.shouldBeEmpty()
-    mars.getClass(cn("Plant")).defaultType.expressionFull shouldBe te("Plant<Anyone>")
+    mars.getClass(cn("Plant")).defaultType.expressionFull shouldBe te("Plant<Owner>")
   }
 
   @Test
@@ -86,7 +86,7 @@ internal class Spec10DefaultsTest {
   internal fun `T10-1 defaults never change which types exist`() {
     // The gain default names LandArea, but the type `GreeneryTile` still admits any MarsArea.
     mars.resolve(te("GreeneryTile<Tharsis_1_1>")).expressionFull shouldBe
-        te("GreeneryTile<Anyone, Tharsis_1_1>")
+        te("GreeneryTile<Owner, Tharsis_1_1>")
   }
 
   // T10-2 Quantifiers
@@ -245,7 +245,7 @@ internal class Spec10DefaultsTest {
   internal fun `T10-5 Anyone written in a default is intersected with the declared bound`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Player : Anyone { CLASS Player1 }",
+            "ABSTRACT CLASS Player : Owner { CLASS Player1 }",
             "ABSTRACT CLASS Card : Owned<Player> { DEFAULT Card<Anyone> \n CLASS ProjectCard }",
         )
 

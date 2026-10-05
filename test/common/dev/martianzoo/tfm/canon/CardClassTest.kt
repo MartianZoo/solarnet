@@ -135,6 +135,6 @@ internal class CardClassTest {
           override val explicitClassDeclarations: Set<ClassDeclaration> =
               parseClasses(source.trimIndent()).toSet()
         }
-    return TfmCatalog.compose(Canon, additions)
+    return TfmCatalog(Canon, additions)
   }
 }

@@ -28,7 +28,7 @@ internal class DeterminedZeroCostActionTest : TfmTest() {
                   )
                   .toSet()
         }
-    val catalog = TfmCatalog.compose(Canon, extension)
+    val catalog = TfmCatalog(Canon, extension)
     game = setUpGame(canonicalPremise(catalog = catalog))
     val p1 = game.testTfm(PLAYER1)
     p1.runOperation("DeterminedZeroCostAction")

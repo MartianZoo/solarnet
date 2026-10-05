@@ -42,7 +42,7 @@ internal fun <P : PetNode> roundTripAll(type: KClass<P>, sources: String) {
  */
 internal const val LANG_DECLARATIONS: String =
     """
-    ABSTRACT CLASS Player : Anyone, Actor {
+    ABSTRACT CLASS Player : Owner, Actor {
       CLASS Player1
       CLASS Player2
     }
@@ -55,31 +55,31 @@ internal const val LANG_DECLARATIONS: String =
       }
     }
 
-    CLASS Plant : Owned<Anyone>
-    CLASS Heat : Owned<Anyone>
-    CLASS Steel : Owned<Anyone>
-    CLASS StartToken : Owned<Anyone>
-    CLASS ProjectCard : Owned<Anyone>, Atomized
+    CLASS Plant : Owned
+    CLASS Heat : Owned
+    CLASS Steel : Owned
+    CLASS StartToken : Owned
+    CLASS ProjectCard : Owned, Atomized
 
-    ABSTRACT CLASS Tile<Area> : Owned<Anyone> { DEFAULT +Tile<LandArea> }
+    ABSTRACT CLASS Tile<Area> : Owned { DEFAULT +Tile<LandArea> }
     CLASS GreeneryTile : Tile
     CLASS OceanTile : Tile
 
-    ABSTRACT CLASS Token : Owned<Anyone> {
+    ABSTRACT CLASS Token : Owned {
       CLASS RedToken
       CLASS BlueToken
     }
 
     "Classes whose gain and removal quantifier defaults differ"
-    CLASS Chit : Owned<Anyone> { DEFAULT +Chit? }
-    CLASS Slug : Owned<Anyone> { DEFAULT -Slug. }
+    CLASS Chit : Owned { DEFAULT +Chit? }
+    CLASS Slug : Owned { DEFAULT -Slug. }
 
     "A card, and a resource whose owner is forced to be its card's owner (T3-8)"
-    ABSTRACT CLASS CardFront : Owned<Anyone> { CLASS Ants }
-    ABSTRACT CLASS Cardbound<CardFront<@Anyone>> : Owned<@Anyone> { CLASS Animal }
+    ABSTRACT CLASS CardFront : Owned { CLASS Ants }
+    ABSTRACT CLASS Cardbound<CardFront<@Owner>> : Owned<@Owner> { CLASS Animal }
 
     "A class whose removal-only default differs from its all-use default"
-    CLASS Marker<Area> : Owned<Anyone> { DEFAULT -Marker<LandArea> }
+    CLASS Marker<Area> : Owned { DEFAULT -Marker<LandArea> }
 
     ABSTRACT CLASS Scored { score = Metric }
     CLASS Gardener : Scored {
@@ -88,7 +88,7 @@ internal const val LANG_DECLARATIONS: String =
     }
     ABSTRACT CLASS Rule { This: 2 ProjectCard, Plant }
     CLASS SimpleRule : Rule
-    CLASS OwnedRule : Owned<Anyone> { This: Plant }
+    CLASS OwnedRule : Owned { This: Plant }
     """
 
 /**

@@ -27,7 +27,7 @@ internal class StandardResourceMonotonicityReportTest {
     val basePremise = StandardResourceMonotonicityReport.maximalSoloPremise()
     val premise =
         basePremise.copy(
-            catalog = TfmCatalog.Composite(basePremise.catalog as TfmCatalog, probe),
+            catalog = TfmCatalog(basePremise.catalog as TfmCatalog, probe),
             classSelections =
                 basePremise.classSelections + ClassSelection(cn("ProductionPerProbe")),
         )

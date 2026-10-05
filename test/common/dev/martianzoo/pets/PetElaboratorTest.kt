@@ -18,10 +18,10 @@ internal class PetElaboratorTest {
   private val table =
       loadTypes(
           """
-          ABSTRACT CLASS Player : Anyone, Actor
+          ABSTRACT CLASS Player : Owner, Actor
           CLASS Player1 : Player
           CLASS Pulse : Atomized
-          CLASS Token<Anyone> : Owned<Anyone>
+          CLASS Token<Owner> : Owned
           ABSTRACT CLASS Scored {
             score = Metric
           }
@@ -32,7 +32,7 @@ internal class PetElaboratorTest {
             This: UNWRAP[2 Pulse, Token]
           }
           CLASS ConcreteRule : Rule
-          CLASS ContextRule : Owned<Anyone> {
+          CLASS ContextRule : Owned {
             This: This, Token
           }
           CLASS NarrowedHolder : Owned<Me@Player> {
@@ -42,13 +42,13 @@ internal class PetElaboratorTest {
           CLASS OrRule { Pulse OR Token: Token }
           ABSTRACT CLASS Area
           ABSTRACT CLASS LandArea : Area
-          CLASS ContextualTile<Area> : Owned<Anyone> {
+          CLASS ContextualTile<Area> : Owned {
             DEFAULT +ContextualTile<LandArea>
           }
           ABSTRACT CLASS AreaRule : Area {
             This: ContextualTile<This>
           }
-          ABSTRACT CLASS HolderRule : Anyone {
+          ABSTRACT CLASS HolderRule : Owner {
             This: ContextualTile<This>
           }
           ABSTRACT CLASS Choice {

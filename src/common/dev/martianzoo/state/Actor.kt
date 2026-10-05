@@ -15,9 +15,6 @@ public sealed interface Actor : HasClassName, HasExpression {
     override val className = SystemClasses.ADMIN
     override val expression: Expression = className.expression
 
-    override val expressionFull: Expression
-      get() = expression
-
     override fun toString() = className.toString()
   }
 }

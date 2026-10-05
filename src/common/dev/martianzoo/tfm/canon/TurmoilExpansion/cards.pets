@@ -1,14 +1,14 @@
 // Turmoil declarations that accompany the generated project cards.
 
 "Returns one selected non-leader delegate and resolves its party leadership"
-CLASS BannedDelegateRemoval<@Party, @Anyone> : Owned<Player>, Barrier, Hidden {
+CLASS BannedDelegateRemoval<@Party, @Owner> : Owned<Player>, Barrier, Hidden {
   HAS MAX 1 This
-  This IF MAX 0 (PartyDelegate<@Party, @Anyone> - PartyLeader<@Party, @Anyone>):: Die
-  This: -PartyDelegate<@Party, @Anyone> THEN -This!
+  This IF MAX 0 (PartyDelegate<@Party, @Owner> - PartyLeader<@Party, @Owner>):: Die
+  This: -PartyDelegate<@Party, @Owner> THEN -This!
   // A transfer also removes a delegate; leadership changes only after this selected removal.
-  -This:: EACH Next@Anyone( \
+  -This:: EACH Next@Owner( \
     HAS MAX 0 PartyLeader<@Party, Anyone>, \
-    HAS =1 (RANK Ranked@Anyone { \
+    HAS =1 (RANK Ranked@Owner { \
       PartyDelegate<@Party, Ranked@>, \
       PartyLeader<@Party, Ranked@>, \
       Player - PlayerDistance<Me@, Ranked@> \

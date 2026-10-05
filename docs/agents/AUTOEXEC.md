@@ -171,8 +171,10 @@ one shared loop from Agent-side command and operation completion points. The eng
 autoexecution dependency. The loop preserves global task-queue order while consulting the policy of
 each candidate task's assignee; `NONE` therefore prevents that Actor's work from being selected by
 another Agent. `CONCRETE` considers ambiguity among the selectable candidates assigned to that same
-Actor. Configurable policy attachment and the planned Admin-first policy schedule remain
-forward-looking.
+Actor. A sole pending task needs no selection probe: there is no competing task to distinguish,
+and actual selection still validates its execution inside the enclosing Agent transaction. With
+multiple pending tasks, probes still determine availability before applying the policy. Configurable
+policy attachment and the planned Admin-first policy schedule remain forward-looking.
 
 Admin's default may execute concrete work, select abstract work, narrow choices, and intelligently
 choose among available Admin tasks. Admin is not inherently deterministic or choice-free. Its legal

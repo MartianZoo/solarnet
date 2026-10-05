@@ -38,10 +38,10 @@ Areas don't get created for maps you aren't using in that game. So for example i
 
 `Tile` is declared as `ABSTRACT CLASS Tile<Area>` which gives it a dependency onto `Area`. This means no tile can ever exist without having a specific `Area` that it relates to. Of course, tiles that aren't on the board yet are treated as simply not existing.
 
-Area, by the way, was declared with `HAS MAX 1 Tile<This>`. That's our first example of an
-*invariant*: a completed operation may leave at most one Tile on each Area. The engine checks the
-initiating change together with all its recursive automatic consequences; effects can still observe
-intermediate counts. See
+Area, by the way, was declared with `HAS MAX 1 Occupant<This>`. That's our first example of an
+*invariant*: a completed operation may leave at most one occupant (a tile or a claim) on each Area.
+The engine checks the initiating change together with all its recursive automatic consequences;
+effects can still observe intermediate counts. See
 [invariants and operation completion](type-system.md#invariants-and-operation-completion).
 
 As for tile subtypes, we mentioned `OceanTile`, but will get to the rest in the player-specific section below.
@@ -67,11 +67,11 @@ on MANY cards!).
 
 Concrete classes called Player1, Player2, etc. will exist. The player owning the unique `StartToken` is the start player.
 
-The abstract class these all subclass is `Player`, which is both an `Anyone` and an `Actor`. A solo opponent can be an `Anyone` without being a `Player`.
+The abstract class these all subclass is `Player`, which is both an `Owner` and an `Actor`. Both roles extend `Anyone`. A solo opponent can be an `Owner` without being a `Player`.
 
 ### Owned
 
-The `Owned` abstract type is extremely important. It has a dependency onto `Anyone` (which `Player1` etc. all extend), meaning that every concrete instance of any `Owned` subclass must always know which owner it belongs to. Many, many component types have `Owned` as a direct or indirect supertype.
+The `Owned` abstract type is extremely important. It has a dependency onto `Owner` (which `Player1` etc. all extend), meaning that every concrete instance of any `Owned` subclass must always know which owner it belongs to. Many, many component types have `Owned` as a direct or indirect supertype.
 
 A simple example of an owned component type is `VictoryPoint`.
 
@@ -86,7 +86,7 @@ CLASS TerraformRating {
 
 When the `ProductionPhase` signal goes out, each occurence of `TerraformRating` generates 1 MC for its owner. Likewise when the `End` signal gets posted, each occurrence of `TR` generates a victory point. And that's all there is to terraform rating.
 
-The `Owned-Anyone` dependency is a regular component dependency just like any other in the game.
+The `Owned-Owner` dependency is a regular component dependency just like any other in the game.
 
 ### OwnedTile
 
@@ -130,7 +130,7 @@ Even with this simplification, the whole play-a-card process is a bit complex to
 
 Cards can have several types of things "on" them. `Tag`s depend on a `TagHolder`: normally a `CardFront`, or temporarily the `FakeWildTagUse` supplied by a replay. `CardResource`s, `ActionUsedMarker`s, and the inert `FakeWildTag` used by incomplete wild-tag cards share the more specific `Cardbound` superclass. For every card-attached component, the `CardFront` must exist before it can, and if the `CardFront` ever went away the attached component would have to as well. This is, of course, just how dependencies work in PETS.
 
-`Cardbound` is an interesting case in that it is both `Owned`, and depends on a type (`CardFront`) which is also `Owned`. Its declaration repeats the `Anyone` bound in both places, making the two owners always the same. Thus `Animal<Player2, Predators>` and `Animal<Predators<Player2>>` mean the same concrete type, while specifying different owners is invalid.
+`Cardbound` is an interesting case in that it is both `Owned`, and depends on a type (`CardFront`) which is also `Owned`. Its declaration repeats the marked `Owner` bound in both places, making the two owners always the same. Thus `Animal<Player2, Predators>` and `Animal<Predators<Player2>>` mean the same concrete type, while specifying different owners is invalid.
 
 ### Payments
 

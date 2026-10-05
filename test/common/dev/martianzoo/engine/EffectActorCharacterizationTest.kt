@@ -75,7 +75,7 @@ internal class EffectActorCharacterizationTest {
   }
 
   @Test
-  internal fun ownedEffectDoesNotTreatAdminAsAnAnyone() {
+  internal fun ownedEffectDoesNotTreatAdminAsAnOwner() {
     val game = Engine.newGame(canonicalPremise())
     val admin = game.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
     val terraformRatingBefore = admin.count("TerraformRating")

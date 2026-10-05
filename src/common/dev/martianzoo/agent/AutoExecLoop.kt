@@ -29,7 +29,13 @@ internal class AutoExecLoop(private val world: World) {
   private fun actOnce(): Boolean {
     if (allTasks.isEmpty()) return false
     val selected = allTasks.selectedTask()
-    val candidates = selected?.let(::listOf) ?: allTasks.ids().filter(::canSelectTask)
+    val candidates =
+        selected?.let(::listOf)
+            ?: allTasks.ids().let { pending ->
+              // A sole task has no competing choice. Selection still validates its execution,
+              // and the enclosing Agent transaction rolls back any failure.
+              if (pending.size == 1) pending.toList() else pending.filter(::canSelectTask)
+            }
     val candidateCounts = candidates.groupingBy { allTasks.getTaskData(it).assignee }.eachCount()
     val options = candidates.filter { taskId ->
       val actor = allTasks.getTaskData(taskId).assignee
