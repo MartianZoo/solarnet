@@ -34,9 +34,9 @@ matches a row, read the linked section before editing.
 | Make a card or rule test inspect task text, causes, queue order, or mirrored Canon data | Exercise player-facing actions and assert observable results. | [`TESTING.md`](TESTING.md#test-design) |
 | Replace a result expectation with broad absolute-state assertions around an action | Use `.expect()` for the action's interesting partial net delta; reserve absolute assertions for sourced checkpoints. | [`TESTING.md`](TESTING.md#expectations) |
 | Use `EAGER` or another autoexecution policy to make a test or replay proceed | Treat `EAGER` as a strategic choice, not settlement or test infrastructure. | [`AUTOEXEC.md`](AUTOEXEC.md#choice-safety-check) |
-| Add `THEN`, `::`, a latch, priority, or pre-pruning | Begin with no extra ordering and identify the illegal committed result the new order prevents. | [`SEQUENCING.md`](SEQUENCING.md#before-adding-order) |
+| Add `THEN`, `::`, a latch, priority, or pre-pruning | Identify the forbidden result or intervention, including interactions spanning committed commands. | [`SEQUENCING.md`](SEQUENCING.md#before-adding-order) |
 | Infer control, assignment, narrowing, attribution, or ownership from another identity role | Name all six roles independently. | [`IDENTITY.md`](IDENTITY.md#six-identities) |
-| Give `Class` or `Type` a path to game-specific downward enumeration, or rebuild stable master facts for each premise | Pass the game universe explicitly and preserve its reusable master table. | [`CLASS_TABLES.md`](CLASS_TABLES.md#selected-replacement-master-tables-premise-tables-and-class-universes) |
+| Give `Class` or `Type` a path to game-specific downward enumeration, or rebuild stable master facts for each premise | Pass the game universe explicitly and preserve its reusable master table. | [`CLASS_TABLES.md`](CLASS_TABLES.md#model-of-ownership) |
 | Add an explicit quantifier because a repeated effect changed the wrong count | Inspect the changed Class's defaults and the number of matching effect activations first. | [`QUANTIFIERS.md`](QUANTIFIERS.md#before-writing-an-explicit-quantifier) |
 | Characterize behavior known to be wrong as an ordinary rule or accepted hack | Put a passing observable characterization in `BugsTest`; move it when fixed. | [`TESTING.md`](TESTING.md#known-defect-tests) |
 | Add replay assertions, corrections, transcript prose, or gameviewer source | Return to original evidence; keep corrections visible and viewer recordings compact. | [`TESTING.md`](TESTING.md#game-replay-tests), the routed replay guide |
@@ -55,15 +55,15 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Current World construction, components, tasks, effects, or Agent | [`ENGINE.md`](ENGINE.md) | Current model |
 | Direct corrections, `exMachina`/`sneak`, or consequences that effect suppression must preserve | [`EX_MACHINA.md`](EX_MACHINA.md) | Current contract and remaining audit |
 | Current live event, transaction, checkpoint, or rollback implementation | [`ENGINE.md`](ENGINE.md#concrete-state-and-its-history) | Current model |
-| Task ordering, `THEN`, automatic effects, barriers, or completion | [`SEQUENCING.md`](SEQUENCING.md) | Working rules and selected direction |
+| Task ordering, delegated operations, priorities, `THEN`, or completion | [`SEQUENCING.md`](SEQUENCING.md) | Current contracts and open design options |
 | Admin, Actor attribution, task assignee, context owner, or delegated narrowing | [`IDENTITY.md`](IDENTITY.md) | Current model and selected direction |
 | Gain/removal/transmutation counts, AMAP, or abstract targets | [`QUANTIFIERS.md`](QUANTIFIERS.md) | Current engine contract |
 | Action costs, billing, or action identity | [`ACTIONS.md`](ACTIONS.md) | Current divergence and selected direction |
-| Payment excess, tender value, or attribution | [`PAYMENTS.md`](PAYMENTS.md) | Audit and proposal |
+| Payment choices, resource value, excess, or delegated payment control | [`PAYMENTS.md`](PAYMENTS.md) | Current behavior and open design options |
 | Truthful representations, observable game cheats, or extension hazards | The matching entry in [`GAME_HACKS.md`](GAME_HACKS.md) | Current source audit |
 | Phase topology or replacing the Kotlin workflow | [`WORKFLOW.md`](WORKFLOW.md) | Domain rules and proposal |
 | Agent policies, shared autoexecution, or policy-relative stable points | [`AUTOEXEC.md`](AUTOEXEC.md) | Working direction and audit |
-| Stashed Admin task-routing experiment and turn-state questions | [`TASK_ROUTING_EXPERIMENT.md`](TASK_ROUTING_EXPERIMENT.md) | Research; not current behavior |
+| Admin routing, on-turn identity, or fixed housekeeping work | [`TASK_ROUTING_EXPERIMENT.md`](TASK_ROUTING_EXPERIMENT.md) | Open questions and research constraints |
 | Proof that an automatic task command is safe | [`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md) | Research and proposal |
 | Runtime diagnostics, event metadata, or traces | [`DIAGNOSTICS.md`](DIAGNOSTICS.md) | Proposal and procedure |
 

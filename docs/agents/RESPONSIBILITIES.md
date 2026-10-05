@@ -22,8 +22,6 @@
   search for `transformAction` only for the Action/turn division.
 - [`TfmCatalog.kt`](../../src/common/dev/martianzoo/tfm/canon/TfmCatalog.kt) —
   inspect when splitting generic Catalog assembly from Terraforming Mars registries.
-- [`MapDefinition.kt`](../../src/common/dev/martianzoo/tfm/mapdata/MapDefinition.kt) —
-  the pets-free authored data library used by generators and presentation tools.
 - [`ScriptSession.kt`](../../src/common/dev/martianzoo/tfm/script/ScriptSession.kt) —
   inspect only for the script application layer.
 - [`Agent.kt`](../../src/common/dev/martianzoo/agent/Agent.kt) and
@@ -128,12 +126,25 @@ bundles need not compile independently. Generic Catalog composition combines exp
 Generic assembly and configuration tests live in `:state`; generic setup execution is covered in
 `:engine`. Terraforming Mars content selection and full-game scenarios remain in their domain suites.
 
-### Workflow runner mechanics are general
+### Workflow progression and task scheduling
 
-The phase sequence and victory conditions are Terraforming Mars. Coroutine lifecycle, single launch,
-queue-drained wakeup, checkpoint/rollback shutdown, and cancellation are engine mechanics. A native
-workflow project should extract those mechanics while moving phase topology to the domain; see
-[WORKFLOW.md](WORKFLOW.md).
+Phase order, player rotation, and victory conditions belong to Terraforming Mars. The engine owns
+the general rules that decide which pending work may execute and what must finish before suspended
+work resumes. An Agent policy may choose among eligible tasks; it cannot supply missing game
+exclusion merely by always running some tasks first.
+
+Current workflow uses a Kotlin coroutine and global idleness. Extracting its launch, wakeup, and
+cancellation machinery into a generic runner would preserve that orchestration rather than make
+the game run through Pets. [WORKFLOW.md](WORKFLOW.md) records the current behavior and unresolved
+completion questions.
+
+The delegated-payment requirement makes the distinction concrete: P1 must remain on turn while P2
+controls a payment, and internal Admin work may occur within that payment. Turn state, task
+assignment, and event Actor cannot stand in for each other. If priorities or operation groups are
+introduced, their passive recorded data belongs in Game World and their eligibility rules belong
+in the engine; domain rules
+still determine when the relevant work is requested. The alternatives remain open in
+[SEQUENCING.md](SEQUENCING.md#delegated-operations-and-scheduling-options).
 
 ### Minor presentation helpers
 
@@ -148,7 +159,7 @@ actions, transform blocks, owner-local Classes, and elaboration. `:state` owns `
 Kotlin custom metric/instruction APIs. Its `displayNames.kt` supplies Catalog-based presentation
 names; [NAMING.md](NAMING.md) owns naming policy.
 
-The loading boundary accepts data and callbacks supplied by Catalog and GamePremise; it has no
+The loading interface accepts data and callbacks supplied by Catalog and GamePremise; it has no
 dependency on either. `TypeInfo` supplies the active class table without a `GameReader` downcast.
 [CLASS_TABLES.md](CLASS_TABLES.md#game-view-shape) owns those construction contracts.
 `PremiseViability` stays with game assembly and uses Pets' public `InhabitanceInterpreter` for
@@ -201,8 +212,8 @@ content as a separate change.
 
 Do not reopen these without new evidence:
 
-- `SystemDeclarations.kt` owns the generic runtime vocabulary. In the target model that includes a
-  concrete `Admin : Actor` Class and Component, while Kotlin `Engine` names only the passive
+- `SystemDeclarations.kt` owns the generic runtime vocabulary, including the concrete
+  `Admin : Actor` Class and Component, while Kotlin `Engine` names only the passive
   mutation-processing mechanism.
 - Direct bootstrap creates only Admin. BootstrapPhase, the generated Premise, and fallback premise
   components use ordinary Admin tasks; workflow later replaces BootstrapPhase with `SetupPhase`.
@@ -213,20 +224,3 @@ Do not reopen these without new evidence:
 
 If a dependency change is selected, prefer deleting a backward dependency or moving one whole policy
 over adding adapters on both sides.
-
-## Conditional extraction order
-
-**Aspirational and not currently scheduled.** If the project deliberately selects a dependency
-cleanup, the dependencies suggest this order:
-
-1. Decide whether bare-number currency is preserved in the AST or supplied by one small
-   game-specific language profile.
-2. Decide whether turn/action signaling is a generic protocol or Terraforming Mars behavior, and
-   move the narrow standard-resource lowering with it.
-3. Separate the reusable script command shell from Terraforming Mars application wiring.
-4. Separate the reusable JLine adapter from REgo branding and launcher behavior.
-5. Extract generic workflow lifecycle mechanics only as part of the native-workflow project.
-6. Clean up dependency directions made visible by those moves.
-
-Do not perform this sequence solely to make an unrelated board game theoretically possible. Each
-step must be independently valuable to Solarnet.

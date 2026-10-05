@@ -214,7 +214,7 @@ Use one of these dispositions:
 | --- | --- |
 | **At peace with it** | Deliberate and expected to last. Do not propose removing it; the reasoning says why the apparent cost is worth it, or why the measurement that flagged it was misleading. |
 | **Accepted for now** | The cost is real and a better option would be taken, but none is known or an external constraint holds. The entry names what would change the answer. |
-| **Already being fixed** | Work is in flight. The entry names the owning document; report new evidence there rather than as a new finding. |
+| **Under design** | The problem is recorded, but its replacement remains open. Keep alternatives and evidence in the owning document. |
 | **Will be obsolete** | It disappears as a consequence of other selected work. Do not spend design effort on it directly. |
 
 An entry records a decision that was made, not a rule that cannot change. Overturn one by showing
@@ -267,19 +267,18 @@ Keep the substantive reasoning in the owning document and keep this table to one
 - **`BigInt`** — a bespoke immutable bit mask serving one field, `Class.abstractSupertypeBits`.
   Common code has no `java.util.BitSet`, so the alternative is a slower supertype test on a hot
   path. Revisit if a multiplatform bitset becomes available or if the test stops being hot.
-- **Remaining address-only `System` classes** — [EACH.md](EACH.md). `EACH` removed the
-  one-shot cases it can express; the remaining listeners and task holders have distinct lifetime or
-  routing roles. Revisit when Turmoil forces the per-branch delegation question.
+- **Remaining address-only `System` classes** — [EACH.md](EACH.md). Remaining listeners and task
+  holders have lifetime or routing roles. Revisit where fanout can preserve recipient decision
+  authority without the extra component.
 
-### Already being fixed
+### Under design
 
-- **Scopes and idle cleanup** — [SEQUENCING.md](SEQUENCING.md#cleanup-vocabulary).
-  `TemporaryScope<Parent>` is the explicit overlap between nested lifetime, idle removal, and
-  mandatory cleanup. Plain whole-World `Temporary` remains distinct while it can legitimately
-  cross a narrower operation boundary.
-- **`ActionUsedMarker`, `TradeBarrier`, and the `ActionSlot` pair** —
-  [ACTIONS.md](ACTIONS.md#permission). One missing concept, permission, improvised five ways; that
-  document owns the collapse and the step order.
+- **Delegated control and idle cleanup** —
+  [SEQUENCING.md](SEQUENCING.md#delegated-operations-and-scheduling-options) compares nested
+  priorities with exclusive operation scopes. Neither replacement has been selected.
+- **Action identity and permission** — [ACTIONS.md](ACTIONS.md) records the distinct roles of
+  action identity, turn permission, usage markers, and completion latches; their simplification
+  remains open.
 
 ## Keep Pets central
 

@@ -238,6 +238,13 @@ which Player can select or narrow, whether competing gameplay is blocked, the re
 when necessary, an authored `BY` reaction that makes attribution observable. Do not locate card
 reactions by exact rendered instruction, `Task.cause`, `Task.actor`, or raw Event Log inspection.
 
+For delegated payment, final resource totals do not prove continuous authority. A helper that
+selects through another Actor can conceal missing engine control. Exercise separate Player
+commands, including attempted intervention between payment choices, and verify legality with
+autoexecution disabled where necessary. [SEQUENCING.md](SEQUENCING.md#delegated-operations-and-scheduling-options)
+records the unresolved operation-level rule; current task-level return-to-controller tests
+characterize existing behavior, not acceptance of that proposed rule.
+
 Keep trigger matching separate from queue routing. A `BY` characterization should show which
 triggers fire and how Actor variables bind through observable changes. Do not make its continued
 success depend on an incidental assignee unless that test is explicitly about delegation.
