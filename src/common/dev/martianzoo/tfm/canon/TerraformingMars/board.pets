@@ -46,8 +46,8 @@ CLASS Placement<MarsArea> : Signal
 
 "A player cube placed on an area by LandClaim or ArcadianCommunities"
 CLASS Community : OwnedOccupant<@LandArea> {
-  Tile<@LandArea> BY Player(NOT Me@Anyone): Die
-  Tile<@LandArea> BY Me@Anyone:: -This!
+  Tile<@LandArea> BY Player(NOT Me@): Die
+  Tile<@LandArea> BY Me@:: -This!
 }
 
 "A hexagonal tile in play"
@@ -138,7 +138,7 @@ CLASS StandardGpTrackRules : System, Hidden {
   TemperatureStep IF =5 TemperatureStep: PROD[Heat]
   TemperatureStep BY Player IF =15 TemperatureStep: OceanTile<>
   TemperatureStep BY Admin IF =15 TemperatureStep: \
-    EACH Starter@Player(HAS StartToken) { AdminOceanPlacement<Starter@Player> }
+    EACH Starter@Player(HAS StartToken) { AdminOceanPlacement<Starter@> }
   TemperatureStep IF =19 TemperatureStep:: GpComplete<Class<TemperatureStep>>
 
   OxygenStep IF =8 OxygenStep: TemperatureStep

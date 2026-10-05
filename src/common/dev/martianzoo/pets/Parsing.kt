@@ -40,6 +40,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Effect.Trigger
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.UnqualifiedReference
 import dev.martianzoo.pets.ast.FromExpression
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Quantifier.AMAP
@@ -402,6 +403,17 @@ public object Parsing {
       val expressions = parsed.descendantsOfType<Expression>()
       expressions
           .firstOrNull {
+            it.typeVariableName is UnqualifiedReference &&
+                !(propertyMePossible && it.typeVariableName.name == "Me")
+          }
+          ?.let {
+            throw PetSyntaxException(
+                "type variable reference `$it` has no supplying occurrence",
+                sourceLocation = it.sourceLocation,
+            )
+          }
+      expressions
+          .firstOrNull {
             val marker = it.typeVariableName
             marker is Expression.TypeVariableName.Declaration &&
                 !marker.resolved &&
@@ -614,13 +626,18 @@ public object Parsing {
       val arguments =
           skip(langle) and separatedTerms(argument, comma, acceptZero = true) and skip(rangle)
       val base =
-          optional(typeVariableMarker) and
+          (optional(typeVariableMarker) and
               className and
               optional(arguments) and
               optional(refinement) map
               { (marker, clazz, args, ref) ->
                 expression(marker, clazz, args, ref)
-              }
+              }) or
+              (namedMarker map
+                  {
+                    val marker = UnqualifiedReference(requireNotNull(it.name))
+                    Expression(marker.boundClassName, typeVariableName = marker)
+                  })
       return locatedNode(
           if (allowDerivedClass) {
             base and

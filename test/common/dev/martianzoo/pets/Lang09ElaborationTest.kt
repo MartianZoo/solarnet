@@ -85,6 +85,40 @@ internal class Lang09ElaborationTest {
   }
 
   @Test
+  internal fun `L9-3 a class literal's predicate takes the lexical owner`() {
+    metric("Class<@Token>(HAS @Token)") shouldBe metric("Class<@Token>(HAS @Token<Player1>)")
+    metric("Class<@Token>(HAS @Token<Anyone>)") shouldBe
+        parse<Metric>("Class<@Token>(HAS @Token<Anyone>)")
+  }
+
+  @Test
+  internal fun `L9-3 a class literal in a rank uses each candidate's owner`() {
+    metric("RANK Me@Player { Class<@Token>(HAS @Token) }") shouldBe
+        metric("RANK Me@Player { Class<@Token>(HAS @Token<Me@Player>) }")
+  }
+
+  @Test
+  internal fun `L9-3 a represented class in an EACH body takes the lexical owner`() {
+    elaborate("EACH Class<@Token> { @Token }") shouldBe
+        elaborate("EACH Class<@Token> { @Token<Player1> }")
+    elaborate("EACH Class<@Token> { @Token<Anyone> }") shouldBe
+        parse<InstructionTree>("EACH Class<@Token> { @Token<Anyone>! }")
+  }
+
+  @Test
+  internal fun `L9-3 an ownerless rule supplies an owner for a class literal predicate`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Player : Anyone",
+            "ABSTRACT CLASS Token : Owned",
+            "CLASS Counted",
+            "CLASS Rule { This: Counted / Class<@Token>(HAS @Token) }",
+        )
+    PetElaborator(table).classEffects(table.getClass(cn("Rule"))).single() shouldBe
+        parse<Effect>("This BY Me@Player: Counted! / Class<@Token>(HAS @Token<Me@Player>)")
+  }
+
+  @Test
   internal fun `L9-3 an explicitly named selector rebinds Me in its body`() {
     elaborate("EACH Me@Player { Plant }") shouldBe
         parse<InstructionTree>("EACH Me@Player { Plant<Me@Player>! }")

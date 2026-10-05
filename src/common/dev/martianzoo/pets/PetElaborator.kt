@@ -617,6 +617,8 @@ public class PetElaborator(public val classTable: ClassTable) {
       }
       if (node is Expression) {
         if (node.className == CLASS) {
+          activeRepresentedClassMarkers +=
+              node.arguments.mapNotNull { it.typeVariableName?.identity }
           return node.refinement?.let { needsMe(it, available) } ?: false
         }
         if (missingOwningArgument(node) && !available) return true
@@ -768,6 +770,10 @@ public class PetElaborator(public val classTable: ClassTable) {
           )
         }
         if (node is Expression) {
+          if (node.className == CLASS) {
+            activeRepresentedClassMarkers +=
+                node.arguments.mapNotNull { it.typeVariableName?.identity }
+          }
           val shell =
               if (node.className == CLASS) node.copy(refinement = null)
               else transformChildren(node.copy(refinement = null)) as Expression

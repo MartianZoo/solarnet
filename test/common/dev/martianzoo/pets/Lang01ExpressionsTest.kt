@@ -5,16 +5,19 @@ import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.api.SystemClasses.COMPONENT
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
+import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.Refinement
 import dev.martianzoo.pets.ast.Expression.Refinement.And
 import dev.martianzoo.pets.ast.Expression.Refinement.Has
 import dev.martianzoo.pets.ast.Expression.Refinement.Not
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
+import dev.martianzoo.pets.ast.InstructionTree
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import kotlin.test.Test
 
 /** Section 1 of `docs/pets-language-spec.md`: how an expression is written. */
@@ -145,6 +148,81 @@ internal class Lang01ExpressionsTest {
     shouldThrow<PetSyntaxException> {
       parse<Expression>("Class<1@Component>(HAS 1@Component)")
     }
+  }
+
+  @Test
+  internal fun `L1-7 a named reference can omit its supplied type`() {
+    parse<InstructionTree>("EACH Me@Player { Plant<Me@> }") shouldBe
+        parse<InstructionTree>("EACH Me@Player { Plant<Me@Player> }")
+    parse<Expression>("Class<Card@CardFront>(HAS Card@)") shouldBe
+        parse<Expression>("Class<Card@CardFront>(HAS Card@CardFront)")
+  }
+
+  @Test
+  internal fun `L1-7 an inner selector supplies the short name in its own scope`() {
+    Parsing.parseClasses(
+        "ABSTRACT CLASS Rule<Me@Person> { This: Token<Me@>, EACH Me@Area { Tile<Me@> } }"
+    ) shouldBe
+        Parsing.parseClasses(
+            "ABSTRACT CLASS Rule<Me@Person> { This: Token<Me@Person>, EACH Me@Area { Tile<Me@Area> } }"
+        )
+  }
+
+  @Test
+  internal fun `L1-7 effect references can precede their supplying occurrence`() {
+    parse<Effect>(
+        "-Plant<Victim@Anyone(NOT Attacker@)> BY Attacker@Player: Plant<Victim@>"
+    ) shouldBe
+        parse<Effect>(
+            "-Plant<Victim@Anyone(NOT Attacker@Player)> BY Attacker@Player: Plant<Victim@Anyone>"
+        )
+  }
+
+  @Test
+  internal fun `L1-7 short references share a choice across sequence stages`() {
+    parse<InstructionTree>("Tile<Chosen@Area> THEN Marker<Chosen@>") shouldBe
+        parse<InstructionTree>("Tile<Chosen@Area> THEN Marker<Chosen@Area>")
+  }
+
+  @Test
+  internal fun `L1-7 a non-observing short reference cannot precede its sequence supplier`() {
+    shouldThrow<PetSyntaxException> {
+          parse<InstructionTree>("Tile<Chosen@> THEN Marker<Chosen@Area>")
+        }
+        .message shouldContain "`Chosen@` precedes its supplying occurrence"
+  }
+
+  @Test
+  internal fun `L1-7 an observing short reference can precede its sequence supplier`() {
+    parse<InstructionTree>("Tile<Area(NOT Chosen@)> THEN Marker<Chosen@Area>") shouldBe
+        parse<InstructionTree>("Tile<Area(NOT Chosen@Area)> THEN Marker<Chosen@Area>")
+  }
+
+  @Test
+  internal fun `L1-7 a gated sequence keeps the supplying type outside observations`() {
+    parse<InstructionTree>("(Tag<First@>: Copy<First@Card>) THEN Copy<Card(NOT First@)>") shouldBe
+        parse<InstructionTree>(
+            "(Tag<First@Card>: Copy<First@Card>) THEN Copy<Card(NOT First@Card)>"
+        )
+  }
+
+  @Test
+  internal fun `L1-7 transmutations can refer to the removed type by short name`() {
+    parse<InstructionTree>("Tile(NOT Source@) FROM Source@Tile") shouldBe
+        parse<InstructionTree>("Tile(NOT Source@Tile) FROM Source@Tile")
+  }
+
+  @Test
+  internal fun `L1-7 a short name needs one supplying type`() {
+    shouldThrow<PetSyntaxException> { parse<InstructionTree>("Plant<Me@>") }
+    shouldThrow<PetSyntaxException> { parse<InstructionTree>("EACH Me@ { Plant }") }
+    shouldThrow<PetSyntaxException> {
+          Parsing.parseClasses(
+              "ABSTRACT CLASS Rule<Chosen@Person, Chosen@Area> { This: Marker<Chosen@> }"
+          )
+        }
+        .message!!
+        .contains("ambiguous") shouldBe true
   }
 
   // L1-8 Equality of expressions

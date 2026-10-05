@@ -82,7 +82,7 @@
           "cost": 2,
           "tags": [ "EventTag" ],
           "immediate":
-            "PartyDelegate<Party(HAS 1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)), Me@Anyone FROM Neutral>",
+            "PartyDelegate<Party(HAS 1 (PartyDelegate<Neutral> - PartyLeader<Neutral>)), Me@ FROM Neutral>",
         },
         {
           "name": "RedTourismWave",
@@ -110,7 +110,7 @@
           "requirement": "PartyLeader",
           "cost": 5,
           "tags": [ "EventTag" ],
-          "immediate": "Chairman<Me@Anyone FROM Neutral>, TerraformRating",
+          "immediate": "Chairman<Me@ FROM Neutral>, TerraformRating",
         },
         {
           "name": "WildlifeDome",

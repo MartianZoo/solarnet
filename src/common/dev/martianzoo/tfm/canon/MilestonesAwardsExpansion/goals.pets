@@ -21,7 +21,7 @@ CLASS OceanCredit : Owned<Player>
 
 CLASS Legend : Milestone { requirement = HAS "4 PlayedEvent" }
 CLASS Merchant : Milestone { requirement = HAS "2 MC, 2 Steel, 2 Titanium, 2 Plant, 2 Energy, 2 Heat" }
-CLASS Philantropist : Milestone { requirement = HAS "5 Class<@CardFront>(HAS @CardFront<Me@Anyone>, HAS GainsOf<Class<VictoryPoint>>)" }
+CLASS Philantropist : Milestone { requirement = HAS "5 Class<@CardFront>(HAS @CardFront, HAS GainsOf<Class<VictoryPoint>>)" }
 CLASS GainsOf<Class<CardFront>, Class<Component>> : CustomMetric
 CLASS Pioneer : Milestone { requirement = HAS "4 Colony" }
 CLASS Producer : Milestone {
@@ -53,7 +53,7 @@ CLASS Administrator : Award { metric = COUNT "CardFront(HAS MAX 0 Tag)" }
 CLASS Biologist : Award { metric = COUNT "BioTag" }
 CLASS Politician : Award {
   metric = COUNT "PartyLeader OR Influence"
-  MeasureAward<This>:: EACH Measured@Influence<Anyone> { -Measured@Influence! }
-  MeasureAward<This>:: EACH Scored@Player { MeasureInfluence<Scored@Player> }
+  MeasureAward<This>:: EACH Measured@Influence<Anyone> { -Measured@! }
+  MeasureAward<This>:: EACH Scored@Player { MeasureInfluence<Scored@> }
 }
 CLASS Visionary : Award { metric = COUNT "ProjectCard" }

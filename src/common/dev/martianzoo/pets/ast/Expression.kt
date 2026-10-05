@@ -105,6 +105,10 @@ public open class Expression(
   }
 
   final override fun toString(): String = buildString {
+    if (typeVariableName is TypeVariableName.UnqualifiedReference) {
+      append(typeVariableName.name).append('@')
+      return@buildString
+    }
     val authoredMarker = typeVariableName?.takeIf {
       it is TypeVariableName.Declaration || it is TypeVariableName.Reference
     }
@@ -136,13 +140,20 @@ public open class Expression(
 
     /** The marker as it appears before arguments or refinements in authored Pets. */
     public val authoredSpelling: String
-      get() = "${name.orEmpty()}@$boundClassName"
+      get() = "${name.orEmpty()}@" + if (this is UnqualifiedReference) "" else boundClassName
 
     internal abstract val resolution: Resolution?
 
     /** Resolved occurrences compare by lexical scope; unresolved parser markers compare by key. */
     internal val identity: Any
       get() = resolution ?: key
+
+    /** Source shorthand awaiting a uniquely named binding in an enclosing scope. */
+    internal data class UnqualifiedReference(override val name: String) : TypeVariableName() {
+      // This structural placeholder is replaced before Type interpretation.
+      override val boundClassName: ClassName = dev.martianzoo.pets.api.SystemClasses.COMPONENT
+      override val resolution: Resolution? = null
+    }
 
     /** The occurrence selected internally to supply the value shared by matching markers. */
     public class Declaration
