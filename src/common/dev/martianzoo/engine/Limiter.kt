@@ -123,6 +123,9 @@ internal class Limiter(
   private fun missingDependencies(gaining: Component?): List<Component> =
       gaining?.dependencyComponents?.filterNot { it in gameWorld.components }.orEmpty()
 
+  internal fun hasComponents(type: Type, info: TypeInfo): Boolean =
+      gameWorld.components.containsAny(type, info)
+
   /**
    * Narrows a gain when present dependencies identify one target after task selection. Declared
    * count capacity does not select a target; an at-most-one dependency can identify a live target.

@@ -250,6 +250,8 @@ current graph. A metric union is a multiset union: for each concrete Type it ret
 matching multiplicity rather than double-counting overlapping arms. Custom metrics over abstract
 dependencies normally specialize only through live dependency targets, not the full structural
 cross-product.
+Resolution's component-existence checks use `Limiter` to query the graph directly, stopping at the
+first match without constructing a result collection. Refinements still use the current World.
 
 The game `ClassTable` view compiles inherited invariants into immutable per-Class limits. Each
 World's `Limiter` combines those facts with live multiplicity. An invariant constrains the state at
