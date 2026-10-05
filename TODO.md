@@ -19,6 +19,14 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Extend derived `including this` wording to setup operations and otherwise unsupported effects
   without adding card-specific rendering rules.
 - Avoid `forEach` in tests; use cases that report failures independently or explicit assertions.
+- Resolve the nested self-transmutation case characterized in `pets/BugsTest`: an abstract Box
+  currently permits identical concrete shared arguments. Preserve shared abstract arguments and
+  rejection of dropping their markers; clarify when an open nested shared transmutation itself
+  should be rejected.
+- Reject declarations of new type variables in `OR` triggers. Use separate effects when each
+  trigger must bind a variable.
+- Revisit Mons Insurance self-compensation only if an authoritative ruling supports it. The
+  selected provisional behavior excludes its owner from compensation triggers.
 - Find a simple, natural way for the presence of `Class<Aridor>` to bring all unused
   `Class<ColonyTile>` definitions into the game. Without Aridor present, only the explicitly
   selected colony tiles should be defined. This should depend on Aridor's Class being present,
@@ -246,11 +254,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   [the wording comparisons](docs/english-wording-comparisons/README.md) from verified printed evidence.
 - Correct defaulted Type-variable references: `pets/BugsTest` shows bare references incorrectly
   inheriting their supplier's `<>`.
-- If more busy Prelude performance work is needed, investigate selecting scoped required-count
-  checks through their declaring classes instead of scanning every scoped restriction. Preserve
-  newly created owners' absent required parts, surviving ancestors' requirements, and owner removal.
-  Profiles and the completed probe/existence improvements are in
-  `_local/benchmarks/2026-10-04-autoexec-performance/`.
 - Extend instruction intersection to preserve unresolved shared aliases and unnamed Type unions.
   These currently require a more specific submitted choice; keep task matching conservative and
   never substitute `Ok` for an unrepresentable nonempty intersection.
@@ -356,10 +359,3 @@ attribution, features, and unresolved rule questions. Related symptoms are group
    better-parse completion analyzer drops `NoMatchingToken` failures; address that diagnostic
    separately from grammar organization. The misplaced diagnostic is characterized in
    [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
-
-9. **Active maintenance guidance still reports repaired semantic bugs.**
-   [PLANS](docs/agents/PLANS.md#simplify-pets-and-runtime-semantics) still schedules the old L3-8
-   stage-divergence and T8-3 substitution repairs, despite current regression coverage passing.
-   That can direct future work toward unnecessary engine changes. See
-   [Lang03NarrowingTest](test/common/dev/martianzoo/pets/Lang03NarrowingTest.kt) and
-   [Spec08RefinementsTest](test/common/dev/martianzoo/pets/types/Spec08RefinementsTest.kt).

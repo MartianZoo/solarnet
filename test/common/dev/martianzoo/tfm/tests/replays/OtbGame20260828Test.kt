@@ -650,7 +650,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Well, it does, if you would like to pitch a card and draw a card."
       // "Nah, I like my cards."
       // "The struggle is real."
-      playProject(MarsUniversity, 8) { fillInTask("ProjectCard").chooseAmount(0, outOf = 2).done() }
+      playProject(MarsUniversity, 8) { declineTask() }
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -1578,7 +1578,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I'm going to discard this one to draw a new card because of my Mars University effect.
       // Thanks. That is better."
       playProject(RedSpotObservatory, 17) {
-        fillInTask("ProjectCard").chooseAmount(1, outOf = 2).done()
+        doTask("-ProjectCard")
       }
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -1641,8 +1641,8 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // pay them one money for it."
       playProject(HiredRaiders, 1) {
         fillInTask("MC")
-            .chooseAlternative("MC", outOf = 4, count = 3)
-            .choose("Anyone" to "Green", outOf = 3)
+            .chooseAlternative("MC", outOf = 3, count = 3)
+            .choose("Owner" to "Green", outOf = 3)
             .done()
       }
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
@@ -2022,7 +2022,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I'm going to pay one titanium and 25 money." "I took your one plant, and I'm going to
       // place two oceans." "Row nine, column ... six and seven."
       playProject(GiantIceAsteroid, 25, titanium = 1) {
-        fillInTask("Plant").choose("Anyone" to "Green", outOf = 4).chooseAmount(1, outOf = 2).done()
+        fillInTask("Plant").choose("Owner" to "Green", outOf = 4).chooseAmount(1, outOf = 2).done()
         fillInTask("OceanTile").choose("WaterArea" to "Cimmeria_9_6", outOf = 12).done()
         fillInTask("OceanTile").choose("WaterArea" to "Cimmeria_9_7", outOf = 12).done()
       }
@@ -2241,7 +2241,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     yellow.turn {
       // "Comet for Venus. I pay 11. Raise Venus one step ... you lose four money."
       playProject(CometForVenus, 11) {
-        fillInTask("MC").choose("Anyone" to "Blue", outOf = 4).chooseAmount(4, outOf = 5).done()
+        fillInTask("MC").choose("Owner" to "Blue", outOf = 4).chooseAmount(4, outOf = 5).done()
       }
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -2471,7 +2471,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     }
     blue.turn {
       // "I'm gonna play Gene Repair. So it costs 12 money and I gain two money production."
-      playProject(GeneRepair, 12) { fillInTask("ProjectCard").chooseAmount(0, outOf = 2).done() }
+      playProject(GeneRepair, 12) { declineTask() }
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -2523,7 +2523,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "For 10 money, I'm going to play Bacto Viral Research. ... discard a card from hand to draw
       // a card. ... add all six of mine to my nitrate reducing bacteria."
       playProject(BactoviralResearch, 10) {
-        fillInTask("ProjectCard").chooseAmount(1, outOf = 2).done()
+        doTask("-ProjectCard")
         fillInTask("Microbe")
             .choose("ResourceHolder" to "NitriteReducingBacteria", outOf = 2)
             .done()
@@ -2839,7 +2839,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Spend my thirteen on Asteroid Mining Consortium. ... decrease [Blue]'s titanium
       // production by one, increase my own."
       playProject(AsteroidMiningConsortium, 11) {
-        fillInTask("Production").choose("Anyone" to "Blue", outOf = 3).done()
+        fillInTask("Production").choose("Owner" to "Blue", outOf = 3).done()
       }
     }
     blue.turn {
@@ -3084,7 +3084,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       fillInTask("UseAction").choose("ActionSlot" to "Action1", outOf = 3).done()
 
       fillInTask("Microbe")
-          .choose("Anyone" to "Blue", outOf = 3)
+          .choose("Owner" to "Blue", outOf = 3)
           .choose("ResourceHolder" to "NitriteReducingBacteria", outOf = 2)
           .done()
 

@@ -1,6 +1,7 @@
 package dev.martianzoo.pets
 
 import dev.martianzoo.pets.Parsing.parse
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.TypeInfo
 import dev.martianzoo.pets.ast.Expression
@@ -216,8 +217,7 @@ internal class Lang03NarrowingTest {
   internal fun `L3-8 a named abstract expression takes one value everywhere`() {
     narrows("@Token THEN @Token", "RedToken THEN RedToken") shouldBe true
     refuses("@Token THEN @Token", "RedToken THEN BlueToken")
-    narrows("@Token FROM @Token", "RedToken FROM RedToken") shouldBe true
-    refuses("@Token FROM @Token", "RedToken FROM BlueToken")
+    shouldThrow<ExpressionException> { elaborate("@Token FROM @Token") }
 
     narrows(
         "@Tile<LandArea> THEN @Tile<LandArea>",
@@ -444,11 +444,59 @@ internal class Lang03NarrowingTest {
   }
 
   @Test
-  internal fun `L3-8 a full transmutation cannot erase an unsettled shared alias`() {
-    refuses("Chosen@Token FROM Chosen@Token", "Token FROM Token")
-    narrows("Chosen@Token FROM Chosen@Token", "Chosen@Token FROM Chosen@Token") shouldBe true
-    narrows("Chosen@Token FROM Chosen@Token", "RedToken FROM RedToken") shouldBe true
-    refuses("Chosen@Token FROM Chosen@Token", "RedToken FROM BlueToken")
+  internal fun `L3-8 transmutation permits independent abstract choices but rejects self narrowing`() {
+    narrows("Token FROM Token", "RedToken FROM BlueToken") shouldBe true
+    shouldThrow<ExpressionException> { elaborate("Chosen@Token FROM Chosen@Token") }
+    val independent = elaborate("Token FROM Token")
+    shouldThrow<NarrowingException> {
+      parse<Instruction>("RedToken FROM RedToken!").ensureNarrows(independent, langWorld)
+    }
+  }
+
+  @Test
+  internal fun `L3-8 a concrete box cannot narrow both shared arguments to the same concrete thing`() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS AbstractThing
+            CLASS ConcreteThing : AbstractThing
+            CLASS Box<AbstractThing>
+            """
+        )
+    val authored =
+        PetElaborator(table)
+            .elaborateInput(parse<Instruction>("Box<@AbstractThing> FROM Box<@AbstractThing>"))
+    val proposed = parse<Instruction>("Box<ConcreteThing> FROM Box<ConcreteThing>!")
+    shouldThrow<NarrowingException> { proposed.ensureNarrows(authored, TableWorld(table)) }
+  }
+
+  @Test
+  internal fun `L3-8 nested abstract choices must retain their shared marker in either kind of box`() {
+    for (boxModifier in listOf("", "ABSTRACT ")) {
+      val table =
+          loadTypes(
+              """
+              ABSTRACT CLASS AbstractThing
+              CLASS ConcreteThing : AbstractThing
+              ${boxModifier}CLASS Box<AbstractThing>
+              """
+          )
+      val elaborator = PetElaborator(table)
+      val authored =
+          elaborator.elaborateInput(
+              parse<Instruction>("Box<@AbstractThing> FROM Box<@AbstractThing>")
+          )
+      val linked =
+          elaborator.elaborateInput(
+              parse<Instruction>("Box<@AbstractThing> FROM Box<@AbstractThing>")
+          )
+      linked.narrows(authored, TableWorld(table)) shouldBe true
+      val unlinked =
+          elaborator.elaborateInput(
+              parse<Instruction>("Box<AbstractThing> FROM Box<AbstractThing>")
+          )
+      shouldThrow<NarrowingException> { unlinked.ensureNarrows(authored, TableWorld(table)) }
+    }
   }
 
   @Test

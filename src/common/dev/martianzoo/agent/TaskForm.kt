@@ -131,8 +131,9 @@ internal constructor(
    * filter options: a later choice could make an option workable. Component dependencies of
    * nonoptional changes are restricted to existing components, ignoring refinements for that check.
    * Optional changes retain absent dependencies because a later zero choice can still be legal.
-   * Structural impossibility and concrete-target amount bounds also remove options. `X` can have a
-   * large domain, so consume the sequence lazily. Re-query after the World changes.
+   * Uninhabited Types and concrete-target amount bounds also remove options. Broad target options
+   * can include self-transmutations that selection rejects. `X` can have a large domain, so consume
+   * the sequence lazily. Re-query after the World changes.
    */
   public fun options(decision: Decision): Sequence<String> =
       optionCandidates(decision).map { it.first }

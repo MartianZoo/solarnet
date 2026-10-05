@@ -1,514 +1,158 @@
 # Proof-preserving autoexecution
 
-> **NOTE:** This document is used by agents to capture information for themselves to read later; a
-> human didn't write it and we don't expect humans to read it. The project owner can't personally
-> vouch for the information here.
-
-> **Read when:** defining what makes an automatic task command safe, designing a smart policy,
-> proving task independence or confluence, or compiling Catalog facts for autoexecution.
+> **Read when:** evaluating whether an automatic task command preserves outcomes and decision
+> authority, or investigating task independence.
 >
-> **Skip when:** changing where policies run or how Agents expose reads; those mechanism questions
-> belong in [AUTOEXEC.md](AUTOEXEC.md).
->
-> **Status:** research and proposed proof rules. None of the candidate analyses is committed
-> behavior. These are optional guarantees for Agent policies, not engine invariants.
+> **Status:** optional policy research. No proof analyzer or certificate framework is implemented.
+> [AUTOEXEC.md](AUTOEXEC.md) describes the current enum policies and shared loop.
 
-This analysis may inspect the whole game through the unscoped `GameReader` reachable from Agent's
-scoped reader. Any disposable-World exploration must still arrive through an explicit
-hypothetical-analysis facility; a policy does not gain raw engine mutation objects by
-promising safety alone. If a later restricted reader omits a fact required by a proof, the result is
-`UNKNOWN`.
+A policy chooses among engine-legal commands. It cannot establish missing scheduling rules or make
+an otherwise forbidden intervention safe. In particular, delegated payment control must work with
+`NONE` before a stronger policy can claim to preserve it. Nested priorities and exclusive operation
+scopes remain alternatives in
+[SEQUENCING.md](SEQUENCING.md#delegated-operations-and-scheduling-options).
+
+`Agent.reader` currently exposes `GameReader`, so whole-game reads do not require a proposed scoped
+reader. Analysis must leave the live World unchanged. The mechanics of exhaustive hypothetical
+execution remain open.
 
 ## Source map
 
-- **Forward-looking:** `AutoExecPolicies.kt` will contain the conservative policy.
-  [`ActorEngine.kt`](../../src/common/dev/martianzoo/engine/ActorEngine.kt) owns the selection and
-  execution probes and locking semantics that policy will use.
-- [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt) — search
-  for `resolve` and `executeResolved` for state reads, execution, and effect creation.
-- [`Effector.kt`](../../src/common/dev/martianzoo/engine/Effector.kt) — search for
-  `candidatesFor` and `stableAutomaticOrder` before defining EGS equality.
-- [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt) and
-  [`TaskQueue.kt`](../../src/common/dev/martianzoo/state/TaskQueue.kt) — inspect selected state,
-  continuations, causes, and id-only ordering. [`newTasks.kt`](../../src/common/dev/martianzoo/engine/newTasks.kt)
-  owns engine task normalization.
-
-## Read only the relevant sections
-
-| Question | Read |
-| --- | --- |
-| What does “safe” mean? | Mission; Formal contract; EGS equality obligations |
-| Are the proposed starter rules sound? | Assessment of the initial rules |
-| Which proofs should be built first? | Measure first; Working proof rules |
-| Which proofs are plausible but unearned? | Deferred proof rules |
-| What can be compiled from a Catalog? | Catalog and premise analysis |
-| How can this become fast and trustworthy? | Performance shape; Validation strategy |
-
-## Mission
-
-A supplied smart policy should perform a task command only when it proves that the command removes
-no reachable gameplay outcome and changes no Player's control over a decision. This is the right
-foundation for a powerful default: fidelity may create many independent pieces of pending work
-without forcing clients to resolve meaningless orders by hand.
-
-The word *proves* is essential. A successful speculative execution, a pattern that held throughout
-one replay, or the absence of a known counterexample yields `UNKNOWN`, not permission to act. The
-policy may be incomplete. It must be sound.
-
-The ultimate goal is to leave choices to Players exactly when those choices can matter. Soundness
-is the admission rule; completeness is the direction of improvement. An `UNKNOWN` is unresolved
-analysis, not evidence of a meaningful choice. Use corpus analysis freely to discover useful proof
-conditions and measure unnecessary prompts, while deriving safety from the declared semantics.
-
-Solarnet still needs its own theorem. Its transition vocabulary is reconstructed dynamically from
-task schemas and legal narrowings, and enabledness depends on the component graph and task queue.
-After that reconstruction, Antti Valmari's
-[“Stubborn Sets for Reduced State Space Generation”](https://ai.dmi.unibas.ch/research/reading_group/valmari-apn1989.pdf)
-supplies the directly useful lemma: a terminating execution can be permuted to begin with a
-suitable transition while reaching the same terminal state. The work was presented at APN 1989 and
-published in LNCS 483 in 1991. Its terminal-state result is the useful lineage here; its separate
-nontermination result is outside the first contract.
+- [`AutoExecLoop.kt`](../../src/common/dev/martianzoo/agent/AutoExecLoop.kt): `actOnce` implements
+  current policy choices; it is not a general safety proof.
+- [`ActorEngine.kt`](../../src/common/dev/martianzoo/engine/ActorEngine.kt): `enforceSelectLock`,
+  `canSelectTask`, `prepareTaskNarrowing`, and `requireComplete` define current command constraints.
+- [`Instructor.kt`](../../src/common/dev/martianzoo/engine/Instructor.kt): `resolve` and
+  `executeResolved` distinguish current-state simplification from execution and consequences.
+- [`Task.kt`](../../src/common/dev/martianzoo/state/Task.kt): controller, contextual Actor,
+  selection, instruction, continuation, and cause all affect unfinished work.
+- [`SafeAutoExecTest.kt`](../../test/common/dev/martianzoo/agent/SafeAutoExecTest.kt): current
+  singleton selection, per-Actor policy, enabled-task, and rollback scenarios. The test name does
+  not establish safety for arbitrary compositions.
 
 ## Formal contract
 
-Fix one Game Premise and let `S` be a complete semantic engine state. Let `S →a S'` mean that an
-ordinary legal, policy-free task command `a` changes `S` to `S'`. The atomic transition includes
-resolution and execution work performed by that command, every inline automatic effect, and the
-creation or removal of queued tasks. It does not include a subsequent policy drain. Rules-bypassing
-commands such as god-mode task deletion are outside the relation.
+A possible strong policy contract is that its command preserves all reachable gameplay outcomes
+and every Player's authority over meaningful decisions. Executing successfully is insufficient:
+choosing an order can remove outcomes or force another Player to decide earlier.
 
-Let `S ≈ T` mean that the two states have the same *effective game state* (EGS). For a set `P` of
-tasks allowed to predate and outlive the operation, define a successful boundary as:
-
-```text
-all pending tasks are in P  and  MAX 0 MustCleanUp
-```
-
-Whole-World idleness is the special case `P = ∅`. Let `N(S)` be the set of EGS classes reachable at
-that boundary while resolving the current operation. Queue clear alone is insufficient:
-`ActorEngine.requireComplete` also rejects surviving `MustCleanUp` components such as `Accepting`.
-If later end-of-turn play depends only on boundary EGS, equality there preserves end-of-turn
-outcomes too.
-
-A legal command `a` is *outcome-safe* at `S` exactly when:
+For a fixed premise, let `S →a S'` denote an ordinary legal task command, including its automatic
+consequences and task updates, but excluding subsequent policy choices. Corrections and deliberate
+rule bypasses are outside this relation. Fix a completion criterion and an equivalence relation
+that retains everything later gameplay can observe. Let `N(S)` be the successful completed outcomes
+reachable under those definitions. Outcome preservation asks for:
 
 ```text
 N(S) = N(a(S))
 ```
 
-Because `a` is itself an ordinary legal command, `N(a(S)) ⊆ N(S)` follows automatically. Every
-proof rule therefore has one real obligation: show `N(S) ⊆ N(a(S))`. Informally, every successful
-schedule that does something else first must have an equivalent schedule beginning with `a`.
-
-`N` contains successful boundary states only. A dead end is a failed execution of the enclosing
-atomic operation, which rolls back so another branch can be tried; it is not an outcome made safe
-to commit by disappearing from `N`. This definition does not preserve event traces, the number of
-schedules reaching one outcome, nontermination, probabilities, or observations. Add those to the
-contract before game mechanics make them relevant.
-
-Outcome preservation is necessary but not sufficient for a default policy. A proof witness must be
-**agency-preserving**: corresponding non-forced commands remain assigned to the same assignees, and
-the policy may issue `a` only with authority for its assignee. Otherwise `N` can remain equal while
-the policy steals or reallocates a Player's decision. The first implementation should therefore
-handle forced commands for an authorized assignee and single-assignee pools; cross-assignee ordering
-needs an explicit agency-preserving certificate. Call a command *policy-safe* only when it is both
-outcome-safe and agency-preserving.
-
-Every accepted action invalidates the proof. The Agent must read the new state and prove the next
-command independently when the shared autoexecution loop gives it another chance to act.
-
-## EGS equality obligations
-
-At a successful boundary, EGS equality must determine all later gameplay relevant to the chosen
-end-of-turn contract. For memoization and proof replay, the exact obligation is:
-
-```text
-S ≈ T  implies  N(S) = N(T)
-```
-
-A merely lossy projection does not establish this. The intended omissions have narrower existing
-arguments: components have no instance identity and equal Types are indistinguishable copies
-([ENGINE.md](ENGINE.md#concrete-state-and-its-history)); game mechanics may not read event history
-([ENGINE.md](ENGINE.md#concrete-state-and-its-history)); and opaque task ids and ordinals may
-be
-alpha-renamed only through the semantic-symmetry rule below. At minimum the candidate EGS contains:
-
-- the exact component multiset, including dependencies and ownership;
-- the unordered task multiset, including instruction, continuation, assignee, Actor, and selected
-  status; and
-- cause context plus the equivalence relation describing which tasks share one cause, while the
-  numeric event ordinals and task ids may be alpha-renamed.
-
-Event text, policy credit, and raw ordinals may remain diagnostic only. Cause context cannot be
-dropped today: `TfmGameplay` searches it and sometimes groups tasks by exact cause.
-
-Automatic-effect registration order is no longer gameplay state. Ordinary execution derives a
-reproducible order from immutable pending-work data, while diagnostic execution shuffles eligible
-automatic siblings to expose an improper gameplay dependency. Do not include either incidental
-order in EGS. Speculative proofs still belong in disposable Worlds because their event suffixes,
-materialized indexes, and observations must not touch the live World.
-
-More generally, event history can be excluded only while game mechanics and custom code cannot read
-it. Derived indexes, caches, random-generator state, workflow fields, and future hidden-information
-state must likewise be derived from EGS or included in it when they affect legal transitions.
-
-## Assessment of the initial rules
-
-### Empty queue
-
-If there are no tasks, doing nothing is safe. This is the inert Agent case, not an automatic
-gameplay command.
-
-### One task
-
-If exactly one task exists, selecting and resolving it is safe only after establishing an engine
-lemma: resolution in an unchanged World preserves every legal narrowing and continuation of that
-task. Resolution may prune an `OR`, evaluate `PER`, apply limits, translate a custom Class, split a
-group, reduce to `Ok`, and enqueue `THEN`; uniqueness of the queue entry alone proves none of those
-transformations.
-
-The rule becomes sound when:
-
-1. queue resolution admits no other semantic state mutation before that task;
-2. resolution succeeds; and
-3. every pre-resolution completion has an equivalent post-resolution completion.
-
-This lemma is worth making a direct engine contract and testing independently. Once it holds, every
-successful-resolution path must pass through the selected representation.
-
-### Selected concrete task
-
-Executing a selected concrete task is safe if ordinary commands respect `enforceSelectLock` and
-*concrete* means there is no remaining non-equivalent legal narrowing. `sneak` bypasses the lock but
-is already outside the formal relation. The proof should cite the ordinary-command guard rather
-than treat selection as an unconditional global property.
-
-### Unique concrete narrowing
-
-Narrowing a selected task to its only viable concrete narrowing is safe if the candidate enumeration
-is complete modulo EGS equivalence. “Viable” means capable of participating in a completion, not
-merely accepted by `Instruction.narrows`. A syntactically valid narrowing may immediately or later
-reach a dead end.
-
-This is stronger and more useful in the following form. If `r` is a valid partial narrowing and
-every viable concrete completion of the current task also narrows `r`, applying `r` is safe. It can
-bind a forced target, quantity, Actor, shared Type variable, or `OR` arm while leaving unrelated choices
-open. Unique concrete narrowing is the special case where `r` is already concrete.
-
-### Two concrete tasks with equal immediate orders
-
-This rule is not sound as stated. Suppose executing `A` creates queued task `C`; `C` gains `Switch`;
-and `B` gains `Marker IF Switch`, or evaluates a `PER` metric changed by `C`. The immediate orders
-`A,B` and `B,A` can have identical components with `C` pending, while legal order `A,C,B` reaches a
-different successful boundary. Checking only whether the original tasks are concrete does not
-screen this out: it resolves each original task only in the initial state and never explores the
-created task.
-
-The comparison becomes sound under either repair:
-
-- **Closed batch:** both orders succeed, no new interleavable task is created before the original
-  batch is exhausted, and the resulting EGS is equal; or
-- **Persistent action:** the selected task is proved to commute with every action, including newly
-  created work, that could precede it in a completion-reaching schedule.
-
-Inline automatic effects are part of an execution transition and do not violate closedness, but all
-of their component changes must participate in the equivalence comparison. Queued effects and
-`THEN` continuations do violate closedness unless a further proof accounts for them.
-
-### Preservation of every successful boundary EGS
-
-The general claim is the definition of safety, subject to four qualifications: the EGS relation
-must satisfy the equality obligation above, the selected command must be an ordinary legal command,
-all relevant completion paths must be covered, and the witness must preserve agency. Under those
-conditions the reverse inclusion follows because selecting `A` first was already one of the
-original paths.
-
-## Measure before expanding
-
-Changing the default to `CONCRETE` left 21 of 54 script tests unfinished because independent
-consequences commonly coexist
-([SEQUENCING.md](SEQUENCING.md#the-promises)). That establishes
-need, but not which ambitious proof rule will pay for itself.
-
-Before implementing a deferred rule, run a diagnostic-only policy over the replay suites and record
-the queue shape plus the first failed proof premise: remaining choice, multiple assignees, possible
-trigger, shared read/write domain, continuation, created task family, or proof bound. Report the
-working rule that succeeds and the `UNKNOWN` reason when none does. The resulting histogram is the
-gate for the deferred section.
-
-### Replay leaderboard: prioritize useful progress in mixed queues
-
-The local [queue study](../../_local/replay-task-queue-2026-10-01/README.md) contains 231 sampled
-moments and 1,357 concrete-task appearances, excluding Production and End. Recounting its
-`moments.jsonl` gives these overlapping opportunities, **not proven coverage**:
-
-| Candidate family | Appearances | Moments containing it |
-| --- | ---: | ---: |
-| Positive standard-resource gains | 730 | 202 |
-| Positive production gains | 88 | 71 |
-| Terraform Rating gains | 285 | 137 |
-| Oxygen and temperature increases | 97 | 78 |
-| Science, Animal, and Microbe gains | 43 | 38 |
-
-Only two filtered queues contain exclusively standard-resource gains; both include a `PER`.
-Forty-seven MC appearances contain `PER`, leaving 683 standard-resource appearances without it,
-still spanning 202 moments. Closed simple batches alone therefore look too restrictive. The first
-ordering investigation should target one independent mandatory gain inside a mixed queue: other
-tasks may retain choices while that gain proceeds.
-
-A sufficient candidate certificate specializes the persistent-action rule: the gain must finish
-before the chosen boundary; its exact target and amount remain fixed; dependencies and headroom
-remain adequate; and it commutes, preserving enabledness and agency, with every command that can
-precede it. Include abstract narrowings, spawned work, continuations, automatic effects, and
-subscription changes. Begin with gains emitting no work or continuation. Other exact additions to
-the same resource can commute; mutable metrics, resource losses, and payments require their own
-argument. A `PER` gain can qualify when its metric is invariant throughout that region.
-
-Investigate the higher-interaction families next:
-
-- **TR and production:** account for their listeners and any reachable Production/End events.
-  Source examples include `RedsPolicy` in `TurmoilExpansion/classes.pets`, `Manutech` in
-  `VenusNextExpansion/cards.json5`, and `TerraformingDeal` in `Prelude2CardPack/cards.json5`.
-  A harmless effect should eventually be proved harmless, rather than permanently disqualifying
-  the gain merely because it emits work.
-- **Track increases:** prove cap allocation, threshold rewards, Actor attribution, and all created
-  work equivalent; `StandardGpTrackRules` in `TerraformingMars/board.pets` supplies concrete hazards.
-- **Card resources:** prove the AMAP amount stable, preserve the holder, and inspect supertype
-  listeners such as `L1GiftWatcher` in `Prelude2CardPack/cards.pets`.
-- **Card gains/searches:** distinguish anonymous engine counts from externally tracked identities
-  before claiming Player-choice safety; see [CARD_HANDLING.md](CARD_HANDLING.md).
-
-These are proof targets, not a type-name allowlist. Compile facts from Pets and the active premise;
-use recordings to prioritize them. The study omits abstract tasks and task metadata, repeats
-persisting tasks, and samples intermediate removals. Recover full World/task state at actual policy
-invocations before reporting success rates. Measure proven commands, remaining Player interventions,
-proof cost, and `UNKNOWN` reasons, including smaller queues. The bounded mixed-queue investigation
-remains open; this count analysis implements no certificate.
-
-## Working proof rules
-
-Each rule should return `PROVEN`, `DISPROVEN`, or `UNKNOWN` plus a compact certificate tied to a
-non-reused state identity, not an event-count checkpoint. Introduce that identity only if retained
-dynamic certificates are implemented. `UNKNOWN` does nothing. Every certificate also checks the
-agency obligation.
-
-### 1. Semantic stutter
-
-If `a(S) ≈ S`, `a` is safe. This handles diagnostic-only changes and any task normalization that
-can truly be shown to leave `N` unchanged. Equality of visible resources is not enough.
-
-### 2. One viable successor class
-
-If complete analysis finds one immediate successor EGS class among all successful-boundary-reaching
-legal commands, any authorized command reaching that class is safe. This subsumes forced execution
-and unique concrete narrowing. Several syntactic commands may belong to the same class.
-
-### 3. Common forced narrowing
-
-For a selected task `t`, let `C` be all viable concrete refinements. A valid narrowing `r` is safe
-when every `c` in `C` narrows `r` and the narrowing relation is transitive over these forms. Compute
-the strongest inexpensive common facts rather than demand that `C` contain one element. Examples
-include a singleton concrete subtype while quantity remains optional, or one live `OR` arm whose
-own target is still abstract.
-
-An explicit Actor may narrow an unselected task by deliberately discarding options, provided the
-checked narrowing introduces none and consults no mutable World state. A proof-preserving Driver has
-a stronger obligation: it may perform an unselected forced narrowing only when no legal preceding
-action can make a discarded refinement viable or invalidate the common fact. Catalog write
-summaries can sometimes prove that the relevant type domain, metric, gate, and limits cannot change.
-
-### 4. Sole semantic progress
-
-If `a` is the only legal command that can change EGS, it is safe. The analysis must include task
-narrowing and decline commands, not only tasks that can be selected as written. A blocked task may
-have a viable explicit narrowing, so “only one task is selectable” is not this proof.
-
-A useful extension is a necessary-enabler certificate: every successful completion must perform
-`a` before any other semantic transition can become enabled.
-
-### 5. Semantic symmetry
-
-If an automorphism exchanges tasks `A` and `B` while preserving EGS, assignee, Actor authority,
-continuations, and cause grouping, they are interchangeable. Renaming opaque task ids is the basic
-case. Equal instruction text is not enough.
-
-### 6. Closed trigger-free batch
-
-For a finite same-assignee batch of concrete deterministic tasks, prove that each task executes
-exactly once, every order remains legal, no task or continuation is emitted, and the Catalog/premise
-closure proves that none of the changes can trigger an effect or alter a live effect subscription.
-Then pairwise commutation in every batch-reachable state connects all permutations, so any order is
-safe. A direct two-order simulation is the two-task instance, but it must run in disposable Worlds.
-
-### 7. Certified additive accumulator
-
-A useful instance of rule 6 is exact mandatory gains into a commutative component multiset. It is
-safe to reorder when the combined gains satisfy every limit in every order, neither gain changes
-anything read by the other, no removal or dependency cascade occurs, no effect or continuation is
-emitted, and live-effect availability cannot change.
-
-## Deferred proof rules
-
-These rules are mathematically plausible but add permanent machinery. Implement one only when the
-coverage histogram shows a material queue family that the working rules cannot handle.
-
-### Singleton-enabled stubborn closure
-
-Construct a set of transition families `T` around a proposed action. Close disabled members over
-sufficient enabling families and enabled members over actions that can spoil enabledness or prevent
-leftward permutation. If the Solarnet-specific stubborn-set premises hold and `T` has exactly one
-enabled EGS successor class, that successor is safe. Disabled task/effect families account for work
-created later rather than only instances currently queued.
-
-A stubborn set with two enabled non-equivalent actions proves only that search may be restricted to
-those actions; it does not authorize either live. This is the useful specialization of Valmari's
-terminal-state theorem.
-
-### Persistent action
-
-Choose action `a`. At every state `U` reachable without `a` while it remains pending, and for every
-next action `b` on a successful-completion path, prove that `a` remains enabled, `b` remains enabled
-after `a`, and `a(b(U)) ≈ b(a(U))`. Adjacent swaps then move `a` to the front. Checking only tasks
-present at `S` misses created work; state-local commutation is not this proof.
-
-### Broader closed or confluent regions
-
-A closed deterministic batch may allow automatic closures or later branch joining, but then it
-needs a termination measure and joinability proof over the full created-work region. Newman's
-original [termination-plus-local-confluence result](https://doi.org/10.2307/1968867) applies only
-after those hard premises are established. Prefer direct terminal-outcome comparison unless the
-coverage data demonstrates reusable structure.
-
-If bounded proof search is eventually justified, Cormac Flanagan and Patrice Godefroid's
-[DPOR independence conditions](https://patricegodefroid.github.io/public_psfiles/popl2005.pdf)
-provide the right warning: independent actions must preserve enabledness as well as commute. Such
-search belongs in disposable Worlds and accelerates a proof; it never authorizes a command by
-itself.
+Since `a` is already legal, its outcomes are reachable from `S`; the difficult direction is showing
+that every other outcome remains reachable after `a`. A useful argument may show that every
+successful schedule has an equivalent schedule beginning with `a`.
+
+The completion criterion is not settled for arbitrary delegated operations. An empty Actor queue,
+zero debt, and whole-World idleness describe different facts. Current `requireComplete` checks
+pending tasks against an allowed set and also rejects `MustCleanUp` state. That implementation is
+evidence for current operations, not a definition of every future control interval.
+
+Outcome equality alone does not preserve agency. Corresponding choices must remain with the
+appropriate Actor, including the choice of when to hand work over. Equal final resources do not
+justify P1 deciding for P2 or prematurely starting P2's payment. Any proof must state which decision
+and observation rights it preserves. Termination, probability, and intermediate observations need
+explicit treatment if the promised contract includes them.
+
+Unknown or incomplete analysis means no automatic choice. A bound on search cost is acceptable
+only when exceeding it produces uncertainty rather than a safety claim. After a committed command,
+analysis based on the previous World must be reconsidered.
+
+## State equivalence questions
+
+Equal visible resource counts are too weak. A candidate state comparison must account for:
+
+- exact component Types, multiplicities, dependencies, and ownership;
+- pending instructions and continuations, including unresolved linked choices;
+- controller, contextual Actor, and selection state, from which current assignment follows;
+- any cause relationships that the compared operations or client helpers consult; and
+- scheduling eligibility and operation membership, if a future model adds them.
+
+Components have no instance identity, but that does not permit arbitrarily renaming Actors,
+providers, or dependencies. Task ids and event ordinals can be ignored or renamed only when the
+relevant relationships and every subsequent legal command are preserved. Current payment helpers
+consult causes, and a proposed causal scope could depend on ancestry, so excluding history needs
+an argument appropriate to the actual contract.
+
+Iteration order and derived indexes should not create gameplay meaning. If a custom implementation,
+workflow, or external card-identity record can affect later play, either account for it or state
+that the proof does not cover that execution path. Do not claim whole-game safety from an engine
+projection that omits such facts.
+
+## Why immediate commutation is insufficient
+
+Suppose executing A creates queued work C; C changes a metric or opens a gate used by B. Immediate
+orders A,B and B,A can leave the same components with C pending, while the legal interleaving A,C,B
+has a different result. A comparison limited to the original queue misses it.
+
+Consequently, equal immediate results for A,B and B,A do not prove either command safe to automate.
+Possible sufficient conditions include a closed batch with no new interleavable work, or a proof
+that A can move before every command that could precede it, including created tasks. The latter
+must preserve availability as well as results: a command cannot commute through a state in which
+it becomes illegal. Automatic effects belong to the command's transition, while queued effects and
+`THEN` continuations can create additional interleavings.
+
+“No matching trigger” is useful evidence, but does not establish independence. Commands can share
+a cap, consume dependencies, alter a metric or gate, cascade removals, or install an effect that
+changes later behavior without immediately creating work.
+
+## Candidate proof ideas
+
+These are hypotheses to assess against a defined engine contract, not an implementation sequence.
+
+- **Selected concrete work:** executing it may be forced while the selection lock excludes other
+  ordinary commands. The argument still needs concrete to mean that no distinct legal narrowing
+  remains, and must account for the task's completion and consequences.
+- **Forced narrowing:** a partial restriction is safe when every viable completion already obeys
+  it. Enumeration must be complete for that claim. An unselected task additionally needs the fact
+  to survive other legal work that could happen before selection.
+- **Interchangeable tasks:** equal text is insufficient; authority, continuations, and relevant
+  causes must also support the claimed equivalence.
+- **Independent additions:** exact gains may commute when limits, dependencies, effects, metrics,
+  and future availability cannot make their order matter. A resource Class allowlist does not
+  prove those conditions.
+
+A sole pending task or sole successful selection probe does not by itself establish all these
+premises. Resolution can prune alternatives, evaluate metrics, split work, and admit continuations;
+a proof must cover the choices those transformations preserve. Nor does a task need to be concrete
+for an explicit narrowing to make it executable.
 
 ## Catalog and premise analysis
 
-Catalog analysis should compile conservative *may* summaries and exact structural facts once, then
-specialize them to a Game Premise and finally to the current World. The existing compiled Class
-hierarchy and effect subscription index provide much of the raw structure.
+Existing class tables, declared effects, and live subscriptions may help bound possible
+interactions. Useful questions include what an instruction reads, what it changes or removes
+through dependencies, what work it can create, and which subscriptions it can install or remove.
+These facts must cover inherited and self effects, Actor constraints, and custom implementations.
 
-This use of over-approximation has direct precedent. Valmari's
-[variable/transition framework](https://ai.dmi.unibas.ch/research/reading_group/valmari-apn1989.pdf)
-defines assigned test, read, and write sets by the semantic properties they must satisfy and
-explicitly allows them to be larger than the smallest such sets so they remain practical to
-compute. A false conflict costs automation; an omitted possible interaction invalidates the proof.
+Conservative overestimation can decline useful automation; missing a possible interaction can
+invalidate the proof. An absent listener or unchanged metric in the current World remains useful
+only if intervening legal work cannot change that fact. Cycles and opaque custom behavior need
+explicit uncertainty unless a sound argument covers them.
 
-For each instruction/effect family, a useful summary contains:
-
-- component domains it may read through gates, metrics, auto-narrowing, limits, dependencies,
-  properties, and custom resolution;
-- components it may gain, remove, or transitively remove as dependents;
-- change events it may emit, with Actor constraints;
-- automatic and queued effects those events may fire, including inherited and self effects;
-- task schemas and continuations it may enqueue;
-- effect-bearing components it may add or remove, changing future subscriptions; and
-- an opacity marker for custom Classes or transforms lacking an audited summary.
-
-The analysis is a fixed point over automatic-effect output. A cycle or unknown custom behavior
-widens to `UNKNOWN`; it must not be truncated and labeled safe. Premise projection can remove
-uninhabited types and impossible subscriptions. Current-World analysis can remove effects whose source
-component is absent only when no preceding action in the proof region can add such a source.
-
-Two actions have a static independence certificate when their write closures cannot intersect the
-other's read, write, queue-emission, dependency, or subscription-changing closures, and both remain
-enabled. Type intersection must use the active subtype/dependency model rather than Class-name
-equality.
-
-`a(b(S)) ≈ b(a(S))` at one state establishes only conditional independence. Shmuel Katz and Doron
-Peled's [conditional-trace semantics](https://doi.org/10.1016/0304-3975(92)90054-J) (1992)
-formalized that actions may commute in one context and conflict in another, with uniformity needed
-to reuse that fact across successors. Elvira Albert et al.'s
-[constrained DPOR](https://www.cs.upc.edu/~albert/papers/cav18.pdf) (2018) gives a concrete example
-where two events commute initially but become dependent after a third event, and develops a weaker
-transitive-uniformity condition. For autoexecution, the corresponding obligation is the quantified
-frontier in the deferred persistent-action rule: the independence predicate itself must remain true
-across every prefix over which the selected action is moved.
-
-### What a no-trigger fact proves
-
-“No effect can trigger on creation of `A` or `B`” is valuable: if it covers inherited effects,
-self effects, active live effects, trigger transforms, Actor/owner bindings, and queued as well as
-automatic effects, it proves those change events emit no effect work.
-
-It does not by itself prove that `A` and `B` commute. They may share a cap, consume or enable a
-dependency, alter a `PER` metric or gate, delete dependents, or install an effect that observes the
-other event. No-trigger plus disjoint read/write/dependency/subscription footprints and no
-continuations can prove the desired closed-batch rule.
-
-Catalog-wide absence is the strongest and cheapest certificate. Premise-wide absence is often more
-useful because inactive expansions disappear. A state-local absence is valid only with a stability
-argument over the schedules being collapsed.
-
-## Performance shape
-
-The working policy should spend proof effort in this order:
-
-1. constant-time locks and already-compiled forced facts;
-2. queue-local unique-successor and common-narrowing checks;
-3. Catalog/premise symmetry, trigger-free, and footprint certificates.
-
-Stop at the first proof. Never fall through to stable task order. Cache immutable Catalog summaries
-by Catalog identity, premise summaries by premise Class table, and dynamic certificates by an EGS
-identity plus the exact state slices they depend on. An accepted command invalidates dynamic
-analysis. Only measured need should add pairwise disposable-World diamonds or bounded frontier
-search with memoization.
-
-The trusted proof kernel should be smaller than the analyzer. The analyzer proposes a certificate;
-the kernel checks subtype disjointness, footprint closure, enabledness, or compared successor EGS.
-This limits the damage from an optimization bug in a large Catalog compiler.
-
-## Research boundary
-
-The retained sources have narrow jobs. Valmari supplies the terminal-state permutation result and
-licenses conservative read/test/write summaries. Katz–Peled and Albert et al. expose the trap in
-reusing state-dependent commutation. Flanagan–Godefroid and Newman appear only beside deferred rules
-whose implementation is measurement-gated. The working contract and forced-narrowing rules stand
-on their Solarnet-specific proofs.
-
-Work aimed primarily at preserving temporal logic, fairness, races, or trace counts is outside the
-first policy contract. Revisit it only if nontermination, observations, chance, or history become
-outcomes that autoexecution must preserve.
-
-## Failure modes for bounded permutation proofs
-
-A proof that resolves every current task as-is, compares only their immediate permutations, and
-replays one accepted order is not sound when:
-
-- it does not explore interleavings with tasks created by the batch, so the concrete `IF`/`PER`
-  form of the `A,C,B` counterexample above can pass an immediate-order comparison;
-- one immediate concrete form per original task does not cover legal narrowings; and
-- composing the proof with another policy inherits every unproved assumption in that policy.
-
-Resolution used by analysis must remain read-only or run in a disposable World; otherwise the act
-of proving can itself change later gameplay.
-
-The size bound is a performance limitation, not the soundness defect. A bounded proof is welcome
-when exceeding the bound returns `UNKNOWN`. The defect is claiming proof after omitting reachable
-interleavings or gameplay-relevant state.
+No summary compiler, cache structure, certificate format, or separate proof kernel is selected.
+Their permanent complexity must be justified by useful automation that simpler analysis cannot
+provide.
 
 ## Validation strategy
 
-Tests cannot establish the theorem, but they can test that the implementation satisfies the stated
-premises and expose unsound certificates.
+Tests can falsify a claimed proof rule and check its premises; passing examples do not establish
+a general theorem. Small synthetic Catalogs can expose the relevant alternatives more clearly than
+large card fixtures. For a bounded example, compare complete legal continuations before and after
+the proposed command, retaining both outcomes and decision ownership.
 
-- Build a tiny bounded state explorer for synthetic Catalogs. For every policy proposal, enumerate
-  successful-boundary EGS before and after the command and assert equality plus agency preservation.
-- Include adversarial cases for spawned tasks, effects installed by earlier gains, shared caps,
-  gates, `PER`, dependency cascades, custom Classes, Actor differences, cause grouping, and `THEN`.
-- Run queue enumeration forward, reverse, and reproducibly shuffled so order never hides a proof
-  gap.
-- Generate minimal counterexamples when a certificate fails against the explorer.
-- Produce a Catalog coverage report: proven rule, proof cost, and `UNKNOWN` reason for each
-  encountered queue shape. Replays measure usefulness; they do not weaken a rule.
-- Benchmark policy invocations, footprint checks, overlay branches, memo hits, and total time at one
-  application command boundary.
+Distinguishing cases include spawned work, installed listeners, shared caps, mutable gates and
+metrics, dependency cascades, optional declines, `THEN`, custom behavior, and cross-Actor control.
+Delegated payment cases must first establish engine legality with autoexecution disabled, including
+P1 intervention attempts between P2's payment commands. A policy test cannot supply that missing
+rule by draining the queue quickly.
 
-The first milestone is diagnostic coverage plus a small proof kernel for selected-concrete and
-common-forced-narrowing commands. Closed trigger-free batches remain a simple proof baseline;
-the leaderboard above motivates investigating a bounded independent-gain certificate in mixed
-queues alongside it. Measure actual proof coverage before committing to a general persistent-action
-analyzer or bounded search.
+Changing task enumeration order helps expose an incidental ordering assumption. Replays can then
+measure whether sound automation removes real interaction costs, but cannot weaken the safety
+contract. Measure observed coverage, unresolved cases, and analysis cost from current runs.

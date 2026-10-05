@@ -183,7 +183,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         // You discarded Physics Complex
         // Player2 drew 1 card(s)
         // You drew Virus
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
       }
     }
 
@@ -314,7 +314,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         // You discarded Virus
         // Player2 drew 1 card(s)
         // You drew Local Heat Trapping
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
       }
       // Player2 used Rotator Impacts action
       cardAction1(RotatorImpacts) {
@@ -415,7 +415,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
         // You discarded Jovian Embassy
         // Player2 drew 1 card(s)
         // You drew Local Shading
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
       }
     }
 
@@ -841,7 +841,7 @@ internal class Game20230521Test : AbstractFullGameTest() {
             // You discarded Gyropolis
             // Player2 drew 1 card(s)
             // You drew Titanium Mine
-            doTask("ProjectCard FROM ProjectCard")
+            doTask("-ProjectCard")
           }
           .expect("1 Card, 1 PlayedEvent") // no hand or table cards
     }
@@ -968,17 +968,18 @@ internal class Game20230521Test : AbstractFullGameTest() {
             // You discarded Medical Lab
             // Player2 drew 1 card(s)
             // You drew Aerosport Tournament
-            doTask("ProjectCard FROM ProjectCard")
+            doTask("-ProjectCard")
           }
           .expect("-1 ProjectCard")
       // Player2 played AI Central
       // Player2's energy production decreased by 1
       playProject(AiCentral, 13, steel = 2) {
+        doTask("PROD[-Energy]")
         // Player2 is using their Mars University effect to draw a card by discarding a card.
         // You discarded Aerosport Tournament
         // Player2 drew 1 card(s)
         // You drew Ishtar Mining
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
       }
     }
 
@@ -1303,7 +1304,8 @@ internal class Game20230521Test : AbstractFullGameTest() {
         // You discarded Herbivores
         // Player2 drew 1 card(s)
         // You drew Thermophiles
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
+        doTask("ProjectCard")
         // Player2 placed Natural Preserve tile on row 3 position 1
         // Player2 drew 1 card(s)
         // You drew Black Polar Dust
@@ -1809,11 +1811,12 @@ internal class Game20230521Test : AbstractFullGameTest() {
     // You drew House Printing and Robot Pollinators
     p2.turn {
       playProject(AtalantaPlanitiaLab, 8) {
+        doTask("2 ProjectCard")
         // Player2 is using their Mars University effect to draw a card by discarding a card.
         // You discarded Cloud Seeding
         // Player2 drew 1 card(s)
         // You drew Corroder Suits
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
       }
       // Player2 used Sell Patents standard project
       // Player2 sold 3 patents

@@ -147,7 +147,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     blue.turn { playProject(HermeticOrderOfMars, 9) }
     pink.turn {
       playProject(MarsUniversity, steel = 4) {
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
         discard(NoctisCity)
       }
     }
@@ -389,7 +389,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
     pink.turn {
       cardAction1(BusinessNetwork) { buyCards(0) }
       playProject(CarbonNanosystems, steel = 7) {
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
         discard(Plantation)
       }
     }
@@ -437,7 +437,7 @@ internal class ErraticCarbonCurrentTest : CardTrackingFullGameTest() {
           doTask("ProjectCard FROM PlayedEvent<Class<$Harvest>>")
           returnToHand(Harvest)
         }
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
         discard(Decomposers)
       }
     }

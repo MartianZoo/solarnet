@@ -217,7 +217,7 @@ T5-5).
 An instruction denotes a transition from a before-state to an after-state together with its gain
 and removal events. It is the only kind of element that does. Projecting away those events gives a
 relation between component multisets, but that relation alone does not distinguish `Ok` from a
-reflexive exchange (L2-3): both leave the multiset unchanged, and only the exchange fires triggers.
+direct Signal gain (L2-1): both leave the multiset unchanged, and only the signal fires triggers.
 
 **L2-1. The elementary instructions are gain, removal and transmutation.** `n Foo` says the after
 state holds n more components of type `Foo`; `-n Foo` that it holds n fewer; `n Foo FROM Bar` that
@@ -234,8 +234,8 @@ A direct gain of the system `Signal` class fires both gain and removal triggers 
 remains unchanged. Both changes are real — that is how a signal does its work, by what its gain and
 the effects its gain and removal trigger (L6) — and no signal component remains behind. This
 point-event behavior
-belongs only to a direct Signal gain; writing `SignalSubtype FROM SignalSubtype` is an ordinary
-transmutation. A `Signal` gained by an explicit transmutation from another type is gained normally,
+belongs only to a direct Signal gain; writing `SignalSubtype FROM SignalSubtype` is a forbidden
+self-transmutation. A `Signal` gained by an explicit transmutation from another type is gained normally,
 then removes itself.
 
 > **Non-normative example — placement bonuses.** Gaining a tile emits `Placement<This>` for its
@@ -275,13 +275,13 @@ So `!` is concrete, `?` is abstract, and `.` is neither: it leaves no choice, bu
 read off a state rather than written down. Narrowing can settle a choice (L3); only
 resolution against a state can settle a `.`.
 
-After both sides have narrowed to concrete Types, a transmutation is **reflexive** when those Types
-are equal (T5-1), regardless of how they were spelled. A reflexive transmutation exchanges existing
-components for the same count of that Type: it records both gain and removal and fires both trigger
-directions without changing the component count. Its limit is the available source count; shared
-invariants remain unchanged. Quantifiers apply normally, whether written or supplied by elaboration.
-An empty argument list affects default acceptance and authored spelling (L1-2); it cannot make equal
-resolved Types non-reflexive.
+A transmutation must change its concrete Type. Equal concrete Types (T5-1) on both sides are
+invalid regardless of spelling, source count, or quantifier. A shared variable such as
+`@Abstract FROM @Abstract` is also invalid: it forces both sides to select the same Type.
+Unmarked `Abstract FROM Abstract` retains independent choices and is valid while open, but each
+concrete narrowing must select different Types. If automatic narrowing leaves only a self-targeting
+option, that option is unavailable; other `OR` alternatives may still proceed. Direct Signal gains
+are point events, not self-transmutation instructions, and remain valid.
 
 > **Non-normative examples — Artificial Lake and asteroid attacks.** Artificial Lake's special
 > ocean placement is `!`: choosing that arm requires the exceptional land placement to succeed in
@@ -301,9 +301,9 @@ FromExpression ::= Expression "FROM" Expression
                    Refinement?
 ```
 
-> **Non-normative example — Air Raid.** `5 MC<Me@Owner FROM Anyone>` transfers five MC by changing only
-> the ownership argument. Compact transmutation preserves the resource class and amount on both
-> sides, so the card cannot accidentally remove one currency and grant another.
+> **Non-normative example — Air Raid.** `5 MC<Me@Owner FROM Anyone>` transfers five MC by
+> changing only the ownership argument. Compact transmutation preserves the resource class and amount
+> on both sides, so the card cannot accidentally remove one currency and grant another.
 
 **L2-5. `Ok` leaves a state unchanged and emits no gain or removal event.** Gaining `Ok` denotes
 no change at all; it vanishes from a group (L2-9) rather than appearing as an empty member, and a group with

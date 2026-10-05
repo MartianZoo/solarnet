@@ -1,12 +1,15 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.RequirementException
+import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.state.GameConfig
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
+import dev.martianzoo.tfm.tests.TestHelpers.assertProds
 import dev.martianzoo.tfm.tests.TestOption.*
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import dev.martianzoo.tfm.tests.fakeWildTags
@@ -17,6 +20,62 @@ import kotlin.test.Test
 
 /** Passing characterizations of known incorrect behavior. */
 internal class BugsTest : CardTest() {
+  @Test
+  internal fun `Flooding incorrectly resumes after the Neptunian owner accepts`() {
+    newGame(PromoCardPack)
+    val p2 = requireP2()
+    p2.runOperation("$NeptunianPowerConsultants, CityTile<Tharsis_4_3>, 5 MC")
+    admin.phase("Action")
+    p1.autoExecPolicy = NONE
+    p2.autoExecPolicy = NONE
+
+    p1.beginOperation("$Flooding")
+    p1.doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Player2>?")
+    p1.selectTask("UseAction<Player2, NeptunianOption<NeptunianPowerConsultants<Player2>>>?")
+
+    shouldThrow<TaskException> { p1.doTask("-4 MC<Player2>!") }.detail shouldContain "select-lock"
+    p2.count("MC") shouldBe 5
+    p2.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
+
+    // Accepting releases P1 even though P2 has not paid for the accepted option.
+    p1.doTask("-4 MC<Player2>!")
+    p2.assertCounts(1 to "MC", 0 to "Hydroelectric")
+    p2.assertProds(0 to "Energy")
+  }
+
+  @Test
+  internal fun `Flooding incorrectly interrupts a partially completed Neptunian payment`() {
+    newGame(PromoCardPack)
+    val p2 = requireP2()
+    p2.runOperation("$NeptunianPowerConsultants, CityTile<Tharsis_4_3>, 2 Steel, 1 MC")
+    admin.phase("Action")
+    p1.autoExecPolicy = NONE
+    p2.autoExecPolicy = NONE
+
+    p1.beginOperation("$Flooding")
+    p1.doTask("OceanTile<Tharsis_5_4>! THEN -4 MC<Player2>?")
+    p1.selectTask("UseAction<Player2, NeptunianOption<NeptunianPowerConsultants<Player2>>>?")
+    p2.doTask("UseAction<NeptunianOption<NeptunianPowerConsultants>, Action1>")
+
+    // Current routing requires P1 to open P2's bill and select each payment choice.
+    p1.doTask("5 Owed<Player2>")
+    p1.doTask(
+        "ActionBilling<Player2, NeptunianOption<NeptunianPowerConsultants<Player2>>, Action1>"
+    )
+    p1.selectTask("X Pay<Player2, Class<Steel>> FROM Steel<Player2>?")
+    p2.doTask("2 Pay<Class<Steel>> FROM Steel")
+    p2.assertCounts(0 to "Steel", 1 to "MC", 1 to "Owed")
+
+    p1.doTask("-1 MC<Player2>!")
+    p1.selectTask("X Pay<Player2, Class<MC>> FROM MC<Player2>?")
+    shouldThrow<LimitsException> { p2.doTask("1 Pay<Class<MC>> FROM MC!") }.detail shouldContain
+        "MC<Player2>"
+
+    // The failed cash payment cannot restore Steel spent in an earlier command.
+    p2.assertCounts(0 to "Steel", 0 to "MC", 1 to "Owed", 0 to "Hydroelectric")
+    p2.assertProds(0 to "Energy")
+  }
+
   @Test
   internal fun `Mars Nomads incorrectly prevents greenery fallback from the last adjacent area`() {
     newGame(PromoCardPack)

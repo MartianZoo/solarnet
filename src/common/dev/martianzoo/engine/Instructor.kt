@@ -622,6 +622,11 @@ internal constructor(
             worldGainNarrowing = worldGainNarrowing,
         )
     val (gaining, removing) = narrowed
+    // Limits give an automatically selected self-transmutation zero capacity, including optional
+    // arms.
+    if (gaining != null && !gaining.abstract && gaining == removing) {
+      return narrowed
+    }
     if (
         change is Transmute &&
             !Change.change(gaining?.expression, removing?.expression, count, quantifier)

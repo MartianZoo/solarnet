@@ -74,7 +74,7 @@ public sealed class Instruction : InstructionTree() {
    * One of the three elementary instructions of
    * [rule L2-1](https://github.com/MartianZoo/solarnet/blob/main/docs/pets-language-spec.md#2-instructions):
    * a [Gain], a [Remove] or a [Transmute]. Each says that the after-state holds some number more,
-   * fewer, or exchanged components relative to the before-state.
+   * fewer, or differently typed components relative to the before-state.
    */
   public sealed class Change : Instruction() {
     public companion object {
@@ -104,11 +104,11 @@ public sealed class Instruction : InstructionTree() {
     public abstract val count: Scalar
 
     /**
-     * The gained Type, or null for a pure removal; a same-Type exchange has no net count change.
+     * The gained Type, or null for a pure removal. A transmutation must change its concrete Type.
      */
     public abstract val gaining: Expression?
 
-    /** The removed Type, or null for a pure gain; a same-Type exchange has no net count change. */
+    /** The removed Type, or null for a pure gain. A transmutation must change its concrete Type. */
     public abstract val removing: Expression?
 
     /**
@@ -303,6 +303,10 @@ public sealed class Instruction : InstructionTree() {
           ?: throw NarrowingException(
               "expected a transmutation narrowing of `$this`, found `$proposed`"
           )
+      val proposedGain = info.classTable.resolve(proposed.gaining)
+      if (!proposedGain.abstract && proposedGain == info.classTable.resolve(proposed.removing)) {
+        throw NarrowingException("a transmutation must change its type: $proposed")
+      }
       (fromEx as? Compact)?.ensureRetainedArgumentsAgree(
           proposed.gaining,
           proposed.removing,

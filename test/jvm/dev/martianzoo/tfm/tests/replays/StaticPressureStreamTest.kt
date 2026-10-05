@@ -391,7 +391,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       vin.assertCounts(0 to "FakeWildTagUse")
       convertHeat()
       playProject(MarsUniversity, 6) {
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
         discard(PhysicsComplex)
         draw(VenusGovernor)
       }
@@ -592,7 +592,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.turn { playProject(LandClaim, 0) { doTask("Community<Tharsis_2_2>") } }
     vin.turn {
       playProject(VenusianAnimals, 15) {
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
         discard(CloudSeeding)
         draw(Gyropolis)
       }
@@ -604,7 +604,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
       vin.exMachina(fakeWildTags("ScienceTag"))
       playProject(AtalantaPlanitiaLab, 10) {
         draw(WaterSplittingPlant, Algae)
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
         discard(WaterSplittingPlant)
         draw(NoctisCity)
       }
@@ -721,7 +721,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     vin.turn {
       playProject(RestrictedArea, 11) {
         placeTile(7, 8)
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
         discard(TundraFarming)
         draw(CorporateStronghold)
       }
@@ -731,7 +731,7 @@ internal class StaticPressureStreamTest : CardTrackingFullGameTest() {
     nor.pass()
     vin.turn {
       playProject(GeneRepair, 12) {
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
         discard(MagneticFieldDome)
         draw(Teslaract)
       }
