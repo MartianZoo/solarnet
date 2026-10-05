@@ -12,10 +12,10 @@ CLASS MyProductionWasDecreased<Class<StandardResource>, Player, GenerationScope>
 
 CLASS ResourceRemovalWatcher<Class<@Resource>> : System, Hidden {
   HAS =1 This
-  -X @Resource<Victim@Anyone(NOT Attacker@Player)> BY Attacker@Player: MyResourceWasRemoved<Victim@Anyone, Class<@Resource>, Attacker@Player>.
+  -X @Resource<Victim@Anyone(NOT Attacker@)> BY Attacker@Player: MyResourceWasRemoved<Victim@, Class<@Resource>, Attacker@>.
 }
 
 CLASS ProductionDecreaseWatcher<Class<@StandardResource>> : System, Hidden {
   HAS =1 This
-  -X Production<Victim@Anyone(NOT Attacker@Player), Class<@StandardResource>> BY Attacker@Player: MyProductionWasDecreased<Victim@Anyone, Class<@StandardResource>, Attacker@Player>.
+  -X Production<Victim@Anyone(NOT Attacker@), Class<@StandardResource>> BY Attacker@Player: MyProductionWasDecreased<Victim@, Class<@StandardResource>, Attacker@>.
 }

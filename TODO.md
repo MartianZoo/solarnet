@@ -15,6 +15,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   `Class<ColonyTile>` definitions into the game. Without Aridor present, only the explicitly
   selected colony tiles should be defined. This should depend on Aridor's Class being present,
   not on anyone playing the corporation; the implementation remains open.
+- Consider extending `Name@` shorthand to represented-Class applications such as `Chosen@<Player>`.
+  Inferring types at supplying occurrences (especially `EACH` and `RANK` domains) and retaining
+  short spelling after resolution also remain deferred; supported shorthand references one
+  uniquely named typed binding.
 - Make `ComponentGraph.listenToCount` update only subscriptions affected by a component change,
   instead of recounting every watched Type after every change. Preserve immediate initial delivery,
   notifications only when the count changes, cancellation, and correct subtype/refinement handling

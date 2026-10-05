@@ -391,6 +391,49 @@ internal class Spec13TypeVariablesTest {
   // T13-4 Inheritance
 
   @Test
+  internal fun `T13-4 a short name refers to an inherited header variable`() {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Person { CLASS Alice }",
+            "ABSTRACT CLASS Token<Person>",
+            "ABSTRACT CLASS Badge<Owner@Person>",
+            "CLASS NamedBadge : Badge { This: Token<Owner@> }",
+        )
+    val named = table.getClass(cn("NamedBadge"))
+    named.declaration.effects.single().toString() shouldBe "This: Token<Owner@Person>"
+    named.typeVariables.single().name shouldBe "Owner"
+  }
+
+  @Test
+  internal fun `T13-4 a short owner name shares broad and narrow inherited aliases`() {
+    checkShortInheritedOwner("Owned, Narrow")
+  }
+
+  @Test
+  internal fun `T13-4 a short owner name is independent of inherited alias order`() {
+    checkShortInheritedOwner("Narrow, Owned")
+  }
+
+  private fun checkShortInheritedOwner(supertypes: String) {
+    val table =
+        loadTypes(
+            "ABSTRACT CLASS Player : Anyone { CLASS Vin }",
+            "ABSTRACT CLASS Token : Owned",
+            "ABSTRACT CLASS Narrow : Owned<Me@Player>",
+            "CLASS Leaf : $supertypes { This: Token<Me@> }",
+        )
+    val leaf = table.getClass(cn("Leaf"))
+    val effect = leaf.interpretTypeVariablesIn(leaf.declaration.effects.single())
+    val specialized = table.resolve(te("Leaf<Vin>"))
+
+    leaf.dependencies.keys.size shouldBe 1
+    effect.typeVariables
+        .bind(specialized.variableBindingsFrom(leaf.defaultType, effect.typeVariables.variables))
+        .transformEffect(effect)
+        .toString() shouldBe "This: Token<Vin>"
+  }
+
+  @Test
   internal fun `T13-4 a subclass retains an inherited variable without redeclaring it`() {
     val table =
         loadTypes(

@@ -180,7 +180,7 @@ CLASS Trade<@ColonyTile, GenerationScope> : Owned<Player> {
 
 "One unresolved barrier to completing a Trade"
 CLASS TradeBarrier<@ColonyTile> : Owned<Player>, Barrier, Hidden {
-  -This IF MAX 0 This:: FinishTrade<@ColonyTile> BY Me@Anyone
+  -This IF MAX 0 This:: FinishTrade<@ColonyTile> BY Me@
 }
 
 "The owner-attributed event that begins a Trade's completion consequences"

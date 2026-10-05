@@ -6,6 +6,7 @@ import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.RepresentedClassReference
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Resolution
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.UnqualifiedReference
 import dev.martianzoo.pets.ast.Instruction.Each
 import dev.martianzoo.pets.ast.Instruction.Then
 import dev.martianzoo.pets.ast.Instruction.Transmute
@@ -32,19 +33,17 @@ private fun Expression.restoredDeclaration(): Expression {
 
 /** Declarations whose names connect either side of this transmutation to the other. */
 internal fun Transmute.localTypeVariableDeclarations(): List<Expression> {
-  val destinationIdentities =
-      gaining.descendantsOfType<Expression>().mapNotNull { expression ->
-        expression.typeVariableName?.identity
-      }
-  val sourceIdentities =
-      removing.descendantsOfType<Expression>().mapNotNull { expression ->
-        expression.typeVariableName?.identity
+  fun usedIn(declaration: Expression, region: Expression): Boolean =
+      region.descendantsOfType<Expression>().any {
+        val marker = it.typeVariableName
+        marker?.identity == declaration.typeVariableName!!.identity ||
+            (marker is UnqualifiedReference && marker.name == declaration.typeVariableName.name)
       }
   return gaining.nonObservingTypeVariableDeclarations().filter {
-    it.typeVariableName!!.identity in sourceIdentities
+    usedIn(it, removing)
   } +
       removing.nonObservingTypeVariableDeclarations().filter {
-        it.typeVariableName!!.identity in destinationIdentities
+        usedIn(it, gaining)
       }
 }
 
@@ -81,7 +80,9 @@ internal fun Then.localTypeVariableDeclarations(): List<Expression> = buildList 
             if (node is Transmute) node.localTypeVariableDeclarations() else emptySet()
     if (
         node is Expression &&
-            (node.typeVariableName is Declaration || node.typeVariableName is Reference) &&
+            (node.typeVariableName is Declaration ||
+                node.typeVariableName is Reference ||
+                node.typeVariableName is UnqualifiedReference) &&
             nextExcluded.none {
               it.typeVariableName!!.identity == node.typeVariableName.identity
             }
@@ -96,15 +97,39 @@ internal fun Then.localTypeVariableDeclarations(): List<Expression> = buildList 
     collect(node, region, emptyList(), observing = false)
   }
   candidates
-      .groupBy { it.expression.typeVariableName!!.identity }
+      .groupBy {
+        val marker = it.expression.typeVariableName!!
+        if (marker is UnqualifiedReference) {
+          candidates
+              .mapNotNull { candidate ->
+                (candidate.expression.typeVariableName as? Declaration)
+                    ?.takeIf { it.name == marker.name }
+                    ?.identity
+              }
+              .distinct()
+              .singleOrNull() ?: marker.identity
+        } else marker.identity
+      }
       .values
       .filter { occurrences -> occurrences.map { it.region }.distinct().size >= 2 }
       .mapNotNullTo(this) { occurrences ->
-        occurrences
-            .firstOrNull {
+        val supplier =
+            occurrences.firstOrNull {
               !it.observing && it.expression.typeVariableName is Declaration
-            }
-            ?.expression
+            } ?: return@mapNotNullTo null
+        val forwardUse =
+            occurrences
+                .takeWhile { it !== supplier }
+                .firstOrNull {
+                  !it.observing && it.expression.typeVariableName is UnqualifiedReference
+                }
+        if (forwardUse != null) {
+          throw PetSyntaxException(
+              "non-observing type variable reference `${forwardUse.expression}` precedes its supplying occurrence; write its bound type here",
+              sourceLocation = forwardUse.expression.sourceLocation,
+          )
+        }
+        supplier.expression
       }
 }
 
@@ -183,6 +208,25 @@ internal fun resolveTypeVariableNames(
   val markerNormalizer =
       object : PetTransformer() {
         override fun transformNode(node: PetNode): PetNode {
+          if (node is Expression && node.typeVariableName is UnqualifiedReference) {
+            val matches = selectedDeclarations.filter {
+              it.typeVariableName!!.name == node.typeVariableName.name
+            }
+            if (matches.size > 1) {
+              throw PetSyntaxException(
+                  "ambiguous type variable reference `$node`; write its bound type",
+                  sourceLocation = node.sourceLocation,
+              )
+            }
+            matches.singleOrNull()?.typeVariableName?.let { selected ->
+              return node
+                  .copy(
+                      className = selected.boundClassName,
+                      typeVariableName = Reference(selected.name, selected.boundClassName),
+                  )
+                  .also { it.sourceLocation = node.sourceLocation }
+            }
+          }
           if (node is Expression && node.typeVariableName is Declaration) {
             val marker = node.typeVariableName
             val selected = selectedByKey[marker.key]
@@ -551,7 +595,17 @@ public fun <P : PetNode> resolveTypeVariableNames(
       declarations
           .mapNotNull { declaration ->
             declaration.typeVariableName!!.key.takeIf { key ->
-              key in usageKeys || (key in actorKeys && declarationKeyCounts.getValue(key) >= 2)
+              key in usageKeys ||
+                  usageRegion.descendantsOfType<Expression>().any {
+                    it.typeVariableName is UnqualifiedReference &&
+                        it.typeVariableName.name == key.second
+                  } ||
+                  (key in actorKeys &&
+                      (declarationKeyCounts.getValue(key) >= 2 ||
+                          declarationRegion?.descendantsOfType<Expression>()?.any {
+                            it.typeVariableName is UnqualifiedReference &&
+                                it.typeVariableName.name == key.second
+                          } == true))
             }
           }
           .toSet()

@@ -19,6 +19,7 @@ import dev.martianzoo.pets.ast.Effect
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Declaration
 import dev.martianzoo.pets.ast.Expression.TypeVariableName.Reference
+import dev.martianzoo.pets.ast.Expression.TypeVariableName.UnqualifiedReference
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.PetNode.Companion.replacer
 import dev.martianzoo.pets.ast.PropertyName
@@ -79,7 +80,8 @@ internal constructor(
       marker: Expression.TypeVariableName,
       declaration: Declaration,
   ): Boolean =
-      marker.key == declaration.key ||
+      (marker is UnqualifiedReference && marker.name == declaration.name) ||
+          marker.key == declaration.key ||
           (marker.name != null &&
               marker.name == declaration.name &&
               loader
@@ -107,6 +109,7 @@ internal constructor(
               .flatMap { it.descendantsOfType<Expression>() }
               .firstOrNull { expression ->
                 when (val marker = expression.typeVariableName) {
+                  is UnqualifiedReference -> true
                   is Declaration -> !marker.resolved
                   is Reference -> !marker.resolved
                   else -> false
@@ -141,12 +144,17 @@ internal constructor(
             val matches =
                 inherited.filter { refersToInherited(marker, it) }.distinctBy(Declaration::identity)
             if (matches.isEmpty()) return transformChildren(node)
+            val boundClassName =
+                if (marker is UnqualifiedReference) matches.first().boundClassName
+                else marker.boundClassName
             // All matching declarations must denote one binding; headerVariableBindings checks it.
             return transformChildren(
                 node.copy(
+                    className =
+                        if (marker is UnqualifiedReference) boundClassName else node.className,
                     typeVariableName =
-                        Reference(marker.name, marker.boundClassName, node.argumentsSpecified)
-                            .resolved(requireNotNull(matches.first().resolution))
+                        Reference(marker.name, boundClassName, node.argumentsSpecified)
+                            .resolved(requireNotNull(matches.first().resolution)),
                 )
             )
           }

@@ -90,8 +90,10 @@ is T5-1 and T3-5.
 ```ebnf
 Expression      ::= TypeVariableMarker? ClassName Arguments? Refinement?
                     LocalClassBody?
+                  | ClassName "@"
 Arguments       ::= "<" ( Expression ( "," Expression )* )? ">"
 PlainExpression ::= TypeVariableMarker? ClassName PlainArguments? Refinement?
+                  | ClassName "@"
 PlainArguments  ::= "<" ( PlainExpression ( "," PlainExpression )* )? ">"
 ```
 
@@ -154,6 +156,12 @@ remain on the right: `Chosen@Tile<Area>(HAS Marker)`. Matching anonymous occurre
 Class and lexical scope. Matching named occurrences share by `(BoundClass, Name)` and scope, so one
 name may be reused for different bound Classes.
 
+A reference may omit its bound type as `Name@` when its enclosing scope supplies one uniquely
+named binding. For example, `EACH Me@Player { Plant<Me@> }` shares the selector's player, and an
+owned class may use its inherited owner as `Me@`. The supplying occurrence still writes its type;
+`EACH Me@ { Plant }` does not infer a selection domain. Short references expand to typed references
+during name resolution. A property may use `Me@` for the player supplied by its evaluation site.
+
 ```ebnf
 TypeVariableMarker ::= ClassName? "@"
 ```
@@ -190,7 +198,8 @@ why the type system, not the syntax, is the authority on identity (T5-1).
 
 **L1-9. An expression renders as its Type-variable marker if present, the class name, the argument
 list if one was written, and the refinement.** Whitespace is not preserved and duplicate refinement
-clauses collapse, but an authored expression is not rewritten into its type's canonical form:
+clauses collapse and `Name@` expands under L1-7, but an authored expression is not otherwise rewritten
+into its type's canonical form:
 `Tile` and `Tile<Area>` remain distinct expressions even though they resolve to one type (T1-3,
 T5-5).
 
@@ -393,7 +402,9 @@ trigger's amount, and so equal — through the trigger, not through the comma.
 **L2-12. A `THEN` sequence marks any Type choice shared across stages explicitly.** Matching
 marked occurrences in two or more stages use one choice. At least one occurrence must
 choose or match a value; an observing occurrence in a requirement, metric, or refinement may appear
-before that supplying occurrence. Other expressions belong only to the stage where they are written.
+before that supplying occurrence. A non-observing short reference before its supplying occurrence
+is rejected; write the bound type at the first non-observing occurrence instead. Other expressions
+belong only to the stage where they are written.
 
 > **Non-normative example — neutral solo tiles.**
 > `@CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<@CityTile>)>` makes the greenery
@@ -1139,7 +1150,8 @@ An `@` or named Type-variable occurrence chooses a whole Type. An omitted owner 
 receives lexical `Me`, just as an unmarked expression does. A marked reference keeps the choice
 captured by its declaration; it does not acquire a different owner from its reference site.
 Represented-Class references that name a resource kind still receive the lexical owner on the
-resulting owned component.
+resulting owned component, including inside class-literal predicates such as
+`Class<@Tag>(HAS @Tag)`.
 An `Anyone` class does not bind `Me` to `This` merely because it is an Anyone; its effects must name
 that relationship where they need it.
 

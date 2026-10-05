@@ -9,17 +9,17 @@ CLASS BannedDelegateRemoval<@Party, @Anyone> : Owned<Player>, Barrier, Hidden {
   -This:: EACH Next@Anyone( \
     HAS MAX 0 PartyLeader<@Party, Anyone>, \
     HAS =1 (RANK Ranked@Anyone { \
-      PartyDelegate<@Party, Ranked@Anyone>, \
-      PartyLeader<@Party, Ranked@Anyone>, \
-      Player - PlayerDistance<Me@Anyone, Ranked@Anyone> \
+      PartyDelegate<@Party, Ranked@>, \
+      PartyLeader<@Party, Ranked@>, \
+      Player - PlayerDistance<Me@, Ranked@> \
     }) \
-  ) { PartyLeader<@Party, Next@Anyone> FROM PartyLeader<@Party, Anyone> }
+  ) { PartyLeader<@Party, Next@> FROM PartyLeader<@Party, Anyone> }
 }
 
 // Published Turmoil Global Events.
 CLASS AquiferReleasedByPublicCouncil : GePartyDistant<MarsFirst>, GePartyCurrent<Greens> {
   ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<OceanTile>>:: \
-    EACH Starter@Player(HAS StartToken) { AdminOceanPlacement<Starter@Player> }
+    EACH Starter@Player(HAS StartToken) { AdminOceanPlacement<Starter@> }
   ResolveGlobalEvent<Class<This>>:: EACH Me@Player { Plant / Influence, Steel / Influence }
 }
 
@@ -33,13 +33,13 @@ CLASS CelebrityLeaders : GePartyDistant<Unity>, GePartyCurrent<Greens> {
 
 CLASS Diversity : GePartyDistant<Scientists>, GePartyCurrent<Scientists> {
   ResolveGlobalEvent<Class<This>>:: EACH Me@Player { \
-    10 MC / (9 (Class<@Tag>(HAS @Tag<Me@Player>) OR Influence) MAX 1) \
+    10 MC / (9 (Class<@Tag>(HAS @Tag) OR Influence) MAX 1) \
   }
 }
 
 CLASS DryDeserts : GePartyDistant<Reds>, GePartyCurrent<Unity> {
   ResolveGlobalEvent<Class<This>> IF GpIncomplete<Class<OceanTile>>:: \
-    EACH Starter@Player(HAS StartToken) { RemoveOceanForGlobalEvent<Starter@Player> }
+    EACH Starter@Player(HAS StartToken) { RemoveOceanForGlobalEvent<Starter@> }
   ResolveGlobalEvent<Class<This>>:: EACH Me@Player { ResolveDryDeserts }
 }
 
@@ -48,7 +48,7 @@ CLASS RemoveOceanForGlobalEvent : Owned<Player>, Signal { This: -OceanTile }
 
 "Lets each of one player's influence choose its own Dry Deserts resource"
 CLASS ResolveDryDeserts : Owned<Player>, Signal {
-  This: EACH Influence<Me@Anyone> { StandardResource }
+  This: EACH Influence { StandardResource }
 }
 
 CLASS EcoSabotage : GePartyDistant<Greens>, GePartyCurrent<Reds> {
@@ -58,15 +58,15 @@ CLASS EcoSabotage : GePartyDistant<Greens>, GePartyCurrent<Reds> {
 CLASS Election : GePartyDistant<Greens>, GePartyCurrent<MarsFirst> {
   ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
     EACH Me@Player(HAS =1 (RANK Ranked@Player { \
-      Influence<Ranked@Player> OR \
-      BuildingTag<Ranked@Player> OR \
-      CityTile<Ranked@Player> \
+      Influence<Ranked@> OR \
+      BuildingTag<Ranked@> OR \
+      CityTile<Ranked@> \
     })) { 2 TerraformRating }
   ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
     EACH Me@Player(HAS =2 (RANK Ranked@Player { \
-      Influence<Ranked@Player> OR \
-      BuildingTag<Ranked@Player> OR \
-      CityTile<Ranked@Player> \
+      Influence<Ranked@> OR \
+      BuildingTag<Ranked@> OR \
+      CityTile<Ranked@> \
     })) { TerraformRating }
   ResolveGlobalEvent<Class<This>> IF SoloMode:: \
     EACH Me@Player { TerraformRating / 5 (Influence OR BuildingTag OR CityTile) MAX 2 }
@@ -133,13 +133,13 @@ CLASS RedInfluence : GePartyDistant<Kelvinists>, GePartyCurrent<Reds> {
 CLASS Revolution : GePartyDistant<Unity>, GePartyCurrent<MarsFirst> {
   ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
     EACH Me@Player(HAS 1 (EarthTag OR Influence), HAS =1 (RANK Ranked@Player { \
-      EarthTag<Ranked@Player> OR Influence<Ranked@Player> \
+      EarthTag<Ranked@> OR Influence<Ranked@> \
     })) { \
       -2 TerraformRating. \
     }
   ResolveGlobalEvent<Class<This>> IF MultiplayerMode:: \
     EACH Me@Player(HAS 1 (EarthTag OR Influence), HAS =2 (RANK Ranked@Player { \
-      EarthTag<Ranked@Player> OR Influence<Ranked@Player> \
+      EarthTag<Ranked@> OR Influence<Ranked@> \
     })) { \
       -TerraformRating. \
     }
@@ -180,7 +180,7 @@ CLASS SpinOffProducts : GePartyDistant<Greens>, GePartyCurrent<Scientists> {
 
 CLASS SponsoredProjects : GePartyDistant<Scientists>, GePartyCurrent<Greens> {
   ResolveGlobalEvent<Class<This>>:: \
-    EACH Card@ResourceCard<Anyone>(HAS CardResource<Anyone>) { CardResource<Card@ResourceCard> }
+    EACH Card@ResourceCard<Anyone>(HAS CardResource<Anyone>) { CardResource<Card@> }
   ResolveGlobalEvent<Class<This>>:: EACH Me@Player { ProjectCard / Influence }
 }
 

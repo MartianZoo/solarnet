@@ -206,6 +206,12 @@ each peer's comparison keys in that peer's ownership context.
 Names such as `Starter@Player` and
 `Other@Player` express a different selected role without rebinding `Me`.
 
+`Me@` and other `Name@` references may omit the bound type when the visible name selects one
+binding, as specified by [L1-7](../pets-language-spec.md#1-expressions). The supplying occurrence
+still writes its type; short references resolve to that binding, including inherited header names
+and locally rebound selectors. In a `THEN` sequence, only observing references may precede their
+supplier. Remaining shorthand extensions are tracked in [TODO.md](../../TODO.md).
+
 The current elaborator inserts the nearest lexical `Me` in bare `Owned` expressions, including
 represented-Class references such as `@StandardResource` when they produce an owned component.
 An omitted owner on a marked declaration receives lexical `Me`; a reference
@@ -238,11 +244,6 @@ leaving compact card JSON nearly unchanged. Before selecting it, check whether t
 without extra owner machinery. Keep the current lexical model coherent on its own, including the
 player versus passive-owner boundary and property evaluation, rather than preserving old runtime
 substitution as an unnoticed dependency.
-
-`Me@` without a written bound would be useful for references whose visible name selects one
-binding. The current parser requires a Class name to construct every Expression, so this needs a
-real unresolved-reference form and scope resolution that detects ambiguous inherited or local
-names. Treating every `Me@` as `Me@Anyone` would misread a locally rebound `Me@Player`.
 
 The class elaborator still records scopes around its post-dispatch ownership insertion; remove
 further passes only when transformed variable occurrences continue to specialize correctly.

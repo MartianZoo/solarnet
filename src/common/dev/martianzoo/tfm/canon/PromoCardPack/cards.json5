@@ -39,9 +39,9 @@
         },
         {
           "name": "MonsInsurance",
-          "immediate": "48 MC, PROD[4 MC], EACH Other@Player(NOT Me@Anyone) { PROD[-2 MC<Other@Player>] BY Other@Player }",
+          "immediate": "48 MC, PROD[4 MC], EACH Other@Player(NOT Me@) { PROD[-2 MC<Other@>] BY Other@ }",
           "effects": [
-            "MyResourceWasRemoved<Victim@Anyone> OR MyProductionWasDecreased<Victim@Anyone>: 3 MC<Victim@Anyone FROM Me@Anyone>.",
+            "MyResourceWasRemoved<Victim@Anyone> OR MyProductionWasDecreased<Victim@>: 3 MC<Victim@ FROM Me@>.",
           ],
         },
         {
@@ -67,7 +67,7 @@
           "tags": [ "BuildingTag" ],
           "immediate": "47 MC, RequiredAction { -> DefaultGreeneryTile }",
           "effects": [
-            "Adjacency<OwnedTile<Me@Anyone>, OwnedTile<Anyone(NOT Me@Anyone)>> BY Actor: StandardResource",
+            "Adjacency<OwnedTile, OwnedTile<Anyone(NOT Me@)>> BY Actor: StandardResource",
           ],
         },
         {
@@ -180,7 +180,7 @@
           "effects": [
             // TODO: in what cases do we want to trigger this way vs by the AttackHappened thingies?
             // are we being consistent?
-            "-Plant BY Player(NOT Me@Anyone): Die",
+            "-Plant BY Player(NOT Me@): Die",
             "End: VictoryPoint / Asteroid<This>"
           ],
         },
@@ -259,7 +259,7 @@
         },
         {
           "name": "CrashSiteCleanup",
-          "requirement": "MyResourceWasRemoved<Anyone, Class<Plant>, Me@Anyone>",
+          "requirement": "MyResourceWasRemoved<Anyone, Class<Plant>, Me@>",
           "cost": 4,
           "tags": [ "EventTag" ],
           "immediate": "Titanium OR 2 Steel",
@@ -277,7 +277,7 @@
         {
           "name": "CyberiaSystems",
           "cost": 16,
-          "immediate": "PROD[Steel], (BuildingTag<First@CardFront>: CopyProductionBox<First@CardFront>) THEN CopyProductionBox<CardFront(HAS BuildingTag, NOT First@CardFront)>",
+          "immediate": "PROD[Steel], (BuildingTag<First@>: CopyProductionBox<First@CardFront>) THEN CopyProductionBox<CardFront(HAS BuildingTag, NOT First@)>",
           // Copies the single immediate production box on a chosen card.
           // Must be identical to RoboticWorkforce's declaration in CorporateEraExpansion.
           "components": [ "CLASS CopyProductionBox<CardFront<@Player>> : Owned<@Player>, CustomInstruction" ],
@@ -305,7 +305,7 @@
         },
         {
           "name": "DiversitySupport",
-          "requirement": "9 Class<@Resource>(HAS @Resource<Me@Anyone>)",
+          "requirement": "9 Class<@Resource>(HAS @Resource)",
           "cost": 1,
           "tags": [ "EventTag" ],
           "immediate": "TerraformRating",
@@ -384,7 +384,7 @@
           "tags": [ "SpaceTag" ],
           "actions": [
             "10 MC -> 2 Asteroid<This>",
-            "Asteroid<This> -> EACH Starter@Player(HAS StartToken) { ChooseOceanArea<Starter@Player> }"
+            "Asteroid<This> -> EACH Starter@Player(HAS StartToken) { ChooseOceanArea<Starter@> }"
           ],
           "effects": [ "UseAction<This, Action1>:: Accepting<Class<Titanium>>" ],
           // Chooses an ocean area while preserving the Player who places it.
@@ -400,7 +400,7 @@
           "name": "InterplanetaryTrade",
           "cost": 27,
           "tags": [ "SpaceTag" ],
-          "immediate": "PROD[1 MC / Class<@Tag>(HAS @Tag<Me@Anyone>)]",
+          "immediate": "PROD[1 MC / Class<@Tag>(HAS @Tag)]",
           "effects": [ "End: VictoryPoint" ],
         },
         {
@@ -420,7 +420,7 @@
           "name": "LawSuit",
           "cost": 2,
           "tags": [ "EarthTag", "EventTag" ],
-          "immediate": "((MyResourceWasRemoved<Me@Anyone, Attacker@Player> OR MyProductionWasDecreased<Me@Anyone, Attacker@Player>): 3 MC FROM MC<Attacker@Player>) THEN PlayedEvent<Attacker@Player, Class<This>> FROM This",
+          "immediate": "((MyResourceWasRemoved<Me@, Attacker@> OR MyProductionWasDecreased<Me@, Attacker@>): 3 MC FROM MC<Attacker@Player>) THEN PlayedEvent<Attacker@, Class<This>> FROM This",
           "effects": [ "End: -VictoryPoint" ],
         },
         {
@@ -441,7 +441,7 @@
           "cost": 13,
           "immediate": "NomadsMarker<LandArea(HAS MAX 0 Occupant)>",
           "actions": [
-            "-> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker<Me@Anyone>>, NOT Source@LandArea)> FROM NomadsMarker<Me@Anyone, Source@LandArea> THEN EACH Destination@MarsArea(HAS NomadsMarker) { Placement<Destination@MarsArea> }"
+            "-> NomadsMarker<LandArea(HAS MAX 0 Occupant, HAS Neighbor<NomadsMarker>, NOT Source@)> FROM NomadsMarker<Source@LandArea> THEN EACH Destination@MarsArea(HAS NomadsMarker) { Placement<Destination@> }"
           ],
         },
         {

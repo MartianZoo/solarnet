@@ -61,7 +61,7 @@
           "name": "AirRaid",
           "cost": 0,
           "tags": [ "EventTag" ],
-          "immediate": "-Floater, 5 MC<Me@Anyone FROM Anyone>",
+          "immediate": "-Floater, 5 MC<Me@ FROM Anyone>",
         },
         {
           "name": "AtmoCollectors",
@@ -207,7 +207,7 @@
           "name": "MarketManipulation",
           "cost": 1,
           "tags": [ "EarthTag", "EventTag" ],
-          "immediate": "ColonyProduction(NOT Source@ColonyProduction) FROM Source@ColonyProduction",
+          "immediate": "ColonyProduction(NOT Source@) FROM Source@ColonyProduction",
         },
         {
           "name": "MartianZoo",
