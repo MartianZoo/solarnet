@@ -126,12 +126,12 @@ internal class PostCatalogDiagnosticsTest {
         }
 
     assertEquals(
-        "argument `Water` does not match an available dependency; declared bounds: `Owned_0=Anyone`, `Garden_0=Species`; already supplied: none",
+        "argument `Water` does not match an available dependency; declared bounds: `Owned_0=Owner`, `Garden_0=Species`; already supplied: none",
         error.detail,
     )
     assertEquals(
         """
-        |argument `Water` does not match an available dependency; declared bounds: `Owned_0=Anyone`, `Garden_0=Species`; already supplied: none at 1:8
+        |argument `Water` does not match an available dependency; declared bounds: `Owned_0=Owner`, `Garden_0=Species`; already supplied: none at 1:8
         |Garden<Water>
         |       ^
         """
@@ -149,12 +149,12 @@ internal class PostCatalogDiagnosticsTest {
         }
 
     assertEquals(
-        "argument `Tulip` does not match an available dependency; declared bounds: `Owned_0=Anyone`, `Garden_0=Species`; already supplied: `Garden_0 <- Rose`",
+        "argument `Tulip` does not match an available dependency; declared bounds: `Owned_0=Owner`, `Garden_0=Species`; already supplied: `Garden_0 <- Rose`",
         error.detail,
     )
     assertEquals(
         """
-        |argument `Tulip` does not match an available dependency; declared bounds: `Owned_0=Anyone`, `Garden_0=Species`; already supplied: `Garden_0 <- Rose` at 1:14
+        |argument `Tulip` does not match an available dependency; declared bounds: `Owned_0=Owner`, `Garden_0=Species`; already supplied: `Garden_0 <- Rose` at 1:14
         |Garden<Rose, Tulip>
         |             ^
         """
@@ -728,12 +728,12 @@ internal class PostCatalogDiagnosticsTest {
         }
 
     assertEquals(
-        "invalid definition for `Local`: argument `Water` does not match an available dependency; declared bounds: `Owned_0=Anyone`, `Garden_0=Species`; already supplied: none",
+        "invalid definition for `Local`: argument `Water` does not match an available dependency; declared bounds: `Owned_0=Owner`, `Garden_0=Species`; already supplied: none",
         error.detail,
     )
     assertEquals(
         """
-        |invalid definition for `Local`: argument `Water` does not match an available dependency; declared bounds: `Owned_0=Anyone`, `Garden_0=Species`; already supplied: none at 1:20
+        |invalid definition for `Local`: argument `Water` does not match an available dependency; declared bounds: `Owned_0=Owner`, `Garden_0=Species`; already supplied: none at 1:20
         |CLASS Local<Garden<Water>>
         |                   ^
         """

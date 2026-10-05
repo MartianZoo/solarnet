@@ -76,7 +76,7 @@ replay, cheat, and test use.
 ## Context specialization
 
 Lexical owner insertion happens during elaboration. A bare `Plant` in an owned card effect becomes
-`Plant<Me@Anyone>`, then specialization of the exact card component binds `Me` to its owner. An
+`Plant<Me@Owner>`, then specialization of the exact card component binds `Me` to its owner. An
 ownerless effect may declare `Me@Player` in an owned trigger or a `BY` selector. Literal `Anyone`
 remains broad. This Type specialization is independent of task routing and Actor attribution.
 
@@ -98,7 +98,7 @@ stealing a victim's heat is still an action by the attacker.
 ## Trigger actor filter
 
 An owned component watching an ownerless, non-System type gets an actor filter for its Player
-owner when the effect is compiled. An explicit `BY Actor` accepts every Actor instead. Watching an
+owner when the effect is compiled. An explicit `BY Anyone` accepts every Actor instead. Watching an
 owned type uses its owner dependency to say whose components match. This is trigger matching,
 not task attribution; language rule L6-9 owns its syntax.
 
@@ -143,7 +143,7 @@ The constraining cases are:
 | Homeostasis Bureau | Surrounding operation controller | No choice | Card owner |
 | Pharmacy Union | Operation that produced the Microbe tag | No choice | Pharmacy Union owner |
 
-`Player(NOT Me@Anyone)` filters an event Actor Type; it neither assigns task control nor makes an
+`Player(NOT Me@Owner)` filters an event Actor Type; it neither assigns task control nor makes an
 instruction mandatory.
 
 Philares is the primary sequencing scenario. The active Player controls a pending resource task
@@ -191,14 +191,23 @@ coverage.
 
 ## Lexical ownership model
 
-The selected language model treats `Anyone` as an ordinary Class. `Actor` names who performs an
-operation; `Anyone` names who can own a component. `Player` is both; Admin is only an Actor;
-SoloOpponent is only an `Anyone`. Use literal `<Anyone>` for an unrestricted ownership dependency
-and `BY Actor` for an unrestricted trigger Actor. `Anyone` never undergoes contextual substitution.
+`Anyone` is the ordinary common supertype of `Owner` and `Actor`. `Owner` names who can own a
+component; `Actor` names who can perform an operation. `Player` is both; Admin is only an Actor;
+SoloOpponent and Neutral are only Owners. All are Anyone identities. This hierarchy belongs to
+Pets; Kotlin represents operation participants with `Actor` and derives ownership from
+`Component.owner` and `Component.owningPlayer`.
 
-`Owned<Me@Anyone>` gives its owner dependency an inherited lexical name. That name is visible to
+Use bare `Owned` in subclass declarations unless narrowing its bound or linking a variable. Keep
+actor-specific dependency bounds precise. Prefer literal `<Anyone>` for unrestricted ownership
+references and trigger-side `BY Anyone` for every performer. These use ordinary intersections with the declared Owner or Actor domain;
+`Anyone` never undergoes contextual substitution and does not make Admin an owner or passive owners
+actors. Instruction-side `BY` still requires one concrete participating Actor. Standalone owner
+fanout and ranking use `Owner`, since `EACH Anyone` and `RANK Anyone` also include Admin. Where
+multiple identity dependencies make the role unclear, retain the precise role or a named variable.
+
+`Owned<Me@Owner>` gives its owner dependency an inherited lexical name. That name is visible to
 subclasses without redeclaration and specializes with the exact component Type. A use such as
-`Me@Player` may narrow inherited `Me@Anyone` while naming the same binding. Independent parents
+`Me@Player` may narrow inherited `Me@Owner` while naming the same binding. Independent parents
 that give `Me` to distinct dependencies remain ambiguous; repeated paths to one dependency agree.
 An explicitly marked `EACH Me@Player` or `RANK Me@Player` selector rebinds `Me` within its body or
 metrics. An unmarked `EACH` or `RANK` preserves the outer binding. A named rank selector evaluates

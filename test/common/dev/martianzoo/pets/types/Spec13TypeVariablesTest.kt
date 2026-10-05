@@ -31,9 +31,9 @@ internal class Spec13TypeVariablesTest {
 
   private val resources =
       loadTypes(
-          "CLASS Player1 : Anyone",
-          "ABSTRACT CLASS StandardResource : Owned<Anyone> {\nCLASS Plant\nCLASS Steel\n}",
-          "ABSTRACT CLASS Production<Class<StandardResource>> : Owned<Anyone>",
+          "CLASS Player1 : Owner",
+          "ABSTRACT CLASS StandardResource : Owned {\nCLASS Plant\nCLASS Steel\n}",
+          "ABSTRACT CLASS Production<Class<StandardResource>> : Owned",
           "ABSTRACT CLASS Receipt<Class<StandardResource>>",
       )
 
@@ -133,13 +133,13 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-2 an explicit name links nested and inherited dependency positions`() {
     val cards =
         loadTypes(
-            "CLASS Player1 : Anyone",
-            "ABSTRACT CLASS CardFront : Owned<Anyone>",
-            "ABSTRACT CLASS Cardbound<CardFront<CardHolder@Anyone>> : Owned<CardHolder@Anyone>",
+            "CLASS Player1 : Owner",
+            "ABSTRACT CLASS CardFront : Owned",
+            "ABSTRACT CLASS Cardbound<CardFront<CardHolder@Owner>> : Owned<CardHolder@Owner>",
         )
 
     cards.getClass(cn("Cardbound")).typeVariables.map { "$it" } shouldContainExactly
-        listOf("CardFront<CardHolder@Anyone>", "CardHolder", "Me")
+        listOf("CardFront<CardHolder@Owner>", "CardHolder", "Me")
     cards
         .getClass(cn("Cardbound"))
         .isEqualityConstrainedDependency(Dependency.Key(cn("Owned"), 0)) shouldBe true
@@ -149,7 +149,7 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-2 nested and inherited positions declare distinct variables`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Person : Anyone {\nCLASS Alice\nCLASS Bob\n}",
+            "ABSTRACT CLASS Person : Owner {\nCLASS Alice\nCLASS Bob\n}",
             "ABSTRACT CLASS City : Owned<Person>",
             "ABSTRACT CLASS Cathedral<City<Person>, CathedralHolder@Person> : " +
                 "Owned<CathedralHolder@Person>",
@@ -318,8 +318,8 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-3 an ordinary header variable reference cannot receive arguments`() {
     shouldThrow<PetSyntaxException> {
       parseClasses(
-          "CLASS Player1 : Anyone\n" +
-              "ABSTRACT CLASS Person : Owned<Anyone>\n" +
+          "CLASS Player1 : Owner\n" +
+              "ABSTRACT CLASS Person : Owned\n" +
               "ABSTRACT CLASS Holder<P@Person> { This: P@Person<Player1> }"
       )
     }
@@ -329,8 +329,8 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-3 a represented-Class header variable can receive dependency arguments`() {
     val table =
         loadTypes(
-            "CLASS Player1 : Anyone",
-            "ABSTRACT CLASS Person : Owned<Anyone> { CLASS Alice }",
+            "CLASS Player1 : Owner",
+            "ABSTRACT CLASS Person : Owned { CLASS Alice }",
             "ABSTRACT CLASS Holder<Class<P@Person>> { This: P@Person<Player1> }",
         )
     val holder = table.getClass(cn("Holder"))
@@ -417,7 +417,7 @@ internal class Spec13TypeVariablesTest {
   private fun checkShortInheritedOwner(supertypes: String) {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Player : Anyone { CLASS Vin }",
+            "ABSTRACT CLASS Player : Owner { CLASS Vin }",
             "ABSTRACT CLASS Token : Owned",
             "ABSTRACT CLASS Narrow : Owned<Me@Player>",
             "CLASS Leaf : $supertypes { This: Token<Me@> }",
@@ -561,11 +561,11 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-4 a card inherits Me without redeclaring it`() {
     val table =
         loadTypes(
-            "CLASS Joe : Anyone",
-            "ABSTRACT CLASS OwnedLike<Me@Anyone>",
+            "CLASS Joe : Owner",
+            "ABSTRACT CLASS OwnedLike<Me@Owner>",
             "ABSTRACT CLASS Plant : OwnedLike",
             "ABSTRACT CLASS CardFront : OwnedLike",
-            "CLASS FooCard : CardFront { This: Plant<Me@Anyone> }",
+            "CLASS FooCard : CardFront { This: Plant<Me@Owner> }",
         )
     val card = table.getClass(cn("FooCard"))
     val effect = card.interpretTypeVariablesIn(card.declaration.effects.single())
@@ -581,9 +581,9 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-4 a named owner dependency can narrow to Player`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Player : Anyone { CLASS Joe }",
+            "ABSTRACT CLASS Player : Owner { CLASS Joe }",
             "ABSTRACT CLASS Token<Player>",
-            "ABSTRACT CLASS OwnedLike<Me@Anyone>",
+            "ABSTRACT CLASS OwnedLike<Me@Owner>",
             "ABSTRACT CLASS PlayerOwned : OwnedLike<Me@Player>",
             "CLASS Foo : PlayerOwned { This: Token<Me@Player> }",
         )
@@ -629,13 +629,13 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-4 a name survives a Class-of-This header`() {
     val table =
         loadTypes(
-            "CLASS Player1 : Anyone",
-            "ABSTRACT CLASS Token<Anyone>",
-            "ABSTRACT CLASS CardFront : Owned<Anyone>",
-            "ABSTRACT CLASS Cardbound<CardFront<CardHolder@Anyone>> : Owned<CardHolder@Anyone>",
+            "CLASS Player1 : Owner",
+            "ABSTRACT CLASS Token<Owner>",
+            "ABSTRACT CLASS CardFront : Owned",
+            "ABSTRACT CLASS Cardbound<CardFront<CardHolder@Owner>> : Owned<CardHolder@Owner>",
             "ABSTRACT CLASS ResourceCard<Class<CardResource>> : CardFront",
             "ABSTRACT CLASS CardResource : Cardbound<ResourceCard<Class<This>>>",
-            "CLASS Observer : CardResource { This: Token<CardHolder@Anyone> }",
+            "CLASS Observer : CardResource { This: Token<CardHolder@Owner> }",
         )
     val observer = table.getClass(cn("Observer"))
     val effect = observer.interpretTypeVariablesIn(observer.declaration.effects.single())
@@ -688,14 +688,14 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-4 narrowing a shared name does not merge independent bindings`() {
     shouldThrow<InvalidPetDefinitionException> {
           loadTypes(
-              "ABSTRACT CLASS Player : Anyone",
+              "ABSTRACT CLASS Player : Owner",
               "ABSTRACT CLASS Token<Player>",
-              "ABSTRACT CLASS Left<Me@Anyone>",
-              "ABSTRACT CLASS Right<Me@Anyone>",
+              "ABSTRACT CLASS Left<Me@Owner>",
+              "ABSTRACT CLASS Right<Me@Owner>",
               "CLASS Both : Left, Right { This: Token<Me@Player> }",
           )
         }
-        .detail shouldBe "`Both` inherits ambiguous type variable `Me@Anyone`"
+        .detail shouldBe "`Both` inherits ambiguous type variable `Me@Owner`"
   }
 
   @Test
@@ -861,9 +861,9 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-5 represented-Class arguments must agree with the selected Class`() {
     val table =
         loadTypes(
-            "CLASS Player1 : Anyone",
-            "CLASS Player2 : Anyone",
-            "ABSTRACT CLASS Token : Owned<Anyone>",
+            "CLASS Player1 : Owner",
+            "CLASS Player2 : Owner",
+            "ABSTRACT CLASS Token : Owned",
             "CLASS Player1Token : Token, Owned<Player1>",
             "CLASS Compatible<Class<T@Token>> { This: T@Token<Player1> }",
             "CLASS Conflicting<Class<T@Token>> { This: T@Token<Player2> }",
@@ -887,12 +887,12 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-5 specializing an outer variable preserves a nested local declaration`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Player : Anyone",
-            "ABSTRACT CLASS Resource<Anyone>",
-            "CLASS Plant<Anyone> : Resource<Anyone>",
+            "ABSTRACT CLASS Player : Owner",
+            "ABSTRACT CLASS Resource<Owner>",
+            "CLASS Plant<Owner> : Resource<Owner>",
             "ABSTRACT CLASS Watcher<Class<ThatResource@Resource>> { " +
-                "-X ThatResource@Resource<Victim@Anyone> BY Attacker@Player: " +
-                "Resource<Victim@Anyone>, Resource<Attacker@Player> }",
+                "-X ThatResource@Resource<Victim@Owner> BY Attacker@Player: " +
+                "Resource<Victim@Owner>, Resource<Attacker@Player> }",
         )
     val watcher = table.getClass(cn("Watcher"))
     val effect =
@@ -905,8 +905,8 @@ internal class Spec13TypeVariablesTest {
         .bind(specialized.variableBindingsFrom(watcher.defaultType, effect.typeVariables.variables))
         .transformEffect(effect)
         .toString() shouldBe
-        "-X Plant<Victim@Anyone> BY Attacker@Player: " +
-            "Resource<Victim@Anyone>, Resource<Attacker@Player>"
+        "-X Plant<Victim@Owner> BY Attacker@Player: " +
+            "Resource<Victim@Owner>, Resource<Attacker@Player>"
   }
 
   @Test
@@ -981,24 +981,24 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-6 anonymous markers may identify variables with different bound Classes`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Player : Anyone, Actor",
-            "ABSTRACT CLASS Notice<Anyone>",
-            "ABSTRACT CLASS Pair<Anyone, Player>",
+            "ABSTRACT CLASS Player : Owner, Actor",
+            "ABSTRACT CLASS Notice<Owner>",
+            "ABSTRACT CLASS Pair<Owner, Player>",
         )
     val scoped =
         table
             .recordTypeVariableScopes()
-            .transformEffect(parse("Notice<@Anyone> BY @Player: Pair<@Anyone, @Player>"))
+            .transformEffect(parse("Notice<@Owner> BY @Player: Pair<@Owner, @Player>"))
 
-    names(scoped.typeVariables) shouldContainExactly listOf("@Anyone", "@Player")
+    names(scoped.typeVariables) shouldContainExactly listOf("@Owner", "@Player")
     scoped.typeVariables.variables.map { it.rootClass.className } shouldContainExactly
-        listOf(cn("Anyone"), cn("Player"))
+        listOf(cn("Owner"), cn("Player"))
   }
 
   @Test
   internal fun `T13-6 a reference's bound Class must match its declaration`() {
     shouldThrow<PetSyntaxException> {
-      parse<Effect>("@StandardResource: @Anyone")
+      parse<Effect>("@StandardResource: @Owner")
     }
   }
 
@@ -1413,9 +1413,9 @@ internal class Spec13TypeVariablesTest {
 
   private val actors =
       loadTypes(
-          "ABSTRACT CLASS Player : Anyone, Actor {\nCLASS Player1\nCLASS Player2\n}",
-          "ABSTRACT CLASS Heat : Owned<Anyone>",
-          "ABSTRACT CLASS Notice<Anyone>",
+          "ABSTRACT CLASS Player : Owner, Actor {\nCLASS Player1\nCLASS Player2\n}",
+          "ABSTRACT CLASS Heat : Owned",
+          "ABSTRACT CLASS Notice<Owner>",
       )
 
   private fun actorEffect(source: String) =
@@ -1425,10 +1425,10 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-9 an explicit trigger binds Me from ownership or Actor`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Player : Anyone, Actor { CLASS Joe }",
-            "ABSTRACT CLASS Plant : Owned<Anyone>",
+            "ABSTRACT CLASS Player : Owner, Actor { CLASS Joe }",
+            "ABSTRACT CLASS Plant : Owned",
             "ABSTRACT CLASS Notice",
-            "ABSTRACT CLASS Token<Anyone>",
+            "ABSTRACT CLASS Token<Owner>",
         )
     val joe = table.resolve(te("Joe"))
 
@@ -1439,9 +1439,8 @@ internal class Spec13TypeVariablesTest {
       return effect.typeVariables.bind(mapOf(variable to joe)).transformEffect(effect).toString()
     }
 
-    boundEffect("Plant<Me@Anyone>: Token<Me@Anyone>", "Anyone") shouldBe "Plant<Joe>: Token<Joe>"
-    boundEffect("Notice BY Me@Anyone: Token<Me@Anyone>", "Anyone") shouldBe
-        "Notice BY Joe: Token<Joe>"
+    boundEffect("Plant<Me@Owner>: Token<Me@Owner>", "Owner") shouldBe "Plant<Joe>: Token<Joe>"
+    boundEffect("Notice BY Me@Owner: Token<Me@Owner>", "Owner") shouldBe "Notice BY Joe: Token<Joe>"
     boundEffect("Plant<Me@Player>: Token<Me@Player>", "Player") shouldBe "Plant<Joe>: Token<Joe>"
     boundEffect("Notice BY Me@Player: Token<Me@Player>", "Player") shouldBe
         "Notice BY Joe: Token<Joe>"
@@ -1470,8 +1469,8 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-9 an exclusion may use the actor variable, and is tested after binding`() {
     val bound =
         actorEffect(
-            "Notice<Other@Anyone(NOT ActingPlayer@Player)> BY ActingPlayer@Player: " +
-                "Heat<Other@Anyone>"
+            "Notice<Other@Owner(NOT ActingPlayer@Player)> BY ActingPlayer@Player: " +
+                "Heat<Other@Owner>"
         )
     val actor = bound.typeVariables.variables.single { it.name == "ActingPlayer" }
     val event = bound.typeVariables.variables.single { it.name == "Other" }
@@ -1481,25 +1480,25 @@ internal class Spec13TypeVariablesTest {
     bound.typeVariables
         .bind(mapOf(actor to actors.resolve(te("Player1"))))
         .transformEffect(bound)
-        .toString() shouldBe "Notice<Other@Anyone(NOT Player1)> BY Player1: Heat<Other@Anyone>"
+        .toString() shouldBe "Notice<Other@Owner(NOT Player1)> BY Player1: Heat<Other@Owner>"
   }
 
   @Test
   internal fun `T13-9 a difference occurrence captures its candidate from its own domain`() {
     val table =
         loadTypes(
-            "ABSTRACT CLASS Player : Anyone, Actor { CLASS Player1 }",
-            "CLASS Passive : Anyone",
-            "ABSTRACT CLASS Resource<Anyone>",
-            "ABSTRACT CLASS Notice<Anyone>",
+            "ABSTRACT CLASS Player : Owner, Actor { CLASS Player1 }",
+            "CLASS Passive : Owner",
+            "ABSTRACT CLASS Resource<Owner>",
+            "ABSTRACT CLASS Notice<Owner>",
         )
     val bound =
         table
             .recordTypeVariableScopes()
             .transformEffect(
                 parse<Effect>(
-                    "Resource<Other@Anyone(NOT ActingPlayer@Player)> " +
-                        "BY ActingPlayer@Player: Notice<Other@Anyone>"
+                    "Resource<Other@Owner(NOT ActingPlayer@Player)> " +
+                        "BY ActingPlayer@Player: Notice<Other@Owner>"
                 )
             )
     val actor = bound.typeVariables.variables.single { it.name == "ActingPlayer" }
@@ -1509,9 +1508,9 @@ internal class Spec13TypeVariablesTest {
             .transformEffect(bound)
     val event = afterActor.typeVariables.variables.single()
 
-    event.bound shouldBe table.resolve(te("Anyone"))
+    event.bound shouldBe table.resolve(te("Owner"))
     "${afterActor.typeVariables.expressionOf(event.declaration)}" shouldBe
-        "Other@Anyone(NOT Player1)"
+        "Other@Owner(NOT Player1)"
 
     val captured =
         afterActor.typeVariables.bindingsFrom(
@@ -1581,9 +1580,9 @@ internal class Spec13TypeVariablesTest {
   internal fun `T13-11 represented-class captures agree while occurrence arguments differ`() {
     val table =
         loadTypes(
-            "CLASS Player1 : Anyone",
-            "CLASS Player2 : Anyone",
-            "ABSTRACT CLASS Resource : Owned<Anyone> { CLASS Plant }",
+            "CLASS Player1 : Owner",
+            "CLASS Player2 : Owner",
+            "ABSTRACT CLASS Resource : Owned { CLASS Plant }",
             "CLASS Pair<Class<Resource>, Resource>",
         )
     val scoped =

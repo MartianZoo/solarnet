@@ -20,7 +20,7 @@ internal fun testGamePremise(source: String = "CLASS Token", players: Int = 1): 
       if (players == 0) ""
       else
           """
-          ABSTRACT CLASS Player : Anyone, Actor {
+          ABSTRACT CLASS Player : Owner, Actor {
             HAS =1 This
             ${(1..players).joinToString("\n            ") { "CLASS Player$it" }}
           }

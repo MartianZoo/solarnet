@@ -76,6 +76,7 @@ internal class ScriptCompletionSources(private val repl: ScriptSession) {
           playerNames() +
           syntaxWords(
               "Anyone",
+              "Owner",
               "Class",
               "FROM",
               "HAS",

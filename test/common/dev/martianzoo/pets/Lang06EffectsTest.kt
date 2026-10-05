@@ -131,8 +131,8 @@ internal class Lang06EffectsTest {
     roundTrip<Effect>("@StandardResource: Plant THEN @StandardResource")
     roundTrip<Effect>("This: @StandardResource THEN @StandardResource")
     roundTrip<Effect>(
-        "Notice<Victim@Anyone(NOT ActingPlayer@Player)> BY ActingPlayer@Player: " +
-            "Heat<Victim@Anyone>"
+        "Notice<Victim@Owner(NOT ActingPlayer@Player)> BY ActingPlayer@Player: " +
+            "Heat<Victim@Owner>"
     )
   }
 

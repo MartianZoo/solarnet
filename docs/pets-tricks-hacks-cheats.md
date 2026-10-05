@@ -8,7 +8,7 @@ chosen for what they reveal, rather than every place it occurs. The formal rules
 
 ## 1. Leave out an owned argument when lexical `Me` supplies it
 
-`Owned<Me@Anyone>` gives owned cards a lexical owner. On a card, bare owned resources, production,
+`Owned<Me@Owner>` gives owned cards a lexical owner. On a card, bare owned resources, production,
 tags and many triggers mean *this card's player*. `EACH Me@Player` explicitly rebinds that name to
 each selected player. Use literal `<Anyone>` when a dependency should accept every owner.
 
@@ -17,7 +17,7 @@ each selected player. Use literal `<Anyone>` when a dependency should accept eve
 
 This is an Owned-specific insertion, not a general rule that every bare expression means “mine.” An
 ownerless `OceanTile` trigger on an owned card instead filters by the event's actor; Arctic Algae
-writes `OceanTile BY Actor` to watch everyone.
+writes `OceanTile BY Anyone` to watch everyone.
 
 ## 2. Omit an argument that merely repeats its declared bound
 
@@ -38,7 +38,7 @@ first position. A card or an area can often be named alone even when ownership w
 When two slots accept the same kind, order still matters.
 
 - **Kaguya Tech:** [`CityTile<@MarsArea> FROM GreeneryTile<@MarsArea>`](../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.json5) puts the area in each tile's area slot; the owner slot is skipped. The marker makes both sides use the same chosen area.
-- **Turmoil delegates:** [`PartyDelegate<This, DelegateHolder@Anyone>`](../src/common/dev/martianzoo/tfm/canon/TurmoilExpansion/classes.pets) puts the party in its party slot and the owner in its owner slot, despite the inherited owner key coming first.
+- **Turmoil delegates:** [`PartyDelegate<This, DelegateHolder@Owner>`](../src/common/dev/martianzoo/tfm/canon/TurmoilExpansion/classes.pets) puts the party in its party slot and the owner in its owner slot, despite the inherited owner key coming first.
 
 This is why `Foo<Bar>` can be wonderfully short but is not always unambiguous: if `Bar` fits two
 open keys, the first takes it.
@@ -49,12 +49,12 @@ open keys, the first takes it.
 class, count, quantifier and any unchanged arguments. It also keeps one open narrowing choice rather
 than duplicating it on both sides.
 
-- **Air Raid:** [`5 MC<Me@Anyone FROM Anyone>`](../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/cards.json5) takes five M€ from a chosen owner and gives those same five to the card's owner. With no owner holding five, the transfer is unavailable.
-- **Special Permit:** [`4 Plant<Me@Anyone FROM Anyone>`](../src/common/dev/martianzoo/tfm/canon/Prelude2CardPack/cards.json5) expresses the same ownership transfer for plants, without separately spelling a removal and a gain.
+- **Air Raid:** [`5 MC<Me@Owner FROM Anyone>`](../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/cards.json5) takes five M€ from a chosen owner and gives those same five to the card's owner. With no owner holding five, the transfer is unavailable.
+- **Special Permit:** [`4 Plant<Me@Owner FROM Anyone>`](../src/common/dev/martianzoo/tfm/canon/Prelude2CardPack/cards.json5) expresses the same ownership transfer for plants, without separately spelling a removal and a gain.
 
 The compact form requires the same root class on both sides and exactly one changing argument.
 For different classes, use ordinary `A FROM B`. Literal `Anyone` does not exclude the current owner;
-`Player(NOT Me@Anyone)` would express that restriction. A full form may also be necessary to keep a
+`Player(NOT Me@Owner)` would express that restriction. A full form may also be necessary to keep a
 marked variable shared: [Banned Delegate's leader transfer](../src/common/dev/martianzoo/tfm/canon/TurmoilExpansion/cards.pets)
 repeats `@Party` on both sides. Compacting it leaves only one occurrence and is rejected.
 
@@ -77,7 +77,7 @@ large hack: the rule can describe the forbidden result directly, without prechec
 which somebody might produce it. It is appropriate only when a dead end rejects the entire
 operation; it does not make an already committed result harmless.
 
-- **Protected Habitats:** [`-Plant OR -Animal OR -Microbe BY Player(NOT Me@Anyone):: Die`](../src/common/dev/martianzoo/tfm/canon/CorporateEraExpansion/cards.json5) catches an opponent's attack regardless of which action caused the removal. The attempted removal rolls back.
+- **Protected Habitats:** [`-Plant OR -Animal OR -Microbe BY Player(NOT Me@Owner):: Die`](../src/common/dev/martianzoo/tfm/canon/CorporateEraExpansion/cards.json5) catches an opponent's attack regardless of which action caused the removal. The attempted removal rolls back.
 - **Global parameter completion:** [`-@GlobalParameter:: Die`](../src/common/dev/martianzoo/tfm/canon/TerraformingMars/board.pets) rejects any later attempt to lower a completed track, no matter which card or event requested it.
 
 The same pattern protects Community cubes and the Mars Nomads marker. It depends on transaction
@@ -178,11 +178,11 @@ rate without writing a separate action for every possible quantity.
 
 ## 15. Count distinct kinds by counting `Class` components
 
-`Class<@Tag>(HAS @Tag<Me@Anyone>)` counts tag *classes* for which the player has a tag, rather than
+`Class<@Tag>(HAS @Tag<Me@Owner>)` counts tag *classes* for which the player has a tag, rather than
 counting every tag component. One expression turns a pile of duplicate icons into a distinct-kind
 count. The same shape works for resource kinds and card-resource kinds.
 
-- **Diversifier milestone:** [`8 Class<@Tag>(HAS @Tag<Me@Anyone>)`](../src/common/dev/martianzoo/tfm/canon/HellasMap/hellas.pets) asks for eight distinct tag types, regardless of duplicate tags.
+- **Diversifier milestone:** [`8 Class<@Tag>(HAS @Tag<Me@Owner>)`](../src/common/dev/martianzoo/tfm/canon/HellasMap/hellas.pets) asks for eight distinct tag types, regardless of duplicate tags.
 - **Collector award:** [`Class<@Resource>(HAS @Resource<Me@Player>)`](../src/common/dev/martianzoo/tfm/canon/AmazonisMap/amazonis.pets) scores the number of resource kinds the player has, rather than the number of cubes.
 
 The `Class<...>` candidates are the things being counted. Matching `@` markers make the nested
@@ -195,7 +195,7 @@ A `@` variable repeated in a class header ties dependency paths together. Supply
 constrains the other, so the game cannot create a resource or tag owned by one player on a card
 owned by someone else.
 
-- **Card resources:** [`CardResource<ResourceHolder<Class<This>, @Anyone>> : Owned<@Anyone>`](../src/common/dev/martianzoo/tfm/canon/TerraformingMars/resources.pets) ties the cube's owner to the owner of its holder; `Class<This>` also chooses a holder compatible with that resource subtype.
+- **Card resources:** [`CardResource<ResourceHolder<Class<This>, @Owner>> : Owned<@Owner>`](../src/common/dev/martianzoo/tfm/canon/TerraformingMars/resources.pets) ties the cube's owner to the owner of its holder; `Class<This>` also chooses a holder compatible with that resource subtype.
 - **Tags:** [`Tag<TagHolder<@Player>> : Owned<@Player>`](../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets) ties the printed tag's owner to its card's owner, without a separate per-tag validation rule.
 
 Without the repeated marker, the two owner positions would be independent even though they have

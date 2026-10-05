@@ -11,19 +11,19 @@ internal class DependencyVariableTest {
   private val table =
       testClassTable(
           """
-          CLASS Player1 : Anyone
-          CLASS Player2 : Anyone
+          CLASS Player1 : Owner
+          CLASS Player2 : Owner
 
-          CLASS Token<Anyone>
-          CLASS Card : Owned<Anyone>
+          CLASS Token<Owner>
+          CLASS Card : Owned
 
-          ABSTRACT CLASS Linked<Card<CardHolder@Anyone>> : Owned<CardHolder@Anyone> {
-            This: Token<CardHolder@Anyone>
+          ABSTRACT CLASS Linked<Card<CardHolder@Owner>> : Owned<CardHolder@Owner> {
+            This: Token<CardHolder@Owner>
           }
           CLASS InheritedLink : Linked
 
           CLASS Independent<Card> : Owned {
-            This: Token<Me@Anyone>
+            This: Token<Me@Owner>
           }
           """
               .trimIndent()

@@ -30,6 +30,27 @@ internal class ByTriggerCharacterizationTest {
     assertByActor(ADMIN)
   }
 
+  @Test
+  internal fun byAnyoneAcceptsPlayer() {
+    assertByAnyone(PLAYER1)
+  }
+
+  @Test
+  internal fun byAnyoneAcceptsAdmin() {
+    assertByAnyone(ADMIN)
+  }
+
+  private fun assertByAnyone(actor: Actor) {
+    val game = newGame()
+    val agent = game.testAgent(actor).also { it.autoExecPolicy = EAGER }
+    agent.runOperation("AnyoneTriggerProbe!")
+
+    agent.runOperation("ActorTriggerSignal!")
+
+    agent.count("Plant<Player1>") shouldBe 1
+    agent.count("Steel<Player1>") shouldBe 1
+  }
+
   private fun assertByActor(actor: Actor) {
     val game = newGame()
     val agent = game.testAgent(actor).also { it.autoExecPolicy = NONE }
@@ -154,7 +175,7 @@ internal class ByTriggerCharacterizationTest {
     sourceEffect.typeVariables.variables.associate { variable ->
       variable.declaration.expression.toString() to
           sourceEffect.typeVariables.expressionsOf(variable).map(Any::toString).toSet()
-    } shouldBe mapOf("Me@Anyone" to setOf("Me@Anyone"))
+    } shouldBe mapOf("Me@Owner" to setOf("Me@Owner"))
 
     LiveEffect.compile(component, elaborator)
         .map { it.effect.toString() }
@@ -204,13 +225,18 @@ private object ProbeDeclarations : TfmCatalog() {
               CLASS ActorTriggerSignal
               CLASS OwnedActorTrigger : Owned
 
+              CLASS AnyoneTriggerProbe {
+                ActorTriggerSignal BY Anyone: Plant<Player1>
+                ActorTriggerSignal BY Performer@Anyone: Steel<Player1> BY Performer@
+              }
+
               CLASS ActorTriggerProbe {
                 ActorTriggerSignal BY Actor: Plant<Player1>
                 -ActorTriggerSignal BY Player: Steel<Player1>
               }
 
               CLASS ActorBindingProbe {
-                -OwnedActorTrigger<Other@Anyone(NOT ActingPlayer@Player)> BY ActingPlayer@Player: Steel<ActingPlayer@Player>, Heat<Other@Anyone>
+                -OwnedActorTrigger<Other@Owner(NOT ActingPlayer@Player)> BY ActingPlayer@Player: Steel<ActingPlayer@Player>, Heat<Other@Owner>
               }
 
               CLASS RepeatedHolderProbe : Owned {
@@ -227,7 +253,7 @@ private object ProbeDeclarations : TfmCatalog() {
               }
 
               CLASS OpponentByProbe : Owned {
-                ActorTriggerSignal OR -ActorTriggerSignal BY Player(NOT Me@Anyone): Heat
+                ActorTriggerSignal OR -ActorTriggerSignal BY Player(NOT Me@Owner): Heat
               }
 
               """
