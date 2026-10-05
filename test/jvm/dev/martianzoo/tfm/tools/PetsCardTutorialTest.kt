@@ -372,6 +372,7 @@ internal class PetsCardTutorialTest {
             "PowerGrid",
             "RobotPollinators",
             "Satellites",
+            "ShipmentToEarth",
             "SulphurExports",
         ),
         sieve.removeLastPredicateAndFindNewMatches(),
