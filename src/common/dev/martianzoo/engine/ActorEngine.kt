@@ -4,7 +4,6 @@ import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.PetElaborator
 import dev.martianzoo.pets.PetTransformer
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
-import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
@@ -25,9 +24,7 @@ import dev.martianzoo.pets.ast.Instruction.Transmute
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.state.Actor
-import dev.martianzoo.state.Component.Companion.toComponent
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.GameEvent.TaskRemovedEvent
 import dev.martianzoo.state.GameReader
@@ -51,7 +48,6 @@ internal constructor(
     /** The Actor to which ordinary mutations through this engine are attributed. */
     public val actor: Actor,
     private val instructor: Instructor,
-    private val changer: Changer,
     private val worldTransaction: WorldTransaction,
     private val elaborator: PetElaborator,
 ) {
@@ -87,28 +83,13 @@ internal constructor(
 
   // CHANGES LAYER
 
-  public fun sneak(changes: InstructionGroup, cause: Cause? = null) {
-    changes.instructions.forEach {
-      if (it.isAbstract(reader)) {
-        throw NotFullySpecifiedException("instruction is abstract: `$it`", it.sourceLocation)
+  /**
+   * Applies and validates a correction with automatic effects, but no queued effects or cleanup.
+   */
+  public fun sneak(changes: InstructionGroup, cause: Cause? = null): TaskResult =
+      worldTransaction.correct {
+        instructor.sneak(changes, cause, actor)
       }
-      val change =
-          it as? Change
-              ?: throw ExpressionException(
-                  "sneak accepts only direct changes; found `$it`",
-                  sourceLocation = it.sourceLocation,
-              )
-      val count = change.count as ActualScalar
-      changer.change(
-          count.value,
-          change.gaining?.toComponent(reader),
-          change.removing?.toComponent(reader),
-          cause,
-          orRemoveOneDependent = false,
-          actor = actor,
-      )
-    }
-  }
 
   // TASKS LAYER
 

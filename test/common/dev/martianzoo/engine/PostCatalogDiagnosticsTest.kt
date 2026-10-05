@@ -9,7 +9,6 @@ import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.Exceptions.CustomCodeException
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
-import dev.martianzoo.pets.api.Exceptions.ExistingDependentsException
 import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
@@ -2464,20 +2463,6 @@ internal class PostCatalogDiagnosticsTest {
             .trimMargin(),
         error.message,
     )
-  }
-
-  @Test
-  internal fun removeTargetWithDependents() {
-    val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
-    agent.runOperation("Rose, Garden<Rose>")
-    val error =
-        assertFailsWith<ExistingDependentsException> {
-          agent.sneak("-Rose!")
-        }
-
-    assertEquals("existing dependents: `Garden<Player1, Rose>`", error.detail)
-    // Prefer a caret on `Rose` in the attempted removal `-Rose!`.
-    assertEquals("existing dependents: `Garden<Player1, Rose>`", error.message)
   }
 
   @Test

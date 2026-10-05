@@ -58,7 +58,10 @@ Premise inclusion remains a property of the combined game table, not of a master
 Stable interpretations of component-limit invariants are compiled with the master Classes that
 declare them. A combined game table realizes those templates against its inhabited Class set and
 adds premise-local declarations. Dependency targets remain view-relative and are enumerated in the
-combined table. It does not rebuild or retain a completed premise table by configuration shape.
+combined table. `requiredParts(owner)` specializes the same inherited invariant templates to find
+positive exact counts of concrete direct dependents. The engine consumes those facts when creating
+the owner; the table itself never mutates a World. It does not rebuild or retain a completed premise
+table by configuration shape.
 
 ## Structural operations versus game-domain operations
 

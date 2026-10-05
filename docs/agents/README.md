@@ -53,6 +53,7 @@ Read [`VALUES.md`](VALUES.md), then only the row matching the concept:
 | Game World ownership, passive component/task data, recording internals, or playback | [`GAMEWORLD.md`](GAMEWORLD.md) | Selected direction |
 | Exact event exports, decision exports, combined files, or game import | [`EXPORT.md`](EXPORT.md) | Current event export and decision-design record |
 | Current World construction, components, tasks, effects, or Agent | [`ENGINE.md`](ENGINE.md) | Current model |
+| Direct corrections, `exMachina`/`sneak`, or consequences that effect suppression must preserve | [`EX_MACHINA.md`](EX_MACHINA.md) | Current contract and remaining audit |
 | Current live event, transaction, checkpoint, or rollback implementation | [`ENGINE.md`](ENGINE.md#concrete-state-and-its-history) | Current model |
 | Task ordering, `THEN`, automatic effects, barriers, or completion | [`SEQUENCING.md`](SEQUENCING.md) | Working rules and selected direction |
 | Admin, Actor attribution, task assignee, context owner, or delegated narrowing | [`IDENTITY.md`](IDENTITY.md) | Current model and selected direction |

@@ -833,8 +833,10 @@ internal class Prelude2CardsTest : CardTest() {
         secondPayout: Int = 3,
     ) {
       doTask("-5 MC<$victim>")
+      doTask("MyResourceWasRemoved<$victim, Class<MC>, Player1>.")
       doTask("3 MC<$victim> FROM MC<Player2>")
       doTask("PROD[-1 MC<$victim>]")
+      doTask("MyProductionWasDecreased<$victim, Class<MC>, Player1>.")
       doTask("$secondPayout MC<$victim> FROM MC<Player2>")
     }
 
@@ -843,6 +845,8 @@ internal class Prelude2CardsTest : CardTest() {
       doTask("EACH Other@Player(NOT Player1) { -5 MC<Other@Player>., PROD[-1 MC<Other@Player>] }")
       doTask("-5 MC<Player2>")
       doTask("PROD[-1 MC<Player2>]")
+      doTask("MyResourceWasRemoved<Player2, Class<MC>, Player1>.")
+      doTask("MyProductionWasDecreased<Player2, Class<MC>, Player1>.")
       doTask("3 MC<Player2> FROM MC<Player2>")
       doTask("3 MC<Player2> FROM MC<Player2>")
       settle(victimActors[0])

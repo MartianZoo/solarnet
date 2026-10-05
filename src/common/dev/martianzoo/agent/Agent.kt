@@ -159,6 +159,11 @@ public interface Agent {
   /** Removes the identified task ex-machina. */
   public fun dropTask(taskId: TaskId): TaskRemovedEvent
 
+  /**
+   * Atomically applies concrete corrections, constructs required parts, and removes dependents.
+   * Runs automatic effects and checks every applicable count invariant. Queued effects, task
+   * settlement, and idle cleanup are omitted.
+   */
   public fun sneak(changes: String, fakeCause: Cause? = null): TaskResult
 
   public interface OperationScope {

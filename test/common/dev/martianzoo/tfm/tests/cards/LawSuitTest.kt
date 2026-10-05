@@ -184,6 +184,7 @@ internal class LawSuitTest : CardTest() {
 
   private val choosePlayer2: OperationBlock = {
     doTask("3 MC FROM MC<Player2>")
+    doTask("MyResourceWasRemoved<Player2, Class<MC>, Player1>.")
     doTask("PlayedEvent<Player2> FROM $LawSuit")
   }
 }

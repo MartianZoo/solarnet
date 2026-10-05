@@ -255,7 +255,6 @@ public object Engine {
             timeline,
             actor,
             instructor,
-            changer,
             worldTransaction,
             elaborator,
         )

@@ -132,6 +132,7 @@ internal class MonsInsuranceTest : CardTest() {
     val manual = p1.also { it.autoExecPolicy = NONE }
     manual.addTasks("-Plant<Player2>, 2 MC")
     manual.doTask("-Plant<Player2>")
+    manual.doTask("MyResourceWasRemoved<Player2, Class<Plant>, Player1>.")
     manual.doTask("Ok")
     manual.doTask("2 MC<Player1>")
 
@@ -217,19 +218,24 @@ internal class MonsInsuranceTest : CardTest() {
       doTask("EACH Other@Player(NOT Player2) { -5 MC<Other@Player>., PROD[-1 MC<Other@Player>] }")
       if (compensateFirst) {
         doTask("-5 MC<Player3>")
+        doTask("MyResourceWasRemoved<Player3, Class<MC>, Player2>.")
         doTask("3 MC<Player3> FROM MC<Player1>")
         doTask("-2 MC<Player1>")
       } else {
         doTask("-5 MC<Player1>")
       }
+      doTask("MyResourceWasRemoved<Player1, Class<MC>, Player2>.")
       doTask("3 MC<Player1> FROM MC<Player1>.")
       if (!compensateFirst) {
         doTask("-5 MC<Player3>")
+        doTask("MyResourceWasRemoved<Player3, Class<MC>, Player2>.")
         doTask("3 MC<Player3> FROM MC<Player1>.")
       }
       doTask("PROD[-MC<Player1>]")
+      doTask("MyProductionWasDecreased<Player1, Class<MC>, Player2>.")
       doTask("3 MC<Player1> FROM MC<Player1>.")
       doTask("PROD[-MC<Player3>]")
+      doTask("MyProductionWasDecreased<Player3, Class<MC>, Player2>.")
       doTask("3 MC<Player3> FROM MC<Player1>.")
     }
 

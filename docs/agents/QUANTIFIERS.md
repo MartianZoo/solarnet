@@ -84,6 +84,12 @@ including positive minimums activated by newly gained components. Failure rolls 
 back, including components, tasks, events, and derived effects. Bootstrap audits all required counts
 after constructing its initial world.
 
+Creation also establishes positive exact-count concrete parts directly dependent on the newly
+created component, recursively, before its own effects. This is construction from the invariant,
+not repair during validation. Abstract/minimum-only requirements and unrelated prerequisites do not
+construct anything. A correction group instead validates all applicable invariants once after its
+explicit changes, required construction, and automatic effects, with queued effects suppressed; see [EX_MACHINA.md](EX_MACHINA.md).
+
 Physical source availability and dependency integrity are checked immediately. AMAP and optional
 quantity resolution also consult invariant bounds in the current World; negative headroom or
 footroom becomes zero. These quantities cannot assume that later consequences will make room.
