@@ -417,6 +417,22 @@ internal constructor(
     }
   }
 
+  /** The current capacity of a concrete change, or null when its destination is absent. */
+  internal fun changeLimit(change: Change): Int? {
+    val gain = change.gaining?.let(reader::resolve)
+    val removal = change.removing?.let(reader::resolve)
+    require(listOfNotNull(gain, removal).none(Type::abstract))
+    return try {
+      limiter.findLimit(
+          gain?.toComponent(),
+          removal?.toComponent(),
+          invariants = change.quantifier != MANDATORY,
+      )
+    } catch (_: DependencyException) {
+      null
+    }
+  }
+
   private fun resolveTree(
       unresolved: InstructionTree,
       worldGainNarrowing: Boolean,
