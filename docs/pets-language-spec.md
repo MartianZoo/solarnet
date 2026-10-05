@@ -13,7 +13,10 @@ Rules are numbered in reading order. For example, `L4-2` names the second rule i
 Examples use Terraforming Mars names such as `GreeneryTile`, `Plant`, and `OceanTile`. Their
 declarations are simplified to illustrate the rules.
 
-Blockquoted examples and design notes illustrate rules; they do not add rules.
+Blockquoted examples and design notes illustrate rules; they do not add rules. A named card or
+mechanic explains what would go wrong without the illustrated capability. An authoring convention
+or a provision without a known canonical TfM use is identified as such; a nearby card example is
+not evidence that every subcase of a rule is needed.
 
 ### What PETS is
 
@@ -112,7 +115,16 @@ Refinement       ::= "(" RefinementClause ( "," RefinementClause )* ")"
 RefinementClause ::= "HAS" RequirementDisjunction | "NOT" PlainExpression
 ```
 
+> **Non-normative example — Boom Town.** Its city requires
+> `LandArea(HAS PlacementBonus<Class<Metal>>, HAS MAX 0 Neighbor<CityTile<Anyone>>)`: a metal bonus
+> and no adjacent city. Keeping only one clause would allow a placement the card forbids. Cyberia
+> Systems also needs a `HAS` and a `NOT` together to copy a different building card (T8-9).
+
 **L1-4. A class literal is written with one bare class name**, `Class<Steel>` (T4-1, T4-6).
+
+> **Non-normative example — Mine.** Its steel production names the resource kind `Class<Steel>`
+> after `PROD[Steel]` is expanded. Production must exist even when the player has no steel cubes;
+> a reference to an actual steel component would impose the wrong dependency (T4-7).
 
 **L1-5. `This` names the component the enclosing declaration is about.** It is an expression like
 any other and may take arguments: `This<Foo>` keeps the arguments and adopts the context's class.
@@ -121,9 +133,10 @@ of its own and an empty argument list on it accepts nothing: `This<>` *is* the b
 Every construct that recognizes the placeholder recognizes both spellings, even though the two are
 different expressions (L1-2).
 
-> **Non-normative example — self cleanup.** The system `Temporary` declaration uses `This` in its
-> own removal effect. Recognizing both `This` and `This<>` as the placeholder prevents an empty list
-> from accidentally turning self cleanup into a subscription to a broader type.
+> **Non-normative example — Inventrix's required action.** `RequiredActionsSignal: -This!` removes
+> that pending `RequiredAction` component, rather than some other pending required action.
+> Recognizing `This<>` too is a uniformity rule for the placeholder; no current canonical card uses
+> that spelling or needs it as an additional capability.
 
 **L1-6. `Anyone` is an ordinary class.** It names every component that can own another component.
 It is never replaced with the current player. A bare expression of an `Owned` class instead gets
@@ -164,6 +177,12 @@ refined `Class<T>` literal follows T8-10 automatically. Compact `FROM` is an ins
 a variable declaration: it stores each unchanged argument once and derives both projections from it
 (L2-4).
 
+> **Non-normative example — Turmoil party leadership.** The ranking compares a candidate
+> `Ranked@Anyone` with the gained delegate's owner `Me@Anyone` through
+> `PlayerDistance<Me@Anyone, Ranked@Anyone>`.
+> These are two independent values under the same bound Class. Merging their names would erase the
+> clockwise-distance tie-breaker; using one anonymous variable cannot express both roles.
+
 **L1-8. Two expressions are equal when their structural spellings agree.** Argument order is part of
 the spelling, while refinement-clause order and duplication are not (L1-3). Thus
 `Microbe<Player1, Ants>` and `Microbe<Ants, Player1>` are different expressions for one type. This is
@@ -174,6 +193,11 @@ list if one was written, and the refinement.** Whitespace is not preserved and d
 clauses collapse, but an authored expression is not rewritten into its type's canonical form:
 `Tile` and `Tile<Area>` remain distinct expressions even though they resolve to one type (T1-3,
 T5-5).
+
+> **Non-normative example — Aquifer's placement spelling.** Rendering `OceanTile<>` as bare
+> `OceanTile` would preserve its type but lose the gain-default acceptance that makes the authored
+> instruction valid. This is why expression equality and rendering preserve more than type identity
+> (L1-8); the type system's compact rendering serves a different purpose.
 
 ---
 
@@ -202,6 +226,11 @@ point-event behavior
 belongs only to a direct Signal gain; writing `SignalSubtype FROM SignalSubtype` is an ordinary
 transmutation. A `Signal` gained by an explicit transmutation from another type is gained normally,
 then removes itself.
+
+> **Non-normative example — placement bonuses.** Gaining a tile emits `Placement<This>` for its
+> area. That signal awards the area's bonus without leaving a persistent placement component that
+> could be counted or awarded again. This motivates a point event; the transmutation edge cases
+> above have no separate canonical card witness.
 
 **L2-2. A count is a positive integer or `X`.** `X` denotes an amount left open, and may carry a
 coefficient: `2X Plant` is an even number of plants. A count of zero is rejected.
@@ -387,6 +416,11 @@ one side may instead belong to an enclosing `THEN` sequence when that sequence a
 > `ColonyProduction(NOT Source@ColonyProduction) FROM Source@ColonyProduction` chooses a source
 > colony track and excludes that same track from the destination choice.
 
+> **Non-normative example — Changing Times.** Turmoil advances events with
+> `EACH Event@GlobalEvent(HAS Coming) { Current<Event@GlobalEvent> FROM Coming<Event@GlobalEvent> }`.
+> Both sides must reuse the event selected by `EACH`. Treating the inner transmutation's markers as
+> a new shared choice could advance a different event.
+
 **L2-14. `EACH Selector { body }` quantifies over one state.** It denotes one independent branch of
 `body` for each component occurrence matching `Selector` present in the state. A marker on
 `Selector` explicitly makes that occurrence's concrete type available through the same marker on
@@ -407,6 +441,11 @@ Each ::= "EACH" PlainExpression "{" InstructionGroup "}"
 > **Non-normative example — map setup.** `EACH Class<@MarsArea> { @MarsArea }` creates one
 > component of every concrete area Class. The selector explicitly exposes the represented Class to
 > the body.
+
+> **Non-normative example — Dry Deserts.** `EACH Influence<Me@Anyone> { StandardResource }` offers
+> one independently chosen resource per influence. Three equal influence components must permit
+> three different resource kinds, so neither deduplicating the selector's occurrences nor choosing
+> the body once and multiplying its count is correct. The body needs no reference to the influence.
 
 **L2-15. `I BY Actor` names who performs the change.** It distributes over a group, so
 `(A, B) BY Player1` is `A BY Player1, B BY Player1`.
@@ -558,6 +597,16 @@ discharged by selecting a value describe the selection world (T13-10).
 > track and gain four units of that same resource. Binding the two
 > occurrences independently would allow trading steel production for four plants.
 
+> **Non-normative example — Law Suit.** Its initial gate checks whether `Attacker@Player` harmed
+> the owner; the following theft and transfer of the negative-VP event use that same attacker.
+> The observing gate appears before the choosing occurrence, but must not admit one opponent's
+> attack as permission to take another opponent's money or give that opponent the event.
+>
+> **Non-normative example — Cyberia Systems.** Its second production box must come from a building
+> card other than `First@CardFront`. Restricting a choice in stages must retain both that shared first
+> card and the second card's exclusion. The card requires the relationship; accepting partial
+> proposals is a language interface choice, not an extra printed game mechanic.
+
 **L3-9. A gate, a `/` metric, a `BY` actor and an `EACH` selector are not choices.** A proposal
 must reproduce each of them exactly; only what they contain may narrow.
 
@@ -666,9 +715,16 @@ expresses the inverse ordering.
 Rank ::= "RANK" PlainExpression? "{" Metric ( "," Metric )* "}"
 ```
 
-> **Non-normative example — award scoring.** Award resolution ranks every player by the selected
-> award's metric, then awards first and—when applicable—second place. Lexicographic metrics and a
-> filtered selector let the same machinery represent ties without baking one award into the engine.
+> **Non-normative example — award scoring.** Two players tied for an award's best metric both
+> receive rank 1, leaving the next player at rank 3. Dense ranking would incorrectly award second
+> place as well. Award scoring needs competition ranks, but uses only one comparison metric.
+>
+> **Non-normative example — victory and party leadership.** Final scoring uses
+> `RANK Me@Player { VictoryPoint, MC }`: money breaks a VP tie without outweighing even one VP.
+> Turmoil needs three ordered metrics for party leadership: delegate count, incumbent leadership,
+> then clockwise player distance. A single count or an unordered metric set loses those priorities.
+> The omitted-selector `RANK { ... }` form is authoring shorthand; current canonical uses all write
+> a selector.
 
 **L4-9. Precedence, tightest first: scaling and `MAX`, then subtraction, then `OR`.** So
 `A MAX 5 - B` caps `A` before subtracting, while `(A - B) MAX 5` caps the difference. Where a metric
@@ -746,6 +802,12 @@ RequirementDisjunction ::= RequirementAtom ( "OR" RequirementAtom )*
 **L5-7. Alternatives are a set; conjuncts are a sequence.** `Plant OR Plant` collapses to `Plant`,
 while `Plant, Plant` keeps both conjuncts as written. A collapsed single alternative is no longer an
 `OR` at all.
+
+> **Non-normative design note — normalization, not repeated payment.** Colonies setup uses
+> alternative player-count premises (L5-6), whose repeated alternatives would add no new permitted
+> setup. No TfM mechanic requires duplicate conjuncts or their authored order; preserving those is
+> a syntax convention. Repeating an instruction can repeat a gain, but repeating a requirement
+> merely asks the same question again.
 
 **L5-8. `EVAL name` reads a class property as a requirement** (L9-12). Until it is expanded it has
 no value of its own, and asking for one is a programming error.
@@ -826,9 +888,10 @@ They also scale differently, which is part of what each one means:
 **L6-5. `X` before a trigger's expression binds the size of the change.** `X Plant: X Heat` reacts to
 a gain of any number of plants with the same number of heat. A removal is written `-X Plant`.
 
-> **Non-normative example — resource-removal watchers.** `-X Resource<...> BY Player` records one
-> removal event whose magnitude is `X`. Preserving that trigger count lets downstream insurance rules
-> recognize one removal without subscribing separately to every possible integer amount.
+> **Non-normative example — Mons Insurance.** The promo pack's `ResourceRemovalWatcher`, also
+> used by Law Suit, matches `-X @Resource<...>` to emit one record when an opponent removes a batch
+> of resources. Mons Insurance pays one 3-MC compensation for that loss, not 3 MC per cube.
+> The body need not use `X`: binding the batch magnitude suppresses ordinary per-cube scaling.
 
 **L6-6. `OR` joins triggers, and self and subscribed triggers may not mix.** `This OR -This` is fine;
 `This OR Plant` is not, because one is about this component and the other about the world.
@@ -964,6 +1027,10 @@ card: the first action is `Action1`. Swapping actions changes which action each 
 
 **L7-6. A class's effects are its authored effects followed by its lowered actions.**
 
+> **Non-normative design note — declaration normalization.** Energy Market needs distinct action
+> positions (L7-5), but no card requires this concatenation order to give authored effects execution
+> priority. It specifies the resulting declaration's order, not a gameplay scheduling rule.
+
 **L7-7. An instruction that happens on gain is the effect `This: I`.** This is how a card's "do this
 now" section becomes an ordinary rule; an immediate `Ok` produces no effect at all.
 
@@ -1001,11 +1068,12 @@ sequence likewise splices into that surrounding sequence (L2-10).
 > production-track changes. Splicing the returned group preserves the card's surrounding gains;
 > wrapping the pair as one alien node would break ordinary instruction narrowing.
 
-> **Non-normative example — resource differences.** `PROD[StandardResource(NOT MC)]` becomes
-> `Production<Class<StandardResource>(NOT Class<MC>)>`. Production represents its resource kind
-> with a class literal, so both sides of a resource difference move into that representation. The
-> two sides must retain the same resource dependencies; a difference between distinct owners, for
-> example, cannot be represented by the class literal and is rejected.
+> **Non-normative example — Mogul.** The award counts `PROD[StandardResource(NOT MC)]`: production
+> of every standard resource except money. Expansion must carry the exclusion into the represented
+> resource Class domain, excluding `Class<MC>` from the production dependency. Dropping `NOT` would
+> count money production; leaving a component-level `NOT MC` on a Class would not express that test.
+> A difference between different owners cannot be expressed by the resource Class alone: both
+> sides must retain the same resource dependencies, or the transform rejects the difference.
 
 **L8-4. A trigger block wraps only a gain or removal**, never `OR`, `BY` or `IF` — the mark applies
 to the event being watched, not to the restrictions on it.
@@ -1017,6 +1085,10 @@ to the event being watched, not to the restrictions on it.
 **L8-5. Nesting a block inside a block of the same kind is representable but not processable.** The
 syntax admits `PROD[PROD[Plant]]`, but rewriting rejects it because the second mark could only mean
 what the first already means.
+
+> **Non-normative design note — no production-of-production mechanic.** Mine needs one production
+> mark (L8-1); no current card requires nested `PROD` marks. Admitting the nested spelling before
+> rejecting its meaning is a syntax/processing boundary, not additional game expressiveness.
 
 ---
 
@@ -1076,8 +1148,10 @@ that relationship where they need it.
 
 **L9-4. Every expression receives its class's all-use dependency defaults** (T10-1), recursively.
 
-> **Non-normative example — Ecoline.** Its starting `3 Plant` omits an owner because L9-3 supplies
-> the corporation's player. Ordinary class defaults are independent of this ownership rule.
+> **Non-normative example — Inventrix and discarding cards.** `CardBack` declares
+> `DEFAULT CardBack<Hand>`. Inventrix's `3 ProjectCard` therefore draws into hand, and a bare
+> `-ProjectCard` discards from hand rather than from `Selecting` or `Revealed`. This inherited
+> all-use default supplies card location; the player's ownership is supplied separately by L9-3.
 
 **L9-5. A gain or removal also receives the defaults for its use kind**, and a gain must opt in.
 When a class has gain dependency defaults, a gain may not leave its argument list implicit: write
@@ -1097,12 +1171,20 @@ cannot be used to *cancel* an all-use default for that key.
 on a removal is not an error: it simply does not receive the removal-only dependency defaults, though
 all-use defaults (L9-4) still apply. `-Marker<>` accepts them.
 
-> **Non-normative example — debt removal.** `-Owed` can name an existing debt without accepting
-> placement defaults. There is no placement left to choose when a component is removed.
+> **Non-normative example — Indentured Workers.** Its discount is written `-8 Owed`; `Owed` declares
+> an MC removal default, but this spelling leaves the denomination unspecified. `-8 Owed<>` would
+> explicitly accept MC. The card's bill is already in MC, so it illustrates the spelling without
+> proving a need to decline a removal default. No current card has been identified that requires
+> this opt-out to reach a different denomination.
 
 **L9-7. `Foo<>` is invalid where that use has no dependency defaults to accept.** An empty list is
 an acceptance, not merely a second spelling of the same expression. A later bare reference to a
 marked `Foo<>` does not repeat that acceptance.
+
+> **Non-normative example — neutral solo tiles.** In
+> `@CityTile<> THEN GreeneryTile<LandArea(HAS Neighbor<@CityTile>)>`, the city gain accepts placement
+> defaults. The later bare reference reuses that chosen city without re-accepting its placement
+> defaults.
 
 **L9-8. The gained and removed projections of `A FROM B` are defaulted independently.** Compact
 syntax remains compact; defaulting its two projections does not duplicate a retained argument.
@@ -1121,9 +1203,15 @@ allows it and nothing otherwise, which is `!`; `.` with `?` permits only the mos
 | **`.`** | `!` | `.` | `.` |
 | **`?`** | `!` | `.` | `?` |
 
-> **Non-normative example — the starting-player marker.** `StartToken<Player FROM Anyone>` changes
-> the marker's owner. Defaulting the gained and removed token types independently preserves both
-> owners; defaulting the transmutation as one expression could overwrite the argument that changes.
+> **Non-normative example — Olympus Conference.** Its `ProjectCard FROM Science<This>` removes
+> a science resource from this card and draws a project card into hand. The gained card inherits
+> the `Hand` all-use default; the removed science resource keeps its card holder. One projection's
+> dependency defaults cannot be applied to the other projection's unrelated dependencies.
+>
+> **Non-normative example — keeping a selected card.** `ProjectCard<Hand FROM Selecting>` keeps
+> its compact form: the omitted owner is supplied once and applies to both projections, while each
+> side keeps its explicit location. The all-use `Hand` default has nothing left to fill on either
+> side. Neither example establishes a need for every pair in the quantifier-combination table.
 
 **L9-9. A `HAS` candidate binds a compatible omitted dependency before lexical ownership fills
 it.** `EACH Starter@Player(HAS StartToken)` tests each candidate's own token. A candidate CardFront
@@ -1131,10 +1219,21 @@ also fills the card dependency of `CardFront(HAS BioTag)`. If the candidate cann
 or a dependency that determines it, L9-3 supplies lexical `Me`. Explicit arguments retain their
 meaning: `<Anyone>` stays broad, and `StartToken<>` is invalid without a declared default (L9-7).
 
+> **Non-normative example — World Government Terraforming and CEO's Favorite Project.** The
+> unowned `WorldGovernmentRule` has no lexical owner; the candidate in
+> `Starter@Player(HAS StartToken)` must supply the token's owner. CEO's Favorite Project chooses
+> `CardFront(HAS CardResource)` so the chosen card must already hold a resource. Supplying only
+> the card owner's context would incorrectly count resources on other cards in that tableau.
+
 **L9-10. Inside a refinement, an ordinary declared default is deferred when its dependency is a
 direct use of a class-header type variable** (T13-2), so candidate substitution can bind it through
 that occurrence. Candidate binding also precedes omitted-owner insertion under L9-9. Writing `<>`
 accepts a declared default explicitly; it cannot accept a default that does not exist.
+
+> **Non-normative design note — no current TfM witness for this extra deferral.** Current canonical
+> `DEFAULT` clauses do not refer directly to header variables. CEO's Favorite Project demonstrates
+> candidate binding (L9-9), but does not require this additional header-variable default rule.
+> Its necessity remains an open fidelity-audit question, not an established card requirement.
 
 **L9-11. A gain of several `Atomized` components becomes several gains of one.** `3 ProjectCard`
 becomes three independent gains, because three cards are three separate things to choose.
@@ -1254,9 +1353,10 @@ shadow:
 | a refinement's domain | the candidate | that refinement (T8-3) |
 | `@Type` or `Name@Type` in an Effect trigger, `THEN`, Action cost, or transmutation destination | one shared choice | that Effect, sequence, Action, or transmutation (L2-12, L2-13, L6-8, L7-4, T13-6) |
 
-> **Non-normative example — generated special tiles.** `MiningRights_SpecialTile` must be referable
-> later by that exact global name when its placement bonus is inspected. Lexical scoping would make
-> the inline declaration convenient locally but invisible to the card's later production rule.
+> **Non-normative example — Noctis City.** Its `CityTile<NoctisArea>` refers to a board class whose
+> concrete area is declared by the Tharsis map. The card and map must agree on that identity across
+> declarations. PETS chooses one global class table for such references; generated names such as
+> `CommercialDistrict_SpecialTile` enter that same table.
 
 ---
 
@@ -1306,10 +1406,10 @@ ABSTRACT CLASS Tile<Area> : Occupant, Owned<Anyone>
 **L11-4. Signature expressions carry no refinements**, at any depth. A dependency bound or supertype
 written `Foo(HAS Bar)` or `Foo(NOT Bar)` is rejected, because a refined type cannot be a bound.
 
-> **Non-normative example — Mining Area.** The card declares a local special tile at
-> `LandArea(HAS Neighbor<OwnedTile>)`. The live refinement constrains this occurrence, while the
-> generated class extends plain `SpecialTile<LandArea>`; putting the board query in its signature
-> would make a state-dependent predicate part of permanent class identity.
+> **Non-normative example — Industrial Center.** Its inline special tile is placed at
+> `LandArea(HAS Neighbor<CityTile<Anyone>>)`. The city-neighbor condition applies at placement;
+> the generated class extends plain `SpecialTile<LandArea>`. Keeping a live board query in the
+> signature would make permanent class identity depend on neighboring tiles.
 
 **L11-5. A body is brace-delimited, and its elements are separated by newlines or by semicolons.** A
 body element is an invariant (`HAS r`), a `DEFAULT` clause, a property assignment (`name = value`),
@@ -1341,6 +1441,11 @@ CLASS GreeneryTile : Tile { HAS MAX 1 This; This: OxygenStep }
 > column, and placement bonus in one semicolon-separated body. Allowing nested declarations in that
 > form would make a “one physical space per line” record expand into invisible sibling classes.
 
+> **Non-normative example — Pharmacy Union.** Its two printed microbe tags become the dependent
+> invariant `HAS =2 MicrobeTag<This>`. Creating them triggers its own microbe-tag effect twice,
+> adding two diseases and charging 8 MC at startup. Merely validating that the tags exist would
+> not supply the components whose gains trigger those printed consequences.
+
 **L11-6. A nested declaration becomes a sibling that names its container as a supertype** (T2-2).
 The container is returned first, then its nested declarations in source order, recursively.
 
@@ -1364,6 +1469,11 @@ are rejected; declaration order never selects a winner. A clause naming another 
 ```ebnf
 DefaultClause ::= "DEFAULT" ( Expression | ( "+" | "-" ) Expression Quantifier? )
 ```
+
+> **Non-normative design note — split defaults are an authoring convenience.** Ocean placement
+> and paying `Owed` motivate dependency and quantifier defaults (T10-1, T10-2). No current canonical
+> declaration needs to split one use kind's arguments and quantifier across separate clauses;
+> that accepted spelling does not represent an additional game mechanic.
 
 **L11-9. A property is assigned at most once per body.** `name = value` binds one class property;
 the same name twice in one body is rejected. The right-hand side is one of the bound words `Number`,
@@ -1398,6 +1508,11 @@ embedded in structured card data uses this form.
 ```ebnf
 OneLineDeclaration ::= "ABSTRACT"? "CLASS" Signature OneLineBody?
 ```
+
+> **Non-normative example — Mining Rights.** Its structured card data declares
+> `CLASS MiningRights_SpecialTile : SpecialTile` in `components`, then names that tile when checking
+> the placed area's steel or titanium bonus. The standalone form accommodates that data format;
+> a separate syntax entry point is an authoring choice, not a distinct TfM capability.
 
 **L11-12. Every class catalog includes the system declarations:**
 the universal audit signal `Audit` plus the classes this specification and the type system depend
@@ -1446,9 +1561,10 @@ CLASS Inventrix { This: RequiredAction { -> 3 ProjectCard } }
 occurrence becomes that name, so the effect above is `This: Inventrix_RequiredAction`, and the
 generated declaration is `CLASS Inventrix_RequiredAction : RequiredAction`.
 
-> **Non-normative example — Mining Rights.** `SpecialTile<> {}` becomes
-> `MiningRights_SpecialTile`, which the card's later placement-bonus rule names explicitly. A stable
-> owner-derived name connects the inline tile definition to that later effect without ordinals.
+> **Non-normative example — Commercial District.** `SpecialTile<> {}` becomes
+> `CommercialDistrict_SpecialTile`, named by `Adjacency<CommercialDistrict_SpecialTile, CityTile<Anyone>>`
+> in its later scoring effect. The scoring rule needs a stable way to identify this particular
+> special tile; the underscore convention is the language's choice of spelling.
 
 **L12-3. The body follows the complete expression.** Arguments specialize both the occurrence and
 the generated class's declared supertype; refinements constrain only the occurrence and are removed
@@ -1463,16 +1579,21 @@ capture an enclosing selector's variable without such an argument. Selectors ins
 follow the ordinary shadowing rules.
 
 ```pets
-SpecialTile<LandArea(HAS Neighbor<OwnedTile>)> {}
+SpecialTile<LandArea(HAS Neighbor<CityTile<Anyone>>)> {}
 ```
 
-becomes the occurrence `MiningArea_SpecialTile<LandArea(HAS Neighbor<OwnedTile>)>` and declares
-`CLASS MiningArea_SpecialTile : SpecialTile<LandArea>`.
+becomes the occurrence `IndustrialCenter_SpecialTile<LandArea(HAS Neighbor<CityTile<Anyone>>)>` and
+declares `CLASS IndustrialCenter_SpecialTile : SpecialTile<LandArea>`.
 
-> **Non-normative example — Mining Area.** The local tile's occurrence must retain “adjacent to an
-> owned tile” for placement, while its generated supertype retains only `LandArea`. Dropping the
-> refinement everywhere would allow illegal placement; keeping it in the signature would make the
-> class state-dependent.
+> **Non-normative example — Industrial Center.** The local tile's occurrence must retain
+> “adjacent to a city” for placement, while its generated supertype retains only `LandArea`. Dropping
+> the refinement everywhere would allow illegal placement; keeping it in the signature would make
+> the class state-dependent.
+>
+> **Non-normative design note — local header scope is more general than this example.** Industrial
+> Center has no marked local-header argument or argument referring to the enclosing `This`. No
+> current canonical use has been identified that needs those additional local-body binding cases;
+> the placement example justifies refinement separation, not all of the scope machinery above.
 
 **L12-4. The local body may contain invariants, properties, effects and actions**, and may not
 contain `DEFAULT` clauses or nested declarations. The generated class inherits applicable defaults
@@ -1481,6 +1602,12 @@ from its supertypes like any other.
 ```ebnf
 LocalBodyElement ::= Invariant | PropertyAssignment | Effect | Action
 ```
+
+> **Non-normative example — Indentured Workers.** Its inline `NextCardEffect` contains
+> `PayingFor<Class<CardFront>>:: -8 Owed`, attaching the discount to a temporary component that
+> lasts until the next card. Inventrix's inline required action (L12-1) instead supplies an action.
+> These motivate effects and actions in local bodies. No current canonical local body requires its
+> own invariant or property; those forms follow the ordinary declaration-body vocabulary.
 
 **L12-5. Inline derived classes do not nest.** Neither a local body nor an argument of the occurrence
 may declare another one.
@@ -1496,9 +1623,11 @@ live game's class table is fixed (T1-6).
 **L12-8. Naming the base class alone still means the base class.** An occurrence with no local body
 is an ordinary expression; it does not resolve to some nearby derived class.
 
-> **Non-normative example — Mining Rights.** After its inline tile declaration lowers, a later rule
-> explicitly says `MiningRights_SpecialTile`; bare `SpecialTile` still means the base class. Otherwise
-> one nearby local declaration could silently change unrelated expressions in the same card.
+> **Non-normative design note — ordinary names keep their meaning.** Commercial District names
+> `CommercialDistrict_SpecialTile` in its scoring effect. It does not also query bare `SpecialTile`;
+> no current canonical card has been identified that needs both references beside its inline
+> declaration. Keeping the base name's ordinary meaning is a naming convention, not a further
+> requirement demonstrated by that scoring rule.
 
 ---
 

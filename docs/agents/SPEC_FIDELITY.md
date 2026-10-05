@@ -100,6 +100,14 @@ the bounded-repair rule still applies. Re-rank these leads using current evidenc
   restrictions, normalization guarantees, or API behavior presented as a language rule. Check that
   tests distinguish the intended behavior rather than merely round-trip a fixture or reject it for
   an unrelated reason.
+- **Spec provisions without a canonical TfM witness.** The specs separate game examples from
+  authoring conventions. Revisit removal-default opt-out (L9-6), header-variable default deferral
+  (L9-10), competing nearest defaults and incompatible overrides (T10-4), the explicit `Anyone`
+  owner-default case (T10-5), and inline local-header binding/body generality (L12-3, L12-4).
+  Other unproven subcases include Signal transmutations (L2-1), all transmutation quantifier pairs
+  (L9-8), and merging two separately refined operands (T8-9). Nearby examples demonstrate simpler
+  capabilities, not these extra cases. Establish a real need or try bounded removal before
+  strengthening promises.
 - **Complexity without a witness.** Earlier questions included scope bookkeeping, transform passes,
   fallback paths, and constructor checks. Reinspect their current callers and interactions before
   deciding whether removal, a better witness, or a documented discrepancy is appropriate.
