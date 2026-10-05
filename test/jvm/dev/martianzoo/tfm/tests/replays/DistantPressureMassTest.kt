@@ -160,7 +160,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
     }
     keen.turn {
       playProject(MarsUniversity, 4, steel = 2) {
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
       }
       shouldThrow<RequirementException> {
         claimMilestone(cn("Researcher"))
@@ -304,7 +304,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
     keen.turn {
       playProject(RestrictedArea, 9) {
         placeTile(3, 6)
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
       }
     }
     been.turn { playProject(LunaGovernor, 0) }
@@ -468,7 +468,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
     keen.turn {
       cardAction1(WaterSplittingPlant)
       playProject(MolecularPrinting, 9) {
-            doTask("ProjectCard FROM ProjectCard")
+            doTask("-ProjectCard")
           }
           .expect("-2 MC")
       cardAction1(SearchForLife) {
@@ -476,7 +476,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       }
       playProject(Hackers, 1) { doTask("PROD[-2 MC<Been>]") }.expect("PROD[2 MC, -Energy], 3 MC")
       playProject(BreathingFilters, 7) {
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
       }
       playProject(KelpFarming, 13)
       pass()
@@ -536,7 +536,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
         buyCards(0)
       }
       playProject(AdvancedAlloys, 7) {
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
       }
     }
     been.turn { playProject(LunarBeam, 10) }
@@ -545,7 +545,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
       intentionalUnderpay()
       keen.exMachina(fakeWildTags("ScienceTag", 2))
       playProject(SolarProbe, 7) {
-            doTask("ProjectCard FROM ProjectCard")
+            doTask("-ProjectCard")
           }
           .expect("2 ProjectCard, 3 Heat, -4 MC")
     }
@@ -573,7 +573,7 @@ internal class DistantPressureMassTest : AbstractFullGameTest() {
     been.pass()
     keen.turn {
       playProject(SpecialDesign, 2) {
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
       }
       playProject(Trees, 9)
       playProject(Algae, 6)

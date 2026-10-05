@@ -225,7 +225,6 @@ internal class MonsInsuranceTest : CardTest() {
         doTask("-5 MC<Player1>")
       }
       doTask("MyResourceWasRemoved<Player1, Class<MC>, Player2>.")
-      doTask("3 MC<Player1> FROM MC<Player1>.")
       if (!compensateFirst) {
         doTask("-5 MC<Player3>")
         doTask("MyResourceWasRemoved<Player3, Class<MC>, Player2>.")
@@ -233,7 +232,6 @@ internal class MonsInsuranceTest : CardTest() {
       }
       doTask("PROD[-MC<Player1>]")
       doTask("MyProductionWasDecreased<Player1, Class<MC>, Player2>.")
-      doTask("3 MC<Player1> FROM MC<Player1>.")
       doTask("PROD[-MC<Player3>]")
       doTask("MyProductionWasDecreased<Player3, Class<MC>, Player2>.")
       doTask("3 MC<Player3> FROM MC<Player1>.")

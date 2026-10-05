@@ -80,7 +80,8 @@ Classes without requiring component instances. Amount bounds follow target selec
 changes may retain absent-dependency choices because a later zero choice can still be legal.
 
 This is choice assistance, not proof that the entire operation can succeed. Broad partial choices
-must not be rejected merely because they cannot yet resolve. Unsupported abstract shapes fail
+must not be rejected merely because they cannot yet resolve. Broad target options can include
+self-transmutations that selection rejects. Unsupported abstract shapes fail
 explicitly; current gaps include `EACH`, optional changes inside unresolved `PER`, and certain
 state-dependent refinements. The implementation and focused Agent tests own the detailed supported
 shapes, rather than a duplicated inventory here.

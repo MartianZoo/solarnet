@@ -120,7 +120,7 @@ See [`API.md`](API.md#layer-responsibility), [`VISIBILITY.md`](VISIBILITY.md), a
   `Instructor`'s resolution capability
   from execution.
 - Represent direct point-event `Signal`s honestly rather than as self-transmutations, preserving
-  their paired gain/removal triggers and distinguishing them from source-requiring exchanges; and
+  their paired gain/removal triggers while keeping authored self-transmutations forbidden; and
   separate cleanup lifetime from log visibility.
 
 The specifications own the final semantics. Start with [`IDENTITY.md`](IDENTITY.md#lexical-ownership-model),

@@ -49,12 +49,13 @@ open keys, the first takes it.
 class, count, quantifier and any unchanged arguments. It also keeps one open narrowing choice rather
 than duplicating it on both sides.
 
-- **Air Raid:** [`5 MC<Me@Owner FROM Anyone>`](../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/cards.json5) takes five M€ from a chosen owner and gives those same five to the card's owner. With no owner holding five, the transfer is unavailable.
+- **Air Raid:** [`5 MC<Me@Owner FROM Anyone>`](../src/common/dev/martianzoo/tfm/canon/ColoniesExpansion/cards.json5) takes five M€ from a chosen opponent and gives those same five to the card's owner. Self-transmutations are forbidden, so the source must have a different owner. With no opponent holding five, the transfer is unavailable.
 - **Special Permit:** [`4 Plant<Me@Owner FROM Anyone>`](../src/common/dev/martianzoo/tfm/canon/Prelude2CardPack/cards.json5) expresses the same ownership transfer for plants, without separately spelling a removal and a gain.
 
 The compact form requires the same root class on both sides and exactly one changing argument.
-For different classes, use ordinary `A FROM B`. Literal `Anyone` does not exclude the current owner;
-`Player(NOT Me@Owner)` would express that restriction. A full form may also be necessary to keep a
+For different classes, use ordinary `A FROM B`. Literal `Anyone` includes the current owner, but
+an ownership transfer cannot resolve to the same owner because its concrete Type must change.
+A full form may also be necessary to keep a
 marked variable shared: [Banned Delegate's leader transfer](../src/common/dev/martianzoo/tfm/canon/TurmoilExpansion/cards.pets)
 repeats `@Party` on both sides. Compacting it leaves only one occurrence and is rejected.
 
@@ -203,13 +204,13 @@ the same spelling and bound.
 
 ## 17. Replace a one-change `OR Ok` with `?`
 
-An optional quantifier already allows zero. When the only choice is one elementary change or no
-change, `?` states it without an `OR` arm. The changed count is one in both examples, so optional
-amounts cannot introduce a partial result.
+An optional quantifier already allows zero. When the choice is an elementary change or no
+change, `?` states it without an `OR` arm. With a count of 1, it cannot introduce a partial result.
 
-- **Mars University:** [`ScienceTag: ProjectCard FROM ProjectCard?`](../src/common/dev/martianzoo/tfm/canon/CorporateEraExpansion/cards.json5) offers one card exchange or none, including when the player has no card to exchange.
 - **Cathedral offer:** [`This: UseAction<CathedralOption>?`](../src/common/dev/martianzoo/tfm/canon/PromoCardPack/cards.json5) lets the city owner accept or decline the card draw offer. The owner default and the unchanged `ActionSlot` bound make both extra arguments unnecessary.
 
-This does not replace every `OR Ok`: a sequence may have work that must still follow `Ok`, a gate
-may control when `Ok` is legal, or an optional count greater than one may allow intermediate amounts
-the original choice did not.
+This does not replace every `OR Ok`. **Mars University** uses
+[`ScienceTag: (-ProjectCard THEN ProjectCard) OR Ok`](../src/common/dev/martianzoo/tfm/canon/CorporateEraExpansion/cards.json5)
+to offer the whole discard-and-draw sequence or no exchange. Making only the discard optional would
+allow drawing without discarding. A gate may also control when `Ok` is legal, and optional counts
+greater than 1 may allow intermediate amounts the original choice did not.

@@ -90,8 +90,8 @@ Removing the final target cascades through existing dependents before the reques
 retried. The graph owns the reverse-dependency index, while the engine owns the decision to cascade.
 
 Every live mutation is an exact gain, removal, or transmutation. A transmutation removes before it
-gains. A same-Type transmutation records both directions without changing multiplicity and requires
-an existing source. A direct Signal uses the same paired event without requiring an existing source.
+gains. A transmutation must change its concrete Type. A direct Signal uses a paired gain/removal
+event without requiring an existing source; that event represents a signal, not a self-transmutation.
 `CustomMetric` types never become components. `CustomInstruction` classes are ordinary Signals:
 their gains are recorded, their Pets effects run, and Kotlin supplies one additional queued effect.
 
@@ -277,7 +277,7 @@ invariant templates used for validation.
 
 Abstract or refined Types, minimum-only bounds, self-counts, and indirect or unrelated requirements
 remain constraints; construction neither chooses their components nor invents missing prerequisites.
-Signals and same-Type transmutations do not reconstruct parts. Ordinary instruction execution and
+Signals do not reconstruct parts. Ordinary instruction execution and
 direct `sneak` corrections share this construction rule; corrections suppress queued reactions.
 
 Completed-state validation instantiates a self-count for every inhabited concrete specialization.

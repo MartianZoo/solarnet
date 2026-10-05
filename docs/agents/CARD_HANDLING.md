@@ -102,9 +102,9 @@ without silently discarding its leftovers.
 
 [CardTrackingFullGameTest.kt](../../test/common/dev/martianzoo/tfm/tests/replays/CardTrackingFullGameTest.kt)
 maintains an exact-name ledger outside the World for stronger replay evidence. Named draws, buys,
-discards, plays, and returns annotate the matching generic card-count events. An atomic
-`ProjectCard FROM ProjectCard` exchange names its gained and removed cards separately; strict
-tracking requires both sides. `projectCardArrivalOrder` contains only cards that actually enter the
+discards, plays, and returns annotate the matching generic card-count events. A discard-and-draw
+sequence records separate removal and gain events; strict tracking requires both to be named.
+`projectCardArrivalOrder` contains only cards that actually enter the
 indicated Player's hand, in arrival order. Rejected offers and searched-past cards do not appear in
 the fixture. Replay-local unknown names can stand in for hand cards whose faces are absent from the
 source evidence.

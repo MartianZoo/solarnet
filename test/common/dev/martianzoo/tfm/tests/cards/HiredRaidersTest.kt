@@ -11,6 +11,17 @@ import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
 
 internal class HiredRaidersTest : CardTest() {
+  @Test
+  internal fun `An impossible self steal does not block stealing money from an opponent`() {
+    newGame(CorporateEraExpansion)
+    p1.runOperation("2 Steel, MC, ProjectCard")
+    requireP2().runOperation("3 MC")
+    admin.phase("Action")
+
+    p1.playProject(HiredRaiders, 1) { doTask("3 MC FROM MC<Player2>") }
+        .expect("2 MC<Player1>, -3 MC<Player2>, 0 Steel<Player1>")
+  }
+
   // Resolved FAQ: Hired Raiders may steal less than its maximum, but must steal at least one.
   @Test
   internal fun `Cannot decline stealing when resources are available`() {

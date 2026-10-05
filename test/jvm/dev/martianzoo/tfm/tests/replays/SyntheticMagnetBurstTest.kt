@@ -276,7 +276,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
         // Green discarded Stratopolis
         // Green drew 1 card(s)
         // You drew House Printing
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
       }
       // Green ended turn
     }
@@ -709,7 +709,7 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
         // Green discarded Floating Refinery
         // Green drew 1 card(s)
         // You drew Space Mirrors
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
       }
       // Green ended turn
     }
@@ -983,8 +983,8 @@ internal class SyntheticMagnetBurstTest : AbstractFullGameTest() {
         // Green discarded Venusian Insects
         // Green drew 1 card(s)
         // You drew Venus Soils
-        doTask("ProjectCard FROM ProjectCard")
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
+        doTask("-ProjectCard")
       }
     }
     pink.turn {

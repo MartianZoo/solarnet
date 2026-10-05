@@ -105,19 +105,16 @@ internal class InstructionResolutionTest {
   }
 
   @Test
-  internal fun reflexiveTransmutationUsesAvailableSourceCount() {
-    checkResolution("Plant FROM Plant", "Plant<Player1> FROM Plant<Player1>!")
-    checkResolution("Plant<Player1> FROM Plant!", "Plant<Player1> FROM Plant<Player1>!")
-    checkResolution("2 Plant FROM Plant?", "Plant<Player1> FROM Plant<Player1>?")
-    checkResolution("2 Plant FROM Plant.", "Plant<Player1> FROM Plant<Player1>!")
-    shouldThrow<LimitsException> { preprocessAndResolve("2 Plant FROM Plant!") }
+  internal fun reflexiveTransmutationIsRejectedRegardlessOfSourceCount() {
+    shouldThrow<ExpressionException> { preprocessAndResolve("Plant FROM Plant") }
+    shouldThrow<ExpressionException> { preprocessAndResolve("Heat FROM Heat") }
   }
 
   @Test
-  internal fun reflexiveTransmutationCannotExchangeAnAbsentSource() {
-    shouldThrow<LimitsException> { preprocessAndResolve("Heat FROM Heat!") }
-    checkResolution("Heat FROM Heat?", "Ok")
-    checkResolution("Heat FROM Heat.", "Ok")
+  internal fun reflexiveTransmutationIsRejectedRegardlessOfQuantifier() {
+    shouldThrow<ExpressionException> { preprocessAndResolve("2 Plant FROM Plant!") }
+    shouldThrow<ExpressionException> { preprocessAndResolve("2 Plant FROM Plant?") }
+    shouldThrow<ExpressionException> { preprocessAndResolve("2 Plant FROM Plant.") }
   }
 
   @Test

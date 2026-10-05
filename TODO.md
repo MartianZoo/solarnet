@@ -11,6 +11,14 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## User Ideas and Agreed Directions
 
+- Resolve the nested self-transmutation case characterized in `pets/BugsTest`: an abstract Box
+  currently permits identical concrete shared arguments. Preserve shared abstract arguments and
+  rejection of dropping their markers; clarify when an open nested shared transmutation itself
+  should be rejected.
+- Reject declarations of new type variables in `OR` triggers. Use separate effects when each
+  trigger must bind a variable.
+- Revisit Mons Insurance self-compensation only if an authoritative ruling supports it. The
+  selected provisional behavior excludes its owner from compensation triggers.
 - Find a simple, natural way for the presence of `Class<Aridor>` to bring all unused
   `Class<ColonyTile>` definitions into the game. Without Aridor present, only the explicitly
   selected colony tiles should be defined. This should depend on Aridor's Class being present,
