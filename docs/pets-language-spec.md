@@ -1029,9 +1029,9 @@ changes how a source reads without changing which types exist (T10).
 **L9-1. Elaboration rewrites an element against a context.** It splits atomized gains (L9-11)
 before inserting declared defaults (L9-4 through L9-10), dispatches transform blocks (L8), records
 the resulting Type-variable scopes (T13-6 through T13-9), inserts omitted `Owned` owner arguments
-(L9-3), and expands property evaluations when their receiver is concrete (L9-12). Scopes may be
-recorded earlier to resolve authored names, but final recording follows structural transforms: a
-resource variable inside `PROD[...]` represents a Class after the block is dispatched.
+(L9-3), and expands property evaluations (L9-12). Scopes may be recorded earlier to resolve
+authored names, but final recording follows structural transforms: a resource variable inside
+`PROD[...]` represents a Class after the block is dispatched.
 
 This order defines the resulting element, not how the rewritings must be computed. The source
 of the Pets supplies the context:
@@ -1040,7 +1040,7 @@ of the Pets supplies the context:
 | --- | --- | --- |
 | The context is | `This` — the submitting player's own scope | the class's own context |
 | Source of `Me` | the submitting player | the inherited header name, an explicit selector, or an effect-local trigger binding (L9-13) |
-| Property evaluations | rejected, except in a metric (L9-12) | expanded once the receiver is concrete |
+| Property evaluations | rejected, except in a metric (L9-12) | expanded or retained (L9-12) |
 
 > **Non-normative example — player setup.** `10 ProjectCard` must become ten independent card gains,
 > each defaulted to the setting-up player. Atomizing before defaulting means each card is defaulted
@@ -1147,9 +1147,11 @@ becomes three independent gains, because three cards are three separate things t
 expands to the metric that class's `score` property holds, with `This` inside it bound to the
 property's class. It needs a receiver context, so it is expanded in a class effect and in a
 submitted *metric*, which is given one, and rejected in an ordinary submitted instruction, which is
-not. An evaluation whose receiver is still abstract stays unexpanded until it is not, and a property
-that would expand into itself is rejected. When expanded, its bare owned types use the lexical `Me`
-at the evaluation site; an unrelated event or selection does not supply one.
+not. An abstract receiver can supply a fixed property value whose syntax does not use `This`.
+A class effect retains an evaluation when the property value is still a bound or its `This` needs a
+concrete receiver. A property that would expand into itself is rejected. When expanded, its bare
+owned types use the lexical `Me` at the evaluation site; an unrelated event or selection does not
+supply one.
 
 Elaboration captures that lexical binding on the evaluation itself. `EVAL<Player1> Goal.score`
 spells an evaluation whose `Me` is Player1; ordinary `EVAL Goal.score` captures the surrounding
