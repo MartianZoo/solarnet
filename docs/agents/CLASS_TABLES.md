@@ -63,6 +63,11 @@ positive exact counts of concrete direct dependents. The engine consumes those f
 the owner; the table itself never mutates a World. It does not rebuild or retain a completed premise
 table by configuration shape.
 
+Scoped required-count restrictions are indexed by their concrete declaring Class, whose compiled
+invariants already include inherited requirements. Validation selects entries by the live types'
+root Classes, then binds them against all supplied live types; it does not scan unrelated
+declarations or omit absent required dependents.
+
 ## Structural operations versus game-domain operations
 
 Intrinsic facts whose answers come entirely from reusable declarations belong to the master:
