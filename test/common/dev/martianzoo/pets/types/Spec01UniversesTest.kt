@@ -65,6 +65,9 @@ internal class Spec01UniversesTest {
     val leftPlant = loadTypes("CLASS Plant")
     val rightPlant = loadTypes("CLASS Plant").resolve(te("Plant"))
     shouldThrowIae { leftPlant.componentLimits.requiredLimits(listOf(rightPlant)) }
+    shouldThrowIae {
+      leftPlant.componentLimits.requiredLimits(emptyList(), changedTypes = listOf(rightPlant))
+    }
   }
 
   // T1-3 Resolution is a function of the expression

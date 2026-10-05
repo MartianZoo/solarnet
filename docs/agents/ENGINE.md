@@ -288,6 +288,10 @@ executes consequences to predict a choice's outcome; failure at completion uses 
 transaction rollback path. [QUANTIFIERS.md](QUANTIFIERS.md#invariants-at-operation-completion) owns
 the bounds and choice-resolution contract.
 Initialization still audits all applicable positive minimums after constructing the initial world.
+Ordinary gameplay selects global minimum checks through the changed components' existing per-Class
+limit index. It still checks required dependents of live affected owners, including absent parts;
+unchanged global counts need no recheck. Initialization and direct corrections retain the full
+invariant query.
 
 Prefer atomic transmutation when two faces share a stable invariant. Separate queued tasks and
 `THEN` stages outside the initiating automatic cascade cannot repair a completed operation: lifecycle

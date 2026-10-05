@@ -58,7 +58,7 @@ internal class Limiter(
           }
           changed.forEach(::addScope)
           val liveScopes = scopes.filter { it in gameWorld.components }.map { it.type }
-          limits.requiredLimits(liveScopes)
+          limits.requiredLimits(liveScopes, changedTypes = changed.map { it.type })
         } else {
           emptySet()
         }

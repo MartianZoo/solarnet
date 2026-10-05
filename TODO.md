@@ -198,6 +198,10 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
+- Investigate instruction resolution if more busy Prelude performance work is needed. After
+  restricting global invariant checks to changed component types, the October 4 profile attributes
+  48% of gameplay CPU samples to resolution. Keep the next change small and preserve task-probe
+  safety; evidence is in `_local/benchmarks/2026-10-04-invariant-optimization/`.
 - Extend instruction intersection to preserve unresolved shared aliases and unnamed Type unions.
   These currently require a more specific submitted choice; keep task matching conservative and
   never substitute `Ok` for an unrepresentable nonempty intersection.

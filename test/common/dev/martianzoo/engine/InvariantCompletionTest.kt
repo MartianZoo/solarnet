@@ -35,6 +35,53 @@ internal class InvariantCompletionTest {
   }
 
   @Test
+  internal fun removingTheLastGloballyRequiredComponentRollsBack() {
+    val world =
+        world(
+            """
+            CLASS Rule { HAS =1 Token }
+            CLASS Token
+            CLASS Unrelated { HAS =1 This }
+            """,
+            "Token",
+            "Unrelated",
+        )
+    val admin = world.testAgent(ADMIN).also { it.autoExecPolicy = NONE }
+    val task = admin.addTasks("-Token!").single()
+    val before = world.timeline.checkpoint()
+
+    admin.canSelectTask(task) shouldBe false
+    world.timeline.checkpoint() shouldBe before
+    shouldThrow<LimitsException> { admin.doTask("-Token!") }
+
+    world.timeline.checkpoint() shouldBe before
+    admin.count("Token") shouldBe 1
+    admin.count("Unrelated") shouldBe 1
+  }
+
+  @Test
+  internal fun transmutationPreservesEachConcreteInheritedMinimum() {
+    val world =
+        world(
+            """
+            ABSTRACT CLASS Required { HAS 1 This }
+            CLASS First : Required
+            CLASS Second : Required
+            """,
+            "First",
+            "Second",
+        )
+    val admin = world.testAgent(ADMIN)
+    val before = world.timeline.checkpoint()
+
+    shouldThrow<LimitsException> { admin.runOperation("Second FROM First!") }
+
+    world.timeline.checkpoint() shouldBe before
+    admin.count("First") shouldBe 1
+    admin.count("Second") shouldBe 1
+  }
+
+  @Test
   internal fun inheritedReplacementEffectKeepsExactlyOneFamilyMember() {
     val admin = replacementWorld().testAgent(ADMIN)
 
