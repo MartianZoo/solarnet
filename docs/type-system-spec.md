@@ -694,8 +694,8 @@ uninhabited when it contains none (T12-4).
 key order. Fixed dependencies (T3-4) remain part of the type under T5-1, but the full form omits
 them because an expression cannot select them. The base type of `GreeneryTile` has the full form
 `GreeneryTile<Owner, MarsArea>`. `Pets` has three keys but only one argument position, so its full
-form is `Pets<Player>`. `CardBilling`, whose three inherited billing keys are fixed, is
-`CardBilling<Player, Class<CardFront>>`.
+form is `Pets<Player>`. `CardBilling`, whose inherited resource denomination is fixed, is
+`CardBilling<Player>`.
 
 **T5-5. Compact form.** The **compact form** writes a subsequence of the full form's arguments, in
 the same order. It first keeps every argument for a narrowed key (T3-10), and every argument that,
@@ -1478,7 +1478,7 @@ read in the narrower type. Specializing `SoloStandardResourceReserve` to
 into the class's effects turns `SetupPhase: 42 @StandardResource` into `SetupPhase: 42 Steel`.
 
 A value that did not change and is still abstract supplies nothing. A subclass that *fixes* the
-position does supply a value. `CardBilling : Billing<CardPlay, Action1, Class<MC>>` supplies
+position does supply a value. `CardBilling : Billing<Class<MC>>` supplies
 `Class<MC>` for `Billing`'s `@Class`, so the inherited `This IF MAX 0 Owed<@Class>:: -This!` tests
 `Owed<Class<MC>>`.
 

@@ -1921,7 +1921,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       // 9:20:50 PM — Yellow: "I pay for it because it has space tag and then science tag adds
       // carbon nano back oh right and I use University pitch and drop"
       playProject(TransNeptuneProbe, 2) {
-            doTask("PayFromCard FROM Graphene<$CarbonNanosystems>")
+            doTask("-Graphene<$CarbonNanosystems>")
             doTask("ProjectCard FROM ProjectCard")
           }
           .expect("-2 MC")
@@ -2079,7 +2079,7 @@ internal class OtbGame20260904Test : AbstractFullGameTest() {
       playProject(
               ImportedHydrogen,
               payment = {
-                doTask("2 PayFromCard FROM Graphene<$CarbonNanosystems>")
+                doTask("-2 Graphene<$CarbonNanosystems>")
                 assertCardResources(0 to CarbonNanosystems)
                 pay(8)
               },

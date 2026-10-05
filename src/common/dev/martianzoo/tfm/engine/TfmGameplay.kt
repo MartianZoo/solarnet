@@ -189,7 +189,7 @@ public class TfmGameplay(
     val billingCause = openPendingBilling()
     val resource = acceptedResources().singleOrNull()
     if (resource != null) {
-      doTask("Pay<Class<$resource>> FROM $resource / Owed<Class<$resource>>")
+      doTask("-$resource / Owed<Class<$resource>>")
     }
     if (this@TfmGameplay.count("Owed") == 0) finishBilling(billingCause)
   }
@@ -348,7 +348,7 @@ public class TfmGameplay(
         for ((currency, units) in tender) {
           if (units > 0) {
             preparePayment(currency)
-            doTask("$units Pay<Class<$currency>> FROM $currency")
+            doTask("-$units $currency")
           }
         }
         if (count("Owed") == 0) finishBilling(billingCause)
@@ -430,7 +430,7 @@ public class TfmGameplay(
   private fun OperationScope.payAllMc() {
     val billingCause = openPendingBilling()
     val owed = this@TfmGameplay.count("Owed")
-    if (owed > 0) doTask("$owed Pay<Class<MC>> FROM MC")
+    if (owed > 0) doTask("-$owed MC")
     if (this@TfmGameplay.count("Owed") == 0) finishBilling(billingCause)
   }
 

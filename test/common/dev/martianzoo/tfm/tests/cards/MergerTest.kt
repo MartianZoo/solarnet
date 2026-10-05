@@ -157,7 +157,7 @@ internal class MergerTest : CardTest() {
             p1.playCorp(Recyclon) {
               doTask("Owed<> / $Recyclon.cost")
               doTask("PriceCard<Class<$Recyclon>>")
-              doTask("CardBilling<Class<$Recyclon>>")
+              doTask("CardBilling")
               doTask("$Recyclon FROM StandardCorporationCard<Selecting>")
               doTask("38 MC")
               // Choose the disease loss before Merger's payment; both are queued.

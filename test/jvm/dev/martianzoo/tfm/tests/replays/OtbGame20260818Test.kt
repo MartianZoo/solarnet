@@ -303,7 +303,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // "I use one Psychrophiles microbe to play Potatoes... lose two plants and get two money
       // production."
       playProject(Potatoes, 0) {
-            doTask("PayFromCard FROM Microbe<$Psychrophiles>")
+            doTask("-Microbe<$Psychrophiles>")
           }
           .expect("-Microbe, -2 Plant, PROD[2 MC]")
     }
@@ -1326,7 +1326,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // "I'll pay three psychrophiles for green houses." "Gain one plant for each city tile in
       // play. That's one, two, three, four, five."
       playProject(Greenhouses, 0) {
-            doTask("3 PayFromCard FROM Microbe<$Psychrophiles>")
+            doTask("-3 Microbe<$Psychrophiles>")
           }
           .expect("5 Plant, 0 Animal<Green, $EcologicalZone<Green>>, -ProjectCard")
       // "And I will greenery boop." "It's six, six, sorry." "It's the last possible spot next to my
@@ -1559,7 +1559,7 @@ internal class OtbGame20260818Test : AbstractFullGameTest() {
       // "My seven psychrophiles and three real." "Increase money production two steps. Increase
       // plant production three steps. Increase... No, gain two plants."
       playProject(KelpFarming, 3) {
-            doTask("7 PayFromCard FROM Microbe<$Psychrophiles>")
+            doTask("-7 Microbe<$Psychrophiles>")
           }
           .expect("PROD[2 MC, 3 Plant]")
     }

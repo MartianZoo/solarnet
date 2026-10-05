@@ -108,7 +108,7 @@ internal class NewPromoCardsTest : CardTest() {
     p1.runOperation("Graphene<$CarbonNanosystems>")
 
     p1.playProject(IcyImpactors, 7) {
-          doTask("2 PayFromCard FROM Graphene<$CarbonNanosystems>")
+          doTask("-2 Graphene<$CarbonNanosystems>")
         }
         .expect("-2 Graphene<$CarbonNanosystems>")
   }
@@ -120,7 +120,7 @@ internal class NewPromoCardsTest : CardTest() {
     admin.phase("Action")
     p1.runOperation("ProjectCard, $MartianLumberCorp, 2 Plant, 20 MC")
     p1.playProject(Mine, 1) {
-          doTask("Pay<Class<Plant>> FROM Plant")
+          doTask("-Plant")
         }
         .expect("-Plant")
   }

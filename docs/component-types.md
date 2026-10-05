@@ -134,10 +134,11 @@ Cards can have several types of things "on" them. `Tag`s depend on a `TagHolder`
 
 ### Payments
 
-The top-level `Owed`, `Accepting`, and `Pay` classes model ordinary resource payments;
-`AcceptingFromCard` and `PayFromCard` are their card-resource counterparts. The best way to understand
-the protocol is to see how these classes are used in the action and effect strings in each bundle's
-`cards.json5` file.
+The top-level `Owed`, `Billing`, and `Accepting` classes model ordinary resource payments;
+`AcceptingFromCard` enables payment from a particular card. Players remove their own accepted
+resources, and those losses automatically reduce their debt; an opponent's removal does not. The
+best way to understand the protocol is to see how these classes are used in the action and effect
+strings in each bundle's `cards.json5` file.
 
 ## TODO
 
