@@ -253,7 +253,29 @@ cross-product.
 
 The game `ClassTable` view compiles inherited invariants into immutable per-Class limits. Each
 World's `Limiter` combines those facts with live multiplicity. An invariant constrains the state at
-operation completion but does not create its required components or choose concrete Types.
+operation completion. On an ordinary gain, a positive exact-count invariant also constructs its
+missing parts when the required Type is concrete and directly depends on the gained component.
+Inherited requirements bind `This` to that component. Construction keeps pending requirements and
+gains a part only once its dependencies exist, discovering that part's requirements in turn. This
+allows a nested part to depend on another branch of the same structure regardless of declaration
+order. If no pending part can proceed, normal gain resolution reports the missing dependencies.
+The whole required structure exists before any of its gain events dispatches
+reactions, so a required listener can observe a sibling's gain regardless of invariant order.
+Construction records ordinary change events, including separate `Atomized` gains. Reactions see
+the assembled structure. Automatic reactions traverse construction events in reverse, so a part
+reacts before its owners can dispose of it. All construction events' automatic effects finish before
+matching queued effects in their original event order. Both automatic and queued owner conditions
+can therefore see their parts' automatic consequences. Existing parts count toward the requirement,
+including parts supplied by overlapping requirements. Construction retains each gain's automatic
+ancestry to share the existing recursion guard; waiting for a dependency does not reset that budget.
+Failures roll back the whole operation.
+`ClassLimitTable.requiredParts` supplies these construction requirements from the same compiled
+invariant templates used for validation.
+
+Abstract or refined Types, minimum-only bounds, self-counts, and indirect or unrelated requirements
+remain constraints; construction neither chooses their components nor invents missing prerequisites.
+Signals and same-Type transmutations do not reconstruct parts. This construction rule belongs to
+ordinary instruction execution; direct `sneak` changes retain their existing bypass behavior.
 
 Completed-state validation instantiates a self-count for every inhabited concrete specialization.
 A dependent count containing `This` is instantiated only for live declaring Types, so an absent

@@ -89,22 +89,15 @@ cards.
 
 ## Card-data compilation
 
-`CardPetsGenerator` treats a card-data invariant of the form `=n Attachment<..., This>` as
-construction shorthand when `n` is positive, `This` is a direct argument, and the expression has no
-refinements or Type variables. It emits both `HAS =n ...` and a mandatory `This:: n ...!` gain.
-Class literals, other bounds, global counts, and indirect dependencies remain constraints only.
-This is card-data sugar; ordinary Pets invariants still do not create components. Authors must
-ensure the generated gain needs no choice; the compiler does not infer targets or dependency order.
+`CardPetsGenerator` emits printed tags and attached capabilities as exact-count invariants, without
+extra creation effects. Ordinary engine construction creates their concrete dependent parts; see
+[ENGINE.md](ENGINE.md#queries-invariants-and-dead-ends) for the construction boundary. Identical
+requirements are deduplicated, and repeated printed tags retain their exact counts.
 
-Printed tags become exact-count invariants and use the same creation path, preserving repeated tag
-counts. Explicit attachment invariants precede generated tag invariants; identical requirements are
-deduplicated. Generated gains are comma-grouped, with tags in a separate effect from other
-attachments so tag and behavior inspection remain separate. Authored
-automatic `This` effects run before these generated effects, then ordinary on-play instructions
-follow. This lets Splice's attachment observe its own tag and preserves
-Pharmacy Union's starting money before its tag consequences. Authored exact-count invariants count
-as ongoing behavior when deriving a blue project card; generated tag invariants do not change color.
-Initial spendable resources, choices, and shared-state changes remain ordinary instructions.
+Card metadata reads tags from inherited exact-count invariants. A required attachment carrying
+persistent behavior counts toward the card's active role. Initial spendable resources, choices,
+and shared-state changes remain ordinary instructions. Pharmacy Union's automatic starting-money
+effect still precedes execution of the queued consequences of its microbe tags.
 
 ## Inclusion when an expansion is absent
 

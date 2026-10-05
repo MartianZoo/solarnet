@@ -12,7 +12,7 @@ import kotlin.test.assertTrue
 
 internal class GenerateCardPetsTest {
   @Test
-  internal fun exactAttachmentsAndRepeatedTagsShareCreationWithoutDuplicates() {
+  internal fun exactAttachmentsAndRepeatedTagsProduceOnlyInvariants() {
     val data =
         CardDefinition(
             name = "Example",
@@ -40,8 +40,6 @@ internal class GenerateCardPetsTest {
     assertEquals(
         listOf(
                 "This:: 5 MC",
-                "This:: 3 Grant<Class<Steel>, This>!, Grant<Class<Titanium>, This>!",
-                "This:: 2 MicrobeTag<This>!, BuildingTag<This>!",
                 "This: 2 Plant",
             )
             .map { parse<Effect>(it) },
@@ -100,7 +98,7 @@ internal class GenerateCardPetsTest {
 
     assertEquals("AutomatedCard", data.projectKind)
     assertEquals(setOf(parse<Requirement>("=1 ScienceTag<This>")), card.invariants)
-    assertEquals(parse<Effect>("This:: ScienceTag<This>!"), card.authoredEffects.first())
+    assertEquals(listOf(parse<Effect>("This: ProjectCard")), card.authoredEffects)
   }
 
   @Test
@@ -113,27 +111,6 @@ internal class GenerateCardPetsTest {
     assertEquals("ActiveCard", cards.getValue("ArcticAlgae").projectKind)
     assertEquals("EventCard", cards.getValue("ImportedHydrogen").projectKind)
     assertEquals("EventTag", cards.getValue("ImportedHydrogen").tags.last())
-  }
-
-  @Test
-  internal fun cardEffectsHaveStableSetupOrdering() {
-    val colonies = CardPetsGenerator.renderBundle("ColoniesExpansion")
-    assertInOrder(
-        colonies.cardDeclaration("StormcraftIncorporated"),
-        "This:: JovianTag<This>",
-        "This: 48 MC",
-        "Billing<Class<Heat>>:: AcceptingFromCard<This>",
-        "PayFromCard<This>:: -2 Owed<Class<Heat>>",
-    )
-
-    val promos = CardPetsGenerator.renderBundle("PromoCardPack")
-    assertInOrder(
-        promos.cardDeclaration("PharmacyUnion"),
-        "This:: 54 MC",
-        "This:: 2 MicrobeTag<This>",
-        "This: SearchForCard<TagFilter<Class<ScienceTag>>>",
-        "MicrobeTag<Anyone>:",
-    )
   }
 
   @Test
@@ -154,9 +131,6 @@ internal class GenerateCardPetsTest {
     assertInOrder(cards, "CLASS AerialLenses :", "CLASS ExampleGlobalEvent : GlobalEvent")
     assertTrue(cards.endsWith('\n'))
   }
-
-  private fun String.cardDeclaration(name: String): String =
-      substringAfter("CLASS $name ").substringBefore("\n}")
 
   private fun assertInOrder(source: String, vararg fragments: String) {
     var previous = -1

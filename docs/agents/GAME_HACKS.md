@@ -407,27 +407,6 @@ using three steel and zero M€: one steel toward Mine, then two steel against t
 [payment.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/payment.pets), and action
 billing in [TfmActionLowerer.kt](../../src/common/dev/martianzoo/tfm/canon/TfmActionLowerer.kt).
 
-### 25. Printed-tag pricing only scans directly authored tag gains
-
-**Hack:** `cardTags` searches the card's own automatic bare-`This` effects for literal tag gains.
-It does not inspect inherited effects. `PriceAspectCount` then uses that extracted list to offer
-tag discounts and alternative payment resources, although the live effect system executes
-inherited tag gains normally.
-
-**Fan card — Solar Habitat:** a Building/Space project that increases energy production and gives
-two plants. A **truthful composed declaration** inherits its fixed Building and Space tag gains
-from an abstract project-card class and directly declares its immediate resources and production.
-Its live tags are correct once played, but pricing sees neither inherited tag: it misses the
-ordinary steel/titanium payment offers and applicable tag discounts. Writing the identical tag gains
-directly on the concrete card accommodates the scanner.
-
-As with the copier entries, this is an authoring restriction; it does not require an exotic new
-printed rule or imply that ordinary directly declared tags already fail.
-
-**Source:** `cardTags` in [cardClass.kt](../../src/common/dev/martianzoo/tfm/canon/cardClass.kt),
-`priceAspectCount` in [custom.kt](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/custom.kt), and
-`PriceCard` in [card-model.pets](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/card-model.pets).
-
 ## Audit limits
 
 The full canon pass covered all **536 definitions in the eight card-data files**, the accompanying
@@ -439,10 +418,11 @@ reviewed as families, not counted as separate hacks.
 
 This is a source-backed inventory of latent hazards, not a proof that every other card is truthful.
 Most fan interactions remain source-derived predictions. Five temporary JVM scenarios, run through
-`:tfm-tests:jvmTest`, reproduced the failures in entries **20, 21, 22, 24, and 25**. The final probe
+`:tfm-tests:jvmTest`, reproduced the failures in entries **20, 21, 22, and 24**, plus a since-corrected
+inherited-tag pricing issue (former entry 25). The final probe
 run passed all five characterizations: wrong placement bonus, stale party leader, absent current
 influence, steel paying the nested M€ fee, and inherited tags missing from pricing. These demonstrate
-the shortcuts, not corrected behavior; no gameplay code or permanent tests were changed.
+the shortcuts at the time of the audit; that audit changed no gameplay code or permanent tests.
 
 Source links and the scenarios identify each shortcut so a later regression test can distinguish
 the intended outcome from the predicted failure. Do not promote a

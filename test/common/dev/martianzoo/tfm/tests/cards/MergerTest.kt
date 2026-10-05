@@ -1,5 +1,6 @@
 package dev.martianzoo.tfm.tests.cards
 
+import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.api.Exceptions.LimitsException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
 import dev.martianzoo.tfm.tests.TestHelpers.assertProds
@@ -146,11 +147,28 @@ internal class MergerTest : CardTest() {
     admin.phase("Action")
     p1.count("MC") shouldBe 17
 
-    shouldThrow<LimitsException> {
-      p1.cardAction1(BoardOfDirectors) {
-        doTask("-12 MC")
-        p1.playPrelude(Merger) { p1.playCorp(Recyclon) }
+    val previousPolicy = p1.autoExecPolicy
+    try {
+      shouldThrow<LimitsException> {
+        p1.cardAction1(BoardOfDirectors) {
+          doTask("-12 MC")
+          p1.playPrelude(Merger) {
+            p1.autoExecPolicy = NONE
+            p1.playCorp(Recyclon) {
+              doTask("Owed<> / $Recyclon.cost")
+              doTask("PriceCard<Class<$Recyclon>>")
+              doTask("CardBilling<Class<$Recyclon>>")
+              doTask("$Recyclon FROM StandardCorporationCard<Selecting>")
+              doTask("38 MC")
+              // Choose the disease loss before Merger's payment; both are queued.
+              doTask("-4 MC.")
+              doTask("-42 MC")
+            }
+          }
+        }
       }
+    } finally {
+      p1.autoExecPolicy = previousPolicy
     }
     p1.count("MC") shouldBe 17
     p1.count("Disease<$PharmacyUnion>") shouldBe 2

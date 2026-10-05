@@ -788,9 +788,9 @@ ordinary (`:`) triggers, including their `IF` conditions. An ordinary trigger ob
 including those automatic consequences. An automatic trigger may observe an intermediate state that the ordinary
 triggers do not observe.
 
-> **Non-normative example — Birds.** `This:: AnimalTag<This>` installs the printed animal tag as an
-> automatic consequence of the card entering play. Making it an ordinary `:` effect would present a
-> fictitious choice to omit an icon physically printed on the card.
+> **Non-normative example — Pharmacy Union.** `This:: 54 MC` establishes starting money before
+> queued losses caused by its microbe tags can execute. Printed tags themselves are constructed from
+> exact dependent-count invariants such as `HAS =2 MicrobeTag<This>`.
 
 **L6-3. There are two kinds of trigger.** `This` and `-This` are about this very component being
 gained or removed. Any other expression is a *subscription* to gains, or with a leading `-` removals,
@@ -1328,9 +1328,10 @@ CLASS GreeneryTile : Tile { HAS MAX 1 This; This: OxygenStep }
 ```
 
 > **Non-normative note — invariant enforcement.** A counting invariant constrains the result of a
-> full operation: one initiating change and all its recursive automatic (`::`) consequences. It does
-> not create Components. Intermediate counts may cross its bounds, while source availability and
-> dependency integrity are checked immediately. See
+> full operation: one initiating change and all its recursive automatic (`::`) consequences. It
+> also constructs missing concrete parts for positive exact counts directly dependent on the gained
+> Component. Other invariants only constrain counts. Intermediate counts may cross their bounds,
+> while source availability and dependency integrity are checked immediately. See
 > [invariants and operation completion](type-system.md#invariants-and-operation-completion) for the
 > runtime contract.
 

@@ -25,6 +25,7 @@ import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.By
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Each
+import dev.martianzoo.pets.ast.Instruction.Gain.Companion.gain
 import dev.martianzoo.pets.ast.Instruction.Gated
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.Instruction.Or
@@ -42,10 +43,12 @@ import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.data.Actor
 import dev.martianzoo.pets.data.Actor.Companion.ADMIN
 import dev.martianzoo.pets.data.Player
+import dev.martianzoo.pets.types.ClassLimitTable.Limit
 import dev.martianzoo.pets.types.ClassTable
 import dev.martianzoo.pets.types.Type
 import dev.martianzoo.pets.types.recordTypeVariableScopes
 import dev.martianzoo.state.Component.Companion.toComponent
+import dev.martianzoo.state.GameEvent.ChangeEvent
 import dev.martianzoo.state.GameEvent.ChangeEvent.Cause
 import dev.martianzoo.state.toComponent
 import kotlin.math.min
@@ -53,10 +56,12 @@ import kotlin.math.min
 /**
  * Resolves instructions and executes their concrete changes.
  *
- * For each recorded change, all matching automatic effects are executed recursively before queued
- * effects from that change are evaluated and admitted as tasks. Automatic execution may itself
- * produce queued work, but it never enters the task pool. [Effector.fire] owns selection of each
- * effect batch; this class owns the automatic-before-queued execution boundary.
+ * A gained component's exact concrete required parts are constructed in dependency order before
+ * reactions to any of their gains. Parts' automatic reactions run before their owners'. Each
+ * recorded change executes matching automatic effects recursively before evaluating and admitting
+ * its queued effects. Automatic execution may itself produce queued work, but it never enters the
+ * task pool. [Effector.fire] owns selection of each effect batch; this class owns construction and
+ * the automatic-before-queued execution boundary.
  */
 internal class Instructor
 internal constructor(
@@ -68,7 +73,14 @@ internal constructor(
     private val elaborator: PetElaborator,
     private val timeline: Timeline,
 ) {
-  private val automaticEffectStack = mutableListOf<PendingTask>()
+  private var automaticEffectStack: List<PendingTask> = emptyList()
+  private var constructionEvents: MutableList<ConstructionEvent>? = null
+
+  private data class ConstructionEvent(
+      val event: ChangeEvent,
+      val controller: Actor,
+      val ancestors: List<PendingTask>,
+  )
 
   internal fun execute(
       instruction: Instruction,
@@ -160,11 +172,7 @@ internal constructor(
               actor = actor,
           )
 
-      val now = effector.fire(result, controller, automatic = true)
-      for (task in now) {
-        executeAutomaticEffect(task, deferred)
-      }
-      deferred += effector.fire(result, controller, automatic = false)
+      constructPartsAndFire(result, controller, deferred)
       if (done) break
     }
     if (automaticEffectStack.isEmpty()) {
@@ -180,23 +188,90 @@ internal constructor(
     }
   }
 
+  /** Required parts all exist before any event in their construction dispatches effects. */
+  private fun constructPartsAndFire(
+      event: ChangeEvent,
+      controller: Actor,
+      deferred: MutableList<PendingTask>,
+  ) {
+    val recorded = ConstructionEvent(event, controller, automaticEffectStack)
+    constructionEvents?.let {
+      it += recorded
+      return
+    }
+    val events = mutableListOf(recorded)
+    val pending = mutableListOf<Pair<Limit, ConstructionEvent>>()
+    constructionEvents = events
+    try {
+      var discovered = 0
+      while (true) {
+        while (discovered < events.size) {
+          val origin = events[discovered++]
+          origin.event.change.gaining
+              ?.takeIf {
+                it != origin.event.change.removing && reader.countComponent(it.type) > 0
+              }
+              ?.let { owner ->
+                classTable.componentLimits.requiredParts(owner.type).forEach {
+                  pending += it to origin
+                }
+              }
+        }
+        pending.removeAll { (part, _) -> reader.countComponent(part.type) >= part.range.first }
+        if (pending.isEmpty()) break
+        val ready = pending.indexOfFirst { (part, _) ->
+          part.type.typeDependencies.all { reader.countComponent(it.boundType) > 0 }
+        }
+        // If none can proceed, ordinary gain resolution reports the missing dependencies.
+        val (part, origin) = pending.removeAt(ready.takeIf { it >= 0 } ?: 0)
+        val owner = checkNotNull(origin.event.change.gaining)
+        val missing = part.range.first - reader.countComponent(part.type)
+        val instruction = elaborator.atomizeGains(gain(part.type.expression, missing))
+        executeAutomaticEffect(
+            PendingTask.fromEffect(
+                context = owner,
+                triggerEvent = origin.event,
+                controller = origin.controller,
+                changedComponentPlayer = owner.owningPlayer,
+                automatic = true,
+                instruction = InstructionGroup.of(instruction),
+            ),
+            deferred,
+            origin.ancestors,
+        )
+      }
+    } finally {
+      constructionEvents = null
+    }
+    for ((change, changeController) in events.asReversed()) {
+      for (task in effector.fire(change, changeController, automatic = true)) {
+        executeAutomaticEffect(task, deferred)
+      }
+    }
+    for ((change, changeController) in events) {
+      deferred += effector.fire(change, changeController, automatic = false)
+    }
+  }
+
   private fun executeAutomaticEffect(
       task: PendingTask,
       deferred: MutableList<PendingTask>,
+      ancestors: List<PendingTask> = automaticEffectStack,
   ) {
-    if (automaticEffectStack.size >= MAX_AUTOMATIC_EFFECT_DEPTH) {
+    if (ancestors.size >= MAX_AUTOMATIC_EFFECT_DEPTH) {
       throw RunawayEffectChainException(
           MAX_AUTOMATIC_EFFECT_DEPTH,
-          (automaticEffectStack + task).map(PendingTask::instruction),
+          (ancestors + task).map(PendingTask::instruction),
       )
     }
-    automaticEffectStack += task
+    val enclosingStack = automaticEffectStack
+    automaticEffectStack = ancestors + task
     try {
       task.instruction.instructions.forEach {
         doExecute(it, task.cause, deferred, task.actor, task.controller)
       }
     } finally {
-      automaticEffectStack.removeLast()
+      automaticEffectStack = enclosingStack
     }
   }
 

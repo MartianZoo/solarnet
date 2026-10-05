@@ -107,6 +107,30 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
         scopedRequiredRestrictions.asSequence().flatMap { it.requiredLimits(liveTypeSet) }.toSet()
   }
 
+  /**
+   * Exact, positive counts of concrete parts directly dependent on [owner]. Creating the owner
+   * establishes these parts; validation alone never creates them. Abstract requirements and
+   * requirements for the owner itself remain constraints without choosing any components.
+   */
+  public fun requiredParts(owner: Type): List<Limit> {
+    require(classTable.knows(owner)) { "`$owner` belongs to a different Catalog" }
+    return classTable.classLimitTemplates
+        .templatesFor(owner.rootClass)
+        .asSequence()
+        .filter { it.range.first > 0 && it.range.first == it.range.last }
+        .map { template ->
+          val bound =
+              replaceThisExpressionsWith(owner.expressionFull)
+                  .transformExpression(template.expression)
+          Limit(classTable.resolve(bound), template.range)
+        }
+        .filter { limit ->
+          !limit.type.abstract && limit.type.typeDependencies.any { it.boundType == owner }
+        }
+        .distinct()
+        .toList()
+  }
+
   private fun compileRestrictions(): Map<Class, List<Restriction>> {
     val restrictions = mutableMapOf<Class, MutableList<Restriction>>()
     classTable
