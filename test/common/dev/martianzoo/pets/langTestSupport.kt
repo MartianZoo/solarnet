@@ -6,11 +6,8 @@ import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.data.Catalog
-import dev.martianzoo.pets.data.Player
-import dev.martianzoo.pets.data.createClassLoader
 import dev.martianzoo.pets.types.ClassTable
-import dev.martianzoo.pets.types.testCatalog
+import dev.martianzoo.pets.types.loadTypes
 import io.kotest.matchers.shouldBe
 import kotlin.reflect.KClass
 
@@ -98,23 +95,16 @@ internal const val LANG_DECLARATIONS: String =
  * The declarations above, plus one registered transform handler so that dispatching marked syntax
  * (L8-1) is observable. `UNWRAP[x]` rewrites to `x`.
  */
-internal val langCatalog: Catalog by lazy {
-  val base = testCatalog(LANG_DECLARATIONS.trimIndent())
-  object : Catalog by base {
-    override val transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> =
-        mapOf("UNWRAP" to { _ -> TransformHandler { inner -> inner } })
-
-    override val classTable: ClassTable by lazy {
-      createClassLoader(this).loadEverything()
-    }
-  }
+internal val langTable: ClassTable by lazy {
+  loadTypes(
+      LANG_DECLARATIONS.trimIndent(),
+      transformHandlerFactories = mapOf("UNWRAP" to { _ -> TransformHandler { inner -> inner } }),
+  )
 }
-
-internal val langTable: ClassTable by lazy { langCatalog.classTable }
 
 internal val langElaborator: PetElaborator by lazy { PetElaborator(langTable) }
 
-internal val player1: Player = Player(parse("Player1"))
+internal val player1: Expression = parse("Player1")
 
 /** A world that resolves types in [classTable] and answers [answer] to every requirement. */
 internal class TableWorld(

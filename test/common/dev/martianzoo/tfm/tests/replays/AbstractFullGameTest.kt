@@ -9,9 +9,9 @@ import dev.martianzoo.engine.recording
 import dev.martianzoo.pets.Parsing.parseClasses
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.GameConfig
-import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.GameConfig
+import dev.martianzoo.state.GamePremise
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.canon.TfmCatalog
 import dev.martianzoo.tfm.engine.TfmGameplay
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts

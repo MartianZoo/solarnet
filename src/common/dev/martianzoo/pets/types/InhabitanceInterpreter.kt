@@ -17,12 +17,17 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.Metric.Count
 import dev.martianzoo.pets.ast.Requirement
 
-/** Proves facts that follow only from exact counts and uninhabited expression domains. */
-internal class InhabitanceInterpreter(
+/**
+ * Proves facts that follow only from exact counts and uninhabited expression domains. [exactCount]
+ * returns null when a count is unknown. An unproved fact remains unknown, so callers can reject
+ * impossible behavior without rejecting behavior that may be possible.
+ */
+public class InhabitanceInterpreter(
     private val classIsUninhabited: (ClassName) -> Boolean,
     private val exactCount: (Expression) -> Int? = { null },
 ) {
-  internal fun expressionIsUninhabited(expression: Expression): Boolean {
+  /** Whether the expression is provably empty from its root, arguments, or requirements. */
+  public fun expressionIsUninhabited(expression: Expression): Boolean {
     if (expression.className == THIS) return false
     if (classIsUninhabited(expression.className)) return true
     if (expression.arguments.any(::expressionIsUninhabited)) return true
@@ -31,17 +36,20 @@ internal class InhabitanceInterpreter(
     } == true
   }
 
-  internal fun requirementIsFalse(requirement: Requirement): Boolean =
+  /** Whether known counts and empty domains prove the requirement false. */
+  public fun requirementIsFalse(requirement: Requirement): Boolean =
       truthOf(requirement) == Truth.FALSE
 
-  internal fun metricIsExactlyZero(metric: Metric): Boolean =
+  /** Whether the metric is provably zero; false includes unknown values. */
+  public fun metricIsExactlyZero(metric: Metric): Boolean =
       when (metric) {
         is Count -> exactCount(metric.expression) == 0 || expressionIsUninhabited(metric.expression)
         is Metric.Or -> metric.metrics.all(::metricIsExactlyZero)
         else -> false
       }
 
-  internal fun triggerIsReachable(trigger: Trigger): Boolean =
+  /** Whether the trigger may be reachable; false means it is provably unreachable. */
+  public fun triggerIsReachable(trigger: Trigger): Boolean =
       when (trigger) {
         is SelfTrigger -> true
         is OnGainOf -> !expressionIsUninhabited(trigger.expression)

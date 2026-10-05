@@ -584,6 +584,12 @@
           "effects": [ "End: VictoryPoint" ],
         },
         {
+          "name": "ShipmentToEarth",
+          "cost": 17,
+          "tags": [ "SpaceTag", "EventTag" ],
+          "immediate": "-3 Plant, -3 Steel, 3 TerraformRating, 2 MC / EarthTag",
+        },
+        {
           "name": "SixteenPsyche",
           "cost": 31,
           "tags": [ "SpaceTag" ],

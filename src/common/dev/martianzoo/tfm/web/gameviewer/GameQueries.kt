@@ -2,10 +2,10 @@ package dev.martianzoo.tfm.web.gameviewer
 
 import dev.martianzoo.pets.Parsing
 import dev.martianzoo.pets.PetElaborator
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.Metric
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.GameReader
+import dev.martianzoo.state.Player
 
 /** Actor-contextual read conveniences used by the passive recording UI. */
 internal class GameQueries(private val reader: GameReader) {

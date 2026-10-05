@@ -21,7 +21,7 @@
   for `public abstract class ClassTable` to inspect Catalog-wide and game-view operations.
 - [`Class.kt`](../../src/common/dev/martianzoo/pets/types/Class.kt) — read before
   adding any back-reference or universe identity to a structural value.
-- [`GamePremise.kt`](../../src/common/dev/martianzoo/pets/data/GamePremise.kt) —
+- [`GamePremise.kt`](../../src/common/dev/martianzoo/state/GamePremise.kt) —
   search for `classTable` to see where the game view is retained.
 - [`ClassTableSelectionTest.kt`](../../test/common/dev/martianzoo/tfm/tests/rules/ClassTableSelectionTest.kt)
   — read when changing inhabitation or Catalog/Class identity invariants.
@@ -143,6 +143,9 @@ Master loading accepts declarations, transform factories, an external declaratio
 an additional-dependency callback directly. `createClassLoader(catalog)` supplies these inputs and
 owns Kotlin implementation validation. Neither `ClassLoader` nor `ClassTable` depends on `Catalog`
 or the custom runtime implementation classes. Transform factories bind to each receiving table.
+
+See [RESPONSIBILITIES.md](RESPONSIBILITIES.md#game-assembly-and-runtime-apis-belong-to-state)
+for assembly and viability ownership and the corresponding test boundaries.
 
 ## Access interface
 

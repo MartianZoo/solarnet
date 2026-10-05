@@ -2,7 +2,7 @@ package dev.martianzoo.engine
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
+import dev.martianzoo.state.Actor.Companion.ADMIN
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 

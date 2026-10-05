@@ -20,7 +20,7 @@ public object SystemClasses {
   public val ATOMIZED: ClassName = cn("Atomized")
   public val ACTOR: ClassName = cn("Actor")
   public val ADMIN: ClassName = cn("Admin")
-  internal val AUDIT: ClassName = cn("Audit")
+  public val AUDIT: ClassName = cn("Audit")
   public val CLASS: ClassName = cn("Class")
   internal val CUSTOM_METRIC: ClassName = cn("CustomMetric")
   public val CUSTOM_INSTRUCTION: ClassName = cn("CustomInstruction")

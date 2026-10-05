@@ -2,17 +2,12 @@ package dev.martianzoo.pets.types
 
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.Parsing.parseClasses
-import dev.martianzoo.pets.api.CustomClass
+import dev.martianzoo.pets.TransformHandler
 import dev.martianzoo.pets.api.TypeInfo
-import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Requirement
-import dev.martianzoo.pets.data.Catalog
 import dev.martianzoo.pets.data.ClassDeclaration
-import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.data.createClassLoader
 import dev.martianzoo.pets.systemClassDeclarations
 import io.kotest.assertions.throwables.shouldThrow
 
@@ -21,39 +16,28 @@ import io.kotest.assertions.throwables.shouldThrow
 /** Parses one type expression. */
 internal fun te(s: String): Expression = parse(s)
 
-/** Compiles [declarations] into a master class table, alongside the system classes. */
-internal fun loadTypes(vararg declarations: String): ClassTable =
-    testCatalog(declarations.joinToString("\n")).classTable
-
-/** Builds a catalog from Pets source, plus the system classes. */
-internal fun testCatalog(
-    petsText: String,
-    customImplementations: Set<CustomClass> = emptySet(),
-    moduleSelections: Map<ClassName, Set<ClassSelection>> = emptyMap(),
-    classAvailabilityModules: Map<ClassName, Set<ClassName>> = emptyMap(),
-): Catalog {
-  val explicitDeclarations = parseClasses(petsText).toSet()
-  val declarations = systemClassDeclarations + explicitDeclarations
-  return object : Catalog {
-    override val explicitClassDeclarations: Set<ClassDeclaration> = explicitDeclarations
-    override val allClassDeclarations: Map<ClassName, ClassDeclaration> =
-        ClassDeclaration.indexByName(declarations)
-    override val customClasses: Set<CustomClass> = customImplementations
-    override val modules: Map<ClassName, Set<ClassSelection>> = moduleSelections
-    override val classAvailabilityModules: Map<ClassName, Set<ClassName>> = classAvailabilityModules
-    override val classTable: ClassTable by lazy { createClassLoader(this).loadEverything() }
-  }
-}
-
-/** Builds the game view of [catalog] whose premise selects exactly [selectedClassNames]. */
-internal fun gameView(catalog: Catalog, vararg selectedClassNames: String): ClassTable =
-    GamePremise(
-            catalog,
-            emptySet(),
-            selectedClassNames.mapTo(linkedSetOf()) { ClassSelection(cn(it)) },
-            emptySet(),
+/** Compiles Pets declarations directly, without game assembly or runtime implementations. */
+internal fun loadTypes(
+    vararg declarations: String,
+    transformHandlerFactories: Map<String, (ClassTable) -> TransformHandler> = emptyMap(),
+): ClassTable =
+    ClassLoader(
+            ClassDeclaration.indexByName(
+                systemClassDeclarations + parseClasses(declarations.joinToString("\n"))
+            ),
+            transformHandlerFactories,
         )
-        .classTable
+        .loadEverything()
+
+/** Constructs a selected Pets universe without game configuration policy. */
+internal fun gameView(
+    master: ClassTable,
+    vararg selectedClassNames: String,
+): ClassTable =
+    ClassLoader.forPremise(
+        PremiseClassTable(master, emptySet()),
+        selectedClassNames.map(::cn),
+    )
 
 /** Asserts that [block] rejects an argument, as cross-universe operations do. */
 internal inline fun shouldThrowIae(block: () -> Unit): IllegalArgumentException =
@@ -85,24 +69,4 @@ private class FixedWorld(private val answer: (Requirement) -> Boolean) : TypeInf
   override fun ensureSelectionNarrows(wide: Expression, narrow: Expression): Unit = error("unused")
 
   override fun has(requirement: Requirement): Boolean = answer(requirement)
-}
-
-/** A world that records every requirement it is asked about, in order. */
-internal class RecordingWorld(private val answer: Boolean = true) : TypeInfo {
-  override val classTable: ClassTable
-    get() = error("unused by resolved type judgments")
-
-  val questions: MutableList<String> = mutableListOf()
-
-  override fun isAbstract(e: Expression): Boolean = error("unused by the type system")
-
-  override fun ensureNarrows(wide: Expression, narrow: Expression): Unit =
-      error("unused by the type system")
-
-  override fun ensureSelectionNarrows(wide: Expression, narrow: Expression): Unit = error("unused")
-
-  override fun has(requirement: Requirement): Boolean {
-    questions += "$requirement"
-    return answer
-  }
 }

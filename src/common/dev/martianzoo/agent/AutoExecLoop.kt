@@ -7,7 +7,7 @@ import dev.martianzoo.engine.World
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.NotFullySpecifiedException
 import dev.martianzoo.pets.api.Exceptions.NotNowException
-import dev.martianzoo.pets.data.Actor
+import dev.martianzoo.state.Actor
 import dev.martianzoo.state.Task.TaskId
 import dev.martianzoo.state.TaskQueue
 

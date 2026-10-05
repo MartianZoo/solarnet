@@ -3,7 +3,7 @@ package dev.martianzoo.tfm.tests.cards
 import dev.martianzoo.agenttestsupport.testTfm
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.tests.cards.cardnames.Flooding
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe

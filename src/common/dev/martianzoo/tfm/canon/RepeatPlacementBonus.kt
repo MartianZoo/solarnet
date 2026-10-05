@@ -1,11 +1,11 @@
 package dev.martianzoo.tfm.canon
 
-import dev.martianzoo.pets.api.CustomInstruction
-import dev.martianzoo.pets.api.GameReader
 import dev.martianzoo.pets.ast.Instruction.NoOp
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.types.Type
+import dev.martianzoo.state.CustomInstruction
+import dev.martianzoo.state.GameReader
 import dev.martianzoo.tfm.canon.ApiUtils.mapDefinition
 
 internal object RepeatPlacementBonus : CustomInstruction() {

@@ -28,7 +28,6 @@ import dev.martianzoo.pets.ast.ScaledExpression.Companion.scaledEx
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.ActualScalar
 import dev.martianzoo.pets.ast.ScaledExpression.Scalar.XScalar
-import dev.martianzoo.testsupport.PLAYER2
 import io.kotest.assertions.withClue
 import io.kotest.matchers.shouldBe
 import kotlin.math.pow
@@ -198,7 +197,11 @@ internal class PetGenerator(scaling: (Int) -> Double) :
       register {
         Trigger.ByTrigger(
             recurse(),
-            choose(1 to ANYONE.expression, 1 to PLAYER2.className.expression, 2 to recurse()),
+            choose(
+                1 to ANYONE.expression,
+                1 to cn("Player2").expression,
+                2 to recurse(),
+            ),
         )
       }
       register { Trigger.IfTrigger(recurse(), recurse()) }

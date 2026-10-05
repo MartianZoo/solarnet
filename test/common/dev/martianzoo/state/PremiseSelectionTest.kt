@@ -1,11 +1,9 @@
-package dev.martianzoo.pets.types
+package dev.martianzoo.state
 
+import dev.martianzoo.pets.Parsing.parse as te
 import dev.martianzoo.pets.Parsing.parse
-import dev.martianzoo.pets.api.CustomInstruction
 import dev.martianzoo.pets.api.Exceptions.InvalidGameConfigException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.ClassSelection
-import dev.martianzoo.pets.data.GamePremise
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
@@ -19,7 +17,7 @@ internal class PremiseSelectionTest {
 
   @Test
   internal fun `Audit is included in every premise`() {
-    gameView(testCatalog("CLASS Unselected")).isIncluded(cn("Audit")) shouldBe true
+    gameView(testCatalog("CLASS Unselected")).allClassNames.contains(cn("Audit")) shouldBe true
   }
 
   @Test
@@ -41,10 +39,10 @@ internal class PremiseSelectionTest {
         )
 
     val unselected = gameView(catalog)
-    unselected.isIncluded(cn("RuntimeDependency")) shouldBe false
+    unselected.allClassNames.contains(cn("RuntimeDependency")) shouldBe false
 
     val selected = gameView(catalog, "DependencySource")
-    selected.isIncluded(cn("RuntimeDependency")) shouldBe true
+    selected.allClassNames.contains(cn("RuntimeDependency")) shouldBe true
   }
 
   @Test
@@ -59,7 +57,7 @@ internal class PremiseSelectionTest {
         )
     val table = gameView(catalog, "SelectedContent")
 
-    table.isIncluded(cn("AvailableVocabulary")) shouldBe true
+    table.allClassNames.contains(cn("AvailableVocabulary")) shouldBe true
   }
 
   @Test
@@ -76,8 +74,8 @@ internal class PremiseSelectionTest {
         )
     val table = gameView(catalog, "Holder", "Included")
 
-    table.isIncluded(cn("Holder")) shouldBe true
-    table.isIncluded(cn("Excluded")) shouldBe false
+    table.allClassNames.contains(cn("Holder")) shouldBe true
+    table.allClassNames.contains(cn("Excluded")) shouldBe false
     table.isInhabited(table.resolve(te("Holder<Domain(NOT Excluded)>"))) shouldBe true
   }
 
@@ -87,7 +85,7 @@ internal class PremiseSelectionTest {
 
     val table = gameView(catalog, "Selected")
 
-    table.isIncluded(cn("Dependency")) shouldBe true
+    table.allClassNames.contains(cn("Dependency")) shouldBe true
   }
 
   @Test
@@ -168,7 +166,7 @@ internal class PremiseSelectionTest {
     val catalog = testCatalog("CLASS Querying { HAS MAX 0 Class<Represented> }\nCLASS Represented")
     val table = gameView(catalog, "Querying")
 
-    table.isIncluded(cn("Represented")) shouldBe false
+    table.allClassNames.contains(cn("Represented")) shouldBe false
   }
 
   @Test
@@ -264,7 +262,7 @@ internal class PremiseSelectionTest {
 
     val table = gameView(catalog, "Selected")
 
-    table.isIncluded(cn("Constructed")) shouldBe true
+    table.allClassNames.contains(cn("Constructed")) shouldBe true
   }
 
   @Test
@@ -292,7 +290,7 @@ internal class PremiseSelectionTest {
 
     val table = premise.classTable
 
-    table.isIncluded(cn("Constructed")) shouldBe true
+    table.allClassNames.contains(cn("Constructed")) shouldBe true
   }
 
   @Test
@@ -309,8 +307,8 @@ internal class PremiseSelectionTest {
 
     val table = gameView(catalog, "Selected")
 
-    table.isIncluded(cn("Protocol")) shouldBe false
-    table.isIncluded(cn("Constructed")) shouldBe false
+    table.allClassNames.contains(cn("Protocol")) shouldBe false
+    table.allClassNames.contains(cn("Constructed")) shouldBe false
   }
 
   @Test
@@ -319,7 +317,7 @@ internal class PremiseSelectionTest {
 
     val table = gameView(catalog, "Selected")
 
-    table.isIncluded(cn("Required")) shouldBe true
+    table.allClassNames.contains(cn("Required")) shouldBe true
   }
 
   @Test
@@ -337,7 +335,9 @@ internal class PremiseSelectionTest {
 
     val table = gameView(catalog, "Selected")
 
-    listOf("First", "Second", "Third").forEach { table.isIncluded(cn(it)) shouldBe true }
+    listOf("First", "Second", "Third").forEach {
+      table.allClassNames.contains(cn(it)) shouldBe true
+    }
   }
 
   @Test
@@ -364,14 +364,14 @@ internal class PremiseSelectionTest {
     val reachable =
         gameView(catalog, "Selected", "ProtocolTrigger", "TriggerArgument", "GateProtocol")
 
-    dormant.isIncluded(cn("Triggered")) shouldBe false
-    dormant.isIncluded(cn("XTriggered")) shouldBe false
-    dormant.isIncluded(cn("Gated")) shouldBe false
-    dormant.isIncluded(cn("ProtocolTrigger")) shouldBe false
-    reachable.isIncluded(cn("Triggered")) shouldBe true
-    reachable.isIncluded(cn("XTriggered")) shouldBe true
-    reachable.isIncluded(cn("Gated")) shouldBe true
-    reachable.isIncluded(cn("ProtocolTrigger")) shouldBe true
+    dormant.allClassNames.contains(cn("Triggered")) shouldBe false
+    dormant.allClassNames.contains(cn("XTriggered")) shouldBe false
+    dormant.allClassNames.contains(cn("Gated")) shouldBe false
+    dormant.allClassNames.contains(cn("ProtocolTrigger")) shouldBe false
+    reachable.allClassNames.contains(cn("Triggered")) shouldBe true
+    reachable.allClassNames.contains(cn("XTriggered")) shouldBe true
+    reachable.allClassNames.contains(cn("Gated")) shouldBe true
+    reachable.allClassNames.contains(cn("ProtocolTrigger")) shouldBe true
   }
 
   @Test
@@ -392,10 +392,10 @@ internal class PremiseSelectionTest {
 
     val table = gameView(catalog, "Selected", "Empty")
 
-    table.isIncluded(cn("Empty")) shouldBe true
+    table.allClassNames.contains(cn("Empty")) shouldBe true
     table.isInhabited(cn("Empty")) shouldBe false
-    table.isIncluded(cn("Triggered")) shouldBe false
-    table.isIncluded(cn("Gated")) shouldBe false
+    table.allClassNames.contains(cn("Triggered")) shouldBe false
+    table.allClassNames.contains(cn("Gated")) shouldBe false
   }
 
   @Test
@@ -404,6 +404,6 @@ internal class PremiseSelectionTest {
 
     val table = gameView(catalog, "Selected")
 
-    table.isIncluded(cn("Base")) shouldBe true
+    table.allClassNames.contains(cn("Base")) shouldBe true
   }
 }

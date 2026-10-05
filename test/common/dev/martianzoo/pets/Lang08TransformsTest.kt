@@ -14,8 +14,9 @@ import dev.martianzoo.pets.ast.Metric
 import dev.martianzoo.pets.ast.PetNode
 import dev.martianzoo.pets.ast.Requirement
 import dev.martianzoo.pets.ast.TransformNode
-import dev.martianzoo.pets.data.GamePremise
-import dev.martianzoo.pets.types.testCatalog
+import dev.martianzoo.pets.types.ClassLoader
+import dev.martianzoo.pets.types.PremiseClassTable
+import dev.martianzoo.pets.types.loadTypes
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -47,7 +48,7 @@ internal class Lang08TransformsTest {
   @Test
   internal fun `L8-2 a Catalog must define every transform kind its source uses`() {
     shouldThrow<InvalidPetDefinitionException> {
-          testCatalog("CLASS Result\nCLASS Marked { This: LATER[Result] }").classTable
+          loadTypes("CLASS Result\nCLASS Marked { This: LATER[Result] }")
         }
         .message
         .orEmpty() shouldContain "transform kind `LATER`"
@@ -55,18 +56,17 @@ internal class Lang08TransformsTest {
 
   @Test
   internal fun `L8-2 premise source must also use defined transform kinds`() {
-    val catalog = testCatalog("CLASS Result")
+    val universe = loadTypes("CLASS Result")
 
     shouldThrow<InvalidPetDefinitionException> {
-          GamePremise(
-                  catalog = catalog,
-                  modules = emptySet(),
-                  classSelections = emptySet(),
-                  initialComponentTypes = emptySet(),
-                  premiseClassDeclarations =
+          ClassLoader.forPremise(
+              premiseTable =
+                  PremiseClassTable(
+                      universe,
                       parseClasses("CLASS LocalMarked { This: LATER[Result] }").toSet(),
-              )
-              .classTable
+                  ),
+              roots = setOf(),
+          )
         }
         .message
         .orEmpty() shouldContain "transform kind `LATER`"

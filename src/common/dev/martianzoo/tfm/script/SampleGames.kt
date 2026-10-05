@@ -2,8 +2,8 @@ package dev.martianzoo.tfm.script
 
 import dev.martianzoo.agent.Agents
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.data.Actor.Companion.ADMIN
-import dev.martianzoo.pets.data.Player
+import dev.martianzoo.state.Actor.Companion.ADMIN
+import dev.martianzoo.state.Player
 import dev.martianzoo.tfm.engine.TfmGameplay.Companion.tfm
 import dev.martianzoo.tfm.engine.TfmWorkflow
 
