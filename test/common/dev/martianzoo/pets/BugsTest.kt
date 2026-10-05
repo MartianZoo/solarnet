@@ -6,6 +6,7 @@ import dev.martianzoo.pets.api.Exceptions.InvalidPetDefinitionException
 import dev.martianzoo.pets.api.Exceptions.PetSyntaxException
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
 import dev.martianzoo.pets.ast.Expression
+import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.pets.types.loadTypes
 import io.kotest.assertions.throwables.shouldThrow
@@ -15,6 +16,28 @@ import kotlin.test.Test
 
 /** Passing characterizations of known incorrect Pets behavior. */
 internal class BugsTest {
+  @Test
+  internal fun `an abstract box incorrectly permits identical concrete shared arguments in a transmutation`() {
+    val table =
+        loadTypes(
+            """
+            ABSTRACT CLASS AbstractThing
+            CLASS ConcreteThing : AbstractThing
+            ABSTRACT CLASS Box<AbstractThing>
+            """
+        )
+    val elaborator = PetElaborator(table)
+    val authored =
+        elaborator.elaborateInput(
+            parse<Instruction>("Box<@AbstractThing> FROM Box<@AbstractThing>")
+        )
+    val proposed =
+        elaborator.elaborateInput(parse<Instruction>("Box<ConcreteThing> FROM Box<ConcreteThing>"))
+
+    // The requested rule rejects the identical concrete argument even while Box remains abstract.
+    proposed.narrows(authored, TableWorld(table)) shouldBe true
+  }
+
   @Test
   internal fun `an owner-local class incorrectly repeats an argument fixed by specialization`() {
     val table =

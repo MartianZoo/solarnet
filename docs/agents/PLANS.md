@@ -51,51 +51,40 @@ See [EXPORT.md](EXPORT.md#goal-and-the-three-views-of-one-game).
 
 ### Make actions, payments, and completion one intelligible lifecycle
 
-Replace positional or reconstructed action identity, distributed payment offers, whole-World waits,
-and client task-pool searches with the smallest lifecycle that has one action identity, one debt and
-tender decision, an honest completion event, and positive permission state where permission is real
-game state. The selected next step is a discardable concrete-action-Signal prototype; payment design
-remains investigation-first, and scoped completion must prove that it can delete a real
-`TfmGameplay` bridge before it grows. Replace the persistent `CardPlay` billing host only when the
-live late-stage card-play operation has stable identity.
+Reduce distributed payment offers, reconstructed action identity, global idle waits, and client
+task searches. P1 must be able to order P2's Neptunian offer, then yield control throughout P2's
+accepted payment. Current delegation lasts only for the selected task; payment helpers conceal
+the missing authority rule by selecting through other Actors.
 
-Before adding another gameplay helper, review `TfmGameplay` as one whole public contract: classify
-its operations, query conveniences, test-only audits, and engine/Pets repair bridges; state the
-boundary in its KDoc and owning documents; and map focused contract tests plus replay evidence to
-the retained surface. Prefer deleting or relocating responsibilities to splitting the same
-choreography among more facades.
+Nested priority groups and exclusive operation scopes are the live scheduling alternatives.
+Neither is selected. The unresolved questions include inherited control, nested choices, operation
+membership, and deferred cleanup before caller or Admin progression. Payment representation and
+action identity remain related design work; there is no prescribed prototype or migration order.
 
-This program also owns the broad task-disambiguation problem: ordinary callers should state the
-intended task semantically, using extra identity only when distinct tasks accept the same narrowing.
-Revisit the cleanup-vocabulary draft in stash commit `db9302652` only through the scoped-completion
-rules, not as authority for restoring broad `Barrier` waits.
+See [`ACTIONS.md`](ACTIONS.md#open-design-questions),
+[`PAYMENTS.md`](PAYMENTS.md#design-options), and
+[`SEQUENCING.md`](SEQUENCING.md#delegated-operations-and-scheduling-options).
 
-See [`ACTIONS.md`](ACTIONS.md#next-phase-constrained-prototype),
-[`PAYMENTS.md`](PAYMENTS.md#decision-and-implementation-sequence), and
-[`SEQUENCING.md`](SEQUENCING.md#the-missing-rule-when-an-operation-is-over).
+### Express phase progression through Pets
 
-### Replace the Kotlin phase runner with self-running Pets scopes
+Phase progression should follow authored game rules without a mirrored Kotlin sequence. Current
+phase components do not accomplish that: the coroutine still chooses the order and waits for global
+idleness. How phase transitions, Player decisions, event cleanup, and Admin work share the proposed
+scheduling model remains open.
 
-After one explicit start, Phase-owned scopes and ordinary effects should advance the game. Expansion
-authors contribute local ordering constraints; a compiler emits the one runtime topology, and no
-coroutine or mirrored Kotlin phase sequence remains. Continue through narrow demonstrations before
-migrating the game. Moving remaining bootstrap work under ordinary phase-caused tasks belongs here.
-
-See [`WORKFLOW.md`](WORKFLOW.md#first-demonstration) and the workflow findings in
-[`RESPONSIBILITIES.md`](RESPONSIBILITIES.md#workflow-runner-mechanics-are-general).
+See [`WORKFLOW.md`](WORKFLOW.md) and
+[`RESPONSIBILITIES.md`](RESPONSIBILITIES.md#workflow-progression-and-task-scheduling).
 
 ### Complete the Agent boundary and policy system
 
-Keep passive Game World data below a policy-free engine and one Actor-scoped Agent per Actor above
-it. Narrow the ordinary Agent surface, provide the selected scoped reader, replace legacy policy
-levels with attachable policies, and keep shared settlement at policy-relative stable points. More
-powerful automatic execution must be proved outcome- and agency-preserving; the proposed `slow`
-policy and broader confluence analyses remain optional research, not engine semantics.
+Keep passive Game World data below a policy-free engine and an Actor-scoped Agent above it.
+Scheduling eligibility and delegated authority belong in the engine; Agent policy chooses only
+among legal commands. Reader scoping, the ordinary Agent surface, and policy composition remain
+design questions. More powerful automatic execution must preserve outcomes and agency.
 
 See [`API.md`](API.md#current-implementation-divergence),
 [`AUTOEXEC.md`](AUTOEXEC.md#current-implementation), and
-[`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md#validation-strategy). The recoverable Admin-routing prototype
-and unresolved turn-state audit are recorded in
+[`SMART_AUTOEXEC.md`](SMART_AUTOEXEC.md#validation-strategy). Admin-routing questions are recorded in
 [`TASK_ROUTING_EXPERIMENT.md`](TASK_ROUTING_EXPERIMENT.md).
 
 ## Other indexed programs
@@ -103,20 +92,6 @@ and unresolved turn-state audit are recorded in
 These directions are substantial enough not to masquerade as small TODOs. Their detailed status and
 prerequisites differ; listing them here does not resolve their priority relative to the current
 emphasis above.
-
-### Rewrite the agent handbook around the settled model
-
-Shorten the large orientation documents into focused tours, teaching documents, feature references,
-or surveys; incorporate the `perf` findings into the performance guide. Preserve stable current
-models and live decisions, remove migration history and agent reasoning, and keep detailed plans in
-their smallest owning documents rather than expanding this index.
-
-Specifically: make `ENGINE.md` and `GAMEWORLD.md` quick tours; reduce `API.md` and
-`RESPONSIBILITIES.md` to their core decisions; make `IDENTITY.md` educational; focus
-`QUANTIFIERS.md`, `PROPERTIES.md`, `EACH.md`, and `TESTING.md` as references; let
-`SEQUENCING.md` and `AUTOEXEC.md` survey their improvement directions; and rewrite
-`JVM_TEST_PERFORMANCE.md` holistically and identically on `perf` and `main`. Apply
-[`README.md`](README.md#maintain-this-collection) while performing the rewrite.
 
 ### Consolidate public contracts and failure boundaries
 
@@ -131,9 +106,6 @@ See [`API.md`](API.md#layer-responsibility), [`VISIBILITY.md`](VISIBILITY.md), a
 
 ### Simplify Pets and runtime semantics
 
-- Repair the two declared Pets conformance gaps and the compatible-refinement/default problem
-  without adding a second representation of Type identity: L3-8 stage divergence after defaults and
-  T8-3 substitution into the wrong compatible dependency slot.
 - Give refinements an explicit candidate when nested dependencies must relate to it, and add a real
   structural conjunction so rules can name intersections such as owned tiles without nominal proxy
   Classes.
@@ -143,12 +115,12 @@ See [`API.md`](API.md#layer-responsibility), [`VISIBILITY.md`](VISIBILITY.md), a
   explicit `ClassTable` for resolution.
 - Replace implicit ownership shorthand with explicit `OWN[...]`, including whole-effect transforms
   and automatic card/map marks. Study removal of runtime ownership inference in the same work;
-  [`IDENTITY.md`](IDENTITY.md#future-direction) records the source audit, the proposed explicit Effect
-  actor, and unresolved deferred-property and passive-owner cases. Ordinary `Owned`/`Owner`
-  declarations are the longer-term goal. Separately, divide `Instructor`'s resolution capability
+  [`IDENTITY.md`](IDENTITY.md#future-direction) records the authoring direction and unresolved runtime
+  inference. Ordinary `Owned`/`Owner` declarations are the longer-term goal. Separately, divide
+  `Instructor`'s resolution capability
   from execution.
 - Represent direct point-event `Signal`s honestly rather than as self-transmutations, preserving
-  their paired gain/removal triggers and distinguishing them from source-requiring exchanges; and
+  their paired gain/removal triggers while keeping authored self-transmutations forbidden; and
   separate cleanup lifetime from log visibility.
 
 The specifications own the final semantics. Start with [`IDENTITY.md`](IDENTITY.md#lexical-ownership-model),
@@ -164,7 +136,7 @@ dependency/refinement construction, and evaluate candidate-selection hooks for e
 `CustomMetric` refinements. Compiling Pets at build time remains conditional on one compiler
 replacing runtime work without creating a second semantic model.
 
-See [`JVM_TEST_PERFORMANCE.md`](JVM_TEST_PERFORMANCE.md) and the reusable-universe program above.
+See [`JVM_TEST_PERFORMANCE.md`](JVM_TEST_PERFORMANCE.md).
 
 ### Retain claims through shared occupancy
 
@@ -207,7 +179,7 @@ No total order has been selected for the following conditional work.
 - **Broader responsibility extraction:** further Catalog, script-shell, JLine, and generic workflow
   extraction is aspirational and must be independently valuable to Solarnet, not justified by a
   hypothetical second game. See
-  [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md#conditional-extraction-order).
+  [`RESPONSIBILITIES.md`](RESPONSIBILITIES.md).
 - **Optimal-solo analysis:** the TR63 monotonicity work is retained research, not an implemented or
   currently scheduled optimizer. See [`OPTIMAL_SOLO.md`](OPTIMAL_SOLO.md).
 - **Perfect diagnostics and causal analysis:** improve them when they cheaply support Tier 1 work;

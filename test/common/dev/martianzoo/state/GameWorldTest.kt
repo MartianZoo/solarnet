@@ -4,6 +4,7 @@ import dev.martianzoo.engine.testGamePremise
 import dev.martianzoo.pets.Parsing.parse
 import dev.martianzoo.pets.api.Exceptions.DependencyException
 import dev.martianzoo.pets.api.Exceptions.ExistingDependentsException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.TypeInfo.NoGameState
 import dev.martianzoo.pets.ast.Expression
 import dev.martianzoo.pets.ast.Instruction
@@ -24,6 +25,16 @@ internal class GameWorldTest {
   private val token = table.resolve(parse<Expression>("Token")).toComponent()
   private val holder = table.resolve(parse<Expression>("Holder")).toComponent()
   private val moment = table.resolve(parse<Expression>("Moment")).toComponent()
+
+  @Test
+  internal fun rejectsSelfTransmutationInPassiveState() {
+    val world = GameWorld(premise)
+    world.apply(changeEvent(world, ComponentChange.Gain(component = token)))
+    shouldThrow<ExpressionException> {
+      world.apply(changeEvent(world, ComponentChange.Transmute(1, token, token)))
+    }
+    world.components.count(token.type, NoGameState) shouldBe 1
+  }
 
   @Test
   internal fun componentExistenceFollowsLiveRefinementsAndRollback() {

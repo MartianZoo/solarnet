@@ -847,8 +847,6 @@ internal class Prelude2CardsTest : CardTest() {
       doTask("PROD[-1 MC<Player2>]")
       doTask("MyResourceWasRemoved<Player2, Class<MC>, Player1>.")
       doTask("MyProductionWasDecreased<Player2, Class<MC>, Player1>.")
-      doTask("3 MC<Player2> FROM MC<Player2>")
-      doTask("3 MC<Player2> FROM MC<Player2>")
       settle(victimActors[0])
       settle(victimActors[2])
       settle(victimActors[1], secondPayout = 1)

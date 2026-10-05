@@ -1,12 +1,9 @@
 package dev.martianzoo.engine
 
 import dev.martianzoo.agenttestsupport.testAgent
-import dev.martianzoo.pets.api.Exceptions.LimitsException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.state.Actor.Companion.ADMIN
-import dev.martianzoo.state.ComponentChange
-import dev.martianzoo.state.toComponent
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.shouldBe
 import kotlin.test.Test
 
@@ -15,16 +12,14 @@ internal class ReflexiveTransmutationTest {
       Engine.newGame(
           testGamePremise(
               """
-              CLASS Token {
-                HAS MAX 1 This
+              ABSTRACT CLASS Thing
+              CLASS Token : Thing {
                 This:: Gained
                 -This:: Removed
-                Pulse:: HeardPulse
               }
+              CLASS Other : Thing
               CLASS Gained
               CLASS Removed
-              CLASS Pulse : Signal
-              CLASS HeardPulse
               """,
               players = 0,
           )
@@ -32,58 +27,44 @@ internal class ReflexiveTransmutationTest {
   private val admin = game.testAgent(ADMIN)
 
   @Test
-  internal fun exchangeAtCapacityFiresBothDirectionsWithoutChangingState() {
+  internal fun concreteSelfTransmutationIsRejectedWithoutFiringEffects() {
     admin.runOperation("Token")
-    val tokenType = admin.resolve("Token")
-    val observedCounts = mutableListOf<Int>()
-    game.components.listenToCount(tokenType, game.reader, observedCounts::add)
-
-    val result = admin.runOperation("Token FROM Token")
-
-    admin.count("Token") shouldBe 1
-    admin.count("Gained") shouldBe 2
-    admin.count("Removed") shouldBe 1
-    observedCounts.shouldContainExactly(1)
-    result.changes
-        .filter { it.change.gaining?.type == tokenType }
-        .map { it.change }
-        .shouldContainExactly(
-            ComponentChange.Transmute(1, tokenType.toComponent(), tokenType.toComponent())
-        )
-    admin.runOperation("Pulse")
-    admin.count("HeardPulse") shouldBe 1
-  }
-
-  @Test
-  internal fun exchangeRequiresTheWholeSourceCount() {
-    admin.runOperation("Token")
-
-    shouldThrow<LimitsException> { admin.runOperation("2 Token FROM Token!") }
-
+    shouldThrow<ExpressionException> { admin.runOperation("Token FROM Token") }
     admin.count("Token") shouldBe 1
     admin.count("Gained") shouldBe 1
     admin.count("Removed") shouldBe 0
   }
 
   @Test
-  internal fun optionalExchangeCanBeDeclined() {
+  internal fun optionalSelfTransmutationIsInvalidEvenWhenItCouldBeDeclined() {
     admin.runOperation("Token")
+    shouldThrow<ExpressionException> { admin.runOperation("Token FROM Token?") }
+    admin.count("Token") shouldBe 1
+  }
 
-    admin.runOperation("Token FROM Token?") { doTask("Ok") }
-
+  @Test
+  internal fun optionalAbstractTransferCanDoNothingWhenOnlySelfIsAvailable() {
+    admin.runOperation("Token")
+    admin.runOperation("Token FROM Thing?")
     admin.count("Token") shouldBe 1
     admin.count("Gained") shouldBe 1
     admin.count("Removed") shouldBe 0
   }
 
   @Test
-  internal fun optionalExchangeCanExecute() {
-    admin.runOperation("Token")
+  internal fun sharedAbstractVariableCannotTransmuteIntoItself() {
+    shouldThrow<ExpressionException> { admin.runOperation("@Thing FROM @Thing") }
+  }
 
-    admin.runOperation("Token FROM Token?") { doTask("Token FROM Token!") }
-
-    admin.count("Token") shouldBe 1
-    admin.count("Gained") shouldBe 2
+  @Test
+  internal fun independentAbstractChoicesMustNarrowToDifferentTypes() {
+    admin.runOperation("Token, Other")
+    admin.runOperation("Thing FROM Thing") {
+      shouldThrow<ExpressionException> { doTask("Token FROM Token") }
+      doTask("Other FROM Token")
+    }
+    admin.count("Token") shouldBe 0
+    admin.count("Other") shouldBe 2
     admin.count("Removed") shouldBe 1
   }
 }

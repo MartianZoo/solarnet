@@ -50,12 +50,28 @@ public fun ClassTable.recordTypeVariableScopes(): PetTransformer =
             )
           }
           is Instruction.Transmute -> {
-            recordLocalScope(
-                transformed,
-                listOf(transformed.gaining, transformed.removing),
-                transformed.localTypeVariableDeclarations(),
-                "Transmutation",
-            )
+            val scoped =
+                recordLocalScope(
+                    transformed,
+                    listOf(transformed.gaining, transformed.removing),
+                    transformed.localTypeVariableDeclarations(),
+                    "Transmutation",
+                )
+            val variable = scoped.typeVariables.variableAt(scoped.gaining)
+            if (variable != null && variable === scoped.typeVariables.variableAt(scoped.removing)) {
+              throw ExpressionException(
+                  "a transmutation cannot use the same type variable on both sides: $scoped"
+              )
+            }
+            // Context names such as This are replaced by later elaboration passes.
+            if (scoped.descendantsOfType<Expression>().all { findClass(it.className) != null }) {
+              val gaining = resolve(scoped.gaining)
+              val removing = resolve(scoped.removing)
+              if (!gaining.abstract && gaining == removing) {
+                throw ExpressionException("a transmutation must change its type: $scoped")
+              }
+            }
+            scoped
           }
           else -> transformed
         }

@@ -650,7 +650,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "Well, it does, if you would like to pitch a card and draw a card."
       // "Nah, I like my cards."
       // "The struggle is real."
-      playProject(MarsUniversity, 8) { fillInTask("ProjectCard").chooseAmount(0, outOf = 2).done() }
+      playProject(MarsUniversity, 8) { declineTask() }
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -1578,7 +1578,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "I'm going to discard this one to draw a new card because of my Mars University effect.
       // Thanks. That is better."
       playProject(RedSpotObservatory, 17) {
-        fillInTask("ProjectCard").chooseAmount(1, outOf = 2).done()
+        doTask("-ProjectCard")
       }
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
@@ -1641,7 +1641,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // pay them one money for it."
       playProject(HiredRaiders, 1) {
         fillInTask("MC")
-            .chooseAlternative("MC", outOf = 4, count = 3)
+            .chooseAlternative("MC", outOf = 3, count = 3)
             .choose("Owner" to "Green", outOf = 3)
             .done()
       }
@@ -2471,7 +2471,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
     }
     blue.turn {
       // "I'm gonna play Gene Repair. So it costs 12 money and I gain two money production."
-      playProject(GeneRepair, 12) { fillInTask("ProjectCard").chooseAmount(0, outOf = 2).done() }
+      playProject(GeneRepair, 12) { declineTask() }
       fillInTask("UseAction").choose("StandardAction" to "Ok", outOf = 10).done()
     }
     yellow.turn {
@@ -2523,7 +2523,7 @@ internal class OtbGame20260828Test : AbstractFullGameTest() {
       // "For 10 money, I'm going to play Bacto Viral Research. ... discard a card from hand to draw
       // a card. ... add all six of mine to my nitrate reducing bacteria."
       playProject(BactoviralResearch, 10) {
-        fillInTask("ProjectCard").chooseAmount(1, outOf = 2).done()
+        doTask("-ProjectCard")
         fillInTask("Microbe")
             .choose("ResourceHolder" to "NitriteReducingBacteria", outOf = 2)
             .done()

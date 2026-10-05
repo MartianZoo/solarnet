@@ -244,11 +244,11 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       stdAction("UseTurmoilPolicyAction", 2)
       convertPlants { placeTile(6, 6) }
       playProject(MarsUniversity, 8) {
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
       }
       playProject(ResearchOutpost, 18) {
         placeTile(8, 6)
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
       }
       cardAction2(LocalShading)
       playProject(MethaneFromTitan, mc = 2, titanium = 5)
@@ -289,7 +289,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
         doTask("PartyDelegate<Reds>")
       }
       playProject(AtalantaPlanitiaLab, 9) {
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
       }
       playProject(RedTourismWave, 0)
       playProject(ExtractorBalloons, 20)
@@ -402,7 +402,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
           doTask("ProjectCard FROM PlayedEvent<Class<$BribedCommittee>>")
           doTask("ProjectCard FROM PlayedEvent<Class<$Comet>>")
         }
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
       }
       playProject(CeosFavoriteProject, 0) { addCardResources(ExtractorBalloons) }
       playProject(SmallAnimals, 5) { doTask("PROD[-Plant<SoloOpponent>]") }
@@ -449,12 +449,12 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       playProject(Omnicourt, mc = 2, steel = 2)
       playProject(GhgFactories, mc = 2, steel = 2)
       playProject(AiCentral, mc = 4, steel = 4) {
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
       }
       cardAction1(AiCentral)
       cardAction2(LocalShading)
       playProject(OlympusConference, 7) {
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
       }
       stdAction("LobbyAction", 1) {
         doTask("PartyDelegate<Kelvinists>")
@@ -507,7 +507,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       cardAction2(ExtractorBalloons)
       playProject(AntiGravityTechnology, 13) {
         doTask("ProjectCard FROM Science")
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
       }
       cardAction1(Tardigrades)
       playProject(SpecialPermit, 2) {
@@ -519,7 +519,7 @@ internal class SyntheticPlasmaCurrentTest : AbstractSoloTest() {
       cardAction1(SmallAnimals)
       playProject(RoverConstruction, mc = 1, steel = 1)
       playProject(BactoviralResearch, 7) {
-        doTask("ProjectCard FROM ProjectCard")
+        doTask("-ProjectCard")
         addCardResources(NitriteReducingBacteria, 9)
       }
       cardAction2(NitriteReducingBacteria)

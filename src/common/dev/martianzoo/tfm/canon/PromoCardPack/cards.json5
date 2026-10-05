@@ -41,7 +41,8 @@
           "name": "MonsInsurance",
           "immediate": "48 MC, PROD[4 MC], EACH Other@Player(NOT Me@) { PROD[-2 MC<Other@>] BY Other@ }",
           "effects": [
-            "MyResourceWasRemoved<Victim@Anyone> OR MyProductionWasDecreased<Victim@>: 3 MC<Victim@ FROM Me@>.",
+            "MyResourceWasRemoved<Victim@Anyone(NOT Me@)>: 3 MC<Victim@ FROM Me@>.",
+            "MyProductionWasDecreased<Victim@Anyone(NOT Me@)>: 3 MC<Victim@ FROM Me@>.",
           ],
         },
         {

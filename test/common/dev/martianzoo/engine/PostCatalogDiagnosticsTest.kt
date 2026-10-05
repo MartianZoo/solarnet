@@ -2420,17 +2420,17 @@ internal class PostCatalogDiagnosticsTest {
   }
 
   @Test
-  internal fun sameTypeTransmutationRequiresAnExistingSource() {
+  internal fun sameTypeTransmutationIsAnInvalidExpression() {
     val agent = Engine.newGame(premise).testAgent(Player(cn("Player1")))
     val error =
-        assertFailsWith<LimitsException> {
+        assertFailsWith<ExpressionException> {
           agent.runOperation("Rose FROM Rose")
         }
 
-    assertEquals("cannot transmute 1 `Rose` into `Rose`: maximum available is 0", error.detail)
+    assertEquals("a transmutation must change its type: Rose FROM Rose", error.detail)
     assertEquals(
         """
-        |cannot transmute 1 `Rose` into `Rose`: maximum available is 0 at 1:1
+        |a transmutation must change its type: Rose FROM Rose at 1:1
         |Rose FROM Rose
         |^
         """

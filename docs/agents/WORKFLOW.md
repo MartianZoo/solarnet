@@ -340,3 +340,33 @@ to generated Canon sources remains separate from runtime sequencing.
 
 Operation-local causal completion remains the separate design in `SEQUENCING.md`. The current
 continuations use whole-World idleness; do not describe them as operation-local completion.
+
+Normal-corporation play explicitly excludes `BeginnerCorporation` in addition to standard-back
+typing. That is a deliberate statement of the normal path, not redundant routing machinery to
+remove during workflow work.
+
+## Remaining completion questions
+
+[SEQUENCING.md](SEQUENCING.md#delegated-operations-and-scheduling-options) owns the shared
+scheduling options. These remain open alongside the implemented phase continuations.
+
+
+Global idleness currently combines several events that need not be equivalent: an operation has no
+more work, an event card can leave play, a turn is over, and Admin may advance the phase. Event cards
+are Temporary, so unrelated pending work can keep them face up. Conversely, waiting for a particular
+Player's queue to drain can miss work delegated to another Player.
+
+Simply adding delayed cleanup or Admin tasks changes the premise of current cleanup: those tasks
+keep the global pool nonempty. A priority design must explain how cleanup becomes eligible; keeping
+the existing empty-pool condition would stall it.
+
+Nested priority groups are a promising shared option, not a settled representation. The innermost
+group could let its tasks remain independently selectable while suspending its caller. Cleanup
+included in that group must finish before the caller resumes. Assigning both inner cleanup and
+suspended caller work the same numeric rank would release them together. Likewise, event cleanup and phase
+advancement cannot merely share a deferred rank if their order matters.
+
+An exclusive operation scope is another option; causal ancestry could supply membership, but alone
+supplies neither control nor scheduling. The scope must include relevant work across Actors and
+distinguish its cleanup from the continuation that follows it. Component dependencies already express lifetime;
+they do not automatically establish that the tasks associated with a component have finished.

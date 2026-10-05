@@ -89,7 +89,7 @@ internal class FirstPartialGameTest : AbstractFullGameTest() {
       cardAction2(ElectroCatapult)
       playProject(SpaceHotels, 7, titanium = 1)
 
-      playProject(MarsUniversity, 6) { doTask("ProjectCard FROM ProjectCard") }
+      playProject(MarsUniversity, 6) { doTask("-ProjectCard") }
       playProject(ArtificialPhotosynthesis, 10) {
         doTask("PROD[2 Energy]")
         // Decline Mars University's discard-and-draw effect for the science tag.

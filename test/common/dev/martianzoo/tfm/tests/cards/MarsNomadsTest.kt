@@ -2,6 +2,7 @@ package dev.martianzoo.tfm.tests.cards
 
 import dev.martianzoo.pets.api.Exceptions.DeadEndException
 import dev.martianzoo.pets.api.Exceptions.DependencyException
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.pets.api.Exceptions.TaskException
 import dev.martianzoo.tfm.tests.TestHelpers.assertCounts
@@ -67,7 +68,7 @@ internal class MarsNomadsTest : CardTest() {
     admin.phase("Action")
 
     p1.cardAction1(MarsNomads) {
-      shouldThrow<NarrowingException> {
+      shouldThrow<ExpressionException> {
         doTask("NomadsMarker<Tharsis_1_1 FROM Tharsis_1_1>")
       }
       shouldThrow<NarrowingException> {

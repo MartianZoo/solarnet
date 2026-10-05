@@ -1,74 +1,57 @@
-# Admin routing of below-surface tasks — stashed experiment
+# Admin routing and turn-state questions
 
-> **Status:** Research and a recoverable prototype, not current committed behavior. The source and
-> test changes are in a work3 Git stash; this note records the selected requirements, observations,
-> and remaining design work. Source and tests take precedence over this note after restoration.
+> **Read when:** considering Admin-assigned internal work, the meaning of an on-turn Player, or
+> Player → Admin → Player task chains.
+>
+> **Status:** research questions and useful constraints. Current task semantics are in
+> [IDENTITY.md](IDENTITY.md); scheduling alternatives are in
+> [SEQUENCING.md](SEQUENCING.md#delegated-operations-and-scheduling-options). No routing syntax or
+> implementation sequence is selected here.
 
-## Selected requirements
+## What assignment must preserve
 
-- A Player's queue should contain work the Player may order or carry out in the surface game. The
-  distinction is **not** whether the work offers a choice. A fixed consequence may still be part of
-  the physical game's freely ordered effects. Printed card tags installing themselves are an
-  example of below-surface work: that installation is not among the effects a human orders.
-- Below-surface tasks may be assigned to Admin, while retaining which Player's action the chain is
-  happening on behalf of. A genuine gameplay task spawned later should return to the active
-  Player's queue. The eventual narrower or context owner may be a different Player.
-- Admin can explicitly create a Player-owned request for a named Player even when nobody is on
-  turn. `BY` identifies attribution/trigger agency; it does not itself assign a task.
-- Admin's normal Agent autoexecution is fixed at `EAGER`, rather than a policy clients can lower.
-  The lower-level engine remains available for tests of intermediate states. If Admin could be
-  slowed, the expected failure would mostly be stalled Player queues; the fixed policy removes that
-  ordinary configuration.
-- An on-turn Player is a stronger fact than merely having tasks queued. Prelude and Action are
-  clear sequential-turn phases. Final Greenery and Corporation may also need an on-turn Player;
-  Setup and Research appear not to. This phase classification has not been settled.
+A Player's pending work can include fixed outcomes whose timing the Player may choose. Whether an
+instruction offers a narrowing choice therefore does not decide whether Admin should receive it.
+The useful distinction is whether choosing when to perform it belongs to the surface game. Printed
+tags installing themselves are an example of internal work; that does not establish that every
+other fixed consequence has the same status.
 
-## Prototype and verified observations
+Routing an internal step through Admin must preserve the controller of its surrounding operation.
+A later Player choice should return to that controller, who may be P2 during a delegated response
+on P1's turn. Replacing controller propagation with the on-turn Player would lose that distinction.
+Explicit requests for a named Player must also work during phases without an exclusive turn.
 
-The stashed prototype adds an initial task assignee separate from its controller and contextual
-Actor, plus authored `Trigger FOR Admin: instruction` syntax. An Admin task can retain the Player
-controller of the originating operation. Admin's selection can then produce an ordinary task on
-that Player's queue; selecting an abstract task may subsequently hand narrowing to its contextual
-Actor. A separate Agent change rejects attempts to set Admin's policy below `EAGER`.
+Assignment, contextual choice ownership, and credited Actor remain different facts. `BY` affects
+attribution or trigger matching; it does not select the task's queue. An unowned attack watcher,
+for example, must not credit the victim merely because the changed resource belongs to them.
 
-The prototype moved five card-granted resource-value marker effects and the Promo attack watchers'
-hidden resource-removal/production-decrease records from `::` to `FOR Admin:`. The unowned attack
-watchers needed explicit care to keep the attacker as the resulting event Actor rather than crediting
-the victim merely because the removed resource belonged to them. Canon/card classification also had
-to retain Admin-assigned self-gain effects as persistent card effects instead of treating them as
-card-play immediates.
+## Timing and automatic execution
 
-The affected JVM suites passed, including 859 Terraforming Mars tests, 192 engine tests, the Agent,
-Pets, state, canon, and card-generator suites, plus `spotlessCheck`. Two full-game replays passed
-after removing their temporary Admin policy overrides. Tests that intentionally inspect an
-intermediate Admin queue used direct policy-free ActorEngine transactions. These results support the
-narrow migrations and the separation of assignment, control, and attribution; they do not establish
-the general routing rule.
+Admin assignment does not establish priority, completion, or freedom from strategic choices.
+An EAGER Admin policy can reduce visible internal work, but cannot repair missing scheduling rules
+or prove that every legal Admin ordering has the same result. A stalled or abstract Admin task also
+needs an honest disposition; changing a policy default does not establish that ordinary Player calls
+always return with internal work settled.
 
-An attempted printed-tag migration to queued Admin work failed 30 Terraforming Mars tests and was
-reverted. Card-entry watchers such as `EventCard(HAS SpaceTag): ...` currently test the card before
-an Admin task can install its printed tag. Thus `::` still has a real timing role in the present card
-model. The failure does not prove the tag must remain `::` after a card-model redesign.
+Replacing `::` with queued Admin work can change what reactions observe. Card-entry listeners such
+as `EventCard(HAS SpaceTag)` in
+[`cards.json5`](../../src/common/dev/martianzoo/tfm/canon/TerraformingMars/cards.json5) require printed
+tags to exist when the card-entry event is matched.
+Queued tag installation would be too late under the current model. This is a concrete timing
+constraint, not a claim that tag installation must always use automatic effects under every future
+card representation.
 
-## Unresolved design work
+## Open choices
 
-1. Audit the remaining `::` sites by *surface-game order* and by exact event timing. Payment and
-   printed-tag paths are especially timing-sensitive; Admin-owned work need not be distinguished
-   merely by its current `:`/`::` spelling. Do not infer from a fixed outcome that the Player should
-   lose control of when it occurs.
-2. Test a live `WhoIsOnTurn` component (or a smaller equivalent) in a sequential phase and a mixed
-   Player → Admin → Player chain. The prototype still propagates `Task.controller` through events,
-   so it does **not** test whether that propagation can be replaced by turn state. Explicit named
-   Player requests must still work in no-turn phases.
-3. Decide what guarantees the normal Agent boundary needs beyond a fixed Admin policy. The current
-   shared loop may stop when work is blocked or unresolved; fixing a property setter alone does not
-   prove that no actionable Admin task is exposed after every Player-facing call. Direct `addTasks`
-   and `sneak` are also lower-level escape hatches. `EAGER` may choose among legal Admin tasks, so
-   each migration still needs its own ordering and outcome review.
-4. Reassess the permanent conceptual cost of an `Effect.adminAssigned` flag, a persisted
-   `Task.initialAssignee`, and card-classification handling once the on-turn model is known. The
-   identities are genuinely distinct in the prototype, but this may not be the smallest final
-   representation.
+- Which fixed effects belong to the Player's ordering choices, and which are internal settlement?
+- Does a task need an explicit initial assignee distinct from its controller, or can a smaller
+  general scheduling rule express the actual cases?
+- How does Player → Admin → Player work preserve the active delegated controller through splitting,
+  continuations, and new reactions?
+- Which phases have an on-turn Player? Setup and Research currently permit simultaneous Player
+  work; sequential turn state cannot replace explicit assignment there.
+- What contract, if any, should ordinary Agent calls guarantee about outstanding Admin work?
 
-`work1` has concurrent Agent, decision-log, and task-delegation edits. Inspect both diffs before
-restoring or merging this stash; do not treat the stashed Agent implementation as final.
+Answer these from concrete game operations before adding an assignment flag, a turn component, or
+a mandatory autoexecution policy. None of those mechanisms alone provides the lifetime of a
+delegated payment operation.

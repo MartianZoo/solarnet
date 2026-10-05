@@ -173,10 +173,13 @@ When the destination dependency exists, the concrete quantifier rules above appl
 missing destination dependency makes the pair unavailable for every quantifier; optional and AMAP
 do not convert it to `Ok`. If source footroom is zero, however, optional and AMAP do become `Ok`.
 
-Transmuting a concrete Type into itself records one paired gain/removal event without changing
-its count. Its limit is the available source count, and ordinary quantifier rules apply (L2-3).
-This includes Signal subtypes; only a direct Signal gain has the distinct point-event semantics
-of L2-1 and needs no existing source. A zero AMAP transmutation can still bind Type Variables in a
+Transmuting a concrete Type into itself is invalid for every quantifier, including when a trigger,
+class header, or `EACH` binding makes the Types equal. Content must exclude those bindings, as Mons
+Insurance and StartToken do. A self-target selected by automatic narrowing of an open transfer has
+zero capacity instead: mandatory resolution fails, while optional and AMAP can become `Ok`.
+Direct Signal gains remain valid point events (L2-1), not self-transmutation instructions.
+
+A zero AMAP transmutation can still bind Type Variables in a
 following `THEN`; target selection and component movement are separate consequences of that stage.
 
 ## Abstract pure gains and removals

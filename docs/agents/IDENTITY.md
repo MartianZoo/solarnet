@@ -11,9 +11,9 @@
 > lexical `Me` binding; read sections 3, 10, and 13 of
 > [type-system-spec.md](../type-system-spec.md).
 >
-> **Status:** current identity and lexical-ownership semantics, plus the selected `OWN[...]`
-> direction and a source audit of remaining ownership inference. Runtime replacements below are
-> proposals, not implemented behavior. CONCRETE auto-selection across Players remains open.
+> **Status:** current identity and lexical-ownership semantics, with unresolved operation control
+> and explicit-ownership proposals distinguished below. Delegation currently lasts for the selected
+> task, not its payment or other queued consequences.
 
 ## Source map
 
@@ -70,7 +70,7 @@ or event performer.
 
 Core engine state derives a Task's current assignee from its selection state and enforces that
 task mutations name that Actor. The Actor's unique Agent binds normal client calls to that
-Actor, presents a convenient filtered view of the one global task queue, and issues both explicit and
+Actor, presents a convenient filtered view of the global task queue, and issues both explicit and
 policy-chosen mutations. Lower-level engine mutation remains available for deliberate workflow,
 replay, cheat, and test use.
 
@@ -108,8 +108,9 @@ not task attribution; language rule L6-9 owns its syntax.
 A direct task starts with its gameplay Actor as controller and contextual Actor. Queued work
 triggered during a Player-controlled operation keeps that Player as controller, regardless of which
 component owns the effect. Its contextual Actor is the Player owner of the effect-bearing component,
-then the Player owner of the changed component, then the triggering Actor. Admin-driven setup and
-workflow retain that routing. An unselected task's assignee is its controller.
+then the Player owner of the changed component, then the triggering Actor. When the surrounding
+controller is Admin, the effect owner, changed component owner, and triggering Actor instead supply
+the controller in that order. An unselected task's assignee is its controller.
 
 Start-player requests locate the token's Player with an explicitly named `EACH` selector and gain a request
 signal owned by that Player. `EACH` binds lexical `Me`; the signal's own
@@ -129,9 +130,16 @@ or executing competing work until the selected task completes. `Task.controller`
 during this handoff.
 
 If resolution or narrowing replaces the selected task with independent siblings, those siblings
-return to the controller as unselected work. `THEN` continuations and tasks triggered by
-the delegated change likewise return to the controller. This keeps one task lifecycle rather than
-introducing a second parent representation.
+return to the controller as unselected work, as do `THEN` continuations. Reactions retain a Player
+controller; Admin-controlled reactions use the fallback above. The lock ends with the selected task.
+This is current behavior, not a rule that the original controller should reclaim every descendant.
+
+Neptunian Power Consultants exposes the gap: P1 may choose when to offer P2 the optional ocean
+response, but accepting it creates payment work that must remain under P2's control while P1 waits.
+Current delegation covers the initial choice only. Descendant routing, exclusion of unrelated work,
+and the end of this control interval remain unresolved; see
+[delegated operations and scheduling options](SEQUENCING.md#delegated-operations-and-scheduling-options).
+Instruction-side `BY` cannot provide that authority because it changes attribution only.
 
 The constraining cases are:
 
@@ -150,7 +158,7 @@ instruction mandatory.
 Philares is the primary sequencing scenario. The active Player controls a pending resource task
 caused by that Player's placement and may select other eligible siblings before it. Once the active
 Player selects that task, resolution delegates its resource choice to the Philares owner. The active
-Player can do no more work in the scope until the Philares owner narrows the choice and receives the
+Player cannot select competing work until the Philares owner narrows the choice and receives the
 resource. Assigning the reward directly to the Philares owner at trigger time would transfer control
 too early.
 
@@ -175,11 +183,9 @@ rejected gameplay, and attribution through a visible trigger-side `BY` consequen
 attribution is material. They should not filter tasks by cause or Actor, match exact internal task
 strings, or read the Event Log to restate engine metadata.
 
-`ByTriggerCharacterizationTest` owns trigger matching and Actor-variable binding. Task assignment is
-incidental there and should be removed from those assertions or made explicit in separately named
-delegation tests. Card tests for Pharmacy Union and Splice should assert their normal outcomes and
-which Player can make any offered choice; generic engine coverage should carry the internal routing
-coverage.
+`ByTriggerCharacterizationTest` owns trigger matching and Actor-variable binding; it does not prove
+delegated operation control. Autoexecution must be disabled in scenarios intended to prove that the
+engine itself excludes the waiting player throughout payment.
 
 ## Open policy questions
 
@@ -233,14 +239,11 @@ the submitting Player as the insertion context. This Owned-specific insertion is
 the selected direction is to request it explicitly through `OWN[...]`, including whole effects.
 General `DEFAULT` is not part of the ownership rule.
 
-The lexical model removes the old ownership default, its special preservation, effect-time
-contextual substitution, and special handling of an unbound ownership `BY`.
 Task controller, assignee, and Actor remain separate roles. An `EVAL` captures the lexical `Me`
 from its evaluation site, rendering it as `EVAL<Me>`. Ordinary Type-variable specialization carries
 that capture through deferred fanout and rank evaluation. The engine does not reconstruct an owner
 from the selected component or event Actor. A property in an ownerless effect without a lexical
-binding cannot acquire one from an unrelated event. The corpus and full replay suite exercise passive solo owners,
-represented resources, ranked metrics, and action costs.
+binding cannot acquire it from an unrelated event.
 
 A `HAS` candidate fills a compatible omitted dependency, including the owner or a dependency that
 determines it, before lexical `Me` is inserted. Thus `EACH Starter@Player(HAS StartToken) { ... }`
@@ -248,85 +251,30 @@ tests each candidate's token. An incompatible candidate leaves the owner open fo
 
 ## Future direction
 
-**Selected direction, unimplemented:** `OWN[...]` requests ownership shorthand explicitly, and
-transforms support entire Effects. The card compiler and map generator insert the marks so their
-compact inputs remain compact. `Owned<Me@Owner>` can continue supplying an ordinary inherited
-variable; inheriting it must eventually stop requesting implicit rewrites. The longer-term goal is
-ordinary `Owned` and `Owner` declarations, potentially outside `SystemDeclarations`.
+**Selected authoring direction, unimplemented:** explicit `OWN[...]` requests ownership shorthand,
+including whole effects, while card and map authoring retain their compact inputs. This concerns elaboration;
+it does not itself solve task control across payment or other queued consequences.
 
-### Why the Kotlin is ownership-specific
-
-The type-system implementation under `pets/types` does not name `Owned`, `Owner`, or `Me` in its
-rules. Their dependency and inherited-variable behavior already uses ordinary types. Most special
-treatment is authored-syntax completion and runtime inference of facts absent from an Effect.
-"Owner-local" declaration lowering names the enclosing declaration, not a component's game owner;
-it is unrelated to this work.
-
-| Current code | Why it exists | Removal or simplification candidate |
-| --- | --- | --- |
-| `PetElaborator.insertOwnedContext` | Finds omitted ownership, supplies trigger-local `Me`, handles selector shadowing, represented Classes, and refinement candidates. | A catalog-owned `OWN` handler; retain ordinary dependency matching and variable identity. Moving the existing traversal unchanged does not by itself reduce complexity. |
-| `finishAuthoredSyntax`, `attachToClassTransformer`, `classEffects`, and `propertyEvaluator` | Revisit ownership because transforms and property expansion can introduce new bare types. | Explicit marks and preserved lexical capture across delayed expansion; eliminate repeated inference only where the resulting scopes prove equivalent. |
-| `LiveEffect.create` | Adds a Player actor filter for an owned listener watching an ownerless, non-System type. | Have whole-effect `OWN` produce the filter, preserving explicit `BY` and System-event behavior. |
-| `PendingTask.fromEffect` | Infers who chooses and performs work from the effect component, changed component, and triggering Actor. | Explore an explicit Effect actor selector that supplies the existing `Task.actor`; `OWN` can emit that selector. Syntax and fallback semantics are unresolved. |
-| `LiveEffect.specialize` | Passive owners inherit effects whose outputs require a Player. A separate path skips an entire effect when specialized type checking fails but source type checking succeeds. | Express applicability in ordinary Pets where possible, then use a shared specialization path. Do not generalize exception-based effect suppression. |
-| `Component.owner` / `owningPlayer` | Treats an Owner as its own owner; otherwise reads `Key(Owned, 0)` and optionally converts to Player. | Once generic callers are gone, any remaining game queries can use ordinary dependencies in TFM code. Renaming this lookup or using `Me` as a new runtime convention would retain the inference. |
+The type system already handles ownership dependencies and inherited variables through ordinary
+rules. The remaining special treatment lives mainly in `PetElaborator.insertOwnedContext`,
+`LiveEffect.create`, `LiveEffect.specialize`, `PendingTask.fromEffect`, and
+`Component.owner` / `owningPlayer`. Moving those operations behind a transform would not establish
+simplification unless inference, repeated traversal, or special cases actually disappear.
 
 ### Runtime actor proposal
 
-An explicit Effect actor would describe information already stored on `Task`, not introduce a
-second runtime owner or change the selection lifecycle. This is a proposal to examine alongside
-whole-effect transforms, not a selected syntax or proven replacement.
+An explicit Effect selector could supply the contextual Actor currently inferred by
+`PendingTask.fromEffect`. Syntax and fallback behavior remain open. Ordinary instruction `BY`
+cannot replace this inference: Philares separates initial ordering from the recipient's choice,
+while Icy Impactors separates the chooser from the credited performer.
 
-The ordinary instruction `BY` cannot supply it: `Instruction.By` and `Instructor` deliberately
-override only the performer. Philares requires the active Player to retain ordering control until
-the card owner's resource choice is selected. Icy Impactors requires the start Player to choose
-an ocean while crediting the card owner. Those are distinct facts even when they normally agree.
-Do not infer choice authority from an output resource's owner or from an arbitrary variable named
-`Me`.
+Ownerless effects also differ: Enceladus derives its chooser from an owned bonus signal, while
+map bonuses use placement attribution. Automatic effects omit the changed component owner from
+their Actor fallback, and Admin-controlled queued work has a separate controller fallback. A shared
+selector must preserve or explicitly reconsider these differences.
 
-Ownerless listeners also need this study: Enceladus receives choice authority from the owned
-`GainColonyBonus` event, whereas a map bonus takes its recipient from the placement Actor. The
-current automatic-effect fallback ignores the changed component for Actor attribution; the
-controller fallback still considers it when the surrounding controller is Admin. Replacing both
-fallback chains with a shared expression would change behavior. Preserve or explicitly reconsider
-these cases, including effects whose results contain no owned expression.
-
-### Remaining design obligations
-
-- The transform handler currently receives only its inner node and its catalog's ClassTable.
-  Whole-effect rewriting needs the visible class/selector bindings. First reuse the existing
-  Type-variable scopes; do not create a parallel ownership environment or another global pass.
-- `Metric.Eval` and `Requirement.Eval` explicitly capture `me`; the parser also permits free `Me`
-  in properties. An outer `OWN` cannot simply disappear before a deferred property produces its
-  syntax. Preserve the captured binding through `EACH` and `RANK`; a general closure framework is
-  not justified merely to remove this small capture. `PROD` composition must retain represented
-  resource variables as well.
-- Agent input and custom Kotlin output also use implicit insertion. Preserve compact player
-  commands through explicit game-supplied authoring policy. Custom implementations such as
-  `RepeatPlacementBonus`, `CopyProductionBox`, `CopyPrelude`, and `ScoreEventVps` return copied
-  source syntax, so they must request `OWN` with the caller's binding rather than inherit hidden
-  behavior from `CustomInstructionRuntime`.
-- Passive-owner handling remains unresolved. Solo cities/greeneries inherit Player-only scoring;
-  Neutral chairmen/leaders inherit Player-only influence and scoring. Their other effects remain
-  meaningful. First test existing guards, selectors, and quantifiers where semantically correct;
-  neither discarding every passive-owner effect nor weakening every mandatory gain is acceptable.
-- Moving the two declarations also requires resolving the system `Audit : Owned` declaration and
-  removing generic `Component.owner` callers. Declaration relocation alone proves nothing about
-  semantic independence.
-
-### Acceptance checklist for the experiment
-
-- Outside explicit marks, ownership adds no contextual argument or implicit trigger filter.
-- Card/map generation retains compact inputs; actions, requirements, metrics, and copied syntax
-  receive the intended marks without wrapping or rebinding the same fact twice.
-- Explicit owners and `BY` selectors remain authoritative; inherited names, selector shadowing,
-  refinement candidates, linked dependencies, and represented-Class references retain their scope.
-- Deferred properties retain their evaluation-site binding. Relevant evidence is
-  `DeferredPropertyBindingTest`, `EachSelectorBindingTest`, `RankMetricTest`, and
-  `Lang09ElaborationTest`.
-- Attribution and delegation preserve `TaskDelegationTest`, `ByTriggerCharacterizationTest`,
-  `EffectActorCharacterizationTest`, Philares, Icy Impactors, and Enceladus behavior; passive solo
-  owners and Neutral keep their valid effects. Run the relevant scenarios and source-backed
-  replays when implementing, not just transform round-trip tests.
-- Count removed inference, special cases, and repeated traversals. Do not report a net
-  simplification merely because owner-specific code moved to a new file.
+The remaining ownership questions are whether explicit marks can preserve deferred property
+bindings, selector shadowing, represented resource variables, and copied custom-instruction syntax
+without a parallel environment; and whether ordinary Pets can express passive-owner applicability
+without suppressing valid effects. Neither an ownership rewrite nor declaration relocation is a
+prerequisite for deciding delegated operation control.

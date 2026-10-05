@@ -1,8 +1,8 @@
 package dev.martianzoo.tfm.tests.cards.colonies
 
+import dev.martianzoo.pets.api.Exceptions.ExpressionException
 import dev.martianzoo.pets.api.Exceptions.GameplayException
 import dev.martianzoo.pets.api.Exceptions.LimitsException
-import dev.martianzoo.pets.api.Exceptions.NarrowingException
 import dev.martianzoo.tfm.tests.cards.cardnames.*
 import io.kotest.assertions.throwables.shouldThrow
 import kotlin.test.Test
@@ -45,7 +45,7 @@ internal class MarketManipulationTest : ColoniesCardTest() {
   internal fun `Cannot select the same colony track twice`() {
     p1.runOperation("ProjectCard, MC")
     p1.playProject(MarketManipulation, 1) {
-      shouldThrow<NarrowingException> {
+      shouldThrow<ExpressionException> {
         doTask("ColonyProduction<Luna> FROM ColonyProduction<Luna>")
       }
       abort()

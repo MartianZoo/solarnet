@@ -102,7 +102,7 @@ CLASS StartToken : Owned<Player> { HAS =1 StartToken }
 "Identifies the Player immediately after another Player in seat order"
 CLASS AfterMe<Previous@Owner, Next@Player> : System, Hidden {
   HAS MAX 1 This
-  ResearchPhase IF StartToken<Previous@>: StartToken<Next@ FROM Previous@>.
+  ResearchPhase IF MultiplayerMode, StartToken<Previous@>: StartToken<Next@ FROM Previous@>.
 }
 
 "The current game phase; exactly one exists from bootstrap through the terminal End phase"
