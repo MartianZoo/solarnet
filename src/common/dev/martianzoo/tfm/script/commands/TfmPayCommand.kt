@@ -2,14 +2,12 @@ package dev.martianzoo.tfm.script.commands
 
 import dev.martianzoo.agent.AutoExecPolicy.NONE
 import dev.martianzoo.pets.Parsing
-import dev.martianzoo.pets.api.SystemClasses.CLASS
 import dev.martianzoo.pets.ast.ClassName
 import dev.martianzoo.pets.ast.ClassName.Companion.cn
-import dev.martianzoo.pets.ast.FromExpression.Full
 import dev.martianzoo.pets.ast.Instruction
 import dev.martianzoo.pets.ast.Instruction.Change
 import dev.martianzoo.pets.ast.Instruction.Gain
-import dev.martianzoo.pets.ast.Instruction.Transmute
+import dev.martianzoo.pets.ast.Instruction.Remove.Companion.remove
 import dev.martianzoo.pets.ast.InstructionGroup
 import dev.martianzoo.pets.ast.InstructionTree
 import dev.martianzoo.tfm.script.ScriptCommand
@@ -31,8 +29,7 @@ internal class TfmPayCommand(private val repl: ScriptSession) : ScriptCommand("t
     val payments: List<Pair<ClassName, String>> = gains.map {
       val sex = (it as Gain).scaledEx
       val currency = sex.expression
-      val pay = cn("Pay").of(CLASS.of(currency))
-      currency.className to Transmute(Full(pay, currency), sex.scalar).toString()
+      currency.className to remove(sex).toString()
     }
     val previousAutoExecPolicy = repl.agent.autoExecPolicy
     val result =
@@ -66,9 +63,7 @@ internal class TfmPayCommand(private val repl: ScriptSession) : ScriptCommand("t
           .matching {
             it.cause?.context?.className == cn("Accepting") &&
                 it.instruction.descendantsOfType<Change>().any { change ->
-                  val gaining = change.gaining
-                  gaining?.className == cn("Pay") &&
-                      gaining.arguments.lastOrNull() == CLASS.of(currency)
+                  change.removing?.className == currency
                 }
           }
           .single()

@@ -34,7 +34,7 @@
           "actions": [ "-> Asteroid<This> / SpaceTag" ],
           "effects": [
             "UseAction<AsteroidProject> OR UseAction<AquiferProject>:: AcceptingFromCard<This>",
-            "PayFromCard<This>:: -1 Owed"
+            "-Asteroid<This> BY Me@ IF AcceptingFromCard<This>:: -1 Owed"
           ],
         },
         {
@@ -229,7 +229,7 @@
           "effects": [
             "ScienceTag: Graphene<This>",
             "PayingFor<Class<SpaceTag>> OR PayingFor<Class<CityTag>>:: AcceptingFromCard<This>",
-            "PayFromCard<This>:: -4 Owed",
+            "-Graphene<This> BY Me@ IF AcceptingFromCard<This>:: -4 Owed",
             "End: VictoryPoint"
           ],
           "components": [ "CLASS Graphene : CardResource" ],

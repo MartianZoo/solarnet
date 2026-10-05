@@ -19,6 +19,9 @@ Issue links provide background. Inline TODOs should be brief context pointers.
   trigger must bind a variable.
 - Revisit Mons Insurance self-compensation only if an authoritative ruling supports it. The
   selected provisional behavior excludes its owner from compensation triggers.
+- [ ] Revisit [explicit payment exchanges and automatic-execution policy](docs/agents/PAYMENTS.md#explicit-exchanges-and-continuation-cost).
+  Compare the exchanges plus a small, general policy adjustment against the current payment
+  machinery; automatic execution is tunable outside the pure engine model.
 - Find a simple, natural way for the presence of `Class<Aridor>` to bring all unused
   `Class<ColonyTile>` definitions into the game. Without Aridor present, only the explicitly
   selected colony tiles should be defined. This should depend on Aridor's Class being present,
@@ -152,8 +155,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 - Separate the expression API's three intents: an object's natural available expression, a resolved
   Type's compact expression, and its full expression. Keep syntax expressions universe-independent;
   converting an arbitrary expression to either resolved form must take a `ClassTable` explicitly.
-- Decouple cleanup lifetime from log visibility so player-meaningful signals such as `Pay` and
-  `PayFromCard` need not inherit `Hidden` through `MustCleanUp`.
 - Weed the vague terms `operation` and `gameplay command` out of the engine. Rename each use for
   the exact lifecycle it denotes, including atomic calls, task completion, and workflow play.
 - **Low priority:** [#54: ownership-sensitive `count`](https://github.com/MartianZoo/solarnet/issues/54)

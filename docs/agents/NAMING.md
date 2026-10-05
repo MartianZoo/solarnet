@@ -170,7 +170,7 @@ looking it up.
 - **Persistent components** are noun phrases: `GreeneryTile`, `TradeFleet`, `ColonyProduction`,
   `TerraformRating`. Name the *unit* you actually instantiate, not the track it sits on.
 - **Signals** are the event phrase that completes the trigger clause a card would print. Most read
-  as "when you ___": `PlayCard`, `Pay`, `AdvanceColonyTracks`; `PayingFor` reads as "while paying
+  as "when you ___": `PlayCard`, `AdvanceColonyTracks`; `PayingFor` reads as "while paying
   for ___". Write the name so that phrase reads back.
 - **Other `MustCleanUp` state** — the transient thing sitting on the table during an action, not the
   event — is a noun or a past participle: `Owed`, `Required`, `ActionBilling`, `TradeBarrier`. Do not give it

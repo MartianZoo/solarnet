@@ -23,8 +23,8 @@ internal class UnknownRulesTest : CardTest() {
     p1.inTurn {
       doTask("UseAction<PlayCardFromHandAction, Action1>")
       doTask("PlayCard<Class<ProjectCard>, Class<$SpaceElevator>, Hand>")
-      doTask("7 Pay<Class<Steel>> FROM Steel")
-      doTask("5 Pay<Class<Titanium>> FROM Titanium")
+      doTask("-7 Steel")
+      doTask("-5 Titanium")
       doTask("Ok")
     }
 
