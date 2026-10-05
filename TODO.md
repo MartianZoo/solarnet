@@ -315,10 +315,3 @@ attribution, features, and unresolved rule questions. Related symptoms are group
    better-parse completion analyzer drops `NoMatchingToken` failures; address that diagnostic
    separately from grammar organization. The misplaced diagnostic is characterized in
    [Pets BugsTest](test/common/dev/martianzoo/pets/BugsTest.kt).
-
-9. **Active maintenance guidance still reports repaired semantic bugs.**
-   [PLANS](docs/agents/PLANS.md#simplify-pets-and-runtime-semantics) still schedules the old L3-8
-   stage-divergence and T8-3 substitution repairs, despite current regression coverage passing.
-   That can direct future work toward unnecessary engine changes. See
-   [Lang03NarrowingTest](test/common/dev/martianzoo/pets/Lang03NarrowingTest.kt) and
-   [Spec08RefinementsTest](test/common/dev/martianzoo/pets/types/Spec08RefinementsTest.kt).
