@@ -198,11 +198,6 @@ Issue links provide background. Inline TODOs should be brief context pointers.
 
 ## Autonomous Follow-ups
 
-- If more busy Prelude performance work is needed, investigate selecting scoped required-count
-  checks through their declaring classes instead of scanning every scoped restriction. Preserve
-  newly created owners' absent required parts, surviving ancestors' requirements, and owner removal.
-  Profiles and the completed probe/existence improvements are in
-  `_local/benchmarks/2026-10-04-autoexec-performance/`.
 - Extend instruction intersection to preserve unresolved shared aliases and unnamed Type unions.
   These currently require a more specific submitted choice; keep task matching conservative and
   never substitute `Ok` for an unrepresentable nonempty intersection.

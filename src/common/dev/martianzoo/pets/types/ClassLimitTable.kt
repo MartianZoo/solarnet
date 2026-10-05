@@ -37,7 +37,7 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
   )
 
   private val restrictionsByClass: Map<Class, List<Restriction>> = compileRestrictions()
-  private val scopedRequiredRestrictions: List<Restriction>
+  private val scopedRequiredRestrictionsByClass: Map<Class, List<Restriction>>
   private val unscopedRequiredLimits: Set<Limit>
 
   init {
@@ -65,7 +65,13 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
             .distinct()
             .filter { it.range.first > 0 }
             .partition { it.requiredLimits(emptySet()).none() }
-    scopedRequiredRestrictions = scoped
+    scopedRequiredRestrictionsByClass = scoped.groupBy {
+      when (it) {
+        is ScopedBoundRestriction -> it.declaringClass
+        is UnboundRestriction -> it.declaringClass
+        is BoundRestriction -> error("A bound restriction cannot require a live scope")
+      }
+    }
     unscopedRequiredLimits = unscoped.flatMap { it.requiredLimits(emptySet()) }.toSet()
   }
 
@@ -124,7 +130,13 @@ public class ClassLimitTable private constructor(private val classTable: ClassTa
         }
     val liveTypeSet = liveTypes.toSet()
     return unscoped +
-        scopedRequiredRestrictions.asSequence().flatMap { it.requiredLimits(liveTypeSet) }.toSet()
+        liveTypeSet
+            .asSequence()
+            .map { it.rootClass }
+            .distinct()
+            .flatMap { scopedRequiredRestrictionsByClass[it].orEmpty() }
+            .flatMap { it.requiredLimits(liveTypeSet) }
+            .toSet()
   }
 
   /**
