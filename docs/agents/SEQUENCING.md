@@ -268,3 +268,7 @@ replace temporary-state retirement. [WORKFLOW.md](WORKFLOW.md) owns phase progre
   [`PhilaresTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/PhilaresTest.kt), and
   [`TemporaryCleanupTest.kt`](../../test/common/dev/martianzoo/engine/TemporaryCleanupTest.kt):
   current delegation and cleanup behavior.
+- [`BugsTest.kt`](../../test/common/dev/martianzoo/tfm/tests/cards/BugsTest.kt): search
+  `Flooding incorrectly` for passing characterizations of P1 resuming after P2 accepts and
+  interrupting a partial payment. Both disable autoexecution and use separate Player commands;
+  the latter leaves P2 with spent Steel, no cash, and unpaid debt after a failed payment attempt.
